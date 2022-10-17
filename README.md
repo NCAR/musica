@@ -11,6 +11,7 @@ At present the project encompasses these components
 
 ## Citing MUSICA
 
+```
 @misc{ncar.acom.musica,
     author={},
     doi={},
@@ -21,3 +22,4 @@ At present the project encompasses these components
     publisher= {NCAR},
     year={},
 }
+```
