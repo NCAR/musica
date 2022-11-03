@@ -4,6 +4,7 @@ project( MUSICALIB )
 enable_language( Fortran )
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake-modules)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 include(musica_util)
 
@@ -35,7 +36,7 @@ endif ()
 ##############################################################################
 # MUSICA-core
 if ( NOT TARGET MUSICA )
-  add_subdirectory(libs/musica-core)
+  add_subdirectory(libs/musica-core/src)
 endif ()
 
 ##############################################################################
@@ -44,7 +45,7 @@ endif ()
 add_executable( ${PROJECT_NAME} main.F90 )
 
 target_include_directories( ${PROJECT_NAME}
-  PUBLIC libs/musica-core
+  PUBLIC libs/musica-core/src
   ${EXTRA_INCLUDE_DIRS}
 )
 

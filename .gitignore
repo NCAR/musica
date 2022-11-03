@@ -1,1 +1,5 @@
+# cmake and build stuff
+
 build/
+CMakeCache.txt
+CMakeFiles
