@@ -19,24 +19,32 @@ option( ENABLE_TUVX "Builds TUV-x, a photolysis calculator library" OFF )
 # Set up include and lib directories
 ##############################################################################
 
-set(MUSICALIB_MOD_DIR "${PROJECT_BINARY_DIR}/include")
-set(MUSICALIB_LIB_DIR "${PROJECT_BINARY_DIR}/lib")
+set( LIB_DIR "libs")
+
+set( MUSICALIB_MOD_DIR "${PROJECT_BINARY_DIR}/include" )
+set( MUSICALIB_LIB_DIR "${PROJECT_BINARY_DIR}/${LIB_DIR}" )
+
+message( STATUS "musica mod directory: ${MUSICALIB_MOD_DIR}" )
+message( STATUS "musica lib directory: ${MUSICALIB_LIB_DIR}" )
+
+
+##############################################################################
+# MUSICA-core
+add_subdirectory( ${LIB_DIR}/musica-core/src )
+list( APPEND EXTRA_LIB_DIRS "${LIB_DIR}/musica-core/src" )
+list( APPEND EXTRA_INCLUDE_DIRS "${LIB_DIR}/musica-core" )
+list( APPEND EXTRA_LINKS musicalib )
+
 
 ##############################################################################
 # Libraries
 ##############################################################################
 # TUV-x
 if ( ENABLE_TUVX )
-  add_subdirectory( libs/tuv-x )
-  list( APPEND EXTRA_LIB_DIRS "${MUSICALIB_LIB_DIR}/tuv-x" )
-  list( APPEND EXTRA_INCLUDE_DIRS "${MUSICALIB_LIB_DIR}/tuv-x" )
+  add_subdirectory( ${MUSICALIB_LIB_DIR}/tuv-x )
+  list( APPEND EXTRA_LIB_DIRS "${LIB_DIR}/tuv-x" )
+  list( APPEND EXTRA_INCLUDE_DIRS "${LIB_DIR}/tuv-x" )
   list( APPEND EXTRA_LINKS tuvxlib )
-endif ()
-
-##############################################################################
-# MUSICA-core
-if ( NOT TARGET MUSICA )
-  add_subdirectory(libs/musica-core/src)
 endif ()
 
 ##############################################################################
@@ -45,16 +53,13 @@ endif ()
 add_executable( ${PROJECT_NAME} main.F90 )
 
 target_include_directories( ${PROJECT_NAME}
-  PUBLIC libs/musica-core/src
-  ${EXTRA_INCLUDE_DIRS}
+  PUBLIC ${EXTRA_INCLUDE_DIRS}
 )
 
 target_link_directories( ${PROJECT_NAME}
-  PUBLIC libs/musica-core
-  ${EXTRA_LIBS}
+  PUBLIC ${EXTRA_LIBS}
 )
 
 target_link_libraries(
- ${PROJECT_NAME} PUBLIC musicalib
- ${EXTRA_LINKS}
+ ${PROJECT_NAME} PUBLIC ${EXTRA_LINKS}
 )
