@@ -101,10 +101,10 @@ if (ENABLE_TUVX)
       $<INSTALL_INTERFACE:${INSTALL_MOD_DIR}>
   )
 
-target_sources(musica
-  PUBLIC
-    $<TARGET_OBJECTS:tuvx_object>
-)
+  target_sources(musica
+    PUBLIC
+      $<TARGET_OBJECTS:tuvx_object>
+  )
 endif()
 
 ################################################################################
