@@ -15,28 +15,24 @@ function(checkout_submodules)
   endif()
 endfunction(checkout_submodules)
 
-## https://stackoverflow.com/questions/32183975/how-to-print-all-the-properties-of-a-target-in-cmake/56738858#56738858
-## https://stackoverflow.com/a/56738858/3743145
+function(combine_archives output_archive list_of_input_archives)
+    set(mri_file ${CMAKE_BINARY_DIR}/${output_archive}.mri)
+    set(FULL_OUTPUT_PATH ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/lib${output_archive}.a)
+    file(WRITE ${mri_file} "create ${FULL_OUTPUT_PATH}\n")
+    FOREACH(in_archive ${list_of_input_archives})
+        file(APPEND ${mri_file} "addlib ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/lib${in_archive}.a\n")
+    ENDFOREACH()
+    file(APPEND ${mri_file} "save\n")
+    file(APPEND ${mri_file} "end\n")
 
-## Get all properties that cmake supports
-execute_process(COMMAND cmake --help-property-list OUTPUT_VARIABLE CMAKE_PROPERTY_LIST)
-## Convert command output into a CMake list
-STRING(REGEX REPLACE ";" "\\\\;" CMAKE_PROPERTY_LIST "${CMAKE_PROPERTY_LIST}")
-STRING(REGEX REPLACE "\n" ";" CMAKE_PROPERTY_LIST "${CMAKE_PROPERTY_LIST}")
+    set(output_archive_dummy_file ${CMAKE_BINARY_DIR}/${output_archive}.dummy)
+    add_custom_command(OUTPUT ${output_archive_dummy_file}
+                       COMMAND touch ${output_archive_dummy_file}
+                       DEPENDS ${list_of_input_archives})
 
-list(REMOVE_DUPLICATES CMAKE_PROPERTY_LIST)
-
-function(print_target_properties tgt)
-    if(NOT TARGET ${tgt})
-      message("There is no target named '${tgt}'")
-      return()
-    endif()
-
-    foreach (prop ${CMAKE_PROPERTY_LIST})
-        string(REPLACE "<CONFIG>" "${CMAKE_BUILD_TYPE}" prop ${prop})
-        get_target_property(propval ${tgt} ${prop})
-        if (propval)
-            message ("${tgt} ${prop} = ${propval}")
-        endif()
-    endforeach(prop)
-endfunction(print_target_properties)
+    add_library(${output_archive} STATIC ${output_archive_dummy_file})
+    set_target_properties(${output_archive} PROPERTIES LINKER_LANGUAGE Fortran)
+    add_custom_command(TARGET ${output_archive}
+                       POST_BUILD
+                       COMMAND ar -M < ${mri_file})
+endfunction(combine_archives)

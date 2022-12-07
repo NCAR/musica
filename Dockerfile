@@ -28,8 +28,5 @@ COPY . /musica/
 RUN mkdir /build \
     && cd /build \
     && export JSON_FORTRAN_HOME="/usr/local/jsonfortran-gnu-8.2.0" \
-    && cmake -D CMAKE_BUILD_TYPE=COVERAGE \
-             -D ENABLE_COVERAGE:BOOL=TRUE \
-             ../musica \
-    && make \
-    && make install
+    && cmake ../musica \
+    && make VERBOSE=1
