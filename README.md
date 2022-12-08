@@ -1,7 +1,6 @@
 # MUSICA
 [![License](https://img.shields.io/github/license/NCAR/musica.svg)](https://github.com/NCAR/tuv-x/blob/main/LICENSE)
 [![CI Status](https://github.com/NCAR/musica/actions/workflows/test.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/test.yml)
-[![codecov](https://codecov.io/gh/NCAR/musica/branch/main/graph/badge.svg?token=H46AAEAQF9)](https://codecov.io/gh/NCAR/musica)
 <!-- [![DOI](https://zenodo.org/badge/.svg)](https://zenodo.org/badge/latestdoi/) -->
 
 Multi-Scale Infrastructure for Chemistry Modeling

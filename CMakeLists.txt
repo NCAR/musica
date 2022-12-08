@@ -22,7 +22,6 @@ message ( STATUS "CMake build configuration for musica(${CMAKE_BUILD_TYPE}) ${PR
 # Projet wide setup options
 option( ENABLE_TUVX "Builds TUV-x, a photolysis calculator library" ON )
 option( ENABLE_TESTS "Builds tests that ensures each enabled MUSICA component can be used" ON )
-option( ENABLE_COVERAGE "Enable code coverage output" OFF )
 
 # Set up include and lib directories
 set( MUSICA_MOD_DIR "${PROJECT_BINARY_DIR}/include" )
@@ -36,18 +35,6 @@ set(INSTALL_MOD_DIR "${INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}")
 # Dependencies
 
 include(cmake/dependencies.cmake)
-
-# Test code coverage
-if(ENABLE_COVERAGE)
-  include(CodeCoverage)
-  if(${CMAKE_Fortran_COMPILER_ID} MATCHES "GNU")
-    setup_target_for_coverage_lcov(
-        NAME coverage
-        EXECUTABLE "ctest"
-        EXCLUDE "${PROJECT_SOURCE_DIR}/test/*"
-        BASE_DIRECTORY "${PROJECT_SOURCE_DIR}/src")
-  endif()
-endif()
 
 ##############################################################################
 # MUSICA targets
