@@ -3,7 +3,7 @@
 [![CI Status](https://github.com/NCAR/musica/actions/workflows/test.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/test.yml)
 <!-- [![DOI](https://zenodo.org/badge/.svg)](https://zenodo.org/badge/latestdoi/) -->
 
-Multi-Scale Infrastructure for Chemistry Modeling
+Multi-Scale Infrastructure for Chemistry and Aerosols
 
 MUSICA is a collection of modeling software, tools, and grids, that
 allow for robust modeling of chemistry in Earth's atmosphere.
