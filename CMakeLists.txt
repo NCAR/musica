@@ -24,8 +24,9 @@ include(CMakeDependentOption)
 
 option( ENABLE_TUVX "Builds TUV-x, a photolysis calculator library" ON )
 option( ENABLE_TESTS "Builds tests that ensures each enabled MUSICA component can be used" ON )
-option(ENABLE_MPI "Enable MPI parallel support" OFF)
-cmake_dependent_option(ENABLE_OPENMP "Enable OpemMP support" OFF "ENABLE_MPI" OFF)
+option( ENABLE_MPI "Enable MPI parallel support" OFF)
+option( ENABLE_OPENMP "Enable OpemMP support" OFF )
+# cmake_dependent_option( ENABLE_OPENMP "Enable OpemMP support" OFF "ENABLE_MPI" OFF)
 
 # Set up include and lib directories
 set( MUSICA_MOD_DIR "${PROJECT_BINARY_DIR}/include" )
@@ -38,6 +39,17 @@ set(INSTALL_MOD_DIR "${INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}")
 # MPI
 if(ENABLE_MPI)
   add_definitions(-DMUSICA_USE_MPI)
+endif()
+
+# OpenMP
+if(ENABLE_OPENMP)
+  find_package(OpenMP)
+  if(OpenMP_Fortran_FOUND)
+    message(STATUS "Compiling with OpenMP support")
+    add_definitions(-DMUSICA_USE_OPENMP)
+  else()
+    message(FATAL_ERROR "OpenMP package not found")
+  endif()
 endif()
 
 # Add flags for various compilers
