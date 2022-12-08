@@ -21,6 +21,7 @@ message ( STATUS "CMake build configuration for musica(${CMAKE_BUILD_TYPE}) ${PR
 ################################################################################
 # Projet wide setup options
 option( ENABLE_TUVX "Builds TUV-x, a photolysis calculator library" ON )
+option( ENABLE_TESTS "Builds tests that ensures each enabled MUSICA component can be used" ON )
 
 # Set up include and lib directories
 set( MUSICA_MOD_DIR "${PROJECT_BINARY_DIR}/include" )
@@ -41,6 +42,7 @@ include(cmake/dependencies.cmake)
 
 # MUSICA
 add_library(musica STATIC)
+add_library(musica::musica ALIAS musica)
 
 set_target_properties(musica PROPERTIES
   ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
@@ -48,14 +50,10 @@ set_target_properties(musica PROPERTIES
   SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
-target_link_directories(musica
-  PUBLIC 
-    ${EXTRA_LIBS}
-)
-
 target_link_libraries(musica 
   PUBLIC
     PkgConfig::netcdff
+    ${JSON_LIB}
 )
 
 target_include_directories(musica
@@ -105,6 +103,21 @@ if (ENABLE_TUVX)
     PUBLIC
       $<TARGET_OBJECTS:tuvx_object>
   )
+
+  target_link_libraries(tuvx_object 
+    PUBLIC
+      musicacore_object
+  )
+endif()
+
+
+################################################################################
+# Tests
+
+# only include packaging if we are the top level project being built
+if(ENABLE_TESTS)
+  enable_testing()
+  add_subdirectory(test)
 endif()
 
 ################################################################################
