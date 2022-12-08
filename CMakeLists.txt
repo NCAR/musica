@@ -20,8 +20,12 @@ message ( STATUS "CMake build configuration for musica(${CMAKE_BUILD_TYPE}) ${PR
 
 ################################################################################
 # Projet wide setup options
+include(CMakeDependentOption)
+
 option( ENABLE_TUVX "Builds TUV-x, a photolysis calculator library" ON )
 option( ENABLE_TESTS "Builds tests that ensures each enabled MUSICA component can be used" ON )
+option(ENABLE_MPI "Enable MPI parallel support" OFF)
+cmake_dependent_option(ENABLE_OPENMP "Enable OpemMP support" OFF "ENABLE_MPI" OFF)
 
 # Set up include and lib directories
 set( MUSICA_MOD_DIR "${PROJECT_BINARY_DIR}/include" )
@@ -30,6 +34,20 @@ set( MUSICA_LIB_DIR "${PROJECT_BINARY_DIR}/libs" )
 include(GNUInstallDirs)
 set(INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/ncar/musica-${PROJECT_VERSION}")
 set(INSTALL_MOD_DIR "${INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}")
+
+# MPI
+if(ENABLE_MPI)
+  add_definitions(-DMUSICA_USE_MPI)
+endif()
+
+# Add flags for various compilers
+if(${CMAKE_Fortran_COMPILER_ID} MATCHES "Intel")
+  add_definitions(-DMUSICA_USING_INTEL)
+elseif(${CMAKE_Fortran_COMPILER_ID} MATCHES "GNU")
+  add_definitions(-DMUSICA_USING_GNU)
+elseif(${CMAKE_Fortran_COMPILER_ID} MATCHES "PGI")
+  add_definitions(-DMUSICA_USING_PGI)
+endif()
 
 ################################################################################
 # Dependencies
