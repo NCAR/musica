@@ -22,6 +22,7 @@ message ( STATUS "CMake build configuration for musica(${CMAKE_BUILD_TYPE}) ${PR
 # Projet wide setup options
 option( ENABLE_TUVX "Builds TUV-x, a photolysis calculator library" ON )
 option( ENABLE_TESTS "Builds tests that ensures each enabled MUSICA component can be used" ON )
+option( ENABLE_COVERAGE "Enable code coverage output" OFF )
 
 # Set up include and lib directories
 set( MUSICA_MOD_DIR "${PROJECT_BINARY_DIR}/include" )
@@ -36,10 +37,22 @@ set(INSTALL_MOD_DIR "${INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}")
 
 include(cmake/dependencies.cmake)
 
+# Test code coverage
+if(ENABLE_COVERAGE)
+  include(CodeCoverage)
+  if(${CMAKE_Fortran_COMPILER_ID} MATCHES "GNU")
+    setup_target_for_coverage_lcov(
+        NAME coverage
+        EXECUTABLE "ctest"
+        EXCLUDE "${PROJECT_SOURCE_DIR}/test/*"
+        BASE_DIRECTORY "${PROJECT_SOURCE_DIR}/src")
+  endif()
+endif()
+
 ##############################################################################
 # MUSICA targets
-##############################################################################
 
+####################
 # MUSICA
 add_library(musica STATIC)
 add_library(musica::musica ALIAS musica)
@@ -62,7 +75,7 @@ target_include_directories(musica
     $<INSTALL_INTERFACE:${INSTALL_MOD_DIR}>
 )
 
-
+####################
 # MUSICA-core
 add_library(musicacore_object)
 add_subdirectory(lib/musica-core/src)
@@ -78,11 +91,18 @@ target_include_directories(musicacore_object
     $<INSTALL_INTERFACE:${INSTALL_MOD_DIR}>
 )
 
+target_link_libraries(musicacore_object 
+  PUBLIC
+    PkgConfig::netcdff
+)
+
+# add the sources to musica
 target_sources(musica
   PUBLIC
     $<TARGET_OBJECTS:musicacore_object>
 )
 
+####################
 # TUV-x
 if (ENABLE_TUVX)
   add_library(tuvx_object)
@@ -99,14 +119,15 @@ if (ENABLE_TUVX)
       $<INSTALL_INTERFACE:${INSTALL_MOD_DIR}>
   )
 
-  target_sources(musica
-    PUBLIC
-      $<TARGET_OBJECTS:tuvx_object>
-  )
-
   target_link_libraries(tuvx_object 
     PUBLIC
       musicacore_object
+  )
+
+  # add the sources to musica
+  target_sources(musica
+    PUBLIC
+      $<TARGET_OBJECTS:tuvx_object>
   )
 endif()
 
