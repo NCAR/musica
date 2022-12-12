@@ -17,11 +17,13 @@ install(
   FILES_MATCHING PATTERN "*.mod"
 )
 
+set(cmake_config_install_location ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/cmake/musicacore-${PROJECT_VERSION})
+
 install(
   EXPORT 
     musica_Exports
   DESTINATION 
-    ${CMAKE_INSTALL_LIBDIR}/cmake/musica-${PROJECT_VERSION}
+    ${cmake_config_install_location}
   NAMESPACE musica::
 )
 
@@ -29,7 +31,7 @@ configure_package_config_file(
   "${PROJECT_SOURCE_DIR}/cmake/musicaConfig.cmake.in"
   "${PROJECT_BINARY_DIR}/musicaConfig.cmake"
   INSTALL_DESTINATION
-    ${CMAKE_INSTALL_LIBDIR}/cmake/musica-${PROJECT_VERSION}
+    ${cmake_config_install_location}
 )
 
 write_basic_package_version_file(
