@@ -16,6 +16,10 @@ At present the project encompasses these components
 
 Pre-made grids for use in MUSICA are available [here](https://wiki.ucar.edu/display/MUSICA/Available+Grids).
 
+# Contributors guide
+Checkout our [software development plan](docs/Software%20Development%20Plan.pdf)
+to see how you can contribute new science to MUSICA software.
+
 ## Citing MUSICA
 
 MUSICA can be cited in at least two ways. The first is to cite the paper that defines the vision
