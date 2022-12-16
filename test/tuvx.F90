@@ -27,6 +27,7 @@ contains
     class(grid_t), pointer :: new_grid_t => null()
 
     config = '{'//                                                            &
+             '   "name": "eq_int",' //                                        &
              '   "type": "equal interval",' //                                &
              '   "units": "km",' //                                           &
              '   "begins at": 0.0,' //                                        &
