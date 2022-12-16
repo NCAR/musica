@@ -28,6 +28,7 @@ program test_tuvx_connection
 
 
   config = '{'//                                                            &
+            '   "name": "eq_int",' //                                        &
             '   "type": "equal interval",' //                                &
             '   "units": "km",' //                                           &
             '   "begins at": 0.0,' //                                        &

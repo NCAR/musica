@@ -36,6 +36,7 @@ contains
     integer, parameter :: comm = MPI_COMM_WORLD
 
     config = '{'//                                                            &
+             '   "name": "eq_int",' //                                        &
              '   "type": "equal interval",' //                                &
              '   "units": "km",' //                                           &
              '   "begins at": 0.0,' //                                        &
