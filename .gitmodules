@@ -1,6 +1,6 @@
-[submodule "libs/tuv-x"]
-	path = libs/tuv-x
+[submodule "lib/tuv-x"]
+	path = lib/tuv-x
 	url = https://github.com/NCAR/tuv-x.git
-[submodule "libs/musica-core"]
-	path = libs/musica-core
+[submodule "lib/musica-core"]
+	path = lib/musica-core
 	url = https://github.com/NCAR/musica-core.git
