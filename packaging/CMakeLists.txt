@@ -17,7 +17,7 @@ install(
   FILES_MATCHING PATTERN "*.mod"
 )
 
-set(cmake_config_install_location ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/cmake/musicacore-${PROJECT_VERSION})
+set(cmake_config_install_location ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/cmake/musica-${PROJECT_VERSION})
 
 install(
   EXPORT 
