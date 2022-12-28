@@ -4,3 +4,6 @@
 [submodule "lib/musica-core"]
 	path = lib/musica-core
 	url = https://github.com/NCAR/musica-core.git
+[submodule "lib/micm"]
+	path = lib/micm
+	url = https://github.com/NCAR/micm.git

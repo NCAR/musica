@@ -23,6 +23,7 @@ checkout_submodules()
 include(CMakeDependentOption)
 
 option( ENABLE_TUVX "Builds TUV-x, a photolysis calculator library" ON )
+option( ENABLE_MICM "Builds MICM, a chemical mechanism library" ON )
 option( ENABLE_TESTS "Builds tests that ensures each enabled MUSICA component can be used" ON )
 option( ENABLE_MPI "Enable MPI parallel support" OFF)
 option( ENABLE_OPENMP "Enable OpemMP support" OFF )
@@ -94,7 +95,7 @@ target_include_directories(musica
 
 ####################
 # MUSICA-core
-add_library(musicacore_object)
+add_library(musicacore_object OBJECT)
 add_subdirectory(lib/musica-core/src)
 
 set_target_properties(musicacore_object PROPERTIES
@@ -122,7 +123,7 @@ target_sources(musica
 ####################
 # TUV-x
 if (ENABLE_TUVX)
-  add_library(tuvx_object)
+  add_library(tuvx_object OBJECT)
   add_subdirectory(lib/tuv-x/src)
 
   set_target_properties(tuvx_object PROPERTIES
@@ -145,6 +146,35 @@ if (ENABLE_TUVX)
   target_sources(musica
     PUBLIC
       $<TARGET_OBJECTS:tuvx_object>
+  )
+endif()
+
+####################
+# MICM
+if (ENABLE_MICM)
+  set(MICM_LIB_DIR ${MUSICA_LIB_DIR})
+  set(CMAKE_CXX_CREATE_STATIC_LIBRARY ON)
+
+  add_subdirectory(lib/micm/src)
+
+  set_target_properties(micm_object PROPERTIES LINKER_LANGUAGE CXX)
+  set_target_properties(micm_version PROPERTIES LINKER_LANGUAGE CXX)
+
+  set_target_properties(micm_object PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
+  )
+
+  target_include_directories(micm_object
+    PUBLIC  
+      $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
+      $<INSTALL_INTERFACE:${INSTALL_MOD_DIR}>
+  )
+
+  # add the sources to musica
+  target_sources(musica
+    PUBLIC
+      $<TARGET_OBJECTS:micm_version>
+      $<TARGET_OBJECTS:micm_object>
   )
 endif()
 
