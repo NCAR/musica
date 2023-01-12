@@ -155,6 +155,12 @@ if (ENABLE_MICM)
   # micm is header only
   # install the header files
 
+  target_include_directories(musica
+    PUBLIC  
+      $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/lib/micm/include>
+      $<INSTALL_INTERFACE:${INSTALL_MOD_DIR}>
+  )
+
   install(
     DIRECTORY 
       ${PROJECT_SOURCE_DIR}/lib/micm/include/micm

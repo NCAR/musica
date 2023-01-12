@@ -23,3 +23,5 @@ if (ENABLE_TUVX)
     create_standard_test(NAME connect_to_tuvx_mpi SOURCES tuvx_mpi.F90)
   endif()
 endif()
+
+create_standard_test(NAME connect_to_micm SOURCES micm.cpp)
