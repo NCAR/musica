@@ -5,6 +5,7 @@ RUN dnf -y update \
         cmake \
         gcc-c++ \
         gcc-gfortran \
+        git \
         lcov \
         make \
         netcdf-fortran-devel \
