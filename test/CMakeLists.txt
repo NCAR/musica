@@ -24,4 +24,4 @@ if (ENABLE_TUVX)
   endif()
 endif()
 
-create_standard_test(NAME connect_to_micm SOURCES micm.cpp)
+create_standard_test_cxx(NAME connect_to_micm SOURCES micm.cpp)
