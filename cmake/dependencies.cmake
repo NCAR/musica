@@ -2,7 +2,6 @@ find_package(PkgConfig REQUIRED)
 
 ################################################################################
 # json-fortran library
-message(STATUS "jf $ENV{JSON_FORTRAN_HOME}")
 find_path(JSON_INCLUDE_DIR json_module.mod
   DOC "json-fortran include directory (must include json_*.mod files)"
   PATHS
