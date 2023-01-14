@@ -13,6 +13,7 @@ RUN sudo dnf -y install \
         cmake \
         gcc-c++ \
         gcc-gfortran \
+        git \
         lcov \
         make \
         netcdf-fortran-devel \
@@ -36,6 +37,8 @@ COPY . musica/
 
 ENV OMP_NUM_THREADS=3
 
+RUN git config --global --add safe.directory '*'
+RUN sudo chown -R test_user.test_user musica
 # get a tag and build the model
 RUN mkdir build \
     && cd build \
