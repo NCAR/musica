@@ -40,7 +40,7 @@ function(create_standard_test_cxx)
     set(TEST_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
   endif()
   add_tuvx_test(${TEST_NAME} test_${TEST_NAME} "" ${TEST_WORKING_DIRECTORY})
-endfunction(create_standard_test)
+endfunction(create_standard_test_cxx)
 
 ################################################################################
 # Add a test

@@ -96,6 +96,7 @@ target_include_directories(musica
 ####################
 # MUSICA-core
 add_library(musicacore_object)
+add_library(musica::musicacore ALIAS musicacore_object)
 add_subdirectory(lib/musica-core/src)
 
 set_target_properties(musicacore_object PROPERTIES
@@ -123,7 +124,8 @@ target_sources(musica
 ####################
 # TUV-x
 if (ENABLE_TUVX)
-  add_library(tuvx_object)
+  set(TUVX_MOD_DIR ${MUSICA_MOD_DIR})
+  set(TUVX_LIB_DIR ${MUSICA_LIB_DIR})
   add_subdirectory(lib/tuv-x/src)
 
   set_target_properties(tuvx_object PROPERTIES
