@@ -6,12 +6,12 @@ set(CMAKE_USER_MAKE_RULES_OVERRIDE "cmake/SetDefaults.cmake")
 
 project(
   musica
-  VERSION 0.1.0
-  LANGUAGES Fortran
+  VERSION 0.2.0
+  LANGUAGES Fortran CXX
 )
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${PROJECT_SOURCE_DIR}/cmake/cmake-modules")
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${PROJECT_SOURCE_DIR}/cmake")
 
 message ( STATUS "CMake build configuration for musica(${CMAKE_BUILD_TYPE}) ${PROJECT_VERSION}" )
 
@@ -26,6 +26,7 @@ option( ENABLE_TUVX "Builds TUV-x, a photolysis calculator library" ON )
 option( ENABLE_TESTS "Builds tests that ensures each enabled MUSICA component can be used" ON )
 option( ENABLE_MPI "Enable MPI parallel support" OFF)
 option( ENABLE_OPENMP "Enable OpemMP support" OFF )
+option( ENABLE_MICM "Adds MICM, a model independent chemical mechanism solver" ON )
 # cmake_dependent_option( ENABLE_OPENMP "Enable OpemMP support" OFF "ENABLE_MPI" OFF)
 
 # Set up include and lib directories
@@ -95,6 +96,7 @@ target_include_directories(musica
 ####################
 # MUSICA-core
 add_library(musicacore_object)
+add_library(musica::musicacore ALIAS musicacore_object)
 add_subdirectory(lib/musica-core/src)
 
 set_target_properties(musicacore_object PROPERTIES
@@ -122,7 +124,8 @@ target_sources(musica
 ####################
 # TUV-x
 if (ENABLE_TUVX)
-  add_library(tuvx_object)
+  set(TUVX_MOD_DIR ${MUSICA_MOD_DIR})
+  set(TUVX_LIB_DIR ${MUSICA_LIB_DIR})
   add_subdirectory(lib/tuv-x/src)
 
   set_target_properties(tuvx_object PROPERTIES
@@ -145,6 +148,26 @@ if (ENABLE_TUVX)
   target_sources(musica
     PUBLIC
       $<TARGET_OBJECTS:tuvx_object>
+  )
+endif()
+
+####################
+# MICM
+if (ENABLE_MICM)
+  # micm is header only
+  # install the header files
+
+  target_include_directories(musica
+    PUBLIC  
+      $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/lib/micm/include>
+      $<INSTALL_INTERFACE:${INSTALL_MOD_DIR}>
+  )
+
+  install(
+    DIRECTORY 
+      ${PROJECT_SOURCE_DIR}/lib/micm/include/micm
+    DESTINATION 
+      ${INSTALL_MOD_DIR}
   )
 endif()
 

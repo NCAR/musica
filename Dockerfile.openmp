@@ -13,6 +13,7 @@ RUN sudo dnf -y install \
         cmake \
         gcc-c++ \
         gcc-gfortran \
+        git \
         lcov \
         make \
         netcdf-fortran-devel \
@@ -36,6 +37,8 @@ COPY . musica/
 
 ENV OMP_NUM_THREADS=3
 
+RUN git config --global --add safe.directory '*'
+RUN sudo chown -R test_user.test_user musica
 # get a tag and build the model
 RUN mkdir build \
     && cd build \
@@ -43,9 +46,11 @@ RUN mkdir build \
     && cmake -D CMAKE_BUILD_TYPE=debug \
              -D ENABLE_OPENMP:BOOL=TRUE \
              -D CMAKE_Fortran_COMPILER=/usr/lib64/openmpi/bin/mpif90 \
+             -D CMAKE_CXX_COMPILER=/usr/lib64/openmpi/bin/mpic++ \
              ../musica \
-    && make \
+    && make VERBOSE=1 \
     && sudo make install \
     && sudo chown -R test_user:test_user .
+
 
 WORKDIR /home/test_user/build

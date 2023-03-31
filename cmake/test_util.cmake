@@ -25,6 +25,23 @@ function(create_standard_test)
   add_tuvx_test(${TEST_NAME} test_${TEST_NAME} "" ${TEST_WORKING_DIRECTORY})
 endfunction(create_standard_test)
 
+function(create_standard_test_cxx)
+  set(prefix TEST)
+  set(singleValues NAME WORKING_DIRECTORY)
+  set(multiValues SOURCES)
+  include(CMakeParseArguments)
+  cmake_parse_arguments(${prefix} " " "${singleValues}" "${multiValues}" ${ARGN})
+  add_executable(test_${TEST_NAME} ${TEST_SOURCES})
+  target_link_libraries(test_${TEST_NAME} PUBLIC musica::musica GTest::gtest_main)
+  if(ENABLE_OPENMP)
+    target_link_libraries(test_${TEST_NAME} PUBLIC OpenMP::OpenMP_CXX OpenMP::OpenMP_Fortran)
+  endif()
+  if(NOT DEFINED TEST_WORKING_DIRECTORY)
+    set(TEST_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+  endif()
+  add_tuvx_test(${TEST_NAME} test_${TEST_NAME} "" ${TEST_WORKING_DIRECTORY})
+endfunction(create_standard_test_cxx)
+
 ################################################################################
 # Add a test
 
