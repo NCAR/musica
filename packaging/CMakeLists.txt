@@ -9,6 +9,7 @@ install(
   ARCHIVE DESTINATION ${INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}
 )
 
+# install the mod files
 install(
   DIRECTORY 
     ${MUSICA_MOD_DIR}/
@@ -17,7 +18,8 @@ install(
   FILES_MATCHING PATTERN "*.mod"
 )
 
-set(cmake_config_install_location ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/cmake/musica-${PROJECT_VERSION})
+# install the cmake config files
+set(cmake_config_install_location ${INSTALL_PREFIX}/cmake/musica-${PROJECT_VERSION})
 
 install(
   EXPORT 
@@ -45,7 +47,7 @@ install(
     ${PROJECT_BINARY_DIR}/musicaConfig.cmake
     ${PROJECT_BINARY_DIR}/musicaConfigVersion.cmake
   DESTINATION
-    ${CMAKE_INSTALL_LIBDIR}/cmake/musica-${PROJECT_VERSION}
+    ${cmake_config_install_location}
 )
 
 ######################################################################
