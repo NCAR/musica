@@ -176,7 +176,7 @@ endif()
 # Tests
 
 # only include packaging if we are the top level project being built
-if(ENABLE_TESTS)
+if(PROJECT_IS_TOP_LEVEL and ENABLE_TESTS)
   enable_testing()
   add_subdirectory(test)
 endif()
