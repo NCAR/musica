@@ -23,7 +23,7 @@ checkout_submodules()
 include(CMakeDependentOption)
 
 option( ENABLE_TUVX "Builds TUV-x, a photolysis calculator library" ON )
-option( ENABLE_TESTS "Builds tests that ensures each enabled MUSICA component can be used" ON )
+option( ENABLE_TESTS "Builds tests that ensures each enabled MUSICA component can be used" OFF )
 option( ENABLE_MPI "Enable MPI parallel support" OFF)
 option( ENABLE_OPENMP "Enable OpemMP support" OFF )
 option( ENABLE_MICM "Adds MICM, a model independent chemical mechanism solver" ON )
@@ -176,7 +176,7 @@ endif()
 # Tests
 
 # only include packaging if we are the top level project being built
-if(ENABLE_TESTS)
+if(PROJECT_IS_TOP_LEVEL AND ENABLE_TESTS)
   enable_testing()
   add_subdirectory(test)
 endif()
