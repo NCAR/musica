@@ -8,17 +8,19 @@
 #include <micm/version.hpp>
 #endif
 
-char* add_name_and_version(char* buf, const char* name, const char* version, const char* sep) {
-  char* pos = buf;
+char* add_name_and_version(char* pos, const char* name, const char* version, const char* sep) {
+  size_t name_length = strlen(name);
+  size_t version_length = strlen(version);
+  size_t sep_length = strlen(sep);
 
-  strcpy(pos, name);
-  pos += strlen(name);
+  memcpy(pos, name, name_length);
+  pos += name_length;
 
-  strcpy(pos, version);
-  pos += strlen(version);
+  memcpy(pos, version, version_length);
+  pos += version_length;
 
-  strcpy(pos, sep);
-  pos += strlen(sep);
+  memcpy(pos, sep, sep_length);
+  pos += sep_length;
 
   return pos;
 }
@@ -35,16 +37,20 @@ char* getAllComponentVersions() {
 #ifdef MUSICA_USE_MICM
   const char* micm_name = "micm: ";
   const char* micm_version = getMicmVersion();
-  buf_size += strlen(micm_name) + sep_size;
+  buf_size += strlen(micm_name) + strlen(micm_name) + sep_size;
 #endif
 
   char* buf = (char*)malloc(sizeof(char) * (buf_size + 1));
 
   if (buf) {
-    char* pos = add_name_and_version(buf, musica_name, musica_version, sep);
+    char* pos = buf;
+    
+    pos = add_name_and_version(pos, musica_name, musica_version, sep);
 #ifdef MUSICA_USE_MICM
     pos = add_name_and_version(pos, musica_name, micm_version, sep);
 #endif
+
+    *pos = '\0';
   }
   else {
     buf = NULL;
