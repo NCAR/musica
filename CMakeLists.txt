@@ -7,7 +7,7 @@ set(CMAKE_USER_MAKE_RULES_OVERRIDE "cmake/SetDefaults.cmake")
 project(
   musica
   VERSION 0.2.0
-  LANGUAGES Fortran CXX
+  LANGUAGES Fortran CXX C
 )
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
@@ -93,6 +93,14 @@ target_include_directories(musica
     $<INSTALL_INTERFACE:${INSTALL_MOD_DIR}>
 )
 
+target_include_directories(musica
+  PUBLIC
+    $<INSTALL_INTERFACE:include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+)
+
+add_subdirectory(src)
+
 ####################
 # MUSICA-core
 add_library(musicacore_object)
@@ -124,6 +132,8 @@ target_sources(musica
 ####################
 # TUV-x
 if (ENABLE_TUVX)
+  add_definitions(-DMUSICA_USE_TUVX)
+
   set(TUVX_MOD_DIR ${MUSICA_MOD_DIR})
   set(TUVX_LIB_DIR ${MUSICA_LIB_DIR})
   add_subdirectory(lib/tuv-x/src)
@@ -154,6 +164,8 @@ endif()
 ####################
 # MICM
 if (ENABLE_MICM)
+  add_definitions(-DMUSICA_USE_MICM)
+
   # micm is header only
   # install the header files
 
