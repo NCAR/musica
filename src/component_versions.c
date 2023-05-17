@@ -47,7 +47,7 @@ char* getAllComponentVersions() {
     
     pos = add_name_and_version(pos, musica_name, musica_version, sep);
 #ifdef MUSICA_USE_MICM
-    pos = add_name_and_version(pos, musica_name, micm_version, sep);
+    pos = add_name_and_version(pos, micm_name, micm_version, sep);
 #endif
 
     *pos = '\0';
