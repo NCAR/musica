@@ -52,9 +52,6 @@ char* getAllComponentVersions() {
 
     *pos = '\0';
   }
-  else {
-    buf = NULL;
-  }
 
   return buf;
 }
