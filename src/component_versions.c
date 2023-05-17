@@ -26,7 +26,7 @@ char* add_name_and_version(char* pos, const char* name, const char* version, con
 }
 
 char* getAllComponentVersions() {
-  const char* sep = "\n";  // Changed single quotes to double quotes
+  const char* sep = "\n";
   size_t sep_size = strlen(sep);
   size_t buf_size = 0;
 
