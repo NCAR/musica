@@ -1,3 +1,6 @@
+####################
+# CCPP library
+
 add_library(ccpp STATIC)
 add_library(musica::ccpp ALIAS ccpp)
 
@@ -7,6 +10,10 @@ set(CCPP_LIB_DIR "${PROJECT_BINARY_DIR}/libs/ccpp" )
 
 set(CCPP_INSTALL_PREFIX "musica-ccpp-${PROJECT_VERSION}")
 set(CCPP_INSTALL_MOD_DIR "${INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}")
+
+set_target_properties(ccpp PROPERTIES
+  Fortran_MODULE_DIRECTORY ${CCPP_MOD_DIR}
+)
 
 set_target_properties(ccpp PROPERTIES
   ARCHIVE_OUTPUT_DIRECTORY ${CCPP_LIB_DIR}
@@ -19,3 +26,9 @@ target_include_directories(ccpp
     $<BUILD_INTERFACE:${CCPP_MOD_DIR}>
     $<INSTALL_INTERFACE:${CCPP_INSTALL_MOD_DIR}>
 )
+
+
+####################
+# micm ccpp api
+
+add_subdirectory(micm)

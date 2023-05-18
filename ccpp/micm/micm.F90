@@ -17,18 +17,20 @@ contains
 
    subroutine micm_init()
       use iso_c_binding
-      character(kind=c_char), dimension(:), allocatable :: versions
-      type(c_ptr) :: c_ptr_versions
-
+      character(len=:), pointer :: result
+      type(c_ptr) :: cResult
+    
       ! Call the C function
-      c_ptr_versions = getAllComponentVersions()
-
-      ! Convert the C pointer to a Fortran array
-      if (c_ptr_versions .ne. c_null_ptr) then
-         versions = c_f_pointer(c_ptr_versions, [1])
-      else
-         versions = []
-      end if
+      cResult = getAllComponentVersions()
+    
+      ! Convert the C pointer to Fortran character array
+      call c_f_pointer(cResult, result)
+    
+      ! Print the result
+      print *, "Result:", trim(result)
+    
+      ! Deallocate the Fortran character array
+      if (associated(result)) deallocate(result)
    end subroutine micm_init
 
 end module micm
