@@ -6,3 +6,5 @@ target_sources(musica
     component_versions.c
     ${CMAKE_BINARY_DIR}/version.c
 )
+
+add_subdirectory(c_fortran_interface)

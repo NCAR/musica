@@ -6,31 +6,30 @@ module micm
    !> Interface to c reaction functions
    interface
 
-      function getAllComponentVersions() bind(C, name="getAllComponentVersions")
-         use iso_c_binding
-         type(c_ptr) :: getAllComponentVersions
-      end function getAllComponentVersions
+    ! Based on this: https://fortran-lang.discourse.group/t/iso-c-binding-interface-to-a-c-function-returning-a-string/527/6
+    ! and this https://community.intel.com/t5/Intel-Fortran-Compiler/Calling-a-C-function-and-returning-a-string/m-p/1179874/highlight/true#M148382
+   subroutine getAllComponentVersions( str, irc ) bind(C, name="c_getAllComponentVersions" )
+        import :: c_char, c_int
+
+        ! Argument list
+        character(kind=c_char,len=:), allocatable, intent(out) :: str
+        integer(c_int), intent(inout)                          :: irc
+    end subroutine getAllComponentVersions
 
    end interface
 
 contains
 
    subroutine micm_init()
-      use iso_c_binding
-      character(len=:), pointer :: result
-      type(c_ptr) :: cResult
-    
-      ! Call the C function
-      cResult = getAllComponentVersions()
-    
-      ! Convert the C pointer to Fortran character array
-      call c_f_pointer(cResult, result)
-    
-      ! Print the result
-      print *, "Result:", trim(result)
-    
-      ! Deallocate the Fortran character array
-      if (associated(result)) deallocate(result)
+    use iso_c_binding
+    character(kind=c_char,len=:), allocatable :: versions
+    integer(c_int) :: irc
+ 
+    ! Call the C function
+    call getAllComponentVersions(versions, irc)
+ 
+    ! Print the result
+    print *, "Result:", NEW_LINE('a'), versions
    end subroutine micm_init
 
 end module micm
