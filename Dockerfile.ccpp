@@ -1,5 +1,6 @@
 # on macOS this image requires rosetta 2 support for virtualization
-# the intel compilers do not support 
+# the intel compilers do not support the arm architecture so you must build
+# on an amd platform, or virtualize
 FROM --platform=linux/amd64 fedora:35
 
 RUN dnf -y update \
@@ -31,3 +32,34 @@ ENV ONEAPI_ROOT=/opt/intel/oneapi
 ENV PATH=$PATH:$ONEAPI_ROOT/compiler/latest/linux/bin
 ENV PATH=$PATH:$ONEAPI_ROOT/compiler/latest/linux/bin/intel64
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ONEAPI_ROOT/compiler/latest/linux/compiler/lib/intel64
+
+# Build and install musica
+
+# install json-fortran using GCC
+RUN curl -LO https://github.com/jacobwilliams/json-fortran/archive/8.2.0.tar.gz \
+    && tar -zxvf 8.2.0.tar.gz \
+    && cd json-fortran-8.2.0 \
+    && mkdir build \
+    && cd build \
+    && FC=gfortran cmake -D SKIP_DOC_GEN:BOOL=TRUE .. \
+    && make install
+
+# copy the musica 
+COPY . /musica/
+
+ENV JSON_FORTRAN_HOME="/usr/local/jsonfortran-gnu-8.2.0"
+
+RUN mkdir -p /build/musica /build/ccpp-integration
+
+# Build musica with GCC
+RUN cd /build/musica \
+    && CC=gcc CXX=g++ cmake  \
+             -D ENABLE_TESTS=ON \
+          /musica \
+    && make install -j 8
+
+# Build musica with GCC
+RUN cd /build/ccpp-integration \
+    && FC=ifort cmake  \
+          /musica/test/ccpp/integration
+    # && make 

@@ -1,0 +1,18 @@
+# ignore all
+*
+
+# add things to copy
+!CMakeLists.txt
+!Dockerfile
+!Dockerfile.ccpp
+!Dockerfile.mpi
+!Dockerfile.mpi_openmp
+!Dockerfile.openmp
+!ccpp
+!cmake
+!docs
+!include
+!lib
+!packaging
+!src
+!test

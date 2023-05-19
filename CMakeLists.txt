@@ -22,12 +22,15 @@ checkout_submodules()
 # Projet wide setup options
 include(CMakeDependentOption)
 
-option( ENABLE_TUVX "Builds TUV-x, a photolysis calculator library" ON )
 option( ENABLE_TESTS "Builds tests that ensures each enabled MUSICA component can be used" OFF )
+
+option( ENABLE_TUVX "Builds TUV-x, a photolysis calculator library" ON )
+option( ENABLE_MICM "Adds MICM, a model independent chemical mechanism solver" ON )
+
+option( ENABLE_CCPP "Builds the CCPP library" OFF )
+
 option( ENABLE_MPI "Enable MPI parallel support" OFF)
 option( ENABLE_OPENMP "Enable OpemMP support" OFF )
-option( ENABLE_MICM "Adds MICM, a model independent chemical mechanism solver" ON )
-# cmake_dependent_option( ENABLE_OPENMP "Enable OpemMP support" OFF "ENABLE_MPI" OFF)
 
 # Set up include and lib directories
 set( MUSICA_MOD_DIR "${PROJECT_BINARY_DIR}/include" )
@@ -125,7 +128,7 @@ target_link_libraries(musicacore_object
 
 # add the sources to musica
 target_sources(musica
-  PUBLIC
+  PRIVATE
     $<TARGET_OBJECTS:musicacore_object>
 )
 
@@ -156,7 +159,7 @@ if (ENABLE_TUVX)
 
   # add the sources to musica
   target_sources(musica
-    PUBLIC
+    PRIVATE
       $<TARGET_OBJECTS:tuvx_object>
   )
 endif()
@@ -186,7 +189,9 @@ endif()
 ####################
 # CCPP
 
-add_subdirectory(ccpp)
+if(ENABLE_CCPP)
+  add_subdirectory(ccpp)
+endif()
 
 
 ################################################################################
