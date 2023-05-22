@@ -4,6 +4,11 @@
 add_library(ccpp STATIC)
 add_library(musica::ccpp ALIAS ccpp)
 
+# Overwrite the init values choosen by CMake
+if (CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
+  set(CMAKE_Fortran_FLAGS "-fpp")
+endif()
+
 # Set up include and lib directories
 set(CCPP_MOD_DIR "${PROJECT_BINARY_DIR}/include/ccpp" )
 set(CCPP_LIB_DIR "${PROJECT_BINARY_DIR}/libs/ccpp" )

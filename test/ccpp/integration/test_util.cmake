@@ -9,12 +9,13 @@ function(create_standard_test)
   cmake_parse_arguments(${prefix} " " "${singleValues}" "${multiValues}" ${ARGN})
 
   add_executable(test_${TEST_NAME} ${TEST_SOURCES})
-  target_link_libraries(test_${TEST_NAME} PUBLIC musica::musica)
 
   # link additional libraries
   foreach(library ${TEST_LIBRARIES})
     target_link_libraries(test_${TEST_NAME} PUBLIC ${library})
   endforeach()
+
+  target_link_libraries(test_${TEST_NAME} PUBLIC musica::musica)
 
   if(NOT DEFINED TEST_WORKING_DIRECTORY)
     set(TEST_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")

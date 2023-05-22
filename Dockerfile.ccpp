@@ -53,7 +53,7 @@ RUN mkdir -p /build/musica /build/ccpp-integration
 
 # Build musica with GCC
 RUN cd /build/musica \
-    && CC=gcc CXX=g++ cmake  \
+    && FC=gfortran CC=gcc CXX=g++ cmake  \
              -D ENABLE_TESTS=ON \
           /musica \
     && make install -j 8
@@ -61,5 +61,6 @@ RUN cd /build/musica \
 # Build musica with GCC
 RUN cd /build/ccpp-integration \
     && FC=ifort cmake  \
-          /musica/test/ccpp/integration
+          -DCMAKE_Fortran_FLAGS="-fpp" \
+          /musica/test/ccpp/integration 
     # && make 
