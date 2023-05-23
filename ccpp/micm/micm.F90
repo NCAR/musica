@@ -35,17 +35,12 @@ contains
       ! Call the C function
       call getAllComponentVersions(versions, irc)
 
-      print *, "Fortran Pointer Address:", loc(versions)
-
       ! Print the result
       print *, "Result:"
       print *, trim(versions)
 
       ret = c_returnInteger()
       print *, "Returned Integer:", ret
-
-      ! Deallocate the allocated memory for the string
-      if (associated(versions)) deallocate(versions)
    end subroutine micm_init
 
 end module micm
