@@ -59,9 +59,9 @@ RUN cd /build/musica \
 
 # Build musica::ccpp with ifort and link to musica::musica that was built with GCC
 RUN cd /build/ccpp-integration \
-    && FC=gfortran cmake \
+    && FC=ifort cmake \
           -DCMAKE_BUILD_TYPE=Debug \
-          /musica/test/ccpp/integration
-    # && make
+          /musica/test/ccpp/integration \
+    && make
 
 WORKDIR /build/ccpp-integration
