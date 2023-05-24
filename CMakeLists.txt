@@ -95,7 +95,6 @@ target_link_libraries(musica
   PUBLIC
     PkgConfig::netcdff
     ${JSON_LIB}
-    /usr/lib64/libgfortran.so.5
 )
 
 target_include_directories(musica
