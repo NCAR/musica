@@ -29,6 +29,7 @@ add_subdirectory(/musica/ccpp ${CMAKE_BINARY_DIR}/__ccpp)
 # Test utilities
 
 include(test_util.cmake)
+enable_testing()
 
 ################################################################################
 # Tests
