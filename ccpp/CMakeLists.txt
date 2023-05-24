@@ -4,6 +4,8 @@
 add_library(ccpp STATIC)
 add_library(musica::ccpp ALIAS ccpp)
 
+target_link_libraries(ccpp musica::musica)
+
 # Overwrite the init values choosen by CMake
 if (CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
   set(CMAKE_Fortran_FLAGS "-fpp")

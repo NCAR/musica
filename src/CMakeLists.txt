@@ -7,4 +7,5 @@ target_sources(musica
     ${CMAKE_BINARY_DIR}/version.c
 )
 
-add_subdirectory(c_fortran_interface)
+add_subdirectory(cxx_interface)
+add_subdirectory(fortran_interface)

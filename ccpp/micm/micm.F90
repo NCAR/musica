@@ -1,46 +1,28 @@
 module micm
    use iso_c_binding
+   use micm_solver_interface, only: get_solver, solver
 
    implicit none
-
-   !> Interface to c reaction functions
-   interface
-
-      ! Based on this: https://fortran-lang.discourse.group/t/iso-c-binding-interface-to-a-c-function-returning-a-string/527/6
-      ! and this https://community.intel.com/t5/Intel-Fortran-Compiler/Calling-a-C-function-and-returning-a-string/m-p/1179874/highlight/true#M148382
-      subroutine getAllComponentVersions( str, irc ) bind(C, name="c_getAllComponentVersions" )
-         import :: c_char, c_int
-
-         ! Argument list
-         character(kind=c_char,len=:), pointer, intent(out) :: str
-         integer(c_int), intent(inout)                      :: irc
-      end subroutine getAllComponentVersions
-
-      ! Interface to C function returning an integer
-      function c_returnInteger() bind(C, name="c_returnInteger") result(num)
-         use iso_c_binding
-         implicit none
-         integer(c_int) :: num
-      end function c_returnInteger
-
-   end interface
 
 contains
 
    subroutine micm_init()
-      use iso_c_binding
-      character(kind=c_char,len=:), pointer :: versions
-      integer(c_int) :: irc, ret
+      type(c_funptr) :: csolver_func_pointer
+      procedure(solver), pointer :: fsolver
+      character(len=*, kind=c_char), parameter :: filepath = "hello.txt"
 
-      ! Call the C function
-      call getAllComponentVersions(versions, irc)
+      real(c_double), dimension(:), allocatable :: state
+      integer(c_int64_t) :: state_size = 5
+      integer(c_int64_t) :: time_step = 1
 
-      ! Print the result
-      print *, "Result:"
-      print *, trim(versions)
+      allocate(state(state_size))
 
-      ret = c_returnInteger()
-      print *, "Returned Integer:", ret
+      state = 1
+
+      csolver_func_pointer = get_solver(filepath)
+      call c_f_procpointer(csolver_func_pointer, fsolver)
+
+      call fsolver(state, state_size, time_step)
    end subroutine micm_init
 
 end module micm

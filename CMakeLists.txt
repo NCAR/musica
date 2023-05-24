@@ -13,6 +13,12 @@ project(
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${PROJECT_SOURCE_DIR}/cmake")
 
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING
+      "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel."
+      FORCE)
+endif(NOT CMAKE_BUILD_TYPE)
+
 message ( STATUS "CMake build configuration for musica(${CMAKE_BUILD_TYPE}) ${PROJECT_VERSION}" )
 
 include(musica_util)
@@ -80,6 +86,7 @@ add_library(musica::musica ALIAS musica)
 
 set_target_properties(musica PROPERTIES
   ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
+  Fortran_MODULE_DIRECTORY ${MUSICA_MOD_DIR}
   VERSION ${PROJECT_VERSION}
   SOVERSION ${PROJECT_VERSION_MAJOR}
 )
@@ -88,8 +95,8 @@ target_link_libraries(musica
   PUBLIC
     PkgConfig::netcdff
     ${JSON_LIB}
-  PRIVATE
-    /usr/lib64/libgfortran.so.5
+  # PRIVATE
+  #   /usr/lib64/libgfortran.so.5
 )
 
 target_include_directories(musica
@@ -170,9 +177,6 @@ endif()
 # MICM
 if (ENABLE_MICM)
   add_definitions(-DMUSICA_USE_MICM)
-
-  # micm is header only
-  # install the header files
 
   target_include_directories(musica
     PUBLIC  
