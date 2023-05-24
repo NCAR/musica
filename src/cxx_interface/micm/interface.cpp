@@ -27,7 +27,7 @@ void solver(
 
   for (int64_t i{}; i < state_size; ++i)
   {
-    std::cout << "state[" << i << "]: " << state[i] << std::endl;
+    std::cout << "state[" << i << "]" << state[i] << std::endl;
   }
 }
 

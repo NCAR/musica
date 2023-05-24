@@ -8,4 +8,3 @@ target_sources(musica
 )
 
 add_subdirectory(cxx_interface)
-add_subdirectory(fortran_interface)
