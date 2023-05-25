@@ -5,6 +5,7 @@ module micm
 
    implicit none
 
+   private
    public :: micm_init, micm_run
 
    procedure(solver), pointer :: fsolver
