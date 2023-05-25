@@ -3,15 +3,21 @@
 #include <iostream>
 
 // assumes that photo_rates, matches order in c++ already
-void fortran_solve(void *micm_address, double time_start, double time_end, double concentrations[], double temperature, double pressure, double photo_rates[])
+void fortran_solve(void *micm_address, double time_start, double time_end, double *concentrations, double temperature, double pressure, double *photo_rates)
 {
   MICM *micm = static_cast<MICM *>(micm_address);
   micm::State state = *(micm->state_);
 
-  state.update_photo_rates(photo_rates);
-  state.concentrations_ = concentrations;
-  state.pressure_ = pressure;
-  state.temperature_ = temperature;
+  for (auto param : state.custom_rate_parameters_[0])
+  {
+    param = *(photo_rates++);
+  }
+  for (auto concentration : state.concentrations_[0])
+  {
+    concentration = *(concentrations++);
+  }
+  state.conditions_[0].pressure_ = pressure;
+  state.conditions_[0].temperature_ = temperature;
 
   auto result = micm->solver_->Solve(time_start, time_end, state);
 }

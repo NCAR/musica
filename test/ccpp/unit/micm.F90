@@ -14,9 +14,9 @@ contains
 
       character(len=*), parameter :: filepath = "somepath.json"
 
-      real(c_double), dimension(:), allocatable :: state
-      integer(c_int64_t) :: state_size = 5
-      integer(c_int64_t) :: time_step = 1
+      real(kind=8), dimension(:), allocatable :: state
+      integer(kind=8) :: state_size = 5
+      integer(kind=8) :: time_step = 1
 
       allocate(state(state_size))
       state = 1
