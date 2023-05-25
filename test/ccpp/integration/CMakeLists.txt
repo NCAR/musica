@@ -34,6 +34,6 @@ enable_testing()
 ################################################################################
 # Tests
 
-create_standard_test(NAME micm_ccpp_api SOURCES micm.F90 LIBRARIES musica::ccpp)
+create_standard_test(NAME micm_ccpp_api SOURCES ../unit/micm.F90 LIBRARIES musica::ccpp)
 
 target_link_libraries(test_micm_ccpp_api PRIVATE ${LIBSTDCXX_PATH})

@@ -22,10 +22,7 @@ contains
       state = 1
 
       call micm_init(filepath, errmsg, errflg)
-      call micm_timestep_init(errmsg, errflg)
       call micm_run(state, state_size, time_step, errmsg, errflg)
-      call micm_timestep_final(errmsg, errflg)
-      call micm_final(errmsg, errflg)
    end subroutine test_api
 
 end program micm_ccpp_api_test
