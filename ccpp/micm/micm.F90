@@ -3,6 +3,10 @@
 module micm
    use iso_c_binding
 
+   ! use ccpp_kinds, only:  kind_phys
+   ! //TODO: figure out how to connect the test to ccpp to use their actual kind
+   integer, parameter :: kind_phys = kind(8)
+
    implicit none
 
    private
@@ -53,11 +57,11 @@ contains
    !> \section arg_table_micm_run Argument Table
    !! \htmlinclude micm_run.html
    subroutine micm_run(state, state_size, time_step, errmsg, errflg)
-      real(c_double), dimension(:), allocatable :: state
-      integer(c_int64_t)                        :: state_size
-      integer(c_int64_t)                        :: time_step
-      character(len=512),intent(out)            :: errmsg
-      integer,           intent(out)            :: errflg
+      real(kind_phys), dimension(:), allocatable, intent(in) :: state
+      integer, intent(in)                        :: state_size
+      integer, intent(in)                        :: time_step
+      character(len=512), intent(out)                       :: errmsg
+      integer,            intent(out)                       :: errflg
 
       errmsg = ''
       errflg = 0
