@@ -1,0 +1,59 @@
+[ccpp-table-properties]
+  name = micm
+  type = scheme
+
+[ccpp-arg-table]
+  name  = micm_init
+  type  = scheme
+[ filepath ]
+  standard_name = enter_standard_name_3
+  units = enter_units
+  type = character | kind = len=*
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = enter_standard_name_1
+  units = enter_units
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = enter_standard_name_2
+  units = enter_units
+  type = integer
+  dimensions = ()
+  intent = out
+
+[ccpp-arg-table]
+  name  = micm_run
+  type  = scheme
+[ state ]
+  standard_name = enter_standard_name_4
+  units = enter_units
+  type = real | kind = kind_phys
+  dimensions = (enter_standard_name_9:enter_standard_name_10)
+  intent = in
+[ state_size ]
+  standard_name = enter_standard_name_5
+  units = enter_units
+  type = integer
+  dimensions = ()
+  intent = in
+[ time_step ]
+  standard_name = enter_standard_name_6
+  units = enter_units
+  type = integer
+  dimensions = ()
+  intent = in
+[ errmsg ]
+  standard_name = enter_standard_name_7
+  units = enter_units
+  type = character | kind = len=512
+  dimensions = ()
+  intent = out
+[ errflg ]
+  standard_name = enter_standard_name_8
+  units = enter_units
+  type = integer
+  dimensions = ()
+  intent = out

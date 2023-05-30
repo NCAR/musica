@@ -2,7 +2,7 @@ include(CMakePackageConfigHelpers)
 
 install(
   TARGETS 
-    musica
+    musica musicacore_object
   EXPORT 
     musica_Exports
   LIBRARY DESTINATION ${INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}
@@ -19,7 +19,7 @@ install(
 )
 
 # install the cmake config files
-set(cmake_config_install_location ${INSTALL_PREFIX}/cmake/musica-${PROJECT_VERSION})
+set(cmake_config_install_location ${INSTALL_PREFIX}/cmake)
 
 install(
   EXPORT 
