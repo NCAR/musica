@@ -17,7 +17,7 @@ local base = "@MODULE_INSTALL_PATH@"
 local libpath  = pathJoin(basepath, "/lib")             -- libraries
 local incpath  = pathJoin(basepath, "/include")         -- include files
 
-always_load("cmake/3.22.0)
+always_load("cmake/3.22.0", "json-fortran/8.3.0")
 
 -- Set variables to use with cmake
 setenv("musica_ROOT", base)
