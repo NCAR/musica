@@ -111,8 +111,8 @@ target_include_directories(musica
 
 target_include_directories(musica
   PUBLIC
-    $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${INSTALL_MOD_DIR}>
 )
 
 add_subdirectory(src)
