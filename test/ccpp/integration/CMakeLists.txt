@@ -23,7 +23,8 @@ find_library(LIBSTDCXX_PATH NAMES libstdc++.so.6
 pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
 
 # this path is the one expected in the docker image
-add_subdirectory(/musica/ccpp ${CMAKE_BINARY_DIR}/__ccpp)
+set(MUSICA_CCPP_WRAPPER "/musica/ccpp" CACHE STRING "The location of the MUSICA ccpp fortran wrapper code")
+add_subdirectory(${MUSICA_CCPP_WRAPPER} ${CMAKE_BINARY_DIR}/__ccpp)
 
 ################################################################################
 # Test utilities

@@ -4,6 +4,10 @@ program micm_ccpp_api_test
 
    implicit none
 
+   ! use ccpp_kinds, only:  kind_phys
+   ! //TODO: figure out how to connect the test to ccpp to use their actual kind
+   integer, parameter :: kind_phys = kind(8)
+
    call test_api()
 
 contains
@@ -14,7 +18,7 @@ contains
 
       character(len=*), parameter :: filepath = "somepath.json"
 
-      real(kind=8), dimension(:), allocatable :: state
+      real(kind=kind_phys), dimension(:), allocatable :: state
       integer(kind=8) :: state_size = 5
       integer(kind=8) :: time_step = 1
 

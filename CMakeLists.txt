@@ -38,6 +38,12 @@ option( ENABLE_CCPP "Builds the CCPP library" OFF )
 option( ENABLE_MPI "Enable MPI parallel support" OFF)
 option( ENABLE_OPENMP "Enable OpemMP support" OFF )
 
+option( CREATE_ENVIRONMENT_MODULE "Creates an Lmod environment module file that can be installed on the same machine this library is installed to." OFF )
+
+if(CREATE_ENVIRONMENT_MODULE)
+  set(INSTALL_MODULE_FILE_PATH "" CACHE STRING "This is the path of the modulefiles location that the Lmod files should be installed to.")
+endif()
+
 # Set up include and lib directories
 set( MUSICA_MOD_DIR "${PROJECT_BINARY_DIR}/include" )
 set( MUSICA_LIB_DIR "${PROJECT_BINARY_DIR}/libs" )
@@ -105,8 +111,8 @@ target_include_directories(musica
 
 target_include_directories(musica
   PUBLIC
-    $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${INSTALL_MOD_DIR}>
 )
 
 add_subdirectory(src)
