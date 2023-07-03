@@ -2,13 +2,14 @@ include(CMakePackageConfigHelpers)
 
 install(
   TARGETS 
-    musica
+    musica musicacore_object
   EXPORT 
     musica_Exports
   LIBRARY DESTINATION ${INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}
 )
 
+# install the mod files
 install(
   DIRECTORY 
     ${MUSICA_MOD_DIR}/
@@ -17,7 +18,8 @@ install(
   FILES_MATCHING PATTERN "*.mod"
 )
 
-set(cmake_config_install_location ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/cmake/musica-${PROJECT_VERSION})
+# install the cmake config files
+set(cmake_config_install_location ${INSTALL_PREFIX}/cmake)
 
 install(
   EXPORT 
@@ -45,7 +47,7 @@ install(
     ${PROJECT_BINARY_DIR}/musicaConfig.cmake
     ${PROJECT_BINARY_DIR}/musicaConfigVersion.cmake
   DESTINATION
-    ${CMAKE_INSTALL_LIBDIR}/cmake/musica-${PROJECT_VERSION}
+    ${cmake_config_install_location}
 )
 
 ######################################################################
@@ -60,4 +62,36 @@ if(NOT TARGET uninstall)
 
   add_custom_target(uninstall
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+endif()
+
+######################################################################
+# Environment module
+
+if (CREATE_ENVIRONMENT_MODULE)
+  # Define the paths and environment variables for the module
+  set(MODULE_NAME ${PROJECT_VERSION}.lua)
+  set(MODULE_FILE_PATH ${CMAKE_BINARY_DIR}/modulefiles/${PROJECT_NAME}/${MODULE_NAME})
+  set(MODULE_INSTALL_PATH ${CMAKE_INSTALL_PREFIX}/${INSTALL_PREFIX})
+
+  message(STATUS "MODULE NAME ${MODULE_NAME}")
+  message(STATUS "MODULE PATH ${MODULE_FILE_PATH}")
+
+  # Generate the module file using the template
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/modulefile.lua.in
+                 ${MODULE_FILE_PATH}
+                @ONLY)
+
+  if(INSTALL_MODULE_FILE_PATH)
+    # Create a custom target for installing the module file
+    add_custom_target(install_lmod_module
+                      COMMAND ${CMAKE_COMMAND} -E copy
+                              ${MODULE_FILE_PATH}
+                              ${INSTALL_MODULE_FILE_PATH}/${PROJECT_NAME}/${MODULE_NAME})
+
+    # Add the install_lmod_module target to the "install" target
+    install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} --build . --target install_lmod_module)")
+
+    # Add a message to inform users how to trigger the installation
+    message(STATUS "To install the Lmod module, run: make install")
+  endif()
 endif()

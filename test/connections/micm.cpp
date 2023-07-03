@@ -3,5 +3,5 @@
 #include <micm/version.hpp>
 
 TEST(ConnectToMICM, Version) {
-  std::string version = micm::getmicmVersion();
+  std::string version = micm::getMicmVersion();
 }

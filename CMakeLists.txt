@@ -6,12 +6,18 @@ set(CMAKE_USER_MAKE_RULES_OVERRIDE "cmake/SetDefaults.cmake")
 
 project(
   musica
-  VERSION 0.2.0
-  LANGUAGES Fortran CXX
+  VERSION 0.3.0
+  LANGUAGES Fortran CXX C
 )
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${PROJECT_SOURCE_DIR}/cmake")
+
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING
+      "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel."
+      FORCE)
+endif(NOT CMAKE_BUILD_TYPE)
 
 message ( STATUS "CMake build configuration for musica(${CMAKE_BUILD_TYPE}) ${PROJECT_VERSION}" )
 
@@ -22,19 +28,28 @@ checkout_submodules()
 # Projet wide setup options
 include(CMakeDependentOption)
 
+option( ENABLE_TESTS "Builds tests that ensures each enabled MUSICA component can be used" OFF )
+
 option( ENABLE_TUVX "Builds TUV-x, a photolysis calculator library" ON )
-option( ENABLE_TESTS "Builds tests that ensures each enabled MUSICA component can be used" ON )
+option( ENABLE_MICM "Adds MICM, a model independent chemical mechanism solver" ON )
+
+option( ENABLE_CCPP "Builds the CCPP library" OFF )
+
 option( ENABLE_MPI "Enable MPI parallel support" OFF)
 option( ENABLE_OPENMP "Enable OpemMP support" OFF )
-option( ENABLE_MICM "Adds MICM, a model independent chemical mechanism solver" ON )
-# cmake_dependent_option( ENABLE_OPENMP "Enable OpemMP support" OFF "ENABLE_MPI" OFF)
+
+option( CREATE_ENVIRONMENT_MODULE "Creates an Lmod environment module file that can be installed on the same machine this library is installed to." OFF )
+
+if(CREATE_ENVIRONMENT_MODULE)
+  set(INSTALL_MODULE_FILE_PATH "" CACHE STRING "This is the path of the modulefiles location that the Lmod files should be installed to.")
+endif()
 
 # Set up include and lib directories
 set( MUSICA_MOD_DIR "${PROJECT_BINARY_DIR}/include" )
 set( MUSICA_LIB_DIR "${PROJECT_BINARY_DIR}/libs" )
 
 include(GNUInstallDirs)
-set(INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/ncar/musica-${PROJECT_VERSION}")
+set(INSTALL_PREFIX "musica-${PROJECT_VERSION}")
 set(INSTALL_MOD_DIR "${INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}")
 
 # MPI
@@ -77,6 +92,7 @@ add_library(musica::musica ALIAS musica)
 
 set_target_properties(musica PROPERTIES
   ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
+  Fortran_MODULE_DIRECTORY ${MUSICA_MOD_DIR}
   VERSION ${PROJECT_VERSION}
   SOVERSION ${PROJECT_VERSION_MAJOR}
 )
@@ -92,6 +108,14 @@ target_include_directories(musica
     $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
     $<INSTALL_INTERFACE:${INSTALL_MOD_DIR}>
 )
+
+target_include_directories(musica
+  PUBLIC
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${INSTALL_MOD_DIR}>
+)
+
+add_subdirectory(src)
 
 ####################
 # MUSICA-core
@@ -117,13 +141,15 @@ target_link_libraries(musicacore_object
 
 # add the sources to musica
 target_sources(musica
-  PUBLIC
+  PRIVATE
     $<TARGET_OBJECTS:musicacore_object>
 )
 
 ####################
 # TUV-x
 if (ENABLE_TUVX)
+  add_definitions(-DMUSICA_USE_TUVX)
+
   set(TUVX_MOD_DIR ${MUSICA_MOD_DIR})
   set(TUVX_LIB_DIR ${MUSICA_LIB_DIR})
   add_subdirectory(lib/tuv-x/src)
@@ -146,7 +172,7 @@ if (ENABLE_TUVX)
 
   # add the sources to musica
   target_sources(musica
-    PUBLIC
+    PRIVATE
       $<TARGET_OBJECTS:tuvx_object>
   )
 endif()
@@ -154,8 +180,8 @@ endif()
 ####################
 # MICM
 if (ENABLE_MICM)
-  # micm is header only
-  # install the header files
+  add_definitions(-DMUSICA_USE_MICM)
+  target_compile_features(musica PUBLIC cxx_std_20)
 
   target_include_directories(musica
     PUBLIC  
@@ -171,12 +197,19 @@ if (ENABLE_MICM)
   )
 endif()
 
+####################
+# CCPP
+
+if(ENABLE_CCPP)
+  add_subdirectory(ccpp)
+endif()
+
 
 ################################################################################
 # Tests
 
 # only include packaging if we are the top level project being built
-if(ENABLE_TESTS)
+if(PROJECT_IS_TOP_LEVEL AND ENABLE_TESTS)
   enable_testing()
   add_subdirectory(test)
 endif()

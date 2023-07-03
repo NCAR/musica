@@ -6,23 +6,32 @@ if(ENABLE_MEMCHECK)
 endif()
 
 ################################################################################
-# build and add a standard test (one linked to the tuvx library)
+# build and add a standard test linked to musica
 
 function(create_standard_test)
   set(prefix TEST)
   set(singleValues NAME WORKING_DIRECTORY)
-  set(multiValues SOURCES)
+  set(multiValues SOURCES LIBRARIES)
   include(CMakeParseArguments)
   cmake_parse_arguments(${prefix} " " "${singleValues}" "${multiValues}" ${ARGN})
+
   add_executable(test_${TEST_NAME} ${TEST_SOURCES})
   target_link_libraries(test_${TEST_NAME} PUBLIC musica::musica)
+
+  # link additional libraries
+  foreach(library ${TEST_LIBRARIES})
+    target_link_libraries(test_${TEST_NAME} PUBLIC ${library})
+  endforeach()
+
   if(ENABLE_OPENMP)
     target_link_libraries(test_${TEST_NAME} PUBLIC OpenMP::OpenMP_Fortran)
   endif()
+
   if(NOT DEFINED TEST_WORKING_DIRECTORY)
     set(TEST_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
   endif()
-  add_tuvx_test(${TEST_NAME} test_${TEST_NAME} "" ${TEST_WORKING_DIRECTORY})
+
+  add_musica_test(${TEST_NAME} test_${TEST_NAME} "" ${TEST_WORKING_DIRECTORY})
 endfunction(create_standard_test)
 
 function(create_standard_test_cxx)
@@ -39,13 +48,13 @@ function(create_standard_test_cxx)
   if(NOT DEFINED TEST_WORKING_DIRECTORY)
     set(TEST_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
   endif()
-  add_tuvx_test(${TEST_NAME} test_${TEST_NAME} "" ${TEST_WORKING_DIRECTORY})
+  add_musica_test(${TEST_NAME} test_${TEST_NAME} "" ${TEST_WORKING_DIRECTORY})
 endfunction(create_standard_test_cxx)
 
 ################################################################################
 # Add a test
 
-function(add_tuvx_test test_name test_binary test_args working_dir)
+function(add_musica_test test_name test_binary test_args working_dir)
   if(ENABLE_MPI)
     add_test(NAME ${test_name}
       COMMAND mpirun -v -np 2 ${CMAKE_BINARY_DIR}/${test_binary} ${test_args}
@@ -72,6 +81,6 @@ function(add_tuvx_test test_name test_binary test_args working_dir)
              COMMAND ${memcheck} ${CMAKE_BINARY_DIR}/${test_binary} ${test_args}
              WORKING_DIRECTORY ${working_dir})
   endif()
-endfunction(add_tuvx_test)
+endfunction(add_musica_test)
 
 ################################################################################

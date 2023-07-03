@@ -30,6 +30,7 @@ RUN mkdir /build \
     && cd /build \
     && export JSON_FORTRAN_HOME="/usr/local/jsonfortran-gnu-8.2.0" \
     && cmake  \
+             -D ENABLE_TESTS=ON \
           ../musica \
     && make install -j 8
 
