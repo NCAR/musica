@@ -181,6 +181,7 @@ endif()
 # MICM
 if (ENABLE_MICM)
   add_definitions(-DMUSICA_USE_MICM)
+  target_compile_features(musica PUBLIC cxx_std_20)
 
   target_include_directories(musica
     PUBLIC  
