@@ -6,7 +6,7 @@ set(CMAKE_USER_MAKE_RULES_OVERRIDE "cmake/SetDefaults.cmake")
 
 project(
   musica
-  VERSION 0.2.0
+  VERSION 0.3.0
   LANGUAGES Fortran CXX C
 )
 
