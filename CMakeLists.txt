@@ -6,7 +6,7 @@ set(CMAKE_USER_MAKE_RULES_OVERRIDE "cmake/SetDefaults.cmake")
 
 project(
   musica
-  VERSION 0.2.0
+  VERSION 0.3.0
   LANGUAGES Fortran CXX C
 )
 
@@ -181,6 +181,7 @@ endif()
 # MICM
 if (ENABLE_MICM)
   add_definitions(-DMUSICA_USE_MICM)
+  target_compile_features(musica PUBLIC cxx_std_20)
 
   target_include_directories(musica
     PUBLIC  

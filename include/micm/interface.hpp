@@ -2,11 +2,11 @@
 
 #include <micm/solver/rosenbrock.hpp>
 #include <micm/solver/state.hpp>
+#include <micm/util/matrix.hpp>
 
 class MICM {
   public:
-    micm::RosenbrockSolver* solver_;
-    micm::State* state_;
+    micm::RosenbrockSolver<micm::Matrix>* solver_;
 };
 
 #ifdef __cplusplus
