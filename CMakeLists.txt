@@ -121,6 +121,7 @@ add_subdirectory(src)
 # MUSICA-core
 add_library(musicacore_object)
 add_library(musica::musicacore ALIAS musicacore_object)
+set(ENABLE_UTIL_ONLY ON)
 add_subdirectory(lib/musica-core/src)
 
 set_target_properties(musicacore_object PROPERTIES
