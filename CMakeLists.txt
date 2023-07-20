@@ -33,8 +33,6 @@ option( ENABLE_TESTS "Builds tests that ensures each enabled MUSICA component ca
 option( ENABLE_TUVX "Builds TUV-x, a photolysis calculator library" ON )
 option( ENABLE_MICM "Adds MICM, a model independent chemical mechanism solver" ON )
 
-option( ENABLE_CCPP "Builds the CCPP library" OFF )
-
 option( ENABLE_MPI "Enable MPI parallel support" OFF)
 option( ENABLE_OPENMP "Enable OpemMP support" OFF )
 
@@ -197,14 +195,6 @@ if (ENABLE_MICM)
       ${INSTALL_MOD_DIR}
   )
 endif()
-
-####################
-# CCPP
-
-if(ENABLE_CCPP)
-  add_subdirectory(ccpp)
-endif()
-
 
 ################################################################################
 # Tests
