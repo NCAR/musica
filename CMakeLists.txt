@@ -113,7 +113,39 @@ target_include_directories(musica
     $<INSTALL_INTERFACE:${INSTALL_MOD_DIR}>
 )
 
-add_subdirectory(src)
+# add_subdirectory(src)
+
+#
+# jiwon 7/21 - in progress
+#
+####################
+# MUSICA - fortran
+add_library(musica-fortran STATIC)
+add_library(musica::musica-fortran ALIAS musica-fortran)
+add_subdirectory(src/fortran_interface)
+
+set_target_properties(musica-fortran PROPERTIES
+  ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
+  Fortran_MODULE_DIRECTORY ${MUSICA_MOD_DIR}
+)
+
+target_link_libraries(musica-fortran 
+  PUBLIC
+    PkgConfig::netcdff
+    ${JSON_LIB}
+)
+
+target_include_directories(musica-fortran
+  PUBLIC  
+    $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
+    $<INSTALL_INTERFACE:${INSTALL_MOD_DIR}>
+)
+
+# add the sources to musica
+target_sources(musica
+  PRIVATE
+    $<TARGET_OBJECTS:musica-fortran>
+)
 
 ####################
 # MUSICA-core
@@ -143,6 +175,7 @@ target_sources(musica
   PRIVATE
     $<TARGET_OBJECTS:musicacore_object>
 )
+
 
 ####################
 # TUV-x
