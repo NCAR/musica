@@ -13,7 +13,7 @@ At present the project encompasses these components
     - A photolysis rate calculator 
 
 - [MICM](https://github.com/NCAR/micm)
-    - Model Independent Chemical Mechanisms
+    - Model Independent Chemical Module
 
 ## Available grids
 
