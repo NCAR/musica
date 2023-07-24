@@ -22,7 +22,7 @@ to see how you can contribute new science to MUSICA software.
 
 ## Citing MUSICA
 
-MUSICA can be cited in at least two ways. The first is to cite the paper that defines the vision
+MUSICA can be cited in at least two ways. The first is to cite [the paper](https://doi.org/10.1175/BAMS-D-19-0331.1) that defines the vision
 of the MUSICA software. The bibtex entry below can be used to generate a citaiton for this.
 
 ```
