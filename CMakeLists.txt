@@ -120,7 +120,7 @@ add_subdirectory(src)
 #
 ####################
 # MUSICA - fortran
-add_library(musica-fortran STATIC src/fortran_interface/micm/interface.F90)
+add_library(musica-fortran STATIC)
 add_library(musica::musica-fortran ALIAS musica-fortran)
 
 set_target_properties(musica-fortran PROPERTIES
