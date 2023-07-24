@@ -1,5 +1,8 @@
 module micm
+    use iso_c_binding
 
+    implicit none
+   
    interface
 
 !      type(c_funptr) function get_solver(filepath) bind(c)
