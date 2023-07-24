@@ -113,27 +113,26 @@ target_include_directories(musica
     $<INSTALL_INTERFACE:${INSTALL_MOD_DIR}>
 )
 
-add_subdirectory(src)
-
-#
-# jiwon 7/21 - in progress
-#
 ####################
 # MUSICA - fortran
 add_library(musica-fortran STATIC)
 add_library(musica::musica-fortran ALIAS musica-fortran)
 
+# We might want these to be new cmake variables
 set_target_properties(musica-fortran PROPERTIES
   ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
   Fortran_MODULE_DIRECTORY ${MUSICA_MOD_DIR}
 )
 
-
+# We might not need these
 target_include_directories(musica-fortran
   PUBLIC  
     $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
     $<INSTALL_INTERFACE:${INSTALL_MOD_DIR}>
 )
+
+# Add source directory after adding the library from sources
+add_subdirectory(src)
 
 ####################
 # MUSICA-core
