@@ -83,7 +83,7 @@ include(cmake/dependencies.cmake)
 ##############################################################################
 # MUSICA targets
 
-# ####################
+####################
 # MUSICA
 add_library(musica STATIC)
 add_library(musica::musica ALIAS musica)
@@ -174,7 +174,6 @@ target_sources(musica
   PRIVATE
     $<TARGET_OBJECTS:musicacore_object>
 )
-
 
 ####################
 # TUV-x
