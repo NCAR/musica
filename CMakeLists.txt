@@ -135,12 +135,6 @@ target_include_directories(musica-fortran
     $<INSTALL_INTERFACE:${INSTALL_MOD_DIR}>
 )
 
-# add the sources to musica
-target_sources(musica
-  PRIVATE
-    $<TARGET_OBJECTS:musica-fortran>
-)
-
 ####################
 # MUSICA-core
 add_library(musicacore_object)
