@@ -128,11 +128,6 @@ set_target_properties(musica-fortran PROPERTIES
   Fortran_MODULE_DIRECTORY ${MUSICA_MOD_DIR}
 )
 
-target_link_libraries(musica-fortran 
-  PUBLIC
-    PkgConfig::netcdff
-    ${JSON_LIB}
-)
 
 target_include_directories(musica-fortran
   PUBLIC  
