@@ -22,6 +22,8 @@ endif(NOT CMAKE_BUILD_TYPE)
 message (STATUS "CMake build configuration for musica(${CMAKE_BUILD_TYPE}) ${PROJECT_VERSION}")
 
 include(musica_util)
+
+# Add submodules
 checkout_submodules()
 
 ################################################################################
@@ -45,6 +47,9 @@ endif()
 # Set up include and lib directories
 set( MUSICA_MOD_DIR "${PROJECT_BINARY_DIR}/include" )
 set( MUSICA_LIB_DIR "${PROJECT_BINARY_DIR}/libs" )
+
+# Set parent directory to get submodules
+cmake_path(GET PROJECT_SOURCE_DIR PARENT_PATH PARENT_DIR)
 
 include(GNUInstallDirs)
 set(INSTALL_PREFIX "musica-${PROJECT_VERSION}")
@@ -88,6 +93,8 @@ include(cmake/dependencies.cmake)
 add_library(musica STATIC)
 add_library(musica::musica ALIAS musica)
 
+add_subdirectory(src)
+
 set_target_properties(musica PROPERTIES
   ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
   Fortran_MODULE_DIRECTORY ${MUSICA_MOD_DIR}
@@ -117,83 +124,89 @@ target_include_directories(musica
 # MUSICA-core
 add_library(musicacore_object)
 add_library(musica::musicacore ALIAS musicacore_object)
+
 set(ENABLE_UTIL_ONLY ON)
 
-add_subdirectory(lib/musica-core/src)
+# In case of absolute source path, build directory needs to be explicitly provided
+add_subdirectory(${PARENT_DIR}/lib/musica-core/src ${MUSICA_LIB_DIR}/musica-core/src)
 
-# set_target_properties(musicacore_object PROPERTIES
-#   ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
-#   Fortran_MODULE_DIRECTORY ${MUSICA_MOD_DIR}
-# )
+set_target_properties(musicacore_object PROPERTIES
+  ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
+  Fortran_MODULE_DIRECTORY ${MUSICA_MOD_DIR}
+)
 
-# target_include_directories(musicacore_object 
-#   PUBLIC  
-#     $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
-#     $<INSTALL_INTERFACE:${INSTALL_MOD_DIR}>
-# )
+target_include_directories(musicacore_object 
+  PUBLIC  
+    $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
+    $<INSTALL_INTERFACE:${INSTALL_MOD_DIR}>
+)
 
-# target_link_libraries(musicacore_object 
-#   PUBLIC
-#     PkgConfig::netcdff
-# )
+target_link_libraries(musicacore_object 
+  PUBLIC
+    PkgConfig::netcdff
+)
 
-# # add the sources to musica
-# target_sources(musica
-#   PRIVATE
-#     $<TARGET_OBJECTS:musicacore_object>
-# )
-
-# ####################
-# # TUV-x
-# if (ENABLE_TUVX)
-#   add_definitions(-DMUSICA_USE_TUVX)
-
-#   set(TUVX_MOD_DIR ${MUSICA_MOD_DIR})
-#   set(TUVX_LIB_DIR ${MUSICA_LIB_DIR})
-#   add_subdirectory(lib/tuv-x/src)
-
-#   set_target_properties(tuvx_object PROPERTIES
-#     ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
-#     Fortran_MODULE_DIRECTORY ${MUSICA_MOD_DIR}
-#   )
-
-#   target_include_directories(tuvx_object 
-#     PUBLIC  
-#       $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
-#       $<INSTALL_INTERFACE:${INSTALL_MOD_DIR}>
-#   )
-
-#   target_link_libraries(tuvx_object 
-#     PUBLIC
-#       musicacore_object
-#   )
-
-#   # add the sources to musica
-#   target_sources(musica
-#     PRIVATE
-#       $<TARGET_OBJECTS:tuvx_object>
-#   )
-# endif()
+# add the sources to musica
+target_sources(musica
+  PRIVATE
+    $<TARGET_OBJECTS:musicacore_object>
+)
 
 # ####################
-# # MICM
-# if (ENABLE_MICM)
-#   add_definitions(-DMUSICA_USE_MICM)
-#   target_compile_features(musica PUBLIC cxx_std_20)
+# TUV-x
+if (ENABLE_TUVX)
+  add_definitions(-DMUSICA_USE_TUVX)
 
-#   target_include_directories(musica
-#     PUBLIC  
-#       $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/lib/micm/include>
-#       $<INSTALL_INTERFACE:${INSTALL_MOD_DIR}>
-#   )
+  set(TUVX_MOD_DIR ${MUSICA_MOD_DIR})
+  set(TUVX_LIB_DIR ${MUSICA_LIB_DIR})
+  
+  # In case of absolute source path, build directory needs to be explicitly provided
+  add_subdirectory(${PARENT_DIR}/lib/tuv-x/src ${MUSICA_LIB_DIR}/tuv-x/src)
+  
+  set_target_properties(tuvx_object PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
+    Fortran_MODULE_DIRECTORY ${MUSICA_MOD_DIR}
+  )
 
-#   install(
-#     DIRECTORY 
-#       ${PROJECT_SOURCE_DIR}/lib/micm/include/micm
-#     DESTINATION 
-#       ${INSTALL_MOD_DIR}
-#   )
-# endif()
+  target_include_directories(tuvx_object 
+    PUBLIC  
+      $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
+      $<INSTALL_INTERFACE:${INSTALL_MOD_DIR}>
+  )
+
+  target_link_libraries(tuvx_object 
+    PUBLIC
+      musicacore_object
+  )
+
+  # add the sources to musica
+  target_sources(musica
+    PRIVATE
+      $<TARGET_OBJECTS:tuvx_object>
+  )
+endif()
+
+# ####################
+# MICM
+if (ENABLE_MICM)
+  add_definitions(-DMUSICA_USE_MICM)
+  target_compile_features(musica PUBLIC cxx_std_20)
+
+  target_include_directories(musica
+    PUBLIC  
+      $<BUILD_INTERFACE:${PARENT_DIR}/lib/micm/include>
+      $<INSTALL_INTERFACE:${INSTALL_MOD_DIR}>
+  )
+
+  message("what is install interface: ${INSTALL_MOD_DIR}")
+
+  install(
+    DIRECTORY 
+      ${PARENT_DIR}/lib/micm/include/micm
+    DESTINATION 
+      ${INSTALL_MOD_DIR}
+  )
+endif()
 
 # ################################################################################
 # # Tests

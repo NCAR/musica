@@ -20,7 +20,7 @@ find_library(LIBSTDCXX_PATH NAMES libstdc++.so.6
 )
 
 # NetCDF library
-pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
+pkg_check_modules(netcdff REQUIRED IMPORTED_TARGET netcdf-fortran)
 
 # this path is the one expected in the docker image
 set(MUSICA_CCPP_WRAPPER "/musica/ccpp" CACHE STRING "The location of the MUSICA ccpp fortran wrapper code")
