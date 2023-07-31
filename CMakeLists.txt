@@ -28,7 +28,7 @@ checkout_submodules()
 # Projet wide setup options
 include(CMakeDependentOption)
 
-option( ENABLE_TESTS "Builds tests that ensures each enabled MUSICA component can be used" OFF )
+option( ENABLE_TESTS "Builds tests that ensures each enabled MUSICA component can be used" ON )
 
 option( ENABLE_TUVX "Builds TUV-x, a photolysis calculator library" ON )
 option( ENABLE_MICM "Adds MICM, a model independent chemical mechanism solver" ON )

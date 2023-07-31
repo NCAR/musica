@@ -30,7 +30,7 @@ checkout_submodules()
 # Projet wide setup options
 include(CMakeDependentOption)
 
-option( ENABLE_TESTS "Builds tests that ensures each enabled MUSICA component can be used" OFF )
+option( ENABLE_TESTS "Builds tests that ensures each enabled MUSICA component can be used" ON )
 
 option( ENABLE_TUVX "Builds TUV-x, a photolysis calculator library" ON )
 option( ENABLE_MICM "Adds MICM, a model independent chemical mechanism solver" ON )
@@ -198,8 +198,6 @@ if (ENABLE_MICM)
       $<INSTALL_INTERFACE:${INSTALL_MOD_DIR}>
   )
 
-  message("what is install interface: ${INSTALL_MOD_DIR}")
-
   install(
     DIRECTORY 
       ${PARENT_DIR}/lib/micm/include/micm
@@ -208,19 +206,19 @@ if (ENABLE_MICM)
   )
 endif()
 
-# ################################################################################
-# # Tests
+################################################################################
+# Tests
 
-# # only include packaging if we are the top level project being built
-# if(PROJECT_IS_TOP_LEVEL AND ENABLE_TESTS)
-#   enable_testing()
-#   add_subdirectory(test)
-# endif()
+# only include packaging if we are the top level project being built
+if(PROJECT_IS_TOP_LEVEL AND ENABLE_TESTS)
+  enable_testing()
+  add_subdirectory(test)
+endif()
 
-# ################################################################################
-# # Packaging
+################################################################################
+# Packaging
 
-# # only include packaging if we are the top level project being built
-# if(PROJECT_IS_TOP_LEVEL)
-#   add_subdirectory(packaging)
-# endif()
+# only include packaging if we are the top level project being built
+if(PROJECT_IS_TOP_LEVEL)
+  add_subdirectory(packaging)
+endif()
