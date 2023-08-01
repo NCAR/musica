@@ -33,5 +33,6 @@ RUN cd musica \
              -D ENABLE_TESTS=ON \
              -B ../build \
     && cd ../build \
-    && make install -j 8        
+    && make install -j 8 
+    
 WORKDIR ./build
