@@ -1,5 +1,8 @@
 FROM fedora:35
 
+# copy the musica core code
+COPY . musica
+
 RUN dnf -y update \
     && dnf -y install \
         cmake \
@@ -23,16 +26,12 @@ RUN curl -LO https://github.com/jacobwilliams/json-fortran/archive/8.2.0.tar.gz 
     && cmake -D SKIP_DOC_GEN:BOOL=TRUE .. \
     && make install
 
-# copy the musica core code
-COPY . /musica/
-
 # get a tag and build the model
-RUN mkdir /build \
-    && cd /build \
+RUN cd musica \
     && export JSON_FORTRAN_HOME="/usr/local/jsonfortran-gnu-8.2.0" \
-    && cmake  \
+    && cmake -S ./musica \
              -D ENABLE_TESTS=ON \
-          ../musica \
-    && make install -j 8
-
-WORKDIR /build
+             -B ../build \
+    && cd ../build \
+    && make install -j 8        
+WORKDIR ./build
