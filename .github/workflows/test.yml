@@ -55,6 +55,6 @@ jobs:
       with:
         submodules: recursive
     - name: build Docker image
-      run: docker build -t musica-fortran -f Dockerfile.fotran .
+      run: docker build -t musica-fortran -f Dockerfile.fortran .
     - name: run tests in container
       run: docker run --name test-container -t musica-fortran bash -c 'cd musica/musica-fortran/build/test; ctest'
