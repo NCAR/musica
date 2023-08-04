@@ -103,7 +103,7 @@ set_target_properties(musica PROPERTIES
 )
 
 target_link_libraries(musica 
-  PUBLIC
+  PRIVATE
     PkgConfig::netcdff
     ${JSON_LIB}
 )
@@ -142,7 +142,7 @@ target_include_directories(musicacore_object
 )
 
 target_link_libraries(musicacore_object 
-  PUBLIC
+  PRIVATE
     PkgConfig::netcdff
 )
 

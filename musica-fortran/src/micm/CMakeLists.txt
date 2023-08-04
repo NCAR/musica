@@ -1,4 +1,4 @@
 target_sources(musica-fortran
-  PRIVATE
+  PUBLIC
   interface.F90
 )
