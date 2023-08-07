@@ -1,8 +1,5 @@
 FROM fedora:35
 
-# Copy the musica core code
-COPY . musica
-
 RUN dnf -y update \
     && dnf -y install \
         cmake \
@@ -27,6 +24,9 @@ RUN curl -LO https://github.com/jacobwilliams/json-fortran/archive/8.2.0.tar.gz 
 # Set environment variables
 ENV FC=gfortran
 ENV JSON_FORTRAN_HOME="/usr/local/jsonfortran-gnu-8.2.0"
+
+# Copy the musica core code
+COPY . musica
 
 # Build
 RUN cd musica \
