@@ -1,13 +1,6 @@
 name: build
 
-# on: [push, pull_request] # TODO: jiwon 8/7 this doesn't work for the feature branches
-on:
-  push:
-    branches:
-      - '*'
-  pull_request:
-    branches:
-      -  '*'
+on: [push, pull_request]
 
 jobs:
   build_test_connections:
