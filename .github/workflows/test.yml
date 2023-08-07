@@ -1,11 +1,7 @@
 name: build
 
-# on: [push, pull_request]
-on:
-  push:
-    branches:
-      - fortran_wrapper
-      
+on: [push, pull_request]
+
 jobs:
   build_test_connections:
     runs-on: ubuntu-latest
