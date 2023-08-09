@@ -2,7 +2,6 @@
 # Preamble
 
 cmake_minimum_required(VERSION 3.21)
-set(CMAKE_USER_MAKE_RULES_OVERRIDE "cmake/SetDefaults.cmake")
 
 project(
   musica
@@ -10,8 +9,12 @@ project(
   LANGUAGES Fortran CXX C
 )
 
+# Set parent directory to get submodules and set cmake module path 
+cmake_path(GET PROJECT_SOURCE_DIR PARENT_PATH PARENT_DIR)
+
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${PARENT_DIR}/cmake")
+set(CMAKE_USER_MAKE_RULES_OVERRIDE "${CMAKE_MODULE_PATH}/SetDefaults.cmake")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${PROJECT_SOURCE_DIR}/cmake")
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING
@@ -48,9 +51,6 @@ endif()
 set( MUSICA_MOD_DIR "${PROJECT_BINARY_DIR}/include" )
 set( MUSICA_LIB_DIR "${PROJECT_BINARY_DIR}/libs" )
 
-# Set parent directory to get submodules
-cmake_path(GET PROJECT_SOURCE_DIR PARENT_PATH PARENT_DIR)
-
 include(GNUInstallDirs)
 set(INSTALL_PREFIX "musica-${PROJECT_VERSION}")
 set(INSTALL_MOD_DIR "${INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}")
@@ -83,7 +83,7 @@ endif()
 ################################################################################
 # Dependencies
 
-include(cmake/dependencies.cmake)
+include(dependencies)
 
 ##############################################################################
 # MUSICA targets
@@ -210,7 +210,7 @@ endif()
 # Tests
 
 # only include packaging if we are the top level project being built
-if(PROJECT_IS_TOP_LEVEL AND ENABLE_TESTS)
+if(ENABLE_TESTS)
   enable_testing()
   add_subdirectory(test)
 endif()
