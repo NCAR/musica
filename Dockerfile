@@ -30,10 +30,11 @@ COPY . musica
 
 # Build
 RUN cd musica \
-    && cmake -S ./musica \
-             -B ../build \
+    && cmake -S . \
+             -B build \
+             -D USE_MUSICA=ON \
              -D ENABLE_TESTS=ON \
-    && cd ../build \
+    && cd build \
     && make install -j 8 
     
-WORKDIR ./build
+WORKDIR musica/build

@@ -1,18 +1,7 @@
 ################################################################################
 # Preamble
 
-cmake_minimum_required(VERSION 3.21)
-
-project(
-  musica
-  VERSION 0.3.0
-  LANGUAGES Fortran CXX C
-)
-
-# Set parent directory to get submodules and set cmake module path 
-cmake_path(GET PROJECT_SOURCE_DIR PARENT_PATH PARENT_DIR)
-
-set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${PARENT_DIR}/cmake")
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${PROJECT_SOURCE_DIR}/cmake")
 set(CMAKE_USER_MAKE_RULES_OVERRIDE "${CMAKE_MODULE_PATH}/SetDefaults.cmake")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
@@ -128,7 +117,7 @@ add_library(musica::musicacore ALIAS musicacore_object)
 set(ENABLE_UTIL_ONLY ON)
 
 # In case of absolute source path, build directory needs to be explicitly provided
-add_subdirectory(${PARENT_DIR}/lib/musica-core/src ${MUSICA_LIB_DIR}/musica-core/src)
+add_subdirectory(${PROJECT_SOURCE_DIR}/lib/musica-core/src ${MUSICA_LIB_DIR}/musica-core/src)
 
 set_target_properties(musicacore_object PROPERTIES
   ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
@@ -161,7 +150,7 @@ if (ENABLE_TUVX)
   set(TUVX_LIB_DIR ${MUSICA_LIB_DIR})
   
   # In case of absolute source path, build directory needs to be explicitly provided
-  add_subdirectory(${PARENT_DIR}/lib/tuv-x/src ${MUSICA_LIB_DIR}/tuv-x/src)
+  add_subdirectory(${PROJECT_SOURCE_DIR}/lib/tuv-x/src ${MUSICA_LIB_DIR}/tuv-x/src)
   
   set_target_properties(tuvx_object PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
@@ -194,13 +183,13 @@ if (ENABLE_MICM)
 
   target_include_directories(musica
     PUBLIC  
-      $<BUILD_INTERFACE:${PARENT_DIR}/lib/micm/include>
+      $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/lib/micm/include>
       $<INSTALL_INTERFACE:${INSTALL_MOD_DIR}>
   )
 
   install(
     DIRECTORY 
-      ${PARENT_DIR}/lib/micm/include/micm
+      ${PROJECT_SOURCE_DIR}/lib/micm/include/micm
     DESTINATION 
       ${INSTALL_MOD_DIR}
   )

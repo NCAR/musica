@@ -1,7 +1,13 @@
 cmake_minimum_required(VERSION 3.21)
 
-# TODO: jiwon 8/9 - how to name this project?
-project(musica_build_options)
+project(
+  musica
+  VERSION 0.3.0
+  LANGUAGES Fortran CXX C
+)
+
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${PROJECT_SOURCE_DIR}/cmake")
+set(CMAKE_USER_MAKE_RULES_OVERRIDE "${CMAKE_MODULE_PATH}/SetDefaults.cmake")
 
 # Library options to build
 option(USE_MUSICA "Use MUSICA" OFF)
