@@ -1,23 +1,24 @@
-# on macOS this image requires rosetta 2 support for virtualization
-# the intel compilers do not support the arm architecture so you must build
-# on an amd platform, or virtualize
-# FROM --platform=linux/amd64 fedora:35
-FROM fedora:35
+# versions and sizes from here: https://hub.docker.com/r/intel/oneapi-hpckit/tags
+FROM intel/oneapi-hpckit:latest
 
-RUN dnf -y update \
-    && dnf -y install \
-        cmake \
-        gcc-c++ \
-        gcc-gfortran \
-        # gdb \
-        git \
-        lcov \
-        make \
-        netcdf-fortran-devel \
-        # wget \
-        # glibc-devel \
-        valgrind \
-    && dnf clean all
+RUN apt update \
+    && apt -y install \
+    cmake \
+    cmake-curses-gui \
+    curl \
+    libcurl4-openssl-dev \
+    libhdf5-dev \
+    m4 \
+    vim \
+    zlib1g-dev \
+    git \
+    lcov \
+    make \
+    libnetcdff-dev \
+    valgrind \ 
+    gcc \
+    gfortran \
+    && apt clean 
 
 # Install json-fortran
 RUN curl -LO https://github.com/jacobwilliams/json-fortran/archive/8.2.0.tar.gz \
@@ -28,82 +29,85 @@ RUN curl -LO https://github.com/jacobwilliams/json-fortran/archive/8.2.0.tar.gz 
     && cmake -D SKIP_DOC_GEN:BOOL=TRUE .. \
     && make install
 
-# Set environment variables
+# Set environment variables to install MUSICA
 ENV FC=gfortran
+ENV FFLAGS="-I/usr/include/"
 ENV JSON_FORTRAN_HOME="/usr/local/jsonfortran-gnu-8.2.0"
 
 # Copy the musica core code
 COPY . musica
 
-# Build
-RUN cd musica/musica \
-    && cmake -S. \
-             -Bbuild \
-             -D ENABLE_TESTS=ON \
-    && cd build \
-    && make install -j 8    
-
-# Build
-RUN cd musica/musica-fortran \
+# Build and install MUSICA first
+RUN cd musica \
     && cmake -S . \
-             -Bbuild \
+             -B build \
+             -D USE_MUSICA=ON \
              -D ENABLE_TESTS=ON \
     && cd build \
-    && make
+    && make install -j 8 
 
-######
-######
-# TODO: jiwon 8/4 - We need these but it takes too long time to build so I will skip for now
-######
-######
-# # Basekit
-# RUN wget https://registrationcenter-download.intel.com/akdlm/IRC_NAS/7deeaac4-f605-4bcf-a81b-ea7531577c61/l_BaseKit_p_2023.1.0.46401_offline.sh
-# RUN chmod +x l_BaseKit_p_2023.1.0.46401_offline.sh
-# RUN ./l_BaseKit_p_2023.1.0.46401_offline.sh -a -s --eula accept
+# Set environment variables to build MUSICA-FORTRAN
+ENV CC=icx
+ENV CXX=icpx
+ENV FC=ifort
+# ENV JSON_FORTRAN_HOME="/usr/local/jsonfortran-intel-8.2.0"
 
-# # HPC toolkit
-# RUN wget https://registrationcenter-download.intel.com/akdlm/IRC_NAS/1ff1b38a-8218-4c53-9956-f0b264de35a4/l_HPCKit_p_2023.1.0.46346_offline.sh
-# RUN chmod +x l_HPCKit_p_2023.1.0.46346_offline.sh
-# RUN ./l_HPCKit_p_2023.1.0.46346_offline.sh -a -s --eula accept
+# # Build MUSICA-fortran
+# RUN cd musica \
+#     && cmake -S . \
+#              -B build-musica-fortran \
+#              -D USE_MUSICA=OFF \
+#              -D USE_MUSICA_FORTRAN=ON \
+#              -D ENABLE_TESTS=OFF \
+#     && cd build-musica-fortran \
+#     && make
+ 
 
-# # Set environment variables for intel compilers
-# ENV ONEAPI_VERSION=2021.4d
-# ENV ONEAPI_ROOT=/opt/intel/oneapi
-# ENV PATH=$PATH:$ONEAPI_ROOT/compiler/latest/linux/bin
-# ENV PATH=$PATH:$ONEAPI_ROOT/compiler/latest/linux/bin/intel64
-# ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ONEAPI_ROOT/compiler/latest/linux/compiler/lib/intel64
-
-# # Install json-fortran using GCC
-# RUN curl -LO https://github.com/jacobwilliams/json-fortran/archive/8.2.0.tar.gz \
-#     && tar -zxvf 8.2.0.tar.gz \
-#     && cd json-fortran-8.2.0 \
-#     && mkdir build \
-#     && cd build \
-#     && FC=gfortran cmake -D SKIP_DOC_GEN:BOOL=TRUE .. \
-#     && make install
-
-# # Copy the musica library
-# COPY . /musica/
-
-# ENV JSON_FORTRAN_HOME="/usr/local/jsonfortran-gnu-8.2.0"
-
-# RUN mkdir -p /build/musica /build/ccpp-integration
-
-# # Build musica with GCC
-# RUN cd /build/musica \
-#     && FC=gfortran CC=gcc CXX=g++ cmake  \
+# # original
+# RUN cd musica/musica \
+#     && cmake -S . \
+#              -Bbuild \
 #              -D ENABLE_TESTS=ON \
-#           /musica \
-#     && make install -j 8
+#     && cd build \
+#     && make install -j 8    
 
-# # Build musica::ccpp with ifort and link to musica::musica that was built with GCC
-# RUN cd /build/ccpp-integration \
-#     && FC=ifort cmake \
-#           -DCMAKE_BUILD_TYPE=Debug \
-#           /musica/test/ccpp/integration \
+# Build
+# RUN cd musica/musica-fortran \
+#     && cmake -S . \
+#              -B build \
+#             #  -D ENABLE_TESTS=ON \
+#     && cd build \
 #     && make
 
-# WORKDIR /build/ccpp-integration
 
-#####
-#####
+
+# # test
+# RUN cd musica/musica \
+#     && cmake -S . \
+#              -Bbuild \
+#              -D ENABLE_TESTS=ON \
+#     && cd build \
+#     && make install -j 8    
+
+# # Build
+# RUN cd musica \
+#     && cmake -S . \
+#              -Bbuild \
+#             #  -D ENABLE_TESTS=ON \
+#     && cd build \
+#     && make
+
+
+# TEST - JIWON 
+# Build
+
+# RUN cd musica \
+#     && cmake -S . \
+#              -B build
+            #  -D ENABLE_TESTS=ON
+    # && cd build 
+    # && make install -j 8 
+    
+# WORKDIR ./build
+
+## choose compiler other than gcc
