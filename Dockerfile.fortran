@@ -20,7 +20,11 @@ RUN apt update \
     gfortran \
     && apt clean 
 
-# Install json-fortran
+# Set environment variables to install MUSICA using gcc
+ENV FC=gfortran
+ENV FFLAGS="-I/usr/include/"
+
+# Install json-fortran for gnu version
 RUN curl -LO https://github.com/jacobwilliams/json-fortran/archive/8.2.0.tar.gz \
     && tar -zxvf 8.2.0.tar.gz \
     && cd json-fortran-8.2.0 \
@@ -29,15 +33,13 @@ RUN curl -LO https://github.com/jacobwilliams/json-fortran/archive/8.2.0.tar.gz 
     && cmake -D SKIP_DOC_GEN:BOOL=TRUE .. \
     && make install
 
-# Set environment variables to install MUSICA
-ENV FC=gfortran
-ENV FFLAGS="-I/usr/include/"
-ENV JSON_FORTRAN_HOME="/usr/local/jsonfortran-gnu-8.2.0"
-
-# Copy the musica core code
+# Copy the musica code
 COPY . musica
 
-# Build and install MUSICA first
+# Set json-fortran variable to install MUSICA using gcc
+ENV JSON_FORTRAN_HOME="/usr/local/jsonfortran-gnu-8.2.0"
+
+# Build and install MUSICA
 RUN cd musica \
     && cmake -S . \
              -B build \
@@ -46,68 +48,37 @@ RUN cd musica \
     && cd build \
     && make install -j 8 
 
-# Set environment variables to build MUSICA-FORTRAN
+# Set environment variables to build MUSICA-Fortran using intel compilers
 ENV CC=icx
 ENV CXX=icpx
 ENV FC=ifort
-# ENV JSON_FORTRAN_HOME="/usr/local/jsonfortran-intel-8.2.0"
 
-# # Build MUSICA-fortran
-# RUN cd musica \
-#     && cmake -S . \
-#              -B build-musica-fortran \
-#              -D USE_MUSICA=OFF \
-#              -D USE_MUSICA_FORTRAN=ON \
-#              -D ENABLE_TESTS=OFF \
-#     && cd build-musica-fortran \
-#     && make
- 
+# Install json-fortran for intel version 
+RUN cd json-fortran-8.2.0 \
+    && mkdir build-intel \
+    && cd build-intel \
+    && cmake -D SKIP_DOC_GEN:BOOL=TRUE .. \
+    && make install
 
-# # original
-# RUN cd musica/musica \
-#     && cmake -S . \
-#              -Bbuild \
-#              -D ENABLE_TESTS=ON \
-#     && cd build \
-#     && make install -j 8    
+# Set json-fortran variable to build MUSICA-Fortran using intel
+ENV JSON_FORTRAN_HOME="/usr/local/jsonfortran-intel-8.2.0"
 
-# Build
-# RUN cd musica/musica-fortran \
-#     && cmake -S . \
-#              -B build \
-#             #  -D ENABLE_TESTS=ON \
-#     && cd build \
-#     && make
+RUN cd musica \
+    && cmake -S . \
+             -B build-musica-fortran \
+             -D USE_MUSICA=OFF \
+             -D USE_MUSICA_FORTRAN=ON \
+    && cd build-musica-fortran \
+    && make
 
+## In progress
+##  
+# ENV JSON_FORTRAN_HOME="/usr/local/jsonfortran-gnu-8.2.0"
+# build muscia 
+# check install musica location 
+# export CC=icx && export CXX=icpx && export FC=ifort
+# build json fortran with intel compiler
+# mkdir build-intel &&  cd build-intel && cmake -D SKIP_DOC_GEN:BOL=TRUE .. && make install
+# export JSON_FORTRAN_HOME="/usr/local/jsonfortran-intel-8.2.0"
 
-
-# # test
-# RUN cd musica/musica \
-#     && cmake -S . \
-#              -Bbuild \
-#              -D ENABLE_TESTS=ON \
-#     && cd build \
-#     && make install -j 8    
-
-# # Build
-# RUN cd musica \
-#     && cmake -S . \
-#              -Bbuild \
-#             #  -D ENABLE_TESTS=ON \
-#     && cd build \
-#     && make
-
-
-# TEST - JIWON 
-# Build
-
-# RUN cd musica \
-#     && cmake -S . \
-#              -B build
-            #  -D ENABLE_TESTS=ON
-    # && cd build 
-    # && make install -j 8 
-    
 # WORKDIR ./build
-
-## choose compiler other than gcc

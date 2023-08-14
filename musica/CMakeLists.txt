@@ -1,9 +1,11 @@
 ################################################################################
 # Preamble
 
-set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${PROJECT_SOURCE_DIR}/cmake")
-set(CMAKE_USER_MAKE_RULES_OVERRIDE "${CMAKE_MODULE_PATH}/SetDefaults.cmake")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
+# Set up include and lib directories
+set(MUSICA_MOD_DIR "${PROJECT_BINARY_DIR}/include")
+set(MUSICA_LIB_DIR "${PROJECT_BINARY_DIR}/libs")
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING
@@ -22,23 +24,19 @@ checkout_submodules()
 # Projet wide setup options
 include(CMakeDependentOption)
 
-option( ENABLE_TESTS "Builds tests that ensures each enabled MUSICA component can be used" ON )
+option(ENABLE_TESTS "Builds tests that ensures each enabled MUSICA component can be used" OFF)
 
-option( ENABLE_TUVX "Builds TUV-x, a photolysis calculator library" ON )
-option( ENABLE_MICM "Adds MICM, a model independent chemical mechanism solver" ON )
+option(ENABLE_TUVX "Builds TUV-x, a photolysis calculator library" ON)
+option(ENABLE_MICM "Adds MICM, a model independent chemical mechanism solver" ON)
 
-option( ENABLE_MPI "Enable MPI parallel support" OFF)
-option( ENABLE_OPENMP "Enable OpemMP support" OFF )
+option(ENABLE_MPI "Enable MPI parallel support" OFF)
+option(ENABLE_OPENMP "Enable OpemMP support" OFF)
 
-option( CREATE_ENVIRONMENT_MODULE "Creates an Lmod environment module file that can be installed on the same machine this library is installed to." OFF )
+option(CREATE_ENVIRONMENT_MODULE "Creates an Lmod environment module file that can be installed on the same machine this library is installed to." OFF)
 
 if(CREATE_ENVIRONMENT_MODULE)
   set(INSTALL_MODULE_FILE_PATH "" CACHE STRING "This is the path of the modulefiles location that the Lmod files should be installed to.")
 endif()
-
-# Set up include and lib directories
-set( MUSICA_MOD_DIR "${PROJECT_BINARY_DIR}/include" )
-set( MUSICA_LIB_DIR "${PROJECT_BINARY_DIR}/libs" )
 
 include(GNUInstallDirs)
 set(INSTALL_PREFIX "musica-${PROJECT_VERSION}")
@@ -105,7 +103,7 @@ target_include_directories(musica
 
 target_include_directories(musica
   PUBLIC
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
     $<INSTALL_INTERFACE:${INSTALL_MOD_DIR}>
 )
 
@@ -115,9 +113,6 @@ add_library(musicacore_object)
 add_library(musica::musicacore ALIAS musicacore_object)
 
 set(ENABLE_UTIL_ONLY ON)
-
-# In case of absolute source path, build directory needs to be explicitly provided
-add_subdirectory(${PROJECT_SOURCE_DIR}/lib/musica-core/src ${MUSICA_LIB_DIR}/musica-core/src)
 
 set_target_properties(musicacore_object PROPERTIES
   ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
@@ -136,10 +131,12 @@ target_link_libraries(musicacore_object
 )
 
 # add the sources to musica
-target_sources(musica
+target_sources(musica  
   PRIVATE
     $<TARGET_OBJECTS:musicacore_object>
 )
+
+add_subdirectory(${PROJECT_SOURCE_DIR}/lib/musica-core/src ${MUSICA_LIB_DIR}/musica-core/src)
 
 # ####################
 # TUV-x
@@ -149,7 +146,6 @@ if (ENABLE_TUVX)
   set(TUVX_MOD_DIR ${MUSICA_MOD_DIR})
   set(TUVX_LIB_DIR ${MUSICA_LIB_DIR})
   
-  # In case of absolute source path, build directory needs to be explicitly provided
   add_subdirectory(${PROJECT_SOURCE_DIR}/lib/tuv-x/src ${MUSICA_LIB_DIR}/tuv-x/src)
   
   set_target_properties(tuvx_object PROPERTIES
@@ -206,8 +202,4 @@ endif()
 
 ################################################################################
 # Packaging
-
-# only include packaging if we are the top level project being built
-if(PROJECT_IS_TOP_LEVEL)
-  add_subdirectory(packaging)
-endif()
+add_subdirectory(packaging)

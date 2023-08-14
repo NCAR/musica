@@ -22,7 +22,7 @@ PROPERTIES
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
 
-# Find pkg for musica
+# Find MUSICA package
 find_package(musica 0.3.0 REQUIRED)
 
 target_link_libraries(musica-fortran
