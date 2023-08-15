@@ -71,14 +71,4 @@ RUN cd musica \
     && cd build-musica-fortran \
     && make
 
-## In progress
-##  
-# ENV JSON_FORTRAN_HOME="/usr/local/jsonfortran-gnu-8.2.0"
-# build muscia 
-# check install musica location 
-# export CC=icx && export CXX=icpx && export FC=ifort
-# build json fortran with intel compiler
-# mkdir build-intel &&  cd build-intel && cmake -D SKIP_DOC_GEN:BOL=TRUE .. && make install
-# export JSON_FORTRAN_HOME="/usr/local/jsonfortran-intel-8.2.0"
-
-# WORKDIR ./build
+WORKDIR musica/build-musica-fortran

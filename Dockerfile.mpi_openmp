@@ -44,7 +44,7 @@ RUN sudo chown -R test_user.test_user musica
 
 # get a tag and build the model
 RUN cd musica \
-    && cmake -S ./musica \
+    && cmake -S . \
              -B ../build \
              -D CMAKE_BUILD_TYPE=debug \
              -D ENABLE_MPI:BOOL=TRUE \

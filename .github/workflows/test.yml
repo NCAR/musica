@@ -57,4 +57,4 @@ jobs:
     - name: build Docker image
       run: docker build -t musica-fortran -f Dockerfile.fortran .
     - name: run tests in container
-      run: docker run --name test-container -t musica-fortran bash -c 'cd musica/build-musica-fortran/musica-fortran/test; ctest'
+      run: docker run --name test-container -t musica-fortran bash -c 'cd musica-fortran/test; ctest'

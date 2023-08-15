@@ -6,12 +6,16 @@ project(
   LANGUAGES Fortran C CXX
 )
 
-add_library(musica-fortran STATIC)
-add_library(musica::musica-fortran ALIAS musica-fortran)
+# Options
+option(ENABLE_WRAPPER_TESTS "Builds tests for MUSICA Fortran wrapper" ON)
+message(STATUS "Build tests for MUSICA : ${ENABLE_TESTS}")
 
 # Set up include and lib directories
 set(MUSICA_FORTRAN_MOD_DIR "${PROJECT_BINARY_DIR}/include")
 set(MUSICA_FORTRAN_LIB_DIR "${PROJECT_BINARY_DIR}/libs")
+
+add_library(musica-fortran STATIC)
+add_library(musica::musica-fortran ALIAS musica-fortran)
 
 set_target_properties(musica-fortran 
 PROPERTIES
@@ -35,5 +39,9 @@ target_include_directories(musica-fortran
     $<INSTALL_INTERFACE:${MUSICA_FORTRAN_LIB_DIR}>
 )
 
+# Add sources
 add_subdirectory(src)
-add_subdirectory(test)
+
+if(ENABLE_WRAPPER_TESTS)
+  add_subdirectory(test)
+endif()

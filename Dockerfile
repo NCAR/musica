@@ -25,7 +25,7 @@ RUN curl -LO https://github.com/jacobwilliams/json-fortran/archive/8.2.0.tar.gz 
 ENV FC=gfortran
 ENV JSON_FORTRAN_HOME="/usr/local/jsonfortran-gnu-8.2.0"
 
-# Copy the musica core code
+# Copy the musica code
 COPY . musica
 
 # Build
