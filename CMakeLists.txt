@@ -9,6 +9,7 @@ project(
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_LIST_DIR}/cmake")
 set(CMAKE_USER_MAKE_RULES_OVERRIDE "${CMAKE_MODULE_PATH}/SetDefaults.cmake")
 
+################################################################################
 include(CMakeDependentOption)
 
 # Library options to build
@@ -18,23 +19,30 @@ message(STATUS "Building MUSICA sources into a library : ${USE_MUSICA}")
 option(USE_MUSICA_FORTRAN "Use MUSICA Fortran interface" OFF)
 message(STATUS "Building MUSICA-Fortran sources into a library : ${USE_MUSICA_FORTRAN}")
 
+################################################################################
 # Projet wide setup options
-option(ENABLE_TESTS "Builds tests that ensures each enabled MUSICA component can be used" ON)
+cmake_dependent_option(
+  ENABLE_TESTS "Builds tests that ensures each enabled MUSICA component can be used" ON "USE_MUSICA" OFF)
 message(STATUS "Build tests for MUSICA : ${ENABLE_TESTS}")
 
-option(ENABLE_TUVX "Builds TUV-x, a photolysis calculator library" OFF)
+cmake_dependent_option(
+  ENABLE_TUVX "Builds TUV-x, a photolysis calculator library" OFF "USE_MUSICA" OFF)
 message(STATUS "Build TUV-x : ${ENABLE_TUVX}")
 
-option(ENABLE_MICM "Adds MICM, a model independent chemical mechanism solver" ON)
+cmake_dependent_option(
+  ENABLE_MICM "Adds MICM, a model independent chemical mechanism solver" ON "USE_MUSICA" OFF)
 message(STATUS "Build MICM : ${ENABLE_MICM}")
 
-option(ENABLE_MPI "Enable MPI parallel support" OFF)
+cmake_dependent_option(
+  ENABLE_MPI "Enable MPI parallel support" OFF "USE_MUSICA" OFF)
 message(STATUS "Enable MPI parallel support : ${ENABLE_MPI}")
 
-option(ENABLE_OPENMP "Enable OpemMP support" OFF)
+cmake_dependent_option(
+  ENABLE_OPENMP "Enable OpemMP support" OFF "USE_MUSICA" OFF)
 message(STATUS "Enable OpemMP support : ${ENABLE_OPENMP}")
 
-option(CREATE_ENVIRONMENT_MODULE "Creates an Lmod environment module file that can be installed on the same machine this library is installed to." OFF)
+cmake_dependent_option(
+  CREATE_ENVIRONMENT_MODULE "Creates an Lmod environment module file that can be installed on the same machine this library is installed to." OFF "USE_MUSICA" OFF)
 message(STATUS "Creates an Lmod environment module : ${CREATE_ENVIRONMENT_MODULE}")
 
 if(CREATE_ENVIRONMENT_MODULE)
@@ -44,16 +52,6 @@ endif()
 include(GNUInstallDirs)
 set(INSTALL_PREFIX "musica-${PROJECT_VERSION}")
 set(INSTALL_MOD_DIR "${INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}")
-
-# MUSICA
-if(USE_MUSICA)
-  add_subdirectory(musica)
-endif()
-
-# MUSICA-Fortran
-if(USE_MUSICA_FORTRAN)
-  add_subdirectory(musica-fortran)
-endif()
 
 # MPI
 if(ENABLE_MPI)
@@ -80,6 +78,16 @@ elseif(${CMAKE_Fortran_COMPILER_ID} MATCHES "PGI")
   add_definitions(-DMUSICA_USING_PGI)
 endif()
 
+################################################################################
+# MUSICA
+if(USE_MUSICA)
+  add_subdirectory(musica)
+endif()
+
+# MUSICA-Fortran
+if(USE_MUSICA_FORTRAN)
+  add_subdirectory(musica-fortran)
+endif()
 
 ################################################################################
 # Tests
