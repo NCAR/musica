@@ -32,7 +32,6 @@ COPY . musica
 RUN cd musica \
     && cmake -S . \
              -B build \
-             -D USE_MUSICA=ON \
              -D ENABLE_TESTS=ON \
     && cd build \
     && make install -j 8 

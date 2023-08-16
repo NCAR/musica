@@ -27,7 +27,7 @@ cmake_dependent_option(
 message(STATUS "Build tests for MUSICA : ${ENABLE_TESTS}")
 
 cmake_dependent_option(
-  ENABLE_TUVX "Builds TUV-x, a photolysis calculator library" OFF "USE_MUSICA" OFF)
+  ENABLE_TUVX "Builds TUV-x, a photolysis calculator library" ON "USE_MUSICA" OFF)
 message(STATUS "Build TUV-x : ${ENABLE_TUVX}")
 
 cmake_dependent_option(

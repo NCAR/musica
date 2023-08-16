@@ -48,7 +48,6 @@ RUN cd musica \
     && cmake -S . \
              -B build \
              -D CMAKE_BUILD_TYPE=debug \
-             -D USE_MUSICA=ON \
              -D ENABLE_TESTS=ON \
              -D ENABLE_MPI=ON \
              -D CMAKE_Fortran_COMPILER=/usr/lib64/openmpi/bin/mpif90 \

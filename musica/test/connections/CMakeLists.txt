@@ -7,7 +7,7 @@ if (ENABLE_OPENMP)
 endif()
 
 if (ENABLE_MPI)
-  create_standard_test(NAME connect_to_musica_core_mpi SOURCES musica_core_mpi.F90 WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+  create_standard_test(NAME connect_to_musica_core_mpi SOURCES musica_core_mpi.F90)
 endif()
 
 if (ENABLE_TUVX)
