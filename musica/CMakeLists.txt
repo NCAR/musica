@@ -1,8 +1,6 @@
 ################################################################################
 # Preamble
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-
 # Set up include and lib directories
 set(MUSICA_MOD_DIR "${PROJECT_BINARY_DIR}/include")
 set(MUSICA_LIB_DIR "${PROJECT_BINARY_DIR}/libs")
