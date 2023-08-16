@@ -53,6 +53,7 @@ RUN cd musica \
              -D ENABLE_TESTS=ON \
              -D CMAKE_Fortran_COMPILER=/usr/lib64/openmpi/bin/mpif90 \
     && cd build \
+    && make \
     && sudo make install \ 
     && sudo chown -R test_user:test_user .  
 

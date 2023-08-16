@@ -4,7 +4,6 @@
 # add things to copy
 !CMakeLists.txt
 !Dockerfile
-!Dockerfile.ccpp
 !Dockerfile.mpi
 !Dockerfile.mpi_openmp
 !Dockerfile.openmp

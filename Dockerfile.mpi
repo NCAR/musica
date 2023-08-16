@@ -52,6 +52,7 @@ RUN cd musica \
              -D ENABLE_MPI=ON \
              -D CMAKE_Fortran_COMPILER=/usr/lib64/openmpi/bin/mpif90 \
     && cd build \
+    && make \
     && sudo make install -j 8 \ 
     && sudo chown -R test_user:test_user .  
 

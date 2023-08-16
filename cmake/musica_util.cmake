@@ -1,7 +1,6 @@
 function(checkout_submodules)
   find_package(Git QUIET)
-#   if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")   TODO: jiwon 7/28 .git dir is in the parent directory
-  if(GIT_FOUND)
+  if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
   # Update submodules as needed
       option(GIT_SUBMODULE "Check submodules during build" ON)
       if(GIT_SUBMODULE)
