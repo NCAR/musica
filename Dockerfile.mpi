@@ -32,11 +32,12 @@ RUN curl -LO https://github.com/jacobwilliams/json-fortran/archive/8.2.0.tar.gz 
 
 # Set environment variables
 ENV PATH="${PATH}:/usr/lib64/openmpi/bin/"
+ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/lib64/openmpi/lib"
 ENV OMP_NUM_THREADS=3
 ENV FC=gfortran
 ENV JSON_FORTRAN_HOME="/usr/local/jsonfortran-gnu-8.2.0"
 
-# copy the MusicBox code
+# Copy the musica code
 COPY . musica/
 
 RUN git config --global --add safe.directory '*'
@@ -44,14 +45,15 @@ RUN sudo chown -R test_user.test_user musica
 
 # Build
 RUN cd musica \
-    && cmake -S ./musica \
-             -B ../build \
+    && cmake -S . \
+             -B build \
              -D CMAKE_BUILD_TYPE=debug \
-             -D ENABLE_MPI:BOOL=TRUE \
+             -D USE_MUSICA=ON \
              -D ENABLE_TESTS=ON \
+             -D ENABLE_MPI=ON \
              -D CMAKE_Fortran_COMPILER=/usr/lib64/openmpi/bin/mpif90 \
-    && cd ../build \
+    && cd build \
     && sudo make install -j 8 \ 
     && sudo chown -R test_user:test_user .  
 
-WORKDIR /home/test_user/build  
+WORKDIR /home/test_user/musica/build  

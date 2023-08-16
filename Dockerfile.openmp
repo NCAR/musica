@@ -45,15 +45,15 @@ RUN sudo chown -R test_user.test_user musica
 # get a tag and build the model
 RUN cd musica \
     && cmake -S . \
-             -B ../build \
+             -B build \
              -D CMAKE_BUILD_TYPE=debug \
              -D ENABLE_OPENMP:BOOL=TRUE \
              -D ENABLE_TESTS=ON \
              -D CMAKE_Fortran_COMPILER=/usr/lib64/openmpi/bin/mpif90 \
              -D CMAKE_CXX_COMPILER=/usr/lib64/openmpi/bin/mpic++ \
-    && cd ../build \
+    && cd build \
     && make VERBOSE=1 \
     && sudo make install -j 8 \ 
     && sudo chown -R test_user:test_user .
 
-WORKDIR /home/test_user/build
+WORKDIR /home/test_user/musica/build
