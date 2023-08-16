@@ -6,6 +6,8 @@ project(
   LANGUAGES Fortran C CXX
 )
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
 # Options
 option(ENABLE_WRAPPER_TESTS "Builds tests for MUSICA Fortran wrapper" ON)
 message(STATUS "Build tests for MUSICA : ${ENABLE_TESTS}")

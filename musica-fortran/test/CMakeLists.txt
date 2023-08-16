@@ -12,7 +12,7 @@ include(FetchContent)
 
 FetchContent_Declare(musica 
   GIT_REPOSITORY https://github.com/NCAR/musica.git
-  GIT_TAG        e745ba2c6da8bbb464878da6ced0752366796c4e  ## todo: jiwon update this
+  GIT_TAG        48e8ce8ab78edf45f2ebab92d27e167f2b35ced1  ## todo: jiwon update this
 )
 
 FetchContent_MakeAvailable(musica)
