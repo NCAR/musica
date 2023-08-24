@@ -62,12 +62,9 @@ RUN cd json-fortran-8.2.0 \
 # Set json-fortran variable to build MUSICA-Fortran using intel
 ENV JSON_FORTRAN_HOME="/usr/local/jsonfortran-intel-8.2.0"
 
-RUN cd musica \
-    && cmake -S . \
-             -B build-musica-fortran \
-             -D USE_MUSICA=OFF \
-             -D USE_MUSICA_FORTRAN=ON \
-    && cd build-musica-fortran \
+RUN cd musica/musica-fortran/test \
+    && mkdir build && cd build \
+    && cmake .. \
     && make
 
 WORKDIR musica/build-musica-fortran

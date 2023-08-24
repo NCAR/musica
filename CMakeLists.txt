@@ -81,11 +81,13 @@ endif()
 
 ################################################################################
 # MUSICA
+message(STATUS "use musica: ${USE_MUSICA}")
 if(USE_MUSICA)
   add_subdirectory(musica)
 endif()
 
 # MUSICA-Fortran
+message(STATUS "use musica fortran: ${USE_MUSICA_FORTRAN}")
 if(USE_MUSICA_FORTRAN)
   add_subdirectory(musica-fortran)
 endif()
