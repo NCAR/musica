@@ -9,7 +9,6 @@ project(
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 # Options
-option(ENABLE_WRAPPER_TESTS "Builds tests for MUSICA Fortran wrapper" ON)
 message(STATUS "Build tests for MUSICA : ${ENABLE_TESTS}")
 
 # Set up include and lib directories
@@ -43,7 +42,3 @@ target_include_directories(musica-fortran
 
 # Add sources
 add_subdirectory(src)
-
-if(ENABLE_WRAPPER_TESTS)
-  add_subdirectory(test)
-endif()
