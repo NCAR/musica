@@ -67,4 +67,4 @@ RUN cd musica/musica-fortran/test \
     && cmake .. \
     && make
 
-WORKDIR musica/build-musica-fortran
+WORKDIR musica/musica-fortran/test/build
