@@ -12,6 +12,8 @@ function(checkout_submodules)
               message(FATAL_ERROR "git submodule update --init failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
           endif()
       endif()
+  else()
+    message(FATAL_ERROR "Git was not found")
   endif()
 endfunction(checkout_submodules)
 

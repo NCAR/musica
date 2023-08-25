@@ -12,6 +12,9 @@ At present the project encompasses these components
 - [TUV-x](https://github.com/NCAR/tuv-x)
     - A photolysis rate calculator 
 
+- [MICM](https://github.com/NCAR/micm)
+    - Model Independent Chemical Module
+
 ## Available grids
 
 Pre-made grids for use in MUSICA are available [here](https://wiki.ucar.edu/display/MUSICA/Available+Grids).

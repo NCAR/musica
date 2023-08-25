@@ -12,9 +12,7 @@ RUN dnf -y update \
         valgrind \
     && dnf clean all
 
-ENV FC=gfortran
-
-# install json-fortran
+# Install json-fortran
 RUN curl -LO https://github.com/jacobwilliams/json-fortran/archive/8.2.0.tar.gz \
     && tar -zxvf 8.2.0.tar.gz \
     && cd json-fortran-8.2.0 \
@@ -23,16 +21,19 @@ RUN curl -LO https://github.com/jacobwilliams/json-fortran/archive/8.2.0.tar.gz 
     && cmake -D SKIP_DOC_GEN:BOOL=TRUE .. \
     && make install
 
-# copy the musica core code
-COPY . /musica/
+# Set environment variables
+ENV FC=gfortran
+ENV JSON_FORTRAN_HOME="/usr/local/jsonfortran-gnu-8.2.0"
 
-# get a tag and build the model
-RUN mkdir /build \
-    && cd /build \
-    && export JSON_FORTRAN_HOME="/usr/local/jsonfortran-gnu-8.2.0" \
-    && cmake  \
+# Copy the musica code
+COPY . musica
+
+# Build
+RUN cd musica \
+    && cmake -S . \
+             -B build \
              -D ENABLE_TESTS=ON \
-          ../musica \
-    && make install -j 8
-
-WORKDIR /build
+    && cd build \
+    && make install -j 8 
+    
+WORKDIR musica/build
