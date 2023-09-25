@@ -15,7 +15,7 @@ set(USE_MUSICA_FORTRAN ON)
 
 FetchContent_Declare(musica 
   GIT_REPOSITORY https://github.com/NCAR/musica.git
-  GIT_TAG        0cc0192  ## todo: jiwon update this
+  GIT_TAG        bf1b77b  ## todo: jiwon update this
 )
 
 FetchContent_MakeAvailable(musica)
