@@ -22,7 +22,8 @@ FetchContent_MakeAvailable(musica)
 
 ################################################################################
 # Tests
-add_executable(test_musica_api test_musica_api.F90)
+# add_executable(test_musica_api test_musica_api.F90)
+add_executable(test_musica_api test.F90)
 
 target_link_libraries(test_musica_api 
   PUBLIC 
