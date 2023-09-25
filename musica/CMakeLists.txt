@@ -136,7 +136,7 @@ if (ENABLE_MICM)
 
   install(
     DIRECTORY 
-      ${PROJECT_SOURCE_DIR}/lib/micm/include/micm
+      ${PROJECT_SOURCE_DIR}/lib/micm/include
     DESTINATION 
       ${INSTALL_MOD_DIR}
   )
