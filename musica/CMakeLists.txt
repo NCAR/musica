@@ -89,7 +89,7 @@ target_sources(musica
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/lib/musica-core/src ${MUSICA_LIB_DIR}/musica-core/src)
 
-# ####################
+####################
 # TUV-x
 if (ENABLE_TUVX)
   add_definitions(-DMUSICA_USE_TUVX)
@@ -122,7 +122,7 @@ if (ENABLE_TUVX)
   )
 endif()
 
-# ####################
+####################
 # MICM
 if (ENABLE_MICM)
   add_definitions(-DMUSICA_USE_MICM)
