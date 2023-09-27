@@ -1,5 +1,4 @@
-! C functions declaration
-interface
+interface   
     function create_micm_c(config_path) bind(C, name="create_micm")
         use iso_c_binding
         implicit none

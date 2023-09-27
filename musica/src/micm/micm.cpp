@@ -1,9 +1,6 @@
 #include <iostream>
 
-// #include "MICM.hpp" // TODO(jiwon) - do we want angle bracket, also how about relative path?
-#include "../../include/micm/MICM.hpp"
-
-// #include <nlohmann/json.hpp>  // TODO - remove
+#include "../../include/micm/micm.hpp"  // TODO(jiwon) relative include path?
 #include <micm/configure/solver_config.hpp>
 
 
@@ -31,9 +28,7 @@ int MICM::create_solver()
 
     if (status == micm::ConfigParseStatus::Success)
     {
-        std::cout << "   * [C++] Successfully read confiure file from the direcotry path: "  << config_path_ << std::endl;
-
-        auto params = micm::RosenbrockSolverParameters::three_stage_rosenbrock_parameters(NUM_GRID_CELLS);  // TODO(jiwon) - three_stage
+        auto params = micm::RosenbrockSolverParameters::three_stage_rosenbrock_parameters(NUM_GRID_CELLS);
         params.reorder_state_ = false;
         solver_ = new VectorRosenbrockSolver{solver_params.system_,
                                             solver_params.processes_,
@@ -67,10 +62,9 @@ void MICM::solve(double temperature, double pressure, double time_step, double*&
         state.conditions_[i].pressure_ = pressure;
     }
 
-    state.variables_[0] = v_concentrations_;  // TODO:
+    state.variables_[0] = v_concentrations_;
 
     auto result = solver_->Solve(time_step, state);
-    // state.variables_[0] = result.result_.AsVector();   //TODO(jiwon): doesn't need because stae will get destroyed?
     
     v_concentrations_ = result.result_.AsVector();
     for (int i=0; i<v_concentrations_.size(); i++)

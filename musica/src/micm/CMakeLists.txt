@@ -1,6 +1,5 @@
 target_sources(musica
   PRIVATE
-    # interface.cpp
-    MICM_C_API.cpp
-    MICM.cpp
+    micm_c_api.cpp
+    micm.cpp
 )

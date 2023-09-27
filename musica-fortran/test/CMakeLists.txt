@@ -16,15 +16,14 @@ set(ENABLE_TUVX OFF)
 
 FetchContent_Declare(musica 
   GIT_REPOSITORY https://github.com/NCAR/musica.git
-  GIT_TAG        32e213c
+  GIT_TAG        bfad77f  # TODO(jiwon) - update the tag
 )
 
 FetchContent_MakeAvailable(musica)
 
 ################################################################################
 # Tests
-# add_executable(test_musica_api test_musica_api.F90)
-add_executable(test_musica_api test.F90)
+add_executable(test_musica_api test_musica_api.F90)
 
 target_link_libraries(test_musica_api 
   PUBLIC 

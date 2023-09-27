@@ -3,11 +3,11 @@
 #include <string>
 #include <vector>
 #include <cstddef>
-#include <memory>
 
 #include <micm/solver/rosenbrock.hpp>
 #include <micm/util/sparse_matrix_vector_ordering.hpp>
 #include <micm/util/vector_matrix.hpp>
+
 
 class MICM 
 {

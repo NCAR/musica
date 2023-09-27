@@ -4,7 +4,7 @@ module libmicm
     private
     public :: micm
 
-    include "MICM_C_def.F90"
+    include "micm_c_def.F90"
 
     type micm
         private
