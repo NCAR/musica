@@ -10,7 +10,7 @@ module micm
         private
         type(c_ptr) :: ptr
     contains
-        procedure :: delete => delete_micm_polymorph
+        procedure :: delete => delete_micm
         procedure :: create_solver => micm_create_solver
         procedure :: solve => micm_solve
     end type
@@ -38,12 +38,6 @@ contains
     end function
 
     subroutine delete_micm(this)
-        implicit none
-        type(micm_t) :: this
-        call delete_micm_c(this%ptr)
-    end subroutine
-    
-    subroutine delete_micm_polymorph(this)
         implicit none
         class(micm_t) :: this
         call delete_micm_c(this%ptr)
