@@ -1,5 +1,6 @@
 module micm
     use iso_c_binding
+    implicit none
 
     private
     public :: micm_t
@@ -21,7 +22,6 @@ module micm
 
 contains
     function create_micm(config_path)
-        implicit none
         type(micm_t) :: create_micm
         character(len=*), intent(in) :: config_path
         character(len=1, kind=C_CHAR) :: c_config_path(len_trim(config_path) + 1)
@@ -38,19 +38,16 @@ contains
     end function
 
     subroutine delete_micm(this)
-        implicit none
         class(micm_t) :: this
         call delete_micm_c(this%ptr)
     end subroutine
 
     integer function micm_create_solver(this)
-        implicit none
         class(micm_t), intent(in) :: this
         micm_create_solver = micm_create_solver_c(this%ptr)
     end function
 
     subroutine micm_solve(this, temperature, pressure, time_step, concentrations, num_concentrations)
-        implicit none
         class(micm_t), intent(in) :: this
         real(c_double), intent(in) :: temperature
         real(c_double), intent(in) :: pressure
