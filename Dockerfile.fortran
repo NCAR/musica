@@ -69,4 +69,7 @@ RUN cd musica/musica-fortran/test \
     && cmake .. \
     && make
 
+RUN cd musica/musica-fortran/test \
+    && cp -r micm_config ./build/micm_config
+
 WORKDIR musica/musica-fortran/test/build
