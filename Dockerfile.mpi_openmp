@@ -17,6 +17,7 @@ RUN sudo dnf -y install \
         lcov \
         make \
         netcdf-fortran-devel \
+        json-devel \
         openmpi-devel \
         valgrind-openmpi \
     && dnf clean all

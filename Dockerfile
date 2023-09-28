@@ -9,6 +9,7 @@ RUN dnf -y update \
         lcov \
         make \
         netcdf-fortran-devel \
+        json-devel \
         valgrind \
     && dnf clean all
 
@@ -35,5 +36,5 @@ RUN cd musica \
              -D ENABLE_TESTS=ON \
     && cd build \
     && make install -j 8 
-    
+
 WORKDIR musica/build

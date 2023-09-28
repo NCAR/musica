@@ -18,6 +18,7 @@ RUN sudo dnf -y install \
         make \
         netcdf-fortran-devel \
         openmpi-devel \
+        json-devel \
         valgrind-openmpi \
     && dnf clean all
 
