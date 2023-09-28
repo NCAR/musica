@@ -7,4 +7,6 @@ target_sources(musica
     ${CMAKE_BINARY_DIR}/version.c
 )
 
-add_subdirectory(micm)
+if(ENABLE_MICM)
+  add_subdirectory(micm)
+endif()
