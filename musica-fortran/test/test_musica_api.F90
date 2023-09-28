@@ -1,8 +1,8 @@
 program test
     use iso_c_binding
-    use libmicm
+    use micm
     implicit none
-    type(micm) :: m
+    type(micm_t) :: m
 
     real(c_double) :: temperature      
     real(c_double) :: pressure
@@ -17,7 +17,7 @@ program test
     num_concentrations = 10
 
     write(*,*) "  * [Fortran] Creating MICM"
-    m = micm("micm_config")
+    m = micm_t("micm_config")
 
     write(*,*) "  * [Fortran] Creating solver"
     write(*,*) "  * [Fortran] Solver creating status indicates ", m%create_solver(), " (1 is success, else failure) "

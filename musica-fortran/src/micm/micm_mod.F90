@@ -1,12 +1,12 @@
-module libmicm
+module micm
     use iso_c_binding
 
     private
-    public :: micm
+    public :: micm_t
 
     include "micm_c_def.F90"
 
-    type micm
+    type micm_t
         private
         type(c_ptr) :: ptr
     contains
@@ -15,14 +15,14 @@ module libmicm
         procedure :: solve => micm_solve
     end type
 
-    interface micm
+    interface micm_t
         procedure create_micm
     end interface
 
 contains
     function create_micm(config_path)
         implicit none
-        type(micm) :: create_micm
+        type(micm_t) :: create_micm
         character(len=*), intent(in) :: config_path
         character(len=1, kind=C_CHAR) :: c_config_path(len_trim(config_path) + 1)
         integer :: N, i
@@ -39,25 +39,25 @@ contains
 
     subroutine delete_micm(this)
         implicit none
-        type(micm) :: this
+        type(micm_t) :: this
         call delete_micm_c(this%ptr)
     end subroutine
     
     subroutine delete_micm_polymorph(this)
         implicit none
-        class(micm) :: this
+        class(micm_t) :: this
         call delete_micm_c(this%ptr)
     end subroutine
 
     integer function micm_create_solver(this)
         implicit none
-        class(micm), intent(in) :: this
+        class(micm_t), intent(in) :: this
         micm_create_solver = micm_create_solver_c(this%ptr)
     end function
 
     subroutine micm_solve(this, temperature, pressure, time_step, concentrations, num_concentrations)
         implicit none
-        class(micm), intent(in) :: this
+        class(micm_t), intent(in) :: this
         real(c_double), intent(in) :: temperature
         real(c_double), intent(in) :: pressure
         real(c_double), intent(in) :: time_step

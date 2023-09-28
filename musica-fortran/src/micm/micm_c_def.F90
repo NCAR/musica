@@ -6,23 +6,23 @@ interface
         character(len=1, kind=C_CHAR), intent(in) :: config_path(*)
     end function
 
-    subroutine delete_micm_c(micm) bind(C, name="delete_micm")
+    subroutine delete_micm_c(micm_t) bind(C, name="delete_micm")
         use iso_c_binding
         implicit none
-        type(c_ptr), value :: micm
+        type(c_ptr), value :: micm_t
     end subroutine
     
-    function micm_create_solver_c(micm) bind(C, name="micm_create_solver")
+    function micm_create_solver_c(micm_t) bind(C, name="micm_create_solver")
         use iso_c_binding
         implicit none
         integer(c_int) :: micm_create_solver_c  ! TODO(jiwon) return value?
-        type(c_ptr), intent(in), value :: micm
+        type(c_ptr), intent(in), value :: micm_t
     end function
 
-    subroutine micm_solve_c(micm, temperature, pressure, time_step, concentrations, num_concentrations) bind(C, name="micm_solve")
+    subroutine micm_solve_c(micm_t, temperature, pressure, time_step, concentrations, num_concentrations) bind(C, name="micm_solve")
         use iso_c_binding
         implicit none
-        type(c_ptr), intent(in), value :: micm
+        type(c_ptr), intent(in), value :: micm_t
         real(c_double), value :: temperature   
         real(c_double), value :: pressure
         real(c_double), value :: time_step
