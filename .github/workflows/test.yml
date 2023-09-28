@@ -14,6 +14,17 @@ jobs:
       run: docker build -t musica .
     - name: run tests in container
       run: docker run --name test-container -t musica bash -c 'make test'
+  build_test_connections_without_micm:
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - name: build Docker image
+      run: docker build -t musica -f Dockerfile.no_micm .
+    - name: run tests in container
+      run: docker run --name test-container -t musica bash -c 'make test'
   build_test_connections_with_openmp:
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
