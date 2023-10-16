@@ -11,9 +11,9 @@ module micm
         private
         type(c_ptr) :: ptr
     contains
-        procedure :: delete => delete_micm
         procedure :: create_solver => micm_create_solver
         procedure :: solve => micm_solve
+        final :: delete_micm
     end type
 
     interface micm_t
@@ -38,7 +38,7 @@ contains
     end function
 
     subroutine delete_micm(this)
-        class(micm_t) :: this
+        type(micm_t) :: this
         call delete_micm_c(this%ptr)
     end subroutine
 
