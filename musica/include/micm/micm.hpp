@@ -17,7 +17,6 @@ public:
 
     // TODO(jiwon): can return type indicate error?
     int create_solver();
-    void delete_solver() const;
     void solve(double temperature, double pressure, double time_step, double*& concentrations, size_t num_concentrations);
 
 private:

@@ -13,7 +13,6 @@ void delete_micm(const Micm* micm)
 {
     std::cout << "   * [C API] Deleting MICM" << std::endl;
     
-    micm->delete_solver();
     delete micm;
 }
 

@@ -13,6 +13,9 @@ MICM::MICM(const std::string& config_path)
 
 MICM::~MICM()
 {
+    std::cout << "   * [C++] Deallocating solver" << std::endl;
+    delete solver_;
+    
     std::cout << "   * [C++] MICM Destructor" << std::endl;
 }
 
@@ -41,12 +44,6 @@ int MICM::create_solver()
     }
 
     return success;
-}
-
-void MICM::delete_solver() const
-{
-    std::cout << "   * [C++] Deallocating solver" << std::endl;
-    delete solver_;
 }
 
 void MICM::solve(double temperature, double pressure, double time_step, double*& concentrations, size_t num_concentrations)
