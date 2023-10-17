@@ -1,4 +1,5 @@
 # MUSICA
+[![GitHub Releases](https://img.shields.io/github/release/NCAR/musica.svg)](https://github.com/NCAR/musica/releases)
 [![License](https://img.shields.io/github/license/NCAR/musica.svg)](https://github.com/NCAR/musica/blob/main/LICENSE)
 [![CI Status](https://github.com/NCAR/musica/actions/workflows/test.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/test.yml)
 <!-- [![DOI](https://zenodo.org/badge/.svg)](https://zenodo.org/badge/latestdoi/) -->
