@@ -65,7 +65,7 @@ jobs:
     - name: delete unnessary tools to free up space
       run: rm -rf /opt/hostedtoolcache
     
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v2
       with:
         submodules: recursive
     - name: build Docker image
