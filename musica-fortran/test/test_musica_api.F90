@@ -1,6 +1,6 @@
 program test
     use iso_c_binding
-    use micm
+    use musica_micm
     implicit none
     type(micm_t) :: m
 
