@@ -16,10 +16,15 @@ set(ENABLE_TUVX OFF)
 
 FetchContent_Declare(musica 
   GIT_REPOSITORY https://github.com/NCAR/musica.git
-  GIT_TAG        bad9756  # TODO(jiwon) - update the tag
+  GIT_TAG        a98246d  # TODO(jiwon) - update the tag
 )
 
 FetchContent_MakeAvailable(musica)
+
+# TODO(jiwon) - testing for dev
+# add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../.. ${CMAKE_CURRENT_BINARY_DIR}/musica)
+# message(${CMAKE_CURRENT_SOURCE_DIR}/../..)
+# message(${CMAKE_CURRENT_BINARY_DIR}/musica)
 
 ################################################################################
 # Tests
