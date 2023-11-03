@@ -1,8 +1,10 @@
 program test
     use iso_c_binding
-    use micm
+    use micm_core
+
     implicit none
-    type(micm_t) :: m
+    
+    type(micm_t) :: micm
 
     real(c_double) :: temperature      
     real(c_double) :: pressure
@@ -17,10 +19,10 @@ program test
     num_concentrations = 10
 
     write(*,*) "  * [Fortran] Creating MICM"
-    m = micm_t("micm_config")
+    micm = micm_t("micm_config")
 
     write(*,*) "  * [Fortran] Creating solver"
-    write(*,*) "  * [Fortran] Solver creating status indicates ", m%create_solver(), " (1 is success, else failure) "
+    write(*,*) "  * [Fortran] Solver creating status indicates ", micm%create_solver(), " (1 is success, else failure) "
 
     write(*,*) "  * [Fortran] Initial temp", temperature
     write(*,*) "  * [Fortran] Initial pressure", pressure
@@ -28,11 +30,11 @@ program test
     write(*,*) "  * [Fortran] Initial concentrations", concentrations
     write(*,*) "  * [Fortran] Initial number of concentrations", num_concentrations
 
-    write(*,*) "  * [Fortran] Starting to solve"
-    call m%solve(temperature, pressure, time_step, concentrations, num_concentrations)
+    write(*,*) "  * [Fortran] Solving starts.."
+    call micm%solve(temperature, pressure, time_step, concentrations, num_concentrations)
+
     write(*,*) "  * [Fortran] After solving, concentrations", concentrations
 
-    write(*,*) "  * [Fortran] Calling destructor for MICM"
-    call m%delete
+    write(*,*) "  * [Fortran] Exiting..."
 
 end program

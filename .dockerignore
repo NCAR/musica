@@ -4,8 +4,11 @@
 # add things to copy
 !CMakeLists.txt
 !Dockerfile
+!Dockerfile.fortran
+!Dockerfile.fortran-ubuntu
 !Dockerfile.mpi
 !Dockerfile.mpi_openmp
+!Dockerfile.no_micm
 !Dockerfile.openmp
 !musica
 !musica-fortran
