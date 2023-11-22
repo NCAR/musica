@@ -15,7 +15,7 @@ interface
     function micm_create_solver_c(micm_t) bind(C, name="micm_create_solver")
         use iso_c_binding
         implicit none
-        integer(c_int) :: micm_create_solver_c  ! TODO(jiwon) return value?
+        integer(c_int) :: micm_create_solver_c
         type(c_ptr), intent(in), value :: micm_t
     end function
 

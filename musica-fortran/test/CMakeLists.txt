@@ -14,18 +14,17 @@ set(USE_MUSICA OFF)
 set(USE_MUSICA_FORTRAN ON)
 set(ENABLE_TUVX OFF)
 
-# TODO(jiwon) - original
-# FetchContent_Declare(musica 
-#   GIT_REPOSITORY https://github.com/NCAR/musica.git
-#   GIT_TAG        a98246d  # TODO(jiwon) - update the tag
-# )
+FetchContent_Declare(musica 
+  GIT_REPOSITORY https://github.com/NCAR/musica.git
+  GIT_TAG        d833a18  # TODO(jiwon) - update the tag
+)
 
-# FetchContent_MakeAvailable(musica)
+FetchContent_MakeAvailable(musica)
 
 # TODO(jiwon) - testing for dev
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../.. ${CMAKE_CURRENT_BINARY_DIR}/musica)
-message(${CMAKE_CURRENT_SOURCE_DIR}/../..)
-message(${CMAKE_CURRENT_BINARY_DIR}/musica)
+# add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../.. ${CMAKE_CURRENT_BINARY_DIR}/musica)
+# message(${CMAKE_CURRENT_SOURCE_DIR}/../..)
+# message(${CMAKE_CURRENT_BINARY_DIR}/musica)
 
 ################################################################################
 # Test MUSICA API
