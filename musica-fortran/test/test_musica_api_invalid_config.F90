@@ -20,7 +20,7 @@ program test
     num_concentrations = 10
 
     write(*,*) "  * [Fortran] Creating MICM..."
-    micm = micm_t("micm_config")
+    micm = micm_t("invalid_config")
 
     write(*,*) "  * [Fortran] Creating solver..."
     errcode = micm%create_solver()
