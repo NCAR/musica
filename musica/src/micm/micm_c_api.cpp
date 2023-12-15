@@ -1,6 +1,5 @@
-#include "../../include/micm/micm_c.h" // TODO(jiwon) - relative path?
-#include "../../include/micm/micm.hpp"
-
+#include <micm/micm_c.h>
+#include <micm/micm.hpp>
 
 Micm* create_micm(const char* config_path)
 {
@@ -17,7 +16,7 @@ int micm_create_solver(Micm* micm)
     return micm->create_solver();
 }
 
-void micm_solve(Micm* micm, double temperature, double pressure, double time_step, double* concentrations, size_t num_concentrations)
+void micm_solve(Micm* micm, double temperature, double pressure, double time_step, int num_concentrations, double* concentrations)
 {
-    micm->solve(temperature, pressure, time_step, concentrations, num_concentrations);
+    micm->solve(temperature, pressure, time_step, num_concentrations, concentrations);
 }

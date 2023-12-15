@@ -1,8 +1,7 @@
 #include <stdexcept>
 
-#include "../../include/micm/micm.hpp"  // TODO(jiwon) relative include path?
+#include <micm/micm.hpp>
 #include <micm/configure/solver_config.hpp>
-
 
 MICM::MICM(const std::string& config_path)
     : config_path_(config_path),
@@ -18,7 +17,6 @@ int MICM::create_solver()
 {
     int errcode = 0;    // 0 means no error 
 
-    // read and parse the config
     micm::SolverConfig solver_config;
     micm::ConfigParseStatus status = solver_config.ReadAndParse(config_path_);
 
@@ -35,10 +33,11 @@ int MICM::create_solver()
     {
         errcode = 1;  // 1 means that error occured 
     }
+
     return errcode;
 }
 
-void MICM::solve(double temperature, double pressure, double time_step, double*& concentrations, size_t num_concentrations)
+void MICM::solve(double temperature, double pressure, double time_step, int num_concentrations, double*& concentrations)
 {
     v_concentrations_.assign(concentrations, concentrations + num_concentrations);
 
