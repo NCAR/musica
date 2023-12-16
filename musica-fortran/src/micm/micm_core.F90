@@ -29,7 +29,8 @@ module micm_core
             type(c_ptr), intent(in), value  :: micm_t
         end function
 
-        subroutine micm_solve_c(micm_t, temperature, pressure, time_step, num_concentrations, concentrations) bind(C, name="micm_solve")
+        subroutine micm_solve_c(micm_t, temperature, pressure, time_step, num_concentrations, concentrations) &
+                                bind(C, name="micm_solve")
             use iso_c_binding
             implicit none
             type(c_ptr), intent(in), value               :: micm_t
