@@ -7,55 +7,55 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
     - name: build Docker image
-      run: docker build -t musica .
+      run: docker build -t musica -f docker/Dockerfile .
     - name: run tests in container
       run: docker run --name test-container -t musica bash -c 'make test'
   build_test_connections_without_micm:
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
     - name: build Docker image
-      run: docker build -t musica -f Dockerfile.no_micm .
+      run: docker build -t musica -f docker/Dockerfile.no_micm .
     - name: run tests in container
       run: docker run --name test-container -t musica bash -c 'make test'
   build_test_connections_with_openmp:
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
     - name: build Docker image
-      run: docker build -t musica-openmp -f Dockerfile.openmp .
+      run: docker build -t musica-openmp -f docker/Dockerfile.openmp .
     - name: run tests in container
       run: docker run --name test-container -t musica-openmp bash -c 'make test'
   build_test_connections_with_mpi:
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
     - name: build Docker image
-      run: docker build -t musica-mpi -f Dockerfile.mpi .
+      run: docker build -t musica-mpi -f docker/Dockerfile.mpi .
     - name: run tests in container
       run: docker run --name test-container -t musica-mpi bash -c 'make test'
   build_test_connections_with_mpi_openmp:
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
     - name: build Docker image
-      run: docker build -t musica-mpi-openmp -f Dockerfile.mpi_openmp .
+      run: docker build -t musica-mpi-openmp -f docker/Dockerfile.mpi_openmp .
     - name: run tests in container
       run: docker run --name test-container -t musica-mpi-openmp bash -c 'make test'
   # build_test_connections_musica-fortran-intel:
@@ -65,11 +65,11 @@ jobs:
   #   - name: delete unnessary tools to free up space
   #     run: rm -rf /opt/hostedtoolcache
     
-  #   - uses: actions/checkout@v2
+  #   - uses: actions/checkout@v3
   #     with:
   #       submodules: recursive
   #   - name: build Docker image
-  #     run: docker build -t musica-fortran -f Dockerfile.fortran-intel .
+  #     run: docker build -t musica-fortran -f docker/Dockerfile.fortran-intel .
   #   - name: run tests in container
   #     run: docker run --name test-container -t musica-fortran bash -c 'make test'
   build_test_connections_musica-fortran-ubuntu:
@@ -79,10 +79,10 @@ jobs:
     - name: delete unnessary tools to free up space
       run: rm -rf /opt/hostedtoolcache
     
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         submodules: recursive
     - name: build Docker image
-      run: docker build -t musica-fortran-ubuntu -f Dockerfile.fortran-ubuntu .
+      run: docker build -t musica-fortran-ubuntu -f docker/Dockerfile.fortran-ubuntu .
     - name: run tests in container
       run: docker run --name test-container -t musica-fortran-ubuntu bash -c 'make test'
