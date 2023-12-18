@@ -1,5 +1,3 @@
-#include <stdexcept>
-
 #include <micm/micm.hpp>
 #include <micm/configure/solver_config.hpp>
 
