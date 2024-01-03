@@ -32,7 +32,7 @@ option(USE_MUSICA_FORTRAN "Use MUSICA-Fortran interface" OFF)
 message(STATUS "Building MUSICA-Fortran sources into a library : ${USE_MUSICA_FORTRAN}")
 
 option(MAKE_MUSICA_FORTRAN_INSTALLABLE "Make MUSICA-Fortran installable" ON)
-message(STATUS "Making MUSICA-Fortran sources installable by the CAM-SIMA framework : ${MAKE_MUSICA_FORTRAN_INSTALLABLE}")
+message(STATUS "Making MUSICA-Fortran sources installable : ${MAKE_MUSICA_FORTRAN_INSTALLABLE}")
 
 ################################################################################
 # Projet wide setup options
