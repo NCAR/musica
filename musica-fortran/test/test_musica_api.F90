@@ -26,7 +26,7 @@ program test
 
     if (errcode == 1) then
         write(*,*) "  * [Fortran] Failed in creating solver"
-        stop errcode
+        stop 3
     else
         write(*,*) "  * [Fortran] Initial temp", temperature
         write(*,*) "  * [Fortran] Initial pressure", pressure
@@ -39,7 +39,5 @@ program test
 
         write(*,*) "  * [Fortran] After solving, concentrations", concentrations
     endif
-
-    write(*,*) "  * [Fortran] Exiting..."
 
 end program

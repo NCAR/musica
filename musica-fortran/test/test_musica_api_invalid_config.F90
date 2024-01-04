@@ -26,20 +26,11 @@ program test
 
     if (errcode == 1) then
         write(*,*) "  * [Fortran] Failed in creating solver"
-        stop errcode
+        write(*,*) "  * [Fortran] Expected failure. Error code: ", errcode
+        stop 0
     else
-        write(*,*) "  * [Fortran] Initial temp", temperature
-        write(*,*) "  * [Fortran] Initial pressure", pressure
-        write(*,*) "  * [Fortran] Initial time_step", time_step
-        write(*,*) "  * [Fortran] Initial number of concentrations", num_concentrations
-        write(*,*) "  * [Fortran] Initial concentrations", concentrations
-
-        write(*,*) "  * [Fortran] Solving starts..."
-        call micm%solve(temperature, pressure, time_step, num_concentrations, concentrations)
-
-        write(*,*) "  * [Fortran] After solving, concentrations", concentrations
+        write(*,*) "  * [Fortran] Unexpected error code: ", errcode
+        stop 3
     endif
-
-    write(*,*) "  * [Fortran] Exiting..."
 
 end program
