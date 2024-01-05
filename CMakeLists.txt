@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.21)
 
 project(
   musica
-  VERSION 0.4.0
+  VERSION 0.5.0
   LANGUAGES Fortran CXX C
 )
 
