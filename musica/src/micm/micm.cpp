@@ -44,7 +44,7 @@ void MICM::solve(double temperature, double pressure, double time_step, double*&
 {
     v_concentrations_.assign(concentrations, concentrations + num_concentrations);
 
-    micm::State<Vector1MatrixParam> state = solver_->GetState();
+    auto state = solver_->GetState();
 
     for(size_t i{}; i < NUM_GRID_CELLS; ++i) {
         state.conditions_[i].temperature_ = temperature;
