@@ -32,7 +32,4 @@ program test
     call m%solve(temperature, pressure, time_step, concentrations, num_concentrations)
     write(*,*) "  * [Fortran] After solving, concentrations", concentrations
 
-    write(*,*) "  * [Fortran] Calling destructor for MICM"
-    call m%delete_micm()
-
 end program
