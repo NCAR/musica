@@ -1,6 +1,6 @@
 program test
     use iso_c_binding
-    use musica_micm
+    use micm_mod
     implicit none
     type(micm_t) :: m
 
@@ -33,6 +33,6 @@ program test
     write(*,*) "  * [Fortran] After solving, concentrations", concentrations
 
     write(*,*) "  * [Fortran] Calling destructor for MICM"
-    call m%delete
+    call m%delete_micm()
 
 end program
