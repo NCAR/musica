@@ -7,17 +7,17 @@ program test
     real(c_double) :: temperature      
     real(c_double) :: pressure
     real(c_double) :: time_step
-    real(c_double), dimension(10) :: concentrations
+    real(c_double), dimension(5) :: concentrations
     integer(c_size_t) :: num_concentrations
 
     temperature = 10d0
     pressure = 20d0
     time_step = 1d0
-    concentrations = (/ 1d0, 2d0, 3d0, 4d0, 5d0, 6d0, 7d0, 8d0, 9d0, 10d0 /)
-    num_concentrations = 10
+    concentrations = (/ 0.75, 0.4, 0.8, 0.01, 0.02 /)
+    num_concentrations = 5
 
     write(*,*) "  * [Fortran] Creating MICM"
-    m = micm_t("micm_config")
+    m = micm_t("chapman")
 
     write(*,*) "  * [Fortran] Creating solver"
     write(*,*) "  * [Fortran] Solver creating status indicates ", m%create_solver(), " (1 is success, else failure) "

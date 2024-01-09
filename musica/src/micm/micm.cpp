@@ -29,7 +29,7 @@ int MICM::create_solver()
         params.reorder_state_ = false;
         solver_ = new VectorRosenbrockSolver{solver_params.system_,
                                             solver_params.processes_,
-                                            params}; 
+                                            params};
     }
     else
     {
@@ -42,15 +42,14 @@ int MICM::create_solver()
 
 void MICM::solve(double temperature, double pressure, double time_step, double*& concentrations, size_t num_concentrations)
 {
-    v_concentrations_.assign(concentrations, concentrations + num_concentrations);
-
-    auto state = solver_->GetState();
+    micm::State state = solver_->GetState();
 
     for(size_t i{}; i < NUM_GRID_CELLS; ++i) {
         state.conditions_[i].temperature_ = temperature;
         state.conditions_[i].pressure_ = pressure;
     }
 
+    v_concentrations_.assign(concentrations, concentrations + num_concentrations);
     state.variables_[0] = v_concentrations_;
 
     auto result = solver_->Solve(time_step, state);
