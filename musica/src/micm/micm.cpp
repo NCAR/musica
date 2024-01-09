@@ -16,7 +16,7 @@ MICM::~MICM()
 
 int MICM::create_solver()
 {
-    bool success = 1;    // TODO(jiwon): can we specifiy error type with int?
+    int faliure = 0;    // TODO(jiwon): can we specifiy error type with int?
 
     // read and parse the config
     micm::SolverConfig solver_config;
@@ -34,10 +34,10 @@ int MICM::create_solver()
     else
     {
         std::cout << "   * [C++] Failed creating solver" << std::endl;
-        success = 0; 
+        faliure = 1; 
     }
 
-    return success;
+    return faliure;
 }
 
 void MICM::solve(double temperature, double pressure, double time_step, double*& concentrations, size_t num_concentrations)
@@ -53,7 +53,7 @@ void MICM::solve(double temperature, double pressure, double time_step, double*&
     state.variables_[0] = v_concentrations_;
 
     auto result = solver_->Solve(time_step, state);
-    
+
     v_concentrations_ = result.result_.AsVector();
     for (int i=0; i<v_concentrations_.size(); i++)
     {
