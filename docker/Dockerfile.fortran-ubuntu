@@ -55,6 +55,6 @@ RUN cd musica/musica-fortran/test \
     && make
 
 RUN cd musica/musica-fortran/test \
-    && cp -r micm_config ./build/micm_config
+    && cp -r configs/chapman ./build/chapman
 
 WORKDIR musica/musica-fortran/test/build

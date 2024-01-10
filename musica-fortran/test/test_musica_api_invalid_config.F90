@@ -25,8 +25,7 @@ program test
     errcode = micm%create_solver()
 
     if (errcode == 1) then
-        write(*,*) "  * [Fortran] Failed in creating solver"
-        write(*,*) "  * [Fortran] Expected failure. Error code: ", errcode
+        write(*,*) "  * [Fortran] Failed in creating solver. Expected failure. Error code: ", errcode
         stop 0
     else
         write(*,*) "  * [Fortran] Unexpected error code: ", errcode

@@ -1,4 +1,5 @@
 #include <micm/micm.hpp>
+
 #include <micm/configure/solver_config.hpp>
 
 MICM::MICM(const std::string& config_path)
@@ -13,7 +14,7 @@ MICM::~MICM()
 
 int MICM::create_solver()
 {
-    int errcode = 0;    // 0 means no error 
+    int faliure = 0;
 
     micm::SolverConfig solver_config;
     micm::ConfigParseStatus status = solver_config.ReadAndParse(config_path_);
@@ -29,27 +30,26 @@ int MICM::create_solver()
     }
     else 
     {
-        errcode = 1;  // 1 means that error occured 
+        faliure = 1; 
     }
 
-    return errcode;
+    return faliure;
 }
 
 void MICM::solve(double temperature, double pressure, double time_step, int num_concentrations, double*& concentrations)
 {
-    v_concentrations_.assign(concentrations, concentrations + num_concentrations);
-
-    micm::State<Vector1MatrixParam> state = solver_->GetState();
+    micm::State state = solver_->GetState();
 
     for(size_t i{}; i < NUM_GRID_CELLS; ++i) {
         state.conditions_[i].temperature_ = temperature;
         state.conditions_[i].pressure_ = pressure;
     }
 
+    v_concentrations_.assign(concentrations, concentrations + num_concentrations);
     state.variables_[0] = v_concentrations_;
 
     auto result = solver_->Solve(time_step, state);
-    
+
     v_concentrations_ = result.result_.AsVector();
     for (int i=0; i<v_concentrations_.size(); i++)
     {
