@@ -58,7 +58,21 @@ jobs:
       run: docker build -t musica-mpi-openmp -f Dockerfile.mpi_openmp .
     - name: run tests in container
       run: docker run --name test-container -t musica-mpi-openmp bash -c 'make test'
-  build_test_connections_musica-fortran:
+  # build_test_connections_musica-fortran:
+  #   runs-on: ubuntu-latest
+  #   if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
+  #   steps:
+  #   - name: delete unnessary tools to free up space
+  #     run: rm -rf /opt/hostedtoolcache
+    
+  #   - uses: actions/checkout@v2
+  #     with:
+  #       submodules: recursive
+  #   - name: build Docker image
+  #     run: docker build -t musica-fortran -f Dockerfile.fortran .
+  #   - name: run tests in container
+  #     run: docker run --name test-container -t musica-fortran bash -c 'make test'
+  build_test_connections_musica-fortran-same-compiler:
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     steps:
@@ -69,6 +83,6 @@ jobs:
       with:
         submodules: recursive
     - name: build Docker image
-      run: docker build -t musica-fortran -f Dockerfile.fortran .
+      run: docker build -t musica-fortran-ubuntu -f Dockerfile.fortran-ubuntu .
     - name: run tests in container
-      run: docker run --name test-container -t musica-fortran bash -c 'make test'
+      run: docker run --name test-container -t musica-fortran-ubuntu bash -c 'make test'

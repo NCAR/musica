@@ -16,7 +16,7 @@ set(ENABLE_TUVX OFF)
 
 FetchContent_Declare(musica 
   GIT_REPOSITORY https://github.com/NCAR/musica.git
-  GIT_TAG        bad9756  # TODO(jiwon) - update the tag
+  GIT_TAG        264396b  # TODO(jiwon) - update the tag
 )
 
 FetchContent_MakeAvailable(musica)

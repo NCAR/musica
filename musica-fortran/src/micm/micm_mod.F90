@@ -1,4 +1,4 @@
-module musica_micm
+module micm_mod
     use iso_c_binding
     implicit none
 
