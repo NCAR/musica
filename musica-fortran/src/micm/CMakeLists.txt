@@ -1,4 +1,4 @@
 target_sources(musica-fortran
   PUBLIC
-  interface.F90
+    micm_mod.F90
 )

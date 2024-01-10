@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.21)
 
 project(
   musica
-  VERSION 0.4.0
+  VERSION 0.5.0
   LANGUAGES Fortran CXX C
 )
 
@@ -53,6 +53,14 @@ endif()
 include(GNUInstallDirs)
 set(INSTALL_PREFIX "musica-${PROJECT_VERSION}")
 set(INSTALL_MOD_DIR "${INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}")
+
+# MUSICA library components
+if(ENABLE_TUVX)
+  add_definitions(-DMUSICA_USE_TUVX)
+endif()
+if(ENABLE_MICM)
+  add_definitions(-DMUSICA_USE_MICM)
+endif()
 
 # MPI
 if(ENABLE_MPI)

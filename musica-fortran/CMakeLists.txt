@@ -28,7 +28,7 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
 
 # Find MUSICA package
-find_package(musica 0.3.0 REQUIRED)
+find_package(musica 0.5.0 REQUIRED)
 
 target_link_libraries(musica-fortran
  PUBLIC 

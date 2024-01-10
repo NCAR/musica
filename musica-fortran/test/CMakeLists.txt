@@ -12,10 +12,11 @@ include(FetchContent)
 
 set(USE_MUSICA OFF)
 set(USE_MUSICA_FORTRAN ON)
+set(ENABLE_TUVX OFF)
 
 FetchContent_Declare(musica 
   GIT_REPOSITORY https://github.com/NCAR/musica.git
-  GIT_TAG        bf1b77b  ## todo: jiwon update this
+  GIT_TAG        264396b  # TODO(jiwon) - update the tag
 )
 
 FetchContent_MakeAvailable(musica)
