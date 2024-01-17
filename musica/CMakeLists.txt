@@ -1,10 +1,6 @@
 ################################################################################
 # Preamble
 
-# Set up include and lib directories
-set(MUSICA_MOD_DIR "${PROJECT_BINARY_DIR}/include")
-set(MUSICA_LIB_DIR "${PROJECT_BINARY_DIR}/libs")
-
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING
       "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel."
@@ -49,13 +45,13 @@ target_link_libraries(musica
 target_include_directories(musica
   PUBLIC  
     $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
-    $<INSTALL_INTERFACE:${INSTALL_MOD_DIR}>
+    $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
 )
 
 target_include_directories(musica
-  PUBLIC
+  PUBLIC  
     $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
-    $<INSTALL_INTERFACE:${INSTALL_MOD_DIR}>
+    $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
 )
 
 ####################
@@ -73,7 +69,7 @@ set_target_properties(musicacore_object PROPERTIES
 target_include_directories(musicacore_object 
   PUBLIC  
     $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
-    $<INSTALL_INTERFACE:${INSTALL_MOD_DIR}>
+    $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
 )
 
 target_link_libraries(musicacore_object 
@@ -92,8 +88,6 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/lib/musica-core/src ${MUSICA_LIB_DIR}/mus
 ####################
 # TUV-x
 if (ENABLE_TUVX)
-  add_definitions(-DMUSICA_USE_TUVX)
-
   set(TUVX_MOD_DIR ${MUSICA_MOD_DIR})
   set(TUVX_LIB_DIR ${MUSICA_LIB_DIR})
   
@@ -107,7 +101,7 @@ if (ENABLE_TUVX)
   target_include_directories(tuvx_object 
     PUBLIC  
       $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
-      $<INSTALL_INTERFACE:${INSTALL_MOD_DIR}>
+      $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
   )
 
   target_link_libraries(tuvx_object 
@@ -125,20 +119,19 @@ endif()
 ####################
 # MICM
 if (ENABLE_MICM)
-  add_definitions(-DMUSICA_USE_MICM)
   target_compile_features(musica PUBLIC cxx_std_20)
 
   target_include_directories(musica
     PUBLIC  
       $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/lib/micm/include>
-      $<INSTALL_INTERFACE:${INSTALL_MOD_DIR}>
+      $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
   )
 
   install(
     DIRECTORY 
-      ${PROJECT_SOURCE_DIR}/lib/micm/include
+      ${PROJECT_SOURCE_DIR}/lib/micm/include/
     DESTINATION 
-      ${INSTALL_MOD_DIR}
+      ${INSTALL_INCLUDE_DIR}
   )
 endif()
 

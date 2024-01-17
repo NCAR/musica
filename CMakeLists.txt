@@ -6,9 +6,20 @@ project(
   LANGUAGES Fortran CXX C
 )
 
-set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_LIST_DIR}/cmake")
-set(CMAKE_USER_MAKE_RULES_OVERRIDE "${CMAKE_MODULE_PATH}/SetDefaults.cmake")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${CMAKE_CURRENT_LIST_DIR}/cmake)
+set(CMAKE_USER_MAKE_RULES_OVERRIDE ${CMAKE_MODULE_PATH}/SetDefaults.cmake)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
+include(GNUInstallDirs)
+
+set(INSTALL_PREFIX ${CMAKE_PROJECT_NAME}-${PROJECT_VERSION})
+set(INSTALL_INCLUDE_DIR ${INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR})
+set(INSTALL_LIB_DIR ${INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
+
+set(MUSICA_MOD_DIR ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_INCLUDEDIR})
+set(MUSICA_LIB_DIR ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
+
+set(MUSICA_FORTRAN_SRC_DIR ${CMAKE_SOURCE_DIR}/musica-fortran/src/micm)
 
 ################################################################################
 include(CMakeDependentOption)
@@ -17,8 +28,11 @@ include(CMakeDependentOption)
 option(USE_MUSICA "Use MUSICA" ON)
 message(STATUS "Building MUSICA sources into a library : ${USE_MUSICA}")
 
-option(USE_MUSICA_FORTRAN "Use MUSICA Fortran interface" OFF)
+option(USE_MUSICA_FORTRAN "Use MUSICA-Fortran interface" OFF)
 message(STATUS "Building MUSICA-Fortran sources into a library : ${USE_MUSICA_FORTRAN}")
+
+option(MAKE_MUSICA_FORTRAN_INSTALLABLE "Make MUSICA-Fortran installable" ON)
+message(STATUS "Making MUSICA-Fortran sources installable : ${MAKE_MUSICA_FORTRAN_INSTALLABLE}")
 
 ################################################################################
 # Projet wide setup options
@@ -50,14 +64,11 @@ if(CREATE_ENVIRONMENT_MODULE)
   set(INSTALL_MODULE_FILE_PATH "" CACHE STRING "This is the path of the modulefiles location that the Lmod files should be installed to.")
 endif()
 
-include(GNUInstallDirs)
-set(INSTALL_PREFIX "musica-${PROJECT_VERSION}")
-set(INSTALL_MOD_DIR "${INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}")
-
 # MUSICA library components
 if(ENABLE_TUVX)
   add_definitions(-DMUSICA_USE_TUVX)
 endif()
+
 if(ENABLE_MICM)
   add_definitions(-DMUSICA_USE_MICM)
 endif()

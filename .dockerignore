@@ -3,16 +3,12 @@
 
 # add things to copy
 !CMakeLists.txt
-!Dockerfile
-!Dockerfile.mpi
-!Dockerfile.mpi_openmp
-!Dockerfile.openmp
-!musica
-!musica-fortran
-!docs
-!cmake
-!lib
-!src
-!test
+!musica/
+!musica-fortran/
+!docs/
+!cmake/
+!lib/
+!src/
+!test/
 !.gitmodules
-!.git
+!.git/

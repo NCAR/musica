@@ -16,13 +16,13 @@ set(ENABLE_TUVX OFF)
 
 FetchContent_Declare(musica 
   GIT_REPOSITORY https://github.com/NCAR/musica.git
-  GIT_TAG        264396b  # TODO(jiwon) - update the tag
+  GIT_TAG        c3dff0f  # TODO(jiwon) - update the tag
 )
 
 FetchContent_MakeAvailable(musica)
 
 ################################################################################
-# Tests
+# Test MUSICA API
 add_executable(test_musica_api test_musica_api.F90)
 
 target_link_libraries(test_musica_api 
@@ -39,4 +39,23 @@ enable_testing()
 add_test(
   NAME test_musica_api 
   COMMAND $<TARGET_FILE:test_musica_api>
+)
+
+# Test MUSICA API with invalid configuration files
+add_executable(test_invalid_config test_musica_api_invalid_config.F90)
+
+target_link_libraries(test_invalid_config 
+  PUBLIC 
+    musica::musica-fortran
+)
+
+set_target_properties(test_invalid_config
+PROPERTIES 
+LINKER_LANGUAGE Fortran) 
+
+enable_testing()
+
+add_test(
+  NAME test_invalid_config
+  COMMAND $<TARGET_FILE:test_invalid_config>
 )

@@ -6,14 +6,10 @@ project(
   LANGUAGES Fortran C CXX
 )
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-
-# Options
-message(STATUS "Build tests for MUSICA : ${ENABLE_TESTS}")
-
 # Set up include and lib directories
-set(MUSICA_FORTRAN_MOD_DIR "${PROJECT_BINARY_DIR}/include")
-set(MUSICA_FORTRAN_LIB_DIR "${PROJECT_BINARY_DIR}/libs")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(MUSICA_FORTRAN_MOD_DIR ${PROJECT_BINARY_DIR}/include)
+set(MUSICA_FORTRAN_LIB_DIR ${PROJECT_BINARY_DIR}/libs)
 
 add_library(musica-fortran STATIC)
 add_library(musica::musica-fortran ALIAS musica-fortran)
