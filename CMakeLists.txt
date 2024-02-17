@@ -113,5 +113,4 @@ endif()
 # Tests
 if(ENABLE_TESTS)
   enable_testing()
-  add_subdirectory(musica/test)
 endif()

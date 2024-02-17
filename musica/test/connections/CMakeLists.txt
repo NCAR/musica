@@ -22,4 +22,26 @@ endif()
 
 if (ENABLE_MICM)
   create_standard_test_cxx(NAME connect_to_micm SOURCES micm.cpp)
+
+  # MUSICA C API test
+  include(CTest)
+  add_executable(test_micm_c_api micm_c_api.c)
+  target_link_libraries(test_micm_c_api
+    PUBLIC
+      musica::musica
+  )
+  target_include_directories(test_micm_c_api
+    PUBLIC
+      $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
+      $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
+  )
+  set_target_properties(test_micm_c_api
+    PROPERTIES
+    LINKER_LANGUAGE CXX
+  )
+  add_test(
+    NAME test_micm_c_api
+    COMMAND $<TARGET_FILE:test_micm_c_api>
+    WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+  )
 endif()

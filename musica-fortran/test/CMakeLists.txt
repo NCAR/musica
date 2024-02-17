@@ -10,19 +10,22 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 include(FetchContent)
 
+FetchContent_Declare(musica 
+  GIT_REPOSITORY https://github.com/NCAR/musica.git
+  GIT_TAG        main
+)
+
 set(USE_MUSICA OFF)
 set(USE_MUSICA_FORTRAN ON)
 set(ENABLE_TUVX OFF)
-
-FetchContent_Declare(musica 
-  GIT_REPOSITORY https://github.com/NCAR/musica.git
-  GIT_TAG        c3dff0f  # TODO(jiwon) - update the tag
-)
+set(ENABLE_TESTS OFF)
 
 FetchContent_MakeAvailable(musica)
 
-################################################################################
-# Test MUSICA API
+enable_testing()
+
+include(CTest)
+
 add_executable(test_musica_api test_musica_api.F90)
 
 target_link_libraries(test_musica_api 
@@ -31,17 +34,16 @@ target_link_libraries(test_musica_api
 )
 
 set_target_properties(test_musica_api 
-PROPERTIES 
-LINKER_LANGUAGE Fortran) 
-
-enable_testing()
+  PROPERTIES
+  LINKER_LANGUAGE Fortran
+)
 
 add_test(
   NAME test_musica_api 
   COMMAND $<TARGET_FILE:test_musica_api>
+  WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
 )
 
-# Test MUSICA API with invalid configuration files
 add_executable(test_invalid_config test_musica_api_invalid_config.F90)
 
 target_link_libraries(test_invalid_config 
@@ -50,12 +52,12 @@ target_link_libraries(test_invalid_config
 )
 
 set_target_properties(test_invalid_config
-PROPERTIES 
-LINKER_LANGUAGE Fortran) 
-
-enable_testing()
+  PROPERTIES
+  LINKER_LANGUAGE Fortran
+)
 
 add_test(
   NAME test_invalid_config
   COMMAND $<TARGET_FILE:test_invalid_config>
+  WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
 )
