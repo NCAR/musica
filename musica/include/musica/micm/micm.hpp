@@ -21,7 +21,7 @@ public:
     /// @param config_path Path to the configuration file or the directory containing the configuration files
     /// @return Status of solver creation related to parsing configuration files.
     ///         The return value represents the error code for CAM-SIMA 
-    int create_solver(const std::string& config_path);
+    int create_solver(std::string config_path);
     
     /// @brief Solve the system
     /// @param time_step Time [s] to advance the state by

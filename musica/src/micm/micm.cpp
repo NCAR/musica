@@ -1,10 +1,11 @@
-#include <micm/micm.hpp>
+#include <musica/micm/micm.hpp>
 
 #include <micm/configure/solver_config.hpp>
 
-MICM::MICM(const std::string& config_path)
-    : config_path_(config_path),
-      solver_(nullptr)
+#include <filesystem>
+
+MICM::MICM()
+    :  solver_(nullptr)
     {}
 
 MICM::~MICM()
@@ -12,12 +13,13 @@ MICM::~MICM()
     delete solver_;
 }
 
-int MICM::create_solver()
+int MICM::create_solver(std::string config_path)
 {
-    int faliure = 0;
+    int failure = 0;
 
     micm::SolverConfig solver_config;
-    micm::ConfigParseStatus status = solver_config.ReadAndParse(config_path_);
+
+    micm::ConfigParseStatus status= solver_config.ReadAndParse(std::filesystem::path(config_path));
 
     if (status == micm::ConfigParseStatus::Success)
     {
@@ -28,16 +30,19 @@ int MICM::create_solver()
                                             solver_params.processes_,
                                             params};
     }
-    else 
+    else
     {
-        faliure = 1; 
+        // TODO(jiwon) populate error msg to atmospheric physics
+        // std::cout << "int MICM::create_solver() Failed " << std::endl;
+        failure = 1;
     }
 
-    return faliure;
+    return failure;
 }
 
-void MICM::solve(double temperature, double pressure, double time_step, int num_concentrations, double*& concentrations)
+void MICM::solve(double time_step, double temperature, double pressure, int num_concentrations, double*& concentrations)
 {
+    // TODO(jiwon) set concentration according to the species
     micm::State state = solver_->GetState();
 
     for(size_t i{}; i < NUM_GRID_CELLS; ++i) {

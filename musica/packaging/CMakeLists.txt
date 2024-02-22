@@ -1,13 +1,13 @@
 include(CMakePackageConfigHelpers)
 
-install(
-  TARGETS 
-    musica musicacore_object
-  EXPORT 
-    musica_Exports
-  LIBRARY DESTINATION ${INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}
-  ARCHIVE DESTINATION ${INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}
-)
+# install(
+#   TARGETS 
+#     musica musicacore_object
+#   EXPORT 
+#     musica_Exports
+#   LIBRARY DESTINATION ${INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}
+#   ARCHIVE DESTINATION ${INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}
+# )
 
 # install the mod files
 install(
