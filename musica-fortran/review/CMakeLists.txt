@@ -1,34 +1,47 @@
 cmake_minimum_required(VERSION 3.21)
 
 project(
-  test_musica_fortran_wrapper
+  musica-fortran
   LANGUAGES Fortran C CXX
 )
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
-set(MAKE_SHARED_LIBRARY OFF)
+include(FortranCInterface)
+FortranCInterface_VERIFY(CXX)
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
+find_package(musica 0.5.0 REQUIRED)
 
 #--------------------------------
-# Reference to 'Dockerfile.review'
+# Reference to '/docker/Dockerfile.review'
+# for $ENV{MUSICA_INCLUDE}
 #--------------------------------
-if(MAKE_SHARED_LIBRARY)
-  add_library(musica-fortran SHARED micm_core.F90)
-  target_link_libraries(musica-fortran ${CMAKE_CURRENT_LIST_DIR}/libmusica.so)
-else()
-  message(STATUS "Build static library")
-  add_library(musica-fortran STATIC micm_core.F90)
-  target_link_libraries(musica-fortran ${CMAKE_CURRENT_LIST_DIR}/libmusica.a)
-endif()
+add_library(musica-fortran SHARED)
+
+target_sources(musica-fortran
+  PUBLIC
+    micm_core.F90
+  PRIVATE
+    micm_c_api.cpp
+    micm.cpp
+)
+target_link_libraries(musica-fortran
+  PRIVATE
+    ${musica_LIBRARIES}
+)
+target_include_directories(musica-fortran
+  PUBLIC
+    $ENV{MUSICA_INCLUDE}
+)
+target_compile_features(musica-fortran PUBLIC cxx_std_20)
 
 enable_testing()
 include(CTest)
+
 add_executable(test_musica_api test_musica_api.F90)
+
 target_link_libraries(test_musica_api
-  PUBLIC
+  PRIVATE
     musica-fortran
 )
 add_test(

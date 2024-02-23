@@ -63,34 +63,34 @@ target_include_directories(musica
 
 ####################
 # # MUSICA-core
-# add_library(musicacore_object)
-# add_library(musica::musicacore ALIAS musicacore_object)
+add_library(musicacore_object)
+add_library(musica::musicacore ALIAS musicacore_object)
 
-# set(ENABLE_UTIL_ONLY ON)
+set(ENABLE_UTIL_ONLY ON)
 
-# set_target_properties(musicacore_object PROPERTIES
-#   ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
-#   Fortran_MODULE_DIRECTORY ${MUSICA_MOD_DIR}
-# )
+set_target_properties(musicacore_object PROPERTIES
+  ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
+  Fortran_MODULE_DIRECTORY ${MUSICA_MOD_DIR}
+)
 
-# target_include_directories(musicacore_object 
-#   PUBLIC  
-#     $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
-#     $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
-# )
+target_include_directories(musicacore_object
+  PUBLIC
+    $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
+    $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
+)
 
-# target_link_libraries(musicacore_object 
-#   PRIVATE
-#     PkgConfig::netcdff
-# )
+target_link_libraries(musicacore_object
+  PRIVATE
+    PkgConfig::netcdff
+)
 
-# # add the sources to musica
-# target_sources(musica  
-#   PRIVATE
-#     $<TARGET_OBJECTS:musicacore_object>
-# )
+# add the sources to musica
+target_sources(musica
+  PRIVATE
+    $<TARGET_OBJECTS:musicacore_object>
+)
 
-# add_subdirectory(${PROJECT_SOURCE_DIR}/lib/musica-core/src ${MUSICA_LIB_DIR}/musica-core/src)
+add_subdirectory(${PROJECT_SOURCE_DIR}/lib/musica-core/src ${MUSICA_LIB_DIR}/musica-core/src)
 
 ####################
 # TUV-x
@@ -105,7 +105,7 @@ if (ENABLE_TUVX)
     Fortran_MODULE_DIRECTORY ${MUSICA_MOD_DIR}
   )
 
-  target_include_directories(tuvx_object 
+  target_include_directories(tuvx_object
     PUBLIC  
       $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
       $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
@@ -150,7 +150,7 @@ endif()
 
 ################################################################################
 # Packaging
-# add_subdirectory(packaging)
+add_subdirectory(packaging)
 
 # # Tests
 # if(ENABLE_TESTS)

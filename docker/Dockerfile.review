@@ -51,9 +51,7 @@ RUN cd musica \
 
 RUN ln -s /usr/local/musica-0.5.0/lib/libmusica.a /usr/local/lib/libmusica.a
 RUN ln -s /usr/local/musica-0.5.0/lib/libmusic.so /usr/local/lib/libmusica.so
-
-RUN cd musica \
-    && cp ./build/lib/libmusica.a ./musica-fortran/review/libmusica.a
+ENV MUSICA_INCLUDE="/usr/local/musica-0.5.0/include/"
 
 # Set environment variables to build MUSICA-Fortran using intel compilers
 ENV CC=icx
@@ -72,8 +70,8 @@ ENV JSON_FORTRAN_HOME="/usr/local/jsonfortran-intelllvm-8.2.0"
 
 RUN cd musica/musica-fortran/review \
     && cmake -S . \
-             -B build
-    # && cmake --build ./build
+             -B build \
+    && cmake --build ./build
 
 RUN cd musica/musica-fortran/test \
     && cp -r configs/chapman ./../review/build/chapman

@@ -1,6 +1,6 @@
 module micm_core
 
-  use iso_c_binding
+  use, intrinsic :: iso_c_binding, only: c_ptr
   implicit none
 
   public :: micm_t
@@ -8,20 +8,17 @@ module micm_core
 
   interface
     function create_micm_c() bind(C, name="create_micm")
-      use iso_c_binding
-      implicit none
+      use, intrinsic :: iso_c_binding, only: c_ptr
       type(c_ptr)  :: create_micm_c
     end function
 
     subroutine delete_micm_c(micm_t) bind(C, name="delete_micm")
-      use iso_c_binding
-      implicit none
+      use, intrinsic :: iso_c_binding, only: c_ptr
       type(c_ptr), value  :: micm_t
     end subroutine
     
     function micm_create_solver_c(micm_t, config_path) bind(C, name="micm_create_solver")
-      use iso_c_binding
-      implicit none
+      use, intrinsic :: iso_c_binding, only: c_ptr, c_char, c_int
       type(c_ptr), intent(in), value             :: micm_t
       character(len=1, kind=c_char), intent(in)  :: config_path(*)
       integer(c_int)                             :: micm_create_solver_c
@@ -29,8 +26,7 @@ module micm_core
 
     subroutine micm_solve_c(micm_t, time_step, temperature, pressure, num_concentrations, concentrations) &
                             bind(C, name="micm_solve")
-      use iso_c_binding
-      implicit none
+      use, intrinsic :: iso_c_binding, only: c_ptr, c_double, c_int
       type(c_ptr), intent(in), value     :: micm_t
       real(c_double), intent(in), value  :: time_step
       real(c_double), intent(in), value  :: temperature
@@ -59,16 +55,12 @@ module micm_core
 contains
 
   function create_micm()
-    use iso_c_binding
-    implicit none
-    ! Constructor of micm objects
     type(micm_t)  :: create_micm
     create_micm%ptr = create_micm_c()
   end function create_micm
 
   integer function micm_create_solver(this, config_path)
-    use iso_c_binding
-    implicit none
+    use, intrinsic :: iso_c_binding, only: c_char, c_null_char
     class(micm_t), intent(in)      :: this
     character(len=*), intent(in)   :: config_path
     character(len=1, kind=c_char)  :: c_config_path(len_trim(config_path)+1)
@@ -84,8 +76,7 @@ contains
   end function micm_create_solver
 
   subroutine micm_solve(this, time_step, temperature, pressure, num_concentrations, concentrations)
-    use iso_c_binding
-    implicit none
+    use, intrinsic :: iso_c_binding, only: c_double, c_int
     class(micm_t), intent(in)      :: this
     real(c_double), intent(in)     :: time_step
     real(c_double), intent(in)     :: temperature
@@ -96,8 +87,6 @@ contains
   end subroutine micm_solve
 
   subroutine finalize(this)
-    use iso_c_binding
-    implicit none
     type(micm_t), intent(inout)  :: this
     call delete_micm_c(this%ptr)
   end subroutine finalize
