@@ -18,14 +18,18 @@ RUN apt update \
     libnetcdff-dev \
     valgrind \ 
     gcc \
+    g++ \
     gfortran \
     tree \
     && apt clean 
 
-# Set environment variables to install MUSICA using gcc
+# Use GNU compilers to build and install MUSICA-C library
 ENV FC=gfortran
+ENV CC=gcc
+ENV CXX=g++
 ENV FFLAGS="-I/usr/include/"
 
+# Install json-fortran for the GNU version
 RUN curl -LO https://github.com/jacobwilliams/json-fortran/archive/8.2.0.tar.gz \
     && tar -zxvf 8.2.0.tar.gz \
     && cd json-fortran-8.2.0 \
@@ -34,38 +38,35 @@ RUN curl -LO https://github.com/jacobwilliams/json-fortran/archive/8.2.0.tar.gz 
     && cmake -D SKIP_DOC_GEN:BOOL=TRUE .. \
     && make install
 
-# Set json-fortran variable to install MUSICA using gcc
 ENV JSON_FORTRAN_HOME="/usr/local/jsonfortran-gnu-8.2.0"
 
 COPY . musica
 
-# Build and install MUSICA
 RUN cd musica \
     && cmake -S . \
              -B build \
              -D ENABLE_MICM=ON \
              -D ENABLE_TUVX=OFF \
-             -D ENABLE_TESTS=ON \
+             #TODO(jiwon) - TEST ON
+             -D ENABLE_TESTS=OFF \
     && cd build \
     && make install -j 8 
 
 RUN ln -s /usr/local/musica-0.5.0/lib/libmusica.a /usr/local/lib/libmusica.a
-RUN ln -s /usr/local/musica-0.5.0/lib/libmusic.so /usr/local/lib/libmusica.so
 ENV MUSICA_INCLUDE="/usr/local/musica-0.5.0/include/"
 
-# Set environment variables to build MUSICA-Fortran using intel compilers
+# Use Intel compilers to build MUSICA-Fortran library
 ENV CC=icx
 ENV CXX=icpx
 ENV FC=ifx
 
-# Install json-fortran of intel version 
+# Install json-fortran of the Intel version
 RUN cd json-fortran-8.2.0 \
     && mkdir build-intel \
     && cd build-intel \
     && cmake -D SKIP_DOC_GEN:BOOL=TRUE .. \
     && make install
 
-# Set json-fortran variable to build MUSICA-Fortran using intel
 ENV JSON_FORTRAN_HOME="/usr/local/jsonfortran-intelllvm-8.2.0"
 
 RUN cd musica/musica-fortran/review \

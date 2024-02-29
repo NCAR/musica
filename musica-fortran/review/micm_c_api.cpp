@@ -1,8 +1,6 @@
 #include "micm_c.h"
 #include "micm.hpp"
 
-// #include <./../../../musica/include/musica/micm/micm_c.h>
-// #include <./../../../musica/include/musica/micm/micm.hpp>
 
 Micm* create_micm()
 {
