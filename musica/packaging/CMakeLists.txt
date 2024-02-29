@@ -2,7 +2,8 @@ include(CMakePackageConfigHelpers)
 
 install(
   TARGETS
-    musica musicacore_object
+    musica
+    # musicacore_object
   EXPORT
     musica_Exports
   LIBRARY DESTINATION ${INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}
@@ -11,9 +12,9 @@ install(
 
 # install the mod files
 install(
-  DIRECTORY 
+  DIRECTORY
     ${MUSICA_MOD_DIR}/
-  DESTINATION 
+  DESTINATION
     ${INSTALL_INCLUDE_DIR}
   FILES_MATCHING PATTERN "*.mod"
 )
@@ -32,9 +33,9 @@ endif()
 set(cmake_config_install_location ${INSTALL_PREFIX}/cmake)
 
 install(
-  EXPORT 
+  EXPORT
     musica_Exports
-  DESTINATION 
+  DESTINATION
     ${cmake_config_install_location}
   NAMESPACE musica::
 )

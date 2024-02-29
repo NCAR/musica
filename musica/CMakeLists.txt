@@ -54,43 +54,36 @@ target_include_directories(musica
     $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
 )
 
-# target_include_directories(musica
-#   PUBLIC
-#     ${CMAKE_CURRENT_LIST_DIR}/include
-    # $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
-    # $<INSTALL_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
-# )
-
 ####################
 # # MUSICA-core
-add_library(musicacore_object)
-add_library(musica::musicacore ALIAS musicacore_object)
+# add_library(musicacore_object)
+# add_library(musica::musicacore ALIAS musicacore_object)
 
-set(ENABLE_UTIL_ONLY ON)
+# set(ENABLE_UTIL_ONLY ON)
 
-set_target_properties(musicacore_object PROPERTIES
-  ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
-  Fortran_MODULE_DIRECTORY ${MUSICA_MOD_DIR}
-)
+# set_target_properties(musicacore_object PROPERTIES
+#   ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
+#   Fortran_MODULE_DIRECTORY ${MUSICA_MOD_DIR}
+# )
 
-target_include_directories(musicacore_object
-  PUBLIC
-    $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
-    $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
-)
+# target_include_directories(musicacore_object
+#   PUBLIC
+#     $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
+#     $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
+# )
 
-target_link_libraries(musicacore_object
-  PRIVATE
-    PkgConfig::netcdff
-)
+# target_link_libraries(musicacore_object
+#   PRIVATE
+#     PkgConfig::netcdff
+# )
 
-# add the sources to musica
-target_sources(musica
-  PRIVATE
-    $<TARGET_OBJECTS:musicacore_object>
-)
+# # add the sources to musica
+# target_sources(musica
+#   PRIVATE
+#     $<TARGET_OBJECTS:musicacore_object>
+# )
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/lib/musica-core/src ${MUSICA_LIB_DIR}/musica-core/src)
+# add_subdirectory(${PROJECT_SOURCE_DIR}/lib/musica-core/src ${MUSICA_LIB_DIR}/musica-core/src)
 
 ####################
 # TUV-x
@@ -133,16 +126,10 @@ if (ENABLE_MICM)
       $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/lib/micm/include>
       $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
   )
-  target_include_directories(musica
-    PUBLIC
-      $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
-      $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
-  )
 
   install(
     DIRECTORY
       ${PROJECT_SOURCE_DIR}/lib/micm/include/
-      ${CMAKE_CURRENT_LIST_DIR}/include/  ##TODO (jiwon)
     DESTINATION 
       ${INSTALL_INCLUDE_DIR}
   )
@@ -152,7 +139,7 @@ endif()
 # Packaging
 add_subdirectory(packaging)
 
-# # Tests
-# if(ENABLE_TESTS)
-#   add_subdirectory(test)
-# endif()
+# Tests
+if(ENABLE_TESTS)
+  add_subdirectory(test)
+endif()
