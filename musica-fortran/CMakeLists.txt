@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.21)
 
 project(
   musica-fortran
-  LANGUAGES Fortran C CXX
+  VERSION ${PROJECT_VERSION}
+  LANGUAGES Fortran
 )
 
 include(GNUInstallDirs)
@@ -14,7 +15,6 @@ set(INSTALL_INCLUDE_DIR ${CMAKE_PROJECT_NAME}/${CMAKE_INSTALL_INCLUDEDIR})
 set(INSTALL_LIB_DIR ${CMAKE_PROJECT_NAME}/${CMAKE_INSTALL_LIBDIR})
 
 option(MAKE_MUSICA_FORTRAN_INSTALLABLE ON)
-
 
 # add_library(musica STATIC IMPORTED)
 # set_target_properties(musica 

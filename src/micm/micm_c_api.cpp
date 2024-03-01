@@ -1,5 +1,5 @@
-#include "micm/micm_c.h"
-#include "micm/micm.hpp"
+#include <musica/micm/micm.hpp>
+#include <musica/micm/micm_c.h>
 
 
 Micm* create_micm()

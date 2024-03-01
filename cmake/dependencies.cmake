@@ -24,7 +24,7 @@ pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
 
 ################################################################################
 # google test
-if(ENABLE_TESTS)
+if(MUSICA_ENABLE_TESTS)
   include(FetchContent)
   FetchContent_Declare(googletest
     GIT_REPOSITORY https://github.com/google/googletest.git
@@ -35,4 +35,26 @@ if(ENABLE_TESTS)
   set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
 
   FetchContent_MakeAvailable(googletest)
+endif()
+
+################################################################################
+# OpenMP
+if(MUSICA_ENABLE_OPENMP)
+  find_package(OpenMP)
+  if(OpenMP_Fortran_FOUND)
+    message(STATUS "Compiling with OpenMP support")
+  else()
+    message(FATAL_ERROR "OpenMP package not found")
+  endif()
+endif()
+
+################################################################################
+# MICM
+
+if (MUSICA_ENABLE_MICM)
+  FetchContent_Declare(json
+      GIT_REPOSITORY https://github.com/nlohmann/json.git
+      GIT_TAG v3.11.2
+  )
+  FetchContent_MakeAvailable(json)
 endif()

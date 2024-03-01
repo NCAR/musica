@@ -1,92 +1,60 @@
 cmake_minimum_required(VERSION 3.21)
 
 project(
-  musica
+  musica-distribution
   VERSION 0.5.0
-  LANGUAGES Fortran CXX C
 )
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${CMAKE_CURRENT_LIST_DIR}/cmake)
 set(CMAKE_USER_MAKE_RULES_OVERRIDE ${CMAKE_MODULE_PATH}/SetDefaults.cmake)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING
+      "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel."
+      FORCE)
+endif(NOT CMAKE_BUILD_TYPE)
+
 include(GNUInstallDirs)
 
-set(INSTALL_PREFIX ${CMAKE_PROJECT_NAME}-${PROJECT_VERSION})
-set(INSTALL_INCLUDE_DIR ${INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR})
-
-set(MUSICA_MOD_DIR ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_INCLUDEDIR})
-set(MUSICA_LIB_DIR ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
-
-set(MUSICA_FORTRAN_SRC_DIR ${CMAKE_SOURCE_DIR}/musica-fortran/src/micm)
-
 ################################################################################
+# Library options to build
 include(CMakeDependentOption)
 
-# Library options to build
-option(USE_MUSICA "Use MUSICA" ON)
-message(STATUS "Building MUSICA sources into a library : ${USE_MUSICA}")
-
-option(USE_MUSICA_FORTRAN "Use MUSICA-Fortran interface" OFF)
-message(STATUS "Building MUSICA-Fortran sources into a library : ${USE_MUSICA_FORTRAN}")
-
-option(MAKE_MUSICA_FORTRAN_INSTALLABLE "Make MUSICA-Fortran installable" ON)
-message(STATUS "Making MUSICA-Fortran sources installable : ${MAKE_MUSICA_FORTRAN_INSTALLABLE}")
-
-################################################################################
-# Projet wide setup options
-cmake_dependent_option(
-  ENABLE_TESTS "Builds tests that ensures each enabled MUSICA component can be used" ON "USE_MUSICA" OFF)
-message(STATUS "Build tests for MUSICA : ${ENABLE_TESTS}")
+option(MUSICA_BUILD_C_CXX_INTERFACE "Use MUSICA" ON)
+option(MUSICA_BUILD_FOTRAN_INTERFACE "Use MUSICA-Fortran interface" OFF)
+option(MUSICA_ENABLE_INSTALL "Make MUSICA-Fortran installable" ON)
+option(MUSICA_ENABLE_TESTS "Builds tests that ensures each enabled MUSICA component can be used" ON)
 
 cmake_dependent_option(
-  ENABLE_TUVX "Builds TUV-x, a photolysis calculator library" ON "USE_MUSICA" OFF)
-message(STATUS "Build TUV-x : ${ENABLE_TUVX}")
+  MUSICA_ENABLE_TUVX "Builds TUV-x, a photolysis calculator library" ON "MUSICA_BUILD_C_CXX_INTERFACE" OFF)
 
 cmake_dependent_option(
-  ENABLE_MICM "Adds MICM, a model independent chemical mechanism solver" ON "USE_MUSICA" OFF)
-message(STATUS "Build MICM : ${ENABLE_MICM}")
+  MUSICA_ENABLE_MICM "Adds MICM, a model independent chemical mechanism solver" ON "MUSICA_BUILD_C_CXX_INTERFACE" OFF)
 
 cmake_dependent_option(
-  ENABLE_MPI "Enable MPI parallel support" OFF "USE_MUSICA" OFF)
-message(STATUS "Enable MPI parallel support : ${ENABLE_MPI}")
+  MUSICA_ENABLE_MPI "Enable MPI parallel support" OFF "MUSICA_BUILD_C_CXX_INTERFACE" OFF)
 
 cmake_dependent_option(
-  ENABLE_OPENMP "Enable OpemMP support" OFF "USE_MUSICA" OFF)
-message(STATUS "Enable OpemMP support : ${ENABLE_OPENMP}")
+  MUSICA_ENABLE_OPENMP "Enable OpemMP support" OFF "MUSICA_BUILD_C_CXX_INTERFACE" OFF)
 
 cmake_dependent_option(
-  CREATE_ENVIRONMENT_MODULE "Creates an Lmod environment module file that can be installed on the same machine this library is installed to." OFF "USE_MUSICA" OFF)
-message(STATUS "Creates an Lmod environment module : ${CREATE_ENVIRONMENT_MODULE}")
+  MUSICA_CREATE_ENVIRONMENT_MODULE "Creates an Lmod environment module file that can be installed on the same machine this library is installed to." OFF "MUSICA_BUILD_C_CXX_INTERFACE" OFF)
 
-if(CREATE_ENVIRONMENT_MODULE)
-  set(INSTALL_MODULE_FILE_PATH "" CACHE STRING "This is the path of the modulefiles location that the Lmod files should be installed to.")
-endif()
-
-# MUSICA library components
-if(ENABLE_TUVX)
-  add_definitions(-DMUSICA_USE_TUVX)
-endif()
-
-if(ENABLE_MICM)
-  add_definitions(-DMUSICA_USE_MICM)
-endif()
-
-# MPI
-if(ENABLE_MPI)
-  add_definitions(-DMUSICA_USE_MPI)
-endif()
-
-# OpenMP
-if(ENABLE_OPENMP)
-  find_package(OpenMP)
-  if(OpenMP_Fortran_FOUND)
-    message(STATUS "Compiling with OpenMP support")
-    add_definitions(-DMUSICA_USE_OPENMP)
-  else()
-    message(FATAL_ERROR "OpenMP package not found")
+if(MUSICA_CREATE_ENVIRONMENT_MODULE)
+  set(MUSICA_INSTALL_MODULE_FILE_PATH "" CACHE STRING "This is the path of the modulefiles location that the Lmod files should be installed to.")
+  if(MUSICA_INSTALL_MODULE_FILE_PATH STREQUAL "")
+    message(FATAL_ERROR "MUSICA_INSTALL_MODULE_FILE_PATH is required but not set")
   endif()
 endif()
+
+################################################################################
+# Projet wide setup variables 
+set(MUSICA_INSTALL_PREFIX ${CMAKE_PROJECT_NAME}-${PROJECT_VERSION})
+set(MUSICA_INSTALL_INCLUDE_DIR ${MUSICA_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR})
+set(MUSICA_MOD_DIR ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_INCLUDEDIR})
+set(MUSICA_LIB_DIR ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
+set(MUSICA_FORTRAN_SRC_DIR ${CMAKE_SOURCE_DIR}/musica-fortran/src/micm)
 
 # Add flags for various compilers
 if(${CMAKE_Fortran_COMPILER_ID} MATCHES "Intel")
@@ -97,19 +65,19 @@ elseif(${CMAKE_Fortran_COMPILER_ID} MATCHES "PGI")
   add_definitions(-DMUSICA_USING_PGI)
 endif()
 
+# Tests
+if(MUSICA_ENABLE_TESTS)
+  enable_testing()
+endif()
+
 ################################################################################
 # MUSICA
-if(USE_MUSICA)
-  add_subdirectory(musica)
-endif()
-
-# MUSICA-Fortran
-if(USE_MUSICA_FORTRAN)
-  add_subdirectory(musica-fortran)
+if(MUSICA_BUILD_C_CXX_INTERFACE)
+  add_subdirectory(src)
 endif()
 
 ################################################################################
-# Tests
-if(ENABLE_TESTS)
-  enable_testing()
+# MUSICA-Fortran
+if(MUSICA_BUILD_FOTRAN_INTERFACE)
+  add_subdirectory(fortran)
 endif()

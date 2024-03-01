@@ -3,11 +3,12 @@ include(CMakePackageConfigHelpers)
 install(
   TARGETS
     musica
+    nlohmann_json
     # musicacore_object
   EXPORT
     musica_Exports
-  LIBRARY DESTINATION ${INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}
-  ARCHIVE DESTINATION ${INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}
+  LIBRARY DESTINATION ${MUSICA_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${MUSICA_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}
 )
 
 # install the mod files
@@ -15,7 +16,7 @@ install(
   DIRECTORY
     ${MUSICA_MOD_DIR}/
   DESTINATION
-    ${INSTALL_INCLUDE_DIR}
+    ${MUSICA_INSTALL_INCLUDE_DIR}
   FILES_MATCHING PATTERN "*.mod"
 )
 
@@ -24,24 +25,24 @@ if(MAKE_MUSICA_FORTRAN_INSTALLABLE)
     DIRECTORY 
       ${MUSICA_FORTRAN_SRC_DIR}/
     DESTINATION 
-      ${INSTALL_PREFIX}/fortran_include/
+      ${MUSICA_INSTALL_PREFIX}/fortran_include/
     FILES_MATCHING PATTERN "*.F90"
   )
 endif()
 
 # install the cmake config files
-set(cmake_config_install_location ${INSTALL_PREFIX}/cmake)
+set(cmake_config_install_location ${MUSICA_INSTALL_PREFIX}/cmake)
 
 install(
   EXPORT
-    musica_Exports
+    musica_Exports 
   DESTINATION
     ${cmake_config_install_location}
   NAMESPACE musica::
 )
 
 configure_package_config_file(
-  "${PROJECT_SOURCE_DIR}/cmake/musicaConfig.cmake.in"
+  "${CMAKE_SOURCE_DIR}/cmake/musicaConfig.cmake.in"
   "${PROJECT_BINARY_DIR}/musicaConfig.cmake"
   INSTALL_DESTINATION
     ${cmake_config_install_location}
@@ -67,7 +68,7 @@ install(
 # https://gitlab.kitware.com/cmake/community/-/wikis/FAQ#can-i-do-make-uninstall-with-cmake
 if(NOT TARGET uninstall)
   configure_file(
-    "${PROJECT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
+    "${CMAKE_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
     "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
     IMMEDIATE @ONLY)
 

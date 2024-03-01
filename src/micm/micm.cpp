@@ -1,4 +1,4 @@
-#include "micm/micm.hpp"
+#include <musica/micm/micm.hpp>
 
 #include <micm/configure/solver_config.hpp>
 #include <micm/solver/rosenbrock_solver_parameters.hpp>
