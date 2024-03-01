@@ -49,7 +49,6 @@ set_target_properties(musica PROPERTIES
   Fortran_MODULE_DIRECTORY ${MUSICA_MOD_DIR}
   VERSION ${PROJECT_VERSION}
   SOVERSION ${PROJECT_VERSION_MAJOR}
-  POSITION_INDEPENDENT_CODE ON
 )
 
 target_link_libraries(musica
