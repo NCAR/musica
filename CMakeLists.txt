@@ -18,8 +18,6 @@ set(INSTALL_INCLUDE_DIR ${INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR})
 set(MUSICA_MOD_DIR ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_INCLUDEDIR})
 set(MUSICA_LIB_DIR ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
 
-set(MUSICA_FORTRAN_SRC_DIR ${CMAKE_SOURCE_DIR}/musica-fortran/src/micm)
-
 ################################################################################
 include(CMakeDependentOption)
 

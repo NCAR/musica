@@ -19,16 +19,6 @@ install(
   FILES_MATCHING PATTERN "*.mod"
 )
 
-if(MAKE_MUSICA_FORTRAN_INSTALLABLE)
-  install(
-    DIRECTORY 
-      ${MUSICA_FORTRAN_SRC_DIR}/
-    DESTINATION 
-      ${INSTALL_PREFIX}/fortran_include/
-    FILES_MATCHING PATTERN "*.F90"
-  )
-endif()
-
 # install the cmake config files
 set(cmake_config_install_location ${INSTALL_PREFIX}/cmake)
 
