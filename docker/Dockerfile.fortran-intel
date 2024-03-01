@@ -18,14 +18,17 @@ RUN apt update \
     libnetcdff-dev \
     valgrind \ 
     gcc \
+    g++ \
     gfortran \
+    tree \
     && apt clean 
 
-# Set environment variables to install MUSICA using gcc
+# Use GNU compilers to build and install MUSICA-C library
 ENV FC=gfortran
+ENV CC=gcc
+ENV CXX=g++
 ENV FFLAGS="-I/usr/include/"
 
-# Install json-fortran for gnu version
 RUN curl -LO https://github.com/jacobwilliams/json-fortran/archive/8.2.0.tar.gz \
     && tar -zxvf 8.2.0.tar.gz \
     && cd json-fortran-8.2.0 \
@@ -34,27 +37,34 @@ RUN curl -LO https://github.com/jacobwilliams/json-fortran/archive/8.2.0.tar.gz 
     && cmake -D SKIP_DOC_GEN:BOOL=TRUE .. \
     && make install
 
-# Copy the musica code
-COPY . musica
-
 # Set json-fortran variable to install MUSICA using gcc
 ENV JSON_FORTRAN_HOME="/usr/local/jsonfortran-gnu-8.2.0"
+
+COPY . musica
 
 # Build and install MUSICA
 RUN cd musica \
     && cmake -S . \
              -B build \
-             -D ENABLE_TESTS=ON \
+             -D ENABLE_MICM=ON \
              -D ENABLE_TUVX=OFF \
+             -D ENABLE_TESTS=ON \
     && cd build \
     && make install -j 8 
+
+RUN ln -s /usr/local/musica-0.5.0/lib/libmusica.a /usr/local/lib/libmusica.a
+ENV MUSICA_LIB="/usr/local/lib/libmusica.a"
+ENV MUSICA_INTERFACE="/usr/local/musica-0.5.0/include/"
+
+# Copy the configuration file for the MICM C API test
+RUN cp -r musica/test/configs/chapman musica/build/chapman
 
 # Set environment variables to build MUSICA-Fortran using intel compilers
 ENV CC=icx
 ENV CXX=icpx
-ENV FC=ifort
+ENV FC=ifx
 
-# Install json-fortran for intel version 
+# Install json-fortran of intel version
 RUN cd json-fortran-8.2.0 \
     && mkdir build-intel \
     && cd build-intel \
@@ -62,14 +72,27 @@ RUN cd json-fortran-8.2.0 \
     && make install
 
 # Set json-fortran variable to build MUSICA-Fortran using intel
-ENV JSON_FORTRAN_HOME="/usr/local/jsonfortran-intel-8.2.0"
+ENV JSON_FORTRAN_HOME="/usr/local/jsonfortran-intelllvm-8.2.0"
+
+# Use Intel compilers to build MUSICA-Fortran library
+RUN cd musica/musica-fortran \
+    && cmake -S . \
+             -B build \
+             -D PROVIDE_MICM_FORT_SRC=ON \
+    && cd build \
+    && make install
+
+ENV MUSICA_FORTRAN_LIB="/usr/local/musica-fortran/lib/libmusica-fortran.so"
+ENV MUSICA_FORTRAN_INCLUDE="/usr/local/musica-fortran/include/"
 
 RUN cd musica/musica-fortran/test \
-    && mkdir build && cd build \
-    && cmake .. \
+    && cmake -S. \
+             -B build \
+             -D USE_INTEL_COMPILERS=ON \
+    && cd build \
     && make
 
-RUN cd musica/musica-fortran/test \
-    && cp -r configs/chapman ./build/chapman
+# Copy the configuration file for the MICM Fortran API test
+RUN cp -r musica/test/configs/chapman musica/musica-fortran/test/build/chapman
 
 WORKDIR musica/musica-fortran/test/build

@@ -37,14 +37,6 @@ subroutine test_micm_fort_api()
 
   write(*,*) "[test micm fort api] After solving, concentrations", concentrations
 
-  call micm%solve(time_step, temperature, pressure, num_concentrations, concentrations)
-
-  write(*,*) "[test micm fort api] After solving, concentrations222", concentrations
-
-  call micm%solve(time_step, temperature, pressure, num_concentrations, concentrations)
-
-  write(*,*) "[test micm fort api] After solving, concentrations333", concentrations
-
   write(*,*) "[test micm fort api] Finished."
 
 end subroutine

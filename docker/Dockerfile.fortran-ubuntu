@@ -46,14 +46,16 @@ RUN cd musica \
              -B build \
              -D ENABLE_MICM=ON \
              -D ENABLE_TUVX=OFF \
-             #TODO(jiwon) - TEST ON
-             -D ENABLE_TESTS=OFF \
+             -D ENABLE_TESTS=ON \
     && cd build \
     && make install -j 8
 
 RUN ln -s /usr/local/musica-0.5.0/lib/libmusica.a /usr/local/lib/libmusica.a
 ENV MUSICA_LIB="/usr/local/lib/libmusica.a"
 ENV MUSICA_INCLUDE="/usr/local/musica-0.5.0/include/"
+
+# Copy the configuration file for the MICM C API test
+RUN cp -r musica/test/configs/chapman musica/build/chapman
 
 # Build MUSICA-Fortran library
 RUN cd musica/musica-fortran \
@@ -69,10 +71,10 @@ ENV MUSICA_FORTRAN_INCLUDE="/usr/local/musica-fortran/include/"
 RUN cd musica/musica-fortran/test \
     && cmake -S. \
              -B build \
-    && cd build
-    # && make
+    && cd build \
+    && make
 
-RUN cd musica/musica-fortran/test \
-    && cp -r configs/chapman ./build/chapman
+# Copy the configuration file for the MICM Fortran API test
+RUN cp -r musica/test/configs/chapman musica/musica-fortran/test/build/chapman
 
 WORKDIR musica/musica-fortran/test/build

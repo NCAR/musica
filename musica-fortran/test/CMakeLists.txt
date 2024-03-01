@@ -5,10 +5,11 @@ project(
   LANGUAGES Fortran C CXX
 )
 
+option(USE_INTEL_COMPILERS "Use the Intel compilers" OFF)
+message(STATUS "Use the Intel compilers : ${USE_INTEL_COMPILERS}")
+
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
-# ------------------ DEBUG -------------------------
-#
 # include(FetchContent)
 
 # FetchContent_Declare(musica-fortran
@@ -24,7 +25,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 # FetchContent_MakeAvailable(musica-fortran)
 
-# ------------------ DEBUG -------------------------
 include(FortranCInterface)
 FortranCInterface_VERIFY(CXX)
 
@@ -38,7 +38,11 @@ enable_testing()
 include(CTest)
 
 # API Test
-add_executable(test_micm_fort_api test_micm_fort_api.F90)
+if(USE_INTEL_COMPILERS)
+  add_executable(test_micm_fort_api test_call_micm_c_api.F90 test_micm_c_api.c)
+else()
+  add_executable(test_micm_fort_api test_micm_fort_api.F90)
+endif()
 
 target_link_libraries(test_micm_fort_api
   PUBLIC
@@ -52,6 +56,9 @@ target_include_directories(test_micm_fort_api
   PRIVATE
     $ENV{MUSICA_INCLUDE}  # set by docker
 )
+set_target_properties(test_micm_fort_api PROPERTIES
+  LINKER_LANGUAGE CXX
+)
 add_test(
   NAME test_micm_fort_api
   COMMAND $<TARGET_FILE:test_micm_fort_api>
@@ -59,22 +66,27 @@ add_test(
 )
 
 # API Test (invalid configuration path)
-add_executable(test_micm_fort_api_invalid test_micm_fort_api_invalid.F90)
+if(NOT USE_INTEL_COMPILERS)
+  add_executable(test_micm_fort_api_invalid test_micm_fort_api_invalid.F90)
 
-target_link_libraries(test_micm_fort_api_invalid
-  PUBLIC
-    $ENV{MUSICA_FORTRAN_LIB}  # set by docker
-  PRIVATE
-    musica
-)
-target_include_directories(test_micm_fort_api_invalid
-  PUBLIC
-    $ENV{MUSICA_FORTRAN_INCLUDE}  # set by docker
-  PRIVATE
-    $ENV{MUSICA_INCLUDE}  # set by docker
-)
-add_test(
-  NAME test_micm_fort_api_invalid
-  COMMAND $<TARGET_FILE:test_micm_fort_api_invalid>
-  WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-)
+  target_link_libraries(test_micm_fort_api_invalid
+    PUBLIC
+      $ENV{MUSICA_FORTRAN_LIB}  # set by docker
+    PRIVATE
+      musica
+  )
+  target_include_directories(test_micm_fort_api_invalid
+    PUBLIC
+      $ENV{MUSICA_FORTRAN_INCLUDE}  # set by docker
+    PRIVATE
+      $ENV{MUSICA_INCLUDE}  # set by docker
+  )
+  set_target_properties(test_micm_fort_api_invalid PROPERTIES
+    LINKER_LANGUAGE CXX
+  )
+  add_test(
+    NAME test_micm_fort_api_invalid
+    COMMAND $<TARGET_FILE:test_micm_fort_api_invalid>
+    WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+  )
+endif()
