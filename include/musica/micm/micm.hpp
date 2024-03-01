@@ -27,7 +27,7 @@ public:
     /// @param pressure Pressure [Pa-1]
     /// @param num_concentrations The number of species' concentrations
     /// @param concentrations Species's concentrations
-    void solve(double time_step, double temperature, double pressure, int num_concentrations, double*& concentrations);
+    void solve(double time_step, double temperature, double pressure, int num_concentrations, double* concentrations);
 
     static constexpr size_t NUM_GRID_CELLS = 1;
 

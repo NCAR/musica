@@ -36,19 +36,34 @@ int MICM::create_solver(const std::string& config_path)
     return parsing_status;
 }
 
-void MICM::solve(double time_step, double temperature, double pressure, int num_concentrations, double*& concentrations)
+void MICM::solve(double time_step, double temperature, double pressure, int num_concentrations, double* concentrations)
 {
     micm::State state = solver_->GetState();
 
+    std::cout << "Grid cells: " << NUM_GRID_CELLS << std::endl;
     for(size_t i{}; i<NUM_GRID_CELLS; i++) {
         state.conditions_[i].temperature_ = temperature;
         state.conditions_[i].pressure_ = pressure;
     }
 
+    std::cout << state.variables_.AsVector().size() << std::endl;
+    
+    v_concentrations_.resize(num_concentrations);
+
+    std::cout << "Now here 0" << std::endl;
+
     v_concentrations_.assign(concentrations, concentrations + num_concentrations);
+
+    std::cout << "Now here 1" << std::endl;
+
     state.variables_[0] = v_concentrations_;
 
+    std::cout << "Now here 2" << std::endl;
+
     auto result = solver_->Solve<false>(time_step, state);
+
+    std::cout << "Now here 3" << std::endl;
+
     v_concentrations_ = result.result_.AsVector();
     for (int i=0; i<v_concentrations_.size(); i++)
     {

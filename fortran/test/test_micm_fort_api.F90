@@ -1,4 +1,4 @@
-subroutine test_micm_fort_api()
+program test_micm_fort_api
   use iso_c_binding
   use micm_core, only: micm_t
 
@@ -47,8 +47,4 @@ subroutine test_micm_fort_api()
 
   write(*,*) "[test micm fort api] Finished."
 
-end subroutine
-
-program test_micm_api
-  call test_micm_fort_api()
 end program

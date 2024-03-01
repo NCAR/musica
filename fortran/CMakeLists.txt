@@ -35,12 +35,8 @@ target_include_directories(musica-fortran
     $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
 )
 target_link_libraries(musica-fortran
-  PRIVATE
-    musica
-)
-target_include_directories(musica-fortran
   PUBLIC
-    $ENV{MUSICA_INCLUDE}  # set by dockerfile
+    musica
 )
 
 if(MUSICA_ENABLE_INSTALL)
