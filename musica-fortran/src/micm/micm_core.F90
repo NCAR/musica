@@ -3,21 +3,10 @@ module micm_core
   use, intrinsic :: iso_c_binding, only: c_ptr
   implicit none
 
-  public :: micm_t, call_c_main
-  ! public :: micm_t
+  public :: micm_t
   private
 
   interface
-
-    subroutine call_c_main() bind(C, name="main")
-      ! --------------------------------------------------------------------
-      ! With the Intel compilers for linking the Fortran and C++ code,
-      ! in the case of the main program being Fortran that calls C routines,
-      ! the error of undefined reference to `main' occured.
-      ! The suggested solution is to make a C/C++ main and to change the
-      ! Fortran PROGRAM into a SUBROUTINE that calls the C/C++ main.
-      ! --------------------------------------------------------------------
-    end subroutine
 
     function create_micm_c() bind(C, name="create_micm")
       use, intrinsic :: iso_c_binding, only: c_ptr
