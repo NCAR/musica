@@ -30,6 +30,7 @@ add_library(musica::musica ALIAS musica)
 add_subdirectory(src)
 
 set_target_properties(musica PROPERTIES
+  POSITION_INDEPENDENT_CODE ON
   ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
   Fortran_MODULE_DIRECTORY ${MUSICA_MOD_DIR}
   VERSION ${PROJECT_VERSION}

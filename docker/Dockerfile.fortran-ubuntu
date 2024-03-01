@@ -19,13 +19,16 @@ RUN apt update \
     gcc \
     gfortran \
     g++ \
+    tree \
     && apt clean 
 
-# Set environment variables to install MUSICA using gcc
+# Use GNU compilers to build and install MUSICA-C library
 ENV FC=gfortran
+ENV CC=gcc
+ENV CXX=g++
 ENV FFLAGS="-I/usr/include/"
 
-# Install json-fortran for gnu version
+# Install json-fortran for the GNU version
 RUN curl -LO https://github.com/jacobwilliams/json-fortran/archive/8.2.0.tar.gz \
     && tar -zxvf 8.2.0.tar.gz \
     && cd json-fortran-8.2.0 \
@@ -34,25 +37,40 @@ RUN curl -LO https://github.com/jacobwilliams/json-fortran/archive/8.2.0.tar.gz 
     && cmake -D SKIP_DOC_GEN:BOOL=TRUE .. \
     && make install
 
-# Copy the musica code
-COPY . musica
-
-# Set json-fortran variable to install MUSICA using gcc
 ENV JSON_FORTRAN_HOME="/usr/local/jsonfortran-gnu-8.2.0"
 
-# Build and install MUSICA
+COPY . musica
+
 RUN cd musica \
     && cmake -S . \
              -B build \
-             -D ENABLE_TESTS=ON \
+             -D ENABLE_MICM=ON \
              -D ENABLE_TUVX=OFF \
+             #TODO(jiwon) - TEST ON
+             -D ENABLE_TESTS=OFF \
     && cd build \
-    && make install -j 8 
+    && make install -j 8
+
+RUN ln -s /usr/local/musica-0.5.0/lib/libmusica.a /usr/local/lib/libmusica.a
+ENV MUSICA_LIB="/usr/local/lib/libmusica.a"
+ENV MUSICA_INCLUDE="/usr/local/musica-0.5.0/include/"
+
+# Build MUSICA-Fortran library
+RUN cd musica/musica-fortran \
+    && cmake -S . \
+             -B build \
+             -D PROVIDE_MICM_FORT_SRC=ON \
+    && cd build \
+    && make install
+
+ENV MUSICA_FORTRAN_LIB="/usr/local/musica-fortran/lib/libmusica-fortran.so"
+ENV MUSICA_FORTRAN_INCLUDE="/usr/local/musica-fortran/include/"
 
 RUN cd musica/musica-fortran/test \
-    && mkdir build && cd build \
-    && cmake .. \
-    && make
+    && cmake -S. \
+             -B build \
+    && cd build
+    # && make
 
 RUN cd musica/musica-fortran/test \
     && cp -r configs/chapman ./build/chapman
