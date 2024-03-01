@@ -37,4 +37,7 @@ RUN cd musica \
     && cd build \
     && make install -j 8 
 
+# Copy the configuration file for the MICM C API test
+RUN cp -r musica/test/configs/chapman musica/build/chapman
+
 WORKDIR musica/build
