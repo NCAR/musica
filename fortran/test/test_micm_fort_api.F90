@@ -20,8 +20,6 @@ program test_micm_fort_api
   concentrations = (/ 0.75, 0.4, 0.8, 0.01, 0.02 /)
   config_path = "chapman"
 
-  micm = micm_t()
-
   write(*,*) "[test micm fort api] Creating MICM solver..."
   errcode = micm%create_solver(config_path)
 

@@ -6,6 +6,7 @@
 void create_micm(void **micm)
 {
     *micm = new MICM();
+    std::cout << *micm << std::endl;
 }
 
 void delete_micm(void **micm)
@@ -16,6 +17,7 @@ void delete_micm(void **micm)
 
 int micm_create_solver(void **micm, const char *config_path)
 {
+    std::cout << *micm << std::endl;
     return static_cast<MICM *>(*micm)->create_solver(std::string(config_path));
 }
 
