@@ -1,6 +1,6 @@
 module micm_core
 
-  use iso_c_binding, only: c_ptr, c_char, c_int, c_double
+  use iso_c_binding, only: c_ptr, c_char, c_int, c_double, c_null_char
   implicit none
 
   public :: micm_t
@@ -69,7 +69,7 @@ contains
     do i = 1, n
       c_config_path(i) = config_path(i:i)
     end do
-    c_config_path(n+1) = C_NULL_CHAR
+    c_config_path(n+1) = c_null_char
 
     micm_create_solver = micm_create_solver_c(this%ptr, c_config_path)
   end function micm_create_solver
