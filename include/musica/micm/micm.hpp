@@ -32,5 +32,5 @@ public:
     static constexpr size_t NUM_GRID_CELLS = 1;
 
 private:
-    std::unique_ptr<micm::RosenbrockSolver<>> solver_;
+    micm::RosenbrockSolver<>* solver_;
 };
