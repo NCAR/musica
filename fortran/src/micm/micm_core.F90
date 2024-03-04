@@ -25,7 +25,7 @@ module micm_core
       integer(kind=c_int) :: res
     end function micm_create_solver_c
 
-    subroutine micm_solve(micm, time_step, temperature, pressure, num_concentrations, concentrations) bind(C, name="micm_solve")
+    subroutine micm_solve_c(micm, time_step, temperature, pressure, num_concentrations, concentrations) bind(C, name="micm_solve")
       import c_ptr, c_double, c_int
       type(c_ptr), intent(inout) :: micm
       real(kind=c_double), intent(in) :: time_step
@@ -33,7 +33,7 @@ module micm_core
       real(kind=c_double), intent(in) :: pressure
       integer(kind=c_int), intent(in) :: num_concentrations
       real(kind=c_double), intent(inout) :: concentrations(num_concentrations)
-    end subroutine micm_solve
+    end subroutine micm_solve_c
   end interface
 
   type :: micm_t
@@ -56,11 +56,10 @@ contains
 
   function create_micm()
     type(micm_t)  :: create_micm
-    create_micm%ptr = create_micm_c()
+    call create_micm_c(create_micm%ptr)
   end function create_micm
 
   integer function micm_create_solver(this, config_path)
-    use, intrinsic :: iso_c_binding, only: c_char, c_null_char
     class(micm_t), intent(in)      :: this
     character(len=*), intent(in)   :: config_path
     character(len=1, kind=c_char)  :: c_config_path(len_trim(config_path)+1)
@@ -76,7 +75,6 @@ contains
   end function micm_create_solver
 
   subroutine micm_solve(this, time_step, temperature, pressure, num_concentrations, concentrations)
-    use, intrinsic :: iso_c_binding, only: c_double, c_int
     class(micm_t), intent(in)      :: this
     real(c_double), intent(in)     :: time_step
     real(c_double), intent(in)     :: temperature
