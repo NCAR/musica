@@ -29,15 +29,13 @@ int MICM::create_solver(const std::string &config_path)
                                                     solver_params.processes_,
                                                     params);
 
-        // Check if the raw_solver is valid
         if (raw_solver == nullptr) {
-            // Handle error
             std::cerr << "Failed to create RosenbrockSolver." << std::endl;
-            return;
+            parsing_status = 0;
         }
-
-        // Now, create the unique_ptr from the raw pointer
-        solver_ = std::unique_ptr<micm::RosenbrockSolver<>>(raw_solver);
+        else {
+            solver_ = std::unique_ptr<micm::RosenbrockSolver<>>(raw_solver);
+        }
     }
     else
     {
