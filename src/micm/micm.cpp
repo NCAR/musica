@@ -21,9 +21,23 @@ int MICM::create_solver(const std::string &config_path)
     {
         micm::SolverParameters solver_params = solver_config.GetSolverParams();
         auto params = micm::RosenbrockSolverParameters::three_stage_rosenbrock_parameters(NUM_GRID_CELLS);
-        solver_ = std::make_unique<micm::RosenbrockSolver<>>(solver_params.system_,
-                                                             solver_params.processes_,
-                                                             params);
+        // solver_ = std::make_unique<micm::RosenbrockSolver<>>(solver_params.system_,
+        //                                                      solver_params.processes_,
+        //                                                      params);
+        // Create the RosenbrockSolver object using a raw pointer first
+        auto raw_solver = new micm::RosenbrockSolver<>(solver_params.system_,
+                                                    solver_params.processes_,
+                                                    params);
+
+        // Check if the raw_solver is valid
+        if (raw_solver == nullptr) {
+            // Handle error
+            std::cerr << "Failed to create RosenbrockSolver." << std::endl;
+            return;
+        }
+
+        // Now, create the unique_ptr from the raw pointer
+        solver_ = std::unique_ptr<micm::RosenbrockSolver<>>(raw_solver);
     }
     else
     {
