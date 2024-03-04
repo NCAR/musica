@@ -32,7 +32,5 @@ public:
     static constexpr size_t NUM_GRID_CELLS = 1;
 
 private:
-    std::vector<double> v_concentrations_;  // TODO(jiwon) - currently hard coded
-
     std::unique_ptr<micm::RosenbrockSolver<>> solver_;
 };

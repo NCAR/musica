@@ -47,6 +47,7 @@ RUN cd musica \
              -B build \
              -D MUSICA_ENABLE_TESTS=ON \
              -D MUSICA_ENABLE_TUVX=OFF \
+             -D CMAKE_BUILD_TYPE=Debug \
     && cd build \
     && make install
 
@@ -68,8 +69,9 @@ ENV LIBRARY_PATH=/usr/local/musica-0.5.0/lib/
 
 RUN cd musica/fortran/test \
     && mkdir build && cd build \
-    && cmake .. 
-    # && make
+    && cmake .. \
+        -D CMAKE_BUILD_TYPE=Debug \
+    && make
 
 RUN cd musica/fortran/test \
     && cp -r configs/chapman ./build/chapman

@@ -6,19 +6,16 @@
 #include <filesystem>
 #include <cstddef>
 
+MICM::MICM() : solver_(nullptr) {}
 
-MICM::MICM()
-    :  solver_(nullptr)
-    {}
+MICM::~MICM() {}
 
-MICM::~MICM(){}
-
-int MICM::create_solver(const std::string& config_path)
+int MICM::create_solver(const std::string &config_path)
 {
     int parsing_status = 0; // 0 on success, 1 on failure
 
     micm::SolverConfig<> solver_config;
-    micm::ConfigParseStatus status= solver_config.ReadAndParse(std::filesystem::path(config_path));
+    micm::ConfigParseStatus status = solver_config.ReadAndParse(std::filesystem::path(config_path));
 
     if (status == micm::ConfigParseStatus::Success)
     {
@@ -36,37 +33,26 @@ int MICM::create_solver(const std::string& config_path)
     return parsing_status;
 }
 
-void MICM::solve(double time_step, double temperature, double pressure, int num_concentrations, double* concentrations)
+void MICM::solve(double time_step, double temperature, double pressure, int num_concentrations, double *concentrations)
 {
     micm::State state = solver_->GetState();
 
     std::cout << "Grid cells: " << NUM_GRID_CELLS << std::endl;
-    for(size_t i{}; i<NUM_GRID_CELLS; i++) {
+    for (size_t i{}; i < NUM_GRID_CELLS; i++)
+    {
         state.conditions_[i].temperature_ = temperature;
         state.conditions_[i].pressure_ = pressure;
     }
 
-    std::cout << state.variables_.AsVector().size() << std::endl;
-    
-    v_concentrations_.resize(num_concentrations);
+    std::cout << concentrations[0] << std::endl;
+    // std::cout << state.variables_.AsVector()[0] << std::endl;
 
-    std::cout << "Now here 0" << std::endl;
+    // state.variables_.AsVector().assign(concentrations, concentrations + num_concentrations);
 
-    v_concentrations_.assign(concentrations, concentrations + num_concentrations);
+    // auto result = solver_->Solve<false>(time_step, state);
 
-    std::cout << "Now here 1" << std::endl;
-
-    state.variables_[0] = v_concentrations_;
-
-    std::cout << "Now here 2" << std::endl;
-
-    auto result = solver_->Solve<false>(time_step, state);
-
-    std::cout << "Now here 3" << std::endl;
-
-    v_concentrations_ = result.result_.AsVector();
-    for (int i=0; i<v_concentrations_.size(); i++)
-    {
-        concentrations[i] = v_concentrations_[i];
-    }
+    // for (int i=0; i < result.result_.AsVector().size(); i++)
+    // {
+    //     concentrations[i] = result.result_.AsVector()[i];
+    // }
 }
