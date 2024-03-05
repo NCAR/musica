@@ -12,6 +12,7 @@ program test_micm_fort_api
   real(c_double), dimension(5)  :: concentrations
   integer                       :: errcode
   character(len=7)              :: config_path
+  integer, intent(out)          :: errcode
 
   time_step = 200
   temperature = 272.5
@@ -20,10 +21,8 @@ program test_micm_fort_api
   concentrations = (/ 0.75, 0.4, 0.8, 0.01, 0.02 /)
   config_path = "chapman"
 
-  micm = micm_t()
-
   write(*,*) "[test micm fort api] Creating MICM solver..."
-  errcode = micm%create_solver(config_path)
+  micm = micm_t(config_path, errcode)
 
   if (errcode /= 0) then
     write(*,*) "[test micm fort api] Failed in creating solver."

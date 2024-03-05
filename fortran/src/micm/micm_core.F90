@@ -8,10 +8,10 @@ module micm_core
 
    interface
 
-      subroutine create_micm(micm) bind(C, name="create_micm")
+      subroutine create_micm_c(micm) bind(C, name="create_micm")
          import c_ptr
          type(c_ptr), intent(out) :: micm
-      end subroutine create_micm
+      end subroutine create_micm_c
 
       subroutine delete_micm_c(micm) bind(C, name="delete_micm")
          import c_ptr
@@ -40,10 +40,8 @@ module micm_core
       private
       type(c_ptr) :: ptr
    contains
-      ! Create a solver from configure file
-      procedure :: create_solver => micm_create_solver
       ! Solve the chemical system
-      procedure :: solve => micm_solve
+      procedure :: solve
       ! Deallocate the micm instance
       final :: finalize
    end type micm_t
@@ -54,18 +52,16 @@ module micm_core
 
 contains
 
-   function constructor()  result( this )
+   function constructor(config_path, errcode)  result( this )
       type(micm_t)  :: this
-      call create_micm(this%ptr)
-   end function constructor
-
-   integer function micm_create_solver(this, config_path)
-      class(micm_t), pointer      :: this
       character(len=*), intent(in)   :: config_path
+      integer, intent(out)            :: errcode
       character(len=1, kind=c_char)  :: c_config_path(len_trim(config_path)+1)
       integer                        :: n, i
 
       allocate( this )
+
+      call create_micm_c(this%ptr)
 
       n = len_trim(config_path)
       do i = 1, n
@@ -73,10 +69,10 @@ contains
       end do
       c_config_path(n+1) = c_null_char
 
-      micm_create_solver = micm_create_solver_c(this%ptr, c_config_path)
-   end function micm_create_solver
+      errcode = micm_create_solver_c(this%ptr, c_config_path)
+   end function constructor
 
-   subroutine micm_solve(this, time_step, temperature, pressure, num_concentrations, concentrations)
+   subroutine solve(this, time_step, temperature, pressure, num_concentrations, concentrations)
       class(micm_t)      :: this
       real(c_double), intent(in)     :: time_step
       real(c_double), intent(in)     :: temperature
@@ -84,7 +80,7 @@ contains
       integer(c_int), intent(in)     :: num_concentrations
       real(c_double), intent(inout)  :: concentrations(*)
       call micm_solve_c(this%ptr, time_step, temperature, pressure, num_concentrations, concentrations)
-   end subroutine micm_solve
+   end subroutine solve
 
    subroutine finalize(this)
       type(micm_t), intent(inout)  :: this
