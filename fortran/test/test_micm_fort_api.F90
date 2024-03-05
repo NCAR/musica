@@ -12,7 +12,6 @@ program test_micm_fort_api
   real(c_double), dimension(5)  :: concentrations
   integer                       :: errcode
   character(len=7)              :: config_path
-  integer                       :: errcode
 
   time_step = 200
   temperature = 272.5
