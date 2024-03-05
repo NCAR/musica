@@ -54,7 +54,7 @@ module micm_core
 
 contains
 
-   function constructor()
+   function constructor()  result( this )
       type(micm_t)  :: this
       call create_micm(this%ptr)
    end function constructor
