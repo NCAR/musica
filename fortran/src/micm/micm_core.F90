@@ -8,10 +8,10 @@ module micm_core
 
    interface
 
-      subroutine create_micm_c(micm) bind(C, name="create_micm")
+      subroutine create_micm(micm) bind(C, name="create_micm")
          import c_ptr
          type(c_ptr), intent(out) :: micm
-      end subroutine create_micm_c
+      end subroutine create_micm
 
       subroutine delete_micm_c(micm) bind(C, name="delete_micm")
          import c_ptr
@@ -49,21 +49,23 @@ module micm_core
    end type micm_t
 
    interface micm_t
-      procedure create_micm
+      procedure constructor
    end interface micm_t
 
 contains
 
-   function create_micm()
-      type(micm_t)  :: create_micm
-      call create_micm_c(create_micm%ptr)
-   end function create_micm
+   function constructor()
+      type(micm_t)  :: this
+      call create_micm(this%ptr)
+   end function constructor
 
    integer function micm_create_solver(this, config_path)
-      class(micm_t)      :: this
+      class(micm_t), pointer      :: this
       character(len=*), intent(in)   :: config_path
       character(len=1, kind=c_char)  :: c_config_path(len_trim(config_path)+1)
       integer                        :: n, i
+
+      allocate( this )
 
       n = len_trim(config_path)
       do i = 1, n

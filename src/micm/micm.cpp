@@ -41,22 +41,18 @@ void MICM::solve(double time_step, double temperature, double pressure, int num_
 {
     micm::State state = solver_->GetState();
 
-    std::cout << "Grid cells: " << NUM_GRID_CELLS << std::endl;
     for (size_t i{}; i < NUM_GRID_CELLS; i++)
     {
         state.conditions_[i].temperature_ = temperature;
         state.conditions_[i].pressure_ = pressure;
     }
 
-    std::cout << concentrations[0] << std::endl;
-    // std::cout << state.variables_.AsVector()[0] << std::endl;
+    state.variables_.AsVector().assign(concentrations, concentrations + num_concentrations);
 
-    // state.variables_.AsVector().assign(concentrations, concentrations + num_concentrations);
+    auto result = solver_->Solve<false>(time_step, state);
 
-    // auto result = solver_->Solve<false>(time_step, state);
-
-    // for (int i=0; i < result.result_.AsVector().size(); i++)
-    // {
-    //     concentrations[i] = result.result_.AsVector()[i];
-    // }
+    for (int i=0; i < result.result_.AsVector().size(); i++)
+    {
+        concentrations[i] = result.result_.AsVector()[i];
+    }
 }
