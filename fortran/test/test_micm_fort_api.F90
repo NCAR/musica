@@ -20,7 +20,7 @@ program test_micm_fort_api
   concentrations = (/ 0.75, 0.4, 0.8, 0.01, 0.02 /)
   config_path = "chapman"
 
-  ! write(*,*) "[test micm fort api] Creating MICM solver..."
+  write(*,*) "[test micm fort api] Creating MICM solver..."
   micm = micm_t(config_path, errcode)
 
   if (errcode /= 0) then
@@ -28,21 +28,21 @@ program test_micm_fort_api
     stop 3
   endif
 
-  ! write(*,*) "[test micm fort api] Initial concentrations", concentrations
+  write(*,*) "[test micm fort api] Initial concentrations", concentrations
 
-  ! write(*,*) "[test micm fort api] Solving starts..."
+  write(*,*) "[test micm fort api] Solving starts..."
   call micm%solve(time_step, temperature, pressure, num_concentrations, concentrations)
 
-  ! write(*,*) "[test micm fort api] After solving, concentrations", concentrations
-
-  call micm%solve(time_step, temperature, pressure, num_concentrations, concentrations)
-
-  ! write(*,*) "[test micm fort api] After solving, concentrations222", concentrations
+  write(*,*) "[test micm fort api] After solving, concentrations", concentrations
 
   call micm%solve(time_step, temperature, pressure, num_concentrations, concentrations)
 
-  ! write(*,*) "[test micm fort api] After solving, concentrations333", concentrations
+  write(*,*) "[test micm fort api] After solving, concentrations222", concentrations
 
-  ! write(*,*) "[test micm fort api] Finished."
+  call micm%solve(time_step, temperature, pressure, num_concentrations, concentrations)
+
+  write(*,*) "[test micm fort api] After solving, concentrations333", concentrations
+
+  write(*,*) "[test micm fort api] Finished."
 
 end program
