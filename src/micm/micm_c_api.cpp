@@ -1,7 +1,6 @@
 #include <musica/micm/micm.hpp>
 #include <musica/micm/micm_c.h>
 
-#include <cassert>
 #include <iostream>
 
 void create_micm(void **micm)

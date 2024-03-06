@@ -8,7 +8,9 @@
 
 MICM::MICM() : solver_(nullptr) {}
 
-MICM::~MICM() {}
+MICM::~MICM() {
+    std::cout << "MICM destructor called" << std::endl;
+}
 
 int MICM::create_solver(const std::string &config_path)
 {

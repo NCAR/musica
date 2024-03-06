@@ -7,7 +7,6 @@ module micm_core
    private
 
    interface
-
       subroutine create_micm_c(micm) bind(C, name="create_micm")
          import c_ptr
          type(c_ptr), intent(out) :: micm
