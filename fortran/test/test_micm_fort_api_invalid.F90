@@ -23,7 +23,7 @@ subroutine test_micm_fort_api_invalid()
   write(*,*) "[test micm fort api] Creating MICM solver..."
   micm = micm_t(config_path, errcode)
 
-  if (errcode /= 1) then
+  if (errcode /= 0) then
     write(*,*) "[test micm fort api] Failed in creating solver. Expected failure. Error code: ", errcode
     stop 0
   else
