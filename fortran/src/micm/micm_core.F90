@@ -19,7 +19,7 @@ module micm_core
 
       function micm_create_solver_c(micm, config_path) result(res) bind(C, name="micm_create_solver")
          import c_ptr, c_char, c_int
-         type(c_ptr), value :: micm
+         type(c_ptr) :: micm
          character(kind=c_char), intent(in) :: config_path(*)
          integer(kind=c_int) :: res
       end function micm_create_solver_c
