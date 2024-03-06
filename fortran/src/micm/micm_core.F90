@@ -9,12 +9,12 @@ module micm_core
    interface
       subroutine create_micm_c(micm) bind(C, name="create_micm")
          import c_ptr
-         type(c_ptr), value, intent(out) :: micm
+         type(c_ptr), intent(out) :: micm
       end subroutine create_micm_c
 
       subroutine delete_micm_c(micm) bind(C, name="delete_micm")
          import c_ptr
-         type(c_ptr), value, intent(inout) :: micm
+         type(c_ptr), intent(inout) :: micm
       end subroutine delete_micm_c
 
       function micm_create_solver_c(micm, config_path) result(res) bind(C, name="micm_create_solver")
