@@ -56,8 +56,6 @@ ENV CC=icx
 ENV CXX=icpx
 ENV FC=ifx
 
-ENV LIBRARY_PATH=/usr/local/musica-0.5.0/lib/
-
 RUN cd musica/fortran/test \
     && mkdir build && cd build \
     && cmake .. \
