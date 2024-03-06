@@ -22,7 +22,7 @@ find_package(musica 0.5.0 REQUIRED)
 add_library(musica-fortran)
 add_library(musica::musica-fortran ALIAS musica-fortran)
 
-add_subdirectory(src)
+add_subdirectory(micm)
 
 set_target_properties(musica-fortran
   PROPERTIES

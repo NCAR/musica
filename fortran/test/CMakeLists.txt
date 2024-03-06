@@ -41,3 +41,17 @@ add_test(
   COMMAND $<TARGET_FILE:test_micm_fort_api>
   WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
 )
+
+add_executable(test_micm_fort_api_invalid test_micm_fort_api_invalid.F90)
+
+target_link_libraries(test_micm_fort_api_invalid
+  PRIVATE
+    musica::musica-fortran
+    stdc++
+)
+
+add_test(
+  NAME test_micm_fort_api_invalid
+  COMMAND $<TARGET_FILE:test_micm_fort_api_invalid>
+  WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+)
