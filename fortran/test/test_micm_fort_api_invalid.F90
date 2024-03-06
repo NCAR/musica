@@ -20,10 +20,8 @@ subroutine test_micm_fort_api_invalid()
   concentrations = (/ 0.75, 0.4, 0.8, 0.01, 0.02 /)
   config_path = "invalid_config"
 
-  micm = micm_t()
-
   write(*,*) "[test micm fort api] Creating MICM solver..."
-  errcode = micm%create_solver(config_path)
+  micm = micm_t(config_path, errcode)
 
   if (errcode /= 1) then
     write(*,*) "[test micm fort api] Failed in creating solver. Expected failure. Error code: ", errcode
