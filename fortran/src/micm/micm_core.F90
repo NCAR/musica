@@ -9,24 +9,20 @@ module micm_core
    interface
 
       subroutine create_micm_c(micm) bind(C, name="create_micm")
-         import c_ptr
          type(c_ptr), intent(out) :: micm
       end subroutine create_micm_c
 
       subroutine delete_micm_c(micm) bind(C, name="delete_micm")
-         import c_ptr
          type(c_ptr), intent(inout) :: micm
       end subroutine delete_micm_c
 
       function micm_create_solver_c(micm, config_path) result(res) bind(C, name="micm_create_solver")
-         import c_ptr, c_char, c_int
          type(c_ptr) :: micm
          character(kind=c_char), intent(in) :: config_path(*)
          integer(kind=c_int) :: res
       end function micm_create_solver_c
 
       subroutine micm_solve_c(micm, time_step, temperature, pressure, num_concentrations, concentrations) bind(C, name="micm_solve")
-         import c_ptr, c_double, c_int
          type(c_ptr), intent(inout) :: micm
          real(kind=c_double), intent(in) :: time_step
          real(kind=c_double), intent(in) :: temperature
