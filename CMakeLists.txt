@@ -50,7 +50,6 @@ endif()
 
 ################################################################################
 # Projet wide setup variables 
-set(MUSICA_INSTALL_PREFIX musica-${PROJECT_VERSION})
 set(MUSICA_INSTALL_INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR})
 set(MUSICA_MOD_DIR ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_INCLUDEDIR})
 set(MUSICA_LIB_DIR ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
