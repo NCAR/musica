@@ -23,11 +23,8 @@ include(CMakeDependentOption)
 
 option(MUSICA_BUILD_C_CXX_INTERFACE "Use MUSICA" ON)
 option(MUSICA_BUILD_FOTRAN_INTERFACE "Use MUSICA-Fortran interface" OFF)
-option(MUSICA_ENABLE_INSTALL "Make MUSICA-Fortran installable" ON)
+option(MUSICA_ENABLE_INSTALL "Installl the MUSICA project" ON)
 option(MUSICA_ENABLE_TESTS "Builds tests that ensures each enabled MUSICA component can be used" ON)
-
-cmake_dependent_option(
-  MUSICA_ENABLE_TUVX "Builds TUV-x, a photolysis calculator library" ON "MUSICA_BUILD_C_CXX_INTERFACE" OFF)
 
 cmake_dependent_option(
   MUSICA_ENABLE_MICM "Adds MICM, a model independent chemical mechanism solver" ON "MUSICA_BUILD_C_CXX_INTERFACE" OFF)
@@ -80,3 +77,4 @@ endif()
 if(MUSICA_BUILD_FOTRAN_INTERFACE)
   add_subdirectory(fortran)
 endif()
+
