@@ -52,7 +52,6 @@ int MICM::create_solver(const std::string &config_path)
         solver_ = std::make_unique<micm::RosenbrockSolver<>>(solver_params.system_,
                                                              solver_params.processes_,
                                                              params);
-        Create the RosenbrockSolver object using a raw pointer first
     }
     else
     {

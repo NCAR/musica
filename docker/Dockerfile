@@ -5,6 +5,7 @@ RUN dnf -y update \
         cmake \
         gcc-c++ \
         gcc-gfortran \
+        gdb \
         git \
         lcov \
         make \
