@@ -154,13 +154,6 @@ if (MUSICA_ENABLE_MICM)
 
   target_link_libraries(musica PRIVATE nlohmann_json::nlohmann_json)
 
-  install(
-    DIRECTORY
-      ${CMAKE_SOURCE_DIR}/lib/micm/include/
-    DESTINATION 
-      ${MUSICA_INSTALL_INCLUDE_DIR}
-  )
-
   add_subdirectory(micm)
 endif()
 

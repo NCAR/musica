@@ -1,5 +1,5 @@
-#include <musica/micm/micm.hpp>
-#include <musica/micm/micm_c.h>
+#include <musica/micm.hpp>
+#include <musica/micm_c.h>
 
 #include <iostream>
 

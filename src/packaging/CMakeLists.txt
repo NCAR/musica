@@ -4,35 +4,48 @@ install(
   TARGETS
     musica
     nlohmann_json
-    # musicacore_object
   EXPORT
     musica_Exports
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
+# install the musica header files
+install(
+  DIRECTORY
+    ${CMAKE_SOURCE_DIR}/include/
+  DESTINATION
+    ${MUSICA_INSTALL_INCLUDE_DIR}
+)
+
 # install the mod files
 install(
   DIRECTORY
     ${MUSICA_MOD_DIR}/
-    ${CMAKE_SOURCE_DIR}/include/
   DESTINATION
-    ${MUSICA_INSTALL_INCLUDE_DIR}
+    ${MUSICA_INSTALL_INCLUDE_DIR}/musica/fortran
   FILES_MATCHING PATTERN "*.mod"
 )
 
-if(MUSICA_ENABLE_INSTALL)
+install(
+  DIRECTORY 
+    ${MUSICA_FORTRAN_SRC_DIR}/
+  DESTINATION 
+    ${MUSICA_INSTALL_INCLUDE_DIR}/musica/fortran
+  FILES_MATCHING PATTERN "*.F90"
+)
+
+if (MUSICA_ENABLE_MICM)
   install(
-    DIRECTORY 
-      ${MUSICA_FORTRAN_SRC_DIR}/
+    DIRECTORY
+      ${CMAKE_SOURCE_DIR}/lib/micm/include/
     DESTINATION 
-      ${CMAKE_INSTALL_INCLUDEDIR}/musica-${PROJECT_VERSION}/fortran
-    FILES_MATCHING PATTERN "*.F90"
+      ${MUSICA_INSTALL_INCLUDE_DIR}/musica
   )
 endif()
 
 # install the cmake config files
-set(cmake_config_install_location ${MUSICA_INSTALL_PREFIX}/cmake)
+set(cmake_config_install_location "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/cmake/musica")
 
 install(
   EXPORT

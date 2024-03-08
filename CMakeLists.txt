@@ -23,8 +23,11 @@ include(CMakeDependentOption)
 
 option(MUSICA_BUILD_C_CXX_INTERFACE "Use MUSICA" ON)
 option(MUSICA_BUILD_FOTRAN_INTERFACE "Use MUSICA-Fortran interface" OFF)
-option(MUSICA_ENABLE_INSTALL "Installl the MUSICA project" ON)
+option(MUSICA_ENABLE_INSTALL "Install the musica library" ON)
 option(MUSICA_ENABLE_TESTS "Builds tests that ensures each enabled MUSICA component can be used" ON)
+
+cmake_dependent_option(
+  MUSICA_ENABLE_TUVX "Builds TUV-x, a photolysis calculator library" ON "MUSICA_BUILD_C_CXX_INTERFACE" OFF)
 
 cmake_dependent_option(
   MUSICA_ENABLE_MICM "Adds MICM, a model independent chemical mechanism solver" ON "MUSICA_BUILD_C_CXX_INTERFACE" OFF)
@@ -50,7 +53,7 @@ endif()
 set(MUSICA_INSTALL_INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR})
 set(MUSICA_MOD_DIR ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_INCLUDEDIR})
 set(MUSICA_LIB_DIR ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
-set(MUSICA_FORTRAN_SRC_DIR ${CMAKE_SOURCE_DIR}/musica-fortran/src/micm)
+set(MUSICA_FORTRAN_SRC_DIR ${CMAKE_SOURCE_DIR}/fortran/micm)
 
 # Add flags for various compilers
 if(${CMAKE_Fortran_COMPILER_ID} MATCHES "Intel")
@@ -77,4 +80,3 @@ endif()
 if(MUSICA_BUILD_FOTRAN_INTERFACE)
   add_subdirectory(fortran)
 endif()
-

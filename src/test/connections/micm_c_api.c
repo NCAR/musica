@@ -1,4 +1,4 @@
-#include <musica/micm/micm_c.h>
+#include <musica/micm_c.h>
 
 #include <stdio.h>
 

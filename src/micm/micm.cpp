@@ -1,4 +1,4 @@
-#include <musica/micm/micm.hpp>
+#include <musica/micm.hpp>
 
 #include <micm/configure/solver_config.hpp>
 #include <micm/solver/rosenbrock_solver_parameters.hpp>
@@ -8,7 +8,8 @@
 
 MICM::MICM() : solver_(nullptr) {}
 
-MICM::~MICM() {
+MICM::~MICM()
+{
     std::cout << "MICM destructor called" << std::endl;
 }
 
@@ -28,8 +29,8 @@ int MICM::create_solver(const std::string &config_path)
         //                                                      params);
         // Create the RosenbrockSolver object using a raw pointer first
         solver_ = new micm::RosenbrockSolver<>(solver_params.system_,
-                                                    solver_params.processes_,
-                                                    params);
+                                               solver_params.processes_,
+                                               params);
     }
     else
     {
@@ -53,7 +54,7 @@ void MICM::solve(double time_step, double temperature, double pressure, int num_
 
     auto result = solver_->Solve<false>(time_step, state);
 
-    for (int i=0; i < result.result_.AsVector().size(); i++)
+    for (int i = 0; i < result.result_.AsVector().size(); i++)
     {
         concentrations[i] = result.result_.AsVector()[i];
     }
