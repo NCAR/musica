@@ -1,9 +1,6 @@
 [submodule "lib/tuv-x"]
 	path = lib/tuv-x
 	url = https://github.com/NCAR/tuv-x.git
-[submodule "lib/musica-core"]
-	path = lib/musica-core
-	url = https://github.com/NCAR/musica-core.git
 [submodule "lib/micm"]
 	path = lib/micm
 	url = https://github.com/NCAR/micm.git
