@@ -1,24 +1,6 @@
 find_package(PkgConfig REQUIRED)
 
 ################################################################################
-# json-fortran library
-find_path(JSON_INCLUDE_DIR json_module.mod
-  DOC "json-fortran include directory (must include json_*.mod files)"
-  PATHS
-    $ENV{JSON_FORTRAN_HOME}/lib
-    /opt/local/lib
-    /usr/local/lib
-    /usr/local/lib64)
-find_library(JSON_LIB jsonfortran
-  DOC "json-fortran library"
-  PATHS
-    $ENV{JSON_FORTRAN_HOME}/lib
-    /opt/local/lib
-    /usr/local/lib
-    /usr/local/lib64)
-include_directories(${JSON_INCLUDE_DIR})
-
-################################################################################
 # NetCDF library
 pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
 
@@ -57,4 +39,16 @@ if (MUSICA_ENABLE_MICM)
       GIT_TAG v3.11.2
   )
   FetchContent_MakeAvailable(json)
+endif()
+
+################################################################################
+# TUV-x
+
+if (MUSICA_ENABLE_TUVX)
+  FetchContent_Declare(
+    yaml-cpp
+    GIT_REPOSITORY https://github.com/jbeder/yaml-cpp/
+    GIT_TAG 0.8.0
+  )
+  FetchContent_MakeAvailable(yaml-cpp)
 endif()

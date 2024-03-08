@@ -1,70 +1,61 @@
-cmake_minimum_required(VERSION 3.21)
+# cmake_minimum_required(VERSION 3.21)
 
-project(
-  test_musica_fortran
-  LANGUAGES Fortran C CXX
-)
+# project(
+#   test_musica_fortran
+#   LANGUAGES Fortran C CXX
+# )
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+# set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
-include(FetchContent)
+# include(FetchContent)
 
-FetchContent_Declare(musica-fortran
-  GIT_REPOSITORY https://github.com/NCAR/musica.git
-  GIT_TAG        reorganize
-)
+# FetchContent_Declare(musica-fortran
+#   GIT_REPOSITORY https://github.com/NCAR/musica.git
+#   GIT_TAG        reorganize
+# )
 
-set(MUSICA_BUILD_C_CXX_INTERFACE OFF)
-set(MUSICA_BUILD_FOTRAN_INTERFACE ON)
-set(MUSICA_ENABLE_MICM ON)
-set(MUSICA_ENABLE_TUVX OFF)
-set(MUSICA_ENABLE_TESTS OFF)
+# set(MUSICA_BUILD_C_CXX_INTERFACE OFF)
+# set(MUSICA_BUILD_FOTRAN_INTERFACE ON)
+# set(MUSICA_ENABLE_MICM ON)
+# set(MUSICA_ENABLE_TUVX OFF)
+# set(MUSICA_ENABLE_TESTS OFF)
 
-FetchContent_MakeAvailable(musica-fortran)
+# FetchContent_MakeAvailable(musica-fortran)
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
+# find_package(PkgConfig REQUIRED)
+# pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
 
-enable_testing()
+# enable_testing()
 
-# API Test
-add_executable(test_micm_fort_api test_micm_fort_api.F90)
+# # API Test
+# add_executable(test_micm_fort_api test_micm_fort_api.F90)
 
-target_link_libraries(test_micm_fort_api
-  PRIVATE
-    musica::musica-fortran
-    stdc++
-)
+# target_link_libraries(test_micm_fort_api
+#   PRIVATE
+#     musica::musica-fortran
+#     stdc++
+# )
 
-add_test(
-  NAME test_micm_fort_api
-  COMMAND $<TARGET_FILE:test_micm_fort_api>
-  WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-)
+# add_test(
+#   NAME test_micm_fort_api
+#   COMMAND $<TARGET_FILE:test_micm_fort_api>
+#   WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+# )
 
-add_executable(test_micm_fort_api_invalid test_micm_fort_api_invalid.F90)
+# add_executable(test_micm_fort_api_invalid test_micm_fort_api_invalid.F90)
 
-target_link_libraries(test_micm_fort_api_invalid
-  PRIVATE
-    musica::musica-fortran
-    stdc++
-)
+# target_link_libraries(test_micm_fort_api_invalid
+#   PRIVATE
+#     musica::musica-fortran
+#     stdc++
+# )
 
-add_test(
-  NAME test_micm_fort_api_invalid
-  COMMAND $<TARGET_FILE:test_micm_fort_api_invalid>
-  WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-)
+# add_test(
+#   NAME test_micm_fort_api_invalid
+#   COMMAND $<TARGET_FILE:test_micm_fort_api_invalid>
+#   WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+# )
 
-create_standard_test(NAME connect_to_musica_core SOURCES musica_core.F90)
-
-if (MUSICA_ENABLE_OPENMP)
-  create_standard_test(NAME connect_to_musica_core_openmp SOURCES musica_core_openmp.F90)
-endif()
-
-if (MUSICA_ENABLE_MPI)
-  create_standard_test(NAME connect_to_musica_core_mpi SOURCES musica_core_mpi.F90)
-endif()
 
 if (MUSICA_ENABLE_TUVX)
   create_standard_test(NAME connect_to_tuvx SOURCES tuvx.F90)

@@ -25,18 +25,14 @@ option(MUSICA_BUILD_C_CXX_INTERFACE "Use MUSICA" ON)
 option(MUSICA_BUILD_FOTRAN_INTERFACE "Use MUSICA-Fortran interface" OFF)
 option(MUSICA_ENABLE_INSTALL "Install the musica library" ON)
 option(MUSICA_ENABLE_TESTS "Builds tests that ensures each enabled MUSICA component can be used" ON)
+option(MUSICA_ENABLE_MPI "Enable MPI parallel support" OFF)
+option(MUSICA_ENABLE_OPENMP "Enable OpemMP support" OFF)
 
 cmake_dependent_option(
   MUSICA_ENABLE_TUVX "Builds TUV-x, a photolysis calculator library" ON "MUSICA_BUILD_FOTRAN_INTERFACE" OFF)
 
 cmake_dependent_option(
   MUSICA_ENABLE_MICM "Adds MICM, a model independent chemical mechanism solver" ON "MUSICA_BUILD_C_CXX_INTERFACE" OFF)
-
-cmake_dependent_option(
-  MUSICA_ENABLE_MPI "Enable MPI parallel support" OFF "MUSICA_BUILD_C_CXX_INTERFACE" OFF)
-
-cmake_dependent_option(
-  MUSICA_ENABLE_OPENMP "Enable OpemMP support" OFF "MUSICA_BUILD_C_CXX_INTERFACE" OFF)
 
 cmake_dependent_option(
   MUSICA_CREATE_ENVIRONMENT_MODULE "Creates an Lmod environment module file that can be installed on the same machine this library is installed to." OFF "MUSICA_BUILD_C_CXX_INTERFACE" OFF)
