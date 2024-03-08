@@ -14,17 +14,6 @@ jobs:
       run: docker build -t musica -f docker/Dockerfile .
     - name: run tests in container
       run: docker run --name test-container -t musica bash -c 'make test'
-  build_test_connections_without_micm:
-    runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
-    steps:
-    - uses: actions/checkout@v3
-      with:
-        submodules: recursive
-    - name: build Docker image
-      run: docker build -t musica -f docker/Dockerfile.no_micm .
-    - name: run tests in container
-      run: docker run --name test-container -t musica bash -c 'make test'
   build_test_connections_with_openmp:
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
@@ -58,21 +47,7 @@ jobs:
       run: docker build -t musica-mpi-openmp -f docker/Dockerfile.mpi_openmp .
     - name: run tests in container
       run: docker run --name test-container -t musica-mpi-openmp bash -c 'make test'
-  # build_test_connections_musica-fortran-intel:
-  #   runs-on: ubuntu-latest
-  #   if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
-  #   steps:
-  #   - name: delete unnessary tools to free up space
-  #     run: rm -rf /opt/hostedtoolcache
-    
-  #   - uses: actions/checkout@v3
-  #     with:
-  #       submodules: recursive
-  #   - name: build Docker image
-  #     run: docker build -t musica-fortran -f docker/Dockerfile.fortran-intel .
-  #   - name: run tests in container
-  #     run: docker run --name test-container -t musica-fortran bash -c 'make test'
-  build_test_connections_musica-fortran-ubuntu:
+  build_test_connections_musica-fortran-intel:
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     steps:
@@ -83,6 +58,6 @@ jobs:
       with:
         submodules: recursive
     - name: build Docker image
-      run: docker build -t musica-fortran-ubuntu -f docker/Dockerfile.fortran-ubuntu .
+      run: docker build -t musica-fortran -f docker/Dockerfile.fortran-intel .
     - name: run tests in container
-      run: docker run --name test-container -t musica-fortran-ubuntu bash -c 'make test'
+      run: docker run --name test-container -t musica-fortran bash -c 'make test'

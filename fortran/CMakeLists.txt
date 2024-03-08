@@ -39,6 +39,11 @@ target_link_libraries(musica-fortran
     musica
 )
 
+target_sources(musica-fortran
+  PUBLIC
+    micm_core.F90
+)
+
 if(MUSICA_ENABLE_INSTALL)
   install(
     DIRECTORY
