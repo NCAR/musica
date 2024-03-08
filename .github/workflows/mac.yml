@@ -1,0 +1,36 @@
+name: Mac
+
+on: [push, pull_request]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  macos_lateset:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        compiler:
+          - { cpp: g++-11, c: gcc-11}
+          - { cpp: g++-12, c: gcc-12}
+          - { cpp: clang++, c: clang}
+        build_type: [Debug, Release]
+    env:
+      CC: ${{ matrix.compiler.c }}
+      CXX: ${{ matrix.compiler.cpp }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run Cmake 
+        run: cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }}
+
+      - name: Build
+        run: cmake --build build --parallel 10
+
+      - name: Run tests
+        run: |
+          cd build
+          ctest -C ${{ matrix.build_type }} --rerun-failed --output-on-failure . --verbose -j 10

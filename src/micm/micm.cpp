@@ -1,10 +1,35 @@
-#include <musica/micm.hpp>
+#include <cstddef>
+#include <filesystem>
+#include <iostream>
 
 #include <micm/configure/solver_config.hpp>
 #include <micm/solver/rosenbrock_solver_parameters.hpp>
+#include <musica/micm.hpp>
+#include <musica/micm.hpp>
 
-#include <filesystem>
-#include <cstddef>
+void create_micm(void **micm)
+{
+    *micm = new MICM();
+}
+
+void delete_micm(void **micm)
+{
+    if (*micm)
+    {
+        delete static_cast<MICM *>(*micm);
+        *micm = nullptr;
+    }
+}
+
+int micm_create_solver(void **micm, const char *config_path)
+{
+    return static_cast<MICM *>(*micm)->create_solver(std::string(config_path));
+}
+
+void micm_solve(void **micm, double time_step, double temperature, double pressure, int num_concentrations, double *concentrations)
+{
+    static_cast<MICM *>(*micm)->solve(time_step, temperature, pressure, num_concentrations, concentrations);
+}
 
 MICM::MICM() : solver_(nullptr) {}
 
@@ -24,13 +49,10 @@ int MICM::create_solver(const std::string &config_path)
     {
         micm::SolverParameters solver_params = solver_config.GetSolverParams();
         auto params = micm::RosenbrockSolverParameters::three_stage_rosenbrock_parameters(NUM_GRID_CELLS);
-        // solver_ = std::make_unique<micm::RosenbrockSolver<>>(solver_params.system_,
-        //                                                      solver_params.processes_,
-        //                                                      params);
-        // Create the RosenbrockSolver object using a raw pointer first
-        solver_ = new micm::RosenbrockSolver<>(solver_params.system_,
-                                               solver_params.processes_,
-                                               params);
+        solver_ = std::make_unique<micm::RosenbrockSolver<>>(solver_params.system_,
+                                                             solver_params.processes_,
+                                                             params);
+        Create the RosenbrockSolver object using a raw pointer first
     }
     else
     {
