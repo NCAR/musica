@@ -28,11 +28,10 @@ install(
 )
 
 install(
-  DIRECTORY 
-    ${MUSICA_FORTRAN_SRC_DIR}/
+  FILES 
+    ${MUSICA_FORTRAN_SRC_DIR}/micm_core.F90
   DESTINATION 
     ${MUSICA_INSTALL_INCLUDE_DIR}/musica/fortran
-  FILES_MATCHING PATTERN "*.F90"
 )
 
 if (MUSICA_ENABLE_MICM)
@@ -45,7 +44,7 @@ if (MUSICA_ENABLE_MICM)
 endif()
 
 # install the cmake config files
-set(cmake_config_install_location "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/cmake/musica")
+set(cmake_config_install_location "${CMAKE_INSTALL_LIBDIR}/cmake/musica")
 
 install(
   EXPORT

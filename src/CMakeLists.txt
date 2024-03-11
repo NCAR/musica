@@ -10,6 +10,7 @@ project(
 message (STATUS "CMake build configuration for ${PROJECT_NAME} (${CMAKE_BUILD_TYPE}) ${PROJECT_VERSION}")
 
 include(musica_util)
+
 # Add submodules
 checkout_submodules()
 
@@ -34,10 +35,6 @@ add_library(musica::musica ALIAS musica)
 
 set(MUSICA_COMPILE_DEFINITIONS)
 
-if(MUSICA_ENABLE_TUVX)
-  list(APPEND MUSICA_COMPILE_DEFINITIONS -DMUSICA_USE_TUVX)
-endif()
-
 if(MUSICA_ENABLE_MICM)
   list(APPEND MUSICA_COMPILE_DEFINITIONS -DMUSICA_USE_MICM)
 endif()
@@ -46,7 +43,9 @@ if(MUSICA_ENABLE_MPI)
   list(APPEND MUSICA_COMPILE_DEFINITIONS -DMUSICA_USE_MPI)
 endif()
 
-list(APPEND MUSICA_COMPILE_DEFINITIONS -DMUSICA_USE_OPENMP)
+if(MUSICA_ENABLE_OPENMP)
+  list(APPEND MUSICA_COMPILE_DEFINITIONS -DMUSICA_USE_OPENMP)
+endif()
 
 target_compile_definitions(musica PRIVATE ${MUSICA_COMPILE_DEFINITIONS})
 
@@ -73,7 +72,7 @@ target_sources(musica
 
 ####################
 # MICM
-if (MUSICA_ENABLE_MICM)
+if(MUSICA_ENABLE_MICM)
   target_compile_features(musica PUBLIC cxx_std_20)
 
   target_include_directories(musica
@@ -96,6 +95,6 @@ endif()
 
 ################################################################################
 # Packaging
-if (MUSICA_ENABLE_INSTALL)
+if(MUSICA_ENABLE_INSTALL)
   add_subdirectory(packaging)
 endif()

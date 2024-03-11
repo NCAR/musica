@@ -90,26 +90,3 @@ endif()
 if(MUSICA_ENABLE_TESTS)
   add_subdirectory(test)
 endif()
-
-# if(MUSICA_ENABLE_INSTALL)
-#   install(
-#     DIRECTORY
-#       ${MUSICA_FORTRAN_LIB_DIR}/
-#     DESTINATION
-#       ${INSTALL_LIB_DIR}
-#   )
-#   install(
-#     DIRECTORY 
-#       ${MUSICA_FORTRAN_MOD_DIR}/
-#     DESTINATION 
-#       ${INSTALL_INCLUDE_DIR}
-#     FILES_MATCHING PATTERN "*.mod"
-#   )
-#   install(
-#     DIRECTORY
-#       ${CMAKE_SOURCE_DIR}/src/micm/
-#     DESTINATION
-#       ${CMAKE_PROJECT_NAME}/src/
-#     FILES_MATCHING PATTERN "*.F90"
-#   )
-# endif()
