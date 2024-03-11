@@ -2,12 +2,13 @@
 *
 
 # add things to copy
-!CMakeLists.txt
-!src/
-!fortran/
-!docs/
-!cmake/
-!lib/
-!include/
-!.gitmodules
 !.git/
+!.gitmodules
+!CMakeLists.txt
+!cmake/
+!configs
+!docs/
+!fortran/
+!include/
+!lib/
+!src/

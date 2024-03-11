@@ -4,7 +4,9 @@
  * 
  * This file contains the implementation of the MICM class, which represents a multi-component
  * reactive transport model. It also includes functions for creating and deleting MICM instances,
- * creating solvers, and solving the model.
+ * Copyright (C) 2023-2024 National Center for Atmospheric Research,
+ * 
+ * SPDX-License-Identifier: Apache-2.0* creating solvers, and solving the model.
  */
 #include <filesystem>
 #include <iostream>
