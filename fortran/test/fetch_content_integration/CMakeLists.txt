@@ -47,7 +47,7 @@ add_executable(test_micm_fort_api_invalid test_micm_fort_api_invalid.F90)
 target_link_libraries(test_micm_fort_api_invalid
   PRIVATE
     musica::musica-fortran
-    stdc++
+    libstdc++
 )
 
 add_test(
