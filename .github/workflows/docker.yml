@@ -18,6 +18,7 @@ jobs:
         dockerfile:
           - Dockerfile
           - Dockerfile.fortran-intel
+          - Dockerfile.fortran-gcc
           - Dockerfile.openmp
           - Dockerfile.mpi
           - Dockerfile.mpi_openmp
