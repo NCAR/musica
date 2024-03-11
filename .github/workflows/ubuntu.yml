@@ -19,7 +19,8 @@ jobs:
           - { cpp: clang++, c: clang}
         build_type: [Debug, Release]
     env:
-      FC: gfortran-${{ matrix.gcc_version }}
+      CC: ${{ matrix.compiler.c }}
+      CXX: ${{ matrix.compiler.cpp }}
 
     steps:
       - uses: actions/checkout@v3
