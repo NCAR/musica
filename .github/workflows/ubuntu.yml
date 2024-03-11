@@ -16,7 +16,6 @@ jobs:
           - { cpp: g++-11, c: gcc-11}
           - { cpp: g++-12, c: gcc-12}
           - { cpp: g++-13, c: gcc-13}
-          - { cpp: clang++, c: clang}
           - { cpp: clang++-13, c: clang-13}
           - { cpp: clang++-14, c: clang-14}
           - { cpp: clang++-15, c: clang-15}
