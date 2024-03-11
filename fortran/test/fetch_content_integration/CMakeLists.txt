@@ -17,6 +17,7 @@ FetchContent_Declare(musica-fortran
 set(MUSICA_BUILD_C_CXX_INTERFACE OFF)
 set(MUSICA_BUILD_FORTRAN_INTERFACE ON)
 set(MUSICA_ENABLE_MICM ON)
+set(MUSICA_ENABLE_TUVX OFF)
 set(MUSICA_ENABLE_TESTS OFF)
 
 FetchContent_MakeAvailable(musica-fortran)
