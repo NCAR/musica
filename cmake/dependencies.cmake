@@ -24,12 +24,7 @@ endif()
 ################################################################################
 # OpenMP
 if(MUSICA_ENABLE_OPENMP)
-  find_package(OpenMP)
-  if(OpenMP_Fortran_FOUND)
-    message(STATUS "Compiling with OpenMP support")
-  else()
-    message(FATAL_ERROR "OpenMP package not found")
-  endif()
+  find_package(OpenMP REQUIRED)
 endif()
 
 ################################################################################
