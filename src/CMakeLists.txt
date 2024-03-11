@@ -50,12 +50,6 @@ set_target_properties(musica PROPERTIES
   SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
-target_link_libraries(musica
-  PRIVATE
-    PkgConfig::netcdff
-    ${JSON_LIB}
-)
-
 target_include_directories(musica
   PUBLIC  
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
