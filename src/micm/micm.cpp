@@ -1,4 +1,11 @@
-#include <cstddef>
+/**
+ * @file micm.cpp
+ * @brief Implementation of the MICM class and related functions.
+ * 
+ * This file contains the implementation of the MICM class, which represents a multi-component
+ * reactive transport model. It also includes functions for creating and deleting MICM instances,
+ * creating solvers, and solving the model.
+ */
 #include <filesystem>
 #include <iostream>
 
