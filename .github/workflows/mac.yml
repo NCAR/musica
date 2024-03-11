@@ -12,14 +12,10 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        compiler:
-          - { cpp: g++-11, c: gcc-11}
-          - { cpp: g++-12, c: gcc-12}
-          - { cpp: clang++, c: clang}
+        gcc_version: [11, 12, 13]
         build_type: [Debug, Release]
     env:
-      CC: ${{ matrix.compiler.c }}
-      CXX: ${{ matrix.compiler.cpp }}
+      FC: gfortran-${{ matrix.gcc_version }}
 
     steps:
       - uses: actions/checkout@v3
