@@ -9,10 +9,6 @@ project(
 message (STATUS "CMake build configuration for ${PROJECT_NAME} (${CMAKE_BUILD_TYPE}) ${PROJECT_VERSION}")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-set(MUSICA_FORTRAN_MOD_DIR ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_INCLUDEDIR})
-set(MUSICA_FORTRAN_LIB_DIR ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
-set(INSTALL_INCLUDE_DIR ${CMAKE_PROJECT_NAME}/${CMAKE_INSTALL_INCLUDEDIR})
-set(INSTALL_LIB_DIR ${CMAKE_PROJECT_NAME}/${CMAKE_INSTALL_LIBDIR})
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
@@ -26,14 +22,18 @@ add_library(musica::musica-fortran ALIAS musica-fortran)
 
 set_target_properties(musica-fortran
   PROPERTIES
-    LIBRARY_OUTPUT_DIRECTORY ${MUSICA_FORTRAN_LIB_DIR}
-    Fortran_MODULE_DIRECTORY ${MUSICA_FORTRAN_MOD_DIR}
+    LIBRARY_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
+    Fortran_MODULE_DIRECTORY ${MUSICA_MOD_DIR}
+    VERSION ${PROJECT_VERSION}
+    SOVERSION ${PROJECT_VERSION_MAJOR}
 )
+
 target_include_directories(musica-fortran
   PUBLIC  
-    $<BUILD_INTERFACE:${MUSICA_FORTRAN_MOD_DIR}>
+    $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
     $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
 )
+
 target_link_libraries(musica-fortran
   PUBLIC
     musica
@@ -49,8 +49,11 @@ target_sources(musica-fortran
 if (MUSICA_ENABLE_TUVX)
   set(TUVX_MOD_DIR ${MUSICA_MOD_DIR})
   set(TUVX_LIB_DIR ${MUSICA_LIB_DIR})
-  
+ 
   add_subdirectory(${CMAKE_SOURCE_DIR}/lib/tuv-x/src ${MUSICA_LIB_DIR}/tuv-x/src)
+
+  # for yaml-cpp
+  target_compile_features(tuvx_object PRIVATE cxx_std_20)
   
   set_target_properties(tuvx_object PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
@@ -68,6 +71,11 @@ if (MUSICA_ENABLE_TUVX)
       musicacore_object
   )
 
+  target_link_libraries(musica-fortran 
+    PUBLIC
+      yaml-cpp::yaml-cpp
+  )
+
   # add the sources to musica
   target_sources(musica-fortran
     PRIVATE
@@ -75,6 +83,13 @@ if (MUSICA_ENABLE_TUVX)
   )
 endif()
 
+
+################################################################################
+# testing
+
+if(MUSICA_ENABLE_TESTS)
+  add_subdirectory(test)
+endif()
 
 # if(MUSICA_ENABLE_INSTALL)
 #   install(

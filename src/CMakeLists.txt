@@ -88,6 +88,13 @@ if (MUSICA_ENABLE_MICM)
 endif()
 
 ################################################################################
+# testing
+
+if(MUSICA_ENABLE_TESTS)
+  add_subdirectory(test)
+endif()
+
+################################################################################
 # Packaging
 if (MUSICA_ENABLE_INSTALL)
   add_subdirectory(packaging)

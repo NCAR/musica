@@ -22,14 +22,14 @@ include(GNUInstallDirs)
 include(CMakeDependentOption)
 
 option(MUSICA_BUILD_C_CXX_INTERFACE "Use MUSICA" ON)
-option(MUSICA_BUILD_FOTRAN_INTERFACE "Use MUSICA-Fortran interface" OFF)
+option(MUSICA_BUILD_FORTRAN_INTERFACE "Use MUSICA-Fortran interface" OFF)
 option(MUSICA_ENABLE_INSTALL "Install the musica library" ON)
 option(MUSICA_ENABLE_TESTS "Builds tests that ensures each enabled MUSICA component can be used" ON)
 option(MUSICA_ENABLE_MPI "Enable MPI parallel support" OFF)
 option(MUSICA_ENABLE_OPENMP "Enable OpemMP support" OFF)
 
 cmake_dependent_option(
-  MUSICA_ENABLE_TUVX "Builds TUV-x, a photolysis calculator library" ON "MUSICA_BUILD_FOTRAN_INTERFACE" OFF)
+  MUSICA_ENABLE_TUVX "Builds TUV-x, a photolysis calculator library" ON "MUSICA_BUILD_FORTRAN_INTERFACE" OFF)
 
 cmake_dependent_option(
   MUSICA_ENABLE_MICM "Adds MICM, a model independent chemical mechanism solver" ON "MUSICA_BUILD_C_CXX_INTERFACE" OFF)
@@ -60,6 +60,11 @@ elseif(${CMAKE_Fortran_COMPILER_ID} MATCHES "PGI")
   add_definitions(-DMUSICA_USING_PGI)
 endif()
 
+# Tests
+if(MUSICA_ENABLE_TESTS)
+  enable_testing()
+endif()
+
 ################################################################################
 # MUSICA
 if(MUSICA_BUILD_C_CXX_INTERFACE)
@@ -68,12 +73,6 @@ endif()
 
 ################################################################################
 # MUSICA-Fortran
-if(MUSICA_BUILD_FOTRAN_INTERFACE)
+if(MUSICA_BUILD_FORTRAN_INTERFACE)
   add_subdirectory(fortran)
-endif()
-
-# Tests
-if(MUSICA_ENABLE_TESTS)
-  enable_testing()
-  add_subdirectory(test)
 endif()

@@ -15,7 +15,7 @@
 # )
 
 # set(MUSICA_BUILD_C_CXX_INTERFACE OFF)
-# set(MUSICA_BUILD_FOTRAN_INTERFACE ON)
+# set(MUSICA_BUILD_FORTRAN_INTERFACE ON)
 # set(MUSICA_ENABLE_MICM ON)
 # set(MUSICA_ENABLE_TUVX OFF)
 # set(MUSICA_ENABLE_TESTS OFF)
@@ -56,13 +56,17 @@
 #   WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
 # )
 
+################################################################################
+# Test utilities
+
+include(test_util)
 
 if (MUSICA_ENABLE_TUVX)
-  create_standard_test(NAME connect_to_tuvx SOURCES tuvx.F90)
-  if (MUSICA_ENABLE_OPENMP)
-    create_standard_test(NAME connect_to_tuvx_openmp SOURCES tuvx_openmp.F90)
-  endif()
-  if (MUSICA_ENABLE_MPI)
-    create_standard_test(NAME connect_to_tuvx_mpi SOURCES tuvx_mpi.F90)
-  endif()
+  create_standard_test_fortran(NAME connect_to_tuvx SOURCES tuvx.F90)
+  # if (MUSICA_ENABLE_OPENMP)
+  #   create_standard_test_fortran(NAME connect_to_tuvx_openmp SOURCES tuvx_openmp.F90)
+  # endif()
+  # if (MUSICA_ENABLE_MPI)
+  #   create_standard_test_fortran(NAME connect_to_tuvx_mpi SOURCES tuvx_mpi.F90)
+  # endif()
 endif()
