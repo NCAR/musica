@@ -17,7 +17,6 @@ FetchContent_Declare(musica-fortran
 set(MUSICA_BUILD_C_CXX_INTERFACE OFF)
 set(MUSICA_BUILD_FORTRAN_INTERFACE ON)
 set(MUSICA_ENABLE_MICM ON)
-set(MUSICA_ENABLE_TUVX OFF)
 set(MUSICA_ENABLE_TESTS OFF)
 
 FetchContent_MakeAvailable(musica-fortran)
@@ -47,7 +46,6 @@ add_executable(test_micm_fort_api_invalid test_micm_fort_api_invalid.F90)
 target_link_libraries(test_micm_fort_api_invalid
   PRIVATE
     musica::musica-fortran
-    stdc++
 )
 
 add_test(
