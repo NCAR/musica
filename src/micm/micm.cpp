@@ -17,9 +17,15 @@
 
 MICM* create_micm(const char* config_path, int* error_code)
 {
-    MICM* micm = new MICM();
-    *error_code = micm->create_solver(std::string(config_path));
-    return micm;
+    try {
+        MICM* micm = new MICM();
+        *error_code = micm->create_solver(std::string(config_path));
+        return micm;
+    }
+    catch (const std::bad_alloc& e) {
+        *error_code = 1;
+        return nullptr;
+    }
 }
 
 void delete_micm(const MICM* micm)
