@@ -27,13 +27,6 @@ install(
   FILES_MATCHING PATTERN "*.mod"
 )
 
-install(
-  FILES 
-    ${MUSICA_FORTRAN_SRC_DIR}/micm_core.F90
-  DESTINATION 
-    ${MUSICA_INSTALL_INCLUDE_DIR}/musica/fortran
-)
-
 if (MUSICA_ENABLE_MICM)
   install(
     DIRECTORY
@@ -92,7 +85,7 @@ endif()
 ######################################################################
 # Environment module
 
-if (CREATE_ENVIRONMENT_MODULE)
+if (MUSICA_CREATE_ENVIRONMENT_MODULE)
   # Define the paths and environment variables for the module
   set(MODULE_NAME ${PROJECT_VERSION}.lua)
   set(MODULE_FILE_PATH ${CMAKE_BINARY_DIR}/modulefiles/${PROJECT_NAME}/${MODULE_NAME})
@@ -106,7 +99,7 @@ if (CREATE_ENVIRONMENT_MODULE)
                  ${MODULE_FILE_PATH}
                 @ONLY)
 
-  if(INSTALL_MODULE_FILE_PATH)
+  if(MUSICA_INSTALL_MODULE_FILE_PATH)
     # Create a custom target for installing the module file
     add_custom_target(install_lmod_module
                       COMMAND ${CMAKE_COMMAND} -E copy
