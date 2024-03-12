@@ -52,7 +52,7 @@ module micm_core
 contains
 
    function constructor(config_path, errcode)  result( this )
-      class(micm_t), pointer        :: this
+      type(micm_t), pointer        :: this
       character(len=*), intent(in)  :: config_path
       integer, intent(out)          :: errcode
       character(len=1, kind=c_char) :: c_config_path(len_trim(config_path)+1)
