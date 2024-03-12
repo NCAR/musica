@@ -9,8 +9,7 @@ concurrency:
 jobs:
   c_cxx:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
-    # runs-on: ubuntu-latest
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         compiler:
@@ -38,8 +37,7 @@ jobs:
           ctest -C ${{ matrix.build_type }} --rerun-failed --output-on-failure . --verbose -j 10
   fortran:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
-    # runs-on: ubuntu-latest
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         gcc_version: [11, 12, 13]

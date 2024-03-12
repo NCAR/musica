@@ -15,10 +15,10 @@ include(musica_util)
 checkout_submodules()
 
 # on ubuntu with clang, an incorrect version of the c++ standard library was being linked
-# if (${CMAKE_HOST_SYSTEM_NAME} MATCHES "Linux" AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-#     # If the compiler is Clang, use libc++
-#     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-# endif()
+if (${CMAKE_HOST_SYSTEM_NAME} MATCHES "Linux" AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    # If the compiler is Clang, use libc++
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+endif()
 
 ##############################################################################
 # MUSICA targets
@@ -69,6 +69,8 @@ target_sources(musica
 # MICM
 if(MUSICA_ENABLE_MICM)
   target_compile_features(musica PUBLIC cxx_std_20)
+  set(CMAKE_CXX_STANDARD 20)
+  
 
   target_include_directories(musica
     PUBLIC  
