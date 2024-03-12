@@ -22,10 +22,10 @@ module micm_core
       subroutine micm_solve_c(micm, time_step, temperature, pressure, num_concentrations, concentrations) bind(C, name="micm_solve")
          import c_ptr, c_double, c_int
          type(c_ptr), value, intent(in) :: micm
-         real(kind=c_double), intent(in) :: time_step
-         real(kind=c_double), intent(in) :: temperature
-         real(kind=c_double), intent(in) :: pressure
-         integer(kind=c_int), intent(in) :: num_concentrations
+         real(kind=c_double), value, intent(in) :: time_step
+         real(kind=c_double), value, intent(in) :: temperature
+         real(kind=c_double), value, intent(in) :: pressure
+         integer(kind=c_int), value, intent(in) :: num_concentrations
          real(kind=c_double), intent(inout) :: concentrations(num_concentrations)
       end subroutine micm_solve_c
    end interface
