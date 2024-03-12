@@ -17,8 +17,6 @@ jobs:
           - { cpp: g++-12, c: gcc-12}
           - { cpp: g++-13, c: gcc-13}
           - { cpp: clang++, c: clang}
-          # - { cpp: clang++-14, c: clang-14}
-          # - { cpp: clang++-15, c: clang-15}
         build_type: [Debug, Release]
     env:
       CC: ${{ matrix.compiler.c }}
@@ -59,7 +57,7 @@ jobs:
         run: cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_BUILD_FORTRAN_INTERFACE=ON
 
       - name: Build
-        run: cmake --build build --parallel 10
+        run: cmake --build build --verbose
 
       - name: Run tests
         run: |
