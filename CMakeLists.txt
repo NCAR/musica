@@ -60,6 +60,16 @@ elseif(${CMAKE_Fortran_COMPILER_ID} MATCHES "PGI")
   add_definitions(-DMUSICA_USING_PGI)
 endif()
 
+if(MUSICA_BUILD_C_CXX_INTERFACE)
+  # on ubuntu with clang, an incorrect version of the c++ standard library was being linked
+  if (${CMAKE_HOST_SYSTEM_NAME} MATCHES "Linux" AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+      # If the compiler is Clang, use libc++
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+  endif()
+
+  set(CMAKE_CXX_STANDARD 20)
+endif()
+
 ################################################################################
 # Dependencies
 
