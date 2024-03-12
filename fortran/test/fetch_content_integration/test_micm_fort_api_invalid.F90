@@ -4,7 +4,7 @@ subroutine test_micm_fort_api_invalid()
 
   implicit none
 
-  type(micm_t)                  :: micm
+  type(micm_t), pointer         :: micm
   real(c_double)                :: time_step
   real(c_double)                :: temperature
   real(c_double)                :: pressure
@@ -21,7 +21,7 @@ subroutine test_micm_fort_api_invalid()
   config_path = "invalid_config"
 
   write(*,*) "[test micm fort api] Creating MICM solver..."
-  micm = micm_t(config_path, errcode)
+  micm => micm_t(config_path, errcode)
 
   if (errcode /= 0) then
     write(*,*) "[test micm fort api] Failed in creating solver. Expected failure. Error code: ", errcode
