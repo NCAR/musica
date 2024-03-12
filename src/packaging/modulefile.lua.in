@@ -4,7 +4,11 @@ whatis("@PROJECT_NAME@ v@PROJECT_VERSION@")
 -- The message printed by the module help command
 help([[
 MUSICA: Mulitscale Interface for Chemistry and Aerosols
-For more information, visit https://github.com/NCAR/musica
+For more information, visit https://github.com/NCAR/musica.
+
+This module represnts modules that support the MUSICA project. Please note
+that this software library is not the same as MUSICAv0, which is a configuration
+of CESM.
 
 Example usage of `find_package` in a CMakeLists.txt file:
 
