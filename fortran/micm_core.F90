@@ -7,31 +7,25 @@ module micm_core
    private
 
    interface
-      subroutine create_micm_c(micm, error_code) bind(C, name="create_micm")
-         import c_ptr, c_int
-         type(c_ptr), intent(out) :: micm
+      function create_micm_c(config_path, error_code) bind(C, name="create_micm")
+         import c_ptr, c_int, c_char
+         character(kind=c_char), intent(in) :: config_path(*)
          integer(kind=c_int), intent(out) :: error_code
-      end subroutine create_micm_c
+         type(c_ptr) :: create_micm_c
+      end function create_micm_c
 
       subroutine delete_micm_c(micm) bind(C, name="delete_micm")
          import c_ptr
-         type(c_ptr), intent(inout) :: micm
+         type(c_ptr), intent(in) :: micm
       end subroutine delete_micm_c
-
-      function micm_create_solver_c(micm, config_path) result(res) bind(C, name="micm_create_solver")
-         import c_ptr, c_char, c_int
-         type(c_ptr) :: micm
-         character(kind=c_char), intent(in) :: config_path(*)
-         integer(kind=c_int) :: res
-      end function micm_create_solver_c
 
       subroutine micm_solve_c(micm, time_step, temperature, pressure, num_concentrations, concentrations) bind(C, name="micm_solve")
          import c_ptr, c_double, c_int
-         type(c_ptr), intent(inout) :: micm
-         real(kind=c_double), value, intent(in) :: time_step
-         real(kind=c_double), value, intent(in) :: temperature
-         real(kind=c_double), value, intent(in) :: pressure
-         integer(kind=c_int), value, intent(in) :: num_concentrations
+         type(c_ptr), intent(in) :: micm
+         real(kind=c_double), intent(in) :: time_step
+         real(kind=c_double), intent(in) :: temperature
+         real(kind=c_double), intent(in) :: pressure
+         integer(kind=c_int), intent(in) :: num_concentrations
          real(kind=c_double), intent(inout) :: concentrations(num_concentrations)
       end subroutine micm_solve_c
    end interface
@@ -61,19 +55,17 @@ contains
 
       allocate( this )
 
-      call create_micm_c(this%ptr, errcode)
-
-      if (errcode /= 0) then
-         return
-      end if
-
       n = len_trim(config_path)
       do i = 1, n
          c_config_path(i) = config_path(i:i)
       end do
       c_config_path(n+1) = c_null_char
 
-      errcode = micm_create_solver_c(this%ptr, c_config_path)
+      this%ptr = create_micm_c(c_config_path, errcode)
+
+      if (errcode /= 0) then
+         return
+      end if
    end function constructor
 
    subroutine solve(this, time_step, temperature, pressure, num_concentrations, concentrations)
