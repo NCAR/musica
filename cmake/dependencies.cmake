@@ -9,6 +9,7 @@ endif()
 ################################################################################
 # google test
 if(MUSICA_ENABLE_TESTS)
+  set(CMAKE_CXX_STANDARD 20)
   include(FetchContent)
   FetchContent_Declare(googletest
     GIT_REPOSITORY https://github.com/google/googletest.git
