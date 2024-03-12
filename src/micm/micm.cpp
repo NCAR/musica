@@ -14,7 +14,6 @@
 #include <micm/configure/solver_config.hpp>
 #include <micm/solver/rosenbrock_solver_parameters.hpp>
 #include <musica/micm.hpp>
-#include <musica/micm.hpp>
 
 /**
  * @brief Creates a new instance of the MICM class.
@@ -30,7 +29,7 @@ void create_micm(void** micm, int error_code)
 {
     try
     {
-        *micm = new MICM(); // Attempt to create a new MICM instance
+        *micm = new MICM();
         error_code = 0; // 0 indicates success
     }
     catch (const std::bad_alloc&)
@@ -49,12 +48,9 @@ void create_micm(void** micm, int error_code)
  */
 void delete_micm(void **micm)
 {
-    // Check if the pointer is not null
     if (*micm)
     {
-        // Delete the MICM instance
         delete static_cast<MICM *>(*micm);
-        // Set the pointer to null
         *micm = nullptr;
     }
 }
