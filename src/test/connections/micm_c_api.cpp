@@ -7,7 +7,19 @@ int main()
 {
     const char* config_path = "chapman";
     void* micm = nullptr;
-    create_micm(&micm);
+    int error_code = 0;
+
+    create_micm(&micm, error_code);
+    
+    if (error_code == 0)
+    {
+        printf("[test micm c api] Created MICM instance.\n");
+    }
+    else
+    {
+        printf("[test micm c api] Failed in creating MICM instance.\n");
+        return 1;
+    }
 
     printf("[test micm c api] Parsing configuration file: %s\n" , config_path);
     int solver_creation_status = micm_create_solver(&micm, config_path);

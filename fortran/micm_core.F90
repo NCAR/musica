@@ -7,9 +7,10 @@ module micm_core
    private
 
    interface
-      subroutine create_micm_c(micm) bind(C, name="create_micm")
-         import c_ptr
+      subroutine create_micm_c(micm, error_code) bind(C, name="create_micm")
+         import c_ptr, c_int
          type(c_ptr), intent(out) :: micm
+         integer(kind=c_int), intent(out) :: error_code
       end subroutine create_micm_c
 
       subroutine delete_micm_c(micm) bind(C, name="delete_micm")
@@ -60,7 +61,11 @@ contains
 
       allocate( this )
 
-      call create_micm_c(this%ptr)
+      call create_micm_c(this%ptr, errcode)
+
+      if (errcode /= 0) then
+         return
+      end if
 
       n = len_trim(config_path)
       do i = 1, n

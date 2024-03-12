@@ -60,6 +60,12 @@ elseif(${CMAKE_Fortran_COMPILER_ID} MATCHES "PGI")
   add_definitions(-DMUSICA_USING_PGI)
 endif()
 
+################################################################################
+# Dependencies
+
+include(dependencies)
+
+################################################################################
 # Tests
 if(MUSICA_ENABLE_TESTS)
   enable_testing()

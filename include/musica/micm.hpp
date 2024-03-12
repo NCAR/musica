@@ -10,7 +10,7 @@
 extern "C" {
 #endif
 
-void create_micm(void** micm);
+void create_micm(void** micm, int error_code);
 void delete_micm(void** micm);
 int micm_create_solver(void** micm, const char* config_path);
 void micm_solve(void** micm, double time_step, double temperature, double pressure, int num_concentrations,
