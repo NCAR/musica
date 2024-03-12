@@ -4,7 +4,7 @@ program test_micm_fort_api
 
   implicit none
 
-  type(micm_t)                  :: micm
+  type(micm_t), pointer         :: micm
   real(c_double)                :: time_step
   real(c_double)                :: temperature
   real(c_double)                :: pressure
@@ -21,7 +21,7 @@ program test_micm_fort_api
   config_path = "chapman"
 
   ! write(*,*) "[test micm fort api] Creating MICM solver..."
-  micm = micm_t(config_path, errcode)
+  micm => micm_t(config_path, errcode)
 
   if (errcode /= 0) then
     write(*,*) "[test micm fort api] Failed in creating solver."
