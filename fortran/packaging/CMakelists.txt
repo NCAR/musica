@@ -9,13 +9,6 @@ install(
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
-install(
-  FILES 
-    ${MUSICA_FORTRAN_SRC_DIR}/micm_core.F90
-  DESTINATION 
-    ${MUSICA_INSTALL_INCLUDE_DIR}/musica/fortran
-)
-
 # install the mod files
 install(
   DIRECTORY

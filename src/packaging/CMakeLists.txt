@@ -18,13 +18,11 @@ install(
     ${MUSICA_INSTALL_INCLUDE_DIR}
 )
 
-# install the mod files
 install(
-  DIRECTORY
-    ${MUSICA_MOD_DIR}/
-  DESTINATION
+  FILES 
+    ${MUSICA_FORTRAN_SRC_DIR}/micm_core.F90
+  DESTINATION 
     ${MUSICA_INSTALL_INCLUDE_DIR}/musica/fortran
-  FILES_MATCHING PATTERN "*.mod"
 )
 
 if (MUSICA_ENABLE_MICM)
