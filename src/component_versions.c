@@ -1,7 +1,4 @@
 /**
- * @file component_versions.c
- * @brief This file contains the implementation of component versions.
- *
  * This file defines functions to manage and retrieve versions of components in a software system.
  * It provides functionality to compare versions, check compatibility, and retrieve version information.
  * Copyright (C) 2023-2024 National Center for Atmospheric Research,

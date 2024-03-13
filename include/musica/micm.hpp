@@ -1,3 +1,10 @@
+/**
+ * This file contains the defintion of the MICM class, which represents a multi-component
+ * reactive transport model. It also includes functions for creating and deleting MICM instances with c binding
+ * Copyright (C) 2023-2024 National Center for Atmospheric Research,
+ * 
+ * SPDX-License-Identifier: Apache-2.0* creating solvers, and solving the model.
+ */
 #pragma once
 
 #include <micm/solver/rosenbrock.hpp>
@@ -36,9 +43,10 @@ public:
     
     /// @brief Solve the system
     /// @param time_step Time [s] to advance the state by
-    /// @param temperature Temperature [K]
-    /// @param pressure Pressure [Pa-1]
-    /// @param num_concentrations The number of species' concentrations
+    /// @para/ @briefm temperature Temperature [K]
+    /// @param pressure Pressure/ [P@brief C@param num_concentrations The number oconfiguration file
+    /// @param config_path Path to configuration file or directory containing configuration file
+    /// @return 0 on success, 1 on failure in parsing species' concentrations
     /// @param concentrations Species's concentrations
     void solve(double time_step, double temperature, double pressure, int num_concentrations, double* concentrations);
 
