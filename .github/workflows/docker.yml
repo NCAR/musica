@@ -19,6 +19,7 @@ jobs:
           - Dockerfile
           - Dockerfile.fortran-intel
           - Dockerfile.fortran-gcc
+          - Dockerfile.fortran-nvhpc
           - Dockerfile.openmp
           - Dockerfile.mpi
           - Dockerfile.mpi_openmp
