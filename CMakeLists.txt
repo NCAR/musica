@@ -36,6 +36,8 @@ message(STATUS "Making MUSICA-Fortran sources installable : ${MAKE_MUSICA_FORTRA
 
 ################################################################################
 # Projet wide setup options
+option(MUSICA_BUILD_DOCS "Build the documentation" OFF)
+
 cmake_dependent_option(
   ENABLE_TESTS "Builds tests that ensures each enabled MUSICA component can be used" ON "USE_MUSICA" OFF)
 message(STATUS "Build tests for MUSICA : ${ENABLE_TESTS}")
@@ -107,6 +109,10 @@ endif()
 # MUSICA-Fortran
 if(USE_MUSICA_FORTRAN)
   add_subdirectory(musica-fortran)
+endif()
+
+if(MUSICA_BUILD_DOCS)
+  add_subdirectory(docs)
 endif()
 
 ################################################################################
