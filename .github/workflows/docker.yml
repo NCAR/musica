@@ -17,6 +17,7 @@ jobs:
         os: [ubuntu-latest]
         dockerfile:
           - Dockerfile
+          - Dockerfile.memcheck
           - Dockerfile.fortran-intel
           - Dockerfile.fortran-gcc
           - Dockerfile.fortran-nvhpc

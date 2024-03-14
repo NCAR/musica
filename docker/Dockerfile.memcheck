@@ -24,6 +24,7 @@ COPY . musica
 RUN cd musica \
     && cmake -S . \
              -B build \
+             -D MUSICA_ENABLE_MEMCHECK=ON \
     && cd build \
     && make install -j 8 
 
