@@ -1,4 +1,5 @@
 find_package(PkgConfig REQUIRED)
+include(FetchContent)
 
 ################################################################################
 # NetCDF library
@@ -9,7 +10,6 @@ endif()
 ################################################################################
 # google test
 if(MUSICA_ENABLE_TESTS)
-  include(FetchContent)
   FetchContent_Declare(googletest
     GIT_REPOSITORY https://github.com/google/googletest.git
     GIT_TAG be03d00f5f0cc3a997d1a368bee8a1fe93651f48
