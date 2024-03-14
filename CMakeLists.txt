@@ -21,6 +21,7 @@ include(GNUInstallDirs)
 # Library options to build
 include(CMakeDependentOption)
 
+
 option(MUSICA_BUILD_C_CXX_INTERFACE "Use MUSICA" ON)
 option(MUSICA_BUILD_FORTRAN_INTERFACE "Use MUSICA-Fortran interface" OFF)
 option(MUSICA_ENABLE_INSTALL "Install the musica library" ON)
@@ -97,13 +98,16 @@ if(MUSICA_BUILD_FORTRAN_INTERFACE)
 endif()
 
 
-pybind11_add_module(cmake_example src/micm/example.cpp)
 
-target_include_directories(cmake_example
+
+project(solver)
+pybind11_add_module(solver src/micm/wrapper.cpp)
+
+target_include_directories(solver
     PUBLIC  
       $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/lib/micm/include>
       $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
   )
 
-target_link_libraries(cmake_example PUBLIC musica)
+target_link_libraries(solver PUBLIC musica)
 
