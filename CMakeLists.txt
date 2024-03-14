@@ -35,6 +35,9 @@ cmake_dependent_option(
   MUSICA_ENABLE_MICM "Adds MICM, a model independent chemical mechanism solver" ON "MUSICA_BUILD_C_CXX_INTERFACE" OFF)
 
 cmake_dependent_option(
+  MUSICA_ENABLE_PYTHON_LIBRARY "Adds pybind11, a lightweight header-only library that exposes C++ types in Python and vice versa" ON "MUSICA_BUILD_C_CXX_INTERFACE" OFF)
+
+cmake_dependent_option(
   MUSICA_CREATE_ENVIRONMENT_MODULE "Creates an Lmod environment module file that can be installed on the same machine this library is installed to." OFF "MUSICA_BUILD_C_CXX_INTERFACE" OFF)
 
 if(MUSICA_CREATE_ENVIRONMENT_MODULE)
@@ -92,3 +95,15 @@ endif()
 if(MUSICA_BUILD_FORTRAN_INTERFACE)
   add_subdirectory(fortran)
 endif()
+
+
+pybind11_add_module(cmake_example src/micm/example.cpp)
+
+target_include_directories(cmake_example
+    PUBLIC  
+      $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/lib/micm/include>
+      $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
+  )
+
+target_link_libraries(cmake_example PUBLIC musica)
+
