@@ -5,13 +5,21 @@
 namespace py = pybind11;
 
 PYBIND11_MODULE(micm, m) {
-    // Expose the MICM class
     py::class_<MICM>(m, "MICM")
-        .def(py::init<>()) 
-        .def("solve", &MICM::solve); 
+        .def(py::init<>())
+        .def("create_solver", &MICM::create_solver)
+        .def("solve", &MICM::solve)
+        .def("__del__", [](MICM &micm) {
+            // Custom destructor
+            std::cout << "MICM destructor called" << std::endl;
+        });
 
-    // // Expose the helper functions
-    // m.def("create_micm", &create_micm, "Create MICM instance");
-    // m.def("delete_micm", &delete_micm, "Delete MICM instance");
+    m.def("create_micm", [](const char* config_path) {
+        int error_code;
+        MICM* micm = create_micm(config_path, &error_code);
+        return std::make_tuple(micm, error_code);
+    });
+
+    m.def("delete_micm", &delete_micm);
 
 }
