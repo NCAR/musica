@@ -100,14 +100,14 @@ endif()
 
 
 
-project(solver)
-pybind11_add_module(solver src/micm/wrapper.cpp)
+project(micm)
+pybind11_add_module(micm src/micm/wrapper.cpp)
 
-target_include_directories(solver
+target_include_directories(micm
     PUBLIC  
       $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/lib/micm/include>
       $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
   )
 
-target_link_libraries(solver PUBLIC musica)
+target_link_libraries(micm PUBLIC musica)
 
