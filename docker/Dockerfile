@@ -4,7 +4,6 @@ RUN dnf -y update \
     && dnf -y install \
         cmake \
         gcc-c++ \
-        gcc-gfortran \
         gdb \
         git \
         lcov \
@@ -13,9 +12,6 @@ RUN dnf -y update \
         json-devel \
         valgrind \
     && dnf clean all
-
-# Set environment variables
-ENV FC=gfortran
 
 # Copy the musica code
 COPY . musica

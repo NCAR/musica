@@ -12,7 +12,6 @@ WORKDIR /home/test_user
 RUN sudo dnf -y install \
         cmake \
         gcc-c++ \
-        gcc-gfortran \
         git \
         lcov \
         make \
@@ -26,7 +25,6 @@ RUN sudo dnf -y install \
 ENV PATH="${PATH}:/usr/lib64/openmpi/bin/"
 ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/lib64/openmpi/lib"
 ENV OMP_NUM_THREADS=3
-ENV FC=gfortran
 
 # copy the MusicBox code
 COPY . musica/
