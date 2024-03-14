@@ -2,13 +2,13 @@
 *
 
 # add things to copy
+!.git/
+!.gitmodules
 !CMakeLists.txt
-!musica/
-!musica-fortran/
-!docs/
 !cmake/
+!configs
+!docs/
+!fortran/
+!include/
 !lib/
 !src/
-!test/
-!.gitmodules
-!.git/

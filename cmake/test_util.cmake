@@ -1,14 +1,14 @@
 ################################################################################
 # Utility functions for creating tests
 
-if(ENABLE_MEMCHECK)
+if(MUSICA_ENABLE_MEMCHECK)
   find_program(MEMORYCHECK_COMMAND "valgrind")
 endif()
 
 ################################################################################
 # build and add a standard test linked to musica
 
-function(create_standard_test)
+function(create_standard_test_fortran)
   set(prefix TEST)
   set(singleValues NAME WORKING_DIRECTORY)
   set(multiValues SOURCES LIBRARIES)
@@ -16,14 +16,14 @@ function(create_standard_test)
   cmake_parse_arguments(${prefix} " " "${singleValues}" "${multiValues}" ${ARGN})
 
   add_executable(test_${TEST_NAME} ${TEST_SOURCES})
-  target_link_libraries(test_${TEST_NAME} PUBLIC musica::musica)
+  target_link_libraries(test_${TEST_NAME} PUBLIC musica::musica-fortran)
 
   # link additional libraries
   foreach(library ${TEST_LIBRARIES})
     target_link_libraries(test_${TEST_NAME} PUBLIC ${library})
   endforeach()
 
-  if(ENABLE_OPENMP)
+  if(MUSICA_ENABLE_OPENMP)
     target_link_libraries(test_${TEST_NAME} PUBLIC OpenMP::OpenMP_Fortran)
   endif()
 
@@ -32,7 +32,7 @@ function(create_standard_test)
   endif()
 
   add_musica_test(${TEST_NAME} test_${TEST_NAME} "" ${TEST_WORKING_DIRECTORY})
-endfunction(create_standard_test)
+endfunction(create_standard_test_fortran)
 
 function(create_standard_test_cxx)
   set(prefix TEST)
@@ -42,7 +42,7 @@ function(create_standard_test_cxx)
   cmake_parse_arguments(${prefix} " " "${singleValues}" "${multiValues}" ${ARGN})
   add_executable(test_${TEST_NAME} ${TEST_SOURCES})
   target_link_libraries(test_${TEST_NAME} PUBLIC musica::musica GTest::gtest_main)
-  if(ENABLE_OPENMP)
+  if(MUSICA_ENABLE_OPENMP)
     target_link_libraries(test_${TEST_NAME} PUBLIC OpenMP::OpenMP_CXX OpenMP::OpenMP_Fortran)
   endif()
   if(NOT DEFINED TEST_WORKING_DIRECTORY)
@@ -55,7 +55,7 @@ endfunction(create_standard_test_cxx)
 # Add a test
 
 function(add_musica_test test_name test_binary test_args working_dir)
-  if(ENABLE_MPI)
+  if(MUSICA_ENABLE_MPI)
     add_test(NAME ${test_name}
       COMMAND mpirun -v -np 2 ${CMAKE_BINARY_DIR}/${test_binary} ${test_args}
              WORKING_DIRECTORY ${working_dir})
@@ -67,7 +67,7 @@ function(add_musica_test test_name test_binary test_args working_dir)
   set(MEMORYCHECK_COMMAND_OPTIONS "--error-exitcode=1 --trace-children=yes --leak-check=full --gen-suppressions=all ${MEMCHECK_SUPPRESS}")
   set(memcheck "${MEMORYCHECK_COMMAND} ${MEMORYCHECK_COMMAND_OPTIONS}")
   separate_arguments(memcheck)
-  if(ENABLE_MPI AND MEMORYCHECK_COMMAND AND ENABLE_MEMCHECK)
+  if(MUSICA_ENABLE_MPI AND MEMORYCHECK_COMMAND AND MUSICA_ENABLE_MEMCHECK)
     add_test(NAME memcheck_${test_name}
       COMMAND mpirun -v -np 2 ${memcheck} ${CMAKE_BINARY_DIR}/${test_binary} ${test_args}
              WORKING_DIRECTORY ${working_dir})
@@ -76,7 +76,7 @@ function(add_musica_test test_name test_binary test_args working_dir)
     # https://stackoverflow.com/a/66931930/5217293
     set_tests_properties(${test_name} PROPERTIES FIXTURES_SETUP f_${test_name})
     set_tests_properties(memcheck_${test_name} PROPERTIES FIXTURES_REQUIRED f_${test_name})
-  elseif(MEMORYCHECK_COMMAND AND ENABLE_MEMCHECK)
+  elseif(MEMORYCHECK_COMMAND AND MUSICA_ENABLE_MEMCHECK)
     add_test(NAME memcheck_${test_name}
              COMMAND ${memcheck} ${CMAKE_BINARY_DIR}/${test_binary} ${test_args}
              WORKING_DIRECTORY ${working_dir})

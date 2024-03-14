@@ -1,5 +1,10 @@
-# versions and sizes from here: https://hub.docker.com/r/intel/oneapi-hpckit/tags
-FROM intel/oneapi-hpckit:latest
+# nvidia rate limits requests. You can get around this by restarting docker if for 
+# some reason you have to build this image many times
+# https://stackoverflow.com/a/75757516/5217293
+#
+# Container versions, and sizes, can be found at https://catalog.ngc.nvidia.com/orgs/nvidia/containers/nvhpc/tags
+#
+FROM nvcr.io/nvidia/nvhpc:23.7-devel-cuda12.2-ubuntu22.04
 
 RUN apt update \
     && apt -y install \
@@ -38,9 +43,9 @@ RUN cd musica \
     && make install
 
 # Set environment variables to build MUSICA-Fortran using intel compilers
-ENV CC=icx
-ENV CXX=icpx
-ENV FC=ifx
+ENV CXX=nvc++
+ENV CC=nvc
+ENV FC=nvfortran
 
 RUN cd musica/fortran/test/fetch_content_integration \
     && mkdir build && cd build \
