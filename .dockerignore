@@ -1,0 +1,14 @@
+# ignore all
+*
+
+# add things to copy
+!.git/
+!.gitmodules
+!CMakeLists.txt
+!cmake/
+!configs
+!docs/
+!fortran/
+!include/
+!lib/
+!src/

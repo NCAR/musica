@@ -1,0 +1,24 @@
+const char* getMusicaVersion()
+{
+    return "@musica_VERSION@";
+}
+
+unsigned getMusicaVersionMajor()
+{
+    return @musica_VERSION_MAJOR@;
+}
+
+unsigned getMusicaVersionMinor()
+{
+    return @musica_VERSION_MINOR@ + 0;
+}
+
+unsigned getMusicaVersionPatch()
+{
+    return @musica_VERSION_PATCH@ + 0;
+}
+
+unsigned getMusicaVersionTweak()
+{
+    return @musica_VERSION_TWEAK@ + 0;
+}

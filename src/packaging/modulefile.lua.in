@@ -1,0 +1,30 @@
+-- The message printed by the module whatis command
+whatis("@PROJECT_NAME@ v@PROJECT_VERSION@")
+
+-- The message printed by the module help command
+help([[
+MUSICA: Mulitscale Interface for Chemistry and Aerosols
+For more information, visit https://github.com/NCAR/musica.
+
+This module represnts modules that support the MUSICA project. Please note
+that this software library is not the same as MUSICAv0, which is a configuration
+of CESM.
+
+Example usage of `find_package` in a CMakeLists.txt file:
+
+find_package(musica @PROJECT_VERSION@ REQUIRED)
+target_link_libraries(my_target musica::musica)
+]])
+
+-- Set paths
+local base = "@MODULE_INSTALL_PATH@"
+local libpath  = pathJoin(base, "/lib")             -- libraries
+local incpath  = pathJoin(base, "/include")         -- include files
+
+always_load("cmake/3.22.0")
+
+-- Set variables to use with cmake
+setenv("musica_ROOT", base)
+setenv("MUSICA_ROOT", base)
+setenv("MUSICA_INC", incpath)
+setenv("MUSICA_LIB", libpath)

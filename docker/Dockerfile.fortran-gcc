@@ -1,0 +1,49 @@
+FROM fedora:35
+
+RUN dnf -y update \
+  && dnf -y install \
+    cmake \
+    curl \
+    gcc \
+    gcc-c++ \
+    gdb \
+    gcc-gfortran \
+    git \
+    lcov \
+    libcurl-devel \
+    hdf5-devel \
+    netcdf-fortran-devel \
+    m4 \
+    make \
+    json-c-devel \
+    valgrind \ 
+    vim \
+    zlib-devel \
+  && dnf clean all
+
+# Set environment variables to install MUSICA using gcc
+ENV FC=gfortran
+ENV CXX=g++
+ENV CC=gcc
+ENV FFLAGS="-I/usr/include/"
+
+# Copy the musica code
+COPY . musica
+
+# Build and install MUSICA
+RUN cd musica \
+    && cmake -S . \
+             -B build \
+             -D CMAKE_BUILD_TYPE=Debug \
+    && cd build \
+    && make install
+
+RUN cd musica/fortran/test/fetch_content_integration \
+    && mkdir build && cd build \
+    && cmake .. \
+        -D CMAKE_BUILD_TYPE=Debug \
+    && make
+
+RUN cp -r /musica/configs/chapman musica/fortran/test/fetch_content_integration/build
+
+WORKDIR musica/fortran/test/fetch_content_integration/build

@@ -1,0 +1,10 @@
+[submodule "lib/micm"]
+	path = lib/micm
+	url = https://github.com/NCAR/micm.git
+[submodule "lib/tuv-x"]
+	path = lib/tuv-x
+	url = https://github.com/NCAR/tuv-x
+[submodule "lib/pybind11"]
+	path = lib/pybind11
+	url = ../../pybind/pybind11
+	branch = stable
