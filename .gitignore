@@ -1,7 +1,0 @@
-# cmake and build stuff
-
-build/
-CMakeCache.txt
-CMakeFiles
-.DS_Store
-.vscode
