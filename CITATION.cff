@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-message: "This Citation File Format (CFF) record describes a software paper."
+message: "This Citation File Format (CFF) record describes how to cite MUSICA software."
 authors:
   - family-names: Pfister
     given-names: Gabriele G.
@@ -64,3 +64,4 @@ number: 10
 page: "E1743 - E1760"
 doi: "10.1175/BAMS-D-19-0331.1"
 url: "https://journals.ametsoc.org/view/journals/bams/101/10/bamsD190331.xml"
+version: 0.6.0
