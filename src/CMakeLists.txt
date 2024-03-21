@@ -9,11 +9,6 @@ project(
 
 message (STATUS "CMake build configuration for ${PROJECT_NAME} (${CMAKE_BUILD_TYPE}) ${PROJECT_VERSION}")
 
-include(musica_util)
-
-# Add submodules
-checkout_submodules()
-
 ##############################################################################
 # MUSICA targets
 

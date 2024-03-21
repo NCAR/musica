@@ -5,3 +5,5 @@ CMakeCache.txt
 CMakeFiles
 .DS_Store
 .vscode
+dist/
+micm.egg-info/
