@@ -106,4 +106,5 @@ endif()
 # Musica python
 if(MUSICA_ENABLE_PYTHON_LIBRARY)
   add_subdirectory(python)
+  set(BUILD_SHARED_LIBS ON)
 endif()
