@@ -1,0 +1,67 @@
+cff-version: 1.2.0
+message: "This Citation File Format (CFF) record describes how to cite MUSICA software."
+authors:
+  - family-names: Pfister
+    given-names: Gabriele G.
+  - family-names: Eastham
+    given-names: Sebastian D.
+  - family-names: Arellano
+    given-names: Avelino F.
+  - family-names: Aumont
+    given-names: Bernard
+  - family-names: Barsanti
+    given-names: Kelley C.
+  - family-names: Barth
+    given-names: Mary C.
+  - family-names: Conley
+    given-names: Andrew
+  - family-names: Davis
+    given-names: Nicholas A.
+  - family-names: Emmons
+    given-names: Louisa K.
+  - family-names: Fast
+    given-names: Jerome D.
+  - family-names: Fiore
+    given-names: Arlene M.
+  - family-names: Gaubert
+    given-names: Benjamin
+  - family-names: Goldhaber
+    given-names: Steve
+  - family-names: Granier
+    given-names: Claire
+  - family-names: Grell
+    given-names: Georg A.
+  - family-names: Guevara
+    given-names: Marc
+  - family-names: Henze
+    given-names: Daven K.
+  - family-names: Hodzic
+    given-names: Alma
+  - family-names: Liu
+    given-names: Xiaohong
+  - family-names: Marsh
+    given-names: Daniel R.
+  - family-names: Orlando
+    given-names: John J.
+  - family-names: Plane
+    given-names: John M. C.
+  - family-names: Polvani
+    given-names: Lorenzo M.
+  - family-names: Rosenlof
+    given-names: Karen H.
+  - family-names: Steiner
+    given-names: Allison L.
+  - family-names: Jacob
+    given-names: Daniel J.
+  - family-names: Brasseur
+    given-names: Guy P.
+title: "The Multi-Scale Infrastructure for Chemistry and Aerosols (MUSICA)"
+journal: "Bulletin of the American Meteorological Society"
+year: 2020
+publisher: "American Meteorological Society"
+volume: 101
+number: 10
+page: "E1743 - E1760"
+doi: "10.1175/BAMS-D-19-0331.1"
+url: "https://journals.ametsoc.org/view/journals/bams/101/10/bamsD190331.xml"
+version: 0.6.0

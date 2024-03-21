@@ -1,0 +1,49 @@
+FROM fedora:35
+
+RUN dnf -y update \
+    && dnf install -y sudo \
+    && adduser test_user \
+    && echo "test_user ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/test_user \
+    && chmod 0440 /etc/sudoers.d/test_user
+
+USER test_user
+WORKDIR /home/test_user
+
+RUN sudo dnf -y install \
+        cmake \
+        gcc-c++ \
+        git \
+        lcov \
+        make \
+        netcdf-fortran-devel \
+        json-devel \
+        openmpi-devel \
+        valgrind-openmpi \
+    && dnf clean all
+
+# Set environment variables
+ENV PATH="${PATH}:/usr/lib64/openmpi/bin/"
+ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/lib64/openmpi/lib"
+ENV OMP_NUM_THREADS=3
+
+# copy the MusicBox code
+COPY . musica/
+
+RUN git config --global --add safe.directory '*'
+RUN sudo chown -R test_user.test_user musica
+
+# get a tag and build the model
+RUN cd musica \
+    && cmake -S . \
+             -B build \
+             -D CMAKE_BUILD_TYPE=debug \
+             -D ENABLE_MPI=ON \
+             -D ENABLE_OPENMP=ON \
+             -D ENABLE_TESTS=ON \
+             -D CMAKE_Fortran_COMPILER=/usr/lib64/openmpi/bin/mpif90 \
+    && cd build \
+    && make \
+    && sudo make install \ 
+    && sudo chown -R test_user:test_user .  
+
+WORKDIR /home/test_user/musica/build
