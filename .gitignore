@@ -6,4 +6,4 @@ CMakeFiles
 .DS_Store
 .vscode
 dist/
-micm.egg-info
+micm.egg-info/

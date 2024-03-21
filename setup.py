@@ -12,11 +12,11 @@ ext_modules = [
 ]
 
 setup(
-    name="micm",
+    name="musica",
     version="0.1.0",
-    author="Your Name",
-    author_email="your@email.com",
-    description="A description of your package",
+    author="NCAR ACOM",
+    author_email="musica@ucar.edu",
+    description="Chemistry interface with python",
     ext_modules=ext_modules,
     cmdclass={"build_ext": build_ext},
     zip_safe=False,
