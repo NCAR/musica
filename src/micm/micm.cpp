@@ -12,8 +12,6 @@
 #include <micm/solver/rosenbrock_solver_parameters.hpp>
 #include <musica/micm.hpp>
 
-
-
 MICM* create_micm(const char* config_path, int* error_code)
 {
     try {
@@ -86,4 +84,3 @@ void MICM::solve(double time_step, double temperature, double pressure, int num_
         concentrations[i] = result.result_.AsVector()[i];
     }
 }
-

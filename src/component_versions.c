@@ -6,7 +6,6 @@
  * SPDX-License-Identifier: Apache-2.0* creating solvers, and solving the model.
  */
 #include <assert.h>
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

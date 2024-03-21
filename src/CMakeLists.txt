@@ -87,5 +87,3 @@ endif()
 if(MUSICA_ENABLE_INSTALL)
   add_subdirectory(packaging)
 endif()
-
-

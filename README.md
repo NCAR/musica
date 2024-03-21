@@ -4,6 +4,7 @@
 [![docker](https://github.com/NCAR/musica/actions/workflows/docker.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/docker.yml)
 [![macOS](https://github.com/NCAR/musica/actions/workflows/mac.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/mac.yml)
 [![ubuntu](https://github.com/NCAR/musica/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/ubuntu.yml)
+[![windows](https://github.com/NCAR/musica/actions/workflows/windows.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/windows.yml)
 [![DOI](https://zenodo.org/badge/550370528.svg)](https://zenodo.org/doi/10.5281/zenodo.7458559)
 
 Multi-Scale Infrastructure for Chemistry and Aerosols

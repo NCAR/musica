@@ -64,23 +64,23 @@ function(add_musica_test test_name test_binary test_args working_dir)
              COMMAND ${test_binary} ${test_args}
              WORKING_DIRECTORY ${working_dir})
   endif()
-  # set(MEMORYCHECK_COMMAND_OPTIONS "--error-exitcode=1 --trace-children=yes --leak-check=full --gen-suppressions=all ${MEMCHECK_SUPPRESS}")
-  # set(memcheck "${MEMORYCHECK_COMMAND} ${MEMORYCHECK_COMMAND_OPTIONS}")
-  # separate_arguments(memcheck)
-  # if(MUSICA_ENABLE_MPI AND MEMORYCHECK_COMMAND AND MUSICA_ENABLE_MEMCHECK)
-  #   add_test(NAME memcheck_${test_name}
-  #     COMMAND mpirun -v -np 2 ${memcheck} ${CMAKE_BINARY_DIR}/${test_binary} ${test_args}
-  #            WORKING_DIRECTORY ${working_dir})
+  set(MEMORYCHECK_COMMAND_OPTIONS "--error-exitcode=1 --trace-children=yes --leak-check=full --gen-suppressions=all ${MEMCHECK_SUPPRESS}")
+  set(memcheck "${MEMORYCHECK_COMMAND} ${MEMORYCHECK_COMMAND_OPTIONS}")
+  separate_arguments(memcheck)
+  if(MUSICA_ENABLE_MPI AND MEMORYCHECK_COMMAND AND MUSICA_ENABLE_MEMCHECK)
+    add_test(NAME memcheck_${test_name}
+      COMMAND mpirun -v -np 2 ${memcheck} ${CMAKE_BINARY_DIR}/${test_binary} ${test_args}
+             WORKING_DIRECTORY ${working_dir})
     
-  #   # add dependency between memcheck and previous test
-  #   # https://stackoverflow.com/a/66931930/5217293
-  #   set_tests_properties(${test_name} PROPERTIES FIXTURES_SETUP f_${test_name})
-  #   set_tests_properties(memcheck_${test_name} PROPERTIES FIXTURES_REQUIRED f_${test_name})
-  # elseif(MEMORYCHECK_COMMAND AND MUSICA_ENABLE_MEMCHECK)
-  #   add_test(NAME memcheck_${test_name}
-  #            COMMAND ${memcheck} ${CMAKE_BINARY_DIR}/${test_binary} ${test_args}
-  #            WORKING_DIRECTORY ${working_dir})
-  # endif()
+    # add dependency between memcheck and previous test
+    # https://stackoverflow.com/a/66931930/5217293
+    set_tests_properties(${test_name} PROPERTIES FIXTURES_SETUP f_${test_name})
+    set_tests_properties(memcheck_${test_name} PROPERTIES FIXTURES_REQUIRED f_${test_name})
+  elseif(MEMORYCHECK_COMMAND AND MUSICA_ENABLE_MEMCHECK)
+    add_test(NAME memcheck_${test_name}
+             COMMAND ${memcheck} ${CMAKE_BINARY_DIR}/${test_binary} ${test_args}
+             WORKING_DIRECTORY ${working_dir})
+  endif()
 endfunction(add_musica_test)
 
 ################################################################################
