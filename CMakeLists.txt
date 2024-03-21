@@ -98,28 +98,7 @@ if(MUSICA_BUILD_FORTRAN_INTERFACE)
 endif()
 
 ################################################################################
-# MUSICA
-if(MUSICA_BUILD_C_CXX_INTERFACE)
-  add_subdirectory(src)
+# Musica python
+if(MUSICA_ENABLE_PYTHON_LIBRARY)
+  add_subdirectory(python)
 endif()
-
-################################################################################
-# MUSICA-Fortran
-if(MUSICA_BUILD_FORTRAN_INTERFACE)
-  add_subdirectory(fortran)
-endif()
-
-
-
-
-project(micm)
-pybind11_add_module(micm src/micm/wrapper.cpp)
-
-target_include_directories(micm
-    PUBLIC  
-      $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/lib/micm/include>
-      $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
-  )
-
-target_link_libraries(micm PUBLIC musica)
-
