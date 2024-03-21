@@ -6,5 +6,5 @@
 	url = https://github.com/NCAR/tuv-x
 [submodule "lib/pybind11"]
 	path = lib/pybind11
-	url = ../../pybind/pybind11
+	url = https://github.com/pybind/pybind11
 	branch = stable
