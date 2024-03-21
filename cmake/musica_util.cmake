@@ -1,8 +1,8 @@
 function(checkout_submodules)
   find_package(Git)
   if(GIT_FOUND)
-    message(STATUS "Source dir: ${CMAKE_SOURCE_DIR}")
-    if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
+    message(STATUS "Source dir: ${CMAKE_CURRENT_SOURCE_DIR}")
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.git")
       # Update submodules as needed
       option(GIT_SUBMODULE "Check submodules during build" ON)
       if(GIT_SUBMODULE)
