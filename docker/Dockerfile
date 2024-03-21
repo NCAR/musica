@@ -10,6 +10,7 @@ RUN dnf -y update \
         make \
         netcdf-fortran-devel \
         json-devel \
+        python \
         valgrind \
     && dnf clean all
 

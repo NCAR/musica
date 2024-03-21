@@ -4,14 +4,36 @@
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(solver, m) {
-    // Expose the MICM class
-    py::class_<MICM>(m, "MICM")
-        .def(py::init<>()) 
-        .def("solve", &MICM::solve); 
 
-    // Expose the helper functions
-    m.def("create_micm", &create_micm, "Create MICM instance");
-    m.def("delete_micm", &delete_micm, "Delete MICM instance");
+//Wraps micm.cpp
+PYBIND11_MODULE(micm, m) {
+    py::class_<MICM>(m, "MICM")
+        .def(py::init<>())
+        .def("create_solver", &MICM::create_solver)
+        .def("solve", &MICM::solve)
+        .def("__del__", [](MICM &micm) {
+            std::cout << "MICM destructor called" << std::endl;
+        });
+
+    m.def("create_micm", [](const char* config_path) {
+        int error_code;
+        MICM* micm = create_micm(config_path, &error_code);
+        return micm;
+    });
+
+    m.def("delete_micm", &delete_micm);
+
+    m.def("micm_solve", [](MICM* micm, double time_step, double temperature, double pressure, py::list concentrations) {
+        std::vector<double> concentrations_cpp;
+        for (auto item : concentrations) {
+            concentrations_cpp.push_back(item.cast<double>());
+        }
+        micm_solve(micm, time_step, temperature, pressure, concentrations_cpp.size(), concentrations_cpp.data());
+        
+         // Update the concentrations list after solving
+        for (size_t i = 0; i < concentrations_cpp.size(); ++i) {
+            concentrations[i] = concentrations_cpp[i];
+        }
+    });
 
 }
