@@ -50,7 +50,7 @@ if (MUSICA_ENABLE_TUVX)
   set(TUVX_MOD_DIR ${MUSICA_MOD_DIR})
   set(TUVX_LIB_DIR ${MUSICA_LIB_DIR})
  
-  add_subdirectory(${CMAKE_SOURCE_DIR}/lib/tuv-x/src ${MUSICA_LIB_DIR}/tuv-x/src)
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../lib/tuv-x/src)
 
   # for yaml-cpp
   target_compile_features(tuvx_object PRIVATE cxx_std_20)
