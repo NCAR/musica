@@ -39,6 +39,11 @@ target_link_libraries(musica-fortran
     musica
 )
 
+target_link_libraries(musica-fortran
+  INTERFACE_LINK_LIBRARIES
+    musica::musica
+)
+
 target_sources(musica-fortran
   PUBLIC
     micm_core.F90
