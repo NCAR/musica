@@ -35,9 +35,7 @@ target_include_directories(musica-fortran
 )
 
 target_link_libraries(musica-fortran
-  PUBLIC
-    musica::musica
-  INTERFACE_LINK_LIBRARIES
+  INTERFACE
     musica::musica
 )
 
