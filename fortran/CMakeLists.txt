@@ -36,10 +36,7 @@ target_include_directories(musica-fortran
 
 target_link_libraries(musica-fortran
   PUBLIC
-    musica
-)
-
-target_link_libraries(musica-fortran
+    musica::musica
   INTERFACE_LINK_LIBRARIES
     musica::musica
 )
@@ -55,7 +52,7 @@ if (MUSICA_ENABLE_TUVX)
   set(TUVX_MOD_DIR ${MUSICA_MOD_DIR})
   set(TUVX_LIB_DIR ${MUSICA_LIB_DIR})
  
-  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../lib/tuv-x/src)
+  add_subdirectory(${CMAKE_SOURCE_DIR}/lib/tuv-x/src ${MUSICA_LIB_DIR}/tuv-x/src)
 
   # for yaml-cpp
   target_compile_features(tuvx_object PRIVATE cxx_std_20)
