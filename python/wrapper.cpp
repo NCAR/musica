@@ -4,16 +4,15 @@
 
 namespace py = pybind11;
 
-
 //Wraps micm.cpp
-PYBIND11_MODULE(micm, m) {
-    py::class_<MICM>(m, "MICM")
-        .def(py::init<>())
-        .def("create_solver", &MICM::create_solver)
-        .def("solve", &MICM::solve)
-        .def("__del__", [](MICM &micm) {
-            std::cout << "MICM destructor called" << std::endl;
-        });
+PYBIND11_MODULE(musica, m) {
+    // py::class_<MICM>(m, "MICM")
+    //     .def(py::init<>())
+    //     .def("create_solver", &MICM::create_solver)
+    //     .def("solve", &MICM::solve)
+    //     .def("__del__", [](MICM &micm) {
+    //         std::cout << "MICM destructor called" << std::endl;
+    //     });
 
     m.def("create_micm", [](const char* config_path) {
         int error_code;

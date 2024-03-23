@@ -1,5 +1,4 @@
-project(musica-python)
-pybind11_add_module(musica-python ../src/micm/wrapper.cpp)
+pybind11_add_module(musica-python wrapper.cpp)
 
 target_include_directories(musica-python
     PUBLIC  
@@ -8,3 +7,8 @@ target_include_directories(musica-python
   )
 
 target_link_libraries(musica-python PUBLIC musica)
+
+set_target_properties(musica-python PROPERTIES
+  OUTPUT_NAME musica
+  LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+)
