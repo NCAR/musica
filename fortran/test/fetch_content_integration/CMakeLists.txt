@@ -33,7 +33,11 @@ add_executable(test_micm_fort_api test_micm_fort_api.F90)
 target_link_libraries(test_micm_fort_api
   PRIVATE
     musica::musica-fortran
-    stdc++
+)
+
+set_target_properties(test_micm_fort_api
+  PROPERTIES
+    LINKER_LANGUAGE Fortran
 )
 
 add_test(
@@ -53,4 +57,9 @@ add_test(
   NAME test_micm_fort_api_invalid
   COMMAND $<TARGET_FILE:test_micm_fort_api_invalid>
   WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+)
+
+set_target_properties(test_micm_fort_api_invalid
+  PROPERTIES
+    LINKER_LANGUAGE Fortran
 )
