@@ -29,7 +29,7 @@ jobs:
         run: cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }}
 
       - name: Build
-        run: cmake --build build --verbose
+        run: cmake --build build --verbose --parallel
 
       - name: Run tests
         run: |
@@ -41,7 +41,7 @@ jobs:
     strategy:
       matrix:
         gcc_version: [11, 12, 13]
-        build_type: [Debug, Release]
+        build_type: [Release]
     env:
       FC: gfortran-${{ matrix.gcc_version }}
 
@@ -57,7 +57,7 @@ jobs:
         run: cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_BUILD_FORTRAN_INTERFACE=ON
 
       - name: Build
-        run: cmake --build build --parallel 10
+        run: cmake --build build --parallel
 
       - name: Run tests
         run: |
