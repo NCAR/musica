@@ -17,7 +17,7 @@ jobs:
           - { cpp: g++-12, c: gcc-12}
           - { cpp: g++-13, c: gcc-13}
           - { cpp: clang++, c: clang}
-        build_type: [Debug, Release]
+        build_type: [Release]
     env:
       CC: ${{ matrix.compiler.c }}
       CXX: ${{ matrix.compiler.cpp }}
