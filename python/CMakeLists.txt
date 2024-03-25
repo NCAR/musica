@@ -12,10 +12,12 @@ target_link_libraries(musica_python PUBLIC musica::musica)
 
 
 if(WIN32)
-  # clang on windows doesn't need the config directory
-  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+
+  # makefiles on windows don't need the config directory
+  if (${CMAKE_GENERATOR} MATCHES "MinGW Makefiles")
       set(PYTHON_MODULE_PATH "${CMAKE_CURRENT_BINARY_DIR}")
   else()
+  # but visual studio does
       set(PYTHON_MODULE_PATH "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>")
   endif()
 else()
