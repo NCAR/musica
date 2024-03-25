@@ -1,6 +1,6 @@
 name: Windows
 
-on: [push, pull_request]
+on: [pull_request,workflow_dispatch]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
@@ -8,7 +8,6 @@ concurrency:
 
 jobs:
   mingw:
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     runs-on: windows-2019
     strategy:
       matrix:
@@ -23,7 +22,7 @@ jobs:
           version: 12.2.0 # https://github.com/egor-tensin/setup-mingw/issues/14
 
       - name: Run Cmake 
-        run: cmake -S . -B build -G "MinGW Makefiles"
+        run: cmake -S . -B build -G "MinGW Makefiles"  -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
 
       - name: Build
         run: cmake --build build --parallel
@@ -34,7 +33,6 @@ jobs:
           ctest -C Debug --rerun-failed --output-on-failure . --verbose
 
   msvc2019:
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     runs-on: windows-2019
     strategy:
       matrix:
@@ -44,30 +42,23 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      if: ${{ matrix.architecture == 'Win32' }}
+      with:
+        python-version: '3.x'
+        architecture: x86
+
     - name: Run CMake
-      run: cmake -S . -B build -G "Visual Studio 16 2019" -A ${{ matrix.architecture }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+      run: cmake -S . -B build -G "Visual Studio 16 2019" -A ${{ matrix.architecture }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}  -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
 
     - name: Build
       run: cmake --build build --config ${{ matrix.build_type }} --parallel
 
     - name: Test
       run: cd build ; ctest -j 10 -C ${{ matrix.build_type }} --output-on-failure
-
-  msvc2019_latest:
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
-    runs-on: windows-2019
-
-    steps:
-    - uses: actions/checkout@v3
-    - name: Run CMake
-      run: cmake -S . -B build -G "Visual Studio 16 2019" 
-    - name: Build
-      run: cmake --build build --config Release --parallel 10
-    - name: Test
-      run: cd build ; ctest -j 10 -C Release --output-on-failure
 
   msvc2022:
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     runs-on: windows-2022
     strategy:
       matrix:
@@ -76,28 +67,24 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      if: ${{ matrix.architecture == 'Win32' }}
+      with:
+        python-version: '3.x'
+        architecture: x86
+
     - name: Run CMake
-      run: cmake -S . -B build -G "Visual Studio 17 2022" -A ${{ matrix.architecture }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+      run: cmake -S . -B build -G "Visual Studio 17 2022" -A ${{ matrix.architecture }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}  -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
+
     - name: Build
       run: cmake --build build --config ${{ matrix.build_type }} --parallel
+
     - name: Test
       run: cd build ; ctest -j 10 -C ${{ matrix.build_type }} --output-on-failure
 
-  msvc2022_latest:
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
-    runs-on: windows-2022
-
-    steps:
-    - uses: actions/checkout@v3
-    - name: Run CMake
-      run: cmake -S . -B build -G "Visual Studio 17 2022"
-    - name: Build
-      run: cmake --build build --config Release --parallel
-    - name: Test
-      run: cd build ; ctest -j 10 -C Release --output-on-failure
-
   clang:
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     runs-on: windows-2019
     strategy:
       matrix:
@@ -108,14 +95,13 @@ jobs:
       - name: Install Clang
         run: curl -fsSL -o LLVM${{ matrix.version }}.exe https://github.com/llvm/llvm-project/releases/download/llvmorg-${{ matrix.version }}.0.0/LLVM-${{ matrix.version }}.0.0-win64.exe ; 7z x LLVM${{ matrix.version }}.exe -y -o"C:/Program Files/LLVM"
       - name: Run CMake
-        run: cmake -S . -B build -DCMAKE_CXX_COMPILER="C:/Program Files/LLVM/bin/clang++.exe" -DCMAKE_C_COMPILER="C:/Program Files/LLVM/bin/clang.exe" -G"MinGW Makefiles" -DCMAKE_BUILD_TYPE=Debug
+        run: cmake -S . -B build -DCMAKE_CXX_COMPILER="C:/Program Files/LLVM/bin/clang++.exe" -DCMAKE_C_COMPILER="C:/Program Files/LLVM/bin/clang.exe" -G"MinGW Makefiles" -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
       - name: Build
         run: cmake --build build --parallel
       - name: Test
         run: cd build ; ctest -j 10 -C Debug --exclude-regex "test-unicode" --output-on-failure
 
   clang-cl-11:
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     runs-on: windows-2019
     strategy:
       matrix:
@@ -123,9 +109,19 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        if: ${{ matrix.architecture == 'Win32' }}
+        with:
+          python-version: '3.x'
+          architecture: x86
+
       - name: Run CMake
-        run: cmake -S . -B build -G "Visual Studio 16 2019" -A ${{ matrix.architecture }} -T ClangCL
+        run: cmake -S . -B build -G "Visual Studio 16 2019" -A ${{ matrix.architecture }} -T ClangCL  -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
+
       - name: Build
         run: cmake --build build --config Debug --parallel
+
       - name: Test
         run: cd build ; ctest -j 10 -C Debug --exclude-regex "test-unicode" --output-on-failure

@@ -6,4 +6,5 @@ CMakeFiles
 .DS_Store
 .vscode
 dist/
-micm.egg-info/
+musica.cpython-* 
+musica.egg-info

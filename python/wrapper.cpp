@@ -4,9 +4,8 @@
 
 namespace py = pybind11;
 
-
 //Wraps micm.cpp
-PYBIND11_MODULE(micm, m) {
+PYBIND11_MODULE(musica, m) {
     py::class_<MICM>(m, "MICM")
         .def(py::init<>())
         .def("create_solver", &MICM::create_solver)
