@@ -11,5 +11,6 @@ target_include_directories(musica_python
 target_link_libraries(musica_python PUBLIC musica::musica)
 
 add_test(NAME musica_python_test
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
   COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR} 
   ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/micm_test.py)

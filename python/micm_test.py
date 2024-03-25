@@ -1,5 +1,4 @@
 import sys
-sys.path.append('/Users/alexgarza/Documents/CSCE482/musica/build')
 
 import musica
 
@@ -12,7 +11,7 @@ concentrations = [0.75, 0.4, 0.8, 0.01, 0.02]
 
 print(concentrations)
 
-solver = musica.create_micm("/Users/kshores/Documents/musica/configs/chapman")  
+solver = musica.create_micm("configs/chapman")  
 musica.micm_solve(solver, time_step, temperature, pressure, concentrations)
 
 print(concentrations)
