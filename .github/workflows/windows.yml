@@ -44,7 +44,7 @@ jobs:
 
     - name: Set up Python
       uses: actions/setup-python@v4
-      if: ${{ matrix.architecture == 'Win32' }
+      if: ${{ matrix.architecture == 'Win32' }}
       with:
         python-version: '3.x'
         architecture: x86
@@ -70,7 +70,7 @@ jobs:
 
     - name: Set up Python
       uses: actions/setup-python@v4
-      if: ${{ matrix.architecture == 'Win32' }
+      if: ${{ matrix.architecture == 'Win32' }}
       with:
         python-version: '3.x'
         architecture: x86
