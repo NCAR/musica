@@ -52,7 +52,6 @@ jobs:
       run: cd build ; ctest -j 10 -C ${{ matrix.build_type }} --output-on-failure
 
   msvc2019_latest:
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     runs-on: windows-2019
 
     steps:
@@ -65,7 +64,6 @@ jobs:
       run: cd build ; ctest -j 10 -C Release --output-on-failure
 
   msvc2022:
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     runs-on: windows-2022
     strategy:
       matrix:
@@ -82,7 +80,6 @@ jobs:
       run: cd build ; ctest -j 10 -C ${{ matrix.build_type }} --output-on-failure
 
   msvc2022_latest:
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     runs-on: windows-2022
 
     steps:
@@ -95,7 +92,6 @@ jobs:
       run: cd build ; ctest -j 10 -C Release --output-on-failure
 
   clang:
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     runs-on: windows-2019
     strategy:
       matrix:
@@ -113,7 +109,6 @@ jobs:
         run: cd build ; ctest -j 10 -C Debug --exclude-regex "test-unicode" --output-on-failure
 
   clang-cl-11:
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     runs-on: windows-2019
     strategy:
       matrix:
