@@ -48,6 +48,11 @@ if(MUSICA_CREATE_ENVIRONMENT_MODULE)
   endif()
 endif()
 
+if (MUSICA_ENABLE_PYTHON_LIBRARY) 
+  message(STATUS "Python requires shared libraries to be built")
+  set(BUILD_SHARED_LIBS ON)
+endif()
+
 ################################################################################
 # Projet wide setup variables 
 set(MUSICA_INSTALL_INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR})
