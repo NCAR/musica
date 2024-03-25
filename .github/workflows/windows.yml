@@ -109,9 +109,19 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        if: ${{ matrix.architecture == 'Win32' }}
+        with:
+          python-version: '3.x'
+          architecture: x86
+
       - name: Run CMake
         run: cmake -S . -B build -G "Visual Studio 16 2019" -A ${{ matrix.architecture }} -T ClangCL  -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
+
       - name: Build
         run: cmake --build build --config Debug --parallel
+
       - name: Test
         run: cd build ; ctest -j 10 -C Debug --exclude-regex "test-unicode" --output-on-failure
