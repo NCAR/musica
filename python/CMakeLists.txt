@@ -3,18 +3,23 @@ pybind11_add_module(musica_python wrapper.cpp)
 set_target_properties(musica_python PROPERTIES OUTPUT_NAME musica)
 
 target_include_directories(musica_python
-    PUBLIC  
-      $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/lib/micm/include>
-      $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
-  )
+  PUBLIC  
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/lib/micm/include>
+    $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
+)
 
 target_link_libraries(musica_python PUBLIC musica::musica)
 
-message(STATUS "thing: $<CONFIG}>")
+
 if(WIN32)
-    set(PYTHON_MODULE_PATH "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>")
+  # clang on windows doesn't need the config directory
+  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+      set(PYTHON_MODULE_PATH "${CMAKE_CURRENT_BINARY_DIR}")
+  else()
+      set(PYTHON_MODULE_PATH "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>")
+  endif()
 else()
-    set(PYTHON_MODULE_PATH "${CMAKE_CURRENT_BINARY_DIR}")
+  set(PYTHON_MODULE_PATH "${CMAKE_CURRENT_BINARY_DIR}")
 endif()
 
 add_test(NAME musica_python_test
