@@ -48,8 +48,10 @@ if(MUSICA_CREATE_ENVIRONMENT_MODULE)
   endif()
 endif()
 
+# shared libraries are required for python, but for some reason setting
+# BUILD_SHARED_LIBS to ON doesn't work on windows
 if (MUSICA_ENABLE_PYTHON_LIBRARY AND NOT WIN32) 
-  message(STATUS "Python requires shared libraries to be built")
+  message(STATUS "Python requires shared libraries to be built. Enabling shared libraries.")
   set(BUILD_SHARED_LIBS ON)
 endif()
 
