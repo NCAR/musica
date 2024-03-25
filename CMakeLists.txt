@@ -48,7 +48,7 @@ if(MUSICA_CREATE_ENVIRONMENT_MODULE)
   endif()
 endif()
 
-if (MUSICA_ENABLE_PYTHON_LIBRARY and NOT WIN32) 
+if (MUSICA_ENABLE_PYTHON_LIBRARY AND NOT WIN32) 
   message(STATUS "Python requires shared libraries to be built")
   set(BUILD_SHARED_LIBS ON)
 endif()
