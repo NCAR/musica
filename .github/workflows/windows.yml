@@ -1,6 +1,6 @@
 name: Windows
 
-on: [push, pull_request]
+on: [pull_request,workflow_dispatch]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
@@ -8,7 +8,6 @@ concurrency:
 
 jobs:
   mingw:
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     runs-on: windows-2019
     strategy:
       matrix:
@@ -34,7 +33,6 @@ jobs:
           ctest -C Debug --rerun-failed --output-on-failure . --verbose
 
   msvc2019:
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     runs-on: windows-2019
     strategy:
       matrix:
