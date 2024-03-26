@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.21)
 
 project(
   musica-distribution
-  VERSION 0.6.0
+  VERSION 0.6.1
 )
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${CMAKE_CURRENT_LIST_DIR}/cmake)
