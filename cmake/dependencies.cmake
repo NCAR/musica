@@ -49,3 +49,9 @@ if (MUSICA_ENABLE_TUVX)
   )
   FetchContent_MakeAvailable(yaml-cpp)
 endif()
+
+################################################################################
+# pybind11
+if(MUSICA_ENABLE_PYTHON_LIBRARY)
+    add_subdirectory(${CMAKE_SOURCE_DIR}/lib/pybind11)
+endif()
