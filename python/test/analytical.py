@@ -40,7 +40,7 @@ class TestAnalyticalSimulation(unittest.TestCase):
 
         # Gets analytical concentrations 
         while curr_time <= sim_length:
-            musica.micm_solve(solver, time_step, temperature, pressure, concentrations)
+            musica.micm_solve(solver, time_step, temperature, pressure, concentrations, None)
             model_concentrations.append(concentrations[:])
 
             initial_A = analytical_concentrations[0][idx_A]

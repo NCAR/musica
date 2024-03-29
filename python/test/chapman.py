@@ -9,12 +9,24 @@ class TestChapman(unittest.TestCase):
         concentrations = [0.75, 0.4, 0.8, 0.01, 0.02]
 
         solver = musica.create_micm("configs/chapman")  
-        musica.micm_solve(solver, time_step, temperature, pressure, concentrations)
-        rates = musica.user_defined_reaction_rates(solver)
+        rate_constant_ordering = musica.user_defined_reaction_rates(solver)
         ordering = musica.species_ordering(solver)
 
+        rate_constants = {
+            "PHOTO.R1" : 2.42e-17,
+            "PHOTO.R3" : 1.15e-5,
+            "PHOTO.R5" : 6.61e-9
+        }
+
+        ordered_rate_constants = len(rate_constants.keys()) * [0.0]
+
+        for key, value in rate_constants.items():
+            ordered_rate_constants[rate_constant_ordering[key]] = value
+        
+        musica.micm_solve(solver, time_step, temperature, pressure, concentrations, ordered_rate_constants)
+
         self.assertEqual(ordering, {'M': 0, 'O': 2, 'O1D': 1, 'O2': 3, 'O3': 4})
-        self.assertEqual(rates, {'PHOTO.R1': 0, 'PHOTO.R3': 1, 'PHOTO.R5': 2})
+        self.assertEqual(rate_constant_ordering, {'PHOTO.R1': 0, 'PHOTO.R3': 1, 'PHOTO.R5': 2})
 
         self.assertEqual(concentrations[0], 0.75)
         self.assertNotEqual(concentrations[1], 0.4)

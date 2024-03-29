@@ -32,9 +32,9 @@ void delete_micm(const MICM *micm)
     delete micm;
 }
 
-void micm_solve(MICM *micm, double time_step, double temperature, double pressure, int num_concentrations, double *concentrations)
+void micm_solve(MICM *micm, double time_step, double temperature, double pressure, int num_concentrations, double *concentrations, int num_custom_rate_parameters, double* custom_rate_parameters)
 {
-    micm->solve(time_step, temperature, pressure, num_concentrations, concentrations);
+    micm->solve(time_step, temperature, pressure, num_concentrations, concentrations, num_custom_rate_parameters, custom_rate_parameters);
 }
 
 Mapping *get_species_ordering(MICM *micm, size_t* array_size)
@@ -106,7 +106,7 @@ int MICM::create_solver(const std::string &config_path)
     return parsing_status;
 }
 
-void MICM::solve(double time_step, double temperature, double pressure, int num_concentrations, double *concentrations)
+void MICM::solve(double time_step, double temperature, double pressure, int num_concentrations, double* concentrations, int num_custom_rate_parameters, double* custom_rate_parameters)
 {
     micm::State state = solver_->GetState();
 
@@ -117,6 +117,8 @@ void MICM::solve(double time_step, double temperature, double pressure, int num_
     }
 
     state.variables_.AsVector().assign(concentrations, concentrations + num_concentrations);
+
+    state.custom_rate_parameters_.AsVector().assign(custom_rate_parameters, custom_rate_parameters + num_custom_rate_parameters);
 
     auto result = solver_->Solve<false>(time_step, state);
 

@@ -26,7 +26,7 @@ extern "C" {
 
 MICM* create_micm(const char* config_path, int* error_code);
 void delete_micm(const MICM* micm);
-void micm_solve(MICM* micm, double time_step, double temperature, double pressure, int num_concentrations, double* concentrations);
+void micm_solve(MICM* micm, double time_step, double temperature, double pressure, int num_concentrations, double* concentrations, int num_custom_rate_parameters, double* custom_rate_parameters);
 Mapping* get_species_ordering(MICM* micm);
 Mapping* get_user_defined_reaction_rates_ordering(MICM* micm);
 
@@ -55,7 +55,7 @@ public:
     /// @param config_path Path to configuration file or directory containing configuration file
     /// @return 0 on success, 1 on failure in parsing species' concentrations
     /// @param concentrations Species's concentrations
-    void solve(double time_step, double temperature, double pressure, int num_concentrations, double* concentrations);
+    void solve(double time_step, double temperature, double pressure, int num_concentrations, double* concentrations, int num_custom_rate_parameters, double* custom_rate_parameters);
 
     std::map<std::string, size_t> get_species_ordering();
     std::map<std::string, size_t> get_user_defined_reaction_rates_ordering();
