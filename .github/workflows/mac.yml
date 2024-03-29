@@ -29,6 +29,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Install python and dependencies
+        run: |
+          brew install python
+          python -m pip install --upgrade pip
+          python -m pip install numpy
+
       - name: Run Cmake 
         run: cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
 
