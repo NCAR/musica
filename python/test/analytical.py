@@ -10,6 +10,14 @@ class TestAnalyticalSimulation(unittest.TestCase):
 
         solver = musica.create_micm("configs/analytical")  
 
+        rates = musica.user_defined_reaction_rates(solver)
+        ordering = musica.species_ordering(solver)
+
+        self.assertEqual(rates, {})
+        self.assertEqual(ordering['A'], 0)
+        self.assertEqual(ordering['B'], 1)
+        self.assertEqual(ordering['C'], 2)
+
         # Initalizes concentrations 
         initial_concentrations = [1, 0, 0]
 

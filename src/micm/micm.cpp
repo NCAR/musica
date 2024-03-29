@@ -2,7 +2,7 @@
  * This file contains the implementation of the MICM class, which represents a multi-component
  * reactive transport model. It also includes functions for creating and deleting MICM instances,
  * Copyright (C) 2023-2024 National Center for Atmospheric Research,
- * 
+ *
  * SPDX-License-Identifier: Apache-2.0* creating solvers, and solving the model.
  */
 #include <filesystem>
@@ -12,27 +12,69 @@
 #include <micm/solver/rosenbrock_solver_parameters.hpp>
 #include <musica/micm.hpp>
 
-MICM* create_micm(const char* config_path, int* error_code)
+MICM *create_micm(const char *config_path, int *error_code)
 {
-    try {
-        MICM* micm = new MICM();
+    try
+    {
+        MICM *micm = new MICM();
         *error_code = micm->create_solver(std::string(config_path));
         return micm;
     }
-    catch (const std::bad_alloc& e) {
+    catch (const std::bad_alloc &e)
+    {
         *error_code = 1;
         return nullptr;
     }
 }
 
-void delete_micm(const MICM* micm)
+void delete_micm(const MICM *micm)
 {
     delete micm;
 }
 
-void micm_solve(MICM* micm, double time_step, double temperature, double pressure, int num_concentrations, double* concentrations)
+void micm_solve(MICM *micm, double time_step, double temperature, double pressure, int num_concentrations, double *concentrations)
 {
     micm->solve(time_step, temperature, pressure, num_concentrations, concentrations);
+}
+
+Mapping *get_species_ordering(MICM *micm, size_t* array_size)
+{
+    auto map = micm->get_species_ordering();
+    Mapping* reactionRates = new Mapping[map.size()];
+    
+    // Copy data from the map to the array of structs
+    size_t i = 0;
+    for (const auto& entry : map) {
+        reactionRates[i].name = new char[entry.first.size() + 1]; // +1 for null terminator
+        std::strcpy(reactionRates[i].name, entry.first.c_str());
+        reactionRates[i].index = entry.second;
+        ++i;
+    }
+
+    // Set the size of the array
+    *array_size = map.size();
+
+    return reactionRates;
+}
+
+Mapping *get_user_defined_reaction_rates_ordering(MICM *micm, size_t* array_size)
+{
+    auto map = micm->get_user_defined_reaction_rates_ordering();
+    Mapping* reactionRates = new Mapping[map.size()];
+    
+    // Copy data from the map to the array of structs
+    size_t i = 0;
+    for (const auto& entry : map) {
+        reactionRates[i].name = new char[entry.first.size() + 1]; // +1 for null terminator
+        std::strcpy(reactionRates[i].name, entry.first.c_str());
+        reactionRates[i].index = entry.second;
+        ++i;
+    }
+
+    // Set the size of the array
+    *array_size = map.size();
+
+    return reactionRates;
 }
 
 MICM::MICM() : solver_(nullptr) {}
@@ -82,4 +124,16 @@ void MICM::solve(double time_step, double temperature, double pressure, int num_
     {
         concentrations[i] = result.result_.AsVector()[i];
     }
+}
+
+std::map<std::string, size_t> MICM::get_species_ordering()
+{
+    micm::State state = solver_->GetState();
+    return state.variable_map_;
+}
+
+std::map<std::string, size_t> MICM::get_user_defined_reaction_rates_ordering()
+{
+    micm::State state = solver_->GetState();
+    return state.custom_rate_parameter_map_;
 }

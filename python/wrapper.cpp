@@ -35,4 +35,11 @@ PYBIND11_MODULE(musica, m) {
         }
     });
 
+    m.def("species_ordering", [](MICM* micm) {
+        return micm->get_species_ordering();
+    }, "Return map of get_species_ordering rates");
+
+    m.def("user_defined_reaction_rates", [](MICM* micm) {
+        return micm->get_user_defined_reaction_rates_ordering();
+    }, "Return map of reaction rates");
 }
