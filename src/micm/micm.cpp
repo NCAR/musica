@@ -88,22 +88,29 @@ MICM::~MICM()
 int MICM::create_solver(const std::string &config_path)
 {
     int parsing_status = 0; // 0 on success, 1 on failure
+    try {
+        micm::SolverConfig<> solver_config;
+        micm::ConfigParseStatus status = solver_config.ReadAndParse(std::filesystem::path(config_path));
 
-    micm::SolverConfig<> solver_config;
-    micm::ConfigParseStatus status = solver_config.ReadAndParse(std::filesystem::path(config_path));
-
-    if (status == micm::ConfigParseStatus::Success)
-    {
-        micm::SolverParameters solver_params = solver_config.GetSolverParams();
-        auto params = micm::RosenbrockSolverParameters::three_stage_rosenbrock_parameters(NUM_GRID_CELLS);
-        solver_ = std::make_unique<micm::RosenbrockSolver<>>(solver_params.system_,
-                                                             solver_params.processes_,
-                                                             params);
+        if (status == micm::ConfigParseStatus::Success)
+        {
+            micm::SolverParameters solver_params = solver_config.GetSolverParams();
+            auto params = micm::RosenbrockSolverParameters::three_stage_rosenbrock_parameters(NUM_GRID_CELLS);
+            solver_ = std::make_unique<micm::RosenbrockSolver<>>(solver_params.system_,
+                                                                solver_params.processes_,
+                                                                params);
+        }
+        else
+        {
+            parsing_status = 1;
+        }
     }
-    else
+    catch(std::exception &e)
     {
+        std::cerr << "Error: " << e.what() << std::endl;
         parsing_status = 1;
     }
+
 
     return parsing_status;
 }
