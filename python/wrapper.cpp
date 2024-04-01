@@ -11,7 +11,7 @@ PYBIND11_MODULE(musica, m)
         .def(py::init<>())
         .def("create_solver", &MICM::create_solver)
         .def("solve", &MICM::solve)
-        .def("__del__", [](MICM &micm){});
+        .def("__del__", [](MICM &micm) {});
 
     m.def("create_micm", [](const char *config_path)
           {
@@ -21,8 +21,9 @@ PYBIND11_MODULE(musica, m)
 
     m.def("delete_micm", &delete_micm);
 
-    m.def("micm_solve", [](MICM *micm, double time_step, double temperature, double pressure, py::list concentrations, py::object custom_rate_parameters = py::none())
-          {
+    m.def(
+        "micm_solve", [](MICM *micm, double time_step, double temperature, double pressure, py::list concentrations, py::object custom_rate_parameters = py::none())
+        {
         std::vector<double> concentrations_cpp;
         for (auto item : concentrations) {
             concentrations_cpp.push_back(item.cast<double>());
@@ -43,7 +44,8 @@ PYBIND11_MODULE(musica, m)
          // Update the concentrations list after solving
         for (size_t i = 0; i < concentrations_cpp.size(); ++i) {
             concentrations[i] = concentrations_cpp[i];
-        }}, "Solve the system");
+        } },
+        "Solve the system");
 
     m.def(
         "species_ordering", [](MICM *micm)

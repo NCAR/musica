@@ -32,19 +32,20 @@ void delete_micm(const MICM *micm)
     delete micm;
 }
 
-void micm_solve(MICM *micm, double time_step, double temperature, double pressure, int num_concentrations, double *concentrations, int num_custom_rate_parameters, double* custom_rate_parameters)
+void micm_solve(MICM *micm, double time_step, double temperature, double pressure, int num_concentrations, double *concentrations, int num_custom_rate_parameters, double *custom_rate_parameters)
 {
     micm->solve(time_step, temperature, pressure, num_concentrations, concentrations, num_custom_rate_parameters, custom_rate_parameters);
 }
 
-Mapping *get_species_ordering(MICM *micm, size_t* array_size)
+Mapping *get_species_ordering(MICM *micm, size_t *array_size)
 {
     auto map = micm->get_species_ordering();
-    Mapping* reactionRates = new Mapping[map.size()];
-    
+    Mapping *reactionRates = new Mapping[map.size()];
+
     // Copy data from the map to the array of structs
     size_t i = 0;
-    for (const auto& entry : map) {
+    for (const auto &entry : map)
+    {
         reactionRates[i].name = new char[entry.first.size() + 1]; // +1 for null terminator
         std::strcpy(reactionRates[i].name, entry.first.c_str());
         reactionRates[i].index = entry.second;
@@ -57,14 +58,15 @@ Mapping *get_species_ordering(MICM *micm, size_t* array_size)
     return reactionRates;
 }
 
-Mapping *get_user_defined_reaction_rates_ordering(MICM *micm, size_t* array_size)
+Mapping *get_user_defined_reaction_rates_ordering(MICM *micm, size_t *array_size)
 {
     auto map = micm->get_user_defined_reaction_rates_ordering();
-    Mapping* reactionRates = new Mapping[map.size()];
-    
+    Mapping *reactionRates = new Mapping[map.size()];
+
     // Copy data from the map to the array of structs
     size_t i = 0;
-    for (const auto& entry : map) {
+    for (const auto &entry : map)
+    {
         reactionRates[i].name = new char[entry.first.size() + 1]; // +1 for null terminator
         std::strcpy(reactionRates[i].name, entry.first.c_str());
         reactionRates[i].index = entry.second;
@@ -106,7 +108,7 @@ int MICM::create_solver(const std::string &config_path)
     return parsing_status;
 }
 
-void MICM::solve(double time_step, double temperature, double pressure, int num_concentrations, double* concentrations, int num_custom_rate_parameters, double* custom_rate_parameters)
+void MICM::solve(double time_step, double temperature, double pressure, int num_concentrations, double *concentrations, int num_custom_rate_parameters, double *custom_rate_parameters)
 {
     micm::State state = solver_->GetState();
 
