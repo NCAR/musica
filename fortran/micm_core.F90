@@ -34,10 +34,11 @@ module micm_core
          real(kind=c_double), intent(inout)     :: concentrations(num_concentrations)
       end subroutine micm_solve_c
 
-      type(c_ptr) function get_species_ordering(micm, array_size) bind(c, name="get_species_ordering")
+      function get_species_ordering(micm, array_size) bind(c, name="get_species_ordering")
          import :: c_ptr, c_size_t
          type(c_ptr), value :: micm
          integer(kind=c_size_t), intent(out) :: array_size
+         type(c_ptr)                         :: get_species_ordering
       end function get_species_ordering
 
       type(c_ptr) function get_user_defined_reaction_rates_ordering(micm, array_size) &
@@ -49,7 +50,7 @@ module micm_core
    end interface
 
    type :: micm_t
-      type(Mapping), pointer:: species_ordering(:), reaction_rates_ordering(:)
+      type(c_ptr), pointer:: species_ordering(:), reaction_rates_ordering(:)
       integer(kind=c_size_t) :: species_ordering_length, reaction_rates_ordering_length
       type(c_ptr), private :: ptr
    contains
@@ -71,7 +72,7 @@ contains
       integer, intent(out)          :: errcode
       character(len=1, kind=c_char) :: c_config_path(len_trim(config_path)+1)
       integer                       :: n, i
-      type(c_ptr) :: c_mappings_ptr
+      type(Mapping) :: mappings_ptr
 
       allocate( this )
 
@@ -87,20 +88,12 @@ contains
          return
       end if
 
-      c_mappings_ptr = get_species_ordering(this%ptr, this%species_ordering_length)
-      call c_f_pointer(c_mappings_ptr, this%species_ordering, [this%species_ordering_length])
+      this%species_ordering = get_species_ordering(this%ptr, this%species_ordering_length)
+      this%reaction_rates_ordering = get_user_defined_reaction_rates_ordering(this%ptr, this%reaction_rates_ordering_length)
 
-      do i = 1, this%species_ordering_length
-         print *, "Species Name:", this%species_ordering(i)%name, ", Index:", this%species_ordering(i)%index
-      end do
-
-      c_mappings_ptr = get_user_defined_reaction_rates_ordering(this%ptr, this%reaction_rates_ordering_length)
-      call c_f_pointer(c_mappings_ptr, this%reaction_rates_ordering, [this%reaction_rates_ordering_length])
-
-      ! Print the reaction rates ordering
-      do i = 1, this%reaction_rates_ordering_length
-         print *, "Reaction Rate Name:", this%reaction_rates_ordering(i)%name, ", Index:", this%reaction_rates_ordering(i)%index
-      end do
+      ! do i = 1, this%reaction_rates_ordering_length
+      !    print *, "Reaction Rate Name:", this%reaction_rates_ordering(i)%name, ", Index:", this%reaction_rates_ordering(i)%index
+      ! end do
    end function constructor
 
    subroutine solve(this, time_step, temperature, pressure, num_concentrations, concentrations)

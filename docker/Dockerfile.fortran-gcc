@@ -34,7 +34,7 @@ COPY . musica
 RUN cd musica \
     && cmake -S . \
              -B build \
-             -D CMAKE_BUILD_TYPE=Release \
+             -D CMAKE_BUILD_TYPE=Debug \
     && cd build \
     && make install
 
