@@ -96,6 +96,7 @@ int MICM::create_solver(const std::string &config_path)
         {
             micm::SolverParameters solver_params = solver_config.GetSolverParams();
             auto params = micm::RosenbrockSolverParameters::three_stage_rosenbrock_parameters(NUM_GRID_CELLS);
+            params.ignore_unused_species_ = true;
             solver_ = std::make_unique<micm::RosenbrockSolver<>>(solver_params.system_,
                                                                 solver_params.processes_,
                                                                 params);

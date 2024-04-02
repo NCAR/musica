@@ -50,9 +50,9 @@ module micm_core
    end interface
 
    type :: micm_t
-      type(c_ptr), pointer:: species_ordering(:), reaction_rates_ordering(:)
+      type(Mapping), pointer   :: species_ordering(:), reaction_rates_ordering(:)
       integer(kind=c_size_t) :: species_ordering_length, reaction_rates_ordering_length
-      type(c_ptr), private :: ptr
+      type(c_ptr), private   :: ptr
    contains
       ! Solve the chemical system
       procedure :: solve
@@ -72,10 +72,11 @@ contains
       integer, intent(out)          :: errcode
       character(len=1, kind=c_char) :: c_config_path(len_trim(config_path)+1)
       integer                       :: n, i
-      type(Mapping) :: mappings_ptr
+      type(c_ptr) :: mappings_ptr
 
       allocate( this )
 
+      print *, "Config Path:", config_path
       n = len_trim(config_path)
       do i = 1, n
          c_config_path(i) = config_path(i:i)
@@ -88,8 +89,10 @@ contains
          return
       end if
 
-      this%species_ordering = get_species_ordering(this%ptr, this%species_ordering_length)
-      this%reaction_rates_ordering = get_user_defined_reaction_rates_ordering(this%ptr, this%reaction_rates_ordering_length)
+      mappings_ptr = get_species_ordering(this%ptr, this%species_ordering_length)
+      call c_f_pointer(mappings_ptr, this%species_ordering, [this%species_ordering_length])
+
+      ! this%reaction_rates_ordering = get_user_defined_reaction_rates_ordering(this%ptr, this%reaction_rates_ordering_length)
 
       ! do i = 1, this%reaction_rates_ordering_length
       !    print *, "Reaction Rate Name:", this%reaction_rates_ordering(i)%name, ", Index:", this%reaction_rates_ordering(i)%index
