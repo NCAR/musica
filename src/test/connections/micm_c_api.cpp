@@ -33,7 +33,14 @@ TEST_F(MicmCApiTest, SolveMicmInstance) {
     int num_concentrations = 5;
     double concentrations[] = {0.75, 0.4, 0.8, 0.01, 0.02};
 
-    micm_solve(micm, time_step, temperature, pressure, num_concentrations, concentrations);
+    auto ordering = micm->get_user_defined_reaction_rates_ordering();
+    int num_custom_rate_parameters = ordering.size();
+    std::vector<double> custom_rate_parameters(num_custom_rate_parameters, 0.0);
+    for(auto& entry : ordering) {
+        custom_rate_parameters[entry.second] = 0.0;
+    }
+
+    micm_solve(micm, time_step, temperature, pressure, num_concentrations, concentrations, custom_rate_parameters.size(), custom_rate_parameters.data());
 
     // Add assertions to check the solved concentrations
     ASSERT_EQ(concentrations[0], 0.75);
