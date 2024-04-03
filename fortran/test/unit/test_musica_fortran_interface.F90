@@ -17,7 +17,7 @@ program test_micm_fort_api
 
   time_step = 200
   temperature = 272.5
-  pressure = 101253.3
+  pressure = 101253.4
   num_concentrations = 5
   concentrations = (/ 0.75, 0.4, 0.8, 0.01, 0.02 /)
   config_path = "configs/chapman"
