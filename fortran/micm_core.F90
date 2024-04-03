@@ -3,7 +3,7 @@ module micm_core
    use iso_c_binding, only: c_ptr, c_char, c_int, c_double, c_null_char, c_size_t, c_f_pointer
    implicit none
 
-   public :: micm_t
+   public :: micm_t, Mapping
    private
 
    type, bind(c) :: Mapping
@@ -25,7 +25,8 @@ module micm_core
          type(c_ptr), intent(in) :: micm
       end subroutine delete_micm_c
 
-      subroutine micm_solve_c(micm, time_step, temperature, pressure, num_concentrations, concentrations) bind(C, name="micm_solve")
+      subroutine micm_solve_c(micm, time_step, temperature, pressure, num_concentrations, concentrations, &
+                              num_user_defined_reaction_rates, user_defined_reaction_rates) bind(C, name="micm_solve")
          import c_ptr, c_double, c_int
          type(c_ptr), value, intent(in)         :: micm
          real(kind=c_double), value, intent(in) :: time_step
@@ -33,6 +34,8 @@ module micm_core
          real(kind=c_double), value, intent(in) :: pressure
          integer(kind=c_int), value, intent(in) :: num_concentrations
          real(kind=c_double), intent(inout)     :: concentrations(num_concentrations)
+         integer(kind=c_int), value, intent(in) :: num_user_defined_reaction_rates
+         real(kind=c_double), intent(inout)     :: user_defined_reaction_rates(num_user_defined_reaction_rates)
       end subroutine micm_solve_c
 
       function get_species_ordering(micm, array_size) bind(c, name="get_species_ordering")
@@ -51,8 +54,8 @@ module micm_core
    end interface
 
    type :: micm_t
-      type(Mapping), pointer   :: species_ordering(:), reaction_rates_ordering(:)
-      integer(kind=c_size_t) :: species_ordering_length, reaction_rates_ordering_length
+      type(Mapping), pointer   :: species_ordering(:), user_defined_reaction_rates(:)
+      integer(kind=c_size_t) :: species_ordering_length, user_defined_reaction_rates_length
       type(c_ptr), private   :: ptr
    contains
       ! Solve the chemical system
@@ -74,7 +77,6 @@ contains
       character(len=1, kind=c_char) :: c_config_path(len_trim(config_path)+1)
       integer                       :: n, i
       type(c_ptr) :: mappings_ptr
-      type(Mapping) :: the_mapping
 
       allocate( this )
 
@@ -93,29 +95,23 @@ contains
       mappings_ptr = get_species_ordering(this%ptr, this%species_ordering_length)
       call c_f_pointer(mappings_ptr, this%species_ordering, [this%species_ordering_length])
 
-      do i = 1, this%species_ordering_length
-         the_mapping = this%species_ordering(i)
-         print *, "Species Name:", the_mapping%name(the_mapping%string_length), ", Index:", the_mapping%index
-      end do
 
-      mappings_ptr = get_user_defined_reaction_rates_ordering(this%ptr, this%reaction_rates_ordering_length)
-      call c_f_pointer(mappings_ptr, this%reaction_rates_ordering, [this%reaction_rates_ordering_length])
-
-      do i = 1, this%reaction_rates_ordering_length
-         the_mapping = this%reaction_rates_ordering(i)
-         print *, "Reaction Rate Name:", the_mapping%name(the_mapping%string_length), ", Index:", the_mapping%index
-      end do
-
+      mappings_ptr = get_user_defined_reaction_rates_ordering(this%ptr, this%user_defined_reaction_rates_length)
+      call c_f_pointer(mappings_ptr, this%user_defined_reaction_rates, [this%user_defined_reaction_rates_length])
    end function constructor
 
-   subroutine solve(this, time_step, temperature, pressure, num_concentrations, concentrations)
+   subroutine solve(this, time_step, temperature, pressure, num_concentrations, concentrations, &
+                     num_user_defined_reaction_rates, user_defined_reaction_rates)
       class(micm_t)                 :: this
       real(c_double), intent(in)    :: time_step
       real(c_double), intent(in)    :: temperature
       real(c_double), intent(in)    :: pressure
       integer(c_int), intent(in)    :: num_concentrations
       real(c_double), intent(inout) :: concentrations(*)
-      call micm_solve_c(this%ptr, time_step, temperature, pressure, num_concentrations, concentrations)
+      integer(c_int), intent(in)    :: num_user_defined_reaction_rates
+      real(c_double), intent(inout) :: user_defined_reaction_rates(*)
+      call micm_solve_c(this%ptr, time_step, temperature, pressure, num_concentrations, concentrations, &
+                        num_user_defined_reaction_rates, user_defined_reaction_rates)
    end subroutine solve
 
    subroutine finalize(this)
