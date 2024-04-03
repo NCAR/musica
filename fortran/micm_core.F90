@@ -3,14 +3,14 @@ module micm_core
    use iso_c_binding, only: c_ptr, c_char, c_int, c_double, c_null_char, c_size_t, c_f_pointer
    implicit none
 
-   public :: micm_t, Mapping
+   public :: micm_t, mapping_t
    private
 
-   type, bind(c) :: Mapping
+   type, bind(c) :: mapping_t
       character(kind=c_char, len=1) :: name(256)
       integer(c_size_t) :: index
       integer(c_size_t) :: string_length
-   end type Mapping
+   end type mapping_t
 
    interface
       function create_micm_c(config_path, error_code) bind(C, name="create_micm")
@@ -54,7 +54,7 @@ module micm_core
    end interface
 
    type :: micm_t
-      type(Mapping), pointer   :: species_ordering(:), user_defined_reaction_rates(:)
+      type(mapping_t), pointer   :: species_ordering(:), user_defined_reaction_rates(:)
       integer(kind=c_size_t) :: species_ordering_length, user_defined_reaction_rates_length
       type(c_ptr), private   :: ptr
    contains
