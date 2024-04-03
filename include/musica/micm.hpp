@@ -17,8 +17,9 @@ class MICM;
 
 struct Mapping
 {
-    char *name;
+    char name[256];
     size_t index;
+    size_t string_length;
 };
 
 #ifdef __cplusplus
@@ -39,12 +40,6 @@ extern "C"
 class MICM
 {
 public:
-    /// @brief Constructor
-    MICM();
-
-    /// @brief Destructor
-    ~MICM();
-
     /// @brief Create a solver by reading and parsing configuration file
     /// @param config_path Path to configuration file or directory containing configuration file
     /// @return 0 on success, 1 on failure in parsing configuration file

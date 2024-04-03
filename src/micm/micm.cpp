@@ -40,22 +40,22 @@ void micm_solve(MICM *micm, double time_step, double temperature, double pressur
 Mapping *get_species_ordering(MICM *micm, size_t *array_size)
 {
     auto map = micm->get_species_ordering();
-    Mapping *reactionRates = new Mapping[map.size()];
+    Mapping *species_ordering = new Mapping[map.size()];
 
     // Copy data from the map to the array of structs
     size_t i = 0;
     for (const auto &entry : map)
     {
-        reactionRates[i].name = new char[entry.first.size() + 1]; // +1 for null terminator
-        std::strcpy(reactionRates[i].name, entry.first.c_str());
-        reactionRates[i].index = entry.second;
+        std::strcpy(species_ordering[i].name, entry.first.c_str());
+        species_ordering[i].index = entry.second;
+        species_ordering[i].string_length = entry.first.size();
         ++i;
     }
 
     // Set the size of the array
     *array_size = map.size();
 
-    return reactionRates;
+    return species_ordering;
 }
 
 Mapping *get_user_defined_reaction_rates_ordering(MICM *micm, size_t *array_size)
@@ -67,9 +67,9 @@ Mapping *get_user_defined_reaction_rates_ordering(MICM *micm, size_t *array_size
     size_t i = 0;
     for (const auto &entry : map)
     {
-        reactionRates[i].name = new char[entry.first.size() + 1]; // +1 for null terminator
         std::strcpy(reactionRates[i].name, entry.first.c_str());
         reactionRates[i].index = entry.second;
+        reactionRates[i].string_length = entry.first.size();
         ++i;
     }
 
@@ -77,12 +77,6 @@ Mapping *get_user_defined_reaction_rates_ordering(MICM *micm, size_t *array_size
     *array_size = map.size();
 
     return reactionRates;
-}
-
-MICM::MICM() : solver_(nullptr) {}
-
-MICM::~MICM()
-{
 }
 
 int MICM::create_solver(const std::string &config_path)

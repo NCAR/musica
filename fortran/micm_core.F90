@@ -9,6 +9,7 @@ module micm_core
    type, bind(c) :: Mapping
       character(kind=c_char, len=1) :: name(256)
       integer(c_size_t) :: index
+      integer(c_size_t) :: string_length
    end type Mapping
 
    interface
@@ -73,10 +74,10 @@ contains
       character(len=1, kind=c_char) :: c_config_path(len_trim(config_path)+1)
       integer                       :: n, i
       type(c_ptr) :: mappings_ptr
+      type(Mapping) :: the_mapping
 
       allocate( this )
 
-      print *, "Config Path:", config_path
       n = len_trim(config_path)
       do i = 1, n
          c_config_path(i) = config_path(i:i)
@@ -92,11 +93,19 @@ contains
       mappings_ptr = get_species_ordering(this%ptr, this%species_ordering_length)
       call c_f_pointer(mappings_ptr, this%species_ordering, [this%species_ordering_length])
 
-      ! this%reaction_rates_ordering = get_user_defined_reaction_rates_ordering(this%ptr, this%reaction_rates_ordering_length)
+      do i = 1, this%species_ordering_length
+         the_mapping = this%species_ordering(i)
+         print *, "Species Name:", the_mapping%name(the_mapping%string_length), ", Index:", the_mapping%index
+      end do
 
-      ! do i = 1, this%reaction_rates_ordering_length
-      !    print *, "Reaction Rate Name:", this%reaction_rates_ordering(i)%name, ", Index:", this%reaction_rates_ordering(i)%index
-      ! end do
+      mappings_ptr = get_user_defined_reaction_rates_ordering(this%ptr, this%reaction_rates_ordering_length)
+      call c_f_pointer(mappings_ptr, this%reaction_rates_ordering, [this%reaction_rates_ordering_length])
+
+      do i = 1, this%reaction_rates_ordering_length
+         the_mapping = this%reaction_rates_ordering(i)
+         print *, "Reaction Rate Name:", the_mapping%name(the_mapping%string_length), ", Index:", the_mapping%index
+      end do
+
    end function constructor
 
    subroutine solve(this, time_step, temperature, pressure, num_concentrations, concentrations)
