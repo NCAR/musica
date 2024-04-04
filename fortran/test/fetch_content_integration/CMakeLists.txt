@@ -11,7 +11,7 @@ include(FetchContent)
 
 FetchContent_Declare(musica-fortran
   GIT_REPOSITORY https://github.com/NCAR/musica.git
-  GIT_TAG        79-allow-updates-to-custom-rate-constant-parameters-and-mapping-by-name
+  GIT_TAG        main
 )
 
 set(MUSICA_BUILD_C_CXX_INTERFACE OFF)
