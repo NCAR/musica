@@ -10,6 +10,14 @@ target_include_directories(musica_python
 
 target_link_libraries(musica_python PUBLIC musica::musica)
 
+install(TARGETS musica_python 
+  LIBRARY DESTINATION .
+)
+
+set_target_properties(musica
+    PROPERTIES
+    INSTALL_RPATH "$ORIGIN"
+)
 
 if(WIN32)
   # makefiles on windows don't need the config directory

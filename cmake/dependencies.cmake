@@ -53,5 +53,6 @@ endif()
 ################################################################################
 # pybind11
 if(MUSICA_ENABLE_PYTHON_LIBRARY)
-    add_subdirectory(${CMAKE_SOURCE_DIR}/lib/pybind11)
+  set(PYBIND11_NEWPYTHON ON)
+  add_subdirectory(${CMAKE_SOURCE_DIR}/lib/pybind11)
 endif()
