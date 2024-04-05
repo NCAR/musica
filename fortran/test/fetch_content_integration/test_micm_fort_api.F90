@@ -13,7 +13,7 @@ program test_micm_fort_api
   real(c_double), dimension(3)  :: user_defined_reaction_rates 
   integer                       :: errcode, i
   character(len=256)            :: config_path
-  type(mapping_t)                 :: the_mapping
+  type(mapping_t)               :: the_mapping
 
   time_step = 200
   temperature = 272.5
