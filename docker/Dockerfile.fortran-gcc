@@ -44,6 +44,6 @@ RUN cd musica/fortran/test/fetch_content_integration \
         -D CMAKE_BUILD_TYPE=Debug \
     && make
 
-RUN cp -r /musica/configs/chapman musica/fortran/test/fetch_content_integration/build
+RUN cp -r /musica/configs musica/fortran/test/fetch_content_integration/build
 
 WORKDIR musica/fortran/test/fetch_content_integration/build

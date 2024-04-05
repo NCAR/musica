@@ -40,7 +40,7 @@ target_link_libraries(musica-fortran
 )
 
 target_sources(musica-fortran
-  PUBLIC
+  PRIVATE
     micm_core.F90
 )
 
