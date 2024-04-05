@@ -122,7 +122,7 @@ class CMakeBuild(build_ext):
 
 setup(
     name="ACOM-MUSICA",
-    version="0.1.0.dev2",
+    version="0.1.0.dev4",
     author="NCAR ACOM",
     author_email="musica-support@ucar.edu",
     description="Chemistry interface with python",
