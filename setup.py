@@ -121,12 +121,14 @@ class CMakeBuild(build_ext):
         )
 
 setup(
-    name="musica",
-    version="0.1.0",
+    name="ACOM-MUSICA",
+    version="0.1.0.dev1",
     author="NCAR ACOM",
     author_email="musica-support@ucar.edu",
     description="Chemistry interface with python",
+    long_description="",
     ext_modules=[CMakeExtension("musica")],
     cmdclass={"build_ext": CMakeBuild},
     zip_safe=False,
+    python_requires='>=3.6',
 )

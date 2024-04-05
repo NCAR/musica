@@ -1,0 +1,8 @@
+Metadata-Version: 2.1
+Name: ACOM-MUSICA
+Version: 0.1.0.dev1
+Summary: Chemistry interface with python
+Author: NCAR ACOM
+Author-email: musica-support@ucar.edu
+Requires-Python: >=3.6
+License-File: LICENSE
