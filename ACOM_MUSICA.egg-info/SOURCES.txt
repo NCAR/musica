@@ -1,9 +1,0 @@
-LICENSE
-README.md
-pyproject.toml
-setup.py
-ACOM_MUSICA.egg-info/PKG-INFO
-ACOM_MUSICA.egg-info/SOURCES.txt
-ACOM_MUSICA.egg-info/dependency_links.txt
-ACOM_MUSICA.egg-info/not-zip-safe
-ACOM_MUSICA.egg-info/top_level.txt
