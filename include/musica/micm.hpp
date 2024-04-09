@@ -63,11 +63,9 @@ public:
     /// @param species_name Name of the species
     /// @param property_name Name of the property
     /// @return Value of the property
-    std::string get_species_property_string(const std::string &species_name, const std::string &property_name);
-    double get_species_property_double(const std::string &species_name, const std::string &property_name);
-    int get_species_property_int(const std::string &species_name, const std::string &property_name);
-    bool get_species_property_bool(const std::string &species_name, const std::string &property_name);
-
+    template<class T>
+    T get_species_property(const std::string &species_name, const std::string &property_name);
+    
     /// @brief Get the ordering of species
     /// @return Map of species names to their indices
     std::map<std::string, size_t> get_species_ordering();
@@ -82,3 +80,21 @@ private:
     std::unique_ptr<micm::RosenbrockSolver<>> solver_;
     std::unique_ptr<micm::SolverParameters> solver_parameters_;
 };
+
+template<class T>
+inline T MICM::get_species_property(const std::string &species_name, const std::string &property_name)
+{
+    for (const auto &species : solver_parameters_->system_.gas_phase_.species_)
+    {
+        if (species.name_ == species_name)
+        {
+            try {
+                return species.GetProperty<T>(property_name);
+            }
+            catch (const std::exception &e) {
+                throw std::runtime_error(std::string(e.what()) + " for species '" + species_name + "'");
+            }
+        }
+    }
+   throw std::runtime_error("Species '" + species_name + "' not found");
+}
