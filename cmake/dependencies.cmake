@@ -1,9 +1,9 @@
-find_package(PkgConfig REQUIRED)
 include(FetchContent)
 
 ################################################################################
 # NetCDF library
 if (MUSICA_BUILD_FORTRAN_INTERFACE)
+  find_package(PkgConfig REQUIRED)
   pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
 endif()
 
