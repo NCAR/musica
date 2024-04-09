@@ -1,8 +1,12 @@
 program test_micm_fort_api
   use iso_c_binding
   use micm_core, only: micm_t, mapping_t
+  use musica_util, only: assert
 
   implicit none
+
+#define ASSERT( expr ) call assert( expr, __FILE__, __LINE__ )
+#define ASSERT_EQ( a, b ) call assert( a == b, __FILE__, __LINE__ )
 
   type(micm_t), pointer         :: micm
   real(c_double)                :: time_step
@@ -13,7 +17,11 @@ program test_micm_fort_api
   real(c_double), dimension(3)  :: user_defined_reaction_rates 
   integer                       :: errcode, i
   character(len=256)            :: config_path
-  type(mapping_t)                 :: the_mapping
+  type(mapping_t)               :: the_mapping
+  character(len=:), allocatable :: string_value
+  real(c_double)                :: double_value
+  integer(c_int)                :: int_value
+  logical(c_bool)               :: bool_value
 
   time_step = 200
   temperature = 272.5
@@ -49,6 +57,15 @@ program test_micm_fort_api
                   num_user_defined_reaction_rates, user_defined_reaction_rates)
 
   write(*,*) "[test micm fort api] After solving, concentrations", concentrations
+
+  string_value = micm%get_species_property_string( "O3", "__long name" )
+  ASSERT_EQ( string_value, "Ozone" )
+  double_value = micm%get_species_property_double( "O3", "molecular weight [kg mol-1]" )
+  ASSERT_EQ( double_value, 0.048 )
+  int_value = micm%get_species_property_int( "O3", "__atoms" )
+  ASSERT_EQ( int_value, 3 )
+  bool_value = micm%get_species_property_bool( "O3", "__do advect" )
+  ASSERT( bool_value )
 
   write(*,*) "[test micm fort api] Finished."
 

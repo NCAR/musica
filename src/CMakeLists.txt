@@ -31,6 +31,11 @@ if(MUSICA_ENABLE_OPENMP)
   list(APPEND MUSICA_COMPILE_DEFINITIONS -DMUSICA_USE_OPENMP)
 endif()
 
+target_sources(musica
+  PRIVATE
+    util.cpp
+)
+
 target_compile_definitions(musica PRIVATE ${MUSICA_COMPILE_DEFINITIONS})
 
 set_target_properties(musica PROPERTIES

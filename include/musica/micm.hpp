@@ -14,14 +14,9 @@
 #include <string>
 #include <vector>
 
-class MICM;
+#include <musica/util.hpp>
 
-struct Mapping
-{
-    char name[256];
-    size_t index;
-    size_t string_length;
-};
+class MICM;
 
 #ifdef __cplusplus
 extern "C"

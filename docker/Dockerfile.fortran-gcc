@@ -15,7 +15,7 @@ RUN dnf -y update \
     netcdf-fortran-devel \
     m4 \
     make \
-    json-c-devel \
+    json-devel \
     valgrind \ 
     vim \
     zlib-devel \
@@ -35,6 +35,8 @@ RUN cd musica \
     && cmake -S . \
              -B build \
              -D CMAKE_BUILD_TYPE=Debug \
+             -D MUSICA_ENABLE_FORTRAN=ON \
+             -D MUSICA_ENABLE_MICM=ON \
     && cd build \
     && make install
 
