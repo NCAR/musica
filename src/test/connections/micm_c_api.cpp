@@ -49,3 +49,25 @@ TEST_F(MicmCApiTest, SolveMicmInstance) {
     ASSERT_NE(concentrations[3], 0.01);
     ASSERT_NE(concentrations[4], 0.02);
 }
+
+// Test case for getting species properties
+TEST_F(MicmCApiTest, GetSpeciesProperty) {
+    ASSERT_STREQ(get_species_property_string(micm, "O3", "__long name"), "ozone");
+    ASSERT_EQ(get_species_property_double(micm, "O3", "molecular weight [kg mol-1]"), 0.048);
+    ASSERT_TRUE(get_species_property_bool(micm, "O3", "__do advect"));
+    ASSERT_EQ(get_species_property_int(micm, "O3", "__atoms"), 3);
+    ASSERT_THROW({
+        try {
+            get_species_property_bool(micm, "bad species", "__is gas");
+        } catch (const std::runtime_error& e) {
+            ASSERT_STREQ(e.what(), "Species 'bad species' not found");
+            throw;
+        }}, std::runtime_error);
+    ASSERT_THROW({
+        try {
+            get_species_property_double(micm, "O3", "bad property");
+        } catch (const std::runtime_error& e) {
+            ASSERT_STREQ(e.what(), "Species property 'bad property' not found for species 'O3'");
+            throw;
+        }}, std::runtime_error);
+}

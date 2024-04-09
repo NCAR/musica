@@ -7,9 +7,10 @@
  */
 #include <filesystem>
 #include <iostream>
+#include <cmath>
 
-#include <micm/configure/solver_config.hpp>
 #include <micm/solver/rosenbrock_solver_parameters.hpp>
+#include <micm/system/species.hpp>
 #include <musica/micm.hpp>
 
 MICM *create_micm(const char *config_path, int *error_code)
@@ -79,6 +80,36 @@ Mapping *get_user_defined_reaction_rates_ordering(MICM *micm, size_t *array_size
     return reactionRates;
 }
 
+const char* get_species_property_string(MICM *micm, const char *species_name, const char *property_name)
+{
+    std::string species_name_str(species_name);
+    std::string property_name_str(property_name);
+    const std::string value_str = micm->get_species_property_string(species_name_str, property_name_str);
+
+    return value_str.c_str();
+}
+
+double get_species_property_double(MICM *micm, const char *species_name, const char *property_name)
+{
+    std::string species_name_str(species_name);
+    std::string property_name_str(property_name);
+    return micm->get_species_property_double(species_name_str, property_name_str);
+}
+
+int get_species_property_int(MICM *micm, const char *species_name, const char *property_name)
+{
+    std::string species_name_str(species_name);
+    std::string property_name_str(property_name);
+    return micm->get_species_property_int(species_name_str, property_name_str);
+}
+
+bool get_species_property_bool(MICM *micm, const char *species_name, const char *property_name)
+{
+    std::string species_name_str(species_name);
+    std::string property_name_str(property_name);
+    return micm->get_species_property_bool(species_name_str, property_name_str);
+}
+
 int MICM::create_solver(const std::string &config_path)
 {
     int parsing_status = 0; // 0 on success, 1 on failure
@@ -88,11 +119,11 @@ int MICM::create_solver(const std::string &config_path)
 
         if (status == micm::ConfigParseStatus::Success)
         {
-            micm::SolverParameters solver_params = solver_config.GetSolverParams();
+            solver_parameters_ = std::make_unique<micm::SolverParameters>(solver_config.GetSolverParams());
             auto params = micm::RosenbrockSolverParameters::three_stage_rosenbrock_parameters(NUM_GRID_CELLS);
             params.ignore_unused_species_ = true;
-            solver_ = std::make_unique<micm::RosenbrockSolver<>>(solver_params.system_,
-                                                                solver_params.processes_,
+            solver_ = std::make_unique<micm::RosenbrockSolver<>>(solver_parameters_->system_,
+                                                                solver_parameters_->processes_,
                                                                 params);
         }
         else
@@ -130,6 +161,74 @@ void MICM::solve(double time_step, double temperature, double pressure, int num_
     {
         concentrations[i] = result.result_.AsVector()[i];
     }
+}
+
+std::string MICM::get_species_property_string(const std::string &species_name, const std::string &property_name)
+{
+    for (const auto &species : solver_parameters_->system_.gas_phase_.species_)
+    {
+        if (species.name_ == species_name)
+        {
+            try {
+                return species.GetProperty<std::string>(property_name);
+            }
+            catch (const std::exception &e) {
+                throw std::runtime_error(std::string(e.what()) + " for species '" + species_name + "'");
+            }
+        }
+    }
+   throw std::runtime_error("Species '" + species_name + "' not found");
+}
+
+double MICM::get_species_property_double(const std::string &species_name, const std::string &property_name)
+{
+    for (const auto &species : solver_parameters_->system_.gas_phase_.species_)
+    {
+        if (species.name_ == species_name)
+        {
+            try {
+                return species.GetProperty<double>(property_name);
+            }
+            catch (const std::exception &e) {
+                throw std::runtime_error(std::string(e.what()) + " for species '" + species_name + "'");
+            }
+        }
+    }
+   throw std::runtime_error("Species '" + species_name + "' not found");
+}
+
+int MICM::get_species_property_int(const std::string &species_name, const std::string &property_name)
+{
+    for (const auto &species : solver_parameters_->system_.gas_phase_.species_)
+    {
+        if (species.name_ == species_name)
+        {
+            try {
+                return species.GetProperty<int>(property_name);
+            }
+            catch (const std::exception &e) {
+                throw std::runtime_error(std::string(e.what()) + " for species '" + species_name + "'");
+            }
+        }
+    }
+   throw std::runtime_error("Species '" + species_name + "' not found");
+}
+
+bool MICM::get_species_property_bool(const std::string &species_name, const std::string &property_name)
+{
+    for (const auto &species : solver_parameters_->system_.gas_phase_.species_)
+    {
+        if (species.name_ == species_name)
+        {
+            try {
+                return species.GetProperty<bool>(property_name);
+            }
+            catch (const std::exception &e) {
+                throw std::runtime_error(std::string(e.what()) + " for species '" + species_name + "'");
+            }
+        }
+    }
+   throw std::runtime_error("Species '" + species_name + "' not found");
 }
 
 std::map<std::string, size_t> MICM::get_species_ordering()

@@ -7,6 +7,7 @@
  */
 #pragma once
 
+#include <micm/configure/solver_config.hpp>
 #include <micm/solver/rosenbrock.hpp>
 
 #include <memory>
@@ -32,6 +33,10 @@ extern "C"
     void micm_solve(MICM *micm, double time_step, double temperature, double pressure, int num_concentrations, double *concentrations, int num_custom_rate_parameters, double *custom_rate_parameters);
     Mapping *get_species_ordering(MICM *micm, size_t *array_size);
     Mapping *get_user_defined_reaction_rates_ordering(MICM *micm, size_t *array_size);
+    const char* get_species_property_string(MICM *micm, const char *species_name, const char *property_name);
+    double get_species_property_double(MICM *micm, const char *species_name, const char *property_name);
+    int get_species_property_int(MICM *micm, const char *species_name, const char *property_name);
+    bool get_species_property_bool(MICM *micm, const char *species_name, const char *property_name);
 
 #ifdef __cplusplus
 }
@@ -54,11 +59,26 @@ public:
     /// @param concentrations Species's concentrations
     void solve(double time_step, double temperature, double pressure, int num_concentrations, double *concentrations, int num_custom_rate_parameters, double *custom_rate_parameters);
 
+    /// @brief Get a property for a chemical species
+    /// @param species_name Name of the species
+    /// @param property_name Name of the property
+    /// @return Value of the property
+    std::string get_species_property_string(const std::string &species_name, const std::string &property_name);
+    double get_species_property_double(const std::string &species_name, const std::string &property_name);
+    int get_species_property_int(const std::string &species_name, const std::string &property_name);
+    bool get_species_property_bool(const std::string &species_name, const std::string &property_name);
+
+    /// @brief Get the ordering of species
+    /// @return Map of species names to their indices
     std::map<std::string, size_t> get_species_ordering();
+
+    /// @brief Get the ordering of user-defined reaction rates
+    /// @return Map of reaction rate names to their indices
     std::map<std::string, size_t> get_user_defined_reaction_rates_ordering();
 
     static constexpr size_t NUM_GRID_CELLS = 1;
 
 private:
     std::unique_ptr<micm::RosenbrockSolver<>> solver_;
+    std::unique_ptr<micm::SolverParameters> solver_parameters_;
 };
