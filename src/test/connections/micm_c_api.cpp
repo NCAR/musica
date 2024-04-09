@@ -52,7 +52,10 @@ TEST_F(MicmCApiTest, SolveMicmInstance) {
 
 // Test case for getting species properties
 TEST_F(MicmCApiTest, GetSpeciesProperty) {
-    ASSERT_STREQ(get_species_property_string(micm, "O3", "__long name"), "ozone");
+    String string_value;
+    string_value = get_species_property_string(micm, "O3", "__long name");
+    ASSERT_STREQ(string_value.value_, "ozone");
+    DeleteString(string_value);
     ASSERT_EQ(get_species_property_double(micm, "O3", "molecular weight [kg mol-1]"), 0.048);
     ASSERT_TRUE(get_species_property_bool(micm, "O3", "__do advect"));
     ASSERT_EQ(get_species_property_int(micm, "O3", "__atoms"), 3);

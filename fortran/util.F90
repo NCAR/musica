@@ -17,17 +17,6 @@ module musica_util
 
 contains
 
-interface
-
-  !> Create an instance of string_t_c from a c string
-  function to_string_t_c( c_string ), bind(c, name='ToConstString')
-    import :: string_t_c
-    type(c_ptr), value, intent(in) :: c_string
-    type(string_t_c) :: to_string_t_c
-  end function to_string_t_c
-
-end interface
-
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   !> Convert a c string to a fortran character array
@@ -35,17 +24,15 @@ end interface
 
     use iso_c_binding,                 only : c_char, c_ptr
 
-    type(c_ptr), value, intent(in) :: c_string
+    type(string_t_c), value, intent(in) :: c_string
     character(len=:), allocatable  :: f_string
 
     integer :: i
-    type(string_t_c) :: string
     character(len=1, kind=c_char), pointer :: c_char_array(:)
 
-    string = to_string_t_c( c_string )
-    call c_f_pointer( string%ptr_, c_char_array, [ string%size_ + 1 ] )
-    allocate( character( len = string%size_ ) :: f_string )
-    do i = 1, string%size_
+    call c_f_pointer( c_string%ptr_, c_char_array, [ c_string%size_ + 1 ] )
+    allocate( character( len = c_string%size_ ) :: f_string )
+    do i = 1, c_string%size_
       f_string(i:i) = c_char_array(i)
     end do
 

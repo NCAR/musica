@@ -28,7 +28,7 @@ extern "C"
     void micm_solve(MICM *micm, double time_step, double temperature, double pressure, int num_concentrations, double *concentrations, int num_custom_rate_parameters, double *custom_rate_parameters);
     Mapping *get_species_ordering(MICM *micm, size_t *array_size);
     Mapping *get_user_defined_reaction_rates_ordering(MICM *micm, size_t *array_size);
-    const char* get_species_property_string(MICM *micm, const char *species_name, const char *property_name);
+    String get_species_property_string(MICM *micm, const char *species_name, const char *property_name);
     double get_species_property_double(MICM *micm, const char *species_name, const char *property_name);
     int get_species_property_int(MICM *micm, const char *species_name, const char *property_name);
     bool get_species_property_bool(MICM *micm, const char *species_name, const char *property_name);

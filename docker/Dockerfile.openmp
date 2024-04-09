@@ -39,6 +39,7 @@ RUN cd musica \
              -D ENABLE_OPENMP:BOOL=TRUE \
              -D ENABLE_TESTS=ON \
              -D CMAKE_Fortran_COMPILER=/usr/lib64/openmpi/bin/mpif90 \
+             -D CMAKE_C_COMPILER=/usr/lib64/openmpi/bin/mpicc \
              -D CMAKE_CXX_COMPILER=/usr/lib64/openmpi/bin/mpic++ \
     && cd build \
     && make VERBOSE=1 \

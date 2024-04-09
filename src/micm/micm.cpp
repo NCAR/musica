@@ -80,13 +80,17 @@ Mapping *get_user_defined_reaction_rates_ordering(MICM *micm, size_t *array_size
     return reactionRates;
 }
 
-const char* get_species_property_string(MICM *micm, const char *species_name, const char *property_name)
+String get_species_property_string(MICM *micm, const char *species_name, const char *property_name)
 {
     std::string species_name_str(species_name);
     std::string property_name_str(property_name);
     const std::string value_str = micm->get_species_property<std::string>(species_name_str, property_name_str);
+    String value;
+    value.size_ = value_str.length();
+    value.value_ = new char[value.size_ + 1];
+    std::strcpy(value.value_, value_str.c_str());
 
-    return value_str.c_str();
+    return value;
 }
 
 double get_species_property_double(MICM *micm, const char *species_name, const char *property_name)

@@ -39,10 +39,11 @@ module micm_core
       end subroutine micm_solve_c
 
       function get_species_property_string_c(micm, species_name, property_name) bind(c, name="get_species_property_string")
+         use musica_util, only: string_t_c
          import :: c_ptr, c_char
          type(c_ptr), value :: micm
          character(kind=c_char), intent(in) :: species_name(*), property_name(*)
-         type(c_ptr) :: get_species_property_string_c
+         type(string_t_c) :: get_species_property_string_c
       end function get_species_property_string_c
 
       function get_species_property_double_c(micm, species_name, property_name) bind(c, name="get_species_property_double")
@@ -151,7 +152,6 @@ contains
       class(micm_t)                 :: this
       character(len=*), intent(in)  :: species_name, property_name
       character(len=:), allocatable :: value
-      type(c_ptr)                   :: c_value
       value = to_f_string(get_species_property_string_c(this%ptr, species_name, property_name))
    end function get_species_property_string
 

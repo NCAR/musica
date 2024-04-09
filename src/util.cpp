@@ -15,3 +15,8 @@ ConstString ToConstString(const char* value)
     ConstString str(value, std::strlen(value));
     return str;
 }
+
+void DeleteString(String str)
+{
+    delete[] str.value_;
+}
