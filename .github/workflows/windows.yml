@@ -29,6 +29,9 @@ jobs:
       - uses: actions/setup-python@v5
       - run: pip install -r python/requirements.txt
 
+      - name: Check for pkg-config
+        run: pkg-config --version ; which pkg-config ; echo $PKG_CONFIG_EXECUTABLE
+
       - name: Run Cmake 
         run: cmake -S . -B build -G "MinGW Makefiles"  -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
 
