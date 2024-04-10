@@ -6,13 +6,9 @@
 
 String ToString(char* value)
 {
-    String str(value, std::strlen(value));
-    return str;
-}
-
-ConstString ToConstString(const char* value)
-{
-    ConstString str(value, std::strlen(value));
+    String str;
+    str.value_ = value;
+    str.size_ = std::strlen(value);
     return str;
 }
 

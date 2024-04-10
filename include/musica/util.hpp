@@ -9,13 +9,6 @@ extern "C"
 {
 #endif
 
-/// @brief A struct to represent a constant string
-struct ConstString
-{
-  const char* value_;
-  const size_t size_;
-};
-
 /// @brief A struct to represent a string
 struct String
 {
@@ -35,11 +28,6 @@ struct Mapping
 /// @param value The char* to cast
 /// @return The casted String
 String ToString(char* value);
-
-/// @brief Casts a const char* to a ConstString
-/// @param value The const char* to cast
-/// @return The casted ConstString
-ConstString ToConstString(const char* value);
 
 /// @brief Deletes a String
 /// @param str The String to delete
