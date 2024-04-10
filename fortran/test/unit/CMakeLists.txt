@@ -1,7 +1,5 @@
 include(test_util)
 
-create_standard_test_fortran(NAME musica_fortran_interface SOURCES test_musica_fortran_interface.F90)
-
 if (MUSICA_ENABLE_TUVX)
   create_standard_test_fortran(NAME connect_to_tuvx SOURCES tuvx.F90)
   if (MUSICA_ENABLE_OPENMP)

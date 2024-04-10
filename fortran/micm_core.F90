@@ -1,6 +1,6 @@
 module micm_core
 
-   use iso_c_binding, only: c_ptr, c_char, c_int, c_double, c_null_char, c_size_t, c_f_pointer
+   use iso_c_binding, only: c_ptr, c_char, c_int, c_bool, c_double, c_null_char, c_size_t, c_f_pointer
    implicit none
 
    public :: micm_t, mapping_t
@@ -47,7 +47,7 @@ module micm_core
       end function get_species_property_string_c
 
       function get_species_property_double_c(micm, species_name, property_name) bind(c, name="get_species_property_double")
-         import :: c_ptr, c_char
+         import :: c_ptr, c_char, c_double
          type(c_ptr), value :: micm
          character(kind=c_char), intent(in) :: species_name(*), property_name(*)
          real(kind=c_double) :: get_species_property_double_c
@@ -61,10 +61,10 @@ module micm_core
       end function get_species_property_int_c
 
       function get_species_property_bool_c(micm, species_name, property_name) bind(c, name="get_species_property_bool")
-         import :: c_ptr, c_char, c_logical
+         import :: c_ptr, c_char, c_bool
          type(c_ptr), value :: micm
          character(kind=c_char), intent(in) :: species_name(*), property_name(*)
-         logical(kind=c_logical) :: get_species_property_bool_c
+         logical(kind=c_bool) :: get_species_property_bool_c
       end function get_species_property_bool_c      
 
       function get_species_ordering(micm, array_size) bind(c, name="get_species_ordering")
@@ -149,6 +149,7 @@ contains
    end subroutine solve
 
    function get_species_property_string(this, species_name, property_name) result(value)
+      use musica_util,                 only: to_f_string
       class(micm_t)                 :: this
       character(len=*), intent(in)  :: species_name, property_name
       character(len=:), allocatable :: value

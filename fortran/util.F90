@@ -7,7 +7,7 @@ module musica_util
   implicit none
   private
 
-  public :: string_t_c, to_string_t_c, to_f_string, assert
+  public :: string_t_c, to_f_string, assert
 
   !> Wrapper for a c string
   type, bind(c) :: string_t_c
@@ -22,7 +22,7 @@ contains
   !> Convert a c string to a fortran character array
   function to_f_string( c_string ) result( f_string )
 
-    use iso_c_binding,                 only : c_char, c_ptr
+    use iso_c_binding,                 only : c_char, c_ptr, c_f_pointer
 
     type(string_t_c), value, intent(in) :: c_string
     character(len=:), allocatable  :: f_string
@@ -50,9 +50,10 @@ contains
 
     if ( .not. condition ) then
       if ( present( error_message ) ) then
-        write(*,*) "[MUSICA ERROR at ", file, ":" line, "] ", error_message
+        write(*,*) "[MUSICA ERROR at ", file, ":", line, "] ", error_message
       else
-      write(*,*) "[MUSICA ERROR at ", file, ":", line, "] Assertion failed"
+        write(*,*) "[MUSICA ERROR at ", file, ":", line, "] Assertion failed"
+      end if
       stop 3
     end if
 

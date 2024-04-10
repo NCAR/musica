@@ -59,13 +59,13 @@ program test_micm_fort_api
   write(*,*) "[test micm fort api] After solving, concentrations", concentrations
 
   string_value = micm%get_species_property_string( "O3", "__long name" )
-  ASSERT_EQ( string_value, "Ozone" )
+  ASSERT_EQ( string_value, "ozone" )
   double_value = micm%get_species_property_double( "O3", "molecular weight [kg mol-1]" )
-  ASSERT_EQ( double_value, 0.048 )
+  ASSERT_EQ( double_value, 0.048_c_double )
   int_value = micm%get_species_property_int( "O3", "__atoms" )
-  ASSERT_EQ( int_value, 3 )
+  ASSERT_EQ( int_value, 3_c_int )
   bool_value = micm%get_species_property_bool( "O3", "__do advect" )
-  ASSERT( bool_value )
+  ASSERT( logical( bool_value ) )
 
   write(*,*) "[test micm fort api] Finished."
 

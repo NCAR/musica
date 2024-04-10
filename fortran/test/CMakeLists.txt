@@ -1,1 +1,3 @@
+create_standard_test_fortran(NAME musica_fortran_interface SOURCES fetch_content_integration/test_micm_fort_api.F90)
+create_standard_test_fortran(NAME musica_fortran_interface_invalid SOURCES fetch_content_integration/test_micm_fort_api_invalid.F90)
 add_subdirectory(unit)

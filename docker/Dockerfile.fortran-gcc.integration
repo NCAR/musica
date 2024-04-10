@@ -31,14 +31,12 @@ ENV FFLAGS="-I/usr/include/"
 COPY . musica
 
 # Build and install MUSICA
-RUN cd musica \
-    && cmake -S . \
-             -B build \
-             -D CMAKE_BUILD_TYPE=Release \
-             -D MUSICA_ENABLE_TESTS=ON \
-             -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
-             -D MUSICA_ENABLE_MICM=ON \
-    && cd build \
-    && make install
+RUN cd musica/fortran/test/fetch_content_integration \
+    && mkdir build && cd build \
+    && cmake .. \
+        -D CMAKE_BUILD_TYPE=Debug \
+    && make
 
-WORKDIR musica/build
+RUN cp -r /musica/configs musica/fortran/test/fetch_content_integration/build
+
+WORKDIR musica/fortran/test/fetch_content_integration/build
