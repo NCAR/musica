@@ -71,6 +71,11 @@ elseif(${CMAKE_Fortran_COMPILER_ID} MATCHES "PGI")
   add_definitions(-DMUSICA_USING_PGI)
 endif()
 
+# Add flags when using the ClangCL toolset
+if(CMAKE_GENERATOR_TOOLSET STREQUAL "ClangCL")
+  add_definitions(-DMUSICA_USING_CLANGCL)
+endif()
+
 if(MUSICA_BUILD_C_CXX_INTERFACE)
   # on ubuntu with clang, an incorrect version of the c++ standard library was being linked
   if (${CMAKE_HOST_SYSTEM_NAME} MATCHES "Linux" AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")

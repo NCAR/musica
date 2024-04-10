@@ -29,9 +29,6 @@ jobs:
       - uses: actions/setup-python@v5
       - run: pip install -r python/requirements.txt
 
-      - name: Check for pkg-config
-        run: pkg-config --version ; which pkg-config ; echo $PKG_CONFIG_EXECUTABLE
-
       - name: Run Cmake 
         run: cmake -S . -B build -G "MinGW Makefiles"  -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
 
@@ -142,7 +139,7 @@ jobs:
       - run: pip install -r python/requirements.txt
 
       - name: Run CMake
-        run: cmake -S . -B build -G "Visual Studio 16 2019" -A ${{ matrix.architecture }} -T ClangCL  -D CMAKE_BUILD_TYPE=Debug -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
+        run: cmake -S . -B build -G "Visual Studio 16 2019" -A ${{ matrix.architecture }} -T ClangCL -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
 
       - name: Build
         run: cmake --build build --config Debug --parallel
