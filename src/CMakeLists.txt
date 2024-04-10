@@ -70,7 +70,7 @@ if(MUSICA_ENABLE_MICM)
       $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
   )
 
-  target_link_libraries(musica PRIVATE nlohmann_json::nlohmann_json)
+  target_link_libraries(musica PUBLIC nlohmann_json::nlohmann_json)
 
   add_subdirectory(micm)
 endif()
