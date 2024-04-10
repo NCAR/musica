@@ -84,6 +84,6 @@ endif()
 
 ################################################################################
 # Packaging
-if(MUSICA_ENABLE_INSTALL)
+if(MUSICA_ENABLE_INSTALL AND NOT MUSICA_ENABLE_PYTHON_LIBRARY)
   add_subdirectory(packaging)
 endif()

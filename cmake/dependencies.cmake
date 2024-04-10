@@ -1,9 +1,9 @@
-find_package(PkgConfig REQUIRED)
 include(FetchContent)
 
 ################################################################################
 # NetCDF library
 if (MUSICA_BUILD_FORTRAN_INTERFACE)
+  find_package(PkgConfig REQUIRED)
   pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
 endif()
 
@@ -53,5 +53,6 @@ endif()
 ################################################################################
 # pybind11
 if(MUSICA_ENABLE_PYTHON_LIBRARY)
-    add_subdirectory(${CMAKE_SOURCE_DIR}/lib/pybind11)
+  set(PYBIND11_NEWPYTHON ON)
+  add_subdirectory(${CMAKE_SOURCE_DIR}/lib/pybind11)
 endif()
