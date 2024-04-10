@@ -142,7 +142,7 @@ jobs:
       - run: pip install -r python/requirements.txt
 
       - name: Run CMake
-        run: cmake -S . -B build -G "Visual Studio 16 2019" -A ${{ matrix.architecture }} -T ClangCL  -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
+        run: cmake -S . -B build -G "Visual Studio 16 2019" -A ${{ matrix.architecture }} -T ClangCL  -D CMAKE_BUILD_TYPE=Debug -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
 
       - name: Build
         run: cmake --build build --config Debug --parallel
