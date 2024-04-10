@@ -1,0 +1,17 @@
+[build-system]
+requires = ["scikit-build-core", "pybind11"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "musica"
+readme = "README.md"
+version = "0.6.1"
+description = "MUSICA is a Python library for performing computational simulations in atmospheric chemistry."
+long_description = "MUSICA (Multiscale Interface for Chemistry and Aerosols) is a powerful tool for modeling atmospheric chemistry processes. It provides a flexible interface for running simulations and analyzing results."
+long_description_content_type = "text/plain"
+
+[tool.scikit-build]
+cmake.args = ["-DMUSICA_ENABLE_PYTHON_LIBRARY=ON"]
+
+[project.urls]
+homepage = "https://wiki.ucar.edu/display/MUSICA/MUSICA+Home"
