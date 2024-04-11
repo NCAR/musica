@@ -7,7 +7,7 @@ module musica_util
   implicit none
   private
 
-  public :: string_t_c, to_f_string, assert
+  public :: string_t_c, to_c_string, to_f_string, assert
 
   !> Wrapper for a c string
   type, bind(c) :: string_t_c
@@ -16,6 +16,27 @@ module musica_util
   end type string_t_c
 
 contains
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  !> Convert a fortran character array to a c string
+  function to_c_string( f_string ) result( c_string )
+
+    use iso_c_binding,                 only : c_char, c_null_char
+
+    character(len=*), intent(in) :: f_string
+    character(len=1, kind=c_char), allocatable :: c_string(:)
+
+    integer :: N, i
+
+    N = len_trim( f_string )
+    allocate( c_string( N + 1 ) )
+    do i = 1, N
+      c_string(i) = f_string(i:i)
+    end do
+    c_string(N + 1) = c_null_char
+
+  end function to_c_string
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

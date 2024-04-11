@@ -149,32 +149,39 @@ contains
    end subroutine solve
 
    function get_species_property_string(this, species_name, property_name) result(value)
-      use musica_util,                 only: to_f_string
+      use musica_util,                 only: to_f_string, to_c_string
       class(micm_t)                 :: this
       character(len=*), intent(in)  :: species_name, property_name
       character(len=:), allocatable :: value
-      value = to_f_string(get_species_property_string_c(this%ptr, species_name, property_name))
+      value = to_f_string(get_species_property_string_c(this%ptr,  &
+                to_c_string(species_name), to_c_string(property_name)))
    end function get_species_property_string
 
    function get_species_property_double(this, species_name, property_name) result(value)
+      use musica_util,                 only: to_c_string
       class(micm_t)                 :: this
       character(len=*), intent(in)  :: species_name, property_name
       real(c_double)                :: value
-      value = get_species_property_double_c(this%ptr, species_name, property_name)
+      value = get_species_property_double_c(this%ptr, &
+                to_c_string(species_name), to_c_string(property_name))
    end function get_species_property_double
 
    function get_species_property_int(this, species_name, property_name) result(value)
+      use musica_util,                 only: to_c_string
       class(micm_t)                 :: this
       character(len=*), intent(in)  :: species_name, property_name
       integer(c_int)                :: value
-      value = get_species_property_int_c(this%ptr, species_name, property_name)
+      value = get_species_property_int_c(this%ptr, &
+                to_c_string(species_name), to_c_string(property_name))
    end function get_species_property_int
 
    function get_species_property_bool(this, species_name, property_name) result(value)
+      use musica_util,                 only: to_c_string
       class(micm_t)                 :: this
       character(len=*), intent(in)  :: species_name, property_name
       logical                      :: value
-      value = get_species_property_bool_c(this%ptr, species_name, property_name)
+      value = get_species_property_bool_c(this%ptr, &
+                to_c_string(species_name), to_c_string(property_name))
    end function get_species_property_bool
 
    subroutine finalize(this)
