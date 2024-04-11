@@ -45,6 +45,11 @@ target_sources(musica-fortran
     util.F90
 )
 
+# Add flags for gfortran
+if(${CMAKE_Fortran_COMPILER_ID} MATCHES "GNU")
+  add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-ffree-line-length-none>)
+endif()
+
 ####################
 # TUV-x
 if (MUSICA_ENABLE_TUVX)
