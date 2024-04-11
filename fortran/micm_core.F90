@@ -42,28 +42,28 @@ module micm_core
          use musica_util, only: string_t_c
          import :: c_ptr, c_char
          type(c_ptr), value :: micm
-         character(kind=c_char), intent(in) :: species_name(*), property_name(*)
+         character(len=1, kind=c_char), intent(in) :: species_name(*), property_name(*)
          type(string_t_c) :: get_species_property_string_c
       end function get_species_property_string_c
 
       function get_species_property_double_c(micm, species_name, property_name) bind(c, name="get_species_property_double")
          import :: c_ptr, c_char, c_double
          type(c_ptr), value :: micm
-         character(kind=c_char), intent(in) :: species_name(*), property_name(*)
+         character(len=1, kind=c_char), intent(in) :: species_name(*), property_name(*)
          real(kind=c_double) :: get_species_property_double_c
       end function get_species_property_double_c
 
       function get_species_property_int_c(micm, species_name, property_name) bind(c, name="get_species_property_int")
          import :: c_ptr, c_char, c_int
          type(c_ptr), value :: micm
-         character(kind=c_char), intent(in) :: species_name(*), property_name(*)
+         character(len=1, kind=c_char), intent(in) :: species_name(*), property_name(*)
          integer(kind=c_int) :: get_species_property_int_c
       end function get_species_property_int_c
 
       function get_species_property_bool_c(micm, species_name, property_name) bind(c, name="get_species_property_bool")
          import :: c_ptr, c_char, c_bool
          type(c_ptr), value :: micm
-         character(kind=c_char), intent(in) :: species_name(*), property_name(*)
+         character(len=1, kind=c_char), intent(in) :: species_name(*), property_name(*)
          logical(kind=c_bool) :: get_species_property_bool_c
       end function get_species_property_bool_c      
 
