@@ -23,7 +23,11 @@
         {
             "name": "O3",
             "type": "CHEM_SPEC",
-            "absolute tolerance": 1e-12
+            "absolute tolerance": 1e-12,
+            "molecular weight [kg mol-1]" : 0.048,
+            "__long name": "ozone",
+            "__atoms": 3,
+            "__do advect": true
         }
     ]
 }

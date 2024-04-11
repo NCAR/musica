@@ -7,9 +7,10 @@
  */
 #include <filesystem>
 #include <iostream>
+#include <cmath>
 
-#include <micm/configure/solver_config.hpp>
 #include <micm/solver/rosenbrock_solver_parameters.hpp>
+#include <micm/system/species.hpp>
 #include <musica/micm.hpp>
 
 MICM *create_micm(const char *config_path, int *error_code)
@@ -79,6 +80,40 @@ Mapping *get_user_defined_reaction_rates_ordering(MICM *micm, size_t *array_size
     return reactionRates;
 }
 
+String get_species_property_string(MICM *micm, const char *species_name, const char *property_name)
+{
+    std::string species_name_str(species_name);
+    std::string property_name_str(property_name);
+    const std::string value_str = micm->get_species_property<std::string>(species_name_str, property_name_str);
+    String value;
+    value.size_ = value_str.length();
+    value.value_ = new char[value.size_ + 1];
+    std::strcpy(value.value_, value_str.c_str());
+
+    return value;
+}
+
+double get_species_property_double(MICM *micm, const char *species_name, const char *property_name)
+{
+    std::string species_name_str(species_name);
+    std::string property_name_str(property_name);
+    return micm->get_species_property<double>(species_name_str, property_name_str);
+}
+
+int get_species_property_int(MICM *micm, const char *species_name, const char *property_name)
+{
+    std::string species_name_str(species_name);
+    std::string property_name_str(property_name);
+    return micm->get_species_property<int>(species_name_str, property_name_str);
+}
+
+bool get_species_property_bool(MICM *micm, const char *species_name, const char *property_name)
+{
+    std::string species_name_str(species_name);
+    std::string property_name_str(property_name);
+    return micm->get_species_property<bool>(species_name_str, property_name_str);
+}
+
 int MICM::create_solver(const std::string &config_path)
 {
     int parsing_status = 0; // 0 on success, 1 on failure
@@ -88,11 +123,11 @@ int MICM::create_solver(const std::string &config_path)
 
         if (status == micm::ConfigParseStatus::Success)
         {
-            micm::SolverParameters solver_params = solver_config.GetSolverParams();
+            solver_parameters_ = std::make_unique<micm::SolverParameters>(solver_config.GetSolverParams());
             auto params = micm::RosenbrockSolverParameters::three_stage_rosenbrock_parameters(NUM_GRID_CELLS);
             params.ignore_unused_species_ = true;
-            solver_ = std::make_unique<micm::RosenbrockSolver<>>(solver_params.system_,
-                                                                solver_params.processes_,
+            solver_ = std::make_unique<micm::RosenbrockSolver<>>(solver_parameters_->system_,
+                                                                solver_parameters_->processes_,
                                                                 params);
         }
         else

@@ -40,6 +40,8 @@ RUN cd musica \
              -D ENABLE_TESTS=ON \
              -D ENABLE_MPI=ON \
              -D CMAKE_Fortran_COMPILER=/usr/lib64/openmpi/bin/mpif90 \
+             -D CMAKE_C_COMPILER=/usr/lib64/openmpi/bin/mpicc \
+             -D CMAKE_CXX_COMPILER=/usr/lib64/openmpi/bin/mpicxx \
     && cd build \
     && make \
     && sudo make install -j 8 \ 

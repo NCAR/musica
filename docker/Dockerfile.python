@@ -4,25 +4,25 @@ RUN dnf -y update \
     && dnf -y install \
         cmake \
         gcc-c++ \
-        gdb \
         git \
-        lcov \
         make \
-        netcdf-fortran-devel \
-        json-devel \
-        valgrind \
+        python-devel \
+        pip \
     && dnf clean all
 
 # Copy the musica code
 COPY . musica
 
+# Install Python dependencies
+RUN pip install -r musica/python/requirements.txt
+
 # Build
 RUN cd musica \
     && cmake -S . \
              -B build \
-             -D CMAKE_BUILD_TYPE=Debug \
-             -D MUSICA_ENABLE_MEMCHECK=ON \
+             -D CMAKE_BUILD_TYPE=Release \
+             -D MUSICA_ENABLE_PYTHON_LIBRARY=ON \
     && cd build \
-    && make install -j 8 
+    && make install -j 8
 
 WORKDIR musica/build
