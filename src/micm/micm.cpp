@@ -14,17 +14,23 @@
 #include <musica/micm.hpp>
 
 MICM *create_micm(const char *config_path) {
+  MICM *micm = new MICM();
   try {
-    MICM *micm = new MICM();
     micm->create_solver(std::string(config_path));
     return micm;
   } catch (const std::exception &e) {
+    delete micm;
     Error(909039518, std::string("Error creating MICM solver: " + std::string(e.what())).c_str());
     return nullptr;
   }
 }
 
-void delete_micm(const MICM *micm) { delete micm; }
+void delete_micm(const MICM *micm)
+{
+    if (micm != nullptr) {
+        delete micm;
+    }
+}
 
 void micm_solve(MICM *micm, double time_step, double temperature,
                 double pressure, int num_concentrations, double *concentrations,

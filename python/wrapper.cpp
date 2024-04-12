@@ -15,8 +15,7 @@ PYBIND11_MODULE(musica, m)
 
     m.def("create_micm", [](const char *config_path)
           {
-        int error_code;
-        MICM* micm = create_micm(config_path, &error_code);
+        MICM* micm = create_micm(config_path);
         return micm; });
 
     m.def("delete_micm", &delete_micm);

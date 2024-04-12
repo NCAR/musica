@@ -1,6 +1,7 @@
 program test_micm_fort_api
-  use iso_c_binding
-  use micm_core, only: micm_t, mapping_t
+  use, intrinsic :: iso_c_binding
+  use, intrinsic :: ieee_arithmetic
+  use micm_core, only: micm_t, mapping_t, set_error_handler_c
   use musica_util, only: assert
 
   implicit none
@@ -15,7 +16,7 @@ program test_micm_fort_api
   integer(c_int)                :: num_concentrations, num_user_defined_reaction_rates
   real(c_double), dimension(5)  :: concentrations 
   real(c_double), dimension(3)  :: user_defined_reaction_rates 
-  integer                       :: errcode, i
+  integer                       :: i
   character(len=256)            :: config_path
   type(mapping_t)               :: the_mapping
   character(len=:), allocatable :: string_value
@@ -34,7 +35,7 @@ program test_micm_fort_api
 
 
   write(*,*) "[test micm fort api] Creating MICM solver..."
-  micm => micm_t(config_path, errcode)
+  micm => micm_t(config_path)
 
   do i = 1, micm%species_ordering_length
     the_mapping = micm%species_ordering(i)
@@ -44,11 +45,6 @@ program test_micm_fort_api
     the_mapping = micm%user_defined_reaction_rates(i)
     print *, "User Defined Reaction Rate Name:", the_mapping%name(:the_mapping%string_length), ", Index:", the_mapping%index
   end do
-
-  if (errcode /= 0) then
-    write(*,*) "[test micm fort api] Failed in creating solver."
-    stop 3
-  endif
 
   write(*,*) "[test micm fort api] Initial concentrations", concentrations
 
@@ -67,6 +63,60 @@ program test_micm_fort_api
   bool_value = micm%get_species_property_bool( "O3", "__do advect" )
   ASSERT( logical( bool_value ) )
 
+  call set_error_handler_c( c_funloc( missing_string_property_error_handler ) )
+  string_value = micm%get_species_property_string( "O3", "missing property" )
+  ASSERT( string_value == "" )
+  call set_error_handler_c( c_funloc( missing_double_property_error_handler ) )
+  double_value = micm%get_species_property_double( "O3", "missing property" )
+  ASSERT( isnan( double_value ) )
+  call set_error_handler_c( c_funloc( missing_int_property_error_handler ) )
+  int_value = micm%get_species_property_int( "O3", "missing property" )
+  ASSERT_EQ( int_value, 0_c_int )
+  call set_error_handler_c( c_funloc( missing_bool_property_error_handler ) )
+  bool_value = micm%get_species_property_bool( "O3", "missing property" )
+  ASSERT( .not. logical( bool_value ) )
+  deallocate( micm )
+  call set_error_handler_c( c_funloc( bad_configuration_error_handler ) )
+  micm => micm_t( "configs/invalid" )
+  ASSERT( .not. associated( micm ) )
+
   write(*,*) "[test micm fort api] Finished."
+
+contains
+
+  subroutine bad_configuration_error_handler( code, message ) bind(c)
+    use, intrinsic :: iso_c_binding
+    integer(c_int), value, intent(in) :: code
+    character(len=1, kind=c_char), intent(in) :: message(*)
+    ASSERT_EQ( code, 909039518_c_int )
+  end subroutine bad_configuration_error_handler
+
+  subroutine missing_string_property_error_handler( code, message ) bind(c)
+    use, intrinsic :: iso_c_binding
+    integer(c_int), value, intent(in) :: code
+    character(len=1, kind=c_char), intent(in) :: message(*)
+    ASSERT_EQ( code, 740788148_c_int )
+  end subroutine missing_string_property_error_handler
+
+  subroutine missing_double_property_error_handler( code, message ) bind(c)
+    use, intrinsic :: iso_c_binding
+    integer(c_int), value, intent(in) :: code
+    character(len=1, kind=c_char), intent(in) :: message(*)
+    ASSERT_EQ( code, 170573343_c_int )
+  end subroutine missing_double_property_error_handler
+
+  subroutine missing_int_property_error_handler( code, message ) bind(c)
+    use, intrinsic :: iso_c_binding
+    integer(c_int), value, intent(in) :: code
+    character(len=1, kind=c_char), intent(in) :: message(*)
+    ASSERT_EQ( code, 347900088_c_int )
+  end subroutine missing_int_property_error_handler
+
+  subroutine missing_bool_property_error_handler( code, message ) bind(c)
+    use, intrinsic :: iso_c_binding
+    integer(c_int), value, intent(in) :: code
+    character(len=1, kind=c_char), intent(in) :: message(*)
+    ASSERT_EQ( code, 509433912_c_int )
+  end subroutine missing_bool_property_error_handler
 
 end program

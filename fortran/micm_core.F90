@@ -1,9 +1,9 @@
 module micm_core
-
-   use iso_c_binding, only: c_ptr, c_char, c_int, c_bool, c_double, c_null_char, c_size_t, c_f_pointer
+   use iso_c_binding, only: c_ptr, c_char, c_int, c_bool, c_double, c_null_char, &
+                            c_size_t, c_f_pointer, c_funptr, c_null_ptr, c_associated
    implicit none
 
-   public :: micm_t, mapping_t
+   public :: micm_t, mapping_t, set_error_handler_c
    private
 
    type, bind(c) :: mapping_t
@@ -13,16 +13,20 @@ module micm_core
    end type mapping_t
 
    interface
-      function create_micm_c(config_path, error_code) bind(C, name="create_micm")
+      subroutine set_error_handler_c(handler) bind(C, name="SetErrorHandler")
+         import c_funptr
+         type(c_funptr), value :: handler
+      end subroutine set_error_handler_c
+
+      function create_micm_c(config_path) bind(C, name="create_micm")
          import c_ptr, c_int, c_char
          character(kind=c_char), intent(in) :: config_path(*)
-         integer(kind=c_int), intent(out)   :: error_code
          type(c_ptr)                        :: create_micm_c
       end function create_micm_c
 
       subroutine delete_micm_c(micm) bind(C, name="delete_micm")
          import c_ptr
-         type(c_ptr), intent(in) :: micm
+         type(c_ptr), value, intent(in) :: micm
       end subroutine delete_micm_c
 
       subroutine micm_solve_c(micm, time_step, temperature, pressure, num_concentrations, concentrations, &
@@ -41,35 +45,35 @@ module micm_core
       function get_species_property_string_c(micm, species_name, property_name) bind(c, name="get_species_property_string")
          use musica_util, only: string_t_c
          import :: c_ptr, c_char
-         type(c_ptr), value :: micm
+         type(c_ptr), value, intent(in) :: micm
          character(len=1, kind=c_char), intent(in) :: species_name(*), property_name(*)
          type(string_t_c) :: get_species_property_string_c
       end function get_species_property_string_c
 
       function get_species_property_double_c(micm, species_name, property_name) bind(c, name="get_species_property_double")
          import :: c_ptr, c_char, c_double
-         type(c_ptr), value :: micm
+         type(c_ptr), value, intent(in) :: micm
          character(len=1, kind=c_char), intent(in) :: species_name(*), property_name(*)
          real(kind=c_double) :: get_species_property_double_c
       end function get_species_property_double_c
 
       function get_species_property_int_c(micm, species_name, property_name) bind(c, name="get_species_property_int")
          import :: c_ptr, c_char, c_int
-         type(c_ptr), value :: micm
+         type(c_ptr), value, intent(in) :: micm
          character(len=1, kind=c_char), intent(in) :: species_name(*), property_name(*)
          integer(kind=c_int) :: get_species_property_int_c
       end function get_species_property_int_c
 
       function get_species_property_bool_c(micm, species_name, property_name) bind(c, name="get_species_property_bool")
          import :: c_ptr, c_char, c_bool
-         type(c_ptr), value :: micm
+         type(c_ptr), value, intent(in) :: micm
          character(len=1, kind=c_char), intent(in) :: species_name(*), property_name(*)
          logical(kind=c_bool) :: get_species_property_bool_c
       end function get_species_property_bool_c      
 
       function get_species_ordering(micm, array_size) bind(c, name="get_species_ordering")
          import :: c_ptr, c_size_t
-         type(c_ptr), value :: micm
+         type(c_ptr), value, intent(in) :: micm
          integer(kind=c_size_t), intent(out) :: array_size
          type(c_ptr)                         :: get_species_ordering
       end function get_species_ordering
@@ -77,15 +81,16 @@ module micm_core
       type(c_ptr) function get_user_defined_reaction_rates_ordering(micm, array_size) &
          bind(c, name="get_user_defined_reaction_rates_ordering")
          import :: c_ptr, c_size_t
-         type(c_ptr), value :: micm
+         type(c_ptr), value, intent(in) :: micm
          integer(kind=c_size_t), intent(out) :: array_size
       end function get_user_defined_reaction_rates_ordering
    end interface
 
    type :: micm_t
-      type(mapping_t), pointer   :: species_ordering(:), user_defined_reaction_rates(:)
+      type(mapping_t), pointer :: species_ordering(:) => null()
+      type(mapping_t), pointer :: user_defined_reaction_rates(:) => null()
       integer(kind=c_size_t) :: species_ordering_length, user_defined_reaction_rates_length
-      type(c_ptr), private   :: ptr
+      type(c_ptr), private   :: ptr = c_null_ptr
    contains
       ! Solve the chemical system
       procedure :: solve
@@ -104,10 +109,9 @@ module micm_core
 
 contains
 
-   function constructor(config_path, errcode)  result( this )
+   function constructor(config_path)  result( this )
       type(micm_t), pointer         :: this
       character(len=*), intent(in)  :: config_path
-      integer, intent(out)          :: errcode
       character(len=1, kind=c_char) :: c_config_path(len_trim(config_path)+1)
       integer                       :: n, i
       type(c_ptr) :: mappings_ptr
@@ -120,15 +124,15 @@ contains
       end do
       c_config_path(n+1) = c_null_char
 
-      this%ptr = create_micm_c(c_config_path, errcode)
-
-      if (errcode /= 0) then
+      this%ptr = create_micm_c(c_config_path)
+      if (.not. c_associated(this%ptr)) then
+         deallocate(this)
+         nullify(this)
          return
       end if
 
       mappings_ptr = get_species_ordering(this%ptr, this%species_ordering_length)
       call c_f_pointer(mappings_ptr, this%species_ordering, [this%species_ordering_length])
-
 
       mappings_ptr = get_user_defined_reaction_rates_ordering(this%ptr, this%user_defined_reaction_rates_length)
       call c_f_pointer(mappings_ptr, this%user_defined_reaction_rates, [this%user_defined_reaction_rates_length])
@@ -187,6 +191,7 @@ contains
    subroutine finalize(this)
       type(micm_t), intent(inout) :: this
       call delete_micm_c(this%ptr)
+      this%ptr = c_null_ptr
    end subroutine finalize
 
 end module micm_core
