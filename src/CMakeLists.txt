@@ -33,6 +33,7 @@ endif()
 
 target_sources(musica
   PRIVATE
+    error.cpp
     util.cpp
 )
 

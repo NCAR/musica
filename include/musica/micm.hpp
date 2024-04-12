@@ -1,10 +1,8 @@
-/**
- * This file contains the defintion of the MICM class, which represents a multi-component
- * reactive transport model. It also includes functions for creating and deleting MICM instances with c binding
- * Copyright (C) 2023-2024 National Center for Atmospheric Research,
- *
- * SPDX-License-Identifier: Apache-2.0* creating solvers, and solving the model.
- */
+// Copyright (C) 2023-2024 National Center for Atmospheric Research,
+// SPDX-License-Identifier: Apache-2.0* creating solvers, and solving the model.
+//
+// This file contains the defintion of the MICM class, which represents a multi-component
+// reactive transport model. It also includes functions for creating and deleting MICM instances with c bindings.
 #pragma once
 
 #include <micm/configure/solver_config.hpp>
@@ -23,7 +21,7 @@ extern "C"
 {
 #endif
 
-    MICM *create_micm(const char *config_path, int *error_code);
+    MICM *create_micm(const char *config_path);
     void delete_micm(const MICM *micm);
     void micm_solve(MICM *micm, double time_step, double temperature, double pressure, int num_concentrations, double *concentrations, int num_custom_rate_parameters, double *custom_rate_parameters);
     Mapping *get_species_ordering(MICM *micm, size_t *array_size);
@@ -43,7 +41,7 @@ public:
     /// @brief Create a solver by reading and parsing configuration file
     /// @param config_path Path to configuration file or directory containing configuration file
     /// @return 0 on success, 1 on failure in parsing configuration file
-    int create_solver(const std::string &config_path);
+    void create_solver(const std::string &config_path);
 
     /// @brief Solve the system
     /// @param time_step Time [s] to advance the state by
