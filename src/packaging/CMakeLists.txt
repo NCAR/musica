@@ -4,6 +4,7 @@ install(
   TARGETS
     musica
     nlohmann_json
+    micm
   EXPORT
     musica_Exports
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -28,7 +29,7 @@ install(
 if (MUSICA_ENABLE_MICM)
   install(
     DIRECTORY
-      ${CMAKE_SOURCE_DIR}/lib/micm/include/
+      ${micm_SOURCE_DIR}/include/
     DESTINATION 
       ${MUSICA_INSTALL_INCLUDE_DIR}/musica
   )

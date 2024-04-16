@@ -53,39 +53,14 @@ endif()
 ####################
 # TUV-x
 if (MUSICA_ENABLE_TUVX)
-  set(TUVX_MOD_DIR ${MUSICA_MOD_DIR})
-  set(TUVX_LIB_DIR ${MUSICA_LIB_DIR})
- 
-  add_subdirectory(${CMAKE_SOURCE_DIR}/lib/tuv-x/src ${MUSICA_LIB_DIR}/tuv-x/src)
-
-  # for yaml-cpp
-  target_compile_features(tuvx_object PRIVATE cxx_std_20)
-  
-  set_target_properties(tuvx_object PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
-    Fortran_MODULE_DIRECTORY ${MUSICA_MOD_DIR}
-  )
-
-  target_include_directories(tuvx_object
-    PUBLIC  
-      $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
-      $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
-  )
-
-  target_link_libraries(tuvx_object 
-    PUBLIC
-      musicacore_object
-  )
-
-  target_link_libraries(musica-fortran 
-    PUBLIC
-      yaml-cpp::yaml-cpp
-  )
-
   # add the sources to musica
   target_sources(musica-fortran
     PRIVATE
       $<TARGET_OBJECTS:tuvx_object>
+  )
+  target_link_libraries(musica-fortran
+    PUBLIC
+      tuvx
   )
 endif()
 
