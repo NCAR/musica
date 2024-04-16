@@ -35,7 +35,7 @@ target_include_directories(musica-fortran
 )
 
 target_link_libraries(musica-fortran
-  INTERFACE
+  PUBLIC
     musica::musica
 )
 
@@ -75,6 +75,6 @@ endif()
 ################################################################################
 # installation
 
-if(MUSICA_ENABLE_INSTALL)
+if(MUSICA_ENABLE_INSTALL AND NOT MUSICA_ENABLE_PYTHON_LIBRARY)
   add_subdirectory(packaging)
 endif()
