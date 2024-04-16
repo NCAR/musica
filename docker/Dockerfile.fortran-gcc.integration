@@ -6,16 +6,17 @@ RUN dnf -y update \
     curl \
     gcc \
     gcc-c++ \
-    gdb \
     gcc-gfortran \
+    gdb \
     git \
+    hdf5-devel \
+    json-devel \
+    lapack-devel \
     lcov \
     libcurl-devel \
-    hdf5-devel \
-    netcdf-fortran-devel \
     m4 \
     make \
-    json-devel \
+    netcdf-fortran-devel \
     valgrind \ 
     vim \
     zlib-devel \
