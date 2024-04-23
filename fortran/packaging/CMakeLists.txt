@@ -3,6 +3,8 @@ include(CMakePackageConfigHelpers)
 install(
   TARGETS
     musica-fortran
+    tuvx
+    yaml-cpp
   EXPORT
     musica_fortran_Exports
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -13,6 +15,7 @@ install(
 install(
   DIRECTORY
     ${MUSICA_MOD_DIR}/
+    ${tuvx_BINARY_DIR}/include
   DESTINATION
     ${MUSICA_INSTALL_INCLUDE_DIR}/musica/fortran
   FILES_MATCHING PATTERN "*.mod"

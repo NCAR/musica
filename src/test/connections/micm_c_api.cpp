@@ -94,4 +94,17 @@ TEST_F(MicmCApiTest, GetSpeciesProperty) {
     ASSERT_EQ(get_species_property_double(micm, "O3", "molecular weight [kg mol-1]"), 0.048);
     ASSERT_TRUE(get_species_property_bool(micm, "O3", "__do advect"));
     ASSERT_EQ(get_species_property_int(micm, "O3", "__atoms"), 3);
+// these exceptions are not caught by ASSERT_THROW when using clang-cl
+#ifndef MUSICA_USING_CLANGCL
+    ASSERT_THROW({
+        try {
+            get_species_property_bool(micm, "bad species", "__is gas");
+        } catch (const std::runtime_error& e) {
+            ASSERT_STREQ(e.what(), "Species 'bad species' not found");
+            throw;
+        }}, std::runtime_error);
+    EXPECT_ANY_THROW(
+        get_species_property_double(micm, "O3", "bad property")
+    );
+#endif
 }

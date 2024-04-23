@@ -63,15 +63,7 @@ target_sources(musica
 ####################
 # MICM
 if(MUSICA_ENABLE_MICM)
-  target_compile_features(musica PUBLIC cxx_std_20)
-
-  target_include_directories(musica
-    PUBLIC  
-      $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/lib/micm/include>
-      $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
-  )
-
-  target_link_libraries(musica PUBLIC nlohmann_json::nlohmann_json)
+  target_link_libraries(musica PUBLIC musica::micm)
 
   add_subdirectory(micm)
 endif()

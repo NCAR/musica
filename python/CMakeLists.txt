@@ -13,7 +13,7 @@ set_target_properties(musica_python PROPERTIES OUTPUT_NAME musica)
 
 target_include_directories(musica_python
   PUBLIC  
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/lib/micm/include>
+    $<BUILD_INTERFACE:${micm_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
 )
 
