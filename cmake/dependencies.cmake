@@ -31,28 +31,37 @@ endif()
 # MICM
 
 if (MUSICA_ENABLE_MICM)
-  FetchContent_Declare(json
-      GIT_REPOSITORY https://github.com/nlohmann/json.git
-      GIT_TAG v3.11.2
+  FetchContent_Declare(micm
+      GIT_REPOSITORY https://github.com/NCAR/micm.git
+      GIT_TAG v3.5.0-release-candidate
   )
-  FetchContent_MakeAvailable(json)
+  FetchContent_MakeAvailable(micm)
 endif()
 
 ################################################################################
 # TUV-x
 
 if (MUSICA_ENABLE_TUVX)
-  FetchContent_Declare(
-    yaml-cpp
-    GIT_REPOSITORY https://github.com/jbeder/yaml-cpp/
-    GIT_TAG 0.8.0
+  FetchContent_Declare(tuvx
+    GIT_REPOSITORY https://github.com/NCAR/tuv-x.git
+    GIT_TAG v0.8.0
   )
-  FetchContent_MakeAvailable(yaml-cpp)
+  FetchContent_MakeAvailable(tuvx)
 endif()
 
 ################################################################################
 # pybind11
 if(MUSICA_ENABLE_PYTHON_LIBRARY)
   set(PYBIND11_NEWPYTHON ON)
-  add_subdirectory(${CMAKE_SOURCE_DIR}/lib/pybind11)
+
+  FetchContent_Declare(pybind11
+      GIT_REPOSITORY https://github.com/pybind/pybind11
+      GIT_TAG        v2.12.0
+  )
+
+  FetchContent_GetProperties(pybind11)
+  if(NOT pybind11_POPULATED)
+      FetchContent_Populate(pybind11)
+      add_subdirectory(${pybind11_SOURCE_DIR} ${pybind11_BINARY_DIR})
+  endif()
 endif()

@@ -89,11 +89,6 @@ endif()
 ################################################################################
 # Dependencies
 
-include(musica_util)
-
-# Add submodules
-checkout_submodules()
-
 include(dependencies)
 
 ################################################################################
