@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.21)
 
 project(
   musica-distribution
-  VERSION 0.6.0
+  VERSION 0.6.1
 )
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${CMAKE_CURRENT_LIST_DIR}/cmake)
@@ -37,6 +37,9 @@ cmake_dependent_option(
   MUSICA_ENABLE_MICM "Adds MICM, a model independent chemical mechanism solver" ON "MUSICA_BUILD_C_CXX_INTERFACE" OFF)
 
 cmake_dependent_option(
+  MUSICA_ENABLE_PYTHON_LIBRARY "Adds pybind11, a lightweight header-only library that exposes C++ types in Python and vice versa" OFF "MUSICA_BUILD_C_CXX_INTERFACE" OFF)
+
+cmake_dependent_option(
   MUSICA_CREATE_ENVIRONMENT_MODULE "Creates an Lmod environment module file that can be installed on the same machine this library is installed to." OFF "MUSICA_BUILD_C_CXX_INTERFACE" OFF)
 
 if(MUSICA_CREATE_ENVIRONMENT_MODULE)
@@ -44,6 +47,13 @@ if(MUSICA_CREATE_ENVIRONMENT_MODULE)
   if(MUSICA_INSTALL_MODULE_FILE_PATH STREQUAL "")
     message(FATAL_ERROR "MUSICA_INSTALL_MODULE_FILE_PATH is required but not set")
   endif()
+endif()
+
+# shared libraries are required for python, but for some reason setting
+# BUILD_SHARED_LIBS to ON doesn't work on windows
+if (MUSICA_ENABLE_PYTHON_LIBRARY AND NOT WIN32) 
+  message(STATUS "Python requires shared libraries to be built. Enabling shared libraries.")
+  set(BUILD_SHARED_LIBS ON)
 endif()
 
 ################################################################################
@@ -75,6 +85,11 @@ endif()
 ################################################################################
 # Dependencies
 
+include(musica_util)
+
+# Add submodules
+checkout_submodules()
+
 include(dependencies)
 
 if(MUSICA_BUILD_DOCS)
@@ -97,4 +112,10 @@ endif()
 # MUSICA-Fortran
 if(MUSICA_BUILD_FORTRAN_INTERFACE)
   add_subdirectory(fortran)
+endif()
+
+################################################################################
+# Musica python
+if(MUSICA_ENABLE_PYTHON_LIBRARY)
+  add_subdirectory(python)
 endif()

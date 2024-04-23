@@ -1,17 +1,22 @@
 function(checkout_submodules)
   find_package(Git)
-  if(GIT_FOUND AND EXISTS "${CMAKE_SOURCE_DIR}/.git")
-  # Update submodules as needed
+  if(GIT_FOUND)
+    message(STATUS "Source dir: ${CMAKE_CURRENT_LIST_DIR}")
+    if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/.git")
+      # Update submodules as needed
       option(GIT_SUBMODULE "Check submodules during build" ON)
       if(GIT_SUBMODULE)
           message(STATUS "Submodule update")
           execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
-                          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                          WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
                           RESULT_VARIABLE GIT_SUBMOD_RESULT)
           if(NOT GIT_SUBMOD_RESULT EQUAL "0")
               message(FATAL_ERROR "git submodule update --init failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
           endif()
       endif()
+    else()
+      message(FATAL_ERROR "Unable to find .git directory and cannot checkout submodules")
+    endif()
   else()
     message(FATAL_ERROR "Git was not found")
   endif()

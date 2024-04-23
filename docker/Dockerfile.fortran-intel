@@ -33,7 +33,7 @@ RUN cd musica \
              -B build \
              -D MUSICA_ENABLE_TESTS=ON \
              -D MUSICA_ENABLE_TUVX=OFF \
-             -D CMAKE_BUILD_TYPE=Debug \
+             -D CMAKE_BUILD_TYPE=Release \
     && cd build \
     && make install
 
@@ -45,7 +45,7 @@ ENV FC=ifx
 RUN cd musica/fortran/test/fetch_content_integration \
     && mkdir build && cd build \
     && cmake .. \
-        -D CMAKE_BUILD_TYPE=Debug \
+        -D CMAKE_BUILD_TYPE=Release \
     && make
 
 RUN cp -r /musica/configs/chapman musica/fortran/test/fetch_content_integration/build
