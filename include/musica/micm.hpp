@@ -84,6 +84,7 @@ private:
 template<class T>
 inline T MICM::get_species_property(const std::string &species_name, const std::string &property_name, Error *error)
 {
+    *error = NoError();
     for (const auto &species : solver_parameters_->system_.gas_phase_.species_)
     {
         if (species.name_ == species_name)
