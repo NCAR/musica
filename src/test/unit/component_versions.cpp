@@ -4,6 +4,8 @@
 
 #include <musica/component_versions.h>
 
+using namespace musica;
+
 TEST(Musica, Version) {
   char* versions = getAllComponentVersions();
 

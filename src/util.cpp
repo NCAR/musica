@@ -4,6 +4,8 @@
 #include <cstring>
 #include <musica/util.hpp>
 
+namespace musica {
+
 String ToString(char* value)
 {
     String str;
@@ -15,4 +17,5 @@ String ToString(char* value)
 void DeleteString(String str)
 {
     delete[] str.value_;
+}
 }

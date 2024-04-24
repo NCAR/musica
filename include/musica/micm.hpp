@@ -16,6 +16,8 @@
 
 #include <musica/util.hpp>
 
+namespace musica {
+
 class MICM;
 
 #ifdef __cplusplus
@@ -43,7 +45,7 @@ public:
     /// @brief Create a solver by reading and parsing configuration file
     /// @param config_path Path to configuration file or directory containing configuration file
     /// @return 0 on success, 1 on failure in parsing configuration file
-    int create_solver(const std::string &config_path);
+    int create(const std::string &config_path);
 
     /// @brief Solve the system
     /// @param time_step Time [s] to advance the state by
@@ -92,4 +94,6 @@ inline T MICM::get_species_property(const std::string &species_name, const std::
         }
     }
    throw std::runtime_error("Species '" + species_name + "' not found");
+}
+
 }

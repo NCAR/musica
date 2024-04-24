@@ -5,6 +5,7 @@
 #include <cstddef>
 
 #ifdef __cplusplus
+namespace musica {
 extern "C"
 {
 #endif
@@ -34,5 +35,6 @@ String ToString(char* value);
 void DeleteString(String str);
 
 #ifdef __cplusplus
+}
 }
 #endif

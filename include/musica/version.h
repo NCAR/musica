@@ -7,6 +7,7 @@
 #pragma once
 
 #ifdef __cplusplus
+namesapce musica {
 extern "C" {
 #endif
 
@@ -17,5 +18,6 @@ unsigned getMusicaVersionPatch();
 unsigned getMusicaVersionTweak();
 
 #ifdef __cplusplus
+}
 }
 #endif
