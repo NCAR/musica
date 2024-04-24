@@ -67,6 +67,23 @@ if(MUSICA_ENABLE_MICM)
   add_subdirectory(micm)
 endif()
 
+####################
+# TUVX
+if(MUSICA_ENABLE_TUVX)
+  # include the sources directly into musica
+  target_sources(musica
+    PRIVATE
+      $<TARGET_OBJECTS:tuvx_object>
+  )
+  # but grab the include directories needed for tuvx
+  target_link_libraries(musica
+    PUBLIC
+      tuvx
+  )
+
+  add_subdirectory(tuvx)
+endif()
+
 ################################################################################
 # testing
 

@@ -13,12 +13,14 @@
 #include <micm/system/species.hpp>
 #include <musica/micm.hpp>
 
+namespace musica {
+
 MICM *create_micm(const char *config_path, int *error_code)
 {
     try
     {
         MICM *micm = new MICM();
-        *error_code = micm->create_solver(std::string(config_path));
+        *error_code = micm->create(std::string(config_path));
         return micm;
     }
     catch (const std::bad_alloc &e)
@@ -114,7 +116,7 @@ bool get_species_property_bool(MICM *micm, const char *species_name, const char 
     return micm->get_species_property<bool>(species_name_str, property_name_str);
 }
 
-int MICM::create_solver(const std::string &config_path)
+int MICM::create(const std::string &config_path)
 {
     int parsing_status = 0; // 0 on success, 1 on failure
     try {
@@ -177,4 +179,6 @@ std::map<std::string, size_t> MICM::get_user_defined_reaction_rates_ordering()
 {
     micm::State state = solver_->GetState();
     return state.custom_rate_parameter_map_;
+}
+
 }
