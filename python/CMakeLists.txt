@@ -7,6 +7,8 @@ pybind11_add_module(musica_python
 
 target_link_libraries(musica_python PRIVATE nlohmann_json::nlohmann_json)
 
+target_compile_features(musica_python PUBLIC cxx_std_20)
+
 set_target_properties(musica_python PROPERTIES OUTPUT_NAME musica)
 
 target_include_directories(musica_python

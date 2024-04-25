@@ -78,6 +78,8 @@ elseif(${CMAKE_Fortran_COMPILER_ID} MATCHES "PGI")
 endif()
 
 if(MUSICA_BUILD_C_CXX_INTERFACE)
+  # must be global so that it also applies to dependencies like google test, unless we want
+  # to set it for each target
   # on ubuntu with clang, an incorrect version of the c++ standard library was being linked
   if (${CMAKE_HOST_SYSTEM_NAME} MATCHES "Linux" AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
       # If the compiler is Clang, use libc++
