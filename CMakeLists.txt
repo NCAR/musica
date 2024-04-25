@@ -62,33 +62,24 @@ set(MUSICA_MOD_DIR ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_INCLUDEDIR})
 set(MUSICA_LIB_DIR ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
 set(MUSICA_FORTRAN_SRC_DIR ${CMAKE_SOURCE_DIR}/fortran)
 
-# Add flags for various compilers
-if(${CMAKE_Fortran_COMPILER_ID} MATCHES "Intel")
-  add_definitions(-DMUSICA_USING_INTEL)
-elseif(${CMAKE_Fortran_COMPILER_ID} MATCHES "GNU")
-  add_definitions(-DMUSICA_USING_GNU)
-  add_compile_options(-Wl,-ld_classic)
-elseif(${CMAKE_Fortran_COMPILER_ID} MATCHES "PGI")
-  add_definitions(-DMUSICA_USING_PGI)
-endif()
-
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
   add_compile_options(-Wl,-ld_classic)
 endif()
 
-# Add flags when using the ClangCL toolset
-if(CMAKE_GENERATOR_TOOLSET STREQUAL "ClangCL")
-  add_definitions(-DMUSICA_USING_CLANGCL)
+set(musica_compile_definitions "")
+
+# Add flags for various compilers
+if(${CMAKE_Fortran_COMPILER_ID} MATCHES "Intel")
+  list(APPEND musica_compile_definitions MUSICA_USING_INTEL)
+elseif(${CMAKE_Fortran_COMPILER_ID} MATCHES "GNU")
+  list(APPEND musica_compile_definitions MUSICA_USING_GNU)
+elseif(${CMAKE_Fortran_COMPILER_ID} MATCHES "PGI")
+  list(APPEND musica_compile_definitions MUSICA_USING_PGI)
 endif()
 
-if(MUSICA_BUILD_C_CXX_INTERFACE)
-  # on ubuntu with clang, an incorrect version of the c++ standard library was being linked
-  if (${CMAKE_HOST_SYSTEM_NAME} MATCHES "Linux" AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-      # If the compiler is Clang, use libc++
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-  endif()
-
-  set(CMAKE_CXX_STANDARD 20)
+# Add flags when using the ClangCL toolset
+if(CMAKE_GENERATOR_TOOLSET STREQUAL "ClangCL")
+  list(APPEND musica_compile_definitions MUSICA_USING_CLANGCL)
 endif()
 
 ################################################################################

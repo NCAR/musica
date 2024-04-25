@@ -17,18 +17,29 @@ message (STATUS "CMake build configuration for ${PROJECT_NAME} (${CMAKE_BUILD_TY
 add_library(musica)
 add_library(musica::musica ALIAS musica)
 
-set(MUSICA_COMPILE_DEFINITIONS)
+# set cmake cxx flags for musica
+set_target_properties(musica PROPERTIES
+  CXX_EXTENSIONS OFF
+  CXX_STANDARD 20
+)
+
+# on ubuntu with clang, an incorrect version of the c++ standard library was being linked
+if (${CMAKE_HOST_SYSTEM_NAME} MATCHES "Linux" AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    # If the compiler is Clang, use libc++
+  target_compile_options(musica PRIVATE -stdlib=libc++)
+endif()
+
 
 if(MUSICA_ENABLE_MICM)
-  list(APPEND MUSICA_COMPILE_DEFINITIONS -DMUSICA_USE_MICM)
+  list(APPEND musica_compile_definitions -DMUSICA_USE_MICM)
 endif()
 
 if(MUSICA_ENABLE_MPI)
-  list(APPEND MUSICA_COMPILE_DEFINITIONS -DMUSICA_USE_MPI)
+  list(APPEND musica_compile_definitions -DMUSICA_USE_MPI)
 endif()
 
 if(MUSICA_ENABLE_OPENMP)
-  list(APPEND MUSICA_COMPILE_DEFINITIONS -DMUSICA_USE_OPENMP)
+  list(APPEND musica_compile_definitions -DMUSICA_USE_OPENMP)
 endif()
 
 # version
@@ -42,7 +53,7 @@ target_sources(musica
     ${CMAKE_BINARY_DIR}/version.c
 )
 
-target_compile_definitions(musica PRIVATE ${MUSICA_COMPILE_DEFINITIONS})
+target_compile_definitions(musica PUBLIC ${musica_compile_definitions})
 
 set_target_properties(musica PROPERTIES
   ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
@@ -78,6 +89,12 @@ if(MUSICA_ENABLE_TUVX)
   target_link_libraries(musica
     PUBLIC
       tuvx
+  )
+
+  # set cmake cxx flags for tuvx_object
+  set_target_properties(tuvx_object PROPERTIES
+    CXX_EXTENSIONS OFF
+    CXX_STANDARD 11
   )
 
   add_subdirectory(tuvx)
