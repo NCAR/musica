@@ -45,3 +45,22 @@ add_test(
   COMMAND $<TARGET_FILE:test_micm_fort_api>
   WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
 )
+
+# API Test
+add_executable(test_tuvx_core_api test_tuvx_api.F90)
+
+target_link_libraries(test_tuvx_fort_api
+  PRIVATE
+    musica::musica-fortran
+)
+
+set_target_properties(test_tuvx_fort_api
+  PROPERTIES
+    LINKER_LANGUAGE Fortran
+)
+
+add_test(
+  NAME test_tuvx_fort_api
+  COMMAND $<TARGET_FILE:test_tuvx_fort_api>
+  WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+)
