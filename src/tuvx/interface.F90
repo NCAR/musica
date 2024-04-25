@@ -23,8 +23,8 @@ module tuvx_interface
       musica_config_path = string_t(f_string)
 
       core => core_t(musica_config_path)
-
       internal_create_tuvx = c_loc(core)
+      error_code = 0
 
     end function internal_create_tuvx
 
