@@ -2,13 +2,15 @@ program test_micm_fort_api
   use, intrinsic :: iso_c_binding
   use, intrinsic :: ieee_arithmetic
   use micm_core, only: micm_t, mapping_t
-  use musica_util, only: assert, error_t_c
+  use musica_util, only: assert, error_t_c, is_error, is_success
 
-  implicit none
+#include "micm/util/error.hpp"
 
 #define ASSERT( expr ) call assert( expr, __FILE__, __LINE__ )
 #define ASSERT_EQ( a, b ) call assert( a == b, __FILE__, __LINE__ )
 #define ASSERT_NE( a, b ) call assert( a /= b, __FILE__, __LINE__ )
+
+  implicit none
 
   type(micm_t), pointer         :: micm
   real(c_double)                :: time_step
@@ -38,7 +40,7 @@ program test_micm_fort_api
 
   write(*,*) "[test micm fort api] Creating MICM solver..."
   micm => micm_t(config_path, error)
-  ASSERT_EQ( error%code_, 0_c_int )
+  ASSERT( is_success( error ) )
 
   do i = 1, micm%species_ordering_length
     the_mapping = micm%species_ordering(i)
@@ -54,34 +56,39 @@ program test_micm_fort_api
   write(*,*) "[test micm fort api] Solving starts..."
   call micm%solve(time_step, temperature, pressure, num_concentrations, concentrations, &
                   num_user_defined_reaction_rates, user_defined_reaction_rates, error)
-  ASSERT_EQ( error%code_, 0_c_int )
+  ASSERT( is_success( error ) )
 
   write(*,*) "[test micm fort api] After solving, concentrations", concentrations
 
   string_value = micm%get_species_property_string( "O3", "__long name", error )
-  ASSERT_EQ( error%code_, 0_c_int )
+  ASSERT( is_success( error ) )
   ASSERT_EQ( string_value, "ozone" )
   double_value = micm%get_species_property_double( "O3", "molecular weight [kg mol-1]", error )
-  ASSERT_EQ( error%code_, 0_c_int )
+  ASSERT( is_success( error ) )
   ASSERT_EQ( double_value, 0.048_c_double )
   int_value = micm%get_species_property_int( "O3", "__atoms", error )
-  ASSERT_EQ( error%code_, 0_c_int )
+  ASSERT( is_success( error ) )
   ASSERT_EQ( int_value, 3_c_int )
   bool_value = micm%get_species_property_bool( "O3", "__do advect", error )
-  ASSERT_EQ( error%code_, 0_c_int )
+  ASSERT( is_success( error ) )
   ASSERT( logical( bool_value ) )
 
   string_value = micm%get_species_property_string( "O3", "missing property", error )
-  ASSERT_NE( error%code_, 0_c_int )
+  ASSERT( is_error( error, MICM_ERROR_CATEGORY_SPECIES, \
+                    MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND ) )
   double_value = micm%get_species_property_double( "O3", "missing property", error )
-  ASSERT_NE( error%code_, 0_c_int )
+  ASSERT( is_error( error, MICM_ERROR_CATEGORY_SPECIES, \
+                    MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND ) )
   int_value = micm%get_species_property_int( "O3", "missing property", error )
-  ASSERT_NE( error%code_, 0_c_int )
+  ASSERT( is_error( error, MICM_ERROR_CATEGORY_SPECIES, \
+                    MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND ) )
   bool_value = micm%get_species_property_bool( "O3", "missing property", error )
-  ASSERT_NE( error%code_, 0_c_int )
+  ASSERT( is_error( error, MICM_ERROR_CATEGORY_SPECIES, \
+                    MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND ) )
   deallocate( micm )
   micm => micm_t( "configs/invalid", error )
-  ASSERT_NE( error%code_, 0_c_int )
+  ASSERT( is_error( error, MICM_ERROR_CATEGORY_CONFIGURATION, \
+                    MICM_CONFIGURATION_ERROR_CODE_INVALID_FILE_PATH ) )
   ASSERT( .not. associated( micm ) )
 
   write(*,*) "[test micm fort api] Finished."
