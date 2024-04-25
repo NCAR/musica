@@ -1,13 +1,14 @@
 program test_micm_fort_api
   use, intrinsic :: iso_c_binding
   use, intrinsic :: ieee_arithmetic
-  use micm_core, only: micm_t, mapping_t, set_error_handler_c
-  use musica_util, only: assert
+  use micm_core, only: micm_t, mapping_t
+  use musica_util, only: assert, error_t_c
 
   implicit none
 
 #define ASSERT( expr ) call assert( expr, __FILE__, __LINE__ )
 #define ASSERT_EQ( a, b ) call assert( a == b, __FILE__, __LINE__ )
+#define ASSERT_NE( a, b ) call assert( a /= b, __FILE__, __LINE__ )
 
   type(micm_t), pointer         :: micm
   real(c_double)                :: time_step
@@ -23,6 +24,7 @@ program test_micm_fort_api
   real(c_double)                :: double_value
   integer(c_int)                :: int_value
   logical(c_bool)               :: bool_value
+  type(error_t_c)               :: error
 
   time_step = 200
   temperature = 272.5
@@ -35,7 +37,8 @@ program test_micm_fort_api
 
 
   write(*,*) "[test micm fort api] Creating MICM solver..."
-  micm => micm_t(config_path)
+  micm => micm_t(config_path, error)
+  ASSERT_EQ( error%code_, 0_c_int )
 
   do i = 1, micm%species_ordering_length
     the_mapping = micm%species_ordering(i)
@@ -50,73 +53,37 @@ program test_micm_fort_api
 
   write(*,*) "[test micm fort api] Solving starts..."
   call micm%solve(time_step, temperature, pressure, num_concentrations, concentrations, &
-                  num_user_defined_reaction_rates, user_defined_reaction_rates)
+                  num_user_defined_reaction_rates, user_defined_reaction_rates, error)
+  ASSERT_EQ( error%code_, 0_c_int )
 
   write(*,*) "[test micm fort api] After solving, concentrations", concentrations
 
-  string_value = micm%get_species_property_string( "O3", "__long name" )
+  string_value = micm%get_species_property_string( "O3", "__long name", error )
+  ASSERT_EQ( error%code_, 0_c_int )
   ASSERT_EQ( string_value, "ozone" )
-  double_value = micm%get_species_property_double( "O3", "molecular weight [kg mol-1]" )
+  double_value = micm%get_species_property_double( "O3", "molecular weight [kg mol-1]", error )
+  ASSERT_EQ( error%code_, 0_c_int )
   ASSERT_EQ( double_value, 0.048_c_double )
-  int_value = micm%get_species_property_int( "O3", "__atoms" )
+  int_value = micm%get_species_property_int( "O3", "__atoms", error )
+  ASSERT_EQ( error%code_, 0_c_int )
   ASSERT_EQ( int_value, 3_c_int )
-  bool_value = micm%get_species_property_bool( "O3", "__do advect" )
+  bool_value = micm%get_species_property_bool( "O3", "__do advect", error )
+  ASSERT_EQ( error%code_, 0_c_int )
   ASSERT( logical( bool_value ) )
 
-  call set_error_handler_c( c_funloc( missing_string_property_error_handler ) )
-  string_value = micm%get_species_property_string( "O3", "missing property" )
-  ASSERT( string_value == "" )
-  call set_error_handler_c( c_funloc( missing_double_property_error_handler ) )
-  double_value = micm%get_species_property_double( "O3", "missing property" )
-  ASSERT( isnan( double_value ) )
-  call set_error_handler_c( c_funloc( missing_int_property_error_handler ) )
-  int_value = micm%get_species_property_int( "O3", "missing property" )
-  ASSERT_EQ( int_value, 0_c_int )
-  call set_error_handler_c( c_funloc( missing_bool_property_error_handler ) )
-  bool_value = micm%get_species_property_bool( "O3", "missing property" )
-  ASSERT( .not. logical( bool_value ) )
+  string_value = micm%get_species_property_string( "O3", "missing property", error )
+  ASSERT_NE( error%code_, 0_c_int )
+  double_value = micm%get_species_property_double( "O3", "missing property", error )
+  ASSERT_NE( error%code_, 0_c_int )
+  int_value = micm%get_species_property_int( "O3", "missing property", error )
+  ASSERT_NE( error%code_, 0_c_int )
+  bool_value = micm%get_species_property_bool( "O3", "missing property", error )
+  ASSERT_NE( error%code_, 0_c_int )
   deallocate( micm )
-  call set_error_handler_c( c_funloc( bad_configuration_error_handler ) )
-  micm => micm_t( "configs/invalid" )
+  micm => micm_t( "configs/invalid", error )
+  ASSERT_NE( error%code_, 0_c_int )
   ASSERT( .not. associated( micm ) )
 
   write(*,*) "[test micm fort api] Finished."
-
-contains
-
-  subroutine bad_configuration_error_handler( code, message ) bind(c)
-    use, intrinsic :: iso_c_binding
-    integer(c_int), value, intent(in) :: code
-    character(len=1, kind=c_char), intent(in) :: message(*)
-    ASSERT_EQ( code, 909039518_c_int )
-  end subroutine bad_configuration_error_handler
-
-  subroutine missing_string_property_error_handler( code, message ) bind(c)
-    use, intrinsic :: iso_c_binding
-    integer(c_int), value, intent(in) :: code
-    character(len=1, kind=c_char), intent(in) :: message(*)
-    ASSERT_EQ( code, 740788148_c_int )
-  end subroutine missing_string_property_error_handler
-
-  subroutine missing_double_property_error_handler( code, message ) bind(c)
-    use, intrinsic :: iso_c_binding
-    integer(c_int), value, intent(in) :: code
-    character(len=1, kind=c_char), intent(in) :: message(*)
-    ASSERT_EQ( code, 170573343_c_int )
-  end subroutine missing_double_property_error_handler
-
-  subroutine missing_int_property_error_handler( code, message ) bind(c)
-    use, intrinsic :: iso_c_binding
-    integer(c_int), value, intent(in) :: code
-    character(len=1, kind=c_char), intent(in) :: message(*)
-    ASSERT_EQ( code, 347900088_c_int )
-  end subroutine missing_int_property_error_handler
-
-  subroutine missing_bool_property_error_handler( code, message ) bind(c)
-    use, intrinsic :: iso_c_binding
-    integer(c_int), value, intent(in) :: code
-    character(len=1, kind=c_char), intent(in) :: message(*)
-    ASSERT_EQ( code, 509433912_c_int )
-  end subroutine missing_bool_property_error_handler
 
 end program

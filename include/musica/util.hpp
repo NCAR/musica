@@ -14,19 +14,26 @@ extern "C"
 {
 #endif
 
-/// @brief A struct to describe failure conditions
-struct Error
-{
-  int code_;
-  const char* category_;
-  const char* message_;
-};
-
 /// @brief A struct to represent a string
 struct String
 {
   char* value_;
   size_t size_;
+};
+
+/// @brief A struct to represent a const string
+struct ConstString
+{
+  const char* value_;
+  size_t size_;
+};
+
+/// @brief A struct to describe failure conditions
+struct Error
+{
+  int code_;
+  ConstString category_;
+  ConstString message_;
 };
 
 /// @brief A struct to represent a mapping between a string and an index
@@ -41,6 +48,9 @@ struct Mapping
 /// @param value The char* to cast
 /// @return The casted String
 String ToString(char* value);
+
+/// @brief Casts a const char* to a String
+ConstString ToConstString(const char* value);
 
 /// @brief Deletes a String
 /// @param str The String to delete
