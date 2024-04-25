@@ -40,7 +40,7 @@ extern "C"
 class TUVX
 {
 public:
-    /// @brief Create a solver by reading and parsing configuration file
+    /// @brief Create an instance ove tuvx from a configuration file
     /// @param config_path Path to configuration file or directory containing configuration file
     /// @return 0 on success, 1 on failure in parsing configuration file
     int create(const std::string &config_path);
