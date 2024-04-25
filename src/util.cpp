@@ -34,6 +34,20 @@ Error NoError()
     return error;
 }
 
+Error ToError(const char* category, int code)
+{
+    return ToError(category, code, "");
+}
+
+Error ToError(const char* category, int code, const char* message)
+{
+    Error error;
+    error.code_ = code;
+    error.category_ = ToConstString(category);
+    error.message_ = ToConstString(message);
+    return error;
+}
+
 Error ToError(const std::system_error& e)
 {
     Error error;
@@ -50,8 +64,7 @@ bool operator==(const Error& lhs, const Error& rhs)
         return true;
     }
     return lhs.code_ == rhs.code_ &&
-           std::strcmp(lhs.category_.value_, rhs.category_.value_) == 0 &&
-           std::strcmp(lhs.message_.value_, rhs.message_.value_) == 0;
+           std::strcmp(lhs.category_.value_, rhs.category_.value_) == 0;
 }
 
 bool operator!=(const Error& lhs, const Error& rhs)

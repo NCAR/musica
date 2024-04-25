@@ -28,7 +28,8 @@ TEST_F(MicmCApiTest, BadConfigurationFilePath) {
     Error error = NoError();
     auto micm_bad_config = create_micm("bad config path", &error);
     ASSERT_EQ(micm_bad_config, nullptr);
-    ASSERT_EQ(error.code_, MICM_CONFIGURATION_ERROR_CODE_INVALID_FILE_PATH);
+    ASSERT_EQ(error, ToError(MICM_ERROR_CATEGORY_CONFIGURATION,
+                             MICM_CONFIGURATION_ERROR_CODE_INVALID_FILE_PATH));
 }
 
 // Test case for missing species property
@@ -36,18 +37,22 @@ TEST_F(MicmCApiTest, MissingSpeciesProperty) {
     Error error = NoError();
     String string_value;
     string_value = get_species_property_string(micm, "O3", "bad property", &error);
-    ASSERT_EQ(error.code_, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND);
+    ASSERT_EQ(error, ToError(MICM_ERROR_CATEGORY_SPECIES,
+                             MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND));
     ASSERT_STREQ(string_value.value_, "");
     DeleteString(string_value);
     error = NoError();
     ASSERT_EQ(get_species_property_double(micm, "O3", "bad property", &error), 0.0);
-    ASSERT_EQ(error.code_, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND);
+    ASSERT_EQ(error, ToError(MICM_ERROR_CATEGORY_SPECIES,
+                             MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND));
     error = NoError();
     ASSERT_EQ(get_species_property_int(micm, "O3", "bad property", &error), 0);
-    ASSERT_EQ(error.code_, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND);
+    ASSERT_EQ(error, ToError(MICM_ERROR_CATEGORY_SPECIES,
+                             MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND));
     error = NoError();
     ASSERT_FALSE(get_species_property_bool(micm, "O3", "bad property", &error));
-    ASSERT_EQ(error.code_, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND);
+    ASSERT_EQ(error, ToError(MICM_ERROR_CATEGORY_SPECIES,
+                             MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND));
 }
 
 // Test case for creating the MICM instance
@@ -185,7 +190,9 @@ TEST_F(MicmCApiTest, GetSpeciesProperty) {
     ASSERT_EQ(get_species_property_int(micm, "O3", "__atoms", &error), 3);
     ASSERT_EQ(error, NoError());
     get_species_property_bool(micm, "bad species", "__is gas", &error);
-    ASSERT_EQ(error.code_, MUSICA_ERROR_CODE_SPECIES_NOT_FOUND);
+    ASSERT_EQ(error, ToError(MUSICA_ERROR_CATEGORY,
+                             MUSICA_ERROR_CODE_SPECIES_NOT_FOUND));
     get_species_property_double(micm, "O3", "bad property", &error);
-    ASSERT_EQ(error.code_, MUSICA_ERROR_CODE_SPECIES_NOT_FOUND);
+    ASSERT_EQ(error, ToError(MICM_ERROR_CATEGORY_SPECIES,
+                             MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND));
 }

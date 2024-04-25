@@ -1,7 +1,7 @@
 module micm_core
    use iso_c_binding, only: c_ptr, c_char, c_int, c_bool, c_double, c_null_char, &
                             c_size_t, c_f_pointer, c_funptr, c_null_ptr, c_associated
-   use musica_util, only: error_t_c
+   use musica_util, only: error_t_c, is_success
    implicit none
 
    public :: micm_t, mapping_t
@@ -139,7 +139,7 @@ contains
       c_config_path(n+1) = c_null_char
 
       this%ptr = create_micm_c(c_config_path, error)
-      if (.not. error%code_ == 0_c_int) then
+      if (.not. is_success(error)) then
          deallocate(this)
          nullify(this)
          return
@@ -147,7 +147,7 @@ contains
 
       mappings_ptr = get_species_ordering(this%ptr, this%species_ordering_length, error)
       call c_f_pointer(mappings_ptr, this%species_ordering, [this%species_ordering_length])
-      if (.not. error%code_ == 0_c_int) then
+      if (.not. is_success(error)) then
          deallocate(this)
          nullify(this)
          return
@@ -155,7 +155,7 @@ contains
 
       mappings_ptr = get_user_defined_reaction_rates_ordering(this%ptr, this%user_defined_reaction_rates_length, error)
       call c_f_pointer(mappings_ptr, this%user_defined_reaction_rates, [this%user_defined_reaction_rates_length])
-      if (.not. error%code_ == 0_c_int) then
+      if (.not. is_success(error)) then
          deallocate(this)
          nullify(this)
          return

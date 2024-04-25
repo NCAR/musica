@@ -4,11 +4,11 @@
 
 #include <cstddef>
 
-#ifdef __cplusplus
-#include <system_error>
-
 #define MUSICA_ERROR_CATEGORY "MUSICA Error"
 #define MUSICA_ERROR_CODE_SPECIES_NOT_FOUND 1
+
+#ifdef __cplusplus
+#include <system_error>
 
 extern "C"
 {
@@ -62,6 +62,19 @@ void DeleteString(String str);
 /// @brief Creates an Error indicating no error
 /// @return The Error
 Error NoError();
+
+/// @brief Creates an Error from a category and code
+/// @param category The category of the Error
+/// @param code The code of the Error
+/// @return The Error
+Error ToError(const char* category, int code);
+
+/// @brief Creates an Error from a category, code, and message
+/// @param category The category of the Error
+/// @param code The code of the Error
+/// @param message The message of the Error
+/// @return The Error
+Error ToError(const char* category, int code, const char* message);
 
 /// @brief Creates an Error from syd::system_error
 /// @param e The std::system_error to convert
