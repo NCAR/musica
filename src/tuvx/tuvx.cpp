@@ -27,6 +27,7 @@ TUVX *create_tuvx(const char *config_path, int *error_code)
     }
     catch (const std::exception &e)
     {
+      std::cout << e.what() << std::endl;
         *error_code = 2;
         return nullptr;
     }

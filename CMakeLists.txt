@@ -71,6 +71,10 @@ elseif(${CMAKE_Fortran_COMPILER_ID} MATCHES "PGI")
   add_definitions(-DMUSICA_USING_PGI)
 endif()
 
+if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
+  add_compile_options(-Wl,-ld_classic)
+endif()
+
 # Add flags when using the ClangCL toolset
 if(CMAKE_GENERATOR_TOOLSET STREQUAL "ClangCL")
   add_definitions(-DMUSICA_USING_CLANGCL)
