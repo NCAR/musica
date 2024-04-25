@@ -62,10 +62,6 @@ set(MUSICA_MOD_DIR ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_INCLUDEDIR})
 set(MUSICA_LIB_DIR ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
 set(MUSICA_FORTRAN_SRC_DIR ${CMAKE_SOURCE_DIR}/fortran)
 
-if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
-  add_compile_options(-Wl,-ld_classic)
-endif()
-
 set(musica_compile_definitions "")
 
 # Add flags for various compilers
