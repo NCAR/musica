@@ -20,13 +20,6 @@ add_library(musica::musica ALIAS musica)
 # set the c++ standard for musica
 target_compile_features(musica PUBLIC cxx_std_20)
 
-# on ubuntu with clang, an incorrect version of the c++ standard library was being linked
-if (${CMAKE_HOST_SYSTEM_NAME} MATCHES "Linux" AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    # If the compiler is Clang, use libc++
-  target_compile_options(musica PRIVATE -stdlib=libc++)
-endif()
-
-
 if(MUSICA_ENABLE_MICM)
   list(APPEND musica_compile_definitions -DMUSICA_USE_MICM)
 endif()
