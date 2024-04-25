@@ -38,7 +38,7 @@ jobs:
           cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_PYTHON_LIBRARY=ON -D Python3_EXECUTABLE=$PYTHON_PATH
 
       - name: Build
-        run: cmake --build build --parallel
+        run: cmake --build build --verbose
 
       - name: Run tests
         run: |
