@@ -17,11 +17,8 @@ message (STATUS "CMake build configuration for ${PROJECT_NAME} (${CMAKE_BUILD_TY
 add_library(musica)
 add_library(musica::musica ALIAS musica)
 
-# set cmake cxx flags for musica
-set_target_properties(musica PROPERTIES
-  CXX_EXTENSIONS OFF
-  CXX_STANDARD 20
-)
+# set the c++ standard for musica
+target_compile_features(musica PUBLIC cxx_std_20)
 
 # on ubuntu with clang, an incorrect version of the c++ standard library was being linked
 if (${CMAKE_HOST_SYSTEM_NAME} MATCHES "Linux" AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
