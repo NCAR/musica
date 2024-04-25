@@ -23,7 +23,7 @@ target_compile_features(musica PUBLIC cxx_std_20)
 # on ubuntu with clang, an incorrect version of the c++ standard library was being linked
 if (${CMAKE_HOST_SYSTEM_NAME} MATCHES "Linux" AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     # If the compiler is Clang, use libc++
-  target_link_options(musica PRIVATE -stdlib=libc++)
+  target_compile_options(musica PRIVATE -stdlib=libc++)
 endif()
 
 
