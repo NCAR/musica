@@ -31,9 +31,15 @@ if(MUSICA_ENABLE_OPENMP)
   list(APPEND MUSICA_COMPILE_DEFINITIONS -DMUSICA_USE_OPENMP)
 endif()
 
+# version
+configure_file(version.c.in ${CMAKE_BINARY_DIR}/version.c @ONLY)
+
 target_sources(musica
   PRIVATE
     util.cpp
+    util.F90
+    component_versions.c
+    ${CMAKE_BINARY_DIR}/version.c
 )
 
 target_compile_definitions(musica PRIVATE ${MUSICA_COMPILE_DEFINITIONS})
@@ -50,15 +56,6 @@ target_include_directories(musica
     $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
 )
 
-# version
-configure_file(version.c.in ${CMAKE_BINARY_DIR}/version.c @ONLY)
-
-target_sources(musica
-  PRIVATE
-    component_versions.c
-    ${CMAKE_BINARY_DIR}/version.c
-)
-
 ####################
 # MICM
 if(MUSICA_ENABLE_MICM)
@@ -70,6 +67,7 @@ endif()
 ####################
 # TUVX
 if(MUSICA_ENABLE_TUVX)
+  enable_language(Fortran)
   # include the sources directly into musica
   target_sources(musica
     PRIVATE
