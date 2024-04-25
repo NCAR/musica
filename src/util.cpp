@@ -27,11 +27,7 @@ void DeleteString(String str)
 
 Error NoError()
 {
-    Error error;
-    error.code_ = 0;
-    error.category_ = ToConstString("");
-    error.message_ = ToConstString("Success");
-    return error;
+    return ToError("", 0, "Success");
 }
 
 Error ToError(const char* category, int code)
@@ -50,11 +46,7 @@ Error ToError(const char* category, int code, const char* message)
 
 Error ToError(const std::system_error& e)
 {
-    Error error;
-    error.code_ = e.code().value();
-    error.category_ = ToConstString(e.code().category().name());
-    error.message_ = ToConstString(e.what());
-    return error;
+    return ToError(e.code().category().name(), e.code().value(), e.what());
 }
 
 bool operator==(const Error& lhs, const Error& rhs)
