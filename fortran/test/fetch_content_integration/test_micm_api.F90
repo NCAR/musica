@@ -1,6 +1,6 @@
 program combined_micm_tests
   use iso_c_binding
-  use micm_core, only: micm_t, mapping_t
+  use musica_micm_core, only: micm_t, mapping_t
   use musica_util, only: assert
 
   implicit none

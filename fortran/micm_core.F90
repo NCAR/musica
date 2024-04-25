@@ -1,4 +1,4 @@
-module micm_core
+module musica_micm_core
 
    use iso_c_binding, only: c_ptr, c_char, c_int, c_bool, c_double, c_null_char, c_size_t, c_f_pointer
    implicit none
@@ -189,4 +189,4 @@ contains
       call delete_micm_c(this%ptr)
    end subroutine finalize
 
-end module micm_core
+end module musica_micm_core
