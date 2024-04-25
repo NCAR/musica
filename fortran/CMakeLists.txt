@@ -43,7 +43,6 @@ target_sources(musica-fortran
   PRIVATE
     micm_core.F90
     tuvx_core.F90
-    util.F90
 )
 
 # Add flags for gfortran

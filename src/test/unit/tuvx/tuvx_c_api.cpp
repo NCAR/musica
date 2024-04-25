@@ -40,13 +40,13 @@ TEST_F(TuvxCApiTest, CreateTuvxInstanceWithJsonConfig) {
 TEST_F(TuvxCApiTest, DetectsNonexistentYamlConfigFile) {
     const char* yaml_config_path = "nonexisting.yml";
     SetUp(yaml_config_path);
-    ASSERT_EQ(error_code, 1);
+    ASSERT_EQ(error_code, 2);
     ASSERT_EQ(tuvx, nullptr);
 }
 
 TEST_F(TuvxCApiTest, DetectsNonexistentJSONConfigFile) {
     const char* json_config_path = "nonexisting.json";
     SetUp(json_config_path);
-    ASSERT_EQ(error_code, 1);
+    ASSERT_EQ(error_code, 2);
     ASSERT_EQ(tuvx, nullptr);
 }
