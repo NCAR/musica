@@ -70,7 +70,7 @@ TEST_F(MicmCApiTest, GetSpeciesOrdering)
     ASSERT_EQ(array_size, 5);
     bool found = false;
     for (size_t i = 0; i < array_size; i++) {
-        if (strcmp(species_ordering[i].name, "O3") == 0) {
+        if (strcmp(species_ordering[i].name_.value_, "O3") == 0) {
             found = true;
             break;
         }
@@ -78,7 +78,7 @@ TEST_F(MicmCApiTest, GetSpeciesOrdering)
     ASSERT_TRUE(found);
     found = false;
     for (size_t i = 0; i < array_size; i++) {
-        if (strcmp(species_ordering[i].name, "O") == 0) {
+        if (strcmp(species_ordering[i].name_.value_, "O") == 0) {
             found = true;
             break;
         }
@@ -86,7 +86,7 @@ TEST_F(MicmCApiTest, GetSpeciesOrdering)
     ASSERT_TRUE(found);
     found = false;
     for (size_t i = 0; i < array_size; i++) {
-        if (strcmp(species_ordering[i].name, "O2") == 0) {
+        if (strcmp(species_ordering[i].name_.value_, "O2") == 0) {
             found = true;
             break;
         }
@@ -94,7 +94,7 @@ TEST_F(MicmCApiTest, GetSpeciesOrdering)
     ASSERT_TRUE(found);
     found = false;
     for (size_t i = 0; i < array_size; i++) {
-        if (strcmp(species_ordering[i].name, "M") == 0) {
+        if (strcmp(species_ordering[i].name_.value_, "M") == 0) {
             found = true;
             break;
         }
@@ -102,7 +102,7 @@ TEST_F(MicmCApiTest, GetSpeciesOrdering)
     ASSERT_TRUE(found);
     found = false;
     for (size_t i = 0; i < array_size; i++) {
-        if (strcmp(species_ordering[i].name, "O1D") == 0) {
+        if (strcmp(species_ordering[i].name_.value_, "O1D") == 0) {
             found = true;
             break;
         }
@@ -121,7 +121,7 @@ TEST_F(MicmCApiTest, GetUserDefinedReactionRatesOrdering)
     ASSERT_EQ(array_size, 3);
     bool found = false;
     for (size_t i = 0; i < array_size; i++) {
-        if (strcmp(reaction_rates_ordering[i].name, "PHOTO.R1") == 0) {
+        if (strcmp(reaction_rates_ordering[i].name_.value_, "PHOTO.R1") == 0) {
             found = true;
             break;
         }
@@ -129,7 +129,7 @@ TEST_F(MicmCApiTest, GetUserDefinedReactionRatesOrdering)
     ASSERT_TRUE(found);
     found = false;
     for (size_t i = 0; i < array_size; i++) {
-        if (strcmp(reaction_rates_ordering[i].name, "PHOTO.R3") == 0) {
+        if (strcmp(reaction_rates_ordering[i].name_.value_, "PHOTO.R3") == 0) {
             found = true;
             break;
         }
@@ -137,7 +137,7 @@ TEST_F(MicmCApiTest, GetUserDefinedReactionRatesOrdering)
     ASSERT_TRUE(found);
     found = false;
     for (size_t i = 0; i < array_size; i++) {
-        if (strcmp(reaction_rates_ordering[i].name, "PHOTO.R5") == 0) {
+        if (strcmp(reaction_rates_ordering[i].name_.value_, "PHOTO.R5") == 0) {
             found = true;
             break;
         }

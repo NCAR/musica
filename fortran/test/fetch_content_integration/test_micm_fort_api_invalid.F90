@@ -16,7 +16,7 @@ contains
 
   subroutine test_micm_fort_api_invalid()
     use musica_util, only: error_t_c
-    use micm_core, only: micm_t
+    use musica_micm, only: micm_t
 
     implicit none
 

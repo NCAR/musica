@@ -7,8 +7,9 @@ module musica_util
   implicit none
   private
 
-  public :: string_t_c, error_t_c, to_c_string, to_f_string, assert, &
-            is_success, is_error, code, category, message
+  public :: string_t_c, error_t_c, mapping_t_c, to_c_string, to_f_string, &
+            assert, is_success, is_error, code, category, message, &
+            mapping_name, mapping_index
 
   !> Wrapper for a c string
   type, bind(c) :: string_t_c
@@ -22,6 +23,12 @@ module musica_util
     type(string_t_c) :: category_
     type(string_t_c) :: message_
   end type error_t_c
+
+  !> Name-to-index mapping
+  type, bind(c) :: mapping_t_c
+    type(string_t_c) :: name_
+    integer(c_size_t) :: index_
+  end type mapping_t_c
 
 contains
 
@@ -148,6 +155,30 @@ contains
     message = to_f_string( error%message_ )
 
   end function message
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  !> Extract the name from a mapping_t_c object
+  function mapping_name( mapping )
+
+    type(mapping_t_c), intent(in) :: mapping
+    character(len=:), allocatable :: mapping_name
+
+    mapping_name = to_f_string( mapping%name_ )
+
+  end function mapping_name
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  !> Extract the index from a mapping_t_c object
+  function mapping_index( mapping )
+
+    type(mapping_t_c), intent(in) :: mapping
+    integer :: mapping_index
+
+    mapping_index = int( mapping%index_ )
+
+  end function mapping_index
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

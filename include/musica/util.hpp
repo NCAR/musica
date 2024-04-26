@@ -39,9 +39,8 @@ struct Error
 /// @brief A struct to represent a mapping between a string and an index
 struct Mapping
 {
-    char name[256];
-    size_t index;
-    size_t string_length;
+    ConstString name_;
+    size_t index_;
 };
 
 /// @brief Casts a char* to a String
@@ -92,4 +91,11 @@ bool operator==(const Error& lhs, const Error& rhs);
 /// @param rhs The right-hand side Error
 /// @return True if the Errors are not equal, false otherwise
 bool operator!=(const Error& lhs, const Error& rhs);
+
+/// @brief Creates a Mapping from a name and index
+/// @param name The name of the Mapping
+/// @param index The index of the Mapping
+/// @return The Mapping
+Mapping ToMapping(const char* name, size_t index);
+
 #endif

@@ -51,9 +51,7 @@ Mapping *get_species_ordering(MICM *micm, size_t *array_size, Error *error) {
   // Copy data from the map to the array of structs
   size_t i = 0;
   for (const auto &entry : map) {
-    std::strcpy(species_ordering[i].name, entry.first.c_str());
-    species_ordering[i].index = entry.second;
-    species_ordering[i].string_length = entry.first.size();
+    species_ordering[i] = ToMapping(entry.first.c_str(), entry.second);
     ++i;
   }
 
@@ -70,9 +68,7 @@ Mapping *get_user_defined_reaction_rates_ordering(MICM *micm,
   // Copy data from the map to the array of structs
   size_t i = 0;
   for (const auto &entry : map) {
-    std::strcpy(reactionRates[i].name, entry.first.c_str());
-    reactionRates[i].index = entry.second;
-    reactionRates[i].string_length = entry.first.size();
+    reactionRates[i] = ToMapping(entry.first.c_str(), entry.second);
     ++i;
   }
 

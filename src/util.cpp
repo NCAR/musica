@@ -63,3 +63,11 @@ bool operator!=(const Error& lhs, const Error& rhs)
 {
     return !(lhs == rhs);
 }
+
+Mapping ToMapping(const char* name, size_t index)
+{
+    Mapping mapping;
+    mapping.name_ = ToConstString(name);
+    mapping.index_ = index;
+    return mapping;
+}

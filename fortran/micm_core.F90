@@ -1,17 +1,12 @@
-module micm_core
+module musica_micm
    use iso_c_binding, only: c_ptr, c_char, c_int, c_bool, c_double, c_null_char, &
                             c_size_t, c_f_pointer, c_funptr, c_null_ptr, c_associated
-   use musica_util, only: error_t_c, is_success
+   use musica_util, only: error_t_c, is_success, mapping_t_c
    implicit none
 
-   public :: micm_t, mapping_t
+   public :: micm_t
    private
 
-   type, bind(c) :: mapping_t
-      character(kind=c_char, len=1) :: name(256)
-      integer(c_size_t) :: index
-      integer(c_size_t) :: string_length
-   end type mapping_t
 
    interface
       function create_micm_c(config_path, error) bind(C, name="create_micm")
@@ -100,8 +95,8 @@ module micm_core
    end interface
 
    type :: micm_t
-      type(mapping_t), pointer :: species_ordering(:) => null()
-      type(mapping_t), pointer :: user_defined_reaction_rates(:) => null()
+      type(mapping_t_c), pointer :: species_ordering(:) => null()
+      type(mapping_t_c), pointer :: user_defined_reaction_rates(:) => null()
       integer(kind=c_size_t) :: species_ordering_length, user_defined_reaction_rates_length
       type(c_ptr), private   :: ptr = c_null_ptr
    contains
@@ -224,4 +219,4 @@ contains
       this%ptr = c_null_ptr
    end subroutine finalize
 
-end module micm_core
+end module musica_micm

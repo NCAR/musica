@@ -1,8 +1,9 @@
 program test_micm_fort_api
   use, intrinsic :: iso_c_binding
   use, intrinsic :: ieee_arithmetic
-  use micm_core, only: micm_t, mapping_t
-  use musica_util, only: assert, error_t_c, is_error, is_success
+  use musica_micm, only: micm_t
+  use musica_util, only: assert, error_t_c, mapping_t_c, is_error, is_success, &
+                         mapping_name, mapping_index
 
 #include "micm/util/error.hpp"
 
@@ -21,7 +22,7 @@ program test_micm_fort_api
   real(c_double), dimension(3)  :: user_defined_reaction_rates 
   integer                       :: i
   character(len=256)            :: config_path
-  type(mapping_t)               :: the_mapping
+  type(mapping_t_c)             :: the_mapping
   character(len=:), allocatable :: string_value
   real(c_double)                :: double_value
   integer(c_int)                :: int_value
@@ -44,11 +45,11 @@ program test_micm_fort_api
 
   do i = 1, micm%species_ordering_length
     the_mapping = micm%species_ordering(i)
-    print *, "Species Name:", the_mapping%name(:the_mapping%string_length), ", Index:", the_mapping%index
+    print *, "Species Name:", mapping_name(the_mapping), ", Index:", mapping_index(the_mapping)
   end do
   do i = 1, micm%user_defined_reaction_rates_length
     the_mapping = micm%user_defined_reaction_rates(i)
-    print *, "User Defined Reaction Rate Name:", the_mapping%name(:the_mapping%string_length), ", Index:", the_mapping%index
+    print *, "User Defined Reaction Rate Name:", mapping_name(the_mapping), ", Index:", mapping_index(the_mapping)
   end do
 
   write(*,*) "[test micm fort api] Initial concentrations", concentrations
