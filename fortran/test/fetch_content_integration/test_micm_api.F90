@@ -1,12 +1,15 @@
 program combined_micm_tests
   use iso_c_binding
   use musica_micm_core, only: micm_t, mapping_t
-  use musica_util, only: assert
+  use musica_util, only: assert, error_t_c, is_error, is_success
 
   implicit none
 
+#include "micm/util/error.hpp"
+
 #define ASSERT( expr ) call assert( expr, __FILE__, __LINE__ )
 #define ASSERT_EQ( a, b ) call assert( a == b, __FILE__, __LINE__ )
+#define ASSERT_NE( a, b ) call assert( a /= b, __FILE__, __LINE__ )
 
   ! Declarations
   type(micm_t), pointer         :: micm
@@ -37,18 +40,20 @@ contains
 
   ! Valid MICM solver creation test
   subroutine test_micm_fort_api()
-    character(len=256) :: config_path
-    type(mapping_t)    :: the_mapping
-    integer            :: i
+    type(mapping_t)               :: the_mapping
     character(len=:), allocatable :: string_value
     real(c_double)                :: double_value
-    integer                       :: int_value
+    integer(c_int)                :: int_value
     logical(c_bool)               :: bool_value
+    type(error_t_c)               :: error
+    character(len=256)            :: config_path
+    integer                       :: i
 
     config_path = "configs/chapman"
 
     write(*,*) "[test micm fort api] Creating MICM solver..."
-    micm => micm_t(config_path, errcode)
+    micm => micm_t(config_path, error)
+    ASSERT( is_success( error ) )
 
     do i = 1, micm%species_ordering_length
       the_mapping = micm%species_ordering(i)
@@ -59,49 +64,67 @@ contains
       print *, "User Defined Reaction Rate Name:", the_mapping%name(:the_mapping%string_length), ", Index:", the_mapping%index
     end do
 
-    if (errcode /= 0) then
-      write(*,*) "[test micm fort api] Failed in creating solver."
-      stop 3
-    endif
-
     write(*,*) "[test micm fort api] Initial concentrations", concentrations
 
     write(*,*) "[test micm fort api] Solving starts..."
     call micm%solve(time_step, temperature, pressure, num_concentrations, concentrations, &
-                    num_user_defined_reaction_rates, user_defined_reaction_rates)
+                    num_user_defined_reaction_rates, user_defined_reaction_rates, error)
+    ASSERT( is_success( error ) )
 
     write(*,*) "[test micm fort api] After solving, concentrations", concentrations
 
-    string_value = micm%get_species_property_string( "O3", "__long name" )
+    string_value = micm%get_species_property_string( "O3", "__long name", error )
+    ASSERT( is_success( error ) )
     ASSERT_EQ( string_value, "ozone" )
-    double_value = micm%get_species_property_double( "O3", "molecular weight [kg mol-1]" )
+    double_value = micm%get_species_property_double( "O3", "molecular weight [kg mol-1]", error )
+    ASSERT( is_success( error ) )
     ASSERT_EQ( double_value, 0.048_c_double )
-    int_value = micm%get_species_property_int( "O3", "__atoms" )
+    int_value = micm%get_species_property_int( "O3", "__atoms", error )
+    ASSERT( is_success( error ) )
     ASSERT_EQ( int_value, 3_c_int )
-    bool_value = micm%get_species_property_bool( "O3", "__do advect" )
+    bool_value = micm%get_species_property_bool( "O3", "__do advect", error )
+    ASSERT( is_success( error ) )
     ASSERT( logical( bool_value ) )
 
-    write(*,*) "[test micm fort api] Valid MICM solver creation test finished."
+    string_value = micm%get_species_property_string( "O3", "missing property", error )
+    ASSERT( is_error( error, MICM_ERROR_CATEGORY_SPECIES, \
+                      MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND ) )
+    double_value = micm%get_species_property_double( "O3", "missing property", error )
+    ASSERT( is_error( error, MICM_ERROR_CATEGORY_SPECIES, \
+                      MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND ) )
+    int_value = micm%get_species_property_int( "O3", "missing property", error )
+    ASSERT( is_error( error, MICM_ERROR_CATEGORY_SPECIES, \
+                      MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND ) )
+    bool_value = micm%get_species_property_bool( "O3", "missing property", error )
+    ASSERT( is_error( error, MICM_ERROR_CATEGORY_SPECIES, \
+                      MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND ) )
+    deallocate( micm )
+    micm => micm_t( "configs/invalid", error )
+    ASSERT( is_error( error, MICM_ERROR_CATEGORY_CONFIGURATION, \
+                      MICM_CONFIGURATION_ERROR_CODE_INVALID_FILE_PATH ) )
+    ASSERT( .not. associated( micm ) )
+
+    write(*,*) "[test micm fort api] Finished."
 
   end subroutine test_micm_fort_api
 
   ! Invalid MICM solver creation test
   subroutine test_micm_fort_api_invalid()
-    character(len=7) :: config_path
+    use musica_util, only: error_t_c
+    use musica_micm_core, only: micm_t
+
+    implicit none
+
+    type(micm_t), pointer         :: micm
+    character(len=7)              :: config_path
+    type(error_t_c)               :: error
 
     config_path = "invalid_config"
 
-    write(*,*) "[test micm fort api] Creating MICM solver with invalid config..."
-    micm => micm_t(config_path, errcode)
-
-    if (errcode /= 0) then
-      write(*,*) "[test micm fort api] Failed in creating solver (Expected failure). Error code: ", errcode
-    else
-      write(*,*) "[test micm fort api] Unexpected error code when creating solver with invalid config: ", errcode
-      stop 3
-    endif
-
-    write(*,*) "[test micm fort api] Invalid MICM solver creation test finished."
+    write(*,*) "[test micm fort api] Creating MICM solver..."
+    micm => micm_t(config_path, error)
+    ASSERT( is_error( error, MICM_ERROR_CATEGORY_CONFIGURATION, \
+                      MICM_CONFIGURATION_ERROR_CODE_INVALID_FILE_PATH ) )
 
   end subroutine test_micm_fort_api_invalid
 
