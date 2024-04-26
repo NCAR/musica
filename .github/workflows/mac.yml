@@ -38,7 +38,7 @@ jobs:
           cmake -S . -B build -D CMAKE_CXX_FLAGS=-Wl,-ld_classic -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_PYTHON_LIBRARY=ON -D Python3_EXECUTABLE=$PYTHON_PATH
 
       - name: Build
-        run: cmake --build build --verbose
+        run: cmake --build build --verbose --parallel 10
 
       - name: Run tests
         run: |
@@ -63,7 +63,7 @@ jobs:
         run: cmake -S . -B build -D CMAKE_CXX_FLAGS=-Wl,-ld_classic -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_BUILD_FORTRAN_INTERFACE=ON
 
       - name: Build
-        run: cmake --build build --verbose
+        run: cmake --build build --verbose --parallel 10
 
       - name: Run tests
         run: |
