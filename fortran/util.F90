@@ -2,18 +2,26 @@
 ! SPDX-License-Identifier: Apache-2.0
 module musica_util
 
-  use iso_c_binding,                   only: c_ptr, c_size_t
+  use iso_c_binding,                   only: c_int, c_ptr, c_size_t
 
   implicit none
   private
 
-  public :: string_t_c, to_c_string, to_f_string, assert
+  public :: string_t_c, error_t_c, to_c_string, to_f_string, assert, &
+            is_success, is_error, code, category, message
 
   !> Wrapper for a c string
   type, bind(c) :: string_t_c
     type(c_ptr) :: ptr_
     integer(c_size_t) :: size_
   end type string_t_c
+
+  !> Wrapper for an error condition
+  type, bind(c) :: error_t_c
+    integer(c_int) :: code_
+    type(string_t_c) :: category_
+    type(string_t_c) :: message_
+  end type error_t_c
 
 contains
 
@@ -80,6 +88,66 @@ contains
 
   end subroutine assert
 
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  !> Check if an error_t_c object represents a success condition
+  logical function is_success( error )
+
+    type(error_t_c), intent(in) :: error
+
+    is_success = error%code_ == 0_c_int
+
+  end function is_success
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  !> Check if an error_t_c object matches a specific error condition
+  logical function is_error( error, category, code )
+
+    type(error_t_c), intent(in) :: error
+    character(len=*), intent(in) :: category
+    integer, intent(in) :: code
+
+    is_error = int( error%code_ ) == code .and. &
+               to_f_string( error%category_ ) == category
+
+  end function is_error
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  !> Extract the error code from an error_t_c object
+  integer function code( error )
+
+    type(error_t_c), intent(in) :: error
+
+    code = int( error%code_ )
+
+  end function code
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  !> Extract the error category from an error_t_c object
+  function category( error )
+
+    type(error_t_c), intent(in) :: error
+    character(len=:), allocatable :: category
+
+    category = to_f_string( error%category_ )
+
+  end function category
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  !> Extract the error message from an error_t_c object
+  function message( error )
+
+    type(error_t_c), intent(in) :: error
+    character(len=:), allocatable :: message
+
+    message = to_f_string( error%message_ )
+
+  end function message
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

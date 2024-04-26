@@ -15,8 +15,8 @@ PYBIND11_MODULE(musica, m)
 
     m.def("create_micm", [](const char *config_path)
           {
-        int error_code;
-        MICM* micm = create_micm(config_path, &error_code);
+        Error error;
+        MICM* micm = create_micm(config_path, &error);
         return micm; });
 
     m.def("delete_micm", &delete_micm);
@@ -37,9 +37,11 @@ PYBIND11_MODULE(musica, m)
             }
         }
 
+        Error error;
         micm_solve(micm, time_step, temperature, pressure, 
             concentrations_cpp.size(), concentrations_cpp.data(), 
-            custom_rate_parameters_cpp.size(), custom_rate_parameters_cpp.data());
+            custom_rate_parameters_cpp.size(), custom_rate_parameters_cpp.data(),
+            &error);
         
          // Update the concentrations list after solving
         for (size_t i = 0; i < concentrations_cpp.size(); ++i) {
@@ -49,11 +51,13 @@ PYBIND11_MODULE(musica, m)
 
     m.def(
         "species_ordering", [](MICM *micm)
-        { return micm->get_species_ordering(); },
+        {   Error error;
+            return micm->get_species_ordering(&error); },
         "Return map of get_species_ordering rates");
 
     m.def(
         "user_defined_reaction_rates", [](MICM *micm)
-        { return micm->get_user_defined_reaction_rates_ordering(); },
+        {   Error error;
+            return micm->get_user_defined_reaction_rates_ordering(&error); },
         "Return map of reaction rates");
 }
