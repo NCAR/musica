@@ -51,13 +51,13 @@ PYBIND11_MODULE(musica, m)
 
     m.def(
         "species_ordering", [](musica::MICM *micm)
-        {   Error error;
+        {   musica::Error error;
             return micm->get_species_ordering(&error); },
         "Return map of get_species_ordering rates");
 
     m.def(
         "user_defined_reaction_rates", [](musica::MICM *micm)
-        {   Error error;
+        {   musica::Error error;
             return micm->get_user_defined_reaction_rates_ordering(&error); },
         "Return map of reaction rates");
 }
