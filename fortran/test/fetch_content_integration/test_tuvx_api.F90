@@ -23,7 +23,7 @@ contains
   ! Valid tuvx solver creation test
   subroutine test_tuvx_fort_api()
     character(len=256) :: config_path
-    logical(c_bool)               :: bool_value
+    logical(c_bool)    :: bool_value
 
     config_path = "configs/tuvx/ts1_tsmlt.json"
 
