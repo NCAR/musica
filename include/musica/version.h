@@ -7,7 +7,7 @@
 #pragma once
 
 #ifdef __cplusplus
-namesapce musica {
+namespace musica {
 extern "C" {
 #endif
 
