@@ -59,8 +59,7 @@ ConstString ToConstString(const char* value);
 void DeleteString(String str);
 
 #ifdef __cplusplus
-}
-#endif
+} // extern "C"
 
 
 /// @brief Creates an Error indicating no error
@@ -72,6 +71,7 @@ Error NoError();
 /// @param code The code of the Error
 /// @return The Error
 Error ToError(const char* category, int code);
+
 
 /// @brief Creates an Error from a category, code, and message
 /// @param category The category of the Error
@@ -85,6 +85,7 @@ Error ToError(const char* category, int code, const char* message);
 /// @return The Error
 Error ToError(const std::system_error& e);
 
+
 /// @brief Overloads the equality operator for Error types
 /// @param lhs The left-hand side Error
 /// @param rhs The right-hand side Error
@@ -97,4 +98,6 @@ bool operator==(const Error& lhs, const Error& rhs);
 /// @return True if the Errors are not equal, false otherwise
 bool operator!=(const Error& lhs, const Error& rhs);
 
-}
+} // namespace musica
+
+#endif
