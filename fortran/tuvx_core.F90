@@ -39,7 +39,7 @@ contains
      integer, intent(out)          :: errcode
      character(len=1, kind=c_char) :: c_config_path(len_trim(config_path)+1)
      integer                       :: n, i
-     type(c_ptr) :: mappings_ptr
+     type(c_ptr)                   :: mappings_ptr
 
      allocate( this )
 
