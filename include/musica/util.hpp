@@ -10,6 +10,8 @@
 #ifdef __cplusplus
 #include <system_error>
 
+namespace musica {
+
 extern "C"
 {
 #endif
@@ -113,3 +115,5 @@ bool operator!=(const Error& lhs, const Error& rhs);
 Mapping ToMapping(const char* name, size_t index);
 
 #endif
+
+} // namespace musica

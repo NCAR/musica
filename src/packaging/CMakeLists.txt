@@ -22,7 +22,6 @@ install(
 install(
   FILES 
     ${MUSICA_FORTRAN_SRC_DIR}/micm.F90
-    ${MUSICA_FORTRAN_SRC_DIR}/util.F90
   DESTINATION 
     ${MUSICA_INSTALL_INCLUDE_DIR}/musica/fortran
 )

@@ -4,6 +4,8 @@
 #include <cstring>
 #include <musica/util.hpp>
 
+namespace musica {
+
 String CreateString(const char* value)
 {
     String str;
@@ -99,3 +101,5 @@ void DeleteMappings(Mapping* mappings, size_t size)
     }
     delete[] mappings;
 }
+
+} // namespace musica

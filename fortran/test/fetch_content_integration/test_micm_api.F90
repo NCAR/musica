@@ -1,4 +1,4 @@
-program test_micm_fort_api
+program test_micm_api
 
   use, intrinsic :: iso_c_binding
   use, intrinsic :: ieee_arithmetic

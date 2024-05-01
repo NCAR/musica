@@ -42,28 +42,13 @@ target_link_libraries(musica-fortran
 target_sources(musica-fortran
   PRIVATE
     micm.F90
-    util.F90
+    tuvx.F90
 )
 
 # Add flags for gfortran
 if(${CMAKE_Fortran_COMPILER_ID} MATCHES "GNU")
   add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-ffree-line-length-none>)
 endif()
-
-####################
-# TUV-x
-if (MUSICA_ENABLE_TUVX)
-  # add the sources to musica
-  target_sources(musica-fortran
-    PRIVATE
-      $<TARGET_OBJECTS:tuvx_object>
-  )
-  target_link_libraries(musica-fortran
-    PUBLIC
-      tuvx
-  )
-endif()
-
 
 ################################################################################
 # testing

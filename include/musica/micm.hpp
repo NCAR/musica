@@ -14,6 +14,8 @@
 
 #include <musica/util.hpp>
 
+namespace musica {
+
 class MICM;
 
 #ifdef __cplusplus
@@ -42,7 +44,7 @@ public:
     /// @param config_path Path to configuration file or directory containing configuration file
     /// @param error Error struct to indicate success or failure
     /// @return 0 on success, 1 on failure in parsing configuration file
-    void create_solver(const std::string &config_path, Error *error);
+    void create(const std::string &config_path, Error *error);
 
     /// @brief Solve the system
     /// @param time_step Time [s] to advance the state by
@@ -106,3 +108,4 @@ inline T MICM::get_species_property(const std::string &species_name, const std::
                      msg.c_str());
     return T();
 }
+} // namespace musica
