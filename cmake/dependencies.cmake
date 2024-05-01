@@ -42,6 +42,7 @@ endif()
 # TUV-x
 
 if (MUSICA_ENABLE_TUVX)
+  set(ENABLE_TESTS OFF CACHE BOOL "" FORCE)
   FetchContent_Declare(tuvx
     GIT_REPOSITORY https://github.com/NCAR/tuv-x.git
     GIT_TAG v0.8.0

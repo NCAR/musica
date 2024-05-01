@@ -12,9 +12,11 @@
 #include <micm/system/species.hpp>
 #include <musica/micm.hpp>
 
+namespace musica {
+
 MICM *create_micm(const char *config_path, Error *error) {
   MICM *micm = new MICM();
-  micm->create_solver(std::string(config_path), error);
+  micm->create(std::string(config_path), error);
   if (*error != NoError()) {
     delete micm;
     return nullptr;
@@ -122,7 +124,7 @@ bool get_species_property_bool(MICM *micm, const char *species_name,
                                           error);
 }
 
-void MICM::create_solver(const std::string &config_path, Error *error) {
+void MICM::create(const std::string &config_path, Error *error) {
   try {
     micm::SolverConfig<> solver_config;
     solver_config.ReadAndParse(std::filesystem::path(config_path));
@@ -190,4 +192,6 @@ std::map<std::string, size_t> MICM::get_user_defined_reaction_rates_ordering(Err
     *error = ToError(e);
     return std::map<std::string, size_t>();
   }
+}
+
 }

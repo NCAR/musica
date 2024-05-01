@@ -63,6 +63,7 @@ function(add_musica_test test_name test_binary test_args working_dir)
     add_test(NAME ${test_name}
              COMMAND ${test_binary} ${test_args}
              WORKING_DIRECTORY ${working_dir})
+    set_tests_properties(${test_name} PROPERTIES TIMEOUT 20)
   endif()
   set(MEMORYCHECK_COMMAND_OPTIONS "--error-exitcode=1 --trace-children=yes --leak-check=full --gen-suppressions=all ${MEMCHECK_SUPPRESS}")
   set(memcheck "${MEMORYCHECK_COMMAND} ${MEMORYCHECK_COMMAND_OPTIONS}")

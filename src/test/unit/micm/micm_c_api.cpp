@@ -3,6 +3,8 @@
 #include <musica/util.hpp>
 #include <gtest/gtest.h>
 
+using namespace musica;
+
 // Test fixture for the MICM C API
 class MicmCApiTest : public ::testing::Test {
 protected:
