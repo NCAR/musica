@@ -93,13 +93,14 @@ inline T MICM::get_species_property(const std::string &species_name, const std::
             {
                 return species.GetProperty<T>(property_name);
             } catch (const std::system_error &e) {
+                DeleteError(error);
                 *error = ToError(e);
                 return T();    
             }
-            return species.GetProperty<T>(property_name);
         }
     }
     std::string msg = "Species '" + species_name + "' not found";
+    DeleteError(error);
     *error = ToError(MUSICA_ERROR_CATEGORY,
                      MUSICA_ERROR_CODE_SPECIES_NOT_FOUND,
                      msg.c_str());

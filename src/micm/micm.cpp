@@ -13,9 +13,10 @@
 #include <musica/micm.hpp>
 
 MICM *create_micm(const char *config_path, Error *error) {
+  DeleteError(error);
   MICM *micm = new MICM();
   micm->create_solver(std::string(config_path), error);
-  if (*error != NoError()) {
+  if (!IsSuccess(*error)) {
     delete micm;
     return nullptr;
   }
@@ -23,6 +24,7 @@ MICM *create_micm(const char *config_path, Error *error) {
 }
 
 void delete_micm(const MICM *micm, Error *error) {
+  DeleteError(error);
   if (micm == nullptr) {
     *error = NoError();
     return;
@@ -39,13 +41,18 @@ void micm_solve(MICM *micm, double time_step, double temperature,
                 double pressure, int num_concentrations, double *concentrations,
                 int num_custom_rate_parameters,
                 double *custom_rate_parameters, Error *error) {
+  DeleteError(error);
   micm->solve(time_step, temperature, pressure, num_concentrations,
               concentrations, num_custom_rate_parameters,
               custom_rate_parameters, error);
 }
 
 Mapping *get_species_ordering(MICM *micm, size_t *array_size, Error *error) {
+  DeleteError(error);
   auto map = micm->get_species_ordering(error);
+  if (!IsSuccess(*error)) {
+    return nullptr;
+  }
   Mapping *species_ordering = new Mapping[map.size()];
 
   // Copy data from the map to the array of structs
@@ -62,7 +69,11 @@ Mapping *get_species_ordering(MICM *micm, size_t *array_size, Error *error) {
 
 Mapping *get_user_defined_reaction_rates_ordering(MICM *micm,
                                                   size_t *array_size, Error *error) {
+  DeleteError(error);
   auto map = micm->get_user_defined_reaction_rates_ordering(error);
+  if (!IsSuccess(*error)) {
+    return nullptr;
+  }
   Mapping *reactionRates = new Mapping[map.size()];
 
   // Copy data from the map to the array of structs
@@ -79,20 +90,21 @@ Mapping *get_user_defined_reaction_rates_ordering(MICM *micm,
 
 String get_species_property_string(MICM *micm, const char *species_name,
                                    const char *property_name, Error *error) {
+  DeleteError(error);
   std::string species_name_str(species_name);
   std::string property_name_str(property_name);
   const std::string value_str = micm->get_species_property<std::string>(
       species_name_str, property_name_str, error);
   String value;
-  value.size_ = value_str.length();
-  value.value_ = new char[value.size_ + 1];
-  std::strcpy(value.value_, value_str.c_str());
-
-  return value;
+  if (!IsSuccess(*error)) {
+    return value;
+  }
+  return CreateString(value_str.c_str());
 }
 
 double get_species_property_double(MICM *micm, const char *species_name,
                                    const char *property_name, Error *error) {
+  DeleteError(error);
   std::string species_name_str(species_name);
   std::string property_name_str(property_name);
   return micm->get_species_property<double>(species_name_str,
@@ -102,6 +114,7 @@ double get_species_property_double(MICM *micm, const char *species_name,
 
 int get_species_property_int(MICM *micm, const char *species_name,
                              const char *property_name, Error *error) {
+  DeleteError(error);
   std::string species_name_str(species_name);
   std::string property_name_str(property_name);
   return micm->get_species_property<int>(species_name_str,
@@ -111,6 +124,7 @@ int get_species_property_int(MICM *micm, const char *species_name,
 
 bool get_species_property_bool(MICM *micm, const char *species_name,
                                const char *property_name, Error *error) {
+  DeleteError(error);
   std::string species_name_str(species_name);
   std::string property_name_str(property_name);
   return micm->get_species_property<bool>(species_name_str,
@@ -130,8 +144,10 @@ void MICM::create_solver(const std::string &config_path, Error *error) {
     params.ignore_unused_species_ = true;
     solver_ = std::make_unique<micm::RosenbrockSolver<>>(
         solver_parameters_->system_, solver_parameters_->processes_, params);
+    DeleteError(error);
     *error = NoError();
   } catch (const std::system_error &e) {
+    DeleteError(error);
     *error = ToError(e);
   }
 }
@@ -160,8 +176,10 @@ void MICM::solve(double time_step, double temperature, double pressure,
     for (int i = 0; i < result.result_.AsVector().size(); i++) {
       concentrations[i] = result.result_.AsVector()[i];
     }
+    DeleteError(error);
     *error = NoError();
   } catch (const std::system_error &e) {
+    DeleteError(error);
     *error = ToError(e);
   }
 }
@@ -169,9 +187,11 @@ void MICM::solve(double time_step, double temperature, double pressure,
 std::map<std::string, size_t> MICM::get_species_ordering(Error *error) {
   try {
     micm::State state = solver_->GetState();
+    DeleteError(error);
     *error = NoError();
     return state.variable_map_;
   } catch (const std::system_error &e) {
+    DeleteError(error);
     *error = ToError(e);
     return std::map<std::string, size_t>();
   }
@@ -180,9 +200,11 @@ std::map<std::string, size_t> MICM::get_species_ordering(Error *error) {
 std::map<std::string, size_t> MICM::get_user_defined_reaction_rates_ordering(Error *error) {
   try {
     micm::State state = solver_->GetState();
+    DeleteError(error);
     *error = NoError();
     return state.custom_rate_parameter_map_;
   } catch (const std::system_error &e) {
+    DeleteError(error);
     *error = ToError(e);
     return std::map<std::string, size_t>();
   }

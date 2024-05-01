@@ -1,6 +1,6 @@
 program test_micm_api
   use, intrinsic :: iso_c_binding
-  use musica_util, only: assert, is_error
+  use musica_util, only: assert
 
 #include "micm/util/error.hpp"
 
@@ -15,20 +15,20 @@ program test_micm_api
 contains
 
   subroutine test_micm_fort_api_invalid()
-    use musica_util, only: error_t_c
+    use musica_util, only: error_t
     use musica_micm, only: micm_t
 
     implicit none
 
     type(micm_t), pointer         :: micm
     character(len=7)              :: config_path
-    type(error_t_c)               :: error
+    type(error_t)                 :: error
 
     config_path = "invalid_config"
 
     write(*,*) "[test micm fort api] Creating MICM solver..."
     micm => micm_t(config_path, error)
-    ASSERT( is_error( error, MICM_ERROR_CATEGORY_CONFIGURATION, \
+    ASSERT( error%is_error( MICM_ERROR_CATEGORY_CONFIGURATION, \
                       MICM_CONFIGURATION_ERROR_CODE_INVALID_FILE_PATH ) )
 
   end subroutine
