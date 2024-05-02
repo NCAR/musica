@@ -43,6 +43,8 @@ Welcome to MUSICA's documentation!
 
    getting_started
    user_guide/index
+   api/index
+   contributing/index
 
 .. getting_started
 .. user_guide/index
