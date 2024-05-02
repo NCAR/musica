@@ -6,40 +6,39 @@
 
 namespace musica {
 
-String ToString(char* value)
+String CreateString(const char* value)
 {
     String str;
-    str.value_ = value;
     str.size_ = std::strlen(value);
+    str.value_ = new char[str.size_ + 1];
+    std::strcpy(str.value_, value);
     return str;
 }
 
-ConstString ToConstString(const char* value)
+void DeleteString(String* str)
 {
-    ConstString str;
-    str.value_ = value;
-    str.size_ = std::strlen(value);
-    return str;
+    if (str->value_ != nullptr) delete[] str->value_;
+    str->value_ = nullptr;
+    str->size_ = 0;
 }
 
-void DeleteString(String str)
+Error NoError()
 {
-    delete[] str.value_;
+    return ToError("", 0, "Success");
+}
+
+Error ToError(const char* category, int code)
+{
+    return ToError(category, code, "");
 }
 
 Error ToError(const char* category, int code, const char* message)
 {
     Error error;
     error.code_ = code;
-    error.category_ = ToConstString(category);
-    error.message_ = ToConstString(message);
+    error.category_ = CreateString(category);
+    error.message_ = CreateString(message);
     return error;
-}
-
-
-Error ToError(const char* category, int code)
-{
-    return ToError(category, code, "");
 }
 
 Error ToError(const std::system_error& e)
@@ -47,9 +46,22 @@ Error ToError(const std::system_error& e)
     return ToError(e.code().category().name(), e.code().value(), e.what());
 }
 
-Error NoError()
+bool IsSuccess(const Error& error)
 {
-    return ToError("", 0, "Success");
+    return error.code_ == 0;
+}
+
+bool IsError(const Error& error, const char* category, int code)
+{
+    return error.code_ == code &&
+           (error.category_.value_ == nullptr && category == nullptr) ||
+           std::strcmp(error.category_.value_, category) == 0;
+}
+
+void DeleteError(Error* error)
+{
+    DeleteString(&(error->category_));
+    DeleteString(&(error->message_));
 }
 
 bool operator==(const Error& lhs, const Error& rhs)
@@ -59,6 +71,7 @@ bool operator==(const Error& lhs, const Error& rhs)
         return true;
     }
     return lhs.code_ == rhs.code_ &&
+           (lhs.category_.value_ == nullptr && rhs.category_.value_ == nullptr) ||
            std::strcmp(lhs.category_.value_, rhs.category_.value_) == 0;
 }
 
@@ -67,4 +80,26 @@ bool operator!=(const Error& lhs, const Error& rhs)
     return !(lhs == rhs);
 }
 
+Mapping ToMapping(const char* name, size_t index)
+{
+    Mapping mapping;
+    mapping.name_ = CreateString(name);
+    mapping.index_ = index;
+    return mapping;
 }
+
+void DeleteMapping(Mapping* mapping)
+{
+    DeleteString(&(mapping->name_));
+}
+
+void DeleteMappings(Mapping* mappings, size_t size)
+{
+    for (size_t i = 0; i < size; i++)
+    {
+        DeleteMapping(&(mappings[i]));
+    }
+    delete[] mappings;
+}
+
+} // namespace musica

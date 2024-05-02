@@ -1,4 +1,4 @@
-module musica_tuvx_core
+module musica_tuvx
 
   use iso_c_binding, only: c_ptr, c_char, c_int, c_bool, c_double, c_null_char, c_size_t, c_f_pointer
   implicit none
@@ -61,4 +61,4 @@ contains
      call delete_tuvx_c(this%ptr)
   end subroutine finalize
 
-end module musica_tuvx_core
+end module musica_tuvx

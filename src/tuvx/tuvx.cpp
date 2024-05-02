@@ -27,7 +27,7 @@ TUVX *create_tuvx(const char *config_path, int *error_code)
     }
     catch (const std::exception &e)
     {
-      std::cout << e.what() << std::endl;
+        std::cerr << e.what() << std::endl;
         *error_code = 2;
         return nullptr;
     }
@@ -47,8 +47,9 @@ TUVX::~TUVX()
 int TUVX::create(const std::string &config_path)
 {
     int parsing_status = 0; // 0 on success, 1 on failure
-    String config_path_str = ToString(const_cast<char *>(config_path.c_str()));
+    String config_path_str = CreateString(const_cast<char *>(config_path.c_str()));
     tuvx_ = std::make_unique<void*>(internal_create_tuvx(config_path_str, &parsing_status));
+    DeleteString(&config_path_str);
     return parsing_status;
 }
 }

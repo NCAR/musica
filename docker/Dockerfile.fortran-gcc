@@ -38,6 +38,7 @@ RUN cd musica \
              -D CMAKE_BUILD_TYPE=Release \
              -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
              -D MUSICA_ENABLE_MICM=ON \
+             -D MUSICA_ENABLE_MEMCHECK=ON \
     && cd build \
     && make install
 

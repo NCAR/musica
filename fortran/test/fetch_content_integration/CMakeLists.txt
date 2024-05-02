@@ -28,39 +28,39 @@ pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
 enable_testing()
 
 # API Test
-add_executable(test_micm_core_api test_micm_api.F90)
+add_executable(test_micm_api test_micm_api.F90)
 
-target_link_libraries(test_micm_fort_api
+target_link_libraries(test_micm_fortran_api
   PRIVATE
     musica::musica-fortran
 )
 
-set_target_properties(test_micm_fort_api
+set_target_properties(test_micm_fortran_api
   PROPERTIES
     LINKER_LANGUAGE Fortran
 )
 
 add_test(
-  NAME test_micm_fort_api
-  COMMAND $<TARGET_FILE:test_micm_fort_api>
+  NAME test_micm_fortran_api
+  COMMAND $<TARGET_FILE:test_micm_fortran_api>
   WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
 )
 
 # API Test
-add_executable(test_tuvx_core_api test_tuvx_api.F90)
+add_executable(test_tuvx_api test_tuvx_api.F90)
 
-target_link_libraries(test_tuvx_fort_api
+target_link_libraries(test_tuvx_fortran_api
   PRIVATE
     musica::musica-fortran
 )
 
-set_target_properties(test_tuvx_fort_api
+set_target_properties(test_tuvx_fortran_api
   PROPERTIES
     LINKER_LANGUAGE Fortran
 )
 
 add_test(
-  NAME test_tuvx_fort_api
-  COMMAND $<TARGET_FILE:test_tuvx_fort_api>
+  NAME test_tuvx_fortran_api
+  COMMAND $<TARGET_FILE:test_tuvx_fortran_api>
   WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
 )

@@ -1,6 +1,6 @@
 program combined_tuvx_tests
   use iso_c_binding
-  use musica_tuvx_core, only: tuvx_t
+  use musica_tuvx, only: tuvx_t
   use musica_util, only: assert
 
   implicit none
