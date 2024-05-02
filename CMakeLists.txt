@@ -88,6 +88,9 @@ if(CMAKE_GENERATOR_TOOLSET STREQUAL "ClangCL")
   list(APPEND musica_compile_definitions MUSICA_USING_CLANGCL)
 endif()
 
+# Set the Valgrind suppressions file for tests
+set(MEMCHECK_SUPPRESS "--suppressions=${PROJECT_SOURCE_DIR}/valgrind.supp")
+
 ################################################################################
 # Dependencies
 
