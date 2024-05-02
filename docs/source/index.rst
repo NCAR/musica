@@ -41,6 +41,9 @@ Welcome to MUSICA's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   getting_started
+   user_guide/index
+
 .. getting_started
 .. user_guide/index
 .. api/index
