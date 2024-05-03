@@ -26,6 +26,22 @@ install(
     ${MUSICA_INSTALL_INCLUDE_DIR}/musica/fortran
 )
 
+if (MUSICA_ENABLE_TUVX)
+  install(
+    TARGETS
+      tuvx
+      yaml-cpp
+    EXPORT
+      musica_Exports
+  )
+  install(
+    FILES 
+      ${MUSICA_FORTRAN_SRC_DIR}/tuvx.F90
+    DESTINATION 
+      ${MUSICA_INSTALL_INCLUDE_DIR}/musica/fortran
+  )
+endif()
+
 if (MUSICA_ENABLE_MICM)
   install(
     DIRECTORY
@@ -34,7 +50,6 @@ if (MUSICA_ENABLE_MICM)
       ${MUSICA_INSTALL_INCLUDE_DIR}/musica
   )
 endif()
-
 
 # install the cmake config files
 set(cmake_config_install_location "${CMAKE_INSTALL_LIBDIR}/cmake/musica")
