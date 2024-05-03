@@ -16,7 +16,7 @@ Welcome to MUSICA's documentation!
 
     .. grid-item-card:: Getting started
         :img-top: _static/index_getting_started.svg
-        :link: getting_started
+        :link: getting_started/getting_started
         :link-type: doc
 
         Check out the getting started guide to build and install musica.
@@ -41,12 +41,12 @@ Welcome to MUSICA's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   getting_started
+   getting_started/getting_started
    user_guide/index
    api/index
    contributing/index
 
-.. getting_started
+.. getting_started/getting_started
 .. user_guide/index
 .. api/index
 .. contributing/index
