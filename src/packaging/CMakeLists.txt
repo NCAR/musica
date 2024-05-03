@@ -29,6 +29,7 @@ install(
 if (MUSICA_ENABLE_TUVX)
   install(
     TARGETS
+      tuvx
       yaml-cpp
     EXPORT
       musica_Exports
