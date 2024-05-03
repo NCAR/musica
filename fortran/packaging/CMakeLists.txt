@@ -3,8 +3,6 @@ include(CMakePackageConfigHelpers)
 install(
   TARGETS
     musica-fortran
-    tuvx
-    yaml-cpp
   EXPORT
     musica_fortran_Exports
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
