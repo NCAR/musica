@@ -28,7 +28,7 @@ pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
 enable_testing()
 
 # API Test
-add_executable(test_micm_api test_micm_api.F90)
+add_executable(test_micm_fortran_api test_micm_api.F90)
 
 target_link_libraries(test_micm_fortran_api
   PRIVATE
@@ -47,7 +47,7 @@ add_test(
 )
 
 # API Test
-add_executable(test_tuvx_api test_tuvx_api.F90)
+add_executable(test_tuvx_fortran_api test_tuvx_api.F90)
 
 target_link_libraries(test_tuvx_fortran_api
   PRIVATE
