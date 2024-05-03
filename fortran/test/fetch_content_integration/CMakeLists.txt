@@ -11,7 +11,7 @@ include(FetchContent)
 
 FetchContent_Declare(musica-fortran
   GIT_REPOSITORY https://github.com/NCAR/musica.git
-  GIT_TAG        main
+  GIT_TAG        develop-fix-build
 )
 
 set(MUSICA_BUILD_C_CXX_INTERFACE OFF)
