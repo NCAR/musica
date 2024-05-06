@@ -30,7 +30,6 @@ install(
   NAMESPACE musica::
 )
 
-message(STATUS "CMAKE_SOURCE_DIR: ${CMAKE_SOURCE_DIR}")
 configure_package_config_file(
   "${CMAKE_SOURCE_DIR}/cmake/musicaConfig.cmake.in"
   "${PROJECT_BINARY_DIR}/musica_fortranConfig.cmake"

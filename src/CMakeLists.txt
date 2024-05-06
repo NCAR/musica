@@ -78,13 +78,14 @@ if(MUSICA_ENABLE_TUVX)
   # but grab the include directories needed for tuvx
   target_link_libraries(musica
     PUBLIC
-      tuvx
+      tuvx_object
   )
 
   # set cmake cxx flags for tuvx_object
   set_target_properties(tuvx_object PROPERTIES
     CXX_EXTENSIONS OFF
     CXX_STANDARD 11
+    Fortran_MODULE_DIRECTORY ${MUSICA_MOD_DIR}
   )
 
   add_subdirectory(tuvx)
