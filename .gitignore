@@ -1,5 +1,5 @@
 # cmake and build stuff
-
+html/
 build/
 CMakeCache.txt
 CMakeFiles
