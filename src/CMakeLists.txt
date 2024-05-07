@@ -52,10 +52,10 @@ set_target_properties(musica PROPERTIES
   SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
-message(STATUS "seting include directory to ${CMAKE_SOURCE_DIR}/include")
+message(STATUS "seting include directory to ${CMAKE_CURRENT_SOURCE_DIR}/../include")
 target_include_directories(musica
   PUBLIC  
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
     $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
 )
 
@@ -87,6 +87,12 @@ if(MUSICA_ENABLE_TUVX)
     CXX_EXTENSIONS OFF
     CXX_STANDARD 11
     Fortran_MODULE_DIRECTORY ${MUSICA_MOD_DIR}
+  )
+
+  target_include_directories(tuvx
+    PUBLIC
+      $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+      $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
   )
 
   add_subdirectory(tuvx)
