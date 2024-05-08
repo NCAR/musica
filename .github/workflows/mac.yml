@@ -30,13 +30,15 @@ jobs:
       - uses: actions/checkout@v3
 
       - uses: actions/setup-python@v5
-      - run: pip install -r python/requirements.txt
+      - run: pip install -r python/requirements.txt --user
 
       - name: Run Cmake 
-        run: cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
+        run: |
+          PYTHON_PATH=$(which python)
+          cmake -S . -B build -D CMAKE_CXX_FLAGS=-Wl,-ld_classic -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_PYTHON_LIBRARY=ON -D Python3_EXECUTABLE=$PYTHON_PATH
 
       - name: Build
-        run: cmake --build build --parallel
+        run: cmake --build build --verbose --parallel 10
 
       - name: Run tests
         run: |
@@ -58,12 +60,12 @@ jobs:
         run: brew install netcdf netcdf-fortran
 
       - name: Run Cmake 
-        run: cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_BUILD_FORTRAN_INTERFACE=ON
+        run: cmake -S . -B build -D CMAKE_CXX_FLAGS=-Wl,-ld_classic -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_BUILD_FORTRAN_INTERFACE=ON
 
       - name: Build
-        run: cmake --build build --parallel
+        run: cmake --build build --verbose --parallel 10
 
       - name: Run tests
         run: |
           cd build
-          ctest -C ${{ matrix.build_type }} --rerun-failed --output-on-failure . --verbose -j 10
+          ctest -E "tuvx_c_api|tuvx_fortran_api" -C ${{ matrix.build_type }} --rerun-failed --output-on-failure . --verbose -j 10

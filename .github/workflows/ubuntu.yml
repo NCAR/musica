@@ -41,7 +41,7 @@ jobs:
         run: cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }}  -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
 
       - name: Build
-        run: cmake --build build --verbose --parallel
+        run: cmake --build build --verbose --parallel 10
 
       - name: Run tests
         run: |
@@ -68,7 +68,7 @@ jobs:
         run: cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_BUILD_FORTRAN_INTERFACE=ON
 
       - name: Build
-        run: cmake --build build --parallel
+        run: cmake --build build --verbose --parallel 10
 
       - name: Run tests
         run: |

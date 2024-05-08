@@ -2,10 +2,13 @@ pybind11_add_module(musica_python
   wrapper.cpp
   ${PROJECT_SOURCE_DIR}/src/micm/micm.cpp
   ${PROJECT_SOURCE_DIR}/src/component_versions.c
+  ${PROJECT_SOURCE_DIR}/src/util.cpp
   ${CMAKE_BINARY_DIR}/version.c
 )
 
 target_link_libraries(musica_python PRIVATE nlohmann_json::nlohmann_json)
+
+target_compile_features(musica_python PUBLIC cxx_std_20)
 
 set_target_properties(musica_python PROPERTIES OUTPUT_NAME musica)
 

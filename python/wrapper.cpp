@@ -7,22 +7,22 @@ namespace py = pybind11;
 // Wraps micm.cpp
 PYBIND11_MODULE(musica, m)
 {
-    py::class_<MICM>(m, "MICM")
+    py::class_<musica::MICM>(m, "MICM")
         .def(py::init<>())
-        .def("create_solver", &MICM::create_solver)
-        .def("solve", &MICM::solve)
-        .def("__del__", [](MICM &micm) {});
+        .def("create", &musica::MICM::create)
+        .def("solve", &musica::MICM::solve)
+        .def("__del__", [](musica::MICM &micm) {});
 
     m.def("create_micm", [](const char *config_path)
           {
-        int error_code;
-        MICM* micm = create_micm(config_path, &error_code);
+        musica::Error error;
+        musica::MICM* micm = musica::create_micm(config_path, &error);
         return micm; });
 
-    m.def("delete_micm", &delete_micm);
+    m.def("delete_micm", &musica::delete_micm);
 
     m.def(
-        "micm_solve", [](MICM *micm, double time_step, double temperature, double pressure, py::list concentrations, py::object custom_rate_parameters = py::none())
+        "micm_solve", [](musica::MICM *micm, double time_step, double temperature, double pressure, py::list concentrations, py::object custom_rate_parameters = py::none())
         {
         std::vector<double> concentrations_cpp;
         for (auto item : concentrations) {
@@ -37,9 +37,11 @@ PYBIND11_MODULE(musica, m)
             }
         }
 
-        micm_solve(micm, time_step, temperature, pressure, 
+        musica::Error error;
+        musica::micm_solve(micm, time_step, temperature, pressure, 
             concentrations_cpp.size(), concentrations_cpp.data(), 
-            custom_rate_parameters_cpp.size(), custom_rate_parameters_cpp.data());
+            custom_rate_parameters_cpp.size(), custom_rate_parameters_cpp.data(),
+            &error);
         
          // Update the concentrations list after solving
         for (size_t i = 0; i < concentrations_cpp.size(); ++i) {
@@ -48,12 +50,14 @@ PYBIND11_MODULE(musica, m)
         "Solve the system");
 
     m.def(
-        "species_ordering", [](MICM *micm)
-        { return micm->get_species_ordering(); },
+        "species_ordering", [](musica::MICM *micm)
+        {   musica::Error error;
+            return micm->get_species_ordering(&error); },
         "Return map of get_species_ordering rates");
 
     m.def(
-        "user_defined_reaction_rates", [](MICM *micm)
-        { return micm->get_user_defined_reaction_rates_ordering(); },
+        "user_defined_reaction_rates", [](musica::MICM *micm)
+        {   musica::Error error;
+            return micm->get_user_defined_reaction_rates_ordering(&error); },
         "Return map of reaction rates");
 }
