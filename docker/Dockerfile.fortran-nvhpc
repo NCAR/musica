@@ -6,6 +6,8 @@
 #
 FROM nvcr.io/nvidia/nvhpc:23.7-devel-cuda12.2-ubuntu22.04
 
+ARG MUSICA_GIT_TAG=main
+
 RUN apt update \
     && apt -y install \
     cmake \
@@ -51,8 +53,7 @@ RUN cd musica/fortran/test/fetch_content_integration \
     && mkdir build && cd build \
     && cmake .. \
         -D CMAKE_BUILD_TYPE=Release \
+        -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
     && make
-
-RUN cp -r /musica/configs musica/fortran/test/fetch_content_integration/build
 
 WORKDIR musica/fortran/test/fetch_content_integration/build

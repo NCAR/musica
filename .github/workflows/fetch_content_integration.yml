@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  pull_request:
   workflow_dispatch:
 
 concurrency:
@@ -14,6 +15,8 @@ jobs:
   docker-build-and-test:
     name: Build and Test - ${{ matrix.dockerfile }}
     runs-on: ubuntu-latest
+    env:
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
     strategy:
       fail-fast: false
       matrix:
@@ -32,15 +35,15 @@ jobs:
         run: rm -rf /opt/hostedtoolcache
 
       - name: Build Docker image
-        run: docker build -t tuvx -f docker/${{ matrix.dockerfile }} .
+        run: docker build -t musica --build-arg MUSICA_GIT_TAG=${MUSICA_GIT_TAG} -f docker/${{ matrix.dockerfile }} .
 
       - name: Run tests in container
         if: matrix.dockerfile != 'Dockerfile.coverage'
-        run: docker run --name test-container -t tuvx bash -c 'make test ARGS="--rerun-failed --output-on-failure -j8"'
+        run: docker run --name test-container -t musica bash -c 'make test ARGS="--rerun-failed --output-on-failure -j8"'
 
       - name: Run coverage tests in container
         if: matrix.dockerfile == 'Dockerfile.coverage'
-        run: docker run --name test-container -t tuvx bash -c 'make coverage ARGS="--rerun-failed --output-on-failure -j8"'
+        run: docker run --name test-container -t musica bash -c 'make coverage ARGS="--rerun-failed --output-on-failure -j8"'
 
       - name: Copy coverage from container
         if: matrix.dockerfile == 'Dockerfile.coverage'
