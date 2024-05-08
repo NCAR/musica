@@ -6,4 +6,5 @@ Getting Started
    :maxdepth: 1
    :caption: Contents:
 
+   overview
    installation
