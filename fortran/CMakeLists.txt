@@ -47,7 +47,8 @@ target_sources(musica-fortran
 
 # Add flags for gfortran
 if(${CMAKE_Fortran_COMPILER_ID} MATCHES "GNU")
-  add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-ffree-line-length-none>)
+  target_compile_options(musica-fortran PRIVATE -ffree-line-length-none)
+  # add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-ffree-line-length-none>)
 endif()
 
 ################################################################################
