@@ -23,7 +23,7 @@ Welcome to MUSICA's documentation!
 
     .. grid-item-card::  User guide
         :img-top: _static/index_user_guide.svg
-        :link: user_guide/index
+        :link: user_guide/user_guide
         :link-type: doc
 
     .. grid-item-card::  API reference
@@ -42,12 +42,12 @@ Welcome to MUSICA's documentation!
    :caption: Contents:
 
    getting_started/getting_started
-   user_guide/index
+   user_guide/user_guide
    api/index
    contributing/index
 
 .. getting_started/getting_started
-.. user_guide/index
+.. user_guide/user_guid
 .. api/index
 .. contributing/index
 .. citing_and_bibliography/index
