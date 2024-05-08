@@ -9,7 +9,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 include(FetchContent)
 
-FetchContent_Declare(musica-fortran
+FetchContent_Declare(musica_fortran
   GIT_REPOSITORY https://github.com/NCAR/musica.git
   GIT_TAG        develop-fix-build
 )
@@ -21,7 +21,21 @@ set(MUSICA_ENABLE_TUVX ON)
 set(MUSICA_ENABLE_TESTS OFF)
 set(MUSICA_ENABLE_INSTALL OFF)
 
-FetchContent_MakeAvailable(musica-fortran)
+FetchContent_MakeAvailable(musica_fortran)
+
+# copy config data from musica-fortran
+add_custom_target(copy_unit_test_configs ALL ${CMAKE_COMMAND} -E copy_directory
+  ${musica_fortran_SOURCE_DIR}/configs ${CMAKE_BINARY_DIR}/configs)
+
+# copy config data from tuvx
+# we know it'll be there, but we can't use tuvx_SOURCE_DIR because fetch content
+# for tuvx is defined inside of the musica-fortran project so it's not avaialble at this level
+add_custom_target(copy_tuvx_test_configs ALL ${CMAKE_COMMAND} -E copy_directory
+  ${CMAKE_BINARY_DIR}/_deps/tuvx-src/examples ${CMAKE_BINARY_DIR}/examples)
+
+add_custom_target(copy_tuvx_data ALL ${CMAKE_COMMAND} -E copy_directory
+  ${CMAKE_BINARY_DIR}/_deps/tuvx-src/data ${CMAKE_BINARY_DIR}/data)
+
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
