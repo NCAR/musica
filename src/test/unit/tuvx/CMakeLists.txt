@@ -6,7 +6,7 @@ create_standard_test_cxx(NAME tuvx_c_api SOURCES tuvx_c_api.cpp)
 # Copy tuvx test data
 
 add_custom_target(copy_tuvx_test_configs ALL ${CMAKE_COMMAND} -E copy_directory
-  ${tuvx_SOURCE_DIR}/examples ${CMAKE_BINARY_DIR}/configs/tuvx)
+  ${tuvx_SOURCE_DIR}/examples ${CMAKE_BINARY_DIR}/examples)
 
 add_custom_target(copy_tuvx_data ALL ${CMAKE_COMMAND} -E copy_directory
-  ${tuvx_SOURCE_DIR}/data ${CMAKE_BINARY_DIR}/configs/tuvx/data)
+  ${tuvx_SOURCE_DIR}/data ${CMAKE_BINARY_DIR}/data)
