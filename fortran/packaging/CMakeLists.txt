@@ -3,8 +3,6 @@ include(CMakePackageConfigHelpers)
 install(
   TARGETS
     musica-fortran
-    tuvx
-    yaml-cpp
   EXPORT
     musica_fortran_Exports
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -33,7 +31,7 @@ install(
 )
 
 configure_package_config_file(
-  "${CMAKE_SOURCE_DIR}/cmake/musicaConfig.cmake.in"
+  "${MUSICA_PROJECT_SRC_DIR}/cmake/musicaConfig.cmake.in"
   "${PROJECT_BINARY_DIR}/musica_fortranConfig.cmake"
   INSTALL_DESTINATION
     ${cmake_config_install_location}
@@ -59,7 +57,7 @@ install(
 # https://gitlab.kitware.com/cmake/community/-/wikis/FAQ#can-i-do-make-uninstall-with-cmake
 if(NOT TARGET uninstall)
   configure_file(
-    "${CMAKE_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
+    "${MUSICA_PROJECT_SRC_DIR}/cmake/cmake_uninstall.cmake.in"
     "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
     IMMEDIATE @ONLY)
 

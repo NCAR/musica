@@ -5,6 +5,7 @@
 !.git/
 !.gitmodules
 !CMakeLists.txt
+!valgrind.supp
 !cmake/
 !configs
 !docs/

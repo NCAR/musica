@@ -33,7 +33,7 @@ endif()
 if (MUSICA_ENABLE_MICM)
   FetchContent_Declare(micm
       GIT_REPOSITORY https://github.com/NCAR/micm.git
-      GIT_TAG v3.5.0-release-candidate
+      GIT_TAG 2a5cd4e11a6973974f3c584dfa9841d70e0a42d5
   )
   FetchContent_MakeAvailable(micm)
 endif()
@@ -42,6 +42,7 @@ endif()
 # TUV-x
 
 if (MUSICA_ENABLE_TUVX)
+  set(ENABLE_TESTS OFF CACHE BOOL "" FORCE)
   FetchContent_Declare(tuvx
     GIT_REPOSITORY https://github.com/NCAR/tuv-x.git
     GIT_TAG v0.8.0

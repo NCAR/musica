@@ -7,11 +7,13 @@
 #pragma once
 
 #ifdef __cplusplus
+namespace musica {
 extern "C" {
 #endif
 
 char* getAllComponentVersions();
 
 #ifdef __cplusplus
+}
 }
 #endif

@@ -37,6 +37,7 @@ contains
 
     new_grid_t => grid_equal_delta_t( config )
     call assert(412348394, new_grid_t%ncells_ == 120)
+    deallocate(new_grid_t)
 
   end subroutine test_tuvx
 

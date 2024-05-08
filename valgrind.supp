@@ -1,0 +1,31 @@
+##############################################################
+#
+# TUV-x suppressions
+#
+##############################################################
+
+{
+   <AssertFailureLeaksTuvx>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   ...
+   fun:internal_create_tuvx
+   ...
+}
+{
+  <AssertFailureLeaksString>
+  Memcheck:Leak
+  match-leak-kinds: definite
+  ...
+  fun:create_tuvx
+  ...
+}
+{
+  <AssertFailureLeaksTuvxConstructor>
+  Memcheck:Leak
+  match-leak-kinds: definite
+  fun:malloc
+  fun:*musica_tuvx*
+  ...
+}
