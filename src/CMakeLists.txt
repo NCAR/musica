@@ -71,28 +71,22 @@ endif()
 # TUVX
 if(MUSICA_ENABLE_TUVX)
   enable_language(Fortran)
+
   # include the sources directly into musica
   target_sources(musica
     PRIVATE
       $<TARGET_OBJECTS:tuvx_object>
   )
+
   # but grab the include directories needed for tuvx
   target_link_libraries(musica
     PUBLIC
       tuvx_object
   )
 
-  # set cmake cxx flags for tuvx_object
-  set_target_properties(tuvx_object PROPERTIES
-    CXX_EXTENSIONS OFF
-    CXX_STANDARD 11
-    Fortran_MODULE_DIRECTORY ${MUSICA_MOD_DIR}
-  )
-
   target_include_directories(tuvx
     PUBLIC
       $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
-      $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
   )
 
   add_subdirectory(tuvx)

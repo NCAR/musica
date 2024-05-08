@@ -42,11 +42,14 @@ endif()
 # TUV-x
 
 if (MUSICA_ENABLE_TUVX)
-  set(ENABLE_TESTS OFF CACHE BOOL "" FORCE)
+  set(TUVX_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
+  set(TUVX_MOD_DIR ${MUSICA_MOD_DIR} CACHE STRING "" FORCE)
+
   FetchContent_Declare(tuvx
     GIT_REPOSITORY https://github.com/NCAR/tuv-x.git
     GIT_TAG set_defaults_path
   )
+
   FetchContent_MakeAvailable(tuvx)
 endif()
 
