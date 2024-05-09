@@ -66,3 +66,10 @@ if(MUSICA_ENABLE_PYTHON_LIBRARY)
       add_subdirectory(${pybind11_SOURCE_DIR} ${pybind11_BINARY_DIR})
   endif()
 endif()
+
+################################################################################
+# Docs
+
+if(MUSICA_BUILD_DOCS)
+  find_package(Sphinx REQUIRED)
+endif()
