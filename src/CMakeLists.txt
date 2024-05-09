@@ -52,6 +52,7 @@ set_target_properties(musica PROPERTIES
   SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
+message(STATUS "seting include directory to ${CMAKE_CURRENT_SOURCE_DIR}/../include")
 target_include_directories(musica
   PUBLIC  
     $<BUILD_INTERFACE:${MUSICA_PROJECT_SRC_DIR}/include>
@@ -70,21 +71,22 @@ endif()
 # TUVX
 if(MUSICA_ENABLE_TUVX)
   enable_language(Fortran)
+
   # include the sources directly into musica
   target_sources(musica
     PRIVATE
       $<TARGET_OBJECTS:tuvx_object>
   )
+
   # but grab the include directories needed for tuvx
   target_link_libraries(musica
     PUBLIC
-      tuvx
+      tuvx_object
   )
 
-  # set cmake cxx flags for tuvx_object
-  set_target_properties(tuvx_object PROPERTIES
-    CXX_EXTENSIONS OFF
-    CXX_STANDARD 11
+  target_include_directories(tuvx
+    PUBLIC
+      $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
   )
 
   add_subdirectory(tuvx)

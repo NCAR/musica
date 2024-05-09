@@ -30,6 +30,7 @@ if (MUSICA_ENABLE_TUVX)
   install(
     TARGETS
       tuvx
+      tuvx_object
       yaml-cpp
     EXPORT
       musica_Exports
@@ -96,6 +97,7 @@ if(NOT TARGET uninstall)
   add_custom_target(uninstall
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 endif()
+
 
 ######################################################################
 # Environment module
