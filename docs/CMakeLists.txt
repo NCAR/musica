@@ -18,3 +18,4 @@ add_custom_command(
 )
 
 add_custom_target(docs ALL DEPENDS ${SPHINX_INDEX_FILE})
+
