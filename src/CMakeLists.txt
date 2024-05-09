@@ -54,7 +54,7 @@ set_target_properties(musica PROPERTIES
 
 target_include_directories(musica
   PUBLIC  
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${MUSICA_PROJECT_SRC_DIR}/include>
     $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
 )
 

@@ -110,7 +110,7 @@ if (MUSICA_CREATE_ENVIRONMENT_MODULE)
   message(STATUS "MODULE PATH ${MODULE_FILE_PATH}")
 
   # Generate the module file using the template
-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/modulefile.lua.in
+  configure_file(${MUSICA_PROJECT_SRC_DIR}/modulefile.lua.in
                  ${MODULE_FILE_PATH}
                 @ONLY)
 
