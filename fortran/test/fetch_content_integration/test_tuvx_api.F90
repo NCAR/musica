@@ -25,7 +25,7 @@ contains
     character(len=256) :: config_path
     logical(c_bool)    :: bool_value
 
-    config_path = "configs/tuvx/ts1_tsmlt.json"
+    config_path = "examples/ts1_tsmlt.json"
 
     tuvx => tuvx_t(config_path, errcode)
 

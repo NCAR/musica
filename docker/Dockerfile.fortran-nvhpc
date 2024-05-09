@@ -6,6 +6,8 @@
 #
 FROM nvcr.io/nvidia/nvhpc:23.7-devel-cuda12.2-ubuntu22.04
 
+ARG MUSICA_GIT_TAG=main
+
 RUN apt update \
     && apt -y install \
     cmake \
@@ -16,7 +18,7 @@ RUN apt update \
     lcov \
     libcurl4-openssl-dev \
     libhdf5-dev \
-    libnetcdff-dev \
+    libnetcdf-dev \
     m4 \
     make \
     nlohmann-json3-dev \
@@ -24,6 +26,19 @@ RUN apt update \
     vim \
     zlib1g-dev \
     && apt clean 
+
+# Build netcdf-fortran
+ENV CXX=nvc++
+ENV CC=nvc
+ENV FC=nvfortran
+
+RUN git clone https://github.com/Unidata/netcdf-fortran.git \
+    && cd netcdf-fortran \
+    && git checkout v4.6.0 \
+    && mkdir build && cd build \
+    && cmake .. \
+    && make -j 8 \
+    && make install
 
 # Set environment variables to install MUSICA using gcc
 ENV FC=gfortran
@@ -51,8 +66,7 @@ RUN cd musica/fortran/test/fetch_content_integration \
     && mkdir build && cd build \
     && cmake .. \
         -D CMAKE_BUILD_TYPE=Release \
+        -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
     && make
-
-RUN cp -r /musica/configs musica/fortran/test/fetch_content_integration/build
 
 WORKDIR musica/fortran/test/fetch_content_integration/build
