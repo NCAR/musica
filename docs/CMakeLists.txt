@@ -17,4 +17,4 @@ add_custom_command(
   BuildDocs
 )
 
-add_custom_target(docs ALL DEPENDS ${SPHINX_INDEX_FILE} Doxygen)
+# add_custom_target(docs ALL DEPENDS ${SPHINX_INDEX_FILE} Doxygen)
