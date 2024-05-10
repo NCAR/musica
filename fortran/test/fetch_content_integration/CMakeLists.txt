@@ -27,21 +27,6 @@ FetchContent_MakeAvailable(musica_fortran)
 add_custom_target(copy_unit_test_configs ALL ${CMAKE_COMMAND} -E copy_directory
   ${musica_fortran_SOURCE_DIR}/configs ${CMAKE_BINARY_DIR}/configs)
 
-if (MUSICA_ENABLE_TUVX)
-  # copy config data from tuvx
-  # we know it'll be there, but we can't use tuvx_SOURCE_DIR because fetch content
-  # for tuvx is defined inside of the musica-fortran project so it's not avaialble at this level
-  add_custom_target(copy_tuvx_test_configs ALL ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_BINARY_DIR}/_deps/tuvx-src/examples ${CMAKE_BINARY_DIR}/examples)
-
-  add_custom_target(copy_tuvx_data ALL ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_BINARY_DIR}/_deps/tuvx-src/data ${CMAKE_BINARY_DIR}/data)
-
-
-  find_package(PkgConfig REQUIRED)
-  pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
-endif()
-
 enable_testing()
 
 # API Test

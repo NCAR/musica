@@ -25,6 +25,7 @@ RUN cd musica \
              -B build \
              -D CMAKE_BUILD_TYPE=Release \
              -D MUSICA_ENABLE_PYTHON_LIBRARY=ON \
+             -D MUSICA_ENABLE_TUVX=OFF \
     && cd build \
     && make install -j 8
 

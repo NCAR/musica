@@ -51,7 +51,7 @@ set_target_properties(musica PROPERTIES
   SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
-message(STATUS "seting include directory to ${CMAKE_CURRENT_SOURCE_DIR}/../include")
+message(STATUS "seting include directory to ${MUSICA_PROJECT_SRC_DIR}/include")
 target_include_directories(musica
   PUBLIC  
     $<BUILD_INTERFACE:${MUSICA_PROJECT_SRC_DIR}/include>
@@ -86,6 +86,7 @@ if(MUSICA_ENABLE_TUVX)
   target_include_directories(tuvx
     PUBLIC
       $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+      $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
   )
 
   add_subdirectory(tuvx)

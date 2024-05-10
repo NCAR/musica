@@ -50,7 +50,6 @@ RUN cd musica \
     && cmake -S . \
              -B build \
              -D MUSICA_ENABLE_TESTS=ON \
-             -D MUSICA_ENABLE_TUVX=OFF \
              -D CMAKE_BUILD_TYPE=Release \
     && cd build \
     && make install

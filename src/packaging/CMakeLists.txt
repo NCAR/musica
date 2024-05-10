@@ -54,6 +54,7 @@ endif()
 
 # install TUV-x
 if (MUSICA_ENABLE_TUVX)
+  set(INSTALL_MOD_DIR ${MUSICA_INSTALL_INCLUDE_DIR})
   install(
     TARGETS
       tuvx_object
