@@ -17,13 +17,12 @@ install(
     ${MUSICA_INSTALL_INCLUDE_DIR}
 )
 
-# install fortran mod files
+# install fortran source files
 install(
-  DIRECTORY
-    ${MUSICA_MOD_DIR}/
-  DESTINATION
-    ${MUSICA_INSTALL_INCLUDE_DIR}
-  FILES_MATCHING PATTERN "*.mod"
+  FILES 
+    ${MUSICA_FORTRAN_SRC_DIR}/util.F90
+  DESTINATION 
+    ${MUSICA_INSTALL_INCLUDE_DIR}/musica/fortran
 )
 
 # install MICM

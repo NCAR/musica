@@ -4,7 +4,7 @@
 project(
   musica
   VERSION ${PROJECT_VERSION}
-  LANGUAGES C CXX Fortran
+  LANGUAGES C CXX
 )
 
 message (STATUS "CMake build configuration for ${PROJECT_NAME} (${CMAKE_BUILD_TYPE}) ${PROJECT_VERSION}")
@@ -38,7 +38,6 @@ configure_file(version.c.in ${CMAKE_BINARY_DIR}/version.c @ONLY)
 target_sources(musica
   PRIVATE
     util.cpp
-    util.F90
     component_versions.c
     ${CMAKE_BINARY_DIR}/version.c
 )
@@ -70,6 +69,8 @@ endif()
 ####################
 # TUVX
 if(MUSICA_ENABLE_TUVX)
+  enable_language(Fortran)
+  
   # include the sources directly into musica
   target_sources(musica
     PRIVATE
