@@ -30,7 +30,7 @@ endif()
 ################################################################################
 # MICM
 
-if (MUSICA_ENABLE_MICM)
+if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE)
   FetchContent_Declare(micm
       GIT_REPOSITORY https://github.com/NCAR/micm.git
       GIT_TAG 2a5cd4e11a6973974f3c584dfa9841d70e0a42d5
@@ -41,7 +41,7 @@ endif()
 ################################################################################
 # TUV-x
 
-if (MUSICA_ENABLE_TUVX)
+if (MUSICA_ENABLE_TUVX AND MUSICA_BUILD_C_CXX_INTERFACE)
   set(TUVX_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
   set(TUVX_MOD_DIR ${MUSICA_MOD_DIR} CACHE STRING "" FORCE)
 

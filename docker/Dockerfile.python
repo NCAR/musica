@@ -6,7 +6,9 @@ RUN dnf -y update \
         gcc-c++ \
         gcc-fortran \
         git \
+        lapack-devel \
         make \
+        netcdf-fortran-devel \
         python-devel \
         pip \
     && dnf clean all

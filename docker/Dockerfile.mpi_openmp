@@ -12,7 +12,9 @@ WORKDIR /home/test_user
 RUN sudo dnf -y install \
         cmake \
         gcc-c++ \
+        gfortran \
         git \
+        lapack-devel \
         lcov \
         make \
         netcdf-fortran-devel \
