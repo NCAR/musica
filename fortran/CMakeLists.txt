@@ -41,10 +41,20 @@ target_link_libraries(musica-fortran
 
 target_sources(musica-fortran
   PRIVATE
-    micm.F90
-    tuvx.F90
     util.F90
 )
+if (MUSICA_ENABLE_MICM)
+  target_sources(musica-fortran
+    PRIVATE
+      micm.F90
+  )
+endif()
+if (MUSICA_ENABLE_TUVX)
+  target_sources(musica-fortran
+    PRIVATE
+      tuvx.F90
+  )
+endif()
 
 # Add flags for gfortran
 if(${CMAKE_Fortran_COMPILER_ID} MATCHES "GNU")
