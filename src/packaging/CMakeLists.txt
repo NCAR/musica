@@ -14,7 +14,7 @@ install(
   DIRECTORY
     ${MUSICA_PROJECT_SRC_DIR}/include/
   DESTINATION
-    ${MUSICA_INSTALL_INCLUDE_DIR}/musica
+    ${MUSICA_INSTALL_INCLUDE_DIR}
 )
 
 # install fortran mod files
@@ -22,7 +22,7 @@ install(
   DIRECTORY
     ${MUSICA_MOD_DIR}/
   DESTINATION
-    ${MUSICA_INSTALL_INCLUDE_DIR}/musica
+    ${MUSICA_INSTALL_INCLUDE_DIR}
   FILES_MATCHING PATTERN "*.mod"
 )
 
@@ -42,7 +42,7 @@ if(MUSICA_ENABLE_MICM)
     DIRECTORY
       ${micm_SOURCE_DIR}/include/
     DESTINATION 
-      ${MUSICA_INSTALL_INCLUDE_DIR}/musica
+      ${MUSICA_INSTALL_INCLUDE_DIR}
   )
 
   install(
