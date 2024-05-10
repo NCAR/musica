@@ -4,6 +4,7 @@ RUN dnf -y update \
     && dnf -y install \
         cmake \
         gcc-c++ \
+        gcc-fortran \
         git \
         make \
         python-devel \
