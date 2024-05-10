@@ -8,7 +8,10 @@ project(
 
 message (STATUS "CMake build configuration for ${PROJECT_NAME} (${CMAKE_BUILD_TYPE}) ${PROJECT_VERSION}")
 message (STATUS "  MICM: ${MUSICA_ENABLE_MICM}")
-message (STATUS "  TUVX: ${MUSICA_ENABLE_TUVX}")
+message (STATUS "  TUV-x: ${MUSICA_ENABLE_TUVX}")
+message (STATUS "  Tests: ${MUSICA_ENABLE_TESTS}")
+message (STATUS "  Install: ${MUSICA_ENABLE_INSTALL}")
+message (STATUS "  C/C++ Interface: ${MUSICA_BUILD_C_CXX_INTERFACE}")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
