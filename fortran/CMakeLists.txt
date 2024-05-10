@@ -7,6 +7,8 @@ project(
 )
 
 message (STATUS "CMake build configuration for ${PROJECT_NAME} (${CMAKE_BUILD_TYPE}) ${PROJECT_VERSION}")
+message (STATUS "  MICM: ${MUSICA_ENABLE_MICM}")
+message (STATUS "  TUVX: ${MUSICA_ENABLE_TUVX}")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
