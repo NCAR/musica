@@ -28,6 +28,7 @@ option(MUSICA_ENABLE_TESTS "Builds tests that ensures each enabled MUSICA compon
 option(MUSICA_ENABLE_MPI "Enable MPI parallel support" OFF)
 option(MUSICA_ENABLE_OPENMP "Enable OpemMP support" OFF)
 option(MUSICA_ENABLE_MEMCHECK "Enable memory checking" OFF)
+option(MUSICA_BUILD_DOCS "Build the documentation" OFF)
 
 cmake_dependent_option(
   MUSICA_ENABLE_TUVX "Builds TUV-x, a photolysis calculator library" ON "MUSICA_BUILD_FORTRAN_INTERFACE" OFF)
@@ -96,6 +97,10 @@ set(MEMCHECK_SUPPRESS "--suppressions=${PROJECT_SOURCE_DIR}/valgrind.supp")
 # Dependencies
 
 include(dependencies)
+
+if(MUSICA_BUILD_DOCS)
+  add_subdirectory(docs)
+endif()
 
 ################################################################################
 # Tests
