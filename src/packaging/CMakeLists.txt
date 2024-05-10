@@ -3,8 +3,6 @@ include(CMakePackageConfigHelpers)
 install(
   TARGETS
     musica
-    nlohmann_json
-    micm
   EXPORT
     musica_Exports
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -16,20 +14,49 @@ install(
   DIRECTORY
     ${MUSICA_PROJECT_SRC_DIR}/include/
   DESTINATION
-    ${MUSICA_INSTALL_INCLUDE_DIR}
+    ${MUSICA_INSTALL_INCLUDE_DIR}/musica
 )
 
+# install fortran mod files
 install(
-  FILES 
-    ${MUSICA_FORTRAN_SRC_DIR}/micm.F90
-  DESTINATION 
-    ${MUSICA_INSTALL_INCLUDE_DIR}/musica/fortran
+  DIRECTORY
+    ${MUSICA_MOD_DIR}/
+  DESTINATION
+    ${MUSICA_INSTALL_INCLUDE_DIR}/musica
+  FILES_MATCHING PATTERN "*.mod"
 )
 
+# install MICM
+if(MUSICA_ENABLE_MICM)
+  install(
+    TARGETS
+      nlohmann_json
+      micm
+    EXPORT
+      musica_Exports
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  )
+
+  install(
+    DIRECTORY
+      ${micm_SOURCE_DIR}/include/
+    DESTINATION 
+      ${MUSICA_INSTALL_INCLUDE_DIR}/musica
+  )
+
+  install(
+    FILES 
+      ${MUSICA_FORTRAN_SRC_DIR}/micm.F90
+    DESTINATION 
+      ${MUSICA_INSTALL_INCLUDE_DIR}/musica/fortran
+  )
+endif()
+
+# install TUV-x
 if (MUSICA_ENABLE_TUVX)
   install(
     TARGETS
-      tuvx
       tuvx_object
       yaml-cpp
     EXPORT
@@ -40,15 +67,6 @@ if (MUSICA_ENABLE_TUVX)
       ${MUSICA_FORTRAN_SRC_DIR}/tuvx.F90
     DESTINATION 
       ${MUSICA_INSTALL_INCLUDE_DIR}/musica/fortran
-  )
-endif()
-
-if (MUSICA_ENABLE_MICM)
-  install(
-    DIRECTORY
-      ${micm_SOURCE_DIR}/include/
-    DESTINATION 
-      ${MUSICA_INSTALL_INCLUDE_DIR}/musica
   )
 endif()
 
