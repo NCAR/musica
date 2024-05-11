@@ -25,6 +25,15 @@ install(
     ${MUSICA_INSTALL_INCLUDE_DIR}/musica/fortran
 )
 
+#include the fortran mod files
+install(
+  DIRECTORY
+    ${PROJECT_BINARY_DIR}/../include/
+  DESTINATION
+    ${MUSICA_INSTALL_INCLUDE_DIR}
+  FILES_MATCHING PATTERN "*.mod"
+)
+
 # install MICM
 if(MUSICA_ENABLE_MICM)
   install(
@@ -54,7 +63,6 @@ endif()
 
 # install TUV-x
 if (MUSICA_ENABLE_TUVX)
-  set(INSTALL_MOD_DIR ${MUSICA_INSTALL_INCLUDE_DIR})
   install(
     TARGETS
       tuvx_object
