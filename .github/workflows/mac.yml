@@ -27,7 +27,7 @@ jobs:
       CXX: ${{ matrix.compiler.cpp }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
       - run: pip install -r python/requirements.txt --user
@@ -54,7 +54,7 @@ jobs:
       FC: gfortran-${{ matrix.gcc_version }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install dependencies
         run: brew install netcdf netcdf-fortran
