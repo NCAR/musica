@@ -49,7 +49,7 @@ if (MUSICA_ENABLE_TUVX AND MUSICA_BUILD_C_CXX_INTERFACE)
 
   FetchContent_Declare(tuvx
     GIT_REPOSITORY https://github.com/NCAR/tuv-x.git
-    GIT_TAG 32144631794f80dfb9a52a3798e0834672773d55
+    GIT_TAG 6ff27992da1485392329208b736d2ec1522dafa3
   )
 
   FetchContent_MakeAvailable(tuvx)
