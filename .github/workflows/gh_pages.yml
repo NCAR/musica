@@ -10,6 +10,11 @@ jobs:
   build-and-deploy:
     name: Build and deploy to gh-pages
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        gcc-version: [13]
+    env:
+      FC: gfortran-${{ matrix.gcc-version }}
     steps:
       - uses: actions/checkout@v3
         with:

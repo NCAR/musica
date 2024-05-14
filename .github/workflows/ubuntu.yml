@@ -38,7 +38,7 @@ jobs:
       - run: pip install -r python/requirements.txt
 
       - name: Run Cmake 
-        run: cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }}  -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
+        run: cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
 
       - name: Build
         run: cmake --build build --verbose --parallel 10

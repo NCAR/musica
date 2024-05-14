@@ -4,7 +4,7 @@
 project(
   musica
   VERSION ${PROJECT_VERSION}
-  LANGUAGES C CXX 
+  LANGUAGES C CXX
 )
 
 message (STATUS "CMake build configuration for ${PROJECT_NAME} (${CMAKE_BUILD_TYPE}) ${PROJECT_VERSION}")
@@ -38,7 +38,6 @@ configure_file(version.c.in ${CMAKE_BINARY_DIR}/version.c @ONLY)
 target_sources(musica
   PRIVATE
     util.cpp
-    util.F90
     component_versions.c
     ${CMAKE_BINARY_DIR}/version.c
 )
@@ -52,10 +51,10 @@ set_target_properties(musica PROPERTIES
   SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
-message(STATUS "seting include directory to ${CMAKE_CURRENT_SOURCE_DIR}/../include")
+message(STATUS "seting include directory to ${MUSICA_PROJECT_SRC_DIR}/include")
 target_include_directories(musica
   PUBLIC  
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+    $<BUILD_INTERFACE:${MUSICA_PROJECT_SRC_DIR}/include>
     $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
 )
 
@@ -71,7 +70,7 @@ endif()
 # TUVX
 if(MUSICA_ENABLE_TUVX)
   enable_language(Fortran)
-
+  
   # include the sources directly into musica
   target_sources(musica
     PRIVATE
@@ -87,6 +86,7 @@ if(MUSICA_ENABLE_TUVX)
   target_include_directories(tuvx
     PUBLIC
       $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+      $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
   )
 
   add_subdirectory(tuvx)

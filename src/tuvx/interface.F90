@@ -1,14 +1,17 @@
 module tuvx_interface
 
-  use iso_c_binding, only : c_ptr, c_loc, c_int
-  use tuvx_core,     only : core_t
-  use musica_util,   only : to_f_string, string_t_c
-  use musica_string, only : string_t
+  use iso_c_binding,    only : c_ptr, c_loc, c_int
+  use tuvx_core,        only : core_t
+  use musica_tuvx_util, only : to_f_string, string_t_c
+  use musica_string,    only : string_t
+
   implicit none
 
   private
 
   contains
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     function internal_create_tuvx(config_path, error_code) bind(C, name="internal_create_tuvx")
       type(string_t_c), value, intent(in) :: config_path
@@ -28,6 +31,7 @@ module tuvx_interface
 
     end function internal_create_tuvx
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     subroutine internal_delete_tuvx(tuvx) bind(C, name="internal_delete_tuvx")
       use iso_c_binding, only: c_ptr, c_f_pointer
@@ -39,5 +43,7 @@ module tuvx_interface
         deallocate(core)
       end if
     end subroutine internal_delete_tuvx
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 end module tuvx_interface
