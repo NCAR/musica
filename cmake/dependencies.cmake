@@ -35,6 +35,9 @@ if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE)
       GIT_REPOSITORY https://github.com/NCAR/micm.git
       GIT_TAG 8c4cff0d
   )
+  set(MICM_ENABLE_TESTS OFF)
+  set(MICM_ENABLE_EXAMPLES OFF)
+
   FetchContent_MakeAvailable(micm)
 endif()
 
