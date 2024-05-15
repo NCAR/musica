@@ -1,5 +1,5 @@
 include(FetchContent)
-
+#SET(FETCHCONTENT_QUIET FALSE)
 ################################################################################
 # NetCDF library
 if (MUSICA_BUILD_FORTRAN_INTERFACE)
@@ -13,6 +13,7 @@ if(MUSICA_ENABLE_TESTS)
   FetchContent_Declare(googletest
     GIT_REPOSITORY https://github.com/google/googletest.git
     GIT_TAG be03d00f5f0cc3a997d1a368bee8a1fe93651f48
+    GIT_PROGRESS NOT ${FETCHCONTENT_QUIET}
   )
 
   set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
@@ -34,6 +35,7 @@ if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE)
   FetchContent_Declare(micm
       GIT_REPOSITORY https://github.com/NCAR/micm.git
       GIT_TAG 2a5cd4e11a6973974f3c584dfa9841d70e0a42d5
+      GIT_PROGRESS NOT ${FETCHCONTENT_QUIET}
   )
   FetchContent_MakeAvailable(micm)
 endif()
@@ -50,6 +52,7 @@ if (MUSICA_ENABLE_TUVX AND MUSICA_BUILD_C_CXX_INTERFACE)
   FetchContent_Declare(tuvx
     GIT_REPOSITORY https://github.com/NCAR/tuv-x.git
     GIT_TAG 6ff27992da1485392329208b736d2ec1522dafa3
+    GIT_PROGRESS NOT ${FETCHCONTENT_QUIET}
   )
 
   FetchContent_MakeAvailable(tuvx)
@@ -63,6 +66,7 @@ if(MUSICA_ENABLE_PYTHON_LIBRARY)
   FetchContent_Declare(pybind11
       GIT_REPOSITORY https://github.com/pybind/pybind11
       GIT_TAG        v2.12.0
+      GIT_PROGRESS  NOT ${FETCHCONTENT_QUIET}
   )
 
   FetchContent_GetProperties(pybind11)
