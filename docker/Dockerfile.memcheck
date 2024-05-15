@@ -4,8 +4,10 @@ RUN dnf -y update \
     && dnf -y install \
         cmake \
         gcc-c++ \
+        gfortran \
         gdb \
         git \
+        lapack-devel \
         lcov \
         make \
         netcdf-fortran-devel \
