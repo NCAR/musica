@@ -171,23 +171,23 @@ contains
     b = mapping_t( b_c )
     c = mapping_t( c_c )
 
-    ASSERT_EQ( a%index(), 3 )
+    ASSERT_EQ( a%index(), 4 )
     ASSERT_EQ( a%name(), "foo" )
 
-    ASSERT_EQ( b%index(), 5 )
+    ASSERT_EQ( b%index(), 6 )
     ASSERT_EQ( b%name(), "bar" )
 
-    ASSERT_EQ( c%index(), 8 )
+    ASSERT_EQ( c%index(), 9 )
     ASSERT_EQ( c%name(), "baz" )
 
     ! copy assignment
     c = b
     b = a
 
-    ASSERT_EQ( c%index(), 5 )
+    ASSERT_EQ( c%index(), 6 )
     ASSERT_EQ( c%name(), "bar" )
 
-    ASSERT_EQ( b%index(), 3 )
+    ASSERT_EQ( b%index(), 4 )
     ASSERT_EQ( b%name(), "foo" )
 
     a_c%index_ = 13
@@ -199,13 +199,13 @@ contains
     ! construct and take ownership of the c mapping
     c = mapping_t( a_c )
 
-    ASSERT_EQ( a%index(), 13 )
+    ASSERT_EQ( a%index(), 14 )
     ASSERT_EQ( a%name(), "qux" )
 
-    ASSERT_EQ( b%index(), 13 )
+    ASSERT_EQ( b%index(), 14 )
     ASSERT_EQ( b%name(), "qux" )
 
-    ASSERT_EQ( c%index(), 13 )
+    ASSERT_EQ( c%index(), 14 )
     ASSERT_EQ( c%name(), "qux" )
 
     c_mappings(1)%index_ = 21
@@ -221,12 +221,13 @@ contains
     call delete_string_c( c_mappings(2)%name_ )
     call delete_string_c( c_mappings(3)%name_ )
 
+    ! indices should be shifted by 1 for fortran
     ASSERT_EQ( size( f_mappings ), 3 )
-    ASSERT_EQ( f_mappings(1)%index(), 21 )
+    ASSERT_EQ( f_mappings(1)%index(), 22 )
     ASSERT_EQ( f_mappings(1)%name(), "quux" )
-    ASSERT_EQ( f_mappings(2)%index(), 34 )
+    ASSERT_EQ( f_mappings(2)%index(), 35 )
     ASSERT_EQ( f_mappings(2)%name(), "corge" )
-    ASSERT_EQ( f_mappings(3)%index(), 55 )
+    ASSERT_EQ( f_mappings(3)%index(), 56 )
     ASSERT_EQ( f_mappings(3)%name(), "grault" )
 
   end subroutine test_mapping_t

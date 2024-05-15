@@ -60,16 +60,20 @@ module musica_util
   end interface error_t
 
   !> Wrapper for a c name-to-index mapping
+  !!
+  !! Index is 0-based for use in C
   type, bind(c) :: mapping_t_c
     type(string_t_c) :: name_
     integer(c_size_t) :: index_ = 0_c_size_t
   end type mapping_t_c
 
   !> Name-to-index mapping
+  !!
+  !! Indexing is 1-based for use in Fortran
   type :: mapping_t
   private
     type(string_t) :: name_
-    integer :: index_
+    integer :: index_ = 1
   contains
     procedure :: mapping_assign_mapping_t_c
     generic :: assignment(=) => mapping_assign_mapping_t_c
@@ -250,7 +254,7 @@ contains
     type(mapping_t) :: new_mapping
 
     new_mapping%name_ = string_t( c_mapping%name_ )
-    new_mapping%index_ = int( c_mapping%index_ )
+    new_mapping%index_ = int( c_mapping%index_ ) + 1
 
   end function mapping_constructor
 
@@ -263,7 +267,7 @@ contains
     type(mapping_t_c), intent(in) :: from
 
     to%name_ = from%name_
-    to%index_ = int( from%index_ )
+    to%index_ = int( from%index_ ) + 1
 
   end subroutine mapping_assign_mapping_t_c
 
