@@ -7,6 +7,11 @@ project(
 )
 
 message (STATUS "CMake build configuration for ${PROJECT_NAME} (${CMAKE_BUILD_TYPE}) ${PROJECT_VERSION}")
+message (STATUS "  MICM: ${MUSICA_ENABLE_MICM}")
+message (STATUS "  TUV-x: ${MUSICA_ENABLE_TUVX}")
+message (STATUS "  Tests: ${MUSICA_ENABLE_TESTS}")
+message (STATUS "  Install: ${MUSICA_ENABLE_INSTALL}")
+message (STATUS "  C/C++ Interface: ${MUSICA_BUILD_C_CXX_INTERFACE}")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
@@ -41,13 +46,24 @@ target_link_libraries(musica-fortran
 
 target_sources(musica-fortran
   PRIVATE
-    micm.F90
-    tuvx.F90
+    util.F90
 )
+if (MUSICA_ENABLE_MICM)
+  target_sources(musica-fortran
+    PRIVATE
+      micm.F90
+  )
+endif()
+if (MUSICA_ENABLE_TUVX)
+  target_sources(musica-fortran
+    PRIVATE
+      tuvx.F90
+  )
+endif()
 
 # Add flags for gfortran
 if(${CMAKE_Fortran_COMPILER_ID} MATCHES "GNU")
-  add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-ffree-line-length-none>)
+  target_compile_options(musica-fortran PUBLIC -ffree-line-length-none)
 endif()
 
 ################################################################################

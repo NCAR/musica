@@ -24,14 +24,14 @@ protected:
 
 
 TEST_F(TuvxCApiTest, CreateTuvxInstanceWithYamlConfig) {
-    const char* yaml_config_path = "configs/tuvx/ts1_tsmlt.yml";
+    const char* yaml_config_path = "examples/ts1_tsmlt.yml";
     SetUp(yaml_config_path);
     ASSERT_EQ(error_code, 0);
     ASSERT_NE(tuvx, nullptr);
 }
 
 TEST_F(TuvxCApiTest, CreateTuvxInstanceWithJsonConfig) {
-    const char* json_config_path = "configs/tuvx/ts1_tsmlt.json";
+    const char* json_config_path = "examples/ts1_tsmlt.json";
     SetUp(json_config_path);
     ASSERT_EQ(error_code, 0);
     ASSERT_NE(tuvx, nullptr);

@@ -9,58 +9,64 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 include(FetchContent)
 
-FetchContent_Declare(musica-fortran
+set(MUSICA_GIT_TAG "main" CACHE STRING "Git tag for the musica_fortran repository")
+
+FetchContent_Declare(musica_fortran
   GIT_REPOSITORY https://github.com/NCAR/musica.git
-  GIT_TAG        main
+  GIT_TAG        ${MUSICA_GIT_TAG}
 )
 
 set(MUSICA_BUILD_C_CXX_INTERFACE OFF)
 set(MUSICA_BUILD_FORTRAN_INTERFACE ON)
-set(MUSICA_ENABLE_MICM ON)
-set(MUSICA_ENABLE_TUVX OFF)
 set(MUSICA_ENABLE_TESTS OFF)
+set(MUSICA_ENABLE_INSTALL OFF)
 
-FetchContent_MakeAvailable(musica-fortran)
+FetchContent_MakeAvailable(musica_fortran)
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
+# copy config data from musica-fortran
+add_custom_target(copy_unit_test_configs ALL ${CMAKE_COMMAND} -E copy_directory
+  ${musica_fortran_SOURCE_DIR}/configs ${CMAKE_BINARY_DIR}/configs)
 
 enable_testing()
 
 # API Test
-add_executable(test_micm_api test_micm_api.F90)
+if (MUSICA_ENABLE_MICM)
+  add_executable(test_micm_fortran_api test_micm_api.F90)
 
-target_link_libraries(test_micm_fortran_api
-  PRIVATE
-    musica::musica-fortran
-)
+  target_link_libraries(test_micm_fortran_api
+    PRIVATE
+      musica::musica-fortran
+  )
 
-set_target_properties(test_micm_fortran_api
-  PROPERTIES
-    LINKER_LANGUAGE Fortran
-)
+  set_target_properties(test_micm_fortran_api
+    PROPERTIES
+      LINKER_LANGUAGE Fortran
+  )
 
-add_test(
-  NAME test_micm_fortran_api
-  COMMAND $<TARGET_FILE:test_micm_fortran_api>
-  WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-)
+  add_test(
+    NAME test_micm_fortran_api
+    COMMAND $<TARGET_FILE:test_micm_fortran_api>
+    WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+  )
+endif()
 
 # API Test
-add_executable(test_tuvx_api test_tuvx_api.F90)
+if (MUSICA_ENABLE_TUVX)
+  add_executable(test_tuvx_fortran_api test_tuvx_api.F90)
 
-target_link_libraries(test_tuvx_fortran_api
-  PRIVATE
-    musica::musica-fortran
-)
+  target_link_libraries(test_tuvx_fortran_api
+    PRIVATE
+      musica::musica-fortran
+  )
 
-set_target_properties(test_tuvx_fortran_api
-  PROPERTIES
-    LINKER_LANGUAGE Fortran
-)
+  set_target_properties(test_tuvx_fortran_api
+    PROPERTIES
+      LINKER_LANGUAGE Fortran
+  )
 
-add_test(
-  NAME test_tuvx_fortran_api
-  COMMAND $<TARGET_FILE:test_tuvx_fortran_api>
-  WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-)
+  add_test(
+    NAME test_tuvx_fortran_api
+    COMMAND $<TARGET_FILE:test_tuvx_fortran_api>
+    WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+  )
+endif()
