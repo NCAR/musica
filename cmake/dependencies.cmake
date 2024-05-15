@@ -1,5 +1,5 @@
 include(FetchContent)
-#SET(FETCHCONTENT_QUIET FALSE)
+
 ################################################################################
 # NetCDF library
 if (MUSICA_BUILD_FORTRAN_INTERFACE)
