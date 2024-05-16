@@ -10,11 +10,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <musica/version.h>
+#include <musica/version.hpp>
+#include <musica/component_versions.hpp>
 #ifdef MUSICA_USE_MICM
 #include <micm/version.hpp>
 #endif
 
+namespace musica {
 char* add_name_and_version(char* pos, const char* name, const char* version, const char* sep) {
   size_t name_length = strlen(name);
   size_t version_length = strlen(version);
@@ -38,12 +40,12 @@ char* getAllComponentVersions() {
   size_t buf_size = 0;
 
   const char* musica_name = "musica: ";
-  const char* musica_version = getMusicaVersion();
+  const char* musica_version = musica::getMusicaVersion();
   buf_size += strlen(musica_name) + strlen(musica_version) + sep_size;
 
 #ifdef MUSICA_USE_MICM
   const char* micm_name = "micm: ";
-  const char* micm_version = getMicmVersion();
+  const char* micm_version = micm::getMicmVersion();
   buf_size += strlen(micm_name) + strlen(micm_name) + sep_size;
 #endif
 
@@ -62,3 +64,4 @@ char* getAllComponentVersions() {
 
   return buf;
 }
+}  // namespace musica
