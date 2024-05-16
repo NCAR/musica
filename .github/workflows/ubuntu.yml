@@ -13,13 +13,13 @@ concurrency:
 
 jobs:
   c_cxx:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         compiler:
-          - { cpp: g++-11, c: gcc-11}
           - { cpp: g++-12, c: gcc-12}
           - { cpp: g++-13, c: gcc-13}
+          - { cpp: g++-14, c: gcc-14}
           - { cpp: clang++, c: clang}
         build_type: [Release]
     env:
@@ -48,12 +48,14 @@ jobs:
           cd build
           ctest -C ${{ matrix.build_type }} --rerun-failed --output-on-failure . --verbose -j 10
   fortran:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
-        gcc_version: [11, 12, 13]
+        gcc_version: [12, 13, 14]
         build_type: [Release]
     env:
+      CXX: g++-${{ matrix.gcc_version }}
+      CC: gcc-${{ matrix.gcc_version }}
       FC: gfortran-${{ matrix.gcc_version }}
 
     steps:
