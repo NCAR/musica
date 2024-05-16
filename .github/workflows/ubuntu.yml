@@ -31,9 +31,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y liblapack-dev libblas-dev
-
-      - uses: actions/setup-python@v5
-      - run: pip install -r python/requirements.txt
+          sudo apt-get install -y python3-numpy
 
       - name: Run Cmake 
         run: cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
@@ -62,7 +60,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libnetcdf-dev netcdf-bin libnetcdff-dev
+          sudo apt-get install -y libnetcdf-dev netcdf-bin libnetcdff-dev liblapack-dev libblas-dev
 
       - name: Run Cmake 
         run: cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_BUILD_FORTRAN_INTERFACE=ON
