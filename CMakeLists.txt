@@ -71,17 +71,19 @@ elseif(${CMAKE_Fortran_COMPILER_ID} MATCHES "PGI")
   list(APPEND musica_compile_definitions MUSICA_USING_PGI)
 endif()
 
-# if(MUSICA_BUILD_C_CXX_INTERFACE)
-#   # must be global so that it also applies to dependencies like google test, unless we want
-#   # to set it for each target
-#   # on ubuntu with clang, an incorrect version of the c++ standard library was being linked
-#   if (${CMAKE_HOST_SYSTEM_NAME} MATCHES "Linux" AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-#       # If the compiler is Clang, use libc++
-#       message(STATUS "Using libc++ explicitly with Clang")
-#       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-#       set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -stdlib=libc++")
-#   endif()
-# endif()
+if(MUSICA_BUILD_C_CXX_INTERFACE)
+  # must be global so that it also applies to dependencies like google test, unless we want
+  # to set it for each target
+  # on ubuntu with clang, an incorrect version of the c++ standard library was being linked
+  if (${CMAKE_HOST_SYSTEM_NAME} MATCHES "Linux" AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+      # If the compiler is Clang and the Linux version is Ubuntu 20.04 or 22.04, use libc++ explicitly
+      if (${CMAKE_HOST_SYSTEM_VERSION} MATCHES "20.04" OR ${CMAKE_HOST_SYSTEM_VERSION} MATCHES "22.04")
+          message(STATUS "Using libc++ explicitly with Clang on Ubuntu 20.04 or 22.04")
+          set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+          set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -stdlib=libc++")
+      endif()
+  endif()
+endif()
 
 # Add flags when using the ClangCL toolset
 if(CMAKE_GENERATOR_TOOLSET STREQUAL "ClangCL")
