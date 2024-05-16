@@ -1,24 +1,28 @@
-const char* getMusicaVersion()
-{
-    return "@musica_VERSION@";
-}
+#include <musica/version.hpp>
 
-unsigned getMusicaVersionMajor()
-{
-    return @musica_VERSION_MAJOR@;
-}
+namespace musica {
+    const char* getMusicaVersion()
+    {
+        return "@musica_VERSION@";
+    }
 
-unsigned getMusicaVersionMinor()
-{
-    return @musica_VERSION_MINOR@ + 0;
-}
+    unsigned getMusicaVersionMajor()
+    {
+        return @musica_VERSION_MAJOR@;
+    }
 
-unsigned getMusicaVersionPatch()
-{
-    return @musica_VERSION_PATCH@ + 0;
-}
+    unsigned getMusicaVersionMinor()
+    {
+        return @musica_VERSION_MINOR@ + 0;
+    }
 
-unsigned getMusicaVersionTweak()
-{
-    return @musica_VERSION_TWEAK@ + 0;
+    unsigned getMusicaVersionPatch()
+    {
+        return @musica_VERSION_PATCH@ + 0;
+    }
+
+    unsigned getMusicaVersionTweak()
+    {
+        return @musica_VERSION_TWEAK@ + 0;
+    }
 }
