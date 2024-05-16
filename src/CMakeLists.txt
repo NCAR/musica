@@ -33,13 +33,13 @@ if(MUSICA_ENABLE_OPENMP)
 endif()
 
 # version
-configure_file(version.c.in ${CMAKE_BINARY_DIR}/version.c @ONLY)
+configure_file(version.cpp.in ${CMAKE_BINARY_DIR}/version.cpp @ONLY)
 
 target_sources(musica
   PRIVATE
     util.cpp
-    component_versions.c
-    ${CMAKE_BINARY_DIR}/version.c
+    component_versions.cpp
+    ${CMAKE_BINARY_DIR}/version.cpp
 )
 
 target_compile_definitions(musica PUBLIC ${musica_compile_definitions})
