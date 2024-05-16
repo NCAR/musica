@@ -9,11 +9,13 @@ env:
 jobs:
   build-and-deploy:
     name: Build and deploy to gh-pages
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         gcc-version: [13]
     env:
+      CXX: g++-${{ matrix.gcc-version }}
+      CC: gcc-${{ matrix.gcc-version }}
       FC: gfortran-${{ matrix.gcc-version }}
     steps:
       - uses: actions/checkout@v3
