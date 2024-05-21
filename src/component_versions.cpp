@@ -6,7 +6,6 @@
  * It provides functionality to compare versions, check compatibility, and retrieve version information.
  */
 #include <musica/component_versions.hpp>
-#include <musica/version.h>
 #include <musica/version.hpp>
 
 #include <assert.h>

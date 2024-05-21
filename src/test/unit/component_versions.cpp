@@ -1,4 +1,4 @@
-#include <musica/component_versions.h>
+#include <musica/component_versions.hpp>
 
 #include <gtest/gtest.h>
 
