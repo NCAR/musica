@@ -2,12 +2,14 @@ include(FetchContent)
 
 
 ################################################################################
-# Function to reduce repeated code, set 
+# Function to reduce repeated code, set a value to a variable only if the
+# variable is not already defined. 
 function(set_git_default git_var git_val)
 
   if(NOT ${git_var})
     set(${git_var} ${git_val} PARENT_SCOPE)
   endif()
+
 endfunction(set_git_default)
 
 ################################################################################
