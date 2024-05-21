@@ -5,13 +5,15 @@
 #pragma once
 
 #ifdef __cplusplus
-namespace musica {
-extern "C" {
+namespace musica
+{
+  extern "C"
+  {
 #endif
 
-char* getAllComponentVersions();
+    char* getAllComponentVersions();
 
 #ifdef __cplusplus
-}
+  }
 }
 #endif

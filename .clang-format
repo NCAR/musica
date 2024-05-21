@@ -1,0 +1,43 @@
+---
+BasedOnStyle: Google
+AlignAfterOpenBracket: 'AlwaysBreak'
+AllowAllConstructorInitializersOnNextLine: 'false'
+AllowAllParametersOfDeclarationOnNextLine: 'false'
+AlignConsecutiveMacros: 'true'
+AllowShortCaseLabelsOnASingleLine: 'true'
+AllowShortFunctionsOnASingleLine: 'None'
+AllowShortIfStatementsOnASingleLine: 'Never'
+AllowShortLoopsOnASingleLine: 'false'
+BreakBeforeBraces: Allman
+BinPackArguments: 'false'
+BinPackParameters: 'false'
+Cpp11BracedListStyle: 'false'
+ColumnLimit: 125 
+IndentWidth: 2
+IndentPPDirectives: BeforeHash
+NamespaceIndentation: All
+PackConstructorInitializers: 'Never'
+SpaceAfterTemplateKeyword: 'false'
+SpaceBeforeCtorInitializerColon: 'true'
+SpaceBeforeInheritanceColon: 'true'
+SpaceBeforeParens: ControlStatements
+SpaceBeforeRangeBasedForLoopColon: 'true'
+SpaceInEmptyBlock: true
+Standard: 'Latest'
+IncludeBlocks: Regroup
+IncludeCategories:
+  # MUSICA project headers
+  - Regex:           '<(musica)\/'
+    Priority:        2
+  # MICM, TUV-X headers
+  - Regex:           '<(micm|tuvx)[[:alnum:].\Q/-_\E]+>'
+    Priority:        3
+  # External libraries headers
+  - Regex:           '<([[:alnum:].\Q/-_\E]+)\/'
+    Priority:        4
+  # System headers
+  - Regex:           '<[[:alnum:].\Q/-_\E]+>'
+    Priority:        5
+  # Main, local, private headers
+  - Regex:           '".*'
+    Priority:        1
