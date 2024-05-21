@@ -39,6 +39,7 @@ PYBIND11_MODULE(musica, m)
          py::object custom_rate_parameters = py::none())
       {
         std::vector<double> concentrations_cpp;
+        concentrations_cpp.reserve(len(concentrations));
         for (auto item : concentrations)
         {
           concentrations_cpp.push_back(item.cast<double>());
@@ -48,12 +49,12 @@ PYBIND11_MODULE(musica, m)
         if (!custom_rate_parameters.is_none())
         {
           py::list parameters = custom_rate_parameters.cast<py::list>();
+          custom_rate_parameters_cpp.reserve(len(parameters));
           for (auto item : parameters)
           {
             custom_rate_parameters_cpp.push_back(item.cast<double>());
           }
         }
-
         musica::Error error;
         musica::micm_solve(
             micm,

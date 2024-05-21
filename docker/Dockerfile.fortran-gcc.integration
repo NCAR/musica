@@ -40,6 +40,7 @@ RUN cd musica \
              -D CMAKE_BUILD_TYPE=Release \
              -D MUSICA_ENABLE_TESTS=ON \
              -D MUSICA_ENABLE_MICM=ON \
+             -D MUSICA_ENABLE_TUVX=OFF \
     && cd build \
     && make install
 
@@ -49,6 +50,8 @@ RUN cd musica/fortran/test/fetch_content_integration \
     && cmake .. \
         -D CMAKE_BUILD_TYPE=Release \
         -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
+        -D MUSICA_ENABLE_MICM=ON \
+        -D MUSICA_ENABLE_TUVX=OFF \
     && make
 
 WORKDIR musica/fortran/test/fetch_content_integration/build

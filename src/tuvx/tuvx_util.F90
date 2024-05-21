@@ -1,6 +1,6 @@
 ! Copyright (C) 2023-2024 National Center for Atmospheric Research
 ! SPDX-License-Identifier: Apache-2.0
-module musica_util
+module musica_tuvx_util
 
   use iso_c_binding,                   only: c_char, c_int, c_ptr, c_size_t, &
                                              c_null_ptr, c_f_pointer
@@ -381,4 +381,4 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-end module musica_util
+end module musica_tuvx_util

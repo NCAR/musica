@@ -30,7 +30,7 @@ jobs:
       - run: pip install -r python/requirements.txt
 
       - name: Run Cmake 
-        run: cmake -S . -B build -G "MinGW Makefiles"  -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
+        run: cmake -S . -B build -G "MinGW Makefiles" -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
 
       - name: Build
         run: cmake --build build --parallel
@@ -59,7 +59,7 @@ jobs:
     - run: pip install -r python/requirements.txt
 
     - name: Run CMake
-      run: cmake -S . -B build -G "Visual Studio 16 2019" -A ${{ matrix.architecture }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}  -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
+      run: cmake -S . -B build -G "Visual Studio 16 2019" -A ${{ matrix.architecture }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
 
     - name: Build
       run: cmake --build build --config ${{ matrix.build_type }} --parallel
@@ -87,7 +87,7 @@ jobs:
     - run: pip install -r python/requirements.txt
 
     - name: Run CMake
-      run: cmake -S . -B build -G "Visual Studio 17 2022" -A ${{ matrix.architecture }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}  -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
+      run: cmake -S . -B build -G "Visual Studio 17 2022" -A ${{ matrix.architecture }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
 
     - name: Build
       run: cmake --build build --config ${{ matrix.build_type }} --parallel
@@ -111,7 +111,7 @@ jobs:
       - run: pip install -r python/requirements.txt
 
       - name: Run CMake
-        run: cmake -S . -B build -DCMAKE_CXX_COMPILER="C:/Program Files/LLVM/bin/clang++.exe" -DCMAKE_C_COMPILER="C:/Program Files/LLVM/bin/clang.exe" -G"MinGW Makefiles" -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
+        run: cmake -S . -B build -DCMAKE_CXX_COMPILER="C:/Program Files/LLVM/bin/clang++.exe" -DCMAKE_C_COMPILER="C:/Program Files/LLVM/bin/clang.exe" -G"MinGW Makefiles" -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
 
       - name: Build
         run: cmake --build build --parallel
@@ -139,7 +139,7 @@ jobs:
       - run: pip install -r python/requirements.txt
 
       - name: Run CMake
-        run: cmake -S . -B build -G "Visual Studio 16 2019" -A ${{ matrix.architecture }} -T ClangCL -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
+        run: cmake -S . -B build -G "Visual Studio 16 2019" -A ${{ matrix.architecture }} -T ClangCL -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
 
       - name: Build
         run: cmake --build build --config Debug --parallel

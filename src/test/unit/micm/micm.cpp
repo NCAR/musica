@@ -1,4 +1,4 @@
-#include <micm/version.hpp>
+#include <musica/component_versions.hpp>
 
 #include <gtest/gtest.h>
 
@@ -6,6 +6,7 @@
 
 TEST(ConnectToMICM, Version)
 {
-  std::string version = micm::getMicmVersion();
-  std::cout << version << std::endl;
+  char* versions = musica::getAllComponentVersions();
+  std::cout << versions << std::endl;
+  free(versions);
 }
