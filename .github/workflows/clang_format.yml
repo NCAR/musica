@@ -45,7 +45,8 @@ jobs:
       - name: Push changes to main-formatting branch
         # a failue of this step means changes were detected
         if: steps.check-changes.outcome != 'success'
-        run: git push origin HEAD:main-formatting
+        # run: git push origin HEAD:main-formatting  #TODO(jiwon)
+        run: git push origin 111-clang-format:test-formatting
 
       - name: Create Pull Request
         # a failue of this step means changes were detected
