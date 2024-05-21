@@ -9,13 +9,11 @@
 
 #include <musica/util.hpp>
 
-#include <micm/configure/solver_config.hpp>
-#include <micm/solver/rosenbrock.hpp>
-
 #include <memory>
 #include <string>
 #include <vector>
-
+#include <micm/configure/solver_config.hpp>
+#include <micm/solver/rosenbrock.hpp>
 namespace musica
 {
 
