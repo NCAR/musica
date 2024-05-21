@@ -25,6 +25,7 @@ PYBIND11_MODULE(musica, m)
         "micm_solve", [](musica::MICM *micm, double time_step, double temperature, double pressure, py::list concentrations, py::object custom_rate_parameters = py::none())
         {
         std::vector<double> concentrations_cpp;
+        concentrations_cpp.reserve(len(concentrations));
         for (auto item : concentrations) {
             concentrations_cpp.push_back(item.cast<double>());
         }
@@ -32,18 +33,18 @@ PYBIND11_MODULE(musica, m)
         std::vector<double> custom_rate_parameters_cpp;
         if (!custom_rate_parameters.is_none()) {
             py::list parameters = custom_rate_parameters.cast<py::list>();
+            custom_rate_parameters_cpp.reserve(len(parameters));
             for (auto item : parameters) {
                 custom_rate_parameters_cpp.push_back(item.cast<double>());
             }
         }
-
         musica::Error error;
         musica::micm_solve(micm, time_step, temperature, pressure, 
             concentrations_cpp.size(), concentrations_cpp.data(), 
             custom_rate_parameters_cpp.size(), custom_rate_parameters_cpp.data(),
             &error);
         
-         // Update the concentrations list after solving
+        // Update the concentrations list after solving
         for (size_t i = 0; i < concentrations_cpp.size(); ++i) {
             concentrations[i] = concentrations_cpp[i];
         } },
