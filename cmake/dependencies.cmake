@@ -33,8 +33,11 @@ endif()
 if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE)
   FetchContent_Declare(micm
       GIT_REPOSITORY https://github.com/NCAR/micm.git
-      GIT_TAG 2a5cd4e11a6973974f3c584dfa9841d70e0a42d5
+      GIT_TAG 8c4cff0d
   )
+  set(MICM_ENABLE_TESTS OFF)
+  set(MICM_ENABLE_EXAMPLES OFF)
+
   FetchContent_MakeAvailable(micm)
 endif()
 
