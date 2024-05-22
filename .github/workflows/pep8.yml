@@ -1,9 +1,9 @@
-name: Auto format python code with PEP8
+name: Pep8
 
 on:
   push:
     branches:
-      - main
+      - 127-pep8
   pull_request:
     branches:
       - 127-pep8
