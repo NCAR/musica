@@ -22,7 +22,8 @@ copyright = f'2024-{datetime.datetime.now().year}, NCAR/UCAR'
 author = 'NCAR/UCAR'
 
 suffix = ''
-# the suffix is required. This is controlled by the dockerfile that builds the docs
+# the suffix is required. This is controlled by the dockerfile that builds
+# the docs
 release = f'0.0.0'
 
 # -- General configuration ---------------------------------------------------
@@ -31,9 +32,9 @@ release = f'0.0.0'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-  'sphinx_copybutton',
-  'sphinx_design',
-  'sphinxcontrib.bibtex',
+    'sphinx_copybutton',
+    'sphinx_design',
+    'sphinxcontrib.bibtex',
 ]
 
 bibtex_bibfiles = ['references.bib']
@@ -59,8 +60,8 @@ html_theme_options = {
     "external_links": [],
     "github_url": "https://github.com/NCAR/musica",
     "navbar_end": ["version-switcher", "navbar-icon-links"],
-   "pygment_light_style": "tango",
-   "pygment_dark_style": "monokai"
+    "pygment_light_style": "tango",
+    "pygment_dark_style": "monokai"
 }
 
 html_css_files = [
