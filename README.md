@@ -27,6 +27,37 @@ Pre-made grids for use in MUSICA are available [here](https://wiki.ucar.edu/disp
 Checkout our [software development plan](docs/Software%20Development%20Plan.pdf)
 to see how you can contribute new science to MUSICA software.
 
+## Developer Options
+
+### Specifying dependency versions via paramaterization at configure time
+
+Introduced in [Pull Request #124](https://github.com/NCAR/musica/pull/124), it is possible for developers to specify which versions of various dependencies should be used. These options are currently limited to those dependencies managed via `FetchContent`.  This change allows for more easily testing `musica` against changes committed in different repositories and branches.  The environmental variables introduced are outlined in the following table. 
+
+#### CMake Dependency Variables
+
+| Musica Dependency                                      | Repository                | Branch, Tag or Hash|
+| ------------------------------------------------------ | --------------------------|--------------------|
+| [Google Test](https://github.com/google/googletest.git)| GOOGLETEST_GIT_REPOSITORY | GOOGLETEST_GIT_TAG |
+| [MICM](https://github.com/NCAR/mcim.git)               | MICM_GIT_REPOSITORY       | MICM_GIT_TAG       | 
+| [TUV-X](https://github.com/NCAR/tuv-x.git)             | TUVX_GIT_REPOSITORY       | TUVX_GIT_TAG       |
+| [PyBind11](https://github.com/pybind/pybind11)         | PYBIND11_GIT_REPOSITORY   | PYBIND11_GIT_TAG   |
+
+#### Example Usage
+
+> The following examples assume the working directory is a `build/` directory inside the `musica` source directory.
+
+Specifying a different version of `tuv-x`, to ensure a change won't break anything.
+
+    $ cmake .. \
+        -DTUVX_GIT_REPOSITORY="https://github.com/WardF/tuv-x.git" \
+        -DTUVX_GIT_TAG=test-fix
+
+Specifying a specific version of `tuv-x` by has, but using the official repository.
+
+    $ cmake .. \
+        -DTUVX_GIT_TAG=a6b2c4d8745
+
+
 ## Citing MUSICA
 
 MUSICA can be cited in at least two ways. The first is to cite [the paper](https://doi.org/10.1175/BAMS-D-19-0331.1) that defines the vision
