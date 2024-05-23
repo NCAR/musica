@@ -3,11 +3,8 @@ name: Pep8
 on:
   push:
     branches:
-      - 127-pep8
-  pull_request:
-    branches:
-      - 127-pep8
-    # Test(jiwon)
+      - main
+
 jobs:
   autopep8:
     runs-on: ubuntu-latest
@@ -35,9 +32,10 @@ jobs:
 
       - name: Push changes to main-autopep8 branch
         if: steps.check-changes.outcome != 'success'
-        run: git push origin 127-pep8:main-autopep8
-        # TODO(test) jiwon
+        run: git push origin HEAD:main-autopep8
+
       - name: Create Pull Request
+        if: steps.check-changes.outcome != 'success'
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
