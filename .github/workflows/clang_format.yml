@@ -3,7 +3,10 @@ name: Clang-Format
 on:
   push:
     branches:
-      - main
+      - 128-clang-tidy
+  pull_request:
+    branches:
+      - 128-clang-tidy
 
 jobs:
   format:
@@ -12,7 +15,7 @@ jobs:
 
     steps:
       - name: Install Clang-Format
-        run: sudo apt-get update && sudo apt-get install clang-format && clang-format --version
+        run: sudo apt-get update && sudo apt-get install clang-format clang-tidy && clang-format --version && clang-tidy --version
 
       - name: Check out code, run clang format, push changes
         uses: actions/checkout@v4
@@ -20,10 +23,16 @@ jobs:
           ref: ${{ github.head_ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Format code
+      - name: Run clang-format
         run: |
           find include -type f \( -name '*.hpp' -or -name '*.h' \) -exec clang-format -i --style=file --verbose {} +
           find src -type f \( -name '*.cpp' -or -name '*.c' \) -exec clang-format -i --style=file --verbose {} +
+
+      - name: Run clang-tidy
+        run: |
+          find include -type f \( -name '*.hpp' -or -name '*.h' \) -exec clang-tidy --config-file="./.clang-tidy" --fix-errors {} +
+          find src -type f \( -name '*.cpp' -or -name '*.c' \) -exec clang-tidy --config-file="./.clang-tidy" --fix-errors {} +
+          find python -type f \( -name '*.cpp' -or -name '*.c' \) -exec clang-tidy --config-file="./.clang-tidy" --fix-errors {} +
 
       - name: Check for changes
         id: check-changes
@@ -40,7 +49,7 @@ jobs:
 
       - name: Push changes to main-formatting branch
         if: steps.check-changes.outcome != 'success'
-        run: git push origin HEAD:main-formatting
+        run: git push origin 128-clang-tidy:main-formatting
 
       - name: Create Pull Request
         if: steps.check-changes.outcome != 'success'
@@ -50,4 +59,4 @@ jobs:
           commit-message: "Auto-format code using Clang-Format"
           title: "Auto-format code changes"
           body: "This is an automated pull request to apply code formatting using Clang-Format."
-          branch: "main-formatting"
+          branch: 128-clang-tidy
