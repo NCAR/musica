@@ -6,9 +6,6 @@ Checks: >
 
 WarningsAsErrors: '*'
 
-# HeaderFilterRegex: '(^<.*$)'
-ExcludeHeaderFilterRegex:  '(^<.*$)'
-
 CheckOptions:
   - key:             readability-identifier-naming.FunctionCase
     value:           CamelCase
