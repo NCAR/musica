@@ -3,7 +3,7 @@ name: Clang-Format
 on:
   push:
     branches:
-      - 128-clang-tidy
+      - main
   pull_request:
     branches:
       - 128-clang-tidy
