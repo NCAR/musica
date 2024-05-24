@@ -6,7 +6,8 @@ Checks: >
 
 WarningsAsErrors: '*'
 
-HeaderFilterRegex: '^<.$|^".$'
+# HeaderFilterRegex: '(^<.*$)'
+ExcludeHeaderFilterRegex:  '(^<.*$)'
 
 CheckOptions:
   - key:             readability-identifier-naming.FunctionCase

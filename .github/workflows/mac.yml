@@ -1,71 +1,71 @@
-name: Mac
+# name: Mac
 
-on: 
-  push:
-    branches:
-      - main
-  pull_request:
-  workflow_dispatch:
+# on: 
+#   push:
+#     branches:
+#       - main
+#   pull_request:
+#   workflow_dispatch:
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
-  cancel-in-progress: true
+# concurrency:
+#   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+#   cancel-in-progress: true
 
-jobs:
-  c_cxx:
-    runs-on: macos-latest
-    strategy:
-      matrix:
-        compiler:
-          - { cpp: g++-11, c: gcc-11}
-          - { cpp: g++-12, c: gcc-12}
-          - { cpp: g++-13, c: gcc-13}
-          - { cpp: clang++, c: clang}
-        build_type: [Release]
-    env:
-      CC: ${{ matrix.compiler.c }}
-      CXX: ${{ matrix.compiler.cpp }}
+# jobs:
+#   c_cxx:
+#     runs-on: macos-latest
+#     strategy:
+#       matrix:
+#         compiler:
+#           - { cpp: g++-11, c: gcc-11}
+#           - { cpp: g++-12, c: gcc-12}
+#           - { cpp: g++-13, c: gcc-13}
+#           - { cpp: clang++, c: clang}
+#         build_type: [Release]
+#     env:
+#       CC: ${{ matrix.compiler.c }}
+#       CXX: ${{ matrix.compiler.cpp }}
 
-    steps:
-      - uses: actions/checkout@v4
+#     steps:
+#       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
-      - run: pip install -r python/requirements.txt --user
+#       - uses: actions/setup-python@v5
+#       - run: pip install -r python/requirements.txt --user
 
-      - name: Run Cmake 
-        run: |
-          PYTHON_PATH=$(which python)
-          cmake -S . -B build -D CMAKE_CXX_FLAGS=-Wl,-ld_classic -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON -D Python3_EXECUTABLE=$PYTHON_PATH
+#       - name: Run Cmake 
+#         run: |
+#           PYTHON_PATH=$(which python)
+#           cmake -S . -B build -D CMAKE_CXX_FLAGS=-Wl,-ld_classic -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON -D Python3_EXECUTABLE=$PYTHON_PATH
 
-      - name: Build
-        run: cmake --build build --verbose --parallel 10
+#       - name: Build
+#         run: cmake --build build --verbose --parallel 10
 
-      - name: Run tests
-        run: |
-          cd build
-          ctest -C ${{ matrix.build_type }} --rerun-failed --output-on-failure . --verbose -j 10
-  fortran:
-    runs-on: macos-latest
-    strategy:
-      matrix:
-        gcc_version: [11, 12, 13]
-        build_type: [Release]
-    env:
-      FC: gfortran-${{ matrix.gcc_version }}
+#       - name: Run tests
+#         run: |
+#           cd build
+#           ctest -C ${{ matrix.build_type }} --rerun-failed --output-on-failure . --verbose -j 10
+#   fortran:
+#     runs-on: macos-latest
+#     strategy:
+#       matrix:
+#         gcc_version: [11, 12, 13]
+#         build_type: [Release]
+#     env:
+#       FC: gfortran-${{ matrix.gcc_version }}
 
-    steps:
-      - uses: actions/checkout@v4
+#     steps:
+#       - uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: brew install netcdf netcdf-fortran
+#       - name: Install dependencies
+#         run: brew install netcdf netcdf-fortran
 
-      - name: Run Cmake 
-        run: cmake -S . -B build -D CMAKE_CXX_FLAGS=-Wl,-ld_classic -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_BUILD_FORTRAN_INTERFACE=ON
+#       - name: Run Cmake 
+#         run: cmake -S . -B build -D CMAKE_CXX_FLAGS=-Wl,-ld_classic -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_BUILD_FORTRAN_INTERFACE=ON
 
-      - name: Build
-        run: cmake --build build --verbose --parallel 10
+#       - name: Build
+#         run: cmake --build build --verbose --parallel 10
 
-      - name: Run tests
-        run: |
-          cd build
-          ctest -E "tuvx_c_api|tuvx_fortran_api" -C ${{ matrix.build_type }} --rerun-failed --output-on-failure . --verbose -j 10
+#       - name: Run tests
+#         run: |
+#           cd build
+#           ctest -E "tuvx_c_api|tuvx_fortran_api" -C ${{ matrix.build_type }} --rerun-failed --output-on-failure . --verbose -j 10

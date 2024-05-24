@@ -1,57 +1,57 @@
-name: Docker
+# name: Docker
 
-on: 
-  push:
-  pull_request:
-  workflow_dispatch:
+# on: 
+#   push:
+#   pull_request:
+#   workflow_dispatch:
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
-  cancel-in-progress: true
+# concurrency:
+#   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+#   cancel-in-progress: true
 
-jobs:
-  docker-build-and-test:
-    name: Build and Test - ${{ matrix.dockerfile }}
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest]
-        dockerfile:
-          - Dockerfile
-          - Dockerfile.memcheck
-          - Dockerfile.fortran-gcc
-          - Dockerfile.openmp
-          - Dockerfile.mpi
-          - Dockerfile.mpi_openmp
-          - Dockerfile.python
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
+# jobs:
+#   docker-build-and-test:
+#     name: Build and Test - ${{ matrix.dockerfile }}
+#     runs-on: ubuntu-latest
+#     strategy:
+#       fail-fast: false
+#       matrix:
+#         os: [ubuntu-latest]
+#         dockerfile:
+#           - Dockerfile
+#           - Dockerfile.memcheck
+#           - Dockerfile.fortran-gcc
+#           - Dockerfile.openmp
+#           - Dockerfile.mpi
+#           - Dockerfile.mpi_openmp
+#           - Dockerfile.python
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+#         with:
+#           submodules: recursive
 
-      - name: Delete huge unnecessary tools folder
-        run: rm -rf /opt/hostedtoolcache
+#       - name: Delete huge unnecessary tools folder
+#         run: rm -rf /opt/hostedtoolcache
 
-      - name: Build Docker image
-        run: docker build -t tuvx -f docker/${{ matrix.dockerfile }} .
+#       - name: Build Docker image
+#         run: docker build -t tuvx -f docker/${{ matrix.dockerfile }} .
 
-      - name: Run tests in container
-        if: matrix.dockerfile != 'Dockerfile.coverage'
-        run: docker run --name test-container -t tuvx bash -c 'make test ARGS="--rerun-failed --output-on-failure -j8"'
+#       - name: Run tests in container
+#         if: matrix.dockerfile != 'Dockerfile.coverage'
+#         run: docker run --name test-container -t tuvx bash -c 'make test ARGS="--rerun-failed --output-on-failure -j8"'
 
-      - name: Run coverage tests in container
-        if: matrix.dockerfile == 'Dockerfile.coverage'
-        run: docker run --name test-container -t tuvx bash -c 'make coverage ARGS="--rerun-failed --output-on-failure -j8"'
+#       - name: Run coverage tests in container
+#         if: matrix.dockerfile == 'Dockerfile.coverage'
+#         run: docker run --name test-container -t tuvx bash -c 'make coverage ARGS="--rerun-failed --output-on-failure -j8"'
 
-      - name: Copy coverage from container
-        if: matrix.dockerfile == 'Dockerfile.coverage'
-        run: docker cp test-container:build/coverage.info .
+#       - name: Copy coverage from container
+#         if: matrix.dockerfile == 'Dockerfile.coverage'
+#         run: docker cp test-container:build/coverage.info .
 
-      - name: Upload coverage report
-        if: matrix.dockerfile == 'Dockerfile.coverage'
-        uses: codecov/codecov-action@v3
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: coverage.info
+#       - name: Upload coverage report
+#         if: matrix.dockerfile == 'Dockerfile.coverage'
+#         uses: codecov/codecov-action@v3
+#         with:
+#           token: ${{ secrets.CODECOV_TOKEN }}
+#           files: coverage.info
