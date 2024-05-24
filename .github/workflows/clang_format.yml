@@ -30,9 +30,9 @@ jobs:
 
       - name: Run clang-tidy
         run: |
-          find include -type f \( -name '*.hpp' -or -name '*.h' \) -exec clang-tidy --config-file="./.clang-tidy" --exclude-header-filte="(^<.*$)" --fix-errors {} +
-          find src -type f \( -name '*.cpp' -or -name '*.c' \) -exec clang-tidy --config-file="./.clang-tidy" --exclude-header-filte="(^<.*$)" --fix-errors {} +
-          find python -type f \( -name '*.cpp' -or -name '*.c' \) -exec clang-tidy --config-file="./.clang-tidy" --exclude-header-filte="(^<.*$)" --fix-errors {} +
+          find include -type f \( -name '*.hpp' -or -name '*.h' \) -exec clang-tidy --config-file="./.clang-tidy" --exclude-header-filter="(^<.*$)" --fix-errors {} +
+          find src -type f \( -name '*.cpp' -or -name '*.c' \) -exec clang-tidy --config-file="./.clang-tidy" --exclude-header-filter="(^<.*$)" --fix-errors {} +
+          find python -type f \( -name '*.cpp' -or -name '*.c' \) -exec clang-tidy --config-file="./.clang-tidy" --exclude-header-filter="(^<.*$)" --fix-errors {} +
 
       - name: Check for changes
         id: check-changes
