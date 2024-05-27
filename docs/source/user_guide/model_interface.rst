@@ -2,8 +2,8 @@
 Model Inteface
 ##############
 
-Fortran Interface Example
--------------------------
+Fortran C Interface Example
+---------------------------
 
 .. code-block:: cpp
 
@@ -50,4 +50,29 @@ Fortran Interface Example
 
       call test_proc_c(n_fort, A_fort)
   end program demo_fort
+
+.. code-block:: bash
+
+    all: test_proc_c.o demo_fort.o demo_fort
+
+    test_proc_c.o : test_proc_c.c
+        gcc -c test_proc_c.c
+
+    demo_fort.o : demo_fort.f90
+        gfortran -c demo_fort.f90
+
+    demo_fort : test_proc_c.o demo_fort.o
+        gfortran -o demo_fort demo_fort.o test_proc_c.o -lc
+
+    clean:
+        rm -f test_proc_c.o demo_fort.o demo_fort
+
+.. code-block:: console
+
+  $ ./demo_fort
+  test_proc_c
+  n = 7
+  matrix A
+    2.00   3.00   4.00 
+    3.00   4.00   5.00
 
