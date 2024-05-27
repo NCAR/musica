@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include <musica/component_versions.h>
+#include <musica/component_versions.hpp>
 
 using namespace musica;
 

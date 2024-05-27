@@ -27,6 +27,7 @@ RUN echo "The suffix is '$SWITCHER_SUFFIX'"
 RUN mkdir /build \
       && cd /build \
       && cmake -D MUSICA_BUILD_DOCS=ON \
+               -D MUSICA_ENABLE_TUVX=OFF \
                /musica \
       && make docs
 

@@ -141,7 +141,7 @@ void MICM::create(const std::string &config_path, Error *error) {
     solver_parameters_ = std::make_unique<micm::SolverParameters>(
         solver_config.GetSolverParams());
     auto params =
-        micm::RosenbrockSolverParameters::three_stage_rosenbrock_parameters(
+        micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters(
             NUM_GRID_CELLS);
     params.ignore_unused_species_ = true;
     solver_ = std::make_unique<micm::RosenbrockSolver<>>(

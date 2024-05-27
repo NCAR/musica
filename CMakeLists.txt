@@ -29,12 +29,8 @@ option(MUSICA_ENABLE_MPI "Enable MPI parallel support" OFF)
 option(MUSICA_ENABLE_OPENMP "Enable OpemMP support" OFF)
 option(MUSICA_ENABLE_MEMCHECK "Enable memory checking" OFF)
 option(MUSICA_BUILD_DOCS "Build the documentation" OFF)
-
-cmake_dependent_option(
-  MUSICA_ENABLE_TUVX "Builds TUV-x, a photolysis calculator library" ON "MUSICA_BUILD_FORTRAN_INTERFACE" OFF)
-
-cmake_dependent_option(
-  MUSICA_ENABLE_MICM "Adds MICM, a model independent chemical mechanism solver" ON "MUSICA_BUILD_C_CXX_INTERFACE" OFF)
+option(MUSICA_ENABLE_MICM "Enable MICM" ON)
+option(MUSICA_ENABLE_TUVX "Enable TUV-x" ON)
 
 cmake_dependent_option(
   MUSICA_ENABLE_PYTHON_LIBRARY "Adds pybind11, a lightweight header-only library that exposes C++ types in Python and vice versa" OFF "MUSICA_BUILD_C_CXX_INTERFACE" OFF)
@@ -80,8 +76,12 @@ if(MUSICA_BUILD_C_CXX_INTERFACE)
   # to set it for each target
   # on ubuntu with clang, an incorrect version of the c++ standard library was being linked
   if (${CMAKE_HOST_SYSTEM_NAME} MATCHES "Linux" AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-      # If the compiler is Clang, use libc++
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+      # If the compiler is Clang and the Linux version is Ubuntu 20.04 or 22.04, use libc++ explicitly
+      if (${CMAKE_HOST_SYSTEM_VERSION} MATCHES "20.04" OR ${CMAKE_HOST_SYSTEM_VERSION} MATCHES "22.04")
+          message(STATUS "Using libc++ explicitly with Clang on Ubuntu 20.04 or 22.04")
+          set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+          set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -stdlib=libc++")
+      endif()
   endif()
 endif()
 
