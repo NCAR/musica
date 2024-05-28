@@ -1,9 +1,10 @@
 module tuvx_interface
 
-  use iso_c_binding,    only : c_ptr, c_loc, c_int
-  use tuvx_core,        only : core_t
-  use musica_tuvx_util, only : to_f_string, string_t_c
-  use musica_string,    only : string_t
+  use iso_c_binding,       only : c_ptr, c_loc, c_int
+  use tuvx_core,           only : core_t
+  use musica_tuvx_util,    only : to_f_string, string_t_c
+  use musica_string,       only : string_t
+  use tuvx_grid_warehouse, only : grid_warehouse_t
 
   implicit none
 
@@ -49,23 +50,24 @@ module tuvx_interface
     function internal_get_grids_tuvx(tuvx) result(grids)
       use iso_c_binding, only: c_ptr, c_f_pointer
       type(c_ptr), intent(in) :: tuvx
-      type(grid_map_t) :: grids
+      integer :: grids
 
       type(core_t), pointer :: core
 
       call c_f_pointer(tuvx, core)
-      grids%ptr_ = c_loc( core%grid_warehouse_ )
+
+      ! get the grids from the core
 
     end function internal_get_grids_tuvx
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    subroutine internal_run_tuvx(tuvx, profiles, grids, radiators) bind(C, name="internal_run_tuvx")
+    subroutine internal_run_tuvx(tuvx) bind(C, name="internal_run_tuvx")
       use iso_c_binding, only: c_ptr, c_f_pointer
       type(c_ptr), intent(in) :: tuvx
       type(core_t), pointer :: core
 
-      core%update(profiles, grids, radiators)
+      ! core%update(profiles, grids, radiators)
     
       call c_f_pointer(tuvx, core)
 

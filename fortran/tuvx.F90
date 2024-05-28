@@ -6,6 +6,8 @@ module musica_tuvx
   public :: tuvx_t
   private
 
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
   interface
      function create_tuvx_c(config_path, error_code) bind(C, name="create_tuvx")
         import c_ptr, c_int, c_char
@@ -18,8 +20,15 @@ module musica_tuvx
         import c_ptr
         type(c_ptr), intent(in) :: tuvx
      end subroutine delete_tuvx_c
+
+     subroutine get_grid_map_c(tuvx) bind(C, name="get_grid_map")
+        import c_ptr
+        type(c_ptr), intent(in) :: tuvx
+        type(c_ptr)             :: get_grid_map_c
+     end subroutine get_grid_map_c
   end interface
 
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! Data types
 
   type :: tuvx_t
@@ -46,9 +55,13 @@ module musica_tuvx
      procedure grid_map_t_constructor
   end interface grid_map_t
 
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 contains
 
   include 'tuvx_grids.F90'
+
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   function constructor(config_path, errcode)  result( this )
      type(tuvx_t), pointer         :: this
@@ -73,6 +86,8 @@ contains
      end if
   end function constructor
 
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
   subroutine run(this, some_input_array, more_inupt, concentrations, errcode)
 
      type(tuvx_t), intent(inout) :: this
@@ -82,9 +97,25 @@ contains
 
   end subroutine run
 
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  subroutine get_grids(this, grid_map)
+     type(tuvx_t), intent(inout) :: this
+     type(grid_map_t), intent(out) :: grid_map
+     type(c_ptr) :: grid_map_ptr
+
+     grid_map_ptr = get_grid_map_c(this%ptr)
+     call c_f_pointer(grid_map_ptr, grid_map%ptr)
+
+  end subroutine get_grids
+
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
   subroutine finalize(this)
      type(tuvx_t), intent(inout) :: this
      call delete_tuvx_c(this%ptr)
   end subroutine finalize
+
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 end module musica_tuvx

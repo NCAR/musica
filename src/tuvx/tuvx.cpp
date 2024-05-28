@@ -42,10 +42,23 @@ void run_tuvx(const TUVX *tuvx, int *error_code) {
     *error_code = 0;
 }
 
+GridMap* get_grid_map(TUVX *tuvx) {
+    return tuvx->create_grid_map();
+}
+
 TUVX::~TUVX()
 {
     int error_code = 0;
     internal_delete_tuvx(tuvx_.get(), &error_code);
+}
+
+int TUVX::create(const std::string &config_path)
+{
+    int parsing_status = 0; // 0 on success, 1 on failure
+    String config_path_str = CreateString(const_cast<char *>(config_path.c_str()));
+    tuvx_ = std::make_unique<void*>(internal_create_tuvx(config_path_str, &parsing_status));
+    DeleteString(&config_path_str);
+    return parsing_status;
 }
 
 int TUVX::create(const std::string &config_path)
