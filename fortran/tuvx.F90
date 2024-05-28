@@ -7,14 +7,14 @@ module musica_tuvx
   private
 
   interface
-     function create_tuvx_c(config_path, error_code) bind(C, name="create_tuvx")
+     function create_tuvx_c(config_path, error_code) bind(C, name="CreateTuvx")
         import c_ptr, c_int, c_char
         character(kind=c_char), intent(in) :: config_path(*)
         integer(kind=c_int), intent(out)   :: error_code
         type(c_ptr)                        :: create_tuvx_c
      end function create_tuvx_c
 
-     subroutine delete_tuvx_c(tuvx) bind(C, name="delete_tuvx")
+     subroutine delete_tuvx_c(tuvx) bind(C, name="DeleteTuvx")
         import c_ptr
         type(c_ptr), intent(in) :: tuvx
      end subroutine delete_tuvx_c

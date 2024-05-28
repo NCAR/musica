@@ -13,7 +13,7 @@ module tuvx_interface
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    function internal_create_tuvx(config_path, error_code) bind(C, name="internal_create_tuvx")
+    function internal_create_tuvx(config_path, error_code) bind(C, name="InternalCreateTuvx")
       type(string_t_c), value, intent(in) :: config_path
       integer(kind=c_int), intent(out)   :: error_code
 
@@ -33,7 +33,7 @@ module tuvx_interface
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    subroutine internal_delete_tuvx(tuvx) bind(C, name="internal_delete_tuvx")
+    subroutine internal_delete_tuvx(tuvx) bind(C, name="InternalDeleteTuvx")
       use iso_c_binding, only: c_ptr, c_f_pointer
       type(c_ptr), intent(in) :: tuvx
       type(core_t), pointer :: core

@@ -18,7 +18,7 @@ class MicmCApiTest : public ::testing::Test
   {
     micm = nullptr;
     Error error;
-    micm = create_micm(config_path, &error);
+    micm = CreateMicm(config_path, &error);
     ASSERT_TRUE(IsSuccess(error));
     DeleteError(&error);
   }
@@ -26,7 +26,7 @@ class MicmCApiTest : public ::testing::Test
   void TearDown() override
   {
     Error error;
-    delete_micm(micm, &error);
+    DeleteMicm(micm, &error);
     ASSERT_TRUE(IsSuccess(error));
     DeleteError(&error);
   }
@@ -36,8 +36,8 @@ class MicmCApiTest : public ::testing::Test
 TEST_F(MicmCApiTest, BadConfigurationFilePath)
 {
   Error error = NoError();
-  auto micm_bad_config = create_micm("bad config path", &error);
-  ASSERT_EQ(micm_bad_config, nullptr);
+  auto micmbad_config = CreateMicm("bad config path", &error);
+  ASSERT_EQ(micmbad_config, nullptr);
   ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_CONFIGURATION, MICM_CONFIGURATION_ERROR_CODE_INVALID_FILE_PATH));
   DeleteError(&error);
 }
@@ -47,21 +47,21 @@ TEST_F(MicmCApiTest, MissingSpeciesProperty)
 {
   Error error = NoError();
   String string_value;
-  string_value = get_species_property_string(micm, "O3", "bad property", &error);
+  string_value = GetSpeciesPropertyString(micm, "O3", "bad property", &error);
   ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND));
   ASSERT_STREQ(string_value.value_, nullptr);
   DeleteString(&string_value);
   DeleteError(&error);
   error = NoError();
-  ASSERT_EQ(get_species_property_double(micm, "O3", "bad property", &error), 0.0);
+  ASSERT_EQ(GetSpeciesPropertyDouble(micm, "O3", "bad property", &error), 0.0);
   ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND));
   DeleteError(&error);
   error = NoError();
-  ASSERT_EQ(get_species_property_int(micm, "O3", "bad property", &error), 0);
+  ASSERT_EQ(GetSpeciesPropertyInt(micm, "O3", "bad property", &error), 0);
   ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND));
   DeleteError(&error);
   error = NoError();
-  ASSERT_FALSE(get_species_property_bool(micm, "O3", "bad property", &error));
+  ASSERT_FALSE(GetSpeciesPropertyBool(micm, "O3", "bad property", &error));
   ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND));
   DeleteError(&error);
 }
@@ -77,7 +77,7 @@ TEST_F(MicmCApiTest, GetSpeciesOrdering)
 {
   Error error;
   size_t array_size;
-  Mapping* species_ordering = get_species_ordering(micm, &array_size, &error);
+  Mapping* species_ordering = GetSpeciesOrdering(micm, &array_size, &error);
   ASSERT_TRUE(IsSuccess(error));
   DeleteError(&error);
   ASSERT_EQ(array_size, 5);
@@ -139,7 +139,7 @@ TEST_F(MicmCApiTest, GetUserDefinedReactionRatesOrdering)
 {
   Error error;
   size_t array_size;
-  Mapping* reaction_rates_ordering = get_user_defined_reaction_rates_ordering(micm, &array_size, &error);
+  Mapping* reaction_rates_ordering = GetUserDefinedReactionRatesOrdering(micm, &array_size, &error);
   ASSERT_TRUE(IsSuccess(error));
   DeleteError(&error);
   ASSERT_EQ(array_size, 3);
@@ -186,7 +186,7 @@ TEST_F(MicmCApiTest, SolveMicmInstance)
   int num_concentrations = 5;
   double concentrations[] = { 0.75, 0.4, 0.8, 0.01, 0.02 };
 
-  auto ordering = micm->get_user_defined_reaction_rates_ordering(&error);
+  auto ordering = micm->GetUserDefinedReactionRatesOrdering(&error);
   ASSERT_TRUE(IsSuccess(error));
 
   int num_custom_rate_parameters = ordering.size();
@@ -196,7 +196,7 @@ TEST_F(MicmCApiTest, SolveMicmInstance)
     custom_rate_parameters[entry.second] = 0.0;
   }
 
-  micm_solve(
+  MicmSolve(
       micm,
       time_step,
       temperature,
@@ -222,19 +222,19 @@ TEST_F(MicmCApiTest, GetSpeciesProperty)
 {
   Error error;
   String string_value;
-  string_value = get_species_property_string(micm, "O3", "__long name", &error);
+  string_value = GetSpeciesPropertyString(micm, "O3", "__long name", &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_STREQ(string_value.value_, "ozone");
   DeleteString(&string_value);
-  ASSERT_EQ(get_species_property_double(micm, "O3", "molecular weight [kg mol-1]", &error), 0.048);
+  ASSERT_EQ(GetSpeciesPropertyDouble(micm, "O3", "molecular weight [kg mol-1]", &error), 0.048);
   ASSERT_TRUE(IsSuccess(error));
-  ASSERT_TRUE(get_species_property_bool(micm, "O3", "__do advect", &error));
+  ASSERT_TRUE(GetSpeciesPropertyBool(micm, "O3", "__do advect", &error));
   ASSERT_TRUE(IsSuccess(error));
-  ASSERT_EQ(get_species_property_int(micm, "O3", "__atoms", &error), 3);
+  ASSERT_EQ(GetSpeciesPropertyInt(micm, "O3", "__atoms", &error), 3);
   ASSERT_TRUE(IsSuccess(error));
-  get_species_property_bool(micm, "bad species", "__is gas", &error);
+  GetSpeciesPropertyBool(micm, "bad species", "__is gas", &error);
   ASSERT_TRUE(IsError(error, MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SPECIES_NOT_FOUND));
-  get_species_property_double(micm, "O3", "bad property", &error);
+  GetSpeciesPropertyDouble(micm, "O3", "bad property", &error);
   ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND));
   DeleteError(&error);
 }

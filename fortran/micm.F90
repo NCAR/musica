@@ -10,7 +10,7 @@ module musica_micm
 
 
    interface
-      function create_micm_c(config_path, error) bind(C, name="create_micm")
+      function create_micm_c(config_path, error) bind(C, name="CreateMicm")
          use musica_util, only: error_t_c
          import c_ptr, c_int, c_char
          character(kind=c_char), intent(in)    :: config_path(*)
@@ -18,7 +18,7 @@ module musica_micm
          type(c_ptr)                           :: create_micm_c
       end function create_micm_c
 
-      subroutine delete_micm_c(micm, error) bind(C, name="delete_micm")
+      subroutine delete_micm_c(micm, error) bind(C, name="DeleteMicm")
          use musica_util, only: error_t_c
          import c_ptr
          type(c_ptr), value, intent(in)    :: micm
@@ -40,7 +40,7 @@ module musica_micm
          type(error_t_c), intent(inout)         :: error
       end subroutine micm_solve_c
 
-      function get_species_property_string_c(micm, species_name, property_name, error) bind(c, name="get_species_property_string")
+      function get_species_property_string_c(micm, species_name, property_name, error) bind(c, name="GetSpeciesPropertyString")
          use musica_util, only: error_t_c, string_t_c
          import :: c_ptr, c_char
          type(c_ptr), value, intent(in) :: micm
@@ -49,7 +49,7 @@ module musica_micm
          type(string_t_c) :: get_species_property_string_c
       end function get_species_property_string_c
 
-      function get_species_property_double_c(micm, species_name, property_name, error) bind(c, name="get_species_property_double")
+      function get_species_property_double_c(micm, species_name, property_name, error) bind(c, name="GetSpeciesPropertyDouble")
          use musica_util, only: error_t_c
          import :: c_ptr, c_char, c_double
          type(c_ptr), value, intent(in) :: micm
@@ -58,7 +58,7 @@ module musica_micm
          real(kind=c_double) :: get_species_property_double_c
       end function get_species_property_double_c
 
-      function get_species_property_int_c(micm, species_name, property_name, error) bind(c, name="get_species_property_int")
+      function get_species_property_int_c(micm, species_name, property_name, error) bind(c, name="GetSpeciesPropertyInt")
          use musica_util, only: error_t_c
          import :: c_ptr, c_char, c_int
          type(c_ptr), value, intent(in) :: micm
@@ -67,7 +67,7 @@ module musica_micm
          integer(kind=c_int) :: get_species_property_int_c
       end function get_species_property_int_c
 
-      function get_species_property_bool_c(micm, species_name, property_name, error) bind(c, name="get_species_property_bool")
+      function get_species_property_bool_c(micm, species_name, property_name, error) bind(c, name="GetSpeciesPropertyBool")
          use musica_util, only: error_t_c
          import :: c_ptr, c_char, c_bool
          type(c_ptr), value, intent(in) :: micm
@@ -76,7 +76,7 @@ module musica_micm
          logical(kind=c_bool) :: get_species_property_bool_c
       end function get_species_property_bool_c      
 
-      type(c_ptr) function get_species_ordering_c(micm, array_size, error) bind(c, name="get_species_ordering")
+      type(c_ptr) function get_species_ordering_c(micm, array_size, error) bind(c, name="GetSpeciesOrdering")
          use musica_util, only: error_t_c
          import :: c_ptr, c_size_t
          type(c_ptr), value, intent(in) :: micm

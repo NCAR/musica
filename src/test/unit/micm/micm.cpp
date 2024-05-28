@@ -6,7 +6,7 @@
 
 TEST(ConnectToMICM, Version)
 {
-  char* versions = musica::getAllComponentVersions();
+  char* versions = musica::GetAllComponentVersions();
   std::cout << versions << std::endl;
   free(versions);
 }

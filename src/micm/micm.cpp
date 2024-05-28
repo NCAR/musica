@@ -18,11 +18,11 @@
 namespace musica
 {
 
-  MICM *create_micm(const char *config_path, Error *error)
+  MICM *CreateMicm(const char *config_path, Error *error)
   {
     DeleteError(error);
     MICM *micm = new MICM();
-    micm->create(std::string(config_path), error);
+    micm->Create(std::string(config_path), error);
     if (!IsSuccess(*error))
     {
       delete micm;
@@ -31,7 +31,7 @@ namespace musica
     return micm;
   }
 
-  void delete_micm(const MICM *micm, Error *error)
+  void DeleteMicm(const MICM *micm, Error *error)
   {
     DeleteError(error);
     if (micm == nullptr)
@@ -50,7 +50,7 @@ namespace musica
     }
   }
 
-  void micm_solve(
+  void MicmSolve(
       MICM *micm,
       double time_step,
       double temperature,
@@ -62,7 +62,7 @@ namespace musica
       Error *error)
   {
     DeleteError(error);
-    micm->solve(
+    micm->Solve(
         time_step,
         temperature,
         pressure,
@@ -73,10 +73,10 @@ namespace musica
         error);
   }
 
-  Mapping *get_species_ordering(MICM *micm, size_t *array_size, Error *error)
+  Mapping *GetSpeciesOrdering(MICM *micm, size_t *array_size, Error *error)
   {
     DeleteError(error);
-    auto map = micm->get_species_ordering(error);
+    auto map = micm->GetSpeciesOrdering(error);
     if (!IsSuccess(*error))
     {
       return nullptr;
@@ -96,10 +96,10 @@ namespace musica
     return species_ordering;
   }
 
-  Mapping *get_user_defined_reaction_rates_ordering(MICM *micm, size_t *array_size, Error *error)
+  Mapping *GetUserDefinedReactionRatesOrdering(MICM *micm, size_t *array_size, Error *error)
   {
     DeleteError(error);
-    auto map = micm->get_user_defined_reaction_rates_ordering(error);
+    auto map = micm->GetUserDefinedReactionRatesOrdering(error);
     if (!IsSuccess(*error))
     {
       return nullptr;
@@ -119,12 +119,12 @@ namespace musica
     return reactionRates;
   }
 
-  String get_species_property_string(MICM *micm, const char *species_name, const char *property_name, Error *error)
+  String GetSpeciesPropertyString(MICM *micm, const char *species_name, const char *property_name, Error *error)
   {
     DeleteError(error);
     std::string species_name_str(species_name);
     std::string property_name_str(property_name);
-    const std::string value_str = micm->get_species_property<std::string>(species_name_str, property_name_str, error);
+    const std::string value_str = micm->GetSpeciesProperty<std::string>(species_name_str, property_name_str, error);
     String value;
     if (!IsSuccess(*error))
     {
@@ -133,31 +133,31 @@ namespace musica
     return CreateString(value_str.c_str());
   }
 
-  double get_species_property_double(MICM *micm, const char *species_name, const char *property_name, Error *error)
+  double GetSpeciesPropertyDouble(MICM *micm, const char *species_name, const char *property_name, Error *error)
   {
     DeleteError(error);
     std::string species_name_str(species_name);
     std::string property_name_str(property_name);
-    return micm->get_species_property<double>(species_name_str, property_name_str, error);
+    return micm->GetSpeciesProperty<double>(species_name_str, property_name_str, error);
   }
 
-  int get_species_property_int(MICM *micm, const char *species_name, const char *property_name, Error *error)
+  int GetSpeciesPropertyInt(MICM *micm, const char *species_name, const char *property_name, Error *error)
   {
     DeleteError(error);
     std::string species_name_str(species_name);
     std::string property_name_str(property_name);
-    return micm->get_species_property<int>(species_name_str, property_name_str, error);
+    return micm->GetSpeciesProperty<int>(species_name_str, property_name_str, error);
   }
 
-  bool get_species_property_bool(MICM *micm, const char *species_name, const char *property_name, Error *error)
+  bool GetSpeciesPropertyBool(MICM *micm, const char *species_name, const char *property_name, Error *error)
   {
     DeleteError(error);
     std::string species_name_str(species_name);
     std::string property_name_str(property_name);
-    return micm->get_species_property<bool>(species_name_str, property_name_str, error);
+    return micm->GetSpeciesProperty<bool>(species_name_str, property_name_str, error);
   }
 
-  void MICM::create(const std::string &config_path, Error *error)
+  void MICM::Create(const std::string &config_path, Error *error)
   {
     try
     {
@@ -178,7 +178,7 @@ namespace musica
     }
   }
 
-  void MICM::solve(
+  void MICM::Solve(
       double time_step,
       double temperature,
       double pressure,
@@ -219,7 +219,7 @@ namespace musica
     }
   }
 
-  std::map<std::string, size_t> MICM::get_species_ordering(Error *error)
+  std::map<std::string, size_t> MICM::GetSpeciesOrdering(Error *error)
   {
     try
     {
@@ -236,7 +236,7 @@ namespace musica
     }
   }
 
-  std::map<std::string, size_t> MICM::get_user_defined_reaction_rates_ordering(Error *error)
+  std::map<std::string, size_t> MICM::GetUserDefinedReactionRatesOrdering(Error *error)
   {
     try
     {

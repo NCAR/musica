@@ -80,7 +80,7 @@ PYBIND11_MODULE(musica, m)
       [](musica::MICM *micm)
       {
         musica::Error error;
-        return micm->get_species_ordering(&error);
+        return micm->GetSpeciesOrdering(&error);
       },
       "Return map of get_species_ordering rates");
 
@@ -89,7 +89,7 @@ PYBIND11_MODULE(musica, m)
       [](musica::MICM *micm)
       {
         musica::Error error;
-        return micm->get_user_defined_reaction_rates_ordering(&error);
+        return micm->GetUserDefinedReactionRatesOrdering(&error);
       },
       "Return map of reaction rates");
 }

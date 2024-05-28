@@ -1,148 +1,148 @@
-# name: Windows
+name: Windows
 
-# on: 
-#   push:
-#     branches:
-#       - main
-#   pull_request:
-#   workflow_dispatch:
+on: 
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
 
-# concurrency:
-#   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
-#   cancel-in-progress: true
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
 
-# jobs:
-#   mingw:
-#     runs-on: windows-2019
-#     strategy:
-#       matrix:
-#         architecture: [x64]
+jobs:
+  mingw:
+    runs-on: windows-2019
+    strategy:
+      matrix:
+        architecture: [x64]
 
-#     steps:
-#       - uses: actions/checkout@v4
-#       - name: Set up MinGW
-#         uses: egor-tensin/setup-mingw@v2
-#         with:
-#           platform: ${{ matrix.architecture }}
-#           version: 12.2.0 # https://github.com/egor-tensin/setup-mingw/issues/14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up MinGW
+        uses: egor-tensin/setup-mingw@v2
+        with:
+          platform: ${{ matrix.architecture }}
+          version: 12.2.0 # https://github.com/egor-tensin/setup-mingw/issues/14
       
-#       - uses: actions/setup-python@v5
-#       - run: pip install -r python/requirements.txt
+      - uses: actions/setup-python@v5
+      - run: pip install -r python/requirements.txt
 
-#       - name: Run Cmake 
-#         run: cmake -S . -B build -G "MinGW Makefiles" -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
+      - name: Run Cmake 
+        run: cmake -S . -B build -G "MinGW Makefiles" -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
 
-#       - name: Build
-#         run: cmake --build build --parallel
+      - name: Build
+        run: cmake --build build --parallel
 
-#       - name: Run tests
-#         run: |
-#           cd build
-#           ctest -C Debug --rerun-failed --output-on-failure . --verbose
+      - name: Run tests
+        run: |
+          cd build
+          ctest -C Debug --rerun-failed --output-on-failure . --verbose
 
-#   msvc2019:
-#     runs-on: windows-2019
-#     strategy:
-#       matrix:
-#         build_type: [Release]
-#         architecture: [Win32, x64]
+  msvc2019:
+    runs-on: windows-2019
+    strategy:
+      matrix:
+        build_type: [Release]
+        architecture: [Win32, x64]
 
-#     steps:
-#     - uses: actions/checkout@v4
+    steps:
+    - uses: actions/checkout@v4
 
-#     - name: Set up Python
-#       uses: actions/setup-python@v5
-#       if: ${{ matrix.architecture == 'Win32' }}
-#       with:
-#         python-version: '3.x'
-#         architecture: x86
-#     - run: pip install -r python/requirements.txt
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      if: ${{ matrix.architecture == 'Win32' }}
+      with:
+        python-version: '3.x'
+        architecture: x86
+    - run: pip install -r python/requirements.txt
 
-#     - name: Run CMake
-#       run: cmake -S . -B build -G "Visual Studio 16 2019" -A ${{ matrix.architecture }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
+    - name: Run CMake
+      run: cmake -S . -B build -G "Visual Studio 16 2019" -A ${{ matrix.architecture }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
 
-#     - name: Build
-#       run: cmake --build build --config ${{ matrix.build_type }} --parallel
+    - name: Build
+      run: cmake --build build --config ${{ matrix.build_type }} --parallel
 
-#     - name: Test
-#       run: cd build ; ctest -j 10 -C ${{ matrix.build_type }} --output-on-failure
+    - name: Test
+      run: cd build ; ctest -j 10 -C ${{ matrix.build_type }} --output-on-failure
 
-#   msvc2022:
-#     runs-on: windows-2022
-#     strategy:
-#       matrix:
-#         build_type: [Release]
-#         architecture: [Win32, x64]
+  msvc2022:
+    runs-on: windows-2022
+    strategy:
+      matrix:
+        build_type: [Release]
+        architecture: [Win32, x64]
 
-#     steps:
-#     - uses: actions/checkout@v4
+    steps:
+    - uses: actions/checkout@v4
 
-#     - name: Set up Python
-#       uses: actions/setup-python@v5
-#       if: ${{ matrix.architecture == 'Win32' }}
-#       with:
-#         python-version: '3.x'
-#         architecture: x86
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      if: ${{ matrix.architecture == 'Win32' }}
+      with:
+        python-version: '3.x'
+        architecture: x86
 
-#     - run: pip install -r python/requirements.txt
+    - run: pip install -r python/requirements.txt
 
-#     - name: Run CMake
-#       run: cmake -S . -B build -G "Visual Studio 17 2022" -A ${{ matrix.architecture }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
+    - name: Run CMake
+      run: cmake -S . -B build -G "Visual Studio 17 2022" -A ${{ matrix.architecture }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
 
-#     - name: Build
-#       run: cmake --build build --config ${{ matrix.build_type }} --parallel
+    - name: Build
+      run: cmake --build build --config ${{ matrix.build_type }} --parallel
 
-#     - name: Test
-#       run: cd build ; ctest -j 10 -C ${{ matrix.build_type }} --output-on-failure
+    - name: Test
+      run: cd build ; ctest -j 10 -C ${{ matrix.build_type }} --output-on-failure
 
-#   clang:
-#     runs-on: windows-2019
-#     strategy:
-#       matrix:
-#         version: [11, 12, 13, 14, 15]
+  clang:
+    runs-on: windows-2019
+    strategy:
+      matrix:
+        version: [11, 12, 13, 14, 15]
 
-#     steps:
-#       - uses: actions/checkout@v4
+    steps:
+      - uses: actions/checkout@v4
 
-#       - name: Install Clang
-#         run: curl -fsSL -o LLVM${{ matrix.version }}.exe https://github.com/llvm/llvm-project/releases/download/llvmorg-${{ matrix.version }}.0.0/LLVM-${{ matrix.version }}.0.0-win64.exe ; 7z x LLVM${{ matrix.version }}.exe -y -o"C:/Program Files/LLVM"
+      - name: Install Clang
+        run: curl -fsSL -o LLVM${{ matrix.version }}.exe https://github.com/llvm/llvm-project/releases/download/llvmorg-${{ matrix.version }}.0.0/LLVM-${{ matrix.version }}.0.0-win64.exe ; 7z x LLVM${{ matrix.version }}.exe -y -o"C:/Program Files/LLVM"
 
-#       - uses: actions/setup-python@v5
-#       - run: pip install -r python/requirements.txt
+      - uses: actions/setup-python@v5
+      - run: pip install -r python/requirements.txt
 
-#       - name: Run CMake
-#         run: cmake -S . -B build -DCMAKE_CXX_COMPILER="C:/Program Files/LLVM/bin/clang++.exe" -DCMAKE_C_COMPILER="C:/Program Files/LLVM/bin/clang.exe" -G"MinGW Makefiles" -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
+      - name: Run CMake
+        run: cmake -S . -B build -DCMAKE_CXX_COMPILER="C:/Program Files/LLVM/bin/clang++.exe" -DCMAKE_C_COMPILER="C:/Program Files/LLVM/bin/clang.exe" -G"MinGW Makefiles" -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
 
-#       - name: Build
-#         run: cmake --build build --parallel
+      - name: Build
+        run: cmake --build build --parallel
 
-#       - name: Test
-#         run: cd build ; ctest -j 10 -C Debug --exclude-regex "test-unicode" --output-on-failure
+      - name: Test
+        run: cd build ; ctest -j 10 -C Debug --exclude-regex "test-unicode" --output-on-failure
 
-#   clang-cl-11:
-#     runs-on: windows-2019
-#     strategy:
-#       matrix:
-#         architecture: [Win32, x64]
+  clang-cl-11:
+    runs-on: windows-2019
+    strategy:
+      matrix:
+        architecture: [Win32, x64]
 
-#     steps:
-#       - uses: actions/checkout@v4
+    steps:
+      - uses: actions/checkout@v4
 
-#       - name: Set up Python
-#         uses: actions/setup-python@v4
-#         if: ${{ matrix.architecture == 'Win32' }}
-#         with:
-#           python-version: '3.x'
-#           architecture: x86
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        if: ${{ matrix.architecture == 'Win32' }}
+        with:
+          python-version: '3.x'
+          architecture: x86
 
-#       - uses: actions/setup-python@v5
-#       - run: pip install -r python/requirements.txt
+      - uses: actions/setup-python@v5
+      - run: pip install -r python/requirements.txt
 
-#       - name: Run CMake
-#         run: cmake -S . -B build -G "Visual Studio 16 2019" -A ${{ matrix.architecture }} -T ClangCL -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
+      - name: Run CMake
+        run: cmake -S . -B build -G "Visual Studio 16 2019" -A ${{ matrix.architecture }} -T ClangCL -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
 
-#       - name: Build
-#         run: cmake --build build --config Debug --parallel
+      - name: Build
+        run: cmake --build build --config Debug --parallel
 
-#       - name: Test
-#         run: cd build ; ctest -j 10 -C Debug --exclude-regex "test-unicode" --output-on-failure
+      - name: Test
+        run: cd build ; ctest -j 10 -C Debug --exclude-regex "test-unicode" --output-on-failure

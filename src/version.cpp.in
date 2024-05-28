@@ -1,27 +1,27 @@
 #include <musica/version.hpp>
 
 namespace musica {
-    const char* getMusicaVersion()
+    const char* GetMusicaVersion()
     {
         return "@musica_VERSION@";
     }
 
-    unsigned getMusicaVersionMajor()
+    unsigned GetMusicaVersionMajor()
     {
         return @musica_VERSION_MAJOR@;
     }
 
-    unsigned getMusicaVersionMinor()
+    unsigned GetMusicaVersionMinor()
     {
         return @musica_VERSION_MINOR@ + 0;
     }
 
-    unsigned getMusicaVersionPatch()
+    unsigned GetMusicaVersionPatch()
     {
         return @musica_VERSION_PATCH@ + 0;
     }
 
-    unsigned getMusicaVersionTweak()
+    unsigned GetMusicaVersionTweak()
     {
         return @musica_VERSION_TWEAK@ + 0;
     }
