@@ -23,6 +23,7 @@ extern "C"
 {
 #endif
 
+    String get_micm_version(void);
     MICM *create_micm(const char *config_path, Error *error);
     void delete_micm(const MICM *micm, Error *error);
     void micm_solve(MICM *micm, double time_step, double temperature, double pressure, int num_concentrations, double *concentrations, int num_custom_rate_parameters, double *custom_rate_parameters, Error *error);
