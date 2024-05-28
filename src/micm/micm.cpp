@@ -8,11 +8,16 @@
 #include <filesystem>
 #include <iostream>
 
+#include <micm/version.hpp>
 #include <micm/solver/rosenbrock_solver_parameters.hpp>
 #include <micm/system/species.hpp>
 #include <musica/micm.hpp>
 
 namespace musica {
+
+const char* get_micm_version() {
+  return micm::getMicmVersion();
+}
 
 MICM *create_micm(const char *config_path, Error *error) {
   DeleteError(error);
