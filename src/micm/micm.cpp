@@ -15,8 +15,8 @@
 
 namespace musica {
 
-const char* get_micm_version() {
-  return micm::getMicmVersion();
+String get_micm_version() {
+  return CreateString(micm::getMicmVersion());
 }
 
 MICM *create_micm(const char *config_path, Error *error) {
