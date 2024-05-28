@@ -5,7 +5,8 @@ module musica_micm
    use musica_util, only: assert, mapping_t
    implicit none
 
-   public :: get_micm_version, micm_t
+   public :: micm_t
+   ! public :: get_micm_version, micm_t
    private
 
 
@@ -128,7 +129,7 @@ module musica_micm
 contains
 
    function get_micm_version() result(value)
-      use musica_util, only: string_t, string_t_c, to_c_string
+      use musica_util, only: string_t, string_t_c
       type(string_t)   :: value
       type(string_t_c) :: string_c
       string_c = get_micm_version_c()
