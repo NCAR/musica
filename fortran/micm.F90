@@ -5,7 +5,7 @@ module musica_micm
    use musica_util, only: assert, mapping_t
    implicit none
 
-   public :: micm_t
+   public :: micm_t, get_micm_version
    private
 
 
