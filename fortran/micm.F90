@@ -10,6 +10,11 @@ module musica_micm
 
 
    interface
+      function get_micm_version() bind(C, name="get_micm_version")
+         use musica_util, only: string_t_c
+         type(string_t_c) :: get_micm_version
+      end function get_micm_version
+
       function create_micm_c(config_path, error) bind(C, name="create_micm")
          use musica_util, only: error_t_c
          import c_ptr, c_int, c_char
@@ -39,13 +44,6 @@ module musica_micm
          real(kind=c_double), intent(inout)     :: user_defined_reaction_rates(num_user_defined_reaction_rates)
          type(error_t_c), intent(inout)         :: error
       end subroutine micm_solve_c
-
-      function get_micm_version_c(micm) bind(C, name="get_micm_version")
-         use musica_util, only: string_t_c
-         import :: c_ptr
-         type(c_ptr), value, intent(in) :: micm
-         type(string_t_c) :: get_micm_version_c
-      end function get_micm_version_c
 
       function get_species_property_string_c(micm, species_name, property_name, error) bind(c, name="get_species_property_string")
          use musica_util, only: error_t_c, string_t_c
