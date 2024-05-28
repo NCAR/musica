@@ -46,4 +46,31 @@ module tuvx_interface
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+    function internal_get_grids_tuvx(tuvx) result(grids)
+      use iso_c_binding, only: c_ptr, c_f_pointer
+      type(c_ptr), intent(in) :: tuvx
+      type(grid_map_t) :: grids
+
+      type(core_t), pointer :: core
+
+      call c_f_pointer(tuvx, core)
+      grids%ptr_ = c_loc( core%grid_warehouse_ )
+
+    end function internal_get_grids_tuvx
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    subroutine internal_run_tuvx(tuvx, profiles, grids, radiators) bind(C, name="internal_run_tuvx")
+      use iso_c_binding, only: c_ptr, c_f_pointer
+      type(c_ptr), intent(in) :: tuvx
+      type(core_t), pointer :: core
+
+      core%update(profiles, grids, radiators)
+    
+      call c_f_pointer(tuvx, core)
+
+    end subroutine internal_run_tuvx
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 end module tuvx_interface

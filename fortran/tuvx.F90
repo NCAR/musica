@@ -20,9 +20,13 @@ module musica_tuvx
      end subroutine delete_tuvx_c
   end interface
 
+  ! Data types
+
   type :: tuvx_t
      type(c_ptr), private   :: ptr
   contains
+     ! Create a grid map
+     procedure :: get_grids
      ! Deallocate the tuvx instance
      final :: finalize
   end type tuvx_t
@@ -31,7 +35,20 @@ module musica_tuvx
      procedure constructor
   end interface tuvx_t
 
+  type :: grid_map_t
+     type(c_ptr), private   :: ptr
+  contains
+     ! Deallocate the tuvx instance
+     final :: finalize
+  end type grid_map_t
+
+  interface grid_map_t
+     procedure grid_map_t_constructor
+  end interface grid_map_t
+
 contains
+
+  include 'tuvx_grids.F90'
 
   function constructor(config_path, errcode)  result( this )
      type(tuvx_t), pointer         :: this
@@ -55,6 +72,15 @@ contains
         return
      end if
   end function constructor
+
+  subroutine run(this, some_input_array, more_inupt, concentrations, errcode)
+
+     type(tuvx_t), intent(inout) :: this
+     integer, intent(out)        :: errcode
+
+     call run_tuvx_c(this%ptr, errcode)
+
+  end subroutine run
 
   subroutine finalize(this)
      type(tuvx_t), intent(inout) :: this

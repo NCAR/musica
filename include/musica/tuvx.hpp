@@ -26,12 +26,14 @@ extern "C"
     // callable by external Fortran models
     TUVX *create_tuvx(const char *config_path, int *error_code);
     void delete_tuvx(const TUVX *tuvx);
+    void run_tuvx(const TUVX *tuvx, int *error_code);
 
     // for use by musica interanlly. If tuvx ever gets rewritten in C++, these functions will
     // go away but the C API will remain the same and downstream projects (like CAM-SIMA) will
     // not need to change
     void *internal_create_tuvx(String config_path, int *error_code);
     void internal_delete_tuvx(void* tuvx, int *error_code);
+    void internal_run_tuvx(void* tuvx, int *error_code);
 
 #ifdef __cplusplus
 }

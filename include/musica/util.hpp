@@ -38,6 +38,19 @@ struct Mapping
     size_t index_;
 };
 
+struct TUVXRunParams
+{
+  double solar_zenith_angle_;
+  double earth_sun_distance_;
+};
+
+struct TUVXOutput 
+{
+  double* photolysis_rate_constants_;
+  double* dose_rates;
+  double* heating_rates;
+};
+
 /// @brief Casts a char* to a String
 /// @param value The char* to cast
 /// @return The casted String

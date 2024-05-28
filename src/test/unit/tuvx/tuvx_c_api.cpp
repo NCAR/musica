@@ -50,3 +50,12 @@ TEST_F(TuvxCApiTest, DetectsNonexistentJSONConfigFile) {
     ASSERT_EQ(error_code, 2);
     ASSERT_EQ(tuvx, nullptr);
 }
+
+TEST_F(TuvxCApiTest, CanCallRun) {
+    const char* yaml_config_path = "examples/ts1_tsmlt.yml";
+    SetUp(yaml_config_path);
+    ASSERT_EQ(error_code, 0);
+    ASSERT_NE(tuvx, nullptr);
+    run_tuvx(tuvx, &error_code);
+    ASSERT_EQ(error_code, 0);
+}

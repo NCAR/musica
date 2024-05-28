@@ -38,6 +38,10 @@ void delete_tuvx(const TUVX *tuvx)
     delete tuvx;
 }
 
+void run_tuvx(const TUVX *tuvx, int *error_code) {
+    *error_code = 0;
+}
+
 TUVX::~TUVX()
 {
     int error_code = 0;
