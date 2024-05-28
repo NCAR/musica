@@ -10,6 +10,11 @@ module musica_micm
 
 
    interface
+      function get_micm_version_c() bind(C, name="get_micm_version")
+         use musica_util, only: string_t_c
+         type(string_t_c) :: get_micm_version_c
+      end function get_micm_version_c
+
       function create_micm_c(config_path, error) bind(C, name="create_micm")
          use musica_util, only: error_t_c
          import c_ptr, c_int, c_char
