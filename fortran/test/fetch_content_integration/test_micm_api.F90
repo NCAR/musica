@@ -45,6 +45,7 @@ contains
     user_defined_reaction_rates = (/ 0.1, 0.2, 0.3 /)
 
     micm_version = get_micm_version()
+    print *, "[test micm fort api] MICM version ", micm_version%get_char_array()
 
     write(*,*) "[test micm fort api] Creating MICM solver..."
     micm => micm_t(config_path, error)

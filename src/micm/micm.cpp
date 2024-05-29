@@ -17,7 +17,6 @@ namespace musica {
 
 String get_micm_version() {
   String micm_version = CreateString(micm::getMicmVersion());
-  std::cout << "MICM version " << micm_version.value_ << std::endl;
   return micm_version;
 }
 
