@@ -63,5 +63,7 @@ int TUVX::create(const std::string &config_path)
 
 GridMap* TUVX::create_grid_map()
 {
+    int error_code = 0;
+    internal_get_grid_map(tuvx_.get(), &error_code);
 }
 }
