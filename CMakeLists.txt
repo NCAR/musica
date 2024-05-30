@@ -70,7 +70,6 @@ elseif(${CMAKE_Fortran_COMPILER_ID} MATCHES "GNU")
 elseif(${CMAKE_Fortran_COMPILER_ID} MATCHES "PGI")
   list(APPEND musica_compile_definitions MUSICA_USING_PGI)
 endif()
-set(CMAKE_Fortran_FLAGS "-fPIE")
 
 if(MUSICA_BUILD_C_CXX_INTERFACE)
   # must be global so that it also applies to dependencies like google test, unless we want
