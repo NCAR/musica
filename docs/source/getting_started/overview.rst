@@ -13,8 +13,7 @@ The model infrastructure will be open source,
 flexible and computationally efficient in order
 to facilitate community co-development and use for scientific and operational purposes. 
 
-At the heart of MUSICA is the standalone Model Independent Chemistry Model (MICM)
-that satisfies the requirements of the Common Community Physics Package (CCPP)
+At the heart of MUSICA is the standalone Model Independent Chemistry Model (MICM), which is a gas-phase kinetic solver. MICM is made available by the MUSICA wrapper which satisfies the requirements of the Common Community Physics Package (CCPP)
 and that can be connected to any CCPP compliant atmosphere model.
 MUSICA and MICM will have a flexible design to handle a variety of gas phase and aerosol schemes
 and associated chemical modules such as deposition or photolysis.
