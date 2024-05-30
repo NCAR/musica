@@ -47,18 +47,16 @@ module tuvx_interface
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    function internal_get_grids_tuvx(tuvx) result(grids)
+    function internal_get_grid_map(tuvx) result(grid_map)
       use iso_c_binding, only: c_ptr, c_f_pointer
-      type(c_ptr), intent(in) :: tuvx
-      integer :: grids
 
-      type(core_t), pointer :: core
+      type(c_ptr), intent(in) :: tuvx
+      type(core_t), pointer   :: core
+      type(c_ptr)             ::grid_map
 
       call c_f_pointer(tuvx, core)
 
-      ! get the grids from the core
-
-    end function internal_get_grids_tuvx
+    end function internal_get_grid_map
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

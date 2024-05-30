@@ -99,15 +99,14 @@ contains
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  subroutine get_grids(this, grid_map)
+  function get_grids(this) result(grid_map)
      type(tuvx_t), intent(inout) :: this
-     type(grid_map_t), intent(out) :: grid_map
-     type(c_ptr) :: grid_map_ptr
+     type(grid_map_t) :: grid_map
 
-     grid_map_ptr = get_grid_map_c(this%ptr)
-     call c_f_pointer(grid_map_ptr, grid_map%ptr)
+     grid_map = grid_map_t()
+     grid_map%ptr = get_grid_map_c(this%ptr)
 
-  end subroutine get_grids
+  end function get_grids
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

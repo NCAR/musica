@@ -58,7 +58,7 @@ contains
     real(dk), allocatable :: photo_rates(:,:,:)
 
     tuvx => tuvx_t( config_path )
-    grids = tuvx%create_grids( )
+    grids = tuvx%get_grids( )
     profiles = tuvx%create_profiles( )
     radiators = tuvx%create_radiators( )
 

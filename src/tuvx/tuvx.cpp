@@ -61,12 +61,7 @@ int TUVX::create(const std::string &config_path)
     return parsing_status;
 }
 
-int TUVX::create(const std::string &config_path)
+GridMap* TUVX::create_grid_map()
 {
-    int parsing_status = 0; // 0 on success, 1 on failure
-    String config_path_str = CreateString(const_cast<char *>(config_path.c_str()));
-    tuvx_ = std::make_unique<void*>(internal_create_tuvx(config_path_str, &parsing_status));
-    DeleteString(&config_path_str);
-    return parsing_status;
 }
 }
