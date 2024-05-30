@@ -7,18 +7,22 @@ using namespace musica;
 class TuvxCApiTest : public ::testing::Test {
 protected:
     TUVX* tuvx;
-    int error_code;
     const char* config_path;
 
     void SetUp(const char* configPath) {
+        Error error;
         tuvx = nullptr;
-        error_code = 0;
         config_path = configPath; // Set the config path based on the parameter
-        tuvx = create_tuvx(config_path, &error_code);
+        tuvx = create_tuvx(config_path, &error);
+        ASSERT_TRUE(IsSuccess(error));
+        DeleteError(&error);
     }
 
     void TearDown() override {
-        delete_tuvx(tuvx);
+        Error error;
+        delete_tuvx(tuvx, &error);
+        ASSERT_TRUE(IsSuccess(error));
+        DeleteError(&error);
     }
 };
 
@@ -26,7 +30,6 @@ protected:
 TEST_F(TuvxCApiTest, CreateTuvxInstanceWithYamlConfig) {
     const char* yaml_config_path = "examples/ts1_tsmlt.yml";
     SetUp(yaml_config_path);
-    ASSERT_EQ(error_code, 0);
     ASSERT_NE(tuvx, nullptr);
 }
 

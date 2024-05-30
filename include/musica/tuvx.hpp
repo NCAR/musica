@@ -25,10 +25,10 @@ extern "C"
 
     // The external C API for TUVX
     // callable by external Fortran models
-    TUVX *create_tuvx(const char *config_path, int *error_code);
-    void delete_tuvx(const TUVX *tuvx);
-    void run_tuvx(const TUVX *tuvx, int *error_code);
-    GridMap* get_grid_map(TUVX *tuvx);
+    TUVX *create_tuvx(const char *config_path, Error *error);
+    void delete_tuvx(const TUVX *tuvx, Error *error);
+    void run_tuvx(const TUVX *tuvx, Error *error);
+    GridMap* get_grid_map(TUVX *tuvx, Error *error);
 
 
     // for use by musica interanlly. If tuvx ever gets rewritten in C++, these functions will
@@ -48,9 +48,10 @@ class TUVX
 public:
     /// @brief Create an instance ove tuvx from a configuration file
     /// @param config_path Path to configuration file or directory containing configuration file
+    /// @param error Error struct to indicate success or failure
     /// @return 0 on success, 1 on failure in parsing configuration file
-    int create(const std::string &config_path);
-    GridMap* create_grid_map();
+    int create(const std::string &config_path, Error *error);
+    GridMap* create_grid_map(Error *error);
 
     ~TUVX();
 private:
