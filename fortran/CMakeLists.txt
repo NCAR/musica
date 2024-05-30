@@ -17,6 +17,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
+pkg_check_modules(netcdfc IMPORTED_TARGET REQUIRED netcdf)
 
 if(NOT TARGET musica)
   find_package(musica REQUIRED)
@@ -24,6 +25,13 @@ endif()
 
 add_library(musica-fortran)
 add_library(musica::musica-fortran ALIAS musica-fortran)
+
+if(NOT BUILD_SHAREDS_LIBS)
+  set_target_properties(musica-fortran
+    PROPERTIES
+    POSITION_INDEPENDENT_CODE ON
+  )
+endif()
 
 set_target_properties(musica-fortran
   PROPERTIES
