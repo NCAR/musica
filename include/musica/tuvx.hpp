@@ -50,7 +50,7 @@ public:
     /// @param config_path Path to configuration file or directory containing configuration file
     /// @param error Error struct to indicate success or failure
     /// @return 0 on success, 1 on failure in parsing configuration file
-    int create(const std::string &config_path, Error *error);
+    void create(const std::string &config_path, Error *error);
     GridMap* create_grid_map(Error *error);
 
     ~TUVX();

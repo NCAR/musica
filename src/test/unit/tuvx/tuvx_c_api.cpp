@@ -9,11 +9,15 @@ protected:
     TUVX* tuvx;
     const char* config_path;
 
+    // since we need to pass arguments we are intentionally not overriding the SetUp method of testing::Test
     void SetUp(const char* configPath) {
         Error error;
         tuvx = nullptr;
         config_path = configPath; // Set the config path based on the parameter
         tuvx = create_tuvx(config_path, &error);
+        if (!IsSuccess(error)) {
+            std::cerr << "Error creating TUVX instance: " << error.message_.value_ << std::endl;
+        }
         ASSERT_TRUE(IsSuccess(error));
         DeleteError(&error);
     }
@@ -36,29 +40,23 @@ TEST_F(TuvxCApiTest, CreateTuvxInstanceWithYamlConfig) {
 TEST_F(TuvxCApiTest, CreateTuvxInstanceWithJsonConfig) {
     const char* json_config_path = "examples/ts1_tsmlt.json";
     SetUp(json_config_path);
-    ASSERT_EQ(error_code, 0);
     ASSERT_NE(tuvx, nullptr);
 }
 
-TEST_F(TuvxCApiTest, DetectsNonexistentYamlConfigFile) {
-    const char* yaml_config_path = "nonexisting.yml";
-    SetUp(yaml_config_path);
-    ASSERT_EQ(error_code, 2);
-    ASSERT_EQ(tuvx, nullptr);
+TEST_F(TuvxCApiTest, DetectsNonexistentConfigFile) {
+    const char* config_path = "nonexisting.yml";
+    Error error;
+    TUVX* tuvx = create_tuvx(config_path, &error);
+    ASSERT_FALSE(IsSuccess(error));
+    DeleteError(&error);
 }
 
-TEST_F(TuvxCApiTest, DetectsNonexistentJSONConfigFile) {
-    const char* json_config_path = "nonexisting.json";
-    SetUp(json_config_path);
-    ASSERT_EQ(error_code, 2);
-    ASSERT_EQ(tuvx, nullptr);
-}
 
 TEST_F(TuvxCApiTest, CanCallRun) {
     const char* yaml_config_path = "examples/ts1_tsmlt.yml";
     SetUp(yaml_config_path);
-    ASSERT_EQ(error_code, 0);
     ASSERT_NE(tuvx, nullptr);
-    run_tuvx(tuvx, &error_code);
-    ASSERT_EQ(error_code, 0);
+    Error error = NoError();
+    run_tuvx(tuvx, &error);
+    ASSERT_TRUE(IsSuccess(error));
 }

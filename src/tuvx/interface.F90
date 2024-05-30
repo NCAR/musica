@@ -26,7 +26,9 @@ module tuvx_interface
       f_string = to_f_string(config_path)
       musica_config_path = string_t(f_string)
 
+      print *, "hi"
       core => core_t(musica_config_path)
+      print *, "hi2"
       internal_create_tuvx = c_loc(core)
       error_code = 0
 
@@ -34,9 +36,12 @@ module tuvx_interface
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    subroutine internal_delete_tuvx(tuvx) bind(C, name="internal_delete_tuvx")
+    subroutine internal_delete_tuvx(tuvx, error_code) bind(C, name="internal_delete_tuvx")
       use iso_c_binding, only: c_ptr, c_f_pointer
+
       type(c_ptr), intent(in) :: tuvx
+      integer(kind=c_int), intent(out)   :: error_code
+
       type(core_t), pointer :: core
     
       call c_f_pointer(tuvx, core)
@@ -47,22 +52,27 @@ module tuvx_interface
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    function internal_get_grid_map(tuvx) result(grid_map)
+    subroutine internal_get_grid_map(tuvx, error_code) bind(C, name="internal_get_grid_map")
       use iso_c_binding, only: c_ptr, c_f_pointer
 
       type(c_ptr), intent(in) :: tuvx
+      integer(kind=c_int), intent(out)   :: error_code
+
       type(core_t), pointer   :: core
       type(c_ptr)             ::grid_map
 
       call c_f_pointer(tuvx, core)
 
-    end function internal_get_grid_map
+    end subroutine internal_get_grid_map
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    subroutine internal_run_tuvx(tuvx) bind(C, name="internal_run_tuvx")
+    subroutine internal_run_tuvx(tuvx, error_code) bind(C, name="internal_run_tuvx")
       use iso_c_binding, only: c_ptr, c_f_pointer
+
       type(c_ptr), intent(in) :: tuvx
+      integer(kind=c_int), intent(out)   :: error_code
+
       type(core_t), pointer :: core
 
       ! core%update(profiles, grids, radiators)

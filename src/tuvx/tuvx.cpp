@@ -55,13 +55,18 @@ TUVX::~TUVX()
     internal_delete_tuvx(tuvx_.get(), &error_code);
 }
 
-int TUVX::create(const std::string &config_path, Error *error)
+void TUVX::create(const std::string &config_path, Error *error)
 {
     int parsing_status = 0; // 0 on success, 1 on failure
     String config_path_str = CreateString(const_cast<char *>(config_path.c_str()));
     tuvx_ = std::make_unique<void*>(internal_create_tuvx(config_path_str, &parsing_status));
     DeleteString(&config_path_str);
-    return parsing_status;
+    if (parsing_status == 1) {
+        error->message_ = "Error parsing configuration file";
+    }
+    else {
+        *error = NoError();
+    }
 }
 
 GridMap* TUVX::create_grid_map(Error *error)
