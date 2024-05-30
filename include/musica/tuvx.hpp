@@ -55,7 +55,7 @@ public:
 
     ~TUVX();
 private:
-    std::unique_ptr<void*> tuvx_;
+    void* tuvx_;
     std::unique_ptr<GridMap> grid_map_;
 };
 }

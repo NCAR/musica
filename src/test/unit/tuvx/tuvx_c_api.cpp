@@ -9,7 +9,11 @@ protected:
     TUVX* tuvx;
     const char* config_path;
 
-    // since we need to pass arguments we are intentionally not overriding the SetUp method of testing::Test
+    // the function that google test actually calls before each test
+    void SetUp() override {
+        tuvx = nullptr;
+    }
+
     void SetUp(const char* configPath) {
         Error error;
         tuvx = nullptr;
@@ -23,10 +27,14 @@ protected:
     }
 
     void TearDown() override {
+        if (tuvx == nullptr) {
+            return;
+        }
         Error error;
         delete_tuvx(tuvx, &error);
         ASSERT_TRUE(IsSuccess(error));
         DeleteError(&error);
+        tuvx = nullptr;
     }
 };
 

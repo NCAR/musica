@@ -52,26 +52,35 @@ GridMap* get_grid_map(TUVX *tuvx, Error *error) {
 TUVX::~TUVX()
 {
     int error_code = 0;
-    internal_delete_tuvx(tuvx_.get(), &error_code);
+    if (tuvx_ != nullptr) internal_delete_tuvx(tuvx_, &error_code);
+    tuvx_ = nullptr;
 }
 
 void TUVX::create(const std::string &config_path, Error *error)
 {
     int parsing_status = 0; // 0 on success, 1 on failure
-    String config_path_str = CreateString(const_cast<char *>(config_path.c_str()));
-    tuvx_ = std::make_unique<void*>(internal_create_tuvx(config_path_str, &parsing_status));
-    DeleteString(&config_path_str);
-    if (parsing_status == 1) {
-        error->message_ = "Error parsing configuration file";
+    try {
+        String config_path_str = CreateString(const_cast<char *>(config_path.c_str()));
+        tuvx_ = internal_create_tuvx(config_path_str, &parsing_status);
+        DeleteString(&config_path_str);
+        if (parsing_status == 1) {
+            *error = Error{1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create tuvx instance")};
+        }
+        else {
+            *error = NoError();
+        }
     }
-    else {
-        *error = NoError();
+    catch (const std::system_error &e) {
+        *error = ToError(e);
+    }
+    catch(...) {
+        *error = Error{1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create tuvx instance")};
     }
 }
 
 GridMap* TUVX::create_grid_map(Error *error)
 {
     int error_code = 0;
-    internal_get_grid_map(tuvx_.get(), &error_code);
+    internal_get_grid_map(tuvx_, &error_code);
 }
 }
