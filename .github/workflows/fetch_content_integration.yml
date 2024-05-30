@@ -20,7 +20,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         dockerfile:
-          - Dockerfile.fortran-intel
+          # - Dockerfile.fortran-intel # disabled until #135 is resolved
           - Dockerfile.fortran-gcc.integration
           - Dockerfile.fortran-nvhpc
     steps:
