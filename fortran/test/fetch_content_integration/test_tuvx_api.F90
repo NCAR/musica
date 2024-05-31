@@ -63,7 +63,9 @@ contains
 
     tuvx => tuvx_t( config_path, error )
     ASSERT( error%is_success() )
-    ! grids = tuvx%get_grids( error )
+    grids = tuvx%get_grids( error )
+    ASSERT( error%is_success() )
+
     ! profiles = tuvx%create_profiles( )
     ! radiators = tuvx%create_radiators( )
 

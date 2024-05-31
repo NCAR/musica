@@ -10,11 +10,11 @@
 #include <memory>
 
 namespace musica {
-    class TUVX;
-
     struct GridMap
     {
+        GridMap(void* grid_map) : grid_map_(grid_map) {}
+
         private:
-            std::unique_ptr<void*> grid_map_;
+            void* grid_map_;
     };
 }

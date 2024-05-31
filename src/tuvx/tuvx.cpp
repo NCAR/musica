@@ -49,6 +49,8 @@ GridMap* get_grid_map(TUVX *tuvx, Error *error) {
     return tuvx->create_grid_map(error);
 }
 
+TUVX::TUVX() : tuvx_(), grid_map_(nullptr) {}
+
 TUVX::~TUVX()
 {
     int error_code = 0;
@@ -81,6 +83,12 @@ void TUVX::create(const std::string &config_path, Error *error)
 GridMap* TUVX::create_grid_map(Error *error)
 {
     int error_code = 0;
-    internal_get_grid_map(tuvx_, &error_code);
+    grid_map_ = std::make_unique<GridMap>(internal_get_grid_map(tuvx_, &error_code));
+    *error = NoError();
+    if (error_code != 0) {
+        *error = Error{1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create grid map")};
+        return nullptr;
+    }
+    return grid_map_.get();
 }
 }

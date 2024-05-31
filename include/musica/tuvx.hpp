@@ -36,7 +36,6 @@ extern "C"
     // not need to change
     void *internal_create_tuvx(String config_path, int *error_code);
     void internal_delete_tuvx(void* tuvx, int *error_code);
-    void internal_run_tuvx(void* tuvx, int *error_code);
     void *internal_get_grid_map(void* tuvx, int *error_code);
 
 #ifdef __cplusplus
@@ -46,6 +45,8 @@ extern "C"
 class TUVX
 {
 public:
+    TUVX();
+
     /// @brief Create an instance ove tuvx from a configuration file
     /// @param config_path Path to configuration file or directory containing configuration file
     /// @param error Error struct to indicate success or failure

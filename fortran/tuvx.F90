@@ -23,14 +23,14 @@ module musica_tuvx
       subroutine delete_tuvx_c(tuvx, error) bind(C, name="delete_tuvx")
          use musica_util, only: error_t_c
          import c_ptr
-         type(c_ptr), intent(in)        :: tuvx
+         type(c_ptr), value, intent(in) :: tuvx
          type(error_t_c), intent(inout) :: error
       end subroutine delete_tuvx_c
 
       function get_grid_map_c(tuvx, error) bind(C, name="get_grid_map")
          use musica_util, only: error_t_c
          import c_ptr
-         type(c_ptr), intent(in)        :: tuvx
+         type(c_ptr), value, intent(in) :: tuvx
          type(error_t_c), intent(inout) :: error
          type(c_ptr)                    :: get_grid_map_c
       end function get_grid_map_c
@@ -117,20 +117,6 @@ contains
          return
       end if
    end function constructor
-
-   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-   subroutine run(this, error)
-      use musica_util, only: error_t_c, error_t
-
-      type(tuvx_t), intent(inout) :: this
-      type(error_t), intent(inout)  :: error
-      type(error_t_c)               :: error_c
-
-      ! call run_tuvx_c(this%ptr, error_c)
-      ! error = error_t(error_c)
-
-   end subroutine run
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
