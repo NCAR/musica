@@ -1,9 +1,12 @@
 module musica_tuvx
-#define ASSERT( expr ) call assert( expr, __FILE__, __LINE__ )
-   use iso_c_binding, only: c_ptr, c_char, c_int, c_bool, c_double, c_null_char, c_size_t, c_f_pointer
+   use iso_c_binding, only: c_ptr, c_char, c_int, c_bool, c_double, c_null_char, c_size_t, c_f_pointer, c_null_ptr
+   use musica_util, only: assert
+
    implicit none
 
-   public :: tuvx_t
+#define ASSERT( expr ) call assert( expr, __FILE__, __LINE__ )
+
+   public :: tuvx_t, grid_map_t
    private
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -24,13 +27,13 @@ module musica_tuvx
          type(error_t_c), intent(inout) :: error
       end subroutine delete_tuvx_c
 
-      subroutine get_grid_map_c(tuvx, error) bind(C, name="get_grid_map")
+      function get_grid_map_c(tuvx, error) bind(C, name="get_grid_map")
          use musica_util, only: error_t_c
          import c_ptr
          type(c_ptr), intent(in)        :: tuvx
          type(error_t_c), intent(inout) :: error
          type(c_ptr)                    :: get_grid_map_c
-      end subroutine get_grid_map_c
+      end function get_grid_map_c
    end interface
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -53,7 +56,7 @@ module musica_tuvx
       type(c_ptr), private   :: ptr
    contains
       ! Deallocate the tuvx instance
-      final :: finalize
+      final :: finalize_grid_map_t
    end type grid_map_t
 
    interface grid_map_t
@@ -64,8 +67,26 @@ module musica_tuvx
 
 contains
 
-   include 'tuvx_grids.F90'
 
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! Grid map type
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   function grid_map_t_constructor() result(this)
+      type(grid_map_t), pointer :: this
+
+      allocate( this )
+
+      this%ptr = c_null_ptr
+   end function grid_map_t_constructor
+
+   subroutine finalize_grid_map_t(this)
+      type(grid_map_t), intent(inout) :: this
+
+   end subroutine finalize_grid_map_t
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   ! tuvx type
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    function constructor(config_path, error)  result( this )
@@ -106,20 +127,20 @@ contains
       type(error_t), intent(inout)  :: error
       type(error_t_c)               :: error_c
 
-      call run_tuvx_c(this%ptr, error_c)
-      error = error_t(error_c)
+      ! call run_tuvx_c(this%ptr, error_c)
+      ! error = error_t(error_c)
 
    end subroutine run
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    function get_grids(this, error) result(grid_map)
-      use musica_util, only: error_t_c, error_t
+      use musica_util, only: error_t, error_t_c
 
-      type(tuvx_t), intent(inout) :: this
+      class(tuvx_t), intent(inout) :: this
       type(grid_map_t) :: grid_map
       type(error_t), intent(inout)  :: error
-      type(error_t_c)               :: error_c
+      type(error_t_c)             :: error_c
 
       grid_map = grid_map_t()
       grid_map%ptr = get_grid_map_c(this%ptr, error_c)
