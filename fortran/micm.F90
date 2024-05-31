@@ -26,7 +26,7 @@ module musica_micm
       end subroutine delete_micm_c
 
       subroutine micm_solve_c(micm, time_step, temperature, pressure, num_concentrations, concentrations, &
-                              num_user_defined_reaction_rates, user_defined_reaction_rates, error) bind(C, name="micm_solve")
+                              num_user_defined_reaction_rates, user_defined_reaction_rates, error) bind(C, name="MicmSolve")
          use musica_util, only: error_t_c
          import c_ptr, c_double, c_int
          type(c_ptr), value, intent(in)         :: micm
@@ -85,7 +85,7 @@ module musica_micm
       end function get_species_ordering_c
 
       type(c_ptr) function get_user_defined_reaction_rates_ordering_c(micm, array_size, error) &
-         bind(c, name="get_user_defined_reaction_rates_ordering")
+         bind(c, name="GetUserDefinedReactionRatesOrdering")
          use musica_util, only: error_t_c
          import :: c_ptr, c_size_t
          type(c_ptr), value, intent(in) :: micm
