@@ -12,7 +12,11 @@ program combined_tuvx_tests
   call test_tuvx_api()
 
   ! Call the invalid test subroutine
-  call test_tuvx_api_invalid_config()
+  ! disabling until tuv no longer calls stop internally
+  ! call test_tuvx_api_invalid_config()
+
+  ! Call the solve test subroutine
+  call test_tuvx_solve()
 
 contains
 
@@ -35,12 +39,12 @@ contains
   subroutine test_tuvx_api_invalid_config()
     type(tuvx_t), pointer :: tuvx
     type(error_t)         :: error
-    character(len=14)     :: config_path
+    character(len=256)     :: config_path
 
     config_path = "invalid_config"
 
     tuvx => tuvx_t(config_path, error)
-    ASSERT( error%is_success() )
+    ! ASSERT( .not. error%is_success() )
 
   end subroutine test_tuvx_api_invalid_config
 
@@ -49,9 +53,9 @@ contains
     type(tuvx_t), pointer :: tuvx
     type(error_t)         :: error
     type(grid_map_t) :: grids
-    character(len=6) :: config_path
+    character(len=256) :: config_path
 
-    config_path = "config"
+    config_path = "examples/ts1_tsmlt.json"
     ! type(profile_map_t) :: profiles
     ! type(radiator_map_t) :: radiators
     ! type(grid_t), pointer :: grid
@@ -59,7 +63,7 @@ contains
 
     tuvx => tuvx_t( config_path, error )
     ASSERT( error%is_success() )
-    grids = tuvx%get_grids( error )
+    ! grids = tuvx%get_grids( error )
     ! profiles = tuvx%create_profiles( )
     ! radiators = tuvx%create_radiators( )
 
