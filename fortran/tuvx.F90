@@ -34,6 +34,14 @@ module musica_tuvx
          type(error_t_c), intent(inout) :: error
          type(c_ptr)                    :: get_grid_map_c
       end function get_grid_map_c
+
+      function get_grid_c(grid_map, grid_name, grid_units, error) bind(C, name="get_grid")
+         use musica_util, only: error_t_c
+         import c_ptr
+         type(c_ptr), value, intent(in) :: grid_map
+         type(error_t_c), intent(inout) :: error
+         type(c_ptr)                    :: get_grid_c
+      end function get_grid_c
    end interface
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -55,6 +63,8 @@ module musica_tuvx
    type :: grid_map_t
       type(c_ptr), private   :: ptr
    contains
+      ! get a reference to a grid
+      procedure :: get_grid => get
       ! Deallocate the tuvx instance
       final :: finalize_grid_map_t
    end type grid_map_t
@@ -79,6 +89,18 @@ contains
 
       this%ptr = c_null_ptr
    end function grid_map_t_constructor
+
+   subroutine get(this, grid, error)
+      use musica_util, only: error_t, error_t_c
+      type(grid_map_t), intent(inout) :: this
+      type(grid_t), pointer          :: grid
+      type(error_t), intent(inout)   :: error
+      type(error_t_c)                :: error_c
+
+      grid = grid_t()
+      grid%ptr = get_grid_c(this%ptr, error_c)
+      error = error_t(error_c)
+   end subroutine get
 
    subroutine finalize_grid_map_t(this)
       type(grid_map_t), intent(inout) :: this
@@ -130,7 +152,7 @@ contains
 
       grid_map = grid_map_t()
       grid_map%ptr = get_grid_map_c(this%ptr, error_c)
-
+      
       error = error_t(error_c)
 
    end function get_grids
