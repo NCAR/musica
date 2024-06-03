@@ -70,7 +70,9 @@ contains
     ! radiators = tuvx%create_radiators( )
 
     ! update conditions for each time step
-    ! grid => grids%get( "height", "m" )
+    grid => grids%get( "height", "m", error )
+    ASSERT( error%is_success() )
+
     ! grid%edges_(:) = some_input_array(:)
     ! grid%mid_points_(:) = more_input_data(:)
     
