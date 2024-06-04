@@ -9,7 +9,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 include(FetchContent)
 
-set(MUSICA_GIT_TAG "128-clang-tidy" CACHE STRING "Git tag for the musica_fortran repository") #TODO(jiwon)
+set(MUSICA_GIT_TAG "801807d" CACHE STRING "Git tag for the musica_fortran repository")
 
 FetchContent_Declare(musica_fortran
   GIT_REPOSITORY https://github.com/NCAR/musica.git
