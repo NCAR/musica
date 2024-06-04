@@ -42,60 +42,60 @@ module musica_micm
 
       function get_species_property_string_c(micm, species_name, property_name, error) bind(c, name="GetSpeciesPropertyString")
          use musica_util, only: error_t_c, string_t_c
-         import :: c_ptr, c_char
-         type(c_ptr), value, intent(in) :: micm
+         import c_ptr, c_char
+         type(c_ptr), value, intent(in)            :: micm
          character(len=1, kind=c_char), intent(in) :: species_name(*), property_name(*)
-         type(error_t_c), intent(inout) :: error
-         type(string_t_c) :: get_species_property_string_c
+         type(error_t_c), intent(inout)            :: error
+         type(string_t_c)                          :: get_species_property_string_c
       end function get_species_property_string_c
 
       function get_species_property_double_c(micm, species_name, property_name, error) bind(c, name="GetSpeciesPropertyDouble")
          use musica_util, only: error_t_c
-         import :: c_ptr, c_char, c_double
-         type(c_ptr), value, intent(in) :: micm
+         import c_ptr, c_char, c_double
+         type(c_ptr), value, intent(in)            :: micm
          character(len=1, kind=c_char), intent(in) :: species_name(*), property_name(*)
-         type(error_t_c), intent(inout) :: error
-         real(kind=c_double) :: get_species_property_double_c
+         type(error_t_c), intent(inout)            :: error
+         real(kind=c_double)                       :: get_species_property_double_c
       end function get_species_property_double_c
 
       function get_species_property_int_c(micm, species_name, property_name, error) bind(c, name="GetSpeciesPropertyInt")
          use musica_util, only: error_t_c
-         import :: c_ptr, c_char, c_int
-         type(c_ptr), value, intent(in) :: micm
+         import c_ptr, c_char, c_int
+         type(c_ptr), value, intent(in)            :: micm
          character(len=1, kind=c_char), intent(in) :: species_name(*), property_name(*)
-         type(error_t_c), intent(inout) :: error
-         integer(kind=c_int) :: get_species_property_int_c
+         type(error_t_c), intent(inout)            :: error
+         integer(kind=c_int)                       :: get_species_property_int_c
       end function get_species_property_int_c
 
       function get_species_property_bool_c(micm, species_name, property_name, error) bind(c, name="GetSpeciesPropertyBool")
          use musica_util, only: error_t_c
-         import :: c_ptr, c_char, c_bool
-         type(c_ptr), value, intent(in) :: micm
+         import c_ptr, c_char, c_bool
+         type(c_ptr), value, intent(in)            :: micm
          character(len=1, kind=c_char), intent(in) :: species_name(*), property_name(*)
-         type(error_t_c), intent(inout) :: error
-         logical(kind=c_bool) :: get_species_property_bool_c
+         type(error_t_c), intent(inout)            :: error
+         logical(kind=c_bool)                      :: get_species_property_bool_c
       end function get_species_property_bool_c      
 
       type(c_ptr) function get_species_ordering_c(micm, array_size, error) bind(c, name="GetSpeciesOrdering")
          use musica_util, only: error_t_c
-         import :: c_ptr, c_size_t
-         type(c_ptr), value, intent(in) :: micm
+         import c_ptr, c_size_t
+         type(c_ptr), value, intent(in)      :: micm
          integer(kind=c_size_t), intent(out) :: array_size
-         type(error_t_c), intent(inout) :: error
+         type(error_t_c), intent(inout)      :: error
       end function get_species_ordering_c
 
       type(c_ptr) function get_user_defined_reaction_rates_ordering_c(micm, array_size, error) &
          bind(c, name="GetUserDefinedReactionRatesOrdering")
          use musica_util, only: error_t_c
-         import :: c_ptr, c_size_t
-         type(c_ptr), value, intent(in) :: micm
+         import c_ptr, c_size_t
+         type(c_ptr), value, intent(in)      :: micm
          integer(kind=c_size_t), intent(out) :: array_size
-         type(error_t_c), intent(inout) :: error
+         type(error_t_c), intent(inout)      :: error
       end function get_user_defined_reaction_rates_ordering_c
 
       subroutine delete_mappings_c(mappings, array_size) bind(C, name="DeleteMappings")
          import c_ptr, c_size_t
-         type(c_ptr), value, intent(in)    :: mappings
+         type(c_ptr), value, intent(in)            :: mappings
          integer(kind=c_size_t), value, intent(in) :: array_size
       end subroutine delete_mappings_c
    end interface
@@ -103,7 +103,7 @@ module musica_micm
    type :: micm_t
       type(mapping_t), allocatable :: species_ordering(:)
       type(mapping_t), allocatable :: user_defined_reaction_rates(:)
-      type(c_ptr), private   :: ptr = c_null_ptr
+      type(c_ptr), private         :: ptr = c_null_ptr
    contains
       ! Solve the chemical system
       procedure :: solve
@@ -124,14 +124,14 @@ contains
 
    function constructor(config_path, error)  result( this )
       use musica_util, only: error_t_c, error_t, copy_mappings
-      type(micm_t), pointer          :: this
-      character(len=*), intent(in)   :: config_path
-      type(error_t), intent(inout)   :: error
-      character(len=1, kind=c_char)  :: c_config_path(len_trim(config_path)+1)
-      integer                        :: n, i
-      type(c_ptr) :: mappings_ptr
-      integer(c_size_t) :: mappings_length
-      type(error_t_c) :: error_c
+      type(micm_t), pointer         :: this
+      character(len=*), intent(in)  :: config_path
+      type(error_t), intent(inout)  :: error
+      character(len=1, kind=c_char) :: c_config_path(len_trim(config_path)+1)
+      integer                       :: n, i
+      type(c_ptr)                   :: mappings_ptr
+      integer(c_size_t)             :: mappings_length
+      type(error_t_c)               :: error_c
 
       allocate( this )
 
@@ -185,7 +185,7 @@ contains
       real(c_double),  intent(inout) :: user_defined_reaction_rates(*)
       type(error_t),   intent(out)   :: error
 
-      type(error_t_c) :: error_c
+      type(error_t_c)                :: error_c
       call micm_solve_c(this%ptr, time_step, temperature, pressure, num_concentrations, concentrations, &
                         num_user_defined_reaction_rates, user_defined_reaction_rates, error_c)
       error = error_t(error_c)
@@ -193,13 +193,13 @@ contains
 
    function get_species_property_string(this, species_name, property_name, error) result(value)
       use musica_util, only: error_t_c, error_t, string_t, string_t_c, to_c_string
-      class(micm_t), intent(inout)   :: this
-      character(len=*), intent(in)   :: species_name, property_name
-      type(error_t), intent(inout)   :: error
-      type(string_t)                 :: value
+      class(micm_t), intent(inout) :: this
+      character(len=*), intent(in) :: species_name, property_name
+      type(error_t), intent(inout) :: error
+      type(string_t)               :: value
 
-      type(error_t_c) :: error_c
-      type(string_t_c) :: string_c
+      type(error_t_c)              :: error_c
+      type(string_t_c)             :: string_c
       string_c = get_species_property_string_c(this%ptr,  &
                 to_c_string(species_name), to_c_string(property_name), error_c)
       value = string_t(string_c)
@@ -208,12 +208,12 @@ contains
 
    function get_species_property_double(this, species_name, property_name, error) result(value)
       use musica_util, only: error_t_c, error_t, to_c_string
-      class(micm_t)                  :: this
-      character(len=*), intent(in)   :: species_name, property_name
-      type(error_t), intent(inout)   :: error
-      real(c_double)                 :: value
+      class(micm_t)                :: this
+      character(len=*), intent(in) :: species_name, property_name
+      type(error_t), intent(inout) :: error
+      real(c_double)               :: value
 
-      type(error_t_c) :: error_c
+      type(error_t_c)              :: error_c
       value = get_species_property_double_c(this%ptr, &
                 to_c_string(species_name), to_c_string(property_name), error_c)
       error = error_t(error_c)
@@ -221,12 +221,12 @@ contains
 
    function get_species_property_int(this, species_name, property_name, error) result(value)
       use musica_util, only: error_t_c, error_t, to_c_string
-      class(micm_t)                  :: this
-      character(len=*), intent(in)   :: species_name, property_name
-      type(error_t), intent(inout)   :: error
-      integer(c_int)                 :: value
+      class(micm_t)                :: this
+      character(len=*), intent(in) :: species_name, property_name
+      type(error_t), intent(inout) :: error
+      integer(c_int)               :: value
 
-      type(error_t_c) :: error_c
+      type(error_t_c)              :: error_c
       value = get_species_property_int_c(this%ptr, &
                 to_c_string(species_name), to_c_string(property_name), error_c)
       error = error_t(error_c)
@@ -234,12 +234,12 @@ contains
 
    function get_species_property_bool(this, species_name, property_name, error) result(value)
       use musica_util, only: error_t_c, error_t, to_c_string
-      class(micm_t)                  :: this
-      character(len=*), intent(in)   :: species_name, property_name
-      type(error_t), intent(inout)   :: error
-      logical                        :: value
+      class(micm_t)                :: this
+      character(len=*), intent(in) :: species_name, property_name
+      type(error_t), intent(inout) :: error
+      logical                      :: value
 
-      type(error_t_c) :: error_c
+      type(error_t_c)              :: error_c
       value = get_species_property_bool_c(this%ptr, &
                 to_c_string(species_name), to_c_string(property_name), error_c)
       error = error_t(error_c)

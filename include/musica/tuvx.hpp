@@ -43,7 +43,7 @@ namespace musica
    public:
     /// @brief Create an instance ove tuvx from a configuration file
     /// @param config_path Path to configuration file or directory containing configuration file
-    /// @return 0 on success, 1 on failure in parsing configuration file
+    /// @return 0 on success, else on failure in parsing configuration file
     int Create(const std::string &config_path);
 
     ~TUVX();

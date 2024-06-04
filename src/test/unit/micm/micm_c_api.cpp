@@ -36,8 +36,8 @@ class MicmCApiTest : public ::testing::Test
 TEST_F(MicmCApiTest, BadConfigurationFilePath)
 {
   Error error = NoError();
-  auto micmbad_config = CreateMicm("bad config path", &error);
-  ASSERT_EQ(micmbad_config, nullptr);
+  auto micm_bad_config = CreateMicm("bad config path", &error);
+  ASSERT_EQ(micm_bad_config, nullptr);
   ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_CONFIGURATION, MICM_CONFIGURATION_ERROR_CODE_INVALID_FILE_PATH));
   DeleteError(&error);
 }

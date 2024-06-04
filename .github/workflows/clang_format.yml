@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Install Clang-Format
-        run: sudo apt-get update && sudo apt-get install clang-format clang-tidy && clang-format --version && clang-tidy --version
+        run: sudo apt-get update && sudo apt-get install clang-format && clang-format --version
 
       - name: Check out code, run clang format, push changes
         uses: actions/checkout@v4
