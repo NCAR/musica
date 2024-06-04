@@ -6,7 +6,7 @@
 #
 FROM nvcr.io/nvidia/nvhpc:23.7-devel-cuda12.2-ubuntu22.04
 
-ARG MUSICA_GIT_TAG=801807d
+ARG MUSICA_GIT_TAG=main
 
 RUN apt update \
     && apt -y install \
