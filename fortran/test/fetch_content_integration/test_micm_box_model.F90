@@ -1,8 +1,25 @@
 program test_micm_box_model
-    use musica_util, only: string_t
-    use musica_micm, only: get_micm_version
+
+    use, intrinsic :: iso_c_binding
+    use, intrinsic :: ieee_arithmetic
+
+    use musica_micm, only: micm_t
+    use musica_util, only: error_t, string_t, mapping_t
+
     implicit none
-    type(string_t) :: micm_version
-    micm_version = get_micm_version()
-    print *, "MICM version ", micm_version%get_char_array()
+
+    call box_model()
+
+contains
+
+    subroutine box_model()
+
+        real(c_double) :: time_step
+        real(c_double) :: temperature
+        real(c_double) :: pressure
+
+        real(c_double), dimension(3) :: concentrations
+
+    end subroutine box_model
+
 end program test_micm_box_model
