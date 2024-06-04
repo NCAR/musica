@@ -21,7 +21,7 @@ module musica_tuvx
   end interface
 
   type :: tuvx_t
-     type(c_ptr), private   :: ptr
+     type(c_ptr), private :: ptr
   contains
      ! Deallocate the tuvx instance
      final :: finalize

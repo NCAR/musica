@@ -6,8 +6,8 @@
 #
 FROM nvcr.io/nvidia/nvhpc:23.7-devel-cuda12.2-ubuntu22.04
 
-ARG MUSICA_GIT_TAG=main
-
+ARG MUSICA_GIT_TAG=128-clang-tidy
+## TODO(jiwon)
 RUN apt update \
     && apt -y install \
     cmake \
@@ -55,7 +55,7 @@ RUN cd musica \
     && cd build \
     && make install
 
-# Set environment variables to build MUSICA-Fortran using intel compilers
+# Set environment variables to build MUSICA-Fortran using nvidia compilers
 ENV CXX=nvc++
 ENV CC=nvc
 ENV FC=nvfortran
