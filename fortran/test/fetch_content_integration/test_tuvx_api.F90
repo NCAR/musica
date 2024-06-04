@@ -51,7 +51,7 @@ contains
   subroutine test_tuvx_solve()
 
     type(tuvx_t), pointer     :: tuvx
-    type(error_t), pointer    :: error
+    type(error_t)             :: error
     type(grid_map_t), pointer :: grids
     character(len=256)        :: config_path
     type(grid_t), pointer     :: grid

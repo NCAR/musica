@@ -39,7 +39,7 @@ module musica_tuvx
          use musica_util, only: error_t_c
          import c_ptr, c_char
          type(c_ptr), value, intent(in)            :: grid_map
-         character(len=1, kind=c_char), intent(in) :: grid_name, grid_units
+         character(len=1, kind=c_char), intent(in) :: grid_name(*), grid_units(*)
          type(error_t_c), intent(inout)            :: error
          type(c_ptr)                               :: get_grid_c
       end function get_grid_c
@@ -64,7 +64,7 @@ module musica_tuvx
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    type :: grid_map_t
-      type(c_ptr), private :: ptr = c_null_ptr
+      type(c_ptr) :: ptr = c_null_ptr
    contains
       procedure :: get
       ! Deallocate the tuvx instance
@@ -110,7 +110,7 @@ contains
 
    !> Get a grid given its name and units
    function get(this, grid_name, grid_units, error) result(grid)
-      use musica_util, only: error_t, error_t_c
+      use musica_util, only: error_t, error_t_c, to_c_string
 
       ! Arguments
       class(grid_map_t), intent(in) :: this
@@ -126,8 +126,8 @@ contains
       ! Return value
       type(grid_t), pointer :: grid
 
-      grid = grid_t()
-      grid%ptr = get_grid_c(this%ptr, grid_name, grid_units, error_c)
+      grid => grid_t()
+      grid%ptr = get_grid_c(this%ptr, to_c_string(grid_name), to_c_string(grid_units), error_c)
 
       error = error_t(error_c)
 
@@ -221,7 +221,7 @@ contains
       ! Return value
       type(grid_map_t), pointer    :: grid_map
 
-      grid_map = grid_map_t()
+      grid_map => grid_map_t()
       grid_map%ptr = get_grid_map_c(this%ptr, error_c)
       
       error = error_t(error_c)
