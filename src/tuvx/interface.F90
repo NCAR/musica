@@ -1,3 +1,6 @@
+! Copyright (C) 2023-2024 National Center for Atmospheric Research
+! SPDX-License-Identifier: Apache-2.0
+!
 module tuvx_interface
 
   use iso_c_binding,       only : c_ptr, c_loc, c_int
@@ -116,8 +119,11 @@ module tuvx_interface
       f_grid_units = to_f_string(grid_units)
     
       call c_f_pointer(grid_map, grid_warehouse)
+
+      grid => grid_warehouse%get_grid(f_grid_name, f_grid_units)
     
       grid_ptr = c_loc(grid)
+      print *, grid_ptr
     
     end function interal_get_grid
 

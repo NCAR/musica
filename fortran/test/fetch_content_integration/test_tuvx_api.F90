@@ -1,3 +1,6 @@
+! Copyright (C) 2023-2024 National Center for Atmospheric Research
+! SPDX-License-Identifier: Apache-2.0
+!
 program combined_tuvx_tests
   use iso_c_binding
   use musica_tuvx, only: tuvx_t, grid_map_t, grid_t
@@ -70,7 +73,7 @@ contains
     ! radiators = tuvx%create_radiators( )
 
     ! update conditions for each time step
-    grid => grids%get( "height", "m", error )
+    grid => grids%get( "height", "km", error )
     ASSERT( error%is_success() )
     ! grid%edges_(:) = some_input_array(:)
     ! grid%mid_points_(:) = more_input_data(:)

@@ -67,7 +67,7 @@ extern "C"
     void internal_delete_tuvx(void* tuvx, int *error_code);
     void *internal_get_grid_map(void* tuvx, int *error_code);
     void internal_delete_grid_map(void* grid_map, int *error_code);
-    void *internal_get_grid(void* grid_map, const char* grid_name, const char* grid_units, int *error_code);
+    void *internal_get_grid(void* grid_map, String grid_name, String grid_units, int *error_code);
     void internal_delete_grid(void* grid, int *error_code);
 
 #ifdef __cplusplus
