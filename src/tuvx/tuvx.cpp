@@ -49,6 +49,11 @@ GridMap* get_grid_map(TUVX *tuvx, Error *error) {
     return tuvx->create_grid_map(error);
 }
 
+Grid* get_grid(GridMap* grid_map, const char* grid_name, const char* grid_units, Error *error) {
+    DeleteError(error);
+    return grid_map->get_grid(grid_name, grid_units, error);
+}
+
 TUVX::TUVX() : tuvx_(), grid_map_(nullptr) {}
 
 TUVX::~TUVX()
@@ -91,4 +96,30 @@ GridMap* TUVX::create_grid_map(Error *error)
     }
     return grid_map_.get();
 }
+
+GridMap::~GridMap()
+{
+    int error_code = 0;
+    if (grid_map_ != nullptr) internal_delete_grid_map(grid_map_, &error_code);
+    grid_map_ = nullptr;
 }
+
+Grid* GridMap::get_grid(const char* grid_name, const char* grid_units, Error *error) {
+  int error_code = 0;
+  Grid* grid = new Grid(internal_get_grid(grid_map_, grid_name, grid_units, &error_code));
+    *error = NoError();
+    if (error_code != 0) {
+        *error = Error{1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create grid map")};
+        return nullptr;
+    }
+    return grid;
+}
+
+Grid::~Grid()
+{
+    int error_code = 0;
+    if (grid_ != nullptr) internal_delete_grid(grid_, &error_code);
+    grid_ = nullptr;
+}
+
+} // namespace musica

@@ -17,6 +17,8 @@ extern "C"
 #endif
 
 /// @brief A struct to represent a string
+/// Typically used to return strings from C to fortran
+/// Strings are relatively easy to pass in from fortran so long as fortran adds the null termination
 struct String
 {
   char* value_ = nullptr;

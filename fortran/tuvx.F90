@@ -6,7 +6,7 @@ module musica_tuvx
 
 #define ASSERT( expr ) call assert( expr, __FILE__, __LINE__ )
 
-   public :: tuvx_t, grid_map_t
+   public :: tuvx_t, grid_map_t, grid_t
    private
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -37,10 +37,11 @@ module musica_tuvx
 
       function get_grid_c(grid_map, grid_name, grid_units, error) bind(C, name="get_grid")
          use musica_util, only: error_t_c
-         import c_ptr
-         type(c_ptr), value, intent(in) :: grid_map
-         type(error_t_c), intent(inout) :: error
-         type(c_ptr)                    :: get_grid_c
+         import c_ptr, c_char
+         type(c_ptr), value, intent(in)            :: grid_map
+         character(len=1, kind=c_char), intent(in) :: grid_name, grid_units
+         type(error_t_c), intent(inout)            :: error
+         type(c_ptr)                               :: get_grid_c
       end function get_grid_c
    end interface
 
@@ -48,7 +49,7 @@ module musica_tuvx
    ! Data types
 
    type :: tuvx_t
-      type(c_ptr), private   :: ptr
+      type(c_ptr), private :: ptr = c_null_ptr
    contains
       ! Create a grid map
       procedure :: get_grids
@@ -63,7 +64,7 @@ module musica_tuvx
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    type :: grid_map_t
-      type(c_ptr), private   :: ptr
+      type(c_ptr), private :: ptr = c_null_ptr
    contains
       procedure :: get
       ! Deallocate the tuvx instance
@@ -77,9 +78,8 @@ module musica_tuvx
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    type :: grid_t
-      type(c_ptr), private   :: ptr
+      type(c_ptr), private :: ptr = c_null_ptr
    contains
-      procedure :: get
       ! Deallocate the tuvx instance
       final :: finalize_grid_t
    end type grid_t
@@ -98,6 +98,7 @@ contains
 
    !> Construct a grid map instance
    function grid_map_t_constructor() result(this)
+      ! Return value
       type(grid_map_t), pointer :: this
 
       allocate( this )
@@ -111,14 +112,19 @@ contains
    function get(this, grid_name, grid_units, error) result(grid)
       use musica_util, only: error_t, error_t_c
 
-      class(grid_map_t), intent(inout) :: this
-      character(len=*), intent(in)     :: grid_name
-      character(len=*), intent(in)     :: grid_units
-      type(grid_t)                     :: grid
-      type(error_t), intent(inout)     :: error
-      type(error_t_c)                  :: error_c
+      ! Arguments
+      class(grid_map_t), intent(in) :: this
+      character(len=*), intent(in)  :: grid_name
+      character(len=*), intent(in)  :: grid_units
+      type(error_t), intent(inout)  :: error
+
+      ! Local variables
+      type(error_t_c)               :: error_c
       character(len=1, kind=c_char) :: c_grid_name(len_trim(grid_name)+1)
       character(len=1, kind=c_char) :: c_grid_units(len_trim(grid_name)+1)
+
+      ! Return value
+      type(grid_t), pointer :: grid
 
       grid = grid_t()
       grid%ptr = get_grid_c(this%ptr, grid_name, grid_units, error_c)
@@ -131,6 +137,7 @@ contains
 
    !> Deallocate the grid map instance
    subroutine finalize_grid_map_t(this)
+      ! Arguments
       type(grid_map_t), intent(inout) :: this
 
    end subroutine finalize_grid_map_t
@@ -139,9 +146,23 @@ contains
    ! Grid type
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+   !> Construct a grid map instance
+   function grid_t_constructor() result(this)
+      ! Return value
+      type(grid_t), pointer :: this
+
+      allocate( this )
+
+   end function grid_t_constructor
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
    !> Deallocate the grid instance
    subroutine finalize_grid_t(this)
+      ! Arguments
       type(grid_t), intent(inout) :: this
+
+      ! call delete_grid_c(this%ptr)
 
    end subroutine finalize_grid_t
 
@@ -153,13 +174,18 @@ contains
    function constructor(config_path, error)  result( this )
       use musica_util, only: error_t_c, error_t
 
+      ! Arguments
       type(error_t), intent(inout)  :: error
       character(len=*), intent(in)  :: config_path
-      type(tuvx_t), pointer         :: this
+
+      ! Local variables
       character(len=1, kind=c_char) :: c_config_path(len_trim(config_path)+1)
       integer                       :: n, i
       type(c_ptr)                   :: mappings_ptr
       type(error_t_c)               :: error_c
+
+      ! Return value
+      type(tuvx_t), pointer         :: this
 
       allocate( this )
 
@@ -185,10 +211,15 @@ contains
    function get_grids(this, error) result(grid_map)
       use musica_util, only: error_t, error_t_c
 
+      ! Arguments
       class(tuvx_t), intent(inout) :: this
-      type(grid_map_t) :: grid_map
-      type(error_t), intent(inout)  :: error
-      type(error_t_c)             :: error_c
+      type(error_t), intent(inout) :: error
+
+      ! Local variables
+      type(error_t_c)              :: error_c
+
+      ! Return value
+      type(grid_map_t), pointer    :: grid_map
 
       grid_map = grid_map_t()
       grid_map%ptr = get_grid_map_c(this%ptr, error_c)
@@ -202,7 +233,11 @@ contains
    !> Deallocate the tuvx instance
    subroutine finalize(this)
       use musica_util, only: error_t, error_t_c
+
+      ! Arguments
       type(tuvx_t), intent(inout) :: this
+
+      ! Local variables
       type(error_t_c)             :: error_c
       type(error_t)               :: error
 
@@ -210,6 +245,7 @@ contains
       this%ptr = c_null_ptr
       error = error_t(error_c)
       ASSERT(error%is_success())
+
    end subroutine finalize
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

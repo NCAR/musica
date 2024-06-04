@@ -1,6 +1,6 @@
 program combined_tuvx_tests
   use iso_c_binding
-  use musica_tuvx, only: tuvx_t, grid_map_t
+  use musica_tuvx, only: tuvx_t, grid_map_t, grid_t
   use musica_util, only: assert, error_t
 
   implicit none
@@ -50,20 +50,20 @@ contains
 
   subroutine test_tuvx_solve()
 
-    type(tuvx_t), pointer :: tuvx
-    type(error_t)         :: error
-    type(grid_map_t) :: grids
-    character(len=256) :: config_path
-
-    config_path = "examples/ts1_tsmlt.json"
+    type(tuvx_t), pointer     :: tuvx
+    type(error_t), pointer    :: error
+    type(grid_map_t), pointer :: grids
+    character(len=256)        :: config_path
+    type(grid_t), pointer     :: grid
     ! type(profile_map_t) :: profiles
     ! type(radiator_map_t) :: radiators
-    ! type(grid_t), pointer :: grid
     ! real(dk), allocatable :: photo_rates(:,:,:)
+
+    config_path = "examples/ts1_tsmlt.json"
 
     tuvx => tuvx_t( config_path, error )
     ASSERT( error%is_success() )
-    grids = tuvx%get_grids( error )
+    grids => tuvx%get_grids( error )
     ASSERT( error%is_success() )
 
     ! profiles = tuvx%create_profiles( )

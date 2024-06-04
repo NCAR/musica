@@ -12,9 +12,38 @@
 #include <vector>
 
 #include <musica/util.hpp>
-#include <musica/grid_map.hpp>
 
 namespace musica {
+
+    /// @brief A grid struct used to access grid information in tuvx
+    struct Grid
+    {
+        Grid(void* grid) : grid_(grid) {}
+        ~Grid();
+
+        private:
+            void* grid_;
+    };
+
+    /// @brief A grid map struct used to access grid information in tuvx
+    struct GridMap
+    {
+        GridMap(void* grid_map) : grid_map_(grid_map) {}
+        ~GridMap();
+
+
+        /// @brief Returns a grid. For now, this calls the interal tuvx fortran api, but will allow the change to c++ later on to be transparent to downstream projects
+        /// @param grid_name The name of the grid we want
+        /// @param grid_units The units of the grid we want
+        /// @param error The error struct to indicate success or failure
+        /// @return a grid pointer
+        Grid* get_grid(const char* grid_name, const char* grid_units, Error *error);
+
+        private:
+            void* grid_map_;
+            std::vector<std::unique_ptr<Grid>> grids_;
+    };
+
 
 class TUVX;
 
@@ -29,7 +58,7 @@ extern "C"
     void delete_tuvx(const TUVX *tuvx, Error *error);
     void run_tuvx(const TUVX *tuvx, Error *error);
     GridMap* get_grid_map(TUVX *tuvx, Error *error);
-
+    Grid* get_grid(GridMap* grid_map, const char* grid_name, const char* grid_units, Error *error);
 
     // for use by musica interanlly. If tuvx ever gets rewritten in C++, these functions will
     // go away but the C API will remain the same and downstream projects (like CAM-SIMA) will
@@ -37,6 +66,9 @@ extern "C"
     void *internal_create_tuvx(String config_path, int *error_code);
     void internal_delete_tuvx(void* tuvx, int *error_code);
     void *internal_get_grid_map(void* tuvx, int *error_code);
+    void internal_delete_grid_map(void* grid_map, int *error_code);
+    void *internal_get_grid(void* grid_map, const char* grid_name, const char* grid_units, int *error_code);
+    void internal_delete_grid(void* grid, int *error_code);
 
 #ifdef __cplusplus
 }
@@ -52,6 +84,10 @@ public:
     /// @param error Error struct to indicate success or failure
     /// @return 0 on success, 1 on failure in parsing configuration file
     void create(const std::string &config_path, Error *error);
+
+    /// @brief Create a grid map. For now, this calls the interal tuvx fortran api, but will allow the change to c++ later on to be transparent to downstream projects
+    /// @param error The error struct to indicate success or failure
+    /// @return a grid map pointer
     GridMap* create_grid_map(Error *error);
 
     ~TUVX();
