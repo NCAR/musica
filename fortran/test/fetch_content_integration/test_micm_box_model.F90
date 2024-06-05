@@ -23,8 +23,8 @@ contains
         integer(c_int) :: num_concentrations = 3
         real(c_double), dimension(3) :: concentrations
 
-        integer(c_int) :: num_user_defined_reaction_rates = 3
-        real(c_double), dimension(3)  :: user_defined_reaction_rates 
+        integer(c_int) :: num_user_defined_reaction_rates = 0
+        real(c_double), dimension(:), allocatable :: user_defined_reaction_rates 
 
         type(error_t) :: error
         type(micm_t), pointer :: micm
@@ -32,11 +32,13 @@ contains
         integer :: i
 
         config_path = "configs/analytical"
-        user_defined_reaction_rates = (/ 0.1, 0.2, 0.3 /)
+        ! user_defined_reaction_rates = (/ 0.1, 0.2, 0.3 /)
 
         time_step = 200
         temperature = 273.0
         pressure = 1.0e5
+
+        concentrations = (/ 1.0, 1.0, 1.0 /)
 
         write(*,*) "Creating MICM solver..."
         micm => micm_t(config_path, error)
@@ -46,6 +48,11 @@ contains
             print *, "Species Name:", the_mapping%name(), ", Index:", the_mapping%index()
             end associate
         end do
+
+        write(*,*) "Solving starts..."
+        call micm%solve(time_step, temperature, pressure, num_concentrations, concentrations, &
+            num_user_defined_reaction_rates, user_defined_reaction_rates, error)
+        write(*,*) "After solving, concentrations", concentrations
 
     end subroutine box_model
 
