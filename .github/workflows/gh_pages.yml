@@ -18,7 +18,7 @@ jobs:
       CC: gcc-${{ matrix.gcc-version }}
       FC: gfortran-${{ matrix.gcc-version }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           lfs: true

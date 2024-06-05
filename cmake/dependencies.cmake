@@ -17,6 +17,7 @@ endfunction(set_git_default)
 if (MUSICA_BUILD_FORTRAN_INTERFACE)
   find_package(PkgConfig REQUIRED)
   pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
+  pkg_check_modules(netcdfc IMPORTED_TARGET REQUIRED netcdf)
 endif()
 
 ################################################################################
@@ -50,7 +51,7 @@ endif()
 if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE)
 
   set_git_default(MICM_GIT_REPOSITORY https://github.com/NCAR/micm.git)
-  set_git_default(MICM_GIT_TAG 5afd404cde063276f4e8e1fe3d1bf2aa3e6d869a)
+  set_git_default(MICM_GIT_TAG 5afd404)
 
   FetchContent_Declare(micm
       GIT_REPOSITORY ${MICM_GIT_REPOSITORY}

@@ -1,14 +1,14 @@
-/**
- * This file contains the implementation of the TUVX class, which represents a multi-component
- * reactive transport model. It also includes functions for creating and deleting TUVX instances,
- * Copyright (C) 2023-2024 National Center for Atmospheric Research,
+/* Copyright (C) 2023-2024 National Center for Atmospheric Research
  *
  * SPDX-License-Identifier: Apache-2.0* creating solvers, and solving the model.
+ *
+ * This file contains the implementation of the TUVX class, which represents a multi-component
+ * reactive transport model. It also includes functions for creating and deleting TUVX instances.
  */
 
-#include <iostream>
-
 #include <musica/tuvx.hpp>
+
+#include <iostream>
 
 namespace musica {
 
@@ -55,7 +55,7 @@ void delete_grid_map(GridMap* grid_map, Error *error) {
     } catch (const std::system_error &e) {
         *error = ToError(e);
     }
-}
+  }
 
 Grid* get_grid(GridMap* grid_map, const char* grid_name, const char* grid_units, Error *error) {
     *error = NoError();
@@ -80,8 +80,8 @@ void set_midpoints(Grid* grid, double midpoints[], std::size_t num_midpoints, Er
 
 TUVX::TUVX() : tuvx_(), grid_map_(nullptr) {}
 
-TUVX::~TUVX()
-{
+  TUVX::~TUVX()
+  {
     int error_code = 0;
     if (tuvx_ != nullptr) internal_delete_tuvx(tuvx_, &error_code);
     tuvx_ = nullptr;

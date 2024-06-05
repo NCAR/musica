@@ -1,17 +1,17 @@
-/**
- * This file contains the defintion of the TUVX class, which represents a photolysis calculator
- * It also includes functions for creating and deleting TUVX instances with c binding
- * Copyright (C) 2023-2024 National Center for Atmospheric Research,
+/* Copyright (C) 2023-2024 National Center for Atmospheric Research
  *
- * SPDX-License-Identifier: Apache-2.0* creating solvers, and solving the model.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * This file contains the defintion of the TUVX class, which represents a photolysis calculator.
+ * It also includes functions for creating and deleting TUVX instances with c binding.
  */
 #pragma once
+
+#include <musica/util.hpp>
 
 #include <memory>
 #include <string>
 #include <vector>
-
-#include <musica/util.hpp>
 
 namespace musica {
 
@@ -60,8 +60,8 @@ namespace musica {
 class TUVX;
 
 #ifdef __cplusplus
-extern "C"
-{
+  extern "C"
+  {
 #endif
 
     // The external C API for TUVX
@@ -90,7 +90,7 @@ extern "C"
     void internal_set_midpoints(void* grid, double midpoints[], std::size_t num_midpoints, int *error_code);
 
 #ifdef __cplusplus
-}
+  }
 #endif
 
 class TUVX

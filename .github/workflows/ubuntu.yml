@@ -25,7 +25,7 @@ jobs:
       CXX: ${{ matrix.compiler.cpp }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install dependencies
         run: |
@@ -55,7 +55,7 @@ jobs:
       FC: gfortran-${{ matrix.gcc_version }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install dependencies
         run: |

@@ -1,12 +1,13 @@
+#include <musica/component_versions.hpp>
+
 #include <gtest/gtest.h>
 
 #include <iostream>
 
-#include <musica/component_versions.hpp>
-
 using namespace musica;
 
-TEST(Musica, Version) {
+TEST(Musica, Version)
+{
   char* versions = getAllComponentVersions();
 
   ASSERT_NE(versions, nullptr);
@@ -15,7 +16,8 @@ TEST(Musica, Version) {
   free(versions);
 }
 
-TEST(Musica, VersionIsNullTerminated) {
+TEST(Musica, VersionIsNullTerminated)
+{
   char* versions = getAllComponentVersions();
 
   ASSERT_NE(versions, nullptr);
