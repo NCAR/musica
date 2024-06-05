@@ -32,7 +32,6 @@ contains
         integer :: i
 
         config_path = "configs/analytical"
-        ! user_defined_reaction_rates = (/ 0.1, 0.2, 0.3 /)
 
         time_step = 200
         temperature = 273.0
