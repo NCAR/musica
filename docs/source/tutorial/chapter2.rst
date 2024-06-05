@@ -3,7 +3,6 @@ Chapter 2
 
 An ABC MICM Fortran Example
 ---------------------------
-.. code-block:: f90
 
-  program micm_abc
-  end program micm_abc
+  .. literalinclude:: ../../../fortran/test/fetch_content_integration/test_micm_box_model.F90
+    :language: f90
