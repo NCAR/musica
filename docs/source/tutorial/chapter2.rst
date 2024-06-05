@@ -35,7 +35,7 @@ The Fortran example code is shown in full:
   .. literalinclude:: ../../../fortran/test/fetch_content_integration/test_micm_box_model.F90
     :language: f90
 
-From the `musica_util` module we need the Fortran types
+From the ``musica_util`` module we need the Fortran types
 ``error_t``, ``string_t``, and ``mapping_t``.
 A pointer to a ``musica_micm::micm_t`` will serve as the interface to the MICM solver
 (in the example the pointer name is ``micm``).
