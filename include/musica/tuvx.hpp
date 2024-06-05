@@ -21,7 +21,16 @@ namespace musica {
         Grid(void* grid) : grid_(grid) {}
         ~Grid();
 
+        /// @brief Set the edges of the grid
+        /// @param edges The edges of the grid
+        /// @param num_edges the number of edges
+        /// @param error the error struct to indicate success or failure
         void set_edges(double edges[], std::size_t num_edges, Error *error);
+
+        /// @brief Set the midpoints of the grid
+        /// @param midpoints The midpoints of the grid
+        /// @param num_midpoints the number of midpoints
+        /// @param error the error struct to indicate success or failure
         void set_midpoints(double midpoints[], std::size_t num_midpoints, Error *error);
 
         private:

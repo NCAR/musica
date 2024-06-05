@@ -65,22 +65,6 @@ module musica_tuvx
          type(error_t_c), intent(inout) :: error
       end subroutine set_midpoints_c
 
-      ! function get_edges_c(grid, edges, error) bind(C, name="get_edges")
-      !    use musica_util, only: error_t_c
-      !    import c_ptr
-      !    type(c_ptr), value, intent(in) :: grid
-      !    real(c_double), dimension(*), intent(out) :: edges
-      !    type(error_t_c), intent(inout) :: error
-      ! end function get_edges_c
-
-      ! function get_midpoints_c(grid, midpoints, error) bind(C, name="get_midpoints")
-      !    use musica_util, only: error_t_c
-      !    import c_ptr
-      !    type(c_ptr), value, intent(in) :: grid
-      !    real(c_double), dimension(*), intent(out) :: midpoints
-      !    type(error_t_c), intent(inout) :: error
-      ! end function get_midpoints_c
-
    end interface
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -242,42 +226,6 @@ contains
       error = error_t(error_c)
 
    end subroutine set_midpoints
-
-   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-   subroutine get_edges(this, edges, error)
-      use musica_util, only: error_t, error_t_c
-
-      ! Arguments
-      class(grid_t), intent(inout) :: this
-      real(c_double), dimension(:), intent(out) :: edges
-      type(error_t), intent(inout) :: error
-
-      ! Local variables
-      type(error_t_c) :: error_c
-
-      call get_edges_c(this%ptr, edges, error_c)
-      error = error_t(error_c)
-
-   end subroutine get_edges
-
-   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-   subroutine get_midpoints(this, midpoints, error)
-      use musica_util, only: error_t, error_t_c
-
-      ! Arguments
-      class(grid_t), intent(inout) :: this
-      real(c_double), dimension(:), intent(out) :: midpoints
-      type(error_t), intent(inout) :: error
-
-      ! Local variables
-      type(error_t_c) :: error_c
-
-      call get_midpoints_c(this%ptr, midpoints, error_c)
-      error = error_t(error_c)
-
-   end subroutine get_midpoints
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

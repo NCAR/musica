@@ -165,9 +165,6 @@ module tuvx_interface
 
       f_grid%delta_ = edges(2:num_edges) - edges(1:num_edges-1)
 
-      print *, "edges: ", f_grid%edge_
-      print *, "delta: ", f_grid%delta_
-    
     end subroutine internal_set_edges
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -188,10 +185,7 @@ module tuvx_interface
 
       f_grid%mid_ = midpoints(1:num_midpoints)
 
-      print *, "midpoints: ", f_grid%mid_
-    
     end subroutine internal_set_midpoints
-
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

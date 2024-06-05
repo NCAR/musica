@@ -54,7 +54,6 @@ Grid* get_grid(GridMap* grid_map, const char* grid_name, const char* grid_units,
     return grid_map->get_grid(grid_name, grid_units, error);
 }
 
-
 void set_edges(Grid* grid, double edges[], std::size_t num_edges, Error *error) {
     grid->set_edges(edges, num_edges, error);
 }
