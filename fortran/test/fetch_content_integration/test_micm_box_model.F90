@@ -28,7 +28,7 @@ contains
 
         integer :: i
 
-        config_path = ""
+        config_path = "configs/analytical"
 
         time_step = 200
         temperature = 273.0
@@ -36,6 +36,12 @@ contains
 
         write(*,*) "Creating MICM solver..."
         micm => micm_t(config_path, error)
+
+        do i = 1, size( micm%species_ordering )
+            associate(the_mapping => micm%species_ordering(i))
+            print *, "Species Name:", the_mapping%name(), ", Index:", the_mapping%index()
+            end associate
+        end do
 
     end subroutine box_model
 
