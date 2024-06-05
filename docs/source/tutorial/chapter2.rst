@@ -21,6 +21,12 @@ For this example, we will have a system of three chemical species
   .. literalinclude:: ../../../configs/analytical/species.json
     :language: json
 
+The ``reactions.json`` specifies a mechanism, or a set of reactions for the system.
+Here, we will introduce two Arrhenius type reactions, the first
+with B evolving to C, and specifying all five reaction parameters,
+and the second reaction with B evolving to C and using only two reaction parameters. 
+The reactions configuration might then be:
+
   .. literalinclude:: ../../../configs/analytical/reactions.json
     :language: json
 
