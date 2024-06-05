@@ -11,14 +11,12 @@
 #include <filesystem>
 #include <iostream>
 
-namespace fs = std::filesystem;
-
 namespace musica
 {
 
   TUVX *CreateTuvx(const char *config_path, int *error_code)
   {
-    if (!fs::exists(config_path))
+    if (!std::filesystem::exists(config_path))
     {
       std::cerr << "File doesn't exist: " << config_path << std::endl;
       *error_code = 2;
