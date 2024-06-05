@@ -101,10 +101,10 @@ module tuvx_interface
       use iso_c_binding, only: c_ptr, c_f_pointer, c_int
     
       ! arguments
-      type(c_ptr), intent(in), value   :: grid_map
-      type(string_t_c), intent(in)     :: grid_name
-      type(string_t_c), intent(in)     :: grid_units
-      integer(kind=c_int), intent(out) :: error_code
+      type(c_ptr), intent(in), value      :: grid_map
+      type(string_t_c), intent(in), value :: grid_name
+      type(string_t_c), intent(in), value :: grid_units
+      integer(kind=c_int), intent(out)    :: error_code
     
       ! result
       type(c_ptr) :: grid_ptr
@@ -123,7 +123,6 @@ module tuvx_interface
       grid => grid_warehouse%get_grid(f_grid_name, f_grid_units)
     
       grid_ptr = c_loc(grid)
-      print *, grid_ptr
     
     end function interal_get_grid
 

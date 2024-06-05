@@ -106,13 +106,15 @@ GridMap::~GridMap()
 
 Grid* GridMap::get_grid(const char* grid_name, const char* grid_units, Error *error) {
   int error_code = 0;
-  Grid* grid = new Grid(internal_get_grid(grid_map_, CreateString(grid_name), CreateString(grid_units), &error_code));
-    *error = NoError();
-    if (error_code != 0) {
-        *error = Error{1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create grid map")};
-        return nullptr;
-    }
-    return grid;
+  auto name = CreateString(grid_name);
+  auto units = CreateString(grid_units);
+  Grid* grid = new Grid(internal_get_grid(grid_map_, name, units, &error_code));
+  *error = NoError();
+  if (error_code != 0) {
+      *error = Error{1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create grid map")};
+      return nullptr;
+  }
+  return grid;
 }
 
 Grid::~Grid()
