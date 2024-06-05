@@ -70,7 +70,9 @@ extern "C"
     void delete_tuvx(const TUVX *tuvx, Error *error);
     void run_tuvx(const TUVX *tuvx, Error *error);
     GridMap* get_grid_map(TUVX *tuvx, Error *error);
+    void delete_grid_map(GridMap* grid_map, Error *error);
     Grid* get_grid(GridMap* grid_map, const char* grid_name, const char* grid_units, Error *error);
+    void delete_grid(Grid* grid, Error *error);
     void set_edges(Grid* grid, double edges[], std::size_t num_edges, Error *error);
     void set_midpoints(Grid* grid, double midpoints[], std::size_t num_midpoints, Error *error);
     

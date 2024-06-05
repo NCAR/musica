@@ -40,7 +40,6 @@ void delete_tuvx(const TUVX *tuvx, Error *error)
 }
 
 void run_tuvx(const TUVX *tuvx, Error *error) {
-    DeleteError(error);
     *error = NoError();
 }
 
@@ -49,9 +48,26 @@ GridMap* get_grid_map(TUVX *tuvx, Error *error) {
     return tuvx->create_grid_map(error);
 }
 
+void delete_grid_map(GridMap* grid_map, Error *error) {
+    *error = NoError();
+    try {
+        delete grid_map;
+    } catch (const std::system_error &e) {
+        *error = ToError(e);
+    }
+}
+
 Grid* get_grid(GridMap* grid_map, const char* grid_name, const char* grid_units, Error *error) {
-    DeleteError(error);
+    *error = NoError();
     return grid_map->get_grid(grid_name, grid_units, error);
+}
+void delete_grid(Grid* grid, Error *error) {
+    *error = NoError();
+    try {
+        delete grid;
+    } catch (const std::system_error &e) {
+        *error = ToError(e);
+    }
 }
 
 void set_edges(Grid* grid, double edges[], std::size_t num_edges, Error *error) {

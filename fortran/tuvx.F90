@@ -38,6 +38,13 @@ module musica_tuvx
          type(c_ptr)                    :: get_grid_map_c
       end function get_grid_map_c
 
+      subroutine delete_grid_map_c(grid_map, error) bind(C, name="delete_grid_map")
+         use musica_util, only: error_t_c
+         import c_ptr
+         type(c_ptr), value, intent(in) :: grid_map
+         type(error_t_c), intent(inout) :: error
+      end subroutine delete_grid_map_c
+
       function get_grid_c(grid_map, grid_name, grid_units, error) bind(C, name="get_grid")
          use musica_util, only: error_t_c
          import c_ptr, c_char
@@ -46,6 +53,13 @@ module musica_tuvx
          type(error_t_c), intent(inout)            :: error
          type(c_ptr)                               :: get_grid_c
       end function get_grid_c
+
+      subroutine delete_grid_c(grid, error) bind(C, name="delete_grid")
+         use musica_util, only: error_t_c
+         import c_ptr
+         type(c_ptr), value, intent(in) :: grid
+         type(error_t_c), intent(inout) :: error
+      end subroutine delete_grid_c
 
       subroutine set_edges_c(grid, edges, n_edges, error) bind(C, name="set_edges")
          use musica_util, only: error_t_c
@@ -106,10 +120,6 @@ module musica_tuvx
       procedure :: set_edges
       ! Set the grid midpoints
       procedure :: set_midpoints
-      ! Get the grid edges
-      ! procedure :: get_edges
-      ! ! Get the grid midpoints
-      ! procedure :: get_midpoints
       ! Deallocate the tuvx instance
       final :: finalize_grid_t
    end type grid_t
@@ -167,8 +177,19 @@ contains
 
    !> Deallocate the grid map instance
    subroutine finalize_grid_map_t(this)
+      use musica_util, only: error_t, error_t_c
+
       ! Arguments
       type(grid_map_t), intent(inout) :: this
+
+      ! Local variables
+      type(error_t_c) :: error_c
+      type(error_t)   :: error
+
+      call delete_grid_map_c(this%ptr, error_c)
+      this%ptr = c_null_ptr
+      error = error_t(error_c)
+      ASSERT(error%is_success())
 
    end subroutine finalize_grid_map_t
 
@@ -231,11 +252,19 @@ contains
 
    !> Deallocate the grid instance
    subroutine finalize_grid_t(this)
+      use musica_util, only: error_t, error_t_c
+
       ! Arguments
       type(grid_t), intent(inout) :: this
 
-      ! call delete_grid_c(this%ptr)
+      ! Local variables
+      type(error_t_c) :: error_c
+      type(error_t)   :: error
 
+      call delete_grid_c(this%ptr, error_c)
+      this%ptr = c_null_ptr
+      error = error_t(error_c)
+      ASSERT(error%is_success())
    end subroutine finalize_grid_t
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
