@@ -75,8 +75,10 @@ contains
     ! update conditions for each time step
     grid => grids%get( "height", "km", error )
     ASSERT( error%is_success() )
-    ! grid%edges_(:) = some_input_array(:)
-    ! grid%mid_points_(:) = more_input_data(:)
+    grid%set_edges( [1.0, 2.0, 3.0, 4.0, 5.0], error )
+    ASSERT( error%is_success() )
+    grid%set_midpoints( [1.5, 2.5, 3.5, 4.5], error )
+    ASSERT( error%is_success() )
     
     ! profile => profiles%get( "O3", "mol m-3" )
 

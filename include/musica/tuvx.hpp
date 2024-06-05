@@ -59,6 +59,9 @@ extern "C"
     void run_tuvx(const TUVX *tuvx, Error *error);
     GridMap* get_grid_map(TUVX *tuvx, Error *error);
     Grid* get_grid(GridMap* grid_map, const char* grid_name, const char* grid_units, Error *error);
+    void set_edges(Grid* grid, double edges[], std::size_t num_edges, Error *error);
+    void set_midpoints(Grid* grid, double midpoints[], std::size_t num_midpoints, Error *error);
+    
 
     // for use by musica interanlly. If tuvx ever gets rewritten in C++, these functions will
     // go away but the C API will remain the same and downstream projects (like CAM-SIMA) will

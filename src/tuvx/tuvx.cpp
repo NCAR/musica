@@ -108,7 +108,10 @@ Grid* GridMap::get_grid(const char* grid_name, const char* grid_units, Error *er
   int error_code = 0;
   auto name = CreateString(grid_name);
   auto units = CreateString(grid_units);
+
   Grid* grid = new Grid(internal_get_grid(grid_map_, name, units, &error_code));
+  grids_.push_back(std::unique_ptr<Grid>(grid));
+
   *error = NoError();
   if (error_code != 0) {
       *error = Error{1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create grid map")};
