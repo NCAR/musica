@@ -47,23 +47,23 @@ module musica_tuvx
          type(c_ptr)                               :: get_grid_c
       end function get_grid_c
 
-      function set_edges_c(grid, edges, n_edges, error) bind(C, name="set_edges")
+      subroutine set_edges_c(grid, edges, n_edges, error) bind(C, name="set_edges")
          use musica_util, only: error_t_c
          import c_ptr, c_double, c_size_t
          type(c_ptr), value, intent(in) :: grid
          real(c_double), dimension(*), intent(in) :: edges
          integer(c_size_t), intent(in) :: n_edges
          type(error_t_c), intent(inout) :: error
-      end function set_edges_c
+      end subroutine set_edges_c
 
-      function set_midpoints_c(grid, midpoints, n_midpoints, error) bind(C, name="set_midpoints")
+      subroutine set_midpoints_c(grid, midpoints, n_midpoints, error) bind(C, name="set_midpoints")
          use musica_util, only: error_t_c
          import c_ptr, c_double, c_size_t
          type(c_ptr), value, intent(in) :: grid
          real(c_double), dimension(*), intent(in) :: midpoints
          integer(c_size_t), intent(in) :: n_midpoints
          type(error_t_c), intent(inout) :: error
-      end function set_midpoints_c
+      end subroutine set_midpoints_c
 
       ! function get_edges_c(grid, edges, error) bind(C, name="get_edges")
       !    use musica_util, only: error_t_c

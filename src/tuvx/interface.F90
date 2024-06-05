@@ -147,4 +147,52 @@ module tuvx_interface
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+    subroutine internal_set_edges(grid, edges, num_edges, error_code) bind(C, name="internal_set_edges")
+      use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_double
+    
+      ! arguments
+      type(c_ptr), value, intent(in)                :: grid
+      real(kind=c_double), intent(in), dimension(*) :: edges
+      integer(kind=c_int), intent(in)               :: num_edges
+      integer(kind=c_int), intent(out)              :: error_code
+    
+      ! variables
+      type(grid_t), pointer :: f_grid
+    
+      call c_f_pointer(grid, f_grid)
+
+      f_grid%edge_ = edges(1:num_edges)
+
+      f_grid%delta_ = edges(2:num_edges) - edges(1:num_edges-1)
+
+      print *, "edges: ", f_grid%edge_
+      print *, "delta: ", f_grid%delta_
+    
+    end subroutine internal_set_edges
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    subroutine internal_set_midpoints(grid, midpoints, num_midpoints, error_code) bind(C, name="internal_set_midpoints")
+      use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_double
+    
+      ! arguments
+      type(c_ptr), value, intent(in)                :: grid
+      real(kind=c_double), intent(in), dimension(*) :: midpoints
+      integer(kind=c_int), intent(in)               :: num_midpoints
+      integer(kind=c_int), intent(out)              :: error_code
+    
+      ! variables
+      type(grid_t), pointer :: f_grid
+    
+      call c_f_pointer(grid, f_grid)
+
+      f_grid%mid_ = midpoints(1:num_midpoints)
+
+      print *, "midpoints: ", f_grid%mid_
+    
+    end subroutine internal_set_midpoints
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 end module tuvx_interface

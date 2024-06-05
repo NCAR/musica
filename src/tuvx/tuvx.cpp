@@ -54,6 +54,15 @@ Grid* get_grid(GridMap* grid_map, const char* grid_name, const char* grid_units,
     return grid_map->get_grid(grid_name, grid_units, error);
 }
 
+
+void set_edges(Grid* grid, double edges[], std::size_t num_edges, Error *error) {
+    grid->set_edges(edges, num_edges, error);
+}
+
+void set_midpoints(Grid* grid, double midpoints[], std::size_t num_midpoints, Error *error) {
+    grid->set_midpoints(midpoints, num_midpoints, error);
+}
+
 TUVX::TUVX() : tuvx_(), grid_map_(nullptr) {}
 
 TUVX::~TUVX()
@@ -125,6 +134,25 @@ Grid::~Grid()
     int error_code = 0;
     if (grid_ != nullptr) internal_delete_grid(grid_, &error_code);
     grid_ = nullptr;
+}
+
+
+void Grid::set_edges(double edges[], std::size_t num_edges, Error *error) {
+    int error_code = 0;
+    internal_set_edges(grid_, edges, num_edges, &error_code);
+    *error = NoError();
+    if (error_code != 0) {
+        *error = Error{1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to set edges")};
+    }
+}
+
+void Grid::set_midpoints(double midpoints[], std::size_t num_midpoints, Error *error) {
+    int error_code = 0;
+    internal_set_midpoints(grid_, midpoints, num_midpoints, &error_code);
+    *error = NoError();
+    if (error_code != 0) {
+        *error = Error{1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to set midpoints")};
+    }
 }
 
 } // namespace musica

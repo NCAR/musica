@@ -21,6 +21,9 @@ namespace musica {
         Grid(void* grid) : grid_(grid) {}
         ~Grid();
 
+        void set_edges(double edges[], std::size_t num_edges, Error *error);
+        void set_midpoints(double midpoints[], std::size_t num_midpoints, Error *error);
+
         private:
             void* grid_;
     };
@@ -72,6 +75,8 @@ extern "C"
     void internal_delete_grid_map(void* grid_map, int *error_code);
     void *internal_get_grid(void* grid_map, String grid_name, String grid_units, int *error_code);
     void internal_delete_grid(void* grid, int *error_code);
+    void internal_set_edges(void* grid, double edges[], std::size_t num_edges, int *error_code);
+    void internal_set_midpoints(void* grid, double midpoints[], std::size_t num_midpoints, int *error_code);
 
 #ifdef __cplusplus
 }

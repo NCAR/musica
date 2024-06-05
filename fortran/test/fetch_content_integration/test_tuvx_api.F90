@@ -60,7 +60,11 @@ contains
     type(grid_t), pointer     :: grid
     ! type(profile_map_t) :: profiles
     ! type(radiator_map_t) :: radiators
-    ! real(dk), allocatable :: photo_rates(:,:,:)
+    real*8, dimension(5) :: edges
+    real*8, dimension(4) :: midpoints
+
+    edges = (/ 1.0, 2.0, 3.0, 4.0, 5.0 /)
+    midpoints = (/ 1.5, 2.5, 3.5, 4.5 /)  
 
     config_path = "examples/ts1_tsmlt.json"
 
@@ -74,17 +78,17 @@ contains
 
     ! update conditions for each time step
     grid => grids%get( "height", "km", error )
+    ! ASSERT( error%is_success() )
+
+    call grid%set_edges( edges, error )
     ASSERT( error%is_success() )
-    grid%set_edges( [1.0, 2.0, 3.0, 4.0, 5.0], error )
-    ASSERT( error%is_success() )
-    grid%set_midpoints( [1.5, 2.5, 3.5, 4.5], error )
+
+    call grid%set_midpoints( midpoints, error )
     ASSERT( error%is_success() )
     
     ! profile => profiles%get( "O3", "mol m-3" )
 
-
     ! call tuvx%solve( grids, profiles, radiators, photo_rates )
-
 
   end subroutine test_tuvx_solve
 
