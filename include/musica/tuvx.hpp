@@ -13,51 +13,57 @@
 #include <string>
 #include <vector>
 
-namespace musica {
+namespace musica
+{
 
-    /// @brief A grid struct used to access grid information in tuvx
-    struct Grid
+  /// @brief A grid struct used to access grid information in tuvx
+  struct Grid
+  {
+    Grid(void *grid)
+        : grid_(grid)
     {
-        Grid(void* grid) : grid_(grid) {}
-        ~Grid();
+    }
+    ~Grid();
 
-        /// @brief Set the edges of the grid
-        /// @param edges The edges of the grid
-        /// @param num_edges the number of edges
-        /// @param error the error struct to indicate success or failure
-        void set_edges(double edges[], std::size_t num_edges, Error *error);
+    /// @brief Set the edges of the grid
+    /// @param edges The edges of the grid
+    /// @param num_edges the number of edges
+    /// @param error the error struct to indicate success or failure
+    void SetEdges(double edges[], std::size_t num_edges, Error *error);
 
-        /// @brief Set the midpoints of the grid
-        /// @param midpoints The midpoints of the grid
-        /// @param num_midpoints the number of midpoints
-        /// @param error the error struct to indicate success or failure
-        void set_midpoints(double midpoints[], std::size_t num_midpoints, Error *error);
+    /// @brief Set the midpoints of the grid
+    /// @param midpoints The midpoints of the grid
+    /// @param num_midpoints the number of midpoints
+    /// @param error the error struct to indicate success or failure
+    void SetMidpoints(double midpoints[], std::size_t num_midpoints, Error *error);
 
-        private:
-            void* grid_;
-    };
+   private:
+    void *grid_;
+  };
 
-    /// @brief A grid map struct used to access grid information in tuvx
-    struct GridMap
+  /// @brief A grid map struct used to access grid information in tuvx
+  struct GridMap
+  {
+    GridMap(void *grid_map)
+        : grid_map_(grid_map)
     {
-        GridMap(void* grid_map) : grid_map_(grid_map) {}
-        ~GridMap();
+    }
+    ~GridMap();
 
+    /// @brief Returns a grid. For now, this calls the interal tuvx fortran api, but will allow the change to c++ later on to
+    /// be transparent to downstream projects
+    /// @param grid_name The name of the grid we want
+    /// @param grid_units The units of the grid we want
+    /// @param error The error struct to indicate success or failure
+    /// @return a grid pointer
+    Grid *GetGrid(const char *grid_name, const char *grid_units, Error *error);
 
-        /// @brief Returns a grid. For now, this calls the interal tuvx fortran api, but will allow the change to c++ later on to be transparent to downstream projects
-        /// @param grid_name The name of the grid we want
-        /// @param grid_units The units of the grid we want
-        /// @param error The error struct to indicate success or failure
-        /// @return a grid pointer
-        Grid* get_grid(const char* grid_name, const char* grid_units, Error *error);
+   private:
+    void *grid_map_;
+    std::vector<std::unique_ptr<Grid>> grids_;
+  };
 
-        private:
-            void* grid_map_;
-            std::vector<std::unique_ptr<Grid>> grids_;
-    };
-
-
-class TUVX;
+  class TUVX;
 
 #ifdef __cplusplus
   extern "C"
@@ -68,34 +74,32 @@ class TUVX;
     // callable by external Fortran models
     TUVX *CreateTuvx(const char *config_path, Error *error);
     void DeleteTuvx(const TUVX *tuvx, Error *error);
-    void run_tuvx(const TUVX *tuvx, Error *error);
-    GridMap* get_grid_map(TUVX *tuvx, Error *error);
-    void delete_grid_map(GridMap* grid_map, Error *error);
-    Grid* get_grid(GridMap* grid_map, const char* grid_name, const char* grid_units, Error *error);
-    void delete_grid(Grid* grid, Error *error);
-    void set_edges(Grid* grid, double edges[], std::size_t num_edges, Error *error);
-    void set_midpoints(Grid* grid, double midpoints[], std::size_t num_midpoints, Error *error);
-    
+    GridMap *GetGridMap(TUVX *tuvx, Error *error);
+    void DeleteGridMap(GridMap *grid_map, Error *error);
+    Grid *GetGrid(GridMap *grid_map, const char *grid_name, const char *grid_units, Error *error);
+    void DeleteGrid(Grid *grid, Error *error);
+    void SetEdges(Grid *grid, double edges[], std::size_t num_edges, Error *error);
+    void SetMidpoints(Grid *grid, double midpoints[], std::size_t num_midpoints, Error *error);
 
     // for use by musica interanlly. If tuvx ever gets rewritten in C++, these functions will
     // go away but the C API will remain the same and downstream projects (like CAM-SIMA) will
     // not need to change
     void *InternalCreateTuvx(String config_path, int *error_code);
-    void InternalDeleteTuvx(void* tuvx, int *error_code);
-    void *internal_get_grid_map(void* tuvx, int *error_code);
-    void internal_delete_grid_map(void* grid_map, int *error_code);
-    void *internal_get_grid(void* grid_map, String grid_name, String grid_units, int *error_code);
-    void internal_delete_grid(void* grid, int *error_code);
-    void internal_set_edges(void* grid, double edges[], std::size_t num_edges, int *error_code);
-    void internal_set_midpoints(void* grid, double midpoints[], std::size_t num_midpoints, int *error_code);
+    void InternalDeleteTuvx(void *tuvx, int *error_code);
+    void *InternalGetGridMap(void *tuvx, int *error_code);
+    void InternalDeleteGridMap(void *grid_map, int *error_code);
+    void *InternalGetGrid(void *grid_map, String grid_name, String grid_units, int *error_code);
+    void InternalDeleteGrid(void *grid, int *error_code);
+    void InternalSetEdges(void *grid, double edges[], std::size_t num_edges, int *error_code);
+    void InternalSetMidpoints(void *grid, double midpoints[], std::size_t num_midpoints, int *error_code);
 
 #ifdef __cplusplus
   }
 #endif
 
-class TUVX
-{
-public:
+  class TUVX
+  {
+   public:
     TUVX();
 
     /// @brief Create an instance ove tuvx from a configuration file
@@ -104,14 +108,16 @@ public:
     /// @return 0 on success, 1 on failure in parsing configuration file
     void Create(const std::string &config_path, Error *error);
 
-    /// @brief Create a grid map. For now, this calls the interal tuvx fortran api, but will allow the change to c++ later on to be transparent to downstream projects
+    /// @brief Create a grid map. For now, this calls the interal tuvx fortran api, but will allow the change to c++ later on
+    /// to be transparent to downstream projects
     /// @param error The error struct to indicate success or failure
     /// @return a grid map pointer
-    GridMap* create_grid_map(Error *error);
+    GridMap *CreateGridMap(Error *error);
 
     ~TUVX();
-private:
-    void* tuvx_;
+
+   private:
+    void *tuvx_;
     std::unique_ptr<GridMap> grid_map_;
-};
-}
+  };
+}  // namespace musica

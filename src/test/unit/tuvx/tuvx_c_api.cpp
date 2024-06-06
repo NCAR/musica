@@ -59,13 +59,3 @@ TEST_F(TuvxCApiTest, DetectsNonexistentConfigFile) {
     ASSERT_FALSE(IsSuccess(error));
     DeleteError(&error);
 }
-
-
-TEST_F(TuvxCApiTest, CanCallRun) {
-    const char* yaml_config_path = "examples/ts1_tsmlt.yml";
-    SetUp(yaml_config_path);
-    ASSERT_NE(tuvx, nullptr);
-    Error error = NoError();
-    run_tuvx(tuvx, &error);
-    ASSERT_TRUE(IsSuccess(error));
-}

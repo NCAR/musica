@@ -30,7 +30,7 @@ module musica_tuvx
          type(error_t_c), intent(inout) :: error
       end subroutine delete_tuvx_c
 
-      function get_grid_map_c(tuvx, error) bind(C, name="get_grid_map")
+      function get_grid_map_c(tuvx, error) bind(C, name="GetGridMap")
          use musica_util, only: error_t_c
          import c_ptr
          type(c_ptr), value, intent(in) :: tuvx
@@ -38,14 +38,14 @@ module musica_tuvx
          type(c_ptr)                    :: get_grid_map_c
       end function get_grid_map_c
 
-      subroutine delete_grid_map_c(grid_map, error) bind(C, name="delete_grid_map")
+      subroutine delete_grid_map_c(grid_map, error) bind(C, name="DeleteGridMap")
          use musica_util, only: error_t_c
          import c_ptr
          type(c_ptr), value, intent(in) :: grid_map
          type(error_t_c), intent(inout) :: error
       end subroutine delete_grid_map_c
 
-      function get_grid_c(grid_map, grid_name, grid_units, error) bind(C, name="get_grid")
+      function get_grid_c(grid_map, grid_name, grid_units, error) bind(C, name="GetGrid")
          use musica_util, only: error_t_c
          import c_ptr, c_char
          type(c_ptr), value, intent(in)            :: grid_map
@@ -54,14 +54,14 @@ module musica_tuvx
          type(c_ptr)                               :: get_grid_c
       end function get_grid_c
 
-      subroutine delete_grid_c(grid, error) bind(C, name="delete_grid")
+      subroutine delete_grid_c(grid, error) bind(C, name="DeleteGrid")
          use musica_util, only: error_t_c
          import c_ptr
          type(c_ptr), value, intent(in) :: grid
          type(error_t_c), intent(inout) :: error
       end subroutine delete_grid_c
 
-      subroutine set_edges_c(grid, edges, n_edges, error) bind(C, name="set_edges")
+      subroutine set_edges_c(grid, edges, n_edges, error) bind(C, name="SetEdges")
          use musica_util, only: error_t_c
          import c_ptr, c_double, c_size_t
          type(c_ptr), value, intent(in) :: grid
@@ -70,7 +70,7 @@ module musica_tuvx
          type(error_t_c), intent(inout) :: error
       end subroutine set_edges_c
 
-      subroutine set_midpoints_c(grid, midpoints, n_midpoints, error) bind(C, name="set_midpoints")
+      subroutine set_midpoints_c(grid, midpoints, n_midpoints, error) bind(C, name="SetMidpoints")
          use musica_util, only: error_t_c
          import c_ptr, c_double, c_size_t
          type(c_ptr), value, intent(in) :: grid

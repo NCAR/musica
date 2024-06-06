@@ -55,7 +55,7 @@ module tuvx_interface
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    function internal_get_grid_map(tuvx, error_code) result(grid_map_ptr) bind(C, name="internal_get_grid_map")
+    function internal_get_grid_map(tuvx, error_code) result(grid_map_ptr) bind(C, name="InternalGetGridMap")
       use iso_c_binding, only: c_ptr, c_f_pointer, c_int
     
       ! arguments
@@ -78,7 +78,7 @@ module tuvx_interface
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    subroutine internal_delete_grid_map(grid_map, error_code) bind(C, name="internal_delete_grid_map")
+    subroutine internal_delete_grid_map(grid_map, error_code) bind(C, name="InternalDeleteGridMap")
       use iso_c_binding, only: c_ptr, c_f_pointer
     
       ! arguments
@@ -97,7 +97,7 @@ module tuvx_interface
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    function interal_get_grid(grid_map, grid_name, grid_units, error_code) result(grid_ptr) bind(C, name="internal_get_grid")
+    function interal_get_grid(grid_map, grid_name, grid_units, error_code) result(grid_ptr) bind(C, name="InternalGetGrid")
       use iso_c_binding, only: c_ptr, c_f_pointer, c_int
     
       ! arguments
@@ -128,7 +128,7 @@ module tuvx_interface
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    subroutine internal_delete_grid(grid, error_code) bind(C, name="internal_delete_grid")
+    subroutine internal_delete_grid(grid, error_code) bind(C, name="InternalDeleteGrid")
       use iso_c_binding, only: c_ptr, c_f_pointer
     
       ! arguments
@@ -147,7 +147,7 @@ module tuvx_interface
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    subroutine internal_set_edges(grid, edges, num_edges, error_code) bind(C, name="internal_set_edges")
+    subroutine internal_set_edges(grid, edges, num_edges, error_code) bind(C, name="InternalSetEdges")
       use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_double
     
       ! arguments
@@ -169,7 +169,7 @@ module tuvx_interface
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    subroutine internal_set_midpoints(grid, midpoints, num_midpoints, error_code) bind(C, name="internal_set_midpoints")
+    subroutine internal_set_midpoints(grid, midpoints, num_midpoints, error_code) bind(C, name="InternalSetMidpoints")
       use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_double
     
       ! arguments
