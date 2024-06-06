@@ -8,15 +8,16 @@
 
 #include <musica/tuvx.hpp>
 
+#include <filesystem>
 #include <iostream>
 
 namespace musica {
 
-TUVX *create_tuvx(const char *config_path, Error *error)
+TUVX *CreateTuvx(const char *config_path, Error *error)
 {
   DeleteError(error);
   TUVX *tuvx = new TUVX();
-  tuvx->create(std::string(config_path), error);
+  tuvx->Create(std::string(config_path), error);
   if (!IsSuccess(*error)) {
     delete tuvx;
     return nullptr;
@@ -24,7 +25,7 @@ TUVX *create_tuvx(const char *config_path, Error *error)
   return tuvx;
 }
 
-void delete_tuvx(const TUVX *tuvx, Error *error)
+void DeleteTuvx(const TUVX *tuvx, Error *error)
 {
   DeleteError(error);
   if (tuvx == nullptr) {
@@ -83,16 +84,16 @@ TUVX::TUVX() : tuvx_(), grid_map_(nullptr) {}
   TUVX::~TUVX()
   {
     int error_code = 0;
-    if (tuvx_ != nullptr) internal_delete_tuvx(tuvx_, &error_code);
+    if (tuvx_ != nullptr) InternalDeleteTuvx(tuvx_, &error_code);
     tuvx_ = nullptr;
 }
 
-void TUVX::create(const std::string &config_path, Error *error)
+void TUVX::Create(const std::string &config_path, Error *error)
 {
     int parsing_status = 0; // 0 on success, 1 on failure
     try {
         String config_path_str = CreateString(const_cast<char *>(config_path.c_str()));
-        tuvx_ = internal_create_tuvx(config_path_str, &parsing_status);
+        tuvx_ = InternalCreateTuvx(config_path_str, &parsing_status);
         DeleteString(&config_path_str);
         if (parsing_status == 1) {
             *error = Error{1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create tuvx instance")};

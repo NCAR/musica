@@ -66,8 +66,8 @@ class TUVX;
 
     // The external C API for TUVX
     // callable by external Fortran models
-    TUVX *create_tuvx(const char *config_path, Error *error);
-    void delete_tuvx(const TUVX *tuvx, Error *error);
+    TUVX *CreateTuvx(const char *config_path, Error *error);
+    void DeleteTuvx(const TUVX *tuvx, Error *error);
     void run_tuvx(const TUVX *tuvx, Error *error);
     GridMap* get_grid_map(TUVX *tuvx, Error *error);
     void delete_grid_map(GridMap* grid_map, Error *error);
@@ -80,8 +80,8 @@ class TUVX;
     // for use by musica interanlly. If tuvx ever gets rewritten in C++, these functions will
     // go away but the C API will remain the same and downstream projects (like CAM-SIMA) will
     // not need to change
-    void *internal_create_tuvx(String config_path, int *error_code);
-    void internal_delete_tuvx(void* tuvx, int *error_code);
+    void *InternalCreateTuvx(String config_path, int *error_code);
+    void InternalDeleteTuvx(void* tuvx, int *error_code);
     void *internal_get_grid_map(void* tuvx, int *error_code);
     void internal_delete_grid_map(void* grid_map, int *error_code);
     void *internal_get_grid(void* grid_map, String grid_name, String grid_units, int *error_code);
@@ -102,7 +102,7 @@ public:
     /// @param config_path Path to configuration file or directory containing configuration file
     /// @param error Error struct to indicate success or failure
     /// @return 0 on success, 1 on failure in parsing configuration file
-    void create(const std::string &config_path, Error *error);
+    void Create(const std::string &config_path, Error *error);
 
     /// @brief Create a grid map. For now, this calls the interal tuvx fortran api, but will allow the change to c++ later on to be transparent to downstream projects
     /// @param error The error struct to indicate success or failure

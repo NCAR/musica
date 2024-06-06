@@ -26,9 +26,9 @@ namespace musica
   {
 #endif
 
-    MICM *create_micm(const char *config_path, Error *error);
-    void delete_micm(const MICM *micm, Error *error);
-    void micm_solve(
+    MICM *CreateMicm(const char *config_path, Error *error);
+    void DeleteMicm(const MICM *micm, Error *error);
+    void MicmSolve(
         MICM *micm,
         double time_step,
         double temperature,
@@ -38,12 +38,12 @@ namespace musica
         int num_custom_rate_parameters,
         double *custom_rate_parameters,
         Error *error);
-    Mapping *get_species_ordering(MICM *micm, size_t *array_size, Error *error);
-    Mapping *get_user_defined_reaction_rates_ordering(MICM *micm, size_t *array_size, Error *error);
-    String get_species_property_string(MICM *micm, const char *species_name, const char *property_name, Error *error);
-    double get_species_property_double(MICM *micm, const char *species_name, const char *property_name, Error *error);
-    int get_species_property_int(MICM *micm, const char *species_name, const char *property_name, Error *error);
-    bool get_species_property_bool(MICM *micm, const char *species_name, const char *property_name, Error *error);
+    Mapping *GetSpeciesOrdering(MICM *micm, size_t *array_size, Error *error);
+    Mapping *GetUserDefinedReactionRatesOrdering(MICM *micm, size_t *array_size, Error *error);
+    String GetSpeciesPropertyString(MICM *micm, const char *species_name, const char *property_name, Error *error);
+    double GetSpeciesPropertyDouble(MICM *micm, const char *species_name, const char *property_name, Error *error);
+    int GetSpeciesPropertyInt(MICM *micm, const char *species_name, const char *property_name, Error *error);
+    bool GetSpeciesPropertyBool(MICM *micm, const char *species_name, const char *property_name, Error *error);
 
 #ifdef __cplusplus
   }
@@ -55,7 +55,7 @@ namespace musica
     /// @brief Create a solver by reading and parsing configuration file
     /// @param config_path Path to configuration file or directory containing configuration file
     /// @param error Error struct to indicate success or failure
-    void create(const std::string &config_path, Error *error);
+    void Create(const std::string &config_path, Error *error);
 
     /// @brief Solve the system
     /// @param time_step Time [s] to advance the state by
@@ -66,7 +66,7 @@ namespace musica
     /// @param num_custom_rate_parameters The size of the custom_rate_parameters array
     /// @param custom_rate_parameters Array of custom rate parameters
     /// @param error Error struct to indicate success or failure
-    void solve(
+    void Solve(
         double time_step,
         double temperature,
         double pressure,
@@ -82,17 +82,17 @@ namespace musica
     /// @param error Error struct to indicate success or failure
     /// @return Value of the property
     template<class T>
-    T get_species_property(const std::string &species_name, const std::string &property_name, Error *error);
+    T GetSpeciesProperty(const std::string &species_name, const std::string &property_name, Error *error);
 
     /// @brief Get the ordering of species
     /// @param error Error struct to indicate success or failure
     /// @return Map of species names to their indices
-    std::map<std::string, size_t> get_species_ordering(Error *error);
+    std::map<std::string, size_t> GetSpeciesOrdering(Error *error);
 
     /// @brief Get the ordering of user-defined reaction rates
     /// @param error Error struct to indicate success or failure
     /// @return Map of reaction rate names to their indices
-    std::map<std::string, size_t> get_user_defined_reaction_rates_ordering(Error *error);
+    std::map<std::string, size_t> GetUserDefinedReactionRatesOrdering(Error *error);
 
     static constexpr size_t NUM_GRID_CELLS = 1;
 
@@ -102,7 +102,7 @@ namespace musica
   };
 
   template<class T>
-  inline T MICM::get_species_property(const std::string &species_name, const std::string &property_name, Error *error)
+  inline T MICM::GetSpeciesProperty(const std::string &species_name, const std::string &property_name, Error *error)
   {
     *error = NoError();
     for (const auto &species : solver_parameters_->system_.gas_phase_.species_)

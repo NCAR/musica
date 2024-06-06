@@ -19,7 +19,7 @@ protected:
         Error error;
         tuvx = nullptr;
         config_path = configPath; // Set the config path based on the parameter
-        tuvx = create_tuvx(config_path, &error);
+        tuvx = CreateTuvx(config_path, &error);
         if (!IsSuccess(error)) {
             std::cerr << "Error creating TUVX instance: " << error.message_.value_ << std::endl;
         }
@@ -32,7 +32,7 @@ protected:
             return;
         }
         Error error;
-        delete_tuvx(tuvx, &error);
+        DeleteTuvx(tuvx, &error);
         ASSERT_TRUE(IsSuccess(error));
         DeleteError(&error);
         tuvx = nullptr;
@@ -55,7 +55,7 @@ TEST_F(TuvxCApiTest, CreateTuvxInstanceWithJsonConfig) {
 TEST_F(TuvxCApiTest, DetectsNonexistentConfigFile) {
     const char* config_path = "nonexisting.yml";
     Error error;
-    TUVX* tuvx = create_tuvx(config_path, &error);
+    TUVX* tuvx = CreateTuvx(config_path, &error);
     ASSERT_FALSE(IsSuccess(error));
     DeleteError(&error);
 }

@@ -55,7 +55,7 @@ RUN cd musica \
     && cd build \
     && make install
 
-# Set environment variables to build MUSICA-Fortran using intel compilers
+# Set environment variables to build MUSICA-Fortran using nvidia compilers
 ENV CXX=nvc++
 ENV CC=nvc
 ENV FC=nvfortran

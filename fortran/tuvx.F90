@@ -15,7 +15,7 @@ module musica_tuvx
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    interface
-      function create_tuvx_c(config_path, error) bind(C, name="create_tuvx")
+      function create_tuvx_c(config_path, error) bind(C, name="CreateTuvx")
          use musica_util, only: error_t_c
          import c_ptr, c_int, c_char
          character(kind=c_char), intent(in) :: config_path(*)
@@ -23,7 +23,7 @@ module musica_tuvx
          type(c_ptr)                        :: create_tuvx_c
       end function create_tuvx_c
 
-      subroutine delete_tuvx_c(tuvx, error) bind(C, name="delete_tuvx")
+      subroutine delete_tuvx_c(tuvx, error) bind(C, name="DeleteTuvx")
          use musica_util, only: error_t_c
          import c_ptr
          type(c_ptr), value, intent(in) :: tuvx
