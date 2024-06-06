@@ -11,11 +11,11 @@ namespace musica
   {
 #endif
 
-    const char* getMusicaVersion();
-    unsigned getMusicaVersionMajor();
-    unsigned getMusicaVersionMinor();
-    unsigned getMusicaVersionPatch();
-    unsigned getMusicaVersionTweak();
+    const char* GetMusicaVersion();
+    unsigned GetMusicaVersionMajor();
+    unsigned GetMusicaVersionMinor();
+    unsigned GetMusicaVersionPatch();
+    unsigned GetMusicaVersionTweak();
 
 #ifdef __cplusplus
   }

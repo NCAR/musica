@@ -8,33 +8,28 @@
 
 #include <musica/tuvx.hpp>
 
+#include <filesystem>
 #include <iostream>
 
 namespace musica
 {
 
-  TUVX *create_tuvx(const char *config_path, int *error_code)
+  TUVX *CreateTuvx(const char *config_path, int *error_code)
   {
-    try
+    if (!std::filesystem::exists(config_path))
     {
-      TUVX *tuvx = new TUVX();
-      *error_code = tuvx->create(std::string(config_path));
-      return tuvx;
-    }
-    catch (const std::bad_alloc &e)
-    {
-      *error_code = 1;
-      return nullptr;
-    }
-    catch (const std::exception &e)
-    {
-      std::cerr << e.what() << std::endl;
+      std::cerr << "File doesn't exist: " << config_path << std::endl;
       *error_code = 2;
       return nullptr;
     }
+
+    TUVX *tuvx = new TUVX();
+    *error_code = tuvx->Create(std::string(config_path));
+
+    return (*error_code == 0) ? tuvx : nullptr;
   }
 
-  void delete_tuvx(const TUVX *tuvx)
+  void DeleteTuvx(const TUVX *tuvx)
   {
     delete tuvx;
   }
@@ -42,15 +37,35 @@ namespace musica
   TUVX::~TUVX()
   {
     int error_code = 0;
-    internal_delete_tuvx(tuvx_.get(), &error_code);
+    if (tuvx_ != nullptr)
+    {
+      InternalDeleteTuvx(tuvx_.get(), &error_code);
+    }
   }
 
-  int TUVX::create(const std::string &config_path)
+  int TUVX::Create(const std::string &config_path)
   {
-    int parsing_status = 0;  // 0 on success, 1 on failure
+    int parsing_status = 0;  // 0 on success, else on failure
     String config_path_str = CreateString(const_cast<char *>(config_path.c_str()));
-    tuvx_ = std::make_unique<void *>(internal_create_tuvx(config_path_str, &parsing_status));
-    DeleteString(&config_path_str);
+
+    try
+    {
+      tuvx_ = std::make_unique<void *>(InternalCreateTuvx(config_path_str, &parsing_status));
+      DeleteString(&config_path_str);
+    }
+    catch (const std::bad_alloc &e)
+    {
+      parsing_status = 1;
+      std::cerr << e.what() << std::endl;
+      DeleteString(&config_path_str);
+    }
+    catch (const std::exception &e)
+    {
+      parsing_status = 2;
+      std::cerr << e.what() << std::endl;
+      DeleteString(&config_path_str);
+    }
+
     return parsing_status;
   }
 }  // namespace musica
