@@ -9,16 +9,8 @@ to MUSICA and prints the version of MICM.
 
 Here are the contents of the program `demo.f90`:
 
-.. code-block:: f90
-
-  program demo
-      use musica_util, only: string_t
-      use musica_micm, only: get_micm_version
-      implicit none
-      type(string_t) :: micm_version
-      micm_version = get_micm_version()
-      print *, "MICM version ", micm_version%get_char_array()
-  end program demo
+  .. literalinclude:: ../../../fortran/test/fetch_content_integration/test_get_micm_version.F90
+    :language: f90
 
 From the ``musica_micm`` module, we only need the function ``get_micm_version``,
 which returns a derived string type from the ``musica_util`` module, ``string_t``.

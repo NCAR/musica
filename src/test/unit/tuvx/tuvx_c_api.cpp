@@ -12,17 +12,17 @@ class TuvxCApiTest : public ::testing::Test
   int error_code;
   const char* config_path;
 
-  void SetUp(const char* configPath)
+  void SetUp(const char* path_to_config)
   {
     tuvx = nullptr;
     error_code = 0;
-    config_path = configPath;  // Set the config path based on the parameter
-    tuvx = create_tuvx(config_path, &error_code);
+    config_path = path_to_config;  // Set the config path based on the parameter
+    tuvx = CreateTuvx(config_path, &error_code);
   }
 
   void TearDown() override
   {
-    delete_tuvx(tuvx);
+    DeleteTuvx(tuvx);
   }
 };
 

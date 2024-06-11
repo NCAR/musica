@@ -14,8 +14,8 @@ PYBIND11_MODULE(musica, m)
 {
   py::class_<musica::MICM>(m, "MICM")
       .def(py::init<>())
-      .def("create", &musica::MICM::create)
-      .def("solve", &musica::MICM::solve)
+      .def("create", &musica::MICM::Create)
+      .def("solve", &musica::MICM::Solve)
       .def("__del__", [](musica::MICM &micm) {});
 
   m.def(
@@ -23,11 +23,11 @@ PYBIND11_MODULE(musica, m)
       [](const char *config_path)
       {
         musica::Error error;
-        musica::MICM *micm = musica::create_micm(config_path, &error);
+        musica::MICM *micm = musica::CreateMicm(config_path, &error);
         return micm;
       });
 
-  m.def("delete_micm", &musica::delete_micm);
+  m.def("delete_micm", &musica::DeleteMicm);
 
   m.def(
       "micm_solve",
@@ -56,7 +56,7 @@ PYBIND11_MODULE(musica, m)
           }
         }
         musica::Error error;
-        musica::micm_solve(
+        musica::MicmSolve(
             micm,
             time_step,
             temperature,
@@ -80,7 +80,7 @@ PYBIND11_MODULE(musica, m)
       [](musica::MICM *micm)
       {
         musica::Error error;
-        return micm->get_species_ordering(&error);
+        return micm->GetSpeciesOrdering(&error);
       },
       "Return map of get_species_ordering rates");
 
@@ -89,7 +89,7 @@ PYBIND11_MODULE(musica, m)
       [](musica::MICM *micm)
       {
         musica::Error error;
-        return micm->get_user_defined_reaction_rates_ordering(&error);
+        return micm->GetUserDefinedReactionRatesOrdering(&error);
       },
       "Return map of reaction rates");
 }
