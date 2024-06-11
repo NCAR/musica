@@ -2,8 +2,8 @@ program test_micm_api
 
   use, intrinsic :: iso_c_binding
   use, intrinsic :: ieee_arithmetic
-  use musica_micm, only: micm_t
-  use musica_util, only: assert, error_t, mapping_t
+  use musica_micm, only: micm_t, get_micm_version
+  use musica_util, only: assert, error_t, mapping_t, string_t
 
 #include "micm/util/error.hpp"
 
@@ -19,6 +19,7 @@ contains
 
   subroutine test_api()
 
+    type(string_t)                :: micm_version
     type(micm_t), pointer         :: micm
     real(c_double)                :: time_step
     real(c_double)                :: temperature
@@ -43,6 +44,8 @@ contains
     num_user_defined_reaction_rates = 3
     user_defined_reaction_rates = (/ 0.1, 0.2, 0.3 /)
 
+    micm_version = get_micm_version()
+    print *, "[test micm fort api] MICM version ", micm_version%get_char_array()
 
     write(*,*) "[test micm fort api] Creating MICM solver..."
     micm => micm_t(config_path, error)

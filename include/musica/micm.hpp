@@ -26,6 +26,7 @@ namespace musica
   {
 #endif
 
+    String get_micm_version(void);
     MICM *CreateMicm(const char *config_path, Error *error);
     void DeleteMicm(const MICM *micm, Error *error);
     void MicmSolve(
