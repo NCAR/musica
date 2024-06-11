@@ -18,7 +18,7 @@
 
 namespace musica
 {
-  char* add_name_and_version(char* pos, const char* name, const char* version, const char* sep)
+  char* AddNameAndVersion(char* pos, const char* name, const char* version, const char* sep)
   {
     size_t name_length = strlen(name);
     size_t version_length = strlen(version);
@@ -36,19 +36,19 @@ namespace musica
     return pos;
   }
 
-  char* getAllComponentVersions()
+  char* GetAllComponentVersions()
   {
     const char* sep = "\n";
     size_t sep_size = strlen(sep);
     size_t buf_size = 0;
 
     const char* musica_name = "musica: ";
-    const char* musica_version = musica::getMusicaVersion();
+    const char* musica_version = musica::GetMusicaVersion();
     buf_size += strlen(musica_name) + strlen(musica_version) + sep_size;
 
 #ifdef MUSICA_USE_MICM
     const char* micm_name = "micm: ";
-    const char* micm_version = micm::getMicmVersion();
+    const char* micm_version = micm::GetMicmVersion();
     buf_size += strlen(micm_name) + strlen(micm_name) + sep_size;
 #endif
 
@@ -58,9 +58,9 @@ namespace musica
     {
       char* pos = buf;
 
-      pos = add_name_and_version(pos, musica_name, musica_version, sep);
+      pos = AddNameAndVersion(pos, musica_name, musica_version, sep);
 #ifdef MUSICA_USE_MICM
-      pos = add_name_and_version(pos, micm_name, micm_version, sep);
+      pos = AddNameAndVersion(pos, micm_name, micm_version, sep);
 #endif
 
       *pos = '\0';

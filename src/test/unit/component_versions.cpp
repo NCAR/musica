@@ -8,7 +8,7 @@ using namespace musica;
 
 TEST(Musica, Version)
 {
-  char* versions = getAllComponentVersions();
+  char* versions = GetAllComponentVersions();
 
   ASSERT_NE(versions, nullptr);
 
@@ -18,7 +18,7 @@ TEST(Musica, Version)
 
 TEST(Musica, VersionIsNullTerminated)
 {
-  char* versions = getAllComponentVersions();
+  char* versions = GetAllComponentVersions();
 
   ASSERT_NE(versions, nullptr);
 

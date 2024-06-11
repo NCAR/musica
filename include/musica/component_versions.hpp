@@ -11,7 +11,7 @@ namespace musica
   {
 #endif
 
-    char* getAllComponentVersions();
+    char* GetAllComponentVersions();
 
 #ifdef __cplusplus
   }
