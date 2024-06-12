@@ -62,4 +62,5 @@ TEST_F(TuvxCApiTest, GridMap) {
 }
 
 TEST_F(TuvxCApiTest, Grid) {
+
 }
