@@ -179,12 +179,13 @@ TEST_F(MicmCApiTest, GetUserDefinedReactionRatesOrdering)
 // Test case for solving the MICM instance
 TEST_F(MicmCApiTest, SolveMicmInstance)
 {
-  Error error;
   double time_step = 200.0;
   double temperature = 272.5;
   double pressure = 101253.3;
   int num_concentrations = 5;
   double concentrations[] = { 0.75, 0.4, 0.8, 0.01, 0.02 };
+  SolverStats solver_stats;
+  Error error;
 
   auto ordering = micm->GetUserDefinedReactionRatesOrdering(&error);
   ASSERT_TRUE(IsSuccess(error));
@@ -205,6 +206,7 @@ TEST_F(MicmCApiTest, SolveMicmInstance)
       concentrations,
       custom_rate_parameters.size(),
       custom_rate_parameters.data(),
+      &solver_stats,
       &error);
   ASSERT_TRUE(IsSuccess(error));
 
@@ -214,6 +216,11 @@ TEST_F(MicmCApiTest, SolveMicmInstance)
   ASSERT_NE(concentrations[2], 0.8);
   ASSERT_NE(concentrations[3], 0.01);
   ASSERT_NE(concentrations[4], 0.02);
+
+  EXPECT_EQ(solver_stats.function_calls_, 583);
+  EXPECT_DOUBLE_EQ(solver_stats.final_time_, 200.0);
+  EXPECT_STREQ(solver_stats.state_.value_, "Converged");
+  DeleteString(&solver_stats.state_);
   DeleteError(&error);
 }
 

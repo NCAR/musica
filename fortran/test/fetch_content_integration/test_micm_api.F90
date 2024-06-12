@@ -2,7 +2,7 @@ program test_micm_api
 
   use, intrinsic :: iso_c_binding
   use, intrinsic :: ieee_arithmetic
-  use musica_micm, only: micm_t
+  use musica_micm, only: micm_t, solver_stats_t
   use musica_util, only: assert, error_t, mapping_t
 
 #include "micm/util/error.hpp"
@@ -32,6 +32,7 @@ contains
     real(c_double)                :: double_value
     integer(c_int)                :: int_value
     logical(c_bool)               :: bool_value
+    type(solver_stats_t)          :: solver_stats
     type(error_t)                 :: error
 
     time_step = 200
@@ -63,7 +64,7 @@ contains
 
     write(*,*) "[test micm fort api] Solving starts..."
     call micm%solve(time_step, temperature, pressure, num_concentrations, concentrations, &
-                    num_user_defined_reaction_rates, user_defined_reaction_rates, error)
+                    num_user_defined_reaction_rates, user_defined_reaction_rates, solver_stats, error)
     ASSERT( error%is_success() )
 
     write(*,*) "[test micm fort api] After solving, concentrations", concentrations

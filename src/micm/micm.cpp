@@ -59,6 +59,7 @@ namespace musica
       double *concentrations,
       int num_custom_rate_parameters,
       double *custom_rate_parameters,
+      SolverStats *solver_stats,
       Error *error)
   {
     DeleteError(error);
@@ -70,6 +71,7 @@ namespace musica
         concentrations,
         num_custom_rate_parameters,
         custom_rate_parameters,
+        solver_stats,
         error);
   }
 
@@ -125,10 +127,9 @@ namespace musica
     std::string species_name_str(species_name);
     std::string property_name_str(property_name);
     const std::string value_str = micm->GetSpeciesProperty<std::string>(species_name_str, property_name_str, error);
-    String value;
     if (!IsSuccess(*error))
     {
-      return value;
+      return String();
     }
     return CreateString(value_str.c_str());
   }
@@ -186,6 +187,7 @@ namespace musica
       double *concentrations,
       int num_custom_rate_parameters,
       double *custom_rate_parameters,
+      SolverStats *solver_stats,
       Error *error)
   {
     try
@@ -204,6 +206,17 @@ namespace musica
           custom_rate_parameters, custom_rate_parameters + num_custom_rate_parameters);
 
       auto result = solver_->Solve(time_step, state);
+      *solver_stats = SolverStats(
+          result.stats_.function_calls_,
+          result.stats_.jacobian_updates_,
+          result.stats_.number_of_steps_,
+          result.stats_.accepted_,
+          result.stats_.rejected_,
+          result.stats_.decompositions_,
+          result.stats_.solves_,
+          result.stats_.singular_,
+          result.final_time_,
+          CreateString(micm::StateToString(result.state_).c_str())); // TODO(jiwon) destructor
 
       for (int i = 0; i < result.result_.AsVector().size(); i++)
       {

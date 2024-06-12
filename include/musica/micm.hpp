@@ -26,6 +26,31 @@ namespace musica
   {
 #endif
 
+    struct SolverStats
+    {
+      /// @brief The number of forcing function calls
+      int64_t function_calls_;
+      /// @brief The number of jacobian function calls
+      int64_t jacobian_updates_;
+      /// @brief The total number of internal time steps taken
+      int64_t number_of_steps_;
+      /// @brief The number of accepted integrations
+      int64_t accepted_;
+      /// @brief The number of rejected integrations
+      int64_t rejected_;
+      /// @brief The number of LU decompositions
+      int64_t decompositions_;
+      /// @brief The number of linear solves
+      int64_t solves_;
+      /// @brief The number of times a singular matrix is detected. For now, this will always be zero as we assume the matrix
+      /// is never singular
+      int64_t singular_;
+      /// @brief The final time the solver iterated to
+      double final_time_;
+      /// @brief The final state the solver was in
+      String state_;
+    };
+
     MICM *CreateMicm(const char *config_path, Error *error);
     void DeleteMicm(const MICM *micm, Error *error);
     void MicmSolve(
@@ -37,6 +62,7 @@ namespace musica
         double *concentrations,
         int num_custom_rate_parameters,
         double *custom_rate_parameters,
+        SolverStats* solver_stats,
         Error *error);
     Mapping *GetSpeciesOrdering(MICM *micm, size_t *array_size, Error *error);
     Mapping *GetUserDefinedReactionRatesOrdering(MICM *micm, size_t *array_size, Error *error);
@@ -74,6 +100,7 @@ namespace musica
         double *concentrations,
         int num_custom_rate_parameters,
         double *custom_rate_parameters,
+        SolverStats* solver_stats,
         Error *error);
 
     /// @brief Get a property for a chemical species
