@@ -120,9 +120,7 @@ namespace musica
         return;
       }
 
-      String config_path_str = CreateString(const_cast<char *>(config_path.c_str()));
-      tuvx_ = InternalCreateTuvx(config_path_str, &parsing_status);
-      DeleteString(&config_path_str);
+      tuvx_ = InternalCreateTuvx(config_path.c_str(), &parsing_status);
       if (parsing_status == 1)
       {
         *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create tuvx instance") };

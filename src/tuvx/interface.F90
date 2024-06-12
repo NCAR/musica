@@ -19,18 +19,22 @@ module tuvx_interface
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    function internal_create_tuvx(config_path, error_code) bind(C, name="InternalCreateTuvx")
-      type(string_t_c), intent(inout) :: config_path
-      integer(kind=c_int), intent(out):: error_code
+    function internal_create_tuvx(c_config_path, error_code) bind(C, name="InternalCreateTuvx")
+      use iso_c_binding, only: c_ptr, c_f_pointer
 
+      ! arguments
+      type(c_ptr), value               :: c_config_path
+      integer(kind=c_int), intent(out) :: error_code
+
+      ! local variables
+      character(len=256), pointer      :: f_config_path
       type(c_ptr)                         :: internal_create_tuvx
       type(core_t), pointer               :: core
       character(len=:), allocatable       :: f_string
       type(string_t)                      :: musica_config_path
 
-      f_string = to_f_string(config_path)
-      call delete_string_c( config_path )
-      musica_config_path = string_t(f_string)
+      call c_f_pointer(c_config_path, f_config_path)
+      musica_config_path = string_t(f_config_path)
 
       core => core_t(musica_config_path)
       internal_create_tuvx = c_loc(core)
@@ -43,9 +47,11 @@ module tuvx_interface
     subroutine internal_delete_tuvx(tuvx, error_code) bind(C, name="InternalDeleteTuvx")
       use iso_c_binding, only: c_ptr, c_f_pointer
 
+      ! arguments
       type(c_ptr), value, intent(in) :: tuvx
       integer(kind=c_int), intent(out)   :: error_code
 
+      ! local variables
       type(core_t), pointer :: core
     
       call c_f_pointer(tuvx, core)

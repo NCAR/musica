@@ -84,7 +84,7 @@ namespace musica
     // for use by musica interanlly. If tuvx ever gets rewritten in C++, these functions will
     // go away but the C API will remain the same and downstream projects (like CAM-SIMA) will
     // not need to change
-    void *InternalCreateTuvx(String config_path, int *error_code);
+    void *InternalCreateTuvx(const char* config_path, int *error_code);
     void InternalDeleteTuvx(void *tuvx, int *error_code);
     void *InternalGetGridMap(void *tuvx, int *error_code);
     void InternalDeleteGridMap(void *grid_map, int *error_code);

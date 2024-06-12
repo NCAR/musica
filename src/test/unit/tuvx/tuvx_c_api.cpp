@@ -8,17 +8,15 @@ using namespace musica;
 class TuvxCApiTest : public ::testing::Test {
 protected:
     TUVX* tuvx;
-    const char* config_path;
 
     // the function that google test actually calls before each test
     void SetUp() override {
         tuvx = nullptr;
     }
 
-    void SetUp(const char* configPath) {
+    void SetUp(const char* config_path) {
         Error error;
         tuvx = nullptr;
-        config_path = configPath; // Set the config path based on the parameter
         tuvx = CreateTuvx(config_path, &error);
         if (!IsSuccess(error)) {
             std::cerr << "Error creating TUVX instance: " << error.message_.value_ << std::endl;
