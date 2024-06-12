@@ -30,6 +30,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install dependencies
+        run: brew install netcdf netcdf-fortran
+
       - uses: actions/setup-python@v5
       - run: pip install -r python/requirements.txt --user
 

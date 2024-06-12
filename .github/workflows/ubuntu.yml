@@ -31,7 +31,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y liblapack-dev libblas-dev build-essential
+          sudo apt-get install -y liblapack-dev libblas-dev build-essential libnetcdf-dev libnetcdff-dev
           sudo apt-get install -y python3-numpy
 
       - name: Run Cmake 
