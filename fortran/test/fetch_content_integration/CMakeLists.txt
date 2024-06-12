@@ -32,6 +32,7 @@ enable_testing()
 # API Test
 if (MUSICA_ENABLE_MICM)
   add_executable(test_micm_fortran_api test_micm_api.F90)
+  add_executable(test_get_micm_version test_get_micm_version.F90)
 
   target_link_libraries(test_micm_fortran_api
     PRIVATE
@@ -46,6 +47,22 @@ if (MUSICA_ENABLE_MICM)
   add_test(
     NAME test_micm_fortran_api
     COMMAND $<TARGET_FILE:test_micm_fortran_api>
+    WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+  )
+
+  target_link_libraries(test_get_micm_version
+    PRIVATE
+      musica::musica-fortran
+  )
+
+  set_target_properties(test_get_micm_version
+    PROPERTIES
+      LINKER_LANGUAGE Fortran
+  )
+
+  add_test(
+    NAME test_get_micm_version
+    COMMAND $<TARGET_FILE:test_get_micm_version>
     WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
   )
 endif()

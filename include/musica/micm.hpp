@@ -51,6 +51,7 @@ namespace musica
       String state_;
     };
 
+    String get_micm_version(void);
     MICM *CreateMicm(const char *config_path, Error *error);
     void DeleteMicm(const MICM *micm, Error *error);
     void MicmSolve(
@@ -64,8 +65,8 @@ namespace musica
         double *custom_rate_parameters,
         SolverStats* solver_stats,
         Error *error);
-    Mapping *GetSpeciesOrdering(MICM *micm, size_t *array_size, Error *error);
-    Mapping *GetUserDefinedReactionRatesOrdering(MICM *micm, size_t *array_size, Error *error);
+    Mapping *GetSpeciesOrdering(MICM *micm, std::size_t *array_size, Error *error);
+    Mapping *GetUserDefinedReactionRatesOrdering(MICM *micm, std::size_t *array_size, Error *error);
     String GetSpeciesPropertyString(MICM *micm, const char *species_name, const char *property_name, Error *error);
     double GetSpeciesPropertyDouble(MICM *micm, const char *species_name, const char *property_name, Error *error);
     int GetSpeciesPropertyInt(MICM *micm, const char *species_name, const char *property_name, Error *error);
@@ -114,14 +115,14 @@ namespace musica
     /// @brief Get the ordering of species
     /// @param error Error struct to indicate success or failure
     /// @return Map of species names to their indices
-    std::map<std::string, size_t> GetSpeciesOrdering(Error *error);
+    std::map<std::string, std::size_t> GetSpeciesOrdering(Error *error);
 
     /// @brief Get the ordering of user-defined reaction rates
     /// @param error Error struct to indicate success or failure
     /// @return Map of reaction rate names to their indices
-    std::map<std::string, size_t> GetUserDefinedReactionRatesOrdering(Error *error);
+    std::map<std::string, std::size_t> GetUserDefinedReactionRatesOrdering(Error *error);
 
-    static constexpr size_t NUM_GRID_CELLS = 1;
+    static constexpr std::size_t NUM_GRID_CELLS = 1;
 
    private:
     std::unique_ptr<micm::RosenbrockSolver<>> solver_;

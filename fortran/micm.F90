@@ -6,7 +6,7 @@ module musica_micm
    use musica_util, only: assert, mapping_t, string_t, string_t_c
    implicit none
 
-   public :: micm_t
+   public :: get_micm_version, micm_t
    private
 
    !> Wrapper for c solver stats
@@ -24,6 +24,11 @@ module musica_micm
    end type solver_stats_t_c
 
    interface
+      function get_micm_version_c() bind(C, name="GetMicmVersion")
+         use musica_util, only: string_t_c
+         type(string_t_c) :: get_micm_version_c
+      end function get_micm_version_c
+
       function create_micm_c(config_path, error) bind(C, name="CreateMicm")
          use musica_util, only: error_t_c
          import c_ptr, c_int, c_char
@@ -165,6 +170,14 @@ module musica_micm
    end interface solver_stats_t
 
 contains
+
+   function get_micm_version() result(value)
+      use musica_util, only: string_t, string_t_c
+      type(string_t)   :: value
+      type(string_t_c) :: string_c
+      string_c = get_micm_version_c()
+      value = string_t(string_c)
+   end function get_micm_version
 
    function constructor(config_path, error)  result( this )
       use musica_util, only: error_t_c, error_t, copy_mappings
