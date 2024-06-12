@@ -113,6 +113,13 @@ namespace musica
     int parsing_status = 0;  // 0 on success, 1 on failure
     try
     {
+      // check that the file exists
+      if (!std::filesystem::exists(config_path))
+      {
+        *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Config file does not exist") };
+        return;
+      }
+
       String config_path_str = CreateString(const_cast<char *>(config_path.c_str()));
       tuvx_ = InternalCreateTuvx(config_path_str, &parsing_status);
       DeleteString(&config_path_str);

@@ -7,7 +7,7 @@ module tuvx_interface
   use tuvx_core,           only : core_t
   use tuvx_grid_warehouse, only : grid_warehouse_t
   use tuvx_grid,           only : grid_t
-  use musica_tuvx_util,    only : to_f_string, string_t_c
+  use musica_tuvx_util,    only : to_f_string, string_t_c, delete_string_c
   use musica_string,       only : string_t
   use tuvx_grid_warehouse, only : grid_warehouse_t
 
@@ -20,8 +20,8 @@ module tuvx_interface
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     function internal_create_tuvx(config_path, error_code) bind(C, name="InternalCreateTuvx")
-      type(string_t_c), value, intent(in) :: config_path
-      integer(kind=c_int), intent(out)    :: error_code
+      type(string_t_c), intent(inout) :: config_path
+      integer(kind=c_int), intent(out):: error_code
 
       type(c_ptr)                         :: internal_create_tuvx
       type(core_t), pointer               :: core
@@ -29,6 +29,7 @@ module tuvx_interface
       type(string_t)                      :: musica_config_path
 
       f_string = to_f_string(config_path)
+      call delete_string_c( config_path )
       musica_config_path = string_t(f_string)
 
       core => core_t(musica_config_path)
