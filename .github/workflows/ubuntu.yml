@@ -2,6 +2,8 @@ name: Ubuntu
 
 on: 
   push:
+    branches:
+      - main
   pull_request:
   workflow_dispatch:
   
@@ -18,7 +20,7 @@ jobs:
           - { cpp: g++-12, c: gcc-12, fc: gfortran-12}
           - { cpp: g++-13, c: gcc-13, fc: gfortran-13}
           - { cpp: g++-14, c: gcc-14, fc: gfortran-14}
-          - { cpp: clang++, c: clang}
+          - { cpp: clang++, c: clang, fc: gfortran-12}
         build_type: [Release]
     env:
       CC: ${{ matrix.compiler.c }}
