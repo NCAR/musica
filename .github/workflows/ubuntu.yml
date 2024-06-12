@@ -15,14 +15,15 @@ jobs:
     strategy:
       matrix:
         compiler:
-          - { cpp: g++-12, c: gcc-12}
-          - { cpp: g++-13, c: gcc-13}
-          - { cpp: g++-14, c: gcc-14}
+          - { cpp: g++-12, c: gcc-12, fc: gfortran-12}
+          - { cpp: g++-13, c: gcc-13, fc: gfortran-13}
+          - { cpp: g++-14, c: gcc-14, fc: gfortran-14}
           - { cpp: clang++, c: clang}
         build_type: [Release]
     env:
       CC: ${{ matrix.compiler.c }}
       CXX: ${{ matrix.compiler.cpp }}
+      FC: ${{ matrix.compiler.fc }}
 
     steps:
       - uses: actions/checkout@v4
