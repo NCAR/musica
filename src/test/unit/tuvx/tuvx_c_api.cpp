@@ -57,3 +57,9 @@ TEST_F(TuvxCApiTest, DetectsNonexistentConfigFile) {
     ASSERT_FALSE(IsSuccess(error));
     DeleteError(&error);
 }
+
+TEST_F(TuvxCApiTest, GridMap) {
+}
+
+TEST_F(TuvxCApiTest, Grid) {
+}
