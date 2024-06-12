@@ -76,13 +76,13 @@ TEST_F(MicmCApiTest, CreateMicmInstance)
 TEST_F(MicmCApiTest, GetSpeciesOrdering)
 {
   Error error;
-  size_t array_size;
+  std::size_t array_size;
   Mapping* species_ordering = GetSpeciesOrdering(micm, &array_size, &error);
   ASSERT_TRUE(IsSuccess(error));
   DeleteError(&error);
   ASSERT_EQ(array_size, 5);
   bool found = false;
-  for (size_t i = 0; i < array_size; i++)
+  for (std::size_t i = 0; i < array_size; i++)
   {
     if (strcmp(species_ordering[i].name_.value_, "O3") == 0)
     {
@@ -92,7 +92,7 @@ TEST_F(MicmCApiTest, GetSpeciesOrdering)
   }
   ASSERT_TRUE(found);
   found = false;
-  for (size_t i = 0; i < array_size; i++)
+  for (std::size_t i = 0; i < array_size; i++)
   {
     if (strcmp(species_ordering[i].name_.value_, "O") == 0)
     {
@@ -102,7 +102,7 @@ TEST_F(MicmCApiTest, GetSpeciesOrdering)
   }
   ASSERT_TRUE(found);
   found = false;
-  for (size_t i = 0; i < array_size; i++)
+  for (std::size_t i = 0; i < array_size; i++)
   {
     if (strcmp(species_ordering[i].name_.value_, "O2") == 0)
     {
@@ -112,7 +112,7 @@ TEST_F(MicmCApiTest, GetSpeciesOrdering)
   }
   ASSERT_TRUE(found);
   found = false;
-  for (size_t i = 0; i < array_size; i++)
+  for (std::size_t i = 0; i < array_size; i++)
   {
     if (strcmp(species_ordering[i].name_.value_, "M") == 0)
     {
@@ -122,7 +122,7 @@ TEST_F(MicmCApiTest, GetSpeciesOrdering)
   }
   ASSERT_TRUE(found);
   found = false;
-  for (size_t i = 0; i < array_size; i++)
+  for (std::size_t i = 0; i < array_size; i++)
   {
     if (strcmp(species_ordering[i].name_.value_, "O1D") == 0)
     {
@@ -138,13 +138,13 @@ TEST_F(MicmCApiTest, GetSpeciesOrdering)
 TEST_F(MicmCApiTest, GetUserDefinedReactionRatesOrdering)
 {
   Error error;
-  size_t array_size;
+  std::size_t array_size;
   Mapping* reaction_rates_ordering = GetUserDefinedReactionRatesOrdering(micm, &array_size, &error);
   ASSERT_TRUE(IsSuccess(error));
   DeleteError(&error);
   ASSERT_EQ(array_size, 3);
   bool found = false;
-  for (size_t i = 0; i < array_size; i++)
+  for (std::size_t i = 0; i < array_size; i++)
   {
     if (strcmp(reaction_rates_ordering[i].name_.value_, "PHOTO.R1") == 0)
     {
@@ -154,7 +154,7 @@ TEST_F(MicmCApiTest, GetUserDefinedReactionRatesOrdering)
   }
   ASSERT_TRUE(found);
   found = false;
-  for (size_t i = 0; i < array_size; i++)
+  for (std::size_t i = 0; i < array_size; i++)
   {
     if (strcmp(reaction_rates_ordering[i].name_.value_, "PHOTO.R3") == 0)
     {
@@ -164,7 +164,7 @@ TEST_F(MicmCApiTest, GetUserDefinedReactionRatesOrdering)
   }
   ASSERT_TRUE(found);
   found = false;
-  for (size_t i = 0; i < array_size; i++)
+  for (std::size_t i = 0; i < array_size; i++)
   {
     if (strcmp(reaction_rates_ordering[i].name_.value_, "PHOTO.R5") == 0)
     {
@@ -217,9 +217,21 @@ TEST_F(MicmCApiTest, SolveMicmInstance)
   ASSERT_NE(concentrations[3], 0.01);
   ASSERT_NE(concentrations[4], 0.02);
 
-  EXPECT_EQ(solver_stats.function_calls_, 583);
-  EXPECT_DOUBLE_EQ(solver_stats.final_time_, 200.0);
-  EXPECT_STREQ(solver_stats.state_.value_, "Converged");
+  // Add assertions to check the solver statistics
+  ASSERT_EQ(solver_stats.function_calls_, 583);
+  ASSERT_DOUBLE_EQ(solver_stats.final_time_, 200.0);
+  ASSERT_STREQ(solver_stats.state_.value_, "Converged");
+  ASSERT_EQ(solver_stats.function_calls_, 583);
+  ASSERT_EQ(solver_stats.jacobian_updates_, 290);
+  ASSERT_EQ(solver_stats.number_of_steps_, 293);
+  ASSERT_EQ(solver_stats.accepted_, 290);
+  ASSERT_EQ(solver_stats.rejected_, 0);
+  ASSERT_EQ(solver_stats.decompositions_, 293);
+  ASSERT_EQ(solver_stats.solves_, 879);
+  ASSERT_EQ(solver_stats.singular_, 0);
+  ASSERT_DOUBLE_EQ(solver_stats.final_time_, 200.0);
+  ASSERT_STREQ(solver_stats.state_.value_, "Converged");
+
   DeleteString(&solver_stats.state_);
   DeleteError(&error);
 }

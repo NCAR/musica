@@ -69,6 +69,17 @@ contains
 
     write(*,*) "[test micm fort api] After solving, concentrations", concentrations
 
+    ASSERT_EQ( solver_stats%function_calls(), 451 )
+    ASSERT_EQ( solver_stats%jacobian_updates(), 224 )
+    ASSERT_EQ( solver_stats%number_of_steps(), 227 )
+    ASSERT_EQ( solver_stats%accepted(), 224 )
+    ASSERT_EQ( solver_stats%rejected(), 0 )
+    ASSERT_EQ( solver_stats%decompositions(), 227 )
+    ASSERT_EQ( solver_stats%solves(), 681 )
+    ASSERT_EQ( solver_stats%singular(), 451 ) !TODO(jiwon) Is this correct?
+    ASSERT_EQ( solver_stats%final_time(), 200.0 )
+    ASSERT_EQ( solver_stats%state(), "Converged" )
+
     string_value = micm%get_species_property_string( "O3", "__long name", error )
     ASSERT( error%is_success() )
     ASSERT_EQ( string_value, "ozone" )
