@@ -282,7 +282,6 @@ contains
       ! Local variables
       character(len=1, kind=c_char) :: c_config_path(len_trim(config_path)+1)
       integer                       :: n, i
-      type(c_ptr)                   :: mappings_ptr
       type(error_t_c)               :: error_c
 
       ! Return value

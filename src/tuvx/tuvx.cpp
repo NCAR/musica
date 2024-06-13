@@ -10,6 +10,7 @@
 
 #include <filesystem>
 #include <iostream>
+#include <cstring>
 
 namespace musica
 {
@@ -18,7 +19,7 @@ namespace musica
   {
     DeleteError(error);
     TUVX *tuvx = new TUVX();
-    tuvx->Create(std::string(config_path), error);
+    tuvx->Create(config_path, error);
     if (!IsSuccess(*error))
     {
       delete tuvx;
@@ -108,7 +109,7 @@ namespace musica
     tuvx_ = nullptr;
   }
 
-  void TUVX::Create(const std::string &config_path, Error *error)
+  void TUVX::Create(const char* config_path, Error *error)
   {
     int parsing_status = 0;  // 0 on success, 1 on failure
     try
@@ -120,7 +121,7 @@ namespace musica
         return;
       }
 
-      tuvx_ = InternalCreateTuvx(config_path.c_str(), &parsing_status);
+      tuvx_ = InternalCreateTuvx(config_path, strlen(config_path), &parsing_status);
       if (parsing_status == 1)
       {
         *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create tuvx instance") };

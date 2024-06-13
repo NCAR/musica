@@ -84,7 +84,7 @@ namespace musica
     // for use by musica interanlly. If tuvx ever gets rewritten in C++, these functions will
     // go away but the C API will remain the same and downstream projects (like CAM-SIMA) will
     // not need to change
-    void *InternalCreateTuvx(const char* config_path, int *error_code);
+    void *InternalCreateTuvx(const char* config_path, std::size_t config_path_length, int *error_code);
     void InternalDeleteTuvx(void *tuvx, int *error_code);
     void *InternalGetGridMap(void *tuvx, int *error_code);
     void InternalDeleteGridMap(void *grid_map, int *error_code);
@@ -106,7 +106,7 @@ namespace musica
     /// @param config_path Path to configuration file or directory containing configuration file
     /// @param error Error struct to indicate success or failure
     /// @return 0 on success, 1 on failure in parsing configuration file
-    void Create(const std::string &config_path, Error *error);
+    void Create(const char* config_path, Error *error);
 
     /// @brief Create a grid map. For now, this calls the interal tuvx fortran api, but will allow the change to c++ later on
     /// to be transparent to downstream projects

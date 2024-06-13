@@ -11,11 +11,11 @@ protected:
 
     // the function that google test actually calls before each test
     void SetUp() override {
+        tuvx = nullptr;
     }
 
     void SetUp(const char* config_path) {
-        Error error = NoError();
-        tuvx = nullptr;
+        Error error;
         tuvx = CreateTuvx(config_path, &error);
         if (!IsSuccess(error)) {
             std::cerr << "Error creating TUVX instance: " << error.message_.value_ << std::endl;
@@ -35,7 +35,6 @@ protected:
         tuvx = nullptr;
     }
 };
-
 
 TEST_F(TuvxCApiTest, CreateTuvxInstanceWithYamlConfig) {
     const char* yaml_config_path = "examples/ts1_tsmlt.yml";

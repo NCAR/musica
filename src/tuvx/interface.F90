@@ -3,7 +3,7 @@
 !
 module tuvx_interface
 
-  use iso_c_binding,       only : c_ptr, c_loc, c_int
+  use iso_c_binding,       only : c_ptr, c_loc, c_int, c_size_t, c_char
   use tuvx_core,           only : core_t
   use tuvx_grid_warehouse, only : grid_warehouse_t
   use tuvx_grid,           only : grid_t
@@ -19,26 +19,34 @@ module tuvx_interface
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    function internal_create_tuvx(c_config_path, error_code) bind(C, name="InternalCreateTuvx")
+    function internal_create_tuvx(c_config_path, config_path_len, error_code) bind(C, name="InternalCreateTuvx")
       use iso_c_binding, only: c_ptr, c_f_pointer
 
       ! arguments
-      type(c_ptr), value               :: c_config_path
-      integer(kind=c_int), intent(out) :: error_code
+      character(kind=c_char), dimension(*), intent(in) :: c_config_path
+      integer(kind=c_size_t), value                    :: config_path_len
+      integer(kind=c_int), intent(out)                 :: error_code
 
       ! local variables
-      character(len=256), pointer      :: f_config_path
-      type(c_ptr)                         :: internal_create_tuvx
-      type(core_t), pointer               :: core
-      character(len=:), allocatable       :: f_string
-      type(string_t)                      :: musica_config_path
+      character(len=:), allocatable :: f_config_path
+      type(c_ptr)                   :: internal_create_tuvx
+      type(core_t), pointer         :: core
+      type(string_t)                :: musica_config_path
+      integer                       :: i
 
-      call c_f_pointer(c_config_path, f_config_path)
+      allocate(character(len=config_path_len) :: f_config_path)
+      do i = 1, config_path_len
+        f_config_path(i:i) = c_config_path(i)
+      end do
+
       musica_config_path = string_t(f_config_path)
 
       core => core_t(musica_config_path)
-      internal_create_tuvx = c_loc(core)
+
+      deallocate(f_config_path)
       error_code = 0
+
+      internal_create_tuvx = c_loc(core)
 
     end function internal_create_tuvx
 
@@ -48,8 +56,8 @@ module tuvx_interface
       use iso_c_binding, only: c_ptr, c_f_pointer
 
       ! arguments
-      type(c_ptr), value, intent(in) :: tuvx
-      integer(kind=c_int), intent(out)   :: error_code
+      type(c_ptr), value, intent(in)   :: tuvx
+      integer(kind=c_int), intent(out) :: error_code
 
       ! local variables
       type(core_t), pointer :: core
