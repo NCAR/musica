@@ -11,11 +11,10 @@ protected:
 
     // the function that google test actually calls before each test
     void SetUp() override {
-        tuvx = nullptr;
     }
 
     void SetUp(const char* config_path) {
-        Error error;
+        Error error = NoError();
         tuvx = nullptr;
         tuvx = CreateTuvx(config_path, &error);
         if (!IsSuccess(error)) {
