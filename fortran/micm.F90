@@ -24,7 +24,7 @@ module musica_micm
    end type solver_stats_t_c
 
    interface
-      function get_micm_version_c() bind(C, name="GetMicmVersion")
+      function get_micm_version_c() bind(C, name="MicmVersion")
          use musica_util, only: string_t_c
          type(string_t_c) :: get_micm_version_c
       end function get_micm_version_c

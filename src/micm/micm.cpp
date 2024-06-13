@@ -18,13 +18,6 @@
 
 namespace musica
 {
-
-  String GetMicmVersion()
-  {
-    String micm_version = CreateString(micm::GetMicmVersion());
-    return micm_version;
-  }
-
   MICM *CreateMicm(const char *config_path, Error *error)
   {
     DeleteError(error);
@@ -163,6 +156,11 @@ namespace musica
     std::string species_name_str(species_name);
     std::string property_name_str(property_name);
     return micm->GetSpeciesProperty<bool>(species_name_str, property_name_str, error);
+  }
+
+  String MicmVersion()
+  {
+    return CreateString(micm::GetMicmVersion());
   }
 
   void MICM::Create(const std::string &config_path, Error *error)

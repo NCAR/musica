@@ -51,7 +51,6 @@ namespace musica
       String state_;
     };
 
-    String get_micm_version(void);
     MICM *CreateMicm(const char *config_path, Error *error);
     void DeleteMicm(const MICM *micm, Error *error);
     void MicmSolve(
@@ -71,7 +70,7 @@ namespace musica
     double GetSpeciesPropertyDouble(MICM *micm, const char *species_name, const char *property_name, Error *error);
     int GetSpeciesPropertyInt(MICM *micm, const char *species_name, const char *property_name, Error *error);
     bool GetSpeciesPropertyBool(MICM *micm, const char *species_name, const char *property_name, Error *error);
-
+    String MicmVersion();
 #ifdef __cplusplus
   }
 #endif
@@ -104,14 +103,6 @@ namespace musica
         SolverStats* solver_stats,
         Error *error);
 
-    /// @brief Get a property for a chemical species
-    /// @param species_name Name of the species
-    /// @param property_name Name of the property
-    /// @param error Error struct to indicate success or failure
-    /// @return Value of the property
-    template<class T>
-    T GetSpeciesProperty(const std::string &species_name, const std::string &property_name, Error *error);
-
     /// @brief Get the ordering of species
     /// @param error Error struct to indicate success or failure
     /// @return Map of species names to their indices
@@ -121,6 +112,14 @@ namespace musica
     /// @param error Error struct to indicate success or failure
     /// @return Map of reaction rate names to their indices
     std::map<std::string, std::size_t> GetUserDefinedReactionRatesOrdering(Error *error);
+
+    /// @brief Get a property for a chemical species
+    /// @param species_name Name of the species
+    /// @param property_name Name of the property
+    /// @param error Error struct to indicate success or failure
+    /// @return Value of the property
+    template<class T>
+    T GetSpeciesProperty(const std::string &species_name, const std::string &property_name, Error *error);
 
     static constexpr std::size_t NUM_GRID_CELLS = 1;
 
