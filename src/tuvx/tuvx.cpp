@@ -68,7 +68,7 @@ namespace musica
 
   Grid *GetGrid(GridMap *grid_map, const char *grid_name, const char *grid_units, Error *error)
   {
-    *error = NoError();
+    DeleteError(error);
     return grid_map->GetGrid(grid_name, grid_units, error);
   }
 
@@ -172,18 +172,32 @@ namespace musica
     }
 
     int error_code = 0;
-    auto name = CreateString(grid_name);
-    auto units = CreateString(grid_units);
+    Grid* grid = nullptr;
 
-    Grid *grid = new Grid(InternalGetGrid(grid_map_, name, units, &error_code));
-    grids_.push_back(std::unique_ptr<Grid>(grid));
+    try {
+      *error = NoError();
 
-    *error = NoError();
-    if (error_code != 0)
-    {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create grid map") };
-      return nullptr;
+      grid = new Grid(InternalGetGrid(grid_map_, grid_name, strlen(grid_name), grid_units, strlen(grid_units), &error_code));
+
+      if (error_code != 0)
+      {
+        delete grid;
+        grid = nullptr;
+        *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create grid map") };
+      }
+      else {
+        grids_.push_back(std::unique_ptr<Grid>(grid));
+      }
     }
+    catch (const std::system_error &e)
+    {
+      *error = ToError(e);
+    }
+    catch (...)
+    {
+      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create grid") };
+    }
+
     return grid;
   }
 

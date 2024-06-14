@@ -1,5 +1,7 @@
 FROM fedora:35
 
+ARG BUILD_TYPE=release
+
 RUN dnf -y update \
   && dnf -y install \
     cmake \
@@ -35,7 +37,7 @@ COPY . musica
 RUN cd musica \
     && cmake -S . \
              -B build \
-             -D CMAKE_BUILD_TYPE=Release \
+             -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
              -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
              -D MUSICA_ENABLE_MICM=ON \
              -D MUSICA_ENABLE_MEMCHECK=ON \

@@ -19,12 +19,12 @@ module tuvx_interface
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    function internal_create_tuvx(c_config_path, config_path_len, error_code) bind(C, name="InternalCreateTuvx")
+    function internal_create_tuvx(c_config_path, config_path_length, error_code) bind(C, name="InternalCreateTuvx")
       use iso_c_binding, only: c_ptr, c_f_pointer
 
       ! arguments
       character(kind=c_char), dimension(*), intent(in) :: c_config_path
-      integer(kind=c_size_t), value                    :: config_path_len
+      integer(kind=c_size_t), value                    :: config_path_length
       integer(kind=c_int), intent(out)                 :: error_code
 
       ! local variables
@@ -34,8 +34,8 @@ module tuvx_interface
       type(string_t)                :: musica_config_path
       integer                       :: i
 
-      allocate(character(len=config_path_len) :: f_config_path)
-      do i = 1, config_path_len
+      allocate(character(len=config_path_length) :: f_config_path)
+      do i = 1, config_path_length
         f_config_path(i:i) = c_config_path(i)
       end do
 
@@ -93,27 +93,37 @@ module tuvx_interface
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-
-    function interal_get_grid(grid_map, grid_name, grid_units, error_code) result(grid_ptr) bind(C, name="InternalGetGrid")
-      use iso_c_binding, only: c_ptr, c_f_pointer, c_int
+    function interal_get_grid(grid_map, c_grid_name, c_grid_name_length, c_grid_units, c_grid_units_length, error_code) &
+        result(grid_ptr) bind(C, name="InternalGetGrid")
+      use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_char, c_size_t
     
       ! arguments
-      type(c_ptr), intent(in), value      :: grid_map
-      type(string_t_c), intent(in), value :: grid_name
-      type(string_t_c), intent(in), value :: grid_units
-      integer(kind=c_int), intent(out)    :: error_code
-    
-      ! result
-      type(c_ptr) :: grid_ptr
+      type(c_ptr), intent(in), value                   :: grid_map
+      character(kind=c_char), dimension(*), intent(in) :: c_grid_name
+      integer(kind=c_size_t), value                    :: c_grid_name_length
+      character(kind=c_char), dimension(*), intent(in) :: c_grid_units
+      integer(kind=c_size_t), value                    :: c_grid_units_length
+      integer(kind=c_int), intent(out)                 :: error_code
     
       ! variables
       type(grid_t), pointer           :: grid
       type(grid_warehouse_t), pointer :: grid_warehouse
       character(len=:), allocatable   :: f_grid_name
       character(len=:), allocatable   :: f_grid_units
-    
-      f_grid_name = to_f_string(grid_name)
-      f_grid_units = to_f_string(grid_units)
+      integer                         :: i
+
+      ! result
+      type(c_ptr) :: grid_ptr
+
+      allocate(character(len=c_grid_name_length) :: f_grid_name)
+      do i = 1, c_grid_name_length
+        f_grid_name(i:i) = c_grid_name(i)
+      end do
+
+      allocate(character(len=c_grid_units_length) :: f_grid_units)
+      do i = 1, c_grid_units_length
+        f_grid_units(i:i) = c_grid_units(i)
+      end do
     
       call c_f_pointer(grid_map, grid_warehouse)
 
