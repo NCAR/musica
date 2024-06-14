@@ -87,11 +87,13 @@ namespace musica
 
   void SetEdges(Grid *grid, double edges[], std::size_t num_edges, Error *error)
   {
+    DeleteError(error);
     grid->SetEdges(edges, num_edges, error);
   }
 
   void SetMidpoints(Grid *grid, double midpoints[], std::size_t num_midpoints, Error *error)
   {
+    DeleteError(error);
     grid->SetMidpoints(midpoints, num_midpoints, error);
   }
 

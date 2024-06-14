@@ -74,4 +74,5 @@ TEST_F(TuvxCApiTest, CanGetGrid) {
     ASSERT_NO_THROW(
         SetMidpoints(grid, midpoints.data(), midpoints.size(), &error);
     );
+    DeleteError(&error);
 }
