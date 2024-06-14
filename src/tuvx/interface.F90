@@ -157,12 +157,12 @@ module tuvx_interface
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     subroutine internal_set_edges(grid, edges, num_edges, error_code) bind(C, name="InternalSetEdges")
-      use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_double
+      use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_double, c_size_t
     
       ! arguments
       type(c_ptr), value, intent(in)                :: grid
       real(kind=c_double), intent(in), dimension(*) :: edges
-      integer(kind=c_int), intent(in)               :: num_edges
+      integer(kind=c_size_t), intent(in), value     :: num_edges
       integer(kind=c_int), intent(out)              :: error_code
     
       ! variables
@@ -174,6 +174,8 @@ module tuvx_interface
 
       f_grid%delta_ = edges(2:num_edges) - edges(1:num_edges-1)
 
+      f_grid%ncells_ = num_edges - 1
+
     end subroutine internal_set_edges
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -184,7 +186,7 @@ module tuvx_interface
       ! arguments
       type(c_ptr), value, intent(in)                :: grid
       real(kind=c_double), intent(in), dimension(*) :: midpoints
-      integer(kind=c_int), intent(in)               :: num_midpoints
+      integer(kind=c_int), intent(in), value        :: num_midpoints
       integer(kind=c_int), intent(out)              :: error_code
     
       ! variables

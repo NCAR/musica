@@ -56,9 +56,22 @@ TEST_F(TuvxCApiTest, DetectsNonexistentConfigFile) {
     DeleteError(&error);
 }
 
-TEST_F(TuvxCApiTest, GridMap) {
-}
-
-TEST_F(TuvxCApiTest, Grid) {
-
+TEST_F(TuvxCApiTest, CanGetGrid) {
+    const char* yaml_config_path = "examples/ts1_tsmlt.yml";
+    SetUp(yaml_config_path);
+    Error error;
+    GridMap* grid_map = GetGridMap(tuvx, &error);
+    ASSERT_TRUE(IsSuccess(error));
+    ASSERT_NE(grid_map, nullptr);
+    Grid* grid = GetGrid(grid_map, "height", "km", &error);
+    ASSERT_TRUE(IsSuccess(error));
+    ASSERT_NE(grid, nullptr);
+    std::vector<double> edges = {0.0, 1.0, 2.0};
+    ASSERT_NO_THROW(
+        SetEdges(grid, edges.data(), edges.size(), &error);
+    );
+    std::vector<double> midpoints = {0.5, 1.5};
+    ASSERT_NO_THROW(
+        SetMidpoints(grid, midpoints.data(), midpoints.size(), &error);
+    );
 }

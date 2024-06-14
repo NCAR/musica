@@ -50,19 +50,19 @@ module musica_tuvx
       subroutine set_edges_c(grid, edges, n_edges, error) bind(C, name="SetEdges")
          use musica_util, only: error_t_c
          import c_ptr, c_double, c_size_t
-         type(c_ptr), value, intent(in) :: grid
+         type(c_ptr), value, intent(in)           :: grid
          real(c_double), dimension(*), intent(in) :: edges
-         integer(c_size_t), intent(in) :: n_edges
-         type(error_t_c), intent(inout) :: error
+         integer(c_size_t), value                 :: n_edges
+         type(error_t_c), intent(inout)           :: error
       end subroutine set_edges_c
 
       subroutine set_midpoints_c(grid, midpoints, n_midpoints, error) bind(C, name="SetMidpoints")
          use musica_util, only: error_t_c
          import c_ptr, c_double, c_size_t
-         type(c_ptr), value, intent(in) :: grid
+         type(c_ptr), value, intent(in)           :: grid
          real(c_double), dimension(*), intent(in) :: midpoints
-         integer(c_size_t), intent(in) :: n_midpoints
-         type(error_t_c), intent(inout) :: error
+         integer(c_size_t), value                 :: n_midpoints
+         type(error_t_c), intent(inout)           :: error
       end subroutine set_midpoints_c
 
    end interface
