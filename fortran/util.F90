@@ -23,6 +23,7 @@ module musica_util
   private
     character(len=:), allocatable :: value_
   contains
+    procedure :: get_char_array => get_char_array_string_t
     procedure, private, pass(from) :: char_assign_string
     procedure, private, pass(to) :: string_assign_char
     procedure, private, pass(to) :: string_assign_string
@@ -101,6 +102,12 @@ module musica_util
 contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function get_char_array_string_t( this ) result ( value )
+    class(string_t), intent(in) :: this
+    character(len=:), allocatable :: value
+    allocate( value, source = this%value_ )
+  end function get_char_array_string_t
 
   function string_t_constructor_from_string_t_c( c_string ) result( new_string )
 

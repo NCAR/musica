@@ -8,6 +8,7 @@
  */
 #include <musica/micm.hpp>
 
+#include <micm/version.hpp>
 #include <micm/solver/rosenbrock_solver_parameters.hpp>
 #include <micm/solver/solver_builder.hpp>
 #include <micm/system/species.hpp>
@@ -18,6 +19,12 @@
 
 namespace musica
 {
+
+  String get_micm_version()
+  {
+    String micm_version = CreateString(micm::GetMicmVersion());
+    return micm_version;
+  }
 
   MICM *CreateMicm(const char *config_path, Error *error)
   {
