@@ -31,6 +31,9 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Print branch name
+        run: echo "Branch name is $BRANCH_NAME"
+
       - name: Delete huge unnecessary tools folder
         run: rm -rf /opt/hostedtoolcache
 
