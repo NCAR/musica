@@ -88,29 +88,11 @@ module tuvx_interface
       grid_warehouse => core%get_grid_warehouse()
     
       grid_map_ptr = c_loc(grid_warehouse)
-    
+
     end function internal_get_grid_map
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    subroutine internal_delete_grid_map(grid_map, error_code) bind(C, name="InternalDeleteGridMap")
-      use iso_c_binding, only: c_ptr, c_f_pointer
-    
-      ! arguments
-      type(c_ptr), value, intent(in) :: grid_map
-      integer(kind=c_int), intent(out) :: error_code
-    
-      ! variables
-      type(grid_warehouse_t), pointer :: grid_warehouse
-    
-      call c_f_pointer(grid_map, grid_warehouse)
-      if (associated(grid_warehouse)) then
-        deallocate(grid_warehouse)
-      end if
-    
-    end subroutine internal_delete_grid_map
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     function interal_get_grid(grid_map, grid_name, grid_units, error_code) result(grid_ptr) bind(C, name="InternalGetGrid")
       use iso_c_binding, only: c_ptr, c_f_pointer, c_int
@@ -138,6 +120,7 @@ module tuvx_interface
       grid => grid_warehouse%get_grid(f_grid_name, f_grid_units)
     
       grid_ptr = c_loc(grid)
+      print *, "grid_ptr: ", grid_ptr
     
     end function interal_get_grid
 
@@ -153,6 +136,7 @@ module tuvx_interface
       ! variables
       type(grid_t), pointer :: f_grid
     
+      print *, grid
       call c_f_pointer(grid, f_grid)
       if (associated(f_grid)) then
         deallocate(f_grid)

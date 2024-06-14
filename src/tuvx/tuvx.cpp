@@ -156,14 +156,21 @@ namespace musica
 
   GridMap::~GridMap()
   {
+    // At the time of writing, the grid map pointer is owned by fortran memory
+    // in the tuvx core and should not be deleted here. It will be deleted when
+    // the tuvx instance is deleted
     int error_code = 0;
-    if (grid_map_ != nullptr)
-      InternalDeleteGridMap(grid_map_, &error_code);
     grid_map_ = nullptr;
   }
 
   Grid *GridMap::GetGrid(const char *grid_name, const char *grid_units, Error *error)
   {
+    if (grid_map_ == nullptr)
+    {
+      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Grid map is null") };
+      return nullptr;
+    }
+
     int error_code = 0;
     auto name = CreateString(grid_name);
     auto units = CreateString(grid_units);

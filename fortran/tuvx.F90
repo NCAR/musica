@@ -38,13 +38,6 @@ module musica_tuvx
          type(c_ptr)                    :: get_grid_map_c
       end function get_grid_map_c
 
-      subroutine delete_grid_map_c(grid_map, error) bind(C, name="DeleteGridMap")
-         use musica_util, only: error_t_c
-         import c_ptr
-         type(c_ptr), value, intent(in) :: grid_map
-         type(error_t_c), intent(inout) :: error
-      end subroutine delete_grid_map_c
-
       function get_grid_c(grid_map, grid_name, grid_units, error) bind(C, name="GetGrid")
          use musica_util, only: error_t_c
          import c_ptr, c_char
@@ -53,13 +46,6 @@ module musica_tuvx
          type(error_t_c), intent(inout)            :: error
          type(c_ptr)                               :: get_grid_c
       end function get_grid_c
-
-      subroutine delete_grid_c(grid, error) bind(C, name="DeleteGrid")
-         use musica_util, only: error_t_c
-         import c_ptr
-         type(c_ptr), value, intent(in) :: grid
-         type(error_t_c), intent(inout) :: error
-      end subroutine delete_grid_c
 
       subroutine set_edges_c(grid, edges, n_edges, error) bind(C, name="SetEdges")
          use musica_util, only: error_t_c
@@ -139,9 +125,7 @@ contains
    !> Construct a grid map instance
    function grid_map_t_constructor() result(this)
       ! Return value
-      type(grid_map_t), pointer :: this
-
-      allocate( this )
+      type(grid_map_t) :: this
 
       this%ptr = c_null_ptr
    end function grid_map_t_constructor
@@ -186,7 +170,7 @@ contains
       type(error_t_c) :: error_c
       type(error_t)   :: error
 
-      call delete_grid_map_c(this%ptr, error_c)
+      ! The pointer doesn't need to be deallocated because it is owned by the tuvx instance
       this%ptr = c_null_ptr
       error = error_t(error_c)
       ASSERT(error%is_success())
@@ -261,7 +245,7 @@ contains
       type(error_t_c) :: error_c
       type(error_t)   :: error
 
-      call delete_grid_c(this%ptr, error_c)
+      ! The pointer doesn't need to be deallocated because it is owned by the tuvx instance
       this%ptr = c_null_ptr
       error = error_t(error_c)
       ASSERT(error%is_success())
@@ -319,9 +303,9 @@ contains
       type(error_t_c)              :: error_c
 
       ! Return value
-      type(grid_map_t), pointer    :: grid_map
+      type(grid_map_t)    :: grid_map
 
-      grid_map => grid_map_t()
+      grid_map = grid_map_t()
       grid_map%ptr = get_grid_map_c(this%ptr, error_c)
       
       error = error_t(error_c)

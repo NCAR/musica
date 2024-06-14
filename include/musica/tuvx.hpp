@@ -75,9 +75,7 @@ namespace musica
     TUVX *CreateTuvx(const char *config_path, Error *error);
     void DeleteTuvx(const TUVX *tuvx, Error *error);
     GridMap *GetGridMap(TUVX *tuvx, Error *error);
-    void DeleteGridMap(GridMap *grid_map, Error *error);
     Grid *GetGrid(GridMap *grid_map, const char *grid_name, const char *grid_units, Error *error);
-    void DeleteGrid(Grid *grid, Error *error);
     void SetEdges(Grid *grid, double edges[], std::size_t num_edges, Error *error);
     void SetMidpoints(Grid *grid, double midpoints[], std::size_t num_midpoints, Error *error);
 
@@ -87,7 +85,6 @@ namespace musica
     void *InternalCreateTuvx(const char* config_path, std::size_t config_path_length, int *error_code);
     void InternalDeleteTuvx(void *tuvx, int *error_code);
     void *InternalGetGridMap(void *tuvx, int *error_code);
-    void InternalDeleteGridMap(void *grid_map, int *error_code);
     void *InternalGetGrid(void *grid_map, String grid_name, String grid_units, int *error_code);
     void InternalDeleteGrid(void *grid, int *error_code);
     void InternalSetEdges(void *grid, double edges[], std::size_t num_edges, int *error_code);

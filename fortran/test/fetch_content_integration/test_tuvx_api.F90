@@ -55,7 +55,7 @@ contains
 
     type(tuvx_t), pointer     :: tuvx
     type(error_t)             :: error
-    type(grid_map_t), pointer :: grids
+    type(grid_map_t)          :: grids
     character(len=256)        :: config_path
     type(grid_t), pointer     :: grid
     ! type(profile_map_t) :: profiles
@@ -70,7 +70,7 @@ contains
 
     tuvx => tuvx_t( config_path, error )
     ASSERT( error%is_success() )
-    grids => tuvx%get_grids( error )
+    grids = tuvx%get_grids( error )
     ASSERT( error%is_success() )
 
     ! profiles = tuvx%create_profiles( )
@@ -89,6 +89,8 @@ contains
     ! profile => profiles%get( "O3", "mol m-3" )
 
     ! call tuvx%solve( grids, profiles, radiators, photo_rates )
+
+    deallocate( tuvx )
 
   end subroutine test_tuvx_solve
 
