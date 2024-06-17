@@ -352,7 +352,7 @@ contains
     use iso_c_binding,                 only : c_char, c_ptr, c_f_pointer, &
                                               c_associated
 
-    type(string_t_c), value, intent(in) :: c_string
+    type(string_t_c), intent(in) :: c_string
     character(len=:), allocatable  :: f_string
 
     integer :: i

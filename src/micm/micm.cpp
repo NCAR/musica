@@ -227,7 +227,7 @@ namespace musica
           result.stats_.solves_,
           result.stats_.singular_,
           result.final_time_,
-          CreateString(micm::StateToString(result.state_).c_str())); // TODO(jiwon) destructor
+          CreateString(micm::SolverStateToString(result.state_).c_str())); // TODO(jiwon) destructor
 
       for (int i = 0; i < state.variables_.AsVector().size(); i++)
       {

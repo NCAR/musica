@@ -30,7 +30,7 @@ option(MUSICA_ENABLE_OPENMP "Enable OpemMP support" OFF)
 option(MUSICA_ENABLE_MEMCHECK "Enable memory checking" OFF)
 option(MUSICA_BUILD_DOCS "Build the documentation" OFF)
 option(MUSICA_ENABLE_MICM "Enable MICM" ON)
-option(MUSICA_ENABLE_TUVX "Enable TUV-x" ON)
+option(MUSICA_ENABLE_TUVX "Enable TUV-x" OFF)
 
 cmake_dependent_option(
   MUSICA_ENABLE_PYTHON_LIBRARY "Adds pybind11, a lightweight header-only library that exposes C++ types in Python and vice versa" OFF "MUSICA_BUILD_C_CXX_INTERFACE" OFF)
