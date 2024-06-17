@@ -23,7 +23,6 @@ jobs:
           - { cpp: g++-13, c: gcc-13, fc: gfortran-13}
           - { cpp: clang++, c: clang}
         build_type: [Release]
-        macos_sdk: [macosx15.0]
     env:
       CC: ${{ matrix.compiler.c }}
       CXX: ${{ matrix.compiler.cpp }}
@@ -45,18 +44,12 @@ jobs:
       - name: Run Cmake 
         if: matrix.compiler.cpp != 'g++-13'
         run: |
-          PYTHON_PATH=$(which python)
-          cmake -S . -B build \
-              -D CMAKE_CXX_FLAGS=-Wl,-ld_classic \
-              -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-              -D MUSICA_ENABLE_PYTHON_LIBRARY=ON \
-              -D Python3_EXECUTABLE=$PYTHON_PATH 
-
-      - name: Run cmake for gcc 13
-        if: matrix.compiler.cpp == 'g++-13'
-        run: |
             PYTHON_PATH=$(which python)
-            export SDKROOT=$(xcrun --sdk ${{ matrix.macos_sdk }} --show-sdk-path)
+            # for some reason gcc 13 was having issues finding the correct osx sdk
+            # the default compiler was xcode 15.01 which is compatible with macosx14.0
+            # finding that explicitly here fixes the issue but will likely break in future versions
+            # all versions can be found here: https://github.com/actions/runner-images/tree/main/images/macos
+            export SDKROOT=$(xcrun --sdk macosx14.0 --show-sdk-path)
             cmake -S . -B build \
                 -D CMAKE_CXX_FLAGS=-Wl,-ld_classic \
                 -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} \
