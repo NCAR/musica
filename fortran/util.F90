@@ -1,5 +1,6 @@
 ! Copyright (C) 2023-2024 National Center for Atmospheric Research
 ! SPDX-License-Identifier: Apache-2.0
+!
 module musica_util
 
   use iso_c_binding,                   only: c_char, c_int, c_ptr, c_size_t, &
@@ -9,7 +10,7 @@ module musica_util
   private
 
   public :: string_t_c, string_t, error_t_c, error_t, mapping_t_c, mapping_t, &
-            to_c_string, to_f_string, assert, copy_mappings
+            to_c_string, to_f_string, assert, copy_mappings, delete_string_c, create_string_c
 
   !> Wrapper for a c string
   type, bind(c) :: string_t_c

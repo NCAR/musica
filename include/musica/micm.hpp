@@ -11,6 +11,10 @@
 
 #include <micm/configure/solver_config.hpp>
 #include <micm/solver/rosenbrock.hpp>
+#include <micm/solver/rosenbrock_solver_parameters.hpp>
+#include <micm/solver/solver.hpp>
+#include <micm/util/matrix.hpp>
+#include <micm/process/process_set.hpp>
 
 #include <memory>
 #include <string>
@@ -124,7 +128,13 @@ namespace musica
     static constexpr std::size_t NUM_GRID_CELLS = 1;
 
    private:
-    std::unique_ptr<micm::RosenbrockSolver<>> solver_;
+    using DenseMatrixPolicy = micm::Matrix<double>;
+    using SparseMatrixPolicy = micm::SparseMatrix<double, micm::SparseMatrixStandardOrdering>;
+    using SolverPolicy = typename micm::RosenbrockSolverParameters::template SolverType<micm::ProcessSet, micm::LinearSolver<SparseMatrixPolicy, micm::LuDecomposition>>;
+    using Rosenbrock = micm::Solver<SolverPolicy, micm::State<DenseMatrixPolicy, SparseMatrixPolicy>>;
+
+    std::unique_ptr<Rosenbrock> solver_;
+
     std::unique_ptr<micm::SolverParameters> solver_parameters_;
   };
 

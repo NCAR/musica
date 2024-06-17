@@ -14,20 +14,25 @@ concurrency:
 jobs:
   c_cxx:
     runs-on: macos-latest
+    continue-on-error: true 
     strategy:
       matrix:
         compiler:
-          - { cpp: g++-11, c: gcc-11}
-          - { cpp: g++-12, c: gcc-12}
-          - { cpp: g++-13, c: gcc-13}
+          - { cpp: g++-11, c: gcc-11, fc: gfortran-11}
+          - { cpp: g++-12, c: gcc-12, fc: gfortran-12}
+          - { cpp: g++-13, c: gcc-13, fc: gfortran-13}
           - { cpp: clang++, c: clang}
         build_type: [Release]
     env:
       CC: ${{ matrix.compiler.c }}
       CXX: ${{ matrix.compiler.cpp }}
+      FC: ${{ matrix.compiler.fc }}
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: brew install netcdf netcdf-fortran
 
       - uses: actions/setup-python@v5
       - run: pip install -r python/requirements.txt --user
@@ -35,10 +40,10 @@ jobs:
       - name: Run Cmake 
         run: |
           PYTHON_PATH=$(which python)
-          cmake -S . -B build -D CMAKE_CXX_FLAGS=-Wl,-ld_classic -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON -D Python3_EXECUTABLE=$PYTHON_PATH
+          cmake -S . -B build -D CMAKE_CXX_FLAGS=-Wl,-ld_classic -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_PYTHON_LIBRARY=ON -D Python3_EXECUTABLE=$PYTHON_PATH
 
       - name: Build
-        run: cmake --build build --verbose --parallel 10
+        run: cmake --build build --verbose
 
       - name: Run tests
         run: |

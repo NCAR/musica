@@ -1,0 +1,227 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile.fortran-gcc.integration
+#1 transferring dockerfile: 1.24kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/fedora:35
+#2 DONE 0.7s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 194B done
+#3 DONE 0.0s
+
+#4 [1/6] FROM docker.io/library/fedora:35@sha256:b6fa5d32e6b630bf85ece741cea391290c0e0f2e6ebfda57b6a1a71d184f4000
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 929.61kB 0.3s done
+#5 DONE 0.3s
+
+#6 [2/6] RUN dnf -y update   && dnf -y install     cmake     curl     gcc     gcc-c++     gcc-gfortran     gdb     git     hdf5-devel     json-devel     lapack-devel     lcov     libcurl-devel     m4     make     netcdf-fortran-devel     valgrind     vim     zlib-devel   && dnf clean all
+#6 CACHED
+
+#7 [3/6] COPY . musica
+#7 DONE 0.7s
+
+#8 [4/6] RUN cd musica     && cmake -S .              -B build              -D CMAKE_BUILD_TYPE=Release              -D MUSICA_ENABLE_TESTS=ON              -D MUSICA_ENABLE_MICM=ON              -D MUSICA_ENABLE_TUVX=OFF     && cd build     && make install
+#8 0.241 -- The C compiler identification is GNU 11.3.1
+#8 0.327 -- The CXX compiler identification is GNU 11.3.1
+#8 0.335 -- Detecting C compiler ABI info
+#8 0.382 -- Detecting C compiler ABI info - done
+#8 0.387 -- Check for working C compiler: /usr/bin/gcc - skipped
+#8 0.388 -- Detecting C compile features
+#8 0.388 -- Detecting C compile features - done
+#8 0.391 -- Detecting CXX compiler ABI info
+#8 0.443 -- Detecting CXX compiler ABI info - done
+#8 0.449 -- Check for working CXX compiler: /usr/bin/g++ - skipped
+#8 0.449 -- Detecting CXX compile features
+#8 0.449 -- Detecting CXX compile features - done
+#8 2.248 -- Found Python3: /usr/bin/python3.10 (found version "3.10.8") found components: Interpreter 
+#8 2.251 -- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+#8 2.297 -- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+#8 2.298 -- Found Threads: TRUE  
+#8 6.282 -- CMake build configuration for micm(Release) 3.5.0
+#8 17.14 -- Using the multi-header code from /musica/build/_deps/json-src/include/
+#8 17.14 -- CMake build configuration for musica (Release) 0.6.1
+#8 17.14 -- seting include directory to /musica/include
+#8 17.15 -- Configuring done
+#8 17.15 -- Generating done
+#8 17.16 -- Build files have been written to: /musica/build
+#8 17.19 [  6%] Building CXX object _deps/googletest-build/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.o
+#8 22.97 [ 13%] Linking CXX static library ../../../lib/libgtest.a
+#8 22.99 [ 13%] Built target gtest
+#8 23.00 [ 20%] Building CXX object _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/src/gtest_main.cc.o
+#8 23.44 [ 26%] Linking CXX static library ../../../lib/libgtest_main.a
+#8 23.45 [ 26%] Built target gtest_main
+#8 23.46 [ 33%] Building CXX object src/CMakeFiles/musica.dir/util.cpp.o
+#8 23.62 [ 40%] Building CXX object src/CMakeFiles/musica.dir/component_versions.cpp.o
+#8 23.64 [ 46%] Building CXX object src/CMakeFiles/musica.dir/__/version.cpp.o
+#8 23.66 [ 53%] Building CXX object src/CMakeFiles/musica.dir/micm/micm.cpp.o
+#8 29.86 [ 60%] Linking CXX static library ../lib64/libmusica.a
+#8 29.87 [ 60%] Built target musica
+#8 29.88 [ 60%] Built target copy_unit_test_configs
+#8 29.89 [ 66%] Building CXX object src/test/unit/CMakeFiles/test_component_versions.dir/component_versions.cpp.o
+#8 30.64 [ 73%] Linking CXX executable ../../../test_component_versions
+#8 30.68 [ 73%] Built target test_component_versions
+#8 30.69 [ 80%] Building CXX object src/test/unit/micm/CMakeFiles/test_connect_to_micm.dir/micm.cpp.o
+#8 31.26 [ 86%] Linking CXX executable ../../../../test_connect_to_micm
+#8 31.30 [ 86%] Built target test_connect_to_micm
+#8 31.31 [ 93%] Building CXX object src/test/unit/micm/CMakeFiles/test_micm_c_api.dir/micm_c_api.cpp.o
+#8 33.51 [100%] Linking CXX executable ../../../../test_micm_c_api
+#8 33.56 [100%] Built target test_micm_c_api
+#8 33.57 Install the project...
+#8 33.57 -- Install configuration: "Release"
+#8 33.57 -- Installing: /usr/local/lib64/libmusica.a
+#8 33.57 -- Up-to-date: /usr/local/include
+#8 33.57 -- Installing: /usr/local/include/musica
+#8 33.57 -- Installing: /usr/local/include/musica/util.hpp
+#8 33.57 -- Installing: /usr/local/include/musica/component_versions.hpp
+#8 33.57 -- Installing: /usr/local/include/musica/tuvx.hpp
+#8 33.57 -- Installing: /usr/local/include/musica/version.hpp
+#8 33.57 -- Installing: /usr/local/include/musica/micm.hpp
+#8 33.57 -- Installing: /usr/local/include/musica/fortran/util.F90
+#8 33.57 -- Up-to-date: /usr/local/include
+#8 33.57 -- Installing: /usr/local/include/micm
+#8 33.57 -- Installing: /usr/local/include/micm/configure
+#8 33.57 -- Installing: /usr/local/include/micm/configure/solver_config.hpp
+#8 33.57 -- Installing: /usr/local/include/micm/system
+#8 33.57 -- Installing: /usr/local/include/micm/system/species.hpp
+#8 33.57 -- Installing: /usr/local/include/micm/system/phase.hpp
+#8 33.57 -- Installing: /usr/local/include/micm/system/system.hpp
+#8 33.57 -- Installing: /usr/local/include/micm/system/conditions.hpp
+#8 33.57 -- Installing: /usr/local/include/micm/jit
+#8 33.57 -- Installing: /usr/local/include/micm/jit/jit_function.hpp
+#8 33.57 -- Installing: /usr/local/include/micm/jit/jit_compiler.hpp
+#8 33.57 -- Installing: /usr/local/include/micm/version.hpp
+#8 33.57 -- Installing: /usr/local/include/micm/solver
+#8 33.57 -- Installing: /usr/local/include/micm/solver/linear_solver.hpp
+#8 33.57 -- Installing: /usr/local/include/micm/solver/backward_euler.inl
+#8 33.57 -- Installing: /usr/local/include/micm/solver/rosenbrock.hpp
+#8 33.57 -- Installing: /usr/local/include/micm/solver/solver.hpp
+#8 33.57 -- Installing: /usr/local/include/micm/solver/state.hpp
+#8 33.57 -- Installing: /usr/local/include/micm/solver/linear_solver.inl
+#8 33.57 -- Installing: /usr/local/include/micm/solver/lu_decomposition.inl
+#8 33.57 -- Installing: /usr/local/include/micm/solver/cuda_solver_builder.hpp
+#8 33.57 -- Installing: /usr/local/include/micm/solver/backward_euler.hpp
+#8 33.57 -- Installing: /usr/local/include/micm/solver/cuda_lu_decomposition.cuh
+#8 33.57 -- Installing: /usr/local/include/micm/solver/rosenbrock.inl
+#8 33.57 -- Installing: /usr/local/include/micm/solver/rosenbrock_solver_parameters.hpp
+#8 33.57 -- Installing: /usr/local/include/micm/solver/jit_linear_solver.hpp
+#8 33.57 -- Installing: /usr/local/include/micm/solver/solver_result.hpp
+#8 33.57 -- Installing: /usr/local/include/micm/solver/jit_linear_solver.inl
+#8 33.58 -- Installing: /usr/local/include/micm/solver/jit_solver_parameters.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/solver/state.inl
+#8 33.58 -- Installing: /usr/local/include/micm/solver/jit_solver_builder.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/solver/cuda_rosenbrock.cuh
+#8 33.58 -- Installing: /usr/local/include/micm/solver/jit_rosenbrock.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/solver/jit_lu_decomposition.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/solver/cuda_solver_parameters.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/solver/cuda_linear_solver.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/solver/solver_builder.inl
+#8 33.58 -- Installing: /usr/local/include/micm/solver/backward_euler_solver_parameters.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/solver/solver_builder.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/solver/jit_lu_decomposition.inl
+#8 33.58 -- Installing: /usr/local/include/micm/solver/lu_decomposition.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/solver/cuda_lu_decomposition.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/solver/cuda_rosenbrock.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/solver/cuda_linear_solver.cuh
+#8 33.58 -- Installing: /usr/local/include/micm/profiler
+#8 33.58 -- Installing: /usr/local/include/micm/profiler/instrumentation.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/process
+#8 33.58 -- Installing: /usr/local/include/micm/process/tunneling_rate_constant.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/process/process_set.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/process/rate_constant.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/process/jit_process_set.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/process/troe_rate_constant.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/process/surface_rate_constant.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/process/user_defined_rate_constant.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/process/arrhenius_rate_constant.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/process/ternary_chemical_activation_rate_constant.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/process/branched_rate_constant.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/process/process.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/process/cuda_process_set.cuh
+#8 33.58 -- Installing: /usr/local/include/micm/process/cuda_process_set.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/util
+#8 33.58 -- Installing: /usr/local/include/micm/util/internal_error.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/util/cuda_param.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/util/sparse_matrix_vector_ordering.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/util/vector_matrix.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/util/matrix.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/util/cuda_sparse_matrix.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/util/sparse_matrix_standard_ordering.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/util/matrix_error.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/util/cuda_matrix.cuh
+#8 33.58 -- Installing: /usr/local/include/micm/util/property_keys.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/util/jacobian.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/util/sparse_matrix.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/util/random_string.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/util/cuda_dense_matrix.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/util/error.hpp
+#8 33.58 -- Installing: /usr/local/include/micm/util/cuda_util.cuh
+#8 33.58 -- Installing: /usr/local/include/micm/util/constants.hpp
+#8 33.58 -- Installing: /usr/local/include/musica/fortran/micm.F90
+#8 33.58 -- Installing: /usr/local/lib64/cmake/musica/musica_Exports.cmake
+#8 33.58 -- Installing: /usr/local/lib64/cmake/musica/musica_Exports-release.cmake
+#8 33.58 -- Installing: /usr/local/lib64/cmake/musica/musicaConfig.cmake
+#8 33.58 -- Installing: /usr/local/lib64/cmake/musica/musicaConfigVersion.cmake
+#8 DONE 33.6s
+
+#9 [5/6] RUN cd musica/fortran/test/fetch_content_integration     && mkdir build && cd build     && cmake ..         -D CMAKE_BUILD_TYPE=Release         -D MUSICA_GIT_TAG=43-add-run-function-to-tuv-x-wrapper         -D MUSICA_ENABLE_MICM=ON         -D MUSICA_ENABLE_TUVX=OFF     && make
+#9 0.163 -- The Fortran compiler identification is GNU 11.3.1
+#9 0.192 -- The C compiler identification is GNU 11.3.1
+#9 0.231 -- The CXX compiler identification is GNU 11.3.1
+#9 0.236 -- Detecting Fortran compiler ABI info
+#9 0.274 -- Detecting Fortran compiler ABI info - done
+#9 0.280 -- Check for working Fortran compiler: /usr/bin/gfortran - skipped
+#9 0.282 -- Detecting C compiler ABI info
+#9 0.315 -- Detecting C compiler ABI info - done
+#9 0.321 -- Check for working C compiler: /usr/bin/gcc - skipped
+#9 0.321 -- Detecting C compile features
+#9 0.321 -- Detecting C compile features - done
+#9 0.323 -- Detecting CXX compiler ABI info
+#9 0.371 -- Detecting CXX compiler ABI info - done
+#9 0.377 -- Check for working CXX compiler: /usr/bin/g++ - skipped
+#9 0.377 -- Detecting CXX compile features
+#9 0.377 -- Detecting CXX compile features - done
+#9 0.379 -- Using MUSICA_GIT_TAG: 43-add-run-function-to-tuv-x-wrapper
+#9 1.570 -- Found PkgConfig: /usr/bin/pkg-config (found version "1.8.0") 
+#9 1.570 -- Checking for module 'netcdf-fortran'
+#9 1.587 --   Found netcdf-fortran, version 4.5.2
+#9 1.633 -- Checking for module 'netcdf'
+#9 1.650 --   Found netcdf, version 4.8.0
+#9 1.694 -- CMake build configuration for musica-fortran (Release) 0.6.1
+#9 1.694 --   MICM: ON
+#9 1.694 --   TUV-x: OFF
+#9 1.694 --   Tests: OFF
+#9 1.694 --   Install: OFF
+#9 1.694 --   C/C++ Interface: OFF
+#9 1.700 -- Configuring done
+#9 1.703 -- Generating done
+#9 1.704 -- Build files have been written to: /musica/fortran/test/fetch_content_integration/build
+#9 1.726 [  0%] Built target copy_unit_test_configs
+#9 1.732 Scanning dependencies of target musica-fortran
+#9 1.736 [ 14%] Building Fortran object _deps/musica_fortran-build/fortran/CMakeFiles/musica-fortran.dir/util.F90.o
+#9 1.858 [ 28%] Building Fortran object _deps/musica_fortran-build/fortran/CMakeFiles/musica-fortran.dir/micm.F90.o
+#9 2.085 [ 42%] Linking CXX static library libmusica-fortran.a
+#9 2.097 [ 42%] Built target musica-fortran
+#9 2.102 Scanning dependencies of target test_micm_fortran_api
+#9 2.107 [ 57%] Building Fortran object CMakeFiles/test_micm_fortran_api.dir/test_micm_api.F90.o
+#9 2.166 [ 71%] Linking Fortran executable test_micm_fortran_api
+#9 2.208 [ 71%] Built target test_micm_fortran_api
+#9 2.213 Scanning dependencies of target test_get_micm_version
+#9 2.217 [ 85%] Building Fortran object CMakeFiles/test_get_micm_version.dir/test_get_micm_version.F90.o
+#9 2.235 [100%] Linking Fortran executable test_get_micm_version
+#9 2.277 [100%] Built target test_get_micm_version
+#9 DONE 2.3s
+
+#10 [6/6] WORKDIR musica/fortran/test/fetch_content_integration/build
+#10 DONE 0.0s
+
+#11 exporting to image
+#11 exporting layers
+#11 exporting layers 0.5s done
+#11 writing image sha256:1777d5fe7ece1eeed1c4aa9d699c65f18f01e814591f81b565dc93fa25da7b0b
+#11 writing image sha256:1777d5fe7ece1eeed1c4aa9d699c65f18f01e814591f81b565dc93fa25da7b0b done
+#11 naming to docker.io/library/musica done
+#11 DONE 0.5s

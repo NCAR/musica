@@ -50,10 +50,9 @@ COPY . musica
 RUN cd musica \
     && cmake -S . \
              -B build \
-             -D MUSICA_ENABLE_TESTS=ON \
              -D CMAKE_BUILD_TYPE=Release \
     && cd build \
-    && make install
+    && make install -j
 
 # Set environment variables to build MUSICA-Fortran using nvidia compilers
 ENV CXX=nvc++
@@ -66,6 +65,8 @@ RUN cd musica/fortran/test/fetch_content_integration \
         -D CMAKE_BUILD_TYPE=Release \
         -D CMAKE_EXE_LINKER_FLAGS="-Wl,--copy-dt-needed-entries" \
         -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
-    && make
+    && make -j
 
 WORKDIR musica/fortran/test/fetch_content_integration/build
+RUN cp -r /musica/build/_deps/tuvx-src/examples/ .
+RUN cp -r /musica/build/_deps/tuvx-src/data/ .

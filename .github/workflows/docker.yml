@@ -2,6 +2,8 @@ name: Docker
 
 on: 
   push:
+    branches:
+      - main
   pull_request:
   workflow_dispatch:
 
@@ -35,15 +37,15 @@ jobs:
         run: rm -rf /opt/hostedtoolcache
 
       - name: Build Docker image
-        run: docker build -t tuvx -f docker/${{ matrix.dockerfile }} .
+        run: docker build -t musica -f docker/${{ matrix.dockerfile }} .
 
       - name: Run tests in container
         if: matrix.dockerfile != 'Dockerfile.coverage'
-        run: docker run --name test-container -t tuvx bash -c 'make test ARGS="--rerun-failed --output-on-failure -j8"'
+        run: docker run --name test-container -t musica bash -c 'make test ARGS="--rerun-failed --output-on-failure -j8"'
 
       - name: Run coverage tests in container
         if: matrix.dockerfile == 'Dockerfile.coverage'
-        run: docker run --name test-container -t tuvx bash -c 'make coverage ARGS="--rerun-failed --output-on-failure -j8"'
+        run: docker run --name test-container -t musica bash -c 'make coverage ARGS="--rerun-failed --output-on-failure -j8"'
 
       - name: Copy coverage from container
         if: matrix.dockerfile == 'Dockerfile.coverage'

@@ -1,3 +1,6 @@
+! Copyright (C) 2023-2024 National Center for Atmospheric Research
+! SPDX-License-Identifier: Apache-2.0
+!
 module musica_micm
 #define ASSERT( expr ) call assert( expr, __FILE__, __LINE__ )
    use iso_c_binding, only: c_ptr, c_char, c_int, c_int64_t, c_bool, c_double, c_null_char, &
