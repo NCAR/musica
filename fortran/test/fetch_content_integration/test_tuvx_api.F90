@@ -36,6 +36,8 @@ contains
     tuvx => tuvx_t(config_path, error)
     ASSERT( error%is_success() )
 
+    deallocate( tuvx )
+
   end subroutine test_tuvx_api
 
   ! Invalid tuvx solver creation test
@@ -91,6 +93,7 @@ contains
     ! call tuvx%solve( grids, profiles, radiators, photo_rates )
 
     deallocate( tuvx )
+    deallocate( grid )
 
   end subroutine test_tuvx_solve
 

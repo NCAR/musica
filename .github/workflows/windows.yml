@@ -40,34 +40,6 @@ jobs:
           cd build
           ctest -C Debug --rerun-failed --output-on-failure . --verbose
 
-  msvc2019:
-    runs-on: windows-2019
-    continue-on-error: true 
-    strategy:
-      matrix:
-        build_type: [Release]
-        architecture: [Win32, x64]
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      if: ${{ matrix.architecture == 'Win32' }}
-      with:
-        python-version: '3.x'
-        architecture: x86
-    - run: pip install -r python/requirements.txt
-
-    - name: Run CMake
-      run: cmake -S . -B build -G "Visual Studio 16 2019" -A ${{ matrix.architecture }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
-
-    - name: Build
-      run: cmake --build build --config ${{ matrix.build_type }} --parallel
-
-    - name: Test
-      run: cd build ; ctest -j 10 -C ${{ matrix.build_type }} --output-on-failure
-
   msvc2022:
     runs-on: windows-2022
     continue-on-error: true 
