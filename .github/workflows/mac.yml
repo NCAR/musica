@@ -42,7 +42,6 @@ jobs:
           xcrun --sdk macosx14.0 --show-sdk-path
 
       - name: Run Cmake 
-        if: matrix.compiler.cpp != 'g++-13'
         run: |
             PYTHON_PATH=$(which python)
             # for some reason gcc 13 was having issues finding the correct osx sdk
