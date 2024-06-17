@@ -1,10 +1,8 @@
-/* Copyright (C) 2023-2024 National Center for Atmospheric Research
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * This file contains the defintion of the MICM class, which represents a multi-component reactive transport model.
- * It also includes functions for creating and deleting MICM instances with c bindings.
- */
+// Copyright (C) 2023-2024 National Center for Atmospheric Research
+// SPDX-License-Identifier: Apache-2.0
+//
+// This file contains the defintion of the MICM class, which represents a multi-component reactive transport model.
+// It also includes functions for creating and deleting MICM instances with c bindings.
 #pragma once
 
 #include <musica/util.hpp>
