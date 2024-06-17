@@ -23,7 +23,7 @@ jobs:
           - { cpp: g++-13, c: gcc-13, fc: gfortran-13}
           - { cpp: clang++, c: clang}
         build_type: [Release]
-        macos_sdk: [macosx13.3, macosx14.0, macosx14.2, macosx14.4, macosx14.5, macosx15.0]
+        macos_sdk: [macosx15.0]
     env:
       CC: ${{ matrix.compiler.c }}
       CXX: ${{ matrix.compiler.cpp }}
@@ -37,6 +37,9 @@ jobs:
 
       - uses: actions/setup-python@v5
       - run: pip install -r python/requirements.txt --user
+
+      - name: List available SDKs
+        run: xcrun --show-sdk-path --sdk macosx
 
       - name: Run Cmake 
         run: |
