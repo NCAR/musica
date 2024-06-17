@@ -1,0 +1,40 @@
+# MUSICA Configuration Summary
+
+## General
+----------
+MUSICA Version:     @musica-distribution_VERSION@
+Configured On:	    @BUILD_CONFIG_DATE@
+Host System:	    @CMAKE_SYSTEM_PROCESSOR@-@CMAKE_SYSTEM_NAME@-@CMAKE_SYSTEM_VERSION@
+Build Directory:    @CMAKE_BINARY_DIR@
+Install Prefix:     @CMAKE_INSTALL_PREFIX@
+
+## Compilers and Flags
+----------------------
+
+C Compiler:         @C_COMPILER_NAME@
+C++ Compiler:       @CXX_COMPILER_NAME@
+Fortran Compiler:   @Fortran_COMPILER_NAME@
+
+CFLAGS:		@CMAKE_C_FLAGS@
+CXXFLAGS:	@CMAKE_CXX_FLAGS@
+Fortran Flags: @CMAKE_Fortran_FLAGS@
+LDFLAGS:	@CMAKE_EXE_LINKER_FLAGS@
+
+## Parallel I/O
+---------------
+
+MPI:    @MUSICA_ENABLE_MPI@
+OPENMP: @MUSICA_ENABLE_OPENMP@
+
+## Interfaces:
+--------------
+
+CXX Interface:      @MUSICA_BUILD_C_CXX_INTERFACE@
+Fortran Interface:  @MUSICA_BUILD_FORTRAN_INTERFACE@
+Python Library:     @MUSICA_ENABLE_PYTHON_LIBRARY@
+
+## Dependencies:
+----------------
+
+MICM:               @MUSICA_ENABLE_MICM_INFO@
+TUV-X:              @MUSICA_ENABLE_TUVX_INFO@
