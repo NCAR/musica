@@ -39,7 +39,9 @@ jobs:
       - run: pip install -r python/requirements.txt --user
 
       - name: List available SDKs
-        run: xcrun --show-sdk-path --sdk macosx
+        run: |
+          xcrun --show-sdk-path --sdk macosx
+          xcodebuild -showsdks
 
       - name: Run Cmake 
         run: |
@@ -59,6 +61,7 @@ jobs:
         run: |
           cd build
           ctest -C ${{ matrix.build_type }} --rerun-failed --output-on-failure . --verbose -j 10
+
   fortran:
     runs-on: macos-latest
     strategy:
@@ -75,7 +78,7 @@ jobs:
         run: brew install netcdf netcdf-fortran
 
       - name: Run Cmake 
-        run: cmake -S . -B build -D CMAKE_CXX_FLAGS=-Wl,-ld_classic -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_BUILD_FORTRAN_INTERFACE=ON
+        run: cmake -S . -B build -D CMAKE_CXX_FLAGS=-Wl,-ld_classic -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_BUILD_FORTRAN_INTERFACE=ON
 
       - name: Build
         run: cmake --build build --verbose --parallel 10
