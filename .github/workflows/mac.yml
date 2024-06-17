@@ -40,12 +40,7 @@ jobs:
 
       - name: List available SDKs
         run: |
-          xcrun --sdk macosx13.3 --show-sdk-path
           xcrun --sdk macosx14.0 --show-sdk-path
-          xcrun --sdk macosx14.2 --show-sdk-path
-          xcrun --sdk macosx14.4 --show-sdk-path
-          xcrun --sdk macosx14.5 --show-sdk-path
-          xcrun --sdk macosx15.0 --show-sdk-path
 
       - name: Run Cmake 
         if: matrix.compiler.cpp != 'g++-13'
