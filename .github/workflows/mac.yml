@@ -44,7 +44,7 @@ jobs:
           xcodebuild -showsdks
 
       - name: Run Cmake 
-      if: matrix.compiler.cpp != 'g++-13'
+        if: matrix.compiler.cpp != 'g++-13'
         run: |
           PYTHON_PATH=$(which python)
           cmake -S . -B build \
@@ -54,16 +54,16 @@ jobs:
               -D Python3_EXECUTABLE=$PYTHON_PATH 
 
       - name: Run cmake for gcc 13
-      if: matrix.compiler.cpp == 'g++-13'
-      run: |
-          PYTHON_PATH=$(which python)
-          export SDKROOT=$(xcrun --sdk ${{ matrix.macos_sdk }} --show-sdk-path)
-          cmake -S . -B build \
-              -D CMAKE_CXX_FLAGS=-Wl,-ld_classic \
-              -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-              -D MUSICA_ENABLE_PYTHON_LIBRARY=ON \
-              -D Python3_EXECUTABLE=$PYTHON_PATH \
-              -D CMAKE_OSX_SYSROOT=$SDKROOT
+        if: matrix.compiler.cpp == 'g++-13'
+        run: |
+            PYTHON_PATH=$(which python)
+            export SDKROOT=$(xcrun --sdk ${{ matrix.macos_sdk }} --show-sdk-path)
+            cmake -S . -B build \
+                -D CMAKE_CXX_FLAGS=-Wl,-ld_classic \
+                -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+                -D MUSICA_ENABLE_PYTHON_LIBRARY=ON \
+                -D Python3_EXECUTABLE=$PYTHON_PATH \
+                -D CMAKE_OSX_SYSROOT=$SDKROOT
 
       - name: Build
         run: cmake --build build --verbose
