@@ -51,8 +51,8 @@ jobs:
               -D CMAKE_CXX_FLAGS=-Wl,-ld_classic \
               -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} \
               -D MUSICA_ENABLE_PYTHON_LIBRARY=ON \
-              -D Python3_EXECUTABLE=$PYTHON_PATH \
-              -D CMAKE_OSX_SYSROOT=$SDKROOT
+              -D Python3_EXECUTABLE=$PYTHON_PATH 
+              # -D CMAKE_OSX_SYSROOT=$SDKROOT
 
       - name: Build
         run: cmake --build build --verbose
