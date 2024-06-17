@@ -37,10 +37,6 @@ jobs:
       - uses: actions/setup-python@v5
       - run: pip install -r python/requirements.txt --user
 
-      - name: List available SDKs
-        run: |
-          xcrun --sdk macosx14.0 --show-sdk-path
-
       - name: Run Cmake 
         if: matrix.compiler.cpp != 'g++-13'
         run: |
@@ -56,10 +52,8 @@ jobs:
         run: |
             PYTHON_PATH=$(which python)
             # for some reason gcc 13 was having issues finding the correct osx sdk
-            # the default compiler was xcode 15.01 which is compatible with macosx14.0
-            # finding that explicitly here fixes the issue but will likely break in future versions
-            # all versions can be found here: https://github.com/actions/runner-images/tree/main/images/macos
-            export SDKROOT=$(xcrun --sdk macosx14.0 --show-sdk-path)
+            # it seems it was a known issue: https://github.com/actions/runner-images/issues/9997
+            # for some reason, passing in an empty string for the osx sysroot fixed the issue
             cmake -S . -B build \
                 -D CMAKE_CXX_FLAGS=-Wl,-ld_classic \
                 -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} \
