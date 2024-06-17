@@ -7,7 +7,7 @@
 {
    <AssertFailureLeaksTuvx>
    Memcheck:Leak
-   match-leak-kinds: definite
+   match-leak-kinds: possible
    fun:malloc
    ...
    fun:InternalCreateTuvx
@@ -16,16 +16,8 @@
 {
   <AssertFailureLeaksString>
   Memcheck:Leak
-  match-leak-kinds: definite
+  match-leak-kinds: possible
   ...
   fun:CreateTuvx
-  ...
-}
-{
-  <AssertFailureLeaksTuvxConstructor>
-  Memcheck:Leak
-  match-leak-kinds: definite
-  fun:malloc
-  fun:*musica_tuvx*
   ...
 }
