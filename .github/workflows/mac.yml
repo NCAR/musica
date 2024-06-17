@@ -23,12 +23,11 @@ jobs:
           - { cpp: g++-13, c: gcc-13, fc: gfortran-13}
           - { cpp: clang++, c: clang}
         build_type: [Release]
-        macos_sdks: [macosx13.3, macosx14.0, macosx14.2, macosx14.4, macosx14.5, macosx15.0]
+        macos_sdk: [macosx13.3, macosx14.0, macosx14.2, macosx14.4, macosx14.5, macosx15.0]
     env:
       CC: ${{ matrix.compiler.c }}
       CXX: ${{ matrix.compiler.cpp }}
       FC: ${{ matrix.compiler.fc }}
-      MACOS_SDK: ${{ matrix.macos_sdk }}
 
     steps:
       - uses: actions/checkout@v4
@@ -42,7 +41,7 @@ jobs:
       - name: Run Cmake 
         run: |
           PYTHON_PATH=$(which python)
-          export SDKROOT=$(xcrun --sdk ${{ matrix.sdk }} --show-sdk-path)
+          export SDKROOT=$(xcrun --sdk ${{ matrix.macos_sdk }} --show-sdk-path)
           cmake -S . -B build \
               -D CMAKE_CXX_FLAGS=-Wl,-ld_classic \
               -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} \
