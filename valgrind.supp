@@ -10,7 +10,7 @@
    match-leak-kinds: definite
    fun:malloc
    ...
-   fun:internal_create_tuvx
+   fun:InternalCreateTuvx
    ...
 }
 {
@@ -18,7 +18,7 @@
   Memcheck:Leak
   match-leak-kinds: definite
   ...
-  fun:create_tuvx
+  fun:CreateTuvx
   ...
 }
 {
