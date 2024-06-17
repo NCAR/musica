@@ -130,7 +130,6 @@ module tuvx_interface
       grid => grid_warehouse%get_grid(f_grid_name, f_grid_units)
     
       grid_ptr = c_loc(grid)
-      print *, "grid_ptr: ", grid_ptr
     
     end function interal_get_grid
 
@@ -146,7 +145,6 @@ module tuvx_interface
       ! variables
       type(grid_t), pointer :: f_grid
     
-      print *, grid
       call c_f_pointer(grid, f_grid)
       if (associated(f_grid)) then
         deallocate(f_grid)
