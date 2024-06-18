@@ -99,7 +99,7 @@ namespace musica
    public:
     TUVX();
 
-    /// @brief Create an instance ove tuvx from a configuration file
+    /// @brief Create an instance of tuvx from a configuration file
     /// @param config_path Path to configuration file or directory containing configuration file
     /// @param error Error struct to indicate success or failure
     /// @return 0 on success, 1 on failure in parsing configuration file

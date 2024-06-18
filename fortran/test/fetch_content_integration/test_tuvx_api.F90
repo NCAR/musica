@@ -44,12 +44,12 @@ contains
   subroutine test_tuvx_api_invalid_config()
     type(tuvx_t), pointer :: tuvx
     type(error_t)         :: error
-    character(len=256)     :: config_path
+    character(len=256)    :: config_path
 
     config_path = "invalid_config"
 
     tuvx => tuvx_t(config_path, error)
-    ! ASSERT( .not. error%is_success() )
+    ASSERT( .not. error%is_success() )
 
   end subroutine test_tuvx_api_invalid_config
 
@@ -75,12 +75,8 @@ contains
     grids = tuvx%get_grids( error )
     ASSERT( error%is_success() )
 
-    ! profiles = tuvx%create_profiles( )
-    ! radiators = tuvx%create_radiators( )
-
-    ! update conditions for each time step
     grid => grids%get( "height", "km", error )
-    ! ASSERT( error%is_success() )
+    ASSERT( error%is_success() )
 
     call grid%set_edges( edges, error )
     ASSERT( error%is_success() )
@@ -88,10 +84,6 @@ contains
     call grid%set_midpoints( midpoints, error )
     ASSERT( error%is_success() )
     
-    ! profile => profiles%get( "O3", "mol m-3" )
-
-    ! call tuvx%solve( grids, profiles, radiators, photo_rates )
-
     deallocate( tuvx )
     deallocate( grid )
 
