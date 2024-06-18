@@ -30,10 +30,13 @@ RUN apt update \
     && apt clean 
 
 # Set environment variables to install MUSICA using gcc
-ENV CXX=g++
-ENV CC=gcc
-ENV FC=gfortran
-ENV FFLAGS="-I/usr/include/"
+ENV CXX=nvc++
+ENV CC=nvc
+ENV FC=nvfortran
+# ENV CXX=g++
+# ENV CC=gcc
+# ENV FC=gfortran
+# ENV FFLAGS="-I/usr/include/"
 
 # Build netcdf-fortran
 RUN git clone https://github.com/Unidata/netcdf-fortran.git \
@@ -56,9 +59,9 @@ RUN cd musica \
     && make install -j
 
 # Set environment variables to build MUSICA-Fortran using nvidia compilers
-ENV CXX=nvc++
-ENV CC=nvc
-ENV FC=nvfortran
+# ENV CXX=nvc++
+# ENV CC=nvc
+# ENV FC=nvfortran
 
 RUN cd musica/fortran/test/fetch_content_integration \
     && mkdir build && cd build \
