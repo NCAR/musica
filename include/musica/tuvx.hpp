@@ -102,7 +102,6 @@ namespace musica
     /// @brief Create an instance of tuvx from a configuration file
     /// @param config_path Path to configuration file or directory containing configuration file
     /// @param error Error struct to indicate success or failure
-    /// @return 0 on success, 1 on failure in parsing configuration file
     void Create(const char* config_path, Error *error);
 
     /// @brief Create a grid map. For now, this calls the interal tuvx fortran api, but will allow the change to c++ later on
