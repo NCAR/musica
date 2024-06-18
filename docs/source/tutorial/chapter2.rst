@@ -30,7 +30,10 @@ The mechanism configuration might then be set up as:
   .. literalinclude:: ../../../configs/analytical/reactions.json
     :language: json
 
-The Fortran example code is shown in full: 
+More information on MICM configurations and reactions can be found in the MICM documentation
+at `https://ncar.github.io/micm/user_guide/`_
+
+The Fortran example code is shown below in full: 
 
   .. literalinclude:: ../../../fortran/test/fetch_content_integration/test_micm_box_model.F90
     :language: f90
@@ -48,3 +51,15 @@ which is an argument to the MICM solver.
 
 Finally, a single time step solution is obtained through a call to ``micm%solve``,
 after which the updated concentrations may be displayed.
+
+.. code-block:: bash
+
+  $ ./test_micm_box_model
+    Creating MICM solver...
+    Species Name:A, Index:           1
+    Species Name:B, Index:           2
+    Species Name:C, Index:           3
+    Solving starts...
+    After solving, concentrations  0.38  1.61E-009  2.62
+  $
+
