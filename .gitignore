@@ -8,3 +8,4 @@ CMakeFiles
 dist/
 musica.cpython-* 
 musica.egg-info
+**/*.mod

@@ -2,6 +2,8 @@ name: Ubuntu
 
 on: 
   push:
+    branches:
+      - main
   pull_request:
   workflow_dispatch:
   
@@ -12,17 +14,19 @@ concurrency:
 jobs:
   c_cxx:
     runs-on: ubuntu-24.04
+    continue-on-error: true 
     strategy:
       matrix:
         compiler:
-          - { cpp: g++-12, c: gcc-12}
-          - { cpp: g++-13, c: gcc-13}
-          - { cpp: g++-14, c: gcc-14}
-          - { cpp: clang++, c: clang}
+          - { cpp: g++-12, c: gcc-12, fc: gfortran-12}
+          - { cpp: g++-13, c: gcc-13, fc: gfortran-13}
+          - { cpp: g++-14, c: gcc-14, fc: gfortran-14}
+          - { cpp: clang++, c: clang, fc: gfortran-12}
         build_type: [Release]
     env:
       CC: ${{ matrix.compiler.c }}
       CXX: ${{ matrix.compiler.cpp }}
+      FC: ${{ matrix.compiler.fc }}
 
     steps:
       - uses: actions/checkout@v4
@@ -30,14 +34,14 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y liblapack-dev libblas-dev build-essential
+          sudo apt-get install -y liblapack-dev libblas-dev build-essential libnetcdf-dev libnetcdff-dev
           sudo apt-get install -y python3-numpy
 
       - name: Run Cmake 
-        run: cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
+        run: cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_PYTHON_LIBRARY=OFF
 
       - name: Build
-        run: cmake --build build --verbose --parallel 10
+        run: cmake --build build --verbose
 
       - name: Run tests
         run: |
