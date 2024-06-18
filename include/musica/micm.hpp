@@ -8,11 +8,11 @@
 #include <musica/util.hpp>
 
 #include <micm/configure/solver_config.hpp>
+#include <micm/process/process_set.hpp>
 #include <micm/solver/rosenbrock.hpp>
 #include <micm/solver/rosenbrock_solver_parameters.hpp>
 #include <micm/solver/solver.hpp>
 #include <micm/util/matrix.hpp>
-#include <micm/process/process_set.hpp>
 
 #include <memory>
 #include <string>
@@ -102,7 +102,8 @@ namespace musica
    private:
     using DenseMatrixPolicy = micm::Matrix<double>;
     using SparseMatrixPolicy = micm::SparseMatrix<double, micm::SparseMatrixStandardOrdering>;
-    using SolverPolicy = typename micm::RosenbrockSolverParameters::template SolverType<micm::ProcessSet, micm::LinearSolver<SparseMatrixPolicy, micm::LuDecomposition>>;
+    using SolverPolicy = typename micm::RosenbrockSolverParameters::
+        template SolverType<micm::ProcessSet, micm::LinearSolver<SparseMatrixPolicy, micm::LuDecomposition>>;
     using Rosenbrock = micm::Solver<SolverPolicy, micm::State<DenseMatrixPolicy, SparseMatrixPolicy>>;
 
     std::unique_ptr<Rosenbrock> solver_;
