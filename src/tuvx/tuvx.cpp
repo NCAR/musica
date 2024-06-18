@@ -5,9 +5,9 @@
 // reactive transport model. It also includes functions for creating and deleting TUVX instances.
 #include <musica/tuvx.hpp>
 
+#include <cstring>
 #include <filesystem>
 #include <iostream>
-#include <cstring>
 
 namespace musica
 {
@@ -108,7 +108,7 @@ namespace musica
     tuvx_ = nullptr;
   }
 
-  void TUVX::Create(const char* config_path, Error *error)
+  void TUVX::Create(const char *config_path, Error *error)
   {
     int parsing_status = 0;  // 0 on success, 1 on failure
     try
@@ -171,9 +171,10 @@ namespace musica
     }
 
     int error_code = 0;
-    Grid* grid = nullptr;
+    Grid *grid = nullptr;
 
-    try {
+    try
+    {
       *error = NoError();
 
       grid = new Grid(InternalGetGrid(grid_map_, grid_name, strlen(grid_name), grid_units, strlen(grid_units), &error_code));
@@ -184,7 +185,8 @@ namespace musica
         grid = nullptr;
         *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create grid map") };
       }
-      else {
+      else
+      {
         grids_.push_back(std::unique_ptr<Grid>(grid));
       }
     }
