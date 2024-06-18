@@ -11,9 +11,9 @@ Install Prefix:     @CMAKE_INSTALL_PREFIX@
 ## Compilers and Flags
 ----------------------
 
-C Compiler:         @C_COMPILER_NAME@
-C++ Compiler:       @CXX_COMPILER_NAME@
-Fortran Compiler:   @Fortran_COMPILER_NAME@
+C Compiler:         @C_COMPILER_NAME_INFO@
+C++ Compiler:       @CXX_COMPILER_NAME_INFO@
+Fortran Compiler:   @Fortran_COMPILER_NAME_INFO@
 
 CFLAGS:		@CMAKE_C_FLAGS@
 CXXFLAGS:	@CMAKE_CXX_FLAGS@
@@ -38,3 +38,4 @@ Python Library:     @MUSICA_ENABLE_PYTHON_LIBRARY@
 
 MICM:               @MUSICA_ENABLE_MICM_INFO@
 TUV-X:              @MUSICA_ENABLE_TUVX_INFO@
+PyBind11:           @MUSICA_ENABLE_PYTHON_LIBRARY_INFO@
