@@ -17,6 +17,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <cstddef>
 
 namespace musica
 {
@@ -44,8 +45,7 @@ namespace musica
       int64_t decompositions_;
       /// @brief The number of linear solves
       int64_t solves_;
-      /// @brief The number of times a singular matrix is detected. For now, this will always be zero as we assume the matrix
-      /// is never singular
+      /// @brief The number of times a singular matrix is detected.
       int64_t singular_;
       /// @brief The final time the solver iterated to
       double final_time_;

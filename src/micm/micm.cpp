@@ -216,6 +216,7 @@ namespace musica
 
       solver_->CalculateRateConstants(state);
       auto result = solver_->Solve(time_step, state);
+
       *solver_stats = SolverStats(
           result.stats_.function_calls_,
           result.stats_.jacobian_updates_,

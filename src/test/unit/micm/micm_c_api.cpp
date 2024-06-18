@@ -19,6 +19,7 @@ class MicmCApiTest : public ::testing::Test
     micm = nullptr;
     Error error;
     micm = CreateMicm(config_path, &error);
+
     ASSERT_TRUE(IsSuccess(error));
     DeleteError(&error);
   }
