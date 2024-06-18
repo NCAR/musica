@@ -14,6 +14,7 @@
 #include <cmath>
 #include <filesystem>
 #include <iostream>
+#include <cstddef>
 
 namespace musica
 {
@@ -74,7 +75,7 @@ namespace musica
         error);
   }
 
-  Mapping *GetSpeciesOrdering(MICM *micm, size_t *array_size, Error *error)
+  Mapping *GetSpeciesOrdering(MICM *micm, std::size_t *array_size, Error *error)
   {
     DeleteError(error);
     auto map = micm->GetSpeciesOrdering(error);
@@ -85,7 +86,7 @@ namespace musica
     Mapping *species_ordering = new Mapping[map.size()];
 
     // Copy data from the map to the array of structs
-    size_t i = 0;
+    std::size_t i = 0;
     for (const auto &entry : map)
     {
       species_ordering[i] = ToMapping(entry.first.c_str(), entry.second);
@@ -97,7 +98,7 @@ namespace musica
     return species_ordering;
   }
 
-  Mapping *GetUserDefinedReactionRatesOrdering(MICM *micm, size_t *array_size, Error *error)
+  Mapping *GetUserDefinedReactionRatesOrdering(MICM *micm, std::size_t *array_size, Error *error)
   {
     DeleteError(error);
     auto map = micm->GetUserDefinedReactionRatesOrdering(error);
@@ -108,7 +109,7 @@ namespace musica
     Mapping *reactionRates = new Mapping[map.size()];
 
     // Copy data from the map to the array of structs
-    size_t i = 0;
+    std::size_t i = 0;
     for (const auto &entry : map)
     {
       reactionRates[i] = ToMapping(entry.first.c_str(), entry.second);
@@ -203,7 +204,7 @@ namespace musica
     {
       micm::State state = solver_->GetState();
 
-      for (size_t i{}; i < NUM_GRID_CELLS; i++)
+      for (std::size_t i{}; i < NUM_GRID_CELLS; i++)
       {
         state.conditions_[i].temperature_ = temperature;
         state.conditions_[i].pressure_ = pressure;
@@ -243,7 +244,7 @@ namespace musica
     }
   }
 
-  std::map<std::string, size_t> MICM::GetSpeciesOrdering(Error *error)
+  std::map<std::string, std::size_t> MICM::GetSpeciesOrdering(Error *error)
   {
     try
     {
@@ -256,11 +257,11 @@ namespace musica
     {
       DeleteError(error);
       *error = ToError(e);
-      return std::map<std::string, size_t>();
+      return std::map<std::string, std::size_t>();
     }
   }
 
-  std::map<std::string, size_t> MICM::GetUserDefinedReactionRatesOrdering(Error *error)
+  std::map<std::string, std::size_t> MICM::GetUserDefinedReactionRatesOrdering(Error *error)
   {
     try
     {
@@ -273,7 +274,7 @@ namespace musica
     {
       DeleteError(error);
       *error = ToError(e);
-      return std::map<std::string, size_t>();
+      return std::map<std::string, std::size_t>();
     }
   }
 

@@ -4,6 +4,7 @@
 #include <micm/util/error.hpp>
 
 #include <gtest/gtest.h>
+#include <iostream>
 
 using namespace musica;
 
@@ -218,7 +219,6 @@ TEST_F(MicmCApiTest, SolveMicmInstance)
   ASSERT_NE(concentrations[3], 0.01);
   ASSERT_NE(concentrations[4], 0.02);
 
-#include <iostream>
   std::cout << "function_calls: " << solver_stats.function_calls_ << std::endl;
   std::cout << "jacobian_updates:" << solver_stats.jacobian_updates_ << std::endl;
   std::cout << "number_of_steps: " << solver_stats.number_of_steps_ << std::endl;
