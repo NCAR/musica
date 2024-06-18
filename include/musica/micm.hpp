@@ -32,25 +32,25 @@ namespace musica
     struct SolverStats
     {
       /// @brief The number of forcing function calls
-      int64_t function_calls_;
+      int64_t function_calls_{};
       /// @brief The number of jacobian function calls
-      int64_t jacobian_updates_;
+      int64_t jacobian_updates_{};
       /// @brief The total number of internal time steps taken
-      int64_t number_of_steps_;
+      int64_t number_of_steps_{};
       /// @brief The number of accepted integrations
-      int64_t accepted_;
+      int64_t accepted_{};
       /// @brief The number of rejected integrations
-      int64_t rejected_;
+      int64_t rejected_{};
       /// @brief The number of LU decompositions
-      int64_t decompositions_;
+      int64_t decompositions_{};
       /// @brief The number of linear solves
-      int64_t solves_;
+      int64_t solves_{};
       /// @brief The number of times a singular matrix is detected.
-      int64_t singular_;
+      int64_t singular_{};
       /// @brief The final time the solver iterated to
-      double final_time_;
+      double final_time_{};
       /// @brief The final state the solver was in
-      String state_;
+      String state_{};
     };
 
     MICM *CreateMicm(const char *config_path, Error *error);
