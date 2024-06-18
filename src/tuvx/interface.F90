@@ -7,7 +7,7 @@ module tuvx_interface
   use tuvx_core,           only : core_t
   use tuvx_grid_warehouse, only : grid_warehouse_t
   use tuvx_grid,           only : grid_t
-  use musica_tuvx_util,    only : to_f_string, string_t_c, delete_string_c
+  use musica_tuvx_util,    only : to_f_string, string_t_c
   use musica_string,       only : string_t
   use tuvx_grid_warehouse, only : grid_warehouse_t
 
