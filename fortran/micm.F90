@@ -9,7 +9,7 @@ module musica_micm
    use musica_util, only: assert, mapping_t, string_t, string_t_c
    implicit none
 
-   public :: get_micm_version, micm_t
+   public :: micm_t, solver_stats_t, get_micm_version
    private
 
    !> Wrapper for c solver stats
