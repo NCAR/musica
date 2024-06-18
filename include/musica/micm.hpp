@@ -52,6 +52,8 @@ namespace musica
       /// @brief The final state the solver was in
       String state_{};
 
+      SolverStats() = default;
+
       SolverStats(
           int64_t func_calls,
           int64_t jacobian,
