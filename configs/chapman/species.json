@@ -3,7 +3,7 @@
         {
             "name": "M",
             "type": "CHEM_SPEC",
-            "tracer type": "THIRD_BODY"
+            "tracer type": "CONSTANT"
         },
         {
             "name": "O2",
