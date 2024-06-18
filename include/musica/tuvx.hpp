@@ -1,10 +1,8 @@
-/* Copyright (C) 2023-2024 National Center for Atmospheric Research
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * This file contains the defintion of the TUVX class, which represents a photolysis calculator.
- * It also includes functions for creating and deleting TUVX instances with c binding.
- */
+// Copyright (C) 2023-2024 National Center for Atmospheric Research
+// SPDX-License-Identifier: Apache-2.0
+//
+// This file contains the defintion of the TUVX class, which represents a photolysis calculator.
+// It also includes functions for creating and deleting TUVX instances with c binding.
 #pragma once
 
 #include <musica/util.hpp>
@@ -82,10 +80,16 @@ namespace musica
     // for use by musica interanlly. If tuvx ever gets rewritten in C++, these functions will
     // go away but the C API will remain the same and downstream projects (like CAM-SIMA) will
     // not need to change
-    void *InternalCreateTuvx(const char* config_path, std::size_t config_path_length, int *error_code);
+    void *InternalCreateTuvx(const char *config_path, std::size_t config_path_length, int *error_code);
     void InternalDeleteTuvx(void *tuvx, int *error_code);
     void *InternalGetGridMap(void *tuvx, int *error_code);
-    void *InternalGetGrid(void *grid_map, const char* grid_name, std::size_t grid_name_length, const char* grid_units, std::size_t grid_units_length, int *error_code);
+    void *InternalGetGrid(
+        void *grid_map,
+        const char *grid_name,
+        std::size_t grid_name_length,
+        const char *grid_units,
+        std::size_t grid_units_length,
+        int *error_code);
     void InternalDeleteGrid(void *grid, int *error_code);
     void InternalSetEdges(void *grid, double edges[], std::size_t num_edges, int *error_code);
     void InternalSetMidpoints(void *grid, double midpoints[], std::size_t num_midpoints, int *error_code);
@@ -99,11 +103,10 @@ namespace musica
    public:
     TUVX();
 
-    /// @brief Create an instance ove tuvx from a configuration file
+    /// @brief Create an instance of tuvx from a configuration file
     /// @param config_path Path to configuration file or directory containing configuration file
     /// @param error Error struct to indicate success or failure
-    /// @return 0 on success, 1 on failure in parsing configuration file
-    void Create(const char* config_path, Error *error);
+    void Create(const char *config_path, Error *error);
 
     /// @brief Create a grid map. For now, this calls the interal tuvx fortran api, but will allow the change to c++ later on
     /// to be transparent to downstream projects

@@ -38,9 +38,28 @@ jobs:
       - run: pip install -r python/requirements.txt --user
 
       - name: Run Cmake 
+        if: matrix.compiler.cpp != 'g++-13'
         run: |
-          PYTHON_PATH=$(which python)
-          cmake -S . -B build -D CMAKE_CXX_FLAGS=-Wl,-ld_classic -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_PYTHON_LIBRARY=ON -D Python3_EXECUTABLE=$PYTHON_PATH
+            PYTHON_PATH=$(which python)
+            cmake -S . -B build \
+                -D CMAKE_CXX_FLAGS=-Wl,-ld_classic \
+                -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+                -D MUSICA_ENABLE_PYTHON_LIBRARY=ON \
+                -D Python3_EXECUTABLE=$PYTHON_PATH 
+
+      - name: Run Cmake 
+        if: matrix.compiler.cpp == 'g++-13'
+        run: |
+            PYTHON_PATH=$(which python)
+            # for some reason gcc 13 was having issues finding the correct osx sdk
+            # it seems it was a known issue: https://github.com/actions/runner-images/issues/9997
+            # for some reason, passing in an empty string for the osx sysroot fixed the issue
+            cmake -S . -B build \
+                -D CMAKE_CXX_FLAGS=-Wl,-ld_classic \
+                -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+                -D MUSICA_ENABLE_PYTHON_LIBRARY=ON \
+                -D Python3_EXECUTABLE=$PYTHON_PATH \
+                -D CMAKE_OSX_SYSROOT=""
 
       - name: Build
         run: cmake --build build --verbose
@@ -49,6 +68,7 @@ jobs:
         run: |
           cd build
           ctest -C ${{ matrix.build_type }} --rerun-failed --output-on-failure . --verbose -j 10
+
   fortran:
     runs-on: macos-latest
     strategy:
@@ -65,7 +85,7 @@ jobs:
         run: brew install netcdf netcdf-fortran
 
       - name: Run Cmake 
-        run: cmake -S . -B build -D CMAKE_CXX_FLAGS=-Wl,-ld_classic -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_BUILD_FORTRAN_INTERFACE=ON
+        run: cmake -S . -B build -D CMAKE_CXX_FLAGS=-Wl,-ld_classic -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_BUILD_FORTRAN_INTERFACE=ON
 
       - name: Build
         run: cmake --build build --verbose --parallel 10

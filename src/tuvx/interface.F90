@@ -7,7 +7,7 @@ module tuvx_interface
   use tuvx_core,           only : core_t
   use tuvx_grid_warehouse, only : grid_warehouse_t
   use tuvx_grid,           only : grid_t
-  use musica_tuvx_util,    only : to_f_string, string_t_c, delete_string_c
+  use musica_tuvx_util,    only : to_f_string, string_t_c
   use musica_string,       only : string_t
   use tuvx_grid_warehouse, only : grid_warehouse_t
 
@@ -99,9 +99,9 @@ module tuvx_interface
     
       ! arguments
       type(c_ptr), intent(in), value                   :: grid_map
-      character(kind=c_char), dimension(*), intent(in) :: c_grid_name
+      character(len=1, kind=c_char), dimension(*), intent(in) :: c_grid_name
       integer(kind=c_size_t), value                    :: c_grid_name_length
-      character(kind=c_char), dimension(*), intent(in) :: c_grid_units
+      character(len=1, kind=c_char), dimension(*), intent(in) :: c_grid_units
       integer(kind=c_size_t), value                    :: c_grid_units_length
       integer(kind=c_int), intent(out)                 :: error_code
     

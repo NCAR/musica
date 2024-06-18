@@ -30,13 +30,13 @@ IncludeCategories:
   - Regex:           '<(musica)\/'
     Priority:        2
   # MICM, TUV-X headers
-  - Regex:           '<(micm|tuvx)[[:alnum:].\Q/-_\E]+>'
+  - Regex:           '<(micm|tuvx)[[:alnum:].(-|_)*]+>'
     Priority:        3
   # External libraries headers
-  - Regex:           '<([[:alnum:].\Q/-_\E]+)\/'
+  - Regex:           '<[[:alnum:].(-|_)*]+\/'
     Priority:        4
   # System headers
-  - Regex:           '<[[:alnum:].\Q/-_\E]+>'
+  - Regex:           '<[[:alnum:].(-|_)*]+>'
     Priority:        5
   # Main, local, private headers
   - Regex:           '".*'

@@ -1,17 +1,15 @@
-/* Copyright (C) 2023-2024 National Center for Atmospheric Research
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * This file contains the implementation of the MICM class, which represents a
- * multi-component reactive transport model. It also includes functions for
- * creating and deleting MICM instances, creating solvers, and solving the model.
- */
+// Copyright (C) 2023-2024 National Center for Atmospheric Research
+// SPDX-License-Identifier: Apache-2.0
+//
+// This file contains the implementation of the MICM class, which represents a
+// multi-component reactive transport model. It also includes functions for
+// creating and deleting MICM instances, creating solvers, and solving the model.
 #include <musica/micm.hpp>
 
-#include <micm/version.hpp>
 #include <micm/solver/rosenbrock_solver_parameters.hpp>
 #include <micm/solver/solver_builder.hpp>
 #include <micm/system/species.hpp>
+#include <micm/version.hpp>
 
 #include <cmath>
 #include <filesystem>
@@ -172,12 +170,13 @@ namespace musica
       solver_config.ReadAndParse(std::filesystem::path(config_path));
       solver_parameters_ = std::make_unique<micm::SolverParameters>(solver_config.GetSolverParams());
 
-      solver_ = std::make_unique<Rosenbrock>(micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())
-                        .SetSystem(solver_parameters_->system_)
-                        .SetReactions(solver_parameters_->processes_)
-                        .SetNumberOfGridCells(NUM_GRID_CELLS)
-                        .SetIgnoreUnusedSpecies(true)
-                        .Build());
+      solver_ = std::make_unique<Rosenbrock>(micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
+                                                 micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())
+                                                 .SetSystem(solver_parameters_->system_)
+                                                 .SetReactions(solver_parameters_->processes_)
+                                                 .SetNumberOfGridCells(NUM_GRID_CELLS)
+                                                 .SetIgnoreUnusedSpecies(true)
+                                                 .Build());
 
       DeleteError(error);
       *error = NoError();
