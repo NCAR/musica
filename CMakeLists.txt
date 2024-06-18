@@ -125,3 +125,9 @@ endif()
 if(MUSICA_ENABLE_PYTHON_LIBRARY)
   add_subdirectory(python)
 endif()
+
+###
+# Configure and display a summary file for how musica was built.
+###
+include(summary)
+
