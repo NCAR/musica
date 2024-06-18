@@ -62,7 +62,7 @@ jobs:
                 -D CMAKE_OSX_SYSROOT=""
 
       - name: Build
-        run: cmake --build build --verbose
+        run: cmake --build build --verbose --parallel 10
 
       - name: Run tests
         run: |
