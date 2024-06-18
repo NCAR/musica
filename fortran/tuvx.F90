@@ -18,7 +18,7 @@ module musica_tuvx
       function create_tuvx_c(config_path, error) bind(C, name="CreateTuvx")
          use musica_util, only: error_t_c
          import c_ptr, c_int, c_char
-         character(kind=c_char), intent(in) :: config_path(*)
+         character(len=1, kind=c_char), intent(in) :: config_path(*)
          type(error_t_c), intent(inout)     :: error
          type(c_ptr)                        :: create_tuvx_c
       end function create_tuvx_c

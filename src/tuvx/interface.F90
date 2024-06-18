@@ -99,9 +99,9 @@ module tuvx_interface
     
       ! arguments
       type(c_ptr), intent(in), value                   :: grid_map
-      character(kind=c_char), dimension(*), intent(in) :: c_grid_name
+      character(len=1, kind=c_char), dimension(*), intent(in) :: c_grid_name
       integer(kind=c_size_t), value                    :: c_grid_name_length
-      character(kind=c_char), dimension(*), intent(in) :: c_grid_units
+      character(len=1, kind=c_char), dimension(*), intent(in) :: c_grid_units
       integer(kind=c_size_t), value                    :: c_grid_units_length
       integer(kind=c_int), intent(out)                 :: error_code
     
