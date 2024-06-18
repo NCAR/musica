@@ -14,10 +14,10 @@
 #include <micm/solver/solver.hpp>
 #include <micm/util/matrix.hpp>
 
+#include <cstddef>
 #include <memory>
 #include <string>
 #include <vector>
-#include <cstddef>
 
 namespace musica
 {
@@ -51,6 +51,30 @@ namespace musica
       double final_time_{};
       /// @brief The final state the solver was in
       String state_{};
+
+      SolverStats(
+          int64_t func_calls,
+          int64_t jacobian,
+          int64_t num_steps,
+          int64_t accepted,
+          int64_t rejected,
+          int64_t decompositions,
+          int64_t solves,
+          int64_t singular,
+          double final_time,
+          String state)
+          : function_calls_(func_calls),
+            jacobian_updates_(jacobian),
+            number_of_steps_(num_steps),
+            accepted_(accepted),
+            rejected_(rejected_),
+            decompositions_(decompositions),
+            solves_(solves),
+            singular_(singular),
+            final_time_(final_time),
+            state_(state)
+      {
+      }
     };
 
     MICM *CreateMicm(const char *config_path, Error *error);
@@ -64,7 +88,7 @@ namespace musica
         double *concentrations,
         int num_custom_rate_parameters,
         double *custom_rate_parameters,
-        SolverStats* solver_stats,
+        SolverStats *solver_stats,
         Error *error);
     Mapping *GetSpeciesOrdering(MICM *micm, std::size_t *array_size, Error *error);
     Mapping *GetUserDefinedReactionRatesOrdering(MICM *micm, std::size_t *array_size, Error *error);
@@ -102,7 +126,7 @@ namespace musica
         double *concentrations,
         int num_custom_rate_parameters,
         double *custom_rate_parameters,
-        SolverStats* solver_stats,
+        SolverStats *solver_stats,
         Error *error);
 
     /// @brief Get the ordering of species
