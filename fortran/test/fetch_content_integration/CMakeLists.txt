@@ -15,9 +15,9 @@ message(STATUS "Using MUSICA_GIT_TAG: ${MUSICA_GIT_TAG}")
 
 
 FetchContent_Declare(musica_fortran
-  # SOURCE_DIR        ${CMAKE_CURRENT_SOURCE_DIR}/../../..
-  GIT_REPOSITORY https://github.com/NCAR/musica.git
-  GIT_TAG        ${MUSICA_GIT_TAG}
+  SOURCE_DIR        ${CMAKE_CURRENT_SOURCE_DIR}/../../..
+  # GIT_REPOSITORY https://github.com/NCAR/musica.git
+  # GIT_TAG        ${MUSICA_GIT_TAG}
 )
 
 set(MUSICA_BUILD_C_CXX_INTERFACE OFF)
