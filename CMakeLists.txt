@@ -94,6 +94,13 @@ endif()
 set(MEMCHECK_SUPPRESS "--suppressions=${PROJECT_SOURCE_DIR}/valgrind.supp")
 
 ################################################################################
+
+###
+# Configure and display a summary file for how musica was built.
+###
+include(summary)
+
+################################################################################
 # Dependencies
 
 include(dependencies)
@@ -125,9 +132,3 @@ endif()
 if(MUSICA_ENABLE_PYTHON_LIBRARY)
   add_subdirectory(python)
 endif()
-
-###
-# Configure and display a summary file for how musica was built.
-###
-include(summary)
-
