@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 #include <musica/util.hpp>
 
-#include <cstring>
 #include <cstddef>
+#include <cstring>
 
 namespace musica
 {

@@ -4,6 +4,7 @@
 #include <micm/util/error.hpp>
 
 #include <gtest/gtest.h>
+
 #include <iostream>
 
 using namespace musica;
