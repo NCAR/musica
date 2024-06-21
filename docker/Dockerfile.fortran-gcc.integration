@@ -49,9 +49,7 @@ RUN cd musica/fortran/test/fetch_content_integration \
         -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
         -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
         -D MUSICA_ENABLE_MICM=ON \
-        -D MUSICA_ENABLE_TUVX=OFF \
+        -D MUSICA_ENABLE_TUVX=ON \
     && make -j
 
 WORKDIR musica/fortran/test/fetch_content_integration/build
-RUN cp -r /musica/build/_deps/tuvx-src/examples/ .
-RUN cp -r /musica/build/_deps/tuvx-src/data/ .

@@ -24,7 +24,7 @@ set(MUSICA_BUILD_C_CXX_INTERFACE OFF)
 set(MUSICA_BUILD_FORTRAN_INTERFACE ON)
 set(MUSICA_ENABLE_TESTS OFF)
 set(MUSICA_ENABLE_INSTALL OFF)
-set(MUSICA_ENABLE_TUVX OFF)
+set(MUSICA_ENABLE_TUVX ON)
 
 FetchContent_MakeAvailable(musica_fortran)
 
@@ -91,4 +91,10 @@ if (MUSICA_ENABLE_TUVX)
     COMMAND $<TARGET_FILE:test_tuvx_fortran_api>
     WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
   )
+
+  add_custom_target(copy_tuvx_examples_dir ALL ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../build/_deps/tuvx-src/examples ${CMAKE_BINARY_DIR}/examples)
+
+  add_custom_target(copy_tuvx_data_dir ALL ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../build/_deps/tuvx-src/data ${CMAKE_BINARY_DIR}/data)
 endif()
