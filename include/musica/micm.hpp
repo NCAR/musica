@@ -101,13 +101,13 @@ namespace musica
         String *solver_state,
         SolverResultStats *solver_stats,
         Error *error);
+    String MicmVersion();
     Mapping *GetSpeciesOrdering(MICM *micm, std::size_t *array_size, Error *error);
     Mapping *GetUserDefinedReactionRatesOrdering(MICM *micm, std::size_t *array_size, Error *error);
     String GetSpeciesPropertyString(MICM *micm, const char *species_name, const char *property_name, Error *error);
     double GetSpeciesPropertyDouble(MICM *micm, const char *species_name, const char *property_name, Error *error);
     int GetSpeciesPropertyInt(MICM *micm, const char *species_name, const char *property_name, Error *error);
     bool GetSpeciesPropertyBool(MICM *micm, const char *species_name, const char *property_name, Error *error);
-    String MicmVersion();
 #ifdef __cplusplus
   }
 #endif

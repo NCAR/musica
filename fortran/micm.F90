@@ -23,15 +23,9 @@ module musica_micm
       integer(c_int64_t) :: solves_ = 0_c_int64_t
       integer(c_int64_t) :: singular_ = 0_c_int64_t
       real(c_double)     :: final_time_ = 0._c_double
-      type(string_t_c)   :: state_
    end type solver_stats_t_c
 
    interface
-      function get_micm_version_c() bind(C, name="MicmVersion")
-         use musica_util, only: string_t_c
-         type(string_t_c) :: get_micm_version_c
-      end function get_micm_version_c
-
       function create_micm_c(config_path, error) bind(C, name="CreateMicm")
          use musica_util, only: error_t_c
          import c_ptr, c_int, c_char
@@ -48,8 +42,9 @@ module musica_micm
       end subroutine delete_micm_c
 
       subroutine micm_solve_c(micm, time_step, temperature, pressure, num_concentrations, concentrations, &
-                  num_user_defined_reaction_rates, user_defined_reaction_rates, solver_stats, error) bind(C, name="MicmSolve")
-         use musica_util, only: error_t_c
+                  num_user_defined_reaction_rates, user_defined_reaction_rates, solver_state, solver_stats, error) &
+                  bind(C, name="MicmSolve")
+         use musica_util, only: string_t_c, error_t_c
          import c_ptr, c_double, c_int, solver_stats_t_c
          type(c_ptr), value, intent(in)         :: micm
          real(kind=c_double), value, intent(in) :: time_step
@@ -59,9 +54,15 @@ module musica_micm
          real(kind=c_double), intent(inout)     :: concentrations(num_concentrations)
          integer(kind=c_int), value, intent(in) :: num_user_defined_reaction_rates
          real(kind=c_double), intent(inout)     :: user_defined_reaction_rates(num_user_defined_reaction_rates)
+         type(string_t_c), intent(out)          :: solver_state
          type(solver_stats_t_c), intent(out)    :: solver_stats
          type(error_t_c), intent(inout)         :: error
       end subroutine micm_solve_c
+
+      function get_micm_version_c() bind(C, name="MicmVersion")
+         use musica_util, only: string_t_c
+         type(string_t_c) :: get_micm_version_c
+      end function get_micm_version_c
 
       function get_species_property_string_c(micm, species_name, property_name, error) bind(c, name="GetSpeciesPropertyString")
          use musica_util, only: error_t_c, string_t_c
@@ -154,7 +155,6 @@ module musica_micm
       integer(int64) :: solves_
       integer(int64) :: singular_
       real           :: final_time_
-      type(string_t) :: state_
    contains
       procedure :: function_calls => solver_stats_t_function_calls
       procedure :: jacobian_updates => solver_stats_t_jacobian_updates
@@ -165,7 +165,6 @@ module musica_micm
       procedure :: solves => solver_stats_t_solves
       procedure :: singular => solver_stats_t_singular
       procedure :: final_time => solver_stats_t_final_time
-      procedure :: state => solver_stats_t_state
    end type solver_stats_t
 
    interface solver_stats_t
@@ -233,8 +232,8 @@ contains
    end function constructor
 
    subroutine solve(this, time_step, temperature, pressure, num_concentrations, concentrations, &
-                     num_user_defined_reaction_rates, user_defined_reaction_rates, solver_stats, error)
-      use musica_util, only: error_t_c, error_t
+               num_user_defined_reaction_rates, user_defined_reaction_rates, solver_state, solver_stats, error)
+      use musica_util, only: string_t, string_t_c, error_t_c, error_t
       class(micm_t)                       :: this
       real(c_double),       intent(in)    :: time_step
       real(c_double),       intent(in)    :: temperature
@@ -243,13 +242,16 @@ contains
       real(c_double),       intent(inout) :: concentrations(*)
       integer(c_int),       intent(in)    :: num_user_defined_reaction_rates
       real(c_double),       intent(inout) :: user_defined_reaction_rates(*)
+      type(string_t),       intent(out)   :: solver_state
       type(solver_stats_t), intent(out)   :: solver_stats
       type(error_t),        intent(out)   :: error
 
+      type(string_t_c)                    :: solver_state_c
       type(solver_stats_t_c)              :: solver_stats_c
       type(error_t_c)                     :: error_c
       call micm_solve_c(this%ptr, time_step, temperature, pressure, num_concentrations, concentrations, &
-                        num_user_defined_reaction_rates, user_defined_reaction_rates, solver_stats_c, error_c)
+            num_user_defined_reaction_rates, user_defined_reaction_rates, solver_state_c, solver_stats_c, error_c)
+      solver_state = string_t(solver_state_c)
       solver_stats = solver_stats_t(solver_stats_c)
       error = error_t(error_c)
    end subroutine solve
@@ -270,7 +272,6 @@ contains
       new_solver_stats%solves_ = c_solver_stats%solves_
       new_solver_stats%singular_ = c_solver_stats%singular_
       new_solver_stats%final_time_ = real( c_solver_stats%final_time_ )
-      new_solver_stats%state_ = string_t( c_solver_stats%state_ )
 
    end function solver_stats_t_constructor
 
@@ -362,16 +363,6 @@ contains
       final_time = this%final_time_
 
    end function solver_stats_t_final_time
-
-   !> Get the final state the solver was in after the Solve function finishes
-   function solver_stats_t_state( this ) result( state )
-      use musica_util, only: string_t
-      class(solver_stats_t), intent(in) :: this
-      character(len=:), allocatable     :: state
-
-      state = this%state_
-
-   end function solver_stats_t_state
 
    function get_species_property_string(this, species_name, property_name, error) result(value)
       use musica_util, only: error_t_c, error_t, string_t, string_t_c, to_c_string
