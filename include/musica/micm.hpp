@@ -29,7 +29,7 @@ namespace musica
   {
 #endif
 
-    struct SolverStats
+    struct SolverResultStats
     {
       /// @brief The number of forcing function calls
       int64_t function_calls_{};
@@ -50,9 +50,8 @@ namespace musica
       /// @brief The final time the solver iterated to
       double final_time_{};
       /// @brief The final state the solver was in
-      String state_{};
 
-      SolverStats()
+      SolverResultStats()
       : function_calls_(0),
         jacobian_updates_(0),
         number_of_steps_(0),
@@ -61,12 +60,11 @@ namespace musica
         decompositions_(0),
         solves_(0),
         singular_(0),
-        final_time_(0.0),
-        state_(String())
+        final_time_(0.0)
       {
       }
 
-      SolverStats(
+      SolverResultStats(
           int64_t func_calls,
           int64_t jacobian,
           int64_t num_steps,
@@ -75,18 +73,16 @@ namespace musica
           int64_t decompositions,
           int64_t solves,
           int64_t singular,
-          double final_time,
-          String state)
+          double final_time)
           : function_calls_(func_calls),
             jacobian_updates_(jacobian),
             number_of_steps_(num_steps),
             accepted_(accepted),
-            rejected_(rejected_),
+            rejected_(rejected),
             decompositions_(decompositions),
             solves_(solves),
             singular_(singular),
-            final_time_(final_time),
-            state_(state)
+            final_time_(final_time)
       {
       }
     };
@@ -102,7 +98,8 @@ namespace musica
         double *concentrations,
         int num_custom_rate_parameters,
         double *custom_rate_parameters,
-        SolverStats *solver_stats,
+        String *solver_state,
+        SolverResultStats *solver_stats,
         Error *error);
     Mapping *GetSpeciesOrdering(MICM *micm, std::size_t *array_size, Error *error);
     Mapping *GetUserDefinedReactionRatesOrdering(MICM *micm, std::size_t *array_size, Error *error);
@@ -140,7 +137,8 @@ namespace musica
         double *concentrations,
         int num_custom_rate_parameters,
         double *custom_rate_parameters,
-        SolverStats *solver_stats,
+        String *solver_state,
+        SolverResultStats *solver_stats,
         Error *error);
 
     /// @brief Get the ordering of species

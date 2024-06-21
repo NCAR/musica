@@ -59,7 +59,8 @@ namespace musica
       double *concentrations,
       int num_custom_rate_parameters,
       double *custom_rate_parameters,
-      SolverStats *solver_stats,
+      String *solver_status,
+      SolverResultStats *solver_stats,
       Error *error)
   {
     DeleteError(error);
@@ -71,6 +72,7 @@ namespace musica
         concentrations,
         num_custom_rate_parameters,
         custom_rate_parameters,
+        solver_status,
         solver_stats,
         error);
   }
@@ -197,7 +199,8 @@ namespace musica
       double *concentrations,
       int num_custom_rate_parameters,
       double *custom_rate_parameters,
-      SolverStats *solver_stats,
+      String *solver_state,
+      SolverResultStats *solver_stats,
       Error *error)
   {
     try
@@ -218,7 +221,9 @@ namespace musica
       solver_->CalculateRateConstants(state);
       auto result = solver_->Solve(time_step, state);
 
-      *solver_stats = SolverStats(
+      *solver_state = CreateString(micm::SolverStateToString(result.state_).c_str());
+
+      *solver_stats = SolverResultStats(
           result.stats_.function_calls_,
           result.stats_.jacobian_updates_,
           result.stats_.number_of_steps_,
@@ -227,18 +232,20 @@ namespace musica
           result.stats_.decompositions_,
           result.stats_.solves_,
           result.stats_.singular_,
-          result.final_time_,
-          CreateString(micm::SolverStateToString(result.state_).c_str())); // TODO(jiwon) destructor
+          result.final_time_);
 
       for (int i = 0; i < state.variables_.AsVector().size(); i++)
       {
         concentrations[i] = state.variables_.AsVector()[i];
       }
+
+      DeleteString(solver_state);
       DeleteError(error);
       *error = NoError();
     }
     catch (const std::system_error &e)
     {
+      DeleteString(solver_state);
       DeleteError(error);
       *error = ToError(e);
     }

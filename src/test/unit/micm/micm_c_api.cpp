@@ -186,7 +186,8 @@ TEST_F(MicmCApiTest, SolveMicmInstance)
   double pressure = 101253.3;
   int num_concentrations = 5;
   double concentrations[] = { 0.75, 0.4, 0.8, 0.01, 0.02 };
-  SolverStats solver_stats;
+  String solver_state;
+  SolverResultStats solver_stats;
   Error error;
 
   auto ordering = micm->GetUserDefinedReactionRatesOrdering(&error);
@@ -208,6 +209,7 @@ TEST_F(MicmCApiTest, SolveMicmInstance)
       concentrations,
       custom_rate_parameters.size(),
       custom_rate_parameters.data(),
+      &solver_state,
       &solver_stats,
       &error);
   ASSERT_TRUE(IsSuccess(error));
@@ -219,30 +221,18 @@ TEST_F(MicmCApiTest, SolveMicmInstance)
   ASSERT_NE(concentrations[3], 0.01);
   ASSERT_NE(concentrations[4], 0.02);
 
-  std::cout << "function_calls: " << solver_stats.function_calls_ << std::endl;
-  std::cout << "jacobian_updates:" << solver_stats.jacobian_updates_ << std::endl;
-  std::cout << "number_of_steps: " << solver_stats.number_of_steps_ << std::endl;
-  std::cout << "accepted: " << solver_stats.accepted_ << std::endl;
-  std::cout << "rejected: " << solver_stats.rejected_ << std::endl;
-  std::cout << "decompositions: " << solver_stats.decompositions_ << std::endl;
-  std::cout << "solves: " << solver_stats.solves_ << std::endl;
-  std::cout << "singular: " << solver_stats.singular_ << std::endl;
-  std::cout << "final_time: " << solver_stats.final_time_ << std::endl;
-  std::cout << "state_.value: " << solver_stats.state_.value_ << std::endl;
+  std::cout << "Solver state: " << solver_state.value_ << std::endl;
+  std::cout << "Function Calls: " << solver_stats.function_calls_ << std::endl;
+  std::cout << "Jacobian updates:" << solver_stats.jacobian_updates_ << std::endl;
+  std::cout << "Number of steps: " << solver_stats.number_of_steps_ << std::endl;
+  std::cout << "Accepted: " << solver_stats.accepted_ << std::endl;
+  std::cout << "Rejected: " << solver_stats.rejected_ << std::endl;
+  std::cout << "Decompositions: " << solver_stats.decompositions_ << std::endl;
+  std::cout << "Solves: " << solver_stats.solves_ << std::endl;
+  std::cout << "Singular: " << solver_stats.singular_ << std::endl;
+  std::cout << "Final time: " << solver_stats.final_time_ << std::endl;
 
-  // Add assertions to check the solver statistics
-  // ASSERT_EQ(solver_stats.function_calls_, 583);
-  // ASSERT_EQ(solver_stats.jacobian_updates_, 290);
-  // ASSERT_EQ(solver_stats.number_of_steps_, 293);
-  // ASSERT_EQ(solver_stats.accepted_, 290);
-  // ASSERT_EQ(solver_stats.rejected_, 0);
-  // ASSERT_EQ(solver_stats.decompositions_, 293);
-  // ASSERT_EQ(solver_stats.solves_, 879);
-  // ASSERT_EQ(solver_stats.singular_, 0);
-  // ASSERT_DOUBLE_EQ(solver_stats.final_time_, 200.0);
-  // ASSERT_STREQ(solver_stats.state_.value_, "Converged");
-
-  DeleteString(&solver_stats.state_);
+  DeleteString(&solver_state);
   DeleteError(&error);
 }
 
