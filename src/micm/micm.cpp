@@ -12,9 +12,9 @@
 #include <micm/version.hpp>
 
 #include <cmath>
+#include <cstddef>
 #include <filesystem>
 #include <iostream>
-#include <cstddef>
 
 namespace musica
 {
@@ -59,7 +59,7 @@ namespace musica
       double *concentrations,
       int num_custom_rate_parameters,
       double *custom_rate_parameters,
-      String *solver_status,
+      String *solver_state,
       SolverResultStats *solver_stats,
       Error *error)
   {
@@ -72,9 +72,14 @@ namespace musica
         concentrations,
         num_custom_rate_parameters,
         custom_rate_parameters,
-        solver_status,
+        solver_state,
         solver_stats,
         error);
+  }
+
+  String MicmVersion()
+  {
+    return CreateString(micm::GetMicmVersion());
   }
 
   Mapping *GetSpeciesOrdering(MICM *micm, std::size_t *array_size, Error *error)
@@ -160,11 +165,6 @@ namespace musica
     return micm->GetSpeciesProperty<bool>(species_name_str, property_name_str, error);
   }
 
-  String MicmVersion()
-  {
-    return CreateString(micm::GetMicmVersion());
-  }
-
   void MICM::Create(const std::string &config_path, Error *error)
   {
     try
@@ -239,13 +239,11 @@ namespace musica
         concentrations[i] = state.variables_.AsVector()[i];
       }
 
-      DeleteString(solver_state);
       DeleteError(error);
       *error = NoError();
     }
     catch (const std::system_error &e)
     {
-      DeleteString(solver_state);
       DeleteError(error);
       *error = ToError(e);
     }

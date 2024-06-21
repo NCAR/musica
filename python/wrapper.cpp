@@ -53,7 +53,7 @@ PYBIND11_MODULE(musica, m)
             custom_rate_parameters_cpp.push_back(item.cast<double>());
           }
         }
-        musica::String solver_status;
+        musica::String solver_state;
         musica::SolverResultStats solver_stats;
         musica::Error error;
         musica::MicmSolve(
@@ -65,7 +65,7 @@ PYBIND11_MODULE(musica, m)
             concentrations_cpp.data(),
             custom_rate_parameters_cpp.size(),
             custom_rate_parameters_cpp.data(),
-            &solver_status,
+            &solver_state,
             &solver_stats,
             &error);
 
