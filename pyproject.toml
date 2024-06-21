@@ -11,7 +11,11 @@ long_description = "MUSICA (Multiscale Interface for Chemistry and Aerosols) is 
 long_description_content_type = "text/plain"
 
 [tool.scikit-build]
-cmake.args = ["-DMUSICA_ENABLE_PYTHON_LIBRARY=ON -DMUSICA_ENABLE_TUVX=OFF -DMUSICA_BUILD_FORTRAN_INTERFACE=OFF"]
+cmake.args = [
+  "-DMUSICA_ENABLE_PYTHON_LIBRARY=ON",
+  "-DMUSICA_ENABLE_TUVX=OFF",
+  "-DMUSICA_BUILD_FORTRAN_INTERFACE=OFF"
+]
 
 [project.urls]
 homepage = "https://wiki.ucar.edu/display/MUSICA/MUSICA+Home"
