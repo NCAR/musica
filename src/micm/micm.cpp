@@ -61,6 +61,7 @@ namespace musica
       double time_step,
       double temperature,
       double pressure,
+      double air_density,
       int num_concentrations,
       double *concentrations,
       int num_custom_rate_parameters,
@@ -72,6 +73,7 @@ namespace musica
         time_step,
         temperature,
         pressure,
+        air_density,
         num_concentrations,
         concentrations,
         num_custom_rate_parameters,
@@ -193,6 +195,7 @@ namespace musica
       double time_step,
       double temperature,
       double pressure,
+      double air_density,
       int num_concentrations,
       double *concentrations,
       int num_custom_rate_parameters,
@@ -207,6 +210,7 @@ namespace musica
       {
         state.conditions_[i].temperature_ = temperature;
         state.conditions_[i].pressure_ = pressure;
+        state.conditions_[i].air_density_ = air_density;
       }
 
       state.variables_.AsVector().assign(concentrations, concentrations + num_concentrations);

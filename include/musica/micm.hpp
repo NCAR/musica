@@ -36,6 +36,7 @@ namespace musica
         double time_step,
         double temperature,
         double pressure,
+        double air_density,
         int num_concentrations,
         double *concentrations,
         int num_custom_rate_parameters,
@@ -63,7 +64,8 @@ namespace musica
     /// @brief Solve the system
     /// @param time_step Time [s] to advance the state by
     /// @param temperature Temperature [K]
-    /// @param pressure Pressure
+    /// @param pressure Pressure [Pa]
+    /// @param air_density Air density [mol m-3]
     /// @param num_concentrations The size of the concentrations array
     /// @param concentrations Array of species' concentrations
     /// @param num_custom_rate_parameters The size of the custom_rate_parameters array
@@ -73,6 +75,7 @@ namespace musica
         double time_step,
         double temperature,
         double pressure,
+        double air_density,
         int num_concentrations,
         double *concentrations,
         int num_custom_rate_parameters,
