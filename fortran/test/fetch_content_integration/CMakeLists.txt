@@ -9,22 +9,20 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 include(FetchContent)
 
-set(MUSICA_GIT_TAG "83-solver-result" CACHE STRING "Git tag for the musica_fortran repository")
+set(MUSICA_GIT_TAG "main" CACHE STRING "Git tag for the musica_fortran repository")
 
 message(STATUS "Using MUSICA_GIT_TAG: ${MUSICA_GIT_TAG}")
 
 
 FetchContent_Declare(musica_fortran
-  SOURCE_DIR        ${CMAKE_CURRENT_SOURCE_DIR}/../../..
-  # GIT_REPOSITORY https://github.com/NCAR/musica.git
-  # GIT_TAG        ${MUSICA_GIT_TAG}
+  GIT_REPOSITORY https://github.com/NCAR/musica.git
+  GIT_TAG        ${MUSICA_GIT_TAG}
 )
 
 set(MUSICA_BUILD_C_CXX_INTERFACE OFF)
 set(MUSICA_BUILD_FORTRAN_INTERFACE ON)
 set(MUSICA_ENABLE_TESTS OFF)
 set(MUSICA_ENABLE_INSTALL OFF)
-set(MUSICA_ENABLE_TUVX ON)
 
 FetchContent_MakeAvailable(musica_fortran)
 
@@ -92,9 +90,13 @@ if (MUSICA_ENABLE_TUVX)
     WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
   )
 
-  add_custom_target(copy_tuvx_examples_dir ALL ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../../build/_deps/tuvx-src/examples ${CMAKE_BINARY_DIR}/examples)
+  add_custom_target(
+    copy_tuvx_examples_dir ALL ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../build/_deps/tuvx-src/examples ${CMAKE_BINARY_DIR}/examples
+  )
 
-  add_custom_target(copy_tuvx_data_dir ALL ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../../build/_deps/tuvx-src/data ${CMAKE_BINARY_DIR}/data)
+  add_custom_target(
+    copy_tuvx_data_dir ALL ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../build/_deps/tuvx-src/data ${CMAKE_BINARY_DIR}/data
+  )
 endif()

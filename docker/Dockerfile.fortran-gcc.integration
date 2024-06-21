@@ -1,7 +1,7 @@
 FROM fedora:35
 
-ARG MUSICA_GIT_TAG=83-solver-result
-ARG BUILD_TYPE=debug
+ARG MUSICA_GIT_TAG=main
+ARG BUILD_TYPE=Release
 
 RUN dnf -y update \
   && dnf -y install \
@@ -49,7 +49,7 @@ RUN cd musica/fortran/test/fetch_content_integration \
         -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
         -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
         -D MUSICA_ENABLE_MICM=ON \
-        -D MUSICA_ENABLE_TUVX=ON \
+        -D MUSICA_ENABLE_TUVX=OFF \
     && make -j
 
 WORKDIR musica/fortran/test/fetch_content_integration/build
