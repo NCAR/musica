@@ -7,11 +7,11 @@ project(
 
 option(TEST_OPTION "test option" ON)
 
-set(MUSICA_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/../include")
-set(MUSICA_LIBRARY_DIR "${PROJECT_SOURCE_DIR}")
+set(MUSICA_INCLUDE_DIR "${MUSICA_INSTALL_DIR}/include")
+set(MUSICA_LIB_DIR "${MUSICA_INSTALL_DIR}/lib")
 
 message(STATUS "${MUSICA_INCLUDE_DIR}")
-message(STATUS "${MUSICA_LIBRARY_DIR}")
+message(STATUS "${MUSICA_LIB_DIR}")
 
 add_executable(demo demo.cpp)
 target_include_directories(demo PUBLIC "${MUSICA_INCLUDE_DIR}")
