@@ -5,5 +5,13 @@ project(
   VERSION 0.1
 )
 
-message(STATUS "${PROJECT_SOURCE_DIR}")
-message(STATUS "${PROJECT_BINARY_DIR}")
+option(TEST_OPTION "test option" ON)
+
+set(MUSICA_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/../include")
+set(MUSICA_LIBRARY_DIR "${PROJECT_SOURCE_DIR}")
+
+message(STATUS "${MUSICA_INCLUDE_DIR}")
+message(STATUS "${MUSICA_LIBRARY_DIR}")
+
+add_executable(demo demo.cpp)
+target_include_directories(demo PUBLIC "${MUSICA_INCLUDE_DIR}")
