@@ -13,5 +13,7 @@ set(MUSICA_LIB_DIR "${MUSICA_INSTALL_DIR}/lib")
 message(STATUS "${MUSICA_INCLUDE_DIR}")
 message(STATUS "${MUSICA_LIB_DIR}")
 
-add_executable(demo demo.cpp)
+include("${MUSICA_LIB_DIR}/cmake/musica/musicaConfig.cmake")
+
+add_executable(demo demo.c)
 target_include_directories(demo PUBLIC "${MUSICA_INCLUDE_DIR}")
