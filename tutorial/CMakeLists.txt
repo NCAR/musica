@@ -26,5 +26,9 @@ include("${MUSICA_LIB_DIR}/cmake/musica/musica_Exports-release.cmake")
 add_executable(demo_c demo.c)
 add_executable(demo_f demo.f90)
 
-target_include_directories(demo_c PUBLIC "${MUSICA_INCLUDE_DIR}")
-target_include_directories(demo_f PUBLIC "${MUSICA_INCLUDE_DIR}")
+target_include_directories(demo_c PUBLIC ${MUSICA_INCLUDE_DIR})
+target_link_directories(demo_c PUBLIC ${MUSICA_LIB_DIR})
+
+target_include_directories(demo_f PUBLIC ${MUSICA_INCLUDE_DIR})
+target_link_directories(demo_f PUBLIC ${MUSICA_LIB_DIR})
+target_link_libraries(demo_f musica-fortran musica stdc++)
