@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.21)
 project(
   musica-demo
   VERSION 0.1
+  LANGUAGES CXX C Fortran
 )
 
 option(TEST_OPTION "test option" ON)
@@ -23,4 +24,7 @@ include("${MUSICA_LIB_DIR}/cmake/musica/musica_Exports-release.cmake")
 # include("${MUSICA_LIB_DIR}/cmake/musica/musica_fortran_Exports-release.cmake")
 
 add_executable(demo_c demo.c)
+add_executable(demo_f demo.f90)
+
 target_include_directories(demo_c PUBLIC "${MUSICA_INCLUDE_DIR}")
+target_include_directories(demo_f PUBLIC "${MUSICA_INCLUDE_DIR}")
