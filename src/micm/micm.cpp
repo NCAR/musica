@@ -1,17 +1,16 @@
-/* Copyright (C) 2023-2024 National Center for Atmospheric Research
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * This file contains the implementation of the MICM class, which represents a
- * multi-component reactive transport model. It also includes functions for
- * creating and deleting MICM instances, creating solvers, and solving the model.
- */
+// Copyright (C) 2023-2024 National Center for Atmospheric Research
+// SPDX-License-Identifier: Apache-2.0
+//
+// This file contains the implementation of the MICM class, which represents a
+// multi-component reactive transport model. It also includes functions for
+// creating and deleting MICM instances, creating solvers, and solving the model.
 #include <musica/micm.hpp>
 
 #include <micm/version.hpp>
-
 #include <micm/solver/rosenbrock_solver_parameters.hpp>
+#include <micm/solver/solver_builder.hpp>
 #include <micm/system/species.hpp>
+#include <micm/version.hpp>
 
 #include <cmath>
 #include <filesystem>
@@ -172,10 +171,15 @@ namespace musica
       micm::SolverConfig<> solver_config;
       solver_config.ReadAndParse(std::filesystem::path(config_path));
       solver_parameters_ = std::make_unique<micm::SolverParameters>(solver_config.GetSolverParams());
-      auto params = micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters(NUM_GRID_CELLS);
-      params.ignore_unused_species_ = true;
-      solver_ =
-          std::make_unique<micm::RosenbrockSolver<>>(solver_parameters_->system_, solver_parameters_->processes_, params);
+
+      solver_ = std::make_unique<Rosenbrock>(micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
+                                                 micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())
+                                                 .SetSystem(solver_parameters_->system_)
+                                                 .SetReactions(solver_parameters_->processes_)
+                                                 .SetNumberOfGridCells(NUM_GRID_CELLS)
+                                                 .SetIgnoreUnusedSpecies(true)
+                                                 .Build());
+
       DeleteError(error);
       *error = NoError();
     }
@@ -211,11 +215,12 @@ namespace musica
       state.custom_rate_parameters_.AsVector().assign(
           custom_rate_parameters, custom_rate_parameters + num_custom_rate_parameters);
 
+      solver_->CalculateRateConstants(state);
       auto result = solver_->Solve(time_step, state);
 
-      for (int i = 0; i < result.result_.AsVector().size(); i++)
+      for (int i = 0; i < state.variables_.AsVector().size(); i++)
       {
-        concentrations[i] = result.result_.AsVector()[i];
+        concentrations[i] = state.variables_.AsVector()[i];
       }
       DeleteError(error);
       *error = NoError();

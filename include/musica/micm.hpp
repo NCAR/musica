@@ -1,16 +1,18 @@
-/* Copyright (C) 2023-2024 National Center for Atmospheric Research
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * This file contains the defintion of the MICM class, which represents a multi-component reactive transport model.
- * It also includes functions for creating and deleting MICM instances with c bindings.
- */
+// Copyright (C) 2023-2024 National Center for Atmospheric Research
+// SPDX-License-Identifier: Apache-2.0
+//
+// This file contains the defintion of the MICM class, which represents a multi-component reactive transport model.
+// It also includes functions for creating and deleting MICM instances with c bindings.
 #pragma once
 
 #include <musica/util.hpp>
 
 #include <micm/configure/solver_config.hpp>
+#include <micm/process/process_set.hpp>
 #include <micm/solver/rosenbrock.hpp>
+#include <micm/solver/rosenbrock_solver_parameters.hpp>
+#include <micm/solver/solver.hpp>
+#include <micm/util/matrix.hpp>
 
 #include <memory>
 #include <string>
@@ -98,7 +100,14 @@ namespace musica
     static constexpr size_t NUM_GRID_CELLS = 1;
 
    private:
-    std::unique_ptr<micm::RosenbrockSolver<>> solver_;
+    using DenseMatrixPolicy = micm::Matrix<double>;
+    using SparseMatrixPolicy = micm::SparseMatrix<double, micm::SparseMatrixStandardOrdering>;
+    using SolverPolicy = typename micm::RosenbrockSolverParameters::
+        template SolverType<micm::ProcessSet, micm::LinearSolver<SparseMatrixPolicy, micm::LuDecomposition>>;
+    using Rosenbrock = micm::Solver<SolverPolicy, micm::State<DenseMatrixPolicy, SparseMatrixPolicy>>;
+
+    std::unique_ptr<Rosenbrock> solver_;
+
     std::unique_ptr<micm::SolverParameters> solver_parameters_;
   };
 

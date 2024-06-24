@@ -1,10 +1,8 @@
-/* Copyright (C) 2023-2024 National Center for Atmospheric Research
- *
- * SPDX-License-Identifier: Apache-2.0
- *
- * This file defines functions to manage and retrieve versions of components in a software system.
- * It provides functionality to compare versions, check compatibility, and retrieve version information.
- */
+// Copyright (C) 2023-2024 National Center for Atmospheric Research
+// SPDX-License-Identifier: Apache-2.0
+//
+// This file defines functions to manage and retrieve versions of components in a software system.
+// It provides functionality to compare versions, check compatibility, and retrieve version information.
 #include <musica/component_versions.hpp>
 #include <musica/version.hpp>
 

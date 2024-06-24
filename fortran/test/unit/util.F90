@@ -12,18 +12,6 @@ program test_util
   use musica_util
   implicit none
 
-  interface
-    function create_string_c( string ) bind(c, name="CreateString")
-      import :: string_t_c, c_char
-      character(kind=c_char, len=1), intent(in) :: string(*)
-      type(string_t_c) :: create_string_c
-    end function create_string_c
-    subroutine delete_string_c( string ) bind(c, name="DeleteString")
-      import :: string_t_c
-      type(string_t_c), intent(inout) :: string
-    end subroutine delete_string_c
-  end interface
-
   call test_string_t()
   call test_error_t()
   call test_mapping_t()
