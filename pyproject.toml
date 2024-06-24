@@ -12,10 +12,13 @@ long_description_content_type = "text/plain"
 
 [tool.scikit-build]
 cmake.args = [
-  "-DMUSICA_ENABLE_PYTHON_LIBRARY=ON",
-  "-DMUSICA_ENABLE_TUVX=OFF",
-  "-DMUSICA_BUILD_FORTRAN_INTERFACE=OFF"
+"-DMUSICA_ENABLE_PYTHON_LIBRARY=ON",
+"-DMUSICA_ENABLE_TUVX=OFF",
+"-DMUSICA_BUILD_FORTRAN_INTERFACE=OFF"
 ]
 
 [project.urls]
 homepage = "https://wiki.ucar.edu/display/MUSICA/MUSICA+Home"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
