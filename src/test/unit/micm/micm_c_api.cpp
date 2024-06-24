@@ -183,7 +183,7 @@ TEST_F(MicmCApiTest, SolveMicmInstance)
   double time_step = 200.0;
   double temperature = 272.5;
   double pressure = 101253.3;
-  constexpr double GAS_CONSTANT = 8.31446261815324; // J mol-1 K-1
+  constexpr double GAS_CONSTANT = 8.31446261815324;  // J mol-1 K-1
   double air_density = pressure / (GAS_CONSTANT * temperature);
   int num_concentrations = 5;
   double concentrations[] = { 0.75, 0.4, 0.8, 0.01, 0.02 };
