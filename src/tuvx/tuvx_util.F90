@@ -9,7 +9,7 @@ module musica_tuvx_util
   private
 
   public :: string_t_c, string_t, error_t_c, error_t, mapping_t_c, mapping_t, &
-            to_c_string, to_f_string, assert, copy_mappings
+            to_c_string, to_f_string, assert, copy_mappings, delete_string_c
 
   !> Wrapper for a c string
   type, bind(c) :: string_t_c
@@ -34,7 +34,7 @@ module musica_tuvx_util
     module procedure string_t_constructor_from_string_t_c
   end interface string_t
 
-  !> Wrapper for an c error condition
+  !> Wrapper for a c error condition
   type, bind(c) :: error_t_c
     integer(c_int) :: code_ = 0_c_int
     type(string_t_c) :: category_

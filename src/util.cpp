@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 #include <musica/util.hpp>
 
+#include <cstddef>
 #include <cstring>
 
 namespace musica
@@ -80,7 +81,7 @@ namespace musica
     return !(lhs == rhs);
   }
 
-  Mapping ToMapping(const char* name, size_t index)
+  Mapping ToMapping(const char* name, std::size_t index)
   {
     Mapping mapping;
     mapping.name_ = CreateString(name);
@@ -93,9 +94,9 @@ namespace musica
     DeleteString(&(mapping->name_));
   }
 
-  void DeleteMappings(Mapping* mappings, size_t size)
+  void DeleteMappings(Mapping* mappings, std::size_t size)
   {
-    for (size_t i = 0; i < size; i++)
+    for (std::size_t i = 0; i < size; i++)
     {
       DeleteMapping(&(mappings[i]));
     }
