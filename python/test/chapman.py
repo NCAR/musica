@@ -6,6 +6,8 @@ class TestChapman(unittest.TestCase):
         time_step = 200.0
         temperature = 272.5
         pressure = 101253.3
+        GAS_CONSTANT = 8.31446261815324
+        air_density = pressure / (GAS_CONSTANT * temperature)
         concentrations = [0.75, 0.4, 0.8, 0.01, 0.02]
 
         solver = musica.create_micm("configs/chapman")
@@ -28,6 +30,7 @@ class TestChapman(unittest.TestCase):
             time_step,
             temperature,
             pressure,
+            air_density,
             concentrations,
             ordered_rate_constants)
 
