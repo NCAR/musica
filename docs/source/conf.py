@@ -28,7 +28,7 @@ suffix = ''
 
 regex = r'project\(.*VERSION\s+(\d+\.\d+\.\d+)\)'
 release = f'0.0.0'
-# read the version from the cmake lists file
+# read the version from the cmake files
 with open(f'../../CMakeLists.txt', 'r') as f:
     for line in f:
         match = re.match(regex, line)
