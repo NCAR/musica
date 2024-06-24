@@ -8,20 +8,16 @@ project(
 
 option(TEST_OPTION "test option" ON)
 
+# cmake -DMUSICA_INSTALL_DIR <install_dir> -Dmusica_DIR <package_dir>
+find_package(musica)
+
+# set(MUSICA_INCLUDE_DIR ${musica_INCLUDE_DIRS})
+
 set(MUSICA_INCLUDE_DIR "${MUSICA_INSTALL_DIR}/include")
 set(MUSICA_LIB_DIR "${MUSICA_INSTALL_DIR}/lib")
 
 message(STATUS "${MUSICA_INCLUDE_DIR}")
 message(STATUS "${MUSICA_LIB_DIR}")
-
-include("${MUSICA_LIB_DIR}/cmake/musica/musicaConfig.cmake")
-include("${MUSICA_LIB_DIR}/cmake/musica/musicaConfigVersion.cmake")
-include("${MUSICA_LIB_DIR}/cmake/musica/musica_Exports.cmake")
-include("${MUSICA_LIB_DIR}/cmake/musica/musica_Exports-release.cmake")
-# include("${MUSICA_LIB_DIR}/cmake/musica/musica_fortranConfig.cmake")
-# include("${MUSICA_LIB_DIR}/cmake/musica/musica_fortranConfigVersion.cmake")
-# include("${MUSICA_LIB_DIR}/cmake/musica/musica_fortran_Exports.cmake")
-# include("${MUSICA_LIB_DIR}/cmake/musica/musica_fortran_Exports-release.cmake")
 
 add_executable(demo_c demo.c)
 add_executable(demo_f demo.f90)
