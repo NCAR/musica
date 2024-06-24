@@ -50,7 +50,7 @@ COPY . musica
 RUN cd musica \
     && cmake -S . \
              -B build \
-             -D CMAKE_BUILD_TYPE=Release \
+             -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
     && cd build \
     && make install -j
 

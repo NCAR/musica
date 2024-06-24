@@ -1,5 +1,7 @@
 FROM fedora:35
 
+ARG BUILD_TYPE=Release
+
 RUN dnf -y update \
     && dnf install -y sudo \
     && adduser test_user \
@@ -37,7 +39,7 @@ RUN sudo chown -R test_user.test_user musica
 RUN cd musica \
     && cmake -S . \
              -B build \
-             -D CMAKE_BUILD_TYPE=debug \
+             -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
              -D ENABLE_OPENMP:BOOL=TRUE \
              -D ENABLE_TESTS=ON \
              -D CMAKE_Fortran_COMPILER=/usr/lib64/openmpi/bin/mpif90 \

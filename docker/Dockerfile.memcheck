@@ -1,5 +1,7 @@
 FROM fedora:35
 
+ARG BUILD_TYPE=Release
+
 RUN dnf -y update \
     && dnf -y install \
         cmake \
@@ -22,7 +24,7 @@ COPY . musica
 RUN cd musica \
     && cmake -S . \
              -B build \
-             -D CMAKE_BUILD_TYPE=Debug \
+             -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
              -D MUSICA_ENABLE_MEMCHECK=ON \
     && cd build \
     && make install -j 8 
