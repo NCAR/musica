@@ -20,16 +20,15 @@ license = { file = "LICENSE" }
 
 [tool.scikit-build]
 cmake.args = [
-"-DMUSICA_ENABLE_PYTHON_LIBRARY=ON",
-"-DMUSICA_ENABLE_TUVX=OFF",
-"-DMUSICA_BUILD_FORTRAN_INTERFACE=OFF"
+  "-DMUSICA_ENABLE_PYTHON_LIBRARY=ON",
+  "-DMUSICA_ENABLE_TUVX=OFF",
+  "-DMUSICA_BUILD_FORTRAN_INTERFACE=OFF"
 ]
 
 [project.urls]
 homepage = "https://wiki.ucar.edu/display/MUSICA/MUSICA+Home"
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.2"
 numpy = "^1.17"
 
 # dynamically read the version: https://scikit-build-core.readthedocs.io/en/latest/configuration.html#dynamic-metadata
@@ -39,7 +38,7 @@ input = "CMakeLists.txt"
 regex = 'musica-distribution VERSION\s+(?P<value>[0-9.]+)'
 
 [[tool.scikit-build.generate]]
-path = "python/_version.py"
+path = "musica/_version.py"
 template = '''
 version = "${version}"
 '''
