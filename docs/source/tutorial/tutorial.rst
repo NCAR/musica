@@ -6,4 +6,5 @@ Tutorial
    :maxdepth: 1
    :caption: Contents:
 
+   chapter0.rst
    chapter1.rst
