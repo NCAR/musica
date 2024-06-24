@@ -39,13 +39,13 @@ else()
 endif()
 
 # Configure musica.settings file
-configure_file("${CMAKE_SOURCE_DIR}/cmake/musica.settings.in"
-  "${CMAKE_BINARY_DIR}/musica.settings"
+configure_file("${PROJECT_SOURCE_DIR}/cmake/musica.settings.in"
+  "${PROJECT_BINARY_DIR}/musica.settings"
   @ONLY)
 
 # Read in settings file, print out.
 # Avoid using system-specific calls so that this
 # might also work on Windows.
-file(READ "${CMAKE_BINARY_DIR}/musica.settings"
+file(READ "${PROJECT_BINARY_DIR}/musica.settings"
   MUSICA_SETTINGS)
 message(STATUS ${MUSICA_SETTINGS})
