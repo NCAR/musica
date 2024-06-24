@@ -33,6 +33,7 @@ PYBIND11_MODULE(musica, m)
          double time_step,
          double temperature,
          double pressure,
+         double air_density,
          py::list concentrations,
          py::object custom_rate_parameters = py::none())
       {
@@ -61,6 +62,7 @@ PYBIND11_MODULE(musica, m)
             time_step,
             temperature,
             pressure,
+            air_density,
             concentrations_cpp.size(),
             concentrations_cpp.data(),
             custom_rate_parameters_cpp.size(),

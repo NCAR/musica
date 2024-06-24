@@ -27,6 +27,7 @@ contains
     real(c_double)                :: time_step
     real(c_double)                :: temperature
     real(c_double)                :: pressure
+    real(c_double)                :: air_density
     integer(c_int)                :: num_concentrations, num_user_defined_reaction_rates
     real(c_double), dimension(5)  :: concentrations 
     real(c_double), dimension(3)  :: user_defined_reaction_rates 
@@ -38,11 +39,13 @@ contains
     type(string_t)                :: solver_state
     type(solver_stats_t)          :: solver_stats
     type(error_t)                 :: error
+    real(c_double), parameter     :: GAS_CONSTANT = 8.31446261815324_c_double ! J mol-1 K-1
     integer                       :: i
-
+    
     time_step = 200
     temperature = 272.5
     pressure = 101253.4
+    air_density = pressure / ( GAS_CONSTANT * temperature )
     num_concentrations = 5
     concentrations = (/ 0.75, 0.4, 0.8, 0.01, 0.02 /)
     config_path = "configs/chapman"
@@ -70,14 +73,13 @@ contains
     write(*,*) "[test micm fort api] Initial concentrations", concentrations
 
     write(*,*) "[test micm fort api] Solving starts..."
-    call micm%solve(time_step, temperature, pressure, num_concentrations, concentrations, &
+    call micm%solve(time_step, temperature, pressure,  air_density, num_concentrations, concentrations, &
         num_user_defined_reaction_rates, user_defined_reaction_rates, solver_state, solver_stats, error)
     ASSERT( error%is_success() )
 
-    write(*,*) "[test micm fort api] After solving, concentrations", concentrations
-
+    write(*,*) "[test micm fort api] After solving, concentrations: ", concentrations
     write(*,*) "[test micm fort api] Solver state: ", solver_state%get_char_array()
-    write(*,*) "[test micm fort api] Function calls : ", solver_stats%function_calls()
+    write(*,*) "[test micm fort api] Function calls: ", solver_stats%function_calls()
     write(*,*) "[test micm fort api] Jacobian updates: ", solver_stats%jacobian_updates()
     write(*,*) "[test micm fort api] Number of steps: ", solver_stats%number_of_steps()
     write(*,*) "[test micm fort api] Accepted: ", solver_stats%accepted()
