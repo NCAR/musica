@@ -9,7 +9,9 @@ project(
 option(TEST_OPTION "test option" ON)
 
 # cmake -DMUSICA_INSTALL_DIR <install_dir> -Dmusica_DIR <package_dir>
+#       -Dmusica_fortran_DIR <package_dir>
 find_package(musica)
+# find_package(musica_fortran)
 
 # set(MUSICA_INCLUDE_DIR ${musica_INCLUDE_DIRS})
 
