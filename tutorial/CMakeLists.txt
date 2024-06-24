@@ -10,8 +10,8 @@ project(
 # cd build
 # cmake -Dmusica_DIR <muscia_package_dir>
 #       -Dmusica_fortran_DIR <musica_fortran_package_dir> ..
-# find_package(musica)
-# find_package(musica_fortran)
+find_package(musica)
+find_package(musica_fortran)
 
 # mkdir build
 # cd build
