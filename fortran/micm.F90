@@ -33,7 +33,7 @@ module musica_micm
          type(error_t_c),    intent(inout) :: error
       end subroutine delete_micm_c
 
-      subroutine micm_solve_c(micm, time_step, temperature, pressure, num_concentrations, concentrations, &
+      subroutine micm_solve_c(micm, time_step, temperature, pressure, air_density, num_concentrations, concentrations, &
                               num_user_defined_reaction_rates, user_defined_reaction_rates, error) bind(C, name="MicmSolve")
          use musica_util, only: error_t_c
          import c_ptr, c_double, c_int
@@ -41,6 +41,7 @@ module musica_micm
          real(kind=c_double), value, intent(in) :: time_step
          real(kind=c_double), value, intent(in) :: temperature
          real(kind=c_double), value, intent(in) :: pressure
+         real(kind=c_double), value, intent(in) :: air_density
          integer(kind=c_int), value, intent(in) :: num_concentrations
          real(kind=c_double), intent(inout)     :: concentrations(num_concentrations)
          integer(kind=c_int), value, intent(in) :: num_user_defined_reaction_rates
@@ -188,13 +189,14 @@ contains
 
    end function constructor
 
-   subroutine solve(this, time_step, temperature, pressure, num_concentrations, concentrations, &
+   subroutine solve(this, time_step, temperature, pressure, air_density, num_concentrations, concentrations, &
                      num_user_defined_reaction_rates, user_defined_reaction_rates, error)
       use musica_util, only: error_t_c, error_t
       class(micm_t)                  :: this
       real(c_double),  intent(in)    :: time_step
       real(c_double),  intent(in)    :: temperature
       real(c_double),  intent(in)    :: pressure
+      real(c_double),  intent(in)    :: air_density
       integer(c_int),  intent(in)    :: num_concentrations
       real(c_double),  intent(inout) :: concentrations(*)
       integer(c_int),  intent(in)    :: num_user_defined_reaction_rates
@@ -202,8 +204,9 @@ contains
       type(error_t),   intent(out)   :: error
 
       type(error_t_c)                :: error_c
-      call micm_solve_c(this%ptr, time_step, temperature, pressure, num_concentrations, concentrations, &
-                        num_user_defined_reaction_rates, user_defined_reaction_rates, error_c)
+      call micm_solve_c(this%ptr, time_step, temperature, pressure, air_density, num_concentrations, &
+                        concentrations, num_user_defined_reaction_rates, user_defined_reaction_rates, &
+                        error_c)
       error = error_t(error_c)
    end subroutine solve
 
