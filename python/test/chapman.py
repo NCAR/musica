@@ -11,7 +11,9 @@ class TestChapman(unittest.TestCase):
         concentrations = [0.75, 0.4, 0.8, 0.01, 0.02]
 
         solver = musica.create_micm("configs/chapman")
+        print('here')
         rate_constant_ordering = musica.user_defined_reaction_rates(solver)
+        print('there')
         ordering = musica.species_ordering(solver)
 
         rate_constants = {

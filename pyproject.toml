@@ -17,19 +17,21 @@ authors = [
 ]
 maintainers = [{ name = "ACOM MUSICA Developers", email = "musica-support@ucar.edu" }]
 license = { file = "LICENSE" }
+dependencies = [
+    "numpy"
+]
 
 [tool.scikit-build]
 cmake.args = [
   "-DMUSICA_ENABLE_PYTHON_LIBRARY=ON",
   "-DMUSICA_ENABLE_TUVX=OFF",
-  "-DMUSICA_BUILD_FORTRAN_INTERFACE=OFF"
+  "-DMUSICA_BUILD_FORTRAN_INTERFACE=OFF",
+  "-DMUSICA_ENABLE_TESTS=OFF",
+  "-DCMAKE_BUILD_TYPE=Debug"
 ]
 
 [project.urls]
 homepage = "https://wiki.ucar.edu/display/MUSICA/MUSICA+Home"
-
-[tool.poetry.dev-dependencies]
-numpy = "^1.17"
 
 # dynamically read the version: https://scikit-build-core.readthedocs.io/en/latest/configuration.html#dynamic-metadata
 [tool.scikit-build.metadata.version]

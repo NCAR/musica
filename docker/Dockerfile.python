@@ -1,23 +1,37 @@
-FROM fedora:35
+FROM fedora:latest
 
 RUN dnf -y update \
     && dnf -y install \
         cmake \
         gcc-c++ \
         gcc-fortran \
+        gdb \
         git \
         lapack-devel \
         make \
         netcdf-fortran-devel \
-        python-devel \
         pip \
+        python \
+        python-devel \
     && dnf clean all
 
 # Copy the musica code
 COPY . musica
 
-# Install Python dependencies
-RUN pip install -r musica/python/requirements.txt
+# Install Python dependencies from pyproject.toml
+# must do it this way since scikit-build does not have a way to install dependencies from pyproject.toml
+# outside of the build process
+# First, install toml package to parse pyproject.toml
+RUN pip install toml
+
+# Use a Python one-liner to extract and install dependencies from pyproject.toml
+RUN python -c "import toml; \
+               file = 'musica/pyproject.toml'; \
+               data = toml.load(file); \
+               deps = data.get('build-system', {}).get('requires', []); \
+               [print(dep) for dep in deps]; \
+               " > requirements.txt \
+    && pip install -r requirements.txt
 
 # Build
 RUN cd musica \
@@ -28,5 +42,7 @@ RUN cd musica \
              -D MUSICA_ENABLE_TUVX=OFF \
     && cd build \
     && make install -j 8
+
+RUN cd musica && pip install .
 
 WORKDIR musica/build

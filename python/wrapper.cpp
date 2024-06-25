@@ -22,6 +22,7 @@ PYBIND11_MODULE(musica, m)
       {
         musica::Error error;
         musica::MICM *micm = musica::CreateMicm(config_path, &error);
+        std::cout << "Addres of micm: " << micm << "\n";
         return micm;
       });
 
