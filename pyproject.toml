@@ -17,8 +17,13 @@ authors = [
 ]
 maintainers = [{ name = "ACOM MUSICA Developers", email = "musica-support@ucar.edu" }]
 license = { file = "LICENSE" }
+
 dependencies = [
-    "numpy"
+]
+
+[project.optional-dependencies]
+dev = [
+  "numpy",
 ]
 
 [tool.scikit-build]
