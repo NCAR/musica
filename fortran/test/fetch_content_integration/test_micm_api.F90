@@ -5,7 +5,7 @@ program test_micm_api
 
   use, intrinsic :: iso_c_binding
   use, intrinsic :: ieee_arithmetic
-  use musica_micm, only: micm_t, get_micm_version
+  use musica_micm, only: micm_t, solver_stats_t, get_micm_version
   use musica_util, only: assert, error_t, mapping_t, string_t
 
 #include "micm/util/error.hpp"
@@ -31,15 +31,17 @@ contains
     integer(c_int)                :: num_concentrations, num_user_defined_reaction_rates
     real(c_double), dimension(5)  :: concentrations 
     real(c_double), dimension(3)  :: user_defined_reaction_rates 
-    integer                       :: i
     character(len=256)            :: config_path
     character(len=:), allocatable :: string_value
     real(c_double)                :: double_value
     integer(c_int)                :: int_value
     logical(c_bool)               :: bool_value
+    type(string_t)                :: solver_state
+    type(solver_stats_t)          :: solver_stats
     type(error_t)                 :: error
     real(c_double), parameter     :: GAS_CONSTANT = 8.31446261815324_c_double ! J mol-1 K-1
-
+    integer                       :: i
+    
     time_step = 200
     temperature = 272.5
     pressure = 101253.4
@@ -71,11 +73,21 @@ contains
     write(*,*) "[test micm fort api] Initial concentrations", concentrations
 
     write(*,*) "[test micm fort api] Solving starts..."
-    call micm%solve(time_step, temperature, pressure, air_density, num_concentrations, concentrations, &
-                    num_user_defined_reaction_rates, user_defined_reaction_rates, error)
+    call micm%solve(time_step, temperature, pressure,  air_density, num_concentrations, concentrations, &
+        num_user_defined_reaction_rates, user_defined_reaction_rates, solver_state, solver_stats, error)
     ASSERT( error%is_success() )
 
-    write(*,*) "[test micm fort api] After solving, concentrations", concentrations
+    write(*,*) "[test micm fort api] After solving, concentrations: ", concentrations
+    write(*,*) "[test micm fort api] Solver state: ", solver_state%get_char_array()
+    write(*,*) "[test micm fort api] Function calls: ", solver_stats%function_calls()
+    write(*,*) "[test micm fort api] Jacobian updates: ", solver_stats%jacobian_updates()
+    write(*,*) "[test micm fort api] Number of steps: ", solver_stats%number_of_steps()
+    write(*,*) "[test micm fort api] Accepted: ", solver_stats%accepted()
+    write(*,*) "[test micm fort api] Rejected: ", solver_stats%rejected()
+    write(*,*) "[test micm fort api] Decompositions: ", solver_stats%decompositions()
+    write(*,*) "[test micm fort api] Solves: ", solver_stats%solves()
+    write(*,*) "[test micm fort api] Singular: ", solver_stats%singular()
+    write(*,*) "[test micm fort api] Final time: ", solver_stats%final_time()
 
     string_value = micm%get_species_property_string( "O3", "__long name", error )
     ASSERT( error%is_success() )

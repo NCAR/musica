@@ -21,7 +21,7 @@ namespace musica
     struct String
     {
       char* value_ = nullptr;
-      size_t size_ = 0;
+      std::size_t size_ = 0;
     };
 
     /// @brief A struct to describe failure conditions
@@ -36,7 +36,7 @@ namespace musica
     struct Mapping
     {
       String name_;
-      size_t index_;
+      std::size_t index_;
     };
 
     /// @brief Casts a char* to a String
@@ -70,7 +70,7 @@ namespace musica
     /// @brief Deletes an array of Mappings
     /// @param mappings The array of Mappings to delete
     /// @param size The size of the array
-    void DeleteMappings(Mapping* mappings, size_t size);
+    void DeleteMappings(Mapping* mappings, std::size_t size);
 
 #ifdef __cplusplus
   }
@@ -113,7 +113,7 @@ namespace musica
   /// @param name The name of the Mapping
   /// @param index The index of the Mapping
   /// @return The Mapping
-  Mapping ToMapping(const char* name, size_t index);
+  Mapping ToMapping(const char* name, std::size_t index);
 
 #endif
 
