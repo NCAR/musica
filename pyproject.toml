@@ -27,7 +27,6 @@ cmake.args = [
   "-DMUSICA_ENABLE_TUVX=OFF",
   "-DMUSICA_BUILD_FORTRAN_INTERFACE=OFF",
   "-DMUSICA_ENABLE_TESTS=OFF",
-  "-DCMAKE_BUILD_TYPE=Debug"
 ]
 
 [project.urls]
