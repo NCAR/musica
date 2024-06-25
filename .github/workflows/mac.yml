@@ -67,7 +67,7 @@ jobs:
       - name: Run tests
         run: |
           cd build
-          ctest -C ${{ matrix.build_type }} --rerun-failed --output-on-failure . --verbose -j 10
+          ctest -C ${{ matrix.build_type }} --rerun-failed --output-on-failure . --verbose
 
   fortran:
     runs-on: macos-latest

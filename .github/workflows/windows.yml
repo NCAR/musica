@@ -67,7 +67,7 @@ jobs:
       run: cmake --build build --config ${{ matrix.build_type }} --parallel
 
     - name: Test
-      run: cd build ; ctest -j 10 -C ${{ matrix.build_type }} --output-on-failure
+      run: cd build ; ctest -C ${{ matrix.build_type }} --output-on-failure  --verbose
 
   clang:
     runs-on: windows-2019
@@ -92,7 +92,7 @@ jobs:
         run: cmake --build build --parallel
 
       - name: Test
-        run: cd build ; ctest -j 10 -C Debug --exclude-regex "test-unicode" --output-on-failure
+        run: cd build ; ctest -C Debug --output-on-failure  --verbose
 
   clang-cl-11:
     runs-on: windows-2019
@@ -121,4 +121,4 @@ jobs:
         run: cmake --build build --config Debug --parallel
 
       - name: Test
-        run: cd build ; ctest -j 10 -C Debug --exclude-regex "test-unicode" --output-on-failure
+        run: cd build ; ctest -C Debug --output-on-failure --verbose
