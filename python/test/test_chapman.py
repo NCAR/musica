@@ -1,6 +1,7 @@
 import unittest
 import musica
 
+
 class TestChapman(unittest.TestCase):
     def test_micm_solve(self):
         time_step = 200.0
