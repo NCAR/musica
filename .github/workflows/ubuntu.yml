@@ -22,6 +22,9 @@ jobs:
           - { cpp: g++-13, c: gcc-13, fc: gfortran-13}
           - { cpp: g++-14, c: gcc-14, fc: gfortran-14}
           - { cpp: clang++, c: clang, fc: gfortran-12}
+        options: 
+          - {python: ON, tuvx: OFF}
+          - {python: OFF, tuvx: ON}
         build_type: [Release]
     env:
       CC: ${{ matrix.compiler.c }}
@@ -38,7 +41,7 @@ jobs:
           sudo apt-get install -y python3-numpy
 
       - name: Run Cmake 
-        run: cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_PYTHON_LIBRARY=OFF
+        run: cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_PYTHON_LIBRARY=${{ matrix.options.python }} -D MUSICA_ENABLE_TUVX=${{ matrix.matrix.options.tuvx }}
 
       - name: Build
         run: cmake --build build --verbose
@@ -46,7 +49,7 @@ jobs:
       - name: Run tests
         run: |
           cd build
-          ctest -C ${{ matrix.build_type }} --rerun-failed --output-on-failure . --verbose -j 10
+          ctest -C ${{ matrix.build_type }} --rerun-failed --output-on-failure . --verbose
   fortran:
     runs-on: ubuntu-24.04
     strategy:

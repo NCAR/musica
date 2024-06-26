@@ -1,7 +1,6 @@
 import unittest
 import musica
 
-
 class TestChapman(unittest.TestCase):
     def test_micm_solve(self):
         time_step = 200.0
@@ -11,7 +10,7 @@ class TestChapman(unittest.TestCase):
         air_density = pressure / (GAS_CONSTANT * temperature)
         concentrations = [0.75, 0.4, 0.8, 0.01, 0.02]
 
-        solver = musica.create_micm("configs/chapman")
+        solver = musica.create_solver("configs/chapman")
         rate_constant_ordering = musica.user_defined_reaction_rates(solver)
         ordering = musica.species_ordering(solver)
 

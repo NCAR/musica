@@ -27,7 +27,7 @@ jobs:
           version: 12.2.0 # https://github.com/egor-tensin/setup-mingw/issues/14
       
       - uses: actions/setup-python@v5
-      - run: pip install -r python/requirements.txt
+      - run: pip install numpy
 
       - name: Run Cmake 
         run: cmake -S . -B build -G "MinGW Makefiles" -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
@@ -58,7 +58,7 @@ jobs:
         python-version: '3.x'
         architecture: x86
 
-    - run: pip install -r python/requirements.txt
+    - run: pip install numpy
 
     - name: Run CMake
       run: cmake -S . -B build -G "Visual Studio 17 2022" -A ${{ matrix.architecture }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
@@ -67,7 +67,7 @@ jobs:
       run: cmake --build build --config ${{ matrix.build_type }} --parallel
 
     - name: Test
-      run: cd build ; ctest -j 10 -C ${{ matrix.build_type }} --output-on-failure
+      run: cd build ; ctest -C ${{ matrix.build_type }} --output-on-failure  --verbose
 
   clang:
     runs-on: windows-2019
@@ -83,7 +83,7 @@ jobs:
         run: curl -fsSL -o LLVM${{ matrix.version }}.exe https://github.com/llvm/llvm-project/releases/download/llvmorg-${{ matrix.version }}.0.0/LLVM-${{ matrix.version }}.0.0-win64.exe ; 7z x LLVM${{ matrix.version }}.exe -y -o"C:/Program Files/LLVM"
 
       - uses: actions/setup-python@v5
-      - run: pip install -r python/requirements.txt
+      - run: pip install numpy
 
       - name: Run CMake
         run: cmake -S . -B build -DCMAKE_CXX_COMPILER="C:/Program Files/LLVM/bin/clang++.exe" -DCMAKE_C_COMPILER="C:/Program Files/LLVM/bin/clang.exe" -G"MinGW Makefiles" -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
@@ -92,7 +92,7 @@ jobs:
         run: cmake --build build --parallel
 
       - name: Test
-        run: cd build ; ctest -j 10 -C Debug --exclude-regex "test-unicode" --output-on-failure
+        run: cd build ; ctest -C Debug --output-on-failure  --verbose
 
   clang-cl-11:
     runs-on: windows-2019
@@ -112,7 +112,7 @@ jobs:
           architecture: x86
 
       - uses: actions/setup-python@v5
-      - run: pip install -r python/requirements.txt
+      - run: pip install numpy
 
       - name: Run CMake
         run: cmake -S . -B build -G "Visual Studio 16 2019" -A ${{ matrix.architecture }} -T ClangCL -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
@@ -121,4 +121,4 @@ jobs:
         run: cmake --build build --config Debug --parallel
 
       - name: Test
-        run: cd build ; ctest -j 10 -C Debug --exclude-regex "test-unicode" --output-on-failure
+        run: cd build ; ctest -C Debug --output-on-failure --verbose
