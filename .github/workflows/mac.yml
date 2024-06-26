@@ -21,7 +21,7 @@ jobs:
           - { cpp: g++-11, c: gcc-11, fc: gfortran-11}
           - { cpp: g++-12, c: gcc-12, fc: gfortran-12}
           - { cpp: g++-13, c: gcc-13, fc: gfortran-13}
-          - { cpp: clang++, c: clang}
+          - { cpp: clang++, c: clang, fc: gfortran-12}
         build_type: [Release]
     env:
       CC: ${{ matrix.compiler.c }}
