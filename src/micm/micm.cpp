@@ -12,18 +12,12 @@
 #include <micm/version.hpp>
 
 #include <cmath>
+#include <cstddef>
 #include <filesystem>
 #include <iostream>
 
 namespace musica
 {
-
-  String get_micm_version()
-  {
-    String micm_version = CreateString(micm::GetMicmVersion());
-    return micm_version;
-  }
-
   MICM *CreateMicm(const char *config_path, Error *error)
   {
     DeleteError(error);
@@ -61,10 +55,13 @@ namespace musica
       double time_step,
       double temperature,
       double pressure,
+      double air_density,
       int num_concentrations,
       double *concentrations,
       int num_custom_rate_parameters,
       double *custom_rate_parameters,
+      String *solver_state,
+      SolverResultStats *solver_stats,
       Error *error)
   {
     DeleteError(error);
@@ -72,14 +69,22 @@ namespace musica
         time_step,
         temperature,
         pressure,
+        air_density,
         num_concentrations,
         concentrations,
         num_custom_rate_parameters,
         custom_rate_parameters,
+        solver_state,
+        solver_stats,
         error);
   }
 
-  Mapping *GetSpeciesOrdering(MICM *micm, size_t *array_size, Error *error)
+  String MicmVersion()
+  {
+    return CreateString(micm::GetMicmVersion());
+  }
+
+  Mapping *GetSpeciesOrdering(MICM *micm, std::size_t *array_size, Error *error)
   {
     DeleteError(error);
     auto map = micm->GetSpeciesOrdering(error);
@@ -90,7 +95,7 @@ namespace musica
     Mapping *species_ordering = new Mapping[map.size()];
 
     // Copy data from the map to the array of structs
-    size_t i = 0;
+    std::size_t i = 0;
     for (const auto &entry : map)
     {
       species_ordering[i] = ToMapping(entry.first.c_str(), entry.second);
@@ -102,7 +107,7 @@ namespace musica
     return species_ordering;
   }
 
-  Mapping *GetUserDefinedReactionRatesOrdering(MICM *micm, size_t *array_size, Error *error)
+  Mapping *GetUserDefinedReactionRatesOrdering(MICM *micm, std::size_t *array_size, Error *error)
   {
     DeleteError(error);
     auto map = micm->GetUserDefinedReactionRatesOrdering(error);
@@ -113,7 +118,7 @@ namespace musica
     Mapping *reactionRates = new Mapping[map.size()];
 
     // Copy data from the map to the array of structs
-    size_t i = 0;
+    std::size_t i = 0;
     for (const auto &entry : map)
     {
       reactionRates[i] = ToMapping(entry.first.c_str(), entry.second);
@@ -131,10 +136,9 @@ namespace musica
     std::string species_name_str(species_name);
     std::string property_name_str(property_name);
     const std::string value_str = micm->GetSpeciesProperty<std::string>(species_name_str, property_name_str, error);
-    String value;
     if (!IsSuccess(*error))
     {
-      return value;
+      return String();
     }
     return CreateString(value_str.c_str());
   }
@@ -193,20 +197,24 @@ namespace musica
       double time_step,
       double temperature,
       double pressure,
+      double air_density,
       int num_concentrations,
       double *concentrations,
       int num_custom_rate_parameters,
       double *custom_rate_parameters,
+      String *solver_state,
+      SolverResultStats *solver_stats,
       Error *error)
   {
     try
     {
       micm::State state = solver_->GetState();
 
-      for (size_t i{}; i < NUM_GRID_CELLS; i++)
+      for (std::size_t i{}; i < NUM_GRID_CELLS; i++)
       {
         state.conditions_[i].temperature_ = temperature;
         state.conditions_[i].pressure_ = pressure;
+        state.conditions_[i].air_density_ = air_density;
       }
 
       state.variables_.AsVector().assign(concentrations, concentrations + num_concentrations);
@@ -217,10 +225,24 @@ namespace musica
       solver_->CalculateRateConstants(state);
       auto result = solver_->Solve(time_step, state);
 
+      *solver_state = CreateString(micm::SolverStateToString(result.state_).c_str());
+
+      *solver_stats = SolverResultStats(
+          result.stats_.function_calls_,
+          result.stats_.jacobian_updates_,
+          result.stats_.number_of_steps_,
+          result.stats_.accepted_,
+          result.stats_.rejected_,
+          result.stats_.decompositions_,
+          result.stats_.solves_,
+          result.stats_.singular_,
+          result.final_time_);
+
       for (int i = 0; i < state.variables_.AsVector().size(); i++)
       {
         concentrations[i] = state.variables_.AsVector()[i];
       }
+
       DeleteError(error);
       *error = NoError();
     }
@@ -231,7 +253,7 @@ namespace musica
     }
   }
 
-  std::map<std::string, size_t> MICM::GetSpeciesOrdering(Error *error)
+  std::map<std::string, std::size_t> MICM::GetSpeciesOrdering(Error *error)
   {
     try
     {
@@ -244,11 +266,11 @@ namespace musica
     {
       DeleteError(error);
       *error = ToError(e);
-      return std::map<std::string, size_t>();
+      return std::map<std::string, std::size_t>();
     }
   }
 
-  std::map<std::string, size_t> MICM::GetUserDefinedReactionRatesOrdering(Error *error)
+  std::map<std::string, std::size_t> MICM::GetUserDefinedReactionRatesOrdering(Error *error)
   {
     try
     {
@@ -261,7 +283,7 @@ namespace musica
     {
       DeleteError(error);
       *error = ToError(e);
-      return std::map<std::string, size_t>();
+      return std::map<std::string, std::size_t>();
     }
   }
 

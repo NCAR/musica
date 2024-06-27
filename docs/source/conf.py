@@ -13,6 +13,7 @@
 import os
 import sys
 import datetime
+import re
 sys.path.insert(0, os.path.abspath('.'))
 
 # -- Project information -----------------------------------------------------
@@ -24,7 +25,15 @@ author = 'NCAR/UCAR'
 suffix = ''
 # the suffix is required. This is controlled by the dockerfile that builds
 # the docs
+
+regex = r'project\(.*VERSION\s+(\d+\.\d+\.\d+)\)'
 release = f'0.0.0'
+# read the version from the cmake files
+with open(f'../../CMakeLists.txt', 'r') as f:
+    for line in f:
+        match = re.match(regex, line)
+        if match:
+            release = match.group(1)
 
 # -- General configuration ---------------------------------------------------
 

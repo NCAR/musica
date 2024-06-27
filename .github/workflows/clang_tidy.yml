@@ -1,0 +1,59 @@
+name: Clang-Tidy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  format:
+    name: Run clang-tidy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install clang-tidy
+        run: sudo apt-get update && sudo apt-get install clang-tidy && clang-tidy --version
+
+      - name: Check out code, run clang-tidy, push changes
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run clang-tidy
+        # Currently disabled
+        if: false
+        run: |
+          find include -type f \( -name '*.hpp' -or -name '*.h' \) -exec clang-tidy --config-file="./.clang-tidy" --fix-errors {} +
+          find src -type f \( -name '*.cpp' -or -name '*.c' \) ! -path 'src/test/*' -exec clang-tidy --config-file="./.clang-tidy" --fix-errors {} +
+          find python -type f \( -name '*.cpp' -or -name '*.c' \) -exec clang-tidy --config-file="./.clang-tidy" --fix-errors {} +
+
+        continue-on-error: true
+
+      - name: Check for changes
+        id: check-changes
+        run: git diff --exit-code
+        continue-on-error: true
+
+      - name: Commit and push changes
+        # a failue of this step means changes were detected
+        if: steps.check-changes.outcome != 'success'
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git commit -am "Auto-format code using clang-tidy" || echo "No changes to commit"
+
+      - name: Push changes to clang-tidy-format branch
+        if: steps.check-changes.outcome != 'success'
+        run: git push origin HEAD:clang-tidy-format
+
+      - name: Create Pull Request
+        if: steps.check-changes.outcome != 'success'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Auto-format code using clang-tidy"
+          title: "Auto-format code changes"
+          body: "This is an automated pull request to apply code formatting using clang-tidy."
+          branch: clang-tidy-format

@@ -5,6 +5,8 @@
 
 #include <gtest/gtest.h>
 
+#include <iostream>
+
 using namespace musica;
 
 // Test fixture for the MICM C API
@@ -19,6 +21,7 @@ class MicmCApiTest : public ::testing::Test
     micm = nullptr;
     Error error;
     micm = CreateMicm(config_path, &error);
+
     ASSERT_TRUE(IsSuccess(error));
     DeleteError(&error);
   }
@@ -76,13 +79,13 @@ TEST_F(MicmCApiTest, CreateMicmInstance)
 TEST_F(MicmCApiTest, GetSpeciesOrdering)
 {
   Error error;
-  size_t array_size;
+  std::size_t array_size;
   Mapping* species_ordering = GetSpeciesOrdering(micm, &array_size, &error);
   ASSERT_TRUE(IsSuccess(error));
   DeleteError(&error);
   ASSERT_EQ(array_size, 5);
   bool found = false;
-  for (size_t i = 0; i < array_size; i++)
+  for (std::size_t i = 0; i < array_size; i++)
   {
     if (strcmp(species_ordering[i].name_.value_, "O3") == 0)
     {
@@ -92,7 +95,7 @@ TEST_F(MicmCApiTest, GetSpeciesOrdering)
   }
   ASSERT_TRUE(found);
   found = false;
-  for (size_t i = 0; i < array_size; i++)
+  for (std::size_t i = 0; i < array_size; i++)
   {
     if (strcmp(species_ordering[i].name_.value_, "O") == 0)
     {
@@ -102,7 +105,7 @@ TEST_F(MicmCApiTest, GetSpeciesOrdering)
   }
   ASSERT_TRUE(found);
   found = false;
-  for (size_t i = 0; i < array_size; i++)
+  for (std::size_t i = 0; i < array_size; i++)
   {
     if (strcmp(species_ordering[i].name_.value_, "O2") == 0)
     {
@@ -112,7 +115,7 @@ TEST_F(MicmCApiTest, GetSpeciesOrdering)
   }
   ASSERT_TRUE(found);
   found = false;
-  for (size_t i = 0; i < array_size; i++)
+  for (std::size_t i = 0; i < array_size; i++)
   {
     if (strcmp(species_ordering[i].name_.value_, "M") == 0)
     {
@@ -122,7 +125,7 @@ TEST_F(MicmCApiTest, GetSpeciesOrdering)
   }
   ASSERT_TRUE(found);
   found = false;
-  for (size_t i = 0; i < array_size; i++)
+  for (std::size_t i = 0; i < array_size; i++)
   {
     if (strcmp(species_ordering[i].name_.value_, "O1D") == 0)
     {
@@ -138,13 +141,13 @@ TEST_F(MicmCApiTest, GetSpeciesOrdering)
 TEST_F(MicmCApiTest, GetUserDefinedReactionRatesOrdering)
 {
   Error error;
-  size_t array_size;
+  std::size_t array_size;
   Mapping* reaction_rates_ordering = GetUserDefinedReactionRatesOrdering(micm, &array_size, &error);
   ASSERT_TRUE(IsSuccess(error));
   DeleteError(&error);
   ASSERT_EQ(array_size, 3);
   bool found = false;
-  for (size_t i = 0; i < array_size; i++)
+  for (std::size_t i = 0; i < array_size; i++)
   {
     if (strcmp(reaction_rates_ordering[i].name_.value_, "PHOTO.R1") == 0)
     {
@@ -154,7 +157,7 @@ TEST_F(MicmCApiTest, GetUserDefinedReactionRatesOrdering)
   }
   ASSERT_TRUE(found);
   found = false;
-  for (size_t i = 0; i < array_size; i++)
+  for (std::size_t i = 0; i < array_size; i++)
   {
     if (strcmp(reaction_rates_ordering[i].name_.value_, "PHOTO.R3") == 0)
     {
@@ -164,7 +167,7 @@ TEST_F(MicmCApiTest, GetUserDefinedReactionRatesOrdering)
   }
   ASSERT_TRUE(found);
   found = false;
-  for (size_t i = 0; i < array_size; i++)
+  for (std::size_t i = 0; i < array_size; i++)
   {
     if (strcmp(reaction_rates_ordering[i].name_.value_, "PHOTO.R5") == 0)
     {
@@ -179,12 +182,16 @@ TEST_F(MicmCApiTest, GetUserDefinedReactionRatesOrdering)
 // Test case for solving the MICM instance
 TEST_F(MicmCApiTest, SolveMicmInstance)
 {
-  Error error;
   double time_step = 200.0;
   double temperature = 272.5;
   double pressure = 101253.3;
+  constexpr double GAS_CONSTANT = 8.31446261815324;  // J mol-1 K-1
+  double air_density = pressure / (GAS_CONSTANT * temperature);
   int num_concentrations = 5;
   double concentrations[] = { 0.75, 0.4, 0.8, 0.01, 0.02 };
+  String solver_state;
+  SolverResultStats solver_stats;
+  Error error;
 
   auto ordering = micm->GetUserDefinedReactionRatesOrdering(&error);
   ASSERT_TRUE(IsSuccess(error));
@@ -201,10 +208,13 @@ TEST_F(MicmCApiTest, SolveMicmInstance)
       time_step,
       temperature,
       pressure,
+      air_density,
       num_concentrations,
       concentrations,
       custom_rate_parameters.size(),
       custom_rate_parameters.data(),
+      &solver_state,
+      &solver_stats,
       &error);
   ASSERT_TRUE(IsSuccess(error));
 
@@ -214,6 +224,19 @@ TEST_F(MicmCApiTest, SolveMicmInstance)
   ASSERT_NE(concentrations[2], 0.8);
   ASSERT_NE(concentrations[3], 0.01);
   ASSERT_NE(concentrations[4], 0.02);
+
+  std::cout << "Solver state: " << solver_state.value_ << std::endl;
+  std::cout << "Function Calls: " << solver_stats.function_calls_ << std::endl;
+  std::cout << "Jacobian updates:" << solver_stats.jacobian_updates_ << std::endl;
+  std::cout << "Number of steps: " << solver_stats.number_of_steps_ << std::endl;
+  std::cout << "Accepted: " << solver_stats.accepted_ << std::endl;
+  std::cout << "Rejected: " << solver_stats.rejected_ << std::endl;
+  std::cout << "Decompositions: " << solver_stats.decompositions_ << std::endl;
+  std::cout << "Solves: " << solver_stats.solves_ << std::endl;
+  std::cout << "Singular: " << solver_stats.singular_ << std::endl;
+  std::cout << "Final time: " << solver_stats.final_time_ << std::endl;
+
+  DeleteString(&solver_state);
   DeleteError(&error);
 }
 
