@@ -7,3 +7,4 @@ Tutorial
    :caption: Contents:
 
    chapter1.rst
+   chapter2.rst

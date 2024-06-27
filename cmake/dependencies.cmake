@@ -51,7 +51,7 @@ endif()
 if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE)
 
   set_git_default(MICM_GIT_REPOSITORY https://github.com/NCAR/micm.git)
-  set_git_default(MICM_GIT_TAG 401add1bb3d0db9cd13464ed0566dc2599f02ca9)
+  set_git_default(MICM_GIT_TAG v3.5.0)
 
   FetchContent_Declare(micm
       GIT_REPOSITORY ${MICM_GIT_REPOSITORY}
@@ -74,7 +74,7 @@ if (MUSICA_ENABLE_TUVX AND MUSICA_BUILD_C_CXX_INTERFACE)
   set(TUVX_INSTALL_INCLUDE_DIR ${MUSICA_INSTALL_INCLUDE_DIR} CACHE STRING "" FORCE)
 
   set_git_default(TUVX_GIT_REPOSITORY https://github.com/NCAR/tuv-x.git)
-  set_git_default(TUVX_GIT_TAG 15159586048476d3857b30eec530fbcc1b5971be)
+  set_git_default(TUVX_GIT_TAG v0.9.0)
 
   FetchContent_Declare(tuvx
     GIT_REPOSITORY ${TUVX_GIT_REPOSITORY}

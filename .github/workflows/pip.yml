@@ -1,0 +1,37 @@
+name: Pip
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [windows-latest, macos-13, ubuntu-latest]
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
+        # python versions: https://devguide.python.org/versions/
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Add requirements
+      run: python -m pip install --upgrade wheel setuptools
+
+    - name: Build and install
+      run: pip install --verbose .[test]
+
+    - name: Test
+      run: python -m unittest discover -s python/test

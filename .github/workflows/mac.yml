@@ -21,7 +21,7 @@ jobs:
           - { cpp: g++-11, c: gcc-11, fc: gfortran-11}
           - { cpp: g++-12, c: gcc-12, fc: gfortran-12}
           - { cpp: g++-13, c: gcc-13, fc: gfortran-13}
-          - { cpp: clang++, c: clang}
+          - { cpp: clang++, c: clang, fc: gfortran-12}
         build_type: [Release]
     env:
       CC: ${{ matrix.compiler.c }}
@@ -35,7 +35,7 @@ jobs:
         run: brew install netcdf netcdf-fortran
 
       - uses: actions/setup-python@v5
-      - run: pip install -r python/requirements.txt --user
+      - run: pip install numpy --user
 
       - name: Run Cmake 
         if: matrix.compiler.cpp != 'g++-13'
@@ -67,7 +67,7 @@ jobs:
       - name: Run tests
         run: |
           cd build
-          ctest -C ${{ matrix.build_type }} --rerun-failed --output-on-failure . --verbose -j 10
+          ctest -C ${{ matrix.build_type }} --rerun-failed --output-on-failure . --verbose
 
   fortran:
     runs-on: macos-latest
