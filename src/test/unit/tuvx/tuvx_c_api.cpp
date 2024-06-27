@@ -77,8 +77,30 @@ TEST_F(TuvxCApiTest, CanGetGrid)
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_NE(grid, nullptr);
   std::vector<double> edges = { 0.0, 1.0, 2.0 };
-  ASSERT_NO_THROW(SetEdges(grid, edges.data(), edges.size(), &error););
+  ASSERT_NO_THROW(SetGridEdges(grid, edges.data(), edges.size(), &error););
   std::vector<double> midpoints = { 0.5, 1.5 };
-  ASSERT_NO_THROW(SetMidpoints(grid, midpoints.data(), midpoints.size(), &error););
+  ASSERT_NO_THROW(SetGridMidpoints(grid, midpoints.data(), midpoints.size(), &error););
+  DeleteError(&error);
+}
+
+TEST_F(TuvxCApiTest, CanGetProfile)
+{
+  const char* yaml_config_path = "examples/ts1_tsmlt.yml";
+  SetUp(yaml_config_path);
+  Error error;
+  ProfileMap* profile_map = GetProfileMap(tuvx, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_NE(profile_map, nullptr);
+  Profile* profile = GetProfile(profile_map, "air", "molecule cm-3", &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_NE(profile, nullptr);
+  std::vector<double> edge_values = { 0.0, 1.0, 2.0 };
+  ASSERT_NO_THROW(SetProfileEdgeValues(profile, edge_values.data(), edge_values.size(), &error););
+  std::vector<double> midpoint_values = { 0.5, 1.5 };
+  ASSERT_NO_THROW(SetProfileMidpointValues(profile, midpoint_values.data(), midpoint_values.size(), &error););
+  std::vector<double> densities = { 1.0, 2.0 };
+  ASSERT_NO_THROW(SetProfileLayerDensities(profile, densities.data(), densities.size(), &error););
+  ASSERT_NO_THROW(SetProfileExoLayerDensity(profile, 3.0, &error););
+  ASSERT_NO_THROW(CalculateProfileExoLayerDensity(profile, 1.0, &error););
   DeleteError(&error);
 }

@@ -61,6 +61,68 @@ namespace musica
     std::vector<std::unique_ptr<Grid>> grids_;
   };
 
+  struct Profile
+  {
+    Profile(void *profile)
+        : profile_(profile)
+    {
+    }
+    ~Profile();
+
+    /// @brief Sets the profile values at the edges of the grid
+    /// @param edge_values The values at the edges of the grid
+    /// @param num_values The number of values
+    /// @param error The error struct to indicate success or failure
+    void SetEdgeValues(double edge_values[], std::size_t num_values, Error *error);
+
+    /// @brief Sets the profile values at the midpoints of the grid
+    /// @param midpoint_values The values at the midpoints of the grid
+    /// @param num_values The number of values
+    /// @param error The error struct to indicate success or failure
+    void SetMidpointValues(double midpoint_values[], std::size_t num_values, Error *error);
+
+    /// @brief Sets the layer densities for each grid section
+    /// @param layer_densities The layer densities
+    /// @param num_values The number of values
+    /// @param error The error struct to indicate success or failure
+    void SetLayerDensities(double layer_densities[], std::size_t num_values, Error *error);
+
+    /// @brief Sets the layer density above the top of the grid
+    /// @param exo_layer_density The layer density above the top of the grid
+    /// @param error The error struct to indicate success or failure
+    void SetExoLayerDensity(double exo_layer_density, Error *error);
+
+    /// @brief Calculates an exo layer density based on a provided scale height
+    /// @param scale_height The scale height to use in the calculation
+    /// @param error The error struct to indicate success or failure
+    void CalculateExoLayerDensity(double scale_height, Error *error);
+
+   private:
+    void *profile_;
+  };
+
+  /// @brief A struct used to store a collection of profiles
+  struct ProfileMap
+  {
+    ProfileMap(void *profile_map)
+        : profile_map_(profile_map)
+    {
+    }
+    ~ProfileMap();
+
+    /// @brief Returns a profile. For now, this calls the interal tuvx fortran api, but will allow the change to c++ later on to
+    /// be transparent to downstream projects
+    /// @param profile_name The name of the profile we want
+    /// @param profile_units The units of the profile we want
+    /// @param error The error struct to indicate success or failure
+    /// @return a profile pointer
+    Profile *GetProfile(const char *profile_name, const char *profile_units, Error *error);
+
+   private:
+    void *profile_map_;
+    std::vector<std::unique_ptr<Profile>> profiles_;
+  };
+
   class TUVX;
 
 #ifdef __cplusplus
@@ -74,8 +136,15 @@ namespace musica
     void DeleteTuvx(const TUVX *tuvx, Error *error);
     GridMap *GetGridMap(TUVX *tuvx, Error *error);
     Grid *GetGrid(GridMap *grid_map, const char *grid_name, const char *grid_units, Error *error);
-    void SetEdges(Grid *grid, double edges[], std::size_t num_edges, Error *error);
-    void SetMidpoints(Grid *grid, double midpoints[], std::size_t num_midpoints, Error *error);
+    void SetGridEdges(Grid *grid, double edges[], std::size_t num_edges, Error *error);
+    void SetGridMidpoints(Grid *grid, double midpoints[], std::size_t num_midpoints, Error *error);
+    ProfileMap *GetProfileMap(TUVX *tuvx, Error *error);
+    Profile *GetProfile(ProfileMap *profile_map, const char *profile_name, const char *profile_units, Error *error);
+    void SetProfileEdgeValues(Profile *profile, double edge_values[], std::size_t num_values, Error *error);
+    void SetProfileMidpointValues(Profile *profile, double midpoint_values[], std::size_t num_values, Error *error);
+    void SetProfileLayerDensities(Profile *profile, double layer_densities[], std::size_t num_values, Error *error);
+    void SetProfileExoLayerDensity(Profile *profile, double exo_layer_density, Error *error);
+    void CalculateProfileExoLayerDensity(Profile *profile, double scale_height, Error *error);
 
     // for use by musica interanlly. If tuvx ever gets rewritten in C++, these functions will
     // go away but the C API will remain the same and downstream projects (like CAM-SIMA) will
@@ -93,6 +162,20 @@ namespace musica
     void InternalDeleteGrid(void *grid, int *error_code);
     void InternalSetEdges(void *grid, double edges[], std::size_t num_edges, int *error_code);
     void InternalSetMidpoints(void *grid, double midpoints[], std::size_t num_midpoints, int *error_code);
+    void *InternalGetProfileMap(void *tuvx, int *error_code);
+    void *InternalGetProfile(
+        void *profile_map,
+        const char *profile_name,
+        std::size_t profile_name_length,
+        const char *profile_units,
+        std::size_t profile_units_length,
+        int *error_code);
+    void InternalDeleteProfile(void *profile, int *error_code);
+    void InternalSetEdgeValues(void *profile, double edge_values[], std::size_t num_values, int *error_code);
+    void InternalSetMidpointValues(void *profile, double midpoint_values[], std::size_t num_values, int *error_code);
+    void InternalSetLayerDensities(void *profile, double layer_densities[], std::size_t num_values, int *error_code);
+    void InternalSetExoLayerDensity(void *profile, double exo_layer_density, int *error_code);
+    void InternalCalculateExoLayerDensity(void *profile, double scale_height, int *error_code);    
 
 #ifdef __cplusplus
   }
@@ -114,10 +197,17 @@ namespace musica
     /// @return a grid map pointer
     GridMap *CreateGridMap(Error *error);
 
+    /// @brief Create a profile map. For now, this calls the interal tuvx fortran api, but will allow the change to c++ later on
+    /// to be transparent to downstream projects
+    /// @param error The error struct to indicate success or failure
+    /// @return a profile map pointer
+    ProfileMap *CreateProfileMap(Error *error);
+
     ~TUVX();
 
    private:
     void *tuvx_;
     std::unique_ptr<GridMap> grid_map_;
+    std::unique_ptr<ProfileMap> profile_map_;
   };
 }  // namespace musica

@@ -44,6 +44,8 @@ namespace musica
     }
   }
 
+  // Grid functions
+
   GridMap *GetGridMap(TUVX *tuvx, Error *error)
   {
     DeleteError(error);
@@ -82,21 +84,94 @@ namespace musica
     }
   }
 
-  void SetEdges(Grid *grid, double edges[], std::size_t num_edges, Error *error)
+  void SetGridEdges(Grid *grid, double edges[], std::size_t num_edges, Error *error)
   {
     DeleteError(error);
     grid->SetEdges(edges, num_edges, error);
   }
 
-  void SetMidpoints(Grid *grid, double midpoints[], std::size_t num_midpoints, Error *error)
+  void SetGridMidpoints(Grid *grid, double midpoints[], std::size_t num_midpoints, Error *error)
   {
     DeleteError(error);
     grid->SetMidpoints(midpoints, num_midpoints, error);
   }
 
+  // Profile functions
+
+  ProfileMap *GetProfileMap(TUVX *tuvx, Error *error)
+  {
+    DeleteError(error);
+    return tuvx->CreateProfileMap(error);
+  }
+
+  void DeleteProfileMap(ProfileMap *profile_map, Error *error)
+  {
+    *error = NoError();
+    try
+    {
+      delete profile_map;
+    }
+    catch (const std::system_error &e)
+    {
+      *error = ToError(e);
+    }
+  }
+
+  Profile *GetProfile(ProfileMap *profile_map, const char *profile_name, const char *profile_units, Error *error)
+  {
+    DeleteError(error);
+    return profile_map->GetProfile(profile_name, profile_units, error);
+  }
+
+  void DeleteProfile(Profile *profile, Error *error)
+  {
+    *error = NoError();
+    try
+    {
+      delete profile;
+    }
+    catch (const std::system_error &e)
+    {
+      *error = ToError(e);
+    }
+  }
+
+  void SetProfileEdgeValues(Profile *profile, double edge_values[], std::size_t num_values, Error *error)
+  {
+    DeleteError(error);
+    profile->SetEdgeValues(edge_values, num_values, error);
+  }
+
+  void SetProfileMidpointValues(Profile *profile, double midpoint_values[], std::size_t num_values, Error *error)
+  {
+    DeleteError(error);
+    profile->SetMidpointValues(midpoint_values, num_values, error);
+  }
+
+  void SetProfileLayerDensities(Profile *profile, double layer_densities[], std::size_t num_values, Error *error)
+  {
+    DeleteError(error);
+    profile->SetLayerDensities(layer_densities, num_values, error);
+  }
+
+  void SetProfileExoLayerDensity(Profile *profile, double exo_layer_density, Error *error)
+  {
+    DeleteError(error);
+    profile->SetExoLayerDensity(exo_layer_density, error);
+  }
+
+  void CalculateProfileExoLayerDensity(Profile *profile, double scale_height, Error *error)
+  {
+    DeleteError(error);
+    profile->CalculateExoLayerDensity(scale_height, error);
+  }
+
+  // TUVX class functions
+
   TUVX::TUVX()
       : tuvx_(),
-        grid_map_(nullptr)
+        grid_map_(nullptr),
+        profile_map_(nullptr)
   {
   }
 
@@ -142,16 +217,37 @@ namespace musica
 
   GridMap *TUVX::CreateGridMap(Error *error)
   {
-    int error_code = 0;
-    grid_map_ = std::make_unique<GridMap>(InternalGetGridMap(tuvx_, &error_code));
     *error = NoError();
-    if (error_code != 0)
+    if (grid_map_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create grid map") };
-      return nullptr;
+      int error_code = 0;
+      grid_map_ = std::make_unique<GridMap>(InternalGetGridMap(tuvx_, &error_code));
+      if (error_code != 0)
+      {
+        *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create grid map") };
+        return nullptr;
+      }
     }
     return grid_map_.get();
   }
+
+  ProfileMap *TUVX::CreateProfileMap(Error *error)
+  {
+    *error = NoError();
+    if (profile_map_ == nullptr)
+    {
+      int error_code = 0;
+      profile_map_ = std::make_unique<ProfileMap>(InternalGetProfileMap(tuvx_, &error_code));
+      if (error_code != 0)
+      {
+        *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create profile map") };
+        return nullptr;
+      }
+    }
+    return profile_map_.get();
+  }
+
+  // GridMap class functions
 
   GridMap::~GridMap()
   {
@@ -202,6 +298,8 @@ namespace musica
     return grid;
   }
 
+  // Grid class functions
+
   Grid::~Grid()
   {
     int error_code = 0;
@@ -229,6 +327,122 @@ namespace musica
     if (error_code != 0)
     {
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to set midpoints") };
+    }
+  }
+
+  // ProfileMap class functions
+
+  ProfileMap::~ProfileMap()
+  {
+    // At the time of writing, the profile map pointer is owned by fortran memory
+    // in the tuvx core and should not be deleted here. It will be deleted when
+    // the tuvx instance is deleted
+    int error_code = 0;
+    profile_map_ = nullptr;
+  }
+
+  Profile *ProfileMap::GetProfile(const char *profile_name, const char *profile_units, Error *error)
+  {
+    if (profile_map_ == nullptr)
+    {
+      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Profile map is null") };
+      return nullptr;
+    }
+
+    int error_code = 0;
+    Profile *profile = nullptr;
+
+    try
+    {
+      *error = NoError();
+
+      profile = new Profile(InternalGetProfile(profile_map_, profile_name, strlen(profile_name), profile_units, strlen(profile_units), &error_code));
+
+      if (error_code != 0)
+      {
+        delete profile;
+        profile = nullptr;
+        *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create profile map") };
+      }
+      else
+      {
+        profiles_.push_back(std::unique_ptr<Profile>(profile));
+      }
+    }
+    catch (const std::system_error &e)
+    {
+      *error = ToError(e);
+    }
+    catch (...)
+    {
+      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create profile") };
+    }
+
+    return profile;
+  }
+
+  // Profile class functions
+
+  Profile::~Profile()
+  {
+    int error_code = 0;
+    if (profile_ != nullptr)
+      InternalDeleteProfile(profile_, &error_code);
+    profile_ = nullptr;
+  }
+
+  void Profile::SetEdgeValues(double edge_values[], std::size_t num_values, Error *error)
+  {
+    int error_code = 0;
+    InternalSetEdgeValues(profile_, edge_values, num_values, &error_code);
+    *error = NoError();
+    if (error_code != 0)
+    {
+      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to set edge values") };
+    }
+  }
+
+  void Profile::SetMidpointValues(double midpoint_values[], std::size_t num_values, Error *error)
+  {
+    int error_code = 0;
+    InternalSetMidpointValues(profile_, midpoint_values, num_values, &error_code);
+    *error = NoError();
+    if (error_code != 0)
+    {
+      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to set midpoint values") };
+    }
+  }
+
+  void Profile::SetLayerDensities(double layer_densities[], std::size_t num_values, Error *error)
+  {
+    int error_code = 0;
+    InternalSetLayerDensities(profile_, layer_densities, num_values, &error_code);
+    *error = NoError();
+    if (error_code != 0)
+    {
+      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to set layer densities") };
+    }
+  }
+
+  void Profile::SetExoLayerDensity(double exo_layer_density, Error *error)
+  {
+    int error_code = 0;
+    InternalSetExoLayerDensity(profile_, exo_layer_density, &error_code);
+    *error = NoError();
+    if (error_code != 0)
+    {
+      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to set exo layer density") };
+    }
+  }
+
+  void Profile::CalculateExoLayerDensity(double scale_height, Error *error)
+  {
+    int error_code = 0;
+    InternalCalculateExoLayerDensity(profile_, scale_height, &error_code);
+    *error = NoError();
+    if (error_code != 0)
+    {
+      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to calculate exo layer density") };
     }
   }
 
