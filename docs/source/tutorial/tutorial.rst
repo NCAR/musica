@@ -8,3 +8,4 @@ Tutorial
 
    chapter0.rst
    chapter1.rst
+   chapter2.rst

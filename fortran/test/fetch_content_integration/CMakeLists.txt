@@ -36,6 +36,7 @@ enable_testing()
 if (MUSICA_ENABLE_MICM)
   add_executable(test_micm_fortran_api test_micm_api.F90)
   add_executable(test_get_micm_version test_get_micm_version.F90)
+  add_executable(test_micm_box_model test_micm_box_model.F90)
 
   target_link_libraries(test_micm_fortran_api
     PRIVATE
@@ -66,6 +67,22 @@ if (MUSICA_ENABLE_MICM)
   add_test(
     NAME test_get_micm_version
     COMMAND $<TARGET_FILE:test_get_micm_version>
+    WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+  )
+
+  target_link_libraries(test_micm_box_model
+    PRIVATE
+      musica::musica-fortran
+  )
+
+  set_target_properties(test_micm_box_model
+    PROPERTIES
+      LINKER_LANGUAGE Fortran
+  )
+
+  add_test(
+    NAME test_micm_box_model
+    COMMAND $<TARGET_FILE:test_micm_box_model>
     WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
   )
 endif()
