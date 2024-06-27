@@ -62,6 +62,8 @@ contains
             num_user_defined_reaction_rates, user_defined_reaction_rates, solver_state, solver_stats, error)
         write(*,*) "After solving, concentrations", concentrations
 
+        deallocate( micm )
+
     end subroutine box_model
 
 end program test_micm_box_model
