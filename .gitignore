@@ -9,3 +9,6 @@ dist/
 musica.cpython-* 
 musica.egg-info
 **/*.mod
+
+**/*__pycache__*
+**/*.pyc

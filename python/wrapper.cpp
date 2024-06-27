@@ -17,11 +17,17 @@ PYBIND11_MODULE(musica, m)
       .def("__del__", [](musica::MICM &micm) {});
 
   m.def(
-      "create_micm",
+      "create_solver",
       [](const char *config_path)
       {
         musica::Error error;
         musica::MICM *micm = musica::CreateMicm(config_path, &error);
+        if (!musica::IsSuccess(error))
+        {
+          std::string message = "Error creating solver: " + std::string(error.message_.value_);
+          DeleteError(&error);
+          throw std::runtime_error(message);
+        }
         return micm;
       });
 
@@ -33,6 +39,7 @@ PYBIND11_MODULE(musica, m)
          double time_step,
          double temperature,
          double pressure,
+         double air_density,
          py::list concentrations,
          py::object custom_rate_parameters = py::none())
       {
@@ -53,20 +60,25 @@ PYBIND11_MODULE(musica, m)
             custom_rate_parameters_cpp.push_back(item.cast<double>());
           }
         }
+        musica::String solver_state;
+        musica::SolverResultStats solver_stats;
         musica::Error error;
         musica::MicmSolve(
             micm,
             time_step,
             temperature,
             pressure,
+            air_density,
             concentrations_cpp.size(),
             concentrations_cpp.data(),
             custom_rate_parameters_cpp.size(),
             custom_rate_parameters_cpp.data(),
+            &solver_state,
+            &solver_stats,
             &error);
 
         // Update the concentrations list after solving
-        for (size_t i = 0; i < concentrations_cpp.size(); ++i)
+        for (std::size_t i = 0; i < concentrations_cpp.size(); ++i)
         {
           concentrations[i] = concentrations_cpp[i];
         }

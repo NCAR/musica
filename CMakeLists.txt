@@ -1,11 +1,9 @@
 cmake_minimum_required(VERSION 3.21)
 
-project(
-  musica-distribution
-  VERSION 0.6.1
-)
+# must be on the same line so that pyproject.toml can correctly identify the version
+project(musica-distribution VERSION 0.7.0)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${CMAKE_CURRENT_LIST_DIR}/cmake)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${PROJECT_SOURCE_DIR}/cmake)
 set(CMAKE_USER_MAKE_RULES_OVERRIDE ${CMAKE_MODULE_PATH}/SetDefaults.cmake)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
@@ -126,8 +124,8 @@ if(MUSICA_ENABLE_PYTHON_LIBRARY)
   add_subdirectory(python)
 endif()
 
+################################################################################
 ###
 # Configure and display a summary file for how musica was built.
 ###
 include(summary)
-
