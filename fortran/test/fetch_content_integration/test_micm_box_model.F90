@@ -4,7 +4,7 @@ program test_micm_box_model
     use, intrinsic :: ieee_arithmetic
 
     use musica_util, only: error_t, string_t, mapping_t
-    use musica_micm, only: micm_t
+    use musica_micm, only: micm_t, solver_stats_t
 
     implicit none
 
@@ -16,9 +16,12 @@ contains
 
         character(len=256) :: config_path
 
+        real(c_double), parameter :: GAS_CONSTANT = 8.31446261815324_c_double ! J mol-1 K-1
+
         real(c_double) :: time_step
         real(c_double) :: temperature
         real(c_double) :: pressure
+        real(c_double) :: air_density
 
         integer(c_int) :: num_concentrations = 3
         real(c_double), dimension(3) :: concentrations
@@ -26,7 +29,10 @@ contains
         integer(c_int) :: num_user_defined_reaction_rates = 0
         real(c_double), dimension(:), allocatable :: user_defined_reaction_rates 
 
-        type(error_t) :: error
+        type(string_t)       :: solver_state
+        type(solver_stats_t) :: solver_stats
+        type(error_t)        :: error
+
         type(micm_t), pointer :: micm
 
         integer :: i
@@ -36,6 +42,7 @@ contains
         time_step = 200
         temperature = 273.0
         pressure = 1.0e5
+        air_density = pressure / (GAS_CONSTANT * temperature)
 
         concentrations = (/ 1.0, 1.0, 1.0 /)
 
@@ -49,8 +56,10 @@ contains
         end do
 
         write(*,*) "Solving starts..."
-        call micm%solve(time_step, temperature, pressure, num_concentrations, concentrations, &
-            num_user_defined_reaction_rates, user_defined_reaction_rates, error)
+        ! call micm%solve(time_step, temperature, pressure, num_concentrations, concentrations, &
+        !    num_user_defined_reaction_rates, user_defined_reaction_rates, error)
+        call micm%solve(time_step, temperature, pressure, air_density, num_concentrations, concentrations, &
+            num_user_defined_reaction_rates, user_defined_reaction_rates, solver_state, solver_stats, error)
         write(*,*) "After solving, concentrations", concentrations
 
     end subroutine box_model
