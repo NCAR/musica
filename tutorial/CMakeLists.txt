@@ -8,14 +8,14 @@ project(
 
 # mkdir build
 # cd build
-# cmake -Dmusica_DIR <muscia_package_dir>
-#       -Dmusica_fortran_DIR <musica_fortran_package_dir> ..
+# cmake -Dmusica_DIR=<musica_package_dir>
+#       -Dmusica-fortran_DIR=<musica-fortran_package_dir> ..
 find_package(musica)
-find_package(musica_fortran)
+find_package(musica-fortran)
 
 # mkdir build
 # cd build
-# cmake -DMUSICA_INSTALL_DIR <musica_install_dir> ..
+# cmake -DMUSICA_INSTALL_DIR=<musica_install_dir> ..
 
 set(MUSICA_INCLUDE_DIR "${MUSICA_INSTALL_DIR}/include")
 set(MUSICA_LIB_DIR "${MUSICA_INSTALL_DIR}/lib")
