@@ -374,7 +374,7 @@ module tuvx_interface
 
     ! arguments
     type(c_ptr), value, intent(in) :: profile
-    real(kind=c_double), intent(in) :: scale_height ! [[m]
+    real(kind=c_double), intent(in) :: scale_height ! [m]
     integer(kind=c_int), intent(out) :: error_code
 
     ! variables

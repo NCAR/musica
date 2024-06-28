@@ -1,6 +1,10 @@
 target_sources(musica
   PRIVATE
     interface.F90
+    grid.cpp
+    grid_map.cpp
+    profile.cpp
+    profile_map.cpp
     tuvx.cpp
     tuvx_util.F90
 )

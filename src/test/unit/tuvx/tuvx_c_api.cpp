@@ -1,4 +1,4 @@
-#include <musica/tuvx.hpp>
+#include <musica/tuvx/tuvx.hpp>
 
 #include <gtest/gtest.h>
 
