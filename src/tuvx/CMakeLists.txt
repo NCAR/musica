@@ -1,6 +1,10 @@
 target_sources(musica
   PRIVATE
     interface.F90
+    interface_grid.F90
+    interface_grid_map.F90
+    interface_profile.F90
+    interface_profile_map.F90
     grid.cpp
     grid_map.cpp
     profile.cpp
