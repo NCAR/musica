@@ -3,10 +3,7 @@
 !
 module tuvx_interface_grid
 
-  use iso_c_binding,       only : c_ptr, c_loc, c_int, c_size_t, c_char
   use tuvx_grid,           only : grid_t
-  use musica_tuvx_util,    only : to_f_string, string_t_c
-  use musica_string,       only : string_t
   
   implicit none
 
@@ -16,8 +13,71 @@ module tuvx_interface_grid
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    subroutine internal_delete_grid(grid, error_code) bind(C, name="InternalDeleteGrid")
-      use iso_c_binding, only: c_ptr, c_f_pointer
+  function internal_create_grid(grid_name, grid_name_length, units, &
+      units_length, num_sections, error_code) &
+      bind(C, name="InternalCreateGrid") result(grid)
+    use iso_c_binding, only: c_ptr, c_f_pointer, c_char, c_loc, c_size_t,     &
+                             c_int
+    use musica_tuvx_util, only: to_f_string
+    use musica_string, only: string_t
+    use tuvx_grid_from_host, only: grid_from_host_t
+    
+    ! arguments
+    type(c_ptr) :: grid
+    character(kind=c_char, len=1), dimension(*), intent(in) :: grid_name
+    integer(kind=c_size_t), intent(in), value :: grid_name_length
+    character(kind=c_char, len=1), dimension(*), intent(in) :: units
+    integer(kind=c_size_t), intent(in), value :: units_length
+    integer(kind=c_size_t), intent(in), value :: num_sections
+    integer(kind=c_int), intent(out) :: error_code
+    
+    ! variables
+    type(grid_from_host_t), pointer :: f_grid
+    type(string_t) :: f_name, f_units
+    integer :: i
+    
+    allocate(character(len=grid_name_length) :: f_name%val_)
+    do i = 1, grid_name_length
+      f_name%val_(i:i) = grid_name(i)
+    end do
+
+    allocate(character(len=units_length) :: f_units%val_)
+    do i = 1, units_length
+      f_units%val_(i:i) = units(i)
+    end do
+
+    f_grid => grid_from_host_t(f_name, f_units, int(num_sections))
+    grid = c_loc(f_grid)
+    
+  end function internal_create_grid
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function internal_get_updater(grid, error_code) &
+        bind(C, name="InternalGetUpdater") result(updater)
+     use iso_c_binding, only: c_ptr, c_f_pointer, c_loc, c_int
+     use tuvx_grid_from_host, only: grid_from_host_t, grid_updater_t
+    
+     ! arguments
+     type(c_ptr) :: updater
+     type(c_ptr), value, intent(in) :: grid
+     integer(kind=c_int), intent(out) :: error_code
+    
+     ! variables
+     type(grid_from_host_t), pointer :: f_grid
+     type(grid_updater_t), pointer :: f_updater
+    
+     call c_f_pointer(grid, f_grid)
+     allocate(f_updater, source = grid_updater_t(f_grid))
+     updater = c_loc(f_updater)
+     
+  end function internal_get_updater
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    subroutine internal_delete_grid(grid, error_code) &
+        bind(C, name="InternalDeleteGrid")
+      use iso_c_binding, only: c_ptr, c_f_pointer, c_int
     
       ! arguments
       type(c_ptr), value, intent(in) :: grid
@@ -35,47 +95,137 @@ module tuvx_interface_grid
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    subroutine internal_set_edges(grid, edges, num_edges, error_code) bind(C, name="InternalSetEdges")
-      use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_double, c_size_t
+    subroutine internal_delete_updater(updater, error_code) &
+        bind(C, name="InternalDeleteUpdater")
+      use iso_c_binding, only: c_ptr, c_f_pointer, c_int
+      use tuvx_grid_from_host, only: grid_updater_t
     
       ! arguments
-      type(c_ptr), value, intent(in)                :: grid
-      real(kind=c_double), intent(in), dimension(*) :: edges
-      integer(kind=c_size_t), intent(in), value     :: num_edges
-      integer(kind=c_int), intent(out)              :: error_code
+      type(c_ptr), value, intent(in) :: updater
+      integer(kind=c_int), intent(out) :: error_code
     
       ! variables
-      type(grid_t), pointer :: f_grid
+      type(grid_updater_t), pointer :: f_updater
     
-      call c_f_pointer(grid, f_grid)
+      call c_f_pointer(updater, f_updater)
+      if (associated(f_updater)) then
+        deallocate(f_updater)
+      end if
+    
+    end subroutine internal_delete_updater
 
-      f_grid%edge_ = edges(1:num_edges)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-      f_grid%delta_ = edges(2:num_edges) - edges(1:num_edges-1)
+    subroutine internal_set_edges(grid_updater, edges, num_edges, error_code) &
+        bind(C, name="InternalSetEdges")
+      use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_double, c_size_t, &
+                               c_int
+      use musica_constants, only: dk => musica_dk
+      use tuvx_grid_from_host, only: grid_updater_t
+    
+      ! arguments
+      type(c_ptr), value, intent(in)            :: grid_updater
+      type(c_ptr), value, intent(in)            :: edges
+      integer(kind=c_size_t), intent(in), value :: num_edges
+      integer(kind=c_int), intent(out)          :: error_code
+    
+      ! variables
+      type(grid_updater_t), pointer :: f_updater
+      real(kind=dk), pointer :: f_edges(:)
+    
+      call c_f_pointer(grid_updater, f_updater)
+      call c_f_pointer(edges, f_edges, [num_edges])
 
-      f_grid%ncells_ = num_edges - 1
+      call f_updater%update(edges = f_edges)
 
     end subroutine internal_set_edges
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    subroutine internal_set_midpoints(grid, midpoints, num_midpoints, error_code) bind(C, name="InternalSetMidpoints")
-      use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_double
+    subroutine internal_get_edges(grid, edges, num_edges, error_code) &
+        bind(C, name="InternalGetEdges")
+      use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_double, c_size_t, &
+                               c_int
+      use musica_constants, only: dk => musica_dk
+      use tuvx_grid_from_host, only: grid_from_host_t
     
       ! arguments
-      type(c_ptr), value, intent(in)                :: grid
-      real(kind=c_double), intent(in), dimension(*) :: midpoints
-      integer(kind=c_int), intent(in), value        :: num_midpoints
-      integer(kind=c_int), intent(out)              :: error_code
+      type(c_ptr), value, intent(in)            :: grid
+      type(c_ptr), value, intent(in)            :: edges
+      integer(kind=c_size_t), intent(in), value :: num_edges
+      integer(kind=c_int), intent(out)          :: error_code
+    
+      ! variables
+      type(grid_from_host_t), pointer :: f_grid
+      real(kind=dk), pointer :: f_edges(:)
+    
+      call c_f_pointer(grid, f_grid)
+      call c_f_pointer(edges, f_edges, [num_edges])
+
+      if (size(f_grid%edge_) /= num_edges) then
+        error_code = 1
+        return
+      end if
+      f_edges(:) = f_grid%edge_(:)
+
+    end subroutine internal_get_edges
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    subroutine internal_set_edges_and_midpoints(grid_updater, edges, num_edges, &
+        midpoints, num_midpoints, error_code) &
+        bind(C, name="InternalSetEdgesAndMidpoints")
+      use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_double, c_size_t
+      use musica_constants, only: dk => musica_dk
+      use tuvx_grid_from_host, only: grid_updater_t
+    
+      ! arguments
+      type(c_ptr), value, intent(in)         :: grid_updater
+      type(c_ptr), value, intent(in)         :: edges
+      integer(kind=c_size_t), intent(in), value :: num_edges
+      type(c_ptr), value, intent(in)         :: midpoints
+      integer(kind=c_int), intent(in), value :: num_midpoints
+      integer(kind=c_int), intent(out)       :: error_code
+    
+      ! variables
+      type(grid_updater_t), pointer :: f_updater
+      real(kind=dk), pointer :: f_edges(:), f_midpoints(:)
+    
+      call c_f_pointer(grid_updater, f_updater)
+      call c_f_pointer(edges, f_edges, [num_edges])
+      call c_f_pointer(midpoints, f_midpoints, [num_midpoints])
+
+      call f_updater%update(edges = f_edges, mid_points = f_midpoints)
+
+    end subroutine internal_set_edges_and_midpoints
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    subroutine internal_get_midpoints(grid, midpoints, num_midpoints, &
+        error_code) bind(C, name="InternalGetMidpoints")
+      use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_double, c_size_t
+      use musica_constants, only: dk => musica_dk
+    
+      ! arguments
+      type(c_ptr), value, intent(in)         :: grid
+      type(c_ptr), value, intent(in)         :: midpoints
+      integer(kind=c_int), intent(in), value :: num_midpoints
+      integer(kind=c_int), intent(out)       :: error_code
     
       ! variables
       type(grid_t), pointer :: f_grid
+      real(kind=dk), pointer :: f_midpoints(:)
     
       call c_f_pointer(grid, f_grid)
+      call c_f_pointer(midpoints, f_midpoints, [num_midpoints])
 
-      f_grid%mid_ = midpoints(1:num_midpoints)
+      if (size(f_grid%mid_) /= num_midpoints) then
+        error_code = 1
+        return
+      end if
+      f_midpoints(:) = f_grid%mid_(:)
 
-    end subroutine internal_set_midpoints
+    end subroutine internal_get_midpoints
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

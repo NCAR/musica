@@ -14,36 +14,81 @@ module musica_tuvx_grid
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    interface
+      function create_grid_c(grid_name, grid_units, number_of_sections, error) &
+          bind(C, name="CreateGrid")
+         use iso_c_binding, only : c_ptr, c_size_t, c_char
+         use musica_util, only: error_t_c
+         character(len=1, kind=c_char), intent(in) :: grid_name(*)
+         character(len=1, kind=c_char), intent(in) :: grid_units(*)
+         integer(c_size_t), value, intent(in) :: number_of_sections
+         type(error_t_c), intent(inout) :: error
+         type(c_ptr) :: create_grid_c
+      end function create_grid_c
+
+      subroutine delete_grid_c(grid, error) bind(C, name="DeleteGrid")
+         use iso_c_binding, only : c_ptr
+         use musica_util, only: error_t_c
+         type(c_ptr), value, intent(in) :: grid
+         type(error_t_c), intent(inout) :: error
+      end subroutine delete_grid_c
+
       subroutine set_grid_edges_c(grid, edges, n_edges, error)                   &
           bind(C, name="SetGridEdges")
-         use iso_c_binding, only : c_ptr, c_double, c_size_t
+         use iso_c_binding, only : c_ptr, c_size_t
          use musica_util, only: error_t_c
-         type(c_ptr), value, intent(in)           :: grid
-         real(c_double), dimension(*), intent(in) :: edges
-         integer(c_size_t), value                 :: n_edges
-         type(error_t_c), intent(inout)           :: error
+         type(c_ptr),       value, intent(in)    :: grid
+         type(c_ptr),       value, intent(in)    :: edges
+         integer(c_size_t), value, intent(in)    :: n_edges
+         type(error_t_c),          intent(inout) :: error
       end subroutine set_grid_edges_c
 
-      subroutine set_grid_midpoints_c(grid, midpoints, n_midpoints, error)       &
-          bind(C, name="SetGridMidpoints")
-         use iso_c_binding, only : c_ptr, c_double, c_size_t
+      subroutine get_grid_edges_c(grid, edges, n_edges, error)                   &
+          bind(C, name="GetGridEdges")
+         use iso_c_binding, only : c_ptr, c_size_t
          use musica_util, only: error_t_c
-         type(c_ptr), value, intent(in)           :: grid
-         real(c_double), dimension(*), intent(in) :: midpoints
-         integer(c_size_t), value                 :: n_midpoints
-         type(error_t_c), intent(inout)           :: error
+         type(c_ptr),       value, intent(in)    :: grid
+         type(c_ptr),       value, intent(in)    :: edges
+         integer(c_size_t), value                :: n_edges
+         type(error_t_c),          intent(inout) :: error
+      end subroutine get_grid_edges_c
+
+      subroutine set_grid_midpoints_c(grid, edges, n_edges, midpoints, &
+          n_midpoints, error) bind(C, name="SetGridEdgesAndMidpoints")
+         use iso_c_binding, only : c_ptr, c_size_t
+         use musica_util, only: error_t_c
+         type(c_ptr),       value, intent(in)    :: grid
+         type(c_ptr),       value, intent(in)    :: edges
+         integer(c_size_t), value, intent(in)    :: n_edges
+         type(c_ptr),       value, intent(in)    :: midpoints
+         integer(c_size_t), value, intent(in)    :: n_midpoints
+         type(error_t_c),          intent(inout) :: error
       end subroutine set_grid_midpoints_c
+
+      subroutine get_grid_midpoints_c(grid, midpoints, n_midpoints, error) &
+          bind(C, name="GetGridMidpoints")
+         use iso_c_binding, only : c_ptr, c_size_t
+         use musica_util, only: error_t_c
+         type(c_ptr),       value, intent(in)    :: grid
+         type(c_ptr),       value, intent(in)    :: midpoints
+         integer(c_size_t), value, intent(in)    :: n_midpoints
+         type(error_t_c),          intent(inout) :: error
+      end subroutine get_grid_midpoints_c
    end interface
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    type :: grid_t
       type(c_ptr), private :: ptr_ = c_null_ptr
+      logical, private :: owns_grid_ = .false.
    contains
       ! Set grid edges
       procedure :: set_edges
-      ! Set the grid midpoints
-      procedure :: set_midpoints
+      ! Get grid edges
+      procedure :: get_edges
+      ! Set the grid edges and midpoints
+      procedure :: set_edges_and_midpoints
+      ! Get the grid midpoints
+      procedure :: get_midpoints
       ! Deallocate the grid instance
       final :: finalize_grid_t
    end type grid_t
@@ -77,7 +122,8 @@ contains
    !> Constructs a grid instance that allocates a new TUV-x grid
    function grid_t_constructor(grid_name, grid_units, number_of_sections, error) &
        result(this)
-      use musica_util, only: error_t, error_t_c
+      use iso_c_binding, only: c_size_t
+      use musica_util, only: error_t, error_t_c, to_c_string
 
       ! Arguments
       character(len=*), intent(in) :: grid_name
@@ -86,24 +132,28 @@ contains
       type(error_t), intent(inout) :: error
 
       ! Return value
-      type(grid_t) :: this
+      type(grid_t), pointer :: this
 
       type(error_t_c) :: error_c
 
-      ! to be implemented
-      error_c%code_ = -1
+      allocate( this )
+      this%ptr_ = create_grid_c(to_c_string(grid_name), to_c_string(grid_units), &
+                                int(number_of_sections, kind=c_size_t), error_c)
+      this%owns_grid_ = .true.
+      error = error_t(error_c)
 
    end function grid_t_constructor
    
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    subroutine set_edges(this, edges, error)
-      use iso_c_binding, only: c_size_t, c_double
+      use iso_c_binding, only: c_size_t, c_loc
+      use musica_constants, only: dk => musica_dk
       use musica_util, only: error_t, error_t_c
 
       ! Arguments
       class(grid_t), intent(inout) :: this
-      real(c_double), dimension(:), intent(in) :: edges
+      real(dk), target, dimension(:), intent(in) :: edges
       type(error_t), intent(inout) :: error
 
       ! Local variables
@@ -112,20 +162,70 @@ contains
 
       n_edges = size(edges)
 
-      call set_grid_edges_c(this%ptr_, edges, n_edges, error_c)
+      call set_grid_edges_c(this%ptr_, c_loc(edges), n_edges, error_c)
       error = error_t(error_c)
 
    end subroutine set_edges
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-   subroutine set_midpoints(this, midpoints, error)
-      use iso_c_binding, only: c_size_t, c_double
+   
+   subroutine get_edges(this, edges, error)
+      use iso_c_binding, only: c_size_t, c_loc
+      use musica_constants, only: dk => musica_dk
       use musica_util, only: error_t, error_t_c
 
       ! Arguments
       class(grid_t), intent(inout) :: this
-      real(c_double), dimension(:), intent(in) :: midpoints
+      real(dk), target, dimension(:), intent(inout) :: edges
+      type(error_t), intent(inout) :: error
+
+      ! Local variables
+      type(error_t_c) :: error_c
+      integer(kind=c_size_t) :: n_edges
+
+      n_edges = size(edges)
+
+      call get_grid_edges_c(this%ptr_, c_loc(edges), n_edges, error_c)
+      error = error_t(error_c)
+
+   end subroutine get_edges
+   
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   subroutine set_edges_and_midpoints(this, edges, midpoints, error)
+      use iso_c_binding, only: c_size_t, c_loc
+      use musica_constants, only: dk => musica_dk
+      use musica_util, only: error_t, error_t_c
+
+      ! Arguments
+      class(grid_t), intent(inout) :: this
+      real(dk), target, dimension(:), intent(in) :: edges
+      real(dk), target, dimension(:), intent(in) :: midpoints
+      type(error_t), intent(inout) :: error
+
+      ! Local variables
+      type(error_t_c) :: error_c
+      integer(kind=c_size_t) :: n_edges, n_midpoints
+
+      n_edges = size(edges)
+      n_midpoints = size(midpoints)
+
+      call set_grid_midpoints_c(this%ptr_, c_loc(edges), n_edges, &
+                                c_loc(midpoints), n_midpoints, error_c)
+      error = error_t(error_c)
+
+   end subroutine set_edges_and_midpoints
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   
+   subroutine get_midpoints(this, midpoints, error)
+      use iso_c_binding, only: c_size_t, c_loc
+      use musica_constants, only: dk => musica_dk
+      use musica_util, only: error_t, error_t_c
+
+      ! Arguments
+      class(grid_t), intent(inout) :: this
+      real(dk), target, dimension(:), intent(inout) :: midpoints
       type(error_t), intent(inout) :: error
 
       ! Local variables
@@ -134,11 +234,11 @@ contains
 
       n_midpoints = size(midpoints)
 
-      call set_grid_midpoints_c(this%ptr_, midpoints, n_midpoints, error_c)
+      call get_grid_midpoints_c(this%ptr_, c_loc(midpoints), n_midpoints, error_c)
       error = error_t(error_c)
 
-   end subroutine set_midpoints
-
+   end subroutine get_midpoints
+   
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    !> Deallocate the grid instance
@@ -152,9 +252,12 @@ contains
       type(error_t_c) :: error_c
       type(error_t)   :: error
 
-      ! The pointer doesn't need to be deallocated because it is owned by the
-      ! tuvx instance
+      ! Delete the grid if it is owned by this wrapper instance
+      if (this%owns_grid_) then
+         call delete_grid_c(this%ptr_, error_c)
+      end if
       this%ptr_ = c_null_ptr
+      this%owns_grid_ = .false.
       error = error_t(error_c)
       ASSERT(error%is_success())
    end subroutine finalize_grid_t

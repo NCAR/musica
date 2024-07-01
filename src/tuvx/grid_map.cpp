@@ -65,6 +65,7 @@ namespace musica
       {
         delete grid;
         grid = nullptr;
+        DeleteError(error);
         *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create grid map") };
       }
       else

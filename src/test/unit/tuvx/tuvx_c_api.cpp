@@ -65,7 +65,7 @@ TEST_F(TuvxCApiTest, DetectsNonexistentConfigFile)
   DeleteError(&error);
 }
 
-TEST_F(TuvxCApiTest, CanGetGrid)
+TEST_F(TuvxCApiTest, CannotGetConfiguredGrid)
 {
   const char* yaml_config_path = "examples/ts1_tsmlt.yml";
   SetUp(yaml_config_path);
@@ -74,12 +74,52 @@ TEST_F(TuvxCApiTest, CanGetGrid)
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_NE(grid_map, nullptr);
   Grid* grid = GetGrid(grid_map, "height", "km", &error);
+  ASSERT_FALSE(IsSuccess(error)); // non-host grid
+  ASSERT_EQ(grid, nullptr);
+  DeleteError(&error);
+}
+
+TEST_F(TuvxCApiTest, CanCreateGrid)
+{
+  Error error;
+  Grid* grid = CreateGrid("foo", "m", 2, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_NE(grid, nullptr);
-  std::vector<double> edges = { 0.0, 1.0, 2.0 };
-  ASSERT_NO_THROW(SetGridEdges(grid, edges.data(), edges.size(), &error););
-  std::vector<double> midpoints = { 0.5, 1.5 };
-  ASSERT_NO_THROW(SetGridMidpoints(grid, midpoints.data(), midpoints.size(), &error););
+  std::vector<double> edges = { 0.0, 100.0, 200.0 };
+  SetGridEdges(grid, edges.data(), edges.size(), &error);
+  ASSERT_TRUE(IsSuccess(error));
+  for (auto& edge : edges)
+  {
+    edge = -100.0;
+  }
+  GetGridEdges(grid, edges.data(), edges.size(), &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(edges[0], 0.0);
+  ASSERT_EQ(edges[1], 100.0);
+  ASSERT_EQ(edges[2], 200.0);
+  edges = { 0.0, 90.0, 180.0 };
+  std::vector<double> midpoints = { 50.0, 150.0 };
+  SetGridEdgesAndMidpoints(grid, edges.data(), edges.size(), midpoints.data(), midpoints.size(), &error);
+  ASSERT_TRUE(IsSuccess(error));
+  for (auto& edge : edges)
+  {
+    edge = -100.0;
+  }
+  GetGridEdges(grid, edges.data(), edges.size(), &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(edges[0], 0.0);
+  ASSERT_EQ(edges[1], 90.0);
+  ASSERT_EQ(edges[2], 180.0);
+  for (auto& midpoint : midpoints)
+  {
+    midpoint = -100.0;
+  }
+  GetGridMidpoints(grid, midpoints.data(), midpoints.size(), &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(midpoints[0], 50.0);
+  ASSERT_EQ(midpoints[1], 150.0);
+  DeleteGrid(grid, &error);
+  ASSERT_TRUE(IsSuccess(error));
   DeleteError(&error);
 }
 

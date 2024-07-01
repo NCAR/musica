@@ -64,11 +64,11 @@ contains
     type(profile_t), pointer  :: profile
     ! type(profile_map_t) :: profiles
     ! type(radiator_map_t) :: radiators
-    real*8, dimension(5) :: edges, edge_values
-    real*8, dimension(4) :: midpoints, midpoint_values, layer_densities
+    real*8, dimension(5), target :: edges, edge_values, temp_edge
+    real*8, dimension(4), target :: midpoints, midpoint_values, layer_densities, temp_midpoint
 
     edges = (/ 1.0, 2.0, 3.0, 4.0, 5.0 /)
-    midpoints = (/ 1.5, 2.5, 3.5, 4.5 /)  
+    midpoints = (/ 15.0, 25.0, 35.0, 45.0 /)  
     edge_values = (/ 10.0, 20.0, 30.0, 40.0, 50.0 /)
     midpoint_values = (/ 15.0, 25.0, 35.0, 45.0 /)
     layer_densities = (/ 2.0, 4.0, 1.0, 7.0 /)
@@ -81,13 +81,44 @@ contains
     ASSERT( error%is_success() )
 
     grid => grids%get( "height", "km", error )
+    ASSERT( .not. error%is_success() ) ! non-accessible grid
+    deallocate( grid )
+
+    grid => grid_t( "foo", "bars", 4, error )
     ASSERT( error%is_success() )
 
     call grid%set_edges( edges, error )
     ASSERT( error%is_success() )
 
-    call grid%set_midpoints( midpoints, error )
+    call grid%get_edges( temp_edge, error )
     ASSERT( error%is_success() )
+    ASSERT_EQ( temp_edge(1), 1.0 )
+    ASSERT_EQ( temp_edge(2), 2.0 )
+    ASSERT_EQ( temp_edge(3), 3.0 )
+    ASSERT_EQ( temp_edge(4), 4.0 )
+    ASSERT_EQ( temp_edge(5), 5.0 )
+
+    edges = (/ 10.0, 20.0, 30.0, 40.0, 50.0 /)
+
+    call grid%set_edges_and_midpoints( edges, midpoints, error )
+    ASSERT( error%is_success() )
+
+    call grid%get_edges( temp_edge, error )
+    ASSERT( error%is_success() )
+    ASSERT_EQ( temp_edge(1), 10.0 )
+    ASSERT_EQ( temp_edge(2), 20.0 )
+    ASSERT_EQ( temp_edge(3), 30.0 )
+    ASSERT_EQ( temp_edge(4), 40.0 )
+    ASSERT_EQ( temp_edge(5), 50.0 )
+
+    call grid%get_midpoints( temp_midpoint, error )
+    ASSERT( error%is_success() )
+    ASSERT_EQ( temp_midpoint(1), 15.0 )
+    ASSERT_EQ( temp_midpoint(2), 25.0 )
+    ASSERT_EQ( temp_midpoint(3), 35.0 )
+    ASSERT_EQ( temp_midpoint(4), 45.0 )
+
+    deallocate( grid )
 
     profiles = tuvx%get_profiles( error )
     ASSERT( error%is_success() )
@@ -111,7 +142,6 @@ contains
     ASSERT( error%is_success() )
     
     deallocate( tuvx )
-    deallocate( grid )
     deallocate( profile )
 
   end subroutine test_tuvx_solve

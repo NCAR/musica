@@ -19,7 +19,9 @@ module tuvx_interface_grid_map
 
     function interal_get_grid(grid_map, c_grid_name, c_grid_name_length, c_grid_units, c_grid_units_length, error_code) &
         result(grid_ptr) bind(C, name="InternalGetGrid")
-      use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_char, c_size_t
+      use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_char, c_size_t, &
+                               c_null_ptr, c_loc
+      use tuvx_grid_from_host, only: grid_from_host_t
     
       ! arguments
       type(c_ptr), intent(in), value                   :: grid_map
@@ -30,7 +32,7 @@ module tuvx_interface_grid_map
       integer(kind=c_int), intent(out)                 :: error_code
     
       ! variables
-      type(grid_t), pointer           :: grid
+      class(grid_t), pointer          :: f_grid
       type(grid_warehouse_t), pointer :: grid_warehouse
       character(len=:), allocatable   :: f_grid_name
       character(len=:), allocatable   :: f_grid_units
@@ -51,9 +53,17 @@ module tuvx_interface_grid_map
     
       call c_f_pointer(grid_map, grid_warehouse)
 
-      grid => grid_warehouse%get_grid(f_grid_name, f_grid_units)
-    
-      grid_ptr = c_loc(grid)
+      f_grid => grid_warehouse%get_grid(f_grid_name, f_grid_units)
+
+      select type(f_grid) 
+      type is(grid_from_host_t)
+        error_code = 0
+        grid_ptr = c_loc(f_grid)
+      class default
+        error_code = 1
+        deallocate(f_grid)
+        grid_ptr = c_null_ptr
+      end select
     
     end function interal_get_grid
 
