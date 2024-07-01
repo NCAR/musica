@@ -1,0 +1,14 @@
+# ignore all
+*
+
+# add things to copy
+!CMakeLists.txt
+!musica/
+!musica-fortran/
+!docs/
+!cmake/
+!lib/
+!src/
+!test/
+!.gitmodules
+!.git/
