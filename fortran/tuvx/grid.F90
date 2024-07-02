@@ -146,8 +146,7 @@ contains
 
    subroutine set_edges(this, edges, error)
       use iso_c_binding, only: c_size_t, c_loc
-      use musica_constants, only: dk => musica_dk
-      use musica_util, only: error_t, error_t_c
+      use musica_util, only: error_t, error_t_c, dk => musica_dk
 
       ! Arguments
       class(grid_t), intent(inout) :: this
@@ -169,8 +168,7 @@ contains
    
    subroutine get_edges(this, edges, error)
       use iso_c_binding, only: c_size_t, c_loc
-      use musica_constants, only: dk => musica_dk
-      use musica_util, only: error_t, error_t_c
+      use musica_util, only: error_t, error_t_c, dk => musica_dk
 
       ! Arguments
       class(grid_t), intent(inout) :: this
@@ -192,8 +190,7 @@ contains
 
    subroutine set_edges_and_midpoints(this, edges, midpoints, error)
       use iso_c_binding, only: c_size_t, c_loc
-      use musica_constants, only: dk => musica_dk
-      use musica_util, only: error_t, error_t_c
+      use musica_util, only: error_t, error_t_c, dk => musica_dk
 
       ! Arguments
       class(grid_t), intent(inout) :: this
@@ -218,8 +215,7 @@ contains
    
    subroutine get_midpoints(this, midpoints, error)
       use iso_c_binding, only: c_size_t, c_loc
-      use musica_constants, only: dk => musica_dk
-      use musica_util, only: error_t, error_t_c
+      use musica_util, only: error_t, error_t_c, dk => musica_dk
 
       ! Arguments
       class(grid_t), intent(inout) :: this
