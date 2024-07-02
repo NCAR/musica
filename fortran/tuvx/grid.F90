@@ -153,7 +153,7 @@ contains
 
       ! Arguments
       class(grid_t), intent(inout) :: this
-      real(dk), target, dimension(:), intent(in) :: edges
+      real(dk), target, dimension(*), intent(in) :: edges
       type(error_t), intent(inout) :: error
 
       ! Local variables
@@ -176,7 +176,7 @@ contains
 
       ! Arguments
       class(grid_t), intent(inout) :: this
-      real(dk), target, dimension(:), intent(inout) :: edges
+      real(dk), target, dimension(*), intent(inout) :: edges
       type(error_t), intent(inout) :: error
 
       ! Local variables
@@ -199,8 +199,8 @@ contains
 
       ! Arguments
       class(grid_t), intent(inout) :: this
-      real(dk), target, dimension(:), intent(in) :: edges
-      real(dk), target, dimension(:), intent(in) :: midpoints
+      real(dk), target, dimension(*), intent(in) :: edges
+      real(dk), target, dimension(*), intent(in) :: midpoints
       type(error_t), intent(inout) :: error
 
       ! Local variables
@@ -225,7 +225,7 @@ contains
 
       ! Arguments
       class(grid_t), intent(inout) :: this
-      real(dk), target, dimension(:), intent(inout) :: midpoints
+      real(dk), target, dimension(*), intent(inout) :: midpoints
       type(error_t), intent(inout) :: error
 
       ! Local variables

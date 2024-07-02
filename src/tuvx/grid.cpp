@@ -70,24 +70,26 @@ namespace musica
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create grid") };
       return;
     }
-    updater_ = InternalGetUpdater(grid_, &error_code);
+    updater_ = InternalGetGridUpdater(grid_, &error_code);
     if (error_code != 0)
     {
       InternalDeleteGrid(grid_, &error_code);
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get updater") };
       return;
     }
+    owns_grid_ = true;
     *error = NoError();
   }
 
   Grid::~Grid()
   {
     int error_code = 0;
-    if (grid_ != nullptr)
+    if (grid_ != nullptr && owns_grid_)
       InternalDeleteGrid(grid_, &error_code);
     if (updater_ != nullptr)
-      InternalDeleteUpdater(updater_, &error_code);
+      InternalDeleteGridUpdater(updater_, &error_code);
     grid_ = nullptr;
+    updater_ = nullptr;
   }
 
   void Grid::SetEdges(double edges[], std::size_t num_edges, Error *error)
@@ -110,7 +112,7 @@ namespace musica
   void Grid::GetEdges(double edges[], std::size_t num_edges, Error *error)
   {
     int error_code = 0;
-    InternalGetEdges(grid_, edges, num_edges, &error_code);
+    InternalGetEdges(updater_, edges, num_edges, &error_code);
     if (error_code != 0)
     {
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get edges") };
@@ -139,7 +141,7 @@ namespace musica
   void Grid::GetMidpoints(double midpoints[], std::size_t num_midpoints, Error *error)
   {
     int error_code = 0;
-    InternalGetMidpoints(grid_, midpoints, num_midpoints, &error_code);
+    InternalGetMidpoints(updater_, midpoints, num_midpoints, &error_code);
     if (error_code != 0)
     {
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get midpoints") };

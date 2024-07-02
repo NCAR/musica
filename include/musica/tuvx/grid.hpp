@@ -14,17 +14,18 @@
 
 namespace musica
 {
+  class GridMap;
 
   /// @brief A grid struct used to access grid information in tuvx
   struct Grid
   {
 
     /// @brief Wraps an existing grid instance
-    /// @param grid The grid to wrap
-    /// @param updater The updater for the grid, or nullptr if not updatable
-    Grid(void *grid, void *updater = nullptr)
-        : grid_(grid),
-          updater_(updater)
+    /// @param updater The updater for the grid
+    Grid(void *updater)
+        : grid_(nullptr),
+          updater_(updater),
+          owns_grid_(false)
     {
     }
 
@@ -66,6 +67,9 @@ namespace musica
    private:
     void *grid_;
     void *updater_;
+    bool owns_grid_;
+
+    friend class GridMap;
   };
 
 #ifdef __cplusplus
@@ -123,8 +127,10 @@ namespace musica
     // not need to change
     void* InternalCreateGrid(const char *grid_name, std::size_t grid_name_length, const char *units, std::size_t units_length, std::size_t num_sections, int *error_code);
     void InternalDeleteGrid(void *grid, int *error_code);
-    void* InternalGetUpdater(void *grid, int *error_code);
-    void InternalDeleteUpdater(void *updater, int *error_code);
+    void* InternalGetGridUpdater(void *grid, int *error_code);
+    void InternalDeleteGridUpdater(void *updater, int *error_code);
+    std::string InternalGetGridName(void *grid, int *error_code);
+    std::string InternalGetGridUnits(void *grid, int *error_code);
     void InternalSetEdges(void *grid, double edges[], std::size_t num_edges, int *error_code);
     void InternalGetEdges(void *grid, double edges[], std::size_t num_edges, int *error_code);
     void InternalSetEdgesAndMidpoints(void *grid, double edges[], std::size_t num_edges, double midpoints[], std::size_t num_midpoints, int *error_code);

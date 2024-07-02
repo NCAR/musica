@@ -123,6 +123,74 @@ TEST_F(TuvxCApiTest, CanCreateGrid)
   DeleteError(&error);
 }
 
+TEST_F(TuvxCApiTest, CanCreateGridMap)
+{
+  Error error;
+  GridMap* grid_map = CreateGridMap(&error);
+  ASSERT_TRUE(IsSuccess(error));
+  Grid* foo_grid = CreateGrid("foo", "m", 2, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_NE(foo_grid, nullptr);
+  AddGrid(grid_map, foo_grid, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  Grid* bar_grid = CreateGrid("bar", "m", 3, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_NE(bar_grid, nullptr);
+  AddGrid(grid_map, bar_grid, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_NE(grid_map, nullptr);
+  double edge_values[] = { 0.0, 1.0, 2.0 };
+  double midpoint_values[] = { 0.5, 1.5 };
+  SetGridEdgesAndMidpoints(foo_grid, edge_values, 3, midpoint_values, 2, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  for (auto& edge : edge_values)
+  {
+    edge = -100.0;
+  }
+  for (auto& midpoint : midpoint_values)
+  {
+    midpoint = -100.0;
+  }
+  GetGridEdges(foo_grid, edge_values, 3, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(edge_values[0], 0.0);
+  ASSERT_EQ(edge_values[1], 1.0);
+  ASSERT_EQ(edge_values[2], 2.0);
+  GetGridMidpoints(foo_grid, midpoint_values, 2, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(midpoint_values[0], 0.5);
+  ASSERT_EQ(midpoint_values[1], 1.5);
+  Grid *foo_copy = GetGrid(grid_map, "foo", "m", &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_NE(foo_copy, nullptr);
+  for (auto& edge : edge_values)
+  {
+    edge = -100.0;
+  }
+  for (auto& midpoint : midpoint_values)
+  {
+    midpoint = -100.0;
+  }
+  GetGridEdges(foo_copy, edge_values, 3, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(edge_values[0], 0.0);
+  ASSERT_EQ(edge_values[1], 1.0);
+  ASSERT_EQ(edge_values[2], 2.0);
+  GetGridMidpoints(foo_copy, midpoint_values, 2, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(midpoint_values[0], 0.5);
+  ASSERT_EQ(midpoint_values[1], 1.5);
+  DeleteGrid(foo_grid, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteGrid(bar_grid, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteGrid(foo_copy, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteGridMap(grid_map, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteError(&error);
+}
+
 TEST_F(TuvxCApiTest, CanGetProfile)
 {
   const char* yaml_config_path = "examples/ts1_tsmlt.yml";

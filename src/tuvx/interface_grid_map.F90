@@ -17,6 +17,73 @@ module tuvx_interface_grid_map
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+   function internal_create_grid_map(error_code) result(grid_map) &
+       bind(C, name="InternalCreateGridMap")
+      use iso_c_binding, only: c_ptr, c_int
+      use tuvx_grid_warehouse, only: grid_warehouse_t
+
+      ! arguments
+      integer(kind=c_int), intent(out) :: error_code
+
+      ! result
+      type(c_ptr) :: grid_map
+
+      ! variables
+      type(grid_warehouse_t), pointer :: f_grid_warehouse
+
+      f_grid_warehouse => grid_warehouse_t()
+      grid_map = c_loc(f_grid_warehouse)
+      error_code = 0
+
+    end function internal_create_grid_map
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  subroutine internal_delete_grid_map(grid_map, error_code) &
+      bind(C, name="InternalDeleteGridMap")
+    use iso_c_binding, only: c_ptr, c_int, c_f_pointer
+    use tuvx_grid_warehouse, only: grid_warehouse_t
+
+    ! arguments
+    type(c_ptr), intent(in), value :: grid_map
+    integer(kind=c_int), intent(out) :: error_code
+
+    ! variables
+    type(grid_warehouse_t), pointer :: f_grid_warehouse
+
+    call c_f_pointer(grid_map, f_grid_warehouse)
+    deallocate(f_grid_warehouse)
+    error_code = 0
+
+  end subroutine internal_delete_grid_map
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  subroutine internal_add_grid(grid_map, grid, error_code) &
+      bind(C, name="InternalAddGrid")
+    use iso_c_binding, only: c_ptr, c_int, c_f_pointer
+    use tuvx_grid_warehouse, only: grid_warehouse_t
+    use tuvx_grid_from_host, only: grid_from_host_t
+
+    ! arguments
+    type(c_ptr), intent(in), value :: grid_map
+    type(c_ptr), intent(in), value :: grid
+    integer(kind=c_int), intent(out) :: error_code
+
+    ! variables
+    type(grid_warehouse_t), pointer :: f_grid_warehouse
+    type(grid_from_host_t), pointer :: f_grid
+
+    call c_f_pointer(grid_map, f_grid_warehouse)
+    call c_f_pointer(grid, f_grid)
+
+    error_code = 0
+    call f_grid_warehouse%add(f_grid)
+
+  end subroutine internal_add_grid
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
     function interal_get_grid(grid_map, c_grid_name, c_grid_name_length, c_grid_units, c_grid_units_length, error_code) &
         result(grid_ptr) bind(C, name="InternalGetGrid")
       use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_char, c_size_t, &
@@ -66,6 +133,37 @@ module tuvx_interface_grid_map
       end select
     
     end function interal_get_grid
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function internal_get_grid_updater_from_map(grid_map, grid, error_code) &
+      result(grid_updater) bind(C, name="InternalGetGridUpdaterFromMap")
+    use iso_c_binding, only: c_ptr, c_f_pointer, c_loc
+    use tuvx_grid_warehouse, only: grid_warehouse_t
+    use tuvx_grid_from_host, only: grid_from_host_t, grid_updater_t
+
+    ! arguments
+    type(c_ptr), intent(in), value :: grid_map
+    type(c_ptr), intent(in), value :: grid
+    integer(kind=c_int), intent(out) :: error_code
+
+    ! output
+    type(c_ptr) :: grid_updater
+
+    ! variables
+    type(grid_warehouse_t), pointer :: f_grid_warehouse
+    type(grid_from_host_t), pointer :: f_grid
+    type(grid_updater_t), pointer :: f_grid_updater
+
+    call c_f_pointer(grid_map, f_grid_warehouse)
+    call c_f_pointer(grid, f_grid)
+
+    error_code = 0
+    allocate(f_grid_updater)
+    f_grid_updater = f_grid_warehouse%get_updater(f_grid)
+    grid_updater = c_loc(f_grid_updater)
+
+  end function internal_get_grid_updater_from_map
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
