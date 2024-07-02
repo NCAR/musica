@@ -14,6 +14,28 @@ module musica_tuvx_grid_map
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    interface
+      function create_grid_map_c(error) bind(C, name="CreateGridMap")
+         use iso_c_binding, only: c_ptr
+         use musica_util, only: error_t_c
+         type(error_t_c), intent(inout) :: error
+         type(c_ptr)                    :: create_grid_map_c
+      end function create_grid_map_c
+
+      subroutine delete_grid_map_c(grid_map, error) bind(C, name="DeleteGridMap")
+         use iso_c_binding, only: c_ptr
+         use musica_util, only: error_t_c
+         type(c_ptr), value, intent(in) :: grid_map
+         type(error_t_c), intent(inout) :: error
+      end subroutine delete_grid_map_c
+
+      subroutine add_grid_c(grid_map, grid, error) bind(C, name="AddGrid")
+         use iso_c_binding, only: c_ptr
+         use musica_util, only: error_t_c
+         type(c_ptr), value, intent(in) :: grid_map
+         type(c_ptr), value, intent(in) :: grid
+         type(error_t_c), intent(inout) :: error
+      end subroutine add_grid_c
+
       function get_grid_c(grid_map, grid_name, grid_units, error)                &
           bind(C, name="GetGrid")
          use musica_util, only: error_t_c
@@ -30,6 +52,7 @@ module musica_tuvx_grid_map
    type :: grid_map_t
       type(c_ptr) :: ptr_ = c_null_ptr
    contains
+      procedure :: add => add_grid
       procedure :: get => get_grid
       ! Deallocate the grid map instance
       final :: finalize_grid_map_t
@@ -37,6 +60,7 @@ module musica_tuvx_grid_map
 
    interface grid_map_t
       procedure grid_map_t_ptr_constructor
+      procedure grid_map_t_constructor
    end interface grid_map_t
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -45,7 +69,7 @@ contains
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-   !> Construct a grid map instance
+   !> Wraps an existing grid map
    function grid_map_t_ptr_constructor(grid_map_c_ptr) result(this)
       ! Arguments
       type(c_ptr), intent(in) :: grid_map_c_ptr
@@ -53,8 +77,50 @@ contains
       type(grid_map_t) :: this
 
       this%ptr_ = grid_map_c_ptr
+
    end function grid_map_t_ptr_constructor
 
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   
+   !> Creates a new grid map
+   function grid_map_t_constructor(error) result(this)
+      use musica_util, only: error_t, error_t_c, assert
+
+      ! Arguments
+      type(error_t), intent(inout) :: error
+
+      ! Return value
+      type(grid_map_t) :: this
+
+      ! Local variables
+      type(error_t_c) :: error_c
+
+      this%ptr_ = create_grid_map_c(error_c)
+      error = error_t(error_c)
+      ASSERT(error%is_success())
+
+   end function grid_map_t_constructor
+   
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   
+   !> Adds a grid to a grid map
+   subroutine add_grid(this, grid, error)
+      use musica_tuvx_grid, only: grid_t
+      use musica_util, only: error_t, error_t_c, assert
+
+      ! Arguments
+      class(grid_map_t), intent(inout) :: this
+      type(grid_t),      intent(in)    :: grid
+      type(error_t),     intent(inout) :: error
+
+      ! Local variables
+      type(error_t_c) :: error_c
+
+      call add_grid_c(this%ptr_, grid%ptr_, error_c)
+      error = error_t(error_c)
+   
+   end subroutine add_grid
+   
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    !> Get a grid given its name and units
@@ -95,8 +161,7 @@ contains
       type(error_t_c) :: error_c
       type(error_t)   :: error
 
-      ! The pointer doesn't need to be deallocated because it is owned by the
-      ! tuvx instance
+      call delete_grid_map_c(this%ptr_, error_c)
       this%ptr_ = c_null_ptr
       error = error_t(error_c)
       ASSERT(error%is_success())

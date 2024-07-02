@@ -78,8 +78,7 @@ module musica_tuvx_grid
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    type :: grid_t
-      type(c_ptr), private :: ptr_ = c_null_ptr
-      logical, private :: owns_grid_ = .false.
+      type(c_ptr) :: ptr_ = c_null_ptr
    contains
       ! Set grid edges
       procedure :: set_edges
@@ -139,7 +138,6 @@ contains
       allocate( this )
       this%ptr_ = create_grid_c(to_c_string(grid_name), to_c_string(grid_units), &
                                 int(number_of_sections, kind=c_size_t), error_c)
-      this%owns_grid_ = .true.
       error = error_t(error_c)
 
    end function grid_t_constructor
@@ -153,7 +151,7 @@ contains
 
       ! Arguments
       class(grid_t), intent(inout) :: this
-      real(dk), target, dimension(*), intent(in) :: edges
+      real(dk), target, dimension(:), intent(in) :: edges
       type(error_t), intent(inout) :: error
 
       ! Local variables
@@ -176,7 +174,7 @@ contains
 
       ! Arguments
       class(grid_t), intent(inout) :: this
-      real(dk), target, dimension(*), intent(inout) :: edges
+      real(dk), target, dimension(:), intent(inout) :: edges
       type(error_t), intent(inout) :: error
 
       ! Local variables
@@ -199,8 +197,8 @@ contains
 
       ! Arguments
       class(grid_t), intent(inout) :: this
-      real(dk), target, dimension(*), intent(in) :: edges
-      real(dk), target, dimension(*), intent(in) :: midpoints
+      real(dk), target, dimension(:), intent(in) :: edges
+      real(dk), target, dimension(:), intent(in) :: midpoints
       type(error_t), intent(inout) :: error
 
       ! Local variables
@@ -225,7 +223,7 @@ contains
 
       ! Arguments
       class(grid_t), intent(inout) :: this
-      real(dk), target, dimension(*), intent(inout) :: midpoints
+      real(dk), target, dimension(:), intent(inout) :: midpoints
       type(error_t), intent(inout) :: error
 
       ! Local variables
@@ -252,14 +250,11 @@ contains
       type(error_t_c) :: error_c
       type(error_t)   :: error
 
-      ! Delete the grid if it is owned by this wrapper instance
-      if (this%owns_grid_) then
-         call delete_grid_c(this%ptr_, error_c)
-      end if
+      call delete_grid_c(this%ptr_, error_c)
       this%ptr_ = c_null_ptr
-      this%owns_grid_ = .false.
       error = error_t(error_c)
       ASSERT(error%is_success())
+
    end subroutine finalize_grid_t
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

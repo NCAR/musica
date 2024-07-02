@@ -84,6 +84,9 @@ contains
     ASSERT( .not. error%is_success() ) ! non-accessible grid
     deallocate( grid )
 
+    grids = grid_map_t( error )
+    ASSERT( error%is_success() )
+
     grid => grid_t( "foo", "bars", 4, error )
     ASSERT( error%is_success() )
 
@@ -117,6 +120,97 @@ contains
     ASSERT_EQ( temp_midpoint(2), 25.0 )
     ASSERT_EQ( temp_midpoint(3), 35.0 )
     ASSERT_EQ( temp_midpoint(4), 45.0 )
+
+    call grids%add( grid, error )
+
+    edges(:) = 0.0
+    midpoints(:) = 0.0
+
+    call grid%get_edges( edges, error )
+    ASSERT( error%is_success() )
+    ASSERT_EQ( edges(1), 10.0 )
+    ASSERT_EQ( edges(2), 20.0 )
+    ASSERT_EQ( edges(3), 30.0 )
+    ASSERT_EQ( edges(4), 40.0 )
+    ASSERT_EQ( edges(5), 50.0 )
+
+    call grid%get_midpoints( midpoints, error )
+    ASSERT( error%is_success() )
+    ASSERT_EQ( midpoints(1), 15.0 )
+    ASSERT_EQ( midpoints(2), 25.0 )
+    ASSERT_EQ( midpoints(3), 35.0 )
+    ASSERT_EQ( midpoints(4), 45.0 )
+
+    edges = (/ 1.0, 2.0, 3.0, 4.0, 5.0 /)
+    midpoints = (/ 1.5, 2.5, 3.5, 4.5 /)
+
+    call grid%set_edges_and_midpoints( edges, midpoints, error )
+    ASSERT( error%is_success() )
+
+    edges(:) = 0.0
+    midpoints(:) = 0.0
+
+    call grid%get_edges( edges, error )
+    ASSERT( error%is_success() )
+    ASSERT_EQ( edges(1), 1.0 )
+    ASSERT_EQ( edges(2), 2.0 )
+    ASSERT_EQ( edges(3), 3.0 )
+    ASSERT_EQ( edges(4), 4.0 )
+    ASSERT_EQ( edges(5), 5.0 )
+
+    call grid%get_midpoints( midpoints, error )
+    ASSERT( error%is_success() )
+    ASSERT_EQ( midpoints(1), 1.5 )
+    ASSERT_EQ( midpoints(2), 2.5 )
+    ASSERT_EQ( midpoints(3), 3.5 )
+    ASSERT_EQ( midpoints(4), 4.5 )
+
+    deallocate( grid )
+
+    grid => grids%get( "foo", "bars", error )
+    ASSERT( error%is_success() )
+
+    edges(:) = 0.0
+    midpoints(:) = 0.0
+
+    call grid%get_edges( edges, error )
+    ASSERT( error%is_success() )
+    ASSERT_EQ( edges(1), 1.0 )
+    ASSERT_EQ( edges(2), 2.0 )
+    ASSERT_EQ( edges(3), 3.0 )
+    ASSERT_EQ( edges(4), 4.0 )
+    ASSERT_EQ( edges(5), 5.0 )
+
+    call grid%get_midpoints( midpoints, error )
+    ASSERT( error%is_success() )
+    ASSERT_EQ( midpoints(1), 1.5 )
+    ASSERT_EQ( midpoints(2), 2.5 )
+    ASSERT_EQ( midpoints(3), 3.5 )
+    ASSERT_EQ( midpoints(4), 4.5 )
+
+    edges = (/ 10.0, 20.0, 30.0, 40.0, 50.0 /)
+    midpoints = (/ 15.0, 25.0, 35.0, 45.0 /)
+
+    call grid%set_edges_and_midpoints( edges, midpoints, error )
+    ASSERT( error%is_success() )
+
+    edges(:) = 0.0
+    midpoints(:) = 0.0
+
+    call grid%get_edges( edges, error )
+    ASSERT( error%is_success() )
+    ASSERT_EQ( edges(1), 10.0 )
+    ASSERT_EQ( edges(2), 20.0 )
+    ASSERT_EQ( edges(3), 30.0 )
+    ASSERT_EQ( edges(4), 40.0 )
+    ASSERT_EQ( edges(5), 50.0 )
+
+    call grid%get_midpoints( midpoints, error )
+    ASSERT( error%is_success() )
+    ASSERT_EQ( midpoints(1), 15.0 )
+    ASSERT_EQ( midpoints(2), 25.0 )
+    ASSERT_EQ( midpoints(3), 35.0 )
+    ASSERT_EQ( midpoints(4), 45.0 )
 
     deallocate( grid )
 
