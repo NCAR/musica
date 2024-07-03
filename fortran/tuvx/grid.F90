@@ -237,6 +237,7 @@ contains
 
    !> Deallocate the grid instance
    subroutine finalize_grid_t(this)
+      use iso_c_binding, only: c_associated
       use musica_util, only: error_t, error_t_c, assert
 
       ! Arguments
@@ -246,8 +247,10 @@ contains
       type(error_t_c) :: error_c
       type(error_t)   :: error
 
-      call delete_grid_c(this%ptr_, error_c)
-      this%ptr_ = c_null_ptr
+      if (c_associated(this%ptr_)) then
+         call delete_grid_c(this%ptr_, error_c)
+         this%ptr_ = c_null_ptr
+      end if
       error = error_t(error_c)
       ASSERT(error%is_success())
 

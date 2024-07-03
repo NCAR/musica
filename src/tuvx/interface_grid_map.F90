@@ -19,7 +19,7 @@ module tuvx_interface_grid_map
 
    function internal_create_grid_map(error_code) result(grid_map) &
        bind(C, name="InternalCreateGridMap")
-      use iso_c_binding, only: c_ptr, c_int
+      use iso_c_binding, only: c_ptr, c_int, c_null_ptr
       use tuvx_grid_warehouse, only: grid_warehouse_t
 
       ! arguments
@@ -29,12 +29,18 @@ module tuvx_interface_grid_map
       type(c_ptr) :: grid_map
 
       ! variables
-      type(grid_warehouse_t), pointer :: f_grid_warehouse
+      class(grid_warehouse_t), pointer :: f_grid_warehouse
 
       f_grid_warehouse => grid_warehouse_t()
-      grid_map = c_loc(f_grid_warehouse)
-      error_code = 0
-
+      select type(f_grid_warehouse)
+      type is(grid_warehouse_t)
+        grid_map = c_loc(f_grid_warehouse)
+        error_code = 0
+      class default
+        error_code = 1
+        grid_map = c_null_ptr
+      end select
+      
     end function internal_create_grid_map
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
