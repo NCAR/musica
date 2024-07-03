@@ -18,6 +18,7 @@ class MicmCApiTest : public ::testing::Test
 
   void SetUp() override
   {
+    // if 1, Vector-ordered Rosenbrock solver, else if 2, Standard-ordered Rosenbrock solver
     short solver_type = 1;
     micm = nullptr;
     Error error;
@@ -45,6 +46,15 @@ TEST_F(MicmCApiTest, BadConfigurationFilePath)
   ASSERT_EQ(micm_bad_config, nullptr);
   ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_CONFIGURATION, MICM_CONFIGURATION_ERROR_CODE_INVALID_FILE_PATH));
   DeleteError(&error);
+}
+
+// Test case for bad configuration file path
+TEST_F(MicmCApiTest, BadSolverType)
+{
+  short solver_type = 999;
+  Error error = NoError();
+  auto micm_bad_solver_type = CreateMicm("configs/chapman", solver_type, &error);
+  ASSERT_EQ(micm_bad_solver_type, nullptr);
 }
 
 // Test case for missing species property
@@ -182,7 +192,7 @@ TEST_F(MicmCApiTest, GetUserDefinedReactionRatesOrdering)
 }
 
 // Test case for solving the MICM instance
-TEST_F(MicmCApiTest, SolveMicmInstance)
+TEST_F(MicmCApiTest, SolveMicmVectorMatrixInstance)
 {
   double time_step = 200.0;
   double temperature = 272.5;
@@ -196,6 +206,72 @@ TEST_F(MicmCApiTest, SolveMicmInstance)
   String solver_state;
   SolverResultStats solver_stats;
   Error error;
+
+  Mapping* ordering = GetUserDefinedReactionRatesOrdering(micm, &num_user_defined_reaction_rates, &error);
+  ASSERT_TRUE(IsSuccess(error));
+
+  std::vector<double> custom_rate_parameters(num_user_defined_reaction_rates, 0.0);
+  for (std::size_t i=0; i <num_user_defined_reaction_rates; i++)
+  {
+    custom_rate_parameters[ordering[i].index_] = 0.0;
+  }
+
+  MicmSolve(
+      micm,
+      time_step,
+      temperature,
+      pressure,
+      air_density,
+      num_concentrations,
+      concentrations,
+      custom_rate_parameters.size(),
+      custom_rate_parameters.data(),
+      &solver_state,
+      &solver_stats,
+      &error);
+  ASSERT_TRUE(IsSuccess(error));
+
+  // Add assertions to check the solved concentrations
+  ASSERT_EQ(concentrations[0], 0.75);
+  ASSERT_NE(concentrations[1], 0.4);
+  ASSERT_NE(concentrations[2], 0.8);
+  ASSERT_NE(concentrations[3], 0.01);
+  ASSERT_NE(concentrations[4], 0.02);
+
+  std::cout << "Solver state: " << solver_state.value_ << std::endl;
+  std::cout << "Function Calls: " << solver_stats.function_calls_ << std::endl;
+  std::cout << "Jacobian updates: " << solver_stats.jacobian_updates_ << std::endl;
+  std::cout << "Number of steps: " << solver_stats.number_of_steps_ << std::endl;
+  std::cout << "Accepted: " << solver_stats.accepted_ << std::endl;
+  std::cout << "Rejected: " << solver_stats.rejected_ << std::endl;
+  std::cout << "Decompositions: " << solver_stats.decompositions_ << std::endl;
+  std::cout << "Solves: " << solver_stats.solves_ << std::endl;
+  std::cout << "Singular: " << solver_stats.singular_ << std::endl;
+  std::cout << "Final time: " << solver_stats.final_time_ << std::endl;
+
+  DeleteString(&solver_state);
+  DeleteError(&error);
+}
+
+// Test case for solving the MICM instance
+TEST_F(MicmCApiTest, SolveMicmStandardVectorInstance)
+{
+  short solver_type = 2;
+  micm = nullptr;
+  Error error;
+  micm = CreateMicm(config_path, solver_type, &error);
+
+  double time_step = 200.0;
+  double temperature = 272.5;
+  double pressure = 101253.3;
+  constexpr double GAS_CONSTANT = 8.31446261815324;  // J mol-1 K-1
+  double air_density = pressure / (GAS_CONSTANT * temperature);
+  int num_concentrations = 5;
+  double concentrations[] = { 0.75, 0.4, 0.8, 0.01, 0.02 };
+  std::size_t num_user_defined_reaction_rates = 3;
+  double user_defined_reaction_rates[] = { 0.1, 0.2, 0.3 };
+  String solver_state;
+  SolverResultStats solver_stats;
 
   Mapping* ordering = GetUserDefinedReactionRatesOrdering(micm, &num_user_defined_reaction_rates, &error);
   ASSERT_TRUE(IsSuccess(error));
