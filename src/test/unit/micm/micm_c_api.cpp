@@ -18,9 +18,10 @@ class MicmCApiTest : public ::testing::Test
 
   void SetUp() override
   {
+    short solver_type = 1;
     micm = nullptr;
     Error error;
-    micm = CreateMicm(config_path, &error);
+    micm = CreateMicm(config_path, solver_type, &error);
 
     ASSERT_TRUE(IsSuccess(error));
     DeleteError(&error);
@@ -38,8 +39,9 @@ class MicmCApiTest : public ::testing::Test
 // Test case for bad configuration file path
 TEST_F(MicmCApiTest, BadConfigurationFilePath)
 {
+  short solver_type = 1;
   Error error = NoError();
-  auto micm_bad_config = CreateMicm("bad config path", &error);
+  auto micm_bad_config = CreateMicm("bad config path", solver_type, &error);
   ASSERT_EQ(micm_bad_config, nullptr);
   ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_CONFIGURATION, MICM_CONFIGURATION_ERROR_CODE_INVALID_FILE_PATH));
   DeleteError(&error);
@@ -189,18 +191,19 @@ TEST_F(MicmCApiTest, SolveMicmInstance)
   double air_density = pressure / (GAS_CONSTANT * temperature);
   int num_concentrations = 5;
   double concentrations[] = { 0.75, 0.4, 0.8, 0.01, 0.02 };
+  std::size_t num_user_defined_reaction_rates = 3;
+  double user_defined_reaction_rates[] = { 0.1, 0.2, 0.3 };
   String solver_state;
   SolverResultStats solver_stats;
   Error error;
 
-  auto ordering = micm->GetUserDefinedReactionRatesOrdering(&error);
+  Mapping* ordering = GetUserDefinedReactionRatesOrdering(micm, &num_user_defined_reaction_rates, &error);
   ASSERT_TRUE(IsSuccess(error));
 
-  int num_custom_rate_parameters = ordering.size();
-  std::vector<double> custom_rate_parameters(num_custom_rate_parameters, 0.0);
-  for (auto& entry : ordering)
+  std::vector<double> custom_rate_parameters(num_user_defined_reaction_rates, 0.0);
+  for (std::size_t i=0; i <num_user_defined_reaction_rates; i++)
   {
-    custom_rate_parameters[entry.second] = 0.0;
+    custom_rate_parameters[ordering[i].index_] = 0.0;
   }
 
   MicmSolve(
@@ -227,7 +230,7 @@ TEST_F(MicmCApiTest, SolveMicmInstance)
 
   std::cout << "Solver state: " << solver_state.value_ << std::endl;
   std::cout << "Function Calls: " << solver_stats.function_calls_ << std::endl;
-  std::cout << "Jacobian updates:" << solver_stats.jacobian_updates_ << std::endl;
+  std::cout << "Jacobian updates: " << solver_stats.jacobian_updates_ << std::endl;
   std::cout << "Number of steps: " << solver_stats.number_of_steps_ << std::endl;
   std::cout << "Accepted: " << solver_stats.accepted_ << std::endl;
   std::cout << "Rejected: " << solver_stats.rejected_ << std::endl;

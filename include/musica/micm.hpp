@@ -12,12 +12,22 @@
 #include <micm/solver/rosenbrock.hpp>
 #include <micm/solver/rosenbrock_solver_parameters.hpp>
 #include <micm/solver/solver.hpp>
+#include <micm/solver/solver_builder.hpp>
 #include <micm/util/matrix.hpp>
+#include <micm/util/sparse_matrix_vector_ordering.hpp>
+#include <micm/util/vector_matrix.hpp>
 
 #include <cstddef>
 #include <memory>
 #include <string>
 #include <vector>
+
+#ifndef MICM_NUM_GRID_CELLS
+  #define MICM_NUM_GRID_CELLS 1
+#endif
+#ifndef MICM_VECTOR_MATRIX_SIZE
+  #define MICM_VECTOR_MATRIX_SIZE 1
+#endif
 
 namespace musica
 {
@@ -28,6 +38,11 @@ namespace musica
   extern "C"
   {
 #endif
+    enum MICMSolver
+    {
+      Rosenbrock = 1,
+      RosenbrockStandardOrder,
+    };
 
     struct SolverResultStats
     {
@@ -87,7 +102,13 @@ namespace musica
       }
     };
 
-    MICM *CreateMicm(const char *config_path, Error *error);
+    /// @brief Create a MICM object by specifying the solver type to use
+    /// @param config_path Path to configuration file or directory containing configuration file
+    /// @param solver_type Integer value representing solver type
+    ///                    1 : Vector-ordered Rosenbrock solver
+    ///                    2 : Standard-ordered Rosenbrock solver
+    /// @param error Error struct to indicate success or failure
+    MICM *CreateMicm(const char *config_path, short solver_type, Error *error);
     void DeleteMicm(const MICM *micm, Error *error);
     void MicmSolve(
         MICM *micm,
@@ -116,12 +137,18 @@ namespace musica
   class MICM
   {
    public:
-    /// @brief Create a solver by reading and parsing configuration file
+    /// @brief Create a Rosenbrock solver of vector-ordered matrix type by reading and parsing configuration file
     /// @param config_path Path to configuration file or directory containing configuration file
     /// @param error Error struct to indicate success or failure
-    void Create(const std::string &config_path, Error *error);
+    void CreateRosenbrock(const std::string &config_path, Error *error);
+
+    /// @brief Create a Rosenbrock solver of standard-ordered matrix type by reading and parsing configuration file
+    /// @param config_path Path to configuration file or directory containing configuration file
+    /// @param error Error struct to indicate success or failure
+    void CreateRosenbrockStandard(const std::string &config_path, Error *error);
 
     /// @brief Solve the system
+    /// @param solver Pointer to solver
     /// @param time_step Time [s] to advance the state by
     /// @param temperature Temperature [K]
     /// @param pressure Pressure [Pa]
@@ -131,7 +158,9 @@ namespace musica
     /// @param num_custom_rate_parameters The size of the custom_rate_parameters array
     /// @param custom_rate_parameters Array of custom rate parameters
     /// @param error Error struct to indicate success or failure
+    template<class T>
     void Solve(
+        std::unique_ptr<T> &solver,
         double time_step,
         double temperature,
         double pressure,
@@ -144,15 +173,26 @@ namespace musica
         SolverResultStats *solver_stats,
         Error *error);
 
+    /// @brief Set solver type
+    /// @param solver_type Integer value representing solver type
+    void SetSolverType(short solver_type)
+    {
+      solver_type_ = solver_type;
+    }
+
     /// @brief Get the ordering of species
+    /// @param solver Pointer to solver
     /// @param error Error struct to indicate success or failure
     /// @return Map of species names to their indices
-    std::map<std::string, std::size_t> GetSpeciesOrdering(Error *error);
+    template<class T>
+    std::map<std::string, std::size_t> GetSpeciesOrdering(std::unique_ptr<T> &solver, Error *error);
 
     /// @brief Get the ordering of user-defined reaction rates
+    /// @param solver Pointer to solver
     /// @param error Error struct to indicate success or failure
     /// @return Map of reaction rate names to their indices
-    std::map<std::string, std::size_t> GetUserDefinedReactionRatesOrdering(Error *error);
+    template<class T>
+    std::map<std::string, std::size_t> GetUserDefinedReactionRatesOrdering(std::unique_ptr<T> &solver, Error *error);
 
     /// @brief Get a property for a chemical species
     /// @param species_name Name of the species
@@ -162,19 +202,128 @@ namespace musica
     template<class T>
     T GetSpeciesProperty(const std::string &species_name, const std::string &property_name, Error *error);
 
-    static constexpr std::size_t NUM_GRID_CELLS = 1;
+   public:
+    short solver_type_;
+
+    /// @brief Vector-ordered Rosenbrock solver type
+    using DenseMatrixVector = micm::VectorMatrix<double, MICM_VECTOR_MATRIX_SIZE>;
+    using SparseMatrixVector = micm::SparseMatrix<double, micm::SparseMatrixVectorOrdering<MICM_VECTOR_MATRIX_SIZE>>;
+    using RosenbrockVectorType = typename micm::RosenbrockSolverParameters::
+        template SolverType<micm::ProcessSet, micm::LinearSolver<SparseMatrixVector, micm::LuDecomposition>>;
+    using Rosenbrock = micm::Solver<RosenbrockVectorType, micm::State<DenseMatrixVector, SparseMatrixVector>>;
+    std::unique_ptr<Rosenbrock> rosenbrock_;
+
+    /// @brief Standard-ordered Rosenbrock solver type
+    using DenseMatrixStandard = micm::Matrix<double>;
+    using SparseMatrixStandard = micm::SparseMatrix<double, micm::SparseMatrixStandardOrdering>;
+    using RosenbrockStandardType = typename micm::RosenbrockSolverParameters::
+        template SolverType<micm::ProcessSet, micm::LinearSolver<SparseMatrixStandard, micm::LuDecomposition>>;
+    using RosenbrockStandard = micm::Solver<RosenbrockStandardType, micm::State<DenseMatrixStandard, SparseMatrixStandard>>;
+    std::unique_ptr<RosenbrockStandard> rosenbrock_standard_;
 
    private:
-    using DenseMatrixPolicy = micm::Matrix<double>;
-    using SparseMatrixPolicy = micm::SparseMatrix<double, micm::SparseMatrixStandardOrdering>;
-    using SolverPolicy = typename micm::RosenbrockSolverParameters::
-        template SolverType<micm::ProcessSet, micm::LinearSolver<SparseMatrixPolicy, micm::LuDecomposition>>;
-    using Rosenbrock = micm::Solver<SolverPolicy, micm::State<DenseMatrixPolicy, SparseMatrixPolicy>>;
-
-    std::unique_ptr<Rosenbrock> solver_;
-
     std::unique_ptr<micm::SolverParameters> solver_parameters_;
   };
+
+  template<class T>
+  inline void MICM::Solve(
+      std::unique_ptr<T> &solver,
+      double time_step,
+      double temperature,
+      double pressure,
+      double air_density,
+      int num_concentrations,
+      double *concentrations,
+      int num_custom_rate_parameters,
+      double *custom_rate_parameters,
+      String *solver_state,
+      SolverResultStats *solver_stats,
+      Error *error)
+  {
+    try
+    {
+      micm::State state = solver->GetState();
+
+      for (std::size_t i{}; i < MICM_NUM_GRID_CELLS; i++)
+      {
+        state.conditions_[i].temperature_ = temperature;
+        state.conditions_[i].pressure_ = pressure;
+        state.conditions_[i].air_density_ = air_density;
+      }
+
+      //
+      // TODO(jiwon) - set concentrations for vector matrix for more than 1 grid cells
+      //
+      state.variables_.AsVector().assign(concentrations, concentrations + num_concentrations);
+      state.custom_rate_parameters_.AsVector().assign(
+          custom_rate_parameters, custom_rate_parameters + num_custom_rate_parameters);
+
+      solver->CalculateRateConstants(state);
+      auto result = solver->Solve(time_step, state);
+
+      *solver_state = CreateString(micm::SolverStateToString(result.state_).c_str());
+
+      *solver_stats = SolverResultStats(
+          result.stats_.function_calls_,
+          result.stats_.jacobian_updates_,
+          result.stats_.number_of_steps_,
+          result.stats_.accepted_,
+          result.stats_.rejected_,
+          result.stats_.decompositions_,
+          result.stats_.solves_,
+          result.stats_.singular_,
+          result.final_time_);
+
+      for (int i = 0; i < state.variables_.AsVector().size(); i++)
+      {
+        concentrations[i] = state.variables_.AsVector()[i];
+      }
+
+      DeleteError(error);
+      *error = NoError();
+    }
+    catch (const std::system_error &e)
+    {
+      DeleteError(error);
+      *error = ToError(e);
+    }
+  }
+
+  template<class T>
+  inline std::map<std::string, std::size_t> MICM::GetSpeciesOrdering(std::unique_ptr<T> &solver, Error *error)
+  {
+    try
+    {
+      micm::State state = solver->GetState();
+      DeleteError(error);
+      *error = NoError();
+      return state.variable_map_;
+    }
+    catch (const std::system_error &e)
+    {
+      DeleteError(error);
+      *error = ToError(e);
+      return std::map<std::string, std::size_t>();
+    }
+  }
+
+  template<class T>
+  std::map<std::string, std::size_t> MICM::GetUserDefinedReactionRatesOrdering(std::unique_ptr<T> &solver, Error *error)
+  {
+    try
+    {
+      micm::State state = solver->GetState();
+      DeleteError(error);
+      *error = NoError();
+      return state.custom_rate_parameter_map_;
+    }
+    catch (const std::system_error &e)
+    {
+      DeleteError(error);
+      *error = ToError(e);
+      return std::map<std::string, std::size_t>();
+    }
+  }
 
   template<class T>
   inline T MICM::GetSpeciesProperty(const std::string &species_name, const std::string &property_name, Error *error)

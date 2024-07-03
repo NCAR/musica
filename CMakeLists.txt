@@ -38,6 +38,7 @@ set(MUSICA_SET_MICM_VECTOR_MATRIX_SIZE "2" CACHE STRING "Set MICM vector-ordered
 if(${MUSICA_SET_MICM_NUM_GRID_CELLS} LESS ${MUSICA_SET_MICM_VECTOR_MATRIX_SIZE})
   set(MUSICA_SET_MICM_VECTOR_MATRIX_SIZE ${MUSICA_SET_MICM_NUM_GRID_CELLS})
   message(STATUS "MICM vector matrix dimension must be less than or equal to the number of grid cells")
+  message(STATUS "MICM vector matrix dimension: " ${MUSICA_SET_MICM_VECTOR_MATRIX_SIZE})
 endif()
 
 cmake_dependent_option(

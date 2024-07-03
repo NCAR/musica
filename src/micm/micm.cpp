@@ -14,20 +14,37 @@
 #include <cmath>
 #include <cstddef>
 #include <filesystem>
-#include <iostream>
+#include <system_error>
 
 namespace musica
 {
-  MICM *CreateMicm(const char *config_path, Error *error)
+
+  MICM *CreateMicm(const char *config_path, short solver_type, Error *error)
   {
     DeleteError(error);
+    if ((solver_type != 1) && (solver_type != 2))
+    {
+      // TODO(jiwon) error msg?
+      return nullptr;
+    }
+
     MICM *micm = new MICM();
-    micm->Create(std::string(config_path), error);
+    if (solver_type == 1)
+    {
+      micm->SetSolverType(1);
+      micm->CreateRosenbrock(std::string(config_path), error);
+    }
+    else if (solver_type == 2)
+    {
+      micm->SetSolverType(2);
+      micm->CreateRosenbrockStandard(std::string(config_path), error);
+    }
     if (!IsSuccess(*error))
     {
       delete micm;
       return nullptr;
     }
+
     return micm;
   }
 
@@ -65,19 +82,40 @@ namespace musica
       Error *error)
   {
     DeleteError(error);
-    micm->Solve(
-        time_step,
-        temperature,
-        pressure,
-        air_density,
-        num_concentrations,
-        concentrations,
-        num_custom_rate_parameters,
-        custom_rate_parameters,
-        solver_state,
-        solver_stats,
-        error);
-  }
+
+    if (micm->solver_type_ == MICMSolver::Rosenbrock)
+    {
+      micm->Solve(
+          micm->rosenbrock_,
+          time_step,
+          temperature,
+          pressure,
+          air_density,
+          num_concentrations,
+          concentrations,
+          num_custom_rate_parameters,
+          custom_rate_parameters,
+          solver_state,
+          solver_stats,
+          error);
+    }
+    else if (micm->solver_type_ == MICMSolver::RosenbrockStandardOrder)
+    {
+      micm->Solve(
+          micm->rosenbrock_standard_,
+          time_step,
+          temperature,
+          pressure,
+          air_density,
+          num_concentrations,
+          concentrations,
+          num_custom_rate_parameters,
+          custom_rate_parameters,
+          solver_state,
+          solver_stats,
+          error);
+    }
+  };
 
   String MicmVersion()
   {
@@ -87,11 +125,22 @@ namespace musica
   Mapping *GetSpeciesOrdering(MICM *micm, std::size_t *array_size, Error *error)
   {
     DeleteError(error);
-    auto map = micm->GetSpeciesOrdering(error);
+
+    std::map<std::string, std::size_t> map;
+
+    if (micm->solver_type_ == MICMSolver::Rosenbrock)
+    {
+      map = micm->GetSpeciesOrdering(micm->rosenbrock_, error);
+    }
+    else if (micm->solver_type_ == MICMSolver::RosenbrockStandardOrder)
+    {
+      map = micm->GetSpeciesOrdering(micm->rosenbrock_standard_, error);
+    }
     if (!IsSuccess(*error))
     {
       return nullptr;
     }
+
     Mapping *species_ordering = new Mapping[map.size()];
 
     // Copy data from the map to the array of structs
@@ -110,11 +159,22 @@ namespace musica
   Mapping *GetUserDefinedReactionRatesOrdering(MICM *micm, std::size_t *array_size, Error *error)
   {
     DeleteError(error);
-    auto map = micm->GetUserDefinedReactionRatesOrdering(error);
+
+    std::map<std::string, std::size_t> map;
+
+    if (micm->solver_type_ == MICMSolver::Rosenbrock)
+    {
+      map = micm->GetUserDefinedReactionRatesOrdering(micm->rosenbrock_, error);
+    }
+    else if (micm->solver_type_ == MICMSolver::RosenbrockStandardOrder)
+    {
+      map = micm->GetUserDefinedReactionRatesOrdering(micm->rosenbrock_standard_, error);
+    }
     if (!IsSuccess(*error))
     {
       return nullptr;
     }
+
     Mapping *reactionRates = new Mapping[map.size()];
 
     // Copy data from the map to the array of structs
@@ -167,7 +227,7 @@ namespace musica
     return micm->GetSpeciesProperty<bool>(species_name_str, property_name_str, error);
   }
 
-  void MICM::Create(const std::string &config_path, Error *error)
+  void MICM::CreateRosenbrock(const std::string &config_path, Error *error)
   {
     try
     {
@@ -175,13 +235,20 @@ namespace musica
       solver_config.ReadAndParse(std::filesystem::path(config_path));
       solver_parameters_ = std::make_unique<micm::SolverParameters>(solver_config.GetSolverParams());
 
-      solver_ = std::make_unique<Rosenbrock>(micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
-                                                 micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())
-                                                 .SetSystem(solver_parameters_->system_)
-                                                 .SetReactions(solver_parameters_->processes_)
-                                                 .SetNumberOfGridCells(NUM_GRID_CELLS)
-                                                 .SetIgnoreUnusedSpecies(true)
-                                                 .Build());
+      rosenbrock_ = std::make_unique<Rosenbrock>(
+          micm::SolverBuilder<
+              micm::RosenbrockSolverParameters,
+              micm::VectorMatrix<double, MICM_VECTOR_MATRIX_SIZE>,
+              micm::SparseMatrix<double, micm::SparseMatrixVectorOrdering<MICM_VECTOR_MATRIX_SIZE>>,
+              micm::ProcessSet,
+              micm::LinearSolver<
+                  micm::SparseMatrix<double, micm::SparseMatrixVectorOrdering<MICM_VECTOR_MATRIX_SIZE>>,
+                  micm::LuDecomposition>>(micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())
+              .SetSystem(solver_parameters_->system_)
+              .SetReactions(solver_parameters_->processes_)
+              .SetNumberOfGridCells(MICM_NUM_GRID_CELLS)
+              .SetIgnoreUnusedSpecies(true)
+              .Build());
 
       DeleteError(error);
       *error = NoError();
@@ -193,55 +260,22 @@ namespace musica
     }
   }
 
-  void MICM::Solve(
-      double time_step,
-      double temperature,
-      double pressure,
-      double air_density,
-      int num_concentrations,
-      double *concentrations,
-      int num_custom_rate_parameters,
-      double *custom_rate_parameters,
-      String *solver_state,
-      SolverResultStats *solver_stats,
-      Error *error)
+  void MICM::CreateRosenbrockStandard(const std::string &config_path, Error *error)
   {
     try
     {
-      micm::State state = solver_->GetState();
+      micm::SolverConfig<> solver_config;
+      solver_config.ReadAndParse(std::filesystem::path(config_path));
+      solver_parameters_ = std::make_unique<micm::SolverParameters>(solver_config.GetSolverParams());
 
-      for (std::size_t i{}; i < NUM_GRID_CELLS; i++)
-      {
-        state.conditions_[i].temperature_ = temperature;
-        state.conditions_[i].pressure_ = pressure;
-        state.conditions_[i].air_density_ = air_density;
-      }
-
-      state.variables_.AsVector().assign(concentrations, concentrations + num_concentrations);
-
-      state.custom_rate_parameters_.AsVector().assign(
-          custom_rate_parameters, custom_rate_parameters + num_custom_rate_parameters);
-
-      solver_->CalculateRateConstants(state);
-      auto result = solver_->Solve(time_step, state);
-
-      *solver_state = CreateString(micm::SolverStateToString(result.state_).c_str());
-
-      *solver_stats = SolverResultStats(
-          result.stats_.function_calls_,
-          result.stats_.jacobian_updates_,
-          result.stats_.number_of_steps_,
-          result.stats_.accepted_,
-          result.stats_.rejected_,
-          result.stats_.decompositions_,
-          result.stats_.solves_,
-          result.stats_.singular_,
-          result.final_time_);
-
-      for (int i = 0; i < state.variables_.AsVector().size(); i++)
-      {
-        concentrations[i] = state.variables_.AsVector()[i];
-      }
+      rosenbrock_standard_ =
+          std::make_unique<RosenbrockStandard>(micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
+                                                   micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())
+                                                   .SetSystem(solver_parameters_->system_)
+                                                   .SetReactions(solver_parameters_->processes_)
+                                                   .SetNumberOfGridCells(MICM_NUM_GRID_CELLS)
+                                                   .SetIgnoreUnusedSpecies(true)
+                                                   .Build());
 
       DeleteError(error);
       *error = NoError();
@@ -250,40 +284,6 @@ namespace musica
     {
       DeleteError(error);
       *error = ToError(e);
-    }
-  }
-
-  std::map<std::string, std::size_t> MICM::GetSpeciesOrdering(Error *error)
-  {
-    try
-    {
-      micm::State state = solver_->GetState();
-      DeleteError(error);
-      *error = NoError();
-      return state.variable_map_;
-    }
-    catch (const std::system_error &e)
-    {
-      DeleteError(error);
-      *error = ToError(e);
-      return std::map<std::string, std::size_t>();
-    }
-  }
-
-  std::map<std::string, std::size_t> MICM::GetUserDefinedReactionRatesOrdering(Error *error)
-  {
-    try
-    {
-      micm::State state = solver_->GetState();
-      DeleteError(error);
-      *error = NoError();
-      return state.custom_rate_parameter_map_;
-    }
-    catch (const std::system_error &e)
-    {
-      DeleteError(error);
-      *error = ToError(e);
-      return std::map<std::string, std::size_t>();
     }
   }
 
