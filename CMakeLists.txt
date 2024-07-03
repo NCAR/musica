@@ -30,8 +30,15 @@ option(MUSICA_ENABLE_OPENMP "Enable OpemMP support" OFF)
 option(MUSICA_ENABLE_MEMCHECK "Enable memory checking" OFF)
 option(MUSICA_BUILD_DOCS "Build the documentation" OFF)
 option(MUSICA_ENABLE_MICM "Enable MICM" ON)
-option(MUSICA_ENABLE_TUVX "Enable TUV-x" ON)
-set(MUSICA_SET_MICM_VECTOR_MATRIX_SIZE "4" CACHE STRING "Set MICM vector-ordered matrix dimension")
+option(MUSICA_ENABLE_TUVX "Enable TUV-x" OFF)
+
+set(MUSICA_SET_MICM_NUM_GRID_CELLS "1" CACHE STRING "Set the number of grid cells for MICM Solver")
+set(MUSICA_SET_MICM_VECTOR_MATRIX_SIZE "2" CACHE STRING "Set MICM vector-ordered matrix dimension")
+
+if(${MUSICA_SET_MICM_NUM_GRID_CELLS} LESS ${MUSICA_SET_MICM_VECTOR_MATRIX_SIZE})
+  set(MUSICA_SET_MICM_VECTOR_MATRIX_SIZE ${MUSICA_SET_MICM_NUM_GRID_CELLS})
+  message(STATUS "MICM vector matrix dimension must be less than or equal to the number of grid cells")
+endif()
 
 cmake_dependent_option(
   MUSICA_ENABLE_PYTHON_LIBRARY "Adds pybind11, a lightweight header-only library that exposes C++ types in Python and vice versa" OFF "MUSICA_BUILD_C_CXX_INTERFACE" OFF)
