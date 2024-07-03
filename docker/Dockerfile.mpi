@@ -1,6 +1,6 @@
 FROM fedora:35
 
-ARG BUILD_TYPE=Release
+ARG BUILD_TYPE=Debug
 
 RUN dnf -y update \
     && dnf install -y sudo \

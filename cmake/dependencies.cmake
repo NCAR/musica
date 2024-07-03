@@ -51,8 +51,7 @@ endif()
 if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE)
 
   set_git_default(MICM_GIT_REPOSITORY https://github.com/NCAR/micm.git)
-  # set_git_default(MICM_GIT_TAG 401add1bb3d0db9cd13464ed0566dc2599f02ca9)
-  set_git_default(MICM_GIT_TAG musica-vector-ordered-rosenbrock)
+  set_git_default(MICM_GIT_TAG musica-vector-ordered-rosenbrock) #TODO(jiwon) need to update this
 
   FetchContent_Declare(micm
       GIT_REPOSITORY ${MICM_GIT_REPOSITORY}
@@ -62,7 +61,6 @@ if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE)
   set(MICM_ENABLE_TESTS OFF)
   set(MICM_ENABLE_EXAMPLES OFF)
   set(MICM_DEFAULT_VECTOR_MATRIX_SIZE ${MUSICA_SET_MICM_VECTOR_MATRIX_SIZE})
-  message(STATUS "MICM vector-ordered matrix dimension: ${MICM_DEFAULT_VECTOR_MATRIX_SIZE}")
 
   FetchContent_MakeAvailable(micm)
 endif()
