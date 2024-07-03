@@ -42,13 +42,14 @@ contains
     real(c_double), parameter     :: GAS_CONSTANT = 8.31446261815324_c_double ! J mol-1 K-1
     integer                       :: i
     
+    config_path = "configs/chapman"
+    solver_type = 1
     time_step = 200
     temperature = 272.5
     pressure = 101253.4
     air_density = pressure / ( GAS_CONSTANT * temperature )
     num_concentrations = 5
     concentrations = (/ 0.75, 0.4, 0.8, 0.01, 0.02 /)
-    config_path = "configs/chapman"
     num_user_defined_reaction_rates = 3
     user_defined_reaction_rates = (/ 0.1, 0.2, 0.3 /)
 
@@ -56,7 +57,7 @@ contains
     print *, "[test micm fort api] MICM version ", micm_version%get_char_array()
 
     write(*,*) "[test micm fort api] Creating MICM solver..."
-    micm => micm_t(config_path, error)
+    micm => micm_t(config_path, solver_type, error)
     ASSERT( error%is_success() )
 
     do i = 1, size( micm%species_ordering )
