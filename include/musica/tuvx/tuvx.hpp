@@ -42,7 +42,6 @@ namespace musica
 
    private:
     void *tuvx_;
-    std::unique_ptr<GridMap> grid_map_;
     std::unique_ptr<ProfileMap> profile_map_;
   };
 

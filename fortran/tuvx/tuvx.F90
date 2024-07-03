@@ -122,9 +122,9 @@ contains
       type(error_t_c)              :: error_c
 
       ! Return value
-      type(grid_map_t)    :: grid_map
+      type(grid_map_t), pointer    :: grid_map
 
-      grid_map = grid_map_t(get_grid_map_c(this%ptr_, error_c))
+      grid_map => grid_map_t(get_grid_map_c(this%ptr_, error_c))
       
       error = error_t(error_c)
 

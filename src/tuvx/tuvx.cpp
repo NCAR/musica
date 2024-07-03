@@ -62,7 +62,6 @@ namespace musica
 
   TUVX::TUVX()
       : tuvx_(),
-        grid_map_(nullptr),
         profile_map_(nullptr)
   {
   }
@@ -110,17 +109,14 @@ namespace musica
   GridMap *TUVX::CreateGridMap(Error *error)
   {
     *error = NoError();
-    if (grid_map_ == nullptr)
+    int error_code = 0;
+    GridMap* grid_map = new GridMap(InternalGetGridMap(tuvx_, &error_code));
+    if (error_code != 0)
     {
-      int error_code = 0;
-      grid_map_ = std::make_unique<GridMap>(InternalGetGridMap(tuvx_, &error_code));
-      if (error_code != 0)
-      {
-        *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create grid map") };
-        return nullptr;
-      }
+      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create grid map") };
+      return nullptr;
     }
-    return grid_map_.get();
+    return grid_map;
   }
 
   ProfileMap *TUVX::CreateProfileMap(Error *error)

@@ -57,7 +57,7 @@ contains
 
     type(tuvx_t), pointer     :: tuvx
     type(error_t)             :: error
-    type(grid_map_t)          :: grids
+    type(grid_map_t), pointer :: grids
     character(len=256)        :: config_path
     type(grid_t), pointer     :: grid
     type(profile_map_t)       :: profiles
@@ -77,14 +77,15 @@ contains
 
     tuvx => tuvx_t( config_path, error )
     ASSERT( error%is_success() )
-    grids = tuvx%get_grids( error )
+    grids => tuvx%get_grids( error )
     ASSERT( error%is_success() )
 
     grid => grids%get( "height", "km", error )
     ASSERT( .not. error%is_success() ) ! non-accessible grid
     deallocate( grid )
+    deallocate( grids )
 
-    grids = grid_map_t( error )
+    grids => grid_map_t( error )
     ASSERT( error%is_success() )
 
     grid => grid_t( "foo", "bars", 4, error )
@@ -213,6 +214,7 @@ contains
     ASSERT_EQ( midpoints(4), 45.0 )
 
     deallocate( grid )
+    deallocate( grids )
 
     profiles = tuvx%get_profiles( error )
     ASSERT( error%is_success() )

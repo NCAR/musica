@@ -74,8 +74,9 @@ contains
       ! Arguments
       type(c_ptr), intent(in) :: grid_map_c_ptr
       ! Return value
-      type(grid_map_t) :: this
+      type(grid_map_t), pointer :: this
 
+      allocate( this )
       this%ptr_ = grid_map_c_ptr
 
    end function grid_map_t_ptr_constructor
@@ -90,11 +91,12 @@ contains
       type(error_t), intent(inout) :: error
 
       ! Return value
-      type(grid_map_t) :: this
+      type(grid_map_t), pointer :: this
 
       ! Local variables
       type(error_t_c) :: error_c
 
+      allocate( this )
       this%ptr_ = create_grid_map_c(error_c)
       error = error_t(error_c)
       ASSERT(error%is_success())

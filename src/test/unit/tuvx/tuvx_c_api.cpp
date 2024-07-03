@@ -76,6 +76,8 @@ TEST_F(TuvxCApiTest, CannotGetConfiguredGrid)
   Grid* grid = GetGrid(grid_map, "height", "km", &error);
   ASSERT_FALSE(IsSuccess(error)); // non-host grid
   ASSERT_EQ(grid, nullptr);
+  DeleteGridMap(grid_map, &error);
+  ASSERT_TRUE(IsSuccess(error));
   DeleteError(&error);
 }
 
