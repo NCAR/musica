@@ -17,11 +17,17 @@ PYBIND11_MODULE(musica, m)
       .def("__del__", [](musica::MICM &micm) {});
 
   m.def(
-      "create_micm",
+      "create_solver",
       [](const char *config_path)
       {
         musica::Error error;
         musica::MICM *micm = musica::CreateMicm(config_path, &error);
+        if (!musica::IsSuccess(error))
+        {
+          std::string message = "Error creating solver: " + std::string(error.message_.value_);
+          DeleteError(&error);
+          throw std::runtime_error(message);
+        }
         return micm;
       });
 

@@ -5,7 +5,10 @@
 [![macOS](https://github.com/NCAR/musica/actions/workflows/mac.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/mac.yml)
 [![ubuntu](https://github.com/NCAR/musica/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/ubuntu.yml)
 [![windows](https://github.com/NCAR/musica/actions/workflows/windows.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/windows.yml)
+[![pip](https://github.com/NCAR/musica/actions/workflows/pip.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/pip.yml)
 [![DOI](https://zenodo.org/badge/550370528.svg)](https://zenodo.org/doi/10.5281/zenodo.7458559)
+[![PyPI version](https://badge.fury.io/py/musica.svg)](https://pypi.org/p/musica)
+[![FAIR checklist badge](https://fairsoftwarechecklist.net/badge.svg)](https://fairsoftwarechecklist.net/v0.2?f=31&a=32113&i=22322&r=123)
 
 Multi-Scale Infrastructure for Chemistry and Aerosols
 
