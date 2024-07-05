@@ -192,7 +192,7 @@ TEST_F(MicmCApiTest, GetUserDefinedReactionRatesOrdering)
   DeleteMappings(reaction_rates_ordering, array_size);
 }
 
-// Test case for solving system with vector-ordered Rosenbrock solver
+// Test case for solving system using vector-ordered Rosenbrock solver
 TEST_F(MicmCApiTest, SolveUsingVectorOrderedRosenbrock)
 {
   double time_step = 200.0;
@@ -255,7 +255,7 @@ TEST_F(MicmCApiTest, SolveUsingVectorOrderedRosenbrock)
   DeleteError(&error);
 }
 
-// Test case for solving system with standard-ordered Rosenbrock solver
+// Test case for solving system using standard-ordered Rosenbrock solver
 TEST(RosenbrockStandardOrder, SolveUsingStandardOrderedRosenbrock)
 {
   Error error;
