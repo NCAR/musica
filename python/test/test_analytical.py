@@ -11,7 +11,8 @@ class TestAnalyticalSimulation(unittest.TestCase):
         GAS_CONSTANT = 8.31446261815324
         air_density = pressure / (GAS_CONSTANT * temperature)
 
-        solver = musica.create_solver("configs/analytical")
+        solver_type = 1
+        solver = musica.create_solver("configs/analytical", solver_type)
 
         rates = musica.user_defined_reaction_rates(solver)
         ordering = musica.species_ordering(solver)

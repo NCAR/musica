@@ -12,16 +12,14 @@ PYBIND11_MODULE(musica, m)
 {
   py::class_<musica::MICM>(m, "MICM")
       .def(py::init<>())
-      .def("create", &musica::MICM::Create)
-      .def("solve", &musica::MICM::Solve)
       .def("__del__", [](musica::MICM &micm) {});
 
   m.def(
       "create_solver",
-      [](const char *config_path)
+      [](const char *config_path, short solver_type)
       {
         musica::Error error;
-        musica::MICM *micm = musica::CreateMicm(config_path, &error);
+        musica::MICM *micm = musica::CreateMicm(config_path, solver_type, &error);
         if (!musica::IsSuccess(error))
         {
           std::string message = "Error creating solver: " + std::string(error.message_.value_);
@@ -90,7 +88,18 @@ PYBIND11_MODULE(musica, m)
       [](musica::MICM *micm)
       {
         musica::Error error;
-        return micm->GetSpeciesOrdering(&error);
+        std::map<std::string, std::size_t> map;
+
+        if (micm->solver_type_ == musica::MICMSolver::Rosenbrock)
+        {
+          map = micm->GetSpeciesOrdering(micm->rosenbrock_, &error);
+        }
+        else if (micm->solver_type_ == musica::MICMSolver::RosenbrockStandardOrder)
+        {
+          map = micm->GetSpeciesOrdering(micm->rosenbrock_standard_, &error);
+        }
+
+        return map;
       },
       "Return map of get_species_ordering rates");
 
@@ -99,7 +108,18 @@ PYBIND11_MODULE(musica, m)
       [](musica::MICM *micm)
       {
         musica::Error error;
-        return micm->GetUserDefinedReactionRatesOrdering(&error);
+        std::map<std::string, std::size_t> map;
+
+        if (micm->solver_type_ == musica::MICMSolver::Rosenbrock)
+        {
+          map = micm->GetUserDefinedReactionRatesOrdering(micm->rosenbrock_, &error);
+        }
+        else if (micm->solver_type_ == musica::MICMSolver::RosenbrockStandardOrder)
+        {
+          map = micm->GetUserDefinedReactionRatesOrdering(micm->rosenbrock_standard_, &error);
+        }
+
+        return map;
       },
       "Return map of reaction rates");
 }
