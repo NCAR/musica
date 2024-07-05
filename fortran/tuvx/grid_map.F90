@@ -52,7 +52,9 @@ module musica_tuvx_grid_map
    type :: grid_map_t
       type(c_ptr) :: ptr_ = c_null_ptr
    contains
+      ! Adds a grid to the grid map
       procedure :: add => add_grid
+      ! Get a grid given its name and units
       procedure :: get => get_grid
       ! Deallocate the grid map instance
       final :: finalize_grid_map_t
@@ -99,7 +101,6 @@ contains
       allocate( this )
       this%ptr_ = create_grid_map_c(error_c)
       error = error_t(error_c)
-      ASSERT(error%is_success())
 
    end function grid_map_t_constructor
    
@@ -125,7 +126,7 @@ contains
    
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-   !> Get a grid given its name and units
+   !> Gets a grid given its name and units
    function get_grid(this, grid_name, grid_units, error) result(grid)
       use iso_c_binding, only: c_char
       use musica_tuvx_grid, only : grid_t
@@ -152,7 +153,7 @@ contains
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-   !> Deallocate the grid map instance
+   !> Deallocates the grid map instance
    subroutine finalize_grid_map_t(this)
       use iso_c_binding, only: c_associated
       use musica_util, only: error_t, error_t_c, assert
@@ -167,9 +168,9 @@ contains
       if (c_associated(this%ptr_)) then
         call delete_grid_map_c(this%ptr_, error_c)
         this%ptr_ = c_null_ptr
+        error = error_t(error_c)
+        ASSERT(error%is_success())
       end if
-      error = error_t(error_c)
-      ASSERT(error%is_success())
 
    end subroutine finalize_grid_map_t
 

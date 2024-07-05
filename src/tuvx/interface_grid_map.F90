@@ -90,7 +90,8 @@ module tuvx_interface_grid_map
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    function interal_get_grid(grid_map, c_grid_name, c_grid_name_length, c_grid_units, c_grid_units_length, error_code) &
+    function interal_get_grid(grid_map, c_grid_name, c_grid_name_length, &
+        c_grid_units, c_grid_units_length, error_code) &
         result(grid_ptr) bind(C, name="InternalGetGrid")
       use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_char, c_size_t, &
                                c_null_ptr, c_loc
@@ -143,7 +144,7 @@ module tuvx_interface_grid_map
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   function internal_get_grid_updater_from_map(grid_map, grid, error_code) &
-      result(grid_updater) bind(C, name="InternalGetGridUpdaterFromMap")
+      result(updater) bind(C, name="InternalGetGridUpdaterFromMap")
     use iso_c_binding, only: c_ptr, c_f_pointer, c_loc
     use tuvx_grid_warehouse, only: grid_warehouse_t
     use tuvx_grid_from_host, only: grid_from_host_t, grid_updater_t
@@ -154,20 +155,20 @@ module tuvx_interface_grid_map
     integer(kind=c_int), intent(out) :: error_code
 
     ! output
-    type(c_ptr) :: grid_updater
+    type(c_ptr) :: updater
 
     ! variables
     type(grid_warehouse_t), pointer :: f_grid_warehouse
     type(grid_from_host_t), pointer :: f_grid
-    type(grid_updater_t), pointer :: f_grid_updater
+    type(grid_updater_t), pointer :: f_updater
 
     call c_f_pointer(grid_map, f_grid_warehouse)
     call c_f_pointer(grid, f_grid)
 
     error_code = 0
-    allocate(f_grid_updater)
-    f_grid_updater = f_grid_warehouse%get_updater(f_grid)
-    grid_updater = c_loc(f_grid_updater)
+    allocate(f_updater)
+    f_updater = f_grid_warehouse%get_updater(f_grid)
+    updater = c_loc(f_updater)
 
   end function internal_get_grid_updater_from_map
 

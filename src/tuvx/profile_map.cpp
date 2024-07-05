@@ -14,9 +14,15 @@ namespace musica
 
   // ProfileMap external C API functions
 
+  ProfileMap *CreateProfileMap(Error *error)
+  {
+    DeleteError(error);
+    return new ProfileMap(error);
+  }
+
   void DeleteProfileMap(ProfileMap *profile_map, Error *error)
   {
-    *error = NoError();
+    DeleteError(error);
     try
     {
       delete profile_map;
@@ -25,6 +31,13 @@ namespace musica
     {
       *error = ToError(e);
     }
+    *error = NoError();
+  }
+
+  void AddProfile(ProfileMap *profile_map, Profile *profile, Error *error)
+  {
+    DeleteError(error);
+    profile_map->AddProfile(profile, error);
   }
 
   Profile *GetProfile(ProfileMap *profile_map, const char *profile_name, const char *profile_units, Error *error)
@@ -35,13 +48,83 @@ namespace musica
 
   // ProfileMap class functions
 
+  ProfileMap::ProfileMap(Error *error)
+  {
+    int error_code = 0;
+    profile_map_ = InternalCreateProfileMap(&error_code);
+    if (error_code != 0)
+    {
+      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create profile map") };
+    }
+    owns_profile_map_ = true;
+    *error = NoError();
+  }
+
   ProfileMap::~ProfileMap()
   {
-    // At the time of writing, the profile map pointer is owned by fortran memory
-    // in the tuvx core and should not be deleted here. It will be deleted when
-    // the tuvx instance is deleted
     int error_code = 0;
+    if (profile_map_ != nullptr && owns_profile_map_)
+    {
+      InternalDeleteProfileMap(profile_map_, &error_code);
+    }
     profile_map_ = nullptr;
+    owns_profile_map_ = false;
+  }
+
+  void ProfileMap::AddProfile(Profile *profile, Error *error)
+  {
+    if (profile_map_ == nullptr)
+    {
+      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Profile map is null") };
+      return;
+    }
+    if (!profile->owns_profile_)
+    {
+      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Cannot add unowned profile") };
+      return;
+    }
+    if (profile->profile_ == nullptr || profile->updater_ == nullptr)
+    {
+      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Cannot add profile in invalid state") };
+      return;
+    }
+
+    int error_code = 0;
+
+    try
+    {
+      InternalAddProfile(profile_map_, profile->profile_, &error_code);
+      if (error_code != 0)
+      {
+        *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to add profile") };
+      }
+      InternalDeleteProfileUpdater(profile->updater_, &error_code);
+      if (error_code != 0)
+      {
+        *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to delete profile updater") };
+      }
+      profile->updater_ = InternalGetProfileUpdaterFromMap(profile_map_, profile->profile_, &error_code);
+      if (error_code != 0)
+      {
+        *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get profile updater from map") };
+      }
+      InternalDeleteProfile(profile->profile_, &error_code);
+      if (error_code != 0)
+      {
+        *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to delete profile after transfer of ownership to profile map") };
+      }
+      profile->profile_ = nullptr;
+      profile->owns_profile_ = false;
+    }
+    catch (const std::system_error &e)
+    {
+      *error = ToError(e);
+    }
+    catch (...)
+    {
+      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to add profile") };
+    }
+    *error = NoError();
   }
 
   Profile *ProfileMap::GetProfile(const char *profile_name, const char *profile_units, Error *error)
@@ -52,25 +135,32 @@ namespace musica
       return nullptr;
     }
 
-    int error_code = 0;
     Profile *profile = nullptr;
 
     try
     {
-      *error = NoError();
-
-      profile = new Profile(InternalGetProfile(profile_map_, profile_name, strlen(profile_name), profile_units, strlen(profile_units), &error_code));
-
+      int error_code = 0;
+      void* profile_ptr = InternalGetProfile(profile_map_, profile_name, strlen(profile_name), profile_units, strlen(profile_units), &error_code);
       if (error_code != 0)
       {
-        delete profile;
-        profile = nullptr;
-        *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create profile map") };
+        *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get profile") };
+        return nullptr;
       }
-      else
+      void *updater_ptr = InternalGetProfileUpdaterFromMap(profile_map_, profile_ptr, &error_code);
+      if (error_code != 0)
       {
-        profiles_.push_back(std::unique_ptr<Profile>(profile));
+        *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get updater") };
+        InternalDeleteProfile(profile_ptr, &error_code);
+        return nullptr;
       }
+      InternalDeleteProfile(profile_ptr, &error_code);
+      if (error_code != 0)
+      {
+        *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to delete profile during transfer of ownership to profile map") };
+        InternalDeleteProfileUpdater(updater_ptr, &error_code);
+        return nullptr;
+      }
+      profile = new Profile(updater_ptr);
     }
     catch (const std::system_error &e)
     {
@@ -80,7 +170,7 @@ namespace musica
     {
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create profile") };
     }
-
+    *error = NoError();
     return profile;
   }
 

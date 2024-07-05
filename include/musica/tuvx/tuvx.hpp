@@ -22,7 +22,7 @@ namespace musica
     TUVX();
 
     /// @brief Create an instance of tuvx from a configuration file
-    /// @param config_path Path to configuration file or directory containing configuration file
+    /// @param config_path Path to configuration file 
     /// @param error Error struct to indicate success or failure
     void Create(const char *config_path, Error *error);
 
@@ -42,7 +42,6 @@ namespace musica
 
    private:
     void *tuvx_;
-    std::unique_ptr<ProfileMap> profile_map_;
   };
 
 #ifdef __cplusplus

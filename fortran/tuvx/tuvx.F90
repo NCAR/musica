@@ -144,9 +144,9 @@ contains
       type(error_t_c)              :: error_c
 
       ! Return value
-      type(profile_map_t) :: profile_map
+      type(profile_map_t), pointer :: profile_map
 
-      profile_map = profile_map_t(get_profile_map_c(this%ptr_, error_c))
+      profile_map => profile_map_t(get_profile_map_c(this%ptr_, error_c))
       
       error = error_t(error_c)
 

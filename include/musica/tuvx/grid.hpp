@@ -15,19 +15,11 @@
 namespace musica
 {
   class GridMap;
+  class Profile;
 
   /// @brief A grid struct used to access grid information in tuvx
   struct Grid
   {
-
-    /// @brief Wraps an existing grid instance
-    /// @param updater The updater for the grid
-    Grid(void *updater)
-        : grid_(nullptr),
-          updater_(updater),
-          owns_grid_(false)
-    {
-    }
 
     /// @brief Creates a grid instance
     /// @param grid_name The name of the grid
@@ -51,12 +43,10 @@ namespace musica
     void GetEdges(double edges[], std::size_t num_edges, Error *error);
 
     /// @brief Set the midpoints of the grid
-    /// @param edges The edges of the grid
-    /// @param num_edges the number of edges
     /// @param midpoints The midpoints of the grid
     /// @param num_midpoints the number of midpoints
     /// @param error the error struct to indicate success or failure
-    void SetEdgesAndMidpoints(double edges[], std::size_t num_edges, double midpoints[], std::size_t num_midpoints, Error *error);
+    void SetMidpoints(double midpoints[], std::size_t num_midpoints, Error *error);
 
     /// @brief Get the midpoints of the grid
     /// @param midpoints The midpoints of the grid
@@ -70,6 +60,16 @@ namespace musica
     bool owns_grid_;
 
     friend class GridMap;
+    friend class Profile;
+
+    /// @brief Wraps an existing grid instance. Used by GridMap
+    /// @param updater The updater for the grid
+    Grid(void *updater)
+        : grid_(nullptr),
+          updater_(updater),
+          owns_grid_(false)
+    {
+    }
   };
 
 #ifdef __cplusplus
@@ -108,12 +108,10 @@ namespace musica
 
     /// @brief Sets the values of the midpoints of the grid
     /// @param grid The grid to set the midpoints of
-    /// @param edges The edge values to set for the grid
-    /// @param num_edges The number of edges
     /// @param midpoints The midpoint values to set for the grid
     /// @param num_midpoints The number of midpoints
     /// @param error The error struct to indicate success or failure
-    void SetGridEdgesAndMidpoints(Grid *grid, double edges[], std::size_t num_edges, double midpoints[], std::size_t num_midpoints, Error *error);
+    void SetGridMidpoints(Grid *grid, double midpoints[], std::size_t num_midpoints, Error *error);
 
     /// @brief Gets the values of the midpoints of the grid
     /// @param grid The grid to get the midpoints of
@@ -133,7 +131,7 @@ namespace musica
     std::string InternalGetGridUnits(void *grid, int *error_code);
     void InternalSetEdges(void *grid, double edges[], std::size_t num_edges, int *error_code);
     void InternalGetEdges(void *grid, double edges[], std::size_t num_edges, int *error_code);
-    void InternalSetEdgesAndMidpoints(void *grid, double edges[], std::size_t num_edges, double midpoints[], std::size_t num_midpoints, int *error_code);
+    void InternalSetMidpoints(void *grid, double midpoints[], std::size_t num_midpoints, int *error_code);
     void InternalGetMidpoints(void *grid, double midpoints[], std::size_t num_midpoints, int *error_code);
 
 #ifdef __cplusplus

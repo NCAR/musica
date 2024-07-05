@@ -61,8 +61,7 @@ namespace musica
   // TUVX class functions
 
   TUVX::TUVX()
-      : tuvx_(),
-        profile_map_(nullptr)
+      : tuvx_()
   {
   }
 
@@ -122,17 +121,14 @@ namespace musica
   ProfileMap *TUVX::CreateProfileMap(Error *error)
   {
     *error = NoError();
-    if (profile_map_ == nullptr)
+    int error_code = 0;
+    ProfileMap* profile_map = new ProfileMap(InternalGetProfileMap(tuvx_, &error_code));
+    if (error_code != 0)
     {
-      int error_code = 0;
-      profile_map_ = std::make_unique<ProfileMap>(InternalGetProfileMap(tuvx_, &error_code));
-      if (error_code != 0)
-      {
-        *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create profile map") };
-        return nullptr;
-      }
+      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create profile map") };
+      return nullptr;
     }
-    return profile_map_.get();
+    return profile_map;
   }
 
 }  // namespace musica

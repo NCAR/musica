@@ -47,10 +47,10 @@ namespace musica
     grid->GetEdges(edges, num_edges, error);
   }
 
-  void SetGridEdgesAndMidpoints(Grid *grid, double edges[], std::size_t num_edges, double midpoints[], std::size_t num_midpoints, Error *error)
+  void SetGridMidpoints(Grid *grid, double midpoints[], std::size_t num_midpoints, Error *error)
   {
     DeleteError(error);
-    grid->SetEdgesAndMidpoints(edges, num_edges, midpoints, num_midpoints, error);
+    grid->SetMidpoints(midpoints, num_midpoints, error);
   }
 
   void GetGridMidpoints(Grid *grid, double midpoints[], std::size_t num_midpoints, Error *error)
@@ -112,6 +112,11 @@ namespace musica
   void Grid::GetEdges(double edges[], std::size_t num_edges, Error *error)
   {
     int error_code = 0;
+    if (updater_ == nullptr)
+    {
+      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Grid is not accessible") };
+      return;
+    }
     InternalGetEdges(updater_, edges, num_edges, &error_code);
     if (error_code != 0)
     {
@@ -121,7 +126,7 @@ namespace musica
     *error = NoError();
   }
 
-  void Grid::SetEdgesAndMidpoints(double edges[], std::size_t num_edges, double midpoints[], std::size_t num_midpoints, Error *error)
+  void Grid::SetMidpoints(double midpoints[], std::size_t num_midpoints, Error *error)
   {
     int error_code = 0;
     if (updater_ == nullptr)
@@ -129,7 +134,7 @@ namespace musica
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Grid is not updatable") };
       return;
     }
-    InternalSetEdgesAndMidpoints(updater_, edges, num_edges, midpoints, num_midpoints, &error_code);
+    InternalSetMidpoints(updater_, midpoints, num_midpoints, &error_code);
     if (error_code != 0)
     {
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to set midpoints") };
@@ -141,6 +146,11 @@ namespace musica
   void Grid::GetMidpoints(double midpoints[], std::size_t num_midpoints, Error *error)
   {
     int error_code = 0;
+    if (updater_ == nullptr)
+    {
+      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Grid is not accessible") };
+      return;
+    }
     InternalGetMidpoints(updater_, midpoints, num_midpoints, &error_code);
     if (error_code != 0)
     {
