@@ -15,6 +15,7 @@ contains
     subroutine box_model()
 
         character(len=256) :: config_path
+        integer(c_int)     :: solver_type
 
         real(c_double), parameter :: GAS_CONSTANT = 8.31446261815324_c_double ! J mol-1 K-1
 
@@ -38,6 +39,7 @@ contains
         integer :: i
 
         config_path = "configs/analytical"
+        solver_type = 2
 
         time_step = 200
         temperature = 273.0
@@ -47,7 +49,7 @@ contains
         concentrations = (/ 1.0, 1.0, 1.0 /)
 
         write(*,*) "Creating MICM solver..."
-        micm => micm_t(config_path, error)
+        micm => micm_t(config_path, solver_type, error)
 
         do i = 1, size( micm%species_ordering )
             associate(the_mapping => micm%species_ordering(i))

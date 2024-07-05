@@ -32,6 +32,7 @@ contains
     real(c_double), dimension(5)  :: concentrations 
     real(c_double), dimension(3)  :: user_defined_reaction_rates 
     character(len=256)            :: config_path
+    integer(c_int)                :: solver_type
     character(len=:), allocatable :: string_value
     real(c_double)                :: double_value
     integer(c_int)                :: int_value
@@ -117,7 +118,7 @@ contains
     ASSERT( error%is_error( MICM_ERROR_CATEGORY_SPECIES, \
                       MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND ) )
     deallocate( micm )
-    micm => micm_t( "configs/invalid", error )
+    micm => micm_t( "configs/invalid", solver_type, error )
     ASSERT( error%is_error( MICM_ERROR_CATEGORY_CONFIGURATION, \
                       MICM_CONFIGURATION_ERROR_CODE_INVALID_FILE_PATH ) )
     ASSERT( .not. associated( micm ) )

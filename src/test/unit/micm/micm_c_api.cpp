@@ -18,8 +18,7 @@ class MicmCApiTest : public ::testing::Test
 
   void SetUp() override
   {
-    // if 1, Vector-ordered Rosenbrock solver, else if 2, Standard-ordered Rosenbrock solver
-    short solver_type = 1;
+    short solver_type = MICMSolver::Rosenbrock;
     micm = nullptr;
     Error error;
     micm = CreateMicm(config_path, solver_type, &error);
@@ -249,17 +248,18 @@ TEST_F(MicmCApiTest, SolveMicmVectorMatrixInstance)
   std::cout << "Singular: " << solver_stats.singular_ << std::endl;
   std::cout << "Final time: " << solver_stats.final_time_ << std::endl;
 
+  DeleteMappings(ordering, num_user_defined_reaction_rates);
   DeleteString(&solver_state);
   DeleteError(&error);
 }
 
 // Test case for solving the MICM instance
-TEST_F(MicmCApiTest, SolveMicmStandardVectorInstance)
+TEST(RosenbrockStandardOrder, SolveMicmStandardOrderInstance)
 {
-  short solver_type = 2;
-  micm = nullptr;
   Error error;
-  micm = CreateMicm(config_path, solver_type, &error);
+  const char* config_path = "configs/chapman";
+  short solver_type = MICMSolver::RosenbrockStandardOrder;
+  MICM* micm = CreateMicm(config_path, solver_type, &error);
 
   double time_step = 200.0;
   double temperature = 272.5;
@@ -315,7 +315,10 @@ TEST_F(MicmCApiTest, SolveMicmStandardVectorInstance)
   std::cout << "Singular: " << solver_stats.singular_ << std::endl;
   std::cout << "Final time: " << solver_stats.final_time_ << std::endl;
 
+  DeleteMappings(ordering, num_user_defined_reaction_rates);
   DeleteString(&solver_state);
+  DeleteMicm(micm, &error);
+  ASSERT_TRUE(IsSuccess(error));
   DeleteError(&error);
 }
 
