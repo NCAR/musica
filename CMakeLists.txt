@@ -28,7 +28,7 @@ option(MUSICA_ENABLE_OPENMP "Enable OpemMP support" OFF)
 option(MUSICA_ENABLE_MEMCHECK "Enable memory checking" OFF)
 option(MUSICA_BUILD_DOCS "Build the documentation" OFF)
 option(MUSICA_ENABLE_MICM "Enable MICM" ON)
-option(MUSICA_ENABLE_TUVX "Enable TUV-x" OFF)
+option(MUSICA_ENABLE_TUVX "Enable TUV-x" ON)
 
 set(MUSICA_SET_MICM_NUM_GRID_CELLS "1" CACHE STRING "Set the number of grid cells for MICM Solver")
 set(MUSICA_SET_MICM_VECTOR_MATRIX_SIZE "2" CACHE STRING "Set MICM vector-ordered matrix dimension")

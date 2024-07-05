@@ -210,7 +210,7 @@ TEST_F(MicmCApiTest, SolveMicmVectorMatrixInstance)
   ASSERT_TRUE(IsSuccess(error));
 
   std::vector<double> custom_rate_parameters(num_user_defined_reaction_rates, 0.0);
-  for (std::size_t i=0; i <num_user_defined_reaction_rates; i++)
+  for (std::size_t i = 0; i < num_user_defined_reaction_rates; i++)
   {
     custom_rate_parameters[ordering[i].index_] = 0.0;
   }
@@ -277,7 +277,7 @@ TEST(RosenbrockStandardOrder, SolveMicmStandardOrderInstance)
   ASSERT_TRUE(IsSuccess(error));
 
   std::vector<double> custom_rate_parameters(num_user_defined_reaction_rates, 0.0);
-  for (std::size_t i=0; i <num_user_defined_reaction_rates; i++)
+  for (std::size_t i = 0; i < num_user_defined_reaction_rates; i++)
   {
     custom_rate_parameters[ordering[i].index_] = 0.0;
   }

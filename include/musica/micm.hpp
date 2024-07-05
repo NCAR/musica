@@ -102,7 +102,7 @@ namespace musica
       }
     };
 
-    /// @brief Create a MICM object by specifying the solver type to use
+    /// @brief Create a MICM object by specifying solver type to use
     /// @param config_path Path to configuration file or directory containing configuration file
     /// @param solver_type Integer value representing solver type
     ///                    1 : Vector-ordered Rosenbrock solver
@@ -145,7 +145,7 @@ namespace musica
     /// @brief Create a Rosenbrock solver of standard-ordered matrix type by reading and parsing configuration file
     /// @param config_path Path to configuration file or directory containing configuration file
     /// @param error Error struct to indicate success or failure
-    void CreateRosenbrockStandard(const std::string &config_path, Error *error);
+    void CreateRosenbrockStandardOrder(const std::string &config_path, Error *error);
 
     /// @brief Solve the system
     /// @param solver Pointer to solver

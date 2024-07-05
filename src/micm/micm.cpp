@@ -37,7 +37,7 @@ namespace musica
     else if (solver_type == 2)
     {
       micm->SetSolverType(2);
-      micm->CreateRosenbrockStandard(std::string(config_path), error);
+      micm->CreateRosenbrockStandardOrder(std::string(config_path), error);
     }
     if (!IsSuccess(*error))
     {
@@ -260,7 +260,7 @@ namespace musica
     }
   }
 
-  void MICM::CreateRosenbrockStandard(const std::string &config_path, Error *error)
+  void MICM::CreateRosenbrockStandardOrder(const std::string &config_path, Error *error)
   {
     try
     {
