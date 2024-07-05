@@ -5,6 +5,7 @@
 // multi-component reactive transport model. It also includes functions for
 // creating and deleting MICM instances, creating solvers, and solving the model.
 #include <musica/micm.hpp>
+#include <musica/util.hpp>
 
 #include <micm/solver/rosenbrock_solver_parameters.hpp>
 #include <micm/solver/solver_builder.hpp>
@@ -14,6 +15,7 @@
 #include <cmath>
 #include <cstddef>
 #include <filesystem>
+#include <string>
 #include <system_error>
 
 namespace musica
@@ -22,9 +24,10 @@ namespace musica
   MICM *CreateMicm(const char *config_path, short solver_type, Error *error)
   {
     DeleteError(error);
-    if ((solver_type != 1) && (solver_type != 2))
+    if ((solver_type != MICMSolver::Rosenbrock) && (solver_type != MICMSolver::RosenbrockStandardOrder))
     {
-      // TODO(jiwon) error msg?
+      std::string msg = "Solver type '" + std::to_string(solver_type) + "' not found";
+      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND, msg.c_str());
       return nullptr;
     }
 

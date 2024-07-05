@@ -251,9 +251,6 @@ namespace musica
         state.conditions_[i].air_density_ = air_density;
       }
 
-      //
-      // TODO(jiwon) - set concentrations for vector matrix for more than 1 grid cells
-      //
       state.variables_.AsVector().assign(concentrations, concentrations + num_concentrations);
       state.custom_rate_parameters_.AsVector().assign(
           custom_rate_parameters, custom_rate_parameters + num_custom_rate_parameters);

@@ -47,13 +47,15 @@ TEST_F(MicmCApiTest, BadConfigurationFilePath)
   DeleteError(&error);
 }
 
-// Test case for bad configuration file path
+// Test case for bad input for solver type
 TEST_F(MicmCApiTest, BadSolverType)
 {
   short solver_type = 999;
   Error error = NoError();
   auto micm_bad_solver_type = CreateMicm("configs/chapman", solver_type, &error);
   ASSERT_EQ(micm_bad_solver_type, nullptr);
+  ASSERT_TRUE(IsError(error, MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND));
+  DeleteError(&error);
 }
 
 // Test case for missing species property
@@ -190,8 +192,8 @@ TEST_F(MicmCApiTest, GetUserDefinedReactionRatesOrdering)
   DeleteMappings(reaction_rates_ordering, array_size);
 }
 
-// Test case for solving the MICM instance
-TEST_F(MicmCApiTest, SolveMicmVectorMatrixInstance)
+// Test case for solving system with vector-ordered Rosenbrock solver
+TEST_F(MicmCApiTest, SolveUsingVectorOrderedRosenbrock)
 {
   double time_step = 200.0;
   double temperature = 272.5;
@@ -253,8 +255,8 @@ TEST_F(MicmCApiTest, SolveMicmVectorMatrixInstance)
   DeleteError(&error);
 }
 
-// Test case for solving the MICM instance
-TEST(RosenbrockStandardOrder, SolveMicmStandardOrderInstance)
+// Test case for solving system with standard-ordered Rosenbrock solver
+TEST(RosenbrockStandardOrder, SolveUsingStandardOrderedRosenbrock)
 {
   Error error;
   const char* config_path = "configs/chapman";
