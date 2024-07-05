@@ -68,5 +68,3 @@ RUN cd musica/fortran/test/fetch_content_integration \
     && make -j
 
 WORKDIR musica/fortran/test/fetch_content_integration/build
-RUN cp -r /musica/build/_deps/tuvx-src/examples/ .
-RUN cp -r /musica/build/_deps/tuvx-src/data/ .
