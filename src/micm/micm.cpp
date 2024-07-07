@@ -6,7 +6,6 @@
 // creating and deleting MICM instances, creating solvers, and solving the model.
 #include <musica/micm.hpp>
 
-#include <micm/version.hpp>
 #include <micm/solver/rosenbrock_solver_parameters.hpp>
 #include <micm/solver/solver_builder.hpp>
 #include <micm/system/species.hpp>
