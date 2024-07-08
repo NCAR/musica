@@ -62,8 +62,6 @@ contains
     type(grid_t),        pointer :: grid
     type(profile_map_t), pointer :: profiles
     type(profile_t),     pointer :: profile, profile_copy
-    ! type(profile_map_t) :: profiles
-    ! type(radiator_map_t) :: radiators
     real*8, dimension(5), target :: edges, edge_values, temp_edge
     real*8, dimension(4), target :: midpoints, midpoint_values, layer_densities, temp_midpoint
     real*8                       :: temp_real

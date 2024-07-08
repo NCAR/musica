@@ -1,8 +1,5 @@
 // Copyright (C) 2023-2024 National Center for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
-//
-// This file contains the defintion of the TUVX class, which represents a photolysis calculator.
-// It also includes functions for creating and deleting TUVX instances with c binding.
 #pragma once
 
 #include <musica/util.hpp>
@@ -82,9 +79,8 @@ namespace musica
     double GetExoLayerDensity(Error *error);
 
    private:
-    void *profile_;
+    void *profile_; // A valid pointer to a profile instance indicates ownership by this wrapper
     void *updater_;
-    bool owns_profile_;
 
     friend class ProfileMap;
     
@@ -92,8 +88,7 @@ namespace musica
     /// @param updater The updater for the profile
     Profile(void *updater)
         : profile_(nullptr),
-          updater_(updater),
-          owns_profile_(false)
+          updater_(updater)
     {
     }
   };

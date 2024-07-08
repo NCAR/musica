@@ -1,8 +1,5 @@
 // Copyright (C) 2023-2024 National Center for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
-//
-// This file contains the implementation of the TUVX class, which represents a multi-component
-// reactive transport model. It also includes functions for creating and deleting TUVX instances.
 #include <musica/tuvx/profile_map.hpp>
 
 #include <cstring>
@@ -78,12 +75,12 @@ namespace musica
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Profile map is null") };
       return;
     }
-    if (!profile->owns_profile_)
+    if (profile->profile_ == nullptr)
     {
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Cannot add unowned profile") };
       return;
     }
-    if (profile->profile_ == nullptr || profile->updater_ == nullptr)
+    if (profile->updater_ == nullptr)
     {
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Cannot add profile in invalid state") };
       return;
@@ -114,7 +111,6 @@ namespace musica
         *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to delete profile after transfer of ownership to profile map") };
       }
       profile->profile_ = nullptr;
-      profile->owns_profile_ = false;
     }
     catch (const std::system_error &e)
     {

@@ -1,8 +1,5 @@
 // Copyright (C) 2023-2024 National Center for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
-//
-// This file contains the implementation of the TUVX class, which represents a multi-component
-// reactive transport model. It also includes functions for creating and deleting TUVX instances.
 #include <musica/tuvx/grid_map.hpp>
 
 #include <cstring>
@@ -78,12 +75,12 @@ namespace musica
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Grid map is null") };
       return;
     }
-    if (!grid->owns_grid_)
+    if (grid->grid_ == nullptr)
     {
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Cannot add unowned grid to grid map") };
       return;
     }
-    if (grid->grid_ == nullptr || grid->updater_ == nullptr)
+    if (grid->updater_ == nullptr)
     {
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Cannot add grid in invalid state") };
       return;
@@ -114,7 +111,6 @@ namespace musica
         *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to delete grid during transfer of ownership to grid map") };
       }
       grid->grid_ = nullptr;
-      grid->owns_grid_ = false;
     }
     catch (const std::system_error &e)
     {

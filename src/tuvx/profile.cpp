@@ -1,8 +1,5 @@
 // Copyright (C) 2023-2024 National Center for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
-//
-// This file contains the implementation of the TUVX class, which represents a multi-component
-// reactive transport model. It also includes functions for creating and deleting TUVX instances.
 #include <musica/tuvx/profile.hpp>
 #include <musica/tuvx/grid.hpp>
 
@@ -109,7 +106,6 @@ namespace musica
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get updater") };
       return;
     }
-    owns_profile_ = true;
     *error = NoError();
   }
 

@@ -1,8 +1,5 @@
 // Copyright (C) 2023-2024 National Center for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
-//
-// This file contains the defintion of the TUVX class, which represents a photolysis calculator.
-// It also includes functions for creating and deleting TUVX instances with c binding.
 #pragma once
 
 #include <musica/util.hpp>
@@ -55,9 +52,8 @@ namespace musica
     void GetMidpoints(double midpoints[], std::size_t num_midpoints, Error *error);
 
    private:
-    void *grid_;
+    void *grid_; // A valid pointer to a grid instance indicates ownership by this wrapper
     void *updater_;
-    bool owns_grid_;
 
     friend class GridMap;
     friend class Profile;
@@ -66,8 +62,7 @@ namespace musica
     /// @param updater The updater for the grid
     Grid(void *updater)
         : grid_(nullptr),
-          updater_(updater),
-          owns_grid_(false)
+          updater_(updater)
     {
     }
   };
