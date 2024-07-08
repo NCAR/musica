@@ -290,4 +290,98 @@ namespace musica
     }
   }
 
+  void MICM::Solve(
+      auto &solver,
+      double time_step,
+      double temperature,
+      double pressure,
+      double air_density,
+      int num_concentrations,
+      double *concentrations,
+      int num_custom_rate_parameters,
+      double *custom_rate_parameters,
+      String *solver_state,
+      SolverResultStats *solver_stats,
+      Error *error)
+  {
+    try
+    {
+      micm::State state = solver->GetState();
+
+      for (std::size_t i{}; i < MICM_NUM_GRID_CELLS; i++)
+      {
+        state.conditions_[i].temperature_ = temperature;
+        state.conditions_[i].pressure_ = pressure;
+        state.conditions_[i].air_density_ = air_density;
+      }
+
+      state.variables_.AsVector().assign(concentrations, concentrations + num_concentrations);
+      state.custom_rate_parameters_.AsVector().assign(
+          custom_rate_parameters, custom_rate_parameters + num_custom_rate_parameters);
+
+      solver->CalculateRateConstants(state);
+      auto result = solver->Solve(time_step, state);
+
+      *solver_state = CreateString(micm::SolverStateToString(result.state_).c_str());
+
+      *solver_stats = SolverResultStats(
+          result.stats_.function_calls_,
+          result.stats_.jacobian_updates_,
+          result.stats_.number_of_steps_,
+          result.stats_.accepted_,
+          result.stats_.rejected_,
+          result.stats_.decompositions_,
+          result.stats_.solves_,
+          result.stats_.singular_,
+          result.final_time_);
+
+      for (int i = 0; i < state.variables_.AsVector().size(); i++)
+      {
+        concentrations[i] = state.variables_.AsVector()[i];
+      }
+
+      DeleteError(error);
+      *error = NoError();
+    }
+    catch (const std::system_error &e)
+    {
+      DeleteError(error);
+      *error = ToError(e);
+    }
+  }
+
+  std::map<std::string, std::size_t> MICM::GetSpeciesOrdering(auto &solver, Error *error)
+  {
+    try
+    {
+      micm::State state = solver->GetState();
+      DeleteError(error);
+      *error = NoError();
+      return state.variable_map_;
+    }
+    catch (const std::system_error &e)
+    {
+      DeleteError(error);
+      *error = ToError(e);
+      return std::map<std::string, std::size_t>();
+    }
+  }
+
+  std::map<std::string, std::size_t> MICM::GetUserDefinedReactionRatesOrdering(auto &solver, Error *error)
+  {
+    try
+    {
+      micm::State state = solver->GetState();
+      DeleteError(error);
+      *error = NoError();
+      return state.custom_rate_parameter_map_;
+    }
+    catch (const std::system_error &e)
+    {
+      DeleteError(error);
+      *error = ToError(e);
+      return std::map<std::string, std::size_t>();
+    }
+  }
+
 }  // namespace musica

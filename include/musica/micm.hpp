@@ -158,9 +158,8 @@ namespace musica
     /// @param num_custom_rate_parameters The size of the custom_rate_parameters array
     /// @param custom_rate_parameters Array of custom rate parameters
     /// @param error Error struct to indicate success or failure
-    template<class T>
     void Solve(
-        T &solver,
+        auto &solver,
         double time_step,
         double temperature,
         double pressure,
@@ -184,15 +183,13 @@ namespace musica
     /// @param solver Pointer to solver
     /// @param error Error struct to indicate success or failure
     /// @return Map of species names to their indices
-    template<class T>
-    std::map<std::string, std::size_t> GetSpeciesOrdering(T &solver, Error *error);
+    std::map<std::string, std::size_t> GetSpeciesOrdering(auto &solver, Error *error);
 
     /// @brief Get the ordering of user-defined reaction rates
     /// @param solver Pointer to solver
     /// @param error Error struct to indicate success or failure
     /// @return Map of reaction rate names to their indices
-    template<class T>
-    std::map<std::string, std::size_t> GetUserDefinedReactionRatesOrdering(T &solver, Error *error);
+    std::map<std::string, std::size_t> GetUserDefinedReactionRatesOrdering(auto &solver, Error *error);
 
     /// @brief Get a property for a chemical species
     /// @param species_name Name of the species
@@ -224,103 +221,6 @@ namespace musica
    private:
     std::unique_ptr<micm::SolverParameters> solver_parameters_;
   };
-
-  template<class T>
-  inline void MICM::Solve(
-      T &solver,
-      double time_step,
-      double temperature,
-      double pressure,
-      double air_density,
-      int num_concentrations,
-      double *concentrations,
-      int num_custom_rate_parameters,
-      double *custom_rate_parameters,
-      String *solver_state,
-      SolverResultStats *solver_stats,
-      Error *error)
-  {
-    try
-    {
-      micm::State state = solver->GetState();
-
-      for (std::size_t i{}; i < MICM_NUM_GRID_CELLS; i++)
-      {
-        state.conditions_[i].temperature_ = temperature;
-        state.conditions_[i].pressure_ = pressure;
-        state.conditions_[i].air_density_ = air_density;
-      }
-
-      state.variables_.AsVector().assign(concentrations, concentrations + num_concentrations);
-      state.custom_rate_parameters_.AsVector().assign(
-          custom_rate_parameters, custom_rate_parameters + num_custom_rate_parameters);
-
-      solver->CalculateRateConstants(state);
-      auto result = solver->Solve(time_step, state);
-
-      *solver_state = CreateString(micm::SolverStateToString(result.state_).c_str());
-
-      *solver_stats = SolverResultStats(
-          result.stats_.function_calls_,
-          result.stats_.jacobian_updates_,
-          result.stats_.number_of_steps_,
-          result.stats_.accepted_,
-          result.stats_.rejected_,
-          result.stats_.decompositions_,
-          result.stats_.solves_,
-          result.stats_.singular_,
-          result.final_time_);
-
-      for (int i = 0; i < state.variables_.AsVector().size(); i++)
-      {
-        concentrations[i] = state.variables_.AsVector()[i];
-      }
-
-      DeleteError(error);
-      *error = NoError();
-    }
-    catch (const std::system_error &e)
-    {
-      DeleteError(error);
-      *error = ToError(e);
-    }
-  }
-
-  template<class T>
-  inline std::map<std::string, std::size_t> MICM::GetSpeciesOrdering(T &solver, Error *error)
-  {
-    try
-    {
-      micm::State state = solver->GetState();
-      DeleteError(error);
-      *error = NoError();
-      return state.variable_map_;
-    }
-    catch (const std::system_error &e)
-    {
-      DeleteError(error);
-      *error = ToError(e);
-      return std::map<std::string, std::size_t>();
-    }
-  }
-
-  template<class T>
-  std::map<std::string, std::size_t> MICM::GetUserDefinedReactionRatesOrdering(T &solver, Error *error)
-  {
-    try
-    {
-      micm::State state = solver->GetState();
-      DeleteError(error);
-      *error = NoError();
-      return state.custom_rate_parameter_map_;
-    }
-    catch (const std::system_error &e)
-    {
-      DeleteError(error);
-      *error = ToError(e);
-      return std::map<std::string, std::size_t>();
-    }
-  }
 
   template<class T>
   inline T MICM::GetSpeciesProperty(const std::string &species_name, const std::string &property_name, Error *error)
