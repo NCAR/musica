@@ -8,13 +8,6 @@ project(
 
 # mkdir build
 # cd build
-# cmake -Dmusica_DIR=<musica_package_dir>
-#       -Dmusica-fortran_DIR=<musica-fortran_package_dir> ..
-find_package(musica)
-find_package(musica-fortran)
-
-# mkdir build
-# cd build
 # cmake -DMUSICA_INSTALL_DIR=<musica_install_dir> ..
 
 set(MUSICA_INCLUDE_DIR "${MUSICA_INSTALL_DIR}/include")
