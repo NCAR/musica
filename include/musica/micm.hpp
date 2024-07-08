@@ -160,7 +160,7 @@ namespace musica
     /// @param error Error struct to indicate success or failure
     template<class T>
     void Solve(
-        std::unique_ptr<T> &solver,
+        T &solver,
         double time_step,
         double temperature,
         double pressure,
@@ -185,14 +185,14 @@ namespace musica
     /// @param error Error struct to indicate success or failure
     /// @return Map of species names to their indices
     template<class T>
-    std::map<std::string, std::size_t> GetSpeciesOrdering(std::unique_ptr<T> &solver, Error *error);
+    std::map<std::string, std::size_t> GetSpeciesOrdering(T &solver, Error *error);
 
     /// @brief Get the ordering of user-defined reaction rates
     /// @param solver Pointer to solver
     /// @param error Error struct to indicate success or failure
     /// @return Map of reaction rate names to their indices
     template<class T>
-    std::map<std::string, std::size_t> GetUserDefinedReactionRatesOrdering(std::unique_ptr<T> &solver, Error *error);
+    std::map<std::string, std::size_t> GetUserDefinedReactionRatesOrdering(T &solver, Error *error);
 
     /// @brief Get a property for a chemical species
     /// @param species_name Name of the species
@@ -227,7 +227,7 @@ namespace musica
 
   template<class T>
   inline void MICM::Solve(
-      std::unique_ptr<T> &solver,
+      T &solver,
       double time_step,
       double temperature,
       double pressure,
@@ -287,7 +287,7 @@ namespace musica
   }
 
   template<class T>
-  inline std::map<std::string, std::size_t> MICM::GetSpeciesOrdering(std::unique_ptr<T> &solver, Error *error)
+  inline std::map<std::string, std::size_t> MICM::GetSpeciesOrdering(T &solver, Error *error)
   {
     try
     {
@@ -305,7 +305,7 @@ namespace musica
   }
 
   template<class T>
-  std::map<std::string, std::size_t> MICM::GetUserDefinedReactionRatesOrdering(std::unique_ptr<T> &solver, Error *error)
+  std::map<std::string, std::size_t> MICM::GetUserDefinedReactionRatesOrdering(T &solver, Error *error)
   {
     try
     {
