@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 #pragma once
 
-#include <musica/util.hpp>
-#include <musica/tuvx/grid_map.hpp>
 #include <musica/tuvx/grid.hpp>
+#include <musica/tuvx/grid_map.hpp>
+#include <musica/util.hpp>
 
 #include <memory>
 #include <string>

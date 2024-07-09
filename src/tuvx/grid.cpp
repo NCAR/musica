@@ -11,7 +11,7 @@ namespace musica
 
   // Grid external C API functions
 
-  Grid *CreateGrid(const char* grid_name, const char* units, std::size_t num_sections, Error *error)
+  Grid *CreateGrid(const char *grid_name, const char *units, std::size_t num_sections, Error *error)
   {
     DeleteError(error);
     return new Grid(grid_name, units, num_sections, error);

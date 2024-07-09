@@ -74,7 +74,7 @@ TEST_F(TuvxCApiTest, CannotGetConfiguredGrid)
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_NE(grid_map, nullptr);
   Grid* grid = GetGrid(grid_map, "height", "km", &error);
-  ASSERT_FALSE(IsSuccess(error)); // non-host grid
+  ASSERT_FALSE(IsSuccess(error));  // non-host grid
   ASSERT_EQ(grid, nullptr);
   DeleteGridMap(grid_map, &error);
   ASSERT_TRUE(IsSuccess(error));
@@ -153,7 +153,7 @@ TEST_F(TuvxCApiTest, CanCreateGridMap)
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(midpoint_values[0], 0.5);
   ASSERT_EQ(midpoint_values[1], 1.5);
-  Grid *foo_copy = GetGrid(grid_map, "foo", "m", &error);
+  Grid* foo_copy = GetGrid(grid_map, "foo", "m", &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_NE(foo_copy, nullptr);
   for (auto& edge : edge_values)
@@ -193,7 +193,7 @@ TEST_F(TuvxCApiTest, CannotGetConfiguredProfile)
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_NE(profile_map, nullptr);
   Profile* profile = GetProfile(profile_map, "air", "molecule cm-3", &error);
-  ASSERT_FALSE(IsSuccess(error)); // non-host profile
+  ASSERT_FALSE(IsSuccess(error));  // non-host profile
   ASSERT_EQ(profile, nullptr);
   DeleteProfileMap(profile_map, &error);
   ASSERT_TRUE(IsSuccess(error));
@@ -311,7 +311,7 @@ TEST_F(TuvxCApiTest, CanCreateProfileMap)
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(midpoint_values[0], 0.5);
   ASSERT_EQ(midpoint_values[1], 1.5);
-  Profile *foo_copy = GetProfile(profile_map, "foo", "molecule cm-3", &error);
+  Profile* foo_copy = GetProfile(profile_map, "foo", "molecule cm-3", &error);
   for (auto& edge : edge_values)
   {
     edge = -100.0;

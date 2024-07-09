@@ -1,7 +1,7 @@
 // Copyright (C) 2023-2024 National Center for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
-#include <musica/tuvx/profile.hpp>
 #include <musica/tuvx/grid.hpp>
+#include <musica/tuvx/profile.hpp>
 
 #include <cstring>
 #include <filesystem>
@@ -92,8 +92,7 @@ namespace musica
   Profile::Profile(const char *profile_name, const char *units, Grid *grid, Error *error)
   {
     int error_code = 0;
-    profile_ = InternalCreateProfile(profile_name, strlen(profile_name), units, strlen(units),
-                                     grid->updater_, &error_code);
+    profile_ = InternalCreateProfile(profile_name, strlen(profile_name), units, strlen(units), grid->updater_, &error_code);
     if (error_code != 0)
     {
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create profile") };

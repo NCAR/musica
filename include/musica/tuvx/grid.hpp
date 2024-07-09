@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 #pragma once
 
-#include <musica/util.hpp>
 #include <musica/tuvx/grid.hpp>
+#include <musica/util.hpp>
 
 #include <memory>
 #include <string>
@@ -17,7 +17,6 @@ namespace musica
   /// @brief A grid struct used to access grid information in tuvx
   struct Grid
   {
-
     /// @brief Creates a grid instance
     /// @param grid_name The name of the grid
     /// @param units The units of the grid
@@ -52,7 +51,7 @@ namespace musica
     void GetMidpoints(double midpoints[], std::size_t num_midpoints, Error *error);
 
    private:
-    void *grid_; // A valid pointer to a grid instance indicates ownership by this wrapper
+    void *grid_;  // A valid pointer to a grid instance indicates ownership by this wrapper
     void *updater_;
 
     friend class GridMap;
@@ -80,7 +79,7 @@ namespace musica
     /// @param units The units of the grid
     /// @param num_sections The number of sections in the grid
     /// @param error The error struct to indicate success or failure
-    Grid* CreateGrid(const char* grid_name, const char* units, std::size_t num_sections, Error *error);
+    Grid *CreateGrid(const char *grid_name, const char *units, std::size_t num_sections, Error *error);
 
     /// @brief Deletes a TUV-x grid instance
     /// @param grid The grid to delete
@@ -118,9 +117,15 @@ namespace musica
     // INTERNAL USE. If tuvx ever gets rewritten in C++, these functions will
     // go away but the C API will remain the same and downstream projects (like CAM-SIMA) will
     // not need to change
-    void* InternalCreateGrid(const char *grid_name, std::size_t grid_name_length, const char *units, std::size_t units_length, std::size_t num_sections, int *error_code);
+    void *InternalCreateGrid(
+        const char *grid_name,
+        std::size_t grid_name_length,
+        const char *units,
+        std::size_t units_length,
+        std::size_t num_sections,
+        int *error_code);
     void InternalDeleteGrid(void *grid, int *error_code);
-    void* InternalGetGridUpdater(void *grid, int *error_code);
+    void *InternalGetGridUpdater(void *grid, int *error_code);
     void InternalDeleteGridUpdater(void *updater, int *error_code);
     std::string InternalGetGridName(void *grid, int *error_code);
     std::string InternalGetGridUnits(void *grid, int *error_code);

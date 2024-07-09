@@ -109,7 +109,7 @@ namespace musica
   {
     *error = NoError();
     int error_code = 0;
-    GridMap* grid_map = new GridMap(InternalGetGridMap(tuvx_, &error_code));
+    GridMap *grid_map = new GridMap(InternalGetGridMap(tuvx_, &error_code));
     if (error_code != 0)
     {
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create grid map") };
@@ -122,7 +122,7 @@ namespace musica
   {
     *error = NoError();
     int error_code = 0;
-    ProfileMap* profile_map = new ProfileMap(InternalGetProfileMap(tuvx_, &error_code));
+    ProfileMap *profile_map = new ProfileMap(InternalGetProfileMap(tuvx_, &error_code));
     if (error_code != 0)
     {
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create profile map") };
