@@ -11,8 +11,7 @@ class TestChapman(unittest.TestCase):
         air_density = pressure / (GAS_CONSTANT * temperature)
         concentrations = [0.75, 0.4, 0.8, 0.01, 0.02]
 
-        solver_type = 1
-        solver = musica.create_solver("configs/chapman", solver_type)
+        solver = musica.create_solver("configs/chapman", musica.micmsolver.rosenbrock)
         rate_constant_ordering = musica.user_defined_reaction_rates(solver)
         ordering = musica.species_ordering(solver)
 

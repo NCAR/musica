@@ -10,9 +10,13 @@ namespace py = pybind11;
 // Wraps micm.cpp
 PYBIND11_MODULE(musica, m)
 {
-  py::class_<musica::MICM>(m, "MICM")
+  py::class_<musica::MICM>(m, "micm")
       .def(py::init<>())
       .def("__del__", [](musica::MICM &micm) {});
+
+  py::enum_<musica::MICMSolver>(m, "micmsolver")
+   .value("rosenbrock", musica::MICMSolver::Rosenbrock)
+   .value("rosenbrock_standard_order", musica::MICMSolver::RosenbrockStandardOrder);
 
   m.def(
       "create_solver",
