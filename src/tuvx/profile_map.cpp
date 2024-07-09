@@ -108,7 +108,9 @@ namespace musica
       InternalDeleteProfile(profile->profile_, &error_code);
       if (error_code != 0)
       {
-        *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to delete profile after transfer of ownership to profile map") };
+        *error = Error{ 1,
+                        CreateString(MUSICA_ERROR_CATEGORY),
+                        CreateString("Failed to delete profile after transfer of ownership to profile map") };
       }
       profile->profile_ = nullptr;
     }
@@ -136,7 +138,8 @@ namespace musica
     try
     {
       int error_code = 0;
-      void* profile_ptr = InternalGetProfile(profile_map_, profile_name, strlen(profile_name), profile_units, strlen(profile_units), &error_code);
+      void *profile_ptr = InternalGetProfile(
+          profile_map_, profile_name, strlen(profile_name), profile_units, strlen(profile_units), &error_code);
       if (error_code != 0)
       {
         *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get profile") };
@@ -152,7 +155,9 @@ namespace musica
       InternalDeleteProfile(profile_ptr, &error_code);
       if (error_code != 0)
       {
-        *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to delete profile during transfer of ownership to profile map") };
+        *error = Error{ 1,
+                        CreateString(MUSICA_ERROR_CATEGORY),
+                        CreateString("Failed to delete profile during transfer of ownership to profile map") };
         InternalDeleteProfileUpdater(updater_ptr, &error_code);
         return nullptr;
       }

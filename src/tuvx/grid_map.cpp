@@ -16,7 +16,7 @@ namespace musica
     DeleteError(error);
     return new GridMap(error);
   }
-    
+
   void DeleteGridMap(GridMap *grid_map, Error *error)
   {
     DeleteError(error);
@@ -98,17 +98,23 @@ namespace musica
       InternalDeleteGridUpdater(grid->updater_, &error_code);
       if (error_code != 0)
       {
-        *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to delete updater after transfer of ownership to grid map") };
+        *error = Error{ 1,
+                        CreateString(MUSICA_ERROR_CATEGORY),
+                        CreateString("Failed to delete updater after transfer of ownership to grid map") };
       }
       grid->updater_ = InternalGetGridUpdaterFromMap(grid_map_, grid->grid_, &error_code);
       if (error_code != 0)
       {
-        *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get updater after transfer of ownership to grid map") };
+        *error = Error{ 1,
+                        CreateString(MUSICA_ERROR_CATEGORY),
+                        CreateString("Failed to get updater after transfer of ownership to grid map") };
       }
       InternalDeleteGrid(grid->grid_, &error_code);
       if (error_code != 0)
       {
-        *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to delete grid during transfer of ownership to grid map") };
+        *error = Error{ 1,
+                        CreateString(MUSICA_ERROR_CATEGORY),
+                        CreateString("Failed to delete grid during transfer of ownership to grid map") };
       }
       grid->grid_ = nullptr;
     }
@@ -136,13 +142,13 @@ namespace musica
     try
     {
       int error_code = 0;
-      void* grid_ptr = InternalGetGrid(grid_map_, grid_name, strlen(grid_name), grid_units, strlen(grid_units), &error_code);
+      void *grid_ptr = InternalGetGrid(grid_map_, grid_name, strlen(grid_name), grid_units, strlen(grid_units), &error_code);
       if (error_code != 0)
       {
         *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get grid from grid map") };
         return nullptr;
       }
-      void* updater_ptr = InternalGetGridUpdaterFromMap(grid_map_, grid_ptr, &error_code);
+      void *updater_ptr = InternalGetGridUpdaterFromMap(grid_map_, grid_ptr, &error_code);
       if (error_code != 0)
       {
         *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get updater") };
@@ -152,7 +158,8 @@ namespace musica
       InternalDeleteGrid(grid_ptr, &error_code);
       if (error_code != 0)
       {
-        *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to delete grid after getting updater") };
+        *error =
+            Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to delete grid after getting updater") };
         InternalDeleteGridUpdater(updater_ptr, &error_code);
         return nullptr;
       }

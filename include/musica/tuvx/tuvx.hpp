@@ -5,9 +5,9 @@
 // It also includes functions for creating and deleting TUVX instances with c binding.
 #pragma once
 
-#include <musica/util.hpp>
 #include <musica/tuvx/grid_map.hpp>
 #include <musica/tuvx/profile_map.hpp>
+#include <musica/util.hpp>
 
 #include <memory>
 #include <string>
@@ -22,7 +22,7 @@ namespace musica
     TUVX();
 
     /// @brief Create an instance of tuvx from a configuration file
-    /// @param config_path Path to configuration file 
+    /// @param config_path Path to configuration file
     /// @param error Error struct to indicate success or failure
     void Create(const char *config_path, Error *error);
 
@@ -32,8 +32,8 @@ namespace musica
     /// @return a grid map pointer
     GridMap *CreateGridMap(Error *error);
 
-    /// @brief Create a profile map. For now, this calls the interal tuvx fortran api, but will allow the change to c++ later on
-    /// to be transparent to downstream projects
+    /// @brief Create a profile map. For now, this calls the interal tuvx fortran api, but will allow the change to c++ later
+    /// on to be transparent to downstream projects
     /// @param error The error struct to indicate success or failure
     /// @return a profile map pointer
     ProfileMap *CreateProfileMap(Error *error);

@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 #pragma once
 
-#include <musica/util.hpp>
 #include <musica/tuvx/grid.hpp>
 #include <musica/tuvx/profile.hpp>
+#include <musica/util.hpp>
 
 #include <memory>
 #include <string>
@@ -17,7 +17,6 @@ namespace musica
   /// @brief A struct used to interact with TUV-x profiles (properties with values on a grid)
   struct Profile
   {
-
     /// @brief Creates a profile instance
     /// @param profile_name The name of the profile
     /// @param units The units of the profile
@@ -79,11 +78,11 @@ namespace musica
     double GetExoLayerDensity(Error *error);
 
    private:
-    void *profile_; // A valid pointer to a profile instance indicates ownership by this wrapper
+    void *profile_;  // A valid pointer to a profile instance indicates ownership by this wrapper
     void *updater_;
 
     friend class ProfileMap;
-    
+
     /// @brief Wraps an existing profile instance
     /// @param updater The updater for the profile
     Profile(void *updater)
@@ -176,7 +175,13 @@ namespace musica
     // INTERNAL USE. If tuvx ever gets rewritten in C++, these functions will
     // go away but the C API will remain the same and downstream projects (like CAM-SIMA) will
     // not need to change
-    void *InternalCreateProfile(const char *profile_name, std::size_t profile_name_length, const char *units, std::size_t units_length, void *grid, int *error_code);
+    void *InternalCreateProfile(
+        const char *profile_name,
+        std::size_t profile_name_length,
+        const char *units,
+        std::size_t units_length,
+        void *grid,
+        int *error_code);
     void InternalDeleteProfile(void *profile, int *error_code);
     void *InternalGetProfileUpdater(void *profile, int *error_code);
     void InternalDeleteProfileUpdater(void *updater, int *error_code);
@@ -190,7 +195,7 @@ namespace musica
     void InternalGetLayerDensities(void *profile, double layer_densities[], std::size_t num_values, int *error_code);
     void InternalSetExoLayerDensity(void *profile, double exo_layer_density, int *error_code);
     void InternalCalculateExoLayerDensity(void *profile, double scale_height, int *error_code);
-    double InternalGetExoLayerDensity(void *profile, int *error_code);    
+    double InternalGetExoLayerDensity(void *profile, int *error_code);
 
 #ifdef __cplusplus
   }
