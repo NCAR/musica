@@ -12,6 +12,7 @@ ARG MUSICA_GIT_TAG=main
 RUN apt update \
     && apt -y install \
     cmake \
+    cmake-curses-gui \
     curl \
     gcc \
     gfortran \
@@ -65,6 +66,7 @@ RUN cd musica/fortran/test/fetch_content_integration \
         -D CMAKE_BUILD_TYPE=Release \
         -D CMAKE_EXE_LINKER_FLAGS="-Wl,--copy-dt-needed-entries" \
         -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
+        -D MUSICA_ENABLE_MEMCHECK=ON \
     && make -j
 
 WORKDIR musica/fortran/test/fetch_content_integration/build
