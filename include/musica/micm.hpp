@@ -184,7 +184,9 @@ namespace musica
     /// @param solver Pointer to solver
     /// @param error Error struct to indicate success or failure
     /// @return Map of species names to their indices
-    std::map<std::string, std::size_t> GetSpeciesOrdering(auto &solver, Error *error);
+    // std::map<std::string, std::size_t> GetSpeciesOrdering(auto &solver, Error *error);
+    template<class T>
+    std::map<std::string, std::size_t> GetSpeciesOrdering(T &solver, Error *error);
 
     /// @brief Get the ordering of user-defined reaction rates
     /// @param solver Pointer to solver
@@ -222,6 +224,24 @@ namespace musica
    private:
     std::unique_ptr<micm::SolverParameters> solver_parameters_;
   };
+
+  template<class T>
+  inline std::map<std::string, std::size_t> MICM::GetSpeciesOrdering(T &solver, Error *error)
+  {
+    try
+    {
+      micm::State state = solver->GetState();
+      DeleteError(error);
+      *error = NoError();
+      return state.variable_map_;
+    }
+    catch (const std::system_error &e)
+    {
+      DeleteError(error);
+      *error = ToError(e);
+      return std::map<std::string, std::size_t>();
+    }
+  }
 
   template<class T>
   inline T MICM::GetSpeciesProperty(const std::string &species_name, const std::string &property_name, Error *error)

@@ -350,22 +350,22 @@ namespace musica
     }
   }
 
-  std::map<std::string, std::size_t> MICM::GetSpeciesOrdering(auto &solver, Error *error)
-  {
-    try
-    {
-      micm::State state = solver->GetState();
-      DeleteError(error);
-      *error = NoError();
-      return state.variable_map_;
-    }
-    catch (const std::system_error &e)
-    {
-      DeleteError(error);
-      *error = ToError(e);
-      return std::map<std::string, std::size_t>();
-    }
-  }
+  // std::map<std::string, std::size_t> MICM::GetSpeciesOrdering(auto &solver, Error *error)
+  // {
+  //   try
+  //   {
+  //     micm::State state = solver->GetState();
+  //     DeleteError(error);
+  //     *error = NoError();
+  //     return state.variable_map_;
+  //   }
+  //   catch (const std::system_error &e)
+  //   {
+  //     DeleteError(error);
+  //     *error = ToError(e);
+  //     return std::map<std::string, std::size_t>();
+  //   }
+  // }
 
   std::map<std::string, std::size_t> MICM::GetUserDefinedReactionRatesOrdering(auto &solver, Error *error)
   {

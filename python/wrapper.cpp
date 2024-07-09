@@ -20,7 +20,7 @@ PYBIND11_MODULE(musica, m)
 
   m.def(
       "create_solver",
-      [](const char *config_path, short solver_type)
+      [](const char *config_path, musica::MICMSolver solver_type)
       {
         musica::Error error;
         musica::MICM *micm = musica::CreateMicm(config_path, solver_type, &error);
