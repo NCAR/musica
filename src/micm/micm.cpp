@@ -32,14 +32,14 @@ namespace musica
     }
 
     MICM *micm = new MICM();
-    if (solver_type == 1)
+    if (solver_type == MICMSolver::Rosenbrock)
     {
-      micm->SetSolverType(1);
+      micm->SetSolverType(MICMSolver::Rosenbrock);
       micm->CreateRosenbrock(std::string(config_path), error);
     }
-    else if (solver_type == 2)
+    else if (solver_type == MICMSolver::RosenbrockStandardOrder)
     {
-      micm->SetSolverType(2);
+      micm->SetSolverType(MICMSolver::RosenbrockStandardOrder);
       micm->CreateRosenbrockStandardOrder(std::string(config_path), error);
     }
     if (!IsSuccess(*error))

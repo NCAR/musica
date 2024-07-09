@@ -18,6 +18,7 @@
 #include <micm/util/vector_matrix.hpp>
 
 #include <cstddef>
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
