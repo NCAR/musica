@@ -192,7 +192,8 @@ namespace musica
     /// @param solver Pointer to solver
     /// @param error Error struct to indicate success or failure
     /// @return Map of reaction rate names to their indices
-    std::map<std::string, std::size_t> GetUserDefinedReactionRatesOrdering(auto &solver, Error *error);
+    template<class T>
+    std::map<std::string, std::size_t> GetUserDefinedReactionRatesOrdering(T &solver, Error *error);
 
     /// @brief Get a property for a chemical species
     /// @param species_name Name of the species
@@ -234,6 +235,24 @@ namespace musica
       DeleteError(error);
       *error = NoError();
       return state.variable_map_;
+    }
+    catch (const std::system_error &e)
+    {
+      DeleteError(error);
+      *error = ToError(e);
+      return std::map<std::string, std::size_t>();
+    }
+  }
+
+  template<class T>
+  inline std::map<std::string, std::size_t> MICM::GetUserDefinedReactionRatesOrdering(T &solver, Error *error)
+  {
+    try
+    {
+      micm::State state = solver->GetState();
+      DeleteError(error);
+      *error = NoError();
+      return state.custom_rate_parameter_map_;
     }
     catch (const std::system_error &e)
     {
