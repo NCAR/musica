@@ -72,7 +72,11 @@ if (MUSICA_ENABLE_TUVX)
   )
   install(
     FILES 
-      ${MUSICA_FORTRAN_SRC_DIR}/tuvx.F90
+      ${MUSICA_FORTRAN_SRC_DIR}/tuvx/grid.F90
+      ${MUSICA_FORTRAN_SRC_DIR}/tuvx/grid_map.F90
+      ${MUSICA_FORTRAN_SRC_DIR}/tuvx/profile.F90
+      ${MUSICA_FORTRAN_SRC_DIR}/tuvx/profile_map.F90
+      ${MUSICA_FORTRAN_SRC_DIR}/tuvx/tuvx.F90
     DESTINATION 
       ${MUSICA_INSTALL_INCLUDE_DIR}/musica/fortran
   )

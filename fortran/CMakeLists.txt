@@ -63,10 +63,7 @@ if (MUSICA_ENABLE_MICM)
   )
 endif()
 if (MUSICA_ENABLE_TUVX)
-  target_sources(musica-fortran
-    PRIVATE
-      tuvx.F90
-  )
+  add_subdirectory(tuvx)
 endif()
 
 # Add flags for gfortran
