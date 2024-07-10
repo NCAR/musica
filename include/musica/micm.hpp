@@ -203,7 +203,7 @@ namespace musica
     T GetSpeciesProperty(const std::string &species_name, const std::string &property_name, Error *error);
 
    public:
-    short solver_type_;
+    MICMSolver solver_type_;
 
     /// @brief Vector-ordered Rosenbrock solver type
     using DenseMatrixVector = micm::VectorMatrix<double, MICM_VECTOR_MATRIX_SIZE>;

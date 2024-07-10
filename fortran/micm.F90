@@ -10,6 +10,7 @@ module musica_micm
    implicit none
 
    public :: micm_t, solver_stats_t, get_micm_version
+   public :: Rosenbrock, RosenbrockStandardOrder
    private
 
    !> Wrapper for c solver stats
@@ -24,6 +25,11 @@ module musica_micm
       integer(c_int64_t) :: singular_ = 0_c_int64_t
       real(c_double)     :: final_time_ = 0._c_double
    end type solver_stats_t_c
+
+   enum, bind(c)
+      enumerator :: Rosenbrock              = 1, &
+                    RosenbrockStandardOrder = 2
+   end enum
 
    interface
       function create_micm_c(config_path, solver_type, error) bind(C, name="CreateMicm")

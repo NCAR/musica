@@ -6,6 +6,7 @@ program test_micm_api
   use, intrinsic :: iso_c_binding
   use, intrinsic :: ieee_arithmetic
   use musica_micm, only: micm_t, solver_stats_t, get_micm_version
+  use musica_micm, only: Rosenbrock, RosenbrockStandardOrder
   use musica_util, only: assert, error_t, mapping_t, string_t
 
 #include "micm/util/error.hpp"
@@ -44,7 +45,7 @@ contains
     integer                       :: i
     
     config_path = "configs/chapman"
-    solver_type = 1
+    solver_type = Rosenbrock
     time_step = 200
     temperature = 272.5
     pressure = 101253.4
