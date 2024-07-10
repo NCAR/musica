@@ -23,9 +23,6 @@
 #include <string>
 #include <vector>
 
-#ifndef MICM_NUM_GRID_CELLS
-  #define MICM_NUM_GRID_CELLS 1
-#endif
 #ifndef MICM_VECTOR_MATRIX_SIZE
   #define MICM_VECTOR_MATRIX_SIZE 1
 #endif

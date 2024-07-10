@@ -316,7 +316,7 @@ namespace musica
         state.conditions_[cell].pressure_ = pressure;
         state.conditions_[cell].air_density_ = air_density;
       }
- 
+
       state.variables_.AsVector().assign(concentrations, concentrations + num_concentrations);
 
       state.custom_rate_parameters_.AsVector().assign(
