@@ -5,13 +5,14 @@ import musica
 
 class TestAnalyticalSimulation(unittest.TestCase):
     def test_simulation(self):
+        num_grid_cells = 1
         time_step = 200.0
         temperature = 272.5
         pressure = 101253.3
         GAS_CONSTANT = 8.31446261815324
         air_density = pressure / (GAS_CONSTANT * temperature)
 
-        solver = musica.create_solver("configs/analytical", musica.micmsolver.rosenbrock)
+        solver = musica.create_solver("configs/analytical", musica.micmsolver.rosenbrock, num_grid_cells)
         rates = musica.user_defined_reaction_rates(solver)
         ordering = musica.species_ordering(solver)
 

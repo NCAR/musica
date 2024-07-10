@@ -29,16 +29,17 @@ module musica_micm
    ! We could use Fortran 2023 enum type feature if Fortran 2023 is supported
    ! https://fortran-lang.discourse.group/t/enumerator-type-in-bind-c-derived-type-best-practice/5947/2
    enum, bind(c)
-      enumerator :: Rosenbrock              = 1, &
-                    RosenbrockStandardOrder = 2
+      enumerator :: Rosenbrock              = 1
+      enumerator :: RosenbrockStandardOrder = 2
    end enum
 
    interface
-      function create_micm_c(config_path, solver_type, error) bind(C, name="CreateMicm")
+      function create_micm_c(config_path, solver_type, num_grid_cells, error) bind(C, name="CreateMicm")
          use musica_util, only: error_t_c
          import c_ptr, c_int, c_char
          character(kind=c_char), intent(in)     :: config_path(*)
          integer(kind=c_int), value, intent(in) :: solver_type
+         integer(kind=c_int), value, intent(in) :: num_grid_cells
          type(error_t_c),        intent(inout)  :: error
          type(c_ptr)                            :: create_micm_c
       end function create_micm_c
@@ -191,11 +192,12 @@ contains
       value = string_t(string_c)
    end function get_micm_version
 
-   function constructor(config_path, solver_type, error)  result( this )
+   function constructor(config_path, solver_type, num_grid_cells, error)  result( this )
       use musica_util, only: error_t_c, error_t, copy_mappings
       type(micm_t), pointer         :: this
       character(len=*), intent(in)  :: config_path
       integer(c_int), intent(in)    :: solver_type
+      integer(c_int), intent(in)    :: num_grid_cells
       type(error_t), intent(inout)  :: error
       character(len=1, kind=c_char) :: c_config_path(len_trim(config_path)+1)
       integer                       :: n, i
@@ -211,7 +213,7 @@ contains
       end do
       c_config_path(n+1) = c_null_char
 
-      this%ptr = create_micm_c(c_config_path, solver_type, error_c)
+      this%ptr = create_micm_c(c_config_path, solver_type, num_grid_cells, error_c)
       error = error_t(error_c)
       if (.not. error%is_success()) then
          deallocate(this)

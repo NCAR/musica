@@ -5,6 +5,7 @@ program test_micm_box_model
 
     use musica_util, only: error_t, string_t, mapping_t
     use musica_micm, only: micm_t, solver_stats_t
+    use musica_micm, only: Rosenbrock, RosenbrockStandardOrder
 
     implicit none
 
@@ -16,6 +17,7 @@ contains
 
         character(len=256) :: config_path
         integer(c_int)     :: solver_type
+        integer(c_int)     :: num_grid_cells
 
         real(c_double), parameter :: GAS_CONSTANT = 8.31446261815324_c_double ! J mol-1 K-1
 
@@ -39,7 +41,8 @@ contains
         integer :: i
 
         config_path = "configs/analytical"
-        solver_type = 2
+        solver_type = RosenbrockStandardOrder
+        num_grid_cells = 1
 
         time_step = 200
         temperature = 273.0
@@ -49,7 +52,7 @@ contains
         concentrations = (/ 1.0, 1.0, 1.0 /)
 
         write(*,*) "Creating MICM solver..."
-        micm => micm_t(config_path, solver_type, error)
+        micm => micm_t(config_path, solver_type, num_grid_cells, error)
 
         do i = 1, size( micm%species_ordering )
             associate(the_mapping => micm%species_ordering(i))

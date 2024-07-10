@@ -107,8 +107,9 @@ namespace musica
     /// @brief Create a MICM object by specifying solver type to use
     /// @param config_path Path to configuration file or directory containing configuration file
     /// @param solver_type Type of MICMSolver
+    /// @param num_grid_cells Number of grid cells
     /// @param error Error struct to indicate success or failure
-    MICM *CreateMicm(const char *config_path, MICMSolver solver_type, Error *error);
+    MICM *CreateMicm(const char *config_path, MICMSolver solver_type, int num_grid_cells, Error *error);
     void DeleteMicm(const MICM *micm, Error *error);
     void MicmSolve(
         MICM *micm,
@@ -179,6 +180,13 @@ namespace musica
       solver_type_ = solver_type;
     }
 
+    /// @brief Set number of grid cells
+    /// @param num_grid_cells Number of grid cells
+    void SetNumGridCells(int num_grid_cells)
+    {
+      num_grid_cells_ = num_grid_cells;
+    }
+
     /// @brief Get the ordering of species
     /// @param solver Pointer to solver
     /// @param error Error struct to indicate success or failure
@@ -222,6 +230,7 @@ namespace musica
     std::unique_ptr<RosenbrockStandard> rosenbrock_standard_;
 
    private:
+    int num_grid_cells_;
     std::unique_ptr<micm::SolverParameters> solver_parameters_;
   };
 

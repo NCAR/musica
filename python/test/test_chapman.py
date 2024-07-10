@@ -4,6 +4,7 @@ import musica
 
 class TestChapman(unittest.TestCase):
     def test_micm_solve(self):
+        num_grid_cells = 1
         time_step = 200.0
         temperature = 272.5
         pressure = 101253.3
@@ -11,7 +12,7 @@ class TestChapman(unittest.TestCase):
         air_density = pressure / (GAS_CONSTANT * temperature)
         concentrations = [0.75, 0.4, 0.8, 0.01, 0.02]
 
-        solver = musica.create_solver("configs/chapman", musica.micmsolver.rosenbrock)
+        solver = musica.create_solver("configs/chapman", musica.micmsolver.rosenbrock, num_grid_cells)
         rate_constant_ordering = musica.user_defined_reaction_rates(solver)
         ordering = musica.species_ordering(solver)
 

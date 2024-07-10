@@ -20,10 +20,10 @@ PYBIND11_MODULE(musica, m)
 
   m.def(
       "create_solver",
-      [](const char *config_path, musica::MICMSolver solver_type)
+      [](const char *config_path, musica::MICMSolver solver_type, int num_grid_cells)
       {
         musica::Error error;
-        musica::MICM *micm = musica::CreateMicm(config_path, solver_type, &error);
+        musica::MICM *micm = musica::CreateMicm(config_path, solver_type, num_grid_cells, &error);
         if (!musica::IsSuccess(error))
         {
           std::string message = "Error creating solver: " + std::string(error.message_.value_);

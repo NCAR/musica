@@ -21,10 +21,11 @@
 namespace musica
 {
 
-  MICM *CreateMicm(const char *config_path, MICMSolver solver_type, Error *error)
+  MICM *CreateMicm(const char *config_path, MICMSolver solver_type, int num_grid_cells, Error *error)
   {
     DeleteError(error);
     MICM *micm = new MICM();
+    micm->SetNumGridCells(num_grid_cells);
 
     if (solver_type == MICMSolver::Rosenbrock)
     {
@@ -250,7 +251,7 @@ namespace musica
                   micm::LuDecomposition>>(micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())
               .SetSystem(solver_parameters_->system_)
               .SetReactions(solver_parameters_->processes_)
-              .SetNumberOfGridCells(MICM_NUM_GRID_CELLS)
+              .SetNumberOfGridCells(num_grid_cells_)
               .SetIgnoreUnusedSpecies(true)
               .Build());
 
@@ -277,7 +278,7 @@ namespace musica
                                                    micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())
                                                    .SetSystem(solver_parameters_->system_)
                                                    .SetReactions(solver_parameters_->processes_)
-                                                   .SetNumberOfGridCells(MICM_NUM_GRID_CELLS)
+                                                   .SetNumberOfGridCells(num_grid_cells_)
                                                    .SetIgnoreUnusedSpecies(true)
                                                    .Build());
 
@@ -309,14 +310,15 @@ namespace musica
     {
       micm::State state = solver->GetState();
 
-      for (std::size_t i{}; i < MICM_NUM_GRID_CELLS; i++)
+      for (int cell{}; cell < num_grid_cells_; cell++)
       {
-        state.conditions_[i].temperature_ = temperature;
-        state.conditions_[i].pressure_ = pressure;
-        state.conditions_[i].air_density_ = air_density;
+        state.conditions_[cell].temperature_ = temperature;
+        state.conditions_[cell].pressure_ = pressure;
+        state.conditions_[cell].air_density_ = air_density;
       }
-
+ 
       state.variables_.AsVector().assign(concentrations, concentrations + num_concentrations);
+
       state.custom_rate_parameters_.AsVector().assign(
           custom_rate_parameters, custom_rate_parameters + num_custom_rate_parameters);
 
