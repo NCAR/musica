@@ -39,10 +39,11 @@ namespace musica
   extern "C"
   {
 #endif
+    /// @brief Types of MICM solver
     enum MICMSolver
     {
-      Rosenbrock = 1,
-      RosenbrockStandardOrder,
+      Rosenbrock = 1,           // Vector-ordered Rosenbrock solver
+      RosenbrockStandardOrder,  // Standard-ordered Rosenbrock solver
     };
 
     struct SolverResultStats
@@ -105,11 +106,9 @@ namespace musica
 
     /// @brief Create a MICM object by specifying solver type to use
     /// @param config_path Path to configuration file or directory containing configuration file
-    /// @param solver_type Integer value representing solver type
-    ///                    1 : Vector-ordered Rosenbrock solver
-    ///                    2 : Standard-ordered Rosenbrock solver
+    /// @param solver_type Type of MICMSolver
     /// @param error Error struct to indicate success or failure
-    MICM *CreateMicm(const char *config_path, short solver_type, Error *error);
+    MICM *CreateMicm(const char *config_path, MICMSolver solver_type, Error *error);
     void DeleteMicm(const MICM *micm, Error *error);
     void MicmSolve(
         MICM *micm,
@@ -174,8 +173,8 @@ namespace musica
         Error *error);
 
     /// @brief Set solver type
-    /// @param solver_type Integer value representing solver type
-    void SetSolverType(short solver_type)
+    /// @param MICMSolver Type of MICMSolver
+    void SetSolverType(MICMSolver solver_type)
     {
       solver_type_ = solver_type;
     }

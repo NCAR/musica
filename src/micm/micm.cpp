@@ -21,7 +21,7 @@
 namespace musica
 {
 
-  MICM *CreateMicm(const char *config_path, short solver_type, Error *error)
+  MICM *CreateMicm(const char *config_path, MICMSolver solver_type, Error *error)
   {
     DeleteError(error);
     if ((solver_type != MICMSolver::Rosenbrock) && (solver_type != MICMSolver::RosenbrockStandardOrder))

@@ -18,10 +18,9 @@ class MicmCApiTest : public ::testing::Test
 
   void SetUp() override
   {
-    short solver_type = MICMSolver::Rosenbrock;
     micm = nullptr;
     Error error;
-    micm = CreateMicm(config_path, solver_type, &error);
+    micm = CreateMicm(config_path, MICMSolver::Rosenbrock, &error);
 
     ASSERT_TRUE(IsSuccess(error));
     DeleteError(&error);
@@ -39,9 +38,8 @@ class MicmCApiTest : public ::testing::Test
 // Test case for bad configuration file path
 TEST_F(MicmCApiTest, BadConfigurationFilePath)
 {
-  short solver_type = 1;
   Error error = NoError();
-  auto micm_bad_config = CreateMicm("bad config path", solver_type, &error);
+  auto micm_bad_config = CreateMicm("bad config path", MICMSolver::Rosenbrock, &error);
   ASSERT_EQ(micm_bad_config, nullptr);
   ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_CONFIGURATION, MICM_CONFIGURATION_ERROR_CODE_INVALID_FILE_PATH));
   DeleteError(&error);
@@ -52,7 +50,7 @@ TEST_F(MicmCApiTest, BadSolverType)
 {
   short solver_type = 999;
   Error error = NoError();
-  auto micm_bad_solver_type = CreateMicm("configs/chapman", solver_type, &error);
+  auto micm_bad_solver_type = CreateMicm("configs/chapman", static_cast<MICMSolver>(solver_type), &error);
   ASSERT_EQ(micm_bad_solver_type, nullptr);
   ASSERT_TRUE(IsError(error, MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND));
   DeleteError(&error);
@@ -260,8 +258,7 @@ TEST(RosenbrockStandardOrder, SolveUsingStandardOrderedRosenbrock)
 {
   Error error;
   const char* config_path = "configs/chapman";
-  short solver_type = MICMSolver::RosenbrockStandardOrder;
-  MICM* micm = CreateMicm(config_path, solver_type, &error);
+  MICM* micm = CreateMicm(config_path, MICMSolver::RosenbrockStandardOrder, &error);
 
   double time_step = 200.0;
   double temperature = 272.5;
