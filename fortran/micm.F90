@@ -26,6 +26,8 @@ module musica_micm
       real(c_double)     :: final_time_ = 0._c_double
    end type solver_stats_t_c
 
+   ! We could use Fortran 2023 enum type feature if Fortran 2023 is supported
+   ! https://fortran-lang.discourse.group/t/enumerator-type-in-bind-c-derived-type-best-practice/5947/2
    enum, bind(c)
       enumerator :: Rosenbrock              = 1, &
                     RosenbrockStandardOrder = 2
