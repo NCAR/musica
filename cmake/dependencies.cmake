@@ -42,7 +42,7 @@ endif()
 ################################################################################
 # OpenMP
 if(MUSICA_ENABLE_OPENMP)
-  find_package(OpenMP REQUIRED)
+  find_package(OpenMP REQUIRED COMPONENTS C CXX Fortran)
 endif()
 
 ################################################################################
