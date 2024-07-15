@@ -10,7 +10,14 @@ module musica_util
   private
 
   public :: string_t_c, string_t, error_t_c, error_t, mapping_t_c, mapping_t, &
-            to_c_string, to_f_string, assert, copy_mappings, delete_string_c, create_string_c
+            to_c_string, to_f_string, assert, copy_mappings, delete_string_c, &
+            create_string_c, musica_rk, musica_dk
+
+  !> Single precision kind
+  integer, parameter :: musica_rk = kind(0.0)
+
+  !> Double precision kind
+  integer, parameter :: musica_dk = kind(0.d0)
 
   !> Wrapper for a c string
   type, bind(c) :: string_t_c
