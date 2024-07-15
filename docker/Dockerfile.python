@@ -1,5 +1,7 @@
 FROM fedora:latest
 
+ARG BUILD_TYPE=Release
+
 RUN dnf -y update \
     && dnf -y install \
         cmake \
@@ -45,7 +47,7 @@ RUN pip install -r requirements.txt
 RUN cd musica \
     && cmake -S . \
              -B build \
-             -D CMAKE_BUILD_TYPE=Release \
+             -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
              -D MUSICA_ENABLE_PYTHON_LIBRARY=ON \
              -D MUSICA_ENABLE_TUVX=OFF \
     && cd build \
