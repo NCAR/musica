@@ -6,6 +6,7 @@ program test_micm_api
   use, intrinsic :: iso_c_binding
   use, intrinsic :: ieee_arithmetic
   use musica_micm, only: micm_t, solver_stats_t, get_micm_version
+  use musica_micm, only: Rosenbrock, RosenbrockStandardOrder
   use musica_util, only: assert, error_t, mapping_t, string_t
 
 #include "micm/util/error.hpp"
@@ -32,6 +33,8 @@ contains
     real(c_double), dimension(5)  :: concentrations 
     real(c_double), dimension(3)  :: user_defined_reaction_rates 
     character(len=256)            :: config_path
+    integer(c_int)                :: solver_type
+    integer(c_int)                :: num_grid_cells
     character(len=:), allocatable :: string_value
     real(c_double)                :: double_value
     integer(c_int)                :: int_value
@@ -42,13 +45,15 @@ contains
     real(c_double), parameter     :: GAS_CONSTANT = 8.31446261815324_c_double ! J mol-1 K-1
     integer                       :: i
     
+    config_path = "configs/chapman"
+    solver_type = Rosenbrock
+    num_grid_cells = 1
     time_step = 200
     temperature = 272.5
     pressure = 101253.4
     air_density = pressure / ( GAS_CONSTANT * temperature )
     num_concentrations = 5
     concentrations = (/ 0.75, 0.4, 0.8, 0.01, 0.02 /)
-    config_path = "configs/chapman"
     num_user_defined_reaction_rates = 3
     user_defined_reaction_rates = (/ 0.1, 0.2, 0.3 /)
 
@@ -56,7 +61,7 @@ contains
     print *, "[test micm fort api] MICM version ", micm_version%get_char_array()
 
     write(*,*) "[test micm fort api] Creating MICM solver..."
-    micm => micm_t(config_path, error)
+    micm => micm_t(config_path, solver_type, num_grid_cells, error)
     ASSERT( error%is_success() )
 
     do i = 1, size( micm%species_ordering )
@@ -116,7 +121,7 @@ contains
     ASSERT( error%is_error( MICM_ERROR_CATEGORY_SPECIES, \
                       MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND ) )
     deallocate( micm )
-    micm => micm_t( "configs/invalid", error )
+    micm => micm_t( "configs/invalid", solver_type, num_grid_cells, error )
     ASSERT( error%is_error( MICM_ERROR_CATEGORY_CONFIGURATION, \
                       MICM_CONFIGURATION_ERROR_CODE_INVALID_FILE_PATH ) )
     ASSERT( .not. associated( micm ) )
