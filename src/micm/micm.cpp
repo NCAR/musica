@@ -36,6 +36,7 @@ namespace musica
     else if (solver_type == MICMSolver::BackwardEuler)
     {
       micm->SetSolverType(MICMSolver::BackwardEuler);
+      micm->CreateBackwardEuler(std::string(config_path), error);
     }
     else if (solver_type == MICMSolver::RosenbrockStandardOrder)
     {
