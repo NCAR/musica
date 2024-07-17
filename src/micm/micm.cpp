@@ -274,6 +274,39 @@ namespace musica
     }
   }
 
+  void MICM::CreateBackwardEuler(const std::string &config_path, Error *error)
+  {
+    try
+    {
+      micm::SolverConfig<> solver_config;
+      solver_config.ReadAndParse(std::filesystem::path(config_path));
+      solver_parameters_ = std::make_unique<micm::SolverParameters>(solver_config.GetSolverParams());
+
+      backward_euler_ = std::make_unique<BackwardEuler>(
+          micm::SolverBuilder<
+              micm::BackwardEulerSolverParameters,
+              micm::VectorMatrix<double, MICM_VECTOR_MATRIX_SIZE>,
+              micm::SparseMatrix<double, micm::SparseMatrixVectorOrdering<MICM_VECTOR_MATRIX_SIZE>>,
+              micm::ProcessSet,
+              micm::LinearSolver<
+                  micm::SparseMatrix<double, micm::SparseMatrixVectorOrdering<MICM_VECTOR_MATRIX_SIZE>>,
+                  micm::LuDecomposition>>(micm::BackwardEulerSolverParameters())
+              .SetSystem(solver_parameters_->system_)
+              .SetReactions(solver_parameters_->processes_)
+              .SetNumberOfGridCells(num_grid_cells_)
+              .SetIgnoreUnusedSpecies(true)
+              .Build());
+
+      DeleteError(error);
+      *error = NoError();
+    }
+    catch (const std::system_error &e)
+    {
+      DeleteError(error);
+      *error = ToError(e);
+    }
+  }
+
   void MICM::CreateRosenbrockStandardOrder(const std::string &config_path, Error *error)
   {
     try
