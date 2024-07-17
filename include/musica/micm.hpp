@@ -145,6 +145,16 @@ namespace musica
     /// @param error Error struct to indicate success or failure
     void CreateRosenbrockStandardOrder(const std::string &config_path, Error *error);
 
+    /// @brief Create a BackwardEuler solver of vector-ordered matrix type by reading and parsing configuration file
+    /// @param config_path Path to configuration file or directory containing configuration file
+    /// @param error Error struct to indicate success or failure
+    void CreateBackwardEuler(const std::string &config_path, Error *error);
+
+    /// @brief Create a BackwardEuler solver of standard-ordered matrix type by reading and parsing configuration file
+    /// @param config_path Path to configuration file or directory containing configuration file
+    /// @param error Error struct to indicate success or failure
+    void CreateBackwardEulerStandardOrder(const std::string &config_path, Error *error);
+
     /// @brief Solve the system
     /// @param solver Pointer to solver
     /// @param time_step Time [s] to advance the state by
