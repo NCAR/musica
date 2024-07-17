@@ -39,8 +39,10 @@ namespace musica
     /// @brief Types of MICM solver
     enum MICMSolver
     {
-      Rosenbrock = 1,           // Vector-ordered Rosenbrock solver
-      RosenbrockStandardOrder,  // Standard-ordered Rosenbrock solver
+      Rosenbrock = 1,              // Vector-ordered Rosenbrock solver
+      BackwardEuler,               // Vector-ordered BackwardEuler solver
+      RosenbrockStandardOrder,     // Standard-ordered Rosenbrock solver
+      BackwardEulerStandardOrder,  // Standard-ordered BackwardEuler solver
     };
 
     struct SolverResultStats

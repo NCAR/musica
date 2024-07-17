@@ -8,6 +8,7 @@
 #include <musica/util.hpp>
 
 #include <micm/solver/rosenbrock_solver_parameters.hpp>
+#include <micm/solver/backward_euler_solver_parameters.hpp>
 #include <micm/solver/solver_builder.hpp>
 #include <micm/system/species.hpp>
 #include <micm/version.hpp>
@@ -32,10 +33,18 @@ namespace musica
       micm->SetSolverType(MICMSolver::Rosenbrock);
       micm->CreateRosenbrock(std::string(config_path), error);
     }
+    else if (solver_type == MICMSolver::BackwardEuler)
+    {
+      micm->SetSolverType(MICMSolver::BackwardEuler);
+    }
     else if (solver_type == MICMSolver::RosenbrockStandardOrder)
     {
       micm->SetSolverType(MICMSolver::RosenbrockStandardOrder);
       micm->CreateRosenbrockStandardOrder(std::string(config_path), error);
+    }
+    else if (solver_type == MICMSolver::BackwardEulerStandardOrder)
+    {
+      micm->SetSolverType(MICMSolver::BackwardEulerStandardOrder);
     }
     else
     {
