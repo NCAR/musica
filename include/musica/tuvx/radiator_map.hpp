@@ -32,8 +32,8 @@ namespace musica
     /// @param error The error struct to indicate success or failure
     void AddRadiator(Radiator *radiator, Error *error);
 
-    /// @brief Returns a radiator. For now, this calls the interal tuvx fortran api, but will allow the change to c++ later on to
-    /// be transparent to downstream projects
+    /// @brief Returns a radiator. For now, this calls the interal tuvx fortran api, but will allow the change to c++ later
+    /// on to be transparent to downstream projects
     /// @param radiator_name The name of the radiator
     /// @param error The error struct to indicate success or failure
     /// @return a radiator pointer
@@ -81,11 +81,8 @@ namespace musica
     void *InternalCreateRadiatorMap(int *error_code);
     void InternalDeleteRadiatordMap(void *radiator_map, int *error_code);
     void InternalAddRadiator(void *radiator_map, void *radiator, int *error_code);
-    void *InternalGetRadiator(
-        void *radiator_map,
-        const char *radiator_name,
-        std::size_t radiator_name_length,
-        int *error_code);
+    void *
+    InternalGetRadiator(void *radiator_map, const char *radiator_name, std::size_t radiator_name_length, int *error_code);
     void *InternalGetRadiatorUpdaterFromMap(void *radiator_map, void *radiator, int *error_code);
 
 #ifdef __cplusplus

@@ -12,9 +12,9 @@ module tuvx_interface_radiator
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  function internal_create_radiator(radiator_name, radiator_name_length, height_grid, &
-    wavelength_grid, error_code) result(radiator) &
-    bind(C, name="InternalCreateRadiator")
+  function internal_create_radiator(radiator_name, radiator_name_length, &
+      height_grid, wavelength_grid, error_code) result(radiator) &
+      bind(C, name="InternalCreateRadiator")
     use iso_c_binding, only: c_ptr, c_f_pointer, c_char, c_loc, c_size_t, c_int
     use musica_string, only: string_t
 
@@ -22,12 +22,12 @@ module tuvx_interface_radiator
     use tuvx_grid,                     only : grid_t
 
     ! arguments
-    type(c_ptr)                                             :: radiator
+    type(c_ptr)                                         :: radiator
     character(kind=c_char, len=1), dimension(*), intent(in) :: radiator_name
-    integer(kind=c_size_t), intent(in), value               :: radiator_name_length
-    type(c_ptr), intent(in), value                          :: height_grid
-    type(c_ptr), intent(in), value                          :: wavelength_grid
-    integer(kind=c_int), intent(out)                        :: error_code
+    integer(kind=c_size_t), intent(in), value           :: radiator_name_length
+    type(c_ptr), intent(in), value                      :: height_grid
+    type(c_ptr), intent(in), value                      :: wavelength_grid
+    integer(kind=c_int), intent(out)                    :: error_code
     
     ! variables
     type(radiator_from_host_t), pointer :: f_radiator
@@ -50,7 +50,7 @@ module tuvx_interface_radiator
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   subroutine internal_delete_radiator(radiator, error_code) &
-    bind(C, name="InternalDeleteRadiator")
+      bind(C, name="InternalDeleteRadiator")
     use iso_c_binding, only: c_ptr, c_f_pointer, c_int
 
     ! arguments
@@ -70,7 +70,7 @@ module tuvx_interface_radiator
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   function internal_get_radiator_updater(radiator, error_code) &
-    bind(C, name="InternalGetRadiatorUpdater") result(updater)
+      bind(C, name="InternalGetRadiatorUpdater") result(updater)
     use iso_c_binding, only: c_ptr, c_f_pointer, c_loc, c_int
     use tuvx_radiator_from_host, only: radiator_from_host_t, radiator_updater_t
 
@@ -94,7 +94,7 @@ module tuvx_interface_radiator
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   subroutine internal_delete_radiator_updater(updater, error_code) &
-    bind(C, name="InternalDeleteRadiatorUpdater")
+      bind(C, name="InternalDeleteRadiatorUpdater")
     use iso_c_binding, only: c_ptr, c_f_pointer, c_int
     use tuvx_radiator_from_host, only: radiator_updater_t
 
@@ -103,7 +103,7 @@ module tuvx_interface_radiator
     integer(kind=c_int), intent(out) :: error_code
 
     ! variables
-    type(grid_radiator_t), pointer :: f_updater
+    type(radiator_t), pointer :: f_updater
 
     call c_f_pointer(updater, f_updater)
     if (associated(f_updater)) then
@@ -114,8 +114,8 @@ module tuvx_interface_radiator
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  subroutine internal_set_optical_depths(radiator_updater, optical_depths, num_vertical_layers, & 
-      num_wavelength_bins, error_code) &
+  subroutine internal_set_optical_depths(radiator_updater, optical_depths, &
+      num_vertical_layers, num_wavelength_bins, error_code) &
       bind(C, name="InternalSetOpticalDepths")
     use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_size_t
     use musica_constants, only: dk => musica_dk
@@ -133,10 +133,12 @@ module tuvx_interface_radiator
     real(kind=dk), pointer :: f_optical_depths(:,:)
   
     call c_f_pointer(radiator_updater, f_updater)
-    call c_f_pointer(optical_depths, f_optical_depths, [num_vertical_layers, num_wavelength_bins])
+    call c_f_pointer(optical_depths, f_optical_depths, 
+          [num_vertical_layers, num_wavelength_bins])
 
-    if ((size(f_updater%radiator_%state_%layer_OD_, 1) /= num_vertical_layers) .or. &
-        (size(f_updater%radiator_%state_%layer_OD_, 2) /= num_wavelength_bins)) then
+    if ((size(f_updater%radiator_%state_%layer_OD_, 1) /= num_vertical_layers) &
+    .or. (size(f_updater%radiator_%state_%layer_OD_, 2) /= num_wavelength_bins)) &
+    then
       error_code = 1
       return
     end if
@@ -146,8 +148,8 @@ module tuvx_interface_radiator
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  subroutine internal_get_optical_depths(radiator_updater, optical_depths, num_vertical_layers, & 
-      num_wavelength_bins, error_code) &
+  subroutine internal_get_optical_depths(radiator_updater, optical_depths, &
+      num_vertical_layers, num_wavelength_bins, error_code) &
       bind(C, name="InternalGetOpticalDepths")
     use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_size_t
     use musica_constants, only: dk => musica_dk
@@ -165,10 +167,12 @@ module tuvx_interface_radiator
     real(kind=dk), pointer :: f_optical_depths(:,:)
   
     call c_f_pointer(radiator_updater, f_updater)
-    call c_f_pointer(optical_depths, f_optical_depths, [num_vertical_layers, num_wavelength_bins])
+    call c_f_pointer(optical_depths, f_optical_depths, 
+          [num_vertical_layers, num_wavelength_bins])
 
-    if ((size(f_updater%radiator_%state_%layer_OD_, 1) /= num_vertical_layers) .or. &
-        (size(f_updater%radiator_%state_%layer_OD_, 2) /= num_wavelength_bins)) then
+    if ((size(f_updater%radiator_%state_%layer_OD_, 1) /= num_vertical_layers) &
+    .or. (size(f_updater%radiator_%state_%layer_OD_, 2) /= num_wavelength_bins)) &
+    then
       error_code = 1
       return
     end if
@@ -178,9 +182,9 @@ module tuvx_interface_radiator
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  subroutine internal_set_single_scattering_albedos(radiator_updater, single_scattering_albedos, & 
-      num_vertical_layers, num_wavelength_bins, error_code) &
-      bind(C, name="InternalSetSingleScatteringAlbedos")
+  subroutine internal_set_single_scattering_albedos(radiator_updater, &
+      single_scattering_albedos, num_vertical_layers, num_wavelength_bins, &
+      error_code) bind(C, name="InternalSetSingleScatteringAlbedos")
     use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_size_t
     use musica_constants, only: dk => musica_dk
     use tuvx_radiator_from_host, only: radiator_updater_t
@@ -197,10 +201,12 @@ module tuvx_interface_radiator
     real(kind=dk), pointer :: f_single_scattering_albedos(:,:)
   
     call c_f_pointer(radiator_updater, f_updater)
-    call c_f_pointer(single_scattering_albedos, f_single_scattering_albedos, [num_vertical_layers, num_wavelength_bins])
+    call c_f_pointer(single_scattering_albedos, f_single_scattering_albedos, &
+          [num_vertical_layers, num_wavelength_bins])
 
-    if ((size(f_updater%radiator_%state_%layer_SSA_, 1) /= num_vertical_layers) .or. &
-        (size(f_updater%radiator_%state_%layer_SSA_, 2) /= num_wavelength_bins)) then
+    if ((size(f_updater%radiator_%state_%layer_SSA_, 1) /= num_vertical_layers) &
+    .or. (size(f_updater%radiator_%state_%layer_SSA_, 2) /= num_wavelength_bins)) &
+    then
       error_code = 1
       return
     end if
@@ -210,9 +216,9 @@ module tuvx_interface_radiator
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  subroutine internal_get_single_scattering_albedos(radiator_updater, single_scattering_albedos, & 
-      num_vertical_layers, num_wavelength_bins, error_code) &
-      bind(C, name="InternalGetSingleScatteringAlbedos")
+  subroutine internal_get_single_scattering_albedos(radiator_updater, &
+      single_scattering_albedos, num_vertical_layers, num_wavelength_bins, &
+      error_code) bind(C, name="InternalGetSingleScatteringAlbedos")
     use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_size_t
     use musica_constants, only: dk => musica_dk
     use tuvx_radiator_from_host, only: radiator_updater_t
@@ -229,10 +235,12 @@ module tuvx_interface_radiator
     real(kind=dk), pointer :: f_single_scattering_albedos(:,:)
 
     call c_f_pointer(radiator_updater, f_updater)
-    call c_f_pointer(single_scattering_albedos, f_single_scattering_albedos, [num_vertical_layers, num_wavelength_bins])
+    call c_f_pointer(single_scattering_albedos, f_single_scattering_albedos, &
+          [num_vertical_layers, num_wavelength_bins])
 
-    if ((size(f_updater%radiator_%state_%layer_SSA_, 1) /= num_vertical_layers) .or. &
-        (size(f_updater%radiator_%state_%layer_SSA_, 2) /= num_wavelength_bins)) then
+    if ((size(f_updater%radiator_%state_%layer_SSA_, 1) /= num_vertical_layers) &
+    .or. (size(f_updater%radiator_%state_%layer_SSA_, 2) /= num_wavelength_bins)) &
+    then
       error_code = 1
       return
     end if
@@ -242,16 +250,16 @@ module tuvx_interface_radiator
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  subroutine internal_set_asymmetry_factor(radiator_updater, asymmetry_factor, num_vertical_layers, & 
-      num_wavelength_bins, num_streams, error_code) &
-      bind(C, name="InternalSetAsymmetryFactor")
+  subroutine internal_set_asymmetry_factors(radiator_updater, &
+      asymmetry_factors, num_vertical_layers, num_wavelength_bins, num_streams, &
+      error_code) bind(C, name="InternalSetAsymmetryFactors")
     use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_size_t
     use musica_constants, only: dk => musica_dk
     use tuvx_radiator_from_host, only: radiator_updater_t
 
     ! arguments
     type(c_ptr), value, intent(in)            :: radiator_updater
-    type(c_ptr), value, intent(in)            :: asymmetry_factor
+    type(c_ptr), value, intent(in)            :: asymmetry_factors
     integer(kind=c_size_t), intent(in), value :: num_vertical_layers
     integer(kind=c_size_t), intent(in), value :: num_wavelength_bins
     integer(kind=c_size_t), intent(in), value :: num_streams
@@ -259,21 +267,56 @@ module tuvx_interface_radiator
 
     ! variables
     type(radiator_updater_t), pointer :: f_updater
-    real(kind=dk), pointer :: f_asymmetry_factor(:,:,:)
+    real(kind=dk), pointer :: f_asymmetry_factors(:,:,:)
 
     call c_f_pointer(radiator_updater, f_updater)
-    call c_f_pointer(asymmetry_factor, f_asymmetry_factor, [num_vertical_layers, num_wavelength_bins, num_streams])
+    call c_f_pointer(asymmetry_factors, f_asymmetry_factors, &
+          [num_vertical_layers, num_wavelength_bins, num_streams])
 
-    if ((size(f_updater%radiator_%state_%layer_SSA_, 1) /= num_vertical_layers) .or. &
-        (size(f_updater%radiator_%state_%layer_SSA_, 2) /= num_wavelength_bins) .or. &
-        (size(f_updater%radiator_%state_%layer_G_, 3) /= num_streams)) then
+    if ((size(f_updater%radiator_%state_%layer_G_, 1) /= num_vertical_layers) &
+    .or. (size(f_updater%radiator_%state_%layer_G_, 2) /= num_wavelength_bins) &
+    .or. (size(f_updater%radiator_%state_%layer_G_, 3) /= num_streams)) then
       error_code = 1
       return
     end if
-    f_updater%radiator_%state_%layer_G_(:,:,:) = f_asymmetry_factor(:,:,:)
+    f_updater%radiator_%state_%layer_G_(:,:,:) = f_asymmetry_factors(:,:,:)
 
-  end subroutine internal_set_asymmetry_factor
+  end subroutine internal_set_asymmetry_factors
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+  subroutine internal_get_asymmetry_factors(radiator_updater, &
+    asymmetry_factors, num_vertical_layers, num_wavelength_bins, num_streams, &
+    error_code) bind(C, name="InternalGetAsymmetryFactors")
+  use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_size_t
+  use musica_constants, only: dk => musica_dk
+  use tuvx_radiator_from_host, only: radiator_updater_t
+
+  ! arguments
+  type(c_ptr), value, intent(in)            :: radiator_updater
+  type(c_ptr), value, intent(in)            :: asymmetry_factors
+  integer(kind=c_size_t), intent(in), value :: num_vertical_layers
+  integer(kind=c_size_t), intent(in), value :: num_wavelength_bins
+  integer(kind=c_size_t), intent(in), value :: num_streams
+  integer(kind=c_int), intent(out)          :: error_code
+
+  ! variables
+  type(radiator_updater_t), pointer :: f_updater
+  real(kind=dk), pointer :: f_asymmetry_factors(:,:,:)
+
+  call c_f_pointer(radiator_updater, f_updater)
+  call c_f_pointer(asymmetry_factors, f_asymmetry_factors, &
+        [num_vertical_layers, num_wavelength_bins, num_streams])
+
+  if ((size(f_updater%radiator_%state_%layer_G_, 1) /= num_vertical_layers) &
+  .or. (size(f_updater%radiator_%state_%layer_G_, 2) /= num_wavelength_bins) &
+  .or. (size(f_updater%radiator_%state_%layer_G_, 3) /= num_streams)) then
+    error_code = 1
+    return
+  end if
+  f_asymmetry_factors(:,:,:) = f_updater%radiator_%state_%layer_G_(:,:,:)
+
+end subroutine internal_set_asymmetry_factors
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 end module tuvx_interface_radiator

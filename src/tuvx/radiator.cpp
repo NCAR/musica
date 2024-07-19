@@ -12,13 +12,13 @@ namespace musica
 
   // Radiator external C API functions
 
-  Radiator *CreateRadiator(const char *radiator_name, Radiator *height_grid, Radiator *wavelength_grid, Error *error);
+  Radiator *CreateRadiator(const char *radiator_name, Radiator *height_grid, Radiator *wavelength_grid, Error *error)
   {
     DeleteError(error);
     return new Radiator(radiator_name, height_grid, wavelength_grid, error);
   }
 
-  void DeleteRadiator(Radiator *radiator, Error *error);
+  void DeleteRadiator(Radiator *radiator, Error *error)
   {
     DeleteError(error);
     try
@@ -38,7 +38,7 @@ namespace musica
       double *optical_depths,
       std::size_t num_vertical_layers,
       std::size_t num_wavelength_bins,
-      Error *error);
+      Error *error)
   {
     DeleteError(error);
     radiator->SetOpticalDepths(optical_depths, num_vertical_layers, num_wavelength_bins, error);
@@ -60,7 +60,7 @@ namespace musica
       double *single_scattering_albedos,
       std::size_t num_vertical_layers,
       std::size_t num_wavelength_bins,
-      Error *error);
+      Error *error)
   {
     DeleteError(error);
     radiator->SetSingleScatteringAlbedos(single_scattering_albedos, num_vertical_layers, num_wavelength_bins, error);
@@ -71,7 +71,7 @@ namespace musica
       double *single_scattering_albedos,
       std::size_t num_vertical_layers,
       std::size_t num_wavelength_bins,
-      Error *error);
+      Error *error)
   {
     DeleteError(error);
     radiator->GetSingleScatteringAlbedos(single_scattering_albedos, num_vertical_layers, num_wavelength_bins, error);
@@ -83,7 +83,7 @@ namespace musica
       std::size_t num_vertical_layers,
       std::size_t num_wavelength_bins,
       std::size_t num_streams,
-      Error *error);
+      Error *error)
   {
     DeleteError(error);
     radiator->SetAsymmetryFactors(asymmetry_factors, num_vertical_layers, num_wavelength_bins, num_streams, error);
@@ -106,7 +106,7 @@ namespace musica
   //
   // Radiation class functions
 
-  Radiator::Radiator(const char *radiator_name, Grid *height_grid, Grid *wavelength_grid, Error *error);
+  Radiator::Radiator(const char *radiator_name, Grid *height_grid, Grid *wavelength_grid, Error *error)
   {
     int error_code = 0;
     radiator_ =
@@ -137,18 +137,11 @@ namespace musica
     updater_ = nullptr;
   }
 
-  InternalSetOpticalDepths(
-      void *radiator,
-      double *optical_depths,
-      std::size_t num_vertical_layers,
-      std::size_t num_wavelength_bins,
-      int *error_code);
-
   void Radiator::SetOpticalDepths(
       double *optical_depths,
       std::size_t num_vertical_layers,
       std::size_t num_wavelength_bins,
-      Error *error);
+      Error *error)
   {
     int error_code = 0;
     if (updater_ == nullptr)
@@ -169,7 +162,7 @@ namespace musica
       double *optical_depths,
       std::size_t num_vertical_layers,
       std::size_t num_wavelength_bins,
-      Error *error);
+      Error *error)
   {
     int error_code = 0;
     if (updater_ == nullptr)
@@ -190,7 +183,7 @@ namespace musica
       double *single_scattering_albedos,
       std::size_t num_vertical_layers,
       std::size_t num_wavelength_bins,
-      Error *error);
+      Error *error)
   {
     int error_code = 0;
     if (updater_ == nullptr)
@@ -212,7 +205,7 @@ namespace musica
       double *single_scattering_albedos,
       std::size_t num_vertical_layers,
       std::size_t num_wavelength_bins,
-      Error *error);
+      Error *error)
   {
     int error_code = 0;
     if (updater_ == nullptr)
@@ -235,7 +228,7 @@ namespace musica
       std::size_t num_vertical_layers,
       std::size_t num_wavelength_bins,
       std::size_t num_streams,
-      Error *error);
+      Error *error)
   {
     int error_code = 0;
     if (updater_ == nullptr)

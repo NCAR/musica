@@ -23,7 +23,7 @@ namespace musica
     /// @param height_grid The height grid
     /// @param wavelength_grid The wavelength grid
     /// @param error The error struct to indicate success or failure
-    Radiator(const char *radiator_name, Grid* height_grid, Grid* wavelength_grid, Error *error);
+    Radiator(const char *radiator_name, Grid *height_grid, Grid *wavelength_grid, Error *error);
 
     ~Radiator();
 

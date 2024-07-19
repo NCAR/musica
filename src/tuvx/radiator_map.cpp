@@ -11,12 +11,12 @@ namespace musica
 
   // RadiatordMap external C API functions
 
-  RadiatorMap *CreateRadiatorMap(Error *error);
+  RadiatorMap *CreateRadiatorMap(Error *error)
   {
     DeleteError(error);
     return new RadiatorMap(error);
   }
- 
+
   void DeleteRadiatorMap(RadiatorMap *radiator_map, Error *error)
   {
     DeleteError(error);
@@ -31,13 +31,13 @@ namespace musica
     *error = NoError();
   }
 
-  void AddRadiator(RadiatorMap *radiator_map, Radiator *radiator, Error *error);
+  void AddRadiator(RadiatorMap *radiator_map, Radiator *radiator, Error *error)
   {
     DeleteError(error);
     radiator_map->AddGrid(radiator, error);
   }
 
-  Radiator *GetRadiator(RadiatorMap *radiator_map, const char *radiator_name, Error *error);
+  Radiator *GetRadiator(RadiatorMap *radiator_map, const char *radiator_name, Error *error)
   {
     DeleteError(error);
     return radiator_map->GetRadiator(radiator_name, error);
@@ -45,7 +45,7 @@ namespace musica
 
   // RadiatordMap class functions
 
-  RadiatorMap::RadiatorMap(Error *error);
+  RadiatorMap::RadiatorMap(Error *error)
   {
     int error_code = 0;
     radiator_map_ = InternalCreateRadiatorMap(&error_code);
@@ -57,7 +57,7 @@ namespace musica
     *error = NoError();
   }
 
-  RadiatorMap::~RadiatorMap();
+  RadiatorMap::~RadiatorMap()
   {
     int error_code = 0;
     if (radiator_map_ != nullptr && owns_radiator_map_)
@@ -68,7 +68,7 @@ namespace musica
     owns_radiator_map_ = false;
   }
 
-  void RadiatorMap::AddRadiator(Radiator *radiator, Error *error);
+  void RadiatorMap::AddRadiator(Radiator *radiator, Error *error)
   {
     if (radiator_map_ == nullptr)
     {
@@ -129,9 +129,8 @@ namespace musica
     *error = NoError();
   }
 
-
-  /// @brief Returns a radiator. For now, this calls the interal tuvx fortran api, but will allow the change to c++ later on to
-  /// be transparent to downstream projects
+  /// @brief Returns a radiator. For now, this calls the interal tuvx fortran api, but will allow the change to c++ later on
+  /// to be transparent to downstream projects
   /// @param radiator_name The name of the radiator
   /// @param error The error struct to indicate success or failure
   /// @return a radiator pointer
