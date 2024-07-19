@@ -3,7 +3,6 @@
 #pragma once
 
 #include <musica/tuvx/grid.hpp>
-#include <musica/tuvx/grid_map.hpp>
 #include <musica/util.hpp>
 
 #include <memory>
