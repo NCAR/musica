@@ -78,29 +78,29 @@ module musica_tuvx_radiator
       type(error_t_c),          intent(inout) :: error
     end subroutine get_single_scattering_albedos_c
 
-    subroutine set_asymmetry_factor_c(radiator, symmetry_factor, num_vertical_layers, &
-        num_wavelength_bins, num_streams, error) bind(C, name="SetAsymmetryFactor")
+    subroutine set_asymmetry_factors_c(radiator, symmetry_factor, num_vertical_layers, &
+        num_wavelength_bins, num_streams, error) bind(C, name="SetAsymmetryFactors")
       use iso_c_binding, only : c_ptr, c_size_t
       use musica_util, only: error_t_c
       type(c_ptr),       value, intent(in)    :: radiator
-      type(c_ptr),       value, intent(in)    :: asymmetry_factor
+      type(c_ptr),       value, intent(in)    :: asymmetry_factors
       integer(c_size_t), value, intent(in)    :: num_vertical_layers
       integer(c_size_t), value, intent(in)    :: num_wavelength_bins
       integer(c_size_t), value, intent(in)    :: num_streams
       type(error_t_c),          intent(inout) :: error
-    end subroutine set_asymmetry_factor_c
+    end subroutine set_asymmetry_factors_c
 
-    subroutine get_asymmetry_factor_c(radiator, symmetry_factor, num_vertical_layers, &
-        num_wavelength_bins, num_streams, error) bind(C, name="GetAsymmetryFactor")
+    subroutine get_asymmetry_factors_c(radiator, symmetry_factor, num_vertical_layers, &
+        num_wavelength_bins, num_streams, error) bind(C, name="GetAsymmetryFactors")
       use iso_c_binding, only : c_ptr, c_size_t
       use musica_util, only: error_t_c
       type(c_ptr),       value, intent(in)    :: radiator
-      type(c_ptr),       value, intent(in)    :: asymmetry_factor
+      type(c_ptr),       value, intent(in)    :: asymmetry_factors
       integer(c_size_t), value, intent(in)    :: num_vertical_layers
       integer(c_size_t), value, intent(in)    :: num_wavelength_bins
       integer(c_size_t), value, intent(in)    :: num_streams
       type(error_t_c),          intent(inout) :: error
-    end subroutine get_asymmetry_factor_c
+    end subroutine get_asymmetry_factors_c
   end interface
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -116,10 +116,10 @@ module musica_tuvx_radiator
     procedure :: set_single_scattering_albedos
     ! Get the radiator single scattering albedos
     procedure :: get_single_scattering_albedos
-    ! Set the radiator asymmetry_factor
-    procedure :: set_asymmetry_factor
-    ! Get the radiator asymmetry factor
-    procedure :: get_asymmetry_factor
+    ! Set the radiator asymmetry_factors
+    procedure :: set_asymmetry_factors
+    ! Get the radiator asymmetry factors
+    procedure :: get_asymmetry_factors
     ! Deallocate the radiator instance
     final :: finalize_radiator_t
   end type radiator_t
@@ -180,93 +180,163 @@ contains
   
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  subroutine set_edges(this, edges, error)
+  subroutine set_optical_depths(this, optical_depths, error)
     use iso_c_binding, only: c_size_t, c_loc
     use musica_util, only: error_t, error_t_c, dk => musica_dk
 
     ! Arguments
-    class(radiator_t), intent(inout) :: this
-    real(dk), target, dimension(:), intent(in) :: edges
-    type(error_t), intent(inout) :: error
+    class(radiator_t), intent(inout)             :: this
+    real(dk), target, dimension(:,:), intent(in) :: optical_depths
+    type(error_t), intent(inout)                 :: error
 
     ! Local variables
-    type(error_t_c) :: error_c
-    integer(kind=c_size_t) :: n_edges
+    type(error_t_c)        :: error_c
+    integer(kind=c_size_t) :: num_vertical_layers
+    integer(kind=c_size_t) :: num_wavelength_bins
 
-    n_edges = size(edges)
+    num_vertical_layers = size(optical_depths, 1)
+    num_wavelength_bins = size(optical_depths, 2)
 
-    call set_radiator_edges_c(this%ptr_, c_loc(edges), n_edges, error_c)
+    call set_optical_depths_c(this%ptr_, c_loc(optical_depths), &
+                num_vertical_layers, num_wavelength_bins, error_c)
     error = error_t(error_c)
 
   end subroutine set_edges
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   
-  subroutine get_edges(this, edges, error)
+  subroutine get_optical_depths(this, optical_depths, error)
     use iso_c_binding, only: c_size_t, c_loc
     use musica_util, only: error_t, error_t_c, dk => musica_dk
 
     ! Arguments
     class(radiator_t), intent(inout) :: this
-    real(dk), target, dimension(:), intent(inout) :: edges
+    real(dk), target, dimension(:,:), intent(in) :: optical_depths
     type(error_t), intent(inout) :: error
 
     ! Local variables
-    type(error_t_c) :: error_c
-    integer(kind=c_size_t) :: n_edges
+    type(error_t_c)        :: error_c
+    integer(kind=c_size_t) :: num_vertical_layers
+    integer(kind=c_size_t) :: num_wavelength_bins
 
-    n_edges = size(edges)
+    num_vertical_layers = size(optical_depths, 1)
+    num_wavelength_bins = size(optical_depths, 2)
 
-    call get_radiator_edges_c(this%ptr_, c_loc(edges), n_edges, error_c)
+    call get_optical_depths_c(this%ptr_, c_loc(optical_depths), &
+                num_vertical_layers, num_wavelength_bins, error_c)
     error = error_t(error_c)
 
-  end subroutine get_edges
+  end subroutine get_optical_depths
   
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  subroutine set_midpoints(this, midpoints, error)
+  subroutine set_single_scattering_albedos(this, single_scattering_albedos, &
+      error)
     use iso_c_binding, only: c_size_t, c_loc
     use musica_util, only: error_t, error_t_c, dk => musica_dk
 
     ! Arguments
     class(radiator_t), intent(inout) :: this
-    real(dk), target, dimension(:), intent(in) :: midpoints
+    real(dk), target, dimension(:,:), intent(in) :: single_scattering_albedos
     type(error_t), intent(inout) :: error
 
     ! Local variables
     type(error_t_c) :: error_c
-    integer(kind=c_size_t) :: n_midpoints
+    integer(kind=c_size_t) :: num_vertical_layers
+    integer(kind=c_size_t) :: num_wavelength_bins
 
-    n_midpoints = size(midpoints)
+    num_vertical_layers = size(single_scattering_albedos, 1)
+    num_wavelength_bins = size(single_scattering_albedos, 2)
 
-    call set_radiator_midpoints_c(this%ptr_, c_loc(midpoints), n_midpoints, error_c)
+    call set_single_scattering_albedos_c(this%ptr_, &
+          c_loc(single_scattering_albedos), num_vertical_layers, &
+          num_wavelength_bins, error_c)
     error = error_t(error_c)
 
-  end subroutine set_midpoints
+  end subroutine set_single_scattering_albedos
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   
-  subroutine get_midpoints(this, midpoints, error)
+  subroutine get_single_scattering_albedos(this, single_scattering_albedos, &
+      error)
     use iso_c_binding, only: c_size_t, c_loc
     use musica_util, only: error_t, error_t_c, dk => musica_dk
 
     ! Arguments
     class(radiator_t), intent(inout) :: this
-    real(dk), target, dimension(:), intent(inout) :: midpoints
+    real(dk), target, dimension(:,:), intent(in) :: single_scattering_albedos
     type(error_t), intent(inout) :: error
 
     ! Local variables
     type(error_t_c) :: error_c
-    integer(kind=c_size_t) :: n_midpoints
+    integer(kind=c_size_t) :: num_vertical_layers
+    integer(kind=c_size_t) :: num_wavelength_bins
 
-    n_midpoints = size(midpoints)
+    num_vertical_layers = size(single_scattering_albedos, 1)
+    num_wavelength_bins = size(single_scattering_albedos, 2)
 
-    call get_radiator_midpoints_c(this%ptr_, c_loc(midpoints), n_midpoints, error_c)
+    call get_single_scattering_albedos_c(this%ptr_, &
+          c_loc(single_scattering_albedos), num_vertical_layers, &
+          num_wavelength_bins, error_c)
     error = error_t(error_c)
 
-  end subroutine get_midpoints
+  end subroutine get_single_scattering_albedos
   
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  subroutine set_asymmetry_factors(this, symmetry_factor, error)
+    use iso_c_binding, only: c_size_t, c_loc
+    use musica_util, only: error_t, error_t_c, dk => musica_dk
+
+    ! Arguments
+    class(radiator_t), intent(inout) :: this
+    real(dk), target, dimension(:,:,:), intent(in) :: asymmetry_factors
+    type(error_t), intent(inout) :: error
+
+    ! Local variables
+    type(error_t_c) :: error_c
+    integer(kind=c_size_t) :: num_vertical_layers
+    integer(kind=c_size_t) :: num_wavelength_bins
+    integer(kind=c_size_t) :: num_streams
+
+    num_vertical_layers = size(single_scattering_albedos, 1)
+    num_wavelength_bins = size(single_scattering_albedos, 2)
+    num_streams = size(num_streams, 3)
+
+    call set_asymmetry_factors_c(this%ptr_, c_loc(asymmetry_factors), & 
+          num_vertical_layers, num_wavelength_bins, num_streams, error_c)
+    error = error_t(error_c)
+
+end subroutine set_asymmetry_factors
+
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  subroutine get_asymmetry_factors(this, symmetry_factor, error)
+    use iso_c_binding, only: c_size_t, c_loc
+    use musica_util, only: error_t, error_t_c, dk => musica_dk
+
+    ! Arguments
+    class(radiator_t), intent(inout) :: this
+    real(dk), target, dimension(:,:,:), intent(in) :: asymmetry_factors
+    type(error_t), intent(inout) :: error
+
+    ! Local variables
+    type(error_t_c) :: error_c
+    integer(kind=c_size_t) :: num_vertical_layers
+    integer(kind=c_size_t) :: num_wavelength_bins
+    integer(kind=c_size_t) :: num_streams
+
+    num_vertical_layers = size(single_scattering_albedos, 1)
+    num_wavelength_bins = size(single_scattering_albedos, 2)
+    num_streams = size(num_streams, 3)
+
+    call get_asymmetry_factors_c(this%ptr_, c_loc(asymmetry_factors), & 
+          num_vertical_layers, num_wavelength_bins, num_streams, error_c)
+    error = error_t(error_c)
+
+  end subroutine get_single_scattering_albedos
+
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   !> Deallocate the radiator instance
   subroutine finalize_radiator_t(this)
