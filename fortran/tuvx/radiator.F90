@@ -78,7 +78,7 @@ module musica_tuvx_radiator
       type(error_t_c),          intent(inout) :: error
     end subroutine get_single_scattering_albedos_c
 
-    subroutine set_asymmetry_factors_c(radiator, symmetry_factor, num_vertical_layers, &
+    subroutine set_asymmetry_factors_c(radiator, asymmetry_factor, num_vertical_layers, &
         num_wavelength_bins, num_streams, error) bind(C, name="SetAsymmetryFactors")
       use iso_c_binding, only : c_ptr, c_size_t
       use musica_util, only: error_t_c
@@ -201,7 +201,7 @@ contains
                 num_vertical_layers, num_wavelength_bins, error_c)
     error = error_t(error_c)
 
-  end subroutine set_edges
+  end subroutine set_optical_depths
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   

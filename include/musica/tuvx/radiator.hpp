@@ -27,23 +27,62 @@ namespace musica
 
     ~Radiator();
 
-    /// @brief Set the edges of the grid
-    /// @param edges The edges of the grid
-    /// @param num_edges the number of edges
-    /// @param error the error struct to indicate success or failure
-    void SetEdges(double edges[], std::size_t num_edges, Error *error);
+    /// @brief Sets the optical_depths
+    /// @param edges The 2 dimensional optical_depths
+    /// @param num_vertical_layers The number of vertical layers
+    /// @param um_wavelength_bins The number of vertical layers
+    /// @param error The error struct to indicate success or failure
+    void
+    SetOpticalDepths(double *optical_depths, std::size_t num_vertical_layers, std::size_t num_wavelength_bins, Error *error);
 
-    /// @brief Get the edges of the grid
-    /// @param edges The edges of the grid
-    /// @param num_edges the number of edges
-    /// @param error the error struct to indicate success or failure
-    void GetEdges(double edges[], std::size_t num_edges, Error *error);
+    /// @brief Gets the optical_depths
+    /// @param edges The 2 dimensional optical_depths
+    /// @param num_vertical_layers The number of vertical layers
+    /// @param um_wavelength_bins The number of vertical layers
+    /// @param error The error struct to indicate success or failure
+    void
+    GetOpticalDepths(double *optical_depths, std::size_t num_vertical_layers, std::size_t num_wavelength_bins, Error *error);
 
     /// @brief Set the midpoints of the grid
     /// @param midpoints The midpoints of the grid
     /// @param num_midpoints the number of midpoints
     /// @param error the error struct to indicate success or failure
     void SetMidpoints(double midpoints[], std::size_t num_midpoints, Error *error);
+
+    /// @brief Sets the values of the single scattering albedos
+    /// @param single_scattering_albedos The 2 dimensional single scattering albedos values
+    /// @param num_vertical_layers The number of vertical layers
+    /// @param num_wavelength_bins The number of wavelength bins
+    /// @param error The error struct to indicate success or failure
+    void SetSingleScatteringAlbedos(
+        double *single_scattering_albedos,
+        std::size_t num_vertical_layers,
+        std::size_t num_wavelength_bins,
+        Error *error);
+
+    /// @brief Gets the values of the single scattering albedos
+    /// @param single_scattering_albedos The 2 dimensional single scattering albedos values
+    /// @param num_vertical_layers The number of vertical layers
+    /// @param num_wavelength_bins The number of wavelength bins
+    /// @param error The error struct to indicate success or failure
+    void SetSingleScatteringAlbedos(
+        double *single_scattering_albedos,
+        std::size_t num_vertical_layers,
+        std::size_t num_wavelength_bins,
+        Error *error);
+
+    /// @brief Sets the values of the asymmetry factors
+    /// @param asymmetry_factor The asymmetery factors values to set for the radiator
+    /// @param num_vertical_layers The number of vertical layers
+    /// @param num_wavelength_bins The number of wavelength bins
+    /// @param num_streams The number of streams
+    /// @param error The error struct to indicate success or failure
+    void SetAsymmetryFactors(
+        double *asymmetry_factor,
+        std::size_t num_vertical_layers,
+        std::size_t num_wavelength_bins,
+        std::size_t num_streams,
+        Error *error);
 
     /// @brief Get the midpoints of the grid
     /// @param midpoints The midpoints of the grid
@@ -140,8 +179,7 @@ namespace musica
         Error *error);
 
     /// @brief Sets the values of the asymmetry factors
-    /// @param radiator The radiator to set the asymmetery factors of
-    /// @param single_scattering_albedos The asymmetery factors values to set for the radiator
+    /// @param asymmetry_factor The 3 dimensional asymmetery factors values to set for the radiator
     /// @param num_vertical_layers The number of vertical layers
     /// @param num_wavelength_bins The number of wavelength bins
     /// @param num_streams The number of streams
@@ -155,14 +193,12 @@ namespace musica
         Error *error);
 
     /// @brief Gets the values of the asymmetry factors
-    /// @param radiator The radiator to get the asymmetery factors of
-    /// @param single_scattering_albedos The asymmetery factors values to get for the radiator
+    /// @param asymmetry_factor The 3 dimensional asymmetery factors values to get for the radiator
     /// @param num_vertical_layers The number of vertical layers
     /// @param num_wavelength_bins The number of wavelength bins
     /// @param num_streams The number of streams
     /// @param error The error struct to indicate success or failure
     void GetAsymmetryFactors(
-        Radiator *radiator,
         double *asymmetry_factor,
         std::size_t num_vertical_layers,
         std::size_t num_wavelength_bins,
