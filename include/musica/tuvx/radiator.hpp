@@ -92,14 +92,14 @@ namespace musica
         Error *error);
 
    private:
-    void *radiator_;  // A valid pointer to a grid instance indicates ownership by this wrapper
+    void *radiator_;  // A valid pointer to a radiator instance indicates ownership by this wrapper
     void *updater_;
 
     // friend class RadiatorMap;
     // friend class Profile;
 
-    /// @brief Wraps an existing grid instance. Used by RadiatorMap
-    /// @param updater The updater for the grid
+    /// @brief Wraps an existing radiator instance. Used by RadiatorMap
+    /// @param updater The updater for the radiator
     Radiator(void *updater)
         : radiator_(nullptr),
           updater_(updater)
