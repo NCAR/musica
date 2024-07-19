@@ -236,7 +236,7 @@ namespace musica
         std::size_t num_vertical_layers,
         std::size_t num_wavelength_bins,
         int *error_code);
-    void InternalGetsingleScatteringAlbedos(
+    void InternalGetSingleScatteringAlbedos(
         void *radiator,
         double *single_scattering_albedos,
         std::size_t num_vertical_layers,

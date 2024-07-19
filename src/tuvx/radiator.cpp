@@ -12,7 +12,7 @@ namespace musica
 
   // Radiator external C API functions
 
-  Radiator *CreateRadiator(const char *radiator_name, Radiator *height_grid, Radiator *wavelength_grid, Error *error)
+  Radiator *CreateRadiator(const char *radiator_name, Grid *height_grid, Grid *wavelength_grid, Error *error)
   {
     DeleteError(error);
     return new Radiator(radiator_name, height_grid, wavelength_grid, error);
@@ -49,7 +49,7 @@ namespace musica
       double *optical_depths,
       std::size_t num_vertical_layers,
       std::size_t num_wavelength_bins,
-      Error *error);
+      Error *error)
   {
     DeleteError(error);
     radiator->GetOpticalDepths(optical_depths, num_vertical_layers, num_wavelength_bins, error);
@@ -95,22 +95,19 @@ namespace musica
       std::size_t num_vertical_layers,
       std::size_t num_wavelength_bins,
       std::size_t num_streams,
-      Error *error);
+      Error *error)
   {
     DeleteError(error);
     radiator->GetAsymmetryFactors(asymmetry_factors, num_vertical_layers, num_wavelength_bins, num_streams, error);
   }
 
-  //
-  // in progress
-  //
   // Radiation class functions
 
   Radiator::Radiator(const char *radiator_name, Grid *height_grid, Grid *wavelength_grid, Error *error)
   {
     int error_code = 0;
     radiator_ =
-        InternalCreateRadiator(radiator_name, strlen(radiator_name), units, &height_grid, &wavelength_grid, &error_code);
+        InternalCreateRadiator(radiator_name, strlen(radiator_name), height_grid, wavelength_grid, &error_code);
     if (error_code != 0)
     {
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create radiator") };

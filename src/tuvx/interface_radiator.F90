@@ -133,7 +133,7 @@ module tuvx_interface_radiator
     real(kind=dk), pointer :: f_optical_depths(:,:)
   
     call c_f_pointer(radiator_updater, f_updater)
-    call c_f_pointer(optical_depths, f_optical_depths, 
+    call c_f_pointer(optical_depths, f_optical_depths, &
           [num_vertical_layers, num_wavelength_bins])
 
     if ((size(f_updater%radiator_%state_%layer_OD_, 1) /= num_vertical_layers) &
@@ -167,7 +167,7 @@ module tuvx_interface_radiator
     real(kind=dk), pointer :: f_optical_depths(:,:)
   
     call c_f_pointer(radiator_updater, f_updater)
-    call c_f_pointer(optical_depths, f_optical_depths, 
+    call c_f_pointer(optical_depths, f_optical_depths, &
           [num_vertical_layers, num_wavelength_bins])
 
     if ((size(f_updater%radiator_%state_%layer_OD_, 1) /= num_vertical_layers) &
