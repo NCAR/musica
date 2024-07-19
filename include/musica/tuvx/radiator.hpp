@@ -15,39 +15,33 @@ namespace musica
   class RadiatorMap;
   class Profile;
 
-  /// @brief A grid struct used to access grid information in tuvx
+  /// @brief A radiator struct used to access radiator information in tuvx
   struct Radiator
   {
-    /// @brief Creates a grid instance
-    /// @param grid_name The name of the grid
-    /// @param units The units of the grid
-    /// @param num_sections The number of sections in the grid
+    /// @brief Creates a radiator instance
+    /// @param radiator_name The name of the radiator
+    /// @param height_grid The height grid
+    /// @param wavelength_grid The wavelength grid
     /// @param error The error struct to indicate success or failure
-    Radiator(const char *grid_name, const char *units, std::size_t num_sections, Error *error);
+    Radiator(const char *radiator_name, Grid* height_grid, Grid* wavelength_grid, Error *error);
 
     ~Radiator();
 
     /// @brief Sets the optical_depths
-    /// @param edges The 2 dimensional optical_depths
+    /// @param optical_depths The 2 dimensional optical_depths
     /// @param num_vertical_layers The number of vertical layers
-    /// @param um_wavelength_bins The number of vertical layers
+    /// @param num_wavelength_bins The number of wavelength layers
     /// @param error The error struct to indicate success or failure
     void
     SetOpticalDepths(double *optical_depths, std::size_t num_vertical_layers, std::size_t num_wavelength_bins, Error *error);
 
     /// @brief Gets the optical_depths
-    /// @param edges The 2 dimensional optical_depths
+    /// @param optical_depths The 2 dimensional optical_depths
     /// @param num_vertical_layers The number of vertical layers
-    /// @param um_wavelength_bins The number of vertical layers
+    /// @param num_wavelength_bins The number of wavelength layers
     /// @param error The error struct to indicate success or failure
     void
     GetOpticalDepths(double *optical_depths, std::size_t num_vertical_layers, std::size_t num_wavelength_bins, Error *error);
-
-    /// @brief Set the midpoints of the grid
-    /// @param midpoints The midpoints of the grid
-    /// @param num_midpoints the number of midpoints
-    /// @param error the error struct to indicate success or failure
-    void SetMidpoints(double midpoints[], std::size_t num_midpoints, Error *error);
 
     /// @brief Sets the values of the single scattering albedos
     /// @param single_scattering_albedos The 2 dimensional single scattering albedos values
@@ -65,7 +59,7 @@ namespace musica
     /// @param num_vertical_layers The number of vertical layers
     /// @param num_wavelength_bins The number of wavelength bins
     /// @param error The error struct to indicate success or failure
-    void SetSingleScatteringAlbedos(
+    void GetSingleScatteringAlbedos(
         double *single_scattering_albedos,
         std::size_t num_vertical_layers,
         std::size_t num_wavelength_bins,
@@ -84,23 +78,30 @@ namespace musica
         std::size_t num_streams,
         Error *error);
 
-    /// @brief Get the midpoints of the grid
-    /// @param midpoints The midpoints of the grid
-    /// @param num_midpoints the number of midpoints
-    /// @param error the error struct to indicate success or failure
-    void GetMidpoints(double midpoints[], std::size_t num_midpoints, Error *error);
+    /// @brief Gets the values of the asymmetry factors
+    /// @param asymmetry_factor The asymmetery factors values to set for the radiator
+    /// @param num_vertical_layers The number of vertical layers
+    /// @param num_wavelength_bins The number of wavelength bins
+    /// @param num_streams The number of streams
+    /// @param error The error struct to indicate success or failure
+    void GetAsymmetryFactors(
+        double *asymmetry_factor,
+        std::size_t num_vertical_layers,
+        std::size_t num_wavelength_bins,
+        std::size_t num_streams,
+        Error *error);
 
    private:
-    void *grid_;  // A valid pointer to a grid instance indicates ownership by this wrapper
+    void *radiator_;  // A valid pointer to a grid instance indicates ownership by this wrapper
     void *updater_;
 
-    friend class RadiatorMap;
-    friend class Profile;
+    // friend class RadiatorMap;
+    // friend class Profile;
 
     /// @brief Wraps an existing grid instance. Used by RadiatorMap
     /// @param updater The updater for the grid
     Radiator(void *updater)
-        : grid_(nullptr),
+        : radiator_(nullptr),
           updater_(updater)
     {
     }
@@ -132,7 +133,7 @@ namespace musica
     /// @param num_vertical_layers The number of vertical layers
     /// @param num_wavelength_bins The number of wavelength bins
     /// @param error The error struct to indicate success or failure
-    void SetOpticalDepths(
+    void SetRadiatorOpticalDepths(
         Radiator *radiator,
         double *optical_depths,
         std::size_t num_vertical_layers,
@@ -145,7 +146,7 @@ namespace musica
     /// @param num_vertical_layers The number of vertical layers
     /// @param num_wavelength_bins The number of wavelength bins
     /// @param error The error struct to indicate success or failure
-    void GetOpticalDepths(
+    void GetRadiatorOpticalDepths(
         Radiator *radiator,
         double *optical_depths,
         std::size_t num_vertical_layers,
@@ -158,7 +159,7 @@ namespace musica
     /// @param num_vertical_layers The number of vertical layers
     /// @param num_wavelength_bins The number of wavelength bins
     /// @param error The error struct to indicate success or failure
-    void SetSingleScatteringAlbedos(
+    void SetRadiatorSingleScatteringAlbedos(
         Radiator *radiator,
         double *single_scattering_albedos,
         std::size_t num_vertical_layers,
@@ -171,7 +172,7 @@ namespace musica
     /// @param num_vertical_layers The number of vertical layers
     /// @param num_wavelength_bins The number of wavelength bins
     /// @param error The error struct to indicate success or failure
-    void GetSingleScatteringAlbedos(
+    void GetRadiatorSingleScatteringAlbedos(
         Radiator *radiator,
         double *single_scattering_albedos,
         std::size_t num_vertical_layers,
@@ -184,7 +185,7 @@ namespace musica
     /// @param num_wavelength_bins The number of wavelength bins
     /// @param num_streams The number of streams
     /// @param error The error struct to indicate success or failure
-    void SetAsymmetryFactors(
+    void SetRadiatorAsymmetryFactors(
         Radiator *radiator,
         double *asymmetry_factor,
         std::size_t num_vertical_layers,
@@ -198,7 +199,7 @@ namespace musica
     /// @param num_wavelength_bins The number of wavelength bins
     /// @param num_streams The number of streams
     /// @param error The error struct to indicate success or failure
-    void GetAsymmetryFactors(
+    void GetRadiatorAsymmetryFactors(
         double *asymmetry_factor,
         std::size_t num_vertical_layers,
         std::size_t num_wavelength_bins,
