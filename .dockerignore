@@ -13,7 +13,6 @@
 !include/
 !lib/
 !src/
-!tutorial/
 !python/
 !pyproject.toml
 !LICENSE

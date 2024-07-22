@@ -11,7 +11,7 @@ to higher level libraries and host models that have CMake build systems.
 A minimal ``CMakeLists.txt`` file designed to link the ``musica_fortran`` library
 to a Fortran program ``demo_f.f90`` is exhibited below
 
-  .. literalinclude:: ../../../tutorial/CMakeLists.txt
+  .. literalinclude:: ../../../fortran/test/tutorial/CMakeLists.txt
     :language: cmake
 
 These `CMake` directives are essentially equivalent to compilation on the command line via
