@@ -1,6 +1,5 @@
 // Copyright (C) 2023-2024 National Center for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
-#include <musica/tuvx/grid.hpp>
 #include <musica/tuvx/radiator.hpp>
 
 #include <cstring>
@@ -106,8 +105,7 @@ namespace musica
   Radiator::Radiator(const char *radiator_name, Grid *height_grid, Grid *wavelength_grid, Error *error)
   {
     int error_code = 0;
-    radiator_ =
-        InternalCreateRadiator(radiator_name, strlen(radiator_name), height_grid, wavelength_grid, &error_code);
+    radiator_ = InternalCreateRadiator(radiator_name, strlen(radiator_name), height_grid, wavelength_grid, &error_code);
     if (error_code != 0)
     {
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create radiator") };
@@ -220,7 +218,7 @@ namespace musica
     *error = NoError();
   }
 
-  void SetAsymmetryFactors(
+  void Radiator::SetAsymmetryFactors(
       double *asymmetry_factors,
       std::size_t num_vertical_layers,
       std::size_t num_wavelength_bins,
@@ -243,12 +241,12 @@ namespace musica
     *error = NoError();
   }
 
-  void GetAsymmetryFactors(
+  void Radiator::GetAsymmetryFactors(
       double *asymmetry_factors,
       std::size_t num_vertical_layers,
       std::size_t num_wavelength_bins,
       std::size_t num_streams,
-      Error *error);
+      Error *error)
   {
     int error_code = 0;
     if (updater_ == nullptr)

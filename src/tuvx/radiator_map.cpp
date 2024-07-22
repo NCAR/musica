@@ -34,7 +34,7 @@ namespace musica
   void AddRadiator(RadiatorMap *radiator_map, Radiator *radiator, Error *error)
   {
     DeleteError(error);
-    radiator_map->AddGrid(radiator, error);
+    radiator_map->AddRadiator(radiator, error);
   }
 
   Radiator *GetRadiator(RadiatorMap *radiator_map, const char *radiator_name, Error *error)
@@ -90,7 +90,7 @@ namespace musica
 
     try
     {
-      InternalAddGRadiator(radiator_map_, radiator->radiator_, &error_code);
+      InternalAddRadiator(radiator_map_, radiator->radiator_, &error_code);
       if (error_code != 0)
       {
         *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to add radiator to radiator map") };
@@ -129,11 +129,6 @@ namespace musica
     *error = NoError();
   }
 
-  /// @brief Returns a radiator. For now, this calls the interal tuvx fortran api, but will allow the change to c++ later on
-  /// to be transparent to downstream projects
-  /// @param radiator_name The name of the radiator
-  /// @param error The error struct to indicate success or failure
-  /// @return a radiator pointer
   Radiator *RadiatorMap::GetRadiator(const char *radiator_name, Error *error)
   {
     if (radiator_map_ == nullptr)

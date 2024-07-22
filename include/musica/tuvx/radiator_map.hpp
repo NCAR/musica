@@ -12,31 +12,32 @@
 namespace musica
 {
 
-  /// @brief A radiator map struct used to access radiator information in tuvx
-  struct RadiatorMap
+  /// @brief Radiator map used to access radiator information in tuvx
+  class RadiatorMap
   {
+   public:
     RadiatorMap(void *radiator_map)
         : radiator_map_(radiator_map),
           owns_radiator_map_(false)
     {
     }
 
-    /// @brief  @brief Creates a radiator map instance
-    /// @param error The error struct to indicate success or failure
+    /// @brief Creates radiator map
+    /// @param error Error to indicate success or failure
     RadiatorMap(Error *error);
 
     ~RadiatorMap();
 
     /// @brief Adds a radiator to the radiator map
-    /// @param radiator The radiator to add
-    /// @param error The error struct to indicate success or failure
+    /// @param radiator Radiator to add
+    /// @param error Error to indicate success or failure
     void AddRadiator(Radiator *radiator, Error *error);
 
     /// @brief Returns a radiator. For now, this calls the interal tuvx fortran api, but will allow the change to c++ later
     /// on to be transparent to downstream projects
-    /// @param radiator_name The name of the radiator
-    /// @param error The error struct to indicate success or failure
-    /// @return a radiator pointer
+    /// @param radiator_name Radiator name
+    /// @param error Error to indicate success or failure
+    /// @return Radiator
     Radiator *GetRadiator(const char *radiator_name, Error *error);
 
    private:
@@ -52,26 +53,26 @@ namespace musica
     // The external C API for TUVX
     // callable by wrappers in other languages
 
-    /// @brief Creates a radiator map instance
-    /// @param error The error struct to indicate success or failure
-    /// @return a pointer to the radiator map
+    /// @brief Creates radiator map
+    /// @param error Error to indicate success or failure
+    /// @return Radiator map
     RadiatorMap *CreateRadiatorMap(Error *error);
 
-    /// @brief Deletes a radiator map instance
-    /// @param radiator_map The radiator map to delete
-    /// @param error The error struct to indicate success or failure
+    /// @brief Deletes radiator map
+    /// @param radiator_map Radiator map to delete
+    /// @param error Error to indicate success or failure
     void DeleteRadiatorMap(RadiatorMap *radiator_map, Error *error);
 
     /// @brief Adds a radiator to the radiator map
-    /// @param radiator_map The radiator map to add the radiator to
-    /// @param radiator The radiator to add
-    /// @param error The error struct to indicate success or failure
+    /// @param radiator_map Radiator map to add the radiator to
+    /// @param radiator Radiator to add
+    /// @param error Error to indicate success or failure
     void AddRadiator(RadiatorMap *radiator_map, Radiator *radiator, Error *error);
 
     /// @brief Returns a radiator from the radiator map
-    /// @param radiator_map The radiator map to get the radiator from
-    /// @param radiator_name The name of the radiator
-    /// @param error The error struct to indicate success or failure
+    /// @param radiator_map Radiator map to get the radiator from
+    /// @param radiator_name Radiator name
+    /// @param error Error to indicate success or failure
     /// @return The radiator pointer, or nullptr if the radiator is not found
     Radiator *GetRadiator(RadiatorMap *radiator_map, const char *radiator_name, Error *error);
 
@@ -79,7 +80,7 @@ namespace musica
     // go away but the C API will remain the same and downstream projects (like CAM-SIMA) will
     // not need to change
     void *InternalCreateRadiatorMap(int *error_code);
-    void InternalDeleteRadiatordMap(void *radiator_map, int *error_code);
+    void InternalDeleteRadiatorMap(void *radiator_map, int *error_code);
     void InternalAddRadiator(void *radiator_map, void *radiator, int *error_code);
     void *
     InternalGetRadiator(void *radiator_map, const char *radiator_name, std::size_t radiator_name_length, int *error_code);
