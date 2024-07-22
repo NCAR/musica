@@ -17,9 +17,8 @@ module tuvx_interface_radiator
       bind(C, name="InternalCreateRadiator")
     use iso_c_binding, only: c_ptr, c_f_pointer, c_char, c_loc, c_size_t, c_int
     use musica_string, only: string_t
-
     use tuvx_radiator_from_host, only: radiator_from_host_t
-    use tuvx_grid,                     only : grid_t
+    use tuvx_grid,               only: grid_t
 
     ! arguments
     type(c_ptr)                                         :: radiator
@@ -32,8 +31,9 @@ module tuvx_interface_radiator
     ! variables
     type(radiator_from_host_t), pointer :: f_radiator
     type(string_t)                      :: f_name
-    type(grid_t)                        :: f_height_grid
-    type(grid_t)                        :: f_wavelength_grid
+    type(grid_t), pointer               :: f_height_grid
+    type(grid_t), pointer               :: f_wavelength_grid
+    integer                             :: i
 
     allocate(character(len=radiator_name_length) :: f_name%val_)
     do i = 1, radiator_name_length
@@ -103,7 +103,7 @@ module tuvx_interface_radiator
     integer(kind=c_int), intent(out) :: error_code
 
     ! variables
-    type(radiator_t), pointer :: f_updater
+    type(radiator_updater_t), pointer :: f_updater
 
     call c_f_pointer(updater, f_updater)
     if (associated(f_updater)) then
@@ -130,7 +130,7 @@ module tuvx_interface_radiator
   
     ! variables
     type(radiator_updater_t), pointer :: f_updater
-    real(kind=dk), pointer :: f_optical_depths(:,:)
+    real(kind=dk), pointer            :: f_optical_depths(:,:)
   
     call c_f_pointer(radiator_updater, f_updater)
     call c_f_pointer(optical_depths, f_optical_depths, &
@@ -164,7 +164,7 @@ module tuvx_interface_radiator
 
     ! variables
     type(radiator_updater_t), pointer :: f_updater
-    real(kind=dk), pointer :: f_optical_depths(:,:)
+    real(kind=dk), pointer            :: f_optical_depths(:,:)
   
     call c_f_pointer(radiator_updater, f_updater)
     call c_f_pointer(optical_depths, f_optical_depths, &
@@ -198,7 +198,7 @@ module tuvx_interface_radiator
   
     ! variables
     type(radiator_updater_t), pointer :: f_updater
-    real(kind=dk), pointer :: f_single_scattering_albedos(:,:)
+    real(kind=dk), pointer            :: f_single_scattering_albedos(:,:)
   
     call c_f_pointer(radiator_updater, f_updater)
     call c_f_pointer(single_scattering_albedos, f_single_scattering_albedos, &
@@ -232,7 +232,7 @@ module tuvx_interface_radiator
 
     ! variables
     type(radiator_updater_t), pointer :: f_updater
-    real(kind=dk), pointer :: f_single_scattering_albedos(:,:)
+    real(kind=dk), pointer            :: f_single_scattering_albedos(:,:)
 
     call c_f_pointer(radiator_updater, f_updater)
     call c_f_pointer(single_scattering_albedos, f_single_scattering_albedos, &
@@ -267,7 +267,7 @@ module tuvx_interface_radiator
 
     ! variables
     type(radiator_updater_t), pointer :: f_updater
-    real(kind=dk), pointer :: f_asymmetry_factors(:,:,:)
+    real(kind=dk), pointer            :: f_asymmetry_factors(:,:,:)
 
     call c_f_pointer(radiator_updater, f_updater)
     call c_f_pointer(asymmetry_factors, f_asymmetry_factors, &
@@ -302,7 +302,7 @@ module tuvx_interface_radiator
 
   ! variables
   type(radiator_updater_t), pointer :: f_updater
-  real(kind=dk), pointer :: f_asymmetry_factors(:,:,:)
+  real(kind=dk), pointer            :: f_asymmetry_factors(:,:,:)
 
   call c_f_pointer(radiator_updater, f_updater)
   call c_f_pointer(asymmetry_factors, f_asymmetry_factors, &
@@ -316,7 +316,8 @@ module tuvx_interface_radiator
   end if
   f_asymmetry_factors(:,:,:) = f_updater%radiator_%state_%layer_G_(:,:,:)
 
-end subroutine internal_set_asymmetry_factors
+end subroutine internal_get_asymmetry_factors
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 end module tuvx_interface_radiator

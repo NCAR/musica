@@ -3,11 +3,11 @@
 !
 module tuvx_interface_radiator_map
 
-  use iso_c_binding,       only : c_ptr, c_loc, c_int, c_size_t, c_char
+  use iso_c_binding,           only : c_ptr, c_loc, c_int, c_size_t, c_char
   use tuvx_radiator_warehouse, only : radiator_warehouse_t
   use tuvx_radiator,           only : radiator_t
-  use musica_tuvx_util,    only : to_f_string, string_t_c
-  use musica_string,       only : string_t
+  use musica_tuvx_util,        only : to_f_string, string_t_c
+  use musica_string,           only : string_t
 
   implicit none
 
@@ -107,7 +107,7 @@ end subroutine internal_delete_radiator_map
     class(radiator_t), pointer          :: f_radiator
     type(radiator_warehouse_t), pointer :: radiator_warehouse
     character(len=:), allocatable       :: f_radiator_name
-
+    integer                              :: i 
     ! result
     type(c_ptr) :: radiator_ptr
 
@@ -130,7 +130,7 @@ end subroutine internal_delete_radiator_map
       radiator_ptr = c_null_ptr
     end select
 
-  end function interal_get_radiator
+  end function internal_get_radiator
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -138,7 +138,7 @@ end subroutine internal_delete_radiator_map
       result(updater) bind(C, name="InternalGetRadiatorUpdaterFromMap")
     use iso_c_binding, only: c_ptr, c_f_pointer, c_loc
     use tuvx_radiator_warehouse, only: radiator_warehouse_t
-    use tuvx_radiator_from_host, only: radiator_from_host_t, gradiator_updater_t
+    use tuvx_radiator_from_host, only: radiator_from_host_t, radiator_updater_t
 
     ! arguments
     type(c_ptr), intent(in), value :: radiator_map

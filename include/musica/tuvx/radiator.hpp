@@ -11,63 +11,63 @@ namespace musica
 {
   class RadiatorMap;
 
-  /// @brief A radiator class used to access radiator information in tuvx
+  /// @brief Radiator class used to access radiator information in tuvx
   class Radiator
   {
    public:
-    /// @brief Creates a radiator instance
-    /// @param radiator_name The name of the radiator
-    /// @param height_grid The height grid
-    /// @param wavelength_grid The wavelength grid
-    /// @param error The error struct to indicate success or failure
+    /// @brief Creates radiator
+    /// @param radiator_name Radiator name
+    /// @param height_grid Height grid
+    /// @param wavelength_grid Wavelength grid
+    /// @param error Error to indicate success or failure
     Radiator(const char *radiator_name, Grid *height_grid, Grid *wavelength_grid, Error *error);
 
     ~Radiator();
 
-    /// @brief Sets the optical depth values
-    /// @param optical_depths The 2 dimensional array of optical depth values
-    /// @param num_vertical_layers The number of vertical layers
-    /// @param num_wavelength_bins The number of wavelength layers
-    /// @param error The error struct to indicate success or failure
+    /// @brief Sets optical depth values
+    /// @param optical_depths 2D array of optical depth values
+    /// @param num_vertical_layers Number of vertical layers
+    /// @param num_wavelength_bins Number of wavelength bins
+    /// @param error Error to indicate success or failure
     void
     SetOpticalDepths(double *optical_depths, std::size_t num_vertical_layers, std::size_t num_wavelength_bins, Error *error);
 
-    /// @brief Gets the optical depth values
-    /// @param optical_depths The 2 dimensional array of optical depth values
-    /// @param num_vertical_layers The number of vertical layers
-    /// @param num_wavelength_bins The number of wavelength layers
-    /// @param error The error struct to indicate success or failure
+    /// @brief Gets optical depth values
+    /// @param optical_depths 2D array of optical depth values
+    /// @param num_vertical_layers Number of vertical layers
+    /// @param num_wavelength_bins Number of wavelength bins
+    /// @param error Error to indicate success or failure
     void
     GetOpticalDepths(double *optical_depths, std::size_t num_vertical_layers, std::size_t num_wavelength_bins, Error *error);
 
-    /// @brief Sets the values of the single scattering albedos
-    /// @param single_scattering_albedos The 2 dimensional array of single scattering albedos values
-    /// @param num_vertical_layers The number of vertical layers
-    /// @param num_wavelength_bins The number of wavelength bins
-    /// @param error The error struct to indicate success or failure
+    /// @brief Sets single scattering albedos values
+    /// @param single_scattering_albedos 2D array of single scattering albedos values
+    /// @param num_vertical_layers Number of vertical layers
+    /// @param num_wavelength_bins Number of wavelength bins
+    /// @param error Error to indicate success or failure
     void SetSingleScatteringAlbedos(
         double *single_scattering_albedos,
         std::size_t num_vertical_layers,
         std::size_t num_wavelength_bins,
         Error *error);
 
-    /// @brief Gets the values of the single scattering albedo
-    /// @param single_scattering_albedos The 2 dimensional array of single scattering albedos values
-    /// @param num_vertical_layers The number of vertical layers
-    /// @param num_wavelength_bins The number of wavelength bins
-    /// @param error The error struct to indicate success or failure
+    /// @brief Gets single scattering albedos values
+    /// @param single_scattering_albedos 2D array of single scattering albedos values
+    /// @param num_vertical_layers Number of vertical layers
+    /// @param num_wavelength_bins Number of wavelength bins
+    /// @param error Error to indicate success or failure
     void GetSingleScatteringAlbedos(
         double *single_scattering_albedos,
         std::size_t num_vertical_layers,
         std::size_t num_wavelength_bins,
         Error *error);
 
-    /// @brief Sets the values of the asymmetry factors
-    /// @param asymmetry_factor The 3 dimensional array of asymmetery factor values
-    /// @param num_vertical_layers The number of vertical layers
-    /// @param num_wavelength_bins The number of wavelength bins
-    /// @param num_streams The number of streams
-    /// @param error The error struct to indicate success or failure
+    /// @brief Sets asymmetry factor values
+    /// @param asymmetry_factor 3D array of asymmetery factor values
+    /// @param num_vertical_layers Number of vertical layers
+    /// @param num_wavelength_bins Number of wavelength bins
+    /// @param num_streams Number of streams
+    /// @param error Error to indicate success or failure
     void SetAsymmetryFactors(
         double *asymmetry_factor,
         std::size_t num_vertical_layers,
@@ -75,12 +75,12 @@ namespace musica
         std::size_t num_streams,
         Error *error);
 
-    /// @brief Gets the values of the asymmetry factors
-    /// @param asymmetry_factor The 3 dimensional array of asymmetery factor values
-    /// @param num_vertical_layers The number of vertical layers
-    /// @param num_wavelength_bins The number of wavelength bins
-    /// @param num_streams The number of streams
-    /// @param error The error struct to indicate success or failure
+    /// @brief Gets asymmetry factor values
+    /// @param asymmetry_factor 3D array of asymmetery factor values
+    /// @param num_vertical_layers Number of vertical layers
+    /// @param num_wavelength_bins Number of wavelength bins
+    /// @param num_streams Number of streams
+    /// @param error Error to indicate success or failure
     void GetAsymmetryFactors(
         double *asymmetry_factor,
         std::size_t num_vertical_layers,
@@ -111,24 +111,24 @@ namespace musica
     // The external C API for TUVX
     // callable by wrappers in other languages
 
-    /// @brief Creates a TUV-x radiator instance
-    /// @param radiator_name The name of the radiator
-    /// @param height_grid The height grid
-    /// @param wavelength_grid The wavelength grid
-    /// @param error The error struct to indicate success or failure
+    /// @brief Creates radiator
+    /// @param radiator_name Radiator name
+    /// @param height_grid Height grid
+    /// @param wavelength_grid Wavelength grid
+    /// @param error Error to indicate success or failure
     Radiator *CreateRadiator(const char *radiator_name, Grid *height_grid, Grid *wavelength_grid, Error *error);
 
-    /// @brief Deletes a TUV-x radiator instance
-    /// @param radiator The pointer to radiator instance
-    /// @param error The error struct to indicate success or failure
+    /// @brief Deletes radiator
+    /// @param radiator Radiator
+    /// @param error Error to indicate success or failure
     void DeleteRadiator(Radiator *radiator, Error *error);
 
-    /// @brief Sets the optical depth values
-    /// @param radiator The pointer to radiator instance
-    /// @param optical_depths The 2 dimensional array of optical depth values
-    /// @param num_vertical_layers The number of vertical layers
-    /// @param num_wavelength_bins The number of wavelength bins
-    /// @param error The error struct to indicate success or failure
+    /// @brief Sets optical depth values
+    /// @param radiator Radiator
+    /// @param optical_depths 2D array of optical depth values
+    /// @param num_vertical_layers Number of vertical layers
+    /// @param num_wavelength_bins Number of wavelength bins
+    /// @param error Error to indicate success or failure
     void SetRadiatorOpticalDepths(
         Radiator *radiator,
         double *optical_depths,
@@ -136,12 +136,12 @@ namespace musica
         std::size_t num_wavelength_bins,
         Error *error);
 
-    /// @brief Gets the optical depth values
-    /// @param radiator The pointer to radiator instance
-    /// @param optical_depths The 2 dimensional array of optical depth values
-    /// @param num_vertical_layers The number of vertical layers
-    /// @param num_wavelength_bins The number of wavelength bins
-    /// @param error The error struct to indicate success or failure
+    /// @brief Gets optical depth values
+    /// @param radiator Radiator
+    /// @param optical_depths 2D array of optical depth values
+    /// @param num_vertical_layers Number of vertical layers
+    /// @param num_wavelength_bins Number of wavelength bins
+    /// @param error Error to indicate success or failure
     void GetRadiatorOpticalDepths(
         Radiator *radiator,
         double *optical_depths,
@@ -149,12 +149,12 @@ namespace musica
         std::size_t num_wavelength_bins,
         Error *error);
 
-    /// @brief Sets the values of the single scattering albedos
-    /// @param radiator The pointer to radiator instance
-    /// @param single_scattering_albedos The 2 dimensional array of single scattering albedos values
-    /// @param num_vertical_layers The number of vertical layers
-    /// @param num_wavelength_bins The number of wavelength bins
-    /// @param error The error struct to indicate success or failure
+    /// @brief Sets single scattering albedos values
+    /// @param radiator Radiator
+    /// @param single_scattering_albedos 2D array of single scattering albedos values
+    /// @param num_vertical_layers Number of vertical layers
+    /// @param num_wavelength_bins Number of wavelength bins
+    /// @param error Error to indicate success or failure
     void SetRadiatorSingleScatteringAlbedos(
         Radiator *radiator,
         double *single_scattering_albedos,
@@ -162,12 +162,12 @@ namespace musica
         std::size_t num_wavelength_bins,
         Error *error);
 
-    /// @brief Gets the values of the single scattering albedos
-    /// @param radiator The pointer to radiator instance
-    /// @param single_scattering_albedos The 2 dimensional array of single scattering albedos values
-    /// @param num_vertical_layers The number of vertical layers
-    /// @param num_wavelength_bins The number of wavelength bins
-    /// @param error The error struct to indicate success or failure
+    /// @brief Gets single scattering albedos values
+    /// @param radiator Radiator
+    /// @param single_scattering_albedos 2D array of single scattering albedos values
+    /// @param num_vertical_layers Number of vertical layers
+    /// @param num_wavelength_bins Number of wavelength bins
+    /// @param error Error to indicate success or failure
     void GetRadiatorSingleScatteringAlbedos(
         Radiator *radiator,
         double *single_scattering_albedos,
@@ -175,13 +175,13 @@ namespace musica
         std::size_t num_wavelength_bins,
         Error *error);
 
-    /// @brief Sets the values of the asymmetry factors
-    /// @param radiator The pointer to radiator instance
-    /// @param asymmetry_factor The 3 dimensional array of asymmetery factor values
-    /// @param num_vertical_layers The number of vertical layers
-    /// @param num_wavelength_bins The number of wavelength bins
-    /// @param num_streams The number of streams
-    /// @param error The error struct to indicate success or failure
+    /// @brief Sets asymmetry factor values
+    /// @param radiator Radiator
+    /// @param asymmetry_factor 3D array of asymmetery factor values
+    /// @param num_vertical_layers Number of vertical layers
+    /// @param num_wavelength_bins Number of wavelength bins
+    /// @param num_streams Number of streams
+    /// @param error Error to indicate success or failure
     void SetRadiatorAsymmetryFactors(
         Radiator *radiator,
         double *asymmetry_factor,
@@ -190,13 +190,13 @@ namespace musica
         std::size_t num_streams,
         Error *error);
 
-    /// @brief Gets the values of the asymmetry factors
-    /// @param radiator The pointer to radiator instance
-    /// @param asymmetry_factor The 3 dimensional array of asymmetery factor values
-    /// @param num_vertical_layers The number of vertical layers
-    /// @param num_wavelength_bins The number of wavelength bins
-    /// @param num_streams The number of streams
-    /// @param error The error struct to indicate success or failure
+    /// @brief Gets asymmetry factor values
+    /// @param radiator Radiator
+    /// @param asymmetry_factor 3D array of asymmetery factor values
+    /// @param num_vertical_layers Number of vertical layers
+    /// @param num_wavelength_bins Number of wavelength bins
+    /// @param num_streams Number of streams
+    /// @param error Error to indicate success or failure
     void GetRadiatorAsymmetryFactors(
         double *asymmetry_factor,
         std::size_t num_vertical_layers,
