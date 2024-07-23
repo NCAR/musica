@@ -1,15 +1,18 @@
 // Copyright (C) 2023-2024 National Center for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 #include <musica/micm.hpp>
-
+#include <musica/tuvx/tuvx.hpp>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
 namespace py = pybind11;
 
-// Wraps micm.cpp
+// Wraps micm.cpp and tuvx.cpp
 PYBIND11_MODULE(musica, m)
 {
+  /*  
+   * Wrap micm
+   */
   py::class_<musica::MICM>(m, "micm")
       .def(py::init<>())
       .def("__del__", [](musica::MICM &micm) {});
@@ -126,4 +129,51 @@ PYBIND11_MODULE(musica, m)
         return map;
       },
       "Return map of reaction rates");
+
+  /*
+   * Wrap tuvx
+   */
+
+
+  py::class_<musica::TUVX>(m,"tuvx")
+    .def(py::init<>())
+    .def("__del__", [](musica::TUVX &tuvx) {});
+
+  m.def(
+    "create_tuvx",
+    [](const char *config_path)
+    {
+      musica::Error error;
+      musica::TUVX *tuvx = musica::CreateTuvx(config_path,&error);
+      if (!musica::IsSuccess(error))
+      {
+        std::string message = "Error creating Tuvx: " + std::string(error.message_.value_);
+        DeleteError(&error);
+        throw std::runtime_error(message);
+
+      }
+      return tuvx;
+    });
+
+m.def("delete_tuvx", &musica::DeleteTuvx);
+
+m.def(
+  "tuvx_get_grid_map",
+  [](musica::TUVX *tuvx)
+  {
+    musica::Error error;
+    musica::GridMap map = musica::GetGridMap(tuvx,&error);
+    if (!musica::IsSuccess(error))
+    {
+      std::string message = "Error getting tuvx gridmap: " + std::string(error.message_.value_);
+      DeleteError(&error);
+      throw std::runtime_error(message);
+
+    }
+
+    return map;
+
+
+  });
+
 }
