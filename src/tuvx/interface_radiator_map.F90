@@ -107,7 +107,7 @@ end subroutine internal_delete_radiator_map
     class(radiator_t), pointer          :: f_radiator
     type(radiator_warehouse_t), pointer :: radiator_warehouse
     character(len=:), allocatable       :: f_radiator_name
-    integer                              :: i 
+    integer                             :: i
     ! result
     type(c_ptr) :: radiator_ptr
 
