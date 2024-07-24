@@ -96,7 +96,7 @@ TEST_F(TuvxCApiTest, CanCreateRadiator)
   num_vertical_layers = 2;
   num_wavelength_bins = 2;
   std::vector<double> single_scattering_albedos_flattened = { 100.0, 100.0, 200, 200 };
-  SetRadiatorSingleScatteringAlbedos(radiator, single_scattering_albedos_flattened.data(), num_vertical_layers, num_wavelength_bins, &error)
+  SetRadiatorSingleScatteringAlbedos(radiator, single_scattering_albedos_flattened.data(), num_vertical_layers, num_wavelength_bins, &error);
   ASSERT_TRUE(IsSuccess(error));
   for (auto& albedos : single_scattering_albedos_flattened)
   {

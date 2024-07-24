@@ -19,7 +19,7 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  function internal_create_tuvx(c_config_path, config_path_length, error_code)
+  function internal_create_tuvx(c_config_path, config_path_length, error_code) &
       bind(C, name="InternalCreateTuvx")
     use iso_c_binding, only: c_ptr, c_f_pointer
 
@@ -53,7 +53,7 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  subroutine internal_delete_tuvx(tuvx, error_code)
+  subroutine internal_delete_tuvx(tuvx, error_code) &
       bind(C, name="InternalDeleteTuvx")
     use iso_c_binding, only: c_ptr, c_f_pointer
 
@@ -72,7 +72,7 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  function internal_get_grid_map(tuvx, error_code) result(grid_map_ptr)
+  function internal_get_grid_map(tuvx, error_code) result(grid_map_ptr) &
       bind(C, name="InternalGetGridMap")
     use iso_c_binding, only: c_ptr, c_f_pointer, c_int
   
@@ -96,7 +96,7 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  function internal_get_profile_map(tuvx, error_code) result(profile_map_ptr)
+  function internal_get_profile_map(tuvx, error_code) result(profile_map_ptr) &
       bind(C, name="InternalGetProfileMap")
     use iso_c_binding, only: c_ptr, c_f_pointer, c_int
 
@@ -120,7 +120,7 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  function internal_get_radiator_map(tuvx, error_code) result(radiator_map_ptr)
+  function internal_get_radiator_map(tuvx, error_code) result(radiator_map_ptr) &
       bind(C, name="InternalGetRadiatorMap")
     use iso_c_binding, only: c_ptr, c_f_pointer, c_int
 
