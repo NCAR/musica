@@ -12,6 +12,7 @@ namespace musica
 {
   class GridMap;
   class Profile;
+  class Radiator;
 
   /// @brief A grid struct used to access grid information in tuvx
   struct Grid
@@ -55,6 +56,7 @@ namespace musica
 
     friend class GridMap;
     friend class Profile;
+    friend class Radiator;
 
     /// @brief Wraps an existing grid instance. Used by GridMap
     /// @param updater The updater for the grid

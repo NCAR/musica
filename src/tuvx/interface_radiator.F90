@@ -13,26 +13,26 @@ module tuvx_interface_radiator
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   function internal_create_radiator(radiator_name, radiator_name_length, &
-      height_grid, wavelength_grid, error_code) result(radiator) &
-      bind(C, name="InternalCreateRadiator")
+      height_grid_updater_c, wavelength_grid_updater_c, error_code)      &
+      result(radiator) bind(C, name="InternalCreateRadiator")
     use iso_c_binding, only: c_ptr, c_f_pointer, c_char, c_loc, c_size_t, c_int
     use musica_string, only: string_t
     use tuvx_radiator_from_host, only: radiator_from_host_t
-    use tuvx_grid,               only: grid_t
+    use tuvx_grid_from_host, only: grid_updater_t
 
     ! arguments
-    type(c_ptr)                                         :: radiator
+    type(c_ptr)                                    :: radiator
     character(kind=c_char, len=1), dimension(*), intent(in) :: radiator_name
-    integer(kind=c_size_t), intent(in), value           :: radiator_name_length
-    type(c_ptr), intent(in), value                      :: height_grid
-    type(c_ptr), intent(in), value                      :: wavelength_grid
-    integer(kind=c_int), intent(out)                    :: error_code
+    integer(kind=c_size_t), intent(in), value      :: radiator_name_length
+    type(c_ptr), intent(in), value                 :: height_grid_updater_c
+    type(c_ptr), intent(in), value                 :: wavelength_grid_updater_c
+    integer(kind=c_int), intent(out)               :: error_code
     
     ! variables
     type(radiator_from_host_t), pointer :: f_radiator
     type(string_t)                      :: f_name
-    type(grid_t), pointer               :: f_height_grid
-    type(grid_t), pointer               :: f_wavelength_grid
+    type(grid_updater_t), pointer       :: f_height_grid_updater
+    type(grid_updater_t), pointer       :: f_wavelength_grid_updater
     integer                             :: i
 
     allocate(character(len=radiator_name_length) :: f_name%val_)
@@ -40,9 +40,10 @@ module tuvx_interface_radiator
       f_name%val_(i:i) = radiator_name(i)
     end do
 
-    call c_f_pointer(height_grid, f_height_grid)
-    call c_f_pointer(wavelength_grid, f_wavelength_grid)
-    f_radiator => radiator_from_host_t(f_name, f_height_grid, f_wavelength_grid)
+    call c_f_pointer(height_grid_updater_c, f_height_grid_updater)
+    call c_f_pointer(wavelength_grid_updater_c, f_wavelength_grid_updater)
+    f_radiator => radiator_from_host_t(f_name, f_height_grid_updater%grid_, &
+                                      f_wavelength_grid_updater%grid_)
     radiator = c_loc(f_radiator)
   
   end function internal_create_radiator
@@ -131,10 +132,17 @@ module tuvx_interface_radiator
     ! variables
     type(radiator_updater_t), pointer :: f_updater
     real(kind=dk), pointer            :: f_optical_depths(:,:)
-  
+    integer(kind=c_int)               :: i, iRow, iCol !TODO(test)jiwon
+
     call c_f_pointer(radiator_updater, f_updater)
     call c_f_pointer(optical_depths, f_optical_depths, &
-          [num_vertical_layers, num_wavelength_bins])
+        [num_vertical_layers, num_wavelength_bins])
+
+    do iRow = 1, num_wavelength_bins
+      do iCol = 1, num_vertical_layers
+        print *, "Value of f_i(" , iCol, ",", iRow, ") = ", f_optical_depths(iCol, iRow)
+      end do
+    end do
 
     if ((size(f_updater%radiator_%state_%layer_OD_, 1) /= num_vertical_layers) &
     .or. (size(f_updater%radiator_%state_%layer_OD_, 2) /= num_wavelength_bins)) &
@@ -165,7 +173,8 @@ module tuvx_interface_radiator
     ! variables
     type(radiator_updater_t), pointer :: f_updater
     real(kind=dk), pointer            :: f_optical_depths(:,:)
-  
+    integer(kind=c_int)               :: iRow, iCol
+
     call c_f_pointer(radiator_updater, f_updater)
     call c_f_pointer(optical_depths, f_optical_depths, &
           [num_vertical_layers, num_wavelength_bins])
@@ -199,10 +208,16 @@ module tuvx_interface_radiator
     ! variables
     type(radiator_updater_t), pointer :: f_updater
     real(kind=dk), pointer            :: f_single_scattering_albedos(:,:)
-  
+    integer(kind=c_int)               :: i, iRow, iCol
     call c_f_pointer(radiator_updater, f_updater)
     call c_f_pointer(single_scattering_albedos, f_single_scattering_albedos, &
           [num_vertical_layers, num_wavelength_bins])
+
+    do iRow = 1,   num_wavelength_bins
+      do iCol = 1,  num_vertical_layers
+        print *, "Value of f_i(" , iCol, ",", iRow, ") = ", f_single_scattering_albedos(iCol, iRow)
+      end do
+    end do
 
     if ((size(f_updater%radiator_%state_%layer_SSA_, 1) /= num_vertical_layers) &
     .or. (size(f_updater%radiator_%state_%layer_SSA_, 2) /= num_wavelength_bins)) &
@@ -268,11 +283,17 @@ module tuvx_interface_radiator
     ! variables
     type(radiator_updater_t), pointer :: f_updater
     real(kind=dk), pointer            :: f_asymmetry_factors(:,:,:)
-
+    integer(kind=c_int)               :: i, iRow, iCol
     call c_f_pointer(radiator_updater, f_updater)
     call c_f_pointer(asymmetry_factors, f_asymmetry_factors, &
           [num_vertical_layers, num_wavelength_bins, num_streams])
 
+    do iRow = 1, num_wavelength_bins
+      do iCol = 1, num_vertical_layers
+        print *, "Value of f_i(" , iCol, ",", iRow, ") = ", f_asymmetry_factors(iCol, iRow, num_streams)
+      end do
+    end do
+          
     if ((size(f_updater%radiator_%state_%layer_G_, 1) /= num_vertical_layers) &
     .or. (size(f_updater%radiator_%state_%layer_G_, 2) /= num_wavelength_bins) &
     .or. (size(f_updater%radiator_%state_%layer_G_, 3) /= num_streams)) then

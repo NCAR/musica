@@ -198,6 +198,7 @@ namespace musica
     /// @param num_streams Number of streams
     /// @param error Error to indicate success or failure
     void GetRadiatorAsymmetryFactors(
+        Radiator *radiator,
         double *asymmetry_factor,
         std::size_t num_vertical_layers,
         std::size_t num_wavelength_bins,
@@ -210,8 +211,8 @@ namespace musica
     void *InternalCreateRadiator(
         const char *radiator_name,
         std::size_t radiator_name_length,
-        Grid *hegiht_grid,
-        Grid *wavelength_grid,
+        void *height_grid,
+        void *wavelength_grid,
         int *error_code);
     void InternalDeleteRadiator(void *radiator, int *error_code);
     void *InternalGetRadiatorUpdater(void *radiator, int *error_code);
