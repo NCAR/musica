@@ -34,13 +34,13 @@ module tuvx_interface_radiator_map
     f_radiator_warehouse => radiator_warehouse_t()
     select type(f_radiator_warehouse)
     type is(radiator_warehouse_t)
-    radiator_map = c_loc(f_radiator_warehouse)
+      radiator_map = c_loc(f_radiator_warehouse)
       error_code = 0
     class default
       error_code = 1
       radiator_map = c_null_ptr
     end select
-    
+
   end function internal_create_radiator_map
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -105,9 +105,11 @@ end subroutine internal_delete_radiator_map
 
     ! variables
     class(radiator_t), pointer          :: f_radiator
+    class(radiator_t), pointer          :: f_radiator_ptr
     type(radiator_warehouse_t), pointer :: radiator_warehouse
     character(len=:), allocatable       :: f_radiator_name
     integer                             :: i
+
     ! result
     type(c_ptr) :: radiator_ptr
 
@@ -117,8 +119,10 @@ end subroutine internal_delete_radiator_map
     end do
 
     call c_f_pointer(radiator_map, radiator_warehouse)
-
-    f_radiator => radiator_warehouse%get_radiator(f_radiator_name)
+    
+    f_radiator_ptr => radiator_warehouse%get_radiator(f_radiator_name)
+    allocate(f_radiator, source = f_radiator_ptr)
+    nullify(f_radiator_ptr)
 
     select type(f_radiator) 
     type is(radiator_from_host_t)

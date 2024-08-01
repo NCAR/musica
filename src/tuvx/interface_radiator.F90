@@ -173,7 +173,6 @@ module tuvx_interface_radiator
     ! variables
     type(radiator_updater_t), pointer :: f_updater
     real(kind=dk), pointer            :: f_optical_depths(:,:)
-    integer(kind=c_int)               :: iRow, iCol
 
     call c_f_pointer(radiator_updater, f_updater)
     call c_f_pointer(optical_depths, f_optical_depths, &
