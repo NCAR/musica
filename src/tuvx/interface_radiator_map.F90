@@ -119,20 +119,25 @@ end subroutine internal_delete_radiator_map
     end do
 
     call c_f_pointer(radiator_map, radiator_warehouse)
-    
-    f_radiator_ptr => radiator_warehouse%get_radiator(f_radiator_name)
-    allocate(f_radiator, source = f_radiator_ptr)
-    nullify(f_radiator_ptr)
 
-    select type(f_radiator) 
-    type is(radiator_from_host_t)
-      error_code = 0
-      radiator_ptr = c_loc(f_radiator)
-    class default
+    if (.not. radiator_warehouse%exists(f_radiator_name)) then
       error_code = 1
-      deallocate(f_radiator)
       radiator_ptr = c_null_ptr
-    end select
+    else
+      f_radiator_ptr => radiator_warehouse%get_radiator(f_radiator_name)
+      allocate(f_radiator, source = f_radiator_ptr)
+      nullify(f_radiator_ptr)
+
+      select type(f_radiator)
+      type is(radiator_from_host_t)
+        error_code = 0
+        radiator_ptr = c_loc(f_radiator)
+      class default
+        error_code = 1
+        deallocate(f_radiator)
+        radiator_ptr = c_null_ptr
+      end select
+    end if
 
   end function internal_get_radiator
 

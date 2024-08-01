@@ -45,21 +45,21 @@ class TuvxCApiTest : public ::testing::Test
   }
 };
 
-// TEST_F(TuvxCApiTest, CannotGetConfiguredRadiator)
-// {
-//   const char* yaml_config_path = "examples/ts1_tsmlt.yml";
-//   SetUp(yaml_config_path);
-//   Error error;
-//   RadiatorMap* radiator_map = GetRadiatorMap(tuvx, &error);
-//   ASSERT_TRUE(IsSuccess(error));
-//   ASSERT_NE(radiator_map, nullptr);
-//   Radiator* radiator = GetRadiator(radiator_map, "foo", &error);
-//   ASSERT_FALSE(IsSuccess(error));  // non-host grid
-//   ASSERT_EQ(radiator, nullptr);
-//   DeleteRadiatorMap(radiator_map, &error);
-//   ASSERT_TRUE(IsSuccess(error));
-//   DeleteError(&error);
-// }
+TEST_F(TuvxCApiTest, CannotGetConfiguredRadiator)
+{
+  const char* yaml_config_path = "examples/ts1_tsmlt.yml";
+  SetUp(yaml_config_path);
+  Error error;
+  RadiatorMap* radiator_map = GetRadiatorMap(tuvx, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_NE(radiator_map, nullptr);
+  Radiator* radiator = GetRadiator(radiator_map, "foo", &error);
+  ASSERT_FALSE(IsSuccess(error));  // non-host grid
+  ASSERT_EQ(radiator, nullptr);
+  DeleteRadiatorMap(radiator_map, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteError(&error);
+}
 
 TEST_F(TuvxCApiTest, CanCreateRadiator)
 {
