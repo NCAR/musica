@@ -15,7 +15,8 @@ module musica_tuvx
 #define ASSERT( expr ) call assert( expr, __FILE__, __LINE__ )
 
   private
-  public :: tuvx_t, grid_map_t, grid_t, profile_map_t, profile_t
+  public :: tuvx_t, grid_map_t, grid_t, profile_map_t, profile_t, &
+            radiator_map_t, radiator_t
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

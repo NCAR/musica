@@ -1,6 +1,6 @@
 FROM fedora:35
 
-ARG BUILD_TYPE=Release
+ARG BUILD_TYPE=Debug
 
 RUN dnf -y update \
     && dnf -y install \
@@ -9,7 +9,7 @@ RUN dnf -y update \
         gfortran \
         gdb \
         git \
-        lapack-devel \
+        # lapack-devel \
         lcov \
         make \
         netcdf-fortran-devel \

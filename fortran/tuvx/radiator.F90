@@ -33,7 +33,7 @@ module musica_tuvx_radiator
     end subroutine delete_radiator_c
 
     subroutine set_optical_depths_c(radiator, optical_depths, num_vertical_layers, &
-        num_wavelength_bins, error) bind(C, name="SetOpticalDepths")
+        num_wavelength_bins, error) bind(C, name="SetRadiatorOpticalDepths")
       use iso_c_binding, only : c_ptr, c_size_t
       use musica_util, only: error_t_c
       type(c_ptr),       value, intent(in)    :: radiator
@@ -44,7 +44,7 @@ module musica_tuvx_radiator
     end subroutine set_optical_depths_c
 
     subroutine get_optical_depths_c(radiator, optical_depths, num_vertical_layers, &
-        num_wavelength_bins, error) bind(C, name="GetOpticalDepths")
+        num_wavelength_bins, error) bind(C, name="GetRadiatorOpticalDepths")
       use iso_c_binding, only : c_ptr, c_size_t
       use musica_util, only: error_t_c
       type(c_ptr),       value, intent(in)    :: radiator
@@ -56,7 +56,7 @@ module musica_tuvx_radiator
 
     subroutine set_single_scattering_albedos_c(radiator, single_scattering_albedos, & 
         num_vertical_layers, num_wavelength_bins, error) &
-        bind(C, name="SetSingleScatteringAlbedos")
+        bind(C, name="SetRadiatorSingleScatteringAlbedos")
       use iso_c_binding, only : c_ptr, c_size_t
       use musica_util, only: error_t_c
       type(c_ptr),       value, intent(in)    :: radiator
@@ -68,7 +68,7 @@ module musica_tuvx_radiator
 
     subroutine get_single_scattering_albedos_c(radiator, single_scattering_albedos, & 
         num_vertical_layers, num_wavelength_bins, error) &
-        bind(C, name="GetSingleScatteringAlbedos")
+        bind(C, name="GetRadiatorSingleScatteringAlbedos")
       use iso_c_binding, only : c_ptr, c_size_t
       use musica_util, only: error_t_c
       type(c_ptr),       value, intent(in)    :: radiator
@@ -79,7 +79,7 @@ module musica_tuvx_radiator
     end subroutine get_single_scattering_albedos_c
 
     subroutine set_asymmetry_factors_c(radiator, asymmetry_factors, num_vertical_layers, &
-        num_wavelength_bins, num_streams, error) bind(C, name="SetAsymmetryFactors")
+        num_wavelength_bins, num_streams, error) bind(C, name="SetRadiatorAsymmetryFactors")
       use iso_c_binding, only : c_ptr, c_size_t
       use musica_util, only: error_t_c
       type(c_ptr),       value, intent(in)    :: radiator
@@ -91,7 +91,7 @@ module musica_tuvx_radiator
     end subroutine set_asymmetry_factors_c
 
     subroutine get_asymmetry_factors_c(radiator, asymmetry_factors, num_vertical_layers, &
-        num_wavelength_bins, num_streams, error) bind(C, name="GetAsymmetryFactors")
+        num_wavelength_bins, num_streams, error) bind(C, name="GetRadiatorAsymmetryFactors")
       use iso_c_binding, only : c_ptr, c_size_t
       use musica_util, only: error_t_c
       type(c_ptr),       value, intent(in)    :: radiator
