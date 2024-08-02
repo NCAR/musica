@@ -4,7 +4,7 @@ install(
   TARGETS
     musica-fortran
   EXPORT
-    musica_fortran_Exports
+    musica-fortran_Exports
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
@@ -24,7 +24,7 @@ set(cmake_config_install_location "${CMAKE_INSTALL_LIBDIR}/cmake/musica")
 
 install(
   EXPORT
-    musica_fortran_Exports 
+    musica-fortran_Exports 
   DESTINATION
     ${cmake_config_install_location}
   NAMESPACE musica::
@@ -32,21 +32,21 @@ install(
 
 configure_package_config_file(
   "${MUSICA_PROJECT_SRC_DIR}/cmake/musicaConfig.cmake.in"
-  "${PROJECT_BINARY_DIR}/musica_fortranConfig.cmake"
+  "${PROJECT_BINARY_DIR}/musica-fortranConfig.cmake"
   INSTALL_DESTINATION
     ${cmake_config_install_location}
 )
 
 write_basic_package_version_file(
-  "${PROJECT_BINARY_DIR}/musica_fortranConfigVersion.cmake"
+  "${PROJECT_BINARY_DIR}/musica-fortranConfigVersion.cmake"
   VERSION ${PROJECT_VERSION}
   COMPATIBILITY SameMajorVersion
 )
 
 install(
   FILES
-    ${PROJECT_BINARY_DIR}/musica_fortranConfig.cmake
-    ${PROJECT_BINARY_DIR}/musica_fortranConfigVersion.cmake
+    ${PROJECT_BINARY_DIR}/musica-fortranConfig.cmake
+    ${PROJECT_BINARY_DIR}/musica-fortranConfigVersion.cmake
   DESTINATION
     ${cmake_config_install_location}
 )
