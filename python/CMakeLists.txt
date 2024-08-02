@@ -16,6 +16,7 @@ set_target_properties(musica_python PROPERTIES OUTPUT_NAME musica)
 target_include_directories(musica_python
   PUBLIC  
     $<BUILD_INTERFACE:${micm_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${tuvx_SOURCE_DIR}/include/tuvx>
     $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
 )
 

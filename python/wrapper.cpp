@@ -154,7 +154,6 @@ PYBIND11_MODULE(musica, m)
       }
       return tuvx;
     });
-
 m.def("delete_tuvx", &musica::DeleteTuvx);
 
 m.def(
@@ -172,7 +171,6 @@ m.def(
     }
 
     return map;
-
 
   });
 
