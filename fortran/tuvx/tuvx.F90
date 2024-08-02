@@ -171,14 +171,14 @@ contains
     use musica_util, only: error_t, error_t_c
 
     ! Arguments
-    class(tuvx_t), intent(inout) :: this
-    type(error_t), intent(inout) :: error
+    class(tuvx_t), intent(inout)  :: this
+    type(error_t), intent(inout)  :: error
 
     ! Local variables
-    type(error_t_c)              :: error_c
+    type(error_t_c)               :: error_c
 
     ! Return value
-    type(radiator_map_t), pointer    :: radiator_map
+    type(radiator_map_t), pointer :: radiator_map
 
     radiator_map => radiator_map_t(get_radiator_map_c(this%ptr_, error_c))
     

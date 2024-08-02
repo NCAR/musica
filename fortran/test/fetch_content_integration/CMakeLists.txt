@@ -9,7 +9,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 include(FetchContent)
 
-set(MUSICA_GIT_TAG "main" CACHE STRING "Git tag for the musica_fortran repository")
+# set(MUSICA_GIT_TAG "main" CACHE STRING "Git tag for the musica_fortran repository")
+set(MUSICA_GIT_TAG "122-make-radiator-updatable" CACHE STRING "Git tag for the musica_fortran repository")
 
 message(STATUS "Using MUSICA_GIT_TAG: ${MUSICA_GIT_TAG}")
 

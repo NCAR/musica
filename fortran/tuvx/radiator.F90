@@ -78,7 +78,7 @@ module musica_tuvx_radiator
       type(error_t_c),          intent(inout) :: error
     end subroutine get_single_scattering_albedos_c
 
-    subroutine set_asymmetry_factors_c(radiator, asymmetry_factor, num_vertical_layers, &
+    subroutine set_asymmetry_factors_c(radiator, asymmetry_factors, num_vertical_layers, &
         num_wavelength_bins, num_streams, error) bind(C, name="SetAsymmetryFactors")
       use iso_c_binding, only : c_ptr, c_size_t
       use musica_util, only: error_t_c
@@ -90,7 +90,7 @@ module musica_tuvx_radiator
       type(error_t_c),          intent(inout) :: error
     end subroutine set_asymmetry_factors_c
 
-    subroutine get_asymmetry_factors_c(radiator, symmetry_factor, num_vertical_layers, &
+    subroutine get_asymmetry_factors_c(radiator, asymmetry_factors, num_vertical_layers, &
         num_wavelength_bins, num_streams, error) bind(C, name="GetAsymmetryFactors")
       use iso_c_binding, only : c_ptr, c_size_t
       use musica_util, only: error_t_c
@@ -154,7 +154,7 @@ contains
   function radiator_t_constructor(radiator_name, height_grid, wavelength_grid, error) &
       result(this)
     use iso_c_binding, only: c_size_t, c_loc
-    use musica_util, only: error_t, error_t_c, to_c_string
+    use musica_util, only: error_t, error_t_c, to_c_string, dk => musica_dk
 
     ! Arguments
     character(len=*), intent(in)               :: radiator_name
@@ -173,7 +173,7 @@ contains
     !! that does memory layout conversion
     !!
     this%ptr_ = create_radiator_c(to_c_string(radiator_name), c_loc(height_grid), &
-                                  c_loc(avelength_grid), error_c)
+                                  c_loc(wavelength_grid), error_c)
     error = error_t(error_c)
 
   end function radiator_t_constructor
@@ -284,7 +284,7 @@ contains
   
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  subroutine set_asymmetry_factors(this, symmetry_factor, error)
+  subroutine set_asymmetry_factors(this, asymmetry_factors, error)
     use iso_c_binding, only: c_size_t, c_loc
     use musica_util, only: error_t, error_t_c, dk => musica_dk
 
@@ -299,9 +299,9 @@ contains
     integer(kind=c_size_t) :: num_wavelength_bins
     integer(kind=c_size_t) :: num_streams
 
-    num_vertical_layers = size(single_scattering_albedos, 1)
-    num_wavelength_bins = size(single_scattering_albedos, 2)
-    num_streams = size(num_streams, 3)
+    num_vertical_layers = size(asymmetry_factors, 1)
+    num_wavelength_bins = size(asymmetry_factors, 2)
+    num_streams = size(asymmetry_factors, 3)
 
     call set_asymmetry_factors_c(this%ptr_, c_loc(asymmetry_factors), & 
           num_vertical_layers, num_wavelength_bins, num_streams, error_c)
@@ -311,7 +311,7 @@ end subroutine set_asymmetry_factors
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  subroutine get_asymmetry_factors(this, symmetry_factor, error)
+  subroutine get_asymmetry_factors(this, asymmetry_factors, error)
     use iso_c_binding, only: c_size_t, c_loc
     use musica_util, only: error_t, error_t_c, dk => musica_dk
 
@@ -326,15 +326,15 @@ end subroutine set_asymmetry_factors
     integer(kind=c_size_t) :: num_wavelength_bins
     integer(kind=c_size_t) :: num_streams
 
-    num_vertical_layers = size(single_scattering_albedos, 1)
-    num_wavelength_bins = size(single_scattering_albedos, 2)
-    num_streams = size(num_streams, 3)
+    num_vertical_layers = size(asymmetry_factors, 1)
+    num_wavelength_bins = size(asymmetry_factors, 2)
+    num_streams = size(asymmetry_factors, 3)
 
     call get_asymmetry_factors_c(this%ptr_, c_loc(asymmetry_factors), & 
           num_vertical_layers, num_wavelength_bins, num_streams, error_c)
     error = error_t(error_c)
 
-  end subroutine get_single_scattering_albedos
+  end subroutine get_asymmetry_factors
 
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
