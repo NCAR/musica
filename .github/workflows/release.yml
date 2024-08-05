@@ -47,7 +47,7 @@ jobs:
 
     - uses: pypa/cibuildwheel@v2.17
       env:
-        CIBW_ARCHS_MACOS: arm64 x86_64
+        CIBW_ARCHS_MACOS: arm64 
         CIBW_SKIP: cp27-* cp34-* cp35-* cp36-*
         CIBW_BUILD: cp37-* cp38-* cp39-* cp310-* cp311-* cp312-*
 
