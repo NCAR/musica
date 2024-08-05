@@ -28,7 +28,7 @@ jobs:
         path: dist/*.tar.gz
 
   build_wheels:
-    name: Wheels on ${{ matrix.os }}
+    name: Build wheels on ${{ matrix.os }} with Python ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -48,8 +48,8 @@ jobs:
     - uses: pypa/cibuildwheel@v2.17
       env:
         CIBW_ARCHS_MACOS: auto universal2
-        CIBW_SKIP: cp27-* cp34-* cp35-* cp36-* # Skip older Python versions
-        CIBW_BUILD: cp37-* cp38-* cp39-* cp310-* cp311-* cp312-* # Explicitly build for specified versions
+        CIBW_SKIP: cp27-* cp34-* cp35-* cp36-*
+        CIBW_BUILD: cp37-* cp38-* cp39-* cp310-* cp311-* cp312-*
 
     - name: Verify clean directory
       run: git diff --exit-code
@@ -58,7 +58,7 @@ jobs:
     - name: Upload wheels
       uses: actions/upload-artifact@v4
       with:
-        name: cibw-wheels-${{ matrix.os }}
+        name: cibw-wheels-${{ matrix.os }}-py${{ matrix.python-version }}
         path: wheelhouse/*.whl
 
   upload_all:
