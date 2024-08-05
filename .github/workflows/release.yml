@@ -2,10 +2,9 @@ name: Publish Python Package
 
 on:
   workflow_dispatch:
-  push:
-  # release:
-  #   types:
-  #     - published
+  release:
+    types:
+      - published
 
 jobs:
   build_sdist:
