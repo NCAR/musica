@@ -1,5 +1,3 @@
-SET(CMAKE_OSX_DEPLOYMENT_TARGET 10.15)
-
 pybind11_add_module(musica_python 
   wrapper.cpp
   ${PROJECT_SOURCE_DIR}/src/micm/micm.cpp
@@ -11,6 +9,8 @@ pybind11_add_module(musica_python
 target_link_libraries(musica_python PRIVATE nlohmann_json::nlohmann_json)
 
 target_compile_features(musica_python PUBLIC cxx_std_20)
+
+target_compile_options(musica_python PRIVATE -mmacosx-version-min=10.15)
 
 set_target_properties(musica_python PROPERTIES OUTPUT_NAME musica)
 
