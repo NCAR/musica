@@ -19,8 +19,8 @@ module musica_tuvx_radiator
       use iso_c_binding, only : c_ptr, c_char
       use musica_util, only: error_t_c
       character(len=1, kind=c_char), intent(in) :: radiator_name(*)
-      type(c_ptr), intent(in) :: height_grid
-      type(c_ptr), intent(in) :: wavelength_grid
+      type(c_ptr), value, intent(in) :: height_grid
+      type(c_ptr), value, intent(in) :: wavelength_grid
       type(error_t_c), intent(inout) :: error
       type(c_ptr) :: create_radiator_c
     end function create_radiator_c
@@ -151,29 +151,26 @@ contains
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   !> Constructs a radiator instance that allocates a new TUV-x radiator
-  function radiator_t_constructor(radiator_name, height_grid, wavelength_grid, error) &
-      result(this)
-    use iso_c_binding, only: c_size_t, c_loc
-    use musica_util, only: error_t, error_t_c, to_c_string, dk => musica_dk
+  function radiator_t_constructor(radiator_name, height_grid, wavelength_grid, &
+      error) result(this)
+    use musica_tuvx_grid, only: grid_t
+    use musica_util, only: error_t, error_t_c, to_c_string
 
     ! Arguments
-    character(len=*), intent(in)               :: radiator_name
-    real(dk), target, dimension(:,:), intent(in) :: height_grid
-    real(dk), target, dimension(:,:), intent(in) :: wavelength_grid
-    type(error_t), intent(inout)               :: error
+    character(len=*), intent(in) :: radiator_name
+    type(grid_t),     intent(in) :: height_grid
+    type(grid_t),     intent(in) :: wavelength_grid
+    type(error_t), intent(inout) :: error
 
     ! Return value
     type(radiator_t), pointer :: this
 
+    ! Local variables
     type(error_t_c) :: error_c
 
     allocate( this )
-    !!
-    !! TODO(jiwon) - is it okay to c_loc() 2d array or should i create a new function 
-    !! that does memory layout conversion
-    !!
-    this%ptr_ = create_radiator_c(to_c_string(radiator_name), c_loc(height_grid), &
-                                  c_loc(wavelength_grid), error_c)
+    this%ptr_ = create_radiator_c(to_c_string(radiator_name), height_grid%ptr_, &
+                                  wavelength_grid%ptr_, error_c)
     error = error_t(error_c)
 
   end function radiator_t_constructor
@@ -196,7 +193,7 @@ contains
 
     num_vertical_layers = size(optical_depths, 1)
     num_wavelength_bins = size(optical_depths, 2)
-
+    
     call set_optical_depths_c(this%ptr_, c_loc(optical_depths), &
                 num_vertical_layers, num_wavelength_bins, error_c)
     error = error_t(error_c)
@@ -210,9 +207,9 @@ contains
     use musica_util, only: error_t, error_t_c, dk => musica_dk
 
     ! Arguments
-    class(radiator_t), intent(inout) :: this
+    class(radiator_t), intent(inout)             :: this
     real(dk), target, dimension(:,:), intent(in) :: optical_depths
-    type(error_t), intent(inout) :: error
+    type(error_t), intent(inout)                 :: error
 
     ! Local variables
     type(error_t_c)        :: error_c
@@ -236,9 +233,9 @@ contains
     use musica_util, only: error_t, error_t_c, dk => musica_dk
 
     ! Arguments
-    class(radiator_t), intent(inout) :: this
+    class(radiator_t), intent(inout)             :: this
     real(dk), target, dimension(:,:), intent(in) :: single_scattering_albedos
-    type(error_t), intent(inout) :: error
+    type(error_t), intent(inout)                 :: error
 
     ! Local variables
     type(error_t_c) :: error_c
@@ -263,12 +260,12 @@ contains
     use musica_util, only: error_t, error_t_c, dk => musica_dk
 
     ! Arguments
-    class(radiator_t), intent(inout) :: this
+    class(radiator_t), intent(inout)             :: this
     real(dk), target, dimension(:,:), intent(in) :: single_scattering_albedos
-    type(error_t), intent(inout) :: error
+    type(error_t), intent(inout)                 :: error
 
     ! Local variables
-    type(error_t_c) :: error_c
+    type(error_t_c)        :: error_c
     integer(kind=c_size_t) :: num_vertical_layers
     integer(kind=c_size_t) :: num_wavelength_bins
 

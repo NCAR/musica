@@ -59,7 +59,6 @@ contains
     type(tuvx_t),         pointer :: tuvx
     type(error_t)                 :: error
     type(grid_map_t),     pointer :: grids
-    character(len=256)            :: config_path
     type(grid_t),         pointer :: grid
     type(profile_map_t),  pointer :: profiles
     type(profile_t),      pointer :: profile, profile_copy
@@ -68,6 +67,7 @@ contains
     real*8, dimension(5), target  :: edges, edge_values, temp_edge
     real*8, dimension(4), target  :: midpoints, midpoint_values, layer_densities, temp_midpoint
     real*8                        :: temp_real
+    character(len=256)            :: config_path
 
     edges = (/ 1.0, 2.0, 3.0, 4.0, 5.0 /)
     midpoints = (/ 15.0, 25.0, 35.0, 45.0 /)  
