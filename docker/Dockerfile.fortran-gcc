@@ -33,14 +33,12 @@ ENV FFLAGS="-I/usr/include/"
 # Copy the musica code
 COPY . musica
 
-ARG MUSICA_GIT_TAG=122-make-radiator-updatable
-
 # Build and install MUSICA
 RUN cd musica \
     && cmake -S . \
              -B build \
-             -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
              -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+             -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
              -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
              -D MUSICA_ENABLE_MEMCHECK=ON \
     && cd build \

@@ -417,16 +417,16 @@ TEST_F(TuvxCApiTest, CanCreateRadiator)
   // Allocate array as 1D
   double* optical_depths_1D = new double[num_wavelength_bins * num_vertical_layers];
   // Allocate an array of pointers to each row
-  double** optical_depths = new double* [num_vertical_layers];
+  double** optical_depths = new double*[num_vertical_layers];
   // Fill in the pointers to the rows
-  for(int row =0; row<num_vertical_layers; row++)
+  for (int row = 0; row < num_vertical_layers; row++)
   {
     optical_depths[row] = &optical_depths_1D[row * num_wavelength_bins];
   }
   int i = 1;
-  for(int row = 0; row < num_vertical_layers; row++)
+  for (int row = 0; row < num_vertical_layers; row++)
   {
-    for(int col = 0; col < num_wavelength_bins; col++)
+    for (int col = 0; col < num_wavelength_bins; col++)
     {
       optical_depths[row][col] = 10 * i;
       i++;
@@ -434,11 +434,11 @@ TEST_F(TuvxCApiTest, CanCreateRadiator)
   }
   SetRadiatorOpticalDepths(radiator, optical_depths[0], num_vertical_layers, num_wavelength_bins, &error);
   ASSERT_TRUE(IsSuccess(error));
-  for(int row = 0; row < num_vertical_layers; row++)
+  for (int row = 0; row < num_vertical_layers; row++)
   {
-    for(int col = 0; col < num_wavelength_bins; col++)
+    for (int col = 0; col < num_wavelength_bins; col++)
     {
-      optical_depths[row][col] =- 999.0;
+      optical_depths[row][col] = -999.0;
     }
   }
   GetRadiatorOpticalDepths(radiator, optical_depths[0], num_vertical_layers, num_wavelength_bins, &error);
@@ -452,15 +452,15 @@ TEST_F(TuvxCApiTest, CanCreateRadiator)
 
   // Test for single scattering albedos
   double* albedos_1D = new double[num_wavelength_bins * num_vertical_layers];
-  double** albedos = new double* [num_vertical_layers];
-  for(int row =0; row<num_vertical_layers; row++)
+  double** albedos = new double*[num_vertical_layers];
+  for (int row = 0; row < num_vertical_layers; row++)
   {
     albedos[row] = &albedos_1D[row * num_wavelength_bins];
   }
   i = 1;
-  for(int row = 0; row < num_vertical_layers; row++)
+  for (int row = 0; row < num_vertical_layers; row++)
   {
-    for(int col = 0; col < num_wavelength_bins; col++)
+    for (int col = 0; col < num_wavelength_bins; col++)
     {
       albedos[row][col] = 100 * i;
       i++;
@@ -468,11 +468,11 @@ TEST_F(TuvxCApiTest, CanCreateRadiator)
   }
   SetRadiatorSingleScatteringAlbedos(radiator, albedos[0], num_vertical_layers, num_wavelength_bins, &error);
   ASSERT_TRUE(IsSuccess(error));
-  for(int row = 0; row < num_vertical_layers; row++)
+  for (int row = 0; row < num_vertical_layers; row++)
   {
-    for(int col = 0; col < num_wavelength_bins; col++)
+    for (int col = 0; col < num_wavelength_bins; col++)
     {
-      albedos[row][col] =- 999.0;
+      albedos[row][col] = -999.0;
     }
   }
   GetRadiatorSingleScatteringAlbedos(radiator, albedos[0], num_vertical_layers, num_wavelength_bins, &error);
@@ -486,15 +486,15 @@ TEST_F(TuvxCApiTest, CanCreateRadiator)
 
   // Test for asymmetery factors
   double* factors_1D = new double[num_wavelength_bins * num_vertical_layers];
-  double** factors = new double* [num_vertical_layers];
-  for(int row =0; row<num_vertical_layers; row++)
+  double** factors = new double*[num_vertical_layers];
+  for (int row = 0; row < num_vertical_layers; row++)
   {
     factors[row] = &factors_1D[row * num_wavelength_bins];
   }
   i = 1;
-  for(int row = 0; row < num_vertical_layers; row++)
+  for (int row = 0; row < num_vertical_layers; row++)
   {
-    for(int col = 0; col < num_wavelength_bins; col++)
+    for (int col = 0; col < num_wavelength_bins; col++)
     {
       factors[row][col] = 1 * i;
       i++;
@@ -503,11 +503,11 @@ TEST_F(TuvxCApiTest, CanCreateRadiator)
   std::size_t num_streams = 1;
   SetRadiatorAsymmetryFactors(radiator, factors[0], num_vertical_layers, num_wavelength_bins, num_streams, &error);
   ASSERT_TRUE(IsSuccess(error));
-  for(int row = 0; row < num_vertical_layers; row++)
+  for (int row = 0; row < num_vertical_layers; row++)
   {
-    for(int col = 0; col < num_wavelength_bins; col++)
+    for (int col = 0; col < num_wavelength_bins; col++)
     {
-      factors[row][col] =- 999.0;
+      factors[row][col] = -999.0;
     }
   }
   GetRadiatorAsymmetryFactors(radiator, factors[0], num_vertical_layers, num_wavelength_bins, num_streams, &error);
@@ -520,9 +520,12 @@ TEST_F(TuvxCApiTest, CanCreateRadiator)
   ASSERT_EQ(factors[2][1], 6);
 
   // Clean up
-  DeleteRadiator(radiator, &error); ASSERT_TRUE(IsSuccess(error));
-  DeleteGrid(height, &error); ASSERT_TRUE(IsSuccess(error));
-  DeleteGrid(wavelength, &error); ASSERT_TRUE(IsSuccess(error));
+  DeleteRadiator(radiator, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteGrid(height, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteGrid(wavelength, &error);
+  ASSERT_TRUE(IsSuccess(error));
   DeleteError(&error);
   delete[] optical_depths;
   delete[] optical_depths_1D;
@@ -558,15 +561,15 @@ TEST_F(TuvxCApiTest, CanCreateRadiatorMap)
   std::size_t num_vertical_layers = 3;
   std::size_t num_wavelength_bins = 2;
   double* optical_depths_1D = new double[num_wavelength_bins * num_vertical_layers];
-  double** optical_depths = new double* [num_vertical_layers];
-  for(int row =0; row<num_vertical_layers; row++)
+  double** optical_depths = new double*[num_vertical_layers];
+  for (int row = 0; row < num_vertical_layers; row++)
   {
     optical_depths[row] = &optical_depths_1D[row * num_wavelength_bins];
   }
   int i = 1;
-  for(int row = 0; row < num_vertical_layers; row++)
+  for (int row = 0; row < num_vertical_layers; row++)
   {
-    for(int col = 0; col < num_wavelength_bins; col++)
+    for (int col = 0; col < num_wavelength_bins; col++)
     {
       optical_depths[row][col] = 10 * i;
       i++;
@@ -577,15 +580,15 @@ TEST_F(TuvxCApiTest, CanCreateRadiatorMap)
 
   // Test for single scattering albedos
   double* albedos_1D = new double[num_wavelength_bins * num_vertical_layers];
-  double** albedos = new double* [num_vertical_layers];
-  for(int row =0; row<num_vertical_layers; row++)
+  double** albedos = new double*[num_vertical_layers];
+  for (int row = 0; row < num_vertical_layers; row++)
   {
     albedos[row] = &albedos_1D[row * num_wavelength_bins];
   }
   i = 1;
-  for(int row = 0; row < num_vertical_layers; row++)
+  for (int row = 0; row < num_vertical_layers; row++)
   {
-    for(int col = 0; col < num_wavelength_bins; col++)
+    for (int col = 0; col < num_wavelength_bins; col++)
     {
       albedos[row][col] = 100 * i;
       i++;
@@ -597,15 +600,15 @@ TEST_F(TuvxCApiTest, CanCreateRadiatorMap)
   // Test for asymmetery factors
   std::size_t num_streams = 1;
   double* factors_1D = new double[num_wavelength_bins * num_vertical_layers];
-  double** factors = new double* [num_vertical_layers];
-  for(int row =0; row<num_vertical_layers; row++)
+  double** factors = new double*[num_vertical_layers];
+  for (int row = 0; row < num_vertical_layers; row++)
   {
     factors[row] = &factors_1D[row * num_wavelength_bins];
   }
   i = 1;
-  for(int row = 0; row < num_vertical_layers; row++)
+  for (int row = 0; row < num_vertical_layers; row++)
   {
-    for(int col = 0; col < num_wavelength_bins; col++)
+    for (int col = 0; col < num_wavelength_bins; col++)
     {
       factors[row][col] = 1 * i;
       i++;
@@ -615,11 +618,11 @@ TEST_F(TuvxCApiTest, CanCreateRadiatorMap)
   ASSERT_TRUE(IsSuccess(error));
 
   // Test for optical depths
-  for(int row = 0; row < num_vertical_layers; row++)
+  for (int row = 0; row < num_vertical_layers; row++)
   {
-    for(int col = 0; col < num_wavelength_bins; col++)
+    for (int col = 0; col < num_wavelength_bins; col++)
     {
-      optical_depths[row][col] =- 999.0;
+      optical_depths[row][col] = -999.0;
     }
   }
   GetRadiatorOpticalDepths(foo_radiator, optical_depths[0], num_vertical_layers, num_wavelength_bins, &error);
@@ -632,11 +635,11 @@ TEST_F(TuvxCApiTest, CanCreateRadiatorMap)
   ASSERT_EQ(optical_depths[2][1], 60.0);
 
   // Test for single scattering albedos
-  for(int row = 0; row < num_vertical_layers; row++)
+  for (int row = 0; row < num_vertical_layers; row++)
   {
-    for(int col = 0; col < num_wavelength_bins; col++)
+    for (int col = 0; col < num_wavelength_bins; col++)
     {
-      albedos[row][col] =- 999.0;
+      albedos[row][col] = -999.0;
     }
   }
   GetRadiatorSingleScatteringAlbedos(foo_radiator, albedos[0], num_vertical_layers, num_wavelength_bins, &error);
@@ -649,11 +652,11 @@ TEST_F(TuvxCApiTest, CanCreateRadiatorMap)
   ASSERT_EQ(albedos[2][1], 600.0);
 
   // Test for asymmetry factors
-  for(int row = 0; row < num_vertical_layers; row++)
+  for (int row = 0; row < num_vertical_layers; row++)
   {
-    for(int col = 0; col < num_wavelength_bins; col++)
+    for (int col = 0; col < num_wavelength_bins; col++)
     {
-      factors[row][col] =- 999.0;
+      factors[row][col] = -999.0;
     }
   }
   GetRadiatorAsymmetryFactors(foo_radiator, factors[0], num_vertical_layers, num_wavelength_bins, num_streams, &error);
@@ -665,7 +668,7 @@ TEST_F(TuvxCApiTest, CanCreateRadiatorMap)
   ASSERT_EQ(factors[2][0], 5);
   ASSERT_EQ(factors[2][1], 6);
 
-  // Test copy for radiator map 
+  // Test copy for radiator map
   Radiator* foo_copy = GetRadiator(radiator_map, "foo", &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_NE(foo_copy, nullptr);
@@ -693,16 +696,24 @@ TEST_F(TuvxCApiTest, CanCreateRadiatorMap)
   ASSERT_EQ(factors[1][1], 4);
   ASSERT_EQ(factors[2][0], 5);
   ASSERT_EQ(factors[2][1], 6);
-  
+
   // Clean up
-  DeleteRadiator(foo_radiator, &error); ASSERT_TRUE(IsSuccess(error));
-  DeleteRadiator(bar_radiator, &error); ASSERT_TRUE(IsSuccess(error));
-  DeleteRadiator(foo_copy, &error); ASSERT_TRUE(IsSuccess(error));
-  DeleteRadiatorMap(radiator_map, &error); ASSERT_TRUE(IsSuccess(error));
-  DeleteGrid(height, &error); ASSERT_TRUE(IsSuccess(error));
-  DeleteGrid(wavelength, &error); ASSERT_TRUE(IsSuccess(error));
-  DeleteGrid(bar_height, &error); ASSERT_TRUE(IsSuccess(error));
-  DeleteGrid(bar_wavelength, &error); ASSERT_TRUE(IsSuccess(error));
+  DeleteRadiator(foo_radiator, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteRadiator(bar_radiator, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteRadiator(foo_copy, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteRadiatorMap(radiator_map, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteGrid(height, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteGrid(wavelength, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteGrid(bar_height, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteGrid(bar_wavelength, &error);
+  ASSERT_TRUE(IsSuccess(error));
   DeleteError(&error);
   delete[] optical_depths;
   delete[] optical_depths_1D;

@@ -39,8 +39,8 @@ namespace musica
     /// @return a profile map pointer
     ProfileMap *CreateProfileMap(Error *error);
 
-    /// @brief Create a radiator map. For now, this calls the interal tuvx fortran api, but will allow the change to c++ later
-    /// on to be transparent to downstream projects
+    /// @brief Create a radiator map. For now, this calls the interal tuvx fortran api, but will allow the change to c++
+    /// later on to be transparent to downstream projects
     /// @param error The error struct to indicate success or failure
     /// @return a radiator map pointer
     RadiatorMap *CreateRadiatorMap(Error *error);

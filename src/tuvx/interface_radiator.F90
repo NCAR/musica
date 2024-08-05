@@ -21,18 +21,18 @@ module tuvx_interface_radiator
     use tuvx_grid_from_host, only: grid_updater_t
 
     ! arguments
-    type(c_ptr)                                    :: radiator
+    type(c_ptr)                                  :: radiator
     character(kind=c_char, len=1), dimension(*), intent(in) :: radiator_name
-    integer(kind=c_size_t), intent(in), value      :: radiator_name_length
-    type(c_ptr), intent(in), value                 :: height_grid_updater_c
-    type(c_ptr), intent(in), value                 :: wavelength_grid_updater_c
-    integer(kind=c_int), intent(out)               :: error_code
+    integer(kind=c_size_t), value, intent(in)    :: radiator_name_length
+    type(c_ptr),            value, intent(in)    :: height_grid_updater_c
+    type(c_ptr),            value, intent(in)    :: wavelength_grid_updater_c
+    integer(kind=c_int),           intent(out)   :: error_code
     
     ! variables
     type(radiator_from_host_t), pointer :: f_radiator
     type(string_t)                      :: f_name
-    type(grid_updater_t), pointer       :: f_height_grid_updater
-    type(grid_updater_t), pointer       :: f_wavelength_grid_updater
+    type(grid_updater_t),       pointer :: f_height_grid_updater
+    type(grid_updater_t),       pointer :: f_wavelength_grid_updater
     integer                             :: i
 
     allocate(character(len=radiator_name_length) :: f_name%val_)
@@ -55,7 +55,7 @@ module tuvx_interface_radiator
     use iso_c_binding, only: c_ptr, c_f_pointer, c_int
 
     ! arguments
-    type(c_ptr), value, intent(in)   :: radiator
+    type(c_ptr), value,  intent(in)  :: radiator
     integer(kind=c_int), intent(out) :: error_code
 
     ! variables
@@ -76,7 +76,7 @@ module tuvx_interface_radiator
     use tuvx_radiator_from_host, only: radiator_from_host_t, radiator_updater_t
 
     ! arguments
-    type(c_ptr), value, intent(in)   :: radiator
+    type(c_ptr), value,  intent(in)  :: radiator
     integer(kind=c_int), intent(out) :: error_code
 
     ! output
@@ -84,7 +84,7 @@ module tuvx_interface_radiator
 
     ! variables
     type(radiator_from_host_t), pointer :: f_radiator
-    type(radiator_updater_t), pointer   :: f_updater
+    type(radiator_updater_t),   pointer :: f_updater
 
     call c_f_pointer(radiator, f_radiator)
     allocate(f_updater, source = radiator_updater_t(f_radiator))
@@ -100,7 +100,7 @@ module tuvx_interface_radiator
     use tuvx_radiator_from_host, only: radiator_updater_t
 
     ! arguments
-    type(c_ptr), value, intent(in)   :: updater
+    type(c_ptr), value,  intent(in)  :: updater
     integer(kind=c_int), intent(out) :: error_code
 
     ! variables
@@ -123,29 +123,22 @@ module tuvx_interface_radiator
     use tuvx_radiator_from_host, only: radiator_updater_t
   
     ! arguments
-    type(c_ptr), value, intent(in)            :: radiator_updater
-    type(c_ptr), value, intent(in)            :: optical_depths
-    integer(kind=c_size_t), intent(in), value :: num_vertical_layers
-    integer(kind=c_size_t), intent(in), value :: num_wavelength_bins
-    integer(kind=c_int), intent(out)          :: error_code
+    type(c_ptr),            value, intent(in)  :: radiator_updater
+    type(c_ptr),            value, intent(in)  :: optical_depths
+    integer(kind=c_size_t), value, intent(in)  :: num_vertical_layers
+    integer(kind=c_size_t), value, intent(in)  :: num_wavelength_bins
+    integer(kind=c_int),           intent(out) :: error_code
   
     ! variables
     type(radiator_updater_t), pointer :: f_updater
-    real(kind=dk), pointer            :: f_optical_depths(:,:)
-    integer(kind=c_int)               :: i, iRow, iCol !TODO(test)jiwon
+    real(kind=dk),            pointer :: f_optical_depths(:,:)
 
     call c_f_pointer(radiator_updater, f_updater)
     call c_f_pointer(optical_depths, f_optical_depths, &
         [num_vertical_layers, num_wavelength_bins])
 
-    do iRow = 1, num_wavelength_bins
-      do iCol = 1, num_vertical_layers
-        print *, "Value of f_i(" , iCol, ",", iRow, ") = ", f_optical_depths(iCol, iRow)
-      end do
-    end do
-
     if ((size(f_updater%radiator_%state_%layer_OD_, 1) /= num_vertical_layers) &
-    .or. (size(f_updater%radiator_%state_%layer_OD_, 2) /= num_wavelength_bins)) &
+      .or. (size(f_updater%radiator_%state_%layer_OD_, 2) /= num_wavelength_bins)) &
     then
       error_code = 1
       return
@@ -164,22 +157,22 @@ module tuvx_interface_radiator
     use tuvx_radiator_from_host, only: radiator_updater_t
 
     ! arguments
-    type(c_ptr), value, intent(in)            :: radiator_updater
-    type(c_ptr), value, intent(in)            :: optical_depths
-    integer(kind=c_size_t), intent(in), value :: num_vertical_layers
-    integer(kind=c_size_t), intent(in), value :: num_wavelength_bins
-    integer(kind=c_int), intent(out)          :: error_code
+    type(c_ptr),            value, intent(in)  :: radiator_updater
+    type(c_ptr),            value, intent(in)  :: optical_depths
+    integer(kind=c_size_t), value, intent(in)  :: num_vertical_layers
+    integer(kind=c_size_t), value, intent(in)  :: num_wavelength_bins
+    integer(kind=c_int),           intent(out) :: error_code
 
     ! variables
     type(radiator_updater_t), pointer :: f_updater
-    real(kind=dk), pointer            :: f_optical_depths(:,:)
+    real(kind=dk),            pointer :: f_optical_depths(:,:)
 
     call c_f_pointer(radiator_updater, f_updater)
     call c_f_pointer(optical_depths, f_optical_depths, &
           [num_vertical_layers, num_wavelength_bins])
 
     if ((size(f_updater%radiator_%state_%layer_OD_, 1) /= num_vertical_layers) &
-    .or. (size(f_updater%radiator_%state_%layer_OD_, 2) /= num_wavelength_bins)) &
+      .or. (size(f_updater%radiator_%state_%layer_OD_, 2) /= num_wavelength_bins)) &
     then
       error_code = 1
       return
@@ -198,28 +191,22 @@ module tuvx_interface_radiator
     use tuvx_radiator_from_host, only: radiator_updater_t
 
     ! arguments
-    type(c_ptr), value, intent(in)            :: radiator_updater
-    type(c_ptr), value, intent(in)            :: single_scattering_albedos
-    integer(kind=c_size_t), intent(in), value :: num_vertical_layers
-    integer(kind=c_size_t), intent(in), value :: num_wavelength_bins
-    integer(kind=c_int), intent(out)          :: error_code
+    type(c_ptr),            value, intent(in)  :: radiator_updater
+    type(c_ptr),            value, intent(in)  :: single_scattering_albedos
+    integer(kind=c_size_t), value, intent(in)  :: num_vertical_layers
+    integer(kind=c_size_t), value, intent(in)  :: num_wavelength_bins
+    integer(kind=c_int),           intent(out) :: error_code
   
     ! variables
     type(radiator_updater_t), pointer :: f_updater
-    real(kind=dk), pointer            :: f_single_scattering_albedos(:,:)
-    integer(kind=c_int)               :: i, iRow, iCol
+    real(kind=dk),            pointer :: f_single_scattering_albedos(:,:)
+
     call c_f_pointer(radiator_updater, f_updater)
     call c_f_pointer(single_scattering_albedos, f_single_scattering_albedos, &
           [num_vertical_layers, num_wavelength_bins])
 
-    do iRow = 1,   num_wavelength_bins
-      do iCol = 1,  num_vertical_layers
-        print *, "Value of f_i(" , iCol, ",", iRow, ") = ", f_single_scattering_albedos(iCol, iRow)
-      end do
-    end do
-
     if ((size(f_updater%radiator_%state_%layer_SSA_, 1) /= num_vertical_layers) &
-    .or. (size(f_updater%radiator_%state_%layer_SSA_, 2) /= num_wavelength_bins)) &
+      .or. (size(f_updater%radiator_%state_%layer_SSA_, 2) /= num_wavelength_bins)) &
     then
       error_code = 1
       return
@@ -238,22 +225,22 @@ module tuvx_interface_radiator
     use tuvx_radiator_from_host, only: radiator_updater_t
 
     ! arguments
-    type(c_ptr), value, intent(in)            :: radiator_updater
-    type(c_ptr), value, intent(in)            :: single_scattering_albedos
-    integer(kind=c_size_t), intent(in), value :: num_vertical_layers
-    integer(kind=c_size_t), intent(in), value :: num_wavelength_bins
-    integer(kind=c_int), intent(out)          :: error_code
+    type(c_ptr),            value, intent(in)  :: radiator_updater
+    type(c_ptr),            value, intent(in)  :: single_scattering_albedos
+    integer(kind=c_size_t), value, intent(in)  :: num_vertical_layers
+    integer(kind=c_size_t), value, intent(in)  :: num_wavelength_bins
+    integer(kind=c_int),           intent(out) :: error_code
 
     ! variables
     type(radiator_updater_t), pointer :: f_updater
-    real(kind=dk), pointer            :: f_single_scattering_albedos(:,:)
+    real(kind=dk),            pointer :: f_single_scattering_albedos(:,:)
 
     call c_f_pointer(radiator_updater, f_updater)
     call c_f_pointer(single_scattering_albedos, f_single_scattering_albedos, &
           [num_vertical_layers, num_wavelength_bins])
 
     if ((size(f_updater%radiator_%state_%layer_SSA_, 1) /= num_vertical_layers) &
-    .or. (size(f_updater%radiator_%state_%layer_SSA_, 2) /= num_wavelength_bins)) &
+      .or. (size(f_updater%radiator_%state_%layer_SSA_, 2) /= num_wavelength_bins)) &
     then
       error_code = 1
       return
@@ -272,30 +259,24 @@ module tuvx_interface_radiator
     use tuvx_radiator_from_host, only: radiator_updater_t
 
     ! arguments
-    type(c_ptr), value, intent(in)            :: radiator_updater
-    type(c_ptr), value, intent(in)            :: asymmetry_factors
-    integer(kind=c_size_t), intent(in), value :: num_vertical_layers
-    integer(kind=c_size_t), intent(in), value :: num_wavelength_bins
-    integer(kind=c_size_t), intent(in), value :: num_streams
-    integer(kind=c_int), intent(out)          :: error_code
+    type(c_ptr),            value, intent(in)  :: radiator_updater
+    type(c_ptr),            value, intent(in)  :: asymmetry_factors
+    integer(kind=c_size_t), value, intent(in)  :: num_vertical_layers
+    integer(kind=c_size_t), value, intent(in)  :: num_wavelength_bins
+    integer(kind=c_size_t), value, intent(in)  :: num_streams
+    integer(kind=c_int),           intent(out) :: error_code
 
     ! variables
     type(radiator_updater_t), pointer :: f_updater
-    real(kind=dk), pointer            :: f_asymmetry_factors(:,:,:)
-    integer(kind=c_int)               :: i, iRow, iCol
+    real(kind=dk),            pointer :: f_asymmetry_factors(:,:,:)
+
     call c_f_pointer(radiator_updater, f_updater)
     call c_f_pointer(asymmetry_factors, f_asymmetry_factors, &
           [num_vertical_layers, num_wavelength_bins, num_streams])
 
-    do iRow = 1, num_wavelength_bins
-      do iCol = 1, num_vertical_layers
-        print *, "Value of f_i(" , iCol, ",", iRow, ") = ", f_asymmetry_factors(iCol, iRow, num_streams)
-      end do
-    end do
-          
     if ((size(f_updater%radiator_%state_%layer_G_, 1) /= num_vertical_layers) &
-    .or. (size(f_updater%radiator_%state_%layer_G_, 2) /= num_wavelength_bins) &
-    .or. (size(f_updater%radiator_%state_%layer_G_, 3) /= num_streams)) then
+      .or. (size(f_updater%radiator_%state_%layer_G_, 2) /= num_wavelength_bins) &
+      .or. (size(f_updater%radiator_%state_%layer_G_, 3) /= num_streams)) then
       error_code = 1
       return
     end if
@@ -313,24 +294,24 @@ module tuvx_interface_radiator
   use tuvx_radiator_from_host, only: radiator_updater_t
 
   ! arguments
-  type(c_ptr), value, intent(in)            :: radiator_updater
-  type(c_ptr), value, intent(in)            :: asymmetry_factors
-  integer(kind=c_size_t), intent(in), value :: num_vertical_layers
-  integer(kind=c_size_t), intent(in), value :: num_wavelength_bins
-  integer(kind=c_size_t), intent(in), value :: num_streams
-  integer(kind=c_int), intent(out)          :: error_code
+  type(c_ptr),            value, intent(in)  :: radiator_updater
+  type(c_ptr),            value, intent(in)  :: asymmetry_factors
+  integer(kind=c_size_t), value, intent(in)  :: num_vertical_layers
+  integer(kind=c_size_t), value, intent(in)  :: num_wavelength_bins
+  integer(kind=c_size_t), value, intent(in)  :: num_streams
+  integer(kind=c_int),           intent(out) :: error_code
 
   ! variables
   type(radiator_updater_t), pointer :: f_updater
-  real(kind=dk), pointer            :: f_asymmetry_factors(:,:,:)
+  real(kind=dk),            pointer :: f_asymmetry_factors(:,:,:)
 
   call c_f_pointer(radiator_updater, f_updater)
   call c_f_pointer(asymmetry_factors, f_asymmetry_factors, &
         [num_vertical_layers, num_wavelength_bins, num_streams])
 
   if ((size(f_updater%radiator_%state_%layer_G_, 1) /= num_vertical_layers) &
-  .or. (size(f_updater%radiator_%state_%layer_G_, 2) /= num_wavelength_bins) &
-  .or. (size(f_updater%radiator_%state_%layer_G_, 3) /= num_streams)) then
+    .or. (size(f_updater%radiator_%state_%layer_G_, 2) /= num_wavelength_bins) &
+    .or. (size(f_updater%radiator_%state_%layer_G_, 3) /= num_streams)) then
     error_code = 1
     return
   end if

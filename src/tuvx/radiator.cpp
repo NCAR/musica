@@ -105,7 +105,8 @@ namespace musica
   Radiator::Radiator(const char *radiator_name, Grid *height_grid, Grid *wavelength_grid, Error *error)
   {
     int error_code = 0;
-    radiator_ = InternalCreateRadiator(radiator_name, strlen(radiator_name), height_grid->updater_, wavelength_grid->updater_, &error_code);
+    radiator_ = InternalCreateRadiator(
+        radiator_name, strlen(radiator_name), height_grid->updater_, wavelength_grid->updater_, &error_code);
     if (error_code != 0)
     {
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create radiator") };

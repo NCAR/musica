@@ -12,7 +12,6 @@ endif()
 if (MUSICA_ENABLE_TUVX)
   create_standard_test_fortran(NAME connect_to_tuvx SOURCES tuvx.F90)
   create_standard_test_fortran(NAME tuvx_fortran_api SOURCES ../fetch_content_integration/test_tuvx_api.F90)
-  create_standard_test_fortran(NAME temp_jiwon SOURCES ../fetch_content_integration/temp_radiator.F90)
 
   if (MUSICA_ENABLE_OPENMP)
     create_standard_test_fortran(NAME connect_to_tuvx_openmp SOURCES tuvx_openmp.F90)

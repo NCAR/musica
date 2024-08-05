@@ -51,7 +51,7 @@ module tuvx_interface_radiator_map
     use tuvx_radiator_warehouse, only: radiator_warehouse_t
 
     ! arguments
-    type(c_ptr), intent(in), value :: radiator_map
+    type(c_ptr), value,  intent(in)  :: radiator_map
     integer(kind=c_int), intent(out) :: error_code
 
     ! variables
@@ -72,8 +72,8 @@ end subroutine internal_delete_radiator_map
     use tuvx_radiator_from_host, only: radiator_from_host_t
 
     ! arguments
-    type(c_ptr), intent(in), value :: radiator_map
-    type(c_ptr), intent(in), value :: radiator
+    type(c_ptr), value,  intent(in)  :: radiator_map
+    type(c_ptr), value,  intent(in)  :: radiator
     integer(kind=c_int), intent(out) :: error_code
 
     ! variables
@@ -98,16 +98,16 @@ end subroutine internal_delete_radiator_map
     use tuvx_radiator_from_host, only: radiator_from_host_t
 
     ! arguments
-    type(c_ptr), intent(in), value                          :: radiator_map
+    type(c_ptr),                    value, intent(in) :: radiator_map
     character(len=1, kind=c_char), dimension(*), intent(in) :: c_radiator_name
-    integer(kind=c_size_t), value                           :: c_radiator_name_length
-    integer(kind=c_int), intent(out)                        :: error_code
+    integer(kind=c_size_t),         value, intent(in) :: c_radiator_name_length
+    integer(kind=c_int),                   intent(out) :: error_code
 
     ! variables
-    class(radiator_t), pointer          :: f_radiator
-    class(radiator_t), pointer          :: f_radiator_ptr
+    class(radiator_t),          pointer :: f_radiator
+    class(radiator_t),          pointer :: f_radiator_ptr
     type(radiator_warehouse_t), pointer :: radiator_warehouse
-    character(len=:), allocatable       :: f_radiator_name
+    character(len=:),       allocatable :: f_radiator_name
     integer                             :: i
 
     ! result
@@ -150,8 +150,8 @@ end subroutine internal_delete_radiator_map
     use tuvx_radiator_from_host, only: radiator_from_host_t, radiator_updater_t
 
     ! arguments
-    type(c_ptr), intent(in), value :: radiator_map
-    type(c_ptr), intent(in), value :: radiator
+    type(c_ptr), value,  intent(in)  :: radiator_map
+    type(c_ptr), value,  intent(in)  :: radiator
     integer(kind=c_int), intent(out) :: error_code
 
     ! output
@@ -160,7 +160,7 @@ end subroutine internal_delete_radiator_map
     ! variables
     type(radiator_warehouse_t), pointer :: f_radiator_warehouse
     type(radiator_from_host_t), pointer :: f_radiator
-    type(radiator_updater_t), pointer :: f_updater
+    type(radiator_updater_t),   pointer :: f_updater
 
     call c_f_pointer(radiator_map, f_radiator_warehouse)
     call c_f_pointer(radiator, f_radiator)

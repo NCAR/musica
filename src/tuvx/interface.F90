@@ -24,9 +24,9 @@ contains
     use iso_c_binding, only: c_ptr, c_f_pointer
 
     ! arguments
-    character(kind=c_char), dimension(*), intent(in) :: c_config_path
-    integer(kind=c_size_t), value                    :: config_path_length
-    integer(kind=c_int), intent(out)                 :: error_code
+    character(kind=c_char), dimension(*), intent(in)  :: c_config_path
+    integer(kind=c_size_t), value                     :: config_path_length
+    integer(kind=c_int),                  intent(out) :: error_code
 
     ! local variables
     character(len=:), allocatable :: f_config_path
@@ -58,7 +58,7 @@ contains
     use iso_c_binding, only: c_ptr, c_f_pointer
 
     ! arguments
-    type(c_ptr), value, intent(in)   :: tuvx
+    type(c_ptr), value,  intent(in)  :: tuvx
     integer(kind=c_int), intent(out) :: error_code
 
     ! local variables
@@ -77,14 +77,14 @@ contains
     use iso_c_binding, only: c_ptr, c_f_pointer, c_int
   
     ! arguments
-    type(c_ptr), intent(in), value   :: tuvx
+    type(c_ptr), value,  intent(in)  :: tuvx
     integer(kind=c_int), intent(out) :: error_code
   
     ! result
     type(c_ptr) :: grid_map_ptr
   
     ! variables
-    type(core_t), pointer   :: core
+    type(core_t),           pointer :: core
     type(grid_warehouse_t), pointer :: grid_warehouse
   
     call c_f_pointer(tuvx, core)
@@ -101,14 +101,14 @@ contains
     use iso_c_binding, only: c_ptr, c_f_pointer, c_int
 
     ! arguments
-    type(c_ptr), intent(in), value   :: tuvx
+    type(c_ptr), value,  intent(in)  :: tuvx
     integer(kind=c_int), intent(out) :: error_code
 
     ! result
     type(c_ptr) :: profile_map_ptr
 
     ! variables
-    type(core_t), pointer :: core
+    type(core_t),              pointer :: core
     type(profile_warehouse_t), pointer :: profile_warehouse
 
     call c_f_pointer(tuvx, core)
@@ -125,14 +125,14 @@ contains
     use iso_c_binding, only: c_ptr, c_f_pointer, c_int
 
     ! arguments
-    type(c_ptr), intent(in), value   :: tuvx
+    type(c_ptr), value,  intent(in)  :: tuvx
     integer(kind=c_int), intent(out) :: error_code
 
     ! result
     type(c_ptr) :: radiator_map_ptr
 
     ! variables
-    type(core_t), pointer   :: core
+    type(core_t),               pointer :: core
     type(radiator_warehouse_t), pointer :: radiator_warehouse
 
     call c_f_pointer(tuvx, core)

@@ -118,23 +118,3 @@ if (MUSICA_ENABLE_TUVX)
     ${CMAKE_CURRENT_SOURCE_DIR}/../../../build/_deps/tuvx-src/data ${CMAKE_BINARY_DIR}/data
   )
 endif()
-
-
-# # TODO(jiwon) - just a temp test
-# add_executable(test_jiwon temp_radiator.F90)
-
-# target_link_libraries(test_jiwon
-#   PRIVATE
-#     musica::musica-fortran
-# )
-
-# set_target_properties(test_jiwon
-#   PROPERTIES
-#     LINKER_LANGUAGE Fortran
-# )
-
-# add_test(
-#   NAME test_jiwon
-#   COMMAND $<TARGET_FILE:test_jiwon>
-#   WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-# )
