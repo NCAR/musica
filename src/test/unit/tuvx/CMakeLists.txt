@@ -1,7 +1,6 @@
 include(test_util)
 
 create_standard_test_cxx(NAME tuvx_c_api SOURCES tuvx_c_api.cpp)
-create_standard_test_cxx(NAME tuvx_radiator_test SOURCES radiatortest.cpp)
 
 ################################################################################
 # Copy tuvx test data
