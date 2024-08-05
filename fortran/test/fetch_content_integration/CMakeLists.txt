@@ -90,23 +90,23 @@ endif()
 
 # API Test
 if (MUSICA_ENABLE_TUVX)
-  # add_executable(test_tuvx_fortran_api test_tuvx_api.F90)
+  add_executable(test_tuvx_fortran_api test_tuvx_api.F90)
 
-  # target_link_libraries(test_tuvx_fortran_api
-  #   PRIVATE
-  #     musica::musica-fortran
-  # )
+  target_link_libraries(test_tuvx_fortran_api
+    PRIVATE
+      musica::musica-fortran
+  )
 
-  # set_target_properties(test_tuvx_fortran_api
-  #   PROPERTIES
-  #     LINKER_LANGUAGE Fortran
-  # )
+  set_target_properties(test_tuvx_fortran_api
+    PROPERTIES
+      LINKER_LANGUAGE Fortran
+  )
 
-  # add_test(
-  #   NAME test_tuvx_fortran_api
-  #   COMMAND $<TARGET_FILE:test_tuvx_fortran_api>
-  #   WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-  # )
+  add_test(
+    NAME test_tuvx_fortran_api
+    COMMAND $<TARGET_FILE:test_tuvx_fortran_api>
+    WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+  )
 
   add_custom_target(
     copy_tuvx_examples_dir ALL ${CMAKE_COMMAND} -E copy_directory
@@ -120,21 +120,21 @@ if (MUSICA_ENABLE_TUVX)
 endif()
 
 
-# TODO(jiwon) - just a temp test
-add_executable(test_jiwon temp_radiator.F90)
+# # TODO(jiwon) - just a temp test
+# add_executable(test_jiwon temp_radiator.F90)
 
-target_link_libraries(test_jiwon
-  PRIVATE
-    musica::musica-fortran
-)
+# target_link_libraries(test_jiwon
+#   PRIVATE
+#     musica::musica-fortran
+# )
 
-set_target_properties(test_jiwon
-  PROPERTIES
-    LINKER_LANGUAGE Fortran
-)
+# set_target_properties(test_jiwon
+#   PROPERTIES
+#     LINKER_LANGUAGE Fortran
+# )
 
-add_test(
-  NAME test_jiwon
-  COMMAND $<TARGET_FILE:test_jiwon>
-  WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-)
+# add_test(
+#   NAME test_jiwon
+#   COMMAND $<TARGET_FILE:test_jiwon>
+#   WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+# )

@@ -18,18 +18,18 @@ module musica_tuvx_radiator
         bind(C, name="CreateRadiator")
       use iso_c_binding, only : c_ptr, c_char
       use musica_util, only: error_t_c
-      character(len=1, kind=c_char), intent(in) :: radiator_name(*)
-      type(c_ptr), value, intent(in) :: height_grid
-      type(c_ptr), value, intent(in) :: wavelength_grid
-      type(error_t_c), intent(inout) :: error
+      character(len=1, kind=c_char), intent(in)    :: radiator_name(*)
+      type(c_ptr),            value, intent(in)    :: height_grid
+      type(c_ptr),            value, intent(in)    :: wavelength_grid
+      type(error_t_c),               intent(inout) :: error
       type(c_ptr) :: create_radiator_c
     end function create_radiator_c
 
     subroutine delete_radiator_c(radiator, error) bind(C, name="DeleteRadiator")
       use iso_c_binding, only : c_ptr
       use musica_util, only: error_t_c
-      type(c_ptr), value, intent(in) :: radiator
-      type(error_t_c), intent(inout) :: error
+      type(c_ptr), value, intent(in)    :: radiator
+      type(error_t_c),    intent(inout) :: error
     end subroutine delete_radiator_c
 
     subroutine set_optical_depths_c(radiator, optical_depths, num_vertical_layers, &
@@ -112,15 +112,15 @@ module musica_tuvx_radiator
     procedure :: set_optical_depths
     ! Get radiator optical depths
     procedure :: get_optical_depths
-    ! Set the radiator single scattering albedos
+    ! Set radiator single scattering albedos
     procedure :: set_single_scattering_albedos
-    ! Get the radiator single scattering albedos
+    ! Get radiator single scattering albedos
     procedure :: get_single_scattering_albedos
-    ! Set the radiator asymmetry_factors
+    ! Set radiator asymmetry_factors
     procedure :: set_asymmetry_factors
-    ! Get the radiator asymmetry factors
+    ! Get radiator asymmetry factors
     procedure :: get_asymmetry_factors
-    ! Deallocate the radiator instance
+    ! Deallocate radiator instance
     final :: finalize_radiator_t
   end type radiator_t
 
