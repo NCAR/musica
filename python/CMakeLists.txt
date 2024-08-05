@@ -1,3 +1,5 @@
+SET(CMAKE_OSX_DEPLOYMENT_TARGET 10.15)
+
 pybind11_add_module(musica_python 
   wrapper.cpp
   ${PROJECT_SOURCE_DIR}/src/micm/micm.cpp
