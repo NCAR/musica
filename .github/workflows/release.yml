@@ -48,6 +48,7 @@ jobs:
     - uses: pypa/cibuildwheel@v2.17
       env:
         CIBW_ARCHS_MACOS: auto universal2
+        CIBW_ENVIRONMENT: CXXFLAGS="-mmacosx-version-min=10.15"
         CIBW_SKIP: cp27-* cp34-* cp35-* cp36-*
         CIBW_BUILD: cp37-* cp38-* cp39-* cp310-* cp311-* cp312-*
 
