@@ -331,6 +331,32 @@ TEST(BackwardEulerStandardOrder, SolveUsingStandardOrderedBackwardEuler)
   const char* config_path = "configs/chapman";
   int num_grid_cells = 1;
   Error error;
+
+  MICM* micm = CreateMicm(config_path, MICMSolver::BackwardEulerStandardOrder, num_grid_cells, &error);
+
+  double time_step = 200.0;
+  double temperature = 272.5;
+  double pressure = 101253.3;
+  constexpr double GAS_CONSTANT = 8.31446261815324;  // J mol-1 K-1
+  double air_density = pressure / (GAS_CONSTANT * temperature);
+  int num_concentrations = 5;
+  double concentrations[] = { 0.75, 0.4, 0.8, 0.01, 0.02 };
+  std::size_t num_user_defined_reaction_rates = 3;
+  double user_defined_reaction_rates[] = { 0.1, 0.2, 0.3 };
+  String solver_state;
+  SolverResultStats solver_stats;
+
+  Mapping* ordering = GetUserDefinedReactionRatesOrdering(micm, &num_user_defined_reaction_rates, &error);
+  ASSERT_TRUE(IsSuccess(error));
+
+  /*
+  std::vector<double> custom_rate_parameters(num_user_defined_reaction_rates, 0.0);
+  for (std::size_t i = 0; i < num_user_defined_reaction_rates; i++)
+  {
+    custom_rate_parameters[ordering[i].index_] = 0.0;
+  }
+  */
+
   DeleteError(&error);
 }
 
