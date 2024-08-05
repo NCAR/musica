@@ -10,8 +10,6 @@ target_link_libraries(musica_python PRIVATE nlohmann_json::nlohmann_json)
 
 target_compile_features(musica_python PUBLIC cxx_std_20)
 
-target_compile_options(musica_python PRIVATE -mmacosx-version-min=10.15)
-
 set_target_properties(musica_python PROPERTIES OUTPUT_NAME musica)
 
 target_include_directories(musica_python
