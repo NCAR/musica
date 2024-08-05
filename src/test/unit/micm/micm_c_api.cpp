@@ -325,6 +325,15 @@ TEST(RosenbrockStandardOrder, SolveUsingStandardOrderedRosenbrock)
   DeleteError(&error);
 }
 
+// Test case for solving system using standard-ordered BackwardEuler solver
+TEST(BackwardEulerStandardOrder, SolveUsingStandardOrderedBackwardEuler)
+{
+  const char* config_path = "configs/chapman";
+  int num_grid_cells = 1;
+  Error error;
+  DeleteError(&error);
+}
+
 // Test case for getting species properties
 TEST_F(MicmCApiTest, GetSpeciesProperty)
 {
