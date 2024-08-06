@@ -49,7 +49,6 @@ namespace musica
       delete micm;
       return nullptr;
     }
-
     return micm;
   }
 
@@ -75,12 +74,10 @@ namespace musica
   void MicmSolve(
       MICM *micm,
       double time_step,
-      double temperature,
-      double pressure,
-      double air_density,
-      int num_concentrations,
+      double* temperature,
+      double* pressure,
+      double* air_density,
       double *concentrations,
-      int num_custom_rate_parameters,
       double *custom_rate_parameters,
       String *solver_state,
       SolverResultStats *solver_stats,
@@ -96,9 +93,7 @@ namespace musica
           temperature,
           pressure,
           air_density,
-          num_concentrations,
           concentrations,
-          num_custom_rate_parameters,
           custom_rate_parameters,
           solver_state,
           solver_stats,
@@ -112,9 +107,7 @@ namespace musica
           temperature,
           pressure,
           air_density,
-          num_concentrations,
           concentrations,
-          num_custom_rate_parameters,
           custom_rate_parameters,
           solver_state,
           solver_stats,
@@ -295,12 +288,10 @@ namespace musica
   void MICM::Solve(
       auto &solver,
       double time_step,
-      double temperature,
-      double pressure,
-      double air_density,
-      int num_concentrations,
+      double* temperature,
+      double* pressure,
+      double* air_density,
       double *concentrations,
-      int num_custom_rate_parameters,
       double *custom_rate_parameters,
       String *solver_state,
       SolverResultStats *solver_stats,
@@ -309,18 +300,25 @@ namespace musica
     try
     {
       micm::State state = solver->GetState();
+      const std::size_t num_species = state.variables_.NumColumns();
+      const std::size_t num_custom_rate_parameters = state.custom_rate_parameters_.NumColumns();
 
-      for (int cell{}; cell < num_grid_cells_; cell++)
+      int i_species_elem = 0;
+      int i_param_elem = 0;
+      for (int i_cell{}; i_cell < num_grid_cells_; ++i_cell)
       {
-        state.conditions_[cell].temperature_ = temperature;
-        state.conditions_[cell].pressure_ = pressure;
-        state.conditions_[cell].air_density_ = air_density;
+        state.conditions_[i_cell].temperature_ = temperature[i_cell];
+        state.conditions_[i_cell].pressure_ = pressure[i_cell];
+        state.conditions_[i_cell].air_density_ = air_density[i_cell];
+        for (int i_species{}; i_species < num_species; ++i_species)
+        {
+          state.variables_[i_cell][i_species] = concentrations[i_species_elem++];
+        }
+        for (int i_param{}; i_param < num_custom_rate_parameters; ++i_param)
+        {
+          state.custom_rate_parameters_[i_cell][i_param] = custom_rate_parameters[i_param_elem++];
+        }
       }
-
-      state.variables_.AsVector().assign(concentrations, concentrations + num_concentrations);
-
-      state.custom_rate_parameters_.AsVector().assign(
-          custom_rate_parameters, custom_rate_parameters + num_custom_rate_parameters);
 
       solver->CalculateRateConstants(state);
       auto result = solver->Solve(time_step, state);
@@ -338,9 +336,13 @@ namespace musica
           result.stats_.singular_,
           result.final_time_);
 
-      for (int i = 0; i < state.variables_.AsVector().size(); i++)
+      i_species_elem = 0;
+      for (int i_cell{}; i_cell < num_grid_cells_; ++i_cell)
       {
-        concentrations[i] = state.variables_.AsVector()[i];
+        for (int i_species{}; i_species < num_species; ++i_species)
+        {
+          concentrations[i_species_elem++] = state.variables_[i_cell][i_species];
+        }
       }
 
       DeleteError(error);

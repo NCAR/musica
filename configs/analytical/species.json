@@ -9,6 +9,15 @@
     },
     {
       "name": "C", "type": "CHEM_SPEC"
+    },
+    {
+      "name": "D", "type": "CHEM_SPEC"
+    },
+    {
+      "name": "E", "type": "CHEM_SPEC"
+    },
+    {
+      "name": "F", "type": "CHEM_SPEC"
     }
   ]
 }

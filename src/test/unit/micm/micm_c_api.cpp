@@ -6,6 +6,7 @@
 #include <gtest/gtest.h>
 
 #include <iostream>
+#include <stdlib.h>
 
 using namespace musica;
 
@@ -221,12 +222,10 @@ TEST_F(MicmCApiTest, SolveUsingVectorOrderedRosenbrock)
   MicmSolve(
       micm,
       time_step,
-      temperature,
-      pressure,
-      air_density,
-      num_concentrations,
+      &temperature,
+      &pressure,
+      &air_density,
       concentrations,
-      custom_rate_parameters.size(),
       custom_rate_parameters.data(),
       &solver_state,
       &solver_stats,
@@ -288,12 +287,10 @@ TEST(RosenbrockStandardOrder, SolveUsingStandardOrderedRosenbrock)
   MicmSolve(
       micm,
       time_step,
-      temperature,
-      pressure,
-      air_density,
-      num_concentrations,
+      &temperature,
+      &pressure,
+      &air_density,
       concentrations,
-      custom_rate_parameters.size(),
       custom_rate_parameters.data(),
       &solver_state,
       &solver_stats,
@@ -322,6 +319,165 @@ TEST(RosenbrockStandardOrder, SolveUsingStandardOrderedRosenbrock)
   DeleteString(&solver_state);
   DeleteMicm(micm, &error);
   ASSERT_TRUE(IsSuccess(error));
+  DeleteError(&error);
+}
+
+struct ArrheniusReaction
+{
+  double A_{ 1 };
+  double B_{ 0 };
+  double C_{ 0};
+  double D_{ 300 };
+  double E_{ 0 };
+};
+
+double CalculateArrhenius(const ArrheniusReaction parameters, const double temperature, const double pressure)
+{
+  return parameters.A_ * std::exp(parameters.C_ / temperature) *
+           std::pow(temperature / parameters.D_, parameters.B_) *
+           (1.0 + parameters.E_ * pressure);
+}
+
+// Common test function for solving multiple grid cells
+void TestMultipleGridCells(MICM* micm, const size_t num_grid_cells)
+{
+  const size_t num_concentrations = 6;
+  const size_t num_user_defined_reaction_rates = 2;
+  constexpr double GAS_CONSTANT = 8.31446261815324;  // J mol-1 K-1
+  const double time_step = 200.0; // s
+
+  double temperature[num_grid_cells];
+  double pressure[num_grid_cells];
+  double air_density[num_grid_cells];
+  double concentrations[num_grid_cells * num_concentrations];
+  double initial_concentrations[num_grid_cells * num_concentrations];
+  double user_defined_reaction_rates[num_grid_cells * num_user_defined_reaction_rates];
+
+  Error error;
+  size_t temp_size;
+
+  // Get species indices in concentration array
+  Mapping* species_ordering = GetSpeciesOrdering(micm, &temp_size, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(temp_size, num_concentrations);
+  std::size_t A_index = FindMappingIndex(species_ordering, num_concentrations, "A", &error);
+  ASSERT_TRUE(IsSuccess(error));
+  std::size_t B_index = FindMappingIndex(species_ordering, num_concentrations, "B", &error);
+  ASSERT_TRUE(IsSuccess(error));
+  std::size_t C_index = FindMappingIndex(species_ordering, num_concentrations, "C", &error);
+  ASSERT_TRUE(IsSuccess(error));
+  std::size_t D_index = FindMappingIndex(species_ordering, num_concentrations, "D", &error);
+  ASSERT_TRUE(IsSuccess(error));
+  std::size_t E_index = FindMappingIndex(species_ordering, num_concentrations, "E", &error);
+  ASSERT_TRUE(IsSuccess(error));
+  std::size_t F_index = FindMappingIndex(species_ordering, num_concentrations, "F", &error);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteMappings(species_ordering, num_concentrations);
+
+  // Get user-defined reaction rates indices in user-defined reaction rates array
+  Mapping* rate_ordering = GetUserDefinedReactionRatesOrdering(micm, &temp_size, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(temp_size, num_user_defined_reaction_rates);
+  std::size_t R1_index = FindMappingIndex(rate_ordering, num_user_defined_reaction_rates, "USER.reaction 1", &error);
+  ASSERT_TRUE(IsSuccess(error));
+  std::size_t R2_index = FindMappingIndex(rate_ordering, num_user_defined_reaction_rates, "USER.reaction 2", &error);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteMappings(rate_ordering, num_user_defined_reaction_rates);
+
+  for (int i = 0; i < num_grid_cells; ++i)
+  {
+    temperature[i] = 275.0 + (rand() % 20 - 10);
+    pressure[i] = 101253.3 + (rand() % 1000 - 500);
+    air_density[i] = pressure[i] / (GAS_CONSTANT * temperature[i]);
+    concentrations[i * num_concentrations + A_index] = 0.75 + (rand() % 10 - 5) * 0.01;
+    concentrations[i * num_concentrations + B_index] = 0.0;
+    concentrations[i * num_concentrations + C_index] = 0.4 + (rand() % 10 - 5) * 0.01;
+    concentrations[i * num_concentrations + D_index] = 0.8 + (rand() % 10 - 5) * 0.01;
+    concentrations[i * num_concentrations + E_index] = 0.0;
+    concentrations[i * num_concentrations + F_index] = 0.01 + (rand() % 10 - 5) * 0.01;
+    user_defined_reaction_rates[i * num_user_defined_reaction_rates + R1_index] = 0.001 + (rand() % 10 - 5) * 0.0001;
+    user_defined_reaction_rates[i * num_user_defined_reaction_rates + R2_index] = 0.002 + (rand() % 10 - 5) * 0.0001;
+    for (int j = 0; j < num_concentrations; ++j)
+    {
+      initial_concentrations[i * num_concentrations + j] = concentrations[i * num_concentrations + j];
+    }
+  }
+
+  String solver_state;
+  SolverResultStats solver_stats;
+  MicmSolve(
+      micm,
+      time_step,
+      temperature,
+      pressure,
+      air_density,
+      concentrations,
+      user_defined_reaction_rates,
+      &solver_state,
+      &solver_stats,
+      &error);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteError(&error);
+
+  // Add assertions to check the solved concentrations
+  ArrheniusReaction arr1;
+  arr1.A_ = 0.004;
+  arr1.C_ = 50.0;
+  ArrheniusReaction arr2{ 0.012, -2, 75, 50, 1.0e-6 };
+
+  ASSERT_STREQ(solver_state.value_, "Converged");
+  DeleteString(&solver_state);
+
+  for (int i_cell = 0; i_cell < num_grid_cells; ++i_cell)
+  {
+    double initial_A = initial_concentrations[i_cell * num_concentrations + A_index];
+    double initial_C = initial_concentrations[i_cell * num_concentrations + C_index];
+    double initial_D = initial_concentrations[i_cell * num_concentrations + D_index];
+    double initial_F = initial_concentrations[i_cell * num_concentrations + F_index];
+    double k1 = user_defined_reaction_rates[i_cell * num_user_defined_reaction_rates + R1_index];
+    double k2 = user_defined_reaction_rates[i_cell * num_user_defined_reaction_rates + R2_index];
+    double k3 = CalculateArrhenius(arr1, temperature[i_cell], pressure[i_cell]);
+    double k4 = CalculateArrhenius(arr2, temperature[i_cell], pressure[i_cell]);
+    double A = initial_A * std::exp(-k3 * time_step);
+    double B = initial_A * (k3 / (k4 - k3)) * (std::exp(-k3 * time_step) - std::exp(-k4 * time_step));
+    double C = initial_C + initial_A * (1.0 + (k3 * std::exp(-k4 * time_step) - k4 * std::exp(-k3 * time_step)) / (k4 - k3));
+    double D = initial_D * std::exp(-k1 * time_step);
+    double E = initial_D * (k1 / (k2 - k1)) * (std::exp(-k1 * time_step) - std::exp(-k2 * time_step));
+    double F = initial_F + initial_D * (1.0 + (k1 * std::exp(-k2 * time_step) - k2 * std::exp(-k1 * time_step)) / (k2 - k1));
+    ASSERT_NEAR(concentrations[i_cell * num_concentrations + A_index], A, 5e-3);
+    ASSERT_NEAR(concentrations[i_cell * num_concentrations + B_index], B, 5e-3);
+    ASSERT_NEAR(concentrations[i_cell * num_concentrations + C_index], C, 5e-3);
+    ASSERT_NEAR(concentrations[i_cell * num_concentrations + D_index], D, 5e-3);
+    ASSERT_NEAR(concentrations[i_cell * num_concentrations + E_index], E, 5e-3);
+    ASSERT_NEAR(concentrations[i_cell * num_concentrations + F_index], F, 5e-3);
+  }
+}
+
+// Test case for solving multiple grid cells using vector-ordered Rosenbrock solver
+TEST_F(MicmCApiTest, SolveMultipleGridCellsUsingVectorOrderedRosenbrock)
+{
+  const size_t num_grid_cells = 3;
+  const char* config_path = "configs/analytical";
+  Error error;
+  DeleteMicm(micm, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  micm = CreateMicm(config_path, MICMSolver::Rosenbrock, num_grid_cells, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  TestMultipleGridCells(micm, num_grid_cells);
+  DeleteError(&error);
+}
+
+// Test case for solving multiple grid cells using standard-ordered Rosenbrock solver
+TEST_F(MicmCApiTest, SolveMultipleGridCellsUsingStandardOrderedRosenbrock)
+{
+  const size_t num_grid_cells = 3;
+  const char* config_path = "configs/analytical";
+  Error error;
+  DeleteMicm(micm, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  micm = CreateMicm(config_path, MICMSolver::RosenbrockStandardOrder, num_grid_cells, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  TestMultipleGridCells(micm, num_grid_cells);
   DeleteError(&error);
 }
 
