@@ -8,6 +8,7 @@ pybind11_add_module(musica_python
 )
 
 target_link_libraries(musica_python PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(musica_python PUBLIC musica::musica)
 
 target_compile_features(musica_python PUBLIC cxx_std_20)
 
@@ -23,6 +24,7 @@ target_include_directories(musica_python
 target_include_directories(musica_python
   PUBLIC  
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}h/include/tuvx>
     $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
 )
 
