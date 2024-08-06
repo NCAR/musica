@@ -45,6 +45,7 @@ PYBIND11_MODULE(musica, m)
          py::list concentrations,
          py::object custom_rate_parameters = py::none())
       {
+        std::cout << "Setting concentrations" << std::endl;
         std::vector<double> concentrations_cpp;
         concentrations_cpp.reserve(len(concentrations));
         for (auto item : concentrations)
@@ -52,6 +53,7 @@ PYBIND11_MODULE(musica, m)
           concentrations_cpp.push_back(item.cast<double>());
         }
 
+        std::cout << "Setting custom rate parameters" << std::endl;
         std::vector<double> custom_rate_parameters_cpp;
         if (!custom_rate_parameters.is_none())
         {
@@ -65,6 +67,7 @@ PYBIND11_MODULE(musica, m)
         musica::String solver_state;
         musica::SolverResultStats solver_stats;
         musica::Error error;
+        std::cout << "Solving system" << std::endl;
         musica::MicmSolve(
             micm,
             time_step,
@@ -78,7 +81,14 @@ PYBIND11_MODULE(musica, m)
             &solver_state,
             &solver_stats,
             &error);
+        if (!musica::IsSuccess(error))
+        {
+          std::string message = "Error solving system: " + std::string(error.message_.value_);
+          DeleteError(&error);
+          throw std::runtime_error(message);
+        }
 
+        std::cout << "Updating concentrations" << std::endl;
         // Update the concentrations list after solving
         for (std::size_t i = 0; i < concentrations_cpp.size(); ++i)
         {
