@@ -97,7 +97,7 @@ TEST_F(MicmCApiTest, GetSpeciesOrdering)
   Mapping* species_ordering = GetSpeciesOrdering(micm, &array_size, &error);
   ASSERT_TRUE(IsSuccess(error));
   DeleteError(&error);
-  ASSERT_EQ(array_size, 5);
+  ASSERT_EQ(array_size, 4);
   bool found = false;
   for (std::size_t i = 0; i < array_size; i++)
   {
@@ -122,16 +122,6 @@ TEST_F(MicmCApiTest, GetSpeciesOrdering)
   for (std::size_t i = 0; i < array_size; i++)
   {
     if (strcmp(species_ordering[i].name_.value_, "O2") == 0)
-    {
-      found = true;
-      break;
-    }
-  }
-  ASSERT_TRUE(found);
-  found = false;
-  for (std::size_t i = 0; i < array_size; i++)
-  {
-    if (strcmp(species_ordering[i].name_.value_, "M") == 0)
     {
       found = true;
       break;
@@ -201,8 +191,8 @@ TEST_F(MicmCApiTest, SolveUsingVectorOrderedRosenbrock)
   double pressure = 101253.3;
   constexpr double GAS_CONSTANT = 8.31446261815324;  // J mol-1 K-1
   double air_density = pressure / (GAS_CONSTANT * temperature);
-  int num_concentrations = 5;
-  double concentrations[] = { 0.75, 0.4, 0.8, 0.01, 0.02 };
+  int num_concentrations = 4;
+  double concentrations[] = { 0.4, 0.8, 0.01, 0.02 };
   std::size_t num_user_defined_reaction_rates = 3;
   double user_defined_reaction_rates[] = { 0.1, 0.2, 0.3 };
   String solver_state;
@@ -234,11 +224,10 @@ TEST_F(MicmCApiTest, SolveUsingVectorOrderedRosenbrock)
   ASSERT_TRUE(IsSuccess(error));
 
   // Add assertions to check the solved concentrations
-  ASSERT_EQ(concentrations[0], 0.75);
-  ASSERT_NE(concentrations[1], 0.4);
-  ASSERT_NE(concentrations[2], 0.8);
-  ASSERT_NE(concentrations[3], 0.01);
-  ASSERT_NE(concentrations[4], 0.02);
+  ASSERT_NE(concentrations[0], 0.4);
+  ASSERT_NE(concentrations[1], 0.8);
+  ASSERT_NE(concentrations[2], 0.01);
+  ASSERT_NE(concentrations[3], 0.02);
 
   std::cout << "Solver state: " << solver_state.value_ << std::endl;
   std::cout << "Function Calls: " << solver_stats.function_calls_ << std::endl;
@@ -269,8 +258,8 @@ TEST(RosenbrockStandardOrder, SolveUsingStandardOrderedRosenbrock)
   double pressure = 101253.3;
   constexpr double GAS_CONSTANT = 8.31446261815324;  // J mol-1 K-1
   double air_density = pressure / (GAS_CONSTANT * temperature);
-  int num_concentrations = 5;
-  double concentrations[] = { 0.75, 0.4, 0.8, 0.01, 0.02 };
+  int num_concentrations = 4;
+  double concentrations[] = { 0.4, 0.8, 0.01, 0.02 };
   std::size_t num_user_defined_reaction_rates = 3;
   double user_defined_reaction_rates[] = { 0.1, 0.2, 0.3 };
   String solver_state;
@@ -300,12 +289,10 @@ TEST(RosenbrockStandardOrder, SolveUsingStandardOrderedRosenbrock)
       &error);
   ASSERT_TRUE(IsSuccess(error));
 
-  // Add assertions to check the solved concentrations
-  ASSERT_EQ(concentrations[0], 0.75);
-  ASSERT_NE(concentrations[1], 0.4);
-  ASSERT_NE(concentrations[2], 0.8);
-  ASSERT_NE(concentrations[3], 0.01);
-  ASSERT_NE(concentrations[4], 0.02);
+  ASSERT_NE(concentrations[0], 0.4);
+  ASSERT_NE(concentrations[1], 0.8);
+  ASSERT_NE(concentrations[2], 0.01);
+  ASSERT_NE(concentrations[3], 0.02);
 
   std::cout << "Solver state: " << solver_state.value_ << std::endl;
   std::cout << "Function Calls: " << solver_stats.function_calls_ << std::endl;
