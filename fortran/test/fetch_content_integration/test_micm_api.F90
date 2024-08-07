@@ -23,38 +23,35 @@ contains
 
   subroutine test_api()
 
-    type(string_t)                :: micm_version
-    type(micm_t), pointer         :: micm
-    real(c_double)                :: time_step
-    real(c_double)                :: temperature
-    real(c_double)                :: pressure
-    real(c_double)                :: air_density
-    integer(c_int)                :: num_concentrations, num_user_defined_reaction_rates
-    real(c_double), dimension(5)  :: concentrations 
-    real(c_double), dimension(3)  :: user_defined_reaction_rates 
-    character(len=256)            :: config_path
-    integer(c_int)                :: solver_type
-    integer(c_int)                :: num_grid_cells
-    character(len=:), allocatable :: string_value
-    real(c_double)                :: double_value
-    integer(c_int)                :: int_value
-    logical(c_bool)               :: bool_value
-    type(string_t)                :: solver_state
-    type(solver_stats_t)          :: solver_stats
-    type(error_t)                 :: error
-    real(c_double), parameter     :: GAS_CONSTANT = 8.31446261815324_c_double ! J mol-1 K-1
-    integer                       :: i
+    type(string_t)                       :: micm_version
+    type(micm_t), pointer                :: micm
+    real(c_double)                       :: time_step
+    real(c_double), target               :: temperature(1)
+    real(c_double), target               :: pressure(1)
+    real(c_double), target               :: air_density(1)
+    real(c_double), target, dimension(5) :: concentrations 
+    real(c_double), target, dimension(3) :: user_defined_reaction_rates 
+    character(len=256)                   :: config_path
+    integer(c_int)                       :: solver_type
+    integer(c_int)                       :: num_grid_cells
+    character(len=:), allocatable        :: string_value
+    real(c_double)                       :: double_value
+    integer(c_int)                       :: int_value
+    logical(c_bool)                      :: bool_value
+    type(string_t)                       :: solver_state
+    type(solver_stats_t)                 :: solver_stats
+    type(error_t)                        :: error
+    real(c_double), parameter            :: GAS_CONSTANT = 8.31446261815324_c_double ! J mol-1 K-1
+    integer                              :: i
     
     config_path = "configs/chapman"
     solver_type = Rosenbrock
     num_grid_cells = 1
     time_step = 200
-    temperature = 272.5
-    pressure = 101253.4
-    air_density = pressure / ( GAS_CONSTANT * temperature )
-    num_concentrations = 5
+    temperature(1) = 272.5
+    pressure(1) = 101253.4
+    air_density(:) = pressure(:) / ( GAS_CONSTANT * temperature(:) )
     concentrations = (/ 0.75, 0.4, 0.8, 0.01, 0.02 /)
-    num_user_defined_reaction_rates = 3
     user_defined_reaction_rates = (/ 0.1, 0.2, 0.3 /)
 
     micm_version = get_micm_version()
@@ -78,8 +75,8 @@ contains
     write(*,*) "[test micm fort api] Initial concentrations", concentrations
 
     write(*,*) "[test micm fort api] Solving starts..."
-    call micm%solve(time_step, temperature, pressure,  air_density, num_concentrations, concentrations, &
-        num_user_defined_reaction_rates, user_defined_reaction_rates, solver_state, solver_stats, error)
+    call micm%solve(time_step, temperature, pressure,  air_density, concentrations, &
+        user_defined_reaction_rates, solver_state, solver_stats, error)
     ASSERT( error%is_success() )
 
     write(*,*) "[test micm fort api] After solving, concentrations: ", concentrations
