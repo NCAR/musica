@@ -14,7 +14,6 @@ RUN dnf -y update \
     git \
     hdf5-devel \
     json-devel \
-    lapack-devel \
     lcov \
     libcurl-devel \
     m4 \
@@ -50,6 +49,7 @@ RUN cd musica/fortran/test/fetch_content_integration \
         -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
         -D MUSICA_ENABLE_MICM=ON \
         -D MUSICA_ENABLE_TUVX=OFF \
+        -D MUSICA_ENABLE_MEMCHECK=ON \
     && make -j
 
 WORKDIR musica/fortran/test/fetch_content_integration/build

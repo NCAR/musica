@@ -17,6 +17,8 @@ message (STATUS "CMake build configuration for ${PROJECT_NAME} (${CMAKE_BUILD_TY
 add_library(musica)
 add_library(musica::musica ALIAS musica)
 
+target_compile_definitions(musica PUBLIC MICM_VECTOR_MATRIX_SIZE=${MUSICA_SET_MICM_VECTOR_MATRIX_SIZE})
+
 # set the c++ standard for musica
 target_compile_features(musica PUBLIC cxx_std_20)
 

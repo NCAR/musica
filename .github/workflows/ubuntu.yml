@@ -55,7 +55,7 @@ jobs:
     strategy:
       matrix:
         gcc_version: [12, 13, 14]
-        build_type: [Release]
+        build_type: [Debug, Release]
     env:
       CXX: g++-${{ matrix.gcc_version }}
       CC: gcc-${{ matrix.gcc_version }}

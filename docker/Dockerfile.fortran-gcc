@@ -1,6 +1,6 @@
 FROM fedora:35
 
-ARG BUILD_TYPE=release
+ARG BUILD_TYPE=Release
 
 RUN dnf -y update \
   && dnf -y install \
@@ -13,7 +13,6 @@ RUN dnf -y update \
     git \
     hdf5-devel \
     json-devel \
-    lapack-devel \
     lcov \
     libcurl-devel \
     m4 \
@@ -38,6 +37,7 @@ RUN cd musica \
     && cmake -S . \
              -B build \
              -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+             -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
              -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
              -D MUSICA_ENABLE_MEMCHECK=ON \
     && cd build \

@@ -10,18 +10,20 @@ namespace py = pybind11;
 // Wraps micm.cpp
 PYBIND11_MODULE(musica, m)
 {
-  py::class_<musica::MICM>(m, "MICM")
+  py::class_<musica::MICM>(m, "micm")
       .def(py::init<>())
-      .def("create", &musica::MICM::Create)
-      .def("solve", &musica::MICM::Solve)
       .def("__del__", [](musica::MICM &micm) {});
+
+  py::enum_<musica::MICMSolver>(m, "micmsolver")
+   .value("rosenbrock", musica::MICMSolver::Rosenbrock)
+   .value("rosenbrock_standard_order", musica::MICMSolver::RosenbrockStandardOrder);
 
   m.def(
       "create_solver",
-      [](const char *config_path)
+      [](const char *config_path, musica::MICMSolver solver_type, int num_grid_cells)
       {
         musica::Error error;
-        musica::MICM *micm = musica::CreateMicm(config_path, &error);
+        musica::MICM *micm = musica::CreateMicm(config_path, solver_type, num_grid_cells, &error);
         if (!musica::IsSuccess(error))
         {
           std::string message = "Error creating solver: " + std::string(error.message_.value_);
@@ -76,6 +78,12 @@ PYBIND11_MODULE(musica, m)
             &solver_state,
             &solver_stats,
             &error);
+        if (!musica::IsSuccess(error))
+        {
+          std::string message = "Error solving system: " + std::string(error.message_.value_);
+          DeleteError(&error);
+          throw std::runtime_error(message);
+        }
 
         // Update the concentrations list after solving
         for (std::size_t i = 0; i < concentrations_cpp.size(); ++i)
@@ -90,7 +98,18 @@ PYBIND11_MODULE(musica, m)
       [](musica::MICM *micm)
       {
         musica::Error error;
-        return micm->GetSpeciesOrdering(&error);
+        std::map<std::string, std::size_t> map;
+
+        if (micm->solver_type_ == musica::MICMSolver::Rosenbrock)
+        {
+          map = micm->GetSpeciesOrdering(micm->rosenbrock_, &error);
+        }
+        else if (micm->solver_type_ == musica::MICMSolver::RosenbrockStandardOrder)
+        {
+          map = micm->GetSpeciesOrdering(micm->rosenbrock_standard_, &error);
+        }
+
+        return map;
       },
       "Return map of get_species_ordering rates");
 
@@ -99,7 +118,18 @@ PYBIND11_MODULE(musica, m)
       [](musica::MICM *micm)
       {
         musica::Error error;
-        return micm->GetUserDefinedReactionRatesOrdering(&error);
+        std::map<std::string, std::size_t> map;
+
+        if (micm->solver_type_ == musica::MICMSolver::Rosenbrock)
+        {
+          map = micm->GetUserDefinedReactionRatesOrdering(micm->rosenbrock_, &error);
+        }
+        else if (micm->solver_type_ == musica::MICMSolver::RosenbrockStandardOrder)
+        {
+          map = micm->GetUserDefinedReactionRatesOrdering(micm->rosenbrock_standard_, &error);
+        }
+
+        return map;
       },
       "Return map of reaction rates");
 }

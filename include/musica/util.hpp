@@ -4,8 +4,9 @@
 
 #include <cstddef>
 
-#define MUSICA_ERROR_CATEGORY               "MUSICA Error"
-#define MUSICA_ERROR_CODE_SPECIES_NOT_FOUND 1
+#define MUSICA_ERROR_CATEGORY                   "MUSICA Error"
+#define MUSICA_ERROR_CODE_SPECIES_NOT_FOUND     1
+#define MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND 2
 
 #ifdef __cplusplus
   #include <system_error>

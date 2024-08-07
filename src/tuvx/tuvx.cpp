@@ -3,7 +3,7 @@
 //
 // This file contains the implementation of the TUVX class, which represents a multi-component
 // reactive transport model. It also includes functions for creating and deleting TUVX instances.
-#include <musica/tuvx.hpp>
+#include <musica/tuvx/tuvx.hpp>
 
 #include <cstring>
 #include <filesystem>
@@ -11,6 +11,8 @@
 
 namespace musica
 {
+
+  // TUVX external C API functions
 
   TUVX *CreateTuvx(const char *config_path, Error *error)
   {
@@ -50,53 +52,22 @@ namespace musica
     return tuvx->CreateGridMap(error);
   }
 
-  void DeleteGridMap(GridMap *grid_map, Error *error)
-  {
-    *error = NoError();
-    try
-    {
-      delete grid_map;
-    }
-    catch (const std::system_error &e)
-    {
-      *error = ToError(e);
-    }
-  }
-
-  Grid *GetGrid(GridMap *grid_map, const char *grid_name, const char *grid_units, Error *error)
+  ProfileMap *GetProfileMap(TUVX *tuvx, Error *error)
   {
     DeleteError(error);
-    return grid_map->GetGrid(grid_name, grid_units, error);
+    return tuvx->CreateProfileMap(error);
   }
 
-  void DeleteGrid(Grid *grid, Error *error)
-  {
-    *error = NoError();
-    try
-    {
-      delete grid;
-    }
-    catch (const std::system_error &e)
-    {
-      *error = ToError(e);
-    }
-  }
-
-  void SetEdges(Grid *grid, double edges[], std::size_t num_edges, Error *error)
+  RadiatorMap *GetRadiatorMap(TUVX *tuvx, Error *error)
   {
     DeleteError(error);
-    grid->SetEdges(edges, num_edges, error);
+    return tuvx->CreateRadiatorMap(error);
   }
 
-  void SetMidpoints(Grid *grid, double midpoints[], std::size_t num_midpoints, Error *error)
-  {
-    DeleteError(error);
-    grid->SetMidpoints(midpoints, num_midpoints, error);
-  }
+  // TUVX class functions
 
   TUVX::TUVX()
-      : tuvx_(),
-        grid_map_(nullptr)
+      : tuvx_()
   {
   }
 
@@ -142,94 +113,41 @@ namespace musica
 
   GridMap *TUVX::CreateGridMap(Error *error)
   {
-    int error_code = 0;
-    grid_map_ = std::make_unique<GridMap>(InternalGetGridMap(tuvx_, &error_code));
     *error = NoError();
+    int error_code = 0;
+    GridMap *grid_map = new GridMap(InternalGetGridMap(tuvx_, &error_code));
     if (error_code != 0)
     {
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create grid map") };
       return nullptr;
     }
-    return grid_map_.get();
+    return grid_map;
   }
 
-  GridMap::~GridMap()
+  ProfileMap *TUVX::CreateProfileMap(Error *error)
   {
-    // At the time of writing, the grid map pointer is owned by fortran memory
-    // in the tuvx core and should not be deleted here. It will be deleted when
-    // the tuvx instance is deleted
+    *error = NoError();
     int error_code = 0;
-    grid_map_ = nullptr;
-  }
-
-  Grid *GridMap::GetGrid(const char *grid_name, const char *grid_units, Error *error)
-  {
-    if (grid_map_ == nullptr)
+    ProfileMap *profile_map = new ProfileMap(InternalGetProfileMap(tuvx_, &error_code));
+    if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Grid map is null") };
+      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create profile map") };
       return nullptr;
     }
-
-    int error_code = 0;
-    Grid *grid = nullptr;
-
-    try
-    {
-      *error = NoError();
-
-      grid = new Grid(InternalGetGrid(grid_map_, grid_name, strlen(grid_name), grid_units, strlen(grid_units), &error_code));
-
-      if (error_code != 0)
-      {
-        delete grid;
-        grid = nullptr;
-        *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create grid map") };
-      }
-      else
-      {
-        grids_.push_back(std::unique_ptr<Grid>(grid));
-      }
-    }
-    catch (const std::system_error &e)
-    {
-      *error = ToError(e);
-    }
-    catch (...)
-    {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create grid") };
-    }
-
-    return grid;
+    return profile_map;
   }
 
-  Grid::~Grid()
+  RadiatorMap *TUVX::CreateRadiatorMap(Error *error)
   {
-    int error_code = 0;
-    if (grid_ != nullptr)
-      InternalDeleteGrid(grid_, &error_code);
-    grid_ = nullptr;
-  }
-
-  void Grid::SetEdges(double edges[], std::size_t num_edges, Error *error)
-  {
-    int error_code = 0;
-    InternalSetEdges(grid_, edges, num_edges, &error_code);
     *error = NoError();
+    int error_code = 0;
+    RadiatorMap *radiator_map = new RadiatorMap(InternalGetRadiatorMap(tuvx_, &error_code));
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to set edges") };
+      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create radiator map") };
+      return nullptr;
     }
-  }
-
-  void Grid::SetMidpoints(double midpoints[], std::size_t num_midpoints, Error *error)
-  {
-    int error_code = 0;
-    InternalSetMidpoints(grid_, midpoints, num_midpoints, &error_code);
-    *error = NoError();
-    if (error_code != 0)
-    {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to set midpoints") };
-    }
+    return radiator_map;
   }
 
 }  // namespace musica
