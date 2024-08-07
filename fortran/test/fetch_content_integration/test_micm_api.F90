@@ -30,7 +30,7 @@ contains
     real(c_double)                :: pressure
     real(c_double)                :: air_density
     integer(c_int)                :: num_concentrations, num_user_defined_reaction_rates
-    real(c_double), dimension(5)  :: concentrations 
+    real(c_double), dimension(4)  :: concentrations 
     real(c_double), dimension(3)  :: user_defined_reaction_rates 
     character(len=256)            :: config_path
     integer(c_int)                :: solver_type
@@ -52,8 +52,8 @@ contains
     temperature = 272.5
     pressure = 101253.4
     air_density = pressure / ( GAS_CONSTANT * temperature )
-    num_concentrations = 5
-    concentrations = (/ 0.75, 0.4, 0.8, 0.01, 0.02 /)
+    num_concentrations = 4
+    concentrations = (/ 0.4, 0.8, 0.01, 0.02 /)
     num_user_defined_reaction_rates = 3
     user_defined_reaction_rates = (/ 0.1, 0.2, 0.3 /)
 
