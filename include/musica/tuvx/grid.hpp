@@ -14,9 +14,10 @@ namespace musica
   class Profile;
   class Radiator;
 
-  /// @brief A grid struct used to access grid information in tuvx
-  struct Grid
+  /// @brief A grid class used to access grid information in tuvx
+  class Grid
   {
+   public:
     /// @brief Creates a grid instance
     /// @param grid_name The name of the grid
     /// @param units The units of the grid
