@@ -348,6 +348,7 @@ TEST(BackwardEulerStandardOrder, SolveUsingStandardOrderedBackwardEuler)
 
   Mapping* ordering = GetUserDefinedReactionRatesOrdering(micm, &num_user_defined_reaction_rates, &error);
   ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(num_user_defined_reaction_rates,  3);
 
   /*
   std::vector<double> custom_rate_parameters(num_user_defined_reaction_rates, 0.0);

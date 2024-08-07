@@ -335,6 +335,24 @@ namespace musica
     }
   }
 
+  void MICM::CreateBackwardEulerStandardOrder(const std::string &config_path, Error *error)
+  {
+    try
+    {
+      micm::SolverConfig<> solver_config;
+      solver_config.ReadAndParse(std::filesystem::path(config_path));
+      solver_parameters_ = std::make_unique<micm::SolverParameters>(solver_config.GetSolverParams());
+
+      DeleteError(error);
+      *error = NoError();
+    }
+    catch (const std::system_error &e)
+    {
+      DeleteError(error);
+      *error = ToError(e);
+    }
+  }
+
   void MICM::Solve(
       auto &solver,
       double time_step,
