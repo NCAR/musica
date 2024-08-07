@@ -16,7 +16,6 @@ RUN sudo dnf -y install \
         gcc-c++ \
         gfortran \
         git \
-        lapack-devel \
         lcov \
         make \
         netcdf-fortran-devel \

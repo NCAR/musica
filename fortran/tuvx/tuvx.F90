@@ -2,18 +2,21 @@
 ! SPDX-License-Identifier: Apache-2.0
 !
 module musica_tuvx
-  use iso_c_binding, only: c_ptr, c_null_ptr
-  use musica_tuvx_grid,        only : grid_t
-  use musica_tuvx_grid_map,    only : grid_map_t
-  use musica_tuvx_profile,     only : profile_t
-  use musica_tuvx_profile_map, only : profile_map_t
+  use iso_c_binding,            only: c_ptr, c_null_ptr
+  use musica_tuvx_grid,         only : grid_t
+  use musica_tuvx_grid_map,     only : grid_map_t
+  use musica_tuvx_profile,      only : profile_t
+  use musica_tuvx_profile_map,  only : profile_map_t
+  use musica_tuvx_radiator,     only : radiator_t
+  use musica_tuvx_radiator_map, only : radiator_map_t
 
   implicit none
 
 #define ASSERT( expr ) call assert( expr, __FILE__, __LINE__ )
 
   private
-  public :: tuvx_t, grid_map_t, grid_t, profile_map_t, profile_t
+  public :: tuvx_t, grid_map_t, grid_t, profile_map_t, profile_t, &
+            radiator_map_t, radiator_t
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -45,9 +48,17 @@ module musica_tuvx
       use musica_util, only: error_t_c
       use iso_c_binding, only: c_ptr
       type(c_ptr), value, intent(in) :: tuvx
-      type(error_t_c), intent(inout)  :: error
-      type(c_ptr)                     :: get_profile_map_c
+      type(error_t_c), intent(inout) :: error
+      type(c_ptr)                    :: get_profile_map_c
     end function get_profile_map_c
+
+    function get_radiator_map_c(tuvx, error) bind(C, name="GetRadiatorMap")
+      use musica_util, only: error_t_c
+      use iso_c_binding, only: c_ptr
+      type(c_ptr), value, intent(in) :: tuvx
+      type(error_t_c), intent(inout) :: error
+      type(c_ptr)                    :: get_radiator_map_c
+    end function get_radiator_map_c
   end interface
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -59,6 +70,8 @@ module musica_tuvx
     procedure :: get_grids
     ! Create a profile map
     procedure :: get_profiles
+    ! Create a radiator map
+    procedure :: get_radiators
     ! Deallocate the tuvx instance
     final :: finalize
   end type tuvx_t
@@ -151,6 +164,28 @@ contains
     error = error_t(error_c)
 
   end function get_profiles
+
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  !> Get the radiator map
+  function get_radiators(this, error) result(radiator_map)
+    use musica_util, only: error_t, error_t_c
+
+    ! Arguments
+    class(tuvx_t), intent(inout)  :: this
+    type(error_t), intent(inout)  :: error
+
+    ! Local variables
+    type(error_t_c)               :: error_c
+
+    ! Return value
+    type(radiator_map_t), pointer :: radiator_map
+
+    radiator_map => radiator_map_t(get_radiator_map_c(this%ptr_, error_c))
+    
+    error = error_t(error_c)
+
+  end function get_radiators
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
