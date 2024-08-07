@@ -16,7 +16,7 @@ module musica_tuvx_profile
   interface
     function create_profile_c(profile_name, profile_units, grid, error) &
       bind(C, name="CreateProfile")
-      use iso_c_binding, only: c_ptr, c_char, c_size_t
+      use iso_c_binding, only: c_ptr, c_char
       use musica_util, only: error_t_c
       character(len=1, kind=c_char), intent(in) :: profile_name(*)
       character(len=1, kind=c_char), intent(in) :: profile_units(*)
