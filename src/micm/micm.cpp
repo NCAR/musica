@@ -248,7 +248,8 @@ namespace musica
               micm::ProcessSet,
               micm::LinearSolver<
                   micm::SparseMatrix<double, micm::SparseMatrixVectorOrdering<MICM_VECTOR_MATRIX_SIZE>>,
-                  micm::LuDecomposition>>(micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())
+                  micm::LuDecomposition>,
+              VectorState>(micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())
               .SetSystem(solver_parameters_->system_)
               .SetReactions(solver_parameters_->processes_)
               .SetNumberOfGridCells(num_grid_cells_)

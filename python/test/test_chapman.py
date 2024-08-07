@@ -10,7 +10,7 @@ class TestChapman(unittest.TestCase):
         pressure = 101253.3
         GAS_CONSTANT = 8.31446261815324
         air_density = pressure / (GAS_CONSTANT * temperature)
-        concentrations = [0.75, 0.4, 0.8, 0.01, 0.02]
+        concentrations = [0.4, 0.8, 0.01, 0.02]
 
         solver = musica.create_solver(
             "configs/chapman",
@@ -41,16 +41,15 @@ class TestChapman(unittest.TestCase):
 
         self.assertEqual(
             ordering, {
-                'M': 0, 'O': 2, 'O1D': 1, 'O2': 3, 'O3': 4})
+                'O': 1, 'O1D': 0, 'O2': 2, 'O3': 3})
         self.assertEqual(
             rate_constant_ordering, {
                 'PHOTO.R1': 0, 'PHOTO.R3': 1, 'PHOTO.R5': 2})
 
-        self.assertEqual(concentrations[0], 0.75)
-        self.assertNotEqual(concentrations[1], 0.4)
-        self.assertNotEqual(concentrations[2], 0.8)
-        self.assertNotEqual(concentrations[3], 0.01)
-        self.assertNotEqual(concentrations[4], 0.02)
+        self.assertNotEqual(concentrations[0], 0.4)
+        self.assertNotEqual(concentrations[1], 0.8)
+        self.assertNotEqual(concentrations[2], 0.01)
+        self.assertNotEqual(concentrations[3], 0.02)
 
 
 if __name__ == '__main__':
