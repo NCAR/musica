@@ -394,7 +394,7 @@ void TestMultipleGridCells(MICM* micm, const size_t num_grid_cells)
     concentrations[i * num_concentrations + C_index] = 0.4 + (rand() % 10 - 5) * 0.01;
     concentrations[i * num_concentrations + D_index] = 0.8 + (rand() % 10 - 5) * 0.01;
     concentrations[i * num_concentrations + E_index] = 0.0;
-    concentrations[i * num_concentrations + F_index] = 0.01 + (rand() % 10 - 5) * 0.01;
+    concentrations[i * num_concentrations + F_index] = 0.1 + (rand() % 10 - 5) * 0.01;
     user_defined_reaction_rates[i * num_user_defined_reaction_rates + R1_index] = 0.001 + (rand() % 10 - 5) * 0.0001;
     user_defined_reaction_rates[i * num_user_defined_reaction_rates + R2_index] = 0.002 + (rand() % 10 - 5) * 0.0001;
     for (int j = 0; j < num_concentrations; ++j)
