@@ -317,12 +317,12 @@ void TestMultipleGridCells(MICM* micm, const size_t num_grid_cells)
   constexpr double GAS_CONSTANT = 8.31446261815324;  // J mol-1 K-1
   const double time_step = 200.0; // s
 
-  double temperature[num_grid_cells];
-  double pressure[num_grid_cells];
-  double air_density[num_grid_cells];
-  double concentrations[num_grid_cells * num_concentrations];
-  double initial_concentrations[num_grid_cells * num_concentrations];
-  double user_defined_reaction_rates[num_grid_cells * num_user_defined_reaction_rates];
+  double* temperature = new double[num_grid_cells];
+  double* pressure = new double[num_grid_cells];
+  double* air_density = new double[num_grid_cells];
+  double* concentrations = new double[num_grid_cells * num_concentrations];
+  double* initial_concentrations = new double[num_grid_cells * num_concentrations];
+  double* user_defined_reaction_rates = new double[num_grid_cells * num_user_defined_reaction_rates];
 
   Error error;
   size_t temp_size;
@@ -422,12 +422,18 @@ void TestMultipleGridCells(MICM* micm, const size_t num_grid_cells)
     ASSERT_NEAR(concentrations[i_cell * num_concentrations + E_index], E, 5e-3);
     ASSERT_NEAR(concentrations[i_cell * num_concentrations + F_index], F, 5e-3);
   }
+  delete[] temperature;
+  delete[] pressure;
+  delete[] air_density;
+  delete[] concentrations;
+  delete[] initial_concentrations;
+  delete[] user_defined_reaction_rates;
 }
 
 // Test case for solving multiple grid cells using vector-ordered Rosenbrock solver
 TEST_F(MicmCApiTest, SolveMultipleGridCellsUsingVectorOrderedRosenbrock)
 {
-  const size_t num_grid_cells = 3;
+  constexpr size_t num_grid_cells = 3;
   const char* config_path = "configs/analytical";
   Error error;
   DeleteMicm(micm, &error);
@@ -441,7 +447,7 @@ TEST_F(MicmCApiTest, SolveMultipleGridCellsUsingVectorOrderedRosenbrock)
 // Test case for solving multiple grid cells using standard-ordered Rosenbrock solver
 TEST_F(MicmCApiTest, SolveMultipleGridCellsUsingStandardOrderedRosenbrock)
 {
-  const size_t num_grid_cells = 3;
+  constexpr size_t num_grid_cells = 3;
   const char* config_path = "configs/analytical";
   Error error;
   DeleteMicm(micm, &error);
