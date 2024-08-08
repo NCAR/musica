@@ -258,6 +258,13 @@ namespace musica
     using RosenbrockStandard = micm::Solver<RosenbrockStandardType, micm::State<DenseMatrixStandard, SparseMatrixStandard>>;
     std::unique_ptr<RosenbrockStandard> rosenbrock_standard_;
 
+    /// @brief Returns the number of grid cells
+    /// @return Number of grid cells
+    int NumGridCells() const
+    {
+      return num_grid_cells_;
+    }
+
    private:
     int num_grid_cells_;
     std::unique_ptr<micm::SolverParameters> solver_parameters_;
