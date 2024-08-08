@@ -11,7 +11,7 @@ module musica_util
 
   public :: string_t_c, string_t, error_t_c, error_t, mapping_t_c, mapping_t, &
             to_c_string, to_f_string, assert, copy_mappings, delete_string_c, &
-            create_string_c, musica_rk, musica_dk
+            create_string_c, musica_rk, musica_dk, find_mapping_index
 
   !> Single precision kind
   integer, parameter :: musica_rk = kind(0.0)
@@ -329,6 +329,30 @@ contains
     end do
 
   end function copy_mappings
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  !> Finds the index of a mapping in an array of mappings
+  function find_mapping_index( mappings, name, found ) result( index )
+
+    type(mapping_t),   intent(in)  :: mappings(:)
+    character(len=*),  intent(in)  :: name
+    logical, optional, intent(out) :: found
+    integer :: index
+
+    integer :: i
+
+    index = -1
+    if ( present( found ) ) found = .false.
+    do i = 1, size( mappings )
+      if ( mappings(i)%name() == name ) then
+        index = mappings(i)%index()
+        if ( present( found ) ) found = .true.
+        return
+      end if
+    end do
+
+  end function find_mapping_index
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

@@ -7,6 +7,7 @@
 #define MUSICA_ERROR_CATEGORY                   "MUSICA Error"
 #define MUSICA_ERROR_CODE_SPECIES_NOT_FOUND     1
 #define MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND 2
+#define MUSICA_ERROR_CODE_MAPPING_NOT_FOUND     3
 
 #ifdef __cplusplus
   #include <system_error>
@@ -59,6 +60,14 @@ namespace musica
     /// @param message The message of the Error
     /// @return The Error
     Error ToError(const char* category, int code, const char* message);
+
+    /// @brief Finds the index of a Mapping by name
+    /// @param mappings The array of Mappings
+    /// @param size The size of the array
+    /// @param name The name to search for
+    /// @param error The Error to populate if the Mapping is not found
+    /// @return The index of the Mapping
+    std::size_t FindMappingIndex(const Mapping* mappings, std::size_t size, const char* name, Error* error);
 
     /// @brief Deletes an Error
     /// @param error The Error to delete

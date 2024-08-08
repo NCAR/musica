@@ -144,6 +144,7 @@ contains
     type(mapping_t_c), target :: c_mappings(3)
     type(c_ptr) :: c_mappings_ptr
     type(mapping_t), allocatable :: f_mappings(:)
+    logical :: found
 
     a_c%index_ = 3
     a_c%name_ = create_c_string( "foo" )
@@ -217,6 +218,16 @@ contains
     ASSERT_EQ( f_mappings(2)%name(), "corge" )
     ASSERT_EQ( f_mappings(3)%index(), 56 )
     ASSERT_EQ( f_mappings(3)%name(), "grault" )
+
+    ! find mappings by name
+    ASSERT_EQ( find_mapping_index( f_mappings, "quux"   ), 22 )
+    ASSERT_EQ( find_mapping_index( f_mappings, "corge"  ), 35 )
+    ASSERT_EQ( find_mapping_index( f_mappings, "grault" ), 56 )
+    ASSERT_EQ( find_mapping_index( f_mappings, "foo"    ), -1 )
+    ASSERT_EQ( find_mapping_index( f_mappings, "corge", found ), 35 )
+    ASSERT( found )
+    ASSERT_EQ( find_mapping_index( f_mappings, "foo",   found ), -1 )
+    ASSERT( .not. found )
 
   end subroutine test_mapping_t
 

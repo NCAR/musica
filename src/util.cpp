@@ -89,6 +89,22 @@ namespace musica
     return mapping;
   }
 
+  std::size_t FindMappingIndex(const Mapping* mappings, std::size_t size, const char* name, Error* error)
+  {
+    DeleteError(error);
+    for (std::size_t i = 0; i < size; i++)
+    {
+      if (std::strcmp(mappings[i].name_.value_, name) == 0)
+      {
+        *error = NoError();
+        return mappings[i].index_;
+      }
+    }
+    std::string msg = "Mapping element '" + std::string(name) + "' not found";
+    *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_MAPPING_NOT_FOUND, msg.c_str());
+    return 0;
+  }
+
   void DeleteMapping(Mapping* mapping)
   {
     DeleteString(&(mapping->name_));

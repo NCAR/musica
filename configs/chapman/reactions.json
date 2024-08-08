@@ -14,7 +14,7 @@
                             "yield": 2.0
                         }
                     },
-                    "MUSICA name": "R1"
+                    "MUSICA name": "jO2"
                 },
                 {
                     "type": "ARRHENIUS",
@@ -37,7 +37,7 @@
                         "O": {},
                         "O2": {}
                     },
-                    "MUSICA name": "R3"
+                    "MUSICA name": "jO3->O"
                 },
                 {
                     "type": "ARRHENIUS",
@@ -62,7 +62,7 @@
                         "O1D": {},
                         "O2": {}
                     },
-                    "MUSICA name": "R5"
+                    "MUSICA name": "jO3->O1D"
                 },
                 {
                     "type": "ARRHENIUS",

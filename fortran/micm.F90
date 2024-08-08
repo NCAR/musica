@@ -51,23 +51,21 @@ module musica_micm
       type(error_t_c),    intent(inout) :: error
     end subroutine delete_micm_c
 
-    subroutine micm_solve_c(micm, time_step, temperature, pressure, air_density, num_concentrations, concentrations, &
-                num_user_defined_reaction_rates, user_defined_reaction_rates, solver_state, solver_stats, error) &
+    subroutine micm_solve_c(micm, time_step, temperature, pressure, air_density, concentrations, &
+                user_defined_reaction_rates, solver_state, solver_stats, error) &
                 bind(C, name="MicmSolve")
       use musica_util, only: string_t_c, error_t_c
       import c_ptr, c_double, c_int, solver_stats_t_c
-      type(c_ptr), value, intent(in)         :: micm
-      real(kind=c_double), value, intent(in) :: time_step
-      real(kind=c_double), value, intent(in) :: temperature
-      real(kind=c_double), value, intent(in) :: pressure
-      real(kind=c_double), value, intent(in) :: air_density
-      integer(kind=c_int), value, intent(in) :: num_concentrations
-      real(kind=c_double), intent(inout)     :: concentrations(num_concentrations)
-      integer(kind=c_int), value, intent(in) :: num_user_defined_reaction_rates
-      real(kind=c_double), intent(inout)     :: user_defined_reaction_rates(num_user_defined_reaction_rates)
-      type(string_t_c), intent(out)          :: solver_state
-      type(solver_stats_t_c), intent(out)    :: solver_stats
-      type(error_t_c), intent(inout)         :: error
+      type(c_ptr),         value, intent(in)    :: micm
+      real(kind=c_double), value, intent(in)    :: time_step
+      type(c_ptr),         value, intent(in)    :: temperature
+      type(c_ptr),         value, intent(in)    :: pressure
+      type(c_ptr),         value, intent(in)    :: air_density
+      type(c_ptr),         value, intent(in)    :: concentrations
+      type(c_ptr),         value, intent(in)    :: user_defined_reaction_rates
+      type(string_t_c),           intent(out)   :: solver_state
+      type(solver_stats_t_c),     intent(out)   :: solver_stats
+      type(error_t_c),            intent(inout) :: error
     end subroutine micm_solve_c
 
     function get_micm_version_c() bind(C, name="MicmVersion")
@@ -244,28 +242,35 @@ contains
 
   end function constructor
 
-  subroutine solve(this, time_step, temperature, pressure, air_density, num_concentrations, concentrations, &
-              num_user_defined_reaction_rates, user_defined_reaction_rates, solver_state, solver_stats, error)
+  subroutine solve(this, time_step, temperature, pressure, air_density, concentrations, &
+              user_defined_reaction_rates, solver_state, solver_stats, error)
+    use iso_c_binding, only: c_loc
     use musica_util, only: string_t, string_t_c, error_t_c, error_t
-    class(micm_t)                       :: this
-    real(c_double),       intent(in)    :: time_step
-    real(c_double),       intent(in)    :: temperature
-    real(c_double),       intent(in)    :: pressure
-    real(c_double),       intent(in)    :: air_density
-    integer(c_int),       intent(in)    :: num_concentrations
-    real(c_double),       intent(inout) :: concentrations(*)
-    integer(c_int),       intent(in)    :: num_user_defined_reaction_rates
-    real(c_double),       intent(inout) :: user_defined_reaction_rates(*)
-    type(string_t),       intent(out)   :: solver_state
-    type(solver_stats_t), intent(out)   :: solver_stats
-    type(error_t),        intent(out)   :: error
+    class(micm_t)                         :: this
+    real(c_double),         intent(in)    :: time_step
+    real(c_double), target, intent(in)    :: temperature(:)
+    real(c_double), target, intent(in)    :: pressure(:)
+    real(c_double), target, intent(in)    :: air_density(:)
+    real(c_double), target, intent(inout) :: concentrations(:)
+    real(c_double), target, intent(in)    :: user_defined_reaction_rates(:)
+    type(string_t),         intent(out)   :: solver_state
+    type(solver_stats_t),   intent(out)   :: solver_stats
+    type(error_t),          intent(out)   :: error
 
-    type(string_t_c)                    :: solver_state_c
-    type(solver_stats_t_c)              :: solver_stats_c
-    type(error_t_c)                     :: error_c
+    type(string_t_c)       :: solver_state_c
+    type(solver_stats_t_c) :: solver_stats_c
+    type(error_t_c)        :: error_c
+    type(c_ptr)            :: temperature_c, pressure_c, air_density_c, concentrations_c, &
+                              user_defined_reaction_rates_c
 
-    call micm_solve_c(this%ptr, time_step, temperature, pressure, air_density, num_concentrations, concentrations, &
-          num_user_defined_reaction_rates, user_defined_reaction_rates, solver_state_c, solver_stats_c, error_c)
+    temperature_c    = c_loc(temperature)
+    pressure_c       = c_loc(pressure)
+    air_density_c    = c_loc(air_density)
+    concentrations_c = c_loc(concentrations)
+    user_defined_reaction_rates_c = c_loc(user_defined_reaction_rates)
+    call micm_solve_c(this%ptr, time_step, temperature_c, pressure_c, air_density_c, &
+                      concentrations_c, user_defined_reaction_rates_c, solver_state_c, &
+                      solver_stats_c, error_c)
           
     solver_state = string_t(solver_state_c)
     solver_stats = solver_stats_t(solver_stats_c)
