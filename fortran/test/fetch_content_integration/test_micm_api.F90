@@ -27,7 +27,8 @@ program test_micm_api
   end type ArrheniusReaction
 
   call test_api()
-  call test_multiple_grid_cells()
+  call test_multiple_grid_cell_vector_Rosenbrock()
+  call test_multiple_grid_cell_standard_Rosenbrock()
 
 contains
 
@@ -147,12 +148,13 @@ contains
 
   end subroutine test_api
 
-  subroutine test_multiple_grid_cells()
+  subroutine test_multiple_grid_cells(micm, NUM_GRID_CELLS)
 
-    integer, parameter        :: NUM_GRID_CELLS = 3
+    type(micm_t), pointer, intent(inout) :: micm
+    integer,               intent(in)    :: NUM_GRID_CELLS
+
     integer, parameter        :: NUM_SPECIES = 6
     integer, parameter        :: NUM_USER_DEFINED_REACTION_RATES = 2
-    type(micm_t), pointer     :: micm
     real(c_double)            :: time_step
     real(c_double), target    :: temperature(NUM_GRID_CELLS)
     real(c_double), target    :: pressure(NUM_GRID_CELLS)
@@ -160,7 +162,6 @@ contains
     real(c_double), target    :: concentrations(NUM_GRID_CELLS * NUM_SPECIES)
     real(c_double), target    :: initial_concentrations(NUM_GRID_CELLS * NUM_SPECIES)
     real(c_double), target    :: user_defined_reaction_rates(NUM_GRID_CELLS * NUM_USER_DEFINED_REACTION_RATES)
-    character(len=256)        :: config_path
     type(string_t)            :: solver_state
     type(solver_stats_t)      :: solver_stats
     integer(c_int)            :: solver_type
@@ -176,12 +177,7 @@ contains
     real                      :: temp
     type(ArrheniusReaction)   :: r1, r2
 
-    config_path = "configs/analytical"
-    solver_type = Rosenbrock
     time_step = 200
-
-    micm => micm_t(config_path, solver_type, num_grid_cells, error)
-    ASSERT( error%is_success() )
 
     A_index = find_mapping_index( micm%species_ordering, "A", found )
     ASSERT( found )
@@ -261,8 +257,38 @@ contains
       ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+F_index), F, 5.0e-3)
     end do
 
+  end subroutine test_multiple_grid_cells
+
+  subroutine test_multiple_grid_cell_vector_Rosenbrock()
+
+    type(micm_t), pointer :: micm
+    integer               :: num_grid_cells
+    type(error_t)         :: error
+
+    num_grid_cells = 3
+    micm => micm_t( "configs/analytical", Rosenbrock, num_grid_cells, error )
+    ASSERT( error%is_success() )
+
+    call test_multiple_grid_cells( micm, num_grid_cells )
+
     deallocate( micm )
 
-  end subroutine test_multiple_grid_cells
+  end subroutine test_multiple_grid_cell_vector_Rosenbrock
+
+  subroutine test_multiple_grid_cell_standard_Rosenbrock()
+
+    type(micm_t), pointer :: micm
+    integer               :: num_grid_cells
+    type(error_t)         :: error
+
+    num_grid_cells = 3
+    micm => micm_t( "configs/analytical", RosenbrockStandardOrder, num_grid_cells, error )
+    ASSERT( error%is_success() )
+
+    call test_multiple_grid_cells( micm, num_grid_cells )
+
+    deallocate( micm )
+
+  end subroutine test_multiple_grid_cell_standard_Rosenbrock
 
 end program
