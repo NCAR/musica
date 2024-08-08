@@ -50,7 +50,7 @@ contains
     real(c_double), target               :: temperature(1)
     real(c_double), target               :: pressure(1)
     real(c_double), target               :: air_density(1)
-    real(c_double), target, dimension(5) :: concentrations 
+    real(c_double), target, dimension(4) :: concentrations 
     real(c_double), target, dimension(3) :: user_defined_reaction_rates 
     character(len=256)                   :: config_path
     integer(c_int)                       :: solver_type
@@ -64,23 +64,49 @@ contains
     type(error_t)                        :: error
     real(c_double), parameter            :: GAS_CONSTANT = 8.31446261815324_c_double ! J mol-1 K-1
     integer                              :: i
+    integer                              :: O2_index, O_index, O1D_index, O3_index
+    integer                              :: jO2_index, jO3a_index, jO3b_index
+    logical                              :: found
     
     config_path = "configs/chapman"
     solver_type = Rosenbrock
     num_grid_cells = 1
     time_step = 200
-    temperature(1) = 272.5
-    pressure(1) = 101253.4
-    air_density(:) = pressure(:) / ( GAS_CONSTANT * temperature(:) )
-    concentrations = (/ 0.75, 0.4, 0.8, 0.01, 0.02 /)
-    user_defined_reaction_rates = (/ 0.1, 0.2, 0.3 /)
-
-    micm_version = get_micm_version()
-    print *, "[test micm fort api] MICM version ", micm_version%get_char_array()
 
     write(*,*) "[test micm fort api] Creating MICM solver..."
     micm => micm_t(config_path, solver_type, num_grid_cells, error)
     ASSERT( error%is_success() )
+
+    O2_index = find_mapping_index( micm%species_ordering, "O2", found )
+    ASSERT( found )
+    O_index = find_mapping_index( micm%species_ordering, "O", found )
+    ASSERT( found )
+    O1D_index = find_mapping_index( micm%species_ordering, "O1D", found )
+    ASSERT( found )
+    O3_index = find_mapping_index( micm%species_ordering, "O3", found )
+    ASSERT( found )
+
+    jO2_index = find_mapping_index( micm%user_defined_reaction_rates, "PHOTO.jO2", found )
+    ASSERT( found )
+    jO3a_index = find_mapping_index( micm%user_defined_reaction_rates, "PHOTO.jO3->O", found )
+    ASSERT( found )
+    jO3b_index = find_mapping_index( micm%user_defined_reaction_rates, "PHOTO.jO3->O1D", found )
+    ASSERT( found )
+
+    temperature(1) = 272.5
+    pressure(1) = 101253.4
+    air_density(:) = pressure(:) / ( GAS_CONSTANT * temperature(:) )
+
+    concentrations(O2_index) = 0.75
+    concentrations(O_index) = 0.0
+    concentrations(O1D_index) = 0.0
+    concentrations(O3_index) = 0.0000081
+    user_defined_reaction_rates(jO2_index) = 2.7e-19
+    user_defined_reaction_rates(jO3a_index) = 1.13e-9
+    user_defined_reaction_rates(jO3b_index) = 5.8e-8
+    
+    micm_version = get_micm_version()
+    print *, "[test micm fort api] MICM version ", micm_version%get_char_array()
 
     do i = 1, size( micm%species_ordering )
       associate(the_mapping => micm%species_ordering(i))
@@ -102,6 +128,7 @@ contains
 
     write(*,*) "[test micm fort api] After solving, concentrations: ", concentrations
     write(*,*) "[test micm fort api] Solver state: ", solver_state%get_char_array()
+    ASSERT_EQ( solver_state%get_char_array(), "Converged" )
     write(*,*) "[test micm fort api] Function calls: ", solver_stats%function_calls()
     write(*,*) "[test micm fort api] Jacobian updates: ", solver_stats%jacobian_updates()
     write(*,*) "[test micm fort api] Number of steps: ", solver_stats%number_of_steps()
