@@ -154,21 +154,16 @@ contains
     ASSERT( logical( bool_value ) )
 
     string_value = micm%get_species_property_string( "O3", "missing property", error )
-    ASSERT( error%is_error( MICM_ERROR_CATEGORY_SPECIES, \
-                      MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND ) )
+    ASSERT( error%is_error( MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND ) )
     double_value = micm%get_species_property_double( "O3", "missing property", error )
-    ASSERT( error%is_error( MICM_ERROR_CATEGORY_SPECIES, \
-                      MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND ) )
+    ASSERT( error%is_error( MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND ) )
     int_value = micm%get_species_property_int( "O3", "missing property", error )
-    ASSERT( error%is_error( MICM_ERROR_CATEGORY_SPECIES, \
-                      MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND ) )
+    ASSERT( error%is_error( MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND ) )
     bool_value = micm%get_species_property_bool( "O3", "missing property", error )
-    ASSERT( error%is_error( MICM_ERROR_CATEGORY_SPECIES, \
-                      MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND ) )
+    ASSERT( error%is_error( MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND ) )
     deallocate( micm )
     micm => micm_t( "configs/invalid", solver_type, num_grid_cells, error )
-    ASSERT( error%is_error( MICM_ERROR_CATEGORY_CONFIGURATION, \
-                      MICM_CONFIGURATION_ERROR_CODE_INVALID_FILE_PATH ) )
+    ASSERT( error%is_error( MICM_ERROR_CATEGORY_CONFIGURATION, MICM_CONFIGURATION_ERROR_CODE_INVALID_FILE_PATH ) )
     ASSERT( .not. associated( micm ) )
 
     write(*,*) "[test micm fort api] Finished."

@@ -76,6 +76,8 @@ if (MUSICA_ENABLE_TUVX)
       ${MUSICA_FORTRAN_SRC_DIR}/tuvx/grid_map.F90
       ${MUSICA_FORTRAN_SRC_DIR}/tuvx/profile.F90
       ${MUSICA_FORTRAN_SRC_DIR}/tuvx/profile_map.F90
+      ${MUSICA_FORTRAN_SRC_DIR}/tuvx/radiator.F90
+      ${MUSICA_FORTRAN_SRC_DIR}/tuvx/radiator_map.F90
       ${MUSICA_FORTRAN_SRC_DIR}/tuvx/tuvx.F90
     DESTINATION 
       ${MUSICA_INSTALL_INCLUDE_DIR}/musica/fortran

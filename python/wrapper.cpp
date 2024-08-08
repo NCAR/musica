@@ -132,6 +132,12 @@ PYBIND11_MODULE(musica, m)
             &solver_state,
             &solver_stats,
             &error);
+        if (!musica::IsSuccess(error))
+        {
+          std::string message = "Error solving system: " + std::string(error.message_.value_);
+          DeleteError(&error);
+          throw std::runtime_error(message);
+        }
 
         // Update the concentrations list after solving
         for (std::size_t i = 0; i < concentrations_cpp.size(); ++i)

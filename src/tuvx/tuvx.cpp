@@ -58,6 +58,12 @@ namespace musica
     return tuvx->CreateProfileMap(error);
   }
 
+  RadiatorMap *GetRadiatorMap(TUVX *tuvx, Error *error)
+  {
+    DeleteError(error);
+    return tuvx->CreateRadiatorMap(error);
+  }
+
   // TUVX class functions
 
   TUVX::TUVX()
@@ -129,6 +135,19 @@ namespace musica
       return nullptr;
     }
     return profile_map;
+  }
+
+  RadiatorMap *TUVX::CreateRadiatorMap(Error *error)
+  {
+    *error = NoError();
+    int error_code = 0;
+    RadiatorMap *radiator_map = new RadiatorMap(InternalGetRadiatorMap(tuvx_, &error_code));
+    if (error_code != 0)
+    {
+      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create radiator map") };
+      return nullptr;
+    }
+    return radiator_map;
   }
 
 }  // namespace musica

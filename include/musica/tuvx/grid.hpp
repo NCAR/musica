@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 #pragma once
 
-#include <musica/tuvx/grid.hpp>
 #include <musica/util.hpp>
 
 #include <memory>
@@ -13,10 +12,12 @@ namespace musica
 {
   class GridMap;
   class Profile;
+  class Radiator;
 
-  /// @brief A grid struct used to access grid information in tuvx
-  struct Grid
+  /// @brief A grid class used to access grid information in tuvx
+  class Grid
   {
+   public:
     /// @brief Creates a grid instance
     /// @param grid_name The name of the grid
     /// @param units The units of the grid
@@ -56,6 +57,7 @@ namespace musica
 
     friend class GridMap;
     friend class Profile;
+    friend class Radiator;
 
     /// @brief Wraps an existing grid instance. Used by GridMap
     /// @param updater The updater for the grid
