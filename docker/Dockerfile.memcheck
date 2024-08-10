@@ -9,7 +9,6 @@ RUN dnf -y update \
         gfortran \
         gdb \
         git \
-        lapack-devel \
         lcov \
         make \
         netcdf-fortran-devel \

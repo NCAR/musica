@@ -14,9 +14,10 @@ namespace musica
 {
   class ProfileMap;
 
-  /// @brief A struct used to interact with TUV-x profiles (properties with values on a grid)
-  struct Profile
+  /// @brief A class used to interact with TUV-x profiles (properties with values on a grid)
+  class Profile
   {
+   public:
     /// @brief Creates a profile instance
     /// @param profile_name The name of the profile
     /// @param units The units of the profile

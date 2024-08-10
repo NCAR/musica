@@ -48,3 +48,6 @@ path = "musica/_version.py"
 template = '''
 version = "${version}"
 '''
+
+[tool.cibuildwheel.macos.environment]
+MACOSX_DEPLOYMENT_TARGET = "10.15"

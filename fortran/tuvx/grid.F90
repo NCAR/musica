@@ -82,7 +82,7 @@ module musica_tuvx_grid
     procedure :: set_edges
     ! Get grid edges
     procedure :: get_edges
-    ! Set the grid edges and midpoints
+    ! Set the grid midpoints
     procedure :: set_midpoints
     ! Get the grid midpoints
     procedure :: get_midpoints

@@ -229,6 +229,7 @@ namespace musica
     using RosenbrockVectorType = typename micm::RosenbrockSolverParameters::
         template SolverType<micm::ProcessSet, micm::LinearSolver<SparseMatrixVector, micm::LuDecomposition>>;
     using Rosenbrock = micm::Solver<RosenbrockVectorType, micm::State<DenseMatrixVector, SparseMatrixVector>>;
+    using VectorState = micm::State<DenseMatrixVector, SparseMatrixVector>;
     std::unique_ptr<Rosenbrock> rosenbrock_;
 
     using BackwardEulerVectorType = typename micm::BackwardEulerSolverParameters::
@@ -243,6 +244,7 @@ namespace musica
     using RosenbrockStandardType = typename micm::RosenbrockSolverParameters::
         template SolverType<micm::ProcessSet, micm::LinearSolver<SparseMatrixStandard, micm::LuDecomposition>>;
     using RosenbrockStandard = micm::Solver<RosenbrockStandardType, micm::State<DenseMatrixStandard, SparseMatrixStandard>>;
+    using StandardState = micm::State<DenseMatrixStandard, SparseMatrixStandard>;
     std::unique_ptr<RosenbrockStandard> rosenbrock_standard_;
 
     using BackwardEulerStandardType = typename micm::BackwardEulerSolverParameters::
