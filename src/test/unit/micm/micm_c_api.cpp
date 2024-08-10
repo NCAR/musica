@@ -266,10 +266,10 @@ TEST_F(MicmCApiTest, SolveUsingVectorOrderedBackwardEuler)
   String solver_state;
   SolverResultStats solver_stats;
 
-  // Mapping* ordering = GetUserDefinedReactionRatesOrdering(micm, &num_user_defined_reaction_rates, &error);
-  // ASSERT_TRUE(IsSuccess(error));
+  Mapping* ordering = GetUserDefinedReactionRatesOrdering(micm, &num_user_defined_reaction_rates, &error);
+  ASSERT_TRUE(IsSuccess(error));
 
-  // ASSERT_EQ(num_user_defined_reaction_rates,  3);
+  ASSERT_EQ(num_user_defined_reaction_rates,  3);
 
 }
 
@@ -361,10 +361,10 @@ TEST(BackwardEulerStandardOrder, SolveUsingStandardOrderedBackwardEuler)
   String solver_state;
   SolverResultStats solver_stats;
 
-  // Mapping* ordering = GetUserDefinedReactionRatesOrdering(micm, &num_user_defined_reaction_rates, &error);
-  // ASSERT_TRUE(IsSuccess(error));
+  Mapping* ordering = GetUserDefinedReactionRatesOrdering(micm, &num_user_defined_reaction_rates, &error);
+  ASSERT_TRUE(IsSuccess(error));
 
-  // ASSERT_EQ(num_user_defined_reaction_rates,  3);
+  ASSERT_EQ(num_user_defined_reaction_rates,  3);
 
   /*
   std::vector<double> custom_rate_parameters(num_user_defined_reaction_rates, 0.0);
