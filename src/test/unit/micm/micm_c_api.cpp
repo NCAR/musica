@@ -271,6 +271,17 @@ TEST_F(MicmCApiTest, SolveUsingVectorOrderedBackwardEuler)
 
   ASSERT_EQ(num_user_defined_reaction_rates,  3);
 
+  std::vector<double> custom_rate_parameters(num_user_defined_reaction_rates, 0.0);
+  for (std::size_t i = 0; i < num_user_defined_reaction_rates; i++)
+  {
+    custom_rate_parameters[ordering[i].index_] = 0.0;
+  }
+
+  DeleteMappings(ordering, num_user_defined_reaction_rates);
+  DeleteString(&solver_state);
+  DeleteMicm(micm, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteError(&error);
 }
 
 // Test case for solving system using standard-ordered Rosenbrock solver
@@ -366,14 +377,16 @@ TEST(BackwardEulerStandardOrder, SolveUsingStandardOrderedBackwardEuler)
 
   ASSERT_EQ(num_user_defined_reaction_rates,  3);
 
-  /*
   std::vector<double> custom_rate_parameters(num_user_defined_reaction_rates, 0.0);
   for (std::size_t i = 0; i < num_user_defined_reaction_rates; i++)
   {
     custom_rate_parameters[ordering[i].index_] = 0.0;
   }
-  */
 
+  DeleteMappings(ordering, num_user_defined_reaction_rates);
+  DeleteString(&solver_state);
+  DeleteMicm(micm, &error);
+  ASSERT_TRUE(IsSuccess(error));
   DeleteError(&error);
 }
 
