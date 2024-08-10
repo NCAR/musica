@@ -284,6 +284,7 @@ namespace musica
       solver_config.ReadAndParse(std::filesystem::path(config_path));
       solver_parameters_ = std::make_unique<micm::SolverParameters>(solver_config.GetSolverParams());
 
+      /*
       backward_euler_ = std::make_unique<BackwardEuler>(
           micm::SolverBuilder<
               micm::BackwardEulerSolverParameters,
@@ -298,6 +299,7 @@ namespace musica
               .SetNumberOfGridCells(num_grid_cells_)
               .SetIgnoreUnusedSpecies(true)
               .Build());
+      */
 
       DeleteError(error);
       *error = NoError();
