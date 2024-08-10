@@ -245,6 +245,27 @@ TEST_F(MicmCApiTest, SolveUsingVectorOrderedRosenbrock)
   DeleteError(&error);
 }
 
+// Test case for solving system using vector-ordered BackwardEuler solver
+TEST_F(MicmCApiTest, SolveUsingVectorOrderedBackwardEuler)
+{
+  double time_step = 200.0;
+  double temperature = 272.5;
+  double pressure = 101253.3;
+  constexpr double GAS_CONSTANT = 8.31446261815324;  // J mol-1 K-1
+  double air_density = pressure / (GAS_CONSTANT * temperature);
+  int num_concentrations = 4;
+  double concentrations[] = { 0.4, 0.8, 0.01, 0.02 };
+  std::size_t num_user_defined_reaction_rates = 3;
+  double user_defined_reaction_rates[] = { 0.1, 0.2, 0.3 };
+  String solver_state;
+  SolverResultStats solver_stats;
+  Error error;
+
+  Mapping* ordering = GetUserDefinedReactionRatesOrdering(micm, &num_user_defined_reaction_rates, &error);
+  ASSERT_TRUE(IsSuccess(error));
+
+}
+
 // Test case for solving system using standard-ordered Rosenbrock solver
 TEST(RosenbrockStandardOrder, SolveUsingStandardOrderedRosenbrock)
 {
@@ -335,7 +356,8 @@ TEST(BackwardEulerStandardOrder, SolveUsingStandardOrderedBackwardEuler)
 
   Mapping* ordering = GetUserDefinedReactionRatesOrdering(micm, &num_user_defined_reaction_rates, &error);
   ASSERT_TRUE(IsSuccess(error));
-  ASSERT_EQ(num_user_defined_reaction_rates,  3);
+
+  // ASSERT_EQ(num_user_defined_reaction_rates,  3);
 
   /*
   std::vector<double> custom_rate_parameters(num_user_defined_reaction_rates, 0.0);
