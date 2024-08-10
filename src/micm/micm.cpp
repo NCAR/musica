@@ -46,6 +46,7 @@ namespace musica
     else if (solver_type == MICMSolver::BackwardEulerStandardOrder)
     {
       micm->SetSolverType(MICMSolver::BackwardEulerStandardOrder);
+      micm->CreateBackwardEulerStandardOrder(std::string(config_path), error);
     }
     else
     {
@@ -147,9 +148,17 @@ namespace musica
     {
       map = micm->GetSpeciesOrdering(micm->rosenbrock_, error);
     }
+    else if (micm->solver_type_ == MICMSolver::BackwardEuler)
+    {
+      map = micm->GetSpeciesOrdering(micm->backward_euler_, error);
+    }
     else if (micm->solver_type_ == MICMSolver::RosenbrockStandardOrder)
     {
       map = micm->GetSpeciesOrdering(micm->rosenbrock_standard_, error);
+    }
+    else if (micm->solver_type_ == MICMSolver::BackwardEulerStandardOrder)
+    {
+      map = micm->GetSpeciesOrdering(micm->backward_euler_standard_, error);
     }
     if (!IsSuccess(*error))
     {
@@ -181,9 +190,17 @@ namespace musica
     {
       map = micm->GetUserDefinedReactionRatesOrdering(micm->rosenbrock_, error);
     }
+    if (micm->solver_type_ == MICMSolver::BackwardEuler)
+    {
+      map = micm->GetUserDefinedReactionRatesOrdering(micm->backward_euler_, error);
+    }
     else if (micm->solver_type_ == MICMSolver::RosenbrockStandardOrder)
     {
       map = micm->GetUserDefinedReactionRatesOrdering(micm->rosenbrock_standard_, error);
+    }
+    else if (micm->solver_type_ == MICMSolver::BackwardEulerStandardOrder)
+    {
+      map = micm->GetUserDefinedReactionRatesOrdering(micm->backward_euler_standard_, error);
     }
     if (!IsSuccess(*error))
     {
