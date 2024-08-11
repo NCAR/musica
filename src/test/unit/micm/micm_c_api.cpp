@@ -277,6 +277,21 @@ TEST_F(MicmCApiTest, SolveUsingVectorOrderedBackwardEuler)
     custom_rate_parameters[ordering[i].index_] = 0.0;
   }
 
+  MicmSolve(
+      micm,
+      time_step,
+      temperature,
+      pressure,
+      air_density,
+      num_concentrations,
+      concentrations,
+      custom_rate_parameters.size(),
+      custom_rate_parameters.data(),
+      &solver_state,
+      &solver_stats,
+      &error);
+  ASSERT_TRUE(IsSuccess(error));
+
   DeleteMappings(ordering, num_user_defined_reaction_rates);
   DeleteString(&solver_state);
   DeleteMicm(micm, &error);
@@ -382,6 +397,21 @@ TEST(BackwardEulerStandardOrder, SolveUsingStandardOrderedBackwardEuler)
   {
     custom_rate_parameters[ordering[i].index_] = 0.0;
   }
+
+  MicmSolve(
+      micm,
+      time_step,
+      temperature,
+      pressure,
+      air_density,
+      num_concentrations,
+      concentrations,
+      custom_rate_parameters.size(),
+      custom_rate_parameters.data(),
+      &solver_state,
+      &solver_stats,
+      &error);
+  ASSERT_TRUE(IsSuccess(error));
 
   DeleteMappings(ordering, num_user_defined_reaction_rates);
   DeleteString(&solver_state);
