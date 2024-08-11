@@ -115,10 +115,42 @@ namespace musica
           solver_stats,
           error);
     }
+    else if (micm->solver_type_ == MICMSolver::BackwardEuler)
+    {
+      micm->Solve(
+          micm->backward_euler_,
+          time_step,
+          temperature,
+          pressure,
+          air_density,
+          num_concentrations,
+          concentrations,
+          num_custom_rate_parameters,
+          custom_rate_parameters,
+          solver_state,
+          solver_stats,
+          error);
+    }
     else if (micm->solver_type_ == MICMSolver::RosenbrockStandardOrder)
     {
       micm->Solve(
           micm->rosenbrock_standard_,
+          time_step,
+          temperature,
+          pressure,
+          air_density,
+          num_concentrations,
+          concentrations,
+          num_custom_rate_parameters,
+          custom_rate_parameters,
+          solver_state,
+          solver_stats,
+          error);
+    }
+    else if (micm->solver_type_ == MICMSolver::BackwardEulerStandardOrder)
+    {
+      micm->Solve(
+          micm->backward_euler_standard_,
           time_step,
           temperature,
           pressure,
