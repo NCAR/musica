@@ -292,6 +292,23 @@ TEST_F(MicmCApiTest, SolveUsingVectorOrderedBackwardEuler)
       &error);
   ASSERT_TRUE(IsSuccess(error));
 
+  // Add assertions to check the solved concentrations
+  ASSERT_NE(concentrations[0], 0.4);
+  ASSERT_NE(concentrations[1], 0.8);
+  ASSERT_NE(concentrations[2], 0.01);
+  ASSERT_NE(concentrations[3], 0.02);
+
+  std::cout << "Solver state: " << solver_state.value_ << std::endl;
+  std::cout << "Function Calls: " << solver_stats.function_calls_ << std::endl;
+  std::cout << "Jacobian updates: " << solver_stats.jacobian_updates_ << std::endl;
+  std::cout << "Number of steps: " << solver_stats.number_of_steps_ << std::endl;
+  std::cout << "Accepted: " << solver_stats.accepted_ << std::endl;
+  std::cout << "Rejected: " << solver_stats.rejected_ << std::endl;
+  std::cout << "Decompositions: " << solver_stats.decompositions_ << std::endl;
+  std::cout << "Solves: " << solver_stats.solves_ << std::endl;
+  std::cout << "Singular: " << solver_stats.singular_ << std::endl;
+  std::cout << "Final time: " << solver_stats.final_time_ << std::endl;
+
   DeleteMappings(ordering, num_user_defined_reaction_rates);
   DeleteString(&solver_state);
   DeleteMicm(micm, &error);
@@ -412,6 +429,23 @@ TEST(BackwardEulerStandardOrder, SolveUsingStandardOrderedBackwardEuler)
       &solver_stats,
       &error);
   ASSERT_TRUE(IsSuccess(error));
+
+  // Add assertions to check the solved concentrations
+  ASSERT_NE(concentrations[0], 0.4);
+  ASSERT_NE(concentrations[1], 0.8);
+  ASSERT_NE(concentrations[2], 0.01);
+  ASSERT_NE(concentrations[3], 0.02);
+
+  std::cout << "Solver state: " << solver_state.value_ << std::endl;
+  std::cout << "Function Calls: " << solver_stats.function_calls_ << std::endl;
+  std::cout << "Jacobian updates: " << solver_stats.jacobian_updates_ << std::endl;
+  std::cout << "Number of steps: " << solver_stats.number_of_steps_ << std::endl;
+  std::cout << "Accepted: " << solver_stats.accepted_ << std::endl;
+  std::cout << "Rejected: " << solver_stats.rejected_ << std::endl;
+  std::cout << "Decompositions: " << solver_stats.decompositions_ << std::endl;
+  std::cout << "Solves: " << solver_stats.solves_ << std::endl;
+  std::cout << "Singular: " << solver_stats.singular_ << std::endl;
+  std::cout << "Final time: " << solver_stats.final_time_ << std::endl;
 
   DeleteMappings(ordering, num_user_defined_reaction_rates);
   DeleteString(&solver_state);
