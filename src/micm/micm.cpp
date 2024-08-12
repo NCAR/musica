@@ -8,6 +8,7 @@
 #include <musica/util.hpp>
 
 #include <micm/solver/rosenbrock_solver_parameters.hpp>
+#include <micm/solver/backward_euler_solver_parameters.hpp>
 #include <micm/solver/solver_builder.hpp>
 #include <micm/system/species.hpp>
 #include <micm/version.hpp>
@@ -32,10 +33,20 @@ namespace musica
       micm->SetSolverType(MICMSolver::Rosenbrock);
       micm->CreateRosenbrock(std::string(config_path), error);
     }
+    else if (solver_type == MICMSolver::BackwardEuler)
+    {
+      micm->SetSolverType(MICMSolver::BackwardEuler);
+      micm->CreateBackwardEuler(std::string(config_path), error);
+    }
     else if (solver_type == MICMSolver::RosenbrockStandardOrder)
     {
       micm->SetSolverType(MICMSolver::RosenbrockStandardOrder);
       micm->CreateRosenbrockStandardOrder(std::string(config_path), error);
+    }
+    else if (solver_type == MICMSolver::BackwardEulerStandardOrder)
+    {
+      micm->SetSolverType(MICMSolver::BackwardEulerStandardOrder);
+      micm->CreateBackwardEulerStandardOrder(std::string(config_path), error);
     }
     else
     {
@@ -104,10 +115,42 @@ namespace musica
           solver_stats,
           error);
     }
+    else if (micm->solver_type_ == MICMSolver::BackwardEuler)
+    {
+      micm->Solve(
+          micm->backward_euler_,
+          time_step,
+          temperature,
+          pressure,
+          air_density,
+          num_concentrations,
+          concentrations,
+          num_custom_rate_parameters,
+          custom_rate_parameters,
+          solver_state,
+          solver_stats,
+          error);
+    }
     else if (micm->solver_type_ == MICMSolver::RosenbrockStandardOrder)
     {
       micm->Solve(
           micm->rosenbrock_standard_,
+          time_step,
+          temperature,
+          pressure,
+          air_density,
+          num_concentrations,
+          concentrations,
+          num_custom_rate_parameters,
+          custom_rate_parameters,
+          solver_state,
+          solver_stats,
+          error);
+    }
+    else if (micm->solver_type_ == MICMSolver::BackwardEulerStandardOrder)
+    {
+      micm->Solve(
+          micm->backward_euler_standard_,
           time_step,
           temperature,
           pressure,
@@ -137,9 +180,17 @@ namespace musica
     {
       map = micm->GetSpeciesOrdering(micm->rosenbrock_, error);
     }
+    else if (micm->solver_type_ == MICMSolver::BackwardEuler)
+    {
+      map = micm->GetSpeciesOrdering(micm->backward_euler_, error);
+    }
     else if (micm->solver_type_ == MICMSolver::RosenbrockStandardOrder)
     {
       map = micm->GetSpeciesOrdering(micm->rosenbrock_standard_, error);
+    }
+    else if (micm->solver_type_ == MICMSolver::BackwardEulerStandardOrder)
+    {
+      map = micm->GetSpeciesOrdering(micm->backward_euler_standard_, error);
     }
     if (!IsSuccess(*error))
     {
@@ -171,9 +222,17 @@ namespace musica
     {
       map = micm->GetUserDefinedReactionRatesOrdering(micm->rosenbrock_, error);
     }
+    if (micm->solver_type_ == MICMSolver::BackwardEuler)
+    {
+      map = micm->GetUserDefinedReactionRatesOrdering(micm->backward_euler_, error);
+    }
     else if (micm->solver_type_ == MICMSolver::RosenbrockStandardOrder)
     {
       map = micm->GetUserDefinedReactionRatesOrdering(micm->rosenbrock_standard_, error);
+    }
+    else if (micm->solver_type_ == MICMSolver::BackwardEulerStandardOrder)
+    {
+      map = micm->GetUserDefinedReactionRatesOrdering(micm->backward_euler_standard_, error);
     }
     if (!IsSuccess(*error))
     {
@@ -266,6 +325,40 @@ namespace musica
     }
   }
 
+  void MICM::CreateBackwardEuler(const std::string &config_path, Error *error)
+  {
+    try
+    {
+      micm::SolverConfig<> solver_config;
+      solver_config.ReadAndParse(std::filesystem::path(config_path));
+      solver_parameters_ = std::make_unique<micm::SolverParameters>(solver_config.GetSolverParams());
+
+      backward_euler_ = std::make_unique<BackwardEuler>(
+          micm::SolverBuilder<
+              micm::BackwardEulerSolverParameters,
+              micm::VectorMatrix<double, MICM_VECTOR_MATRIX_SIZE>,
+              micm::SparseMatrix<double, micm::SparseMatrixVectorOrdering<MICM_VECTOR_MATRIX_SIZE>>,
+              micm::ProcessSet,
+              micm::LinearSolver<
+                  micm::SparseMatrix<double, micm::SparseMatrixVectorOrdering<MICM_VECTOR_MATRIX_SIZE>>,
+                  micm::LuDecomposition>,
+              VectorState>(micm::BackwardEulerSolverParameters())
+              .SetSystem(solver_parameters_->system_)
+              .SetReactions(solver_parameters_->processes_)
+              .SetNumberOfGridCells(num_grid_cells_)
+              .SetIgnoreUnusedSpecies(true)
+              .Build());
+
+      DeleteError(error);
+      *error = NoError();
+    }
+    catch (const std::system_error &e)
+    {
+      DeleteError(error);
+      *error = ToError(e);
+    }
+  }
+
   void MICM::CreateRosenbrockStandardOrder(const std::string &config_path, Error *error)
   {
     try
@@ -277,6 +370,33 @@ namespace musica
       rosenbrock_standard_ =
           std::make_unique<RosenbrockStandard>(micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
                                                    micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())
+                                                   .SetSystem(solver_parameters_->system_)
+                                                   .SetReactions(solver_parameters_->processes_)
+                                                   .SetNumberOfGridCells(num_grid_cells_)
+                                                   .SetIgnoreUnusedSpecies(true)
+                                                   .Build());
+
+      DeleteError(error);
+      *error = NoError();
+    }
+    catch (const std::system_error &e)
+    {
+      DeleteError(error);
+      *error = ToError(e);
+    }
+  }
+
+  void MICM::CreateBackwardEulerStandardOrder(const std::string &config_path, Error *error)
+  {
+    try
+    {
+      micm::SolverConfig<> solver_config;
+      solver_config.ReadAndParse(std::filesystem::path(config_path));
+      solver_parameters_ = std::make_unique<micm::SolverParameters>(solver_config.GetSolverParams());
+
+      backward_euler_standard_ =
+          std::make_unique<BackwardEulerStandard>(micm::CpuSolverBuilder<micm::BackwardEulerSolverParameters>(
+                                                   micm::BackwardEulerSolverParameters())
                                                    .SetSystem(solver_parameters_->system_)
                                                    .SetReactions(solver_parameters_->processes_)
                                                    .SetNumberOfGridCells(num_grid_cells_)
