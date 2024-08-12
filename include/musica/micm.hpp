@@ -249,7 +249,8 @@ namespace musica
 
     using BackwardEulerStandardType = typename micm::BackwardEulerSolverParameters::
         template SolverType<micm::ProcessSet, micm::LinearSolver<SparseMatrixStandard, micm::LuDecomposition>>;
-    using BackwardEulerStandard = micm::Solver<BackwardEulerStandardType, micm::State<DenseMatrixStandard, SparseMatrixStandard>>;
+    using BackwardEulerStandard =
+        micm::Solver<BackwardEulerStandardType, micm::State<DenseMatrixStandard, SparseMatrixStandard>>;
     std::unique_ptr<BackwardEulerStandard> backward_euler_standard_;
 
    private:

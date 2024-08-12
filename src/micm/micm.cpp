@@ -7,8 +7,8 @@
 #include <musica/micm.hpp>
 #include <musica/util.hpp>
 
-#include <micm/solver/rosenbrock_solver_parameters.hpp>
 #include <micm/solver/backward_euler_solver_parameters.hpp>
+#include <micm/solver/rosenbrock_solver_parameters.hpp>
 #include <micm/solver/solver_builder.hpp>
 #include <micm/system/species.hpp>
 #include <micm/version.hpp>
@@ -394,14 +394,13 @@ namespace musica
       solver_config.ReadAndParse(std::filesystem::path(config_path));
       solver_parameters_ = std::make_unique<micm::SolverParameters>(solver_config.GetSolverParams());
 
-      backward_euler_standard_ =
-          std::make_unique<BackwardEulerStandard>(micm::CpuSolverBuilder<micm::BackwardEulerSolverParameters>(
-                                                   micm::BackwardEulerSolverParameters())
-                                                   .SetSystem(solver_parameters_->system_)
-                                                   .SetReactions(solver_parameters_->processes_)
-                                                   .SetNumberOfGridCells(num_grid_cells_)
-                                                   .SetIgnoreUnusedSpecies(true)
-                                                   .Build());
+      backward_euler_standard_ = std::make_unique<BackwardEulerStandard>(
+          micm::CpuSolverBuilder<micm::BackwardEulerSolverParameters>(micm::BackwardEulerSolverParameters())
+              .SetSystem(solver_parameters_->system_)
+              .SetReactions(solver_parameters_->processes_)
+              .SetNumberOfGridCells(num_grid_cells_)
+              .SetIgnoreUnusedSpecies(true)
+              .Build());
 
       DeleteError(error);
       *error = NoError();
