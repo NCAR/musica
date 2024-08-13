@@ -218,9 +218,11 @@ void TestSingleGridCell(MICM* micm)
   ASSERT_EQ(temp_size, num_user_defined_reaction_rates);
   std::size_t jO2_index = FindMappingIndex(reaction_rates_ordering, num_user_defined_reaction_rates, "PHOTO.jO2", &error);
   ASSERT_TRUE(IsSuccess(error));
-  std::size_t jO3_O_index = FindMappingIndex(reaction_rates_ordering, num_user_defined_reaction_rates, "PHOTO.jO3->O", &error);
+  std::size_t jO3_O_index =
+      FindMappingIndex(reaction_rates_ordering, num_user_defined_reaction_rates, "PHOTO.jO3->O", &error);
   ASSERT_TRUE(IsSuccess(error));
-  std::size_t jO3_O1D_index = FindMappingIndex(reaction_rates_ordering, num_user_defined_reaction_rates, "PHOTO.jO3->O1D", &error);
+  std::size_t jO3_O1D_index =
+      FindMappingIndex(reaction_rates_ordering, num_user_defined_reaction_rates, "PHOTO.jO3->O1D", &error);
   ASSERT_TRUE(IsSuccess(error));
   DeleteMappings(reaction_rates_ordering, num_user_defined_reaction_rates);
 
@@ -234,7 +236,7 @@ void TestSingleGridCell(MICM* micm)
   user_defined_reaction_rates[jO2_index] = 2.7e-19;
   user_defined_reaction_rates[jO3_O_index] = 1.13e-9;
   user_defined_reaction_rates[jO3_O1D_index] = 5.8e-8;
-  
+
   String solver_state;
   SolverResultStats solver_stats;
   MicmSolve(
@@ -297,16 +299,15 @@ struct ArrheniusReaction
 {
   double A_{ 1 };
   double B_{ 0 };
-  double C_{ 0};
+  double C_{ 0 };
   double D_{ 300 };
   double E_{ 0 };
 };
 
 double CalculateArrhenius(const ArrheniusReaction parameters, const double temperature, const double pressure)
 {
-  return parameters.A_ * std::exp(parameters.C_ / temperature) *
-           std::pow(temperature / parameters.D_, parameters.B_) *
-           (1.0 + parameters.E_ * pressure);
+  return parameters.A_ * std::exp(parameters.C_ / temperature) * std::pow(temperature / parameters.D_, parameters.B_) *
+         (1.0 + parameters.E_ * pressure);
 }
 
 // Common test function for solving multiple grid cells
@@ -315,7 +316,7 @@ void TestMultipleGridCells(MICM* micm, const size_t num_grid_cells)
   const size_t num_concentrations = 6;
   const size_t num_user_defined_reaction_rates = 2;
   constexpr double GAS_CONSTANT = 8.31446261815324;  // J mol-1 K-1
-  const double time_step = 200.0; // s
+  const double time_step = 200.0;                    // s
 
   double* temperature = new double[num_grid_cells];
   double* pressure = new double[num_grid_cells];
