@@ -107,23 +107,59 @@ namespace musica
     /// @param num_grid_cells Number of grid cells
     /// @param error Error struct to indicate success or failure
     MICM *CreateMicm(const char *config_path, MICMSolver solver_type, int num_grid_cells, Error *error);
+
+    /// @brief Deletes a MICM object
+    /// @param micm Pointer to MICM object
+    /// @param error Error struct to indicate success or failure
     void DeleteMicm(const MICM *micm, Error *error);
+
+    /// @brief Solve the system
+    /// @param micm Pointer to MICM object
+    /// @param time_step Time [s] to advance the state by
+    /// @param temperature Temperature [grid cell] (K)
+    /// @param pressure Pressure [grid cell] (Pa)
+    /// @param air_density Air density [grid cell] (mol m-3)
+    /// @param concentrations Array of species' concentrations [grid cell][species] (mol m-3)
+    /// @param custom_rate_parameters Array of custom rate parameters [grid cell][parameter] (various units)
+    /// @param solver_state State of the solver
+    /// @param solver_stats Statistics of the solver
+    /// @param error Error struct to indicate success or failure
     void MicmSolve(
         MICM *micm,
         double time_step,
-        double temperature,
-        double pressure,
-        double air_density,
-        int num_concentrations,
+        double *temperature,
+        double *pressure,
+        double *air_density,
         double *concentrations,
-        int num_custom_rate_parameters,
         double *custom_rate_parameters,
         String *solver_state,
         SolverResultStats *solver_stats,
         Error *error);
+
+    /// @brief Get the MICM version
+    /// @return MICM version
     String MicmVersion();
+
+    /// @brief Get the ordering of species
+    /// @param micm Pointer to MICM object
+    /// @param array_size Size of the array
+    /// @param error Error struct to indicate success or failure
+    /// @return Array of species' name-index pairs
     Mapping *GetSpeciesOrdering(MICM *micm, std::size_t *array_size, Error *error);
+
+    /// @brief Get the ordering of user-defined reaction rates
+    /// @param micm Pointer to MICM object
+    /// @param array_size Size of the array
+    /// @param error Error struct to indicate success or failure
+    /// @return Array of reaction rate name-index pairs
     Mapping *GetUserDefinedReactionRatesOrdering(MICM *micm, std::size_t *array_size, Error *error);
+
+    /// @brief Get a property for a chemical species
+    /// @param micm Pointer to MICM object
+    /// @param species_name Name of the species
+    /// @param property_name Name of the property
+    /// @param error Error struct to indicate success or failure
+    /// @return Value of the property
     String GetSpeciesPropertyString(MICM *micm, const char *species_name, const char *property_name, Error *error);
     double GetSpeciesPropertyDouble(MICM *micm, const char *species_name, const char *property_name, Error *error);
     int GetSpeciesPropertyInt(MICM *micm, const char *species_name, const char *property_name, Error *error);
@@ -148,23 +184,19 @@ namespace musica
     /// @brief Solve the system
     /// @param solver Pointer to solver
     /// @param time_step Time [s] to advance the state by
-    /// @param temperature Temperature [K]
-    /// @param pressure Pressure [Pa]
-    /// @param air_density Air density [mol m-3]
-    /// @param num_concentrations The size of the concentrations array
-    /// @param concentrations Array of species' concentrations
-    /// @param num_custom_rate_parameters The size of the custom_rate_parameters array
-    /// @param custom_rate_parameters Array of custom rate parameters
+    /// @param temperature Temperature [grid cell] (K)
+    /// @param pressure Pressure [grid cell] (Pa)
+    /// @param air_density Air density [grid cell] (mol m-3)
+    /// @param concentrations Array of species' concentrations [grid cell][species] (mol m-3)
+    /// @param custom_rate_parameters Array of custom rate parameters [grid cell][parameter] (various units)
     /// @param error Error struct to indicate success or failure
     void Solve(
         auto &solver,
         double time_step,
-        double temperature,
-        double pressure,
-        double air_density,
-        int num_concentrations,
+        double* temperature,
+        double* pressure,
+        double* air_density,
         double *concentrations,
-        int num_custom_rate_parameters,
         double *custom_rate_parameters,
         String *solver_state,
         SolverResultStats *solver_stats,
@@ -227,6 +259,13 @@ namespace musica
     using RosenbrockStandard = micm::Solver<RosenbrockStandardType, micm::State<DenseMatrixStandard, SparseMatrixStandard>>;
     using StandardState = micm::State<DenseMatrixStandard, SparseMatrixStandard>;
     std::unique_ptr<RosenbrockStandard> rosenbrock_standard_;
+
+    /// @brief Returns the number of grid cells
+    /// @return Number of grid cells
+    int NumGridCells() const
+    {
+      return num_grid_cells_;
+    }
 
    private:
     int num_grid_cells_;
