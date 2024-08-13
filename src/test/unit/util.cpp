@@ -1,6 +1,7 @@
 // Copyright (C) 2023-2024 National Center for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 #include <musica/util.hpp>
+
 #include <gtest/gtest.h>
 
 using namespace musica;
@@ -72,7 +73,7 @@ TEST(Util, ToMapping)
 
 TEST(Util, FindMappingIndex)
 {
-  Mapping mappings[] = {ToMapping("Test", 1), ToMapping("Test2", 4), ToMapping("Test3", 9)};
+  Mapping mappings[] = { ToMapping("Test", 1), ToMapping("Test2", 4), ToMapping("Test3", 9) };
   Error error = NoError();
   EXPECT_EQ(FindMappingIndex(mappings, 3, "Test", &error), 1);
   EXPECT_TRUE(IsSuccess(error));

@@ -193,9 +193,9 @@ namespace musica
     void Solve(
         auto &solver,
         double time_step,
-        double* temperature,
-        double* pressure,
-        double* air_density,
+        double *temperature,
+        double *pressure,
+        double *air_density,
         double *concentrations,
         double *custom_rate_parameters,
         String *solver_state,
