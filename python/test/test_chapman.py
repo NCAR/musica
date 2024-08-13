@@ -15,7 +15,7 @@ class TestChapman(unittest.TestCase):
             "configs/chapman",
             musica.micmsolver.rosenbrock,
             num_grid_cells)
-        
+
         rate_constant_ordering = musica.user_defined_reaction_rates(solver)
         species_ordering = musica.species_ordering(solver)
 
@@ -51,10 +51,13 @@ class TestChapman(unittest.TestCase):
             ordered_concentrations,
             ordered_rate_constants)
 
-        self.assertAlmostEqual(ordered_concentrations[species_ordering["O2"]], 0.75, places=5)
+        self.assertAlmostEqual(
+            ordered_concentrations[species_ordering["O2"]], 0.75, places=5)
         self.assertGreater(ordered_concentrations[species_ordering["O"]], 0.0)
-        self.assertGreater(ordered_concentrations[species_ordering["O1D"]], 0.0)
-        self.assertNotEqual(ordered_concentrations[species_ordering["O3"]], 0.0000081)
+        self.assertGreater(
+            ordered_concentrations[species_ordering["O1D"]], 0.0)
+        self.assertNotEqual(
+            ordered_concentrations[species_ordering["O3"]], 0.0000081)
 
 
 if __name__ == '__main__':
