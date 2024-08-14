@@ -44,6 +44,11 @@ target_sources(musica
     ${CMAKE_BINARY_DIR}/version.cpp
 )
 
+target_link_libraries(musica
+  PUBLIC
+    yaml-cpp
+)
+
 target_compile_definitions(musica PUBLIC ${musica_compile_definitions})
 
 set_target_properties(musica PROPERTIES

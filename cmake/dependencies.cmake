@@ -20,6 +20,17 @@ if (MUSICA_BUILD_FORTRAN_INTERFACE)
   pkg_check_modules(netcdfc IMPORTED_TARGET REQUIRED netcdf)
 endif()
 
+# ##############################################################################
+# yaml-cpp
+
+FetchContent_Declare(
+  yaml-cpp
+  GIT_REPOSITORY https://github.com/jbeder/yaml-cpp/
+  GIT_TAG 0.8.0
+  GIT_PROGRESS NOT
+  ${FETCHCONTENT_QUIET})
+FetchContent_MakeAvailable(yaml-cpp)
+
 ################################################################################
 # google test
 if(MUSICA_ENABLE_TESTS)

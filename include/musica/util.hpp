@@ -8,15 +8,18 @@
 #define MUSICA_ERROR_CODE_SPECIES_NOT_FOUND     1
 #define MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND 2
 #define MUSICA_ERROR_CODE_MAPPING_NOT_FOUND     3
+#define MUSICA_ERROR_CODE_PARSING_FAILED        4
 
 #ifdef __cplusplus
   #include <system_error>
+  #include <yaml-cpp/yaml.h>
 
 namespace musica
 {
 
   extern "C"
   {
+    typedef YAML::Node Yaml;
 #endif
 
     /// @brief A struct to represent a string
@@ -34,11 +37,32 @@ namespace musica
       String message_;
     };
 
+    /// @brief A set of configuration data
+    struct Configuration
+    {
+      Yaml* data_;
+    };
+
     /// @brief A struct to represent a mapping between a string and an index
     struct Mapping
     {
       String name_;
       std::size_t index_;
+    };
+
+    /// @brief A struct to represent the mapping between indices in two arrays
+    struct IndexMapping
+    {
+      std::size_t source_;
+      std::size_t target_;
+      double scale_factor_ = 1.0; // Scaling factor applied to the source data
+    };
+
+    /// @brief A struct to represent an array of IndexMappings
+    struct IndexMappings
+    {
+      IndexMapping* mappings_;
+      std::size_t size_;
     };
 
     /// @brief Casts a char* to a String
@@ -61,6 +85,18 @@ namespace musica
     /// @return The Error
     Error ToError(const char* category, int code, const char* message);
 
+    /// @brief Loads a set of configuration data from a string
+    /// @param data The string to load
+    /// @param error The Error to populate if the data cannot be loaded
+    /// @return The Configuration
+    Configuration LoadConfigurationFromString(const char* data, Error* error);
+
+    /// @brief Loads a set of configuration data from a file
+    /// @param filename The file to load
+    /// @param error The Error to populate if the data cannot be loaded
+    /// @return The Configuration
+    Configuration LoadConfigurationFromFile(const char* filename, Error* error);
+
     /// @brief Finds the index of a Mapping by name
     /// @param mappings The array of Mappings
     /// @param size The size of the array
@@ -69,9 +105,29 @@ namespace musica
     /// @return The index of the Mapping
     std::size_t FindMappingIndex(const Mapping* mappings, std::size_t size, const char* name, Error* error);
 
+    /// @brief Creates a set of index mappings
+    /// @param configuration The Configuration containing the mappings
+    /// @param source The source array of name-index Mappings
+    /// @param source_size The size of the source array
+    /// @param target The target array of name-index Mappings
+    /// @param target_size The size of the target array
+    /// @param error The Error to populate if a Mapping is not found
+    /// @return The array of IndexMappings
+    IndexMappings CreateIndexMappings(Configuration configuration, const Mapping* source, std::size_t source_size, const Mapping* target, std::size_t target_size, Error* error);
+
+    /// @brief Copies data from one array to another using IndexMappings
+    /// @param mappings The array of IndexMappings
+    /// @param source The source array
+    /// @param target The target array
+    void CopyData(const IndexMappings mappings, const double* source, double* target);
+
     /// @brief Deletes an Error
     /// @param error The Error to delete
     void DeleteError(Error* error);
+
+    /// @brief Deletes a Configuration
+    /// @param config The Configuration to delete
+    void DeleteConfiguration(Configuration* config);
 
     /// @brief Deletes a Mapping
     /// @param mapping The Mapping to delete
@@ -81,6 +137,14 @@ namespace musica
     /// @param mappings The array of Mappings to delete
     /// @param size The size of the array
     void DeleteMappings(Mapping* mappings, std::size_t size);
+
+    /// @brief Deletes an IndexMapping
+    /// @param mapping The IndexMapping to delete
+    void DeleteIndexMapping(IndexMapping* mapping);
+
+    /// @brief Deletes an array of IndexMappings
+    /// @param mappings The array of IndexMappings to delete
+    void DeleteIndexMappings(IndexMappings mappings);
 
 #ifdef __cplusplus
   }
