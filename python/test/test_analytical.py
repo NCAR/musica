@@ -174,14 +174,14 @@ def TestMultipleGridCell(self, solver, num_grid_cells):
     initial_D = num_grid_cells * [0.0]
     initial_F = num_grid_cells * [0.0]
     for i in range(num_grid_cells):
-        initial_A[i] = initial_concentrations[i * \
-            len(concentrations.keys()) + species_ordering["A"]]
-        initial_C[i] = initial_concentrations[i * \
-            len(concentrations.keys()) + species_ordering["C"]]
-        initial_D[i] = initial_concentrations[i * \
-            len(concentrations.keys()) + species_ordering["D"]]
-        initial_F[i] = initial_concentrations[i * \
-            len(concentrations.keys()) + species_ordering["F"]]
+        initial_A[i] = initial_concentrations[i *
+                                              len(concentrations.keys()) + species_ordering["A"]]
+        initial_C[i] = initial_concentrations[i *
+                                              len(concentrations.keys()) + species_ordering["C"]]
+        initial_D[i] = initial_concentrations[i *
+                                              len(concentrations.keys()) + species_ordering["D"]]
+        initial_F[i] = initial_concentrations[i *
+                                              len(concentrations.keys()) + species_ordering["F"]]
 
     k1 = num_grid_cells * [0.0]
     k2 = num_grid_cells * [0.0]
