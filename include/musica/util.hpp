@@ -50,6 +50,13 @@ namespace musica
       std::size_t index_;
     };
 
+    /// @brief A struct to represent an array of Mappings
+    struct Mappings
+    {
+      Mapping* mappings_;
+      std::size_t size_;
+    };
+
     /// @brief A struct to represent the mapping between indices in two arrays
     struct IndexMapping
     {
@@ -99,21 +106,18 @@ namespace musica
 
     /// @brief Finds the index of a Mapping by name
     /// @param mappings The array of Mappings
-    /// @param size The size of the array
     /// @param name The name to search for
     /// @param error The Error to populate if the Mapping is not found
     /// @return The index of the Mapping
-    std::size_t FindMappingIndex(const Mapping* mappings, std::size_t size, const char* name, Error* error);
+    std::size_t FindMappingIndex(const Mappings mappings, const char* name, Error* error);
 
     /// @brief Creates a set of index mappings
     /// @param configuration The Configuration containing the mappings
     /// @param source The source array of name-index Mappings
-    /// @param source_size The size of the source array
     /// @param target The target array of name-index Mappings
-    /// @param target_size The size of the target array
     /// @param error The Error to populate if a Mapping is not found
     /// @return The array of IndexMappings
-    IndexMappings CreateIndexMappings(Configuration configuration, const Mapping* source, std::size_t source_size, const Mapping* target, std::size_t target_size, Error* error);
+    IndexMappings CreateIndexMappings(Configuration configuration, const Mappings source, const Mappings target, Error* error);
 
     /// @brief Copies data from one array to another using IndexMappings
     /// @param mappings The array of IndexMappings
@@ -135,8 +139,7 @@ namespace musica
 
     /// @brief Deletes an array of Mappings
     /// @param mappings The array of Mappings to delete
-    /// @param size The size of the array
-    void DeleteMappings(Mapping* mappings, std::size_t size);
+    void DeleteMappings(Mappings mappings);
 
     /// @brief Deletes an IndexMapping
     /// @param mapping The IndexMapping to delete

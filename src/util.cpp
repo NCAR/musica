@@ -136,15 +136,15 @@ namespace musica
     return mapping;
   }
 
-  std::size_t FindMappingIndex(const Mapping* mappings, std::size_t size, const char* name, Error* error)
+  std::size_t FindMappingIndex(const Mappings mappings, const char* name, Error* error)
   {
     DeleteError(error);
-    for (std::size_t i = 0; i < size; i++)
+    for (std::size_t i = 0; i < mappings.size_; i++)
     {
-      if (std::strcmp(mappings[i].name_.value_, name) == 0)
+      if (std::strcmp(mappings.mappings_[i].name_.value_, name) == 0)
       {
         *error = NoError();
-        return mappings[i].index_;
+        return mappings.mappings_[i].index_;
       }
     }
     std::string msg = "Mapping element '" + std::string(name) + "' not found";
@@ -157,16 +157,16 @@ namespace musica
     DeleteString(&(mapping->name_));
   }
 
-  void DeleteMappings(Mapping* mappings, std::size_t size)
+  void DeleteMappings(Mappings mappings)
   {
-    for (std::size_t i = 0; i < size; i++)
+    for (std::size_t i = 0; i < mappings.size_; i++)
     {
-      DeleteMapping(&(mappings[i]));
+      DeleteMapping(&(mappings.mappings_[i]));
     }
-    delete[] mappings;
+    delete[] mappings.mappings_;
   }
 
-  IndexMappings CreateIndexMappings(Configuration configuration, const Mapping* source, std::size_t source_size, const Mapping* target, std::size_t target_size, Error* error)
+  IndexMappings CreateIndexMappings(Configuration configuration, const Mappings source, const Mappings target, Error* error)
   {
     DeleteError(error);
     std::size_t size = configuration.data_->size();
@@ -178,13 +178,13 @@ namespace musica
       const YAML::Node& node = (*configuration.data_)[i];
       const char* source_name = node["source"].as<std::string>().c_str();
       const char* target_name = node["target"].as<std::string>().c_str();
-      std::size_t source_index = FindMappingIndex(source, source_size, source_name, error);
+      std::size_t source_index = FindMappingIndex(source, source_name, error);
       if (!IsSuccess(*error))
       {
         DeleteIndexMappings(index_mappings);
         return index_mappings;
       }
-      std::size_t target_index = FindMappingIndex(target, target_size, target_name, error);
+      std::size_t target_index = FindMappingIndex(target, target_name, error);
       if (!IsSuccess(*error))
       {
         DeleteIndexMappings(index_mappings);

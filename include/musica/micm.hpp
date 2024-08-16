@@ -142,17 +142,15 @@ namespace musica
 
     /// @brief Get the ordering of species
     /// @param micm Pointer to MICM object
-    /// @param array_size Size of the array
     /// @param error Error struct to indicate success or failure
     /// @return Array of species' name-index pairs
-    Mapping *GetSpeciesOrdering(MICM *micm, std::size_t *array_size, Error *error);
+    Mappings GetSpeciesOrdering(MICM *micm, Error *error);
 
     /// @brief Get the ordering of user-defined reaction rates
     /// @param micm Pointer to MICM object
-    /// @param array_size Size of the array
     /// @param error Error struct to indicate success or failure
     /// @return Array of reaction rate name-index pairs
-    Mapping *GetUserDefinedReactionRatesOrdering(MICM *micm, std::size_t *array_size, Error *error);
+    Mappings GetUserDefinedReactionRatesOrdering(MICM *micm, Error *error);
 
     /// @brief Get a property for a chemical species
     /// @param micm Pointer to MICM object

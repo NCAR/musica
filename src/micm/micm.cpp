@@ -120,7 +120,7 @@ namespace musica
     return CreateString(micm::GetMicmVersion());
   }
 
-  Mapping *GetSpeciesOrdering(MICM *micm, std::size_t *array_size, Error *error)
+  Mappings GetSpeciesOrdering(MICM *micm, Error *error)
   {
     DeleteError(error);
 
@@ -136,25 +136,25 @@ namespace musica
     }
     if (!IsSuccess(*error))
     {
-      return nullptr;
+      return Mappings();
     }
 
-    Mapping *species_ordering = new Mapping[map.size()];
+    Mappings species_ordering;
+    species_ordering.mappings_ = new Mapping[map.size()];
+    species_ordering.size_ = map.size();
 
     // Copy data from the map to the array of structs
     std::size_t i = 0;
     for (const auto &entry : map)
     {
-      species_ordering[i] = ToMapping(entry.first.c_str(), entry.second);
+      species_ordering.mappings_[i] = ToMapping(entry.first.c_str(), entry.second);
       ++i;
     }
 
-    // Set the size of the array
-    *array_size = map.size();
     return species_ordering;
   }
 
-  Mapping *GetUserDefinedReactionRatesOrdering(MICM *micm, std::size_t *array_size, Error *error)
+  Mappings GetUserDefinedReactionRatesOrdering(MICM *micm, Error *error)
   {
     DeleteError(error);
 
@@ -170,22 +170,22 @@ namespace musica
     }
     if (!IsSuccess(*error))
     {
-      return nullptr;
+      return Mappings();
     }
 
-    Mapping *reactionRates = new Mapping[map.size()];
+    Mappings reaction_rates;
+    reaction_rates.mappings_ = new Mapping[map.size()];
+    reaction_rates.size_ = map.size();
 
     // Copy data from the map to the array of structs
     std::size_t i = 0;
     for (const auto &entry : map)
     {
-      reactionRates[i] = ToMapping(entry.first.c_str(), entry.second);
+      reaction_rates.mappings_[i] = ToMapping(entry.first.c_str(), entry.second);
       ++i;
     }
 
-    // Set the size of the array
-    *array_size = map.size();
-    return reactionRates;
+    return reaction_rates;
   }
 
   String GetSpeciesPropertyString(MICM *micm, const char *species_name, const char *property_name, Error *error)

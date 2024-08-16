@@ -9,7 +9,8 @@ module musica_util
   implicit none
   private
 
-  public :: string_t_c, string_t, error_t_c, error_t, mapping_t_c, mapping_t, &
+  public :: string_t_c, string_t, error_t_c, error_t, configuration_t, &
+            mapping_t_c, mapping_t, index_mapping_t, index_mappings_t, &
             to_c_string, to_f_string, assert, copy_mappings, delete_string_c, &
             create_string_c, musica_rk, musica_dk, find_mapping_index
 
@@ -68,6 +69,21 @@ module musica_util
     module procedure error_t_constructor
   end interface error_t
 
+  !> Wrapper for a c configuration
+  type, bind(c) :: configuration_t_c
+    type(c_ptr) :: data_ = c_null_ptr
+  end type configuration_t_c
+
+  !> Configuration type
+  type :: configuration_t
+  private
+    type(configuration_t_c) :: configuration_c_
+  contains
+    procedure :: load_from_string => configuration_load_from_string
+    procedure :: load_from_file => configuration_load_from_file
+    final :: configuration_finalize
+  end type configuration_t
+
   !> Wrapper for a c name-to-index mapping
   !!
   !! Index is 0-based for use in C
@@ -94,6 +110,30 @@ module musica_util
     module procedure mapping_constructor
   end interface mapping_t
 
+  !> Array of name-to-index mappings
+  type :: mappings_t
+    type(mapping_t_c), allocatable :: mappings(:)
+  end type mappings_t
+
+  !> Wrapper for a c index-to-index mapping array
+  type, bind(c) :: index_mappings_t_c
+    type(c_ptr) :: mappings_
+    integer(c_size_t) :: size_
+  end type index_mappings_t_c
+
+  !> Array of index-to-index mappings
+  type :: index_mappings_t
+  private
+    type(index_mappings_t_c) :: mappings_c_
+  contains
+    procedure :: copy_data
+    final :: index_mappings_finalize
+  end type index_mappings_t
+
+  interface index_mappings_t
+    module procedure index_mappings_constructor
+  end interface index_mappings_t
+
   interface
     function create_string_c( string ) bind(c, name="CreateString")
       import :: string_t_c, c_char
@@ -104,6 +144,40 @@ module musica_util
       import :: string_t_c
       type(string_t_c), intent(inout) :: string
     end subroutine delete_string_c
+    function load_configuration_from_string_c( string ) bind(c, name="LoadConfigurationFromString")
+      import :: configuration_t_c
+      character(kind=c_char, len=1), intent(in) :: string(*)
+      type(configuration_t_c) :: load_configuration_from_string_c
+    end function load_configuration_from_string_c
+    function load_configuration_from_file_c( file ) bind(c, name="LoadConfigurationFromFile")
+      import :: configuration_t_c
+      character(kind=c_char, len=1), intent(in) :: file(*)
+      type(configuration_t_c) :: load_configuration_from_file_c
+    end function load_configuration_from_file_c
+    subroutine delete_configuration_c( configuration ) bind(c, name="DeleteConfiguration")
+      import :: configuration_t_c
+      type(configuration_t_c), intent(inout) :: configuration
+    end subroutine delete_configuration_c
+    function create_index_mappings_c(configuration, source, source_size, target, target_size, error) bind(c, name="CreateIndexMappings")
+      import :: index_mappings_t_c
+      type(configuration_t_c), value, intent(in)    :: configuration
+      type(c_ptr),             value, intent(in)    :: source
+      integer(c_size_t),       value, intent(in)    :: source_size
+      type(c_ptr),             value, intent(in)    :: target
+      integer(c_size_t),       value, intent(in)    :: target_size
+      type(error_t_c),                intent(inout) :: error
+      type(index_mappings_t_c) :: create_index_mappings_c
+    end function create_index_mappings_c
+    subroutine delete_index_mappings_c( mappings ) bind(c, name="DeleteIndexMappings")
+      import :: index_mappings_t_c
+      type(index_mappings_t_c), value, intent(inout) :: mappings
+    end subroutine delete_index_mappings_c
+    subroutine copy_data_c(mappings, source, target) bind(c, name="CopyData")
+      import :: index_mappings_t_c
+      type(index_mappings_t_c), value, intent(inout) :: mappings
+      type(c_ptr),              value, intent(in)    :: source
+      type(c_ptr),              value, intent(in)    :: target
+    end subroutine copy_data_c
   end interface
 
 contains
@@ -180,6 +254,51 @@ contains
     to%value_ = to_f_string( from )
 
   end subroutine string_assign_string_t_c
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  !> Load a configuration from a string
+  subroutine configuration_load_from_string( this, string )
+
+    class(configuration_t), intent(inout) :: this
+    character(len=*), intent(in) :: string
+
+    if (c_associated(this%configuration_c_%data_)) then
+      call delete_string_c(this%configuration_c_%data_)
+    end if
+    this%configuration_c_ = &
+        load_configuration_from_string_c( to_c_string( string ) )
+
+  end subroutine configuration_load_from_string
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  !> Load a configuration from a file
+  subroutine configuration_load_from_file( this, file )
+
+    class(configuration_t), intent(inout) :: this
+    character(len=*), intent(in) :: file
+
+    if (c_associated(this%configuration_c_%data_)) then
+      call delete_string_c(this%configuration_c_%data_)
+    end if
+    this%configuration_c_ = &
+        load_configuration_from_file_c( to_c_string( file ) )
+
+  end subroutine configuration_load_from_file
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  !> Finalize a configuration
+  subroutine configuration_finalize( this )
+
+    class(configuration_t), intent(inout) :: this
+
+    if (c_associated(this%configuration_c_%data_)) then
+      call delete_configuration_c(this%configuration_c_)
+    end if
+
+  end subroutine configuration_finalize
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -353,6 +472,24 @@ contains
     end do
 
   end function find_mapping_index
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  !> Constructor for an index_mappings_t object
+  function index_mappings_constructor( configuration, source, target, error ) &
+      result( mappings )
+
+    type(configuration_t_c), intent(in)    :: configuration
+    type(mapping_t),         intent(in)    :: source(:)
+    type(mapping_t),         intent(in)    :: target(:)
+    type(error_t),           intent(inout) :: error
+    type(index_mappings_t)                 :: mappings
+
+    mappings%mappings_c_ = create_index_mappings_c( configuration, source, &
+                                                    source_size, target, &
+                                                    target_size, error )
+
+  end function index_mappings_constructor
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
