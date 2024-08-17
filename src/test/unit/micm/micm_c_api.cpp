@@ -295,6 +295,21 @@ TEST(RosenbrockStandardOrder, SolveUsingStandardOrderedRosenbrock)
   DeleteError(&error);
 }
 
+// Test case for solving system using standard-ordered Backward Euler solver
+TEST(BackwardEulerStandardOrder, SolveUsingStandardOrderedBackwardEuler)
+{
+  const char* config_path = "configs/chapman";
+  int num_grid_cells = 1;
+  Error error;
+  MICM* micm = CreateMicm(config_path, MICMSolver::BackwardEulerStandardOrder, num_grid_cells, &error);
+
+  TestSingleGridCell(micm);
+
+  DeleteMicm(micm, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteError(&error);
+}
+
 struct ArrheniusReaction
 {
   double A_{ 1 };
