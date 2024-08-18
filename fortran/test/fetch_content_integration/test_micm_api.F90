@@ -6,7 +6,7 @@ program test_micm_api
   use, intrinsic :: iso_c_binding
   use, intrinsic :: ieee_arithmetic
   use musica_micm, only: micm_t, solver_stats_t, get_micm_version
-  use musica_micm, only: Rosenbrock, RosenbrockStandardOrder
+  use musica_micm, only: Rosenbrock, RosenbrockStandardOrder, BackwardEuler, BackwardEulerStandardOrder
   use musica_util, only: assert, error_t, mapping_t, string_t, find_mapping_index
 
 #include "micm/util/error.hpp"
@@ -29,6 +29,8 @@ program test_micm_api
   call test_api()
   call test_multiple_grid_cell_vector_Rosenbrock()
   call test_multiple_grid_cell_standard_Rosenbrock()
+  call test_multiple_grid_cell_vector_BackwardEuler()
+  call test_multiple_grid_cell_standard_BackwardEuler()
 
 contains
 
@@ -312,5 +314,37 @@ contains
     deallocate( micm )
 
   end subroutine test_multiple_grid_cell_standard_Rosenbrock
+
+  subroutine test_multiple_grid_cell_vector_BackwardEuler()
+
+    type(micm_t), pointer :: micm
+    integer               :: num_grid_cells
+    type(error_t)         :: error
+
+    num_grid_cells = 3
+    micm => micm_t( "configs/analytical", BackwardEuler, num_grid_cells, error )
+    ASSERT( error%is_success() )
+
+    call test_multiple_grid_cells( micm, num_grid_cells )
+
+    deallocate( micm )
+
+  end subroutine test_multiple_grid_cell_vector_BackwardEuler
+
+  subroutine test_multiple_grid_cell_standard_BackwardEuler()
+
+    type(micm_t), pointer :: micm
+    integer               :: num_grid_cells
+    type(error_t)         :: error
+
+    num_grid_cells = 3
+    micm => micm_t( "configs/analytical", BackwardEulerStandardOrder, num_grid_cells, error )
+    ASSERT( error%is_success() )
+
+    call test_multiple_grid_cells( micm, num_grid_cells )
+
+    deallocate( micm )
+
+  end subroutine test_multiple_grid_cell_standard_BackwardEuler
 
 end program
