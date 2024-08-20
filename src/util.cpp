@@ -136,6 +136,14 @@ namespace musica
     return mapping;
   }
 
+  Mappings CreateMappings(std::size_t size)
+  {
+    Mappings mappings;
+    mappings.mappings_ = new Mapping[size];
+    mappings.size_ = size;
+    return mappings;
+  }
+
   std::size_t FindMappingIndex(const Mappings mappings, const char* name, Error* error)
   {
     DeleteError(error);
@@ -157,13 +165,14 @@ namespace musica
     DeleteString(&(mapping->name_));
   }
 
-  void DeleteMappings(Mappings mappings)
+  void DeleteMappings(Mappings* mappings)
   {
-    for (std::size_t i = 0; i < mappings.size_; i++)
+    if (mappings->mappings_ == nullptr) return;
+    for (std::size_t i = 0; i < mappings->size_; i++)
     {
-      DeleteMapping(&(mappings.mappings_[i]));
+      DeleteMapping(&(mappings->mappings_[i]));
     }
-    delete[] mappings.mappings_;
+    delete[] mappings->mappings_;
   }
 
   IndexMappings CreateIndexMappings(Configuration configuration, const Mappings source, const Mappings target, Error* error)
@@ -181,13 +190,13 @@ namespace musica
       std::size_t source_index = FindMappingIndex(source, source_name, error);
       if (!IsSuccess(*error))
       {
-        DeleteIndexMappings(index_mappings);
+        DeleteIndexMappings(&index_mappings);
         return index_mappings;
       }
       std::size_t target_index = FindMappingIndex(target, target_name, error);
       if (!IsSuccess(*error))
       {
-        DeleteIndexMappings(index_mappings);
+        DeleteIndexMappings(&index_mappings);
         return index_mappings;
       }
       index_mappings.mappings_[i].source_ = source_index;
@@ -213,9 +222,14 @@ namespace musica
     // Nothing to do
   }
 
-  void DeleteIndexMappings(IndexMappings mappings)
+  void DeleteIndexMappings(IndexMappings* mappings)
   {
-    delete[] mappings.mappings_;
+    if (mappings->mappings_ == nullptr) return;
+    for (std::size_t i = 0; i < mappings->size_; i++)
+    {
+      DeleteIndexMapping(&(mappings->mappings_[i]));
+    }
+    delete[] mappings->mappings_;
   }
 
 }  // namespace musica

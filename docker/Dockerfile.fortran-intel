@@ -8,6 +8,7 @@ RUN wget -qO - https://repositories.intel.com/gpu/intel-graphics.key | \
   gpg --yes --dearmor --output /usr/share/keyrings/intel-graphics-archive-keyring.gpg
 
 ARG MUSICA_GIT_TAG=main
+ARG BUILD_TYPE=Release
 
 RUN apt update \
     && apt -y install \

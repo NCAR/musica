@@ -6,7 +6,7 @@ module musica_micm
   use iso_c_binding, only: c_ptr, c_char, c_int, c_int64_t, c_bool, c_double, c_null_char, &
                           c_size_t, c_f_pointer, c_funptr, c_null_ptr, c_associated
   use iso_fortran_env, only: int64
-  use musica_util, only: assert, mapping_t, string_t, string_t_c
+  use musica_util, only: assert, mappings_t, string_t, string_t_c
   implicit none
 
   public :: micm_t, solver_stats_t, get_micm_version
@@ -34,7 +34,8 @@ module musica_micm
   end enum
 
   interface
-    function create_micm_c(config_path, solver_type, num_grid_cells, error) bind(C, name="CreateMicm")
+    function create_micm_c(config_path, solver_type, num_grid_cells, error) &
+        bind(C, name="CreateMicm")
       use musica_util, only: error_t_c
       import c_ptr, c_int, c_char
       character(kind=c_char), intent(in)     :: config_path(*)
@@ -73,7 +74,8 @@ module musica_micm
       type(string_t_c) :: get_micm_version_c
     end function get_micm_version_c
 
-    function get_species_property_string_c(micm, species_name, property_name, error) bind(c, name="GetSpeciesPropertyString")
+    function get_species_property_string_c(micm, species_name, property_name, error) &
+        bind(c, name="GetSpeciesPropertyString")
       use musica_util, only: error_t_c, string_t_c
       import c_ptr, c_char
       type(c_ptr), value, intent(in)            :: micm
@@ -82,60 +84,56 @@ module musica_micm
       type(string_t_c)                          :: get_species_property_string_c
     end function get_species_property_string_c
 
-    function get_species_property_double_c(micm, species_name, property_name, error) bind(c, name="GetSpeciesPropertyDouble")
-        use musica_util, only: error_t_c
-        import c_ptr, c_char, c_double
-        type(c_ptr), value, intent(in)            :: micm
-        character(len=1, kind=c_char), intent(in) :: species_name(*), property_name(*)
-        type(error_t_c), intent(inout)            :: error
-        real(kind=c_double)                       :: get_species_property_double_c
+    function get_species_property_double_c(micm, species_name, property_name, error) &
+        bind(c, name="GetSpeciesPropertyDouble")
+      use musica_util, only: error_t_c
+      import c_ptr, c_char, c_double
+      type(c_ptr), value, intent(in)            :: micm
+      character(len=1, kind=c_char), intent(in) :: species_name(*), property_name(*)
+      type(error_t_c), intent(inout)            :: error
+      real(kind=c_double)                       :: get_species_property_double_c
     end function get_species_property_double_c
 
-    function get_species_property_int_c(micm, species_name, property_name, error) bind(c, name="GetSpeciesPropertyInt")
-        use musica_util, only: error_t_c
-        import c_ptr, c_char, c_int
-        type(c_ptr), value, intent(in)            :: micm
-        character(len=1, kind=c_char), intent(in) :: species_name(*), property_name(*)
-        type(error_t_c), intent(inout)            :: error
-        integer(kind=c_int)                       :: get_species_property_int_c
+    function get_species_property_int_c(micm, species_name, property_name, error) &
+        bind(c, name="GetSpeciesPropertyInt")
+      use musica_util, only: error_t_c
+      import c_ptr, c_char, c_int
+      type(c_ptr), value, intent(in)            :: micm
+      character(len=1, kind=c_char), intent(in) :: species_name(*), property_name(*)
+      type(error_t_c), intent(inout)            :: error
+      integer(kind=c_int)                       :: get_species_property_int_c
     end function get_species_property_int_c
 
-    function get_species_property_bool_c(micm, species_name, property_name, error) bind(c, name="GetSpeciesPropertyBool")
-        use musica_util, only: error_t_c
-        import c_ptr, c_char, c_bool
-        type(c_ptr), value, intent(in)            :: micm
-        character(len=1, kind=c_char), intent(in) :: species_name(*), property_name(*)
-        type(error_t_c), intent(inout)            :: error
-        logical(kind=c_bool)                      :: get_species_property_bool_c
+    function get_species_property_bool_c(micm, species_name, property_name, error) &
+        bind(c, name="GetSpeciesPropertyBool")
+      use musica_util, only: error_t_c
+      import c_ptr, c_char, c_bool
+      type(c_ptr), value, intent(in)            :: micm
+      character(len=1, kind=c_char), intent(in) :: species_name(*), property_name(*)
+      type(error_t_c), intent(inout)            :: error
+      logical(kind=c_bool)                      :: get_species_property_bool_c
     end function get_species_property_bool_c      
 
-    type(c_ptr) function get_species_ordering_c(micm, array_size, error) bind(c, name="GetSpeciesOrdering")
-        use musica_util, only: error_t_c
-        import c_ptr, c_size_t
-        type(c_ptr), value, intent(in)      :: micm
-        integer(kind=c_size_t), intent(out) :: array_size
-        type(error_t_c), intent(inout)      :: error
+    type(mappings_t_c) function get_species_ordering_c(micm, error) &
+        bind(c, name="GetSpeciesOrdering")
+      use musica_util, only: error_t_c, mappings_t_c
+      import c_ptr, c_size_t
+      type(c_ptr), value, intent(in)      :: micm
+      type(error_t_c), intent(inout)      :: error
     end function get_species_ordering_c
 
-    type(c_ptr) function get_user_defined_reaction_rates_ordering_c(micm, array_size, error) &
+    type(mappings_t_c) function get_user_defined_reaction_rates_ordering_c(micm, error) &
         bind(c, name="GetUserDefinedReactionRatesOrdering")
-        use musica_util, only: error_t_c
-        import c_ptr, c_size_t
-        type(c_ptr), value, intent(in)      :: micm
-        integer(kind=c_size_t), intent(out) :: array_size
-        type(error_t_c), intent(inout)      :: error
+      use musica_util, only: error_t_c, mappings_t_c
+      import c_ptr, c_size_t
+      type(c_ptr), value, intent(in)      :: micm
+      type(error_t_c), intent(inout)      :: error
     end function get_user_defined_reaction_rates_ordering_c
-
-    subroutine delete_mappings_c(mappings, array_size) bind(C, name="DeleteMappings")
-        import c_ptr, c_size_t
-        type(c_ptr), value, intent(in)            :: mappings
-        integer(kind=c_size_t), value, intent(in) :: array_size
-    end subroutine delete_mappings_c
   end interface
 
   type :: micm_t
-    type(mapping_t), allocatable :: species_ordering(:)
-    type(mapping_t), allocatable :: user_defined_reaction_rates(:)
+    type(mappings_t) :: species_ordering
+    type(mappings_t) :: user_defined_reaction_rates
     type(c_ptr), private         :: ptr = c_null_ptr
   contains
     ! Solve the chemical system
@@ -199,8 +197,6 @@ contains
     type(error_t), intent(inout)  :: error
     character(len=1, kind=c_char) :: c_config_path(len_trim(config_path)+1)
     integer                       :: n, i
-    type(c_ptr)                   :: mappings_ptr
-    integer(c_size_t)             :: mappings_length
     type(error_t_c)               :: error_c
 
     allocate( this )
@@ -219,26 +215,22 @@ contains
         return
     end if
 
-    mappings_ptr = get_species_ordering_c(this%ptr, mappings_length, error_c)
+    this%species_ordering = mappings_t( get_species_ordering_c(this%ptr, error_c) )
     error = error_t(error_c)
     if (.not. error%is_success()) then
         deallocate(this)
         nullify(this)
         return
     end if
-    this%species_ordering = copy_mappings(mappings_ptr, mappings_length)
-    call delete_mappings_c(mappings_ptr, mappings_length)
 
-    mappings_ptr = get_user_defined_reaction_rates_ordering_c(this%ptr, &
-                        mappings_length, error_c)
+    this%user_defined_reaction_rates = &
+        mappings_t( get_user_defined_reaction_rates_ordering_c(this%ptr, error_c) )
     error = error_t(error_c)
     if (.not. error%is_success()) then
         deallocate(this)
         nullify(this)
         return
     end if
-    this%user_defined_reaction_rates = copy_mappings(mappings_ptr, mappings_length)
-    call delete_mappings_c(mappings_ptr, mappings_length)
 
   end function constructor
 

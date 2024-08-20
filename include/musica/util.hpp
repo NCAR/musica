@@ -32,7 +32,7 @@ namespace musica
     /// @brief A struct to describe failure conditions
     struct Error
     {
-      int code_;
+      int code_ = 0;
       String category_;
       String message_;
     };
@@ -53,8 +53,8 @@ namespace musica
     /// @brief A struct to represent an array of Mappings
     struct Mappings
     {
-      Mapping* mappings_;
-      std::size_t size_;
+      Mapping* mappings_ = nullptr;
+      std::size_t size_ = 0;
     };
 
     /// @brief A struct to represent the mapping between indices in two arrays
@@ -68,8 +68,8 @@ namespace musica
     /// @brief A struct to represent an array of IndexMappings
     struct IndexMappings
     {
-      IndexMapping* mappings_;
-      std::size_t size_;
+      IndexMapping* mappings_ = nullptr;
+      std::size_t size_ = 0;
     };
 
     /// @brief Casts a char* to a String
@@ -103,6 +103,11 @@ namespace musica
     /// @param error The Error to populate if the data cannot be loaded
     /// @return The Configuration
     Configuration LoadConfigurationFromFile(const char* filename, Error* error);
+
+    /// @brief Allocate a new Mappings struct
+    /// @param size The size of the Mappings
+    /// @return The Mappings
+    Mappings CreateMappings(std::size_t size);
 
     /// @brief Finds the index of a Mapping by name
     /// @param mappings The array of Mappings
@@ -139,7 +144,7 @@ namespace musica
 
     /// @brief Deletes an array of Mappings
     /// @param mappings The array of Mappings to delete
-    void DeleteMappings(Mappings mappings);
+    void DeleteMappings(Mappings* mappings);
 
     /// @brief Deletes an IndexMapping
     /// @param mapping The IndexMapping to delete
@@ -147,7 +152,7 @@ namespace musica
 
     /// @brief Deletes an array of IndexMappings
     /// @param mappings The array of IndexMappings to delete
-    void DeleteIndexMappings(IndexMappings mappings);
+    void DeleteIndexMappings(IndexMappings* mappings);
 
 #ifdef __cplusplus
   }

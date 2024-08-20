@@ -139,12 +139,15 @@ contains
 
   subroutine test_mapping_t()
 
-    type(mapping_t) :: a, b, c
+    type(mapping_t), pointer :: a, b, c
     type(mapping_t_c) :: a_c, b_c, c_c
     type(mapping_t_c), target :: c_mappings(3)
     type(c_ptr) :: c_mappings_ptr
     type(mapping_t), allocatable :: f_mappings(:)
+    type(mappings_t) :: mappings
     logical :: found
+    type(error_t) :: error
+    integer :: index
 
     a_c%index_ = 3
     a_c%name_ = create_c_string( "foo" )
@@ -156,9 +159,9 @@ contains
     c_c%name_ = create_c_string( "baz" )
 
     ! construct and take ownership of the c mapping
-    a = mapping_t( a_c )
-    b = mapping_t( b_c )
-    c = mapping_t( c_c )
+    a => mapping_t( a_c )
+    b => mapping_t( b_c )
+    c => mapping_t( c_c )
 
     ASSERT_EQ( a%index(), 4 )
     ASSERT_EQ( a%name(), "foo" )
@@ -185,8 +188,10 @@ contains
     ! copy assignment of c mapping
     a = a_c
     b = a_c
+
     ! construct and take ownership of the c mapping
-    c = mapping_t( a_c )
+    deallocate( c )
+    c => mapping_t( a_c )
 
     ASSERT_EQ( a%index(), 14 )
     ASSERT_EQ( a%name(), "qux" )
@@ -196,6 +201,10 @@ contains
 
     ASSERT_EQ( c%index(), 14 )
     ASSERT_EQ( c%name(), "qux" )
+
+    deallocate( a )
+    deallocate( b )
+    deallocate( c )
 
     c_mappings(1)%index_ = 21
     c_mappings(1)%name_ = create_c_string( "quux" )
@@ -229,6 +238,26 @@ contains
     ASSERT_EQ( find_mapping_index( f_mappings, "foo",   found ), -1 )
     ASSERT( .not. found )
 
+    ! create mappings object from array
+    mappings = mappings_t( f_mappings )
+    ASSERT_EQ( mappings%size(), 3 )
+    ASSERT_EQ( mappings%index( 1 ), 22 )
+    ASSERT_EQ( mappings%name( 1 ), "quux" )
+    ASSERT_EQ( mappings%index( 2 ), 35 )
+    ASSERT_EQ( mappings%name( 2 ), "corge" )
+    ASSERT_EQ( mappings%index( 3 ), 56 )
+    ASSERT_EQ( mappings%name( 3 ), "grault" )
+
+    ! find mappings by name
+    ASSERT_EQ( mappings%index( "quux", error ), 22 )
+    ASSERT( error%is_success() )
+    ASSERT_EQ( mappings%index( "corge", error ), 35 )
+    ASSERT( error%is_success() )
+    ASSERT_EQ( mappings%index( "grault", error ), 56 )
+    ASSERT( error%is_success() )
+    index = mappings%index( "foo", error )
+    ASSERT( .not. error%is_success() )
+    
   end subroutine test_mapping_t
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

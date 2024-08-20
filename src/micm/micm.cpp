@@ -134,6 +134,11 @@ namespace musica
     {
       map = micm->GetSpeciesOrdering(micm->rosenbrock_standard_, error);
     }
+    else
+    {
+      std::string msg = "Solver type '" + std::to_string(micm->solver_type_) + "' not found";
+      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND, msg.c_str());
+    }
     if (!IsSuccess(*error))
     {
       return Mappings();
@@ -150,7 +155,6 @@ namespace musica
       species_ordering.mappings_[i] = ToMapping(entry.first.c_str(), entry.second);
       ++i;
     }
-
     return species_ordering;
   }
 
@@ -168,6 +172,11 @@ namespace musica
     {
       map = micm->GetUserDefinedReactionRatesOrdering(micm->rosenbrock_standard_, error);
     }
+    else
+    {
+      std::string msg = "Solver type '" + std::to_string(micm->solver_type_) + "' not found";
+      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND, msg.c_str());
+    }
     if (!IsSuccess(*error))
     {
       return Mappings();
@@ -184,7 +193,6 @@ namespace musica
       reaction_rates.mappings_[i] = ToMapping(entry.first.c_str(), entry.second);
       ++i;
     }
-
     return reaction_rates;
   }
 
@@ -227,6 +235,7 @@ namespace musica
 
   void MICM::CreateRosenbrock(const std::string &config_path, Error *error)
   {
+    DeleteError(error);
     try
     {
       micm::SolverConfig<> solver_config;
@@ -245,18 +254,17 @@ namespace musica
               .SetIgnoreUnusedSpecies(true)
               .Build());
 
-      DeleteError(error);
       *error = NoError();
     }
     catch (const std::system_error &e)
     {
-      DeleteError(error);
       *error = ToError(e);
     }
   }
 
   void MICM::CreateRosenbrockStandardOrder(const std::string &config_path, Error *error)
   {
+    DeleteError(error);
     try
     {
       micm::SolverConfig<> solver_config;
@@ -272,12 +280,10 @@ namespace musica
                                                    .SetIgnoreUnusedSpecies(true)
                                                    .Build());
 
-      DeleteError(error);
       *error = NoError();
     }
     catch (const std::system_error &e)
     {
-      DeleteError(error);
       *error = ToError(e);
     }
   }

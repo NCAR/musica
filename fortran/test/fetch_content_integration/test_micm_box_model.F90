@@ -51,10 +51,9 @@ contains
     write(*,*) "Creating MICM solver..."
     micm => micm_t(config_path, solver_type, num_grid_cells, error)
 
-    do i = 1, size( micm%species_ordering )
-      associate(the_mapping => micm%species_ordering(i))
-      print *, "Species Name:", the_mapping%name(), ", Index:", the_mapping%index()
-      end associate
+    do i = 1, micm%species_ordering%size()
+      print *, "Species Name:", micm%species_ordering%name(i), &
+               ", Index:", micm%species_ordering%index(i)
     end do
 
     write(*,*) "Solving starts..."

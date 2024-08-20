@@ -124,7 +124,7 @@ TEST(Util, IndexMappingFromString)
   EXPECT_EQ(target[1], 20.0);
   EXPECT_EQ(target[2], 2.0);
   EXPECT_EQ(target[3], 40.0);
-  DeleteIndexMappings(index_mappings);
+  DeleteIndexMappings(&index_mappings);
   DeleteMapping(&(source_map_array[0]));
   DeleteMapping(&(source_map_array[1]));
   DeleteMapping(&(target_map_array[0]));
@@ -162,7 +162,7 @@ TEST(Util, IndexMappingFromFile)
   EXPECT_EQ(target[1], 20.0);
   EXPECT_EQ(target[2], 2.0);
   EXPECT_EQ(target[3], 40.0);
-  DeleteIndexMappings(index_mappings);
+  DeleteIndexMappings(&index_mappings);
   DeleteMapping(&(source_map_array[0]));
   DeleteMapping(&(source_map_array[1]));
   DeleteMapping(&(target_map_array[0]));

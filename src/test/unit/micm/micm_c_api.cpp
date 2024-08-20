@@ -138,7 +138,7 @@ TEST_F(MicmCApiTest, GetSpeciesOrdering)
     }
   }
   ASSERT_TRUE(found);
-  DeleteMappings(species_ordering);
+  DeleteMappings(&species_ordering);
 }
 
 // Test case for getting user-defined reaction rates ordering
@@ -179,7 +179,7 @@ TEST_F(MicmCApiTest, GetUserDefinedReactionRatesOrdering)
     }
   }
   ASSERT_TRUE(found);
-  DeleteMappings(reaction_rates_ordering);
+  DeleteMappings(&reaction_rates_ordering);
 }
 
 void TestSingleGridCell(MICM* micm)
@@ -207,7 +207,7 @@ void TestSingleGridCell(MICM* micm)
   ASSERT_TRUE(IsSuccess(error));
   std::size_t O3_index = FindMappingIndex(species_ordering, "O3", &error);
   ASSERT_TRUE(IsSuccess(error));
-  DeleteMappings(species_ordering);
+  DeleteMappings(&species_ordering);
 
   // Get user-defined reaction rates ordering
   Mappings reaction_rates_ordering = GetUserDefinedReactionRatesOrdering(micm, &error);
@@ -221,7 +221,7 @@ void TestSingleGridCell(MICM* micm)
   std::size_t jO3_O1D_index =
       FindMappingIndex(reaction_rates_ordering, "PHOTO.jO3->O1D", &error);
   ASSERT_TRUE(IsSuccess(error));
-  DeleteMappings(reaction_rates_ordering);
+  DeleteMappings(&reaction_rates_ordering);
 
   temperatures[0] = 272.5;
   pressures[0] = 101253.4;
@@ -340,7 +340,7 @@ void TestMultipleGridCells(MICM* micm, const size_t num_grid_cells)
   ASSERT_TRUE(IsSuccess(error));
   std::size_t F_index = FindMappingIndex(species_ordering, "F", &error);
   ASSERT_TRUE(IsSuccess(error));
-  DeleteMappings(species_ordering);
+  DeleteMappings(&species_ordering);
 
   // Get user-defined reaction rates indices in user-defined reaction rates array
   Mappings rate_ordering = GetUserDefinedReactionRatesOrdering(micm, &error);
@@ -350,7 +350,7 @@ void TestMultipleGridCells(MICM* micm, const size_t num_grid_cells)
   ASSERT_TRUE(IsSuccess(error));
   std::size_t R2_index = FindMappingIndex(rate_ordering, "USER.reaction 2", &error);
   ASSERT_TRUE(IsSuccess(error));
-  DeleteMappings(rate_ordering);
+  DeleteMappings(&rate_ordering);
 
   for (int i = 0; i < num_grid_cells; ++i)
   {
