@@ -264,9 +264,10 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  subroutine test_index_mapping_t()
+  subroutine build_and_check_index_mapping_t(config)
 
-    type(configuration_t) :: config
+    type(configuration_t), intent(inout) :: config
+
     type(mapping_t), pointer :: map
     type(mapping_t), allocatable :: f_map(:)
     type(mappings_t) :: source_map, target_map
@@ -274,14 +275,6 @@ contains
     type(error_t) :: error
     real(dk), allocatable :: source_data(:), target_data(:)
 
-    call config%load_from_string( &
-      "- source: Test"//new_line('a')// &
-      "  target: Test2"//new_line('a')// &
-      "- source: Test2"//new_line('a')// & 
-      "  target: Test3"//new_line('a')// &
-      "  scale factor: 0.82"//new_line('a'), error )
-    ASSERT( error%is_success() )
-    
     allocate( f_map( 2 ) )
     map => mapping_t( "Test", 2 )
     f_map( 1 ) = map
@@ -310,6 +303,30 @@ contains
     ASSERT_EQ( target_data( 2 ), 20.0_dk )
     ASSERT_EQ( target_data( 3 ), 2.0_dk )
     ASSERT_EQ( target_data( 4 ), 40.0_dk )
+
+  end subroutine build_and_check_index_mapping_t
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  !> Tests the index_mapping_t type
+  subroutine test_index_mapping_t()
+
+    type(configuration_t) :: config
+    type(error_t) :: error
+
+    call config%load_from_string( &
+      "- source: Test"//new_line('a')// &
+      "  target: Test2"//new_line('a')// &
+      "- source: Test2"//new_line('a')// & 
+      "  target: Test3"//new_line('a')// &
+      "  scale factor: 0.82"//new_line('a'), error )
+    ASSERT( error%is_success() )
+    call build_and_check_index_mapping_t( config )
+
+    call config%load_from_file( "test/data/util_index_mapping_from_file.json", &
+                                error )
+    ASSERT( error%is_success() )
+    call build_and_check_index_mapping_t( config )
 
   end subroutine test_index_mapping_t
 
