@@ -9,12 +9,14 @@ program test_util
 #define ASSERT_NE( a, b ) call assert( a /= b, __FILE__, __LINE__ )
 
   use, intrinsic :: iso_c_binding, only: c_char, c_ptr, c_loc, c_size_t, c_null_char
+  use musica_constants, only: dk => musica_dk
   use musica_util
   implicit none
 
   call test_string_t()
   call test_error_t()
   call test_mapping_t()
+  call test_index_mapping_t()
 
 contains
 
@@ -259,6 +261,57 @@ contains
     ASSERT( .not. error%is_success() )
     
   end subroutine test_mapping_t
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  subroutine test_index_mapping_t()
+
+    type(configuration_t) :: config
+    type(mapping_t), pointer :: map
+    type(mapping_t), allocatable :: f_map(:)
+    type(mappings_t) :: source_map, target_map
+    type(index_mappings_t) :: index_mappings
+    type(error_t) :: error
+    real(dk), allocatable :: source_data(:), target_data(:)
+
+    call config%load_from_string( &
+      "- source: Test"//new_line('a')// &
+      "  target: Test2"//new_line('a')// &
+      "- source: Test2"//new_line('a')// & 
+      "  target: Test3"//new_line('a')// &
+      "  scale factor: 0.82"//new_line('a'), error )
+    ASSERT( error%is_success() )
+    
+    allocate( f_map( 2 ) )
+    map => mapping_t( "Test", 2 )
+    f_map( 1 ) = map
+    deallocate( map )
+    map => mapping_t( "Test2", 5 )
+    f_map( 2 ) = map
+    deallocate( map )
+    source_map = mappings_t( f_map )
+    map => mapping_t( "Test2", 3 )
+    f_map( 1 ) = map
+    deallocate( map )
+    map => mapping_t( "Test3", 1 )
+    f_map( 2 ) = map
+    deallocate( map )
+    target_map = mappings_t( f_map )
+    deallocate( f_map )
+
+    index_mappings = index_mappings_t( config, source_map, target_map, error )
+    ASSERT( error%is_success() )
+
+    source_data = (/ 1.0_dk, 2.0_dk, 3.0_dk, 4.0_dk, 5.0_dk /)
+    target_data = (/ 10.0_dk, 20.0_dk, 30.0_dk, 40.0_dk /)
+
+    call index_mappings%copy_data( source_data, target_data )
+    ASSERT_EQ( target_data( 1 ), 5.0_dk * 0.82_dk )
+    ASSERT_EQ( target_data( 2 ), 20.0_dk )
+    ASSERT_EQ( target_data( 3 ), 2.0_dk )
+    ASSERT_EQ( target_data( 4 ), 40.0_dk )
+
+  end subroutine test_index_mapping_t
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

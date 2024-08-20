@@ -76,7 +76,6 @@ module musica_util
 
   !> Configuration type
   type :: configuration_t
-  private
     type(configuration_t_c) :: configuration_c_
   contains
     procedure :: load_from_string => configuration_load_from_string
@@ -110,6 +109,7 @@ module musica_util
 
   interface mapping_t
     module procedure mapping_constructor
+    module procedure mapping_constructor_from_data
   end interface mapping_t
 
   !> Wrapper for a c array of name-to-index mappings
@@ -165,16 +165,18 @@ module musica_util
       import :: string_t_c
       type(string_t_c), intent(inout) :: string
     end subroutine delete_string_c
-    function load_configuration_from_string_c( string ) &
+    function load_configuration_from_string_c( string, error ) &
         bind(c, name="LoadConfigurationFromString")
-      import :: configuration_t_c, c_char
+      import :: configuration_t_c, c_char, error_t_c
       character(kind=c_char, len=1), intent(in) :: string(*)
+      type(error_t_c), intent(inout) :: error
       type(configuration_t_c) :: load_configuration_from_string_c
     end function load_configuration_from_string_c
-    function load_configuration_from_file_c( file ) &
+    function load_configuration_from_file_c( file, error ) &
         bind(c, name="LoadConfigurationFromFile")
-      import :: configuration_t_c, c_char
+      import :: configuration_t_c, c_char, error_t_c
       character(kind=c_char, len=1), intent(in) :: file(*)
+      type(error_t_c), intent(inout) :: error
       type(configuration_t_c) :: load_configuration_from_file_c
     end function load_configuration_from_file_c
     pure subroutine delete_configuration_c( configuration ) &
@@ -215,7 +217,7 @@ module musica_util
     pure subroutine delete_index_mappings_c( mappings ) &
         bind(c, name="DeleteIndexMappings")
       import :: index_mappings_t_c
-      type(index_mappings_t_c), value, intent(in) :: mappings
+      type(index_mappings_t_c), intent(inout) :: mappings
     end subroutine delete_index_mappings_c
     subroutine copy_data_c(mappings, source, target) bind(c, name="CopyData")
       import :: index_mappings_t_c, c_ptr
@@ -308,36 +310,44 @@ contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   !> Load a configuration from a string
-  subroutine configuration_load_from_string( this, string )
+  subroutine configuration_load_from_string( this, string, error )
 
     use iso_c_binding, only: c_associated
 
     class(configuration_t), intent(inout) :: this
     character(len=*), intent(in) :: string
+    type(error_t), intent(out) :: error
+
+    type(error_t_c) :: error_c
 
     if (c_associated(this%configuration_c_%data_)) then
       call delete_configuration_c(this%configuration_c_)
     end if
     this%configuration_c_ = &
-        load_configuration_from_string_c( to_c_string( string ) )
+        load_configuration_from_string_c( to_c_string( string ), error_c )
+    error = error_t( error_c )
 
   end subroutine configuration_load_from_string
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   !> Load a configuration from a file
-  subroutine configuration_load_from_file( this, file )
+  subroutine configuration_load_from_file( this, file, error )
 
     use iso_c_binding, only: c_associated
 
     class(configuration_t), intent(inout) :: this
     character(len=*), intent(in) :: file
+    type(error_t), intent(out) :: error
+
+    type(error_t_c) :: error_c
 
     if (c_associated(this%configuration_c_%data_)) then
       call delete_configuration_c(this%configuration_c_)
     end if
     this%configuration_c_ = &
-        load_configuration_from_file_c( to_c_string( file ) )
+        load_configuration_from_file_c( to_c_string( file ), error_c )
+    error = error_t( error_c )
 
   end subroutine configuration_load_from_file
 
@@ -456,6 +466,21 @@ contains
     new_mapping%mapping_c_%index_ = c_mapping%index_
 
   end function mapping_constructor
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  !> Constructor for a mapping_t object from a name and index
+  function mapping_constructor_from_data( name, index ) result( new_mapping )
+
+    character(len=*), intent(in) :: name
+    integer, intent(in) :: index
+    type(mapping_t), pointer :: new_mapping
+
+    allocate( new_mapping )
+    new_mapping%mapping_c_%name_ = create_string_c( to_c_string( name ) )
+    new_mapping%mapping_c_%index_ = int( index - 1, c_size_t )
+
+  end function mapping_constructor_from_data
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -692,16 +717,17 @@ contains
   function index_mappings_constructor( configuration, source, target, error ) &
       result( mappings )
 
-    type(configuration_t_c), intent(in)  :: configuration
-    type(mappings_t),        intent(in)  :: source
-    type(mappings_t),        intent(in)  :: target
-    type(error_t),           intent(out) :: error
-    type(index_mappings_t)               :: mappings
+    type(configuration_t), intent(in)  :: configuration
+    type(mappings_t),      intent(in)  :: source
+    type(mappings_t),      intent(in)  :: target
+    type(error_t),         intent(out) :: error
+    type(index_mappings_t)             :: mappings
 
     type(error_t_c) :: error_c
 
-    mappings%mappings_c_ = create_index_mappings_c( configuration, &
-        source%mappings_c_, target%mappings_c_, error_c )
+    mappings%mappings_c_ = create_index_mappings_c( &
+        configuration%configuration_c_, source%mappings_c_, &
+        target%mappings_c_, error_c )
     error = error_t( error_c )
 
   end function index_mappings_constructor
@@ -714,8 +740,8 @@ contains
     use iso_c_binding, only: c_loc
 
     class(index_mappings_t),      intent(inout) :: this
-    real(kind=musica_dk), target, intent(in)    :: source
-    real(kind=musica_dk), target, intent(in)    :: target
+    real(kind=musica_dk), target, intent(in)    :: source(:)
+    real(kind=musica_dk), target, intent(in)    :: target(:)
 
     call copy_data_c( this%mappings_c_, c_loc( source ), c_loc( target ) )
 
