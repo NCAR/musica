@@ -24,7 +24,7 @@ target_include_directories(musica_python
     $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
 )
 
-install(TARGETS musica_python
+install(TARGETS musica_python yaml-cpp
   LIBRARY DESTINATION .
 )
 
