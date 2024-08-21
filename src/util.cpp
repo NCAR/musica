@@ -191,15 +191,15 @@ namespace musica
     for (std::size_t i = 0; i < size; i++)
     {
       const YAML::Node& node = (*configuration.data_)[i];
-      const char* source_name = node["source"].as<std::string>().c_str();
-      const char* target_name = node["target"].as<std::string>().c_str();
-      std::size_t source_index = FindMappingIndex(source, source_name, error);
+      std::string source_name = node["source"].as<std::string>();
+      std::string target_name = node["target"].as<std::string>();
+      std::size_t source_index = FindMappingIndex(source, source_name.c_str(), error);
       if (!IsSuccess(*error))
       {
         DeleteIndexMappings(&index_mappings);
         return index_mappings;
       }
-      std::size_t target_index = FindMappingIndex(target, target_name, error);
+      std::size_t target_index = FindMappingIndex(target, target_name.c_str(), error);
       if (!IsSuccess(*error))
       {
         DeleteIndexMappings(&index_mappings);
