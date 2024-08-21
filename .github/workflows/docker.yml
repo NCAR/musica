@@ -37,7 +37,7 @@ jobs:
         run: rm -rf /opt/hostedtoolcache
 
       - name: Build Docker image
-        run: docker build -t musica -f docker/${{ matrix.dockerfile }} .
+        run: docker build -t musica -f docker/${{ matrix.dockerfile }} . --build-arg MUSICA_GIT_TAG=${{ github.sha }} 
 
       - name: Run tests in container
         if: matrix.dockerfile != 'Dockerfile.coverage'
