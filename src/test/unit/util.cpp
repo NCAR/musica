@@ -109,6 +109,7 @@ TEST(Util, IndexMappingFromString)
   target_map.mappings_ = target_map_array;
   target_map.size_ = 2;
   IndexMappings index_mappings = CreateIndexMappings(config, source_map, target_map, &error);
+  std::cout << "Index mapping constructor: " << error.message_.value_ << std::endl;
   EXPECT_TRUE(IsSuccess(error));
   EXPECT_EQ(index_mappings.mappings_[0].source_, 1);
   EXPECT_EQ(index_mappings.mappings_[0].target_, 2);
