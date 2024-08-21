@@ -45,7 +45,7 @@ target_sources(musica
 )
 
 target_link_libraries(musica
-  PUBLIC
+  PRIVATE
     yaml-cpp
 )
 
