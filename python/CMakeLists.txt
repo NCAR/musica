@@ -6,7 +6,7 @@ pybind11_add_module(musica_python
   ${CMAKE_BINARY_DIR}/version.cpp
 )
 
-target_link_libraries(musica_python PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(musica_python PRIVATE nlohmann_json::nlohmann_json yaml-cpp)
 
 target_compile_features(musica_python PUBLIC cxx_std_20)
 

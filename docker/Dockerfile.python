@@ -1,5 +1,6 @@
 FROM fedora:latest
 
+ARG MUSICA_GIT_TAG=main
 ARG BUILD_TYPE=Release
 
 RUN dnf -y update \
@@ -46,6 +47,7 @@ RUN pip install -r requirements.txt
 RUN cd musica \
     && cmake -S . \
              -B build \
+             -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
              -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
              -D MUSICA_ENABLE_PYTHON_LIBRARY=ON \
              -D MUSICA_ENABLE_TUVX=OFF \
