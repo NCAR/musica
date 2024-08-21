@@ -4,6 +4,7 @@
 
 #include <cstddef>
 #include <cstring>
+#include <iostream>
 
 namespace
 {
@@ -149,8 +150,11 @@ namespace musica
   std::size_t FindMappingIndex(const Mappings mappings, const char* name, Error* error)
   {
     DeleteError(error);
+    std::cout << "mappings.size_: " << mappings.size_ << std::endl;
+    std::cout << "name: '" << name << "'" << std::endl;
     for (std::size_t i = 0; i < mappings.size_; i++)
     {
+      std::cout << "mappings.mappings_[i].name_.value_: '" << mappings.mappings_[i].name_.value_ << "'" << std::endl;
       if (std::strcmp(mappings.mappings_[i].name_.value_, name) == 0)
       {
         *error = NoError();
