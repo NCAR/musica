@@ -96,6 +96,7 @@ namespace musica
     try
     {
       config.data_ = new YAML::Node(YAML::Load(data));
+      *error = NoError();
     }
     catch(const std::exception& e)
     {
@@ -112,6 +113,7 @@ namespace musica
     try
     {
       config.data_ = new YAML::Node(YAML::LoadFile(filename));
+      *error = NoError();
     }
     catch(const std::exception& e)
     {
