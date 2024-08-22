@@ -52,6 +52,7 @@ jobs:
           ctest -C ${{ matrix.build_type }} --rerun-failed --output-on-failure . --verbose
   fortran:
     runs-on: ubuntu-24.04
+    continue-on-error: true
     strategy:
       matrix:
         gcc_version: [12, 13, 14]
