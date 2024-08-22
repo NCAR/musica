@@ -34,8 +34,15 @@ jobs:
       run: pip install --verbose .[test]
 
     - name: Test
+      if: matrix.platform == 'ubuntu-latest'
       run: |
-        for dir in /usr/local/lib/python*/dist-packages; do
-          export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${dir}"
-        done
-        python -m unittest discover -s python/test
+        file_path=$(find / -name "libyaml-cpp.so*" -print -quit)
+        if [ -n "$file_path" ]; then
+          dir_path=$(dirname $file_path);
+          export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${dir_path}";
+        fi
+        python3 -m unittest discover -v -s python/test
+
+    - name: Test
+      if: matrix.platform != 'ubuntu-latest'
+      run: python -m unittest discover -v -s python/test
