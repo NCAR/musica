@@ -27,6 +27,12 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
+    - name: Install dependencies on Ubuntu
+      if: matrix.platform == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libyaml-cpp-dev
+
     - name: Add requirements
       run: python -m pip install --upgrade wheel setuptools
 
