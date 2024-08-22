@@ -20,7 +20,8 @@ RUN dnf -y update \
 
 COPY . /musica/
 
-RUN pip3 install -r /musica/docs/requirements.txt
+RUN python3 -m pip install --upgrade pip setuptools \
+    && python3 -m pip install -r /musica/docs/requirements.txt
 
 ARG SUFFIX=""
 ENV SWITCHER_SUFFIX=$SUFFIX
