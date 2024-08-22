@@ -28,16 +28,14 @@ module musica_util
 
   !> String type
   type :: string_t
-  private
     character(len=:), allocatable :: value_
   contains
     procedure :: get_char_array => get_char_array_string_t
     procedure, private, pass(from) :: char_assign_string
     procedure, private, pass(to) :: string_assign_char
-    procedure, private, pass(to) :: string_assign_string
     procedure, private, pass(to) :: string_assign_string_t_c
     generic :: assignment(=) => char_assign_string, string_assign_char, &
-                                string_assign_string, string_assign_string_t_c
+                                string_assign_string_t_c
   end type string_t
 
   interface string_t
@@ -281,19 +279,6 @@ contains
     allocate( to%value_, source = from )
 
   end subroutine string_assign_char
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-  !> Copy a string
-  subroutine string_assign_string( to, from )
-
-    class(string_t), intent(inout) :: to
-    class(string_t), intent(in) :: from
-
-    if (allocated(to%value_)) deallocate(to%value_) 
-    allocate( to%value_, source = from%value_ )
-
-  end subroutine string_assign_string
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -544,22 +529,23 @@ contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   !> Copies mappings from a c array to a fortran array
-  function copy_mappings( c_mappings, n_mappings ) result( f_mappings )
+  subroutine copy_mappings( c_mappings, n_mappings, f_mappings )
 
-    type(c_ptr), intent(in) :: c_mappings
-    integer(c_size_t), intent(in) :: n_mappings
-    type(mapping_t), allocatable :: f_mappings(:)
+    type(c_ptr),                  intent(in)    :: c_mappings
+    integer(c_size_t),            intent(in)    :: n_mappings
+    type(mapping_t), allocatable, intent(inout) :: f_mappings(:)
 
     integer :: i
     type(mapping_t_c), pointer :: mappings(:)
 
     call c_f_pointer( c_mappings, mappings, [ n_mappings ] )
+    if ( allocated( f_mappings ) ) deallocate( f_mappings )
     allocate( f_mappings( n_mappings ) )
     do i = 1, n_mappings
       f_mappings(i) = mappings(i)
     end do
 
-  end function copy_mappings
+  end subroutine copy_mappings
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -604,8 +590,9 @@ contains
       result( mappings )
 
     type(mappings_t_c), intent(in) :: c_mappings
-    type(mappings_t) :: mappings
+    type(mappings_t), pointer :: mappings
 
+    allocate( mappings )
     mappings%mappings_c_ = c_mappings
 
   end function mappings_constructor_from_mappings_t_c
@@ -618,11 +605,12 @@ contains
       result( new_mappings )
 
     type(mapping_t), intent(in) :: mappings(:)
-    type(mappings_t) :: new_mappings
+    type(mappings_t), pointer :: new_mappings
 
     integer :: i
     type(mapping_t_c), pointer :: mappings_c(:)
 
+    allocate( new_mappings )
     new_mappings%mappings_c_ = &
         create_mappings_c( int( size( mappings ), c_size_t ) )
     call c_f_pointer( new_mappings%mappings_c_%mappings_, mappings_c, &
@@ -721,10 +709,11 @@ contains
     type(mappings_t),      intent(in)  :: source
     type(mappings_t),      intent(in)  :: target
     type(error_t),         intent(out) :: error
-    type(index_mappings_t)             :: mappings
+    type(index_mappings_t), pointer    :: mappings
 
     type(error_t_c) :: error_c
 
+    allocate( mappings )
     mappings%mappings_c_ = create_index_mappings_c( &
         configuration%configuration_c_, source%mappings_c_, &
         target%mappings_c_, error_c )

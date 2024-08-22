@@ -9,7 +9,7 @@ module musica_tuvx_util
   private
 
   public :: string_t_c, string_t, error_t_c, error_t, mapping_t_c, mapping_t, &
-            to_c_string, to_f_string, assert, copy_mappings, delete_string_c
+            to_c_string, to_f_string, assert, delete_string_c
 
   !> Wrapper for a c string
   type, bind(c) :: string_t_c
@@ -290,26 +290,6 @@ contains
     index = this%index_
 
   end function mapping_index
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-  !> Copies mappings from a c array to a fortran array
-  function copy_mappings( c_mappings, n_mappings ) result( f_mappings )
-
-    type(c_ptr), intent(in) :: c_mappings
-    integer(c_size_t), intent(in) :: n_mappings
-    type(mapping_t), allocatable :: f_mappings(:)
-
-    integer :: i
-    type(mapping_t_c), pointer :: mappings(:)
-
-    call c_f_pointer( c_mappings, mappings, [ n_mappings ] )
-    allocate( f_mappings( n_mappings ) )
-    do i = 1, n_mappings
-      f_mappings(i) = mappings(i)
-    end do
-
-  end function copy_mappings
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

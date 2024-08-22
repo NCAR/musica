@@ -146,7 +146,7 @@ contains
     type(mapping_t_c), target :: c_mappings(3)
     type(c_ptr) :: c_mappings_ptr
     type(mapping_t), allocatable :: f_mappings(:)
-    type(mappings_t) :: mappings
+    type(mappings_t), pointer :: mappings
     logical :: found
     type(error_t) :: error
     integer :: index
@@ -216,7 +216,7 @@ contains
     c_mappings(3)%name_ = create_c_string( "grault" )
 
     c_mappings_ptr = c_loc( c_mappings )
-    f_mappings = copy_mappings( c_mappings_ptr, 3_c_size_t )
+    call copy_mappings( c_mappings_ptr, 3_c_size_t, f_mappings )
     call delete_string_c( c_mappings(1)%name_ )
     call delete_string_c( c_mappings(2)%name_ )
     call delete_string_c( c_mappings(3)%name_ )
@@ -241,7 +241,7 @@ contains
     ASSERT( .not. found )
 
     ! create mappings object from array
-    mappings = mappings_t( f_mappings )
+    mappings => mappings_t( f_mappings )
     ASSERT_EQ( mappings%size(), 3 )
     ASSERT_EQ( mappings%index( 1 ), 22 )
     ASSERT_EQ( mappings%name( 1 ), "quux" )
@@ -259,6 +259,7 @@ contains
     ASSERT( error%is_success() )
     index = mappings%index( "foo", error )
     ASSERT( .not. error%is_success() )
+    deallocate( mappings )
     
   end subroutine test_mapping_t
 
@@ -270,8 +271,8 @@ contains
 
     type(mapping_t), pointer :: map
     type(mapping_t), allocatable :: f_map(:)
-    type(mappings_t) :: source_map, target_map
-    type(index_mappings_t) :: index_mappings
+    type(mappings_t), pointer :: source_map, target_map
+    type(index_mappings_t), pointer :: index_mappings
     type(error_t) :: error
     real(dk), allocatable :: source_data(:), target_data(:)
 
@@ -282,17 +283,17 @@ contains
     map => mapping_t( "Test2", 5 )
     f_map( 2 ) = map
     deallocate( map )
-    source_map = mappings_t( f_map )
+    source_map => mappings_t( f_map )
     map => mapping_t( "Test2", 3 )
     f_map( 1 ) = map
     deallocate( map )
     map => mapping_t( "Test3", 1 )
     f_map( 2 ) = map
     deallocate( map )
-    target_map = mappings_t( f_map )
+    target_map => mappings_t( f_map )
     deallocate( f_map )
 
-    index_mappings = index_mappings_t( config, source_map, target_map, error )
+    index_mappings => index_mappings_t( config, source_map, target_map, error )
     ASSERT( error%is_success() )
 
     source_data = (/ 1.0_dk, 2.0_dk, 3.0_dk, 4.0_dk, 5.0_dk /)
@@ -303,6 +304,9 @@ contains
     ASSERT_EQ( target_data( 2 ), 20.0_dk )
     ASSERT_EQ( target_data( 3 ), 2.0_dk )
     ASSERT_EQ( target_data( 4 ), 40.0_dk )
+    deallocate( index_mappings )
+    deallocate( source_map )
+    deallocate( target_map )
 
   end subroutine build_and_check_index_mapping_t
 

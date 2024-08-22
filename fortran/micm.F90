@@ -132,8 +132,8 @@ module musica_micm
   end interface
 
   type :: micm_t
-    type(mappings_t) :: species_ordering
-    type(mappings_t) :: user_defined_reaction_rates
+    type(mappings_t), pointer :: species_ordering => null()
+    type(mappings_t), pointer :: user_defined_reaction_rates => null()
     type(c_ptr), private         :: ptr = c_null_ptr
   contains
     ! Solve the chemical system
@@ -215,7 +215,7 @@ contains
         return
     end if
 
-    this%species_ordering = mappings_t( get_species_ordering_c(this%ptr, error_c) )
+    this%species_ordering => mappings_t( get_species_ordering_c(this%ptr, error_c) )
     error = error_t(error_c)
     if (.not. error%is_success()) then
         deallocate(this)
@@ -223,7 +223,7 @@ contains
         return
     end if
 
-    this%user_defined_reaction_rates = &
+    this%user_defined_reaction_rates => &
         mappings_t( get_user_defined_reaction_rates_ordering_c(this%ptr, error_c) )
     error = error_t(error_c)
     if (.not. error%is_success()) then
@@ -438,6 +438,10 @@ contains
 
     type(error_t_c)             :: error_c
     type(error_t)               :: error
+
+    if (associated(this%species_ordering)) deallocate(this%species_ordering)
+    if (associated(this%user_defined_reaction_rates)) &
+        deallocate(this%user_defined_reaction_rates)
     call delete_micm_c(this%ptr, error_c)
     this%ptr = c_null_ptr
     error = error_t(error_c)
