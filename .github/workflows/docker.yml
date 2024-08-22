@@ -27,6 +27,7 @@ jobs:
           - Dockerfile.mpi
           - Dockerfile.mpi_openmp
           - Dockerfile.python
+          - Dockerfile.pip
         build_type: [Release, Debug]
     steps:
       - name: Checkout code

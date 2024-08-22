@@ -27,12 +27,6 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Install dependencies on Ubuntu
-      if: matrix.platform == 'ubuntu-latest'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libyaml-cpp-dev
-
     - name: Add requirements
       run: python -m pip install --upgrade wheel setuptools
 
@@ -40,4 +34,8 @@ jobs:
       run: pip install --verbose .[test]
 
     - name: Test
-      run: python -m unittest discover -s python/test
+      run: |
+        for dir in /usr/local/lib/python*/dist-packages; do
+          export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${dir}"
+        done
+        python -m unittest discover -s python/test
