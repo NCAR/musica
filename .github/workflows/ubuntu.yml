@@ -55,7 +55,7 @@ jobs:
     continue-on-error: true
     strategy:
       matrix:
-        gcc_version: [12, 13, 14]
+        gcc_version: [14]
         build_type: [Debug, Release]
     env:
       CXX: g++-${{ matrix.gcc_version }}
