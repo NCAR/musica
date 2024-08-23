@@ -25,7 +25,10 @@ target_include_directories(musica_python
 )
 
 # Set the rpath for the shared library
-if(UNIX)
+if(APPLE)
+  message(STATUS "Building for MacOS")
+elseif(UNIX)
+  message(STATUS "Building for Linux")
   set_target_properties(musica_python PROPERTIES
     INSTALL_RPATH "$ORIGIN"
     BUILD_WITH_INSTALL_RPATH TRUE

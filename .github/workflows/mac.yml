@@ -76,7 +76,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        gcc_version: [12, 13, 14]
+        gcc_version: [13, 14]
         build_type: [Release]
     env:
       FC: gfortran-${{ matrix.gcc_version }}
