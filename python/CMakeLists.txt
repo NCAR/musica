@@ -25,18 +25,12 @@ target_include_directories(musica_python
 )
 
 # Set the rpath for the shared library
-if(APPLE)
-  set_target_properties(musica_python PROPERTIES
-    INSTALL_RPATH "@loader_path"
-    BUILD_WITH_INSTALL_RPATH TRUE
-  )
-elseif(UNIX)
+if(UNIX)
   set_target_properties(musica_python PROPERTIES
     INSTALL_RPATH "$ORIGIN"
     BUILD_WITH_INSTALL_RPATH TRUE
   )
 endif()
-
 
 install(TARGETS musica_python yaml-cpp
   LIBRARY DESTINATION .
@@ -53,6 +47,3 @@ if(WIN32)
 else()
   set(PYTHON_MODULE_PATH "${CMAKE_CURRENT_BINARY_DIR}")
 endif()
-
-
-add_subdirectory(test)
