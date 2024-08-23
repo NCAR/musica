@@ -35,9 +35,4 @@ RUN cd musica \
 
 # Test
 RUN cd musica \
-    && file_path=$(find / -name "libyaml-cpp.so*" -print -quit) \
-    && if [ -n "$file_path" ]; then \
-        dir_path=$(dirname $file_path); \
-        export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${dir_path}"; \
-       fi \
     && python3 -m unittest discover -v -s python/test

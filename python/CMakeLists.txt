@@ -24,6 +24,20 @@ target_include_directories(musica_python
     $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
 )
 
+# Set the rpath for the shared library
+if(APPLE)
+  set_target_properties(musica_python PROPERTIES
+    INSTALL_RPATH "@loader_path"
+    BUILD_WITH_INSTALL_RPATH TRUE
+  )
+elseif(UNIX)
+  set_target_properties(musica_python PROPERTIES
+    INSTALL_RPATH "$ORIGIN"
+    BUILD_WITH_INSTALL_RPATH TRUE
+  )
+endif()
+
+
 install(TARGETS musica_python yaml-cpp
   LIBRARY DESTINATION .
 )
