@@ -39,8 +39,10 @@ namespace musica
     /// @brief Types of MICM solver
     enum MICMSolver
     {
-      Rosenbrock = 1,           // Vector-ordered Rosenbrock solver
-      RosenbrockStandardOrder,  // Standard-ordered Rosenbrock solver
+      Rosenbrock = 1,              // Vector-ordered Rosenbrock solver
+      RosenbrockStandardOrder,     // Standard-ordered Rosenbrock solver
+      BackwardEuler,               // Vector-ordered BackwardEuler solver
+      BackwardEulerStandardOrder,  // Standard-ordered BackwardEuler solver
     };
 
     struct SolverResultStats
@@ -179,6 +181,16 @@ namespace musica
     /// @param error Error struct to indicate success or failure
     void CreateRosenbrockStandardOrder(const std::string &config_path, Error *error);
 
+    /// @brief Create a BackwardEuler solver of vector-ordered matrix type by reading and parsing configuration file
+    /// @param config_path Path to configuration file or directory containing configuration file
+    /// @param error Error struct to indicate success or failure
+    void CreateBackwardEuler(const std::string &config_path, Error *error);
+
+    /// @brief Create a BackwardEuler solver of standard-ordered matrix type by reading and parsing configuration file
+    /// @param config_path Path to configuration file or directory containing configuration file
+    /// @param error Error struct to indicate success or failure
+    void CreateBackwardEulerStandardOrder(const std::string &config_path, Error *error);
+
     /// @brief Solve the system
     /// @param solver Pointer to solver
     /// @param time_step Time [s] to advance the state by
@@ -240,7 +252,7 @@ namespace musica
    public:
     MICMSolver solver_type_;
 
-    /// @brief Vector-ordered Rosenbrock solver type
+    /// @brief Vector-ordered Rosenbrock
     using DenseMatrixVector = micm::VectorMatrix<double, MICM_VECTOR_MATRIX_SIZE>;
     using SparseMatrixVector = micm::SparseMatrix<double, micm::SparseMatrixVectorOrdering<MICM_VECTOR_MATRIX_SIZE>>;
     using RosenbrockVectorType = typename micm::RosenbrockSolverParameters::
@@ -257,6 +269,19 @@ namespace musica
     using RosenbrockStandard = micm::Solver<RosenbrockStandardType, micm::State<DenseMatrixStandard, SparseMatrixStandard>>;
     using StandardState = micm::State<DenseMatrixStandard, SparseMatrixStandard>;
     std::unique_ptr<RosenbrockStandard> rosenbrock_standard_;
+
+    /// @brief Vector-ordered Backward Euler
+    using BackwardEulerVectorType = typename micm::BackwardEulerSolverParameters::
+        template SolverType<micm::ProcessSet, micm::LinearSolver<SparseMatrixVector, micm::LuDecomposition>>;
+    using BackwardEuler = micm::Solver<BackwardEulerVectorType, micm::State<DenseMatrixVector, SparseMatrixVector>>;
+    std::unique_ptr<BackwardEuler> backward_euler_;
+
+    /// @brief Standard-ordered Backward Euler
+    using BackwardEulerStandardType = typename micm::BackwardEulerSolverParameters::
+        template SolverType<micm::ProcessSet, micm::LinearSolver<SparseMatrixStandard, micm::LuDecomposition>>;
+    using BackwardEulerStandard =
+        micm::Solver<BackwardEulerStandardType, micm::State<DenseMatrixStandard, SparseMatrixStandard>>;
+    std::unique_ptr<BackwardEulerStandard> backward_euler_standard_;
 
     /// @brief Returns the number of grid cells
     /// @return Number of grid cells
