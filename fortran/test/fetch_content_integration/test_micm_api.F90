@@ -172,14 +172,15 @@ contains
 
   end subroutine test_api
 
-  subroutine test_multiple_grid_cells(micm, NUM_GRID_CELLS)
+  subroutine test_multiple_grid_cells(micm, NUM_GRID_CELLS, time_step, test_accuracy)
 
     type(micm_t), pointer, intent(inout) :: micm
     integer,               intent(in)    :: NUM_GRID_CELLS
+    real(c_double),        intent(in)    :: time_step
+    real,                  intent(in)    :: test_accuracy
 
     integer, parameter        :: NUM_SPECIES = 6
     integer, parameter        :: NUM_USER_DEFINED_REACTION_RATES = 2
-    real(c_double)            :: time_step
     real(c_double), target    :: temperature(NUM_GRID_CELLS)
     real(c_double), target    :: pressure(NUM_GRID_CELLS)
     real(c_double), target    :: air_density(NUM_GRID_CELLS)
@@ -196,14 +197,10 @@ contains
     real(c_double)            :: initial_A, initial_C, initial_D, initial_F
     real(c_double)            :: k1, k2, k3, k4
     real(c_double)            :: A, B, C, D, E, F
-    real                      :: accuracy
     integer                   :: i_cell
     logical                   :: found
     real                      :: temp
     type(ArrheniusReaction)   :: r1, r2
-
-    ! time_step = 200
-    time_step = 10
 
     A_index = find_mapping_index( micm%species_ordering, "A", found )
     ASSERT( found )
@@ -282,14 +279,12 @@ contains
       print *, 'E', concentrations((i_cell-1)*NUM_SPECIES+E_index), E
       print *, 'F', concentrations((i_cell-1)*NUM_SPECIES+F_index), F
       print *
-      ! accuracy = 5.0e-3
-      accuracy = 0.1
-      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+A_index), A, accuracy)
-      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+B_index), B, accuracy)
-      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+C_index), C, accuracy)
-      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+D_index), D, accuracy)
-      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+E_index), E, accuracy)
-      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+F_index), F, accuracy)
+      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+A_index), A, test_accuracy)
+      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+B_index), B, test_accuracy)
+      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+C_index), C, test_accuracy)
+      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+D_index), D, test_accuracy)
+      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+E_index), E, test_accuracy)
+      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+F_index), F, test_accuracy)
     end do
 
   end subroutine test_multiple_grid_cells
@@ -300,12 +295,15 @@ contains
     integer               :: num_grid_cells
     type(error_t)         :: error
 
+    real(c_double), parameter :: time_step = 200
+    real, parameter           :: test_accuracy = 5.0e-3
+
     num_grid_cells = 3
     micm => micm_t( "configs/analytical", Rosenbrock, num_grid_cells, error )
     ASSERT( error%is_success() )
 
-    print *, 'vector Rosenbrock'
-    call test_multiple_grid_cells( micm, num_grid_cells )
+    print *, 'test_multiple_grid_cells vector Rosenbrock'
+    call test_multiple_grid_cells( micm, num_grid_cells, time_step, test_accuracy )
 
     deallocate( micm )
 
@@ -317,12 +315,15 @@ contains
     integer               :: num_grid_cells
     type(error_t)         :: error
 
+    real(c_double), parameter :: time_step = 200
+    real, parameter           :: test_accuracy = 5.0e-3
+
     num_grid_cells = 3
     micm => micm_t( "configs/analytical", RosenbrockStandardOrder, num_grid_cells, error )
     ASSERT( error%is_success() )
 
-    print *, 'standard Rosenbrock'
-    call test_multiple_grid_cells( micm, num_grid_cells )
+    print *, 'test_multiple_grid_cells standard Rosenbrock'
+    call test_multiple_grid_cells( micm, num_grid_cells, time_step, test_accuracy )
 
     deallocate( micm )
 
@@ -334,12 +335,15 @@ contains
     integer               :: num_grid_cells
     type(error_t)         :: error
 
+    real(c_double), parameter :: time_step = 10
+    real, parameter           :: test_accuracy = 0.1
+
     num_grid_cells = 3
     micm => micm_t( "configs/analytical", BackwardEuler, num_grid_cells, error )
     ASSERT( error%is_success() )
 
-    print *, 'vector Backward Euler'
-    call test_multiple_grid_cells( micm, num_grid_cells )
+    print *, 'test_multiple_grid_cells vector Backward Euler'
+    call test_multiple_grid_cells( micm, num_grid_cells, time_step, test_accuracy )
 
     deallocate( micm )
 
@@ -351,12 +355,15 @@ contains
     integer               :: num_grid_cells
     type(error_t)         :: error
 
+    real(c_double), parameter :: time_step = 10
+    real, parameter           :: test_accuracy = 0.1
+
     num_grid_cells = 3
     micm => micm_t( "configs/analytical", BackwardEulerStandardOrder, num_grid_cells, error )
     ASSERT( error%is_success() )
 
-    print *, 'standard Backward Euler'
-    call test_multiple_grid_cells( micm, num_grid_cells )
+    print *, 'test_multiple_grid_cells standard Backward Euler'
+    call test_multiple_grid_cells( micm, num_grid_cells, time_step, test_accuracy )
 
     deallocate( micm )
 
