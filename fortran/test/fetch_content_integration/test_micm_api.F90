@@ -202,7 +202,8 @@ contains
     real                      :: temp
     type(ArrheniusReaction)   :: r1, r2
 
-    time_step = 200
+    ! time_step = 200
+    time_step = 10
 
     A_index = find_mapping_index( micm%species_ordering, "A", found )
     ASSERT( found )
@@ -282,7 +283,7 @@ contains
       print *, 'F', concentrations((i_cell-1)*NUM_SPECIES+F_index), F
       print *
       ! accuracy = 5.0e-3
-      accuracy = 0.15
+      accuracy = 0.1
       ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+A_index), A, accuracy)
       ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+B_index), B, accuracy)
       ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+C_index), C, accuracy)
