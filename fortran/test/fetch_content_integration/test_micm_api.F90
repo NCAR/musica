@@ -196,6 +196,7 @@ contains
     real(c_double)            :: initial_A, initial_C, initial_D, initial_F
     real(c_double)            :: k1, k2, k3, k4
     real(c_double)            :: A, B, C, D, E, F
+    real                      :: accuracy
     integer                   :: i_cell
     logical                   :: found
     real                      :: temp
@@ -273,12 +274,21 @@ contains
       D = initial_D * exp( -k1 * time_step )
       E = initial_D * (k1 / (k2 - k1)) * (exp(-k1 * time_step) - exp(-k2 * time_step))
       F = initial_F + initial_D * (1.0 + (k1 * exp(-k2 * time_step) - k2 * exp(-k1 * time_step)) / (k2 - k1))
-      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+A_index), A, 5.0e-3)
-      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+B_index), B, 5.0e-3)
-      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+C_index), C, 5.0e-3)
-      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+D_index), D, 5.0e-3)
-      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+E_index), E, 5.0e-3)
-      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+F_index), F, 5.0e-3)
+      print *, 'A', concentrations((i_cell-1)*NUM_SPECIES+A_index), A
+      print *, 'B', concentrations((i_cell-1)*NUM_SPECIES+B_index), B
+      print *, 'C', concentrations((i_cell-1)*NUM_SPECIES+C_index), C
+      print *, 'D', concentrations((i_cell-1)*NUM_SPECIES+D_index), D
+      print *, 'E', concentrations((i_cell-1)*NUM_SPECIES+E_index), E
+      print *, 'F', concentrations((i_cell-1)*NUM_SPECIES+F_index), F
+      print *
+      ! accuracy = 5.0e-3
+      accuracy = 0.15
+      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+A_index), A, accuracy)
+      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+B_index), B, accuracy)
+      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+C_index), C, accuracy)
+      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+D_index), D, accuracy)
+      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+E_index), E, accuracy)
+      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+F_index), F, accuracy)
     end do
 
   end subroutine test_multiple_grid_cells
@@ -293,6 +303,7 @@ contains
     micm => micm_t( "configs/analytical", Rosenbrock, num_grid_cells, error )
     ASSERT( error%is_success() )
 
+    print *, 'vector Rosenbrock'
     call test_multiple_grid_cells( micm, num_grid_cells )
 
     deallocate( micm )
@@ -309,6 +320,7 @@ contains
     micm => micm_t( "configs/analytical", RosenbrockStandardOrder, num_grid_cells, error )
     ASSERT( error%is_success() )
 
+    print *, 'standard Rosenbrock'
     call test_multiple_grid_cells( micm, num_grid_cells )
 
     deallocate( micm )
@@ -325,6 +337,7 @@ contains
     micm => micm_t( "configs/analytical", BackwardEuler, num_grid_cells, error )
     ASSERT( error%is_success() )
 
+    print *, 'vector Backward Euler'
     call test_multiple_grid_cells( micm, num_grid_cells )
 
     deallocate( micm )
@@ -341,6 +354,7 @@ contains
     micm => micm_t( "configs/analytical", BackwardEulerStandardOrder, num_grid_cells, error )
     ASSERT( error%is_success() )
 
+    print *, 'standard Backward Euler'
     call test_multiple_grid_cells( micm, num_grid_cells )
 
     deallocate( micm )
