@@ -19,8 +19,8 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  function internal_create_tuvx(c_config_path, config_path_length, error_code) &
-      bind(C, name="InternalCreateTuvx")
+  function internal_create_tuvx(c_config_path, config_path_length, grids, &
+      profiles, radiators, error_code) bind(C, name="InternalCreateTuvx")
     use iso_c_binding, only: c_ptr, c_f_pointer
 
     ! arguments

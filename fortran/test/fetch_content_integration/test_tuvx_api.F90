@@ -118,15 +118,16 @@ contains
 
     grids => grid_map_t( error )
     ASSERT( error%is_success() )
-
     profiles => profile_map_t( error )
     ASSERT( error%is_success() )
-
     radiators => radiator_map_t( error )
     ASSERT( error%is_success() )
-
     tuvx => tuvx_t(config_path, grids, profiles, radiators, error)
     ASSERT( error%is_success() )
+
+    !!!!
+    !!!! Jiwon
+    !!!!
     grids => tuvx%get_grids( error )
     ASSERT( error%is_success() )
 

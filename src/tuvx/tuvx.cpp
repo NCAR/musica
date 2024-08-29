@@ -115,6 +115,7 @@ namespace musica
   {
     *error = NoError();
     int error_code = 0;
+    // TODO (jiwon) remove this new operation?
     GridMap *grid_map = new GridMap(InternalGetGridMap(tuvx_, &error_code));
     if (error_code != 0)
     {
