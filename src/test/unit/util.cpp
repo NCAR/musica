@@ -73,16 +73,101 @@ TEST(Util, ToMapping)
 
 TEST(Util, FindMappingIndex)
 {
-  Mapping mappings[] = { ToMapping("Test", 1), ToMapping("Test2", 4), ToMapping("Test3", 9) };
+  Mappings mappings;
+  Mapping mapping_array[] = { ToMapping("Test", 1), ToMapping("Test2", 4), ToMapping("Test3", 9) };
+  mappings.mappings_ = mapping_array;
+  mappings.size_ = 3;
   Error error = NoError();
-  EXPECT_EQ(FindMappingIndex(mappings, 3, "Test", &error), 1);
+  EXPECT_EQ(FindMappingIndex(mappings, "Test", &error), 1);
   EXPECT_TRUE(IsSuccess(error));
-  EXPECT_EQ(FindMappingIndex(mappings, 3, "Test3", &error), 9);
+  EXPECT_EQ(FindMappingIndex(mappings, "Test3", &error), 9);
   EXPECT_TRUE(IsSuccess(error));
-  EXPECT_EQ(FindMappingIndex(mappings, 3, "Test2", &error), 4);
+  EXPECT_EQ(FindMappingIndex(mappings, "Test2", &error), 4);
   EXPECT_TRUE(IsSuccess(error));
   DeleteError(&error);
-  DeleteMapping(&(mappings[0]));
-  DeleteMapping(&(mappings[1]));
-  DeleteMapping(&(mappings[2]));
+  DeleteMapping(&(mapping_array[0]));
+  DeleteMapping(&(mapping_array[1]));
+  DeleteMapping(&(mapping_array[2]));
+}
+
+TEST(Util, IndexMappingFromString)
+{
+  Error error = NoError();
+  Configuration config = LoadConfigurationFromString(
+      "- source: Test\n"
+      "  target: Test2\n"
+      "- source: Test2\n"
+      "  target: Test3\n"
+      "  scale factor: 0.82\n",
+      &error);
+  EXPECT_TRUE(IsSuccess(error));
+  Mappings source_map;
+  Mappings target_map;
+  Mapping source_map_array[] = { ToMapping("Test", 1), ToMapping("Test2", 4) };
+  Mapping target_map_array[] = { ToMapping("Test2", 2), ToMapping("Test3", 0) };
+  source_map.mappings_ = source_map_array;
+  source_map.size_ = 2;
+  target_map.mappings_ = target_map_array;
+  target_map.size_ = 2;
+  IndexMappings index_mappings = CreateIndexMappings(config, source_map, target_map, &error);
+  EXPECT_TRUE(IsSuccess(error));
+  EXPECT_EQ(index_mappings.mappings_[0].source_, 1);
+  EXPECT_EQ(index_mappings.mappings_[0].target_, 2);
+  EXPECT_EQ(index_mappings.mappings_[0].scale_factor_, 1.0);
+  EXPECT_EQ(index_mappings.mappings_[1].source_, 4);
+  EXPECT_EQ(index_mappings.mappings_[1].target_, 0);
+  EXPECT_EQ(index_mappings.mappings_[1].scale_factor_, 0.82);
+  EXPECT_EQ(index_mappings.size_, 2);
+  double source[] = { 1.0, 2.0, 3.0, 4.0, 5.0 };
+  double target[] = { 10.0, 20.0, 30.0, 40.0 };
+  CopyData(index_mappings, source, target);
+  EXPECT_EQ(target[0], 5.0 * 0.82);
+  EXPECT_EQ(target[1], 20.0);
+  EXPECT_EQ(target[2], 2.0);
+  EXPECT_EQ(target[3], 40.0);
+  DeleteIndexMappings(&index_mappings);
+  DeleteMapping(&(source_map_array[0]));
+  DeleteMapping(&(source_map_array[1]));
+  DeleteMapping(&(target_map_array[0]));
+  DeleteMapping(&(target_map_array[1]));
+  DeleteConfiguration(&config);
+  DeleteError(&error);
+}
+
+TEST(Util, IndexMappingFromFile)
+{
+  Error error = NoError();
+  Configuration config = LoadConfigurationFromFile("test/data/util_index_mapping_from_file.json", &error);
+  EXPECT_TRUE(IsSuccess(error));
+  Mappings source_map;
+  Mappings target_map;
+  Mapping source_map_array[] = { ToMapping("Test", 1), ToMapping("Test2", 4) };
+  Mapping target_map_array[] = { ToMapping("Test2", 2), ToMapping("Test3", 0) };
+  source_map.mappings_ = source_map_array;
+  source_map.size_ = 2;
+  target_map.mappings_ = target_map_array;
+  target_map.size_ = 2;
+  IndexMappings index_mappings = CreateIndexMappings(config, source_map, target_map, &error);
+  EXPECT_TRUE(IsSuccess(error));
+  EXPECT_EQ(index_mappings.mappings_[0].source_, 1);
+  EXPECT_EQ(index_mappings.mappings_[0].target_, 2);
+  EXPECT_EQ(index_mappings.mappings_[0].scale_factor_, 1.0);
+  EXPECT_EQ(index_mappings.mappings_[1].source_, 4);
+  EXPECT_EQ(index_mappings.mappings_[1].target_, 0);
+  EXPECT_EQ(index_mappings.mappings_[1].scale_factor_, 0.82);
+  EXPECT_EQ(index_mappings.size_, 2);
+  double source[] = { 1.0, 2.0, 3.0, 4.0, 5.0 };
+  double target[] = { 10.0, 20.0, 30.0, 40.0 };
+  CopyData(index_mappings, source, target);
+  EXPECT_EQ(target[0], 5.0 * 0.82);
+  EXPECT_EQ(target[1], 20.0);
+  EXPECT_EQ(target[2], 2.0);
+  EXPECT_EQ(target[3], 40.0);
+  DeleteIndexMappings(&index_mappings);
+  DeleteMapping(&(source_map_array[0]));
+  DeleteMapping(&(source_map_array[1]));
+  DeleteMapping(&(target_map_array[0]));
+  DeleteMapping(&(target_map_array[1]));
+  DeleteConfiguration(&config);
+  DeleteError(&error);
 }

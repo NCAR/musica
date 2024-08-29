@@ -27,6 +27,8 @@ jobs:
           - Dockerfile.mpi
           - Dockerfile.mpi_openmp
           - Dockerfile.python
+          - Dockerfile.pip
+        build_type: [Release, Debug]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -37,10 +39,10 @@ jobs:
         run: rm -rf /opt/hostedtoolcache
 
       - name: Build Docker image
-        run: docker build -t musica -f docker/${{ matrix.dockerfile }} .
+        run: docker build -t musica -f docker/${{ matrix.dockerfile }} . --build-arg MUSICA_GIT_TAG=${{ github.sha }} --build-arg BUILD_TYPE=${{ matrix.build_type }}
 
       - name: Run tests in container
-        if: matrix.dockerfile != 'Dockerfile.coverage'
+        if: matrix.dockerfile != 'Dockerfile.coverage' && matrix.dockerfile != 'Dockerfile.pip'
         run: docker run --name test-container -t musica bash -c 'make test ARGS="--rerun-failed --output-on-failure -j8"'
 
       - name: Run coverage tests in container

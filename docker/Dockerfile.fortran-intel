@@ -8,6 +8,7 @@ RUN wget -qO - https://repositories.intel.com/gpu/intel-graphics.key | \
   gpg --yes --dearmor --output /usr/share/keyrings/intel-graphics-archive-keyring.gpg
 
 ARG MUSICA_GIT_TAG=main
+ARG BUILD_TYPE=Release
 
 RUN apt update \
     && apt -y install \
@@ -52,6 +53,7 @@ RUN cd musica \
     && cmake -S . \
              -B build \
              -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+             -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
     && cd build \
     && make install -j
 
@@ -63,7 +65,7 @@ ENV FC=ifx
 RUN cd musica/fortran/test/fetch_content_integration \
     && mkdir build && cd build \
     && cmake .. \
-        -D CMAKE_BUILD_TYPE=Release \
+        -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
         -D CMAKE_EXE_LINKER_FLAGS="-Wl,--copy-dt-needed-entries" \
         -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
         -D MUSICA_ENABLE_MEMCHECK=ON \

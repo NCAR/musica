@@ -66,7 +66,6 @@ contains
     integer                              :: i
     integer                              :: O2_index, O_index, O1D_index, O3_index
     integer                              :: jO2_index, jO3a_index, jO3b_index
-    logical                              :: found
     
     config_path = "configs/chapman"
     solver_type = Rosenbrock
@@ -77,21 +76,21 @@ contains
     micm => micm_t(config_path, solver_type, num_grid_cells, error)
     ASSERT( error%is_success() )
 
-    O2_index = find_mapping_index( micm%species_ordering, "O2", found )
-    ASSERT( found )
-    O_index = find_mapping_index( micm%species_ordering, "O", found )
-    ASSERT( found )
-    O1D_index = find_mapping_index( micm%species_ordering, "O1D", found )
-    ASSERT( found )
-    O3_index = find_mapping_index( micm%species_ordering, "O3", found )
-    ASSERT( found )
+    O2_index = micm%species_ordering%index( "O2", error )
+    ASSERT( error%is_success() )
+    O_index = micm%species_ordering%index( "O", error )
+    ASSERT( error%is_success() )
+    O1D_index = micm%species_ordering%index( "O1D", error )
+    ASSERT( error%is_success() )
+    O3_index = micm%species_ordering%index( "O3", error )
+    ASSERT( error%is_success() )
 
-    jO2_index = find_mapping_index( micm%user_defined_reaction_rates, "PHOTO.jO2", found )
-    ASSERT( found )
-    jO3a_index = find_mapping_index( micm%user_defined_reaction_rates, "PHOTO.jO3->O", found )
-    ASSERT( found )
-    jO3b_index = find_mapping_index( micm%user_defined_reaction_rates, "PHOTO.jO3->O1D", found )
-    ASSERT( found )
+    jO2_index = micm%user_defined_reaction_rates%index( "PHOTO.jO2", error )
+    ASSERT( error%is_success() )
+    jO3a_index = micm%user_defined_reaction_rates%index( "PHOTO.jO3->O", error )
+    ASSERT( error%is_success() )
+    jO3b_index = micm%user_defined_reaction_rates%index( "PHOTO.jO3->O1D", error )
+    ASSERT( error%is_success() )
 
     temperature(1) = 272.5
     pressure(1) = 101253.4
@@ -108,15 +107,13 @@ contains
     micm_version = get_micm_version()
     print *, "[test micm fort api] MICM version ", micm_version%get_char_array()
 
-    do i = 1, size( micm%species_ordering )
-      associate(the_mapping => micm%species_ordering(i))
-      print *, "Species Name:", the_mapping%name(), ", Index:", the_mapping%index()
-      end associate
+    do i = 1, micm%species_ordering%size()
+      print *, "Species Name:", micm%species_ordering%name(i), &
+               ", Index:", micm%species_ordering%index(i)
     end do
-    do i = 1, size( micm%user_defined_reaction_rates )
-      associate(the_mapping => micm%user_defined_reaction_rates(i))
-      print *, "User Defined Reaction Rate Name:", the_mapping%name(), ", Index:", the_mapping%index()
-      end associate
+    do i = 1, micm%user_defined_reaction_rates%size()
+      print *, "User Defined Reaction Rate Name:", micm%user_defined_reaction_rates%name(i), &
+               ", Index:", micm%user_defined_reaction_rates%index(i)
     end do
 
     write(*,*) "[test micm fort api] Initial concentrations", concentrations
@@ -195,29 +192,28 @@ contains
     real(c_double)            :: k1, k2, k3, k4
     real(c_double)            :: A, B, C, D, E, F
     integer                   :: i_cell
-    logical                   :: found
     real                      :: temp
     type(ArrheniusReaction)   :: r1, r2
 
     time_step = 200
 
-    A_index = find_mapping_index( micm%species_ordering, "A", found )
-    ASSERT( found )
-    B_index = find_mapping_index( micm%species_ordering, "B", found )
-    ASSERT( found )
-    C_index = find_mapping_index( micm%species_ordering, "C", found )
-    ASSERT( found )
-    D_index = find_mapping_index( micm%species_ordering, "D", found )
-    ASSERT( found )
-    E_index = find_mapping_index( micm%species_ordering, "E", found )
-    ASSERT( found )
-    F_index = find_mapping_index( micm%species_ordering, "F", found )
-    ASSERT( found )
+    A_index = micm%species_ordering%index( "A", error )
+    ASSERT( error%is_success() )
+    B_index = micm%species_ordering%index( "B", error )
+    ASSERT( error%is_success() )
+    C_index = micm%species_ordering%index( "C", error )
+    ASSERT( error%is_success() )
+    D_index = micm%species_ordering%index( "D", error )
+    ASSERT( error%is_success() )
+    E_index = micm%species_ordering%index( "E", error )
+    ASSERT( error%is_success() )
+    F_index = micm%species_ordering%index( "F", error )
+    ASSERT( error%is_success() )
 
-    R1_index = find_mapping_index( micm%user_defined_reaction_rates, "USER.reaction 1", found )
-    ASSERT( found )
-    R2_index = find_mapping_index( micm%user_defined_reaction_rates, "USER.reaction 2", found )
-    ASSERT( found )
+    R1_index = micm%user_defined_reaction_rates%index( "USER.reaction 1", error )
+    ASSERT( error%is_success() )
+    R2_index = micm%user_defined_reaction_rates%index( "USER.reaction 2", error )
+    ASSERT( error%is_success() )
 
     do i_cell = 1, NUM_GRID_CELLS
       call random_number( temp )
