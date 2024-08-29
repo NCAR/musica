@@ -13,12 +13,12 @@ namespace musica
 {
 
   // TUVX external C API functions
-
-  TUVX *CreateTuvx(const char *config_path, Error *error)
+  TUVX *CreateTuvx(const char *config_path, GridMap *grids, ProfileMap *profiles, RadiatorMap *radiators, Error *error)
   {
     DeleteError(error);
     TUVX *tuvx = new TUVX();
-    tuvx->Create(config_path, error);
+
+    tuvx->Create(config_path, grids, profiles, radiators, error);
     if (!IsSuccess(*error))
     {
       delete tuvx;
@@ -79,7 +79,7 @@ namespace musica
     tuvx_ = nullptr;
   }
 
-  void TUVX::Create(const char *config_path, Error *error)
+  void TUVX::Create(const char *config_path, GridMap *grids, ProfileMap *profiles, RadiatorMap *radiators, Error *error)
   {
     int parsing_status = 0;  // 0 on success, 1 on failure
     try
@@ -91,7 +91,7 @@ namespace musica
         return;
       }
 
-      tuvx_ = InternalCreateTuvx(config_path, strlen(config_path), &parsing_status);
+      tuvx_ = InternalCreateTuvx(config_path, strlen(config_path), grids, profiles, radiators, &parsing_status);
       if (parsing_status == 1)
       {
         *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create tuvx instance") };

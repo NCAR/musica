@@ -26,30 +26,57 @@ contains
 
   ! Valid tuvx solver creation test
   subroutine test_tuvx_api()
-    character(len=256)    :: config_path
-    logical(c_bool)       :: bool_value
-    type(tuvx_t), pointer :: tuvx
-    type(error_t)         :: error
-
+    character(len=256)            :: config_path
+    type(grid_map_t),     pointer :: grids
+    type(profile_map_t),  pointer :: profiles
+    type(radiator_map_t), pointer :: radiators
+    type(tuvx_t),         pointer :: tuvx
+    type(error_t)                 :: error
 
     config_path = "examples/ts1_tsmlt.json"
 
-    tuvx => tuvx_t(config_path, error)
+    grids => grid_map_t( error )
     ASSERT( error%is_success() )
 
+    profiles => profile_map_t( error )
+    ASSERT( error%is_success() )
+
+    radiators => radiator_map_t( error )
+    ASSERT( error%is_success() )
+
+    tuvx => tuvx_t(config_path, grids, profiles, radiators, error)
+    ASSERT( error%is_success() )
+
+    deallocate( grids )
+    deallocate( profiles )
+    deallocate( radiators )
     deallocate( tuvx )
 
   end subroutine test_tuvx_api
 
   ! Invalid tuvx solver creation test
   subroutine test_tuvx_api_invalid_config()
-    type(tuvx_t), pointer :: tuvx
-    type(error_t)         :: error
-    character(len=256)    :: config_path
-
+    character(len=256)            :: config_path
+    type(grid_map_t),     pointer :: grids
+    type(profile_map_t),  pointer :: profiles
+    type(radiator_map_t), pointer :: radiators
+    type(tuvx_t),         pointer :: tuvx
+    type(error_t)                 :: error
     config_path = "invalid_config"
 
-    tuvx => tuvx_t(config_path, error)
+    grids => grid_map_t( error )
+    ASSERT( error%is_success() )
+
+    profiles => profile_map_t( error )
+    ASSERT( error%is_success() )
+
+    radiators => radiator_map_t( error )
+    ASSERT( error%is_success() )
+
+    tuvx => tuvx_t(config_path, grids, profiles, radiators, error)
+    ASSERT( error%is_success() )
+
+    tuvx => tuvx_t(config_path, grids, profiles, radiators, error)
     ASSERT( .not. error%is_success() )
 
   end subroutine test_tuvx_api_invalid_config
@@ -89,7 +116,16 @@ contains
 
     config_path = "examples/ts1_tsmlt.json"
 
-    tuvx => tuvx_t( config_path, error )
+    grids => grid_map_t( error )
+    ASSERT( error%is_success() )
+
+    profiles => profile_map_t( error )
+    ASSERT( error%is_success() )
+
+    radiators => radiator_map_t( error )
+    ASSERT( error%is_success() )
+
+    tuvx => tuvx_t(config_path, grids, profiles, radiators, error)
     ASSERT( error%is_success() )
     grids => tuvx%get_grids( error )
     ASSERT( error%is_success() )
