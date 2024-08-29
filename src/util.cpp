@@ -178,7 +178,7 @@ namespace musica
     delete[] mappings->mappings_;
   }
 
-  IndexMappings CreateIndexMappings(Configuration configuration, const Mappings source, const Mappings target, Error* error)
+  IndexMappings CreateIndexMappings(const Configuration configuration, const Mappings source, const Mappings target, Error* error)
   {
     DeleteError(error);
     std::size_t size = configuration.data_->size();

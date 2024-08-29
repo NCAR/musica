@@ -122,7 +122,7 @@ namespace musica
     /// @param target The target array of name-index Mappings
     /// @param error The Error to populate if a Mapping is not found
     /// @return The array of IndexMappings
-    IndexMappings CreateIndexMappings(Configuration configuration, const Mappings source, const Mappings target, Error* error);
+    IndexMappings CreateIndexMappings(const Configuration configuration, const Mappings source, const Mappings target, Error* error);
 
     /// @brief Copies data from one array to another using IndexMappings
     /// @param mappings The array of IndexMappings
