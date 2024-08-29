@@ -9,12 +9,14 @@ program test_util
 #define ASSERT_NE( a, b ) call assert( a /= b, __FILE__, __LINE__ )
 
   use, intrinsic :: iso_c_binding, only: c_char, c_ptr, c_loc, c_size_t, c_null_char
+  use musica_constants, only: dk => musica_dk
   use musica_util
   implicit none
 
   call test_string_t()
   call test_error_t()
   call test_mapping_t()
+  call test_index_mapping_t()
 
 contains
 
@@ -139,12 +141,15 @@ contains
 
   subroutine test_mapping_t()
 
-    type(mapping_t) :: a, b, c
+    type(mapping_t), pointer :: a, b, c
     type(mapping_t_c) :: a_c, b_c, c_c
     type(mapping_t_c), target :: c_mappings(3)
     type(c_ptr) :: c_mappings_ptr
     type(mapping_t), allocatable :: f_mappings(:)
+    type(mappings_t), pointer :: mappings
     logical :: found
+    type(error_t) :: error
+    integer :: index
 
     a_c%index_ = 3
     a_c%name_ = create_c_string( "foo" )
@@ -156,9 +161,9 @@ contains
     c_c%name_ = create_c_string( "baz" )
 
     ! construct and take ownership of the c mapping
-    a = mapping_t( a_c )
-    b = mapping_t( b_c )
-    c = mapping_t( c_c )
+    a => mapping_t( a_c )
+    b => mapping_t( b_c )
+    c => mapping_t( c_c )
 
     ASSERT_EQ( a%index(), 4 )
     ASSERT_EQ( a%name(), "foo" )
@@ -185,8 +190,10 @@ contains
     ! copy assignment of c mapping
     a = a_c
     b = a_c
+
     ! construct and take ownership of the c mapping
-    c = mapping_t( a_c )
+    deallocate( c )
+    c => mapping_t( a_c )
 
     ASSERT_EQ( a%index(), 14 )
     ASSERT_EQ( a%name(), "qux" )
@@ -197,6 +204,10 @@ contains
     ASSERT_EQ( c%index(), 14 )
     ASSERT_EQ( c%name(), "qux" )
 
+    deallocate( a )
+    deallocate( b )
+    deallocate( c )
+
     c_mappings(1)%index_ = 21
     c_mappings(1)%name_ = create_c_string( "quux" )
     c_mappings(2)%index_ = 34
@@ -205,7 +216,7 @@ contains
     c_mappings(3)%name_ = create_c_string( "grault" )
 
     c_mappings_ptr = c_loc( c_mappings )
-    f_mappings = copy_mappings( c_mappings_ptr, 3_c_size_t )
+    call copy_mappings( c_mappings_ptr, 3_c_size_t, f_mappings )
     call delete_string_c( c_mappings(1)%name_ )
     call delete_string_c( c_mappings(2)%name_ )
     call delete_string_c( c_mappings(3)%name_ )
@@ -229,7 +240,99 @@ contains
     ASSERT_EQ( find_mapping_index( f_mappings, "foo",   found ), -1 )
     ASSERT( .not. found )
 
+    ! create mappings object from array
+    mappings => mappings_t( f_mappings )
+    ASSERT_EQ( mappings%size(), 3 )
+    ASSERT_EQ( mappings%index( 1 ), 22 )
+    ASSERT_EQ( mappings%name( 1 ), "quux" )
+    ASSERT_EQ( mappings%index( 2 ), 35 )
+    ASSERT_EQ( mappings%name( 2 ), "corge" )
+    ASSERT_EQ( mappings%index( 3 ), 56 )
+    ASSERT_EQ( mappings%name( 3 ), "grault" )
+
+    ! find mappings by name
+    ASSERT_EQ( mappings%index( "quux", error ), 22 )
+    ASSERT( error%is_success() )
+    ASSERT_EQ( mappings%index( "corge", error ), 35 )
+    ASSERT( error%is_success() )
+    ASSERT_EQ( mappings%index( "grault", error ), 56 )
+    ASSERT( error%is_success() )
+    index = mappings%index( "foo", error )
+    ASSERT( .not. error%is_success() )
+    deallocate( mappings )
+    
   end subroutine test_mapping_t
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  subroutine build_and_check_index_mapping_t(config)
+
+    type(configuration_t), intent(inout) :: config
+
+    type(mapping_t), pointer :: map
+    type(mapping_t), allocatable :: f_map(:)
+    type(mappings_t), pointer :: source_map, target_map
+    type(index_mappings_t), pointer :: index_mappings
+    type(error_t) :: error
+    real(dk), allocatable :: source_data(:), target_data(:)
+
+    allocate( f_map( 2 ) )
+    map => mapping_t( "Test", 2 )
+    f_map( 1 ) = map
+    deallocate( map )
+    map => mapping_t( "Test2", 5 )
+    f_map( 2 ) = map
+    deallocate( map )
+    source_map => mappings_t( f_map )
+    map => mapping_t( "Test2", 3 )
+    f_map( 1 ) = map
+    deallocate( map )
+    map => mapping_t( "Test3", 1 )
+    f_map( 2 ) = map
+    deallocate( map )
+    target_map => mappings_t( f_map )
+    deallocate( f_map )
+
+    index_mappings => index_mappings_t( config, source_map, target_map, error )
+    ASSERT( error%is_success() )
+
+    source_data = (/ 1.0_dk, 2.0_dk, 3.0_dk, 4.0_dk, 5.0_dk /)
+    target_data = (/ 10.0_dk, 20.0_dk, 30.0_dk, 40.0_dk /)
+
+    call index_mappings%copy_data( source_data, target_data )
+    ASSERT_EQ( target_data( 1 ), 5.0_dk * 0.82_dk )
+    ASSERT_EQ( target_data( 2 ), 20.0_dk )
+    ASSERT_EQ( target_data( 3 ), 2.0_dk )
+    ASSERT_EQ( target_data( 4 ), 40.0_dk )
+    deallocate( index_mappings )
+    deallocate( source_map )
+    deallocate( target_map )
+
+  end subroutine build_and_check_index_mapping_t
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  !> Tests the index_mapping_t type
+  subroutine test_index_mapping_t()
+
+    type(configuration_t) :: config
+    type(error_t) :: error
+
+    call config%load_from_string( &
+      "- source: Test"//new_line('a')// &
+      "  target: Test2"//new_line('a')// &
+      "- source: Test2"//new_line('a')// & 
+      "  target: Test3"//new_line('a')// &
+      "  scale factor: 0.82"//new_line('a'), error )
+    ASSERT( error%is_success() )
+    call build_and_check_index_mapping_t( config )
+
+    call config%load_from_file( "test/data/util_index_mapping_from_file.json", &
+                                error )
+    ASSERT( error%is_success() )
+    call build_and_check_index_mapping_t( config )
+
+  end subroutine test_index_mapping_t
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

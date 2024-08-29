@@ -1,5 +1,6 @@
-FROM fedora:35
+FROM fedora:latest
 
+ARG MUSICA_GIT_TAG=main
 ARG BUILD_TYPE=Release
 
 RUN dnf -y update \
@@ -25,6 +26,7 @@ RUN cd musica \
     && cmake -S . \
              -B build \
              -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+             -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
     && cd build \
     && make install -j 8 
 

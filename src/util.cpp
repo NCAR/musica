@@ -4,6 +4,15 @@
 
 #include <cstddef>
 #include <cstring>
+#include <iostream>
+
+namespace
+{
+  struct Yaml
+  {
+    YAML::Node node_;
+  };
+}
 
 namespace musica
 {
@@ -81,6 +90,47 @@ namespace musica
     return !(lhs == rhs);
   }
 
+  Configuration LoadConfigurationFromString(const char* data, Error* error)
+  {
+    DeleteError(error);
+    Configuration config;
+    try
+    {
+      config.data_ = new YAML::Node(YAML::Load(data));
+      *error = NoError();
+    }
+    catch(const std::exception& e)
+    {
+      config.data_ = nullptr;
+      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_PARSING_FAILED, e.what());
+    }
+    return config;
+  }
+
+  Configuration LoadConfigurationFromFile(const char* filename, Error* error)
+  {
+    DeleteError(error);
+    Configuration config;
+    try
+    {
+      config.data_ = new YAML::Node(YAML::LoadFile(filename));
+      *error = NoError();
+    }
+    catch(const std::exception& e)
+    {
+      config.data_ = nullptr;
+      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_PARSING_FAILED, e.what());
+    }
+    return config;
+  }
+
+  void DeleteConfiguration(Configuration* config)
+  {
+    if (config->data_ != nullptr)
+      delete config->data_;
+    config->data_ = nullptr;
+  }
+
   Mapping ToMapping(const char* name, std::size_t index)
   {
     Mapping mapping;
@@ -89,15 +139,23 @@ namespace musica
     return mapping;
   }
 
-  std::size_t FindMappingIndex(const Mapping* mappings, std::size_t size, const char* name, Error* error)
+  Mappings CreateMappings(std::size_t size)
+  {
+    Mappings mappings;
+    mappings.mappings_ = new Mapping[size];
+    mappings.size_ = size;
+    return mappings;
+  }
+
+  std::size_t FindMappingIndex(const Mappings mappings, const char* name, Error* error)
   {
     DeleteError(error);
-    for (std::size_t i = 0; i < size; i++)
+    for (std::size_t i = 0; i < mappings.size_; i++)
     {
-      if (std::strcmp(mappings[i].name_.value_, name) == 0)
+      if (std::strcmp(mappings.mappings_[i].name_.value_, name) == 0)
       {
         *error = NoError();
-        return mappings[i].index_;
+        return mappings.mappings_[i].index_;
       }
     }
     std::string msg = "Mapping element '" + std::string(name) + "' not found";
@@ -110,13 +168,71 @@ namespace musica
     DeleteString(&(mapping->name_));
   }
 
-  void DeleteMappings(Mapping* mappings, std::size_t size)
+  void DeleteMappings(Mappings* mappings)
   {
+    if (mappings->mappings_ == nullptr) return;
+    for (std::size_t i = 0; i < mappings->size_; i++)
+    {
+      DeleteMapping(&(mappings->mappings_[i]));
+    }
+    delete[] mappings->mappings_;
+  }
+
+  IndexMappings CreateIndexMappings(const Configuration configuration, const Mappings source, const Mappings target, Error* error)
+  {
+    DeleteError(error);
+    std::size_t size = configuration.data_->size();
+    IndexMappings index_mappings;
+    index_mappings.mappings_ = new IndexMapping[size];
+    index_mappings.size_ = size;
     for (std::size_t i = 0; i < size; i++)
     {
-      DeleteMapping(&(mappings[i]));
+      const YAML::Node& node = (*configuration.data_)[i];
+      std::string source_name = node["source"].as<std::string>();
+      std::string target_name = node["target"].as<std::string>();
+      std::size_t source_index = FindMappingIndex(source, source_name.c_str(), error);
+      if (!IsSuccess(*error))
+      {
+        DeleteIndexMappings(&index_mappings);
+        return index_mappings;
+      }
+      std::size_t target_index = FindMappingIndex(target, target_name.c_str(), error);
+      if (!IsSuccess(*error))
+      {
+        DeleteIndexMappings(&index_mappings);
+        return index_mappings;
+      }
+      index_mappings.mappings_[i].source_ = source_index;
+      index_mappings.mappings_[i].target_ = target_index;
+      if (node["scale factor"].IsDefined())
+      {
+        index_mappings.mappings_[i].scale_factor_ = node["scale factor"].as<double>();
+      }
     }
-    delete[] mappings;
+    return index_mappings;
+  }
+
+  void CopyData(const IndexMappings mappings, const double* source, double* target)
+  {
+    for (std::size_t i = 0; i < mappings.size_; i++)
+    {
+      target[mappings.mappings_[i].target_] = source[mappings.mappings_[i].source_] * mappings.mappings_[i].scale_factor_;
+    }
+  }
+
+  void DeleteIndexMapping(IndexMapping* mapping)
+  {
+    // Nothing to do
+  }
+
+  void DeleteIndexMappings(IndexMappings* mappings)
+  {
+    if (mappings->mappings_ == nullptr) return;
+    for (std::size_t i = 0; i < mappings->size_; i++)
+    {
+      DeleteIndexMapping(&(mappings->mappings_[i]));
+    }
+    delete[] mappings->mappings_;
   }
 
 }  // namespace musica
