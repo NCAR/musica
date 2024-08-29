@@ -25,6 +25,7 @@ namespace musica
     /// @brief Create an instance of tuvx from a configuration file
     /// @param config_path Path to configuration file
     /// @param TODO(jiwon)
+    /// @param TODO(jiwon)
     /// @param error Error struct to indicate success or failure
     void Create(const char *config_path, GridMap *grids, ProfileMap *profiles, RadiatorMap *radiators, Error *error);
 
@@ -68,13 +69,7 @@ namespace musica
     // for use by musica interanlly. If tuvx ever gets rewritten in C++, these functions will
     // go away but the C API will remain the same and downstream projects (like CAM-SIMA) will
     // not need to change
-    void *InternalCreateTuvx(
-        const char *config_path,
-        std::size_t config_path_length,
-        GridMap *grids,
-        ProfileMap *profiles,
-        RadiatorMap *radiators,
-        int *error_code);
+    void *InternalCreateTuvx(const char *config_path, std::size_t config_path_length, int *error_code);
     void InternalDeleteTuvx(void *tuvx, int *error_code);
     void *InternalGetGridMap(void *tuvx, int *error_code);
     void *InternalGetProfileMap(void *tuvx, int *error_code);

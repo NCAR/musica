@@ -49,6 +49,7 @@ namespace musica
   GridMap *GetGridMap(TUVX *tuvx, Error *error)
   {
     DeleteError(error);
+    // TODO(jiwon)
     return tuvx->CreateGridMap(error);
   }
 
@@ -67,7 +68,7 @@ namespace musica
   // TUVX class functions
 
   TUVX::TUVX()
-      : tuvx_()
+      : tuvx_(nullptr)
   {
   }
 
@@ -79,6 +80,7 @@ namespace musica
     tuvx_ = nullptr;
   }
 
+  // TODO(jiwon) remove things and create grid back 
   void TUVX::Create(const char *config_path, GridMap *grids, ProfileMap *profiles, RadiatorMap *radiators, Error *error)
   {
     int parsing_status = 0;  // 0 on success, 1 on failure
@@ -91,7 +93,7 @@ namespace musica
         return;
       }
 
-      tuvx_ = InternalCreateTuvx(config_path, strlen(config_path), grids, profiles, radiators, &parsing_status);
+      tuvx_ = InternalCreateTuvx(config_path, strlen(config_path), &parsing_status);
       if (parsing_status == 1)
       {
         *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create tuvx instance") };
@@ -100,6 +102,12 @@ namespace musica
       {
         *error = NoError();
       }
+
+      // TODO(jiwon) check error msg?
+      // deallocate the grid, profile and radiator map after you pass it to the constructor 
+      DeleteGridMap(grids, error);
+      DeleteProfileMap(profiles, error);
+      DeleteRadiatorMap(radiators, error);
     }
     catch (const std::system_error &e)
     {
@@ -116,6 +124,7 @@ namespace musica
     *error = NoError();
     int error_code = 0;
     // TODO (jiwon) remove this new operation?
+
     GridMap *grid_map = new GridMap(InternalGetGridMap(tuvx_, &error_code));
     if (error_code != 0)
     {
