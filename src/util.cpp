@@ -12,7 +12,7 @@ namespace
   {
     YAML::Node node_;
   };
-}
+}  // namespace
 
 namespace musica
 {
@@ -99,7 +99,7 @@ namespace musica
       config.data_ = new YAML::Node(YAML::Load(data));
       *error = NoError();
     }
-    catch(const std::exception& e)
+    catch (const std::exception& e)
     {
       config.data_ = nullptr;
       *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_PARSING_FAILED, e.what());
@@ -116,7 +116,7 @@ namespace musica
       config.data_ = new YAML::Node(YAML::LoadFile(filename));
       *error = NoError();
     }
-    catch(const std::exception& e)
+    catch (const std::exception& e)
     {
       config.data_ = nullptr;
       *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_PARSING_FAILED, e.what());
@@ -170,7 +170,8 @@ namespace musica
 
   void DeleteMappings(Mappings* mappings)
   {
-    if (mappings->mappings_ == nullptr) return;
+    if (mappings->mappings_ == nullptr)
+      return;
     for (std::size_t i = 0; i < mappings->size_; i++)
     {
       DeleteMapping(&(mappings->mappings_[i]));
@@ -178,7 +179,8 @@ namespace musica
     delete[] mappings->mappings_;
   }
 
-  IndexMappings CreateIndexMappings(const Configuration configuration, const Mappings source, const Mappings target, Error* error)
+  IndexMappings
+  CreateIndexMappings(const Configuration configuration, const Mappings source, const Mappings target, Error* error)
   {
     DeleteError(error);
     std::size_t size = configuration.data_->size();
@@ -227,7 +229,8 @@ namespace musica
 
   void DeleteIndexMappings(IndexMappings* mappings)
   {
-    if (mappings->mappings_ == nullptr) return;
+    if (mappings->mappings_ == nullptr)
+      return;
     for (std::size_t i = 0; i < mappings->size_; i++)
     {
       DeleteIndexMapping(&(mappings->mappings_[i]));

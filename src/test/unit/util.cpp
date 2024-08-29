@@ -94,11 +94,12 @@ TEST(Util, IndexMappingFromString)
 {
   Error error = NoError();
   Configuration config = LoadConfigurationFromString(
-    "- source: Test\n"
-    "  target: Test2\n"
-    "- source: Test2\n"
-    "  target: Test3\n"
-    "  scale factor: 0.82\n", &error);
+      "- source: Test\n"
+      "  target: Test2\n"
+      "- source: Test2\n"
+      "  target: Test3\n"
+      "  scale factor: 0.82\n",
+      &error);
   EXPECT_TRUE(IsSuccess(error));
   Mappings source_map;
   Mappings target_map;
