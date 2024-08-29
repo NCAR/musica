@@ -215,11 +215,9 @@ void TestSingleGridCell(MICM* micm)
   ASSERT_EQ(reaction_rates_ordering.size_, num_user_defined_reaction_rates);
   std::size_t jO2_index = FindMappingIndex(reaction_rates_ordering, "PHOTO.jO2", &error);
   ASSERT_TRUE(IsSuccess(error));
-  std::size_t jO3_O_index =
-      FindMappingIndex(reaction_rates_ordering, "PHOTO.jO3->O", &error);
+  std::size_t jO3_O_index = FindMappingIndex(reaction_rates_ordering, "PHOTO.jO3->O", &error);
   ASSERT_TRUE(IsSuccess(error));
-  std::size_t jO3_O1D_index =
-      FindMappingIndex(reaction_rates_ordering, "PHOTO.jO3->O1D", &error);
+  std::size_t jO3_O1D_index = FindMappingIndex(reaction_rates_ordering, "PHOTO.jO3->O1D", &error);
   ASSERT_TRUE(IsSuccess(error));
   DeleteMappings(&reaction_rates_ordering);
 

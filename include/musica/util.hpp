@@ -11,8 +11,9 @@
 #define MUSICA_ERROR_CODE_PARSING_FAILED        4
 
 #ifdef __cplusplus
-  #include <system_error>
   #include <yaml-cpp/yaml.h>
+
+  #include <system_error>
 
 namespace musica
 {
@@ -62,7 +63,7 @@ namespace musica
     {
       std::size_t source_;
       std::size_t target_;
-      double scale_factor_ = 1.0; // Scaling factor applied to the source data
+      double scale_factor_ = 1.0;  // Scaling factor applied to the source data
     };
 
     /// @brief A struct to represent an array of IndexMappings
@@ -122,7 +123,8 @@ namespace musica
     /// @param target The target array of name-index Mappings
     /// @param error The Error to populate if a Mapping is not found
     /// @return The array of IndexMappings
-    IndexMappings CreateIndexMappings(const Configuration configuration, const Mappings source, const Mappings target, Error* error);
+    IndexMappings
+    CreateIndexMappings(const Configuration configuration, const Mappings source, const Mappings target, Error* error);
 
     /// @brief Copies data from one array to another using IndexMappings
     /// @param mappings The array of IndexMappings
