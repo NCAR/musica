@@ -32,6 +32,15 @@ module musica_tuvx_grid
       type(error_t_c), intent(inout) :: error
     end subroutine delete_grid_c
 
+    function get_grid_num_sections_c(grid, error) &
+      bind(C, name="GetGridNumSections")
+      use iso_c_binding, only : c_ptr, c_size_t
+      use musica_util, only: error_t_c
+      type(c_ptr), value, intent(in) :: grid
+      type(error_t_c), intent(inout) :: error
+      integer(c_size_t) :: get_grid_num_sections_c
+    end function get_grid_num_sections_c
+
     subroutine set_grid_edges_c(grid, edges, n_edges, error) &
       bind(C, name="SetGridEdges")
       use iso_c_binding, only : c_ptr, c_size_t
@@ -78,6 +87,8 @@ module musica_tuvx_grid
   type :: grid_t
     type(c_ptr) :: ptr_ = c_null_ptr
   contains
+    ! Returns the number of sections in the grid
+    procedure :: number_of_sections
     ! Set grid edges
     procedure :: set_edges
     ! Get grid edges
@@ -139,6 +150,23 @@ contains
     error = error_t(error_c)
 
   end function grid_t_constructor
+  
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  
+  integer function number_of_sections(this, error) result( n_sections )
+    use musica_util, only: error_t, error_t_c, dk => musica_dk
+
+    ! Arguments
+    class(grid_t), intent(inout) :: this
+    type(error_t), intent(inout) :: error
+
+    ! Local variables
+    type(error_t_c) :: error_c
+
+    n_sections = int( get_grid_num_sections_c(this%ptr_, error_c) )
+    error = error_t(error_c)
+
+  end function number_of_sections
   
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
