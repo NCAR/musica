@@ -21,7 +21,7 @@ module musica_tuvx
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   interface
-    function create_tuvx_c(config_path, grids, profiles, radiators, error) %
+    function create_tuvx_c(config_path, grids, profiles, radiators, error) &
         bind(C, name="CreateTuvx")
       use musica_util, only: error_t_c
       use iso_c_binding, only: c_ptr, c_int, c_char
