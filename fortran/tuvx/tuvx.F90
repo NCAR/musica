@@ -25,11 +25,11 @@ module musica_tuvx
       use musica_util, only: error_t_c
       use iso_c_binding, only: c_ptr, c_int, c_char
       character(len=1, kind=c_char), intent(in)    :: config_path(*)
-      type(c_ptr),                   intent(in)    :: grids
-      type(c_ptr),                   intent(in)    :: profiles
-      type(c_ptr),                   intent(in)    :: radiators
+      type(c_ptr),            value, intent(in)    :: grids
+      type(c_ptr),            value, intent(in)    :: profiles
+      type(c_ptr),            value, intent(in)    :: radiators
       type(error_t_c),               intent(inout) :: error
-      type(c_ptr),                                 :: create_tuvx_c
+      type(c_ptr)                                  :: create_tuvx_c
     end function create_tuvx_c
 
     subroutine delete_tuvx_c(tuvx, error) bind(C, name="DeleteTuvx")
@@ -90,22 +90,20 @@ contains
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   !> Construct a tuvx instance
-  function constructor(config_path, grids, profiles, radiators, error)  result( this )
-    use iso_c_binding, only: c_char, c_null_char
+  function constructor(config_path, grids, profiles, radiators, error) &
+      result( this )
+    use iso_c_binding, only: c_char, c_null_char, c_loc
     use musica_util, only: error_t_c, error_t
 
     ! Arguments
-    character(len=*),     intent(in)    :: config_path
-    type(grid_map_t),     intent(in)    :: grids
-    type(profile_map_t),  intent(in)    :: profiles
-    type(radiator_map_t), intent(in)    :: radiators
-    type(error_t),        intent(inout) :: error
+    character(len=*),             intent(in)    :: config_path
+    type(grid_map_t),     target, intent(in)    :: grids
+    type(profile_map_t),  target, intent(in)    :: profiles
+    type(radiator_map_t), target, intent(in)    :: radiators
+    type(error_t),                intent(inout) :: error
 
     ! Local variables
     character(len=1, kind=c_char) :: config_path_c(len_trim(config_path)+1)
-    type(c_ptr)                   :: grids_c
-    type(c_ptr)                   :: profiles_c
-    type(c_ptr)                   :: radiators_c
     type(error_t_c)               :: error_c
     integer                       :: n, i
 
@@ -120,11 +118,7 @@ contains
     end do
     config_path_c(n+1) = c_null_char
 
-    grids_c = c_loc(grids)
-    profiles_c = c_loc(profiles)
-    radiators_c = c_loc(radiators)
-
-    this%ptr_ = create_tuvx_c(config_path_c, grids_c, profiles_c, radiators_c, error_c)
+    this%ptr_ = create_tuvx_c(config_path_c, c_loc(grids), c_loc(profiles), c_loc(radiators), error_c)
 
     error = error_t(error_c)
     if (.not. error%is_success()) then

@@ -47,9 +47,6 @@ contains
     tuvx => tuvx_t(config_path, grids, profiles, radiators, error)
     ASSERT( error%is_success() )
 
-    deallocate( grids )
-    deallocate( profiles )
-    deallocate( radiators )
     deallocate( tuvx )
 
   end subroutine test_tuvx_api
@@ -86,11 +83,11 @@ contains
     type(tuvx_t),         pointer    :: tuvx
     type(error_t)                    :: error
     character(len=256)               :: config_path
-    type(grid_map_t),     pointer    :: grids
+    type(grid_map_t),     pointer    :: grids, grids_from_host
     type(grid_t),         pointer    :: grid, height_grid, wavelength_grid
-    type(profile_map_t),  pointer    :: profiles
+    type(profile_map_t),  pointer    :: profiles, profiles_from_host
     type(profile_t),      pointer    :: profile, profile_copy
-    type(radiator_map_t), pointer    :: radiators
+    type(radiator_map_t), pointer    :: radiators, radiators_from_host
     type(radiator_t),     pointer    :: radiator, radiator_copy
     real*8, dimension(5), target     :: edges, edge_values, temp_edge
     real*8, dimension(4), target     :: midpoints, midpoint_values, layer_densities, temp_midpoint
@@ -116,18 +113,15 @@ contains
 
     config_path = "examples/ts1_tsmlt.json"
 
-    grids => grid_map_t( error )
+    grids_from_host => grid_map_t( error )
     ASSERT( error%is_success() )
-    profiles => profile_map_t( error )
+    profiles_from_host => profile_map_t( error )
     ASSERT( error%is_success() )
-    radiators => radiator_map_t( error )
+    radiators_from_host => radiator_map_t( error )
     ASSERT( error%is_success() )
-    tuvx => tuvx_t(config_path, grids, profiles, radiators, error)
+    tuvx => tuvx_t(config_path, grids_from_host, profiles_from_host, radiators_from_host, error)
     ASSERT( error%is_success() )
 
-    !!!!
-    !!!! Jiwon
-    !!!!
     grids => tuvx%get_grids( error )
     ASSERT( error%is_success() )
 
