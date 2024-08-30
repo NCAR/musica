@@ -24,8 +24,9 @@ namespace musica
 
     /// @brief Create an instance of tuvx from a configuration file
     /// @param config_path Path to configuration file
-    /// @param TODO(jiwon)
-    /// @param TODO(jiwon)
+    /// @param grids Grid map from host application
+    /// @param profiles Profile map from host application
+    /// @param radiators Radiator map from host application
     /// @param error Error struct to indicate success or failure
     void Create(const char *config_path, GridMap *grids, ProfileMap *profiles, RadiatorMap *radiators, Error *error);
 

@@ -37,16 +37,16 @@ contains
 
     grids => grid_map_t( error )
     ASSERT( error%is_success() )
-
     profiles => profile_map_t( error )
     ASSERT( error%is_success() )
-
     radiators => radiator_map_t( error )
     ASSERT( error%is_success() )
-
     tuvx => tuvx_t(config_path, grids, profiles, radiators, error)
     ASSERT( error%is_success() )
 
+    deallocate( grids )
+    deallocate( profiles )
+    deallocate( radiators )
     deallocate( tuvx )
 
   end subroutine test_tuvx_api
@@ -63,18 +63,16 @@ contains
 
     grids => grid_map_t( error )
     ASSERT( error%is_success() )
-
     profiles => profile_map_t( error )
     ASSERT( error%is_success() )
-
     radiators => radiator_map_t( error )
     ASSERT( error%is_success() )
-
-    tuvx => tuvx_t(config_path, grids, profiles, radiators, error)
-    ASSERT( error%is_success() )
-
     tuvx => tuvx_t(config_path, grids, profiles, radiators, error)
     ASSERT( .not. error%is_success() )
+
+    deallocate( grids )
+    deallocate( profiles )
+    deallocate( radiators )
 
   end subroutine test_tuvx_api_invalid_config
 
@@ -498,6 +496,9 @@ contains
     deallocate( radiators )
     deallocate( height_grid )
     deallocate( wavelength_grid )
+    deallocate( grids_from_host )
+    deallocate( profiles_from_host )
+    deallocate( radiators_from_host )
     deallocate( tuvx )
 
   end subroutine test_tuvx_solve

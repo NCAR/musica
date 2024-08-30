@@ -49,7 +49,7 @@ namespace musica
   GridMap *GetGridMap(TUVX *tuvx, Error *error)
   {
     DeleteError(error);
-    // TODO(jiwon)
+
     return tuvx->CreateGridMap(error);
   }
 
@@ -101,12 +101,6 @@ namespace musica
       {
         *error = NoError();
       }
-
-      // TODO(jiwon) check error msg?
-      // deallocate the grid, profile and radiator map after you pass it to the constructor 
-      DeleteGridMap(grids, error);
-      DeleteProfileMap(profiles, error);
-      DeleteRadiatorMap(radiators, error);
     }
     catch (const std::system_error &e)
     {

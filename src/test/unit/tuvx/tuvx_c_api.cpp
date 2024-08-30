@@ -9,26 +9,26 @@ class TuvxCApiTest : public ::testing::Test
 {
  protected:
   TUVX* tuvx;
-  GridMap* grids;
-  ProfileMap* profiles;
-  RadiatorMap* radiators;
+  GridMap* grids_from_host;
+  ProfileMap* profiles_from_host;
+  RadiatorMap* radiators_from_host;
 
   // the function that google test actually calls before each test
   void SetUp() override
   {
     tuvx = nullptr;
-    grids = nullptr;
-    profiles = nullptr;
-    radiators = nullptr;
+    grids_from_host = nullptr;
+    profiles_from_host = nullptr;
+    radiators_from_host = nullptr;
   }
 
   void SetUp(const char* config_path)
   {
     Error error;
-    grids = CreateGridMap(&error);
-    profiles = CreateProfileMap(&error);
-    radiators = CreateRadiatorMap(&error);
-    tuvx = CreateTuvx(config_path, grids, profiles, radiators, &error);
+    grids_from_host = CreateGridMap(&error);
+    profiles_from_host = CreateProfileMap(&error);
+    radiators_from_host = CreateRadiatorMap(&error);
+    tuvx = CreateTuvx(config_path, grids_from_host, profiles_from_host, radiators_from_host, &error);
     if (!IsSuccess(error))
     {
       std::cerr << "Error creating TUVX instance: " << error.message_.value_ << std::endl;
@@ -46,8 +46,17 @@ class TuvxCApiTest : public ::testing::Test
     Error error;
     DeleteTuvx(tuvx, &error);
     ASSERT_TRUE(IsSuccess(error));
+    DeleteGridMap(grids_from_host, &error);
+    ASSERT_TRUE(IsSuccess(error));
+    DeleteProfileMap(profiles_from_host, &error);
+    ASSERT_TRUE(IsSuccess(error));
+    DeleteRadiatorMap(radiators_from_host, &error);
+    ASSERT_TRUE(IsSuccess(error));
     DeleteError(&error);
     tuvx = nullptr;
+    grids_from_host = nullptr;
+    profiles_from_host = nullptr;
+    radiators_from_host = nullptr;
   }
 };
 
@@ -69,11 +78,17 @@ TEST_F(TuvxCApiTest, DetectsNonexistentConfigFile)
 {
   const char* config_path = "nonexisting.yml";
   Error error;
-  GridMap* grids = CreateGridMap(&error);
-  ProfileMap* profiles = CreateProfileMap(&error);
-  RadiatorMap* radiators = CreateRadiatorMap(&error);
-  TUVX* tuvx = CreateTuvx(config_path, grids, profiles, radiators, &error);
+  GridMap* grids_from_host = CreateGridMap(&error);
+  ProfileMap* profiles_from_host = CreateProfileMap(&error);
+  RadiatorMap* radiators_from_host = CreateRadiatorMap(&error);
+  TUVX* tuvx = CreateTuvx(config_path, grids_from_host, profiles_from_host, radiators_from_host, &error);
   ASSERT_FALSE(IsSuccess(error));
+  DeleteGridMap(grids_from_host, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteProfileMap(profiles_from_host, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteRadiatorMap(radiators_from_host, &error);
+  ASSERT_TRUE(IsSuccess(error));
   DeleteError(&error);
 }
 
