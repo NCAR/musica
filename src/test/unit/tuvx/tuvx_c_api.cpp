@@ -53,10 +53,6 @@ class TuvxCApiTest : public ::testing::Test
     DeleteRadiatorMap(radiators_from_host, &error);
     ASSERT_TRUE(IsSuccess(error));
     DeleteError(&error);
-    tuvx = nullptr;
-    grids_from_host = nullptr;
-    profiles_from_host = nullptr;
-    radiators_from_host = nullptr;
   }
 };
 

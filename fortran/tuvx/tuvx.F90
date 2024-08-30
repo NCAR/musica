@@ -103,7 +103,7 @@ contains
     type(error_t),                intent(inout) :: error
 
     ! Local variables
-    character(len=1, kind=c_char) :: config_path_c(len_trim(config_path)+1)
+    character(len=1, kind=c_char) :: c_config_path(len_trim(config_path)+1)
     type(error_t_c)               :: error_c
     integer                       :: n, i
 
@@ -114,11 +114,11 @@ contains
 
     n = len_trim(config_path)
     do i = 1, n
-      config_path_c(i) = config_path(i:i)
+      c_config_path(i) = config_path(i:i)
     end do
-    config_path_c(n+1) = c_null_char
+    c_config_path(n+1) = c_null_char
 
-    this%ptr_ = create_tuvx_c(config_path_c, c_loc(grids), c_loc(profiles), c_loc(radiators), error_c)
+    this%ptr_ = create_tuvx_c(c_config_path, c_loc(grids), c_loc(profiles), c_loc(radiators), error_c)
 
     error = error_t(error_c)
     if (.not. error%is_success()) then
