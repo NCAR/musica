@@ -105,6 +105,9 @@ contains
     grid => grid_t( "foo", "bars", 4, error )
     ASSERT( error%is_success() )
 
+    ASSERT_EQ( grid%number_of_sections( error ), 4 )
+    ASSERT( error%is_success() )
+
     call grid%set_edges( edges, error )
     ASSERT( error%is_success() )
 

@@ -117,6 +117,28 @@ module tuvx_interface_grid
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+  function internal_get_num_sections(grid, error_code) &
+      bind(C, name="InternalGetNumSections") result(num_sections)
+    use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_size_t
+    use tuvx_grid_from_host, only: grid_from_host_t
+
+    ! arguments
+    type(c_ptr), value,  intent(in)  :: grid
+    integer(kind=c_int), intent(out) :: error_code
+
+    ! output
+    integer(kind=c_size_t) :: num_sections
+
+    ! variables
+    type(grid_from_host_t), pointer :: f_grid
+
+    call c_f_pointer(grid, f_grid)
+    num_sections = f_grid%size( )
+
+  end function internal_get_num_sections
+  
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
   subroutine internal_set_edges(grid_updater, edges, num_edges, error_code) &
       bind(C, name="InternalSetEdges")
     use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_size_t
