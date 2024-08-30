@@ -21,7 +21,8 @@ module musica_tuvx
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   interface
-    function create_tuvx_c(config_path, grids, profiles, radiators, error) bind(C, name="CreateTuvx")
+    function create_tuvx_c(config_path, grids, profiles, radiators, error) %
+        bind(C, name="CreateTuvx")
       use musica_util, only: error_t_c
       use iso_c_binding, only: c_ptr, c_int, c_char
       character(len=1, kind=c_char), intent(in)    :: config_path(*)
@@ -118,7 +119,8 @@ contains
     end do
     c_config_path(n+1) = c_null_char
 
-    this%ptr_ = create_tuvx_c(c_config_path, c_loc(grids), c_loc(profiles), c_loc(radiators), error_c)
+    this%ptr_ = create_tuvx_c(c_config_path, c_loc(grids), c_loc(profiles), &
+                              c_loc(radiators), error_c)
 
     error = error_t(error_c)
     if (.not. error%is_success()) then
