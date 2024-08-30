@@ -154,7 +154,7 @@ contains
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   
   integer function number_of_sections(this, error) result( n_sections )
-    use musica_util, only: error_t, error_t_c, dk => musica_dk
+    use musica_util, only: error_t, error_t_c
 
     ! Arguments
     class(grid_t), intent(inout) :: this
