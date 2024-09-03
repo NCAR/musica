@@ -119,8 +119,8 @@ contains
     end do
     c_config_path(n+1) = c_null_char
 
-    this%ptr_ = create_tuvx_c(c_config_path, c_loc(grids), c_loc(profiles), &
-                              c_loc(radiators), error_c)
+    this%ptr_ = create_tuvx_c(c_config_path, grids%ptr_, profiles%ptr_, &
+                              radiators%ptr_, error_c)
 
     error = error_t(error_c)
     if (.not. error%is_success()) then
