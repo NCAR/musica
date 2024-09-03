@@ -16,6 +16,7 @@ RUN dnf -y update \
         json-devel \
         python \
         valgrind \
+        tree \
     && dnf clean all
 
 # Copy the musica code
