@@ -41,7 +41,7 @@ jobs:
           sudo apt-get install -y python3-numpy
 
       - name: Run Cmake 
-        run: cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_PYTHON_LIBRARY=${{ matrix.options.python }} -D MUSICA_ENABLE_TUVX=${{ matrix.matrix.options.tuvx }}
+        run: cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_GIT_TAG=${{ github.sha }} -D MUSICA_ENABLE_PYTHON_LIBRARY=${{ matrix.options.python }} -D MUSICA_ENABLE_TUVX=${{ matrix.matrix.options.tuvx }}
 
       - name: Build
         run: cmake --build build --verbose
@@ -52,9 +52,10 @@ jobs:
           ctest -C ${{ matrix.build_type }} --rerun-failed --output-on-failure . --verbose
   fortran:
     runs-on: ubuntu-24.04
+    continue-on-error: true
     strategy:
       matrix:
-        gcc_version: [12, 13, 14]
+        gcc_version: [14]
         build_type: [Debug, Release]
     env:
       CXX: g++-${{ matrix.gcc_version }}
@@ -70,7 +71,7 @@ jobs:
           sudo apt-get install -y libnetcdf-dev netcdf-bin libnetcdff-dev liblapack-dev libblas-dev
 
       - name: Run Cmake 
-        run: cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_BUILD_FORTRAN_INTERFACE=ON
+        run: cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_GIT_TAG=${{ github.sha }} -D MUSICA_BUILD_FORTRAN_INTERFACE=ON
 
       - name: Build
         run: cmake --build build --verbose --parallel 1

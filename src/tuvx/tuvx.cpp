@@ -13,12 +13,12 @@ namespace musica
 {
 
   // TUVX external C API functions
-
-  TUVX *CreateTuvx(const char *config_path, Error *error)
+  TUVX *CreateTuvx(const char *config_path, GridMap *grids, ProfileMap *profiles, RadiatorMap *radiators, Error *error)
   {
     DeleteError(error);
     TUVX *tuvx = new TUVX();
-    tuvx->Create(config_path, error);
+
+    tuvx->Create(config_path, grids, profiles, radiators, error);
     if (!IsSuccess(*error))
     {
       delete tuvx;
@@ -49,6 +49,7 @@ namespace musica
   GridMap *GetGridMap(TUVX *tuvx, Error *error)
   {
     DeleteError(error);
+
     return tuvx->CreateGridMap(error);
   }
 
@@ -67,7 +68,7 @@ namespace musica
   // TUVX class functions
 
   TUVX::TUVX()
-      : tuvx_()
+      : tuvx_(nullptr)
   {
   }
 
@@ -79,7 +80,7 @@ namespace musica
     tuvx_ = nullptr;
   }
 
-  void TUVX::Create(const char *config_path, Error *error)
+  void TUVX::Create(const char *config_path, GridMap *grids, ProfileMap *profiles, RadiatorMap *radiators, Error *error)
   {
     int parsing_status = 0;  // 0 on success, 1 on failure
     try
@@ -115,6 +116,7 @@ namespace musica
   {
     *error = NoError();
     int error_code = 0;
+
     GridMap *grid_map = new GridMap(InternalGetGridMap(tuvx_, &error_code));
     if (error_code != 0)
     {

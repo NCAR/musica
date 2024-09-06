@@ -21,12 +21,16 @@ module musica_tuvx
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   interface
-    function create_tuvx_c(config_path, error) bind(C, name="CreateTuvx")
+    function create_tuvx_c(config_path, grids, profiles, radiators, error) &
+        bind(C, name="CreateTuvx")
       use musica_util, only: error_t_c
       use iso_c_binding, only: c_ptr, c_int, c_char
-      character(len=1, kind=c_char), intent(in) :: config_path(*)
-      type(error_t_c), intent(inout)     :: error
-      type(c_ptr)                        :: create_tuvx_c
+      character(len=1, kind=c_char), intent(in)    :: config_path(*)
+      type(c_ptr),            value, intent(in)    :: grids
+      type(c_ptr),            value, intent(in)    :: profiles
+      type(c_ptr),            value, intent(in)    :: radiators
+      type(error_t_c),               intent(inout) :: error
+      type(c_ptr)                                  :: create_tuvx_c
     end function create_tuvx_c
 
     subroutine delete_tuvx_c(tuvx, error) bind(C, name="DeleteTuvx")
@@ -87,18 +91,22 @@ contains
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   !> Construct a tuvx instance
-  function constructor(config_path, error)  result( this )
-    use iso_c_binding, only: c_char, c_null_char
+  function constructor(config_path, grids, profiles, radiators, error) &
+      result( this )
+    use iso_c_binding, only: c_char, c_null_char, c_loc
     use musica_util, only: error_t_c, error_t
 
     ! Arguments
-    type(error_t), intent(inout)  :: error
-    character(len=*), intent(in)  :: config_path
+    character(len=*),             intent(in)    :: config_path
+    type(grid_map_t),     target, intent(in)    :: grids
+    type(profile_map_t),  target, intent(in)    :: profiles
+    type(radiator_map_t), target, intent(in)    :: radiators
+    type(error_t),                intent(inout) :: error
 
     ! Local variables
     character(len=1, kind=c_char) :: c_config_path(len_trim(config_path)+1)
-    integer                       :: n, i
     type(error_t_c)               :: error_c
+    integer                       :: n, i
 
     ! Return value
     type(tuvx_t), pointer         :: this
@@ -111,7 +119,8 @@ contains
     end do
     c_config_path(n+1) = c_null_char
 
-    this%ptr_ = create_tuvx_c(c_config_path, error_c)
+    this%ptr_ = create_tuvx_c(c_config_path, grids%ptr_, profiles%ptr_, &
+                              radiators%ptr_, error_c)
 
     error = error_t(error_c)
     if (.not. error%is_success()) then

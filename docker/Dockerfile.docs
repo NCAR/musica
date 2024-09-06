@@ -1,4 +1,7 @@
-FROM fedora:37
+FROM fedora:latest
+
+ARG MUSICA_GIT_TAG=main
+ARG BUILD_TYPE=Release
 
 RUN dnf -y update \
     && dnf -y install \
@@ -17,7 +20,8 @@ RUN dnf -y update \
 
 COPY . /musica/
 
-RUN pip3 install -r /musica/docs/requirements.txt
+RUN python3 -m pip install --upgrade pip setuptools \
+    && python3 -m pip install -r /musica/docs/requirements.txt
 
 ARG SUFFIX=""
 ENV SWITCHER_SUFFIX=$SUFFIX
@@ -28,6 +32,8 @@ RUN mkdir /build \
       && cd /build \
       && cmake -D MUSICA_BUILD_DOCS=ON \
                -D MUSICA_ENABLE_TUVX=OFF \
+                -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
+                -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
                /musica \
       && make docs
 
