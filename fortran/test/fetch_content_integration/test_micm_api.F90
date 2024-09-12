@@ -6,7 +6,7 @@ program test_micm_api
   use, intrinsic :: iso_c_binding
   use, intrinsic :: ieee_arithmetic
   use musica_micm, only: micm_t, solver_stats_t, get_micm_version
-  use musica_micm, only: Rosenbrock, RosenbrockStandardOrder
+  use musica_micm, only: Rosenbrock, RosenbrockStandardOrder, BackwardEuler, BackwardEulerStandardOrder
   use musica_util, only: assert, error_t, mapping_t, string_t, find_mapping_index
 
 #include "micm/util/error.hpp"
@@ -29,6 +29,8 @@ program test_micm_api
   call test_api()
   call test_multiple_grid_cell_vector_Rosenbrock()
   call test_multiple_grid_cell_standard_Rosenbrock()
+  call test_multiple_grid_cell_vector_BackwardEuler()
+  call test_multiple_grid_cell_standard_BackwardEuler()
 
 contains
 
@@ -167,14 +169,15 @@ contains
 
   end subroutine test_api
 
-  subroutine test_multiple_grid_cells(micm, NUM_GRID_CELLS)
+  subroutine test_multiple_grid_cells(micm, NUM_GRID_CELLS, time_step, test_accuracy)
 
     type(micm_t), pointer, intent(inout) :: micm
     integer,               intent(in)    :: NUM_GRID_CELLS
+    real(c_double),        intent(in)    :: time_step
+    real,                  intent(in)    :: test_accuracy
 
     integer, parameter        :: NUM_SPECIES = 6
     integer, parameter        :: NUM_USER_DEFINED_REACTION_RATES = 2
-    real(c_double)            :: time_step
     real(c_double), target    :: temperature(NUM_GRID_CELLS)
     real(c_double), target    :: pressure(NUM_GRID_CELLS)
     real(c_double), target    :: air_density(NUM_GRID_CELLS)
@@ -194,8 +197,6 @@ contains
     integer                   :: i_cell
     real                      :: temp
     type(ArrheniusReaction)   :: r1, r2
-
-    time_step = 200
 
     A_index = micm%species_ordering%index( "A", error )
     ASSERT( error%is_success() )
@@ -267,12 +268,12 @@ contains
       D = initial_D * exp( -k1 * time_step )
       E = initial_D * (k1 / (k2 - k1)) * (exp(-k1 * time_step) - exp(-k2 * time_step))
       F = initial_F + initial_D * (1.0 + (k1 * exp(-k2 * time_step) - k2 * exp(-k1 * time_step)) / (k2 - k1))
-      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+A_index), A, 5.0e-3)
-      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+B_index), B, 5.0e-3)
-      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+C_index), C, 5.0e-3)
-      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+D_index), D, 5.0e-3)
-      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+E_index), E, 5.0e-3)
-      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+F_index), F, 5.0e-3)
+      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+A_index), A, test_accuracy)
+      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+B_index), B, test_accuracy)
+      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+C_index), C, test_accuracy)
+      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+D_index), D, test_accuracy)
+      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+E_index), E, test_accuracy)
+      ASSERT_NEAR(concentrations((i_cell-1)*NUM_SPECIES+F_index), F, test_accuracy)
     end do
 
   end subroutine test_multiple_grid_cells
@@ -283,11 +284,14 @@ contains
     integer               :: num_grid_cells
     type(error_t)         :: error
 
+    real(c_double), parameter :: time_step = 200
+    real, parameter           :: test_accuracy = 5.0e-3
+
     num_grid_cells = 3
     micm => micm_t( "configs/analytical", Rosenbrock, num_grid_cells, error )
     ASSERT( error%is_success() )
 
-    call test_multiple_grid_cells( micm, num_grid_cells )
+    call test_multiple_grid_cells( micm, num_grid_cells, time_step, test_accuracy )
 
     deallocate( micm )
 
@@ -299,14 +303,55 @@ contains
     integer               :: num_grid_cells
     type(error_t)         :: error
 
+    real(c_double), parameter :: time_step = 200
+    real, parameter           :: test_accuracy = 5.0e-3
+
     num_grid_cells = 3
     micm => micm_t( "configs/analytical", RosenbrockStandardOrder, num_grid_cells, error )
     ASSERT( error%is_success() )
 
-    call test_multiple_grid_cells( micm, num_grid_cells )
+    call test_multiple_grid_cells( micm, num_grid_cells, time_step, test_accuracy )
 
     deallocate( micm )
 
   end subroutine test_multiple_grid_cell_standard_Rosenbrock
+
+  subroutine test_multiple_grid_cell_vector_BackwardEuler()
+
+    type(micm_t), pointer :: micm
+    integer               :: num_grid_cells
+    type(error_t)         :: error
+
+    real(c_double), parameter :: time_step = 10
+    real, parameter           :: test_accuracy = 0.1
+
+    num_grid_cells = 3
+    micm => micm_t( "configs/analytical", BackwardEuler, num_grid_cells, error )
+    ASSERT( error%is_success() )
+
+    call test_multiple_grid_cells( micm, num_grid_cells, time_step, test_accuracy )
+
+    deallocate( micm )
+
+  end subroutine test_multiple_grid_cell_vector_BackwardEuler
+
+  subroutine test_multiple_grid_cell_standard_BackwardEuler()
+
+    type(micm_t), pointer :: micm
+    integer               :: num_grid_cells
+    type(error_t)         :: error
+
+    real(c_double), parameter :: time_step = 10
+    real, parameter           :: test_accuracy = 0.1
+
+    num_grid_cells = 3
+    micm => micm_t( "configs/analytical", BackwardEulerStandardOrder, num_grid_cells, error )
+    ASSERT( error%is_success() )
+
+    call test_multiple_grid_cells( micm, num_grid_cells, time_step, test_accuracy )
+
+    deallocate( micm )
+
+  end subroutine test_multiple_grid_cell_standard_BackwardEuler
 
 end program
