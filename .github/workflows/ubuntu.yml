@@ -23,10 +23,8 @@ jobs:
           - { cpp: g++-14, c: gcc-14, fc: gfortran-14}
           - { cpp: clang++, c: clang, fc: gfortran-12}
         options: 
-          - {micm: ON, tuvx: OFF}
-          - {micm: OFF, tuvx: ON}
-          - {python: ON, tuvx: OFF}
-          - {python: OFF, tuvx: ON}
+          - {micm: ON, tuvx: OFF, python: ON}
+          - {micm: OFF, tuvx: ON, python: OFF}
         build_type: [Release]
     env:
       CC: ${{ matrix.compiler.c }}
