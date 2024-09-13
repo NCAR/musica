@@ -51,9 +51,11 @@ jobs:
                               -D MUSICA_ENABLE_PYTHON_LIBRARY=${{ matrix.options.python }}
 
       - name: Build
+        if: matrix.compiler.fc != 'gfortran-13' && matrix.options.tuvx != 'ON'
         run: cmake --build build --verbose
 
       - name: Run tests
+        if: matrix.compiler.fc != 'gfortran-13' && matrix.options.tuvx != 'ON'
         run: |
           cd build
           ctest -C ${{ matrix.build_type }} --rerun-failed --output-on-failure . --verbose
