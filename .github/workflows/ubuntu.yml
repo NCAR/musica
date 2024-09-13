@@ -23,6 +23,8 @@ jobs:
           - { cpp: g++-14, c: gcc-14, fc: gfortran-14}
           - { cpp: clang++, c: clang, fc: gfortran-12}
         options: 
+          - {micm: ON, tuvx: OFF}
+          - {micm: OFF, tuvx: ON}
           - {python: ON, tuvx: OFF}
           - {python: OFF, tuvx: ON}
         build_type: [Release]
@@ -41,7 +43,12 @@ jobs:
           sudo apt-get install -y python3-numpy
 
       - name: Run Cmake 
-        run: cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_GIT_TAG=${{ github.sha }} -D MUSICA_ENABLE_PYTHON_LIBRARY=${{ matrix.options.python }} -D MUSICA_ENABLE_TUVX=${{ matrix.matrix.options.tuvx }}
+        run: >
+          cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }}
+                              -D MUSICA_GIT_TAG=${{ github.sha }}
+                              -D MUSICA_ENABLE_MICM=${{ matrix.options.micm }}
+                              -D MUSICA_ENABLE_TUVX=${{ matrix.options.tuvx }}
+                              -D MUSICA_ENABLE_PYTHON_LIBRARY=${{ matrix.options.python }}
 
       - name: Build
         run: cmake --build build --verbose

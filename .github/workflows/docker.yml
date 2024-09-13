@@ -21,8 +21,6 @@ jobs:
         os: [ubuntu-latest]
         dockerfile:
           - Dockerfile
-          - Dockerfile.micm-only
-          - Dockerfile.tuvx-only
           - Dockerfile.memcheck
           - Dockerfile.fortran-gcc
           - Dockerfile.openmp
