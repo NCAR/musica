@@ -40,7 +40,9 @@ jobs:
           sudo apt-get install -y liblapack-dev libblas-dev build-essential libnetcdf-dev libnetcdff-dev
           sudo apt-get install -y python3-numpy
 
-      - name: Run Cmake 
+      - name: Run Cmake
+        # TUV-x doesn't work with gcc 13
+        if: matrix.compiler.fc != 'gfortran-13' && matrix.options.tuvx != 'ON'
         run: |
           cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} \
                               -D MUSICA_GIT_TAG=${{ github.sha }} \
