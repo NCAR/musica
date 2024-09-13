@@ -10,7 +10,7 @@ module musica_micm
   implicit none
 
   public :: micm_t, solver_stats_t, get_micm_version
-  public :: Rosenbrock, RosenbrockStandardOrder
+  public :: Rosenbrock, RosenbrockStandardOrder, BackwardEuler, BackwardEulerStandardOrder
   private
 
   !> Wrapper for c solver stats
@@ -29,8 +29,10 @@ module musica_micm
   ! We could use Fortran 2023 enum type feature if Fortran 2023 is supported
   ! https://fortran-lang.discourse.group/t/enumerator-type-in-bind-c-derived-type-best-practice/5947/2
   enum, bind(c)
-    enumerator :: Rosenbrock              = 1
-    enumerator :: RosenbrockStandardOrder = 2
+    enumerator :: Rosenbrock                 = 1
+    enumerator :: RosenbrockStandardOrder    = 2
+    enumerator :: BackwardEuler              = 3
+    enumerator :: BackwardEulerStandardOrder = 4
   end enum
 
   interface
