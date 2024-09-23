@@ -23,8 +23,8 @@ jobs:
           - { cpp: g++-14, c: gcc-14, fc: gfortran-14}
           - { cpp: clang++, c: clang, fc: gfortran-12}
         options: 
-          - {python: ON, tuvx: OFF}
-          - {python: OFF, tuvx: ON}
+          - {micm: ON, tuvx: OFF, python: ON}
+          - {micm: OFF, tuvx: ON, python: OFF}
         build_type: [Release]
     env:
       CC: ${{ matrix.compiler.c }}
@@ -40,13 +40,22 @@ jobs:
           sudo apt-get install -y liblapack-dev libblas-dev build-essential libnetcdf-dev libnetcdff-dev
           sudo apt-get install -y python3-numpy
 
-      - name: Run Cmake 
-        run: cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_GIT_TAG=${{ github.sha }} -D MUSICA_ENABLE_PYTHON_LIBRARY=${{ matrix.options.python }} -D MUSICA_ENABLE_TUVX=${{ matrix.matrix.options.tuvx }}
+      - name: Run Cmake
+        # TUV-x doesn't work with gcc 13
+        if: matrix.compiler.fc != 'gfortran-13' && matrix.options.tuvx != 'ON'
+        run: |
+          cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+                              -D MUSICA_GIT_TAG=${{ github.sha }} \
+                              -D MUSICA_ENABLE_MICM=${{ matrix.options.micm }} \
+                              -D MUSICA_ENABLE_TUVX=${{ matrix.options.tuvx }} \
+                              -D MUSICA_ENABLE_PYTHON_LIBRARY=${{ matrix.options.python }}
 
       - name: Build
+        if: matrix.compiler.fc != 'gfortran-13' && matrix.options.tuvx != 'ON'
         run: cmake --build build --verbose
 
       - name: Run tests
+        if: matrix.compiler.fc != 'gfortran-13' && matrix.options.tuvx != 'ON'
         run: |
           cd build
           ctest -C ${{ matrix.build_type }} --rerun-failed --output-on-failure . --verbose
