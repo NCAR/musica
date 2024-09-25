@@ -19,21 +19,28 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  function internal_create_tuvx(c_config_path, config_path_length, error_code) &
+  function internal_create_tuvx(c_config_path, config_path_length, &
+      c_grid_map, c_profile_map, c_radiator_map, error_code) &
       bind(C, name="InternalCreateTuvx")
     use iso_c_binding, only: c_ptr, c_f_pointer
 
     ! arguments
     character(kind=c_char), dimension(*), intent(in)  :: c_config_path
     integer(kind=c_size_t), value                     :: config_path_length
+    type(c_ptr), value,                   intent(in)  :: c_grid_map
+    type(c_ptr), value,                   intent(in)  :: c_profile_map
+    type(c_ptr), value,                   intent(in)  :: c_radiator_map
     integer(kind=c_int),                  intent(out) :: error_code
+    type(c_ptr)                                       :: internal_create_tuvx
 
     ! local variables
-    character(len=:), allocatable :: f_config_path
-    type(c_ptr)                   :: internal_create_tuvx
-    type(core_t), pointer         :: core
-    type(string_t)                :: musica_config_path
-    integer                       :: i
+    character(len=:), allocatable       :: f_config_path
+    type(core_t), pointer               :: core
+    type(string_t)                      :: musica_config_path
+    type(grid_warehouse_t),     pointer :: grid_map
+    type(profile_warehouse_t),  pointer :: profile_map
+    type(radiator_warehouse_t), pointer :: radiator_map
+    integer                             :: i
 
     allocate(character(len=config_path_length) :: f_config_path)
     do i = 1, config_path_length
@@ -41,8 +48,11 @@ contains
     end do
 
     musica_config_path = string_t(f_config_path)
-
-    core => core_t(musica_config_path)
+    call c_f_pointer(c_grid_map, grid_map)
+    call c_f_pointer(c_profile_map, profile_map)
+    call c_f_pointer(c_radiator_map, radiator_map)
+    core => core_t(musica_config_path, grids = grid_map, &
+        profiles = profile_map, radiators = radiator_map)
 
     deallocate(f_config_path)
     error_code = 0

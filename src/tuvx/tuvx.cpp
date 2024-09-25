@@ -92,7 +92,7 @@ namespace musica
         return;
       }
 
-      tuvx_ = InternalCreateTuvx(config_path, strlen(config_path), &parsing_status);
+      tuvx_ = InternalCreateTuvx(config_path, strlen(config_path), grids->grid_map_, profiles->profile_map_, radiators->radiator_map_, &parsing_status);
       if (parsing_status == 1)
       {
         *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create tuvx instance") };
