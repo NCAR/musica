@@ -39,7 +39,6 @@ install(
 if(MUSICA_ENABLE_MICM)
   install(
     TARGETS
-      nlohmann_json
       micm
     EXPORT
       musica_Exports
