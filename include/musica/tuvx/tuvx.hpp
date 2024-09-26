@@ -24,8 +24,11 @@ namespace musica
 
     /// @brief Create an instance of tuvx from a configuration file
     /// @param config_path Path to configuration file
+    /// @param grids Grid map from host application
+    /// @param profiles Profile map from host application
+    /// @param radiators Radiator map from host application
     /// @param error Error struct to indicate success or failure
-    void Create(const char *config_path, Error *error);
+    void Create(const char *config_path, GridMap *grids, ProfileMap *profiles, RadiatorMap *radiators, Error *error);
 
     /// @brief Create a grid map. For now, this calls the interal tuvx fortran api, but will allow the change to c++ later on
     /// to be transparent to downstream projects
@@ -58,7 +61,7 @@ namespace musica
 
     // The external C API for TUVX
     // callable by wrappers in other languages
-    TUVX *CreateTuvx(const char *config_path, Error *error);
+    TUVX *CreateTuvx(const char *config_path, GridMap *grids, ProfileMap *profiles, RadiatorMap *radiators, Error *error);
     void DeleteTuvx(const TUVX *tuvx, Error *error);
     GridMap *GetGridMap(TUVX *tuvx, Error *error);
     ProfileMap *GetProfileMap(TUVX *tuvx, Error *error);

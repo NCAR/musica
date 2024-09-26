@@ -39,8 +39,10 @@ namespace musica
     /// @brief Types of MICM solver
     enum MICMSolver
     {
-      Rosenbrock = 1,           // Vector-ordered Rosenbrock solver
-      RosenbrockStandardOrder,  // Standard-ordered Rosenbrock solver
+      Rosenbrock = 1,              // Vector-ordered Rosenbrock solver
+      RosenbrockStandardOrder,     // Standard-ordered Rosenbrock solver
+      BackwardEuler,               // Vector-ordered BackwardEuler solver
+      BackwardEulerStandardOrder,  // Standard-ordered BackwardEuler solver
     };
 
     struct SolverResultStats
@@ -107,23 +109,57 @@ namespace musica
     /// @param num_grid_cells Number of grid cells
     /// @param error Error struct to indicate success or failure
     MICM *CreateMicm(const char *config_path, MICMSolver solver_type, int num_grid_cells, Error *error);
+
+    /// @brief Deletes a MICM object
+    /// @param micm Pointer to MICM object
+    /// @param error Error struct to indicate success or failure
     void DeleteMicm(const MICM *micm, Error *error);
+
+    /// @brief Solve the system
+    /// @param micm Pointer to MICM object
+    /// @param time_step Time [s] to advance the state by
+    /// @param temperature Temperature [grid cell] (K)
+    /// @param pressure Pressure [grid cell] (Pa)
+    /// @param air_density Air density [grid cell] (mol m-3)
+    /// @param concentrations Array of species' concentrations [grid cell][species] (mol m-3)
+    /// @param custom_rate_parameters Array of custom rate parameters [grid cell][parameter] (various units)
+    /// @param solver_state State of the solver
+    /// @param solver_stats Statistics of the solver
+    /// @param error Error struct to indicate success or failure
     void MicmSolve(
         MICM *micm,
         double time_step,
-        double temperature,
-        double pressure,
-        double air_density,
-        int num_concentrations,
+        double *temperature,
+        double *pressure,
+        double *air_density,
         double *concentrations,
-        int num_custom_rate_parameters,
         double *custom_rate_parameters,
         String *solver_state,
         SolverResultStats *solver_stats,
         Error *error);
+
+    /// @brief Get the MICM version
+    /// @return MICM version
     String MicmVersion();
-    Mapping *GetSpeciesOrdering(MICM *micm, std::size_t *array_size, Error *error);
-    Mapping *GetUserDefinedReactionRatesOrdering(MICM *micm, std::size_t *array_size, Error *error);
+
+    /// @brief Get the ordering of species
+    /// @param micm Pointer to MICM object
+    /// @param error Error struct to indicate success or failure
+    /// @return Array of species' name-index pairs
+    Mappings GetSpeciesOrdering(MICM *micm, Error *error);
+
+    /// @brief Get the ordering of user-defined reaction rates
+    /// @param micm Pointer to MICM object
+    /// @param error Error struct to indicate success or failure
+    /// @return Array of reaction rate name-index pairs
+    Mappings GetUserDefinedReactionRatesOrdering(MICM *micm, Error *error);
+
+    /// @brief Get a property for a chemical species
+    /// @param micm Pointer to MICM object
+    /// @param species_name Name of the species
+    /// @param property_name Name of the property
+    /// @param error Error struct to indicate success or failure
+    /// @return Value of the property
     String GetSpeciesPropertyString(MICM *micm, const char *species_name, const char *property_name, Error *error);
     double GetSpeciesPropertyDouble(MICM *micm, const char *species_name, const char *property_name, Error *error);
     int GetSpeciesPropertyInt(MICM *micm, const char *species_name, const char *property_name, Error *error);
@@ -145,26 +181,32 @@ namespace musica
     /// @param error Error struct to indicate success or failure
     void CreateRosenbrockStandardOrder(const std::string &config_path, Error *error);
 
+    /// @brief Create a BackwardEuler solver of vector-ordered matrix type by reading and parsing configuration file
+    /// @param config_path Path to configuration file or directory containing configuration file
+    /// @param error Error struct to indicate success or failure
+    void CreateBackwardEuler(const std::string &config_path, Error *error);
+
+    /// @brief Create a BackwardEuler solver of standard-ordered matrix type by reading and parsing configuration file
+    /// @param config_path Path to configuration file or directory containing configuration file
+    /// @param error Error struct to indicate success or failure
+    void CreateBackwardEulerStandardOrder(const std::string &config_path, Error *error);
+
     /// @brief Solve the system
     /// @param solver Pointer to solver
     /// @param time_step Time [s] to advance the state by
-    /// @param temperature Temperature [K]
-    /// @param pressure Pressure [Pa]
-    /// @param air_density Air density [mol m-3]
-    /// @param num_concentrations The size of the concentrations array
-    /// @param concentrations Array of species' concentrations
-    /// @param num_custom_rate_parameters The size of the custom_rate_parameters array
-    /// @param custom_rate_parameters Array of custom rate parameters
+    /// @param temperature Temperature [grid cell] (K)
+    /// @param pressure Pressure [grid cell] (Pa)
+    /// @param air_density Air density [grid cell] (mol m-3)
+    /// @param concentrations Array of species' concentrations [grid cell][species] (mol m-3)
+    /// @param custom_rate_parameters Array of custom rate parameters [grid cell][parameter] (various units)
     /// @param error Error struct to indicate success or failure
     void Solve(
         auto &solver,
         double time_step,
-        double temperature,
-        double pressure,
-        double air_density,
-        int num_concentrations,
+        double *temperature,
+        double *pressure,
+        double *air_density,
         double *concentrations,
-        int num_custom_rate_parameters,
         double *custom_rate_parameters,
         String *solver_state,
         SolverResultStats *solver_stats,
@@ -210,7 +252,7 @@ namespace musica
    public:
     MICMSolver solver_type_;
 
-    /// @brief Vector-ordered Rosenbrock solver type
+    /// @brief Vector-ordered Rosenbrock
     using DenseMatrixVector = micm::VectorMatrix<double, MICM_VECTOR_MATRIX_SIZE>;
     using SparseMatrixVector = micm::SparseMatrix<double, micm::SparseMatrixVectorOrdering<MICM_VECTOR_MATRIX_SIZE>>;
     using RosenbrockVectorType = typename micm::RosenbrockSolverParameters::
@@ -227,6 +269,26 @@ namespace musica
     using RosenbrockStandard = micm::Solver<RosenbrockStandardType, micm::State<DenseMatrixStandard, SparseMatrixStandard>>;
     using StandardState = micm::State<DenseMatrixStandard, SparseMatrixStandard>;
     std::unique_ptr<RosenbrockStandard> rosenbrock_standard_;
+
+    /// @brief Vector-ordered Backward Euler
+    using BackwardEulerVectorType = typename micm::BackwardEulerSolverParameters::
+        template SolverType<micm::ProcessSet, micm::LinearSolver<SparseMatrixVector, micm::LuDecomposition>>;
+    using BackwardEuler = micm::Solver<BackwardEulerVectorType, micm::State<DenseMatrixVector, SparseMatrixVector>>;
+    std::unique_ptr<BackwardEuler> backward_euler_;
+
+    /// @brief Standard-ordered Backward Euler
+    using BackwardEulerStandardType = typename micm::BackwardEulerSolverParameters::
+        template SolverType<micm::ProcessSet, micm::LinearSolver<SparseMatrixStandard, micm::LuDecomposition>>;
+    using BackwardEulerStandard =
+        micm::Solver<BackwardEulerStandardType, micm::State<DenseMatrixStandard, SparseMatrixStandard>>;
+    std::unique_ptr<BackwardEulerStandard> backward_euler_standard_;
+
+    /// @brief Returns the number of grid cells
+    /// @return Number of grid cells
+    int NumGridCells() const
+    {
+      return num_grid_cells_;
+    }
 
    private:
     int num_grid_cells_;

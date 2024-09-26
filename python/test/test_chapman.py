@@ -10,19 +10,26 @@ class TestChapman(unittest.TestCase):
         pressure = 101253.3
         GAS_CONSTANT = 8.31446261815324
         air_density = pressure / (GAS_CONSTANT * temperature)
-        concentrations = [0.4, 0.8, 0.01, 0.02]
 
         solver = musica.create_solver(
             "configs/chapman",
             musica.micmsolver.rosenbrock,
             num_grid_cells)
+
         rate_constant_ordering = musica.user_defined_reaction_rates(solver)
-        ordering = musica.species_ordering(solver)
+        species_ordering = musica.species_ordering(solver)
 
         rate_constants = {
-            "PHOTO.R1": 2.42e-17,
-            "PHOTO.R3": 1.15e-5,
-            "PHOTO.R5": 6.61e-9
+            "PHOTO.jO2": 2.42e-17,
+            "PHOTO.jO3->O": 1.15e-5,
+            "PHOTO.jO3->O1D": 6.61e-9
+        }
+
+        concentrations = {
+            "O2": 0.75,
+            "O": 0.0,
+            "O1D": 0.0,
+            "O3": 0.0000081
         }
 
         ordered_rate_constants = len(rate_constants.keys()) * [0.0]
@@ -30,26 +37,27 @@ class TestChapman(unittest.TestCase):
         for key, value in rate_constants.items():
             ordered_rate_constants[rate_constant_ordering[key]] = value
 
+        ordered_concentrations = len(concentrations.keys()) * [0.0]
+
+        for key, value in concentrations.items():
+            ordered_concentrations[species_ordering[key]] = value
+
         musica.micm_solve(
             solver,
             time_step,
             temperature,
             pressure,
             air_density,
-            concentrations,
+            ordered_concentrations,
             ordered_rate_constants)
 
-        self.assertEqual(
-            ordering, {
-                'O': 1, 'O1D': 0, 'O2': 2, 'O3': 3})
-        self.assertEqual(
-            rate_constant_ordering, {
-                'PHOTO.R1': 0, 'PHOTO.R3': 1, 'PHOTO.R5': 2})
-
-        self.assertNotEqual(concentrations[0], 0.4)
-        self.assertNotEqual(concentrations[1], 0.8)
-        self.assertNotEqual(concentrations[2], 0.01)
-        self.assertNotEqual(concentrations[3], 0.02)
+        self.assertAlmostEqual(
+            ordered_concentrations[species_ordering["O2"]], 0.75, places=5)
+        self.assertGreater(ordered_concentrations[species_ordering["O"]], 0.0)
+        self.assertGreater(
+            ordered_concentrations[species_ordering["O1D"]], 0.0)
+        self.assertNotEqual(
+            ordered_concentrations[species_ordering["O3"]], 0.0000081)
 
 
 if __name__ == '__main__':

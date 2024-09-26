@@ -20,6 +20,17 @@ if (MUSICA_BUILD_FORTRAN_INTERFACE)
   pkg_check_modules(netcdfc IMPORTED_TARGET REQUIRED netcdf)
 endif()
 
+# ##############################################################################
+# yaml-cpp
+
+FetchContent_Declare(
+  yaml-cpp
+  GIT_REPOSITORY https://github.com/jbeder/yaml-cpp/
+  GIT_TAG 0.8.0
+  GIT_PROGRESS NOT
+  ${FETCHCONTENT_QUIET})
+FetchContent_MakeAvailable(yaml-cpp)
+
 ################################################################################
 # google test
 if(MUSICA_ENABLE_TESTS)
@@ -51,7 +62,7 @@ endif()
 if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE)
 
   set_git_default(MICM_GIT_REPOSITORY https://github.com/NCAR/micm.git)
-  set_git_default(MICM_GIT_TAG 6b1c58a9be14095e3f3c6df403c91c4e800f23de)
+  set_git_default(MICM_GIT_TAG v3.6.0)
 
   FetchContent_Declare(micm
       GIT_REPOSITORY ${MICM_GIT_REPOSITORY}
@@ -75,7 +86,7 @@ if (MUSICA_ENABLE_TUVX AND MUSICA_BUILD_C_CXX_INTERFACE)
   set(TUVX_INSTALL_INCLUDE_DIR ${MUSICA_INSTALL_INCLUDE_DIR} CACHE STRING "" FORCE)
 
   set_git_default(TUVX_GIT_REPOSITORY https://github.com/NCAR/tuv-x.git)
-  set_git_default(TUVX_GIT_TAG 674ee1e72853bb44d23c36602fa73c955b2f021d)
+  set_git_default(TUVX_GIT_TAG v0.10.0)
 
   FetchContent_Declare(tuvx
     GIT_REPOSITORY ${TUVX_GIT_REPOSITORY}

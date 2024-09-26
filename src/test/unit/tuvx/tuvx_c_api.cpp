@@ -9,17 +9,26 @@ class TuvxCApiTest : public ::testing::Test
 {
  protected:
   TUVX* tuvx;
+  GridMap* grids_from_host;
+  ProfileMap* profiles_from_host;
+  RadiatorMap* radiators_from_host;
 
   // the function that google test actually calls before each test
   void SetUp() override
   {
     tuvx = nullptr;
+    grids_from_host = nullptr;
+    profiles_from_host = nullptr;
+    radiators_from_host = nullptr;
   }
 
   void SetUp(const char* config_path)
   {
     Error error;
-    tuvx = CreateTuvx(config_path, &error);
+    grids_from_host = CreateGridMap(&error);
+    profiles_from_host = CreateProfileMap(&error);
+    radiators_from_host = CreateRadiatorMap(&error);
+    tuvx = CreateTuvx(config_path, grids_from_host, profiles_from_host, radiators_from_host, &error);
     if (!IsSuccess(error))
     {
       std::cerr << "Error creating TUVX instance: " << error.message_.value_ << std::endl;
@@ -37,8 +46,13 @@ class TuvxCApiTest : public ::testing::Test
     Error error;
     DeleteTuvx(tuvx, &error);
     ASSERT_TRUE(IsSuccess(error));
+    DeleteGridMap(grids_from_host, &error);
+    ASSERT_TRUE(IsSuccess(error));
+    DeleteProfileMap(profiles_from_host, &error);
+    ASSERT_TRUE(IsSuccess(error));
+    DeleteRadiatorMap(radiators_from_host, &error);
+    ASSERT_TRUE(IsSuccess(error));
     DeleteError(&error);
-    tuvx = nullptr;
   }
 };
 
@@ -60,8 +74,17 @@ TEST_F(TuvxCApiTest, DetectsNonexistentConfigFile)
 {
   const char* config_path = "nonexisting.yml";
   Error error;
-  TUVX* tuvx = CreateTuvx(config_path, &error);
+  GridMap* grids_from_host = CreateGridMap(&error);
+  ProfileMap* profiles_from_host = CreateProfileMap(&error);
+  RadiatorMap* radiators_from_host = CreateRadiatorMap(&error);
+  TUVX* tuvx = CreateTuvx(config_path, grids_from_host, profiles_from_host, radiators_from_host, &error);
   ASSERT_FALSE(IsSuccess(error));
+  DeleteGridMap(grids_from_host, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteProfileMap(profiles_from_host, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteRadiatorMap(radiators_from_host, &error);
+  ASSERT_TRUE(IsSuccess(error));
   DeleteError(&error);
 }
 
@@ -87,6 +110,8 @@ TEST_F(TuvxCApiTest, CanCreateGrid)
   Grid* grid = CreateGrid("foo", "m", 2, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_NE(grid, nullptr);
+  ASSERT_EQ(GetGridNumSections(grid, &error), 2);
+  ASSERT_TRUE(IsSuccess(error));
   std::vector<double> edges = { 0.0, 100.0, 200.0 };
   SetGridEdges(grid, edges.data(), edges.size(), &error);
   ASSERT_TRUE(IsSuccess(error));

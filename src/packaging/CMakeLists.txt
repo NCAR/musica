@@ -3,6 +3,7 @@ include(CMakePackageConfigHelpers)
 install(
   TARGETS
     musica
+    yaml-cpp
   EXPORT
     musica_Exports
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -38,7 +39,6 @@ install(
 if(MUSICA_ENABLE_MICM)
   install(
     TARGETS
-      nlohmann_json
       micm
     EXPORT
       musica_Exports
@@ -66,7 +66,6 @@ if (MUSICA_ENABLE_TUVX)
   install(
     TARGETS
       tuvx_object
-      yaml-cpp
     EXPORT
       musica_Exports
   )

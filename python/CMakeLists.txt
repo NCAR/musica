@@ -6,7 +6,7 @@ pybind11_add_module(musica_python
   ${CMAKE_BINARY_DIR}/version.cpp
 )
 
-target_link_libraries(musica_python PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(musica_python PRIVATE yaml-cpp)
 
 target_compile_features(musica_python PUBLIC cxx_std_20)
 
@@ -24,7 +24,22 @@ target_include_directories(musica_python
     $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
 )
 
-install(TARGETS musica_python
+# Set the rpath for the shared library
+if(APPLE)
+  message(STATUS "Building for MacOS")
+  set_target_properties(musica_python PROPERTIES
+    INSTALL_RPATH "@loader_path"
+    BUILD_WITH_INSTALL_RPATH TRUE
+  )
+elseif(UNIX)
+  message(STATUS "Building for Linux")
+  set_target_properties(musica_python PROPERTIES
+    INSTALL_RPATH "$ORIGIN"
+    BUILD_WITH_INSTALL_RPATH TRUE
+  )
+endif()
+
+install(TARGETS musica_python yaml-cpp
   LIBRARY DESTINATION .
 )
 
@@ -39,6 +54,3 @@ if(WIN32)
 else()
   set(PYTHON_MODULE_PATH "${CMAKE_CURRENT_BINARY_DIR}")
 endif()
-
-
-add_subdirectory(test)
