@@ -1,40 +1,78 @@
 Chapter 0
 =========
 
-The MUSICA CMake Package
-------------------------
+Installing MUSICA
+-----------------
 
-The MUSICA library installs with `CMake` ``musica`` and ``musica_fortran``
-packages to facilitate linking
-to higher level libraries and host models that have CMake build systems.
+This tutorial will guide you through the installation and use of MUSICA and
+the MUSICA-Fortran interface. The MUSICA library is a C++ library that
+provides a set of tools and solvers for the simulation of atmospheric
+chemistry and aerosols. The MUSICA-Fortran interface provides a
+Fortran API to the MUSICA library.
 
-A minimal ``CMakeLists.txt`` file designed to link the ``musica_fortran`` library
-to a Fortran program ``demo_f.f90`` is exhibited below
+The MUSICA library and the MUSICA-Fortran interface can be installed
+together or separately. The MUSICA library is required to build the
+MUSICA-Fortran interface.
 
-  .. literalinclude:: ../../../fortran/test/tutorial/CMakeLists.txt
-    :language: cmake
+The MUSICA library and the MUSICA-Fortran interface can be installed
+using the CMake build system.
 
-These `CMake` directives are essentially equivalent to compilation on the command line via
+
+Local Installation
+~~~~~~~~~~~~~~~~~~
+
+First, ensure that you have the required dependencies installed. On
+Fedora, you can install the required dependencies with the following:
 
 .. code-block:: bash
 
-  gfortran -o demo_f demo_f.f90 -I<MUSICA_DIR>/include -L<MUSICA_DIR>/lib -lmusica-fortran -lmusica -lstdc++
+  sudo dnf install -y cmake git gcc-c++ gcc-gfortran netcdf-devel netcdf-fortran-devel
 
-``<MUSICA_DIR>`` is the full path of the MUSICA installation directory,
-specified by the option ``CMAKE_INSTALL_PREFIX``
-during the `cmake` configuration process.
+On other distributions or operating systems, you may need to install the dependencies
+using the package manager for your system.
 
-Common practice is to create a ``build`` subdir (relative to the top level ``CMakeLists.txt`` file, say).
+Next, clone the MUSICA repository from GitHub:
+
+.. code-block:: bash
+
+  git clone https://github.com/NCAR/musica.git
+
+Next, create a build directory and run CMake:
 
 .. code-block:: bash
 
   mkdir build
   cd build
+  cmake -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>  -D MUSICA_BUILD_FORTRAN_INTERFACE=ON ../musica
 
-The ``cmake`` could then be invoked with:
+where ``<INSTALL_DIR>`` is the directory where you want to install MUSICA.
+We use the ``MUSICA_BUILD_FORTRAN_INTERFACE`` option to build the MUSICA-Fortran
+interface, which is not built by default.
+
+Finally, build and install MUSICA:
 
 .. code-block:: bash
 
-  cmake -DMUSICA_INSTALL_DIR <MUSICA_DIR> ..
-  cmake --build .
+  make
+  make install
 
+Docker Installation
+~~~~~~~~~~~~~~~~~~~
+
+Alternatively, you can build and install MUSICA using Docker. First, ensure
+that you have
+`Docker Desktop <https://www.docker.com/products/docker-desktop/>`_
+installed and running on your system.
+
+Then, use the provided Dockerfile to build the MUSICA Docker image:
+
+.. code-block:: bash
+
+  curl -O https://github.com/NCAR/musica/blob/main/docker/Dockerfile.fortran-gcc
+  docker build -t musica-fortran -f Dockerfile.fortran-gcc .
+  docker run -it musica-fortran bash
+
+You can then perform the remainder of the tutorial inside the Docker container.
+Once you are finished, you can exit the container by typing ``exit``. (Note that
+the container will be deleted along with any files you created or modified when
+you exit.)
