@@ -75,6 +75,10 @@ build the MUSICA Docker image:
   docker run -it musica-fortran bash
 
 You can then perform the remainder of the tutorial inside the Docker container.
+The `<MUSICA_DIR>` directory used throughout the tutorial will be located at `/musica/build`
+
 Once you are finished, you can exit the container by typing ``exit``. (Note that
 the container will be deleted along with any files you created or modified when
 you exit.)
+
+

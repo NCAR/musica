@@ -19,6 +19,8 @@ simply lists the configuration files to parse. In this case, these are the
 chemical species configuration file ``species.json`` and
 the reactions configuration file ``reactions.json``.
 
+The contents of the ``config.json`` file for this example are:
+
   .. literalinclude:: ../../../configs/analytical/config.json
     :language: json
 
@@ -37,7 +39,7 @@ We also include two reactions with rate constants that are provided by the host
 application at runtime. These types of reactions are useful when outside calculations
 are needed to determine the rate constants, such as in the case of photolysis reactions.
 
-The mechanism configuration might then be set up as:
+The ``reactions.json`` file for this example should look like this:
 
   .. literalinclude:: ../../../configs/analytical/reactions.json
     :language: json

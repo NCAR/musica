@@ -7,7 +7,7 @@ The MUSICA-Fortran API provides access to the MUSICA library within a fortran pr
 To get started, let us create a simple program that links
 to MUSICA and prints the version of MICM.
 
-Here are the contents of the program `demo.F90`:
+Save the following code to a file named `demo.F90`:
 
   .. literalinclude:: ../../../fortran/test/fetch_content_integration/test_get_micm_version.F90
     :language: F90
