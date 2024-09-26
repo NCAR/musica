@@ -64,12 +64,14 @@ that you have
 `Docker Desktop <https://www.docker.com/products/docker-desktop/>`_
 installed and running on your system.
 
-Then, use the provided Dockerfile to build the MUSICA Docker image:
+Then, clone and MUSICA GitHub repository and use the provided Dockerfile to
+build the MUSICA Docker image:
 
 .. code-block:: bash
 
-  curl -O https://github.com/NCAR/musica/blob/main/docker/Dockerfile.fortran-gcc
-  docker build -t musica-fortran -f Dockerfile.fortran-gcc .
+  git clone https://github.com/NCAR/musica.git
+  cd musica
+  docker build -t musica-fortran -f docker/Dockerfile.fortran-gcc .
   docker run -it musica-fortran bash
 
 You can then perform the remainder of the tutorial inside the Docker container.
