@@ -66,7 +66,7 @@ which is an argument to the MICM solver.
 Finally, a single time step solution is obtained through a call to ``micm%solve``,
 after which the updated concentrations may be displayed.
 
-To build the example, follow the instructions in :ref:`Chapter 1`.
+To build the example, follow the instructions in :ref:`chapter1`.
 
 Assuming you name the executable ``micm_box_model``, you can run the program as follows:
 

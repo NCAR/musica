@@ -1,6 +1,8 @@
 Chapter 0
 =========
 
+.. _installing_musica:
+
 Installing MUSICA
 -----------------
 
