@@ -29,7 +29,7 @@ The full command is
 
 ``<MUSICA_DIR>`` is the full path of the MUSICA installation directory,
 specified by the option ``CMAKE_INSTALL_PREFIX``
-during installation (see `Installing MUSICA`_).
+during installation (see :ref:`installing_musica`).
 Note that the include path allows the linker to find the ``musica_micm.mod`` and ``musica_util.mod``
 module definition files.
 
