@@ -45,7 +45,7 @@ Next, create a build directory and run CMake:
 
   mkdir build
   cd build
-  cmake -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>  -D MUSICA_BUILD_FORTRAN_INTERFACE=ON ../musica
+  cmake -D CMAKE_INSTALL_PREFIX=<INSTALL_DIR>  -D MUSICA_BUILD_FORTRAN_INTERFACE=ON ../musica
 
 where ``<INSTALL_DIR>`` is the directory where you want to install MUSICA.
 We use the ``MUSICA_BUILD_FORTRAN_INTERFACE`` option to build the MUSICA-Fortran
@@ -66,7 +66,7 @@ that you have
 `Docker Desktop <https://www.docker.com/products/docker-desktop/>`_
 installed and running on your system.
 
-Then, clone and MUSICA GitHub repository and use the provided Dockerfile to
+Then, clone the MUSICA GitHub repository and use the provided Dockerfile to
 build the MUSICA Docker image:
 
 .. code-block:: bash
