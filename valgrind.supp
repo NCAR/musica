@@ -21,3 +21,12 @@
   fun:CreateTuvx
   ...
 }
+{
+   <DiagnosticConditionalJump>
+   Memcheck:Cond
+   fun:__tuvx_diagnostic_util_MOD_diagnostic_1d_dk
+   fun:__tuvx_photolysis_rates_MOD_get
+   fun:__tuvx_core_MOD_run
+   fun:InternalRunTuvx
+   ...
+}
