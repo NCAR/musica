@@ -79,6 +79,32 @@ class TuvxRunTest : public ::testing::Test
       heating_rates = new double[(number_of_layers + 1) * number_of_reactions];
       DeleteError(&error);
     }
+
+    void SetUp(const char* config_path, GridMap* grids, ProfileMap* profiles, RadiatorMap* radiators)
+    {
+      Error error;
+      grids_from_host = grids;
+      profiles_from_host = profiles;
+      radiators_from_host = radiators;
+      tuvx = CreateTuvx(config_path, grids, profiles, radiators, &error);
+      if (!IsSuccess(error))
+      {
+        std::cerr << "Error creating TUVX instance: " << error.message_.value_ << std::endl;
+      }
+      ASSERT_TRUE(IsSuccess(error));
+      grids_in_tuvx = GetGridMap(tuvx, &error);
+      ASSERT_TRUE(IsSuccess(error));
+      profiles_in_tuvx = GetProfileMap(tuvx, &error);
+      ASSERT_TRUE(IsSuccess(error));
+      radiators_in_tuvx = GetRadiatorMap(tuvx, &error);
+      ASSERT_TRUE(IsSuccess(error));
+      number_of_layers = 3;
+      number_of_wavelengths = 5;
+      number_of_reactions = 2;
+      photolysis_rate_constants = new double[(number_of_layers + 1) * number_of_reactions];
+      heating_rates = new double[(number_of_layers + 1) * number_of_reactions];
+      DeleteError(&error);
+    }
   
     void TearDown() override
     {
@@ -119,9 +145,123 @@ TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfig)
   {
     for (int j = 0; j < number_of_layers + 1; j++)
     {
-      ASSERT_NEAR(photolysis_rate_constants[i * (number_of_layers + 1) + j], expected_photolysis_rate_constants[i][j], expected_photolysis_rate_constants[i][j] * 1.0e-5);
-      ASSERT_NEAR(heating_rates[i * (number_of_layers + 1) + j], expected_heating_rates[i][j], expected_heating_rates[i][j] * 1.0e-5);
+      EXPECT_NEAR(photolysis_rate_constants[i * (number_of_layers + 1) + j], expected_photolysis_rate_constants[i][j], expected_photolysis_rate_constants[i][j] * 1.0e-5);
+      EXPECT_NEAR(heating_rates[i * (number_of_layers + 1) + j], expected_heating_rates[i][j], expected_heating_rates[i][j] * 1.0e-5);
     }
   }
+  DeleteError(&error);
+}
+
+TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfigAndHostData)
+{
+  const char* json_config_path = "test/data/tuvx/from_host/config.json";
+  Error error;
+  GridMap* grids = CreateGridMap(&error);
+  ASSERT_TRUE(IsSuccess(error));
+  ProfileMap* profiles = CreateProfileMap(&error);
+  ASSERT_TRUE(IsSuccess(error));
+  RadiatorMap* radiators = CreateRadiatorMap(&error);
+  Grid* heights = CreateGrid("height", "km", 3, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_NE(heights, nullptr);
+  double height_edges[4] = { 0.0, 1.0, 2.0, 3.0 };
+  SetGridEdges(heights, height_edges, 4, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  double height_midpoints[3] = { 0.5, 1.5, 2.5 };
+  SetGridMidpoints(heights, height_midpoints, 3, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  AddGrid(grids, heights, &error);
+  Grid* wavelengths = CreateGrid("wavelength", "nm", 5, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_NE(wavelengths, nullptr);
+  double wavelength_edges[6] = { 300.0, 400.0, 500.0, 600.0, 700.0, 800.0 };
+  double wavelength_midpoints[5] = { 350.0, 450.0, 550.0, 650.0, 750.0 };
+  SetGridEdges(wavelengths, wavelength_edges, 6, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  SetGridMidpoints(wavelengths, wavelength_midpoints, 5, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  AddGrid(grids, wavelengths, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  Profile* temperature = CreateProfile("temperature", "K", heights, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_NE(temperature, nullptr);
+  AddProfile(profiles, temperature, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteProfile(temperature, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteGrid(heights, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteGrid(wavelengths, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  SetUp(json_config_path, grids, profiles, radiators);
+  ASSERT_NE(tuvx, nullptr);
+  heights = GetGrid(grids_in_tuvx, "height", "km", &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_NE(heights, nullptr);
+  wavelengths = GetGrid(grids_in_tuvx, "wavelength", "nm", &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_NE(wavelengths, nullptr);
+  temperature = GetProfile(profiles_in_tuvx, "temperature", "K", &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_NE(temperature, nullptr);
+  double temperature_edge_values[4] = { 300.0, 275.0, 260.0, 255.0 };
+  SetProfileEdgeValues(temperature, temperature_edge_values, 4, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  double temperature_midpoint_values[3] = { 287.5, 267.5, 257.5 };
+  SetProfileMidpointValues(temperature, temperature_midpoint_values, 3, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  RunTuvx(tuvx, 0.1, 1.1, photolysis_rate_constants, heating_rates, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  for (int i = 0; i < number_of_reactions; i++)
+  {
+    for (int j = 0; j < number_of_layers + 1; j++)
+    {
+      EXPECT_NEAR(photolysis_rate_constants[i * (number_of_layers + 1) + j], expected_photolysis_rate_constants[i][j], expected_photolysis_rate_constants[i][j] * 1.0e-5);
+      EXPECT_NEAR(heating_rates[i * (number_of_layers + 1) + j], expected_heating_rates[i][j], expected_heating_rates[i][j] * 1.0e-5);
+    }
+  }
+  GetGridEdges(heights, height_edges, 4, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(height_edges[0], 0.0);
+  ASSERT_EQ(height_edges[1], 1.0);
+  ASSERT_EQ(height_edges[2], 2.0);
+  ASSERT_EQ(height_edges[3], 3.0);
+  GetGridMidpoints(heights, height_midpoints, 3, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(height_midpoints[0], 0.5);
+  ASSERT_EQ(height_midpoints[1], 1.5);
+  ASSERT_EQ(height_midpoints[2], 2.5);
+  GetGridEdges(wavelengths, wavelength_edges, 6, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(wavelength_edges[0], 300.0);
+  ASSERT_EQ(wavelength_edges[1], 400.0);
+  ASSERT_EQ(wavelength_edges[2], 500.0);
+  ASSERT_EQ(wavelength_edges[3], 600.0);
+  ASSERT_EQ(wavelength_edges[4], 700.0);
+  ASSERT_EQ(wavelength_edges[5], 800.0);
+  GetGridMidpoints(wavelengths, wavelength_midpoints, 5, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(wavelength_midpoints[0], 350.0);
+  ASSERT_EQ(wavelength_midpoints[1], 450.0);
+  ASSERT_EQ(wavelength_midpoints[2], 550.0);
+  ASSERT_EQ(wavelength_midpoints[3], 650.0);
+  ASSERT_EQ(wavelength_midpoints[4], 750.0);
+  GetProfileEdgeValues(temperature, temperature_edge_values, 4, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(temperature_edge_values[0], 300.0);
+  ASSERT_EQ(temperature_edge_values[1], 275.0);
+  ASSERT_EQ(temperature_edge_values[2], 260.0);
+  ASSERT_EQ(temperature_edge_values[3], 255.0);
+  GetProfileMidpointValues(temperature, temperature_midpoint_values, 3, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(temperature_midpoint_values[0], 287.5);
+  ASSERT_EQ(temperature_midpoint_values[1], 267.5);
+  ASSERT_EQ(temperature_midpoint_values[2], 257.5);
+  DeleteGrid(heights, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteGrid(wavelengths, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteProfile(temperature, &error);
+  ASSERT_TRUE(IsSuccess(error));
   DeleteError(&error);
 }

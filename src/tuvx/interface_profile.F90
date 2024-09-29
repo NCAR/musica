@@ -145,6 +145,8 @@ module tuvx_interface_profile
       return
     end if
     f_updater%profile_%edge_val_(:) = f_edge_values(:)
+    f_updater%profile_%delta_val_(:) = f_edge_values(2:num_edge_values) - &
+        f_edge_values(1:num_edge_values-1)
 
   end subroutine internal_set_edge_values
 
