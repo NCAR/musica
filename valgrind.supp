@@ -5,23 +5,6 @@
 ##############################################################
 
 {
-   <AssertFailureLeaksTuvx>
-   Memcheck:Leak
-   match-leak-kinds: possible
-   fun:malloc
-   ...
-   fun:InternalCreateTuvx
-   ...
-}
-{
-  <AssertFailureLeaksString>
-  Memcheck:Leak
-  match-leak-kinds: possible
-  ...
-  fun:CreateTuvx
-  ...
-}
-{
    <DiagnosticConditionalJump>
    Memcheck:Cond
    fun:__tuvx_diagnostic_util_MOD_diagnostic_1d_dk
