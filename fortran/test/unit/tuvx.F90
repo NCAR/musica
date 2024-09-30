@@ -29,6 +29,7 @@ program test_tuvx_connection
 
   call test_tuvx()
   call test_tuvx_fixed()
+  call test_tuvx_data_from_host()
 
 contains
 
@@ -111,6 +112,155 @@ contains
     deallocate( grids )
 
   end subroutine test_tuvx_fixed
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  !> Test TUV-x with host-supplied grids and profiles
+  subroutine test_tuvx_data_from_host( )
+
+    use musica_util,              only : assert, error_t
+    use musica_tuvx_grid,         only : grid_t
+    use musica_tuvx_grid_map,     only : grid_map_t
+    use musica_tuvx_profile,      only : profile_t
+    use musica_tuvx_profile_map,  only : profile_map_t
+    use musica_tuvx_radiator_map, only : radiator_map_t
+    use musica_tuvx,              only : tuvx_t
+
+    character(len=*), parameter :: my_name = "TUV-x from-host configuration tests"
+    character(len=*), parameter :: config_path = "test/data/tuvx/from_host/config.json"
+    type(grid_t),         pointer :: heights, wavelengths
+    type(grid_map_t),     pointer :: grids
+    type(profile_t),      pointer :: temperatures
+    type(profile_map_t),  pointer :: profiles
+    type(radiator_map_t), pointer :: radiators
+    type(tuvx_t),         pointer :: tuvx
+    type(error_t) :: error
+
+    real(dk) :: photo_rate_consts(number_of_layers + 1, number_of_reactions)
+    real(dk) :: heating_rates(number_of_layers + 1, number_of_reactions)
+    integer :: i, j
+    real(dk) :: a, b
+    real(dk), allocatable :: temp_vals(:)
+
+    heights => grid_t( "height", "km", 3, error )
+    ASSERT( error%is_success() )
+    call heights%set_edges( [ 0.0_dk, 1.0_dk, 2.0_dk, 3.0_dk ], error )
+    ASSERT( error%is_success() )
+    call heights%set_midpoints( [ 0.5_dk, 1.5_dk, 2.5_dk ], error )
+    wavelengths => grid_t( "wavelength", "nm", 5, error )
+    ASSERT( error%is_success() )
+    call wavelengths%set_edges( [ 300.0_dk, 400.0_dk, 500.0_dk, 600.0_dk, 700.0_dk, 800.0_dk ], error )
+    ASSERT( error%is_success() )
+    call wavelengths%set_midpoints( [ 350.0_dk, 450.0_dk, 550.0_dk, 650.0_dk, 750.0_dk ], error )
+    ASSERT( error%is_success() )
+    grids => grid_map_t( error )
+    ASSERT( error%is_success() )
+    call grids%add( heights, error )
+    ASSERT( error%is_success() )
+    call grids%add( wavelengths, error )
+    ASSERT( error%is_success() )
+    temperatures => profile_t( "temperature", "K", heights, error )
+    ASSERT( error%is_success() )
+    profiles => profile_map_t( error )
+    ASSERT( error%is_success() )
+    call profiles%add( temperatures, error )
+    ASSERT( error%is_success() )
+    radiators => radiator_map_t( error )
+    ASSERT( error%is_success() )
+    tuvx => tuvx_t( config_path, grids, profiles, radiators, error )
+    ASSERT( error%is_success() )
+    deallocate( heights )
+    deallocate( wavelengths )
+    deallocate( temperatures )
+    deallocate( grids )
+    deallocate( profiles )
+    deallocate( radiators )
+    grids => tuvx%get_grids( error )
+    ASSERT( error%is_success() )
+    profiles => tuvx%get_profiles( error )
+    ASSERT( error%is_success() )
+    radiators => tuvx%get_radiators( error )
+    ASSERT( error%is_success() )
+    heights => grids%get( "height", "km", error )
+    ASSERT( error%is_success() )
+    wavelengths => grids%get( "wavelength", "nm", error )
+    ASSERT( error%is_success() )
+    temperatures => profiles%get( "temperature", "K", error )
+    ASSERT( error%is_success() )
+    call temperatures%set_edge_values( [ 300.0_dk, 275.0_dk, 260.0_dk, 255.0_dk ], error )
+    ASSERT( error%is_success() )
+    call temperatures%set_midpoint_values( [ 287.5_dk, 267.5_dk, 257.5_dk ], error )
+    ASSERT( error%is_success() )
+    call tuvx%run( 0.1_dk, 1.1_dk, photo_rate_consts, heating_rates, error )
+    ASSERT( error%is_success() )
+    do i = 1, number_of_reactions
+      do j = 1, number_of_layers + 1
+        a = photo_rate_consts(j,i)
+        b = expected_photolysis_rate_constants(j,i)
+        ASSERT_NEAR( a, b, 1.0e-5_dk )
+        a = heating_rates(j,i)
+        b = expected_heating_rates(j,i)
+        ASSERT_NEAR( a, b, 1.0e-5_dk )
+      end do
+    end do
+    allocate( temp_vals(4) )
+    call heights%get_edges( temp_vals, error )
+    ASSERT( error%is_success() )
+    ASSERT_EQ( temp_vals(1), 0.0_dk )
+    ASSERT_EQ( temp_vals(2), 1.0_dk )
+    ASSERT_EQ( temp_vals(3), 2.0_dk )
+    ASSERT_EQ( temp_vals(4), 3.0_dk )
+    deallocate( temp_vals )
+    allocate( temp_vals(3) )
+    call heights%get_midpoints( temp_vals, error )
+    ASSERT( error%is_success() )
+    ASSERT_EQ( temp_vals(1), 0.5_dk )
+    ASSERT_EQ( temp_vals(2), 1.5_dk )
+    ASSERT_EQ( temp_vals(3), 2.5_dk )
+    deallocate( temp_vals )
+    allocate( temp_vals(6) )
+    call wavelengths%get_edges( temp_vals, error )
+    ASSERT( error%is_success() )
+    ASSERT_EQ( temp_vals(1), 300.0_dk )
+    ASSERT_EQ( temp_vals(2), 400.0_dk )
+    ASSERT_EQ( temp_vals(3), 500.0_dk )
+    ASSERT_EQ( temp_vals(4), 600.0_dk )
+    ASSERT_EQ( temp_vals(5), 700.0_dk )
+    ASSERT_EQ( temp_vals(6), 800.0_dk )
+    deallocate( temp_vals )
+    allocate( temp_vals(5) )
+    call wavelengths%get_midpoints( temp_vals, error )
+    ASSERT( error%is_success() )
+    ASSERT_EQ( temp_vals(1), 350.0_dk )
+    ASSERT_EQ( temp_vals(2), 450.0_dk )
+    ASSERT_EQ( temp_vals(3), 550.0_dk )
+    ASSERT_EQ( temp_vals(4), 650.0_dk )
+    ASSERT_EQ( temp_vals(5), 750.0_dk )
+    deallocate( temp_vals )
+    allocate( temp_vals(4) )
+    call temperatures%get_edge_values( temp_vals, error )
+    ASSERT( error%is_success() )
+    ASSERT_EQ( temp_vals(1), 300.0_dk )
+    ASSERT_EQ( temp_vals(2), 275.0_dk )
+    ASSERT_EQ( temp_vals(3), 260.0_dk )
+    ASSERT_EQ( temp_vals(4), 255.0_dk )
+    deallocate( temp_vals )
+    allocate( temp_vals(3) )
+    call temperatures%get_midpoint_values( temp_vals, error )
+    ASSERT( error%is_success() )
+    ASSERT_EQ( temp_vals(1), 287.5_dk )
+    ASSERT_EQ( temp_vals(2), 267.5_dk )
+    ASSERT_EQ( temp_vals(3), 257.5_dk )
+    deallocate( temp_vals )
+    deallocate( tuvx )
+    deallocate( heights )
+    deallocate( wavelengths )
+    deallocate( temperatures )
+    deallocate( radiators )
+    deallocate( profiles )
+    deallocate( grids ) 
+    
+  end subroutine test_tuvx_data_from_host
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
