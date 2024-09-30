@@ -63,6 +63,18 @@ module musica_tuvx
       type(error_t_c), intent(inout) :: error
       type(c_ptr)                    :: get_radiator_map_c
     end function get_radiator_map_c
+
+    subroutine run_tuvx_c(tuvx, solar_zenith_angle, earth_sun_distance, &
+        photolysis_rate_constants, heating_rates, error) bind(C, name="RunTuvx")
+      use musica_util, only: error_t_c
+      use iso_c_binding, only: c_ptr, c_double
+      type(c_ptr), value,         intent(in)    :: tuvx
+      real(kind=c_double), value, intent(in)    :: solar_zenith_angle
+      real(kind=c_double), value, intent(in)    :: earth_sun_distance
+      type(c_ptr), value,         intent(in)    :: photolysis_rate_constants
+      type(c_ptr), value,         intent(in)    :: heating_rates
+      type(error_t_c),            intent(inout) :: error
+    end subroutine run_tuvx_c
   end interface
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -76,6 +88,8 @@ module musica_tuvx
     procedure :: get_profiles
     ! Create a radiator map
     procedure :: get_radiators
+    ! Run the calculator
+    procedure :: run
     ! Deallocate the tuvx instance
     final :: finalize
   end type tuvx_t
@@ -196,6 +210,37 @@ contains
 
   end function get_radiators
 
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  
+  !> Run the calculator
+  subroutine run(this, solar_zenith_angle, earth_sun_distance, &
+      photolysis_rate_constants, heating_rates, error)
+    use iso_c_binding, only: c_double, c_ptr, c_loc
+    use musica_constants, only: dk => musica_dk
+    use musica_util, only: error_t, error_t_c
+
+    ! Arguments
+    class(tuvx_t),         intent(inout) :: this
+    real(kind=dk),         intent(in)    :: solar_zenith_angle             ! radians
+    real(kind=dk),         intent(in)    :: earth_sun_distance             ! AU
+    real(kind=dk), target, intent(inout) :: photolysis_rate_constants(:,:) ! s-1 (layer, reaction)
+    real(kind=dk), target, intent(inout) :: heating_rates(:,:)             ! K s-1 (layer, reaction)
+    type(error_t),         intent(inout) :: error
+
+    ! Local variables
+    type(error_t_c) :: error_c
+    type(c_ptr)     :: photo_rate_c, heating_c
+
+    photo_rate_c = c_loc(photolysis_rate_constants(1,1))
+    heating_c    = c_loc(heating_rates(1,1))
+    call run_tuvx_c(this%ptr_, &
+                    real(solar_zenith_angle, kind=c_double), &
+                    real(earth_sun_distance, kind=c_double), &
+                    photo_rate_c, heating_c, error_c)
+    error = error_t(error_c)
+
+  end subroutine run
+  
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   !> Deallocate the tuvx instance
