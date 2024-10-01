@@ -216,8 +216,7 @@ contains
   subroutine run(this, solar_zenith_angle, earth_sun_distance, &
       photolysis_rate_constants, heating_rates, error)
     use iso_c_binding, only: c_double, c_ptr, c_loc
-    use musica_constants, only: dk => musica_dk
-    use musica_util, only: error_t, error_t_c
+    use musica_util, only: error_t, error_t_c, dk => musica_dk
 
     ! Arguments
     class(tuvx_t),         intent(inout) :: this

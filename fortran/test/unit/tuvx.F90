@@ -7,7 +7,7 @@
 !> Test module for the tuvx connection
 program test_tuvx_connection
   use musica_assert
-  use musica_constants, only : dk => musica_dk
+  use musica_util, only : dk => musica_dk
 
   implicit none
 
