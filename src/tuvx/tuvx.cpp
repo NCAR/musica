@@ -8,6 +8,7 @@
 #include <cstring>
 #include <filesystem>
 #include <iostream>
+#include <numbers>
 
 namespace musica
 {
@@ -164,7 +165,7 @@ namespace musica
   {
     *error = NoError();
     int error_code = 0;
-    double sza_degrees = solar_zenith_angle * 180.0 / M_PI;
+    double sza_degrees = solar_zenith_angle * 180.0 / std::numbers::pi;
     InternalRunTuvx(tuvx_, this->number_of_layers_, sza_degrees, earth_sun_distance, photolysis_rate_constants, heating_rates, &error_code);
     if (error_code != 0)
     {

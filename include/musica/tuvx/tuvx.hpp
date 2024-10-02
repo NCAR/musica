@@ -51,7 +51,7 @@ namespace musica
     /// @brief Run the TUV-x photolysis calculator
     /// @param solar_zenith_angle Solar zenith angle [radians]
     /// @param earth_sun_distance Earth-Sun distance [AU]
-    /// @param photolysis_rate_constants Photolysis rate constant layer and reaction [s^-1]
+    /// @param photolysis_rate_constants Photolysis rate constant for each layer and reaction [s^-1]
     /// @param heating_rates Heating rates for each layer and reaction [K/s]
     /// @param error Error struct to indicate success or failure
     void Run(const double solar_zenith_angle, const double earth_sun_distance,
