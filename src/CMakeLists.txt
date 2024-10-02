@@ -99,6 +99,32 @@ if(MUSICA_ENABLE_TUVX)
   add_subdirectory(tuvx)
 endif()
 
+####################
+# Cloud-J
+if(MUSICA_ENABLE_CLOUDJ)
+  enable_language(Fortran)
+
+  # include the sources directly into musica
+  target_sources(musica
+    PRIVATE
+      $<TARGET_OBJECTS:cloudj_object>
+  )
+
+  # but grab the include directories needed for tuvx
+  target_link_libraries(musica
+    PUBLIC
+      cloudj_object
+  )
+
+  target_include_directories(tuvx
+    PUBLIC
+      $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+      $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
+  )
+
+  add_subdirectory(cloud-j)
+endif()
+
 ################################################################################
 # testing
 

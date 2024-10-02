@@ -16,3 +16,7 @@ endif()
 if (MUSICA_ENABLE_TUVX)
   add_subdirectory(tuvx)
 endif()
+
+if (MUSICA_ENABLE_CLOUDJ)
+  add_subdirectory(cloud-j)
+endif()

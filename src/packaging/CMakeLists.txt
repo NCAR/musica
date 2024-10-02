@@ -83,6 +83,28 @@ if (MUSICA_ENABLE_TUVX)
   )
 endif()
 
+# install Cloud-J
+if (MUSICA_ENABLE_CLOUDJ)
+  install(
+    TARGETS
+      cloudj_object
+    EXPORT
+      musica_Exports
+  )
+  install(
+    FILES
+      ${MUSICA_FORTRAN_SRC_DIR}/cloud-j/src/Core/cldj_cmn_mod.F90
+      ${MUSICA_FORTRAN_SRC_DIR}/cloud-j/src/Core/cldj_error_mod.F90
+      ${MUSICA_FORTRAN_SRC_DIR}/cloud-j/src/Core/cldj_fjx_osa_mod.F90
+      ${MUSICA_FORTRAN_SRC_DIR}/cloud-j/src/Core/cldj_fjx_sub_mod.F90
+      ${MUSICA_FORTRAN_SRC_DIR}/cloud-j/src/Core/cldj_init_mod.F90
+      ${MUSICA_FORTRAN_SRC_DIR}/cloud-j/src/Core/cldj_sub_mod.F90
+      ${MUSICA_FORTRAN_SRC_DIR}/cloud-j/src/Interfaces/Standalone/cldj_standalone.F90
+    DESTINATION
+      ${MUSICA_INSTALL_INCLUDE_DIR}/musica/fortran
+  )
+endif()
+
 # install the cmake config files
 set(cmake_config_install_location "${CMAKE_INSTALL_LIBDIR}/cmake/musica")
 

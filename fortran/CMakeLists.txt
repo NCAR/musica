@@ -9,6 +9,7 @@ project(
 message (STATUS "CMake build configuration for ${PROJECT_NAME} (${CMAKE_BUILD_TYPE}) ${PROJECT_VERSION}")
 message (STATUS "  MICM: ${MUSICA_ENABLE_MICM}")
 message (STATUS "  TUV-x: ${MUSICA_ENABLE_TUVX}")
+message (STATUS "  Cloud-J: ${MUSICA_ENABLE_CLOUDJ}")
 message (STATUS "  Tests: ${MUSICA_ENABLE_TESTS}")
 message (STATUS "  Install: ${MUSICA_ENABLE_INSTALL}")
 message (STATUS "  C/C++ Interface: ${MUSICA_BUILD_C_CXX_INTERFACE}")
@@ -64,6 +65,9 @@ if (MUSICA_ENABLE_MICM)
 endif()
 if (MUSICA_ENABLE_TUVX)
   add_subdirectory(tuvx)
+endif()
+if (MUSICA_ENABLE_CLOUDJ)
+  add_subdirectory(cloud-j)
 endif()
 
 # Add flags for gfortran

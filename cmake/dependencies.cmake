@@ -98,6 +98,27 @@ if (MUSICA_ENABLE_TUVX AND MUSICA_BUILD_C_CXX_INTERFACE)
 endif()
 
 ################################################################################
+# Cloud-J
+
+if (MUSICA_ENABLE_CLOUDJ AND MUSICA_BUILD_FORTRAN_INTERFACE)
+  set(CLOUDJ_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
+  set(CLOUDJ_MOD_DIR ${MUSICA_MOD_DIR} CACHE STRING "" FORCE)
+  set(CLOUDJ_INSTALL_MOD_DIR ${MUSICA_INSTALL_INCLUDE_DIR} CACHE STRING "" FORCE)
+  set(CLOUDJ_INSTALL_INCLUDE_DIR ${MUSICA_INSTALL_INCLUDE_DIR} CACHE STRING "" FORCE)
+
+  set_git_default(CLOUDJ_GIT_REPOSITORY https://github.com/geoschem/cloud-j.git)
+  set_git_default(CLOUDJ_GIT_TAG 8.0.1)
+
+  FetchContent_Declare(tuvx
+    GIT_REPOSITORY ${CLOUDJ_GIT_REPOSITORY}
+    GIT_TAG ${CLOUDJ_GIT_TAG}
+    GIT_PROGRESS NOT ${FETCHCONTENT_QUIET}
+  )
+
+  FetchContent_MakeAvailable(cloud-j)
+endif()
+
+################################################################################
 # pybind11
 if(MUSICA_ENABLE_PYTHON_LIBRARY)
   set(PYBIND11_NEWPYTHON ON)

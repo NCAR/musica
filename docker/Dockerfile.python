@@ -52,6 +52,7 @@ RUN cd musica \
              -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
              -D MUSICA_ENABLE_PYTHON_LIBRARY=ON \
              -D MUSICA_ENABLE_TUVX=OFF \
+             -D MUSICA_ENABLE_CLOUDJ=OFF \
              -D MUSICA_ENABLE_MEMCHECK=ON \
     && cd build \
     && make install -j 8
