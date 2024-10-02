@@ -117,3 +117,35 @@ if (MUSICA_ENABLE_TUVX)
     ${CMAKE_CURRENT_SOURCE_DIR}/../../../build/_deps/tuvx-src/data ${CMAKE_BINARY_DIR}/data
   )
 endif()
+
+if (MUSICA_ENABLE_CLOUDJ)
+  add_executable(test_cloudj_fortran_api test_cloudj_api.F90)
+
+  target_link_libraries(test_cloudj_fortran_api
+    PRIVATE
+      musica::musica-fortran
+  )
+
+  set_target_properties(test_cloudj_fortran_api
+    PROPERTIES
+      LINKER_LANGUAGE Fortran
+  )
+
+  add_test(
+    NAME test_cloudj_fortran_api
+    COMMAND $<TARGET_FILE:test_cloudj_fortran_api>
+    WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+  )
+
+  # changed examples to src
+  add_custom_target(
+    copy_cloudj_examples_dir ALL ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../build/_deps/cloud-j-src/src ${CMAKE_BINARY_DIR}/src
+  )
+
+  # removed
+  #add_custom_target(
+  #  copy_cloudj_data_dir ALL ${CMAKE_COMMAND} -E copy_directory
+  #  ${CMAKE_CURRENT_SOURCE_DIR}/../../../build/_deps/cloud-j-src/data ${CMAKE_BINARY_DIR}/data
+  #)
+endif()
