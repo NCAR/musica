@@ -40,146 +40,146 @@ class MicmCApiTest : public ::testing::Test
 // Test case for bad configuration file path
 TEST_F(MicmCApiTest, BadConfigurationFilePath)
 {
-  int num_grid_cells = 1;
-  Error error = NoError();
-  auto micm_bad_config = CreateMicm("bad config path", MICMSolver::Rosenbrock, num_grid_cells, &error);
-  ASSERT_EQ(micm_bad_config, nullptr);
-  ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_CONFIGURATION, MICM_CONFIGURATION_ERROR_CODE_INVALID_FILE_PATH));
-  DeleteError(&error);
+ int num_grid_cells = 1;
+ Error error = NoError();
+ auto micm_bad_config = CreateMicm("bad config path", MICMSolver::Rosenbrock, num_grid_cells, &error);
+ ASSERT_EQ(micm_bad_config, nullptr);
+ ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_CONFIGURATION, MICM_CONFIGURATION_ERROR_CODE_INVALID_FILE_PATH));
+ DeleteError(&error);
 }
 
 // Test case for bad input for solver type
 TEST_F(MicmCApiTest, BadSolverType)
 {
-  short solver_type = 999;
-  int num_grid_cells = 1;
-  Error error = NoError();
-  auto micm_bad_solver_type = CreateMicm("configs/chapman", static_cast<MICMSolver>(solver_type), num_grid_cells, &error);
-  ASSERT_EQ(micm_bad_solver_type, nullptr);
-  ASSERT_TRUE(IsError(error, MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND));
-  DeleteError(&error);
+ short solver_type = 999;
+ int num_grid_cells = 1;
+ Error error = NoError();
+ auto micm_bad_solver_type = CreateMicm("configs/chapman", static_cast<MICMSolver>(solver_type), num_grid_cells, &error);
+ ASSERT_EQ(micm_bad_solver_type, nullptr);
+ ASSERT_TRUE(IsError(error, MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND));
+ DeleteError(&error);
 }
 
 // Test case for missing species property
 TEST_F(MicmCApiTest, MissingSpeciesProperty)
 {
-  Error error = NoError();
-  String string_value;
-  string_value = GetSpeciesPropertyString(micm, "O3", "bad property", &error);
-  ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND));
-  ASSERT_STREQ(string_value.value_, nullptr);
-  DeleteString(&string_value);
-  DeleteError(&error);
-  error = NoError();
-  ASSERT_EQ(GetSpeciesPropertyDouble(micm, "O3", "bad property", &error), 0.0);
-  ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND));
-  DeleteError(&error);
-  error = NoError();
-  ASSERT_EQ(GetSpeciesPropertyInt(micm, "O3", "bad property", &error), 0);
-  ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND));
-  DeleteError(&error);
-  error = NoError();
-  ASSERT_FALSE(GetSpeciesPropertyBool(micm, "O3", "bad property", &error));
-  ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND));
-  DeleteError(&error);
+ Error error = NoError();
+ String string_value;
+ string_value = GetSpeciesPropertyString(micm, "O3", "bad property", &error);
+ ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND));
+ ASSERT_STREQ(string_value.value_, nullptr);
+ DeleteString(&string_value);
+ DeleteError(&error);
+ error = NoError();
+ ASSERT_EQ(GetSpeciesPropertyDouble(micm, "O3", "bad property", &error), 0.0);
+ ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND));
+ DeleteError(&error);
+ error = NoError();
+ ASSERT_EQ(GetSpeciesPropertyInt(micm, "O3", "bad property", &error), 0);
+ ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND));
+ DeleteError(&error);
+ error = NoError();
+ ASSERT_FALSE(GetSpeciesPropertyBool(micm, "O3", "bad property", &error));
+ ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND));
+ DeleteError(&error);
 }
 
 // Test case for creating the MICM instance
 TEST_F(MicmCApiTest, CreateMicmInstance)
 {
-  ASSERT_NE(micm, nullptr);
+ ASSERT_NE(micm, nullptr);
 }
 
 // Test case for getting species ordering
 TEST_F(MicmCApiTest, GetSpeciesOrdering)
 {
-  Error error;
-  Mappings species_ordering = GetSpeciesOrdering(micm, &error);
-  ASSERT_TRUE(IsSuccess(error));
-  ASSERT_EQ(species_ordering.size_, 4);
-  DeleteError(&error);
-  bool found = false;
-  for (std::size_t i = 0; i < species_ordering.size_; i++)
-  {
-    if (strcmp(species_ordering.mappings_[i].name_.value_, "O3") == 0)
-    {
-      found = true;
-      break;
-    }
-  }
-  ASSERT_TRUE(found);
-  found = false;
-  for (std::size_t i = 0; i < species_ordering.size_; i++)
-  {
-    if (strcmp(species_ordering.mappings_[i].name_.value_, "O") == 0)
-    {
-      found = true;
-      break;
-    }
-  }
-  ASSERT_TRUE(found);
-  found = false;
-  for (std::size_t i = 0; i < species_ordering.size_; i++)
-  {
-    if (strcmp(species_ordering.mappings_[i].name_.value_, "O2") == 0)
-    {
-      found = true;
-      break;
-    }
-  }
-  ASSERT_TRUE(found);
-  found = false;
-  for (std::size_t i = 0; i < species_ordering.size_; i++)
-  {
-    if (strcmp(species_ordering.mappings_[i].name_.value_, "O1D") == 0)
-    {
-      found = true;
-      break;
-    }
-  }
-  ASSERT_TRUE(found);
-  DeleteMappings(&species_ordering);
+ Error error;
+ Mappings species_ordering = GetSpeciesOrdering(micm, &error);
+ ASSERT_TRUE(IsSuccess(error));
+ ASSERT_EQ(species_ordering.size_, 4);
+ DeleteError(&error);
+ bool found = false;
+ for (std::size_t i = 0; i < species_ordering.size_; i++)
+ {
+   if (strcmp(species_ordering.mappings_[i].name_.value_, "O3") == 0)
+   {
+     found = true;
+     break;
+   }
+ }
+ ASSERT_TRUE(found);
+ found = false;
+ for (std::size_t i = 0; i < species_ordering.size_; i++)
+ {
+   if (strcmp(species_ordering.mappings_[i].name_.value_, "O") == 0)
+   {
+     found = true;
+     break;
+   }
+ }
+ ASSERT_TRUE(found);
+ found = false;
+ for (std::size_t i = 0; i < species_ordering.size_; i++)
+ {
+   if (strcmp(species_ordering.mappings_[i].name_.value_, "O2") == 0)
+   {
+     found = true;
+     break;
+   }
+ }
+ ASSERT_TRUE(found);
+ found = false;
+ for (std::size_t i = 0; i < species_ordering.size_; i++)
+ {
+   if (strcmp(species_ordering.mappings_[i].name_.value_, "O1D") == 0)
+   {
+     found = true;
+     break;
+   }
+ }
+ ASSERT_TRUE(found);
+ DeleteMappings(&species_ordering);
 }
 
 // Test case for getting user-defined reaction rates ordering
 TEST_F(MicmCApiTest, GetUserDefinedReactionRatesOrdering)
 {
-  Error error;
-  Mappings reaction_rates_ordering = GetUserDefinedReactionRatesOrdering(micm, &error);
-  ASSERT_TRUE(IsSuccess(error));
-  DeleteError(&error);
-  ASSERT_EQ(reaction_rates_ordering.size_, 3);
-  bool found = false;
-  for (std::size_t i = 0; i < reaction_rates_ordering.size_; i++)
-  {
-    if (strcmp(reaction_rates_ordering.mappings_[i].name_.value_, "PHOTO.jO2") == 0)
-    {
-      found = true;
-      break;
-    }
-  }
-  ASSERT_TRUE(found);
-  found = false;
-  for (std::size_t i = 0; i < reaction_rates_ordering.size_; i++)
-  {
-    if (strcmp(reaction_rates_ordering.mappings_[i].name_.value_, "PHOTO.jO3->O") == 0)
-    {
-      found = true;
-      break;
-    }
-  }
-  ASSERT_TRUE(found);
-  found = false;
-  for (std::size_t i = 0; i < reaction_rates_ordering.size_; i++)
-  {
-    if (strcmp(reaction_rates_ordering.mappings_[i].name_.value_, "PHOTO.jO3->O1D") == 0)
-    {
-      found = true;
-      break;
-    }
-  }
-  ASSERT_TRUE(found);
-  DeleteMappings(&reaction_rates_ordering);
+ Error error;
+ Mappings reaction_rates_ordering = GetUserDefinedReactionRatesOrdering(micm, &error);
+ ASSERT_TRUE(IsSuccess(error));
+ DeleteError(&error);
+ ASSERT_EQ(reaction_rates_ordering.size_, 3);
+ bool found = false;
+ for (std::size_t i = 0; i < reaction_rates_ordering.size_; i++)
+ {
+   if (strcmp(reaction_rates_ordering.mappings_[i].name_.value_, "PHOTO.jO2") == 0)
+   {
+     found = true;
+     break;
+   }
+ }
+ ASSERT_TRUE(found);
+ found = false;
+ for (std::size_t i = 0; i < reaction_rates_ordering.size_; i++)
+ {
+   if (strcmp(reaction_rates_ordering.mappings_[i].name_.value_, "PHOTO.jO3->O") == 0)
+   {
+     found = true;
+     break;
+   }
+ }
+ ASSERT_TRUE(found);
+ found = false;
+ for (std::size_t i = 0; i < reaction_rates_ordering.size_; i++)
+ {
+   if (strcmp(reaction_rates_ordering.mappings_[i].name_.value_, "PHOTO.jO3->O1D") == 0)
+   {
+     found = true;
+     break;
+   }
+ }
+ ASSERT_TRUE(found);
+ DeleteMappings(&reaction_rates_ordering);
 }
 
 void TestSingleGridCell(MICM* micm)
@@ -262,7 +262,6 @@ void TestSingleGridCell(MICM* micm)
   std::cout << "Rejected: " << solver_stats.rejected_ << std::endl;
   std::cout << "Decompositions: " << solver_stats.decompositions_ << std::endl;
   std::cout << "Solves: " << solver_stats.solves_ << std::endl;
-  std::cout << "Singular: " << solver_stats.singular_ << std::endl;
   std::cout << "Final time: " << solver_stats.final_time_ << std::endl;
 
   DeleteString(&solver_state);
