@@ -1,0 +1,175 @@
+{
+  "__description": "This is a configuration for testing the TUV-x MUSICA API",
+  "O2 absorption": {
+    "cross section parameters file": "test/data/tuvx/fixed/O2_parameters.txt"
+  },
+  "grids": [
+    {
+      "name": "height",
+      "units": "km",
+      "type": "from config file",
+      "values": [0.0, 1.0, 2.0, 3.0]
+    },
+    {
+      "name": "wavelength",
+      "units": "nm",
+      "type": "from config file",
+      "values": [300, 400, 500, 600, 700, 800]
+    },
+    {
+      "name": "time",
+      "units": "hours",
+      "type": "from config file",
+      "values": [0]
+    }
+  ],
+  "profiles": [
+    {
+      "name": "solar zenith angle",
+      "units": "degrees",
+      "type": "from config file",
+      "grid": {
+        "name": "time",
+        "units": "hours"
+      },
+      "values": [5.72958]
+    },
+    {
+      "name": "Earth-Sun distance",
+      "units": "AU",
+      "type": "from config file",
+      "grid": {
+        "name": "time",
+        "units": "hours"
+      },
+      "values": [1.1]
+    },
+    {
+      "name": "temperature",
+      "units": "K",
+      "type": "from config file",
+      "grid": {
+        "name": "height",
+        "units": "km"
+      },
+      "values": [300, 275, 260, 255]
+    },
+    {
+      "name": "air",
+      "units": "molecule cm-3",
+      "type": "from config file",
+      "grid": {
+        "name": "height",
+        "units": "km"
+      },
+      "values": [2.0e19, 1.8e19, 1.6e19, 1.2e19]
+    },
+    {
+      "name": "O2",
+      "units": "molecule cm-3",
+      "type": "from config file",
+      "grid": {
+        "name": "height",
+        "units": "km"
+      },
+      "values": [5.0e17, 4.5e17, 4.0e17, 2.3e17]
+    },
+    {
+      "name": "surface albedo",
+      "units": "none",
+      "type": "from config file",
+      "grid": {
+        "name": "wavelength",
+        "units": "nm"
+      },
+      "uniform value": 0.1
+    },
+    {
+      "name": "extraterrestrial flux",
+      "units": "photon cm-2 s-1",
+      "type": "from config file",
+      "grid": {
+        "name": "wavelength",
+        "units": "nm"
+      },
+      "values": [1.2e14, 1.3e14, 1.4e14, 1.5e14, 1.6e14, 1.7e14]
+    }
+  ],
+  "radiative transfer": {
+    "solver": {
+      "type": "delta eddington"
+    },
+    "cross sections": [
+      {
+        "name": "air",
+        "type": "air"
+      },
+      {
+        "name": "O2",
+        "type": "base",
+        "netcdf files": [
+          {
+            "file path": "test/data/tuvx/fixed/O2_cross_section.nc"
+          }
+        ]
+      }
+    ],
+    "radiators": [
+      {
+        "name": "air",
+        "type": "base",
+        "treat as air": true,
+        "cross section": "air",
+        "vertical profile": "air",
+        "vertical profile units": "molecule cm-3"
+      },
+      {
+        "name": "O2",
+        "type": "base",
+        "cross section": "O2",
+        "vertical profile": "O2",
+        "vertical profile units": "molecule cm-3"
+      }
+    ]
+  },
+  "photolysis": {
+    "reactions": [
+      {
+        "name": "jfoo",
+        "cross section": {
+          "type": "base",
+          "netcdf files": [
+            {
+              "file path": "test/data/tuvx/fixed/foo_cross_section.nc"
+            }
+          ]
+        },
+        "quantum yield": {
+          "type": "base",
+          "constant value": 0.5
+        },
+        "heating": {
+          "energy term": 450.0
+        }
+      },
+      {
+        "name": "jbar",
+        "cross section": {
+          "type": "base",
+          "netcdf files": [
+            {
+              "file path": "test/data/tuvx/fixed/bar_cross_section.nc"
+            }
+          ]
+        },
+        "quantum yield": {
+          "type": "base",
+          "constant value": 1.0
+        },
+        "heating": {
+          "energy term": 550.0
+        }
+      }
+    ]
+  }
+}

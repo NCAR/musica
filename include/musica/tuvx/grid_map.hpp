@@ -44,6 +44,8 @@ namespace musica
    private:
     void *grid_map_;
     bool owns_grid_map_;
+
+    friend class TUVX;
   };
 
 #ifdef __cplusplus
