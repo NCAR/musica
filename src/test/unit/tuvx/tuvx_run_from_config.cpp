@@ -4,7 +4,6 @@
 
 using namespace musica;
 
-
 // Expected values for photolysis rate constants and heating rates
 // were determined by running the stand-alone TUV-x model with the fixed configuration.
 const double expected_photolysis_rate_constants[2][4] = {
@@ -20,117 +19,117 @@ const double expected_heating_rates[2][4] = {
 // using the TUVX C API with a fixed configuration file
 class TuvxRunTest : public ::testing::Test
 {
-  protected:
-    TUVX* tuvx;
-    GridMap* grids_from_host;
-    ProfileMap* profiles_from_host;
-    RadiatorMap* radiators_from_host;
-    GridMap* grids_in_tuvx;
-    ProfileMap* profiles_in_tuvx;
-    RadiatorMap* radiators_in_tuvx;
-    int number_of_layers;
-    int number_of_wavelengths;
-    int number_of_reactions;
-    double *photolysis_rate_constants;
-    double *heating_rates;
-  
-    // the function that google test actually calls before each test
-    void SetUp() override
-    {
-      tuvx = nullptr;
-      grids_from_host = nullptr;
-      profiles_from_host = nullptr;
-      radiators_from_host = nullptr;
-      grids_in_tuvx = nullptr;
-      profiles_in_tuvx = nullptr;
-      radiators_in_tuvx = nullptr;
-      number_of_layers = 0;
-      number_of_wavelengths = 0;
-      number_of_reactions = 0;
-      photolysis_rate_constants = nullptr;
-      heating_rates = nullptr;
-    }
-  
-    void SetUp(const char* config_path)
-    {
-      Error error;
-      grids_from_host = CreateGridMap(&error);
-      ASSERT_TRUE(IsSuccess(error));
-      profiles_from_host = CreateProfileMap(&error);
-      ASSERT_TRUE(IsSuccess(error));
-      radiators_from_host = CreateRadiatorMap(&error);
-      ASSERT_TRUE(IsSuccess(error));
-      tuvx = CreateTuvx(config_path, grids_from_host, profiles_from_host, radiators_from_host, &error);
-      if (!IsSuccess(error))
-      {
-        std::cerr << "Error creating TUVX instance: " << error.message_.value_ << std::endl;
-      }
-      ASSERT_TRUE(IsSuccess(error));
-      grids_in_tuvx = GetGridMap(tuvx, &error);
-      ASSERT_TRUE(IsSuccess(error));
-      profiles_in_tuvx = GetProfileMap(tuvx, &error);
-      ASSERT_TRUE(IsSuccess(error));
-      radiators_in_tuvx = GetRadiatorMap(tuvx, &error);
-      ASSERT_TRUE(IsSuccess(error));
-      number_of_layers = 3;
-      number_of_wavelengths = 5;
-      number_of_reactions = 2;
-      photolysis_rate_constants = new double[(number_of_layers + 1) * number_of_reactions];
-      heating_rates = new double[(number_of_layers + 1) * number_of_reactions];
-      DeleteError(&error);
-    }
+ protected:
+  TUVX* tuvx;
+  GridMap* grids_from_host;
+  ProfileMap* profiles_from_host;
+  RadiatorMap* radiators_from_host;
+  GridMap* grids_in_tuvx;
+  ProfileMap* profiles_in_tuvx;
+  RadiatorMap* radiators_in_tuvx;
+  int number_of_layers;
+  int number_of_wavelengths;
+  int number_of_reactions;
+  double* photolysis_rate_constants;
+  double* heating_rates;
 
-    void SetUp(const char* config_path, GridMap* grids, ProfileMap* profiles, RadiatorMap* radiators)
+  // the function that google test actually calls before each test
+  void SetUp() override
+  {
+    tuvx = nullptr;
+    grids_from_host = nullptr;
+    profiles_from_host = nullptr;
+    radiators_from_host = nullptr;
+    grids_in_tuvx = nullptr;
+    profiles_in_tuvx = nullptr;
+    radiators_in_tuvx = nullptr;
+    number_of_layers = 0;
+    number_of_wavelengths = 0;
+    number_of_reactions = 0;
+    photolysis_rate_constants = nullptr;
+    heating_rates = nullptr;
+  }
+
+  void SetUp(const char* config_path)
+  {
+    Error error;
+    grids_from_host = CreateGridMap(&error);
+    ASSERT_TRUE(IsSuccess(error));
+    profiles_from_host = CreateProfileMap(&error);
+    ASSERT_TRUE(IsSuccess(error));
+    radiators_from_host = CreateRadiatorMap(&error);
+    ASSERT_TRUE(IsSuccess(error));
+    tuvx = CreateTuvx(config_path, grids_from_host, profiles_from_host, radiators_from_host, &error);
+    if (!IsSuccess(error))
     {
-      Error error;
-      grids_from_host = grids;
-      profiles_from_host = profiles;
-      radiators_from_host = radiators;
-      tuvx = CreateTuvx(config_path, grids, profiles, radiators, &error);
-      if (!IsSuccess(error))
-      {
-        std::cerr << "Error creating TUVX instance: " << error.message_.value_ << std::endl;
-      }
-      ASSERT_TRUE(IsSuccess(error));
-      grids_in_tuvx = GetGridMap(tuvx, &error);
-      ASSERT_TRUE(IsSuccess(error));
-      profiles_in_tuvx = GetProfileMap(tuvx, &error);
-      ASSERT_TRUE(IsSuccess(error));
-      radiators_in_tuvx = GetRadiatorMap(tuvx, &error);
-      ASSERT_TRUE(IsSuccess(error));
-      number_of_layers = 3;
-      number_of_wavelengths = 5;
-      number_of_reactions = 2;
-      photolysis_rate_constants = new double[(number_of_layers + 1) * number_of_reactions];
-      heating_rates = new double[(number_of_layers + 1) * number_of_reactions];
-      DeleteError(&error);
+      std::cerr << "Error creating TUVX instance: " << error.message_.value_ << std::endl;
     }
-  
-    void TearDown() override
+    ASSERT_TRUE(IsSuccess(error));
+    grids_in_tuvx = GetGridMap(tuvx, &error);
+    ASSERT_TRUE(IsSuccess(error));
+    profiles_in_tuvx = GetProfileMap(tuvx, &error);
+    ASSERT_TRUE(IsSuccess(error));
+    radiators_in_tuvx = GetRadiatorMap(tuvx, &error);
+    ASSERT_TRUE(IsSuccess(error));
+    number_of_layers = 3;
+    number_of_wavelengths = 5;
+    number_of_reactions = 2;
+    photolysis_rate_constants = new double[(number_of_layers + 1) * number_of_reactions];
+    heating_rates = new double[(number_of_layers + 1) * number_of_reactions];
+    DeleteError(&error);
+  }
+
+  void SetUp(const char* config_path, GridMap* grids, ProfileMap* profiles, RadiatorMap* radiators)
+  {
+    Error error;
+    grids_from_host = grids;
+    profiles_from_host = profiles;
+    radiators_from_host = radiators;
+    tuvx = CreateTuvx(config_path, grids, profiles, radiators, &error);
+    if (!IsSuccess(error))
     {
-      if (tuvx == nullptr)
-      {
-        return;
-      }
-      Error error;
-      DeleteTuvx(tuvx, &error);
-      ASSERT_TRUE(IsSuccess(error));
-      DeleteGridMap(grids_from_host, &error);
-      ASSERT_TRUE(IsSuccess(error));
-      DeleteProfileMap(profiles_from_host, &error);
-      ASSERT_TRUE(IsSuccess(error));
-      DeleteRadiatorMap(radiators_from_host, &error);
-      ASSERT_TRUE(IsSuccess(error));
-      DeleteGridMap(grids_in_tuvx, &error);
-      ASSERT_TRUE(IsSuccess(error));
-      DeleteProfileMap(profiles_in_tuvx, &error);
-      ASSERT_TRUE(IsSuccess(error));
-      DeleteRadiatorMap(radiators_in_tuvx, &error);
-      ASSERT_TRUE(IsSuccess(error));
-      delete[] photolysis_rate_constants;
-      delete[] heating_rates;
-      DeleteError(&error);
+      std::cerr << "Error creating TUVX instance: " << error.message_.value_ << std::endl;
     }
+    ASSERT_TRUE(IsSuccess(error));
+    grids_in_tuvx = GetGridMap(tuvx, &error);
+    ASSERT_TRUE(IsSuccess(error));
+    profiles_in_tuvx = GetProfileMap(tuvx, &error);
+    ASSERT_TRUE(IsSuccess(error));
+    radiators_in_tuvx = GetRadiatorMap(tuvx, &error);
+    ASSERT_TRUE(IsSuccess(error));
+    number_of_layers = 3;
+    number_of_wavelengths = 5;
+    number_of_reactions = 2;
+    photolysis_rate_constants = new double[(number_of_layers + 1) * number_of_reactions];
+    heating_rates = new double[(number_of_layers + 1) * number_of_reactions];
+    DeleteError(&error);
+  }
+
+  void TearDown() override
+  {
+    if (tuvx == nullptr)
+    {
+      return;
+    }
+    Error error;
+    DeleteTuvx(tuvx, &error);
+    ASSERT_TRUE(IsSuccess(error));
+    DeleteGridMap(grids_from_host, &error);
+    ASSERT_TRUE(IsSuccess(error));
+    DeleteProfileMap(profiles_from_host, &error);
+    ASSERT_TRUE(IsSuccess(error));
+    DeleteRadiatorMap(radiators_from_host, &error);
+    ASSERT_TRUE(IsSuccess(error));
+    DeleteGridMap(grids_in_tuvx, &error);
+    ASSERT_TRUE(IsSuccess(error));
+    DeleteProfileMap(profiles_in_tuvx, &error);
+    ASSERT_TRUE(IsSuccess(error));
+    DeleteRadiatorMap(radiators_in_tuvx, &error);
+    ASSERT_TRUE(IsSuccess(error));
+    delete[] photolysis_rate_constants;
+    delete[] heating_rates;
+    DeleteError(&error);
+  }
 };
 
 TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfig)
@@ -145,8 +144,14 @@ TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfig)
   {
     for (int j = 0; j < number_of_layers + 1; j++)
     {
-      EXPECT_NEAR(photolysis_rate_constants[i * (number_of_layers + 1) + j], expected_photolysis_rate_constants[i][j], expected_photolysis_rate_constants[i][j] * 1.0e-5);
-      EXPECT_NEAR(heating_rates[i * (number_of_layers + 1) + j], expected_heating_rates[i][j], expected_heating_rates[i][j] * 1.0e-5);
+      EXPECT_NEAR(
+          photolysis_rate_constants[i * (number_of_layers + 1) + j],
+          expected_photolysis_rate_constants[i][j],
+          expected_photolysis_rate_constants[i][j] * 1.0e-5);
+      EXPECT_NEAR(
+          heating_rates[i * (number_of_layers + 1) + j],
+          expected_heating_rates[i][j],
+          expected_heating_rates[i][j] * 1.0e-5);
     }
   }
   DeleteError(&error);
@@ -216,8 +221,14 @@ TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfigAndHostData)
   {
     for (int j = 0; j < number_of_layers + 1; j++)
     {
-      EXPECT_NEAR(photolysis_rate_constants[i * (number_of_layers + 1) + j], expected_photolysis_rate_constants[i][j], expected_photolysis_rate_constants[i][j] * 1.0e-5);
-      EXPECT_NEAR(heating_rates[i * (number_of_layers + 1) + j], expected_heating_rates[i][j], expected_heating_rates[i][j] * 1.0e-5);
+      EXPECT_NEAR(
+          photolysis_rate_constants[i * (number_of_layers + 1) + j],
+          expected_photolysis_rate_constants[i][j],
+          expected_photolysis_rate_constants[i][j] * 1.0e-5);
+      EXPECT_NEAR(
+          heating_rates[i * (number_of_layers + 1) + j],
+          expected_heating_rates[i][j],
+          expected_heating_rates[i][j] * 1.0e-5);
     }
   }
   GetGridEdges(heights, height_edges, 4, &error);
