@@ -189,7 +189,7 @@ namespace musica
     void CreateBackwardEulerStandardOrder(const std::string &config_path, Error *error);
 
     /// @brief Solve the system
-    /// @param solver Pointer to solver
+    /// @param solver_state_pair A pair containing a pointer to a solver and a state for that solver (temporary fix)
     /// @param time_step Time [s] to advance the state by
     /// @param temperature Temperature [grid cell] (K)
     /// @param pressure Pressure [grid cell] (Pa)
