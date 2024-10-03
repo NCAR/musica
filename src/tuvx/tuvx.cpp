@@ -8,6 +8,7 @@
 #include <cstring>
 #include <filesystem>
 #include <iostream>
+#include <numbers>
 
 namespace musica
 {
@@ -65,6 +66,18 @@ namespace musica
     return tuvx->CreateRadiatorMap(error);
   }
 
+  void RunTuvx(
+      TUVX *const tuvx,
+      const double solar_zenith_angle,
+      const double earth_sun_distance,
+      double *const photolysis_rate_constants,
+      double *const heating_rates,
+      Error *const error)
+  {
+    DeleteError(error);
+    tuvx->Run(solar_zenith_angle, earth_sun_distance, photolysis_rate_constants, heating_rates, error);
+  }
+
   // TUVX class functions
 
   TUVX::TUVX()
@@ -92,7 +105,14 @@ namespace musica
         return;
       }
 
-      tuvx_ = InternalCreateTuvx(config_path, strlen(config_path), &parsing_status);
+      tuvx_ = InternalCreateTuvx(
+          config_path,
+          strlen(config_path),
+          grids->grid_map_,
+          profiles->profile_map_,
+          radiators->radiator_map_,
+          &(this->number_of_layers_),
+          &parsing_status);
       if (parsing_status == 1)
       {
         *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create tuvx instance") };
@@ -150,6 +170,30 @@ namespace musica
       return nullptr;
     }
     return radiator_map;
+  }
+
+  void TUVX::Run(
+      const double solar_zenith_angle,
+      const double earth_sun_distance,
+      double *const photolysis_rate_constants,
+      double *const heating_rates,
+      Error *const error)
+  {
+    *error = NoError();
+    int error_code = 0;
+    double sza_degrees = solar_zenith_angle * 180.0 / std::numbers::pi;
+    InternalRunTuvx(
+        tuvx_,
+        this->number_of_layers_,
+        sza_degrees,
+        earth_sun_distance,
+        photolysis_rate_constants,
+        heating_rates,
+        &error_code);
+    if (error_code != 0)
+    {
+      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to run TUV-x") };
+    }
   }
 
 }  // namespace musica

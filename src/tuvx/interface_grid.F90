@@ -163,6 +163,7 @@ module tuvx_interface_grid
       return
     end if
     f_updater%grid_%edge_(:) = f_edges(:)
+    f_updater%grid_%delta_(:) = f_edges(2:num_edges) - f_edges(1:num_edges-1)
 
   end subroutine internal_set_edges
 

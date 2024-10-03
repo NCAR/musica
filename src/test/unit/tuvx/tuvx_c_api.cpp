@@ -12,6 +12,9 @@ class TuvxCApiTest : public ::testing::Test
   GridMap* grids_from_host;
   ProfileMap* profiles_from_host;
   RadiatorMap* radiators_from_host;
+  GridMap* grids_in_tuvx;
+  ProfileMap* profiles_in_tuvx;
+  RadiatorMap* radiators_in_tuvx;
 
   // the function that google test actually calls before each test
   void SetUp() override
@@ -20,19 +23,55 @@ class TuvxCApiTest : public ::testing::Test
     grids_from_host = nullptr;
     profiles_from_host = nullptr;
     radiators_from_host = nullptr;
+    grids_in_tuvx = nullptr;
+    profiles_in_tuvx = nullptr;
+    radiators_in_tuvx = nullptr;
   }
 
   void SetUp(const char* config_path)
   {
     Error error;
     grids_from_host = CreateGridMap(&error);
+    ASSERT_TRUE(IsSuccess(error));
     profiles_from_host = CreateProfileMap(&error);
+    ASSERT_TRUE(IsSuccess(error));
     radiators_from_host = CreateRadiatorMap(&error);
+    ASSERT_TRUE(IsSuccess(error));
     tuvx = CreateTuvx(config_path, grids_from_host, profiles_from_host, radiators_from_host, &error);
     if (!IsSuccess(error))
     {
       std::cerr << "Error creating TUVX instance: " << error.message_.value_ << std::endl;
     }
+    ASSERT_TRUE(IsSuccess(error));
+    grids_in_tuvx = GetGridMap(tuvx, &error);
+    ASSERT_TRUE(IsSuccess(error));
+    profiles_in_tuvx = GetProfileMap(tuvx, &error);
+    ASSERT_TRUE(IsSuccess(error));
+    radiators_in_tuvx = GetRadiatorMap(tuvx, &error);
+    ASSERT_TRUE(IsSuccess(error));
+    DeleteError(&error);
+  }
+
+  void SetUp(const char* config_path, GridMap* grids, ProfileMap* profiles, RadiatorMap* radiators)
+  {
+    Error error;
+    grids_from_host = CreateGridMap(&error);
+    ASSERT_TRUE(IsSuccess(error));
+    profiles_from_host = CreateProfileMap(&error);
+    ASSERT_TRUE(IsSuccess(error));
+    radiators_from_host = CreateRadiatorMap(&error);
+    ASSERT_TRUE(IsSuccess(error));
+    tuvx = CreateTuvx(config_path, grids, profiles, radiators, &error);
+    if (!IsSuccess(error))
+    {
+      std::cerr << "Error creating TUVX instance: " << error.message_.value_ << std::endl;
+    }
+    ASSERT_TRUE(IsSuccess(error));
+    grids_in_tuvx = GetGridMap(tuvx, &error);
+    ASSERT_TRUE(IsSuccess(error));
+    profiles_in_tuvx = GetProfileMap(tuvx, &error);
+    ASSERT_TRUE(IsSuccess(error));
+    radiators_in_tuvx = GetRadiatorMap(tuvx, &error);
     ASSERT_TRUE(IsSuccess(error));
     DeleteError(&error);
   }
@@ -51,6 +90,12 @@ class TuvxCApiTest : public ::testing::Test
     DeleteProfileMap(profiles_from_host, &error);
     ASSERT_TRUE(IsSuccess(error));
     DeleteRadiatorMap(radiators_from_host, &error);
+    ASSERT_TRUE(IsSuccess(error));
+    DeleteGridMap(grids_in_tuvx, &error);
+    ASSERT_TRUE(IsSuccess(error));
+    DeleteProfileMap(profiles_in_tuvx, &error);
+    ASSERT_TRUE(IsSuccess(error));
+    DeleteRadiatorMap(radiators_in_tuvx, &error);
     ASSERT_TRUE(IsSuccess(error));
     DeleteError(&error);
   }
