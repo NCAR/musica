@@ -328,7 +328,8 @@ namespace musica
       solver_config.ReadAndParse(std::filesystem::path(config_path));
       solver_parameters_ = std::make_unique<micm::SolverParameters>(solver_config.GetSolverParams());
 
-      auto solver = std::make_unique<RosenbrockStandard>(micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
+      auto solver =
+          std::make_unique<RosenbrockStandard>(micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
                                                    micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())
                                                    .SetSystem(solver_parameters_->system_)
                                                    .SetReactions(solver_parameters_->processes_)
@@ -336,7 +337,8 @@ namespace musica
                                                    .SetIgnoreUnusedSpecies(true)
                                                    .Build());
       auto state = solver->GetState();
-      rosenbrock_standard_ = std::pair<std::unique_ptr<RosenbrockStandard>, StandardState>(std::move(solver), std::move(state));
+      rosenbrock_standard_ =
+          std::pair<std::unique_ptr<RosenbrockStandard>, StandardState>(std::move(solver), std::move(state));
 
       DeleteError(error);
       *error = NoError();
@@ -401,8 +403,9 @@ namespace musica
               .SetIgnoreUnusedSpecies(true)
               .Build());
       auto state = solver->GetState();
-      
-      backward_euler_standard_ = std::pair<std::unique_ptr<BackwardEulerStandard>, StandardState>(std::move(solver), std::move(state));
+
+      backward_euler_standard_ =
+          std::pair<std::unique_ptr<BackwardEulerStandard>, StandardState>(std::move(solver), std::move(state));
 
       *error = NoError();
     }
@@ -426,8 +429,8 @@ namespace musica
   {
     try
     {
-      auto& solver = solver_state_pair.first;
-      auto& state = solver_state_pair.second;
+      auto &solver = solver_state_pair.first;
+      auto &state = solver_state_pair.second;
       const std::size_t num_species = state.variables_.NumColumns();
       const std::size_t num_custom_rate_parameters = state.custom_rate_parameters_.NumColumns();
 
