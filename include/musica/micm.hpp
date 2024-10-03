@@ -17,12 +17,12 @@
 #include <micm/util/sparse_matrix_vector_ordering.hpp>
 #include <micm/util/vector_matrix.hpp>
 
-#include <utility>
 #include <chrono>
 #include <cstddef>
 #include <map>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #ifndef MICM_VECTOR_MATRIX_SIZE
