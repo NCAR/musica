@@ -96,7 +96,7 @@ namespace musica
   std::size_t Grid::GetNumSections(Error *error)
   {
     int error_code = 0;
-    std::size_t n_sections = InternalGetNumSections(grid_, &error_code);
+    std::size_t n_sections = InternalGetNumSections(updater_, &error_code);
     if (error_code != 0)
     {
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get number of sections") };
