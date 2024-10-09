@@ -120,7 +120,7 @@ module tuvx_interface_grid
   function internal_get_num_sections(updater, error_code) &
       bind(C, name="InternalGetNumSections") result(num_sections)
     use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_size_t
-    use tuvx_grid_from_host, only: grid_from_host_t, grid_updater_t
+    use tuvx_grid_from_host, only: grid_updater_t
 
     ! arguments
     type(c_ptr), value,  intent(in)  :: updater
