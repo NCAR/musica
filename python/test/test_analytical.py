@@ -102,11 +102,20 @@ class TestAnalyticalRosenbrock(unittest.TestCase):
         TestSingleGridCell(self, solver)
 
 
-class TestAnalyicalStandardRosenbrock(unittest.TestCase):
+class TestAnalyticalStandardRosenbrock(unittest.TestCase):
     def test_simulation(self):
         solver = musica.create_solver(
             "configs/analytical",
             musica.micmsolver.rosenbrock_standard_order,
+            1)
+        TestSingleGridCell(self, solver)
+
+
+class TestAnalyticalBackwardEuler(unittest.TestCase):
+    def test_simulation(self):
+        solver = musica.create_solver(
+            "configs/analytical",
+            musica.micmsolver.backward_euler,
             1)
         TestSingleGridCell(self, solver)
 
@@ -245,7 +254,7 @@ class TestAnalyticalRosenbrockMultipleGridCells(unittest.TestCase):
         TestMultipleGridCell(self, solver, 3)
 
 
-class TestAnalyicalStandardRosenbrockMultipleGridCells(unittest.TestCase):
+class TestAnalyticalStandardRosenbrockMultipleGridCells(unittest.TestCase):
     def test_simulation(self):
         solver = musica.create_solver(
             "configs/analytical",
