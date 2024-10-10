@@ -120,6 +120,15 @@ class TestAnalyticalBackwardEuler(unittest.TestCase):
         TestSingleGridCell(self, solver)
 
 
+class TestAnalyticalStandardBackwardEuler(unittest.TestCase):
+    def test_simulation(self):
+        solver = musica.create_solver(
+            "configs/analytical",
+            musica.micmsolver.backward_euler_standard_order,
+            1)
+        TestSingleGridCell(self, solver)
+
+
 def TestMultipleGridCell(self, solver, num_grid_cells):
     time_step = 200.0
     temperatures = []
