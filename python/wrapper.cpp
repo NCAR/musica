@@ -16,7 +16,9 @@ PYBIND11_MODULE(musica, m)
 
   py::enum_<musica::MICMSolver>(m, "micmsolver")
    .value("rosenbrock", musica::MICMSolver::Rosenbrock)
-   .value("rosenbrock_standard_order", musica::MICMSolver::RosenbrockStandardOrder);
+   .value("rosenbrock_standard_order", musica::MICMSolver::RosenbrockStandardOrder)
+   .value("backward_euler", musica::MICMSolver::BackwardEuler)
+   .value("backward_euler_standard_order", musica::MICMSolver::BackwardEulerStandardOrder);
 
   m.def(
       "create_solver",
@@ -162,6 +164,14 @@ PYBIND11_MODULE(musica, m)
         {
           map = micm->GetSpeciesOrdering(micm->rosenbrock_standard_, &error);
         }
+        else if (micm->solver_type_ == musica::MICMSolver::BackwardEuler)
+        {
+          map = micm->GetSpeciesOrdering(micm->backward_euler_, &error);
+        }
+        else if (micm->solver_type_ == musica::MICMSolver::BackwardEulerStandardOrder)
+        {
+          map = micm->GetSpeciesOrdering(micm->backward_euler_standard_, &error);
+        }
 
         return map;
       },
@@ -181,6 +191,14 @@ PYBIND11_MODULE(musica, m)
         else if (micm->solver_type_ == musica::MICMSolver::RosenbrockStandardOrder)
         {
           map = micm->GetUserDefinedReactionRatesOrdering(micm->rosenbrock_standard_, &error);
+        }
+        else if (micm->solver_type_ == musica::MICMSolver::BackwardEuler)
+        {
+          map = micm->GetUserDefinedReactionRatesOrdering(micm->backward_euler_, &error);
+        }
+        else if (micm->solver_type_ == musica::MICMSolver::BackwardEulerStandardOrder)
+        {
+          map = micm->GetUserDefinedReactionRatesOrdering(micm->backward_euler_standard_, &error);
         }
 
         return map;
