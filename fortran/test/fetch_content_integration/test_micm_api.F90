@@ -135,7 +135,6 @@ contains
     write(*,*) "[test micm fort api] Rejected: ", solver_stats%rejected()
     write(*,*) "[test micm fort api] Decompositions: ", solver_stats%decompositions()
     write(*,*) "[test micm fort api] Solves: ", solver_stats%solves()
-    write(*,*) "[test micm fort api] Singular: ", solver_stats%singular()
     write(*,*) "[test micm fort api] Final time: ", solver_stats%final_time()
 
     string_value = micm%get_species_property_string( "O3", "__long name", error )

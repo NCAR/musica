@@ -22,7 +22,6 @@ module musica_micm
     integer(c_int64_t) :: rejected_ = 0_c_int64_t
     integer(c_int64_t) :: decompositions_ = 0_c_int64_t
     integer(c_int64_t) :: solves_ = 0_c_int64_t
-    integer(c_int64_t) :: singular_ = 0_c_int64_t
     real(c_double)     :: final_time_ = 0._c_double
   end type solver_stats_t_c
 
@@ -162,7 +161,6 @@ module musica_micm
     integer(int64) :: rejected_
     integer(int64) :: decompositions_
     integer(int64) :: solves_
-    integer(int64) :: singular_
     real           :: final_time_
   contains
     procedure :: function_calls => solver_stats_t_function_calls
@@ -172,7 +170,6 @@ module musica_micm
     procedure :: rejected => solver_stats_t_rejected
     procedure :: decompositions => solver_stats_t_decompositions
     procedure :: solves => solver_stats_t_solves
-    procedure :: singular => solver_stats_t_singular
     procedure :: final_time => solver_stats_t_final_time
   end type solver_stats_t
 
@@ -286,7 +283,6 @@ contains
     new_solver_stats%rejected_ = c_solver_stats%rejected_
     new_solver_stats%decompositions_ = c_solver_stats%decompositions_
     new_solver_stats%solves_ = c_solver_stats%solves_
-    new_solver_stats%singular_ = c_solver_stats%singular_
     new_solver_stats%final_time_ = real( c_solver_stats%final_time_ )
 
   end function solver_stats_t_constructor
@@ -360,16 +356,6 @@ contains
     solves = this%solves_
 
   end function solver_stats_t_solves
-
-  !> Get the number of times a singular matrix is detected
-  function solver_stats_t_singular( this ) result( singular )
-    use iso_fortran_env, only: int64
-    class(solver_stats_t), intent(in) :: this
-    integer(int64)                    :: singular
-
-    singular = this%function_calls_
-
-  end function solver_stats_t_singular
 
   !> Get the final time the solver iterated to
   function solver_stats_t_final_time( this ) result( final_time )

@@ -262,7 +262,6 @@ void TestSingleGridCell(MICM* micm)
   std::cout << "Rejected: " << solver_stats.rejected_ << std::endl;
   std::cout << "Decompositions: " << solver_stats.decompositions_ << std::endl;
   std::cout << "Solves: " << solver_stats.solves_ << std::endl;
-  std::cout << "Singular: " << solver_stats.singular_ << std::endl;
   std::cout << "Final time: " << solver_stats.final_time_ << std::endl;
 
   DeleteString(&solver_state);

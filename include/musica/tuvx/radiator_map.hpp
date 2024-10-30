@@ -43,6 +43,8 @@ namespace musica
    private:
     void *radiator_map_;
     bool owns_radiator_map_;
+
+    friend class TUVX;
   };
 
 #ifdef __cplusplus

@@ -45,6 +45,8 @@ namespace musica
    private:
     void *profile_map_;
     bool owns_profile_map_;
+
+    friend class TUVX;
   };
 
 #ifdef __cplusplus

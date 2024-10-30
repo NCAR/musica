@@ -166,19 +166,19 @@ namespace musica
 
     if (micm->solver_type_ == MICMSolver::Rosenbrock)
     {
-      map = micm->GetSpeciesOrdering(micm->rosenbrock_, error);
+      map = micm->rosenbrock_.second.variable_map_;
     }
     else if (micm->solver_type_ == MICMSolver::RosenbrockStandardOrder)
     {
-      map = micm->GetSpeciesOrdering(micm->rosenbrock_standard_, error);
+      map = micm->rosenbrock_standard_.second.variable_map_;
     }
     else if (micm->solver_type_ == MICMSolver::BackwardEuler)
     {
-      map = micm->GetSpeciesOrdering(micm->backward_euler_, error);
+      map = micm->backward_euler_.second.variable_map_;
     }
     else if (micm->solver_type_ == MICMSolver::BackwardEulerStandardOrder)
     {
-      map = micm->GetSpeciesOrdering(micm->backward_euler_standard_, error);
+      map = micm->backward_euler_standard_.second.variable_map_;
     }
     else
     {
@@ -212,19 +212,19 @@ namespace musica
 
     if (micm->solver_type_ == MICMSolver::Rosenbrock)
     {
-      map = micm->GetUserDefinedReactionRatesOrdering(micm->rosenbrock_, error);
+      map = micm->rosenbrock_.second.custom_rate_parameter_map_;
     }
     else if (micm->solver_type_ == MICMSolver::RosenbrockStandardOrder)
     {
-      map = micm->GetUserDefinedReactionRatesOrdering(micm->rosenbrock_standard_, error);
+      map = micm->rosenbrock_standard_.second.custom_rate_parameter_map_;
     }
     else if (micm->solver_type_ == MICMSolver::BackwardEuler)
     {
-      map = micm->GetUserDefinedReactionRatesOrdering(micm->backward_euler_, error);
+      map = micm->backward_euler_.second.custom_rate_parameter_map_;
     }
     else if (micm->solver_type_ == MICMSolver::BackwardEulerStandardOrder)
     {
-      map = micm->GetUserDefinedReactionRatesOrdering(micm->backward_euler_standard_, error);
+      map = micm->backward_euler_standard_.second.custom_rate_parameter_map_;
     }
     else
     {
@@ -296,7 +296,7 @@ namespace musica
       solver_config.ReadAndParse(std::filesystem::path(config_path));
       solver_parameters_ = std::make_unique<micm::SolverParameters>(solver_config.GetSolverParams());
 
-      rosenbrock_ = std::make_unique<Rosenbrock>(
+      auto solver = std::make_unique<Rosenbrock>(
           micm::CpuSolverBuilder<
               micm::RosenbrockSolverParameters,
               micm::VectorMatrix<double, MICM_VECTOR_MATRIX_SIZE>,
@@ -307,6 +307,9 @@ namespace musica
               .SetNumberOfGridCells(num_grid_cells_)
               .SetIgnoreUnusedSpecies(true)
               .Build());
+      auto state = solver->GetState();
+
+      rosenbrock_ = std::pair<std::unique_ptr<Rosenbrock>, VectorState>(std::move(solver), std::move(state));
 
       *error = NoError();
     }
@@ -325,7 +328,7 @@ namespace musica
       solver_config.ReadAndParse(std::filesystem::path(config_path));
       solver_parameters_ = std::make_unique<micm::SolverParameters>(solver_config.GetSolverParams());
 
-      rosenbrock_standard_ =
+      auto solver =
           std::make_unique<RosenbrockStandard>(micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
                                                    micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())
                                                    .SetSystem(solver_parameters_->system_)
@@ -333,6 +336,9 @@ namespace musica
                                                    .SetNumberOfGridCells(num_grid_cells_)
                                                    .SetIgnoreUnusedSpecies(true)
                                                    .Build());
+      auto state = solver->GetState();
+      rosenbrock_standard_ =
+          std::pair<std::unique_ptr<RosenbrockStandard>, StandardState>(std::move(solver), std::move(state));
 
       DeleteError(error);
       *error = NoError();
@@ -352,7 +358,7 @@ namespace musica
       solver_config.ReadAndParse(std::filesystem::path(config_path));
       solver_parameters_ = std::make_unique<micm::SolverParameters>(solver_config.GetSolverParams());
 
-      backward_euler_ = std::make_unique<BackwardEuler>(
+      auto solver = std::make_unique<BackwardEuler>(
           micm::SolverBuilder<
               micm::BackwardEulerSolverParameters,
               micm::VectorMatrix<double, MICM_VECTOR_MATRIX_SIZE>,
@@ -367,6 +373,9 @@ namespace musica
               .SetNumberOfGridCells(num_grid_cells_)
               .SetIgnoreUnusedSpecies(true)
               .Build());
+      auto state = solver->GetState();
+
+      backward_euler_ = std::pair<std::unique_ptr<BackwardEuler>, VectorState>(std::move(solver), std::move(state));
 
       DeleteError(error);
       *error = NoError();
@@ -386,13 +395,17 @@ namespace musica
       solver_config.ReadAndParse(std::filesystem::path(config_path));
       solver_parameters_ = std::make_unique<micm::SolverParameters>(solver_config.GetSolverParams());
 
-      backward_euler_standard_ = std::make_unique<BackwardEulerStandard>(
+      auto solver = std::make_unique<BackwardEulerStandard>(
           micm::CpuSolverBuilder<micm::BackwardEulerSolverParameters>(micm::BackwardEulerSolverParameters())
               .SetSystem(solver_parameters_->system_)
               .SetReactions(solver_parameters_->processes_)
               .SetNumberOfGridCells(num_grid_cells_)
               .SetIgnoreUnusedSpecies(true)
               .Build());
+      auto state = solver->GetState();
+
+      backward_euler_standard_ =
+          std::pair<std::unique_ptr<BackwardEulerStandard>, StandardState>(std::move(solver), std::move(state));
 
       *error = NoError();
     }
@@ -403,7 +416,7 @@ namespace musica
   }
 
   void MICM::Solve(
-      auto &solver,
+      auto &solver_state_pair,
       double time_step,
       double *temperature,
       double *pressure,
@@ -416,7 +429,8 @@ namespace musica
   {
     try
     {
-      micm::State state = solver->GetState();
+      auto &solver = solver_state_pair.first;
+      auto &state = solver_state_pair.second;
       const std::size_t num_species = state.variables_.NumColumns();
       const std::size_t num_custom_rate_parameters = state.custom_rate_parameters_.NumColumns();
 
@@ -450,7 +464,6 @@ namespace musica
           result.stats_.rejected_,
           result.stats_.decompositions_,
           result.stats_.solves_,
-          result.stats_.singular_,
           result.final_time_);
 
       i_species_elem = 0;
