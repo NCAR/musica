@@ -272,5 +272,23 @@ class TestAnalyticalStandardRosenbrockMultipleGridCells(unittest.TestCase):
         TestMultipleGridCell(self, solver, 3)
 
 
+class TestAnalyticalBackwardEulerMultipleGridCells(unittest.TestCase):
+    def test_simulation(self):
+        solver = musica.create_solver(
+            "configs/analytical",
+            musica.micmsolver.backward_euler,
+            3)
+        TestMultipleGridCell(self, solver, 3)
+
+
+class TestAnalyticalStandardBackwardEulerMultipleGridCells(unittest.TestCase):
+    def test_simulation(self):
+        solver = musica.create_solver(
+            "configs/analytical",
+            musica.micmsolver.backward_euler_standard_order,
+            3)
+        TestMultipleGridCell(self, solver, 3)
+
+
 if __name__ == '__main__':
     unittest.main()
