@@ -64,6 +64,24 @@ module musica_tuvx
       type(c_ptr)                    :: get_radiator_map_c
     end function get_radiator_map_c
 
+    function get_photolysis_rate_constants_ordering_c(tuvx, error) &
+        bind(C, name="GetPhotolysisRateConstantsOrdering")
+      use musica_util, only: error_t_c, mappings_t_c
+      use iso_c_binding, only: c_ptr
+      type(c_ptr), value, intent(in) :: tuvx
+      type(error_t_c), intent(inout) :: error
+      type(mappings_t_c)             :: get_photolysis_rate_constants_ordering_c
+    end function get_photolysis_rate_constants_ordering_c
+
+    function get_heating_rates_ordering_c(tuvx, error) &
+        bind(C, name="GetHeatingRatesOrdering")
+      use musica_util, only: error_t_c, mappings_t_c
+      use iso_c_binding, only: c_ptr
+      type(c_ptr), value, intent(in) :: tuvx
+      type(error_t_c), intent(inout) :: error
+      type(mappings_t_c)             :: get_heating_rates_ordering_c
+    end function get_heating_rates_ordering_c
+
     subroutine run_tuvx_c(tuvx, solar_zenith_angle, earth_sun_distance, &
         photolysis_rate_constants, heating_rates, error) bind(C, name="RunTuvx")
       use musica_util, only: error_t_c
@@ -88,6 +106,10 @@ module musica_tuvx
     procedure :: get_profiles
     ! Create a radiator map
     procedure :: get_radiators
+    ! Get photolysis rate constant ordering
+    procedure :: get_photolysis_rate_constants_ordering
+    ! Get heating rate ordering
+    procedure :: get_heating_rates_ordering
     ! Run the calculator
     procedure :: run
     ! Deallocate the tuvx instance
@@ -210,6 +232,50 @@ contains
 
   end function get_radiators
 
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  
+  !> Get the photolysis rate constant ordering
+  function get_photolysis_rate_constants_ordering(this, error) &
+      result(mappings)
+    use musica_util, only: error_t, error_t_c, mappings_t
+
+    ! Arguments
+    class(tuvx_t), intent(inout) :: this
+    type(error_t), intent(inout) :: error
+
+    ! Return value
+    type(mappings_t), pointer :: mappings
+
+    ! Local variables
+    type(error_t_c) :: error_c
+
+    mappings => &
+        mappings_t(get_photolysis_rate_constants_ordering_c(this%ptr_, error_c))
+    error = error_t(error_c)
+
+  end function get_photolysis_rate_constants_ordering
+  
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  
+  !> Get the heating rate ordering
+  function get_heating_rates_ordering(this, error) result(mappings)
+    use musica_util, only: error_t, error_t_c, mappings_t
+
+    ! Arguments
+    class(tuvx_t), intent(inout) :: this
+    type(error_t), intent(inout) :: error
+
+    ! Return value
+    type(mappings_t), pointer :: mappings
+
+    ! Local variables
+    type(error_t_c) :: error_c
+
+    mappings => mappings_t(get_heating_rates_ordering_c(this%ptr_, error_c))
+    error = error_t(error_c)
+
+  end function get_heating_rates_ordering
+  
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   
   !> Run the calculator
