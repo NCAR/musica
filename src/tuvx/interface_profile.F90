@@ -17,7 +17,7 @@ module tuvx_interface_profile
     units_length, grid_updater_c, error_code) &
     bind(C, name="InternalCreateProfile") result(profile)
     use iso_c_binding, only: c_ptr, c_f_pointer, c_char, c_loc, c_size_t, c_int
-    use musica_tuvx_util, only: to_f_string
+    use tuvx_interface_util, only: to_f_string
     use musica_string, only: string_t
     use tuvx_grid_from_host, only: grid_updater_t
     use tuvx_profile_from_host, only: profile_from_host_t

@@ -6,9 +6,10 @@ using namespace musica;
 
 // Expected values for photolysis rate constants and heating rates
 // were determined by running the stand-alone TUV-x model with the fixed configuration.
-const double expected_photolysis_rate_constants[2][4] = {
+const double expected_photolysis_rate_constants[3][4] = {
   { 8.91393763338872e-28, 1.64258192104497e-20, 8.48391527327371e-14, 9.87420948924703e-08 },
-  { 2.49575956372508e-27, 4.58686176250519e-20, 2.22679622672858e-13, 2.29392676897831e-07 }
+  { 2.49575956372508e-27, 4.58686176250519e-20, 2.22679622672858e-13, 2.29392676897831e-07 },
+  { 1.78278752667774e-27, 3.28516384208994e-20, 1.69678305465474e-13, 1.97484189784941e-07}
 };
 const double expected_heating_rates[2][4] = {
   { 1.12394047546984e-46, 2.04518267143613e-39, 7.44349752571804e-33, 5.42628100199216e-28 },
@@ -30,6 +31,7 @@ class TuvxRunTest : public ::testing::Test
   int number_of_layers;
   int number_of_wavelengths;
   int number_of_reactions;
+  int number_of_heating_rates;
   double* photolysis_rate_constants;
   double* heating_rates;
 
@@ -46,6 +48,7 @@ class TuvxRunTest : public ::testing::Test
     number_of_layers = 0;
     number_of_wavelengths = 0;
     number_of_reactions = 0;
+    number_of_heating_rates = 0;
     photolysis_rate_constants = nullptr;
     heating_rates = nullptr;
   }
@@ -73,9 +76,10 @@ class TuvxRunTest : public ::testing::Test
     ASSERT_TRUE(IsSuccess(error));
     number_of_layers = 3;
     number_of_wavelengths = 5;
-    number_of_reactions = 2;
+    number_of_reactions = 3;
+    number_of_heating_rates = 2;
     photolysis_rate_constants = new double[(number_of_layers + 1) * number_of_reactions];
-    heating_rates = new double[(number_of_layers + 1) * number_of_reactions];
+    heating_rates = new double[(number_of_layers + 1) * number_of_heating_rates];
     DeleteError(&error);
   }
 
@@ -99,9 +103,10 @@ class TuvxRunTest : public ::testing::Test
     ASSERT_TRUE(IsSuccess(error));
     number_of_layers = 3;
     number_of_wavelengths = 5;
-    number_of_reactions = 2;
+    number_of_reactions = 3;
+    number_of_heating_rates = 2;
     photolysis_rate_constants = new double[(number_of_layers + 1) * number_of_reactions];
-    heating_rates = new double[(number_of_layers + 1) * number_of_reactions];
+    heating_rates = new double[(number_of_layers + 1) * number_of_heating_rates];
     DeleteError(&error);
   }
 
@@ -148,12 +153,36 @@ TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfig)
           photolysis_rate_constants[i * (number_of_layers + 1) + j],
           expected_photolysis_rate_constants[i][j],
           expected_photolysis_rate_constants[i][j] * 1.0e-5);
+    }
+  }
+  for (int i = 0; i < number_of_heating_rates; i++)
+  {
+    for (int j = 0; j < number_of_layers + 1; j++)
+    {
       EXPECT_NEAR(
           heating_rates[i * (number_of_layers + 1) + j],
           expected_heating_rates[i][j],
           expected_heating_rates[i][j] * 1.0e-5);
     }
   }
+  Mappings photo_rate_labels = GetPhotolysisRateConstantsOrdering(tuvx, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(photo_rate_labels.size_, 3);
+  ASSERT_STREQ(photo_rate_labels.mappings_[0].name_.value_, "jfoo");
+  ASSERT_EQ(photo_rate_labels.mappings_[0].index_, 0);
+  ASSERT_STREQ(photo_rate_labels.mappings_[1].name_.value_, "jbar");
+  ASSERT_EQ(photo_rate_labels.mappings_[1].index_, 1);
+  ASSERT_STREQ(photo_rate_labels.mappings_[2].name_.value_, "jbaz");
+  ASSERT_EQ(photo_rate_labels.mappings_[2].index_, 2);
+  Mappings heating_rate_labels = GetHeatingRatesOrdering(tuvx, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(heating_rate_labels.size_, 2);
+  ASSERT_STREQ(heating_rate_labels.mappings_[0].name_.value_, "jfoo");
+  ASSERT_EQ(heating_rate_labels.mappings_[0].index_, 0);
+  ASSERT_STREQ(heating_rate_labels.mappings_[1].name_.value_, "jbar");
+  ASSERT_EQ(heating_rate_labels.mappings_[1].index_, 1);
+  DeleteMappings(&photo_rate_labels);
+  DeleteMappings(&heating_rate_labels);
   DeleteError(&error);
 }
 
@@ -225,12 +254,36 @@ TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfigAndHostData)
           photolysis_rate_constants[i * (number_of_layers + 1) + j],
           expected_photolysis_rate_constants[i][j],
           expected_photolysis_rate_constants[i][j] * 1.0e-5);
+    }
+  }
+  for (int i = 0; i < number_of_heating_rates; i++)
+  {
+    for (int j = 0; j < number_of_layers + 1; j++)
+    {
       EXPECT_NEAR(
           heating_rates[i * (number_of_layers + 1) + j],
           expected_heating_rates[i][j],
           expected_heating_rates[i][j] * 1.0e-5);
     }
   }
+  Mappings photo_rate_labels = GetPhotolysisRateConstantsOrdering(tuvx, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(photo_rate_labels.size_, 3);
+  ASSERT_STREQ(photo_rate_labels.mappings_[0].name_.value_, "jfoo");
+  ASSERT_EQ(photo_rate_labels.mappings_[0].index_, 0);
+  ASSERT_STREQ(photo_rate_labels.mappings_[1].name_.value_, "jbar");
+  ASSERT_EQ(photo_rate_labels.mappings_[1].index_, 1);
+  ASSERT_STREQ(photo_rate_labels.mappings_[2].name_.value_, "jbaz");
+  ASSERT_EQ(photo_rate_labels.mappings_[2].index_, 2);
+  Mappings heating_rate_labels = GetHeatingRatesOrdering(tuvx, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(heating_rate_labels.size_, 2);
+  ASSERT_STREQ(heating_rate_labels.mappings_[0].name_.value_, "jfoo");
+  ASSERT_EQ(heating_rate_labels.mappings_[0].index_, 0);
+  ASSERT_STREQ(heating_rate_labels.mappings_[1].name_.value_, "jbar");
+  ASSERT_EQ(heating_rate_labels.mappings_[1].index_, 1);
+  DeleteMappings(&photo_rate_labels);
+  DeleteMappings(&heating_rate_labels);
   GetGridEdges(heights, height_edges, 4, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(height_edges[0], 0.0);
