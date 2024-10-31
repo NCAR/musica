@@ -166,11 +166,11 @@ PYBIND11_MODULE(musica, m)
         }
         else if (micm->solver_type_ == musica::MICMSolver::BackwardEuler)
         {
-          map = micm->GetSpeciesOrdering(micm->backward_euler_, &error);
+          map = micm->backward_euler_.second.variable_map_;
         }
         else if (micm->solver_type_ == musica::MICMSolver::BackwardEulerStandardOrder)
         {
-          map = micm->GetSpeciesOrdering(micm->backward_euler_standard_, &error);
+          map = micm->backward_euler_standard_.second.variable_map_;
         }
 
         return map;
@@ -194,11 +194,11 @@ PYBIND11_MODULE(musica, m)
         }
         else if (micm->solver_type_ == musica::MICMSolver::BackwardEuler)
         {
-          map = micm->GetUserDefinedReactionRatesOrdering(micm->backward_euler_, &error);
+          map = micm->backward_euler_.second.custom_rate_parameter_map_;
         }
         else if (micm->solver_type_ == musica::MICMSolver::BackwardEulerStandardOrder)
         {
-          map = micm->GetUserDefinedReactionRatesOrdering(micm->backward_euler_standard_, &error);
+          map = micm->backward_euler_standard_.second.custom_rate_parameter_map_;
         }
 
         return map;
