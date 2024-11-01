@@ -191,7 +191,8 @@ namespace musica
     Mappings mappings = InternalGetPhotolysisRateConstantsOrdering(tuvx_, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get photolysis rate constants ordering") };
+      *error =
+          Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get photolysis rate constants ordering") };
     }
     return mappings;
   }
