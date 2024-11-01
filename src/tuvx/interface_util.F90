@@ -88,12 +88,12 @@ module tuvx_interface_util
   end type mappings_t_c
 
   interface
-    function create_string_c( string ) bind(c, name="InternalCreateString")
+    function create_string_c( string ) bind(c, name="CreateString")
       import :: string_t_c, c_char
       character(kind=c_char, len=1), intent(in) :: string(*)
       type(string_t_c) :: create_string_c
     end function create_string_c
-    function allocate_mappings_c( size ) bind(c, name="InternalAllocateMappings")
+    function allocate_mappings_c( size ) bind(c, name="AllocateMappingArray")
       import :: c_size_t, c_ptr
       integer(c_size_t), value, intent(in) :: size
       type(c_ptr) :: allocate_mappings_c
@@ -327,7 +327,6 @@ contains
 
   !> Creates a new string_t_c from a fortran character array
   function create_string_t_c( f_string ) result( c_string )
-    use iso_c_binding,                 only : c_char, c_null_char, c_loc
 
     character(len=*), intent(in) :: f_string
     type(string_t_c) :: c_string

@@ -6,7 +6,6 @@ module tuvx_interface_grid_map
   use iso_c_binding,       only : c_ptr, c_loc, c_int, c_size_t, c_char
   use tuvx_grid_warehouse, only : grid_warehouse_t
   use tuvx_grid,           only : grid_t
-  use tuvx_interface_util, only : to_f_string, string_t_c
   use musica_string,       only : string_t
 
   implicit none

@@ -6,7 +6,6 @@ module tuvx_interface_radiator_map
   use iso_c_binding,           only : c_ptr, c_loc, c_int, c_size_t, c_char
   use tuvx_radiator,           only : radiator_t
   use tuvx_radiator_warehouse, only : radiator_warehouse_t
-  use tuvx_interface_util,     only : to_f_string, string_t_c
   use musica_string,           only : string_t
 
   implicit none

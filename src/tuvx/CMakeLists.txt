@@ -7,7 +7,6 @@ target_sources(musica
     interface_profile_map.F90
     interface_radiator.F90
     interface_radiator_map.F90
-    interface_util.cpp
     interface_util.F90
     grid.cpp
     grid_map.cpp
