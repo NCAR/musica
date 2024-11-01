@@ -17,7 +17,6 @@ module tuvx_interface_grid
       units_length, num_sections, error_code) &
       bind(C, name="InternalCreateGrid") result(grid)
     use iso_c_binding, only: c_ptr, c_f_pointer, c_char, c_loc, c_size_t, c_int
-    use musica_tuvx_util, only: to_f_string
     use musica_string, only: string_t
     use tuvx_grid_from_host, only: grid_from_host_t
 

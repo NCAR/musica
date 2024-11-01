@@ -9,7 +9,6 @@ use tuvx_grid,               only : grid_t
 use tuvx_grid_warehouse,     only : grid_warehouse_t
 use tuvx_profile_warehouse,  only : profile_warehouse_t
 use tuvx_radiator_warehouse, only : radiator_warehouse_t
-use musica_tuvx_util,        only : to_f_string, string_t_c
 use musica_string,           only : string_t
 
 implicit none
@@ -157,6 +156,86 @@ contains
     radiator_map_ptr = c_loc(radiator_warehouse)
 
   end function internal_get_radiator_map
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function internal_get_photolysis_rate_constants_ordering(tuvx, error_code) &
+      result(photolysis_rate_constant_ordering) &
+      bind(C, name="InternalGetPhotolysisRateConstantsOrdering")
+    use iso_c_binding, only: c_ptr, c_f_pointer, c_int
+    use tuvx_interface_util, only: create_string_t_c, mappings_t_c, &
+                                   mapping_t_c, allocate_mappings_c
+
+    ! arguments
+    type(c_ptr), value,  intent(in)  :: tuvx
+    integer(kind=c_int), intent(out) :: error_code
+
+    ! result
+    type(mappings_t_c) :: photolysis_rate_constant_ordering
+
+    ! variables
+    type(core_t), pointer :: core
+    type(string_t), allocatable :: labels(:)
+    type(mapping_t_c), pointer :: mappings(:)
+    type(c_ptr) :: mappings_ptr
+    integer :: i, n_labels
+
+    error_code = 0
+    call c_f_pointer(tuvx, core)
+
+    labels = core%photolysis_reaction_labels()
+    n_labels = size(labels)
+    mappings_ptr = allocate_mappings_c(int(n_labels, kind=c_size_t))
+    call c_f_pointer(mappings_ptr, mappings, [ n_labels ])
+    do i = 1, n_labels
+      mappings(i)%name_ = create_string_t_c(labels(i)%val_)
+      mappings(i)%index_ = int(i-1, kind=c_size_t)
+    end do
+
+    photolysis_rate_constant_ordering%mappings_ = c_loc(mappings)
+    photolysis_rate_constant_ordering%size_ = n_labels
+
+  end function internal_get_photolysis_rate_constants_ordering
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function internal_get_heating_rates_ordering(tuvx, error_code) &
+      result(heating_rates_ordering) &
+      bind(C, name="InternalGetHeatingRatesOrdering")
+    use iso_c_binding, only: c_ptr, c_f_pointer, c_int
+    use tuvx_interface_util, only: create_string_t_c, mappings_t_c, &
+                                   mapping_t_c, allocate_mappings_c
+
+    ! arguments
+    type(c_ptr), value,  intent(in)  :: tuvx
+    integer(kind=c_int), intent(out) :: error_code
+
+    ! result
+    type(mappings_t_c) :: heating_rates_ordering
+
+    ! variables
+    type(core_t), pointer :: core
+    type(string_t), allocatable :: labels(:)
+    type(mapping_t_c), pointer :: mappings(:)
+    type(c_ptr) :: mappings_ptr
+    integer :: i, n_labels
+
+    error_code = 0
+    call c_f_pointer(tuvx, core)
+
+    labels = core%heating_rate_labels()
+    n_labels = size(labels)
+    mappings_ptr = allocate_mappings_c(int(n_labels, kind=c_size_t))
+    call c_f_pointer(mappings_ptr, mappings, [ n_labels ])
+    do i = 1, n_labels
+      mappings(i)%name_ = create_string_t_c(labels(i)%val_)
+      mappings(i)%index_ = int(i-1, kind=c_size_t)
+    end do
+
+    heating_rates_ordering%mappings_ = c_loc(mappings)
+    heating_rates_ordering%size_ = n_labels
+
+  end function internal_get_heating_rates_ordering
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

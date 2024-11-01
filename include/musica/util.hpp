@@ -105,6 +105,11 @@ namespace musica
     /// @return The Configuration
     Configuration LoadConfigurationFromFile(const char* filename, Error* error);
 
+    /// @brief Allocates an array of Mappings
+    /// @param size The size of the array
+    /// @return The array of Mappings
+    Mapping* AllocateMappingArray(const std::size_t size);
+
     /// @brief Allocate a new Mappings struct
     /// @param size The size of the Mappings
     /// @return The Mappings
