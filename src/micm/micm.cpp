@@ -434,22 +434,18 @@ namespace musica
       const std::size_t num_species = state.variables_.NumColumns();
       const std::size_t num_custom_rate_parameters = state.custom_rate_parameters_.NumColumns();
 
-      int i_species_elem = 0;
-      int i_param_elem = 0;
-      for (int i_cell{}; i_cell < num_grid_cells_; ++i_cell)
+      std::size_t i_cond = 0;
+      for (auto &cond : state.conditions_)
       {
-        state.conditions_[i_cell].temperature_ = temperature[i_cell];
-        state.conditions_[i_cell].pressure_ = pressure[i_cell];
-        state.conditions_[i_cell].air_density_ = air_density[i_cell];
-        for (int i_species{}; i_species < num_species; ++i_species)
-        {
-          state.variables_[i_cell][i_species] = concentrations[i_species_elem++];
-        }
-        for (int i_param{}; i_param < num_custom_rate_parameters; ++i_param)
-        {
-          state.custom_rate_parameters_[i_cell][i_param] = custom_rate_parameters[i_param_elem++];
-        }
+        cond.temperature_ = temperature[i_cond];
+        cond.pressure_ = pressure[i_cond];
+        cond.air_density_ = air_density[i_cond++];
       }
+      std::size_t i_species_elem = 0;
+      for (auto &var : state.variables_.AsVector()) var = concentrations[i_species_elem++];
+
+      std::size_t i_custom_rate_elem = 0;
+      for (auto &var : state.custom_rate_parameters_.AsVector()) var = custom_rate_parameters[i_custom_rate_elem++];
 
       solver->CalculateRateConstants(state);
       auto result = solver->Solve(time_step, state);
@@ -467,13 +463,7 @@ namespace musica
           result.final_time_);
 
       i_species_elem = 0;
-      for (int i_cell{}; i_cell < num_grid_cells_; ++i_cell)
-      {
-        for (int i_species{}; i_species < num_species; ++i_species)
-        {
-          concentrations[i_species_elem++] = state.variables_[i_cell][i_species];
-        }
-      }
+      for (auto &var : state.variables_.AsVector()) concentrations[i_species_elem++] = var;
 
       DeleteError(error);
       *error = NoError();

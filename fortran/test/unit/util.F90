@@ -135,6 +135,12 @@ contains
     ASSERT_EQ( b%category(), "bar" )
     ASSERT_EQ( b%message(), "foo" )
 
+    a = error_t( 34, "qux", "quux" )
+    
+    ASSERT_EQ( a%code(), 34 )
+    ASSERT_EQ( a%category(), "qux" )
+    ASSERT_EQ( a%message(), "quux" )
+
   end subroutine test_error_t
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
