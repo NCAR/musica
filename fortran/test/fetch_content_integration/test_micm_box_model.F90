@@ -3,6 +3,7 @@ program test_micm_box_model
   use, intrinsic :: iso_c_binding
   use, intrinsic :: ieee_arithmetic
 
+  use iso_fortran_env, only : real64
   use musica_util, only: error_t, string_t, mapping_t
   use musica_micm, only: micm_t, solver_stats_t
   use musica_micm, only: Rosenbrock, RosenbrockStandardOrder
@@ -19,14 +20,14 @@ contains
     integer(c_int)     :: solver_type
     integer(c_int)     :: num_grid_cells
 
-    real(c_double), parameter :: GAS_CONSTANT = 8.31446261815324_c_double ! J mol-1 K-1
+    real(real64), parameter :: GAS_CONSTANT = 8.31446261815324_real64 ! J mol-1 K-1
 
-    real(c_double) :: time_step
-    real(c_double), target :: temperature(1)
-    real(c_double), target :: pressure(1)
-    real(c_double), target :: air_density(1)
-    real(c_double), target :: concentrations(6)
-    real(c_double), target :: user_defined_reaction_rates(2)
+    real(real64) :: time_step
+    real(real64), target :: temperature(1)
+    real(real64), target :: pressure(1)
+    real(real64), target :: air_density(1)
+    real(real64), target :: concentrations(6)
+    real(real64), target :: user_defined_reaction_rates(2)
 
     type(string_t)       :: solver_state
     type(solver_stats_t) :: solver_stats

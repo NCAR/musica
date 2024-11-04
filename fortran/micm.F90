@@ -191,9 +191,11 @@ contains
     use musica_util, only: error_t_c, error_t, copy_mappings
     type(micm_t), pointer         :: this
     character(len=*), intent(in)  :: config_path
-    integer(c_int), intent(in)    :: solver_type
-    integer(c_int), intent(in)    :: num_grid_cells
+    integer, intent(in)           :: solver_type
+    integer, intent(in)           :: num_grid_cells
     type(error_t), intent(inout)  :: error
+
+    ! local variables
     character(len=1, kind=c_char) :: c_config_path(len_trim(config_path)+1)
     integer                       :: n, i
     type(error_t_c)               :: error_c
@@ -206,7 +208,8 @@ contains
     end do
     c_config_path(n+1) = c_null_char
 
-    this%ptr = create_micm_c(c_config_path, solver_type, num_grid_cells, error_c)
+    this%ptr = create_micm_c( c_config_path, int(solver_type, kind=c_int), &
+                              int(num_grid_cells, kind=c_int), error_c )
     error = error_t(error_c)
     if (.not. error%is_success()) then
         deallocate(this)
@@ -236,32 +239,27 @@ contains
   subroutine solve(this, time_step, temperature, pressure, air_density, concentrations, &
               user_defined_reaction_rates, solver_state, solver_stats, error)
     use iso_c_binding, only: c_loc
+    use iso_fortran_env, only: real64
     use musica_util, only: string_t, string_t_c, error_t_c, error_t
-    class(micm_t)                         :: this
-    real(c_double),         intent(in)    :: time_step
-    real(c_double), target, intent(in)    :: temperature(:)
-    real(c_double), target, intent(in)    :: pressure(:)
-    real(c_double), target, intent(in)    :: air_density(:)
-    real(c_double), target, intent(inout) :: concentrations(:)
-    real(c_double), target, intent(in)    :: user_defined_reaction_rates(:)
-    type(string_t),         intent(out)   :: solver_state
-    type(solver_stats_t),   intent(out)   :: solver_stats
-    type(error_t),          intent(out)   :: error
+    class(micm_t),        intent(in)    :: this
+    real(real64),         intent(in)    :: time_step
+    real(real64), target, intent(in)    :: temperature(:)
+    real(real64), target, intent(in)    :: pressure(:)
+    real(real64), target, intent(in)    :: air_density(:)
+    real(real64), target, intent(inout) :: concentrations(:)
+    real(real64), target, intent(in)    :: user_defined_reaction_rates(:)
+    type(string_t),       intent(out)   :: solver_state
+    type(solver_stats_t), intent(out)   :: solver_stats
+    type(error_t),        intent(out)   :: error
 
     type(string_t_c)       :: solver_state_c
     type(solver_stats_t_c) :: solver_stats_c
     type(error_t_c)        :: error_c
-    type(c_ptr)            :: temperature_c, pressure_c, air_density_c, concentrations_c, &
-                              user_defined_reaction_rates_c
 
-    temperature_c    = c_loc(temperature)
-    pressure_c       = c_loc(pressure)
-    air_density_c    = c_loc(air_density)
-    concentrations_c = c_loc(concentrations)
-    user_defined_reaction_rates_c = c_loc(user_defined_reaction_rates)
-    call micm_solve_c(this%ptr, time_step, temperature_c, pressure_c, air_density_c, &
-                      concentrations_c, user_defined_reaction_rates_c, solver_state_c, &
-                      solver_stats_c, error_c)
+    call micm_solve_c(this%ptr, real(time_step, kind=c_double), c_loc(temperature), &
+                      c_loc(pressure), c_loc(air_density), c_loc(concentrations), &
+                      c_loc(user_defined_reaction_rates), &
+                      solver_state_c, solver_stats_c, error_c)
           
     solver_state = string_t(solver_state_c)
     solver_stats = solver_stats_t(solver_stats_c)
@@ -359,8 +357,9 @@ contains
 
   !> Get the final time the solver iterated to
   function solver_stats_t_final_time( this ) result( final_time )
+    use iso_fortran_env, only: real64
     class(solver_stats_t), intent(in) :: this
-    real                              :: final_time
+    real(real64)                      :: final_time
 
     final_time = this%final_time_
 
@@ -382,15 +381,16 @@ contains
   end function get_species_property_string
 
   function get_species_property_double(this, species_name, property_name, error) result(value)
+    use iso_fortran_env, only: real64
     use musica_util, only: error_t_c, error_t, to_c_string
     class(micm_t)                :: this
     character(len=*), intent(in) :: species_name, property_name
     type(error_t), intent(inout) :: error
-    real(c_double)               :: value
+    real(real64)                 :: value
 
     type(error_t_c)              :: error_c
-    value = get_species_property_double_c(this%ptr, &
-              to_c_string(species_name), to_c_string(property_name), error_c)
+    value = real( get_species_property_double_c( this%ptr, to_c_string(species_name), &
+                  to_c_string(property_name), error_c ), kind=real64 )
     error = error_t(error_c)
   end function get_species_property_double
 
@@ -399,11 +399,11 @@ contains
     class(micm_t)                :: this
     character(len=*), intent(in) :: species_name, property_name
     type(error_t), intent(inout) :: error
-    integer(c_int)               :: value
+    integer                      :: value
 
     type(error_t_c)              :: error_c
-    value = get_species_property_int_c(this%ptr, &
-              to_c_string(species_name), to_c_string(property_name), error_c)
+    value = int( get_species_property_int_c(this%ptr, &
+                 to_c_string(species_name), to_c_string(property_name), error_c) )
     error = error_t(error_c)
   end function get_species_property_int
 

@@ -5,6 +5,7 @@ program test_micm_api
 
   use, intrinsic :: iso_c_binding
   use, intrinsic :: ieee_arithmetic
+  use iso_fortran_env, only: real64
   use musica_micm, only: micm_t, solver_stats_t, get_micm_version
   use musica_micm, only: Rosenbrock, RosenbrockStandardOrder, BackwardEuler, BackwardEulerStandardOrder
   use musica_util, only: assert, error_t, mapping_t, string_t, find_mapping_index
@@ -19,11 +20,11 @@ program test_micm_api
   implicit none
 
   type :: ArrheniusReaction
-    real(c_double) :: A_ = 1.0
-    real(c_double) :: B_ = 0.0
-    real(c_double) :: C_ = 0.0
-    real(c_double) :: D_ = 300.0
-    real(c_double) :: E_ = 0.0
+    real(real64) :: A_ = 1.0
+    real(real64) :: B_ = 0.0
+    real(real64) :: C_ = 0.0
+    real(real64) :: D_ = 300.0
+    real(real64) :: E_ = 0.0
   end type ArrheniusReaction
 
   call test_api()
@@ -36,9 +37,9 @@ contains
 
   function calculate_arrhenius( reaction, temperature, pressure ) result( rate )
     type(ArrheniusReaction), intent(in) :: reaction
-    real(c_double), intent(in) :: temperature
-    real(c_double), intent(in) :: pressure
-    real(c_double) :: rate
+    real(real64), intent(in) :: temperature
+    real(real64), intent(in) :: pressure
+    real(real64) :: rate
     rate = reaction%A_ * exp( reaction%C_ / temperature ) &
            * (temperature / reaction%D_) ** reaction%B_ &
            * (1.0 + reaction%E_ * pressure)
@@ -46,28 +47,28 @@ contains
 
   subroutine test_api()
 
-    type(string_t)                       :: micm_version
-    type(micm_t), pointer                :: micm
-    real(c_double)                       :: time_step
-    real(c_double), target               :: temperature(1)
-    real(c_double), target               :: pressure(1)
-    real(c_double), target               :: air_density(1)
-    real(c_double), target, dimension(4) :: concentrations 
-    real(c_double), target, dimension(3) :: user_defined_reaction_rates 
-    character(len=256)                   :: config_path
-    integer(c_int)                       :: solver_type
-    integer(c_int)                       :: num_grid_cells
-    character(len=:), allocatable        :: string_value
-    real(c_double)                       :: double_value
-    integer(c_int)                       :: int_value
-    logical(c_bool)                      :: bool_value
-    type(string_t)                       :: solver_state
-    type(solver_stats_t)                 :: solver_stats
-    type(error_t)                        :: error
-    real(c_double), parameter            :: GAS_CONSTANT = 8.31446261815324_c_double ! J mol-1 K-1
-    integer                              :: i
-    integer                              :: O2_index, O_index, O1D_index, O3_index
-    integer                              :: jO2_index, jO3a_index, jO3b_index
+    type(string_t)                :: micm_version
+    type(micm_t), pointer         :: micm
+    real(real64)                  :: time_step
+    real(real64)                  :: temperature(1)
+    real(real64)                  :: pressure(1)
+    real(real64)                  :: air_density(1)
+    real(real64), dimension(4)    :: concentrations 
+    real(real64), dimension(3)    :: user_defined_reaction_rates 
+    character(len=256)            :: config_path
+    integer(c_int)                :: solver_type
+    integer(c_int)                :: num_grid_cells
+    character(len=:), allocatable :: string_value
+    real(real64)                  :: double_value
+    integer(c_int)                :: int_value
+    logical(c_bool)               :: bool_value
+    type(string_t)                :: solver_state
+    type(solver_stats_t)          :: solver_stats
+    type(error_t)                 :: error
+    real(real64), parameter       :: GAS_CONSTANT = 8.31446261815324_real64 ! J mol-1 K-1
+    integer                       :: i
+    integer                       :: O2_index, O_index, O1D_index, O3_index
+    integer                       :: jO2_index, jO3a_index, jO3b_index
     
     config_path = "configs/chapman"
     solver_type = Rosenbrock
@@ -143,10 +144,10 @@ contains
     deallocate( string_value )
     double_value = micm%get_species_property_double( "O3", "molecular weight [kg mol-1]", error )
     ASSERT( error%is_success() )
-    ASSERT_EQ( double_value, 0.048_c_double )
+    ASSERT_EQ( double_value, 0.048_real64 )
     int_value = micm%get_species_property_int( "O3", "__atoms", error )
     ASSERT( error%is_success() )
-    ASSERT_EQ( int_value, 3_c_int )
+    ASSERT_EQ( int_value, 3 )
     bool_value = micm%get_species_property_bool( "O3", "__do advect", error )
     ASSERT( error%is_success() )
     ASSERT( logical( bool_value ) )
@@ -172,27 +173,27 @@ contains
 
     type(micm_t), pointer, intent(inout) :: micm
     integer,               intent(in)    :: NUM_GRID_CELLS
-    real(c_double),        intent(in)    :: time_step
+    real(real64),        intent(in)    :: time_step
     real,                  intent(in)    :: test_accuracy
 
     integer, parameter        :: NUM_SPECIES = 6
     integer, parameter        :: NUM_USER_DEFINED_REACTION_RATES = 2
-    real(c_double), target    :: temperature(NUM_GRID_CELLS)
-    real(c_double), target    :: pressure(NUM_GRID_CELLS)
-    real(c_double), target    :: air_density(NUM_GRID_CELLS)
-    real(c_double), target    :: concentrations(NUM_GRID_CELLS * NUM_SPECIES)
-    real(c_double), target    :: initial_concentrations(NUM_GRID_CELLS * NUM_SPECIES)
-    real(c_double), target    :: user_defined_reaction_rates(NUM_GRID_CELLS * NUM_USER_DEFINED_REACTION_RATES)
+    real(real64), target    :: temperature(NUM_GRID_CELLS)
+    real(real64), target    :: pressure(NUM_GRID_CELLS)
+    real(real64), target    :: air_density(NUM_GRID_CELLS)
+    real(real64), target    :: concentrations(NUM_GRID_CELLS * NUM_SPECIES)
+    real(real64), target    :: initial_concentrations(NUM_GRID_CELLS * NUM_SPECIES)
+    real(real64), target    :: user_defined_reaction_rates(NUM_GRID_CELLS * NUM_USER_DEFINED_REACTION_RATES)
     type(string_t)            :: solver_state
     type(solver_stats_t)      :: solver_stats
     integer(c_int)            :: solver_type
     type(error_t)             :: error
-    real(c_double), parameter :: GAS_CONSTANT = 8.31446261815324_c_double ! J mol-1 K-1
+    real(real64), parameter :: GAS_CONSTANT = 8.31446261815324_real64 ! J mol-1 K-1
     integer                   :: A_index, B_index, C_index, D_index, E_index, F_index
     integer                   :: R1_index, R2_index
-    real(c_double)            :: initial_A, initial_C, initial_D, initial_F
-    real(c_double)            :: k1, k2, k3, k4
-    real(c_double)            :: A, B, C, D, E, F
+    real(real64)            :: initial_A, initial_C, initial_D, initial_F
+    real(real64)            :: k1, k2, k3, k4
+    real(real64)            :: A, B, C, D, E, F
     integer                   :: i_cell
     real                      :: temp
     type(ArrheniusReaction)   :: r1, r2
@@ -283,7 +284,7 @@ contains
     integer               :: num_grid_cells
     type(error_t)         :: error
 
-    real(c_double), parameter :: time_step = 200
+    real(real64), parameter :: time_step = 200
     real, parameter           :: test_accuracy = 5.0e-3
 
     num_grid_cells = 3
@@ -302,7 +303,7 @@ contains
     integer               :: num_grid_cells
     type(error_t)         :: error
 
-    real(c_double), parameter :: time_step = 200
+    real(real64), parameter :: time_step = 200
     real, parameter           :: test_accuracy = 5.0e-3
 
     num_grid_cells = 3
@@ -321,7 +322,7 @@ contains
     integer               :: num_grid_cells
     type(error_t)         :: error
 
-    real(c_double), parameter :: time_step = 10
+    real(real64), parameter :: time_step = 10
     real, parameter           :: test_accuracy = 0.1
 
     num_grid_cells = 3
@@ -340,7 +341,7 @@ contains
     integer               :: num_grid_cells
     type(error_t)         :: error
 
-    real(c_double), parameter :: time_step = 10
+    real(real64), parameter :: time_step = 10
     real, parameter           :: test_accuracy = 0.1
 
     num_grid_cells = 3
