@@ -60,8 +60,8 @@ contains
     real(real64), dimension(1,4)  :: concentrations 
     real(real64), dimension(1,3)  :: user_defined_reaction_rates 
     character(len=256)            :: config_path
-    integer(c_int)                :: solver_type
-    integer(c_int)                :: num_grid_cells
+    integer                       :: solver_type
+    integer                       :: num_grid_cells
     character(len=:), allocatable :: string_value
     real(real64)                  :: double_value
     integer(c_int)                :: int_value
@@ -191,7 +191,7 @@ contains
     real(real64), target      :: user_defined_reaction_rates(NUM_GRID_CELLS,NUM_USER_DEFINED_REACTION_RATES)
     type(string_t)            :: solver_state
     type(solver_stats_t)      :: solver_stats
-    integer(c_int)            :: solver_type
+    integer                   :: solver_type
     type(error_t)             :: error
     real(real64), parameter   :: GAS_CONSTANT = 8.31446261815324_real64 ! J mol-1 K-1
     integer                   :: A_index, B_index, C_index, D_index, E_index, F_index
