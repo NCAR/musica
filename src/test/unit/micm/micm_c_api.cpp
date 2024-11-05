@@ -314,12 +314,16 @@ double CalculateArrhenius(const ArrheniusReaction parameters, const double tempe
 }
 
 // Common test function for solving multiple grid cells with standard-ordered matrices
-void TestStandardMultipleGridCells(MICM* micm, const size_t num_grid_cells, const double time_step, const double test_accuracy)
+void TestStandardMultipleGridCells(
+    MICM* micm,
+    const size_t num_grid_cells,
+    const double time_step,
+    const double test_accuracy)
 {
   const size_t num_concentrations = 6;
   const size_t num_user_defined_reaction_rates = 2;
   constexpr double GAS_CONSTANT = 8.31446261815324;  // J mol-1 K-1
-  
+
   double* temperature = new double[num_grid_cells];
   double* pressure = new double[num_grid_cells];
   double* air_density = new double[num_grid_cells];
