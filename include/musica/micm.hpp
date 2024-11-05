@@ -26,7 +26,7 @@
 #include <vector>
 
 #ifndef MICM_VECTOR_MATRIX_SIZE
-  #define MICM_VECTOR_MATRIX_SIZE 1
+  #define MICM_VECTOR_MATRIX_SIZE 4
 #endif
 
 namespace musica
@@ -41,7 +41,8 @@ namespace musica
     /// @brief Types of MICM solver
     enum MICMSolver
     {
-      Rosenbrock = 1,              // Vector-ordered Rosenbrock solver
+      UndefinedSolver = 0,         // Undefined solver
+      Rosenbrock,                  // Vector-ordered Rosenbrock solver
       RosenbrockStandardOrder,     // Standard-ordered Rosenbrock solver
       BackwardEuler,               // Vector-ordered BackwardEuler solver
       BackwardEulerStandardOrder,  // Standard-ordered BackwardEuler solver

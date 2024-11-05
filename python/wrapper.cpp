@@ -14,7 +14,9 @@ PYBIND11_MODULE(musica, m)
 
   py::enum_<musica::MICMSolver>(m, "micmsolver")
       .value("rosenbrock", musica::MICMSolver::Rosenbrock)
-      .value("rosenbrock_standard_order", musica::MICMSolver::RosenbrockStandardOrder);
+      .value("rosenbrock_standard_order", musica::MICMSolver::RosenbrockStandardOrder)
+      .value("backward_euler", musica::MICMSolver::BackwardEuler)
+      .value("backward_euler_standard_order", musica::MICMSolver::BackwardEulerStandardOrder);
 
   m.def(
       "create_solver",
@@ -162,6 +164,14 @@ PYBIND11_MODULE(musica, m)
         {
           map = micm->rosenbrock_standard_.second.variable_map_;
         }
+        else if (micm->solver_type_ == musica::MICMSolver::BackwardEuler)
+        {
+          map = micm->backward_euler_.second.variable_map_;
+        }
+        else if (micm->solver_type_ == musica::MICMSolver::BackwardEulerStandardOrder)
+        {
+          map = micm->backward_euler_standard_.second.variable_map_;
+        }
 
         return map;
       },
@@ -182,11 +192,18 @@ PYBIND11_MODULE(musica, m)
         {
           map = micm->rosenbrock_standard_.second.custom_rate_parameter_map_;
         }
+        else if (micm->solver_type_ == musica::MICMSolver::BackwardEuler)
+        {
+          map = micm->backward_euler_.second.custom_rate_parameter_map_;
+        }
+        else if (micm->solver_type_ == musica::MICMSolver::BackwardEulerStandardOrder)
+        {
+          map = micm->backward_euler_standard_.second.custom_rate_parameter_map_;
+        }
 
         return map;
       },
       "Return map of reaction rates");
-
   /*
    * Wrap tuvx
    */
