@@ -41,7 +41,7 @@ namespace musica
     /// @brief A set of configuration data
     struct Configuration
     {
-      Yaml* data_;
+      Yaml* data_ = nullptr;
     };
 
     /// @brief A struct to represent a mapping between a string and an index
