@@ -13,7 +13,7 @@ class TestChapman(unittest.TestCase):
 
         solver = musica.create_solver(
             "configs/chapman",
-            musica.micmsolver.rosenbrock,
+            musica.micmsolver.rosenbrock_standard_order,
             num_grid_cells)
 
         rate_constant_ordering = musica.user_defined_reaction_rates(solver)
