@@ -57,8 +57,8 @@ contains
     real(real64)                  :: temperature(1)
     real(real64)                  :: pressure(1)
     real(real64)                  :: air_density(1)
-    real(real64), dimension(1,4)  :: concentrations 
-    real(real64), dimension(1,3)  :: user_defined_reaction_rates 
+    real(real64), dimension(4,1)  :: concentrations 
+    real(real64), dimension(3,1)  :: user_defined_reaction_rates 
     character(len=256)            :: config_path
     integer                       :: solver_type
     integer                       :: num_grid_cells
@@ -75,7 +75,7 @@ contains
     integer                       :: jO2_index, jO3a_index, jO3b_index
     
     config_path = "configs/chapman"
-    solver_type = Rosenbrock
+    solver_type = RosenbrockStandardOrder
     num_grid_cells = 1
     time_step = 200
 
@@ -103,13 +103,13 @@ contains
     pressure(1) = 101253.4
     air_density(:) = pressure(:) / ( GAS_CONSTANT * temperature(:) )
 
-    concentrations(1,O2_index) = 0.75
-    concentrations(1,O_index) = 0.0
-    concentrations(1,O1D_index) = 0.0
-    concentrations(1,O3_index) = 0.0000081
-    user_defined_reaction_rates(1,jO2_index) = 2.7e-19
-    user_defined_reaction_rates(1,jO3a_index) = 1.13e-9
-    user_defined_reaction_rates(1,jO3b_index) = 5.8e-8
+    concentrations(O2_index,1) = 0.75
+    concentrations(O_index,1) = 0.0
+    concentrations(O1D_index,1) = 0.0
+    concentrations(O3_index,1) = 0.0000081
+    user_defined_reaction_rates(jO2_index,1) = 2.7e-19
+    user_defined_reaction_rates(jO3a_index,1) = 1.13e-9
+    user_defined_reaction_rates(jO3b_index,1) = 5.8e-8
     
     micm_version = get_micm_version()
     print *, "[test micm fort api] MICM version ", micm_version%get_char_array()
