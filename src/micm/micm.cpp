@@ -442,10 +442,12 @@ namespace musica
         cond.air_density_ = air_density[i_cond++];
       }
       std::size_t i_species_elem = 0;
-      for (auto &var : state.variables_.AsVector()) var = concentrations[i_species_elem++];
+      for (auto &var : state.variables_.AsVector())
+        var = concentrations[i_species_elem++];
 
       std::size_t i_custom_rate_elem = 0;
-      for (auto &var : state.custom_rate_parameters_.AsVector()) var = custom_rate_parameters[i_custom_rate_elem++];
+      for (auto &var : state.custom_rate_parameters_.AsVector())
+        var = custom_rate_parameters[i_custom_rate_elem++];
 
       solver->CalculateRateConstants(state);
       auto result = solver->Solve(time_step, state);
@@ -463,7 +465,8 @@ namespace musica
           result.final_time_);
 
       i_species_elem = 0;
-      for (auto &var : state.variables_.AsVector()) concentrations[i_species_elem++] = var;
+      for (auto &var : state.variables_.AsVector())
+        concentrations[i_species_elem++] = var;
 
       DeleteError(error);
       *error = NoError();
