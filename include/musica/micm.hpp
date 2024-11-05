@@ -17,10 +17,12 @@
 #include <micm/util/sparse_matrix_vector_ordering.hpp>
 #include <micm/util/vector_matrix.hpp>
 
+#include <chrono>
 #include <cstddef>
 #include <map>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #ifndef MICM_VECTOR_MATRIX_SIZE
@@ -39,8 +41,10 @@ namespace musica
     /// @brief Types of MICM solver
     enum MICMSolver
     {
-      Rosenbrock = 1,           // Vector-ordered Rosenbrock solver
-      RosenbrockStandardOrder,  // Standard-ordered Rosenbrock solver
+      Rosenbrock = 1,              // Vector-ordered Rosenbrock solver
+      RosenbrockStandardOrder,     // Standard-ordered Rosenbrock solver
+      BackwardEuler,               // Vector-ordered BackwardEuler solver
+      BackwardEulerStandardOrder,  // Standard-ordered BackwardEuler solver
     };
 
     struct SolverResultStats
@@ -59,8 +63,6 @@ namespace musica
       int64_t decompositions_{};
       /// @brief The number of linear solves
       int64_t solves_{};
-      /// @brief The number of times a singular matrix is detected.
-      int64_t singular_{};
       /// @brief The final time the solver iterated to
       double final_time_{};
       /// @brief The final state the solver was in
@@ -73,7 +75,6 @@ namespace musica
             rejected_(0),
             decompositions_(0),
             solves_(0),
-            singular_(0),
             final_time_(0.0)
       {
       }
@@ -86,7 +87,6 @@ namespace musica
           int64_t rejected,
           int64_t decompositions,
           int64_t solves,
-          int64_t singular,
           double final_time)
           : function_calls_(func_calls),
             jacobian_updates_(jacobian),
@@ -95,7 +95,6 @@ namespace musica
             rejected_(rejected),
             decompositions_(decompositions),
             solves_(solves),
-            singular_(singular),
             final_time_(final_time)
       {
       }
@@ -107,23 +106,57 @@ namespace musica
     /// @param num_grid_cells Number of grid cells
     /// @param error Error struct to indicate success or failure
     MICM *CreateMicm(const char *config_path, MICMSolver solver_type, int num_grid_cells, Error *error);
+
+    /// @brief Deletes a MICM object
+    /// @param micm Pointer to MICM object
+    /// @param error Error struct to indicate success or failure
     void DeleteMicm(const MICM *micm, Error *error);
+
+    /// @brief Solve the system
+    /// @param micm Pointer to MICM object
+    /// @param time_step Time [s] to advance the state by
+    /// @param temperature Temperature [grid cell] (K)
+    /// @param pressure Pressure [grid cell] (Pa)
+    /// @param air_density Air density [grid cell] (mol m-3)
+    /// @param concentrations Array of species' concentrations [grid cell][species] (mol m-3)
+    /// @param custom_rate_parameters Array of custom rate parameters [grid cell][parameter] (various units)
+    /// @param solver_state State of the solver
+    /// @param solver_stats Statistics of the solver
+    /// @param error Error struct to indicate success or failure
     void MicmSolve(
         MICM *micm,
         double time_step,
-        double temperature,
-        double pressure,
-        double air_density,
-        int num_concentrations,
+        double *temperature,
+        double *pressure,
+        double *air_density,
         double *concentrations,
-        int num_custom_rate_parameters,
         double *custom_rate_parameters,
         String *solver_state,
         SolverResultStats *solver_stats,
         Error *error);
+
+    /// @brief Get the MICM version
+    /// @return MICM version
     String MicmVersion();
-    Mapping *GetSpeciesOrdering(MICM *micm, std::size_t *array_size, Error *error);
-    Mapping *GetUserDefinedReactionRatesOrdering(MICM *micm, std::size_t *array_size, Error *error);
+
+    /// @brief Get the ordering of species
+    /// @param micm Pointer to MICM object
+    /// @param error Error struct to indicate success or failure
+    /// @return Array of species' name-index pairs
+    Mappings GetSpeciesOrdering(MICM *micm, Error *error);
+
+    /// @brief Get the ordering of user-defined reaction rates
+    /// @param micm Pointer to MICM object
+    /// @param error Error struct to indicate success or failure
+    /// @return Array of reaction rate name-index pairs
+    Mappings GetUserDefinedReactionRatesOrdering(MICM *micm, Error *error);
+
+    /// @brief Get a property for a chemical species
+    /// @param micm Pointer to MICM object
+    /// @param species_name Name of the species
+    /// @param property_name Name of the property
+    /// @param error Error struct to indicate success or failure
+    /// @return Value of the property
     String GetSpeciesPropertyString(MICM *micm, const char *species_name, const char *property_name, Error *error);
     double GetSpeciesPropertyDouble(MICM *micm, const char *species_name, const char *property_name, Error *error);
     int GetSpeciesPropertyInt(MICM *micm, const char *species_name, const char *property_name, Error *error);
@@ -145,26 +178,32 @@ namespace musica
     /// @param error Error struct to indicate success or failure
     void CreateRosenbrockStandardOrder(const std::string &config_path, Error *error);
 
+    /// @brief Create a BackwardEuler solver of vector-ordered matrix type by reading and parsing configuration file
+    /// @param config_path Path to configuration file or directory containing configuration file
+    /// @param error Error struct to indicate success or failure
+    void CreateBackwardEuler(const std::string &config_path, Error *error);
+
+    /// @brief Create a BackwardEuler solver of standard-ordered matrix type by reading and parsing configuration file
+    /// @param config_path Path to configuration file or directory containing configuration file
+    /// @param error Error struct to indicate success or failure
+    void CreateBackwardEulerStandardOrder(const std::string &config_path, Error *error);
+
     /// @brief Solve the system
-    /// @param solver Pointer to solver
+    /// @param solver_state_pair A pair containing a pointer to a solver and a state for that solver (temporary fix)
     /// @param time_step Time [s] to advance the state by
-    /// @param temperature Temperature [K]
-    /// @param pressure Pressure [Pa]
-    /// @param air_density Air density [mol m-3]
-    /// @param num_concentrations The size of the concentrations array
-    /// @param concentrations Array of species' concentrations
-    /// @param num_custom_rate_parameters The size of the custom_rate_parameters array
-    /// @param custom_rate_parameters Array of custom rate parameters
+    /// @param temperature Temperature [grid cell] (K)
+    /// @param pressure Pressure [grid cell] (Pa)
+    /// @param air_density Air density [grid cell] (mol m-3)
+    /// @param concentrations Array of species' concentrations [grid cell][species] (mol m-3)
+    /// @param custom_rate_parameters Array of custom rate parameters [grid cell][parameter] (various units)
     /// @param error Error struct to indicate success or failure
     void Solve(
-        auto &solver,
+        auto &solver_state_pair,
         double time_step,
-        double temperature,
-        double pressure,
-        double air_density,
-        int num_concentrations,
+        double *temperature,
+        double *pressure,
+        double *air_density,
         double *concentrations,
-        int num_custom_rate_parameters,
         double *custom_rate_parameters,
         String *solver_state,
         SolverResultStats *solver_stats,
@@ -184,21 +223,6 @@ namespace musica
       num_grid_cells_ = num_grid_cells;
     }
 
-    /// @brief Get the ordering of species
-    /// @param solver Pointer to solver
-    /// @param error Error struct to indicate success or failure
-    /// @return Map of species names to their indices
-    // std::map<std::string, std::size_t> GetSpeciesOrdering(auto &solver, Error *error);
-    template<class T>
-    std::map<std::string, std::size_t> GetSpeciesOrdering(T &solver, Error *error);
-
-    /// @brief Get the ordering of user-defined reaction rates
-    /// @param solver Pointer to solver
-    /// @param error Error struct to indicate success or failure
-    /// @return Map of reaction rate names to their indices
-    template<class T>
-    std::map<std::string, std::size_t> GetUserDefinedReactionRatesOrdering(T &solver, Error *error);
-
     /// @brief Get a property for a chemical species
     /// @param species_name Name of the species
     /// @param property_name Name of the property
@@ -210,13 +234,14 @@ namespace musica
    public:
     MICMSolver solver_type_;
 
-    /// @brief Vector-ordered Rosenbrock solver type
+    /// @brief Vector-ordered Rosenbrock
     using DenseMatrixVector = micm::VectorMatrix<double, MICM_VECTOR_MATRIX_SIZE>;
     using SparseMatrixVector = micm::SparseMatrix<double, micm::SparseMatrixVectorOrdering<MICM_VECTOR_MATRIX_SIZE>>;
     using RosenbrockVectorType = typename micm::RosenbrockSolverParameters::
         template SolverType<micm::ProcessSet, micm::LinearSolver<SparseMatrixVector, micm::LuDecomposition>>;
     using Rosenbrock = micm::Solver<RosenbrockVectorType, micm::State<DenseMatrixVector, SparseMatrixVector>>;
-    std::unique_ptr<Rosenbrock> rosenbrock_;
+    using VectorState = micm::State<DenseMatrixVector, SparseMatrixVector>;
+    std::pair<std::unique_ptr<Rosenbrock>, VectorState> rosenbrock_;
 
     /// @brief Standard-ordered Rosenbrock solver type
     using DenseMatrixStandard = micm::Matrix<double>;
@@ -224,48 +249,33 @@ namespace musica
     using RosenbrockStandardType = typename micm::RosenbrockSolverParameters::
         template SolverType<micm::ProcessSet, micm::LinearSolver<SparseMatrixStandard, micm::LuDecomposition>>;
     using RosenbrockStandard = micm::Solver<RosenbrockStandardType, micm::State<DenseMatrixStandard, SparseMatrixStandard>>;
-    std::unique_ptr<RosenbrockStandard> rosenbrock_standard_;
+    using StandardState = micm::State<DenseMatrixStandard, SparseMatrixStandard>;
+    std::pair<std::unique_ptr<RosenbrockStandard>, StandardState> rosenbrock_standard_;
+
+    /// @brief Vector-ordered Backward Euler
+    using BackwardEulerVectorType = typename micm::BackwardEulerSolverParameters::
+        template SolverType<micm::ProcessSet, micm::LinearSolver<SparseMatrixVector, micm::LuDecomposition>>;
+    using BackwardEuler = micm::Solver<BackwardEulerVectorType, micm::State<DenseMatrixVector, SparseMatrixVector>>;
+    std::pair<std::unique_ptr<BackwardEuler>, VectorState> backward_euler_;
+
+    /// @brief Standard-ordered Backward Euler
+    using BackwardEulerStandardType = typename micm::BackwardEulerSolverParameters::
+        template SolverType<micm::ProcessSet, micm::LinearSolver<SparseMatrixStandard, micm::LuDecomposition>>;
+    using BackwardEulerStandard =
+        micm::Solver<BackwardEulerStandardType, micm::State<DenseMatrixStandard, SparseMatrixStandard>>;
+    std::pair<std::unique_ptr<BackwardEulerStandard>, StandardState> backward_euler_standard_;
+
+    /// @brief Returns the number of grid cells
+    /// @return Number of grid cells
+    int NumGridCells() const
+    {
+      return num_grid_cells_;
+    }
 
    private:
     int num_grid_cells_;
     std::unique_ptr<micm::SolverParameters> solver_parameters_;
   };
-
-  template<class T>
-  inline std::map<std::string, std::size_t> MICM::GetSpeciesOrdering(T &solver, Error *error)
-  {
-    try
-    {
-      micm::State state = solver->GetState();
-      DeleteError(error);
-      *error = NoError();
-      return state.variable_map_;
-    }
-    catch (const std::system_error &e)
-    {
-      DeleteError(error);
-      *error = ToError(e);
-      return std::map<std::string, std::size_t>();
-    }
-  }
-
-  template<class T>
-  inline std::map<std::string, std::size_t> MICM::GetUserDefinedReactionRatesOrdering(T &solver, Error *error)
-  {
-    try
-    {
-      micm::State state = solver->GetState();
-      DeleteError(error);
-      *error = NoError();
-      return state.custom_rate_parameter_map_;
-    }
-    catch (const std::system_error &e)
-    {
-      DeleteError(error);
-      *error = ToError(e);
-      return std::map<std::string, std::size_t>();
-    }
-  }
 
   template<class T>
   inline T MICM::GetSpeciesProperty(const std::string &species_name, const std::string &property_name, Error *error)

@@ -37,6 +37,16 @@ namespace musica
       micm->SetSolverType(MICMSolver::RosenbrockStandardOrder);
       micm->CreateRosenbrockStandardOrder(std::string(config_path), error);
     }
+    else if (solver_type == MICMSolver::BackwardEuler)
+    {
+      micm->SetSolverType(MICMSolver::BackwardEuler);
+      micm->CreateBackwardEuler(std::string(config_path), error);
+    }
+    else if (solver_type == MICMSolver::BackwardEulerStandardOrder)
+    {
+      micm->SetSolverType(MICMSolver::BackwardEulerStandardOrder);
+      micm->CreateBackwardEulerStandardOrder(std::string(config_path), error);
+    }
     else
     {
       std::string msg = "Solver type '" + std::to_string(solver_type) + "' not found";
@@ -49,7 +59,6 @@ namespace musica
       delete micm;
       return nullptr;
     }
-
     return micm;
   }
 
@@ -75,12 +84,10 @@ namespace musica
   void MicmSolve(
       MICM *micm,
       double time_step,
-      double temperature,
-      double pressure,
-      double air_density,
-      int num_concentrations,
+      double *temperature,
+      double *pressure,
+      double *air_density,
       double *concentrations,
-      int num_custom_rate_parameters,
       double *custom_rate_parameters,
       String *solver_state,
       SolverResultStats *solver_stats,
@@ -96,9 +103,7 @@ namespace musica
           temperature,
           pressure,
           air_density,
-          num_concentrations,
           concentrations,
-          num_custom_rate_parameters,
           custom_rate_parameters,
           solver_state,
           solver_stats,
@@ -112,9 +117,35 @@ namespace musica
           temperature,
           pressure,
           air_density,
-          num_concentrations,
           concentrations,
-          num_custom_rate_parameters,
+          custom_rate_parameters,
+          solver_state,
+          solver_stats,
+          error);
+    }
+    else if (micm->solver_type_ == MICMSolver::BackwardEuler)
+    {
+      micm->Solve(
+          micm->backward_euler_,
+          time_step,
+          temperature,
+          pressure,
+          air_density,
+          concentrations,
+          custom_rate_parameters,
+          solver_state,
+          solver_stats,
+          error);
+    }
+    else if (micm->solver_type_ == MICMSolver::BackwardEulerStandardOrder)
+    {
+      micm->Solve(
+          micm->backward_euler_standard_,
+          time_step,
+          temperature,
+          pressure,
+          air_density,
+          concentrations,
           custom_rate_parameters,
           solver_state,
           solver_stats,
@@ -127,7 +158,7 @@ namespace musica
     return CreateString(micm::GetMicmVersion());
   }
 
-  Mapping *GetSpeciesOrdering(MICM *micm, std::size_t *array_size, Error *error)
+  Mappings GetSpeciesOrdering(MICM *micm, Error *error)
   {
     DeleteError(error);
 
@@ -135,33 +166,45 @@ namespace musica
 
     if (micm->solver_type_ == MICMSolver::Rosenbrock)
     {
-      map = micm->GetSpeciesOrdering(micm->rosenbrock_, error);
+      map = micm->rosenbrock_.second.variable_map_;
     }
     else if (micm->solver_type_ == MICMSolver::RosenbrockStandardOrder)
     {
-      map = micm->GetSpeciesOrdering(micm->rosenbrock_standard_, error);
+      map = micm->rosenbrock_standard_.second.variable_map_;
+    }
+    else if (micm->solver_type_ == MICMSolver::BackwardEuler)
+    {
+      map = micm->backward_euler_.second.variable_map_;
+    }
+    else if (micm->solver_type_ == MICMSolver::BackwardEulerStandardOrder)
+    {
+      map = micm->backward_euler_standard_.second.variable_map_;
+    }
+    else
+    {
+      std::string msg = "Solver type '" + std::to_string(micm->solver_type_) + "' not found";
+      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND, msg.c_str());
     }
     if (!IsSuccess(*error))
     {
-      return nullptr;
+      return Mappings();
     }
 
-    Mapping *species_ordering = new Mapping[map.size()];
+    Mappings species_ordering;
+    species_ordering.mappings_ = new Mapping[map.size()];
+    species_ordering.size_ = map.size();
 
     // Copy data from the map to the array of structs
     std::size_t i = 0;
     for (const auto &entry : map)
     {
-      species_ordering[i] = ToMapping(entry.first.c_str(), entry.second);
+      species_ordering.mappings_[i] = ToMapping(entry.first.c_str(), entry.second);
       ++i;
     }
-
-    // Set the size of the array
-    *array_size = map.size();
     return species_ordering;
   }
 
-  Mapping *GetUserDefinedReactionRatesOrdering(MICM *micm, std::size_t *array_size, Error *error)
+  Mappings GetUserDefinedReactionRatesOrdering(MICM *micm, Error *error)
   {
     DeleteError(error);
 
@@ -169,30 +212,42 @@ namespace musica
 
     if (micm->solver_type_ == MICMSolver::Rosenbrock)
     {
-      map = micm->GetUserDefinedReactionRatesOrdering(micm->rosenbrock_, error);
+      map = micm->rosenbrock_.second.custom_rate_parameter_map_;
     }
     else if (micm->solver_type_ == MICMSolver::RosenbrockStandardOrder)
     {
-      map = micm->GetUserDefinedReactionRatesOrdering(micm->rosenbrock_standard_, error);
+      map = micm->rosenbrock_standard_.second.custom_rate_parameter_map_;
+    }
+    else if (micm->solver_type_ == MICMSolver::BackwardEuler)
+    {
+      map = micm->backward_euler_.second.custom_rate_parameter_map_;
+    }
+    else if (micm->solver_type_ == MICMSolver::BackwardEulerStandardOrder)
+    {
+      map = micm->backward_euler_standard_.second.custom_rate_parameter_map_;
+    }
+    else
+    {
+      std::string msg = "Solver type '" + std::to_string(micm->solver_type_) + "' not found";
+      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND, msg.c_str());
     }
     if (!IsSuccess(*error))
     {
-      return nullptr;
+      return Mappings();
     }
 
-    Mapping *reactionRates = new Mapping[map.size()];
+    Mappings reaction_rates;
+    reaction_rates.mappings_ = new Mapping[map.size()];
+    reaction_rates.size_ = map.size();
 
     // Copy data from the map to the array of structs
     std::size_t i = 0;
     for (const auto &entry : map)
     {
-      reactionRates[i] = ToMapping(entry.first.c_str(), entry.second);
+      reaction_rates.mappings_[i] = ToMapping(entry.first.c_str(), entry.second);
       ++i;
     }
-
-    // Set the size of the array
-    *array_size = map.size();
-    return reactionRates;
+    return reaction_rates;
   }
 
   String GetSpeciesPropertyString(MICM *micm, const char *species_name, const char *property_name, Error *error)
@@ -234,46 +289,46 @@ namespace musica
 
   void MICM::CreateRosenbrock(const std::string &config_path, Error *error)
   {
+    DeleteError(error);
     try
     {
       micm::SolverConfig<> solver_config;
       solver_config.ReadAndParse(std::filesystem::path(config_path));
       solver_parameters_ = std::make_unique<micm::SolverParameters>(solver_config.GetSolverParams());
 
-      rosenbrock_ = std::make_unique<Rosenbrock>(
-          micm::SolverBuilder<
+      auto solver = std::make_unique<Rosenbrock>(
+          micm::CpuSolverBuilder<
               micm::RosenbrockSolverParameters,
               micm::VectorMatrix<double, MICM_VECTOR_MATRIX_SIZE>,
-              micm::SparseMatrix<double, micm::SparseMatrixVectorOrdering<MICM_VECTOR_MATRIX_SIZE>>,
-              micm::ProcessSet,
-              micm::LinearSolver<
-                  micm::SparseMatrix<double, micm::SparseMatrixVectorOrdering<MICM_VECTOR_MATRIX_SIZE>>,
-                  micm::LuDecomposition>>(micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())
+              micm::SparseMatrix<double, micm::SparseMatrixVectorOrdering<MICM_VECTOR_MATRIX_SIZE>>>(
+              micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())
               .SetSystem(solver_parameters_->system_)
               .SetReactions(solver_parameters_->processes_)
               .SetNumberOfGridCells(num_grid_cells_)
               .SetIgnoreUnusedSpecies(true)
               .Build());
+      auto state = solver->GetState();
 
-      DeleteError(error);
+      rosenbrock_ = std::pair<std::unique_ptr<Rosenbrock>, VectorState>(std::move(solver), std::move(state));
+
       *error = NoError();
     }
     catch (const std::system_error &e)
     {
-      DeleteError(error);
       *error = ToError(e);
     }
   }
 
   void MICM::CreateRosenbrockStandardOrder(const std::string &config_path, Error *error)
   {
+    DeleteError(error);
     try
     {
       micm::SolverConfig<> solver_config;
       solver_config.ReadAndParse(std::filesystem::path(config_path));
       solver_parameters_ = std::make_unique<micm::SolverParameters>(solver_config.GetSolverParams());
 
-      rosenbrock_standard_ =
+      auto solver =
           std::make_unique<RosenbrockStandard>(micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
                                                    micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())
                                                    .SetSystem(solver_parameters_->system_)
@@ -281,6 +336,9 @@ namespace musica
                                                    .SetNumberOfGridCells(num_grid_cells_)
                                                    .SetIgnoreUnusedSpecies(true)
                                                    .Build());
+      auto state = solver->GetState();
+      rosenbrock_standard_ =
+          std::pair<std::unique_ptr<RosenbrockStandard>, StandardState>(std::move(solver), std::move(state));
 
       DeleteError(error);
       *error = NoError();
@@ -292,15 +350,78 @@ namespace musica
     }
   }
 
+  void MICM::CreateBackwardEuler(const std::string &config_path, Error *error)
+  {
+    try
+    {
+      micm::SolverConfig<> solver_config;
+      solver_config.ReadAndParse(std::filesystem::path(config_path));
+      solver_parameters_ = std::make_unique<micm::SolverParameters>(solver_config.GetSolverParams());
+
+      auto solver = std::make_unique<BackwardEuler>(
+          micm::SolverBuilder<
+              micm::BackwardEulerSolverParameters,
+              micm::VectorMatrix<double, MICM_VECTOR_MATRIX_SIZE>,
+              micm::SparseMatrix<double, micm::SparseMatrixVectorOrdering<MICM_VECTOR_MATRIX_SIZE>>,
+              micm::ProcessSet,
+              micm::LinearSolver<
+                  micm::SparseMatrix<double, micm::SparseMatrixVectorOrdering<MICM_VECTOR_MATRIX_SIZE>>,
+                  micm::LuDecomposition>,
+              VectorState>(micm::BackwardEulerSolverParameters())
+              .SetSystem(solver_parameters_->system_)
+              .SetReactions(solver_parameters_->processes_)
+              .SetNumberOfGridCells(num_grid_cells_)
+              .SetIgnoreUnusedSpecies(true)
+              .Build());
+      auto state = solver->GetState();
+
+      backward_euler_ = std::pair<std::unique_ptr<BackwardEuler>, VectorState>(std::move(solver), std::move(state));
+
+      DeleteError(error);
+      *error = NoError();
+    }
+    catch (const std::system_error &e)
+    {
+      DeleteError(error);
+      *error = ToError(e);
+    }
+  }
+
+  void MICM::CreateBackwardEulerStandardOrder(const std::string &config_path, Error *error)
+  {
+    try
+    {
+      micm::SolverConfig<> solver_config;
+      solver_config.ReadAndParse(std::filesystem::path(config_path));
+      solver_parameters_ = std::make_unique<micm::SolverParameters>(solver_config.GetSolverParams());
+
+      auto solver = std::make_unique<BackwardEulerStandard>(
+          micm::CpuSolverBuilder<micm::BackwardEulerSolverParameters>(micm::BackwardEulerSolverParameters())
+              .SetSystem(solver_parameters_->system_)
+              .SetReactions(solver_parameters_->processes_)
+              .SetNumberOfGridCells(num_grid_cells_)
+              .SetIgnoreUnusedSpecies(true)
+              .Build());
+      auto state = solver->GetState();
+
+      backward_euler_standard_ =
+          std::pair<std::unique_ptr<BackwardEulerStandard>, StandardState>(std::move(solver), std::move(state));
+
+      *error = NoError();
+    }
+    catch (const std::system_error &e)
+    {
+      *error = ToError(e);
+    }
+  }
+
   void MICM::Solve(
-      auto &solver,
+      auto &solver_state_pair,
       double time_step,
-      double temperature,
-      double pressure,
-      double air_density,
-      int num_concentrations,
+      double *temperature,
+      double *pressure,
+      double *air_density,
       double *concentrations,
-      int num_custom_rate_parameters,
       double *custom_rate_parameters,
       String *solver_state,
       SolverResultStats *solver_stats,
@@ -308,19 +429,27 @@ namespace musica
   {
     try
     {
-      micm::State state = solver->GetState();
+      auto &solver = solver_state_pair.first;
+      auto &state = solver_state_pair.second;
+      const std::size_t num_species = state.variables_.NumColumns();
+      const std::size_t num_custom_rate_parameters = state.custom_rate_parameters_.NumColumns();
 
-      for (int cell{}; cell < num_grid_cells_; cell++)
+      int i_species_elem = 0;
+      int i_param_elem = 0;
+      for (int i_cell{}; i_cell < num_grid_cells_; ++i_cell)
       {
-        state.conditions_[cell].temperature_ = temperature;
-        state.conditions_[cell].pressure_ = pressure;
-        state.conditions_[cell].air_density_ = air_density;
+        state.conditions_[i_cell].temperature_ = temperature[i_cell];
+        state.conditions_[i_cell].pressure_ = pressure[i_cell];
+        state.conditions_[i_cell].air_density_ = air_density[i_cell];
+        for (int i_species{}; i_species < num_species; ++i_species)
+        {
+          state.variables_[i_cell][i_species] = concentrations[i_species_elem++];
+        }
+        for (int i_param{}; i_param < num_custom_rate_parameters; ++i_param)
+        {
+          state.custom_rate_parameters_[i_cell][i_param] = custom_rate_parameters[i_param_elem++];
+        }
       }
-
-      state.variables_.AsVector().assign(concentrations, concentrations + num_concentrations);
-
-      state.custom_rate_parameters_.AsVector().assign(
-          custom_rate_parameters, custom_rate_parameters + num_custom_rate_parameters);
 
       solver->CalculateRateConstants(state);
       auto result = solver->Solve(time_step, state);
@@ -335,12 +464,15 @@ namespace musica
           result.stats_.rejected_,
           result.stats_.decompositions_,
           result.stats_.solves_,
-          result.stats_.singular_,
           result.final_time_);
 
-      for (int i = 0; i < state.variables_.AsVector().size(); i++)
+      i_species_elem = 0;
+      for (int i_cell{}; i_cell < num_grid_cells_; ++i_cell)
       {
-        concentrations[i] = state.variables_.AsVector()[i];
+        for (int i_species{}; i_species < num_species; ++i_species)
+        {
+          concentrations[i_species_elem++] = state.variables_[i_cell][i_species];
+        }
       }
 
       DeleteError(error);

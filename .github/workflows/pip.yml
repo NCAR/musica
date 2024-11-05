@@ -34,4 +34,4 @@ jobs:
       run: pip install --verbose .[test]
 
     - name: Test
-      run: python -m unittest discover -s python/test
+      run: python -m unittest discover -v -s python/test

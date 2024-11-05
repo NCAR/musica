@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 #pragma once
 
-#include <musica/tuvx/grid.hpp>
 #include <musica/util.hpp>
 
 #include <memory>
@@ -13,10 +12,12 @@ namespace musica
 {
   class GridMap;
   class Profile;
+  class Radiator;
 
-  /// @brief A grid struct used to access grid information in tuvx
-  struct Grid
+  /// @brief A grid class used to access grid information in tuvx
+  class Grid
   {
+   public:
     /// @brief Creates a grid instance
     /// @param grid_name The name of the grid
     /// @param units The units of the grid
@@ -25,6 +26,11 @@ namespace musica
     Grid(const char *grid_name, const char *units, std::size_t num_sections, Error *error);
 
     ~Grid();
+
+    /// @brief Return the number of sections in the grid
+    /// @param error The error struct to indicate success or failure
+    /// @return The number of sections in the grid
+    std::size_t GetNumSections(Error *error);
 
     /// @brief Set the edges of the grid
     /// @param edges The edges of the grid
@@ -56,6 +62,7 @@ namespace musica
 
     friend class GridMap;
     friend class Profile;
+    friend class Radiator;
 
     /// @brief Wraps an existing grid instance. Used by GridMap
     /// @param updater The updater for the grid
@@ -80,6 +87,12 @@ namespace musica
     /// @param num_sections The number of sections in the grid
     /// @param error The error struct to indicate success or failure
     Grid *CreateGrid(const char *grid_name, const char *units, std::size_t num_sections, Error *error);
+
+    /// @brief Gets the number of sections in the grid
+    /// @param grid The grid to get the number of sections from
+    /// @param error The error struct to indicate success or failure
+    /// @return The number of sections in the grid
+    std::size_t GetGridNumSections(Grid *grid, Error *error);
 
     /// @brief Deletes a TUV-x grid instance
     /// @param grid The grid to delete
@@ -129,6 +142,7 @@ namespace musica
     void InternalDeleteGridUpdater(void *updater, int *error_code);
     std::string InternalGetGridName(void *grid, int *error_code);
     std::string InternalGetGridUnits(void *grid, int *error_code);
+    std::size_t InternalGetNumSections(void *grid, int *error_code);
     void InternalSetEdges(void *grid, double edges[], std::size_t num_edges, int *error_code);
     void InternalGetEdges(void *grid, double edges[], std::size_t num_edges, int *error_code);
     void InternalSetMidpoints(void *grid, double midpoints[], std::size_t num_midpoints, int *error_code);

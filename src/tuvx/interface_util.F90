@@ -1,6 +1,6 @@
 ! Copyright (C) 2023-2024 National Center for Atmospheric Research
 ! SPDX-License-Identifier: Apache-2.0
-module musica_tuvx_util
+module tuvx_interface_util
 
   use iso_c_binding,                   only: c_char, c_int, c_ptr, c_size_t, &
                                              c_null_ptr, c_f_pointer
@@ -9,7 +9,8 @@ module musica_tuvx_util
   private
 
   public :: string_t_c, string_t, error_t_c, error_t, mapping_t_c, mapping_t, &
-            to_c_string, to_f_string, assert, copy_mappings, delete_string_c
+            mappings_t_c, to_c_string, to_f_string, assert, delete_string_c, &
+            create_string_t_c, delete_string_t_c, allocate_mappings_c
 
   !> Wrapper for a c string
   type, bind(c) :: string_t_c
@@ -81,12 +82,22 @@ module musica_tuvx_util
     module procedure mapping_constructor
   end interface mapping_t
 
+  type, bind(c) :: mappings_t_c
+    type(c_ptr) :: mappings_ = c_null_ptr
+    integer(c_size_t) :: size_ = 0_c_size_t
+  end type mappings_t_c
+
   interface
     function create_string_c( string ) bind(c, name="CreateString")
       import :: string_t_c, c_char
       character(kind=c_char, len=1), intent(in) :: string(*)
       type(string_t_c) :: create_string_c
     end function create_string_c
+    function allocate_mappings_c( size ) bind(c, name="AllocateMappingArray")
+      import :: c_size_t, c_ptr
+      integer(c_size_t), value, intent(in) :: size
+      type(c_ptr) :: allocate_mappings_c
+    end function allocate_mappings_c
     subroutine delete_string_c( string ) bind(c, name="DeleteString")
       import :: string_t_c
       type(string_t_c), intent(inout) :: string
@@ -293,26 +304,6 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  !> Copies mappings from a c array to a fortran array
-  function copy_mappings( c_mappings, n_mappings ) result( f_mappings )
-
-    type(c_ptr), intent(in) :: c_mappings
-    integer(c_size_t), intent(in) :: n_mappings
-    type(mapping_t), allocatable :: f_mappings(:)
-
-    integer :: i
-    type(mapping_t_c), pointer :: mappings(:)
-
-    call c_f_pointer( c_mappings, mappings, [ n_mappings ] )
-    allocate( f_mappings( n_mappings ) )
-    do i = 1, n_mappings
-      f_mappings(i) = mappings(i)
-    end do
-
-  end function copy_mappings
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
   !> Convert a fortran character array to a c string
   function to_c_string( f_string ) result( c_string )
 
@@ -331,6 +322,39 @@ contains
     c_string(N + 1) = c_null_char
 
   end function to_c_string
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  !> Creates a new string_t_c from a fortran character array
+  function create_string_t_c( f_string ) result( c_string )
+
+    character(len=*), intent(in) :: f_string
+    type(string_t_c) :: c_string
+
+    c_string = create_string_c( to_c_string( f_string ) )
+
+  end function create_string_t_c
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  !> Delete a string_t_c object
+  subroutine delete_string_t_c( string ) &
+      bind(c, name="InternalDeleteString")
+    use iso_c_binding,                 only : c_char, c_null_ptr, c_size_t, &
+                                              c_f_pointer, c_associated
+
+    type(string_t_c), intent(inout) :: string
+
+    character(kind=c_char, len=1), pointer :: c_string_ptr(:)
+
+    if ( c_associated( string%ptr_ ) ) then
+      call c_f_pointer( string%ptr_, c_string_ptr, [ string%size_ + 1 ] )
+      deallocate( c_string_ptr )
+      string%ptr_ = c_null_ptr
+      string%size_ = 0_c_size_t
+    end if
+
+  end subroutine delete_string_t_c
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -381,4 +405,4 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-end module musica_tuvx_util
+end module tuvx_interface_util

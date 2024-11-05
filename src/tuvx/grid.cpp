@@ -32,6 +32,11 @@ namespace musica
     *error = NoError();
   }
 
+  std::size_t GetGridNumSections(Grid *grid, Error *error)
+  {
+    return grid->GetNumSections(error);
+  }
+
   void SetGridEdges(Grid *grid, double edges[], std::size_t num_edges, Error *error)
   {
     DeleteError(error);
@@ -86,6 +91,18 @@ namespace musica
       InternalDeleteGridUpdater(updater_, &error_code);
     grid_ = nullptr;
     updater_ = nullptr;
+  }
+
+  std::size_t Grid::GetNumSections(Error *error)
+  {
+    int error_code = 0;
+    std::size_t n_sections = InternalGetNumSections(updater_, &error_code);
+    if (error_code != 0)
+    {
+      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get number of sections") };
+      return 0;
+    }
+    return n_sections;
   }
 
   void Grid::SetEdges(double edges[], std::size_t num_edges, Error *error)

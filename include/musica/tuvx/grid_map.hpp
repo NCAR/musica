@@ -3,7 +3,6 @@
 #pragma once
 
 #include <musica/tuvx/grid.hpp>
-#include <musica/tuvx/grid_map.hpp>
 #include <musica/util.hpp>
 
 #include <memory>
@@ -13,9 +12,10 @@
 namespace musica
 {
 
-  /// @brief A grid map struct used to access grid information in tuvx
-  struct GridMap
+  /// @brief A grid map class used to access grid information in tuvx
+  class GridMap
   {
+   public:
     GridMap(void *grid_map)
         : grid_map_(grid_map),
           owns_grid_map_(false)
@@ -44,6 +44,8 @@ namespace musica
    private:
     void *grid_map_;
     bool owns_grid_map_;
+
+    friend class TUVX;
   };
 
 #ifdef __cplusplus

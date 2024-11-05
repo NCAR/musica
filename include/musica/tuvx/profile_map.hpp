@@ -13,9 +13,10 @@
 namespace musica
 {
 
-  /// @brief A struct used to store a collection of profiles
-  struct ProfileMap
+  /// @brief A class used to store a collection of profiles
+  class ProfileMap
   {
+   public:
     ProfileMap(void *profile_map)
         : profile_map_(profile_map),
           owns_profile_map_(false)
@@ -44,6 +45,8 @@ namespace musica
    private:
     void *profile_map_;
     bool owns_profile_map_;
+
+    friend class TUVX;
   };
 
 #ifdef __cplusplus

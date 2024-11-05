@@ -10,16 +10,11 @@ namespace py = pybind11;
 // Wraps micm.cpp and tuvx.cpp
 PYBIND11_MODULE(musica, m)
 {
-  /*  
-   * Wrap micm
-   */
-  py::class_<musica::MICM>(m, "micm")
-      .def(py::init<>())
-      .def("__del__", [](musica::MICM &micm) {});
+  py::class_<musica::MICM>(m, "micm").def(py::init<>()).def("__del__", [](musica::MICM &micm) {});
 
   py::enum_<musica::MICMSolver>(m, "micmsolver")
-   .value("rosenbrock", musica::MICMSolver::Rosenbrock)
-   .value("rosenbrock_standard_order", musica::MICMSolver::RosenbrockStandardOrder);
+      .value("rosenbrock", musica::MICMSolver::Rosenbrock)
+      .value("rosenbrock_standard_order", musica::MICMSolver::RosenbrockStandardOrder);
 
   m.def(
       "create_solver",
@@ -42,19 +37,77 @@ PYBIND11_MODULE(musica, m)
       "micm_solve",
       [](musica::MICM *micm,
          double time_step,
-         double temperature,
-         double pressure,
-         double air_density,
+         py::object temperature,
+         py::object pressure,
+         py::object air_density,
          py::list concentrations,
          py::object custom_rate_parameters = py::none())
       {
+        std::vector<double> temperature_cpp;
+        if (py::isinstance<py::float_>(temperature))
+        {
+          temperature_cpp.push_back(temperature.cast<double>());
+        }
+        else if (py::isinstance<py::list>(temperature))
+        {
+          py::list temperature_list = temperature.cast<py::list>();
+          temperature_cpp.reserve(len(temperature_list));
+          for (auto item : temperature_list)
+          {
+            temperature_cpp.push_back(item.cast<double>());
+          }
+        }
+        else
+        {
+          throw std::runtime_error(
+              "Temperature must be a list or a double. Got " +
+              std::string(py::str(temperature.get_type()).cast<std::string>()));
+        }
+        std::vector<double> pressure_cpp;
+        if (py::isinstance<py::float_>(pressure))
+        {
+          pressure_cpp.push_back(pressure.cast<double>());
+        }
+        else if (py::isinstance<py::list>(pressure))
+        {
+          py::list pressure_list = pressure.cast<py::list>();
+          pressure_cpp.reserve(len(pressure_list));
+          for (auto item : pressure_list)
+          {
+            pressure_cpp.push_back(item.cast<double>());
+          }
+        }
+        else
+        {
+          throw std::runtime_error(
+              "Pressure must be a list or a double. Got " + std::string(py::str(pressure.get_type()).cast<std::string>()));
+        }
+        std::vector<double> air_density_cpp;
+        if (py::isinstance<py::float_>(air_density))
+        {
+          air_density_cpp.push_back(air_density.cast<double>());
+        }
+        else if (py::isinstance<py::list>(air_density))
+        {
+          py::list air_density_list = air_density.cast<py::list>();
+          air_density_cpp.reserve(len(air_density_list));
+          for (auto item : air_density_list)
+          {
+            air_density_cpp.push_back(item.cast<double>());
+          }
+        }
+        else
+        {
+          throw std::runtime_error(
+              "Air density must be a list or a double. Got " +
+              std::string(py::str(air_density.get_type()).cast<std::string>()));
+        }
         std::vector<double> concentrations_cpp;
         concentrations_cpp.reserve(len(concentrations));
         for (auto item : concentrations)
         {
           concentrations_cpp.push_back(item.cast<double>());
         }
-
         std::vector<double> custom_rate_parameters_cpp;
         if (!custom_rate_parameters.is_none())
         {
@@ -71,16 +124,20 @@ PYBIND11_MODULE(musica, m)
         musica::MicmSolve(
             micm,
             time_step,
-            temperature,
-            pressure,
-            air_density,
-            concentrations_cpp.size(),
+            temperature_cpp.data(),
+            pressure_cpp.data(),
+            air_density_cpp.data(),
             concentrations_cpp.data(),
-            custom_rate_parameters_cpp.size(),
             custom_rate_parameters_cpp.data(),
             &solver_state,
             &solver_stats,
             &error);
+        if (!musica::IsSuccess(error))
+        {
+          std::string message = "Error solving system: " + std::string(error.message_.value_);
+          DeleteError(&error);
+          throw std::runtime_error(message);
+        }
 
         // Update the concentrations list after solving
         for (std::size_t i = 0; i < concentrations_cpp.size(); ++i)
@@ -99,11 +156,11 @@ PYBIND11_MODULE(musica, m)
 
         if (micm->solver_type_ == musica::MICMSolver::Rosenbrock)
         {
-          map = micm->GetSpeciesOrdering(micm->rosenbrock_, &error);
+          map = micm->rosenbrock_.second.variable_map_;
         }
         else if (micm->solver_type_ == musica::MICMSolver::RosenbrockStandardOrder)
         {
-          map = micm->GetSpeciesOrdering(micm->rosenbrock_standard_, &error);
+          map = micm->rosenbrock_standard_.second.variable_map_;
         }
 
         return map;
@@ -119,11 +176,11 @@ PYBIND11_MODULE(musica, m)
 
         if (micm->solver_type_ == musica::MICMSolver::Rosenbrock)
         {
-          map = micm->GetUserDefinedReactionRatesOrdering(micm->rosenbrock_, &error);
+          map = micm->rosenbrock_.second.custom_rate_parameter_map_;
         }
         else if (micm->solver_type_ == musica::MICMSolver::RosenbrockStandardOrder)
         {
-          map = micm->GetUserDefinedReactionRatesOrdering(micm->rosenbrock_standard_, &error);
+          map = micm->rosenbrock_standard_.second.custom_rate_parameter_map_;
         }
 
         return map;
