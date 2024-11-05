@@ -4,7 +4,7 @@ import musica
 import random
 
 
-def TestSingleGridCell(self, solver):
+def TestSingleGridCell(self, solver, places=5):
     num_grid_cells = 1
     time_step = 200.0
     temperature = 272.5
@@ -78,17 +78,17 @@ def TestSingleGridCell(self, solver):
             (1.0 + (k1 * np.exp(-k2 * curr_time) - k2 * np.exp(-k1 * curr_time)) / (k2 - k1))
 
         self.assertAlmostEqual(
-            ordered_concentrations[species_ordering["A"]], A_conc, places=5)
+            ordered_concentrations[species_ordering["A"]], A_conc, places=places)
         self.assertAlmostEqual(
-            ordered_concentrations[species_ordering["B"]], B_conc, places=5)
+            ordered_concentrations[species_ordering["B"]], B_conc, places=places)
         self.assertAlmostEqual(
-            ordered_concentrations[species_ordering["C"]], C_conc, places=5)
+            ordered_concentrations[species_ordering["C"]], C_conc, places=places)
         self.assertAlmostEqual(
-            ordered_concentrations[species_ordering["D"]], D_conc, places=5)
+            ordered_concentrations[species_ordering["D"]], D_conc, places=places)
         self.assertAlmostEqual(
-            ordered_concentrations[species_ordering["E"]], E_conc, places=5)
+            ordered_concentrations[species_ordering["E"]], E_conc, places=places)
         self.assertAlmostEqual(
-            ordered_concentrations[species_ordering["F"]], F_conc, places=5)
+            ordered_concentrations[species_ordering["F"]], F_conc, places=places)
 
         curr_time += time_step
 
@@ -102,7 +102,7 @@ class TestAnalyticalRosenbrock(unittest.TestCase):
         TestSingleGridCell(self, solver)
 
 
-class TestAnalyicalStandardRosenbrock(unittest.TestCase):
+class TestAnalyticalStandardRosenbrock(unittest.TestCase):
     def test_simulation(self):
         solver = musica.create_solver(
             "configs/analytical",
@@ -111,7 +111,25 @@ class TestAnalyicalStandardRosenbrock(unittest.TestCase):
         TestSingleGridCell(self, solver)
 
 
-def TestMultipleGridCell(self, solver, num_grid_cells):
+class TestAnalyticalBackwardEuler(unittest.TestCase):
+    def test_simulation(self):
+        solver = musica.create_solver(
+            "configs/analytical",
+            musica.micmsolver.backward_euler,
+            1)
+        TestSingleGridCell(self, solver, places=2)
+
+
+class TestAnalyticalStandardBackwardEuler(unittest.TestCase):
+    def test_simulation(self):
+        solver = musica.create_solver(
+            "configs/analytical",
+            musica.micmsolver.backward_euler_standard_order,
+            1)
+        TestSingleGridCell(self, solver, places=2)
+
+
+def TestMultipleGridCell(self, solver, num_grid_cells, places=5):
     time_step = 200.0
     temperatures = []
     pressures = []
@@ -221,17 +239,17 @@ def TestMultipleGridCell(self, solver, num_grid_cells):
                 k1[i] * np.exp(-k2[i] * curr_time) - k2[i] * np.exp(-k1[i] * curr_time)) / (k2[i] - k1[i]))
 
             self.assertAlmostEqual(
-                ordered_concentrations[i * len(concentrations.keys()) + species_ordering["A"]], A_conc, places=5)
+                ordered_concentrations[i * len(concentrations.keys()) + species_ordering["A"]], A_conc, places=places)
             self.assertAlmostEqual(
-                ordered_concentrations[i * len(concentrations.keys()) + species_ordering["B"]], B_conc, places=5)
+                ordered_concentrations[i * len(concentrations.keys()) + species_ordering["B"]], B_conc, places=places)
             self.assertAlmostEqual(
-                ordered_concentrations[i * len(concentrations.keys()) + species_ordering["C"]], C_conc, places=5)
+                ordered_concentrations[i * len(concentrations.keys()) + species_ordering["C"]], C_conc, places=places)
             self.assertAlmostEqual(
-                ordered_concentrations[i * len(concentrations.keys()) + species_ordering["D"]], D_conc, places=5)
+                ordered_concentrations[i * len(concentrations.keys()) + species_ordering["D"]], D_conc, places=places)
             self.assertAlmostEqual(
-                ordered_concentrations[i * len(concentrations.keys()) + species_ordering["E"]], E_conc, places=5)
+                ordered_concentrations[i * len(concentrations.keys()) + species_ordering["E"]], E_conc, places=places)
             self.assertAlmostEqual(
-                ordered_concentrations[i * len(concentrations.keys()) + species_ordering["F"]], F_conc, places=5)
+                ordered_concentrations[i * len(concentrations.keys()) + species_ordering["F"]], F_conc, places=places)
 
         curr_time += time_step
 
@@ -245,13 +263,31 @@ class TestAnalyticalRosenbrockMultipleGridCells(unittest.TestCase):
         TestMultipleGridCell(self, solver, 3)
 
 
-class TestAnalyicalStandardRosenbrockMultipleGridCells(unittest.TestCase):
+class TestAnalyticalStandardRosenbrockMultipleGridCells(unittest.TestCase):
     def test_simulation(self):
         solver = musica.create_solver(
             "configs/analytical",
             musica.micmsolver.rosenbrock_standard_order,
             3)
         TestMultipleGridCell(self, solver, 3)
+
+
+class TestAnalyticalBackwardEulerMultipleGridCells(unittest.TestCase):
+    def test_simulation(self):
+        solver = musica.create_solver(
+            "configs/analytical",
+            musica.micmsolver.backward_euler,
+            3)
+        TestMultipleGridCell(self, solver, 3, places=2)
+
+
+class TestAnalyticalStandardBackwardEulerMultipleGridCells(unittest.TestCase):
+    def test_simulation(self):
+        solver = musica.create_solver(
+            "configs/analytical",
+            musica.micmsolver.backward_euler_standard_order,
+            3)
+        TestMultipleGridCell(self, solver, 3, places=2)
 
 
 if __name__ == '__main__':
