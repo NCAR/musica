@@ -101,7 +101,6 @@ class TestAnalyticalStandardRosenbrock(unittest.TestCase):
         TestSingleGridCell(self, solver, 200.0, 5)
 
 
-
 class TestAnalyticalStandardBackwardEuler(unittest.TestCase):
     def test_simulation(self):
         solver = musica.create_solver(
@@ -355,7 +354,8 @@ class TestAnalyticalRosenbrockMultipleGridCells(unittest.TestCase):
             "configs/analytical",
             musica.micmsolver.rosenbrock,
             4)
-        TestVectorMultipleGridCell(self, solver, 4, 200.0, 5) # The number of grid cells must equal the MICM matrix vector dimension
+        # The number of grid cells must equal the MICM matrix vector dimension
+        TestVectorMultipleGridCell(self, solver, 4, 200.0, 5)
 
 
 class TestAnalyticalStandardRosenbrockMultipleGridCells(unittest.TestCase):
@@ -373,7 +373,8 @@ class TestAnalyticalBackwardEulerMultipleGridCells(unittest.TestCase):
             "configs/analytical",
             musica.micmsolver.backward_euler,
             4)
-        TestVectorMultipleGridCell(self, solver, 4, 10.0, places=2) # The number of grid cells must equal the MICM matrix vector dimension
+        # The number of grid cells must equal the MICM matrix vector dimension
+        TestVectorMultipleGridCell(self, solver, 4, 10.0, places=2)
 
 
 class TestAnalyticalStandardBackwardEulerMultipleGridCells(unittest.TestCase):
