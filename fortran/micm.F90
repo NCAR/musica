@@ -10,7 +10,7 @@ module musica_micm
   implicit none
 
   public :: micm_t, solver_stats_t, get_micm_version
-  public :: Rosenbrock, RosenbrockStandardOrder, BackwardEuler, BackwardEulerStandardOrder
+  public :: UndefinedSolver, Rosenbrock, RosenbrockStandardOrder, BackwardEuler, BackwardEulerStandardOrder
   private
 
   !> Wrapper for c solver stats
@@ -28,6 +28,7 @@ module musica_micm
   ! We could use Fortran 2023 enum type feature if Fortran 2023 is supported
   ! https://fortran-lang.discourse.group/t/enumerator-type-in-bind-c-derived-type-best-practice/5947/2
   enum, bind(c)
+    enumerator :: UndefinedSolver            = 0
     enumerator :: Rosenbrock                 = 1
     enumerator :: RosenbrockStandardOrder    = 2
     enumerator :: BackwardEuler              = 3
@@ -137,7 +138,7 @@ module musica_micm
     type(mappings_t), pointer :: user_defined_reaction_rates => null()
     type(c_ptr), private      :: ptr = c_null_ptr
     integer,     private      :: number_of_grid_cells = 0
-    integer,     private      :: solver_type = 0
+    integer,     private      :: solver_type = UndefinedSolver
   contains
     ! Solve the chemical system
     procedure, private :: solve_arrays

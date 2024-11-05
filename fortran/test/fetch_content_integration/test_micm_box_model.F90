@@ -19,8 +19,8 @@ contains
   subroutine box_model_arrays()
 
     character(len=256) :: config_path
-    integer(c_int)     :: solver_type
-    integer(c_int)     :: num_grid_cells
+    integer            :: solver_type
+    integer            :: num_grid_cells
 
     real(real64), parameter :: GAS_CONSTANT = 8.31446261815324_real64 ! J mol-1 K-1
 
@@ -72,8 +72,8 @@ contains
   subroutine box_model_c_ptrs()
 
     character(len=256) :: config_path
-    integer(c_int)     :: solver_type
-    integer(c_int)     :: num_grid_cells
+    integer            :: solver_type
+    integer            :: num_grid_cells
 
     real(real64), parameter :: GAS_CONSTANT = 8.31446261815324_real64 ! J mol-1 K-1
 
