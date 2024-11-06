@@ -205,9 +205,9 @@ contains
     use musica_util, only: error_t, error_t_c, dk => musica_dk
 
     ! Arguments
-    class(profile_t), intent(inout) :: this
-    real(dk), target, dimension(:), intent(in) :: edge_values
-    type(error_t), intent(inout) :: error
+    class(profile_t),             intent(inout) :: this
+    real(dk), target, contiguous, intent(in)    :: edge_values(:)
+    type(error_t),                intent(inout) :: error
 
     ! Local variables
     type(error_t_c) :: error_c
@@ -228,9 +228,9 @@ contains
     use musica_util, only: error_t, error_t_c, dk => musica_dk
 
     ! Arguments
-    class(profile_t), intent(inout) :: this
-    real(dk), target, dimension(:), intent(inout) :: edge_values
-    type(error_t), intent(inout) :: error
+    class(profile_t),             intent(inout) :: this
+    real(dk), target, contiguous, intent(inout) :: edge_values(:)
+    type(error_t),                intent(inout) :: error
 
     ! Local variables
     type(error_t_c) :: error_c
@@ -251,9 +251,9 @@ contains
     use musica_util, only: error_t, error_t_c, dk => musica_dk
 
     ! Arguments
-    class(profile_t), intent(inout) :: this
-    real(dk), target, dimension(:), intent(in) :: midpoint_values
-    type(error_t), intent(inout) :: error
+    class(profile_t),             intent(inout) :: this
+    real(dk), target, contiguous, intent(in)    :: midpoint_values(:)
+    type(error_t),                intent(inout) :: error
 
     ! Local variables
     type(error_t_c) :: error_c
@@ -274,9 +274,9 @@ contains
     use musica_util, only: error_t, error_t_c, dk => musica_dk
 
     ! Arguments
-    class(profile_t), intent(inout) :: this
-    real(dk), target, dimension(:), intent(inout) :: midpoint_values
-    type(error_t), intent(inout) :: error
+    class(profile_t),             intent(inout) :: this
+    real(dk), target, contiguous, intent(inout) :: midpoint_values(:)
+    type(error_t),                intent(inout) :: error
 
     ! Local variables
     type(error_t_c) :: error_c
@@ -297,9 +297,9 @@ contains
     use musica_util, only: error_t, error_t_c, dk => musica_dk
 
     ! Arguments
-    class(profile_t), intent(inout) :: this
-    real(dk), target, dimension(:), intent(in) :: layer_densities
-    type(error_t), intent(inout) :: error
+    class(profile_t),             intent(inout) :: this
+    real(dk), target, contiguous, intent(in)    :: layer_densities(:)
+    type(error_t),                intent(inout) :: error
 
     ! Local variables
     type(error_t_c) :: error_c
@@ -320,9 +320,9 @@ contains
     use musica_util, only: error_t, error_t_c, dk => musica_dk
 
     ! Arguments
-    class(profile_t), intent(inout) :: this
-    real(dk), target, dimension(:), intent(inout) :: layer_densities
-    type(error_t), intent(inout) :: error
+    class(profile_t),             intent(inout) :: this
+    real(dk), target, contiguous, intent(inout) :: layer_densities(:)
+    type(error_t),                intent(inout) :: error
 
     ! Local variables
     type(error_t_c) :: error_c

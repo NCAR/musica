@@ -252,16 +252,16 @@ contains
     use iso_c_binding, only: c_loc
     use iso_fortran_env, only: real64
     use musica_util, only: string_t, string_t_c, error_t_c, error_t
-    class(micm_t),        intent(in)    :: this
-    real(real64),         intent(in)    :: time_step
-    real(real64), target, intent(in)    :: temperature(:)
-    real(real64), target, intent(in)    :: pressure(:)
-    real(real64), target, intent(in)    :: air_density(:)
-    real(real64), target, intent(inout) :: concentrations(:,:)
-    real(real64), target, intent(in)    :: user_defined_reaction_rates(:,:)
-    type(string_t),       intent(out)   :: solver_state
-    type(solver_stats_t), intent(out)   :: solver_stats
-    type(error_t),        intent(out)   :: error
+    class(micm_t),                    intent(in)    :: this
+    real(real64),                     intent(in)    :: time_step
+    real(real64), target, contiguous, intent(in)    :: temperature(:)
+    real(real64), target, contiguous, intent(in)    :: pressure(:)
+    real(real64), target, contiguous, intent(in)    :: air_density(:)
+    real(real64), target, contiguous, intent(inout) :: concentrations(:,:)
+    real(real64), target, contiguous, intent(in)    :: user_defined_reaction_rates(:,:)
+    type(string_t),                   intent(out)   :: solver_state
+    type(solver_stats_t),             intent(out)   :: solver_stats
+    type(error_t),                    intent(out)   :: error
 
     type(string_t_c)       :: solver_state_c
     type(solver_stats_t_c) :: solver_stats_c
