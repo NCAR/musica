@@ -747,9 +747,9 @@ contains
 
     use iso_c_binding, only: c_loc
 
-    class(index_mappings_t),      intent(inout) :: this
-    real(kind=musica_dk), target, intent(in)    :: source(:)
-    real(kind=musica_dk), target, intent(in)    :: target(:)
+    class(index_mappings_t),                  intent(inout) :: this
+    real(kind=musica_dk), target, contiguous, intent(in)    :: source(:)
+    real(kind=musica_dk), target, contiguous, intent(in)    :: target(:)
 
     call copy_data_c( this%mappings_c_, c_loc( source ), c_loc( target ) )
 

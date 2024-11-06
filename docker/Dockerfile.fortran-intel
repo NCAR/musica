@@ -1,5 +1,5 @@
 # versions and sizes from here: https://hub.docker.com/r/intel/oneapi-hpckit/tags
-FROM intel/oneapi-hpckit:latest
+FROM intel/oneapi-hpckit:2024.0.1-devel-ubuntu22.04
 
 # Based off of this: https://dgpu-docs.intel.com/driver/installation.html#repository-public-key-used-for-package-and-repository-signing
 # however those docs (at the time of this writing are incorrect) and this is the correct url

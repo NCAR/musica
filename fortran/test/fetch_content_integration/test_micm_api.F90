@@ -182,13 +182,18 @@ contains
 
     integer, parameter        :: NUM_SPECIES = 6
     integer, parameter        :: NUM_USER_DEFINED_REACTION_RATES = 2
-    real(real64), target      :: temperature(NUM_GRID_CELLS)
-    real(real64), target      :: pressure(NUM_GRID_CELLS)
-    real(real64), target      :: air_density(NUM_GRID_CELLS)
-    real(real64), target      :: concentrations(NUM_GRID_CELLS,NUM_SPECIES)
+    ! set up arrays to pass to MICM as slices to ensure contiguous memory is passed to c functions
+    real(real64), target      :: temperature(2,NUM_GRID_CELLS)
+    real(real64), target      :: temperature_c_ptrs(NUM_GRID_CELLS)
+    real(real64), target      :: pressure(2,NUM_GRID_CELLS)
+    real(real64), target      :: pressure_c_ptrs(NUM_GRID_CELLS)
+    real(real64), target      :: air_density(3,NUM_GRID_CELLS)
+    real(real64), target      :: air_density_c_ptrs(NUM_GRID_CELLS)
+    real(real64), target      :: concentrations(4,NUM_GRID_CELLS,NUM_SPECIES)
     real(real64), target      :: concentrations_c_ptrs(NUM_GRID_CELLS,NUM_SPECIES)
-    real(real64), target      :: initial_concentrations(NUM_GRID_CELLS,NUM_SPECIES)
-    real(real64), target      :: user_defined_reaction_rates(NUM_GRID_CELLS,NUM_USER_DEFINED_REACTION_RATES)
+    real(real64), target      :: initial_concentrations(4,NUM_GRID_CELLS,NUM_SPECIES)
+    real(real64), target      :: user_defined_reaction_rates(3,NUM_GRID_CELLS,NUM_USER_DEFINED_REACTION_RATES)
+    real(real64), target      :: user_defined_reaction_rates_c_ptrs(NUM_GRID_CELLS,NUM_USER_DEFINED_REACTION_RATES)
     type(string_t)            :: solver_state
     type(solver_stats_t)      :: solver_stats
     integer                   :: solver_type
@@ -221,51 +226,62 @@ contains
     R2_index = micm%user_defined_reaction_rates%index( "USER.reaction 2", error )
     ASSERT( error%is_success() )
 
+    temperature(:,:) = 1.0e300_real64
+    pressure(:,:) = 1.0e300_real64
+    air_density(:,:) = 1.0e300_real64
+    concentrations(:,:,:) = 1.0e300_real64
+    user_defined_reaction_rates(:,:,:) = 1.0e300_real64
     do i_cell = 1, NUM_GRID_CELLS
       call random_number( temp )
-      temperature(i_cell) = 265.0 + temp * 20.0
+      temperature(2,i_cell) = 265.0 + temp * 20.0
       call random_number( temp )
-      pressure(i_cell) = 100753.3 + temp * 1000.0
-      air_density(i_cell) = pressure(i_cell) / ( GAS_CONSTANT * temperature(i_cell) )
+      pressure(2,i_cell) = 100753.3 + temp * 1000.0
+      air_density(2,i_cell) = pressure(2,i_cell) / ( GAS_CONSTANT * temperature(2,i_cell) )
       call random_number( temp )
-      concentrations(i_cell,A_index) = 0.7 + temp * 0.1
-      concentrations(i_cell,B_index) = 0.0
+      concentrations(2,i_cell,A_index) = 0.7 + temp * 0.1
+      concentrations(2,i_cell,B_index) = 0.0
       call random_number( temp )
-      concentrations(i_cell,C_index) = 0.35 + temp * 0.1
+      concentrations(2,i_cell,C_index) = 0.35 + temp * 0.1
       call random_number( temp )
-      concentrations(i_cell,D_index) = 0.75 + temp * 0.1
-      concentrations(i_cell,E_index) = 0.0
+      concentrations(2,i_cell,D_index) = 0.75 + temp * 0.1
+      concentrations(2,i_cell,E_index) = 0.0
       call random_number( temp )
-      concentrations(i_cell,F_index) = 0.05 + temp * 0.1
+      concentrations(2,i_cell,F_index) = 0.05 + temp * 0.1
       call random_number( temp )
-      user_defined_reaction_rates(i_cell,R1_index) = 0.0005 + temp * 0.0001
+      user_defined_reaction_rates(2,i_cell,R1_index) = 0.0005 + temp * 0.0001
       call random_number( temp )
-      user_defined_reaction_rates(i_cell,R2_index) = 0.0015 + temp * 0.0001
+      user_defined_reaction_rates(2,i_cell,R2_index) = 0.0015 + temp * 0.0001
     end do
-    initial_concentrations(:,:) = concentrations(:,:)
-    concentrations_c_ptrs(:,:) = concentrations(:,:)
+    initial_concentrations(:,:,:) = concentrations(:,:,:)
+    concentrations_c_ptrs(:,:) = concentrations(2,:,:)
+    user_defined_reaction_rates_c_ptrs(:,:) = user_defined_reaction_rates(2,:,:)
+    temperature_c_ptrs(:) = temperature(2,:)
+    pressure_c_ptrs(:) = pressure(2,:)
+    air_density_c_ptrs(:) = air_density(2,:)
 
     ! solve by passing fortran arrays
-    call micm%solve(time_step, temperature, pressure, air_density, concentrations, &
-                    user_defined_reaction_rates, solver_state, solver_stats, error)
+    call micm%solve(time_step, temperature(2,:), pressure(2,:), air_density(2,:), &
+                    concentrations(2,:,:), user_defined_reaction_rates(2,:,:), &
+                    solver_state, solver_stats, error)
     ASSERT( error%is_success() )
     ASSERT_EQ(solver_state%get_char_array(), "Converged")
 
     ! solve by passing C pointers
-    call micm%solve(time_step, c_loc(temperature), c_loc(pressure), c_loc(air_density), &
-                    c_loc(concentrations_c_ptrs), c_loc(user_defined_reaction_rates), &
+    call micm%solve(time_step, c_loc(temperature_c_ptrs), c_loc(pressure_c_ptrs), &
+                    c_loc(air_density_c_ptrs), c_loc(concentrations_c_ptrs), &
+                    c_loc(user_defined_reaction_rates_c_ptrs), &
                     solver_state, solver_stats, error)
     ASSERT( error%is_success() )
     ASSERT_EQ(solver_state%get_char_array(), "Converged")
 
     ! check concentrations
     do i_cell = 1, NUM_GRID_CELLS
-      ASSERT_EQ(concentrations(i_cell,A_index), concentrations_c_ptrs(i_cell,A_index))
-      ASSERT_EQ(concentrations(i_cell,B_index), concentrations_c_ptrs(i_cell,B_index))
-      ASSERT_EQ(concentrations(i_cell,C_index), concentrations_c_ptrs(i_cell,C_index))
-      ASSERT_EQ(concentrations(i_cell,D_index), concentrations_c_ptrs(i_cell,D_index))
-      ASSERT_EQ(concentrations(i_cell,E_index), concentrations_c_ptrs(i_cell,E_index))
-      ASSERT_EQ(concentrations(i_cell,F_index), concentrations_c_ptrs(i_cell,F_index))
+      ASSERT_EQ(concentrations(2,i_cell,A_index), concentrations_c_ptrs(i_cell,A_index))
+      ASSERT_EQ(concentrations(2,i_cell,B_index), concentrations_c_ptrs(i_cell,B_index))
+      ASSERT_EQ(concentrations(2,i_cell,C_index), concentrations_c_ptrs(i_cell,C_index))
+      ASSERT_EQ(concentrations(2,i_cell,D_index), concentrations_c_ptrs(i_cell,D_index))
+      ASSERT_EQ(concentrations(2,i_cell,E_index), concentrations_c_ptrs(i_cell,E_index))
+      ASSERT_EQ(concentrations(2,i_cell,F_index), concentrations_c_ptrs(i_cell,F_index))
     end do
 
     r1%A_ = 0.004
@@ -277,26 +293,26 @@ contains
     r2%E_ = 1.0e-6
 
     do i_cell = 1, NUM_GRID_CELLS
-      initial_A = initial_concentrations(i_cell,A_index)
-      initial_C = initial_concentrations(i_cell,C_index)
-      initial_D = initial_concentrations(i_cell,D_index)
-      initial_F = initial_concentrations(i_cell,F_index)
-      k1 = user_defined_reaction_rates(i_cell,R1_index)
-      k2 = user_defined_reaction_rates(i_cell,R2_index)
-      k3 = calculate_arrhenius( r1, temperature(i_cell), pressure(i_cell) )
-      k4 = calculate_arrhenius( r2, temperature(i_cell), pressure(i_cell) )
+      initial_A = initial_concentrations(2,i_cell,A_index)
+      initial_C = initial_concentrations(2,i_cell,C_index)
+      initial_D = initial_concentrations(2,i_cell,D_index)
+      initial_F = initial_concentrations(2,i_cell,F_index)
+      k1 = user_defined_reaction_rates(2,i_cell,R1_index)
+      k2 = user_defined_reaction_rates(2,i_cell,R2_index)
+      k3 = calculate_arrhenius( r1, temperature(2,i_cell), pressure(2,i_cell) )
+      k4 = calculate_arrhenius( r2, temperature(2,i_cell), pressure(2,i_cell) )
       A = initial_A * exp( -k3 * time_step )
       B = initial_A * (k3 / (k4 - k3)) * (exp(-k3 * time_step) - exp(-k4 * time_step))
       C = initial_C + initial_A * (1.0 + (k3 * exp(-k4 * time_step) - k4 * exp(-k3 * time_step)) / (k4 - k3))
       D = initial_D * exp( -k1 * time_step )
       E = initial_D * (k1 / (k2 - k1)) * (exp(-k1 * time_step) - exp(-k2 * time_step))
       F = initial_F + initial_D * (1.0 + (k1 * exp(-k2 * time_step) - k2 * exp(-k1 * time_step)) / (k2 - k1))
-      ASSERT_NEAR(concentrations(i_cell,A_index), A, test_accuracy)
-      ASSERT_NEAR(concentrations(i_cell,B_index), B, test_accuracy)
-      ASSERT_NEAR(concentrations(i_cell,C_index), C, test_accuracy)
-      ASSERT_NEAR(concentrations(i_cell,D_index), D, test_accuracy)
-      ASSERT_NEAR(concentrations(i_cell,E_index), E, test_accuracy)
-      ASSERT_NEAR(concentrations(i_cell,F_index), F, test_accuracy)
+      ASSERT_NEAR(concentrations(2,i_cell,A_index), A, test_accuracy)
+      ASSERT_NEAR(concentrations(2,i_cell,B_index), B, test_accuracy)
+      ASSERT_NEAR(concentrations(2,i_cell,C_index), C, test_accuracy)
+      ASSERT_NEAR(concentrations(2,i_cell,D_index), D, test_accuracy)
+      ASSERT_NEAR(concentrations(2,i_cell,E_index), E, test_accuracy)
+      ASSERT_NEAR(concentrations(2,i_cell,F_index), F, test_accuracy)
     end do
 
   end subroutine test_vector_multiple_grid_cells

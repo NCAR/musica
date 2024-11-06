@@ -285,12 +285,12 @@ contains
     use musica_util, only: error_t, error_t_c, dk => musica_dk
 
     ! Arguments
-    class(tuvx_t),         intent(inout) :: this
-    real(kind=dk),         intent(in)    :: solar_zenith_angle             ! radians
-    real(kind=dk),         intent(in)    :: earth_sun_distance             ! AU
-    real(kind=dk), target, intent(inout) :: photolysis_rate_constants(:,:) ! s-1 (layer, reaction)
-    real(kind=dk), target, intent(inout) :: heating_rates(:,:)             ! K s-1 (layer, reaction)
-    type(error_t),         intent(inout) :: error
+    class(tuvx_t),                     intent(inout) :: this
+    real(kind=dk),                     intent(in)    :: solar_zenith_angle             ! radians
+    real(kind=dk),                     intent(in)    :: earth_sun_distance             ! AU
+    real(kind=dk), target, contiguous, intent(inout) :: photolysis_rate_constants(:,:) ! s-1 (layer, reaction)
+    real(kind=dk), target, contiguous, intent(inout) :: heating_rates(:,:)             ! K s-1 (layer, reaction)
+    type(error_t),                     intent(inout) :: error
 
     ! Local variables
     type(error_t_c) :: error_c
