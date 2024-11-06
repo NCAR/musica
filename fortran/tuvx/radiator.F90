@@ -207,8 +207,8 @@ contains
     use musica_util, only: error_t, error_t_c, dk => musica_dk
 
     ! Arguments
-    class(radiator_t),            intent(inout) :: this
-    real(dk), target, contiguous, intent(in)    :: optical_depths(:,:)
+    class(radiator_t),            intent(in)    :: this
+    real(dk), target, contiguous, intent(out)   :: optical_depths(:,:)
     type(error_t),                intent(inout) :: error
 
     ! Local variables
@@ -260,8 +260,8 @@ contains
     use musica_util, only: error_t, error_t_c, dk => musica_dk
 
     ! Arguments
-    class(radiator_t),            intent(inout) :: this
-    real(dk), target, contiguous, intent(in)    :: single_scattering_albedos(:,:)
+    class(radiator_t),            intent(in)    :: this
+    real(dk), target, contiguous, intent(out)   :: single_scattering_albedos(:,:)
     type(error_t),                intent(inout) :: error
 
     ! Local variables
@@ -313,8 +313,8 @@ end subroutine set_asymmetry_factors
     use musica_util, only: error_t, error_t_c, dk => musica_dk
 
     ! Arguments
-    class(radiator_t),            intent(inout) :: this
-    real(dk), target, contiguous, intent(in)    :: asymmetry_factors(:,:,:)
+    class(radiator_t),            intent(in)    :: this
+    real(dk), target, contiguous, intent(out)   :: asymmetry_factors(:,:,:)
     type(error_t),                intent(inout) :: error
 
     ! Local variables

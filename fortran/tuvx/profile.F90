@@ -228,8 +228,8 @@ contains
     use musica_util, only: error_t, error_t_c, dk => musica_dk
 
     ! Arguments
-    class(profile_t),             intent(inout) :: this
-    real(dk), target, contiguous, intent(inout) :: edge_values(:)
+    class(profile_t),             intent(in)    :: this
+    real(dk), target, contiguous, intent(out)   :: edge_values(:)
     type(error_t),                intent(inout) :: error
 
     ! Local variables
@@ -274,8 +274,8 @@ contains
     use musica_util, only: error_t, error_t_c, dk => musica_dk
 
     ! Arguments
-    class(profile_t),             intent(inout) :: this
-    real(dk), target, contiguous, intent(inout) :: midpoint_values(:)
+    class(profile_t),             intent(in)    :: this
+    real(dk), target, contiguous, intent(out)   :: midpoint_values(:)
     type(error_t),                intent(inout) :: error
 
     ! Local variables
@@ -320,8 +320,8 @@ contains
     use musica_util, only: error_t, error_t_c, dk => musica_dk
 
     ! Arguments
-    class(profile_t),             intent(inout) :: this
-    real(dk), target, contiguous, intent(inout) :: layer_densities(:)
+    class(profile_t),             intent(in)    :: this
+    real(dk), target, contiguous, intent(out)   :: layer_densities(:)
     type(error_t),                intent(inout) :: error
 
     ! Local variables
@@ -383,7 +383,7 @@ contains
     use musica_util, only: error_t, error_t_c, dk => musica_dk
 
     ! Arguments
-    class(profile_t), intent(inout) :: this
+    class(profile_t), intent(in)    :: this
     type(error_t),    intent(inout) :: error
 
     ! Return value

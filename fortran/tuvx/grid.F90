@@ -157,7 +157,7 @@ contains
     use musica_util, only: error_t, error_t_c
 
     ! Arguments
-    class(grid_t), intent(inout) :: this
+    class(grid_t), intent(in)    :: this
     type(error_t), intent(inout) :: error
 
     ! Local variables
@@ -197,8 +197,8 @@ contains
     use musica_util, only: error_t, error_t_c, dk => musica_dk
 
     ! Arguments
-    class(grid_t),                intent(inout) :: this
-    real(dk), target, contiguous, intent(inout) :: edges(:)
+    class(grid_t),                intent(in)    :: this
+    real(dk), target, contiguous, intent(out)   :: edges(:)
     type(error_t),                intent(inout) :: error
 
     ! Local variables
@@ -241,8 +241,8 @@ contains
     use musica_util, only: error_t, error_t_c, dk => musica_dk
 
     ! Arguments
-    class(grid_t),                intent(inout) :: this
-    real(dk), target, contiguous, intent(inout) :: midpoints(:)
+    class(grid_t),                intent(in)    :: this
+    real(dk), target, contiguous, intent(out)   :: midpoints(:)
     type(error_t),                intent(inout) :: error
 
     ! Local variables
