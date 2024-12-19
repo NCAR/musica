@@ -359,15 +359,11 @@ namespace musica
       solver_parameters_ = std::make_unique<micm::SolverParameters>(solver_config.GetSolverParams());
 
       auto solver = std::make_unique<BackwardEuler>(
-          micm::SolverBuilder<
+          micm::CpuSolverBuilder<
               micm::BackwardEulerSolverParameters,
               micm::VectorMatrix<double, MICM_VECTOR_MATRIX_SIZE>,
               micm::SparseMatrix<double, micm::SparseMatrixVectorOrdering<MICM_VECTOR_MATRIX_SIZE>>,
-              micm::ProcessSet,
-              micm::LinearSolver<
-                  micm::SparseMatrix<double, micm::SparseMatrixVectorOrdering<MICM_VECTOR_MATRIX_SIZE>>,
-                  micm::LuDecomposition>,
-              VectorState>(micm::BackwardEulerSolverParameters())
+              micm::LuDecompositionDoolittle>(micm::BackwardEulerSolverParameters())
               .SetSystem(solver_parameters_->system_)
               .SetReactions(solver_parameters_->processes_)
               .SetNumberOfGridCells(num_grid_cells_)
