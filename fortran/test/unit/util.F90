@@ -135,6 +135,12 @@ contains
     ASSERT_EQ( b%category(), "bar" )
     ASSERT_EQ( b%message(), "foo" )
 
+    a = error_t( 34, "qux", "quux" )
+    
+    ASSERT_EQ( a%code(), 34 )
+    ASSERT_EQ( a%category(), "qux" )
+    ASSERT_EQ( a%message(), "quux" )
+
   end subroutine test_error_t
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -274,7 +280,7 @@ contains
     type(mappings_t), pointer :: source_map, target_map
     type(index_mappings_t), pointer :: index_mappings
     type(error_t) :: error
-    real(dk), allocatable :: source_data(:), target_data(:)
+    real(dk) :: source_data(2,5), target_data(3,4)
 
     allocate( f_map( 2 ) )
     map => mapping_t( "Test", 2 )
@@ -296,14 +302,14 @@ contains
     index_mappings => index_mappings_t( config, source_map, target_map, error )
     ASSERT( error%is_success() )
 
-    source_data = (/ 1.0_dk, 2.0_dk, 3.0_dk, 4.0_dk, 5.0_dk /)
-    target_data = (/ 10.0_dk, 20.0_dk, 30.0_dk, 40.0_dk /)
+    source_data(2,:) = (/ 1.0_dk, 2.0_dk, 3.0_dk, 4.0_dk, 5.0_dk /)
+    target_data(2,:) = (/ 10.0_dk, 20.0_dk, 30.0_dk, 40.0_dk /)
 
-    call index_mappings%copy_data( source_data, target_data )
-    ASSERT_EQ( target_data( 1 ), 5.0_dk * 0.82_dk )
-    ASSERT_EQ( target_data( 2 ), 20.0_dk )
-    ASSERT_EQ( target_data( 3 ), 2.0_dk )
-    ASSERT_EQ( target_data( 4 ), 40.0_dk )
+    call index_mappings%copy_data( source_data(2,:), target_data(2,:) )
+    ASSERT_EQ( target_data( 2, 1 ), 5.0_dk * 0.82_dk )
+    ASSERT_EQ( target_data( 2, 2 ), 20.0_dk )
+    ASSERT_EQ( target_data( 2, 3 ), 2.0_dk )
+    ASSERT_EQ( target_data( 2, 4 ), 40.0_dk )
     deallocate( index_mappings )
     deallocate( source_map )
     deallocate( target_map )

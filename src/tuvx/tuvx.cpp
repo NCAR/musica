@@ -66,6 +66,18 @@ namespace musica
     return tuvx->CreateRadiatorMap(error);
   }
 
+  Mappings GetPhotolysisRateConstantsOrdering(TUVX *tuvx, Error *error)
+  {
+    DeleteError(error);
+    return tuvx->GetPhotolysisRateConstantsOrdering(error);
+  }
+
+  Mappings GetHeatingRatesOrdering(TUVX *tuvx, Error *error)
+  {
+    DeleteError(error);
+    return tuvx->GetHeatingRatesOrdering(error);
+  }
+
   void RunTuvx(
       TUVX *const tuvx,
       const double solar_zenith_angle,
@@ -170,6 +182,31 @@ namespace musica
       return nullptr;
     }
     return radiator_map;
+  }
+
+  Mappings TUVX::GetPhotolysisRateConstantsOrdering(Error *error)
+  {
+    *error = NoError();
+    int error_code = 0;
+    Mappings mappings = InternalGetPhotolysisRateConstantsOrdering(tuvx_, &error_code);
+    if (error_code != 0)
+    {
+      *error =
+          Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get photolysis rate constants ordering") };
+    }
+    return mappings;
+  }
+
+  Mappings TUVX::GetHeatingRatesOrdering(Error *error)
+  {
+    *error = NoError();
+    int error_code = 0;
+    Mappings mappings = InternalGetHeatingRatesOrdering(tuvx_, &error_code);
+    if (error_code != 0)
+    {
+      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get heating rates ordering") };
+    }
+    return mappings;
   }
 
   void TUVX::Run(

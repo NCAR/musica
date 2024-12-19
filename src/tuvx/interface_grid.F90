@@ -17,7 +17,6 @@ module tuvx_interface_grid
       units_length, num_sections, error_code) &
       bind(C, name="InternalCreateGrid") result(grid)
     use iso_c_binding, only: c_ptr, c_f_pointer, c_char, c_loc, c_size_t, c_int
-    use musica_tuvx_util, only: to_f_string
     use musica_string, only: string_t
     use tuvx_grid_from_host, only: grid_from_host_t
 
@@ -117,23 +116,23 @@ module tuvx_interface_grid
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  function internal_get_num_sections(grid, error_code) &
+  function internal_get_num_sections(updater, error_code) &
       bind(C, name="InternalGetNumSections") result(num_sections)
     use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_size_t
-    use tuvx_grid_from_host, only: grid_from_host_t
+    use tuvx_grid_from_host, only: grid_updater_t
 
     ! arguments
-    type(c_ptr), value,  intent(in)  :: grid
+    type(c_ptr), value,  intent(in)  :: updater
     integer(kind=c_int), intent(out) :: error_code
 
     ! output
     integer(kind=c_size_t) :: num_sections
 
     ! variables
-    type(grid_from_host_t), pointer :: f_grid
+    type(grid_updater_t), pointer :: f_updater
 
-    call c_f_pointer(grid, f_grid)
-    num_sections = f_grid%size( )
+    call c_f_pointer(updater, f_updater)
+    num_sections = f_updater%grid_%size( )
 
   end function internal_get_num_sections
   

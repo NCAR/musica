@@ -139,6 +139,11 @@ namespace musica
     return mapping;
   }
 
+  Mapping* AllocateMappingArray(const std::size_t size)
+  {
+    return new Mapping[size];
+  }
+
   Mappings CreateMappings(std::size_t size)
   {
     Mappings mappings;

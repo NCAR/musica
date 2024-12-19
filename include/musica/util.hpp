@@ -41,7 +41,7 @@ namespace musica
     /// @brief A set of configuration data
     struct Configuration
     {
-      Yaml* data_;
+      Yaml* data_ = nullptr;
     };
 
     /// @brief A struct to represent a mapping between a string and an index
@@ -104,6 +104,11 @@ namespace musica
     /// @param error The Error to populate if the data cannot be loaded
     /// @return The Configuration
     Configuration LoadConfigurationFromFile(const char* filename, Error* error);
+
+    /// @brief Allocates an array of Mappings
+    /// @param size The size of the array
+    /// @return The array of Mappings
+    Mapping* AllocateMappingArray(const std::size_t size);
 
     /// @brief Allocate a new Mappings struct
     /// @param size The size of the Mappings

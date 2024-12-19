@@ -328,7 +328,8 @@ namespace musica
       solver_config.ReadAndParse(std::filesystem::path(config_path));
       solver_parameters_ = std::make_unique<micm::SolverParameters>(solver_config.GetSolverParams());
 
-      auto solver = std::make_unique<RosenbrockStandard>(micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
+      auto solver =
+          std::make_unique<RosenbrockStandard>(micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
                                                    micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())
                                                    .SetSystem(solver_parameters_->system_)
                                                    .SetReactions(solver_parameters_->processes_)
@@ -336,7 +337,8 @@ namespace musica
                                                    .SetIgnoreUnusedSpecies(true)
                                                    .Build());
       auto state = solver->GetState();
-      rosenbrock_standard_ = std::pair<std::unique_ptr<RosenbrockStandard>, StandardState>(std::move(solver), std::move(state));
+      rosenbrock_standard_ =
+          std::pair<std::unique_ptr<RosenbrockStandard>, StandardState>(std::move(solver), std::move(state));
 
       DeleteError(error);
       *error = NoError();
@@ -357,15 +359,11 @@ namespace musica
       solver_parameters_ = std::make_unique<micm::SolverParameters>(solver_config.GetSolverParams());
 
       auto solver = std::make_unique<BackwardEuler>(
-          micm::SolverBuilder<
+          micm::CpuSolverBuilder<
               micm::BackwardEulerSolverParameters,
               micm::VectorMatrix<double, MICM_VECTOR_MATRIX_SIZE>,
               micm::SparseMatrix<double, micm::SparseMatrixVectorOrdering<MICM_VECTOR_MATRIX_SIZE>>,
-              micm::ProcessSet,
-              micm::LinearSolver<
-                  micm::SparseMatrix<double, micm::SparseMatrixVectorOrdering<MICM_VECTOR_MATRIX_SIZE>>,
-                  micm::LuDecomposition>,
-              VectorState>(micm::BackwardEulerSolverParameters())
+              micm::LuDecompositionDoolittle>(micm::BackwardEulerSolverParameters())
               .SetSystem(solver_parameters_->system_)
               .SetReactions(solver_parameters_->processes_)
               .SetNumberOfGridCells(num_grid_cells_)
@@ -401,8 +399,9 @@ namespace musica
               .SetIgnoreUnusedSpecies(true)
               .Build());
       auto state = solver->GetState();
-      
-      backward_euler_standard_ = std::pair<std::unique_ptr<BackwardEulerStandard>, StandardState>(std::move(solver), std::move(state));
+
+      backward_euler_standard_ =
+          std::pair<std::unique_ptr<BackwardEulerStandard>, StandardState>(std::move(solver), std::move(state));
 
       *error = NoError();
     }
@@ -426,27 +425,25 @@ namespace musica
   {
     try
     {
-      auto& solver = solver_state_pair.first;
-      auto& state = solver_state_pair.second;
+      auto &solver = solver_state_pair.first;
+      auto &state = solver_state_pair.second;
       const std::size_t num_species = state.variables_.NumColumns();
       const std::size_t num_custom_rate_parameters = state.custom_rate_parameters_.NumColumns();
 
-      int i_species_elem = 0;
-      int i_param_elem = 0;
-      for (int i_cell{}; i_cell < num_grid_cells_; ++i_cell)
+      std::size_t i_cond = 0;
+      for (auto &cond : state.conditions_)
       {
-        state.conditions_[i_cell].temperature_ = temperature[i_cell];
-        state.conditions_[i_cell].pressure_ = pressure[i_cell];
-        state.conditions_[i_cell].air_density_ = air_density[i_cell];
-        for (int i_species{}; i_species < num_species; ++i_species)
-        {
-          state.variables_[i_cell][i_species] = concentrations[i_species_elem++];
-        }
-        for (int i_param{}; i_param < num_custom_rate_parameters; ++i_param)
-        {
-          state.custom_rate_parameters_[i_cell][i_param] = custom_rate_parameters[i_param_elem++];
-        }
+        cond.temperature_ = temperature[i_cond];
+        cond.pressure_ = pressure[i_cond];
+        cond.air_density_ = air_density[i_cond++];
       }
+      std::size_t i_species_elem = 0;
+      for (auto &var : state.variables_.AsVector())
+        var = concentrations[i_species_elem++];
+
+      std::size_t i_custom_rate_elem = 0;
+      for (auto &var : state.custom_rate_parameters_.AsVector())
+        var = custom_rate_parameters[i_custom_rate_elem++];
 
       solver->CalculateRateConstants(state);
       auto result = solver->Solve(time_step, state);
@@ -464,13 +461,8 @@ namespace musica
           result.final_time_);
 
       i_species_elem = 0;
-      for (int i_cell{}; i_cell < num_grid_cells_; ++i_cell)
-      {
-        for (int i_species{}; i_species < num_species; ++i_species)
-        {
-          concentrations[i_species_elem++] = state.variables_[i_cell][i_species];
-        }
-      }
+      for (auto &var : state.variables_.AsVector())
+        concentrations[i_species_elem++] = var;
 
       DeleteError(error);
       *error = NoError();

@@ -5,6 +5,7 @@ module musica_util
 
   use iso_c_binding,                   only: c_char, c_int, c_ptr, c_size_t, &
                                              c_null_ptr, c_f_pointer
+  use iso_fortran_env,                 only: real32, real64
 
   implicit none
   private
@@ -15,10 +16,10 @@ module musica_util
             create_string_c, musica_rk, musica_dk, find_mapping_index
 
   !> Single precision kind
-  integer, parameter :: musica_rk = kind(0.0)
+  integer, parameter :: musica_rk = real32
 
   !> Double precision kind
-  integer, parameter :: musica_dk = kind(0.d0)
+  integer, parameter :: musica_dk = real64
 
   !> Wrapper for a c string
   type, bind(c) :: string_t_c
@@ -64,7 +65,8 @@ module musica_util
   end type error_t
 
   interface error_t
-    module procedure error_t_constructor
+    module procedure error_t_constructor_from_error_t_c
+    module procedure error_t_constructor_from_fortran
   end interface error_t
 
   !> Wrapper for a c configuration
@@ -354,7 +356,7 @@ contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   !> Constructor for an error_t object that takes ownership of an error_t_c
-  function error_t_constructor( c_error ) result( new_error )
+  function error_t_constructor_from_error_t_c( c_error ) result( new_error )
 
     type(error_t_c), intent(inout) :: c_error
     type(error_t) :: new_error
@@ -368,7 +370,24 @@ contains
     c_error%message_%size_ = 0_c_size_t
     c_error%code_ = 0_c_int
 
-  end function error_t_constructor
+  end function error_t_constructor_from_error_t_c
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  !> Constructor for an error_t object from fortran data
+  function error_t_constructor_from_fortran( code, category, message ) &
+      result( new_error )
+
+    integer, intent(in) :: code
+    character(len=*), intent(in) :: category
+    character(len=*), intent(in) :: message
+    type(error_t) :: new_error
+
+    new_error%code_ = code
+    new_error%category_ = category
+    new_error%message_ = message
+
+  end function error_t_constructor_from_fortran
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -728,9 +747,9 @@ contains
 
     use iso_c_binding, only: c_loc
 
-    class(index_mappings_t),      intent(inout) :: this
-    real(kind=musica_dk), target, intent(in)    :: source(:)
-    real(kind=musica_dk), target, intent(in)    :: target(:)
+    class(index_mappings_t),                  intent(inout) :: this
+    real(kind=musica_dk), target, contiguous, intent(in)    :: source(:)
+    real(kind=musica_dk), target, contiguous, intent(inout) :: target(:)
 
     call copy_data_c( this%mappings_c_, c_loc( source ), c_loc( target ) )
 
