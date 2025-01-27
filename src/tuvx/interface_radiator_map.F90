@@ -133,7 +133,7 @@ end subroutine internal_delete_radiator_map
         radiator_ptr = c_loc(f_radiator)
       class default
         error_code = 1
-        deallocate(f_radiator)
+        ! deallocate(f_radiator)
         radiator_ptr = c_null_ptr
       end select
     end if

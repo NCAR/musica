@@ -134,7 +134,7 @@ module tuvx_interface_grid_map
       grid_ptr = c_loc(f_grid)
     class default
       error_code = 1
-      deallocate(f_grid)
+      ! deallocate(f_grid)
       grid_ptr = c_null_ptr
     end select
   

@@ -134,7 +134,7 @@ module tuvx_interface_profile_map
       error_code = 0
     class default
       error_code = 1
-      deallocate(f_profile)
+      ! deallocate(f_profile)
       profile_ptr = c_null_ptr
     end select
 
