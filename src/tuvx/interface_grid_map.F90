@@ -126,7 +126,7 @@ module tuvx_interface_grid_map
   
     call c_f_pointer(grid_map, grid_warehouse)
 
-    f_grid => grid_warehouse%get_grid(f_grid_name, f_grid_units)
+    f_grid = grid_warehouse%get_grid(f_grid_name, f_grid_units)
 
     select type(f_grid) 
     type is(grid_from_host_t)
@@ -134,7 +134,7 @@ module tuvx_interface_grid_map
       grid_ptr = c_loc(f_grid)
     class default
       error_code = 1
-      ! deallocate(f_grid)
+      deallocate(f_grid)
       grid_ptr = c_null_ptr
     end select
   

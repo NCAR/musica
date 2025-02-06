@@ -126,7 +126,7 @@ module tuvx_interface_profile_map
 
     call c_f_pointer(profile_map, profile_warehouse)
 
-    f_profile => profile_warehouse%get_profile(f_profile_name, f_profile_units)
+    f_profile = profile_warehouse%get_profile(f_profile_name, f_profile_units)
 
     select type(f_profile)
     type is(profile_from_host_t)
@@ -134,7 +134,7 @@ module tuvx_interface_profile_map
       error_code = 0
     class default
       error_code = 1
-      ! deallocate(f_profile)
+      deallocate(f_profile)
       profile_ptr = c_null_ptr
     end select
 
