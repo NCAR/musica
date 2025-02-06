@@ -106,6 +106,7 @@ module tuvx_interface_profile_map
 
     ! variables
     class(profile_t), pointer          :: f_profile
+    class(profile_t), pointer          :: f_profile_ptr
     type(profile_warehouse_t), pointer :: profile_warehouse
     character(len=:), allocatable      :: f_profile_name
     character(len=:), allocatable      :: f_profile_units
@@ -126,7 +127,9 @@ module tuvx_interface_profile_map
 
     call c_f_pointer(profile_map, profile_warehouse)
 
-    f_profile = profile_warehouse%get_profile(f_profile_name, f_profile_units)
+    f_profile_ptr => profile_warehouse%get_profile(f_profile_name, f_profile_units)
+    allocate(f_profile, source = f_profile_ptr)
+    nullify(f_profile_ptr)
 
     select type(f_profile)
     type is(profile_from_host_t)

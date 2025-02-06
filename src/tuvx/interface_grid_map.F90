@@ -106,6 +106,7 @@ module tuvx_interface_grid_map
   
     ! variables
     class(grid_t), pointer          :: f_grid
+    class(grid_t), pointer          :: f_grid_ptr
     type(grid_warehouse_t), pointer :: grid_warehouse
     character(len=:), allocatable   :: f_grid_name
     character(len=:), allocatable   :: f_grid_units
@@ -126,7 +127,9 @@ module tuvx_interface_grid_map
   
     call c_f_pointer(grid_map, grid_warehouse)
 
-    f_grid = grid_warehouse%get_grid(f_grid_name, f_grid_units)
+    f_grid_ptr => grid_warehouse%get_grid(f_grid_name, f_grid_units)
+    allocate(f_grid, source = f_grid_ptr)
+    nullify(f_grid_ptr)
 
     select type(f_grid) 
     type is(grid_from_host_t)

@@ -123,9 +123,9 @@ end subroutine internal_delete_radiator_map
       error_code = 1
       radiator_ptr = c_null_ptr
     else
-      f_radiator_ptr = radiator_warehouse%get_radiator(f_radiator_name)
-      ! allocate(f_radiator, source = f_radiator_ptr)
-      ! nullify(f_radiator_ptr)
+      f_radiator_ptr => radiator_warehouse%get_radiator(f_radiator_name)
+      allocate(f_radiator, source = f_radiator_ptr)
+      nullify(f_radiator_ptr)
 
       select type(f_radiator)
       type is(radiator_from_host_t)
