@@ -41,7 +41,7 @@ target_sources(musica
   PRIVATE
     util.cpp
     component_versions.cpp
-    ${CMAKE_BINARY_DIR}/version.cpp
+    # ${CMAKE_BINARY_DIR}/version.cpp
 )
 
 target_link_libraries(musica
