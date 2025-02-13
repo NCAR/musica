@@ -35,7 +35,7 @@ if(MUSICA_ENABLE_OPENMP)
 endif()
 
 # version
-configure_file(version.cpp.in ${CMAKE_BINARY_DIR}/version.cpp @ONLY)
+# configure_file(version.cpp.in ${CMAKE_BINARY_DIR}/version.cpp @ONLY)
 
 target_sources(musica
   PRIVATE
