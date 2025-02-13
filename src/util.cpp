@@ -219,6 +219,11 @@ namespace musica
     return index_mappings;
   }
 
+  std::size_t GetIndexMappingsSize(const IndexMappings mappings)
+  {
+    return mappings.size_;
+  }
+
   void CopyData(const IndexMappings mappings, const double* source, double* target)
   {
     for (std::size_t i = 0; i < mappings.size_; i++)

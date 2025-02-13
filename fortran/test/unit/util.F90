@@ -305,6 +305,7 @@ contains
     source_data(2,:) = (/ 1.0_dk, 2.0_dk, 3.0_dk, 4.0_dk, 5.0_dk /)
     target_data(2,:) = (/ 10.0_dk, 20.0_dk, 30.0_dk, 40.0_dk /)
 
+    ASSERT_EQ( index_mappings%size( ), 2 )
     call index_mappings%copy_data( source_data(2,:), target_data(2,:) )
     ASSERT_EQ( target_data( 2, 1 ), 5.0_dk * 0.82_dk )
     ASSERT_EQ( target_data( 2, 2 ), 20.0_dk )

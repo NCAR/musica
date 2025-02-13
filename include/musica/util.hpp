@@ -131,6 +131,11 @@ namespace musica
     IndexMappings
     CreateIndexMappings(const Configuration configuration, const Mappings source, const Mappings target, Error* error);
 
+    /// @brief Returns the number of elements in an IndexMappings container
+    /// @param mappings The IndexMappings container
+    /// @return The number of elements
+    std::size_t GetIndexMappingsSize(const IndexMappings mappings);
+
     /// @brief Copies data from one array to another using IndexMappings
     /// @param mappings The array of IndexMappings
     /// @param source The source array
