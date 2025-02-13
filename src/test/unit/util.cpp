@@ -118,6 +118,7 @@ TEST(Util, IndexMappingFromString)
   EXPECT_EQ(index_mappings.mappings_[1].target_, 0);
   EXPECT_EQ(index_mappings.mappings_[1].scale_factor_, 0.82);
   EXPECT_EQ(index_mappings.size_, 2);
+  EXPECT_EQ(GetIndexMappingsSize(index_mappings), 2);
   double source[] = { 1.0, 2.0, 3.0, 4.0, 5.0 };
   double target[] = { 10.0, 20.0, 30.0, 40.0 };
   CopyData(index_mappings, source, target);
@@ -156,6 +157,7 @@ TEST(Util, IndexMappingFromFile)
   EXPECT_EQ(index_mappings.mappings_[1].target_, 0);
   EXPECT_EQ(index_mappings.mappings_[1].scale_factor_, 0.82);
   EXPECT_EQ(index_mappings.size_, 2);
+  EXPECT_EQ(GetIndexMappingsSize(index_mappings), 2);
   double source[] = { 1.0, 2.0, 3.0, 4.0, 5.0 };
   double target[] = { 10.0, 20.0, 30.0, 40.0 };
   CopyData(index_mappings, source, target);

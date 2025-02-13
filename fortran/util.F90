@@ -147,6 +147,7 @@ module musica_util
   private
     type(index_mappings_t_c) :: mappings_c_
   contains
+    procedure :: size => index_mappings_size
     procedure :: copy_data
     final :: index_mappings_finalize
   end type index_mappings_t
@@ -219,6 +220,12 @@ module musica_util
       import :: index_mappings_t_c
       type(index_mappings_t_c), intent(inout) :: mappings
     end subroutine delete_index_mappings_c
+    function get_index_mappings_size_c( mappings ) result( size ) &
+        bind(c, name="GetIndexMappingsSize")
+      import :: index_mappings_t_c, c_size_t
+      type(index_mappings_t_c), value, intent(in) :: mappings
+      integer(c_size_t) :: size
+    end function get_index_mappings_size_c
     subroutine copy_data_c(mappings, source, target) bind(c, name="CopyData")
       import :: index_mappings_t_c, c_ptr
       type(index_mappings_t_c), value, intent(in) :: mappings
@@ -739,6 +746,18 @@ contains
     error = error_t( error_c )
 
   end function index_mappings_constructor
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  !> Returns the number of elements in an index_mappings_t object
+  function index_mappings_size( this ) result( size )
+
+    class(index_mappings_t), intent(in) :: this
+    integer :: size
+
+    size = get_index_mappings_size_c( this%mappings_c_ )
+
+  end function index_mappings_size
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
