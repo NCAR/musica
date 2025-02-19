@@ -44,7 +44,7 @@ set_target_properties(musica-fortran
 target_include_directories(musica-fortran
   PUBLIC  
     $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
-    $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
+    $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
 )
 
 target_link_libraries(musica-fortran
@@ -56,12 +56,11 @@ target_sources(musica-fortran
   PRIVATE
     util.F90
 )
+
 if (MUSICA_ENABLE_MICM)
-  target_sources(musica-fortran
-    PRIVATE
-      micm.F90
-  )
+  add_subdirectory(micm)
 endif()
+
 if (MUSICA_ENABLE_TUVX)
   add_subdirectory(tuvx)
 endif()

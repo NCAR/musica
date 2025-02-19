@@ -4,7 +4,7 @@
 // This file contains the implementation of the MICM class, which represents a
 // multi-component reactive transport model. It also includes functions for
 // creating and deleting MICM instances, creating solvers, and solving the model.
-#include <musica/micm.hpp>
+#include <musica/micm/micm.hpp>
 #include <musica/util.hpp>
 
 #include <micm/solver/rosenbrock_solver_parameters.hpp>

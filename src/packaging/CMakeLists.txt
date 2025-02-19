@@ -18,23 +18,6 @@ install(
     ${MUSICA_INSTALL_INCLUDE_DIR}
 )
 
-# install fortran source files
-install(
-  FILES 
-    ${MUSICA_FORTRAN_SRC_DIR}/util.F90
-  DESTINATION 
-    ${MUSICA_INSTALL_INCLUDE_DIR}/musica/fortran
-)
-
-#include the fortran mod files
-install(
-  DIRECTORY
-    ${PROJECT_BINARY_DIR}/../include/
-  DESTINATION
-    ${MUSICA_INSTALL_INCLUDE_DIR}
-  FILES_MATCHING PATTERN "*.mod"
-)
-
 # install MICM
 if(MUSICA_ENABLE_MICM)
   install(
@@ -52,13 +35,6 @@ if(MUSICA_ENABLE_MICM)
     DESTINATION 
       ${MUSICA_INSTALL_INCLUDE_DIR}
   )
-
-  install(
-    FILES 
-      ${MUSICA_FORTRAN_SRC_DIR}/micm.F90
-    DESTINATION 
-      ${MUSICA_INSTALL_INCLUDE_DIR}/musica/fortran
-  )
 endif()
 
 # install TUV-x
@@ -69,18 +45,9 @@ if (MUSICA_ENABLE_TUVX)
     EXPORT
       musica_Exports
   )
-  install(
-    FILES 
-      ${MUSICA_FORTRAN_SRC_DIR}/tuvx/grid.F90
-      ${MUSICA_FORTRAN_SRC_DIR}/tuvx/grid_map.F90
-      ${MUSICA_FORTRAN_SRC_DIR}/tuvx/profile.F90
-      ${MUSICA_FORTRAN_SRC_DIR}/tuvx/profile_map.F90
-      ${MUSICA_FORTRAN_SRC_DIR}/tuvx/radiator.F90
-      ${MUSICA_FORTRAN_SRC_DIR}/tuvx/radiator_map.F90
-      ${MUSICA_FORTRAN_SRC_DIR}/tuvx/tuvx.F90
-    DESTINATION 
-      ${MUSICA_INSTALL_INCLUDE_DIR}/musica/fortran
-  )
+
+  # TUV-x code is written in Fortran, and until it is completely rewritten in C++, 
+  # MUSICA includes Fortran module files.
 endif()
 
 # install the cmake config files

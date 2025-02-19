@@ -12,8 +12,7 @@ install(
 # install the mod files
 install(
   DIRECTORY
-    ${MUSICA_MOD_DIR}/
-    ${tuvx_BINARY_DIR}/include
+    ${MUSICA_MOD_DIR}/../include/
   DESTINATION
     ${MUSICA_INSTALL_INCLUDE_DIR}/musica/fortran
   FILES_MATCHING PATTERN "*.mod"

@@ -58,7 +58,6 @@ set_target_properties(musica PROPERTIES
   SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
-message(STATUS "seting include directory to ${MUSICA_PROJECT_SRC_DIR}/include")
 target_include_directories(musica
   PUBLIC  
     $<BUILD_INTERFACE:${MUSICA_PROJECT_SRC_DIR}/include>
@@ -84,7 +83,6 @@ if(MUSICA_ENABLE_TUVX)
       $<TARGET_OBJECTS:tuvx_object>
   )
 
-  # but grab the include directories needed for tuvx
   target_link_libraries(musica
     PUBLIC
       tuvx_object
