@@ -45,9 +45,6 @@ if (MUSICA_ENABLE_TUVX)
     EXPORT
       musica_Exports
   )
-
-  # TUV-x code is written in Fortran, and until it is completely rewritten in C++, 
-  # MUSICA includes Fortran module files.
 endif()
 
 # install the cmake config files
