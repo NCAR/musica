@@ -9,10 +9,9 @@ install(
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
-# install the mod files
 install(
   DIRECTORY
-    ${MUSICA_MOD_DIR}/../include/
+    ${MUSICA_FORTRAN_MOD_DIR}/../include/
   DESTINATION
     ${MUSICA_INSTALL_INCLUDE_DIR}/musica/fortran
   FILES_MATCHING PATTERN "*.mod"
