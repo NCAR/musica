@@ -38,6 +38,8 @@ else()
   set(MUSICA_ENABLE_PYTHON_LIBRARY_INFO "OFF")
 endif()
 
+set(MUSICA_ENABLE_MECH_CONFIG_INFO "   (repo: ${MECH_CONFIG_GIT_REPOSITORY} tag: ${MECH_CONFIG_GIT_TAG})")
+
 # Configure musica.settings file
 configure_file("${PROJECT_SOURCE_DIR}/cmake/musica.settings.in"
   "${PROJECT_BINARY_DIR}/musica.settings"
