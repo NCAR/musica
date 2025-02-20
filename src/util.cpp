@@ -184,8 +184,12 @@ namespace musica
     delete[] mappings->mappings_;
   }
 
-  IndexMappings
-  CreateIndexMappings(const Configuration configuration, const IndexMappingOptions map_options, const Mappings source, const Mappings target, Error* error)
+  IndexMappings CreateIndexMappings(
+      const Configuration configuration,
+      const IndexMappingOptions map_options,
+      const Mappings source,
+      const Mappings target,
+      Error* error)
   {
     DeleteError(error);
     std::size_t size = configuration.data_->size();
@@ -195,7 +199,7 @@ namespace musica
     if (map_options == IndexMappingOptions::UndefinedMapping)
     {
       *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED, "Mapping options are undefined");
-      return index_mappings;   
+      return index_mappings;
     }
     for (std::size_t i = 0; i < size; i++)
     {
@@ -215,7 +219,8 @@ namespace musica
           *error = NoError();
           continue;
         }
-      } else if (!IsSuccess(*error))
+      }
+      else if (!IsSuccess(*error))
       {
         return index_mappings;
       }
@@ -232,7 +237,8 @@ namespace musica
           *error = NoError();
           continue;
         }
-      } else if (!IsSuccess(*error))
+      }
+      else if (!IsSuccess(*error))
       {
         return index_mappings;
       }

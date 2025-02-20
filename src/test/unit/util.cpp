@@ -295,7 +295,8 @@ TEST(Util, IndexMappingUndefinedOptions)
   source_map.size_ = 2;
   target_map.mappings_ = target_map_array;
   target_map.size_ = 2;
-  IndexMappings index_mappings = CreateIndexMappings(config, IndexMappingOptions::UndefinedMapping, source_map, target_map, &error);
+  IndexMappings index_mappings =
+      CreateIndexMappings(config, IndexMappingOptions::UndefinedMapping, source_map, target_map, &error);
   EXPECT_EQ(error.code_, MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED);
   EXPECT_EQ(index_mappings.size_, 0);
   EXPECT_EQ(index_mappings.mappings_, nullptr);
