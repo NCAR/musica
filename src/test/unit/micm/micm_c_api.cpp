@@ -1,4 +1,4 @@
-#include <musica/micm.hpp>
+#include <musica/micm/micm.hpp>
 #include <musica/util.hpp>
 
 #include <micm/util/error.hpp>

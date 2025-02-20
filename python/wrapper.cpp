@@ -1,6 +1,6 @@
 // Copyright (C) 2023-2025 National Center for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
-#include <musica/micm.hpp>
+#include <musica/micm/micm.hpp>
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
