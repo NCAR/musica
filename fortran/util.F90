@@ -13,13 +13,21 @@ module musica_util
   public :: string_t_c, string_t, error_t_c, error_t, configuration_t, &
             mapping_t_c, mapping_t, mappings_t_c, mappings_t, index_mappings_t, &
             to_c_string, to_f_string, assert, copy_mappings, delete_string_c, &
-            create_string_c, musica_rk, musica_dk, find_mapping_index
+            create_string_c, musica_rk, musica_dk, find_mapping_index, &
+            MUSICA_INDEX_MAPPINGS_UNDEFINED, MUSICA_INDEX_MAPPINGS_MAP_ANY, &
+            MUSICA_INDEX_MAPPINGS_MAP_ALL
 
   !> Single precision kind
   integer, parameter :: musica_rk = real32
 
   !> Double precision kind
   integer, parameter :: musica_dk = real64
+
+  integer, parameter, public :: MUSICA_ERROR_CODE_SPECIES_NOT_FOUND         = 1
+  integer, parameter, public :: MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND     = 2
+  integer, parameter, public :: MUSICA_ERROR_CODE_MAPPING_NOT_FOUND         = 3
+  integer, parameter, public :: MUSICA_ERROR_CODE_PARSING_FAILED            = 4
+  integer, parameter, public :: MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED = 5
 
   !> Wrapper for a c string
   type, bind(c) :: string_t_c
@@ -136,6 +144,13 @@ module musica_util
     module procedure mappings_constructor_from_mapping_t_array
   end interface mappings_t
 
+  !> Index mappings options
+  enum, bind(c)
+    enumerator :: MUSICA_INDEX_MAPPINGS_UNDEFINED = 0
+    enumerator :: MUSICA_INDEX_MAPPINGS_MAP_ANY   = 1
+    enumerator :: MUSICA_INDEX_MAPPINGS_MAP_ALL   = 2
+  end enum
+
   !> Wrapper for a c index-to-index mapping array
   type, bind(c) :: index_mappings_t_c
     type(c_ptr) :: mappings_ = c_null_ptr
@@ -196,10 +211,12 @@ module musica_util
       type(mappings_t_c) :: create_mappings_c
     end function create_mappings_c
     
-    function create_index_mappings_c(configuration, source, target, error) &
-        bind(c, name="CreateIndexMappings")
-      import :: index_mappings_t_c, configuration_t_c, error_t_c, mappings_t_c
+    function create_index_mappings_c(configuration, options, source, target, &
+        error) bind(c, name="CreateIndexMappings")
+      import :: index_mappings_t_c, configuration_t_c, error_t_c, &
+                mappings_t_c, c_int
       type(configuration_t_c), value, intent(in)    :: configuration
+      integer(c_int),          value, intent(in)    :: options
       type(mappings_t_c),      value, intent(in)    :: source
       type(mappings_t_c),      value, intent(in)    :: target
       type(error_t_c),                intent(inout) :: error
@@ -740,10 +757,11 @@ contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   !> Constructor for an index_mappings_t object
-  function index_mappings_constructor( configuration, source, target, error ) &
-      result( mappings )
+  function index_mappings_constructor( configuration, options, source, &
+      target, error ) result( mappings )
 
     type(configuration_t), intent(in)  :: configuration
+    integer,               intent(in)  :: options
     type(mappings_t),      intent(in)  :: source
     type(mappings_t),      intent(in)  :: target
     type(error_t),         intent(out) :: error
@@ -753,8 +771,8 @@ contains
 
     allocate( mappings )
     mappings%mappings_c_ = create_index_mappings_c( &
-        configuration%configuration_c_, source%mappings_c_, &
-        target%mappings_c_, error_c )
+        configuration%configuration_c_, int(options, kind=c_int), &
+        source%mappings_c_, target%mappings_c_, error_c )
     error = error_t( error_c )
 
   end function index_mappings_constructor

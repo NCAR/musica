@@ -4,11 +4,12 @@
 
 #include <cstddef>
 
-#define MUSICA_ERROR_CATEGORY                   "MUSICA Error"
-#define MUSICA_ERROR_CODE_SPECIES_NOT_FOUND     1
-#define MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND 2
-#define MUSICA_ERROR_CODE_MAPPING_NOT_FOUND     3
-#define MUSICA_ERROR_CODE_PARSING_FAILED        4
+#define MUSICA_ERROR_CATEGORY                       "MUSICA Error"
+#define MUSICA_ERROR_CODE_SPECIES_NOT_FOUND         1
+#define MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND     2
+#define MUSICA_ERROR_CODE_MAPPING_NOT_FOUND         3
+#define MUSICA_ERROR_CODE_PARSING_FAILED            4
+#define MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED 5
 
 #ifdef __cplusplus
   #include <yaml-cpp/yaml.h>
@@ -22,6 +23,13 @@ namespace musica
   {
     typedef YAML::Node Yaml;
 #endif
+    /// @brief Options for mapping between indices in two arrays
+    enum IndexMappingOptions
+    {
+      UndefinedMapping = 0,  // Undefined mapping
+      MapAny = 1,            // Map any pair of source and target elements that exists
+      MapAll = 2             // Map every pair of source and target elements and fail if any are missing
+    };
 
     /// @brief A struct to represent a string
     struct String
@@ -124,12 +132,13 @@ namespace musica
 
     /// @brief Creates a set of index mappings
     /// @param configuration The Configuration containing the mappings
+    /// @param map_options The options for mapping
     /// @param source The source array of name-index Mappings
     /// @param target The target array of name-index Mappings
     /// @param error The Error to populate if a Mapping is not found
     /// @return The array of IndexMappings
     IndexMappings
-    CreateIndexMappings(const Configuration configuration, const Mappings source, const Mappings target, Error* error);
+    CreateIndexMappings(const Configuration configuration, const IndexMappingOptions map_options, Mappings source, const Mappings target, Error* error);
 
     /// @brief Returns the number of elements in an IndexMappings container
     /// @param mappings The IndexMappings container

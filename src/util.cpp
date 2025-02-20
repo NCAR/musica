@@ -185,36 +185,69 @@ namespace musica
   }
 
   IndexMappings
-  CreateIndexMappings(const Configuration configuration, const Mappings source, const Mappings target, Error* error)
+  CreateIndexMappings(const Configuration configuration, const IndexMappingOptions map_options, const Mappings source, const Mappings target, Error* error)
   {
     DeleteError(error);
     std::size_t size = configuration.data_->size();
+    std::vector<IndexMapping> mappings;
     IndexMappings index_mappings;
-    index_mappings.mappings_ = new IndexMapping[size];
-    index_mappings.size_ = size;
+    index_mappings.size_ = 0;
+    if (map_options == IndexMappingOptions::UndefinedMapping)
+    {
+      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED, "Mapping options are undefined");
+      return index_mappings;   
+    }
     for (std::size_t i = 0; i < size; i++)
     {
       const YAML::Node& node = (*configuration.data_)[i];
       std::string source_name = node["source"].as<std::string>();
       std::string target_name = node["target"].as<std::string>();
       std::size_t source_index = FindMappingIndex(source, source_name.c_str(), error);
-      if (!IsSuccess(*error))
+      if (error->code_ == MUSICA_ERROR_CODE_MAPPING_NOT_FOUND)
       {
-        DeleteIndexMappings(&index_mappings);
+        if (map_options == IndexMappingOptions::MapAll)
+        {
+          return index_mappings;
+        }
+        else
+        {
+          DeleteError(error);
+          *error = NoError();
+          continue;
+        }
+      } else if (!IsSuccess(*error))
+      {
         return index_mappings;
       }
       std::size_t target_index = FindMappingIndex(target, target_name.c_str(), error);
-      if (!IsSuccess(*error))
+      if (error->code_ == MUSICA_ERROR_CODE_MAPPING_NOT_FOUND)
       {
-        DeleteIndexMappings(&index_mappings);
+        if (map_options == IndexMappingOptions::MapAll)
+        {
+          return index_mappings;
+        }
+        else
+        {
+          DeleteError(error);
+          *error = NoError();
+          continue;
+        }
+      } else if (!IsSuccess(*error))
+      {
         return index_mappings;
       }
-      index_mappings.mappings_[i].source_ = source_index;
-      index_mappings.mappings_[i].target_ = target_index;
+      double scale_factor = 1.0;
       if (node["scale factor"].IsDefined())
       {
-        index_mappings.mappings_[i].scale_factor_ = node["scale factor"].as<double>();
+        scale_factor = node["scale factor"].as<double>();
       }
+      mappings.push_back({ source_index, target_index, scale_factor });
+    }
+    index_mappings.mappings_ = new IndexMapping[mappings.size()];
+    index_mappings.size_ = mappings.size();
+    for (std::size_t i = 0; i < mappings.size(); i++)
+    {
+      index_mappings.mappings_[i] = mappings[i];
     }
     return index_mappings;
   }
