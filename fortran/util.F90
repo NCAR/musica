@@ -159,7 +159,7 @@ module musica_util
 
   !> Array of index-to-index mappings
   type :: index_mappings_t
-  private
+  ! private
     type(index_mappings_t_c) :: mappings_c_
   contains
     procedure :: size => index_mappings_size
