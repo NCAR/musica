@@ -1,11 +1,6 @@
 #include <mechanism_configuration/parser.hpp>
 
-#include <micm/util/error.hpp>
-
 #include <gtest/gtest.h>
-
-#include <iostream>
-#include <stdlib.h>
 
 
 TEST(Parser, BadConfigurationFilePath)
