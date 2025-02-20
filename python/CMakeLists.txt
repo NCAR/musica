@@ -1,11 +1,14 @@
 pybind11_add_module(musica_python 
   wrapper.cpp
   ${PROJECT_SOURCE_DIR}/src/micm/micm.cpp
+  ${PROJECT_SOURCE_DIR}/src/tuvx/tuvx.cpp
   ${PROJECT_SOURCE_DIR}/src/component_versions.cpp
   ${PROJECT_SOURCE_DIR}/src/util.cpp
   ${CMAKE_BINARY_DIR}/version.cpp
 )
 
+# target_link_libraries(musica_python PRIVATE nlohmann_json::nlohmann_json)
+# target_link_libraries(musica_python PUBLIC musica::musica)
 target_link_libraries(musica_python PRIVATE yaml-cpp)
 
 target_compile_features(musica_python PUBLIC cxx_std_20)
@@ -15,12 +18,14 @@ set_target_properties(musica_python PROPERTIES OUTPUT_NAME musica)
 target_include_directories(musica_python
   PUBLIC  
     $<BUILD_INTERFACE:${micm_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${tuvx_SOURCE_DIR}/include/tuvx>
     $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
 )
 
 target_include_directories(musica_python
   PUBLIC  
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}h/include/tuvx>
     $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
 )
 
