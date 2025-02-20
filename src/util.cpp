@@ -217,7 +217,6 @@ namespace musica
         }
       } else if (!IsSuccess(*error))
       {
-        DeleteIndexMappings(&index_mappings);
         return index_mappings;
       }
       std::size_t target_index = FindMappingIndex(target, target_name.c_str(), error);
