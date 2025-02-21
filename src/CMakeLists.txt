@@ -91,7 +91,7 @@ if(MUSICA_ENABLE_TUVX)
 
   target_include_directories(musica
     PUBLIC
-      $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+      $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
       $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
   )
 

@@ -36,8 +36,13 @@ set_target_properties(musica-fortran
     SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
+add_custom_command(TARGET musica-fortran POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+  ${MUSICA_FORTRAN_MOD_DIR} ${MUSICA_MOD_DIR}
+)
+
 target_include_directories(musica-fortran
-  PUBLIC  
+  PUBLIC
     $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
     $<BUILD_INTERFACE:${MUSICA_FORTRAN_MOD_DIR}>
     $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
