@@ -1,6 +1,5 @@
 include(FetchContent)
 
-
 ################################################################################
 # Function to reduce repeated code, set a value to a variable only if the
 # variable is not already defined. 
@@ -32,6 +31,20 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(yaml-cpp)
 
 ################################################################################
+# Mechanism Configuration
+
+set_git_default(MECH_CONFIG_GIT_REPOSITORY https://github.com/open-atmos/MechanismConfiguration.git)
+set_git_default(MECH_CONFIG_GIT_TAG 0835527)
+
+FetchContent_Declare(mechanism_configuration
+    GIT_REPOSITORY ${MECH_CONFIG_GIT_REPOSITORY}
+    GIT_TAG ${MECH_CONFIG_GIT_TAG}
+    GIT_PROGRESS NOT ${FETCHCONTENT_QUIET}
+)
+
+FetchContent_MakeAvailable(mechanism_configuration)
+
+################################################################################
 # google test
 if(MUSICA_ENABLE_TESTS)
 
@@ -60,7 +73,6 @@ endif()
 # MICM
 
 if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE)
-
   set_git_default(MICM_GIT_REPOSITORY https://github.com/NCAR/micm.git)
   set_git_default(MICM_GIT_TAG v.3.7.0)
 
