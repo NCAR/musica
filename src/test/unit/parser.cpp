@@ -1,7 +1,5 @@
-#include <mechanism_configuration/parser.hpp>
-
 #include <gtest/gtest.h>
-
+#include <mechanism_configuration/parser.hpp>
 
 TEST(Parser, BadConfigurationFilePath)
 {
