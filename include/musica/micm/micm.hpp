@@ -166,6 +166,11 @@ namespace musica
   }
 #endif
 
+  struct Chemistry {
+    micm::System system_;
+    std::vector<micm::Process> processes_;
+  };
+
   class MICM
   {
    public:
@@ -272,6 +277,8 @@ namespace musica
     {
       return num_grid_cells_;
     }
+
+    Chemistry ReadConfiguration(const std::string& config_path, Error *error);
 
    private:
     int num_grid_cells_;

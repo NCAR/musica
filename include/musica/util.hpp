@@ -10,6 +10,9 @@
 #define MUSICA_ERROR_CODE_MAPPING_NOT_FOUND         3
 #define MUSICA_ERROR_CODE_PARSING_FAILED            4
 #define MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED 5
+#define MUSICA_ERROR_CODE_CONFIG_PARSE_FAILED       6
+#define MUSICA_ERROR_CODE_VERSION_NOT_SUPPORTED     7
+
 
 #ifdef __cplusplus
   #include <yaml-cpp/yaml.h>

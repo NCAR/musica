@@ -12,6 +12,8 @@
 #include <micm/system/species.hpp>
 #include <micm/version.hpp>
 
+#include <mechanism_configuration/parser.hpp>
+
 #include <cmath>
 #include <cstddef>
 #include <filesystem>
@@ -26,6 +28,8 @@ namespace musica
     DeleteError(error);
     MICM *micm = new MICM();
     micm->SetNumGridCells(num_grid_cells);
+
+    Chemistry chemistry = micm->ReadConfiguration(std::string(config_path), error);
 
     if (solver_type == MICMSolver::Rosenbrock)
     {
@@ -472,6 +476,48 @@ namespace musica
       DeleteError(error);
       *error = ToError(e);
     }
+  }
+
+  Chemistry ParserV0(const mechanism_configuration::ParserResult<>& result)
+  {
+    return Chemistry{};
+  }
+
+  Chemistry ParserV1(const mechanism_configuration::ParserResult<>& result)
+  {
+    return Chemistry{};
+  }
+
+  Chemistry MICM::ReadConfiguration(const std::string &config_path, Error *error)
+  {
+    mechanism_configuration::UniversalParser parser;
+    Chemistry chemistry{};
+
+    auto parsed = parser.Parse(config_path);
+    if (!parsed)
+    {
+      std::string errors;
+      for (auto &error : parsed.errors)
+      {
+        errors += error.second + "\n";
+      }
+      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_CONFIG_PARSE_FAILED, errors.c_str());
+    }
+    else
+    {
+      mechanism_configuration::Version version = parsed.mechanism->version;
+
+      switch (version.major)
+      {
+        case 0: chemistry = ParserV0(parsed); break;
+        case 1: chemistry = ParserV1(parsed); break;
+        default:
+          std::string msg = "Version " + std::to_string(version.major) + " not supported";
+          *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_VERSION_NOT_SUPPORTED, msg.c_str());
+      }
+    }
+
+    return chemistry;
   }
 
 }  // namespace musica
