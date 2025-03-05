@@ -175,6 +175,30 @@ namespace musica
     }
   }
 
+  
+  void convert_ternary_chemical_activation(
+      Chemistry& chemistry,
+      const std::vector<mechanism_configuration::v0::types::TernaryChemicalActivation>& ternary_chemical_activation,
+      std::unordered_map<std::string, micm::Species>& species_map)
+  {
+    for (const auto& reaction : ternary_chemical_activation)
+    {
+      auto reactants = reaction_components_to_reactants(reaction.reactants, species_map);
+      auto products = reaction_components_to_products(reaction.products, species_map);
+      micm::TernaryChemicalActivationRateConstantParameters parameters;
+      parameters.k0_A_ = reaction.k0_A;
+      parameters.k0_B_ = reaction.k0_B;
+      parameters.k0_C_ = reaction.k0_C;
+      parameters.kinf_A_ = reaction.kinf_A;
+      parameters.kinf_B_ = reaction.kinf_B;
+      parameters.kinf_C_ = reaction.kinf_C;
+      parameters.Fc_ = reaction.Fc;
+      parameters.N_ = reaction.N;
+      chemistry.processes.push_back(micm::Process(
+          reactants, products, std::make_unique<micm::TernaryChemicalActivationRateConstant>(parameters), chemistry.system.gas_phase_));
+    }
+  }
+
   void convert_tunneling(
       Chemistry& chemistry,
       const std::vector<mechanism_configuration::v0::types::Tunneling>& tunneling,
@@ -215,6 +239,7 @@ namespace musica
       convert_user_defined(chemistry, v0_mechanism->reactions.user_defined, species_map);
       convert_surface(chemistry, v0_mechanism->reactions.surface, species_map);
       convert_troe(chemistry, v0_mechanism->reactions.troe, species_map);
+      convert_ternary_chemical_activation(chemistry, v0_mechanism->reactions.ternary_chemical_activation, species_map);
       convert_tunneling(chemistry, v0_mechanism->reactions.tunneling, species_map);
     }
 
