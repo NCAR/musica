@@ -148,16 +148,29 @@ namespace musica
       }
     }
 
-    void convert_processes(
+    void convert_troe(
         Chemistry& chemistry,
-        const mechanism_configuration::v0::types::Mechanism& mechanism,
+        const std::vector<mechanism_configuration::v0::types::Troe>& troe,
         std::unordered_map<std::string, micm::Species>& species_map)
     {
-      convert_arrhenius(chemistry, mechanism.reactions.arrhenius, species_map);
-      convert_branched(chemistry, mechanism.reactions.branched, species_map);
-      convert_user_defined(chemistry, mechanism.reactions.user_defined, species_map);
-      convert_surface(chemistry, mechanism.reactions.surface, species_map);
+      for (const auto& reaction : troe)
+      {
+        auto reactants = reaction_components_to_reactants(reaction.reactants, species_map);
+        auto products = reaction_components_to_products(reaction.products, species_map);
+        micm::TroeRateConstantParameters parameters;
+        parameters.k0_A_ = reaction.k0_A;
+        parameters.k0_B_ = reaction.k0_B;
+        parameters.k0_C_ = reaction.k0_C;
+        parameters.kinf_A_ = reaction.kinf_A;
+        parameters.kinf_B_ = reaction.kinf_B;
+        parameters.kinf_C_ = reaction.kinf_C;
+        parameters.Fc_ = reaction.Fc;
+        parameters.N_ = reaction.N;
+        chemistry.processes.push_back(micm::Process(
+            reactants, products, std::make_unique<micm::TroeRateConstant>(parameters), chemistry.system.gas_phase_));
+      }
     }
+
   }  // namespace v0
 
   Chemistry ParserV0(const mechanism_configuration::ParserResult<>& result, Error* error)
@@ -177,7 +190,11 @@ namespace musica
       {
         species_map[species.name_] = species;
       }
-      v0::convert_processes(chemistry, *v0_mechanism, species_map);
+      v0::convert_arrhenius(chemistry, v0_mechanism->reactions.arrhenius, species_map);
+      v0::convert_branched(chemistry, v0_mechanism->reactions.branched, species_map);
+      v0::convert_user_defined(chemistry, v0_mechanism->reactions.user_defined, species_map);
+      v0::convert_surface(chemistry, v0_mechanism->reactions.surface, species_map);
+      v0::convert_troe(chemistry, v0_mechanism->reactions.troe, species_map);
     }
 
     return chemistry;
