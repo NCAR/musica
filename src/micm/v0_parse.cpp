@@ -175,6 +175,24 @@ namespace musica
     }
   }
 
+  void convert_tunneling(
+      Chemistry& chemistry,
+      const std::vector<mechanism_configuration::v0::types::Tunneling>& tunneling,
+      std::unordered_map<std::string, micm::Species>& species_map)
+  {
+    for (const auto& reaction : tunneling)
+    {
+      auto reactants = reaction_components_to_reactants(reaction.reactants, species_map);
+      auto products = reaction_components_to_products(reaction.products, species_map);
+      micm::TunnelingRateConstantParameters parameters;
+      parameters.A_ = reaction.A;
+      parameters.B_ = reaction.B;
+      parameters.C_ = reaction.C;
+      chemistry.processes.push_back(micm::Process(
+          reactants, products, std::make_unique<micm::TunnelingRateConstant>(parameters), chemistry.system.gas_phase_));
+    }
+  }
+
   Chemistry ParserV0(const mechanism_configuration::ParserResult<>& result, Error* error)
   {
     using V0 = mechanism_configuration::v0::types::Mechanism;
@@ -197,6 +215,7 @@ namespace musica
       convert_user_defined(chemistry, v0_mechanism->reactions.user_defined, species_map);
       convert_surface(chemistry, v0_mechanism->reactions.surface, species_map);
       convert_troe(chemistry, v0_mechanism->reactions.troe, species_map);
+      convert_tunneling(chemistry, v0_mechanism->reactions.tunneling, species_map);
     }
 
     return chemistry;
