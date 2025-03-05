@@ -5,6 +5,7 @@
 // multi-component reactive transport model. It also includes functions for
 // creating and deleting MICM instances, creating solvers, and solving the model.
 #include <musica/micm/micm.hpp>
+#include <musica/micm/parse.hpp>
 #include <musica/util.hpp>
 
 #include <micm/solver/rosenbrock_solver_parameters.hpp>
@@ -13,6 +14,7 @@
 #include <micm/version.hpp>
 
 #include <mechanism_configuration/parser.hpp>
+#include <mechanism_configuration/v0/types.hpp>
 
 #include <cmath>
 #include <cstddef>
@@ -478,16 +480,6 @@ namespace musica
     }
   }
 
-  Chemistry ParserV0(const mechanism_configuration::ParserResult<>& result)
-  {
-    return Chemistry{};
-  }
-
-  Chemistry ParserV1(const mechanism_configuration::ParserResult<>& result)
-  {
-    return Chemistry{};
-  }
-
   Chemistry MICM::ReadConfiguration(const std::string &config_path, Error *error)
   {
     mechanism_configuration::UniversalParser parser;
@@ -509,8 +501,8 @@ namespace musica
 
       switch (version.major)
       {
-        case 0: chemistry = ParserV0(parsed); break;
-        case 1: chemistry = ParserV1(parsed); break;
+        case 0: chemistry = ParserV0(parsed, error); break;
+        case 1: chemistry = ParserV1(parsed, error); break;
         default:
           std::string msg = "Version " + std::to_string(version.major) + " not supported";
           *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_VERSION_NOT_SUPPORTED, msg.c_str());
