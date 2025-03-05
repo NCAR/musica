@@ -1,6 +1,7 @@
 // Copyright (C) 2023-2024 National Center for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 #include <musica/micm.hpp>
+#include <musica/state.hpp>
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -10,7 +11,29 @@ namespace py = pybind11;
 // Wraps micm.cpp
 PYBIND11_MODULE(musica, m)
 {
-  py::class_<musica::MICM>(m, "micm").def(py::init<>()).def("__del__", [](musica::MICM &micm) {});
+  py::class_<micm::Conditions>(m, "Conditions")
+    .def(py::init<>())  
+    .def_readwrite("temperature", &micm::Conditions::temperature_)
+    .def_readwrite("pressure", &micm::Conditions::pressure_)
+    .def_readwrite("air_density", &micm::Conditions::air_density_);
+
+  py::class_<musica::MICM>(m, "micm").def(py::init<>()).def("__del__", [](musica::MICM &micm) {
+    //TODO call error here
+    // read the error and then throw the exception
+    //musica::DeleteMicm(micm)
+  });  
+  
+  py::class_<musica::State>(m, "state")
+    .def(py::init<>()).def("__del__", [](musica::State &state)
+     {
+    //musica::DeleteState(state)
+  })
+  .def_property("conditions", &musica::State::GetConditions, &musica::State::SetConditions)
+  .def_property("temperatures_vec", &musica::State::GetTemperaturesVec, &musica::State::SetTemperaturesVec)
+  .def_property("pressures_vec", &musica::State::GetPressuresVec, &musica::State::SetPressuresVec)
+  .def_property("air_densities_vec", &musica::State::GetAirDensitiesVec, &musica::State::SetAirDensitiesVec)
+  .def_property("ordered_concentrations", &musica::State::GetOrderedConcentrations, &musica::State::SetOrderedConcentrations)
+  .def_property("ordered_rate_constants", &musica::State::GetOrderedRateConstants, &musica::State::SetOrderedRateConstants);
 
   py::enum_<musica::MICMSolver>(m, "micmsolver")
       .value("rosenbrock", musica::MICMSolver::Rosenbrock)
@@ -32,176 +55,64 @@ PYBIND11_MODULE(musica, m)
         }
         return micm;
       });
+      
+    m.def(
+      "create_state",
+      [](musica::MICM *micm)
+      {
+        musica::State *state = musica::CreateMicmState(micm);        
+        return state;
+      }); 
 
-  m.def("delete_micm", &musica::DeleteMicm);
+  //m.def("delete_micm", &musica::DeleteMicm);
 
   m.def(
       "micm_solve",
       [](musica::MICM *micm,
-         double time_step,
-         py::object temperature,
-         py::object pressure,
-         py::object air_density,
-         py::list concentrations,
-         py::object custom_rate_parameters = py::none())
+         musica::State *state_wrapper,
+         double time_step)
       {
-        std::vector<double> temperature_cpp;
-        if (py::isinstance<py::float_>(temperature))
-        {
-          temperature_cpp.push_back(temperature.cast<double>());
-        }
-        else if (py::isinstance<py::list>(temperature))
-        {
-          py::list temperature_list = temperature.cast<py::list>();
-          temperature_cpp.reserve(len(temperature_list));
-          for (auto item : temperature_list)
-          {
-            temperature_cpp.push_back(item.cast<double>());
-          }
-        }
-        else
-        {
-          throw std::runtime_error(
-              "Temperature must be a list or a double. Got " +
-              std::string(py::str(temperature.get_type()).cast<std::string>()));
-        }
-        std::vector<double> pressure_cpp;
-        if (py::isinstance<py::float_>(pressure))
-        {
-          pressure_cpp.push_back(pressure.cast<double>());
-        }
-        else if (py::isinstance<py::list>(pressure))
-        {
-          py::list pressure_list = pressure.cast<py::list>();
-          pressure_cpp.reserve(len(pressure_list));
-          for (auto item : pressure_list)
-          {
-            pressure_cpp.push_back(item.cast<double>());
-          }
-        }
-        else
-        {
-          throw std::runtime_error(
-              "Pressure must be a list or a double. Got " + std::string(py::str(pressure.get_type()).cast<std::string>()));
-        }
-        std::vector<double> air_density_cpp;
-        if (py::isinstance<py::float_>(air_density))
-        {
-          air_density_cpp.push_back(air_density.cast<double>());
-        }
-        else if (py::isinstance<py::list>(air_density))
-        {
-          py::list air_density_list = air_density.cast<py::list>();
-          air_density_cpp.reserve(len(air_density_list));
-          for (auto item : air_density_list)
-          {
-            air_density_cpp.push_back(item.cast<double>());
-          }
-        }
-        else
-        {
-          throw std::runtime_error(
-              "Air density must be a list or a double. Got " +
-              std::string(py::str(air_density.get_type()).cast<std::string>()));
-        }
-        std::vector<double> concentrations_cpp;
-        concentrations_cpp.reserve(len(concentrations));
-        for (auto item : concentrations)
-        {
-          concentrations_cpp.push_back(item.cast<double>());
-        }
-        std::vector<double> custom_rate_parameters_cpp;
-        if (!custom_rate_parameters.is_none())
-        {
-          py::list parameters = custom_rate_parameters.cast<py::list>();
-          custom_rate_parameters_cpp.reserve(len(parameters));
-          for (auto item : parameters)
-          {
-            custom_rate_parameters_cpp.push_back(item.cast<double>());
-          }
-        }
         musica::String solver_state;
         musica::SolverResultStats solver_stats;
-        musica::Error error;
+        musica::Error error;     
         musica::MicmSolve(
-            micm,
+            micm, 
             time_step,
-            temperature_cpp.data(),
-            pressure_cpp.data(),
-            air_density_cpp.data(),
-            concentrations_cpp.data(),
-            custom_rate_parameters_cpp.data(),
             &solver_state,
             &solver_stats,
-            &error);
+            &error,
+            state_wrapper);
         if (!musica::IsSuccess(error))
         {
           std::string message = "Error solving system: " + std::string(error.message_.value_);
           DeleteError(&error);
           throw std::runtime_error(message);
         }
-
-        // Update the concentrations list after solving
-        for (std::size_t i = 0; i < concentrations_cpp.size(); ++i)
-        {
-          concentrations[i] = concentrations_cpp[i];
-        }
       },
       "Solve the system");
 
   m.def(
       "species_ordering",
-      [](musica::MICM *micm)
+      [](musica::MICM *micm, musica::State *state_wrapper)
       {
-        musica::Error error;
         std::map<std::string, std::size_t> map;
-
-        if (micm->solver_type_ == musica::MICMSolver::Rosenbrock)
-        {
-          map = micm->rosenbrock_.second.variable_map_;
-        }
-        else if (micm->solver_type_ == musica::MICMSolver::RosenbrockStandardOrder)
-        {
-          map = micm->rosenbrock_standard_.second.variable_map_;
-        }
-        else if (micm->solver_type_ == musica::MICMSolver::BackwardEuler)
-        {
-          map = micm->backward_euler_.second.variable_map_;
-        }
-        else if (micm->solver_type_ == musica::MICMSolver::BackwardEulerStandardOrder)
-        {
-          map = micm->backward_euler_standard_.second.variable_map_;
-        }
-
-        return map;
+        std::visit([&map](auto& state) {
+              map = state.variable_map_;
+          }, state_wrapper->state_variant_);
+          return map;
       },
       "Return map of get_species_ordering rates");
 
   m.def(
       "user_defined_reaction_rates",
-      [](musica::MICM *micm)
+      [](musica::MICM *micm, musica::State *state_wrapper)
       {
-        musica::Error error;
         std::map<std::string, std::size_t> map;
 
-        if (micm->solver_type_ == musica::MICMSolver::Rosenbrock)
-        {
-          map = micm->rosenbrock_.second.custom_rate_parameter_map_;
-        }
-        else if (micm->solver_type_ == musica::MICMSolver::RosenbrockStandardOrder)
-        {
-          map = micm->rosenbrock_standard_.second.custom_rate_parameter_map_;
-        }
-        else if (micm->solver_type_ == musica::MICMSolver::BackwardEuler)
-        {
-          map = micm->backward_euler_.second.custom_rate_parameter_map_;
-        }
-        else if (micm->solver_type_ == musica::MICMSolver::BackwardEulerStandardOrder)
-        {
-          map = micm->backward_euler_standard_.second.custom_rate_parameter_map_;
-        }
-
-        return map;
+        std::visit([&map](auto& state) {
+              map = state.custom_rate_parameter_map_;
+          }, state_wrapper->state_variant_);
+          return map;
       },
       "Return map of reaction rates");
 }

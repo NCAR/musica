@@ -25,6 +25,8 @@
 #include <utility>
 #include <vector>
 
+#include<musica/state.hpp>
+
 #ifndef MICM_VECTOR_MATRIX_SIZE
   #define MICM_VECTOR_MATRIX_SIZE 4
 #endif
@@ -127,14 +129,10 @@ namespace musica
     void MicmSolve(
         MICM *micm,
         double time_step,
-        double *temperature,
-        double *pressure,
-        double *air_density,
-        double *concentrations,
-        double *custom_rate_parameters,
         String *solver_state,
         SolverResultStats *solver_stats,
-        Error *error);
+        Error *error, 
+        musica::State *state_wrapper);
 
     /// @brief Get the MICM version
     /// @return MICM version
@@ -144,13 +142,13 @@ namespace musica
     /// @param micm Pointer to MICM object
     /// @param error Error struct to indicate success or failure
     /// @return Array of species' name-index pairs
-    Mappings GetSpeciesOrdering(MICM *micm, Error *error);
+    Mappings GetSpeciesOrdering(MICM *micm, musica::State *state_wrapper, Error *error);
 
     /// @brief Get the ordering of user-defined reaction rates
     /// @param micm Pointer to MICM object
     /// @param error Error struct to indicate success or failure
     /// @return Array of reaction rate name-index pairs
-    Mappings GetUserDefinedReactionRatesOrdering(MICM *micm, Error *error);
+    Mappings GetUserDefinedReactionRatesOrdering(MICM *micm, musica::State *state_wrapper, Error *error);
 
     /// @brief Get a property for a chemical species
     /// @param micm Pointer to MICM object
@@ -199,16 +197,12 @@ namespace musica
     /// @param custom_rate_parameters Array of custom rate parameters [grid cell][parameter] (various units)
     /// @param error Error struct to indicate success or failure
     void Solve(
-        auto &solver_state_pair,
+        MICM *micm,
         double time_step,
-        double *temperature,
-        double *pressure,
-        double *air_density,
-        double *concentrations,
-        double *custom_rate_parameters,
         String *solver_state,
         SolverResultStats *solver_stats,
-        Error *error);
+        Error *error,
+        musica::State *state=nullptr);
 
     /// @brief Set solver type
     /// @param MICMSolver Type of MICMSolver
@@ -242,6 +236,7 @@ namespace musica
         template SolverType<micm::ProcessSet, micm::LinearSolver<SparseMatrixVector, micm::LuDecomposition>>;
     using Rosenbrock = micm::Solver<RosenbrockVectorType, micm::State<DenseMatrixVector, SparseMatrixVector>>;
     using VectorState = micm::State<DenseMatrixVector, SparseMatrixVector>;
+    //std::unique_ptr<Rosenbrock> rosenbrockSolver_;
     std::pair<std::unique_ptr<Rosenbrock>, VectorState> rosenbrock_;
 
     /// @brief Standard-ordered Rosenbrock solver type
@@ -264,7 +259,19 @@ namespace musica
         template SolverType<micm::ProcessSet, micm::LinearSolver<SparseMatrixStandard, micm::LuDecomposition>>;
     using BackwardEulerStandard =
         micm::Solver<BackwardEulerStandardType, micm::State<DenseMatrixStandard, SparseMatrixStandard>>;
-    std::pair<std::unique_ptr<BackwardEulerStandard>, StandardState> backward_euler_standard_;
+    //std::pair<std::unique_ptr<BackwardEulerStandard>, StandardState> backward_euler_standard_;
+
+
+    // Define the variant that holds all solver types
+        using SolverVariant = std::variant<
+          std::unique_ptr<Rosenbrock>,
+          std::unique_ptr<RosenbrockStandard>,
+          std::unique_ptr<BackwardEuler>,
+          std::unique_ptr<BackwardEulerStandard>>;
+      
+    SolverVariant solver_variant_;
+
+    
 
     /// @brief Returns the number of grid cells
     /// @return Number of grid cells
