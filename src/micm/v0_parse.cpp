@@ -29,6 +29,10 @@ namespace musica
       s.SetProperty(validation::THIRD_BODY, elem.third_body);
       s.SetProperty(validation::ABS_TOLERANCE, elem.absolute_tolerance);
       s.SetProperty(validation::TRACER_TYPE, elem.tracer_type);
+      if (elem.tracer_type == "THIRD_BODY")
+      {
+        s.SetThirdBody();
+      }
       gas_phase.species_.push_back(s);
     }
     chemistry.system.gas_phase_ = gas_phase;
