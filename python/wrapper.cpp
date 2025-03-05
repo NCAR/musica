@@ -17,21 +17,16 @@ PYBIND11_MODULE(musica, m)
     .def_readwrite("pressure", &micm::Conditions::pressure_)
     .def_readwrite("air_density", &micm::Conditions::air_density_);
 
-  py::class_<musica::MICM>(m, "micm").def(py::init<>()).def("__del__", [](musica::MICM &micm) {
-    //TODO call error here
-    // read the error and then throw the exception
-    //musica::DeleteMicm(micm)
+  py::class_<musica::MICM>(m, "micm").def(py::init<>()).def("__del__", [](musica::MICM *micm) {
+     musica::Error *error;
+    musica::DeleteMicm(micm, error);
   });  
   
   py::class_<musica::State>(m, "state")
     .def(py::init<>()).def("__del__", [](musica::State &state)
      {
-    //musica::DeleteState(state)
   })
   .def_property("conditions", &musica::State::GetConditions, &musica::State::SetConditions)
-  .def_property("temperatures_vec", &musica::State::GetTemperaturesVec, &musica::State::SetTemperaturesVec)
-  .def_property("pressures_vec", &musica::State::GetPressuresVec, &musica::State::SetPressuresVec)
-  .def_property("air_densities_vec", &musica::State::GetAirDensitiesVec, &musica::State::SetAirDensitiesVec)
   .def_property("ordered_concentrations", &musica::State::GetOrderedConcentrations, &musica::State::SetOrderedConcentrations)
   .def_property("ordered_rate_constants", &musica::State::GetOrderedRateConstants, &musica::State::SetOrderedRateConstants);
 

@@ -109,21 +109,6 @@ namespace musica {
              }, state_variant_);
         }
        
-       // Getters and Setters for vector of pressures (double)
-        std::vector<double>& GetTemperaturesVec() { return temperatures_vec_; }
-        void SetTemperaturesVec(const std::vector<double>& temperatures) { temperatures_vec_ = temperatures; }
-
-        // Getters and Setters for vector of pressures (double)
-        std::vector<double>& GetPressuresVec() { return pressures_vec_; }
-        void SetPressuresVec(const std::vector<double>& pressures) { pressures_vec_ = pressures; }
-
-        // Getters and Setters for vector of air densities (double)
-        std::vector<double>& GetAirDensitiesVec() { return air_densities_vec; }
-        void SetAirDensitiesVec(const std::vector<double>& air_densities) { air_densities_vec = air_densities; }
-
-        std::vector<double> temperatures_vec_;
-        std::vector<double> pressures_vec_;
-        std::vector<double> air_densities_vec;
         std::vector<double> ordered_concentrations_;
         std::vector<double> ordered_rate_constants_;
         StateVariant state_variant_;
