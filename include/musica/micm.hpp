@@ -236,8 +236,6 @@ namespace musica
         template SolverType<micm::ProcessSet, micm::LinearSolver<SparseMatrixVector, micm::LuDecomposition>>;
     using Rosenbrock = micm::Solver<RosenbrockVectorType, micm::State<DenseMatrixVector, SparseMatrixVector>>;
     using VectorState = micm::State<DenseMatrixVector, SparseMatrixVector>;
-    //std::unique_ptr<Rosenbrock> rosenbrockSolver_;
-    std::pair<std::unique_ptr<Rosenbrock>, VectorState> rosenbrock_;
 
     /// @brief Standard-ordered Rosenbrock solver type
     using DenseMatrixStandard = micm::Matrix<double>;
@@ -246,21 +244,17 @@ namespace musica
         template SolverType<micm::ProcessSet, micm::LinearSolver<SparseMatrixStandard, micm::LuDecomposition>>;
     using RosenbrockStandard = micm::Solver<RosenbrockStandardType, micm::State<DenseMatrixStandard, SparseMatrixStandard>>;
     using StandardState = micm::State<DenseMatrixStandard, SparseMatrixStandard>;
-    std::pair<std::unique_ptr<RosenbrockStandard>, StandardState> rosenbrock_standard_;
 
     /// @brief Vector-ordered Backward Euler
     using BackwardEulerVectorType = typename micm::BackwardEulerSolverParameters::
         template SolverType<micm::ProcessSet, micm::LinearSolver<SparseMatrixVector, micm::LuDecomposition>>;
     using BackwardEuler = micm::Solver<BackwardEulerVectorType, micm::State<DenseMatrixVector, SparseMatrixVector>>;
-    std::pair<std::unique_ptr<BackwardEuler>, VectorState> backward_euler_;
 
     /// @brief Standard-ordered Backward Euler
     using BackwardEulerStandardType = typename micm::BackwardEulerSolverParameters::
         template SolverType<micm::ProcessSet, micm::LinearSolver<SparseMatrixStandard, micm::LuDecomposition>>;
     using BackwardEulerStandard =
         micm::Solver<BackwardEulerStandardType, micm::State<DenseMatrixStandard, SparseMatrixStandard>>;
-    //std::pair<std::unique_ptr<BackwardEulerStandard>, StandardState> backward_euler_standard_;
-
 
     // Define the variant that holds all solver types
         using SolverVariant = std::variant<
