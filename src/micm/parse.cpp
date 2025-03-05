@@ -130,6 +130,24 @@ namespace musica
       }
     }
 
+    void convert_surface(
+        Chemistry& chemistry,
+        const std::vector<mechanism_configuration::v0::types::Surface>& surface,
+        std::unordered_map<std::string, micm::Species>& species_map)
+    {
+      for (const auto& reaction : surface)
+      {
+        auto reactants = reaction_components_to_reactants({ reaction.gas_phase_species }, species_map);
+        auto products = reaction_components_to_products(reaction.gas_phase_products, species_map);
+        micm::SurfaceRateConstantParameters parameters;
+        parameters.reaction_probability_ = reaction.reaction_probability;
+        parameters.label_ = reaction.name;
+        parameters.species_ = species_map[reaction.gas_phase_species.species_name];
+        chemistry.processes.push_back(micm::Process(
+            reactants, products, std::make_unique<micm::SurfaceRateConstant>(parameters), chemistry.system.gas_phase_));
+      }
+    }
+
     void convert_processes(
         Chemistry& chemistry,
         const mechanism_configuration::v0::types::Mechanism& mechanism,
@@ -137,6 +155,8 @@ namespace musica
     {
       convert_arrhenius(chemistry, mechanism.reactions.arrhenius, species_map);
       convert_branched(chemistry, mechanism.reactions.branched, species_map);
+      convert_user_defined(chemistry, mechanism.reactions.user_defined, species_map);
+      convert_surface(chemistry, mechanism.reactions.surface, species_map);
     }
   }  // namespace v0
 
