@@ -32,6 +32,7 @@ namespace musica
     micm->SetNumGridCells(num_grid_cells);
 
     Chemistry chemistry = micm->ReadConfiguration(std::string(config_path), error);
+    std::cout << "made chemistry\n";
 
     if (solver_type == MICMSolver::Rosenbrock)
     {
