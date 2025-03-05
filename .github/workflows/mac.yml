@@ -39,7 +39,7 @@ jobs:
       - run: pip install numpy --user
 
       - name: Run Cmake 
-        if: matrix.compiler.cpp != 'g++-13'
+        # if: matrix.compiler.cpp != 'g++-13'
         run: |
             PYTHON_PATH=$(which python)
             cmake -S . -B build \
@@ -49,23 +49,23 @@ jobs:
                 -D MUSICA_ENABLE_PYTHON_LIBRARY=ON \
                 -D Python3_EXECUTABLE=$PYTHON_PATH 
 
-      - name: Run Cmake 
-        if: matrix.compiler.cpp == 'g++-13'
-        run: |
-            PYTHON_PATH=$(which python)
-            # for some reason gcc 13 was having issues finding the correct osx sdk
-            # it seems it was a known issue: https://github.com/actions/runner-images/issues/9997
-            # for some reason, passing in an empty string for the osx sysroot fixed the issue
-            cmake -S . -B build \
-                -D CMAKE_CXX_FLAGS=-Wl,-ld_classic \
-                -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-                -D MUSICA_GIT_TAG=${{ github.sha }} \
-                -D MUSICA_ENABLE_PYTHON_LIBRARY=ON \
-                -D Python3_EXECUTABLE=$PYTHON_PATH \
-                -D CMAKE_OSX_SYSROOT=""
+      # - name: Run Cmake 
+      #   if: matrix.compiler.cpp == 'g++-13'
+      #   run: |
+      #       PYTHON_PATH=$(which python)
+      #       # for some reason gcc 13 was having issues finding the correct osx sdk
+      #       # it seems it was a known issue: https://github.com/actions/runner-images/issues/9997
+      #       # for some reason, passing in an empty string for the osx sysroot fixed the issue
+      #       cmake -S . -B build \
+      #           -D CMAKE_CXX_FLAGS=-Wl,-ld_classic \
+      #           -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+      #           -D MUSICA_GIT_TAG=${{ github.sha }} \
+      #           -D MUSICA_ENABLE_PYTHON_LIBRARY=ON \
+      #           -D Python3_EXECUTABLE=$PYTHON_PATH \
+      #           -D CMAKE_OSX_SYSROOT=""
 
       - name: Build
-        run: cmake --build build --verbose --parallel 10
+        run: cmake --build build --verbose
 
       - name: Run tests
         run: |
