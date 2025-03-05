@@ -38,15 +38,21 @@ if(APPLE)
     INSTALL_RPATH "@loader_path"
     BUILD_WITH_INSTALL_RPATH TRUE
   )
+  set_target_properties(musica_python PROPERTIES
+    INSTALL_RPATH_USE_LINK_PATH TRUE
+  )
 elseif(UNIX)
   message(STATUS "Building for Linux")
   set_target_properties(musica_python PROPERTIES
     INSTALL_RPATH "$ORIGIN"
     BUILD_WITH_INSTALL_RPATH TRUE
   )
+  set_target_properties(musica_python PROPERTIES
+    INSTALL_RPATH_USE_LINK_PATH TRUE
+  )
 endif()
 
-install(TARGETS musica_python yaml-cpp
+install(TARGETS musica_python yaml-cpp mechanism_configuration
   LIBRARY DESTINATION .
 )
 
