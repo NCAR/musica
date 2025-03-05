@@ -6,7 +6,12 @@ pybind11_add_module(musica_python
   ${CMAKE_BINARY_DIR}/version.cpp
 )
 
-target_link_libraries(musica_python PRIVATE yaml-cpp)
+target_link_libraries(musica_python 
+  PUBLIC 
+    open_atmos::mechanism_configuration
+  PRIVATE 
+    yaml-cpp
+)
 
 target_compile_features(musica_python PUBLIC cxx_std_20)
 
