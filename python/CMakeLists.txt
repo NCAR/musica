@@ -1,6 +1,8 @@
 pybind11_add_module(musica_python 
   wrapper.cpp
   ${PROJECT_SOURCE_DIR}/src/micm/micm.cpp
+  ${PROJECT_SOURCE_DIR}/src/micm/v0_parse.cpp
+  ${PROJECT_SOURCE_DIR}/src/micm/v1_parse.cpp
   ${PROJECT_SOURCE_DIR}/src/component_versions.cpp
   ${PROJECT_SOURCE_DIR}/src/util.cpp
   ${CMAKE_BINARY_DIR}/version.cpp
