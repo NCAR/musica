@@ -113,12 +113,30 @@ namespace musica
       }
     }
 
+    void convert_user_defined(
+        Chemistry& chemistry,
+        const std::vector<mechanism_configuration::v0::types::UserDefined>& user_defined,
+        std::unordered_map<std::string, micm::Species>& species_map)
+    {
+      for (const auto& reaction : user_defined)
+      {
+        auto reactants = reaction_components_to_reactants(reaction.reactants, species_map);
+        auto products = reaction_components_to_products(reaction.products, species_map);
+        micm::UserDefinedRateConstantParameters parameters;
+        parameters.scaling_factor_ = reaction.scaling_factor;
+        parameters.label_ = reaction.name;
+        chemistry.processes.push_back(micm::Process(
+            reactants, products, std::make_unique<micm::UserDefinedRateConstant>(parameters), chemistry.system.gas_phase_));
+      }
+    }
+
     void convert_processes(
         Chemistry& chemistry,
         const mechanism_configuration::v0::types::Mechanism& mechanism,
         std::unordered_map<std::string, micm::Species>& species_map)
     {
       convert_arrhenius(chemistry, mechanism.reactions.arrhenius, species_map);
+      convert_branched(chemistry, mechanism.reactions.branched, species_map);
     }
   }  // namespace v0
 
