@@ -483,6 +483,9 @@ namespace musica
 
   Chemistry MICM::ReadConfiguration(const std::string &config_path, Error *error)
   {
+    DeleteError(error);
+    *error = NoError();
+
     mechanism_configuration::UniversalParser parser;
     Chemistry chemistry{};
 

@@ -245,15 +245,6 @@ namespace musica
       convert_troe(chemistry, v0_mechanism->reactions.troe, species_map);
       convert_ternary_chemical_activation(chemistry, v0_mechanism->reactions.ternary_chemical_activation, species_map);
       convert_tunneling(chemistry, v0_mechanism->reactions.tunneling, species_map);
-
-      // print out the number of each reaction type
-      std::cout << "Number of Arrhenius reactions: " << v0_mechanism->reactions.arrhenius.size() << std::endl;
-      std::cout << "Number of Branched reactions: " << v0_mechanism->reactions.branched.size() << std::endl;
-      std::cout << "Number of User Defined reactions: " << v0_mechanism->reactions.user_defined.size() << std::endl;
-      std::cout << "Number of Surface reactions: " << v0_mechanism->reactions.surface.size() << std::endl;
-      std::cout << "Number of Troe reactions: " << v0_mechanism->reactions.troe.size() << std::endl;
-      std::cout << "Number of Ternary Chemical Activation reactions: " << v0_mechanism->reactions.ternary_chemical_activation.size() << std::endl;
-      std::cout << "Number of Tunneling reactions: " << v0_mechanism->reactions.tunneling.size() << std::endl;
     }
 
     return chemistry;
