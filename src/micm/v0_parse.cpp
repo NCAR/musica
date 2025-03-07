@@ -255,6 +255,9 @@ namespace musica
 
   Chemistry ParserV0(const mechanism_configuration::ParserResult<>& result, Error* error)
   {
+    DeleteError(error);
+    *error = NoError();
+
     using V0 = mechanism_configuration::v0::types::Mechanism;
     V0* v0_mechanism = dynamic_cast<V0*>(result.mechanism.get());
     Chemistry chemistry{};

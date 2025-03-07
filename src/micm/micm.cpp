@@ -27,7 +27,6 @@ namespace musica
 
   MICM *CreateMicm(const char *config_path, MICMSolver solver_type, int num_grid_cells, Error *error)
   {
-    DeleteError(error);
     MICM *micm = new MICM();
     micm->SetNumGridCells(num_grid_cells);
 
@@ -397,6 +396,7 @@ namespace musica
       backward_euler_standard_ =
           std::pair<std::unique_ptr<BackwardEulerStandard>, StandardState>(std::move(solver), std::move(state));
 
+      DeleteError(error);
       *error = NoError();
     }
     catch (const std::system_error &e)

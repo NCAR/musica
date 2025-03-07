@@ -30,11 +30,9 @@ namespace musica
       {
         case 0: 
           chemistry = ParserV0(parsed, error); 
-          *error = NoError();
           break;
         case 1: 
           chemistry = ParserV1(parsed, error);
-          *error = NoError();
           break;
         default:
           std::string msg = "Version " + std::to_string(version.major) + " not supported";
