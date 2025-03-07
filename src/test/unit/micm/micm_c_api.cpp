@@ -378,6 +378,8 @@ void TestStandardMultipleGridCells(
     {
       initial_concentrations[i * num_concentrations + j] = concentrations[i * num_concentrations + j];
     }
+
+    DeleteError(&error);
   }
 
   String solver_state;

@@ -58,6 +58,7 @@ namespace musica
     }
     else
     {
+      DeleteError(error);
       std::string msg = "Solver type '" + std::to_string(solver_type) + "' not found";
       *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND, msg.c_str());
       delete micm;

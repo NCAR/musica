@@ -8,7 +8,6 @@ namespace musica
   Chemistry ReadConfiguration(const std::string& config_path, Error* error)
   {
     DeleteError(error);
-    *error = NoError();
 
     mechanism_configuration::UniversalParser parser;
     Chemistry chemistry{};
@@ -29,8 +28,14 @@ namespace musica
 
       switch (version.major)
       {
-        case 0: chemistry = ParserV0(parsed, error); break;
-        case 1: chemistry = ParserV1(parsed, error); break;
+        case 0: 
+          chemistry = ParserV0(parsed, error); 
+          *error = NoError();
+          break;
+        case 1: 
+          chemistry = ParserV1(parsed, error);
+          *error = NoError();
+          break;
         default:
           std::string msg = "Version " + std::to_string(version.major) + " not supported";
           *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_VERSION_NOT_SUPPORTED, msg.c_str());
