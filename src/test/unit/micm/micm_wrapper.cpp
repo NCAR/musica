@@ -20,6 +20,7 @@ TEST(MICMWrapper, CanParseChapman)
   EXPECT_EQ(chemistry.system.gas_phase_.species_[2].name_, "O");
   EXPECT_EQ(chemistry.system.gas_phase_.species_[3].name_, "O1D");
   EXPECT_EQ(chemistry.system.gas_phase_.species_[4].name_, "O3");
+  DeleteError(&error);
 }
 
 TEST(MICMWrapper, CanParseCBV) 
@@ -30,6 +31,7 @@ TEST(MICMWrapper, CanParseCBV)
   ASSERT_TRUE(IsSuccess(error));
   EXPECT_EQ(chemistry.system.gas_phase_.species_.size(), 67);
   EXPECT_EQ(chemistry.processes.size(), 200);
+  DeleteError(&error);
 }
 
 TEST(MICMWrapper, CanParseTS1) 
@@ -40,6 +42,7 @@ TEST(MICMWrapper, CanParseTS1)
   ASSERT_TRUE(IsSuccess(error));
   EXPECT_EQ(chemistry.system.gas_phase_.species_.size(), 210);
   EXPECT_EQ(chemistry.processes.size(), 547);
+  DeleteError(&error);
 }
 
 TEST(MICMWrapper, DetectsInvalidConfig) 
@@ -49,4 +52,5 @@ TEST(MICMWrapper, DetectsInvalidConfig)
   musica::Chemistry chemistry = ReadConfiguration("configs/invalid", &error);
   ASSERT_FALSE(IsSuccess(error));
   ASSERT_TRUE(IsError(error, MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_CONFIG_PARSE_FAILED));
+  DeleteError(&error);
 }
