@@ -11,6 +11,7 @@ program test_micm_api
   use musica_util, only: assert, error_t, mapping_t, string_t, find_mapping_index
 
 #include "micm/util/error.hpp"
+#include "musica/error.hpp"
 
 #define ASSERT( expr ) call assert( expr, __FILE__, __LINE__ )
 #define ASSERT_EQ( a, b ) call assert( a == b, __FILE__, __LINE__ )
@@ -166,7 +167,7 @@ contains
     ASSERT( error%is_error( MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND ) )
     deallocate( micm )
     micm => micm_t( "configs/invalid", solver_type, num_grid_cells, error )
-    ASSERT( error%is_error( MICM_ERROR_CATEGORY_CONFIGURATION, MICM_CONFIGURATION_ERROR_CODE_INVALID_FILE_PATH ) )
+    ASSERT( error%is_error( MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_CONFIG_PARSE_FAILED ) )
     ASSERT( .not. associated( micm ) )
 
     write(*,*) "[test micm fort api] Finished."
