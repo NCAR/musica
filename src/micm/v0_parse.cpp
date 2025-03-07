@@ -24,14 +24,44 @@ namespace musica
     {
       micm::Species s;
       s.name_ = elem.name;
-      s.SetProperty(validation::MOL_WEIGHT, elem.molecular_weight);
-      s.SetProperty(validation::DIFFUSION_COEFF, elem.diffusion_coefficient);
-      s.SetProperty(validation::THIRD_BODY, elem.third_body);
-      s.SetProperty(validation::ABS_TOLERANCE, elem.absolute_tolerance);
-      s.SetProperty(validation::TRACER_TYPE, elem.tracer_type);
-      if (elem.tracer_type == "THIRD_BODY")
+      if (elem.molecular_weight.has_value())
       {
-        s.SetThirdBody();
+        s.SetProperty(validation::MOL_WEIGHT, elem.molecular_weight.value());
+      }
+      if (elem.diffusion_coefficient.has_value())
+      {
+        s.SetProperty(validation::DIFFUSION_COEFF, elem.diffusion_coefficient.value());
+      }
+      if (elem.absolute_tolerance.has_value())
+      {
+        s.SetProperty(validation::ABS_TOLERANCE, elem.absolute_tolerance.value());
+      }
+      if (elem.tracer_type.has_value())
+      {
+        s.SetProperty(validation::TRACER_TYPE, elem.tracer_type.value());
+        if (elem.tracer_type == validation::THIRD_BODY)
+        {
+          s.SetThirdBody();
+        }
+      }
+      for (auto& unknown : elem.unknown_properties)
+      {
+        if (IsInt(unknown.second))
+        {
+          s.SetProperty(unknown.first, std::stoi(unknown.second));
+        }
+        else if (IsFloatingPoint(unknown.second))
+        {
+          s.SetProperty(unknown.first, std::stod(unknown.second));
+        }
+        else if (IsBool(unknown.second))
+        {
+          s.SetProperty(unknown.first, unknown.second == "true");
+        }
+        else
+        {
+          s.SetProperty(unknown.first, unknown.second);
+        }
       }
       gas_phase.species_.push_back(s);
     }
@@ -179,7 +209,6 @@ namespace musica
     }
   }
 
-  
   void convert_ternary_chemical_activation(
       Chemistry& chemistry,
       const std::vector<mechanism_configuration::v0::types::TernaryChemicalActivation>& ternary_chemical_activation,
@@ -199,7 +228,10 @@ namespace musica
       parameters.Fc_ = reaction.Fc;
       parameters.N_ = reaction.N;
       chemistry.processes.push_back(micm::Process(
-          reactants, products, std::make_unique<micm::TernaryChemicalActivationRateConstant>(parameters), chemistry.system.gas_phase_));
+          reactants,
+          products,
+          std::make_unique<micm::TernaryChemicalActivationRateConstant>(parameters),
+          chemistry.system.gas_phase_));
     }
   }
 

@@ -71,8 +71,11 @@ namespace musica
 
   void DeleteError(Error* error)
   {
-    DeleteString(&(error->category_));
-    DeleteString(&(error->message_));
+    if (error != nullptr)
+    {
+      DeleteString(&(error->category_));
+      DeleteString(&(error->message_));
+    }
   }
 
   bool operator==(const Error& lhs, const Error& rhs)

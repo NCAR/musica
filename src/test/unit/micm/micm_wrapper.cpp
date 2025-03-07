@@ -1,4 +1,5 @@
 #include <musica/micm/micm.hpp>
+#include <musica/micm/parse.hpp>
 #include <micm/util/error.hpp>
 
 #include <gtest/gtest.h>
@@ -9,7 +10,7 @@ TEST(MICMWrapper, CanParseChapman)
 {
   musica::MICM micm;
   musica::Error error;
-  musica::Chemistry chemistry = micm.ReadConfiguration("configs/chapman", &error);
+  musica::Chemistry chemistry = ReadConfiguration("configs/chapman", &error);
   ASSERT_TRUE(IsSuccess(error));
   EXPECT_EQ(chemistry.system.gas_phase_.species_.size(), 5);
   EXPECT_EQ(chemistry.processes.size(), 7);
@@ -25,7 +26,7 @@ TEST(MICMWrapper, CanParseCBV)
 {
   musica::MICM micm;
   musica::Error error;
-  musica::Chemistry chemistry = micm.ReadConfiguration("configs/carbon_bond_5", &error);
+  musica::Chemistry chemistry = ReadConfiguration("configs/carbon_bond_5", &error);
   ASSERT_TRUE(IsSuccess(error));
   EXPECT_EQ(chemistry.system.gas_phase_.species_.size(), 67);
   EXPECT_EQ(chemistry.processes.size(), 200);
@@ -35,7 +36,7 @@ TEST(MICMWrapper, CanParseTS1)
 {
   musica::MICM micm;
   musica::Error error;
-  musica::Chemistry chemistry = micm.ReadConfiguration("configs/TS1", &error);
+  musica::Chemistry chemistry = ReadConfiguration("configs/TS1", &error);
   ASSERT_TRUE(IsSuccess(error));
   EXPECT_EQ(chemistry.system.gas_phase_.species_.size(), 210);
   EXPECT_EQ(chemistry.processes.size(), 547);
@@ -45,7 +46,7 @@ TEST(MICMWrapper, DetectsInvalidConfig)
 {
   musica::MICM micm;
   musica::Error error;
-  musica::Chemistry chemistry = micm.ReadConfiguration("configs/invalid", &error);
+  musica::Chemistry chemistry = ReadConfiguration("configs/invalid", &error);
   ASSERT_FALSE(IsSuccess(error));
   ASSERT_TRUE(IsError(error, MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_CONFIG_PARSE_FAILED));
 }
