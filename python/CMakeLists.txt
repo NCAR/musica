@@ -1,6 +1,9 @@
+# we specify the sources by hand because sometimes musica builds with tuvx
+# it is hard to guarantee there is a fortran compiler on windows
 pybind11_add_module(musica_python 
   wrapper.cpp
   ${PROJECT_SOURCE_DIR}/src/micm/micm.cpp
+  ${PROJECT_SOURCE_DIR}/src/micm/parse.cpp
   ${PROJECT_SOURCE_DIR}/src/micm/v0_parse.cpp
   ${PROJECT_SOURCE_DIR}/src/micm/v1_parse.cpp
   ${PROJECT_SOURCE_DIR}/src/component_versions.cpp
