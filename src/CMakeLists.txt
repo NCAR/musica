@@ -45,22 +45,22 @@ target_sources(musica
 )
 
 target_link_libraries(musica
-  PRIVATE
-    yaml-cpp
+  PUBLIC
+    open_atmos::mechanism_configuration
 )
 
 target_compile_definitions(musica PUBLIC ${musica_compile_definitions})
 
 set_target_properties(musica PROPERTIES
   ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
+  LIBRARY_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
   Fortran_MODULE_DIRECTORY ${MUSICA_MOD_DIR}
   VERSION ${PROJECT_VERSION}
   SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
-message(STATUS "seting include directory to ${MUSICA_PROJECT_SRC_DIR}/include")
 target_include_directories(musica
-  PUBLIC  
+  PUBLIC
     $<BUILD_INTERFACE:${MUSICA_PROJECT_SRC_DIR}/include>
     $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
 )
@@ -74,25 +74,24 @@ if(MUSICA_ENABLE_MICM)
 endif()
 
 ####################
-# TUVX
+# TUV-x
 if(MUSICA_ENABLE_TUVX)
   enable_language(Fortran)
-  
-  # include the sources directly into musica
+
+  # Include the sources directly into musica
   target_sources(musica
     PRIVATE
       $<TARGET_OBJECTS:tuvx_object>
   )
 
-  # but grab the include directories needed for tuvx
   target_link_libraries(musica
     PUBLIC
       tuvx_object
   )
 
-  target_include_directories(tuvx
+  target_include_directories(musica
     PUBLIC
-      $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+      $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
       $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
   )
 
@@ -101,7 +100,6 @@ endif()
 
 ################################################################################
 # testing
-
 if(MUSICA_ENABLE_TESTS)
   add_subdirectory(test)
 endif()

@@ -1,6 +1,5 @@
 include(FetchContent)
 
-
 ################################################################################
 # Function to reduce repeated code, set a value to a variable only if the
 # variable is not already defined. 
@@ -32,6 +31,20 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(yaml-cpp)
 
 ################################################################################
+# Mechanism Configuration
+
+set_git_default(MECH_CONFIG_GIT_REPOSITORY https://github.com/open-atmos/MechanismConfiguration.git)
+set_git_default(MECH_CONFIG_GIT_TAG 0835527)
+
+FetchContent_Declare(mechanism_configuration
+    GIT_REPOSITORY ${MECH_CONFIG_GIT_REPOSITORY}
+    GIT_TAG ${MECH_CONFIG_GIT_TAG}
+    GIT_PROGRESS NOT ${FETCHCONTENT_QUIET}
+)
+
+FetchContent_MakeAvailable(mechanism_configuration)
+
+################################################################################
 # google test
 if(MUSICA_ENABLE_TESTS)
 
@@ -60,9 +73,8 @@ endif()
 # MICM
 
 if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE)
-
   set_git_default(MICM_GIT_REPOSITORY https://github.com/NCAR/micm.git)
-  set_git_default(MICM_GIT_TAG b3c462a)
+  set_git_default(MICM_GIT_TAG v.3.7.0)
 
   FetchContent_Declare(micm
       GIT_REPOSITORY ${MICM_GIT_REPOSITORY}
@@ -86,7 +98,7 @@ if (MUSICA_ENABLE_TUVX AND MUSICA_BUILD_C_CXX_INTERFACE)
   set(TUVX_INSTALL_INCLUDE_DIR ${MUSICA_INSTALL_INCLUDE_DIR} CACHE STRING "" FORCE)
 
   set_git_default(TUVX_GIT_REPOSITORY https://github.com/NCAR/tuv-x.git)
-  set_git_default(TUVX_GIT_TAG fbe0f8aa73f6630d230c6463b603d6ba64c65dcf)
+  set_git_default(TUVX_GIT_TAG v0.10.1)
 
   FetchContent_Declare(tuvx
     GIT_REPOSITORY ${TUVX_GIT_REPOSITORY}

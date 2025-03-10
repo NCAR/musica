@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 National Center for Atmospheric Research
+// Copyright (C) 2023-2025 National Center for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 #include <musica/util.hpp>
 
@@ -109,7 +109,7 @@ TEST(Util, IndexMappingFromString)
   source_map.size_ = 2;
   target_map.mappings_ = target_map_array;
   target_map.size_ = 2;
-  IndexMappings index_mappings = CreateIndexMappings(config, source_map, target_map, &error);
+  IndexMappings index_mappings = CreateIndexMappings(config, IndexMappingOptions::MapAll, source_map, target_map, &error);
   EXPECT_TRUE(IsSuccess(error));
   EXPECT_EQ(index_mappings.mappings_[0].source_, 1);
   EXPECT_EQ(index_mappings.mappings_[0].target_, 2);
@@ -118,6 +118,7 @@ TEST(Util, IndexMappingFromString)
   EXPECT_EQ(index_mappings.mappings_[1].target_, 0);
   EXPECT_EQ(index_mappings.mappings_[1].scale_factor_, 0.82);
   EXPECT_EQ(index_mappings.size_, 2);
+  EXPECT_EQ(GetIndexMappingsSize(index_mappings), 2);
   double source[] = { 1.0, 2.0, 3.0, 4.0, 5.0 };
   double target[] = { 10.0, 20.0, 30.0, 40.0 };
   CopyData(index_mappings, source, target);
@@ -147,7 +148,7 @@ TEST(Util, IndexMappingFromFile)
   source_map.size_ = 2;
   target_map.mappings_ = target_map_array;
   target_map.size_ = 2;
-  IndexMappings index_mappings = CreateIndexMappings(config, source_map, target_map, &error);
+  IndexMappings index_mappings = CreateIndexMappings(config, IndexMappingOptions::MapAll, source_map, target_map, &error);
   EXPECT_TRUE(IsSuccess(error));
   EXPECT_EQ(index_mappings.mappings_[0].source_, 1);
   EXPECT_EQ(index_mappings.mappings_[0].target_, 2);
@@ -156,6 +157,7 @@ TEST(Util, IndexMappingFromFile)
   EXPECT_EQ(index_mappings.mappings_[1].target_, 0);
   EXPECT_EQ(index_mappings.mappings_[1].scale_factor_, 0.82);
   EXPECT_EQ(index_mappings.size_, 2);
+  EXPECT_EQ(GetIndexMappingsSize(index_mappings), 2);
   double source[] = { 1.0, 2.0, 3.0, 4.0, 5.0 };
   double target[] = { 10.0, 20.0, 30.0, 40.0 };
   CopyData(index_mappings, source, target);
@@ -164,6 +166,140 @@ TEST(Util, IndexMappingFromFile)
   EXPECT_EQ(target[2], 2.0);
   EXPECT_EQ(target[3], 40.0);
   DeleteIndexMappings(&index_mappings);
+  DeleteMapping(&(source_map_array[0]));
+  DeleteMapping(&(source_map_array[1]));
+  DeleteMapping(&(target_map_array[0]));
+  DeleteMapping(&(target_map_array[1]));
+  DeleteConfiguration(&config);
+  DeleteError(&error);
+}
+
+TEST(Util, IndexMappingMissingSource)
+{
+  Error error = NoError();
+  Configuration config = LoadConfigurationFromString(
+      "- source: Test\n"
+      "  target: Test2\n"
+      "- source: Test2\n"
+      "  target: Test3\n"
+      "  scale factor: 0.82\n"
+      "- source: Test4\n"
+      "  target: Test2\n",
+      &error);
+  EXPECT_TRUE(IsSuccess(error));
+  Mappings source_map;
+  Mappings target_map;
+  Mapping source_map_array[] = { ToMapping("Test", 1), ToMapping("Test2", 4) };
+  Mapping target_map_array[] = { ToMapping("Test2", 2), ToMapping("Test3", 0) };
+  source_map.mappings_ = source_map_array;
+  source_map.size_ = 2;
+  target_map.mappings_ = target_map_array;
+  target_map.size_ = 2;
+  IndexMappings index_mappings = CreateIndexMappings(config, IndexMappingOptions::MapAll, source_map, target_map, &error);
+  EXPECT_EQ(error.code_, MUSICA_ERROR_CODE_MAPPING_NOT_FOUND);
+  EXPECT_EQ(index_mappings.size_, 0);
+  EXPECT_EQ(index_mappings.mappings_, nullptr);
+  index_mappings = CreateIndexMappings(config, IndexMappingOptions::MapAny, source_map, target_map, &error);
+  EXPECT_TRUE(IsSuccess(error));
+  EXPECT_EQ(index_mappings.mappings_[0].source_, 1);
+  EXPECT_EQ(index_mappings.mappings_[0].target_, 2);
+  EXPECT_EQ(index_mappings.mappings_[0].scale_factor_, 1.0);
+  EXPECT_EQ(index_mappings.mappings_[1].source_, 4);
+  EXPECT_EQ(index_mappings.mappings_[1].target_, 0);
+  EXPECT_EQ(index_mappings.mappings_[1].scale_factor_, 0.82);
+  EXPECT_EQ(index_mappings.size_, 2);
+  EXPECT_EQ(GetIndexMappingsSize(index_mappings), 2);
+  double source[] = { 1.0, 2.0, 3.0, 4.0, 5.0 };
+  double target[] = { 10.0, 20.0, 30.0, 40.0 };
+  CopyData(index_mappings, source, target);
+  EXPECT_EQ(target[0], 5.0 * 0.82);
+  EXPECT_EQ(target[1], 20.0);
+  EXPECT_EQ(target[2], 2.0);
+  EXPECT_EQ(target[3], 40.0);
+  DeleteIndexMappings(&index_mappings);
+  DeleteMapping(&(source_map_array[0]));
+  DeleteMapping(&(source_map_array[1]));
+  DeleteMapping(&(target_map_array[0]));
+  DeleteMapping(&(target_map_array[1]));
+  DeleteConfiguration(&config);
+  DeleteError(&error);
+}
+
+TEST(Util, IndexMappingMissingTarget)
+{
+  Error error = NoError();
+  Configuration config = LoadConfigurationFromString(
+      "- source: Test\n"
+      "  target: Test2\n"
+      "- source: Test2\n"
+      "  target: Test3\n"
+      "  scale factor: 0.82\n"
+      "- source: Test\n"
+      "  target: Test4\n",
+      &error);
+  EXPECT_TRUE(IsSuccess(error));
+  Mappings source_map;
+  Mappings target_map;
+  Mapping source_map_array[] = { ToMapping("Test", 1), ToMapping("Test2", 4) };
+  Mapping target_map_array[] = { ToMapping("Test2", 2), ToMapping("Test3", 0) };
+  source_map.mappings_ = source_map_array;
+  source_map.size_ = 2;
+  target_map.mappings_ = target_map_array;
+  target_map.size_ = 2;
+  IndexMappings index_mappings = CreateIndexMappings(config, IndexMappingOptions::MapAll, source_map, target_map, &error);
+  EXPECT_EQ(error.code_, MUSICA_ERROR_CODE_MAPPING_NOT_FOUND);
+  EXPECT_EQ(index_mappings.size_, 0);
+  EXPECT_EQ(index_mappings.mappings_, nullptr);
+  index_mappings = CreateIndexMappings(config, IndexMappingOptions::MapAny, source_map, target_map, &error);
+  EXPECT_TRUE(IsSuccess(error));
+  EXPECT_EQ(index_mappings.mappings_[0].source_, 1);
+  EXPECT_EQ(index_mappings.mappings_[0].target_, 2);
+  EXPECT_EQ(index_mappings.mappings_[0].scale_factor_, 1.0);
+  EXPECT_EQ(index_mappings.mappings_[1].source_, 4);
+  EXPECT_EQ(index_mappings.mappings_[1].target_, 0);
+  EXPECT_EQ(index_mappings.mappings_[1].scale_factor_, 0.82);
+  EXPECT_EQ(index_mappings.size_, 2);
+  EXPECT_EQ(GetIndexMappingsSize(index_mappings), 2);
+  double source[] = { 1.0, 2.0, 3.0, 4.0, 5.0 };
+  double target[] = { 10.0, 20.0, 30.0, 40.0 };
+  CopyData(index_mappings, source, target);
+  EXPECT_EQ(target[0], 5.0 * 0.82);
+  EXPECT_EQ(target[1], 20.0);
+  EXPECT_EQ(target[2], 2.0);
+  EXPECT_EQ(target[3], 40.0);
+  DeleteIndexMappings(&index_mappings);
+  DeleteMapping(&(source_map_array[0]));
+  DeleteMapping(&(source_map_array[1]));
+  DeleteMapping(&(target_map_array[0]));
+  DeleteMapping(&(target_map_array[1]));
+  DeleteConfiguration(&config);
+  DeleteError(&error);
+}
+
+TEST(Util, IndexMappingUndefinedOptions)
+{
+  Error error = NoError();
+  Configuration config = LoadConfigurationFromString(
+      "- source: Test\n"
+      "  target: Test2\n"
+      "- source: Test2\n"
+      "  target: Test3\n"
+      "  scale factor: 0.82\n",
+      &error);
+  EXPECT_TRUE(IsSuccess(error));
+  Mappings source_map;
+  Mappings target_map;
+  Mapping source_map_array[] = { ToMapping("Test", 1), ToMapping("Test2", 4) };
+  Mapping target_map_array[] = { ToMapping("Test2", 2), ToMapping("Test3", 0) };
+  source_map.mappings_ = source_map_array;
+  source_map.size_ = 2;
+  target_map.mappings_ = target_map_array;
+  target_map.size_ = 2;
+  IndexMappings index_mappings =
+      CreateIndexMappings(config, IndexMappingOptions::UndefinedMapping, source_map, target_map, &error);
+  EXPECT_EQ(error.code_, MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED);
+  EXPECT_EQ(index_mappings.size_, 0);
+  EXPECT_EQ(index_mappings.mappings_, nullptr);
   DeleteMapping(&(source_map_array[0]));
   DeleteMapping(&(source_map_array[1]));
   DeleteMapping(&(target_map_array[0]));

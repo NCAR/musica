@@ -1,10 +1,10 @@
-// Copyright (C) 2023-2024 National Center for Atmospheric Research
+// Copyright (C) 2023-2025 National Center for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 //
 // This file contains the implementation of the MICM class, which represents a
 // multi-component reactive transport model. It also includes functions for
 // creating and deleting MICM instances, creating solvers, and solving the model.
-#include <musica/micm.hpp>
+#include <musica/micm/micm.hpp>
 #include <musica/util.hpp>
 
 #include <micm/solver/rosenbrock_solver_parameters.hpp>
@@ -281,11 +281,7 @@ namespace musica
               micm::BackwardEulerSolverParameters,
               micm::VectorMatrix<double, MICM_VECTOR_MATRIX_SIZE>,
               micm::SparseMatrix<double, micm::SparseMatrixVectorOrdering<MICM_VECTOR_MATRIX_SIZE>>,
-              micm::ProcessSet,
-              micm::LinearSolver<
-                  micm::SparseMatrix<double, micm::SparseMatrixVectorOrdering<MICM_VECTOR_MATRIX_SIZE>>,
-                  micm::LuDecomposition>,
-              VectorState>(micm::BackwardEulerSolverParameters())
+              micm::LuDecompositionDoolittle>(micm::BackwardEulerSolverParameters())
               .SetSystem(solver_parameters_->system_)
               .SetReactions(solver_parameters_->processes_)
               .SetNumberOfGridCells(num_grid_cells_)

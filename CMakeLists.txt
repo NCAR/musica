@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 
 # must be on the same line so that pyproject.toml can correctly identify the version
-project(musica-distribution VERSION 0.8.1)
+project(musica-distribution VERSION 0.9.0)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${PROJECT_SOURCE_DIR}/cmake)
 set(CMAKE_USER_MAKE_RULES_OVERRIDE ${CMAKE_MODULE_PATH}/SetDefaults.cmake)
@@ -57,7 +57,6 @@ endif()
 set(MUSICA_INSTALL_INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR})
 set(MUSICA_MOD_DIR ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_INCLUDEDIR})
 set(MUSICA_LIB_DIR ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
-set(MUSICA_FORTRAN_SRC_DIR ${PROJECT_SOURCE_DIR}/fortran)
 set(MUSICA_PROJECT_SRC_DIR ${PROJECT_SOURCE_DIR})
 
 set(musica_compile_definitions "")
