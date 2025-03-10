@@ -42,6 +42,8 @@ FetchContent_Declare(mechanism_configuration
     GIT_PROGRESS NOT ${FETCHCONTENT_QUIET}
 )
 
+set(OPEN_ATMOS_ENABLE_PYTHON_LIBRARY OFF CACHE BOOL "" FORCE)
+
 FetchContent_MakeAvailable(mechanism_configuration)
 
 ################################################################################
