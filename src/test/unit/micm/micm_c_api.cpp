@@ -1,5 +1,6 @@
 #include <musica/micm.hpp>
 #include <musica/util.hpp>
+#include <musica/state.hpp>
 
 #include <micm/util/error.hpp>
 
@@ -15,14 +16,17 @@ class MicmCApiTest : public ::testing::Test
 {
  protected:
   MICM* micm;
+  musica::State* state_wrapper;
   const char* config_path = "configs/chapman";
   int num_grid_cells = 1;
 
   void SetUp() override
   {
     micm = nullptr;
+    state_wrapper = nullptr;
     Error error;
     micm = CreateMicm(config_path, MICMSolver::Rosenbrock, num_grid_cells, &error);
+    state_wrapper = CreateMicmState(micm);
 
     ASSERT_TRUE(IsSuccess(error));
     DeleteError(&error);
@@ -94,7 +98,7 @@ TEST_F(MicmCApiTest, CreateMicmInstance)
 TEST_F(MicmCApiTest, GetSpeciesOrdering)
 {
   Error error;
-  Mappings species_ordering = GetSpeciesOrdering(micm, &error);
+  Mappings species_ordering = GetSpeciesOrdering(micm, state_wrapper, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(species_ordering.size_, 4);
   DeleteError(&error);
@@ -145,7 +149,7 @@ TEST_F(MicmCApiTest, GetSpeciesOrdering)
 TEST_F(MicmCApiTest, GetUserDefinedReactionRatesOrdering)
 {
   Error error;
-  Mappings reaction_rates_ordering = GetUserDefinedReactionRatesOrdering(micm, &error);
+  Mappings reaction_rates_ordering = GetUserDefinedReactionRatesOrdering(micm, state_wrapper, &error);
   ASSERT_TRUE(IsSuccess(error));
   DeleteError(&error);
   ASSERT_EQ(reaction_rates_ordering.size_, 3);
@@ -182,7 +186,7 @@ TEST_F(MicmCApiTest, GetUserDefinedReactionRatesOrdering)
   DeleteMappings(&reaction_rates_ordering);
 }
 
-void TestSingleGridCell(MICM* micm)
+void TestSingleGridCell(MICM* micm, musica::State* state_wrapper)
 {
   double time_step = 200.0;
   double temperatures[1];
@@ -196,7 +200,7 @@ void TestSingleGridCell(MICM* micm)
   Error error;
 
   // Get species ordering
-  Mappings species_ordering = GetSpeciesOrdering(micm, &error);
+  Mappings species_ordering = GetSpeciesOrdering(micm, state_wrapper, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(species_ordering.size_, num_concentrations);
   std::size_t O2_index = FindMappingIndex(species_ordering, "O2", &error);
@@ -210,7 +214,7 @@ void TestSingleGridCell(MICM* micm)
   DeleteMappings(&species_ordering);
 
   // Get user-defined reaction rates ordering
-  Mappings reaction_rates_ordering = GetUserDefinedReactionRatesOrdering(micm, &error);
+  Mappings reaction_rates_ordering = GetUserDefinedReactionRatesOrdering(micm, state_wrapper, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(reaction_rates_ordering.size_, num_user_defined_reaction_rates);
   std::size_t jO2_index = FindMappingIndex(reaction_rates_ordering, "PHOTO.jO2", &error);
@@ -237,14 +241,10 @@ void TestSingleGridCell(MICM* micm)
   MicmSolve(
       micm,
       time_step,
-      temperatures,
-      pressures,
-      air_densities,
-      concentrations,
-      user_defined_reaction_rates,
       &solver_state,
       &solver_stats,
-      &error);
+      &error, 
+      state_wrapper);
   ASSERT_TRUE(IsSuccess(error));
 
   // Add assertions to check the solved concentrations
@@ -275,8 +275,9 @@ TEST(RosenbrockStandardOrder, SolveUsingStandardOrderedRosenbrock)
   int num_grid_cells = 1;
   Error error;
   MICM* micm = CreateMicm(config_path, MICMSolver::RosenbrockStandardOrder, num_grid_cells, &error);
+  musica::State* state_wrapper = CreateMicmState(micm);
 
-  TestSingleGridCell(micm);
+  TestSingleGridCell(micm, state_wrapper);
 
   DeleteMicm(micm, &error);
   ASSERT_TRUE(IsSuccess(error));
@@ -290,8 +291,9 @@ TEST(BackwardEulerStandardOrder, SolveUsingStandardOrderedBackwardEuler)
   int num_grid_cells = 1;
   Error error;
   MICM* micm = CreateMicm(config_path, MICMSolver::BackwardEulerStandardOrder, num_grid_cells, &error);
+  musica::State* state_wrapper = CreateMicmState(micm);
 
-  TestSingleGridCell(micm);
+  TestSingleGridCell(micm, state_wrapper);
 
   DeleteMicm(micm, &error);
   ASSERT_TRUE(IsSuccess(error));
@@ -316,6 +318,7 @@ double CalculateArrhenius(const ArrheniusReaction parameters, const double tempe
 // Common test function for solving multiple grid cells with standard-ordered matrices
 void TestStandardMultipleGridCells(
     MICM* micm,
+    musica::State* state_wrapper,
     const size_t num_grid_cells,
     const double time_step,
     const double test_accuracy)
@@ -334,7 +337,7 @@ void TestStandardMultipleGridCells(
   Error error;
 
   // Get species indices in concentration array
-  Mappings species_ordering = GetSpeciesOrdering(micm, &error);
+  Mappings species_ordering = GetSpeciesOrdering(micm, state_wrapper, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(species_ordering.size_, num_concentrations);
   std::size_t A_index = FindMappingIndex(species_ordering, "A", &error);
@@ -352,7 +355,7 @@ void TestStandardMultipleGridCells(
   DeleteMappings(&species_ordering);
 
   // Get user-defined reaction rates indices in user-defined reaction rates array
-  Mappings rate_ordering = GetUserDefinedReactionRatesOrdering(micm, &error);
+  Mappings rate_ordering = GetUserDefinedReactionRatesOrdering(micm, state_wrapper, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(rate_ordering.size_, num_user_defined_reaction_rates);
   std::size_t R1_index = FindMappingIndex(rate_ordering, "USER.reaction 1", &error);
@@ -385,14 +388,10 @@ void TestStandardMultipleGridCells(
   MicmSolve(
       micm,
       time_step,
-      temperature,
-      pressure,
-      air_density,
-      concentrations,
-      user_defined_reaction_rates,
       &solver_state,
       &solver_stats,
-      &error);
+      &error,
+      state_wrapper);
   ASSERT_TRUE(IsSuccess(error));
   DeleteError(&error);
 
@@ -437,7 +436,7 @@ void TestStandardMultipleGridCells(
 }
 
 // Common test function for solving multiple grid cells with vectorizable matrices
-void TestVectorMultipleGridCells(MICM* micm, const size_t num_grid_cells, const double time_step, const double test_accuracy)
+void TestVectorMultipleGridCells(MICM* micm, musica::State* state_wrapper, const size_t num_grid_cells, const double time_step, const double test_accuracy)
 {
   const size_t num_concentrations = 6;
   const size_t num_user_defined_reaction_rates = 2;
@@ -453,7 +452,7 @@ void TestVectorMultipleGridCells(MICM* micm, const size_t num_grid_cells, const 
   Error error;
 
   // Get species indices in concentration array
-  Mappings species_ordering = GetSpeciesOrdering(micm, &error);
+  Mappings species_ordering = GetSpeciesOrdering(micm, state_wrapper, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(species_ordering.size_, num_concentrations);
   std::size_t A_index = FindMappingIndex(species_ordering, "A", &error);
@@ -471,7 +470,7 @@ void TestVectorMultipleGridCells(MICM* micm, const size_t num_grid_cells, const 
   DeleteMappings(&species_ordering);
 
   // Get user-defined reaction rates indices in user-defined reaction rates array
-  Mappings rate_ordering = GetUserDefinedReactionRatesOrdering(micm, &error);
+  Mappings rate_ordering = GetUserDefinedReactionRatesOrdering(micm, state_wrapper, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(rate_ordering.size_, num_user_defined_reaction_rates);
   std::size_t R1_index = FindMappingIndex(rate_ordering, "USER.reaction 1", &error);
@@ -504,14 +503,10 @@ void TestVectorMultipleGridCells(MICM* micm, const size_t num_grid_cells, const 
   MicmSolve(
       micm,
       time_step,
-      temperature,
-      pressure,
-      air_density,
-      concentrations,
-      user_defined_reaction_rates,
       &solver_state,
       &solver_stats,
-      &error);
+      &error, 
+      state_wrapper);
   ASSERT_TRUE(IsSuccess(error));
   DeleteError(&error);
 
@@ -566,8 +561,9 @@ TEST_F(MicmCApiTest, SolveMultipleGridCellsUsingVectorOrderedRosenbrock)
   DeleteMicm(micm, &error);
   ASSERT_TRUE(IsSuccess(error));
   micm = CreateMicm(config_path, MICMSolver::Rosenbrock, num_grid_cells, &error);
+  state_wrapper = CreateMicmState(micm);
   ASSERT_TRUE(IsSuccess(error));
-  TestVectorMultipleGridCells(micm, num_grid_cells, time_step, test_accuracy);
+  TestVectorMultipleGridCells(micm, state_wrapper, num_grid_cells, time_step, test_accuracy);
   DeleteError(&error);
 }
 
@@ -582,8 +578,9 @@ TEST_F(MicmCApiTest, SolveMultipleGridCellsUsingStandardOrderedRosenbrock)
   DeleteMicm(micm, &error);
   ASSERT_TRUE(IsSuccess(error));
   micm = CreateMicm(config_path, MICMSolver::RosenbrockStandardOrder, num_grid_cells, &error);
+  state_wrapper = CreateMicmState(micm);
   ASSERT_TRUE(IsSuccess(error));
-  TestStandardMultipleGridCells(micm, num_grid_cells, time_step, test_accuracy);
+  TestStandardMultipleGridCells(micm, state_wrapper, num_grid_cells, time_step, test_accuracy);
   DeleteError(&error);
 }
 
@@ -598,8 +595,9 @@ TEST_F(MicmCApiTest, SolveMultipleGridCellsUsingVectorOrderedBackwardEuler)
   DeleteMicm(micm, &error);
   ASSERT_TRUE(IsSuccess(error));
   micm = CreateMicm(config_path, MICMSolver::BackwardEuler, num_grid_cells, &error);
+  state_wrapper = CreateMicmState(micm);
   ASSERT_TRUE(IsSuccess(error));
-  TestVectorMultipleGridCells(micm, num_grid_cells, time_step, test_accuracy);
+  TestVectorMultipleGridCells(micm, state_wrapper, num_grid_cells, time_step, test_accuracy);
   DeleteError(&error);
 }
 
@@ -614,8 +612,9 @@ TEST_F(MicmCApiTest, SolveMultipleGridCellsUsingStandardOrderedBackwardEuler)
   DeleteMicm(micm, &error);
   ASSERT_TRUE(IsSuccess(error));
   micm = CreateMicm(config_path, MICMSolver::BackwardEulerStandardOrder, num_grid_cells, &error);
+  state_wrapper = CreateMicmState(micm);
   ASSERT_TRUE(IsSuccess(error));
-  TestStandardMultipleGridCells(micm, num_grid_cells, time_step, test_accuracy);
+  TestStandardMultipleGridCells(micm, state_wrapper, num_grid_cells, time_step, test_accuracy);
   DeleteError(&error);
 }
 

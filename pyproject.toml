@@ -7,13 +7,12 @@ name = "musica"
 dynamic = ["version"]
 readme = "README.md"
 description = "MUSICA is a Python library for performing computational simulations in atmospheric chemistry."
-#long_description = "MUSICA (Multiscale Interface for Chemistry and Aerosols) is a powerful tool for modeling atmospheric chemistry processes. It provides a flexible interface for running simulations and analyzing results."
-#long_description_content_type = "text/plain"
 authors = [
     { name = "Matthew Dawsom", email = "mattdawson@ucar.edu" },
     { name = "Jiwon Gim", email = "jiwongim@ucar.edu" },
     { name = "David Fillmore", email = "fillmore@ucar.edu" },
     { name = "Kyle Shores", email = "kshores@ucar.edu" },
+    { name = "Montek Thind", email = "mthind@ucar}
 ]
 maintainers = [{ name = "ACOM MUSICA Developers", email = "musica-support@ucar.edu" }]
 license = { file = "LICENSE" }

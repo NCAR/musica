@@ -59,7 +59,7 @@ PYBIND11_MODULE(musica, m)
         return state;
       }); 
 
-  //m.def("delete_micm", &musica::DeleteMicm);
+  m.def("delete_micm", &musica::DeleteMicm);
 
   m.def(
       "micm_solve",
