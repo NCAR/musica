@@ -16,10 +16,11 @@
 
 namespace musica
 {
-  void convert_species(Chemistry& chemistry, const std::vector<mechanism_configuration::v1::types::Species>& species)
+  std::vector<micm::Species> convert_species(const std::vector<mechanism_configuration::v1::types::Species>& species)
   {
     using namespace mechanism_configuration::v1;
     micm::Phase gas_phase;
+    std::vector<micm::Species> micm_species;
     for (const auto& elem : species)
     {
       micm::Species s;
@@ -73,9 +74,34 @@ namespace musica
           s.SetProperty(unknown.first, unknown.second);
         }
       }
-      gas_phase.species_.push_back(s);
+
+      micm_species.push_back(s);
     }
-    chemistry.system.gas_phase_ = gas_phase;
+    
+    return micm_species;
+  }
+
+  std::vector<micm::Species> collect_species(std::vector<std::string> species_names, std::unordered_map<std::string, micm::Species>& species_map)
+  {
+    std::vector<micm::Species> species;
+    for (const auto& species_name : species_names)
+    {
+      species.push_back(species_map[species_name]);
+    }
+    return species;
+  }
+
+  std::vector<micm::Phase> convert_phases(const std::vector<mechanism_configuration::v1::types::Phase>& phases, std::unordered_map<std::string, micm::Species>& species_map)
+  {
+    std::vector<micm::Phase> micm_phases;
+    for (const auto& phase : phases)
+    {
+      micm::Phase micm_phase;
+      micm_phase.name_ = phase.name;
+      micm_phase.species_ = collect_species(phase.species, species_map);
+      micm_phases.push_back(micm_phase);
+    }
+    return micm_phases;
   }
 
   std::vector<micm::Species> reaction_components_to_reactants(
@@ -283,12 +309,28 @@ namespace musica
     }
     else
     {
-      convert_species(chemistry, v1_mechanism->species);
+      auto species = convert_species(v1_mechanism->species);
+
       std::unordered_map<std::string, micm::Species> species_map;
-      for (const auto& species : chemistry.system.gas_phase_.species_)
+      for (const auto& species : species)
       {
         species_map[species.name_] = species;
       }
+
+      auto phases = convert_phases(v1_mechanism->phases, species_map);
+
+      micm::Phase& gas_phase = chemistry.system.gas_phase_;
+      for (const auto& phase : phases)
+      {
+        if (phase.name_ == "gas")
+        {
+          gas_phase = phase;
+        }
+        else {
+          chemistry.system.phases_[phase.name_] = phase;
+        }
+      }
+
       convert_arrhenius(chemistry, v1_mechanism->reactions.arrhenius, species_map);
       convert_branched(chemistry, v1_mechanism->reactions.branched, species_map);
       convert_surface(chemistry, v1_mechanism->reactions.surface, species_map);

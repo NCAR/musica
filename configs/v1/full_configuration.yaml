@@ -1,0 +1,247 @@
+---
+version: 1.0.0
+name: Full Configuration
+species:
+- name: A
+  __absolute tolerance: 1.0e-30
+  diffusion coefficient [m2 s-1]: 1.46e-05
+  molecular weight [kg mol-1]: 0.0340147
+- name: B
+  tracer type: AEROSOL
+- name: C
+  tracer type: THIRD_BODY
+- name: M
+- name: H2O2
+  HLC(298K) [mol m-3 Pa-1]: 1.011596348
+  HLC exponential factor [K]: 6340
+  diffusion coefficient [m2 s-1]: 1.46e-05
+  N star: 1.74
+  molecular weight [kg mol-1]: 0.0340147
+  density [kg m-3]: 1000
+  __absolute tolerance: 1.0e-10
+- name: ethanol
+  diffusion coefficient [m2 s-1]: 9.5e-06
+  N star: 2.55
+  molecular weight [kg mol-1]: 0.04607
+  __absolute tolerance: 1.0e-20
+- name: ethanol_aq
+  molecular weight [kg mol-1]: 0.04607
+  density [kg m-3]: 1000
+  __absolute tolerance: 1.0e-20
+- name: H2O2_aq
+  molecular weight [kg mol-1]: 0.0340147
+  density [kg m-3]: 1000
+  __absolute tolerance: 1.0e-10
+- name: H2O_aq
+  density [kg m-3]: 1000
+  molecular weight [kg mol-1]: 0.01801
+- name: aerosol stuff
+  molecular weight [kg mol-1]: 0.5
+  density [kg m-3]: 1000
+  __absolute tolerance: 1.0e-20
+- name: more aerosol stuff
+  molecular weight [kg mol-1]: 0.2
+  density [kg m-3]: 1000
+  __absolute tolerance: 1.0e-20
+phases:
+- name: gas
+  species:
+  - A
+  - B
+  - C
+  - ethanol
+- name: aqueous aerosol
+  species:
+  - H2O2_aq
+  - H2O_aq
+  - ethanol_aq
+  - A
+  - B
+  - C
+- name: surface reacting phase
+  species:
+  - aerosol stuff
+  - more aerosol stuff
+- name: cloud
+  species:
+  - B
+  - C
+reactions:
+- type: HL_PHASE_TRANSFER
+  gas phase: gas
+  gas-phase species: H2O2
+  aerosol phase: aqueous aerosol
+  aerosol-phase species: H2O2_aq
+  aerosol-phase water: H2O_aq
+  name: my henry's law
+- type: SIMPOL_PHASE_TRANSFER
+  gas phase: gas
+  gas-phase species: ethanol
+  aerosol phase: aqueous aerosol
+  aerosol-phase species: ethanol_aq
+  B:
+  - -1970
+  - 2.91
+  - 0.00196
+  - -0.496
+  name: my simpol
+- type: AQUEOUS_EQUILIBRIUM
+  aerosol phase: aqueous aerosol
+  aerosol-phase water: H2O_aq
+  A: 0.0114
+  C: 2300
+  k_reverse: 0.32
+  reactants:
+  - species name: A
+    coefficient: 2
+  products:
+  - species name: B
+    coefficient: 1
+  - species name: C
+    coefficient: 1
+  name: my aqueous eq
+- type: CONDENSED_PHASE_ARRHENIUS
+  aerosol phase: aqueous aerosol
+  aerosol-phase water: H2O_aq
+  A: 123.45
+  Ea: 123.45
+  B: 1.3
+  D: 300
+  E: 6.0e-06
+  reactants:
+  - species name: H2O2_aq
+    coefficient: 1
+  - species name: H2O_aq
+    coefficient: 1
+  products:
+  - species name: ethanol_aq
+    coefficient: 1
+  name: my condensed arrhenius
+- type: CONDENSED_PHASE_ARRHENIUS
+  aerosol phase: aqueous aerosol
+  aerosol-phase water: H2O_aq
+  A: 123.45
+  C: 123.45
+  B: 1.3
+  D: 300
+  E: 6.0e-06
+  reactants:
+  - species name: H2O2_aq
+    coefficient: 1
+  - species name: H2O_aq
+    coefficient: 1
+  products:
+  - species name: ethanol_aq
+    coefficient: 1
+  name: my condensed arrhenius
+- type: CONDENSED_PHASE_PHOTOLYSIS
+  aerosol phase: aqueous aerosol
+  aerosol-phase water: H2O_aq
+  reactants:
+  - species name: H2O2_aq
+    coefficient: 1
+  products:
+  - species name: ethanol_aq
+    coefficient: 1
+  scaling factor: 12.3
+  name: condensed photo B
+- type: EMISSION
+  gas phase: gas
+  products:
+  - species name: B
+    coefficient: 1
+  name: my emission
+  scaling factor: 12.3
+- type: FIRST_ORDER_LOSS
+  gas phase: gas
+  reactants:
+  - species name: C
+    coefficient: 1
+  name: my first order loss
+  scaling factor: 12.3
+- type: PHOTOLYSIS
+  gas phase: gas
+  reactants:
+  - species name: B
+    coefficient: 1
+  products:
+  - species name: C
+    coefficient: 1
+  name: photo B
+  scaling factor: 12.3
+- type: SURFACE
+  gas phase: gas
+  gas-phase species: A
+  reaction probability: 0.02
+  gas-phase products:
+  - species name: B
+    coefficient: 1
+  - species name: C
+    coefficient: 1
+  aerosol phase: surface reacting phase
+  name: my surface
+- type: TROE
+  gas phase: gas
+  reactants:
+  - species name: B
+    coefficient: 1
+  - species name: M
+    coefficient: 1
+  products:
+  - species name: C
+    coefficient: 1
+  k0_A: 1.2e-12
+  k0_B: 167
+  k0_C: 3
+  kinf_A: 136
+  kinf_B: 5
+  kinf_C: 24
+  Fc: 0.9
+  N: 0.8
+  name: my troe
+- type: BRANCHED_NO_RO2
+  gas phase: gas
+  reactants:
+  - species name: A
+    coefficient: 1
+  alkoxy products:
+  - species name: B
+    coefficient: 1
+  nitrate products:
+  - species name: C
+    coefficient: 1
+  X: 0.00012
+  Y: 167
+  a0: 0.15
+  "n": 9
+  name: my branched
+- gas phase: gas
+  type: TUNNELING
+  name: "my tunneling"
+  A: 123.45
+  B: 1200
+  C: 100000000
+  reactants:
+  - species name: B
+    coefficient: 1
+  products:
+  - species name: C
+    coefficient: 1
+- type: WET_DEPOSITION
+  aerosol phase: cloud
+  name: rxn cloud
+  scaling factor: 12.3
+- type: ARRHENIUS
+  gas phase: gas
+  reactants:
+  - species name: B
+    coefficient: 1
+  products:
+  - species name: C
+    coefficient: 1
+  A: 32.1
+  B: -2.3
+  C: 102.3
+  D: 63.4
+  E: -1.3
+  name: my arrhenius

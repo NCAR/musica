@@ -69,9 +69,25 @@ TEST(MICMWrapper, CanParseChapmanV1)
     EXPECT_EQ(chemistry.processes.size(), 7);
     EXPECT_EQ(chemistry.system.gas_phase_.species_[0].name_, "M");
     EXPECT_NE(chemistry.system.gas_phase_.species_[0].parameterize_, nullptr);
-    EXPECT_EQ(chemistry.system.gas_phase_.species_[1].name_, "O2");
-    EXPECT_EQ(chemistry.system.gas_phase_.species_[2].name_, "O");
-    EXPECT_EQ(chemistry.system.gas_phase_.species_[3].name_, "O1D");
-    EXPECT_EQ(chemistry.system.gas_phase_.species_[4].name_, "O3");
+    EXPECT_EQ(chemistry.system.gas_phase_.species_[1].name_, "O");
+    EXPECT_EQ(chemistry.system.gas_phase_.species_[2].name_, "O2");
+    EXPECT_EQ(chemistry.system.gas_phase_.species_[3].name_, "O3");
+    EXPECT_EQ(chemistry.system.gas_phase_.species_[4].name_, "O1D");
+  }
+}
+
+TEST(MICMWrapper, CanParseFullV1) 
+{
+  std::vector<std::string> extensions = { ".json", ".yaml" };
+
+  for(const auto& extension : extensions)
+  {
+    musica::MICM micm;
+    musica::Error error;
+    musica::Chemistry chemistry = ReadConfiguration("configs/v1/full_configuration" + extension, &error);
+    ASSERT_TRUE(IsSuccess(error));
+    EXPECT_EQ(chemistry.system.gas_phase_.species_.size(), 4);
+    EXPECT_EQ(chemistry.system.phases_.size(), 3);
+    EXPECT_EQ(chemistry.processes.size(), 9);
   }
 }
