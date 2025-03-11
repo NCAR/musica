@@ -21,6 +21,7 @@ TEST(MICMWrapper, CanParseChapmanV0)
   EXPECT_EQ(chemistry.system.gas_phase_.species_[2].name_, "O");
   EXPECT_EQ(chemistry.system.gas_phase_.species_[3].name_, "O1D");
   EXPECT_EQ(chemistry.system.gas_phase_.species_[4].name_, "O3");
+  DeleteError(&error);
 }
 
 TEST(MICMWrapper, CanParseCBVV0) 
