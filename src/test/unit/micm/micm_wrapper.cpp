@@ -73,6 +73,7 @@ TEST(MICMWrapper, CanParseChapmanV1)
     EXPECT_EQ(chemistry.system.gas_phase_.species_[2].name_, "O2");
     EXPECT_EQ(chemistry.system.gas_phase_.species_[3].name_, "O3");
     EXPECT_EQ(chemistry.system.gas_phase_.species_[4].name_, "O1D");
+    DeleteError(&error);
   }
 }
 
@@ -89,5 +90,6 @@ TEST(MICMWrapper, CanParseFullV1)
     EXPECT_EQ(chemistry.system.gas_phase_.species_.size(), 4);
     EXPECT_EQ(chemistry.system.phases_.size(), 3);
     EXPECT_EQ(chemistry.processes.size(), 9);
+    DeleteError(&error);
   }
 }
