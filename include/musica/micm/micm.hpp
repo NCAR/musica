@@ -226,7 +226,7 @@ namespace musica
     }
     
     /// @brief Set chemistry configuration
-    /// @param chemistry Chemistry configuration
+    /// @param chemistry Chemistry object that stores systems and processes
     void SetChemistry(Chemistry chemistry)
     {
       chemistry_ = std::make_unique<Chemistry>(chemistry);
