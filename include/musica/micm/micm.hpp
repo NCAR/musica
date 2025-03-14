@@ -171,22 +171,22 @@ namespace musica
   {
    public:
     /// @brief Create a Rosenbrock solver of vector-ordered matrix type using the provided chemistry configuration
-    /// @param chemistry Chemistry configuration
+    /// @param chemistry Chemistry object that stores systems and processes
     /// @param error Error struct to indicate success or failure
     void CreateRosenbrock(const Chemistry &chemistry, Error *error);
 
     /// @brief Create a Rosenbrock solver of standard-ordered matrix type using the provided chemistry configuration
-    /// @param chemistry Chemistry configuration
+    /// @param chemistry Chemistry object that stores systems and processes
     /// @param error Error struct to indicate success or failure
     void CreateRosenbrockStandardOrder(const Chemistry &chemistry, Error *error);
 
-    /// @brief Create a BackwardEuler solver of vector-ordered matrix type by reading and parsing configuration file
-    /// @param chemistry Chemistry configuration
+    /// @brief Create a BackwardEuler solver of vector-ordered matrix using the provided chemistry configuration
+    /// @param chemistry Chemistry object that stores systems and processes
     /// @param error Error struct to indicate success or failure
     void CreateBackwardEuler(const Chemistry &chemistry, Error *error);
 
-    /// @brief Create a BackwardEuler solver of standard-ordered matrix type by reading and parsing configuration file
-    /// @param chemistry Chemistry configuration
+    /// @brief Create a BackwardEuler solver of standard-ordered matrix type using the provided chemistry configuration
+    /// @param chemistry Chemistry object that stores systems and processes
     /// @param error Error struct to indicate success or failure
     void CreateBackwardEulerStandardOrder(const Chemistry &chemistry, Error *error);
 
@@ -225,6 +225,8 @@ namespace musica
       num_grid_cells_ = num_grid_cells;
     }
     
+    /// @brief Set chemistry configuration
+    /// @param chemistry Chemistry configuration
     void SetChemistry(Chemistry chemistry)
     {
       chemistry_ = std::make_unique<Chemistry>(chemistry);
