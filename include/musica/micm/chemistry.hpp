@@ -5,8 +5,9 @@
 
 namespace musica
 {
-  struct Chemistry {
+  struct Chemistry
+  {
     micm::System system;
     std::vector<micm::Process> processes;
   };
-}
+}  // namespace musica

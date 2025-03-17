@@ -3,8 +3,9 @@
 // SPDX-License-Identifier: Apache-2.0
 #pragma once
 
-#include <cstddef>
 #include <musica/error.hpp>
+
+#include <cstddef>
 
 #ifdef __cplusplus
   #include <yaml-cpp/yaml.h>

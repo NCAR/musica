@@ -5,9 +5,9 @@
 // It also includes functions for creating and deleting MICM instances with c bindings.
 #pragma once
 
-#include <musica/util.hpp>
-#include <musica/micm/parse.hpp>
 #include <musica/micm/chemistry.hpp>
+#include <musica/micm/parse.hpp>
+#include <musica/util.hpp>
 
 #include <micm/configure/solver_config.hpp>
 #include <micm/process/process_set.hpp>
@@ -224,7 +224,7 @@ namespace musica
     {
       num_grid_cells_ = num_grid_cells;
     }
-    
+
     /// @brief Set chemistry configuration
     /// @param chemistry Chemistry object that stores systems and processes
     void SetChemistry(Chemistry chemistry)
