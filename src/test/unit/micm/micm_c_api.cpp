@@ -11,7 +11,7 @@
 using namespace musica;
 
 // Test fixture for the MICM C API
-class MicmCApiTest : public ::testing::Test
+class MicmCApiTestFixture : public ::testing::Test
 {
  protected:
   MICM* micm;
@@ -38,18 +38,18 @@ class MicmCApiTest : public ::testing::Test
 };
 
 // Test case for bad configuration file path
-TEST_F(MicmCApiTest, BadConfigurationFilePath)
+TEST(MicmCApiTest, BadConfigurationFilePath)
 {
   int num_grid_cells = 1;
   Error error = NoError();
   auto micm_bad_config = CreateMicm("bad config path", MICMSolver::Rosenbrock, num_grid_cells, &error);
   ASSERT_EQ(micm_bad_config, nullptr);
-  ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_CONFIGURATION, MICM_CONFIGURATION_ERROR_CODE_INVALID_FILE_PATH));
+  ASSERT_TRUE(IsError(error, MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_CONFIG_PARSE_FAILED));
   DeleteError(&error);
 }
 
 // Test case for bad input for solver type
-TEST_F(MicmCApiTest, BadSolverType)
+TEST(MicmCApiTest, BadSolverType)
 {
   short solver_type = 999;
   int num_grid_cells = 1;
@@ -61,7 +61,7 @@ TEST_F(MicmCApiTest, BadSolverType)
 }
 
 // Test case for missing species property
-TEST_F(MicmCApiTest, MissingSpeciesProperty)
+TEST_F(MicmCApiTestFixture, MissingSpeciesProperty)
 {
   Error error = NoError();
   String string_value;
@@ -85,13 +85,13 @@ TEST_F(MicmCApiTest, MissingSpeciesProperty)
 }
 
 // Test case for creating the MICM instance
-TEST_F(MicmCApiTest, CreateMicmInstance)
+TEST_F(MicmCApiTestFixture, CreateMicmInstance)
 {
   ASSERT_NE(micm, nullptr);
 }
 
 // Test case for getting species ordering
-TEST_F(MicmCApiTest, GetSpeciesOrdering)
+TEST_F(MicmCApiTestFixture, GetSpeciesOrdering)
 {
   Error error;
   Mappings species_ordering = GetSpeciesOrdering(micm, &error);
@@ -142,7 +142,7 @@ TEST_F(MicmCApiTest, GetSpeciesOrdering)
 }
 
 // Test case for getting user-defined reaction rates ordering
-TEST_F(MicmCApiTest, GetUserDefinedReactionRatesOrdering)
+TEST_F(MicmCApiTestFixture, GetUserDefinedReactionRatesOrdering)
 {
   Error error;
   Mappings reaction_rates_ordering = GetUserDefinedReactionRatesOrdering(micm, &error);
@@ -378,6 +378,8 @@ void TestStandardMultipleGridCells(
     {
       initial_concentrations[i * num_concentrations + j] = concentrations[i * num_concentrations + j];
     }
+
+    DeleteError(&error);
   }
 
   String solver_state;
@@ -556,7 +558,7 @@ void TestVectorMultipleGridCells(MICM* micm, const size_t num_grid_cells, const 
 }
 
 // Test case for solving multiple grid cells using vector-ordered Rosenbrock solver
-TEST_F(MicmCApiTest, SolveMultipleGridCellsUsingVectorOrderedRosenbrock)
+TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingVectorOrderedRosenbrock)
 {
   constexpr size_t num_grid_cells = MICM_VECTOR_MATRIX_SIZE;
   constexpr double time_step = 200.0;
@@ -572,7 +574,7 @@ TEST_F(MicmCApiTest, SolveMultipleGridCellsUsingVectorOrderedRosenbrock)
 }
 
 // Test case for solving multiple grid cells using standard-ordered Rosenbrock solver
-TEST_F(MicmCApiTest, SolveMultipleGridCellsUsingStandardOrderedRosenbrock)
+TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingStandardOrderedRosenbrock)
 {
   constexpr size_t num_grid_cells = 3;
   constexpr double time_step = 200.0;
@@ -588,7 +590,7 @@ TEST_F(MicmCApiTest, SolveMultipleGridCellsUsingStandardOrderedRosenbrock)
 }
 
 // Test case for solving multiple grid cells using vector-ordered Backward Euler solver
-TEST_F(MicmCApiTest, SolveMultipleGridCellsUsingVectorOrderedBackwardEuler)
+TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingVectorOrderedBackwardEuler)
 {
   constexpr size_t num_grid_cells = MICM_VECTOR_MATRIX_SIZE;
   constexpr double time_step = 10.0;
@@ -604,7 +606,7 @@ TEST_F(MicmCApiTest, SolveMultipleGridCellsUsingVectorOrderedBackwardEuler)
 }
 
 // Test case for solving multiple grid cells using standard-ordered Backward Euler solver
-TEST_F(MicmCApiTest, SolveMultipleGridCellsUsingStandardOrderedBackwardEuler)
+TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingStandardOrderedBackwardEuler)
 {
   constexpr size_t num_grid_cells = 3;
   constexpr double time_step = 10.0;
@@ -620,7 +622,7 @@ TEST_F(MicmCApiTest, SolveMultipleGridCellsUsingStandardOrderedBackwardEuler)
 }
 
 // Test case for getting species properties
-TEST_F(MicmCApiTest, GetSpeciesProperty)
+TEST_F(MicmCApiTestFixture, GetSpeciesProperty)
 {
   Error error;
   String string_value;
