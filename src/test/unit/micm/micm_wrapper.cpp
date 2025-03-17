@@ -1,12 +1,13 @@
 #include <musica/micm/micm.hpp>
 #include <musica/micm/parse.hpp>
+
 #include <micm/util/error.hpp>
 
 #include <gtest/gtest.h>
 
 #include <iostream>
 
-TEST(MICMWrapper, CanParseChapman) 
+TEST(MICMWrapper, CanParseChapman)
 {
   musica::MICM micm;
   musica::Error error;
@@ -23,7 +24,7 @@ TEST(MICMWrapper, CanParseChapman)
   DeleteError(&error);
 }
 
-TEST(MICMWrapper, CanParseCBV) 
+TEST(MICMWrapper, CanParseCBV)
 {
   musica::MICM micm;
   musica::Error error;
@@ -34,7 +35,7 @@ TEST(MICMWrapper, CanParseCBV)
   DeleteError(&error);
 }
 
-TEST(MICMWrapper, CanParseTS1) 
+TEST(MICMWrapper, CanParseTS1)
 {
   musica::MICM micm;
   musica::Error error;
@@ -45,7 +46,7 @@ TEST(MICMWrapper, CanParseTS1)
   DeleteError(&error);
 }
 
-TEST(MICMWrapper, DetectsInvalidConfig) 
+TEST(MICMWrapper, DetectsInvalidConfig)
 {
   musica::MICM micm;
   musica::Error error;

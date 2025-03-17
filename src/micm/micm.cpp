@@ -31,7 +31,8 @@ namespace musica
     micm->SetNumGridCells(num_grid_cells);
 
     Chemistry chemistry = ReadConfiguration(std::string(config_path), error);
-    if (!IsSuccess(*error)) {
+    if (!IsSuccess(*error))
+    {
       delete micm;
       return nullptr;
     }
