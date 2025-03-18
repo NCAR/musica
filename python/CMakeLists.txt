@@ -12,7 +12,11 @@ pybind11_add_module(musica_python
   ${CMAKE_BINARY_DIR}/version.cpp
 )
 
-target_compile_options(musica_python PUBLIC -Wno-return-type-c-linkage)
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    target_compile_options(musica_python PUBLIC -Wno-return-type-c-linkage)
+elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    target_compile_options(musica_python PUBLIC /wd4190)
+endif()
 
 target_link_libraries(musica_python 
   PUBLIC 
