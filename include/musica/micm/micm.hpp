@@ -5,6 +5,8 @@
 // It also includes functions for creating and deleting MICM instances with c bindings.
 #pragma once
 
+#include <musica/micm/chemistry.hpp>
+#include <musica/micm/parse.hpp>
 #include <musica/micm/state.hpp>
 #include <musica/util.hpp>
 
@@ -32,7 +34,6 @@
 
 namespace musica
 {
-
   class MICM;
 
 #ifdef __cplusplus
@@ -192,25 +193,25 @@ namespace musica
   class MICM
   {
    public:
-    /// @brief Create a Rosenbrock solver of vector-ordered matrix type by reading and parsing configuration file
-    /// @param config_path Path to configuration file or directory containing configuration file
+    /// @brief Create a Rosenbrock solver of vector-ordered matrix type using the provided chemistry configuration
+    /// @param chemistry Chemistry object that stores systems and processes
     /// @param error Error struct to indicate success or failure
-    void CreateRosenbrock(const std::string &config_path, Error *error);
+    void CreateRosenbrock(const Chemistry &chemistry, Error *error);
 
-    /// @brief Create a Rosenbrock solver of standard-ordered matrix type by reading and parsing configuration file
-    /// @param config_path Path to configuration file or directory containing configuration file
+    /// @brief Create a Rosenbrock solver of standard-ordered matrix type using the provided chemistry configuration
+    /// @param chemistry Chemistry object that stores systems and processes
     /// @param error Error struct to indicate success or failure
-    void CreateRosenbrockStandardOrder(const std::string &config_path, Error *error);
+    void CreateRosenbrockStandardOrder(const Chemistry &chemistry, Error *error);
 
-    /// @brief Create a BackwardEuler solver of vector-ordered matrix type by reading and parsing configuration file
-    /// @param config_path Path to configuration file or directory containing configuration file
+    /// @brief Create a BackwardEuler solver of vector-ordered matrix using the provided chemistry configuration
+    /// @param chemistry Chemistry object that stores systems and processes
     /// @param error Error struct to indicate success or failure
-    void CreateBackwardEuler(const std::string &config_path, Error *error);
+    void CreateBackwardEuler(const Chemistry &chemistry, Error *error);
 
-    /// @brief Create a BackwardEuler solver of standard-ordered matrix type by reading and parsing configuration file
-    /// @param config_path Path to configuration file or directory containing configuration file
+    /// @brief Create a BackwardEuler solver of standard-ordered matrix type using the provided chemistry configuration
+    /// @param chemistry Chemistry object that stores systems and processes
     /// @param error Error struct to indicate success or failure
-    void CreateBackwardEulerStandardOrder(const std::string &config_path, Error *error);
+    void CreateBackwardEulerStandardOrder(const Chemistry &chemistry, Error *error);
 
     /// @brief Solve the system
     /// @param solver_state_pair A pair containing a pointer to a solver and a state for that solver (temporary fix)
@@ -241,6 +242,13 @@ namespace musica
     void SetNumGridCells(int num_grid_cells)
     {
       num_grid_cells_ = num_grid_cells;
+    }
+
+    /// @brief Set chemistry configuration
+    /// @param chemistry Chemistry object that stores systems and processes
+    void SetChemistry(Chemistry chemistry)
+    {
+      chemistry_ = std::make_unique<Chemistry>(chemistry);
     }
 
     /// @brief Get a property for a chemical species
@@ -299,14 +307,14 @@ namespace musica
 
    private:
     int num_grid_cells_;
-    std::unique_ptr<micm::SolverParameters> solver_parameters_;
+    std::unique_ptr<Chemistry> chemistry_;
   };
 
   template<class T>
   inline T MICM::GetSpeciesProperty(const std::string &species_name, const std::string &property_name, Error *error)
   {
     *error = NoError();
-    for (const auto &species : solver_parameters_->system_.gas_phase_.species_)
+    for (const auto &species : chemistry_->system.gas_phase_.species_)
     {
       if (species.name_ == species_name)
       {

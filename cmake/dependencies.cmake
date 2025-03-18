@@ -34,13 +34,15 @@ FetchContent_MakeAvailable(yaml-cpp)
 # Mechanism Configuration
 
 set_git_default(MECH_CONFIG_GIT_REPOSITORY https://github.com/open-atmos/MechanismConfiguration.git)
-set_git_default(MECH_CONFIG_GIT_TAG 0835527)
+set_git_default(MECH_CONFIG_GIT_TAG c379f9fa5164112d562a35f96718973acbc3e286)
 
 FetchContent_Declare(mechanism_configuration
     GIT_REPOSITORY ${MECH_CONFIG_GIT_REPOSITORY}
     GIT_TAG ${MECH_CONFIG_GIT_TAG}
     GIT_PROGRESS NOT ${FETCHCONTENT_QUIET}
 )
+
+set(OPEN_ATMOS_ENABLE_PYTHON_LIBRARY OFF CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(mechanism_configuration)
 

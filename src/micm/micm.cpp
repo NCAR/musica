@@ -6,12 +6,16 @@
 // creating and deleting MICM instances, creating solvers, and solving the model.
 #include <musica/micm/micm.hpp>
 #include <musica/micm/state.hpp>
+#include <musica/micm/parse.hpp>
 #include <musica/util.hpp>
 
 #include <micm/solver/rosenbrock_solver_parameters.hpp>
 #include <micm/solver/solver_builder.hpp>
 #include <micm/system/species.hpp>
 #include <micm/version.hpp>
+
+#include <mechanism_configuration/parser.hpp>
+#include <mechanism_configuration/v0/types.hpp>
 
 #include <cmath>
 #include <cstddef>
@@ -24,32 +28,38 @@ namespace musica
 
   MICM *CreateMicm(const char *config_path, MICMSolver solver_type, int num_grid_cells, Error *error)
   {
-    DeleteError(error);
     MICM *micm = new MICM();
     micm->SetNumGridCells(num_grid_cells);
 
+    Chemistry chemistry = ReadConfiguration(std::string(config_path), error);
+    if (!IsSuccess(*error))
+    {
+      delete micm;
+      return nullptr;
+    }
+
+    micm->SetChemistry(chemistry);
+    micm->SetSolverType(solver_type);
+
     if (solver_type == MICMSolver::Rosenbrock)
     {
-      micm->SetSolverType(MICMSolver::Rosenbrock);
-      micm->CreateRosenbrock(std::string(config_path), error);
+      micm->CreateRosenbrock(chemistry, error);
     }
     else if (solver_type == MICMSolver::RosenbrockStandardOrder)
     {
-      micm->SetSolverType(MICMSolver::RosenbrockStandardOrder);
-      micm->CreateRosenbrockStandardOrder(std::string(config_path), error);
+      micm->CreateRosenbrockStandardOrder(chemistry, error);
     }
     else if (solver_type == MICMSolver::BackwardEuler)
     {
-      micm->SetSolverType(MICMSolver::BackwardEuler);
-      micm->CreateBackwardEuler(std::string(config_path), error);
+      micm->CreateBackwardEuler(chemistry, error);
     }
     else if (solver_type == MICMSolver::BackwardEulerStandardOrder)
     {
-      micm->SetSolverType(MICMSolver::BackwardEulerStandardOrder);
-      micm->CreateBackwardEulerStandardOrder(std::string(config_path), error);
+      micm->CreateBackwardEulerStandardOrder(chemistry, error);
     }
     else
     {
+      DeleteError(error);
       std::string msg = "Solver type '" + std::to_string(solver_type) + "' not found";
       *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND, msg.c_str());
       delete micm;
@@ -213,7 +223,7 @@ namespace musica
     return micm->GetSpeciesProperty<bool>(species_name_str, property_name_str, error);
   }
 
-  void MICM::CreateRosenbrock(const std::string &config_path, Error *error)
+  void MICM::CreateRosenbrock(const Chemistry &chemistry, Error *error)
   {
     DeleteError(error);
     try
@@ -228,8 +238,8 @@ namespace musica
               micm::VectorMatrix<double, MICM_VECTOR_MATRIX_SIZE>,
               micm::SparseMatrix<double, micm::SparseMatrixVectorOrdering<MICM_VECTOR_MATRIX_SIZE>>>(
               micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())
-              .SetSystem(solver_parameters_->system_)
-              .SetReactions(solver_parameters_->processes_)
+              .SetSystem(chemistry.system)
+              .SetReactions(chemistry.processes)
               .SetNumberOfGridCells(num_grid_cells_)
               .SetIgnoreUnusedSpecies(true)
               .Build());
@@ -241,7 +251,7 @@ namespace musica
     }
   }
 
-  void MICM::CreateRosenbrockStandardOrder(const std::string &config_path, Error *error)
+  void MICM::CreateRosenbrockStandardOrder(const Chemistry &chemistry, Error *error)
   {
     DeleteError(error);
     try
@@ -253,8 +263,8 @@ namespace musica
       solver_variant_ =
           std::make_unique<RosenbrockStandard>(micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
                                                    micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())
-                                                   .SetSystem(solver_parameters_->system_)
-                                                   .SetReactions(solver_parameters_->processes_)
+                                                   .SetSystem(chemistry.system)
+                                                   .SetReactions(chemistry.processes)
                                                    .SetNumberOfGridCells(num_grid_cells_)
                                                    .SetIgnoreUnusedSpecies(true)
                                                    .Build());
@@ -269,22 +279,21 @@ namespace musica
     }
   }
 
-  void MICM::CreateBackwardEuler(const std::string &config_path, Error *error)
+  void MICM::CreateBackwardEuler(const Chemistry &chemistry, Error *error)
   {
     try
     {
       micm::SolverConfig<> solver_config;
       solver_config.ReadAndParse(std::filesystem::path(config_path));
       solver_parameters_ = std::make_unique<micm::SolverParameters>(solver_config.GetSolverParams());
-
       solver_variant_ = std::make_unique<BackwardEuler>(
           micm::CpuSolverBuilder<
               micm::BackwardEulerSolverParameters,
               micm::VectorMatrix<double, MICM_VECTOR_MATRIX_SIZE>,
               micm::SparseMatrix<double, micm::SparseMatrixVectorOrdering<MICM_VECTOR_MATRIX_SIZE>>,
               micm::LuDecompositionDoolittle>(micm::BackwardEulerSolverParameters())
-              .SetSystem(solver_parameters_->system_)
-              .SetReactions(solver_parameters_->processes_)
+              .SetSystem(chemistry.system)
+              .SetReactions(chemistry.processes)
               .SetNumberOfGridCells(num_grid_cells_)
               .SetIgnoreUnusedSpecies(true)
               .Build());
@@ -299,7 +308,7 @@ namespace musica
     }
   }
 
-  void MICM::CreateBackwardEulerStandardOrder(const std::string &config_path, Error *error)
+  void MICM::CreateBackwardEulerStandardOrder(const Chemistry &chemistry, Error *error)
   {
     try
     {
@@ -309,11 +318,11 @@ namespace musica
 
       solver_variant_ = std::make_unique<BackwardEulerStandard>(
           micm::CpuSolverBuilder<micm::BackwardEulerSolverParameters>(micm::BackwardEulerSolverParameters())
-              .SetSystem(solver_parameters_->system_)
-              .SetReactions(solver_parameters_->processes_)
+              .SetSystem(chemistry.system)
+              .SetReactions(chemistry.processes)
               .SetNumberOfGridCells(num_grid_cells_)
               .SetIgnoreUnusedSpecies(true)
-              .Build());    
+              .Build());
       *error = NoError();
     }
     catch (const std::system_error &e)
@@ -382,7 +391,6 @@ namespace musica
       *error = ToError(e);
     }
   }
-
 
 //FORTRAN VERSION
   Mappings GetSpeciesOrderingFortran(MICM *micm, Error *error)
