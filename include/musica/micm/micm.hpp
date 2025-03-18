@@ -5,6 +5,7 @@
 // It also includes functions for creating and deleting MICM instances with c bindings.
 #pragma once
 
+#include <musica/micm/state.hpp>
 #include <musica/util.hpp>
 
 #include <micm/configure/solver_config.hpp>
@@ -24,8 +25,6 @@
 #include <string>
 #include <utility>
 #include <vector>
-
-#include<musica/state.hpp>
 
 #ifndef MICM_VECTOR_MATRIX_SIZE
   #define MICM_VECTOR_MATRIX_SIZE 4
@@ -152,6 +151,30 @@ namespace musica
     /// @return Array of reaction rate name-index pairs
     Mappings GetUserDefinedReactionRatesOrdering(MICM *micm, musica::State *state_wrapper, Error *error);
 
+    // Fortran version
+    void MicmSolveFortran(
+        MICM *micm,
+        double time_step,
+        double *temperature,
+        double *pressure,
+        double *air_density,
+        double *concentrations,
+        double *custom_rate_parameters,
+        String *solver_state,
+        SolverResultStats *solver_stats,
+        Error *error);
+    Mappings GetSpeciesOrderingFortran(MICM *micm, Error *error);
+    Mappings GetUserDefinedReactionRatesOrderingFortran(MICM *micm, Error *error);
+
+  void SolveFortran(
+        MICM *micm,
+        double time_step,
+        String *solver_state,
+        SolverResultStats *solver_stats,
+        Error *error,
+        musica::State *state=nullptr);
+    
+
     /// @brief Get a property for a chemical species
     /// @param micm Pointer to MICM object
     /// @param species_name Name of the species
@@ -266,8 +289,6 @@ namespace musica
           std::unique_ptr<BackwardEulerStandard>>;
       
     SolverVariant solver_variant_;
-
-    
 
     /// @brief Returns the number of grid cells
     /// @return Number of grid cells

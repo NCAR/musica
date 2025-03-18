@@ -56,7 +56,7 @@ module musica_micm
 
     subroutine micm_solve_c(micm, time_step, temperature, pressure, air_density, concentrations, &
                 user_defined_reaction_rates, solver_state, solver_stats, error) &
-                bind(C, name="MicmSolve")
+                bind(C, name="MicmSolveFortran")
       use musica_util, only: string_t_c, error_t_c
       import c_ptr, c_double, c_int, solver_stats_t_c
       type(c_ptr),         value, intent(in)    :: micm
@@ -117,7 +117,7 @@ module musica_micm
     end function get_species_property_bool_c      
 
     type(mappings_t_c) function get_species_ordering_c(micm, error) &
-        bind(c, name="GetSpeciesOrdering")
+        bind(c, name="GetSpeciesOrderingFortran")
       use musica_util, only: error_t_c, mappings_t_c
       import c_ptr, c_size_t
       type(c_ptr), value, intent(in)      :: micm
@@ -125,7 +125,7 @@ module musica_micm
     end function get_species_ordering_c
 
     type(mappings_t_c) function get_user_defined_reaction_rates_ordering_c(micm, error) &
-        bind(c, name="GetUserDefinedReactionRatesOrdering")
+        bind(c, name="GetUserDefinedReactionRatesOrderingFortran")
       use musica_util, only: error_t_c, mappings_t_c
       import c_ptr, c_size_t
       type(c_ptr), value, intent(in)      :: micm

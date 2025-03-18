@@ -1,7 +1,7 @@
 // Copyright (C) 2023-2025 National Center for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
-#include <musica/micm.hpp>
-#include <musica/state.hpp>
+#include <musica/micm/micm.hpp>
+#include <musica/micm/state.hpp>
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -18,7 +18,7 @@ PYBIND11_MODULE(musica, m)
     .def_readwrite("air_density", &micm::Conditions::air_density_);
 
   py::class_<musica::MICM>(m, "micm").def(py::init<>()).def("__del__", [](musica::MICM *micm) {
-     musica::Error *error;
+    musica::Error *error;
     musica::DeleteMicm(micm, error);
   });  
   
@@ -55,8 +55,15 @@ PYBIND11_MODULE(musica, m)
       "create_state",
       [](musica::MICM *micm)
       {
-        musica::State *state = musica::CreateMicmState(micm);        
-        return state;
+        musica::Error error;
+        musica::State *state_wrapper = musica::CreateMicmState(micm, &error);
+        if (!musica::IsSuccess(error))
+        {
+          std::string message = "Error creating state: " + std::string(error.message_.value_);
+          DeleteError(&error);
+          throw std::runtime_error(message);
+        }
+        return state_wrapper;
       }); 
 
   m.def("delete_micm", &musica::DeleteMicm);

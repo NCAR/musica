@@ -34,7 +34,8 @@ namespace musica {
     class MICM;
     class State;
 
-    State *CreateMicmState(musica::MICM *micm);
+    State *CreateMicmState(musica::MICM *micm, Error *error);
+    void DeleteState(const State *state_wrapper, Error *error);
 
     class State {
     public:
@@ -93,6 +94,16 @@ namespace musica {
              }, state_variant_);
         }
 
+        // Setter for ordered_concentrations
+        void SetOrderedConcentrations(const double *concentrations) { 
+            
+            std::visit([&](auto& st) {
+                for(size_t i = 0; i < st.variables_.AsVector().size(); ++i){
+                    st.variables_.AsVector()[i] = concentrations[i];
+                }
+             }, state_variant_);
+        }
+
         // Getter for ordered_rate_constants
         std::vector<double>& GetOrderedRateConstants() { 
             return std::visit([](auto& st) -> std::vector<double>& {
@@ -108,9 +119,15 @@ namespace musica {
                 }
              }, state_variant_);
         }
+
+        void SetOrderedRateConstants(const double *rateConstant) { 
+             std::visit([&](auto& st) {
+                for(size_t i = 0; i < st.custom_rate_parameters_.AsVector().size(); ++i){
+                    st.custom_rate_parameters_.AsVector()[i] = rateConstant[i];
+                }
+             }, state_variant_);
+        }
        
-        std::vector<double> ordered_concentrations_;
-        std::vector<double> ordered_rate_constants_;
         StateVariant state_variant_;
     };
 

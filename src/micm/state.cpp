@@ -5,9 +5,9 @@
 // multi-component reactive transport model. It also includes functions for
 // creating and deleting MICM instances, creating solvers, and solving the model.
 
-#include <musica/micm.hpp>
+#include <musica/micm/micm.hpp>
 
-#include <musica/state.hpp>
+#include <musica/micm/state.hpp>
 
 #include <musica/util.hpp>
 
@@ -25,10 +25,13 @@
 namespace musica
 {
 
-    State *CreateMicmState(musica::MICM *micm)
+    State *CreateMicmState(musica::MICM *micm, Error *error)
     {
+        DeleteError(error);
         if (!micm) {
-            std::cerr << "MICM pointer is null, cannot create state." << std::endl;
+            std::string msg = "MICM pointer is null, cannot create state.";
+            *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND, msg.c_str());
+            delete micm;
             return nullptr;
         }
 
@@ -41,5 +44,24 @@ namespace musica
         }, micm->solver_variant_);
                 
         return state;
+    }
+
+    void DeleteState(const State *state_wrapper, Error *error)
+    {
+        DeleteError(error);
+        if (state_wrapper == nullptr)
+        {
+            *error = NoError();
+            return;
+        }
+        try
+        {
+            delete state_wrapper;
+            *error = NoError();
+        }
+        catch (const std::system_error &e)
+        {
+            *error = ToError(e);
+        }
     }
 }

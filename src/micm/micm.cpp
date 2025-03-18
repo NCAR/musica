@@ -5,6 +5,7 @@
 // multi-component reactive transport model. It also includes functions for
 // creating and deleting MICM instances, creating solvers, and solving the model.
 #include <musica/micm/micm.hpp>
+#include <musica/micm/state.hpp>
 #include <musica/util.hpp>
 
 #include <micm/solver/rosenbrock_solver_parameters.hpp>
@@ -277,7 +278,7 @@ namespace musica
       solver_parameters_ = std::make_unique<micm::SolverParameters>(solver_config.GetSolverParams());
 
       solver_variant_ = std::make_unique<BackwardEuler>(
-          micm::SolverBuilder<
+          micm::CpuSolverBuilder<
               micm::BackwardEulerSolverParameters,
               micm::VectorMatrix<double, MICM_VECTOR_MATRIX_SIZE>,
               micm::SparseMatrix<double, micm::SparseMatrixVectorOrdering<MICM_VECTOR_MATRIX_SIZE>>,
@@ -382,4 +383,57 @@ namespace musica
     }
   }
 
+
+//FORTRAN VERSION
+  Mappings GetSpeciesOrderingFortran(MICM *micm, Error *error)
+  {
+    musica::State* state_wrapper = CreateMicmState(micm, error);
+    auto speciesOrdering = GetSpeciesOrdering(micm, state_wrapper, error);
+    DeleteState(state_wrapper, error); 
+    return speciesOrdering;
+  }
+
+  Mappings GetUserDefinedReactionRatesOrderingFortran(MICM *micm, Error *error)
+  {
+    musica::State* state_wrapper = CreateMicmState(micm, error);
+    auto reactionRates = GetUserDefinedReactionRatesOrdering(micm, state_wrapper, error);
+    DeleteState(state_wrapper, error); 
+    return reactionRates;
+  }
+
+  void MicmSolveFortran(
+        MICM *micm,
+        double time_step,
+        double *temperature,
+        double *pressure,
+        double *air_density,
+        double *concentrations,
+        double *custom_rate_parameters,
+        String *solver_state,
+        SolverResultStats *solver_stats,
+        Error *error
+        )
+    { 
+
+      musica::State* state_wrapper = CreateMicmState(micm, error);
+      
+      size_t num_conditions = micm->NumGridCells(); 
+
+      std::vector<micm::Conditions> conditions_vector(num_conditions);
+      for (size_t i = 0; i < num_conditions; i++) {
+        conditions_vector[i].temperature_ = temperature[i];
+        conditions_vector[i].pressure_ = pressure[i];
+        conditions_vector[i].air_density_ = air_density[i];
+      }
+      state_wrapper->SetOrderedConcentrations(concentrations);
+      state_wrapper->SetOrderedRateConstants(custom_rate_parameters);
+      state_wrapper->SetConditions(conditions_vector); 
+      MicmSolve(micm, time_step, solver_state,solver_stats, error, state_wrapper);
+
+      std::vector<double> conc = state_wrapper->GetOrderedConcentrations();
+      for(int i = 0; i < conc.size(); i++){
+        concentrations[i] = conc[i];
+      }
+      DeleteState(state_wrapper, error);
+    }
 }  // namespace musica
