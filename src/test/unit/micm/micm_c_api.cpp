@@ -47,8 +47,8 @@ TEST_F(MicmCApiTestFixture, BadSolver)
 {
   MICM* micm = nullptr;
   Error error;
-  state_wrapper = CreateMicmState(micm, &error);
-  ASSERT_EQ(state_wrapper, nullptr);
+  auto state = CreateMicmState(micm, &error);
+  ASSERT_EQ(state, nullptr);
   ASSERT_TRUE(IsError(error, MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND));
   DeleteError(&error);
 }
@@ -58,9 +58,9 @@ TEST_F(MicmCApiTestFixture, CreateStateSuccess)
 {
     Error error;
     musica::MICM* micm = CreateMicm(config_path, MICMSolver::Rosenbrock, num_grid_cells, &error);
-    State* state_wrapper = CreateMicmState(micm, &error);   
-    ASSERT_NE(state_wrapper, nullptr);
-    delete state_wrapper;
+    auto state = CreateMicmState(micm, &error);   
+    ASSERT_NE(state, nullptr);
+    delete state;
     delete micm;
 }
 
