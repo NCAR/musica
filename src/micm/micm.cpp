@@ -239,6 +239,8 @@ namespace musica
               .SetNumberOfGridCells(num_grid_cells_)
               .SetIgnoreUnusedSpecies(true)
               .Build());
+
+      DeleteError(error);
       *error = NoError();
     }
     catch (const std::system_error &e)
@@ -308,6 +310,8 @@ namespace musica
               .SetNumberOfGridCells(num_grid_cells_)
               .SetIgnoreUnusedSpecies(true)
               .Build());
+
+      DeleteError(error);
       *error = NoError();
     }
     catch (const std::system_error &e)
