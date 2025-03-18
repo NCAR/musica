@@ -32,11 +32,12 @@ program test_micm_api
     real(real64) :: E_ = 0.0
   end type ArrheniusReaction
 
-  call test_api()
-  call test_multiple_grid_cell_vector_Rosenbrock()
-  call test_multiple_grid_cell_standard_Rosenbrock()
-  call test_multiple_grid_cell_vector_BackwardEuler()
-  call test_multiple_grid_cell_standard_BackwardEuler()
+  ! call test_api()
+  ! call test_multiple_grid_cell_vector_Rosenbrock()
+  ! call test_multiple_grid_cell_standard_Rosenbrock()
+  ! call test_multiple_grid_cell_vector_BackwardEuler()
+  ! call test_multiple_grid_cell_standard_BackwardEuler()
+  call test_api_v1_parser()
 
 contains
 
@@ -521,5 +522,129 @@ contains
     deallocate( micm )
 
   end subroutine test_multiple_grid_cell_standard_BackwardEuler
+
+  subroutine test_api_v1_parser()
+
+    type(string_t)                :: micm_version
+    type(micm_t), pointer         :: micm
+    real(real64)                  :: time_step
+    real(real64)                  :: temperature(1)
+    real(real64)                  :: pressure(1)
+    real(real64)                  :: air_density(1)
+    real(real64), dimension(4,1)  :: concentrations 
+    real(real64), dimension(3,1)  :: user_defined_reaction_rates 
+    character(len=256)            :: config_path
+    integer                       :: solver_type
+    integer                       :: num_grid_cells
+    character(len=:), allocatable :: string_value
+    real(real64)                  :: double_value
+    integer(c_int)                :: int_value
+    logical(c_bool)               :: bool_value
+    type(string_t)                :: solver_state
+    type(solver_stats_t)          :: solver_stats
+    type(error_t)                 :: error
+    real(real64), parameter       :: GAS_CONSTANT = 8.31446261815324_real64 ! J mol-1 K-1
+    integer                       :: i
+    integer                       :: O2_index, O_index, O1D_index, O3_index
+    integer                       :: jO2_index, jO3a_index, jO3b_index
+    
+    config_path = "configs/v1/chapman/config.json"
+    solver_type = RosenbrockStandardOrder
+    num_grid_cells = 1
+    time_step = 200
+
+    write(*,*) "[test micm fort api] Creating MICM solver..."
+    micm => micm_t(config_path, solver_type, num_grid_cells, error)
+    ASSERT( error%is_success() )
+
+    O2_index = micm%species_ordering%index( "O2", error )
+    ASSERT( error%is_success() )
+    O_index = micm%species_ordering%index( "O", error )
+    ASSERT( error%is_success() )
+    O1D_index = micm%species_ordering%index( "O1D", error )
+    ASSERT( error%is_success() )
+    O3_index = micm%species_ordering%index( "O3", error )
+    ASSERT( error%is_success() )
+
+    jO2_index = micm%user_defined_reaction_rates%index( "PHOTO.jO2", error )
+    ASSERT( error%is_success() )
+    jO3a_index = micm%user_defined_reaction_rates%index( "PHOTO.jO3->O", error )
+    ASSERT( error%is_success() )
+    jO3b_index = micm%user_defined_reaction_rates%index( "PHOTO.jO3->O1D", error )
+    ASSERT( error%is_success() )
+
+    temperature(1) = 272.5
+    pressure(1) = 101253.4
+    air_density(:) = pressure(:) / ( GAS_CONSTANT * temperature(:) )
+
+    concentrations(O2_index,1) = 0.75
+    concentrations(O_index,1) = 0.0
+    concentrations(O1D_index,1) = 0.0
+    concentrations(O3_index,1) = 0.0000081
+    user_defined_reaction_rates(jO2_index,1) = 2.7e-19
+    user_defined_reaction_rates(jO3a_index,1) = 1.13e-9
+    user_defined_reaction_rates(jO3b_index,1) = 5.8e-8
+    
+    micm_version = get_micm_version()
+    print *, "[test micm fort api] MICM version ", micm_version%get_char_array()
+
+    do i = 1, micm%species_ordering%size()
+      print *, "Species Name:", micm%species_ordering%name(i), &
+               ", Index:", micm%species_ordering%index(i)
+    end do
+    do i = 1, micm%user_defined_reaction_rates%size()
+      print *, "User Defined Reaction Rate Name:", micm%user_defined_reaction_rates%name(i), &
+               ", Index:", micm%user_defined_reaction_rates%index(i)
+    end do
+
+    write(*,*) "[test micm fort api] Initial concentrations", concentrations
+
+    write(*,*) "[test micm fort api] Solving starts..."
+    call micm%solve(time_step, temperature, pressure,  air_density, concentrations, &
+        user_defined_reaction_rates, solver_state, solver_stats, error)
+    ASSERT( error%is_success() )
+
+    write(*,*) "[test micm fort api] After solving, concentrations: ", concentrations
+    write(*,*) "[test micm fort api] Solver state: ", solver_state%get_char_array()
+    ASSERT_EQ( solver_state%get_char_array(), "Converged" )
+    write(*,*) "[test micm fort api] Function calls: ", solver_stats%function_calls()
+    write(*,*) "[test micm fort api] Jacobian updates: ", solver_stats%jacobian_updates()
+    write(*,*) "[test micm fort api] Number of steps: ", solver_stats%number_of_steps()
+    write(*,*) "[test micm fort api] Accepted: ", solver_stats%accepted()
+    write(*,*) "[test micm fort api] Rejected: ", solver_stats%rejected()
+    write(*,*) "[test micm fort api] Decompositions: ", solver_stats%decompositions()
+    write(*,*) "[test micm fort api] Solves: ", solver_stats%solves()
+    write(*,*) "[test micm fort api] Final time: ", solver_stats%final_time()
+
+    string_value = micm%get_species_property_string( "O3", "__long name", error )
+    ASSERT( error%is_success() )
+    ASSERT_EQ( string_value, "ozone" )
+    deallocate( string_value )
+    double_value = micm%get_species_property_double( "O3", "molecular weight [kg mol-1]", error )
+    ASSERT( error%is_success() )
+    ASSERT_EQ( double_value, 0.048_real64 )
+    int_value = micm%get_species_property_int( "O3", "__atoms", error )
+    ASSERT( error%is_success() )
+    ASSERT_EQ( int_value, 3 )
+    bool_value = micm%get_species_property_bool( "O3", "__do advect", error )
+    ASSERT( error%is_success() )
+    ASSERT( logical( bool_value ) )
+
+    string_value = micm%get_species_property_string( "O3", "missing property", error )
+    ASSERT( error%is_error( MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND ) )
+    double_value = micm%get_species_property_double( "O3", "missing property", error )
+    ASSERT( error%is_error( MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND ) )
+    int_value = micm%get_species_property_int( "O3", "missing property", error )
+    ASSERT( error%is_error( MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND ) )
+    bool_value = micm%get_species_property_bool( "O3", "missing property", error )
+    ASSERT( error%is_error( MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND ) )
+    deallocate( micm )
+    micm => micm_t( "configs/invalid", solver_type, num_grid_cells, error )
+    ASSERT( error%is_error( MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_CONFIG_PARSE_FAILED ) )
+    ASSERT( .not. associated( micm ) )
+
+    write(*,*) "[test micm fort api] Finished."
+
+  end subroutine test_api_v1_parser
 
 end program

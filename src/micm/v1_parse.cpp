@@ -26,26 +26,18 @@ namespace musica
       micm::Species s;
       s.name_ = elem.name;
 
-      if (elem.optional_numerical_properties.find(validation::keys.molecular_weight) !=
-          elem.optional_numerical_properties.end())
+      if (elem.molecular_weight.has_value())
       {
-        s.SetProperty(
-            validation::keys.molecular_weight, elem.optional_numerical_properties.at(validation::keys.molecular_weight));
+        s.SetProperty(validation::keys.molecular_weight, elem.molecular_weight.value());
       }
-      if (elem.optional_numerical_properties.find(validation::keys.diffusion_coefficient) !=
-          elem.optional_numerical_properties.end())
+      if (elem.diffusion_coefficient.has_value())
       {
-        s.SetProperty(
-            validation::keys.diffusion_coefficient,
-            elem.optional_numerical_properties.at(validation::keys.diffusion_coefficient));
+        s.SetProperty(validation::keys.diffusion_coefficient, elem.diffusion_coefficient.value());
       }
-      if (elem.optional_numerical_properties.find(validation::keys.absolute_tolerance) !=
-          elem.optional_numerical_properties.end())
+      if (elem.absolute_tolerance.has_value())
       {
-        s.SetProperty(
-            validation::keys.absolute_tolerance, elem.optional_numerical_properties.at(validation::keys.absolute_tolerance));
+        s.SetProperty(validation::keys.absolute_tolerance, elem.absolute_tolerance.value());
       }
-
       if (elem.tracer_type.has_value())
       {
         s.SetProperty(validation::keys.tracer_type, elem.tracer_type.value());
@@ -54,7 +46,6 @@ namespace musica
           s.SetThirdBody();
         }
       }
-
       for (auto& unknown : elem.unknown_properties)
       {
         if (IsInt(unknown.second))
@@ -271,7 +262,7 @@ namespace musica
   void convert_user_defined(
       Chemistry& chemistry,
       const std::vector<T>& user_defined,
-      std::unordered_map<std::string, micm::Species>& species_map)
+      std::unordered_map<std::string, micm::Species>& species_map, std::string prefix = "")
   {
     for (const auto& reaction : user_defined)
     {
@@ -289,7 +280,7 @@ namespace musica
 
       micm::UserDefinedRateConstantParameters parameters;
       parameters.scaling_factor_ = reaction.scaling_factor;
-      parameters.label_ = reaction.name;
+      parameters.label_ = prefix + reaction.name;
       chemistry.processes.push_back(micm::Process(
           reactants, products, std::make_unique<micm::UserDefinedRateConstant>(parameters), chemistry.system.gas_phase_));
     }
@@ -336,9 +327,9 @@ namespace musica
       convert_surface(chemistry, v1_mechanism->reactions.surface, species_map);
       convert_troe(chemistry, v1_mechanism->reactions.troe, species_map);
       convert_tunneling(chemistry, v1_mechanism->reactions.tunneling, species_map);
-      convert_user_defined(chemistry, v1_mechanism->reactions.photolysis, species_map);
-      convert_user_defined(chemistry, v1_mechanism->reactions.emission, species_map);
-      convert_user_defined(chemistry, v1_mechanism->reactions.first_order_loss, species_map);
+      convert_user_defined(chemistry, v1_mechanism->reactions.photolysis, species_map, "PHOTO.");
+      convert_user_defined(chemistry, v1_mechanism->reactions.emission, species_map, "EMIS.");
+      convert_user_defined(chemistry, v1_mechanism->reactions.first_order_loss, species_map, "LOSS.");
     }
 
     return chemistry;

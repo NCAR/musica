@@ -34,7 +34,7 @@ FetchContent_MakeAvailable(yaml-cpp)
 # Mechanism Configuration
 
 set_git_default(MECH_CONFIG_GIT_REPOSITORY https://github.com/open-atmos/MechanismConfiguration.git)
-set_git_default(MECH_CONFIG_GIT_TAG 00232b625f4976d0be13a5e172984ade1cd9f9a7)
+set_git_default(MECH_CONFIG_GIT_TAG comments)
 
 FetchContent_Declare(mechanism_configuration
     GIT_REPOSITORY ${MECH_CONFIG_GIT_REPOSITORY}
