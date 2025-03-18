@@ -12,6 +12,8 @@ pybind11_add_module(musica_python
   ${CMAKE_BINARY_DIR}/version.cpp
 )
 
+target_compile_options(musica_python PUBLIC -Wno-return-type-c-linkage)
+
 target_link_libraries(musica_python 
   PUBLIC 
     open_atmos::mechanism_configuration
