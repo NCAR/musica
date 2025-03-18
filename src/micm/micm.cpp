@@ -321,65 +321,56 @@ namespace musica
   }
 
   void MICM::Solve(
-      MICM *micm,
-      double time_step,     
-      String *solver_state,
-      SolverResultStats *solver_stats,
-      Error *error,
-      musica::State *state_wrapper)
-  {
+    MICM *micm,
+    double time_step,
+    String *solver_state,
+    SolverResultStats *solver_stats,
+    Error *error,
+    musica::State *state_wrapper)
+{
     try
-    {     
-      //solver_variant need to be passed      
+    {
+        auto solve_and_store_results = [&](auto& solver, auto& state) {
+            solver->CalculateRateConstants(state);
+            auto result = solver->Solve(time_step, state);
+
+            *solver_state = CreateString(micm::SolverStateToString(result.state_).c_str());
+            *solver_stats = SolverResultStats(
+                result.stats_.function_calls_,
+                result.stats_.jacobian_updates_,
+                result.stats_.number_of_steps_,
+                result.stats_.accepted_,
+                result.stats_.rejected_,
+                result.stats_.decompositions_,
+                result.stats_.solves_,
+                result.final_time_);
+        };
+
         std::visit([&](auto& solver, auto& state) {
             using StateType = std::decay_t<decltype(state)>;
             using SolverType = std::decay_t<decltype(*solver)>;
-            if constexpr (std::is_same_v<StateType, StandardState> &&
-                    (std::is_same_v<SolverType, RosenbrockStandard> ||
-                    std::is_same_v<SolverType, BackwardEulerStandard>)) 
+            if constexpr (
+                (std::is_same_v<StateType, StandardState> &&
+                 (std::is_same_v<SolverType, RosenbrockStandard> ||
+                  std::is_same_v<SolverType, BackwardEulerStandard>)) ||
+                (std::is_same_v<StateType, VectorState> &&
+                 (std::is_same_v<SolverType, Rosenbrock> ||
+                  std::is_same_v<SolverType, BackwardEuler>)))
             {
-              solver->CalculateRateConstants(state);
-              auto result = solver->Solve(time_step, state);
-              *solver_state = CreateString(micm::SolverStateToString(result.state_).c_str());
-              *solver_stats = SolverResultStats(
-                result.stats_.function_calls_,
-                result.stats_.jacobian_updates_,
-                result.stats_.number_of_steps_,
-                result.stats_.accepted_,
-                result.stats_.rejected_,
-                result.stats_.decompositions_,
-                result.stats_.solves_,
-                result.final_time_);               
+                solve_and_store_results(solver, state);
             }
-            else if constexpr (std::is_same_v<StateType, VectorState> &&
-                       (std::is_same_v<SolverType, Rosenbrock> ||
-                        std::is_same_v<SolverType, BackwardEuler>))
-            {
-              solver->CalculateRateConstants(state);
-              auto result = solver->Solve(time_step, state);
-              
-              *solver_state = CreateString(micm::SolverStateToString(result.state_).c_str());
-              *solver_stats = SolverResultStats(
-                result.stats_.function_calls_,
-                result.stats_.jacobian_updates_,
-                result.stats_.number_of_steps_,
-                result.stats_.accepted_,
-                result.stats_.rejected_,
-                result.stats_.decompositions_,
-                result.stats_.solves_,
-                result.final_time_); 
-            }         
         }, micm->solver_variant_, state_wrapper->state_variant_);
-      
-      DeleteError(error);
-      *error = NoError();      
+
+        DeleteError(error);
+        *error = NoError();
     }
     catch (const std::system_error &e)
     {
-      DeleteError(error);
-      *error = ToError(e);
+        DeleteError(error);
+        *error = ToError(e);
     }
-  }
+}
+
 
 //FORTRAN VERSION
   Mappings GetSpeciesOrderingFortran(MICM *micm, Error *error)
