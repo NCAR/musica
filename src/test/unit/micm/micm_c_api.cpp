@@ -43,7 +43,7 @@ class MicmCApiTestFixture : public ::testing::Test
 };
 
 // Test case for bad solver
-TEST_F(MicmCApiTest, BadSolver)
+TEST_F(MicmCApiTestFixture, BadSolver)
 {
   MICM* micm = nullptr;
   Error error;
@@ -54,7 +54,7 @@ TEST_F(MicmCApiTest, BadSolver)
 }
 
 // Test case for creating state successfully
-TEST_F(MicmCApiTest, CreateStateSuccess)
+TEST_F(MicmCApiTestFixture, CreateStateSuccess)
 {
     Error error;
     musica::MICM* micm = CreateMicm(config_path, MICMSolver::Rosenbrock, num_grid_cells, &error);

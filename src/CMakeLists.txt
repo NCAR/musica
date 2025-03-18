@@ -19,6 +19,8 @@ add_library(musica::musica ALIAS musica)
 
 target_compile_definitions(musica PUBLIC MICM_VECTOR_MATRIX_SIZE=${MUSICA_SET_MICM_VECTOR_MATRIX_SIZE})
 
+target_compile_options(musica PUBLIC -Wno-return-type-c-linkage)
+
 # set the c++ standard for musica
 target_compile_features(musica PUBLIC cxx_std_20)
 

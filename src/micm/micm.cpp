@@ -228,10 +228,6 @@ namespace musica
     DeleteError(error);
     try
     {
-      micm::SolverConfig<> solver_config;
-      solver_config.ReadAndParse(std::filesystem::path(config_path));
-      solver_parameters_ = std::make_unique<micm::SolverParameters>(solver_config.GetSolverParams());
-      
       solver_variant_ = std::make_unique<Rosenbrock>(
           micm::CpuSolverBuilder<
               micm::RosenbrockSolverParameters,
@@ -256,10 +252,6 @@ namespace musica
     DeleteError(error);
     try
     {
-      micm::SolverConfig<> solver_config;
-      solver_config.ReadAndParse(std::filesystem::path(config_path));
-      solver_parameters_ = std::make_unique<micm::SolverParameters>(solver_config.GetSolverParams());
-
       solver_variant_ =
           std::make_unique<RosenbrockStandard>(micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
                                                    micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())
@@ -283,9 +275,6 @@ namespace musica
   {
     try
     {
-      micm::SolverConfig<> solver_config;
-      solver_config.ReadAndParse(std::filesystem::path(config_path));
-      solver_parameters_ = std::make_unique<micm::SolverParameters>(solver_config.GetSolverParams());
       solver_variant_ = std::make_unique<BackwardEuler>(
           micm::CpuSolverBuilder<
               micm::BackwardEulerSolverParameters,
@@ -312,10 +301,6 @@ namespace musica
   {
     try
     {
-      micm::SolverConfig<> solver_config;
-      solver_config.ReadAndParse(std::filesystem::path(config_path));
-      solver_parameters_ = std::make_unique<micm::SolverParameters>(solver_config.GetSolverParams());
-
       solver_variant_ = std::make_unique<BackwardEulerStandard>(
           micm::CpuSolverBuilder<micm::BackwardEulerSolverParameters>(micm::BackwardEulerSolverParameters())
               .SetSystem(chemistry.system)
