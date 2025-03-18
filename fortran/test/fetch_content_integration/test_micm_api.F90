@@ -32,11 +32,11 @@ program test_micm_api
     real(real64) :: E_ = 0.0
   end type ArrheniusReaction
 
-  ! call test_api()
-  ! call test_multiple_grid_cell_vector_Rosenbrock()
-  ! call test_multiple_grid_cell_standard_Rosenbrock()
-  ! call test_multiple_grid_cell_vector_BackwardEuler()
-  ! call test_multiple_grid_cell_standard_BackwardEuler()
+  call test_api()
+  call test_multiple_grid_cell_vector_Rosenbrock()
+  call test_multiple_grid_cell_standard_Rosenbrock()
+  call test_multiple_grid_cell_vector_BackwardEuler()
+  call test_multiple_grid_cell_standard_BackwardEuler()
   call test_api_v1_parser()
 
 contains
