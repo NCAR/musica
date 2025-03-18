@@ -25,6 +25,7 @@
 #include <utility>
 #include <vector>
 #include <any>
+#include <variant>
 
 #ifndef MICM_VECTOR_MATRIX_SIZE
   #define MICM_VECTOR_MATRIX_SIZE 4
