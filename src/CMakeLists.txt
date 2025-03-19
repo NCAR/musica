@@ -23,6 +23,8 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU"
     target_compile_options(musica PUBLIC -Wno-return-type-c-linkage)
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     target_compile_options(musica PUBLIC /wd4190)
+elseif (CMAKE_CXX_COMPILER_ID MATCHES "NVHPC")
+    # No special compile options needed for NVHPC
 endif()
 
 # set the c++ standard for musica
