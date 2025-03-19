@@ -7,7 +7,7 @@
 
 #include <iostream>
 
-TEST(MICMWrapper, CanParseChapmanV0) 
+TEST(MICMWrapper, CanParseChapmanV0)
 {
   musica::MICM micm;
   musica::Error error;
@@ -24,7 +24,7 @@ TEST(MICMWrapper, CanParseChapmanV0)
   DeleteError(&error);
 }
 
-TEST(MICMWrapper, CanParseCBVV0) 
+TEST(MICMWrapper, CanParseCBVV0)
 {
   musica::MICM micm;
   musica::Error error;
@@ -35,7 +35,7 @@ TEST(MICMWrapper, CanParseCBVV0)
   DeleteError(&error);
 }
 
-TEST(MICMWrapper, CanParseTS1V0) 
+TEST(MICMWrapper, CanParseTS1V0)
 {
   musica::MICM micm;
   musica::Error error;
@@ -46,7 +46,7 @@ TEST(MICMWrapper, CanParseTS1V0)
   DeleteError(&error);
 }
 
-TEST(MICMWrapper, DetectsInvalidConfigV0) 
+TEST(MICMWrapper, DetectsInvalidConfigV0)
 {
   musica::MICM micm;
   musica::Error error;
@@ -56,11 +56,11 @@ TEST(MICMWrapper, DetectsInvalidConfigV0)
   DeleteError(&error);
 }
 
-TEST(MICMWrapper, CanParseChapmanV1) 
+TEST(MICMWrapper, CanParseChapmanV1)
 {
   std::vector<std::string> extensions = { ".json", ".yaml" };
 
-  for(const auto& extension : extensions)
+  for (const auto& extension : extensions)
   {
     musica::MICM micm;
     musica::Error error;
@@ -77,23 +77,23 @@ TEST(MICMWrapper, CanParseChapmanV1)
     EXPECT_EQ(chemistry.system.gas_phase_.species_[4].name_, "O1D");
 
     EXPECT_EQ(chemistry.system.gas_phase_.species_[3].GetProperty<std::string>("__long name"), "ozone");
-    
+
     DeleteError(&error);
   }
 }
 
-TEST(MICMWrapper, CanParseFullV1) 
+TEST(MICMWrapper, CanParseFullV1)
 {
   std::vector<std::string> extensions = { ".json", ".yaml" };
 
-  for(const auto& extension : extensions)
+  for (const auto& extension : extensions)
   {
     musica::MICM micm;
     musica::Error error;
     musica::Chemistry chemistry = ReadConfiguration("configs/v1/full_configuration" + extension, &error);
     ASSERT_TRUE(IsSuccess(error));
     EXPECT_EQ(chemistry.system.gas_phase_.species_.size(), 4);
-    EXPECT_EQ(chemistry.system.gas_phase_.name_ , "gas");
+    EXPECT_EQ(chemistry.system.gas_phase_.name_, "gas");
     EXPECT_EQ(chemistry.system.phases_.size(), 3);
     EXPECT_EQ(chemistry.processes.size(), 9);
     DeleteError(&error);
