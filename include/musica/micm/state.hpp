@@ -32,6 +32,16 @@
 #endif
 
 namespace musica {
+    /// @brief Vector-ordered Rosenbrock
+    using DenseMatrixVector = micm::VectorMatrix<double, MICM_VECTOR_MATRIX_SIZE>;
+    using SparseMatrixVector = micm::SparseMatrix<double, micm::SparseMatrixVectorOrdering<MICM_VECTOR_MATRIX_SIZE>>;
+    using VectorState = micm::State<DenseMatrixVector, SparseMatrixVector>;
+
+    /// @brief Standard-ordered Rosenbrock solver type
+    using DenseMatrixStandard = micm::Matrix<double>;
+    using SparseMatrixStandard = micm::SparseMatrix<double, micm::SparseMatrixStandardOrdering>;
+    using StandardState = micm::State<DenseMatrixStandard, SparseMatrixStandard>;
+
     class MICM;
     class State;
 
@@ -40,18 +50,7 @@ namespace musica {
 
     class State {
     public:
-        State() = default;
-        
-        /// @brief Vector-ordered Rosenbrock
-        using DenseMatrixVector = micm::VectorMatrix<double, MICM_VECTOR_MATRIX_SIZE>;
-        using SparseMatrixVector = micm::SparseMatrix<double, micm::SparseMatrixVectorOrdering<MICM_VECTOR_MATRIX_SIZE>>;
-        using VectorState = micm::State<DenseMatrixVector, SparseMatrixVector>;
-
-        /// @brief Standard-ordered Rosenbrock solver type
-        using DenseMatrixStandard = micm::Matrix<double>;
-        using SparseMatrixStandard = micm::SparseMatrix<double, micm::SparseMatrixStandardOrdering>;
-        using StandardState = micm::State<DenseMatrixStandard, SparseMatrixStandard>;
-
+        State() = default; 
         // Define the variant that holds all solver types
         using StateVariant = std::variant<VectorState, StandardState>;
 
