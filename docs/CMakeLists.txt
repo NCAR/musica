@@ -15,5 +15,10 @@ add_custom_command(
   COMMENT "Generating documentation with Sphinx"
 )
 
+add_custom_target(BuildDocs
+  DEPENDS ${SPHINX_INDEX_FILE}
+  COMMENT "Target to build Sphinx documentation"
+)
+
 add_custom_target(docs ALL DEPENDS ${SPHINX_INDEX_FILE})
 
