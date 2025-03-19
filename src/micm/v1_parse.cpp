@@ -68,11 +68,13 @@ namespace musica
 
       micm_species.push_back(s);
     }
-    
+
     return micm_species;
   }
 
-  std::vector<micm::Species> collect_species(std::vector<std::string> species_names, std::unordered_map<std::string, micm::Species>& species_map)
+  std::vector<micm::Species> collect_species(
+      std::vector<std::string> species_names,
+      std::unordered_map<std::string, micm::Species>& species_map)
   {
     std::vector<micm::Species> species;
     for (const auto& species_name : species_names)
@@ -82,7 +84,9 @@ namespace musica
     return species;
   }
 
-  std::vector<micm::Phase> convert_phases(const std::vector<mechanism_configuration::v1::types::Phase>& phases, std::unordered_map<std::string, micm::Species>& species_map)
+  std::vector<micm::Phase> convert_phases(
+      const std::vector<mechanism_configuration::v1::types::Phase>& phases,
+      std::unordered_map<std::string, micm::Species>& species_map)
   {
     std::vector<micm::Phase> micm_phases;
     for (const auto& phase : phases)
@@ -262,7 +266,8 @@ namespace musica
   void convert_user_defined(
       Chemistry& chemistry,
       const std::vector<T>& user_defined,
-      std::unordered_map<std::string, micm::Species>& species_map, std::string prefix = "")
+      std::unordered_map<std::string, micm::Species>& species_map,
+      std::string prefix = "")
   {
     for (const auto& reaction : user_defined)
     {
@@ -317,7 +322,8 @@ namespace musica
         {
           gas_phase = phase;
         }
-        else {
+        else
+        {
           chemistry.system.phases_[phase.name_] = phase;
         }
       }
