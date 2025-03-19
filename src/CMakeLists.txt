@@ -20,9 +20,9 @@ add_library(musica::musica ALIAS musica)
 target_compile_definitions(musica PUBLIC MICM_VECTOR_MATRIX_SIZE=${MUSICA_SET_MICM_VECTOR_MATRIX_SIZE})
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    target_compile_options(musica PUBLIC -Wno-return-type-c-linkage)
+    target_compile_options(musica PRIVATE -Wno-return-type-c-linkage)
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    target_compile_options(musica PUBLIC /wd4190)
+    target_compile_options(musica PRIVATE /wd4190)
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "NVHPC")
     # No special compile options needed for NVHPC
 endif()
