@@ -1,8 +1,9 @@
-// Copyright (C) 2023-2024 National Center for Atmospheric Research
+// Copyright (C) 2023-2025 National Center for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 //
-// This file contains the defintion of the MICM class, which represents a multi-component reactive transport model.
-// It also includes functions for creating and deleting MICM instances with c bindings.
+// This file defines the State class.It includes state representations for different 
+// solver configurations, leveraging both vector-ordered and standard-ordered state type. 
+// It also includes functions for creating and deleting State instances with c bindings.
 #pragma once
 
 #include <musica/util.hpp>
@@ -13,6 +14,7 @@
 #include <micm/solver/rosenbrock_solver_parameters.hpp>
 #include <micm/solver/solver.hpp>
 #include <micm/solver/solver_builder.hpp>
+
 #include <micm/util/matrix.hpp>
 #include <micm/util/sparse_matrix_vector_ordering.hpp>
 #include <micm/util/vector_matrix.hpp>
@@ -31,104 +33,66 @@
   #define MICM_VECTOR_MATRIX_SIZE 4
 #endif
 
-namespace musica {
-    /// @brief Vector-ordered Rosenbrock
-    using DenseMatrixVector = micm::VectorMatrix<double, MICM_VECTOR_MATRIX_SIZE>;
-    using SparseMatrixVector = micm::SparseMatrix<double, micm::SparseMatrixVectorOrdering<MICM_VECTOR_MATRIX_SIZE>>;
-    using VectorState = micm::State<DenseMatrixVector, SparseMatrixVector>;
+namespace musica
+{
+  class MICM;
+  class State;
 
-    /// @brief Standard-ordered Rosenbrock solver type
-    using DenseMatrixStandard = micm::Matrix<double>;
-    using SparseMatrixStandard = micm::SparseMatrix<double, micm::SparseMatrixStandardOrdering>;
-    using StandardState = micm::State<DenseMatrixStandard, SparseMatrixStandard>;
+  /// @brief Defines matrix types for vector-based and standard matrices.
+  using DenseMatrixVector = micm::VectorMatrix<double, MICM_VECTOR_MATRIX_SIZE>;
+  using SparseMatrixVector = micm::SparseMatrix<double, micm::SparseMatrixVectorOrdering<MICM_VECTOR_MATRIX_SIZE>>;
+  using VectorState = micm::State<DenseMatrixVector, SparseMatrixVector>;
+  using DenseMatrixStandard = micm::Matrix<double>;
+  using SparseMatrixStandard = micm::SparseMatrix<double, micm::SparseMatrixStandardOrdering>;
+  using StandardState = micm::State<DenseMatrixStandard, SparseMatrixStandard>;
 
-    class MICM;
-    class State;
+  /// @brief Create a State object by specifying micm solver object using the solver variant 
+  /// @param micm Pointer to MICM object
+  /// @param error Error struct to indicate success or failure
+  State *CreateMicmState(musica::MICM *micm, Error *error);
 
-    State *CreateMicmState(musica::MICM *micm, Error *error);
-    void DeleteState(const State *state_wrapper, Error *error);
+  /// @brief Deletes a State object
+  /// @param micm Pointer to State object
+  /// @param error Error struct to indicate success or failure
+  void DeleteState(const State *state_wrapper, Error *error);
 
-    class State {
-    public:
-        State() = default; 
-        // Define the variant that holds all solver types
-        using StateVariant = std::variant<VectorState, StandardState>;
+  class State {
+  public:
+    State() = default;
 
-        // Getters and Setters for all the conditions (use Cptr for fortran)
-        std::vector<micm::Conditions>& GetConditions() 
-        {
-            return std::visit([](auto& st) -> std::vector<micm::Conditions>& {
-                if (st.conditions_.empty()) {
-                    throw std::runtime_error("GetConditions: conditions_ is empty!");
-                }
-                return st.conditions_;
-            }, state_variant_);
-        }
+    /// @brief Define the variant that holds all state types
+    using StateVariant = std::variant<VectorState, StandardState>;
 
-        void SetConditions(const std::vector<micm::Conditions>& new_conditions) 
-        {
-            std::visit([&](auto& st) {
-                if (st.conditions_.size() < new_conditions.size()) {
-                    throw std::runtime_error("SetConditions: Provided conditions vector is larger than existing conditions.");
-                }
+    /// @brief Get the vector of conditions struct
+    std::vector<micm::Conditions>& GetConditions();
 
-                for (size_t i = 0; i < new_conditions.size(); ++i) {
-                    st.conditions_[i] = new_conditions[i]; // Copy new conditions
-                }
-            }, state_variant_);
-        }
+    /// @brief Set the conditions struct to the state variant
+    /// @param conditions vector of conditions
+    void SetConditions(const std::vector<micm::Conditions>& conditions);
 
-        std::vector<double>& GetOrderedConcentrations() {
-            return std::visit([](auto& st) -> std::vector<double>& {
-                return st.variables_.AsVector();
-            }, state_variant_);
-        }
+    /// @brief Get the vector of concentrations
+    std::vector<double>& GetOrderedConcentrations();
 
-        // Setter for ordered_concentrations
-        void SetOrderedConcentrations(const std::vector<double>& concentrations) { 
-            
-            std::visit([&](auto& st) {
-                for(size_t i = 0; i < concentrations.size(); ++i){
-                    st.variables_.AsVector()[i] = concentrations[i];
-                }
-             }, state_variant_);
-        }
+    /// @brief Set the concentrations to the state variant
+    /// @param concentrations vector of concentrations
+    void SetOrderedConcentrations(const std::vector<double>& concentrations);
 
-        // Setter for ordered_concentrations
-        void SetOrderedConcentrations(const double *concentrations) { 
-            
-            std::visit([&](auto& st) {
-                for(size_t i = 0; i < st.variables_.AsVector().size(); ++i){
-                    st.variables_.AsVector()[i] = concentrations[i];
-                }
-             }, state_variant_);
-        }
+    /// @brief Temporary method to Set the concentrations to the state variant for Fortran code.
+    /// @param concentrations c pointer list of concentrations
+    void SetOrderedConcentrations(const double *concentrations);
 
-        // Getter for ordered_rate_constants
-        std::vector<double>& GetOrderedRateConstants() { 
-            return std::visit([](auto& st) -> std::vector<double>& {
-                return st.custom_rate_parameters_.AsVector();
-            }, state_variant_);
-        }
+    /// @brief Get the vector of Rate constants
+    std::vector<double>& GetOrderedRateConstants();
 
-        // Setter for ordered_concentrations
-        void SetOrderedRateConstants(const std::vector<double>& rateConstant) { 
-             std::visit([&](auto& st) {
-                for(size_t i = 0; i < rateConstant.size(); ++i){
-                    st.custom_rate_parameters_.AsVector()[i] = rateConstant[i];
-                }
-             }, state_variant_);
-        }
+    /// @brief Set the Rate constants to the state variant
+    /// @param rateConstant vector of Rate constants
+    void SetOrderedRateConstants(const std::vector<double>& rateConstant);
 
-        void SetOrderedRateConstants(const double *rateConstant) { 
-             std::visit([&](auto& st) {
-                for(size_t i = 0; i < st.custom_rate_parameters_.AsVector().size(); ++i){
-                    st.custom_rate_parameters_.AsVector()[i] = rateConstant[i];
-                }
-             }, state_variant_);
-        }
-       
-        StateVariant state_variant_;
-    };
+    /// @brief Temporary method to Set the Rate constants to the state variant for Fortran code.
+    /// @param rateConstant c pointer list of rate constants
+    void SetOrderedRateConstants(const double *rateConstant);
+
+    StateVariant state_variant_;
+  };
 
 } // namespace musica

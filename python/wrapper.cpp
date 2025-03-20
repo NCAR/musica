@@ -88,7 +88,7 @@ PYBIND11_MODULE(musica, m)
         musica::String solver_state;
         musica::SolverResultStats solver_stats;
         musica::Error error;
-        musica::MicmSolve(micm, time_step, &solver_state, &solver_stats, &error, state_wrapper);
+        musica::MicmSolve(micm, state_wrapper, time_step, &solver_state, &solver_stats, &error);
         if (!musica::IsSuccess(error))
         {
           std::string message = "Error solving system: " + std::string(error.message_.value_);

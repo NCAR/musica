@@ -36,10 +36,10 @@ namespace musica
 {
   class MICM;
 
-#ifdef __cplusplus
+  #ifdef __cplusplus
   extern "C"
   {
-#endif
+  #endif
     /// @brief Types of MICM solver
     enum MICMSolver
     {
@@ -71,34 +71,34 @@ namespace musica
       /// @brief The final state the solver was in
 
       SolverResultStats()
-          : function_calls_(0),
-            jacobian_updates_(0),
-            number_of_steps_(0),
-            accepted_(0),
-            rejected_(0),
-            decompositions_(0),
-            solves_(0),
-            final_time_(0.0)
+        : function_calls_(0),
+          jacobian_updates_(0),
+          number_of_steps_(0),
+          accepted_(0),
+          rejected_(0),
+          decompositions_(0),
+          solves_(0),
+          final_time_(0.0)
       {
       }
 
       SolverResultStats(
-          int64_t func_calls,
-          int64_t jacobian,
-          int64_t num_steps,
-          int64_t accepted,
-          int64_t rejected,
-          int64_t decompositions,
-          int64_t solves,
-          double final_time)
-          : function_calls_(func_calls),
-            jacobian_updates_(jacobian),
-            number_of_steps_(num_steps),
-            accepted_(accepted),
-            rejected_(rejected),
-            decompositions_(decompositions),
-            solves_(solves),
-            final_time_(final_time)
+        int64_t func_calls,
+        int64_t jacobian,
+        int64_t num_steps,
+        int64_t accepted,
+        int64_t rejected,
+        int64_t decompositions,
+        int64_t solves,
+        double final_time)
+        : function_calls_(func_calls),
+          jacobian_updates_(jacobian),
+          number_of_steps_(num_steps),
+          accepted_(accepted),
+          rejected_(rejected),
+          decompositions_(decompositions),
+          solves_(solves),
+          final_time_(final_time)
       {
       }
     };
@@ -117,22 +117,18 @@ namespace musica
 
     /// @brief Solve the system
     /// @param micm Pointer to MICM object
+    /// @param state_wrapper Pointer to state object
     /// @param time_step Time [s] to advance the state by
-    /// @param temperature Temperature [grid cell] (K)
-    /// @param pressure Pressure [grid cell] (Pa)
-    /// @param air_density Air density [grid cell] (mol m-3)
-    /// @param concentrations Array of species' concentrations [grid cell][species] (mol m-3)
-    /// @param custom_rate_parameters Array of custom rate parameters [grid cell][parameter] (various units)
     /// @param solver_state State of the solver
     /// @param solver_stats Statistics of the solver
     /// @param error Error struct to indicate success or failure
     void MicmSolve(
-        MICM *micm,
-        double time_step,
-        String *solver_state,
-        SolverResultStats *solver_stats,
-        Error *error, 
-        musica::State *state_wrapper);
+      MICM *micm,
+      musica::State *state_wrapper,
+      double time_step,
+      String *solver_state,
+      SolverResultStats *solver_stats,
+      Error *error);
 
     /// @brief Get the MICM version
     /// @return MICM version
@@ -152,29 +148,40 @@ namespace musica
     /// @return Array of reaction rate name-index pairs
     Mappings GetUserDefinedReactionRatesOrdering(MICM *micm, musica::State *state_wrapper, Error *error);
 
-    // Fortran version
+    /// @brief Temporary method to Solve the system
+    /// @param micm Pointer to MICM object
+    /// @param time_step Time [s] to advance the state by
+    /// @param temperature Temperature [grid cell] (K)
+    /// @param pressure Pressure [grid cell] (Pa)
+    /// @param air_density Air density [grid cell] (mol m-3)
+    /// @param concentrations Array of species' concentrations [grid cell][species] (mol m-3)
+    /// @param custom_rate_parameters Array of custom rate parameters [grid cell][parameter] (various units)
+    /// @param solver_state State of the solver
+    /// @param solver_stats Statistics of the solver
+    /// @param error Error struct to indicate success or failure
     void MicmSolveFortran(
-        MICM *micm,
-        double time_step,
-        double *temperature,
-        double *pressure,
-        double *air_density,
-        double *concentrations,
-        double *custom_rate_parameters,
-        String *solver_state,
-        SolverResultStats *solver_stats,
-        Error *error);
-    Mappings GetSpeciesOrderingFortran(MICM *micm, Error *error);
-    Mappings GetUserDefinedReactionRatesOrderingFortran(MICM *micm, Error *error);
+      MICM *micm,
+      double time_step,
+      double *temperature,
+      double *pressure,
+      double *air_density,
+      double *concentrations,
+      double *custom_rate_parameters,
+      String *solver_state,
+      SolverResultStats *solver_stats,
+      Error *error);
 
-  void SolveFortran(
-        MICM *micm,
-        double time_step,
-        String *solver_state,
-        SolverResultStats *solver_stats,
-        Error *error,
-        musica::State *state=nullptr);
-    
+    /// @brief Temporary method to Get the ordering of species for Fortran
+    /// @param micm Pointer to MICM object
+    /// @param error Error struct to indicate success or failure
+    /// @return Array of species' name-index pairs    
+    Mappings GetSpeciesOrderingFortran(MICM *micm, Error *error);
+
+    /// @brief Temporary method to Get the ordering of user-defined reaction rates for Fortran
+    /// @param micm Pointer to MICM object
+    /// @param error Error struct to indicate success or failure
+    /// @return Array of reaction rate name-index pairs    
+    Mappings GetUserDefinedReactionRatesOrderingFortran(MICM *micm, Error *error);
 
     /// @brief Get a property for a chemical species
     /// @param micm Pointer to MICM object
@@ -186,122 +193,120 @@ namespace musica
     double GetSpeciesPropertyDouble(MICM *micm, const char *species_name, const char *property_name, Error *error);
     int GetSpeciesPropertyInt(MICM *micm, const char *species_name, const char *property_name, Error *error);
     bool GetSpeciesPropertyBool(MICM *micm, const char *species_name, const char *property_name, Error *error);
-#ifdef __cplusplus
+  #ifdef __cplusplus
   }
-#endif
+  #endif
 
   class MICM
   {
-   public:
-    /// @brief Create a Rosenbrock solver of vector-ordered matrix type using the provided chemistry configuration
+    public:
+      /// @brief Create a Rosenbrock solver of vector-ordered matrix type using the provided chemistry configuration
     /// @param chemistry Chemistry object that stores systems and processes
     /// @param error Error struct to indicate success or failure
-    void CreateRosenbrock(const Chemistry &chemistry, Error *error);
+      void CreateRosenbrock(const Chemistry &chemistry, Error *error);
 
-    /// @brief Create a Rosenbrock solver of standard-ordered matrix type using the provided chemistry configuration
-    /// @param chemistry Chemistry object that stores systems and processes
-    /// @param error Error struct to indicate success or failure
-    void CreateRosenbrockStandardOrder(const Chemistry &chemistry, Error *error);
+      /// @brief Create a Rosenbrock solver of standard-ordered matrix type using the provided chemistry configuration
+      /// @param chemistry Chemistry object that stores systems and processes
+      /// @param error Error struct to indicate success or failure
+      void CreateRosenbrockStandardOrder(const Chemistry &chemistry, Error *error);
 
-    /// @brief Create a BackwardEuler solver of vector-ordered matrix using the provided chemistry configuration
-    /// @param chemistry Chemistry object that stores systems and processes
-    /// @param error Error struct to indicate success or failure
-    void CreateBackwardEuler(const Chemistry &chemistry, Error *error);
+      /// @brief Create a BackwardEuler solver of vector-ordered matrix using the provided chemistry configuration
+      /// @param chemistry Chemistry object that stores systems and processes
+      /// @param error Error struct to indicate success or failure
+      void CreateBackwardEuler(const Chemistry &chemistry, Error *error);
 
-    /// @brief Create a BackwardEuler solver of standard-ordered matrix type using the provided chemistry configuration
-    /// @param chemistry Chemistry object that stores systems and processes
-    /// @param error Error struct to indicate success or failure
-    void CreateBackwardEulerStandardOrder(const Chemistry &chemistry, Error *error);
+      /// @brief Create a BackwardEuler solver of standard-ordered matrix type using the provided chemistry configuration
+      /// @param chemistry Chemistry object that stores systems and processes
+      /// @param error Error struct to indicate success or failure
+      void CreateBackwardEulerStandardOrder(const Chemistry &chemistry, Error *error);
 
-    /// @brief Solve the system
-    /// @param solver_state_pair A pair containing a pointer to a solver and a state for that solver (temporary fix)
-    /// @param time_step Time [s] to advance the state by
-    /// @param temperature Temperature [grid cell] (K)
-    /// @param pressure Pressure [grid cell] (Pa)
-    /// @param air_density Air density [grid cell] (mol m-3)
-    /// @param concentrations Array of species' concentrations [grid cell][species] (mol m-3)
-    /// @param custom_rate_parameters Array of custom rate parameters [grid cell][parameter] (various units)
-    /// @param error Error struct to indicate success or failure
-    void Solve(
+      /// @brief Solve the system
+      /// @param micm Pointer to MICM object
+      /// @param state_wrapper Pointer to state object
+      /// @param time_step Time [s] to advance the state by
+      /// @param solver_state State of the solver
+      /// @param solver_stats Statistics of the solver
+      /// @param error Error struct to indicate success or failure
+      void Solve(
         MICM *micm,
+        musica::State *state_wrapper,
         double time_step,
         String *solver_state,
         SolverResultStats *solver_stats,
-        Error *error,
-        musica::State *state=nullptr);
+        Error *error);
 
-    /// @brief Set solver type
-    /// @param MICMSolver Type of MICMSolver
-    void SetSolverType(MICMSolver solver_type)
-    {
-      solver_type_ = solver_type;
-    }
+      /// @brief Set solver type
+      /// @param MICMSolver Type of MICMSolver
+      void SetSolverType(MICMSolver solver_type)
+      {
+        solver_type_ = solver_type;
+      }
 
-    /// @brief Set number of grid cells
-    /// @param num_grid_cells Number of grid cells
-    void SetNumGridCells(int num_grid_cells)
-    {
-      num_grid_cells_ = num_grid_cells;
-    }
+      /// @brief Set number of grid cells
+      /// @param num_grid_cells Number of grid cells
+      void SetNumGridCells(int num_grid_cells)
+      {
+        num_grid_cells_ = num_grid_cells;
+      }
 
-    /// @brief Set chemistry configuration
-    /// @param chemistry Chemistry object that stores systems and processes
-    void SetChemistry(Chemistry chemistry)
-    {
-      chemistry_ = std::make_unique<Chemistry>(chemistry);
-    }
+      /// @brief Set chemistry configuration
+      /// @param chemistry Chemistry object that stores systems and processes
+      void SetChemistry(Chemistry chemistry)
+      {
+        chemistry_ = std::make_unique<Chemistry>(chemistry);
+      }
 
-    /// @brief Get a property for a chemical species
-    /// @param species_name Name of the species
-    /// @param property_name Name of the property
-    /// @param error Error struct to indicate success or failure
-    /// @return Value of the property
-    template<class T>
-    T GetSpeciesProperty(const std::string &species_name, const std::string &property_name, Error *error);
+      /// @brief Get a property for a chemical species
+      /// @param species_name Name of the species
+      /// @param property_name Name of the property
+      /// @param error Error struct to indicate success or failure
+      /// @return Value of the property
+      template<class T>
+      T GetSpeciesProperty(const std::string &species_name, const std::string &property_name, Error *error);
 
-   public:
-    MICMSolver solver_type_;
+    public:
+      MICMSolver solver_type_;
 
-    /// @brief Vector-ordered Rosenbrock
-    using RosenbrockVectorType = typename micm::RosenbrockSolverParameters::
-        template SolverType<micm::ProcessSet, micm::LinearSolver<SparseMatrixVector, micm::LuDecomposition>>;
-    using Rosenbrock = micm::Solver<RosenbrockVectorType, micm::State<DenseMatrixVector, SparseMatrixVector>>;
+      /// @brief Vector-ordered Rosenbrock
+      using RosenbrockVectorType = typename micm::RosenbrockSolverParameters::
+      template SolverType<micm::ProcessSet, micm::LinearSolver<SparseMatrixVector, micm::LuDecomposition>>;
+      using Rosenbrock = micm::Solver<RosenbrockVectorType, micm::State<DenseMatrixVector, SparseMatrixVector>>;
 
-    /// @brief Standard-ordered Rosenbrock
-    using RosenbrockStandardType = typename micm::RosenbrockSolverParameters::
-        template SolverType<micm::ProcessSet, micm::LinearSolver<SparseMatrixStandard, micm::LuDecomposition>>;
-    using RosenbrockStandard = micm::Solver<RosenbrockStandardType, micm::State<DenseMatrixStandard, SparseMatrixStandard>>;
+      /// @brief Standard-ordered Rosenbrock
+      using RosenbrockStandardType = typename micm::RosenbrockSolverParameters::
+      template SolverType<micm::ProcessSet, micm::LinearSolver<SparseMatrixStandard, micm::LuDecomposition>>;
+      using RosenbrockStandard = micm::Solver<RosenbrockStandardType, micm::State<DenseMatrixStandard, SparseMatrixStandard>>;
 
-    /// @brief Vector-ordered Backward Euler
-    using BackwardEulerVectorType = typename micm::BackwardEulerSolverParameters::
-        template SolverType<micm::ProcessSet, micm::LinearSolver<SparseMatrixVector, micm::LuDecomposition>>;
-    using BackwardEuler = micm::Solver<BackwardEulerVectorType, micm::State<DenseMatrixVector, SparseMatrixVector>>;
+      /// @brief Vector-ordered Backward Euler
+      using BackwardEulerVectorType = typename micm::BackwardEulerSolverParameters::
+      template SolverType<micm::ProcessSet, micm::LinearSolver<SparseMatrixVector, micm::LuDecomposition>>;
+      using BackwardEuler = micm::Solver<BackwardEulerVectorType, micm::State<DenseMatrixVector, SparseMatrixVector>>;
 
-    /// @brief Standard-ordered Backward Euler
-    using BackwardEulerStandardType = typename micm::BackwardEulerSolverParameters::
-        template SolverType<micm::ProcessSet, micm::LinearSolver<SparseMatrixStandard, micm::LuDecomposition>>;
-    using BackwardEulerStandard =
-        micm::Solver<BackwardEulerStandardType, micm::State<DenseMatrixStandard, SparseMatrixStandard>>;
+      /// @brief Standard-ordered Backward Euler
+      using BackwardEulerStandardType = typename micm::BackwardEulerSolverParameters::
+      template SolverType<micm::ProcessSet, micm::LinearSolver<SparseMatrixStandard, micm::LuDecomposition>>;
+      using BackwardEulerStandard =
+      micm::Solver<BackwardEulerStandardType, micm::State<DenseMatrixStandard, SparseMatrixStandard>>;
 
-    // Define the variant that holds all solver types
-        using SolverVariant = std::variant<
-          std::unique_ptr<Rosenbrock>,
-          std::unique_ptr<RosenbrockStandard>,
-          std::unique_ptr<BackwardEuler>,
-          std::unique_ptr<BackwardEulerStandard>>;
-      
-    SolverVariant solver_variant_;
+      /// @brief Variant that holds all solver types
+      using SolverVariant = std::variant<
+        std::unique_ptr<Rosenbrock>,
+        std::unique_ptr<RosenbrockStandard>,
+        std::unique_ptr<BackwardEuler>,
+        std::unique_ptr<BackwardEulerStandard>>;
 
-    /// @brief Returns the number of grid cells
-    /// @return Number of grid cells
-    int NumGridCells() const
-    {
-      return num_grid_cells_;
-    }
+      SolverVariant solver_variant_;
 
-   private:
-    int num_grid_cells_;
-    std::unique_ptr<Chemistry> chemistry_;
+      /// @brief Returns the number of grid cells
+      /// @return Number of grid cells
+      int NumGridCells() const
+      {
+        return num_grid_cells_;
+      }
+
+    private:
+      int num_grid_cells_;
+      std::unique_ptr<Chemistry> chemistry_;
   };
 
   template<class T>

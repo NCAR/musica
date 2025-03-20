@@ -94,20 +94,20 @@ namespace musica
 
   void MicmSolve(
       MICM *micm,
+      musica::State *state_wrapper,
       double time_step,
       String *solver_state,
       SolverResultStats *solver_stats,
-      Error *error, 
-      musica::State *state_wrapper)
+      Error *error)
   {
     DeleteError(error);
     micm->Solve(
           micm,
+          state_wrapper,
           time_step,
           solver_state,
           solver_stats,
-          error,
-          state_wrapper);
+          error);
   };
 
   String MicmVersion()
@@ -322,11 +322,11 @@ namespace musica
 
   void MICM::Solve(
     MICM *micm,
+    musica::State *state_wrapper,
     double time_step,
     String *solver_state,
     SolverResultStats *solver_stats,
-    Error *error,
-    musica::State *state_wrapper)
+    Error *error)
 {
     try
     {
@@ -371,8 +371,6 @@ namespace musica
     }
 }
 
-
-//FORTRAN VERSION
   Mappings GetSpeciesOrderingFortran(MICM *micm, Error *error)
   {
     musica::State* state_wrapper = CreateMicmState(micm, error);
@@ -401,8 +399,7 @@ namespace musica
         SolverResultStats *solver_stats,
         Error *error
         )
-    { 
-
+    {
       musica::State* state_wrapper = CreateMicmState(micm, error);
       
       size_t num_conditions = micm->NumGridCells(); 
@@ -416,7 +413,7 @@ namespace musica
       state_wrapper->SetOrderedConcentrations(concentrations);
       state_wrapper->SetOrderedRateConstants(custom_rate_parameters);
       state_wrapper->SetConditions(conditions_vector); 
-      MicmSolve(micm, time_step, solver_state,solver_stats, error, state_wrapper);
+      MicmSolve(micm, state_wrapper, time_step, solver_state,solver_stats, error);
 
       std::vector<double> conc = state_wrapper->GetOrderedConcentrations();
       for(int i = 0; i < conc.size(); i++){

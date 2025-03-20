@@ -264,11 +264,11 @@ void TestSingleGridCell(MICM* micm, musica::State* state_wrapper)
   SolverResultStats solver_stats;
   MicmSolve(
       micm,
+      state_wrapper,
       time_step,
       &solver_state,
       &solver_stats,
-      &error, 
-      state_wrapper);
+      &error);
   ASSERT_TRUE(IsSuccess(error));
 
   // Add assertions to check the solved concentrations
@@ -414,11 +414,11 @@ void TestStandardMultipleGridCells(
   SolverResultStats solver_stats;
   MicmSolve(
       micm,
+      state_wrapper,
       time_step,
       &solver_state,
       &solver_stats,
-      &error,
-      state_wrapper);
+      &error);
   ASSERT_TRUE(IsSuccess(error));
   DeleteError(&error);
 
@@ -522,11 +522,11 @@ void TestVectorMultipleGridCells(MICM* micm, musica::State* state_wrapper, const
   SolverResultStats solver_stats;
   MicmSolve(
       micm,
+      state_wrapper,
       time_step,
       &solver_state,
       &solver_stats,
-      &error, 
-      state_wrapper);
+      &error);
   ASSERT_TRUE(IsSuccess(error));
   DeleteError(&error);
 
