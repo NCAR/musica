@@ -148,7 +148,7 @@ namespace musica
     /// @return Array of reaction rate name-index pairs
     Mappings GetUserDefinedReactionRatesOrdering(MICM *micm, musica::State *state_wrapper, Error *error);
 
-    /// @brief Temporary method to Solve the system
+    /// @brief Temporary method to solve the system
     /// @param micm Pointer to MICM object
     /// @param time_step Time [s] to advance the state by
     /// @param temperature Temperature [grid cell] (K)

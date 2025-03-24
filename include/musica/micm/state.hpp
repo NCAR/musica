@@ -46,13 +46,13 @@ namespace musica
   using SparseMatrixStandard = micm::SparseMatrix<double, micm::SparseMatrixStandardOrdering>;
   using StandardState = micm::State<DenseMatrixStandard, SparseMatrixStandard>;
 
-  /// @brief Create a State object by specifying micm solver object using the solver variant 
+  /// @brief Create a state object by specifying micm solver object using the solver variant 
   /// @param micm Pointer to MICM object
   /// @param error Error struct to indicate success or failure
   State *CreateMicmState(musica::MICM *micm, Error *error);
 
-  /// @brief Deletes a State object
-  /// @param micm Pointer to State object
+  /// @brief Deletes a state object
+  /// @param state_wrapper Pointer to state object
   /// @param error Error struct to indicate success or failure
   void DeleteState(const State *state_wrapper, Error *error);
 
@@ -77,18 +77,18 @@ namespace musica
     /// @param concentrations vector of concentrations
     void SetOrderedConcentrations(const std::vector<double>& concentrations);
 
-    /// @brief Temporary method to Set the concentrations to the state variant for Fortran code.
+    /// @brief Temporary method to set the concentrations to the state variant for Fortran code.
     /// @param concentrations c pointer list of concentrations
     void SetOrderedConcentrations(const double *concentrations);
 
-    /// @brief Get the vector of Rate constants
+    /// @brief Get the vector of rate constants
     std::vector<double>& GetOrderedRateConstants();
 
-    /// @brief Set the Rate constants to the state variant
+    /// @brief Set the rate constants to the state variant
     /// @param rateConstant vector of Rate constants
     void SetOrderedRateConstants(const std::vector<double>& rateConstant);
 
-    /// @brief Temporary method to Set the Rate constants to the state variant for Fortran code.
+    /// @brief Temporary method to set the rate constants to the state variant for Fortran code.
     /// @param rateConstant c pointer list of rate constants
     void SetOrderedRateConstants(const double *rateConstant);
 

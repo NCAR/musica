@@ -128,12 +128,8 @@ namespace musica
 
     if (!success)
     {
-      std::string msg = "Solver type '" + std::to_string(micm->solver_type_) + "' not found";
+      std::string msg = "State type not recognized or not supported";
       *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND, msg.c_str());
-    }
-
-    if (!IsSuccess(*error))
-    {
       return Mappings();
     }
 
@@ -163,12 +159,8 @@ namespace musica
     }, state_wrapper->state_variant_);
 
     if (!success){
-      std::string msg = "Solver type '" + std::to_string(micm->solver_type_) + "' not found";
+      std::string msg = "State type not recognized or not supported";
       *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND, msg.c_str());
-    }
-
-    if (!IsSuccess(*error))
-    {
       return Mappings();
     }
 
@@ -327,49 +319,50 @@ namespace musica
     String *solver_state,
     SolverResultStats *solver_stats,
     Error *error)
-{
+  {
     try
     {
-        auto solve_and_store_results = [&](auto& solver, auto& state) {
-            solver->CalculateRateConstants(state);
-            auto result = solver->Solve(time_step, state);
+      auto solve_and_store_results = [&](auto& solver, auto& state) 
+      {
+        solver->CalculateRateConstants(state);
+        auto result = solver->Solve(time_step, state);
 
-            *solver_state = CreateString(micm::SolverStateToString(result.state_).c_str());
-            *solver_stats = SolverResultStats(
-                result.stats_.function_calls_,
-                result.stats_.jacobian_updates_,
-                result.stats_.number_of_steps_,
-                result.stats_.accepted_,
-                result.stats_.rejected_,
-                result.stats_.decompositions_,
-                result.stats_.solves_,
-                result.final_time_);
-        };
+        *solver_state = CreateString(micm::SolverStateToString(result.state_).c_str());
+        *solver_stats = SolverResultStats(
+          result.stats_.function_calls_,
+          result.stats_.jacobian_updates_,
+          result.stats_.number_of_steps_,
+          result.stats_.accepted_,
+          result.stats_.rejected_,
+          result.stats_.decompositions_,
+          result.stats_.solves_,
+          result.final_time_);
+      };
 
-        std::visit([&](auto& solver, auto& state) {
-            using StateType = std::decay_t<decltype(state)>;
-            using SolverType = std::decay_t<decltype(*solver)>;
-            if constexpr (
-                (std::is_same_v<StateType, StandardState> &&
-                 (std::is_same_v<SolverType, RosenbrockStandard> ||
-                  std::is_same_v<SolverType, BackwardEulerStandard>)) ||
-                (std::is_same_v<StateType, VectorState> &&
-                 (std::is_same_v<SolverType, Rosenbrock> ||
-                  std::is_same_v<SolverType, BackwardEuler>)))
-            {
-                solve_and_store_results(solver, state);
-            }
-        }, micm->solver_variant_, state_wrapper->state_variant_);
+      std::visit([&](auto& solver, auto& state) {
+        using StateType = std::decay_t<decltype(state)>;
+        using SolverType = std::decay_t<decltype(*solver)>;
+        if constexpr (
+          (std::is_same_v<StateType, StandardState> &&
+            (std::is_same_v<SolverType, RosenbrockStandard> ||
+            std::is_same_v<SolverType, BackwardEulerStandard>)) ||
+          (std::is_same_v<StateType, VectorState> &&
+            (std::is_same_v<SolverType, Rosenbrock> ||
+            std::is_same_v<SolverType, BackwardEuler>)))
+        {
+          solve_and_store_results(solver, state);
+        }
+      }, micm->solver_variant_, state_wrapper->state_variant_);
 
-        DeleteError(error);
-        *error = NoError();
+      DeleteError(error);
+      *error = NoError();
     }
     catch (const std::system_error &e)
     {
-        DeleteError(error);
-        *error = ToError(e);
+      DeleteError(error);
+      *error = ToError(e);
     }
-}
+  }
 
   Mappings GetSpeciesOrderingFortran(MICM *micm, Error *error)
   {
