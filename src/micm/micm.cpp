@@ -17,7 +17,7 @@
 #include <filesystem>
 #include <string>
 #include <system_error>
-
+#include <fstream>  // For file output
 namespace musica
 {
 
@@ -437,13 +437,20 @@ namespace musica
         cond.pressure_ = pressure[i_cond];
         cond.air_density_ = air_density[i_cond++];
       }
+
       std::size_t i_species_elem = 0;
       for (auto &var : state.variables_.AsVector())
         var = concentrations[i_species_elem++];
 
+      std::ofstream outputFile("jwoutput.txt");
+
+      outputFile << "Received Fortran 2D array via pointer:\n";
+
       std::size_t i_custom_rate_elem = 0;
-      for (auto &var : state.custom_rate_parameters_.AsVector())
+      for (auto &var : state.custom_rate_parameters_.AsVector()){
         var = custom_rate_parameters[i_custom_rate_elem++];
+        outputFile << "array(" << i_custom_rate_elem << ") = " << var << "\n";
+      }
 
       solver->CalculateRateConstants(state);
       auto result = solver->Solve(time_step, state);
