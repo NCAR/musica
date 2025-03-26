@@ -443,13 +443,18 @@ namespace musica
         var = concentrations[i_species_elem++];
 
       std::ofstream outputFile("jwoutput.txt");
-
       outputFile << "Received Fortran 2D array via pointer:\n";
 
+      std::ofstream FoutputFile("Fjwoutput.txt");
+      FoutputFile << "Received Fortran 2D array via pointer:\n";
+      
       std::size_t i_custom_rate_elem = 0;
+      std::size_t i_jiwon = 0;
       for (auto &var : state.custom_rate_parameters_.AsVector()){
         var = custom_rate_parameters[i_custom_rate_elem++];
         outputFile << "array(" << i_custom_rate_elem << ") = " << var << "\n";
+        FoutputFile << "array(" << i_jiwon << ") = " << custom_rate_parameters[i_jiwon] << "\n";
+        i_jiwon++;
       }
 
       solver->CalculateRateConstants(state);
