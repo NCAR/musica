@@ -3,6 +3,7 @@
 pybind11_add_module(musica_python 
   wrapper.cpp
   ${PROJECT_SOURCE_DIR}/src/micm/micm.cpp
+  ${PROJECT_SOURCE_DIR}/src/micm/state.cpp
   ${PROJECT_SOURCE_DIR}/src/micm/parse.cpp
   ${PROJECT_SOURCE_DIR}/src/micm/v0_parse.cpp
   ${PROJECT_SOURCE_DIR}/src/micm/v1_parse.cpp
@@ -10,6 +11,12 @@ pybind11_add_module(musica_python
   ${PROJECT_SOURCE_DIR}/src/util.cpp
   ${CMAKE_BINARY_DIR}/version.cpp
 )
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    target_compile_options(musica_python PUBLIC -Wno-return-type-c-linkage)
+elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    target_compile_options(musica_python PUBLIC /wd4190)
+endif()
 
 target_link_libraries(musica_python 
   PUBLIC 

@@ -12,6 +12,7 @@ authors = [
     { name = "Jiwon Gim", email = "jiwongim@ucar.edu" },
     { name = "David Fillmore", email = "fillmore@ucar.edu" },
     { name = "Kyle Shores", email = "kshores@ucar.edu" },
+    { name = "Montek Thind", email = "mthind@ucar.edu" }
 ]
 maintainers = [{ name = "ACOM MUSICA Developers", email = "musica-support@ucar.edu" }]
 license = { file = "LICENSE" }

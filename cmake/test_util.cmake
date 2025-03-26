@@ -42,6 +42,15 @@ function(create_standard_test_cxx)
   cmake_parse_arguments(${prefix} " " "${singleValues}" "${multiValues}" ${ARGN})
   add_executable(test_${TEST_NAME} ${TEST_SOURCES})
   target_link_libraries(test_${TEST_NAME} PUBLIC musica::musica GTest::gtest_main yaml-cpp)
+
+  if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    target_compile_options(test_${TEST_NAME} PRIVATE -Wno-return-type-c-linkage)
+  elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+      target_compile_options(test_${TEST_NAME} PRIVATE /wd4190)
+  elseif (CMAKE_CXX_COMPILER_ID MATCHES "NVHPC")
+      # No special compile options needed for NVHPC
+  endif()
+
   if(MUSICA_ENABLE_OPENMP)
     target_link_libraries(test_${TEST_NAME} PUBLIC OpenMP::OpenMP_CXX)
   endif()

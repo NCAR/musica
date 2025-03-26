@@ -1,5 +1,6 @@
 #include <musica/micm/micm.hpp>
 #include <musica/util.hpp>
+#include <musica/micm/state.hpp>
 
 #include <micm/util/error.hpp>
 
@@ -15,14 +16,17 @@ class MicmCApiTestFixture : public ::testing::Test
 {
  protected:
   MICM* micm;
+  musica::State* state;
   const char* config_path = "configs/chapman";
   int num_grid_cells = 1;
 
   void SetUp() override
   {
     micm = nullptr;
+    state = nullptr;
     Error error;
     micm = CreateMicm(config_path, MICMSolver::Rosenbrock, num_grid_cells, &error);
+    state = CreateMicmState(micm, &error);
 
     ASSERT_TRUE(IsSuccess(error));
     DeleteError(&error);
@@ -32,10 +36,33 @@ class MicmCApiTestFixture : public ::testing::Test
   {
     Error error;
     DeleteMicm(micm, &error);
+    DeleteState(state, &error);
     ASSERT_TRUE(IsSuccess(error));
     DeleteError(&error);
   }
 };
+
+// Test case for bad solver
+TEST_F(MicmCApiTestFixture, BadSolver)
+{
+  MICM* micm = nullptr;
+  Error error;
+  auto state = CreateMicmState(micm, &error);
+  ASSERT_EQ(state, nullptr);
+  ASSERT_TRUE(IsError(error, MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND));
+  DeleteError(&error);
+}
+
+// Test case for creating state successfully
+TEST_F(MicmCApiTestFixture, CreateStateSuccess)
+{
+    Error error;
+    musica::MICM* micm = CreateMicm(config_path, MICMSolver::Rosenbrock, num_grid_cells, &error);
+    auto state = CreateMicmState(micm, &error);   
+    ASSERT_NE(state, nullptr);
+    delete state;
+    delete micm;
+}
 
 // Test case for bad configuration file path
 TEST(MicmCApiTest, BadConfigurationFilePath)
@@ -94,7 +121,7 @@ TEST_F(MicmCApiTestFixture, CreateMicmInstance)
 TEST_F(MicmCApiTestFixture, GetSpeciesOrdering)
 {
   Error error;
-  Mappings species_ordering = GetSpeciesOrdering(micm, &error);
+  Mappings species_ordering = GetSpeciesOrdering(micm, state, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(species_ordering.size_, 4);
   DeleteError(&error);
@@ -145,7 +172,7 @@ TEST_F(MicmCApiTestFixture, GetSpeciesOrdering)
 TEST_F(MicmCApiTestFixture, GetUserDefinedReactionRatesOrdering)
 {
   Error error;
-  Mappings reaction_rates_ordering = GetUserDefinedReactionRatesOrdering(micm, &error);
+  Mappings reaction_rates_ordering = GetUserDefinedReactionRatesOrdering(micm, state, &error);
   ASSERT_TRUE(IsSuccess(error));
   DeleteError(&error);
   ASSERT_EQ(reaction_rates_ordering.size_, 3);
@@ -182,21 +209,20 @@ TEST_F(MicmCApiTestFixture, GetUserDefinedReactionRatesOrdering)
   DeleteMappings(&reaction_rates_ordering);
 }
 
-void TestSingleGridCell(MICM* micm)
+void TestSingleGridCell(MICM* micm, musica::State* state)
 {
   double time_step = 200.0;
-  double temperatures[1];
-  double pressures[1];
-  double air_densities[1];
   constexpr double GAS_CONSTANT = 8.31446261815324;  // J mol-1 K-1
   const std::size_t num_concentrations = 4;
-  double concentrations[num_concentrations];
   const std::size_t num_user_defined_reaction_rates = 3;
-  double user_defined_reaction_rates[num_user_defined_reaction_rates];
   Error error;
 
+  std::vector<micm::Conditions> conditions(1);
+  std::vector<double>& concentrations_vector = state->GetOrderedConcentrations();
+  std::vector<double>& user_defined_reaction_rates = state->GetOrderedRateConstants();
+
   // Get species ordering
-  Mappings species_ordering = GetSpeciesOrdering(micm, &error);
+  Mappings species_ordering = GetSpeciesOrdering(micm, state, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(species_ordering.size_, num_concentrations);
   std::size_t O2_index = FindMappingIndex(species_ordering, "O2", &error);
@@ -210,7 +236,7 @@ void TestSingleGridCell(MICM* micm)
   DeleteMappings(&species_ordering);
 
   // Get user-defined reaction rates ordering
-  Mappings reaction_rates_ordering = GetUserDefinedReactionRatesOrdering(micm, &error);
+  Mappings reaction_rates_ordering = GetUserDefinedReactionRatesOrdering(micm, state, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(reaction_rates_ordering.size_, num_user_defined_reaction_rates);
   std::size_t jO2_index = FindMappingIndex(reaction_rates_ordering, "PHOTO.jO2", &error);
@@ -221,37 +247,35 @@ void TestSingleGridCell(MICM* micm)
   ASSERT_TRUE(IsSuccess(error));
   DeleteMappings(&reaction_rates_ordering);
 
-  temperatures[0] = 272.5;
-  pressures[0] = 101253.4;
-  air_densities[0] = pressures[0] / (GAS_CONSTANT * temperatures[0]);
-  concentrations[O2_index] = 0.75;
-  concentrations[O_index] = 0.0;
-  concentrations[O1D_index] = 0.0;
-  concentrations[O3_index] = 0.0000081;
+  conditions[0].temperature_ = 272.5;
+  conditions[0].pressure_ = 101253.4;
+  conditions[0].air_density_ = conditions[0].pressure_ / (GAS_CONSTANT * conditions[0].temperature_);
+  concentrations_vector[O2_index] = 0.75;
+  concentrations_vector[O_index] = 0.0;
+  concentrations_vector[O1D_index] = 0.0;
+  concentrations_vector[O3_index] = 0.0000081;
   user_defined_reaction_rates[jO2_index] = 2.7e-19;
   user_defined_reaction_rates[jO3_O_index] = 1.13e-9;
   user_defined_reaction_rates[jO3_O1D_index] = 5.8e-8;
+
+  state->SetConditions(conditions);
 
   String solver_state;
   SolverResultStats solver_stats;
   MicmSolve(
       micm,
+      state,
       time_step,
-      temperatures,
-      pressures,
-      air_densities,
-      concentrations,
-      user_defined_reaction_rates,
       &solver_state,
       &solver_stats,
       &error);
   ASSERT_TRUE(IsSuccess(error));
 
   // Add assertions to check the solved concentrations
-  ASSERT_NEAR(concentrations[O2_index], 0.75, 1.0e-6);
-  ASSERT_GT(concentrations[O_index], 0.0);
-  ASSERT_GT(concentrations[O1D_index], 0.0);
-  ASSERT_NE(concentrations[O3_index], 0.0000081);
+  ASSERT_NEAR(concentrations_vector[O2_index], 0.75, 1.0e-6);
+  ASSERT_GT(concentrations_vector[O_index], 0.0);
+  ASSERT_GT(concentrations_vector[O1D_index], 0.0);
+  ASSERT_NE(concentrations_vector[O3_index], 0.0000081);
 
   std::cout << "Solver state: " << solver_state.value_ << std::endl;
   ASSERT_STREQ(solver_state.value_, "Converged");
@@ -275,10 +299,12 @@ TEST(RosenbrockStandardOrder, SolveUsingStandardOrderedRosenbrock)
   int num_grid_cells = 1;
   Error error;
   MICM* micm = CreateMicm(config_path, MICMSolver::RosenbrockStandardOrder, num_grid_cells, &error);
+  musica::State* state = CreateMicmState(micm, &error);
 
-  TestSingleGridCell(micm);
+  TestSingleGridCell(micm, state);
 
   DeleteMicm(micm, &error);
+  DeleteState(state, &error);
   ASSERT_TRUE(IsSuccess(error));
   DeleteError(&error);
 }
@@ -290,10 +316,12 @@ TEST(BackwardEulerStandardOrder, SolveUsingStandardOrderedBackwardEuler)
   int num_grid_cells = 1;
   Error error;
   MICM* micm = CreateMicm(config_path, MICMSolver::BackwardEulerStandardOrder, num_grid_cells, &error);
+  musica::State* state = CreateMicmState(micm, &error);
 
-  TestSingleGridCell(micm);
+  TestSingleGridCell(micm, state);
 
   DeleteMicm(micm, &error);
+  DeleteState(state, &error);
   ASSERT_TRUE(IsSuccess(error));
   DeleteError(&error);
 }
@@ -316,6 +344,7 @@ double CalculateArrhenius(const ArrheniusReaction parameters, const double tempe
 // Common test function for solving multiple grid cells with standard-ordered matrices
 void TestStandardMultipleGridCells(
     MICM* micm,
+    musica::State* state,
     const size_t num_grid_cells,
     const double time_step,
     const double test_accuracy)
@@ -324,17 +353,15 @@ void TestStandardMultipleGridCells(
   const size_t num_user_defined_reaction_rates = 2;
   constexpr double GAS_CONSTANT = 8.31446261815324;  // J mol-1 K-1
 
-  double* temperature = new double[num_grid_cells];
-  double* pressure = new double[num_grid_cells];
-  double* air_density = new double[num_grid_cells];
-  double* concentrations = new double[num_grid_cells * num_concentrations];
-  double* initial_concentrations = new double[num_grid_cells * num_concentrations];
-  double* user_defined_reaction_rates = new double[num_grid_cells * num_user_defined_reaction_rates];
-
+  std::vector<micm::Conditions> conditions(num_grid_cells);
+  std::vector<double>& concentrations_vector = state->GetOrderedConcentrations();
+  std::vector<double>& user_defined_reaction_rates = state->GetOrderedRateConstants();
+  std::vector<double> initial_concentrations(num_grid_cells * num_concentrations);
+  
   Error error;
 
   // Get species indices in concentration array
-  Mappings species_ordering = GetSpeciesOrdering(micm, &error);
+  Mappings species_ordering = GetSpeciesOrdering(micm, state, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(species_ordering.size_, num_concentrations);
   std::size_t A_index = FindMappingIndex(species_ordering, "A", &error);
@@ -352,7 +379,7 @@ void TestStandardMultipleGridCells(
   DeleteMappings(&species_ordering);
 
   // Get user-defined reaction rates indices in user-defined reaction rates array
-  Mappings rate_ordering = GetUserDefinedReactionRatesOrdering(micm, &error);
+  Mappings rate_ordering = GetUserDefinedReactionRatesOrdering(micm, state, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(rate_ordering.size_, num_user_defined_reaction_rates);
   std::size_t R1_index = FindMappingIndex(rate_ordering, "USER.reaction 1", &error);
@@ -363,35 +390,32 @@ void TestStandardMultipleGridCells(
 
   for (int i = 0; i < num_grid_cells; ++i)
   {
-    temperature[i] = 275.0 + (rand() % 20 - 10);
-    pressure[i] = 101253.3 + (rand() % 1000 - 500);
-    air_density[i] = pressure[i] / (GAS_CONSTANT * temperature[i]);
-    concentrations[i * num_concentrations + A_index] = 0.75 + (rand() % 10 - 5) * 0.01;
-    concentrations[i * num_concentrations + B_index] = 0.0;
-    concentrations[i * num_concentrations + C_index] = 0.4 + (rand() % 10 - 5) * 0.01;
-    concentrations[i * num_concentrations + D_index] = 0.8 + (rand() % 10 - 5) * 0.01;
-    concentrations[i * num_concentrations + E_index] = 0.0;
-    concentrations[i * num_concentrations + F_index] = 0.1 + (rand() % 10 - 5) * 0.01;
+    conditions[i].temperature_ = 275.0 + (rand() % 20 - 10);
+    conditions[i].pressure_ = 101253.3 + (rand() % 1000 - 500);
+    conditions[i].air_density_ = conditions[i].pressure_ / (GAS_CONSTANT * conditions[i].temperature_);
+    concentrations_vector[i * num_concentrations + A_index] = 0.75 + (rand() % 10 - 5) * 0.01;
+    concentrations_vector[i * num_concentrations + B_index] = 0.0;
+    concentrations_vector[i * num_concentrations + C_index] = 0.4 + (rand() % 10 - 5) * 0.01;
+    concentrations_vector[i * num_concentrations + D_index] = 0.8 + (rand() % 10 - 5) * 0.01;
+    concentrations_vector[i * num_concentrations + E_index] = 0.0;
+    concentrations_vector[i * num_concentrations + F_index] = 0.1 + (rand() % 10 - 5) * 0.01;
     user_defined_reaction_rates[i * num_user_defined_reaction_rates + R1_index] = 0.001 + (rand() % 10 - 5) * 0.0001;
     user_defined_reaction_rates[i * num_user_defined_reaction_rates + R2_index] = 0.002 + (rand() % 10 - 5) * 0.0001;
     for (int j = 0; j < num_concentrations; ++j)
     {
-      initial_concentrations[i * num_concentrations + j] = concentrations[i * num_concentrations + j];
+      initial_concentrations[i * num_concentrations + j] = concentrations_vector[i * num_concentrations + j];
     }
 
     DeleteError(&error);
   }
+  state->SetConditions(conditions);
 
   String solver_state;
   SolverResultStats solver_stats;
   MicmSolve(
       micm,
+      state,
       time_step,
-      temperature,
-      pressure,
-      air_density,
-      concentrations,
-      user_defined_reaction_rates,
       &solver_state,
       &solver_stats,
       &error);
@@ -415,47 +439,38 @@ void TestStandardMultipleGridCells(
     double initial_F = initial_concentrations[i_cell * num_concentrations + F_index];
     double k1 = user_defined_reaction_rates[i_cell * num_user_defined_reaction_rates + R1_index];
     double k2 = user_defined_reaction_rates[i_cell * num_user_defined_reaction_rates + R2_index];
-    double k3 = CalculateArrhenius(arr1, temperature[i_cell], pressure[i_cell]);
-    double k4 = CalculateArrhenius(arr2, temperature[i_cell], pressure[i_cell]);
+    double k3 = CalculateArrhenius(arr1, conditions[i_cell].temperature_, conditions[i_cell].pressure_);
+    double k4 = CalculateArrhenius(arr2, conditions[i_cell].temperature_, conditions[i_cell].pressure_);
     double A = initial_A * std::exp(-k3 * time_step);
     double B = initial_A * (k3 / (k4 - k3)) * (std::exp(-k3 * time_step) - std::exp(-k4 * time_step));
     double C = initial_C + initial_A * (1.0 + (k3 * std::exp(-k4 * time_step) - k4 * std::exp(-k3 * time_step)) / (k4 - k3));
     double D = initial_D * std::exp(-k1 * time_step);
     double E = initial_D * (k1 / (k2 - k1)) * (std::exp(-k1 * time_step) - std::exp(-k2 * time_step));
     double F = initial_F + initial_D * (1.0 + (k1 * std::exp(-k2 * time_step) - k2 * std::exp(-k1 * time_step)) / (k2 - k1));
-    ASSERT_NEAR(concentrations[i_cell * num_concentrations + A_index], A, test_accuracy);
-    ASSERT_NEAR(concentrations[i_cell * num_concentrations + B_index], B, test_accuracy);
-    ASSERT_NEAR(concentrations[i_cell * num_concentrations + C_index], C, test_accuracy);
-    ASSERT_NEAR(concentrations[i_cell * num_concentrations + D_index], D, test_accuracy);
-    ASSERT_NEAR(concentrations[i_cell * num_concentrations + E_index], E, test_accuracy);
-    ASSERT_NEAR(concentrations[i_cell * num_concentrations + F_index], F, test_accuracy);
+    ASSERT_NEAR(concentrations_vector[i_cell * num_concentrations + A_index], A, test_accuracy);
+    ASSERT_NEAR(concentrations_vector[i_cell * num_concentrations + B_index], B, test_accuracy);
+    ASSERT_NEAR(concentrations_vector[i_cell * num_concentrations + C_index], C, test_accuracy);
+    ASSERT_NEAR(concentrations_vector[i_cell * num_concentrations + D_index], D, test_accuracy);
+    ASSERT_NEAR(concentrations_vector[i_cell * num_concentrations + E_index], E, test_accuracy);
+    ASSERT_NEAR(concentrations_vector[i_cell * num_concentrations + F_index], F, test_accuracy);
   }
-  delete[] temperature;
-  delete[] pressure;
-  delete[] air_density;
-  delete[] concentrations;
-  delete[] initial_concentrations;
-  delete[] user_defined_reaction_rates;
 }
 
 // Common test function for solving multiple grid cells with vectorizable matrices
-void TestVectorMultipleGridCells(MICM* micm, const size_t num_grid_cells, const double time_step, const double test_accuracy)
+void TestVectorMultipleGridCells(MICM* micm, musica::State* state, const size_t num_grid_cells, const double time_step, const double test_accuracy)
 {
   const size_t num_concentrations = 6;
   const size_t num_user_defined_reaction_rates = 2;
   constexpr double GAS_CONSTANT = 8.31446261815324;  // J mol-1 K-1
 
-  double* temperature = new double[num_grid_cells];
-  double* pressure = new double[num_grid_cells];
-  double* air_density = new double[num_grid_cells];
-  double* concentrations = new double[num_grid_cells * num_concentrations];
-  double* initial_concentrations = new double[num_grid_cells * num_concentrations];
-  double* user_defined_reaction_rates = new double[num_grid_cells * num_user_defined_reaction_rates];
+  std::vector<micm::Conditions> conditions(num_grid_cells);
+  std::vector<double>& concentrations_vector = state->GetOrderedConcentrations();
+  std::vector<double>& user_defined_reaction_rates = state->GetOrderedRateConstants();
+  std::vector<double> initial_concentrations(num_grid_cells * num_concentrations);
 
   Error error;
-
   // Get species indices in concentration array
-  Mappings species_ordering = GetSpeciesOrdering(micm, &error);
+  Mappings species_ordering = GetSpeciesOrdering(micm, state, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(species_ordering.size_, num_concentrations);
   std::size_t A_index = FindMappingIndex(species_ordering, "A", &error);
@@ -473,7 +488,7 @@ void TestVectorMultipleGridCells(MICM* micm, const size_t num_grid_cells, const 
   DeleteMappings(&species_ordering);
 
   // Get user-defined reaction rates indices in user-defined reaction rates array
-  Mappings rate_ordering = GetUserDefinedReactionRatesOrdering(micm, &error);
+  Mappings rate_ordering = GetUserDefinedReactionRatesOrdering(micm, state, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(rate_ordering.size_, num_user_defined_reaction_rates);
   std::size_t R1_index = FindMappingIndex(rate_ordering, "USER.reaction 1", &error);
@@ -484,33 +499,31 @@ void TestVectorMultipleGridCells(MICM* micm, const size_t num_grid_cells, const 
 
   for (int i = 0; i < num_grid_cells; ++i)
   {
-    temperature[i] = 275.0 + (rand() % 20 - 10);
-    pressure[i] = 101253.3 + (rand() % 1000 - 500);
-    air_density[i] = pressure[i] / (GAS_CONSTANT * temperature[i]);
-    concentrations[i + A_index * num_grid_cells] = 0.75 + (rand() % 10 - 5) * 0.01;
-    concentrations[i + B_index * num_grid_cells] = 0.0;
-    concentrations[i + C_index * num_grid_cells] = 0.4 + (rand() % 10 - 5) * 0.01;
-    concentrations[i + D_index * num_grid_cells] = 0.8 + (rand() % 10 - 5) * 0.01;
-    concentrations[i + E_index * num_grid_cells] = 0.0;
-    concentrations[i + F_index * num_grid_cells] = 0.1 + (rand() % 10 - 5) * 0.01;
+    conditions[i].temperature_ = 275.0 + (rand() % 20 - 10);
+    conditions[i].pressure_ = 101253.3 + (rand() % 1000 - 500);
+    conditions[i].air_density_ = conditions[i].pressure_ / (GAS_CONSTANT * conditions[i].temperature_);
+    concentrations_vector[i + A_index * num_grid_cells] = 0.75 + (rand() % 10 - 5) * 0.01;
+    concentrations_vector[i + B_index * num_grid_cells] = 0.0;
+    concentrations_vector[i + C_index * num_grid_cells] = 0.4 + (rand() % 10 - 5) * 0.01;
+    concentrations_vector[i + D_index * num_grid_cells] = 0.8 + (rand() % 10 - 5) * 0.01;
+    concentrations_vector[i + E_index * num_grid_cells] = 0.0;
+    concentrations_vector[i + F_index * num_grid_cells] = 0.1 + (rand() % 10 - 5) * 0.01;
     user_defined_reaction_rates[i + R1_index * num_grid_cells] = 0.001 + (rand() % 10 - 5) * 0.0001;
     user_defined_reaction_rates[i + R2_index * num_grid_cells] = 0.002 + (rand() % 10 - 5) * 0.0001;
     for (int j = 0; j < num_concentrations; ++j)
     {
-      initial_concentrations[i + j * num_grid_cells] = concentrations[i + j * num_grid_cells];
+      initial_concentrations[i + j * num_grid_cells] = concentrations_vector[i + j * num_grid_cells];
     }
   }
+
+  state->SetConditions(conditions);
 
   String solver_state;
   SolverResultStats solver_stats;
   MicmSolve(
       micm,
+      state,
       time_step,
-      temperature,
-      pressure,
-      air_density,
-      concentrations,
-      user_defined_reaction_rates,
       &solver_state,
       &solver_stats,
       &error);
@@ -534,27 +547,21 @@ void TestVectorMultipleGridCells(MICM* micm, const size_t num_grid_cells, const 
     double initial_F = initial_concentrations[i_cell + F_index * num_grid_cells];
     double k1 = user_defined_reaction_rates[i_cell + R1_index * num_grid_cells];
     double k2 = user_defined_reaction_rates[i_cell + R2_index * num_grid_cells];
-    double k3 = CalculateArrhenius(arr1, temperature[i_cell], pressure[i_cell]);
-    double k4 = CalculateArrhenius(arr2, temperature[i_cell], pressure[i_cell]);
+    double k3 = CalculateArrhenius(arr1, conditions[i_cell].temperature_, conditions[i_cell].pressure_);
+    double k4 = CalculateArrhenius(arr2, conditions[i_cell].temperature_, conditions[i_cell].pressure_);
     double A = initial_A * std::exp(-k3 * time_step);
     double B = initial_A * (k3 / (k4 - k3)) * (std::exp(-k3 * time_step) - std::exp(-k4 * time_step));
     double C = initial_C + initial_A * (1.0 + (k3 * std::exp(-k4 * time_step) - k4 * std::exp(-k3 * time_step)) / (k4 - k3));
     double D = initial_D * std::exp(-k1 * time_step);
     double E = initial_D * (k1 / (k2 - k1)) * (std::exp(-k1 * time_step) - std::exp(-k2 * time_step));
     double F = initial_F + initial_D * (1.0 + (k1 * std::exp(-k2 * time_step) - k2 * std::exp(-k1 * time_step)) / (k2 - k1));
-    ASSERT_NEAR(concentrations[i_cell + A_index * num_grid_cells], A, test_accuracy);
-    ASSERT_NEAR(concentrations[i_cell + B_index * num_grid_cells], B, test_accuracy);
-    ASSERT_NEAR(concentrations[i_cell + C_index * num_grid_cells], C, test_accuracy);
-    ASSERT_NEAR(concentrations[i_cell + D_index * num_grid_cells], D, test_accuracy);
-    ASSERT_NEAR(concentrations[i_cell + E_index * num_grid_cells], E, test_accuracy);
-    ASSERT_NEAR(concentrations[i_cell + F_index * num_grid_cells], F, test_accuracy);
+    ASSERT_NEAR(concentrations_vector[i_cell + A_index * num_grid_cells], A, test_accuracy);
+    ASSERT_NEAR(concentrations_vector[i_cell + B_index * num_grid_cells], B, test_accuracy);
+    ASSERT_NEAR(concentrations_vector[i_cell + C_index * num_grid_cells], C, test_accuracy);
+    ASSERT_NEAR(concentrations_vector[i_cell + D_index * num_grid_cells], D, test_accuracy);
+    ASSERT_NEAR(concentrations_vector[i_cell + E_index * num_grid_cells], E, test_accuracy);
+    ASSERT_NEAR(concentrations_vector[i_cell + F_index * num_grid_cells], F, test_accuracy);
   }
-  delete[] temperature;
-  delete[] pressure;
-  delete[] air_density;
-  delete[] concentrations;
-  delete[] initial_concentrations;
-  delete[] user_defined_reaction_rates;
 }
 
 // Test case for solving multiple grid cells using vector-ordered Rosenbrock solver
@@ -566,10 +573,12 @@ TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingVectorOrderedRosenbrock)
   const char* config_path = "configs/analytical";
   Error error;
   DeleteMicm(micm, &error);
+  DeleteState(state, &error);
   ASSERT_TRUE(IsSuccess(error));
   micm = CreateMicm(config_path, MICMSolver::Rosenbrock, num_grid_cells, &error);
+  state = CreateMicmState(micm, &error);
   ASSERT_TRUE(IsSuccess(error));
-  TestVectorMultipleGridCells(micm, num_grid_cells, time_step, test_accuracy);
+  TestVectorMultipleGridCells(micm, state, num_grid_cells, time_step, test_accuracy);
   DeleteError(&error);
 }
 
@@ -582,10 +591,12 @@ TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingStandardOrderedRosenbrock
   const char* config_path = "configs/analytical";
   Error error;
   DeleteMicm(micm, &error);
+  DeleteState(state, &error);
   ASSERT_TRUE(IsSuccess(error));
   micm = CreateMicm(config_path, MICMSolver::RosenbrockStandardOrder, num_grid_cells, &error);
+  state = CreateMicmState(micm, &error);
   ASSERT_TRUE(IsSuccess(error));
-  TestStandardMultipleGridCells(micm, num_grid_cells, time_step, test_accuracy);
+  TestStandardMultipleGridCells(micm, state, num_grid_cells, time_step, test_accuracy);
   DeleteError(&error);
 }
 
@@ -598,10 +609,12 @@ TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingVectorOrderedBackwardEule
   const char* config_path = "configs/analytical";
   Error error;
   DeleteMicm(micm, &error);
+  DeleteState(state, &error);
   ASSERT_TRUE(IsSuccess(error));
   micm = CreateMicm(config_path, MICMSolver::BackwardEuler, num_grid_cells, &error);
+  state = CreateMicmState(micm, &error);
   ASSERT_TRUE(IsSuccess(error));
-  TestVectorMultipleGridCells(micm, num_grid_cells, time_step, test_accuracy);
+  TestVectorMultipleGridCells(micm, state, num_grid_cells, time_step, test_accuracy);
   DeleteError(&error);
 }
 
@@ -614,10 +627,12 @@ TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingStandardOrderedBackwardEu
   const char* config_path = "configs/analytical";
   Error error;
   DeleteMicm(micm, &error);
+  DeleteState(state, &error);
   ASSERT_TRUE(IsSuccess(error));
   micm = CreateMicm(config_path, MICMSolver::BackwardEulerStandardOrder, num_grid_cells, &error);
+  state = CreateMicmState(micm, &error);
   ASSERT_TRUE(IsSuccess(error));
-  TestStandardMultipleGridCells(micm, num_grid_cells, time_step, test_accuracy);
+  TestStandardMultipleGridCells(micm, state, num_grid_cells, time_step, test_accuracy);
   DeleteError(&error);
 }
 
