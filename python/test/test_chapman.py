@@ -11,7 +11,7 @@ class TestChapman(unittest.TestCase):
             musica.micmsolver.rosenbrock_standard_order,
             num_grid_cells)
         state = musica.create_state(solver)
-        
+
         time_step = 200.0
         conditions = state.conditions
         condition = conditions[0]
