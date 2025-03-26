@@ -427,8 +427,8 @@ namespace musica
     {
       auto &solver = solver_state_pair.first;
       auto &state = solver_state_pair.second;
-      const std::size_t num_species = state.variables_.NumColumns();
-      const std::size_t num_custom_rate_parameters = state.custom_rate_parameters_.NumColumns();
+      const std::size_t num_species = state.variables_.NumColumns(); // unused
+      const std::size_t num_custom_rate_parameters = state.custom_rate_parameters_.NumColumns(); // unused
 
       std::size_t i_cond = 0;
       for (auto &cond : state.conditions_)
