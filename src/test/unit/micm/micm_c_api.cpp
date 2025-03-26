@@ -1,6 +1,6 @@
 #include <musica/micm/micm.hpp>
-#include <musica/util.hpp>
 #include <musica/micm/state.hpp>
+#include <musica/util.hpp>
 
 #include <micm/util/error.hpp>
 
@@ -56,12 +56,12 @@ TEST_F(MicmCApiTestFixture, BadSolver)
 // Test case for creating state successfully
 TEST_F(MicmCApiTestFixture, CreateStateSuccess)
 {
-    Error error;
-    musica::MICM* micm = CreateMicm(config_path, MICMSolver::Rosenbrock, num_grid_cells, &error);
-    auto state = CreateMicmState(micm, &error);   
-    ASSERT_NE(state, nullptr);
-    delete state;
-    delete micm;
+  Error error;
+  musica::MICM* micm = CreateMicm(config_path, MICMSolver::Rosenbrock, num_grid_cells, &error);
+  auto state = CreateMicmState(micm, &error);
+  ASSERT_NE(state, nullptr);
+  delete state;
+  delete micm;
 }
 
 // Test case for bad configuration file path
@@ -262,13 +262,7 @@ void TestSingleGridCell(MICM* micm, musica::State* state)
 
   String solver_state;
   SolverResultStats solver_stats;
-  MicmSolve(
-      micm,
-      state,
-      time_step,
-      &solver_state,
-      &solver_stats,
-      &error);
+  MicmSolve(micm, state, time_step, &solver_state, &solver_stats, &error);
   ASSERT_TRUE(IsSuccess(error));
 
   // Add assertions to check the solved concentrations
@@ -357,7 +351,7 @@ void TestStandardMultipleGridCells(
   std::vector<double>& concentrations_vector = state->GetOrderedConcentrations();
   std::vector<double>& user_defined_reaction_rates = state->GetOrderedRateConstants();
   std::vector<double> initial_concentrations(num_grid_cells * num_concentrations);
-  
+
   Error error;
 
   // Get species indices in concentration array
@@ -412,13 +406,7 @@ void TestStandardMultipleGridCells(
 
   String solver_state;
   SolverResultStats solver_stats;
-  MicmSolve(
-      micm,
-      state,
-      time_step,
-      &solver_state,
-      &solver_stats,
-      &error);
+  MicmSolve(micm, state, time_step, &solver_state, &solver_stats, &error);
   ASSERT_TRUE(IsSuccess(error));
   DeleteError(&error);
 
@@ -457,7 +445,12 @@ void TestStandardMultipleGridCells(
 }
 
 // Common test function for solving multiple grid cells with vectorizable matrices
-void TestVectorMultipleGridCells(MICM* micm, musica::State* state, const size_t num_grid_cells, const double time_step, const double test_accuracy)
+void TestVectorMultipleGridCells(
+    MICM* micm,
+    musica::State* state,
+    const size_t num_grid_cells,
+    const double time_step,
+    const double test_accuracy)
 {
   const size_t num_concentrations = 6;
   const size_t num_user_defined_reaction_rates = 2;
@@ -520,13 +513,7 @@ void TestVectorMultipleGridCells(MICM* micm, musica::State* state, const size_t 
 
   String solver_state;
   SolverResultStats solver_stats;
-  MicmSolve(
-      micm,
-      state,
-      time_step,
-      &solver_state,
-      &solver_stats,
-      &error);
+  MicmSolve(micm, state, time_step, &solver_state, &solver_stats, &error);
   ASSERT_TRUE(IsSuccess(error));
   DeleteError(&error);
 
