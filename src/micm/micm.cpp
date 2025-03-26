@@ -5,8 +5,8 @@
 // multi-component reactive transport model. It also includes functions for
 // creating and deleting MICM instances, creating solvers, and solving the model.
 #include <musica/micm/micm.hpp>
-#include <musica/micm/state.hpp>
 #include <musica/micm/parse.hpp>
+#include <musica/micm/state.hpp>
 #include <musica/util.hpp>
 
 #include <micm/solver/rosenbrock_solver_parameters.hpp>
@@ -101,13 +101,7 @@ namespace musica
       Error *error)
   {
     DeleteError(error);
-    micm->Solve(
-          micm,
-          state,
-          time_step,
-          solver_state,
-          solver_stats,
-          error);
+    micm->Solve(micm, state, time_step, solver_state, solver_stats, error);
   };
 
   String MicmVersion()
@@ -120,11 +114,14 @@ namespace musica
     DeleteError(error);
 
     std::map<std::string, std::size_t> map;
-    bool success = false; // Track if a valid state was found
-    std::visit([&map, &success](auto& state) {
-      map = state.variable_map_;
-      success = true;
-    }, state->state_variant_);
+    bool success = false;  // Track if a valid state was found
+    std::visit(
+        [&map, &success](auto &state)
+        {
+          map = state.variable_map_;
+          success = true;
+        },
+        state->state_variant_);
 
     if (!success)
     {
@@ -152,13 +149,17 @@ namespace musica
     DeleteError(error);
 
     std::map<std::string, std::size_t> map;
-    bool success = false; // Track if a valid state was found
-    std::visit([&map, &success](auto& state) {
-      map = state.custom_rate_parameter_map_;
-      success = true;
-    }, state->state_variant_);
+    bool success = false;  // Track if a valid state was found
+    std::visit(
+        [&map, &success](auto &state)
+        {
+          map = state.custom_rate_parameter_map_;
+          success = true;
+        },
+        state->state_variant_);
 
-    if (!success){
+    if (!success)
+    {
       std::string msg = "State type not recognized or not supported";
       *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND, msg.c_str());
       return Mappings();
@@ -280,7 +281,7 @@ namespace musica
               .SetNumberOfGridCells(num_grid_cells_)
               .SetIgnoreUnusedSpecies(true)
               .Build());
-              
+
       DeleteError(error);
       *error = NoError();
     }
@@ -313,46 +314,48 @@ namespace musica
   }
 
   void MICM::Solve(
-    MICM *micm,
-    musica::State *state,
-    double time_step,
-    String *solver_state,
-    SolverResultStats *solver_stats,
-    Error *error)
+      MICM *micm,
+      musica::State *state,
+      double time_step,
+      String *solver_state,
+      SolverResultStats *solver_stats,
+      Error *error)
   {
     try
     {
-      auto solve_and_store_results = [&](auto& solver, auto& state) 
+      auto solve_and_store_results = [&](auto &solver, auto &state)
       {
         solver->CalculateRateConstants(state);
         auto result = solver->Solve(time_step, state);
 
         *solver_state = CreateString(micm::SolverStateToString(result.state_).c_str());
         *solver_stats = SolverResultStats(
-          result.stats_.function_calls_,
-          result.stats_.jacobian_updates_,
-          result.stats_.number_of_steps_,
-          result.stats_.accepted_,
-          result.stats_.rejected_,
-          result.stats_.decompositions_,
-          result.stats_.solves_,
-          result.final_time_);
+            result.stats_.function_calls_,
+            result.stats_.jacobian_updates_,
+            result.stats_.number_of_steps_,
+            result.stats_.accepted_,
+            result.stats_.rejected_,
+            result.stats_.decompositions_,
+            result.stats_.solves_,
+            result.final_time_);
       };
 
-      std::visit([&](auto& solver, auto& state) {
-        using StateType = std::decay_t<decltype(state)>;
-        using SolverType = std::decay_t<decltype(*solver)>;
-        if constexpr (
-          (std::is_same_v<StateType, StandardState> &&
-            (std::is_same_v<SolverType, RosenbrockStandard> ||
-            std::is_same_v<SolverType, BackwardEulerStandard>)) ||
-          (std::is_same_v<StateType, VectorState> &&
-            (std::is_same_v<SolverType, Rosenbrock> ||
-            std::is_same_v<SolverType, BackwardEuler>)))
-        {
-          solve_and_store_results(solver, state);
-        }
-      }, micm->solver_variant_, state->state_variant_);
+      std::visit(
+          [&](auto &solver, auto &state)
+          {
+            using StateType = std::decay_t<decltype(state)>;
+            using SolverType = std::decay_t<decltype(*solver)>;
+            if constexpr (
+                (std::is_same_v<StateType, StandardState> &&
+                 (std::is_same_v<SolverType, RosenbrockStandard> || std::is_same_v<SolverType, BackwardEulerStandard>)) ||
+                (std::is_same_v<StateType, VectorState> &&
+                 (std::is_same_v<SolverType, Rosenbrock> || std::is_same_v<SolverType, BackwardEuler>)))
+            {
+              solve_and_store_results(solver, state);
+            }
+          },
+          micm->solver_variant_,
+          state->state_variant_);
 
       DeleteError(error);
       *error = NoError();
@@ -366,52 +369,53 @@ namespace musica
 
   Mappings GetSpeciesOrderingFortran(MICM *micm, Error *error)
   {
-    musica::State* state = CreateMicmState(micm, error);
+    musica::State *state = CreateMicmState(micm, error);
     auto speciesOrdering = GetSpeciesOrdering(micm, state, error);
-    DeleteState(state, error); 
+    DeleteState(state, error);
     return speciesOrdering;
   }
 
   Mappings GetUserDefinedReactionRatesOrderingFortran(MICM *micm, Error *error)
   {
-    musica::State* state = CreateMicmState(micm, error);
+    musica::State *state = CreateMicmState(micm, error);
     auto reactionRates = GetUserDefinedReactionRatesOrdering(micm, state, error);
-    DeleteState(state, error); 
+    DeleteState(state, error);
     return reactionRates;
   }
 
   void MicmSolveFortran(
-        MICM *micm,
-        double time_step,
-        double *temperature,
-        double *pressure,
-        double *air_density,
-        double *concentrations,
-        double *custom_rate_parameters,
-        String *solver_state,
-        SolverResultStats *solver_stats,
-        Error *error
-        )
+      MICM *micm,
+      double time_step,
+      double *temperature,
+      double *pressure,
+      double *air_density,
+      double *concentrations,
+      double *custom_rate_parameters,
+      String *solver_state,
+      SolverResultStats *solver_stats,
+      Error *error)
+  {
+    musica::State *state = CreateMicmState(micm, error);
+
+    size_t num_conditions = micm->NumGridCells();
+
+    std::vector<micm::Conditions> conditions_vector(num_conditions);
+    for (size_t i = 0; i < num_conditions; i++)
     {
-      musica::State* state = CreateMicmState(micm, error);
-      
-      size_t num_conditions = micm->NumGridCells(); 
-
-      std::vector<micm::Conditions> conditions_vector(num_conditions);
-      for (size_t i = 0; i < num_conditions; i++) {
-        conditions_vector[i].temperature_ = temperature[i];
-        conditions_vector[i].pressure_ = pressure[i];
-        conditions_vector[i].air_density_ = air_density[i];
-      }
-      state->SetOrderedConcentrations(concentrations);
-      state->SetOrderedRateConstants(custom_rate_parameters);
-      state->SetConditions(conditions_vector); 
-      MicmSolve(micm, state, time_step, solver_state,solver_stats, error);
-
-      std::vector<double> conc = state->GetOrderedConcentrations();
-      for(int i = 0; i < conc.size(); i++){
-        concentrations[i] = conc[i];
-      }
-      DeleteState(state, error);
+      conditions_vector[i].temperature_ = temperature[i];
+      conditions_vector[i].pressure_ = pressure[i];
+      conditions_vector[i].air_density_ = air_density[i];
     }
+    state->SetOrderedConcentrations(concentrations);
+    state->SetOrderedRateConstants(custom_rate_parameters);
+    state->SetConditions(conditions_vector);
+    MicmSolve(micm, state, time_step, solver_state, solver_stats, error);
+
+    std::vector<double> conc = state->GetOrderedConcentrations();
+    for (int i = 0; i < conc.size(); i++)
+    {
+      concentrations[i] = conc[i];
+    }
+    DeleteState(state, error);
+  }
 }  // namespace musica
