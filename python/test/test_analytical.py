@@ -96,6 +96,7 @@ class TestAnalyticalStandardRosenbrock(unittest.TestCase):
         state = musica.create_state(solver)
         TestSingleGridCell(self, solver, state, 200.0, 5)
 
+
 class TestAnalyticalStandardBackwardEuler(unittest.TestCase):
     def test_simulation(self):
         solver = musica.create_solver(
@@ -104,6 +105,7 @@ class TestAnalyticalStandardBackwardEuler(unittest.TestCase):
             1)
         state = musica.create_state(solver)
         TestSingleGridCell(self, solver, state, 10.0, places=2)
+
 
 def TestStandardMultipleGridCell(self, solver, state, num_grid_cells, time_step, places=5):
     concentrations = {
@@ -135,16 +137,16 @@ def TestStandardMultipleGridCell(self, solver, state, num_grid_cells, time_step,
         rate_constants["USER.reaction 2"].append(
             0.002 + random.uniform(-0.0001, 0.0001))
 
-    rates_ordering = musica.user_defined_reaction_rates(solver,state)
+    rates_ordering = musica.user_defined_reaction_rates(solver, state)
     species_ordering = musica.species_ordering(solver, state)
-    
+
     updated_ordered_rate_constants = (
         len(rate_constants.keys()) * num_grid_cells) * [0.0]
     for i in range(num_grid_cells):
         for key, value in rate_constants.items():
             updated_ordered_rate_constants[i *
-                                   len(rate_constants.keys()) +
-                                   rates_ordering[key]] = value[i]
+                                           len(rate_constants.keys()) +
+                                           rates_ordering[key]] = value[i]
     state.ordered_rate_constants = updated_ordered_rate_constants
 
     update_ordered_concentrations = (
@@ -152,8 +154,8 @@ def TestStandardMultipleGridCell(self, solver, state, num_grid_cells, time_step,
     for i in range(num_grid_cells):
         for key, value in concentrations.items():
             update_ordered_concentrations[i *
-                                   len(concentrations.keys()) +
-                                   species_ordering[key]] = value[i]
+                                          len(concentrations.keys()) +
+                                          species_ordering[key]] = value[i]
     state.ordered_concentrations = update_ordered_concentrations
 
     initial_concentrations = state.ordered_concentrations
@@ -182,15 +184,15 @@ def TestStandardMultipleGridCell(self, solver, state, num_grid_cells, time_step,
     k4 = num_grid_cells * [0.0]
     for i in range(num_grid_cells):
         k1[i] = state.ordered_rate_constants[i *
-                                       len(rate_constants.keys()) +
-                                       rates_ordering["USER.reaction 1"]]
+                                             len(rate_constants.keys()) +
+                                             rates_ordering["USER.reaction 1"]]
         k2[i] = state.ordered_rate_constants[i *
-                                       len(rate_constants.keys()) +
-                                       rates_ordering["USER.reaction 2"]]
+                                             len(rate_constants.keys()) +
+                                             rates_ordering["USER.reaction 2"]]
         k3[i] = 0.004 * np.exp(50.0 / conditions[i].temperature)
         k4[i] = 0.012 * np.exp(75.0 / conditions[i].temperature) * \
             (conditions[i].temperature / 50.0)**(-2) * (1.0 + 1.0e-6 * conditions[i].pressure)
-    
+
     while curr_time <= sim_length:
         musica.micm_solve(
             solver,
@@ -209,20 +211,27 @@ def TestStandardMultipleGridCell(self, solver, state, num_grid_cells, time_step,
             F_conc = initial_F[i] + initial_D[i] * (1.0 + (
                 k1[i] * np.exp(-k2[i] * curr_time) - k2[i] * np.exp(-k1[i] * curr_time)) / (k2[i] - k1[i]))
 
-            self.assertAlmostEqual(
-                state.ordered_concentrations[i * len(concentrations.keys()) + species_ordering["A"]], A_conc, places=places)
-            self.assertAlmostEqual(
-                state.ordered_concentrations[i * len(concentrations.keys()) + species_ordering["B"]], B_conc, places=places)
-            self.assertAlmostEqual(
-                state.ordered_concentrations[i * len(concentrations.keys()) + species_ordering["C"]], C_conc, places=places)
-            self.assertAlmostEqual(
-                state.ordered_concentrations[i * len(concentrations.keys()) + species_ordering["D"]], D_conc, places=places)
-            self.assertAlmostEqual(
-                state.ordered_concentrations[i * len(concentrations.keys()) + species_ordering["E"]], E_conc, places=places)
-            self.assertAlmostEqual(
-                state.ordered_concentrations[i * len(concentrations.keys()) + species_ordering["F"]], F_conc, places=places)
+            self.assertAlmostEqual(state.ordered_concentrations[i *
+                                                                len(concentrations.keys()) +
+                                                                species_ordering["A"]], A_conc, places=places)
+            self.assertAlmostEqual(state.ordered_concentrations[i *
+                                                                len(concentrations.keys()) +
+                                                                species_ordering["B"]], B_conc, places=places)
+            self.assertAlmostEqual(state.ordered_concentrations[i *
+                                                                len(concentrations.keys()) +
+                                                                species_ordering["C"]], C_conc, places=places)
+            self.assertAlmostEqual(state.ordered_concentrations[i *
+                                                                len(concentrations.keys()) +
+                                                                species_ordering["D"]], D_conc, places=places)
+            self.assertAlmostEqual(state.ordered_concentrations[i *
+                                                                len(concentrations.keys()) +
+                                                                species_ordering["E"]], E_conc, places=places)
+            self.assertAlmostEqual(state.ordered_concentrations[i *
+                                                                len(concentrations.keys()) +
+                                                                species_ordering["F"]], F_conc, places=places)
 
         curr_time += time_step
+
 
 def TestVectorMultipleGridCell(self, solver, state, num_grid_cells, time_step, places=5):
     concentrations = {
@@ -261,7 +270,7 @@ def TestVectorMultipleGridCell(self, solver, state, num_grid_cells, time_step, p
     for i in range(num_grid_cells):
         for key, value in rate_constants.items():
             updated_ordered_rate_constants[i +
-                                   rates_ordering[key] * num_grid_cells] = value[i]
+                                           rates_ordering[key] * num_grid_cells] = value[i]
     state.ordered_rate_constants = updated_ordered_rate_constants
 
     update_ordered_concentrations = (
@@ -269,7 +278,7 @@ def TestVectorMultipleGridCell(self, solver, state, num_grid_cells, time_step, p
     for i in range(num_grid_cells):
         for key, value in concentrations.items():
             update_ordered_concentrations[i +
-                                   species_ordering[key] * num_grid_cells] = value[i]
+                                          species_ordering[key] * num_grid_cells] = value[i]
     state.ordered_concentrations = update_ordered_concentrations
 
     initial_concentrations = state.ordered_concentrations
@@ -332,6 +341,7 @@ def TestVectorMultipleGridCell(self, solver, state, num_grid_cells, time_step, p
 
         curr_time += time_step
 
+
 class TestAnalyticalRosenbrockMultipleGridCells(unittest.TestCase):
     def test_simulation(self):
         solver = musica.create_solver(
@@ -342,6 +352,7 @@ class TestAnalyticalRosenbrockMultipleGridCells(unittest.TestCase):
         # The number of grid cells must equal the MICM matrix vector dimension
         TestVectorMultipleGridCell(self, solver, state, 4, 200.0, 5)
 
+
 class TestAnalyticalStandardRosenbrockMultipleGridCells(unittest.TestCase):
     def test_simulation(self):
         solver = musica.create_solver(
@@ -350,6 +361,7 @@ class TestAnalyticalStandardRosenbrockMultipleGridCells(unittest.TestCase):
             3)
         state = musica.create_state(solver)
         TestStandardMultipleGridCell(self, solver, state, 3, 200.0, 5)
+
 
 class TestAnalyticalBackwardEulerMultipleGridCells(unittest.TestCase):
     def test_simulation(self):
@@ -360,6 +372,7 @@ class TestAnalyticalBackwardEulerMultipleGridCells(unittest.TestCase):
         state = musica.create_state(solver)
         # The number of grid cells must equal the MICM matrix vector dimension
         TestVectorMultipleGridCell(self, solver, state, 4, 10.0, places=2)
+
 
 class TestAnalyticalStandardBackwardEulerMultipleGridCells(unittest.TestCase):
     def test_simulation(self):
