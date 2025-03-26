@@ -94,7 +94,7 @@ namespace musica
 
   void MicmSolve(
       MICM *micm,
-      musica::State *state_wrapper,
+      musica::State *state,
       double time_step,
       String *solver_state,
       SolverResultStats *solver_stats,
@@ -103,7 +103,7 @@ namespace musica
     DeleteError(error);
     micm->Solve(
           micm,
-          state_wrapper,
+          state,
           time_step,
           solver_state,
           solver_stats,
@@ -115,7 +115,7 @@ namespace musica
     return CreateString(micm::GetMicmVersion());
   }
 
-  Mappings GetSpeciesOrdering(MICM *micm, musica::State *state_wrapper, Error *error)
+  Mappings GetSpeciesOrdering(MICM *micm, musica::State *state, Error *error)
   {
     DeleteError(error);
 
@@ -124,7 +124,7 @@ namespace musica
     std::visit([&map, &success](auto& state) {
       map = state.variable_map_;
       success = true;
-    }, state_wrapper->state_variant_);
+    }, state->state_variant_);
 
     if (!success)
     {
@@ -147,7 +147,7 @@ namespace musica
     return species_ordering;
   }
 
-  Mappings GetUserDefinedReactionRatesOrdering(MICM *micm, musica::State *state_wrapper, Error *error)
+  Mappings GetUserDefinedReactionRatesOrdering(MICM *micm, musica::State *state, Error *error)
   {
     DeleteError(error);
 
@@ -156,7 +156,7 @@ namespace musica
     std::visit([&map, &success](auto& state) {
       map = state.custom_rate_parameter_map_;
       success = true;
-    }, state_wrapper->state_variant_);
+    }, state->state_variant_);
 
     if (!success){
       std::string msg = "State type not recognized or not supported";
@@ -314,7 +314,7 @@ namespace musica
 
   void MICM::Solve(
     MICM *micm,
-    musica::State *state_wrapper,
+    musica::State *state,
     double time_step,
     String *solver_state,
     SolverResultStats *solver_stats,
@@ -352,7 +352,7 @@ namespace musica
         {
           solve_and_store_results(solver, state);
         }
-      }, micm->solver_variant_, state_wrapper->state_variant_);
+      }, micm->solver_variant_, state->state_variant_);
 
       DeleteError(error);
       *error = NoError();
@@ -366,17 +366,17 @@ namespace musica
 
   Mappings GetSpeciesOrderingFortran(MICM *micm, Error *error)
   {
-    musica::State* state_wrapper = CreateMicmState(micm, error);
-    auto speciesOrdering = GetSpeciesOrdering(micm, state_wrapper, error);
-    DeleteState(state_wrapper, error); 
+    musica::State* state = CreateMicmState(micm, error);
+    auto speciesOrdering = GetSpeciesOrdering(micm, state, error);
+    DeleteState(state, error); 
     return speciesOrdering;
   }
 
   Mappings GetUserDefinedReactionRatesOrderingFortran(MICM *micm, Error *error)
   {
-    musica::State* state_wrapper = CreateMicmState(micm, error);
-    auto reactionRates = GetUserDefinedReactionRatesOrdering(micm, state_wrapper, error);
-    DeleteState(state_wrapper, error); 
+    musica::State* state = CreateMicmState(micm, error);
+    auto reactionRates = GetUserDefinedReactionRatesOrdering(micm, state, error);
+    DeleteState(state, error); 
     return reactionRates;
   }
 
@@ -393,7 +393,7 @@ namespace musica
         Error *error
         )
     {
-      musica::State* state_wrapper = CreateMicmState(micm, error);
+      musica::State* state = CreateMicmState(micm, error);
       
       size_t num_conditions = micm->NumGridCells(); 
 
@@ -403,15 +403,15 @@ namespace musica
         conditions_vector[i].pressure_ = pressure[i];
         conditions_vector[i].air_density_ = air_density[i];
       }
-      state_wrapper->SetOrderedConcentrations(concentrations);
-      state_wrapper->SetOrderedRateConstants(custom_rate_parameters);
-      state_wrapper->SetConditions(conditions_vector); 
-      MicmSolve(micm, state_wrapper, time_step, solver_state,solver_stats, error);
+      state->SetOrderedConcentrations(concentrations);
+      state->SetOrderedRateConstants(custom_rate_parameters);
+      state->SetConditions(conditions_vector); 
+      MicmSolve(micm, state, time_step, solver_state,solver_stats, error);
 
-      std::vector<double> conc = state_wrapper->GetOrderedConcentrations();
+      std::vector<double> conc = state->GetOrderedConcentrations();
       for(int i = 0; i < conc.size(); i++){
         concentrations[i] = conc[i];
       }
-      DeleteState(state_wrapper, error);
+      DeleteState(state, error);
     }
 }  // namespace musica

@@ -69,26 +69,26 @@ PYBIND11_MODULE(musica, m)
       [](musica::MICM *micm)
       {
         musica::Error error;
-        musica::State *state_wrapper = musica::CreateMicmState(micm, &error);
+        musica::State *state = musica::CreateMicmState(micm, &error);
         if (!musica::IsSuccess(error))
         {
           std::string message = "Error creating state: " + std::string(error.message_.value_);
           DeleteError(&error);
           throw std::runtime_error(message);
         }
-        return state_wrapper;
+        return state;
       });
 
   m.def("delete_micm", &musica::DeleteMicm);
 
   m.def(
       "micm_solve",
-      [](musica::MICM *micm, musica::State *state_wrapper, double time_step)
+      [](musica::MICM *micm, musica::State *state, double time_step)
       {
         musica::String solver_state;
         musica::SolverResultStats solver_stats;
         musica::Error error;
-        musica::MicmSolve(micm, state_wrapper, time_step, &solver_state, &solver_stats, &error);
+        musica::MicmSolve(micm, state, time_step, &solver_state, &solver_stats, &error);
         if (!musica::IsSuccess(error))
         {
           std::string message = "Error solving system: " + std::string(error.message_.value_);
@@ -100,21 +100,21 @@ PYBIND11_MODULE(musica, m)
 
   m.def(
       "species_ordering",
-      [](musica::MICM *micm, musica::State *state_wrapper)
+      [](musica::MICM *micm, musica::State *state)
       {
         std::map<std::string, std::size_t> map;
-        std::visit([&map](auto &state) { map = state.variable_map_; }, state_wrapper->state_variant_);
+        std::visit([&map](auto &state) { map = state.variable_map_; }, state->state_variant_);
         return map;
       },
       "Return map of get_species_ordering rates");
 
   m.def(
       "user_defined_reaction_rates",
-      [](musica::MICM *micm, musica::State *state_wrapper)
+      [](musica::MICM *micm, musica::State *state)
       {
         std::map<std::string, std::size_t> map;
 
-        std::visit([&map](auto &state) { map = state.custom_rate_parameter_map_; }, state_wrapper->state_variant_);
+        std::visit([&map](auto &state) { map = state.custom_rate_parameter_map_; }, state->state_variant_);
         return map;
       },
       "Return map of reaction rates");

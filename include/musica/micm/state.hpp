@@ -52,9 +52,9 @@ namespace musica
   State *CreateMicmState(musica::MICM *micm, Error *error);
 
   /// @brief Deletes a state object
-  /// @param state_wrapper Pointer to state object
+  /// @param state Pointer to state object
   /// @param error Error struct to indicate success or failure
-  void DeleteState(const State *state_wrapper, Error *error);
+  void DeleteState(const State *state, Error *error);
 
   class State {
   public:

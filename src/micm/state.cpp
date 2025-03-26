@@ -40,14 +40,14 @@ namespace musica
     return state;
   }
 
-  void DeleteState(const State *state_wrapper, Error *error) {
+  void DeleteState(const State *state, Error *error) {
     DeleteError(error);
-    if (state_wrapper == nullptr) {
+    if (state == nullptr) {
       *error = NoError();
       return;
     }
     try {
-      delete state_wrapper;
+      delete state;
       *error = NoError();
     } catch (const std::system_error &e) {
       *error = ToError(e);

@@ -117,14 +117,14 @@ namespace musica
 
     /// @brief Solve the system
     /// @param micm Pointer to MICM object
-    /// @param state_wrapper Pointer to state object
+    /// @param state Pointer to state object
     /// @param time_step Time [s] to advance the state by
     /// @param solver_state State of the solver
     /// @param solver_stats Statistics of the solver
     /// @param error Error struct to indicate success or failure
     void MicmSolve(
       MICM *micm,
-      musica::State *state_wrapper,
+      musica::State *state,
       double time_step,
       String *solver_state,
       SolverResultStats *solver_stats,
@@ -136,17 +136,17 @@ namespace musica
 
     /// @brief Get the ordering of species
     /// @param micm Pointer to MICM object
-    /// @param state_wrapper Pointer to state object
+    /// @param state Pointer to state object
     /// @param error Error struct to indicate success or failure
     /// @return Array of species' name-index pairs
-    Mappings GetSpeciesOrdering(MICM *micm, musica::State *state_wrapper, Error *error);
+    Mappings GetSpeciesOrdering(MICM *micm, musica::State *state, Error *error);
 
     /// @brief Get the ordering of user-defined reaction rates
     /// @param micm Pointer to MICM object
-    /// @param state_wrapper Pointer to state object
+    /// @param state Pointer to state object
     /// @param error Error struct to indicate success or failure
     /// @return Array of reaction rate name-index pairs
-    Mappings GetUserDefinedReactionRatesOrdering(MICM *micm, musica::State *state_wrapper, Error *error);
+    Mappings GetUserDefinedReactionRatesOrdering(MICM *micm, musica::State *state, Error *error);
 
     /// @brief Temporary method to solve the system
     /// @param micm Pointer to MICM object
@@ -222,14 +222,14 @@ namespace musica
 
       /// @brief Solve the system
       /// @param micm Pointer to MICM object
-      /// @param state_wrapper Pointer to state object
+      /// @param state Pointer to state object
       /// @param time_step Time [s] to advance the state by
       /// @param solver_state State of the solver
       /// @param solver_stats Statistics of the solver
       /// @param error Error struct to indicate success or failure
       void Solve(
         MICM *micm,
-        musica::State *state_wrapper,
+        musica::State *state,
         double time_step,
         String *solver_state,
         SolverResultStats *solver_stats,
