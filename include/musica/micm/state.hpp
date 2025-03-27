@@ -34,17 +34,14 @@
 
 namespace musica
 {
+
   class MICM;
   class State;
 
-  /// @brief Defines matrix types for vector-based and standard matrices.
-  using DenseMatrixVector = micm::VectorMatrix<double, MICM_VECTOR_MATRIX_SIZE>;
-  using SparseMatrixVector = micm::SparseMatrix<double, micm::SparseMatrixVectorOrdering<MICM_VECTOR_MATRIX_SIZE>>;
-  using VectorState = micm::State<DenseMatrixVector, SparseMatrixVector>;
-  using DenseMatrixStandard = micm::Matrix<double>;
-  using SparseMatrixStandard = micm::SparseMatrix<double, micm::SparseMatrixStandardOrdering>;
-  using StandardState = micm::State<DenseMatrixStandard, SparseMatrixStandard>;
-
+  #ifdef __cplusplus
+    extern "C" {
+  #endif
+  
   /// @brief Create a state object by specifying micm solver object using the solver variant
   /// @param micm Pointer to MICM object
   /// @param error Error struct to indicate success or failure
@@ -54,6 +51,35 @@ namespace musica
   /// @param state Pointer to state object
   /// @param error Error struct to indicate success or failure
   void DeleteState(const State *state, Error *error);
+
+  /// @brief Defines matrix types for vector-based and standard matrices.
+  using DenseMatrixVector = micm::VectorMatrix<double, MICM_VECTOR_MATRIX_SIZE>;
+  using SparseMatrixVector = micm::SparseMatrix<double, micm::SparseMatrixVectorOrdering<MICM_VECTOR_MATRIX_SIZE>>;
+  using VectorState = micm::State<DenseMatrixVector, SparseMatrixVector>;
+  using DenseMatrixStandard = micm::Matrix<double>;
+  using SparseMatrixStandard = micm::SparseMatrix<double, micm::SparseMatrixStandardOrdering>;
+  using StandardState = micm::State<DenseMatrixStandard, SparseMatrixStandard>;
+
+  using ConditionsVector = std::vector<micm::Conditions>;
+
+  /// Allocate and return pointer to Conditions vector
+  ConditionsVector* GetConditionsFromState(musica::State* state);
+
+  /// Set Conditions into the State object
+  void SetConditionsToState(musica::State* state, const micm::Conditions* conditions_array, std::size_t size);
+
+  /// Free memory for Conditions vector
+  void DeleteConditionsVector(ConditionsVector* vec);
+
+  /// Access elements
+  const micm::Conditions* GetConditionsDataPointer(const ConditionsVector* vec);
+
+  /// Get size
+  std::size_t GetConditionsSize(const ConditionsVector* vec);
+
+  #ifdef __cplusplus
+  }
+  #endif
 
   class State
   {

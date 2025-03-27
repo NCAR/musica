@@ -138,4 +138,38 @@ namespace musica
         },
         state_variant_);
   }
+
+  /// Allocate and return pointer to Conditions vector
+  ConditionsVector* GetConditionsFromState(musica::State* state)
+  {
+    return new ConditionsVector(state->GetConditions());
+  }
+
+  /// Set Conditions into the State object
+  void SetConditionsToState(musica::State* state, const micm::Conditions* conditions_array, std::size_t size)
+  {
+      std::vector<micm::Conditions> conditions_vec(conditions_array, conditions_array + size);
+      state->SetConditions(conditions_vec);
+  }
+
+  /// Free memory for Conditions vector
+  void DeleteConditionsVector(ConditionsVector* vec) 
+  {
+    delete vec;
+  }
+
+  /// Access elements
+  const micm::Conditions* GetConditionsDataPointer(const ConditionsVector* vec)
+  {
+    return vec->data();
+  }
+
+  /// Get size
+  std::size_t GetConditionsSize(const ConditionsVector* vec)
+  {
+    return vec->size();
+  }
+
+
+
 }  // namespace musica

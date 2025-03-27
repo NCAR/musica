@@ -100,6 +100,7 @@ namespace musica
       SolverResultStats *solver_stats,
       Error *error)
   {
+    std::cout << "TEST MONTEK SOLVE" << std::endl;
     DeleteError(error);
     micm->Solve(micm, state, time_step, solver_state, solver_stats, error);
   };
@@ -365,22 +366,6 @@ namespace musica
       DeleteError(error);
       *error = ToError(e);
     }
-  }
-
-  Mappings GetSpeciesOrderingFortran(MICM *micm, Error *error)
-  {
-    musica::State *state = CreateMicmState(micm, error);
-    auto speciesOrdering = GetSpeciesOrdering(micm, state, error);
-    DeleteState(state, error);
-    return speciesOrdering;
-  }
-
-  Mappings GetUserDefinedReactionRatesOrderingFortran(MICM *micm, Error *error)
-  {
-    musica::State *state = CreateMicmState(micm, error);
-    auto reactionRates = GetUserDefinedReactionRatesOrdering(micm, state, error);
-    DeleteState(state, error);
-    return reactionRates;
   }
 
   void MicmSolveFortran(
