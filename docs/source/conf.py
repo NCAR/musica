@@ -19,8 +19,8 @@ sys.path.insert(0, os.path.abspath('.'))
 # -- Project information -----------------------------------------------------
 
 project = 'MUSICA'
-copyright = f'2024-{datetime.datetime.now().year}, NCAR/UCAR'
-author = 'NCAR/UCAR'
+copyright = f'2024-{datetime.datetime.now().year}, NSF NCAR'
+author = 'NSF NCAR'
 
 suffix = ''
 # the suffix is required. This is controlled by the dockerfile that builds

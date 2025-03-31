@@ -1,6 +1,5 @@
 include(FetchContent)
 
-
 ################################################################################
 # Function to reduce repeated code, set a value to a variable only if the
 # variable is not already defined. 
@@ -32,6 +31,22 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(yaml-cpp)
 
 ################################################################################
+# Mechanism Configuration
+
+set_git_default(MECH_CONFIG_GIT_REPOSITORY https://github.com/NCAR/MechanismConfiguration.git)
+set_git_default(MECH_CONFIG_GIT_TAG v0.1.0)
+
+FetchContent_Declare(mechanism_configuration
+    GIT_REPOSITORY ${MECH_CONFIG_GIT_REPOSITORY}
+    GIT_TAG ${MECH_CONFIG_GIT_TAG}
+    GIT_PROGRESS NOT ${FETCHCONTENT_QUIET}
+)
+
+set(OPEN_ATMOS_ENABLE_PYTHON_LIBRARY OFF CACHE BOOL "" FORCE)
+
+FetchContent_MakeAvailable(mechanism_configuration)
+
+################################################################################
 # google test
 if(MUSICA_ENABLE_TESTS)
 
@@ -60,9 +75,8 @@ endif()
 # MICM
 
 if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE)
-
   set_git_default(MICM_GIT_REPOSITORY https://github.com/NCAR/micm.git)
-  set_git_default(MICM_GIT_TAG v.3.7.0)
+  set_git_default(MICM_GIT_TAG v3.8.0)
 
   FetchContent_Declare(micm
       GIT_REPOSITORY ${MICM_GIT_REPOSITORY}
@@ -86,7 +100,7 @@ if (MUSICA_ENABLE_TUVX AND MUSICA_BUILD_C_CXX_INTERFACE)
   set(TUVX_INSTALL_INCLUDE_DIR ${MUSICA_INSTALL_INCLUDE_DIR} CACHE STRING "" FORCE)
 
   set_git_default(TUVX_GIT_REPOSITORY https://github.com/NCAR/tuv-x.git)
-  set_git_default(TUVX_GIT_TAG v0.10.1)
+  set_git_default(TUVX_GIT_TAG v0.11.0)
 
   FetchContent_Declare(tuvx
     GIT_REPOSITORY ${TUVX_GIT_REPOSITORY}
@@ -114,11 +128,7 @@ if(MUSICA_ENABLE_PYTHON_LIBRARY)
       GIT_PROGRESS  NOT ${FETCHCONTENT_QUIET}
   )
 
-  FetchContent_GetProperties(pybind11)
-  if(NOT pybind11_POPULATED)
-      FetchContent_Populate(pybind11)
-      add_subdirectory(${pybind11_SOURCE_DIR} ${pybind11_BINARY_DIR})
-  endif()
+  FetchContent_MakeAvailable(pybind11)
 endif()
 
 ################################################################################

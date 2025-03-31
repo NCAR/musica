@@ -4,16 +4,18 @@ import musica
 import random
 
 
-def TestSingleGridCell(self, solver, time_step, places=5):
+def TestSingleGridCell(self, solver, state, time_step, places=5):
     num_grid_cells = 1
-    temperature = 272.5
-    pressure = 101253.3
+
+    conditions = state.conditions
+    condition = conditions[0]
+    condition.temperature = 272.5
+    condition.pressure = 101253.3
     GAS_CONSTANT = 8.31446261815324
-    air_density = pressure / (GAS_CONSTANT * temperature)
+    condition.air_density = condition.pressure / (GAS_CONSTANT * condition.temperature)
 
-    rates = musica.user_defined_reaction_rates(solver)
-    species_ordering = musica.species_ordering(solver)
-
+    rates = musica.user_defined_reaction_rates(solver, state)
+    species_ordering = musica.species_ordering(solver, state)
     rate_constants = {
         "USER.reaction 1": 0.001,
         "USER.reaction 2": 0.002
@@ -27,18 +29,17 @@ def TestSingleGridCell(self, solver, time_step, places=5):
         "E": 0,
         "F": 0.1
     }
-
-    ordered_rate_constants = len(rate_constants.keys()) * [0.0]
-
+    updated_ordered_rate_constants = len(rate_constants.keys()) * [0.0]
     for key, value in rate_constants.items():
-        ordered_rate_constants[rates[key]] = value
+        updated_ordered_rate_constants[rates[key]] = value
+    state.ordered_rate_constants = updated_ordered_rate_constants
 
-    ordered_concentrations = len(concentrations.keys()) * [0.0]
-
+    update_ordered_concentrations = len(concentrations.keys()) * [0.0]
     for key, value in concentrations.items():
-        ordered_concentrations[species_ordering[key]] = value
+        update_ordered_concentrations[species_ordering[key]] = value
+    state.ordered_concentrations = update_ordered_concentrations
 
-    initial_concentrations = ordered_concentrations
+    initial_concentrations = state.ordered_concentrations
 
     time_step = 1
     sim_length = 100
@@ -48,23 +49,17 @@ def TestSingleGridCell(self, solver, time_step, places=5):
     initial_C = initial_concentrations[species_ordering["C"]]
     initial_D = initial_concentrations[species_ordering["D"]]
     initial_F = initial_concentrations[species_ordering["F"]]
-
     # Gets analytical concentrations
     while curr_time <= sim_length:
         musica.micm_solve(
             solver,
-            time_step,
-            temperature,
-            pressure,
-            air_density,
-            ordered_concentrations,
-            ordered_rate_constants)
-
-        k1 = ordered_rate_constants[rates["USER.reaction 1"]]
-        k2 = ordered_rate_constants[rates["USER.reaction 2"]]
-        k3 = 0.004 * np.exp(50.0 / temperature)
-        k4 = 0.012 * np.exp(75.0 / temperature) * \
-            (temperature / 50.0)**(-2) * (1.0 + 1.0e-6 * pressure)
+            state,
+            time_step)
+        k1 = state.ordered_rate_constants[rates["USER.reaction 1"]]
+        k2 = state.ordered_rate_constants[rates["USER.reaction 2"]]
+        k3 = 0.004 * np.exp(50.0 / condition.temperature)
+        k4 = 0.012 * np.exp(75.0 / condition.temperature) * \
+            (condition.temperature / 50.0)**(-2) * (1.0 + 1.0e-6 * condition.pressure)
         A_conc = initial_A * np.exp(-(k3) * curr_time)
         B_conc = initial_A * (k3 / (k4 - k3)) * \
             (np.exp(-k3 * curr_time) - np.exp(-k4 * curr_time))
@@ -77,17 +72,17 @@ def TestSingleGridCell(self, solver, time_step, places=5):
             (1.0 + (k1 * np.exp(-k2 * curr_time) - k2 * np.exp(-k1 * curr_time)) / (k2 - k1))
 
         self.assertAlmostEqual(
-            ordered_concentrations[species_ordering["A"]], A_conc, places=places)
+            state.ordered_concentrations[species_ordering["A"]], A_conc, places=places)
         self.assertAlmostEqual(
-            ordered_concentrations[species_ordering["B"]], B_conc, places=places)
+            state.ordered_concentrations[species_ordering["B"]], B_conc, places=places)
         self.assertAlmostEqual(
-            ordered_concentrations[species_ordering["C"]], C_conc, places=places)
+            state.ordered_concentrations[species_ordering["C"]], C_conc, places=places)
         self.assertAlmostEqual(
-            ordered_concentrations[species_ordering["D"]], D_conc, places=places)
+            state.ordered_concentrations[species_ordering["D"]], D_conc, places=places)
         self.assertAlmostEqual(
-            ordered_concentrations[species_ordering["E"]], E_conc, places=places)
+            state.ordered_concentrations[species_ordering["E"]], E_conc, places=places)
         self.assertAlmostEqual(
-            ordered_concentrations[species_ordering["F"]], F_conc, places=places)
+            state.ordered_concentrations[species_ordering["F"]], F_conc, places=places)
 
         curr_time += time_step
 
@@ -98,7 +93,8 @@ class TestAnalyticalStandardRosenbrock(unittest.TestCase):
             "configs/analytical",
             musica.micmsolver.rosenbrock_standard_order,
             1)
-        TestSingleGridCell(self, solver, 200.0, 5)
+        state = musica.create_state(solver)
+        TestSingleGridCell(self, solver, state, 200.0, 5)
 
 
 class TestAnalyticalStandardBackwardEuler(unittest.TestCase):
@@ -107,13 +103,11 @@ class TestAnalyticalStandardBackwardEuler(unittest.TestCase):
             "configs/analytical",
             musica.micmsolver.backward_euler_standard_order,
             1)
-        TestSingleGridCell(self, solver, 10.0, places=2)
+        state = musica.create_state(solver)
+        TestSingleGridCell(self, solver, state, 10.0, places=2)
 
 
-def TestStandardMultipleGridCell(self, solver, num_grid_cells, time_step, places=5):
-    temperatures = []
-    pressures = []
-    air_densities = []
+def TestStandardMultipleGridCell(self, solver, state, num_grid_cells, time_step, places=5):
     concentrations = {
         "A": [],
         "B": [],
@@ -126,11 +120,12 @@ def TestStandardMultipleGridCell(self, solver, num_grid_cells, time_step, places
         "USER.reaction 1": [],
         "USER.reaction 2": []
     }
+    conditions = state.conditions
+
     for i in range(num_grid_cells):
-        temperatures.append(275.0 + random.uniform(-10.0, 10.0))
-        pressures.append(101253.3 + random.uniform(-500.0, 500.0))
-        air_densities.append(
-            pressures[i] / (8.31446261815324 * temperatures[i]))
+        conditions[i].temperature = 275.0 + random.uniform(-10.0, 10.0)
+        conditions[i].pressure = 101253.3 + random.uniform(-500.0, 500.0)
+        conditions[i].air_density = conditions[i].pressure / (8.31446261815324 * conditions[i].temperature)
         concentrations["A"].append(0.75 + random.uniform(-0.05, 0.05))
         concentrations["B"].append(0)
         concentrations["C"].append(0.4 + random.uniform(-0.05, 0.05))
@@ -142,26 +137,28 @@ def TestStandardMultipleGridCell(self, solver, num_grid_cells, time_step, places
         rate_constants["USER.reaction 2"].append(
             0.002 + random.uniform(-0.0001, 0.0001))
 
-    rates_ordering = musica.user_defined_reaction_rates(solver)
-    species_ordering = musica.species_ordering(solver)
+    rates_ordering = musica.user_defined_reaction_rates(solver, state)
+    species_ordering = musica.species_ordering(solver, state)
 
-    ordered_rate_constants = (
+    updated_ordered_rate_constants = (
         len(rate_constants.keys()) * num_grid_cells) * [0.0]
     for i in range(num_grid_cells):
         for key, value in rate_constants.items():
-            ordered_rate_constants[i *
-                                   len(rate_constants.keys()) +
-                                   rates_ordering[key]] = value[i]
+            updated_ordered_rate_constants[i *
+                                           len(rate_constants.keys()) +
+                                           rates_ordering[key]] = value[i]
+    state.ordered_rate_constants = updated_ordered_rate_constants
 
-    ordered_concentrations = (
+    update_ordered_concentrations = (
         len(concentrations.keys()) * num_grid_cells) * [0.0]
     for i in range(num_grid_cells):
         for key, value in concentrations.items():
-            ordered_concentrations[i *
-                                   len(concentrations.keys()) +
-                                   species_ordering[key]] = value[i]
+            update_ordered_concentrations[i *
+                                          len(concentrations.keys()) +
+                                          species_ordering[key]] = value[i]
+    state.ordered_concentrations = update_ordered_concentrations
 
-    initial_concentrations = ordered_concentrations
+    initial_concentrations = state.ordered_concentrations
 
     time_step = 1
     sim_length = 100
@@ -186,25 +183,21 @@ def TestStandardMultipleGridCell(self, solver, num_grid_cells, time_step, places
     k3 = num_grid_cells * [0.0]
     k4 = num_grid_cells * [0.0]
     for i in range(num_grid_cells):
-        k1[i] = ordered_rate_constants[i *
-                                       len(rate_constants.keys()) +
-                                       rates_ordering["USER.reaction 1"]]
-        k2[i] = ordered_rate_constants[i *
-                                       len(rate_constants.keys()) +
-                                       rates_ordering["USER.reaction 2"]]
-        k3[i] = 0.004 * np.exp(50.0 / temperatures[i])
-        k4[i] = 0.012 * np.exp(75.0 / temperatures[i]) * \
-            (temperatures[i] / 50.0)**(-2) * (1.0 + 1.0e-6 * pressures[i])
+        k1[i] = state.ordered_rate_constants[i *
+                                             len(rate_constants.keys()) +
+                                             rates_ordering["USER.reaction 1"]]
+        k2[i] = state.ordered_rate_constants[i *
+                                             len(rate_constants.keys()) +
+                                             rates_ordering["USER.reaction 2"]]
+        k3[i] = 0.004 * np.exp(50.0 / conditions[i].temperature)
+        k4[i] = 0.012 * np.exp(75.0 / conditions[i].temperature) * \
+            (conditions[i].temperature / 50.0)**(-2) * (1.0 + 1.0e-6 * conditions[i].pressure)
 
     while curr_time <= sim_length:
         musica.micm_solve(
             solver,
-            time_step,
-            temperatures,
-            pressures,
-            air_densities,
-            ordered_concentrations,
-            ordered_rate_constants)
+            state,
+            time_step)
 
         for i in range(num_grid_cells):
             A_conc = initial_A[i] * np.exp(-(k3[i]) * curr_time)
@@ -218,26 +211,29 @@ def TestStandardMultipleGridCell(self, solver, num_grid_cells, time_step, places
             F_conc = initial_F[i] + initial_D[i] * (1.0 + (
                 k1[i] * np.exp(-k2[i] * curr_time) - k2[i] * np.exp(-k1[i] * curr_time)) / (k2[i] - k1[i]))
 
-            self.assertAlmostEqual(
-                ordered_concentrations[i * len(concentrations.keys()) + species_ordering["A"]], A_conc, places=places)
-            self.assertAlmostEqual(
-                ordered_concentrations[i * len(concentrations.keys()) + species_ordering["B"]], B_conc, places=places)
-            self.assertAlmostEqual(
-                ordered_concentrations[i * len(concentrations.keys()) + species_ordering["C"]], C_conc, places=places)
-            self.assertAlmostEqual(
-                ordered_concentrations[i * len(concentrations.keys()) + species_ordering["D"]], D_conc, places=places)
-            self.assertAlmostEqual(
-                ordered_concentrations[i * len(concentrations.keys()) + species_ordering["E"]], E_conc, places=places)
-            self.assertAlmostEqual(
-                ordered_concentrations[i * len(concentrations.keys()) + species_ordering["F"]], F_conc, places=places)
+            self.assertAlmostEqual(state.ordered_concentrations[i *
+                                                                len(concentrations.keys()) +
+                                                                species_ordering["A"]], A_conc, places=places)
+            self.assertAlmostEqual(state.ordered_concentrations[i *
+                                                                len(concentrations.keys()) +
+                                                                species_ordering["B"]], B_conc, places=places)
+            self.assertAlmostEqual(state.ordered_concentrations[i *
+                                                                len(concentrations.keys()) +
+                                                                species_ordering["C"]], C_conc, places=places)
+            self.assertAlmostEqual(state.ordered_concentrations[i *
+                                                                len(concentrations.keys()) +
+                                                                species_ordering["D"]], D_conc, places=places)
+            self.assertAlmostEqual(state.ordered_concentrations[i *
+                                                                len(concentrations.keys()) +
+                                                                species_ordering["E"]], E_conc, places=places)
+            self.assertAlmostEqual(state.ordered_concentrations[i *
+                                                                len(concentrations.keys()) +
+                                                                species_ordering["F"]], F_conc, places=places)
 
         curr_time += time_step
 
 
-def TestVectorMultipleGridCell(self, solver, num_grid_cells, time_step, places=5):
-    temperatures = []
-    pressures = []
-    air_densities = []
+def TestVectorMultipleGridCell(self, solver, state, num_grid_cells, time_step, places=5):
     concentrations = {
         "A": [],
         "B": [],
@@ -250,11 +246,11 @@ def TestVectorMultipleGridCell(self, solver, num_grid_cells, time_step, places=5
         "USER.reaction 1": [],
         "USER.reaction 2": []
     }
+    conditions = state.conditions
     for i in range(num_grid_cells):
-        temperatures.append(275.0 + random.uniform(-10.0, 10.0))
-        pressures.append(101253.3 + random.uniform(-500.0, 500.0))
-        air_densities.append(
-            pressures[i] / (8.31446261815324 * temperatures[i]))
+        conditions[i].temperature = 275.0 + random.uniform(-10.0, 10.0)
+        conditions[i].pressure = 101253.3 + random.uniform(-500.0, 500.0)
+        conditions[i].air_density = conditions[i].pressure / (8.31446261815324 * conditions[i].temperature)
         concentrations["A"].append(0.75 + random.uniform(-0.05, 0.05))
         concentrations["B"].append(0)
         concentrations["C"].append(0.4 + random.uniform(-0.05, 0.05))
@@ -266,24 +262,26 @@ def TestVectorMultipleGridCell(self, solver, num_grid_cells, time_step, places=5
         rate_constants["USER.reaction 2"].append(
             0.002 + random.uniform(-0.0001, 0.0001))
 
-    rates_ordering = musica.user_defined_reaction_rates(solver)
-    species_ordering = musica.species_ordering(solver)
+    rates_ordering = musica.user_defined_reaction_rates(solver, state)
+    species_ordering = musica.species_ordering(solver, state)
 
-    ordered_rate_constants = (
+    updated_ordered_rate_constants = (
         len(rate_constants.keys()) * num_grid_cells) * [0.0]
     for i in range(num_grid_cells):
         for key, value in rate_constants.items():
-            ordered_rate_constants[i +
-                                   rates_ordering[key] * num_grid_cells] = value[i]
+            updated_ordered_rate_constants[i +
+                                           rates_ordering[key] * num_grid_cells] = value[i]
+    state.ordered_rate_constants = updated_ordered_rate_constants
 
-    ordered_concentrations = (
+    update_ordered_concentrations = (
         len(concentrations.keys()) * num_grid_cells) * [0.0]
     for i in range(num_grid_cells):
         for key, value in concentrations.items():
-            ordered_concentrations[i +
-                                   species_ordering[key] * num_grid_cells] = value[i]
+            update_ordered_concentrations[i +
+                                          species_ordering[key] * num_grid_cells] = value[i]
+    state.ordered_concentrations = update_ordered_concentrations
 
-    initial_concentrations = ordered_concentrations
+    initial_concentrations = state.ordered_concentrations
 
     time_step = 1
     sim_length = 100
@@ -304,21 +302,17 @@ def TestVectorMultipleGridCell(self, solver, num_grid_cells, time_step, places=5
     k3 = num_grid_cells * [0.0]
     k4 = num_grid_cells * [0.0]
     for i in range(num_grid_cells):
-        k1[i] = ordered_rate_constants[i + rates_ordering["USER.reaction 1"] * num_grid_cells]
-        k2[i] = ordered_rate_constants[i + rates_ordering["USER.reaction 2"] * num_grid_cells]
-        k3[i] = 0.004 * np.exp(50.0 / temperatures[i])
-        k4[i] = 0.012 * np.exp(75.0 / temperatures[i]) * \
-            (temperatures[i] / 50.0)**(-2) * (1.0 + 1.0e-6 * pressures[i])
+        k1[i] = state.ordered_rate_constants[i + rates_ordering["USER.reaction 1"] * num_grid_cells]
+        k2[i] = state.ordered_rate_constants[i + rates_ordering["USER.reaction 2"] * num_grid_cells]
+        k3[i] = 0.004 * np.exp(50.0 / conditions[i].temperature)
+        k4[i] = 0.012 * np.exp(75.0 / conditions[i].temperature) * \
+            (conditions[i].temperature / 50.0)**(-2) * (1.0 + 1.0e-6 * conditions[i].pressure)
 
     while curr_time <= sim_length:
         musica.micm_solve(
             solver,
-            time_step,
-            temperatures,
-            pressures,
-            air_densities,
-            ordered_concentrations,
-            ordered_rate_constants)
+            state,
+            time_step)
 
         for i in range(num_grid_cells):
             A_conc = initial_A[i] * np.exp(-(k3[i]) * curr_time)
@@ -333,17 +327,17 @@ def TestVectorMultipleGridCell(self, solver, num_grid_cells, time_step, places=5
                 k1[i] * np.exp(-k2[i] * curr_time) - k2[i] * np.exp(-k1[i] * curr_time)) / (k2[i] - k1[i]))
 
             self.assertAlmostEqual(
-                ordered_concentrations[i + species_ordering["A"] * num_grid_cells], A_conc, places=places)
+                state.ordered_concentrations[i + species_ordering["A"] * num_grid_cells], A_conc, places=places)
             self.assertAlmostEqual(
-                ordered_concentrations[i + species_ordering["B"] * num_grid_cells], B_conc, places=places)
+                state.ordered_concentrations[i + species_ordering["B"] * num_grid_cells], B_conc, places=places)
             self.assertAlmostEqual(
-                ordered_concentrations[i + species_ordering["C"] * num_grid_cells], C_conc, places=places)
+                state.ordered_concentrations[i + species_ordering["C"] * num_grid_cells], C_conc, places=places)
             self.assertAlmostEqual(
-                ordered_concentrations[i + species_ordering["D"] * num_grid_cells], D_conc, places=places)
+                state.ordered_concentrations[i + species_ordering["D"] * num_grid_cells], D_conc, places=places)
             self.assertAlmostEqual(
-                ordered_concentrations[i + species_ordering["E"] * num_grid_cells], E_conc, places=places)
+                state.ordered_concentrations[i + species_ordering["E"] * num_grid_cells], E_conc, places=places)
             self.assertAlmostEqual(
-                ordered_concentrations[i + species_ordering["F"] * num_grid_cells], F_conc, places=places)
+                state.ordered_concentrations[i + species_ordering["F"] * num_grid_cells], F_conc, places=places)
 
         curr_time += time_step
 
@@ -354,8 +348,9 @@ class TestAnalyticalRosenbrockMultipleGridCells(unittest.TestCase):
             "configs/analytical",
             musica.micmsolver.rosenbrock,
             4)
+        state = musica.create_state(solver)
         # The number of grid cells must equal the MICM matrix vector dimension
-        TestVectorMultipleGridCell(self, solver, 4, 200.0, 5)
+        TestVectorMultipleGridCell(self, solver, state, 4, 200.0, 5)
 
 
 class TestAnalyticalStandardRosenbrockMultipleGridCells(unittest.TestCase):
@@ -364,7 +359,8 @@ class TestAnalyticalStandardRosenbrockMultipleGridCells(unittest.TestCase):
             "configs/analytical",
             musica.micmsolver.rosenbrock_standard_order,
             3)
-        TestStandardMultipleGridCell(self, solver, 3, 200.0, 5)
+        state = musica.create_state(solver)
+        TestStandardMultipleGridCell(self, solver, state, 3, 200.0, 5)
 
 
 class TestAnalyticalBackwardEulerMultipleGridCells(unittest.TestCase):
@@ -373,8 +369,9 @@ class TestAnalyticalBackwardEulerMultipleGridCells(unittest.TestCase):
             "configs/analytical",
             musica.micmsolver.backward_euler,
             4)
+        state = musica.create_state(solver)
         # The number of grid cells must equal the MICM matrix vector dimension
-        TestVectorMultipleGridCell(self, solver, 4, 10.0, places=2)
+        TestVectorMultipleGridCell(self, solver, state, 4, 10.0, places=2)
 
 
 class TestAnalyticalStandardBackwardEulerMultipleGridCells(unittest.TestCase):
@@ -383,7 +380,8 @@ class TestAnalyticalStandardBackwardEulerMultipleGridCells(unittest.TestCase):
             "configs/analytical",
             musica.micmsolver.backward_euler_standard_order,
             3)
-        TestStandardMultipleGridCell(self, solver, 3, 10.0, places=2)
+        state = musica.create_state(solver)
+        TestStandardMultipleGridCell(self, solver, state, 3, 10.0, places=2)
 
 
 if __name__ == '__main__':

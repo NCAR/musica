@@ -1,4 +1,4 @@
-! Copyright (C) 2023-2024 National Center for Atmospheric Research
+! Copyright (C) 2023-2025 National Center for Atmospheric Research
 ! SPDX-License-Identifier: Apache-2.0
 !
 ! Tests for the musica_util module
@@ -271,9 +271,10 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  subroutine build_and_check_index_mapping_t(config)
+  subroutine build_and_check_index_mapping_t(config, should_pass_map_all)
 
     type(configuration_t), intent(inout) :: config
+    logical, intent(in) :: should_pass_map_all
 
     type(mapping_t), pointer :: map
     type(mapping_t), allocatable :: f_map(:)
@@ -299,12 +300,31 @@ contains
     target_map => mappings_t( f_map )
     deallocate( f_map )
 
-    index_mappings => index_mappings_t( config, source_map, target_map, error )
+    index_mappings => index_mappings_t( config, MUSICA_INDEX_MAPPINGS_MAP_ALL, &
+        source_map, target_map, error )
+    if ( should_pass_map_all ) then
+      ASSERT( error%is_success() )
+      source_data(2,:) = (/ 1.0_dk, 2.0_dk, 3.0_dk, 4.0_dk, 5.0_dk /)
+      target_data(2,:) = (/ 10.0_dk, 20.0_dk, 30.0_dk, 40.0_dk /)
+
+      ASSERT_EQ( index_mappings%size( ), 2 )
+      call index_mappings%copy_data( source_data(2,:), target_data(2,:) )
+      ASSERT_EQ( target_data( 2, 1 ), 5.0_dk * 0.82_dk )
+      ASSERT_EQ( target_data( 2, 2 ), 20.0_dk )
+      ASSERT_EQ( target_data( 2, 3 ), 2.0_dk )
+      ASSERT_EQ( target_data( 2, 4 ), 40.0_dk )
+    else
+      ASSERT( error%code() == MUSICA_ERROR_CODE_MAPPING_NOT_FOUND )
+    end if
+    deallocate( index_mappings )
+    index_mappings => index_mappings_t( config, MUSICA_INDEX_MAPPINGS_MAP_ANY, &
+        source_map, target_map, error )
     ASSERT( error%is_success() )
 
     source_data(2,:) = (/ 1.0_dk, 2.0_dk, 3.0_dk, 4.0_dk, 5.0_dk /)
     target_data(2,:) = (/ 10.0_dk, 20.0_dk, 30.0_dk, 40.0_dk /)
 
+    ASSERT_EQ( index_mappings%size( ), 2 )
     call index_mappings%copy_data( source_data(2,:), target_data(2,:) )
     ASSERT_EQ( target_data( 2, 1 ), 5.0_dk * 0.82_dk )
     ASSERT_EQ( target_data( 2, 2 ), 20.0_dk )
@@ -314,7 +334,7 @@ contains
     deallocate( source_map )
     deallocate( target_map )
 
-  end subroutine build_and_check_index_mapping_t
+  end subroutine build_and_check_index_mapping_t 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -331,12 +351,23 @@ contains
       "  target: Test3"//new_line('a')// &
       "  scale factor: 0.82"//new_line('a'), error )
     ASSERT( error%is_success() )
-    call build_and_check_index_mapping_t( config )
+    call build_and_check_index_mapping_t( config, .true. )
 
     call config%load_from_file( "test/data/util_index_mapping_from_file.json", &
                                 error )
     ASSERT( error%is_success() )
-    call build_and_check_index_mapping_t( config )
+    call build_and_check_index_mapping_t( config, .true. )
+
+    call config%load_from_string( &
+      "- source: Test"//new_line('a')// &
+      "  target: Test2"//new_line('a')// &
+      "- source: Test2"//new_line('a')// & 
+      "  target: Test3"//new_line('a')// &
+      "  scale factor: 0.82"//new_line('a')// &
+      "- source: Test"//new_line('a')// &
+      "  target: Test4"//new_line('a')//new_line('a'), error )
+    ASSERT( error%is_success() )
+    call build_and_check_index_mapping_t( config, .false. )
 
   end subroutine test_index_mapping_t
 

@@ -1,4 +1,4 @@
-name: Pep8
+name: Format python
 
 on:
   push:

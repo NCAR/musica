@@ -14,6 +14,7 @@ message (STATUS "  Install: ${MUSICA_ENABLE_INSTALL}")
 message (STATUS "  C/C++ Interface: ${MUSICA_BUILD_C_CXX_INTERFACE}")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(MUSICA_FORTRAN_MOD_DIR ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_INCLUDEDIR})
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
@@ -26,25 +27,25 @@ endif()
 add_library(musica-fortran)
 add_library(musica::musica-fortran ALIAS musica-fortran)
 
-if(NOT BUILD_SHAREDS_LIBS)
-  set_target_properties(musica-fortran
-    PROPERTIES
-    POSITION_INDEPENDENT_CODE ON
-  )
-endif()
-
 set_target_properties(musica-fortran
   PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
     LIBRARY_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
-    Fortran_MODULE_DIRECTORY ${MUSICA_MOD_DIR}
+    Fortran_MODULE_DIRECTORY ${MUSICA_FORTRAN_MOD_DIR}
     VERSION ${PROJECT_VERSION}
     SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
+add_custom_command(TARGET musica-fortran POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+  ${MUSICA_FORTRAN_MOD_DIR} ${MUSICA_MOD_DIR}
+)
+
 target_include_directories(musica-fortran
-  PUBLIC  
+  PUBLIC
     $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
-    $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>
+    $<BUILD_INTERFACE:${MUSICA_FORTRAN_MOD_DIR}>
+    $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
 )
 
 target_link_libraries(musica-fortran
@@ -56,12 +57,11 @@ target_sources(musica-fortran
   PRIVATE
     util.F90
 )
+
 if (MUSICA_ENABLE_MICM)
-  target_sources(musica-fortran
-    PRIVATE
-      micm.F90
-  )
+  add_subdirectory(micm)
 endif()
+
 if (MUSICA_ENABLE_TUVX)
   add_subdirectory(tuvx)
 endif()

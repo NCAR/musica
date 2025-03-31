@@ -1,4 +1,4 @@
-! Copyright (C) 2023-2024 National Center for Atmospheric Research
+! Copyright (C) 2023-2025 National Center for Atmospheric Research
 ! SPDX-License-Identifier: Apache-2.0
 !
 module musica_util
@@ -13,13 +13,23 @@ module musica_util
   public :: string_t_c, string_t, error_t_c, error_t, configuration_t, &
             mapping_t_c, mapping_t, mappings_t_c, mappings_t, index_mappings_t, &
             to_c_string, to_f_string, assert, copy_mappings, delete_string_c, &
-            create_string_c, musica_rk, musica_dk, find_mapping_index
+            create_string_c, musica_rk, musica_dk, find_mapping_index, &
+            MUSICA_INDEX_MAPPINGS_UNDEFINED, MUSICA_INDEX_MAPPINGS_MAP_ANY, &
+            MUSICA_INDEX_MAPPINGS_MAP_ALL
 
   !> Single precision kind
   integer, parameter :: musica_rk = real32
 
   !> Double precision kind
   integer, parameter :: musica_dk = real64
+
+  integer, parameter, public :: MUSICA_ERROR_CODE_SPECIES_NOT_FOUND         = 1
+  integer, parameter, public :: MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND     = 2
+  integer, parameter, public :: MUSICA_ERROR_CODE_MAPPING_NOT_FOUND         = 3
+  integer, parameter, public :: MUSICA_ERROR_CODE_PARSING_FAILED            = 4
+  integer, parameter, public :: MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED = 5
+  integer, parameter, public :: MUSICA_ERROR_CODE_CONFIG_PARSE_FAILED       = 6
+  integer, parameter, public :: MUSICA_ERROR_CODE_VERSION_NOT_SUPPORTED     = 7
 
   !> Wrapper for a c string
   type, bind(c) :: string_t_c
@@ -136,6 +146,13 @@ module musica_util
     module procedure mappings_constructor_from_mapping_t_array
   end interface mappings_t
 
+  !> Index mappings options
+  enum, bind(c)
+    enumerator :: MUSICA_INDEX_MAPPINGS_UNDEFINED = 0
+    enumerator :: MUSICA_INDEX_MAPPINGS_MAP_ANY   = 1
+    enumerator :: MUSICA_INDEX_MAPPINGS_MAP_ALL   = 2
+  end enum
+
   !> Wrapper for a c index-to-index mapping array
   type, bind(c) :: index_mappings_t_c
     type(c_ptr) :: mappings_ = c_null_ptr
@@ -147,6 +164,7 @@ module musica_util
   private
     type(index_mappings_t_c) :: mappings_c_
   contains
+    procedure :: size => index_mappings_size
     procedure :: copy_data
     final :: index_mappings_finalize
   end type index_mappings_t
@@ -161,10 +179,12 @@ module musica_util
       character(kind=c_char, len=1), intent(in) :: string(*)
       type(string_t_c) :: create_string_c
     end function create_string_c
+
     pure subroutine delete_string_c( string ) bind(c, name="DeleteString")
       import :: string_t_c
       type(string_t_c), intent(inout) :: string
     end subroutine delete_string_c
+    
     function load_configuration_from_string_c( string, error ) &
         bind(c, name="LoadConfigurationFromString")
       import :: configuration_t_c, c_char, error_t_c
@@ -172,6 +192,7 @@ module musica_util
       type(error_t_c), intent(inout) :: error
       type(configuration_t_c) :: load_configuration_from_string_c
     end function load_configuration_from_string_c
+    
     function load_configuration_from_file_c( file, error ) &
         bind(c, name="LoadConfigurationFromFile")
       import :: configuration_t_c, c_char, error_t_c
@@ -179,29 +200,36 @@ module musica_util
       type(error_t_c), intent(inout) :: error
       type(configuration_t_c) :: load_configuration_from_file_c
     end function load_configuration_from_file_c
+    
     pure subroutine delete_configuration_c( configuration ) &
         bind(c, name="DeleteConfiguration")
       import :: configuration_t_c
       type(configuration_t_c), intent(inout) :: configuration
     end subroutine delete_configuration_c
+    
     function create_mappings_c( size ) bind(c, name="CreateMappings")
       import :: mappings_t_c, c_size_t
       integer(c_size_t), value, intent(in) :: size
       type(mappings_t_c) :: create_mappings_c
     end function create_mappings_c
-    function create_index_mappings_c(configuration, source, target, error) &
-        bind(c, name="CreateIndexMappings")
-      import :: index_mappings_t_c, configuration_t_c, error_t_c, mappings_t_c
+    
+    function create_index_mappings_c(configuration, options, source, target, &
+        error) bind(c, name="CreateIndexMappings")
+      import :: index_mappings_t_c, configuration_t_c, error_t_c, &
+                mappings_t_c, c_int
       type(configuration_t_c), value, intent(in)    :: configuration
+      integer(c_int),          value, intent(in)    :: options
       type(mappings_t_c),      value, intent(in)    :: source
       type(mappings_t_c),      value, intent(in)    :: target
       type(error_t_c),                intent(inout) :: error
       type(index_mappings_t_c) :: create_index_mappings_c
     end function create_index_mappings_c
+    
     pure subroutine delete_mapping_c( mapping ) bind(c, name="DeleteMapping")
       import :: mapping_t_c
       type(mapping_t_c), intent(inout) :: mapping
     end subroutine delete_mapping_c
+    
     function find_mapping_index_c( mappings, name, error ) result( index ) &
         bind(c, name="FindMappingIndex")
       import :: mappings_t_c, error_t_c, c_char, c_size_t
@@ -210,15 +238,25 @@ module musica_util
       type(error_t_c),                intent(inout) :: error
       integer(c_size_t) :: index
     end function find_mapping_index_c
+    
     pure subroutine delete_mappings_c( mappings ) bind(c, name="DeleteMappings")
       import :: mappings_t_c
       type(mappings_t_c), intent(inout) :: mappings
     end subroutine delete_mappings_c
+    
     pure subroutine delete_index_mappings_c( mappings ) &
         bind(c, name="DeleteIndexMappings")
       import :: index_mappings_t_c
       type(index_mappings_t_c), intent(inout) :: mappings
     end subroutine delete_index_mappings_c
+    
+    function get_index_mappings_size_c( mappings ) result( size ) &
+        bind(c, name="GetIndexMappingsSize")
+      import :: index_mappings_t_c, c_size_t
+      type(index_mappings_t_c), value, intent(in) :: mappings
+      integer(c_size_t) :: size
+    end function get_index_mappings_size_c
+    
     subroutine copy_data_c(mappings, source, target) bind(c, name="CopyData")
       import :: index_mappings_t_c, c_ptr
       type(index_mappings_t_c), value, intent(in) :: mappings
@@ -721,10 +759,11 @@ contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   !> Constructor for an index_mappings_t object
-  function index_mappings_constructor( configuration, source, target, error ) &
-      result( mappings )
+  function index_mappings_constructor( configuration, options, source, &
+      target, error ) result( mappings )
 
     type(configuration_t), intent(in)  :: configuration
+    integer,               intent(in)  :: options
     type(mappings_t),      intent(in)  :: source
     type(mappings_t),      intent(in)  :: target
     type(error_t),         intent(out) :: error
@@ -734,11 +773,23 @@ contains
 
     allocate( mappings )
     mappings%mappings_c_ = create_index_mappings_c( &
-        configuration%configuration_c_, source%mappings_c_, &
-        target%mappings_c_, error_c )
+        configuration%configuration_c_, int(options, kind=c_int), &
+        source%mappings_c_, target%mappings_c_, error_c )
     error = error_t( error_c )
 
   end function index_mappings_constructor
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  !> Returns the number of elements in an index_mappings_t object
+  function index_mappings_size( this ) result( size )
+
+    class(index_mappings_t), intent(in) :: this
+    integer :: size
+
+    size = get_index_mappings_size_c( this%mappings_c_ )
+
+  end function index_mappings_size
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
