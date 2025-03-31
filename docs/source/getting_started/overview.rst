@@ -4,10 +4,10 @@ Overview
 The specific goal of MUSICA is to produce a new model independent infrastructure,
 which will enable chemistry and aerosols to be simulated
 at a large number of different resolutions in a single, coherent fashion.
-At first, MUSICA will be configured within the NCAR Community Earth system Model (CESM)
+At first, MUSICA will be configured within the NSF NCAR Community Earth system Model (CESM)
 and through this enable full feedbacks between the atmosphere, ocean and land.
 The infrastructure will unify the different chemical transport models
-including CAM-Chem, WACCM and WRF-Chem, and NCAR LES with chemistry
+including CAM-Chem, WACCM and WRF-Chem, and NSF NCAR LES with chemistry
 and a box model in a single modular framework.
 The model infrastructure will be open source,
 flexible and computationally efficient in order
