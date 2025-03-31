@@ -83,6 +83,8 @@ contains
 
     write(*,*) "[test micm fort api] Creating MICM solver..."
     micm => micm_t(config_path, solver_type, num_grid_cells, error)
+    ! TODO: MONTEK FINISH THIS
+    ! state => state_t( c_loc(micm%ptr) )
     ASSERT( error%is_success() )
 
     O2_index = micm%species_ordering%index( "O2", error )
@@ -101,6 +103,10 @@ contains
     jO3b_index = micm%user_defined_reaction_rates%index( "PHOTO.jO3->O1D", error )
     ASSERT( error%is_success() )
 
+    ! TODO: MONTEK FINISH THIS
+    ! all of these  values should be assigned using the state API
+    ! state%set_conditions( temperature, pressure, air_density, error )
+    ! ...concentrations as well
     temperature(1) = 272.5
     pressure(1) = 101253.4
     air_density(:) = pressure(:) / ( GAS_CONSTANT * temperature(:) )
@@ -128,6 +134,8 @@ contains
     write(*,*) "[test micm fort api] Initial concentrations", concentrations
 
     write(*,*) "[test micm fort api] Solving starts..."
+    ! TODO: MONTEK FINISH THIS
+    ! pass the state to this
     call micm%solve(time_step, temperature, pressure,  air_density, concentrations, &
         user_defined_reaction_rates, solver_state, solver_stats, error)
     ASSERT( error%is_success() )

@@ -47,16 +47,6 @@ module musica_micm
       type(c_ptr)                            :: create_micm_c
     end function create_micm_c
 
-
-    function create_state_c(micm, error) &
-        bind(C, name="CreateMicmState")
-      use musica_util, only: error_t_c
-      import c_ptr
-      type(c_ptr), value,   intent(in)    :: micm
-      type(error_t_c),      intent(inout) :: error
-      type(c_ptr)                         :: create_state_c
-    end function create_state_c
-
     subroutine delete_micm_c(micm, error) bind(C, name="DeleteMicm")
       use musica_util, only: error_t_c
       import c_ptr
@@ -75,48 +65,6 @@ module musica_micm
       type(solver_stats_t_c),     intent(out)   :: solver_stats
       type(error_t_c),            intent(inout) :: error
     end subroutine micm_solve_c
-
-
-
-
-
-    function get_conditions_from_state_c(state) &
-              bind(C, name="GetConditionsFromState")
-      import c_ptr
-      type(c_ptr), value :: state
-      type(c_ptr)        :: get_conditions_from_state_c
-    end function get_conditions_from_state_c
-
-    subroutine set_conditions_to_state_c(state, conditions, size) & 
-                bind(C, name="SetConditionsToState")
-      import c_ptr, c_size_t
-      type(c_ptr), value :: state
-      type(c_ptr), value :: conditions
-      integer(c_size_t), value :: size
-    end subroutine set_conditions_to_state_c
-
-    subroutine delete_conditions_vector_c(vec) &
-                bind(C, name="DeleteConditionsVector")
-      import c_ptr
-      type(c_ptr), value :: vec
-    end subroutine delete_conditions_vector_c
-
-    function get_conditions_data_pointer_c(vec) &
-              bind(C, name="GetConditionsDataPointer")
-      import c_ptr
-      type(c_ptr), value :: vec
-      type(c_ptr)        :: get_conditions_data_pointer_c
-    end function get_conditions_data_pointer_c
-
-    function get_conditions_size_c(vec) &
-              bind(C, name="GetConditionsSize")
-      import c_size_t, c_ptr
-      type(c_ptr), value :: vec
-      integer(c_size_t)  :: get_conditions_size_c
-    end function get_conditions_size_c
-
-
-
 
     function get_micm_version_c() bind(C, name="MicmVersion")
       use musica_util, only: string_t_c
@@ -186,7 +134,6 @@ module musica_micm
     type(mappings_t), pointer :: species_ordering => null()
     type(mappings_t), pointer :: user_defined_reaction_rates => null()
     type(c_ptr), private      :: ptr = c_null_ptr
-    type(c_ptr), private      :: state = c_null_ptr
     integer,     private      :: number_of_grid_cells = 0
     integer,     private      :: solver_type = UndefinedSolver
   contains
@@ -202,12 +149,6 @@ module musica_micm
     ! Deallocate the micm instance
     final :: finalize
   end type micm_t
-
-  type, bind(C) :: conditions_t
-    real(c_double) :: temperature
-    real(c_double) :: pressure
-    real(c_double) :: air_density
-  end type conditions_t
 
   interface micm_t
     procedure constructor
@@ -280,25 +221,29 @@ contains
         return
     end if
 
-    this%state = create_state_c(this%ptr, error_c)
-    error = error_t(error_c)
-    if (.not. error%is_success()) then
-      deallocate(this)
-      nullify(this)
-      return
-    end if
+    ! TODO: MONTEK FINISH THIS
+    ! The code below is all state related to using the state
+    ! move the data member species_ordering and user_defined_reaction_rates
+    ! to the state object
+    ! this%state = create_state_c(this%ptr, error_c)
+    ! error = error_t(error_c)
+    ! if (.not. error%is_success()) then
+    !   deallocate(this)
+    !   nullify(this)
+    !   return
+    ! end if
 
-    this%species_ordering => mappings_t( get_species_ordering_c(this%ptr, this%state, error_c) )
-    error = error_t(error_c)
-    if (.not. error%is_success()) then
-        deallocate(this)
-        nullify(this)
-        return
-    end if
+    ! this%species_ordering => mappings_t( get_species_ordering_c(this%ptr, this%state, error_c) )
+    ! error = error_t(error_c)
+    ! if (.not. error%is_success()) then
+    !     deallocate(this)
+    !     nullify(this)
+    !     return
+    ! end if
 
-    this%user_defined_reaction_rates => &
-        mappings_t( get_user_defined_reaction_rates_ordering_c(this%ptr, this%state, error_c) )
-    error = error_t(error_c)
+    ! this%user_defined_reaction_rates => &
+    !     mappings_t( get_user_defined_reaction_rates_ordering_c(this%ptr, this%state, error_c) )
+    ! error = error_t(error_c)
     if (.not. error%is_success()) then
         deallocate(this)
         nullify(this)
@@ -311,6 +256,8 @@ contains
   !!
   !! This function accepts fortran arrays and checks their sizes
   !! against the number of grid cells and the species/rate parameter ordering.
+    ! TODO: MONTEK FINISH THIS
+    ! the state should be passed as an argument to this function rather than the temperature, pressure, and air density
   subroutine solve_arrays(this, time_step, temperature, pressure, air_density, &
       concentrations, user_defined_reaction_rates, solver_state, solver_stats, error)
     use iso_c_binding, only: c_loc
@@ -391,6 +338,8 @@ contains
   !!
   !! This function accepts c pointers and does not check their sizes.
   !! The user is responsible for ensuring the sizes are correct.
+    ! TODO: MONTEK FINISH THIS
+    ! the state should be passed as an argument to this function rather than the temperature, pressure, and air density
   subroutine solve_c_ptrs(this, time_step, temperature, pressure, air_density, &
       concentrations, user_defined_reaction_rates, solver_state, solver_stats, error)
     use iso_fortran_env, only: real64
