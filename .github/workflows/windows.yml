@@ -30,7 +30,7 @@ jobs:
       - run: pip install numpy
 
       - name: Run Cmake 
-        run: cmake -S . -B build -G "MinGW Makefiles" -D MUSICA_GIT_TAG=${{ github.sha }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
+        run: cmake -S . -B build -G "MinGW Makefiles" -D MUSICA_GIT_TAG=${{ github.sha }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON -D CMAKE_POLICY_VERSION_MINIMUM=3.5
 
       - name: Build
         run: cmake --build build --parallel
@@ -61,7 +61,7 @@ jobs:
     - run: pip install numpy
 
     - name: Run CMake
-      run: cmake -S . -B build -G "Visual Studio 17 2022" -A ${{ matrix.architecture }} -D MUSICA_GIT_TAG=${{ github.sha }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
+      run: cmake -S . -B build -G "Visual Studio 17 2022" -A ${{ matrix.architecture }} -D MUSICA_GIT_TAG=${{ github.sha }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON -D CMAKE_POLICY_VERSION_MINIMUM=3.5
 
     - name: Build
       run: cmake --build build --config ${{ matrix.build_type }} --parallel
@@ -86,7 +86,7 @@ jobs:
       - run: pip install numpy
 
       - name: Run CMake
-        run: cmake -S . -B build -DCMAKE_CXX_COMPILER="C:/Program Files/LLVM/bin/clang++.exe" -DCMAKE_C_COMPILER="C:/Program Files/LLVM/bin/clang.exe" -G"MinGW Makefiles" -D MUSICA_GIT_TAG=${{ github.sha }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
+        run: cmake -S . -B build -DCMAKE_CXX_COMPILER="C:/Program Files/LLVM/bin/clang++.exe" -DCMAKE_C_COMPILER="C:/Program Files/LLVM/bin/clang.exe" -G"MinGW Makefiles" -D MUSICA_GIT_TAG=${{ github.sha }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON -D CMAKE_POLICY_VERSION_MINIMUM=3.5
 
       - name: Build
         run: cmake --build build --parallel
@@ -115,7 +115,7 @@ jobs:
       - run: pip install numpy
 
       - name: Run CMake
-        run: cmake -S . -B build -G "Visual Studio 16 2019" -A ${{ matrix.architecture }} -T ClangCL -D MUSICA_GIT_TAG=${{ github.sha }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON
+        run: cmake -S . -B build -G "Visual Studio 16 2019" -A ${{ matrix.architecture }} -T ClangCL -D MUSICA_GIT_TAG=${{ github.sha }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON -D CMAKE_POLICY_VERSION_MINIMUM=3.5
 
       - name: Build
         run: cmake --build build --config Debug --parallel
@@ -161,7 +161,8 @@ jobs:
                               -D MUSICA_ENABLE_MICM=ON \
                               -D MUSICA_ENABLE_TUVX=ON \
                               -D MUSICA_ENABLE_PYTHON_LIBRARY=ON \
-                              -D MUSICA_BUILD_FORTRAN_INTERFACE=ON
+                              -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
+                              -D CMAKE_POLICY_VERSION_MINIMUM=3.5
 
       - name: Build the project
         shell: msys2 {0}

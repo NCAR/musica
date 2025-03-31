@@ -8,7 +8,6 @@
 
 #include <musica/util.hpp>
 
-#include <micm/configure/solver_config.hpp>
 #include <micm/process/process_set.hpp>
 #include <micm/solver/rosenbrock.hpp>
 #include <micm/solver/rosenbrock_solver_parameters.hpp>
