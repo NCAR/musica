@@ -99,7 +99,7 @@ jobs:
         run: |
           cmake -S . -B build -G"MinGW Makefiles" \
                 -D CMAKE_CXX_COMPILER="C:/Program Files/LLVM/bin/clang++.exe" \
-                -D CMAKE_C_COMPILER="C:/Program Files/LLVM/bin/clang.exe"
+                -D CMAKE_C_COMPILER="C:/Program Files/LLVM/bin/clang.exe" \
                 -D MUSICA_GIT_TAG=${{ github.sha }} \
                 -D MUSICA_ENABLE_TUVX=OFF \
                 -D MUSICA_ENABLE_PYTHON_LIBRARY=ON \
