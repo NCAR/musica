@@ -8,7 +8,7 @@ target_link_libraries(musica_python
 )
 
 set_target_properties(musica_python PROPERTIES
-  OUTPUT_NAME "musica"
+  OUTPUT_NAME musica
 )
 
 if (APPLE)
@@ -24,7 +24,6 @@ elseif(UNIX)
   )
 endif()
 
-
 if(WIN32)
   # makefiles on windows don't need the config directory
   if (${CMAKE_GENERATOR} MATCHES "MinGW Makefiles")
@@ -37,4 +36,4 @@ else()
   set(PYTHON_MODULE_PATH "${CMAKE_CURRENT_BINARY_DIR}")
 endif()
 
-install(TARGETS musica_python yaml-cpp mechanism_configuration musica LIBRARY DESTINATION .)
+install(TARGETS musica_python LIBRARY DESTINATION .)
