@@ -11,21 +11,6 @@ target_link_libraries(musica_python
 
 set_target_properties(musica_python PROPERTIES OUTPUT_NAME musica)
 
-# Set the rpath for the shared library
-if(APPLE)
-  message(STATUS "Building for MacOS")
-  set_target_properties(musica_python PROPERTIES
-    INSTALL_RPATH "@loader_path;@loader_path/../lib"
-    BUILD_WITH_INSTALL_RPATH TRUE
-  )
-elseif(UNIX)
-  message(STATUS "Building for Linux")
-  set_target_properties(musica_python PROPERTIES
-    INSTALL_RPATH "$ORIGIN:$ORIGIN/../lib"
-    BUILD_WITH_INSTALL_RPATH TRUE
-  )
-endif()
-
 if(WIN32)
   # makefiles on windows don't need the config directory
   if (${CMAKE_GENERATOR} MATCHES "MinGW Makefiles")

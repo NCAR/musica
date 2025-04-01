@@ -67,6 +67,19 @@ set_target_properties(musica PROPERTIES
   SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
+# Set the rpath for the shared library
+if(APPLE)
+  set_target_properties(musica PROPERTIES
+    INSTALL_RPATH "@loader_path"
+    BUILD_WITH_INSTALL_RPATH TRUE
+  )
+elseif(UNIX)
+  set_target_properties(musica PROPERTIES
+    INSTALL_RPATH "$ORIGIN"
+    BUILD_WITH_INSTALL_RPATH TRUE
+  )
+endif()
+
 target_include_directories(musica
   PUBLIC
     $<BUILD_INTERFACE:${MUSICA_PROJECT_SRC_DIR}/include>
