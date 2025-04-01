@@ -155,14 +155,7 @@ jobs:
       - name: Configure with CMake
         shell: msys2 {0}
         run: |
-          cmake -S . -B build -G "MinGW Makefiles" \
-                              -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-                              -D MUSICA_GIT_TAG=${{ github.sha }} \
-                              -D MUSICA_ENABLE_MICM=ON \
-                              -D MUSICA_ENABLE_TUVX=ON \
-                              -D MUSICA_ENABLE_PYTHON_LIBRARY=ON \
-                              -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
-                              -D CMAKE_POLICY_VERSION_MINIMUM=3.5
+          cmake -S . -B build -G "MinGW Makefiles" -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_GIT_TAG=${{ github.sha }} -D MUSICA_ENABLE_MICM=ON -D MUSICA_ENABLE_TUVX=ON -D MUSICA_ENABLE_PYTHON_LIBRARY=ON -D MUSICA_BUILD_FORTRAN_INTERFACE=ON -D CMAKE_POLICY_VERSION_MINIMUM=3.5
 
       - name: Build the project
         shell: msys2 {0}
