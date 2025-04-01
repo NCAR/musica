@@ -71,7 +71,6 @@ set_target_properties(musica PROPERTIES
 if(APPLE)
   set_target_properties(musica PROPERTIES
     INSTALL_RPATH "@loader_path"
-    BUILD_WITH_INSTALL_RPATH TRUE
   )
 elseif(UNIX)
   set_target_properties(musica PROPERTIES

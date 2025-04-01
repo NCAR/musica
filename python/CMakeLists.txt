@@ -1,5 +1,3 @@
-# we specify the sources by hand because sometimes musica builds with tuvx
-# it is hard to guarantee there is a fortran compiler on windows
 pybind11_add_module(musica_python 
   wrapper.cpp
 )
@@ -9,7 +7,23 @@ target_link_libraries(musica_python
     musica::musica
 )
 
-set_target_properties(musica_python PROPERTIES OUTPUT_NAME musica)
+set_target_properties(musica_python PROPERTIES
+    OUTPUT_NAME musica
+)
+
+if (APPLE)
+  # set the rpath for the shared library
+  set_target_properties(musica_python PROPERTIES
+    INSTALL_RPATH "@loader_path"
+  )
+elseif(UNIX)
+  # set the rpath for the shared library
+  set_target_properties(musica_python PROPERTIES
+    INSTALL_RPATH "$ORIGIN"
+    BUILD_WITH_INSTALL_RPATH TRUE
+  )
+endif()
+
 
 if(WIN32)
   # makefiles on windows don't need the config directory
