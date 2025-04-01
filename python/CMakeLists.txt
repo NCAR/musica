@@ -15,17 +15,16 @@ set_target_properties(musica_python PROPERTIES OUTPUT_NAME musica)
 if(APPLE)
   message(STATUS "Building for MacOS")
   set_target_properties(musica_python PROPERTIES
-    INSTALL_RPATH "@loader_path"
+    INSTALL_RPATH "@loader_path;@loader_path/../lib"
     BUILD_WITH_INSTALL_RPATH TRUE
   )
 elseif(UNIX)
   message(STATUS "Building for Linux")
   set_target_properties(musica_python PROPERTIES
-    INSTALL_RPATH "$ORIGIN"
+    INSTALL_RPATH "$ORIGIN:$ORIGIN/../lib"
     BUILD_WITH_INSTALL_RPATH TRUE
   )
 endif()
-
 
 if(WIN32)
   # makefiles on windows don't need the config directory
