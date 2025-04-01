@@ -9,27 +9,7 @@ target_link_libraries(musica_python
     musica
 )
 
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    target_compile_options(musica_python PUBLIC -Wno-return-type-c-linkage)
-elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    target_compile_options(musica_python PUBLIC /wd4190)
-endif()
-
-target_compile_features(musica_python PUBLIC cxx_std_20)
-
 set_target_properties(musica_python PROPERTIES OUTPUT_NAME musica)
-
-target_include_directories(musica_python
-  PUBLIC  
-    $<BUILD_INTERFACE:${micm_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
-)
-
-target_include_directories(musica_python
-  PUBLIC  
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
-)
 
 # Set the rpath for the shared library
 if(APPLE)
@@ -46,9 +26,6 @@ elseif(UNIX)
   )
 endif()
 
-install(TARGETS musica_python yaml-cpp mechanism_configuration
-  LIBRARY DESTINATION .
-)
 
 if(WIN32)
   # makefiles on windows don't need the config directory
@@ -61,3 +38,5 @@ if(WIN32)
 else()
   set(PYTHON_MODULE_PATH "${CMAKE_CURRENT_BINARY_DIR}")
 endif()
+
+install(TARGETS musica_python LIBRARY DESTINATION .)
