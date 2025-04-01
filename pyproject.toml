@@ -28,7 +28,7 @@ test = [
 [tool.scikit-build]
 cmake.args = [
   "-DMUSICA_ENABLE_PYTHON_LIBRARY=ON",
-  "-DMUSICA_ENABLE_TUVX=OFF",
+  "-DMUSICA_ENABLE_TUVX=ON",
   "-DMUSICA_BUILD_FORTRAN_INTERFACE=OFF",
   "-DMUSICA_ENABLE_TESTS=OFF",
   "-DCMAKE_BUILD_TYPE=Release",
@@ -56,4 +56,4 @@ build-verbosity = 3
 
 
 [tool.cibuildwheel.macos.environment]
-MACOSX_DEPLOYMENT_TARGET = "10.15"
+MACOSX_DEPLOYMENT_TARGET = "15.0"
