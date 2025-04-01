@@ -50,5 +50,10 @@ template = '''
 version = "${version}"
 '''
 
+[tool.cibuildwheel]
+# Increase pip debugging output
+build-verbosity = 3
+
+
 [tool.cibuildwheel.macos.environment]
 MACOSX_DEPLOYMENT_TARGET = "10.15"
