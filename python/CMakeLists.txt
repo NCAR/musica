@@ -8,18 +8,18 @@ target_link_libraries(musica_python
 )
 
 set_target_properties(musica_python PROPERTIES
-    OUTPUT_NAME musica
+  OUTPUT_NAME "musica"
 )
 
 if (APPLE)
   # set the rpath for the shared library
   set_target_properties(musica_python PROPERTIES
-    INSTALL_RPATH "@loader_path"
+    INSTALL_RPATH "@loader_path;@loader_path/../lib"
   )
 elseif(UNIX)
   # set the rpath for the shared library
   set_target_properties(musica_python PROPERTIES
-    INSTALL_RPATH "$ORIGIN"
+    INSTALL_RPATH "$ORIGIN:$ORIGIN/../lib"
     BUILD_WITH_INSTALL_RPATH TRUE
   )
 endif()
