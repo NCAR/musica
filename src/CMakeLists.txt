@@ -62,6 +62,11 @@ set_target_properties(musica PROPERTIES
   SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
+set_target_properties(yaml-cpp PROPERTIES
+  ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
+  LIBRARY_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
+)
+
 # Set the rpath for the shared library
 if(APPLE)
   set_target_properties(musica PROPERTIES
