@@ -19,22 +19,11 @@ if (MUSICA_BUILD_FORTRAN_INTERFACE)
   pkg_check_modules(netcdfc IMPORTED_TARGET REQUIRED netcdf)
 endif()
 
-# ##############################################################################
-# yaml-cpp
-
-FetchContent_Declare(
-  yaml-cpp
-  GIT_REPOSITORY https://github.com/jbeder/yaml-cpp/
-  GIT_TAG 0.8.0
-  GIT_PROGRESS NOT
-  ${FETCHCONTENT_QUIET})
-FetchContent_MakeAvailable(yaml-cpp)
-
 ################################################################################
 # Mechanism Configuration
 
 set_git_default(MECH_CONFIG_GIT_REPOSITORY https://github.com/NCAR/MechanismConfiguration.git)
-set_git_default(MECH_CONFIG_GIT_TAG v0.1.0)
+set_git_default(MECH_CONFIG_GIT_TAG 6716c77d594bb892f1f13e57f78155dd207664cb)
 
 FetchContent_Declare(mechanism_configuration
     GIT_REPOSITORY ${MECH_CONFIG_GIT_REPOSITORY}

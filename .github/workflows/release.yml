@@ -1,6 +1,10 @@
 name: Publish Python Package
 
 on:
+  push:
+    branches:
+      - main
+  pull_request:
   workflow_dispatch:
   release:
     types:
@@ -63,6 +67,7 @@ jobs:
   upload_all:
     name: Upload release
     needs: [build_wheels, build_sdist]
+    if: github.event_name == 'release' && github.event.action == 'published'
     runs-on: ubuntu-latest
     environment:
       name: pypi

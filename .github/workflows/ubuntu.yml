@@ -51,6 +51,12 @@ jobs:
 
       - name: Build
         run: cmake --build build --verbose
+      
+      - name: List the built files
+        run: |
+          cd build
+          ls -l
+          ls -l lib
 
       - name: Run tests
         run: |
