@@ -7,11 +7,8 @@ target_link_libraries(musica_python
     musica::musica
 )
 
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    target_compile_options(musica_python PUBLIC -Wno-return-type-c-linkage)
-elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    target_compile_options(musica_python PUBLIC /wd4190)
-endif()
+include(silence_warnings)
+silence_warnings(musica_python)
 
 set_target_properties(musica_python PROPERTIES
   OUTPUT_NAME musica
