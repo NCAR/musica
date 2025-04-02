@@ -67,12 +67,6 @@ set_target_properties(musica PROPERTIES
   SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
-if(MUSICA_ENABLE_PYTHON_LIBRARY)
-  # Add the -fPIC flag for position-independent code if we are building the python library
-  # so that it links correctly on linux
-  set_target_properties(musica PROPERTIES POSITION_INDEPENDENT_CODE ON)
-endif()
-
 # Set the rpath for the shared library
 if(APPLE)
   set_target_properties(musica PROPERTIES

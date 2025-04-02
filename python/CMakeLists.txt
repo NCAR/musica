@@ -20,12 +20,12 @@ set_target_properties(musica_python PROPERTIES
 if (APPLE)
   # set the rpath for the shared library
   set_target_properties(musica_python PROPERTIES
-    INSTALL_RPATH "@loader_path;@loader_path/../lib"
+    INSTALL_RPATH "@loader_path"
   )
 elseif(UNIX)
   # set the rpath for the shared library
   set_target_properties(musica_python PROPERTIES
-    INSTALL_RPATH "$ORIGIN:$ORIGIN/../lib"
+    INSTALL_RPATH "$ORIGIN"
     BUILD_WITH_INSTALL_RPATH TRUE
   )
 endif()
