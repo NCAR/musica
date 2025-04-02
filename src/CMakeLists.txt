@@ -65,12 +65,12 @@ set_target_properties(musica PROPERTIES
 # for some reason the ubuntu github actions can't find yaml-cpp
 # this places them into the build/lib directory and allows our tests to pass
 # would rather not do this, but it is what it is
-if(UNIX AND BUILD_SHARED_LIBS)
-  set_target_properties(yaml-cpp PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
-    LIBRARY_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
-  )
-endif()
+# if(UNIX AND BUILD_SHARED_LIBS)
+#   set_target_properties(yaml-cpp PROPERTIES
+#     ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
+#     LIBRARY_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
+#   )
+# endif()
 
 # Set the rpath for the shared library
 if(APPLE)
