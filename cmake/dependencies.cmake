@@ -32,6 +32,7 @@ FetchContent_Declare(mechanism_configuration
 )
 
 set(OPEN_ATMOS_ENABLE_PYTHON_LIBRARY OFF CACHE BOOL "" FORCE)
+set(OPEN_ATMOS_ENABLE_PIC OFF CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(mechanism_configuration)
 
