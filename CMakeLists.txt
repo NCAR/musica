@@ -29,7 +29,7 @@ option(MUSICA_ENABLE_MEMCHECK "Enable memory checking" OFF)
 option(MUSICA_BUILD_DOCS "Build the documentation" OFF)
 option(MUSICA_ENABLE_MICM "Enable MICM" ON)
 option(MUSICA_ENABLE_TUVX "Enable TUV-x" ON)
-option(MUSICA_ENABLE_PIC "Build the library with position independent code" ON)
+option(MUSICA_ENABLE_PIC "Build the library with position independent code" OFF)
 
 set(MUSICA_SET_MICM_VECTOR_MATRIX_SIZE "4" CACHE STRING "Set MICM vector-ordered matrix dimension")
 
