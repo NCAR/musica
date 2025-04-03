@@ -32,7 +32,9 @@ FetchContent_Declare(mechanism_configuration
 )
 
 set(OPEN_ATMOS_ENABLE_PYTHON_LIBRARY OFF CACHE BOOL "" FORCE)
-set(OPEN_ATMOS_ENABLE_PIC OFF CACHE BOOL "" FORCE)
+if (MUSICA_ENABLE_PYTHON_LIBRARY OR MUSICA_ENABLE_PIC)
+  set(OPEN_ATMOS_ENABLE_PIC ON CACHE BOOL "" FORCE)
+endif()
 
 FetchContent_MakeAvailable(mechanism_configuration)
 
