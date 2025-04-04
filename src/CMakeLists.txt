@@ -19,13 +19,14 @@ add_library(musica::musica ALIAS musica)
 
 target_compile_definitions(musica PUBLIC MICM_VECTOR_MATRIX_SIZE=${MUSICA_SET_MICM_VECTOR_MATRIX_SIZE})
 
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    target_compile_options(musica PRIVATE -Wno-return-type-c-linkage)
-elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    target_compile_options(musica PRIVATE /wd4190)
-elseif (CMAKE_CXX_COMPILER_ID MATCHES "NVHPC")
-    # No special compile options needed for NVHPC
+if (MUSICA_ENABLE_PYTHON_LIBRARY OR MUSICA_ENABLE_PIC)
+  # Add the -fPIC flag for position-independent code if we are building shared libraries
+  # or the python library so that it links correctly on linux
+  set_target_properties(musica PROPERTIES POSITION_INDEPENDENT_CODE ON)
 endif()
+
+include(silence_warnings)
+silence_warnings(musica)
 
 # set the c++ standard for musica
 target_compile_features(musica PUBLIC cxx_std_20)
@@ -66,6 +67,18 @@ set_target_properties(musica PROPERTIES
   VERSION ${PROJECT_VERSION}
   SOVERSION ${PROJECT_VERSION_MAJOR}
 )
+
+# Set the rpath for the shared library
+if(APPLE)
+  set_target_properties(musica PROPERTIES
+    INSTALL_RPATH "@loader_path"
+  )
+elseif(UNIX)
+  set_target_properties(musica PROPERTIES
+    INSTALL_RPATH "$ORIGIN"
+    BUILD_WITH_INSTALL_RPATH TRUE
+  )
+endif()
 
 target_include_directories(musica
   PUBLIC

@@ -31,7 +31,8 @@ cmake.args = [
   "-DMUSICA_ENABLE_TUVX=OFF",
   "-DMUSICA_BUILD_FORTRAN_INTERFACE=OFF",
   "-DMUSICA_ENABLE_TESTS=OFF",
-  "-DCMAKE_BUILD_TYPE=Release"
+  "-DCMAKE_BUILD_TYPE=Release",
+  "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
 ]
 
 [project.urls]
@@ -48,6 +49,11 @@ path = "musica/_version.py"
 template = '''
 version = "${version}"
 '''
+
+[tool.cibuildwheel]
+# Increase pip debugging output
+build-verbosity = 3
+
 
 [tool.cibuildwheel.macos.environment]
 MACOSX_DEPLOYMENT_TARGET = "10.15"
