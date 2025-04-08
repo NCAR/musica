@@ -3,6 +3,7 @@ include(CMakePackageConfigHelpers)
 install(
   TARGETS
     musica
+    yaml-cpp
     mechanism_configuration
   EXPORT
     musica_Exports

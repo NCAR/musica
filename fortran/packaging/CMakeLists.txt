@@ -4,6 +4,7 @@ install(
   TARGETS
     musica-fortran
     musica
+    yaml-cpp
     mechanism_configuration
   EXPORT
     musica-fortran_Exports
