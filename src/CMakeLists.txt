@@ -19,6 +19,12 @@ add_library(musica::musica ALIAS musica)
 
 target_compile_definitions(musica PUBLIC MICM_VECTOR_MATRIX_SIZE=${MUSICA_SET_MICM_VECTOR_MATRIX_SIZE})
 
+if (MUSICA_ENABLE_PYTHON_LIBRARY OR MUSICA_ENABLE_PIC)
+  # Add the -fPIC flag for position-independent code if we are building shared libraries
+  # or the python library so that it links correctly on linux
+  set_target_properties(musica PROPERTIES POSITION_INDEPENDENT_CODE ON)
+endif()
+
 include(silence_warnings)
 silence_warnings(musica)
 
@@ -61,16 +67,6 @@ set_target_properties(musica PROPERTIES
   VERSION ${PROJECT_VERSION}
   SOVERSION ${PROJECT_VERSION_MAJOR}
 )
-
-# for some reason the ubuntu github actions can't find yaml-cpp
-# this places them into the build/lib directory and allows our tests to pass
-# would rather not do this, but it is what it is
-if(UNIX AND BUILD_SHARED_LIBS)
-  set_target_properties(yaml-cpp PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
-    LIBRARY_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
-  )
-endif()
 
 # Set the rpath for the shared library
 if(APPLE)

@@ -29,6 +29,7 @@ option(MUSICA_ENABLE_MEMCHECK "Enable memory checking" OFF)
 option(MUSICA_BUILD_DOCS "Build the documentation" OFF)
 option(MUSICA_ENABLE_MICM "Enable MICM" ON)
 option(MUSICA_ENABLE_TUVX "Enable TUV-x" ON)
+option(MUSICA_ENABLE_PIC "Build the library with position independent code" OFF)
 
 set(MUSICA_SET_MICM_VECTOR_MATRIX_SIZE "4" CACHE STRING "Set MICM vector-ordered matrix dimension")
 
@@ -43,13 +44,6 @@ if(MUSICA_CREATE_ENVIRONMENT_MODULE)
   if(MUSICA_INSTALL_MODULE_FILE_PATH STREQUAL "")
     message(FATAL_ERROR "MUSICA_INSTALL_MODULE_FILE_PATH is required but not set")
   endif()
-endif()
-
-# shared libraries are required for python, but for some reason setting
-# BUILD_SHARED_LIBS to ON doesn't work on windows
-if (MUSICA_ENABLE_PYTHON_LIBRARY AND NOT WIN32) 
-  message(STATUS "Python requires shared libraries to be built. Enabling shared libraries.")
-  set(BUILD_SHARED_LIBS ON)
 endif()
 
 ################################################################################

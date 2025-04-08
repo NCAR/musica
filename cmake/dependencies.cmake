@@ -25,6 +25,7 @@ endif()
 set_git_default(MECH_CONFIG_GIT_REPOSITORY https://github.com/NCAR/MechanismConfiguration.git)
 set_git_default(MECH_CONFIG_GIT_TAG v0.1.1)
 
+
 FetchContent_Declare(mechanism_configuration
     GIT_REPOSITORY ${MECH_CONFIG_GIT_REPOSITORY}
     GIT_TAG ${MECH_CONFIG_GIT_TAG}
@@ -32,6 +33,9 @@ FetchContent_Declare(mechanism_configuration
 )
 
 set(OPEN_ATMOS_ENABLE_PYTHON_LIBRARY OFF CACHE BOOL "" FORCE)
+if (MUSICA_ENABLE_PYTHON_LIBRARY OR MUSICA_ENABLE_PIC)
+  set(OPEN_ATMOS_ENABLE_PIC ON CACHE BOOL "" FORCE)
+endif()
 
 FetchContent_MakeAvailable(mechanism_configuration)
 
