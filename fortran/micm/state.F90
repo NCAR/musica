@@ -3,22 +3,51 @@
 !
 module musica_state
   use iso_c_binding
+  use iso_fortran_env, only: real64
+  use musica_util, only: error_t, error_t_c, mappings_t
 
   implicit none
 
-  public :: state_t
+  public :: conditions_t, state_t
   private
 
   !> Fortran wrappers for the C interface to the state object
   interface
     function create_state_c(micm, error) &
         bind(C, name="CreateMicmState")
-      use musica_util, only: error_t_c
-      import c_ptr
+      import c_ptr, error_t_c
       type(c_ptr), value,   intent(in)    :: micm
       type(error_t_c),      intent(inout) :: error
       type(c_ptr)                         :: create_state_c
     end function create_state_c
+
+    function get_concentrations_pointer(state, number_of_species, number_of_grid_cells, error) & !(this is correct)
+      bind(C, name="GetOrderedConcentrationsToStateFortran")
+      import c_int, c_ptr, error_t_c
+      type(c_ptr), value,   intent(in)    :: state
+      integer(c_int),       intent(out)   :: number_of_species
+      integer(c_int),       intent(out)   :: number_of_grid_cells
+      type(error_t_c),      intent(inout) :: error
+      type(c_ptr)                         :: get_concentrations_pointer
+    end function get_concentrations_pointer
+
+
+    function get_ordered_rate_constants_pointer(state, number_of_rate_constants, number_of_grid_cells, error) & !(this is correct)
+      bind(C, name="GetOrderedRateConstantsToStateFortran")
+      import c_int, c_ptr, error_t_c
+      type(c_ptr), value,   intent(in)    :: state
+      integer(c_int),       intent(out)   :: number_of_rate_constants
+      integer(c_int),       intent(out)   :: number_of_grid_cells
+      type(error_t_c),      intent(inout) :: error
+      type(c_ptr)                         :: get_ordered_rate_constants_pointer
+    end function get_ordered_rate_constants_pointer  
+
+    subroutine delete_state_c(state, error) &
+      bind(C, name="DeleteState")
+      import c_ptr, error_t_c
+      type(c_ptr), value, intent(in)    :: state
+      type(error_t_c), intent(inout)    :: error
+    end subroutine delete_state_c
 
     function get_conditions_from_state_c(state) &
               bind(C, name="GetConditionsFromState")
@@ -35,38 +64,43 @@ module musica_state
       integer(c_size_t), value :: size
     end subroutine set_conditions_to_state_c
 
-    subroutine delete_conditions_vector_c(vec) &
-                bind(C, name="DeleteConditionsVector")
-      import c_ptr
-      type(c_ptr), value :: vec
-    end subroutine delete_conditions_vector_c
-
-    function get_conditions_data_pointer_c(vec) &
-              bind(C, name="GetConditionsDataPointer")
-      import c_ptr
-      type(c_ptr), value :: vec
-      type(c_ptr)        :: get_conditions_data_pointer_c
-    end function get_conditions_data_pointer_c
-
     function get_conditions_size_c(vec) &
               bind(C, name="GetConditionsSize")
       import c_size_t, c_ptr
       type(c_ptr), value :: vec
       integer(c_size_t)  :: get_conditions_size_c
     end function get_conditions_size_c
-  
+
+    type(mappings_t_c) function get_species_ordering_c(micm, state, error) &
+        bind(c, name="GetSpeciesOrdering")
+      use musica_util, only: error_t_c, mappings_t_c
+      import c_ptr, c_size_t
+      type(c_ptr), value, intent(in)      :: micm
+      type(c_ptr), value, intent(in)      :: state
+      type(error_t_c), intent(inout)      :: error
+    end function get_species_ordering_c
+
+    type(mappings_t_c) function get_user_defined_reaction_rates_ordering_c(micm, state, error) &
+      bind(c, name="GetUserDefinedReactionRatesOrdering")
+      use musica_util, only: error_t_c, mappings_t_c
+      import c_ptr, c_size_t
+      type(c_ptr), value, intent(in)      :: micm
+      type(c_ptr), value, intent(in)      :: state
+      type(error_t_c), intent(inout)      :: error
+    end function get_user_defined_reaction_rates_ordering_c
   end interface
 
   type :: state_t
-    type(c_ptr) :: ptr
-    ! TODO: MONTEK FINISH THIS
-    ! these data members likely need to be moved to here
-    ! type(mappings_t), pointer :: species_ordering => null()
-    ! type(mappings_t), pointer :: user_defined_reaction_rates => null()
+    type(c_ptr) :: ptr = c_null_ptr
+    type(mappings_t), pointer :: species_ordering => null()
+    type(c_ptr) :: double_array_pointer_concentration = c_null_ptr
+    type(c_ptr) :: double_array_pointer_rates = c_null_ptr
+    real(kind=real64), pointer :: concentrations(:,:) => null()
+    real(kind=real64), pointer :: rates(:,:) => null()
+    type(mappings_t), pointer :: user_defined_reaction_rates => null()
   contains
     procedure :: get_conditions
     procedure :: set_conditions
-    ! Deallocate the micm instance
     final :: finalize
   end type state_t
 
@@ -78,25 +112,42 @@ module musica_state
 
   interface state_t
     procedure constructor
-  end interface micm_t
+  end interface state_t
 
 contains
 
   function constructor(micm, error)  result( this )
+    use iso_c_binding, only : c_f_pointer
     use musica_util, only: error_t_c, error_t, copy_mappings
+    type(state_t), pointer :: this
     type(c_ptr)   ::          micm
     type(error_t) ::          error
 
-    type(state_t), pointer :: this
-
     ! local variables
     type(error_t_c)        :: error_c
+    type(c_ptr) :: double_array_pointer_concentration
+    type(c_ptr) :: double_array_pointer_rates
+    integer :: n_species, n_grid_cells
 
     allocate( this )
 
-    ! TODO: MONTEK FINISH THIS
-    ! initialize all of the data members of the state_t object
+    this%ptr = create_state_c(micm, error_c)
 
+    double_array_pointer_concentration = get_concentrations_pointer(this%ptr, n_species, n_grid_cells, error_c) !double*, size
+    call c_f_pointer( double_array_pointer_concentration, this%concentrations, [ n_species, n_grid_cells ] )
+
+    double_array_pointer_rates = get_ordered_rate_constants_pointer(this%ptr, n_species, n_grid_cells, error_c)
+    call c_f_pointer( double_array_pointer_rates, this%rates, [ n_species, n_grid_cells ] )
+        
+    error = error_t(error_c)
+
+    if (.not. error%is_success()) then
+        deallocate(this)
+        nullify(this)
+        return
+    end if
+
+    this%species_ordering => mappings_t( get_species_ordering_c(micm, this%ptr, error_c) )
     error = error_t(error_c)
     if (.not. error%is_success()) then
         deallocate(this)
@@ -104,36 +155,68 @@ contains
         return
     end if
 
+    this%user_defined_reaction_rates => &
+        mappings_t( get_user_defined_reaction_rates_ordering_c(micm, this%ptr, error_c) )
+    error = error_t(error_c)
+    if (.not. error%is_success()) then
+      deallocate(this)
+      nullify(this)
+      return
+  end if
+
   end function constructor
 
-  ! function get_conditions(temperature, ..., error) result(conditions)
-    ! internally these will call one of the C functions
-    ! pass the pointer of the incoming data to the C function
-    ! get_conditions_from_state_c(state%ptr, temperature, size(temperature), ...)
-    ! as well as the size of the data array 
-    ! ... or something
-    ! OR
-    ! make a bunch of condition_t in an array
-    ! and pass that to the C function
-  ! end function get_conditions
 
-  ! function set_conditions(conditions)
-  ! end function set_conditions
+  subroutine get_conditions(this, vec_ptr, size)
+    class(state_t), intent(in)  :: this
+    type(c_ptr),    intent(out) :: vec_ptr
+    integer(c_size_t), intent(out) :: size
+
+    vec_ptr = get_conditions_from_state_c(this%ptr)
+    size = get_conditions_size_c(vec_ptr)
+  end subroutine get_conditions
+
+  subroutine set_conditions(this, vec_ptr, size)
+    class(state_t), intent(inout) :: this
+    type(c_ptr),    intent(in)    :: vec_ptr
+    integer(c_size_t), intent(in) :: size
+
+    call set_conditions_to_state_c(this%ptr, vec_ptr, size)
+  end subroutine set_conditions
+
+  subroutine set_ordered_concentrations(this, vec_ptr, size)
+    class(state_t), intent(inout) :: this
+    type(c_ptr),    intent(in)    :: vec_ptr
+    integer(c_size_t), intent(in) :: size
+
+    call set_ordered_concentrations_c(this%ptr, vec_ptr, size)
+  end subroutine set_ordered_concentrations
+
+  subroutine set_ordered_rate_constants(this, vec_ptr, size)
+    class(state_t), intent(inout) :: this
+    type(c_ptr),    intent(in)    :: vec_ptr
+    integer(c_size_t), intent(in) :: size
+
+    call set_ordered_rate_constants_c(this%ptr, vec_ptr, size)
+  end subroutine set_ordered_rate_constants
 
   subroutine finalize(this)
     use musica_util, only: error_t, error_t_c
     type(state_t), intent(inout) :: this
-
-    type(error_t_c)             :: error_c
-    type(error_t)               :: error
-
-    ! if (associated(this%species_ordering)) deallocate(this%species_ordering)
-    ! if (associated(this%user_defined_reaction_rates)) &
-    !     deallocate(this%user_defined_reaction_rates)
-    ! call delete_micm_c(this%ptr, error_c)
-    ! this%ptr = c_null_ptr
-    ! error = error_t(error_c)
-    ! ASSERT(error%is_success())
+  
+    type(error_t_c) :: error_c
+  
+    if (associated(this%species_ordering)) then
+      deallocate(this%species_ordering)
+    end if
+  
+    if (associated(this%user_defined_reaction_rates)) then
+      deallocate(this%user_defined_reaction_rates)
+    end if
+  
+    if (c_associated(this%ptr)) then
+      call delete_state_c(this%ptr, error_c)
+      this%ptr = c_null_ptr
+    end if
   end subroutine finalize
-
 end module musica_state

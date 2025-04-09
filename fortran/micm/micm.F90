@@ -6,7 +6,8 @@ module musica_micm
   use iso_c_binding, only: c_ptr, c_char, c_int, c_int64_t, c_bool, c_double, c_null_char, &
                           c_size_t, c_f_pointer, c_funptr, c_null_ptr, c_associated
   use iso_fortran_env, only: int64
-  use musica_util, only: assert, mappings_t, string_t, string_t_c
+  use musica_state, only: state_t
+  use musica_util, only: assert, mappings_t, string_t, string_t_c, error_t_c
   implicit none
 
   public :: micm_t, solver_stats_t, get_micm_version
@@ -110,37 +111,19 @@ module musica_micm
       type(error_t_c), intent(inout)            :: error
       logical(kind=c_bool)                      :: get_species_property_bool_c
     end function get_species_property_bool_c      
-
-    type(mappings_t_c) function get_species_ordering_c(micm, state, error) &
-        bind(c, name="GetSpeciesOrdering")
-      use musica_util, only: error_t_c, mappings_t_c
-      import c_ptr, c_size_t
-      type(c_ptr), value, intent(in)      :: micm
-      type(c_ptr), value, intent(in)      :: state
-      type(error_t_c), intent(inout)      :: error
-    end function get_species_ordering_c
-
-    type(mappings_t_c) function get_user_defined_reaction_rates_ordering_c(micm, state, error) &
-        bind(c, name="GetUserDefinedReactionRatesOrdering")
-      use musica_util, only: error_t_c, mappings_t_c
-      import c_ptr, c_size_t
-      type(c_ptr), value, intent(in)      :: micm
-      type(c_ptr), value, intent(in)      :: state
-      type(error_t_c), intent(inout)      :: error
-    end function get_user_defined_reaction_rates_ordering_c
   end interface
 
   type :: micm_t
-    type(mappings_t), pointer :: species_ordering => null()
-    type(mappings_t), pointer :: user_defined_reaction_rates => null()
     type(c_ptr), private      :: ptr = c_null_ptr
     integer,     private      :: number_of_grid_cells = 0
     integer,     private      :: solver_type = UndefinedSolver
   contains
     ! Solve the chemical system
-    procedure, private :: solve_arrays
-    procedure, private :: solve_c_ptrs
-    generic :: solve => solve_arrays, solve_c_ptrs
+    !procedure, private :: solve_arrays
+    !procedure, private :: solve_c_ptrs
+    procedure :: solve
+    procedure :: get_state
+    !generic :: solve => solve_arrays, solve_c_ptrs
     ! Get species properties
     procedure :: get_species_property_string
     procedure :: get_species_property_double
@@ -221,151 +204,27 @@ contains
         return
     end if
 
-    ! TODO: MONTEK FINISH THIS
-    ! The code below is all state related to using the state
-    ! move the data member species_ordering and user_defined_reaction_rates
-    ! to the state object
-    ! this%state = create_state_c(this%ptr, error_c)
-    ! error = error_t(error_c)
-    ! if (.not. error%is_success()) then
-    !   deallocate(this)
-    !   nullify(this)
-    !   return
-    ! end if
-
-    ! this%species_ordering => mappings_t( get_species_ordering_c(this%ptr, this%state, error_c) )
-    ! error = error_t(error_c)
-    ! if (.not. error%is_success()) then
-    !     deallocate(this)
-    !     nullify(this)
-    !     return
-    ! end if
-
-    ! this%user_defined_reaction_rates => &
-    !     mappings_t( get_user_defined_reaction_rates_ordering_c(this%ptr, this%state, error_c) )
-    ! error = error_t(error_c)
-    if (.not. error%is_success()) then
-        deallocate(this)
-        nullify(this)
-        return
-    end if
-
   end function constructor
 
-  !> Solves the chemical system
-  !!
-  !! This function accepts fortran arrays and checks their sizes
-  !! against the number of grid cells and the species/rate parameter ordering.
-    ! TODO: MONTEK FINISH THIS
-    ! the state should be passed as an argument to this function rather than the temperature, pressure, and air density
-  subroutine solve_arrays(this, time_step, temperature, pressure, air_density, &
-      concentrations, user_defined_reaction_rates, solver_state, solver_stats, error)
-    use iso_c_binding, only: c_loc
+  subroutine solve(this, time_step, state, solver_state, solver_stats, error)
     use iso_fortran_env, only: real64
-    use musica_util, only: string_t, string_t_c, error_t_c, error_t
-    class(micm_t),                    intent(in)    :: this
-    real(real64),                     intent(in)    :: time_step
-    real(real64), target, contiguous, intent(in)    :: temperature(:)
-    real(real64), target, contiguous, intent(in)    :: pressure(:)
-    real(real64), target, contiguous, intent(in)    :: air_density(:)
-    real(real64), target, contiguous, intent(inout) :: concentrations(:,:)
-    real(real64), target, contiguous, intent(in)    :: user_defined_reaction_rates(:,:)
-    type(string_t),                   intent(out)   :: solver_state
-    type(solver_stats_t),             intent(out)   :: solver_stats
-    type(error_t),                    intent(out)   :: error
+    use musica_util, only: string_t, error_t, string_t_c, error_t_c
+    class(micm_t),          intent(in)    :: this
+    type(state_t),          intent(inout) :: state
+    real(real64),           intent(in)    :: time_step    
+    type(string_t),         intent(out)   :: solver_state
+    type(solver_stats_t),   intent(out)   :: solver_stats
+    type(error_t),          intent(out)   :: error
+    type(string_t_c)                      :: solver_state_c
+    type(solver_stats_t_c)                :: solver_stats_c    
+    type(error_t_c)                       :: error_c
 
-    type(string_t_c)       :: solver_state_c
-    type(solver_stats_t_c) :: solver_stats_c
-    type(error_t_c)        :: error_c
-
-    if (size(temperature) .ne. this%number_of_grid_cells) then
-        error = error_t(1, "MICM_SOLVE", "Temperature array size does not match number of grid cells")
-        return
-    end if
-    if (size(pressure) .ne. this%number_of_grid_cells) then
-        error = error_t(1, "MICM_SOLVE", "Pressure array size does not match number of grid cells")
-        return
-    end if
-    if (size(air_density) .ne. this%number_of_grid_cells) then
-        error = error_t(1, "MICM_SOLVE", "Air density array size does not match number of grid cells")
-        return
-    end if
-    if (this%solver_type .eq. Rosenbrock .or. this%solver_type .eq. BackwardEuler) then
-        if (size(concentrations, 1) .ne. this%number_of_grid_cells) then
-            error = error_t(1, "MICM_SOLVE", "Concentrations array dimension 1 does not match number of grid cells")
-            return
-        end if
-        if (size(concentrations, 2) .ne. this%species_ordering%size()) then
-            error = error_t(1, "MICM_SOLVE", "Concentrations array dimension 2 does not match species ordering")
-            return
-        end if
-        if (size(user_defined_reaction_rates, 1) .ne. this%number_of_grid_cells) then
-            error = error_t(1, "MICM_SOLVE", "User defined reaction rates array dimension 1 does not match number of grid cells")
-            return
-        end if
-        if (size(user_defined_reaction_rates, 2) .ne. this%user_defined_reaction_rates%size()) then
-            error = error_t(1, "MICM_SOLVE", "User defined reaction rates array dimension 2 does not match user defined reaction rates ordering")
-            return
-        end if
-    else
-        if (size(concentrations, 1) .ne. this%species_ordering%size()) then
-            error = error_t(1, "MICM_SOLVE", "Concentrations array dimension 1 does not match species ordering")
-            return
-        end if
-        if (size(concentrations, 2) .ne. this%number_of_grid_cells) then
-            error = error_t(1, "MICM_SOLVE", "Concentrations array dimension 2 does not match number of grid cells")
-            return
-        end if
-        if (size(user_defined_reaction_rates, 1) .ne. this%user_defined_reaction_rates%size()) then
-            error = error_t(1, "MICM_SOLVE", "User defined reaction rates array dimension 1 does not match user defined reaction rates ordering")
-            return
-        end if
-        if (size(user_defined_reaction_rates, 2) .ne. this%number_of_grid_cells) then
-            error = error_t(1, "MICM_SOLVE", "User defined reaction rates array dimension 2 does not match number of grid cells")
-            return
-        end if
-    end if
-
-    call micm_solve_c(this%ptr, this%state, real(time_step, kind=c_double), solver_state_c, solver_stats_c, error_c)
-          
+    call micm_solve_c(this%ptr, state%ptr, time_step, solver_state_c, solver_stats_c, error_c)
     solver_state = string_t(solver_state_c)
     solver_stats = solver_stats_t(solver_stats_c)
     error = error_t(error_c)
 
-  end subroutine solve_arrays
-
-  !> Solves the chemical system
-  !!
-  !! This function accepts c pointers and does not check their sizes.
-  !! The user is responsible for ensuring the sizes are correct.
-    ! TODO: MONTEK FINISH THIS
-    ! the state should be passed as an argument to this function rather than the temperature, pressure, and air density
-  subroutine solve_c_ptrs(this, time_step, temperature, pressure, air_density, &
-      concentrations, user_defined_reaction_rates, solver_state, solver_stats, error)
-    use iso_fortran_env, only: real64
-    use musica_util, only: string_t, string_t_c, error_t_c, error_t
-    class(micm_t),        intent(in)    :: this
-    real(real64),         intent(in)    :: time_step
-    type(c_ptr),          intent(in)    :: temperature
-    type(c_ptr),          intent(in)    :: pressure
-    type(c_ptr),          intent(in)    :: air_density
-    type(c_ptr),          intent(in)    :: concentrations
-    type(c_ptr),          intent(in)    :: user_defined_reaction_rates
-    type(string_t),       intent(out)   :: solver_state
-    type(solver_stats_t), intent(out)   :: solver_stats
-    type(error_t),        intent(out)   :: error
-
-    type(string_t_c)       :: solver_state_c
-    type(solver_stats_t_c) :: solver_stats_c
-    type(error_t_c)        :: error_c
-
-    call micm_solve_c(this%ptr, this%state, real(time_step, kind=c_double), solver_state_c, solver_stats_c, error_c)
-          
-    solver_state = string_t(solver_state_c)
-    solver_stats = solver_stats_t(solver_stats_c)
-    error = error_t(error_c)
-
-  end subroutine solve_c_ptrs
+  end subroutine solve
 
   !> Constructor for solver_stats_t object that takes ownership of solver_stats_t_c
   function solver_stats_t_constructor( c_solver_stats ) result( new_solver_stats )
@@ -513,12 +372,22 @@ contains
     character(len=*), intent(in) :: species_name, property_name
     type(error_t), intent(inout) :: error
     logical                      :: value
-
     type(error_t_c)              :: error_c
     value = get_species_property_bool_c(this%ptr, &
               to_c_string(species_name), to_c_string(property_name), error_c)
     error = error_t(error_c)
   end function get_species_property_bool
+
+  function get_state(this, error) result(state)
+    use musica_util, only: error_t, to_c_string
+    class(micm_t)                :: this
+    type(error_t), intent(inout) :: error
+    type(state_t), pointer       :: state
+    type(error_t_c)              :: error_c
+
+    state => state_t(this%ptr, error)
+    error = error_t(error_c)
+  end function get_state
 
   subroutine finalize(this)
     use musica_util, only: error_t, error_t_c
@@ -527,9 +396,6 @@ contains
     type(error_t_c)             :: error_c
     type(error_t)               :: error
 
-    if (associated(this%species_ordering)) deallocate(this%species_ordering)
-    if (associated(this%user_defined_reaction_rates)) &
-        deallocate(this%user_defined_reaction_rates)
     call delete_micm_c(this%ptr, error_c)
     this%ptr = c_null_ptr
     error = error_t(error_c)

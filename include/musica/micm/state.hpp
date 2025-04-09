@@ -62,20 +62,37 @@ namespace musica
 
   using ConditionsVector = std::vector<micm::Conditions>;
 
-  /// Allocate and return pointer to Conditions vector
+  /// @brief Get the pointer to the conditions vector
+  /// @param state Pointer to state object
+  /// @return Pointer to the vector
   ConditionsVector* GetConditionsFromState(musica::State* state);
 
-  /// Set Conditions into the State object
+  /// @brief Set Conditions into the State object
+  /// @param state Pointer to state object
+  /// @param conditions_array Pointer to conditions vector
+  /// @param size Vector size
   void SetConditionsToState(musica::State* state, const micm::Conditions* conditions_array, std::size_t size);
 
-  /// Free memory for Conditions vector
-  void DeleteConditionsVector(ConditionsVector* vec);
-
-  /// Access elements
-  const micm::Conditions* GetConditionsDataPointer(const ConditionsVector* vec);
-
-  /// Get size
+  /// @brief Get the size of the conditions vector
+  /// @param vec pointer to the conditions vector
+  /// @return Vector size
   std::size_t GetConditionsSize(const ConditionsVector* vec);
+
+  /// @brief Get the point to the vector of the concentrations for Fortran interface
+  /// @param state Pointer to state object
+  /// @param number_of_species Pointer to number of species
+  /// @param number_of_grid_cells Pointer to num of grid cells
+  /// @param error Error struct to indicate success or failure
+  /// @return Pointer to the vector
+  double* GetOrderedConcentrationsToStateFortran(musica::State* state, int* number_of_species, int* number_of_grid_cells, Error* error);
+
+  /// @brief Get the point to the vector of the rates for Fortran interface
+  /// @param state Pointer to state object
+  /// @param number_of_species Pointer to number of rate constants
+  /// @param number_of_grid_cells Pointer to num of grid cells
+  /// @param error Error struct to indicate success or failure
+  /// @return Pointer to the vector
+  double* GetOrderedRateConstantsToStateFortran(musica::State* state, int* number_of_rate_constants, int* number_of_grid_cells, Error* error);
 
   #ifdef __cplusplus
   }
@@ -90,33 +107,44 @@ namespace musica
     using StateVariant = std::variant<VectorState, StandardState>;
 
     /// @brief Get the vector of conditions struct
+    /// @return Vector of conditions struct
     std::vector<micm::Conditions> &GetConditions();
 
     /// @brief Set the conditions struct to the state variant
-    /// @param conditions vector of conditions
+    /// @param conditions Vector of conditions
     void SetConditions(const std::vector<micm::Conditions> &conditions);
 
     /// @brief Get the vector of concentrations
+    /// @return Vector of doubles
     std::vector<double> &GetOrderedConcentrations();
 
     /// @brief Set the concentrations to the state variant
-    /// @param concentrations vector of concentrations
+    /// @param concentrations Vector of concentrations
     void SetOrderedConcentrations(const std::vector<double> &concentrations);
 
-    /// @brief Temporary method to set the concentrations to the state variant for Fortran code.
-    /// @param concentrations c pointer list of concentrations
-    void SetOrderedConcentrations(const double *concentrations);
-
     /// @brief Get the vector of rate constants
+    /// @return Vector of doubles
     std::vector<double> &GetOrderedRateConstants();
 
     /// @brief Set the rate constants to the state variant
-    /// @param rateConstant vector of Rate constants
+    /// @param rateConstant Vector of Rate constants
     void SetOrderedRateConstants(const std::vector<double> &rateConstant);
 
-    /// @brief Temporary method to set the rate constants to the state variant for Fortran code.
-    /// @param rateConstant c pointer list of rate constants
-    void SetOrderedRateConstants(const double *rateConstant);
+    /// @brief Get the point to the vector of the concentrations
+    /// @param state Pointer to state object
+    /// @param number_of_species Pointer to number of species
+    /// @param number_of_grid_cells Pointer to num of grid cells
+    /// @param error Error struct to indicate success or failure
+    /// @return Pointer to the vector
+    double* GetOrderedConcentrationsToState(musica::State* state, int* number_of_species, int* number_of_grid_cells, Error* error);
+
+    /// @brief Get the point to the vector of the rates
+    /// @param state Pointer to state object
+    /// @param number_of_species Pointer to number of rate constants
+    /// @param number_of_grid_cells Pointer to num of grid cells
+    /// @param error Error struct to indicate success or failure
+    /// @return Pointer to the vector
+    double* GetOrderedRateConstantsToState(musica::State* state, int* number_of_rate_constants, int* number_of_grid_cells, Error* error);
 
     StateVariant state_variant_;
   };

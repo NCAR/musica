@@ -100,7 +100,6 @@ namespace musica
       SolverResultStats *solver_stats,
       Error *error)
   {
-    std::cout << "TEST MONTEK SOLVE" << std::endl;
     DeleteError(error);
     micm->Solve(micm, state, time_step, solver_state, solver_stats, error);
   };
@@ -366,41 +365,5 @@ namespace musica
       DeleteError(error);
       *error = ToError(e);
     }
-  }
-
-  void MicmSolveFortran(
-      MICM *micm,
-      double time_step,
-      double *temperature,
-      double *pressure,
-      double *air_density,
-      double *concentrations,
-      double *custom_rate_parameters,
-      String *solver_state,
-      SolverResultStats *solver_stats,
-      Error *error)
-  {
-    musica::State *state = CreateMicmState(micm, error);
-
-    size_t num_conditions = micm->NumGridCells();
-
-    std::vector<micm::Conditions> conditions_vector(num_conditions);
-    for (size_t i = 0; i < num_conditions; i++)
-    {
-      conditions_vector[i].temperature_ = temperature[i];
-      conditions_vector[i].pressure_ = pressure[i];
-      conditions_vector[i].air_density_ = air_density[i];
-    }
-    state->SetOrderedConcentrations(concentrations);
-    state->SetOrderedRateConstants(custom_rate_parameters);
-    state->SetConditions(conditions_vector);
-    MicmSolve(micm, state, time_step, solver_state, solver_stats, error);
-
-    std::vector<double> conc = state->GetOrderedConcentrations();
-    for (int i = 0; i < conc.size(); i++)
-    {
-      concentrations[i] = conc[i];
-    }
-    DeleteState(state, error);
   }
 }  // namespace musica
