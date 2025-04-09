@@ -17,7 +17,6 @@ install(
     ${MUSICA_FORTRAN_MOD_DIR}/../include/
   DESTINATION
     ${MUSICA_INSTALL_INCLUDE_DIR}/musica/fortran
-    # ${CMAKE_INSTALL_INCLUDEDIR}
   FILES_MATCHING PATTERN "*.mod"
 )
 
