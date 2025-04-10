@@ -161,7 +161,6 @@ namespace musica
     return vec.data();
   }
 
-  /// Get size
   std::size_t GetConditionsSize(const ConditionsVector* vec)
   {
     return vec->size();
