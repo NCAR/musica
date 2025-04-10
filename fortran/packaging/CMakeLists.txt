@@ -67,7 +67,7 @@ install(
     musica-fortran_Exports 
   DESTINATION
     ${cmake_config_install_location}
-  NAMESPACE musica::
+  # NAMESPACE musica::
 )
 
 configure_package_config_file(
