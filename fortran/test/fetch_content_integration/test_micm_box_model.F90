@@ -7,6 +7,7 @@ program test_micm_box_model
   use musica_util, only: error_t, string_t, mapping_t
   use musica_micm, only: micm_t, solver_stats_t
   use musica_micm, only: Rosenbrock, RosenbrockStandardOrder
+  use musica_state, only: conditions_t, state_t
 
   implicit none
 
@@ -25,17 +26,16 @@ contains
     real(real64), parameter :: GAS_CONSTANT = 8.31446261815324_real64 ! J mol-1 K-1
 
     real(real64) :: time_step
-    real(real64), target :: temperature(1)
-    real(real64), target :: pressure(1)
-    real(real64), target :: air_density(1)
-    real(real64), target :: concentrations(1,6)
-    real(real64), target :: user_defined_reaction_rates(1,2)
+    real(real64), target :: concentrations(6)
+    real(real64), target :: rates(2)
 
     type(string_t)       :: solver_state
     type(solver_stats_t) :: solver_stats
     type(error_t)        :: error
 
     type(micm_t), pointer :: micm
+    type(state_t), pointer :: state
+    type(conditions_t), target :: conds(1)
 
     integer :: i
 
@@ -44,28 +44,31 @@ contains
     num_grid_cells = 1
 
     time_step = 200
-    temperature(1) = 273.0
-    pressure(1) = 1.0e5
-    air_density(:) = pressure(:) / (GAS_CONSTANT * temperature(:))
-
-    concentrations(1,:) = (/ 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 /)
-    user_defined_reaction_rates(1,:) = (/ 0.001, 0.002 /)
-
+    conds(1)%temperature = 273.0
+    conds(1)%pressure    = 1.0e5
+    conds(1)%air_density = conds(1)%pressure / (GAS_CONSTANT * conds(1)%temperature)    
+    
     write(*,*) "Creating MICM solver..."
     micm => micm_t(config_path, solver_type, num_grid_cells, error)
+    
+    write(*,*) "Creating State..."    
+    state => micm%get_state(error)
 
-    do i = 1, micm%species_ordering%size()
-      print *, "Species Name:", micm%species_ordering%name(i), &
-               ", Index:", micm%species_ordering%index(i)
+    state%concentrations = reshape((/ 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 /), shape=[6,1])
+    state%rates = reshape((/ 0.001, 0.002 /), shape=[2,1])
+    
+    call state%set_conditions(c_loc(conds), 1_c_size_t)
+
+    do i = 1, state%species_ordering%size()
+      print *, "Species Name:", state%species_ordering%name(i), &
+               ", Index:", state%species_ordering%index(i)
     end do
 
     write(*,*) "Solving starts..."
-    call micm%solve(time_step, temperature, pressure, air_density, concentrations, &
-        user_defined_reaction_rates, solver_state, solver_stats, error)
-    write(*,*) "After solving, concentrations", concentrations
-
+    call micm%solve(time_step, state, solver_state, solver_stats, error)
+    write(*,*) "After solving, concentrations", state%concentrations
     deallocate( micm )
-
+    deallocate( state )
   end subroutine box_model_arrays
 
   !> Runs a simple box model using the MICM solver and passing in C pointers
@@ -82,13 +85,15 @@ contains
     real(real64), target :: pressure(1)
     real(real64), target :: air_density(1)
     real(real64), target :: concentrations(6)
-    real(real64), target :: user_defined_reaction_rates(2)
+    real(real64), target :: rates(2)
 
     type(string_t)       :: solver_state
     type(solver_stats_t) :: solver_stats
     type(error_t)        :: error
 
     type(micm_t), pointer :: micm
+    type(state_t), pointer :: state
+    type(conditions_t), target :: conds(1)
 
     integer :: i
 
@@ -97,30 +102,33 @@ contains
     num_grid_cells = 1
 
     time_step = 200
-    temperature(1) = 273.0
-    pressure(1) = 1.0e5
-    air_density(:) = pressure(:) / (GAS_CONSTANT * temperature(:))
 
-    concentrations = (/ 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 /)
-    user_defined_reaction_rates = (/ 0.001, 0.002 /)
+    conds(1)%temperature = 273.0
+    conds(1)%pressure    = 1.0e5
+    conds(1)%air_density = conds(1)%pressure / (GAS_CONSTANT * conds(1)%temperature)
 
     write(*,*) "Creating MICM solver..."
     micm => micm_t(config_path, solver_type, num_grid_cells, error)
+    
+    write(*,*) "Creating State..."
+    state => micm%get_state(error)
 
-    do i = 1, micm%species_ordering%size()
-      print *, "Species Name:", micm%species_ordering%name(i), &
-               ", Index:", micm%species_ordering%index(i)
+    state%concentrations = reshape((/ 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 /), shape=[6,1])
+    state%rates = reshape((/ 0.001, 0.002 /), shape=[2,1])
+
+    call state%set_conditions(c_loc(conds), 1_c_size_t)
+
+    do i = 1, state%species_ordering%size()
+      print *, "Species Name:", state%species_ordering%name(i), &
+               ", Index:", state%species_ordering%index(i)
     end do
 
     write(*,*) "Solving starts..."
-    call micm%solve(time_step, c_loc(temperature), c_loc(pressure), &
-                    c_loc(air_density), c_loc(concentrations), &
-                    c_loc(user_defined_reaction_rates), &
-                    solver_state, solver_stats, error)
-    write(*,*) "After solving, concentrations", concentrations
+    call micm%solve(time_step, state, solver_state, solver_stats, error)
+    write(*,*) "After solving, concentrations", state%concentrations
 
     deallocate( micm )
-
+    deallocate( state )
   end subroutine box_model_c_ptrs
 
 end program test_micm_box_model
