@@ -2,12 +2,13 @@ include(CMakePackageConfigHelpers)
 
 install(
   TARGETS
-    musica::musica-fortran
-    musica::musica
-    musica::mechanism_configuration
-    yaml-cpp
+    musica-fortran
+    musica
+    mechanism_configuration
   EXPORT
     musica-fortran_Exports
+  NAMESPACE
+    musica
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
@@ -26,6 +27,13 @@ install(
     ${MUSICA_PROJECT_SRC_DIR}/include/
   DESTINATION
     ${MUSICA_INSTALL_INCLUDE_DIR}
+)
+
+install(
+  TARGETS
+    yaml-cpp
+  EXPORT
+    musica-fortran_Exports
 )
 
 # install MICM
