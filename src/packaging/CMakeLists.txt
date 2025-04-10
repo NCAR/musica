@@ -118,7 +118,7 @@ if (MUSICA_CREATE_ENVIRONMENT_MODULE)
   message(STATUS "MODULE PATH ${MODULE_FILE_PATH}")
 
   # Generate the module file using the template
-  configure_file(${MUSICA_PROJECT_SRC_DIR}/modulefile.lua.in
+  configure_file(${MUSICA_PROJECT_SRC_DIR}/src/packaging/modulefile.lua.in
                  ${MODULE_FILE_PATH}
                 @ONLY)
 
@@ -127,7 +127,7 @@ if (MUSICA_CREATE_ENVIRONMENT_MODULE)
     add_custom_target(install_lmod_module
                       COMMAND ${CMAKE_COMMAND} -E copy
                               ${MODULE_FILE_PATH}
-                              ${INSTALL_MODULE_FILE_PATH}/${PROJECT_NAME}/${MODULE_NAME})
+                              ${MUSICA_INSTALL_MODULE_FILE_PATH}/${PROJECT_NAME}/${MODULE_NAME})
 
     # Add the install_lmod_module target to the "install" target
     install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} --build . --target install_lmod_module)")
