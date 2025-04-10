@@ -119,11 +119,8 @@ module musica_micm
     integer,     private      :: solver_type = UndefinedSolver
   contains
     ! Solve the chemical system
-    !procedure, private :: solve_arrays
-    !procedure, private :: solve_c_ptrs
     procedure :: solve
     procedure :: get_state
-    !generic :: solve => solve_arrays, solve_c_ptrs
     ! Get species properties
     procedure :: get_species_property_string
     procedure :: get_species_property_double
