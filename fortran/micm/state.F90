@@ -2,9 +2,10 @@
 ! SPDX-License-Identifier: Apache-2.0
 !
 module musica_state
+#define ASSERT( expr ) call assert( expr, __FILE__, __LINE__ )
   use iso_c_binding
   use iso_fortran_env, only: real64
-  use musica_util, only: error_t, error_t_c, mappings_t
+  use musica_util, only: assert, error_t, error_t_c, mappings_t
 
   implicit none
 
@@ -132,9 +133,24 @@ contains
     allocate( this )
 
     this%ptr = create_state_c(micm, error_c)
+    
+    error = error_t(error_c)
+
+    if (.not. error%is_success()) then
+        deallocate(this)
+        nullify(this)
+        return
+    end if
 
     double_array_pointer_concentration = get_concentrations_pointer(this%ptr, n_species, n_grid_cells, error_c) !double*, size
     call c_f_pointer( double_array_pointer_concentration, this%concentrations, [ n_species, n_grid_cells ] )
+    error = error_t(error_c)
+
+    if (.not. error%is_success()) then
+        deallocate(this)
+        nullify(this)
+        return
+    end if
 
     double_array_pointer_rates = get_ordered_rate_constants_pointer(this%ptr, n_species, n_grid_cells, error_c)
     call c_f_pointer( double_array_pointer_rates, this%rates, [ n_species, n_grid_cells ] )
@@ -183,28 +199,13 @@ contains
 
     call set_conditions_to_state_c(this%ptr, vec_ptr, size)
   end subroutine set_conditions
-
-  subroutine set_ordered_concentrations(this, vec_ptr, size)
-    class(state_t), intent(inout) :: this
-    type(c_ptr),    intent(in)    :: vec_ptr
-    integer(c_size_t), intent(in) :: size
-
-    call set_ordered_concentrations_c(this%ptr, vec_ptr, size)
-  end subroutine set_ordered_concentrations
-
-  subroutine set_ordered_rate_constants(this, vec_ptr, size)
-    class(state_t), intent(inout) :: this
-    type(c_ptr),    intent(in)    :: vec_ptr
-    integer(c_size_t), intent(in) :: size
-
-    call set_ordered_rate_constants_c(this%ptr, vec_ptr, size)
-  end subroutine set_ordered_rate_constants
-
+  
   subroutine finalize(this)
     use musica_util, only: error_t, error_t_c
     type(state_t), intent(inout) :: this
   
     type(error_t_c) :: error_c
+    type(error_t)               :: error
   
     if (associated(this%species_ordering)) then
       deallocate(this%species_ordering)
@@ -217,6 +218,8 @@ contains
     if (c_associated(this%ptr)) then
       call delete_state_c(this%ptr, error_c)
       this%ptr = c_null_ptr
+      error = error_t(error_c)
+      ASSERT(error%is_success())
     end if
   end subroutine finalize
 end module musica_state

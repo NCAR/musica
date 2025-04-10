@@ -130,13 +130,13 @@ contains
                ", Index:", state%user_defined_reaction_rates%index(i)
     end do
 
-    write(*,*) "[test micm fort api] Initial concentrations", concentrations
+    write(*,*) "[test micm fort api] Initial concentrations", state%concentrations
 
     write(*,*) "[test micm fort api] Solving starts..."
     call micm%solve(time_step, state, solver_state, solver_stats, error)
     ASSERT( error%is_success() )
 
-    write(*,*) "[test micm fort api] After solving, concentrations: ", concentrations
+    write(*,*) "[test micm fort api] After solving, concentrations: ", state%concentrations
     write(*,*) "[test micm fort api] Solver state: ", solver_state%get_char_array()
     ASSERT_EQ( solver_state%get_char_array(), "Converged" )
     write(*,*) "[test micm fort api] Function calls: ", solver_stats%function_calls()
@@ -412,7 +412,7 @@ contains
       ASSERT_NEAR(state%concentrations(E_index, i_cell), E, test_accuracy)
       ASSERT_NEAR(state%concentrations(F_index, i_cell), F, test_accuracy)
     end do
-    !deallocate( state )
+    deallocate( state )
   end subroutine test_standard_multiple_grid_cells
 
   subroutine test_multiple_grid_cell_vector_Rosenbrock()
@@ -466,7 +466,7 @@ contains
     micm => micm_t( "configs/analytical", BackwardEuler, num_grid_cells, error )
     ASSERT( error%is_success() )
 
-    !call test_vector_multiple_grid_cells( micm, num_grid_cells, time_step, test_accuracy )
+    call test_vector_multiple_grid_cells( micm, num_grid_cells, time_step, test_accuracy )
 
     deallocate( micm )
 
@@ -570,13 +570,13 @@ contains
                ", Index:", state%user_defined_reaction_rates%index(i)
     end do
 
-    write(*,*) "[test micm fort api] Initial concentrations", concentrations
+    write(*,*) "[test micm fort api] Initial concentrations", state%concentrations
 
     write(*,*) "[test micm fort api] Solving starts..."
     call micm%solve(time_step, state, solver_state, solver_stats, error)
     ASSERT( error%is_success() )
 
-    write(*,*) "[test micm fort api] After solving, concentrations: ", concentrations
+    write(*,*) "[test micm fort api] After solving, concentrations: ", state%concentrations
     write(*,*) "[test micm fort api] Solver state: ", solver_state%get_char_array()
     ASSERT_EQ( solver_state%get_char_array(), "Converged" )
     write(*,*) "[test micm fort api] Function calls: ", solver_stats%function_calls()
