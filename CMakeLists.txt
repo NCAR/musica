@@ -36,16 +36,6 @@ set(MUSICA_SET_MICM_VECTOR_MATRIX_SIZE "4" CACHE STRING "Set MICM vector-ordered
 cmake_dependent_option(
   MUSICA_ENABLE_PYTHON_LIBRARY "Adds pybind11, a lightweight header-only library that exposes C++ types in Python and vice versa" OFF "MUSICA_BUILD_C_CXX_INTERFACE" OFF)
 
-cmake_dependent_option(
-  MUSICA_CREATE_ENVIRONMENT_MODULE "Creates an Lmod environment module file that can be installed on the same machine this library is installed to." OFF "MUSICA_BUILD_C_CXX_INTERFACE" OFF)
-
-if(MUSICA_CREATE_ENVIRONMENT_MODULE)
-  set(MUSICA_INSTALL_MODULE_FILE_PATH "" CACHE STRING "This is the path of the modulefiles location that the Lmod files should be installed to.")
-  if(MUSICA_INSTALL_MODULE_FILE_PATH STREQUAL "")
-    message(FATAL_ERROR "MUSICA_INSTALL_MODULE_FILE_PATH is required but not set")
-  endif()
-endif()
-
 ################################################################################
 # Projet wide setup variables 
 set(MUSICA_INSTALL_INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR})
