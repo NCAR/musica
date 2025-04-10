@@ -103,36 +103,3 @@ if(NOT TARGET uninstall)
   add_custom_target(uninstall
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 endif()
-
-
-######################################################################
-# Environment module
-
-if (MUSICA_CREATE_ENVIRONMENT_MODULE)
-  # Define the paths and environment variables for the module
-  set(MODULE_NAME ${PROJECT_VERSION}.lua)
-  set(MODULE_FILE_PATH ${CMAKE_BINARY_DIR}/modulefiles/${PROJECT_NAME}/${MODULE_NAME})
-  set(MODULE_INSTALL_PATH ${CMAKE_INSTALL_PREFIX}/${INSTALL_PREFIX})
-
-  message(STATUS "MODULE NAME ${MODULE_NAME}")
-  message(STATUS "MODULE PATH ${MODULE_FILE_PATH}")
-
-  # Generate the module file using the template
-  configure_file(${MUSICA_PROJECT_SRC_DIR}/modulefile.lua.in
-                 ${MODULE_FILE_PATH}
-                @ONLY)
-
-  if(MUSICA_INSTALL_MODULE_FILE_PATH)
-    # Create a custom target for installing the module file
-    add_custom_target(install_lmod_module
-                      COMMAND ${CMAKE_COMMAND} -E copy
-                              ${MODULE_FILE_PATH}
-                              ${INSTALL_MODULE_FILE_PATH}/${PROJECT_NAME}/${MODULE_NAME})
-
-    # Add the install_lmod_module target to the "install" target
-    install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} --build . --target install_lmod_module)")
-
-    # Add a message to inform users how to trigger the installation
-    message(STATUS "To install the Lmod module, run: make install")
-  endif()
-endif()
