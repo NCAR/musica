@@ -21,8 +21,6 @@ local base = "@MODULE_INSTALL_PATH@"
 local libpath  = pathJoin(base, "/lib")             -- libraries
 local incpath  = pathJoin(base, "/include")         -- include files
 
-always_load("cmake/3.22.0")
-
 -- Set variables to use with cmake
 setenv("musica_ROOT", base)
 setenv("MUSICA_ROOT", base)
