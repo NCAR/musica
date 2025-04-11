@@ -4,8 +4,6 @@ install(
   TARGETS
     musica-fortran
     musica
-    mechanism_configuration
-    yaml-cpp
   EXPORT
     musica-fortran_Exports
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -19,53 +17,6 @@ install(
     ${MUSICA_INSTALL_INCLUDE_DIR}/musica/fortran
   FILES_MATCHING PATTERN "*.mod"
 )
-
-# install the MUSICA header files
-install(
-  DIRECTORY
-    ${MUSICA_PROJECT_SRC_DIR}/include/
-  DESTINATION
-    ${MUSICA_INSTALL_INCLUDE_DIR}
-)
-
-# install MICM
-if(MUSICA_ENABLE_MICM)
-  install(
-    TARGETS
-      micm
-    EXPORT
-      musica_Exports
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  )
-
-  install(
-    DIRECTORY
-      ${micm_SOURCE_DIR}/include/
-    DESTINATION
-      ${MUSICA_INSTALL_INCLUDE_DIR}
-  )
-endif()
-
-# install TUV-x
-if (MUSICA_ENABLE_TUVX)
-  install(
-    TARGETS
-      tuvx_object
-    EXPORT
-      musica_Exports
-  )
-
-  # TUV-x code is written in Fortran, and until it is completely rewritten in C++,
-  # MUSICA includes Fortran module files.
-  install(
-    DIRECTORY
-      ${MUSICA_MOD_DIR}/../include/
-    DESTINATION
-      ${MUSICA_INSTALL_INCLUDE_DIR}/musica/fortran
-    FILES_MATCHING PATTERN "*.mod"
-  )
-endif()
 
 # install the cmake config files
 set(cmake_config_install_location "${CMAKE_INSTALL_LIBDIR}/cmake/musica-fortran")
