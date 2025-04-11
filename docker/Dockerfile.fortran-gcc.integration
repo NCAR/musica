@@ -1,6 +1,6 @@
 FROM fedora:latest
 
-ARG MUSICA_GIT_TAG=main
+ARG MUSICA_GIT_TAG=174-packaging-fortran
 ARG BUILD_TYPE=Release
 
 RUN dnf -y update \
@@ -13,7 +13,6 @@ RUN dnf -y update \
     gdb \
     git \
     hdf5-devel \
-    json-devel \
     lcov \
     libcurl-devel \
     m4 \
@@ -38,19 +37,17 @@ RUN cd musica \
     && cmake -S . \
              -B build \
              -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
-              -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
+             -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
+             -D MUSICA_ENABLE_TESTS=OFF \
     && cd build \
     && make install -j
 
-# Build and install MUSICA
+# Build MUSICA-Fortran executables
 RUN cd musica/fortran/test/fetch_content_integration \
     && mkdir build && cd build \
     && cmake .. \
         -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
         -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
-        -D MUSICA_ENABLE_MICM=ON \
-        -D MUSICA_ENABLE_TUVX=OFF \
-        -D MUSICA_ENABLE_MEMCHECK=ON \
-    && make -j
+    && make
 
 WORKDIR musica/fortran/test/fetch_content_integration/build

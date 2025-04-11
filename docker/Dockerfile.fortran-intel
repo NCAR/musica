@@ -24,7 +24,6 @@ RUN apt update \
     libnetcdf-dev \
     m4 \
     make \
-    nlohmann-json3-dev \
     valgrind \ 
     vim \
     zlib1g-dev \

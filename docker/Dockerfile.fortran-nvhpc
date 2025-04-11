@@ -23,7 +23,6 @@ RUN apt update \
     libnetcdf-dev \
     m4 \
     make \
-    nlohmann-json3-dev \
     valgrind \ 
     vim \
     zlib1g-dev \
@@ -49,12 +48,12 @@ COPY . musica
 
 # Build and install MUSICA
 RUN cd musica \
-&& cmake -S . \
--B build \
--D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
--D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
-&& cd build \
-&& make install -j
+    && cmake -S . \
+             -B build \
+             -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+             -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
+    && cd build \
+    && make install -j
 
 # Set environment variables to build MUSICA-Fortran using nvidia compilers
 ENV CXX=nvc++

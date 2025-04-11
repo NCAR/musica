@@ -13,7 +13,6 @@ set(MUSICA_GIT_TAG "main" CACHE STRING "Git tag for the musica_fortran repositor
 
 message(STATUS "Using MUSICA_GIT_TAG: ${MUSICA_GIT_TAG}")
 
-
 FetchContent_Declare(musica_fortran
   GIT_REPOSITORY https://github.com/NCAR/musica.git
   GIT_TAG        ${MUSICA_GIT_TAG}
