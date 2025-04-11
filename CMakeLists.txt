@@ -79,7 +79,7 @@ set(MEMCHECK_SUPPRESS "--suppressions=${PROJECT_SOURCE_DIR}/valgrind.supp")
 ################################################################################
 # Dependencies
 
-include(dependencies)
+include(${PROJECT_SOURCE_DIR}/cmake/dependencies.cmake)
 
 if(MUSICA_BUILD_DOCS)
   add_subdirectory(docs)
@@ -113,4 +113,4 @@ endif()
 ###
 # Configure and display a summary file for how musica was built.
 ###
-include(summary)
+include(${PROJECT_SOURCE_DIR}/cmake/summary.cmake)
