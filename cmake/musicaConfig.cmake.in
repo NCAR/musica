@@ -1,12 +1,5 @@
 @PACKAGE_INIT@
 
-# include(CMakeFindDependencyMacro)
-
-# find_dependency(yaml-cpp REQUIRED)
-
-# assuming mechanism_configuration is part of your install/export
-# find_dependency(musica REQUIRED COMPONENTS mechanism_configuration)
-
 include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@_Exports.cmake")
 
 check_required_components("@PROJECT_NAME@")
