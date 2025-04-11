@@ -3,12 +3,10 @@ include(CMakePackageConfigHelpers)
 install(
   TARGETS
     musica-fortran
-    musica
-    mechanism_configuration
+    # musica
+    # mechanism_configuration
   EXPORT
     musica-fortran_Exports
-  NAMESPACE
-    musica
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
@@ -21,59 +19,44 @@ install(
   FILES_MATCHING PATTERN "*.mod"
 )
 
-# install the MUSICA header files
-install(
-  DIRECTORY
-    ${MUSICA_PROJECT_SRC_DIR}/include/
-  DESTINATION
-    ${MUSICA_INSTALL_INCLUDE_DIR}
-)
+# # install MICM
+# if(MUSICA_ENABLE_MICM)
+#   install(
+#     TARGETS
+#       micm
+#     EXPORT
+#       musica-fortran_Exports
+#     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#   )
 
-install(
-  TARGETS
-    yaml-cpp
-  EXPORT
-    musica-fortran_Exports
-)
+#   install(
+#     DIRECTORY
+#       ${micm_SOURCE_DIR}/include/
+#     DESTINATION
+#       ${MUSICA_INSTALL_INCLUDE_DIR}
+#   )
+# endif()
 
-# install MICM
-if(MUSICA_ENABLE_MICM)
-  install(
-    TARGETS
-      micm
-    EXPORT
-      musica-fortran_Exports
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  )
+# # install TUV-x
+# if (MUSICA_ENABLE_TUVX)
+#   install(
+#     TARGETS
+#       tuvx_object
+#     EXPORT
+#       musica-fortran_Exports
+#   )
 
-  install(
-    DIRECTORY
-      ${micm_SOURCE_DIR}/include/
-    DESTINATION
-      ${MUSICA_INSTALL_INCLUDE_DIR}
-  )
-endif()
-
-# install TUV-x
-if (MUSICA_ENABLE_TUVX)
-  install(
-    TARGETS
-      tuvx_object
-    EXPORT
-      musica-fortran_Exports
-  )
-
-  # TUV-x code is written in Fortran, and until it is completely rewritten in C++,
-  # MUSICA includes Fortran module files.
-  install(
-    DIRECTORY
-      ${MUSICA_MOD_DIR}/../include/
-    DESTINATION
-      ${MUSICA_INSTALL_INCLUDE_DIR}/musica/fortran
-    FILES_MATCHING PATTERN "*.mod"
-  )
-endif()
+#   # TUV-x code is written in Fortran, and until it is completely rewritten in C++,
+#   # MUSICA includes Fortran module files.
+#   install(
+#     DIRECTORY
+#       ${MUSICA_MOD_DIR}/../include/
+#     DESTINATION
+#       ${MUSICA_INSTALL_INCLUDE_DIR}/musica/fortran
+#     FILES_MATCHING PATTERN "*.mod"
+#   )
+# endif()
 
 # install the cmake config files
 set(cmake_config_install_location "${CMAKE_INSTALL_LIBDIR}/cmake/musica-fortran")
@@ -83,11 +66,12 @@ install(
     musica-fortran_Exports 
   DESTINATION
     ${cmake_config_install_location}
-  # NAMESPACE musica::
+  NAMESPACE
+    musica::
 )
 
 configure_package_config_file(
-  "${MUSICA_PROJECT_SRC_DIR}/cmake/musicaConfig.cmake.in"
+  "${MUSICA_PROJECT_SRC_DIR}/cmake/musica-fortranConfig.cmake.in"
   "${PROJECT_BINARY_DIR}/musica-fortranConfig.cmake"
   INSTALL_DESTINATION
     ${cmake_config_install_location}

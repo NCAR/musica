@@ -3,12 +3,10 @@ include(CMakePackageConfigHelpers)
 install(
   TARGETS
     musica
-    mechanism_configuration
-    yaml-cpp
+    # mechanism_configuration
+    # yaml-cpp
   EXPORT
     musica_Exports
-  NAMESPACE
-    musica
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
@@ -19,13 +17,6 @@ install(
     ${MUSICA_PROJECT_SRC_DIR}/include/
   DESTINATION
     ${MUSICA_INSTALL_INCLUDE_DIR}
-)
-
-install(
-  TARGETS
-    yaml-cpp
-  EXPORT
-    musica_Exports
 )
 
 # install MICM
@@ -75,6 +66,8 @@ install(
     musica_Exports 
   DESTINATION
     ${cmake_config_install_location}
+  NAMESPACE
+    musica::
 )
 
 configure_package_config_file(
