@@ -20,23 +20,16 @@ if (MUSICA_BUILD_FORTRAN_INTERFACE)
 endif()
 
 ################################################################################
-# Mechanism Configuration
+# yaml-cpp
 
-set_git_default(MECH_CONFIG_GIT_REPOSITORY https://github.com/NCAR/MechanismConfiguration.git)
-set_git_default(MECH_CONFIG_GIT_TAG fix_packaging_bugs)
-
-FetchContent_Declare(mechanism_configuration
-    GIT_REPOSITORY ${MECH_CONFIG_GIT_REPOSITORY}
-    GIT_TAG ${MECH_CONFIG_GIT_TAG}
-    GIT_PROGRESS NOT ${FETCHCONTENT_QUIET}
+FetchContent_Declare(yaml-cpp
+    GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
+    GIT_TAG 28f93bdec6387d42332220afa9558060c8016795
 )
 
-set(MECH_CONFIG_ENABLE_PYTHON_LIBRARY OFF CACHE BOOL "" FORCE)
-if (MUSICA_ENABLE_PYTHON_LIBRARY OR MUSICA_ENABLE_PIC)
-  set(MECH_CONFIG_ENABLE_PIC ON CACHE BOOL "" FORCE)
-endif()
+set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
 
-FetchContent_MakeAvailable(mechanism_configuration)
+FetchContent_MakeAvailable(yaml-cpp)
 
 ################################################################################
 # google test
@@ -62,6 +55,42 @@ endif()
 if(MUSICA_ENABLE_OPENMP)
   find_package(OpenMP REQUIRED)
 endif()
+
+################################################################################
+# pybind11
+if(MUSICA_ENABLE_PYTHON_LIBRARY)
+  set(PYBIND11_NEWPYTHON ON)
+
+  set_git_default(PYBIND11_GIT_REPOSITORY https://github.com/pybind/pybind11)
+  set_git_default(PYBIND11_GIT_TAG v2.12.0)
+
+  FetchContent_Declare(pybind11
+      GIT_REPOSITORY ${PYBIND11_GIT_REPOSITORY}
+      GIT_TAG        ${PYBIND11_GIT_TAG}
+      GIT_PROGRESS  NOT ${FETCHCONTENT_QUIET}
+  )
+
+  FetchContent_MakeAvailable(pybind11)
+endif()
+
+################################################################################
+# Mechanism Configuration
+
+set_git_default(MECH_CONFIG_GIT_REPOSITORY https://github.com/NCAR/MechanismConfiguration.git)
+set_git_default(MECH_CONFIG_GIT_TAG fix_packaging_bugs)
+
+FetchContent_Declare(mechanism_configuration
+    GIT_REPOSITORY ${MECH_CONFIG_GIT_REPOSITORY}
+    GIT_TAG ${MECH_CONFIG_GIT_TAG}
+    GIT_PROGRESS NOT ${FETCHCONTENT_QUIET}
+)
+
+set(MECH_CONFIG_ENABLE_PYTHON_LIBRARY OFF CACHE BOOL "" FORCE)
+if (MUSICA_ENABLE_PYTHON_LIBRARY OR MUSICA_ENABLE_PIC)
+  set(MECH_CONFIG_ENABLE_PIC ON CACHE BOOL "" FORCE)
+endif()
+
+FetchContent_MakeAvailable(mechanism_configuration)
 
 ################################################################################
 # MICM
@@ -104,23 +133,6 @@ if (MUSICA_ENABLE_TUVX AND MUSICA_BUILD_C_CXX_INTERFACE)
   set(TUVX_ENABLE_REGRESSION_TESTS OFF)
 
   FetchContent_MakeAvailable(tuvx)
-endif()
-
-################################################################################
-# pybind11
-if(MUSICA_ENABLE_PYTHON_LIBRARY)
-  set(PYBIND11_NEWPYTHON ON)
-
-  set_git_default(PYBIND11_GIT_REPOSITORY https://github.com/pybind/pybind11)
-  set_git_default(PYBIND11_GIT_TAG v2.12.0)
-
-  FetchContent_Declare(pybind11
-      GIT_REPOSITORY ${PYBIND11_GIT_REPOSITORY}
-      GIT_TAG        ${PYBIND11_GIT_TAG}
-      GIT_PROGRESS  NOT ${FETCHCONTENT_QUIET}
-  )
-
-  FetchContent_MakeAvailable(pybind11)
 endif()
 
 ################################################################################

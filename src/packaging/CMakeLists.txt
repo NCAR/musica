@@ -3,8 +3,8 @@ include(CMakePackageConfigHelpers)
 install(
   TARGETS
     musica
-    # mechanism_configuration
-    # yaml-cpp
+    mechanism_configuration
+    yaml-cpp
   EXPORT
     musica_Exports
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

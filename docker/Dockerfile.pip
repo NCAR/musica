@@ -13,7 +13,6 @@ RUN apt-get update \
         git \
         libhdf5-dev \
         libnetcdf-dev \
-        libjson-c-dev \
         lcov \
         make \
         valgrind \

@@ -1,9 +1,8 @@
 @PACKAGE_INIT@
 
-include(CMakeFindDependencyMacro)
-find_dependency(yaml-cpp)
-find_dependency(mechanism_configuration)
-find_dependency(musica)
+# include(CMakeFindDependencyMacro)
+# find_dependency(yaml-cpp REQUIRED)
+# find_dependency(mechanism_configuration REQUIRED)
 
 include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@_Exports.cmake")
 
