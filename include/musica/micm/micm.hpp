@@ -75,49 +75,29 @@ namespace musica
     /// @param time_step Time [s] to advance the state by
     /// @param solver_state State of the solver
     /// @param solver_stats Statistics of the solver
-    /// @param error Error struct to indicate success or failure
     void Solve(
         MICM *micm,
         musica::State *state,
         double time_step,
         String *solver_state,
-        SolverResultStats *solver_stats,
-        Error *error);
+        SolverResultStats *solver_stats);
     
-    std::size_t NumberOfGridCells() const {
-      return std::visit([](auto &solver) -> std::size_t { return solver->GetNumberOfGridCells(); }, solver_variant_);
-    }
-
     /// @brief Get a property for a chemical species
     /// @param species_name Name of the species
     /// @param property_name Name of the property
-    /// @param error Error struct to indicate success or failure
     /// @return Value of the property
     template<class T>
-    T GetSpeciesProperty(const std::string &species_name, const std::string &property_name, Error *error)
+    T GetSpeciesProperty(const std::string &species_name, const std::string &property_name)
     {
-      *error = NoError();
       micm::System system = std::visit([](auto &solver) -> micm::System { return solver->GetSystem(); }, solver_variant_);
       for (const auto &species : system.gas_phase_.species_)
       {
         if (species.name_ == species_name)
         {
-          try
-          {
-            return species.GetProperty<T>(property_name);
-          }
-          catch (const std::system_error &e)
-          {
-            DeleteError(error);
-            *error = ToError(e);
-            return T();
-          }
+          return species.GetProperty<T>(property_name);
         }
       }
-      std::string msg = "Species '" + species_name + "' not found";
-      DeleteError(error);
-      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SPECIES_NOT_FOUND, msg.c_str());
-      return T();
+      throw std::runtime_error("Species '" + species_name + "' not found");
     }
   };
 

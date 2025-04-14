@@ -63,14 +63,14 @@ namespace musica
   }
 
   /// @brief Visitor struct to handle different solver and state types
-  struct SolverStateVariantVisitor
+  struct VariantsVisitor
   {
     double time_step;
     String* solver_state;
     SolverResultStats* solver_stats;
 
     template<typename SolverType, typename StateType>
-    void Solve(SolverType* solver, StateType& state) const
+    void Solve(SolverType& solver, StateType& state) const
     {
       solver->CalculateRateConstants(state);
       auto result = solver->Solve(time_step, state);
@@ -89,24 +89,25 @@ namespace musica
 
     void operator()(std::unique_ptr<micm::Rosenbrock>& solver, micm::VectorState& state) const
     {
-      Solve(solver.get(), state);
+      Solve(solver, state);
     }
 
     void operator()(std::unique_ptr<micm::RosenbrockStandard>& solver, micm::StandardState& state) const
     {
-      Solve(solver.get(), state);
+      Solve(solver, state);
     }
 
     void operator()(std::unique_ptr<micm::BackwardEuler>& solver, micm::VectorState& state) const
     {
-      Solve(solver.get(), state);
+      Solve(solver, state);
     }
 
     void operator()(std::unique_ptr<micm::BackwardEulerStandard>& solver, micm::StandardState& state) const
     {
-      Solve(solver.get(), state);
+      Solve(solver, state);
     }
 
+    // Handle unsupported combinations
     template<typename SolverT, typename StateT>
     void operator()(std::unique_ptr<SolverT>&, StateT&) const
     {
@@ -114,24 +115,9 @@ namespace musica
     }
   };
 
-  void MICM::Solve(
-      MICM* micm,
-      musica::State* state,
-      double time_step,
-      String* solver_state,
-      SolverResultStats* solver_stats,
-      Error* error)
+  void MICM::Solve(MICM* micm, musica::State* state, double time_step, String* solver_state, SolverResultStats* solver_stats)
   {
-    DeleteError(error);
-    try
-    {
-      std::visit(SolverStateVariantVisitor{ time_step, solver_state, solver_stats }, micm->solver_variant_, state->state_variant_);
-      *error = NoError();
-    }
-    catch (const std::system_error& e)
-    {
-      *error = ToError(e);
-    }
+    std::visit(VariantsVisitor{ time_step, solver_state, solver_stats }, micm->solver_variant_, state->state_variant_);
   }
 
 }  // namespace musica

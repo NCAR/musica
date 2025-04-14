@@ -28,8 +28,8 @@ module musica_util
   integer, parameter, public :: MUSICA_ERROR_CODE_MAPPING_NOT_FOUND         = 3
   integer, parameter, public :: MUSICA_ERROR_CODE_PARSING_FAILED            = 4
   integer, parameter, public :: MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED = 5
-  integer, parameter, public :: MUSICA_ERROR_CODE_CONFIG_PARSE_FAILED       = 6
-  integer, parameter, public :: MUSICA_ERROR_CODE_VERSION_NOT_SUPPORTED     = 7
+  integer, parameter, public :: MUSICA_ERROR_CODE_FAILED_TO_CREATE_SOLVER   = 6
+  integer, parameter, public :: MUSICA_ERROR_CODE_UNKNOWN                   = 7
 
   !> Wrapper for a c string
   type, bind(c) :: string_t_c
