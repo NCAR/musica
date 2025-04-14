@@ -56,7 +56,8 @@ namespace musica
             configure(micm::CpuSolverBuilder<micm::BackwardEulerSolverParameters>(micm::BackwardEulerSolverParameters())));
         break;
 
-      default: throw std::runtime_error("Unsupported solver type: " + std::to_string(solver_type));
+      default:
+        throw std::system_error(make_error_code(MusicaErrc::SolverTypeNotFound), "Solver type not found");
     }
 
     auto system = std::visit([](auto& solver) -> micm::System { return solver->GetSystem(); }, solver_variant_);
@@ -111,7 +112,7 @@ namespace musica
     template<typename SolverT, typename StateT>
     void operator()(std::unique_ptr<SolverT>&, StateT&) const
     {
-      throw std::runtime_error("Unsupported solver/state combination");
+      throw std::system_error(make_error_code(MusicaErrc::UnsupportedSolverStatePair), "Unsupported solver/state combination");
     }
   };
 

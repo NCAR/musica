@@ -27,6 +27,7 @@ enum class MusicaErrc
   MappingNotFound = MUSICA_ERROR_CODE_MAPPING_NOT_FOUND,
   MappingOptionsUndefined = MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED,
   Unknown = MUSICA_ERROR_CODE_UNKNOWN,
+  UnsupportedSolverStatePair = MUSICA_ERROR_CODE_UNSUPPORTED_SOLVER_STATE_PAIR,
 };
 
 namespace std
@@ -55,6 +56,7 @@ namespace
         case MusicaErrc::MappingNotFound: return "Mapping not found";
         case MusicaErrc::MappingOptionsUndefined: return "Mapping options undefined";
         case MusicaErrc::Unknown: return "Unknown error";
+        case MusicaErrc::UnsupportedSolverStatePair: return "Unsupported solver/state combination";
         default: return "Unknown error";
       }
     }

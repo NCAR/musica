@@ -1,8 +1,8 @@
 #pragma once
 
+#include <musica/error.hpp>
 #include <musica/micm/chemistry.hpp>
 #include <musica/micm/micm.hpp>
-#include <musica/error.hpp>
 
 #include <mechanism_configuration/parser.hpp>
 
@@ -11,7 +11,7 @@
 
 enum class MusicaParseErrc
 {
-  ParsingFailed = MUSICA_ERROR_CODE_PARSING_FAILED,
+  ParsingFailed = MUSICA_PARSE_PARSING_FAILED,
   InvalidConfigFile = MUSICA_PARSE_INVALID_CONFIG_FILE,
   UnsupportedVersion = MUSICA_PARSE_UNSUPPORTED_VERSION,
   FailedToCastToVersion = MUSICA_PARSE_FAILED_TO_CAST_TO_VERSION
