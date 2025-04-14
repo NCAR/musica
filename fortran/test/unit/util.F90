@@ -4,6 +4,8 @@
 ! Tests for the musica_util module
 program test_util
 
+#include "musica/error.hpp"
+
 #define ASSERT( expr ) call assert( expr, __FILE__, __LINE__ )
 #define ASSERT_EQ( a, b ) call assert( a == b, __FILE__, __LINE__ )
 #define ASSERT_NE( a, b ) call assert( a /= b, __FILE__, __LINE__ )
