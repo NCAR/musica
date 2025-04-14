@@ -298,7 +298,7 @@ namespace musica
     Chemistry chemistry{};
     if (!v1_mechanism)
     {
-      throw std::runtime_error("Failed to cast to V1");
+      throw std::system_error(make_error_code(MusicaParseErrc::FailedToCastToVersion), "Failed to cast to V1");
     }
     else
     {

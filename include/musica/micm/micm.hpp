@@ -20,6 +20,55 @@
 #include <utility>
 #include <vector>
 
+enum class MusicaErrc
+{
+  SpeciesNotFound = MUSICA_ERROR_CODE_SPECIES_NOT_FOUND,
+  SolverTypeNotFound = MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND,
+  MappingNotFound = MUSICA_ERROR_CODE_MAPPING_NOT_FOUND,
+  MappingOptionsUndefined = MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED,
+  Unknown = MUSICA_ERROR_CODE_UNKNOWN,
+};
+
+namespace std
+{
+  template<>
+  struct is_error_condition_enum<MusicaErrc> : true_type
+  {
+  };
+}  // namespace std
+
+namespace
+{
+  class MusicaErrorCategory : public std::error_category
+  {
+   public:
+    const char* name() const noexcept override
+    {
+      return MUSICA_ERROR_CATEGORY;
+    }
+    std::string message(int ev) const override
+    {
+      switch (static_cast<MusicaErrc>(ev))
+      {
+        case MusicaErrc::SpeciesNotFound: return "Species not found";
+        case MusicaErrc::SolverTypeNotFound: return "Solver type not found";
+        case MusicaErrc::MappingNotFound: return "Mapping not found";
+        case MusicaErrc::MappingOptionsUndefined: return "Mapping options undefined";
+        case MusicaErrc::Unknown: return "Unknown error";
+        default: return "Unknown error";
+      }
+    }
+  };
+
+  const MusicaErrorCategory MUSICA_ERROR{};
+}  // namespace
+
+inline std::error_code make_error_code(MusicaErrc e)
+{
+  return { static_cast<int>(e), MUSICA_ERROR };
+}
+
+
 namespace musica
 {
   /// @brief Types of MICM solver
@@ -97,7 +146,7 @@ namespace musica
           return species.GetProperty<T>(property_name);
         }
       }
-      throw std::runtime_error("Species '" + species_name + "' not found");
+      throw std::system_error(make_error_code(MusicaErrc::SpeciesNotFound), "Species '" + species_name + "' not found");
     }
   };
 

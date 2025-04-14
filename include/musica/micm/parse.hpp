@@ -11,8 +11,10 @@
 
 enum class MusicaParseErrc
 {
+  ParsingFailed = MUSICA_ERROR_CODE_PARSING_FAILED,
   InvalidConfigFile = MUSICA_PARSE_INVALID_CONFIG_FILE,
-  UnsupportedVersion = MUSICA_PARSE_UNSUPPORTED_VERSION
+  UnsupportedVersion = MUSICA_PARSE_UNSUPPORTED_VERSION,
+  FailedToCastToVersion = MUSICA_PARSE_FAILED_TO_CAST_TO_VERSION
 };
 
 namespace std
@@ -36,8 +38,10 @@ namespace
     {
       switch (static_cast<MusicaParseErrc>(ev))
       {
+        case MusicaParseErrc::ParsingFailed: return "Parsing failed";
         case MusicaParseErrc::InvalidConfigFile: return "Invalid configuration file";
         case MusicaParseErrc::UnsupportedVersion: return "Unsupported version";
+        case MusicaParseErrc::FailedToCastToVersion: return "Failed to cast to a specific mechanism configuration version";
         default: return "Unknown error";
       }
     }

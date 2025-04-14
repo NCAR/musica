@@ -1,15 +1,7 @@
 #include <musica/micm/parse.hpp>
 
-#include <micm/process/arrhenius_rate_constant.hpp>
-#include <micm/process/branched_rate_constant.hpp>
-#include <micm/process/process.hpp>
-#include <micm/process/surface_rate_constant.hpp>
-#include <micm/process/ternary_chemical_activation_rate_constant.hpp>
-#include <micm/process/troe_rate_constant.hpp>
-#include <micm/process/tunneling_rate_constant.hpp>
-#include <micm/process/user_defined_rate_constant.hpp>
-#include <micm/system/phase.hpp>
-#include <micm/system/species.hpp>
+#include <micm/Process.hpp>
+#include <micm/System.hpp>
 
 #include <mechanism_configuration/v0/types.hpp>
 #include <mechanism_configuration/v0/validation.hpp>
@@ -260,7 +252,7 @@ namespace musica
     Chemistry chemistry{};
     if (!v0_mechanism)
     {
-      throw std::runtime_error("Failed to cast to V0");
+      throw std::system_error(make_error_code(MusicaParseErrc::FailedToCastToVersion), "Failed to cast to V0");
     }
     else
     {
