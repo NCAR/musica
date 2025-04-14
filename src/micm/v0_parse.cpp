@@ -253,17 +253,14 @@ namespace musica
     }
   }
 
-  Chemistry ParserV0(const mechanism_configuration::ParserResult<>& result, Error* error)
+  Chemistry ParserV0(const mechanism_configuration::ParserResult<>& result)
   {
-    DeleteError(error);
-    *error = NoError();
-
     using V0 = mechanism_configuration::v0::types::Mechanism;
     V0* v0_mechanism = dynamic_cast<V0*>(result.mechanism.get());
     Chemistry chemistry{};
     if (!v0_mechanism)
     {
-      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_CONFIG_PARSE_FAILED, "Failed to cast to V0");
+      throw std::runtime_error("Failed to cast to V0");
     }
     else
     {

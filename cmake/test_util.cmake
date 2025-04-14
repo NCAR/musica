@@ -41,7 +41,7 @@ function(create_standard_test_cxx)
   include(CMakeParseArguments)
   cmake_parse_arguments(${prefix} " " "${singleValues}" "${multiValues}" ${ARGN})
   add_executable(test_${TEST_NAME} ${TEST_SOURCES})
-  target_link_libraries(test_${TEST_NAME} PUBLIC musica::musica GTest::gtest_main yaml-cpp)
+  target_link_libraries(test_${TEST_NAME} PUBLIC musica::musica GTest::gtest_main)
 
   include(silence_warnings)
   silence_warnings(test_${TEST_NAME})

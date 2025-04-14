@@ -168,7 +168,7 @@ contains
     ASSERT( error%is_error( MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND ) )
     deallocate( micm )
     micm => micm_t( "configs/invalid", solver_type, num_grid_cells, error )
-    ASSERT( error%is_error( MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_CONFIG_PARSE_FAILED ) )
+    ASSERT( error%is_error( MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_FAILED_TO_CREATE_SOLVER ) )
     ASSERT( .not. associated( micm ) )
 
     write(*,*) "[test micm fort api] Finished."
@@ -640,7 +640,7 @@ contains
     ASSERT( error%is_error( MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND ) )
     deallocate( micm )
     micm => micm_t( "configs/invalid", solver_type, num_grid_cells, error )
-    ASSERT( error%is_error( MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_CONFIG_PARSE_FAILED ) )
+    ASSERT( error%is_error( MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_FAILED_TO_CREATE_SOLVER ) )
     ASSERT( .not. associated( micm ) )
 
     write(*,*) "[test micm fort api] Finished."

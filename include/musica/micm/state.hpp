@@ -8,14 +8,7 @@
 
 #include <musica/util.hpp>
 
-#include <micm/process/process_set.hpp>
-#include <micm/solver/rosenbrock.hpp>
-#include <micm/solver/rosenbrock_solver_parameters.hpp>
-#include <micm/solver/solver.hpp>
-#include <micm/solver/solver_builder.hpp>
-#include <micm/util/matrix.hpp>
-#include <micm/util/sparse_matrix_vector_ordering.hpp>
-#include <micm/util/vector_matrix.hpp>
+#include <micm/CPU.hpp>
 
 #include <any>
 #include <chrono>
@@ -36,14 +29,6 @@ namespace musica
   class MICM;
   class State;
 
-  /// @brief Defines matrix types for vector-based and standard matrices.
-  using DenseMatrixVector = micm::VectorMatrix<double, MICM_VECTOR_MATRIX_SIZE>;
-  using SparseMatrixVector = micm::SparseMatrix<double, micm::SparseMatrixVectorOrdering<MICM_VECTOR_MATRIX_SIZE>>;
-  using VectorState = micm::State<DenseMatrixVector, SparseMatrixVector>;
-  using DenseMatrixStandard = micm::Matrix<double>;
-  using SparseMatrixStandard = micm::SparseMatrix<double, micm::SparseMatrixStandardOrdering>;
-  using StandardState = micm::State<DenseMatrixStandard, SparseMatrixStandard>;
-
   /// @brief Create a state object by specifying micm solver object using the solver variant
   /// @param micm Pointer to MICM object
   /// @param error Error struct to indicate success or failure
@@ -60,7 +45,7 @@ namespace musica
     State() = default;
 
     /// @brief Define the variant that holds all state types
-    using StateVariant = std::variant<VectorState, StandardState>;
+    using StateVariant = std::variant<micm::VectorState, micm::StandardState>;
 
     /// @brief Get the vector of conditions struct
     std::vector<micm::Conditions> &GetConditions();
