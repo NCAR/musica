@@ -77,15 +77,16 @@ namespace musica
       auto result = solver->Solve(time_step, state);
 
       *solver_state = CreateString(micm::SolverStateToString(result.state_).c_str());
-      *solver_stats = SolverResultStats(
-          result.stats_.function_calls_,
-          result.stats_.jacobian_updates_,
-          result.stats_.number_of_steps_,
-          result.stats_.accepted_,
-          result.stats_.rejected_,
-          result.stats_.decompositions_,
-          result.stats_.solves_,
-          result.final_time_);
+      *solver_stats = {
+        .function_calls_ = static_cast<int64_t>(result.stats_.function_calls_),
+        .jacobian_updates_ = static_cast<int64_t>(result.stats_.jacobian_updates_),
+        .number_of_steps_ = static_cast<int64_t>(result.stats_.number_of_steps_),
+        .accepted_ = static_cast<int64_t>(result.stats_.accepted_),
+        .rejected_ = static_cast<int64_t>(result.stats_.rejected_),
+        .decompositions_ = static_cast<int64_t>(result.stats_.decompositions_),
+        .solves_ = static_cast<int64_t>(result.stats_.solves_),
+        .final_time_ = result.final_time_
+      };
     }
 
     void operator()(std::unique_ptr<micm::Rosenbrock>& solver, micm::VectorState& state) const
