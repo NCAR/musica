@@ -27,7 +27,6 @@ contains
 
     real(real64) :: time_step
     real(real64), target :: concentrations(6)
-    real(real64), target :: rates(2)
 
     type(string_t)       :: solver_state
     type(solver_stats_t) :: solver_stats
@@ -85,7 +84,6 @@ contains
     real(real64), target :: pressure(1)
     real(real64), target :: air_density(1)
     real(real64), target :: concentrations(6)
-    real(real64), target :: rates(2)
 
     type(string_t)       :: solver_state
     type(solver_stats_t) :: solver_stats

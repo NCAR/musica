@@ -32,7 +32,6 @@ module musica_state
       type(c_ptr)                         :: get_concentrations_pointer
     end function get_concentrations_pointer
 
-
     function get_ordered_rate_constants_pointer(state, number_of_rate_constants, number_of_grid_cells, error) & !(this is correct)
       bind(C, name="GetOrderedRateConstantsToStateFortran")
       import c_int, c_ptr, error_t_c
@@ -54,7 +53,7 @@ module musica_state
               bind(C, name="GetConditionsFromState")
       import c_ptr
       type(c_ptr), value :: state
-      type(c_ptr)        :: get_conditions_from_state_c
+      type(c_ptr)        :: get_conditions_from_state_c      
     end function get_conditions_from_state_c
 
     subroutine set_conditions_to_state_c(state, conditions, size) & 
@@ -88,6 +87,7 @@ module musica_state
       type(c_ptr), value, intent(in)      :: micm
       type(c_ptr), value, intent(in)      :: state
       type(error_t_c), intent(inout)      :: error
+
     end function get_user_defined_reaction_rates_ordering_c
   end interface
 
@@ -121,14 +121,14 @@ contains
     use iso_c_binding, only : c_f_pointer
     use musica_util, only: error_t_c, error_t, copy_mappings
     type(state_t), pointer :: this
-    type(c_ptr)   ::          micm
-    type(error_t) ::          error
+    type(c_ptr)            :: micm
+    type(error_t)          :: error
 
     ! local variables
     type(error_t_c)        :: error_c
-    type(c_ptr) :: double_array_pointer_concentration
-    type(c_ptr) :: double_array_pointer_rates
-    integer :: n_species, n_grid_cells
+    type(c_ptr)            :: double_array_pointer_concentration
+    type(c_ptr)            :: double_array_pointer_rates
+    integer                :: n_species, n_grid_cells
 
     allocate( this )
 
@@ -179,9 +179,7 @@ contains
       nullify(this)
       return
   end if
-
   end function constructor
-
 
   subroutine get_conditions(this, vec_ptr, size)
     class(state_t), intent(in)  :: this
@@ -222,4 +220,5 @@ contains
       ASSERT(error%is_success())
     end if
   end subroutine finalize
+
 end module musica_state

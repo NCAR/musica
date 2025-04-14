@@ -317,7 +317,7 @@ contains
     integer, parameter        :: NUM_SPECIES = 6
     integer, parameter        :: NUM_USER_DEFINED_REACTION_RATES = 2
     real(real64), target      :: concentrations(NUM_SPECIES, NUM_GRID_CELLS)
-    real(real64), target      :: rates(NUM_SPECIES, NUM_GRID_CELLS)
+    real(real64), target      :: rates(NUM_USER_DEFINED_REACTION_RATES, NUM_GRID_CELLS)
     real(real64), target      :: initial_concentrations(NUM_SPECIES, NUM_GRID_CELLS)
     real(real64), target      :: user_defined_reaction_rates(NUM_USER_DEFINED_REACTION_RATES, NUM_GRID_CELLS)
     type(string_t)            :: solver_state

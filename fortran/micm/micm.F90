@@ -166,7 +166,7 @@ contains
     type(string_t)   :: value
     type(string_t_c) :: string_c
     string_c = get_micm_version_c()
-    value = string_t(string_c)
+    value = string_t(string_c)        
   end function get_micm_version
 
   function constructor(config_path, solver_type, num_grid_cells, error)  result( this )
@@ -200,7 +200,6 @@ contains
         nullify(this)
         return
     end if
-
   end function constructor
 
   subroutine solve(this, time_step, state, solver_state, solver_stats, error)
@@ -220,8 +219,18 @@ contains
     solver_state = string_t(solver_state_c)
     solver_stats = solver_stats_t(solver_stats_c)
     error = error_t(error_c)
-
   end subroutine solve
+
+  function get_state(this, error) result(state)
+    use musica_util, only: error_t, to_c_string
+    class(micm_t)                :: this
+    type(error_t), intent(inout) :: error
+    type(state_t), pointer       :: state
+    type(error_t_c)              :: error_c
+
+    state => state_t(this%ptr, error)
+    error = error_t(error_c)
+  end function get_state
 
   !> Constructor for solver_stats_t object that takes ownership of solver_stats_t_c
   function solver_stats_t_constructor( c_solver_stats ) result( new_solver_stats )
@@ -238,7 +247,6 @@ contains
     new_solver_stats%decompositions_ = c_solver_stats%decompositions_
     new_solver_stats%solves_ = c_solver_stats%solves_
     new_solver_stats%final_time_ = real( c_solver_stats%final_time_ )
-
   end function solver_stats_t_constructor
 
   !> Get the number of forcing function calls
@@ -248,7 +256,6 @@ contains
     integer(int64)                    :: function_calls
 
     function_calls = this%function_calls_
-
   end function solver_stats_t_function_calls
 
   !> Get the number of jacobian function calls
@@ -258,7 +265,6 @@ contains
     integer(int64)                    :: jacobian_updates
 
     jacobian_updates = this%jacobian_updates_
-
   end function solver_stats_t_jacobian_updates
 
   !> Get the total number of internal time steps taken
@@ -268,7 +274,6 @@ contains
     integer(int64)                    :: number_of_steps
 
     number_of_steps = this%number_of_steps_
-
   end function solver_stats_t_number_of_steps
 
   !> Get the number of accepted integrations
@@ -278,7 +283,6 @@ contains
     integer(int64)                    :: accepted
 
     accepted = this%accepted_
-
   end function solver_stats_t_accepted
 
   !> Get the number of rejected integrations
@@ -288,7 +292,6 @@ contains
     integer(int64)                    :: rejected
 
     rejected = this%rejected_
-
   end function solver_stats_t_rejected
 
   !> Get the number of LU decompositions
@@ -298,7 +301,6 @@ contains
     integer(int64)                    :: decompositions
 
     decompositions = this%decompositions_
-
   end function solver_stats_t_decompositions
 
   !> Get the number of linear solves
@@ -308,7 +310,6 @@ contains
     integer(int64)                    :: solves
 
     solves = this%solves_
-
   end function solver_stats_t_solves
 
   !> Get the final time the solver iterated to
@@ -318,7 +319,6 @@ contains
     real(real64)                      :: final_time
 
     final_time = this%final_time_
-
   end function solver_stats_t_final_time
 
   function get_species_property_string(this, species_name, property_name, error) result(value)
@@ -375,17 +375,6 @@ contains
     error = error_t(error_c)
   end function get_species_property_bool
 
-  function get_state(this, error) result(state)
-    use musica_util, only: error_t, to_c_string
-    class(micm_t)                :: this
-    type(error_t), intent(inout) :: error
-    type(state_t), pointer       :: state
-    type(error_t_c)              :: error_c
-
-    state => state_t(this%ptr, error)
-    error = error_t(error_c)
-  end function get_state
-
   subroutine finalize(this)
     use musica_util, only: error_t, error_t_c
     type(micm_t), intent(inout) :: this
@@ -398,5 +387,5 @@ contains
     error = error_t(error_c)
     ASSERT(error%is_success())
   end subroutine finalize
-
+  
 end module musica_micm
