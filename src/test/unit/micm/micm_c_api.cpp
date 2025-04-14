@@ -72,7 +72,7 @@ TEST(MicmCApiTest, BadConfigurationFilePath)
   Error error = NoError();
   auto micm_bad_config = CreateMicm("bad config path", MICMSolver::Rosenbrock, num_grid_cells, &error);
   ASSERT_EQ(micm_bad_config, nullptr);
-  ASSERT_TRUE(IsError(error, MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_FAILED_TO_CREATE_SOLVER));
+  ASSERT_TRUE(IsError(error, MUSICA_ERROR_CATEGORY_PARSING, MUSICA_PARSE_INVALID_CONFIG_FILE));
   DeleteError(&error);
 }
 

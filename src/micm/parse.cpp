@@ -16,7 +16,7 @@ namespace musica
       {
         errors += error.second + "\n";
       }
-      throw std::runtime_error(errors);
+      throw std::system_error(make_error_code(MusicaParseErrc::InvalidConfigFile), errors);
     }
     else
     {
@@ -28,7 +28,7 @@ namespace musica
         case 1: chemistry = ParserV1(parsed); break;
         default:
           std::string msg = "Version " + std::to_string(version.major) + " not supported";
-          throw std::runtime_error(msg);
+          throw std::system_error(make_error_code(MusicaParseErrc::UnsupportedVersion), msg); 
       }
     }
 

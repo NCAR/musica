@@ -2,36 +2,15 @@
 
 namespace musica
 {
-  MICM *CreateMicm(const char *config_path, MICMSolver solver_type, int num_grid_cells, Error *error)
-  {
-    MICM *micm = nullptr;
-    DeleteError(error);
-    try {
-      Chemistry chemistry = ReadConfiguration(std::string(config_path));
-      micm = new MICM(chemistry, solver_type, num_grid_cells);
-      *error = NoError();
-    }
-    catch (const std::system_error& e)
-    {
-      *error = ToError(e);
-    }
-    catch (const std::exception &e)
-    {
-      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_FAILED_TO_CREATE_SOLVER, e.what());
-    }
-
-    return micm;
-  }
-
-  void DeleteMicm(const MICM *micm, Error *error)
+  template <typename Func>
+  auto HandleErrors(Func func, Error *error) -> decltype(func())
   {
     DeleteError(error);
     try
     {
-      delete micm;
-      *error = NoError();
+      return func();
     }
-    catch (const std::system_error& e)
+    catch (const std::system_error &e)
     {
       *error = ToError(e);
     }
@@ -39,6 +18,25 @@ namespace musica
     {
       *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, e.what());
     }
+    return decltype(func())();
+  }
+
+  MICM *CreateMicm(const char *config_path, MICMSolver solver_type, int num_grid_cells, Error *error)
+  {
+    return HandleErrors([&]() {
+      Chemistry chemistry = ReadConfiguration(std::string(config_path));
+      MICM *micm = new MICM(chemistry, solver_type, num_grid_cells);
+      *error = NoError();
+      return micm;
+    }, error);
+  }
+
+  void DeleteMicm(const MICM *micm, Error *error)
+  {
+    HandleErrors([&]() {
+      delete micm;
+      *error = NoError();
+    }, error);
   }
 
   void MicmSolve(
@@ -49,21 +47,11 @@ namespace musica
       SolverResultStats *solver_stats,
       Error *error)
   {
-    DeleteError(error);
-    try
-    {
+    HandleErrors([&]() {
       micm->Solve(micm, state, time_step, solver_state, solver_stats);
       *error = NoError();
-    }
-    catch (const std::system_error& e)
-    {
-      *error = ToError(e);
-    }
-    catch (const std::exception& e)
-    {
-      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, e.what());
-    }
-  };
+    }, error);
+  }
 
   String MicmVersion()
   {
@@ -72,16 +60,13 @@ namespace musica
 
   Mappings GetSpeciesOrdering(MICM *micm, musica::State *state, Error *error)
   {
-    DeleteError(error);
-    Mappings species_ordering;
-
-    try {
+    return HandleErrors([&]() {
+      Mappings species_ordering;
       std::map<std::string, std::size_t> map = std::visit([](auto &state) { return state.variable_map_; }, state->state_variant_);
 
       species_ordering.mappings_ = new Mapping[map.size()];
       species_ordering.size_ = map.size();
 
-      // Copy data from the map to the array of structs
       std::size_t i = 0;
       for (const auto &entry : map)
       {
@@ -90,31 +75,19 @@ namespace musica
       }
 
       *error = NoError();
-    }
-    catch (const std::system_error &e)
-    {
-      *error = ToError(e);
-    }
-    catch (const std::exception &e)
-    {
-      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, e.what());
-    }
-    return species_ordering;
+      return species_ordering;
+    }, error);
   }
 
   Mappings GetUserDefinedReactionRatesOrdering(MICM *micm, musica::State *state, Error *error)
   {
-    DeleteError(error);
-    Mappings reaction_rates;
-
-    try
-    {
+    return HandleErrors([&]() {
+      Mappings reaction_rates;
       std::map<std::string, std::size_t> map = std::visit([](auto &state) { return state.custom_rate_parameter_map_; }, state->state_variant_);
 
       reaction_rates.mappings_ = new Mapping[map.size()];
       reaction_rates.size_ = map.size();
 
-      // Copy data from the map to the array of structs
       std::size_t i = 0;
       for (const auto &entry : map)
       {
@@ -123,41 +96,20 @@ namespace musica
       }
 
       *error = NoError();
-    }
-    catch (const std::system_error &e)
-    {
-      *error = ToError(e);
-    }
-    catch (const std::exception &e)
-    {
-      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, e.what());
-    }
-    return reaction_rates;
+      return reaction_rates;
+    }, error);
   }
 
-  template<typename T>
+  template <typename T>
   T GetSpeciesProperty(MICM *micm, const char *species_name, const char *property_name, Error *error)
   {
-    DeleteError(error);
-    T val = T();
-    try {
+    return HandleErrors([&]() {
       std::string species_name_str(species_name);
       std::string property_name_str(property_name);
-      val = micm->GetSpeciesProperty<T>(species_name_str, property_name_str);
+      T val = micm->GetSpeciesProperty<T>(species_name_str, property_name_str);
       *error = NoError();
-    }
-    catch (const std::system_error &e)
-    {
-      DeleteError(error);
-      *error = ToError(e);
-    }
-    catch (const std::exception &e)
-    {
-      DeleteError(error);
-      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, e.what());
-    }
-
-    return val;
+      return val;
+    }, error);
   }
 
   String GetSpeciesPropertyString(MICM *micm, const char *species_name, const char *property_name, Error *error)
