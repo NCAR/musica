@@ -9,7 +9,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 include(FetchContent)
 
-set(MUSICA_GIT_TAG "main" CACHE STRING "Git tag for the musica_fortran repository")
+set(MUSICA_GIT_TAG "174-packaging-fortran" CACHE STRING "Git tag for the musica_fortran repository")
 
 message(STATUS "Using MUSICA_GIT_TAG: ${MUSICA_GIT_TAG}")
 
@@ -24,6 +24,9 @@ set(MUSICA_ENABLE_TESTS OFF)
 set(MUSICA_ENABLE_INSTALL OFF)
 
 FetchContent_MakeAvailable(musica_fortran)
+
+# find_package(musica REQUIRED)
+find_package(musica REQUIRED COMPONENTS musica mechanism_configuration yaml-cpp micm tuvx_object)
 
 # copy config data from musica-fortran
 add_custom_target(copy_unit_test_configs ALL ${CMAKE_COMMAND} -E copy_directory
@@ -40,6 +43,7 @@ if (MUSICA_ENABLE_MICM)
   target_link_libraries(test_micm_fortran_api
     PRIVATE
       musica::musica-fortran
+      musica::musica
   )
 
   set_target_properties(test_micm_fortran_api
@@ -58,6 +62,7 @@ if (MUSICA_ENABLE_MICM)
   target_link_libraries(test_get_micm_version
     PRIVATE
       musica::musica-fortran
+      musica::musica
   )
 
   set_target_properties(test_get_micm_version
@@ -74,6 +79,7 @@ if (MUSICA_ENABLE_MICM)
   target_link_libraries(test_micm_box_model
     PRIVATE
       musica::musica-fortran
+      musica::musica
   )
 
   set_target_properties(test_micm_box_model
@@ -95,6 +101,7 @@ if (MUSICA_ENABLE_TUVX)
   target_link_libraries(test_tuvx_fortran_api
     PRIVATE
       musica::musica-fortran
+      musica::musica
   )
 
   set_target_properties(test_tuvx_fortran_api
