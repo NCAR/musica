@@ -20,7 +20,7 @@
 #include <utility>
 #include <vector>
 
-enum class MusicaErrc
+enum class MusicaErrCode
 {
   SpeciesNotFound = MUSICA_ERROR_CODE_SPECIES_NOT_FOUND,
   SolverTypeNotFound = MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND,
@@ -33,7 +33,7 @@ enum class MusicaErrc
 namespace std
 {
   template<>
-  struct is_error_condition_enum<MusicaErrc> : true_type
+  struct is_error_condition_enum<MusicaErrCode> : true_type
   {
   };
 }  // namespace std
@@ -43,20 +43,20 @@ namespace
   class MusicaErrorCategory : public std::error_category
   {
    public:
-    const char* name() const noexcept override
+    const char *name() const noexcept override
     {
       return MUSICA_ERROR_CATEGORY;
     }
     std::string message(int ev) const override
     {
-      switch (static_cast<MusicaErrc>(ev))
+      switch (static_cast<MusicaErrCode>(ev))
       {
-        case MusicaErrc::SpeciesNotFound: return "Species not found";
-        case MusicaErrc::SolverTypeNotFound: return "Solver type not found";
-        case MusicaErrc::MappingNotFound: return "Mapping not found";
-        case MusicaErrc::MappingOptionsUndefined: return "Mapping options undefined";
-        case MusicaErrc::Unknown: return "Unknown error";
-        case MusicaErrc::UnsupportedSolverStatePair: return "Unsupported solver/state combination";
+        case MusicaErrCode::SpeciesNotFound: return "Species not found";
+        case MusicaErrCode::SolverTypeNotFound: return "Solver type not found";
+        case MusicaErrCode::MappingNotFound: return "Mapping not found";
+        case MusicaErrCode::MappingOptionsUndefined: return "Mapping options undefined";
+        case MusicaErrCode::Unknown: return "Unknown error";
+        case MusicaErrCode::UnsupportedSolverStatePair: return "Unsupported solver/state combination";
         default: return "Unknown error";
       }
     }
@@ -65,11 +65,10 @@ namespace
   const MusicaErrorCategory MUSICA_ERROR{};
 }  // namespace
 
-inline std::error_code make_error_code(MusicaErrc e)
+inline std::error_code make_error_code(MusicaErrCode e)
 {
   return { static_cast<int>(e), MUSICA_ERROR };
 }
-
 
 namespace musica
 {
@@ -112,7 +111,6 @@ namespace musica
         std::unique_ptr<micm::BackwardEuler>,
         std::unique_ptr<micm::BackwardEulerStandard>>;
 
-
    public:
     SolverVariant solver_variant_;
 
@@ -126,13 +124,8 @@ namespace musica
     /// @param time_step Time [s] to advance the state by
     /// @param solver_state State of the solver
     /// @param solver_stats Statistics of the solver
-    void Solve(
-        MICM *micm,
-        musica::State *state,
-        double time_step,
-        String *solver_state,
-        SolverResultStats *solver_stats);
-    
+    void Solve(MICM *micm, musica::State *state, double time_step, String *solver_state, SolverResultStats *solver_stats);
+
     /// @brief Get a property for a chemical species
     /// @param species_name Name of the species
     /// @param property_name Name of the property
@@ -148,7 +141,7 @@ namespace musica
           return species.GetProperty<T>(property_name);
         }
       }
-      throw std::system_error(make_error_code(MusicaErrc::SpeciesNotFound), "Species '" + species_name + "' not found");
+      throw std::system_error(make_error_code(MusicaErrCode::SpeciesNotFound), "Species '" + species_name + "' not found");
     }
   };
 
