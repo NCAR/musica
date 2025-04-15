@@ -95,7 +95,8 @@ FetchContent_MakeAvailable(mechanism_configuration)
 ################################################################################
 # MICM
 
-if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE)
+if (MUSICA_ENABLE_MICM)
+# if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE)
   set_git_default(MICM_GIT_REPOSITORY https://github.com/NCAR/micm.git)
   set_git_default(MICM_GIT_TAG v3.8.0)
 
@@ -114,7 +115,8 @@ endif()
 ################################################################################
 # TUV-x
 
-if (MUSICA_ENABLE_TUVX AND MUSICA_BUILD_C_CXX_INTERFACE)
+if (MUSICA_ENABLE_TUVX)
+# if (MUSICA_ENABLE_TUVX AND MUSICA_BUILD_C_CXX_INTERFACE)
   set(TUVX_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
   set(TUVX_MOD_DIR ${MUSICA_MOD_DIR} CACHE STRING "" FORCE)
   set(TUVX_INSTALL_MOD_DIR ${MUSICA_INSTALL_INCLUDE_DIR} CACHE STRING "" FORCE)
