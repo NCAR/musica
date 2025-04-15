@@ -55,7 +55,8 @@ target_sources(musica
 
 target_link_libraries(musica
   PUBLIC
-    open_atmos::mechanism_configuration
+    musica::mechanism_configuration
+    yaml-cpp::yaml-cpp
 )
 
 target_compile_definitions(musica PUBLIC ${musica_compile_definitions})

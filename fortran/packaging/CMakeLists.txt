@@ -3,6 +3,7 @@ include(CMakePackageConfigHelpers)
 install(
   TARGETS
     musica-fortran
+    musica
   EXPORT
     musica-fortran_Exports
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -18,18 +19,19 @@ install(
 )
 
 # install the cmake config files
-set(cmake_config_install_location "${CMAKE_INSTALL_LIBDIR}/cmake/musica")
+set(cmake_config_install_location "${CMAKE_INSTALL_LIBDIR}/cmake/musica-fortran")
 
 install(
   EXPORT
     musica-fortran_Exports 
   DESTINATION
     ${cmake_config_install_location}
-  NAMESPACE musica::
+  NAMESPACE
+    musica::
 )
 
 configure_package_config_file(
-  "${MUSICA_PROJECT_SRC_DIR}/cmake/musicaConfig.cmake.in"
+  "${MUSICA_PROJECT_SRC_DIR}/cmake/musica-fortranConfig.cmake.in"
   "${PROJECT_BINARY_DIR}/musica-fortranConfig.cmake"
   INSTALL_DESTINATION
     ${cmake_config_install_location}

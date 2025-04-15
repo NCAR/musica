@@ -3,15 +3,15 @@ include(CMakePackageConfigHelpers)
 install(
   TARGETS
     musica
-    yaml-cpp
     mechanism_configuration
+    yaml-cpp
   EXPORT
     musica_Exports
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
-# install the musica header files
+# install the MUSICA header files
 install(
   DIRECTORY
     ${MUSICA_PROJECT_SRC_DIR}/include/
@@ -66,7 +66,8 @@ install(
     musica_Exports 
   DESTINATION
     ${cmake_config_install_location}
-  NAMESPACE musica::
+  # NAMESPACE
+    # musica::
 )
 
 configure_package_config_file(
