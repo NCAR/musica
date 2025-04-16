@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.21)
 project(musica-distribution VERSION 0.10.1)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${PROJECT_SOURCE_DIR}/cmake)
-set(CMAKE_USER_MAKE_RULES_OVERRIDE ${CMAKE_MODULE_PATH}/SetDefaults.cmake)
+set(CMAKE_USER_MAKE_RULES_OVERRIDE ${PROJECT_SOURCE_DIR}/cmake/SetDefaults.cmake)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -79,7 +79,7 @@ set(MEMCHECK_SUPPRESS "--suppressions=${PROJECT_SOURCE_DIR}/valgrind.supp")
 ################################################################################
 # Dependencies
 
-include(dependencies)
+include(${PROJECT_SOURCE_DIR}/cmake/dependencies.cmake)
 
 if(MUSICA_BUILD_DOCS)
   add_subdirectory(docs)
@@ -113,4 +113,4 @@ endif()
 ###
 # Configure and display a summary file for how musica was built.
 ###
-include(summary)
+include(${PROJECT_SOURCE_DIR}/cmake/summary.cmake)

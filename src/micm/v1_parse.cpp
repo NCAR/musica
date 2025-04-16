@@ -28,20 +28,20 @@ namespace musica
 
       if (elem.molecular_weight.has_value())
       {
-        s.SetProperty(validation::keys.molecular_weight, elem.molecular_weight.value());
+        s.SetProperty(validation::molecular_weight, elem.molecular_weight.value());
       }
       if (elem.diffusion_coefficient.has_value())
       {
-        s.SetProperty(validation::keys.diffusion_coefficient, elem.diffusion_coefficient.value());
+        s.SetProperty(validation::diffusion_coefficient, elem.diffusion_coefficient.value());
       }
       if (elem.absolute_tolerance.has_value())
       {
-        s.SetProperty(validation::keys.absolute_tolerance, elem.absolute_tolerance.value());
+        s.SetProperty(validation::absolute_tolerance, elem.absolute_tolerance.value());
       }
       if (elem.tracer_type.has_value())
       {
-        s.SetProperty(validation::keys.tracer_type, elem.tracer_type.value());
-        if (elem.tracer_type == validation::keys.third_body)
+        s.SetProperty(validation::tracer_type, elem.tracer_type.value());
+        if (elem.tracer_type == validation::third_body)
         {
           s.SetThirdBody();
         }
