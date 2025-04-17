@@ -9,6 +9,9 @@
 #include <musica/util.hpp>
 
 #include <micm/CPU.hpp>
+#ifdef MUSICA_ENABLE_CUDA
+  #include <micm/GPU.hpp>
+#endif
 
 #include <any>
 #include <chrono>

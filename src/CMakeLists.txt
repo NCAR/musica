@@ -19,6 +19,12 @@ add_library(musica::musica ALIAS musica)
 
 target_compile_definitions(musica PUBLIC MICM_VECTOR_MATRIX_SIZE=${MUSICA_SET_MICM_VECTOR_MATRIX_SIZE})
 
+if (MUSICA_ENABLE_CUDA)
+  # Add the CUDA library
+  target_compile_definitions(musica PUBLIC MUSICA_ENABLE_CUDA)
+  target_link_libraries(musica PUBLIC musica::micm_cuda)
+endif()
+
 if (MUSICA_ENABLE_PYTHON_LIBRARY OR MUSICA_ENABLE_PIC)
   # Add the -fPIC flag for position-independent code if we are building shared libraries
   # or the python library so that it links correctly on linux

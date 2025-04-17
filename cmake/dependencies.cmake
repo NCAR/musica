@@ -68,7 +68,7 @@ endif()
 
 if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE)
   set_git_default(MICM_GIT_REPOSITORY https://github.com/NCAR/micm.git)
-  set_git_default(MICM_GIT_TAG 7f9b66ef2bf36579b523d5a740e9a40e59f71745)
+  set_git_default(MICM_GIT_TAG cuda_builder)
 
   FetchContent_Declare(micm
       GIT_REPOSITORY ${MICM_GIT_REPOSITORY}
@@ -78,6 +78,7 @@ if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE)
   set(MICM_ENABLE_TESTS OFF)
   set(MICM_ENABLE_EXAMPLES OFF)
   set(MICM_DEFAULT_VECTOR_MATRIX_SIZE ${MUSICA_SET_MICM_VECTOR_MATRIX_SIZE})
+  set(MICM_ENABLE_CUDA ${MUSICA_ENABLE_CUDA})
 
   FetchContent_MakeAvailable(micm)
 endif()

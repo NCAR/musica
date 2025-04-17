@@ -55,6 +55,13 @@ namespace musica
         solver_variant_ = std::make_unique<micm::BackwardEulerStandard>(
             configure(micm::CpuSolverBuilder<micm::BackwardEulerSolverParameters>(micm::BackwardEulerSolverParameters())));
         break;
+      
+      #ifdef MUSICA_ENABLE_CUDA
+      case MICMSolver::CudaRosenbrock:
+        solver_variant_ = std::make_unique<micm::CudaRosenbrock>(
+            configure(micm::CudaSolverBuilder<micm::RosenbrockSolverParameters>(micm::RosenbrockSolverParameters())));
+        break;
+      #endif
 
       default: throw std::system_error(make_error_code(MusicaErrCode::SolverTypeNotFound), "Solver type not found");
     }

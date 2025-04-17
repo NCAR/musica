@@ -21,6 +21,7 @@ include(CMakeDependentOption)
 
 option(MUSICA_BUILD_C_CXX_INTERFACE "Use MUSICA" ON)
 option(MUSICA_BUILD_FORTRAN_INTERFACE "Use MUSICA-Fortran interface" OFF)
+option(MUSICA_ENABLE_CUDA "Enable CUDA support" OFF)
 option(MUSICA_ENABLE_INSTALL "Install the musica library" ON)
 option(MUSICA_ENABLE_TESTS "Builds tests that ensures each enabled MUSICA component can be used" ON)
 option(MUSICA_ENABLE_MPI "Enable MPI parallel support" OFF)
