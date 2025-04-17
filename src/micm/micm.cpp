@@ -59,7 +59,7 @@ namespace musica
       #ifdef MUSICA_ENABLE_CUDA
       case MICMSolver::CudaRosenbrock:
         solver_variant_ = std::make_unique<micm::CudaRosenbrock>(
-            configure(micm::CudaSolverBuilder<micm::RosenbrockSolverParameters>(micm::RosenbrockSolverParameters())));
+            configure(micm::GpuRosenbrockThreeStageBuilder(micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())));
         break;
       #endif
 
