@@ -57,8 +57,6 @@ contains
     type(micm_t), pointer                 :: micm
     type(state_t), pointer                :: state
     real(real64)                          :: time_step
-    real(real64), dimension(2,1), target  :: concentrations 
-    real(real64), dimension(3,1), target  :: user_defined_reaction_rates 
     character(len=256)                    :: config_path
     integer                               :: solver_type
     integer                               :: num_grid_cells
@@ -305,30 +303,26 @@ contains
 
   subroutine test_standard_multiple_grid_cells(micm, NUM_GRID_CELLS, time_step, test_accuracy)
 
-    type(micm_t), pointer, intent(inout) :: micm
-    type(state_t), pointer               :: state
-    integer,               intent(in)    :: NUM_GRID_CELLS
-    real(real64),          intent(in)    :: time_step
-    real,                  intent(in)    :: test_accuracy
-    integer, parameter        :: NUM_SPECIES = 6
-    integer, parameter        :: NUM_USER_DEFINED_REACTION_RATES = 2
-    real(real64), target      :: concentrations(NUM_SPECIES, NUM_GRID_CELLS)
-    real(real64), target      :: rates(NUM_USER_DEFINED_REACTION_RATES, NUM_GRID_CELLS)
-    real(real64), target      :: initial_concentrations(NUM_SPECIES, NUM_GRID_CELLS)
-    real(real64), target      :: user_defined_reaction_rates(NUM_USER_DEFINED_REACTION_RATES, NUM_GRID_CELLS)
-    type(string_t)            :: solver_state
-    type(solver_stats_t)      :: solver_stats
-    integer(c_int)            :: solver_type
-    type(error_t)             :: error
-    real(real64), parameter   :: GAS_CONSTANT = 8.31446261815324_real64 ! J mol-1 K-1
-    integer                   :: A_index, B_index, C_index, D_index, E_index, F_index
-    integer                   :: R1_index, R2_index
-    real(real64)              :: initial_A, initial_C, initial_D, initial_F
-    real(real64)              :: k1, k2, k3, k4
-    real(real64)              :: A, B, C, D, E, F
-    integer                   :: i_cell
-    real                      :: temp
-    type(ArrheniusReaction)   :: r1, r2
+    type(micm_t), pointer, intent(inout)  :: micm
+    type(state_t), pointer                :: state
+    integer,               intent(in)     :: NUM_GRID_CELLS
+    real(real64),          intent(in)     :: time_step
+    real,                  intent(in)     :: test_accuracy
+    integer, parameter                    :: NUM_SPECIES = 6
+    real(real64), target                  :: initial_concentrations(NUM_SPECIES, NUM_GRID_CELLS)
+    type(string_t)                        :: solver_state
+    type(solver_stats_t)                  :: solver_stats
+    integer(c_int)                        :: solver_type
+    type(error_t)                         :: error
+    real(real64), parameter               :: GAS_CONSTANT = 8.31446261815324_real64 ! J mol-1 K-1
+    integer                               :: A_index, B_index, C_index, D_index, E_index, F_index
+    integer                               :: R1_index, R2_index
+    real(real64)                          :: initial_A, initial_C, initial_D, initial_F
+    real(real64)                          :: k1, k2, k3, k4
+    real(real64)                          :: A, B, C, D, E, F
+    integer                               :: i_cell
+    real                                  :: temp
+    type(ArrheniusReaction)               :: r1, r2
 
     state => micm%get_state(error)
     A_index = state%species_ordering%index( "A", error )
@@ -493,9 +487,6 @@ contains
     type(state_t), pointer        :: state
     real(real64)                  :: time_step
     type(conditions_t), target    :: conds(1)
-    real(real64), dimension(4,1), target  :: concentrations
-    real(real64), dimension(4,1), target  :: rates 
-    real(real64), dimension(3,1), target  :: user_defined_reaction_rates 
     character(len=256)            :: config_path
     integer                       :: solver_type
     integer                       :: num_grid_cells

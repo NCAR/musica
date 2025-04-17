@@ -19,23 +19,17 @@ contains
   !> Runs a simple box model using the MICM solver and passing in fortran arrays
   subroutine box_model_arrays()
 
-    character(len=256) :: config_path
-    integer            :: solver_type
-    integer            :: num_grid_cells
-
+    character(len=256)      :: config_path
+    integer                 :: solver_type
+    integer                 :: num_grid_cells
     real(real64), parameter :: GAS_CONSTANT = 8.31446261815324_real64 ! J mol-1 K-1
-
-    real(real64) :: time_step
-    real(real64), target :: concentrations(6)
-
-    type(string_t)       :: solver_state
-    type(solver_stats_t) :: solver_stats
-    type(error_t)        :: error
-
-    type(micm_t), pointer :: micm
-    type(state_t), pointer :: state
-
-    integer :: i
+    real(real64)            :: time_step
+    type(string_t)          :: solver_state
+    type(solver_stats_t)    :: solver_stats
+    type(error_t)           :: error
+    type(micm_t), pointer   :: micm
+    type(state_t), pointer  :: state
+    integer                 :: i
 
     config_path = "configs/analytical"
     solver_type = RosenbrockStandardOrder
@@ -62,7 +56,6 @@ contains
     end do
 
     write(*,*) "Solving starts..."
-    print *, "Montek TEST: ", c_loc(state%conditions)
     call micm%solve(time_step, state, solver_state, solver_stats, error)
     write(*,*) "After solving, concentrations", state%concentrations
     deallocate( micm )
@@ -72,26 +65,17 @@ contains
   !> Runs a simple box model using the MICM solver and passing in C pointers
   subroutine box_model_c_ptrs()
 
-    character(len=256) :: config_path
-    integer            :: solver_type
-    integer            :: num_grid_cells
-
+    character(len=256)      :: config_path
+    integer                 :: solver_type
+    integer                 :: num_grid_cells
     real(real64), parameter :: GAS_CONSTANT = 8.31446261815324_real64 ! J mol-1 K-1
-
-    real(real64) :: time_step
-    real(real64), target :: temperature(1)
-    real(real64), target :: pressure(1)
-    real(real64), target :: air_density(1)
-    real(real64), target :: concentrations(6)
-
-    type(string_t)       :: solver_state
-    type(solver_stats_t) :: solver_stats
-    type(error_t)        :: error
-
-    type(micm_t), pointer :: micm
-    type(state_t), pointer :: state
-
-    integer :: i
+    real(real64)            :: time_step
+    type(string_t)          :: solver_state
+    type(solver_stats_t)    :: solver_stats
+    type(error_t)           :: error
+    type(micm_t), pointer   :: micm
+    type(state_t), pointer  :: state
+    integer                 :: i
 
     config_path = "configs/analytical"
     solver_type = RosenbrockStandardOrder
