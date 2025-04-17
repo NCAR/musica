@@ -109,19 +109,26 @@ namespace musica
           }
         },
         state_variant_);
+  } 
+
+  micm::Conditions* GetConditionsToStateFortran(musica::State* state, int* number_of_grid_cells, Error* error)
+  {
+    return state->GetConditionsToState(state, number_of_grid_cells, error)->data();
   }
 
-  ConditionsVector* GetConditionsFromState(musica::State* state)
+  ConditionsVector* State::GetConditionsToState(musica::State* state, int* number_of_grid_cells, Error* error)
   {
-    return new ConditionsVector(state->GetConditions());
+    auto &vec = std::visit([](auto& st) -> ConditionsVector& {
+      return st.conditions_;
+    }, state_variant_);
+
+    *number_of_grid_cells = std::visit([](auto& st) -> int {
+      return static_cast<int>(st.conditions_.size());
+    }, state_variant_);
+
+    return &vec;
   }
 
-  void SetConditionsToState(musica::State* state, const micm::Conditions* conditions_array, std::size_t size)
-  {
-      std::vector<micm::Conditions> conditions_vec(conditions_array, conditions_array + size);
-      state->SetConditions(conditions_vec);
-  }
-  
   double* GetOrderedConcentrationsToStateFortran(musica::State* state, int* number_of_species, int* number_of_grid_cells, Error* error)
   {
     return state->GetOrderedConcentrationsToState(state, number_of_species, number_of_grid_cells, error);
@@ -161,8 +168,4 @@ namespace musica
     return vec.data();
   }
 
-  std::size_t GetConditionsSize(const ConditionsVector* vec)
-  {
-    return vec->size();
-  }
 }  // namespace musica

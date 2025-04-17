@@ -34,7 +34,6 @@ contains
 
     type(micm_t), pointer :: micm
     type(state_t), pointer :: state
-    type(conditions_t), target :: conds(1)
 
     integer :: i
 
@@ -42,28 +41,28 @@ contains
     solver_type = RosenbrockStandardOrder
     num_grid_cells = 1
 
-    time_step = 200
-    conds(1)%temperature = 273.0
-    conds(1)%pressure    = 1.0e5
-    conds(1)%air_density = conds(1)%pressure / (GAS_CONSTANT * conds(1)%temperature)    
-    
     write(*,*) "Creating MICM solver..."
-    micm => micm_t(config_path, solver_type, num_grid_cells, error)
-    
+    micm => micm_t(config_path, solver_type, num_grid_cells, error)  
+
     write(*,*) "Creating State..."    
     state => micm%get_state(error)
+
+    time_step = 200
+
+    state%conditions(1)%temperature = 273.0
+    state%conditions(1)%pressure    = 1.0e5
+    state%conditions(1)%air_density = state%conditions(1)%pressure / (GAS_CONSTANT * state%conditions(1)%temperature)
 
     state%concentrations = reshape((/ 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 /), shape=[6,1])
     state%rates = reshape((/ 0.001, 0.002 /), shape=[2,1])
     
-    call state%set_conditions(c_loc(conds), 1_c_size_t)
-
     do i = 1, state%species_ordering%size()
       print *, "Species Name:", state%species_ordering%name(i), &
                ", Index:", state%species_ordering%index(i)
     end do
 
     write(*,*) "Solving starts..."
+    print *, "Montek TEST: ", c_loc(state%conditions)
     call micm%solve(time_step, state, solver_state, solver_stats, error)
     write(*,*) "After solving, concentrations", state%concentrations
     deallocate( micm )
@@ -91,7 +90,6 @@ contains
 
     type(micm_t), pointer :: micm
     type(state_t), pointer :: state
-    type(conditions_t), target :: conds(1)
 
     integer :: i
 
@@ -101,20 +99,18 @@ contains
 
     time_step = 200
 
-    conds(1)%temperature = 273.0
-    conds(1)%pressure    = 1.0e5
-    conds(1)%air_density = conds(1)%pressure / (GAS_CONSTANT * conds(1)%temperature)
-
     write(*,*) "Creating MICM solver..."
     micm => micm_t(config_path, solver_type, num_grid_cells, error)
     
     write(*,*) "Creating State..."
     state => micm%get_state(error)
 
+    state%conditions(1)%temperature = 273.0
+    state%conditions(1)%pressure    = 1.0e5
+    state%conditions(1)%air_density = state%conditions(1)%pressure / (GAS_CONSTANT * state%conditions(1)%temperature)
+
     state%concentrations = reshape((/ 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 /), shape=[6,1])
     state%rates = reshape((/ 0.001, 0.002 /), shape=[2,1])
-
-    call state%set_conditions(c_loc(conds), 1_c_size_t)
 
     do i = 1, state%species_ordering%size()
       print *, "Species Name:", state%species_ordering%name(i), &

@@ -214,7 +214,7 @@ contains
     type(string_t_c)                      :: solver_state_c
     type(solver_stats_t_c)                :: solver_stats_c    
     type(error_t_c)                       :: error_c
-
+    
     call micm_solve_c(this%ptr, state%ptr, time_step, solver_state_c, solver_stats_c, error_c)
     solver_state = string_t(solver_state_c)
     solver_stats = solver_stats_t(solver_stats_c)

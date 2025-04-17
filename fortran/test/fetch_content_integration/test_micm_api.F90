@@ -56,7 +56,6 @@ contains
     type(string_t)                        :: micm_version
     type(micm_t), pointer                 :: micm
     type(state_t), pointer                :: state
-    type(conditions_t), target            :: conds(1)
     real(real64)                          :: time_step
     real(real64), dimension(2,1), target  :: concentrations 
     real(real64), dimension(3,1), target  :: user_defined_reaction_rates 
@@ -104,9 +103,9 @@ contains
     jO3b_index = state%user_defined_reaction_rates%index( "PHOTO.jO3->O1D", error )
     ASSERT( error%is_success() )
 
-    conds(1)%temperature = 272.5
-    conds(1)%pressure = 101253.4
-    conds(1)%air_density = conds(1)%pressure / ( GAS_CONSTANT * conds(1)%temperature )
+    state%conditions(1)%temperature = 272.5
+    state%conditions(1)%pressure = 101253.4
+    state%conditions(1)%air_density = state%conditions(1)%pressure / ( GAS_CONSTANT * state%conditions(1)%temperature )
     
     state%concentrations(O2_index,1) = 0.75
     state%concentrations(O_index,1) = 0.0
@@ -115,8 +114,6 @@ contains
     state%rates(jO2_index,1) = 2.7e-19
     state%rates(jO3a_index,1) = 1.13e-9
     state%rates(jO3b_index,1) = 5.8e-8
-
-    call state%set_conditions(c_loc(conds), 1_c_size_t)
     
     micm_version = get_micm_version()
     print *, "[test micm fort api] MICM version ", micm_version%get_char_array()
@@ -313,7 +310,6 @@ contains
     integer,               intent(in)    :: NUM_GRID_CELLS
     real(real64),          intent(in)    :: time_step
     real,                  intent(in)    :: test_accuracy
-    type(conditions_t),    target        :: conds(NUM_GRID_CELLS)
     integer, parameter        :: NUM_SPECIES = 6
     integer, parameter        :: NUM_USER_DEFINED_REACTION_RATES = 2
     real(real64), target      :: concentrations(NUM_SPECIES, NUM_GRID_CELLS)
@@ -355,10 +351,10 @@ contains
 
     do i_cell = 1, NUM_GRID_CELLS
       call random_number( temp )
-      conds(i_cell)%temperature = 265.0 + temp * 20.0
+      state%conditions(i_cell)%temperature = 265.0 + temp * 20.0
       call random_number( temp )
-      conds(i_cell)%pressure = 100753.3 + temp * 1000.0
-      conds(i_cell)%air_density = conds(i_cell)%pressure / ( GAS_CONSTANT * conds(i_cell)%temperature )
+      state%conditions(i_cell)%pressure = 100753.3 + temp * 1000.0
+      state%conditions(i_cell)%air_density =  state%conditions(i_cell)%pressure / ( GAS_CONSTANT *  state%conditions(i_cell)%temperature )
       call random_number( temp )
       state%concentrations(A_index, i_cell) = 0.7 + temp * 0.1
       state%concentrations(B_index, i_cell) = 0.0
@@ -376,7 +372,6 @@ contains
     end do
     initial_concentrations(:,:) = state%concentrations(:,:)
     
-    call state%set_conditions(c_loc(conds), int(NUM_GRID_CELLS, kind=c_size_t))        
     call micm%solve(time_step, state, solver_state, solver_stats, error)    
     
     ASSERT( error%is_success() )
@@ -397,8 +392,8 @@ contains
       initial_F = initial_concentrations(F_index, i_cell)
       k1 = state%rates(R1_index, i_cell)
       k2 = state%rates(R2_index, i_cell)
-      k3 = calculate_arrhenius( r1, conds(i_cell)%temperature, conds(i_cell)%pressure )
-      k4 = calculate_arrhenius( r2, conds(i_cell)%temperature, conds(i_cell)%pressure )
+      k3 = calculate_arrhenius( r1, state%conditions(i_cell)%temperature, state%conditions(i_cell)%pressure )
+      k4 = calculate_arrhenius( r2, state%conditions(i_cell)%temperature, state%conditions(i_cell)%pressure )
       A = initial_A * exp( -k3 * time_step )
       B = initial_A * (k3 / (k4 - k3)) * (exp(-k3 * time_step) - exp(-k4 * time_step))
       C = initial_C + initial_A * (1.0 + (k3 * exp(-k4 * time_step) - k4 * exp(-k3 * time_step)) / (k4 - k3))
@@ -544,9 +539,9 @@ contains
     jO3b_index = state%user_defined_reaction_rates%index( "PHOTO.jO3->O1D", error )
     ASSERT( error%is_success() )
 
-    conds(1)%temperature = 272.5
-    conds(1)%pressure = 101253.4
-    conds(1)%air_density = conds(1)%pressure / ( GAS_CONSTANT * conds(1)%temperature )
+    state%conditions(1)%temperature = 72.5
+    state%conditions(1)%pressure = 101253.4
+    state%conditions(1)%air_density = state%conditions(1)%pressure / ( GAS_CONSTANT * state%conditions(1)%temperature )
 
     state%concentrations(O2_index,1) = 0.75
     state%concentrations(O_index,1) = 0.0
@@ -555,8 +550,6 @@ contains
     state%rates(jO2_index,1) = 2.7e-19
     state%rates(jO3a_index,1) = 1.13e-9
     state%rates(jO3b_index,1) = 5.8e-8
-
-    call state%set_conditions(c_loc(conds), size(conds, kind=c_size_t))
 
     micm_version = get_micm_version()
     print *, "[test micm fort api] MICM version ", micm_version%get_char_array()
