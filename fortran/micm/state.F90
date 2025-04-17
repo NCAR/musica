@@ -74,8 +74,7 @@ module musica_state
       type(c_ptr), value, intent(in)      :: micm
       type(c_ptr), value, intent(in)      :: state
       type(error_t_c), intent(inout)      :: error
-
-    end function get_user_defined_reaction_rates_ordering_c
+    end function get_user_defined_reaction_rates_ordering_c    
   end interface
 
   type, bind(C) :: conditions_t
