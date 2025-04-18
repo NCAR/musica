@@ -48,7 +48,13 @@ namespace musica
     State() = default;
 
     /// @brief Define the variant that holds all state types
-    using StateVariant = std::variant<micm::VectorState, micm::StandardState>;
+    using StateVariant = std::variant<
+      micm::VectorState, 
+      micm::StandardState,
+        #ifdef MUSICA_ENABLE_CUDA
+          micm::GpuState
+        #endif
+    >;
 
     /// @brief Get the vector of conditions struct
     std::vector<micm::Conditions> &GetConditions();

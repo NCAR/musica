@@ -115,7 +115,11 @@ namespace musica
         std::unique_ptr<micm::Rosenbrock>,
         std::unique_ptr<micm::RosenbrockStandard>,
         std::unique_ptr<micm::BackwardEuler>,
-        std::unique_ptr<micm::BackwardEulerStandard>>;
+        std::unique_ptr<micm::BackwardEulerStandard>,
+        #ifdef MUSICA_ENABLE_CUDA
+          std::unique_ptr<micm::CudaRosenbrock>,
+        #endif
+        >;
 
    public:
     SolverVariant solver_variant_;
