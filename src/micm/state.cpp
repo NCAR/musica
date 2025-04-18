@@ -109,7 +109,7 @@ namespace musica
           }
         },
         state_variant_);
-  } 
+  }
 
   micm::Conditions* GetConditionsToStateFortran(musica::State* state, int* number_of_grid_cells, Error* error)
   {
@@ -118,51 +118,59 @@ namespace musica
 
   ConditionsVector* State::GetConditionsToState(musica::State* state, int* number_of_grid_cells, Error* error)
   {
-    auto &vec = std::visit([](auto& st) -> ConditionsVector& {
-      return st.conditions_;
-    }, state_variant_);
+    auto& vec = std::visit([](auto& st) -> ConditionsVector& { return st.conditions_; }, state_variant_);
 
-    *number_of_grid_cells = std::visit([](auto& st) -> int {
-      return static_cast<int>(st.conditions_.size());
-    }, state_variant_);
+    *number_of_grid_cells =
+        std::visit([](auto& st) -> int { return static_cast<int>(st.conditions_.size()); }, state_variant_);
 
     return &vec;
   }
 
-  double* GetOrderedConcentrationsToStateFortran(musica::State* state, int* number_of_species, int* number_of_grid_cells, Error* error)
+  double* GetOrderedConcentrationsToStateFortran(
+      musica::State* state,
+      int* number_of_species,
+      int* number_of_grid_cells,
+      Error* error)
   {
     return state->GetOrderedConcentrationsToState(state, number_of_species, number_of_grid_cells, error);
   }
-  
-  double* State::GetOrderedConcentrationsToState(musica::State* state, int* number_of_species, int* number_of_grid_cells, Error* error)
-  {
-    auto& vec = std::visit([](auto& st) -> std::vector<double>& {
-      return st.variables_.AsVector();
-    }, state_variant_);
 
-    *number_of_grid_cells = std::visit([](auto& st) -> int {
-      return static_cast<int>(st.conditions_.size());
-    }, state_variant_);
+  double* State::GetOrderedConcentrationsToState(
+      musica::State* state,
+      int* number_of_species,
+      int* number_of_grid_cells,
+      Error* error)
+  {
+    auto& vec = std::visit([](auto& st) -> std::vector<double>& { return st.variables_.AsVector(); }, state_variant_);
+
+    *number_of_grid_cells =
+        std::visit([](auto& st) -> int { return static_cast<int>(st.conditions_.size()); }, state_variant_);
 
     *number_of_species = static_cast<int>(vec.size() / *number_of_grid_cells);
-    
+
     return vec.data();
   }
 
-  double* GetOrderedRateConstantsToStateFortran(musica::State* state, int* number_of_rate_constants, int* number_of_grid_cells, Error* error)
+  double* GetOrderedRateConstantsToStateFortran(
+      musica::State* state,
+      int* number_of_rate_constants,
+      int* number_of_grid_cells,
+      Error* error)
   {
     return state->GetOrderedRateConstantsToState(state, number_of_rate_constants, number_of_grid_cells, error);
   }
 
-  double* State::GetOrderedRateConstantsToState(musica::State* state, int* number_of_rate_constants, int* number_of_grid_cells, Error* error)
+  double* State::GetOrderedRateConstantsToState(
+      musica::State* state,
+      int* number_of_rate_constants,
+      int* number_of_grid_cells,
+      Error* error)
   {
-    auto& vec = std::visit([](auto& st) -> std::vector<double>& {
-      return st.custom_rate_parameters_.AsVector();
-    }, state_variant_);
+    auto& vec =
+        std::visit([](auto& st) -> std::vector<double>& { return st.custom_rate_parameters_.AsVector(); }, state_variant_);
 
-    *number_of_grid_cells = std::visit([](auto& st) -> int {
-      return static_cast<int>(st.conditions_.size());
-    }, state_variant_);
+    *number_of_grid_cells =
+        std::visit([](auto& st) -> int { return static_cast<int>(st.conditions_.size()); }, state_variant_);
 
     *number_of_rate_constants = static_cast<int>(vec.size() / *number_of_grid_cells);
     return vec.data();
