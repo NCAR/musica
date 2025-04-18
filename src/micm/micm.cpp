@@ -65,8 +65,6 @@ namespace musica
 
       default: throw std::system_error(make_error_code(MusicaErrCode::SolverTypeNotFound), "Solver type not found");
     }
-
-    auto system = std::visit([](auto& solver) -> micm::System { return solver->GetSystem(); }, solver_variant_);
   }
 
   /// @brief Visitor struct to handle different solver and state types

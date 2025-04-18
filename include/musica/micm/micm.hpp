@@ -126,7 +126,11 @@ namespace musica
 
     MICM(const Chemistry &chemistry, MICMSolver solver_type, int num_grid_cells);
     MICM() = default;
-    ~MICM() = default;
+    ~MICM() {
+      #ifdef MUSICA_ENABLE_CUDA
+        micm::cuda::CudaStreamSingleton::GetInstance().CleanUp();
+      #endif
+    }
 
     /// @brief Solve the system
     /// @param micm Pointer to MICM object

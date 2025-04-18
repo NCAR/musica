@@ -8,56 +8,15 @@
 #include <musica/micm/state.hpp>
 #include <musica/util.hpp>
 
-#include <micm/solver/rosenbrock_solver_parameters.hpp>
-#include <micm/solver/solver_builder.hpp>
-#include <micm/system/species.hpp>
-#include <micm/version.hpp>
-
 #include <cmath>
-#include <cstddef>
-#include <filesystem>
 #include <string>
-#include <system_error>
 
 namespace musica
 {
-  State* CreateMicmState(musica::MICM* micm, Error* error)
+  State::State(const musica::MICM& micm)
   {
-    DeleteError(error);
-    if (!micm)
-    {
-      std::string msg = "MICM pointer is null, cannot create state.";
-      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND, msg.c_str());
-      delete micm;
-      return nullptr;
-    }
-
-    State* state = new State();
-
-    std::visit([&](auto& solver_ptr) { state->state_variant_ = solver_ptr->GetState(); }, micm->solver_variant_);
-
-    return state;
+    std::visit([&](auto& solver_ptr) { this->state_variant_ = solver_ptr->GetState(); }, micm.solver_variant_);
   }
-
-  void DeleteState(const State* state, Error* error)
-  {
-    DeleteError(error);
-    if (state == nullptr)
-    {
-      *error = NoError();
-      return;
-    }
-    try
-    {
-      delete state;
-      *error = NoError();
-    }
-    catch (const std::system_error& e)
-    {
-      *error = ToError(e);
-    }
-  }
-
   std::vector<micm::Conditions>& State::GetConditions()
   {
     return std::visit([](auto& st) -> std::vector<micm::Conditions>& { return st.conditions_; }, state_variant_);

@@ -47,6 +47,8 @@ namespace musica
    public:
     State() = default;
 
+    State(const musica::MICM& micm);
+
     /// @brief Define the variant that holds all state types
     using StateVariant = std::variant<
       micm::VectorState, 
