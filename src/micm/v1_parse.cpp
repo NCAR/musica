@@ -291,17 +291,14 @@ namespace musica
     }
   }
 
-  Chemistry ParserV1(const mechanism_configuration::ParserResult<>& result, Error* error)
+  Chemistry ParserV1(const mechanism_configuration::ParserResult<>& result)
   {
-    DeleteError(error);
-    *error = NoError();
-
     using V1 = mechanism_configuration::v1::types::Mechanism;
     V1* v1_mechanism = dynamic_cast<V1*>(result.mechanism.get());
     Chemistry chemistry{};
     if (!v1_mechanism)
     {
-      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_CONFIG_PARSE_FAILED, "Failed to cast to v1");
+      throw std::system_error(make_error_code(MusicaParseErrc::FailedToCastToVersion), "Failed to cast to V1");
     }
     else
     {
