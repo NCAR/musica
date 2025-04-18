@@ -55,13 +55,13 @@ namespace musica
         solver_variant_ = std::make_unique<micm::BackwardEulerStandard>(
             configure(micm::CpuSolverBuilder<micm::BackwardEulerSolverParameters>(micm::BackwardEulerSolverParameters())));
         break;
-      
-      #ifdef MUSICA_ENABLE_CUDA
+
+#ifdef MUSICA_ENABLE_CUDA
       case MICMSolver::CudaRosenbrock:
-        solver_variant_ = std::make_unique<micm::CudaRosenbrock>(
-            configure(micm::GpuRosenbrockThreeStageBuilder(micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())));
+        solver_variant_ = std::make_unique<micm::CudaRosenbrock>(configure(
+            micm::GpuRosenbrockThreeStageBuilder(micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())));
         break;
-      #endif
+#endif
 
       default: throw std::system_error(make_error_code(MusicaErrCode::SolverTypeNotFound), "Solver type not found");
     }
@@ -77,7 +77,6 @@ namespace musica
     template<typename SolverType, typename StateType>
     void Solve(SolverType& solver, StateType& state) const
     {
-      solver->CalculateRateConstants(state);
       auto result = solver->Solve(time_step, state);
 
       *solver_state = CreateString(micm::SolverStateToString(result.state_).c_str());
@@ -93,32 +92,37 @@ namespace musica
 
     void operator()(std::unique_ptr<micm::Rosenbrock>& solver, micm::VectorState& state) const
     {
+      solver->CalculateRateConstants(state);
       Solve(solver, state);
     }
 
     void operator()(std::unique_ptr<micm::RosenbrockStandard>& solver, micm::StandardState& state) const
     {
+      solver->CalculateRateConstants(state);
       Solve(solver, state);
     }
 
     void operator()(std::unique_ptr<micm::BackwardEuler>& solver, micm::VectorState& state) const
     {
+      solver->CalculateRateConstants(state);
       Solve(solver, state);
     }
 
     void operator()(std::unique_ptr<micm::BackwardEulerStandard>& solver, micm::StandardState& state) const
     {
+      solver->CalculateRateConstants(state);
       Solve(solver, state);
     }
 
-    #ifdef MUSICA_ENABLE_CUDA
+#ifdef MUSICA_ENABLE_CUDA
     void operator()(std::unique_ptr<micm::CudaRosenbrock>& solver, micm::GpuState& state) const
     {
+      solver->CalculateRateConstants(state);
       state.SyncInputsToDevice();
       Solve(solver, state);
       state.SyncOutputsToHost();
     }
-    #endif
+#endif
 
     // Handle unsupported combinations
     template<typename SolverT, typename StateT>
@@ -132,14 +136,14 @@ namespace musica
   void MICM::Solve(musica::State* state, double time_step, String* solver_state, SolverResultStats* solver_stats)
   {
     std::cout << "Before Solve" << std::endl;
-    for(auto c : state->GetOrderedConcentrations())
+    for (auto c : state->GetOrderedConcentrations())
     {
       std::cout << c << " ";
     }
     std::cout << std::endl;
     std::visit(VariantsVisitor{ time_step, solver_state, solver_stats }, this->solver_variant_, state->state_variant_);
     std::cout << "After Solve" << std::endl;
-    for(auto c : state->GetOrderedConcentrations())
+    for (auto c : state->GetOrderedConcentrations())
     {
       std::cout << c << " ";
     }
