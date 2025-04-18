@@ -32,28 +32,28 @@ void DoChemistry(musica::MICMSolver solver_type)
   EXPECT_TRUE(something_changed);
 }
 
-TEST(MICMWrapper, CanCreateRosenbrock)
+TEST(MICMWrapper, Rosenbrock)
 {
   DoChemistry(musica::MICMSolver::Rosenbrock);
 }
 
-TEST(MICMWrapper, CanCreateRosenbrockStandardOrder)
+TEST(MICMWrapper, RosenbrockStandardOrder)
 {
   DoChemistry(musica::MICMSolver::RosenbrockStandardOrder);
 }
 
-TEST(MICMWrapper, CanCreateBackwardEuler)
+TEST(MICMWrapper, BackwardEuler)
 {
   DoChemistry(musica::MICMSolver::BackwardEuler);
 }
 
-TEST(MICMWrapper, CanCreateBackwardEulerStandardOrder)
+TEST(MICMWrapper, BackwardEulerStandardOrder)
 {
   DoChemistry(musica::MICMSolver::BackwardEulerStandardOrder);
 }
 
 #ifdef MUSICA_ENABLE_CUDA
-TEST(MICMWrapper, CanCreateCudaRosenbrock)
+TEST(MICMWrapper, CudaRosenbrock)
 {
   DoChemistry(musica::MICMSolver::CudaRosenbrock);
 }

@@ -135,19 +135,7 @@ namespace musica
 
   void MICM::Solve(musica::State* state, double time_step, String* solver_state, SolverResultStats* solver_stats)
   {
-    std::cout << "Before Solve" << std::endl;
-    for (auto c : state->GetOrderedConcentrations())
-    {
-      std::cout << c << " ";
-    }
-    std::cout << std::endl;
     std::visit(VariantsVisitor{ time_step, solver_state, solver_stats }, this->solver_variant_, state->state_variant_);
-    std::cout << "After Solve" << std::endl;
-    for (auto c : state->GetOrderedConcentrations())
-    {
-      std::cout << c << " ";
-    }
-    std::cout << std::endl;
   }
 
 }  // namespace musica

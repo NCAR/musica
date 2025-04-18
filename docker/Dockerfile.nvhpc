@@ -41,5 +41,6 @@ RUN cd musica \
     -D MUSICA_ENABLE_CUDA=ON \
     -D MUSICA_ENABLE_INSTALL=OFF \
     -D MUSICA_ENABLE_TUVX=OFF \
+    -D MUSICA_SET_MICM_VECTOR_MATRIX_SIZE=1 \
     && cd build \
     && make -j
