@@ -138,7 +138,7 @@ namespace musica
     /// @param time_step Time [s] to advance the state by
     /// @param solver_state State of the solver
     /// @param solver_stats Statistics of the solver
-    void Solve(MICM *micm, musica::State *state, double time_step, String *solver_state, SolverResultStats *solver_stats);
+    void Solve(musica::State *state, double time_step, String *solver_state, SolverResultStats *solver_stats);
 
     /// @brief Get a property for a chemical species
     /// @param species_name Name of the species

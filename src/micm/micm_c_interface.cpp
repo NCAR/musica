@@ -48,7 +48,7 @@ namespace musica
       Error *error)
   {
     HandleErrors([&]() {
-      micm->Solve(micm, state, time_step, solver_state, solver_stats);
+      micm->Solve(state, time_step, solver_state, solver_stats);
       *error = NoError();
     }, error);
   }

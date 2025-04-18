@@ -18,14 +18,18 @@ void DoChemistry(musica::MICMSolver solver_type)
   double time_step = 60;
   musica::SolverResultStats solver_stats;
   musica::String solver_state;
-  micm.Solve(&micm, &state, time_step, &solver_state, &solver_stats);
+  micm.Solve(&state, time_step, &solver_state, &solver_stats);
   EXPECT_EQ(std::string(solver_state.value_), std::string("Converged"));
-  EXPECT_NE(state.GetOrderedConcentrations()[0], initial_concnetrations[0]);
-  EXPECT_NE(state.GetOrderedConcentrations()[1], initial_concnetrations[1]);
-  EXPECT_NE(state.GetOrderedConcentrations()[2], initial_concnetrations[2]);
-  EXPECT_NE(state.GetOrderedConcentrations()[3], initial_concnetrations[3]);
-  EXPECT_NE(state.GetOrderedConcentrations()[4], initial_concnetrations[4]);
-  EXPECT_NE(state.GetOrderedConcentrations()[5], initial_concnetrations[5]);
+  bool something_changed = false;
+  for(int i = 0; i < initial_concnetrations.size(); ++i)
+  {
+    if (state.GetOrderedConcentrations()[i] != initial_concnetrations[i])
+    {
+      something_changed = true;
+      break;
+    }
+  }
+  EXPECT_TRUE(something_changed);
 }
 
 TEST(MICMWrapper, CanCreateRosenbrock)

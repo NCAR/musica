@@ -111,6 +111,15 @@ namespace musica
       Solve(solver, state);
     }
 
+    #ifdef MUSICA_ENABLE_CUDA
+    void operator()(std::unique_ptr<micm::CudaRosenbrock>& solver, micm::GpuState& state) const
+    {
+      state.SyncInputsToDevice();
+      Solve(solver, state);
+      state.SyncOutputsToHost();
+    }
+    #endif
+
     // Handle unsupported combinations
     template<typename SolverT, typename StateT>
     void operator()(std::unique_ptr<SolverT>&, StateT&) const
@@ -120,9 +129,21 @@ namespace musica
     }
   };
 
-  void MICM::Solve(MICM* micm, musica::State* state, double time_step, String* solver_state, SolverResultStats* solver_stats)
+  void MICM::Solve(musica::State* state, double time_step, String* solver_state, SolverResultStats* solver_stats)
   {
-    std::visit(VariantsVisitor{ time_step, solver_state, solver_stats }, micm->solver_variant_, state->state_variant_);
+    std::cout << "Before Solve" << std::endl;
+    for(auto c : state->GetOrderedConcentrations())
+    {
+      std::cout << c << " ";
+    }
+    std::cout << std::endl;
+    std::visit(VariantsVisitor{ time_step, solver_state, solver_stats }, this->solver_variant_, state->state_variant_);
+    std::cout << "After Solve" << std::endl;
+    for(auto c : state->GetOrderedConcentrations())
+    {
+      std::cout << c << " ";
+    }
+    std::cout << std::endl;
   }
 
 }  // namespace musica

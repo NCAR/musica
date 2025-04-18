@@ -8,40 +8,61 @@
 
 namespace musica
 {
-  State* CreateMicmState(musica::MICM* micm, Error* error)
+  template<typename Func>
+  auto HandleErrors(Func func, Error* error) -> decltype(func())
   {
     DeleteError(error);
-    if (!micm)
-    {
-      std::string msg = "MICM pointer is null, cannot create state.";
-      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND, msg.c_str());
-      delete micm;
-      return nullptr;
-    }
-
-    State* state = new State();
-
-    std::visit([&](auto& solver_ptr) { state->state_variant_ = solver_ptr->GetState(); }, micm->solver_variant_);
-
-    return state;
-  }
-
-  void DeleteState(const State* state, Error* error)
-  {
-    DeleteError(error);
-    if (state == nullptr)
-    {
-      *error = NoError();
-      return;
-    }
     try
     {
-      delete state;
-      *error = NoError();
+      return func();
     }
     catch (const std::system_error& e)
     {
       *error = ToError(e);
     }
+    catch (const std::exception& e)
+    {
+      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, e.what());
+    }
+    return decltype(func())();
+  }
+
+  State* CreateMicmState(musica::MICM* micm, Error* error)
+  {
+    return HandleErrors(
+        [&]() -> State*
+        {
+          if (!micm)
+          {
+            std::string msg = "MICM pointer is null, cannot create state.";
+            *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND, msg.c_str());
+            delete micm;
+            return nullptr;
+          }
+
+          State* state = new State();
+
+          std::visit([&](auto& solver_ptr) { state->state_variant_ = solver_ptr->GetState(); }, micm->solver_variant_);
+
+          return state;
+        },
+        error);
+  }
+
+  void DeleteState(const State* state, Error* error)
+  {
+    HandleErrors(
+        [&]() -> void
+        {
+          if (state == nullptr)
+          {
+            std::string msg = "State pointer is null, cannot delete state.";
+            *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND, msg.c_str());
+            return;
+          }
+
+          delete state;
+        },
+        error);
   }
 }  // namespace musica
