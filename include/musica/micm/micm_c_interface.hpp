@@ -72,41 +72,6 @@ namespace musica
     /// @return Array of reaction rate name-index pairs
     Mappings GetUserDefinedReactionRatesOrdering(MICM *micm, musica::State *state, Error *error);
 
-    /// @brief Temporary method to solve the system
-    /// @param micm Pointer to MICM object
-    /// @param time_step Time [s] to advance the state by
-    /// @param temperature Temperature [grid cell] (K)
-    /// @param pressure Pressure [grid cell] (Pa)
-    /// @param air_density Air density [grid cell] (mol m-3)
-    /// @param concentrations Array of species' concentrations [grid cell][species] (mol m-3)
-    /// @param custom_rate_parameters Array of custom rate parameters [grid cell][parameter] (various units)
-    /// @param solver_state State of the solver
-    /// @param solver_stats Statistics of the solver
-    /// @param error Error struct to indicate success or failure
-    void MicmSolveFortran(
-        MICM *micm,
-        double time_step,
-        double *temperature,
-        double *pressure,
-        double *air_density,
-        double *concentrations,
-        double *custom_rate_parameters,
-        String *solver_state,
-        SolverResultStats *solver_stats,
-        Error *error);
-
-    /// @brief Temporary method to Get the ordering of species for Fortran
-    /// @param micm Pointer to MICM object
-    /// @param error Error struct to indicate success or failure
-    /// @return Array of species' name-index pairs
-    Mappings GetSpeciesOrderingFortran(MICM *micm, Error *error);
-
-    /// @brief Temporary method to Get the ordering of user-defined reaction rates for Fortran
-    /// @param micm Pointer to MICM object
-    /// @param error Error struct to indicate success or failure
-    /// @return Array of reaction rate name-index pairs
-    Mappings GetUserDefinedReactionRatesOrderingFortran(MICM *micm, Error *error);
-
     /// @brief Get a property for a chemical species
     /// @param micm Pointer to MICM object
     /// @param species_name Name of the species
