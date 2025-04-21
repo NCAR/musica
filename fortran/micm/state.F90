@@ -94,6 +94,7 @@ module musica_state
     real(kind=real64), pointer :: rates(:,:) => null()
     type(mappings_t), pointer :: user_defined_reaction_rates => null()
   contains
+    procedure :: update_references
     final :: finalize
   end type state_t
 
@@ -176,6 +177,20 @@ contains
   end if
   end function constructor
   
+  subroutine update_references(this, error)
+    use iso_c_binding, only : c_f_pointer
+    use musica_util, only: error_t, error_t_c
+    class(state_t), intent(inout) :: this
+    type(error_t),  intent(out)   :: error
+
+    type(error_t_c) :: error_c
+    integer         :: n_species, n_grid_cells
+
+    this%double_array_pointer_concentration = get_concentrations_pointer(this%ptr, n_species, n_grid_cells, error_c)
+    call c_f_pointer( this%double_array_pointer_concentration, this%concentrations, [ n_species, n_grid_cells ] )
+    error = error_t(error_c) 
+  end subroutine update_references
+
   subroutine finalize(this)
     use musica_util, only: error_t, error_t_c
     type(state_t), intent(inout) :: this
