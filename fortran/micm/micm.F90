@@ -217,7 +217,7 @@ contains
     
     call micm_solve_c(this%ptr, state%ptr, time_step, solver_state_c, solver_stats_c, error_c)
     call state%update_references(error)
-    call state%what()
+    if (.not. error%is_success()) return
     solver_state = string_t(solver_state_c)
     solver_stats = solver_stats_t(solver_stats_c)
     error = error_t(error_c)
