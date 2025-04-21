@@ -5,12 +5,17 @@
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <mechanism_configuration/v1/types.hpp>
 
 namespace py = pybind11;
+using Mechanism = mechanism_configuration::v1::types::Mechanism;
 
 // Wraps micm.cpp
 PYBIND11_MODULE(musica, m)
 {
+  // Import mechanism configuration module
+  py::module_ mechanism_config = py::module_::import("mechanism_config");
+  
   py::class_<micm::Conditions>(m, "Conditions")
       .def(py::init<>())
       .def_readwrite("temperature", &micm::Conditions::temperature_)
@@ -50,6 +55,22 @@ PYBIND11_MODULE(musica, m)
       .value("backward_euler_standard_order", musica::MICMSolver::BackwardEulerStandardOrder);
 
   m.def(
+      "create_solver_from_mechanism",
+      [](const &Mechansim mechanism, musica::MICMSolver solver_type, int num_grid_cells)
+      {
+        musica::Error error;
+        musica::MICM *micm = musica::CreateMicmFromMechanism(mechanism, solver_type, num_grid_cells, &error);
+        if (!musica::IsSuccess(error))
+        {
+          std::string message = "Error creating solver: " + std::string(error.message_.value_);
+          DeleteError(&error);
+          throw std::runtime_error(message);
+        }
+        return micm;
+      },
+      "Create a solver from a mechanism in code");
+
+  m.def(
       "create_solver",
       [](const char *config_path, musica::MICMSolver solver_type, int num_grid_cells)
       {
@@ -62,7 +83,8 @@ PYBIND11_MODULE(musica, m)
           throw std::runtime_error(message);
         }
         return micm;
-      });
+      },
+      "Create a solver from a configuration file");
 
   m.def(
       "create_state",
@@ -77,9 +99,10 @@ PYBIND11_MODULE(musica, m)
           throw std::runtime_error(message);
         }
         return state;
-      });
+      },
+      "Create a state object for use with the solver");
 
-  m.def("delete_micm", &musica::DeleteMicm);
+  m.def("delete_micm", &musica::DeleteMicm, "Delete a solver");
 
   m.def(
       "micm_solve",
@@ -96,7 +119,7 @@ PYBIND11_MODULE(musica, m)
           throw std::runtime_error(message);
         }
       },
-      "Solve the system");
+      "Solve the system, updating the state object with the results");
 
   m.def(
       "species_ordering",
@@ -106,7 +129,7 @@ PYBIND11_MODULE(musica, m)
         std::visit([&map](auto &state) { map = state.variable_map_; }, state->state_variant_);
         return map;
       },
-      "Return map of get_species_ordering rates");
+      "Return a map of species name to index in the state::concentrations vector");
 
   m.def(
       "user_defined_reaction_rates",
@@ -117,5 +140,5 @@ PYBIND11_MODULE(musica, m)
         std::visit([&map](auto &state) { map = state.custom_rate_parameter_map_; }, state->state_variant_);
         return map;
       },
-      "Return map of reaction rates");
+      "Return a map of user-defined reaction rate parameter names to indices in the state::custom_rate_parameters vector");
 }

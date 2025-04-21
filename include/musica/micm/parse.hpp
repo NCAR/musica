@@ -11,7 +11,8 @@ namespace musica
   Chemistry ReadConfiguration(const std::string& config_path, Error* error);
   Chemistry ParserV0(const mechanism_configuration::ParserResult<>& result, Error* error);
   Chemistry ParserV1(const mechanism_configuration::ParserResult<>& result, Error* error);
-
+  Chemistry ParserV1FromMechanism(const mechanism_configuration::v1::types::Mechanism& v1_mechanism, Error* error);
+  
   // Utility functions to check types and perform conversions
   bool IsBool(const std::string& value);
   bool IsInt(const std::string& value);

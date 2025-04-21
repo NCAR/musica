@@ -26,17 +26,14 @@
 namespace musica
 {
 
-  MICM *CreateMicm(const char *config_path, MICMSolver solver_type, int num_grid_cells, Error *error)
+  MICM *CreateMicmSolver(
+      const Chemistry &chemistry,
+      MICMSolver solver_type,
+      int num_grid_cells,
+      Error *error)
   {
     MICM *micm = new MICM();
     micm->SetNumGridCells(num_grid_cells);
-
-    Chemistry chemistry = ReadConfiguration(std::string(config_path), error);
-    if (!IsSuccess(*error))
-    {
-      delete micm;
-      return nullptr;
-    }
 
     micm->SetChemistry(chemistry);
     micm->SetSolverType(solver_type);
@@ -71,6 +68,28 @@ namespace musica
       return nullptr;
     }
     return micm;
+  }
+
+  MICM *CreateMicm(const char *config_path, MICMSolver solver_type, int num_grid_cells, Error *error)
+  {
+    DeleteError(error);
+    *error = NoError();
+    Chemistry chemistry = ReadConfiguration(std::string(config_path), error);
+    if (!IsSuccess(*error)) return nullptr;
+    return CreateMicmSolver(chemistry, solver_type, num_grid_cells, error);
+  }
+
+  MICM *CreateMicmFromMechanism(
+      const mechanism_configuration::v1::types::Mechanism &mechanism,
+      MICMSolver solver_type,
+      int num_grid_cells,
+      Error *error)
+  {
+    DeleteError(error);
+    *error = NoError();
+    Chemistry chemistry = ParserV1FromMechanism(mechanism, error);
+    if (!IsSuccess(*error)) return nullptr;
+    return CreateMicmSolver(chemistry, solver_type, num_grid_cells, error);
   }
 
   void DeleteMicm(const MICM *micm, Error *error)

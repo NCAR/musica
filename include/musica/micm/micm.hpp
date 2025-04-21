@@ -19,6 +19,8 @@
 #include <micm/util/sparse_matrix_vector_ordering.hpp>
 #include <micm/util/vector_matrix.hpp>
 
+#include <mechanism_configuration/v1/types.hpp>
+
 #include <chrono>
 #include <cstddef>
 #include <map>
@@ -101,13 +103,24 @@ namespace musica
       {
       }
     };
-
+    
     /// @brief Create a MICM object by specifying solver type to use
     /// @param config_path Path to configuration file or directory containing configuration file
     /// @param solver_type Type of MICMSolver
     /// @param num_grid_cells Number of grid cells
     /// @param error Error struct to indicate success or failure
     MICM *CreateMicm(const char *config_path, MICMSolver solver_type, int num_grid_cells, Error *error);
+
+    /// @brief Create a MICM object from a mechanism
+    /// @param mechanism Mechanism object
+    /// @param solver_type Type of MICMSolver
+    /// @param num_grid_cells Number of grid cells
+    /// @param error Error struct to indicate success or failure
+    MICM *CreateMicmFromMechanism(
+        const mechanism_configuration::v1::types::Mechanism &mechanism,
+        MICMSolver solver_type,
+        int num_grid_cells,
+        Error *error);
 
     /// @brief Deletes a MICM object
     /// @param micm Pointer to MICM object

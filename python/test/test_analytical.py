@@ -342,10 +342,44 @@ def TestVectorMultipleGridCell(self, solver, state, num_grid_cells, time_step, p
         curr_time += time_step
 
 
+def GetAnalyticalMechanismFromStructs():
+    A = mechansim_config.Species(name="A")
+    B = mechanism_config.Species(name="B")
+    C = mechanism_config.Species(name="C")
+    D = mechanism_config.Species(name="D")
+    E = mechanism_config.Species(name="E")
+    F = mechanism_config.Species(name="F")
+    R1 = mechanism_config.Arrhenius(A=0.004,
+                                    C=50.0,
+                                    reactants=[{species_name="A", coefficient=1.0}],
+                                    products=[{species_name="B", coefficient=1.0}],)
+    R2 = mechanism_config.Arrhenius(A=0.012,
+                                    B=-2.0,
+                                    C=75.0,
+                                    D=50.0,
+                                    E=1.0e-6,
+                                    reactants=[{species_name="B", coefficient=1.0}],
+                                    products=[{species_name="C", coefficient=1.0}],)
+    R3 = mechanism_config.Photolysis(scaling_factor)
+
+
+
 class TestAnalyticalRosenbrockMultipleGridCells(unittest.TestCase):
     def test_simulation(self):
         solver = musica.create_solver(
             "configs/analytical",
+            musica.micmsolver.rosenbrock,
+            4)
+        state = musica.create_state(solver)
+        # The number of grid cells must equal the MICM matrix vector dimension
+        TestVectorMultipleGridCell(self, solver, state, 4, 200.0, 5)
+
+
+class TestAnalyticalRosenbrockMultipleGridCellsFromStructs(unittest.TestCase):
+    def test_simulation(self):
+        mechanism = GetAnalyticalMechanismFromStructs()
+        solver = musica.create_solver(
+            mechanism,
             musica.micmsolver.rosenbrock,
             4)
         state = musica.create_state(solver)

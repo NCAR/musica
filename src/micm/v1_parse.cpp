@@ -291,13 +291,12 @@ namespace musica
     }
   }
 
-  Chemistry ParserV1(const mechanism_configuration::ParserResult<>& result, Error* error)
+  Chemistry ParserV1FromMechanism(
+      const mechanism_configuration::v1::types::Mechanism& v1_mechanism,
+      Error* error)
   {
     DeleteError(error);
     *error = NoError();
-
-    using V1 = mechanism_configuration::v1::types::Mechanism;
-    V1* v1_mechanism = dynamic_cast<V1*>(result.mechanism.get());
     Chemistry chemistry{};
     if (!v1_mechanism)
     {
@@ -341,4 +340,14 @@ namespace musica
     return chemistry;
   }
 
+  Chemistry ParserV1(const mechanism_configuration::ParserResult<>& result, Error* error)
+  {
+    DeleteError(error);
+    *error = NoError();
+
+    using V1 = mechanism_configuration::v1::types::Mechanism;
+    V1* v1_mechanism = dynamic_cast<V1*>(result.mechanism.get());
+    return ParserV1FromMechanism(*v1_mechanism, error);
+  }
+  
 }  // namespace musica
