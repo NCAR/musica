@@ -6,8 +6,8 @@
 #pragma once
 
 #include <musica/micm/chemistry.hpp>
-#include <musica/micm/parse.hpp>
 #include <musica/micm/state.hpp>
+#include <musica/micm/parse.hpp>
 #include <musica/util.hpp>
 
 #include <micm/CPU.hpp>
@@ -115,8 +115,9 @@ namespace musica
         std::unique_ptr<micm::Rosenbrock>,
         std::unique_ptr<micm::RosenbrockStandard>,
         std::unique_ptr<micm::BackwardEuler>,
-        std::unique_ptr<micm::BackwardEulerStandard>,
+        std::unique_ptr<micm::BackwardEulerStandard>
         #ifdef MUSICA_ENABLE_CUDA
+          ,
           std::unique_ptr<micm::CudaRosenbrock>,
         #endif
         >;
