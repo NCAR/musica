@@ -556,7 +556,7 @@ void TestVectorMultipleGridCells(
 // Test case for solving multiple grid cells using vector-ordered Rosenbrock solver
 TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingVectorOrderedRosenbrock)
 {
-  constexpr size_t num_grid_cells = MICM_VECTOR_MATRIX_SIZE;
+  constexpr size_t num_grid_cells = MICM_DEFAULT_VECTOR_SIZE;
   constexpr double time_step = 200.0;
   constexpr double test_accuracy = 5.0e-3;
   const char* config_path = "configs/analytical";
@@ -592,7 +592,7 @@ TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingStandardOrderedRosenbrock
 // Test case for solving multiple grid cells using vector-ordered Backward Euler solver
 TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingVectorOrderedBackwardEuler)
 {
-  constexpr size_t num_grid_cells = MICM_VECTOR_MATRIX_SIZE;
+  constexpr size_t num_grid_cells = MICM_DEFAULT_VECTOR_SIZE;
   constexpr double time_step = 10.0;
   constexpr double test_accuracy = 0.1;
   const char* config_path = "configs/analytical";

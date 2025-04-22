@@ -10,10 +10,6 @@
 #include <musica/micm/micm.hpp>
 #include <musica/micm/state.hpp>
 
-#ifndef MICM_VECTOR_MATRIX_SIZE
-  #define MICM_VECTOR_MATRIX_SIZE 4
-#endif
-
 namespace musica
 {
 #ifdef __cplusplus

@@ -23,10 +23,6 @@
 #include <variant>
 #include <vector>
 
-#ifndef MICM_VECTOR_MATRIX_SIZE
-  #define MICM_VECTOR_MATRIX_SIZE 4
-#endif
-
 namespace musica
 {
   class MICM;
