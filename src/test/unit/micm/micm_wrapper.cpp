@@ -30,6 +30,7 @@ void DoChemistry(musica::MICMSolver solver_type)
     }
   }
   EXPECT_TRUE(something_changed);
+  DeleteString(&solver_state);
 }
 
 TEST(MICMWrapper, Rosenbrock)
