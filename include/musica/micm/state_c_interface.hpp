@@ -30,7 +30,6 @@ namespace musica
     /// @param error Error struct to indicate success or failure
     void DeleteState(const State* state, Error* error);
 
-
     /// @brief Get the pointer to the conditions struct
     /// @param state Pointer to state object
     /// @param number_of_grid_cells Pointer to num of grid cells
