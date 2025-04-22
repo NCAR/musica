@@ -102,7 +102,7 @@ namespace musica
     catch (const std::exception& e)
     {
       config.data_ = nullptr;
-      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_PARSING_FAILED, e.what());
+      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_PARSING_FAILED, e.what());
     }
     return config;
   }
@@ -119,7 +119,7 @@ namespace musica
     catch (const std::exception& e)
     {
       config.data_ = nullptr;
-      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_PARSING_FAILED, e.what());
+      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_PARSING_FAILED, e.what());
     }
     return config;
   }

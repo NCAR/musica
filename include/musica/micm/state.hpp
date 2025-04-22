@@ -8,14 +8,7 @@
 
 #include <musica/util.hpp>
 
-#include <micm/process/process_set.hpp>
-#include <micm/solver/rosenbrock.hpp>
-#include <micm/solver/rosenbrock_solver_parameters.hpp>
-#include <micm/solver/solver.hpp>
-#include <micm/solver/solver_builder.hpp>
-#include <micm/util/matrix.hpp>
-#include <micm/util/sparse_matrix_vector_ordering.hpp>
-#include <micm/util/vector_matrix.hpp>
+#include <micm/CPU.hpp>
 
 #include <any>
 #include <chrono>
@@ -102,7 +95,7 @@ namespace musica
     State() = default;
 
     /// @brief Define the variant that holds all state types
-    using StateVariant = std::variant<VectorState, StandardState>;
+    using StateVariant = std::variant<micm::VectorState, micm::StandardState>;
 
     /// @brief Get the vector of conditions struct
     /// @return Vector of conditions struct

@@ -177,6 +177,9 @@ contains
   end if
   end function constructor
   
+  !> Update the references to the concentrations and rates arrays
+  !> in the state object. This is necessary because C++ may swap the
+  !> pointers to the arrays when the state is updated.
   subroutine update_references(this, error)
     use iso_c_binding, only : c_f_pointer
     use musica_util, only: error_t, error_t_c
@@ -213,5 +216,12 @@ contains
       ASSERT(error%is_success())
     end if
   end subroutine finalize
+
+  subroutine what (this)
+    use iso_c_binding, only : c_f_pointer
+    class(state_t), intent(in) :: this
+
+    write(*,*) "State object:"
+  end subroutine what
 
 end module musica_state

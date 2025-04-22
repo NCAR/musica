@@ -23,14 +23,6 @@ module musica_util
   !> Double precision kind
   integer, parameter :: musica_dk = real64
 
-  integer, parameter, public :: MUSICA_ERROR_CODE_SPECIES_NOT_FOUND         = 1
-  integer, parameter, public :: MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND     = 2
-  integer, parameter, public :: MUSICA_ERROR_CODE_MAPPING_NOT_FOUND         = 3
-  integer, parameter, public :: MUSICA_ERROR_CODE_PARSING_FAILED            = 4
-  integer, parameter, public :: MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED = 5
-  integer, parameter, public :: MUSICA_ERROR_CODE_CONFIG_PARSE_FAILED       = 6
-  integer, parameter, public :: MUSICA_ERROR_CODE_VERSION_NOT_SUPPORTED     = 7
-
   !> Wrapper for a c string
   type, bind(c) :: string_t_c
     type(c_ptr) :: ptr_ = c_null_ptr

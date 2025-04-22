@@ -168,7 +168,7 @@ contains
     deallocate(micm)
     deallocate(state)
     micm => micm_t( "configs/invalid", solver_type, num_grid_cells, error )
-    ASSERT( error%is_error( MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_CONFIG_PARSE_FAILED ) )
+    ASSERT( error%is_error( MUSICA_ERROR_CATEGORY_PARSING, MUSICA_PARSE_INVALID_CONFIG_FILE ) )
     ASSERT( .not. associated( micm ) )
 
     write(*,*) "[test micm fort api] Finished."
@@ -597,7 +597,7 @@ contains
     deallocate( micm )
     deallocate( state )
     micm => micm_t( "configs/invalid", solver_type, num_grid_cells, error )
-    ASSERT( error%is_error( MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_CONFIG_PARSE_FAILED ) )
+    ASSERT( error%is_error( MUSICA_ERROR_CATEGORY_PARSING, MUSICA_PARSE_INVALID_CONFIG_FILE ) )
     ASSERT( .not. associated( micm ) )
 
     write(*,*) "[test micm fort api] Finished."
