@@ -58,20 +58,6 @@ namespace musica
     /// @return MICM version
     String MicmVersion();
 
-    /// @brief Get the ordering of species
-    /// @param micm Pointer to MICM object
-    /// @param state Pointer to state object
-    /// @param error Error struct to indicate success or failure
-    /// @return Array of species' name-index pairs
-    Mappings GetSpeciesOrdering(MICM *micm, musica::State *state, Error *error);
-
-    /// @brief Get the ordering of user-defined reaction rates
-    /// @param micm Pointer to MICM object
-    /// @param state Pointer to state object
-    /// @param error Error struct to indicate success or failure
-    /// @return Array of reaction rate name-index pairs
-    Mappings GetUserDefinedReactionRatesOrdering(MICM *micm, musica::State *state, Error *error);
-
     /// @brief Get a property for a chemical species
     /// @param micm Pointer to MICM object
     /// @param species_name Name of the species

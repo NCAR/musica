@@ -6,7 +6,6 @@
 // It also includes functions for creating and deleting State instances with c bindings.
 #pragma once
 
-#include <musica/util.hpp>
 #include <musica/micm/micm.hpp>
 
 #include <micm/CPU.hpp>
@@ -76,29 +75,24 @@ namespace musica
     /// @brief Get the pointer to the conditions struct
     /// @param state Pointer to state object
     /// @param number_of_grid_cells Pointer to num of grid cells
-    /// @param error Error struct to indicate success or failure
-    std::vector<micm::Conditions>* GetConditionsToState(musica::State* state, int* number_of_grid_cells, Error* error);
+    std::vector<micm::Conditions>* GetConditionsToState(musica::State* state, int* number_of_grid_cells);
 
     /// @brief Get the point to the vector of the concentrations
     /// @param state Pointer to state object
     /// @param number_of_species Pointer to number of species
     /// @param number_of_grid_cells Pointer to num of grid cells
-    /// @param error Error struct to indicate success or failure
     /// @return Pointer to the vector
-    double*
-    GetOrderedConcentrationsToState(musica::State* state, int* number_of_species, int* number_of_grid_cells, Error* error);
+    double* GetOrderedConcentrationsToState(musica::State* state, int* number_of_species, int* number_of_grid_cells);
 
     /// @brief Get the point to the vector of the rates
     /// @param state Pointer to state object
     /// @param number_of_species Pointer to number of rate constants
     /// @param number_of_grid_cells Pointer to num of grid cells
-    /// @param error Error struct to indicate success or failure
     /// @return Pointer to the vector
     double* GetOrderedRateConstantsToState(
         musica::State* state,
         int* number_of_rate_constants,
-        int* number_of_grid_cells,
-        Error* error);
+        int* number_of_grid_cells);
 
     StateVariant state_variant_;
   };

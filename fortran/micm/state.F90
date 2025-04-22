@@ -58,20 +58,18 @@ module musica_state
       type(error_t_c), intent(inout)    :: error
     end subroutine delete_state_c
 
-    type(mappings_t_c) function get_species_ordering_c(micm, state, error) &
+    type(mappings_t_c) function get_species_ordering_c(state, error) &
         bind(c, name="GetSpeciesOrdering")
       use musica_util, only: error_t_c, mappings_t_c
       import c_ptr, c_size_t
-      type(c_ptr), value, intent(in)      :: micm
       type(c_ptr), value, intent(in)      :: state
       type(error_t_c), intent(inout)      :: error
     end function get_species_ordering_c
 
-    type(mappings_t_c) function get_user_defined_reaction_rates_ordering_c(micm, state, error) &
+    type(mappings_t_c) function get_user_defined_reaction_rates_ordering_c(state, error) &
       bind(c, name="GetUserDefinedReactionRatesOrdering")
       use musica_util, only: error_t_c, mappings_t_c
       import c_ptr, c_size_t
-      type(c_ptr), value, intent(in)      :: micm
       type(c_ptr), value, intent(in)      :: state
       type(error_t_c), intent(inout)      :: error
     end function get_user_defined_reaction_rates_ordering_c    
@@ -159,7 +157,7 @@ contains
         return
     end if
 
-    this%species_ordering => mappings_t( get_species_ordering_c(micm, this%ptr, error_c) )
+    this%species_ordering => mappings_t( get_species_ordering_c(this%ptr, error_c) )
     error = error_t(error_c)
     if (.not. error%is_success()) then
         deallocate(this)
@@ -168,7 +166,7 @@ contains
     end if
 
     this%user_defined_reaction_rates => &
-        mappings_t( get_user_defined_reaction_rates_ordering_c(micm, this%ptr, error_c) )
+        mappings_t( get_user_defined_reaction_rates_ordering_c(this%ptr, error_c) )
     error = error_t(error_c)
     if (.not. error%is_success()) then
       deallocate(this)

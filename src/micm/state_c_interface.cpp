@@ -68,17 +68,8 @@ namespace musica
 
   micm::Conditions* GetConditionsToStateFortran(musica::State* state, int* number_of_grid_cells, Error* error)
   {
-    return state->GetConditionsToState(state, number_of_grid_cells, error)->data();
-  }
-
-  std::vector<micm::Conditions>* State::GetConditionsToState(musica::State* state, int* number_of_grid_cells, Error* error)
-  {
-    auto& vec = std::visit([](auto& st) -> std::vector<micm::Conditions>& { return st.conditions_; }, state_variant_);
-
-    *number_of_grid_cells =
-        std::visit([](auto& st) -> int { return static_cast<int>(st.conditions_.size()); }, state_variant_);
-
-    return &vec;
+    return HandleErrors(
+        [&]() -> micm::Conditions* { return state->GetConditionsToState(state, number_of_grid_cells)->data(); }, error);
   }
 
   double* GetOrderedConcentrationsToStateFortran(
@@ -87,23 +78,9 @@ namespace musica
       int* number_of_grid_cells,
       Error* error)
   {
-    return state->GetOrderedConcentrationsToState(state, number_of_species, number_of_grid_cells, error);
-  }
-
-  double* State::GetOrderedConcentrationsToState(
-      musica::State* state,
-      int* number_of_species,
-      int* number_of_grid_cells,
-      Error* error)
-  {
-    auto& vec = std::visit([](auto& st) -> std::vector<double>& { return st.variables_.AsVector(); }, state_variant_);
-
-    *number_of_grid_cells =
-        std::visit([](auto& st) -> int { return static_cast<int>(st.conditions_.size()); }, state_variant_);
-
-    *number_of_species = static_cast<int>(vec.size() / *number_of_grid_cells);
-
-    return vec.data();
+    return HandleErrors(
+        [&]() -> double* { return state->GetOrderedConcentrationsToState(state, number_of_species, number_of_grid_cells); },
+        error);
   }
 
   double* GetOrderedRateConstantsToStateFortran(
@@ -112,7 +89,53 @@ namespace musica
       int* number_of_grid_cells,
       Error* error)
   {
-    return state->GetOrderedRateConstantsToState(state, number_of_rate_constants, number_of_grid_cells, error);
+    return HandleErrors(
+        [&]() -> double*
+        { return state->GetOrderedRateConstantsToState(state, number_of_rate_constants, number_of_grid_cells); },
+        error);
   }
+
+  Mappings GetSpeciesOrdering(musica::State *state, Error *error)
+  {
+    return HandleErrors([&]() {
+      Mappings species_ordering;
+      std::map<std::string, std::size_t> map = std::visit([](auto &state) { return state.variable_map_; }, state->state_variant_);
+
+      species_ordering.mappings_ = new Mapping[map.size()];
+      species_ordering.size_ = map.size();
+
+      std::size_t i = 0;
+      for (const auto &entry : map)
+      {
+        species_ordering.mappings_[i] = ToMapping(entry.first.c_str(), entry.second);
+        ++i;
+      }
+
+      *error = NoError();
+      return species_ordering;
+    }, error);
+  }
+
+  Mappings GetUserDefinedReactionRatesOrdering(musica::State *state, Error *error)
+  {
+    return HandleErrors([&]() {
+      Mappings reaction_rates;
+      std::map<std::string, std::size_t> map = std::visit([](auto &state) { return state.custom_rate_parameter_map_; }, state->state_variant_);
+
+      reaction_rates.mappings_ = new Mapping[map.size()];
+      reaction_rates.size_ = map.size();
+
+      std::size_t i = 0;
+      for (const auto &entry : map)
+      {
+        reaction_rates.mappings_[i] = ToMapping(entry.first.c_str(), entry.second);
+        ++i;
+      }
+
+      *error = NoError();
+      return reaction_rates;
+    }, error);
+  }
+
 
 }  // namespace musica
