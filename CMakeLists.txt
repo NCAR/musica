@@ -21,7 +21,6 @@ include(CMakeDependentOption)
 
 option(MUSICA_BUILD_C_CXX_INTERFACE "Use MUSICA" ON)
 option(MUSICA_BUILD_FORTRAN_INTERFACE "Use MUSICA-Fortran interface" OFF)
-option(MUSICA_ENABLE_CUDA "Enable CUDA support" OFF)
 option(MUSICA_ENABLE_INSTALL "Install the musica library" ON)
 option(MUSICA_ENABLE_TESTS "Builds tests that ensures each enabled MUSICA component can be used" ON)
 option(MUSICA_ENABLE_MPI "Enable MPI parallel support" OFF)
@@ -31,8 +30,9 @@ option(MUSICA_BUILD_DOCS "Build the documentation" OFF)
 option(MUSICA_ENABLE_MICM "Enable MICM" ON)
 option(MUSICA_ENABLE_TUVX "Enable TUV-x" ON)
 option(MUSICA_ENABLE_PIC "Build the library with position independent code" OFF)
+set(MUSICA_GPU_TYPE "None" CACHE STRING "The GPU type being targeted")
 
-set(MUSICA_SET_MICM_VECTOR_MATRIX_SIZE "4" CACHE STRING "Set MICM vector-ordered matrix dimension")
+set(MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE "4" CACHE STRING "Set MICM vector-ordered matrix dimension")
 
 cmake_dependent_option(
   MUSICA_ENABLE_PYTHON_LIBRARY "Adds pybind11, a lightweight header-only library that exposes C++ types in Python and vice versa" OFF "MUSICA_BUILD_C_CXX_INTERFACE" OFF)

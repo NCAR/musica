@@ -48,7 +48,7 @@ if (MUSICA_ENABLE_MICM)
       LINKER_LANGUAGE Fortran
   )
 
-  target_compile_definitions(test_micm_fortran_api PUBLIC MICM_VECTOR_MATRIX_SIZE=${MUSICA_SET_MICM_VECTOR_MATRIX_SIZE})
+  target_compile_definitions(test_micm_fortran_api PUBLIC MICM_DEFAULT_VECTOR_SIZE=${MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE})
 
   add_test(
     NAME test_micm_fortran_api
