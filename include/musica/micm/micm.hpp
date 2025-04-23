@@ -129,7 +129,15 @@ namespace musica
     MICM() = default;
     ~MICM() {
       #ifdef MUSICA_ENABLE_CUDA
-        micm::cuda::CudaStreamSingleton::GetInstance().CleanUp();
+      // Clean up CUDA resources
+      // This must happen before the MICM destructor completes because
+      // cuda must clean all of its runtime resources
+      // Otherwise, we risk the CudaRosenbrock destructor running after 
+      // the cuda runtime has closed
+      std::visit([](auto& solver) {
+        solver.reset();
+       }, solver_variant_);
+      micm::cuda::CudaStreamSingleton::GetInstance().CleanUp();
       #endif
     }
 
