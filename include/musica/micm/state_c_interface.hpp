@@ -6,9 +6,9 @@
 // It also includes functions for creating and deleting State instances with c bindings.
 #pragma once
 
-#include <musica/util.hpp>
 #include <musica/micm/micm.hpp>
 #include <musica/micm/state.hpp>
+#include <musica/util.hpp>
 
 namespace musica
 {
@@ -60,13 +60,13 @@ namespace musica
     /// @param state Pointer to state object
     /// @param error Error struct to indicate success or failure
     /// @return Array of species' name-index pairs
-    Mappings GetSpeciesOrdering(musica::State *state, Error *error);
+    Mappings GetSpeciesOrdering(musica::State* state, Error* error);
 
     /// @brief Get the ordering of user-defined reaction rates
     /// @param state Pointer to state object
     /// @param error Error struct to indicate success or failure
     /// @return Array of reaction rate name-index pairs
-    Mappings GetUserDefinedReactionRatesOrdering(musica::State *state, Error *error);
+    Mappings GetUserDefinedReactionRatesOrdering(musica::State* state, Error* error);
 #ifdef __cplusplus
   }
 #endif

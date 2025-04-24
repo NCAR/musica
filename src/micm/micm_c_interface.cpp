@@ -2,7 +2,7 @@
 
 namespace musica
 {
-  template <typename Func>
+  template<typename Func>
   auto HandleErrors(Func func, Error *error) -> decltype(func())
   {
     DeleteError(error);
@@ -23,20 +23,26 @@ namespace musica
 
   MICM *CreateMicm(const char *config_path, MICMSolver solver_type, int num_grid_cells, Error *error)
   {
-    return HandleErrors([&]() {
-      Chemistry chemistry = ReadConfiguration(std::string(config_path));
-      MICM *micm = new MICM(chemistry, solver_type, num_grid_cells);
-      *error = NoError();
-      return micm;
-    }, error);
+    return HandleErrors(
+        [&]()
+        {
+          Chemistry chemistry = ReadConfiguration(std::string(config_path));
+          MICM *micm = new MICM(chemistry, solver_type, num_grid_cells);
+          *error = NoError();
+          return micm;
+        },
+        error);
   }
 
   void DeleteMicm(const MICM *micm, Error *error)
   {
-    HandleErrors([&]() {
-      delete micm;
-      *error = NoError();
-    }, error);
+    HandleErrors(
+        [&]()
+        {
+          delete micm;
+          *error = NoError();
+        },
+        error);
   }
 
   void MicmSolve(
@@ -47,10 +53,13 @@ namespace musica
       SolverResultStats *solver_stats,
       Error *error)
   {
-    HandleErrors([&]() {
-      micm->Solve(state, time_step, solver_state, solver_stats);
-      *error = NoError();
-    }, error);
+    HandleErrors(
+        [&]()
+        {
+          micm->Solve(state, time_step, solver_state, solver_stats);
+          *error = NoError();
+        },
+        error);
   }
 
   String MicmVersion()
@@ -58,16 +67,19 @@ namespace musica
     return CreateString(micm::GetMicmVersion());
   }
 
-  template <typename T>
+  template<typename T>
   T GetSpeciesProperty(MICM *micm, const char *species_name, const char *property_name, Error *error)
   {
-    return HandleErrors([&]() {
-      std::string species_name_str(species_name);
-      std::string property_name_str(property_name);
-      T val = micm->GetSpeciesProperty<T>(species_name_str, property_name_str);
-      *error = NoError();
-      return val;
-    }, error);
+    return HandleErrors(
+        [&]()
+        {
+          std::string species_name_str(species_name);
+          std::string property_name_str(property_name);
+          T val = micm->GetSpeciesProperty<T>(species_name_str, property_name_str);
+          *error = NoError();
+          return val;
+        },
+        error);
   }
 
   String GetSpeciesPropertyString(MICM *micm, const char *species_name, const char *property_name, Error *error)
@@ -94,4 +106,4 @@ namespace musica
   {
     return GetSpeciesProperty<bool>(micm, species_name, property_name, error);
   }
-}
+}  // namespace musica

@@ -11,9 +11,9 @@ void DoChemistry(musica::MICMSolver solver_type)
   musica::MICM micm = musica::MICM(chemistry, solver_type, 1);
   musica::State state = musica::State(micm);
 
-  std::vector<double> initial_concnetrations = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+  std::vector<double> initial_concnetrations = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
   state.SetOrderedConcentrations(initial_concnetrations);
-  state.SetConditions({ {.temperature_ = 298.15, .pressure_ = 101325.0 } });
+  state.SetConditions({ { .temperature_ = 298.15, .pressure_ = 101325.0 } });
 
   double time_step = 60;
   musica::SolverResultStats solver_stats;
@@ -21,7 +21,7 @@ void DoChemistry(musica::MICMSolver solver_type)
   micm.Solve(&state, time_step, &solver_state, &solver_stats);
   EXPECT_EQ(std::string(solver_state.value_), std::string("Converged"));
   bool something_changed = false;
-  for(int i = 0; i < initial_concnetrations.size(); ++i)
+  for (int i = 0; i < initial_concnetrations.size(); ++i)
   {
     if (state.GetOrderedConcentrations()[i] != initial_concnetrations[i])
     {
