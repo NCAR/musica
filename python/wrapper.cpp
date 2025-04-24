@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 #include <musica/micm/micm.hpp>
 #include <musica/micm/micm_c_interface.hpp>
+#include <musica/micm/state_c_interface.hpp>
 #include <musica/micm/state.hpp>
 
 #include <pybind11/pybind11.h>
@@ -101,7 +102,7 @@ PYBIND11_MODULE(musica, m)
 
   m.def(
       "species_ordering",
-      [](musica::MICM *micm, musica::State *state)
+      [](musica::State *state)
       {
         std::map<std::string, std::size_t> map;
         std::visit([&map](auto &state) { map = state.variable_map_; }, state->state_variant_);
@@ -111,7 +112,7 @@ PYBIND11_MODULE(musica, m)
 
   m.def(
       "user_defined_reaction_rates",
-      [](musica::MICM *micm, musica::State *state)
+      [](musica::State *state)
       {
         std::map<std::string, std::size_t> map;
 

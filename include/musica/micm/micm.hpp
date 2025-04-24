@@ -6,11 +6,14 @@
 #pragma once
 
 #include <musica/micm/chemistry.hpp>
-#include <musica/micm/parse.hpp>
 #include <musica/micm/state.hpp>
+#include <musica/micm/parse.hpp>
 #include <musica/util.hpp>
 
 #include <micm/CPU.hpp>
+#ifdef MUSICA_ENABLE_CUDA
+  #include <micm/GPU.hpp>
+#endif
 
 #include <chrono>
 #include <cstddef>
@@ -80,6 +83,9 @@ namespace musica
     RosenbrockStandardOrder,     // Standard-ordered Rosenbrock solver
     BackwardEuler,               // Vector-ordered BackwardEuler solver
     BackwardEulerStandardOrder,  // Standard-ordered BackwardEuler solver
+    #ifdef MUSICA_ENABLE_CUDA
+      CudaRosenbrock,            // Cuda Rosenbrock solver
+    #endif
   };
 
   struct SolverResultStats
@@ -109,14 +115,31 @@ namespace musica
         std::unique_ptr<micm::Rosenbrock>,
         std::unique_ptr<micm::RosenbrockStandard>,
         std::unique_ptr<micm::BackwardEuler>,
-        std::unique_ptr<micm::BackwardEulerStandard>>;
+        std::unique_ptr<micm::BackwardEulerStandard>
+        #ifdef MUSICA_ENABLE_CUDA
+          ,
+          std::unique_ptr<micm::CudaRosenbrock>,
+        #endif
+        >;
 
    public:
     SolverVariant solver_variant_;
 
     MICM(const Chemistry &chemistry, MICMSolver solver_type, int num_grid_cells);
     MICM() = default;
-    ~MICM() = default;
+    ~MICM() {
+      #ifdef MUSICA_ENABLE_CUDA
+      // Clean up CUDA resources
+      // This must happen before the MICM destructor completes because
+      // cuda must clean all of its runtime resources
+      // Otherwise, we risk the CudaRosenbrock destructor running after 
+      // the cuda runtime has closed
+      std::visit([](auto& solver) {
+        solver.reset();
+       }, solver_variant_);
+      micm::cuda::CudaStreamSingleton::GetInstance().CleanUp();
+      #endif
+    }
 
     /// @brief Solve the system
     /// @param micm Pointer to MICM object
@@ -124,7 +147,7 @@ namespace musica
     /// @param time_step Time [s] to advance the state by
     /// @param solver_state State of the solver
     /// @param solver_stats Statistics of the solver
-    void Solve(MICM *micm, musica::State *state, double time_step, String *solver_state, SolverResultStats *solver_stats);
+    void Solve(musica::State *state, double time_step, String *solver_state, SolverResultStats *solver_stats);
 
     /// @brief Get a property for a chemical species
     /// @param species_name Name of the species

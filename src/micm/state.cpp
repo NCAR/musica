@@ -8,54 +8,15 @@
 #include <musica/micm/state.hpp>
 #include <musica/util.hpp>
 
-#include <micm/solver/rosenbrock_solver_parameters.hpp>
-#include <micm/solver/solver_builder.hpp>
-#include <micm/system/species.hpp>
-#include <micm/version.hpp>
-
 #include <cmath>
-#include <cstddef>
-#include <filesystem>
 #include <string>
-#include <system_error>
 
 namespace musica
 {
-  State* CreateMicmState(musica::MICM* micm, Error* error)
+  State::State(const musica::MICM& micm)
   {
-    DeleteError(error);
-    if (!micm)
-    {
-      std::string msg = "MICM pointer is null, cannot create state.";
-      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND, msg.c_str());
-      delete micm;
-      return nullptr;
-    }
-
-    State* state = new State();
-    std::visit([&](auto& solver_ptr) { state->state_variant_ = solver_ptr->GetState(); }, micm->solver_variant_);
-    return state;
+    std::visit([&](auto& solver_ptr) { this->state_variant_ = solver_ptr->GetState(); }, micm.solver_variant_);
   }
-
-  void DeleteState(const State* state, Error* error)
-  {
-    DeleteError(error);
-    if (state == nullptr)
-    {
-      *error = NoError();
-      return;
-    }
-    try
-    {
-      delete state;
-      *error = NoError();
-    }
-    catch (const std::system_error& e)
-    {
-      *error = ToError(e);
-    }
-  }
-
   std::vector<micm::Conditions>& State::GetConditions()
   {
     return std::visit([](auto& st) -> std::vector<micm::Conditions>& { return st.conditions_; }, state_variant_);
@@ -111,14 +72,24 @@ namespace musica
         state_variant_);
   }
 
-  micm::Conditions* GetConditionsToStateFortran(musica::State* state, int* number_of_grid_cells, Error* error)
+  double* State::GetOrderedRateConstantsToState(
+      musica::State* state,
+      int* number_of_rate_constants,
+      int* number_of_grid_cells)
   {
-    return state->GetConditionsToState(state, number_of_grid_cells, error)->data();
+    auto& vec =
+        std::visit([](auto& st) -> std::vector<double>& { return st.custom_rate_parameters_.AsVector(); }, state_variant_);
+
+    *number_of_grid_cells =
+        std::visit([](auto& st) -> int { return static_cast<int>(st.conditions_.size()); }, state_variant_);
+
+    *number_of_rate_constants = static_cast<int>(vec.size() / *number_of_grid_cells);
+    return vec.data();
   }
 
-  ConditionsVector* State::GetConditionsToState(musica::State* state, int* number_of_grid_cells, Error* error)
+  std::vector<micm::Conditions>* State::GetConditionsToState(musica::State* state, int* number_of_grid_cells)
   {
-    auto& vec = std::visit([](auto& st) -> ConditionsVector& { return st.conditions_; }, state_variant_);
+    auto& vec = std::visit([](auto& st) -> std::vector<micm::Conditions>& { return st.conditions_; }, state_variant_);
 
     *number_of_grid_cells =
         std::visit([](auto& st) -> int { return static_cast<int>(st.conditions_.size()); }, state_variant_);
@@ -126,20 +97,10 @@ namespace musica
     return &vec;
   }
 
-  double* GetOrderedConcentrationsToStateFortran(
-      musica::State* state,
-      int* number_of_species,
-      int* number_of_grid_cells,
-      Error* error)
-  {
-    return state->GetOrderedConcentrationsToState(state, number_of_species, number_of_grid_cells, error);
-  }
-
   double* State::GetOrderedConcentrationsToState(
       musica::State* state,
       int* number_of_species,
-      int* number_of_grid_cells,
-      Error* error)
+      int* number_of_grid_cells)
   {
     auto& vec = std::visit([](auto& st) -> std::vector<double>& { return st.variables_.AsVector(); }, state_variant_);
 
@@ -151,29 +112,5 @@ namespace musica
     return vec.data();
   }
 
-  double* GetOrderedRateConstantsToStateFortran(
-      musica::State* state,
-      int* number_of_rate_constants,
-      int* number_of_grid_cells,
-      Error* error)
-  {
-    return state->GetOrderedRateConstantsToState(state, number_of_rate_constants, number_of_grid_cells, error);
-  }
-
-  double* State::GetOrderedRateConstantsToState(
-      musica::State* state,
-      int* number_of_rate_constants,
-      int* number_of_grid_cells,
-      Error* error)
-  {
-    auto& vec =
-        std::visit([](auto& st) -> std::vector<double>& { return st.custom_rate_parameters_.AsVector(); }, state_variant_);
-
-    *number_of_grid_cells =
-        std::visit([](auto& st) -> int { return static_cast<int>(st.conditions_.size()); }, state_variant_);
-
-    *number_of_rate_constants = static_cast<int>(vec.size() / *number_of_grid_cells);
-    return vec.data();
-  }
 
 }  // namespace musica

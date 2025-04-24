@@ -19,10 +19,6 @@ program test_micm_api
 #define ASSERT_NE( a, b ) call assert( a /= b, __FILE__, __LINE__ )
 #define ASSERT_NEAR( a, b, tol ) call assert( abs(a - b) < abs(a + b) * tol, __FILE__, __LINE__ )
 
-#ifndef MICM_VECTOR_MATRIX_SIZE
-  #define MICM_VECTOR_MATRIX_SIZE 4
-#endif
-
   implicit none
 
   type :: ArrheniusReaction
@@ -413,7 +409,7 @@ contains
     real(real64), parameter :: time_step = 200
     real, parameter           :: test_accuracy = 5.0e-3
 
-    num_grid_cells = MICM_VECTOR_MATRIX_SIZE
+    num_grid_cells = MICM_DEFAULT_VECTOR_SIZE
     micm => micm_t( "configs/analytical", Rosenbrock, num_grid_cells, error )
     ASSERT( error%is_success() )
 
@@ -451,7 +447,7 @@ contains
     real(real64), parameter :: time_step = 10
     real,         parameter :: test_accuracy = 0.1
 
-    num_grid_cells = MICM_VECTOR_MATRIX_SIZE
+    num_grid_cells = MICM_DEFAULT_VECTOR_SIZE
     micm => micm_t( "configs/analytical", BackwardEuler, num_grid_cells, error )
     ASSERT( error%is_success() )
 

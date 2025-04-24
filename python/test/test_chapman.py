@@ -20,8 +20,8 @@ class TestChapman(unittest.TestCase):
         GAS_CONSTANT = 8.31446261815324
         condition.air_density = condition.pressure / (GAS_CONSTANT * condition.temperature)
 
-        rate_constant_ordering = musica.user_defined_reaction_rates(solver, state)
-        species_ordering = musica.species_ordering(solver, state)
+        rate_constant_ordering = musica.user_defined_reaction_rates(state)
+        species_ordering = musica.species_ordering(state)
 
         rate_constants = {
             "PHOTO.jO2": 2.42e-17,

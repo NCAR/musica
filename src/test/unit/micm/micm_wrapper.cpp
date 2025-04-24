@@ -5,75 +5,57 @@
 
 #include <iostream>
 
-TEST(MICMWrapper, CanParseChapmanV0)
+void DoChemistry(musica::MICMSolver solver_type)
 {
-  musica::MICM micm;
-  musica::Chemistry chemistry = musica::ReadConfiguration("configs/chapman");
-  EXPECT_EQ(chemistry.system.gas_phase_.species_.size(), 5);
-  EXPECT_EQ(chemistry.processes.size(), 7);
-  EXPECT_EQ(chemistry.system.gas_phase_.species_[0].name_, "M");
-  EXPECT_NE(chemistry.system.gas_phase_.species_[0].parameterize_, nullptr);
-  EXPECT_EQ(chemistry.system.gas_phase_.species_[1].name_, "O2");
-  EXPECT_EQ(chemistry.system.gas_phase_.species_[2].name_, "O");
-  EXPECT_EQ(chemistry.system.gas_phase_.species_[3].name_, "O1D");
-  EXPECT_EQ(chemistry.system.gas_phase_.species_[4].name_, "O3");
-}
+  musica::Chemistry chemistry = musica::ReadConfiguration("configs/analytical");
+  musica::MICM micm = musica::MICM(chemistry, solver_type, 1);
+  musica::State state = musica::State(micm);
 
-TEST(MICMWrapper, CanParseCBVV0)
-{
-  musica::MICM micm;
-  musica::Chemistry chemistry = musica::ReadConfiguration("configs/carbon_bond_5");
-  EXPECT_EQ(chemistry.system.gas_phase_.species_.size(), 67);
-  EXPECT_EQ(chemistry.processes.size(), 200);
-}
+  std::vector<double> initial_concnetrations = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+  state.SetOrderedConcentrations(initial_concnetrations);
+  state.SetConditions({ {.temperature_ = 298.15, .pressure_ = 101325.0 } });
 
-TEST(MICMWrapper, CanParseTS1V0)
-{
-  musica::MICM micm;
-  musica::Chemistry chemistry = musica::ReadConfiguration("configs/TS1");
-  EXPECT_EQ(chemistry.system.gas_phase_.species_.size(), 210);
-  EXPECT_EQ(chemistry.processes.size(), 547);
-}
-
-TEST(MICMWrapper, DetectsInvalidConfigV0)
-{
-  musica::MICM micm;
-  EXPECT_ANY_THROW(musica::ReadConfiguration("configs/invalid"));
-}
-
-TEST(MICMWrapper, CanParseChapmanV1)
-{
-  std::vector<std::string> extensions = { ".json", ".yaml" };
-
-  for (const auto& extension : extensions)
+  double time_step = 60;
+  musica::SolverResultStats solver_stats;
+  musica::String solver_state;
+  micm.Solve(&state, time_step, &solver_state, &solver_stats);
+  EXPECT_EQ(std::string(solver_state.value_), std::string("Converged"));
+  bool something_changed = false;
+  for(int i = 0; i < initial_concnetrations.size(); ++i)
   {
-    musica::MICM micm;
-    musica::Chemistry chemistry = musica::ReadConfiguration("configs/v1/chapman/config" + extension);
-    EXPECT_EQ(chemistry.system.gas_phase_.species_.size(), 5);
-    EXPECT_EQ(chemistry.processes.size(), 7);
-    EXPECT_EQ(chemistry.system.phases_.size(), 0);
-    EXPECT_EQ(chemistry.system.gas_phase_.species_[0].name_, "M");
-    EXPECT_NE(chemistry.system.gas_phase_.species_[0].parameterize_, nullptr);
-    EXPECT_EQ(chemistry.system.gas_phase_.species_[1].name_, "O");
-    EXPECT_EQ(chemistry.system.gas_phase_.species_[2].name_, "O2");
-    EXPECT_EQ(chemistry.system.gas_phase_.species_[3].name_, "O3");
-    EXPECT_EQ(chemistry.system.gas_phase_.species_[4].name_, "O1D");
-
-    EXPECT_EQ(chemistry.system.gas_phase_.species_[3].GetProperty<std::string>("__long name"), "ozone");
+    if (state.GetOrderedConcentrations()[i] != initial_concnetrations[i])
+    {
+      something_changed = true;
+      break;
+    }
   }
+  EXPECT_TRUE(something_changed);
+  DeleteString(&solver_state);
 }
 
-TEST(MICMWrapper, CanParseFullV1)
+TEST(MICMWrapper, Rosenbrock)
 {
-  std::vector<std::string> extensions = { ".json", ".yaml" };
-
-  for (const auto& extension : extensions)
-  {
-    musica::MICM micm;
-    musica::Chemistry chemistry = musica::ReadConfiguration("configs/v1/full_configuration" + extension);
-    EXPECT_EQ(chemistry.system.gas_phase_.species_.size(), 4);
-    EXPECT_EQ(chemistry.system.gas_phase_.name_, "gas");
-    EXPECT_EQ(chemistry.system.phases_.size(), 3);
-    EXPECT_EQ(chemistry.processes.size(), 9);
-  }
+  DoChemistry(musica::MICMSolver::Rosenbrock);
 }
+
+TEST(MICMWrapper, RosenbrockStandardOrder)
+{
+  DoChemistry(musica::MICMSolver::RosenbrockStandardOrder);
+}
+
+TEST(MICMWrapper, BackwardEuler)
+{
+  DoChemistry(musica::MICMSolver::BackwardEuler);
+}
+
+TEST(MICMWrapper, BackwardEulerStandardOrder)
+{
+  DoChemistry(musica::MICMSolver::BackwardEulerStandardOrder);
+}
+
+#ifdef MUSICA_ENABLE_CUDA
+TEST(MICMWrapper, CudaRosenbrock)
+{
+  DoChemistry(musica::MICMSolver::CudaRosenbrock);
+}
+#endif

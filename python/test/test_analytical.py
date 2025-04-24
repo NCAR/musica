@@ -14,8 +14,8 @@ def TestSingleGridCell(self, solver, state, time_step, places=5):
     GAS_CONSTANT = 8.31446261815324
     condition.air_density = condition.pressure / (GAS_CONSTANT * condition.temperature)
 
-    rates = musica.user_defined_reaction_rates(solver, state)
-    species_ordering = musica.species_ordering(solver, state)
+    rates = musica.user_defined_reaction_rates(state)
+    species_ordering = musica.species_ordering(state)
     rate_constants = {
         "USER.reaction 1": 0.001,
         "USER.reaction 2": 0.002
@@ -137,8 +137,8 @@ def TestStandardMultipleGridCell(self, solver, state, num_grid_cells, time_step,
         rate_constants["USER.reaction 2"].append(
             0.002 + random.uniform(-0.0001, 0.0001))
 
-    rates_ordering = musica.user_defined_reaction_rates(solver, state)
-    species_ordering = musica.species_ordering(solver, state)
+    rates_ordering = musica.user_defined_reaction_rates(state)
+    species_ordering = musica.species_ordering(state)
 
     updated_ordered_rate_constants = (
         len(rate_constants.keys()) * num_grid_cells) * [0.0]
@@ -262,8 +262,8 @@ def TestVectorMultipleGridCell(self, solver, state, num_grid_cells, time_step, p
         rate_constants["USER.reaction 2"].append(
             0.002 + random.uniform(-0.0001, 0.0001))
 
-    rates_ordering = musica.user_defined_reaction_rates(solver, state)
-    species_ordering = musica.species_ordering(solver, state)
+    rates_ordering = musica.user_defined_reaction_rates(state)
+    species_ordering = musica.species_ordering(state)
 
     updated_ordered_rate_constants = (
         len(rate_constants.keys()) * num_grid_cells) * [0.0]

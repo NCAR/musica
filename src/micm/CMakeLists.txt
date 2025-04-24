@@ -3,6 +3,7 @@ target_sources(musica
     micm.cpp
     micm_c_interface.cpp
     state.cpp
+    state_c_interface.cpp
     parse.cpp
     v0_parse.cpp
     v1_parse.cpp
