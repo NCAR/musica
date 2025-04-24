@@ -1,7 +1,7 @@
+#include <musica/micm/parse.hpp>
+
 #include <gtest/gtest.h>
 #include <mechanism_configuration/parser.hpp>
-
-#include <musica/micm/parse.hpp>
 
 TEST(Parser, BadConfigurationFilePath)
 {
@@ -28,7 +28,8 @@ TEST(Parser, Version0Configuration)
   EXPECT_EQ(v0_mechanism->species.size(), 5);
 }
 
-TEST(Parser, Version1Configuration) {
+TEST(Parser, Version1Configuration)
+{
 }
 
 TEST(Parser, CanParseChapmanV0)

@@ -72,10 +72,8 @@ namespace musica
         state_variant_);
   }
 
-  double* State::GetOrderedRateConstantsToState(
-      musica::State* state,
-      int* number_of_rate_constants,
-      int* number_of_grid_cells)
+  double*
+  State::GetOrderedRateConstantsToState(musica::State* state, int* number_of_rate_constants, int* number_of_grid_cells)
   {
     auto& vec =
         std::visit([](auto& st) -> std::vector<double>& { return st.custom_rate_parameters_.AsVector(); }, state_variant_);
@@ -97,10 +95,7 @@ namespace musica
     return &vec;
   }
 
-  double* State::GetOrderedConcentrationsToState(
-      musica::State* state,
-      int* number_of_species,
-      int* number_of_grid_cells)
+  double* State::GetOrderedConcentrationsToState(musica::State* state, int* number_of_species, int* number_of_grid_cells)
   {
     auto& vec = std::visit([](auto& st) -> std::vector<double>& { return st.variables_.AsVector(); }, state_variant_);
 
@@ -111,6 +106,5 @@ namespace musica
 
     return vec.data();
   }
-
 
 }  // namespace musica

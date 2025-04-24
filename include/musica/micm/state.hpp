@@ -36,13 +36,13 @@ namespace musica
 
     /// @brief Define the variant that holds all state types
     using StateVariant = std::variant<
-      micm::VectorState, 
-      micm::StandardState
-        #ifdef MUSICA_ENABLE_CUDA
-          ,
-          micm::GpuState
-        #endif
-    >;
+        micm::VectorState,
+        micm::StandardState
+#ifdef MUSICA_ENABLE_CUDA
+        ,
+        micm::GpuState
+#endif
+        >;
 
     /// @brief Get the vector of conditions struct
     /// @return Vector of conditions struct
@@ -85,10 +85,7 @@ namespace musica
     /// @param number_of_species Pointer to number of rate constants
     /// @param number_of_grid_cells Pointer to num of grid cells
     /// @return Pointer to the vector
-    double* GetOrderedRateConstantsToState(
-        musica::State* state,
-        int* number_of_rate_constants,
-        int* number_of_grid_cells);
+    double* GetOrderedRateConstantsToState(musica::State* state, int* number_of_rate_constants, int* number_of_grid_cells);
 
     StateVariant state_variant_;
   };
