@@ -20,3 +20,6 @@ ln -s cuda-12.2 /usr/local/cuda
 # Add CUDA to PATH and LD_LIBRARY_PATH
 export PATH=/usr/local/cuda/bin:$PATH
 export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+
+ls -l /usr/local/cuda
+ls -l /usr/local/cuda/bin
