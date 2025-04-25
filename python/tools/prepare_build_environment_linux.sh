@@ -16,3 +16,7 @@ yum install --setopt=obsoletes=0 -y \
     libcublas-devel-12-2-12.2.5.6-1 \
     libnccl-devel-2.19.3-1+cuda12.2
 ln -s cuda-12.2 /usr/local/cuda
+
+# Add CUDA to PATH and LD_LIBRARY_PATH
+export PATH=/usr/local/cuda/bin:$PATH
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
