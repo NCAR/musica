@@ -44,6 +44,10 @@ jobs:
       with:
         submodules: true
 
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
     - uses: pypa/cibuildwheel@v2.17
       env:
         CIBW_ARCHS_MACOS: arm64 x86_64
