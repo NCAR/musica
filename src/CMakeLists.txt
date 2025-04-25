@@ -17,7 +17,7 @@ message (STATUS "CMake build configuration for ${PROJECT_NAME} (${CMAKE_BUILD_TY
 add_library(musica)
 add_library(musica::musica ALIAS musica)
 
-if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None")
+if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None" AND NOT APPLE)
   # Add the CUDA library
   target_compile_definitions(musica PUBLIC MUSICA_ENABLE_CUDA)
   target_link_libraries(musica PUBLIC musica::micm_cuda)
