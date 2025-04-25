@@ -49,7 +49,8 @@ PYBIND11_MODULE(musica, m)
       .value("rosenbrock", musica::MICMSolver::Rosenbrock)
       .value("rosenbrock_standard_order", musica::MICMSolver::RosenbrockStandardOrder)
       .value("backward_euler", musica::MICMSolver::BackwardEuler)
-      .value("backward_euler_standard_order", musica::MICMSolver::BackwardEulerStandardOrder);
+      .value("backward_euler_standard_order", musica::MICMSolver::BackwardEulerStandardOrder)
+      .value("cuda_rosenbrock", musica::MICMSolver::CudaRosenbrock);
 
   m.def(
       "create_solver",

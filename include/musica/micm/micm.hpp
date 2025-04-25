@@ -83,9 +83,7 @@ namespace musica
     RosenbrockStandardOrder,     // Standard-ordered Rosenbrock solver
     BackwardEuler,               // Vector-ordered BackwardEuler solver
     BackwardEulerStandardOrder,  // Standard-ordered BackwardEuler solver
-#ifdef MUSICA_ENABLE_CUDA
     CudaRosenbrock,  // Cuda Rosenbrock solver
-#endif
   };
 
   struct SolverResultStats

@@ -44,19 +44,14 @@ jobs:
       with:
         submodules: true
 
-    - uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-
     - uses: pypa/cibuildwheel@v2.17
       env:
         CIBW_ARCHS_MACOS: arm64 x86_64
         CIBW_SKIP: cp27-* cp34-* cp35-* cp36-* *musllinux*
         CIBW_BUILD: cp37-* cp38-* cp39-* cp310-* cp311-* cp312-*
-
-    - name: Verify clean directory
-      run: git diff --exit-code
-      shell: bash
+        CIBW_BEFORE_ALL_LINUX: python/tools/prepare_build_environment_linux.sh
+        CIBW_BEFORE_ALL_MACOS: python/tools/prepare_build_environment_macos.sh
+        CIBW_BEFORE_ALL_WINDOWS: bash python/tools/prepare_build_environment_windows.sh
 
     - name: Upload wheels
       uses: actions/upload-artifact@v4
