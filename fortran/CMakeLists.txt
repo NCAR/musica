@@ -21,7 +21,7 @@ pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
 pkg_check_modules(netcdfc IMPORTED_TARGET REQUIRED netcdf)
 
 if(NOT TARGET musica)
-  find_package(musica REQUIRED)
+  find_package(musica REQUIRED COMPONENTS musica mechanism_configuration yaml-cpp micm tuvx_object)
 endif()
 
 add_library(musica-fortran)
