@@ -8,5 +8,7 @@ curl --netrc-optional -L -nv -o cuda.exe https://developer.download.nvidia.com/c
 ./cuda.exe -s nvcc_12.2 cudart_12.2 cublas_dev_12.2 curand_dev_12.2
 rm cuda.exe
 
+export CUDA_PATH="C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.2"
+export PATH="$CUDA_PATH/bin:$PATH"
 
 # choco install cuda 
