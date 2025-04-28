@@ -57,8 +57,8 @@ jobs:
           LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
         CIBW_ENVIRONMENT_PASS_WINDOWS: CIBW_ARCHS
         CIBW_ENVIRONMENT_WINDOWS: |
-          CUDA_ROOT=C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.2
-          PATH=C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.2/bin:$PATH
+          CUDA_ROOT="C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.2"
+          PATH="C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.2/bin:$PATH"
         CIBW_ARCHS_MACOS: arm64 x86_64
         CIBW_SKIP: cp27-* cp34-* cp35-* cp36-* *musllinux*
         CIBW_BUILD: cp37-* cp38-* cp39-* cp310-* cp311-* cp312-*
