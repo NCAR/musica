@@ -26,14 +26,42 @@ test = [
 ]
 
 [tool.scikit-build]
+cmake.build-type = "Release"
 cmake.args = [
   "-DMUSICA_ENABLE_PYTHON_LIBRARY=ON",
   "-DMUSICA_ENABLE_TUVX=OFF",
   "-DMUSICA_BUILD_FORTRAN_INTERFACE=OFF",
   "-DMUSICA_ENABLE_TESTS=OFF",
-  "-DCMAKE_BUILD_TYPE=Release",
   "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
-  "-DMUSICA_GPU_TYPE=all_major",
+]
+
+[[tool.scikit-build.overrides]]
+if.platform-system ="win32"
+cmake.args = [
+  "-DMUSICA_GPU_TYPE=all_major"
+]
+
+[[tool.scikit-build.overrides]]
+if.platform-system ="cygwin"
+cmake.args = [
+  "-DMUSICA_GPU_TYPE=all_major"
+]
+
+[[tool.scikit-build.overrides]]
+if.platform-system ="msys"
+cmake.args = [
+  "-DMUSICA_GPU_TYPE=all_major"
+]
+
+[[tool.scikit-build.overrides]]
+if.platform-system ="linux"
+cmake.args = [
+  "-DMUSICA_GPU_TYPE=all_major"
+]
+
+[[tool.scikit-build.overrides]]
+if.platform-system ="darwin"
+cmake.args = [
 ]
 
 [project.urls]
