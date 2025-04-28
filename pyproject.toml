@@ -33,7 +33,8 @@ cmake.args = [
   "-DMUSICA_ENABLE_TESTS=OFF",
   "-DCMAKE_BUILD_TYPE=Release",
   "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
-  "-DMUSICA_GPU_TYPE=all_major"
+  "-DMUSICA_GPU_TYPE=all_major",
+  "-DCUDA_TOOLKIT_ROOT_DIR=$CUDA_PATH"
 ]
 
 [project.urls]
