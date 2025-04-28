@@ -21,5 +21,13 @@ ln -s cuda-12.2 /usr/local/cuda
 export PATH=/usr/local/cuda/bin:$PATH
 export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
 
+# Verify CUDA installation
+if ! command -v nvcc &> /dev/null; then
+    echo "CUDA compiler (nvcc) not found in PATH"
+    exit 1
+fi
+
+nvcc --version
+
 ls -l /usr/local/cuda
 ls -l /usr/local/cuda/bin
