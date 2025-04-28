@@ -50,7 +50,11 @@ jobs:
 
     - uses: pypa/cibuildwheel@v2.17
       env:
-        CIBW_ENVIRONMENT_PASS_LINUX: CIBW_ARCHS
+        CIBW_ENVIRONMENT_PASS_LINUX: CIBW_ARCHS CUDA_PATH PATH LD_LIBRARY_PATH
+        CIBW_ENVIRONMENT_LINUX: |
+          CUDA_PATH=/usr/local/cuda
+          PATH=/usr/local/cuda/bin:$PATH
+          LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
         CIBW_ARCHS_MACOS: arm64 x86_64
         CIBW_SKIP: cp27-* cp34-* cp35-* cp36-* *musllinux*
         CIBW_BUILD: cp37-* cp38-* cp39-* cp310-* cp311-* cp312-*
