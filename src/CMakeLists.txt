@@ -21,6 +21,7 @@ if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None" AND NOT APPLE)
   # Add the CUDA library
   target_compile_definitions(musica PUBLIC MUSICA_ENABLE_CUDA)
   target_link_libraries(musica PUBLIC musica::micm_cuda)
+  set_target_properties(micm_cuda PROPERTIES POSITION_INDEPENDENT_CODE ON)
 endif()
 
 if (MUSICA_ENABLE_PYTHON_LIBRARY OR MUSICA_ENABLE_PIC)
