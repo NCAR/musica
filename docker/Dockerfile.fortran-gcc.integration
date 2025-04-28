@@ -13,7 +13,6 @@ RUN dnf -y update \
     gdb \
     git \
     hdf5-devel \
-    json-devel \
     lcov \
     libcurl-devel \
     m4 \
@@ -42,7 +41,7 @@ RUN cd musica \
     && cd build \
     && make install -j
 
-# Build and install MUSICA
+# Build MUSICA-Fortran tests
 RUN cd musica/fortran/test/fetch_content_integration \
     && mkdir build && cd build \
     && cmake .. \
