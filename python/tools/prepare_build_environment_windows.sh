@@ -9,7 +9,7 @@ set -x
 # rm cuda.exe
 
 
-choco install cuda --version=12.2.2
+choco install cuda 
 
 # List installed CUDA packages
 choco list --local-only | grep cuda
