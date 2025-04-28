@@ -116,7 +116,7 @@ namespace musica
         std::unique_ptr<micm::BackwardEulerStandard>
 #ifdef MUSICA_ENABLE_CUDA
         ,
-        std::unique_ptr<micm::CudaRosenbrock>,
+        std::unique_ptr<micm::CudaRosenbrock>
 #endif
         >;
 
