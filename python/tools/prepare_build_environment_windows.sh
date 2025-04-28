@@ -10,6 +10,3 @@ set -x
 
 
 choco install cuda 
-
-# List installed CUDA packages
-choco list --local-only | grep cuda
