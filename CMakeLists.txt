@@ -37,6 +37,9 @@ set(MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE "4" CACHE STRING "Set MICM vector-ordere
 cmake_dependent_option(
   MUSICA_ENABLE_PYTHON_LIBRARY "Adds pybind11, a lightweight header-only library that exposes C++ types in Python and vice versa" OFF "MUSICA_BUILD_C_CXX_INTERFACE" OFF)
 
+message(STATUS "Cuda Compiler: ${CMAKE_CUDA_COMPILER}")
+message(STATUS "Cuda toolkit: ${CUDA_TOOLKIT_ROOT_DIR}")
+
 ################################################################################
 # Projet wide setup variables 
 set(MUSICA_INSTALL_INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR})
