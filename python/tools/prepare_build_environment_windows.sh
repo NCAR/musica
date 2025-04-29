@@ -14,6 +14,6 @@ export PATH="$CUDA_PATH/bin:$PATH"
 
 # choco install cuda 
 
-ls $CUDA_PATH
-ls $CUDA_PATH/bin
+ls "$CUDA_PATH"
+ls "$CUDA_PATH/bin"
 which nvcc
