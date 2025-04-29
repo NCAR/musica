@@ -96,6 +96,15 @@ class TestAnalyticalStandardRosenbrock(unittest.TestCase):
         state = musica.create_state(solver)
         TestSingleGridCell(self, solver, state, 200.0, 5)
 
+class TestAnalyticalCudaRosenbrock(unittest.TestCase):
+    def test_simulation(self):
+        solver = musica.create_solver(
+            "configs/analytical",
+            musica.micmsolver.cuda_rosenbrock,
+            1)
+        state = musica.create_state(solver)
+        TestSingleGridCell(self, solver, state, 200.0, 5)
+
 
 class TestAnalyticalStandardBackwardEuler(unittest.TestCase):
     def test_simulation(self):
