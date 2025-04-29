@@ -86,19 +86,7 @@ namespace musica
     CudaRosenbrock,  // Cuda Rosenbrock solver
   };
 
-  std::string ToString(MICMSolver solver_type)
-  {
-    switch (solver_type)
-    {
-      case UndefinedSolver: return "UndefinedSolver";
-      case Rosenbrock: return "Rosenbrock";
-      case RosenbrockStandardOrder: return "RosenbrockStandardOrder";
-      case BackwardEuler: return "BackwardEuler";
-      case BackwardEulerStandardOrder: return "BackwardEulerStandardOrder";
-      case CudaRosenbrock: return "CudaRosenbrock";
-      default: throw std::system_error(make_error_code(MusicaErrCode::Unknown), "Unknown solver type");
-    }
-  }
+  std::string ToString(MICMSolver solver_type);
 
   struct SolverResultStats
   {
