@@ -16,4 +16,4 @@ export PATH="$CUDA_PATH/bin:$PATH"
 
 ls "$CUDA_PATH"
 ls "$CUDA_PATH/bin"
-which nvcc
+which nvcc.exe
