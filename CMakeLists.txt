@@ -34,7 +34,7 @@ set(MUSICA_GPU_TYPE "None" CACHE STRING "The GPU type being targeted")
 
 message(STATUS "GPU Type: ${MUSICA_GPU_TYPE}")
 
-if (MUSICA_GPU_TYPE STREQUAL "")
+if (${MUSICA_GPU_TYPE} STREQUAL "")
   set(MUSICA_GPU_TYPE "None" CACHE STRING "The GPU type being targeted")
 endif()
 
