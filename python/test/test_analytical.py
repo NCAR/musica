@@ -98,16 +98,15 @@ class TestAnalyticalStandardRosenbrock(unittest.TestCase):
 
 class TestAnalyticalCudaRosenbrock(unittest.TestCase):
     def test_simulation(self):
-        try:
+        if musica.is_cuda_available():
             solver = musica.create_solver(
                 "configs/analytical",
                 musica.micmsolver.cuda_rosenbrock,
                 1)
             state = musica.create_state(solver)
             TestSingleGridCell(self, solver, state, 200.0, 5)
-        except Exception as e:
-            print(e)
-            print("Most likely, CUDA is not available. Skipping test.")
+        else:
+            self.skipTest("CUDA is not available.")
 
 
 class TestAnalyticalStandardBackwardEuler(unittest.TestCase):

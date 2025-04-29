@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 #include <musica/micm/micm.hpp>
 #include <musica/micm/micm_c_interface.hpp>
-#include <musica/micm/state_c_interface.hpp>
 #include <musica/micm/state.hpp>
+#include <musica/micm/state_c_interface.hpp>
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -121,4 +121,6 @@ PYBIND11_MODULE(musica, m)
         return map;
       },
       "Return map of reaction rates");
+
+  m.def("is_cuda_available", &musica::IsCudaAvailable, "Check if CUDA is available");
 }
