@@ -12,7 +12,7 @@ rm cuda.exe
 export CUDA_PATH="/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.8"
 export PATH="$CUDA_PATH/bin:$PATH"
 
-ls "c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.7/extras/visual_studio_integration/MSBuildExtensions"
+ls "c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.8/extras/visual_studio_integration/MSBuildExtensions"
 ls "c/Program Files (x86)/Microsoft Visual Studio/"
 
 # choco install cuda 
