@@ -4,6 +4,7 @@
 #include <musica/micm/micm_c_interface.hpp>
 #include <musica/micm/state.hpp>
 #include <musica/micm/state_c_interface.hpp>
+#include <musica/micm/cuda_availability.hpp>
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
