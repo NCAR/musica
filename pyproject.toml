@@ -36,17 +36,6 @@ cmake.args = [
 ]
 
 [[tool.scikit-build.overrides]]
-if.platform-system ="linux"
-if.platform-machine = "i686"
-cmake.args = [
-  "-DMUSICA_ENABLE_PYTHON_LIBRARY=ON",
-  "-DMUSICA_ENABLE_TUVX=OFF",
-  "-DMUSICA_BUILD_FORTRAN_INTERFACE=OFF",
-  "-DMUSICA_ENABLE_TESTS=OFF",
-  "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
-]
-
-[[tool.scikit-build.overrides]]
 if.any.env.BUILD_GPU = true
 cmake.args = [
   "-DMUSICA_ENABLE_PYTHON_LIBRARY=ON",
@@ -57,6 +46,18 @@ cmake.args = [
   "-DMUSICA_GPU_TYPE=all_major",
   "-DMUSICA_SET_MICM_DEFAULT_VECTOR_SIZE=1"
 ]
+
+[[tool.scikit-build.overrides]]
+if.platform-system ="linux"
+if.platform-machine = "i686"
+cmake.args = [
+  "-DMUSICA_ENABLE_PYTHON_LIBRARY=ON",
+  "-DMUSICA_ENABLE_TUVX=OFF",
+  "-DMUSICA_BUILD_FORTRAN_INTERFACE=OFF",
+  "-DMUSICA_ENABLE_TESTS=OFF",
+  "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
+]
+
 
 [project.urls]
 homepage = "https://wiki.ucar.edu/display/MUSICA/MUSICA+Home"
