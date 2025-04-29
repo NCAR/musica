@@ -30,6 +30,8 @@ option(MUSICA_BUILD_DOCS "Build the documentation" OFF)
 option(MUSICA_ENABLE_MICM "Enable MICM" ON)
 option(MUSICA_ENABLE_TUVX "Enable TUV-x" ON)
 option(MUSICA_ENABLE_PIC "Build the library with position independent code" OFF)
+option(MUSICA_ENABLE_COVERAGE "Enable code coverage output" OFF)
+
 set(MUSICA_GPU_TYPE "None" CACHE STRING "The GPU type being targeted")
 
 set(MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE "4" CACHE STRING "Set MICM vector-ordered matrix dimension")
@@ -89,6 +91,17 @@ endif()
 ################################################################################
 # Tests
 if(MUSICA_ENABLE_TESTS)
+  if(MUSICA_ENABLE_COVERAGE)
+    include(CodeCoverage)
+    append_coverage_compiler_flags()
+    setup_target_for_coverage_lcov(
+        NAME coverage
+        EXECUTABLE "ctest"
+        EXCLUDE "${PROJECT_SOURCE_DIR}/test/*"
+        BASE_DIRECTORY "${PROJECT_SOURCE_DIR}/src")
+    
+  endif()
+  
   enable_testing()
 endif()
 
