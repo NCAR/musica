@@ -46,7 +46,6 @@ cmake.args = [
   "-DMUSICA_GPU_TYPE=all_major"
 ]
 
-
 [project.urls]
 homepage = "https://wiki.ucar.edu/display/MUSICA/MUSICA+Home"
 
@@ -65,7 +64,6 @@ version = "${version}"
 [tool.cibuildwheel]
 # Increase pip debugging output
 build-verbosity = 3
-
 
 [tool.cibuildwheel.macos.environment]
 MACOSX_DEPLOYMENT_TARGET = "10.15"

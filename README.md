@@ -61,6 +61,22 @@ Specifying a specific version of `tuv-x` by has, but using the official reposito
         -DTUVX_GIT_TAG=a6b2c4d8745
 
 
+### Python build
+Musica has python bindings. If you want to install the python package, you may `pip install musica`.
+
+To build the package locally,
+
+```
+pip install -e .
+```
+
+If you have an NVIDIA GPU and cuda installed, you can enable a build of musica with GPU support by setting the environment 
+variable `BUILD_GPU`.
+
+```
+BUILD_GPU=1 pip install -e .
+```
+
 ## Citing MUSICA
 
 MUSICA can be cited in at least two ways. The first is to cite [the paper](https://doi.org/10.1175/BAMS-D-19-0331.1) that defines the vision
