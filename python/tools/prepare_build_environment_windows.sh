@@ -12,3 +12,6 @@ set -x
 # export PATH="$CUDA_PATH/bin:$PATH"
 
 choco install cuda 
+
+ls "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA"
+which nvcc
