@@ -37,7 +37,8 @@ set(MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE "4" CACHE STRING "Set MICM vector-ordere
 cmake_dependent_option(
   MUSICA_ENABLE_PYTHON_LIBRARY "Adds pybind11, a lightweight header-only library that exposes C++ types in Python and vice versa" OFF "MUSICA_BUILD_C_CXX_INTERFACE" OFF)
 
-message(STATUS "GPU Environment: ${BUILD_GPU}")
+message(STATUS "GPU Environment: $ENV{BUILD_GPU}")
+message(STATUS "Cuda path: $ENV{CUDA_PATH}")
 
 ################################################################################
 # Projet wide setup variables 
