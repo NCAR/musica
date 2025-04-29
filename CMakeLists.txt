@@ -32,6 +32,10 @@ option(MUSICA_ENABLE_TUVX "Enable TUV-x" ON)
 option(MUSICA_ENABLE_PIC "Build the library with position independent code" OFF)
 set(MUSICA_GPU_TYPE "None" CACHE STRING "The GPU type being targeted")
 
+if (MUSICA_GPU_TYPE STREQUAL "")
+  set(MUSICA_GPU_TYPE "None" CACHE STRING "The GPU type being targeted")
+endif()
+
 set(MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE "4" CACHE STRING "Set MICM vector-ordered matrix dimension")
 
 cmake_dependent_option(

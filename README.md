@@ -74,7 +74,7 @@ If you have an NVIDIA GPU and cuda installed, you can enable a build of musica w
 variable `BUILD_GPU`.
 
 ```
-BUILD_GPU=1 pip install -e .
+MUSICA_GPU_TYPE=all_major pip install -e .
 ```
 
 ## Citing MUSICA
