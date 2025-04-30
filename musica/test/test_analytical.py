@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 import musica
 import random
-from _musica._core import _print_state
+import mechanism_configuration as mc
 
 
 def TestSingleGridCell(self, solver, state, time_step, places=5):
@@ -188,10 +188,42 @@ def TestMultipleGridCell(self, solver, state, num_grid_cells, time_step, places=
         curr_time += time_step
 
 
+def GetMechanism():
+    A = mc.Species(name = "A")
+    B = mc.Species(name = "B")
+    C = mc.Species(name = "C")
+    D = mc.Species(name = "D")
+    E = mc.Species(name = "E")
+    F = mc.Species(name = "F")
+    gas = mc.Phase(name = "gas", species = [A, B, C, D, E, F])
+    arr1 = mc.Arrhenius(name = "A->B", A = 0.004, C = 50,
+                        gas_phase = gas, reactants = [A], products = [B])
+    arr2 = mc.Arrhenius(name = "B->C", A = 0.012, B = -2, C = 75, D = 50, E = 1.0e-6,
+                        gas_phase = gas, reactants = [B], products = [C])
+    user1 = mc.UserDefined(name = "reaction 1", gas_phase = gas,
+                           reactants = [D], products = [E])
+    user2 = mc.UserDefined(name = "reaction 2", gas_phase = gas,
+                           reactants = [E], products = [F])
+    mechanism = mc.Mechanism(
+        name = "analytical test",
+        species = [A, B, C, D, E, F],
+        phases = [gas],
+        reactions = [arr1, arr2, user1, user2],
+        )
+    return mechanism
+
+
 class TestAnalyticalStandardRosenbrock(unittest.TestCase):
     def test_simulation(self):
         solver = musica.MICM(
             config_path = "configs/analytical",
+            solver_type = musica.SolverType.rosenbrock_standard_order)
+        state = solver.create_state()
+        TestSingleGridCell(self, solver, state, 200.0, 5)
+        TestMultipleGridCell(self, solver, state, 1, 200.0, 5)
+        mechanism = GetMechanism()
+        solver = musica.MICM(
+            mechanism = mechanism,
             solver_type = musica.SolverType.rosenbrock_standard_order)
         state = solver.create_state()
         TestSingleGridCell(self, solver, state, 200.0, 5)
@@ -202,6 +234,13 @@ class TestAnalyticalStandardBackwardEuler(unittest.TestCase):
     def test_simulation(self):
         solver = musica.MICM(
             config_path = "configs/analytical",
+            solver_type = musica.SolverType.backward_euler_standard_order)
+        state = solver.create_state()
+        TestSingleGridCell(self, solver, state, 10.0, places=2)
+        TestMultipleGridCell(self, solver, state, 1, 10.0, places=2)
+        mechanism = GetMechanism()
+        solver = musica.MICM(
+            mechanism = mechanism,
             solver_type = musica.SolverType.backward_euler_standard_order)
         state = solver.create_state()
         TestSingleGridCell(self, solver, state, 10.0, places=2)
@@ -218,6 +257,13 @@ class TestAnalyticalRosenbrockMultipleGridCells(unittest.TestCase):
             state = solver.create_state()
             # The number of grid cells must equal the MICM matrix vector dimension
             TestMultipleGridCell(self, solver, state, i, 200.0, 5)
+            mechanism = GetMechanism()
+            solver = musica.MICM(
+                mechanism = mechanism,
+                solver_type = musica.SolverType.rosenbrock,
+                number_of_grid_cells = i)
+            state = solver.create_state()
+            TestMultipleGridCell(self, solver, state, i, 200.0, 5)
 
 
 class TestAnalyticalStandardRosenbrockMultipleGridCells(unittest.TestCase):
@@ -229,6 +275,13 @@ class TestAnalyticalStandardRosenbrockMultipleGridCells(unittest.TestCase):
                 number_of_grid_cells = i)
             state = solver.create_state()
             # The number of grid cells must equal the MICM matrix vector dimension
+            TestMultipleGridCell(self, solver, state, i, 200.0, 5)
+            mechanism = GetMechanism()
+            solver = musica.MICM(
+                mechanism = mechanism,
+                solver_type = musica.SolverType.rosenbrock_standard_order,
+                number_of_grid_cells = i)
+            state = solver.create_state()
             TestMultipleGridCell(self, solver, state, i, 200.0, 5)
 
 
@@ -242,6 +295,13 @@ class TestAnalyticalBackwardEulerMultipleGridCells(unittest.TestCase):
             state = solver.create_state()
             # The number of grid cells must equal the MICM matrix vector dimension
             TestMultipleGridCell(self, solver, state, i, 10.0, places=2)
+            mechanism = GetMechanism()
+            solver = musica.MICM(
+                mechanism = mechanism,
+                solver_type = musica.SolverType.backward_euler,
+                number_of_grid_cells = i)
+            state = solver.create_state()
+            TestMultipleGridCell(self, solver, state, i, 10.0, places=2)
 
 
 class TestAnalyticalStandardBackwardEulerMultipleGridCells(unittest.TestCase):
@@ -249,6 +309,13 @@ class TestAnalyticalStandardBackwardEulerMultipleGridCells(unittest.TestCase):
         for i in range(1, 11):            
             solver = musica.MICM(
                 config_path = "configs/analytical",
+                solver_type = musica.SolverType.backward_euler_standard_order,
+                number_of_grid_cells = i)
+            state = solver.create_state()
+            TestMultipleGridCell(self, solver, state, i, 10.0, places=2)
+            mechanism = GetMechanism()
+            solver = musica.MICM(
+                mechanism = mechanism,
                 solver_type = musica.SolverType.backward_euler_standard_order,
                 number_of_grid_cells = i)
             state = solver.create_state()

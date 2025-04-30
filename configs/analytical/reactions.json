@@ -2,7 +2,7 @@
   "camp-data": [
     {
       "type": "MECHANISM",
-      "name": "music box interactive configuration",
+      "name": "analytical test",
       "reactions": [
         {
           "type": "ARRHENIUS",

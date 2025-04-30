@@ -4,11 +4,13 @@
 #include <musica/micm/micm_c_interface.hpp>
 #include <musica/micm/state_c_interface.hpp>
 #include <musica/micm/state.hpp>
+#include <mechanism_configuration/v1/types.hpp>
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
 namespace py = pybind11;
+namespace v1 = mechanism_configuration::v1::types;
 
 // Wraps micm.cpp
 PYBIND11_MODULE(_musica, m)
@@ -81,10 +83,11 @@ PYBIND11_MODULE(_musica, m)
       });
 
   core.def(
-      "_create_solver_from_chemistry",
-      [](const musica::Chemistry &chemistry, musica::MICMSolver solver_type, int num_grid_cells)
+      "_create_solver_from_mechanism",
+      [](const v1::Mechanism &mechanism, musica::MICMSolver solver_type, int num_grid_cells)
       {
         musica::Error error;
+        musica::Chemistry chemistry = musica::ConvertV1Mechanism(mechanism);
         musica::MICM *micm = musica::CreateMicmFromChemistryMechanism(&chemistry, solver_type, num_grid_cells, &error);
         if (!musica::IsSuccess(error))
         {

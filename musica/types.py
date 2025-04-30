@@ -14,13 +14,14 @@ from _musica._core import (
   _Solver,
   _State,
   _create_solver,
-  _create_solver_from_chemistry,
+  _create_solver_from_mechanism,
   _create_state,
   _micm_solve,
   _vector_size,
   _species_ordering,
   _user_defined_rate_parameters_ordering,
 )
+import mechanism_configuration as mc
 
 AVOGADRO = 6.02214076e23  # mol^-1
 BOLTZMANN = 1.380649e-23  # J K^-1
@@ -342,7 +343,7 @@ class MICM():
     def __init__(
         self,
         config_path: FilePath = None,
-        chemistry: Chemistry = None,
+        mechanism: mc.Mechanism = None,
         solver_type: _SolverType = None,
         number_of_grid_cells: int = 1,
     ):
@@ -352,14 +353,14 @@ class MICM():
         self.__solver_type = solver_type
         self.__vector_size = _vector_size(solver_type)
         solver_grid_cells = number_of_grid_cells if self.__vector_size == 0 else self.__vector_size
-        if config_path is None and chemistry is None:
+        if config_path is None and mechanism is None:
             raise ValueError("Either config_path or chemistry must be provided.")
-        if config_path is not None and chemistry is not None:
+        if config_path is not None and mechanism is not None:
             raise ValueError("Only one of config_path or chemistry must be provided.")
         if config_path is not None:
             self.__solver = _create_solver(config_path, solver_type, solver_grid_cells)
-        elif chemistry is not None:
-            self.__solver = _create_solver_from_chemistry(chemistry, solver_type, solver_grid_cells)
+        elif mechanism is not None:
+            self.__solver = _create_solver_from_mechanism(mechanism, solver_type, solver_grid_cells)
 
 
     def solver_type(self) -> SolverType:

@@ -21,10 +21,6 @@ ENV CXX=g++
 ENV CC=gcc
 ENV FC=gfortran
 
-RUN cd /musica \
-    && python3 -m pip install --upgrade wheel setuptools pytest \
-    && pip3 install --verbose .[test]
-
 RUN mkdir /build \
       && cd /build \
       && cmake \
@@ -32,6 +28,13 @@ RUN mkdir /build \
         -D MUSICA_ENABLE_PYTHON_LIBRARY=ON \
         /musica \
       && make install -j 8
+
+RUN cd /build/_deps/mechanism_configuration-src \
+    && python3 -m pip install --upgrade wheel setuptools pytest \
+    && pip3 install --verbose .[test]
+
+RUN cd /musica \
+    && pip3 install --verbose .[test]
 
 WORKDIR /musica
 CMD ["python3", "-m", "unittest", "discover", "-v", "-s", "musica/test"]
