@@ -83,7 +83,7 @@ namespace musica
     RosenbrockStandardOrder,     // Standard-ordered Rosenbrock solver
     BackwardEuler,               // Vector-ordered BackwardEuler solver
     BackwardEulerStandardOrder,  // Standard-ordered BackwardEuler solver
-    CudaRosenbrock,  // Cuda Rosenbrock solver
+    CudaRosenbrock,              // Cuda Rosenbrock solver
   };
 
   std::string ToString(MICMSolver solver_type);

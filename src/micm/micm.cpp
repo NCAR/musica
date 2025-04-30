@@ -77,7 +77,7 @@ namespace musica
         break;
 #endif
 
-      default: 
+      default:
         std::string msg = "Solver type " + ToString(solver_type) + " not supported in this build";
         throw std::system_error(make_error_code(MusicaErrCode::SolverTypeNotFound), msg);
     }
