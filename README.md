@@ -9,6 +9,7 @@
 [![DOI](https://zenodo.org/badge/550370528.svg)](https://zenodo.org/doi/10.5281/zenodo.7458559)
 [![PyPI version](https://badge.fury.io/py/musica.svg)](https://pypi.org/p/musica)
 [![FAIR checklist badge](https://fairsoftwarechecklist.net/badge.svg)](https://fairsoftwarechecklist.net/v0.2?f=31&a=32113&i=22322&r=123)
+[![codecov](https://codecov.io/gh/NCAR/musica/branch/main/graph/badge.svg)](https://codecov.io/gh/NCAR/musica)
 
 Multi-Scale Infrastructure for Chemistry and Aerosols
 

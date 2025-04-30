@@ -1,4 +1,4 @@
-FROM fedora:latest
+FROM fedora:37
 
 ARG MUSICA_GIT_TAG=main
 ARG BUILD_TYPE=Release
@@ -21,13 +21,12 @@ RUN dnf -y update \
 # Copy the musica code
 COPY . musica
 
-# Build
-RUN cd musica \
-    && cmake -S . \
-             -B build \
-             -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
-             -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
-    && cd build \
-    && make install -j 8 
+RUN mkdir /build \
+      && cd /build \
+      && cmake \
+        -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+        -D MUSICA_ENABLE_COVERAGE:BOOL=TRUE \
+        ../musica \
+      && make install -j 8
 
-WORKDIR musica/build
+WORKDIR /build
