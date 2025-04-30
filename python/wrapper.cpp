@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 #include <musica/micm/micm.hpp>
 #include <musica/micm/micm_c_interface.hpp>
-#include <musica/micm/state_c_interface.hpp>
 #include <musica/micm/state.hpp>
+#include <musica/micm/state_c_interface.hpp>
+#include <musica/micm/cuda_availability.hpp>
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -49,7 +50,8 @@ PYBIND11_MODULE(musica, m)
       .value("rosenbrock", musica::MICMSolver::Rosenbrock)
       .value("rosenbrock_standard_order", musica::MICMSolver::RosenbrockStandardOrder)
       .value("backward_euler", musica::MICMSolver::BackwardEuler)
-      .value("backward_euler_standard_order", musica::MICMSolver::BackwardEulerStandardOrder);
+      .value("backward_euler_standard_order", musica::MICMSolver::BackwardEulerStandardOrder)
+      .value("cuda_rosenbrock", musica::MICMSolver::CudaRosenbrock);
 
   m.def(
       "create_solver",
@@ -120,4 +122,6 @@ PYBIND11_MODULE(musica, m)
         return map;
       },
       "Return map of reaction rates");
+
+  m.def("is_cuda_available", &musica::IsCudaAvailable, "Check if CUDA is available");
 }
