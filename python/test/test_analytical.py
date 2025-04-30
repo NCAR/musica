@@ -96,6 +96,7 @@ class TestAnalyticalStandardRosenbrock(unittest.TestCase):
         state = musica.create_state(solver)
         TestSingleGridCell(self, solver, state, 200.0, 5)
 
+
 class TestAnalyticalCudaRosenbrock(unittest.TestCase):
     def test_simulation(self):
         if musica.is_cuda_available():
