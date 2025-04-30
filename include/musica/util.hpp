@@ -4,6 +4,7 @@
 #pragma once
 
 #include <musica/error.hpp>
+#include <micm//util/vector_matrix.hpp>
 
 #include <cstddef>
 
@@ -19,6 +20,10 @@ namespace musica
   {
     typedef YAML::Node Yaml;
 #endif
+
+    /// @brief Vector dimension for Vector-ordered matrices
+    const size_t MUSICA_VECTOR_SIZE = MICM_DEFAULT_VECTOR_SIZE;
+
     /// @brief Options for mapping between indices in two arrays
     enum IndexMappingOptions
     {
