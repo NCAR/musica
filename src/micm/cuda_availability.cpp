@@ -7,7 +7,7 @@
 namespace musica
 {
   bool IsCudaAvailable()
-  { 
+  {
     int device_count = 0;
 #ifdef MUSICA_ENABLE_CUDA
     cudaError_t error = cudaGetDeviceCount(&device_count);
