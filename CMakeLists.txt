@@ -31,6 +31,7 @@ option(MUSICA_ENABLE_MICM "Enable MICM" ON)
 option(MUSICA_ENABLE_TUVX "Enable TUV-x" ON)
 option(MUSICA_ENABLE_PIC "Build the library with position independent code" OFF)
 option(MUSICA_ENABLE_COVERAGE "Enable code coverage output" OFF)
+option(MUSICA_BUNDLE_DEPENDENCIES "Bundle dependencies with the library" ON)
 
 set(MUSICA_GPU_TYPE "None" CACHE STRING "The GPU type being targeted")
 
@@ -82,7 +83,9 @@ set(MEMCHECK_SUPPRESS "--suppressions=${PROJECT_SOURCE_DIR}/valgrind.supp")
 ################################################################################
 # Dependencies
 
-include(${PROJECT_SOURCE_DIR}/cmake/dependencies.cmake)
+if(MUSICA_BUNDLE_DEPENDENCIES)
+  include(${PROJECT_SOURCE_DIR}/cmake/dependencies.cmake)
+endif()
 
 if(MUSICA_BUILD_DOCS)
   add_subdirectory(docs)

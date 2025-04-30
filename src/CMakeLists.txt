@@ -19,8 +19,8 @@ add_library(musica::musica ALIAS musica)
 
 if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None")
   # Add the CUDA library
-  target_compile_definitions(musica PUBLIC MUSICA_ENABLE_CUDA)
   target_link_libraries(musica PUBLIC musica::micm_cuda)
+  list(APPEND musica_compile_definitions MUSICA_ENABLE_CUDA)
 endif()
 
 if (MUSICA_ENABLE_PYTHON_LIBRARY OR MUSICA_ENABLE_PIC)
