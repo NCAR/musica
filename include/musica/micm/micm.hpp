@@ -83,10 +83,10 @@ namespace musica
     RosenbrockStandardOrder,     // Standard-ordered Rosenbrock solver
     BackwardEuler,               // Vector-ordered BackwardEuler solver
     BackwardEulerStandardOrder,  // Standard-ordered BackwardEuler solver
-#ifdef MUSICA_ENABLE_CUDA
-    CudaRosenbrock,  // Cuda Rosenbrock solver
-#endif
+    CudaRosenbrock,              // Cuda Rosenbrock solver
   };
+
+  std::string ToString(MICMSolver solver_type);
 
   struct SolverResultStats
   {
@@ -118,7 +118,7 @@ namespace musica
         std::unique_ptr<micm::BackwardEulerStandard>
 #ifdef MUSICA_ENABLE_CUDA
         ,
-        std::unique_ptr<micm::CudaRosenbrock>,
+        std::unique_ptr<micm::CudaRosenbrock>
 #endif
         >;
 

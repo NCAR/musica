@@ -3,6 +3,7 @@ import numpy as np
 import musica
 import random
 import mechanism_configuration as mc
+from _musica._core import _is_cuda_available
 
 
 def TestSingleGridCell(self, solver, state, time_step, places=5):
@@ -228,6 +229,23 @@ class TestAnalyticalStandardRosenbrock(unittest.TestCase):
         state = solver.create_state()
         TestSingleGridCell(self, solver, state, 200.0, 5)
         TestMultipleGridCell(self, solver, state, 1, 200.0, 5)
+
+
+class TestAnalyticalCudaRosenbrock(unittest.TestCase):
+    def test_simulation(self):
+        if _is_cuda_available():
+            solver = musica.MICM(
+                config_path = "configs/analytical",
+                solver_type = musica.micmsolver.cuda_rosenbrock)
+            state = solver.create_state()
+            TestSingleGridCell(self, solver, state, 200.0, 5)
+            solver = musica.MICM(
+                mechanism = GetMechanism(),
+                solver_type = musica.micmsolver.cuda_rosenbrock)
+            state = solver.create_state()
+            TestSingleGridCell(self, solver, state, 200.0, 5)
+        else:
+            self.skipTest("CUDA is not available.")
 
 
 class TestAnalyticalStandardBackwardEuler(unittest.TestCase):

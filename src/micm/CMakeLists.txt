@@ -7,5 +7,5 @@ target_sources(musica
     parse.cpp
     v0_parse.cpp
     v1_parse.cpp
+    cuda_availability.cpp
 )
-

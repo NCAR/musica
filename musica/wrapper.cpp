@@ -5,6 +5,7 @@
 #include <musica/micm/state_c_interface.hpp>
 #include <musica/micm/state.hpp>
 #include <mechanism_configuration/v1/types.hpp>
+#include <musica/micm/cuda_availability.hpp>
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -46,7 +47,8 @@ PYBIND11_MODULE(_musica, m)
       .value("rosenbrock", musica::MICMSolver::Rosenbrock)
       .value("rosenbrock_standard_order", musica::MICMSolver::RosenbrockStandardOrder)
       .value("backward_euler", musica::MICMSolver::BackwardEuler)
-      .value("backward_euler_standard_order", musica::MICMSolver::BackwardEulerStandardOrder);
+      .value("backward_euler_standard_order", musica::MICMSolver::BackwardEulerStandardOrder)
+      .value("cuda_rosenbrock", musica::MICMSolver::CudaRosenbrock);
 
   py::class_<musica::MICM>(core, "_Solver");
 
@@ -150,6 +152,8 @@ PYBIND11_MODULE(_musica, m)
         return map;
       },
       "Return map of reaction rate parameters to their indices in the state user-defined rate parameters vector");
+
+  core.def("_is_cuda_available", &musica::IsCudaAvailable, "Check if CUDA is available");
 
   core.def(
       "_print_state",

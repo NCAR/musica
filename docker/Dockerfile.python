@@ -21,29 +21,6 @@ RUN dnf -y update \
 # Copy the musica code
 COPY . musica
 
-# Install Python dependencies from pyproject.toml
-# must do it this way since scikit-build does not have a way to install dependencies from pyproject.toml
-# outside of the build process
-# First, install toml package to parse pyproject.toml
-RUN pip install toml
-
-# Extract dependencies from pyproject.toml
-RUN python -c "import toml; \
-               file = 'musica/pyproject.toml'; \
-               data = toml.load(file); \
-               deps = data.get('build-system', {}).get('requires', []); \
-               [print(dep) for dep in deps]; \
-               " > requirements.txt 
-
-RUN python -c "import toml; \
-               file = 'musica/pyproject.toml'; \
-               data = toml.load(file); \
-               deps = data.get('project', {}).get('optional-dependencies', {}).get('test', []); \
-               [print(dep) for dep in deps]; \
-               " >> requirements.txt
-
-RUN pip install -r requirements.txt
-
 # Build
 RUN cd musica \
     && cmake -S . \
@@ -56,6 +33,6 @@ RUN cd musica \
     && cd build \
     && make install -j 8
 
-RUN cd musica && pip install .
+RUN cd musica && pip install .[test]
 
 WORKDIR musica/build
