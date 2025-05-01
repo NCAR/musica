@@ -120,7 +120,7 @@ class State():
         return self.__states
     
 
-    def set_concentrations(self, concentrations: Dict[str, Union[Union[float | int] | List[Union[float | int]]]]):
+    def set_concentrations(self, concentrations: Dict[str, Union[Union[float, int], List[Union[float, int]]]]):
         """
         Set the concentrations of the species in the state. Any species not in the
         dictionary will be set to zero. The concentrations can be a single value when solving
@@ -128,7 +128,7 @@ class State():
 
         Parameters
         ----------
-        concentrations : Dict[str, Union[Union[float | int ] | List[Union[float | int]]]]
+        concentrations : Dict[str, Union[Union[float, int ], List[Union[float, int]]]]
             Dictionary of species names and their concentrations.
         """
         state_num_grid_cells = self.__vector_size if self.__vector_size > 0 else self.__number_of_grid_cells
@@ -159,7 +159,7 @@ class State():
             state.concentrations = update_concentrations[i]
 
 
-    def set_user_defined_rate_parameters(self, user_defined_rate_parameters: Dict[str, Union[Union[float | int] | List[Union[float | int]]]]):
+    def set_user_defined_rate_parameters(self, user_defined_rate_parameters: Dict[str, Union[Union[float, int], List[Union[float, int]]]]):
         """
         Set the user-defined rate parameters in the state. Any parameter not in the
         dictionary will be set to zero. The parameters can be a single value when solving
@@ -167,7 +167,7 @@ class State():
 
         Parameters
         ----------
-        user_defined_rate_parameters : Dict[str, Union[Union[float | int] | List[Union[float | int]]]]
+        user_defined_rate_parameters : Dict[str, Union[Union[float, int], List[Union[float, int]]]]
             Dictionary of user-defined rate parameter names and their values.
         """
         state_num_grid_cells = self.__vector_size if self.__vector_size > 0 else self.__number_of_grid_cells
