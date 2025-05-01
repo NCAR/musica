@@ -34,7 +34,7 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake -D CMAKE_BUILD_TYPE=debug -D MUSICA_ENABLE_PYTHON_LIBRARY=ON ..
+        cmake -D CMAKE_BUILD_TYPE=debug -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON ..
         cd _deps/mechanism_configuration-src
         python3 -m pip install --upgrade wheel setuptools pytest
         pip3 install --verbose .[test]
