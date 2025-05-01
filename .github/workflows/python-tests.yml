@@ -35,7 +35,6 @@ jobs:
         mkdir build
         cd build
         cmake -D CMAKE_BUILD_TYPE=debug -D MUSICA_ENABLE_PYTHON_LIBRARY=ON ..
-        make install -j 8
         cd _deps/mechanism_configuration-src
         python3 -m pip install --upgrade wheel setuptools pytest
         pip3 install --verbose .[test]
