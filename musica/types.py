@@ -3,7 +3,7 @@
 #
 # This file is part of the musica Python package.
 # For more information, see the LICENSE file in the top-level directory of this distribution.
-from typing import Optional, Any, Dict, List, Union
+from typing import Optional, Any, Dict, List, Union, Tuple
 from os import PathLike
 import math
 import numpy as np
@@ -29,7 +29,7 @@ GAS_CONSTANT = AVOGADRO * BOLTZMANN  # J K^-1 mol^-1
 
 FilePath = Union[str, "PathLike[str]"]
 
-def _get_vector_matrix_indices(row_index: int, column_index: int, vector_size: int) -> tuple[int, int]:
+def _get_vector_matrix_indices(row_index: int, column_index: int, vector_size: int) -> Tuple[int, int]:
     """
     Get the row and column indices for a matrix given the row and column indices for a vector.
 
