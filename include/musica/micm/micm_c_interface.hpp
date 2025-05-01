@@ -41,11 +41,8 @@ namespace musica
     /// @param num_grid_cells Number of grid cells
     /// @param error Error struct to indicate success or failure
     /// @return Pointer to MICM object
-    MICM *CreateMicmFromChemistryMechanism(
-        const Chemistry *chemistry,
-        MICMSolver solver_type,
-        int num_grid_cells,
-        Error *error);
+    MICM *
+    CreateMicmFromChemistryMechanism(const Chemistry *chemistry, MICMSolver solver_type, int num_grid_cells, Error *error);
 
     /// @brief Deletes a MICM object
     /// @param micm Pointer to MICM object

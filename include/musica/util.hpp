@@ -27,7 +27,7 @@ namespace musica
 #ifdef MUSICA_USE_MICM
     const size_t MUSICA_VECTOR_SIZE = MICM_DEFAULT_VECTOR_SIZE;
 #else
-    const size_t MUSICA_VECTOR_SIZE = 0;
+const size_t MUSICA_VECTOR_SIZE = 0;
 #endif
 
     /// @brief Options for mapping between indices in two arrays
