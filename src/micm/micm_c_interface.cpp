@@ -34,6 +34,23 @@ namespace musica
         error);
   }
 
+  MICM *CreateMicmFromChemistryMechanism(
+      const Chemistry *chemistry,
+      MICMSolver solver_type,
+      int num_grid_cells,
+      Error *error)
+  {
+    return HandleErrors(
+        [&]()
+        {
+          MICM *micm = new MICM(*chemistry, solver_type, num_grid_cells);
+          *error = NoError();
+          return micm;
+        },
+        error);
+  }
+  
+
   void DeleteMicm(const MICM *micm, Error *error)
   {
     HandleErrors(
