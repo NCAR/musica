@@ -333,5 +333,5 @@ namespace musica
       throw std::system_error(make_error_code(MusicaParseErrc::FailedToCastToVersion), "Failed to cast to V1");
     return ConvertV1Mechanism(*v1_mechanism);
   }
-  
+
 }  // namespace musica
