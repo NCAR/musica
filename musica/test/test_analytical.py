@@ -7,8 +7,6 @@ from _musica._core import _is_cuda_available
 
 
 def TestSingleGridCell(self, solver, state, time_step, places=5):
-    num_grid_cells = 1
-
     temperature = 272.5
     pressure = 101253.3
     GAS_CONSTANT = 8.31446261815324
