@@ -181,6 +181,7 @@ class State():
                 value = [value]
             if len(value) != self.__number_of_grid_cells:
                 raise ValueError(f"User-defined rate parameter list for {name} must have length {self.__number_of_grid_cells}.")
+            # Initialize `k` to index the grid cells when assigning user-defined rate parameters.
             k = 0
             for i_state, state in enumerate(self.__states):
                 cell_stride, param_stride = state.user_defined_rate_parameter_strides()
