@@ -37,7 +37,6 @@ namespace musica
     /// @brief Create a MICM object by specifying the solver type and providing a Chemistry object
     /// @param chemistry Chemistry object
     /// @param solver_type Type of MICMSolver
-    /// @param num_grid_cells Number of grid cells
     /// @param error Error struct to indicate success or failure
     /// @return Pointer to MICM object
     MICM *CreateMicmFromChemistryMechanism(

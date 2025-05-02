@@ -333,7 +333,7 @@ class MICM():
         if config_path is not None:
             self.__solver = _create_solver(config_path, solver_type)
         elif mechanism is not None:
-            self.__solver = _create_solver_from_mechanism(mechanism, solver_type, solver_grid_cells)
+            self.__solver = _create_solver_from_mechanism(mechanism, solver_type)
 
     def solver_type(self) -> SolverType:
         """
@@ -356,7 +356,7 @@ class MICM():
         State
             A new state object.
         """
-        return State(self.__solver, self.__number_of_grid_cells, self.__vector_size)
+        return State(self.__solver, number_of_grid_cells, self.__vector_size)
 
     def solve(
             self,
