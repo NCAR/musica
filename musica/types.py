@@ -107,7 +107,7 @@ class State():
         self.__states = [
             _create_state(solver, min(vector_size, number_of_grid_cells - i * vector_size))
             for i in range(math.ceil(number_of_grid_cells / vector_size))
-        ] if vector_size > 0 else [ _create_state(solver, number_of_grid_cells) ]
+        ] if vector_size > 0 else [_create_state(solver, number_of_grid_cells)]
         self.__species_ordering = _species_ordering(self.__states[0])
         self.__user_defined_rate_parameters_ordering = _user_defined_rate_parameters_ordering(self.__states[0])
         self.__number_of_grid_cells = number_of_grid_cells
@@ -180,13 +180,15 @@ class State():
             if isinstance(value, float) or isinstance(value, int):
                 value = [value]
             if len(value) != self.__number_of_grid_cells:
-                raise ValueError(f"User-defined rate parameter list for {name} must have length {self.__number_of_grid_cells}.")
+                raise ValueError(
+                    f"User-defined rate parameter list for {name} must have length {self.__number_of_grid_cells}.")
             # Initialize `k` to index the grid cells when assigning user-defined rate parameters.
             k = 0
             for i_state, state in enumerate(self.__states):
                 cell_stride, param_stride = state.user_defined_rate_parameter_strides()
                 for i_cell in range(state.number_of_grid_cells()):
-                    update_user_defined_rate_parameters[i_state][i_param * param_stride + i_cell * cell_stride] = value[k]
+                    update_user_defined_rate_parameters[i_state][i_param *
+                                                                 param_stride + i_cell * cell_stride] = value[k]
                     k += 1
         for i, state in enumerate(self.__states):
             state.user_defined_rate_parameters = update_user_defined_rate_parameters[i]
@@ -237,7 +239,8 @@ class State():
             for condition in update_conditions:
                 condition.temperature = temperatures[k]
                 condition.pressure = pressures[k]
-                condition.air_density = air_densities[k] if air_densities is not None else pressures[k] / (GAS_CONSTANT * temperatures[k])
+                condition.air_density = air_densities[k] if air_densities is not None else pressures[k] / (
+                    GAS_CONSTANT * temperatures[k])
                 k += 1
             state.conditions = update_conditions
 
@@ -257,7 +260,8 @@ class State():
                 cell_stride, species_stride = state.concentration_strides()
                 state_concentrations = state.concentrations
                 for i_cell in range(state.number_of_grid_cells()):
-                    concentrations[species].append(state_concentrations[i_species * species_stride + i_cell * cell_stride])
+                    concentrations[species].append(
+                        state_concentrations[i_species * species_stride + i_cell * cell_stride])
         return concentrations
 
     def get_user_defined_rate_parameters(self) -> Dict[str, List[float]]:
@@ -276,7 +280,8 @@ class State():
                 cell_stride, param_stride = state.user_defined_rate_parameter_strides()
                 state_user_defined_rate_parameters = state.user_defined_rate_parameters
                 for i_cell in range(state.number_of_grid_cells()):
-                    user_defined_rate_parameters[param].append(state_user_defined_rate_parameters[i_param * param_stride + i_cell * cell_stride])
+                    user_defined_rate_parameters[param].append(
+                        state_user_defined_rate_parameters[i_param * param_stride + i_cell * cell_stride])
         return user_defined_rate_parameters
 
     def get_conditions(self) -> Dict[str, List[float]]:
@@ -345,7 +350,6 @@ class MICM():
             The type of solver used.
         """
         return self.__solver_type
-
 
     def create_state(self, number_of_grid_cells: int = 1) -> State:
         """
