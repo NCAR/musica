@@ -48,7 +48,6 @@ namespace musica
         },
         error);
   }
-  
 
   void DeleteMicm(const MICM *micm, Error *error)
   {

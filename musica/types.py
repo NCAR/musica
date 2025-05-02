@@ -8,18 +8,18 @@ from os import PathLike
 import math
 import numpy as np
 from _musica._core import (
-  _Conditions,
-  _Chemistry,
-  _SolverType,
-  _Solver,
-  _State,
-  _create_solver,
-  _create_solver_from_mechanism,
-  _create_state,
-  _micm_solve,
-  _vector_size,
-  _species_ordering,
-  _user_defined_rate_parameters_ordering,
+    _Conditions,
+    _Chemistry,
+    _SolverType,
+    _Solver,
+    _State,
+    _create_solver,
+    _create_solver_from_mechanism,
+    _create_state,
+    _micm_solve,
+    _vector_size,
+    _species_ordering,
+    _user_defined_rate_parameters_ordering,
 )
 import mechanism_configuration as mc
 
@@ -28,6 +28,7 @@ BOLTZMANN = 1.380649e-23  # J K^-1
 GAS_CONSTANT = AVOGADRO * BOLTZMANN  # J K^-1 mol^-1
 
 FilePath = Union[str, "PathLike[str]"]
+
 
 def _get_vector_matrix_indices(row_index: int, column_index: int, vector_size: int) -> Tuple[int, int]:
     """
@@ -49,6 +50,7 @@ def _get_vector_matrix_indices(row_index: int, column_index: int, vector_size: i
     """
     return (row_index // vector_size, column_index * (vector_size - 1) + row_index % vector_size)
 
+
 class Conditions(_Conditions):
     """
     Conditions class for the MICM solver. If air density is not provided,
@@ -63,6 +65,7 @@ class Conditions(_Conditions):
     air_density : float
         Air density in mol m-3
     """
+
     def __init__(
         self,
         temperature: Optional[float] = None,
@@ -77,7 +80,7 @@ class Conditions(_Conditions):
         if air_density is not None:
             self.air_density = air_density
         elif temperature is not None and pressure is not None:
-            self.air_density = 1.0 / ( GAS_CONSTANT * temperature / pressure)
+            self.air_density = 1.0 / (GAS_CONSTANT * temperature / pressure)
 
 
 class Chemistry(_Chemistry):
@@ -96,6 +99,7 @@ class State():
     """
     State class for the MICM solver. It contains the initial conditions and species concentrations.
     """
+
     def __init__(self, solver: _Solver, number_of_grid_cells: int, vector_size: int = 0):
         if number_of_grid_cells < 1:
             raise ValueError("number_of_grid_cells must be greater than 0.")
@@ -109,7 +113,6 @@ class State():
         self.__number_of_grid_cells = number_of_grid_cells
         self.__vector_size = vector_size
 
-
     def get_internal_states(self) -> List[_State]:
         """
         Get the internal states of the MICM solver.
@@ -120,7 +123,6 @@ class State():
             List of internal states.
         """
         return self.__states
-    
 
     def set_concentrations(self, concentrations: Dict[str, Union[Union[float, int], List[Union[float, int]]]]):
         """
@@ -154,8 +156,8 @@ class State():
         for i, state in enumerate(self.__states):
             state.concentrations = update_concentrations[i]
 
-
-    def set_user_defined_rate_parameters(self, user_defined_rate_parameters: Dict[str, Union[Union[float, int], List[Union[float, int]]]]):
+    def set_user_defined_rate_parameters(
+            self, user_defined_rate_parameters: Dict[str, Union[Union[float, int], List[Union[float, int]]]]):
         """
         Set the user-defined rate parameters in the state. Any parameter not in the
         dictionary will be set to zero. The parameters can be a single value when solving
@@ -187,8 +189,13 @@ class State():
         for i, state in enumerate(self.__states):
             state.user_defined_rate_parameters = update_user_defined_rate_parameters[i]
 
-
-    def set_conditions(self, temperatures: Union[float, List[float]], pressures: Union[float, List[float]], air_densities: Optional[Union[float, List[float]]] = None):
+    def set_conditions(self,
+                       temperatures: Union[float,
+                                           List[float]],
+                       pressures: Union[float,
+                                        List[float]],
+                       air_densities: Optional[Union[float,
+                                                     List[float]]] = None):
         """
         Set the conditions for the state. The individual conditions can be a single value
         when solving for a single grid cell, or a list of values when solving for multiple grid cells.
@@ -232,7 +239,6 @@ class State():
                 k += 1
             state.conditions = update_conditions
 
-
     def get_concentrations(self) -> Dict[str, List[float]]:
         """
         Get the concentrations of the species in the state.
@@ -251,7 +257,6 @@ class State():
                 for i_cell in range(state.number_of_grid_cells()):
                     concentrations[species].append(state_concentrations[i_species * species_stride + i_cell * cell_stride])
         return concentrations
-    
 
     def get_user_defined_rate_parameters(self) -> Dict[str, List[float]]:
         """
@@ -271,7 +276,6 @@ class State():
                 for i_cell in range(state.number_of_grid_cells()):
                     user_defined_rate_parameters[param].append(state_user_defined_rate_parameters[i_param * param_stride + i_cell * cell_stride])
         return user_defined_rate_parameters
-    
 
     def get_conditions(self) -> Dict[str, List[float]]:
         """
@@ -311,6 +315,7 @@ class MICM():
     number_of_grid_cells : int
         Number of grid cells to use. The default is 1.
     """
+
     def __init__(
         self,
         config_path: FilePath = None,
@@ -326,8 +331,7 @@ class MICM():
         if config_path is not None:
             self.__solver = _create_solver(config_path, solver_type)
         elif mechanism is not None:
-            self.__solver = _create_solver_from_mechanism(mechanism, solver_type)
-
+            self.__solver = _create_solver_from_mechanism(mechanism, solver_type, solver_grid_cells)
 
     def solver_type(self) -> SolverType:
         """
@@ -339,7 +343,7 @@ class MICM():
             The type of solver used.
         """
         return self.__solver_type
-       
+
 
     def create_state(self, number_of_grid_cells: int = 1) -> State:
         """
@@ -350,8 +354,7 @@ class MICM():
         State
             A new state object.
         """
-        return State(self.__solver, number_of_grid_cells, self.__vector_size)
-
+        return State(self.__solver, self.__number_of_grid_cells, self.__vector_size)
 
     def solve(
             self,

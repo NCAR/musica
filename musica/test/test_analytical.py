@@ -114,7 +114,7 @@ def TestMultipleGridCell(self, solver, state, num_grid_cells, time_step, places=
         rate_constants["USER.reaction 2"].append(
             0.002 + random.uniform(-0.0001, 0.0001))
 
-    state.set_conditions(temperatures, pressures) # Air density should be calculated in the state
+    state.set_conditions(temperatures, pressures)  # Air density should be calculated in the state
     state.set_concentrations(concentrations)
     state.set_user_defined_rate_parameters(rate_constants)
 
@@ -130,8 +130,14 @@ def TestMultipleGridCell(self, solver, state, num_grid_cells, time_step, places=
         self.assertAlmostEqual(initial_concentrations["D"][i], concentrations["D"][i], places=13)
         self.assertAlmostEqual(initial_concentrations["E"][i], concentrations["E"][i], places=13)
         self.assertAlmostEqual(initial_concentrations["F"][i], concentrations["F"][i], places=13)
-        self.assertAlmostEqual(initial_rate_parameters["USER.reaction 1"][i], rate_constants["USER.reaction 1"][i], places=13)
-        self.assertAlmostEqual(initial_rate_parameters["USER.reaction 2"][i], rate_constants["USER.reaction 2"][i], places=13)
+        self.assertAlmostEqual(
+            initial_rate_parameters["USER.reaction 1"][i],
+            rate_constants["USER.reaction 1"][i],
+            places=13)
+        self.assertAlmostEqual(
+            initial_rate_parameters["USER.reaction 2"][i],
+            rate_constants["USER.reaction 2"][i],
+            places=13)
         self.assertAlmostEqual(initial_temperatures[i], temperatures[i], places=13)
         self.assertAlmostEqual(initial_pressures[i], pressures[i], places=13)
         self.assertAlmostEqual(initial_air_density[i], pressures[i] / (8.31446261815324 * temperatures[i]), places=13)
@@ -177,53 +183,77 @@ def TestMultipleGridCell(self, solver, state, num_grid_cells, time_step, places=
             F_conc = initial_F[i] + initial_D[i] * (1.0 + (
                 k1[i] * np.exp(-k2[i] * curr_time) - k2[i] * np.exp(-k1[i] * curr_time)) / (k2[i] - k1[i]))
 
-            self.assertAlmostEqual(concentrations["A"][i], A_conc, places=places, msg=f"Grid cell {i} of {num_grid_cells}: A concentration mismatch. Initial A: {initial_concentrations['A'][i]}")
-            self.assertAlmostEqual(concentrations["B"][i], B_conc, places=places, msg=f"Grid cell {i} of {num_grid_cells}: B concentration mismatch. Initial B: {initial_concentrations['B'][i]}")
-            self.assertAlmostEqual(concentrations["C"][i], C_conc, places=places, msg=f"Grid cell {i} of {num_grid_cells}: C concentration mismatch. Initial C: {initial_concentrations['C'][i]}")
-            self.assertAlmostEqual(concentrations["D"][i], D_conc, places=places, msg=f"Grid cell {i} of {num_grid_cells}: D concentration mismatch. Initial D: {initial_concentrations['D'][i]}")
-            self.assertAlmostEqual(concentrations["E"][i], E_conc, places=places, msg=f"Grid cell {i} of {num_grid_cells}: E concentration mismatch. Initial E: {initial_concentrations['E'][i]}")
-            self.assertAlmostEqual(concentrations["F"][i], F_conc, places=places, msg=f"Grid cell {i} of {num_grid_cells}: F concentration mismatch. Initial F: {initial_concentrations['F'][i]}")
+            self.assertAlmostEqual(
+                concentrations["A"][i],
+                A_conc,
+                places=places,
+                msg=f"Grid cell {i} of {num_grid_cells}: A concentration mismatch. Initial A: {initial_concentrations['A'][i]}")
+            self.assertAlmostEqual(
+                concentrations["B"][i],
+                B_conc,
+                places=places,
+                msg=f"Grid cell {i} of {num_grid_cells}: B concentration mismatch. Initial B: {initial_concentrations['B'][i]}")
+            self.assertAlmostEqual(
+                concentrations["C"][i],
+                C_conc,
+                places=places,
+                msg=f"Grid cell {i} of {num_grid_cells}: C concentration mismatch. Initial C: {initial_concentrations['C'][i]}")
+            self.assertAlmostEqual(
+                concentrations["D"][i],
+                D_conc,
+                places=places,
+                msg=f"Grid cell {i} of {num_grid_cells}: D concentration mismatch. Initial D: {initial_concentrations['D'][i]}")
+            self.assertAlmostEqual(
+                concentrations["E"][i],
+                E_conc,
+                places=places,
+                msg=f"Grid cell {i} of {num_grid_cells}: E concentration mismatch. Initial E: {initial_concentrations['E'][i]}")
+            self.assertAlmostEqual(
+                concentrations["F"][i],
+                F_conc,
+                places=places,
+                msg=f"Grid cell {i} of {num_grid_cells}: F concentration mismatch. Initial F: {initial_concentrations['F'][i]}")
 
         curr_time += time_step
 
 
 def GetMechanism():
-    A = mc.Species(name = "A")
-    B = mc.Species(name = "B")
-    C = mc.Species(name = "C")
-    D = mc.Species(name = "D")
-    E = mc.Species(name = "E")
-    F = mc.Species(name = "F")
-    gas = mc.Phase(name = "gas", species = [A, B, C, D, E, F])
-    arr1 = mc.Arrhenius(name = "A->B", A = 0.004, C = 50,
-                        gas_phase = gas, reactants = [A], products = [B])
-    arr2 = mc.Arrhenius(name = "B->C", A = 0.012, B = -2, C = 75, D = 50, E = 1.0e-6,
-                        gas_phase = gas, reactants = [B], products = [C])
-    user1 = mc.UserDefined(name = "reaction 1", gas_phase = gas,
-                           reactants = [D], products = [E])
-    user2 = mc.UserDefined(name = "reaction 2", gas_phase = gas,
-                           reactants = [E], products = [F])
+    A = mc.Species(name="A")
+    B = mc.Species(name="B")
+    C = mc.Species(name="C")
+    D = mc.Species(name="D")
+    E = mc.Species(name="E")
+    F = mc.Species(name="F")
+    gas = mc.Phase(name="gas", species=[A, B, C, D, E, F])
+    arr1 = mc.Arrhenius(name="A->B", A=0.004, C=50,
+                        gas_phase=gas, reactants=[A], products=[B])
+    arr2 = mc.Arrhenius(name="B->C", A=0.012, B=-2, C=75, D=50, E=1.0e-6,
+                        gas_phase=gas, reactants=[B], products=[C])
+    user1 = mc.UserDefined(name="reaction 1", gas_phase=gas,
+                           reactants=[D], products=[E])
+    user2 = mc.UserDefined(name="reaction 2", gas_phase=gas,
+                           reactants=[E], products=[F])
     mechanism = mc.Mechanism(
-        name = "analytical test",
-        species = [A, B, C, D, E, F],
-        phases = [gas],
-        reactions = [arr1, arr2, user1, user2],
-        )
+        name="analytical test",
+        species=[A, B, C, D, E, F],
+        phases=[gas],
+        reactions=[arr1, arr2, user1, user2],
+    )
     return mechanism
 
 
 class TestAnalyticalStandardRosenbrock(unittest.TestCase):
     def test_simulation(self):
         solver = musica.MICM(
-            config_path = "configs/analytical",
-            solver_type = musica.SolverType.rosenbrock_standard_order)
+            config_path="configs/analytical",
+            solver_type=musica.SolverType.rosenbrock_standard_order)
         state = solver.create_state()
         TestSingleGridCell(self, solver, state, 200.0, 5)
         TestMultipleGridCell(self, solver, state, 1, 200.0, 5)
         mechanism = GetMechanism()
         solver = musica.MICM(
-            mechanism = mechanism,
-            solver_type = musica.SolverType.rosenbrock_standard_order)
+            mechanism=mechanism,
+            solver_type=musica.SolverType.rosenbrock_standard_order)
         state = solver.create_state()
         TestSingleGridCell(self, solver, state, 200.0, 5)
         TestMultipleGridCell(self, solver, state, 1, 200.0, 5)
@@ -233,13 +263,13 @@ class TestAnalyticalCudaRosenbrock(unittest.TestCase):
     def test_simulation(self):
         if _is_cuda_available():
             solver = musica.MICM(
-                config_path = "configs/analytical",
-                solver_type = musica.micmsolver.cuda_rosenbrock)
+                config_path="configs/analytical",
+                solver_type=musica.micmsolver.cuda_rosenbrock)
             state = solver.create_state()
             TestSingleGridCell(self, solver, state, 200.0, 5)
             solver = musica.MICM(
-                mechanism = GetMechanism(),
-                solver_type = musica.micmsolver.cuda_rosenbrock)
+                mechanism=GetMechanism(),
+                solver_type=musica.micmsolver.cuda_rosenbrock)
             state = solver.create_state()
             TestSingleGridCell(self, solver, state, 200.0, 5)
         else:
@@ -249,15 +279,15 @@ class TestAnalyticalCudaRosenbrock(unittest.TestCase):
 class TestAnalyticalStandardBackwardEuler(unittest.TestCase):
     def test_simulation(self):
         solver = musica.MICM(
-            config_path = "configs/analytical",
-            solver_type = musica.SolverType.backward_euler_standard_order)
+            config_path="configs/analytical",
+            solver_type=musica.SolverType.backward_euler_standard_order)
         state = solver.create_state()
         TestSingleGridCell(self, solver, state, 10.0, places=2)
         TestMultipleGridCell(self, solver, state, 1, 10.0, places=2)
         mechanism = GetMechanism()
         solver = musica.MICM(
-            mechanism = mechanism,
-            solver_type = musica.SolverType.backward_euler_standard_order)
+            mechanism=mechanism,
+            solver_type=musica.SolverType.backward_euler_standard_order)
         state = solver.create_state()
         TestSingleGridCell(self, solver, state, 10.0, places=2)
         TestMultipleGridCell(self, solver, state, 1, 10.0, places=2)
@@ -316,7 +346,7 @@ class TestAnalyticalBackwardEulerMultipleGridCells(unittest.TestCase):
 
 class TestAnalyticalStandardBackwardEulerMultipleGridCells(unittest.TestCase):
     def test_simulation(self):
-        for i in range(1, 11):            
+        for i in range(1, 11):
             solver = musica.MICM(
                 config_path = "configs/analytical",
                 solver_type = musica.SolverType.backward_euler_standard_order)
