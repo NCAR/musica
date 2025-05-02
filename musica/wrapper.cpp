@@ -30,6 +30,10 @@ PYBIND11_MODULE(_musica, m)
   py::class_<musica::State>(core, "_State")
       .def(py::init<>())
       .def("__del__", [](musica::State &state) { })
+      .def("number_of_grid_cells",
+           [](musica::State *state) {
+             return state->NumberOfGridCells();
+           })
       .def_property(
           "conditions",
           &musica::State::GetConditions,
@@ -41,7 +45,15 @@ PYBIND11_MODULE(_musica, m)
       .def_property(
           "user_defined_rate_parameters",
           &musica::State::GetOrderedRateConstants,
-          py::overload_cast<const std::vector<double> &>(&musica::State::SetOrderedRateConstants));
+          py::overload_cast<const std::vector<double> &>(&musica::State::SetOrderedRateConstants))
+      .def("concentration_strides",
+           [](musica::State *state) {
+             return state->GetConcentrationStrides();
+           })
+      .def("user_defined_rate_parameter_strides",
+           [](musica::State *state) {
+             return state->GetUserDefinedRateParameterStrides();
+           });
 
   py::enum_<musica::MICMSolver>(core, "_SolverType")
       .value("rosenbrock", musica::MICMSolver::Rosenbrock)
@@ -69,14 +81,14 @@ PYBIND11_MODULE(_musica, m)
 
   core.def(
       "_create_solver",
-      [](const char *config_path, musica::MICMSolver solver_type, int num_grid_cells)
+      [](const char *config_path, musica::MICMSolver solver_type)
       {
         musica::Error error;
-        musica::MICM *micm = musica::CreateMicm(config_path, solver_type, num_grid_cells, &error);
+        musica::MICM *micm = musica::CreateMicm(config_path, solver_type, &error);
         if (!musica::IsSuccess(error))
         {
           std::cout << "Error creating solver: " << error.message_.value_ << " solver_type: " << solver_type
-                    << " num_grid_cells: " << num_grid_cells << " config_path: " << config_path << std::endl;
+                    << " config_path: " << config_path << std::endl;
           std::string message = "Error creating solver: " + std::string(error.message_.value_);
           DeleteError(&error);
           throw py::value_error(message);
@@ -86,11 +98,11 @@ PYBIND11_MODULE(_musica, m)
 
   core.def(
       "_create_solver_from_mechanism",
-      [](const v1::Mechanism &mechanism, musica::MICMSolver solver_type, int num_grid_cells)
+      [](const v1::Mechanism &mechanism, musica::MICMSolver solver_type)
       {
         musica::Error error;
         musica::Chemistry chemistry = musica::ConvertV1Mechanism(mechanism);
-        musica::MICM *micm = musica::CreateMicmFromChemistryMechanism(&chemistry, solver_type, num_grid_cells, &error);
+        musica::MICM *micm = musica::CreateMicmFromChemistryMechanism(&chemistry, solver_type, &error);
         if (!musica::IsSuccess(error))
         {
           std::string message = "Error creating solver: " + std::string(error.message_.value_);
@@ -102,10 +114,10 @@ PYBIND11_MODULE(_musica, m)
   
   core.def(
       "_create_state",
-      [](musica::MICM *micm)
+      [](musica::MICM *micm, std::size_t number_of_grid_cells)
       {
         musica::Error error;
-        musica::State *state = musica::CreateMicmState(micm, &error);
+        musica::State *state = musica::CreateMicmState(micm, number_of_grid_cells, &error);
         if (!musica::IsSuccess(error))
         {
           std::string message = "Error creating state: " + std::string(error.message_.value_);

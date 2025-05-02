@@ -125,7 +125,7 @@ namespace musica
    public:
     SolverVariant solver_variant_;
 
-    MICM(const Chemistry &chemistry, MICMSolver solver_type, int num_grid_cells);
+    MICM(const Chemistry &chemistry, MICMSolver solver_type);
     MICM() = default;
     ~MICM()
     {

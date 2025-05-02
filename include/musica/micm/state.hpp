@@ -32,7 +32,7 @@ namespace musica
    public:
     State() = default;
 
-    State(const musica::MICM& micm);
+    State(const musica::MICM& micm, std::size_t number_of_grid_cells);
 
     /// @brief Define the variant that holds all state types
     using StateVariant = std::variant<
@@ -43,6 +43,10 @@ namespace musica
         micm::GpuState
 #endif
         >;
+
+    /// @brief Get the number of grid cells
+    /// @return Number of grid cells
+    std::size_t NumberOfGridCells();
 
     /// @brief Get the vector of conditions struct
     /// @return Vector of conditions struct
@@ -86,6 +90,14 @@ namespace musica
     /// @param number_of_grid_cells Pointer to num of grid cells
     /// @return Pointer to the vector
     double* GetOrderedRateConstantsToState(musica::State* state, int* number_of_rate_constants, int* number_of_grid_cells);
+
+    /// @brief Get the underlying strides for the concentration matrix
+    /// @return Strides for the concentration matrix (grid cells, species)
+    std::pair<std::size_t, std::size_t> GetConcentrationStrides();
+
+    /// @brief Get the underlying strides for the user-defined rate parameter matrix
+    /// @return Strides for the rate parameter matrix (grid cells, rate parameters)
+    std::pair<std::size_t, std::size_t> GetUserDefinedRateParameterStrides();
 
     StateVariant state_variant_;
   };

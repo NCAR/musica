@@ -27,7 +27,7 @@ namespace musica
     return decltype(func())();
   }
 
-  State* CreateMicmState(musica::MICM* micm, Error* error)
+  State* CreateMicmState(musica::MICM* micm, std::size_t number_of_grid_cells, Error* error)
   {
     return HandleErrors(
         [&]() -> State*
@@ -42,7 +42,7 @@ namespace musica
 
           State* state = new State();
 
-          std::visit([&](auto& solver_ptr) { state->state_variant_ = solver_ptr->GetState(); }, micm->solver_variant_);
+          std::visit([&](auto& solver_ptr) { state->state_variant_ = solver_ptr->GetState(number_of_grid_cells); }, micm->solver_variant_);
 
           return state;
         },

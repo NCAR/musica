@@ -27,8 +27,8 @@ class MicmCApiTestFixture : public ::testing::Test
     micm = nullptr;
     state = nullptr;
     Error error;
-    micm = CreateMicm(config_path, MICMSolver::Rosenbrock, num_grid_cells, &error);
-    state = CreateMicmState(micm, &error);
+    micm = CreateMicm(config_path, MICMSolver::Rosenbrock, &error);
+    state = CreateMicmState(micm, num_grid_cells, &error);
 
     ASSERT_TRUE(IsSuccess(error));
     DeleteError(&error);
@@ -49,7 +49,7 @@ TEST_F(MicmCApiTestFixture, BadSolver)
 {
   MICM* micm = nullptr;
   Error error;
-  auto state = CreateMicmState(micm, &error);
+  auto state = CreateMicmState(micm, 1, &error);
   ASSERT_EQ(state, nullptr);
   ASSERT_TRUE(IsError(error, MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND));
   DeleteError(&error);
@@ -59,8 +59,8 @@ TEST_F(MicmCApiTestFixture, BadSolver)
 TEST_F(MicmCApiTestFixture, CreateStateSuccess)
 {
   Error error;
-  musica::MICM* micm = CreateMicm(config_path, MICMSolver::Rosenbrock, num_grid_cells, &error);
-  auto state = CreateMicmState(micm, &error);
+  musica::MICM* micm = CreateMicm(config_path, MICMSolver::Rosenbrock, &error);
+  auto state = CreateMicmState(micm, num_grid_cells, &error);
   ASSERT_NE(state, nullptr);
   delete state;
   delete micm;
@@ -71,7 +71,7 @@ TEST(MicmCApiTest, BadConfigurationFilePath)
 {
   int num_grid_cells = 1;
   Error error = NoError();
-  auto micm_bad_config = CreateMicm("bad config path", MICMSolver::Rosenbrock, num_grid_cells, &error);
+  auto micm_bad_config = CreateMicm("bad config path", MICMSolver::Rosenbrock, &error);
   ASSERT_EQ(micm_bad_config, nullptr);
   ASSERT_TRUE(IsError(error, MUSICA_ERROR_CATEGORY_PARSING, MUSICA_PARSE_INVALID_CONFIG_FILE));
   DeleteError(&error);
@@ -83,7 +83,7 @@ TEST(MicmCApiTest, BadSolverType)
   short solver_type = 999;
   int num_grid_cells = 1;
   Error error = NoError();
-  auto micm_bad_solver_type = CreateMicm("configs/chapman", static_cast<MICMSolver>(solver_type), num_grid_cells, &error);
+  auto micm_bad_solver_type = CreateMicm("configs/chapman", static_cast<MICMSolver>(solver_type), &error);
   ASSERT_EQ(micm_bad_solver_type, nullptr);
   ASSERT_TRUE(IsError(error, MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND));
   DeleteError(&error);
@@ -294,8 +294,8 @@ TEST(RosenbrockStandardOrder, SolveUsingStandardOrderedRosenbrock)
   const char* config_path = "configs/chapman";
   int num_grid_cells = 1;
   Error error;
-  MICM* micm = CreateMicm(config_path, MICMSolver::RosenbrockStandardOrder, num_grid_cells, &error);
-  musica::State* state = CreateMicmState(micm, &error);
+  MICM* micm = CreateMicm(config_path, MICMSolver::RosenbrockStandardOrder, &error);
+  musica::State* state = CreateMicmState(micm, num_grid_cells, &error);
 
   TestSingleGridCell(micm, state);
 
@@ -311,8 +311,8 @@ TEST(BackwardEulerStandardOrder, SolveUsingStandardOrderedBackwardEuler)
   const char* config_path = "configs/chapman";
   int num_grid_cells = 1;
   Error error;
-  MICM* micm = CreateMicm(config_path, MICMSolver::BackwardEulerStandardOrder, num_grid_cells, &error);
-  musica::State* state = CreateMicmState(micm, &error);
+  MICM* micm = CreateMicm(config_path, MICMSolver::BackwardEulerStandardOrder, &error);
+  musica::State* state = CreateMicmState(micm, num_grid_cells, &error);
 
   TestSingleGridCell(micm, state);
 
@@ -564,8 +564,8 @@ TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingVectorOrderedRosenbrock)
   DeleteMicm(micm, &error);
   DeleteState(state, &error);
   ASSERT_TRUE(IsSuccess(error));
-  micm = CreateMicm(config_path, MICMSolver::Rosenbrock, num_grid_cells, &error);
-  state = CreateMicmState(micm, &error);
+  micm = CreateMicm(config_path, MICMSolver::Rosenbrock, &error);
+  state = CreateMicmState(micm, num_grid_cells, &error);
   ASSERT_TRUE(IsSuccess(error));
   TestVectorMultipleGridCells(micm, state, num_grid_cells, time_step, test_accuracy);
   DeleteError(&error);
@@ -582,8 +582,8 @@ TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingStandardOrderedRosenbrock
   DeleteMicm(micm, &error);
   DeleteState(state, &error);
   ASSERT_TRUE(IsSuccess(error));
-  micm = CreateMicm(config_path, MICMSolver::RosenbrockStandardOrder, num_grid_cells, &error);
-  state = CreateMicmState(micm, &error);
+  micm = CreateMicm(config_path, MICMSolver::RosenbrockStandardOrder, &error);
+  state = CreateMicmState(micm, num_grid_cells, &error);
   ASSERT_TRUE(IsSuccess(error));
   TestStandardMultipleGridCells(micm, state, num_grid_cells, time_step, test_accuracy);
   DeleteError(&error);
@@ -600,8 +600,8 @@ TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingVectorOrderedBackwardEule
   DeleteMicm(micm, &error);
   DeleteState(state, &error);
   ASSERT_TRUE(IsSuccess(error));
-  micm = CreateMicm(config_path, MICMSolver::BackwardEuler, num_grid_cells, &error);
-  state = CreateMicmState(micm, &error);
+  micm = CreateMicm(config_path, MICMSolver::BackwardEuler, &error);
+  state = CreateMicmState(micm, num_grid_cells, &error);
   ASSERT_TRUE(IsSuccess(error));
   TestVectorMultipleGridCells(micm, state, num_grid_cells, time_step, test_accuracy);
   DeleteError(&error);
@@ -618,8 +618,8 @@ TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingStandardOrderedBackwardEu
   DeleteMicm(micm, &error);
   DeleteState(state, &error);
   ASSERT_TRUE(IsSuccess(error));
-  micm = CreateMicm(config_path, MICMSolver::BackwardEulerStandardOrder, num_grid_cells, &error);
-  state = CreateMicmState(micm, &error);
+  micm = CreateMicm(config_path, MICMSolver::BackwardEulerStandardOrder, &error);
+  state = CreateMicmState(micm, num_grid_cells, &error);
   ASSERT_TRUE(IsSuccess(error));
   TestStandardMultipleGridCells(micm, state, num_grid_cells, time_step, test_accuracy);
   DeleteError(&error);

@@ -14,12 +14,13 @@ module musica_state
 
   !> Fortran wrappers for the C interface to the state object
   interface
-    function create_state_c(micm, error) &
+    function create_state_c(micm, num_grid_cells, error) &
         bind(C, name="CreateMicmState")
-      import c_ptr, error_t_c
-      type(c_ptr), value,   intent(in)    :: micm
-      type(error_t_c),      intent(inout) :: error
-      type(c_ptr)                         :: create_state_c
+      import c_ptr, error_t_c, c_int
+      type(c_ptr), value,         intent(in)    :: micm
+      integer(kind=c_int), value, intent(in)    :: num_grid_cells
+      type(error_t_c),            intent(inout) :: error
+      type(c_ptr)                               :: create_state_c
     end function create_state_c
 
     function get_conditions_pointer (state, number_of_grid_cells, error) &
@@ -102,11 +103,12 @@ module musica_state
 
 contains
 
-  function constructor(micm, error)  result( this )
-    use iso_c_binding, only : c_f_pointer
+  function constructor(micm, number_of_grid_cells, error)  result( this )
+    use iso_c_binding, only : c_f_pointer, c_int
     use musica_util, only: error_t_c, error_t, copy_mappings
     type(state_t), pointer :: this
     type(c_ptr)            :: micm
+    integer                :: number_of_grid_cells
     type(error_t)          :: error
 
     ! local variables
@@ -118,7 +120,7 @@ contains
 
     allocate( this )
 
-    this%ptr = create_state_c(micm, error_c)    
+    this%ptr = create_state_c(micm, int(number_of_grid_cells, kind=c_int), error_c)    
     error = error_t(error_c)
 
     if (.not. error%is_success()) then

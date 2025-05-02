@@ -37,13 +37,12 @@ module musica_micm
   end enum
 
   interface
-    function create_micm_c(config_path, solver_type, num_grid_cells, error) &
+    function create_micm_c(config_path, solver_type, error) &
         bind(C, name="CreateMicm")
       use musica_util, only: error_t_c
       import c_ptr, c_int, c_char
       character(kind=c_char), intent(in)     :: config_path(*)
       integer(kind=c_int), value, intent(in) :: solver_type
-      integer(kind=c_int), value, intent(in) :: num_grid_cells
       type(error_t_c),        intent(inout)  :: error
       type(c_ptr)                            :: create_micm_c
     end function create_micm_c
@@ -115,7 +114,6 @@ module musica_micm
 
   type :: micm_t
     type(c_ptr), private      :: ptr = c_null_ptr
-    integer,     private      :: number_of_grid_cells = 0
     integer,     private      :: solver_type = UndefinedSolver
   contains
     ! Solve the chemical system
@@ -169,12 +167,11 @@ contains
     value = string_t(string_c)        
   end function get_micm_version
 
-  function constructor(config_path, solver_type, num_grid_cells, error)  result( this )
+  function constructor(config_path, solver_type, error)  result( this )
     use musica_util, only: error_t_c, error_t, copy_mappings
     type(micm_t), pointer         :: this
     character(len=*), intent(in)  :: config_path
     integer, intent(in)           :: solver_type
-    integer, intent(in)           :: num_grid_cells
     type(error_t), intent(inout)  :: error
 
     ! local variables
@@ -190,10 +187,9 @@ contains
     end do
     c_config_path(n+1) = c_null_char
 
-    this%number_of_grid_cells = num_grid_cells
     this%solver_type = solver_type
     this%ptr = create_micm_c( c_config_path, int(solver_type, kind=c_int), &
-                              int(num_grid_cells, kind=c_int), error_c )
+                              error_c )
     error = error_t(error_c)
     if (.not. error%is_success()) then
         deallocate(this)
@@ -215,7 +211,8 @@ contains
     type(solver_stats_t_c)                :: solver_stats_c    
     type(error_t_c)                       :: error_c
     
-    call micm_solve_c(this%ptr, state%ptr, time_step, solver_state_c, solver_stats_c, error_c)
+    call micm_solve_c(this%ptr, state%ptr, time_step, solver_state_c, &
+                      solver_stats_c, error_c)
     call state%update_references(error)
     if (.not. error%is_success()) return
     solver_state = string_t(solver_state_c)
@@ -223,14 +220,16 @@ contains
     error = error_t(error_c)
   end subroutine solve
 
-  function get_state(this, error) result(state)
+  function get_state(this, number_of_grid_cells, error) result(state)
+    use iso_c_binding, only: c_int
     use musica_util, only: error_t, to_c_string
     class(micm_t)                :: this
+    integer                      :: number_of_grid_cells
     type(error_t), intent(inout) :: error
     type(state_t), pointer       :: state
     type(error_t_c)              :: error_c
 
-    state => state_t(this%ptr, error)
+    state => state_t(this%ptr, int(number_of_grid_cells, kind=c_int), error)
     error = error_t(error_c)
   end function get_state
 

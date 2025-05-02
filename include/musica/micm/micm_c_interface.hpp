@@ -30,19 +30,19 @@ namespace musica
     /// @brief Create a MICM object by specifying solver type to use and providing a path to the configuration file
     /// @param config_path Path to configuration file or directory containing configuration file
     /// @param solver_type Type of MICMSolver
-    /// @param num_grid_cells Number of grid cells
     /// @param error Error struct to indicate success or failure
     /// @return Pointer to MICM object
-    MICM *CreateMicm(const char *config_path, MICMSolver solver_type, int num_grid_cells, Error *error);
+    MICM *CreateMicm(const char *config_path, MICMSolver solver_type, Error *error);
 
     /// @brief Create a MICM object by specifying the solver type and providing a Chemistry object
     /// @param chemistry Chemistry object
     /// @param solver_type Type of MICMSolver
-    /// @param num_grid_cells Number of grid cells
     /// @param error Error struct to indicate success or failure
     /// @return Pointer to MICM object
-    MICM *
-    CreateMicmFromChemistryMechanism(const Chemistry *chemistry, MICMSolver solver_type, int num_grid_cells, Error *error);
+    MICM *CreateMicmFromChemistryMechanism(
+        const Chemistry *chemistry,
+        MICMSolver solver_type,
+        Error *error);
 
     /// @brief Deletes a MICM object
     /// @param micm Pointer to MICM object

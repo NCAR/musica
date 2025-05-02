@@ -101,11 +101,13 @@ class State():
     """
 
     def __init__(self, solver: _Solver, number_of_grid_cells: int, vector_size: int = 0):
+        if number_of_grid_cells < 1:
+            raise ValueError("number_of_grid_cells must be greater than 0.")
         super().__init__()
         self.__states = [
-            _create_state(solver)
-            for _ in range(math.ceil(number_of_grid_cells / vector_size))
-        ] if vector_size > 0 else [_create_state(solver)]
+            _create_state(solver, min(vector_size, number_of_grid_cells - i * vector_size))
+            for i in range(math.ceil(number_of_grid_cells / vector_size))
+        ] if vector_size > 0 else [ _create_state(solver, number_of_grid_cells) ]
         self.__species_ordering = _species_ordering(self.__states[0])
         self.__user_defined_rate_parameters_ordering = _user_defined_rate_parameters_ordering(self.__states[0])
         self.__number_of_grid_cells = number_of_grid_cells
@@ -133,12 +135,10 @@ class State():
         concentrations : Dict[str, Union[Union[float, int ], List[Union[float, int]]]]
             Dictionary of species names and their concentrations.
         """
-        state_num_grid_cells = self.__vector_size if self.__vector_size > 0 else self.__number_of_grid_cells
-        num_species = len(self.__species_ordering)
-        matrix_size = state_num_grid_cells * num_species
-        species_stride = self.__vector_size if self.__vector_size > 0 else 1
-        cell_stride = 1 if self.__vector_size > 0 else len(self.__species_ordering)
-        update_concentrations = np.zeros((len(self.__states), matrix_size))
+        n_rows = self.__vector_size if self.__vector_size > 0 else self.__number_of_grid_cells
+        n_cols = len(self.__species_ordering)
+        state_size = n_rows * n_cols
+        update_concentrations = np.zeros((len(self.__states), state_size))
         for name, i_species in self.__species_ordering.items():
             if name not in concentrations:
                 raise ValueError(f"Species {name} not found in the mechanism.")
@@ -147,17 +147,13 @@ class State():
                 value = [value]
             if len(value) != self.__number_of_grid_cells:
                 raise ValueError(f"Concentration list for {name} must have length {self.__number_of_grid_cells}.")
+            # Counter 'k' is used to map grid cell indices across multiple state segments.
+            k = 0
             for i_state, state in enumerate(self.__states):
-                for i_cell in range(state_num_grid_cells):
-                    k = i_cell + i_state * state_num_grid_cells
-                    if k < self.__number_of_grid_cells:
-                        update_concentrations[i_state][i_species * species_stride + i_cell * cell_stride] = value[k]
-                    else:
-                        # Set the concentration in unused grid cells to be the same as the last grid cell
-                        # This is a workaround until we figure out if we move the number of grid cells to
-                        # the State object in MICM (https://github.com/NCAR/micm/issues/686)
-                        update_concentrations[i_state][i_species * species_stride +
-                                                       i_cell * cell_stride] = value[self.__number_of_grid_cells - 1]
+                cell_stride, species_stride = state.concentration_strides()
+                for i_cell in range(state.number_of_grid_cells()):
+                    update_concentrations[i_state][i_species * species_stride + i_cell * cell_stride] = value[k]
+                    k += 1
         for i, state in enumerate(self.__states):
             state.concentrations = update_concentrations[i]
 
@@ -173,38 +169,25 @@ class State():
         user_defined_rate_parameters : Dict[str, Union[Union[float, int], List[Union[float, int]]]]
             Dictionary of user-defined rate parameter names and their values.
         """
-        state_num_grid_cells = self.__vector_size if self.__vector_size > 0 else self.__number_of_grid_cells
-        num_parameters = len(self.__user_defined_rate_parameters_ordering)
-        matrix_size = state_num_grid_cells * num_parameters
-        user_defined_rate_parameters_stride = self.__vector_size if self.__vector_size > 0 else 1
-        cell_stride = 1 if self.__vector_size > 0 else len(self.__user_defined_rate_parameters_ordering)
-        update_user_defined_rate_parameters = np.zeros((len(self.__states), matrix_size))
-        for i_parameter, name in enumerate(self.__user_defined_rate_parameters_ordering):
+        n_rows = self.__vector_size if self.__vector_size > 0 else self.__number_of_grid_cells
+        n_cols = len(self.__user_defined_rate_parameters_ordering)
+        state_size = n_rows * n_cols
+        update_user_defined_rate_parameters = np.zeros((len(self.__states), state_size))
+        for name, i_param in self.__user_defined_rate_parameters_ordering.items():
             if name not in user_defined_rate_parameters:
                 raise ValueError(f"User-defined rate parameter {name} not found in the mechanism.")
             value = user_defined_rate_parameters[name]
             if isinstance(value, float) or isinstance(value, int):
                 value = [value]
             if len(value) != self.__number_of_grid_cells:
-                raise ValueError(
-                    f"User-defined rate parameter list for {name} must have length {self.__number_of_grid_cells}.")
+                raise ValueError(f"User-defined rate parameter list for {name} must have length {self.__number_of_grid_cells}.")
+            # Initialize `k` to index the grid cells when assigning user-defined rate parameters.
+            k = 0
             for i_state, state in enumerate(self.__states):
-                for i_cell in range(state_num_grid_cells):
-                    k = i_cell + i_state * state_num_grid_cells
-                    if k < self.__number_of_grid_cells:
-                        update_user_defined_rate_parameters[i_state][i_parameter *
-                                                                     user_defined_rate_parameters_stride +
-                                                                     i_cell *
-                                                                     cell_stride] = value[k]
-                    else:
-                        # Set the user-defined rate parameter in unused grid cells to be the same as the last grid cell
-                        # This is a workaround until we figure out if we move the number of grid cells to the
-                        # State object in MICM (https://github.com/NCAR/micm/issues/686)
-                        update_user_defined_rate_parameters[i_state][i_parameter *
-                                                                     user_defined_rate_parameters_stride +
-                                                                     i_cell *
-                                                                     cell_stride] = value[self.__number_of_grid_cells -
-                                                                                          1]
+                cell_stride, param_stride = state.user_defined_rate_parameter_strides()
+                for i_cell in range(state.number_of_grid_cells()):
+                    update_user_defined_rate_parameters[i_state][i_param * param_stride + i_cell * cell_stride] = value[k]
+                    k += 1
         for i, state in enumerate(self.__states):
             state.user_defined_rate_parameters = update_user_defined_rate_parameters[i]
 
@@ -230,8 +213,6 @@ class State():
         air_densities : Optional[Union[float, List[float]]]
             Air density in mol m-3. If not provided, it will be calculated from the Ideal Gas Law.
         """
-        state_num_grid_cells = self.__vector_size if self.__vector_size > 0 else self.__number_of_grid_cells
-        update_conditions = [Conditions() for _ in range(state_num_grid_cells)]
         if isinstance(temperatures, float):
             if self.__number_of_grid_cells > 1:
                 raise ValueError(f"temperatures must be a list of length {self.__number_of_grid_cells}.")
@@ -250,21 +231,14 @@ class State():
             raise ValueError(f"pressures must be a list of length {self.__number_of_grid_cells}.")
         if air_densities is not None and len(air_densities) != self.__number_of_grid_cells:
             raise ValueError(f"air_densities must be a list of length {self.__number_of_grid_cells}.")
-        state_num_grid_cells = self.__vector_size if self.__vector_size > 0 else self.__number_of_grid_cells
-        for i, state in enumerate(self.__states):
-            for j in range(state_num_grid_cells):
-                k = j + i * state_num_grid_cells
-                if k >= self.__number_of_grid_cells:
-                    # Set the conditions in unused grid cells to be the same as the last grid cell
-                    # This is a workaround until we figure out if we move the number of grid cells to the
-                    # State object in MICM (https://github.com/NCAR/micm/issues/686)
-                    update_conditions[j] = update_conditions[j - (k - self.__number_of_grid_cells) - 1]
-                    continue
-                if air_densities is not None:
-                    update_conditions[j] = Conditions(temperatures[k], pressures[k], air_densities[k])
-                else:
-                    update_conditions[j] = Conditions(temperatures[k], pressures[k],
-                                                      pressures[k] / (GAS_CONSTANT * temperatures[k]))
+        k = 0
+        for state in self.__states:
+            update_conditions = [Conditions() for _ in range(state.number_of_grid_cells())]
+            for condition in update_conditions:
+                condition.temperature = temperatures[k]
+                condition.pressure = pressures[k]
+                condition.air_density = air_densities[k] if air_densities is not None else pressures[k] / (GAS_CONSTANT * temperatures[k])
+                k += 1
             state.conditions = update_conditions
 
     def get_concentrations(self) -> Dict[str, List[float]]:
@@ -276,19 +250,14 @@ class State():
         Dict[str, List[float]]
             Dictionary of species names and their concentrations.
         """
-        state_num_grid_cells = self.__vector_size if self.__vector_size > 0 else self.__number_of_grid_cells
-        species_stride = self.__vector_size if self.__vector_size > 0 else 1
-        cell_stride = 1 if self.__vector_size > 0 else len(self.__species_ordering)
         concentrations = {}
         for species, i_species in self.__species_ordering.items():
             concentrations[species] = []
-            for i_state, state in enumerate(self.__states):
+            for state in self.__states:
+                cell_stride, species_stride = state.concentration_strides()
                 state_concentrations = state.concentrations
-                for i_cell in range(state_num_grid_cells):
-                    if i_cell + i_state * state_num_grid_cells >= self.__number_of_grid_cells:
-                        break
-                    concentrations[species].append(
-                        state_concentrations[i_species * species_stride + i_cell * cell_stride])
+                for i_cell in range(state.number_of_grid_cells()):
+                    concentrations[species].append(state_concentrations[i_species * species_stride + i_cell * cell_stride])
         return concentrations
 
     def get_user_defined_rate_parameters(self) -> Dict[str, List[float]]:
@@ -300,19 +269,14 @@ class State():
         Dict[str, List[float]]
             Dictionary of user-defined rate parameter names and their values.
         """
-        state_num_grid_cells = self.__vector_size if self.__vector_size > 0 else self.__number_of_grid_cells
-        user_defined_rate_parameters_stride = self.__vector_size if self.__vector_size > 0 else 1
-        cell_stride = 1 if self.__vector_size > 0 else len(self.__user_defined_rate_parameters_ordering)
         user_defined_rate_parameters = {}
-        for i_parameter, name in enumerate(self.__user_defined_rate_parameters_ordering):
-            user_defined_rate_parameters[name] = []
-            for i_state, state in enumerate(self.__states):
+        for param, i_param in self.__user_defined_rate_parameters_ordering.items():
+            user_defined_rate_parameters[param] = []
+            for state in self.__states:
+                cell_stride, param_stride = state.user_defined_rate_parameter_strides()
                 state_user_defined_rate_parameters = state.user_defined_rate_parameters
-                for i_cell in range(state_num_grid_cells):
-                    if i_cell + i_state * state_num_grid_cells >= self.__number_of_grid_cells:
-                        break
-                    user_defined_rate_parameters[name].append(
-                        state_user_defined_rate_parameters[i_parameter * user_defined_rate_parameters_stride + i_cell * cell_stride])
+                for i_cell in range(state.number_of_grid_cells()):
+                    user_defined_rate_parameters[param].append(state_user_defined_rate_parameters[i_param * param_stride + i_cell * cell_stride])
         return user_defined_rate_parameters
 
     def get_conditions(self) -> Dict[str, List[float]]:
@@ -324,16 +288,13 @@ class State():
         Dict[str, List[float]]
             Dictionary of conditions names and their values.
         """
-        state_num_grid_cells = self.__vector_size if self.__vector_size > 0 else self.__number_of_grid_cells
         conditions = {}
         conditions["temperature"] = []
         conditions["pressure"] = []
         conditions["air_density"] = []
-        for i_state, state in enumerate(self.__states):
+        for state in self.__states:
             state_conditions = state.conditions
-            for i_cell in range(state_num_grid_cells):
-                if i_cell + i_state * state_num_grid_cells >= self.__number_of_grid_cells:
-                    break
+            for i_cell in range(state.number_of_grid_cells()):
                 conditions["temperature"].append(state_conditions[i_cell].temperature)
                 conditions["pressure"].append(state_conditions[i_cell].pressure)
                 conditions["air_density"].append(state_conditions[i_cell].air_density)
@@ -362,22 +323,17 @@ class MICM():
         config_path: FilePath = None,
         mechanism: mc.Mechanism = None,
         solver_type: _SolverType = None,
-        number_of_grid_cells: int = 1,
     ):
-        if number_of_grid_cells < 1:
-            raise ValueError("number_of_grid_cells must be greater than 0.")
-        self.__number_of_grid_cells = number_of_grid_cells
         self.__solver_type = solver_type
         self.__vector_size = _vector_size(solver_type)
-        solver_grid_cells = number_of_grid_cells if self.__vector_size == 0 else self.__vector_size
         if config_path is None and mechanism is None:
             raise ValueError("Either config_path or chemistry must be provided.")
         if config_path is not None and mechanism is not None:
             raise ValueError("Only one of config_path or chemistry must be provided.")
         if config_path is not None:
-            self.__solver = _create_solver(config_path, solver_type, solver_grid_cells)
+            self.__solver = _create_solver(config_path, solver_type)
         elif mechanism is not None:
-            self.__solver = _create_solver_from_mechanism(mechanism, solver_type, solver_grid_cells)
+            self.__solver = _create_solver_from_mechanism(mechanism, solver_type)
 
     def solver_type(self) -> SolverType:
         """
@@ -390,7 +346,8 @@ class MICM():
         """
         return self.__solver_type
 
-    def create_state(self) -> State:
+
+    def create_state(self, number_of_grid_cells: int = 1) -> State:
         """
         Create a new state object.
 
@@ -399,7 +356,7 @@ class MICM():
         State
             A new state object.
         """
-        return State(self.__solver, self.__number_of_grid_cells, self.__vector_size)
+        return State(self.__solver, number_of_grid_cells, self.__vector_size)
 
     def solve(
             self,
