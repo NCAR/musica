@@ -38,10 +38,8 @@ namespace musica
   {
     auto configure = [&](auto builder)
     {
-      auto solver = builder.SetSystem(chemistry.system)
-                        .SetReactions(chemistry.processes)
-                        .SetIgnoreUnusedSpecies(true)
-                        .Build();
+      auto solver =
+          builder.SetSystem(chemistry.system).SetReactions(chemistry.processes).SetIgnoreUnusedSpecies(true).Build();
 
       return solver;
     };

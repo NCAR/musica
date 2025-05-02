@@ -42,7 +42,9 @@ namespace musica
 
           State* state = new State();
 
-          std::visit([&](auto& solver_ptr) { state->state_variant_ = solver_ptr->GetState(number_of_grid_cells); }, micm->solver_variant_);
+          std::visit(
+              [&](auto& solver_ptr) { state->state_variant_ = solver_ptr->GetState(number_of_grid_cells); },
+              micm->solver_variant_);
 
           return state;
         },
