@@ -21,13 +21,13 @@ namespace musica
     return decltype(func())();
   }
 
-  MICM *CreateMicm(const char *config_path, MICMSolver solver_type, int num_grid_cells, Error *error)
+  MICM *CreateMicm(const char *config_path, MICMSolver solver_type, Error *error)
   {
     return HandleErrors(
         [&]()
         {
           Chemistry chemistry = ReadConfiguration(std::string(config_path));
-          MICM *micm = new MICM(chemistry, solver_type, num_grid_cells);
+          MICM *micm = new MICM(chemistry, solver_type);
           *error = NoError();
           return micm;
         },
@@ -37,13 +37,12 @@ namespace musica
   MICM *CreateMicmFromChemistryMechanism(
       const Chemistry *chemistry,
       MICMSolver solver_type,
-      int num_grid_cells,
       Error *error)
   {
     return HandleErrors(
         [&]()
         {
-          MICM *micm = new MICM(*chemistry, solver_type, num_grid_cells);
+          MICM *micm = new MICM(*chemistry, solver_type);
           *error = NoError();
           return micm;
         },

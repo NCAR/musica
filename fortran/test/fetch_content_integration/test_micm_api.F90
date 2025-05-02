@@ -74,10 +74,10 @@ contains
     time_step = 200
 
     write(*,*) "[test micm fort api] Creating MICM solver..."
-    micm => micm_t(config_path, solver_type, num_grid_cells, error)
+    micm => micm_t(config_path, solver_type, error)
 
     write(*,*) "Creating State..."
-    state => micm%get_state(error)
+    state => micm%get_state(num_grid_cells, error)
 
     ASSERT( error%is_success() )
 
@@ -163,7 +163,7 @@ contains
     ASSERT( error%is_error( MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND ) )
     deallocate(micm)
     deallocate(state)
-    micm => micm_t( "configs/invalid", solver_type, num_grid_cells, error )
+    micm => micm_t( "configs/invalid", solver_type, error )
     ASSERT( error%is_error( MUSICA_ERROR_CATEGORY_PARSING, MUSICA_PARSE_INVALID_CONFIG_FILE ) )
     ASSERT( .not. associated( micm ) )
 
@@ -207,7 +207,7 @@ contains
     real                      :: temp
     type(ArrheniusReaction)   :: r1, r2
     
-    state => micm%get_state(error)
+    state => micm%get_state(NUM_GRID_CELLS, error)
     A_index = state%species_ordering%index( "A", error )
     ASSERT( error%is_success() )
     B_index = state%species_ordering%index( "B", error )
@@ -320,7 +320,7 @@ contains
     real                                  :: temp
     type(ArrheniusReaction)               :: r1, r2
 
-    state => micm%get_state(error)
+    state => micm%get_state(NUM_GRID_CELLS, error)
     A_index = state%species_ordering%index( "A", error )
     ASSERT( error%is_success() )
     B_index = state%species_ordering%index( "B", error )
@@ -410,7 +410,7 @@ contains
     real, parameter           :: test_accuracy = 5.0e-3
 
     num_grid_cells = MICM_DEFAULT_VECTOR_SIZE
-    micm => micm_t( "configs/analytical", Rosenbrock, num_grid_cells, error )
+    micm => micm_t( "configs/analytical", Rosenbrock, error )
     ASSERT( error%is_success() )
 
     call test_vector_multiple_grid_cells( micm, num_grid_cells, time_step, test_accuracy )
@@ -429,7 +429,7 @@ contains
     real,         parameter :: test_accuracy = 5.0e-3
 
     num_grid_cells = 3
-    micm => micm_t( "configs/analytical", RosenbrockStandardOrder, num_grid_cells, error )
+    micm => micm_t( "configs/analytical", RosenbrockStandardOrder, error )
     ASSERT( error%is_success() )
 
     call test_standard_multiple_grid_cells( micm, num_grid_cells, time_step, test_accuracy )
@@ -448,7 +448,7 @@ contains
     real,         parameter :: test_accuracy = 0.1
 
     num_grid_cells = MICM_DEFAULT_VECTOR_SIZE
-    micm => micm_t( "configs/analytical", BackwardEuler, num_grid_cells, error )
+    micm => micm_t( "configs/analytical", BackwardEuler, error )
     ASSERT( error%is_success() )
 
     call test_vector_multiple_grid_cells( micm, num_grid_cells, time_step, test_accuracy )
@@ -467,7 +467,7 @@ contains
     real,         parameter :: test_accuracy = 0.1
 
     num_grid_cells = 3
-    micm => micm_t( "configs/analytical", BackwardEulerStandardOrder, num_grid_cells, error )
+    micm => micm_t( "configs/analytical", BackwardEulerStandardOrder, error )
     ASSERT( error%is_success() )
 
     call test_standard_multiple_grid_cells( micm, num_grid_cells, time_step, test_accuracy )
@@ -504,11 +504,11 @@ contains
     time_step = 200
 
     write(*,*) "[test micm fort api] Creating MICM solver..."
-    micm => micm_t(config_path, solver_type, num_grid_cells, error)
+    micm => micm_t(config_path, solver_type, error)
     ASSERT( error%is_success() )
 
     write(*,*) "Creating State..."
-    state => micm%get_state(error)
+    state => micm%get_state(num_grid_cells, error)
 
     O2_index = state%species_ordering%index( "O2", error )
     ASSERT( error%is_success() )
@@ -592,7 +592,7 @@ contains
     ASSERT( error%is_error( MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND ) )
     deallocate( micm )
     deallocate( state )
-    micm => micm_t( "configs/invalid", solver_type, num_grid_cells, error )
+    micm => micm_t( "configs/invalid", solver_type, error )
     ASSERT( error%is_error( MUSICA_ERROR_CATEGORY_PARSING, MUSICA_PARSE_INVALID_CONFIG_FILE ) )
     ASSERT( .not. associated( micm ) )
 

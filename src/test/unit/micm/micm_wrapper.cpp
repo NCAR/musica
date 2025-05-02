@@ -8,8 +8,8 @@
 void DoChemistry(musica::MICMSolver solver_type)
 {
   musica::Chemistry chemistry = musica::ReadConfiguration("configs/analytical");
-  musica::MICM micm = musica::MICM(chemistry, solver_type, 1);
-  musica::State state = musica::State(micm);
+  musica::MICM micm = musica::MICM(chemistry, solver_type);
+  musica::State state = musica::State(micm, 1);
 
   std::vector<double> initial_concnetrations = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
   state.SetOrderedConcentrations(initial_concnetrations);

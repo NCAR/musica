@@ -18,8 +18,9 @@ namespace musica
 #endif
     /// @brief Create a state object by specifying micm solver object using the solver variant
     /// @param micm Pointer to MICM object
+    /// @param number_of_grid_cells Number of grid cells
     /// @param error Error struct to indicate success or failure
-    State* CreateMicmState(musica::MICM* micm, Error* error);
+    State* CreateMicmState(musica::MICM* micm, size_t number_of_grid_cells, Error* error);
 
     /// @brief Deletes a state object
     /// @param state Pointer to state object

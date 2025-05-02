@@ -34,13 +34,12 @@ namespace musica
     }
   }
 
-  MICM::MICM(const Chemistry& chemistry, MICMSolver solver_type, int num_grid_cells)
+  MICM::MICM(const Chemistry& chemistry, MICMSolver solver_type)
   {
     auto configure = [&](auto builder)
     {
       auto solver = builder.SetSystem(chemistry.system)
                         .SetReactions(chemistry.processes)
-                        .SetNumberOfGridCells(num_grid_cells)
                         .SetIgnoreUnusedSpecies(true)
                         .Build();
 

@@ -36,10 +36,10 @@ contains
     num_grid_cells = 1
 
     write(*,*) "Creating MICM solver..."
-    micm => micm_t(config_path, solver_type, num_grid_cells, error)  
+    micm => micm_t(config_path, solver_type, error)  
 
     write(*,*) "Creating State..."    
-    state => micm%get_state(error)
+    state => micm%get_state(num_grid_cells, error)
 
     time_step = 200
 
@@ -84,10 +84,10 @@ contains
     time_step = 200
 
     write(*,*) "Creating MICM solver..."
-    micm => micm_t(config_path, solver_type, num_grid_cells, error)
+    micm => micm_t(config_path, solver_type, error)
     
     write(*,*) "Creating State..."
-    state => micm%get_state(error)
+    state => micm%get_state(num_grid_cells, error)
 
     state%conditions(1)%temperature = 273.0
     state%conditions(1)%pressure    = 1.0e5
