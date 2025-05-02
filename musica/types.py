@@ -147,6 +147,7 @@ class State():
                 value = [value]
             if len(value) != self.__number_of_grid_cells:
                 raise ValueError(f"Concentration list for {name} must have length {self.__number_of_grid_cells}.")
+            # Counter 'k' is used to map grid cell indices across multiple state segments.
             k = 0
             for i_state, state in enumerate(self.__states):
                 cell_stride, species_stride = state.concentration_strides()
