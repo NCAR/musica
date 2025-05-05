@@ -25,9 +25,13 @@ def TestSingleGridCell(self, solver, state, time_step, places=5):
         "E": 0,
         "F": 0.1
     }
-    state.set_conditions(temperature, pressure, air_density)
+    state.set_conditions(temperature, pressure, air_density)    
     state.set_concentrations(concentrations)
     state.set_user_defined_rate_parameters(rate_constants)
+
+    # test to make sure a second call to set_conditions with an empty dictionary does not change the values
+    state.set_concentrations({})
+    state.set_user_defined_rate_parameters({})
 
     initial_concentrations = state.get_concentrations()
     initial_rate_parameters = state.get_user_defined_rate_parameters()

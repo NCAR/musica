@@ -135,27 +135,21 @@ class State():
         concentrations : Dict[str, Union[Union[float, int ], List[Union[float, int]]]]
             Dictionary of species names and their concentrations.
         """
-        n_rows = self.__vector_size if self.__vector_size > 0 else self.__number_of_grid_cells
-        n_cols = len(self.__species_ordering)
-        state_size = n_rows * n_cols
-        update_concentrations = np.zeros((len(self.__states), state_size))
-        for name, i_species in self.__species_ordering.items():
-            if name not in concentrations:
+        for name, value in concentrations.items():
+            if name not in self.__species_ordering:
                 raise ValueError(f"Species {name} not found in the mechanism.")
-            value = concentrations[name]
+            i_species = self.__species_ordering[name]
             if isinstance(value, float) or isinstance(value, int):
                 value = [value]
             if len(value) != self.__number_of_grid_cells:
                 raise ValueError(f"Concentration list for {name} must have length {self.__number_of_grid_cells}.")
             # Counter 'k' is used to map grid cell indices across multiple state segments.
             k = 0
-            for i_state, state in enumerate(self.__states):
+            for state in self.__states:
                 cell_stride, species_stride = state.concentration_strides()
                 for i_cell in range(state.number_of_grid_cells()):
-                    update_concentrations[i_state][i_species * species_stride + i_cell * cell_stride] = value[k]
+                    state.concentrations[i_species * species_stride + i_cell * cell_stride] = value[k]
                     k += 1
-        for i, state in enumerate(self.__states):
-            state.concentrations = update_concentrations[i]
 
     def set_user_defined_rate_parameters(
             self, user_defined_rate_parameters: Dict[str, Union[Union[float, int], List[Union[float, int]]]]):
@@ -169,14 +163,10 @@ class State():
         user_defined_rate_parameters : Dict[str, Union[Union[float, int], List[Union[float, int]]]]
             Dictionary of user-defined rate parameter names and their values.
         """
-        n_rows = self.__vector_size if self.__vector_size > 0 else self.__number_of_grid_cells
-        n_cols = len(self.__user_defined_rate_parameters_ordering)
-        state_size = n_rows * n_cols
-        update_user_defined_rate_parameters = np.zeros((len(self.__states), state_size))
-        for name, i_param in self.__user_defined_rate_parameters_ordering.items():
-            if name not in user_defined_rate_parameters:
+        for name, value in user_defined_rate_parameters.items():
+            if name not in self.__user_defined_rate_parameters_ordering:
                 raise ValueError(f"User-defined rate parameter {name} not found in the mechanism.")
-            value = user_defined_rate_parameters[name]
+            i_param = self.__user_defined_rate_parameters_ordering[name]
             if isinstance(value, float) or isinstance(value, int):
                 value = [value]
             if len(value) != self.__number_of_grid_cells:
@@ -184,14 +174,11 @@ class State():
                     f"User-defined rate parameter list for {name} must have length {self.__number_of_grid_cells}.")
             # Initialize `k` to index the grid cells when assigning user-defined rate parameters.
             k = 0
-            for i_state, state in enumerate(self.__states):
+            for state in self.__states:
                 cell_stride, param_stride = state.user_defined_rate_parameter_strides()
                 for i_cell in range(state.number_of_grid_cells()):
-                    update_user_defined_rate_parameters[i_state][i_param *
-                                                                 param_stride + i_cell * cell_stride] = value[k]
+                    state.user_defined_rate_parameters[i_param * param_stride + i_cell * cell_stride] = value[k]
                     k += 1
-        for i, state in enumerate(self.__states):
-            state.user_defined_rate_parameters = update_user_defined_rate_parameters[i]
 
     def set_conditions(self,
                        temperatures: Union[float,
@@ -235,14 +222,12 @@ class State():
             raise ValueError(f"air_densities must be a list of length {self.__number_of_grid_cells}.")
         k = 0
         for state in self.__states:
-            update_conditions = [Conditions() for _ in range(state.number_of_grid_cells())]
-            for condition in update_conditions:
+            for condition in state.conditions:
                 condition.temperature = temperatures[k]
                 condition.pressure = pressures[k]
                 condition.air_density = air_densities[k] if air_densities is not None else pressures[k] / (
                     GAS_CONSTANT * temperatures[k])
                 k += 1
-            state.conditions = update_conditions
 
     def get_concentrations(self) -> Dict[str, List[float]]:
         """
@@ -258,10 +243,9 @@ class State():
             concentrations[species] = []
             for state in self.__states:
                 cell_stride, species_stride = state.concentration_strides()
-                state_concentrations = state.concentrations
                 for i_cell in range(state.number_of_grid_cells()):
                     concentrations[species].append(
-                        state_concentrations[i_species * species_stride + i_cell * cell_stride])
+                        state.concentrations[i_species * species_stride + i_cell * cell_stride])
         return concentrations
 
     def get_user_defined_rate_parameters(self) -> Dict[str, List[float]]:
@@ -278,10 +262,9 @@ class State():
             user_defined_rate_parameters[param] = []
             for state in self.__states:
                 cell_stride, param_stride = state.user_defined_rate_parameter_strides()
-                state_user_defined_rate_parameters = state.user_defined_rate_parameters
                 for i_cell in range(state.number_of_grid_cells()):
                     user_defined_rate_parameters[param].append(
-                        state_user_defined_rate_parameters[i_param * param_stride + i_cell * cell_stride])
+                        state.user_defined_rate_parameters[i_param * param_stride + i_cell * cell_stride])
         return user_defined_rate_parameters
 
     def get_conditions(self) -> Dict[str, List[float]]:
@@ -298,11 +281,10 @@ class State():
         conditions["pressure"] = []
         conditions["air_density"] = []
         for state in self.__states:
-            state_conditions = state.conditions
             for i_cell in range(state.number_of_grid_cells()):
-                conditions["temperature"].append(state_conditions[i_cell].temperature)
-                conditions["pressure"].append(state_conditions[i_cell].pressure)
-                conditions["air_density"].append(state_conditions[i_cell].air_density)
+                conditions["temperature"].append(state.conditions[i_cell].temperature)
+                conditions["pressure"].append(state.conditions[i_cell].pressure)
+                conditions["air_density"].append(state.conditions[i_cell].air_density)
         return conditions
 
 
