@@ -1,4 +1,5 @@
 #include <musica/micm/micm_c_interface.hpp>
+#include <musica/micm/cuda_availability.hpp>
 
 namespace musica
 {
@@ -118,4 +119,15 @@ namespace musica
   {
     return GetSpeciesProperty<bool>(micm, species_name, property_name, error);
   }
+
+  bool _IsCudaAvailable(Error *error)
+  {
+    return HandleErrors(
+        [&]()
+        {
+          return musica::IsCudaAvailable();
+        },
+        error);
+  }
+
 }  // namespace musica

@@ -6,8 +6,8 @@ program test_micm_api
   use, intrinsic :: iso_c_binding
   use, intrinsic :: ieee_arithmetic
   use iso_fortran_env, only: real64
-  use musica_micm, only: micm_t, solver_stats_t, get_micm_version
-  use musica_micm, only: Rosenbrock, RosenbrockStandardOrder, BackwardEuler, BackwardEulerStandardOrder
+  use musica_micm, only: micm_t, solver_stats_t, get_micm_version, is_cuda_available
+  use musica_micm, only: Rosenbrock, RosenbrockStandardOrder, BackwardEuler, BackwardEulerStandardOrder, CudaRosenbrock
   use musica_util, only: assert, error_t, mapping_t, string_t, find_mapping_index
   use musica_state, only: conditions_t, state_t
 
@@ -35,6 +35,7 @@ program test_micm_api
   call test_api_v1_parser()
   !call test_multiple_grid_cell_vector_Rosenbrock()
   !call test_multiple_grid_cell_vector_BackwardEuler()
+  call test_multiple_grid_cell_cuda_Rosenbrock()
 contains
 
   function calculate_arrhenius( reaction, temperature, pressure ) result( rate )
@@ -475,6 +476,36 @@ contains
     deallocate( micm )
 
   end subroutine test_multiple_grid_cell_standard_BackwardEuler
+
+
+  subroutine test_multiple_grid_cell_cuda_Rosenbrock()
+
+    type(micm_t), pointer :: micm
+    integer               :: num_grid_cells
+    type(error_t)         :: error
+
+    real(real64), parameter :: time_step = 200
+    real,         parameter :: test_accuracy = 5.0e-3
+
+    logical :: cuda_available
+
+    cuda_available = is_cuda_available(error)
+    ASSERT( error%is_success() )
+
+    if ( .not. cuda_available ) then
+      write(*,*) "CUDA is not available, skipping test."
+      return
+    end if
+
+    num_grid_cells = 3
+    micm => micm_t( "configs/analytical", CudaRosenbrock, error )
+    ASSERT( error%is_success() )
+
+    call test_standard_multiple_grid_cells( micm, num_grid_cells, time_step, test_accuracy )
+
+    deallocate( micm )
+
+  end subroutine test_multiple_grid_cell_cuda_Rosenbrock
 
   subroutine test_api_v1_parser()
 
