@@ -9,14 +9,20 @@
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/stl_bind.h>
 
 namespace py = pybind11;
 namespace v1 = mechanism_configuration::v1::types;
+
+PYBIND11_MAKE_OPAQUE(std::vector<double>)
+PYBIND11_MAKE_OPAQUE(std::vector<micm::Conditions>)
 
 // Wraps micm.cpp
 PYBIND11_MODULE(_musica, m)
 {
   py::module_ core = m.def_submodule("_core", "Wrapper classes for MUSICA C library structs and functions");
+  py::bind_vector<std::vector<double>>(core, "VectorDouble");
+  py::bind_vector<std::vector<micm::Conditions>>(core, "VectorConditions");
   
   py::class_<musica::Chemistry>(core, "_Chemistry")
       .def(py::init<>());
@@ -31,29 +37,38 @@ PYBIND11_MODULE(_musica, m)
       .def(py::init<>())
       .def("__del__", [](musica::State &state) { })
       .def("number_of_grid_cells",
-           [](musica::State *state) {
-             return state->NumberOfGridCells();
+           [](musica::State &state) {
+             return state.NumberOfGridCells();
            })
       .def_property(
           "conditions",
-          &musica::State::GetConditions,
-          py::overload_cast<const std::vector<micm::Conditions> &>(&musica::State::SetConditions))
+          [](musica::State &state) -> std::vector<micm::Conditions>& {
+            return state.GetConditions();
+          },
+          nullptr,
+          "list of conditions structs for each grid cell")
       .def_property(
           "concentrations",
-          &musica::State::GetOrderedConcentrations,
-          py::overload_cast<const std::vector<double> &>(&musica::State::SetOrderedConcentrations))
+          [](musica::State &state) -> std::vector<double>& {
+            return state.GetOrderedConcentrations();
+          },
+          nullptr,
+          "native 1D list of concentrations, ordered by species and grid cell according to matrix type")
       .def_property(
           "user_defined_rate_parameters",
-          &musica::State::GetOrderedRateConstants,
-          py::overload_cast<const std::vector<double> &>(&musica::State::SetOrderedRateConstants))
+          [](musica::State &state) -> std::vector<double>& {
+            return state.GetOrderedRateConstants();
+          },
+          nullptr,
+          "native 1D list of user-defined rate parameters, ordered by parameter and grid cell according to matrix type")
       .def("concentration_strides",
-           [](musica::State *state) {
-             return state->GetConcentrationStrides();
-           })
+          [](musica::State &state) {
+            return state.GetConcentrationStrides();
+          })
       .def("user_defined_rate_parameter_strides",
-           [](musica::State *state) {
-             return state->GetUserDefinedRateParameterStrides();
-           });
+          [](musica::State &state) {
+            return state.GetUserDefinedRateParameterStrides();
+          });
 
   py::enum_<musica::MICMSolver>(core, "_SolverType")
       .value("rosenbrock", musica::MICMSolver::Rosenbrock)
