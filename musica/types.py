@@ -309,7 +309,7 @@ class MICM():
     config_path : FilePath
         Path to the configuration file.
     mechanism : mechanism_configuration.Mechanism
-        Mechanism object which species the chemical mechanism to use.
+        Mechanism object which specifies the chemical mechanism to use.
     solver_type : SolverType
         Type of solver to use.
     number_of_grid_cells : int
