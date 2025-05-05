@@ -18,9 +18,6 @@ PYBIND11_MODULE(_musica, m)
 {
   py::module_ core = m.def_submodule("_core", "Wrapper classes for MUSICA C library structs and functions");
   
-  py::class_<musica::Chemistry>(core, "_Chemistry")
-      .def(py::init<>());
-
   py::class_<micm::Conditions>(core, "_Conditions")
       .def(py::init<>())
       .def_readwrite("temperature", &micm::Conditions::temperature_)

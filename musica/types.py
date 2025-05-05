@@ -9,7 +9,6 @@ import math
 import numpy as np
 from _musica._core import (
     _Conditions,
-    _Chemistry,
     _SolverType,
     _Solver,
     _State,
@@ -81,12 +80,6 @@ class Conditions(_Conditions):
             self.air_density = air_density
         elif temperature is not None and pressure is not None:
             self.air_density = 1.0 / (GAS_CONSTANT * temperature / pressure)
-
-
-class Chemistry(_Chemistry):
-    """
-    Chemistry mechanism class for use creating a MICM solver.
-    """
 
 
 class SolverType(_SolverType):
@@ -315,8 +308,8 @@ class MICM():
     ----------
     config_path : FilePath
         Path to the configuration file.
-    chemistry : Chemistry
-        Chemistry mechanism object.
+    mechanism : mechanism_configuration.Mechanism
+        Mechanism object which species the chemical mechanism to use.
     solver_type : SolverType
         Type of solver to use.
     number_of_grid_cells : int
@@ -332,9 +325,9 @@ class MICM():
         self.__solver_type = solver_type
         self.__vector_size = _vector_size(solver_type)
         if config_path is None and mechanism is None:
-            raise ValueError("Either config_path or chemistry must be provided.")
+            raise ValueError("Either config_path or mechanism must be provided.")
         if config_path is not None and mechanism is not None:
-            raise ValueError("Only one of config_path or chemistry must be provided.")
+            raise ValueError("Only one of config_path or mechanism must be provided.")
         if config_path is not None:
             self.__solver = _create_solver(config_path, solver_type)
         elif mechanism is not None:
