@@ -18,6 +18,7 @@ maintainers = [{ name = "ACOM MUSICA Developers", email = "musica-support@ucar.e
 license = { file = "LICENSE" }
 
 dependencies = [
+  "mechanism_configuration"
 ]
 
 [project.optional-dependencies]
