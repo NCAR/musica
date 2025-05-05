@@ -36,6 +36,7 @@ program test_micm_api
   !call test_multiple_grid_cell_vector_Rosenbrock()
   !call test_multiple_grid_cell_vector_BackwardEuler()
   call test_multiple_grid_cell_cuda_Rosenbrock()
+  
 contains
 
   function calculate_arrhenius( reaction, temperature, pressure ) result( rate )
@@ -476,7 +477,6 @@ contains
     deallocate( micm )
 
   end subroutine test_multiple_grid_cell_standard_BackwardEuler
-
 
   subroutine test_multiple_grid_cell_cuda_Rosenbrock()
 
