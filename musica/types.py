@@ -67,9 +67,9 @@ class Conditions(_Conditions):
 
     def __init__(
         self,
-        temperature: Optional[Union[float | int]] = None,
-        pressure: Optional[Union[float | int]] = None,
-        air_density: Optional[Union[float | int]] = None,
+        temperature: Optional[Union[float, int]] = None,
+        pressure: Optional[Union[float, int]] = None,
+        air_density: Optional[Union[float, int]] = None,
     ):
         super().__init__()
         if temperature is not None:
