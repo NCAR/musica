@@ -642,7 +642,6 @@ contains
 
     allocate( mappings )
     mappings%mappings_c_ = c_mappings
-    !print *, c_mappings%mappings_
 
   end function mappings_constructor_from_mappings_t_c
 
