@@ -67,9 +67,9 @@ class Conditions(_Conditions):
 
     def __init__(
         self,
-        temperature: Optional[float] = None,
-        pressure: Optional[float] = None,
-        air_density: Optional[float] = None,
+        temperature: Optional[Union[float, int]] = None,
+        pressure: Optional[Union[float, int]] = None,
+        air_density: Optional[Union[float, int]] = None,
     ):
         super().__init__()
         if temperature is not None:
@@ -174,12 +174,9 @@ class State():
                     k += 1
 
     def set_conditions(self,
-                       temperatures: Union[float,
-                                           List[float]],
-                       pressures: Union[float,
-                                        List[float]],
-                       air_densities: Optional[Union[float,
-                                                     List[float]]] = None):
+                       temperatures: Union[Union[ float, int], List[Union[float, int]]],
+                       pressures: Union[Union[float, int], List[Union[float, int]]],
+                       air_densities: Optional[Union[Union[float, int], List[Union[float, int]]]] = None):
         """
         Set the conditions for the state. The individual conditions can be a single value
         when solving for a single grid cell, or a list of values when solving for multiple grid cells.
@@ -195,15 +192,15 @@ class State():
         air_densities : Optional[Union[float, List[float]]]
             Air density in mol m-3. If not provided, it will be calculated from the Ideal Gas Law.
         """
-        if isinstance(temperatures, float):
+        if isinstance(temperatures, float) or isinstance(temperatures, int):
             if self.__number_of_grid_cells > 1:
                 raise ValueError(f"temperatures must be a list of length {self.__number_of_grid_cells}.")
             temperatures = [temperatures]
-        if isinstance(pressures, float):
+        if isinstance(pressures, float) or isinstance(pressures, int):
             if self.__number_of_grid_cells > 1:
                 raise ValueError(f"pressures must be a list of length {self.__number_of_grid_cells}.")
             pressures = [pressures]
-        if air_densities is not None and isinstance(air_densities, float):
+        if air_densities is not None and (isinstance(air_densities, float) or isinstance(air_densities, int)):
             if self.__number_of_grid_cells > 1:
                 raise ValueError(f"air_densities must be a list of length {self.__number_of_grid_cells}.")
             air_densities = [air_densities]
