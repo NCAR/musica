@@ -1,6 +1,7 @@
 FROM fedora:latest
 
 ARG BUILD_TYPE=Release
+ARG MUSICA_GIT_TAG=main
 
 RUN dnf -y update \
     && dnf -y install \
@@ -27,6 +28,7 @@ RUN mkdir /build \
       && cd /build \
       && cmake \
         -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+        -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
         -D MUSICA_ENABLE_PYTHON_LIBRARY=ON \
         /musica \
       && make install -j 8
