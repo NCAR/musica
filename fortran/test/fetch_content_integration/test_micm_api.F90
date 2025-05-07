@@ -35,7 +35,7 @@ program test_micm_api
   call test_api_v1_parser()
   !call test_multiple_grid_cell_vector_Rosenbrock()
   !call test_multiple_grid_cell_vector_BackwardEuler()
-  !call test_multiple_grid_cell_cuda_Rosenbrock()
+  call test_multiple_grid_cell_cuda_Rosenbrock()
   
 contains
 
@@ -497,7 +497,7 @@ contains
       return
     end if
 
-    num_grid_cells = 3
+    num_grid_cells = MICM_DEFAULT_VECTOR_SIZE
     micm => micm_t( "configs/analytical", CudaRosenbrock, error )
     ASSERT( error%is_success() )
 
