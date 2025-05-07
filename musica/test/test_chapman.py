@@ -23,6 +23,10 @@ def TestSolve(self, solver):
         "O3": 0.0000081
     }
 
+    # Test setting int values
+    state.set_conditions(temperatures=272, pressures=101325)
+
+    # Set actual test conditions
     state.set_conditions(temperatures=temperature, pressures=pressure)
     state.set_concentrations(initial_concentrations)
     state.set_user_defined_rate_parameters(rate_constants)

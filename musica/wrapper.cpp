@@ -24,9 +24,6 @@ PYBIND11_MODULE(_musica, m)
   py::bind_vector<std::vector<double>>(core, "VectorDouble");
   py::bind_vector<std::vector<micm::Conditions>>(core, "VectorConditions");
   
-  py::class_<musica::Chemistry>(core, "_Chemistry")
-      .def(py::init<>());
-
   py::class_<micm::Conditions>(core, "_Conditions")
       .def(py::init<>())
       .def_readwrite("temperature", &micm::Conditions::temperature_)
