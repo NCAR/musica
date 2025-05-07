@@ -174,7 +174,7 @@ class State():
                     k += 1
 
     def set_conditions(self,
-                       temperatures: Union[Union[ float, int], List[Union[float, int]]],
+                       temperatures: Union[Union[float, int], List[Union[float, int]]],
                        pressures: Union[Union[float, int], List[Union[float, int]]],
                        air_densities: Optional[Union[Union[float, int], List[Union[float, int]]]] = None):
         """
