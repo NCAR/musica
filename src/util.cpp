@@ -155,12 +155,8 @@ namespace musica
   std::size_t FindMappingIndex(const Mappings mappings, const char* name, Error* error)
   {
     DeleteError(error);
-    std::cout << "Address of mappings_: " << mappings.mappings_ << std::endl;
     for (std::size_t i = 0; i < mappings.size_; i++)
     {
-      // print out the address of the mappings_ pointer
-      std::cout << "Mapping name: " << mappings.mappings_[i].name_.value_ << std::endl;
-      std::cout << "Name: " << name << std::endl << std::flush;
       if (std::strcmp(mappings.mappings_[i].name_.value_, name) == 0)
       {
         *error = NoError();

@@ -116,13 +116,12 @@ module musica_util
 
   !> Wrapper for a c array of name-to-index mappings
   type, bind(c) :: mappings_t_c
-    type(c_ptr) :: mappings_ = c_null_ptr
+    type(c_ptr), public :: mappings_ = c_null_ptr
     integer(c_size_t) :: size_ = 0_c_size_t
   end type mappings_t_c
 
   !> Array of name-to-index mappings
   type :: mappings_t
-  private
     type(mappings_t_c) :: mappings_c_
   contains
     procedure :: name => mappings_name
@@ -638,11 +637,12 @@ contains
   function mappings_constructor_from_mappings_t_c( c_mappings ) &
       result( mappings )
 
-    type(mappings_t_c), intent(in) :: c_mappings
+    type(mappings_t_c), intent(inout) :: c_mappings
     type(mappings_t), pointer :: mappings
 
     allocate( mappings )
     mappings%mappings_c_ = c_mappings
+    !print *, c_mappings%mappings_
 
   end function mappings_constructor_from_mappings_t_c
 
