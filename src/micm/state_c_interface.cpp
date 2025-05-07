@@ -105,6 +105,9 @@ namespace musica
           species_ordering.mappings_ = new Mapping[map.size()];
           species_ordering.size_ = map.size();
 
+          // print out the address of mappings_
+          std::cout << "Address of mappings_: " << species_ordering.mappings_ << std::endl;
+
           std::size_t i = 0;
           for (const auto& entry : map)
           {

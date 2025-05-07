@@ -116,7 +116,7 @@ contains
     type(c_ptr)            :: array_pointer_conditions
     type(c_ptr)            :: double_array_pointer_concentration
     type(c_ptr)            :: double_array_pointer_rates
-    integer                :: n_species, n_grid_cells
+    integer                :: n_species, n_grid_cells, O2_index
 
     allocate( this )
 
@@ -166,6 +166,8 @@ contains
         nullify(this)
         return
     end if
+
+    O2_index = this%species_ordering%index( "O2", error )
 
     this%user_defined_reaction_rates => &
         mappings_t( get_user_defined_reaction_rates_ordering_c(this%ptr, error_c) )
