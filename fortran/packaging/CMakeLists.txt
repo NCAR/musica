@@ -41,6 +41,20 @@ write_basic_package_version_file(
   COMPATIBILITY SameMajorVersion
 )
 
+set(CMAKE_INSTALL_PKGCONFIGDIR "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+configure_file(
+  "${MUSICA_PROJECT_SRC_DIR}/cmake/musica-fortran.pc.in"
+  "${PROJECT_BINARY_DIR}/musica-fortran.pc"
+  @ONLY
+)
+
+install(
+  FILES
+    "${PROJECT_BINARY_DIR}/musica-fortran.pc"
+  DESTINATION
+    "${CMAKE_INSTALL_PKGCONFIGDIR}"
+)
+
 install(
   FILES
     ${PROJECT_BINARY_DIR}/musica-fortranConfig.cmake

@@ -29,3 +29,6 @@ setenv("MUSICA_ROOT", base)
 setenv("MUSICA_INC", incpath)
 setenv("MUSICA_LIB", libpath)
 setenv("MUSICA_FORTRAN_INC", fincpath)
+
+-- Update pkg-config path
+prepend_path("PKG_CONFIG_PATH", pathJoin(libpath, "pkgconfig"))

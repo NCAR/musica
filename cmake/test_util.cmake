@@ -17,6 +17,9 @@ function(create_standard_test_fortran)
 
   add_executable(test_${TEST_NAME} ${TEST_SOURCES})
   target_link_libraries(test_${TEST_NAME} PUBLIC musica::musica-fortran)
+  if (${CMAKE_Fortran_COMPILER_ID} MATCHES "Intel" OR ${CMAKE_Fortran_COMPILER_ID} MATCHES "NVHPC")
+    set_target_properties(test_${TEST_NAME} PROPERTIES LINKER_LANGUAGE Fortran)
+  endif()
 
   # link additional libraries
   foreach(library ${TEST_LIBRARIES})

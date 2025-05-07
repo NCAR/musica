@@ -11,9 +11,10 @@ program test_util
 #define ASSERT_NE( a, b ) call assert( a /= b, __FILE__, __LINE__ )
 
   use, intrinsic :: iso_c_binding, only: c_char, c_ptr, c_loc, c_size_t, c_null_char
-  use musica_constants, only: dk => musica_dk
   use musica_util
   implicit none
+
+  integer, parameter :: dk = musica_dk
 
   call test_string_t()
   call test_error_t()
