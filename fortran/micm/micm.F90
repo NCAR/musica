@@ -401,7 +401,7 @@ contains
     use musica_util, only: error_t_c, error_t
     type(error_t), intent(inout) :: error
     logical                      :: value
-    type(error_t_c)             :: error_c
+    type(error_t_c)              :: error_c
 
     value = is_cuda_available_c(error_c)
     error = error_t(error_c)
