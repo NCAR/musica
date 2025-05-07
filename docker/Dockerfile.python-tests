@@ -1,5 +1,7 @@
 FROM fedora:latest
 
+ARG BUILD_TYPE=Release
+
 RUN dnf -y update \
     && dnf -y install \
         cmake \
@@ -24,7 +26,7 @@ ENV FC=gfortran
 RUN mkdir /build \
       && cd /build \
       && cmake \
-        -D CMAKE_BUILD_TYPE=debug \
+        -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
         -D MUSICA_ENABLE_PYTHON_LIBRARY=ON \
         /musica \
       && make install -j 8
