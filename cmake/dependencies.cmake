@@ -68,7 +68,7 @@ endif()
 
 if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE)
   set_git_default(MICM_GIT_REPOSITORY https://github.com/NCAR/micm.git)
-  set_git_default(MICM_GIT_TAG b588f5b4220b1f4a2c7220460f86c39ead36331e) 
+  set_git_default(MICM_GIT_TAG 9c727d7481cbad6be4641cfb32b7b877f5d0783e) 
 
   FetchContent_Declare(micm
       GIT_REPOSITORY ${MICM_GIT_REPOSITORY}
