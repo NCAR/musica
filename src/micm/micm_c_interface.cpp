@@ -1,5 +1,5 @@
-#include <musica/micm/micm_c_interface.hpp>
 #include <musica/micm/cuda_availability.hpp>
+#include <musica/micm/micm_c_interface.hpp>
 
 namespace musica
 {
@@ -18,6 +18,10 @@ namespace musica
     catch (const std::exception &e)
     {
       *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, e.what());
+    }
+    catch (...)
+    {
+      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, "Unknown error");
     }
     return decltype(func())();
   }
@@ -122,12 +126,7 @@ namespace musica
 
   bool _IsCudaAvailable(Error *error)
   {
-    return HandleErrors(
-        [&]()
-        {
-          return musica::IsCudaAvailable();
-        },
-        error);
+    return HandleErrors([&]() { return musica::IsCudaAvailable(); }, error);
   }
 
 }  // namespace musica

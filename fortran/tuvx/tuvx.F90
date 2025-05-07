@@ -237,20 +237,21 @@ contains
   !> Get the photolysis rate constant ordering
   function get_photolysis_rate_constants_ordering(this, error) &
       result(mappings)
-    use musica_util, only: error_t, error_t_c, mappings_t
+    use musica_util, only: error_t, error_t_c, mappings_t, mappings_t_c
 
     ! Arguments
     class(tuvx_t), intent(inout) :: this
     type(error_t), intent(inout) :: error
 
     ! Return value
-    type(mappings_t), pointer :: mappings
+    type(mappings_t), pointer :: mappings 
 
     ! Local variables
     type(error_t_c) :: error_c
+    type(mappings_t_c) :: mapping
 
-    mappings => &
-        mappings_t(get_photolysis_rate_constants_ordering_c(this%ptr_, error_c))
+    mapping = get_photolysis_rate_constants_ordering_c(this%ptr_, error_c)
+    mappings =>  mappings_t( mapping )
     error = error_t(error_c)
 
   end function get_photolysis_rate_constants_ordering
@@ -259,7 +260,7 @@ contains
   
   !> Get the heating rate ordering
   function get_heating_rates_ordering(this, error) result(mappings)
-    use musica_util, only: error_t, error_t_c, mappings_t
+    use musica_util, only: error_t, error_t_c, mappings_t, mappings_t_c
 
     ! Arguments
     class(tuvx_t), intent(inout) :: this
@@ -270,8 +271,11 @@ contains
 
     ! Local variables
     type(error_t_c) :: error_c
+    type(mappings_t_c) :: mapping
 
-    mappings => mappings_t(get_heating_rates_ordering_c(this%ptr_, error_c))
+    mapping = get_heating_rates_ordering_c(this%ptr_, error_c)
+
+    mappings => mappings_t( mapping )
     error = error_t(error_c)
 
   end function get_heating_rates_ordering
