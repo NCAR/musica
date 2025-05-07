@@ -109,7 +109,7 @@ contains
     state%rates(jO3a_index,1) = 1.13e-9
     state%rates(jO3b_index,1) = 5.8e-8
     
-    micm_version = get_micm_version()
+    ! micm_version = get_micm_version()
     print *, "[test micm fort api] MICM version ", micm_version%get_char_array()
 
     do i = 1, state%species_ordering%size()
@@ -538,7 +538,7 @@ contains
     state%rates(jO3a_index,1) = 1.13e-9
     state%rates(jO3b_index,1) = 5.8e-8
 
-    micm_version = get_micm_version()
+    ! micm_version = get_micm_version()
     print *, "[test micm fort api] MICM version ", micm_version%get_char_array()
 
     do i = 1, state%species_ordering%size()
