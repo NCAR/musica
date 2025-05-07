@@ -28,6 +28,7 @@ jobs:
           - Dockerfile.mpi_openmp
           - Dockerfile.python
           - Dockerfile.nvhpc
+          - Dockerfile.coverage
         build_type: [Release, Debug]
     steps:
       - name: Checkout code
