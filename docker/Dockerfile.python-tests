@@ -28,4 +28,4 @@ RUN cd /musica \
     && pip3 install --verbose .[test]
 
 WORKDIR /musica
-CMD ["python3", "-m", "unittest", "discover", "-v", "-s", "musica/test"]
+CMD ["pytest"]

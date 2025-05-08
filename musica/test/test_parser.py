@@ -399,7 +399,7 @@ def test_parsed_full_v1_configuration():
     parser = Parser()
     extensions = [".yaml", ".json"]
     for extension in extensions:
-        path = f"examples/v1/full_configuration{extension}"
+        path = f"configs/examples/v1/full_configuration{extension}"
         mechanism = parser.parse(path)
         validate_full_v1_mechanism(mechanism)
 
@@ -408,7 +408,7 @@ def test_parser_reports_bad_files():
     parser = Parser()
     extensions = [".yaml", ".json"]
     for extension in extensions:
-        path = f"examples/_missing_configuration{extension}"
+        path = f"configs/examples/_missing_configuration{extension}"
         with pytest.raises(Exception):
             parser.parse(path)
 
