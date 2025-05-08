@@ -58,6 +58,23 @@ elseif(${CMAKE_Fortran_COMPILER_ID} MATCHES "PGI")
   list(APPEND musica_compile_definitions MUSICA_USING_PGI)
 endif()
 
+# Set the C++ standard library if it is not already set
+if(NOT CMAKE_CXX_STANDARD_LIBRARIES)
+  if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
+    set(CMAKE_CXX_STANDARD_LIBRARIES "-lstdc++")
+  elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "Intel")
+    set(CMAKE_CXX_STANDARD_LIBRARIES "-lstdc++")
+  elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "IBM")
+    set(CMAKE_CXX_STANDARD_LIBRARIES "-lstdc++")
+  elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "NVidia")
+    set(CMAKE_CXX_STANDARD_LIBRARIES "-lstdc++")
+  elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
+    set(CMAKE_CXX_STANDARD_LIBRARIES "-lc++")
+  else()
+    set(CMAKE_CXX_STANDARD_LIBRARIES "-lstdc++") # default to most common name
+  endif()
+endif()
+
 if(MUSICA_BUILD_C_CXX_INTERFACE)
   # must be global so that it also applies to dependencies like google test, unless we want
   # to set it for each target

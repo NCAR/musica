@@ -7,4 +7,4 @@ Name: musica-fortran
 Description: Fortran wrapper for the MUSICA library for modeling atmospheric chemistry
 Version: @musica-distribution_VERSION@
 Cflags: -I${includedir}
-Libs: -L${libdir} -lmusica-fortran
+Libs: -L${libdir} -lmusica-fortran -lmusica -lmechanism_configuration -lyaml-cpp @CMAKE_CXX_STANDARD_LIBRARIES@
