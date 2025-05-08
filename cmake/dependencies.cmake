@@ -23,7 +23,7 @@ endif()
 # Mechanism Configuration
 
 set_git_default(MECH_CONFIG_GIT_REPOSITORY https://github.com/NCAR/MechanismConfiguration.git)
-set_git_default(MECH_CONFIG_GIT_TAG b8009f4646ef4daa749d73ea18206f97ec59757c)
+set_git_default(MECH_CONFIG_GIT_TAG v0.2.0)
 
 FetchContent_Declare(mechanism_configuration
     GIT_REPOSITORY ${MECH_CONFIG_GIT_REPOSITORY}

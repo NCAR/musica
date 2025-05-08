@@ -1,12 +1,12 @@
-import unittest
+import pytest
 import numpy as np
 import musica
 import random
-import mechanism_configuration as mc
+import musica.mechanism_configuration as mc
 from _musica._core import _is_cuda_available
 
 
-def TestSingleGridCell(self, solver, state, time_step, places=5):
+def TestSingleGridCell(solver, state, time_step, places=5):
     temperature = 272.5
     pressure = 101253.3
     GAS_CONSTANT = 8.31446261815324
@@ -38,17 +38,17 @@ def TestSingleGridCell(self, solver, state, time_step, places=5):
     initial_temperatures = state.get_conditions()["temperature"]
     initial_pressures = state.get_conditions()["pressure"]
     initial_air_density = state.get_conditions()["air_density"]
-    self.assertAlmostEqual(initial_concentrations["A"][0], concentrations["A"], places=13)
-    self.assertAlmostEqual(initial_concentrations["B"][0], concentrations["B"], places=13)
-    self.assertAlmostEqual(initial_concentrations["C"][0], concentrations["C"], places=13)
-    self.assertAlmostEqual(initial_concentrations["D"][0], concentrations["D"], places=13)
-    self.assertAlmostEqual(initial_concentrations["E"][0], concentrations["E"], places=13)
-    self.assertAlmostEqual(initial_concentrations["F"][0], concentrations["F"], places=13)
-    self.assertAlmostEqual(initial_rate_parameters["USER.reaction 1"][0], rate_constants["USER.reaction 1"], places=13)
-    self.assertAlmostEqual(initial_rate_parameters["USER.reaction 2"][0], rate_constants["USER.reaction 2"], places=13)
-    self.assertAlmostEqual(initial_temperatures[0], temperature, places=13)
-    self.assertAlmostEqual(initial_pressures[0], pressure, places=13)
-    self.assertAlmostEqual(initial_air_density[0], air_density, places=13)
+    assert np.isclose(initial_concentrations["A"][0], concentrations["A"], atol=1e-13)
+    assert np.isclose(initial_concentrations["B"][0], concentrations["B"], atol=1e-13)
+    assert np.isclose(initial_concentrations["C"][0], concentrations["C"], atol=1e-13)
+    assert np.isclose(initial_concentrations["D"][0], concentrations["D"], atol=1e-13)
+    assert np.isclose(initial_concentrations["E"][0], concentrations["E"], atol=1e-13)
+    assert np.isclose(initial_concentrations["F"][0], concentrations["F"], atol=1e-13)
+    assert np.isclose(initial_rate_parameters["USER.reaction 1"][0], rate_constants["USER.reaction 1"], atol=1e-13)
+    assert np.isclose(initial_rate_parameters["USER.reaction 2"][0], rate_constants["USER.reaction 2"], atol=1e-13)
+    assert np.isclose(initial_temperatures[0], temperature, atol=1e-13)
+    assert np.isclose(initial_pressures[0], pressure, atol=1e-13)
+    assert np.isclose(initial_air_density[0], air_density, atol=1e-13)
 
     time_step = 1
     sim_length = 100
@@ -78,17 +78,17 @@ def TestSingleGridCell(self, solver, state, time_step, places=5):
         F_conc = initial_F + initial_D * \
             (1.0 + (k1 * np.exp(-k2 * curr_time) - k2 * np.exp(-k1 * curr_time)) / (k2 - k1))
 
-        self.assertAlmostEqual(concentrations["A"][0], A_conc, places=places)
-        self.assertAlmostEqual(concentrations["B"][0], B_conc, places=places)
-        self.assertAlmostEqual(concentrations["C"][0], C_conc, places=places)
-        self.assertAlmostEqual(concentrations["D"][0], D_conc, places=places)
-        self.assertAlmostEqual(concentrations["E"][0], E_conc, places=places)
-        self.assertAlmostEqual(concentrations["F"][0], F_conc, places=places)
+        assert np.isclose(concentrations["A"][0], A_conc, atol=10**-places)
+        assert np.isclose(concentrations["B"][0], B_conc, atol=10**-places)
+        assert np.isclose(concentrations["C"][0], C_conc, atol=10**-places)
+        assert np.isclose(concentrations["D"][0], D_conc, atol=10**-places)
+        assert np.isclose(concentrations["E"][0], E_conc, atol=10**-places)
+        assert np.isclose(concentrations["F"][0], F_conc, atol=10**-places)
 
         curr_time += time_step
 
 
-def TestMultipleGridCell(self, solver, state, num_grid_cells, time_step, places=5):
+def TestMultipleGridCell(solver, state, num_grid_cells, time_step, places=5):
     concentrations = {
         "A": [],
         "B": [],
@@ -128,23 +128,23 @@ def TestMultipleGridCell(self, solver, state, num_grid_cells, time_step, places=
     initial_pressures = state.get_conditions()["pressure"]
     initial_air_density = state.get_conditions()["air_density"]
     for i in range(num_grid_cells):
-        self.assertAlmostEqual(initial_concentrations["A"][i], concentrations["A"][i], places=13)
-        self.assertAlmostEqual(initial_concentrations["B"][i], concentrations["B"][i], places=13)
-        self.assertAlmostEqual(initial_concentrations["C"][i], concentrations["C"][i], places=13)
-        self.assertAlmostEqual(initial_concentrations["D"][i], concentrations["D"][i], places=13)
-        self.assertAlmostEqual(initial_concentrations["E"][i], concentrations["E"][i], places=13)
-        self.assertAlmostEqual(initial_concentrations["F"][i], concentrations["F"][i], places=13)
-        self.assertAlmostEqual(
+        assert np.isclose(initial_concentrations["A"][i], concentrations["A"][i], atol=1e-13)
+        assert np.isclose(initial_concentrations["B"][i], concentrations["B"][i], atol=1e-13)
+        assert np.isclose(initial_concentrations["C"][i], concentrations["C"][i], atol=1e-13)
+        assert np.isclose(initial_concentrations["D"][i], concentrations["D"][i], atol=1e-13)
+        assert np.isclose(initial_concentrations["E"][i], concentrations["E"][i], atol=1e-13)
+        assert np.isclose(initial_concentrations["F"][i], concentrations["F"][i], atol=1e-13)
+        assert np.isclose(
             initial_rate_parameters["USER.reaction 1"][i],
             rate_constants["USER.reaction 1"][i],
-            places=13)
-        self.assertAlmostEqual(
+            atol=1e-13)
+        assert np.isclose(
             initial_rate_parameters["USER.reaction 2"][i],
             rate_constants["USER.reaction 2"][i],
-            places=13)
-        self.assertAlmostEqual(initial_temperatures[i], temperatures[i], places=13)
-        self.assertAlmostEqual(initial_pressures[i], pressures[i], places=13)
-        self.assertAlmostEqual(initial_air_density[i], pressures[i] / (8.31446261815324 * temperatures[i]), places=13)
+            atol=1e-13)
+        assert np.isclose(initial_temperatures[i], temperatures[i], atol=1e-13)
+        assert np.isclose(initial_pressures[i], pressures[i], atol=1e-13)
+        assert np.isclose(initial_air_density[i], pressures[i] / (8.31446261815324 * temperatures[i]), atol=1e-13)
 
     time_step = 1
     sim_length = 100
@@ -187,36 +187,30 @@ def TestMultipleGridCell(self, solver, state, num_grid_cells, time_step, places=
             F_conc = initial_F[i] + initial_D[i] * (1.0 + (
                 k1[i] * np.exp(-k2[i] * curr_time) - k2[i] * np.exp(-k1[i] * curr_time)) / (k2[i] - k1[i]))
 
-            self.assertAlmostEqual(
+            assert np.isclose(
                 concentrations["A"][i],
                 A_conc,
-                places=places,
-                msg=f"Grid cell {i} of {num_grid_cells}: A concentration mismatch. Initial A: {initial_concentrations['A'][i]}")
-            self.assertAlmostEqual(
+                atol=10**-places), f"Grid cell {i} of {num_grid_cells}: A concentration mismatch. Initial A: {initial_concentrations['A'][i]}"
+            assert np.isclose(
                 concentrations["B"][i],
                 B_conc,
-                places=places,
-                msg=f"Grid cell {i} of {num_grid_cells}: B concentration mismatch. Initial B: {initial_concentrations['B'][i]}")
-            self.assertAlmostEqual(
+                atol=10**-places), f"Grid cell {i} of {num_grid_cells}: B concentration mismatch. Initial B: {initial_concentrations['B'][i]}"
+            assert np.isclose(
                 concentrations["C"][i],
                 C_conc,
-                places=places,
-                msg=f"Grid cell {i} of {num_grid_cells}: C concentration mismatch. Initial C: {initial_concentrations['C'][i]}")
-            self.assertAlmostEqual(
+                atol=10**-places), f"Grid cell {i} of {num_grid_cells}: C concentration mismatch. Initial C: {initial_concentrations['C'][i]}"
+            assert np.isclose(
                 concentrations["D"][i],
                 D_conc,
-                places=places,
-                msg=f"Grid cell {i} of {num_grid_cells}: D concentration mismatch. Initial D: {initial_concentrations['D'][i]}")
-            self.assertAlmostEqual(
+                atol=10**-places), f"Grid cell {i} of {num_grid_cells}: D concentration mismatch. Initial D: {initial_concentrations['D'][i]}"
+            assert np.isclose(
                 concentrations["E"][i],
                 E_conc,
-                places=places,
-                msg=f"Grid cell {i} of {num_grid_cells}: E concentration mismatch. Initial E: {initial_concentrations['E'][i]}")
-            self.assertAlmostEqual(
+                atol=10**-places), f"Grid cell {i} of {num_grid_cells}: E concentration mismatch. Initial E: {initial_concentrations['E'][i]}"
+            assert np.isclose(
                 concentrations["F"][i],
                 F_conc,
-                places=places,
-                msg=f"Grid cell {i} of {num_grid_cells}: F concentration mismatch. Initial F: {initial_concentrations['F'][i]}")
+                atol=10**-places), f"Grid cell {i} of {num_grid_cells}: F concentration mismatch. Initial F: {initial_concentrations['F'][i]}"
 
         curr_time += time_step
 
@@ -246,123 +240,84 @@ def GetMechanism():
     return mechanism
 
 
-class TestAnalyticalStandardRosenbrock(unittest.TestCase):
-    def test_simulation(self):
+def test_single_grid_cell_standard_rosenbrock():
+    solver = musica.MICM(
+        config_path="configs/analytical",
+        solver_type=musica.SolverType.rosenbrock_standard_order)
+    state = solver.create_state()
+    TestSingleGridCell(solver, state, 200.0, 5)
+
+
+def test_multiple_grid_cells_standard_rosenbrock():
+    for i in range(1, 11):
         solver = musica.MICM(
             config_path="configs/analytical",
             solver_type=musica.SolverType.rosenbrock_standard_order)
-        state = solver.create_state()
-        TestSingleGridCell(self, solver, state, 200.0, 5)
-        TestMultipleGridCell(self, solver, state, 1, 200.0, 5)
-        mechanism = GetMechanism()
+        state = solver.create_state(i)
+        TestMultipleGridCell(solver, state, i, 200.0, 5)
+
+
+def test_cuda_rosenbrock():
+    if _is_cuda_available():
         solver = musica.MICM(
-            mechanism=mechanism,
-            solver_type=musica.SolverType.rosenbrock_standard_order)
+            config_path="configs/analytical",
+            solver_type=musica.micmsolver.cuda_rosenbrock)
         state = solver.create_state()
-        TestSingleGridCell(self, solver, state, 200.0, 5)
-        TestMultipleGridCell(self, solver, state, 1, 200.0, 5)
+        TestSingleGridCell(solver, state, 200.0, 5)
+    else:
+        pytest.skip("CUDA is not available.")
 
 
-class TestAnalyticalCudaRosenbrock(unittest.TestCase):
-    def test_simulation(self):
-        if _is_cuda_available():
-            solver = musica.MICM(
-                config_path="configs/analytical",
-                solver_type=musica.micmsolver.cuda_rosenbrock)
-            state = solver.create_state()
-            TestSingleGridCell(self, solver, state, 200.0, 5)
-            solver = musica.MICM(
-                mechanism=GetMechanism(),
-                solver_type=musica.micmsolver.cuda_rosenbrock)
-            state = solver.create_state()
-            TestSingleGridCell(self, solver, state, 200.0, 5)
-        else:
-            self.skipTest("CUDA is not available.")
+def test_single_grid_cell_backward_euler():
+    solver = musica.MICM(
+        config_path="configs/analytical",
+        solver_type=musica.SolverType.backward_euler_standard_order)
+    state = solver.create_state()
+    TestSingleGridCell(solver, state, 10.0, places=2)
 
 
-class TestAnalyticalStandardBackwardEuler(unittest.TestCase):
-    def test_simulation(self):
+def test_multiple_grid_cells_backward_euler():
+    for i in range(1, 11):
         solver = musica.MICM(
             config_path="configs/analytical",
             solver_type=musica.SolverType.backward_euler_standard_order)
-        state = solver.create_state()
-        TestSingleGridCell(self, solver, state, 10.0, places=2)
-        TestMultipleGridCell(self, solver, state, 1, 10.0, places=2)
-        mechanism = GetMechanism()
+        state = solver.create_state(i)
+        TestMultipleGridCell(solver, state, i, 10.0, places=2)
+
+
+def test_single_grid_cell_rosenbrock():
+    solver = musica.MICM(
+        config_path="configs/analytical",
+        solver_type=musica.SolverType.rosenbrock)
+    state = solver.create_state()
+    TestSingleGridCell(solver, state, 200.0, 5)
+
+
+def test_multiple_grid_cells_rosenbrock():
+    for i in range(1, 11):
         solver = musica.MICM(
-            mechanism=mechanism,
+            config_path="configs/analytical",
+            solver_type=musica.SolverType.rosenbrock)
+        state = solver.create_state(i)
+        TestMultipleGridCell(solver, state, i, 200.0, 5)
+
+
+def test_single_grid_cell_backward_euler_standard_order():
+    solver = musica.MICM(
+        config_path="configs/analytical",
+        solver_type=musica.SolverType.backward_euler_standard_order)
+    state = solver.create_state()
+    TestSingleGridCell(solver, state, 10.0, places=2)
+
+
+def test_multiple_grid_cells_backward_euler_standard_order():
+    for i in range(1, 11):
+        solver = musica.MICM(
+            config_path="configs/analytical",
             solver_type=musica.SolverType.backward_euler_standard_order)
-        state = solver.create_state()
-        TestSingleGridCell(self, solver, state, 10.0, places=2)
-        TestMultipleGridCell(self, solver, state, 1, 10.0, places=2)
-
-
-class TestAnalyticalRosenbrockMultipleGridCells(unittest.TestCase):
-    def test_simulation(self):
-        for i in range(1, 11):
-            solver = musica.MICM(
-                config_path="configs/analytical",
-                solver_type=musica.SolverType.rosenbrock)
-            state = solver.create_state(i)
-            # The number of grid cells must equal the MICM matrix vector dimension
-            TestMultipleGridCell(self, solver, state, i, 200.0, 5)
-            mechanism = GetMechanism()
-            solver = musica.MICM(
-                mechanism=mechanism,
-                solver_type=musica.SolverType.rosenbrock)
-            state = solver.create_state(i)
-            TestMultipleGridCell(self, solver, state, i, 200.0, 5)
-
-
-class TestAnalyticalStandardRosenbrockMultipleGridCells(unittest.TestCase):
-    def test_simulation(self):
-        for i in range(1, 11):
-            solver = musica.MICM(
-                config_path="configs/analytical",
-                solver_type=musica.SolverType.rosenbrock_standard_order)
-            state = solver.create_state(i)
-            # The number of grid cells must equal the MICM matrix vector dimension
-            TestMultipleGridCell(self, solver, state, i, 200.0, 5)
-            mechanism = GetMechanism()
-            solver = musica.MICM(
-                mechanism=mechanism,
-                solver_type=musica.SolverType.rosenbrock_standard_order)
-            state = solver.create_state(i)
-            TestMultipleGridCell(self, solver, state, i, 200.0, 5)
-
-
-class TestAnalyticalBackwardEulerMultipleGridCells(unittest.TestCase):
-    def test_simulation(self):
-        for i in range(1, 11):
-            solver = musica.MICM(
-                config_path="configs/analytical",
-                solver_type=musica.SolverType.backward_euler)
-            state = solver.create_state(i)
-            # The number of grid cells must equal the MICM matrix vector dimension
-            TestMultipleGridCell(self, solver, state, i, 10.0, places=2)
-            mechanism = GetMechanism()
-            solver = musica.MICM(
-                mechanism=mechanism,
-                solver_type=musica.SolverType.backward_euler)
-            state = solver.create_state(i)
-            TestMultipleGridCell(self, solver, state, i, 10.0, places=2)
-
-
-class TestAnalyticalStandardBackwardEulerMultipleGridCells(unittest.TestCase):
-    def test_simulation(self):
-        for i in range(1, 11):
-            solver = musica.MICM(
-                config_path="configs/analytical",
-                solver_type=musica.SolverType.backward_euler_standard_order)
-            state = solver.create_state(i)
-            TestMultipleGridCell(self, solver, state, i, 10.0, places=2)
-            mechanism = GetMechanism()
-            solver = musica.MICM(
-                mechanism=mechanism,
-                solver_type=musica.SolverType.backward_euler_standard_order)
-            state = solver.create_state(i)
-            TestMultipleGridCell(self, solver, state, i, 10.0, places=2)
+        state = solver.create_state(i)
+        TestMultipleGridCell(solver, state, i, 10.0, places=2)
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main()

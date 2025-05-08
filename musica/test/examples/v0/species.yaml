@@ -1,0 +1,19 @@
+camp-data:
+- name: foo
+  type: CHEM_SPEC
+- name: bar
+  type: CHEM_SPEC
+- name: buz
+  type: CHEM_SPEC
+- name: quuz
+  type: CHEM_SPEC
+- name: foo2
+  type: CHEM_SPEC
+- name: bar2
+  type: CHEM_SPEC
+- name: baz
+  type: CHEM_SPEC
+- name: baz2
+  type: CHEM_SPEC
+- name: M
+  type: CHEM_SPEC

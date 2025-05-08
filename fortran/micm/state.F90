@@ -105,7 +105,7 @@ contains
 
   function constructor(micm, number_of_grid_cells, error)  result( this )
     use iso_c_binding, only : c_f_pointer, c_int
-    use musica_util, only: error_t_c, error_t, copy_mappings
+    use musica_util, only: error_t_c, error_t, copy_mappings, mappings_t_c
     type(state_t), pointer :: this
     type(c_ptr)            :: micm
     integer                :: number_of_grid_cells
@@ -117,6 +117,7 @@ contains
     type(c_ptr)            :: double_array_pointer_concentration
     type(c_ptr)            :: double_array_pointer_rates
     integer                :: n_species, n_grid_cells
+    type(mappings_t_c)     :: mapping
 
     allocate( this )
 
@@ -159,7 +160,8 @@ contains
         return
     end if
 
-    this%species_ordering => mappings_t( get_species_ordering_c(this%ptr, error_c) )
+    mapping = get_species_ordering_c(this%ptr, error_c)
+    this%species_ordering => mappings_t( mapping )
     error = error_t(error_c)
     if (.not. error%is_success()) then
         deallocate(this)
@@ -167,8 +169,8 @@ contains
         return
     end if
 
-    this%user_defined_reaction_rates => &
-        mappings_t( get_user_defined_reaction_rates_ordering_c(this%ptr, error_c) )
+    mapping = get_user_defined_reaction_rates_ordering_c(this%ptr, error_c) 
+    this%user_defined_reaction_rates => mappings_t( mapping )
     error = error_t(error_c)
     if (.not. error%is_success()) then
       deallocate(this)
