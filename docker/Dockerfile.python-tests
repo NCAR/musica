@@ -1,5 +1,8 @@
 FROM fedora:latest
 
+ARG MUSICA_GIT_TAG=main
+ARG BUILD_TYPE=Release
+
 RUN dnf -y update \
     && dnf -y install \
         cmake \
@@ -20,6 +23,15 @@ COPY . /musica/
 ENV CXX=g++
 ENV CC=gcc
 ENV FC=gfortran
+
+# build musica so that make test works, even though that's not the main goal of this image
+RUN mkdir /build \
+      && cd /build \
+      && cmake \
+        -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+        -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
+        -D MUSICA_ENABLE_PYTHON_LIBRARY=ON \
+        /musica 
 
 RUN cd /musica \
     && pip3 install --verbose .[test]
