@@ -2,7 +2,6 @@ import pytest
 from musica.mechanism_configuration import *
 from _musica._mechanism_configuration import _ReactionType
 
-
 def validate_species(species):
     # Define the expected species and their required attributes
     expected_species = {
