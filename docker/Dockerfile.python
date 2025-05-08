@@ -35,4 +35,4 @@ RUN mkdir /build \
 
 RUN cd musica && pip install .[test]
 
-WORKDIR musica/build
+WORKDIR build
