@@ -1,5 +1,7 @@
 pybind11_add_module(_musica
-  wrapper.cpp
+  binding.cpp
+  musica.cpp
+  mechanism_configuration.cpp
 )
 
 target_link_libraries(_musica
