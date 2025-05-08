@@ -18,12 +18,12 @@ maintainers = [{ name = "ACOM MUSICA Developers", email = "musica-support@ucar.e
 license = { file = "LICENSE" }
 
 dependencies = [
-  "mechanism_configuration==0.1.1"
 ]
 
 [project.optional-dependencies]
 test = [
   "numpy",
+  "pytest",
 ]
 
 [tool.scikit-build]

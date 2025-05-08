@@ -30,6 +30,17 @@ if(MUSICA_ENABLE_MICM)
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   )
 
+  if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None")
+    install (
+      TARGETS
+        micm_cuda
+      EXPORT
+        musica_Exports
+      LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+      ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    )
+  endif()
+
   install(
     DIRECTORY
       ${micm_SOURCE_DIR}/include/

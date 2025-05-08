@@ -20,7 +20,7 @@ from _musica._core import (
     _species_ordering,
     _user_defined_rate_parameters_ordering,
 )
-import mechanism_configuration as mc
+import musica.mechanism_configuration as mc
 
 AVOGADRO = 6.02214076e23  # mol^-1
 BOLTZMANN = 1.380649e-23  # J K^-1

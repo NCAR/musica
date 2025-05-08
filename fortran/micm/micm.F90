@@ -10,8 +10,8 @@ module musica_micm
   use musica_util, only: assert, mappings_t, string_t, string_t_c, error_t_c
   implicit none
 
-  public :: micm_t, solver_stats_t, get_micm_version
-  public :: UndefinedSolver, Rosenbrock, RosenbrockStandardOrder, BackwardEuler, BackwardEulerStandardOrder
+  public :: micm_t, solver_stats_t, get_micm_version, is_cuda_available
+  public :: UndefinedSolver, Rosenbrock, RosenbrockStandardOrder, BackwardEuler, BackwardEulerStandardOrder, CudaRosenbrock
   private
 
   !> Wrapper for c solver stats
@@ -34,6 +34,7 @@ module musica_micm
     enumerator :: RosenbrockStandardOrder    = 2
     enumerator :: BackwardEuler              = 3
     enumerator :: BackwardEulerStandardOrder = 4
+    enumerator :: CudaRosenbrock             = 5
   end enum
 
   interface
@@ -110,6 +111,13 @@ module musica_micm
       type(error_t_c), intent(inout)            :: error
       logical(kind=c_bool)                      :: get_species_property_bool_c
     end function get_species_property_bool_c      
+
+    function is_cuda_available_c(error) bind(C, name="_IsCudaAvailable")
+      use musica_util, only: error_t_c
+      import c_bool
+      type(error_t_c), intent(inout) :: error
+      logical(kind=c_bool)           :: is_cuda_available_c
+    end function is_cuda_available_c
   end interface
 
   type :: micm_t
@@ -388,5 +396,15 @@ contains
     error = error_t(error_c)
     ASSERT(error%is_success())
   end subroutine finalize
+
+  function is_cuda_available(error) result(value)
+    use musica_util, only: error_t_c, error_t
+    type(error_t), intent(inout) :: error
+    logical                      :: value
+    type(error_t_c)              :: error_c
+
+    value = is_cuda_available_c(error_c)
+    error = error_t(error_c)
+  end function is_cuda_available
   
 end module musica_micm

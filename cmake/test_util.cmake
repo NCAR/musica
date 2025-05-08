@@ -21,6 +21,16 @@ function(create_standard_test_fortran)
     set_target_properties(test_${TEST_NAME} PROPERTIES LINKER_LANGUAGE Fortran)
   endif()
 
+  if (${CMAKE_Fortran_COMPILER_ID} STREQUAL "NVHPC")
+    # for some reason, the NVHPC compiler does not realize that the fortran
+    # tests are written in fortran, so we need to set the linker language
+    # explicitly
+    set_target_properties(test_${TEST_NAME}
+      PROPERTIES
+        LINKER_LANGUAGE Fortran
+    )
+  endif()
+
   # link additional libraries
   foreach(library ${TEST_LIBRARIES})
     target_link_libraries(test_${TEST_NAME} PUBLIC ${library})

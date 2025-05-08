@@ -1,9 +1,25 @@
-import unittest
+import pytest
 import musica
-import mechanism_configuration as mc
+import musica.mechanism_configuration as mc
 
 
-def TestSolve(self, solver):
+def test_solve_with_config_path():
+    solver = musica.MICM(
+        config_path="configs/chapman",
+        solver_type=musica.SolverType.rosenbrock_standard_order,
+    )
+    TestSolve(solver)
+
+
+def test_solve_with_mechanism():
+    solver = musica.MICM(
+        mechanism=GetMechanism(),
+        solver_type=musica.SolverType.rosenbrock_standard_order,
+    )
+    TestSolve(solver)
+
+
+def TestSolve(solver):
     state = solver.create_state()
 
     time_step = 200.0
@@ -34,17 +50,19 @@ def TestSolve(self, solver):
     solver.solve(state, time_step)
     concentrations = state.get_concentrations()
 
-    self.assertAlmostEqual(concentrations["O2"][0], 0.75, places=5)
-    self.assertGreater(concentrations["O"][0], 0.0)
-    self.assertGreater(concentrations["O1D"][0], 0.0)
-    self.assertNotEqual(concentrations["O3"][0], 0.0000081)
+    assert pytest.approx(concentrations["O2"][0], rel=1e-5) == 0.75
+    assert concentrations["O"][0] > 0.0
+    assert concentrations["O1D"][0] > 0.0
+    assert concentrations["O3"][0] != 0.0000081
 
 
 def GetMechanism():
     M = mc.Species(tracer_type="THIRD_BODY")
     O2 = mc.Species(name="O2", tracer_type="CONSTANT")
-    O = mc.Species(name="O", other_properties={"__absolute_tolerance": "1e-12"})
-    O1D = mc.Species(name="O1D", other_properties={"__absolute_tolerance": "1e-12"})
+    O = mc.Species(name="O", other_properties={
+                   "__absolute_tolerance": "1e-12"})
+    O1D = mc.Species(name="O1D", other_properties={
+                     "__absolute_tolerance": "1e-12"})
     O3 = mc.Species(
         name="O3",
         molecular_weight_kg_mol=0.048,
@@ -103,21 +121,3 @@ def GetMechanism():
         phases=[gas],
         reactions=[jO2, R2, jO31, R4, jO32, R6, R7],
     )
-
-
-class TestChapman(unittest.TestCase):
-    def test_micm_solve(self):
-        solver = musica.MICM(
-            config_path="configs/chapman",
-            solver_type=musica.SolverType.rosenbrock_standard_order,
-        )
-        TestSolve(self, solver)
-        solver = musica.MICM(
-            mechanism=GetMechanism(),
-            solver_type=musica.SolverType.rosenbrock_standard_order,
-        )
-        TestSolve(self, solver)
-
-
-if __name__ == '__main__':
-    unittest.main()

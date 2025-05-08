@@ -75,6 +75,8 @@ namespace musica
     double GetSpeciesPropertyDouble(MICM *micm, const char *species_name, const char *property_name, Error *error);
     int GetSpeciesPropertyInt(MICM *micm, const char *species_name, const char *property_name, Error *error);
     bool GetSpeciesPropertyBool(MICM *micm, const char *species_name, const char *property_name, Error *error);
+
+    bool _IsCudaAvailable(Error *error);
 #ifdef __cplusplus
   }
 #endif

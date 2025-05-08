@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   docker-build-and-test:
-    name: Build and Test - ${{ matrix.dockerfile }}
+    name: Build and Test - ${{ matrix.dockerfile }} - ${{ matrix.build_type }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -32,6 +32,7 @@ jobs:
           - Dockerfile.mpi_openmp
           - Dockerfile.python
           - Dockerfile.nvhpc
+          - Dockerfile.coverage
         build_type: [Release, Debug]
     steps:
       - name: Checkout code

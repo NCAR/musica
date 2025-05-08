@@ -1,5 +1,7 @@
 pybind11_add_module(_musica
-  wrapper.cpp
+  binding.cpp
+  musica.cpp
+  mechanism_configuration.cpp
 )
 
 target_link_libraries(_musica
@@ -36,4 +38,4 @@ else()
   set(PYTHON_MODULE_PATH "${CMAKE_CURRENT_BINARY_DIR}")
 endif()
 
-install(TARGETS _musica yaml-cpp musica mechanism_configuration LIBRARY DESTINATION .)
+install(TARGETS _musica yaml-cpp musica LIBRARY DESTINATION .)

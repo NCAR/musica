@@ -17,10 +17,8 @@ namespace v1 = mechanism_configuration::v1::types;
 PYBIND11_MAKE_OPAQUE(std::vector<double>)
 PYBIND11_MAKE_OPAQUE(std::vector<micm::Conditions>)
 
-// Wraps micm.cpp
-PYBIND11_MODULE(_musica, m)
+void bind_musica(py::module_ &core)
 {
-  py::module_ core = m.def_submodule("_core", "Wrapper classes for MUSICA C library structs and functions");
   py::bind_vector<std::vector<double>>(core, "VectorDouble");
   py::bind_vector<std::vector<micm::Conditions>>(core, "VectorConditions");
   
@@ -210,5 +208,4 @@ PYBIND11_MODULE(_musica, m)
         }, state->state_variant_);
       },
       "Print the state to stdout with the current time");
-
 }

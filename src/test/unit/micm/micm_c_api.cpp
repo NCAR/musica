@@ -69,7 +69,6 @@ TEST_F(MicmCApiTestFixture, CreateStateSuccess)
 // Test case for bad configuration file path
 TEST(MicmCApiTest, BadConfigurationFilePath)
 {
-  int num_grid_cells = 1;
   Error error = NoError();
   auto micm_bad_config = CreateMicm("bad config path", MICMSolver::Rosenbrock, &error);
   ASSERT_EQ(micm_bad_config, nullptr);
@@ -81,7 +80,6 @@ TEST(MicmCApiTest, BadConfigurationFilePath)
 TEST(MicmCApiTest, BadSolverType)
 {
   short solver_type = 999;
-  int num_grid_cells = 1;
   Error error = NoError();
   auto micm_bad_solver_type = CreateMicm("configs/chapman", static_cast<MICMSolver>(solver_type), &error);
   ASSERT_EQ(micm_bad_solver_type, nullptr);

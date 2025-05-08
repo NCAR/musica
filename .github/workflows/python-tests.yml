@@ -30,17 +30,8 @@ jobs:
     - name: Add requirements
       run: python -m pip install --upgrade wheel setuptools
 
-    - name: Install dependencies
-      run: |
-        mkdir build
-        cd build
-        cmake -D CMAKE_BUILD_TYPE=debug -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON ..
-        cd _deps/mechanism_configuration-src
-        python3 -m pip install --upgrade wheel setuptools pytest
-        pip3 install --verbose .[test]
-
     - name: Build and install
       run: pip install --verbose .[test]
 
     - name: Test
-      run: python -m unittest discover -v -s musica/test
+      run: pytest
