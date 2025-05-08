@@ -1,6 +1,6 @@
 import unittest
 import musica
-import mechanism_configuration as mc
+import musica.mechanism_configuration as mc
 
 
 def TestSolve(self, solver):

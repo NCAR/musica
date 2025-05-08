@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 import musica
 import random
-import mechanism_configuration as mc
+import musica.mechanism_configuration as mc
 from _musica._core import _is_cuda_available
 
 
