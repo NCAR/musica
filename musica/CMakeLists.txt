@@ -36,4 +36,4 @@ else()
   set(PYTHON_MODULE_PATH "${CMAKE_CURRENT_BINARY_DIR}")
 endif()
 
-install(TARGETS _musica yaml-cpp musica LIBRARY DESTINATION .)
+install(TARGETS _musica yaml-cpp musica mechanism_configuration LIBRARY DESTINATION .)
