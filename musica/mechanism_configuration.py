@@ -1149,6 +1149,7 @@ class SimpolPhaseTransfer(_SimpolPhaseTransfer):
             self.B = [0, 0, 0, 0]
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 
+
 class UserDefined(_UserDefined):
     """
     A class representing a user-defined reaction rate constant.
