@@ -24,7 +24,7 @@ RUN apt update \
     libnetcdf-dev \
     m4 \
     make \
-    valgrind \ 
+    valgrind \
     vim \
     zlib1g-dev \
     && apt clean 
