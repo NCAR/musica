@@ -21,17 +21,6 @@ ENV CXX=g++
 ENV CC=gcc
 ENV FC=gfortran
 
-RUN mkdir /build \
-      && cd /build \
-      && cmake \
-        -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
-        -D MUSICA_ENABLE_PYTHON_LIBRARY=ON \
-        /musica 
-
-RUN cd /build/_deps/mechanism_configuration-src \
-    && python3 -m pip install --upgrade wheel setuptools pytest \
-    && pip3 install --verbose .[test]
-
 RUN cd /musica \
     && pip3 install --verbose .[test]
 

@@ -21,18 +21,6 @@ RUN dnf -y update \
 # Copy the musica code
 COPY . musica
 
-# Build
-RUN cd musica \
-    && cmake -S . \
-             -B build \
-             -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
-             -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
-             -D MUSICA_ENABLE_PYTHON_LIBRARY=ON \
-             -D MUSICA_ENABLE_TUVX=OFF \
-             -D MUSICA_ENABLE_MEMCHECK=ON \
-    && cd build \
-    && make install -j 8
-
 RUN cd musica && pip install .[test]
 
 WORKDIR musica/build
