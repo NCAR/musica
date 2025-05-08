@@ -3,8 +3,11 @@ exec_prefix=${prefix}
 libdir=${prefix}/@CMAKE_INSTALL_LIBDIR@
 includedir=${prefix}/@MUSICA_INSTALL_INCLUDE_DIR@/musica/fortran
 
+yaml_lib=yaml-cpp
+@IS_DEBUG@yaml_lib=yaml-cppd
+
 Name: musica-fortran
 Description: Fortran wrapper for the MUSICA library for modeling atmospheric chemistry
 Version: @musica-distribution_VERSION@
 Cflags: -I${includedir}
-Libs: -L${libdir} -lmusica-fortran -lmusica -lmechanism_configuration -lyaml-cpp @CMAKE_CXX_STANDARD_LIBRARIES@
+Libs: -L${libdir} -lmusica-fortran -lmusica -lmechanism_configuration -l${yaml_lib} @CMAKE_CXX_STANDARD_LIBRARIES@

@@ -41,6 +41,11 @@ write_basic_package_version_file(
   COMPATIBILITY SameMajorVersion
 )
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  set(IS_DEBUG "")
+else()
+  set(IS_DEBUG "#")
+endif()
 set(CMAKE_INSTALL_PKGCONFIGDIR "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
 configure_file(
   "${MUSICA_PROJECT_SRC_DIR}/cmake/musica-fortran.pc.in"
