@@ -18,11 +18,11 @@ maintainers = [{ name = "ACOM MUSICA Developers", email = "musica-support@ucar.e
 license = { file = "LICENSE" }
 
 dependencies = [
+  "numpy",
 ]
 
 [project.optional-dependencies]
 test = [
-  "numpy",
   "pytest",
 ]
 
