@@ -21,9 +21,9 @@ RUN dnf -y update \
 
 COPY . /musica/
 
-RUN cd /musica &&  pip install -e .
+RUN cd /musica &&  python -m pip install -e .
 
-RUN pip install -r /musica/docs/requirements.txt 
+RUN python -m pip install -r /musica/docs/requirements.txt 
 
 ARG SUFFIX=""
 ENV SWITCHER_SUFFIX=$SUFFIX
