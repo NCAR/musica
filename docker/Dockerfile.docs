@@ -21,7 +21,7 @@ RUN dnf -y update \
 
 COPY . /musica/
 
-RUN cd /musica && pip3 install -e .
+RUN cd /musica && python3 -m pip install -e .
 
 RUN python3 -m pip install --upgrade pip setuptools \
     && python3 -m pip install -r /musica/docs/requirements.txt
