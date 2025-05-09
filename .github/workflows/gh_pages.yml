@@ -138,7 +138,7 @@ jobs:
 
   comment-doc-link:
     name: Comment documentation link on PR
-    if: ${{ github.event_name == 'pull_request' }}
+    if: ${{ github.event_name == 'pull_request' && github.event.action == 'opened' }}
     runs-on: ubuntu-latest
     steps:
       - name: Post documentation link
