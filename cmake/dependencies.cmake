@@ -136,5 +136,6 @@ endif()
 # Docs
 
 if(MUSICA_BUILD_DOCS)
+  find_package(Doxygen REQUIRED)
   find_package(Sphinx REQUIRED)
 endif()

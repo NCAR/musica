@@ -6,7 +6,6 @@
 from typing import Optional, Any, Dict, List, Union, Tuple
 from os import PathLike
 import math
-import numpy as np
 from _musica._core import (
     _Conditions,
     _SolverType,
