@@ -77,7 +77,7 @@ html_theme_options = {
     "github_url": "https://github.com/NCAR/musica",
     "navbar_end": ["version-switcher", "navbar-icon-links"],
     "switcher": {
-        "json_url": "https://ncar.github.io/music-box/_static/switcher.json",
+        "json_url": "https://ncar.github.io/musica/_static/switcher.json",
         "version_match": release,  # assumes `release` is defined
     },
     "pygments_light_style": "tango",
