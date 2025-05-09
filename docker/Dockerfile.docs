@@ -15,6 +15,7 @@ RUN dnf -y update \
         lcov \
         valgrind \
         python3 \
+        python-devel \
         python3-pip \
     && dnf clean all
 
