@@ -95,15 +95,14 @@ jobs:
           !contains(github.ref, env.DEFAULT_BRANCH)
         run: |
           set -x
-          docker build -t musica -f docker/Dockerfile.docs .
-          id=$(docker create musica)
-          docker cp $id:/build/docs/sphinx tmpdocs
-          docker rm -v $id
+          pip install .
+          cmake -D MUSICA_BUILD_DOCS=ON -D MUSICA_ENABLE_TUVX=OFF -S . -B build
+          cmake --build build --target docs
           brname="${{github.ref}}"
           brname="${brname##refs/heads/}"
           brdir=${brname//\//--}   # replace '/' with '--'
           rm -rf   _gh-pages/branch/${brdir}
-          rsync -a tmpdocs/ _gh-pages/branch/${brdir}
+          rsync -a /build/docs/sphinx/ _gh-pages/branch/${brdir}
 
       # Go through each branch in _gh-pages/branch/, if it's not a
       # ref, then delete it.
