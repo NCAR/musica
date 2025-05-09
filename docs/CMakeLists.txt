@@ -23,7 +23,7 @@ configure_file(${DOXYFILE_IN} ${DOXYFILE_OUT} @ONLY)
 file(MAKE_DIRECTORY ${DOXYGEN_OUTPUT_DIR}) #Doxygen won't create this for us
 
 add_custom_command(
-  OUTPUT ${DOXYGEN_INDEX_FILE}
+  OUTPUT ${DOXYGEN_INDEX_FILE} __fake_file_to_ensure_this_always_run
   DEPENDS ${PUBLIC_HEADERS}
   COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE_OUT}
   MAIN_DEPENDENCY ${DOXYFILE_OUT} ${DOXYFILE_IN}
@@ -41,7 +41,7 @@ set(SPHINX_BUILD ${CMAKE_CURRENT_BINARY_DIR}/sphinx)
 set(SPHINX_INDEX_FILE ${SPHINX_BUILD}/index.html)
 
 add_custom_command(
-  OUTPUT ${SPHINX_INDEX_FILE} 
+  OUTPUT ${SPHINX_INDEX_FILE} __fake_file_to_ensure_this_always_run
   COMMAND 
     ${SPHINX_EXECUTABLE} -b html
     # Tell Breathe where to find the Doxygen output

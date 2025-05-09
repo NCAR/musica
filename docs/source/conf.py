@@ -15,6 +15,8 @@ import sys
 import datetime
 import re
 sys.path.insert(0, os.path.abspath('.'))
+# Add the path to your Python modules
+sys.path.insert(0, os.path.abspath('../../musica'))
 
 # -- Project information -----------------------------------------------------
 
@@ -45,6 +47,8 @@ extensions = [
     'sphinx_copybutton',
     'sphinx_design',
     'sphinxcontrib.bibtex',
+    'sphinx.ext.autodoc',  # Add this line
+    'sphinx.ext.napoleon',  # Add this for Google/NumPy style docstrings
 ]
 
 breathe_default_project = "musica"
