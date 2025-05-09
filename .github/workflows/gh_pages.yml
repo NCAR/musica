@@ -108,7 +108,7 @@ jobs:
           brname="${brname##refs/heads/}"
           brdir=${brname//\//--}   # replace '/' with '--'
           rm -rf   _gh-pages/branch/${brdir}
-          rsync -a /build/docs/sphinx/ _gh-pages/branch/${brdir}
+          rsync -a build/docs/sphinx/ _gh-pages/branch/${brdir}
 
       # Go through each branch in _gh-pages/branch/, if it's not a
       # ref, then delete it.
