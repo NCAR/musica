@@ -13,6 +13,7 @@ endfunction(set_git_default)
 
 ################################################################################
 # NetCDF library
+
 if (MUSICA_BUILD_FORTRAN_INTERFACE)
   find_package(PkgConfig REQUIRED)
   pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
@@ -22,28 +23,30 @@ endif()
 ################################################################################
 # Mechanism Configuration
 
-set_git_default(MECH_CONFIG_GIT_REPOSITORY https://github.com/NCAR/MechanismConfiguration.git)
-set_git_default(MECH_CONFIG_GIT_TAG v0.2.0)
+if(MUSICA_BUILD_C_CXX_INTERFACE)
+  set_git_default(MECH_CONFIG_GIT_REPOSITORY https://github.com/NCAR/MechanismConfiguration.git)
+  set_git_default(MECH_CONFIG_GIT_TAG v0.2.0)
 
-FetchContent_Declare(mechanism_configuration
-    GIT_REPOSITORY ${MECH_CONFIG_GIT_REPOSITORY}
-    GIT_TAG ${MECH_CONFIG_GIT_TAG}
-    GIT_PROGRESS NOT ${FETCHCONTENT_QUIET}
-)
+  FetchContent_Declare(mechanism_configuration
+      GIT_REPOSITORY ${MECH_CONFIG_GIT_REPOSITORY}
+      GIT_TAG ${MECH_CONFIG_GIT_TAG}
+      GIT_PROGRESS NOT ${FETCHCONTENT_QUIET}
+  )
 
-set(MECH_CONFIG_ENABLE_PYTHON_LIBRARY OFF CACHE BOOL "" FORCE)
-set(MECH_CONFIG_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
+  set(MECH_CONFIG_ENABLE_PYTHON_LIBRARY OFF CACHE BOOL "" FORCE)
+  set(MECH_CONFIG_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
 
-if (MUSICA_ENABLE_PYTHON_LIBRARY OR MUSICA_ENABLE_PIC)
-  set(MECH_CONFIG_ENABLE_PIC ON CACHE BOOL "" FORCE)
+  if (MUSICA_ENABLE_PYTHON_LIBRARY OR MUSICA_ENABLE_PIC)
+    set(MECH_CONFIG_ENABLE_PIC ON CACHE BOOL "" FORCE)
+  endif()
+
+  FetchContent_MakeAvailable(mechanism_configuration)
 endif()
-
-FetchContent_MakeAvailable(mechanism_configuration)
 
 ################################################################################
 # google test
-if(MUSICA_ENABLE_TESTS)
 
+if(MUSICA_ENABLE_TESTS AND MUSICA_BUILD_C_CXX_INTERFACE)
   set_git_default(GOOGLETEST_GIT_REPOSITORY https://github.com/google/googletest.git)
   set_git_default(GOOGLETEST_GIT_TAG be03d00f5f0cc3a997d1a368bee8a1fe93651f48)
 

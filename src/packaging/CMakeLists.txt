@@ -93,6 +93,25 @@ write_basic_package_version_file(
   COMPATIBILITY SameMajorVersion
 )
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  set(IS_DEBUG "")
+else()
+  set(IS_DEBUG "#")
+endif()
+set(CMAKE_INSTALL_PKGCONFIGDIR "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+configure_file(
+  "${MUSICA_PROJECT_SRC_DIR}/cmake/musica.pc.in"
+  "${PROJECT_BINARY_DIR}/musica.pc"
+  @ONLY
+)
+
+install(
+  FILES
+    "${PROJECT_BINARY_DIR}/musica.pc"
+  DESTINATION
+    "${CMAKE_INSTALL_PKGCONFIGDIR}"
+)
+
 install(
   FILES
     ${PROJECT_BINARY_DIR}/musicaConfig.cmake

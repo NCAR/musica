@@ -1,0 +1,86 @@
+# nvidia rate limits requests. You can get around this by restarting docker if for 
+# some reason you have to build this image many times
+# https://stackoverflow.com/a/75757516/5217293
+#
+# Container versions, and sizes, can be found at https://catalog.ngc.nvidia.com/orgs/nvidia/containers/nvhpc/tags
+#
+FROM nvcr.io/nvidia/nvhpc:23.7-devel-cuda12.2-ubuntu22.04
+
+ARG MUSICA_GIT_TAG=main
+ARG BUILD_TYPE=release
+
+RUN apt update \
+    && apt -y install \
+    cmake \
+    curl \
+    gcc \
+    gfortran \
+    git \
+    liblapack-dev \
+    lcov \
+    libcurl4-openssl-dev \
+    libhdf5-dev \
+    libnetcdf-dev \
+    m4 \
+    make \
+    valgrind \
+    vim \
+    zlib1g-dev \
+    && apt clean 
+
+# Set environment variables to install MUSICA using gcc
+ENV CXX=g++
+ENV CC=gcc
+ENV FC=gfortran
+ENV FFLAGS="-I/usr/include/"
+
+# Build netcdf-fortran
+RUN git clone https://github.com/Unidata/netcdf-fortran.git \
+    && cd netcdf-fortran \
+    && git checkout v4.6.0 \
+    && mkdir build && cd build \
+    && cmake .. \
+    && make -j 8 \
+    && make install
+
+# Copy the musica code
+COPY . musica
+
+# Build and install MUSICA
+RUN cd musica \
+    && cmake -S . \
+             -B build \
+             -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+             -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
+    && cd build \
+    && make install -j
+
+# Set environment variables to build MUSICA-Fortran using nvidia compilers
+ENV CXX=nvc++
+ENV CC=nvc
+ENV FC=nvfortran
+
+# (There is a runtime test failure when building MUSICA with nvhpc in Release mode, so we build in Debug mode)
+RUN cd musica \
+    && cmake -S . \
+             -B build_fortran \
+             -D CMAKE_BUILD_TYPE=Debug \
+             -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
+             -D CMAKE_EXE_LINKER_FLAGS="-Wl,--copy-dt-needed-entries" \
+             -D MUSICA_ENABLE_MEMCHECK=ON \
+             -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
+             -D MUSICA_BUILD_C_CXX_INTERFACE=OFF
+#     && cd build_fortran \
+#     && make install -j
+
+# # Try building a simple C application
+# RUN cd musica/build \
+#     && gcc $(pkg-config --cflags musica) -o test_simple_c /musica/src/test/test_simple.c $(pkg-config --libs musica) \
+#     && ./test_simple_c
+
+# # Try building a simple Fortran application
+# RUN cd musica/build \
+#     && nvfortran $(pkg-config --cflags musica-fortran musica) -o test_simple_fortran /musica/fortran/test/test_simple.F90 $(pkg-config --libs musica-fortran musica) -lstdc++ \
+#     && ./test_simple_fortran  
+
+WORKDIR musica/build_fortran

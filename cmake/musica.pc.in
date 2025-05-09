@@ -1,0 +1,13 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=${prefix}/@CMAKE_INSTALL_LIBDIR@
+includedir=${prefix}/@MUSICA_INSTALL_INCLUDE_DIR@/musica
+
+yaml_lib=yaml-cpp
+@IS_DEBUG@yaml_lib=yaml-cppd
+
+Name: musica
+Description: MUSICA library for modeling atmospheric chemistry
+Version: @musica-distribution_VERSION@
+Cflags: -I${includedir}
+Libs: -L${libdir} -lmusica -lmechanism_configuration -l${yaml_lib}

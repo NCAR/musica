@@ -6,9 +6,9 @@ program test_micm_api
   use, intrinsic :: iso_c_binding
   use, intrinsic :: ieee_arithmetic
   use iso_fortran_env, only: real64
+  use musica_util, only: assert, error_t, mapping_t, string_t, find_mapping_index
   use musica_micm, only: micm_t, solver_stats_t, get_micm_version, is_cuda_available
   use musica_micm, only: Rosenbrock, RosenbrockStandardOrder, BackwardEuler, BackwardEulerStandardOrder, CudaRosenbrock
-  use musica_util, only: assert, error_t, mapping_t, string_t, find_mapping_index
   use musica_state, only: conditions_t, state_t
 
 #include "micm/util/error.hpp"
