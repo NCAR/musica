@@ -14,17 +14,16 @@ RUN dnf -y update \
         make \
         lcov \
         valgrind \
-        python3 \
+        pip \
+        python \
         python-devel \
-        python3-pip \
     && dnf clean all
 
 COPY . /musica/
 
-RUN cd /musica && python3 -m pip install -e .
+RUN cd /musica &&  pip install -e .
 
-RUN python3 -m pip install --upgrade pip setuptools \
-    && python3 -m pip install -r /musica/docs/requirements.txt
+RUN pip install -r /musica/docs/requirements.txt 
 
 ARG SUFFIX=""
 ENV SWITCHER_SUFFIX=$SUFFIX
