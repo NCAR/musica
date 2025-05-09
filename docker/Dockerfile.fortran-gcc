@@ -41,7 +41,7 @@ RUN cd musica \
              -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
              -D MUSICA_ENABLE_MEMCHECK=ON \
     && cd build \
-    && make install
+    && make install -j
 
 # Try building a simple C application
 RUN cd musica/build \

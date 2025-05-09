@@ -6,9 +6,9 @@ program test_micm_api
   use, intrinsic :: iso_c_binding
   use, intrinsic :: ieee_arithmetic
   use iso_fortran_env, only: real64
+  use musica_util, only: assert, error_t, mapping_t, string_t, find_mapping_index
   use musica_micm, only: micm_t, solver_stats_t, get_micm_version, is_cuda_available
   use musica_micm, only: Rosenbrock, RosenbrockStandardOrder, BackwardEuler, BackwardEulerStandardOrder, CudaRosenbrock
-  use musica_util, only: assert, error_t, mapping_t, string_t, find_mapping_index
   use musica_state, only: conditions_t, state_t
 
 #include "micm/util/error.hpp"
@@ -111,7 +111,7 @@ contains
     state%rates(jO3a_index,1) = 1.13e-9
     state%rates(jO3b_index,1) = 5.8e-8
     
-    ! micm_version = get_micm_version()
+    micm_version = get_micm_version()
     print *, "[test micm fort api] MICM version ", micm_version%get_char_array()
 
     do i = 1, state%species_ordering%size()
@@ -569,7 +569,7 @@ contains
     state%rates(jO3a_index,1) = 1.13e-9
     state%rates(jO3b_index,1) = 5.8e-8
 
-    ! micm_version = get_micm_version()
+    micm_version = get_micm_version()
     print *, "[test micm fort api] MICM version ", micm_version%get_char_array()
 
     do i = 1, state%species_ordering%size()
