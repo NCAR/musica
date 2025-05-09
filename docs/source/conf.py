@@ -15,8 +15,6 @@ import sys
 import datetime
 import re
 sys.path.insert(0, os.path.abspath('.'))
-# Add the path to your Python modules
-sys.path.insert(0, os.path.abspath('../../musica'))
 
 # -- Project information -----------------------------------------------------
 
