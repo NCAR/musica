@@ -40,6 +40,11 @@ jobs:
           python -V
           pip list --not-required
           pip list
+      
+      - name: Install doxygen
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y doxygen
 
       # Clone and set up the old gh-pages branch
       - name: Clone old gh-pages
