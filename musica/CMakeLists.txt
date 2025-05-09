@@ -1,27 +1,26 @@
-pybind11_add_module(musica_python 
-  wrapper.cpp
+pybind11_add_module(_musica
+  binding.cpp
+  musica.cpp
+  mechanism_configuration.cpp
 )
 
-target_link_libraries(musica_python 
+target_link_libraries(_musica
   PRIVATE
     musica::musica
 )
 
 include(silence_warnings)
-silence_warnings(musica_python)
-
-set_target_properties(musica_python PROPERTIES
-  OUTPUT_NAME musica
-)
+silence_warnings(_musica)
 
 if (APPLE)
   # set the rpath for the shared library
-  set_target_properties(musica_python PROPERTIES
+  set_target_properties(_musica PROPERTIES
     INSTALL_RPATH "@loader_path"
+    BUILD_WITH_INSTALL_RPATH TRUE
   )
 elseif(UNIX)
   # set the rpath for the shared library
-  set_target_properties(musica_python PROPERTIES
+  set_target_properties(_musica PROPERTIES
     INSTALL_RPATH "$ORIGIN"
     BUILD_WITH_INSTALL_RPATH TRUE
   )
@@ -39,4 +38,4 @@ else()
   set(PYTHON_MODULE_PATH "${CMAKE_CURRENT_BINARY_DIR}")
 endif()
 
-install(TARGETS musica_python yaml-cpp musica mechanism_configuration LIBRARY DESTINATION .)
+install(TARGETS _musica yaml-cpp musica LIBRARY DESTINATION .)

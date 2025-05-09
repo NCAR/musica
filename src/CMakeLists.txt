@@ -17,7 +17,12 @@ message (STATUS "CMake build configuration for ${PROJECT_NAME} (${CMAKE_BUILD_TY
 add_library(musica)
 add_library(musica::musica ALIAS musica)
 
-target_compile_definitions(musica PUBLIC MICM_VECTOR_MATRIX_SIZE=${MUSICA_SET_MICM_VECTOR_MATRIX_SIZE})
+if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None" AND NOT APPLE)
+  # Add the CUDA library
+  target_link_libraries(musica PUBLIC musica::micm_cuda)
+  set_target_properties(micm_cuda PROPERTIES POSITION_INDEPENDENT_CODE ON)
+  list(APPEND musica_compile_definitions MUSICA_ENABLE_CUDA)
+endif()
 
 if (MUSICA_ENABLE_PYTHON_LIBRARY OR MUSICA_ENABLE_PIC)
   # Add the -fPIC flag for position-independent code if we are building shared libraries
@@ -55,7 +60,7 @@ target_sources(musica
 
 target_link_libraries(musica
   PUBLIC
-    open_atmos::mechanism_configuration
+    musica::mechanism_configuration
 )
 
 target_compile_definitions(musica PUBLIC ${musica_compile_definitions})

@@ -9,6 +9,7 @@
 [![DOI](https://zenodo.org/badge/550370528.svg)](https://zenodo.org/doi/10.5281/zenodo.7458559)
 [![PyPI version](https://badge.fury.io/py/musica.svg)](https://pypi.org/p/musica)
 [![FAIR checklist badge](https://fairsoftwarechecklist.net/badge.svg)](https://fairsoftwarechecklist.net/v0.2?f=31&a=32113&i=22322&r=123)
+[![codecov](https://codecov.io/gh/NCAR/musica/branch/main/graph/badge.svg)](https://codecov.io/gh/NCAR/musica)
 
 Multi-Scale Infrastructure for Chemistry and Aerosols
 
@@ -60,6 +61,22 @@ Specifying a specific version of `tuv-x` by has, but using the official reposito
     $ cmake .. \
         -DTUVX_GIT_TAG=a6b2c4d8745
 
+
+### Python build
+Musica has python bindings. If you want to install the python package, you may `pip install musica`.
+
+To build the package locally,
+
+```
+pip install -e .
+```
+
+If you have an NVIDIA GPU and cuda installed, you can enable a build of musica with GPU support by setting the environment 
+variable `BUILD_GPU`.
+
+```
+BUILD_GPU=1 pip install -e .
+```
 
 ## Citing MUSICA
 

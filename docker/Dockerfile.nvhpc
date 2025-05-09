@@ -1,0 +1,46 @@
+# nvidia rate limits requests. You can get around this by restarting docker if for 
+# some reason you have to build this image many times
+# https://stackoverflow.com/a/75757516/5217293
+#
+# Container versions, and sizes, can be found at https://catalog.ngc.nvidia.com/orgs/nvidia/containers/nvhpc/tags
+#
+FROM nvcr.io/nvidia/nvhpc:23.7-devel-cuda12.2-ubuntu22.04
+
+ARG MUSICA_GIT_TAG=main
+ARG BUILD_TYPE=release
+
+RUN apt update \
+    && apt -y install \
+    cmake \
+    curl \
+    gcc \
+    gfortran \
+    git \
+    libhdf5-dev \
+    libnetcdf-dev \
+    libnetcdff-dev \
+    make \
+    valgrind \ 
+    vim \
+    && apt clean 
+
+# set compilers
+ENV CXX=nvc++
+ENV CC=nvc
+ENV FC=nvfortran
+
+# Copy the musica code
+COPY . musica
+
+# Build and install MUSICA
+RUN cd musica \
+&& cmake -S . \
+    -B build \
+    -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+    -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
+    -D MUSICA_GPU_TYPE=a100 \
+    -D MUSICA_ENABLE_INSTALL=OFF \
+    -D MUSICA_ENABLE_TUVX=OFF \
+    -D MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE=1 \
+    && cd build \
+    && make -j

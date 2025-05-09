@@ -19,10 +19,13 @@ FetchContent_Declare(musica_fortran
   GIT_TAG        ${MUSICA_GIT_TAG}
 )
 
+set(MUSICA_BUNDLE_DEPENDENCIES OFF)
 set(MUSICA_BUILD_C_CXX_INTERFACE OFF)
 set(MUSICA_BUILD_FORTRAN_INTERFACE ON)
 set(MUSICA_ENABLE_TESTS OFF)
 set(MUSICA_ENABLE_INSTALL OFF)
+set(MUSICA_ENABLE_MICM ON)
+set(MUSICA_ENABLE_TUVX OFF)
 
 FetchContent_MakeAvailable(musica_fortran)
 
@@ -48,7 +51,7 @@ if (MUSICA_ENABLE_MICM)
       LINKER_LANGUAGE Fortran
   )
 
-  target_compile_definitions(test_micm_fortran_api PUBLIC MICM_VECTOR_MATRIX_SIZE=${MUSICA_SET_MICM_VECTOR_MATRIX_SIZE})
+  target_compile_definitions(test_micm_fortran_api PUBLIC MICM_DEFAULT_VECTOR_SIZE=${MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE})
 
   add_test(
     NAME test_micm_fortran_api

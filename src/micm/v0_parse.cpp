@@ -1,15 +1,7 @@
 #include <musica/micm/parse.hpp>
 
-#include <micm/process/arrhenius_rate_constant.hpp>
-#include <micm/process/branched_rate_constant.hpp>
-#include <micm/process/process.hpp>
-#include <micm/process/surface_rate_constant.hpp>
-#include <micm/process/ternary_chemical_activation_rate_constant.hpp>
-#include <micm/process/troe_rate_constant.hpp>
-#include <micm/process/tunneling_rate_constant.hpp>
-#include <micm/process/user_defined_rate_constant.hpp>
-#include <micm/system/phase.hpp>
-#include <micm/system/species.hpp>
+#include <micm/Process.hpp>
+#include <micm/System.hpp>
 
 #include <mechanism_configuration/v0/types.hpp>
 #include <mechanism_configuration/v0/validation.hpp>
@@ -253,17 +245,14 @@ namespace musica
     }
   }
 
-  Chemistry ParserV0(const mechanism_configuration::ParserResult<>& result, Error* error)
+  Chemistry ParserV0(const mechanism_configuration::ParserResult<>& result)
   {
-    DeleteError(error);
-    *error = NoError();
-
     using V0 = mechanism_configuration::v0::types::Mechanism;
     V0* v0_mechanism = dynamic_cast<V0*>(result.mechanism.get());
     Chemistry chemistry{};
     if (!v0_mechanism)
     {
-      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_CONFIG_PARSE_FAILED, "Failed to cast to V0");
+      throw std::system_error(make_error_code(MusicaParseErrc::FailedToCastToVersion), "Failed to cast to V0");
     }
     else
     {

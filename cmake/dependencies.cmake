@@ -13,6 +13,7 @@ endfunction(set_git_default)
 
 ################################################################################
 # NetCDF library
+
 if (MUSICA_BUILD_FORTRAN_INTERFACE)
   find_package(PkgConfig REQUIRED)
   pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
@@ -22,27 +23,30 @@ endif()
 ################################################################################
 # Mechanism Configuration
 
-set_git_default(MECH_CONFIG_GIT_REPOSITORY https://github.com/NCAR/MechanismConfiguration.git)
-set_git_default(MECH_CONFIG_GIT_TAG v0.1.1)
+if(MUSICA_BUILD_C_CXX_INTERFACE)
+  set_git_default(MECH_CONFIG_GIT_REPOSITORY https://github.com/NCAR/MechanismConfiguration.git)
+  set_git_default(MECH_CONFIG_GIT_TAG v0.2.0)
 
+  FetchContent_Declare(mechanism_configuration
+      GIT_REPOSITORY ${MECH_CONFIG_GIT_REPOSITORY}
+      GIT_TAG ${MECH_CONFIG_GIT_TAG}
+      GIT_PROGRESS NOT ${FETCHCONTENT_QUIET}
+  )
 
-FetchContent_Declare(mechanism_configuration
-    GIT_REPOSITORY ${MECH_CONFIG_GIT_REPOSITORY}
-    GIT_TAG ${MECH_CONFIG_GIT_TAG}
-    GIT_PROGRESS NOT ${FETCHCONTENT_QUIET}
-)
+  set(MECH_CONFIG_ENABLE_PYTHON_LIBRARY OFF CACHE BOOL "" FORCE)
+  set(MECH_CONFIG_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
 
-set(OPEN_ATMOS_ENABLE_PYTHON_LIBRARY OFF CACHE BOOL "" FORCE)
-if (MUSICA_ENABLE_PYTHON_LIBRARY OR MUSICA_ENABLE_PIC)
-  set(OPEN_ATMOS_ENABLE_PIC ON CACHE BOOL "" FORCE)
+  if (MUSICA_ENABLE_PYTHON_LIBRARY OR MUSICA_ENABLE_PIC)
+    set(MECH_CONFIG_ENABLE_PIC ON CACHE BOOL "" FORCE)
+  endif()
+
+  FetchContent_MakeAvailable(mechanism_configuration)
 endif()
-
-FetchContent_MakeAvailable(mechanism_configuration)
 
 ################################################################################
 # google test
-if(MUSICA_ENABLE_TESTS)
 
+if(MUSICA_ENABLE_TESTS AND MUSICA_BUILD_C_CXX_INTERFACE)
   set_git_default(GOOGLETEST_GIT_REPOSITORY https://github.com/google/googletest.git)
   set_git_default(GOOGLETEST_GIT_TAG be03d00f5f0cc3a997d1a368bee8a1fe93651f48)
 
@@ -69,16 +73,20 @@ endif()
 
 if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE)
   set_git_default(MICM_GIT_REPOSITORY https://github.com/NCAR/micm.git)
-  set_git_default(MICM_GIT_TAG v3.8.0)
+  set_git_default(MICM_GIT_TAG 651aacfe35339f0b99a4549808bd3c72ea39380a)
 
   FetchContent_Declare(micm
       GIT_REPOSITORY ${MICM_GIT_REPOSITORY}
       GIT_TAG ${MICM_GIT_TAG}
       GIT_PROGRESS NOT ${FETCHCONTENT_QUIET}
   )
+
   set(MICM_ENABLE_TESTS OFF)
   set(MICM_ENABLE_EXAMPLES OFF)
-  set(MICM_DEFAULT_VECTOR_MATRIX_SIZE ${MUSICA_SET_MICM_VECTOR_MATRIX_SIZE})
+  set(MICM_DEFAULT_VECTOR_SIZE ${MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE})
+  if(NOT APPLE)
+    set(MICM_GPU_TYPE ${MUSICA_GPU_TYPE})
+  endif()
 
   FetchContent_MakeAvailable(micm)
 endif()
@@ -128,5 +136,6 @@ endif()
 # Docs
 
 if(MUSICA_BUILD_DOCS)
+  find_package(Doxygen REQUIRED)
   find_package(Sphinx REQUIRED)
 endif()

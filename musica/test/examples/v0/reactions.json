@@ -1,0 +1,193 @@
+{
+  "camp-data": [
+    {
+      "type": "MECHANISM",
+      "name": "music box interactive configuration",
+      "reactions": [
+        {
+          "type": "PHOTOLYSIS",
+          "scaling factor": 1,
+          "MUSICA name": "foo",
+          "reactants": {
+            "foo": {}
+          },
+          "products": {
+            "buz": {
+              "yield": 1
+            },
+            "bar": {
+              "yield": 1
+            }
+          }
+        },
+        {
+          "type": "ARRHENIUS",
+          "A": 6e-34,
+          "Ea": 0,
+          "B": -2.4,
+          "D": 300,
+          "E": 0,
+          "reactants": {
+            "bar": {
+              "qty": 1
+            },
+            "quuz": {
+              "qty": 1
+            },
+            "M": {
+              "qty": 1
+            }
+          },
+          "products": {
+            "baz": {
+              "yield": 1
+            },
+            "M": {
+              "yield": 1
+            }
+          }
+        },
+        {
+          "type": "TROE",
+          "k0_A": 2.5e-31,
+          "k0_B": -1.8,
+          "k0_C": 0,
+          "kinf_A": 2.2e-11,
+          "kinf_B": -0.7,
+          "kinf_C": 0,
+          "Fc": 0.6,
+          "N": 1,
+          "reactants": {
+            "bar": {
+              "qty": 1
+            },
+            "foo": {
+              "qty": 1
+            }
+          },
+          "products": {
+            "baz": {
+              "yield": 1
+            }
+          }
+        },
+        {
+          "type": "EMISSION",
+          "scaling factor": 1,
+          "MUSICA name": "buz",
+          "species": "buz"
+        },
+        {
+          "type": "FIRST_ORDER_LOSS",
+          "species": "bar",
+          "MUSICA name": "bar",
+          "scaling factor": 2.5
+        },
+        {
+          "type": "TERNARY_CHEMICAL_ACTIVATION",
+          "reactants": {
+            "bar" : { },
+            "baz" : { }
+          },
+          "products": {
+            "bar": { "yield": 0.5 },
+            "foo": { }
+          },
+          "k0_A": 32.1,
+          "k0_B": -2.3,
+          "k0_C": 102.3,
+          "kinf_A": 63.4,
+          "kinf_B": -1.3,
+          "kinf_C": 908.5,
+          "Fc": 1.3,
+          "N": 32.1
+        },
+        {
+          "type": "BRANCHED",
+          "reactants": {
+            "foo" : { },
+            "quz" : { "qty" :2 }
+          },
+          "alkoxy products": {
+            "bar": { "yield": 1.0 },
+            "baz": { "yield": 3.2 }
+          },
+          "nitrate products": {
+            "quz": { "yield": 1.0 }
+          },
+          "Y" : 42.3,
+          "X" : 12.3,
+          "a0" : 1.0e-5,
+          "n" : 3
+        },
+        {
+          "type": "WENNBERG_NO_RO2",
+          "reactants": {
+            "bar" : { },
+            "baz" : { }
+          },
+          "alkoxy products": {
+            "baz": { }
+          },
+          "nitrate products": {
+            "bar": { "yield": 0.5 },
+            "foo": { }
+          },
+          "Y" : 2.3e8,
+          "X" : 0.32,
+          "a0" : 0.423,
+          "n" : 6
+        },
+        {
+          "type": "TUNNELING",
+          "reactants": {
+            "bar" : { },
+            "baz" : { }
+          },
+          "products": {
+            "bar": { "yield": 0.5 },
+            "foo": { }
+          },
+          "A": 32.1,
+          "B": -2.3,
+          "C": 102.3
+        },
+        {
+          "type": "WENNBERG_TUNNELING",
+          "reactants": {
+            "bar2" : { },
+            "baz2" : { }
+          },
+          "products": {
+            "bar2": { "yield": 0.5 },
+            "foo2": { }
+          },
+          "A": 2.1,
+          "B": -1.3,
+          "C": 12.3
+        },
+        {
+          "type": "SURFACE",
+          "gas-phase reactant": "bar",
+          "gas-phase products": {
+            "bar": { "yield": 0.5 },
+            "foo": { }
+          },
+          "reaction probability": 0.5,
+          "MUSICA name": "kbar"
+        },
+        {
+          "type": "USER_DEFINED",
+          "MUSICA name": "bar",
+          "reactants": { 
+            "foo" : { "qty": 2 }
+          },
+          "products": {
+            "bar" : { }
+          }, 
+          "scaling factor": 2.5
+        }
+      ]
+    }
+  ]
+}

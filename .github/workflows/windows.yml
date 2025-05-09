@@ -74,13 +74,13 @@ jobs:
     continue-on-error: true 
     strategy:
       matrix:
-        version: [11, 12, 13, 14, 15]
+        version: [12.0.0, 13.0.0, 14.0.0, 15.0.0, 16.0.0, 17.0.1, 18.1.0, 19.1.0, 20.1.0]
 
     steps:
       - uses: actions/checkout@v4
 
       - name: Install Clang
-        run: curl -fsSL -o LLVM${{ matrix.version }}.exe https://github.com/llvm/llvm-project/releases/download/llvmorg-${{ matrix.version }}.0.0/LLVM-${{ matrix.version }}.0.0-win64.exe ; 7z x LLVM${{ matrix.version }}.exe -y -o"C:/Program Files/LLVM"
+        run: curl -fsSL -o LLVM${{ matrix.version }}.exe https://github.com/llvm/llvm-project/releases/download/llvmorg-${{ matrix.version }}/LLVM-${{ matrix.version }}-win64.exe ; 7z x LLVM${{ matrix.version }}.exe -y -o"C:/Program Files/LLVM"
 
       - uses: actions/setup-python@v5
       - run: pip install numpy

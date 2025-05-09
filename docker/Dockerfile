@@ -13,7 +13,6 @@ RUN dnf -y update \
         lcov \
         make \
         netcdf-fortran-devel \
-        json-devel \
         python \
         valgrind \
         tree \
@@ -29,6 +28,11 @@ RUN cd musica \
              -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
              -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
     && cd build \
-    && make install -j 8 
+    && make install -j 8
+    
+# Try building a simple application
+RUN cd musica/build \
+    && gcc $(pkg-config --cflags musica) -o test_simple /musica/src/test/test_simple.c $(pkg-config --libs musica) \
+    && ./test_simple
 
 WORKDIR musica/build

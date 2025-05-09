@@ -6,7 +6,6 @@
 
 !> Test module for the tuvx connection
 program test_tuvx_connection
-  use musica_assert
   use musica_util, only : dk => musica_dk
 
   implicit none
@@ -29,38 +28,10 @@ program test_tuvx_connection
 #define ASSERT_NE( a, b ) call assert( a /= b, __FILE__, __LINE__ )
 #define ASSERT_NEAR( a, b, tol ) call assert( abs(a - b) < abs(a + b) * tol, __FILE__, __LINE__ )
 
-  call test_tuvx()
   call test_tuvx_fixed()
   call test_tuvx_data_from_host()
 
 contains
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-  !> Test tuvx connection
-  subroutine test_tuvx( )
-    use tuvx_grid,             only : grid_t
-    use tuvx_grid_equal_delta, only : grid_equal_delta_t
-    use musica_config,         only : config_t
-
-    character(len=*), parameter :: my_name = "tuvx connection tests"
-    type(config_t) :: config
-    class(grid_t), pointer :: new_grid_t => null()
-
-    config = '{'//                                                            &
-             '   "name": "eq_int",' //                                        &
-             '   "type": "equal interval",' //                                &
-             '   "units": "km",' //                                           &
-             '   "begins at": 0.0,' //                                        &
-             '   "ends at": 120.0,' //                                        &
-             '   "cell delta": 1.0' //                                        &
-             '}'
-
-    new_grid_t => grid_equal_delta_t( config )
-    call assert(412348394, new_grid_t%ncells_ == 120)
-    deallocate(new_grid_t)
-
-  end subroutine test_tuvx
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

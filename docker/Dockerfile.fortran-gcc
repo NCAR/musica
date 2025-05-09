@@ -13,7 +13,6 @@ RUN dnf -y update \
     gdb \
     git \
     hdf5-devel \
-    json-devel \
     lcov \
     libcurl-devel \
     m4 \
@@ -42,6 +41,16 @@ RUN cd musica \
              -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
              -D MUSICA_ENABLE_MEMCHECK=ON \
     && cd build \
-    && make install
+    && make install -j
+
+# Try building a simple C application
+RUN cd musica/build \
+    && gcc $(pkg-config --cflags musica) -o test_simple_c /musica/src/test/test_simple.c $(pkg-config --libs musica) \
+    && ./test_simple_c
+
+# Try building a simple Fortran application
+RUN cd musica/build \
+    && gfortran $(pkg-config --cflags musica-fortran musica) -o test_simple_fortran /musica/fortran/test/test_simple.F90 $(pkg-config --libs musica-fortran musica) -lstdc++ \
+    && ./test_simple_fortran  
 
 WORKDIR musica/build

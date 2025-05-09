@@ -1,0 +1,86 @@
+# versions and sizes from here: https://hub.docker.com/r/intel/oneapi-hpckit/tags
+FROM intel/oneapi-hpckit:2024.0.1-devel-ubuntu22.04
+
+# Based off of this: https://dgpu-docs.intel.com/driver/installation.html#repository-public-key-used-for-package-and-repository-signing
+# however those docs (at the time of this writing are incorrect) and this is the correct url
+# community.intel.com/t5/Intel-oneAPI-Math-Kernel-Library/Cannot-update-any-packages-using-intel-oneapi-hpckit-latest/m-p/1603192#M36169
+RUN wget -qO - https://repositories.intel.com/gpu/intel-graphics.key | \
+  gpg --yes --dearmor --output /usr/share/keyrings/intel-graphics-archive-keyring.gpg
+
+ARG MUSICA_GIT_TAG=main
+ARG BUILD_TYPE=Release
+
+RUN apt update \
+    && apt -y install \
+    cmake \
+    cmake-curses-gui \
+    curl \
+    gcc \
+    gfortran \
+    git \
+    lcov \
+    libcurl4-openssl-dev \
+    libhdf5-dev \
+    libnetcdf-dev \
+    m4 \
+    make \
+    valgrind \
+    vim \
+    zlib1g-dev \
+    && apt clean 
+
+# Set environment variables to install MUSICA using gcc
+ENV CXX=g++
+ENV CC=gcc
+ENV FC=gfortran
+ENV FFLAGS="-I/usr/include/"
+
+# Build netcdf-fortran
+RUN git clone https://github.com/Unidata/netcdf-fortran.git \
+    && cd netcdf-fortran \
+    && git checkout v4.6.0 \
+    && mkdir build && cd build \
+    && cmake .. \
+    && make -j 8 \
+    && make install
+
+# Copy the musica code
+COPY . musica
+
+# Build and install MUSICA
+RUN cd musica \
+    && cmake -S . \
+             -B build \
+             -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+             -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
+             -D ENABLE_TESTS=OFF \
+    && cd build \
+    && make install -j
+
+# Set environment variables to build MUSICA-Fortran using intel compilers
+ENV CC=icx
+ENV CXX=icpx
+ENV FC=ifx
+
+RUN cd musica \
+    && cmake -S . \
+             -B build_fortran \
+             -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+             -D CMAKE_EXE_LINKER_FLAGS="-Wl,--copy-dt-needed-entries" \
+             -D MUSICA_ENABLE_MEMCHECK=ON \
+             -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
+             -D MUSICA_BUILD_C_CXX_INTERFACE=OFF \
+    && cd build_fortran \
+    && make install -j
+
+# Try building a simple C application
+RUN cd musica/build \
+    && gcc $(pkg-config --cflags musica) -o test_simple_c /musica/src/test/test_simple.c $(pkg-config --libs musica) \
+    && ./test_simple_c
+
+# Try building a simple Fortran application
+RUN cd musica/build \
+    && ifx $(pkg-config --cflags musica-fortran musica) -o test_simple_fortran /musica/fortran/test/test_simple.F90 $(pkg-config --libs musica-fortran musica) -lstdc++ \
+    && ./test_simple_fortran  
+
+WORKDIR musica/build_fortran

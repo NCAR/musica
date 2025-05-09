@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.21)
 
 # must be on the same line so that pyproject.toml can correctly identify the version
-project(musica-distribution VERSION 0.10.1)
+project(musica-distribution VERSION 0.11.0)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${PROJECT_SOURCE_DIR}/cmake)
-set(CMAKE_USER_MAKE_RULES_OVERRIDE ${CMAKE_MODULE_PATH}/SetDefaults.cmake)
+set(CMAKE_USER_MAKE_RULES_OVERRIDE ${PROJECT_SOURCE_DIR}/cmake/SetDefaults.cmake)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -30,21 +30,15 @@ option(MUSICA_BUILD_DOCS "Build the documentation" OFF)
 option(MUSICA_ENABLE_MICM "Enable MICM" ON)
 option(MUSICA_ENABLE_TUVX "Enable TUV-x" ON)
 option(MUSICA_ENABLE_PIC "Build the library with position independent code" OFF)
+option(MUSICA_ENABLE_COVERAGE "Enable code coverage output" OFF)
+option(MUSICA_BUNDLE_DEPENDENCIES "Bundle dependencies with the library" ON)
 
-set(MUSICA_SET_MICM_VECTOR_MATRIX_SIZE "4" CACHE STRING "Set MICM vector-ordered matrix dimension")
+set(MUSICA_GPU_TYPE "None" CACHE STRING "The GPU type being targeted")
+
+set(MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE "4" CACHE STRING "Set MICM vector-ordered matrix dimension")
 
 cmake_dependent_option(
   MUSICA_ENABLE_PYTHON_LIBRARY "Adds pybind11, a lightweight header-only library that exposes C++ types in Python and vice versa" OFF "MUSICA_BUILD_C_CXX_INTERFACE" OFF)
-
-cmake_dependent_option(
-  MUSICA_CREATE_ENVIRONMENT_MODULE "Creates an Lmod environment module file that can be installed on the same machine this library is installed to." OFF "MUSICA_BUILD_C_CXX_INTERFACE" OFF)
-
-if(MUSICA_CREATE_ENVIRONMENT_MODULE)
-  set(MUSICA_INSTALL_MODULE_FILE_PATH "" CACHE STRING "This is the path of the modulefiles location that the Lmod files should be installed to.")
-  if(MUSICA_INSTALL_MODULE_FILE_PATH STREQUAL "")
-    message(FATAL_ERROR "MUSICA_INSTALL_MODULE_FILE_PATH is required but not set")
-  endif()
-endif()
 
 ################################################################################
 # Projet wide setup variables 
@@ -62,6 +56,23 @@ elseif(${CMAKE_Fortran_COMPILER_ID} MATCHES "GNU")
   list(APPEND musica_compile_definitions MUSICA_USING_GNU)
 elseif(${CMAKE_Fortran_COMPILER_ID} MATCHES "PGI")
   list(APPEND musica_compile_definitions MUSICA_USING_PGI)
+endif()
+
+# Set the C++ standard library if it is not already set
+if(NOT CMAKE_CXX_STANDARD_LIBRARIES)
+  if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
+    set(CMAKE_CXX_STANDARD_LIBRARIES "-lstdc++")
+  elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "Intel")
+    set(CMAKE_CXX_STANDARD_LIBRARIES "-lstdc++")
+  elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "IBM")
+    set(CMAKE_CXX_STANDARD_LIBRARIES "-lstdc++")
+  elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "NVHPC")
+    set(CMAKE_CXX_STANDARD_LIBRARIES "-lstdc++")
+  elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
+    set(CMAKE_CXX_STANDARD_LIBRARIES "-lstdc++") # use GNU standard library
+  else()
+    set(CMAKE_CXX_STANDARD_LIBRARIES "-lstdc++") # default to most common name
+  endif()
 endif()
 
 if(MUSICA_BUILD_C_CXX_INTERFACE)
@@ -89,15 +100,24 @@ set(MEMCHECK_SUPPRESS "--suppressions=${PROJECT_SOURCE_DIR}/valgrind.supp")
 ################################################################################
 # Dependencies
 
-include(dependencies)
-
-if(MUSICA_BUILD_DOCS)
-  add_subdirectory(docs)
+if(MUSICA_BUNDLE_DEPENDENCIES)
+  include(${PROJECT_SOURCE_DIR}/cmake/dependencies.cmake)
 endif()
 
 ################################################################################
 # Tests
 if(MUSICA_ENABLE_TESTS)
+  if(MUSICA_ENABLE_COVERAGE)
+    include(CodeCoverage)
+    append_coverage_compiler_flags()
+    setup_target_for_coverage_lcov(
+        NAME coverage
+        EXECUTABLE "ctest"
+        EXCLUDE "${PROJECT_SOURCE_DIR}/test/*"
+        BASE_DIRECTORY "${PROJECT_SOURCE_DIR}/src")
+    
+  endif()
+  
   enable_testing()
 endif()
 
@@ -105,6 +125,10 @@ endif()
 # MUSICA
 if(MUSICA_BUILD_C_CXX_INTERFACE)
   add_subdirectory(src)
+endif()
+
+if(MUSICA_BUILD_DOCS)
+  add_subdirectory(docs)
 endif()
 
 ################################################################################
@@ -116,11 +140,11 @@ endif()
 ################################################################################
 # Musica python
 if(MUSICA_ENABLE_PYTHON_LIBRARY)
-  add_subdirectory(python)
+  add_subdirectory(musica)
 endif()
 
 ################################################################################
 ###
 # Configure and display a summary file for how musica was built.
 ###
-include(summary)
+include(${PROJECT_SOURCE_DIR}/cmake/summary.cmake)

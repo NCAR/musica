@@ -8,7 +8,6 @@ include(test_util)
 
 create_standard_test_cxx(NAME component_versions SOURCES component_versions.cpp)
 create_standard_test_cxx(NAME util SOURCES util.cpp)
-create_standard_test_cxx(NAME parser SOURCES parser.cpp)
 
 if (MUSICA_ENABLE_MICM)
   add_subdirectory(micm)

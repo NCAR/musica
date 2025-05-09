@@ -8,54 +8,20 @@
 #include <musica/micm/state.hpp>
 #include <musica/util.hpp>
 
-#include <micm/solver/rosenbrock_solver_parameters.hpp>
-#include <micm/solver/solver_builder.hpp>
-#include <micm/system/species.hpp>
-#include <micm/version.hpp>
-
 #include <cmath>
-#include <cstddef>
-#include <filesystem>
 #include <string>
-#include <system_error>
 
 namespace musica
 {
-  State* CreateMicmState(musica::MICM* micm, Error* error)
+  State::State(const musica::MICM& micm, std::size_t number_of_grid_cells)
   {
-    DeleteError(error);
-    if (!micm)
-    {
-      std::string msg = "MICM pointer is null, cannot create state.";
-      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND, msg.c_str());
-      delete micm;
-      return nullptr;
-    }
-
-    State* state = new State();
-
-    std::visit([&](auto& solver_ptr) { state->state_variant_ = solver_ptr->GetState(); }, micm->solver_variant_);
-
-    return state;
+    std::visit(
+        [&](auto& solver_ptr) { this->state_variant_ = solver_ptr->GetState(number_of_grid_cells); }, micm.solver_variant_);
   }
 
-  void DeleteState(const State* state, Error* error)
+  std::size_t State::NumberOfGridCells()
   {
-    DeleteError(error);
-    if (state == nullptr)
-    {
-      *error = NoError();
-      return;
-    }
-    try
-    {
-      delete state;
-      *error = NoError();
-    }
-    catch (const std::system_error& e)
-    {
-      *error = ToError(e);
-    }
+    return std::visit([](auto& st) -> std::size_t { return st.NumberOfGridCells(); }, state_variant_);
   }
 
   std::vector<micm::Conditions>& State::GetConditions()
@@ -94,19 +60,6 @@ namespace musica
         state_variant_);
   }
 
-  void State::SetOrderedConcentrations(const double* concentrations)
-  {
-    std::visit(
-        [&](auto& st)
-        {
-          for (size_t i = 0; i < st.variables_.AsVector().size(); ++i)
-          {
-            st.variables_.AsVector()[i] = concentrations[i];
-          }
-        },
-        state_variant_);
-  }
-
   std::vector<double>& State::GetOrderedRateConstants()
   {
     return std::visit(
@@ -126,16 +79,55 @@ namespace musica
         state_variant_);
   }
 
-  void State::SetOrderedRateConstants(const double* rateConstant)
+  double*
+  State::GetOrderedRateConstantsToState(musica::State* state, int* number_of_rate_constants, int* number_of_grid_cells)
   {
-    std::visit(
-        [&](auto& st)
-        {
-          for (size_t i = 0; i < st.custom_rate_parameters_.AsVector().size(); ++i)
-          {
-            st.custom_rate_parameters_.AsVector()[i] = rateConstant[i];
-          }
-        },
+    auto& vec =
+        std::visit([](auto& st) -> std::vector<double>& { return st.custom_rate_parameters_.AsVector(); }, state_variant_);
+
+    *number_of_grid_cells =
+        std::visit([](auto& st) -> int { return static_cast<int>(st.conditions_.size()); }, state_variant_);
+
+    *number_of_rate_constants = static_cast<int>(vec.size() / *number_of_grid_cells);
+    return vec.data();
+  }
+
+  std::vector<micm::Conditions>* State::GetConditionsToState(musica::State* state, int* number_of_grid_cells)
+  {
+    auto& vec = std::visit([](auto& st) -> std::vector<micm::Conditions>& { return st.conditions_; }, state_variant_);
+
+    *number_of_grid_cells =
+        std::visit([](auto& st) -> int { return static_cast<int>(st.conditions_.size()); }, state_variant_);
+
+    return &vec;
+  }
+
+  double* State::GetOrderedConcentrationsToState(musica::State* state, int* number_of_species, int* number_of_grid_cells)
+  {
+    auto& vec = std::visit([](auto& st) -> std::vector<double>& { return st.variables_.AsVector(); }, state_variant_);
+
+    *number_of_grid_cells =
+        std::visit([](auto& st) -> int { return static_cast<int>(st.conditions_.size()); }, state_variant_);
+
+    *number_of_species = static_cast<int>(vec.size() / *number_of_grid_cells);
+
+    return vec.data();
+  }
+
+  std::pair<std::size_t, std::size_t> State::GetConcentrationStrides()
+  {
+    return std::visit(
+        [](auto& st) -> std::pair<std::size_t, std::size_t>
+        { return std::make_pair(st.variables_.RowStride(), st.variables_.ColumnStride()); },
         state_variant_);
   }
+
+  std::pair<std::size_t, std::size_t> State::GetUserDefinedRateParameterStrides()
+  {
+    return std::visit(
+        [](auto& st) -> std::pair<std::size_t, std::size_t>
+        { return std::make_pair(st.custom_rate_parameters_.RowStride(), st.custom_rate_parameters_.ColumnStride()); },
+        state_variant_);
+  }
+
 }  // namespace musica

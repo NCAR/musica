@@ -41,10 +41,16 @@ with open(f'../../CMakeLists.txt', 'r') as f:
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'breathe',
     'sphinx_copybutton',
     'sphinx_design',
     'sphinxcontrib.bibtex',
+    'sphinx.ext.autodoc',
+    'sphinx.ext.napoleon',
+    'sphinx.ext.autosummary',
 ]
+
+breathe_default_project = "musica"
 
 bibtex_bibfiles = ['references.bib']
 suppress_warnings = ["bibtex.missing_field"]
@@ -57,6 +63,7 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
+autosummary_generate = True
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -69,8 +76,8 @@ html_theme_options = {
     "external_links": [],
     "github_url": "https://github.com/NCAR/musica",
     "navbar_end": ["version-switcher", "navbar-icon-links"],
-    "pygment_light_style": "tango",
-    "pygment_dark_style": "monokai"
+    "pygments_light_style": "tango",
+    "pygments_dark_style": "monokai",
 }
 
 html_css_files = [

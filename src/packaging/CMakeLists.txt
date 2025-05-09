@@ -30,6 +30,17 @@ if(MUSICA_ENABLE_MICM)
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   )
 
+  if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None")
+    install (
+      TARGETS
+        micm_cuda
+      EXPORT
+        musica_Exports
+      LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+      ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    )
+  endif()
+
   install(
     DIRECTORY
       ${micm_SOURCE_DIR}/include/
@@ -82,6 +93,25 @@ write_basic_package_version_file(
   COMPATIBILITY SameMajorVersion
 )
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  set(IS_DEBUG "")
+else()
+  set(IS_DEBUG "#")
+endif()
+set(CMAKE_INSTALL_PKGCONFIGDIR "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+configure_file(
+  "${MUSICA_PROJECT_SRC_DIR}/cmake/musica.pc.in"
+  "${PROJECT_BINARY_DIR}/musica.pc"
+  @ONLY
+)
+
+install(
+  FILES
+    "${PROJECT_BINARY_DIR}/musica.pc"
+  DESTINATION
+    "${CMAKE_INSTALL_PKGCONFIGDIR}"
+)
+
 install(
   FILES
     ${PROJECT_BINARY_DIR}/musicaConfig.cmake
@@ -104,7 +134,6 @@ if(NOT TARGET uninstall)
     COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 endif()
 
-
 ######################################################################
 # Environment module
 
@@ -118,7 +147,7 @@ if (MUSICA_CREATE_ENVIRONMENT_MODULE)
   message(STATUS "MODULE PATH ${MODULE_FILE_PATH}")
 
   # Generate the module file using the template
-  configure_file(${MUSICA_PROJECT_SRC_DIR}/modulefile.lua.in
+  configure_file(${MUSICA_PROJECT_SRC_DIR}/src/packaging/modulefile.lua.in
                  ${MODULE_FILE_PATH}
                 @ONLY)
 
@@ -127,7 +156,7 @@ if (MUSICA_CREATE_ENVIRONMENT_MODULE)
     add_custom_target(install_lmod_module
                       COMMAND ${CMAKE_COMMAND} -E copy
                               ${MODULE_FILE_PATH}
-                              ${INSTALL_MODULE_FILE_PATH}/${PROJECT_NAME}/${MODULE_NAME})
+                              ${MUSICA_INSTALL_MODULE_FILE_PATH}/${PROJECT_NAME}/${MODULE_NAME})
 
     # Add the install_lmod_module target to the "install" target
     install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} --build . --target install_lmod_module)")

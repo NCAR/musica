@@ -1,8 +1,5 @@
 FROM fedora:latest
 
-ARG MUSICA_GIT_TAG=main
-ARG BUILD_TYPE=Release
-
 RUN dnf -y update \
     && dnf -y install \
         cmake \
@@ -21,41 +18,21 @@ RUN dnf -y update \
 # Copy the musica code
 COPY . musica
 
-# Install Python dependencies from pyproject.toml
-# must do it this way since scikit-build does not have a way to install dependencies from pyproject.toml
-# outside of the build process
-# First, install toml package to parse pyproject.toml
-RUN pip install toml
+ENV CXX=g++
+ENV CC=gcc
+ENV FC=gfortran
 
-# Extract dependencies from pyproject.toml
-RUN python -c "import toml; \
-               file = 'musica/pyproject.toml'; \
-               data = toml.load(file); \
-               deps = data.get('build-system', {}).get('requires', []); \
-               [print(dep) for dep in deps]; \
-               " > requirements.txt 
+# build musica so that make test works, even though that's not the main goal of this image
+RUN mkdir /build \
+      && cd /build \
+      && cmake \
+        -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+        -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
+        -D MUSICA_ENABLE_PYTHON_LIBRARY=ON \
+        /musica \
+     && cd /build \
+     && make -j 8
 
-RUN python -c "import toml; \
-               file = 'musica/pyproject.toml'; \
-               data = toml.load(file); \
-               deps = data.get('project', {}).get('optional-dependencies', {}).get('test', []); \
-               [print(dep) for dep in deps]; \
-               " >> requirements.txt
+RUN cd musica && pip install .[test]
 
-RUN pip install -r requirements.txt
-
-# Build
-RUN cd musica \
-    && cmake -S . \
-             -B build \
-             -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
-             -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
-             -D MUSICA_ENABLE_PYTHON_LIBRARY=ON \
-             -D MUSICA_ENABLE_TUVX=OFF \
-             -D MUSICA_ENABLE_MEMCHECK=ON \
-    && cd build \
-    && make install -j 8
-
-RUN cd musica && pip install .
-
-WORKDIR musica/build
+WORKDIR build

@@ -28,20 +28,20 @@ namespace musica
 
       if (elem.molecular_weight.has_value())
       {
-        s.SetProperty(validation::keys.molecular_weight, elem.molecular_weight.value());
+        s.SetProperty(validation::molecular_weight, elem.molecular_weight.value());
       }
       if (elem.diffusion_coefficient.has_value())
       {
-        s.SetProperty(validation::keys.diffusion_coefficient, elem.diffusion_coefficient.value());
+        s.SetProperty(validation::diffusion_coefficient, elem.diffusion_coefficient.value());
       }
       if (elem.absolute_tolerance.has_value())
       {
-        s.SetProperty(validation::keys.absolute_tolerance, elem.absolute_tolerance.value());
+        s.SetProperty(validation::absolute_tolerance, elem.absolute_tolerance.value());
       }
       if (elem.tracer_type.has_value())
       {
-        s.SetProperty(validation::keys.tracer_type, elem.tracer_type.value());
-        if (elem.tracer_type == validation::keys.third_body)
+        s.SetProperty(validation::tracer_type, elem.tracer_type.value());
+        if (elem.tracer_type == validation::third_body)
         {
           s.SetThirdBody();
         }
@@ -291,54 +291,47 @@ namespace musica
     }
   }
 
-  Chemistry ParserV1(const mechanism_configuration::ParserResult<>& result, Error* error)
+  Chemistry ConvertV1Mechanism(const mechanism_configuration::v1::types::Mechanism& v1_mechanism)
   {
-    DeleteError(error);
-    *error = NoError();
+    Chemistry chemistry{};
+    auto species = convert_species(v1_mechanism.species);
+    std::unordered_map<std::string, micm::Species> species_map;
+    for (const auto& species : species)
+    {
+      species_map[species.name_] = species;
+    }
+    auto phases = convert_phases(v1_mechanism.phases, species_map);
+    micm::Phase& gas_phase = chemistry.system.gas_phase_;
+    for (const auto& phase : phases)
+    {
+      if (phase.name_ == "gas")
+      {
+        gas_phase = phase;
+      }
+      else
+      {
+        chemistry.system.phases_[phase.name_] = phase;
+      }
+    }
+    convert_arrhenius(chemistry, v1_mechanism.reactions.arrhenius, species_map);
+    convert_branched(chemistry, v1_mechanism.reactions.branched, species_map);
+    convert_surface(chemistry, v1_mechanism.reactions.surface, species_map);
+    convert_troe(chemistry, v1_mechanism.reactions.troe, species_map);
+    convert_tunneling(chemistry, v1_mechanism.reactions.tunneling, species_map);
+    convert_user_defined(chemistry, v1_mechanism.reactions.photolysis, species_map, "PHOTO.");
+    convert_user_defined(chemistry, v1_mechanism.reactions.emission, species_map, "EMIS.");
+    convert_user_defined(chemistry, v1_mechanism.reactions.first_order_loss, species_map, "LOSS.");
+    convert_user_defined(chemistry, v1_mechanism.reactions.user_defined, species_map, "USER.");
+    return chemistry;
+  }
 
+  Chemistry ParserV1(const mechanism_configuration::ParserResult<>& result)
+  {
     using V1 = mechanism_configuration::v1::types::Mechanism;
     V1* v1_mechanism = dynamic_cast<V1*>(result.mechanism.get());
-    Chemistry chemistry{};
     if (!v1_mechanism)
-    {
-      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_CONFIG_PARSE_FAILED, "Failed to cast to v1");
-    }
-    else
-    {
-      auto species = convert_species(v1_mechanism->species);
-
-      std::unordered_map<std::string, micm::Species> species_map;
-      for (const auto& species : species)
-      {
-        species_map[species.name_] = species;
-      }
-
-      auto phases = convert_phases(v1_mechanism->phases, species_map);
-
-      micm::Phase& gas_phase = chemistry.system.gas_phase_;
-      for (const auto& phase : phases)
-      {
-        if (phase.name_ == "gas")
-        {
-          gas_phase = phase;
-        }
-        else
-        {
-          chemistry.system.phases_[phase.name_] = phase;
-        }
-      }
-
-      convert_arrhenius(chemistry, v1_mechanism->reactions.arrhenius, species_map);
-      convert_branched(chemistry, v1_mechanism->reactions.branched, species_map);
-      convert_surface(chemistry, v1_mechanism->reactions.surface, species_map);
-      convert_troe(chemistry, v1_mechanism->reactions.troe, species_map);
-      convert_tunneling(chemistry, v1_mechanism->reactions.tunneling, species_map);
-      convert_user_defined(chemistry, v1_mechanism->reactions.photolysis, species_map, "PHOTO.");
-      convert_user_defined(chemistry, v1_mechanism->reactions.emission, species_map, "EMIS.");
-      convert_user_defined(chemistry, v1_mechanism->reactions.first_order_loss, species_map, "LOSS.");
-    }
-
-    return chemistry;
+      throw std::system_error(make_error_code(MusicaParseErrc::FailedToCastToVersion), "Failed to cast to V1");
+    return ConvertV1Mechanism(*v1_mechanism);
   }
 
 }  // namespace musica
