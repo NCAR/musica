@@ -76,6 +76,10 @@ html_theme_options = {
     "external_links": [],
     "github_url": "https://github.com/NCAR/musica",
     "navbar_end": ["version-switcher", "navbar-icon-links"],
+    "switcher": {
+        "json_url": "https://ncar.github.io/musica/_static/switcher.json",
+        "version_match": release,  # assumes `release` is defined
+    },
     "pygments_light_style": "tango",
     "pygments_dark_style": "monokai",
 }
