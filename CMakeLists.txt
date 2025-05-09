@@ -69,7 +69,7 @@ if(NOT CMAKE_CXX_STANDARD_LIBRARIES)
   elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "NVHPC")
     set(CMAKE_CXX_STANDARD_LIBRARIES "-lstdc++")
   elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
-    set(CMAKE_CXX_STANDARD_LIBRARIES "-lc++")
+    set(CMAKE_CXX_STANDARD_LIBRARIES "-lstdc++") # use GNU standard library
   else()
     set(CMAKE_CXX_STANDARD_LIBRARIES "-lstdc++") # default to most common name
   endif()

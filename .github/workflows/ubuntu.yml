@@ -40,11 +40,6 @@ jobs:
           sudo apt-get install -y liblapack-dev libblas-dev build-essential libnetcdf-dev libnetcdff-dev
           sudo apt-get install -y python3-numpy
 
-      - name: Install Clang C++ std library
-        if: startsWith(matrix.compiler.cpp, 'clang')
-        run: |
-          sudo apt-get install -y libstdc++-dev libc++abi-dev
-
       - name: Run Cmake
         run: |
           cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} \
