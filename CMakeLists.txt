@@ -87,10 +87,6 @@ if(MUSICA_BUNDLE_DEPENDENCIES)
   include(${PROJECT_SOURCE_DIR}/cmake/dependencies.cmake)
 endif()
 
-if(MUSICA_BUILD_DOCS)
-  add_subdirectory(docs)
-endif()
-
 ################################################################################
 # Tests
 if(MUSICA_ENABLE_TESTS)
@@ -112,6 +108,10 @@ endif()
 # MUSICA
 if(MUSICA_BUILD_C_CXX_INTERFACE)
   add_subdirectory(src)
+endif()
+
+if(MUSICA_BUILD_DOCS)
+  add_subdirectory(docs)
 endif()
 
 ################################################################################

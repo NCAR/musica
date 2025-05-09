@@ -41,10 +41,13 @@ with open(f'../../CMakeLists.txt', 'r') as f:
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'breathe',
     'sphinx_copybutton',
     'sphinx_design',
     'sphinxcontrib.bibtex',
 ]
+
+breathe_default_project = "musica"
 
 bibtex_bibfiles = ['references.bib']
 suppress_warnings = ["bibtex.missing_field"]
