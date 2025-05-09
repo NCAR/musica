@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 
 # must be on the same line so that pyproject.toml can correctly identify the version
-project(musica-distribution VERSION 0.10.1)
+project(musica-distribution VERSION 0.11.0)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${PROJECT_SOURCE_DIR}/cmake)
 set(CMAKE_USER_MAKE_RULES_OVERRIDE ${PROJECT_SOURCE_DIR}/cmake/SetDefaults.cmake)
