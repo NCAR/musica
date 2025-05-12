@@ -141,7 +141,6 @@ namespace musica
     }
 
     /// @brief Solve the system
-    /// @param micm Pointer to MICM object
     /// @param state Pointer to state object
     /// @param time_step Time [s] to advance the state by
     /// @param solver_state State of the solver
@@ -164,6 +163,13 @@ namespace musica
         }
       }
       throw std::system_error(make_error_code(MusicaErrCode::SpeciesNotFound), "Species '" + species_name + "' not found");
+    }
+
+    /// @brief Get the maximum number of grid cells per state
+    /// @return Maximum number of grid cells
+    std::size_t GetMaximumNumberOfGridCells()
+    {
+      return std::visit([](auto &solver) { return solver->MaximumNumberOfGridCells(); }, solver_variant_);
     }
   };
 

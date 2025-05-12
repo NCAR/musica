@@ -48,6 +48,14 @@ namespace musica
     /// @return Number of grid cells
     std::size_t NumberOfGridCells();
 
+    /// @brief Get the number of species
+    /// @return Number of species
+    std::size_t NumberOfSpecies();
+
+    /// @brief Get the number of user-defined rate parameters
+    /// @return Number of user-defined rate parameters
+    std::size_t NumberOfUserDefinedRateParameters();
+
     /// @brief Get the vector of conditions struct
     /// @return Vector of conditions struct
     std::vector<micm::Conditions>& GetConditions();
@@ -75,21 +83,21 @@ namespace musica
     /// @brief Get the pointer to the conditions struct
     /// @param state Pointer to state object
     /// @param number_of_grid_cells Pointer to num of grid cells
-    std::vector<micm::Conditions>* GetConditionsToState(musica::State* state, int* number_of_grid_cells);
+    micm::Conditions* GetConditionsPointer(musica::State* state, int* number_of_grid_cells);
 
     /// @brief Get the point to the vector of the concentrations
     /// @param state Pointer to state object
     /// @param number_of_species Pointer to number of species
     /// @param number_of_grid_cells Pointer to num of grid cells
     /// @return Pointer to the vector
-    double* GetOrderedConcentrationsToState(musica::State* state, int* number_of_species, int* number_of_grid_cells);
+    double* GetOrderedConcentrationsPointer(musica::State* state, int* number_of_species, int* number_of_grid_cells);
 
     /// @brief Get the point to the vector of the rates
     /// @param state Pointer to state object
     /// @param number_of_species Pointer to number of rate constants
     /// @param number_of_grid_cells Pointer to num of grid cells
     /// @return Pointer to the vector
-    double* GetOrderedRateConstantsToState(musica::State* state, int* number_of_rate_constants, int* number_of_grid_cells);
+    double* GetOrderedRateConstantsPointer(musica::State* state, int* number_of_rate_constants, int* number_of_grid_cells);
 
     /// @brief Get the underlying strides for the concentration matrix
     /// @return Strides for the concentration matrix (grid cells, species)

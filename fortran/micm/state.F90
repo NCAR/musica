@@ -24,7 +24,7 @@ module musica_state
     end function create_state_c
 
     function get_conditions_pointer (state, number_of_grid_cells, error) &
-      bind(C, name="GetConditionsToStateFortran")
+      bind(C, name="GetConditionsPointer")
       import c_int, c_ptr, error_t_c
       type(c_ptr), value,   intent(in)    :: state
       integer(c_int),       intent(out)   :: number_of_grid_cells
@@ -33,7 +33,7 @@ module musica_state
     end function get_conditions_pointer
 
     function get_concentrations_pointer(state, number_of_species, number_of_grid_cells, error) & !(this is correct)
-      bind(C, name="GetOrderedConcentrationsToStateFortran")
+      bind(C, name="GetOrderedConcentrationsPointer")
       import c_int, c_ptr, error_t_c
       type(c_ptr), value,   intent(in)    :: state
       integer(c_int),       intent(out)   :: number_of_species
@@ -43,7 +43,7 @@ module musica_state
     end function get_concentrations_pointer
 
     function get_ordered_rate_constants_pointer(state, number_of_rate_constants, number_of_grid_cells, error) & !(this is correct)
-      bind(C, name="GetOrderedRateConstantsToStateFortran")
+      bind(C, name="GetOrderedRateConstantsPointer")
       import c_int, c_ptr, error_t_c
       type(c_ptr), value,   intent(in)    :: state
       integer(c_int),       intent(out)   :: number_of_rate_constants

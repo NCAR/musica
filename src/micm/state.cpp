@@ -24,6 +24,16 @@ namespace musica
     return std::visit([](auto& st) -> std::size_t { return st.NumberOfGridCells(); }, state_variant_);
   }
 
+  std::size_t State::NumberOfSpecies()
+  {
+    return std::visit([](auto& st) -> std::size_t { return st.variables_.NumColumns(); }, state_variant_);
+  }
+
+  std::size_t State::NumberOfUserDefinedRateParameters()
+  {
+    return std::visit([](auto& st) -> std::size_t { return st.custom_rate_parameters_.NumColumns(); }, state_variant_);
+  }
+
   std::vector<micm::Conditions>& State::GetConditions()
   {
     return std::visit([](auto& st) -> std::vector<micm::Conditions>& { return st.conditions_; }, state_variant_);
@@ -80,37 +90,38 @@ namespace musica
   }
 
   double*
-  State::GetOrderedRateConstantsToState(musica::State* state, int* number_of_rate_constants, int* number_of_grid_cells)
+  State::GetOrderedRateConstantsPointer(musica::State* state, int* number_of_rate_constants, int* number_of_grid_cells)
   {
     auto& vec =
         std::visit([](auto& st) -> std::vector<double>& { return st.custom_rate_parameters_.AsVector(); }, state_variant_);
 
     *number_of_grid_cells =
-        std::visit([](auto& st) -> int { return static_cast<int>(st.conditions_.size()); }, state_variant_);
+        std::visit([](auto& st) -> int { return static_cast<int>(st.custom_rate_parameters_.NumRows()); }, state_variant_);
 
-    *number_of_rate_constants = static_cast<int>(vec.size() / *number_of_grid_cells);
+    *number_of_rate_constants =
+        std::visit([](auto& st) -> int { return static_cast<int>(st.custom_rate_parameters_.NumColumns()); }, state_variant_);
     return vec.data();
   }
 
-  std::vector<micm::Conditions>* State::GetConditionsToState(musica::State* state, int* number_of_grid_cells)
+  micm::Conditions* State::GetConditionsPointer(musica::State* state, int* number_of_grid_cells)
   {
     auto& vec = std::visit([](auto& st) -> std::vector<micm::Conditions>& { return st.conditions_; }, state_variant_);
 
     *number_of_grid_cells =
         std::visit([](auto& st) -> int { return static_cast<int>(st.conditions_.size()); }, state_variant_);
 
-    return &vec;
+    return vec.data();
   }
 
-  double* State::GetOrderedConcentrationsToState(musica::State* state, int* number_of_species, int* number_of_grid_cells)
+  double* State::GetOrderedConcentrationsPointer(musica::State* state, int* number_of_species, int* number_of_grid_cells)
   {
     auto& vec = std::visit([](auto& st) -> std::vector<double>& { return st.variables_.AsVector(); }, state_variant_);
 
     *number_of_grid_cells =
-        std::visit([](auto& st) -> int { return static_cast<int>(st.conditions_.size()); }, state_variant_);
+        std::visit([](auto& st) -> int { return static_cast<int>(st.variables_.NumRows()); }, state_variant_);
 
-    *number_of_species = static_cast<int>(vec.size() / *number_of_grid_cells);
-
+    *number_of_species =
+        std::visit([](auto& st) -> int { return static_cast<int>(st.variables_.NumColumns()); }, state_variant_);
     return vec.data();
   }
 

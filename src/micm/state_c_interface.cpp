@@ -64,24 +64,24 @@ namespace musica
         error);
   }
 
-  micm::Conditions* GetConditionsToStateFortran(musica::State* state, int* number_of_grid_cells, Error* error)
+  micm::Conditions* GetConditionsPointer(musica::State* state, int* number_of_grid_cells, Error* error)
   {
     return HandleErrors(
-        [&]() -> micm::Conditions* { return state->GetConditionsToState(state, number_of_grid_cells)->data(); }, error);
+        [&]() -> micm::Conditions* { return state->GetConditionsPointer(state, number_of_grid_cells); }, error);
   }
 
-  double* GetOrderedConcentrationsToStateFortran(
+  double* GetOrderedConcentrationsPointer(
       musica::State* state,
       int* number_of_species,
       int* number_of_grid_cells,
       Error* error)
   {
     return HandleErrors(
-        [&]() -> double* { return state->GetOrderedConcentrationsToState(state, number_of_species, number_of_grid_cells); },
+        [&]() -> double* { return state->GetOrderedConcentrationsPointer(state, number_of_species, number_of_grid_cells); },
         error);
   }
 
-  double* GetOrderedRateConstantsToStateFortran(
+  double* GetOrderedRateConstantsPointer(
       musica::State* state,
       int* number_of_rate_constants,
       int* number_of_grid_cells,
@@ -89,7 +89,7 @@ namespace musica
   {
     return HandleErrors(
         [&]() -> double*
-        { return state->GetOrderedRateConstantsToState(state, number_of_rate_constants, number_of_grid_cells); },
+        { return state->GetOrderedRateConstantsPointer(state, number_of_rate_constants, number_of_grid_cells); },
         error);
   }
 
@@ -139,6 +139,72 @@ namespace musica
 
           *error = NoError();
           return reaction_rates;
+        },
+        error);
+  }
+
+  size_t GetNumberOfGridCells(musica::State* state, Error* error)
+  {
+    return HandleErrors(
+        [&]() -> size_t
+        {
+          size_t number_of_grid_cells = state->NumberOfGridCells();
+          *error = NoError();
+          return number_of_grid_cells;
+        },
+        error);
+  }
+
+  size_t GetNumberOfSpecies(musica::State* state, Error* error)
+  {
+    return HandleErrors(
+        [&]() -> size_t
+        {
+          size_t number_of_species = state->NumberOfSpecies();
+          *error = NoError();
+          return number_of_species;
+        },
+        error);
+  }
+
+  void GetConcentrationStrides(musica::State* state, Error* error, size_t* grid_cell_stride, size_t* species_stride)
+  {
+    HandleErrors(
+        [&]() -> void
+        {
+          auto strides = state->GetConcentrationStrides();
+          *grid_cell_stride = strides.first;
+          *species_stride = strides.second;
+          *error = NoError();
+        },
+        error);
+  }
+  
+  size_t GetNumberOfUserDefinedRateParameters(musica::State* state, Error* error)
+  {
+    return HandleErrors(
+        [&]() -> size_t
+        {
+          size_t number_of_user_defined_rate_parameters = state->NumberOfUserDefinedRateParameters();
+          *error = NoError();
+          return number_of_user_defined_rate_parameters;
+        },
+        error);
+  }
+
+  void GetUserDefinedRateParameterStrides(
+      musica::State* state,
+      Error* error,
+      size_t* grid_cell_stride,
+      size_t* rate_parameter_stride)
+  {
+    HandleErrors(
+        [&]() -> void
+        {
+          auto strides = state->GetUserDefinedRateParameterStrides();
+          *grid_cell_stride = strides.first;
+          *rate_parameter_stride = strides.second;
+          *error = NoError();
         },
         error);
   }
