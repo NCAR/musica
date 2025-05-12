@@ -110,8 +110,8 @@ jobs:
 
       # Go through each branch in _gh-pages/branch/, if it's not a
       # ref, then delete it.
-      - name: Delete old feature branches
-        if: ${{ github.event_name == 'push' }}
+      - name: Delete old feature branches Montek
+        #if: ${{ github.event_name == 'push' }}
         run: |
           set -x
           for brdir in `ls _gh-pages/branch/` ; do
