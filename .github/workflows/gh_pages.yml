@@ -92,10 +92,10 @@ jobs:
 
       # If a push and not on default branch, then copy the build to
       # _gh-pages/branch/$brname (transforming '/' into '--')
-      - name: Build and copy documentation (branch)
-        if: |
-          contains(github.event_name, 'push') &&
-          !contains(github.ref, env.DEFAULT_BRANCH)
+      - name: Build and copy documentation (branch) Montek
+       # if: |
+        #  contains(github.event_name, 'push') &&
+        #  !contains(github.ref, env.DEFAULT_BRANCH)
         run: |
           set -x
           docker build -t musica -f docker/Dockerfile.docs .
@@ -123,16 +123,16 @@ jobs:
           done
 
       # Add the .nojekyll file
-      - name: nojekyll
-        if: ${{ github.event_name == 'push' }}
+      - name: nojekyll Montek
+       # if: ${{ github.event_name == 'push' }}
         run: |
           touch _gh-pages/.nojekyll
 
       # Deploy
       # https://github.com/peaceiris/actions-gh-pages
-      - name: Deploy
+      - name: Deploy Montek
         uses: peaceiris/actions-gh-pages@v3
-        if: ${{ github.event_name == 'push' }}
+       # if: ${{ github.event_name == 'push' }}
         with:
           publish_branch: gh-pages
           github_token: ${{ secrets.GITHUB_TOKEN }}
