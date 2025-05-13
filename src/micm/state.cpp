@@ -70,7 +70,7 @@ namespace musica
         state_variant_);
   }
 
-  std::vector<double>& State::GetOrderedRateConstants()
+  std::vector<double>& State::GetOrderedRateParameters()
   {
     return std::visit(
         [](auto& st) -> std::vector<double>& { return st.custom_rate_parameters_.AsVector(); }, state_variant_);
@@ -89,43 +89,7 @@ namespace musica
         state_variant_);
   }
 
-  double*
-  State::GetOrderedRateConstantsPointer(musica::State* state, int* number_of_rate_constants, int* number_of_grid_cells)
-  {
-    auto& vec =
-        std::visit([](auto& st) -> std::vector<double>& { return st.custom_rate_parameters_.AsVector(); }, state_variant_);
-
-    *number_of_grid_cells =
-        std::visit([](auto& st) -> int { return static_cast<int>(st.custom_rate_parameters_.NumRows()); }, state_variant_);
-
-    *number_of_rate_constants =
-        std::visit([](auto& st) -> int { return static_cast<int>(st.custom_rate_parameters_.NumColumns()); }, state_variant_);
-    return vec.data();
-  }
-
-  micm::Conditions* State::GetConditionsPointer(musica::State* state, int* number_of_grid_cells)
-  {
-    auto& vec = std::visit([](auto& st) -> std::vector<micm::Conditions>& { return st.conditions_; }, state_variant_);
-
-    *number_of_grid_cells =
-        std::visit([](auto& st) -> int { return static_cast<int>(st.conditions_.size()); }, state_variant_);
-
-    return vec.data();
-  }
-
-  double* State::GetOrderedConcentrationsPointer(musica::State* state, int* number_of_species, int* number_of_grid_cells)
-  {
-    auto& vec = std::visit([](auto& st) -> std::vector<double>& { return st.variables_.AsVector(); }, state_variant_);
-
-    *number_of_grid_cells =
-        std::visit([](auto& st) -> int { return static_cast<int>(st.variables_.NumRows()); }, state_variant_);
-
-    *number_of_species =
-        std::visit([](auto& st) -> int { return static_cast<int>(st.variables_.NumColumns()); }, state_variant_);
-    return vec.data();
-  }
-
-  std::pair<std::size_t, std::size_t> State::GetConcentrationStrides()
+  std::pair<std::size_t, std::size_t> State::GetConcentrationsStrides()
   {
     return std::visit(
         [](auto& st) -> std::pair<std::size_t, std::size_t>
@@ -133,7 +97,7 @@ namespace musica
         state_variant_);
   }
 
-  std::pair<std::size_t, std::size_t> State::GetUserDefinedRateParameterStrides()
+  std::pair<std::size_t, std::size_t> State::GetUserDefinedRateParametersStrides()
   {
     return std::visit(
         [](auto& st) -> std::pair<std::size_t, std::size_t>

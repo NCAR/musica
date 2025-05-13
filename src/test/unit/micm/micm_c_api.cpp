@@ -169,10 +169,10 @@ TEST_F(MicmCApiTestFixture, GetSpeciesOrdering)
 }
 
 // Test case for getting user-defined reaction rates ordering
-TEST_F(MicmCApiTestFixture, GetUserDefinedReactionRatesOrdering)
+TEST_F(MicmCApiTestFixture, GetUserDefinedRateParametersOrdering)
 {
   Error error;
-  Mappings reaction_rates_ordering = GetUserDefinedReactionRatesOrdering(state, &error);
+  Mappings reaction_rates_ordering = GetUserDefinedRateParametersOrdering(state, &error);
   ASSERT_TRUE(IsSuccess(error));
   DeleteError(&error);
   ASSERT_EQ(reaction_rates_ordering.size_, 3);
@@ -214,12 +214,12 @@ void TestSingleGridCell(MICM* micm, musica::State* state)
   double time_step = 200.0;
   constexpr double GAS_CONSTANT = 8.31446261815324;  // J mol-1 K-1
   const std::size_t num_concentrations = 4;
-  const std::size_t num_user_defined_reaction_rates = 3;
+  const std::size_t num_user_defined_rate_parameters = 3;
   Error error;
 
   std::vector<micm::Conditions> conditions(1);
   std::vector<double>& concentrations_vector = state->GetOrderedConcentrations();
-  std::vector<double>& user_defined_reaction_rates = state->GetOrderedRateConstants();
+  std::vector<double>& user_defined_rate_parameters = state->GetOrderedRateParameters();
 
   // Get species ordering
   Mappings species_ordering = GetSpeciesOrdering(state, &error);
@@ -236,9 +236,9 @@ void TestSingleGridCell(MICM* micm, musica::State* state)
   DeleteMappings(&species_ordering);
 
   // Get user-defined reaction rates ordering
-  Mappings reaction_rates_ordering = GetUserDefinedReactionRatesOrdering(state, &error);
+  Mappings reaction_rates_ordering = GetUserDefinedRateParametersOrdering(state, &error);
   ASSERT_TRUE(IsSuccess(error));
-  ASSERT_EQ(reaction_rates_ordering.size_, num_user_defined_reaction_rates);
+  ASSERT_EQ(reaction_rates_ordering.size_, num_user_defined_rate_parameters);
   std::size_t jO2_index = FindMappingIndex(reaction_rates_ordering, "PHOTO.jO2", &error);
   ASSERT_TRUE(IsSuccess(error));
   std::size_t jO3_O_index = FindMappingIndex(reaction_rates_ordering, "PHOTO.jO3->O", &error);
@@ -254,9 +254,9 @@ void TestSingleGridCell(MICM* micm, musica::State* state)
   concentrations_vector[O_index] = 0.0;
   concentrations_vector[O1D_index] = 0.0;
   concentrations_vector[O3_index] = 0.0000081;
-  user_defined_reaction_rates[jO2_index] = 2.7e-19;
-  user_defined_reaction_rates[jO3_O_index] = 1.13e-9;
-  user_defined_reaction_rates[jO3_O1D_index] = 5.8e-8;
+  user_defined_rate_parameters[jO2_index] = 2.7e-19;
+  user_defined_rate_parameters[jO3_O_index] = 1.13e-9;
+  user_defined_rate_parameters[jO3_O1D_index] = 5.8e-8;
 
   state->SetConditions(conditions);
 
@@ -342,7 +342,7 @@ void TestSolver(
     const double test_accuracy)
 {
   const size_t num_concentrations = 6;
-  const size_t num_user_defined_reaction_rates = 2;
+  const size_t num_user_defined_rate_parameters = 2;
   constexpr double GAS_CONSTANT = 8.31446261815324;  // J mol-1 K-1
 
   Error error;
@@ -378,9 +378,9 @@ void TestSolver(
   DeleteMappings(&species_ordering);
 
   // Get user-defined reaction rates indices in user-defined reaction rates array
-  Mappings rate_ordering = GetUserDefinedReactionRatesOrdering(state_1, &error);
+  Mappings rate_ordering = GetUserDefinedRateParametersOrdering(state_1, &error);
   ASSERT_TRUE(IsSuccess(error));
-  ASSERT_EQ(rate_ordering.size_, num_user_defined_reaction_rates);
+  ASSERT_EQ(rate_ordering.size_, num_user_defined_rate_parameters);
   std::size_t R1_index = FindMappingIndex(rate_ordering, "USER.reaction 1", &error);
   ASSERT_TRUE(IsSuccess(error));
   std::size_t R2_index = FindMappingIndex(rate_ordering, "USER.reaction 2", &error);
@@ -397,31 +397,29 @@ void TestSolver(
     ASSERT_TRUE(IsSuccess(error));
     ASSERT_EQ(GetNumberOfSpecies(current_state, &error), num_concentrations);
     ASSERT_TRUE(IsSuccess(error));
-    ASSERT_EQ(GetNumberOfUserDefinedRateParameters(current_state, &error), num_user_defined_reaction_rates);
+    ASSERT_EQ(GetNumberOfUserDefinedRateParameters(current_state, &error), num_user_defined_rate_parameters);
     ASSERT_TRUE(IsSuccess(error));
 
     // Get pointers to the data
-    int n_species, n_cells, n_params;
-    micm::Conditions* conditions = GetConditionsPointer(current_state, &n_cells, &error);
+    size_t array_size;
+    micm::Conditions* conditions = GetConditionsPointer(current_state, &array_size, &error);
     ASSERT_TRUE(IsSuccess(error));
-    ASSERT_EQ(n_cells, state_size);
-    double* concentrations = GetOrderedConcentrationsPointer(current_state, &n_species, &n_cells, &error);
+    ASSERT_EQ(array_size, state_size);
+    double* concentrations = GetOrderedConcentrationsPointer(current_state, &array_size, &error);
     ASSERT_TRUE(IsSuccess(error));
-    ASSERT_EQ(n_species, num_concentrations);
-    ASSERT_EQ(n_cells, state_size);
-    double* user_defined_params = GetOrderedRateConstantsPointer(current_state, &n_params, &n_cells, &error);
+    ASSERT_GE(array_size, state_size * num_concentrations);
+    double* user_defined_params = GetOrderedRateParametersPointer(current_state, &array_size, &error);
     ASSERT_TRUE(IsSuccess(error));
-    ASSERT_EQ(n_params, num_user_defined_reaction_rates);
-    ASSERT_EQ(n_cells, state_size);
+    ASSERT_GE(array_size, state_size * num_user_defined_rate_parameters);
     
     // Get matrix strides
     size_t grid_cell_stride_species;
     size_t species_stride;
     size_t grid_cell_stride_params;
     size_t params_stride;
-    GetConcentrationStrides(current_state, &error, &grid_cell_stride_species, &species_stride);
+    GetConcentrationsStrides(current_state, &error, &grid_cell_stride_species, &species_stride);
     ASSERT_TRUE(IsSuccess(error));
-    GetUserDefinedRateParameterStrides(current_state, &error, &grid_cell_stride_params, &params_stride);
+    GetUserDefinedRateParametersStrides(current_state, &error, &grid_cell_stride_params, &params_stride);
     ASSERT_TRUE(IsSuccess(error));
 
     // Set up an intial concentration vector
@@ -451,9 +449,9 @@ void TestSolver(
     MicmSolve(micm, current_state, time_step, &solver_state, &solver_stats, &error);
     ASSERT_TRUE(IsSuccess(error));
     DeleteError(&error);
-
+    
     // update the concentrations pointer because MICM solve function may have swapped temporary state vectors
-    concentrations = GetOrderedConcentrationsPointer(current_state, &n_species, &n_cells, &error);
+    concentrations = GetOrderedConcentrationsPointer(current_state, &array_size, &error);
     ASSERT_TRUE(IsSuccess(error));
 
     // Add assertions to check the solved concentrations

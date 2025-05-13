@@ -118,6 +118,13 @@ module musica_micm
       type(error_t_c), intent(inout) :: error
       logical(kind=c_bool)           :: is_cuda_available_c
     end function is_cuda_available_c
+
+    integer(c_size_t) function get_maximum_number_of_grid_cells_c(micm) &
+        bind(C, name="GetMaximumNumberOfGridCells")
+      use musica_util, only: error_t_c
+      import c_ptr, c_size_t
+      type(c_ptr), value, intent(in)            :: micm
+    end function get_maximum_number_of_grid_cells_c
   end interface
 
   type :: micm_t
@@ -127,6 +134,7 @@ module musica_micm
     ! Solve the chemical system
     procedure :: solve
     procedure :: get_state
+    procedure :: get_maximum_number_of_grid_cells
     ! Get species properties
     procedure :: get_species_property_string
     procedure :: get_species_property_double
@@ -240,6 +248,26 @@ contains
     state => state_t(this%ptr, int(number_of_grid_cells, kind=c_int), error)
     error = error_t(error_c)
   end function get_state
+
+  !> Gets the maximum number of grid cells
+  integer function get_maximum_number_of_grid_cells(this) result(maximum_number_of_grid_cells)
+    use iso_c_binding, only: c_size_t
+    use musica_util, only: error_t, error_t_c
+    class(micm_t), intent(in)    :: this
+    integer(c_size_t)            :: max_cells_c
+
+    max_cells_c = get_maximum_number_of_grid_cells_c(this%ptr)
+    if (max_cells_c > int(huge(0), kind=c_size_t)) then
+      maximum_number_of_grid_cells = huge(0)
+    else
+      maximum_number_of_grid_cells = int(max_cells_c)
+    end if
+    ! The Fortran int(c_size_t) doesn't seem to be able to hold the actual
+    ! maximum value of a C size_t. We there is an overflow, we set it to the largest int.
+    if (maximum_number_of_grid_cells < 0) then
+      maximum_number_of_grid_cells = huge(0)
+    end if
+  end function get_maximum_number_of_grid_cells
 
   !> Constructor for solver_stats_t object that takes ownership of solver_stats_t_c
   function solver_stats_t_constructor( c_solver_stats ) result( new_solver_stats )
