@@ -45,8 +45,8 @@ jobs:
           pip list
 
       # Clone and set up the old gh-pages branch
-      - name: Clone old gh-pages MONTEK 
-       # if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch'}}
+      - name: Clone old gh-pages 
+        if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch'}}
         run: |
           set -x
           git fetch
