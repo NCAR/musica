@@ -156,6 +156,7 @@ contains
     type(c_ptr) :: c_mappings_ptr
     type(mapping_t), allocatable :: f_mappings(:)
     type(mappings_t), pointer :: mappings
+    type(mappings_t) :: mappings_copy
     logical :: found
     type(error_t) :: error
     integer :: index
@@ -268,7 +269,25 @@ contains
     ASSERT( error%is_success() )
     index = mappings%index( "foo", error )
     ASSERT( .not. error%is_success() )
+
+    ! copy mappings
+    mappings_copy = mappings
     deallocate( mappings )
+    ASSERT_EQ( mappings_copy%size(), 3 )
+    ASSERT_EQ( mappings_copy%index( 1 ), 22 )
+    ASSERT_EQ( mappings_copy%name( 1 ), "quux" )
+    ASSERT_EQ( mappings_copy%index( 2 ), 35 )
+    ASSERT_EQ( mappings_copy%name( 2 ), "corge" )
+    ASSERT_EQ( mappings_copy%index( 3 ), 56 )
+    ASSERT_EQ( mappings_copy%name( 3 ), "grault" )
+    ASSERT_EQ( mappings_copy%index( "quux", error ), 22 )
+    ASSERT( error%is_success() )
+    ASSERT_EQ( mappings_copy%index( "corge", error ), 35 )
+    ASSERT( error%is_success() )
+    ASSERT_EQ( mappings_copy%index( "grault", error ), 56 )
+    ASSERT( error%is_success() )
+    index = mappings_copy%index( "foo", error )
+    ASSERT( .not. error%is_success() )
     
   end subroutine test_mapping_t
 
