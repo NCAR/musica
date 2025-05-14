@@ -124,6 +124,8 @@ module musica_util
   type :: mappings_t
     type(mappings_t_c) :: mappings_c_
   contains
+    procedure, private :: mappings_assign_mappings_t
+    generic :: assignment(=) => mappings_assign_mappings_t
     procedure :: name => mappings_name
     procedure, private :: mappings_index
     procedure, private :: mappings_index_by_name
@@ -670,6 +672,33 @@ contains
     end do
 
   end function mappings_constructor_from_mapping_t_array
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  !> Copies a mappings_t object to a mappings_t object
+  subroutine mappings_assign_mappings_t( to, from )
+
+    class(mappings_t), intent(inout) :: to
+    class(mappings_t), intent(in) :: from
+
+    integer :: i
+    type(mapping_t), allocatable :: mappings(:)
+    type(mapping_t_c), pointer :: mappings_c(:)
+
+    call delete_mappings_c( to%mappings_c_ )
+    call copy_mappings( from%mappings_c_%mappings_, &
+                      from%mappings_c_%size_, mappings )
+    to%mappings_c_ = &
+        create_mappings_c( int( size( mappings ), c_size_t ) )
+    call c_f_pointer( to%mappings_c_%mappings_, mappings_c, &
+                      [ to%mappings_c_%size_ ] )
+    do i = 1, size( mappings )
+      mappings_c(i)%name_ = &
+          create_string_c( to_c_string( mappings(i)%name() ) )
+      mappings_c(i)%index_ = mappings(i)%index() - 1
+    end do
+
+  end subroutine mappings_assign_mappings_t
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
