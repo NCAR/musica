@@ -1,5 +1,8 @@
 FROM fedora:37
 
+ARG MUSICA_GIT_TAG=main
+ARG BUILD_TYPE=Release
+
 RUN dnf -y update \
     && dnf -y install \
         doxygen \
@@ -11,13 +14,16 @@ RUN dnf -y update \
         make \
         lcov \
         valgrind \
-        python3 \
-        python3-pip \
+        pip \
+        python \
+        python-devel \
     && dnf clean all
 
 COPY . /musica/
 
-RUN pip3 install -r /musica/docs/requirements.txt
+RUN cd /musica &&  python -m pip install -e .
+
+RUN python -m pip install -r /musica/docs/requirements.txt 
 
 ARG SUFFIX=""
 ENV SWITCHER_SUFFIX=$SUFFIX
@@ -27,8 +33,10 @@ RUN echo "The suffix is '$SWITCHER_SUFFIX'"
 RUN mkdir /build \
       && cd /build \
       && cmake -D MUSICA_BUILD_DOCS=ON \
+               -D MUSICA_ENABLE_TUVX=OFF \
+                -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
+                -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
                /musica \
       && make docs
 
 WORKDIR /build
-
