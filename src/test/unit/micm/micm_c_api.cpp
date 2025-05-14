@@ -387,7 +387,7 @@ void TestSolver(
   ASSERT_TRUE(IsSuccess(error));
   DeleteMappings(&rate_ordering);
 
-  for (int i_state = 0; i_state < std::ceil(num_grid_cells/state_1_size); ++i_state)
+  for (int i_state = 0; i_state < std::ceil(static_cast<double>(num_grid_cells)/state_1_size); ++i_state)
   {
     // Get the right state and set dimensions
     size_t state_size = std::min(num_grid_cells - i_state * state_1_size, state_1_size);
@@ -510,7 +510,7 @@ TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingVectorOrderedRosenbrock)
   ASSERT_TRUE(IsSuccess(error));
   size_t max_cells = GetMaximumNumberOfGridCells(micm);
   ASSERT_GT(max_cells, 0);
-  for (int num_grid_cells = 1; num_grid_cells <= max_cells * 3; num_grid_cells += std::floor(max_cells / 3))
+  for (int num_grid_cells = 1; num_grid_cells <= max_cells * 3; num_grid_cells += static_cast<int>(std::floor(max_cells / 3)))
   {
     TestSolver(micm, num_grid_cells, time_step, test_accuracy);
     DeleteError(&error);

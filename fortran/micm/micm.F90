@@ -263,7 +263,7 @@ contains
       maximum_number_of_grid_cells = int(max_cells_c)
     end if
     ! The Fortran int(c_size_t) doesn't seem to be able to hold the actual
-    ! maximum value of a C size_t. We there is an overflow, we set it to the largest int.
+    ! maximum value of a C size_t. When there is an overflow, we set it to the largest int.
     if (maximum_number_of_grid_cells < 0) then
       maximum_number_of_grid_cells = huge(0)
     end if
