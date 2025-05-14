@@ -129,4 +129,9 @@ namespace musica
     return HandleErrors([&]() { return musica::IsCudaAvailable(); }, error);
   }
 
+  size_t GetMaximumNumberOfGridCells(MICM *micm)
+  {
+    return micm->GetMaximumNumberOfGridCells();
+  }
+
 }  // namespace musica

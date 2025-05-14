@@ -18,6 +18,7 @@ program test_micm_api
 #define ASSERT_EQ( a, b ) call assert( a == b, __FILE__, __LINE__ )
 #define ASSERT_NE( a, b ) call assert( a /= b, __FILE__, __LINE__ )
 #define ASSERT_NEAR( a, b, tol ) call assert( abs(a - b) < abs(a + b) * tol, __FILE__, __LINE__ )
+#define ASSERT_GT( a, b ) call assert( a > b, __FILE__, __LINE__ )
 
   implicit none
 
@@ -33,8 +34,8 @@ program test_micm_api
   call test_multiple_grid_cell_standard_Rosenbrock()
   call test_multiple_grid_cell_standard_BackwardEuler()
   call test_api_v1_parser()
-  !call test_multiple_grid_cell_vector_Rosenbrock()
-  !call test_multiple_grid_cell_vector_BackwardEuler()
+  call test_multiple_grid_cell_vector_Rosenbrock()
+  call test_multiple_grid_cell_vector_BackwardEuler()
   call test_multiple_grid_cell_cuda_Rosenbrock()
   
 contains
@@ -92,24 +93,28 @@ contains
     O3_index = state%species_ordering%index( "O3", error )
     ASSERT( error%is_success() )
 
-    jO2_index = state%user_defined_reaction_rates%index( "PHOTO.jO2", error )
+    jO2_index = state%rate_parameters_ordering%index( "PHOTO.jO2", error )
     ASSERT( error%is_success() )
-    jO3a_index = state%user_defined_reaction_rates%index( "PHOTO.jO3->O", error )
+    jO3a_index = state%rate_parameters_ordering%index( "PHOTO.jO3->O", error )
     ASSERT( error%is_success() )
-    jO3b_index = state%user_defined_reaction_rates%index( "PHOTO.jO3->O1D", error )
+    jO3b_index = state%rate_parameters_ordering%index( "PHOTO.jO3->O1D", error )
     ASSERT( error%is_success() )
 
     state%conditions(1)%temperature = 272.5
     state%conditions(1)%pressure = 101253.4
     state%conditions(1)%air_density = state%conditions(1)%pressure / ( GAS_CONSTANT * state%conditions(1)%temperature )
-    
-    state%concentrations(O2_index,1) = 0.75
-    state%concentrations(O_index,1) = 0.0
-    state%concentrations(O1D_index,1) = 0.0
-    state%concentrations(O3_index,1) = 0.0000081
-    state%rates(jO2_index,1) = 2.7e-19
-    state%rates(jO3a_index,1) = 1.13e-9
-    state%rates(jO3b_index,1) = 5.8e-8
+
+    associate( var_stride => state%species_strides%variable ) 
+      state%concentrations(  1 + (O2_index   - 1) * var_stride ) = 0.75
+      state%concentrations(  1 + (O_index    - 1) * var_stride ) = 0.0
+      state%concentrations(  1 + (O1D_index  - 1) * var_stride ) = 0.0
+      state%concentrations(  1 + (O3_index   - 1) * var_stride ) = 0.0000081
+    end associate
+    associate( var_stride => state%rate_parameters_strides%variable )
+      state%rate_parameters( 1 + (jO2_index  - 1) * var_stride ) = 2.7e-19
+      state%rate_parameters( 1 + (jO3a_index - 1) * var_stride ) = 1.13e-9
+      state%rate_parameters( 1 + (jO3b_index - 1) * var_stride ) = 5.8e-8
+    end associate
     
     micm_version = get_micm_version()
     print *, "[test micm fort api] MICM version ", micm_version%get_char_array()
@@ -118,9 +123,9 @@ contains
       print *, "Species Name:", state%species_ordering%name(i), &
                ", Index:", state%species_ordering%index(i)
     end do
-    do i = 1, state%user_defined_reaction_rates%size()
-      print *, "User Defined Reaction Rate Name:", state%user_defined_reaction_rates%name(i), &
-               ", Index:", state%user_defined_reaction_rates%index(i)
+    do i = 1, state%rate_parameters_ordering%size()
+      print *, "User Defined Reaction Rate Name:", state%rate_parameters_ordering%name(i), &
+               ", Index:", state%rate_parameters_ordering%index(i)
     end do
 
     write(*,*) "[test micm fort api] Initial concentrations", state%concentrations
@@ -173,234 +178,174 @@ contains
 
   end subroutine test_api
 
-  subroutine test_vector_multiple_grid_cells(micm, NUM_GRID_CELLS, time_step, test_accuracy)
+  subroutine test_solver(micm, number_of_grid_cells, time_step, test_accuracy)
 
-    type(micm_t), pointer, intent(inout) :: micm
-    type(state_t), pointer               :: state
-    integer,               intent(in)    :: NUM_GRID_CELLS
-    real(real64),          intent(in)    :: time_step
-    real,                  intent(in)    :: test_accuracy
+    type(micm_t), intent(inout) :: micm
+    integer,      intent(in)    :: number_of_grid_cells
+    real(real64), intent(in)    :: time_step
+    real(real64), intent(in)    :: test_accuracy
 
     integer, parameter        :: NUM_SPECIES = 6
-    integer, parameter        :: NUM_USER_DEFINED_REACTION_RATES = 2
-    ! set up arrays to pass to MICM as slices to ensure contiguous memory is passed to c functions
-    real(real64), target      :: temperature(2,NUM_GRID_CELLS)
-    real(real64), target      :: temperature_c_ptrs(NUM_GRID_CELLS)
-    real(real64), target      :: pressure(2,NUM_GRID_CELLS)
-    real(real64), target      :: pressure_c_ptrs(NUM_GRID_CELLS)
-    real(real64), target      :: air_density(3,NUM_GRID_CELLS)
-    real(real64), target      :: air_density_c_ptrs(NUM_GRID_CELLS)
-    real(real64), target      :: concentrations(4,NUM_GRID_CELLS,NUM_SPECIES)
-    real(real64), target      :: concentrations_c_ptrs(NUM_GRID_CELLS,NUM_SPECIES)
-    real(real64), target      :: initial_concentrations(4,NUM_GRID_CELLS,NUM_SPECIES)
-    real(real64), target      :: user_defined_reaction_rates(3,NUM_GRID_CELLS,NUM_USER_DEFINED_REACTION_RATES)
-    real(real64), target      :: user_defined_reaction_rates_c_ptrs(NUM_GRID_CELLS,NUM_USER_DEFINED_REACTION_RATES)
-    type(string_t)            :: solver_state
-    type(solver_stats_t)      :: solver_stats
-    integer                   :: solver_type
-    type(error_t)             :: error
+    integer, parameter        :: NUM_RATE_PARAMETERS = 2
     real(real64), parameter   :: GAS_CONSTANT = 8.31446261815324_real64 ! J mol-1 K-1
+
+    type(error_t)             :: error
+    type(state_t), pointer    :: state_1, state_2, state
+    integer                   :: max_grid_cells, state_1_size, state_2_size, state_size
     integer                   :: A_index, B_index, C_index, D_index, E_index, F_index
     integer                   :: R1_index, R2_index
+    real, allocatable         :: initial_concentrations(:,:)
+    real                      :: rand_num
+    type(string_t)            :: solver_state
+    type(solver_stats_t)      :: solver_stats
+    integer                   :: i_state, i_cell, i_species
+    type(ArrheniusReaction)   :: arr1, arr2
     real(real64)              :: initial_A, initial_C, initial_D, initial_F
     real(real64)              :: k1, k2, k3, k4
     real(real64)              :: A, B, C, D, E, F
-    integer                   :: i_cell
-    real                      :: temp
-    type(ArrheniusReaction)   :: r1, r2
-    
-    state => micm%get_state(NUM_GRID_CELLS, error)
-    A_index = state%species_ordering%index( "A", error )
+
+    max_grid_cells = micm%get_maximum_number_of_grid_cells( )
+    ASSERT_GT( max_grid_cells, 0 )
+    state_1_size = min( number_of_grid_cells, max_grid_cells )
+    state_2_size = mod( (number_of_grid_cells - state_1_size), max_grid_cells )
+    state_1 => micm%get_state( state_1_size, error )
     ASSERT( error%is_success() )
-    B_index = state%species_ordering%index( "B", error )
+    state_2 => null()
+    if ( state_2_size > 0 ) then
+      state_2 => micm%get_state( state_2_size, error )
+      ASSERT( error%is_success() )
+    end if
+
+    ! Get the species indices in the concentration array
+    A_index = state_1%species_ordering%index( "A", error )
     ASSERT( error%is_success() )
-    C_index = state%species_ordering%index( "C", error )
+    B_index = state_1%species_ordering%index( "B", error )
     ASSERT( error%is_success() )
-    D_index = state%species_ordering%index( "D", error )
+    C_index = state_1%species_ordering%index( "C", error )
     ASSERT( error%is_success() )
-    E_index = state%species_ordering%index( "E", error )
+    D_index = state_1%species_ordering%index( "D", error )
     ASSERT( error%is_success() )
-    F_index = state%species_ordering%index( "F", error )
+    E_index = state_1%species_ordering%index( "E", error )
+    ASSERT( error%is_success() )
+    F_index = state_1%species_ordering%index( "F", error )
     ASSERT( error%is_success() )
 
-    R1_index = state%user_defined_reaction_rates%index( "USER.reaction 1", error )
+    ! Get the rate parameter indices in the rate parameter array
+    R1_index = state_1%rate_parameters_ordering%index( "USER.reaction 1", error )
     ASSERT( error%is_success() )
-    R2_index = state%user_defined_reaction_rates%index( "USER.reaction 2", error )
+    R2_index = state_1%rate_parameters_ordering%index( "USER.reaction 2", error )
     ASSERT( error%is_success() )
 
-    temperature(:,:) = 1.0e300_real64
-    pressure(:,:) = 1.0e300_real64
-    air_density(:,:) = 1.0e300_real64
-    concentrations(:,:,:) = 1.0e300_real64
-    user_defined_reaction_rates(:,:,:) = 1.0e300_real64
-    do i_cell = 1, NUM_GRID_CELLS
-      call random_number( temp )
-      temperature(2,i_cell) = 265.0 + temp * 20.0
-      call random_number( temp )
-      pressure(2,i_cell) = 100753.3 + temp * 1000.0
-      air_density(2,i_cell) = pressure(2,i_cell) / ( GAS_CONSTANT * temperature(2,i_cell) )
-      call random_number( temp )
-      concentrations(2,i_cell,A_index) = 0.7 + temp * 0.1
-      concentrations(2,i_cell,B_index) = 0.0
-      call random_number( temp )
-      concentrations(2,i_cell,C_index) = 0.35 + temp * 0.1
-      call random_number( temp )
-      concentrations(2,i_cell,D_index) = 0.75 + temp * 0.1
-      concentrations(2,i_cell,E_index) = 0.0
-      call random_number( temp )
-      concentrations(2,i_cell,F_index) = 0.05 + temp * 0.1
-      call random_number( temp )
-      user_defined_reaction_rates(2,i_cell,R1_index) = 0.0005 + temp * 0.0001
-      call random_number( temp )
-      user_defined_reaction_rates(2,i_cell,R2_index) = 0.0015 + temp * 0.0001
+    do i_state = 1, ceiling( real(number_of_grid_cells) / state_1_size)
+
+      ! Get the right state and set dimensions
+      state_size = min(number_of_grid_cells - (i_state - 1) * state_1_size, state_1_size)
+      if ( state_size == state_1_size ) then
+        state => state_1
+      else
+        state => state_2
+        ASSERT( associated( state_2 ) )
+      end if
+      ASSERT_EQ( state%number_of_grid_cells, state_size )
+      ASSERT_EQ( state%number_of_species, NUM_SPECIES )
+      ASSERT_EQ( state%number_of_rate_parameters, NUM_RATE_PARAMETERS )
+
+      ! Set the initial conditions
+      allocate( initial_concentrations( state_size, NUM_SPECIES ) )
+      do i_cell = 1, state_size
+        call random_number( rand_num )
+        state%conditions(i_cell)%temperature = 275.0 + rand_num * 20.0 - 10.0
+        call random_number( rand_num )
+        state%conditions(i_cell)%pressure = 101253.3 + rand_num * 1000.0
+        state%conditions(i_cell)%air_density = state%conditions(i_cell)%pressure / &
+            ( GAS_CONSTANT * state%conditions(i_cell)%temperature )
+        associate( cell_stride => state%species_strides%grid_cell, &
+                   var_stride => state%species_strides%variable )
+          call random_number( rand_num )
+          state%concentrations( 1 + ( i_cell - 1 ) * cell_stride + ( A_index - 1 ) * var_stride ) = &
+              0.75 + rand_num * 0.1 - 0.05
+          call random_number( rand_num )
+          state%concentrations( 1 + ( i_cell - 1 ) * cell_stride + ( B_index - 1 ) * var_stride ) = &
+              0.0
+          call random_number( rand_num )
+          state%concentrations( 1 + ( i_cell - 1 ) * cell_stride + ( C_index - 1 ) * var_stride ) = &
+              0.4 + rand_num * 0.1 - 0.05
+          call random_number( rand_num )
+          state%concentrations( 1 + ( i_cell - 1 ) * cell_stride + ( D_index - 1 ) * var_stride ) = &
+              0.8 + rand_num * 0.1 - 0.05
+          call random_number( rand_num )
+          state%concentrations( 1 + ( i_cell - 1 ) * cell_stride + ( E_index - 1 ) * var_stride ) = &
+              0.0
+          call random_number( rand_num )
+          state%concentrations( 1 + ( i_cell - 1 ) * cell_stride + ( F_index - 1 ) * var_stride ) = &
+              0.1 + rand_num * 0.1 - 0.05
+          do i_species = 1, NUM_SPECIES
+            initial_concentrations( i_cell, i_species ) = &
+                state%concentrations( 1 + ( i_cell - 1 ) * cell_stride + ( i_species - 1 ) * var_stride )
+          end do
+        end associate
+        associate( cell_stride => state%rate_parameters_strides%grid_cell, &
+                   var_stride => state%rate_parameters_strides%variable )
+          call random_number( rand_num )
+          state%rate_parameters( 1 + ( i_cell - 1 ) * cell_stride + ( R1_index - 1 ) * var_stride ) = &
+              0.001 + rand_num * 0.001 - 0.0005
+          call random_number( rand_num )
+          state%rate_parameters( 1 + ( i_cell - 1 ) * cell_stride + ( R2_index - 1 ) * var_stride ) = &
+              0.002 + rand_num * 0.001 - 0.0005
+        end associate
+      end do
+
+      call micm%solve(time_step, state, solver_state, solver_stats, error)
+      ASSERT( error%is_success() )
+      ASSERT_EQ(solver_state%get_char_array(), "Converged")
+
+      arr1%A_ = 0.004
+      arr1%C_ = 50.0
+      arr2%A_ = 0.012
+      arr2%B_ = -2.0
+      arr2%C_ = 75.0
+      arr2%D_ = 50.0
+      arr2%E_ = 1.0e-6
+
+      do i_cell = 1, state_size
+        initial_A = initial_concentrations( i_cell, A_index )
+        initial_C = initial_concentrations( i_cell, C_index )
+        initial_D = initial_concentrations( i_cell, D_index )
+        initial_F = initial_concentrations( i_cell, F_index )
+        associate( cell_stride => state%rate_parameters_strides%grid_cell, &
+                   var_stride => state%rate_parameters_strides%variable )
+          k1 = state%rate_parameters( 1 + ( i_cell - 1 ) * cell_stride + ( R1_index - 1 ) * var_stride )
+          k2 = state%rate_parameters( 1 + ( i_cell - 1 ) * cell_stride + ( R2_index - 1 ) * var_stride )
+        end associate
+        k3 = calculate_arrhenius( arr1, state%conditions(i_cell)%temperature, &
+            state%conditions(i_cell)%pressure )
+        k4 = calculate_arrhenius( arr2, state%conditions(i_cell)%temperature, &
+            state%conditions(i_cell)%pressure )
+        A = initial_A * exp( -k3 * time_step )
+        B = initial_A * (k3 / (k4 - k3)) * &
+            (exp(-k3 * time_step) - exp(-k4 * time_step))
+        C = initial_C + initial_A * &
+            (1.0 + (k3 * exp(-k4 * time_step) - k4 * exp(-k3 * time_step)) / (k4 - k3))
+        D = initial_D * exp( -k1 * time_step )
+        E = initial_D * (k1 / (k2 - k1)) * &
+            (exp(-k1 * time_step) - exp(-k2 * time_step))
+        F = initial_F + initial_D * &
+            (1.0 + (k1 * exp(-k2 * time_step) - k2 * exp(-k1 * time_step)) / (k2 - k1))
+        associate( cell_stride => state%species_strides%grid_cell, &
+                   var_stride  => state%species_strides%variable )
+          ASSERT_NEAR( state%concentrations( 1 + ( i_cell - 1 ) * cell_stride + ( A_index - 1 ) * var_stride ), A, test_accuracy )
+          ASSERT_NEAR( state%concentrations( 1 + ( i_cell - 1 ) * cell_stride + ( B_index - 1 ) * var_stride ), B, test_accuracy )
+          ASSERT_NEAR( state%concentrations( 1 + ( i_cell - 1 ) * cell_stride + ( C_index - 1 ) * var_stride ), C, test_accuracy )
+          ASSERT_NEAR( state%concentrations( 1 + ( i_cell - 1 ) * cell_stride + ( D_index - 1 ) * var_stride ), D, test_accuracy )
+          ASSERT_NEAR( state%concentrations( 1 + ( i_cell - 1 ) * cell_stride + ( E_index - 1 ) * var_stride ), E, test_accuracy )
+          ASSERT_NEAR( state%concentrations( 1 + ( i_cell - 1 ) * cell_stride + ( F_index - 1 ) * var_stride ), F, test_accuracy )
+        end associate
+      end do
+      deallocate( initial_concentrations )
     end do
-    initial_concentrations(:,:,:) = concentrations(:,:,:)
-    concentrations_c_ptrs(:,:) = concentrations(2,:,:)
-    user_defined_reaction_rates_c_ptrs(:,:) = user_defined_reaction_rates(2,:,:)
-    temperature_c_ptrs(:) = temperature(2,:)
-    pressure_c_ptrs(:) = pressure(2,:)
-    air_density_c_ptrs(:) = air_density(2,:)
-
-    ! solve by passing fortran arrays
-    call micm%solve(time_step, state, solver_state, solver_stats, error)
-    ASSERT( error%is_success() )
-    ASSERT_EQ(solver_state%get_char_array(), "Converged")
-
-    r1%A_ = 0.004
-    r1%C_ = 50.0
-    r2%A_ = 0.012
-    r2%B_ = -2.0
-    r2%C_ = 75.0
-    r2%D_ = 50.0
-    r2%E_ = 1.0e-6
-
-    do i_cell = 1, NUM_GRID_CELLS
-      initial_A = initial_concentrations(2,i_cell,A_index)
-      initial_C = initial_concentrations(2,i_cell,C_index)
-      initial_D = initial_concentrations(2,i_cell,D_index)
-      initial_F = initial_concentrations(2,i_cell,F_index)
-      k1 = user_defined_reaction_rates(2,i_cell,R1_index)
-      k2 = user_defined_reaction_rates(2,i_cell,R2_index)
-      k3 = calculate_arrhenius( r1, temperature(2,i_cell), pressure(2,i_cell) )
-      k4 = calculate_arrhenius( r2, temperature(2,i_cell), pressure(2,i_cell) )
-      A = initial_A * exp( -k3 * time_step )
-      B = initial_A * (k3 / (k4 - k3)) * (exp(-k3 * time_step) - exp(-k4 * time_step))
-      C = initial_C + initial_A * (1.0 + (k3 * exp(-k4 * time_step) - k4 * exp(-k3 * time_step)) / (k4 - k3))
-      D = initial_D * exp( -k1 * time_step )
-      E = initial_D * (k1 / (k2 - k1)) * (exp(-k1 * time_step) - exp(-k2 * time_step))
-      F = initial_F + initial_D * (1.0 + (k1 * exp(-k2 * time_step) - k2 * exp(-k1 * time_step)) / (k2 - k1))
-      ASSERT_NEAR(concentrations(2,i_cell,A_index), A, test_accuracy)
-      ASSERT_NEAR(concentrations(2,i_cell,B_index), B, test_accuracy)
-      ASSERT_NEAR(concentrations(2,i_cell,C_index), C, test_accuracy)
-      ASSERT_NEAR(concentrations(2,i_cell,D_index), D, test_accuracy)
-      ASSERT_NEAR(concentrations(2,i_cell,E_index), E, test_accuracy)
-      ASSERT_NEAR(concentrations(2,i_cell,F_index), F, test_accuracy)
-    end do
-
-  end subroutine test_vector_multiple_grid_cells
-
-  subroutine test_standard_multiple_grid_cells(micm, NUM_GRID_CELLS, time_step, test_accuracy)
-
-    type(micm_t), pointer, intent(inout)  :: micm
-    type(state_t), pointer                :: state
-    integer,               intent(in)     :: NUM_GRID_CELLS
-    real(real64),          intent(in)     :: time_step
-    real,                  intent(in)     :: test_accuracy
-    integer, parameter                    :: NUM_SPECIES = 6
-    real(real64), target                  :: initial_concentrations(NUM_SPECIES, NUM_GRID_CELLS)
-    type(string_t)                        :: solver_state
-    type(solver_stats_t)                  :: solver_stats
-    integer(c_int)                        :: solver_type
-    type(error_t)                         :: error
-    real(real64), parameter               :: GAS_CONSTANT = 8.31446261815324_real64 ! J mol-1 K-1
-    integer                               :: A_index, B_index, C_index, D_index, E_index, F_index
-    integer                               :: R1_index, R2_index
-    real(real64)                          :: initial_A, initial_C, initial_D, initial_F
-    real(real64)                          :: k1, k2, k3, k4
-    real(real64)                          :: A, B, C, D, E, F
-    integer                               :: i_cell
-    real                                  :: temp
-    type(ArrheniusReaction)               :: r1, r2
-
-    state => micm%get_state(NUM_GRID_CELLS, error)
-    A_index = state%species_ordering%index( "A", error )
-    ASSERT( error%is_success() )
-    B_index = state%species_ordering%index( "B", error )
-    ASSERT( error%is_success() )
-    C_index = state%species_ordering%index( "C", error )
-    ASSERT( error%is_success() )
-    D_index = state%species_ordering%index( "D", error )
-    ASSERT( error%is_success() )
-    E_index = state%species_ordering%index( "E", error )
-    ASSERT( error%is_success() )
-    F_index = state%species_ordering%index( "F", error )
-    ASSERT( error%is_success() )
-
-    R1_index = state%user_defined_reaction_rates%index( "USER.reaction 1", error )
-    ASSERT( error%is_success() )
-    R2_index = state%user_defined_reaction_rates%index( "USER.reaction 2", error )
-    ASSERT( error%is_success() )
-
-    do i_cell = 1, NUM_GRID_CELLS
-      call random_number( temp )
-      state%conditions(i_cell)%temperature = 265.0 + temp * 20.0
-      call random_number( temp )
-      state%conditions(i_cell)%pressure = 100753.3 + temp * 1000.0
-      state%conditions(i_cell)%air_density =  state%conditions(i_cell)%pressure / ( GAS_CONSTANT *  state%conditions(i_cell)%temperature )
-      call random_number( temp )
-      state%concentrations(A_index, i_cell) = 0.7 + temp * 0.1
-      state%concentrations(B_index, i_cell) = 0.0
-      call random_number( temp )
-      state%concentrations(C_index, i_cell) = 0.35 + temp * 0.1
-      call random_number( temp )
-      state%concentrations(D_index, i_cell) = 0.75 + temp * 0.1
-      state%concentrations(E_index, i_cell) = 0.0
-      call random_number( temp )
-      state%concentrations(F_index, i_cell) = 0.05 + temp * 0.1
-      call random_number( temp )
-      state%rates(R1_index, i_cell) = 0.0005 + temp * 0.0001
-      call random_number( temp )
-      state%rates(R2_index, i_cell) = 0.0015 + temp * 0.0001
-    end do
-    initial_concentrations(:,:) = state%concentrations(:,:)
-    
-    call micm%solve(time_step, state, solver_state, solver_stats, error)    
-    
-    ASSERT( error%is_success() )
-    ASSERT_EQ(solver_state%get_char_array(), "Converged")
-    ! check concentrations
-    r1%A_ = 0.004
-    r1%C_ = 50.0
-    r2%A_ = 0.012
-    r2%B_ = -2.0
-    r2%C_ = 75.0
-    r2%D_ = 50.0
-    r2%E_ = 1.0e-6
-
-    do i_cell = 1, NUM_GRID_CELLS
-      initial_A = initial_concentrations(A_index, i_cell)
-      initial_C = initial_concentrations(C_index, i_cell)
-      initial_D = initial_concentrations(D_index, i_cell)
-      initial_F = initial_concentrations(F_index, i_cell)
-      k1 = state%rates(R1_index, i_cell)
-      k2 = state%rates(R2_index, i_cell)
-      k3 = calculate_arrhenius( r1, state%conditions(i_cell)%temperature, state%conditions(i_cell)%pressure )
-      k4 = calculate_arrhenius( r2, state%conditions(i_cell)%temperature, state%conditions(i_cell)%pressure )
-      A = initial_A * exp( -k3 * time_step )
-      B = initial_A * (k3 / (k4 - k3)) * (exp(-k3 * time_step) - exp(-k4 * time_step))
-      C = initial_C + initial_A * (1.0 + (k3 * exp(-k4 * time_step) - k4 * exp(-k3 * time_step)) / (k4 - k3))
-      D = initial_D * exp( -k1 * time_step )
-      E = initial_D * (k1 / (k2 - k1)) * (exp(-k1 * time_step) - exp(-k2 * time_step))
-      F = initial_F + initial_D * (1.0 + (k1 * exp(-k2 * time_step) - k2 * exp(-k1 * time_step)) / (k2 - k1))
-      ASSERT_NEAR(state%concentrations(A_index, i_cell), A, test_accuracy)
-      ASSERT_NEAR(state%concentrations(B_index, i_cell), B, test_accuracy)
-      ASSERT_NEAR(state%concentrations(C_index, i_cell), C, test_accuracy)
-      ASSERT_NEAR(state%concentrations(D_index, i_cell), D, test_accuracy)
-      ASSERT_NEAR(state%concentrations(E_index, i_cell), E, test_accuracy)
-      ASSERT_NEAR(state%concentrations(F_index, i_cell), F, test_accuracy)
-    end do
-    deallocate( state )
-  end subroutine test_standard_multiple_grid_cells
+    deallocate( state_1 )
+    if ( associated( state_2 ) ) deallocate( state_2 )
+  end subroutine test_solver
 
   subroutine test_multiple_grid_cell_vector_Rosenbrock()
 
@@ -409,14 +354,16 @@ contains
     type(error_t)         :: error
 
     real(real64), parameter :: time_step = 200
-    real, parameter           :: test_accuracy = 5.0e-3
+    real(real64), parameter :: test_accuracy = 5.0e-3
+    integer                 :: max_grid_cells
 
-    num_grid_cells = MICM_DEFAULT_VECTOR_SIZE
     micm => micm_t( "configs/analytical", Rosenbrock, error )
     ASSERT( error%is_success() )
-
-    call test_vector_multiple_grid_cells( micm, num_grid_cells, time_step, test_accuracy )
-
+    max_grid_cells = micm%get_maximum_number_of_grid_cells( )
+    ASSERT_GT( max_grid_cells, 0 )
+    do num_grid_cells = 1, max_grid_cells * 3, floor( real(max_grid_cells) / 3 )
+      call test_solver( micm, num_grid_cells, time_step, test_accuracy )
+    end do
     deallocate( micm )
 
   end subroutine test_multiple_grid_cell_vector_Rosenbrock
@@ -428,14 +375,16 @@ contains
     type(error_t)         :: error
 
     real(real64), parameter :: time_step = 200
-    real,         parameter :: test_accuracy = 5.0e-3
+    real(real64), parameter :: test_accuracy = 5.0e-3
+    integer                 :: max_grid_cells
 
-    num_grid_cells = 3
     micm => micm_t( "configs/analytical", RosenbrockStandardOrder, error )
     ASSERT( error%is_success() )
-
-    call test_standard_multiple_grid_cells( micm, num_grid_cells, time_step, test_accuracy )
-
+    max_grid_cells = micm%get_maximum_number_of_grid_cells( )
+    ASSERT_GT( max_grid_cells, 1e8 )
+    do num_grid_cells = 1, 20, 5
+      call test_solver( micm, num_grid_cells, time_step, test_accuracy )
+    end do
     deallocate( micm )
 
   end subroutine test_multiple_grid_cell_standard_Rosenbrock
@@ -447,14 +396,16 @@ contains
     type(error_t)         :: error
 
     real(real64), parameter :: time_step = 10
-    real,         parameter :: test_accuracy = 0.1
+    real(real64), parameter :: test_accuracy = 0.1
+    integer                 :: max_grid_cells
 
-    num_grid_cells = MICM_DEFAULT_VECTOR_SIZE
     micm => micm_t( "configs/analytical", BackwardEuler, error )
     ASSERT( error%is_success() )
-
-    call test_vector_multiple_grid_cells( micm, num_grid_cells, time_step, test_accuracy )
-
+    max_grid_cells = micm%get_maximum_number_of_grid_cells( )
+    ASSERT_GT( max_grid_cells, 0 )
+    do num_grid_cells = 1, max_grid_cells * 3, floor( real(max_grid_cells) / 3 )
+      call test_solver( micm, num_grid_cells, time_step, test_accuracy )
+    end do
     deallocate( micm )
 
   end subroutine test_multiple_grid_cell_vector_BackwardEuler
@@ -466,14 +417,16 @@ contains
     type(error_t)         :: error
 
     real(real64), parameter :: time_step = 10
-    real,         parameter :: test_accuracy = 0.1
+    real(real64), parameter :: test_accuracy = 0.1
+    integer                 :: max_grid_cells
 
-    num_grid_cells = 3
     micm => micm_t( "configs/analytical", BackwardEulerStandardOrder, error )
     ASSERT( error%is_success() )
-
-    call test_standard_multiple_grid_cells( micm, num_grid_cells, time_step, test_accuracy )
-
+    max_grid_cells = micm%get_maximum_number_of_grid_cells( )
+    ASSERT_GT( max_grid_cells, 1e8 )
+    do num_grid_cells = 1, 20, 5
+      call test_solver( micm, num_grid_cells, time_step, test_accuracy )
+    end do
     deallocate( micm )
 
   end subroutine test_multiple_grid_cell_standard_BackwardEuler
@@ -485,7 +438,8 @@ contains
     type(error_t)         :: error
 
     real(real64), parameter :: time_step = 200
-    real,         parameter :: test_accuracy = 5.0e-3
+    real(real64), parameter :: test_accuracy = 5.0e-3
+    integer                 :: max_grid_cells
 
     logical :: cuda_available
 
@@ -497,12 +451,13 @@ contains
       return
     end if
 
-    num_grid_cells = MICM_DEFAULT_VECTOR_SIZE
     micm => micm_t( "configs/analytical", CudaRosenbrock, error )
     ASSERT( error%is_success() )
-
-    call test_standard_multiple_grid_cells( micm, num_grid_cells, time_step, test_accuracy )
-
+    max_grid_cells = micm%get_maximum_number_of_grid_cells( )
+    ASSERT_GT( max_grid_cells, 0 )
+    do num_grid_cells = 1, max_grid_cells * 3, floor( real(max_grid_cells) / 3 )
+      call test_solver( micm, num_grid_cells, time_step, test_accuracy )
+    end do
     deallocate( micm )
 
   end subroutine test_multiple_grid_cell_cuda_Rosenbrock
@@ -550,25 +505,28 @@ contains
     O3_index = state%species_ordering%index( "O3", error )
     ASSERT( error%is_success() )
 
-    jO2_index = state%user_defined_reaction_rates%index( "PHOTO.jO2", error )
+    jO2_index = state%rate_parameters_ordering%index( "PHOTO.jO2", error )
     ASSERT( error%is_success() )
-    jO3a_index = state%user_defined_reaction_rates%index( "PHOTO.jO3->O", error )
+    jO3a_index = state%rate_parameters_ordering%index( "PHOTO.jO3->O", error )
     ASSERT( error%is_success() )
-    jO3b_index = state%user_defined_reaction_rates%index( "PHOTO.jO3->O1D", error )
+    jO3b_index = state%rate_parameters_ordering%index( "PHOTO.jO3->O1D", error )
     ASSERT( error%is_success() )
 
     state%conditions(1)%temperature = 72.5
     state%conditions(1)%pressure = 101253.4
     state%conditions(1)%air_density = state%conditions(1)%pressure / ( GAS_CONSTANT * state%conditions(1)%temperature )
 
-    state%concentrations(O2_index,1) = 0.75
-    state%concentrations(O_index,1) = 0.0
-    state%concentrations(O1D_index,1) = 0.0
-    state%concentrations(O3_index,1) = 0.0000081
-    state%rates(jO2_index,1) = 2.7e-19
-    state%rates(jO3a_index,1) = 1.13e-9
-    state%rates(jO3b_index,1) = 5.8e-8
-
+    associate( var_stride => state%species_strides%variable )
+      state%concentrations( 1 + (O2_index -  1) * var_stride) = 0.75
+      state%concentrations( 1 + (O_index   - 1) * var_stride ) = 0.0
+      state%concentrations( 1 + (O1D_index - 1) * var_stride ) = 0.0
+      state%concentrations( 1 + (O3_index  - 1) * var_stride ) = 0.0000081
+    end associate
+    associate( var_stride => state%rate_parameters_strides%variable )
+      state%rate_parameters(1 + (jO2_index - 1) * var_stride ) = 2.7e-19
+      state%rate_parameters(1 + (jO3a_index- 1) * var_stride ) = 1.13e-9
+      state%rate_parameters(1 + (jO3b_index- 1) * var_stride ) = 5.8e-8
+    end associate
     micm_version = get_micm_version()
     print *, "[test micm fort api] MICM version ", micm_version%get_char_array()
 
@@ -576,9 +534,9 @@ contains
       print *, "Species Name:", state%species_ordering%name(i), &
                ", Index:", state%species_ordering%index(i)
     end do
-    do i = 1, state%user_defined_reaction_rates%size()
-      print *, "User Defined Reaction Rate Name:", state%user_defined_reaction_rates%name(i), &
-               ", Index:", state%user_defined_reaction_rates%index(i)
+    do i = 1, state%rate_parameters_ordering%size()
+      print *, "User Defined Reaction Rate Name:", state%rate_parameters_ordering%name(i), &
+               ", Index:", state%rate_parameters_ordering%index(i)
     end do
 
     write(*,*) "[test micm fort api] Initial concentrations", state%concentrations

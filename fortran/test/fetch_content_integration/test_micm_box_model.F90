@@ -47,8 +47,15 @@ contains
     state%conditions(1)%pressure    = 1.0e5
     state%conditions(1)%air_density = state%conditions(1)%pressure / (GAS_CONSTANT * state%conditions(1)%temperature)
 
-    state%concentrations = reshape((/ 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 /), shape=[6,1])
-    state%rates = reshape((/ 0.001, 0.002 /), shape=[2,1])
+    associate( var_stride => state%species_strides%variable )
+      do i = 1, 6
+        state%concentrations(i * var_stride) = 1.0
+      end do
+    end associate
+    associate( var_stride => state%rate_parameters_strides%variable )
+      state%rate_parameters( 1 ) = 0.001
+      state%rate_parameters( 1 + var_stride ) = 0.002
+    end associate
     
     do i = 1, state%species_ordering%size()
       print *, "Species Name:", state%species_ordering%name(i), &
@@ -93,8 +100,15 @@ contains
     state%conditions(1)%pressure    = 1.0e5
     state%conditions(1)%air_density = state%conditions(1)%pressure / (GAS_CONSTANT * state%conditions(1)%temperature)
 
-    state%concentrations = reshape((/ 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 /), shape=[6,1])
-    state%rates = reshape((/ 0.001, 0.002 /), shape=[2,1])
+    associate( var_stride => state%species_strides%variable )
+      do i = 1, 6
+        state%concentrations(i * var_stride) = 1.0
+      end do
+    end associate
+    associate( var_stride => state%rate_parameters_strides%variable )
+      state%rate_parameters( 1 ) = 0.001
+      state%rate_parameters( 1 + var_stride ) = 0.002
+    end associate
 
     do i = 1, state%species_ordering%size()
       print *, "Species Name:", state%species_ordering%name(i), &

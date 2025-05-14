@@ -76,6 +76,11 @@ namespace musica
     int GetSpeciesPropertyInt(MICM *micm, const char *species_name, const char *property_name, Error *error);
     bool GetSpeciesPropertyBool(MICM *micm, const char *species_name, const char *property_name, Error *error);
 
+    /// @brief Get the maximum number of grid cells per state
+    /// @param micm Pointer to MICM object
+    /// @return Maximum number of grid cells
+    size_t GetMaximumNumberOfGridCells(MICM *micm);
+
     bool _IsCudaAvailable(Error *error);
 #ifdef __cplusplus
   }

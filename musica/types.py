@@ -124,7 +124,7 @@ class State():
 
         Parameters
         ----------
-        concentrations : Dict[str, Union[Union[float, int ], List[Union[float, int]]]]
+        concentrations : Dict[str, Union[Union[float, int], List[Union[float, int]]]]
             Dictionary of species names and their concentrations.
         """
         for name, value in concentrations.items():
