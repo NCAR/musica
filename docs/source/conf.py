@@ -19,20 +19,21 @@ sys.path.insert(0, os.path.abspath('.'))
 # -- Project information -----------------------------------------------------
 
 project = 'MUSICA'
-copyright = f'2022-{datetime.datetime.now().year}, NCAR/UCAR'
-author = 'NCAR/UCAR'
+copyright = f'2024-{datetime.datetime.now().year}, NSF NCAR'
+author = 'NSF NCAR'
 
-suffix = os.getenv("SWITCHER_SUFFIX", "")
-# the suffix is required. This is controlled by the dockerfile that builds the docs
-regex = r'project\(\w+\s+VERSION\s+(\d+\.\d+\.\d+)'
-version = '0.0.0'
+suffix = ''
+# the suffix is required. This is controlled by the dockerfile that builds
+# the docs
+
+regex = r'project\(.*VERSION\s+(\d+\.\d+\.\d+)\)'
+release = f'0.0.0'
 # read the version from the cmake files
 with open(f'../../CMakeLists.txt', 'r') as f:
     for line in f:
         match = re.match(regex, line)
         if match:
-            version = match.group(1)
-release = f'{version}{suffix}'
+            release = match.group(1)
 
 # -- General configuration ---------------------------------------------------
 
@@ -40,16 +41,19 @@ release = f'{version}{suffix}'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-  'breathe',
-  'sphinx_copybutton',
-  'sphinx_design',
-  'sphinxcontrib.bibtex',
+    'breathe',
+    'sphinx_copybutton',
+    'sphinx_design',
+    'sphinxcontrib.bibtex',
+    'sphinx.ext.autodoc',
+    'sphinx.ext.napoleon',
+    'sphinx.ext.autosummary',
 ]
 
+breathe_default_project = "musica"
+	
 bibtex_bibfiles = ['references.bib']
 suppress_warnings = ["bibtex.missing_field"]
-
-breathe_default_project = "musica"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -59,6 +63,7 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
+autosummary_generate = True
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -73,10 +78,10 @@ html_theme_options = {
     "navbar_end": ["version-switcher", "navbar-icon-links"],
     "switcher": {
         "json_url": "https://ncar.github.io/musica/_static/switcher.json",
-        "version_match": release,
+        "version_match": release,  # assumes `release` is defined
     },
-   "pygment_light_style": "tango",
-   "pygment_dark_style": "monokai"
+    "pygments_light_style": "tango",
+    "pygments_dark_style": "monokai",
 }
 
 html_css_files = [
