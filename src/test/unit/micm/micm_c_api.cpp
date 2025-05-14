@@ -335,18 +335,14 @@ double CalculateArrhenius(const ArrheniusReaction parameters, const double tempe
          (1.0 + parameters.E_ * pressure);
 }
 
-void TestSolver(
-    MICM* micm,
-    const size_t num_grid_cells,
-    const double time_step,
-    const double test_accuracy)
+void TestSolver(MICM* micm, const size_t num_grid_cells, const double time_step, const double test_accuracy)
 {
   const size_t num_concentrations = 6;
   const size_t num_user_defined_rate_parameters = 2;
   constexpr double GAS_CONSTANT = 8.31446261815324;  // J mol-1 K-1
 
   Error error;
-  
+
   // Create MICM states
   size_t state_1_size = std::min(num_grid_cells, micm->GetMaximumNumberOfGridCells());
   size_t state_2_size = (num_grid_cells - state_1_size) % micm->GetMaximumNumberOfGridCells();
@@ -358,7 +354,7 @@ void TestSolver(
     state_2 = CreateMicmState(micm, state_2_size, &error);
     ASSERT_TRUE(IsSuccess(error));
   }
-    
+
   // Get species indices in concentration array
   Mappings species_ordering = GetSpeciesOrdering(state_1, &error);
   ASSERT_TRUE(IsSuccess(error));
@@ -387,7 +383,7 @@ void TestSolver(
   ASSERT_TRUE(IsSuccess(error));
   DeleteMappings(&rate_ordering);
 
-  for (int i_state = 0; i_state < std::ceil(static_cast<double>(num_grid_cells)/state_1_size); ++i_state)
+  for (int i_state = 0; i_state < std::ceil(static_cast<double>(num_grid_cells) / state_1_size); ++i_state)
   {
     // Get the right state and set dimensions
     size_t state_size = std::min(num_grid_cells - i_state * state_1_size, state_1_size);
@@ -411,7 +407,7 @@ void TestSolver(
     double* user_defined_params = GetOrderedRateParametersPointer(current_state, &array_size, &error);
     ASSERT_TRUE(IsSuccess(error));
     ASSERT_GE(array_size, state_size * num_user_defined_rate_parameters);
-    
+
     // Get matrix strides
     size_t grid_cell_stride_species;
     size_t species_stride;
@@ -440,7 +436,8 @@ void TestSolver(
       user_defined_params[i * grid_cell_stride_params + R2_index * params_stride] = 0.002 + (rand() % 10 - 5) * 0.0001;
       for (int j = 0; j < num_concentrations; ++j)
       {
-        initial_concentrations[i * num_concentrations + j] = concentrations[i * grid_cell_stride_species + j * species_stride];
+        initial_concentrations[i * num_concentrations + j] =
+            concentrations[i * grid_cell_stride_species + j * species_stride];
       }
     }
 
@@ -449,7 +446,7 @@ void TestSolver(
     MicmSolve(micm, current_state, time_step, &solver_state, &solver_stats, &error);
     ASSERT_TRUE(IsSuccess(error));
     DeleteError(&error);
-    
+
     // update the concentrations pointer because MICM solve function may have swapped temporary state vectors
     concentrations = GetOrderedConcentrationsPointer(current_state, &array_size, &error);
     ASSERT_TRUE(IsSuccess(error));
@@ -475,10 +472,12 @@ void TestSolver(
       double k4 = CalculateArrhenius(arr2, conditions[i_cell].temperature_, conditions[i_cell].pressure_);
       double A = initial_A * std::exp(-k3 * time_step);
       double B = initial_A * (k3 / (k4 - k3)) * (std::exp(-k3 * time_step) - std::exp(-k4 * time_step));
-      double C = initial_C + initial_A * (1.0 + (k3 * std::exp(-k4 * time_step) - k4 * std::exp(-k3 * time_step)) / (k4 - k3));
+      double C =
+          initial_C + initial_A * (1.0 + (k3 * std::exp(-k4 * time_step) - k4 * std::exp(-k3 * time_step)) / (k4 - k3));
       double D = initial_D * std::exp(-k1 * time_step);
       double E = initial_D * (k1 / (k2 - k1)) * (std::exp(-k1 * time_step) - std::exp(-k2 * time_step));
-      double F = initial_F + initial_D * (1.0 + (k1 * std::exp(-k2 * time_step) - k2 * std::exp(-k1 * time_step)) / (k2 - k1));
+      double F =
+          initial_F + initial_D * (1.0 + (k1 * std::exp(-k2 * time_step) - k2 * std::exp(-k1 * time_step)) / (k2 - k1));
       ASSERT_NEAR(concentrations[i_cell * grid_cell_stride_species + A_index * species_stride], A, test_accuracy);
       ASSERT_NEAR(concentrations[i_cell * grid_cell_stride_species + B_index * species_stride], B, test_accuracy);
       ASSERT_NEAR(concentrations[i_cell * grid_cell_stride_species + C_index * species_stride], C, test_accuracy);
@@ -510,7 +509,8 @@ TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingVectorOrderedRosenbrock)
   ASSERT_TRUE(IsSuccess(error));
   size_t max_cells = GetMaximumNumberOfGridCells(micm);
   ASSERT_GT(max_cells, 0);
-  for (int num_grid_cells = 1; num_grid_cells <= max_cells * 3; num_grid_cells += static_cast<int>(std::floor(max_cells / 3)))
+  for (int num_grid_cells = 1; num_grid_cells <= max_cells * 3;
+       num_grid_cells += static_cast<int>(std::floor(max_cells / 3)))
   {
     TestSolver(micm, num_grid_cells, time_step, test_accuracy);
     DeleteError(&error);

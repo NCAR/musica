@@ -67,36 +67,36 @@ namespace musica
   micm::Conditions* GetConditionsPointer(musica::State* state, size_t* array_size, Error* error)
   {
     return HandleErrors(
-        [&]() -> micm::Conditions* {
+        [&]() -> micm::Conditions*
+        {
           std::vector<micm::Conditions>& conditions = state->GetConditions();
           *array_size = conditions.size();
-          return conditions.data(); },
+          return conditions.data();
+        },
         error);
   }
 
-  double* GetOrderedConcentrationsPointer(
-      musica::State* state,
-      size_t* array_size,
-      Error* error)
+  double* GetOrderedConcentrationsPointer(musica::State* state, size_t* array_size, Error* error)
   {
     return HandleErrors(
-        [&]() -> double* {
+        [&]() -> double*
+        {
           std::vector<double>& concentrations = state->GetOrderedConcentrations();
           *array_size = concentrations.size();
-          return concentrations.data(); },
-          error);
-        }
+          return concentrations.data();
+        },
+        error);
+  }
 
-  double* GetOrderedRateParametersPointer(
-      musica::State* state,
-      size_t* array_size,
-      Error* error)
+  double* GetOrderedRateParametersPointer(musica::State* state, size_t* array_size, Error* error)
   {
     return HandleErrors(
-        [&]() -> double* { 
+        [&]() -> double*
+        {
           std::vector<double>& rate_constants = state->GetOrderedRateParameters();
           *array_size = rate_constants.size();
-          return rate_constants.data(); },
+          return rate_constants.data();
+        },
         error);
   }
 
@@ -186,7 +186,7 @@ namespace musica
         },
         error);
   }
-  
+
   size_t GetNumberOfUserDefinedRateParameters(musica::State* state, Error* error)
   {
     return HandleErrors(
