@@ -695,6 +695,7 @@ contains
     do i = 1, size( mappings )
       mappings_c(i)%name_ = &
           create_string_c( to_c_string( mappings(i)%name() ) )
+      ! Convert 1-based Fortran index to 0-based C index
       mappings_c(i)%index_ = mappings(i)%index() - 1
     end do
 
