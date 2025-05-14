@@ -38,20 +38,14 @@ namespace musica
     /// @param array_size Overall size of the array (output)
     /// @param error Error struct to indicate success or failure
     /// @return Pointer to the vector
-    double* GetOrderedConcentrationsPointer(
-        musica::State* state,
-        size_t* array_size,
-        Error* error);
+    double* GetOrderedConcentrationsPointer(musica::State* state, size_t* array_size, Error* error);
 
     /// @brief Get the point to the vector of the rates for Fortran interface
     /// @param state Pointer to state object
     /// @param array_size Overall size of the array (output)
     /// @param error Error struct to indicate success or failure
     /// @return Pointer to the vector
-    double* GetOrderedRateParametersPointer(
-        musica::State* state,
-        size_t* array_size,
-        Error* error);
+    double* GetOrderedRateParametersPointer(musica::State* state, size_t* array_size, Error* error);
 
     /// @brief Get the ordering of species
     /// @param state Pointer to state object
@@ -82,7 +76,7 @@ namespace musica
     /// @param error Error struct to indicate success or failure
     /// @param grid_cell_stride Pointer to the stride across grid cells
     /// @param species_stride Pointer to the stride across species
-    void GetConcentrationsStrides(musica::State* state, Error* error, size_t* grid_cell_stride, size_t* species_stride); 
+    void GetConcentrationsStrides(musica::State* state, Error* error, size_t* grid_cell_stride, size_t* species_stride);
 
     /// @brief Returns the number of user-defined rate parameters
     /// @param state Pointer to state object
@@ -95,9 +89,11 @@ namespace musica
     /// @param error Error struct to indicate success or failure
     /// @param grid_cell_stride Pointer to the stride across grid cells
     /// @param user_defined_rate_parameter_stride Pointer to the stride across user-defined rate parameters
-    void GetUserDefinedRateParametersStrides(musica::State* state, Error* error, 
-                                            size_t* grid_cell_stride,
-                                            size_t* user_defined_rate_parameter_stride);
+    void GetUserDefinedRateParametersStrides(
+        musica::State* state,
+        Error* error,
+        size_t* grid_cell_stride,
+        size_t* user_defined_rate_parameter_stride);
 
 #ifdef __cplusplus
   }
