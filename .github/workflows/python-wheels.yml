@@ -50,7 +50,7 @@ jobs:
 
     - name: CI Build Wheels with GPU support
       uses: pypa/cibuildwheel@v2.17
-      if: github.event_name == 'release' && github.event.action == 'published'
+      if: github.event_name != 'release'
       env:
         CIBW_ENVIRONMENT_PASS_LINUX: CIBW_ARCHS
         CIBW_ENVIRONMENT_LINUX: >
