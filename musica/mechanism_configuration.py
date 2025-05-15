@@ -1286,10 +1286,17 @@ class Mechanism(_Mechanism):
         self.reactions = Reactions(reactions=reactions)
         self.version = version if version is not None else Version()
 
+
     def to_dict(self):
         # TODO: combine sub objects?
         return self.__dict__
 
+
+    # def to_export(self): # TODO: decide name
+    def export(self, file_path):
+        serializer = Serializer()
+        serializer.serialize(self, file_path)
+        pass
 
 class Parser(_Parser):
     """
