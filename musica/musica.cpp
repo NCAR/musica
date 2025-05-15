@@ -77,14 +77,17 @@ void bind_musica(py::module_ &core)
   core.def("_vector_size",
       [](const musica::MICMSolver solver_type)
       {
-        if (solver_type == musica::MICMSolver::RosenbrockStandardOrder ||
-            solver_type == musica::MICMSolver::BackwardEulerStandardOrder) {
-          return static_cast<std::size_t>(0);
-        } else if (solver_type == musica::MICMSolver::Rosenbrock ||
-                 solver_type == musica::MICMSolver::BackwardEuler) {
-          return musica::MUSICA_VECTOR_SIZE;
-        } else {
-          throw py::value_error("Invalid MICM solver type.");
+        switch (solver_type)
+        {
+          case musica::MICMSolver::Rosenbrock:
+          case musica::MICMSolver::BackwardEuler:
+          case musica::MICMSolver::CudaRosenbrock:
+            return musica::MUSICA_VECTOR_SIZE;
+          case musica::MICMSolver::RosenbrockStandardOrder:
+          case musica::MICMSolver::BackwardEulerStandardOrder:
+            return static_cast<std::size_t>(0);
+          default:
+            throw py::value_error("Invalid MICM solver type.");
         }
       },
       "Returns the vector dimension for vector-ordered solvers, 0 otherwise.");
