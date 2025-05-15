@@ -1,11 +1,12 @@
 import pytest
 from musica.mechanism_configuration import *
-from test_util_full_mechanism import *
+from test_util_full_mechanism import get_fully_defined_mechanism, validate_full_v1_mechanism
 
 
 def test_parsed_full_v1_configuration():
     parser = Parser()
-    for extension in SUPPORTED_FILE_EXTENSIONS:
+    extensions = [".yaml", ".json"]
+    for extension in extensions:
         path = f"musica/test/examples/v1/full_configuration{extension}"
         mechanism = parser.parse(path)
         validate_full_v1_mechanism(mechanism)
@@ -13,13 +14,15 @@ def test_parsed_full_v1_configuration():
 
 def test_parser_reports_bad_files():
     parser = Parser()
-    for extension in SUPPORTED_FILE_EXTENSIONS:
+    extensions = [".yaml", ".json"]
+    for extension in extensions:
         path = f"musica/test/examples/_missing_configuration{extension}"
         with pytest.raises(Exception):
             parser.parse(path)
 
 
 def test_hard_coded_full_v1_configuration():
+    MECHANISM_FULLY_DEFINED = get_fully_defined_mechanism()
     validate_full_v1_mechanism(MECHANISM_FULLY_DEFINED)
 
 
