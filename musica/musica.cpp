@@ -52,17 +52,17 @@ void bind_musica(py::module_ &core)
       .def_property(
           "user_defined_rate_parameters",
           [](musica::State &state) -> std::vector<double>& {
-            return state.GetOrderedRateConstants();
+            return state.GetOrderedRateParameters();
           },
           nullptr,
           "native 1D list of user-defined rate parameters, ordered by parameter and grid cell according to matrix type")
       .def("concentration_strides",
           [](musica::State &state) {
-            return state.GetConcentrationStrides();
+            return state.GetConcentrationsStrides();
           })
       .def("user_defined_rate_parameter_strides",
           [](musica::State &state) {
-            return state.GetUserDefinedRateParameterStrides();
+            return state.GetUserDefinedRateParametersStrides();
           });
 
   py::enum_<musica::MICMSolver>(core, "_SolverType")
