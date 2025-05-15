@@ -3,6 +3,8 @@
 #
 # This file is part of the musica Python package.
 # For more information, see the LICENSE file in the top-level directory of this distribution.
+import os
+import json
 from typing import Optional, Any, Dict, List, Union, Tuple
 from _musica._mechanism_configuration import (
     _ReactionType,
@@ -1284,8 +1286,40 @@ class Mechanism(_Mechanism):
         self.reactions = Reactions(reactions=reactions)
         self.version = version if version is not None else Version()
 
+    def to_dict(self):
+        # TODO: combine sub objects?
+        return self.__dict__
+
 
 class Parser(_Parser):
     """
     A class for parsing a chemical mechanism.
     """
+
+
+class Serializer():
+    """
+    A class for exporting a chemical mechanism.
+    """
+
+    def serialize(self, mechanism: Mechanism, filename: str = "mechanism.json"):
+        # TODO:
+        # "./mechanism.json"
+        # strip filename extension to determine output file type?
+        #   if so default to which file type? json
+        
+        # validate filename?
+        # validate path
+
+        
+        # TODO: require Mechanism
+        if mechanism is None:
+            raise NameError('Serializer.serialize requries a type: Mechanism passed to it.')
+        if not type(mechanism) is Mechanism:
+            raise TypeError('Serializer.serialize requries a type: Mechanism passed to it.')
+        # TODO: implement
+        print('exporting...')
+        
+        json_string = json.dumps(mechanism.__dict__)
+        print(json_string)
+        pass
