@@ -20,7 +20,6 @@ if (APPLE)
   )
 elseif(UNIX)
   execute_process(
-  execute_process(
     COMMAND "${Python_EXECUTABLE}" -c "import site; print(site.getsitepackages()[0])"
     OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
     OUTPUT_STRIP_TRAILING_WHITESPACE
