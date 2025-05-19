@@ -5,6 +5,8 @@
 # For more information, see the LICENSE file in the top-level directory of this distribution.
 import os
 import json
+import yaml
+import numpy as np      # TODO: remove
 from typing import Optional, Any, Dict, List, Union, Tuple
 from _musica._mechanism_configuration import (
     _ReactionType,
@@ -1298,6 +1300,7 @@ class Mechanism(_Mechanism):
         serializer.serialize(self, file_path)
         pass
 
+
 class Parser(_Parser):
     """
     A class for parsing a chemical mechanism.
@@ -1309,24 +1312,59 @@ class Serializer():
     A class for exporting a chemical mechanism.
     """
 
-    def serialize(self, mechanism: Mechanism, filename: str = "mechanism.json"):
-        # TODO:
-        # "./mechanism.json"
-        # strip filename extension to determine output file type?
-        #   if so default to which file type? json
-        
-        # validate filename?
-        # validate path
-
-        
+    def serialize(self, mechanism: Mechanism, file_path: str = "./mechanism.json"):        
         # TODO: require Mechanism
         if mechanism is None:
             raise NameError('Serializer.serialize requries a type: Mechanism passed to it.')
         if not type(mechanism) is Mechanism:
             raise TypeError('Serializer.serialize requries a type: Mechanism passed to it.')
-        # TODO: implement
-        print('exporting...')
         
-        json_string = json.dumps(mechanism.__dict__)
-        print(json_string)
-        pass
+        print('exporting...') # TODO: leave print statements in?
+
+        # TODO:
+        directory, file = os.path.split(file_path)
+        # file = os.path.basename(file_path)
+        file_name, file_ext = os.path.splitext(file)
+        
+        print('directory', directory)
+        print('name', file_name)
+        print('ext', file_ext)
+        
+        # validate filename?
+        # validate path
+        
+        # TODO: start using the real objects
+        # dict = mechanism.__dict__
+        # TODO: using test object
+        dict = {
+            'Basic': 'Value',
+            'Some': 42,
+            'Random': np.random.rand(),
+            'Add': [1,2,3],
+            'A': {'wonderful': 123, 'sub-object': 'wow'},
+            'Lot': 'some',
+            'More': 666,
+            }
+
+        
+        # TODO: should the writing error if there is a file with that name already?
+        # change to 'x'
+        # catch error? then add number to the end and try writing again? repeat?
+        # or add the date-time to the end?
+        
+        if file_ext in ['.yaml', '.yml']: # TODO: check allowable file extensions
+            print('writing yaml...')
+            with open(file_path, 'w') as file:
+                # TODO: try to preserve order? https://gist.github.com/arcaduf/8edbe5900372f0dd30aa037272dfe826
+                yaml.dump(dict, file)
+
+        elif '.json' == file_ext:
+            print('writing json...')
+            json_str = json.dumps(dict, indent=4)
+            with open(file_path, 'w') as file:
+                file.writelines(json_str)
+
+        else:
+            raise Exception('Allowable write formats are .json and .yaml')
+        
+        

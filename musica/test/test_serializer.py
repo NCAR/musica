@@ -23,8 +23,12 @@ def test_serialize_loop():
 def test_serialize():
     serializer = Serializer()
     MECHANISM_FULLY_DEFINED = get_fully_defined_mechanism()
-    serializer.serialize(MECHANISM_FULLY_DEFINED)
-    # test creates files
+    extensions = [".yaml", ".json"]
+    for extension in extensions:
+        print()
+        # TODO: test writing to path with folder that doesn't exist. ./output/...
+        serializer.serialize(MECHANISM_FULLY_DEFINED, f'test_mechanism{extension}')
+    # TODO: test creates files, delete them
 
 
 def test_bad_inputs():
