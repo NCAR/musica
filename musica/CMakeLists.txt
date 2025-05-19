@@ -19,9 +19,18 @@ if (APPLE)
     BUILD_WITH_INSTALL_RPATH TRUE
   )
 elseif(UNIX)
+  execute_process(
+    COMMAND "${Python_EXECUTABLE}" -c
+            "import os, nvidia; print(os.path.dirname(nvidia.__file__))"
+    OUTPUT_VARIABLE NVIDIA_SITE_PACKAGES_PATH
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+
+  message(STATUS "Adding RPATH for NVIDIA libs at ${NVIDIA_SITE_PACKAGES_PATH}")
+
   # set the rpath for the shared library
   set_target_properties(_musica PROPERTIES
-    INSTALL_RPATH "$ORIGIN"
+    INSTALL_RPATH "$ORIGIN:${NVIDIA_SITE_PACKAGES_PATH}"
     BUILD_WITH_INSTALL_RPATH TRUE
   )
 endif()

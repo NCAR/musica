@@ -26,6 +26,11 @@ test = [
   "pytest",
 ]
 
+gpu = [
+  "nvidia-cublas-cu12",
+  "nvidia-cuda-runtime-cu12",
+]
+
 [tool.scikit-build]
 cmake.build-type = "Release"
 cmake.args = [
