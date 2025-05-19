@@ -19,17 +19,15 @@ if (APPLE)
     BUILD_WITH_INSTALL_RPATH TRUE
   )
 elseif(UNIX)
-  execute_process(
-    COMMAND "${Python_EXECUTABLE}" -c "import site; print(site.getsitepackages()[0])"
-    OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
-    OUTPUT_STRIP_TRAILING_WHITESPACE
+  set(CUDA_RPATH
+    "$ORIGIN/../../nvidia/cublas/lib"
+    "$ORIGIN/../../nvidia/cuda_runtime/lib"
   )
 
-  message(STATUS "Adding RPATH for python site packages libs at ${PYTHON_SITE_PACKAGES}/nvidia")
+  message(STATUS "Adding RPATH for python site packages libs at ${CUDA_RPATH}")
 
-  # set the rpath for the shared library
   set_target_properties(_musica PROPERTIES
-    INSTALL_RPATH "$ORIGIN:${PYTHON_SITE_PACKAGES}/nvidia"
+    INSTALL_RPATH "$ORIGIN;${CUDA_RPATH}"
     BUILD_WITH_INSTALL_RPATH TRUE
   )
 endif()
