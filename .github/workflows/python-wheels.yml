@@ -73,6 +73,7 @@ jobs:
               patchelf --remove-rpath tmpdir/_musica*.so &&
               patchelf --set-rpath "\$ORIGIN:\$ORIGIN/../../nvidia/cublas/lib:\$ORIGIN/../../nvidia/cuda_runtime/lib" --force-rpath tmpdir/_musica*.so &&
               echo "After patchelf:" &&
+              readelf -d tmpdir/_musica*.so &&
               (cd tmpdir && zip -qr "../$(basename "$whl")" .) &&
               rm -rf tmpdir
             done
