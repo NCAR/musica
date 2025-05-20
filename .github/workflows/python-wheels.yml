@@ -68,9 +68,9 @@ jobs:
             auditwheel repair --exclude libcublas --exclude libcublasLt --exclude libcudart -w {dest_dir} {wheel} &&
             for whl in {dest_dir}/*.whl; do
               unzip -q "$whl" -d tmpdir &&
-              readelf -d /tmpdir/_musica.cpython*.so && 
+              readelf -d tmpdir/_musica.cpython*.so && 
               patchelf --set-rpath '$ORIGIN:$ORIGIN/../../nvidia/cublas/lib:$ORIGIN/../../nvidia/cuda_runtime/lib' tmpdir/_musica*.so &&
-              readelf -d /tmpdir/_musica.cpython*.so &&
+              readelf -d tmpdir/_musica.cpython*.so &&
               (cd tmpdir && zip -qr "../$(basename "$whl")" .) &&
               rm -rf tmpdir
             done
