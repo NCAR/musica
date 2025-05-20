@@ -3,7 +3,15 @@
 set -e
 set -x
 
-apt install -y zip
+# Update the mirror list to use vault.centos.org
+sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo
+sed -i s/^#.*baseurl=http/baseurl=http/g /etc/yum.repos.d/*.repo
+sed -i s/^mirrorlist=http/#mirrorlist=http/g /etc/yum.repos.d/*.repo
+
+sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
+sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
+
+yum install -y zip
 
 # Cuda can only be installed on x86_64 architecture.
 if [ "$(uname -m)" == "x86_64" ]; then
