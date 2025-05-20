@@ -71,7 +71,7 @@ jobs:
               ls -al tmpdir &&
               ls -al tmpdir/musica &&
               ls -al tmpdir/musica/* &&
-              patchelf --set-rpath '$ORIGIN:$ORIGIN/../../nvidia/cublas/lib:$ORIGIN/../../nvidia/cuda_runtime/lib' tmpdir/musica/_musica*.so &&
+              patchelf --set-rpath '$ORIGIN:$ORIGIN/../../nvidia/cublas/lib:$ORIGIN/../../nvidia/cuda_runtime/lib' tmpdir/_musica*.so &&
               (cd tmpdir && zip -qr "../$(basename "$whl")" .) &&
               rm -rf tmpdir
             done
