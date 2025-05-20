@@ -65,21 +65,22 @@ jobs:
         CIBW_BEFORE_ALL_LINUX: musica/tools/prepare_build_environment_linux.sh
         CIBW_REPAIR_WHEEL_COMMAND: >
           bash -c '
-            auditwheel repair --exclude libcublas --exclude libcublasLt --exclude libcudart -w {dest_dir} {wheel} &&
-            for whl in {dest_dir}/*.whl; do
-              unzip -q "$whl" -d tmpdir &&
-              echo "Before patchelf:" &&
-              readelf -d tmpdir/_musica*.so &&
-              patchelf --remove-rpath tmpdir/_musica*.so &&
-              patchelf --set-rpath "\$ORIGIN:\$ORIGIN/../../nvidia/cublas/lib:\$ORIGIN/../../nvidia/cuda_runtime/lib" --force-rpath tmpdir/_musica*.so &&
-              echo "After patchelf:" &&
-              readelf -d tmpdir/_musica*.so &&
-              OUTPUT_WHL="$(basename "$whl")" &&
-              (cd tmpdir && zip -qr "../$OUTPUT_WHL" .) &&
-              mv "../$OUTPUT_WHL" "{dest_dir}/$OUTPUT_WHL" &&
-              rm -rf tmpdir "$whl"
-            done
-          '
+              auditwheel repair --exclude libcublas --exclude libcublasLt --exclude libcudart -w {dest_dir} {wheel} &&
+              for whl in {dest_dir}/*.whl; do
+                tmpdir=$(mktemp -d)
+                unzip -q "$whl" -d "$tmpdir" &&
+                echo "Before patchelf:" &&
+                readelf -d "$tmpdir"/_musica*.so &&
+                patchelf --remove-rpath "$tmpdir"/_musica*.so &&
+                patchelf --set-rpath "\$ORIGIN:\$ORIGIN/../../nvidia/cublas/lib:\$ORIGIN/../../nvidia/cuda_runtime/lib" --force-rpath "$tmpdir"/_musica*.so &&
+                echo "After patchelf:" &&
+                readelf -d "$tmpdir"/_musica*.so &&
+                patched_whl="${whl%.whl}.patched.whl" &&
+                (cd "$tmpdir" && zip -qr "$patched_whl" .) &&
+                mv "$patched_whl" "$whl" &&
+                rm -rf "$tmpdir"
+              done
+            '
         # CIBW_BEFORE_ALL_WINDOWS: bash musica/tools/prepare_build_environment_windows.sh
 
 
