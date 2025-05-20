@@ -3,7 +3,7 @@
 set -e
 set -x
 
-yum install -y zip
+apt install -y zip
 
 # Cuda can only be installed on x86_64 architecture.
 if [ "$(uname -m)" == "x86_64" ]; then
