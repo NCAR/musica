@@ -74,8 +74,10 @@ jobs:
               patchelf --set-rpath "\$ORIGIN:\$ORIGIN/../../nvidia/cublas/lib:\$ORIGIN/../../nvidia/cuda_runtime/lib" --force-rpath tmpdir/_musica*.so &&
               echo "After patchelf:" &&
               readelf -d tmpdir/_musica*.so &&
-              (cd tmpdir && zip -qr "../$(basename "$whl")" .) &&
-              rm -rf tmpdir
+              OUTPUT_WHL="$(basename "$whl")" &&
+              (cd tmpdir && zip -qr "../$OUTPUT_WHL" .) &&
+              mv "../$OUTPUT_WHL" "{dest_dir}/$OUTPUT_WHL" &&
+              rm -rf tmpdir "$whl"
             done
           '
         # CIBW_BEFORE_ALL_WINDOWS: bash musica/tools/prepare_build_environment_windows.sh
