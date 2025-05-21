@@ -7,7 +7,7 @@ auditwheel repair --exclude libcublas --exclude libcublasLt --exclude libcudart 
 for whl in "$2"/*.whl; do
   tmpdir=$(mktemp -d)
   unzip -q "$whl" -d "$tmpdir"
-  ls -l "$tmpdir"
+  tree "$tmpdir"
   echo "Before patchelf:"
   readelf -d "$tmpdir"/_musica*.so
   patchelf --remove-rpath "$tmpdir"/_musica*.so

@@ -11,7 +11,7 @@ sed -i s/^mirrorlist=http/#mirrorlist=http/g /etc/yum.repos.d/*.repo
 sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
 sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
 
-yum install -y zip
+yum install -y zip tree
 
 # Use CIBW_ARCHS or CIBW_ARCH if set, else fallback to uname -m
 if [ -n "$CIBW_ARCHS" ]; then
