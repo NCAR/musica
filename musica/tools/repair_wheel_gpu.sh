@@ -18,7 +18,9 @@ for whl in "$2"/*.whl; do
   rm -f "$tmpdir"/musica.libs/libcublasLt-*.so*
   echo "After patchelf:"
   readelf -d "$tmpdir"/_musica*.so
-  zip -qr "${whl%.whl}.patched.whl" -j "$tmpdir"
-  mv "${whl%.whl}.patched.whl" "$whl"
+  # Repack the wheel with correct structure
+  (cd "$tmpdir" && zip -qr "${whl%.whl}.patched.whl" .)
   rm -rf "$tmpdir"
+  # Replace the original wheel with the patched one
+  mv "${whl%.whl}.patched.whl" "$whl"
 done
