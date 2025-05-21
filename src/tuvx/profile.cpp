@@ -27,10 +27,13 @@ namespace musica
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
-      return;
+      Error* temp = ToError(e);
+      *error = *temp;
+      DeleteError(temp);
     }
-    *error = NoError();
+    Error* temp = NoError();
+    *error = *temp;
+    DeleteError(temp);
   }
 
   void SetProfileEdgeValues(Profile *profile, double edge_values[], std::size_t num_values, Error *error)
@@ -95,17 +98,19 @@ namespace musica
     profile_ = InternalCreateProfile(profile_name, strlen(profile_name), units, strlen(units), grid->updater_, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create profile") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Failed to create profile");
       return;
     }
     updater_ = InternalGetProfileUpdater(profile_, &error_code);
     if (error_code != 0)
     {
       InternalDeleteProfile(profile_, &error_code);
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get updater") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Failed to get updater");
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    *error = *temp;
+    DeleteError(temp);
   }
 
   Profile::~Profile()
@@ -124,16 +129,18 @@ namespace musica
     int error_code = 0;
     if (updater_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Profile is not updatable") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Profile is not updatable");
       return;
     }
     InternalSetEdgeValues(updater_, edge_values, num_values, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to set edge values") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Failed to set edge values");
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    *error = *temp;
+    DeleteError(temp);
   }
 
   void Profile::GetEdgeValues(double edge_values[], std::size_t num_values, Error *error)
@@ -141,16 +148,18 @@ namespace musica
     int error_code = 0;
     if (updater_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Profile is not accessible") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Profile is not accessible");
       return;
     }
     InternalGetEdgeValues(updater_, edge_values, num_values, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get edge values") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Failed to get edge values");
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    *error = *temp;
+    DeleteError(temp);
   }
 
   void Profile::SetMidpointValues(double midpoint_values[], std::size_t num_values, Error *error)
@@ -158,16 +167,18 @@ namespace musica
     int error_code = 0;
     if (updater_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Profile is not updatable") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Profile is not updatable");
       return;
     }
     InternalSetMidpointValues(updater_, midpoint_values, num_values, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to set midpoint values") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Failed to set midpoint values");
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    *error = *temp;
+    DeleteError(temp);
   }
 
   void Profile::GetMidpointValues(double midpoint_values[], std::size_t num_values, Error *error)
@@ -175,16 +186,18 @@ namespace musica
     int error_code = 0;
     if (updater_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Profile is not accessible") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Profile is not accessible");
       return;
     }
     InternalGetMidpointValues(updater_, midpoint_values, num_values, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get midpoint values") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Failed to get midpoint values");
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    *error = *temp;
+    DeleteError(temp);
   }
 
   void Profile::SetLayerDensities(double layer_densities[], std::size_t num_values, Error *error)
@@ -192,16 +205,18 @@ namespace musica
     int error_code = 0;
     if (updater_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Profile is not updatable") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Profile is not updatable");
       return;
     }
     InternalSetLayerDensities(updater_, layer_densities, num_values, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to set layer densities") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Failed to set layer densities");
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    *error = *temp;
+    DeleteError(temp);
   }
 
   void Profile::GetLayerDensities(double layer_densities[], std::size_t num_values, Error *error)
@@ -209,16 +224,18 @@ namespace musica
     int error_code = 0;
     if (updater_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Profile is not accessible") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Profile is not accessible");
       return;
     }
     InternalGetLayerDensities(updater_, layer_densities, num_values, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get layer densities") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Failed to get layer densities");
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    *error = *temp;
+    DeleteError(temp);
   }
 
   void Profile::SetExoLayerDensity(double exo_layer_density, Error *error)
@@ -226,16 +243,18 @@ namespace musica
     int error_code = 0;
     if (updater_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Profile is not updatable") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Profile is not updatable");
       return;
     }
     InternalSetExoLayerDensity(updater_, exo_layer_density, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to set exo layer density") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Failed to set exo layer density");
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    *error = *temp;
+    DeleteError(temp);
   }
 
   void Profile::CalculateExoLayerDensity(double scale_height, Error *error)
@@ -243,16 +262,18 @@ namespace musica
     int error_code = 0;
     if (updater_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Profile is not accessible") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Profile is not accessible");
       return;
     }
     InternalCalculateExoLayerDensity(updater_, scale_height, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to calculate exo layer density") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Failed to calculate exo layer density");
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    *error = *temp;
+    DeleteError(temp);
   }
 
   double Profile::GetExoLayerDensity(Error *error)
@@ -260,16 +281,18 @@ namespace musica
     int error_code = 0;
     if (updater_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Profile is not accessible") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Profile is not accessible");
       return 0.0;
     }
     double exo_layer_density = InternalGetExoLayerDensity(updater_, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get exo layer density") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Failed to get exo layer density");
       return 0.0;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    *error = *temp;
+    DeleteError(temp);
     return exo_layer_density;
   }
 

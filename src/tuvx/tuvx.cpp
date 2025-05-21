@@ -33,17 +33,23 @@ namespace musica
     DeleteError(error);
     if (tuvx == nullptr)
     {
-      *error = NoError();
+      Error* temp = NoError();
+      *error = *temp;
+      DeleteError(temp);
       return;
     }
     try
     {
       delete tuvx;
-      *error = NoError();
+      Error* temp = NoError();
+      *error = *temp;
+      DeleteError(temp);
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
+      Error* temp = ToError(e);
+      *error = *temp;
+      DeleteError(temp);
     }
   }
 
@@ -113,7 +119,7 @@ namespace musica
       // check that the file exists
       if (!std::filesystem::exists(config_path))
       {
-        *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Config file does not exist") };
+        SetError(error, 1, MUSICA_ERROR_CATEGORY, "Config file does not exist");
         return;
       }
 
@@ -127,32 +133,38 @@ namespace musica
           &parsing_status);
       if (parsing_status == 1)
       {
-        *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create tuvx instance") };
+       SetError(error, 1, MUSICA_ERROR_CATEGORY, "Failed to create tuvx instance");
       }
       else
       {
-        *error = NoError();
+        Error* temp = NoError();
+        *error = *temp;
+        DeleteError(temp);
       }
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
+      Error* temp = ToError(e);
+      *error = *temp;
+      DeleteError(temp);
     }
     catch (...)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create tuvx instance") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Failed to create tuvx instance");
     }
   }
 
   GridMap *TUVX::CreateGridMap(Error *error)
   {
-    *error = NoError();
+    Error* temp = NoError();
+    *error = *temp;
+    DeleteError(temp);
     int error_code = 0;
 
     GridMap *grid_map = new GridMap(InternalGetGridMap(tuvx_, &error_code));
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create grid map") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Failed to create grid map");
       return nullptr;
     }
     return grid_map;
@@ -160,12 +172,14 @@ namespace musica
 
   ProfileMap *TUVX::CreateProfileMap(Error *error)
   {
-    *error = NoError();
+    Error* temp = NoError();
+    *error = *temp;
+    DeleteError(temp);
     int error_code = 0;
     ProfileMap *profile_map = new ProfileMap(InternalGetProfileMap(tuvx_, &error_code));
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create profile map") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Failed to create profile map");
       return nullptr;
     }
     return profile_map;
@@ -173,12 +187,14 @@ namespace musica
 
   RadiatorMap *TUVX::CreateRadiatorMap(Error *error)
   {
-    *error = NoError();
+    Error* temp = NoError();
+    *error = *temp;
+    DeleteError(temp);
     int error_code = 0;
     RadiatorMap *radiator_map = new RadiatorMap(InternalGetRadiatorMap(tuvx_, &error_code));
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create radiator map") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Failed to create radiator map");
       return nullptr;
     }
     return radiator_map;
@@ -186,13 +202,14 @@ namespace musica
 
   Mappings* TUVX::GetPhotolysisRateConstantsOrdering(Error *error)
   {
-    *error = NoError();
+    Error* temp = NoError();
+    *error = *temp;
+    DeleteError(temp);
     int error_code = 0;
     Mappings* mappings = InternalGetPhotolysisRateConstantsOrdering(tuvx_, &error_code);
     if (error_code != 0)
     {
-      *error =
-          Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get photolysis rate constants ordering") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Failed to get photolysis rate constants ordering");
       return nullptr;
     }
     return mappings;
@@ -200,12 +217,14 @@ namespace musica
 
   Mappings* TUVX::GetHeatingRatesOrdering(Error *error)
   {
-    *error = NoError();
+    Error* temp = NoError();
+    *error = *temp;
+    DeleteError(temp);
     int error_code = 0;
     Mappings* mappings = InternalGetHeatingRatesOrdering(tuvx_, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get heating rates ordering") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Failed to get heating rates ordering");
       return nullptr;
     }
     return mappings;
@@ -218,7 +237,9 @@ namespace musica
       double *const heating_rates,
       Error *const error)
   {
-    *error = NoError();
+    Error* temp = NoError();
+    *error = *temp;
+    DeleteError(temp);
     int error_code = 0;
     double sza_degrees = solar_zenith_angle * 180.0 / std::numbers::pi;
     InternalRunTuvx(
@@ -231,7 +252,7 @@ namespace musica
         &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to run TUV-x") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Failed to run TUV-x");
     }
   }
 

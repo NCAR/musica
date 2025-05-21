@@ -13,15 +13,21 @@ namespace musica
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
+      Error* temp = ToError(e);
+      *error = *temp;
+      DeleteError(temp);
     }
     catch (const std::exception &e)
     {
-      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, e.what());
+      Error* temp = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, e.what());
+      *error = *temp;
+      DeleteError(temp);      
     }
     catch (...)
     {
-      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, "Unknown error");
+      Error* temp = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, "Unknown error");
+      *error = *temp;
+      DeleteError(temp);
     }
     return decltype(func())();
   }
@@ -33,7 +39,9 @@ namespace musica
         {
           Chemistry chemistry = ReadConfiguration(std::string(config_path));
           MICM *micm = new MICM(chemistry, solver_type);
-          *error = NoError();
+          Error* temp = NoError();
+          *error = *temp;
+          DeleteError(temp);
           return micm;
         },
         error);
@@ -45,7 +53,9 @@ namespace musica
         [&]()
         {
           MICM *micm = new MICM(*chemistry, solver_type);
-          *error = NoError();
+          Error* temp = NoError();
+          *error = *temp;
+          DeleteError(temp);
           return micm;
         },
         error);
@@ -57,7 +67,9 @@ namespace musica
         [&]()
         {
           delete micm;
-          *error = NoError();
+          Error* temp = NoError();
+          *error = *temp;
+          DeleteError(temp);
         },
         error);
   }
@@ -74,14 +86,20 @@ namespace musica
         [&]()
         {
           micm->Solve(state, time_step, solver_state, solver_stats);
-          *error = NoError();
+          Error* temp = NoError();
+          *error = *temp;
+          DeleteError(temp);
         },
         error);
   }
 
   String* MicmVersion()
   {
-    return new String{ CreateString(micm::GetMicmVersion()) };
+    String* temp = CreateString(micm::GetMicmVersion());
+    String* result = new String;
+    *result = *temp;
+    DeleteString(temp);
+    return result;
   }
 
   template<typename T>
@@ -93,7 +111,9 @@ namespace musica
           std::string species_name_str(species_name);
           std::string property_name_str(property_name);
           T val = micm->GetSpeciesProperty<T>(species_name_str, property_name_str);
-          *error = NoError();
+          Error* temp = NoError();
+          *error = *temp;
+          DeleteError(temp);
           return val;
         },
         error);
@@ -106,9 +126,11 @@ namespace musica
 
     if (!IsSuccess(*error))
       *result = { nullptr, 0 };
-    else
-      *result = CreateString(val.c_str());
-
+    else{
+      String* temp = CreateString(val.c_str());
+      *result = *temp;
+      DeleteString(temp);
+    }
     return result;
   }
 

@@ -26,9 +26,13 @@ namespace musica
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
+      Error* temp = ToError(e);
+      *error = *temp;
+      DeleteError(temp);
     }
-    *error = NoError();
+    Error* temp = NoError();
+    *error = *temp;
+    DeleteError(temp);
   }
 
   void AddGrid(GridMap *grid_map, Grid *grid, Error *error)
@@ -51,10 +55,13 @@ namespace musica
     grid_map_ = InternalCreateGridMap(&error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create grid map") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Failed to create grid map");
+      return;
     }
     owns_grid_map_ = true;
-    *error = NoError();
+    Error* temp = NoError();
+    *error = *temp;
+    DeleteError(temp);
   }
 
   GridMap::~GridMap()
@@ -72,17 +79,17 @@ namespace musica
   {
     if (grid_map_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Grid map is null") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Grid map is null");
       return;
     }
     if (grid->grid_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Cannot add unowned grid to grid map") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Cannot add unowned grid to grid map");
       return;
     }
     if (grid->updater_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Cannot add grid in invalid state") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Cannot add grid in invalid state");
       return;
     }
 
@@ -93,47 +100,45 @@ namespace musica
       InternalAddGrid(grid_map_, grid->grid_, &error_code);
       if (error_code != 0)
       {
-        *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to add grid to grid map") };
+        SetError(error, 1, MUSICA_ERROR_CATEGORY, "Failed to add grid to grid map");
       }
       InternalDeleteGridUpdater(grid->updater_, &error_code);
       if (error_code != 0)
       {
-        *error = Error{ 1,
-                        CreateString(MUSICA_ERROR_CATEGORY),
-                        CreateString("Failed to delete updater after transfer of ownership to grid map") };
+        SetError(error, 1, MUSICA_ERROR_CATEGORY, "Failed to delete updater after transfer of ownership to grid map");
       }
       grid->updater_ = InternalGetGridUpdaterFromMap(grid_map_, grid->grid_, &error_code);
       if (error_code != 0)
       {
-        *error = Error{ 1,
-                        CreateString(MUSICA_ERROR_CATEGORY),
-                        CreateString("Failed to get updater after transfer of ownership to grid map") };
+        SetError(error, 1, MUSICA_ERROR_CATEGORY, "Failed to get updater after transfer of ownership to grid map");
       }
       InternalDeleteGrid(grid->grid_, &error_code);
       if (error_code != 0)
       {
-        *error = Error{ 1,
-                        CreateString(MUSICA_ERROR_CATEGORY),
-                        CreateString("Failed to delete grid during transfer of ownership to grid map") };
+        SetError(error, 1, MUSICA_ERROR_CATEGORY, "Failed to delete grid during transfer of ownership to grid map");
       }
       grid->grid_ = nullptr;
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
+      Error* temp = ToError(e);
+      *error = *temp;
+      DeleteError(temp);
     }
     catch (...)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Internal error adding grid") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Internal error adding grid");
     }
-    *error = NoError();
+    Error* temp = NoError();
+    *error = *temp;
+    DeleteError(temp);
   }
 
   Grid *GridMap::GetGrid(const char *grid_name, const char *grid_units, Error *error)
   {
     if (grid_map_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Grid map is null") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Grid map is null");
       return nullptr;
     }
 
@@ -145,21 +150,20 @@ namespace musica
       void *grid_ptr = InternalGetGrid(grid_map_, grid_name, strlen(grid_name), grid_units, strlen(grid_units), &error_code);
       if (error_code != 0)
       {
-        *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get grid from grid map") };
+       SetError(error, 1, MUSICA_ERROR_CATEGORY, "Failed to get grid from grid map");
         return nullptr;
       }
       void *updater_ptr = InternalGetGridUpdaterFromMap(grid_map_, grid_ptr, &error_code);
       if (error_code != 0)
       {
-        *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get updater") };
+        SetError(error, 1, MUSICA_ERROR_CATEGORY, "Failed to get updater");
         InternalDeleteGrid(grid_ptr, &error_code);
         return nullptr;
       }
       InternalDeleteGrid(grid_ptr, &error_code);
       if (error_code != 0)
       {
-        *error =
-            Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to delete grid after getting updater") };
+        SetError(error, 1, MUSICA_ERROR_CATEGORY, "Failed to delete grid after getting updater");
         InternalDeleteGridUpdater(updater_ptr, &error_code);
         return nullptr;
       }
@@ -167,13 +171,17 @@ namespace musica
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
+      Error* temp = ToError(e);
+      *error = *temp;
+      DeleteError(temp);
     }
     catch (...)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Internal error getting grid") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Internal error getting grid");
     }
-    *error = NoError();
+    Error* temp = NoError();
+    *error = *temp;
+    DeleteError(temp);
     return grid;
   }
 

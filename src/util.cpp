@@ -17,12 +17,12 @@ namespace
 namespace musica
 {
 
-  String CreateString(const char* value)
+  String* CreateString(const char* value)
   {
-    String str;
-    str.size_ = std::strlen(value);
-    str.value_ = new char[str.size_ + 1];
-    std::strcpy(str.value_, value);
+    auto* str = new String;
+    str->size_ = std::strlen(value);
+    str->value_ = new char[str->size_ + 1];
+    std::strcpy(str->value_, value);
     return str;
   }
 
@@ -34,28 +34,35 @@ namespace musica
     str->size_ = 0;
   }
 
-  Error NoError()
+  Error* NoError()
   {
-    return ToError("", 0, "Success");
+    return new Error{0, String{nullptr, 0}, *CreateString("Success")};
   }
 
-  Error ToError(const char* category, int code)
+  Error* ToError(const char* category, int code)
   {
     return ToError(category, code, "");
   }
 
-  Error ToError(const char* category, int code, const char* message)
+  Error* ToError(const char* category, int code, const char* message)
   {
-    Error error;
-    error.code_ = code;
-    error.category_ = CreateString(category);
-    error.message_ = CreateString(message);
+    Error* error = new Error;
+    error->code_ = code;
+    String* category_str = CreateString(category);
+    String* message_str  = CreateString(message);
+    error->code_ = code;
+    error->category_ = *category_str;
+    error->message_  = *message_str;
+
     return error;
   }
 
-  Error ToError(const std::system_error& e)
+  Error* ToError(const std::system_error& e)
   {
-    return ToError(e.code().category().name(), e.code().value(), e.what());
+    Error* temp = ToError(e.code().category().name(), e.code().value(), e.what());
+    Error* result = new Error(*temp);
+    DeleteError(temp);
+    return result;
   }
 
   bool IsSuccess(const Error& error)
@@ -97,12 +104,16 @@ namespace musica
     try
     {
       config->data_ = new YAML::Node(YAML::Load(data));
-      *error = NoError();
+      Error* temp = NoError();
+      *error = *temp;
+      DeleteError(temp);
     }
     catch (const std::exception& e)
     {
       config->data_ = nullptr;
-      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_PARSING_FAILED, e.what());
+      Error* temp = ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_PARSING_FAILED, e.what());
+      *error = *temp;
+      DeleteError(temp);
     }
     return config;
   }
@@ -114,12 +125,16 @@ namespace musica
     try
     {
       config->data_ = new YAML::Node(YAML::LoadFile(filename));
-      *error = NoError();
+      Error* temp = NoError();
+      *error = *temp;
+      DeleteError(temp);
     }
     catch (const std::exception& e)
     {
       config->data_ = nullptr;
-      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_PARSING_FAILED, e.what());
+      Error* temp = ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_PARSING_FAILED, e.what());
+      *error = *temp;
+      DeleteError(temp);
     }
     return config;
   }
@@ -133,9 +148,12 @@ namespace musica
 
   Mapping ToMapping(const char* name, std::size_t index)
   {
+    String* temp = CreateString(name);
     Mapping mapping;
-    mapping.name_ = CreateString(name);
+    mapping.name_ = *temp;
     mapping.index_ = index;
+    DeleteString(temp);
+    delete temp;
     return mapping;
   }
 
@@ -159,12 +177,16 @@ namespace musica
     {
       if (std::strcmp(mappings.mappings_[i].name_.value_, name) == 0)
       {
-        *error = NoError();
+        Error* temp = NoError();
+        *error = *temp;
+        DeleteError(temp);
         return mappings.mappings_[i].index_;
       }
     }
     std::string msg = "Mapping element '" + std::string(name) + "' not found";
-    *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_MAPPING_NOT_FOUND, msg.c_str());
+    Error* temp = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_MAPPING_NOT_FOUND, msg.c_str());
+    *error = *temp;
+    DeleteError(temp);    
     return 0;
   }
 
@@ -198,8 +220,10 @@ namespace musica
 
     if (map_options == IndexMappingOptions::UndefinedMapping)
     {
-      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED,
+      Error* temp = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED,
                       "Mapping options are undefined");
+      *error = *temp;
+      DeleteError(temp);
       return index_mappings;
     }
 
@@ -216,7 +240,9 @@ namespace musica
         if (map_options == IndexMappingOptions::MapAll)
           return index_mappings;
         DeleteError(error);
-        *error = NoError();
+        Error* temp = NoError();
+        *error = *temp;
+        DeleteError(temp);
         continue;
       }
       else if (!IsSuccess(*error))
@@ -228,7 +254,9 @@ namespace musica
         if (map_options == IndexMappingOptions::MapAll)
           return index_mappings;
         DeleteError(error);
-        *error = NoError();
+        Error* temp = NoError();
+        *error = *temp;
+        DeleteError(temp);
         continue;
       }
       else if (!IsSuccess(*error))
@@ -272,6 +300,18 @@ namespace musica
       DeleteIndexMapping(&(mappings->mappings_[i]));
     }
     delete[] mappings->mappings_;
+  }
+
+  void SetError(Error* error, int code, const char* category_str, const char* message_str)
+  {
+    if (!error) return;
+    DeleteError(error);
+    error->code_ = code;
+    String* category = CreateString(category_str);
+    String* message = CreateString(message_str);
+
+    error->category_ = *category;  // dereference pointer to copy struct
+    error->message_ = *message;
   }
 
 }  // namespace musica

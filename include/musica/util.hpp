@@ -91,7 +91,7 @@ const size_t MUSICA_VECTOR_SIZE = 0;
     /// @brief Casts a char* to a String
     /// @param value The char* to cast
     /// @return The casted String
-    String CreateString(const char* value);
+    String* CreateString(const char* value);
 
     /// @brief Deletes a String
     /// @param str The String to delete
@@ -99,14 +99,14 @@ const size_t MUSICA_VECTOR_SIZE = 0;
 
     /// @brief Creates an Error indicating no error
     /// @return The Error
-    Error NoError();
+    Error* NoError();
 
     /// @brief Creates an Error from a category, code, and message
     /// @param category The category of the Error
     /// @param code The code of the Error
     /// @param message The message of the Error
     /// @return The Error
-    Error ToError(const char* category, int code, const char* message);
+    Error* ToError(const char* category, int code, const char* message);
 
     /// @brief Loads a set of configuration data from a string
     /// @param data The string to load
@@ -192,12 +192,12 @@ const size_t MUSICA_VECTOR_SIZE = 0;
   /// @param category The category of the Error
   /// @param code The code of the Error
   /// @return The Error
-  Error ToError(const char* category, int code);
+  Error* ToError(const char* category, int code);
 
   /// @brief Creates an Error from syd::system_error
   /// @param e The std::system_error to convert
   /// @return The Error
-  Error ToError(const std::system_error& e);
+  Error* ToError(const std::system_error& e);
 
   /// @brief Checks for success
   /// @param error The Error to check
@@ -228,6 +228,13 @@ const size_t MUSICA_VECTOR_SIZE = 0;
   /// @param index The index of the Mapping
   /// @return The Mapping
   Mapping ToMapping(const char* name, std::size_t index);
+
+  /// @brief Sets an Error object with the given code, category, and message.
+  /// @param error Pointer to the Error object to populate
+  /// @param code The integer error code
+  /// @param category_str The error category as a C-style string
+  /// @param message_str The error message as a C-style string
+  void SetError(Error* error, int code, const char* category_str, const char* message_str);
 
 #endif
 
