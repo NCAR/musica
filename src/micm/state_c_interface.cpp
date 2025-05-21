@@ -123,7 +123,10 @@ namespace musica
         std::size_t i = 0;
         for (const auto& entry : map)
         {
-          species_ordering->mappings_[i] = ToMapping(entry.first.c_str(), entry.second);
+          Mapping mapping;
+          mapping.name_ = *CreateString(entry.first.c_str());
+          mapping.index_ = entry.second;
+          species_ordering->mappings_[i] = mapping;
           ++i;
         }
 
@@ -150,7 +153,10 @@ namespace musica
         std::size_t i = 0;
         for (const auto& entry : map)
         {
-          reaction_rates->mappings_[i] = ToMapping(entry.first.c_str(), entry.second);
+          Mapping mapping;
+          mapping.name_ = *CreateString(entry.first.c_str());
+          mapping.index_ = entry.second;
+          reaction_rates->mappings_[i] = mapping;
           ++i;
         }
 

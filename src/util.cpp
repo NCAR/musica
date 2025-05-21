@@ -36,7 +36,7 @@ namespace musica
 
   Error* NoError()
   {
-    return new Error{0, String{nullptr, 0}, *CreateString("Success")};
+    return new Error{0, *CreateString(""), *CreateString("Success")};
   }
 
   Error* ToError(const char* category, int code)
@@ -148,12 +148,9 @@ namespace musica
 
   Mapping ToMapping(const char* name, std::size_t index)
   {
-    String* temp = CreateString(name);
     Mapping mapping;
-    mapping.name_ = *temp;
+    mapping.name_ = *CreateString(name);
     mapping.index_ = index;
-    DeleteString(temp);
-    delete temp;
     return mapping;
   }
 
