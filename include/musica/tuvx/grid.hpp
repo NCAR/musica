@@ -140,8 +140,8 @@ namespace musica
     void InternalDeleteGrid(void *grid, int *error_code);
     void *InternalGetGridUpdater(void *grid, int *error_code);
     void InternalDeleteGridUpdater(void *updater, int *error_code);
-    std::string InternalGetGridName(void *grid, int *error_code);
-    std::string InternalGetGridUnits(void *grid, int *error_code);
+    std::string* InternalGetGridName(void *grid, int *error_code);
+    std::string* InternalGetGridUnits(void *grid, int *error_code);
     std::size_t InternalGetNumSections(void *grid, int *error_code);
     void InternalSetEdges(void *grid, double edges[], std::size_t num_edges, int *error_code);
     void InternalGetEdges(void *grid, double edges[], std::size_t num_edges, int *error_code);

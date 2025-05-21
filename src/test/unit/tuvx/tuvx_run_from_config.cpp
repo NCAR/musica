@@ -165,24 +165,24 @@ TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfig)
           expected_heating_rates[i][j] * 1.0e-5);
     }
   }
-  Mappings photo_rate_labels = GetPhotolysisRateConstantsOrdering(tuvx, &error);
+  Mappings* photo_rate_labels = GetPhotolysisRateConstantsOrdering(tuvx, &error);
   ASSERT_TRUE(IsSuccess(error));
-  ASSERT_EQ(photo_rate_labels.size_, 3);
-  ASSERT_STREQ(photo_rate_labels.mappings_[0].name_.value_, "jfoo");
-  ASSERT_EQ(photo_rate_labels.mappings_[0].index_, 0);
-  ASSERT_STREQ(photo_rate_labels.mappings_[1].name_.value_, "jbar");
-  ASSERT_EQ(photo_rate_labels.mappings_[1].index_, 1);
-  ASSERT_STREQ(photo_rate_labels.mappings_[2].name_.value_, "jbaz");
-  ASSERT_EQ(photo_rate_labels.mappings_[2].index_, 2);
-  Mappings heating_rate_labels = GetHeatingRatesOrdering(tuvx, &error);
+  ASSERT_EQ(photo_rate_labels->size_, 3);
+  ASSERT_STREQ(photo_rate_labels->mappings_[0].name_.value_, "jfoo");
+  ASSERT_EQ(photo_rate_labels->mappings_[0].index_, 0);
+  ASSERT_STREQ(photo_rate_labels->mappings_[1].name_.value_, "jbar");
+  ASSERT_EQ(photo_rate_labels->mappings_[1].index_, 1);
+  ASSERT_STREQ(photo_rate_labels->mappings_[2].name_.value_, "jbaz");
+  ASSERT_EQ(photo_rate_labels->mappings_[2].index_, 2);
+  Mappings* heating_rate_labels = GetHeatingRatesOrdering(tuvx, &error);
   ASSERT_TRUE(IsSuccess(error));
-  ASSERT_EQ(heating_rate_labels.size_, 2);
-  ASSERT_STREQ(heating_rate_labels.mappings_[0].name_.value_, "jfoo");
-  ASSERT_EQ(heating_rate_labels.mappings_[0].index_, 0);
-  ASSERT_STREQ(heating_rate_labels.mappings_[1].name_.value_, "jbar");
-  ASSERT_EQ(heating_rate_labels.mappings_[1].index_, 1);
-  DeleteMappings(&photo_rate_labels);
-  DeleteMappings(&heating_rate_labels);
+  ASSERT_EQ(heating_rate_labels->size_, 2);
+  ASSERT_STREQ(heating_rate_labels->mappings_[0].name_.value_, "jfoo");
+  ASSERT_EQ(heating_rate_labels->mappings_[0].index_, 0);
+  ASSERT_STREQ(heating_rate_labels->mappings_[1].name_.value_, "jbar");
+  ASSERT_EQ(heating_rate_labels->mappings_[1].index_, 1);
+  DeleteMappings(photo_rate_labels);
+  DeleteMappings(heating_rate_labels);
   DeleteError(&error);
 }
 
@@ -266,24 +266,24 @@ TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfigAndHostData)
           expected_heating_rates[i][j] * 1.0e-5);
     }
   }
-  Mappings photo_rate_labels = GetPhotolysisRateConstantsOrdering(tuvx, &error);
+  Mappings* photo_rate_labels = GetPhotolysisRateConstantsOrdering(tuvx, &error);
   ASSERT_TRUE(IsSuccess(error));
-  ASSERT_EQ(photo_rate_labels.size_, 3);
-  ASSERT_STREQ(photo_rate_labels.mappings_[0].name_.value_, "jfoo");
-  ASSERT_EQ(photo_rate_labels.mappings_[0].index_, 0);
-  ASSERT_STREQ(photo_rate_labels.mappings_[1].name_.value_, "jbar");
-  ASSERT_EQ(photo_rate_labels.mappings_[1].index_, 1);
-  ASSERT_STREQ(photo_rate_labels.mappings_[2].name_.value_, "jbaz");
-  ASSERT_EQ(photo_rate_labels.mappings_[2].index_, 2);
-  Mappings heating_rate_labels = GetHeatingRatesOrdering(tuvx, &error);
+  ASSERT_EQ(photo_rate_labels->size_, 3);
+  ASSERT_STREQ(photo_rate_labels->mappings_[0].name_.value_, "jfoo");
+  ASSERT_EQ(photo_rate_labels->mappings_[0].index_, 0);
+  ASSERT_STREQ(photo_rate_labels->mappings_[1].name_.value_, "jbar");
+  ASSERT_EQ(photo_rate_labels->mappings_[1].index_, 1);
+  ASSERT_STREQ(photo_rate_labels->mappings_[2].name_.value_, "jbaz");
+  ASSERT_EQ(photo_rate_labels->mappings_[2].index_, 2);
+  Mappings* heating_rate_labels = GetHeatingRatesOrdering(tuvx, &error);
   ASSERT_TRUE(IsSuccess(error));
-  ASSERT_EQ(heating_rate_labels.size_, 2);
-  ASSERT_STREQ(heating_rate_labels.mappings_[0].name_.value_, "jfoo");
-  ASSERT_EQ(heating_rate_labels.mappings_[0].index_, 0);
-  ASSERT_STREQ(heating_rate_labels.mappings_[1].name_.value_, "jbar");
-  ASSERT_EQ(heating_rate_labels.mappings_[1].index_, 1);
-  DeleteMappings(&photo_rate_labels);
-  DeleteMappings(&heating_rate_labels);
+  ASSERT_EQ(heating_rate_labels->size_, 2);
+  ASSERT_STREQ(heating_rate_labels->mappings_[0].name_.value_, "jfoo");
+  ASSERT_EQ(heating_rate_labels->mappings_[0].index_, 0);
+  ASSERT_STREQ(heating_rate_labels->mappings_[1].name_.value_, "jbar");
+  ASSERT_EQ(heating_rate_labels->mappings_[1].index_, 1);
+  DeleteMappings(photo_rate_labels);
+  DeleteMappings(heating_rate_labels);
   GetGridEdges(heights, height_edges, 4, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(height_edges[0], 0.0);

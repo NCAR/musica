@@ -1,6 +1,6 @@
 function(silence_warnings target)
     set(clang_gnu_warnings
-      -Wno-return-type-c-linkage
+      #-Wno-return-type-c-linkage
     )
 
     set(msvc_warnings
@@ -8,7 +8,7 @@ function(silence_warnings target)
     )
 
     set(intel_llvm_warnings
-      -Wno-return-type-c-linkage # Suppress the warning for Intel compilers
+      #-Wno-return-type-c-linkage # Suppress the warning for Intel compilers
     )
 
     if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")

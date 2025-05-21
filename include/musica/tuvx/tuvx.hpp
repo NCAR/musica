@@ -51,12 +51,12 @@ namespace musica
     /// @brief Returns the ordering of photolysis rate constants
     /// @param error Error struct to indicate success or failure
     /// @return Array of photolysis rate constant name-index pairs
-    Mappings GetPhotolysisRateConstantsOrdering(Error *error);
+    Mappings* GetPhotolysisRateConstantsOrdering(Error *error);
 
     /// @brief Returns the ordering of heating rates
     /// @param error Error struct to indicate success or failure
     /// @return Array of heating rate name-index pairs
-    Mappings GetHeatingRatesOrdering(Error *error);
+    Mappings* GetHeatingRatesOrdering(Error *error);
 
     /// @brief Run the TUV-x photolysis calculator
     /// @param solar_zenith_angle Solar zenith angle [radians]
@@ -121,13 +121,13 @@ namespace musica
     /// @param tuvx Pointer to TUVX instance
     /// @param error Error struct to indicate success or failure
     /// @return Array of photolysis rate constant name-index pairs
-    Mappings GetPhotolysisRateConstantsOrdering(TUVX *tuvx, Error *error);
+    Mappings* GetPhotolysisRateConstantsOrdering(TUVX *tuvx, Error *error);
 
     /// @brief Returns the ordering of heating rates
     /// @param tuvx Pointer to TUVX instance
     /// @param error Error struct to indicate success or failure
     /// @return Array of heating rate name-index pairs
-    Mappings GetHeatingRatesOrdering(TUVX *tuvx, Error *error);
+    Mappings* GetHeatingRatesOrdering(TUVX *tuvx, Error *error);
 
     /// @brief Run the TUV-x photolysis calculator
     /// @param tuvx Pointer to TUVX instance
@@ -159,8 +159,8 @@ namespace musica
     void *InternalGetGridMap(void *tuvx, int *error_code);
     void *InternalGetProfileMap(void *tuvx, int *error_code);
     void *InternalGetRadiatorMap(void *tuvx, int *error_code);
-    Mappings InternalGetPhotolysisRateConstantsOrdering(void *tuvx, int *error_code);
-    Mappings InternalGetHeatingRatesOrdering(void *tuvx, int *error_code);
+    Mappings* InternalGetPhotolysisRateConstantsOrdering(void *tuvx, int *error_code);
+    Mappings* InternalGetHeatingRatesOrdering(void *tuvx, int *error_code);
     void InternalRunTuvx(
         void *tuvx,
         const int number_of_layers,

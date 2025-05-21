@@ -79,9 +79,9 @@ namespace musica
         error);
   }
 
-  String MicmVersion()
+  String* MicmVersion()
   {
-    return CreateString(micm::GetMicmVersion());
+    return new String{ CreateString(micm::GetMicmVersion()) };
   }
 
   template<typename T>
@@ -99,14 +99,17 @@ namespace musica
         error);
   }
 
-  String GetSpeciesPropertyString(MICM *micm, const char *species_name, const char *property_name, Error *error)
+  String* GetSpeciesPropertyString(MICM *micm, const char *species_name, const char *property_name, Error *error)
   {
-    std::string val = GetSpeciesProperty<std::string>(micm, species_name, property_name, error);
+    auto val = GetSpeciesProperty<std::string>(micm, species_name, property_name, error);
+    auto* result = new String;
+
     if (!IsSuccess(*error))
-    {
-      return String();
-    }
-    return CreateString(val.c_str());
+      *result = { nullptr, 0 };
+    else
+      *result = CreateString(val.c_str());
+
+    return result;
   }
 
   double GetSpeciesPropertyDouble(MICM *micm, const char *species_name, const char *property_name, Error *error)
