@@ -84,5 +84,16 @@ version = "${version}"
 # Increase pip debugging output
 build-verbosity = 3
 
+# Add your desired build configuration
+build = "cp37-* cp38-* cp39-* cp310-* cp311-* cp312-*"
+skip = "cp27-* cp34-* cp35-* cp36-* *musllinux*"
+archs = "auto"
+
+# Set up pre-build hook
+
 [tool.cibuildwheel.macos.environment]
 MACOSX_DEPLOYMENT_TARGET = "10.15"
+
+[tool.cibuildwheel.linux]
+before-all = "musica/tools/prepare_build_environment_linux.sh"
+repair-wheel-command = "bash musica/tools/repair_wheel_gpu.sh {wheel} {dest_dir}"

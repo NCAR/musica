@@ -58,31 +58,6 @@ jobs:
           PATH=/usr/local/cuda/bin:$PATH
           LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
           BUILD_GPU=1
-        CIBW_ENVIRONMENT_PASS_WINDOWS: CIBW_ARCHS
-        CIBW_ARCHS_MACOS: arm64 x86_64
-        CIBW_SKIP: cp27-* cp34-* cp35-* cp36-* *musllinux*
-        CIBW_BUILD: cp37-* cp38-* cp39-* cp310-* cp311-* cp312-*
-        CIBW_BEFORE_ALL_LINUX: musica/tools/prepare_build_environment_linux.sh
-        CIBW_REPAIR_WHEEL_COMMAND: >
-          bash -c '
-              auditwheel repair --exclude libcublas --exclude libcublasLt --exclude libcudart -w {dest_dir} {wheel} &&
-              for whl in {dest_dir}/*.whl; do
-                tmpdir=$(mktemp -d)
-                unzip -q "$whl" -d "$tmpdir" &&
-                echo "Before patchelf:" &&
-                readelf -d "$tmpdir"/_musica*.so &&
-                patchelf --remove-rpath "$tmpdir"/_musica*.so &&
-                patchelf --set-rpath "\$ORIGIN:\$ORIGIN/../../nvidia/cublas/lib:\$ORIGIN/../../nvidia/cuda_runtime/lib" --force-rpath "$tmpdir"/_musica*.so &&
-                echo "After patchelf:" &&
-                readelf -d "$tmpdir"/_musica*.so &&
-                patched_whl="${whl%.whl}.patched.whl" &&
-                (cd "$tmpdir" && zip -qr "$patched_whl" .) &&
-                mv "$patched_whl" "$whl" &&
-                rm -rf "$tmpdir"
-              done
-            '
-        # CIBW_BEFORE_ALL_WINDOWS: bash musica/tools/prepare_build_environment_windows.sh
-
 
     - name: CI Build Wheels without GPU support for release
       uses: pypa/cibuildwheel@v2.17
