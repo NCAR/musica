@@ -80,12 +80,17 @@ template = '''
 version = "${version}"
 '''
 
+# you can test cibuildwheel on any computer with docker directly. First, make a 
+# new python environment and install cibbuildwheel into it
+# then, run something like this:
+# CIBW_ARCHS=x86_64 CIBW_PLATFORM=linux CIBW_ENVIRONMENT="BUILD_GPU=1 CUDA_PATH=/usr/local/cuda PATH=/usr/local/cuda/bin:\$PATH LD_LIBRARY_PATH=/usr/local/cuda/lib64:\$LD_LIBRARY_PATH" cibuildwheel --output-dir wheelhouse > log.txt 2>&1
 [tool.cibuildwheel]
 # Increase pip debugging output
 build-verbosity = 3
 
 # Add your desired build configuration
-build = "cp37-* cp38-* cp39-* cp310-* cp311-* cp312-*"
+#build = "cp37-* cp38-* cp39-* cp310-* cp311-* cp312-*"
+build = "cp312-*"
 skip = "cp27-* cp34-* cp35-* cp36-* *musllinux*"
 archs = "auto"
 

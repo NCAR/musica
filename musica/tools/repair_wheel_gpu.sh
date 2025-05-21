@@ -7,10 +7,15 @@ auditwheel repair --exclude libcublas --exclude libcublasLt --exclude libcudart 
 for whl in "$2"/*.whl; do
   tmpdir=$(mktemp -d)
   unzip -q "$whl" -d "$tmpdir"
+  ls -l "$tmpdir"
   echo "Before patchelf:"
   readelf -d "$tmpdir"/_musica*.so
   patchelf --remove-rpath "$tmpdir"/_musica*.so
   patchelf --set-rpath "\$ORIGIN:\$ORIGIN/../../nvidia/cublas/lib:\$ORIGIN/../../nvidia/cuda_runtime/lib" --force-rpath "$tmpdir"/_musica*.so
+  # Remove bundled CUDA libraries
+  rm -f "$tmpdir"/libcudart-*.so*
+  rm -f "$tmpdir"/libcublas-*.so*
+  rm -f "$tmpdir"/libcublasLt-*.so*
   echo "After patchelf:"
   readelf -d "$tmpdir"/_musica*.so
   zip -qr "${whl%.whl}.patched.whl" -j "$tmpdir"
