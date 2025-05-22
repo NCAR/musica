@@ -48,9 +48,8 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: CI Build Wheels with GPU support
+    - name: CI Build Wheels
       uses: pypa/cibuildwheel@v2.17
-      if: github.event_name != 'release'
       env:
         CIBW_ENVIRONMENT_PASS_LINUX: CIBW_ARCHS
         CIBW_ENVIRONMENT_LINUX: >
@@ -58,16 +57,6 @@ jobs:
           PATH=/usr/local/cuda/bin:$PATH
           LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
           BUILD_GPU=1
-
-    - name: CI Build Wheels without GPU support for release
-      uses: pypa/cibuildwheel@v2.17
-      if: github.event_name == 'release' && github.event.action == 'published'
-      env:
-        CIBW_ENVIRONMENT_PASS_LINUX: CIBW_ARCHS
-        CIBW_ENVIRONMENT_PASS_WINDOWS: CIBW_ARCHS
-        CIBW_ARCHS_MACOS: arm64 x86_64
-        CIBW_SKIP: cp27-* cp34-* cp35-* cp36-* *musllinux*
-        CIBW_BUILD: cp37-* cp38-* cp39-* cp310-* cp311-* cp312-*
 
     - name: Upload wheels
       uses: actions/upload-artifact@v4
