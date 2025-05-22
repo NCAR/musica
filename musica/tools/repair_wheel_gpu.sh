@@ -1,4 +1,3 @@
-# musica/tools/repair_wheel_gpu.sh
 #!/usr/bin/env bash
 set -e
 

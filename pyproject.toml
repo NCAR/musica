@@ -78,7 +78,6 @@ build-verbosity = 3
 
 # Add your desired build configuration
 build = "cp37-* cp38-* cp39-* cp310-* cp311-* cp312-*"
-# build = "cp312-*"
 skip = "cp27-* cp34-* cp35-* cp36-* *musllinux*"
 archs = "auto"
 
