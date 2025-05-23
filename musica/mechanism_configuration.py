@@ -3,6 +3,9 @@
 #
 # This file is part of the musica Python package.
 # For more information, see the LICENSE file in the top-level directory of this distribution.
+import os
+import json
+import yaml
 from typing import Optional, Any, Dict, List, Union, Tuple
 from _musica._mechanism_configuration import (
     _ReactionType,
@@ -93,6 +96,20 @@ class Species(_Species):
         self.tracer_type = tracer_type if tracer_type is not None else self.tracer_type
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 
+    @staticmethod
+    def serialize(cls):
+        return {
+            'name': cls.name,
+            'HLC_298K_mol_m3_Pa': cls.HLC_298K_mol_m3_Pa,
+            'HLC_exponential_factor_K': cls.HLC_exponential_factor_K,
+            'diffusion_coefficient_m2_s': cls.diffusion_coefficient_m2_s,
+            'N_star': cls.N_star,
+            'molecular_weight_kg_mol': cls.molecular_weight_kg_mol,
+            'density_kg_m3': cls.density_kg_m3,
+            'tracer_type': cls.tracer_type,
+            'other_properties': cls.other_properties,
+        }
+
 
 class Phase(_Phase):
     """
@@ -107,7 +124,7 @@ class Phase(_Phase):
     def __init__(
         self,
         name: Optional[str] = None,
-        species: Optional[List[Species]] = None,
+        species: Optional[List[Species]] = None, # TODO: BUG:? Optional[List[str]]
         other_properties: Optional[Dict[str, Any]] = None,
     ):
         """
@@ -122,6 +139,14 @@ class Phase(_Phase):
         self.name = name
         self.species = [s.name for s in species] if species is not None else self.species
         self.other_properties = other_properties if other_properties is not None else self.other_properties
+
+    @staticmethod
+    def serialize(cls):
+        return {
+            "name": cls.name,
+            "species": cls.species,
+            "other_properties": cls.other_properties,
+        }
 
 
 class Arrhenius(_Arrhenius):
@@ -220,6 +245,22 @@ class Arrhenius(_Arrhenius):
         self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 
+    @staticmethod
+    def serialize(cls):
+        return {
+            "name": cls.name,
+            "A": cls.A,
+            "B": cls.B,
+            "C": cls.C,
+            # "Ea": cls.Ea, # TODO:
+            "D": cls.D,
+            "E": cls.E,
+            # "reactants": cls.reactants, # TODO:
+            # "products": cls.products, # TODO:
+            "gas_phase": cls.gas_phase,
+            "other_properties": cls.other_properties,
+        }
+
 
 class CondensedPhaseArrhenius(_CondensedPhaseArrhenius):
     """
@@ -310,6 +351,23 @@ class CondensedPhaseArrhenius(_CondensedPhaseArrhenius):
             aerosol_phase_water.name if aerosol_phase_water is not None else self.aerosol_phase_water
         )
         self.other_properties = other_properties if other_properties is not None else self.other_properties
+
+    @staticmethod
+    def serialize(cls):
+        return {
+            "name": cls.name,
+            "A": cls.A,
+            "B": cls.B,
+            "C": cls.C,
+            # "Ea": cls.Ea, # TODO:
+            "D": cls.D,
+            "E": cls.E,
+            # "reactants": cls.reactants, # TODO:
+            # "products": cls.products, # TODO:
+            "aerosol_phase": cls.aerosol_phase,
+            "aerosol_phase_water": cls.aerosol_phase_water,
+            "other_properties": cls.other_properties,
+        }
 
 
 class Troe(_Troe):
@@ -422,6 +480,24 @@ class Troe(_Troe):
         self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 
+    @staticmethod
+    def serialize(cls):
+        return {
+            "name": cls.name,
+            "k0_A": cls.k0_A,
+            "k0_B": cls.k0_B,
+            "k0_C": cls.k0_C,
+            "kinf_A": cls.kinf_A,
+            "kinf_B": cls.kinf_B,
+            "kinf_C": cls.kinf_C,
+            "Fc": cls.Fc,
+            "N": cls.N,
+            # "reactants": cls.reactants, # TODO:
+            # "products": cls.products, # TODO:
+            "gas_phase": cls.gas_phase,
+            "other_properties": cls.other_properties,
+        }
+
 
 class Branched(_Branched):
     """
@@ -515,6 +591,21 @@ class Branched(_Branched):
         self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 
+    @staticmethod
+    def serialize(cls):
+        return {
+            "name": cls.name,
+            "X": cls.X,
+            "Y": cls.Y,
+            "a0": cls.a0,
+            "n": cls.n,
+            # "reactants": cls.reactants, # TODO:
+            # "nitrate_products": cls.nitrate_products, # TODO:
+            # "alkoxy_products": cls.alkoxy_products, # TODO:
+            "gas_phase": cls.gas_phase,
+            "other_properties": cls.other_properties,
+        }
+
 
 class Tunneling(_Tunneling):
     """
@@ -597,6 +688,19 @@ class Tunneling(_Tunneling):
         self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 
+    @staticmethod
+    def serialize(cls):
+        return {
+            "name": cls.name,
+            "A": cls.A,
+            "B": cls.B,
+            "C": cls.C,
+            # "reactants": cls.reactants, # TODO:
+            # "products": cls.products, # TODO:
+            "gas_phase": cls.gas_phase,
+            "other_properties": cls.other_properties,
+        }
+
 
 class Surface(_Surface):
     """
@@ -666,6 +770,18 @@ class Surface(_Surface):
         self.aerosol_phase = aerosol_phase.name if aerosol_phase is not None else self.aerosol_phase
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 
+    @staticmethod
+    def serialize(cls):
+        return {
+            "name": cls.name,
+            "reaction_probability": cls.reaction_probability,
+            # "gas_phase_species": cls.gas_phase_species, # TODO:
+            # "gas_phase_products": cls.gas_phase_products, # TODO:
+            "gas_phase": cls.gas_phase,
+            "aerosol_phase": cls.aerosol_phase,
+            "other_properties": cls.other_properties,
+        }
+
 
 class Photolysis(_Photolysis):
     """
@@ -729,6 +845,17 @@ class Photolysis(_Photolysis):
         )
         self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
         self.other_properties = other_properties if other_properties is not None else self.other_properties
+
+    @staticmethod
+    def serialize(cls):
+        return {
+            "name": cls.name,
+            "scaling_factor": cls.scaling_factor,
+            # "reactants": cls.reactants, # TODO:
+            # "products": cls.products, # TODO:
+            "gas_phase": cls.gas_phase,
+            "other_properties": cls.other_properties,
+        }
 
 
 class CondensedPhasePhotolysis(_CondensedPhasePhotolysis):
@@ -800,6 +927,18 @@ class CondensedPhasePhotolysis(_CondensedPhasePhotolysis):
         )
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 
+    @staticmethod
+    def serialize(cls):
+        return {
+            "name": cls.name,
+            "scaling_factor": cls.scaling_factor,
+            # "reactants": cls.reactants, # TODO:
+            # "products": cls.products, # TODO:
+            "aerosol_phase": cls.aerosol_phase,
+            "aerosol_phase_water": cls.aerosol_phase_water,
+            "other_properties": cls.other_properties,
+        }
+
 
 class Emission(_Emission):
     """
@@ -849,6 +988,16 @@ class Emission(_Emission):
         self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 
+    @staticmethod
+    def serialize(cls):
+        return {
+            "name": cls.name,
+            "scaling_factor": cls.scaling_factor,
+            # "products": cls.products, # TODO:
+            "gas_phase": cls.gas_phase,
+            "other_properties": cls.other_properties,
+        }
+
 
 class FirstOrderLoss(_FirstOrderLoss):
     """
@@ -897,6 +1046,16 @@ class FirstOrderLoss(_FirstOrderLoss):
         )
         self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
         self.other_properties = other_properties if other_properties is not None else self.other_properties
+
+    @staticmethod
+    def serialize(cls):
+        return {
+            "name": cls.name,
+            "scaling_factor": cls.scaling_factor,
+            # "reactants": cls.reactants, # TODO:
+            "gas_phase": cls.gas_phase,
+            "other_properties": cls.other_properties,
+        }
 
 
 class AqueousEquilibrium(_AqueousEquilibrium):
@@ -980,6 +1139,21 @@ class AqueousEquilibrium(_AqueousEquilibrium):
         self.k_reverse = k_reverse if k_reverse is not None else self.k_reverse
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 
+    @staticmethod
+    def serialize(cls):
+        return {
+            "name": cls.name,
+            "gas_phase": cls.gas_phase,
+            "aerosol_phase": cls.aerosol_phase,
+            # "aerosol_phase_water": cls.aerosol_phase_water, # TODO:
+            # "reactants": cls.reactants, # TODO:
+            # "products": cls.products, # TODO:
+            "A": cls.A,
+            "C": cls.C,
+            "k_reverse": cls.k_reverse,
+            "other_properties": cls.other_properties,
+        }
+
 
 class WetDeposition(_WetDeposition):
     """
@@ -996,7 +1170,7 @@ class WetDeposition(_WetDeposition):
         self,
         name: Optional[str] = None,
         scaling_factor: Optional[float] = None,
-        aerosol_phase: Optional[Phase] = None,
+        aerosol_phase: Optional[Phase] = None, # TODO: ? str
         other_properties: Optional[Dict[str, Any]] = None,
     ):
         """
@@ -1013,6 +1187,15 @@ class WetDeposition(_WetDeposition):
         self.scaling_factor = scaling_factor if scaling_factor is not None else self.scaling_factor
         self.aerosol_phase = aerosol_phase.name if aerosol_phase is not None else self.aerosol_phase
         self.other_properties = other_properties if other_properties is not None else self.other_properties
+
+    @staticmethod
+    def serialize(cls):
+        return {
+            "name": cls.name,
+            "scaling_factor": cls.scaling_factor,
+            "aerosol_phase": cls.aerosol_phase,
+            "other_properties": cls.other_properties,
+        }
 
 
 class HenrysLaw(_HenrysLaw):
@@ -1079,6 +1262,18 @@ class HenrysLaw(_HenrysLaw):
             else self.aerosol_phase_species
         )
         self.other_properties = other_properties if other_properties is not None else self.other_properties
+
+    @staticmethod
+    def serialize(cls):
+        return {
+            "name": cls.name,
+            "gas_phase": cls.gas_phase,
+            # "gas_phase_species": cls.gas_phase_species, # TODO:
+            # "aerosol_phase": cls.aerosol_phase, # TODO:
+            # "aerosol_phase_water": cls.aerosol_phase_water, # TODO:
+            # "aerosol_phase_species": cls.aerosol_phase_species, # TODO:
+            "other_properties": cls.other_properties,
+        }
 
 
 class SimpolPhaseTransfer(_SimpolPhaseTransfer):
@@ -1149,6 +1344,18 @@ class SimpolPhaseTransfer(_SimpolPhaseTransfer):
             self.B = [0, 0, 0, 0]
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 
+    @staticmethod
+    def serialize(cls):
+        return {
+            "name": cls.name,
+            "gas_phase": cls.gas_phase,
+            # "gas_phase_species": cls.gas_phase_species, # TODO:
+            # "aerosol_phase": cls.aerosol_phase, # TODO:
+            # "aerosol_phase_species": cls.aerosol_phase_species,  # TODO:
+            "B": cls.B,
+            "other_properties": cls.other_properties,
+        }
+
 
 class UserDefined(_UserDefined):
     """
@@ -1212,6 +1419,18 @@ class UserDefined(_UserDefined):
         )
         self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
         self.other_properties = other_properties if other_properties is not None else self.other_properties
+
+    @staticmethod
+    def serialize(cls):
+        return {
+            "name": cls.name,
+            "scaling_factor": cls.scaling_factor,
+            # "reactants": cls.reactants, # TODO:
+            # "products": cls.products, # TODO:
+            "gas_phase": cls.gas_phase,
+            # "other_properties": cls.other_properties, # TODO: Not tested
+            # "type": cls.type, # TODO: Not tested
+        }
 
 
 class Reactions(_Reactions):
@@ -1284,8 +1503,109 @@ class Mechanism(_Mechanism):
         self.reactions = Reactions(reactions=reactions)
         self.version = version if version is not None else Version()
 
+    def to_dict(self):
+        species_list = []
+        for species in self.species:
+            species_list.append(Species.serialize(species))
+
+        phases_list = []
+        for phase in self.phases:
+            phases_list.append(Phase.serialize(phase))
+
+        reactions_list = []
+        for reaction in self.reactions:
+            match reaction:
+                case _Arrhenius():
+                    reactions_list.append(Arrhenius.serialize(reaction))
+                case _Branched():
+                    reactions_list.append(Branched.serialize(reaction))
+                case _CondensedPhaseArrhenius():
+                    reactions_list.append(CondensedPhaseArrhenius.serialize(reaction))
+                case _CondensedPhasePhotolysis():
+                    reactions_list.append(CondensedPhasePhotolysis.serialize(reaction))
+                case _Emission():
+                    reactions_list.append(Emission.serialize(reaction))
+                case _FirstOrderLoss():
+                    reactions_list.append(FirstOrderLoss.serialize(reaction))
+                case _SimpolPhaseTransfer():
+                    reactions_list.append(SimpolPhaseTransfer.serialize(reaction))
+                case _AqueousEquilibrium():
+                    reactions_list.append(AqueousEquilibrium.serialize(reaction))
+                case _WetDeposition():
+                    reactions_list.append(WetDeposition.serialize(reaction))
+                case _HenrysLaw():
+                    reactions_list.append(HenrysLaw.serialize(reaction))
+                case _Photolysis():
+                    reactions_list.append(Photolysis.serialize(reaction))
+                case _Surface():
+                    reactions_list.append(Surface.serialize(reaction))
+                case _Troe():
+                    reactions_list.append(Troe.serialize(reaction))
+                case _Tunneling():
+                    reactions_list.append(Tunneling.serialize(reaction))
+                case _UserDefined():
+                    reactions_list.append(UserDefined.serialize(reaction))
+                case _:
+                    raise TypeError(f'Reaction type {type(reaction)} is not supported for export.')
+
+        return {
+            "name": self.name,
+            "reactions": reactions_list, # TODO
+            "species": species_list,
+            "phases": phases_list, 
+            "version": self.version.to_string(),
+        }
+
+    # def to_export(self): # TODO: decide name
+    def export(self, file_path):
+        serializer = Serializer()
+        serializer.serialize(self, file_path)
+        pass
+
 
 class Parser(_Parser):
     """
     A class for parsing a chemical mechanism.
     """
+
+
+class Serializer():
+    """
+    A class for exporting a chemical mechanism.
+    """
+
+    def serialize(self, mechanism: Mechanism, file_path: str = "./mechanism.json"):        
+        # TODO: require Mechanism
+        if mechanism is None:
+            raise NameError('Serializer.serialize requries a type: Mechanism passed to it.')
+        if not isinstance(mechanism, Mechanism):
+            raise TypeError('Object {mechanism} is not of type Mechanism.')
+        
+        print('exporting...') # TODO: leave print statements in?
+
+        # TODO:
+        directory, file = os.path.split(file_path)
+        file_name, file_ext = os.path.splitext(file)
+
+        dictionary = mechanism.to_dict()
+        print(dictionary)
+        
+        # TODO: should the writing error if there is a file with that name already?
+        # change to 'x'
+        # catch error? then add number to the end and try writing again? repeat?
+        # or add the date-time to the end?
+
+        if file_ext in ['.yaml', '.yml']: # TODO: check allowable file extensions
+            print('writing yaml...')
+            with open(file_path, 'w') as file:
+                # TODO: try to preserve order? https://gist.github.com/arcaduf/8edbe5900372f0dd30aa037272dfe826
+                yaml.dump(dictionary, file)
+
+        elif '.json' == file_ext:
+            print('writing json...')
+            json_str = json.dumps(dictionary, indent=4)
+            with open(file_path, 'w') as file:
+                file.writelines(json_str)
+
+        else:
+            raise Exception('Allowable write formats are .json and .yaml')        
