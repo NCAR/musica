@@ -261,7 +261,7 @@ def test_cuda_rosenbrock():
     if _is_cuda_available():
         solver = musica.MICM(
             config_path="configs/analytical",
-            solver_type=musica.micmsolver.cuda_rosenbrock)
+            solver_type=musica.SolverType.cuda_rosenbrock)
         state = solver.create_state()
         TestSingleGridCell(solver, state, 200.0, 5)
     else:

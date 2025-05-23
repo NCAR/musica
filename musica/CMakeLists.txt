@@ -19,9 +19,15 @@ if (APPLE)
     BUILD_WITH_INSTALL_RPATH TRUE
   )
 elseif(UNIX)
-  # set the rpath for the shared library
+  set(CUDA_RPATH
+    "$ORIGIN/../../nvidia/cublas/lib"
+    "$ORIGIN/../../nvidia/cuda_runtime/lib"
+  )
+
+  message(STATUS "Adding RPATH for python site packages libs at ${CUDA_RPATH}")
+
   set_target_properties(_musica PROPERTIES
-    INSTALL_RPATH "$ORIGIN"
+    INSTALL_RPATH "$ORIGIN;${CUDA_RPATH}"
     BUILD_WITH_INSTALL_RPATH TRUE
   )
 endif()
