@@ -7,7 +7,7 @@ def test_serialize_loop():
     # TODO: finish test
     serializer = Serializer()
     print()
-    extensions = [".yaml", ".json"]
+    extensions = [".yml", ".yaml", ".json"]
     for extension in extensions:
         path = f"examples/_missing_configuration{extension}"
         print(path)
@@ -23,7 +23,7 @@ def test_serialize_loop():
 def test_serialize():
     serializer = Serializer()
     MECHANISM_FULLY_DEFINED = get_fully_defined_mechanism()
-    extensions = [".yaml", ".json"]
+    extensions = [".yml", ".yaml", ".json"]
     for extension in extensions:
         print()
         # TODO: test writing to path with folder that doesn't exist. ./output/...
