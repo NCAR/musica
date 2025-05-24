@@ -186,8 +186,8 @@ namespace musica
     void InternalDeleteProfile(void *profile, int *error_code);
     void *InternalGetProfileUpdater(void *profile, int *error_code);
     void InternalDeleteProfileUpdater(void *updater, int *error_code);
-    std::string InternalGetProfileName(void *profile, int *error_code);
-    std::string InternalGetProfileUnits(void *profile, int *error_code);
+    std::string* InternalGetProfileName(void *profile, int *error_code);
+    std::string* InternalGetProfileUnits(void *profile, int *error_code);
     void InternalSetEdgeValues(void *profile, double edge_values[], std::size_t num_values, int *error_code);
     void InternalGetEdgeValues(void *profile, double edge_values[], std::size_t num_values, int *error_code);
     void InternalSetMidpointValues(void *profile, double midpoint_values[], std::size_t num_values, int *error_code);

@@ -26,10 +26,13 @@ namespace musica
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
-      return;
+      Error* temp = ToError(e);
+      *error = *temp;
+      DeleteError(temp);
     }
-    *error = NoError();
+    Error* temp = NoError();
+    *error = *temp;
+    DeleteError(temp);
   }
 
   std::size_t GetGridNumSections(Grid *grid, Error *error)
@@ -69,17 +72,19 @@ namespace musica
     grid_ = InternalCreateGrid(grid_name, strlen(grid_name), units, strlen(units), num_sections, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create grid") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Failed to create grid");
       return;
     }
     updater_ = InternalGetGridUpdater(grid_, &error_code);
     if (error_code != 0)
     {
       InternalDeleteGrid(grid_, &error_code);
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get updater") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Failed to get updater");
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    *error = *temp;
+    DeleteError(temp);
   }
 
   Grid::~Grid()
@@ -99,7 +104,7 @@ namespace musica
     std::size_t n_sections = InternalGetNumSections(updater_, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get number of sections") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Failed to get number of sections");
       return 0;
     }
     return n_sections;
@@ -110,16 +115,18 @@ namespace musica
     int error_code = 0;
     if (updater_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Grid is not updatable") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Grid is not updatable");      
       return;
     }
     InternalSetEdges(updater_, edges, num_edges, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to set edges") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Failed to set edges");
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    *error = *temp;
+    DeleteError(temp);
   }
 
   void Grid::GetEdges(double edges[], std::size_t num_edges, Error *error)
@@ -127,16 +134,18 @@ namespace musica
     int error_code = 0;
     if (updater_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Grid is not accessible") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Grid is not accessible");
       return;
     }
     InternalGetEdges(updater_, edges, num_edges, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get edges") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Failed to get edges");
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    *error = *temp;
+    DeleteError(temp);
   }
 
   void Grid::SetMidpoints(double midpoints[], std::size_t num_midpoints, Error *error)
@@ -144,16 +153,18 @@ namespace musica
     int error_code = 0;
     if (updater_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Grid is not updatable") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Grid is not updatable");
       return;
     }
     InternalSetMidpoints(updater_, midpoints, num_midpoints, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to set midpoints") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Failed to set midpoints");
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    *error = *temp;
+    DeleteError(temp);
   }
 
   void Grid::GetMidpoints(double midpoints[], std::size_t num_midpoints, Error *error)
@@ -161,16 +172,18 @@ namespace musica
     int error_code = 0;
     if (updater_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Grid is not accessible") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Grid is not accessible");
       return;
     }
     InternalGetMidpoints(updater_, midpoints, num_midpoints, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get midpoints") };
+      SetError(error, 1, MUSICA_ERROR_CATEGORY, "Failed to get midpoints");
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    *error = *temp;
+    DeleteError(temp);
   }
 
 }  // namespace musica
