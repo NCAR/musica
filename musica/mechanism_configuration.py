@@ -1498,7 +1498,7 @@ class Mechanism(_Mechanism):
         self.name = name
         self.species = species if species is not None else []
         self.phases = phases if phases is not None else []
-        self.reactions = Reactions(reactions=reactions)
+        self.reactions = Reactions(reactions=reactions if reactions is not None else [])
         self.version = version if version is not None else Version()
 
     def to_dict(self):
@@ -1572,28 +1572,20 @@ class Serializer():
     A class for exporting a chemical mechanism.
     """
 
+    # TODO: @staticmethod ?
     def serialize(self, mechanism: Mechanism, file_path: str = "./mechanism.json"):        
-        # TODO: require Mechanism
-        if mechanism is None:
-            raise NameError('Serializer.serialize requries a type: Mechanism passed to it.')
         if not isinstance(mechanism, Mechanism):
             raise TypeError('Object {mechanism} is not of type Mechanism.')
         
         print('exporting...') # TODO: leave print statements in?
 
-        # TODO:
         directory, file = os.path.split(file_path)
-        file_name, file_ext = os.path.splitext(file)
+        os.makedirs(directory, exist_ok=True)
 
         dictionary = mechanism.to_dict()
-        # print(dictionary)
         
-        # TODO: should the writing error if there is a file with that name already?
-        # change to 'x'
-        # catch error? then add number to the end and try writing again? repeat?
-        # or add the date-time to the end?
-
-        if file_ext in ['.yaml', '.yml']: # TODO: check allowable file extensions
+        _, file_ext = os.path.splitext(file)
+        if file_ext in ['.yaml', '.yml']:
             print('writing yaml...')
             with open(file_path, 'w') as file:
                 # TODO: try to preserve order? https://gist.github.com/arcaduf/8edbe5900372f0dd30aa037272dfe826
