@@ -1,6 +1,6 @@
 import pytest
 from musica.mechanism_configuration import *
-from _musica._mechanism_configuration import _ReactionType
+from musica._musica._mechanism_configuration import _ReactionType
 
 
 def validate_species(species):

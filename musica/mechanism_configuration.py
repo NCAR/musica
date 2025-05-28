@@ -4,7 +4,7 @@
 # This file is part of the musica Python package.
 # For more information, see the LICENSE file in the top-level directory of this distribution.
 from typing import Optional, Any, Dict, List, Union, Tuple
-from _musica._mechanism_configuration import (
+from musica._musica._mechanism_configuration import (
     _ReactionType,
     _Species,
     _Phase,

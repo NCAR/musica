@@ -3,10 +3,10 @@
 #
 # This file is part of the musica Python package.
 # For more information, see the LICENSE file in the top-level directory of this distribution.
-from typing import Optional, Any, Dict, List, Union, Tuple
+from typing import Optional, Dict, List, Union, Tuple
 from os import PathLike
 import math
-from _musica._core import (
+from musica._musica._core import (
     _Conditions,
     _SolverType,
     _Solver,
