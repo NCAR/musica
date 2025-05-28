@@ -3,7 +3,7 @@ import numpy as np
 import musica
 import random
 import musica.mechanism_configuration as mc
-from _musica._core import _is_cuda_available
+from musica._musica._core import _is_cuda_available
 
 
 def TestSingleGridCell(solver, state, time_step, places=5):
