@@ -63,7 +63,7 @@ namespace musica
 
     /// @brief Get the MICM version
     /// @return MICM version
-    String MicmVersion();
+    String* MicmVersion();
 
     /// @brief Get a property for a chemical species
     /// @param micm Pointer to MICM object
@@ -71,7 +71,7 @@ namespace musica
     /// @param property_name Name of the property
     /// @param error Error struct to indicate success or failure
     /// @return Value of the property
-    String GetSpeciesPropertyString(MICM *micm, const char *species_name, const char *property_name, Error *error);
+    String* GetSpeciesPropertyString(MICM *micm, const char *species_name, const char *property_name, Error *error);
     double GetSpeciesPropertyDouble(MICM *micm, const char *species_name, const char *property_name, Error *error);
     int GetSpeciesPropertyInt(MICM *micm, const char *species_name, const char *property_name, Error *error);
     bool GetSpeciesPropertyBool(MICM *micm, const char *species_name, const char *property_name, Error *error);
