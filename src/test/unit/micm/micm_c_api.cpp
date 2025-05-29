@@ -172,14 +172,14 @@ TEST_F(MicmCApiTestFixture, GetSpeciesOrdering)
 TEST_F(MicmCApiTestFixture, GetUserDefinedRateParametersOrdering)
 {
   Error error;
-  Mappings reaction_rates_ordering = GetUserDefinedRateParametersOrdering(state, &error);
+  Mappings* reaction_rates_ordering = GetUserDefinedRateParametersOrdering(state, &error);
   ASSERT_TRUE(IsSuccess(error));
   DeleteError(&error);
-  ASSERT_EQ(reaction_rates_ordering.size_, 3);
+  ASSERT_EQ(reaction_rates_ordering->size_, 3);
   bool found = false;
-  for (std::size_t i = 0; i < reaction_rates_ordering.size_; i++)
+  for (std::size_t i = 0; i < reaction_rates_ordering->size_; i++)
   {
-    if (strcmp(reaction_rates_ordering.mappings_[i].name_.value_, "PHOTO.jO2") == 0)
+    if (strcmp(reaction_rates_ordering->mappings_[i].name_.value_, "PHOTO.jO2") == 0)
     {
       found = true;
       break;
@@ -187,9 +187,9 @@ TEST_F(MicmCApiTestFixture, GetUserDefinedRateParametersOrdering)
   }
   ASSERT_TRUE(found);
   found = false;
-  for (std::size_t i = 0; i < reaction_rates_ordering.size_; i++)
+  for (std::size_t i = 0; i < reaction_rates_ordering->size_; i++)
   {
-    if (strcmp(reaction_rates_ordering.mappings_[i].name_.value_, "PHOTO.jO3->O") == 0)
+    if (strcmp(reaction_rates_ordering->mappings_[i].name_.value_, "PHOTO.jO3->O") == 0)
     {
       found = true;
       break;
@@ -197,16 +197,17 @@ TEST_F(MicmCApiTestFixture, GetUserDefinedRateParametersOrdering)
   }
   ASSERT_TRUE(found);
   found = false;
-  for (std::size_t i = 0; i < reaction_rates_ordering.size_; i++)
+  for (std::size_t i = 0; i < reaction_rates_ordering->size_; i++)
   {
-    if (strcmp(reaction_rates_ordering.mappings_[i].name_.value_, "PHOTO.jO3->O1D") == 0)
+    if (strcmp(reaction_rates_ordering->mappings_[i].name_.value_, "PHOTO.jO3->O1D") == 0)
     {
       found = true;
       break;
     }
   }
   ASSERT_TRUE(found);
-  DeleteMappings(&reaction_rates_ordering);
+  DeleteMappings(reaction_rates_ordering);
+  delete reaction_rates_ordering;
 }
 
 void TestSingleGridCell(MICM* micm, musica::State* state)
@@ -236,16 +237,17 @@ void TestSingleGridCell(MICM* micm, musica::State* state)
   DeleteMappings(&species_ordering);
 
   // Get user-defined reaction rates ordering
-  Mappings reaction_rates_ordering = GetUserDefinedRateParametersOrdering(state, &error);
+  Mappings* reaction_rates_ordering = GetUserDefinedRateParametersOrdering(state, &error);
   ASSERT_TRUE(IsSuccess(error));
-  ASSERT_EQ(reaction_rates_ordering.size_, num_user_defined_rate_parameters);
-  std::size_t jO2_index = FindMappingIndex(reaction_rates_ordering, "PHOTO.jO2", &error);
+  ASSERT_EQ(reaction_rates_ordering->size_, num_user_defined_rate_parameters);
+  std::size_t jO2_index = FindMappingIndex(*reaction_rates_ordering, "PHOTO.jO2", &error);
   ASSERT_TRUE(IsSuccess(error));
-  std::size_t jO3_O_index = FindMappingIndex(reaction_rates_ordering, "PHOTO.jO3->O", &error);
+  std::size_t jO3_O_index = FindMappingIndex(*reaction_rates_ordering, "PHOTO.jO3->O", &error);
   ASSERT_TRUE(IsSuccess(error));
-  std::size_t jO3_O1D_index = FindMappingIndex(reaction_rates_ordering, "PHOTO.jO3->O1D", &error);
+  std::size_t jO3_O1D_index = FindMappingIndex(*reaction_rates_ordering, "PHOTO.jO3->O1D", &error);
   ASSERT_TRUE(IsSuccess(error));
-  DeleteMappings(&reaction_rates_ordering);
+  DeleteMappings(reaction_rates_ordering);
+  delete reaction_rates_ordering;
 
   conditions[0].temperature_ = 272.5;
   conditions[0].pressure_ = 101253.4;
@@ -374,14 +376,15 @@ void TestSolver(MICM* micm, const size_t num_grid_cells, const double time_step,
   DeleteMappings(&species_ordering);
 
   // Get user-defined reaction rates indices in user-defined reaction rates array
-  Mappings rate_ordering = GetUserDefinedRateParametersOrdering(state_1, &error);
+  Mappings* rate_ordering = GetUserDefinedRateParametersOrdering(state_1, &error);
   ASSERT_TRUE(IsSuccess(error));
-  ASSERT_EQ(rate_ordering.size_, num_user_defined_rate_parameters);
-  std::size_t R1_index = FindMappingIndex(rate_ordering, "USER.reaction 1", &error);
+  ASSERT_EQ(rate_ordering->size_, num_user_defined_rate_parameters);
+  std::size_t R1_index = FindMappingIndex(*rate_ordering, "USER.reaction 1", &error);
   ASSERT_TRUE(IsSuccess(error));
-  std::size_t R2_index = FindMappingIndex(rate_ordering, "USER.reaction 2", &error);
+  std::size_t R2_index = FindMappingIndex(*rate_ordering, "USER.reaction 2", &error);
   ASSERT_TRUE(IsSuccess(error));
-  DeleteMappings(&rate_ordering);
+  DeleteMappings(rate_ordering);
+  delete rate_ordering;
 
   for (int i_state = 0; i_state < std::ceil(static_cast<double>(num_grid_cells) / state_1_size); ++i_state)
   {

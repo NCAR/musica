@@ -125,22 +125,22 @@ namespace musica
         error);
   }
 
-  Mappings GetUserDefinedRateParametersOrdering(musica::State* state, Error* error)
+  Mappings* GetUserDefinedRateParametersOrdering(musica::State* state, Error* error)
   {
     return HandleErrors(
         [&]()
         {
-          Mappings reaction_rates;
+          Mappings* reaction_rates = new Mappings;
           std::map<std::string, std::size_t> map =
               std::visit([](auto& state) { return state.custom_rate_parameter_map_; }, state->state_variant_);
 
-          reaction_rates.mappings_ = new Mapping[map.size()];
-          reaction_rates.size_ = map.size();
+          reaction_rates->mappings_ = new Mapping[map.size()];
+          reaction_rates->size_ = map.size();
 
           std::size_t i = 0;
           for (const auto& entry : map)
           {
-            reaction_rates.mappings_[i] = ToMapping(entry.first.c_str(), entry.second);
+            reaction_rates->mappings_[i] = ToMapping(entry.first.c_str(), entry.second);
             ++i;
           }
 
