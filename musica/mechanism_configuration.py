@@ -99,15 +99,16 @@ class Species(_Species):
     @staticmethod
     def serialize(cls):
         return remove_empty_keys({
-            'name': cls.name,
-            'HLC_298K_mol_m3_Pa': cls.HLC_298K_mol_m3_Pa,
-            'HLC_exponential_factor_K': cls.HLC_exponential_factor_K,
-            'diffusion_coefficient_m2_s': cls.diffusion_coefficient_m2_s,
-            'N_star': cls.N_star,
-            'molecular_weight_kg_mol': cls.molecular_weight_kg_mol,
-            'density_kg_m3': cls.density_kg_m3,
-            'tracer_type': cls.tracer_type,
-            'other_properties': cls.other_properties,
+            "name": cls.name,
+            "HLC(298K) [mol m-3 Pa-1]": cls.HLC_298K_mol_m3_Pa,
+            "HLC exponential factor [K]": cls.HLC_exponential_factor_K,
+            "diffusion coefficient [m2 s-1]": cls.diffusion_coefficient_m2_s,
+            "N star": cls.N_star,
+            "molecular weight [kg mol-1]": cls.molecular_weight_kg_mol,
+            "density [kg m-3]": cls.density_kg_m3,
+            "tracer type": cls.tracer_type,
+            # TODO: unpack other_properties and put on this level (pre-pend with double underscore["__key name"])
+            "other_properties": cls.other_properties,
         })
 
 
@@ -256,7 +257,7 @@ class Arrhenius(_Arrhenius):
             "E": cls.E,
             "reactants": Serializer.serialize_list_reaction_components(cls.reactants),
             "products": Serializer.serialize_list_reaction_components(cls.products),
-            "gas_phase": cls.gas_phase,
+            "gas phase": cls.gas_phase,
             "other_properties": cls.other_properties,
         })
 
@@ -362,8 +363,8 @@ class CondensedPhaseArrhenius(_CondensedPhaseArrhenius):
             "E": cls.E,
             "reactants": Serializer.serialize_list_reaction_components(cls.reactants),
             "products":  Serializer.serialize_list_reaction_components(cls.products),
-            "aerosol_phase": cls.aerosol_phase,
-            "aerosol_phase_water": cls.aerosol_phase_water,
+            "aerosol phase": cls.aerosol_phase,
+            "aerosol-phase water": cls.aerosol_phase_water,
             "other_properties": cls.other_properties,
         })
 
@@ -492,7 +493,7 @@ class Troe(_Troe):
             "N": cls.N,
             "reactants": Serializer.serialize_list_reaction_components(cls.reactants),
             "products": Serializer.serialize_list_reaction_components(cls.products),
-            "gas_phase": cls.gas_phase,
+            "gas phase": cls.gas_phase,
             "other_properties": cls.other_properties,
         })
 
@@ -598,9 +599,9 @@ class Branched(_Branched):
             "a0": cls.a0,
             "n": cls.n,
             "reactants": Serializer.serialize_list_reaction_components(cls.reactants),
-            "nitrate_products": Serializer.serialize_list_reaction_components(cls.nitrate_products),
-            "alkoxy_products": Serializer.serialize_list_reaction_components(cls.alkoxy_products),
-            "gas_phase": cls.gas_phase,
+            "nitrate products": Serializer.serialize_list_reaction_components(cls.nitrate_products),
+            "alkoxy products": Serializer.serialize_list_reaction_components(cls.alkoxy_products),
+            "gas phase": cls.gas_phase,
             "other_properties": cls.other_properties,
         })
 
@@ -695,7 +696,7 @@ class Tunneling(_Tunneling):
             "C": cls.C,
             "reactants": Serializer.serialize_list_reaction_components(cls.reactants),
             "products": Serializer.serialize_list_reaction_components(cls.products),
-            "gas_phase": cls.gas_phase,
+            "gas phase": cls.gas_phase,
             "other_properties": cls.other_properties,
         })
 
@@ -772,11 +773,11 @@ class Surface(_Surface):
     def serialize(cls):
         return remove_empty_keys({
             "name": cls.name,
-            "reaction_probability": cls.reaction_probability,
-            "gas_phase_species": Serializer.serialize_reaction_component(cls.gas_phase_species),
-            "gas_phase_products": Serializer.serialize_list_reaction_components(cls.gas_phase_products),
-            "gas_phase": cls.gas_phase,
-            "aerosol_phase": cls.aerosol_phase,
+            "reaction probability": cls.reaction_probability,
+            "gas-phase species": Serializer.serialize_reaction_component(cls.gas_phase_species),
+            "gas-phase products": Serializer.serialize_list_reaction_components(cls.gas_phase_products),
+            "gas phase": cls.gas_phase,
+            "aerosol phase": cls.aerosol_phase,
             "other_properties": cls.other_properties,
         })
 
@@ -848,10 +849,10 @@ class Photolysis(_Photolysis):
     def serialize(cls):
         return remove_empty_keys({
             "name": cls.name,
-            "scaling_factor": cls.scaling_factor,
+            "scaling factor": cls.scaling_factor,
             "reactants": Serializer.serialize_list_reaction_components(cls.reactants),
             "products": Serializer.serialize_list_reaction_components(cls.products),
-            "gas_phase": cls.gas_phase,
+            "gas phase": cls.gas_phase,
             "other_properties": cls.other_properties,
         })
 
@@ -929,11 +930,11 @@ class CondensedPhasePhotolysis(_CondensedPhasePhotolysis):
     def serialize(cls):
         return remove_empty_keys({
             "name": cls.name,
-            "scaling_factor": cls.scaling_factor,
+            "scaling factor": cls.scaling_factor,
             "reactants": Serializer.serialize_list_reaction_components(cls.reactants),
             "products": Serializer.serialize_list_reaction_components(cls.products),
-            "aerosol_phase": cls.aerosol_phase,
-            "aerosol_phase_water": cls.aerosol_phase_water,
+            "aerosol phase": cls.aerosol_phase,
+            "aerosol-phase water": cls.aerosol_phase_water,
             "other_properties": cls.other_properties,
         })
 
@@ -990,9 +991,9 @@ class Emission(_Emission):
     def serialize(cls):
         return remove_empty_keys({
             "name": cls.name,
-            "scaling_factor": cls.scaling_factor,
+            "scaling factor": cls.scaling_factor,
             "products": Serializer.serialize_list_reaction_components(cls.products),
-            "gas_phase": cls.gas_phase,
+            "gas phase": cls.gas_phase,
             "other_properties": cls.other_properties,
         })
 
@@ -1049,9 +1050,9 @@ class FirstOrderLoss(_FirstOrderLoss):
     def serialize(cls):
         return remove_empty_keys({
             "name": cls.name,
-            "scaling_factor": cls.scaling_factor,
+            "scaling factor": cls.scaling_factor,
             "reactants": Serializer.serialize_list_reaction_components(cls.reactants),
-            "gas_phase": cls.gas_phase,
+            "gas phase": cls.gas_phase,
             "other_properties": cls.other_properties,
         })
 
@@ -1142,9 +1143,9 @@ class AqueousEquilibrium(_AqueousEquilibrium):
         
         return remove_empty_keys({
             "name": cls.name,
-            "gas_phase": cls.gas_phase,
-            "aerosol_phase": cls.aerosol_phase,
-            "aerosol_phase_water": cls.aerosol_phase_water,
+            "gas phase": cls.gas_phase,
+            "aerosol phase": cls.aerosol_phase,
+            "aerosol-phase water": cls.aerosol_phase_water,
             "reactants": Serializer.serialize_list_reaction_components(cls.reactants),
             "products": Serializer.serialize_list_reaction_components(cls.products),
             "A": cls.A,
@@ -1191,8 +1192,8 @@ class WetDeposition(_WetDeposition):
     def serialize(cls):
         return remove_empty_keys({
             "name": cls.name,
-            "scaling_factor": cls.scaling_factor,
-            "aerosol_phase": cls.aerosol_phase,
+            "scaling factor": cls.scaling_factor,
+            "aerosol phase": cls.aerosol_phase,
             "other_properties": cls.other_properties,
         })
 
@@ -1266,11 +1267,11 @@ class HenrysLaw(_HenrysLaw):
     def serialize(cls):
         return remove_empty_keys({
             "name": cls.name,
-            "gas_phase": cls.gas_phase,
-            "gas_phase_species": Serializer.serialize_reaction_component(cls.gas_phase_species),
-            "aerosol_phase": cls.aerosol_phase,
-            "aerosol_phase_water": cls.aerosol_phase_water,
-            "aerosol_phase_species": Serializer.serialize_reaction_component(cls.aerosol_phase_species),
+            "gas phase": cls.gas_phase,
+            "gas-phase species": Serializer.serialize_reaction_component(cls.gas_phase_species),
+            "aerosol phase": cls.aerosol_phase,
+            "aerosol-phase water": cls.aerosol_phase_water,
+            "aerosol-phase species": Serializer.serialize_reaction_component(cls.aerosol_phase_species),
             "other_properties": cls.other_properties,
         })
 
@@ -1347,10 +1348,10 @@ class SimpolPhaseTransfer(_SimpolPhaseTransfer):
     def serialize(cls):
         return remove_empty_keys({
             "name": cls.name,
-            "gas_phase": cls.gas_phase,
-            "gas_phase_species": Serializer.serialize_reaction_component(cls.gas_phase_species),
-            "aerosol_phase": cls.aerosol_phase,
-            "aerosol_phase_species": Serializer.serialize_reaction_component(cls.aerosol_phase_species),
+            "gas phase": cls.gas_phase,
+            "gas-phase species": Serializer.serialize_reaction_component(cls.gas_phase_species),
+            "aerosol phase": cls.aerosol_phase,
+            "aerosol-phase species": Serializer.serialize_reaction_component(cls.aerosol_phase_species),
             "B": cls.B,
             "other_properties": cls.other_properties,
         })
@@ -1423,10 +1424,10 @@ class UserDefined(_UserDefined):
     def serialize(cls):
         return remove_empty_keys({
             "name": cls.name,
-            "scaling_factor": cls.scaling_factor,
+            "scaling factor": cls.scaling_factor,
             "reactants": Serializer.serialize_list_reaction_components(cls.reactants),
             "products": Serializer.serialize_list_reaction_components(cls.products),
-            "gas_phase": cls.gas_phase,
+            "gas phase": cls.gas_phase,
             "other_properties": cls.other_properties,
         })
 
