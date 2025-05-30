@@ -107,18 +107,18 @@ namespace musica
     return config;
   }
 
-  Configuration LoadConfigurationFromFile(const char* filename, Error* error)
+  Configuration* LoadConfigurationFromFile(const char* filename, Error* error)
   {
     DeleteError(error);
-    Configuration config;
+    Configuration* config = new Configuration;
     try
     {
-      config.data_ = new YAML::Node(YAML::LoadFile(filename));
+      config->data_ = new YAML::Node(YAML::LoadFile(filename));
       *error = NoError();
     }
     catch (const std::exception& e)
     {
-      config.data_ = nullptr;
+      config->data_ = nullptr;
       *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_PARSING_FAILED, e.what());
     }
     return config;

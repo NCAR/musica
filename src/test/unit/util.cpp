@@ -139,7 +139,7 @@ TEST(Util, IndexMappingFromString)
 TEST(Util, IndexMappingFromFile)
 {
   Error error = NoError();
-  Configuration config = LoadConfigurationFromFile("test/data/util_index_mapping_from_file.json", &error);
+  Configuration* config = LoadConfigurationFromFile("test/data/util_index_mapping_from_file.json", &error);
   EXPECT_TRUE(IsSuccess(error));
   Mappings source_map;
   Mappings target_map;
@@ -149,7 +149,7 @@ TEST(Util, IndexMappingFromFile)
   source_map.size_ = 2;
   target_map.mappings_ = target_map_array;
   target_map.size_ = 2;
-  IndexMappings* index_mappings = CreateIndexMappings(config, IndexMappingOptions::MapAll, source_map, target_map, &error);
+  IndexMappings* index_mappings = CreateIndexMappings(*config, IndexMappingOptions::MapAll, source_map, target_map, &error);
   EXPECT_TRUE(IsSuccess(error));
   EXPECT_EQ(index_mappings->mappings_[0].source_, 1);
   EXPECT_EQ(index_mappings->mappings_[0].target_, 2);
@@ -172,7 +172,8 @@ TEST(Util, IndexMappingFromFile)
   DeleteMapping(&(source_map_array[1]));
   DeleteMapping(&(target_map_array[0]));
   DeleteMapping(&(target_map_array[1]));
-  DeleteConfiguration(&config);
+  DeleteConfiguration(config);
+  delete config;
   DeleteError(&error);
 }
 
