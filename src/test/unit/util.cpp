@@ -93,7 +93,7 @@ TEST(Util, FindMappingIndex)
 TEST(Util, IndexMappingFromString)
 {
   Error error = NoError();
-  Configuration config = LoadConfigurationFromString(
+  Configuration* config = LoadConfigurationFromString(
       "- source: Test\n"
       "  target: Test2\n"
       "- source: Test2\n"
@@ -109,7 +109,7 @@ TEST(Util, IndexMappingFromString)
   source_map.size_ = 2;
   target_map.mappings_ = target_map_array;
   target_map.size_ = 2;
-  IndexMappings* index_mappings = CreateIndexMappings(config, IndexMappingOptions::MapAll, source_map, target_map, &error);
+  IndexMappings* index_mappings = CreateIndexMappings(*config, IndexMappingOptions::MapAll, source_map, target_map, &error);
   EXPECT_TRUE(IsSuccess(error));
   EXPECT_EQ(index_mappings->mappings_[0].source_, 1);
   EXPECT_EQ(index_mappings->mappings_[0].target_, 2);
@@ -132,7 +132,8 @@ TEST(Util, IndexMappingFromString)
   DeleteMapping(&(source_map_array[1]));
   DeleteMapping(&(target_map_array[0]));
   DeleteMapping(&(target_map_array[1]));
-  DeleteConfiguration(&config);
+  DeleteConfiguration(config);
+  delete config;
   DeleteError(&error);
 }
 
@@ -180,7 +181,7 @@ TEST(Util, IndexMappingFromFile)
 TEST(Util, IndexMappingMissingSource)
 {
   Error error = NoError();
-  Configuration config = LoadConfigurationFromString(
+  Configuration* config = LoadConfigurationFromString(
       "- source: Test\n"
       "  target: Test2\n"
       "- source: Test2\n"
@@ -198,12 +199,12 @@ TEST(Util, IndexMappingMissingSource)
   source_map.size_ = 2;
   target_map.mappings_ = target_map_array;
   target_map.size_ = 2;
-  IndexMappings* index_mappings = CreateIndexMappings(config, IndexMappingOptions::MapAll, source_map, target_map, &error);
+  IndexMappings* index_mappings = CreateIndexMappings(*config, IndexMappingOptions::MapAll, source_map, target_map, &error);
   EXPECT_EQ(error.code_, MUSICA_ERROR_CODE_MAPPING_NOT_FOUND);
   EXPECT_EQ(index_mappings->size_, 0);
   EXPECT_EQ(index_mappings->mappings_, nullptr);
   delete index_mappings;
-  index_mappings = CreateIndexMappings(config, IndexMappingOptions::MapAny, source_map, target_map, &error);
+  index_mappings = CreateIndexMappings(*config, IndexMappingOptions::MapAny, source_map, target_map, &error);
   EXPECT_TRUE(IsSuccess(error));
   EXPECT_EQ(index_mappings->mappings_[0].source_, 1);
   EXPECT_EQ(index_mappings->mappings_[0].target_, 2);
@@ -226,14 +227,15 @@ TEST(Util, IndexMappingMissingSource)
   DeleteMapping(&(source_map_array[1]));
   DeleteMapping(&(target_map_array[0]));
   DeleteMapping(&(target_map_array[1]));
-  DeleteConfiguration(&config);
+  DeleteConfiguration(config);
+  delete config;
   DeleteError(&error);
 }
 
 TEST(Util, IndexMappingMissingTarget)
 {
   Error error = NoError();
-  Configuration config = LoadConfigurationFromString(
+  Configuration* config = LoadConfigurationFromString(
       "- source: Test\n"
       "  target: Test2\n"
       "- source: Test2\n"
@@ -251,12 +253,12 @@ TEST(Util, IndexMappingMissingTarget)
   source_map.size_ = 2;
   target_map.mappings_ = target_map_array;
   target_map.size_ = 2;
-  IndexMappings* index_mappings = CreateIndexMappings(config, IndexMappingOptions::MapAll, source_map, target_map, &error);
+  IndexMappings* index_mappings = CreateIndexMappings(*config, IndexMappingOptions::MapAll, source_map, target_map, &error);
   EXPECT_EQ(error.code_, MUSICA_ERROR_CODE_MAPPING_NOT_FOUND);
   EXPECT_EQ(index_mappings->size_, 0);
   EXPECT_EQ(index_mappings->mappings_, nullptr);
   delete index_mappings;
-  index_mappings = CreateIndexMappings(config, IndexMappingOptions::MapAny, source_map, target_map, &error);
+  index_mappings = CreateIndexMappings(*config, IndexMappingOptions::MapAny, source_map, target_map, &error);
   EXPECT_TRUE(IsSuccess(error));
   EXPECT_EQ(index_mappings->mappings_[0].source_, 1);
   EXPECT_EQ(index_mappings->mappings_[0].target_, 2);
@@ -279,14 +281,15 @@ TEST(Util, IndexMappingMissingTarget)
   DeleteMapping(&(source_map_array[1]));
   DeleteMapping(&(target_map_array[0]));
   DeleteMapping(&(target_map_array[1]));
-  DeleteConfiguration(&config);
+  DeleteConfiguration(config);
+  delete config;
   DeleteError(&error);
 }
 
 TEST(Util, IndexMappingUndefinedOptions)
 {
   Error error = NoError();
-  Configuration config = LoadConfigurationFromString(
+  Configuration* config = LoadConfigurationFromString(
       "- source: Test\n"
       "  target: Test2\n"
       "- source: Test2\n"
@@ -303,7 +306,7 @@ TEST(Util, IndexMappingUndefinedOptions)
   target_map.mappings_ = target_map_array;
   target_map.size_ = 2;
   IndexMappings* index_mappings =
-      CreateIndexMappings(config, IndexMappingOptions::UndefinedMapping, source_map, target_map, &error);
+      CreateIndexMappings(*config, IndexMappingOptions::UndefinedMapping, source_map, target_map, &error);
   EXPECT_EQ(error.code_, MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED);
   EXPECT_EQ(index_mappings->size_, 0);
   EXPECT_EQ(index_mappings->mappings_, nullptr);
@@ -311,7 +314,8 @@ TEST(Util, IndexMappingUndefinedOptions)
   DeleteMapping(&(source_map_array[1]));
   DeleteMapping(&(target_map_array[0]));
   DeleteMapping(&(target_map_array[1]));
-  DeleteConfiguration(&config);
+  DeleteConfiguration(config);
+  delete config;
   DeleteError(&error);
   delete index_mappings;
 }
