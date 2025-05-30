@@ -144,7 +144,7 @@ const size_t MUSICA_VECTOR_SIZE = 0;
     /// @param target The target array of name-index Mappings
     /// @param error The Error to populate if a Mapping is not found
     /// @return The array of IndexMappings
-    IndexMappings CreateIndexMappings(
+    IndexMappings* CreateIndexMappings(
         const Configuration configuration,
         const IndexMappingOptions map_options,
         Mappings source,
@@ -154,13 +154,13 @@ const size_t MUSICA_VECTOR_SIZE = 0;
     /// @brief Returns the number of elements in an IndexMappings container
     /// @param mappings The IndexMappings container
     /// @return The number of elements
-    std::size_t GetIndexMappingsSize(const IndexMappings mappings);
+    std::size_t GetIndexMappingsSize(const IndexMappings* mappings);
 
     /// @brief Copies data from one array to another using IndexMappings
     /// @param mappings The array of IndexMappings
     /// @param source The source array
     /// @param target The target array
-    void CopyData(const IndexMappings mappings, const double* source, double* target);
+    void CopyData(const IndexMappings* mappings, const double* source, double* target);
 
     /// @brief Deletes an Error
     /// @param error The Error to delete
