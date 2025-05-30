@@ -144,11 +144,11 @@ namespace musica
     return new Mapping[size];
   }
 
-  Mappings CreateMappings(std::size_t size)
+  Mappings* CreateMappings(std::size_t size)
   {
-    Mappings mappings;
-    mappings.mappings_ = new Mapping[size];
-    mappings.size_ = size;
+    Mappings* mappings = new Mappings;
+    mappings->mappings_ = new Mapping[size];
+    mappings->size_ = size;
     return mappings;
   }
 

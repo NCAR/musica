@@ -128,7 +128,7 @@ const size_t MUSICA_VECTOR_SIZE = 0;
     /// @brief Allocate a new Mappings struct
     /// @param size The size of the Mappings
     /// @return The Mappings
-    Mappings CreateMappings(std::size_t size);
+    Mappings* CreateMappings(std::size_t size);
 
     /// @brief Finds the index of a Mapping by name
     /// @param mappings The array of Mappings
