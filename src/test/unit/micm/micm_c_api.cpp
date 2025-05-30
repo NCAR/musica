@@ -121,14 +121,14 @@ TEST_F(MicmCApiTestFixture, CreateMicmInstance)
 TEST_F(MicmCApiTestFixture, GetSpeciesOrdering)
 {
   Error error;
-  Mappings species_ordering = GetSpeciesOrdering(state, &error);
+  Mappings* species_ordering = GetSpeciesOrdering(state, &error);
   ASSERT_TRUE(IsSuccess(error));
-  ASSERT_EQ(species_ordering.size_, 4);
+  ASSERT_EQ(species_ordering->size_, 4);
   DeleteError(&error);
   bool found = false;
-  for (std::size_t i = 0; i < species_ordering.size_; i++)
+  for (std::size_t i = 0; i < species_ordering->size_; i++)
   {
-    if (strcmp(species_ordering.mappings_[i].name_.value_, "O3") == 0)
+    if (strcmp(species_ordering->mappings_[i].name_.value_, "O3") == 0)
     {
       found = true;
       break;
@@ -136,9 +136,9 @@ TEST_F(MicmCApiTestFixture, GetSpeciesOrdering)
   }
   ASSERT_TRUE(found);
   found = false;
-  for (std::size_t i = 0; i < species_ordering.size_; i++)
+  for (std::size_t i = 0; i < species_ordering->size_; i++)
   {
-    if (strcmp(species_ordering.mappings_[i].name_.value_, "O") == 0)
+    if (strcmp(species_ordering->mappings_[i].name_.value_, "O") == 0)
     {
       found = true;
       break;
@@ -146,9 +146,9 @@ TEST_F(MicmCApiTestFixture, GetSpeciesOrdering)
   }
   ASSERT_TRUE(found);
   found = false;
-  for (std::size_t i = 0; i < species_ordering.size_; i++)
+  for (std::size_t i = 0; i < species_ordering->size_; i++)
   {
-    if (strcmp(species_ordering.mappings_[i].name_.value_, "O2") == 0)
+    if (strcmp(species_ordering->mappings_[i].name_.value_, "O2") == 0)
     {
       found = true;
       break;
@@ -156,16 +156,17 @@ TEST_F(MicmCApiTestFixture, GetSpeciesOrdering)
   }
   ASSERT_TRUE(found);
   found = false;
-  for (std::size_t i = 0; i < species_ordering.size_; i++)
+  for (std::size_t i = 0; i < species_ordering->size_; i++)
   {
-    if (strcmp(species_ordering.mappings_[i].name_.value_, "O1D") == 0)
+    if (strcmp(species_ordering->mappings_[i].name_.value_, "O1D") == 0)
     {
       found = true;
       break;
     }
   }
   ASSERT_TRUE(found);
-  DeleteMappings(&species_ordering);
+  DeleteMappings(species_ordering);
+  delete species_ordering;
 }
 
 // Test case for getting user-defined reaction rates ordering
@@ -223,18 +224,19 @@ void TestSingleGridCell(MICM* micm, musica::State* state)
   std::vector<double>& user_defined_rate_parameters = state->GetOrderedRateParameters();
 
   // Get species ordering
-  Mappings species_ordering = GetSpeciesOrdering(state, &error);
+  Mappings* species_ordering = GetSpeciesOrdering(state, &error);
   ASSERT_TRUE(IsSuccess(error));
-  ASSERT_EQ(species_ordering.size_, num_concentrations);
-  std::size_t O2_index = FindMappingIndex(species_ordering, "O2", &error);
+  ASSERT_EQ(species_ordering->size_, num_concentrations);
+  std::size_t O2_index = FindMappingIndex(*species_ordering, "O2", &error);
   ASSERT_TRUE(IsSuccess(error));
-  std::size_t O_index = FindMappingIndex(species_ordering, "O", &error);
+  std::size_t O_index = FindMappingIndex(*species_ordering, "O", &error);
   ASSERT_TRUE(IsSuccess(error));
-  std::size_t O1D_index = FindMappingIndex(species_ordering, "O1D", &error);
+  std::size_t O1D_index = FindMappingIndex(*species_ordering, "O1D", &error);
   ASSERT_TRUE(IsSuccess(error));
-  std::size_t O3_index = FindMappingIndex(species_ordering, "O3", &error);
+  std::size_t O3_index = FindMappingIndex(*species_ordering, "O3", &error);
   ASSERT_TRUE(IsSuccess(error));
-  DeleteMappings(&species_ordering);
+  DeleteMappings(species_ordering);
+  delete species_ordering;
 
   // Get user-defined reaction rates ordering
   Mappings* reaction_rates_ordering = GetUserDefinedRateParametersOrdering(state, &error);
@@ -358,22 +360,23 @@ void TestSolver(MICM* micm, const size_t num_grid_cells, const double time_step,
   }
 
   // Get species indices in concentration array
-  Mappings species_ordering = GetSpeciesOrdering(state_1, &error);
+  Mappings* species_ordering = GetSpeciesOrdering(state_1, &error);
   ASSERT_TRUE(IsSuccess(error));
-  ASSERT_EQ(species_ordering.size_, num_concentrations);
-  std::size_t A_index = FindMappingIndex(species_ordering, "A", &error);
+  ASSERT_EQ(species_ordering->size_, num_concentrations);
+  std::size_t A_index = FindMappingIndex(*species_ordering, "A", &error);
   ASSERT_TRUE(IsSuccess(error));
-  std::size_t B_index = FindMappingIndex(species_ordering, "B", &error);
+  std::size_t B_index = FindMappingIndex(*species_ordering, "B", &error);
   ASSERT_TRUE(IsSuccess(error));
-  std::size_t C_index = FindMappingIndex(species_ordering, "C", &error);
+  std::size_t C_index = FindMappingIndex(*species_ordering, "C", &error);
   ASSERT_TRUE(IsSuccess(error));
-  std::size_t D_index = FindMappingIndex(species_ordering, "D", &error);
+  std::size_t D_index = FindMappingIndex(*species_ordering, "D", &error);
   ASSERT_TRUE(IsSuccess(error));
-  std::size_t E_index = FindMappingIndex(species_ordering, "E", &error);
+  std::size_t E_index = FindMappingIndex(*species_ordering, "E", &error);
   ASSERT_TRUE(IsSuccess(error));
-  std::size_t F_index = FindMappingIndex(species_ordering, "F", &error);
+  std::size_t F_index = FindMappingIndex(*species_ordering, "F", &error);
   ASSERT_TRUE(IsSuccess(error));
-  DeleteMappings(&species_ordering);
+  DeleteMappings(species_ordering);
+  delete species_ordering;
 
   // Get user-defined reaction rates indices in user-defined reaction rates array
   Mappings* rate_ordering = GetUserDefinedRateParametersOrdering(state_1, &error);

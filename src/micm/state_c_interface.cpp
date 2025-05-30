@@ -100,22 +100,22 @@ namespace musica
         error);
   }
 
-  Mappings GetSpeciesOrdering(musica::State* state, Error* error)
+  Mappings* GetSpeciesOrdering(musica::State* state, Error* error)
   {
     return HandleErrors(
         [&]()
         {
-          Mappings species_ordering;
+          Mappings* species_ordering = new Mappings;
           std::map<std::string, std::size_t> map =
               std::visit([](auto& state) { return state.variable_map_; }, state->state_variant_);
 
-          species_ordering.mappings_ = new Mapping[map.size()];
-          species_ordering.size_ = map.size();
+          species_ordering->mappings_ = new Mapping[map.size()];
+          species_ordering->size_ = map.size();
 
           std::size_t i = 0;
           for (const auto& entry : map)
           {
-            species_ordering.mappings_[i] = ToMapping(entry.first.c_str(), entry.second);
+            species_ordering->mappings_[i] = ToMapping(entry.first.c_str(), entry.second);
             ++i;
           }
 
