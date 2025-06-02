@@ -1,33 +1,49 @@
-# GPUs are supported only on Linux
-# But, to make the import simpler, we need to compile two versions of the pybind11 module:
-# one with CUDA support and one without.
-#
-# Then, after the wheels are built, we have to modify the wheel file so that we don't upload the CUDA libraries to pypi
-# and edit the rpath to search for sumbols using a specific cuda library version.
+################################################################################
+# Python Extension Modules
 
-set(pybind11_libraries _musica)
+# Define common sources for both Python bindings
+set(MUSICA_PYBIND_SOURCES
+  binding.cpp
+  musica.cpp
+  mechanism_configuration.cpp
+)
 
+# Define the list of Python extension module targets
+set(PY_MODULES _musica)
+
+# Add GPU module if CUDA is enabled
 if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None" AND NOT APPLE)
-  list(APPEND pybind11_libraries _musica_gpu )
+  list(APPEND PY_MODULES _musica_gpu)
 endif()
 
-foreach(lib ${pybind11_libraries})
-  pybind11_add_module(${lib}
-    binding.cpp
-    musica.cpp
-    mechanism_configuration.cpp
+# Loop over all Python extension modules
+foreach(lib ${PY_MODULES})
+  pybind11_add_module(${lib} ${MUSICA_PYBIND_SOURCES})
+
+  # Common include paths
+  target_include_directories(${lib}
+    PRIVATE
+      ${PROJECT_SOURCE_DIR}/include
   )
 
+  # Common linking (to core MUSICA object library)
   target_link_libraries(${lib}
     PRIVATE
       musica::musica
   )
 
+  # Silence warnings
   include(silence_warnings)
   silence_warnings(${lib})
 
+  # GPU-specific options
+  if (${lib} STREQUAL "_musica_gpu")
+    target_compile_definitions(${lib} PRIVATE MUSICA_ENABLE_CUDA)
+    target_link_libraries(${lib} PRIVATE musica::micm_cuda)
+  endif()
+
+  # RPATH handling (Linux/macOS)
   if (APPLE)
-    # set the rpath for the shared library
     set_target_properties(${lib} PROPERTIES
       INSTALL_RPATH "@loader_path"
       BUILD_WITH_INSTALL_RPATH TRUE
@@ -39,24 +55,6 @@ foreach(lib ${pybind11_libraries})
     )
   endif()
 
-  if(WIN32)
-    # makefiles on windows don't need the config directory
-    if (${CMAKE_GENERATOR} MATCHES "MinGW Makefiles")
-        set(PYTHON_MODULE_PATH "${CMAKE_CURRENT_BINARY_DIR}")
-    else()
-    # but visual studio does
-        set(PYTHON_MODULE_PATH "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>")
-    endif()
-  else()
-    set(PYTHON_MODULE_PATH "${CMAKE_CURRENT_BINARY_DIR}")
-  endif()
-
+  # Python module install path
   install(TARGETS ${lib} LIBRARY DESTINATION musica)
-
-  install(
-    TARGETS 
-      yaml-cpp musica 
-      LIBRARY DESTINATION musica/lib
-      ARCHIVE DESTINATION musica/lib
-  )
 endforeach()
