@@ -5,6 +5,7 @@ install(
     musica
     yaml-cpp
     mechanism_configuration
+    musica_object
   EXPORT
     musica_Exports
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

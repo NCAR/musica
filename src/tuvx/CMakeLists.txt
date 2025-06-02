@@ -1,4 +1,4 @@
-target_sources(musica
+target_sources(musica_object
   PRIVATE
     interface.F90
     interface_grid.F90

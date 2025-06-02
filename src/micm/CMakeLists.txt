@@ -1,4 +1,4 @@
-target_sources(musica
+target_sources(musica_object
   PRIVATE
     micm.cpp
     micm_c_interface.cpp

@@ -12,29 +12,65 @@ message (STATUS "CMake build configuration for ${PROJECT_NAME} (${CMAKE_BUILD_TY
 ##############################################################################
 # MUSICA targets
 
-####################
-# MUSICA
-add_library(musica)
-add_library(musica::musica ALIAS musica)
+add_library(musica_object OBJECT
+  util.cpp
+  component_versions.cpp
+  ${CMAKE_BINARY_DIR}/version.cpp
+)
 
-if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None" AND NOT APPLE)
-  # Add the CUDA library
-  target_link_libraries(musica PUBLIC musica::micm_cuda)
-  set_target_properties(micm_cuda PROPERTIES POSITION_INDEPENDENT_CODE ON)
-  list(APPEND musica_compile_definitions MUSICA_ENABLE_CUDA)
+####################
+# MICM
+if(MUSICA_ENABLE_MICM)
+  target_link_libraries(musica_object PUBLIC musica::micm)
+
+  add_subdirectory(micm)
+
+  ####################
+  # CUDA
+  if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None" AND NOT APPLE)
+    # Add the CUDA library
+    target_link_libraries(musica_object PUBLIC musica::micm_cuda)
+    set_target_properties(micm_cuda PROPERTIES POSITION_INDEPENDENT_CODE ON)
+    list(APPEND musica_compile_definitions MUSICA_ENABLE_CUDA)
+  endif()
+endif()
+
+####################
+# TUV-x
+if(MUSICA_ENABLE_TUVX)
+  enable_language(Fortran)
+
+  add_subdirectory(tuvx)
+
+  # Include the sources directly into musica
+  target_sources(musica_object
+    PUBLIC
+      $<TARGET_OBJECTS:tuvx_object>
+  )
+
+  target_link_libraries(musica_object
+    PUBLIC
+      tuvx_object
+  )
+
+  target_include_directories(musica_object
+    PUBLIC
+      $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
+      $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
+  )
 endif()
 
 if (MUSICA_ENABLE_PYTHON_LIBRARY OR MUSICA_ENABLE_PIC)
   # Add the -fPIC flag for position-independent code if we are building shared libraries
   # or the python library so that it links correctly on linux
-  set_target_properties(musica PROPERTIES POSITION_INDEPENDENT_CODE ON)
+  set_target_properties(musica_object PROPERTIES POSITION_INDEPENDENT_CODE ON)
 endif()
 
 include(silence_warnings)
-silence_warnings(musica)
+silence_warnings(musica_object)
 
 # set the c++ standard for musica
-target_compile_features(musica PUBLIC cxx_std_20)
+target_compile_features(musica_object PUBLIC cxx_std_20)
 
 if(MUSICA_ENABLE_MICM)
   list(APPEND musica_compile_definitions -DMUSICA_USE_MICM)
@@ -51,19 +87,28 @@ endif()
 # version
 configure_file(version.cpp.in ${CMAKE_BINARY_DIR}/version.cpp @ONLY)
 
-target_sources(musica
-  PRIVATE
-    util.cpp
-    component_versions.cpp
-    ${CMAKE_BINARY_DIR}/version.cpp
-)
-
-target_link_libraries(musica
+target_link_libraries(musica_object
   PUBLIC
     musica::mechanism_configuration
 )
 
-target_compile_definitions(musica PUBLIC ${musica_compile_definitions})
+target_compile_definitions(musica_object PUBLIC ${musica_compile_definitions})
+
+target_include_directories(musica_object
+  PUBLIC
+    $<BUILD_INTERFACE:${MUSICA_PROJECT_SRC_DIR}/include>
+    $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
+)
+
+####################
+# MUSICA
+add_library(musica $<TARGET_OBJECTS:musica_object>)
+add_library(musica::musica ALIAS musica)
+
+target_link_libraries(musica
+  PUBLIC
+    musica_object
+)
 
 set_target_properties(musica PROPERTIES
   ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
@@ -83,45 +128,6 @@ elseif(UNIX)
     INSTALL_RPATH "$ORIGIN"
     BUILD_WITH_INSTALL_RPATH TRUE
   )
-endif()
-
-target_include_directories(musica
-  PUBLIC
-    $<BUILD_INTERFACE:${MUSICA_PROJECT_SRC_DIR}/include>
-    $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
-)
-
-####################
-# MICM
-if(MUSICA_ENABLE_MICM)
-  target_link_libraries(musica PUBLIC musica::micm)
-
-  add_subdirectory(micm)
-endif()
-
-####################
-# TUV-x
-if(MUSICA_ENABLE_TUVX)
-  enable_language(Fortran)
-
-  # Include the sources directly into musica
-  target_sources(musica
-    PRIVATE
-      $<TARGET_OBJECTS:tuvx_object>
-  )
-
-  target_link_libraries(musica
-    PUBLIC
-      tuvx_object
-  )
-
-  target_include_directories(musica
-    PUBLIC
-      $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
-      $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
-  )
-
-  add_subdirectory(tuvx)
 endif()
 
 ################################################################################
