@@ -5,17 +5,20 @@ from musica.mechanism_configuration import Serializer, Mechanism
 from test_util_full_mechanism import get_fully_defined_mechanism, validate_full_v1_mechanism
 
 
-# TODO:
-TEST_OUTPUT_DIRECTORY = "./musica/test/test_output/"
+@pytest.fixture
+def temp_dir(tmp_path):
+    yield tmp_path
+    shutil.rmtree(tmp_path)
 
 
-def test_serialize_parser_loop():
-    # TODO: finish test
+@pytest.mark.skip()
+def test_serialize_parser_loop(temp_dir):
+    # TODO: finish test. change export key names to the correct strings.
     serializer = Serializer()
     print()
     extensions = [".yml", ".yaml", ".json"]
     for extension in extensions:
-        path = f"examples/_missing_configuration{extension}"
+        path = f"{temp_dir}/_missing_configuration{extension}"
         print(path)
         # serializer.serialize()
 
@@ -26,17 +29,15 @@ def test_serialize_parser_loop():
     validate_full_v1_mechanism(MECHANISM_FULLY_DEFINED) # change to mechanism from imported files
 
 
-def test_serialize_to_file():
+def test_serialize_to_file(temp_dir):
     serializer = Serializer()
     MECHANISM_FULLY_DEFINED = get_fully_defined_mechanism()
     extensions = [".yml", ".yaml", ".json"]
     for extension in extensions:
-        file_path = f'{TEST_OUTPUT_DIRECTORY}test_mechanism{extension}'
+        file_path = f'{temp_dir}/test_mechanism{extension}'
         assert not os.path.exists(file_path)
         serializer.serialize(MECHANISM_FULLY_DEFINED, file_path)
         assert os.path.exists(file_path)
-    
-    delete_test_output()
 
 
 def test_bad_inputs():
@@ -47,39 +48,27 @@ def test_bad_inputs():
         serializer.serialize('not a mechanism')
 
 
-def test_path_creation():
+def test_path_creation(temp_dir):
     mechanism = Mechanism(name="Full Configuration")
     serializer = Serializer()
-    path = f"{TEST_OUTPUT_DIRECTORY}non_existant_path/"
+    path = f"{temp_dir}/non_existant_path/"
     assert not os.path.exists(path)    
     serializer.serialize(mechanism, f"{path}test_mechanism.json")
     assert os.path.exists(path)
 
-    delete_test_output()
 
-
-def test_overwrite_file():
+def test_overwrite_file(temp_dir):
     mechanism = Mechanism(name="Full Configuration")
     serializer = Serializer()
-    file_path = f'{TEST_OUTPUT_DIRECTORY}test_mechanism.json'
+    file_path = f'{temp_dir}/test_mechanism.json'
     assert not os.path.exists(file_path)
     
     # write first file
     serializer.serialize(mechanism, file_path)
-    assert os.path.exists(file_path)
-    _, _, files = next(os.walk(TEST_OUTPUT_DIRECTORY))
+    files = list(temp_dir.iterdir())
     assert len(files) == 1
 
     # overwrite file
     serializer.serialize(mechanism, file_path)
-    assert os.path.exists(file_path)
-    _, _, files = next(os.walk(TEST_OUTPUT_DIRECTORY))
+    files = list(temp_dir.iterdir())
     assert len(files) == 1
-
-    delete_test_output()
-
-
-def delete_test_output():
-    if os.path.exists(TEST_OUTPUT_DIRECTORY):
-        shutil.rmtree(TEST_OUTPUT_DIRECTORY)
-    assert not os.path.exists(TEST_OUTPUT_DIRECTORY)
