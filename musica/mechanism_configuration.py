@@ -249,6 +249,7 @@ class Arrhenius(_Arrhenius):
     @staticmethod
     def serialize(cls):
         return remove_empty_keys({
+            "type": "ARRHENIUS",
             "name": cls.name,
             "A": cls.A,
             "B": cls.B,
@@ -355,6 +356,7 @@ class CondensedPhaseArrhenius(_CondensedPhaseArrhenius):
     @staticmethod
     def serialize(cls):
         return remove_empty_keys({
+            "type": "CONDENSED_PHASE_ARRHENIUS",
             "name": cls.name,
             "A": cls.A,
             "B": cls.B,
@@ -482,6 +484,7 @@ class Troe(_Troe):
     @staticmethod
     def serialize(cls):
         return remove_empty_keys({
+            "type": "TROE",
             "name": cls.name,
             "k0_A": cls.k0_A,
             "k0_B": cls.k0_B,
@@ -593,6 +596,7 @@ class Branched(_Branched):
     @staticmethod
     def serialize(cls):
         return remove_empty_keys({
+            "type": "BRANCHED_NO_RO2",
             "name": cls.name,
             "X": cls.X,
             "Y": cls.Y,
@@ -690,6 +694,7 @@ class Tunneling(_Tunneling):
     @staticmethod
     def serialize(cls):
         return remove_empty_keys({
+            "type": "TUNNELING",
             "name": cls.name,
             "A": cls.A,
             "B": cls.B,
@@ -772,6 +777,7 @@ class Surface(_Surface):
     @staticmethod
     def serialize(cls):
         return remove_empty_keys({
+            "type": "SURFACE",
             "name": cls.name,
             "reaction probability": cls.reaction_probability,
             "gas-phase species": Serializer.serialize_reaction_component(cls.gas_phase_species),
@@ -848,6 +854,7 @@ class Photolysis(_Photolysis):
     @staticmethod
     def serialize(cls):
         return remove_empty_keys({
+            "type": "PHOTOLYSIS",
             "name": cls.name,
             "scaling factor": cls.scaling_factor,
             "reactants": Serializer.serialize_list_reaction_components(cls.reactants),
@@ -929,6 +936,7 @@ class CondensedPhasePhotolysis(_CondensedPhasePhotolysis):
     @staticmethod
     def serialize(cls):
         return remove_empty_keys({
+            "type": "CONDENSED_PHASE_PHOTOLYSIS",
             "name": cls.name,
             "scaling factor": cls.scaling_factor,
             "reactants": Serializer.serialize_list_reaction_components(cls.reactants),
@@ -990,6 +998,7 @@ class Emission(_Emission):
     @staticmethod
     def serialize(cls):
         return remove_empty_keys({
+            "type": "EMISSION",
             "name": cls.name,
             "scaling factor": cls.scaling_factor,
             "products": Serializer.serialize_list_reaction_components(cls.products),
@@ -1049,6 +1058,7 @@ class FirstOrderLoss(_FirstOrderLoss):
     @staticmethod
     def serialize(cls):
         return remove_empty_keys({
+            "type": "FIRST_ORDER_LOSS",
             "name": cls.name,
             "scaling factor": cls.scaling_factor,
             "reactants": Serializer.serialize_list_reaction_components(cls.reactants),
@@ -1142,6 +1152,7 @@ class AqueousEquilibrium(_AqueousEquilibrium):
     def serialize(cls):
         
         return remove_empty_keys({
+            "type": "AQUEOUS_EQUILIBRIUM",
             "name": cls.name,
             "gas phase": cls.gas_phase,
             "aerosol phase": cls.aerosol_phase,
@@ -1191,6 +1202,7 @@ class WetDeposition(_WetDeposition):
     @staticmethod
     def serialize(cls):
         return remove_empty_keys({
+            "type": "WET_DEPOSITION",
             "name": cls.name,
             "scaling factor": cls.scaling_factor,
             "aerosol phase": cls.aerosol_phase,
@@ -1266,6 +1278,7 @@ class HenrysLaw(_HenrysLaw):
     @staticmethod
     def serialize(cls):
         return remove_empty_keys({
+            "type": "HL_PHASE_TRANSFER",
             "name": cls.name,
             "gas phase": cls.gas_phase,
             "gas-phase species": Serializer.serialize_reaction_component(cls.gas_phase_species),
@@ -1347,6 +1360,7 @@ class SimpolPhaseTransfer(_SimpolPhaseTransfer):
     @staticmethod
     def serialize(cls):
         return remove_empty_keys({
+            "type": "SIMPOL_PHASE_TRANSFER",
             "name": cls.name,
             "gas phase": cls.gas_phase,
             "gas-phase species": Serializer.serialize_reaction_component(cls.gas_phase_species),
@@ -1423,6 +1437,7 @@ class UserDefined(_UserDefined):
     @staticmethod
     def serialize(cls):
         return remove_empty_keys({
+            "type": "USER_DEFINED",
             "name": cls.name,
             "scaling factor": cls.scaling_factor,
             "reactants": Serializer.serialize_list_reaction_components(cls.reactants),
@@ -1513,6 +1528,8 @@ class Mechanism(_Mechanism):
 
         reactions_list = []
         for reaction in self.reactions:
+            # TODO: remove
+            print(reaction.type)
             match reaction:
                 case _Arrhenius() | Arrhenius():
                     reactions_list.append(Arrhenius.serialize(reaction))
@@ -1604,12 +1621,13 @@ class Serializer():
     # TODO: test
     @staticmethod
     def serialize_reaction_component(rc):
-        if isinstance(rc, Species):
+        # TODO: something failing here?
+        if isinstance(rc, Species) or isinstance(rc, _Species):
             return rc.name
 
         return remove_empty_keys({
             "species_name": rc.species_name,
-            "coefficient": rc.coefficient,
+            "coefficient": rc.coefficient, # TODO: creating a dict with just a coefficint of 1.0
             "other_properties": rc.other_properties,
         })
     
