@@ -17,8 +17,10 @@ def test_serialize_parser_loop(temp_dir):
     parser = Parser()
     MECHANISM_FULLY_DEFINED = get_fully_defined_mechanism()
     print()
+    # TODO: debugging
     # extensions = [".yml", ".yaml", ".json"]
-    extensions = [".json"]
+    extensions = [".yaml"]
+    # extensions = [".json"]
     for extension in extensions:
         path = f"{temp_dir}/test_mechanism{extension}"
         print(path)

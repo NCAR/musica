@@ -1359,13 +1359,19 @@ class SimpolPhaseTransfer(_SimpolPhaseTransfer):
 
     @staticmethod
     def serialize(cls):
+        # TODO: debugging
+        print('gas-phase species:')
+        print(cls.gas_phase_species)
+        
         return remove_empty_keys({
             "type": "SIMPOL_PHASE_TRANSFER",
             "name": cls.name,
             "gas phase": cls.gas_phase,
-            "gas-phase species": Serializer.serialize_reaction_component(cls.gas_phase_species),
+            # "gas-phase species": Serializer.serialize_reaction_component(cls.gas_phase_species),
+            "gas-phase species": "A",
             "aerosol phase": cls.aerosol_phase,
-            "aerosol-phase species": Serializer.serialize_reaction_component(cls.aerosol_phase_species),
+            # "aerosol-phase species": Serializer.serialize_reaction_component(cls.aerosol_phase_species),
+            "aerosol-phase species": "C",
             "B": cls.B,
             "other_properties": cls.other_properties,
         })
@@ -1564,13 +1570,16 @@ class Mechanism(_Mechanism):
                 case _:
                     raise TypeError(f'Reaction type {type(reaction)} is not supported for export.')
 
-        return remove_empty_keys({
+        # TODO: debugging
+        return {
             "name": self.name,
             "reactions": reactions_list,
-            "species": species_list,
-            "phases": phases_list, 
+            # "species": species_list,
+            "species": [],
+            # "phases": phases_list,
+            "phases": [],
             "version": self.version.to_string(),
-        })
+        }
 
     # def to_export(self): # TODO: decide name
     def export(self, file_path):
@@ -1621,6 +1630,9 @@ class Serializer():
     # TODO: test
     @staticmethod
     def serialize_reaction_component(rc):
+        # TODO: debugging
+        print(type(rc))
+        print(rc.species_name, rc.coefficient)
         # TODO: something failing here?
         if isinstance(rc, Species) or isinstance(rc, _Species):
             return rc.name

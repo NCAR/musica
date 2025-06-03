@@ -217,6 +217,8 @@ def get_fully_defined_mechanism():
     my_simpol_phase_transfer = SimpolPhaseTransfer(
         name="my simpol",
         gas_phase=gas,
+        # TODO: debugging
+        # gas_phase_species=Species(name="ethanol"),
         gas_phase_species=ethanol,
         aerosol_phase=aqueous_aerosol,
         aerosol_phase_species=ethanol_aq,
