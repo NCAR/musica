@@ -103,7 +103,7 @@ void bind_musica(py::module_ &core)
           std::cout << "Error creating solver: " << error.message_.value_ << " solver_type: " << solver_type
                     << " config_path: " << config_path << std::endl;
           std::string message = "Error creating solver: " + std::string(error.message_.value_);
-          DeleteError(&error);
+          DeleteError(error);
           throw py::value_error(message);
         }
         return micm;
@@ -119,7 +119,7 @@ void bind_musica(py::module_ &core)
         if (!musica::IsSuccess(error))
         {
           std::string message = "Error creating solver: " + std::string(error.message_.value_);
-          DeleteError(&error);
+          DeleteError(error);
           throw py::value_error(message);
         }
         return micm;
@@ -134,7 +134,7 @@ void bind_musica(py::module_ &core)
         if (!musica::IsSuccess(error))
         {
           std::string message = "Error creating state: " + std::string(error.message_.value_);
-          DeleteError(&error);
+          DeleteError(error);
           throw py::value_error(message);
         }
         return state;
@@ -151,7 +151,7 @@ void bind_musica(py::module_ &core)
         if (!musica::IsSuccess(error))
         {
           std::string message = "Error solving system: " + std::string(error.message_.value_);
-          DeleteError(&error);
+          DeleteError(error);
           throw py::value_error(message);
         }
       },
