@@ -9,106 +9,159 @@ project(
 
 message (STATUS "CMake build configuration for ${PROJECT_NAME} (${CMAKE_BUILD_TYPE}) ${PROJECT_VERSION}")
 
-##############################################################################
-# MUSICA targets
-
-add_library(musica_object OBJECT
-  util.cpp
-  component_versions.cpp
-  ${CMAKE_BINARY_DIR}/version.cpp
-)
-
-####################
-# MICM
-if(MUSICA_ENABLE_MICM)
-  target_link_libraries(musica_object PUBLIC musica::micm)
-
-  add_subdirectory(micm)
-
-  ####################
-  # CUDA
-  if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None" AND NOT APPLE)
-    # Add the CUDA library
-    target_link_libraries(musica_object PUBLIC musica::micm_cuda)
-    set_target_properties(micm_cuda PROPERTIES POSITION_INDEPENDENT_CODE ON)
-    list(APPEND musica_compile_definitions MUSICA_ENABLE_CUDA)
-  endif()
-endif()
-
-####################
-# TUV-x
 if(MUSICA_ENABLE_TUVX)
   enable_language(Fortran)
-
-  add_subdirectory(tuvx)
-
-  # Include the sources directly into musica
-  target_sources(musica_object
-    PUBLIC
-      $<TARGET_OBJECTS:tuvx_object>
-  )
-
-  target_link_libraries(musica_object
-    PUBLIC
-      tuvx_object
-  )
-
-  target_include_directories(musica_object
-    PUBLIC
-      $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
-      $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
-  )
 endif()
 
-if (MUSICA_ENABLE_PYTHON_LIBRARY OR MUSICA_ENABLE_PIC)
-  # Add the -fPIC flag for position-independent code if we are building shared libraries
-  # or the python library so that it links correctly on linux
-  set_target_properties(musica_object PROPERTIES POSITION_INDEPENDENT_CODE ON)
-endif()
+################################################################################
+# MUSICA object libraries
 
 include(silence_warnings)
-silence_warnings(musica_object)
 
-# set the c++ standard for musica
-target_compile_features(musica_object PUBLIC cxx_std_20)
+function(setup_object_target target_name)
+  set(musica_libraries
+    musica::mechanism_configuration
+  )
+  set(musica_compile_definitions)
 
-if(MUSICA_ENABLE_MICM)
-  list(APPEND musica_compile_definitions -DMUSICA_USE_MICM)
-endif()
+  if(MUSICA_ENABLE_MPI)
+    list(APPEND musica_compile_definitions -DMUSICA_USE_MPI)
+  endif()
 
-if(MUSICA_ENABLE_MPI)
-  list(APPEND musica_compile_definitions -DMUSICA_USE_MPI)
-endif()
+  if(MUSICA_ENABLE_OPENMP)
+    list(APPEND musica_compile_definitions -DMUSICA_USE_OPENMP)
+  endif()
 
-if(MUSICA_ENABLE_OPENMP)
-  list(APPEND musica_compile_definitions -DMUSICA_USE_OPENMP)
-endif()
+  if (MUSICA_ENABLE_PYTHON_LIBRARY OR MUSICA_ENABLE_PIC)
+    set_target_properties(${target_name} PROPERTIES POSITION_INDEPENDENT_CODE ON)
+  endif()
+
+  ####################
+  # MICM
+  if(MUSICA_ENABLE_MICM)
+    list(APPEND musica_compile_definitions -DMUSICA_USE_MICM)
+    list(APPEND musica_libraries musica::micm)
+
+    target_sources(${target_name}
+      PRIVATE
+        micm/micm.cpp
+        micm/micm_c_interface.cpp
+        micm/state.cpp
+        micm/state_c_interface.cpp
+        micm/parse.cpp
+        micm/v0_parse.cpp
+        micm/v1_parse.cpp
+        micm/cuda_availability.cpp
+    )
+
+    ####################
+    # CUDA
+    if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None")
+      list(APPEND musica_libraries musica::micm_cuda)
+      list(APPEND musica_compile_definitions -DMUSICA_ENABLE_CUDA)
+
+      target_include_directories(${target_name} PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
+      )
+    endif()
+  endif()
+
+  ####################
+  # TUV-x
+
+  if(MUSICA_ENABLE_TUVX)
+    target_sources(${target_name}
+      PUBLIC 
+        $<TARGET_OBJECTS:tuvx_object>
+      PRIVATE
+        tuvx/interface.F90
+        tuvx/interface_grid.F90
+        tuvx/interface_grid_map.F90
+        tuvx/interface_profile.F90
+        tuvx/interface_profile_map.F90
+        tuvx/interface_radiator.F90
+        tuvx/interface_radiator_map.F90
+        tuvx/interface_util.F90
+        tuvx/grid.cpp
+        tuvx/grid_map.cpp
+        tuvx/profile.cpp
+        tuvx/profile_map.cpp
+        tuvx/radiator.cpp
+        tuvx/radiator_map.cpp
+        tuvx/tuvx.cpp
+    )
+
+    list(APPEND musica_libraries tuvx_object)
+
+    target_include_directories(${target_name}
+      PUBLIC
+        $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
+        $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
+    )
+  endif()
+
+  target_sources(${target_name}
+    PRIVATE
+      util.cpp
+      component_versions.cpp
+      ${CMAKE_BINARY_DIR}/version.cpp
+  )
+
+  target_include_directories(${target_name}
+    PUBLIC
+      $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+      $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
+  )
+
+  target_compile_features(${target_name} PUBLIC cxx_std_20)
+
+  target_link_libraries(${target_name}
+    PUBLIC
+      ${musica_libraries}
+  )
+
+  target_compile_definitions(${target_name} PUBLIC ${musica_compile_definitions})
+
+  silence_warnings(${target_name})
+endfunction()
 
 # version
 configure_file(version.cpp.in ${CMAKE_BINARY_DIR}/version.cpp @ONLY)
 
-target_link_libraries(musica_object
-  PUBLIC
-    musica::mechanism_configuration
-)
+add_library(musica_object OBJECT ${MUSICA_OBJECT_SOURCES})
+setup_object_target(musica_object)
 
-target_compile_definitions(musica_object PUBLIC ${musica_compile_definitions})
+if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None")
+  add_library(musica_object_cuda OBJECT ${MUSICA_OBJECT_SOURCES})
+  setup_object_target(musica_object_cuda)
+endif()
 
-target_include_directories(musica_object
-  PUBLIC
-    $<BUILD_INTERFACE:${MUSICA_PROJECT_SRC_DIR}/include>
-    $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
-)
-
-####################
+################################################################################
 # MUSICA
-add_library(musica $<TARGET_OBJECTS:musica_object>)
+
+add_library(musica)
 add_library(musica::musica ALIAS musica)
 
-target_link_libraries(musica
-  PUBLIC
-    musica_object
-)
+if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None")
+  target_sources(musica
+    PUBLIC
+      $<TARGET_OBJECTS:musica_object_cuda>
+  )
+  target_link_libraries(musica
+    PUBLIC
+      musica_object_cuda
+  )
+else()
+  target_sources(musica
+    PUBLIC
+      $<TARGET_OBJECTS:musica_object>
+  )
+  target_link_libraries(musica
+    PUBLIC
+      musica_object
+  )
+endif()
 
 set_target_properties(musica PROPERTIES
   ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}

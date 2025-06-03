@@ -12,13 +12,13 @@ set(MUSICA_PYBIND_SOURCES
 set(PY_MODULES _musica)
 
 # Add GPU module if CUDA is enabled
-if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None" AND NOT APPLE)
+if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None")
   list(APPEND PY_MODULES _musica_gpu)
 endif()
 
 # Loop over all Python extension modules
 foreach(lib ${PY_MODULES})
-  pybind11_add_module(${lib} ${MUSICA_PYBIND_SOURCES})
+  pybind11_add_module(${lib} ${MUSICA_PYBIND_SOURCES} )
 
   # Common include paths
   target_include_directories(${lib}
@@ -32,15 +32,18 @@ foreach(lib ${PY_MODULES})
       musica::musica
   )
 
+  # Link to the correct object library
+  if (${lib} STREQUAL "_musica_gpu")
+    target_link_libraries(${lib} PRIVATE $<TARGET_OBJECTS:musica_object_cuda>)
+    target_compile_definitions(${lib} PRIVATE MUSICA_ENABLE_CUDA)
+    target_link_libraries(${lib} PRIVATE musica::micm_cuda)
+  else()
+    target_link_libraries(${lib} PRIVATE $<TARGET_OBJECTS:musica_object>)
+  endif()
+
   # Silence warnings
   include(silence_warnings)
   silence_warnings(${lib})
-
-  # GPU-specific options
-  if (${lib} STREQUAL "_musica_gpu")
-    target_compile_definitions(${lib} PRIVATE MUSICA_ENABLE_CUDA)
-    target_link_libraries(${lib} PRIVATE musica::micm_cuda)
-  endif()
 
   # RPATH handling (Linux/macOS)
   if (APPLE)
