@@ -18,11 +18,17 @@ namespace musica
     }
     catch (const std::system_error& e)
     {
-      *error = ToError(e);
+      Error *temp = ToError(e);
+      CopyErrorDeep(error, temp);
+      DeleteError(temp);
+      delete temp;
     }
     catch (const std::exception& e)
     {
-      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, e.what());
+      Error *temp = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, e.what());
+      CopyErrorDeep(error, temp);
+      DeleteError(temp);
+      delete temp;
     }
     return decltype(func())();
   }
@@ -35,8 +41,11 @@ namespace musica
           if (!micm)
           {
             std::string msg = "MICM pointer is null, cannot create state.";
-            *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND, msg.c_str());
+            Error *temp = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND, msg.c_str());
+            CopyErrorDeep(error, temp);
+            DeleteError(temp);
             delete micm;
+            delete temp;
             return nullptr;
           }
 
@@ -55,7 +64,10 @@ namespace musica
           if (state == nullptr)
           {
             std::string msg = "State pointer is null, cannot delete state.";
-            *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND, msg.c_str());
+            Error *temp = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND, msg.c_str());
+            CopyErrorDeep(error, temp);
+            DeleteError(temp);
+            delete temp;
             return;
           }
 
@@ -118,8 +130,10 @@ namespace musica
             species_ordering->mappings_[i] = ToMapping(entry.first.c_str(), entry.second);
             ++i;
           }
-
-          *error = NoError();
+          Error* temp = NoError();
+          CopyErrorDeep(error, temp);
+          DeleteError(temp);
+          delete temp;
           return species_ordering;
         },
         error);
@@ -144,7 +158,10 @@ namespace musica
             ++i;
           }
 
-          *error = NoError();
+          Error* temp = NoError();
+          CopyErrorDeep(error, temp);
+          DeleteError(temp);
+          delete temp;
           return reaction_rates;
         },
         error);
@@ -156,7 +173,10 @@ namespace musica
         [&]() -> size_t
         {
           size_t number_of_grid_cells = state->NumberOfGridCells();
-          *error = NoError();
+          Error* temp = NoError();
+          CopyErrorDeep(error, temp);
+          DeleteError(temp);
+          delete temp;
           return number_of_grid_cells;
         },
         error);
@@ -168,7 +188,10 @@ namespace musica
         [&]() -> size_t
         {
           size_t number_of_species = state->NumberOfSpecies();
-          *error = NoError();
+          Error* temp = NoError();
+          CopyErrorDeep(error, temp);
+          DeleteError(temp);
+          delete temp;
           return number_of_species;
         },
         error);
@@ -182,7 +205,10 @@ namespace musica
           auto strides = state->GetConcentrationsStrides();
           *grid_cell_stride = strides.first;
           *species_stride = strides.second;
-          *error = NoError();
+          Error* temp = NoError();
+          CopyErrorDeep(error, temp);
+          DeleteError(temp);
+          delete temp;
         },
         error);
   }
@@ -193,7 +219,10 @@ namespace musica
         [&]() -> size_t
         {
           size_t number_of_user_defined_rate_parameters = state->NumberOfUserDefinedRateParameters();
-          *error = NoError();
+          Error* temp = NoError();
+          CopyErrorDeep(error, temp);
+          DeleteError(temp);
+          delete temp;
           return number_of_user_defined_rate_parameters;
         },
         error);
@@ -211,7 +240,10 @@ namespace musica
           auto strides = state->GetUserDefinedRateParametersStrides();
           *grid_cell_stride = strides.first;
           *rate_parameter_stride = strides.second;
-          *error = NoError();
+          Error* temp = NoError();
+          CopyErrorDeep(error, temp);
+          DeleteError(temp);
+          delete temp;
         },
         error);
   }

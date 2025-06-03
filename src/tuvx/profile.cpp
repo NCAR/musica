@@ -27,10 +27,16 @@ namespace musica
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
+      Error *temp = ToError(e);
+      CopyErrorDeep(error, temp);
+      DeleteError(temp);
+      delete temp;
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
   }
 
   void SetProfileEdgeValues(Profile *profile, double edge_values[], std::size_t num_values, Error *error)
@@ -105,7 +111,10 @@ namespace musica
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get updater") };
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
   }
 
   Profile::~Profile()
@@ -133,7 +142,10 @@ namespace musica
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to set edge values") };
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
   }
 
   void Profile::GetEdgeValues(double edge_values[], std::size_t num_values, Error *error)
@@ -150,7 +162,10 @@ namespace musica
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get edge values") };
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
   }
 
   void Profile::SetMidpointValues(double midpoint_values[], std::size_t num_values, Error *error)
@@ -167,7 +182,10 @@ namespace musica
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to set midpoint values") };
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
   }
 
   void Profile::GetMidpointValues(double midpoint_values[], std::size_t num_values, Error *error)
@@ -184,7 +202,10 @@ namespace musica
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get midpoint values") };
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
   }
 
   void Profile::SetLayerDensities(double layer_densities[], std::size_t num_values, Error *error)
@@ -201,7 +222,10 @@ namespace musica
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to set layer densities") };
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
   }
 
   void Profile::GetLayerDensities(double layer_densities[], std::size_t num_values, Error *error)
@@ -218,7 +242,10 @@ namespace musica
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get layer densities") };
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
   }
 
   void Profile::SetExoLayerDensity(double exo_layer_density, Error *error)
@@ -235,7 +262,10 @@ namespace musica
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to set exo layer density") };
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
   }
 
   void Profile::CalculateExoLayerDensity(double scale_height, Error *error)
@@ -252,7 +282,10 @@ namespace musica
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to calculate exo layer density") };
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
   }
 
   double Profile::GetExoLayerDensity(Error *error)
@@ -269,7 +302,10 @@ namespace musica
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get exo layer density") };
       return 0.0;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
     return exo_layer_density;
   }
 

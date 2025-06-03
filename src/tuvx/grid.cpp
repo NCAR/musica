@@ -26,10 +26,16 @@ namespace musica
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
+      Error *temp = ToError(e);
+      CopyErrorDeep(error, temp);
+      DeleteError(temp);
+      delete temp;
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
   }
 
   std::size_t GetGridNumSections(Grid *grid, Error *error)
@@ -79,7 +85,10 @@ namespace musica
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get updater") };
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
   }
 
   Grid::~Grid()
@@ -119,7 +128,10 @@ namespace musica
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to set edges") };
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
   }
 
   void Grid::GetEdges(double edges[], std::size_t num_edges, Error *error)
@@ -136,7 +148,10 @@ namespace musica
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get edges") };
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
   }
 
   void Grid::SetMidpoints(double midpoints[], std::size_t num_midpoints, Error *error)
@@ -153,7 +168,10 @@ namespace musica
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to set midpoints") };
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
   }
 
   void Grid::GetMidpoints(double midpoints[], std::size_t num_midpoints, Error *error)
@@ -170,7 +188,10 @@ namespace musica
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get midpoints") };
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
   }
 
 }  // namespace musica

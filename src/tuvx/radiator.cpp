@@ -26,10 +26,16 @@ namespace musica
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
+      Error *temp = ToError(e);
+      CopyErrorDeep(error, temp);
+      DeleteError(temp);
+      delete temp;
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
   }
 
   void SetRadiatorOpticalDepths(
@@ -119,7 +125,10 @@ namespace musica
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get radiator updater") };
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
   }
 
   Radiator::~Radiator()
@@ -151,7 +160,10 @@ namespace musica
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to set optical depths") };
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
   }
 
   void Radiator::GetOpticalDepths(
@@ -172,7 +184,10 @@ namespace musica
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get optical depths") };
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
   }
 
   void Radiator::SetSingleScatteringAlbedos(
@@ -194,7 +209,10 @@ namespace musica
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to set single scattering albedos") };
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
   }
 
   void Radiator::GetSingleScatteringAlbedos(
@@ -216,7 +234,10 @@ namespace musica
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get single scattering albedos") };
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
   }
 
   void Radiator::SetAsymmetryFactors(
@@ -239,7 +260,10 @@ namespace musica
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to set asymmetry factors") };
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
   }
 
   void Radiator::GetAsymmetryFactors(
@@ -262,7 +286,10 @@ namespace musica
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get asymmetry factors") };
       return;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
   }
 
 }  // namespace musica

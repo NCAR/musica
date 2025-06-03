@@ -99,14 +99,14 @@ const size_t MUSICA_VECTOR_SIZE = 0;
 
     /// @brief Creates an Error indicating no error
     /// @return The Error
-    Error NoError();
+    Error* NoError();
 
     /// @brief Creates an Error from a category, code, and message
     /// @param category The category of the Error
     /// @param code The code of the Error
     /// @param message The message of the Error
     /// @return The Error
-    Error ToError(const char* category, int code, const char* message);
+    Error* ToError(const char* category, int code, const char* message);
 
     /// @brief Loads a set of configuration data from a string
     /// @param data The string to load
@@ -186,18 +186,20 @@ const size_t MUSICA_VECTOR_SIZE = 0;
     /// @param mappings The array of IndexMappings to delete
     void DeleteIndexMappings(IndexMappings* mappings);
 
+    void CopyErrorDeep(Error* dest, const Error* src);
+
 #ifdef __cplusplus
   }
   /// @brief Creates an Error from a category and code
   /// @param category The category of the Error
   /// @param code The code of the Error
   /// @return The Error
-  Error ToError(const char* category, int code);
+  Error* ToError(const char* category, int code);
 
   /// @brief Creates an Error from syd::system_error
   /// @param e The std::system_error to convert
   /// @return The Error
-  Error ToError(const std::system_error& e);
+  Error* ToError(const std::system_error& e);
 
   /// @brief Checks for success
   /// @param error The Error to check
@@ -210,7 +212,7 @@ const size_t MUSICA_VECTOR_SIZE = 0;
   /// @param code The code of the Error
   /// @return True if the Error matches the category and code, false otherwise
   bool IsError(const Error& error, const char* category, int code);
-
+ 
   /// @brief Overloads the equality operator for Error types
   /// @param lhs The left-hand side Error
   /// @param rhs The right-hand side Error

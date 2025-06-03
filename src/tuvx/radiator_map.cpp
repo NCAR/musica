@@ -26,9 +26,15 @@ namespace musica
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
+      Error *temp = ToError(e);
+      CopyErrorDeep(error, temp);
+      DeleteError(temp);
+      delete temp;
     }
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
   }
 
   void AddRadiator(RadiatorMap *radiator_map, Radiator *radiator, Error *error)
@@ -54,7 +60,10 @@ namespace musica
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create radiator map") };
     }
     owns_radiator_map_ = true;
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
   }
 
   RadiatorMap::~RadiatorMap()
@@ -120,13 +129,19 @@ namespace musica
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
+      Error *temp = ToError(e);
+      CopyErrorDeep(error, temp);
+      DeleteError(temp);
+      delete temp;
     }
     catch (...)
     {
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Internal error adding radiator") };
     }
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
   }
 
   Radiator *RadiatorMap::GetRadiator(const char *radiator_name, Error *error)
@@ -167,13 +182,19 @@ namespace musica
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
+      Error *temp = ToError(e);
+      CopyErrorDeep(error, temp);
+      DeleteError(temp);
+      delete temp;
     }
     catch (...)
     {
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Internal error getting radiator") };
     }
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
     return radiator;
   }
 

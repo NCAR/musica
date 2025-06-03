@@ -33,17 +33,26 @@ namespace musica
     DeleteError(error);
     if (tuvx == nullptr)
     {
-      *error = NoError();
+      Error* temp = NoError();
+      CopyErrorDeep(error, temp);
+      DeleteError(temp);
+      delete temp;
       return;
     }
     try
     {
       delete tuvx;
-      *error = NoError();
+      Error* temp = NoError();
+      CopyErrorDeep(error, temp);
+      DeleteError(temp);
+      delete temp;
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
+      Error *temp = ToError(e);
+      CopyErrorDeep(error, temp);
+      DeleteError(temp);
+      delete temp;
     }
   }
 
@@ -131,12 +140,18 @@ namespace musica
       }
       else
       {
-        *error = NoError();
+        Error* temp = NoError();
+        CopyErrorDeep(error, temp);
+        DeleteError(temp);
+        delete temp;
       }
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
+      Error *temp = ToError(e);
+      CopyErrorDeep(error, temp);
+      DeleteError(temp);
+      delete temp;
     }
     catch (...)
     {
@@ -146,7 +161,10 @@ namespace musica
 
   GridMap *TUVX::CreateGridMap(Error *error)
   {
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
     int error_code = 0;
 
     GridMap *grid_map = new GridMap(InternalGetGridMap(tuvx_, &error_code));
@@ -160,7 +178,10 @@ namespace musica
 
   ProfileMap *TUVX::CreateProfileMap(Error *error)
   {
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
     int error_code = 0;
     ProfileMap *profile_map = new ProfileMap(InternalGetProfileMap(tuvx_, &error_code));
     if (error_code != 0)
@@ -173,7 +194,10 @@ namespace musica
 
   RadiatorMap *TUVX::CreateRadiatorMap(Error *error)
   {
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
     int error_code = 0;
     RadiatorMap *radiator_map = new RadiatorMap(InternalGetRadiatorMap(tuvx_, &error_code));
     if (error_code != 0)
@@ -186,7 +210,10 @@ namespace musica
 
   Mappings TUVX::GetPhotolysisRateConstantsOrdering(Error *error)
   {
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
     int error_code = 0;
     Mappings mappings = InternalGetPhotolysisRateConstantsOrdering(tuvx_, &error_code);
     if (error_code != 0)
@@ -199,7 +226,10 @@ namespace musica
 
   Mappings TUVX::GetHeatingRatesOrdering(Error *error)
   {
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
     int error_code = 0;
     Mappings mappings = InternalGetHeatingRatesOrdering(tuvx_, &error_code);
     if (error_code != 0)
@@ -216,7 +246,10 @@ namespace musica
       double *const heating_rates,
       Error *const error)
   {
-    *error = NoError();
+    Error* temp = NoError();
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
     int error_code = 0;
     double sza_degrees = solar_zenith_angle * 180.0 / std::numbers::pi;
     InternalRunTuvx(
