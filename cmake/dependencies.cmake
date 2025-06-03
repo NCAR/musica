@@ -48,7 +48,7 @@ endif()
 
 if(MUSICA_ENABLE_TESTS AND MUSICA_BUILD_C_CXX_INTERFACE)
   set_git_default(GOOGLETEST_GIT_REPOSITORY https://github.com/google/googletest.git)
-  set_git_default(GOOGLETEST_GIT_TAG be03d00f5f0cc3a997d1a368bee8a1fe93651f48)
+  set_git_default(GOOGLETEST_GIT_TAG b919e548ffb56abbe974f5c7cfaee057188a1684)
 
   FetchContent_Declare(googletest
     GIT_REPOSITORY ${GOOGLETEST_GIT_REPOSITORY}
