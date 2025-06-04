@@ -11,7 +11,7 @@ sed -i s/^mirrorlist=http/#mirrorlist=http/g /etc/yum.repos.d/*.repo
 sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
 sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
 
-yum install -y zip tree
+yum install -y zip tree wget
 
 # Use CIBW_ARCHS or CIBW_ARCH if set, else fallback to uname -m
 if [ -n "$CIBW_ARCHS" ]; then
@@ -37,4 +37,12 @@ if [ "$target_arch" = "x86_64" ]; then
       libcurand-devel-12-2 \
       libcublas-devel-12-2 
   ln -s cuda-12.2 /usr/local/cuda
+
+
+  # Download CUDA runfile silently
+  # wget -q https://developer.download.nvidia.com/compute/cuda/12.9.0/local_installers/cuda_12.9.0_575.51.03_linux.run
+  # sh cuda_12.9.0_575.51.03_linux.run --silent --toolkit
+
+  # wget -q https://developer.download.nvidia.com/compute/cuda/12.3.2/local_installers/cuda_12.3.2_545.23.08_linux.run
+  # sh cuda_12.3.2_545.23.08_linux.run --silent --toolkit
 fi

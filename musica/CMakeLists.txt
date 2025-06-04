@@ -13,16 +13,15 @@ endif()
 foreach(lib ${PY_MODULES})
   pybind11_add_module(
     ${lib} 
-    binding.cpp
     musica.cpp
     mechanism_configuration.cpp
   )
 
   # Link to the correct object library
   if (${lib} STREQUAL "_musica_gpu")
-    target_sources(${lib} PUBLIC $<TARGET_OBJECTS:musica_object_cuda>)
+    target_sources(${lib} PUBLIC $<TARGET_OBJECTS:musica_object_cuda> gpu_binding.cpp)
   else()
-    target_sources(${lib} PUBLIC $<TARGET_OBJECTS:musica_object>)
+    target_sources(${lib} PUBLIC $<TARGET_OBJECTS:musica_object> cpu_binding.cpp)
   endif()
 
   target_include_directories(${lib}
