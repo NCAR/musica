@@ -20,7 +20,6 @@ include(silence_warnings)
 
 function(setup_object_target target_name)
   set(musica_libraries
-    musica::mechanism_configuration
   )
   set(musica_compile_definitions)
 
@@ -40,7 +39,11 @@ function(setup_object_target target_name)
   # MICM
   if(MUSICA_ENABLE_MICM)
     list(APPEND musica_compile_definitions -DMUSICA_USE_MICM)
-    list(APPEND musica_libraries musica::micm)
+
+    target_link_libraries(${target_name}
+      PUBLIC
+        musica::micm
+    )
 
     target_sources(${target_name}
       PRIVATE
@@ -54,17 +57,6 @@ function(setup_object_target target_name)
         micm/cuda_availability.cpp
     )
 
-    ####################
-    # CUDA
-    if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None")
-      list(APPEND musica_libraries musica::micm_cuda)
-      list(APPEND musica_compile_definitions -DMUSICA_ENABLE_CUDA)
-
-      target_include_directories(${target_name} PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
-      )
-    endif()
   endif()
 
   ####################
@@ -92,7 +84,10 @@ function(setup_object_target target_name)
         tuvx/tuvx.cpp
     )
 
-    list(APPEND musica_libraries tuvx_object)
+    target_link_libraries(${target_name}
+      PUBLIC
+        tuvx_object
+    )
 
     target_include_directories(${target_name}
       PUBLIC
@@ -110,7 +105,7 @@ function(setup_object_target target_name)
 
   target_include_directories(${target_name}
     PUBLIC
-      $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+      $<BUILD_INTERFACE:${MUSICA_PROJECT_SRC_DIR}/include>
       $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
   )
 
@@ -118,7 +113,7 @@ function(setup_object_target target_name)
 
   target_link_libraries(${target_name}
     PUBLIC
-      ${musica_libraries}
+      musica::mechanism_configuration
   )
 
   target_compile_definitions(${target_name} PUBLIC ${musica_compile_definitions})
@@ -135,6 +130,16 @@ setup_object_target(musica_object)
 if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None")
   add_library(musica_object_cuda OBJECT ${MUSICA_OBJECT_SOURCES})
   setup_object_target(musica_object_cuda)
+    if (MUSICA_ENABLE_MICM)
+      ####################
+      # CUDA
+      set_target_properties(micm_cuda PROPERTIES POSITION_INDEPENDENT_CODE ON)
+      target_compile_definitions(musica_object_cuda PUBLIC MUSICA_ENABLE_CUDA)
+      target_link_libraries(musica_object_cuda
+        PUBLIC
+          musica::micm_cuda
+      )
+    endif()
 endif()
 
 ################################################################################

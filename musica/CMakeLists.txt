@@ -1,13 +1,6 @@
 ################################################################################
 # Python Extension Modules
 
-# Define common sources for both Python bindings
-set(MUSICA_PYBIND_SOURCES
-  binding.cpp
-  musica.cpp
-  mechanism_configuration.cpp
-)
-
 # Define the list of Python extension module targets
 set(PY_MODULES _musica)
 
@@ -18,32 +11,38 @@ endif()
 
 # Loop over all Python extension modules
 foreach(lib ${PY_MODULES})
-  pybind11_add_module(${lib} ${MUSICA_PYBIND_SOURCES} )
-
-  # Common include paths
-  target_include_directories(${lib}
-    PRIVATE
-      ${PROJECT_SOURCE_DIR}/include
-  )
-
-  # Common linking (to core MUSICA object library)
-  target_link_libraries(${lib}
-    PRIVATE
-      musica::musica
+  pybind11_add_module(
+    ${lib} 
+    binding.cpp
+    musica.cpp
+    mechanism_configuration.cpp
   )
 
   # Link to the correct object library
   if (${lib} STREQUAL "_musica_gpu")
-    target_link_libraries(${lib} PRIVATE $<TARGET_OBJECTS:musica_object_cuda>)
-    target_compile_definitions(${lib} PRIVATE MUSICA_ENABLE_CUDA)
-    target_link_libraries(${lib} PRIVATE musica::micm_cuda)
+    target_sources(${lib} PUBLIC $<TARGET_OBJECTS:musica_object_cuda>)
   else()
-    target_link_libraries(${lib} PRIVATE $<TARGET_OBJECTS:musica_object>)
+    target_sources(${lib} PUBLIC $<TARGET_OBJECTS:musica_object>)
   endif()
 
-  # Silence warnings
-  include(silence_warnings)
-  silence_warnings(${lib})
+  target_include_directories(${lib}
+    PUBLIC
+      ${MUSICA_PROJECT_SRC_DIR}/include
+  )
+
+  target_link_libraries(${lib}
+    PUBLIC
+      musica::micm
+      musica::mechanism_configuration
+  )
+
+  if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None")
+      set_target_properties(micm_cuda PROPERTIES POSITION_INDEPENDENT_CODE ON)
+      target_link_libraries(${lib}
+        PUBLIC
+          musica::micm_cuda
+      )
+  endif()
 
   # RPATH handling (Linux/macOS)
   if (APPLE)

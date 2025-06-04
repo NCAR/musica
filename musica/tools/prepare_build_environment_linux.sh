@@ -32,7 +32,7 @@ if [ "$target_arch" = "x86_64" ]; then
   sed -i s/^#.*baseurl=http/baseurl=http/g /etc/yum.repos.d/*.repo
   sed -i s/^mirrorlist=http/#mirrorlist=http/g /etc/yum.repos.d/*.repo
   yum install --setopt=obsoletes=0 -y \
-      cuda-nvcc-12-2-12.2.140-1 \
+      cuda-nvcc-12-2 \
       cuda-cudart-devel-12-2 \
       libcurand-devel-12-2 \
       libcublas-devel-12-2 
