@@ -6,7 +6,7 @@
 from typing import Optional, Dict, List, Union, Tuple
 from os import PathLike
 import math
-from musica._musica._core import (
+from musica import (
     _Conditions,
     _SolverType,
     _Solver,

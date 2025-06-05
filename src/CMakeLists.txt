@@ -124,11 +124,11 @@ endfunction()
 # version
 configure_file(version.cpp.in ${CMAKE_BINARY_DIR}/version.cpp @ONLY)
 
-add_library(musica_object OBJECT ${MUSICA_OBJECT_SOURCES})
+add_library(musica_object OBJECT)
 setup_object_target(musica_object)
 
 if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None")
-  add_library(musica_object_cuda OBJECT ${MUSICA_OBJECT_SOURCES})
+  add_library(musica_object_cuda OBJECT)
   setup_object_target(musica_object_cuda)
     if (MUSICA_ENABLE_MICM)
       ####################
@@ -148,7 +148,7 @@ endif()
 add_library(musica)
 add_library(musica::musica ALIAS musica)
 
-if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None")
+if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None" AND NOT MUSICA_ENABLE_PYTHON_LIBRARY)
   target_sources(musica
     PUBLIC
       $<TARGET_OBJECTS:musica_object_cuda>

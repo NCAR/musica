@@ -45,3 +45,5 @@ _mechanism_names = [
 
 _export_all(_backend._core, _core_names, globals())
 _export_all(_backend._mechanism_configuration, _mechanism_names, globals())
+
+__all__ = _core_names + _mechanism_names

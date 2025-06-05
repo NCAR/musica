@@ -7,6 +7,7 @@ namespace py = pybind11;
 
 void bind_musica(py::module_ &);
 void bind_mechanism_configuration(py::module_ &);
+void bind_cuda(py::module_ &);
 
 // Wraps micm.cpp
 PYBIND11_MODULE(_musica, m)
@@ -16,4 +17,5 @@ PYBIND11_MODULE(_musica, m)
 
   bind_musica(core);
   bind_mechanism_configuration(mechanism_configuration);
+  bind_cuda(core);
 }

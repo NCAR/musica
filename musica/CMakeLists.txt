@@ -14,12 +14,19 @@ foreach(lib ${PY_MODULES})
   pybind11_add_module(
     ${lib} 
     musica.cpp
+    cuda.cpp
     mechanism_configuration.cpp
   )
 
   # Link to the correct object library
   if (${lib} STREQUAL "_musica_gpu")
     target_sources(${lib} PUBLIC $<TARGET_OBJECTS:musica_object_cuda> gpu_binding.cpp)
+
+    set_target_properties(micm_cuda PROPERTIES POSITION_INDEPENDENT_CODE ON)
+    target_link_libraries(${lib}
+      PUBLIC
+        musica::micm_cuda
+    )
   else()
     target_sources(${lib} PUBLIC $<TARGET_OBJECTS:musica_object> cpu_binding.cpp)
   endif()
@@ -34,14 +41,6 @@ foreach(lib ${PY_MODULES})
       musica::micm
       musica::mechanism_configuration
   )
-
-  if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None")
-      set_target_properties(micm_cuda PROPERTIES POSITION_INDEPENDENT_CODE ON)
-      target_link_libraries(${lib}
-        PUBLIC
-          musica::micm_cuda
-      )
-  endif()
 
   # RPATH handling (Linux/macOS)
   if (APPLE)

@@ -38,6 +38,8 @@ if [ "$target_arch" = "x86_64" ]; then
       libcublas-devel-12-2 
   ln -s cuda-12.2 /usr/local/cuda
 
+  # list the installed CUDA packages
+  tree -L 4 /usr/local/cuda-12.2
 
   # Download CUDA runfile silently
   # wget -q https://developer.download.nvidia.com/compute/cuda/12.9.0/local_installers/cuda_12.9.0_575.51.03_linux.run

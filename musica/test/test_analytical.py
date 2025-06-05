@@ -3,7 +3,7 @@ import numpy as np
 import musica
 import random
 import musica.mechanism_configuration as mc
-from musica._musica._core import _is_cuda_available
+from musica.cuda import is_cuda_available
 
 
 def TestSingleGridCell(solver, state, time_step, places=5):
@@ -258,7 +258,7 @@ def test_multiple_grid_cells_standard_rosenbrock():
 
 
 def test_cuda_rosenbrock():
-    if _is_cuda_available():
+    if is_cuda_available():
         solver = musica.MICM(
             config_path="configs/analytical",
             solver_type=musica.SolverType.cuda_rosenbrock)
