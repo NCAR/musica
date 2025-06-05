@@ -1,3 +1,8 @@
+# To use this file, you will need to have built the wheel first.
+# You can do this by running cibuildwheel with the appropriate environment variables set, 
+# which can be done after installing cibuildwheel.
+# CIBW_ARCHS=x86_64 CIBW_PLATFORM=linux CIBW_ENVIRONMENT="CUDA_PATH=/usr/local/cuda PATH=/usr/local/cuda/bin:\$PATH LD_LIBRARY_PATH=/usr/local/cuda/lib64:\$LD_LIBRARY_PATH" cibuildwheel --output-dir wheelhouse > log.txt 2>&1
+
 FROM --platform=linux/amd64 python:3.12-slim
 
 COPY wheelhouse/ wheelhouse/
