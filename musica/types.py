@@ -135,10 +135,13 @@ class State():
                 value = [value]
             if len(value) != self.__number_of_grid_cells:
                 raise ValueError(f"Concentration list for {name} must have length {self.__number_of_grid_cells}.")
-            for idx, state in enumerate(self.__states):
+            # Counter 'k' is used to map grid cell indices across multiple state segments.
+            k = 0
+            for state in self.__states:
                 cell_stride, species_stride = state.concentration_strides()
                 for i_cell in range(state.number_of_grid_cells()):
-                    state.concentrations[i_species * species_stride + i_cell * cell_stride] = value[idx]
+                    state.concentrations[i_species * species_stride + i_cell * cell_stride] = value[k]
+                    k += 1
 
     def set_user_defined_rate_parameters(
             self, user_defined_rate_parameters: Dict[str, Union[Union[float, int], List[Union[float, int]]]]):
@@ -161,12 +164,14 @@ class State():
             if len(value) != self.__number_of_grid_cells:
                 raise ValueError(
                     f"User-defined rate parameter list for {name} must have length {self.__number_of_grid_cells}.")
-            # Initialize `idx` to index the grid cells when assigning user-defined rate parameters.
-            for idx, state in enumerate(self.__states):
+            # Initialize `k` to index the grid cells when assigning user-defined rate parameters.
+            k = 0
+            for state in self.__states:
                 cell_stride, param_stride = state.user_defined_rate_parameter_strides()
                 for i_cell in range(state.number_of_grid_cells()):
-                    state.user_defined_rate_parameters[i_param * param_stride + i_cell * cell_stride] = value[idx]
-                    idx += 1
+                    state.user_defined_rate_parameters[i_param * param_stride + i_cell * cell_stride] = value[k]
+                    k += 1
+
 
     def set_conditions(self,
                        temperatures: Union[Union[float, int], List[Union[float, int]]],
@@ -205,12 +210,14 @@ class State():
             raise ValueError(f"pressures must be a list of length {self.__number_of_grid_cells}.")
         if air_densities is not None and len(air_densities) != self.__number_of_grid_cells:
             raise ValueError(f"air_densities must be a list of length {self.__number_of_grid_cells}.")
-        for idx, state in enumerate(self.__states):
+        k = 0
+        for state in self.__states:
             for condition in state.conditions:
-                condition.temperature = temperatures[idx]
-                condition.pressure = pressures[idx]
-                condition.air_density = air_densities[idx] if air_densities is not None else pressures[idx] / (
-                    GAS_CONSTANT * temperatures[idx])
+                condition.temperature = temperatures[k]
+                condition.pressure = pressures[k]
+                condition.air_density = air_densities[k] if air_densities is not None else pressures[k] / (
+                    GAS_CONSTANT * temperatures[k])
+                k += 1
 
     def get_concentrations(self) -> Dict[str, List[float]]:
         """
@@ -352,5 +359,5 @@ class MICM():
         if not isinstance(time_step, (int, float)):
             raise TypeError("time_step must be an int or float.")
         states = state.get_internal_states()
-        for _, _state in enumerate(states):
+        for _state in states:
             _micm_solve(self.__solver, _state, time_step)

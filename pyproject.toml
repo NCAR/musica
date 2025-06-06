@@ -42,7 +42,7 @@ cmake.define.CMAKE_POLICY_VERSION_MINIMUM = "3.5"
 [[tool.scikit-build.overrides]]
 if.platform-system ="linux"
 inherit.cmake.define = "append"
-cmake.define.MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE = "1"
+cmake.define.MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE = "4"
 cmake.define.MUSICA_GPU_TYPE = "all_major"
 
 # 32 bit linux cannot be built with CUDA support
