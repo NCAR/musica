@@ -129,8 +129,8 @@ def TestMultipleGridCell(solver, state, num_grid_cells, time_step, places=5):
     initial_air_density = state.get_conditions()["air_density"]
 
     print()
-    print("Initial concentrations:", initial_concentrations)
-    print("Actual concentrations:", concentrations)
+    print("Initial concentrations[C]:", initial_concentrations["C"])
+    print("Actual concentrations[C]:", concentrations["C"])
     print()
 
     for i in range(num_grid_cells):
