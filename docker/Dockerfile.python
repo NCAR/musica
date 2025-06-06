@@ -1,5 +1,8 @@
 FROM fedora:latest
 
+ARG MUSICA_GIT_TAG=main
+ARG BUILD_TYPE=Release
+
 RUN dnf -y update \
     && dnf -y install \
         cmake \
