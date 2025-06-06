@@ -50,6 +50,4 @@ _export_all(_backend._mechanism_configuration, _mechanism_names, globals())
 
 __all__ = _core_names + _mechanism_names
 
-# ...existing code...
-
 from .types import MICM, SolverType, State, Conditions

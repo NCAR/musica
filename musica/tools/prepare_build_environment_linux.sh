@@ -40,11 +40,4 @@ if [ "$target_arch" = "x86_64" ]; then
 
   # list the installed CUDA packages
   tree -L 4 /usr/local/cuda-12.2
-
-  # Download CUDA runfile silently
-  # wget -q https://developer.download.nvidia.com/compute/cuda/12.9.0/local_installers/cuda_12.9.0_575.51.03_linux.run
-  # sh cuda_12.9.0_575.51.03_linux.run --silent --toolkit
-
-  # wget -q https://developer.download.nvidia.com/compute/cuda/12.3.2/local_installers/cuda_12.3.2_545.23.08_linux.run
-  # sh cuda_12.3.2_545.23.08_linux.run --silent --toolkit
 fi
