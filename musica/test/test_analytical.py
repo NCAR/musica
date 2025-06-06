@@ -121,7 +121,7 @@ def TestMultipleGridCell(solver, state, num_grid_cells, time_step, places=5):
             0.002 + random.uniform(-0.0001, 0.0001))
 
     print()
-    print("Initial concentrations[C]:", initial_concentrations["C"])
+    print("Actual concentrations[C] :", concentrations["C"])
 
     state.set_conditions(temperatures, pressures)  # Air density should be calculated in the state
     state.set_concentrations(concentrations)
