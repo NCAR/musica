@@ -10,9 +10,16 @@ def test_solve_with_config_path_v0():
     )
     TestSolve(solver)
 
-def test_solve_with_config_path_v1():
+def test_solve_with_config_path_v1_json():
     solver = musica.MICM(
-        config_path="configs/v1/chapman",
+        config_path="configs/v1/chapman/config.json",
+        solver_type=musica.SolverType.rosenbrock_standard_order,
+    )
+    TestSolve(solver)
+
+def test_solve_with_config_path_v1_yaml():
+    solver = musica.MICM(
+        config_path="configs/v1/chapman/config.yaml",
         solver_type=musica.SolverType.rosenbrock_standard_order,
     )
     TestSolve(solver)
