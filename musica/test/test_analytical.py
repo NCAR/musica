@@ -127,6 +127,12 @@ def TestMultipleGridCell(solver, state, num_grid_cells, time_step, places=5):
     initial_temperatures = state.get_conditions()["temperature"]
     initial_pressures = state.get_conditions()["pressure"]
     initial_air_density = state.get_conditions()["air_density"]
+
+    print()
+    print("Initial concentrations:", initial_concentrations)
+    print("Actual concentrations:", concentrations)
+    print()
+
     for i in range(num_grid_cells):
         assert np.isclose(initial_concentrations["A"][i], concentrations["A"][i], atol=1e-13)
         assert np.isclose(initial_concentrations["B"][i], concentrations["B"][i], atol=1e-13)

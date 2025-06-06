@@ -18,8 +18,10 @@ def _gpu_deps_installed():
 
 
 if _gpu_deps_installed():
+    print("GPU dependencies found, using GPU backend.")
     from . import _musica_gpu as _backend
 else:
+    print("GPU dependencies not found, using CPU backend.")
     from . import _musica as _backend
 
 # Helper to re-export names from a module
@@ -47,3 +49,7 @@ _export_all(_backend._core, _core_names, globals())
 _export_all(_backend._mechanism_configuration, _mechanism_names, globals())
 
 __all__ = _core_names + _mechanism_names
+
+# ...existing code...
+
+from .types import MICM, SolverType, State, Conditions

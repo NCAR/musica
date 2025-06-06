@@ -1,5 +1,7 @@
 #include <musica/micm/cuda_availability.hpp>
 
+#include <iostream>
+
 #ifdef MUSICA_ENABLE_CUDA
   #include <cuda_runtime.h>
 #endif
@@ -10,6 +12,7 @@ namespace musica
   {
     int device_count = 0;
 #ifdef MUSICA_ENABLE_CUDA
+    std::cout << "Checking for CUDA availability..." << std::endl;
     cudaError_t error = cudaGetDeviceCount(&device_count);
     if (error != cudaSuccess)
     {
