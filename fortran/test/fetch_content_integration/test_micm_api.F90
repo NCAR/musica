@@ -71,7 +71,7 @@ contains
     integer                               :: O2_index, O_index, O1D_index, O3_index
     integer                               :: jO2_index, jO3a_index, jO3b_index
     
-    config_path = "configs/chapman"
+    config_path = "configs/v0/chapman"
     solver_type = RosenbrockStandardOrder
     num_grid_cells = 1
     time_step = 200
@@ -170,7 +170,7 @@ contains
     ASSERT( error%is_error( MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND ) )
     deallocate(micm)
     deallocate(state)
-    micm => micm_t( "configs/invalid", solver_type, error )
+    micm => micm_t( "configs/v0/invalid", solver_type, error )
     ASSERT( error%is_error( MUSICA_ERROR_CATEGORY_PARSING, MUSICA_PARSE_INVALID_CONFIG_FILE ) )
     ASSERT( .not. associated( micm ) )
 
@@ -357,7 +357,7 @@ contains
     real(real64), parameter :: test_accuracy = 5.0e-3
     integer                 :: max_grid_cells
 
-    micm => micm_t( "configs/analytical", Rosenbrock, error )
+    micm => micm_t( "configs/v0/analytical", Rosenbrock, error )
     ASSERT( error%is_success() )
     max_grid_cells = micm%get_maximum_number_of_grid_cells( )
     ASSERT_GT( max_grid_cells, 0 )
@@ -378,7 +378,7 @@ contains
     real(real64), parameter :: test_accuracy = 5.0e-3
     integer                 :: max_grid_cells
 
-    micm => micm_t( "configs/analytical", RosenbrockStandardOrder, error )
+    micm => micm_t( "configs/v0/analytical", RosenbrockStandardOrder, error )
     ASSERT( error%is_success() )
     max_grid_cells = micm%get_maximum_number_of_grid_cells( )
     ASSERT_GT( max_grid_cells, 1e8 )
@@ -399,7 +399,7 @@ contains
     real(real64), parameter :: test_accuracy = 0.1
     integer                 :: max_grid_cells
 
-    micm => micm_t( "configs/analytical", BackwardEuler, error )
+    micm => micm_t( "configs/v0/analytical", BackwardEuler, error )
     ASSERT( error%is_success() )
     max_grid_cells = micm%get_maximum_number_of_grid_cells( )
     ASSERT_GT( max_grid_cells, 0 )
@@ -420,7 +420,7 @@ contains
     real(real64), parameter :: test_accuracy = 0.1
     integer                 :: max_grid_cells
 
-    micm => micm_t( "configs/analytical", BackwardEulerStandardOrder, error )
+    micm => micm_t( "configs/v0/analytical", BackwardEulerStandardOrder, error )
     ASSERT( error%is_success() )
     max_grid_cells = micm%get_maximum_number_of_grid_cells( )
     ASSERT_GT( max_grid_cells, 1e8 )
@@ -451,7 +451,7 @@ contains
       return
     end if
 
-    micm => micm_t( "configs/analytical", CudaRosenbrock, error )
+    micm => micm_t( "configs/v0/analytical", CudaRosenbrock, error )
     ASSERT( error%is_success() )
     max_grid_cells = micm%get_maximum_number_of_grid_cells( )
     ASSERT_GT( max_grid_cells, 0 )
@@ -581,7 +581,7 @@ contains
     ASSERT( error%is_error( MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND ) )
     deallocate( micm )
     deallocate( state )
-    micm => micm_t( "configs/invalid", solver_type, error )
+    micm => micm_t( "configs/v0/invalid", solver_type, error )
     ASSERT( error%is_error( MUSICA_ERROR_CATEGORY_PARSING, MUSICA_PARSE_INVALID_CONFIG_FILE ) )
     ASSERT( .not. associated( micm ) )
 
