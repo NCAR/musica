@@ -139,8 +139,12 @@ class State():
             k = 0
             for state in self.__states:
                 cell_stride, species_stride = state.concentration_strides()
+                if name == 'C': 
+                    print(f"i_species: {i_species}, species_stride: {species_stride}, cell_stride: {cell_stride}, value: {value}")
                 for i_cell in range(state.number_of_grid_cells()):
-                    state.concentrations[i_species * species_stride + i_cell * cell_stride] = value[k]
+                    idx = i_species * species_stride + i_cell * cell_stride
+                    print(f"\tindex: {idx}, value: {value[k]}")
+                    state.concentrations[idx] = value[k]
                     k += 1
 
     def set_user_defined_rate_parameters(
