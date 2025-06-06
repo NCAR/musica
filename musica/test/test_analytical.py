@@ -5,6 +5,7 @@ import random
 import musica.mechanism_configuration as mc
 from musica.cuda import is_cuda_available
 import traceback
+import sys
 
 
 def TestSingleGridCell(solver, state, time_step, places=5):
@@ -129,7 +130,7 @@ def TestMultipleGridCell(solver, state, num_grid_cells, time_step, places=5):
     initial_pressures = state.get_conditions()["pressure"]
     initial_air_density = state.get_conditions()["air_density"]
 
-    traceback.print_stack(limit=3)
+    traceback.print_stack(limit=3, file=sys.stdout)
     print()
     print("Initial concentrations[C]:", initial_concentrations["C"])
     print("Actual concentrations[C] :", concentrations["C"])
