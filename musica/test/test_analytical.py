@@ -3,7 +3,9 @@ import numpy as np
 import musica
 import random
 import musica.mechanism_configuration as mc
-from musica._musica._core import _is_cuda_available
+from musica.cuda import is_cuda_available
+import traceback
+import sys
 
 
 def TestSingleGridCell(solver, state, time_step, places=5):
@@ -118,6 +120,9 @@ def TestMultipleGridCell(solver, state, num_grid_cells, time_step, places=5):
         rate_constants["USER.reaction 2"].append(
             0.002 + random.uniform(-0.0001, 0.0001))
 
+    print()
+    print("Actual concentrations[C] :", concentrations["C"])
+
     state.set_conditions(temperatures, pressures)  # Air density should be calculated in the state
     state.set_concentrations(concentrations)
     state.set_user_defined_rate_parameters(rate_constants)
@@ -127,6 +132,12 @@ def TestMultipleGridCell(solver, state, num_grid_cells, time_step, places=5):
     initial_temperatures = state.get_conditions()["temperature"]
     initial_pressures = state.get_conditions()["pressure"]
     initial_air_density = state.get_conditions()["air_density"]
+
+    traceback.print_stack(limit=3, file=sys.stdout)
+    print("Initial concentrations[C]:", initial_concentrations["C"])
+    print("Actual concentrations[C] :", concentrations["C"])
+    print()
+
     for i in range(num_grid_cells):
         assert np.isclose(initial_concentrations["A"][i], concentrations["A"][i], atol=1e-13)
         assert np.isclose(initial_concentrations["B"][i], concentrations["B"][i], atol=1e-13)
@@ -258,7 +269,7 @@ def test_multiple_grid_cells_standard_rosenbrock():
 
 
 def test_cuda_rosenbrock():
-    if _is_cuda_available():
+    if is_cuda_available():
         solver = musica.MICM(
             config_path="configs/v0/analytical",
             solver_type=musica.SolverType.cuda_rosenbrock)

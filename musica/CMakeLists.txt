@@ -1,47 +1,60 @@
-pybind11_add_module(_musica
-  binding.cpp
-  musica.cpp
-  mechanism_configuration.cpp
-)
+################################################################################
+# Python Extension Modules
 
-target_link_libraries(_musica
-  PRIVATE
-    musica::musica
-)
+# Define the list of Python extension module targets
+set(PY_MODULES _musica)
 
-include(silence_warnings)
-silence_warnings(_musica)
-
-if (APPLE)
-  # set the rpath for the shared library
-  set_target_properties(_musica PROPERTIES
-    INSTALL_RPATH "@loader_path"
-    BUILD_WITH_INSTALL_RPATH TRUE
-  )
-elseif(UNIX)
-  set_target_properties(_musica PROPERTIES
-    INSTALL_RPATH "$ORIGIN"
-    BUILD_WITH_INSTALL_RPATH TRUE
-  )
+# Add GPU module if CUDA is enabled
+if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None")
+  list(APPEND PY_MODULES _musica_gpu)
 endif()
 
-if(WIN32)
-  # makefiles on windows don't need the config directory
-  if (${CMAKE_GENERATOR} MATCHES "MinGW Makefiles")
-      set(PYTHON_MODULE_PATH "${CMAKE_CURRENT_BINARY_DIR}")
+# Loop over all Python extension modules
+foreach(lib ${PY_MODULES})
+  pybind11_add_module(
+    ${lib} 
+    musica.cpp
+    cuda.cpp
+    mechanism_configuration.cpp
+  )
+
+  # Link to the correct object library
+  if (${lib} STREQUAL "_musica_gpu")
+    target_sources(${lib} PUBLIC $<TARGET_OBJECTS:musica_object_cuda> gpu_binding.cpp)
+
+    set_target_properties(micm_cuda PROPERTIES POSITION_INDEPENDENT_CODE ON)
+    target_link_libraries(${lib}
+      PUBLIC
+        musica::micm_cuda
+    )
   else()
-  # but visual studio does
-      set(PYTHON_MODULE_PATH "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>")
+    target_sources(${lib} PUBLIC $<TARGET_OBJECTS:musica_object> cpu_binding.cpp)
   endif()
-else()
-  set(PYTHON_MODULE_PATH "${CMAKE_CURRENT_BINARY_DIR}")
-endif()
 
-install(TARGETS _musica LIBRARY DESTINATION musica)
+  target_include_directories(${lib}
+    PUBLIC
+      ${MUSICA_PROJECT_SRC_DIR}/include
+  )
 
-install(
-  TARGETS 
-    yaml-cpp musica 
-    LIBRARY DESTINATION musica/lib
-    ARCHIVE DESTINATION musica/lib
-)
+  target_link_libraries(${lib}
+    PUBLIC
+      musica::micm
+      musica::mechanism_configuration
+  )
+
+  # RPATH handling (Linux/macOS)
+  if (APPLE)
+    set_target_properties(${lib} PROPERTIES
+      INSTALL_RPATH "@loader_path"
+      BUILD_WITH_INSTALL_RPATH TRUE
+    )
+  elseif(UNIX)
+    set_target_properties(${lib} PROPERTIES
+      INSTALL_RPATH "$ORIGIN"
+      BUILD_WITH_INSTALL_RPATH TRUE
+    )
+  endif()
+
+  # Python module install path
+  install(TARGETS ${lib} LIBRARY DESTINATION musica)
+endforeach()
