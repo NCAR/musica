@@ -19,8 +19,6 @@ endif()
 include(silence_warnings)
 
 function(setup_object_target target_name)
-  set(musica_libraries
-  )
   set(musica_compile_definitions)
 
   if(MUSICA_ENABLE_MPI)
