@@ -35,6 +35,7 @@ if(MUSICA_ENABLE_MICM)
     install (
       TARGETS
         micm_cuda
+        musica_object_gpu
       EXPORT
         musica_Exports
       LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

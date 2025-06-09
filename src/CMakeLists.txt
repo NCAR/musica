@@ -146,6 +146,12 @@ endif()
 add_library(musica)
 add_library(musica::musica ALIAS musica)
 
+target_include_directories(musica
+PUBLIC
+  $<BUILD_INTERFACE:${MUSICA_PROJECT_SRC_DIR}/include>
+  $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
+)
+
 if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None" AND NOT MUSICA_ENABLE_PYTHON_LIBRARY)
   target_sources(musica
     PUBLIC
