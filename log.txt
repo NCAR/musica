@@ -1,0 +1,224 @@
+Warning: cibuildwheel 2.x no longer supports Python < 3.6. Please use the 1.x series or update CIBW_SKIP
+
+
+     _ _       _ _   _       _           _
+ ___|_| |_ _ _|_| |_| |_ _ _| |_ ___ ___| |
+|  _| | . | | | | | . | | | |   | -_| -_| |
+|___|_|___|___|_|_|___|_____|_|_|___|___|_|
+
+cibuildwheel version 2.23.2
+
+Build options:
+  platform: linux
+  allow_empty: False
+  architectures: x86_64
+  build_selector: 
+    build_config: cp312-*
+    skip_config: cp27-* cp34-* cp35-* cp36-* *musllinux*
+    requires_python: None
+    enable: ['pypy']
+  output_dir: /Users/kshores/Documents/musica/wheelhouse
+  package_dir: /Users/kshores/Documents/musica
+  test_selector: 
+    skip_config:
+  before_all: musica/tools/prepare_build_environment_linux.sh
+  before_build: 
+  before_test: 
+  build_frontend: None
+  build_verbosity: 3
+  config_settings: 
+  container_engine: docker
+  dependency_constraints: pinned
+  environment: 
+    BUILD_GPU=1
+    CUDA_PATH=/usr/local/cuda
+    PATH=/usr/local/cuda/bin:$PATH
+    LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+  manylinux_images: 
+    x86_64: quay.io/pypa/manylinux2014_x86_64:2025.03.23-1
+    i686: quay.io/pypa/manylinux2014_i686:2025.03.23-1
+    pypy_x86_64: quay.io/pypa/manylinux2014_x86_64:2025.03.23-1
+    aarch64: quay.io/pypa/manylinux2014_aarch64:2025.03.23-1
+    ppc64le: quay.io/pypa/manylinux2014_ppc64le:2025.03.23-1
+    s390x: quay.io/pypa/manylinux2014_s390x:2025.03.23-1
+    armv7l: quay.io/pypa/manylinux_2_31_armv7l:2025.03.23-1
+    pypy_aarch64: quay.io/pypa/manylinux2014_aarch64:2025.03.23-1
+    pypy_i686: quay.io/pypa/manylinux2014_i686:2025.03.23-1
+  musllinux_images: 
+    x86_64: quay.io/pypa/musllinux_1_2_x86_64:2025.03.23-1
+    i686: quay.io/pypa/musllinux_1_2_i686:2025.03.23-1
+    aarch64: quay.io/pypa/musllinux_1_2_aarch64:2025.03.23-1
+    ppc64le: quay.io/pypa/musllinux_1_2_ppc64le:2025.03.23-1
+    s390x: quay.io/pypa/musllinux_1_2_s390x:2025.03.23-1
+    armv7l: quay.io/pypa/musllinux_1_2_armv7l:2025.03.23-1
+  repair_command: bash musica/tools/repair_wheel_gpu.sh {wheel} {dest_dir}
+  test_command: 
+  test_extras: 
+  test_groups: 
+  test_requires: 
+
+Cache folder: /Users/kshores/Library/Caches/cibuildwheel
+
+Warning: cibuildwheel 3 will require Python 3.11+, please upgrade the Python version used to run cibuildwheel. This does not affect the versions you can target when building wheels. See: https://cibuildwheel.pypa.io/en/stable/#what-does-it-do
+
+Here we go!
+
+Starting container image quay.io/pypa/manylinux2014_x86_64:2025.03.23-1...
+
+info: This container will host the build for cp312-manylinux_x86_64...
++ docker version -f '{{json .}}'
++ docker image inspect quay.io/pypa/manylinux2014_x86_64:2025.03.23-1 --format '{{.Os}}/{{.Architecture}}'
+a95ae449c143f34ecfdfad8dadbcb5e853e317d61dd0a3ea94929b337e92e7d3
+    + /bin/true
+    + mkdir -p /project
+    + manylinux-interpreters --help
+    + manylinux-interpreters ensure cp312-cp312
+'cp312-cp312' already installed at '/opt/python/cp312-cp312'
+
+                                                                       ✓ 1.00s
+Copying project into container...
+
+    + mkdir -p /project
+
+                                                                       ✓ 2.48s
+Running before_all...
+
+    + /opt/python/cp39-cp39/bin/python -c 'import sys, json, os; json.dump(os.environ.copy(), sys.stdout)'
+    + sh -c musica/tools/prepare_build_environment_linux.sh
++ sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-CR.repo /etc/yum.repos.d/CentOS-Debuginfo.repo /etc/yum.repos.d/CentOS-fasttrack.repo /etc/yum.repos.d/CentOS-Media.repo /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo /etc/yum.repos.d/CentOS-Sources.repo /etc/yum.repos.d/CentOS-Vault.repo /etc/yum.repos.d/CentOS-x86_64-kernel.repo /etc/yum.repos.d/epel.repo /etc/yum.repos.d/epel-testing.repo
++ sed -i 's/^#.*baseurl=http/baseurl=http/g' /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-CR.repo /etc/yum.repos.d/CentOS-Debuginfo.repo /etc/yum.repos.d/CentOS-fasttrack.repo /etc/yum.repos.d/CentOS-Media.repo /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo /etc/yum.repos.d/CentOS-Sources.repo /etc/yum.repos.d/CentOS-Vault.repo /etc/yum.repos.d/CentOS-x86_64-kernel.repo /etc/yum.repos.d/epel.repo /etc/yum.repos.d/epel-testing.repo
++ sed -i 's/^mirrorlist=http/#mirrorlist=http/g' /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-CR.repo /etc/yum.repos.d/CentOS-Debuginfo.repo /etc/yum.repos.d/CentOS-fasttrack.repo /etc/yum.repos.d/CentOS-Media.repo /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo /etc/yum.repos.d/CentOS-Sources.repo /etc/yum.repos.d/CentOS-Vault.repo /etc/yum.repos.d/CentOS-x86_64-kernel.repo /etc/yum.repos.d/epel.repo /etc/yum.repos.d/epel-testing.repo
++ sed -i s/mirrorlist/#mirrorlist/g /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-CR.repo /etc/yum.repos.d/CentOS-Debuginfo.repo /etc/yum.repos.d/CentOS-fasttrack.repo /etc/yum.repos.d/CentOS-Media.repo /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo /etc/yum.repos.d/CentOS-Sources.repo /etc/yum.repos.d/CentOS-Vault.repo /etc/yum.repos.d/CentOS-x86_64-kernel.repo
++ sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-CR.repo /etc/yum.repos.d/CentOS-Debuginfo.repo /etc/yum.repos.d/CentOS-fasttrack.repo /etc/yum.repos.d/CentOS-Media.repo /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo /etc/yum.repos.d/CentOS-Sources.repo /etc/yum.repos.d/CentOS-Vault.repo /etc/yum.repos.d/CentOS-x86_64-kernel.repo
++ yum install -y zip tree wget
+Loaded plugins: ovl
+http://download.example/pub/epel/7/x86_64/repodata/repomd.xml: [Errno 14] curl#6 - "Could not resolve host: download.example; Unknown error"
+Trying other mirror.
+Resolving Dependencies
+--> Running transaction check
+---> Package tree.x86_64 0:1.6.0-10.el7 will be installed
+---> Package wget.x86_64 0:1.14-18.el7_6.1 will be installed
+---> Package zip.x86_64 0:3.0-11.el7 will be installed
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+================================================================================
+ Package        Arch             Version                   Repository      Size
+================================================================================
+Installing:
+ tree           x86_64           1.6.0-10.el7              base            46 k
+ wget           x86_64           1.14-18.el7_6.1           base           547 k
+ zip            x86_64           3.0-11.el7                base           260 k
+
+Transaction Summary
+================================================================================
+Install  3 Packages
+
+Total download size: 853 k
+Installed size: 2.8 M
+Downloading packages:
+--------------------------------------------------------------------------------
+Total                                              870 kB/s | 853 kB  00:00     
+Running transaction check
+Running transaction test
+Transaction test succeeded
+Running transaction
+  Installing : wget-1.14-18.el7_6.1.x86_64                                  1/3 
+install-info: No such file or directory for /usr/share/info/wget.info.gz
+  Installing : zip-3.0-11.el7.x86_64                                        2/3 
+  Installing : tree-1.6.0-10.el7.x86_64                                     3/3 
+  Verifying  : tree-1.6.0-10.el7.x86_64                                     1/3 
+  Verifying  : zip-3.0-11.el7.x86_64                                        2/3 
+  Verifying  : wget-1.14-18.el7_6.1.x86_64                                  3/3 
+
+Installed:
+  tree.x86_64 0:1.6.0-10.el7            wget.x86_64 0:1.14-18.el7_6.1           
+  zip.x86_64 0:3.0-11.el7              
+
+Complete!
++ '[' -n '' ']'
++ '[' -n '' ']'
+++ uname -m
++ target_arch=x86_64
++ echo 'Detected target_arch: x86_64'
+Detected target_arch: x86_64
++ '[' x86_64 = x86_64 ']'
++ yum-config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel8/x86_64/cuda-rhel8.repo
+Loaded plugins: ovl
+adding repo from: https://developer.download.nvidia.com/compute/cuda/repos/rhel8/x86_64/cuda-rhel8.repo
+grabbing file https://developer.download.nvidia.com/compute/cuda/repos/rhel8/x86_64/cuda-rhel8.repo to /etc/yum.repos.d/cuda-rhel8.repo
+repo saved to /etc/yum.repos.d/cuda-rhel8.repo
++ sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-CR.repo /etc/yum.repos.d/CentOS-Debuginfo.repo /etc/yum.repos.d/CentOS-fasttrack.repo /etc/yum.repos.d/CentOS-Media.repo /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo /etc/yum.repos.d/CentOS-Sources.repo /etc/yum.repos.d/CentOS-Vault.repo /etc/yum.repos.d/CentOS-x86_64-kernel.repo /etc/yum.repos.d/cuda-rhel8.repo /etc/yum.repos.d/epel.repo /etc/yum.repos.d/epel-testing.repo
++ sed -i 's/^#.*baseurl=http/baseurl=http/g' /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-CR.repo /etc/yum.repos.d/CentOS-Debuginfo.repo /etc/yum.repos.d/CentOS-fasttrack.repo /etc/yum.repos.d/CentOS-Media.repo /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo /etc/yum.repos.d/CentOS-Sources.repo /etc/yum.repos.d/CentOS-Vault.repo /etc/yum.repos.d/CentOS-x86_64-kernel.repo /etc/yum.repos.d/cuda-rhel8.repo /etc/yum.repos.d/epel.repo /etc/yum.repos.d/epel-testing.repo
++ sed -i 's/^mirrorlist=http/#mirrorlist=http/g' /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-CR.repo /etc/yum.repos.d/CentOS-Debuginfo.repo /etc/yum.repos.d/CentOS-fasttrack.repo /etc/yum.repos.d/CentOS-Media.repo /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo /etc/yum.repos.d/CentOS-Sources.repo /etc/yum.repos.d/CentOS-Vault.repo /etc/yum.repos.d/CentOS-x86_64-kernel.repo /etc/yum.repos.d/cuda-rhel8.repo /etc/yum.repos.d/epel.repo /etc/yum.repos.d/epel-testing.repo
++ yum install --setopt=obsoletes=0 -y cuda-nvcc-12-2 cuda-cudart-devel-12-2 libcurand-devel-12-2 libcublas-devel-12-2
+Loaded plugins: ovl
+Resolving Dependencies
+--> Running transaction check
+---> Package cuda-cudart-devel-12-2.x86_64 0:12.2.140-1 will be installed
+--> Processing Dependency: cuda-cudart-12-2 >= 12.2.140 for package: cuda-cudart-devel-12-2-12.2.140-1.x86_64
+--> Processing Dependency: cuda-cccl-12-2 for package: cuda-cudart-devel-12-2-12.2.140-1.x86_64
+---> Package cuda-nvcc-12-2.x86_64 0:12.2.140-1 will be installed
+--> Processing Dependency: cuda-crt-12-2 = 12.2.140 for package: cuda-nvcc-12-2-12.2.140-1.x86_64
+--> Processing Dependency: cuda-nvvm-12-2 = 12.2.140 for package: cuda-nvcc-12-2-12.2.140-1.x86_64
+--> Processing Dependency: gcc-c++ for package: cuda-nvcc-12-2-12.2.140-1.x86_64
+---> Package libcublas-devel-12-2.x86_64 0:12.2.5.6-1 will be installed
+--> Processing Dependency: libcublas-12-2 >= 12.2.5.6 for package: libcublas-devel-12-2-12.2.5.6-1.x86_64
+---> Package libcurand-devel-12-2.x86_64 0:10.3.3.141-1 will be installed
+--> Processing Dependency: libcurand-12-2 >= 10.3.3.141 for package: libcurand-devel-12-2-10.3.3.141-1.x86_64
+--> Running transaction check
+---> Package cuda-cccl-12-2.x86_64 0:12.2.140-1 will be installed
+---> Package cuda-crt-12-2.x86_64 0:12.2.140-1 will be installed
+---> Package cuda-cudart-12-2.x86_64 0:12.2.140-1 will be installed
+--> Processing Dependency: cuda-toolkit-12-2-config-common for package: cuda-cudart-12-2-12.2.140-1.x86_64
+--> Processing Dependency: cuda-toolkit-12-config-common for package: cuda-cudart-12-2-12.2.140-1.x86_64
+--> Processing Dependency: cuda-toolkit-config-common for package: cuda-cudart-12-2-12.2.140-1.x86_64
+---> Package cuda-nvvm-12-2.x86_64 0:12.2.140-1 will be installed
+---> Package gcc-c++.x86_64 0:4.8.5-44.el7 will be installed
+--> Processing Dependency: gcc = 4.8.5-44.el7 for package: gcc-c++-4.8.5-44.el7.x86_64
+---> Package libcublas-12-2.x86_64 0:12.2.5.6-1 will be installed
+---> Package libcurand-12-2.x86_64 0:10.3.3.141-1 will be installed
+--> Running transaction check
+---> Package cuda-toolkit-12-2-config-common.noarch 0:12.2.140-1 will be installed
+---> Package cuda-toolkit-12-config-common.noarch 0:12.9.79-1 will be installed
+---> Package cuda-toolkit-config-common.noarch 0:12.9.79-1 will be installed
+---> Package gcc.x86_64 0:4.8.5-44.el7 will be installed
+--> Processing Dependency: cpp = 4.8.5-44.el7 for package: gcc-4.8.5-44.el7.x86_64
+--> Running transaction check
+---> Package cpp.x86_64 0:4.8.5-44.el7 will be installed
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+================================================================================
+ Package                         Arch   Version         Repository         Size
+================================================================================
+Installing:
+ cuda-cudart-devel-12-2          x86_64 12.2.140-1      cuda-rhel8-x86_64 2.0 M
+ cuda-nvcc-12-2                  x86_64 12.2.140-1      cuda-rhel8-x86_64  61 M
+ libcublas-devel-12-2            x86_64 12.2.5.6-1      cuda-rhel8-x86_64 450 M
+ libcurand-devel-12-2            x86_64 10.3.3.141-1    cuda-rhel8-x86_64  53 M
+Installing for dependencies:
+ cpp                             x86_64 4.8.5-44.el7    base              5.9 M
+ cuda-cccl-12-2                  x86_64 12.2.140-1      cuda-rhel8-x86_64 1.9 M
+ cuda-crt-12-2                   x86_64 12.2.140-1      cuda-rhel8-x86_64 110 k
+ cuda-cudart-12-2                x86_64 12.2.140-1      cuda-rhel8-x86_64 218 k
+ cuda-nvvm-12-2                  x86_64 12.2.140-1      cuda-rhel8-x86_64  26 M
+ cuda-toolkit-12-2-config-common noarch 12.2.140-1      cuda-rhel8-x86_64 7.7 k
+ cuda-toolkit-12-config-common   noarch 12.9.79-1       cuda-rhel8-x86_64 8.0 k
+ cuda-toolkit-config-common      noarch 12.9.79-1       cuda-rhel8-x86_64 8.0 k
+ gcc                             x86_64 4.8.5-44.el7    base               16 M
+ gcc-c++                         x86_64 4.8.5-44.el7    base              7.2 M
+ libcublas-12-2                  x86_64 12.2.5.6-1      cuda-rhel8-x86_64 398 M
+ libcurand-12-2                  x86_64 10.3.3.141-1    cuda-rhel8-x86_64  53 M
+
+Transaction Summary
+================================================================================
+Install  4 Packages (+12 Dependent packages)
+
+Total download size: 1.1 G
+Installed size: 2.0 G
+Downloading packages:
+warning: /var/cache/yum/x86_64/7/cuda-rhel8-x86_64/packages/cuda-crt-12-2-12.2.140-1.x86_64.rpm: Header V4 RSA/SHA512 Signature, key ID d42d0685: NOKEY
+Public key for cuda-crt-12-2-12.2.140-1.x86_64.rpm is not installed

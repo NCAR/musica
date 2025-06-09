@@ -5,7 +5,6 @@ install(
     musica
     yaml-cpp
     mechanism_configuration
-    musica_object
   EXPORT
     musica_Exports
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -35,7 +34,6 @@ if(MUSICA_ENABLE_MICM)
     install (
       TARGETS
         micm_cuda
-        musica_object_gpu
       EXPORT
         musica_Exports
       LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

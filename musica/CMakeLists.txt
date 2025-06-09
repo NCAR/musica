@@ -1,53 +1,23 @@
 ################################################################################
 # Python Extension Modules
 
+include(setup_muisca_target)
+
 # Define the list of Python extension module targets
 set(PY_MODULES _musica)
 
-# Add GPU module if CUDA is enabled
+pybind11_add_module(_musica cpu_binding.cpp musica.cpp mechanism_configuration.cpp)
+target_sources(_musica PRIVATE ${MUSICA_SOURCES})
+musica_setup_target(_musica MODE CPU)
+
 if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None")
+  pybind11_add_module(_musica_gpu gpu_binding.cpp musica.cpp cuda.cpp mechanism_configuration.cpp)
+  target_sources(_musica_gpu PRIVATE ${MUSICA_SOURCES})
+  musica_setup_target(_musica_gpu MODE GPU)
   list(APPEND PY_MODULES _musica_gpu)
 endif()
 
-# Loop over all Python extension modules
 foreach(lib ${PY_MODULES})
-  pybind11_add_module(
-    ${lib} 
-    musica.cpp
-    cuda.cpp
-    mechanism_configuration.cpp
-  )
-
-  # Link to the correct object library
-  if (${lib} STREQUAL "_musica_gpu")
-    target_sources(${lib} PUBLIC $<TARGET_OBJECTS:musica_object_cuda> gpu_binding.cpp)
-
-    set_target_properties(micm_cuda PROPERTIES POSITION_INDEPENDENT_CODE ON)
-    target_link_libraries(${lib}
-      PUBLIC
-        musica::micm_cuda
-        musica_object_cuda
-    )
-  else()
-    target_sources(${lib} PUBLIC $<TARGET_OBJECTS:musica_object> cpu_binding.cpp)
-    target_link_libraries(${lib}
-      PUBLIC
-        musica_object
-    )
-  endif()
-
-  target_include_directories(${lib}
-    PUBLIC
-      ${MUSICA_PROJECT_SRC_DIR}/include
-  )
-
-  target_link_libraries(${lib}
-    PUBLIC
-      musica::micm
-      musica::mechanism_configuration
-  )
-
-  # RPATH handling (Linux/macOS)
   if (APPLE)
     set_target_properties(${lib} PROPERTIES
       INSTALL_RPATH "@loader_path"
@@ -60,6 +30,5 @@ foreach(lib ${PY_MODULES})
     )
   endif()
 
-  # Python module install path
   install(TARGETS ${lib} LIBRARY DESTINATION musica)
 endforeach()
