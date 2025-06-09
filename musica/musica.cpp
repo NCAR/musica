@@ -77,6 +77,7 @@ void bind_musica(py::module_ &core)
   core.def("_vector_size",
       [](const musica::MICMSolver solver_type)
       {
+        std::cout << "--Vector size: " << musica::MUSICA_VECTOR_SIZE << std::endl;
         switch (solver_type)
         {
           case musica::MICMSolver::Rosenbrock:

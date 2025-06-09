@@ -6,13 +6,13 @@
 # Define the list of Python extension module targets
 set(PY_MODULES _musica)
 
-pybind11_add_module(_musica cpu_binding.cpp musica.cpp mechanism_configuration.cpp)
-target_sources(_musica PRIVATE ${MUSICA_SOURCES})
+set(MUSICA_PYTHON_SOURCES musica.cpp cuda.cpp mechanism_configuration.cpp ${MUSICA_SOURCES})
+
+pybind11_add_module(_musica cpu_binding.cpp ${MUSICA_PYTHON_SOURCES})
 musica_setup_target(_musica MODE CPU)
 
 if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None")
-  pybind11_add_module(_musica_gpu gpu_binding.cpp musica.cpp cuda.cpp mechanism_configuration.cpp)
-  target_sources(_musica_gpu PRIVATE ${MUSICA_SOURCES})
+  pybind11_add_module(_musica_gpu gpu_binding.cpp ${MUSICA_PYTHON_SOURCES}) 
   musica_setup_target(_musica_gpu MODE GPU)
   list(APPEND PY_MODULES _musica_gpu)
 endif()

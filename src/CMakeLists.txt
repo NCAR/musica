@@ -16,42 +16,42 @@ message (STATUS "CMake build configuration for ${PROJECT_NAME} (${CMAKE_BUILD_TY
 include(silence_warnings)
 
 set(MUSICA_COMMON_SOURCES
-  util.cpp
-  component_versions.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/util.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/component_versions.cpp
   ${CMAKE_BINARY_DIR}/version.cpp
 )
 
 if(MUSICA_ENABLE_MICM)
   set(MUSICA_MICM_SOURCES
-    micm/micm.cpp
-    micm/micm_c_interface.cpp
-    micm/state.cpp
-    micm/state_c_interface.cpp
-    micm/parse.cpp
-    micm/v0_parse.cpp
-    micm/v1_parse.cpp
-    micm/cuda_availability.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/micm/micm.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/micm/micm_c_interface.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/micm/state.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/micm/state_c_interface.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/micm/parse.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/micm/v0_parse.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/micm/v1_parse.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/micm/cuda_availability.cpp
   )
 endif()
 
 if(MUSICA_ENABLE_TUVX)
   enable_language(Fortran)
   set(MUSICA_TUVX_SOURCES
-    tuvx/interface.F90
-    tuvx/interface_grid.F90
-    tuvx/interface_grid_map.F90
-    tuvx/interface_profile.F90
-    tuvx/interface_profile_map.F90
-    tuvx/interface_radiator.F90
-    tuvx/interface_radiator_map.F90
-    tuvx/interface_util.F90
-    tuvx/grid.cpp
-    tuvx/grid_map.cpp
-    tuvx/profile.cpp
-    tuvx/profile_map.cpp
-    tuvx/radiator.cpp
-    tuvx/radiator_map.cpp
-    tuvx/tuvx.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface.F90
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface_grid.F90
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface_grid_map.F90
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface_profile.F90
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface_profile_map.F90
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface_radiator.F90
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface_radiator_map.F90
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface_util.F90
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/grid.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/grid_map.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/profile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/profile_map.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/radiator.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/radiator_map.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/tuvx.cpp
   )
 endif()
 
@@ -59,6 +59,7 @@ set(MUSICA_SOURCES
   ${MUSICA_COMMON_SOURCES}
   ${MUSICA_MICM_SOURCES}
   ${MUSICA_TUVX_SOURCES}
+  CACHE INTERNAL "List of sources for MUSICA"
 )
 
 # version

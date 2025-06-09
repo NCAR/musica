@@ -27,7 +27,7 @@ function(musica_setup_target target)
   endif()
 
   if (MUSICA_ENABLE_MICM) 
-    target_compile_definitions(${target} PUBLIC -DMUSICA_USE_MPI)
+    target_compile_definitions(${target} PUBLIC -DMUSICA_USE_MICM)
     target_link_libraries(${target}
       PUBLIC
         musica::micm
