@@ -137,13 +137,17 @@ class State():
                 raise ValueError(f"Concentration list for {name} must have length {self.__number_of_grid_cells}.")
             # Counter 'k' is used to map grid cell indices across multiple state segments.
             k = 0
-            for state in self.__states:
+            print(len(self.__states))
+            # the state is creating with the number of grid cells, even when the number of grid cells is more than the vector lenght
+            # we whould get two states, but we have one
+            for st_idx, state in enumerate(self.__states):
                 cell_stride, species_stride = state.concentration_strides()
                 if name == 'C': 
-                    print(f"i_species: {i_species}, species_stride: {species_stride}, cell_stride: {cell_stride}, value: {value}")
+                    print(f"state index: {st_idx}, grid cells: {state.number_of_grid_cells()} i_species: {i_species}, species_stride: {species_stride}, cell_stride: {cell_stride}, value: {value}")
                 for i_cell in range(state.number_of_grid_cells()):
                     idx = i_species * species_stride + i_cell * cell_stride
-                    print(f"\tindex: {idx}, value: {value[k]}")
+                    if name == 'C': 
+                        print(f"\tindex: {idx}, value: {value[k]}, k: {k}")
                     state.concentrations[idx] = value[k]
                     k += 1
 

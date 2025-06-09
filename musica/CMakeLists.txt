@@ -26,9 +26,14 @@ foreach(lib ${PY_MODULES})
     target_link_libraries(${lib}
       PUBLIC
         musica::micm_cuda
+        musica_object_cuda
     )
   else()
     target_sources(${lib} PUBLIC $<TARGET_OBJECTS:musica_object> cpu_binding.cpp)
+    target_link_libraries(${lib}
+      PUBLIC
+        musica_object
+    )
   endif()
 
   target_include_directories(${lib}
