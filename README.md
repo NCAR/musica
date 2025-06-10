@@ -23,7 +23,110 @@ At present the project encompasses these components
 - [MICM](https://github.com/NCAR/micm)
     - Model Independent Chemical Module
 
-## Available grids
+# Installation
+MUSICA is installable via pip for Python or CMake for C++. 
+
+## Pip
+```
+pip install musica
+```
+## CMake
+```
+$ git clone https://github.com/NCAR/musica.git
+$ cd musica
+$ mkdir build
+$ cd build
+$ ccmake ..
+$ make
+$ make install
+```
+
+# Using the MUSICA Python API
+MUSICA makes its chemical mechanism analysis and visualization available through a Python API. The following example works through solving a simple chemistry system. Please refer to the [official documentation](https://ncar.github.io/musica/index.html) for further tutorials and examples.
+```
+# --- Import Musica ---
+import musica
+import musica.mechanism_configuration as mc
+
+# --- 1. Define the chemical system of interest ---
+A = mc.Species(name="A")
+B = mc.Species(name="B")
+C = mc.Species(name="C")
+species = [A, B, C]
+gas = mc.Phase(name="gas", species=species)
+
+# --- 2. Define a mechanism of interest ---
+# Through Musica, several different mechanisms can be explored to define reaction rates. Here, we use the Arrhenius equation as a simple example.
+
+r1 = mc.Arrhenius(name="A->B", A=4.0e-3, C=50, reactants=[A], products=[B], gas_phase=gas)
+r2 = mc.Arrhenius(name="B->C", A=1.2e-4, B=2.5, C=75, D=50, E=0.5, reactants=[B], products=[C], gas_phase=gas)
+
+mechanism = mc.Mechanism(name="musica_example", species=species, phases=[gas], reactions=[r1, r2])
+
+# --- 3. Create MICM solver ---
+# A solver must be initialized with either a configuration file or a mechanism:
+
+solver = musica.MICM(mechanism=mechanism, solver_type=musica.SolverType.rosenbrock_standard_order)
+
+# --- 4. Define environmental conditions ---
+temperature=300.0
+pressure=101000.0
+
+# --- 5. Create and initialize State ---
+# In the model, conditions represent the starting environment for the reactions and are assigned by modifying the state.
+
+state = solver.create_state()
+state.set_concentrations({"A": 1.0, "B": 3.0, "C": 5.0})
+state.set_conditions(temperature, pressure)
+initial_pressure = state.get_conditions()['air_density'][0] # store for visualization and output
+
+# --- 6. Time parameters ---
+time_step = 4  # stepping
+sim_length = 20  # total simulation time
+
+# --- (Optional) 7. Save initial state (t=0) for output visualization ---
+initial_row = {"time.s": 0.0, "ENV.temperature.K": temperature, "ENV.pressure.Pa": pressure, "ENV.air number density.mol m-3": state.get_conditions()['air_density'][0]}
+initial_row.update({f"CONC.{k}.mol m-3": v[0] for k, v in state.get_concentrations().items()})
+
+# --- 8. Solve through time loop only ---
+# The following loop simply solves the model per each time step:
+
+curr_time = time_step
+while curr_time <= sim_length:
+    solver.solve(state, time_step)
+    concentrations = state.get_concentrations()
+    curr_time += time_step
+
+# --- 9. Solve and create DataFrame ---
+# It is likely more useful to solve at each time step and store the associated data:
+import pandas as pd
+
+output_data = [] # prepare to store output per time step
+output_data.append(initial_row) # save t=0 data
+
+curr_time = time_step
+while curr_time <= sim_length:
+    solver.solve(state, time_step)
+    row = {
+        "time.s": curr_time,
+        "ENV.temperature.K": state.get_conditions()['temperature'][0],
+        "ENV.pressure.Pa": state.get_conditions()['pressure'][0],
+        "ENV.air number density.mol m-3": state.get_conditions()['air_density'][0]
+    }
+    row.update({f"CONC.{k}.mol m-3": v[0] for k, v in state.get_concentrations().items()})
+    output_data.append(row)
+    curr_time += time_step
+
+df = pd.DataFrame(output_data)
+print(df)
+
+# --- 10. Visualize Specific Results ---
+import matplotlib.pyplot as plt
+
+df.plot(x='time.s', y=['CONC.A.mol m-3', 'CONC.B.mol m-3', 'CONC.C.mol m-3'], title='Concentration over time', ylabel='Concentration (mol m-3)', xlabel='Time (s)')
+plt.show()
+```
+# Available grids
 
 Pre-made grids for use in MUSICA are available [here](https://wiki.ucar.edu/display/MUSICA/Available+Grids).
 
@@ -83,7 +186,7 @@ pip install musica[gpu]
 
 #### Local build
 
-To build the package locally,
+Musica has python bindings. To build the package locally,
 
 ```
 pip install -e .

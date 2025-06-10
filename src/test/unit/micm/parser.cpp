@@ -13,7 +13,7 @@ TEST(Parser, BadConfigurationFilePath)
 TEST(Parser, Version0Configuration)
 {
   mechanism_configuration::UniversalParser parser;
-  auto parsed = parser.Parse("configs/chapman");
+  auto parsed = parser.Parse("configs/v0/chapman");
   EXPECT_TRUE(parsed);
 
   using V0 = mechanism_configuration::v0::types::Mechanism;
@@ -34,7 +34,7 @@ TEST(Parser, Version1Configuration)
 
 TEST(Parser, CanParseChapmanV0)
 {
-  musica::Chemistry chemistry = musica::ReadConfiguration("configs/chapman");
+  musica::Chemistry chemistry = musica::ReadConfiguration("configs/v0/chapman");
   EXPECT_EQ(chemistry.system.gas_phase_.species_.size(), 5);
   EXPECT_EQ(chemistry.processes.size(), 7);
   EXPECT_EQ(chemistry.system.gas_phase_.species_[0].name_, "M");
@@ -47,21 +47,21 @@ TEST(Parser, CanParseChapmanV0)
 
 TEST(Parser, CanParseCBVV0)
 {
-  musica::Chemistry chemistry = musica::ReadConfiguration("configs/carbon_bond_5");
+  musica::Chemistry chemistry = musica::ReadConfiguration("configs/v0/carbon_bond_5");
   EXPECT_EQ(chemistry.system.gas_phase_.species_.size(), 67);
   EXPECT_EQ(chemistry.processes.size(), 200);
 }
 
 TEST(Parser, CanParseTS1V0)
 {
-  musica::Chemistry chemistry = musica::ReadConfiguration("configs/TS1");
+  musica::Chemistry chemistry = musica::ReadConfiguration("configs/v0/TS1");
   EXPECT_EQ(chemistry.system.gas_phase_.species_.size(), 210);
   EXPECT_EQ(chemistry.processes.size(), 547);
 }
 
 TEST(Parser, DetectsInvalidConfigV0)
 {
-  EXPECT_ANY_THROW(musica::ReadConfiguration("configs/invalid"));
+  EXPECT_ANY_THROW(musica::ReadConfiguration("configs/v0/invalid"));
 }
 
 TEST(Parser, CanParseChapmanV1)
@@ -91,7 +91,7 @@ TEST(Parser, CanParseFullV1)
 
   for (const auto& extension : extensions)
   {
-    musica::Chemistry chemistry = musica::ReadConfiguration("configs/v1/full_configuration" + extension);
+    musica::Chemistry chemistry = musica::ReadConfiguration("configs/v1/full_configuration/full_configuration" + extension);
     EXPECT_EQ(chemistry.system.gas_phase_.species_.size(), 4);
     EXPECT_EQ(chemistry.system.gas_phase_.name_, "gas");
     EXPECT_EQ(chemistry.system.phases_.size(), 3);

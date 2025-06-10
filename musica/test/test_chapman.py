@@ -3,9 +3,25 @@ import musica
 import musica.mechanism_configuration as mc
 
 
-def test_solve_with_config_path():
+def test_solve_with_config_path_v0():
     solver = musica.MICM(
-        config_path="configs/chapman",
+        config_path="configs/v0/chapman",
+        solver_type=musica.SolverType.rosenbrock_standard_order,
+    )
+    TestSolve(solver)
+
+
+def test_solve_with_config_path_v1_json():
+    solver = musica.MICM(
+        config_path="configs/v1/chapman/config.json",
+        solver_type=musica.SolverType.rosenbrock_standard_order,
+    )
+    TestSolve(solver)
+
+
+def test_solve_with_config_path_v1_yaml():
+    solver = musica.MICM(
+        config_path="configs/v1/chapman/config.yaml",
         solver_type=musica.SolverType.rosenbrock_standard_order,
     )
     TestSolve(solver)

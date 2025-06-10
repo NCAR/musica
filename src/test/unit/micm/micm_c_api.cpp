@@ -19,7 +19,7 @@ class MicmCApiTestFixture : public ::testing::Test
  protected:
   MICM* micm;
   musica::State* state;
-  const char* config_path = "configs/chapman";
+  const char* config_path = "configs/v0/chapman";
   int num_grid_cells = 1;
 
   void SetUp() override
@@ -81,7 +81,7 @@ TEST(MicmCApiTest, BadSolverType)
 {
   short solver_type = 999;
   Error error = NoError();
-  auto micm_bad_solver_type = CreateMicm("configs/chapman", static_cast<MICMSolver>(solver_type), &error);
+  auto micm_bad_solver_type = CreateMicm("configs/v0/chapman", static_cast<MICMSolver>(solver_type), &error);
   ASSERT_EQ(micm_bad_solver_type, nullptr);
   ASSERT_TRUE(IsError(error, MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND));
   DeleteError(&error);
@@ -289,7 +289,7 @@ void TestSingleGridCell(MICM* micm, musica::State* state)
 // Test case for solving system using standard-ordered Rosenbrock solver
 TEST(RosenbrockStandardOrder, SolveUsingStandardOrderedRosenbrock)
 {
-  const char* config_path = "configs/chapman";
+  const char* config_path = "configs/v0/chapman";
   int num_grid_cells = 1;
   Error error;
   MICM* micm = CreateMicm(config_path, MICMSolver::RosenbrockStandardOrder, &error);
@@ -306,7 +306,7 @@ TEST(RosenbrockStandardOrder, SolveUsingStandardOrderedRosenbrock)
 // Test case for solving system using standard-ordered Backward Euler solver
 TEST(BackwardEulerStandardOrder, SolveUsingStandardOrderedBackwardEuler)
 {
-  const char* config_path = "configs/chapman";
+  const char* config_path = "configs/v0/chapman";
   int num_grid_cells = 1;
   Error error;
   MICM* micm = CreateMicm(config_path, MICMSolver::BackwardEulerStandardOrder, &error);
@@ -501,7 +501,7 @@ TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingVectorOrderedRosenbrock)
 {
   constexpr double time_step = 200.0;
   constexpr double test_accuracy = 5.0e-3;
-  const char* config_path = "configs/analytical";
+  const char* config_path = "configs/v0/analytical";
   Error error;
   DeleteMicm(micm, &error);
   ASSERT_TRUE(IsSuccess(error));
@@ -522,7 +522,7 @@ TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingStandardOrderedRosenbrock
 {
   constexpr double time_step = 200.0;
   constexpr double test_accuracy = 5.0e-3;
-  const char* config_path = "configs/analytical";
+  const char* config_path = "configs/v0/analytical";
   Error error;
   DeleteMicm(micm, &error);
   ASSERT_TRUE(IsSuccess(error));
@@ -542,7 +542,7 @@ TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingVectorOrderedBackwardEule
 {
   constexpr double time_step = 10.0;
   constexpr double test_accuracy = 0.1;
-  const char* config_path = "configs/analytical";
+  const char* config_path = "configs/v0/analytical";
   Error error;
   DeleteMicm(micm, &error);
   ASSERT_TRUE(IsSuccess(error));
@@ -562,7 +562,7 @@ TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingStandardOrderedBackwardEu
 {
   constexpr double time_step = 10.0;
   constexpr double test_accuracy = 0.1;
-  const char* config_path = "configs/analytical";
+  const char* config_path = "configs/v0/analytical";
   Error error;
   DeleteMicm(micm, &error);
   ASSERT_TRUE(IsSuccess(error));
