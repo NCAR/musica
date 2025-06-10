@@ -7,9 +7,12 @@ for whl in "$2"/*.whl; do
   tmpdir=$(mktemp -d)
   unzip -q "$whl" -d "$tmpdir"
   tree "$tmpdir"
-  so_path="$tmpdir"/musica/_musica_gpu*.so
 
-  if [[ -f "$so_path" ]]; then
+  so_files=("$tmpdir"/musica/_musica_gpu*.so)
+
+  if [[ -f "${so_files[0]}" ]]; then
+      so_path="${so_files[0]}"
+      ls $so_path
       echo "Before patchelf:"
       readelf -d $so_path
       # Use patchelf to fix the rpath and library dependencies

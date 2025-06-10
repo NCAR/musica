@@ -34,6 +34,7 @@ function(musica_setup_target target)
     )
 
     if(ARG_MODE STREQUAL "GPU")
+        set_target_properties(micm_cuda PROPERTIES POSITION_INDEPENDENT_CODE ON)
       target_compile_definitions(${target} PUBLIC MUSICA_ENABLE_CUDA)
       target_link_libraries(${target} PUBLIC musica::micm_cuda)
     endif()
