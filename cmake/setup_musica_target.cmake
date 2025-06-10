@@ -19,15 +19,15 @@ function(musica_setup_target target)
   )
 
   if (MUSICA_ENABLE_MPI)
-    list(APPEND musica_compile_definitions MUSICA_USING_MPI)
+    list(APPEND musica_compile_definitions MUSICA_USE_MPI)
   endif()
 
   if (MUSICA_ENABLE_OPENMP)
-    list(APPEND musica_compile_definitions MUSICA_USING_OPENMP)
+    list(APPEND musica_compile_definitions MUSICA_USE_OPENMP)
   endif()
 
   if (MUSICA_ENABLE_MICM) 
-    list(APPEND musica_compile_definitions MUSICA_USING_MICM)
+    list(APPEND musica_compile_definitions MUSICA_USE_MICM)
     target_link_libraries(${target}
       PUBLIC
         musica::micm
@@ -35,7 +35,7 @@ function(musica_setup_target target)
 
     if(ARG_MODE STREQUAL "GPU")
       set_target_properties(micm_cuda PROPERTIES POSITION_INDEPENDENT_CODE ON)
-      list(APPEND musica_compile_definitions MUSICA_USING_MICM_CUDA)
+      list(APPEND musica_compile_definitions MUSICA_ENABLE_CUDA)
       target_link_libraries(${target} PUBLIC musica::micm_cuda)
     endif()
   endif()
@@ -56,10 +56,7 @@ function(musica_setup_target target)
     )
   endif()
 
-  target_compile_definitions(${target}
-    PUBLIC
-      ${musica_compile_definitions}
-  )
+  target_compile_definitions(${target} PUBLIC ${musica_compile_definitions})
 
   silence_warnings(${target})
 endfunction()
