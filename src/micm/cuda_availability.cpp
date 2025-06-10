@@ -12,12 +12,12 @@ namespace musica
   {
     int device_count = 0;
 #ifdef MUSICA_ENABLE_CUDA
-    std::cout << "Checking for CUDA availability..." << std::endl;
     cudaError_t error = cudaGetDeviceCount(&device_count);
     if (error != cudaSuccess)
     {
       return false;
     }
+    std::cout << "CUDA devices available: " << device_count << std::endl;
 #endif
     return device_count > 0;
   }
