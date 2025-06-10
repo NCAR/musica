@@ -89,6 +89,9 @@ if(MUSICA_BUILD_C_CXX_INTERFACE)
   endif()
 endif()
 
+# since sources are collected so that python libraries can target them directly,
+# we need to know if we are targeting Fortran before we collect the sources
+# otherwise cmake freaks out, and I don't know why, but this fixes it
 if(MUSICA_ENABLE_TUVX)
     enable_language(Fortran)
 endif()

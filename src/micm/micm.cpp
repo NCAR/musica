@@ -129,22 +129,10 @@ namespace musica
 #ifdef MUSICA_ENABLE_CUDA
     void operator()(std::unique_ptr<micm::CudaRosenbrock>& solver, micm::GpuState& state) const
     {
-      std::cout << "Variables before: [ ";
-      for(auto& v : state.variables_.AsVector()) {
-        std::cout << v << " ";
-      }
-      std::cout << "] " << state.variables_.AsVector().size() << std::endl;
-
       solver->CalculateRateConstants(state);
       state.SyncInputsToDevice();
       Solve(solver, state);
       state.SyncOutputsToHost();
-
-      std::cout << "Variables after: [ ";
-      for(auto& v : state.variables_.AsVector()) {
-        std::cout << v << " ";
-      }
-      std::cout << "] " << state.variables_.AsVector().size() << std::endl;
     }
 #endif
 
