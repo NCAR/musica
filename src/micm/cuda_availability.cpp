@@ -17,7 +17,6 @@ namespace musica
     {
       return false;
     }
-    std::cout << "CUDA devices available: " << device_count << std::endl;
 #endif
     return device_count > 0;
   }
