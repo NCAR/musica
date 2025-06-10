@@ -23,7 +23,16 @@ At present the project encompasses these components
 - [MICM](https://github.com/NCAR/micm)
     - Model Independent Chemical Module
 
-## Available grids
+# Installation
+
+## Pip
+
+## CMake
+
+# Using the MUSICA Python API
+
+
+# Available grids
 
 Pre-made grids for use in MUSICA are available [here](https://wiki.ucar.edu/display/MUSICA/Available+Grids).
 
@@ -63,9 +72,7 @@ Specifying a specific version of `tuv-x` by has, but using the official reposito
 
 
 ### Python build
-Musica has python bindings. If you want to install the python package, you may `pip install musica`.
-
-To build the package locally,
+Musica has python bindings. To build the package locally,
 
 ```
 pip install -e .
