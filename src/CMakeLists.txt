@@ -9,7 +9,6 @@ project(
 
 message (STATUS "CMake build configuration for ${PROJECT_NAME} (${CMAKE_BUILD_TYPE}) ${PROJECT_VERSION}")
 
-
 ################################################################################
 # Sources
 
@@ -35,7 +34,6 @@ if(MUSICA_ENABLE_MICM)
 endif()
 
 if(MUSICA_ENABLE_TUVX)
-  enable_language(Fortran)
   set(MUSICA_TUVX_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface.F90
     ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface_grid.F90

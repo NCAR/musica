@@ -89,6 +89,10 @@ if(MUSICA_BUILD_C_CXX_INTERFACE)
   endif()
 endif()
 
+if(MUSICA_ENABLE_TUVX)
+    enable_language(Fortran)
+endif()
+
 # Add flags when using the ClangCL toolset
 if(CMAKE_GENERATOR_TOOLSET STREQUAL "ClangCL")
   list(APPEND musica_compile_definitions MUSICA_USING_CLANGCL)
@@ -147,4 +151,4 @@ endif()
 ###
 # Configure and display a summary file for how musica was built.
 ###
-include(${PROJECT_SOURCE_DIR}/cmake/summary.cmake)
+#include(${PROJECT_SOURCE_DIR}/cmake/summary.cmake)
