@@ -24,6 +24,7 @@ At present the project encompasses these components
     - Model Independent Chemical Module
 
 # Installation
+MUSICA is installable via pip for Python or CMake for C++. 
 
 ## Pip
 ```
