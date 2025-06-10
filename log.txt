@@ -1502,3 +1502,59 @@ Building wheels for collected packages: musica
   Destination directory: /tmp/pip-wheel-2t7sxno3
   Building wheel for musica (pyproject.toml): started
   Running command Building wheel for musica (pyproject.toml)
+  *** scikit-build-core 0.11.4 using CMake 3.31.6 (wheel)
+  *** Configuring CMake...
+  loading initial cache file /tmp/tmpeu5u02b3/build/CMakeInit.txt
+  -- The C compiler identification is GNU 10.2.1
+  -- The CXX compiler identification is GNU 10.2.1
+  -- Detecting C compiler ABI info
+  -- Detecting C compiler ABI info - done
+  -- Check for working C compiler: /opt/rh/devtoolset-10/root/usr/bin/gcc - skipped
+  -- Detecting C compile features
+  -- Detecting C compile features - done
+  -- Detecting CXX compiler ABI info
+  -- Detecting CXX compiler ABI info - done
+  -- Check for working CXX compiler: /opt/rh/devtoolset-10/root/usr/bin/g++ - skipped
+  -- Detecting CXX compile features
+  -- Detecting CXX compile features - done
+  -- CMake build configuration for mechanism_configuration (Release) 0.2.0
+  -- CMake build configuration for micm(Release) 3.8.0
+  -- GPU architecture found: all-major
+  -- Looking for a CUDA compiler
+context canceled
+Delete "http://%2FUsers%2Fkshores%2F.docker%2Frun%2Fdocker.sock/v1.47/containers/cibuildwheel-61117ab4-89a6-4139-a9f1-5aa59376cefd?force=1&v=1": context canceled
+Traceback (most recent call last):
+  File "/opt/homebrew/anaconda3/lib/python3.9/site-packages/cibuildwheel/linux.py", line 477, in build
+    build_in_container(
+  File "/opt/homebrew/anaconda3/lib/python3.9/site-packages/cibuildwheel/linux.py", line 283, in build_in_container
+    container.call(
+  File "/opt/homebrew/anaconda3/lib/python3.9/site-packages/cibuildwheel/oci_container.py", line 450, in call
+    line = self.bash_stdout.readline()
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/homebrew/anaconda3/bin/cibuildwheel", line 8, in <module>
+    sys.exit(main())
+  File "/opt/homebrew/anaconda3/lib/python3.9/site-packages/cibuildwheel/__main__.py", line 49, in main
+    main_inner(global_options)
+  File "/opt/homebrew/anaconda3/lib/python3.9/site-packages/cibuildwheel/__main__.py", line 184, in main_inner
+    build_in_directory(args)
+  File "/opt/homebrew/anaconda3/lib/python3.9/site-packages/cibuildwheel/__main__.py", line 351, in build_in_directory
+    platform_module.build(options, tmp_path)
+  File "/opt/homebrew/anaconda3/lib/python3.9/site-packages/cibuildwheel/linux.py", line 477, in build
+    build_in_container(
+  File "/opt/homebrew/anaconda3/lib/python3.9/site-packages/cibuildwheel/oci_container.py", line 336, in __exit__
+    subprocess.run(
+  File "/opt/homebrew/anaconda3/lib/python3.9/subprocess.py", line 507, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+  File "/opt/homebrew/anaconda3/lib/python3.9/subprocess.py", line 1126, in communicate
+    self.wait()
+  File "/opt/homebrew/anaconda3/lib/python3.9/subprocess.py", line 1189, in wait
+    return self._wait(timeout=timeout)
+  File "/opt/homebrew/anaconda3/lib/python3.9/subprocess.py", line 1917, in _wait
+    (pid, sts) = self._try_wait(0)
+  File "/opt/homebrew/anaconda3/lib/python3.9/subprocess.py", line 1875, in _try_wait
+    (pid, sts) = os.waitpid(self.pid, wait_flags)
+KeyboardInterrupt

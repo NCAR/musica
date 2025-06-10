@@ -133,7 +133,7 @@ namespace musica
       for(auto& v : state.variables_.AsVector()) {
         std::cout << v << " ";
       }
-      std::cout << "] " state.variables_.AsVector().size() << std::endl;
+      std::cout << "] " << state.variables_.AsVector().size() << std::endl;
 
       solver->CalculateRateConstants(state);
       state.SyncInputsToDevice();
@@ -144,7 +144,7 @@ namespace musica
       for(auto& v : state.variables_.AsVector()) {
         std::cout << v << " ";
       }
-      std::cout << "] " state.variables_.AsVector().size() << std::endl;
+      std::cout << "] " << state.variables_.AsVector().size() << std::endl;
     }
 #endif
 
