@@ -42,7 +42,7 @@ function(musica_setup_target target)
 
   if (MUSICA_ENABLE_TUVX)
     target_sources(${target}
-      PUBLIC
+      PRIVATE
         $<TARGET_OBJECTS:tuvx_object>
     )
     target_link_libraries(${target}
