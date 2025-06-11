@@ -18,15 +18,11 @@ def _gpu_deps_installed():
 
 
 if _gpu_deps_installed():
-    print("GPU dependencies found, using GPU backend.")
     from . import _musica_gpu as _backend
 else:
-    print("GPU dependencies not found, using CPU backend.")
     from . import _musica as _backend
 
 # Helper to re-export names from a module
-
-
 def _export_all(module, names, globals_):
     for name in names:
         globals_[name] = getattr(module, name)
@@ -45,9 +41,11 @@ _mechanism_names = [
     "_UserDefined", "_Reactions", "_ReactionsIterator", "_Mechanism", "_Version", "_Parser"
 ]
 
+# this allows us to use the same symbols in both the GPU and CPU versions
 _export_all(_backend._core, _core_names, globals())
 _export_all(_backend._mechanism_configuration, _mechanism_names, globals())
 
 __all__ = _core_names + _mechanism_names
 
 from .types import MICM, SolverType, State, Conditions
+from ._version import version as __version__

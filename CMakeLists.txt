@@ -154,4 +154,4 @@ endif()
 ###
 # Configure and display a summary file for how musica was built.
 ###
-#include(${PROJECT_SOURCE_DIR}/cmake/summary.cmake)
+include(${PROJECT_SOURCE_DIR}/cmake/summary.cmake)
