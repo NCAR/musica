@@ -1,5 +1,7 @@
 #include <musica/micm/cuda_availability.hpp>
 
+#include <iostream>
+
 #ifdef MUSICA_ENABLE_CUDA
   #include <cuda_runtime.h>
 #endif
