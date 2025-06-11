@@ -6,7 +6,15 @@
 # Define the list of Python extension module targets
 set(PY_MODULES _musica)
 
-set(MUSICA_PYTHON_SOURCES musica.cpp cuda.cpp mechanism_configuration.cpp ${MUSICA_SOURCES})
+set(
+  MUSICA_PYTHON_SOURCES 
+    binding_common.cpp
+    cuda.cpp 
+    mechanism_configuration.cpp 
+    musica.cpp 
+
+    ${MUSICA_SOURCES}
+)
 
 pybind11_add_module(_musica cpu_binding.cpp ${MUSICA_PYTHON_SOURCES})
 musica_setup_target(_musica MODE CPU)
