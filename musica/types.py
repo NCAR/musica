@@ -6,7 +6,7 @@
 from typing import Optional, Dict, List, Union, Tuple
 from os import PathLike
 import math
-from musica._musica._core import (
+from musica import (
     _Conditions,
     _SolverType,
     _Solver,
@@ -171,6 +171,7 @@ class State():
                 for i_cell in range(state.number_of_grid_cells()):
                     state.user_defined_rate_parameters[i_param * param_stride + i_cell * cell_stride] = value[k]
                     k += 1
+
 
     def set_conditions(self,
                        temperatures: Union[Union[float, int], List[Union[float, int]]],
@@ -358,5 +359,5 @@ class MICM():
         if not isinstance(time_step, (int, float)):
             raise TypeError("time_step must be an int or float.")
         states = state.get_internal_states()
-        for _, _state in enumerate(states):
+        for _state in states:
             _micm_solve(self.__solver, _state, time_step)
