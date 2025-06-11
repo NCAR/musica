@@ -41,7 +41,7 @@ _mechanism_names = [
     "_UserDefined", "_Reactions", "_ReactionsIterator", "_Mechanism", "_Version", "_Parser"
 ]
 
-# this allows us to use the same symbols in both the GPU and CPU versions
+# this allows us to use the same symbols in both the GPU and CPU versionspp
 _export_all(_backend._core, _core_names, globals())
 _export_all(_backend._mechanism_configuration, _mechanism_names, globals())
 
