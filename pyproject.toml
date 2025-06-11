@@ -71,7 +71,7 @@ version = "${version}"
 # you can test cibuildwheel on any computer with docker directly. First, make a 
 # new python environment and install cibbuildwheel into it
 # then, run something like this:
-# CIBW_ARCHS=x86_64 CIBW_PLATFORM=linux CIBW_ENVIRONMENT="CUDA_PATH=/usr/local/cuda PATH=/usr/local/cuda/bin:\$PATH LD_LIBRARY_PATH=/usr/local/cuda/lib64:\$LD_LIBRARY_PATH" cibuildwheel --output-dir wheelhouse > log.txt 2>&1
+# BUILD_GPU=1 CIBW_ARCHS=x86_64 CIBW_PLATFORM=linux CIBW_ENVIRONMENT="CUDA_PATH=/usr/local/cuda PATH=/usr/local/cuda/bin:\$PATH LD_LIBRARY_PATH=/usr/local/cuda/lib64:\$LD_LIBRARY_PATH" cibuildwheel --output-dir wheelhouse > log.txt 2>&1
 [tool.cibuildwheel]
 # Increase pip debugging output
 build-verbosity = 3
