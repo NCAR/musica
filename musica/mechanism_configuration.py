@@ -1102,7 +1102,6 @@ class AqueousEquilibrium(_AqueousEquilibrium):
 
         Args:
             name (str): The name of the aqueous equilibrium reaction rate constant.
-            gas_phase (Phase): The gas phase in which the reaction occurs.
             aerosol_phase (Phase): The aerosol phase in which the reaction occurs.
             aerosol_phase_water (Species): The water species in the aerosol phase.
             reactants (List[Union[Species, Tuple[float, Species]]]): A list of reactants involved in the reaction.
@@ -1114,7 +1113,6 @@ class AqueousEquilibrium(_AqueousEquilibrium):
         """
         super().__init__()
         self.name = name if name is not None else self.name
-        self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
         self.aerosol_phase = aerosol_phase.name if aerosol_phase is not None else self.aerosol_phase
         self.aerosol_phase_water = (
             aerosol_phase_water.name if aerosol_phase_water is not None else self.aerosol_phase_water
@@ -1154,7 +1152,6 @@ class AqueousEquilibrium(_AqueousEquilibrium):
         return remove_empty_keys({
             "type": "AQUEOUS_EQUILIBRIUM",
             "name": cls.name,
-            "gas phase": cls.gas_phase,
             "aerosol phase": cls.aerosol_phase,
             "aerosol-phase water": cls.aerosol_phase_water,
             "reactants": Serializer.serialize_list_reaction_components(cls.reactants),
