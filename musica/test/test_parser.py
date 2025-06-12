@@ -2,8 +2,6 @@ import pytest
 from musica.mechanism_configuration import *
 from test_util_full_mechanism import get_fully_defined_mechanism, validate_full_v1_mechanism
 
-# TODO: debugging
-@pytest.skip(allow_module_level=True)
 
 def test_parsed_full_v1_configuration():
     parser = Parser()
