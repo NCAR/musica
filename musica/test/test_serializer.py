@@ -18,9 +18,7 @@ def test_serialize_parser_loop(temp_dir):
     MECHANISM_FULLY_DEFINED = get_fully_defined_mechanism()
     print()
     # TODO: debugging
-    # extensions = [".yml", ".yaml", ".json"]
-    extensions = [".yaml"]
-    # extensions = [".json"]
+    extensions = [".yml", ".yaml", ".json"]
     for extension in extensions:
         path = f"{temp_dir}/test_mechanism{extension}"
         print(path)
@@ -29,7 +27,6 @@ def test_serialize_parser_loop(temp_dir):
         validate_full_v1_mechanism(mechanism)
 
 
-@pytest.mark.skip()
 def test_serialize_to_file(temp_dir):
     serializer = Serializer()
     MECHANISM_FULLY_DEFINED = get_fully_defined_mechanism()
@@ -40,7 +37,7 @@ def test_serialize_to_file(temp_dir):
         serializer.serialize(MECHANISM_FULLY_DEFINED, file_path)
         assert os.path.exists(file_path)
 
-@pytest.mark.skip()
+
 def test_bad_inputs():
     serializer = Serializer()
     with pytest.raises(TypeError):
@@ -48,7 +45,7 @@ def test_bad_inputs():
     with pytest.raises(TypeError):
         serializer.serialize('not a mechanism')
 
-@pytest.mark.skip()
+
 def test_path_creation(temp_dir):
     mechanism = Mechanism(name="Full Configuration")
     serializer = Serializer()
@@ -57,7 +54,7 @@ def test_path_creation(temp_dir):
     serializer.serialize(mechanism, f"{path}test_mechanism.json")
     assert os.path.exists(path)
 
-@pytest.mark.skip()
+
 def test_overwrite_file(temp_dir):
     mechanism = Mechanism(name="Full Configuration")
     serializer = Serializer()

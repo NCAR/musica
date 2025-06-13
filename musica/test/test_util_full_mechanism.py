@@ -59,7 +59,8 @@ def get_fully_defined_mechanism():
     gas = Phase(name="gas", species=[A, B, C, ethanol])
     aqueous_aerosol = Phase(
         name="aqueous aerosol",
-        species=[H2O2_aq, H2O_aq, ethanol_aq, A, B, C]
+        species=[H2O2_aq, H2O_aq, ethanol_aq, A, B, C],
+        other_properties = {"__irrelevant": "2"},
     )
     surface_reacting_phase = Phase(
         name="surface reacting phase",
@@ -73,7 +74,8 @@ def get_fully_defined_mechanism():
         A=32.1, B=-2.3, C=102.3, D=63.4, E=-1.3,
         gas_phase=gas,
         reactants=[B],
-        products=[C]
+        products=[C],
+        other_properties = {"__irrelevant": "2"},   
     )
 
     my_other_arrhenius = Arrhenius(
@@ -94,7 +96,8 @@ def get_fully_defined_mechanism():
         D=300.0,
         E=0.6e-5,
         reactants=[H2O2_aq, H2O_aq],
-        products=[ethanol_aq]
+        products=[ethanol_aq],
+        other_properties = {"__irrelevant": "2"},
     )
 
     my_other_condensed_arrhenius = CondensedPhaseArrhenius(
@@ -122,7 +125,8 @@ def get_fully_defined_mechanism():
         Fc=0.9,
         N=0.8,
         reactants=[B, M],
-        products=[C]
+        products=[C],
+        other_properties = {"__irrelevant": "2"},
     )
 
     my_branched = Branched(
@@ -135,6 +139,7 @@ def get_fully_defined_mechanism():
         Y=167,
         a0=0.15,
         n=9,
+        other_properties = {"__irrelevant": "2"},
     )
 
     my_tunneling = Tunneling(
@@ -145,6 +150,7 @@ def get_fully_defined_mechanism():
         A=123.45,
         B=1200.0,
         C=1.0e8,
+        other_properties = {"__irrelevant": "2"},
     )
 
     my_surface = Surface(
@@ -154,6 +160,7 @@ def get_fully_defined_mechanism():
         reaction_probability=2.0e-2,
         gas_phase_products=[B, C],
         aerosol_phase=surface_reacting_phase,
+        other_properties = {"__irrelevant": "2"},
     )
 
     photo_B = Photolysis(
@@ -162,6 +169,7 @@ def get_fully_defined_mechanism():
         reactants=[B],
         products=[C],
         scaling_factor=12.3,
+        other_properties = {"__irrelevant": "2"},
     )
 
     condensed_photo_B = CondensedPhasePhotolysis(
@@ -171,6 +179,7 @@ def get_fully_defined_mechanism():
         reactants=[H2O2_aq],
         products=[ethanol_aq],
         scaling_factor=12.3,
+        other_properties = {"__irrelevant": "2"},
     )
 
     my_emission = Emission(
@@ -178,6 +187,7 @@ def get_fully_defined_mechanism():
         gas_phase=gas,
         products=[B],
         scaling_factor=12.3,
+        other_properties = {"__irrelevant": "2"},
     )
 
     my_first_order_loss = FirstOrderLoss(
@@ -185,6 +195,7 @@ def get_fully_defined_mechanism():
         gas_phase=gas,
         reactants=[C],
         scaling_factor=12.3,
+        other_properties = {"__irrelevant": "2"},
     )
 
     my_aqueous_equilibrium = AqueousEquilibrium(
@@ -197,12 +208,14 @@ def get_fully_defined_mechanism():
         k_reverse=0.32,
         reactants=[(2, A)],
         products=[B, C],
+        other_properties = {"__irrelevant": "2"},
     )
 
     my_wet_deposition = WetDeposition(
         name="rxn cloud",
         aerosol_phase=cloud,
         scaling_factor=12.3,
+        other_properties = {"__irrelevant": "2"},
     )
 
     my_henrys_law = HenrysLaw(
@@ -212,6 +225,7 @@ def get_fully_defined_mechanism():
         aerosol_phase=aqueous_aerosol,
         aerosol_phase_species=H2O2_aq,
         aerosol_phase_water=H2O_aq,
+        other_properties = {"__irrelevant": "2"},
     )
 
     my_simpol_phase_transfer = SimpolPhaseTransfer(
@@ -223,6 +237,7 @@ def get_fully_defined_mechanism():
         aerosol_phase=aqueous_aerosol,
         aerosol_phase_species=ethanol_aq,
         B=[-1.97e03, 2.91e00, 1.96e-03, -4.96e-01],
+        other_properties = {"__irrelevant": "2"},
     )
 
     user_defined = UserDefined(
@@ -231,6 +246,7 @@ def get_fully_defined_mechanism():
         reactants=[A, B],
         products=[(1.3, C)],
         scaling_factor=12.3,
+        other_properties = {"__irrelevant": "2"}
     )
 
     # Mechanism
@@ -356,7 +372,7 @@ def _extract_components(components):
         for component in components
     ]
 
-
+# TODO: change one of the other_properties to a different type, ex. string, number, float
 def _validate_arrhenius(reactions):
     assert reactions[0].type == ReactionType.Arrhenius
     assert _extract_components(reactions[0].reactants) == [
@@ -371,7 +387,7 @@ def _validate_arrhenius(reactions):
     assert reactions[0].D == 63.4
     assert reactions[0].E == -1.3
     assert reactions[0].name == "my arrhenius"
-    assert reactions[0].other_properties == {}
+    assert reactions[0].other_properties == {"__irrelevant": "2"}
     assert reactions[1].type == ReactionType.Arrhenius
     assert _extract_components(reactions[1].reactants) == [
         {"species name": "A", "coefficient": 1}
@@ -400,6 +416,7 @@ def _validate_henrys_law(reactions):
     ]
     assert reactions[0].aerosol_phase_water == "H2O_aq"
     assert reactions[0].name == "my henry's law"
+    assert reactions[0].other_properties == {"__irrelevant": "2"}
 
 
 def _validate_simpol_phase_transfer(reactions):
@@ -414,6 +431,7 @@ def _validate_simpol_phase_transfer(reactions):
     ]
     assert reactions[0].B == [-1.97e03, 2.91e00, 1.96e-03, -4.96e-01]
     assert reactions[0].name == "my simpol"
+    assert reactions[0].other_properties == {"__irrelevant": "2"}
 
 
 def _validate_aqueous_equilibrium(reactions):
@@ -431,6 +449,7 @@ def _validate_aqueous_equilibrium(reactions):
         {"species name": "C", "coefficient": 1},
     ]
     assert reactions[0].name == "my aqueous eq"
+    assert reactions[0].other_properties == {"__irrelevant": "2"}
 
 
 def _validate_condensed_phase_arrhenius(reactions):
@@ -451,6 +470,7 @@ def _validate_condensed_phase_arrhenius(reactions):
         ]
     assert reactions[0].name == "my condensed arrhenius"
     assert reactions[0].C == -123.45 / 1.380649e-23
+    assert reactions[0].other_properties == {"__irrelevant": "2"}
     assert reactions[1].name == "my other condensed arrhenius"
     assert reactions[1].C == 123.45
 
@@ -467,6 +487,7 @@ def _validate_condensed_phase_photolysis(reactions):
     ]
     assert reactions[0].scaling_factor == 12.3
     assert reactions[0].name == "condensed photo B"
+    assert reactions[0].other_properties == {"__irrelevant": "2"}
 
 
 def _validate_emission(reactions):
@@ -477,6 +498,7 @@ def _validate_emission(reactions):
     ]
     assert reactions[0].scaling_factor == 12.3
     assert reactions[0].name == "my emission"
+    assert reactions[0].other_properties == {"__irrelevant": "2"}
 
 
 def _validate_first_order_loss(reactions):
@@ -487,6 +509,7 @@ def _validate_first_order_loss(reactions):
     ]
     assert reactions[0].scaling_factor == 12.3
     assert reactions[0].name == "my first order loss"
+    assert reactions[0].other_properties == {"__irrelevant": "2"}
 
 
 def _validate_photolysis(reactions):
@@ -500,6 +523,7 @@ def _validate_photolysis(reactions):
     ]
     assert reactions[0].scaling_factor == 12.3
     assert reactions[0].name == "photo B"
+    assert reactions[0].other_properties == {"__irrelevant": "2"}
 
 
 def _validate_surface(reactions):
@@ -515,6 +539,7 @@ def _validate_surface(reactions):
     ]
     assert reactions[0].aerosol_phase == "surface reacting phase"
     assert reactions[0].name == "my surface"
+    assert reactions[0].other_properties == {"__irrelevant": "2"}
 
 
 def _validate_troe(reactions):
@@ -536,6 +561,7 @@ def _validate_troe(reactions):
     assert reactions[0].Fc == 0.9
     assert reactions[0].N == 0.8
     assert reactions[0].name == "my troe"
+    assert reactions[0].other_properties == {"__irrelevant": "2"}
 
 
 def _validate_branched_no_ro2(reactions):
@@ -555,6 +581,7 @@ def _validate_branched_no_ro2(reactions):
     assert reactions[0].a0 == 0.15
     assert reactions[0].n == 9
     assert reactions[0].name == "my branched"
+    assert reactions[0].other_properties == {"__irrelevant": "2"}
 
 
 def _validate_tunneling(reactions):
@@ -570,6 +597,7 @@ def _validate_tunneling(reactions):
     assert reactions[0].B == 1200.0
     assert reactions[0].C == 1.0e8
     assert reactions[0].name == "my tunneling"
+    assert reactions[0].other_properties == {"__irrelevant": "2"}
 
 
 def _validate_wet_deposition(reactions):
@@ -577,6 +605,7 @@ def _validate_wet_deposition(reactions):
     assert reactions[0].name == "rxn cloud"
     assert reactions[0].aerosol_phase == "cloud"
     assert reactions[0].scaling_factor == 12.3
+    assert reactions[0].other_properties == {"__irrelevant": "2"}
 
 
 def _validate_user_defined(reactions):
@@ -591,7 +620,8 @@ def _validate_user_defined(reactions):
     ]
     assert reactions[0].scaling_factor == 12.3
     assert reactions[0].name == "my user defined"
-    assert reactions[0].other_properties == {}
+    # assert reactions[0].other_properties == {}
+    assert reactions[0].other_properties == {"__irrelevant": "2"}
 
 
 def validate_full_v1_mechanism(mechanism):

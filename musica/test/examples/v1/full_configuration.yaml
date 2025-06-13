@@ -72,6 +72,7 @@ reactions:
   aerosol-phase species: H2O2_aq
   aerosol-phase water: H2O_aq
   name: my henry's law
+  __irrelevant: "2"
 - type: SIMPOL_PHASE_TRANSFER
   gas phase: gas
   gas-phase species: ethanol
@@ -83,6 +84,7 @@ reactions:
   - 0.00196
   - -0.496
   name: my simpol
+  __irrelevant: "2"
 - type: AQUEOUS_EQUILIBRIUM
   aerosol phase: aqueous aerosol
   aerosol-phase water: H2O_aq
@@ -98,6 +100,7 @@ reactions:
   - species name: C
     coefficient: 1
   name: my aqueous eq
+  __irrelevant: "2"
 - type: CONDENSED_PHASE_ARRHENIUS
   aerosol phase: aqueous aerosol
   aerosol-phase water: H2O_aq
@@ -115,6 +118,7 @@ reactions:
   - species name: ethanol_aq
     coefficient: 1
   name: my condensed arrhenius
+  __irrelevant: "2"
 - type: CONDENSED_PHASE_ARRHENIUS
   aerosol phase: aqueous aerosol
   aerosol-phase water: H2O_aq
@@ -143,6 +147,7 @@ reactions:
     coefficient: 1
   scaling factor: 12.3
   name: condensed photo B
+  __irrelevant: "2"
 - type: EMISSION
   gas phase: gas
   products:
@@ -150,6 +155,7 @@ reactions:
     coefficient: 1
   name: my emission
   scaling factor: 12.3
+  __irrelevant: "2"
 - type: FIRST_ORDER_LOSS
   gas phase: gas
   reactants:
@@ -157,6 +163,7 @@ reactions:
     coefficient: 1
   name: my first order loss
   scaling factor: 12.3
+  __irrelevant: "2"
 - type: PHOTOLYSIS
   gas phase: gas
   reactants:
@@ -167,6 +174,7 @@ reactions:
     coefficient: 1
   name: photo B
   scaling factor: 12.3
+  __irrelevant: "2"
 - type: SURFACE
   gas phase: gas
   gas-phase species: A
@@ -178,6 +186,7 @@ reactions:
     coefficient: 1
   aerosol phase: surface reacting phase
   name: my surface
+  __irrelevant: "2"
 - type: TROE
   gas phase: gas
   reactants:
@@ -197,6 +206,7 @@ reactions:
   Fc: 0.9
   N: 0.8
   name: my troe
+  __irrelevant: "2"
 - type: BRANCHED_NO_RO2
   gas phase: gas
   reactants:
@@ -213,6 +223,7 @@ reactions:
   a0: 0.15
   "n": 9
   name: my branched
+  __irrelevant: "2"
 - gas phase: gas
   type: TUNNELING
   name: "my tunneling"
@@ -225,10 +236,12 @@ reactions:
   products:
   - species name: C
     coefficient: 1
+  __irrelevant: "2"
 - type: WET_DEPOSITION
   aerosol phase: cloud
   name: rxn cloud
   scaling factor: 12.3
+  __irrelevant: "2"
 - type: ARRHENIUS
   gas phase: gas
   reactants:
@@ -243,6 +256,7 @@ reactions:
   D: 63.4
   E: -1.3
   name: my arrhenius
+  __irrelevant: "2"
 - type: ARRHENIUS
   gas phase: gas
   reactants:
@@ -269,3 +283,4 @@ reactions:
     coefficient: 1.3
   name: my user defined
   scaling factor: 12.3
+  __irrelevant: "2"
