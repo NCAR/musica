@@ -34,26 +34,26 @@ namespace musica
     str->size_ = 0;
   }
 
-  Error NoError()
+  Error* NoError()
   {
     return ToError("", 0, "Success");
   }
 
-  Error ToError(const char* category, int code)
+  Error* ToError(const char* category, int code)
   {
     return ToError(category, code, "");
   }
 
-  Error ToError(const char* category, int code, const char* message)
+  Error* ToError(const char* category, int code, const char* message)
   {
-    Error error;
-    error.code_ = code;
-    error.category_ = CreateString(category);
-    error.message_ = CreateString(message);
+    Error* error = new Error;
+    error->code_ = code;
+    error->category_ = CreateString(category);
+    error->message_ = CreateString(message);
     return error;
   }
 
-  Error ToError(const std::system_error& e)
+  Error* ToError(const std::system_error& e)
   {
     return ToError(e.code().category().name(), e.code().value(), e.what());
   }
@@ -90,36 +90,48 @@ namespace musica
     return !(lhs == rhs);
   }
 
-  Configuration LoadConfigurationFromString(const char* data, Error* error)
+  Configuration* LoadConfigurationFromString(const char* data, Error* error)
   {
     DeleteError(error);
-    Configuration config;
+    Configuration* config = new Configuration;
     try
     {
-      config.data_ = new YAML::Node(YAML::Load(data));
-      *error = NoError();
+      config->data_ = new YAML::Node(YAML::Load(data));
+      Error* temp = NoError();
+      CopyErrorDeep(error, temp);
+      DeleteError(temp);
+      delete temp;
     }
     catch (const std::exception& e)
     {
-      config.data_ = nullptr;
-      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_PARSING_FAILED, e.what());
+      config->data_ = nullptr;
+      Error *temp = ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_PARSING_FAILED, e.what());
+      CopyErrorDeep(error, temp);
+      DeleteError(temp);
+      delete temp;
     }
     return config;
   }
 
-  Configuration LoadConfigurationFromFile(const char* filename, Error* error)
+  Configuration* LoadConfigurationFromFile(const char* filename, Error* error)
   {
     DeleteError(error);
-    Configuration config;
+    Configuration* config = new Configuration;
     try
     {
-      config.data_ = new YAML::Node(YAML::LoadFile(filename));
-      *error = NoError();
+      config->data_ = new YAML::Node(YAML::LoadFile(filename));
+      Error* temp = NoError();
+      CopyErrorDeep(error, temp);
+      DeleteError(temp);
+      delete temp;
     }
     catch (const std::exception& e)
     {
-      config.data_ = nullptr;
-      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_PARSING_FAILED, e.what());
+      config->data_ = nullptr;
+      Error *temp = ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_PARSING_FAILED, e.what());
+      CopyErrorDeep(error, temp);
+      DeleteError(temp);
+      delete temp;
     }
     return config;
   }
@@ -144,11 +156,11 @@ namespace musica
     return new Mapping[size];
   }
 
-  Mappings CreateMappings(std::size_t size)
+  Mappings* CreateMappings(std::size_t size)
   {
-    Mappings mappings;
-    mappings.mappings_ = new Mapping[size];
-    mappings.size_ = size;
+    Mappings* mappings = new Mappings;
+    mappings->mappings_ = new Mapping[size];
+    mappings->size_ = size;
     return mappings;
   }
 
@@ -159,12 +171,18 @@ namespace musica
     {
       if (std::strcmp(mappings.mappings_[i].name_.value_, name) == 0)
       {
-        *error = NoError();
+        Error* temp = NoError();
+        CopyErrorDeep(error, temp);
+        DeleteError(temp);
+        delete temp;
         return mappings.mappings_[i].index_;
       }
     }
     std::string msg = "Mapping element '" + std::string(name) + "' not found";
-    *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_MAPPING_NOT_FOUND, msg.c_str());
+    Error *temp = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_MAPPING_NOT_FOUND, msg.c_str());
+    CopyErrorDeep(error, temp);
+    DeleteError(temp);
+    delete temp;
     return 0;
   }
 
@@ -184,7 +202,7 @@ namespace musica
     delete[] mappings->mappings_;
   }
 
-  IndexMappings CreateIndexMappings(
+  IndexMappings* CreateIndexMappings(
       const Configuration configuration,
       const IndexMappingOptions map_options,
       const Mappings source,
@@ -194,11 +212,14 @@ namespace musica
     DeleteError(error);
     std::size_t size = configuration.data_->size();
     std::vector<IndexMapping> mappings;
-    IndexMappings index_mappings;
-    index_mappings.size_ = 0;
+    IndexMappings* index_mappings = new IndexMappings;
+    index_mappings->size_ = 0;
     if (map_options == IndexMappingOptions::UndefinedMapping)
     {
-      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED, "Mapping options are undefined");
+      Error* temp = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED, "Mapping options are undefined");
+      CopyErrorDeep(error, temp);
+      DeleteError(temp);
+      delete temp;
       return index_mappings;
     }
     for (std::size_t i = 0; i < size; i++)
@@ -216,7 +237,10 @@ namespace musica
         else
         {
           DeleteError(error);
-          *error = NoError();
+          Error* temp = NoError();
+          CopyErrorDeep(error, temp);
+          DeleteError(temp);
+          delete temp;
           continue;
         }
       }
@@ -234,7 +258,10 @@ namespace musica
         else
         {
           DeleteError(error);
-          *error = NoError();
+          Error* temp = NoError();
+          CopyErrorDeep(error, temp);
+          DeleteError(temp);
+          delete temp;
           continue;
         }
       }
@@ -249,25 +276,25 @@ namespace musica
       }
       mappings.push_back({ source_index, target_index, scale_factor });
     }
-    index_mappings.mappings_ = new IndexMapping[mappings.size()];
-    index_mappings.size_ = mappings.size();
+    index_mappings->mappings_ = new IndexMapping[mappings.size()];
+    index_mappings->size_ = mappings.size();
     for (std::size_t i = 0; i < mappings.size(); i++)
     {
-      index_mappings.mappings_[i] = mappings[i];
+      index_mappings->mappings_[i] = mappings[i];
     }
     return index_mappings;
   }
 
-  std::size_t GetIndexMappingsSize(const IndexMappings mappings)
+  std::size_t GetIndexMappingsSize(const IndexMappings* mappings)
   {
-    return mappings.size_;
+    return mappings->size_;
   }
 
-  void CopyData(const IndexMappings mappings, const double* source, double* target)
+  void CopyData(const IndexMappings* mappings, const double* source, double* target)
   {
-    for (std::size_t i = 0; i < mappings.size_; i++)
+    for (std::size_t i = 0; i < mappings->size_; i++)
     {
-      target[mappings.mappings_[i].target_] = source[mappings.mappings_[i].source_] * mappings.mappings_[i].scale_factor_;
+      target[mappings->mappings_[i].target_] = source[mappings->mappings_[i].source_] * mappings->mappings_[i].scale_factor_;
     }
   }
 
@@ -285,6 +312,17 @@ namespace musica
       DeleteIndexMapping(&(mappings->mappings_[i]));
     }
     delete[] mappings->mappings_;
+  }
+
+  void CopyErrorDeep(Error* dest, const Error* src)
+  {
+    if (dest == nullptr || src == nullptr)
+      return;
+
+    DeleteError(dest);
+    dest->code_ = src->code_;
+    dest->category_ = CreateString(src->category_.value_ ? src->category_.value_ : "");
+    dest->message_ = CreateString(src->message_.value_ ? src->message_.value_ : "");
   }
 
 }  // namespace musica

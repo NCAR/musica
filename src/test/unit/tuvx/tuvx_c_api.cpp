@@ -55,25 +55,34 @@ class TuvxCApiTest : public ::testing::Test
   void SetUp(const char* config_path, GridMap* grids, ProfileMap* profiles, RadiatorMap* radiators)
   {
     Error error;
+    std::cout << "Montek test 1 " << std::endl;
     grids_from_host = CreateGridMap(&error);
+    std::cout << "Montek test 2 " << std::endl;
     ASSERT_TRUE(IsSuccess(error));
     profiles_from_host = CreateProfileMap(&error);
+    std::cout << "Montek test 3 " << std::endl;
     ASSERT_TRUE(IsSuccess(error));
     radiators_from_host = CreateRadiatorMap(&error);
+    std::cout << "Montek test 4 " << std::endl;
     ASSERT_TRUE(IsSuccess(error));
     tuvx = CreateTuvx(config_path, grids, profiles, radiators, &error);
+    std::cout << "Montek test 5 " << std::endl;
     if (!IsSuccess(error))
     {
       std::cerr << "Error creating TUVX instance: " << error.message_.value_ << std::endl;
     }
     ASSERT_TRUE(IsSuccess(error));
     grids_in_tuvx = GetGridMap(tuvx, &error);
+    std::cout << "Montek test 6 " << std::endl;
     ASSERT_TRUE(IsSuccess(error));
     profiles_in_tuvx = GetProfileMap(tuvx, &error);
+    std::cout << "Montek test 7 " << std::endl;
     ASSERT_TRUE(IsSuccess(error));
     radiators_in_tuvx = GetRadiatorMap(tuvx, &error);
+    std::cout << "Montek test 8 " << std::endl;
     ASSERT_TRUE(IsSuccess(error));
     DeleteError(&error);
+    std::cout << "Montek test 9 " << std::endl;
   }
 
   void TearDown() override
