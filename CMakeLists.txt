@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 
 # must be on the same line so that pyproject.toml can correctly identify the version
-project(musica-distribution VERSION 0.11.1.3)
+project(musica-distribution VERSION 0.11.1.4)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${PROJECT_SOURCE_DIR}/cmake)
 set(CMAKE_USER_MAKE_RULES_OVERRIDE ${PROJECT_SOURCE_DIR}/cmake/SetDefaults.cmake)
@@ -87,6 +87,13 @@ if(MUSICA_BUILD_C_CXX_INTERFACE)
           set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -stdlib=libc++")
       endif()
   endif()
+endif()
+
+# since sources are collected so that python libraries can target them directly,
+# we need to know if we are targeting Fortran before we collect the sources
+# otherwise cmake freaks out, and I don't know why, but this fixes it
+if(MUSICA_ENABLE_TUVX)
+    enable_language(Fortran)
 endif()
 
 # Add flags when using the ClangCL toolset

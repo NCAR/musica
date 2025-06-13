@@ -9,61 +9,75 @@ project(
 
 message (STATUS "CMake build configuration for ${PROJECT_NAME} (${CMAKE_BUILD_TYPE}) ${PROJECT_VERSION}")
 
-##############################################################################
-# MUSICA targets
-
-####################
-# MUSICA
-add_library(musica)
-add_library(musica::musica ALIAS musica)
-
-if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None" AND NOT APPLE)
-  # Add the CUDA library
-  target_link_libraries(musica PUBLIC musica::micm_cuda)
-  set_target_properties(micm_cuda PROPERTIES POSITION_INDEPENDENT_CODE ON)
-  list(APPEND musica_compile_definitions MUSICA_ENABLE_CUDA)
-endif()
-
-if (MUSICA_ENABLE_PYTHON_LIBRARY OR MUSICA_ENABLE_PIC)
-  # Add the -fPIC flag for position-independent code if we are building shared libraries
-  # or the python library so that it links correctly on linux
-  set_target_properties(musica PROPERTIES POSITION_INDEPENDENT_CODE ON)
-endif()
+################################################################################
+# Sources
 
 include(silence_warnings)
-silence_warnings(musica)
 
-# set the c++ standard for musica
-target_compile_features(musica PUBLIC cxx_std_20)
+set(MUSICA_COMMON_SOURCES
+  ${CMAKE_CURRENT_SOURCE_DIR}/util.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/component_versions.cpp
+  ${CMAKE_BINARY_DIR}/version.cpp
+)
 
 if(MUSICA_ENABLE_MICM)
-  list(APPEND musica_compile_definitions -DMUSICA_USE_MICM)
+  set(MUSICA_MICM_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/micm/micm.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/micm/micm_c_interface.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/micm/state.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/micm/state_c_interface.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/micm/parse.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/micm/v0_parse.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/micm/v1_parse.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/micm/cuda_availability.cpp
+  )
 endif()
 
-if(MUSICA_ENABLE_MPI)
-  list(APPEND musica_compile_definitions -DMUSICA_USE_MPI)
+if(MUSICA_ENABLE_TUVX)
+  set(MUSICA_TUVX_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface.F90
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface_grid.F90
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface_grid_map.F90
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface_profile.F90
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface_profile_map.F90
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface_radiator.F90
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface_radiator_map.F90
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface_util.F90
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/grid.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/grid_map.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/profile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/profile_map.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/radiator.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/radiator_map.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/tuvx.cpp
+  )
 endif()
 
-if(MUSICA_ENABLE_OPENMP)
-  list(APPEND musica_compile_definitions -DMUSICA_USE_OPENMP)
-endif()
+set(MUSICA_SOURCES
+  ${MUSICA_COMMON_SOURCES}
+  ${MUSICA_MICM_SOURCES}
+  ${MUSICA_TUVX_SOURCES}
+  CACHE INTERNAL "List of sources for MUSICA"
+)
 
 # version
 configure_file(version.cpp.in ${CMAKE_BINARY_DIR}/version.cpp @ONLY)
 
-target_sources(musica
-  PRIVATE
-    util.cpp
-    component_versions.cpp
-    ${CMAKE_BINARY_DIR}/version.cpp
-)
+################################################################################
+# MUSICA
 
-target_link_libraries(musica
-  PUBLIC
-    musica::mechanism_configuration
-)
+include(setup_musica_target)
 
-target_compile_definitions(musica PUBLIC ${musica_compile_definitions})
+add_library(musica)
+add_library(musica::musica ALIAS musica)
+
+if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None")
+  target_sources(musica PRIVATE ${MUSICA_SOURCES})
+  musica_setup_target(musica MODE GPU)
+else()
+  target_sources(musica PRIVATE ${MUSICA_SOURCES})
+  musica_setup_target(musica MODE CPU)
+endif()
 
 set_target_properties(musica PROPERTIES
   ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
@@ -83,45 +97,6 @@ elseif(UNIX)
     INSTALL_RPATH "$ORIGIN"
     BUILD_WITH_INSTALL_RPATH TRUE
   )
-endif()
-
-target_include_directories(musica
-  PUBLIC
-    $<BUILD_INTERFACE:${MUSICA_PROJECT_SRC_DIR}/include>
-    $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
-)
-
-####################
-# MICM
-if(MUSICA_ENABLE_MICM)
-  target_link_libraries(musica PUBLIC musica::micm)
-
-  add_subdirectory(micm)
-endif()
-
-####################
-# TUV-x
-if(MUSICA_ENABLE_TUVX)
-  enable_language(Fortran)
-
-  # Include the sources directly into musica
-  target_sources(musica
-    PRIVATE
-      $<TARGET_OBJECTS:tuvx_object>
-  )
-
-  target_link_libraries(musica
-    PUBLIC
-      tuvx_object
-  )
-
-  target_include_directories(musica
-    PUBLIC
-      $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
-      $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
-  )
-
-  add_subdirectory(tuvx)
 endif()
 
 ################################################################################

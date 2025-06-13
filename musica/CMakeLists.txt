@@ -1,47 +1,42 @@
-pybind11_add_module(_musica
-  binding.cpp
-  musica.cpp
-  mechanism_configuration.cpp
+################################################################################
+# Python Extension Modules
+
+#include(setup_muisca_target)
+
+# Define the list of Python extension module targets
+set(PY_MODULES _musica)
+
+set(
+  MUSICA_PYTHON_SOURCES 
+    binding_common.cpp
+    cuda.cpp 
+    mechanism_configuration.cpp 
+    musica.cpp 
+
+    ${MUSICA_SOURCES}
 )
 
-target_link_libraries(_musica
-  PRIVATE
-    musica::musica
-)
+pybind11_add_module(_musica cpu_binding.cpp ${MUSICA_PYTHON_SOURCES})
+musica_setup_target(_musica MODE CPU)
 
-include(silence_warnings)
-silence_warnings(_musica)
-
-if (APPLE)
-  # set the rpath for the shared library
-  set_target_properties(_musica PROPERTIES
-    INSTALL_RPATH "@loader_path"
-    BUILD_WITH_INSTALL_RPATH TRUE
-  )
-elseif(UNIX)
-  set_target_properties(_musica PROPERTIES
-    INSTALL_RPATH "$ORIGIN"
-    BUILD_WITH_INSTALL_RPATH TRUE
-  )
+if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None")
+  pybind11_add_module(_musica_gpu gpu_binding.cpp ${MUSICA_PYTHON_SOURCES}) 
+  musica_setup_target(_musica_gpu MODE GPU)
+  list(APPEND PY_MODULES _musica_gpu)
 endif()
 
-if(WIN32)
-  # makefiles on windows don't need the config directory
-  if (${CMAKE_GENERATOR} MATCHES "MinGW Makefiles")
-      set(PYTHON_MODULE_PATH "${CMAKE_CURRENT_BINARY_DIR}")
-  else()
-  # but visual studio does
-      set(PYTHON_MODULE_PATH "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>")
+foreach(lib ${PY_MODULES})
+  if (APPLE)
+    set_target_properties(${lib} PROPERTIES
+      INSTALL_RPATH "@loader_path"
+      BUILD_WITH_INSTALL_RPATH TRUE
+    )
+  elseif(UNIX)
+    set_target_properties(${lib} PROPERTIES
+      INSTALL_RPATH "$ORIGIN"
+      BUILD_WITH_INSTALL_RPATH TRUE
+    )
   endif()
-else()
-  set(PYTHON_MODULE_PATH "${CMAKE_CURRENT_BINARY_DIR}")
-endif()
 
-install(TARGETS _musica LIBRARY DESTINATION musica)
-
-install(
-  TARGETS 
-    yaml-cpp musica 
-    LIBRARY DESTINATION musica/lib
-    ARCHIVE DESTINATION musica/lib
-)
+  install(TARGETS ${lib} LIBRARY DESTINATION musica)
+endforeach()

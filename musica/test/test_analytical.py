@@ -3,7 +3,7 @@ import numpy as np
 import musica
 import random
 import musica.mechanism_configuration as mc
-from musica._musica._core import _is_cuda_available
+from musica.cuda import is_cuda_available
 
 
 def TestSingleGridCell(solver, state, time_step, places=5):
@@ -118,6 +118,7 @@ def TestMultipleGridCell(solver, state, num_grid_cells, time_step, places=5):
         rate_constants["USER.reaction 2"].append(
             0.002 + random.uniform(-0.0001, 0.0001))
 
+
     state.set_conditions(temperatures, pressures)  # Air density should be calculated in the state
     state.set_concentrations(concentrations)
     state.set_user_defined_rate_parameters(rate_constants)
@@ -127,6 +128,7 @@ def TestMultipleGridCell(solver, state, num_grid_cells, time_step, places=5):
     initial_temperatures = state.get_conditions()["temperature"]
     initial_pressures = state.get_conditions()["pressure"]
     initial_air_density = state.get_conditions()["air_density"]
+
     for i in range(num_grid_cells):
         assert np.isclose(initial_concentrations["A"][i], concentrations["A"][i], atol=1e-13)
         assert np.isclose(initial_concentrations["B"][i], concentrations["B"][i], atol=1e-13)
@@ -242,7 +244,7 @@ def GetMechanism():
 
 def test_single_grid_cell_standard_rosenbrock():
     solver = musica.MICM(
-        config_path="configs/analytical",
+        config_path="configs/v0/analytical",
         solver_type=musica.SolverType.rosenbrock_standard_order)
     state = solver.create_state()
     TestSingleGridCell(solver, state, 200.0, 5)
@@ -251,16 +253,16 @@ def test_single_grid_cell_standard_rosenbrock():
 def test_multiple_grid_cells_standard_rosenbrock():
     for i in range(1, 11):
         solver = musica.MICM(
-            config_path="configs/analytical",
+            config_path="configs/v0/analytical",
             solver_type=musica.SolverType.rosenbrock_standard_order)
         state = solver.create_state(i)
         TestMultipleGridCell(solver, state, i, 200.0, 5)
 
 
 def test_cuda_rosenbrock():
-    if _is_cuda_available():
+    if is_cuda_available():
         solver = musica.MICM(
-            config_path="configs/analytical",
+            config_path="configs/v0/analytical",
             solver_type=musica.SolverType.cuda_rosenbrock)
         state = solver.create_state()
         TestSingleGridCell(solver, state, 200.0, 5)
@@ -270,7 +272,7 @@ def test_cuda_rosenbrock():
 
 def test_single_grid_cell_backward_euler():
     solver = musica.MICM(
-        config_path="configs/analytical",
+        config_path="configs/v0/analytical",
         solver_type=musica.SolverType.backward_euler_standard_order)
     state = solver.create_state()
     TestSingleGridCell(solver, state, 10.0, places=2)
@@ -279,7 +281,7 @@ def test_single_grid_cell_backward_euler():
 def test_multiple_grid_cells_backward_euler():
     for i in range(1, 11):
         solver = musica.MICM(
-            config_path="configs/analytical",
+            config_path="configs/v0/analytical",
             solver_type=musica.SolverType.backward_euler_standard_order)
         state = solver.create_state(i)
         TestMultipleGridCell(solver, state, i, 10.0, places=2)
@@ -287,7 +289,7 @@ def test_multiple_grid_cells_backward_euler():
 
 def test_single_grid_cell_rosenbrock():
     solver = musica.MICM(
-        config_path="configs/analytical",
+        config_path="configs/v0/analytical",
         solver_type=musica.SolverType.rosenbrock)
     state = solver.create_state()
     TestSingleGridCell(solver, state, 200.0, 5)
@@ -296,7 +298,7 @@ def test_single_grid_cell_rosenbrock():
 def test_multiple_grid_cells_rosenbrock():
     for i in range(1, 11):
         solver = musica.MICM(
-            config_path="configs/analytical",
+            config_path="configs/v0/analytical",
             solver_type=musica.SolverType.rosenbrock)
         state = solver.create_state(i)
         TestMultipleGridCell(solver, state, i, 200.0, 5)
@@ -304,7 +306,7 @@ def test_multiple_grid_cells_rosenbrock():
 
 def test_single_grid_cell_backward_euler_standard_order():
     solver = musica.MICM(
-        config_path="configs/analytical",
+        config_path="configs/v0/analytical",
         solver_type=musica.SolverType.backward_euler_standard_order)
     state = solver.create_state()
     TestSingleGridCell(solver, state, 10.0, places=2)
@@ -313,7 +315,7 @@ def test_single_grid_cell_backward_euler_standard_order():
 def test_multiple_grid_cells_backward_euler_standard_order():
     for i in range(1, 11):
         solver = musica.MICM(
-            config_path="configs/analytical",
+            config_path="configs/v0/analytical",
             solver_type=musica.SolverType.backward_euler_standard_order)
         state = solver.create_state(i)
         TestMultipleGridCell(solver, state, i, 10.0, places=2)

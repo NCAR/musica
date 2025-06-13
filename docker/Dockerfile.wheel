@@ -1,0 +1,22 @@
+# To use this file, you will need to have built the wheel first.
+# You can do this by running cibuildwheel with the appropriate environment variables set, 
+# which can be done after installing cibuildwheel.
+# CIBW_ARCHS=x86_64 CIBW_PLATFORM=linux CIBW_ENVIRONMENT="CUDA_PATH=/usr/local/cuda PATH=/usr/local/cuda/bin:\$PATH LD_LIBRARY_PATH=/usr/local/cuda/lib64:\$LD_LIBRARY_PATH" cibuildwheel --output-dir wheelhouse > log.txt 2>&1
+
+# This wheel specifically checks if the python 3.12 x86_64 python wheel can be installed
+# and imported correctly.
+
+FROM --platform=linux/amd64 python:3.12-slim
+
+COPY wheelhouse/ wheelhouse/
+
+RUN apt update && \
+    apt install -y \
+      binutils
+
+RUN pip install --upgrade pip
+
+# note that you will need to update the version number here to match the one you built
+RUN pip install "musica[gpu] @ file:/wheelhouse/musica-0.11.1.4-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl"
+
+CMD ["python", "-c", "import musica; print(musica.__version__)"]
