@@ -1,5 +1,5 @@
 from musica.mechanism_configuration import *
-from _musica._mechanism_configuration import _ReactionType
+from musica import _ReactionType
 
 
 def get_fully_defined_mechanism():
