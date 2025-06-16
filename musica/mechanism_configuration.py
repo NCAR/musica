@@ -1098,7 +1098,6 @@ class AqueousEquilibrium(_AqueousEquilibrium):
     def __init__(
         self,
         name: Optional[str] = None,
-        gas_phase: Optional[Phase] = None,
         aerosol_phase: Optional[Phase] = None,
         aerosol_phase_water: Optional[Species] = None,
         reactants: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
@@ -1599,10 +1598,11 @@ class Serializer():
     @staticmethod
     def serialize(mechanism: Mechanism, file_path: str = "./mechanism.json"):        
         if not isinstance(mechanism, Mechanism):
-            raise TypeError('Object {mechanism} is not of type Mechanism.')
+            raise TypeError(f"Object {mechanism} is not of type Mechanism.")
 
         directory, file = os.path.split(file_path)
-        os.makedirs(directory, exist_ok=True)
+        if directory:
+            os.makedirs(directory, exist_ok=True)
         dictionary = mechanism.to_dict()
         
         _, file_ext = os.path.splitext(file)
@@ -1612,7 +1612,7 @@ class Serializer():
         elif '.json' == file_ext:
             json_str = json.dumps(dictionary, indent=4)
             with open(file_path, 'w') as file:
-                file.writelines(json_str)
+                file.write(json_str)
         else:
             raise Exception('Allowable write formats are .json and .yaml')
     

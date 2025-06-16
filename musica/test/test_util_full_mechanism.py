@@ -200,7 +200,6 @@ def get_fully_defined_mechanism():
 
     my_aqueous_equilibrium = AqueousEquilibrium(
         name="my aqueous eq",
-        gas_phase=gas,
         aerosol_phase=aqueous_aerosol,
         aerosol_phase_water=H2O_aq,
         A=1.14e-2,
