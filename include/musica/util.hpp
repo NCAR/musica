@@ -99,26 +99,26 @@ const size_t MUSICA_VECTOR_SIZE = 0;
 
     /// @brief Creates an Error indicating no error
     /// @return The Error
-    Error NoError();
+    Error* NoError();
 
     /// @brief Creates an Error from a category, code, and message
     /// @param category The category of the Error
     /// @param code The code of the Error
     /// @param message The message of the Error
     /// @return The Error
-    Error ToError(const char* category, int code, const char* message);
+    Error* ToError(const char* category, int code, const char* message);
 
     /// @brief Loads a set of configuration data from a string
     /// @param data The string to load
     /// @param error The Error to populate if the data cannot be loaded
     /// @return The Configuration
-    Configuration LoadConfigurationFromString(const char* data, Error* error);
+    Configuration* LoadConfigurationFromString(const char* data, Error* error);
 
     /// @brief Loads a set of configuration data from a file
     /// @param filename The file to load
     /// @param error The Error to populate if the data cannot be loaded
     /// @return The Configuration
-    Configuration LoadConfigurationFromFile(const char* filename, Error* error);
+    Configuration* LoadConfigurationFromFile(const char* filename, Error* error);
 
     /// @brief Allocates an array of Mappings
     /// @param size The size of the array
@@ -128,7 +128,7 @@ const size_t MUSICA_VECTOR_SIZE = 0;
     /// @brief Allocate a new Mappings struct
     /// @param size The size of the Mappings
     /// @return The Mappings
-    Mappings CreateMappings(std::size_t size);
+    Mappings* CreateMappings(std::size_t size);
 
     /// @brief Finds the index of a Mapping by name
     /// @param mappings The array of Mappings
@@ -144,7 +144,7 @@ const size_t MUSICA_VECTOR_SIZE = 0;
     /// @param target The target array of name-index Mappings
     /// @param error The Error to populate if a Mapping is not found
     /// @return The array of IndexMappings
-    IndexMappings CreateIndexMappings(
+    IndexMappings* CreateIndexMappings(
         const Configuration configuration,
         const IndexMappingOptions map_options,
         Mappings source,
@@ -154,13 +154,13 @@ const size_t MUSICA_VECTOR_SIZE = 0;
     /// @brief Returns the number of elements in an IndexMappings container
     /// @param mappings The IndexMappings container
     /// @return The number of elements
-    std::size_t GetIndexMappingsSize(const IndexMappings mappings);
+    std::size_t GetIndexMappingsSize(const IndexMappings* mappings);
 
     /// @brief Copies data from one array to another using IndexMappings
     /// @param mappings The array of IndexMappings
     /// @param source The source array
     /// @param target The target array
-    void CopyData(const IndexMappings mappings, const double* source, double* target);
+    void CopyData(const IndexMappings* mappings, const double* source, double* target);
 
     /// @brief Deletes an Error
     /// @param error The Error to delete
@@ -186,18 +186,20 @@ const size_t MUSICA_VECTOR_SIZE = 0;
     /// @param mappings The array of IndexMappings to delete
     void DeleteIndexMappings(IndexMappings* mappings);
 
+    void CopyErrorDeep(Error* dest, const Error* src);
+
 #ifdef __cplusplus
   }
   /// @brief Creates an Error from a category and code
   /// @param category The category of the Error
   /// @param code The code of the Error
   /// @return The Error
-  Error ToError(const char* category, int code);
+  Error* ToError(const char* category, int code);
 
   /// @brief Creates an Error from syd::system_error
   /// @param e The std::system_error to convert
   /// @return The Error
-  Error ToError(const std::system_error& e);
+  Error* ToError(const std::system_error& e);
 
   /// @brief Checks for success
   /// @param error The Error to check
@@ -210,7 +212,7 @@ const size_t MUSICA_VECTOR_SIZE = 0;
   /// @param code The code of the Error
   /// @return True if the Error matches the category and code, false otherwise
   bool IsError(const Error& error, const char* category, int code);
-
+ 
   /// @brief Overloads the equality operator for Error types
   /// @param lhs The left-hand side Error
   /// @param rhs The right-hand side Error
