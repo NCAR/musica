@@ -8,9 +8,9 @@ import json
 import yaml
 from typing import Optional, Any, Dict, List, Union, Tuple
 from musica import (
-    _ReactionType,
-    _Species,
-    _Phase,
+    # _ReactionType,
+    # _Species,
+    # _Phase,
     _ReactionComponent,
     _Arrhenius,
     _CondensedPhaseArrhenius,
@@ -27,128 +27,18 @@ from musica import (
     _HenrysLaw,
     _SimpolPhaseTransfer,
     _UserDefined,
-    _Reactions,
-    _ReactionsIterator,
+    # _Reactions,
+    # _ReactionsIterator,
     _Mechanism,
     _Version,
     _Parser,
 )
+from musica.mechanism_configuration_species import Species, _Species
+from musica.mechanism_configuration_phase import Phase
+from musica.mechanism_configuration_reactions import ReactionType, Reactions, ReactionComponentSerializer
+from musica.mechanism_configuration_utils import add_other_properties, remove_empty_keys
 
 BOLTZMANN_CONSTANT_J_K = 1.380649e-23  # J K-1
-
-
-class ReactionType(_ReactionType):
-    """
-    A enum class representing a reaction type in a chemical mechanism.
-    """
-
-
-class Species(_Species):
-    """
-    A class representing a species in a chemical mechanism.
-
-    Attributes:
-        name (str): The name of the species.
-        HLC_298K_mol_m3_Pa (float): Henry's Law Constant at 298K [mol m-3 Pa-1]
-        HLC_exponential_factor_K: Henry's Law Constant exponential factor [K]
-        diffusion_coefficient_m2_s (float): Diffusion coefficient [m2 s-1]
-        N_star (float): A parameter used to calculate the mass accomodation factor (Ervens et al., 2003)
-        molecular_weight_kg_mol (float): Molecular weight [kg mol-1]
-        density_kg_m3 (float): Density [kg m-3]
-        tracer_type (str): The type of tracer ("AEROSOL", "THIRD_BODY", "CONSTANT").
-        other_properties (Dict[str, Any]): A dictionary of other properties of the species.
-    """
-
-    def __init__(
-        self,
-        name: Optional[str] = None,
-        HLC_298K_mol_m3_Pa: Optional[float] = None,
-        HLC_exponential_factor_K: Optional[float] = None,
-        diffusion_coefficient_m2_s: Optional[float] = None,
-        N_star: Optional[float] = None,
-        molecular_weight_kg_mol: Optional[float] = None,
-        density_kg_m3: Optional[float] = None,
-        tracer_type: Optional[str] = None,
-        other_properties: Optional[Dict[str, Any]] = None,
-    ):
-        """
-        Initializes the Species object with the given parameters.
-
-        Args:
-            name (str): The name of the species.
-            HLC_298K_mol_m3_Pa (float): Henry's Law Constant at 298K [mol m-3 Pa-1]
-            HLC_exponential_factor_K: Henry's Law Constant exponential factor [K]
-            diffusion_coefficient_m2_s (float): Diffusion coefficient [m2 s-1]
-            N_star (float): A parameter used to calculate the mass accomodation factor (Ervens et al., 2003)
-            molecular_weight_kg_mol (float): Molecular weight [kg mol-1]
-            density_kg_m3 (float): Density [kg m-3]
-            tracer_type (str): The type of tracer ("AEROSOL", "THIRD_BODY", "CONSTANT").
-            other_properties (Dict[str, Any]): A dictionary of other properties of the species.
-        """
-        super().__init__()
-        self.name = name if name is not None else self.name
-        self.HLC_298K_mol_m3_Pa = HLC_298K_mol_m3_Pa if HLC_298K_mol_m3_Pa is not None else self.HLC_298K_mol_m3_Pa
-        self.HLC_exponential_factor_K = HLC_exponential_factor_K if HLC_exponential_factor_K is not None else self.HLC_exponential_factor_K
-        self.diffusion_coefficient_m2_s = diffusion_coefficient_m2_s if diffusion_coefficient_m2_s is not None else self.diffusion_coefficient_m2_s
-        self.N_star = N_star if N_star is not None else self.N_star
-        self.molecular_weight_kg_mol = molecular_weight_kg_mol if molecular_weight_kg_mol is not None else self.molecular_weight_kg_mol
-        self.density_kg_m3 = density_kg_m3 if density_kg_m3 is not None else self.density_kg_m3
-        self.tracer_type = tracer_type if tracer_type is not None else self.tracer_type
-        self.other_properties = other_properties if other_properties is not None else self.other_properties
-
-    @staticmethod
-    def serialize(cls):
-        serialize_dict = {
-            "name": cls.name,
-            "HLC(298K) [mol m-3 Pa-1]": cls.HLC_298K_mol_m3_Pa,
-            "HLC exponential factor [K]": cls.HLC_exponential_factor_K,
-            "diffusion coefficient [m2 s-1]": cls.diffusion_coefficient_m2_s,
-            "N star": cls.N_star,
-            "molecular weight [kg mol-1]": cls.molecular_weight_kg_mol,
-            "density [kg m-3]": cls.density_kg_m3,
-            "tracer type": cls.tracer_type,
-        }
-        add_other_properties(serialize_dict, cls.other_properties)
-        return remove_empty_keys(serialize_dict)
-
-
-class Phase(_Phase):
-    """
-    A class representing a phase in a chemical mechanism.
-
-    Attributes:
-        name (str): The name of the phase.
-        species (List[Species]): A list of species in the phase.
-        other_properties (Dict[str, Any]): A dictionary of other properties of the phase.
-    """
-
-    def __init__(
-        self,
-        name: Optional[str] = None,
-        species: Optional[List[Species]] = None,
-        other_properties: Optional[Dict[str, Any]] = None,
-    ):
-        """
-        Initializes the Phase object with the given parameters.
-
-        Args:
-            name (str): The name of the phase.
-            species (List[Species]): A list of species in the phase.
-            other_properties (Dict[str, Any]): A dictionary of other properties of the phase.
-        """
-        super().__init__()
-        self.name = name
-        self.species = [s.name for s in species] if species is not None else self.species
-        self.other_properties = other_properties if other_properties is not None else self.other_properties
-
-    @staticmethod
-    def serialize(cls):
-        serialize_dict = {
-            "name": cls.name,
-            "species": cls.species,
-        }
-        add_other_properties(serialize_dict, cls.other_properties)
-        return remove_empty_keys(serialize_dict)
 
 
 class Arrhenius(_Arrhenius):
@@ -257,8 +147,8 @@ class Arrhenius(_Arrhenius):
             "C": cls.C,
             "D": cls.D,
             "E": cls.E,
-            "reactants": Serializer.serialize_list_reaction_components(cls.reactants),
-            "products": Serializer.serialize_list_reaction_components(cls.products),
+            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(cls.reactants),
+            "products": ReactionComponentSerializer.serialize_list_reaction_components(cls.products),
             "gas phase": cls.gas_phase,
         }
         add_other_properties(serialize_dict, cls.other_properties)
@@ -365,8 +255,8 @@ class CondensedPhaseArrhenius(_CondensedPhaseArrhenius):
             "C": cls.C,
             "D": cls.D,
             "E": cls.E,
-            "reactants": Serializer.serialize_list_reaction_components(cls.reactants),
-            "products":  Serializer.serialize_list_reaction_components(cls.products),
+            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(cls.reactants),
+            "products":  ReactionComponentSerializer.serialize_list_reaction_components(cls.products),
             "aerosol phase": cls.aerosol_phase,
             "aerosol-phase water": cls.aerosol_phase_water,
         }
@@ -497,8 +387,8 @@ class Troe(_Troe):
             "kinf_C": cls.kinf_C,
             "Fc": cls.Fc,
             "N": cls.N,
-            "reactants": Serializer.serialize_list_reaction_components(cls.reactants),
-            "products": Serializer.serialize_list_reaction_components(cls.products),
+            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(cls.reactants),
+            "products": ReactionComponentSerializer.serialize_list_reaction_components(cls.products),
             "gas phase": cls.gas_phase,
         }
         add_other_properties(serialize_dict, cls.other_properties)
@@ -606,9 +496,9 @@ class Branched(_Branched):
             "Y": cls.Y,
             "a0": cls.a0,
             "n": cls.n,
-            "reactants": Serializer.serialize_list_reaction_components(cls.reactants),
-            "nitrate products": Serializer.serialize_list_reaction_components(cls.nitrate_products),
-            "alkoxy products": Serializer.serialize_list_reaction_components(cls.alkoxy_products),
+            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(cls.reactants),
+            "nitrate products": ReactionComponentSerializer.serialize_list_reaction_components(cls.nitrate_products),
+            "alkoxy products": ReactionComponentSerializer.serialize_list_reaction_components(cls.alkoxy_products),
             "gas phase": cls.gas_phase,
         }
         add_other_properties(serialize_dict, cls.other_properties)
@@ -704,8 +594,8 @@ class Tunneling(_Tunneling):
             "A": cls.A,
             "B": cls.B,
             "C": cls.C,
-            "reactants": Serializer.serialize_list_reaction_components(cls.reactants),
-            "products": Serializer.serialize_list_reaction_components(cls.products),
+            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(cls.reactants),
+            "products": ReactionComponentSerializer.serialize_list_reaction_components(cls.products),
             "gas phase": cls.gas_phase,
         }
         add_other_properties(serialize_dict, cls.other_properties)
@@ -787,7 +677,7 @@ class Surface(_Surface):
             "name": cls.name,
             "reaction probability": cls.reaction_probability,
             "gas-phase species": cls.gas_phase_species.species_name,
-            "gas-phase products": Serializer.serialize_list_reaction_components(cls.gas_phase_products),
+            "gas-phase products": ReactionComponentSerializer.serialize_list_reaction_components(cls.gas_phase_products),
             "gas phase": cls.gas_phase,
             "aerosol phase": cls.aerosol_phase,
         }
@@ -864,8 +754,8 @@ class Photolysis(_Photolysis):
             "type": "PHOTOLYSIS",
             "name": cls.name,
             "scaling factor": cls.scaling_factor,
-            "reactants": Serializer.serialize_list_reaction_components(cls.reactants),
-            "products": Serializer.serialize_list_reaction_components(cls.products),
+            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(cls.reactants),
+            "products": ReactionComponentSerializer.serialize_list_reaction_components(cls.products),
             "gas phase": cls.gas_phase,
         }
         add_other_properties(serialize_dict, cls.other_properties)
@@ -947,8 +837,8 @@ class CondensedPhasePhotolysis(_CondensedPhasePhotolysis):
             "type": "CONDENSED_PHASE_PHOTOLYSIS",
             "name": cls.name,
             "scaling factor": cls.scaling_factor,
-            "reactants": Serializer.serialize_list_reaction_components(cls.reactants),
-            "products": Serializer.serialize_list_reaction_components(cls.products),
+            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(cls.reactants),
+            "products": ReactionComponentSerializer.serialize_list_reaction_components(cls.products),
             "aerosol phase": cls.aerosol_phase,
             "aerosol-phase water": cls.aerosol_phase_water,
         }
@@ -1010,7 +900,7 @@ class Emission(_Emission):
             "type": "EMISSION",
             "name": cls.name,
             "scaling factor": cls.scaling_factor,
-            "products": Serializer.serialize_list_reaction_components(cls.products),
+            "products": ReactionComponentSerializer.serialize_list_reaction_components(cls.products),
             "gas phase": cls.gas_phase,
         }
         add_other_properties(serialize_dict, cls.other_properties)
@@ -1071,7 +961,7 @@ class FirstOrderLoss(_FirstOrderLoss):
             "type": "FIRST_ORDER_LOSS",
             "name": cls.name,
             "scaling factor": cls.scaling_factor,
-            "reactants": Serializer.serialize_list_reaction_components(cls.reactants),
+            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(cls.reactants),
             "gas phase": cls.gas_phase,
         }
         add_other_properties(serialize_dict, cls.other_properties)
@@ -1163,8 +1053,8 @@ class AqueousEquilibrium(_AqueousEquilibrium):
             "name": cls.name,
             "aerosol phase": cls.aerosol_phase,
             "aerosol-phase water": cls.aerosol_phase_water,
-            "reactants": Serializer.serialize_list_reaction_components(cls.reactants),
-            "products": Serializer.serialize_list_reaction_components(cls.products),
+            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(cls.reactants),
+            "products": ReactionComponentSerializer.serialize_list_reaction_components(cls.products),
             "A": cls.A,
             "C": cls.C,
             "k_reverse": cls.k_reverse,
@@ -1450,39 +1340,12 @@ class UserDefined(_UserDefined):
             "type": "USER_DEFINED",
             "name": cls.name,
             "scaling factor": cls.scaling_factor,
-            "reactants": Serializer.serialize_list_reaction_components(cls.reactants),
-            "products": Serializer.serialize_list_reaction_components(cls.products),
+            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(cls.reactants),
+            "products": ReactionComponentSerializer.serialize_list_reaction_components(cls.products),
             "gas phase": cls.gas_phase,
         }
         add_other_properties(serialize_dict, cls.other_properties)
         return remove_empty_keys(serialize_dict)
-
-
-class Reactions(_Reactions):
-    """
-    A class representing a collection of reactions in a chemical mechanism.
-
-    Attributes:
-        reactions (List[Any]): A list of reactions in the mechanism.
-    """
-
-    def __init__(
-        self,
-        reactions: Optional[List[Any]] = None,
-    ):
-        """
-        Initializes the Reactions object with the given parameters.
-
-        Args:
-            reactions (List[]): A list of reactions in the mechanism.
-        """
-        super().__init__(reactions)
-
-
-class ReactionsIterator(_ReactionsIterator):
-    """
-    An iterator for the Reactions class.
-    """
 
 
 class Version(_Version):
@@ -1615,30 +1478,3 @@ class Serializer():
                 file.write(json_str)
         else:
             raise Exception('Allowable write formats are .json and .yaml')
-    
-    @staticmethod
-    def serialize_reaction_component(rc):
-        if isinstance(rc, Species) or isinstance(rc, _Species):
-            return rc.name
-
-        return remove_empty_keys({
-            "species name": rc.species_name,
-            "coefficient": rc.coefficient,
-            "other_properties": rc.other_properties,
-        })
-
-    @staticmethod
-    def serialize_list_reaction_components(reaction_component_list):
-        ret = []
-        for rc in reaction_component_list:
-            ret.append(Serializer.serialize_reaction_component(rc))
-        return ret
-
-
-def remove_empty_keys(dictionary):
-    return {k: v for k, v in dictionary.items() if v is not None and v != "" and v != [] and v != {}}
-
-
-def add_other_properties(serialize_dict, other_properties):
-    for key in other_properties:
-        serialize_dict[key] = other_properties[key]
