@@ -11,6 +11,8 @@ musica.cpython-*
 musica.egg-info
 **/*.mod
 
+.venv
+.pytest_cache
 **/*__pycache__*
 **/*.pyc
 wheelhouse
