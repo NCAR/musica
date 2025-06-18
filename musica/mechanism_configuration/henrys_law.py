@@ -1,8 +1,8 @@
 from typing import Optional, Any, Dict, Union, Tuple
 from musica import _HenrysLaw, _ReactionComponent
-from .mechanism_configuration_phase import Phase
-from .mechanism_configuration_species import Species
-from .mechanism_configuration_utils import add_other_properties, remove_empty_keys
+from .phase import Phase
+from .species import Species
+from .utils import add_other_properties, remove_empty_keys
 
 
 class HenrysLaw(_HenrysLaw):

@@ -33,25 +33,25 @@ from musica import (
     _Version,
     _Parser,
 )
-from .mechanism_configuration_species import Species
-from .mechanism_configuration_phase import Phase
-from .mechanism_configuration_arrhenius import Arrhenius, _Arrhenius
-from .mechanism_configuration_condensed_phase_arrhenius import CondensedPhaseArrhenius, _CondensedPhaseArrhenius
-from .mechanism_configuration_troe import Troe, _Troe
-from .mechanism_configuration_branched import Branched, _Branched
-from .mechanism_configuration_tunneling import Tunneling, _Tunneling
-from .mechanism_configuration_surface import Surface, _Surface
-from .mechanism_configuration_photolysis import Photolysis, _Photolysis
-from .mechanism_configuration_condensed_phase_photolysis import CondensedPhasePhotolysis, _CondensedPhasePhotolysis
-from .mechanism_configuration_emission import Emission, _Emission
-from .mechanism_configuration_first_order_loss import FirstOrderLoss, _FirstOrderLoss
-from .mechanism_configuration_aqueous_equilibrium import AqueousEquilibrium, _AqueousEquilibrium
-from .mechanism_configuration_wet_deposition import WetDeposition, _WetDeposition
-from .mechanism_configuration_henrys_law import HenrysLaw, _HenrysLaw
-from .mechanism_configuration_simpol_phase_transfer import SimpolPhaseTransfer, _SimpolPhaseTransfer
-from .mechanism_configuration_user_defined import UserDefined, _UserDefined
+from .species import Species
+from .phase import Phase
+from .arrhenius import Arrhenius, _Arrhenius
+from .condensed_phase_arrhenius import CondensedPhaseArrhenius, _CondensedPhaseArrhenius
+from .troe import Troe, _Troe
+from .branched import Branched, _Branched
+from .tunneling import Tunneling, _Tunneling
+from .surface import Surface, _Surface
+from .photolysis import Photolysis, _Photolysis
+from .condensed_phase_photolysis import CondensedPhasePhotolysis, _CondensedPhasePhotolysis
+from .emission import Emission, _Emission
+from .first_order_loss import FirstOrderLoss, _FirstOrderLoss
+from .aqueous_equilibrium import AqueousEquilibrium, _AqueousEquilibrium
+from .wet_deposition import WetDeposition, _WetDeposition
+from .henrys_law import HenrysLaw, _HenrysLaw
+from .phase_transfer import SimpolPhaseTransfer, _SimpolPhaseTransfer
+from .user_defined import UserDefined, _UserDefined
 
-from .mechanism_configuration_reactions import Reactions, ReactionType
+from .reactions import Reactions, ReactionType
 
 
 class Version(_Version):

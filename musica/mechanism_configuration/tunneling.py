@@ -1,47 +1,65 @@
 from typing import Optional, Any, Dict, List, Union, Tuple
-from musica import _Photolysis, _ReactionComponent
-from .mechanism_configuration_phase import Phase
-from .mechanism_configuration_species import Species
-from .mechanism_configuration_reactions import ReactionComponentSerializer
-from .mechanism_configuration_utils import add_other_properties, remove_empty_keys
+from musica import _Tunneling, _ReactionComponent
+from .phase import Phase
+from .species import Species
+from .reactions import ReactionComponentSerializer
+from .utils import add_other_properties, remove_empty_keys
 
 
-class Photolysis(_Photolysis):
+class Tunneling(_Tunneling):
     """
-    A class representing a photolysis reaction rate constant.
+    A class representing a quantum tunneling reaction rate constant.
+
+    k = A * exp( -B / T ) * exp( C / T^3 )
+
+    where:
+        k = rate constant
+        A = pre-exponential factor [(mol m-3)^(n-1)s-1]
+        B = tunneling parameter [K^-1]
+        C = tunneling parameter [K^-3]
+        T = temperature [K]
+        n = number of reactants
 
     Attributes:
-        name (str): The name of the photolysis reaction rate constant.
-        scaling_factor (float): The scaling factor for the photolysis rate constant.
+        name (str): The name of the tunneling reaction rate constant.
+        A (float): Pre-exponential factor [(mol m-3)^(n-1)s-1].
+        B (float): Tunneling parameter [K^-1].
+        C (float): Tunneling parameter [K^-3].
         reactants (List[Union[Species, Tuple[float, Species]]]): A list of reactants involved in the reaction.
         products (List[Union[Species, Tuple[float, Species]]]): A list of products formed in the reaction.
         gas_phase (Phase): The gas phase in which the reaction occurs.
-        other_properties (Dict[str, Any]): A dictionary of other properties of the photolysis reaction rate constant.
+        other_properties (Dict[str, Any]): A dictionary of other properties of the tunneling reaction rate constant.
     """
 
     def __init__(
         self,
         name: Optional[str] = None,
-        scaling_factor: Optional[float] = None,
+        A: Optional[float] = None,
+        B: Optional[float] = None,
+        C: Optional[float] = None,
         reactants: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
         products: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
         gas_phase: Optional[Phase] = None,
         other_properties: Optional[Dict[str, Any]] = None,
     ):
         """
-        Initializes the Photolysis object with the given parameters.
+        Initializes the Tunneling object with the given parameters.
 
         Args:
-            name (str): The name of the photolysis reaction rate constant.
-            scaling_factor (float): The scaling factor for the photolysis rate constant.
+            name (str): The name of the tunneling reaction rate constant.
+            A (float): Pre-exponential factor [(mol m-3)^(n-1)s-1].
+            B (float): Tunneling parameter [K^-1].
+            C (float): Tunneling parameter [K^-3].
             reactants (List[Union[Species, Tuple[float, Species]]]): A list of reactants involved in the reaction.
             products (List[Union[Species, Tuple[float, Species]]]): A list of products formed in the reaction.
             gas_phase (Phase): The gas phase in which the reaction occurs.
-            other_properties (Dict[str, Any]): A dictionary of other properties of the photolysis reaction rate constant.
+            other_properties (Dict[str, Any]): A dictionary of other properties of the tunneling reaction rate constant.
         """
         super().__init__()
-        self.name = name = name if name is not None else self.name
-        self.scaling_factor = scaling_factor if scaling_factor is not None else self.scaling_factor
+        self.name = name if name is not None else self.name
+        self.A = A if A is not None else self.A
+        self.B = B if B is not None else self.B
+        self.C = C if C is not None else self.C
         self.reactants = (
             [
                 (
@@ -72,9 +90,11 @@ class Photolysis(_Photolysis):
     @staticmethod
     def serialize(cls) -> Dict:
         serialize_dict = {
-            "type": "PHOTOLYSIS",
+            "type": "TUNNELING",
             "name": cls.name,
-            "scaling factor": cls.scaling_factor,
+            "A": cls.A,
+            "B": cls.B,
+            "C": cls.C,
             "reactants": ReactionComponentSerializer.serialize_list_reaction_components(cls.reactants),
             "products": ReactionComponentSerializer.serialize_list_reaction_components(cls.products),
             "gas phase": cls.gas_phase,

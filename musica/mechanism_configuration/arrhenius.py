@@ -1,9 +1,9 @@
 from typing import Optional, Any, Dict, List, Union, Tuple
 from musica import _Arrhenius, _ReactionComponent
-from .mechanism_configuration_phase import Phase
-from .mechanism_configuration_species import Species
-from .mechanism_configuration_reactions import ReactionComponentSerializer
-from .mechanism_configuration_utils import add_other_properties, remove_empty_keys
+from .phase import Phase
+from .species import Species
+from .reactions import ReactionComponentSerializer
+from .utils import add_other_properties, remove_empty_keys
 
 BOLTZMANN_CONSTANT_J_K = 1.380649e-23  # J K-1
 
