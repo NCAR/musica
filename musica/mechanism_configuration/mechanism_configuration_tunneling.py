@@ -1,9 +1,9 @@
 from typing import Optional, Any, Dict, List, Union, Tuple
 from musica import _Tunneling, _ReactionComponent
-from musica.mechanism_configuration_phase import Phase
-from musica.mechanism_configuration_species import Species
-from musica.mechanism_configuration_reactions import ReactionComponentSerializer
-from musica.mechanism_configuration_utils import add_other_properties, remove_empty_keys
+from .mechanism_configuration_phase import Phase
+from .mechanism_configuration_species import Species
+from .mechanism_configuration_reactions import ReactionComponentSerializer
+from .mechanism_configuration_utils import add_other_properties, remove_empty_keys
 
 
 class Tunneling(_Tunneling):

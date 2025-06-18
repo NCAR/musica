@@ -1,22 +1,22 @@
-from typing import Optional, Any, Dict, List, Union, Tuple
-from musica import _SimpolPhaseTransfer, _ReactionComponent
-from musica.mechanism_configuration_phase import Phase
-from musica.mechanism_configuration_species import Species
-from musica.mechanism_configuration_utils import add_other_properties, remove_empty_keys
+from typing import Optional, Any, Dict, Union, Tuple
+from musica import _HenrysLaw, _ReactionComponent
+from .mechanism_configuration_phase import Phase
+from .mechanism_configuration_species import Species
+from .mechanism_configuration_utils import add_other_properties, remove_empty_keys
 
 
-class SimpolPhaseTransfer(_SimpolPhaseTransfer):
+class HenrysLaw(_HenrysLaw):
     """
-    A class representing a simplified phase transfer reaction rate constant.
+    A class representing a Henry's law reaction rate constant.
 
     Attributes:
-        name (str): The name of the simplified phase transfer reaction rate constant.
+        name (str): The name of the Henry's law reaction rate constant.
         gas_phase (Phase): The gas phase in which the reaction occurs.
         gas_phase_species (Union[Species, Tuple[float, Species]]): The gas phase species involved in the reaction.
         aerosol_phase (Phase): The aerosol phase in which the reaction occurs.
+        aerosol_phase_water (Species): The water species in the aerosol phase.
         aerosol_phase_species (Union[Species, Tuple[float, Species]]): The aerosol phase species involved in the reaction.
-        B (List[float]): The B parameters [unitless].
-        unknown_properties (Dict[str, Any]): A dictionary of other properties of the simplified phase transfer reaction rate constant.
+        other_properties (Dict[str, Any]): A dictionary of other properties of the Henry's law reaction rate constant.
     """
 
     def __init__(
@@ -25,21 +25,21 @@ class SimpolPhaseTransfer(_SimpolPhaseTransfer):
         gas_phase: Optional[Phase] = None,
         gas_phase_species: Optional[Union[Species, Tuple[float, Species]]] = None,
         aerosol_phase: Optional[Phase] = None,
+        aerosol_phase_water: Optional[Species] = None,
         aerosol_phase_species: Optional[Union[Species, Tuple[float, Species]]] = None,
-        B: Optional[List[float]] = None,
         other_properties: Optional[Dict[str, Any]] = None,
     ):
         """
-        Initializes the SimpolPhaseTransfer object with the given parameters.
+        Initializes the HenrysLaw object with the given parameters.
 
         Args:
-            name (str): The name of the simplified phase transfer reaction rate constant.
+            name (str): The name of the Henry's law reaction rate constant.
             gas_phase (Phase): The gas phase in which the reaction occurs.
             gas_phase_species (Union[Species, Tuple[float, Species]]): The gas phase species involved in the reaction.
             aerosol_phase (Phase): The aerosol phase in which the reaction occurs.
+            aerosol_phase_water (Species): The water species in the aerosol phase.
             aerosol_phase_species (Union[Species, Tuple[float, Species]]): The aerosol phase species involved in the reaction.
-            B (List[float]): The B parameters [unitless].
-            other_properties (Dict[str, Any]): A dictionary of other properties of the simplified phase transfer reaction rate constant.
+            other_properties (Dict[str, Any]): A dictionary of other properties of the Henry's law reaction rate constant.
         """
         super().__init__()
         self.name = name if name is not None else self.name
@@ -54,6 +54,9 @@ class SimpolPhaseTransfer(_SimpolPhaseTransfer):
             else self.gas_phase_species
         )
         self.aerosol_phase = aerosol_phase.name if aerosol_phase is not None else self.aerosol_phase
+        self.aerosol_phase_water = (
+            aerosol_phase_water.name if aerosol_phase_water is not None else self.aerosol_phase_water
+        )
         self.aerosol_phase_species = (
             (
                 _ReactionComponent(aerosol_phase_species.name)
@@ -65,24 +68,18 @@ class SimpolPhaseTransfer(_SimpolPhaseTransfer):
             if aerosol_phase_species is not None
             else self.aerosol_phase_species
         )
-        if B is not None:
-            if len(B) != 4:
-                raise ValueError("B must be a list of 4 elements.")
-            self.B = B
-        else:
-            self.B = [0, 0, 0, 0]
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 
     @staticmethod
     def serialize(cls) -> Dict:
         serialize_dict = {
-            "type": "SIMPOL_PHASE_TRANSFER",
+            "type": "HL_PHASE_TRANSFER",
             "name": cls.name,
             "gas phase": cls.gas_phase,
             "gas-phase species": cls.gas_phase_species.species_name,
             "aerosol phase": cls.aerosol_phase,
+            "aerosol-phase water": cls.aerosol_phase_water,
             "aerosol-phase species": cls.aerosol_phase_species.species_name,
-            "B": cls.B,
         }
         add_other_properties(serialize_dict, cls.other_properties)
         return remove_empty_keys(serialize_dict)

@@ -1,7 +1,7 @@
 from typing import Optional, Any, Dict, List, Union, Tuple
 from musica import (_ReactionType, _Reactions, _ReactionsIterator)
-from musica.mechanism_configuration_species import Species, _Species
-from musica.mechanism_configuration_utils import remove_empty_keys
+from .mechanism_configuration_species import Species, _Species
+from .mechanism_configuration_utils import remove_empty_keys
 
 
 class ReactionType(_ReactionType):

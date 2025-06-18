@@ -1,21 +1,22 @@
 from typing import Optional, Any, Dict, List, Union, Tuple
-from musica import _FirstOrderLoss, _ReactionComponent
-from musica.mechanism_configuration_phase import Phase
-from musica.mechanism_configuration_species import Species
-from musica.mechanism_configuration_reactions import ReactionComponentSerializer
-from musica.mechanism_configuration_utils import add_other_properties, remove_empty_keys
+from musica import _UserDefined, _ReactionComponent
+from .mechanism_configuration_phase import Phase
+from .mechanism_configuration_species import Species
+from .mechanism_configuration_reactions import ReactionComponentSerializer
+from .mechanism_configuration_utils import add_other_properties, remove_empty_keys
 
 
-class FirstOrderLoss(_FirstOrderLoss):
+class UserDefined(_UserDefined):
     """
-    A class representing a first-order loss reaction rate constant.
+    A class representing a user-defined reaction rate constant.
 
     Attributes:
-        name (str): The name of the first-order loss reaction rate constant.
-        scaling_factor (float): The scaling factor for the first-order loss rate constant.
+        name (str): The name of the photolysis reaction rate constant.
+        scaling_factor (float): The scaling factor for the photolysis rate constant.
         reactants (List[Union[Species, Tuple[float, Species]]]): A list of reactants involved in the reaction.
+        products (List[Union[Species, Tuple[float, Species]]]): A list of products formed in the reaction.
         gas_phase (Phase): The gas phase in which the reaction occurs.
-        other_properties (Dict[str, Any]): A dictionary of other properties of the first-order loss reaction rate constant.
+        other_properties (Dict[str, Any]): A dictionary of other properties of the photolysis reaction rate constant.
     """
 
     def __init__(
@@ -23,18 +24,20 @@ class FirstOrderLoss(_FirstOrderLoss):
         name: Optional[str] = None,
         scaling_factor: Optional[float] = None,
         reactants: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
+        products: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
         gas_phase: Optional[Phase] = None,
         other_properties: Optional[Dict[str, Any]] = None,
     ):
         """
-        Initializes the FirstOrderLoss object with the given parameters.
+        Initializes the UserDefined object with the given parameters.
 
         Args:
-            name (str): The name of the first-order loss reaction rate constant.
-            scaling_factor (float): The scaling factor for the first-order loss rate constant.
+            name (str): The name of the photolysis reaction rate constant.
+            scaling_factor (float): The scaling factor for the photolysis rate constant.
             reactants (List[Union[Species, Tuple[float, Species]]]): A list of reactants involved in the reaction.
+            products (List[Union[Species, Tuple[float, Species]]]): A list of products formed in the reaction.
             gas_phase (Phase): The gas phase in which the reaction occurs.
-            other_properties (Dict[str, Any]): A dictionary of other properties of the first-order loss reaction rate constant.
+            other_properties (Dict[str, Any]): A dictionary of other properties of the photolysis reaction rate constant.
         """
         super().__init__()
         self.name = name if name is not None else self.name
@@ -51,16 +54,29 @@ class FirstOrderLoss(_FirstOrderLoss):
             if reactants is not None
             else self.reactants
         )
+        self.products = (
+            [
+                (
+                    _ReactionComponent(p.name)
+                    if isinstance(p, Species)
+                    else _ReactionComponent(p[1].name, p[0])
+                )
+                for p in products
+            ]
+            if products is not None
+            else self.products
+        )
         self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 
     @staticmethod
     def serialize(cls) -> Dict:
         serialize_dict = {
-            "type": "FIRST_ORDER_LOSS",
+            "type": "USER_DEFINED",
             "name": cls.name,
             "scaling factor": cls.scaling_factor,
             "reactants": ReactionComponentSerializer.serialize_list_reaction_components(cls.reactants),
+            "products": ReactionComponentSerializer.serialize_list_reaction_components(cls.products),
             "gas phase": cls.gas_phase,
         }
         add_other_properties(serialize_dict, cls.other_properties)

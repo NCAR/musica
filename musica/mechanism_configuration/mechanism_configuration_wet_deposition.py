@@ -1,7 +1,7 @@
 from typing import Optional, Any, Dict
 from musica import _WetDeposition
-from musica.mechanism_configuration_phase import Phase
-from musica.mechanism_configuration_utils import add_other_properties, remove_empty_keys
+from .mechanism_configuration_phase import Phase
+from .mechanism_configuration_utils import add_other_properties, remove_empty_keys
 
 
 class WetDeposition(_WetDeposition):

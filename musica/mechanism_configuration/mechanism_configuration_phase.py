@@ -1,7 +1,7 @@
 from typing import Optional, Any, Dict, List
 from musica import _Phase
-from musica.mechanism_configuration_species import Species
-from musica.mechanism_configuration_utils import add_other_properties, remove_empty_keys
+from .mechanism_configuration_species import Species
+from .mechanism_configuration_utils import add_other_properties, remove_empty_keys
 
 
 class Phase(_Phase):

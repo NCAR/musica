@@ -1,6 +1,6 @@
 from typing import Optional, Any, Dict
 from musica import _Species
-from musica.mechanism_configuration_utils import add_other_properties, remove_empty_keys
+from .mechanism_configuration_utils import add_other_properties, remove_empty_keys
 
 
 class Species(_Species):

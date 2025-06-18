@@ -1,14 +1,14 @@
 from typing import Optional, Any, Dict, List, Union, Tuple
-from musica import _UserDefined, _ReactionComponent
-from musica.mechanism_configuration_phase import Phase
-from musica.mechanism_configuration_species import Species
-from musica.mechanism_configuration_reactions import ReactionComponentSerializer
-from musica.mechanism_configuration_utils import add_other_properties, remove_empty_keys
+from musica import _Photolysis, _ReactionComponent
+from .mechanism_configuration_phase import Phase
+from .mechanism_configuration_species import Species
+from .mechanism_configuration_reactions import ReactionComponentSerializer
+from .mechanism_configuration_utils import add_other_properties, remove_empty_keys
 
 
-class UserDefined(_UserDefined):
+class Photolysis(_Photolysis):
     """
-    A class representing a user-defined reaction rate constant.
+    A class representing a photolysis reaction rate constant.
 
     Attributes:
         name (str): The name of the photolysis reaction rate constant.
@@ -29,7 +29,7 @@ class UserDefined(_UserDefined):
         other_properties: Optional[Dict[str, Any]] = None,
     ):
         """
-        Initializes the UserDefined object with the given parameters.
+        Initializes the Photolysis object with the given parameters.
 
         Args:
             name (str): The name of the photolysis reaction rate constant.
@@ -40,7 +40,7 @@ class UserDefined(_UserDefined):
             other_properties (Dict[str, Any]): A dictionary of other properties of the photolysis reaction rate constant.
         """
         super().__init__()
-        self.name = name if name is not None else self.name
+        self.name = name = name if name is not None else self.name
         self.scaling_factor = scaling_factor if scaling_factor is not None else self.scaling_factor
         self.reactants = (
             [
@@ -72,7 +72,7 @@ class UserDefined(_UserDefined):
     @staticmethod
     def serialize(cls) -> Dict:
         serialize_dict = {
-            "type": "USER_DEFINED",
+            "type": "PHOTOLYSIS",
             "name": cls.name,
             "scaling factor": cls.scaling_factor,
             "reactants": ReactionComponentSerializer.serialize_list_reaction_components(cls.reactants),
