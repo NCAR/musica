@@ -57,7 +57,7 @@ class Species(_Species):
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 
     @staticmethod
-    def serialize(cls):
+    def serialize(cls) -> Dict:
         serialize_dict = {
             "name": cls.name,
             "HLC(298K) [mol m-3 Pa-1]": cls.HLC_298K_mol_m3_Pa,

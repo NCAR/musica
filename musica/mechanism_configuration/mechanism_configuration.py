@@ -123,7 +123,7 @@ class Mechanism(_Mechanism):
             "version": self.version.to_string(),
         }
 
-    def export(self, file_path):
+    def export(self, file_path: str) -> None:
         MechanismSerializer.serialize(self, file_path)
 
 
@@ -139,7 +139,7 @@ class MechanismSerializer():
     """
 
     @staticmethod
-    def serialize(mechanism: Mechanism, file_path: str = "./mechanism.json"):        
+    def serialize(mechanism: Mechanism, file_path: str = "./mechanism.json") -> None:        
         if not isinstance(mechanism, Mechanism):
             raise TypeError(f"Object {mechanism} is not of type Mechanism.")
 
