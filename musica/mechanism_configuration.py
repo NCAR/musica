@@ -150,7 +150,7 @@ class Mechanism(_Mechanism):
         }
 
     def export(self, file_path):
-        Serializer.serialize(self, file_path)
+        MechanismSerializer.serialize(self, file_path)
 
 
 class Parser(_Parser):
@@ -159,7 +159,7 @@ class Parser(_Parser):
     """
 
 
-class Serializer():
+class MechanismSerializer():
     """
     A class for exporting a chemical mechanism.
     """
