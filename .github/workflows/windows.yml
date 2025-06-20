@@ -17,7 +17,7 @@ jobs:
     continue-on-error: true 
     strategy:
       matrix:
-        architecture: [x86, x64]
+        architecture: [x64]
 
     steps:
       - uses: actions/checkout@v4
@@ -26,13 +26,6 @@ jobs:
         with:
           platform: ${{ matrix.architecture }}
           static: 0
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        if: ${{ matrix.architecture == 'x86' }}
-        with:
-          python-version: '3.x'
-          architecture: x86
 
       - name: Run Cmake 
         run: cmake -S . -B build -G "MinGW Makefiles" -D MUSICA_GIT_TAG=${{ github.sha }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON -D CMAKE_POLICY_VERSION_MINIMUM=3.5
