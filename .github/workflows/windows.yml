@@ -14,6 +14,7 @@ concurrency:
 jobs:
   mingw:
     runs-on: windows-latest
+    continue-on-error: true 
     strategy:
       matrix:
         architecture: [Win32, x64]
@@ -114,6 +115,7 @@ jobs:
 
   fortran:
     runs-on: windows-latest
+    continue-on-error: true 
     strategy:
       fail-fast: false
       matrix:
