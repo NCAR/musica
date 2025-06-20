@@ -17,7 +17,7 @@ jobs:
     continue-on-error: true 
     strategy:
       matrix:
-        architecture: [Win32, x64]
+        architecture: [x86, x64]
 
     steps:
       - uses: actions/checkout@v4
@@ -25,7 +25,13 @@ jobs:
         uses: egor-tensin/setup-mingw@v2
         with:
           platform: ${{ matrix.architecture }}
-          version: 12.2.0 # https://github.com/egor-tensin/setup-mingw/issues/14
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        if: ${{ matrix.architecture == 'x86' }}
+        with:
+          python-version: '3.x'
+          architecture: x86
 
       - name: Run Cmake 
         run: cmake -S . -B build -G "MinGW Makefiles" -D MUSICA_GIT_TAG=${{ github.sha }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON -D CMAKE_POLICY_VERSION_MINIMUM=3.5
