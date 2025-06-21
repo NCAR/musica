@@ -42,7 +42,7 @@ def test_bad_inputs():
     with pytest.raises(TypeError):
         MechanismSerializer.serialize('not a mechanism')
     with pytest.raises(Exception):
-        MechanismSerializer.serialize(get_fully_defined_mechanism(), 'unsopported.txt')
+        MechanismSerializer.serialize(get_fully_defined_mechanism(), 'unsupported.txt')
 
 
 def test_path_creation(tmp_path):

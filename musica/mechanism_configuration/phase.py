@@ -29,7 +29,7 @@ class Phase(_Phase):
             other_properties (Dict[str, Any]): A dictionary of other properties of the phase.
         """
         super().__init__()
-        self.name = name
+        self.name = name if name is not None else self.name
         self.species = [s.name for s in species] if species is not None else self.species
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 

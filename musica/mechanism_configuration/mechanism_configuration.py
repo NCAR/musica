@@ -82,35 +82,35 @@ class Mechanism(_Mechanism):
 
         reactions_list = []
         for reaction in self.reactions:
-            if type(reaction) == type(_Arrhenius()) or type(reaction) == type(Arrhenius()):
+            if isinstance(reaction, (_Arrhenius, Arrhenius)):
                 reactions_list.append(Arrhenius.serialize(reaction))
-            elif type(reaction) == type(_Branched()) or type(reaction) == type(Branched()):
+            elif isinstance(reaction, (_Branched, Branched)):
                 reactions_list.append(Branched.serialize(reaction))
-            elif type(reaction) == type(_CondensedPhaseArrhenius()) or type(reaction) == type(CondensedPhaseArrhenius()):
+            elif isinstance(reaction, (_CondensedPhaseArrhenius, CondensedPhaseArrhenius)):
                 reactions_list.append(CondensedPhaseArrhenius.serialize(reaction))
-            elif type(reaction) == type(_CondensedPhasePhotolysis()) or type(reaction) == type(CondensedPhasePhotolysis()):
+            elif isinstance(reaction, (_CondensedPhasePhotolysis, CondensedPhasePhotolysis)):
                 reactions_list.append(CondensedPhasePhotolysis.serialize(reaction))
-            elif type(reaction) == type(_Emission()) or type(reaction) == type(Emission()):
+            elif isinstance(reaction, (_Emission, Emission)):
                 reactions_list.append(Emission.serialize(reaction))
-            elif type(reaction) == type(_FirstOrderLoss()) or type(reaction) == type(FirstOrderLoss()):
+            elif isinstance(reaction, (_FirstOrderLoss, FirstOrderLoss)):
                 reactions_list.append(FirstOrderLoss.serialize(reaction))
-            elif type(reaction) == type(_SimpolPhaseTransfer()) or type(reaction) == type(SimpolPhaseTransfer()):
+            elif isinstance(reaction, (_SimpolPhaseTransfer, SimpolPhaseTransfer)):
                 reactions_list.append(SimpolPhaseTransfer.serialize(reaction))
-            elif type(reaction) == type(_AqueousEquilibrium()) or type(reaction) == type(AqueousEquilibrium()):
+            elif isinstance(reaction, (_AqueousEquilibrium, AqueousEquilibrium)):
                 reactions_list.append(AqueousEquilibrium.serialize(reaction))
-            elif type(reaction) == type(_WetDeposition()) or type(reaction) == type(WetDeposition()):
+            elif isinstance(reaction, (_WetDeposition, WetDeposition)):
                 reactions_list.append(WetDeposition.serialize(reaction))
-            elif type(reaction) == type(_HenrysLaw()) or type(reaction) == type(HenrysLaw()):
+            elif isinstance(reaction, (_HenrysLaw, HenrysLaw)):
                 reactions_list.append(HenrysLaw.serialize(reaction))
-            elif type(reaction) == type(_Photolysis()) or type(reaction) == type(Photolysis()):
+            elif isinstance(reaction, (_Photolysis, Photolysis)):
                 reactions_list.append(Photolysis.serialize(reaction))
-            elif type(reaction) == type(_Surface()) or type(reaction) == type(Surface()):
+            elif isinstance(reaction, (_Surface, Surface)):
                 reactions_list.append(Surface.serialize(reaction))
-            elif type(reaction) == type(_Troe()) or type(reaction) == type(Troe()):
+            elif isinstance(reaction, (_Troe, Troe)):
                 reactions_list.append(Troe.serialize(reaction))
-            elif type(reaction) == type(_Tunneling()) or type(reaction) == type(Tunneling()):
+            elif isinstance(reaction, (_Tunneling, Tunneling)):
                 reactions_list.append(Tunneling.serialize(reaction))
-            elif type(reaction) == type(_UserDefined()) or type(reaction) == type(UserDefined()):
+            elif isinstance(reaction, (_UserDefined, UserDefined)):
                 reactions_list.append(UserDefined.serialize(reaction))
             else:
                 raise TypeError(f'Reaction type {type(reaction)} is not supported for export.')
@@ -157,4 +157,4 @@ class MechanismSerializer():
             with open(file_path, 'w') as file:
                 file.write(json_str)
         else:
-            raise Exception('Allowable write formats are .json and .yaml')
+            raise Exception('Allowable write formats are .json, .yaml, and .yml')

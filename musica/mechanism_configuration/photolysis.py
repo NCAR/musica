@@ -40,7 +40,7 @@ class Photolysis(_Photolysis):
             other_properties (Dict[str, Any]): A dictionary of other properties of the photolysis reaction rate constant.
         """
         super().__init__()
-        self.name = name = name if name is not None else self.name
+        self.name = name if name is not None else self.name
         self.scaling_factor = scaling_factor if scaling_factor is not None else self.scaling_factor
         self.reactants = (
             [
