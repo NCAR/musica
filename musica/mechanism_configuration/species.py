@@ -1,6 +1,6 @@
 from typing import Optional, Any, Dict
 from musica import _Species
-from .utils import add_other_properties, remove_empty_keys
+from .utils import _add_other_properties, _remove_empty_keys
 
 
 class Species(_Species):
@@ -68,5 +68,5 @@ class Species(_Species):
             "density [kg m-3]": cls.density_kg_m3,
             "tracer type": cls.tracer_type,
         }
-        add_other_properties(serialize_dict, cls.other_properties)
-        return remove_empty_keys(serialize_dict)
+        _add_other_properties(serialize_dict, cls.other_properties)
+        return _remove_empty_keys(serialize_dict)

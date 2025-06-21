@@ -3,7 +3,7 @@ from musica import _CondensedPhaseArrhenius, _ReactionComponent
 from .phase import Phase
 from .species import Species
 from .reactions import ReactionComponentSerializer
-from .utils import add_other_properties, remove_empty_keys
+from .utils import _add_other_properties, _remove_empty_keys
 
 BOLTZMANN_CONSTANT_J_K = 1.380649e-23  # J K-1
 
@@ -113,5 +113,5 @@ class CondensedPhaseArrhenius(_CondensedPhaseArrhenius):
             "aerosol phase": cls.aerosol_phase,
             "aerosol-phase water": cls.aerosol_phase_water,
         }
-        add_other_properties(serialize_dict, cls.other_properties)
-        return remove_empty_keys(serialize_dict)
+        _add_other_properties(serialize_dict, cls.other_properties)
+        return _remove_empty_keys(serialize_dict)

@@ -1,7 +1,7 @@
 from typing import Optional, Any, Dict, List
 from musica import _ReactionType, _Reactions, _ReactionsIterator
 from .species import Species, _Species
-from .utils import remove_empty_keys
+from .utils import _remove_empty_keys
 
 
 class ReactionType(_ReactionType):
@@ -47,7 +47,7 @@ class ReactionComponentSerializer():
         if isinstance(rc, Species) or isinstance(rc, _Species):
             return rc.name
 
-        return remove_empty_keys({
+        return _remove_empty_keys({
             "species name": rc.species_name,
             "coefficient": rc.coefficient,
             "other_properties": rc.other_properties,

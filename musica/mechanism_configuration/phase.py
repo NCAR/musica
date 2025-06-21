@@ -1,7 +1,7 @@
 from typing import Optional, Any, Dict, List
 from musica import _Phase
 from .species import Species
-from .utils import add_other_properties, remove_empty_keys
+from .utils import _add_other_properties, _remove_empty_keys
 
 
 class Phase(_Phase):
@@ -39,5 +39,5 @@ class Phase(_Phase):
             "name": cls.name,
             "species": cls.species,
         }
-        add_other_properties(serialize_dict, cls.other_properties)
-        return remove_empty_keys(serialize_dict)
+        _add_other_properties(serialize_dict, cls.other_properties)
+        return _remove_empty_keys(serialize_dict)

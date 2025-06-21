@@ -3,7 +3,7 @@ from musica import _Emission, _ReactionComponent
 from .phase import Phase
 from .species import Species
 from .reactions import ReactionComponentSerializer
-from .utils import add_other_properties, remove_empty_keys
+from .utils import _add_other_properties, _remove_empty_keys
 
 
 class Emission(_Emission):
@@ -63,5 +63,5 @@ class Emission(_Emission):
             "products": ReactionComponentSerializer.serialize_list_reaction_components(cls.products),
             "gas phase": cls.gas_phase,
         }
-        add_other_properties(serialize_dict, cls.other_properties)
-        return remove_empty_keys(serialize_dict)
+        _add_other_properties(serialize_dict, cls.other_properties)
+        return _remove_empty_keys(serialize_dict)

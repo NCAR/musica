@@ -2,7 +2,7 @@ from typing import Optional, Any, Dict, Union, Tuple
 from musica import _HenrysLaw, _ReactionComponent
 from .phase import Phase
 from .species import Species
-from .utils import add_other_properties, remove_empty_keys
+from .utils import _add_other_properties, _remove_empty_keys
 
 
 class HenrysLaw(_HenrysLaw):
@@ -81,5 +81,5 @@ class HenrysLaw(_HenrysLaw):
             "aerosol-phase water": cls.aerosol_phase_water,
             "aerosol-phase species": cls.aerosol_phase_species.species_name,
         }
-        add_other_properties(serialize_dict, cls.other_properties)
-        return remove_empty_keys(serialize_dict)
+        _add_other_properties(serialize_dict, cls.other_properties)
+        return _remove_empty_keys(serialize_dict)
