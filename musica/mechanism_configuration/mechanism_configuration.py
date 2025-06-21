@@ -23,7 +23,7 @@ from .first_order_loss import FirstOrderLoss, _FirstOrderLoss
 from .aqueous_equilibrium import AqueousEquilibrium, _AqueousEquilibrium
 from .wet_deposition import WetDeposition, _WetDeposition
 from .henrys_law import HenrysLaw, _HenrysLaw
-from .phase_transfer import SimpolPhaseTransfer, _SimpolPhaseTransfer
+from .simpol_phase_transfer import SimpolPhaseTransfer, _SimpolPhaseTransfer
 from .user_defined import UserDefined, _UserDefined
 from .reactions import Reactions, ReactionType
 
