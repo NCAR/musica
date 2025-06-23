@@ -34,10 +34,10 @@ class Phase(_Phase):
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 
     @staticmethod
-    def serialize(cls):
+    def serialize(instance):
         serialize_dict = {
-            "name": cls.name,
-            "species": cls.species,
+            "name": instance.name,
+            "species": instance.species,
         }
-        _add_other_properties(serialize_dict, cls.other_properties)
+        _add_other_properties(serialize_dict, instance.other_properties)
         return _remove_empty_keys(serialize_dict)

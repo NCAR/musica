@@ -105,18 +105,18 @@ class Arrhenius(_Arrhenius):
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 
     @staticmethod
-    def serialize(cls) -> Dict:
+    def serialize(instance) -> Dict:
         serialize_dict = {
             "type": "ARRHENIUS",
-            "name": cls.name,
-            "A": cls.A,
-            "B": cls.B,
-            "C": cls.C,
-            "D": cls.D,
-            "E": cls.E,
-            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(cls.reactants),
-            "products": ReactionComponentSerializer.serialize_list_reaction_components(cls.products),
-            "gas phase": cls.gas_phase,
+            "name": instance.name,
+            "A": instance.A,
+            "B": instance.B,
+            "C": instance.C,
+            "D": instance.D,
+            "E": instance.E,
+            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(instance.reactants),
+            "products": ReactionComponentSerializer.serialize_list_reaction_components(instance.products),
+            "gas phase": instance.gas_phase,
         }
-        _add_other_properties(serialize_dict, cls.other_properties)
+        _add_other_properties(serialize_dict, instance.other_properties)
         return _remove_empty_keys(serialize_dict)

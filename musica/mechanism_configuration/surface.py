@@ -75,15 +75,15 @@ class Surface(_Surface):
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 
     @staticmethod
-    def serialize(cls) -> Dict:
+    def serialize(instance) -> Dict:
         serialize_dict = {
             "type": "SURFACE",
-            "name": cls.name,
-            "reaction probability": cls.reaction_probability,
-            "gas-phase species": cls.gas_phase_species.species_name,
-            "gas-phase products": ReactionComponentSerializer.serialize_list_reaction_components(cls.gas_phase_products),
-            "gas phase": cls.gas_phase,
-            "aerosol phase": cls.aerosol_phase,
+            "name": instance.name,
+            "reaction probability": instance.reaction_probability,
+            "gas-phase species": instance.gas_phase_species.species_name,
+            "gas-phase products": ReactionComponentSerializer.serialize_list_reaction_components(instance.gas_phase_products),
+            "gas phase": instance.gas_phase,
+            "aerosol phase": instance.aerosol_phase,
         }
-        _add_other_properties(serialize_dict, cls.other_properties)
+        _add_other_properties(serialize_dict, instance.other_properties)
         return _remove_empty_keys(serialize_dict)

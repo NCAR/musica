@@ -74,15 +74,15 @@ class SimpolPhaseTransfer(_SimpolPhaseTransfer):
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 
     @staticmethod
-    def serialize(cls) -> Dict:
+    def serialize(instance) -> Dict:
         serialize_dict = {
             "type": "SIMPOL_PHASE_TRANSFER",
-            "name": cls.name,
-            "gas phase": cls.gas_phase,
-            "gas-phase species": cls.gas_phase_species.species_name,
-            "aerosol phase": cls.aerosol_phase,
-            "aerosol-phase species": cls.aerosol_phase_species.species_name,
-            "B": cls.B,
+            "name": instance.name,
+            "gas phase": instance.gas_phase,
+            "gas-phase species": instance.gas_phase_species.species_name,
+            "aerosol phase": instance.aerosol_phase,
+            "aerosol-phase species": instance.aerosol_phase_species.species_name,
+            "B": instance.B,
         }
-        _add_other_properties(serialize_dict, cls.other_properties)
+        _add_other_properties(serialize_dict, instance.other_properties)
         return _remove_empty_keys(serialize_dict)

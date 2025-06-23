@@ -149,6 +149,7 @@ class MechanismSerializer():
         dictionary = mechanism.to_dict()
         
         _, file_ext = os.path.splitext(file)
+        file_ext = file_ext.lower()
         if file_ext in ['.yaml', '.yml']:
             with open(file_path, 'w') as file:
                 yaml.dump(dictionary, file)

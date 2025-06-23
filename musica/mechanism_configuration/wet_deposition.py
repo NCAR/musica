@@ -38,12 +38,12 @@ class WetDeposition(_WetDeposition):
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 
     @staticmethod
-    def serialize(cls) -> Dict:
+    def serialize(instance) -> Dict:
         serialize_dict = {
             "type": "WET_DEPOSITION",
-            "name": cls.name,
-            "scaling factor": cls.scaling_factor,
-            "aerosol phase": cls.aerosol_phase,
+            "name": instance.name,
+            "scaling factor": instance.scaling_factor,
+            "aerosol phase": instance.aerosol_phase,
         }
-        _add_other_properties(serialize_dict, cls.other_properties)
+        _add_other_properties(serialize_dict, instance.other_properties)
         return _remove_empty_keys(serialize_dict)

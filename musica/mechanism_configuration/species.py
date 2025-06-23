@@ -57,16 +57,16 @@ class Species(_Species):
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 
     @staticmethod
-    def serialize(cls) -> Dict:
+    def serialize(instance) -> Dict:
         serialize_dict = {
-            "name": cls.name,
-            "HLC(298K) [mol m-3 Pa-1]": cls.HLC_298K_mol_m3_Pa,
-            "HLC exponential factor [K]": cls.HLC_exponential_factor_K,
-            "diffusion coefficient [m2 s-1]": cls.diffusion_coefficient_m2_s,
-            "N star": cls.N_star,
-            "molecular weight [kg mol-1]": cls.molecular_weight_kg_mol,
-            "density [kg m-3]": cls.density_kg_m3,
-            "tracer type": cls.tracer_type,
+            "name": instance.name,
+            "HLC(298K) [mol m-3 Pa-1]": instance.HLC_298K_mol_m3_Pa,
+            "HLC exponential factor [K]": instance.HLC_exponential_factor_K,
+            "diffusion coefficient [m2 s-1]": instance.diffusion_coefficient_m2_s,
+            "N star": instance.N_star,
+            "molecular weight [kg mol-1]": instance.molecular_weight_kg_mol,
+            "density [kg m-3]": instance.density_kg_m3,
+            "tracer type": instance.tracer_type,
         }
-        _add_other_properties(serialize_dict, cls.other_properties)
+        _add_other_properties(serialize_dict, instance.other_properties)
         return _remove_empty_keys(serialize_dict)

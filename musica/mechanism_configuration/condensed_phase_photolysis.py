@@ -77,15 +77,15 @@ class CondensedPhasePhotolysis(_CondensedPhasePhotolysis):
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 
     @staticmethod
-    def serialize(cls) -> Dict:
+    def serialize(instance) -> Dict:
         serialize_dict = {
             "type": "CONDENSED_PHASE_PHOTOLYSIS",
-            "name": cls.name,
-            "scaling factor": cls.scaling_factor,
-            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(cls.reactants),
-            "products": ReactionComponentSerializer.serialize_list_reaction_components(cls.products),
-            "aerosol phase": cls.aerosol_phase,
-            "aerosol-phase water": cls.aerosol_phase_water,
+            "name": instance.name,
+            "scaling factor": instance.scaling_factor,
+            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(instance.reactants),
+            "products": ReactionComponentSerializer.serialize_list_reaction_components(instance.products),
+            "aerosol phase": instance.aerosol_phase,
+            "aerosol-phase water": instance.aerosol_phase_water,
         }
-        _add_other_properties(serialize_dict, cls.other_properties)
+        _add_other_properties(serialize_dict, instance.other_properties)
         return _remove_empty_keys(serialize_dict)

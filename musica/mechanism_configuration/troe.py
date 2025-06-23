@@ -117,21 +117,21 @@ class Troe(_Troe):
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 
     @staticmethod
-    def serialize(cls) -> Dict:
+    def serialize(instance) -> Dict:
         serialize_dict = {
             "type": "TROE",
-            "name": cls.name,
-            "k0_A": cls.k0_A,
-            "k0_B": cls.k0_B,
-            "k0_C": cls.k0_C,
-            "kinf_A": cls.kinf_A,
-            "kinf_B": cls.kinf_B,
-            "kinf_C": cls.kinf_C,
-            "Fc": cls.Fc,
-            "N": cls.N,
-            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(cls.reactants),
-            "products": ReactionComponentSerializer.serialize_list_reaction_components(cls.products),
-            "gas phase": cls.gas_phase,
+            "name": instance.name,
+            "k0_A": instance.k0_A,
+            "k0_B": instance.k0_B,
+            "k0_C": instance.k0_C,
+            "kinf_A": instance.kinf_A,
+            "kinf_B": instance.kinf_B,
+            "kinf_C": instance.kinf_C,
+            "Fc": instance.Fc,
+            "N": instance.N,
+            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(instance.reactants),
+            "products": ReactionComponentSerializer.serialize_list_reaction_components(instance.products),
+            "gas phase": instance.gas_phase,
         }
-        _add_other_properties(serialize_dict, cls.other_properties)
+        _add_other_properties(serialize_dict, instance.other_properties)
         return _remove_empty_keys(serialize_dict)

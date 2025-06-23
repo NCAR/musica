@@ -70,14 +70,14 @@ class UserDefined(_UserDefined):
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 
     @staticmethod
-    def serialize(cls) -> Dict:
+    def serialize(instance) -> Dict:
         serialize_dict = {
             "type": "USER_DEFINED",
-            "name": cls.name,
-            "scaling factor": cls.scaling_factor,
-            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(cls.reactants),
-            "products": ReactionComponentSerializer.serialize_list_reaction_components(cls.products),
-            "gas phase": cls.gas_phase,
+            "name": instance.name,
+            "scaling factor": instance.scaling_factor,
+            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(instance.reactants),
+            "products": ReactionComponentSerializer.serialize_list_reaction_components(instance.products),
+            "gas phase": instance.gas_phase,
         }
-        _add_other_properties(serialize_dict, cls.other_properties)
+        _add_other_properties(serialize_dict, instance.other_properties)
         return _remove_empty_keys(serialize_dict)
