@@ -1,4 +1,4 @@
-from typing import Optional, Any, Dict, List
+from typing import Optional, Any, Dict, List, Union
 from musica import _ReactionType, _Reactions, _ReactionsIterator
 from .species import Species, _Species
 from .utils import _remove_empty_keys
@@ -43,7 +43,7 @@ class ReactionComponentSerializer():
     """
 
     @staticmethod
-    def serialize_reaction_component(rc) -> Dict | str:
+    def serialize_reaction_component(rc) -> Union[Dict, str]:
         if isinstance(rc, Species) or isinstance(rc, _Species):
             return rc.name
 
@@ -54,7 +54,7 @@ class ReactionComponentSerializer():
         })
 
     @staticmethod
-    def serialize_list_reaction_components(reaction_component_list) -> List[Dict | str]:
+    def serialize_list_reaction_components(reaction_component_list) -> List[Union[Dict, str]]:
         ret = []
         for rc in reaction_component_list:
             ret.append(ReactionComponentSerializer.serialize_reaction_component(rc))
