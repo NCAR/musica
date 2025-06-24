@@ -4,8 +4,7 @@ from .phase import Phase
 from .species import Species
 from .reactions import ReactionComponentSerializer
 from .utils import _add_other_properties, _remove_empty_keys
-
-BOLTZMANN_CONSTANT_J_K = 1.380649e-23  # J K-1
+from musica.constants import BOLTZMANN
 
 
 class Arrhenius(_Arrhenius):
@@ -74,7 +73,7 @@ class Arrhenius(_Arrhenius):
         self.B = B if B is not None else self.B
         if C is not None and Ea is not None:
             raise ValueError("Cannot specify both C and Ea.")
-        self.C = -Ea / BOLTZMANN_CONSTANT_J_K if Ea is not None else C if C is not None else self.C
+        self.C = -Ea / BOLTZMANN if Ea is not None else C if C is not None else self.C
         self.D = D if D is not None else self.D
         self.E = E if E is not None else self.E
         self.reactants = (
