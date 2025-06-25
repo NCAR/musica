@@ -23,7 +23,7 @@ At present the project encompasses these components
 - [MICM](https://github.com/NCAR/micm)
     - Model Independent Chemical Module
 
-- [Mechanism Configuration](https://github.com/NCAR/MechanismConfiguraiton)
+- [Mechanism Configuration](https://github.com/NCAR/MechanismConfiguration)
     - The standardized format to describe atmospheric chemistry
 
 # Installation
@@ -136,7 +136,7 @@ Pre-made grids for use in MUSICA are available [here](https://wiki.ucar.edu/disp
 
 ## Developer Options
 
-### Specifying dependency versions via paramaterization at configure time
+### Specifying dependency versions via parameterization at configure time
 
 Introduced in [Pull Request #124](https://github.com/NCAR/musica/pull/124), it is possible for developers to specify which versions of various dependencies should be used. These options are currently limited to those dependencies managed via `FetchContent`.  This change allows for more easily testing `musica` against changes committed in different repositories and branches.  The environmental variables introduced are outlined in the following table. 
 
@@ -148,7 +148,7 @@ Introduced in [Pull Request #124](https://github.com/NCAR/musica/pull/124), it i
 | [MICM](https://github.com/NCAR/mcim.git)               | MICM_GIT_REPOSITORY       | MICM_GIT_TAG       | 
 | [TUV-X](https://github.com/NCAR/tuv-x.git)             | TUVX_GIT_REPOSITORY       | TUVX_GIT_TAG       |
 | [PyBind11](https://github.com/pybind/pybind11)         | PYBIND11_GIT_REPOSITORY   | PYBIND11_GIT_TAG   |
-| [Mechanism Configuration](https://github.com/NCAR/MechanismConfiguraiton.git) | MECH_CONFIG_GIT_REPOSITORY | MECH_CONFIG_GIT_TAG |
+| [Mechanism Configuration](https://github.com/NCAR/MechanismConfiguration.git) | MECH_CONFIG_GIT_REPOSITORY | MECH_CONFIG_GIT_TAG |
 
 #### Example Usage
 
