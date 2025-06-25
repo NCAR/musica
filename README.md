@@ -23,7 +23,7 @@ At present the project encompasses these components
 - [MICM](https://github.com/NCAR/micm)
     - Model Independent Chemical Module
 
-- [Mechanism Configuration](https://github.com/NCAR/MechanismConfiguraiton)
+- [Mechanism Configuration](https://github.com/NCAR/MechanismConfiguration)
     - The standardized format to describe atmospheric chemistry
 
 # Installation
