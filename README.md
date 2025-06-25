@@ -148,7 +148,7 @@ Introduced in [Pull Request #124](https://github.com/NCAR/musica/pull/124), it i
 | [MICM](https://github.com/NCAR/mcim.git)               | MICM_GIT_REPOSITORY       | MICM_GIT_TAG       | 
 | [TUV-X](https://github.com/NCAR/tuv-x.git)             | TUVX_GIT_REPOSITORY       | TUVX_GIT_TAG       |
 | [PyBind11](https://github.com/pybind/pybind11)         | PYBIND11_GIT_REPOSITORY   | PYBIND11_GIT_TAG   |
-| [Mechanism Configuration](https://github.com/NCAR/MechanismConfiguraiton.git) | MECH_CONFIG_GIT_REPOSITORY | MECH_CONFIG_GIT_TAG |
+| [Mechanism Configuration](https://github.com/NCAR/MechanismConfiguration.git) | MECH_CONFIG_GIT_REPOSITORY | MECH_CONFIG_GIT_TAG |
 
 #### Example Usage
 
