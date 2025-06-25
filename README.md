@@ -16,12 +16,20 @@ Multi-Scale Infrastructure for Chemistry and Aerosols
 MUSICA is a collection of modeling software, tools, and grids, that
 allow for robust modeling of chemistry in Earth's atmosphere.
 
-At present the project encompasses these components
+At present the project encompasses these core components
 - [TUV-x](https://github.com/NCAR/tuv-x)
     - A photolysis rate calculator 
 
 - [MICM](https://github.com/NCAR/micm)
     - Model Independent Chemical Module
+
+- [Mechanism Configuration](https://github.com/NCAR/MechanismConfiguration)
+    - The standardized format to describe atmospheric chemistry
+
+These components are used to drive the MUSICA software ecosystem. This is a snapshot of how MUSICA can be used with different
+models.
+
+![MUSICA Ecosystem](docs/source/_static/ecosystem.png)
 
 # Installation
 MUSICA is installable via pip for Python or CMake for C++. 
@@ -30,6 +38,7 @@ MUSICA is installable via pip for Python or CMake for C++.
 ```
 pip install musica
 ```
+
 ## CMake
 ```
 $ git clone https://github.com/NCAR/musica.git
@@ -126,17 +135,13 @@ import matplotlib.pyplot as plt
 df.plot(x='time.s', y=['CONC.A.mol m-3', 'CONC.B.mol m-3', 'CONC.C.mol m-3'], title='Concentration over time', ylabel='Concentration (mol m-3)', xlabel='Time (s)')
 plt.show()
 ```
+
 # Available grids
-
 Pre-made grids for use in MUSICA are available [here](https://wiki.ucar.edu/display/MUSICA/Available+Grids).
-
-# Contributors guide
-Checkout our [software development plan](docs/Software%20Development%20Plan.pdf)
-to see how you can contribute new science to MUSICA software.
 
 ## Developer Options
 
-### Specifying dependency versions via paramaterization at configure time
+### Specifying dependency versions via parameterization at configure time
 
 Introduced in [Pull Request #124](https://github.com/NCAR/musica/pull/124), it is possible for developers to specify which versions of various dependencies should be used. These options are currently limited to those dependencies managed via `FetchContent`.  This change allows for more easily testing `musica` against changes committed in different repositories and branches.  The environmental variables introduced are outlined in the following table. 
 
@@ -148,6 +153,7 @@ Introduced in [Pull Request #124](https://github.com/NCAR/musica/pull/124), it i
 | [MICM](https://github.com/NCAR/mcim.git)               | MICM_GIT_REPOSITORY       | MICM_GIT_TAG       | 
 | [TUV-X](https://github.com/NCAR/tuv-x.git)             | TUVX_GIT_REPOSITORY       | TUVX_GIT_TAG       |
 | [PyBind11](https://github.com/pybind/pybind11)         | PYBIND11_GIT_REPOSITORY   | PYBIND11_GIT_TAG   |
+| [Mechanism Configuration](https://github.com/NCAR/MechanismConfiguration.git) | MECH_CONFIG_GIT_REPOSITORY | MECH_CONFIG_GIT_TAG |
 
 #### Example Usage
 
@@ -199,41 +205,49 @@ variable `BUILD_GPU`.
 BUILD_GPU=1 pip install -e .
 ```
 
-## Citing MUSICA
+# Contributing
 
-MUSICA can be cited in at least two ways. The first is to cite [the paper](https://doi.org/10.1175/BAMS-D-19-0331.1) that defines the vision
-of the MUSICA software. The bibtex entry below can be used to generate a citaiton for this.
+We welcome contributions from the community! Please see our [Contributing Guide](CONTRIBUTING.md) for information on how to get involved.
 
-```
-@Article { acom.software.musica-vision,
-    author = "Gabriele G. Pfister and Sebastian D. Eastham and Avelino F. Arellano and Bernard Aumont and Kelley C. Barsanti and Mary C. Barth and Andrew Conley and Nicholas A. Davis and Louisa K. Emmons and Jerome D. Fast and Arlene M. Fiore and Benjamin Gaubert and Steve Goldhaber and Claire Granier and Georg A. Grell and Marc Guevara and Daven K. Henze and Alma Hodzic and Xiaohong Liu and Daniel R. Marsh and John J. Orlando and John M. C. Plane and Lorenzo M. Polvani and Karen H. Rosenlof and Allison L. Steiner and Daniel J. Jacob and Guy P. Brasseur",
-    title = "The Multi-Scale Infrastructure for Chemistry and Aerosols (MUSICA)",
-    journal = "Bulletin of the American Meteorological Society",
-    year = "2020",
-    publisher = "American Meteorological Society",
-    address = "Boston MA, USA",
-    volume = "101",
-    number = "10",
-    doi = "10.1175/BAMS-D-19-0331.1",
-    pages= "E1743 - E1760",
-    url = "https://journals.ametsoc.org/view/journals/bams/101/10/bamsD190331.xml"
-}
-```
+For a complete list of contributors and authors, see [AUTHORS.md](AUTHORS.md).
 
-At present MUSICA is on version zero. MUSICAv0 can be cited using the bibtex entry below.
-MUSICAv0 description and evaluation:
+# Citations
 
-```
-@Article{acom.software.musica,
-    author = {Schwantes, Rebecca H. and Lacey, Forrest G. and Tilmes, Simone and Emmons, Louisa K. and Lauritzen, Peter H. and Walters, Stacy and Callaghan, Patrick and Zarzycki, Colin M. and Barth, Mary C. and Jo, Duseong S. and Bacmeister, Julio T. and Neale, Richard B. and Vitt, Francis and Kluzek, Erik and Roozitalab, Behrooz and Hall, Samuel R. and Ullmann, Kirk and Warneke, Carsten and Peischl, Jeff and Pollack, Ilana B. and Flocke, Frank and Wolfe, Glenn M. and Hanisco, Thomas F. and Keutsch, Frank N. and Kaiser, Jennifer and Bui, Thao Paul V. and Jimenez, Jose L. and Campuzano-Jost, Pedro and Apel, Eric C. and Hornbrook, Rebecca S. and Hills, Alan J. and Yuan, Bin and Wisthaler, Armin},
-    title = {Evaluating the Impact of Chemical Complexity and Horizontal Resolution on Tropospheric Ozone Over the Conterminous US With a Global Variable Resolution Chemistry Model},
-    journal = {Journal of Advances in Modeling Earth Systems},
-    volume = {14},
-    number = {6},
-    pages = {e2021MS002889},
-    doi = {https://doi.org/10.1029/2021MS002889},
-    url = {https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/2021MS002889},
-    eprint = {https://agupubs.onlinelibrary.wiley.com/doi/pdf/10.1029/2021MS002889},
-    year = {2022}
-}
-```
+MUSICA can be cited in at least two ways:
+
+1. **Cite the foundational paper** that defines the vision of the MUSICA software:
+    - [Pfister et al., 2020, Bulletin of the American Meteorological Society](https://doi.org/10.1175/BAMS-D-19-0331.1)
+    - Use the following BibTeX entry:
+      ```
+      @Article { acom.software.musica-vision,
+          author = "Gabriele G. Pfister and Sebastian D. Eastham and Avelino F. Arellano and Bernard Aumont and Kelley C. Barsanti and Mary C. Barth and Andrew Conley and Nicholas A. Davis and Louisa K. Emmons and Jerome D. Fast and Arlene M. Fiore and Benjamin Gaubert and Steve Goldhaber and Claire Granier and Georg A. Grell and Marc Guevara and Daven K. Henze and Alma Hodzic and Xiaohong Liu and Daniel R. Marsh and John J. Orlando and John M. C. Plane and Lorenzo M. Polvani and Karen H. Rosenlof and Allison L. Steiner and Daniel J. Jacob and Guy P. Brasseur",
+          title = "The Multi-Scale Infrastructure for Chemistry and Aerosols (MUSICA)",
+          journal = "Bulletin of the American Meteorological Society",
+          year = "2020",
+          publisher = "American Meteorological Society",
+          address = "Boston MA, USA",
+          volume = "101",
+          number = "10",
+          doi = "10.1175/BAMS-D-19-0331.1",
+          pages= "E1743 - E1760",
+          url = "https://journals.ametsoc.org/view/journals/bams/101/10/bamsD190331.xml"
+      }
+      ```
+
+2. **Cite the MUSICA software and its evaluation** (MUSICAv0):
+    - [Schwantes et al., 2022, Journal of Advances in Modeling Earth Systems](https://doi.org/10.1029/2021MS002889)
+    - Use the following BibTeX entry:
+      ```
+      @Article{acom.software.musica,
+          author = {Schwantes, Rebecca H. and Lacey, Forrest G. and Tilmes, Simone and Emmons, Louisa K. and Lauritzen, Peter H. and Walters, Stacy and Callaghan, Patrick and Zarzycki, Colin M. and Barth, Mary C. and Jo, Duseong S. and Bacmeister, Julio T. and Neale, Richard B. and Vitt, Francis and Kluzek, Erik and Roozitalab, Behrooz and Hall, Samuel R. and Ullmann, Kirk and Warneke, Carsten and Peischl, Jeff and Pollack, Ilana B. and Flocke, Frank and Wolfe, Glenn M. and Hanisco, Thomas F. and Keutsch, Frank N. and Kaiser, Jennifer and Bui, Thao Paul V. and Jimenez, Jose L. and Campuzano-Jost, Pedro and Apel, Eric C. and Hornbrook, Rebecca S. and Hills, Alan J. and Yuan, Bin and Wisthaler, Armin},
+          title = {Evaluating the Impact of Chemical Complexity and Horizontal Resolution on Tropospheric Ozone Over the Conterminous US With a Global Variable Resolution Chemistry Model},
+          journal = {Journal of Advances in Modeling Earth Systems},
+          volume = {14},
+          number = {6},
+          pages = {e2021MS002889},
+          doi = {https://doi.org/10.1029/2021MS002889},
+          url = {https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1029/2021MS002889},
+          eprint = {https://agupubs.onlinelibrary.wiley.com/doi/pdf/10.1029/2021MS002889},
+          year = {2022}
+      }
+      ```
