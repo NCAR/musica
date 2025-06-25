@@ -23,10 +23,15 @@
     {
       "name": "Shores, Kyle",
       "affiliation": "National Center for Atmospheric Research (NCAR)",
-      "orcid": ""
+      "orcid": "0000-0002-4272-5187"
     },
     {
       "name": "Thind, Montek",
+      "affiliation": "National Center for Atmospheric Research (NCAR)",
+      "orcid": ""
+    },
+    {
+      "name": "Jian Sun",
       "affiliation": "National Center for Atmospheric Research (NCAR)",
       "orcid": ""
     }
@@ -53,7 +58,7 @@
       "type": "Other"
     },
     {
-      "name": "Jian Sun",
+      "name": "Qina Tan",
       "type": "ProjectMember"
     }
   ],

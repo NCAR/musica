@@ -11,6 +11,7 @@ The following individuals are the primary developers and maintainers of the MUSI
 - **David Fillmore** (fillmore@ucar.edu) - Core Developer
 - **Kyle Shores** (kshores@ucar.edu) - Core Developer
 - **Montek Thind** (mthind@ucar.edu) - Core Developer
+- **Jian Sun** - Core Developer
 
 ## Scientific Leadership and Vision
 
@@ -26,8 +27,8 @@ please refer to our [CITATION.cff](CITATION.cff) file. To cite the software, use
 
 - **Aidan Winney** - Documentation and Tutorials
 - **Angela Pak** - Documentation and Tutorials
-- **Jian Sun** - Documentation and Tutorials
 - **Dee Grant** - Improving the Python API
+- **Qina Tan** - Implementing the CUDA-based Rosenbrock solver
 
 ## Recognition Policy
 
