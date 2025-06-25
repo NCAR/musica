@@ -16,7 +16,7 @@ Multi-Scale Infrastructure for Chemistry and Aerosols
 MUSICA is a collection of modeling software, tools, and grids, that
 allow for robust modeling of chemistry in Earth's atmosphere.
 
-At present the project encompasses these components
+At present the project encompasses these core components
 - [TUV-x](https://github.com/NCAR/tuv-x)
     - A photolysis rate calculator 
 
@@ -25,6 +25,11 @@ At present the project encompasses these components
 
 - [Mechanism Configuration](https://github.com/NCAR/MechanismConfiguration)
     - The standardized format to describe atmospheric chemistry
+
+These components are used to drive the MUSICA software ecosystem. This is a snapshot of how MUSICA can be used with different
+models.
+
+![MUSICA Ecosystem](docs/source/_static/ecosystem.png)
 
 # Installation
 MUSICA is installable via pip for Python or CMake for C++. 
