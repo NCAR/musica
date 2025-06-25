@@ -27,7 +27,7 @@ please refer to our [CITATION.cff](CITATION.cff) file. To cite the software, use
 - **Aidan Winney** - Documentation and Tutorials
 - **Angela Pak** - Documentation and Tutorials
 - **Jian Sun** - Documentation and Tutorials
-- **Walter Dee Grant** - Improving the Python API
+- **Dee Grant** - Improving the Python API
 
 ## Recognition Policy
 
