@@ -41,7 +41,7 @@ write_basic_package_version_file(
   COMPATIBILITY SameMajorVersion
 )
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+if("${CMAKE_BUILD_TYPE}" MATCHES "^[Dd][Ee][Bb][Uu][Gg]$")
   set(IS_DEBUG "")
 else()
   set(IS_DEBUG "#")
