@@ -33,8 +33,28 @@
   ],
   "contributors": [
     {
-      "name": "",
+      "name": "ACOM MUSICA Development Team",
+      "type": "ResearchGroup"
+    },
+    {
+      "name": "Angela Pak",
+      "type": "ProjectMember"
+    },
+    {
+      "name": "Aidan Winney",
+      "type": "ProjectMember"
+    },
+    {
+      "name": "Walter Dee Grant",
       "type": "Other"
+    },
+    {
+      "name": "Ward Fisher",
+      "type": "Other"
+    },
+    {
+      "name": "Jian Sun",
+      "type": "ProjectMember"
     }
   ],
   "keywords": [

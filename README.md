@@ -23,6 +23,9 @@ At present the project encompasses these components
 - [MICM](https://github.com/NCAR/micm)
     - Model Independent Chemical Module
 
+- [Mechanism Configuration](https://github.com/NCAR/MechanismConfiguraiton)
+    - The standardized format to describe atmospheric chemistry
+
 # Installation
 MUSICA is installable via pip for Python or CMake for C++. 
 
@@ -30,6 +33,7 @@ MUSICA is installable via pip for Python or CMake for C++.
 ```
 pip install musica
 ```
+
 ## CMake
 ```
 $ git clone https://github.com/NCAR/musica.git
@@ -144,6 +148,7 @@ Introduced in [Pull Request #124](https://github.com/NCAR/musica/pull/124), it i
 | [MICM](https://github.com/NCAR/mcim.git)               | MICM_GIT_REPOSITORY       | MICM_GIT_TAG       | 
 | [TUV-X](https://github.com/NCAR/tuv-x.git)             | TUVX_GIT_REPOSITORY       | TUVX_GIT_TAG       |
 | [PyBind11](https://github.com/pybind/pybind11)         | PYBIND11_GIT_REPOSITORY   | PYBIND11_GIT_TAG   |
+| [Mechanism Configuration](https://github.com/NCAR/MechanismConfiguraiton.git) | MECH_CONFIG_GIT_REPOSITORY | MECH_CONFIG_GIT_TAG |
 
 #### Example Usage
 
@@ -195,15 +200,13 @@ variable `BUILD_GPU`.
 BUILD_GPU=1 pip install -e .
 ```
 
-# Contributors guide
-Checkout our [software development plan](docs/Software%20Development%20Plan.pdf)
-to see how you can contribute new science to MUSICA software.
+# Contributing
 
-## Contributors and Acknowledgments
-For a complete list of contributors, please see [AUTHORS.md](AUTHORS.md).
+We welcome contributions from the community! Please see our [Contributing Guide](CONTRIBUTING.md) for information on how to get involved.
 
-## Citation and Scientific Leadership
-The scientific vision for MUSICA is provided by the research community as documented in our [foundational paper](https://doi.org/10.1175/BAMS-D-19-0331.1).
+For a complete list of contributors and authors, see [AUTHORS.md](AUTHORS.md).
+
+# Citations
 
 MUSICA can be cited in at least two ways:
 
