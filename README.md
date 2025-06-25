@@ -136,7 +136,7 @@ Pre-made grids for use in MUSICA are available [here](https://wiki.ucar.edu/disp
 
 ## Developer Options
 
-### Specifying dependency versions via paramaterization at configure time
+### Specifying dependency versions via parameterization at configure time
 
 Introduced in [Pull Request #124](https://github.com/NCAR/musica/pull/124), it is possible for developers to specify which versions of various dependencies should be used. These options are currently limited to those dependencies managed via `FetchContent`.  This change allows for more easily testing `musica` against changes committed in different repositories and branches.  The environmental variables introduced are outlined in the following table. 
 
