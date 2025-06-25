@@ -1,6 +1,6 @@
 {
   "title": "MUSICA: Multi-Scale Infrastructure for Chemistry and Aerosols",
-  "description": "MUSICA is a Python library for performing computational simulations in atmospheric chemistry.",
+  "description": "MUSICA is a multi-language library for performing computational simulations in atmospheric chemistry.",
   "license": {
     "id": "Apache-2.0"
   },
