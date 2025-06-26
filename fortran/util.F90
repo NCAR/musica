@@ -200,11 +200,11 @@ module musica_util
       type(configuration_t_c), intent(inout) :: configuration
     end subroutine delete_configuration_c
     
-    function create_mappings_c( size ) bind(c, name="CreateMappings")
+    subroutine create_mappings_c( size, mappings ) bind(c, name="CreateMappings")
       import :: mappings_t_c, c_size_t
       integer(c_size_t), value, intent(in) :: size
-      type(mappings_t_c) :: create_mappings_c
-    end function create_mappings_c
+      type(mappings_t_c), intent(out) :: mappings
+    end subroutine create_mappings_c
     
     subroutine create_index_mappings_c(configuration, options, source, target, index_mappings, error) &
       bind(c, name="CreateIndexMappings")
@@ -661,8 +661,7 @@ contains
     type(mapping_t_c), pointer :: mappings_c(:)
 
     allocate( new_mappings )
-    new_mappings%mappings_c_ = &
-        create_mappings_c( int( size( mappings ), c_size_t ) )
+    call create_mappings_c(int(size(mappings), c_size_t), new_mappings%mappings_c_)
     call c_f_pointer( new_mappings%mappings_c_%mappings_, mappings_c, &
                       [ new_mappings%mappings_c_%size_ ] )
     do i = 1, size( mappings )
@@ -688,8 +687,8 @@ contains
     call delete_mappings_c( to%mappings_c_ )
     call copy_mappings( from%mappings_c_%mappings_, &
                       from%mappings_c_%size_, mappings )
-    to%mappings_c_ = &
-        create_mappings_c( int( size( mappings ), c_size_t ) )
+
+    call create_mappings_c(int(size(mappings), c_size_t), to%mappings_c_)
     call c_f_pointer( to%mappings_c_%mappings_, mappings_c, &
                       [ to%mappings_c_%size_ ] )
     do i = 1, size( mappings )

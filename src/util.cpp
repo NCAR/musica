@@ -144,12 +144,10 @@ namespace musica
     return new Mapping[size];
   }
 
-  Mappings CreateMappings(std::size_t size)
+  void CreateMappings(std::size_t size, Mappings* mappings)
   {
-    Mappings mappings;
-    mappings.mappings_ = new Mapping[size];
-    mappings.size_ = size;
-    return mappings;
+    mappings->mappings_ = new Mapping[size];
+    mappings->size_ = size;
   }
 
   std::size_t FindMappingIndex(const Mappings mappings, const char* name, Error* error)
