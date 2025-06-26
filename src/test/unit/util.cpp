@@ -93,12 +93,14 @@ TEST(Util, FindMappingIndex)
 TEST(Util, IndexMappingFromString)
 {
   Error error = NoError();
-  Configuration config = LoadConfigurationFromString(
+  Configuration config;
+  LoadConfigurationFromString(
       "- source: Test\n"
       "  target: Test2\n"
       "- source: Test2\n"
       "  target: Test3\n"
       "  scale factor: 0.82\n",
+      &config,
       &error);
   EXPECT_TRUE(IsSuccess(error));
   Mappings source_map;
@@ -180,7 +182,8 @@ TEST(Util, IndexMappingFromFile)
 TEST(Util, IndexMappingMissingSource)
 {
   Error error = NoError();
-  Configuration config = LoadConfigurationFromString(
+  Configuration config;
+  LoadConfigurationFromString(
       "- source: Test\n"
       "  target: Test2\n"
       "- source: Test2\n"
@@ -188,6 +191,7 @@ TEST(Util, IndexMappingMissingSource)
       "  scale factor: 0.82\n"
       "- source: Test4\n"
       "  target: Test2\n",
+      &config,
       &error);
   EXPECT_TRUE(IsSuccess(error));
   Mappings source_map;
@@ -232,7 +236,8 @@ TEST(Util, IndexMappingMissingSource)
 TEST(Util, IndexMappingMissingTarget)
 {
   Error error = NoError();
-  Configuration config = LoadConfigurationFromString(
+  Configuration config;
+  LoadConfigurationFromString(
       "- source: Test\n"
       "  target: Test2\n"
       "- source: Test2\n"
@@ -240,6 +245,7 @@ TEST(Util, IndexMappingMissingTarget)
       "  scale factor: 0.82\n"
       "- source: Test\n"
       "  target: Test4\n",
+      &config,
       &error);
   EXPECT_TRUE(IsSuccess(error));
   Mappings source_map;
@@ -284,12 +290,14 @@ TEST(Util, IndexMappingMissingTarget)
 TEST(Util, IndexMappingUndefinedOptions)
 {
   Error error = NoError();
-  Configuration config = LoadConfigurationFromString(
+  Configuration config;
+  LoadConfigurationFromString(
       "- source: Test\n"
       "  target: Test2\n"
       "- source: Test2\n"
       "  target: Test3\n"
       "  scale factor: 0.82\n",
+      &config,
       &error);
   EXPECT_TRUE(IsSuccess(error));
   Mappings source_map;

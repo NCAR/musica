@@ -90,21 +90,19 @@ namespace musica
     return !(lhs == rhs);
   }
 
-  Configuration LoadConfigurationFromString(const char* data, Error* error)
+  void LoadConfigurationFromString(const char* data, Configuration* configuration, Error* error)
   {
     DeleteError(error);
-    Configuration config;
     try
     {
-      config.data_ = new YAML::Node(YAML::Load(data));
+      configuration->data_ = new YAML::Node(YAML::Load(data));
       *error = NoError();
     }
     catch (const std::exception& e)
     {
-      config.data_ = nullptr;
+      configuration->data_ = nullptr;
       *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_PARSING_FAILED, e.what());
     }
-    return config;
   }
 
   void LoadConfigurationFromFile(const char* filename, Configuration* configuration, Error* error)

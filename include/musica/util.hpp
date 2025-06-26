@@ -111,8 +111,8 @@ const size_t MUSICA_VECTOR_SIZE = 0;
     /// @brief Loads a set of configuration data from a string
     /// @param data The string to load
     /// @param error The Error to populate if the data cannot be loaded
-    /// @return The Configuration
-    Configuration LoadConfigurationFromString(const char* data, Error* error);
+    /// @param configuration The Configuration
+    void LoadConfigurationFromString(const char* data, Configuration* configuration, Error* error);
 
     /// @brief Loads a set of configuration data from a file
     /// @param filename The file to load
