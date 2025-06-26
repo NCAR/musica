@@ -100,29 +100,29 @@ namespace musica
         error);
   }
 
-  Mappings GetSpeciesOrdering(musica::State* state, Error* error)
+  void GetSpeciesOrdering(musica::State* state, Mappings* mappings, Error* error)
   {
-    return HandleErrors(
-        [&]()
+    HandleErrors(
+      [&]()
+      {
+        Mappings species_ordering;
+        std::map<std::string, std::size_t> map =
+            std::visit([](auto& state) { return state.variable_map_; }, state->state_variant_);
+
+        species_ordering.mappings_ = new Mapping[map.size()];
+        species_ordering.size_ = map.size();
+
+        std::size_t i = 0;
+        for (const auto& entry : map)
         {
-          Mappings species_ordering;
-          std::map<std::string, std::size_t> map =
-              std::visit([](auto& state) { return state.variable_map_; }, state->state_variant_);
-
-          species_ordering.mappings_ = new Mapping[map.size()];
-          species_ordering.size_ = map.size();
-
-          std::size_t i = 0;
-          for (const auto& entry : map)
-          {
-            species_ordering.mappings_[i] = ToMapping(entry.first.c_str(), entry.second);
-            ++i;
-          }
-
-          *error = NoError();
-          return species_ordering;
-        },
-        error);
+          species_ordering.mappings_[i] = ToMapping(entry.first.c_str(), entry.second);
+          ++i;
+        }
+        *mappings = species_ordering;
+        *error = NoError();
+        return species_ordering;
+      },
+      error);
   }
 
   void GetUserDefinedRateParametersOrdering(musica::State* state, Mappings* mappings, Error* error)

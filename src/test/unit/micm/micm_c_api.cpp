@@ -121,7 +121,8 @@ TEST_F(MicmCApiTestFixture, CreateMicmInstance)
 TEST_F(MicmCApiTestFixture, GetSpeciesOrdering)
 {
   Error error;
-  Mappings species_ordering = GetSpeciesOrdering(state, &error);
+  Mappings species_ordering;
+  GetSpeciesOrdering(state, &species_ordering, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(species_ordering.size_, 4);
   DeleteError(&error);
@@ -223,7 +224,8 @@ void TestSingleGridCell(MICM* micm, musica::State* state)
   std::vector<double>& user_defined_rate_parameters = state->GetOrderedRateParameters();
 
   // Get species ordering
-  Mappings species_ordering = GetSpeciesOrdering(state, &error);
+  Mappings species_ordering;
+  GetSpeciesOrdering(state, &species_ordering, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(species_ordering.size_, num_concentrations);
   std::size_t O2_index = FindMappingIndex(species_ordering, "O2", &error);
@@ -358,7 +360,8 @@ void TestSolver(MICM* micm, const size_t num_grid_cells, const double time_step,
   }
 
   // Get species indices in concentration array
-  Mappings species_ordering = GetSpeciesOrdering(state_1, &error);
+  Mappings species_ordering;
+  GetSpeciesOrdering(state_1, &species_ordering, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(species_ordering.size_, num_concentrations);
   std::size_t A_index = FindMappingIndex(species_ordering, "A", &error);

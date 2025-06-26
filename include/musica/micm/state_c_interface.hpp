@@ -49,9 +49,9 @@ namespace musica
 
     /// @brief Get the ordering of species
     /// @param state Pointer to state object
+    /// @param mappings Array of species' name-index pairs
     /// @param error Error struct to indicate success or failure
-    /// @return Array of species' name-index pairs
-    Mappings GetSpeciesOrdering(musica::State* state, Error* error);
+    void GetSpeciesOrdering(musica::State* state, Mappings* mappings, Error* error);
 
     /// @brief Get the ordering of user-defined reaction rates
     /// @param state Pointer to state object
