@@ -206,17 +206,17 @@ module musica_util
       type(mappings_t_c) :: create_mappings_c
     end function create_mappings_c
     
-    function create_index_mappings_c(configuration, options, source, target, &
-        error) bind(c, name="CreateIndexMappings")
+    subroutine create_index_mappings_c(configuration, options, source, target, index_mappings, error) &
+      bind(c, name="CreateIndexMappings")
       import :: index_mappings_t_c, configuration_t_c, error_t_c, &
                 mappings_t_c, c_int
       type(configuration_t_c), value, intent(in)    :: configuration
       integer(c_int),          value, intent(in)    :: options
       type(mappings_t_c),      value, intent(in)    :: source
       type(mappings_t_c),      value, intent(in)    :: target
+      type(index_mappings_t_c),       intent(out)    :: index_mappings
       type(error_t_c),                intent(inout) :: error
-      type(index_mappings_t_c) :: create_index_mappings_c
-    end function create_index_mappings_c
+    end subroutine create_index_mappings_c
     
     pure subroutine delete_mapping_c( mapping ) bind(c, name="DeleteMapping")
       import :: mapping_t_c
@@ -793,9 +793,10 @@ contains
     type(error_t_c) :: error_c
 
     allocate( mappings )
-    mappings%mappings_c_ = create_index_mappings_c( &
-        configuration%configuration_c_, int(options, kind=c_int), &
-        source%mappings_c_, target%mappings_c_, error_c )
+    call create_index_mappings_c( &
+      configuration%configuration_c_, int(options, kind=c_int), &
+      source%mappings_c_, target%mappings_c_, mappings%mappings_c_, error_c )
+
     error = error_t( error_c )
 
   end function index_mappings_constructor

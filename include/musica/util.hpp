@@ -142,13 +142,14 @@ const size_t MUSICA_VECTOR_SIZE = 0;
     /// @param map_options The options for mapping
     /// @param source The source array of name-index Mappings
     /// @param target The target array of name-index Mappings
+    /// @param indexMappings The array of IndexMappings
     /// @param error The Error to populate if a Mapping is not found
-    /// @return The array of IndexMappings
-    IndexMappings CreateIndexMappings(
+    void CreateIndexMappings(
         const Configuration configuration,
         const IndexMappingOptions map_options,
         Mappings source,
         const Mappings target,
+        IndexMappings *indexMappings,
         Error* error);
 
     /// @brief Returns the number of elements in an IndexMappings container

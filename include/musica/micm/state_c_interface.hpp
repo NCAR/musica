@@ -55,8 +55,8 @@ namespace musica
 
     /// @brief Get the ordering of user-defined reaction rates
     /// @param state Pointer to state object
+    /// @param mappings Array of reaction rate name-index pairs
     /// @param error Error struct to indicate success or failure
-    /// @return Array of reaction rate name-index pairs
     void GetUserDefinedRateParametersOrdering(musica::State* state, Mappings* mappings, Error* error);
 
     /// @brief Returns the number of grid cells in the solver state

@@ -184,22 +184,23 @@ namespace musica
     delete[] mappings->mappings_;
   }
 
-  IndexMappings CreateIndexMappings(
+  void CreateIndexMappings(
       const Configuration configuration,
       const IndexMappingOptions map_options,
       const Mappings source,
       const Mappings target,
+      IndexMappings *indexMappings,
       Error* error)
   {
     DeleteError(error);
     std::size_t size = configuration.data_->size();
     std::vector<IndexMapping> mappings;
-    IndexMappings index_mappings;
-    index_mappings.size_ = 0;
+    //IndexMappings index_mappings;
+    indexMappings->size_ = 0;
     if (map_options == IndexMappingOptions::UndefinedMapping)
     {
       *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED, "Mapping options are undefined");
-      return index_mappings;
+      return;
     }
     for (std::size_t i = 0; i < size; i++)
     {
@@ -211,7 +212,7 @@ namespace musica
       {
         if (map_options == IndexMappingOptions::MapAll)
         {
-          return index_mappings;
+          return;
         }
         else
         {
@@ -222,14 +223,14 @@ namespace musica
       }
       else if (!IsSuccess(*error))
       {
-        return index_mappings;
+        return;
       }
       std::size_t target_index = FindMappingIndex(target, target_name.c_str(), error);
       if (error->code_ == MUSICA_ERROR_CODE_MAPPING_NOT_FOUND)
       {
         if (map_options == IndexMappingOptions::MapAll)
         {
-          return index_mappings;
+          return;
         }
         else
         {
@@ -240,7 +241,7 @@ namespace musica
       }
       else if (!IsSuccess(*error))
       {
-        return index_mappings;
+        return;
       }
       double scale_factor = 1.0;
       if (node["scale factor"].IsDefined())
@@ -249,13 +250,13 @@ namespace musica
       }
       mappings.push_back({ source_index, target_index, scale_factor });
     }
-    index_mappings.mappings_ = new IndexMapping[mappings.size()];
-    index_mappings.size_ = mappings.size();
+    indexMappings->mappings_ = new IndexMapping[mappings.size()];
+    indexMappings->size_ = mappings.size();
     for (std::size_t i = 0; i < mappings.size(); i++)
     {
-      index_mappings.mappings_[i] = mappings[i];
+      indexMappings->mappings_[i] = mappings[i];
     }
-    return index_mappings;
+    return;
   }
 
   std::size_t GetIndexMappingsSize(const IndexMappings mappings)
