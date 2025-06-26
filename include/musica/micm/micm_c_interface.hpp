@@ -69,9 +69,10 @@ namespace musica
     /// @param micm Pointer to MICM object
     /// @param species_name Name of the species
     /// @param property_name Name of the property
+    /// @param property_name Value of the propertyy
     /// @param error Error struct to indicate success or failure
     /// @return Value of the property
-    String GetSpeciesPropertyString(MICM *micm, const char *species_name, const char *property_name, Error *error);
+    void GetSpeciesPropertyString(MICM *micm, const char *species_name, const char *property_name, String* output, Error *error);
     double GetSpeciesPropertyDouble(MICM *micm, const char *species_name, const char *property_name, Error *error);
     int GetSpeciesPropertyInt(MICM *micm, const char *species_name, const char *property_name, Error *error);
     bool GetSpeciesPropertyBool(MICM *micm, const char *species_name, const char *property_name, Error *error);

@@ -99,14 +99,15 @@ namespace musica
         error);
   }
 
-  String GetSpeciesPropertyString(MICM *micm, const char *species_name, const char *property_name, Error *error)
+  void GetSpeciesPropertyString(MICM *micm, const char *species_name, const char *property_name, String* output, Error *error)
   {
     std::string val = GetSpeciesProperty<std::string>(micm, species_name, property_name, error);
     if (!IsSuccess(*error))
     {
-      return String();
+      *output = String();
+      return;
     }
-    return CreateString(val.c_str());
+    *output = CreateString(val.c_str());
   }
 
   double GetSpeciesPropertyDouble(MICM *micm, const char *species_name, const char *property_name, Error *error)

@@ -92,7 +92,7 @@ TEST_F(MicmCApiTestFixture, MissingSpeciesProperty)
 {
   Error error = NoError();
   String string_value;
-  string_value = GetSpeciesPropertyString(micm, "O3", "bad property", &error);
+  GetSpeciesPropertyString(micm, "O3", "bad property", &string_value, &error);
   ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND));
   ASSERT_STREQ(string_value.value_, nullptr);
   DeleteString(&string_value);
@@ -588,7 +588,7 @@ TEST_F(MicmCApiTestFixture, GetSpeciesProperty)
 {
   Error error;
   String string_value;
-  string_value = GetSpeciesPropertyString(micm, "O3", "__long name", &error);
+  GetSpeciesPropertyString(micm, "O3", "__long name", &string_value, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_STREQ(string_value.value_, "ozone");
   DeleteString(&string_value);
