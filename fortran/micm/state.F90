@@ -62,13 +62,14 @@ module musica_state
       type(error_t_c), intent(inout)      :: error
     end function get_species_ordering_c
 
-    type(mappings_t_c) function get_user_defined_rate_parameters_ordering_c(state, error) &
+    subroutine get_user_defined_rate_parameters_ordering_c(state, mappings, error) &
       bind(c, name="GetUserDefinedRateParametersOrdering")
       use musica_util, only: error_t_c, mappings_t_c
       import c_ptr
       type(c_ptr), value, intent(in)      :: state
-      type(error_t_c), intent(inout)      :: error
-    end function get_user_defined_rate_parameters_ordering_c
+      type(mappings_t_c), intent(out)     :: mappings
+      type(error_t_c),    intent(inout)   :: error
+    end subroutine get_user_defined_rate_parameters_ordering_c
 
     integer(c_size_t) function get_number_of_grid_cells_c(state, error) &
       bind(C, name="GetNumberOfGridCells")
@@ -250,7 +251,8 @@ contains
         return
     end if
 
-    mapping = get_user_defined_rate_parameters_ordering_c(this%ptr, error_c) 
+    call get_user_defined_rate_parameters_ordering_c(this%ptr, mapping, error_c)
+
     this%rate_parameters_ordering => mappings_t( mapping )
     error = error_t(error_c)
     if (.not. error%is_success()) then

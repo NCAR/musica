@@ -172,7 +172,8 @@ TEST_F(MicmCApiTestFixture, GetSpeciesOrdering)
 TEST_F(MicmCApiTestFixture, GetUserDefinedRateParametersOrdering)
 {
   Error error;
-  Mappings reaction_rates_ordering = GetUserDefinedRateParametersOrdering(state, &error);
+  Mappings reaction_rates_ordering;
+  GetUserDefinedRateParametersOrdering(state, &reaction_rates_ordering, &error);
   ASSERT_TRUE(IsSuccess(error));
   DeleteError(&error);
   ASSERT_EQ(reaction_rates_ordering.size_, 3);
@@ -236,7 +237,8 @@ void TestSingleGridCell(MICM* micm, musica::State* state)
   DeleteMappings(&species_ordering);
 
   // Get user-defined reaction rates ordering
-  Mappings reaction_rates_ordering = GetUserDefinedRateParametersOrdering(state, &error);
+  Mappings reaction_rates_ordering;
+  GetUserDefinedRateParametersOrdering(state, &reaction_rates_ordering, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(reaction_rates_ordering.size_, num_user_defined_rate_parameters);
   std::size_t jO2_index = FindMappingIndex(reaction_rates_ordering, "PHOTO.jO2", &error);
@@ -374,7 +376,8 @@ void TestSolver(MICM* micm, const size_t num_grid_cells, const double time_step,
   DeleteMappings(&species_ordering);
 
   // Get user-defined reaction rates indices in user-defined reaction rates array
-  Mappings rate_ordering = GetUserDefinedRateParametersOrdering(state_1, &error);
+  Mappings rate_ordering;
+  GetUserDefinedRateParametersOrdering(state_1, &rate_ordering, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(rate_ordering.size_, num_user_defined_rate_parameters);
   std::size_t R1_index = FindMappingIndex(rate_ordering, "USER.reaction 1", &error);
