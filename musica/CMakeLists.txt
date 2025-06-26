@@ -12,6 +12,7 @@ set(
     cuda.cpp 
     mechanism_configuration.cpp 
     musica.cpp 
+    tuvx.cpp
 
     ${MUSICA_SOURCES}
 )

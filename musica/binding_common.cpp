@@ -2,15 +2,20 @@
 
 void bind_cuda(py::module_ &);
 void bind_musica(py::module_ &);
+void bind_tuvx(py::module_ &);
 
 void bind_mechanism_configuration(py::module_ &);
 
-void bind_all(py::module_ &m) {
-    py::module_ core = m.def_submodule("_core", "Wrapper classes for MUSICA C library structs and functions");
-    py::module_ mechanism_configuration = m.def_submodule("_mechanism_configuration", "Wrapper classes for Mechanism Configuration library structs and functions");
+void bind_all(py::module_ &m)
+{
+  py::module_ core = m.def_submodule("_core", "Wrapper classes for MUSICA C library structs and functions");
+  py::module_ mechanism_configuration = m.def_submodule(
+      "_mechanism_configuration", "Wrapper classes for Mechanism Configuration library structs and functions");
+  py::module_ tuvx = m.def_submodule("_tuvx", "Wrapper classes for TUV-x photolysis calculator");
 
-    bind_cuda(core);
-    bind_musica(core);
+  bind_cuda(core);
+  bind_musica(core);
+  bind_tuvx(tuvx);
 
-    bind_mechanism_configuration(mechanism_configuration);
+  bind_mechanism_configuration(mechanism_configuration);
 }

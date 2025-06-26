@@ -1,3 +1,4 @@
+from ._version import version as __version__
 import importlib.util
 
 
@@ -23,6 +24,8 @@ else:
     from . import _musica as _backend
 
 # Helper to re-export names from a module
+
+
 def _export_all(module, names, globals_):
     for name in names:
         globals_[name] = getattr(module, name)
@@ -41,11 +44,17 @@ _mechanism_names = [
     "_UserDefined", "_Reactions", "_ReactionsIterator", "_Mechanism", "_Version", "_Parser"
 ]
 
+_tuvx_names = [
+    "_create_tuvx", "_delete_tuvx", "_run_tuvx",
+    "_get_photolysis_rate_names", "_get_heating_rate_names"
+]
+
 # this allows us to use the same symbols in both the GPU and CPU versionspp
 _export_all(_backend._core, _core_names, globals())
 _export_all(_backend._mechanism_configuration, _mechanism_names, globals())
+_export_all(_backend._tuvx, _tuvx_names, globals())
 
-__all__ = _core_names + _mechanism_names
+__all__ = _core_names + _mechanism_names + _tuvx_names
 
+from .tuvx import TUVX, create_tuvx
 from .types import MICM, SolverType, State, Conditions
-from ._version import version as __version__

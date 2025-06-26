@@ -1,0 +1,91 @@
+#include "binding_common.hpp"
+
+#include <musica/tuvx/tuvx.hpp>
+#include <musica/tuvx/tuvx_c_interface.hpp>
+
+#include <pybind11/numpy.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+
+namespace py = pybind11;
+
+void bind_tuvx(py::module_& tuvx)
+{
+  tuvx.def(
+      "_create_tuvx",
+      [](const char* config_path)
+      {
+        auto tuvx_instance =
+            HandleMusicaErrors([&](musica::Error* error) { return musica::CreateTuvxFromConfigOnly(config_path, error); });
+        if (tuvx_instance == nullptr)
+        {
+          throw py::value_error("Error creating TUV-x instance from config file: " + std::string(config_path));
+        }
+        return reinterpret_cast<std::uintptr_t>(tuvx_instance);
+      },
+      "Create a TUV-x instance from a JSON configuration file");
+
+  tuvx.def(
+      "_delete_tuvx",
+      [](std::uintptr_t tuvx_ptr)
+      {
+        musica::TUVX* tuvx_instance = reinterpret_cast<musica::TUVX*>(tuvx_ptr);
+        HandleMusicaErrorsVoid([&](musica::Error* error) { musica::DeleteTuvx(tuvx_instance, error); });
+      },
+      "Delete a TUV-x instance");
+
+  tuvx.def(
+      "_run_tuvx",
+      [](std::uintptr_t tuvx_ptr)
+      {
+        musica::TUVX* tuvx_instance = reinterpret_cast<musica::TUVX*>(tuvx_ptr);
+
+        // Get dimensions
+        int n_photolysis =
+            HandleMusicaErrors([&](musica::Error* error) { return tuvx_instance->GetPhotolysisRateCount(error); });
+
+        int n_heating = HandleMusicaErrors([&](musica::Error* error) { return tuvx_instance->GetHeatingRateCount(error); });
+
+        int n_layers = HandleMusicaErrors([&](musica::Error* error) { return tuvx_instance->GetNumberOfLayers(error); });
+
+        int n_sza_steps =
+            HandleMusicaErrors([&](musica::Error* error) { return tuvx_instance->GetNumberOfSzaSteps(error); });
+
+        // Allocate output arrays (3D: sza_step, layer, reaction/heating_type)
+        std::vector<double> photolysis_rates(n_sza_steps * n_layers * n_photolysis);
+        std::vector<double> heating_rates(n_sza_steps * n_layers * n_heating);
+
+        // Run TUV-x (everything comes from the JSON config)
+        HandleMusicaErrorsVoid([&](musica::Error* error)
+                               { tuvx_instance->RunFromConfig(photolysis_rates.data(), heating_rates.data(), error); });
+
+        // Return as numpy arrays with shape (n_sza_steps, n_layers, n_reactions/n_heating)
+        py::array_t<double> py_photolysis =
+            py::array_t<double>({ n_sza_steps, n_layers, n_photolysis }, photolysis_rates.data());
+        py::array_t<double> py_heating = py::array_t<double>({ n_sza_steps, n_layers, n_heating }, heating_rates.data());
+
+        return py::make_tuple(py_photolysis, py_heating);
+      },
+      "Run TUV-x (all parameters come from JSON config)",
+      py::arg("tuvx_instance"));
+
+  tuvx.def(
+      "_get_photolysis_rate_names",
+      [](std::uintptr_t tuvx_ptr)
+      {
+        musica::TUVX* tuvx_instance = reinterpret_cast<musica::TUVX*>(tuvx_ptr);
+
+        return HandleMusicaErrors([&](musica::Error* error) { return tuvx_instance->GetPhotolysisRateNames(error); });
+      },
+      "Get photolysis rate names");
+
+  tuvx.def(
+      "_get_heating_rate_names",
+      [](std::uintptr_t tuvx_ptr)
+      {
+        musica::TUVX* tuvx_instance = reinterpret_cast<musica::TUVX*>(tuvx_ptr);
+
+        return HandleMusicaErrors([&](musica::Error* error) { return tuvx_instance->GetHeatingRateNames(error); });
+      },
+      "Get heating rate names");
+}
