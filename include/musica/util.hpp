@@ -117,8 +117,8 @@ const size_t MUSICA_VECTOR_SIZE = 0;
     /// @brief Loads a set of configuration data from a file
     /// @param filename The file to load
     /// @param error The Error to populate if the data cannot be loaded
-    /// @return The Configuration
-    Configuration LoadConfigurationFromFile(const char* filename, Error* error);
+    /// @param configuration The Configuration
+    void LoadConfigurationFromFile(const char* filename, Configuration* configuration, Error* error);
 
     /// @brief Allocates an array of Mappings
     /// @param size The size of the array

@@ -139,7 +139,8 @@ TEST(Util, IndexMappingFromString)
 TEST(Util, IndexMappingFromFile)
 {
   Error error = NoError();
-  Configuration config = LoadConfigurationFromFile("test/data/util_index_mapping_from_file.json", &error);
+  Configuration config;
+  LoadConfigurationFromFile("test/data/util_index_mapping_from_file.json", &config, &error);
   EXPECT_TRUE(IsSuccess(error));
   Mappings source_map;
   Mappings target_map;

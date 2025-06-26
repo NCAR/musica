@@ -186,13 +186,13 @@ module musica_util
       type(configuration_t_c) :: load_configuration_from_string_c
     end function load_configuration_from_string_c
     
-    function load_configuration_from_file_c( file, error ) &
+    subroutine load_configuration_from_file_c( file, configuration, error ) &
         bind(c, name="LoadConfigurationFromFile")
       import :: configuration_t_c, c_char, error_t_c
       character(kind=c_char, len=1), intent(in) :: file(*)
+      type(configuration_t_c), intent(out)      :: configuration
       type(error_t_c), intent(inout) :: error
-      type(configuration_t_c) :: load_configuration_from_file_c
-    end function load_configuration_from_file_c
+    end subroutine load_configuration_from_file_c
     
     pure subroutine delete_configuration_c( configuration ) &
         bind(c, name="DeleteConfiguration")
@@ -363,8 +363,7 @@ contains
     if (c_associated(this%configuration_c_%data_)) then
       call delete_configuration_c(this%configuration_c_)
     end if
-    this%configuration_c_ = &
-        load_configuration_from_file_c( to_c_string( file ), error_c )
+    call load_configuration_from_file_c( to_c_string( file ), this%configuration_c_, error_c )
     error = error_t( error_c )
 
   end subroutine configuration_load_from_file
