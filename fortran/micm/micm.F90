@@ -67,10 +67,10 @@ module musica_micm
       type(error_t_c),            intent(inout) :: error
     end subroutine micm_solve_c
 
-    function get_micm_version_c() bind(C, name="MicmVersion")
+    subroutine get_micm_version_c(micmVersion) bind(C, name="MicmVersion")
       use musica_util, only: string_t_c
-      type(string_t_c) :: get_micm_version_c
-    end function get_micm_version_c
+      type(string_t_c), intent(out)             :: micmVersion
+    end subroutine get_micm_version_c
 
     subroutine get_species_property_string_c(micm, species_name, property_name, output, error) &
         bind(c, name="GetSpeciesPropertyString")
@@ -179,7 +179,7 @@ contains
     use musica_util, only: string_t, string_t_c
     type(string_t)   :: value
     type(string_t_c) :: string_c
-    string_c = get_micm_version_c()
+    call get_micm_version_c(string_c)
     value = string_t(string_c)        
   end function get_micm_version
 
