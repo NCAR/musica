@@ -35,8 +35,8 @@ namespace musica
     /// All parameters (solar zenith angle, Earth-Sun distance, atmospheric profiles, etc.)
     /// are read from the JSON configuration file, similar to the Fortran tuvx.F90 driver
     /// @param config_path Path to configuration file
-    /// @param error Error struct to indicate success or failure
-    void CreateFromConfigOnly(const char *config_path, Error *error);
+    /// @throws std::runtime_error if operation fails
+    void CreateFromConfigOnly(const char *config_path);
 
     /// @brief Create a grid map. For now, this calls the interal tuvx fortran api, but will allow the change to c++ later on
     /// to be transparent to downstream projects

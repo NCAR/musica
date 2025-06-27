@@ -71,43 +71,28 @@ namespace musica
     }
   }
 
-  void TUVX::CreateFromConfigOnly(const char *config_path, Error *error)
+  void TUVX::CreateFromConfigOnly(const char *config_path)
   {
     int error_code = 0;
-    try
-    {
-      // check that the file exists
-      if (!std::filesystem::exists(config_path))
-      {
-        *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Config file does not exist") };
-        return;
-      }
 
-      tuvx_ = create_tuvx_from_config_c(config_path, strlen(config_path), &error_code);
-      if (error_code != 0 || tuvx_ == nullptr)
-      {
-        *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create tuvx instance from config") };
-      }
-      else
-      {
-        is_config_only_mode_ = true;
-        // Get number of layers for this mode
-        this->number_of_layers_ = get_number_of_layers_c(tuvx_, &error_code);
-        if (error_code != 0)
-        {
-          *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get number of layers") };
-          return;
-        }
-        *error = NoError();
-      }
-    }
-    catch (const std::system_error &e)
+    // check that the file exists
+    if (!std::filesystem::exists(config_path))
     {
-      *error = ToError(e);
+      throw std::runtime_error("Config file does not exist: " + std::string(config_path));
     }
-    catch (...)
+
+    tuvx_ = create_tuvx_from_config_c(config_path, strlen(config_path), &error_code);
+    if (error_code != 0 || tuvx_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create tuvx instance from config") };
+      throw std::runtime_error("Failed to create tuvx instance from config");
+    }
+
+    is_config_only_mode_ = true;
+    // Get number of layers for this mode
+    this->number_of_layers_ = get_number_of_layers_c(tuvx_, &error_code);
+    if (error_code != 0)
+    {
+      throw std::runtime_error("Failed to get number of layers");
     }
   }
 

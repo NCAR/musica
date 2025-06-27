@@ -23,9 +23,20 @@ namespace musica
     DeleteError(error);
     TUVX *tuvx = new TUVX();
 
-    tuvx->CreateFromConfigOnly(config_path, error);
-    if (!IsSuccess(*error))
+    try
     {
+      tuvx->CreateFromConfigOnly(config_path);
+      *error = NoError();
+    }
+    catch (const std::exception &e)
+    {
+      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString(e.what()) };
+      delete tuvx;
+      return nullptr;
+    }
+    catch (...)
+    {
+      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Unknown error in CreateFromConfigOnly") };
       delete tuvx;
       return nullptr;
     }
