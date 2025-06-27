@@ -139,7 +139,7 @@ class MechanismSerializer():
     """
 
     @staticmethod
-    def serialize(mechanism: Mechanism, file_path: str = "./mechanism.json") -> None:        
+    def serialize(mechanism: Mechanism, file_path: str = "./mechanism.json") -> None:
         if not isinstance(mechanism, Mechanism):
             raise TypeError(f"Object {mechanism} is not of type Mechanism.")
 
@@ -147,7 +147,7 @@ class MechanismSerializer():
         if directory:
             os.makedirs(directory, exist_ok=True)
         dictionary = mechanism.to_dict()
-        
+
         _, file_ext = os.path.splitext(file)
         file_ext = file_ext.lower()
         if file_ext in ['.yaml', '.yml']:
