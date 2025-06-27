@@ -60,7 +60,7 @@ def get_fully_defined_mechanism():
     aqueous_aerosol = Phase(
         name="aqueous aerosol",
         species=[H2O2_aq, H2O_aq, ethanol_aq, A, B, C],
-        other_properties={"__irrelevant": "2"},
+        other_properties = {"__irrelevant": "2"},
     )
     surface_reacting_phase = Phase(
         name="surface reacting phase",
@@ -75,7 +75,7 @@ def get_fully_defined_mechanism():
         gas_phase=gas,
         reactants=[B],
         products=[C],
-        other_properties={"__irrelevant": "2"},
+        other_properties = {"__irrelevant": "2"},
     )
 
     my_other_arrhenius = Arrhenius(
@@ -97,7 +97,7 @@ def get_fully_defined_mechanism():
         E=0.6e-5,
         reactants=[H2O2_aq, H2O_aq],
         products=[ethanol_aq],
-        other_properties={"__irrelevant": "2"},
+        other_properties = {"__irrelevant": "2"},
     )
 
     my_other_condensed_arrhenius = CondensedPhaseArrhenius(
@@ -126,7 +126,7 @@ def get_fully_defined_mechanism():
         N=0.8,
         reactants=[B, M],
         products=[C],
-        other_properties={"__irrelevant": "2"},
+        other_properties = {"__irrelevant": "2"},
     )
 
     my_branched = Branched(
@@ -139,7 +139,7 @@ def get_fully_defined_mechanism():
         Y=167,
         a0=0.15,
         n=9,
-        other_properties={"__irrelevant": "2"},
+        other_properties = {"__irrelevant": "2"},
     )
 
     my_tunneling = Tunneling(
@@ -150,7 +150,7 @@ def get_fully_defined_mechanism():
         A=123.45,
         B=1200.0,
         C=1.0e8,
-        other_properties={"__irrelevant": "2"},
+        other_properties = {"__irrelevant": "2"},
     )
 
     my_surface = Surface(
@@ -160,7 +160,7 @@ def get_fully_defined_mechanism():
         reaction_probability=2.0e-2,
         gas_phase_products=[B, C],
         aerosol_phase=surface_reacting_phase,
-        other_properties={"__irrelevant": "2"},
+        other_properties = {"__irrelevant": "2"},
     )
 
     photo_B = Photolysis(
@@ -169,7 +169,7 @@ def get_fully_defined_mechanism():
         reactants=[B],
         products=[C],
         scaling_factor=12.3,
-        other_properties={"__irrelevant": "2"},
+        other_properties = {"__irrelevant": "2"},
     )
 
     condensed_photo_B = CondensedPhasePhotolysis(
@@ -179,7 +179,7 @@ def get_fully_defined_mechanism():
         reactants=[H2O2_aq],
         products=[ethanol_aq],
         scaling_factor=12.3,
-        other_properties={"__irrelevant": "2"},
+        other_properties = {"__irrelevant": "2"},
     )
 
     my_emission = Emission(
@@ -187,7 +187,7 @@ def get_fully_defined_mechanism():
         gas_phase=gas,
         products=[B],
         scaling_factor=12.3,
-        other_properties={"__irrelevant": "2"},
+        other_properties = {"__irrelevant": "2"},
     )
 
     my_first_order_loss = FirstOrderLoss(
@@ -195,7 +195,7 @@ def get_fully_defined_mechanism():
         gas_phase=gas,
         reactants=[C],
         scaling_factor=12.3,
-        other_properties={"__irrelevant": "2"},
+        other_properties = {"__irrelevant": "2"},
     )
 
     my_aqueous_equilibrium = AqueousEquilibrium(
@@ -207,14 +207,14 @@ def get_fully_defined_mechanism():
         k_reverse=0.32,
         reactants=[(2, A)],
         products=[B, C],
-        other_properties={"__irrelevant": "2"},
+        other_properties = {"__irrelevant": "2"},
     )
 
     my_wet_deposition = WetDeposition(
         name="rxn cloud",
         aerosol_phase=cloud,
         scaling_factor=12.3,
-        other_properties={"__irrelevant": "2"},
+        other_properties = {"__irrelevant": "2"},
     )
 
     my_henrys_law = HenrysLaw(
@@ -224,7 +224,7 @@ def get_fully_defined_mechanism():
         aerosol_phase=aqueous_aerosol,
         aerosol_phase_species=H2O2_aq,
         aerosol_phase_water=H2O_aq,
-        other_properties={"__irrelevant": "2"},
+        other_properties = {"__irrelevant": "2"},
     )
 
     my_simpol_phase_transfer = SimpolPhaseTransfer(
@@ -234,7 +234,7 @@ def get_fully_defined_mechanism():
         aerosol_phase=aqueous_aerosol,
         aerosol_phase_species=ethanol_aq,
         B=[-1.97e03, 2.91e00, 1.96e-03, -4.96e-01],
-        other_properties={"__irrelevant": "2"},
+        other_properties = {"__irrelevant": "2"},
     )
 
     user_defined = UserDefined(
@@ -243,21 +243,21 @@ def get_fully_defined_mechanism():
         reactants=[A, B],
         products=[(1.3, C)],
         scaling_factor=12.3,
-        other_properties={"__irrelevant": "2"}
+        other_properties = {"__irrelevant": "2"}
     )
 
     # Mechanism
     return Mechanism(
         name="Full Configuration",
         species=[A, B, C, M, H2O2, ethanol, ethanol_aq, H2O2_aq, H2O_aq,
-                 aerosol_stuff, more_aerosol_stuff],
+                    aerosol_stuff, more_aerosol_stuff],
         phases=[gas, aqueous_aerosol, surface_reacting_phase, cloud],
         reactions=[my_arrhenius, my_other_arrhenius, my_condensed_arrhenius,
-                   my_other_condensed_arrhenius, my_troe, my_branched,
-                   my_tunneling, my_surface, photo_B, condensed_photo_B,
-                   my_emission, my_first_order_loss, my_aqueous_equilibrium,
-                   my_wet_deposition, my_henrys_law, my_simpol_phase_transfer,
-                   user_defined],
+                    my_other_condensed_arrhenius, my_troe, my_branched,
+                    my_tunneling, my_surface, photo_B, condensed_photo_B,
+                    my_emission, my_first_order_loss, my_aqueous_equilibrium,
+                    my_wet_deposition, my_henrys_law, my_simpol_phase_transfer,
+                    user_defined],
         version=Version(1, 0, 0),
     )
 
@@ -368,7 +368,6 @@ def _extract_components(components):
         {"species name": component.species_name, "coefficient": component.coefficient}
         for component in components
     ]
-
 
 def _validate_arrhenius(reactions):
     assert reactions[0].type == ReactionType.Arrhenius

@@ -48,7 +48,7 @@ def test_bad_inputs():
 def test_path_creation(tmp_path):
     mechanism = Mechanism(name="Full Configuration")
     path = f"{tmp_path}/non_existant_path/"
-    assert not os.path.exists(path)
+    assert not os.path.exists(path)    
     MechanismSerializer.serialize(mechanism, f"{path}test_mechanism.json")
     assert os.path.exists(path)
 
@@ -57,7 +57,7 @@ def test_overwrite_file(tmp_path):
     mechanism = Mechanism(name="Full Configuration")
     file_path = f'{tmp_path}/test_mechanism.json'
     assert not os.path.exists(file_path)
-
+    
     # write first file
     MechanismSerializer.serialize(mechanism, file_path)
     files = list(tmp_path.iterdir())

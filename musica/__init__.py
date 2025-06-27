@@ -1,5 +1,3 @@
-from ._version import version as __version__
-from .types import MICM, SolverType, State, Conditions
 import importlib.util
 
 
@@ -25,8 +23,6 @@ else:
     from . import _musica as _backend
 
 # Helper to re-export names from a module
-
-
 def _export_all(module, names, globals_):
     for name in names:
         globals_[name] = getattr(module, name)
@@ -50,3 +46,6 @@ _export_all(_backend._core, _core_names, globals())
 _export_all(_backend._mechanism_configuration, _mechanism_names, globals())
 
 __all__ = _core_names + _mechanism_names
+
+from .types import MICM, SolverType, State, Conditions
+from ._version import version as __version__

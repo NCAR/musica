@@ -118,6 +118,7 @@ def TestMultipleGridCell(solver, state, num_grid_cells, time_step, places=5):
         rate_constants["USER.reaction 2"].append(
             0.002 + random.uniform(-0.0001, 0.0001))
 
+
     state.set_conditions(temperatures, pressures)  # Air density should be calculated in the state
     state.set_concentrations(concentrations)
     state.set_user_defined_rate_parameters(rate_constants)
