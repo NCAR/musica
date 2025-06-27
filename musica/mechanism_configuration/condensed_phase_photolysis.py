@@ -6,7 +6,6 @@ from .reactions import ReactionComponentSerializer
 from .utils import _add_other_properties, _remove_empty_keys
 
 
-
 class CondensedPhasePhotolysis(_CondensedPhasePhotolysis):
     """
     A class representing a condensed phase photolysis reaction rate constant.
