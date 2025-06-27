@@ -15,13 +15,17 @@ void bind_tuvx(py::module_& tuvx)
       "_create_tuvx",
       [](const char* config_path)
       {
-        auto tuvx_instance =
-            HandleMusicaErrors([&](musica::Error* error) { return musica::CreateTuvxFromConfigOnly(config_path, error); });
-        if (tuvx_instance == nullptr)
+        try
         {
-          throw py::value_error("Error creating TUV-x instance from config file: " + std::string(config_path));
+          auto tuvx_instance = new musica::TUVX();
+          tuvx_instance->CreateFromConfigOnly(config_path);
+          return reinterpret_cast<std::uintptr_t>(tuvx_instance);
         }
-        return reinterpret_cast<std::uintptr_t>(tuvx_instance);
+        catch (const std::exception& e)
+        {
+          throw py::value_error(
+              "Error creating TUV-x instance from config file: " + std::string(config_path) + " - " + e.what());
+        }
       },
       "Create a TUV-x instance from a JSON configuration file");
 

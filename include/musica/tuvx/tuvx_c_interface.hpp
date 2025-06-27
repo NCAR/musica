@@ -22,11 +22,6 @@ namespace musica
     /// @param error Error struct to indicate success or failure
     TUVX *CreateTuvx(const char *config_path, GridMap *grids, ProfileMap *profiles, RadiatorMap *radiators, Error *error);
 
-    /// @brief Creates a TUVX instance from a configuration file only (simplified interface)
-    /// @param config_path Path to configuration file
-    /// @param error Error struct to indicate success or failure
-    TUVX *CreateTuvxFromConfigOnly(const char *config_path, Error *error);
-
     /// @brief Deletes a TUVX instance
     /// @param tuvx Pointer to TUVX instance
     /// @param error Error struct to indicate success or failure
