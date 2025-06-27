@@ -22,7 +22,7 @@ namespace musica
    public:
     TUVX();
 
-    /// @brief Create an instance of tuvx from a configuration file with full control
+    /// @brief Create an instance of tuvx from a configuration file
     /// @param config_path Path to configuration file
     /// @param grids Grid map from host application
     /// @param profiles Profile map from host application
@@ -121,7 +121,7 @@ namespace musica
    private:
     void *tuvx_;
     int number_of_layers_;
-    bool is_config_only_mode_;  // Track which interface mode we're using
+    bool is_config_only_mode_;
   };
 
 }  // namespace musica
