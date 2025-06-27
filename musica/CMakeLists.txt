@@ -13,7 +13,6 @@ set(
     mechanism_configuration.cpp 
     musica.cpp 
     tuvx.cpp
-
     ${MUSICA_SOURCES}
 )
 
