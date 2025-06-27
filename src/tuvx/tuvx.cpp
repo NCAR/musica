@@ -200,114 +200,92 @@ namespace musica
     }
   }
 
-  void TUVX::RunFromConfig(double *const photolysis_rate_constants, double *const heating_rates, Error *const error)
+  void TUVX::RunFromConfig(double *const photolysis_rate_constants, double *const heating_rates)
   {
-    *error = NoError();
     if (!is_config_only_mode_)
     {
-      *error = Error{ 1,
-                      CreateString(MUSICA_ERROR_CATEGORY),
-                      CreateString("RunFromConfig can only be used with CreateFromConfigOnly") };
-      return;
+      throw std::runtime_error("RunFromConfig can only be used with CreateFromConfigOnly");
     }
 
     int error_code = 0;
     run_tuvx_c(tuvx_, photolysis_rate_constants, heating_rates, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to run TUV-x from config") };
+      throw std::runtime_error("Failed to run TUV-x from config");
     }
   }
 
-  int TUVX::GetPhotolysisRateCount(Error *error)
+  int TUVX::GetPhotolysisRateCount()
   {
-    *error = NoError();
     if (!is_config_only_mode_)
     {
-      *error =
-          Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("GetPhotolysisRateCount requires config-only mode") };
-      return 0;
+      throw std::runtime_error("GetPhotolysisRateCount requires config-only mode");
     }
 
     int error_code = 0;
     int count = get_photolysis_rate_count_c(tuvx_, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get photolysis rate count") };
-      return 0;
+      throw std::runtime_error("Failed to get photolysis rate count");
     }
     return count;
   }
 
-  int TUVX::GetHeatingRateCount(Error *error)
+  int TUVX::GetHeatingRateCount()
   {
-    *error = NoError();
     if (!is_config_only_mode_)
     {
-      *error =
-          Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("GetHeatingRateCount requires config-only mode") };
-      return 0;
+      throw std::runtime_error("GetHeatingRateCount requires config-only mode");
     }
 
     int error_code = 0;
     int count = get_heating_rate_count_c(tuvx_, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get heating rate count") };
-      return 0;
+      throw std::runtime_error("Failed to get heating rate count");
     }
     return count;
   }
 
-  int TUVX::GetNumberOfLayers(Error *error)
+  int TUVX::GetNumberOfLayers()
   {
-    *error = NoError();
     if (!is_config_only_mode_)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("GetNumberOfLayers requires config-only mode") };
-      return 0;
+      throw std::runtime_error("GetNumberOfLayers requires config-only mode");
     }
 
     int error_code = 0;
     int count = get_number_of_layers_c(tuvx_, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get number of layers") };
-      return 0;
+      throw std::runtime_error("Failed to get number of layers");
     }
     return count;
   }
 
-  int TUVX::GetNumberOfSzaSteps(Error *error)
+  int TUVX::GetNumberOfSzaSteps()
   {
-    *error = NoError();
     if (!is_config_only_mode_)
     {
-      *error =
-          Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("GetNumberOfSzaSteps requires config-only mode") };
-      return 0;
+      throw std::runtime_error("GetNumberOfSzaSteps requires config-only mode");
     }
 
     int error_code = 0;
     int count = get_number_of_sza_steps_c(tuvx_, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get number of SZA steps") };
-      return 0;
+      throw std::runtime_error("Failed to get number of SZA steps");
     }
     return count;
   }
 
-  std::vector<std::string> TUVX::GetPhotolysisRateNames(Error *error)
+  std::vector<std::string> TUVX::GetPhotolysisRateNames()
   {
-    *error = NoError();
     std::vector<std::string> names;
 
     if (!is_config_only_mode_)
     {
-      *error =
-          Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("GetPhotolysisRateNames requires config-only mode") };
-      return names;
+      throw std::runtime_error("GetPhotolysisRateNames requires config-only mode");
     }
 
     // For now, return placeholder names since we'd need to implement
@@ -316,8 +294,7 @@ namespace musica
     int count = get_photolysis_rate_count_c(tuvx_, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get photolysis rate count") };
-      return names;
+      throw std::runtime_error("Failed to get photolysis rate count");
     }
 
     for (int i = 0; i < count; ++i)
@@ -327,16 +304,13 @@ namespace musica
     return names;
   }
 
-  std::vector<std::string> TUVX::GetHeatingRateNames(Error *error)
+  std::vector<std::string> TUVX::GetHeatingRateNames()
   {
-    *error = NoError();
     std::vector<std::string> names;
 
     if (!is_config_only_mode_)
     {
-      *error =
-          Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("GetHeatingRateNames requires config-only mode") };
-      return names;
+      throw std::runtime_error("GetHeatingRateNames requires config-only mode");
     }
 
     // For now, return placeholder names since we'd need to implement
@@ -345,8 +319,7 @@ namespace musica
     int count = get_heating_rate_count_c(tuvx_, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get heating rate count") };
-      return names;
+      throw std::runtime_error("Failed to get heating rate count");
     }
 
     for (int i = 0; i < count; ++i)

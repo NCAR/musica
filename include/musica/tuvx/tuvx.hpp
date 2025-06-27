@@ -11,6 +11,7 @@
 #include <musica/util.hpp>
 
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -83,38 +84,38 @@ namespace musica
     /// photolysis rates and heating rates directly.
     /// @param photolysis_rate_constants Output array for photolysis rates [s^-1] (layer, reaction)
     /// @param heating_rates Output array for heating rates [K/s] (layer, reaction)
-    /// @param error Error struct to indicate success or failure
-    void RunFromConfig(double *const photolysis_rate_constants, double *const heating_rates, Error *const error);
+    /// @throws std::runtime_error if operation fails
+    void RunFromConfig(double *const photolysis_rate_constants, double *const heating_rates);
 
     /// @brief Get the number of photolysis reactions
-    /// @param error Error struct to indicate success or failure
     /// @return Number of photolysis reactions
-    int GetPhotolysisRateCount(Error *error);
+    /// @throws std::runtime_error if operation fails
+    int GetPhotolysisRateCount();
 
     /// @brief Get the number of heating rate types
-    /// @param error Error struct to indicate success or failure
     /// @return Number of heating rate types
-    int GetHeatingRateCount(Error *error);
+    /// @throws std::runtime_error if operation fails
+    int GetHeatingRateCount();
 
     /// @brief Get the number of vertical layers
-    /// @param error Error struct to indicate success or failure
     /// @return Number of vertical layers
-    int GetNumberOfLayers(Error *error);
+    /// @throws std::runtime_error if operation fails
+    int GetNumberOfLayers();
 
     /// @brief Get the number of solar zenith angle steps
-    /// @param error Error struct to indicate success or failure
     /// @return Number of solar zenith angle steps
-    int GetNumberOfSzaSteps(Error *error);
+    /// @throws std::runtime_error if operation fails
+    int GetNumberOfSzaSteps();
 
     /// @brief Get photolysis rate names (simple interface)
-    /// @param error Error struct to indicate success or failure
     /// @return Vector of photolysis rate names
-    std::vector<std::string> GetPhotolysisRateNames(Error *error);
+    /// @throws std::runtime_error if operation fails
+    std::vector<std::string> GetPhotolysisRateNames();
 
     /// @brief Get heating rate names (simple interface)
-    /// @param error Error struct to indicate success or failure
     /// @return Vector of heating rate names
-    std::vector<std::string> GetHeatingRateNames(Error *error);
+    /// @throws std::runtime_error if operation fails
+    std::vector<std::string> GetHeatingRateNames();
 
     ~TUVX();
 
