@@ -93,12 +93,14 @@ TEST(Util, FindMappingIndex)
 TEST(Util, IndexMappingFromString)
 {
   Error error = NoError();
-  Configuration config = LoadConfigurationFromString(
+  Configuration config;
+  LoadConfigurationFromString(
       "- source: Test\n"
       "  target: Test2\n"
       "- source: Test2\n"
       "  target: Test3\n"
       "  scale factor: 0.82\n",
+      &config,
       &error);
   EXPECT_TRUE(IsSuccess(error));
   Mappings source_map;
@@ -109,7 +111,8 @@ TEST(Util, IndexMappingFromString)
   source_map.size_ = 2;
   target_map.mappings_ = target_map_array;
   target_map.size_ = 2;
-  IndexMappings index_mappings = CreateIndexMappings(config, IndexMappingOptions::MapAll, source_map, target_map, &error);
+  IndexMappings index_mappings;
+  CreateIndexMappings(config, IndexMappingOptions::MapAll, source_map, target_map, &index_mappings, &error);
   EXPECT_TRUE(IsSuccess(error));
   EXPECT_EQ(index_mappings.mappings_[0].source_, 1);
   EXPECT_EQ(index_mappings.mappings_[0].target_, 2);
@@ -138,7 +141,8 @@ TEST(Util, IndexMappingFromString)
 TEST(Util, IndexMappingFromFile)
 {
   Error error = NoError();
-  Configuration config = LoadConfigurationFromFile("test/data/util_index_mapping_from_file.json", &error);
+  Configuration config;
+  LoadConfigurationFromFile("test/data/util_index_mapping_from_file.json", &config, &error);
   EXPECT_TRUE(IsSuccess(error));
   Mappings source_map;
   Mappings target_map;
@@ -148,7 +152,8 @@ TEST(Util, IndexMappingFromFile)
   source_map.size_ = 2;
   target_map.mappings_ = target_map_array;
   target_map.size_ = 2;
-  IndexMappings index_mappings = CreateIndexMappings(config, IndexMappingOptions::MapAll, source_map, target_map, &error);
+  IndexMappings index_mappings;
+  CreateIndexMappings(config, IndexMappingOptions::MapAll, source_map, target_map, &index_mappings, &error);
   EXPECT_TRUE(IsSuccess(error));
   EXPECT_EQ(index_mappings.mappings_[0].source_, 1);
   EXPECT_EQ(index_mappings.mappings_[0].target_, 2);
@@ -177,7 +182,8 @@ TEST(Util, IndexMappingFromFile)
 TEST(Util, IndexMappingMissingSource)
 {
   Error error = NoError();
-  Configuration config = LoadConfigurationFromString(
+  Configuration config;
+  LoadConfigurationFromString(
       "- source: Test\n"
       "  target: Test2\n"
       "- source: Test2\n"
@@ -185,6 +191,7 @@ TEST(Util, IndexMappingMissingSource)
       "  scale factor: 0.82\n"
       "- source: Test4\n"
       "  target: Test2\n",
+      &config,
       &error);
   EXPECT_TRUE(IsSuccess(error));
   Mappings source_map;
@@ -195,11 +202,12 @@ TEST(Util, IndexMappingMissingSource)
   source_map.size_ = 2;
   target_map.mappings_ = target_map_array;
   target_map.size_ = 2;
-  IndexMappings index_mappings = CreateIndexMappings(config, IndexMappingOptions::MapAll, source_map, target_map, &error);
+  IndexMappings index_mappings;
+  CreateIndexMappings(config, IndexMappingOptions::MapAll, source_map, target_map, &index_mappings, &error);
   EXPECT_EQ(error.code_, MUSICA_ERROR_CODE_MAPPING_NOT_FOUND);
   EXPECT_EQ(index_mappings.size_, 0);
   EXPECT_EQ(index_mappings.mappings_, nullptr);
-  index_mappings = CreateIndexMappings(config, IndexMappingOptions::MapAny, source_map, target_map, &error);
+  CreateIndexMappings(config, IndexMappingOptions::MapAny, source_map, target_map, &index_mappings, &error);
   EXPECT_TRUE(IsSuccess(error));
   EXPECT_EQ(index_mappings.mappings_[0].source_, 1);
   EXPECT_EQ(index_mappings.mappings_[0].target_, 2);
@@ -228,7 +236,8 @@ TEST(Util, IndexMappingMissingSource)
 TEST(Util, IndexMappingMissingTarget)
 {
   Error error = NoError();
-  Configuration config = LoadConfigurationFromString(
+  Configuration config;
+  LoadConfigurationFromString(
       "- source: Test\n"
       "  target: Test2\n"
       "- source: Test2\n"
@@ -236,6 +245,7 @@ TEST(Util, IndexMappingMissingTarget)
       "  scale factor: 0.82\n"
       "- source: Test\n"
       "  target: Test4\n",
+      &config,
       &error);
   EXPECT_TRUE(IsSuccess(error));
   Mappings source_map;
@@ -246,11 +256,12 @@ TEST(Util, IndexMappingMissingTarget)
   source_map.size_ = 2;
   target_map.mappings_ = target_map_array;
   target_map.size_ = 2;
-  IndexMappings index_mappings = CreateIndexMappings(config, IndexMappingOptions::MapAll, source_map, target_map, &error);
+  IndexMappings index_mappings;
+  CreateIndexMappings(config, IndexMappingOptions::MapAll, source_map, target_map, &index_mappings, &error);
   EXPECT_EQ(error.code_, MUSICA_ERROR_CODE_MAPPING_NOT_FOUND);
   EXPECT_EQ(index_mappings.size_, 0);
   EXPECT_EQ(index_mappings.mappings_, nullptr);
-  index_mappings = CreateIndexMappings(config, IndexMappingOptions::MapAny, source_map, target_map, &error);
+  CreateIndexMappings(config, IndexMappingOptions::MapAny, source_map, target_map, &index_mappings, &error);
   EXPECT_TRUE(IsSuccess(error));
   EXPECT_EQ(index_mappings.mappings_[0].source_, 1);
   EXPECT_EQ(index_mappings.mappings_[0].target_, 2);
@@ -279,12 +290,14 @@ TEST(Util, IndexMappingMissingTarget)
 TEST(Util, IndexMappingUndefinedOptions)
 {
   Error error = NoError();
-  Configuration config = LoadConfigurationFromString(
+  Configuration config;
+  LoadConfigurationFromString(
       "- source: Test\n"
       "  target: Test2\n"
       "- source: Test2\n"
       "  target: Test3\n"
       "  scale factor: 0.82\n",
+      &config,
       &error);
   EXPECT_TRUE(IsSuccess(error));
   Mappings source_map;
@@ -295,8 +308,8 @@ TEST(Util, IndexMappingUndefinedOptions)
   source_map.size_ = 2;
   target_map.mappings_ = target_map_array;
   target_map.size_ = 2;
-  IndexMappings index_mappings =
-      CreateIndexMappings(config, IndexMappingOptions::UndefinedMapping, source_map, target_map, &error);
+  IndexMappings index_mappings;
+  CreateIndexMappings(config, IndexMappingOptions::UndefinedMapping, source_map, target_map, &index_mappings, &error);
   EXPECT_EQ(error.code_, MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED);
   EXPECT_EQ(index_mappings.size_, 0);
   EXPECT_EQ(index_mappings.mappings_, nullptr);
