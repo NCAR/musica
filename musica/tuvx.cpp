@@ -1,7 +1,6 @@
 #include "binding_common.hpp"
 
 #include <musica/tuvx/tuvx.hpp>
-#include <musica/tuvx/tuvx_c_interface.hpp>
 
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
@@ -34,7 +33,7 @@ void bind_tuvx(py::module_& tuvx)
       [](std::uintptr_t tuvx_ptr)
       {
         musica::TUVX* tuvx_instance = reinterpret_cast<musica::TUVX*>(tuvx_ptr);
-        HandleMusicaErrorsVoid([&](musica::Error* error) { musica::DeleteTuvx(tuvx_instance, error); });
+        delete tuvx_instance;
       },
       "Delete a TUV-x instance");
 
