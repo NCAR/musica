@@ -108,7 +108,7 @@ class CondensedPhaseArrhenius(_CondensedPhaseArrhenius):
             "D": instance.D,
             "E": instance.E,
             "reactants": ReactionComponentSerializer.serialize_list_reaction_components(instance.reactants),
-            "products":  ReactionComponentSerializer.serialize_list_reaction_components(instance.products),
+            "products": ReactionComponentSerializer.serialize_list_reaction_components(instance.products),
             "aerosol phase": instance.aerosol_phase,
             "aerosol-phase water": instance.aerosol_phase_water,
         }

@@ -169,7 +169,6 @@ class State():
                     state.user_defined_rate_parameters[i_param * param_stride + i_cell * cell_stride] = value[k]
                     k += 1
 
-
     def set_conditions(self,
                        temperatures: Union[Union[float, int], List[Union[float, int]]],
                        pressures: Union[Union[float, int], List[Union[float, int]]],
