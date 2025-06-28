@@ -35,7 +35,6 @@ gpu = [
 [tool.scikit-build]
 cmake.build-type = "Release"
 cmake.define.MUSICA_ENABLE_PYTHON_LIBRARY = "ON"
-cmake.define.MUSICA_ENABLE_TUVX = "OFF"
 cmake.define.MUSICA_BUILD_FORTRAN_INTERFACE = "OFF"
 cmake.define.MUSICA_ENABLE_TESTS = "OFF"
 cmake.define.CMAKE_POLICY_VERSION_MINIMUM = "3.5"
