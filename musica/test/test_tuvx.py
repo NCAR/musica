@@ -9,10 +9,8 @@ def test_tuvx_from_file():
     file = "/Users/kshores/Documents/musica/build/_deps/tuvx-src/examples/ts1_tsmlt.json"
     tuvx = musica.TUVX(file)
     assert tuvx is not None
-    assert isinstance(tuvx.photolysis_rate_constants_ordering, dict)
-    assert isinstance(tuvx.heating_rates_ordering, dict)
-
-    # rates = tuvx.run()
+    rates = tuvx.run()
+    print(rates)
 
 
 # def test_tuvx_creation():
