@@ -79,9 +79,9 @@ namespace musica
         error);
   }
 
-  void MicmVersion(String* micmVersion)
+  void MicmVersion(String* output)
   {
-    *micmVersion = CreateString(micm::GetMicmVersion());
+    *output = CreateString(micm::GetMicmVersion());
   }
 
   template<typename T>

@@ -69,7 +69,7 @@ module musica_micm
 
     subroutine get_micm_version_c(micmVersion) bind(C, name="MicmVersion")
       use musica_util, only: string_t_c
-      type(string_t_c), intent(out)             :: micmVersion
+      type(string_t_c), intent(out)             :: output
     end subroutine get_micm_version_c
 
     subroutine get_species_property_string_c(micm, species_name, property_name, output, error) &

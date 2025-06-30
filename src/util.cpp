@@ -189,7 +189,6 @@ namespace musica
     DeleteError(error);
     std::size_t size = configuration.data_->size();
     std::vector<IndexMapping> mappings;
-    //IndexMappings index_mappings;
     indexMappings->size_ = 0;
     if (map_options == IndexMappingOptions::UndefinedMapping)
     {

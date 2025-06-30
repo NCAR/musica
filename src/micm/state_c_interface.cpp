@@ -120,7 +120,7 @@ namespace musica
         }
         *mappings = species_ordering;
         *error = NoError();
-        return species_ordering;
+        return;
       },
       error);
   }
@@ -145,7 +145,7 @@ namespace musica
         }
         *mappings = reaction_rates;
         *error = NoError();
-        return reaction_rates;
+        return;
       },
       error);
   }
