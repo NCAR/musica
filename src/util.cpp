@@ -16,7 +16,13 @@ namespace
 
 namespace musica
 {
-
+  /*void CreateString(const char* value, String *output)
+  {
+    output->size_ = std::strlen(value);
+    output->value_ = new char[output->size_ + 1];
+    std::strcpy(output->value_, value);
+  }*/
+ 
   String CreateString(const char* value)
   {
     String str;
@@ -34,6 +40,11 @@ namespace musica
     str->size_ = 0;
   }
 
+  void NoError(Error* output)
+  {
+    *output = ToError("", 0, "Success");
+  }
+
   Error NoError()
   {
     return ToError("", 0, "Success");
@@ -42,6 +53,13 @@ namespace musica
   Error ToError(const char* category, int code)
   {
     return ToError(category, code, "");
+  }
+
+  void ToError(const char* category, int code, const char* message, Error* output)
+  {
+    output->code_ = code;
+    output->category_ = CreateString(category);
+    output->message_ = CreateString(message);
   }
 
   Error ToError(const char* category, int code, const char* message)

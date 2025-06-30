@@ -90,7 +90,8 @@ const size_t MUSICA_VECTOR_SIZE = 0;
 
     /// @brief Casts a char* to a String
     /// @param value The char* to cast
-    /// @return The casted String
+    /// @param output The casted String
+    //void CreateString(const char* value, String *output);
     String CreateString(const char* value);
 
     /// @brief Deletes a String
@@ -98,15 +99,15 @@ const size_t MUSICA_VECTOR_SIZE = 0;
     void DeleteString(String* str);
 
     /// @brief Creates an Error indicating no error
-    /// @return The Error
-    Error NoError();
+    /// @param output The Error
+    void NoError(Error* output);
 
     /// @brief Creates an Error from a category, code, and message
     /// @param category The category of the Error
     /// @param code The code of the Error
     /// @param message The message of the Error
-    /// @return The Error
-    Error ToError(const char* category, int code, const char* message);
+    /// @param output The Error
+    void ToError(const char* category, int code, const char* message, Error* output);
 
     /// @brief Loads a set of configuration data from a string
     /// @param data The string to load
@@ -189,11 +190,28 @@ const size_t MUSICA_VECTOR_SIZE = 0;
 
 #ifdef __cplusplus
   }
+
+  /// @brief Casts a char* to a String
+  /// @param value The char* to cast
+  /// @return The casted String
+ // String CreateString(const char* value);
+
   /// @brief Creates an Error from a category and code
   /// @param category The category of the Error
   /// @param code The code of the Error
   /// @return The Error
   Error ToError(const char* category, int code);
+
+  /// @brief Creates an Error indicating no error
+    /// @return The Error
+    Error NoError();
+
+  /// @brief Creates an Error from a category, code, and message
+  /// @param category The category of the Error
+  /// @param code The code of the Error
+  /// @param message The message of the Error
+  /// @return The Error
+  Error ToError(const char* category, int code, const char* message);
 
   /// @brief Creates an Error from syd::system_error
   /// @param e The std::system_error to convert

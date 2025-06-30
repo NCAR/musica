@@ -67,7 +67,7 @@ module musica_micm
       type(error_t_c),            intent(inout) :: error
     end subroutine micm_solve_c
 
-    subroutine get_micm_version_c(micmVersion) bind(C, name="MicmVersion")
+    subroutine get_micm_version_c(output) bind(C, name="MicmVersion")
       use musica_util, only: string_t_c
       type(string_t_c), intent(out)             :: output
     end subroutine get_micm_version_c
