@@ -17,8 +17,8 @@ import numpy as np
 def _check_tuvx_availability():
     """Check if TUV-x backend is available."""
     try:
-        from . import _backend
-        return hasattr(_backend, '_tuvx')
+        from ._backend_loader import tuvx_available
+        return tuvx_available()
     except (ImportError, AttributeError):
         return False
 
@@ -60,7 +60,8 @@ class TUVX:
                 f"Configuration file not found: {config_path}")
 
         # Import the backend module here to avoid circular imports
-        from . import _backend
+        from ._backend_loader import get_backend
+        _backend = get_backend()
 
         self._tuvx_instance = _backend._tuvx._create_tuvx(config_path)
         self._config_path = config_path
@@ -72,7 +73,8 @@ class TUVX:
     def __del__(self):
         """Clean up the TUV-x instance."""
         if hasattr(self, '_tuvx_instance') and self._tuvx_instance is not None:
-            from . import _backend
+            from ._backend_loader import get_backend
+            _backend = get_backend()
             _backend._tuvx._delete_tuvx(self._tuvx_instance)
 
     @property
@@ -84,7 +86,8 @@ class TUVX:
             List of photolysis rate names
         """
         if self._photolysis_names is None:
-            from . import _backend
+            from ._backend_loader import get_backend
+            _backend = get_backend()
             self._photolysis_names = _backend._tuvx._get_photolysis_rate_names(
                 self._tuvx_instance)
         return self._photolysis_names
@@ -98,7 +101,8 @@ class TUVX:
             List of heating rate names
         """
         if self._heating_names is None:
-            from . import _backend
+            from ._backend_loader import get_backend
+            _backend = get_backend()
             self._heating_names = _backend._tuvx._get_heating_rate_names(
                 self._tuvx_instance)
         return self._heating_names
@@ -115,7 +119,8 @@ class TUVX:
             - photolysis_rate_constants: Shape (n_layers, n_reactions) [s^-1]
             - heating_rates: Shape (n_layers, n_heating_rates) [K s^-1]
         """
-        from . import _backend
+        from ._backend_loader import get_backend
+        _backend = get_backend()
 
         photolysis_rates, heating_rates = _backend._tuvx._run_tuvx(
             self._tuvx_instance)
