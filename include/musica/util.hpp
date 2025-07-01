@@ -110,15 +110,15 @@ const size_t MUSICA_VECTOR_SIZE = 0;
 
     /// @brief Loads a set of configuration data from a string
     /// @param data The string to load
-    /// @param error The Error to populate if the data cannot be loaded
-    /// @param configuration The Configuration
-    void LoadConfigurationFromString(const char* data, Configuration* configuration, Error* error);
+    /// @param output The Configuration
+    /// @param error The Error to populate if the data cannot be loaded    
+    void LoadConfigurationFromString(const char* data, Configuration* output, Error* error);
 
     /// @brief Loads a set of configuration data from a file
     /// @param filename The file to load
-    /// @param error The Error to populate if the data cannot be loaded
-    /// @param configuration The Configuration
-    void LoadConfigurationFromFile(const char* filename, Configuration* configuration, Error* error);
+    /// @param output The Configuration
+    /// @param error The Error to populate if the data cannot be loaded    
+    void LoadConfigurationFromFile(const char* filename, Configuration* output, Error* error);
 
     /// @brief Allocates an array of Mappings
     /// @param size The size of the array
@@ -127,8 +127,8 @@ const size_t MUSICA_VECTOR_SIZE = 0;
 
     /// @brief Allocate a new Mappings struct
     /// @param size The size of the Mappings
-    /// @param mappings The Mappings
-    void CreateMappings(std::size_t size, Mappings* mappings);
+    /// @param output The Mappings
+    void CreateMappings(std::size_t size, Mappings* output);
 
     /// @brief Finds the index of a Mapping by name
     /// @param mappings The array of Mappings
@@ -142,14 +142,14 @@ const size_t MUSICA_VECTOR_SIZE = 0;
     /// @param map_options The options for mapping
     /// @param source The source array of name-index Mappings
     /// @param target The target array of name-index Mappings
-    /// @param indexMappings The array of IndexMappings
+    /// @param output The array of IndexMappings
     /// @param error The Error to populate if a Mapping is not found
     void CreateIndexMappings(
         const Configuration configuration,
         const IndexMappingOptions map_options,
         Mappings source,
         const Mappings target,
-        IndexMappings *indexMappings,
+        IndexMappings *output,
         Error* error);
 
     /// @brief Returns the number of elements in an IndexMappings container

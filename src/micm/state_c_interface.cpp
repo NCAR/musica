@@ -100,7 +100,7 @@ namespace musica
         error);
   }
 
-  void GetSpeciesOrdering(musica::State* state, Mappings* mappings, Error* error)
+  void GetSpeciesOrdering(musica::State* state, Mappings* output, Error* error)
   {
     HandleErrors(
       [&]()
@@ -118,7 +118,7 @@ namespace musica
           species_ordering.mappings_[i] = ToMapping(entry.first.c_str(), entry.second);
           ++i;
         }
-        *mappings = species_ordering;
+        *output = species_ordering;
         *error = NoError();
         return;
       },

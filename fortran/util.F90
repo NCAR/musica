@@ -178,19 +178,19 @@ module musica_util
       type(string_t_c), intent(inout) :: string
     end subroutine delete_string_c
     
-    subroutine load_configuration_from_string_c( string, configuration, error ) &
+    subroutine load_configuration_from_string_c( string, output, error ) &
         bind(c, name="LoadConfigurationFromString")
       import :: configuration_t_c, c_char, error_t_c
       character(kind=c_char, len=1), intent(in) :: string(*)
-      type(configuration_t_c), intent(out)      :: configuration
+      type(configuration_t_c), intent(out)      :: output
       type(error_t_c), intent(inout) :: error
     end subroutine load_configuration_from_string_c
     
-    subroutine load_configuration_from_file_c( file, configuration, error ) &
+    subroutine load_configuration_from_file_c( file, output, error ) &
         bind(c, name="LoadConfigurationFromFile")
       import :: configuration_t_c, c_char, error_t_c
       character(kind=c_char, len=1), intent(in) :: file(*)
-      type(configuration_t_c), intent(out)      :: configuration
+      type(configuration_t_c), intent(out)      :: output
       type(error_t_c), intent(inout) :: error
     end subroutine load_configuration_from_file_c
     
@@ -200,13 +200,13 @@ module musica_util
       type(configuration_t_c), intent(inout) :: configuration
     end subroutine delete_configuration_c
     
-    subroutine create_mappings_c( size, mappings ) bind(c, name="CreateMappings")
+    subroutine create_mappings_c( size, output ) bind(c, name="CreateMappings")
       import :: mappings_t_c, c_size_t
       integer(c_size_t), value, intent(in) :: size
-      type(mappings_t_c), intent(out) :: mappings
+      type(mappings_t_c), intent(out) :: output
     end subroutine create_mappings_c
     
-    subroutine create_index_mappings_c(configuration, options, source, target, index_mappings, error) &
+    subroutine create_index_mappings_c(configuration, options, source, target, output, error) &
       bind(c, name="CreateIndexMappings")
       import :: index_mappings_t_c, configuration_t_c, error_t_c, &
                 mappings_t_c, c_int
@@ -214,7 +214,7 @@ module musica_util
       integer(c_int),          value, intent(in)    :: options
       type(mappings_t_c),      value, intent(in)    :: source
       type(mappings_t_c),      value, intent(in)    :: target
-      type(index_mappings_t_c),       intent(out)    :: index_mappings
+      type(index_mappings_t_c),       intent(out)    :: output
       type(error_t_c),                intent(inout) :: error
     end subroutine create_index_mappings_c
     

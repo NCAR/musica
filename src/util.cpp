@@ -90,32 +90,32 @@ namespace musica
     return !(lhs == rhs);
   }
 
-  void LoadConfigurationFromString(const char* data, Configuration* configuration, Error* error)
+  void LoadConfigurationFromString(const char* data, Configuration* output, Error* error)
   {
     DeleteError(error);
     try
     {
-      configuration->data_ = new YAML::Node(YAML::Load(data));
+      output->data_ = new YAML::Node(YAML::Load(data));
       *error = NoError();
     }
     catch (const std::exception& e)
     {
-      configuration->data_ = nullptr;
+      output->data_ = nullptr;
       *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_PARSING_FAILED, e.what());
     }
   }
 
-  void LoadConfigurationFromFile(const char* filename, Configuration* configuration, Error* error)
+  void LoadConfigurationFromFile(const char* filename, Configuration* output, Error* error)
   {
     DeleteError(error);
     try
     {
-      configuration->data_ = new YAML::Node(YAML::LoadFile(filename));
+      output->data_ = new YAML::Node(YAML::LoadFile(filename));
       *error = NoError();
     }
     catch (const std::exception& e)
     {
-      configuration->data_ = nullptr;
+      output->data_ = nullptr;
       *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_PARSING_FAILED, e.what());
     }
   }
@@ -140,10 +140,10 @@ namespace musica
     return new Mapping[size];
   }
 
-  void CreateMappings(std::size_t size, Mappings* mappings)
+  void CreateMappings(std::size_t size, Mappings* output)
   {
-    mappings->mappings_ = new Mapping[size];
-    mappings->size_ = size;
+    output->mappings_ = new Mapping[size];
+    output->size_ = size;
   }
 
   std::size_t FindMappingIndex(const Mappings mappings, const char* name, Error* error)
@@ -183,13 +183,13 @@ namespace musica
       const IndexMappingOptions map_options,
       const Mappings source,
       const Mappings target,
-      IndexMappings *indexMappings,
+      IndexMappings *output,
       Error* error)
   {
     DeleteError(error);
     std::size_t size = configuration.data_->size();
     std::vector<IndexMapping> mappings;
-    indexMappings->size_ = 0;
+    output->size_ = 0;
     if (map_options == IndexMappingOptions::UndefinedMapping)
     {
       *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED, "Mapping options are undefined");
@@ -243,11 +243,11 @@ namespace musica
       }
       mappings.push_back({ source_index, target_index, scale_factor });
     }
-    indexMappings->mappings_ = new IndexMapping[mappings.size()];
-    indexMappings->size_ = mappings.size();
+    output->mappings_ = new IndexMapping[mappings.size()];
+    output->size_ = mappings.size();
     for (std::size_t i = 0; i < mappings.size(); i++)
     {
-      indexMappings->mappings_[i] = mappings[i];
+      output->mappings_[i] = mappings[i];
     }
     return;
   }
