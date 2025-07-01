@@ -5,6 +5,25 @@ import os
 import json
 import numpy as np
 
+# Check if TUV-x is available
+
+
+def is_tuvx_available():
+    try:
+        # Try to import the TUV-x related functionality
+        from musica.tuvx import _check_tuvx_availability
+        return _check_tuvx_availability()
+    except ImportError:
+        return False
+
+
+# Skip all TUV-x tests if TUV-x is not available
+pytestmark = pytest.mark.skipif(
+    not is_tuvx_available(),
+    reason="TUV-x is not available on this platform (Windows not supported)"
+)
+
+
 def test_tuvx_from_file(monkeypatch):
     monkeypatch.chdir("src")
     file = "test/data/tuvx/fixed/config.json"
@@ -88,3 +107,20 @@ def test_tuvx_from_file(monkeypatch):
 
 if __name__ == '__main__':
     pytest.main([__file__])
+
+
+def test_tuvx_unavailable_error():
+    """Test that appropriate error is raised when TUV-x is not available."""
+    # This test will only run when TUV-x is not available
+    if is_tuvx_available():
+        pytest.skip("TUV-x is available, cannot test unavailability error")
+
+    from musica.tuvx import TUVXNotAvailableError, TUVX, create_tuvx
+
+    # Test that creating TUVX raises the correct error
+    with pytest.raises(TUVXNotAvailableError, match="TUV-x is not available on this platform"):
+        TUVX("dummy_config.json")
+
+    # Test that create_tuvx raises the correct error
+    with pytest.raises(TUVXNotAvailableError, match="TUV-x is not available on this platform"):
+        create_tuvx({"dummy": "config"})

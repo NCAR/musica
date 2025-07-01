@@ -4,12 +4,28 @@ TUV-x photolysis calculator Python interface.
 This module provides a simplified Python interface to the TUV-x photolysis calculator.
 It allows users to create a TUV-x instance from a JSON configuration file and 
 calculate photolysis rates and heating rates.
+
+Note: TUV-x is only available on macOS and Linux platforms.
 """
 
 import os
 import json
 from typing import Dict, Tuple, Union, List
 import numpy as np
+
+
+def _check_tuvx_availability():
+    """Check if TUV-x backend is available."""
+    try:
+        from . import _backend
+        return hasattr(_backend, '_tuvx')
+    except (ImportError, AttributeError):
+        return False
+
+
+class TUVXNotAvailableError(Exception):
+    """Raised when TUV-x functionality is not available on this platform."""
+    pass
 
 
 class TUVX:
@@ -31,7 +47,14 @@ class TUVX:
         Raises:
             FileNotFoundError: If the configuration file doesn't exist
             ValueError: If TUV-x initialization fails
+            TUVXNotAvailableError: If TUV-x is not available on this platform
         """
+        if not _check_tuvx_availability():
+            raise TUVXNotAvailableError(
+                "TUV-x is not available on this platform. "
+                "TUV-x is currently only supported on macOS and Linux."
+            )
+
         if not os.path.exists(config_path):
             raise FileNotFoundError(
                 f"Configuration file not found: {config_path}")
@@ -197,7 +220,16 @@ def create_tuvx(config_input: Union[str, Dict]) -> TUVX:
 
     Returns:
         TUVX instance
+
+    Raises:
+        TUVXNotAvailableError: If TUV-x is not available on this platform
     """
+    if not _check_tuvx_availability():
+        raise TUVXNotAvailableError(
+            "TUV-x is not available on this platform. "
+            "TUV-x is currently only supported on macOS and Linux."
+        )
+
     if isinstance(config_input, str):
         if os.path.exists(config_input):
             # It's a file path

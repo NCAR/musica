@@ -1,3 +1,4 @@
+from .types import MICM, SolverType, State, Conditions
 from ._version import version as __version__
 import importlib.util
 
@@ -49,12 +50,29 @@ _tuvx_names = [
     "_get_photolysis_rate_names", "_get_heating_rate_names"
 ]
 
+# Check if TUV-x is available
+
+
+def _tuvx_available():
+    try:
+        return hasattr(_backend, '_tuvx')
+    except AttributeError:
+        return False
+
+
 # this allows us to use the same symbols in both the GPU and CPU versionspp
 _export_all(_backend._core, _core_names, globals())
 _export_all(_backend._mechanism_configuration, _mechanism_names, globals())
-_export_all(_backend._tuvx, _tuvx_names, globals())
 
-__all__ = _core_names + _mechanism_names + _tuvx_names
-
-from .tuvx import TUVX, create_tuvx
-from .types import MICM, SolverType, State, Conditions
+# Only export TUV-x if it's available
+if _tuvx_available():
+    _export_all(_backend._tuvx, _tuvx_names, globals())
+    from .tuvx import TUVX, create_tuvx, TUVXNotAvailableError
+    __all__ = _core_names + _mechanism_names + _tuvx_names + \
+        ["TUVX", "create_tuvx", "TUVXNotAvailableError",
+            "MICM", "SolverType", "State", "Conditions"]
+else:
+    # Still export the exception for error handling
+    from .tuvx import TUVXNotAvailableError
+    __all__ = _core_names + _mechanism_names + \
+        ["TUVXNotAvailableError", "MICM", "SolverType", "State", "Conditions"]
