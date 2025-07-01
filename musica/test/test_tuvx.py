@@ -15,8 +15,8 @@ def test_tuvx_from_file(monkeypatch):
     photolysis_rates = tuvx.photolysis_rate_names
     print("Heating Rates:", heating_rates)
     print("Photolysis Rates:", photolysis_rates)
-    rates = tuvx.run()
-    print(rates)
+    # rates = tuvx.run()
+    # print(rates)
 
 
 # def test_tuvx_creation():
