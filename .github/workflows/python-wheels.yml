@@ -57,6 +57,8 @@ jobs:
           PATH=/usr/local/cuda/bin:$PATH
           LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
           BUILD_GPU=1
+        CIBW_ENVIRONMENT_WINDOWS: >
+          PATH=C:/msys64/mingw64/bin:$PATH
 
     - name: Upload wheels
       uses: actions/upload-artifact@v4

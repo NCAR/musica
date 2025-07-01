@@ -1,5 +1,5 @@
 """
-Backend selection module to avoid circular imports.
+Backend selection module for GPU/CPU backends.
 """
 import importlib.util
 
@@ -20,21 +20,16 @@ def _gpu_deps_installed():
     )
 
 
-# Set up backend selection
-if _gpu_deps_installed():
-    from . import _musica_gpu as backend
-else:
-    from . import _musica as backend
+# Backend will be loaded lazily
+_backend = None
 
 
 def get_backend():
     """Get the appropriate backend module."""
-    return backend
-
-
-def tuvx_available():
-    """Check if TUV-x is available in the backend."""
-    try:
-        return hasattr(backend, '_tuvx')
-    except AttributeError:
-        return False
+    global _backend
+    if _backend is None:
+        if _gpu_deps_installed():
+            from . import _musica_gpu as _backend
+        else:
+            from . import _musica as _backend
+    return _backend
