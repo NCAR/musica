@@ -16,3 +16,6 @@ musica.egg-info
 **/*__pycache__*
 **/*.pyc
 wheelhouse
+
+# output from TUVx on a failed run
+error.json

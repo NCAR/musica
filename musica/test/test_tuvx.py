@@ -5,10 +5,16 @@ import os
 import json
 import numpy as np
 
-def test_tuvx_from_file():
-    file = "/Users/kshores/Documents/musica/build/_deps/tuvx-src/examples/ts1_tsmlt.json"
+def test_tuvx_from_file(monkeypatch):
+    monkeypatch.chdir("src")
+    file = "test/data/tuvx/fixed/config.json"
     tuvx = musica.TUVX(file)
     assert tuvx is not None
+
+    heating_rates = tuvx.heating_rate_names
+    photolysis_rates = tuvx.photolysis_rate_names
+    print("Heating Rates:", heating_rates)
+    print("Photolysis Rates:", photolysis_rates)
     rates = tuvx.run()
     print(rates)
 
