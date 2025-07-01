@@ -1,9 +1,14 @@
-from typing import Optional, Any, Dict, List, Union, Tuple
-from musica import _Photolysis, _ReactionComponent
-from .phase import Phase
-from .species import Species
-from .reactions import ReactionComponentSerializer
 from .utils import _add_other_properties, _remove_empty_keys
+from .reactions import ReactionComponentSerializer
+from .species import Species
+from .phase import Phase
+from typing import Optional, Any, Dict, List, Union, Tuple
+from .._backend_loader import get_backend
+
+# Get backend symbols
+_backend = get_backend()
+_Photolysis = _backend._mechanism_configuration._Photolysis
+_ReactionComponent = _backend._mechanism_configuration._ReactionComponent
 
 
 class Photolysis(_Photolysis):
@@ -23,7 +28,8 @@ class Photolysis(_Photolysis):
         self,
         name: Optional[str] = None,
         scaling_factor: Optional[float] = None,
-        reactants: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
+        reactants: Optional[List[Union[Species,
+                                       Tuple[float, Species]]]] = None,
         products: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
         gas_phase: Optional[Phase] = None,
         other_properties: Optional[Dict[str, Any]] = None,

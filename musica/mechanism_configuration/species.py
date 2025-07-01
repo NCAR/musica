@@ -1,6 +1,10 @@
 from typing import Optional, Any, Dict
-from musica import _Species
+from .._backend_loader import get_backend
 from .utils import _add_other_properties, _remove_empty_keys
+
+# Get backend symbols
+_backend = get_backend()
+_Species = _backend._mechanism_configuration._Species
 
 
 class Species(_Species):

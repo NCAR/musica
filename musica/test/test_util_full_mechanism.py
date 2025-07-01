@@ -1,5 +1,4 @@
 from musica.mechanism_configuration import *
-from musica import _ReactionType
 
 
 def get_fully_defined_mechanism():
@@ -665,4 +664,4 @@ def validate_full_v1_mechanism(mechanism):
     assert len(mechanism.reactions) == 17
     for reaction in mechanism.reactions:
         assert reaction is not None
-        assert isinstance(reaction.type, _ReactionType)
+        assert isinstance(reaction.type, ReactionType)

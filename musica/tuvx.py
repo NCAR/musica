@@ -47,10 +47,10 @@ class TUVX:
         Raises:
             FileNotFoundError: If the configuration file doesn't exist
             ValueError: If TUV-x initialization fails
-            TUVXNotAvailableError: If TUV-x is not available on this platform
+            RuntimeError: If TUV-x is not available on this platform
         """
         if not _check_tuvx_availability():
-            raise TUVXNotAvailableError(
+            raise RuntimeError(
                 "TUV-x is not available on this platform. "
                 "TUV-x is currently only supported on macOS and Linux."
             )

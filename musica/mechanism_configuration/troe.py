@@ -1,9 +1,14 @@
 from typing import Optional, Any, Dict, List, Union, Tuple
-from musica import _Troe, _ReactionComponent
+from .._backend_loader import get_backend
 from .phase import Phase
 from .species import Species
 from .reactions import ReactionComponentSerializer
 from .utils import _add_other_properties, _remove_empty_keys
+
+# Get backend symbols
+_backend = get_backend()
+_Troe = _backend._mechanism_configuration._Troe
+_ReactionComponent = _backend._mechanism_configuration._ReactionComponent
 
 
 class Troe(_Troe):
@@ -37,7 +42,8 @@ class Troe(_Troe):
         kinf_C: Optional[float] = None,
         Fc: Optional[float] = None,
         N: Optional[float] = None,
-        reactants: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
+        reactants: Optional[List[Union[Species,
+                                       Tuple[float, Species]]]] = None,
         products: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
         gas_phase: Optional[Phase] = None,
         other_properties: Optional[Dict[str, Any]] = None,
