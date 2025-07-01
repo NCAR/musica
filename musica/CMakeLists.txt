@@ -12,9 +12,14 @@ set(
     cuda.cpp 
     mechanism_configuration.cpp 
     musica.cpp 
-    tuvx.cpp
     ${MUSICA_SOURCES}
 )
+
+if (MUSICA_ENABLE_TUVX)
+  list(APPEND MUSICA_PYTHON_SOURCES
+    tuvx.cpp
+  )
+endif()
 
 pybind11_add_module(_musica cpu_binding.cpp ${MUSICA_PYTHON_SOURCES})
 musica_setup_target(_musica MODE CPU)
