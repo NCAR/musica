@@ -89,6 +89,7 @@ archs = "auto"
 
 [tool.cibuildwheel.macos]
 environment.MACOSX_DEPLOYMENT_TARGET = "10.15"
+before-all = "musica/tools/prepare_build_environment_macos.sh"
 
 [tool.cibuildwheel.linux]
 before-all = "musica/tools/prepare_build_environment_linux.sh"
