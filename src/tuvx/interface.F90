@@ -328,8 +328,6 @@ contains
 
     call c_f_pointer(tuvx, core)
 
-    print *, "TUV-x address: ", c_loc(core)
-    
     ! Get grids and profiles from the configuration
     height => core%get_grid("height", "km")
     sza => core%get_profile("solar zenith angle", "degrees")
@@ -414,7 +412,6 @@ contains
     class(grid_t), pointer :: height
 
     call c_f_pointer(tuvx, core)
-    print *, "Core address: ", c_loc(core)
 
     height => core%get_grid("height", "km")
     get_number_of_layers_c = height%ncells_ + 1
