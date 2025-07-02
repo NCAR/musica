@@ -66,6 +66,13 @@ exclude_patterns = []
 
 autosummary_generate = True
 
+# -- Intersphinx mappings -------------
+intersphinx_mapping = {
+    'musica': ('http://localhost:8000/', None),
+    'micm': ('https://ncar.github.io/micm/', None),
+    'mc': ('https://ncar.github.io/MechanismConfiguration/', None),
+    'mb': ('https://ncar.github.io/music-box/',None)
+}
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
