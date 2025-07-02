@@ -6,6 +6,8 @@ import json
 import numpy as np
 
 # Check if TUV-x is available
+available = musica.backend.tuvx_available()
+@pytest.mark.skipif(not available, reason="TUV-x backend is not available")
 
 
 def test_tuvx_from_file(monkeypatch):

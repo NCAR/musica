@@ -49,7 +49,7 @@ cmake.define.MUSICA_GPU_TYPE = "None"
 
 [[tool.scikit-build.overrides]]
 if.platform-system = "win32"
-cmake.define.MUSICA_ENABLE_TUVX = "ON"
+cmake.define.MUSICA_ENABLE_TUVX = "OFF"
 
 [project.urls]
 homepage = "https://wiki.ucar.edu/display/MUSICA/MUSICA+Home"

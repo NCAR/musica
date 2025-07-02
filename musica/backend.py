@@ -28,26 +28,7 @@ def get_backend():
         import musica._musica as backend
     return backend
 
-
-# # Load backend and expose symbols at module level
-# _backend = get_backend()
-
-# # Core symbols
-# Conditions = _backend._core._Conditions
-# SolverType = _backend._core._SolverType
-# Solver = _backend._core._Solver
-# State = _backend._core._State
-# create_solver = _backend._core._create_solver
-# create_solver_from_mechanism = _backend._core._create_solver_from_mechanism
-# create_state = _backend._core._create_state
-# micm_solve = _backend._core._micm_solve
-# vector_size = _backend._core._vector_size
-# species_ordering = _backend._core._species_ordering
-# user_defined_rate_parameters_ordering = _backend._core._user_defined_rate_parameters_ordering
-
-# # Mechanism configuration
-# mechanism_configuration = _backend._mechanism_configuration
-
-# _tuvx = _backend._tuvx
-
-# _is_cuda_available = _backend._core._is_cuda_available
+def tuvx_available():
+    """Check if the TUVX backend is available."""
+    _backend = get_backend()
+    return hasattr(_backend._tuvx, "_create_tuvx")
