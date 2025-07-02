@@ -14,6 +14,7 @@ from typing import Dict, Tuple, Union, List
 import numpy as np
 from . import backend
 
+_backend = backend.get_backend()
 
 class TUVX:
     """
@@ -34,20 +35,12 @@ class TUVX:
         Raises:
             FileNotFoundError: If the configuration file doesn't exist
             ValueError: If TUV-x initialization fails
-            RuntimeError: If TUV-x support is not available in this build
         """
         if not os.path.exists(config_path):
             raise FileNotFoundError(
                 f"Configuration file not found: {config_path}")
 
-        # Check if TUV-x support is available
-        if backend._tuvx is None:
-            raise RuntimeError(
-                "TUV-x support is not available in this build. "
-                "Please rebuild MUSICA with TUV-x support enabled."
-            )
-
-        self._tuvx_instance = backend._tuvx._create_tuvx(config_path)
+        self._tuvx_instance = _backend._tuvx._create_tuvx(config_path)
         self._config_path = config_path
 
         # Cache the names for efficiency
@@ -57,7 +50,7 @@ class TUVX:
     def __del__(self):
         """Clean up the TUV-x instance."""
         if hasattr(self, '_tuvx_instance') and self._tuvx_instance is not None:
-            backend._tuvx._delete_tuvx(self._tuvx_instance)
+            _backend._tuvx._delete_tuvx(self._tuvx_instance)
 
     @property
     def photolysis_rate_names(self) -> List[str]:
@@ -68,7 +61,7 @@ class TUVX:
             List of photolysis rate names
         """
         if self._photolysis_names is None:
-            self._photolysis_names = backend._tuvx._get_photolysis_rate_names(
+            self._photolysis_names = _backend._tuvx._get_photolysis_rate_names(
                 self._tuvx_instance)
         return self._photolysis_names
 
@@ -81,7 +74,7 @@ class TUVX:
             List of heating rate names
         """
         if self._heating_names is None:
-            self._heating_names = backend._tuvx._get_heating_rate_names(
+            self._heating_names = _backend._tuvx._get_heating_rate_names(
                 self._tuvx_instance)
         return self._heating_names
 
@@ -97,7 +90,7 @@ class TUVX:
             - photolysis_rate_constants: Shape (n_layers, n_reactions) [s^-1]
             - heating_rates: Shape (n_layers, n_heating_rates) [K s^-1]
         """
-        photolysis_rates, heating_rates = backend._tuvx._run_tuvx(
+        photolysis_rates, heating_rates = _backend._tuvx._run_tuvx(
             self._tuvx_instance)
 
         return photolysis_rates, heating_rates

@@ -4,7 +4,8 @@ from .species import Species
 from .utils import _add_other_properties, _remove_empty_keys
 
 # Get backend symbols
-_Phase = backend.mechanism_configuration._Phase
+_backend = backend.get_backend()
+_Phase = _backend._mechanism_configuration._Phase
 
 
 class Phase(_Phase):

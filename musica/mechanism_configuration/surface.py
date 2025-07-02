@@ -6,8 +6,9 @@ from .reactions import ReactionComponentSerializer
 from .utils import _add_other_properties, _remove_empty_keys
 
 # Get backend symbols
-_Surface = backend.mechanism_configuration._Surface
-_ReactionComponent = backend.mechanism_configuration._ReactionComponent
+_backend = backend.get_backend()
+_Surface = _backend._mechanism_configuration._Surface
+_ReactionComponent = _backend._mechanism_configuration._ReactionComponent
 
 
 class Surface(_Surface):

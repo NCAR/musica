@@ -6,8 +6,9 @@ from .reactions import ReactionComponentSerializer
 from .utils import _add_other_properties, _remove_empty_keys
 
 # Get backend symbols
-_Troe = backend.mechanism_configuration._Troe
-_ReactionComponent = backend.mechanism_configuration._ReactionComponent
+_backend = backend.get_backend()
+_Troe = _backend._mechanism_configuration._Troe
+_ReactionComponent = _backend._mechanism_configuration._ReactionComponent
 
 
 class Troe(_Troe):

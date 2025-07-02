@@ -6,8 +6,9 @@ from typing import Optional, Any, Dict, List, Union, Tuple
 from .. import backend
 
 # Get backend symbols
-_FirstOrderLoss = backend.mechanism_configuration._FirstOrderLoss
-_ReactionComponent = backend.mechanism_configuration._ReactionComponent
+_backend = backend.get_backend()
+_FirstOrderLoss = _backend._mechanism_configuration._FirstOrderLoss
+_ReactionComponent = _backend._mechanism_configuration._ReactionComponent
 
 
 class FirstOrderLoss(_FirstOrderLoss):

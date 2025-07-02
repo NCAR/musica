@@ -6,8 +6,9 @@ from typing import Optional, Any, Dict, List, Union, Tuple
 from .. import backend
 
 # Get backend symbols
-_AqueousEquilibrium = backend.mechanism_configuration._AqueousEquilibrium
-_ReactionComponent = backend.mechanism_configuration._ReactionComponent
+_backend = backend.get_backend()
+_AqueousEquilibrium = _backend._mechanism_configuration._AqueousEquilibrium
+_ReactionComponent = _backend._mechanism_configuration._ReactionComponent
 
 
 class AqueousEquilibrium(_AqueousEquilibrium):

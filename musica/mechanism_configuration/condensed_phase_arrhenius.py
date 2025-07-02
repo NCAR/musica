@@ -7,8 +7,9 @@ from typing import Optional, Any, Dict, List, Union, Tuple
 from .. import backend
 
 # Get backend symbols
-_CondensedPhaseArrhenius = backend.mechanism_configuration._CondensedPhaseArrhenius
-_ReactionComponent = backend.mechanism_configuration._ReactionComponent
+_backend = backend.get_backend()
+_CondensedPhaseArrhenius = _backend._mechanism_configuration._CondensedPhaseArrhenius
+_ReactionComponent = _backend._mechanism_configuration._ReactionComponent
 
 
 class CondensedPhaseArrhenius(_CondensedPhaseArrhenius):

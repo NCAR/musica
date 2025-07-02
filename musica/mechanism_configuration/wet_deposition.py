@@ -4,7 +4,8 @@ from .phase import Phase
 from .utils import _add_other_properties, _remove_empty_keys
 
 # Get backend symbols
-_WetDeposition = backend.mechanism_configuration._WetDeposition
+_backend = backend.get_backend()
+_WetDeposition = _backend._mechanism_configuration._WetDeposition
 
 
 class WetDeposition(_WetDeposition):

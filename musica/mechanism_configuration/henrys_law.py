@@ -5,8 +5,9 @@ from .species import Species
 from .utils import _add_other_properties, _remove_empty_keys
 
 # Get backend symbols
-_HenrysLaw = backend.mechanism_configuration._HenrysLaw
-_ReactionComponent = backend.mechanism_configuration._ReactionComponent
+_backend = backend.get_backend()
+_HenrysLaw = _backend._mechanism_configuration._HenrysLaw
+_ReactionComponent = _backend._mechanism_configuration._ReactionComponent
 
 
 class HenrysLaw(_HenrysLaw):

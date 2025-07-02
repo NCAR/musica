@@ -6,8 +6,9 @@ from typing import Optional, Any, Dict, List, Union, Tuple
 from .. import backend
 
 # Get backend symbols
-_Tunneling = backend.mechanism_configuration._Tunneling
-_ReactionComponent = backend.mechanism_configuration._ReactionComponent
+_backend = backend.get_backend()
+_Tunneling = _backend._mechanism_configuration._Tunneling
+_ReactionComponent = _backend._mechanism_configuration._ReactionComponent
 
 
 class Tunneling(_Tunneling):

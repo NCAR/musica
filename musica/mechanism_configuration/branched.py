@@ -6,8 +6,9 @@ from typing import Optional, Any, Dict, List, Union, Tuple
 from .. import backend
 
 # Get backend symbols
-_Branched = backend.mechanism_configuration._Branched
-_ReactionComponent = backend.mechanism_configuration._ReactionComponent
+_backend = backend.get_backend()
+_Branched = _backend._mechanism_configuration._Branched
+_ReactionComponent = _backend._mechanism_configuration._ReactionComponent
 
 
 class Branched(_Branched):

@@ -6,8 +6,9 @@ from typing import Optional, Any, Dict, List, Union, Tuple
 from .. import backend
 
 # Get backend symbols
-_Photolysis = backend.mechanism_configuration._Photolysis
-_ReactionComponent = backend.mechanism_configuration._ReactionComponent
+_backend = backend.get_backend()
+_Photolysis = _backend._mechanism_configuration._Photolysis
+_ReactionComponent = _backend._mechanism_configuration._ReactionComponent
 
 
 class Photolysis(_Photolysis):
