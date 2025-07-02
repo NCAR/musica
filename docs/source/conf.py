@@ -48,6 +48,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
     'sphinx.ext.autosummary',
+    'sphinx.ext.intersphinx'
 ]
 
 breathe_default_project = "musica"
