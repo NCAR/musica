@@ -1,8 +1,13 @@
 from typing import Optional, Any, Dict, Union, Tuple
-from musica import _HenrysLaw, _ReactionComponent
+from .. import backend
 from .phase import Phase
 from .species import Species
 from .utils import _add_other_properties, _remove_empty_keys
+
+# Get backend symbols
+_backend = backend.get_backend()
+_HenrysLaw = _backend._mechanism_configuration._HenrysLaw
+_ReactionComponent = _backend._mechanism_configuration._ReactionComponent
 
 
 class HenrysLaw(_HenrysLaw):
@@ -23,10 +28,12 @@ class HenrysLaw(_HenrysLaw):
         self,
         name: Optional[str] = None,
         gas_phase: Optional[Phase] = None,
-        gas_phase_species: Optional[Union[Species, Tuple[float, Species]]] = None,
+        gas_phase_species: Optional[Union[Species,
+                                          Tuple[float, Species]]] = None,
         aerosol_phase: Optional[Phase] = None,
         aerosol_phase_water: Optional[Species] = None,
-        aerosol_phase_species: Optional[Union[Species, Tuple[float, Species]]] = None,
+        aerosol_phase_species: Optional[Union[Species,
+                                              Tuple[float, Species]]] = None,
         other_properties: Optional[Dict[str, Any]] = None,
     ):
         """

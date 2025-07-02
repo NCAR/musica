@@ -1,4 +1,5 @@
 #include <musica/tuvx/tuvx.hpp>
+#include <musica/tuvx/tuvx_c_interface.hpp>
 
 #include <gtest/gtest.h>
 

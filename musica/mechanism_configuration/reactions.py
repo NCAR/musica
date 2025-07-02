@@ -1,13 +1,13 @@
 from typing import Optional, Any, Dict, List, Union
-from musica import _ReactionType, _Reactions, _ReactionsIterator
+from .. import backend
 from .species import Species, _Species
 from .utils import _remove_empty_keys
 
-
-class ReactionType(_ReactionType):
-    """
-    A enum class representing a reaction type in a chemical mechanism.
-    """
+# Get backend symbols
+_backend = backend.get_backend()
+ReactionType = _backend._mechanism_configuration._ReactionType
+_Reactions = _backend._mechanism_configuration._Reactions
+_ReactionsIterator = _backend._mechanism_configuration._ReactionsIterator
 
 
 class Reactions(_Reactions):
@@ -57,5 +57,6 @@ class ReactionComponentSerializer():
     def serialize_list_reaction_components(reaction_component_list) -> List[Union[Dict, str]]:
         ret = []
         for rc in reaction_component_list:
-            ret.append(ReactionComponentSerializer.serialize_reaction_component(rc))
+            ret.append(
+                ReactionComponentSerializer.serialize_reaction_component(rc))
         return ret

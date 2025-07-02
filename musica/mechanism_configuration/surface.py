@@ -1,9 +1,14 @@
 from typing import Optional, Any, Dict, List, Union, Tuple
-from musica import _Surface, _ReactionComponent
+from .. import backend
 from .phase import Phase
 from .species import Species
 from .reactions import ReactionComponentSerializer
 from .utils import _add_other_properties, _remove_empty_keys
+
+# Get backend symbols
+_backend = backend.get_backend()
+_Surface = _backend._mechanism_configuration._Surface
+_ReactionComponent = _backend._mechanism_configuration._ReactionComponent
 
 
 class Surface(_Surface):
@@ -26,7 +31,8 @@ class Surface(_Surface):
         self,
         name: Optional[str] = None,
         reaction_probability: Optional[float] = None,
-        gas_phase_species: Optional[Union[Species, Tuple[float, Species]]] = None,
+        gas_phase_species: Optional[Union[Species,
+                                          Tuple[float, Species]]] = None,
         gas_phase_products: Optional[
             List[Union[Species, Tuple[float, Species]]]
         ] = None,

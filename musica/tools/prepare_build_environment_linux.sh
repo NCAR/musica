@@ -11,7 +11,15 @@ sed -i s/^mirrorlist=http/#mirrorlist=http/g /etc/yum.repos.d/*.repo
 sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
 sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
 
-yum install -y zip tree wget
+yum install -y zip tree wget netcdf netcdf-devel netcdf-fortran netcdf-fortran-devel
+
+echo "=== NetCDF Debug Info ==="
+which nc-config || echo "nc-config not found"
+which nf-config || echo "nf-config not found"
+pkg-config --list-all | grep netcdf || echo "No netcdf packages found via pkg-config"
+find /usr -name "netcdf.mod" 2>/dev/null || echo "netcdf.mod not found in /usr"
+find /usr -name "*netcdf*" -type d 2>/dev/null | head -10
+echo "========================"
 
 # Use CIBW_ARCHS or CIBW_ARCH if set, else fallback to uname -m
 if [ -n "$CIBW_ARCHS" ]; then
