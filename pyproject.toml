@@ -74,18 +74,19 @@ version = "${version}"
 # then, run something like this:
 # BUILD_GPU=1 CIBW_ARCHS=x86_64 CIBW_PLATFORM=linux CIBW_ENVIRONMENT="CUDA_PATH=/usr/local/cuda PATH=/usr/local/cuda/bin:\$PATH LD_LIBRARY_PATH=/usr/local/cuda/lib64:\$LD_LIBRARY_PATH" cibuildwheel --output-dir wheelhouse > log.txt 2>&1
 [tool.cibuildwheel]
+# Increase pip debugging output
 build-verbosity = 3
+
+# Add your desired build configuration
 build = ["cp39-*", "cp310-*", "cp311-*", "cp312-*", "cp313-*", "cp314-*", "cp315-*"]
 skip = "cp27-* cp34-* cp35-* cp36-* *musllinux*"
+archs = "auto"
+
+# Set up pre-build hook
 
 [tool.cibuildwheel.macos]
-archs = ["x86_64", "arm64", "universal2"]
 environment.MACOSX_DEPLOYMENT_TARGET = "10.15"
 
 [tool.cibuildwheel.linux]
-archs = ["x86_64", "i686", "aarch64", "ppc64le", "s390x"]
 before-all = "musica/tools/prepare_build_environment_linux.sh"
 repair-wheel-command = "bash musica/tools/repair_wheel_gpu.sh {wheel} {dest_dir}"
-
-[tool.cibuildwheel.windows]
-archs = ["AMD64", "x86", "ARM64"]
