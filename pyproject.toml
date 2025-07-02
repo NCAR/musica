@@ -89,12 +89,3 @@ repair-wheel-command = "bash musica/tools/repair_wheel_gpu.sh {wheel} {dest_dir}
 
 [tool.cibuildwheel.windows]
 archs = ["AMD64", "x86", "ARM64"]
-
-# Set up pre-build hook
-
-[tool.cibuildwheel.macos]
-environment.MACOSX_DEPLOYMENT_TARGET = "10.15"
-
-[tool.cibuildwheel.linux]
-before-all = "musica/tools/prepare_build_environment_linux.sh"
-repair-wheel-command = "bash musica/tools/repair_wheel_gpu.sh {wheel} {dest_dir}"
