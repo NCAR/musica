@@ -49,6 +49,7 @@ cmake.define.MUSICA_GPU_TYPE = "None"
 
 [[tool.scikit-build.overrides]]
 if.platform-system = "win32"
+inherit.cmake.define = "append"
 cmake.define.MUSICA_ENABLE_TUVX = "OFF"
 
 [project.urls]
