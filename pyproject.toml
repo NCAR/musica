@@ -80,7 +80,7 @@ build-verbosity = 3
 # Add your desired build configuration
 build = ["cp39-*", "cp310-*", "cp311-*", "cp312-*", "cp313-*", "cp314-*", "cp315-*"]
 skip = "cp27-* cp34-* cp35-* cp36-* *musllinux*"
-archs = ["x86_64", "i686", "aarch64", "ppc64le", "s390x", "arm64", "universal2"]
+archs = "auto"
 
 # Set up pre-build hook
 
