@@ -3,12 +3,11 @@ from .reactions import ReactionComponentSerializer
 from .species import Species
 from .phase import Phase
 from typing import Optional, Any, Dict, List, Union, Tuple
-from .._backend_loader import get_backend
+from .. import backend
 
 # Get backend symbols
-_backend = get_backend()
-_FirstOrderLoss = _backend._mechanism_configuration._FirstOrderLoss
-_ReactionComponent = _backend._mechanism_configuration._ReactionComponent
+_FirstOrderLoss = backend.mechanism_configuration._FirstOrderLoss
+_ReactionComponent = backend.mechanism_configuration._ReactionComponent
 
 
 class FirstOrderLoss(_FirstOrderLoss):

@@ -1,11 +1,10 @@
 from typing import Optional, Any, Dict
-from .._backend_loader import get_backend
+from .. import backend
 from .phase import Phase
 from .utils import _add_other_properties, _remove_empty_keys
 
 # Get backend symbols
-_backend = get_backend()
-_WetDeposition = _backend._mechanism_configuration._WetDeposition
+_WetDeposition = backend.mechanism_configuration._WetDeposition
 
 
 class WetDeposition(_WetDeposition):

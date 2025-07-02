@@ -9,23 +9,22 @@ from typing import Optional, Dict, List, Union, Tuple, TYPE_CHECKING, Any
 from os import PathLike
 import math
 
-# Import backend symbols using the backend loader to avoid circular imports
-from ._backend_loader import get_backend
-_backend = get_backend()
+# Import backend symbols from the backend module
+from . import backend
 
 # Get all the backend symbols we need
-_Conditions = _backend._core._Conditions
-_SolverType = _backend._core._SolverType
-_Solver = _backend._core._Solver
-_State = _backend._core._State
-_create_solver = _backend._core._create_solver
-_create_solver_from_mechanism = _backend._core._create_solver_from_mechanism
-_create_state = _backend._core._create_state
-_micm_solve = _backend._core._micm_solve
-_vector_size = _backend._core._vector_size
-_species_ordering = _backend._core._species_ordering
-_user_defined_rate_parameters_ordering = _backend._core._user_defined_rate_parameters_ordering
-mc = _backend._mechanism_configuration
+_Conditions = backend.Conditions
+_SolverType = backend.SolverType
+_Solver = backend.Solver
+_State = backend.State
+_create_solver = backend.create_solver
+_create_solver_from_mechanism = backend.create_solver_from_mechanism
+_create_state = backend.create_state
+_micm_solve = backend.micm_solve
+_vector_size = backend.vector_size
+_species_ordering = backend.species_ordering
+_user_defined_rate_parameters_ordering = backend.user_defined_rate_parameters_ordering
+mc = backend.mechanism_configuration
 
 
 # For type hints

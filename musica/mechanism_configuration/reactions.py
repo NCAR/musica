@@ -1,13 +1,12 @@
 from typing import Optional, Any, Dict, List, Union
-from .._backend_loader import get_backend
+from .. import backend
 from .species import Species, _Species
 from .utils import _remove_empty_keys
 
 # Get backend symbols
-_backend = get_backend()
-ReactionType = _backend._mechanism_configuration._ReactionType
-_Reactions = _backend._mechanism_configuration._Reactions
-_ReactionsIterator = _backend._mechanism_configuration._ReactionsIterator
+ReactionType = backend.mechanism_configuration._ReactionType
+_Reactions = backend.mechanism_configuration._Reactions
+_ReactionsIterator = backend.mechanism_configuration._ReactionsIterator
 
 
 class Reactions(_Reactions):

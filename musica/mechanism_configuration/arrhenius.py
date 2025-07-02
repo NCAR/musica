@@ -1,5 +1,5 @@
 from typing import Optional, Any, Dict, List, Union, Tuple
-from .._backend_loader import get_backend
+from .. import backend
 from .phase import Phase
 from .species import Species
 from .reactions import ReactionComponentSerializer
@@ -7,9 +7,8 @@ from .utils import _add_other_properties, _remove_empty_keys
 from musica.constants import BOLTZMANN
 
 # Get backend symbols
-_backend = get_backend()
-_Arrhenius = _backend._mechanism_configuration._Arrhenius
-_ReactionComponent = _backend._mechanism_configuration._ReactionComponent
+_Arrhenius = backend.mechanism_configuration._Arrhenius
+_ReactionComponent = backend.mechanism_configuration._ReactionComponent
 
 
 class Arrhenius(_Arrhenius):

@@ -4,12 +4,11 @@ from .reactions import ReactionComponentSerializer
 from .species import Species
 from .phase import Phase
 from typing import Optional, Any, Dict, List, Union, Tuple
-from .._backend_loader import get_backend
+from .. import backend
 
 # Get backend symbols
-_backend = get_backend()
-_CondensedPhaseArrhenius = _backend._mechanism_configuration._CondensedPhaseArrhenius
-_ReactionComponent = _backend._mechanism_configuration._ReactionComponent
+_CondensedPhaseArrhenius = backend.mechanism_configuration._CondensedPhaseArrhenius
+_ReactionComponent = backend.mechanism_configuration._ReactionComponent
 
 
 class CondensedPhaseArrhenius(_CondensedPhaseArrhenius):

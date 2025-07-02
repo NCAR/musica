@@ -1,5 +1,4 @@
-from ._backend_loader import get_backend
-
+from . import backend
 
 def is_cuda_available() -> bool:
     """
@@ -8,5 +7,4 @@ def is_cuda_available() -> bool:
     Returns:
         bool: True if CUDA is available, False otherwise.
     """
-    _backend = get_backend()
-    return _backend._core._is_cuda_available()
+    return backend._is_cuda_available()

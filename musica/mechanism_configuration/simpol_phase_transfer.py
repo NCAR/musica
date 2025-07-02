@@ -2,12 +2,11 @@ from .utils import _add_other_properties, _remove_empty_keys
 from .species import Species
 from .phase import Phase
 from typing import Optional, Any, Dict, List, Union, Tuple
-from .._backend_loader import get_backend
+from .. import backend
 
 # Get backend symbols
-_backend = get_backend()
-_SimpolPhaseTransfer = _backend._mechanism_configuration._SimpolPhaseTransfer
-_ReactionComponent = _backend._mechanism_configuration._ReactionComponent
+_SimpolPhaseTransfer = backend.mechanism_configuration._SimpolPhaseTransfer
+_ReactionComponent = backend.mechanism_configuration._ReactionComponent
 
 
 class SimpolPhaseTransfer(_SimpolPhaseTransfer):

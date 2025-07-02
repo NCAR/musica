@@ -1,11 +1,10 @@
 from typing import Optional, Any, Dict, List
-from .._backend_loader import get_backend
+from .. import backend
 from .species import Species
 from .utils import _add_other_properties, _remove_empty_keys
 
 # Get backend symbols
-_backend = get_backend()
-_Phase = _backend._mechanism_configuration._Phase
+_Phase = backend.mechanism_configuration._Phase
 
 
 class Phase(_Phase):

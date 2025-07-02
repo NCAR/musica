@@ -25,11 +25,10 @@ import os
 import json
 import yaml
 from typing import Optional, Any, Dict, List
-from musica._backend_loader import get_backend
+from musica import backend
 
 # Get the backend and import mechanism configuration classes
-_backend = get_backend()
-_mc = _backend._mechanism_configuration
+_mc = backend.mechanism_configuration
 _Mechanism = _mc._Mechanism
 _Version = _mc._Version
 _Parser = _mc._Parser

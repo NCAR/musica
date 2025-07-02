@@ -1,14 +1,13 @@
 from typing import Optional, Any, Dict, List, Union, Tuple
-from .._backend_loader import get_backend
+from .. import backend
 from .phase import Phase
 from .species import Species
 from .reactions import ReactionComponentSerializer
 from .utils import _add_other_properties, _remove_empty_keys
 
 # Get backend symbols
-_backend = get_backend()
-_UserDefined = _backend._mechanism_configuration._UserDefined
-_ReactionComponent = _backend._mechanism_configuration._ReactionComponent
+_UserDefined = backend.mechanism_configuration._UserDefined
+_ReactionComponent = backend.mechanism_configuration._ReactionComponent
 
 
 class UserDefined(_UserDefined):
