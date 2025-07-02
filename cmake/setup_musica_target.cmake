@@ -41,6 +41,7 @@ function(musica_setup_target target)
   endif()
 
   if (MUSICA_ENABLE_TUVX)
+    list(APPEND musica_compile_definitions MUSICA_USE_TUVX)
     target_sources(${target}
       PRIVATE
         $<TARGET_OBJECTS:tuvx_object>

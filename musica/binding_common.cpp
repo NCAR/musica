@@ -2,7 +2,9 @@
 
 void bind_cuda(py::module_ &);
 void bind_musica(py::module_ &);
+#ifdef MUSICA_USE_TUVX
 void bind_tuvx(py::module_ &);
+#endif
 
 void bind_mechanism_configuration(py::module_ &);
 
@@ -15,7 +17,9 @@ void bind_all(py::module_ &m)
 
   bind_cuda(core);
   bind_musica(core);
+#ifdef MUSICA_USE_TUVX
   bind_tuvx(tuvx);
+#endif
 
   bind_mechanism_configuration(mechanism_configuration);
 }
