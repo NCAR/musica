@@ -54,21 +54,21 @@ module musica_state
       type(error_t_c), intent(inout)    :: error
     end subroutine delete_state_c
 
-    subroutine get_species_ordering_c(state, speciesOrdering, error) &
+    subroutine get_species_ordering_c(state, species_ordering, error) &
         bind(c, name="GetSpeciesOrdering")
       use musica_util, only: error_t_c, mappings_t_c
       import c_ptr
       type(c_ptr), value, intent(in)      :: state
-      type(mappings_t_c), intent(out)     :: speciesOrdering
+      type(mappings_t_c), intent(out)     :: species_ordering
       type(error_t_c), intent(inout)      :: error
     end subroutine get_species_ordering_c
 
-    subroutine get_user_defined_rate_parameters_ordering_c(state, reactionRates, error) &
+    subroutine get_user_defined_rate_parameters_ordering_c(state, reaction_rates, error) &
       bind(c, name="GetUserDefinedRateParametersOrdering")
       use musica_util, only: error_t_c, mappings_t_c
       import c_ptr
       type(c_ptr), value, intent(in)      :: state
-      type(mappings_t_c), intent(out)     :: reactionRates
+      type(mappings_t_c), intent(out)     :: reaction_rates
       type(error_t_c),    intent(inout)   :: error
     end subroutine get_user_defined_rate_parameters_ordering_c
 
