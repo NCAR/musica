@@ -105,7 +105,6 @@ namespace musica
     HandleErrors(
       [&]()
       {
-        //Mappings species_ordering;
         std::map<std::string, std::size_t> map =
             std::visit([](auto& state) { return state.variable_map_; }, state->state_variant_);
 
