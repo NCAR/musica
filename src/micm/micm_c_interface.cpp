@@ -79,7 +79,7 @@ namespace musica
         error);
   }
 
-  void MicmVersion(String* micm_version)
+  void MicmVersion(String *micm_version)
   {
     *micm_version = CreateString(micm::GetMicmVersion());
   }
@@ -99,7 +99,12 @@ namespace musica
         error);
   }
 
-  void GetSpeciesPropertyString(MICM *micm, const char *species_name, const char *property_name, String* species_property, Error *error)
+  void GetSpeciesPropertyString(
+      MICM *micm,
+      const char *species_name,
+      const char *property_name,
+      String *species_property,
+      Error *error)
   {
     std::string val = GetSpeciesProperty<std::string>(micm, species_name, property_name, error);
     if (!IsSuccess(*error))
