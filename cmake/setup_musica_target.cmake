@@ -58,6 +58,5 @@ function(musica_setup_target target)
 
   target_compile_definitions(${target} PUBLIC ${musica_compile_definitions})
 
-  silence_warnings(${target})
 endfunction()
 

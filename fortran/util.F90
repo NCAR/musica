@@ -178,21 +178,21 @@ module musica_util
       type(string_t_c), intent(inout) :: string
     end subroutine delete_string_c
     
-    function load_configuration_from_string_c( string, error ) &
+    subroutine load_configuration_from_string_c( string, configuration, error ) &
         bind(c, name="LoadConfigurationFromString")
       import :: configuration_t_c, c_char, error_t_c
       character(kind=c_char, len=1), intent(in) :: string(*)
+      type(configuration_t_c), intent(out)      :: configuration
       type(error_t_c), intent(inout) :: error
-      type(configuration_t_c) :: load_configuration_from_string_c
-    end function load_configuration_from_string_c
+    end subroutine load_configuration_from_string_c
     
-    function load_configuration_from_file_c( file, error ) &
+    subroutine load_configuration_from_file_c( file, configuration, error ) &
         bind(c, name="LoadConfigurationFromFile")
       import :: configuration_t_c, c_char, error_t_c
       character(kind=c_char, len=1), intent(in) :: file(*)
+      type(configuration_t_c), intent(out)      :: configuration
       type(error_t_c), intent(inout) :: error
-      type(configuration_t_c) :: load_configuration_from_file_c
-    end function load_configuration_from_file_c
+    end subroutine load_configuration_from_file_c
     
     pure subroutine delete_configuration_c( configuration ) &
         bind(c, name="DeleteConfiguration")
@@ -200,23 +200,23 @@ module musica_util
       type(configuration_t_c), intent(inout) :: configuration
     end subroutine delete_configuration_c
     
-    function create_mappings_c( size ) bind(c, name="CreateMappings")
+    subroutine create_mappings_c( size, mapping ) bind(c, name="CreateMappings")
       import :: mappings_t_c, c_size_t
       integer(c_size_t), value, intent(in) :: size
-      type(mappings_t_c) :: create_mappings_c
-    end function create_mappings_c
+      type(mappings_t_c), intent(out) :: mapping
+    end subroutine create_mappings_c
     
-    function create_index_mappings_c(configuration, options, source, target, &
-        error) bind(c, name="CreateIndexMappings")
+    subroutine create_index_mappings_c(configuration, options, source, target, index_mapping, error) &
+      bind(c, name="CreateIndexMappings")
       import :: index_mappings_t_c, configuration_t_c, error_t_c, &
                 mappings_t_c, c_int
       type(configuration_t_c), value, intent(in)    :: configuration
       integer(c_int),          value, intent(in)    :: options
       type(mappings_t_c),      value, intent(in)    :: source
       type(mappings_t_c),      value, intent(in)    :: target
+      type(index_mappings_t_c),       intent(out)   :: index_mapping
       type(error_t_c),                intent(inout) :: error
-      type(index_mappings_t_c) :: create_index_mappings_c
-    end function create_index_mappings_c
+    end subroutine create_index_mappings_c
     
     pure subroutine delete_mapping_c( mapping ) bind(c, name="DeleteMapping")
       import :: mapping_t_c
@@ -341,8 +341,7 @@ contains
     if (c_associated(this%configuration_c_%data_)) then
       call delete_configuration_c(this%configuration_c_)
     end if
-    this%configuration_c_ = &
-        load_configuration_from_string_c( to_c_string( string ), error_c )
+    call load_configuration_from_string_c( to_c_string( string ), this%configuration_c_, error_c )
     error = error_t( error_c )
 
   end subroutine configuration_load_from_string
@@ -363,8 +362,7 @@ contains
     if (c_associated(this%configuration_c_%data_)) then
       call delete_configuration_c(this%configuration_c_)
     end if
-    this%configuration_c_ = &
-        load_configuration_from_file_c( to_c_string( file ), error_c )
+    call load_configuration_from_file_c( to_c_string( file ), this%configuration_c_, error_c )
     error = error_t( error_c )
 
   end subroutine configuration_load_from_file
@@ -661,8 +659,7 @@ contains
     type(mapping_t_c), pointer :: mappings_c(:)
 
     allocate( new_mappings )
-    new_mappings%mappings_c_ = &
-        create_mappings_c( int( size( mappings ), c_size_t ) )
+    call create_mappings_c(int(size(mappings), c_size_t), new_mappings%mappings_c_)
     call c_f_pointer( new_mappings%mappings_c_%mappings_, mappings_c, &
                       [ new_mappings%mappings_c_%size_ ] )
     do i = 1, size( mappings )
@@ -688,8 +685,8 @@ contains
     call delete_mappings_c( to%mappings_c_ )
     call copy_mappings( from%mappings_c_%mappings_, &
                       from%mappings_c_%size_, mappings )
-    to%mappings_c_ = &
-        create_mappings_c( int( size( mappings ), c_size_t ) )
+
+    call create_mappings_c(int(size(mappings), c_size_t), to%mappings_c_)
     call c_f_pointer( to%mappings_c_%mappings_, mappings_c, &
                       [ to%mappings_c_%size_ ] )
     do i = 1, size( mappings )
@@ -793,9 +790,10 @@ contains
     type(error_t_c) :: error_c
 
     allocate( mappings )
-    mappings%mappings_c_ = create_index_mappings_c( &
-        configuration%configuration_c_, int(options, kind=c_int), &
-        source%mappings_c_, target%mappings_c_, error_c )
+    call create_index_mappings_c( &
+      configuration%configuration_c_, int(options, kind=c_int), &
+      source%mappings_c_, target%mappings_c_, mappings%mappings_c_, error_c )
+
     error = error_t( error_c )
 
   end function index_mappings_constructor
