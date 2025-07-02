@@ -56,9 +56,6 @@ function(create_standard_test_cxx)
   add_executable(test_${TEST_NAME} ${TEST_SOURCES})
   target_link_libraries(test_${TEST_NAME} PUBLIC musica::musica GTest::gtest_main)
 
-  include(silence_warnings)
-  silence_warnings(test_${TEST_NAME})
-
   if(MUSICA_ENABLE_OPENMP)
     target_link_libraries(test_${TEST_NAME} PUBLIC OpenMP::OpenMP_CXX)
   endif()
