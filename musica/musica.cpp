@@ -28,12 +28,51 @@ void bind_musica(py::module_ &core)
       .def_readwrite("pressure", &micm::Conditions::pressure_)
       .def_readwrite("air_density", &micm::Conditions::air_density_);
 
+  py::class_<musica::State>(core, "_State")
+      .def(py::init<>())
+      .def("__del__", [](musica::State &state) { })
+      .def("number_of_grid_cells",
+           [](musica::State &state) {
+             return state.NumberOfGridCells();
+           })
+      .def_property(
+          "conditions",
+          [](musica::State &state) -> std::vector<micm::Conditions>& {
+            return state.GetConditions();
+          },
+          nullptr,
+          "list of conditions structs for each grid cell")
+      .def_property(
+          "concentrations",
+          [](musica::State &state) -> std::vector<double>& {
+            return state.GetOrderedConcentrations();
+          },
+          nullptr,
+          "native 1D list of concentrations, ordered by species and grid cell according to matrix type")
+      .def_property(
+          "user_defined_rate_parameters",
+          [](musica::State &state) -> std::vector<double>& {
+            return state.GetOrderedRateParameters();
+          },
+          nullptr,
+          "native 1D list of user-defined rate parameters, ordered by parameter and grid cell according to matrix type")
+      .def("concentration_strides",
+          [](musica::State &state) {
+            return state.GetConcentrationsStrides();
+          })
+      .def("user_defined_rate_parameter_strides",
+          [](musica::State &state) {
+            return state.GetUserDefinedRateParametersStrides();
+          });
+
   py::enum_<musica::MICMSolver>(core, "_SolverType")
       .value("rosenbrock", musica::MICMSolver::Rosenbrock)
       .value("rosenbrock_standard_order", musica::MICMSolver::RosenbrockStandardOrder)
       .value("backward_euler", musica::MICMSolver::BackwardEuler)
       .value("backward_euler_standard_order", musica::MICMSolver::BackwardEulerStandardOrder)
       .value("cuda_rosenbrock", musica::MICMSolver::CudaRosenbrock);
+
+  py::class_<musica::MICM>(core, "_Solver");
 
   core.def("_vector_size",
       [](const musica::MICMSolver solver_type)
