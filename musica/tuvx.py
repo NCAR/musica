@@ -12,20 +12,7 @@ import os
 import json
 from typing import Dict, Tuple, Union, List
 import numpy as np
-
-
-def _check_tuvx_availability():
-    """Check if TUV-x backend is available."""
-    try:
-        from ._backend_loader import tuvx_available
-        return tuvx_available()
-    except (ImportError, AttributeError):
-        return False
-
-
-class TUVXNotAvailableError(Exception):
-    """Raised when TUV-x functionality is not available on this platform."""
-    pass
+from . import backend
 
 
 class TUVX:
@@ -47,23 +34,20 @@ class TUVX:
         Raises:
             FileNotFoundError: If the configuration file doesn't exist
             ValueError: If TUV-x initialization fails
-            RuntimeError: If TUV-x is not available on this platform
+            RuntimeError: If TUV-x support is not available in this build
         """
-        if not _check_tuvx_availability():
-            raise RuntimeError(
-                "TUV-x is not available on this platform. "
-                "TUV-x is currently only supported on macOS and Linux."
-            )
-
         if not os.path.exists(config_path):
             raise FileNotFoundError(
                 f"Configuration file not found: {config_path}")
 
-        # Import the backend module here to avoid circular imports
-        from ._backend_loader import get_backend
-        _backend = get_backend()
+        # Check if TUV-x support is available
+        if backend._tuvx is None:
+            raise RuntimeError(
+                "TUV-x support is not available in this build. "
+                "Please rebuild MUSICA with TUV-x support enabled."
+            )
 
-        self._tuvx_instance = _backend._tuvx._create_tuvx(config_path)
+        self._tuvx_instance = backend._tuvx._create_tuvx(config_path)
         self._config_path = config_path
 
         # Cache the names for efficiency
@@ -73,9 +57,7 @@ class TUVX:
     def __del__(self):
         """Clean up the TUV-x instance."""
         if hasattr(self, '_tuvx_instance') and self._tuvx_instance is not None:
-            from ._backend_loader import get_backend
-            _backend = get_backend()
-            _backend._tuvx._delete_tuvx(self._tuvx_instance)
+            backend._tuvx._delete_tuvx(self._tuvx_instance)
 
     @property
     def photolysis_rate_names(self) -> List[str]:
@@ -86,9 +68,7 @@ class TUVX:
             List of photolysis rate names
         """
         if self._photolysis_names is None:
-            from ._backend_loader import get_backend
-            _backend = get_backend()
-            self._photolysis_names = _backend._tuvx._get_photolysis_rate_names(
+            self._photolysis_names = backend._tuvx._get_photolysis_rate_names(
                 self._tuvx_instance)
         return self._photolysis_names
 
@@ -101,9 +81,7 @@ class TUVX:
             List of heating rate names
         """
         if self._heating_names is None:
-            from ._backend_loader import get_backend
-            _backend = get_backend()
-            self._heating_names = _backend._tuvx._get_heating_rate_names(
+            self._heating_names = backend._tuvx._get_heating_rate_names(
                 self._tuvx_instance)
         return self._heating_names
 
@@ -119,10 +97,7 @@ class TUVX:
             - photolysis_rate_constants: Shape (n_layers, n_reactions) [s^-1]
             - heating_rates: Shape (n_layers, n_heating_rates) [K s^-1]
         """
-        from ._backend_loader import get_backend
-        _backend = get_backend()
-
-        photolysis_rates, heating_rates = _backend._tuvx._run_tuvx(
+        photolysis_rates, heating_rates = backend._tuvx._run_tuvx(
             self._tuvx_instance)
 
         return photolysis_rates, heating_rates
@@ -227,14 +202,8 @@ def create_tuvx(config_input: Union[str, Dict]) -> TUVX:
         TUVX instance
 
     Raises:
-        TUVXNotAvailableError: If TUV-x is not available on this platform
+        ValueError: If config_input is not a valid type
     """
-    if not _check_tuvx_availability():
-        raise TUVXNotAvailableError(
-            "TUV-x is not available on this platform. "
-            "TUV-x is currently only supported on macOS and Linux."
-        )
-
     if isinstance(config_input, str):
         if os.path.exists(config_input):
             # It's a file path

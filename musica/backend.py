@@ -48,4 +48,6 @@ user_defined_rate_parameters_ordering = _backend._core._user_defined_rate_parame
 # Mechanism configuration
 mechanism_configuration = _backend._mechanism_configuration
 
+_tuvx = _backend._tuvx
+
 _is_cuda_available = _backend._core._is_cuda_available
