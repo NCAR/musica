@@ -36,7 +36,7 @@ class TUVX:
             FileNotFoundError: If the configuration file doesn't exist
             ValueError: If TUV-x initialization fails or TUVX is not available
         """
-        if not _backend.tuvx_available():
+        if not backend.tuvx_available():
             raise ValueError("TUV-x backend is not available on windows.")
 
         if not os.path.exists(config_path):
@@ -200,7 +200,7 @@ def create_tuvx(config_input: Union[str, Dict]) -> TUVX:
     Raises:
         ValueError: If config_input is not a valid type
     """
-    if not _backend.tuvx_available():
+    if not backend.tuvx_available():
         raise ValueError("TUV-x backend is not available on windows.")
 
     if isinstance(config_input, str):
