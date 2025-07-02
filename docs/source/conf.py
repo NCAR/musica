@@ -48,6 +48,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
     'sphinx.ext.autosummary',
+    'sphinx.ext.intersphinx'
 ]
 
 breathe_default_project = "musica"
@@ -65,6 +66,12 @@ exclude_patterns = []
 
 autosummary_generate = True
 
+# -- Intersphinx mappings -------------
+intersphinx_mapping = {
+    'micm': ('https://ncar.github.io/micm/', None),
+    'mc': ('https://ncar.github.io/MechanismConfiguration/', None),
+    'mb': ('https://ncar.github.io/music-box/',None)
+}
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for

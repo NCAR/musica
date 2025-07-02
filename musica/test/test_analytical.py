@@ -4,12 +4,12 @@ import musica
 import random
 import musica.mechanism_configuration as mc
 from musica.cuda import is_cuda_available
+from musica.constants import GAS_CONSTANT
 
 
 def TestSingleGridCell(solver, state, time_step, places=5):
     temperature = 272.5
     pressure = 101253.3
-    GAS_CONSTANT = 8.31446261815324
     air_density = pressure / (GAS_CONSTANT * temperature)
 
     rate_constants = {

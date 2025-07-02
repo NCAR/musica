@@ -20,10 +20,7 @@ from musica import (
     _user_defined_rate_parameters_ordering,
 )
 import musica.mechanism_configuration as mc
-
-AVOGADRO = 6.02214076e23  # mol^-1
-BOLTZMANN = 1.380649e-23  # J K^-1
-GAS_CONSTANT = AVOGADRO * BOLTZMANN  # J K^-1 mol^-1
+from musica.constants import GAS_CONSTANT
 
 FilePath = Union[str, "PathLike[str]"]
 
