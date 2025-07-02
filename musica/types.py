@@ -16,8 +16,6 @@ from . import backend
 _backend = backend.get_backend()
 _Conditions = _backend._core._Conditions
 _SolverType = _backend._core._SolverType
-_Solver = _backend._core._Solver
-_State = _backend._core._State
 _create_solver = _backend._core._create_solver
 _create_solver_from_mechanism = _backend._core._create_solver_from_mechanism
 _create_state = _backend._core._create_state
@@ -35,27 +33,6 @@ else:
     Mechanism = mc._Mechanism
 
 FilePath = Union[str, "PathLike[str]"]
-
-
-def _get_vector_matrix_indices(row_index: int, column_index: int, vector_size: int) -> Tuple[int, int]:
-    """
-    Get the row and column indices for a matrix given the row and column indices for a vector.
-
-    Parameters
-    ----------
-    row_index : int
-        Row index of the vector.
-    column_index : int
-        Column index of the vector.
-    vector_size : int
-        Size of the vector.
-
-    Returns
-    -------
-    tuple[int, int]
-        Index for which state matrix to use and the index in that matrix'x underlying data vector.
-    """
-    return (row_index // vector_size, column_index * (vector_size - 1) + row_index % vector_size)
 
 
 class Conditions(_Conditions):

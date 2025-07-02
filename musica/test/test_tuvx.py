@@ -5,7 +5,6 @@ import os
 import json
 import numpy as np
 
-# Check if TUV-x is available
 available = musica.backend.tuvx_available()
 @pytest.mark.skipif(not available, reason="TUV-x backend is not available")
 
@@ -18,8 +17,8 @@ def test_tuvx_from_file(monkeypatch):
 
     heating_rates = tuvx.heating_rate_names
     photolysis_rates = tuvx.photolysis_rate_names
-    print("Heating Rates:", heating_rates)
-    print("Photolysis Rates:", photolysis_rates)
+    assert heating_rates == ['heating_0', 'heating_1'] 
+    assert photolysis_rates == ['photolysis_0', 'photolysis_1', 'photolysis_2']
     # rates = tuvx.run()
     # print(rates)
 
