@@ -183,7 +183,7 @@ namespace musica
       const IndexMappingOptions map_options,
       const Mappings source,
       const Mappings target,
-      IndexMappings *index_mapping,
+      IndexMappings* index_mapping,
       Error* error)
   {
     DeleteError(error);

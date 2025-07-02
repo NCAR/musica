@@ -117,7 +117,7 @@ const size_t MUSICA_VECTOR_SIZE = 0;
     /// @brief Loads a set of configuration data from a file
     /// @param filename The file to load [input]
     /// @param configuration The Configuration [output]
-    /// @param error The Error to populate if the data cannot be loaded [output]  
+    /// @param error The Error to populate if the data cannot be loaded [output]
     void LoadConfigurationFromFile(const char* filename, Configuration* configuration, Error* error);
 
     /// @brief Allocates an array of Mappings
@@ -149,7 +149,7 @@ const size_t MUSICA_VECTOR_SIZE = 0;
         const IndexMappingOptions map_options,
         Mappings source,
         const Mappings target,
-        IndexMappings *index_mapping,
+        IndexMappings* index_mapping,
         Error* error);
 
     /// @brief Returns the number of elements in an IndexMappings container
