@@ -109,16 +109,16 @@ const size_t MUSICA_VECTOR_SIZE = 0;
     Error ToError(const char* category, int code, const char* message);
 
     /// @brief Loads a set of configuration data from a string
-    /// @param data The string to load
-    /// @param output The Configuration
-    /// @param error The Error to populate if the data cannot be loaded    
-    void LoadConfigurationFromString(const char* data, Configuration* output, Error* error);
+    /// @param data The string to load [input]
+    /// @param configuration The Configuration [output]
+    /// @param error The Error to populate if the data cannot be loaded [output]
+    void LoadConfigurationFromString(const char* data, Configuration* configuration, Error* error);
 
     /// @brief Loads a set of configuration data from a file
-    /// @param filename The file to load
-    /// @param output The Configuration
-    /// @param error The Error to populate if the data cannot be loaded    
-    void LoadConfigurationFromFile(const char* filename, Configuration* output, Error* error);
+    /// @param filename The file to load [input]
+    /// @param configuration The Configuration [output]
+    /// @param error The Error to populate if the data cannot be loaded [output]  
+    void LoadConfigurationFromFile(const char* filename, Configuration* configuration, Error* error);
 
     /// @brief Allocates an array of Mappings
     /// @param size The size of the array
@@ -126,9 +126,9 @@ const size_t MUSICA_VECTOR_SIZE = 0;
     Mapping* AllocateMappingArray(const std::size_t size);
 
     /// @brief Allocate a new Mappings struct
-    /// @param size The size of the Mappings
-    /// @param output The Mappings
-    void CreateMappings(std::size_t size, Mappings* output);
+    /// @param size The size of the Mappings [input]
+    /// @param mapping The Mappings [output]
+    void CreateMappings(std::size_t size, Mappings* mapping);
 
     /// @brief Finds the index of a Mapping by name
     /// @param mappings The array of Mappings
@@ -138,18 +138,18 @@ const size_t MUSICA_VECTOR_SIZE = 0;
     std::size_t FindMappingIndex(const Mappings mappings, const char* name, Error* error);
 
     /// @brief Creates a set of index mappings
-    /// @param configuration The Configuration containing the mappings
-    /// @param map_options The options for mapping
-    /// @param source The source array of name-index Mappings
-    /// @param target The target array of name-index Mappings
-    /// @param output The array of IndexMappings
-    /// @param error The Error to populate if a Mapping is not found
+    /// @param configuration The Configuration containing the mappings [input]
+    /// @param map_options The options for mapping [input]
+    /// @param source The source array of name-index Mappings [input]
+    /// @param target The target array of name-index Mappings [input]
+    /// @param indexMapping The array of IndexMappings [output]
+    /// @param error The Error to populate if a Mapping is not found [output]
     void CreateIndexMappings(
         const Configuration configuration,
         const IndexMappingOptions map_options,
         Mappings source,
         const Mappings target,
-        IndexMappings *output,
+        IndexMappings *indexMapping,
         Error* error);
 
     /// @brief Returns the number of elements in an IndexMappings container

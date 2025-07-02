@@ -100,7 +100,7 @@ namespace musica
         error);
   }
 
-  void GetSpeciesOrdering(musica::State* state, Mappings* output, Error* error)
+  void GetSpeciesOrdering(musica::State* state, Mappings* speciesOrdering, Error* error)
   {
     HandleErrors(
       [&]()
@@ -118,14 +118,14 @@ namespace musica
           species_ordering.mappings_[i] = ToMapping(entry.first.c_str(), entry.second);
           ++i;
         }
-        *output = species_ordering;
+        *speciesOrdering = species_ordering;
         *error = NoError();
         return;
       },
       error);
   }
 
-  void GetUserDefinedRateParametersOrdering(musica::State* state, Mappings* mappings, Error* error)
+  void GetUserDefinedRateParametersOrdering(musica::State* state, Mappings* reactionRates, Error* error)
   {
     HandleErrors(
       [&]()
@@ -143,7 +143,7 @@ namespace musica
           reaction_rates.mappings_[i] = ToMapping(entry.first.c_str(), entry.second);
           ++i;
         }
-        *mappings = reaction_rates;
+        *reactionRates = reaction_rates;
         *error = NoError();
         return;
       },
