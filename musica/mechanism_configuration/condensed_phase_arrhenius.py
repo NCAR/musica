@@ -1,4 +1,4 @@
-from musica.constants import BOLTZMANN
+from ..constants import BOLTZMANN
 from .utils import _add_other_properties, _remove_empty_keys
 from .reactions import ReactionComponentSerializer
 from .species import Species
