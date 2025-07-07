@@ -24,9 +24,24 @@ endif()
 pybind11_add_module(_musica cpu_binding.cpp ${MUSICA_PYTHON_SOURCES})
 musica_setup_target(_musica MODE CPU)
 
+# Set separate Fortran module directory for _musica to avoid conflicts
+if (MUSICA_ENABLE_TUVX)
+  set_target_properties(_musica PROPERTIES
+    Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/musica_python_cpu_modules
+  )
+endif()
+
 if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None")
   pybind11_add_module(_musica_gpu gpu_binding.cpp ${MUSICA_PYTHON_SOURCES}) 
   musica_setup_target(_musica_gpu MODE GPU)
+  
+  # Set separate Fortran module directory for _musica_gpu to avoid conflicts
+  if (MUSICA_ENABLE_TUVX)
+    set_target_properties(_musica_gpu PROPERTIES
+      Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/musica_python_gpu_modules
+    )
+  endif()
+  
   list(APPEND PY_MODULES _musica_gpu)
 endif()
 
