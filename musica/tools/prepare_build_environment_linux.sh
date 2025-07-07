@@ -10,20 +10,22 @@ echo "Detected target_arch: $target_arch"
 # i686 uses manylinux2014 (CentOS 7) with yum
 if [ "$target_arch" = "i686" ]; then
   PKG_MGR="yum"
+  
+  # CentOS 7 is EOL, so we need to use vault.centos.org for i686 builds
+  # Replace the repo files to point to vault.centos.org
+  sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*.repo
+  sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*.repo
 else
   PKG_MGR="dnf"
 fi
 
 echo "Using package manager: $PKG_MGR"
 
-# Install basic dependencies
 $PKG_MGR -y update
 
-# Handle EPEL repository setup based on architecture
 if [ "$target_arch" = "x86_64" ]; then
   # For manylinux_2_28 (AlmaLinux 8), epel-release is required to get netcdf, for some reason
   $PKG_MGR install -y epel-release
-  $PKG_MGR search netcdf
   $PKG_MGR install -y netcdf-devel netcdf-fortran-devel
 fi
 
