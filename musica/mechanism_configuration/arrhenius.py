@@ -6,7 +6,6 @@ from .reactions import ReactionComponentSerializer
 from .utils import _add_other_properties, _remove_empty_keys
 from musica.constants import BOLTZMANN
 
-# Get backend symbols
 _backend = backend.get_backend()
 _Arrhenius = _backend._mechanism_configuration._Arrhenius
 _ReactionComponent = _backend._mechanism_configuration._ReactionComponent

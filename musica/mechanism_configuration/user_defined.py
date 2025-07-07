@@ -5,7 +5,6 @@ from .species import Species
 from .reactions import ReactionComponentSerializer
 from .utils import _add_other_properties, _remove_empty_keys
 
-# Get backend symbols
 _backend = backend.get_backend()
 _UserDefined = _backend._mechanism_configuration._UserDefined
 _ReactionComponent = _backend._mechanism_configuration._ReactionComponent

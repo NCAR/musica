@@ -4,7 +4,6 @@ from .phase import Phase
 from typing import Optional, Any, Dict, List, Union, Tuple
 from .. import backend
 
-# Get backend symbols
 _backend = backend.get_backend()
 _SimpolPhaseTransfer = _backend._mechanism_configuration._SimpolPhaseTransfer
 _ReactionComponent = _backend._mechanism_configuration._ReactionComponent
