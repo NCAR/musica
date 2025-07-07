@@ -205,6 +205,10 @@ variable `BUILD_GPU`.
 BUILD_GPU=1 pip install -e .
 ```
 
+This variable is always defined in our [pyproject.toml](pyproject.toml) for any Linux environment.
+However, the CUDA code *should* build on Windows with a valid CUDA install, but we have not yet taken
+the time to add this into our CI/CD system since our primary target for GPUs are HPCs running on Linux.
+
 # Contributing
 
 We welcome contributions from the community! Please see our [Contributing Guide](CONTRIBUTING.md) for information on how to get involved.
