@@ -168,5 +168,5 @@ class MechanismSerializer():
             with open(file_path, 'w') as file:
                 file.write(json_str)
         else:
-            raise Exception(
+            raise ValueError(
                 'Allowable write formats are .json, .yaml, and .yml')
