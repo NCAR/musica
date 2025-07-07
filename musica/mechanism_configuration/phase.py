@@ -1,7 +1,11 @@
 from typing import Optional, Any, Dict, List
-from musica import _Phase
+from .. import backend
 from .species import Species
 from .utils import _add_other_properties, _remove_empty_keys
+
+# Get backend symbols
+_backend = backend.get_backend()
+_Phase = _backend._mechanism_configuration._Phase
 
 
 class Phase(_Phase):
@@ -30,7 +34,8 @@ class Phase(_Phase):
         """
         super().__init__()
         self.name = name if name is not None else self.name
-        self.species = [s.name for s in species] if species is not None else self.species
+        self.species = [
+            s.name for s in species] if species is not None else self.species
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 
     @staticmethod

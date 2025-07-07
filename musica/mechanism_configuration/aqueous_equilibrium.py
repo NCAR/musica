@@ -1,9 +1,14 @@
-from typing import Optional, Any, Dict, List, Union, Tuple
-from musica import _AqueousEquilibrium, _ReactionComponent
-from .phase import Phase
-from .species import Species
-from .reactions import ReactionComponentSerializer
 from .utils import _add_other_properties, _remove_empty_keys
+from .reactions import ReactionComponentSerializer
+from .species import Species
+from .phase import Phase
+from typing import Optional, Any, Dict, List, Union, Tuple
+from .. import backend
+
+# Get backend symbols
+_backend = backend.get_backend()
+_AqueousEquilibrium = _backend._mechanism_configuration._AqueousEquilibrium
+_ReactionComponent = _backend._mechanism_configuration._ReactionComponent
 
 
 class AqueousEquilibrium(_AqueousEquilibrium):
@@ -28,7 +33,8 @@ class AqueousEquilibrium(_AqueousEquilibrium):
         name: Optional[str] = None,
         aerosol_phase: Optional[Phase] = None,
         aerosol_phase_water: Optional[Species] = None,
-        reactants: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
+        reactants: Optional[List[Union[Species,
+                                       Tuple[float, Species]]]] = None,
         products: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
         A: Optional[float] = None,
         C: Optional[float] = None,
