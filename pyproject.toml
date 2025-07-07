@@ -88,6 +88,7 @@ archs = ["x86_64", "arm64", "universal2"]
 environment.MACOSX_DEPLOYMENT_TARGET = "10.15"
 
 [tool.cibuildwheel.linux]
+archs = ["x86_64", "aarch64", "i686"]
 before-all = "musica/tools/prepare_build_environment_linux.sh"
 repair-wheel-command = "bash musica/tools/repair_wheel_gpu.sh {wheel} {dest_dir}"
 
