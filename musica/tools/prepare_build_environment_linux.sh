@@ -2,11 +2,9 @@
 set -e
 set -x
 
-# manylinux_2_28 uses AlmaLinux 8 - use dnf instead of yum
 dnf -y update
-
+dnf install -y epel-release
 dnf search netcdf
-
 dnf install -y tree wget zip netcdf-devel netcdf-fortran-devel
 
 target_arch="$(uname -m)"
