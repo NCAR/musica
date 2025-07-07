@@ -25,7 +25,7 @@ import os
 import json
 import yaml
 from typing import Optional, Any, Dict, List
-from musica import backend
+from .. import backend
 
 _backend = backend.get_backend()
 _mc = _backend._mechanism_configuration
