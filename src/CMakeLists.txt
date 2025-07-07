@@ -67,6 +67,12 @@ configure_file(version.cpp.in ${CMAKE_BINARY_DIR}/version.cpp @ONLY)
 ################################################################################
 # MUSICA
 
+if (MUSICA_ONLY_PYTHON)
+  message(STATUS "Building only the Python bindings, skipping MUSICA C/C++ library")
+  message(STATUS "The musica library is not needed for the python bindings since we build the sources directly")
+  return()
+endif()
+
 include(setup_musica_target)
 
 add_library(musica)

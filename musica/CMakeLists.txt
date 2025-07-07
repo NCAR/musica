@@ -1,7 +1,7 @@
 ################################################################################
 # Python Extension Modules
 
-#include(setup_muisca_target)
+include(setup_musica_target)
 
 # Define the list of Python extension module targets
 set(PY_MODULES _musica)
