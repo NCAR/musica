@@ -8,7 +8,6 @@ from . import backend
 
 _backend = backend.get_backend()
 
-# Module-level version attribute
 version = _backend._tuvx._get_tuvx_version() if backend.tuvx_available() else None
 
 
