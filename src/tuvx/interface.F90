@@ -273,4 +273,33 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+  subroutine internal_get_tuvx_version(version_ptr, version_length) &
+    bind(C, name="InternalGetTuvxVersion")
+    use iso_c_binding, only: c_ptr, c_char, c_int, c_f_pointer
+    use tuvx_version, only: get_tuvx_version
+
+    ! arguments
+    type(c_ptr),     intent(out) :: version_ptr
+    integer(c_int),  intent(out) :: version_length
+
+    ! local variables
+    character(:), allocatable :: version_fortran
+    character(kind=c_char), pointer :: version_c(:)
+    integer :: i
+
+    version_fortran = get_tuvx_version()
+    version_length = len_trim(version_fortran)
+
+    ! Allocate and copy string
+    allocate(version_c(version_length))
+    do i = 1, version_length
+        version_c(i) = version_fortran(i:i)
+    end do
+
+    version_ptr = c_loc(version_c)
+
+  end subroutine internal_get_tuvx_version
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 end module tuvx_interface

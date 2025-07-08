@@ -10,6 +10,5 @@ namespace py = pybind11;
 
 void bind_tuvx(py::module_& tuvx)
 {
-  tuvx.def("_get_tuvx_version", []() {
-   }, "Get the version of the TUV-x instance");
+  tuvx.def("_get_tuvx_version", []() { return musica::TUVX::GetVersion(); }, "Get the version of the TUV-x instance");
 }

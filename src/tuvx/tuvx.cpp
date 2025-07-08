@@ -233,4 +233,14 @@ namespace musica
     }
   }
 
+  std::string TUVX::GetVersion()
+  {
+    char *version_ptr;
+    int version_length;
+    InternalGetTuvxVersion(&version_ptr, &version_length);
+
+    std::string version_str(version_ptr, version_length);
+    return version_str;
+  }
+
 }  // namespace musica

@@ -71,6 +71,10 @@ namespace musica
         double *const heating_rates,
         Error *const error);
 
+    /// @brief Get the version of TUV-x
+    /// @return TUV-x version string
+    static std::string GetVersion();
+
     ~TUVX();
 
    private:
@@ -169,6 +173,7 @@ namespace musica
         double *photolysis_rate_constants,
         double *heating_rates,
         int *error_code);
+    void InternalGetTuvxVersion(char **version_ptr, int *version_length);
 
 #ifdef __cplusplus
   }
