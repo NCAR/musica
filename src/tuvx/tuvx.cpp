@@ -240,6 +240,10 @@ namespace musica
     InternalGetTuvxVersion(&version_ptr, &version_length);
 
     std::string version_str(version_ptr, version_length);
+
+    // Free the memory allocated by Fortran
+    InternalFreeTuvxVersion(version_ptr);
+
     return version_str;
   }
 

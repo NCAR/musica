@@ -174,6 +174,7 @@ namespace musica
         double *heating_rates,
         int *error_code);
     void InternalGetTuvxVersion(char **version_ptr, int *version_length);
+    void InternalFreeTuvxVersion(char *version_ptr);
 
 #ifdef __cplusplus
   }
