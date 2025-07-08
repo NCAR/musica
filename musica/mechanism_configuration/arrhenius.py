@@ -1,10 +1,14 @@
 from typing import Optional, Any, Dict, List, Union, Tuple
-from musica import _Arrhenius, _ReactionComponent
+from .. import backend
 from .phase import Phase
 from .species import Species
 from .reactions import ReactionComponentSerializer
 from .utils import _add_other_properties, _remove_empty_keys
-from musica.constants import BOLTZMANN
+from ..constants import BOLTZMANN
+
+_backend = backend.get_backend()
+_Arrhenius = _backend._mechanism_configuration._Arrhenius
+_ReactionComponent = _backend._mechanism_configuration._ReactionComponent
 
 
 class Arrhenius(_Arrhenius):
@@ -46,7 +50,8 @@ class Arrhenius(_Arrhenius):
         Ea: Optional[float] = None,
         D: Optional[float] = None,
         E: Optional[float] = None,
-        reactants: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
+        reactants: Optional[List[Union[Species,
+                                       Tuple[float, Species]]]] = None,
         products: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
         gas_phase: Optional[Phase] = None,
         other_properties: Optional[Dict[str, Any]] = None,

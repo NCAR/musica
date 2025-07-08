@@ -1,9 +1,13 @@
-from typing import Optional, Any, Dict, List, Union, Tuple
-from musica import _Emission, _ReactionComponent
-from .phase import Phase
-from .species import Species
-from .reactions import ReactionComponentSerializer
 from .utils import _add_other_properties, _remove_empty_keys
+from .reactions import ReactionComponentSerializer
+from .species import Species
+from .phase import Phase
+from typing import Optional, Any, Dict, List, Union, Tuple
+from .. import backend
+
+_backend = backend.get_backend()
+_Emission = _backend._mechanism_configuration._Emission
+_ReactionComponent = _backend._mechanism_configuration._ReactionComponent
 
 
 class Emission(_Emission):

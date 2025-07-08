@@ -1,4 +1,6 @@
-from . import _backend
+from . import backend
+
+_backend = backend.get_backend()
 
 def is_cuda_available() -> bool:
     """

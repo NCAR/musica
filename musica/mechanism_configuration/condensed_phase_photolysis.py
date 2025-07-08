@@ -1,10 +1,13 @@
-from typing import Optional, Any, Dict, List, Union, Tuple
-from musica import _CondensedPhasePhotolysis, _ReactionComponent
-from .phase import Phase
-from .species import Species
-from .reactions import ReactionComponentSerializer
 from .utils import _add_other_properties, _remove_empty_keys
+from .reactions import ReactionComponentSerializer
+from .species import Species
+from .phase import Phase
+from typing import Optional, Any, Dict, List, Union, Tuple
+from .. import backend
 
+_backend = backend.get_backend()
+_CondensedPhasePhotolysis = _backend._mechanism_configuration._CondensedPhasePhotolysis
+_ReactionComponent = _backend._mechanism_configuration._ReactionComponent
 
 
 class CondensedPhasePhotolysis(_CondensedPhasePhotolysis):
@@ -25,7 +28,8 @@ class CondensedPhasePhotolysis(_CondensedPhasePhotolysis):
         self,
         name: Optional[str] = None,
         scaling_factor: Optional[float] = None,
-        reactants: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
+        reactants: Optional[List[Union[Species,
+                                       Tuple[float, Species]]]] = None,
         products: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
         aerosol_phase: Optional[Phase] = None,
         aerosol_phase_water: Optional[Species] = None,

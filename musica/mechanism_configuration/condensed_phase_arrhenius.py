@@ -1,10 +1,14 @@
-from typing import Optional, Any, Dict, List, Union, Tuple
-from musica import _CondensedPhaseArrhenius, _ReactionComponent
-from .phase import Phase
-from .species import Species
-from .reactions import ReactionComponentSerializer
+from ..constants import BOLTZMANN
 from .utils import _add_other_properties, _remove_empty_keys
-from musica.constants import BOLTZMANN
+from .reactions import ReactionComponentSerializer
+from .species import Species
+from .phase import Phase
+from typing import Optional, Any, Dict, List, Union, Tuple
+from .. import backend
+
+_backend = backend.get_backend()
+_CondensedPhaseArrhenius = _backend._mechanism_configuration._CondensedPhaseArrhenius
+_ReactionComponent = _backend._mechanism_configuration._ReactionComponent
 
 
 class CondensedPhaseArrhenius(_CondensedPhaseArrhenius):
@@ -35,7 +39,8 @@ class CondensedPhaseArrhenius(_CondensedPhaseArrhenius):
         Ea: Optional[float] = None,
         D: Optional[float] = None,
         E: Optional[float] = None,
-        reactants: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
+        reactants: Optional[List[Union[Species,
+                                       Tuple[float, Species]]]] = None,
         products: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
         aerosol_phase: Optional[Phase] = None,
         aerosol_phase_water: Optional[Species] = None,
