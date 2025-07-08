@@ -2,6 +2,7 @@ from . import backend
 
 _backend = backend.get_backend()
 
+
 def is_cuda_available() -> bool:
     """
     Check if CUDA is available.

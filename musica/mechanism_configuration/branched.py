@@ -114,9 +114,12 @@ class Branched(_Branched):
             "Y": instance.Y,
             "a0": instance.a0,
             "n": instance.n,
-            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(instance.reactants),
-            "nitrate products": ReactionComponentSerializer.serialize_list_reaction_components(instance.nitrate_products),
-            "alkoxy products": ReactionComponentSerializer.serialize_list_reaction_components(instance.alkoxy_products),
+            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(
+                instance.reactants),
+            "nitrate products": ReactionComponentSerializer.serialize_list_reaction_components(
+                instance.nitrate_products),
+            "alkoxy products": ReactionComponentSerializer.serialize_list_reaction_components(
+                instance.alkoxy_products),
             "gas phase": instance.gas_phase,
         }
         _add_other_properties(serialize_dict, instance.other_properties)
