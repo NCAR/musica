@@ -70,7 +70,7 @@ autosummary_generate = True
 intersphinx_mapping = {
     'micm': ('https://ncar.github.io/micm/', None),
     'mc': ('https://ncar.github.io/MechanismConfiguration/', None),
-    'mb': ('https://ncar.github.io/music-box/',None)
+    'mb': ('https://ncar.github.io/music-box/', None)
 }
 # -- Options for HTML output -------------------------------------------------
 
