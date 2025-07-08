@@ -14,7 +14,7 @@ endfunction(set_git_default)
 ################################################################################
 # NetCDF library
 
-if (MUSICA_BUILD_FORTRAN_INTERFACE)
+if (MUSICA_BUILD_FORTRAN_INTERFACE OR MUSICA_ENABLE_TUVX)
   find_package(PkgConfig REQUIRED)
   pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
   pkg_check_modules(netcdfc IMPORTED_TARGET REQUIRED netcdf)
