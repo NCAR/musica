@@ -28,6 +28,7 @@ def get_backend():
         import musica._musica as backend
     return backend
 
+
 def tuvx_available():
     """Check if the TUVX backend is available."""
     _backend = get_backend()
