@@ -1,43 +1,50 @@
-#! /bin/bash
-
+#!/bin/bash
 set -e
 set -x
 
-# Update the mirror list to use vault.centos.org
-sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo
-sed -i s/^#.*baseurl=http/baseurl=http/g /etc/yum.repos.d/*.repo
-sed -i s/^mirrorlist=http/#mirrorlist=http/g /etc/yum.repos.d/*.repo
-
-sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
-sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
-
-yum install -y zip tree wget
-
-# Use CIBW_ARCHS or CIBW_ARCH if set, else fallback to uname -m
-if [ -n "$CIBW_ARCHS" ]; then
-  target_arch="$CIBW_ARCHS"
-elif [ -n "$CIBW_ARCH" ]; then
-  target_arch="$CIBW_ARCH"
-else
-  target_arch="$(uname -m)"
-fi
-
+target_arch="$(uname -m)"
 echo "Detected target_arch: $target_arch"
 
-if [ "$target_arch" = "x86_64" ]; then
-  # Install CUDA 12.2 for x86_64:
-  yum-config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel8/x86_64/cuda-rhel8.repo
-  # error mirrorlist.centos.org doesn't exists anymore.
-  sed -i s/mirror.centos.org/vault.centos.org/g /etc/yum.repos.d/*.repo
-  sed -i s/^#.*baseurl=http/baseurl=http/g /etc/yum.repos.d/*.repo
-  sed -i s/^mirrorlist=http/#mirrorlist=http/g /etc/yum.repos.d/*.repo
-  yum install --setopt=obsoletes=0 -y \
-      cuda-nvcc-12-2 \
-      cuda-cudart-devel-12-2 \
-      libcurand-devel-12-2 \
-      libcublas-devel-12-2 
-  ln -s cuda-12.2 /usr/local/cuda
+# Set package manager based on architecture
+# x86_64 and aarch64 use manylinux_2_28 (AlmaLinux 8) with dnf
+# i686 uses manylinux2014 (CentOS 7) with yum
+if [ "$target_arch" = "i686" ]; then
+  PKG_MGR="yum"
+  
+  # CentOS 7 is EOL, so we need to use vault.centos.org for i686 builds
+  # Replace the repo files to point to vault.centos.org
+  sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*.repo
+  sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*.repo
+else
+  PKG_MGR="dnf"
+fi
 
+echo "Using package manager: $PKG_MGR"
+
+$PKG_MGR -y update
+
+if [ "$target_arch" = "x86_64" ]; then
+  # For manylinux_2_28 (AlmaLinux 8), epel-release is required to get netcdf, for some reason
+  $PKG_MGR install -y epel-release
+  $PKG_MGR install -y netcdf-devel netcdf-fortran-devel
+fi
+
+$PKG_MGR install -y tree wget zip 
+
+if [ "$target_arch" = "x86_64" ]; then
+  # Install CUDA 12.8 for x86_64 on AlmaLinux 8 (manylinux_2_28) - supports GCC 14
+  dnf config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel8/x86_64/cuda-rhel8.repo
+  dnf install --setopt=obsoletes=0 -y \
+      cuda-nvcc-12-8 \
+      cuda-cudart-devel-12-8 \
+      libcurand-devel-12-8 \
+      libcublas-devel-12-8 
+  ln -sf cuda-12.8 /usr/local/cuda
+
+  # Verify CUDA installation
+  echo "=== CUDA Installation Verification ==="
+  /usr/local/cuda/bin/nvcc --version
+  
   # list the installed CUDA packages
-  tree -L 4 /usr/local/cuda-12.2
+  # tree -L 4 /usr/local/cuda
 fi

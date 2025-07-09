@@ -8,51 +8,52 @@ dynamic = ["version"]
 readme = "README.md"
 description = "MUSICA is a Python library for performing computational simulations in atmospheric chemistry."
 authors = [
-    { name = "Matthew Dawsom", email = "mattdawson@ucar.edu" },
-    { name = "Jiwon Gim", email = "jiwongim@ucar.edu" },
-    { name = "David Fillmore", email = "fillmore@ucar.edu" },
-    { name = "Kyle Shores", email = "kshores@ucar.edu" },
-    { name = "Montek Thind", email = "mthind@ucar.edu" }
+  { name = "Matthew Dawsom", email = "mattdawson@ucar.edu" },
+  { name = "Jiwon Gim", email = "jiwongim@ucar.edu" },
+  { name = "David Fillmore", email = "fillmore@ucar.edu" },
+  { name = "Kyle Shores", email = "kshores@ucar.edu" },
+  { name = "Montek Thind", email = "mthind@ucar.edu" },
 ]
-maintainers = [{ name = "ACOM MUSICA Developers", email = "musica-support@ucar.edu" }]
+maintainers = [
+  { name = "ACOM MUSICA Developers", email = "musica-support@ucar.edu" },
+]
 license = { file = "LICENSE" }
 
-dependencies = [
-    "pyyaml>=6.0.2",
-]
+dependencies = ["pyyaml>=6.0.2"]
 
 [project.optional-dependencies]
-test = [
-  "numpy",
-  "pytest",
-]
+test = ["numpy", "pytest"]
 
-gpu = [
-  "nvidia-cublas-cu12",
-  "nvidia-cuda-runtime-cu12",
-]
+gpu = ["nvidia-cublas-cu12", "nvidia-cuda-runtime-cu12"]
 
 [tool.scikit-build]
 cmake.build-type = "Release"
 cmake.define.MUSICA_ENABLE_PYTHON_LIBRARY = "ON"
-cmake.define.MUSICA_ENABLE_TUVX = "OFF"
 cmake.define.MUSICA_BUILD_FORTRAN_INTERFACE = "OFF"
+cmake.define.MUSICA_ONLY_PYTHON = "ON"
 cmake.define.MUSICA_ENABLE_TESTS = "OFF"
 cmake.define.CMAKE_POLICY_VERSION_MINIMUM = "3.5"
 cmake.define.MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE = "1"
 
 [[tool.scikit-build.overrides]]
-if.platform-system ="linux"
+if.platform-system = "linux"
 if.any.env.BUILD_GPU = true
 inherit.cmake.define = "append"
 cmake.define.MUSICA_GPU_TYPE = "all_major"
+cmake.define.CMAKE_CUDA_COMPILER = "/usr/local/cuda/bin/nvcc"
 
 # 32 bit linux cannot be built with CUDA support
 [[tool.scikit-build.overrides]]
-if.platform-system ="linux"
+if.platform-system = "linux"
 if.platform-machine = "i686"
 inherit.cmake.define = "append"
 cmake.define.MUSICA_GPU_TYPE = "None"
+cmake.define.MUSICA_ENABLE_TUVX = "OFF"
+
+[[tool.scikit-build.overrides]]
+if.platform-system = "win32"
+inherit.cmake.define = "append"
+cmake.define.MUSICA_ENABLE_TUVX = "OFF"
 
 [project.urls]
 homepage = "https://wiki.ucar.edu/display/MUSICA/MUSICA+Home"
@@ -72,7 +73,7 @@ version = "${version}"
 # you can test cibuildwheel on any computer with docker directly. First, make a 
 # new python environment and install cibbuildwheel into it
 # then, run something like this:
-# BUILD_GPU=1 CIBW_ARCHS=x86_64 CIBW_PLATFORM=linux CIBW_ENVIRONMENT="CUDA_PATH=/usr/local/cuda PATH=/usr/local/cuda/bin:\$PATH LD_LIBRARY_PATH=/usr/local/cuda/lib64:\$LD_LIBRARY_PATH" cibuildwheel --output-dir wheelhouse > log.txt 2>&1
+# CIBW_ARCHS=x86_64 CIBW_PLATFORM=linux cibuildwheel --output-dir wheelhouse > log.txt 2>&1
 [tool.cibuildwheel]
 # Increase pip debugging output
 build-verbosity = 3
@@ -82,11 +83,22 @@ build = ["cp39-*", "cp310-*", "cp311-*", "cp312-*", "cp313-*", "cp314-*", "cp315
 skip = "cp27-* cp34-* cp35-* cp36-* *musllinux*"
 archs = "auto"
 
-# Set up pre-build hook
-
+# Set up pre-build hooks
 [tool.cibuildwheel.macos]
 environment.MACOSX_DEPLOYMENT_TARGET = "10.15"
+before-all = "musica/tools/prepare_build_environment_macos.sh"
 
 [tool.cibuildwheel.linux]
 before-all = "musica/tools/prepare_build_environment_linux.sh"
 repair-wheel-command = "bash musica/tools/repair_wheel_gpu.sh {wheel} {dest_dir}"
+# Use manylinux_2_28 for modern GCC 8.5 and NetCDF compatibility
+manylinux-x86_64-image = "manylinux_2_28"
+manylinux-aarch64-image = "manylinux_2_28"
+
+[tool.cibuildwheel.linux.environment]
+CUDA_PATH = "/usr/local/cuda"
+PATH = "/usr/local/cuda/bin:$PATH"
+LD_LIBRARY_PATH = "/usr/local/cuda/lib64:$LD_LIBRARY_PATH"
+BUILD_GPU = 1
+
+[tool.cibuildwheel.windows]
