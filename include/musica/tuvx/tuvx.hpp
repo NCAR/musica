@@ -21,6 +21,7 @@ namespace musica
   {
    public:
     TUVX();
+    ~TUVX();
 
     /// @brief Create an instance of tuvx from a configuration file
     /// @param config_path Path to configuration file
@@ -74,8 +75,6 @@ namespace musica
     /// @brief Get the version of TUV-x
     /// @return TUV-x version string
     static std::string GetVersion();
-
-    ~TUVX();
 
    private:
     void *tuvx_;
