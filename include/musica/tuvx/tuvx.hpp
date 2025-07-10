@@ -11,7 +11,6 @@
 #include <musica/util.hpp>
 
 #include <memory>
-#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -30,13 +29,6 @@ namespace musica
     /// @param radiators Radiator map from host application
     /// @param error Error struct to indicate success or failure
     void Create(const char *config_path, GridMap *grids, ProfileMap *profiles, RadiatorMap *radiators, Error *error);
-
-    /// @brief Create an instance of tuvx from a configuration file only (simple interface)
-    /// All parameters (solar zenith angle, Earth-Sun distance, atmospheric profiles, etc.)
-    /// are read from the JSON configuration file, similar to the Fortran tuvx.F90 driver
-    /// @param config_path Path to configuration file
-    /// @throws std::runtime_error if operation fails
-    void CreateFromConfigOnly(const char *config_path);
 
     /// @brief Create a grid map. For now, this calls the interal tuvx fortran api, but will allow the change to c++ later on
     /// to be transparent to downstream projects
@@ -88,7 +80,6 @@ namespace musica
    private:
     void *tuvx_;
     int number_of_layers_;
-    bool is_config_only_mode_;
   };
 
 }  // namespace musica
