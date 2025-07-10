@@ -2,80 +2,90 @@
 
 namespace musica
 {
-  // TUVX external C API functions
-  TUVX *CreateTuvx(const char *config_path, GridMap *grids, ProfileMap *profiles, RadiatorMap *radiators, Error *error)
+#ifdef __cplusplus
+  extern "C"
   {
-    DeleteError(error);
-    TUVX *tuvx = new TUVX();
+#endif
 
-    tuvx->Create(config_path, grids, profiles, radiators, error);
-    if (!IsSuccess(*error))
+    // TUVX external C API functions
+    TUVX *CreateTuvx(const char *config_path, GridMap *grids, ProfileMap *profiles, RadiatorMap *radiators, Error *error)
     {
-      delete tuvx;
-      return nullptr;
-    }
-    return tuvx;
-  }
+      DeleteError(error);
+      TUVX *tuvx = new TUVX();
 
-  void DeleteTuvx(const TUVX *tuvx, Error *error)
-  {
-    DeleteError(error);
-    if (tuvx == nullptr)
+      tuvx->Create(config_path, grids, profiles, radiators, error);
+      if (!IsSuccess(*error))
+      {
+        delete tuvx;
+        return nullptr;
+      }
+      return tuvx;
+    }
+
+    void DeleteTuvx(const TUVX *tuvx, Error *error)
     {
-      *error = NoError();
-      return;
+      DeleteError(error);
+      if (tuvx == nullptr)
+      {
+        *error = NoError();
+        return;
+      }
+      try
+      {
+        delete tuvx;
+        *error = NoError();
+      }
+      catch (const std::system_error &e)
+      {
+        *error = ToError(e);
+      }
     }
-    try
+
+    GridMap *GetGridMap(TUVX *tuvx, Error *error)
     {
-      delete tuvx;
-      *error = NoError();
+      DeleteError(error);
+
+      return tuvx->CreateGridMap(error);
     }
-    catch (const std::system_error &e)
+
+    ProfileMap *GetProfileMap(TUVX *tuvx, Error *error)
     {
-      *error = ToError(e);
+      DeleteError(error);
+      return tuvx->CreateProfileMap(error);
     }
-  }
 
-  GridMap *GetGridMap(TUVX *tuvx, Error *error)
-  {
-    DeleteError(error);
+    RadiatorMap *GetRadiatorMap(TUVX *tuvx, Error *error)
+    {
+      DeleteError(error);
+      return tuvx->CreateRadiatorMap(error);
+    }
 
-    return tuvx->CreateGridMap(error);
-  }
+    Mappings GetPhotolysisRateConstantsOrdering(TUVX *tuvx, Error *error)
+    {
+      DeleteError(error);
+      return tuvx->GetPhotolysisRateConstantsOrdering(error);
+    }
 
-  ProfileMap *GetProfileMap(TUVX *tuvx, Error *error)
-  {
-    DeleteError(error);
-    return tuvx->CreateProfileMap(error);
-  }
+    Mappings GetHeatingRatesOrdering(TUVX *tuvx, Error *error)
+    {
+      DeleteError(error);
+      return tuvx->GetHeatingRatesOrdering(error);
+    }
 
-  RadiatorMap *GetRadiatorMap(TUVX *tuvx, Error *error)
-  {
-    DeleteError(error);
-    return tuvx->CreateRadiatorMap(error);
-  }
+    void RunTuvx(
+        TUVX *const tuvx,
+        const double solar_zenith_angle,
+        const double earth_sun_distance,
+        double *const photolysis_rate_constants,
+        double *const heating_rates,
+        Error *const error)
+    {
+      DeleteError(error);
+      tuvx->Run(solar_zenith_angle, earth_sun_distance, photolysis_rate_constants, heating_rates, error);
+    }
 
-  Mappings GetPhotolysisRateConstantsOrdering(TUVX *tuvx, Error *error)
-  {
-    DeleteError(error);
-    return tuvx->GetPhotolysisRateConstantsOrdering(error);
+#ifdef __cplusplus
   }
+#endif
 
-  Mappings GetHeatingRatesOrdering(TUVX *tuvx, Error *error)
-  {
-    DeleteError(error);
-    return tuvx->GetHeatingRatesOrdering(error);
-  }
-
-  void RunTuvx(
-      TUVX *const tuvx,
-      const double solar_zenith_angle,
-      const double earth_sun_distance,
-      double *const photolysis_rate_constants,
-      double *const heating_rates,
-      Error *const error)
-  {
-    DeleteError(error);
-    tuvx->Run(solar_zenith_angle, earth_sun_distance, photolysis_rate_constants, heating_rates, error);
-  }
 }  // namespace musica
