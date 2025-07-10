@@ -52,7 +52,7 @@ $ make install
 
 # Using the MUSICA Python API
 MUSICA makes its chemical mechanism analysis and visualization available through a Python API. The following example works through solving a simple chemistry system. Please refer to the [official documentation](https://ncar.github.io/musica/index.html) for further tutorials and examples.
-```
+```python
 # --- Import Musica ---
 import musica
 import musica.mechanism_configuration as mc
