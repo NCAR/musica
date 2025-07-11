@@ -48,6 +48,7 @@ if(MUSICA_ENABLE_TUVX)
     ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/radiator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/radiator_map.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/tuvx.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/tuvx_c_interface.cpp
   )
 endif()
 
