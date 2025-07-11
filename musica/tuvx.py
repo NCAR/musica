@@ -10,6 +10,7 @@ Note: TUV-x is only available on macOS and Linux platforms.
 
 import os
 import json
+import tempfile
 from typing import Dict, Tuple, List
 import numpy as np
 from . import backend
@@ -17,6 +18,7 @@ from . import backend
 _backend = backend.get_backend()
 
 version = _backend._tuvx._get_tuvx_version() if backend.tuvx_available() else None
+
 
 class TUVX:
     """
@@ -157,32 +159,41 @@ class TUVX:
         return heating_rates[:, rate_index]
 
     @staticmethod
-    def create_config_from_dict(config_dict: Dict, output_path: str) -> str:
+    def create_config_from_dict(config_dict: Dict) -> 'TUVX':
         """
-        Create a JSON configuration file from a dictionary.
+        Create a TUVX instance from a configuration dictionary.
 
         Args:
             config_dict: Configuration dictionary
-            output_path: Path where to save the JSON file
 
         Returns:
-            The output_path for convenience
+            TUVX instance initialized with the configuration
+
+        Raises:
+            ValueError: If TUV-x backend is not available
+            FileNotFoundError: If required data files are not found
         """
-        with open(output_path, 'w') as f:
+        temp_file = tempfile.NamedTemporaryFile(
+            mode='w', suffix='.json', delete=False)
+        with temp_file as f:
             json.dump(config_dict, f, indent=2)
-        return output_path
+        return TUVX(temp_file.name)
 
     @staticmethod
-    def create_config_from_json_string(json_string: str, output_path: str) -> str:
+    def create_config_from_json_string(json_string: str) -> 'TUVX':
         """
-        Create a JSON configuration file from a JSON string.
+        Create a TUVX instance from a JSON configuration string.
 
         Args:
             json_string: JSON configuration as string
-            output_path: Path where to save the JSON file
 
         Returns:
-            The output_path for convenience
+            TUVX instance initialized with the configuration
+
+        Raises:
+            json.JSONDecodeError: If json_string is not valid JSON
+            ValueError: If TUV-x backend is not available
+            FileNotFoundError: If required data files are not found
         """
         config_dict = json.loads(json_string)
-        return TUVX.create_config_from_dict(config_dict, output_path)
+        return TUVX.create_config_from_dict(config_dict)
