@@ -57,6 +57,23 @@ function(musica_setup_target target)
     )
   endif()
 
+  if (MUSICA_ENABLE_CARMA)
+    list(APPEND musica_compile_definitions MUSICA_USE_CARMA)
+    target_sources(${target}
+      PRIVATE
+        $<TARGET_OBJECTS:carma_object>
+    )
+    target_link_libraries(${target}
+      PUBLIC
+        carma_object
+    )
+    target_include_directories(${target}
+      PUBLIC
+        $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
+        $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
+    )
+  endif()
+
   target_compile_definitions(${target} PUBLIC ${musica_compile_definitions})
 
 endfunction()
