@@ -21,6 +21,7 @@ namespace musica
   {
    public:
     TUVX();
+    ~TUVX();
 
     /// @brief Create an instance of tuvx from a configuration file
     /// @param config_path Path to configuration file
