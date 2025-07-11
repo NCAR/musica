@@ -37,6 +37,7 @@ class Musica(CMakePackage):
     variant("fortran", default=False, description="Build Fortran interface")
     variant("micm", default=True, description="Enable MICM support")
     variant("tuvx", default=True, description="Enable TUV-x support")
+    variant("carma", default=True, description="Enable CARMA support")
 
     # Dependencies
     depends_on("cmake@3.21:", type="build")
@@ -44,6 +45,8 @@ class Musica(CMakePackage):
     depends_on("fortran", type="build")
     depends_on("mpi", when="+mpi")
     depends_on("netcdf-fortran", when="+tuvx")
+    depends_on("netcdf-fortran", when="+carma")
+    depends_on("lapack", when="+carma")
 
     def cmake_args(self):
         args = [
@@ -53,6 +56,7 @@ class Musica(CMakePackage):
             self.define_from_variant("MUSICA_BUILD_FORTRAN_INTERFACE", "fortran"),
             self.define_from_variant("MUSICA_ENABLE_MICM", "micm"),
             self.define_from_variant("MUSICA_ENABLE_TUVX", "tuvx"),
+            self.define_from_variant("MUSICA_ENABLE_CARMA", "carma"),
             self.define("MUSICA_ENABLE_INSTALL", True),
         ]
         return args

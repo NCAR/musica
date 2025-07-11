@@ -16,8 +16,8 @@ RUN apt update \
     gcc \
     gfortran \
     git \
-    liblapack-dev \
     lcov \
+    liblapack-dev \
     libcurl4-openssl-dev \
     libhdf5-dev \
     libnetcdf-dev \

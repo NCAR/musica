@@ -16,6 +16,7 @@ RUN apt update \
     gcc \
     gfortran \
     git \
+    liblapack-dev \
     libhdf5-dev \
     libnetcdf-dev \
     libnetcdff-dev \
