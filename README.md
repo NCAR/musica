@@ -23,6 +23,9 @@ At present the project encompasses these core components
 - [MICM](https://github.com/NCAR/micm)
     - Model Independent Chemical Module
 
+- [CARMA](https://github.com/ESCOMP/CARMA)
+    - Community Aerosol and Radiation Model for Atmospheres (integration in developement)
+
 - [Mechanism Configuration](https://github.com/NCAR/MechanismConfiguration)
     - The standardized format to describe atmospheric chemistry
 
