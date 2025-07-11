@@ -16,3 +16,5 @@ musica.egg-info
 **/*__pycache__*
 **/*.pyc
 wheelhouse
+
+error.json
