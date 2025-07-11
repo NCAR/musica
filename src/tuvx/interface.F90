@@ -15,9 +15,6 @@ module tuvx_interface
 
    private
 
-! Module variable to store the allocated version string pointer
-   character(kind=c_char), pointer :: version_string_ptr(:) => null()
-
 contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -278,7 +275,7 @@ contains
 
    subroutine internal_get_tuvx_version(version_ptr, version_length) &
       bind(C, name="InternalGetTuvxVersion")
-      use iso_c_binding, only: c_ptr, c_char, c_int, c_f_pointer
+      use iso_c_binding, only: c_ptr, c_char, c_int, c_f_pointer, c_null_char, c_loc
       use tuvx_version, only: get_tuvx_version
 
       ! arguments
@@ -286,22 +283,19 @@ contains
       integer(c_int),  intent(out) :: version_length
 
       ! local variables
-      character(:), allocatable :: version_fortran
+      character(len=:),       allocatable :: version_fortran
+      character(kind=c_char), pointer     :: version_string_ptr(:)
       integer :: i
-
-      ! Free any previously allocated version string
-      if (associated(version_string_ptr)) then
-         deallocate(version_string_ptr)
-      end if
 
       version_fortran = get_tuvx_version()
       version_length = len_trim(version_fortran)
 
       ! Allocate and copy string
-      allocate(version_string_ptr(version_length))
+      allocate(version_string_ptr(version_length + 1))
       do i = 1, version_length
          version_string_ptr(i) = version_fortran(i:i)
       end do
+      version_string_ptr(version_length + 1) = c_null_char
 
       version_ptr = c_loc(version_string_ptr)
 
@@ -309,17 +303,19 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-   subroutine internal_free_tuvx_version(version_ptr) &
+   subroutine internal_free_tuvx_version(version_ptr, version_length) &
       bind(C, name="InternalFreeTuvxVersion")
-      use iso_c_binding, only: c_ptr
+      use iso_c_binding, only: c_ptr, c_int, c_associated, c_f_pointer, c_char
 
       ! arguments
-      type(c_ptr), value, intent(in) :: version_ptr
+      type(c_ptr),    value, intent(in) :: version_ptr
+      integer(c_int), value, intent(in) :: version_length
+      character(kind=c_char), pointer :: version_string_ptr(:)
 
-      ! Free the module variable that was allocated
-      if (associated(version_string_ptr)) then
+      ! Free the allocated version string pointer
+      if (c_associated(version_ptr)) then
+         call c_f_pointer(version_ptr, version_string_ptr, [version_length + 1])
          deallocate(version_string_ptr)
-         nullify(version_string_ptr)
       end if
 
    end subroutine internal_free_tuvx_version

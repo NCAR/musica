@@ -16,3 +16,7 @@ endif()
 if (MUSICA_ENABLE_TUVX)
   add_subdirectory(tuvx)
 endif()
+
+if (MUSICA_ENABLE_CARMA)
+  add_subdirectory(carma)
+endif()

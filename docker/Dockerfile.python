@@ -10,6 +10,7 @@ RUN dnf -y update \
         gcc-fortran \
         gdb \
         git \
+        lapack-devel \
         make \
         netcdf-fortran-devel \
         pip \

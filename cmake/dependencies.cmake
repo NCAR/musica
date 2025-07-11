@@ -120,6 +120,24 @@ if (MUSICA_ENABLE_TUVX AND MUSICA_BUILD_C_CXX_INTERFACE)
 endif()
 
 ################################################################################
+# CARMA
+if(MUSICA_ENABLE_CARMA AND MUSICA_BUILD_C_CXX_INTERFACE)
+  set_git_default(CARMA_GIT_REPOSITORY https://github.com/NCAR/CARMA-ACOM-dev.git)
+  set_git_default(CARMA_GIT_TAG develop-carma-box)
+
+  FetchContent_Declare(carma
+      GIT_REPOSITORY ${CARMA_GIT_REPOSITORY}
+      GIT_TAG ${CARMA_GIT_TAG}
+      GIT_PROGRESS NOT ${FETCHCONTENT_QUIET}
+      FIND_PACKAGE_ARGS NAMES carma
+  )
+
+  set(CARMA_ENABLE_TESTS OFF)
+
+  FetchContent_MakeAvailable(carma)
+endif()
+
+################################################################################
 # pybind11
 if(MUSICA_ENABLE_PYTHON_LIBRARY)
   set(PYBIND11_NEWPYTHON ON)

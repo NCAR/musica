@@ -33,3 +33,9 @@ def tuvx_available():
     """Check if the TUVX backend is available."""
     _backend = get_backend()
     return hasattr(_backend._tuvx, "_get_tuvx_version")
+
+
+def carma_available():
+    """Check if the CARMA backend is available."""
+    _backend = get_backend()
+    return hasattr(_backend._carma, "_get_carma_version")

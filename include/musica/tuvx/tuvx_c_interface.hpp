@@ -99,7 +99,7 @@ namespace musica
         int *error_code);
 
     void InternalGetTuvxVersion(char **version_ptr, int *version_length);
-    void InternalFreeTuvxVersion(char *version_ptr);
+    void InternalFreeTuvxVersion(char *version_ptr, int version_length);
 
 #ifdef __cplusplus
   }
