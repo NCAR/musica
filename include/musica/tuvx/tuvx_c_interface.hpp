@@ -101,14 +101,14 @@ namespace musica
     void InternalGetTuvxVersion(char **version_ptr, int *version_length);
     void InternalFreeTuvxVersion(char *version_ptr);
 
-        void *create_tuvx_from_config_c(const char *config_path, int config_path_length, int *error_code);
-    void run_tuvx_c(void *tuvx, double *photolysis_rates, double *heating_rates, int *error_code);
-    int get_photolysis_rate_count_c(void *tuvx, int *error_code);
-    int get_heating_rate_count_c(void *tuvx, int *error_code);
-    int get_number_of_layers_c(void *tuvx, int *error_code);
-    int get_number_of_sza_steps_c(void *tuvx, int *error_code);
-    void get_photolysis_rate_names_c(void *tuvx, char **names, int *error_code);
-    void get_heating_rate_names_c(void *tuvx, char **names, int *error_code);
+    void *InternalCreateTuvxFromConfig(const char *config_path, int config_path_length, int *error_code);
+    void InternalRunTuvxFromConfig(void *tuvx, double *photolysis_rates, double *heating_rates, int *error_code);
+    int InternalGetPhotolysisRateCount(void *tuvx, int *error_code);
+    int InternalGetHeatingRateCount(void *tuvx, int *error_code);
+    int InternalGetNumberOfLayers(void *tuvx, int *error_code);
+    int InternalGetNumberOfSzaSteps(void *tuvx, int *error_code);
+    void InternalGetPhotolysisRateNames(void *tuvx, char **names, int *error_code);
+    void InternalGetHeatingRateNames(void *tuvx, char **names, int *error_code);
 
 #ifdef __cplusplus
   }

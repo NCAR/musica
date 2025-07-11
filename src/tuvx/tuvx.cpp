@@ -79,7 +79,7 @@ namespace musica
       throw std::runtime_error("Config file does not exist: " + std::string(config_path));
     }
 
-    tuvx_ = create_tuvx_from_config_c(config_path, strlen(config_path), &error_code);
+    tuvx_ = InternalCreateTuvxFromConfig(config_path, strlen(config_path), &error_code);
     if (error_code != 0 || tuvx_ == nullptr)
     {
       throw std::runtime_error("Failed to create tuvx instance from config");
@@ -87,7 +87,7 @@ namespace musica
 
     is_config_only_mode_ = true;
     // Get number of layers for this mode
-    this->number_of_layers_ = get_number_of_layers_c(tuvx_, &error_code);
+    this->number_of_layers_ = InternalGetNumberOfLayers(tuvx_, &error_code);
     if (error_code != 0)
     {
       throw std::runtime_error("Failed to get number of layers");
@@ -191,7 +191,7 @@ namespace musica
     }
 
     int error_code = 0;
-    run_tuvx_c(tuvx_, photolysis_rate_constants, heating_rates, &error_code);
+    InternalRunTuvxFromConfig(tuvx_, photolysis_rate_constants, heating_rates, &error_code);
     if (error_code != 0)
     {
       throw std::runtime_error("Failed to run TUV-x from config");
@@ -206,7 +206,7 @@ namespace musica
     }
 
     int error_code = 0;
-    int count = get_photolysis_rate_count_c(tuvx_, &error_code);
+    int count = InternalGetPhotolysisRateCount(tuvx_, &error_code);
     if (error_code != 0)
     {
       throw std::runtime_error("Failed to get photolysis rate count");
@@ -222,7 +222,7 @@ namespace musica
     }
 
     int error_code = 0;
-    int count = get_heating_rate_count_c(tuvx_, &error_code);
+    int count = InternalGetHeatingRateCount(tuvx_, &error_code);
     if (error_code != 0)
     {
       throw std::runtime_error("Failed to get heating rate count");
@@ -238,7 +238,7 @@ namespace musica
     }
 
     int error_code = 0;
-    int count = get_number_of_layers_c(tuvx_, &error_code);
+    int count = InternalGetNumberOfLayers(tuvx_, &error_code);
     if (error_code != 0)
     {
       throw std::runtime_error("Failed to get number of layers");
@@ -254,7 +254,7 @@ namespace musica
     }
 
     int error_code = 0;
-    int count = get_number_of_sza_steps_c(tuvx_, &error_code);
+    int count = InternalGetNumberOfSzaSteps(tuvx_, &error_code);
     if (error_code != 0)
     {
       throw std::runtime_error("Failed to get number of SZA steps");
@@ -272,9 +272,9 @@ namespace musica
     }
 
     // For now, return placeholder names since we'd need to implement
-    // get_photolysis_rate_names_c in Fortran to get actual names
+    // GetPhotolysisRateNames in Fortran to get actual names
     int error_code = 0;
-    int count = get_photolysis_rate_count_c(tuvx_, &error_code);
+    int count = InternalGetPhotolysisRateCount(tuvx_, &error_code);
     if (error_code != 0)
     {
       throw std::runtime_error("Failed to get photolysis rate count");
@@ -297,9 +297,9 @@ namespace musica
     }
 
     // For now, return placeholder names since we'd need to implement
-    // get_heating_rate_names_c in Fortran to get actual names
+    // GetHeatingRateNames in Fortran to get actual names
     int error_code = 0;
-    int count = get_heating_rate_count_c(tuvx_, &error_code);
+    int count = InternalGetHeatingRateCount(tuvx_, &error_code);
     if (error_code != 0)
     {
       throw std::runtime_error("Failed to get heating rate count");
@@ -312,7 +312,7 @@ namespace musica
     return names;
   }
 
-   std::string TUVX::GetVersion()
+  std::string TUVX::GetVersion()
   {
     char *version_ptr;
     int version_length;

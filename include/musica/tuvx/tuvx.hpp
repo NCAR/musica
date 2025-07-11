@@ -121,8 +121,6 @@ namespace musica
     /// @throws std::runtime_error if operation fails
     std::vector<std::string> GetHeatingRateNames();
 
-    ~TUVX();
-
    private:
     void *tuvx_;
     int number_of_layers_;
