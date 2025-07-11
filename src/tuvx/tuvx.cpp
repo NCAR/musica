@@ -13,11 +13,6 @@
 
 namespace musica
 {
-<<<<<<< HEAD
-  // TUVX class functions
-
-=======
->>>>>>> main
   TUVX::TUVX()
       : tuvx_(nullptr),
         is_config_only_mode_(false)
