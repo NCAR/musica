@@ -45,65 +45,9 @@ def test_fixed_tuvx(monkeypatch):
     assert len(heating_names_1) > 0, "No heating rates found"
     assert len(photolysis_names_1) > 0, "No photolysis rates found"
 
+    # these fail to run due to missing solar zenith angle, but that's not required and these should be able to run
     # rates = tuvx.run()
     # print(f"Rates: {rates}")
-
-
-# def test_create_config_from_dict():
-#     """Test creating a TUVX instance from a dictionary."""
-#     config_dict = {
-#         "__description": "Test configuration",
-#         "grids": [
-#             {
-#                 "name": "height",
-#                 "units": "km",
-#                 "type": "from config file",
-#                 "values": [0.0, 1.0, 2.0]
-#             }
-#         ],
-#         "profiles": [
-#             {
-#                 "name": "temperature",
-#                 "units": "K",
-#                 "type": "from config file",
-#                 "grid": {"name": "height", "units": "km"},
-#                 "values": [300, 275, 260]
-#             }
-#         ]
-#     }
-    
-#     # Test the method
-#     tuvx_instance = musica.TUVX.create_config_from_dict(config_dict)
-    
-#     # Verify the method returns a TUVX instance
-#     assert isinstance(tuvx_instance, musica.TUVX)
-#     assert hasattr(tuvx_instance, 'photolysis_rate_names')
-#     assert hasattr(tuvx_instance, 'heating_rate_names')
-
-
-# def test_create_config_from_json_string():
-#     """Test creating a TUVX instance from a JSON string."""
-#     config_dict = {
-#         "__description": "Test configuration from JSON string",
-#         "grids": [
-#             {
-#                 "name": "wavelength",
-#                 "units": "nm",
-#                 "type": "from config file",
-#                 "values": [300, 400, 500]
-#             }
-#         ]
-#     }
-    
-#     json_string = json.dumps(config_dict, indent=2)
-    
-#     # Test the method
-#     tuvx_instance = musica.TUVX.create_config_from_json_string(json_string)
-    
-#     # Verify the method returns a TUVX instance
-#     assert isinstance(tuvx_instance, musica.TUVX)
-#     assert hasattr(tuvx_instance, 'photolysis_rate_names')
-#     assert hasattr(tuvx_instance, 'heating_rate_names')
 
 
 def test_tuvx_initialization_errors():
