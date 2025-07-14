@@ -173,11 +173,11 @@ class TUVX:
             ValueError: If TUV-x backend is not available
             FileNotFoundError: If required data files are not found
         """
-        temp_file = tempfile.NamedTemporaryFile(
-            mode='w', suffix='.json', delete=False)
-        with temp_file as f:
-            json.dump(config_dict, f, indent=2)
-        return TUVX(temp_file.name)
+        with tempfile.NamedTemporaryFile(
+            mode='w', suffix='.json', delete=True) as temp_file:
+            json.dump(config_dict, temp_file, indent=2)
+            temp_file.flush()  # Ensure all data is written to disk
+            return TUVX(temp_file.name)
 
     @staticmethod
     def create_config_from_json_string(json_string: str) -> 'TUVX':
