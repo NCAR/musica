@@ -74,6 +74,10 @@ function(musica_setup_target target)
     )
   endif()
 
+  if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND MUSICA_ENABLE_FORTRAN)
+    target_compile_options(${target} PUBLIC $<$<COMPILE_LANGUAGE:Fortran>:-ffree-line-length-512>)
+  endif()
+
   target_compile_definitions(${target} PUBLIC ${musica_compile_definitions})
 
 endfunction()
