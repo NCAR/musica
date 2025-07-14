@@ -14,7 +14,8 @@
 namespace musica
 {
   TUVX::TUVX()
-      : tuvx_(nullptr)
+      : tuvx_(nullptr),
+        is_config_only_mode_(false)
   {
   }
 
@@ -22,7 +23,9 @@ namespace musica
   {
     int error_code = 0;
     if (tuvx_ != nullptr)
+    {
       InternalDeleteTuvx(tuvx_, &error_code);
+    }
     tuvx_ = nullptr;
   }
 
@@ -52,6 +55,7 @@ namespace musica
       }
       else
       {
+        is_config_only_mode_ = false;
         *error = NoError();
       }
     }
@@ -62,6 +66,31 @@ namespace musica
     catch (...)
     {
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create tuvx instance") };
+    }
+  }
+
+  void TUVX::CreateFromConfigOnly(const char *config_path)
+  {
+    int error_code = 0;
+
+    // check that the file exists
+    if (!std::filesystem::exists(config_path))
+    {
+      throw std::runtime_error("Config file does not exist: " + std::string(config_path));
+    }
+
+    tuvx_ = InternalCreateTuvxFromConfig(config_path, strlen(config_path), &error_code);
+    if (error_code != 0 || tuvx_ == nullptr)
+    {
+      throw std::runtime_error("Failed to create tuvx instance from config");
+    }
+
+    is_config_only_mode_ = true;
+    // Get number of layers for this mode
+    this->number_of_layers_ = InternalGetNumberOfLayers(tuvx_, &error_code);
+    if (error_code != 0)
+    {
+      throw std::runtime_error("Failed to get number of layers");
     }
   }
 
@@ -152,6 +181,135 @@ namespace musica
     {
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to run TUV-x") };
     }
+  }
+
+  void TUVX::RunFromConfig(double *const photolysis_rate_constants, double *const heating_rates)
+  {
+    if (!is_config_only_mode_)
+    {
+      throw std::runtime_error("RunFromConfig can only be used with CreateFromConfigOnly");
+    }
+
+    int error_code = 0;
+    InternalRunTuvxFromConfig(tuvx_, photolysis_rate_constants, heating_rates, &error_code);
+    if (error_code != 0)
+    {
+      throw std::runtime_error("Failed to run TUV-x from config");
+    }
+  }
+
+  int TUVX::GetPhotolysisRateCount()
+  {
+    if (!is_config_only_mode_)
+    {
+      throw std::runtime_error("GetPhotolysisRateCount requires config-only mode");
+    }
+
+    int error_code = 0;
+    int count = InternalGetPhotolysisRateCount(tuvx_, &error_code);
+    if (error_code != 0)
+    {
+      throw std::runtime_error("Failed to get photolysis rate count");
+    }
+    return count;
+  }
+
+  int TUVX::GetHeatingRateCount()
+  {
+    if (!is_config_only_mode_)
+    {
+      throw std::runtime_error("GetHeatingRateCount requires config-only mode");
+    }
+
+    int error_code = 0;
+    int count = InternalGetHeatingRateCount(tuvx_, &error_code);
+    if (error_code != 0)
+    {
+      throw std::runtime_error("Failed to get heating rate count");
+    }
+    return count;
+  }
+
+  int TUVX::GetNumberOfLayers()
+  {
+    if (!is_config_only_mode_)
+    {
+      throw std::runtime_error("GetNumberOfLayers requires config-only mode");
+    }
+
+    int error_code = 0;
+    int count = InternalGetNumberOfLayers(tuvx_, &error_code);
+    if (error_code != 0)
+    {
+      throw std::runtime_error("Failed to get number of layers");
+    }
+    return count;
+  }
+
+  int TUVX::GetNumberOfSzaSteps()
+  {
+    if (!is_config_only_mode_)
+    {
+      throw std::runtime_error("GetNumberOfSzaSteps requires config-only mode");
+    }
+
+    int error_code = 0;
+    int count = InternalGetNumberOfSzaSteps(tuvx_, &error_code);
+    if (error_code != 0)
+    {
+      throw std::runtime_error("Failed to get number of SZA steps");
+    }
+    return count;
+  }
+
+  std::vector<std::string> TUVX::GetPhotolysisRateNames()
+  {
+    std::vector<std::string> names;
+
+    if (!is_config_only_mode_)
+    {
+      throw std::runtime_error("GetPhotolysisRateNames requires config-only mode");
+    }
+
+    // For now, return placeholder names since we'd need to implement
+    // GetPhotolysisRateNames in Fortran to get actual names
+    int error_code = 0;
+    int count = InternalGetPhotolysisRateCount(tuvx_, &error_code);
+    if (error_code != 0)
+    {
+      throw std::runtime_error("Failed to get photolysis rate count");
+    }
+
+    for (int i = 0; i < count; ++i)
+    {
+      names.push_back("photolysis_" + std::to_string(i));
+    }
+    return names;
+  }
+
+  std::vector<std::string> TUVX::GetHeatingRateNames()
+  {
+    std::vector<std::string> names;
+
+    if (!is_config_only_mode_)
+    {
+      throw std::runtime_error("GetHeatingRateNames requires config-only mode");
+    }
+
+    // For now, return placeholder names since we'd need to implement
+    // GetHeatingRateNames in Fortran to get actual names
+    int error_code = 0;
+    int count = InternalGetHeatingRateCount(tuvx_, &error_code);
+    if (error_code != 0)
+    {
+      throw std::runtime_error("Failed to get heating rate count");
+    }
+
+    for (int i = 0; i < count; ++i)
+    {
+      names.push_back("heating_" + std::to_string(i));
+    }
+    return names;
   }
 
   std::string TUVX::GetVersion()

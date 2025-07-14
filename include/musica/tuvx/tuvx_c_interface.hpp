@@ -101,6 +101,15 @@ namespace musica
     void InternalGetTuvxVersion(char **version_ptr, int *version_length);
     void InternalFreeTuvxVersion(char *version_ptr);
 
+    void *InternalCreateTuvxFromConfig(const char *config_path, int config_path_length, int *error_code);
+    void InternalRunTuvxFromConfig(void *tuvx, double *photolysis_rates, double *heating_rates, int *error_code);
+    int InternalGetPhotolysisRateCount(void *tuvx, int *error_code);
+    int InternalGetHeatingRateCount(void *tuvx, int *error_code);
+    int InternalGetNumberOfLayers(void *tuvx, int *error_code);
+    int InternalGetNumberOfSzaSteps(void *tuvx, int *error_code);
+    void InternalGetPhotolysisRateNames(void *tuvx, char **names, int *error_code);
+    void InternalGetHeatingRateNames(void *tuvx, char **names, int *error_code);
+
 #ifdef __cplusplus
   }
 #endif

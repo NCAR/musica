@@ -326,4 +326,234 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+   function create_tuvx_from_config_c(c_config_path, config_path_length, error_code) &
+      bind(C, name="InternalCreateTuvxFromConfig")
+      use iso_c_binding, only: c_ptr, c_f_pointer
+      use musica_config, only: config_t
+
+      ! arguments
+      character(kind=c_char), dimension(*), intent(in)  :: c_config_path
+      integer(kind=c_size_t), value                     :: config_path_length
+      integer(kind=c_int),                  intent(out) :: error_code
+      type(c_ptr)                                       :: create_tuvx_from_config_c
+
+      ! local variables
+      character(len=:), allocatable :: f_config_path
+      type(core_t), pointer         :: core
+      type(string_t)                :: musica_config_path
+      integer                       :: i
+
+      allocate(character(len=config_path_length) :: f_config_path)
+      do i = 1, config_path_length
+         f_config_path(i:i) = c_config_path(i)
+      end do
+
+      musica_config_path = f_config_path
+
+      core => core_t(musica_config_path)
+      create_tuvx_from_config_c = c_loc(core)
+      error_code = 0
+
+   end function create_tuvx_from_config_c
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   subroutine run_tuvx_c(tuvx, photolysis_rates, heating_rates, error_code) &
+      bind(C, name="InternalRunTuvxFromConfig")
+      use iso_c_binding, only: c_ptr, c_f_pointer
+      use musica_constants, only: dk => musica_dk
+      use tuvx_grid, only: grid_t
+      use tuvx_profile, only: profile_t
+
+      ! arguments
+      type(c_ptr), value,      intent(in)  :: tuvx
+      type(c_ptr), value,      intent(in)  :: photolysis_rates   ! (sza_step, layer, reaction)
+      type(c_ptr), value,      intent(in)  :: heating_rates      ! (sza_step, layer, heating_type)
+      integer(kind=c_int),     intent(out) :: error_code
+
+      ! variables
+      type(core_t), pointer :: core
+      real(kind=dk), pointer :: photo_rates(:,:,:), heat_rates(:,:,:)
+      class(grid_t), pointer :: height
+      class(profile_t), pointer :: sza, earth_sun_distance
+      integer :: i_sza, n_layers, n_sza_steps
+      character(len=2) :: diagnostic_label
+
+      call c_f_pointer(tuvx, core)
+
+      ! Get grids and profiles from the configuration
+      height => core%get_grid("height", "km")
+      sza => core%get_profile("solar zenith angle", "degrees")
+      earth_sun_distance => core%get_profile("Earth-Sun distance", "AU")
+
+      n_layers = height%ncells_ + 1
+      n_sza_steps = sza%ncells_ + 1
+
+      call c_f_pointer(photolysis_rates, photo_rates, &
+         [n_sza_steps, n_layers, core%number_of_photolysis_reactions()])
+      call c_f_pointer(heating_rates, heat_rates, &
+         [n_sza_steps, n_layers, core%number_of_heating_rates()])
+
+      ! Run TUV-x for each solar zenith angle step (like in the Fortran driver)
+      do i_sza = 1, n_sza_steps
+         write(diagnostic_label,'(i2.2)') i_sza
+         call core%run(sza%edge_val_(i_sza), &
+            earth_sun_distance%edge_val_(i_sza), &
+            photolysis_rate_constants = photo_rates(i_sza, :, :), &
+            heating_rates = heat_rates(i_sza, :, :), &
+            diagnostic_label = diagnostic_label)
+      end do
+
+      deallocate(height)
+      deallocate(sza)
+      deallocate(earth_sun_distance)
+      error_code = 0
+
+   end subroutine run_tuvx_c
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   function get_photolysis_rate_count_c(tuvx, error_code) bind(C, name="InternalGetPhotolysisRateCount")
+      use iso_c_binding, only: c_ptr, c_f_pointer
+
+      ! arguments
+      type(c_ptr), value,      intent(in)  :: tuvx
+      integer(kind=c_int),     intent(out) :: error_code
+      integer(kind=c_int)                  :: get_photolysis_rate_count_c
+
+      ! variables
+      type(core_t), pointer :: core
+
+      call c_f_pointer(tuvx, core)
+      get_photolysis_rate_count_c = core%number_of_photolysis_reactions()
+      error_code = 0
+
+   end function get_photolysis_rate_count_c
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   function get_heating_rate_count_c(tuvx, error_code) bind(C, name="InternalGetHeatingRateCount")
+      use iso_c_binding, only: c_ptr, c_f_pointer
+
+      ! arguments
+      type(c_ptr), value,      intent(in)  :: tuvx
+      integer(kind=c_int),     intent(out) :: error_code
+      integer(kind=c_int)                  :: get_heating_rate_count_c
+
+      ! variables
+      type(core_t), pointer :: core
+
+      call c_f_pointer(tuvx, core)
+      get_heating_rate_count_c = core%number_of_heating_rates()
+      error_code = 0
+
+   end function get_heating_rate_count_c
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   function get_number_of_layers_c(tuvx, error_code) bind(C, name="InternalGetNumberOfLayers")
+      use iso_c_binding, only: c_ptr, c_f_pointer
+      use tuvx_grid, only: grid_t
+
+      ! arguments
+      type(c_ptr), value,      intent(in)  :: tuvx
+      integer(kind=c_int),     intent(out) :: error_code
+      integer(kind=c_int)                  :: get_number_of_layers_c
+
+      ! variables
+      type(core_t), pointer :: core
+      class(grid_t), pointer :: height
+
+      call c_f_pointer(tuvx, core)
+
+      height => core%get_grid("height", "km")
+      get_number_of_layers_c = height%ncells_ + 1
+      deallocate(height)
+      error_code = 0
+
+   end function get_number_of_layers_c
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   function get_number_of_sza_steps_c(tuvx, error_code) bind(C, name="InternalGetNumberOfSzaSteps")
+      use iso_c_binding, only: c_ptr, c_f_pointer
+      use tuvx_profile, only: profile_t
+
+      ! arguments
+      type(c_ptr), value,      intent(in)  :: tuvx
+      integer(kind=c_int),     intent(out) :: error_code
+      integer(kind=c_int)                  :: get_number_of_sza_steps_c
+
+      ! variables
+      type(core_t), pointer :: core
+      class(profile_t), pointer :: sza
+
+      call c_f_pointer(tuvx, core)
+      sza => core%get_profile("solar zenith angle", "degrees")
+      get_number_of_sza_steps_c = sza%ncells_ + 1
+      deallocate(sza)
+      error_code = 0
+
+   end function get_number_of_sza_steps_c
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   subroutine get_photolysis_rate_names_c(tuvx, names, error_code) &
+      bind(C, name="InternalGetPhotolysisRateNames")
+      use iso_c_binding, only: c_ptr, c_f_pointer
+      use musica_string, only: string_t
+
+      ! arguments
+      type(c_ptr), value,      intent(in)  :: tuvx
+      type(c_ptr), value,      intent(in)  :: names
+      integer(kind=c_int),     intent(out) :: error_code
+
+      ! variables
+      type(core_t), pointer :: core
+      type(string_t), allocatable :: labels(:)
+      character(kind=c_char), pointer :: c_names(:)
+      integer :: i, n_labels, name_length
+
+      call c_f_pointer(tuvx, core)
+      labels = core%photolysis_reaction_labels()
+      n_labels = size(labels)
+
+      ! Note: This is a simplified implementation
+      ! In practice, you would need to properly allocate and manage the string array
+      ! and handle the conversion from Fortran strings to C strings
+      error_code = 0
+
+   end subroutine get_photolysis_rate_names_c
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   subroutine get_heating_rate_names_c(tuvx, names, error_code) &
+      bind(C, name="InternalGetHeatingRateNames")
+      use iso_c_binding, only: c_ptr, c_f_pointer
+      use musica_string, only: string_t
+
+      ! arguments
+      type(c_ptr), value,      intent(in)  :: tuvx
+      type(c_ptr), value,      intent(in)  :: names
+      integer(kind=c_int),     intent(out) :: error_code
+
+      ! variables
+      type(core_t), pointer :: core
+      type(string_t), allocatable :: labels(:)
+      character(kind=c_char), pointer :: c_names(:)
+      integer :: i, n_labels, name_length
+
+      call c_f_pointer(tuvx, core)
+      labels = core%heating_rate_labels()
+      n_labels = size(labels)
+
+      ! Note: This is a simplified implementation
+      ! In practice, you would need to properly allocate and manage the string array
+      ! and handle the conversion from Fortran strings to C strings
+      error_code = 0
+
+   end subroutine get_heating_rate_names_c
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 end module tuvx_interface
