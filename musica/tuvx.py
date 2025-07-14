@@ -2,7 +2,7 @@
 TUV-x photolysis calculator Python interface.
 
 This module provides a simplified Python interface to the TUV-x photolysis calculator.
-It allows users to create a TUV-x instance from a JSON configuration file and 
+It allows users to create a TUV-x instance from a JSON configuration file and
 calculate photolysis rates and heating rates.
 
 Note: TUV-x is only available on macOS and Linux platforms.
@@ -174,7 +174,7 @@ class TUVX:
             FileNotFoundError: If required data files are not found
         """
         with tempfile.NamedTemporaryFile(
-            mode='w', suffix='.json', delete=True) as temp_file:
+                mode='w', suffix='.json', delete=True) as temp_file:
             json.dump(config_dict, temp_file, indent=2)
             temp_file.flush()  # Ensure all data is written to disk
             return TUVX(temp_file.name)

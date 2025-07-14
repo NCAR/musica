@@ -5,6 +5,7 @@ import json
 available = musica.backend.tuvx_available()
 pytestmark = pytest.mark.skipif(not available, reason="TUV-x backend is not available")
 
+
 def test_tuvx_version():
     version = musica.tuvx.version
     assert version is not None
@@ -37,7 +38,7 @@ def test_fixed_tuvx(monkeypatch):
     photolysis_names_2 = tuvx.photolysis_rate_names
     heating_names_1 = tuvx.heating_rate_names
     heating_names_2 = tuvx.heating_rate_names
-    
+
     # Verify they return the same object (cached)
     assert photolysis_names_1 is photolysis_names_2
     assert heating_names_1 is heating_names_2
@@ -55,6 +56,7 @@ def test_tuvx_initialization_errors():
     # Test with non-existent file
     with pytest.raises(FileNotFoundError):
         musica.TUVX("non_existent_config.json")
+
 
 if __name__ == '__main__':
     pytest.main([__file__])
