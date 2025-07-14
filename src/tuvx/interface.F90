@@ -326,8 +326,6 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
    function create_tuvx_from_config_c(c_config_path, config_path_length, error_code) &
       bind(C, name="InternalCreateTuvxFromConfig")
       use iso_c_binding, only: c_ptr, c_f_pointer
