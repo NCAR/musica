@@ -1,8 +1,8 @@
 // Copyright (C) 2023-2025 National Center for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 //
-// This file contains the implementation of the TUVX class, which represents a multi-component
-// reactive transport model. It also includes functions for creating and deleting TUVX instances.
+// This file contains the implementation of the TUVX class, which creates C connections
+// to the TUV-x photolysis calculator, allowing it to be used in a C++ context.
 #include <musica/tuvx/tuvx.hpp>
 #include <musica/tuvx/tuvx_c_interface.hpp>
 
