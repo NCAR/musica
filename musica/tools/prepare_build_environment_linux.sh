@@ -29,7 +29,7 @@ if [ "$target_arch" = "x86_64" ]; then
   $PKG_MGR install -y netcdf-devel netcdf-fortran-devel
 fi
 
-$PKG_MGR install -y tree wget zip 
+$PKG_MGR install -y tree wget zip lapack-devel
 
 if [ "$target_arch" = "x86_64" ]; then
   # Install CUDA 12.8 for x86_64 on AlmaLinux 8 (manylinux_2_28) - supports GCC 14

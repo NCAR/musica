@@ -1,1 +1,1 @@
-brew install netcdf netcdf-fortran 
+brew install netcdf netcdf-fortran lapack
