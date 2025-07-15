@@ -72,9 +72,8 @@ function(musica_setup_target target)
         $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
         $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
     )
-    message(STATUS "Fortran compiler: ${CMAKE_Fortran_COMPILER_ID}")
     if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
-      target_compile_options(carma_object PUBLIC -ffree-line-length-512)
+      target_compile_options(carma_object PUBLIC $<$<COMPILE_LANGUAGE:Fortran>:-ffree-line-length-none>)
     endif()
   endif()
 
