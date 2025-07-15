@@ -14,4 +14,3 @@ def test_carma_version():
 
 if __name__ == '__main__':
     pytest.main([__file__])
-    
