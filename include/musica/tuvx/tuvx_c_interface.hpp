@@ -99,7 +99,7 @@ namespace musica
         int *error_code);
 
     void InternalGetTuvxVersion(char **version_ptr, int *version_length);
-    void InternalFreeTuvxVersion(char *version_ptr);
+    void InternalFreeTuvxVersion(char *version_ptr, int version_length);
 
     void *InternalCreateTuvxFromConfig(const char *config_path, int config_path_length, int *error_code);
     void InternalRunTuvxFromConfig(void *tuvx, double *photolysis_rates, double *heating_rates, int *error_code);

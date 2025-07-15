@@ -49,11 +49,13 @@ if.platform-machine = "i686"
 inherit.cmake.define = "append"
 cmake.define.MUSICA_GPU_TYPE = "None"
 cmake.define.MUSICA_ENABLE_TUVX = "OFF"
+cmake.define.MUSICA_ENABLE_CARMA = "OFF"
 
 [[tool.scikit-build.overrides]]
 if.platform-system = "win32"
 inherit.cmake.define = "append"
 cmake.define.MUSICA_ENABLE_TUVX = "OFF"
+cmake.define.MUSICA_ENABLE_CARMA = "OFF"
 
 [project.urls]
 homepage = "https://wiki.ucar.edu/display/MUSICA/MUSICA+Home"

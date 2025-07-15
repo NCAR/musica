@@ -57,9 +57,20 @@ if (MUSICA_ENABLE_TUVX)
     EXPORT
       musica_Exports
   )
+endif()
 
-  # TUV-x code is written in Fortran, and until it is completely rewritten in C++,
-  # MUSICA includes Fortran module files.
+# install CARMA
+if (MUSICA_ENABLE_CARMA)
+  install(
+    TARGETS
+      carma_object
+    EXPORT
+      musica_Exports
+  )
+endif()
+
+if (MUSICA_ENABLE_TUVX OR MUSICA_ENABLE_CARMA)
+  # TUV-x and CARMA code is written in Fortran, so we need module files
   install(
     DIRECTORY
       ${MUSICA_MOD_DIR}/../include/
