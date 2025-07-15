@@ -24,5 +24,5 @@ namespace musica
 
     return version;
   }
-  
-}
+
+}  // namespace musica
