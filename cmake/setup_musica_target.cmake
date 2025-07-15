@@ -74,7 +74,7 @@ function(musica_setup_target target)
     )
     message(STATUS "Fortran compiler: ${CMAKE_Fortran_COMPILER_ID}")
     if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND MUSICA_ENABLE_CARMA)
-      target_compile_options(${target} PUBLIC $<$<COMPILE_LANGUAGE:Fortran>:-ffree-line-length-512>)
+      target_compile_options(${target} PUBLIC -ffree-line-length-512)
     endif()
   endif()
 
