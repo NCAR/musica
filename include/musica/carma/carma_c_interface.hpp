@@ -11,16 +11,16 @@ namespace musica
   {
 #endif
 
-  // The external C API for CARMA
-  // callable by wrappers in other languages
+    // The external C API for CARMA
+    // callable by wrappers in other languages
 
-  char* GetCarmaVersion();
+    char *GetCarmaVersion();
 
-  // for use by musica internally.
-  void InternalGetCarmaVersion(char **version_ptr, int *version_length);
-  void InternalFreeCarmaVersion(char *version_ptr, int version_length);
+    // for use by musica internally.
+    void InternalGetCarmaVersion(char **version_ptr, int *version_length);
+    void InternalFreeCarmaVersion(char *version_ptr, int version_length);
 
 #ifdef __cplusplus
-  } // extern "C"
+  }  // extern "C"
 #endif
-}
+}  // namespace musica

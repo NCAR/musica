@@ -7,16 +7,18 @@
 
 #include <string>
 
-namespace musica {
+namespace musica
+{
 
-class CARMA {
-public:
+  class CARMA
+  {
+   public:
     CARMA();
     ~CARMA();
 
     /// @brief Get the version of CARMA
     /// @return The version string of the CARMA instance
     static std::string GetVersion();
-};
+  };
 
-} // namespace musica
+}  // namespace musica

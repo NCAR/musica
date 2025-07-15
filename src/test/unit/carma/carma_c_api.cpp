@@ -7,7 +7,7 @@ using namespace musica;
 
 class CarmaCApiTest : public ::testing::Test
 {
-protected:
+ protected:
   void SetUp() override
   {
     // Code to set up the test environment
