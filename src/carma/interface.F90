@@ -105,24 +105,6 @@ contains
       ! Copy parameters from C to Fortran structure
       call convert_c_to_fortran_params(c_params, f_params)
 
-      print *, "Running CARMA with the following fortran parameters:"
-      print *, "max_bins:", f_params%max_bins
-      print *, "max_groups:", f_params%max_groups
-      print *, "nz:", f_params%nz
-      print *, "ny:", f_params%ny
-      print *, "nx:", f_params%nx
-      print *, "nelem:", f_params%nelem
-      print *, "ngroup:", f_params%ngroup
-      print *, "nbin:", f_params%nbin
-      print *, "nsolute:", f_params%nsolute
-      print *, "ngas:", f_params%ngas
-      print *, "nwave:", f_params%nwave
-      print *, "dtime:", f_params%dtime
-      print *, "nstep:", f_params%nstep
-      print *, "deltaz:", f_params%deltaz
-      print *, "zmin:", f_params%zmin
-      print *, ""
-
       ! Actually run CARMA simulation
       call run_carma_simulation(f_params, rc)
 
@@ -187,14 +169,14 @@ contains
       type(carma_type), pointer :: carma_ptr
       type(carmastate_type) :: cstate
 
-      ! Model dimensions - use parameters from f_params
+      ! Model dimensions
       integer :: NZ, NY, NX, NZP1, NELEM, NGROUP, NBIN, NSOLUTE, NGAS, NWAVE
       integer, parameter :: LUNOPRT = 6
 
       ! Grid and atmospheric variables
       real(kind=f), allocatable :: lat(:), lon(:)
       real(kind=f), allocatable :: zc(:), zl(:), p(:), pl(:), t(:), rhoa(:)
-      real(kind=f), allocatable :: t_orig(:)  ! Store original temperature for told parameter
+      real(kind=f), allocatable :: t_orig(:)
       real(kind=f) :: time
       real(kind=f) :: dtime
       integer :: nstep
@@ -338,7 +320,7 @@ contains
       print *, "Running time integration..."
 
       ! Time integration loop
-      do istep = 1, nstep
+      carma_time_integration: do istep = 1, nstep
 
          ! Calculate the model time
          time = (istep - 1) * dtime
@@ -415,7 +397,7 @@ contains
             print *, "Completed step", istep, "of", nstep
          end if
 
-      end do   ! time loop
+      end do carma_time_integration
 
       print *, "CARMA simulation completed with error code:", rc
 
