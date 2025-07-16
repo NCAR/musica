@@ -65,12 +65,13 @@ def test_carma_instance():
 
     # Test running with default parameters
     params = musica.carma.CARMAParameters(nstep=1)  # Short run for testing
-    carma.run(params)  # Should not raise an exception
+    carma.run(params)
 
     # Test running with test configuration
     test_params = musica.CARMA.get_aluminum_test_parameters()
-    test_params.nstep = 1  # Short run for testing
-    carma.run(test_params)  # Should not raise an exception
+    test_params.nstep = 560
+    print(test_params.to_dict())
+    carma.run(test_params)
 
 
 if __name__ == '__main__':

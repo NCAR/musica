@@ -78,23 +78,8 @@ class CARMAParameters:
 
     def to_dict(self) -> Dict:
         """Convert parameters to dictionary for C++ interface."""
-        return {
-            'max_bins': self.max_bins,
-            'max_groups': self.max_groups,
-            'nz': self.nz,
-            'ny': self.ny,
-            'nx': self.nx,
-            'nelem': self.nelem,
-            'ngroup': self.ngroup,
-            'nbin': self.nbin,
-            'nsolute': self.nsolute,
-            'ngas': self.ngas,
-            'nwave': self.nwave,
-            'dtime': self.dtime,
-            'nstep': self.nstep,
-            'deltaz': self.deltaz,
-            'zmin': self.zmin
-        }
+        # Use introspection to get all instance attributes except methods and built-ins
+        return {k: v for k, v in self.__dict__.items() if not k.startswith('__') and not callable(v)}
 
     @classmethod
     def from_dict(cls, params_dict: Dict) -> 'CARMAParameters':

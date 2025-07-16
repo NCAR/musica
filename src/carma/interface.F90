@@ -10,7 +10,11 @@ module carma_interface
    private
 
    ! C-compatible structure for CARMA parameters
+   ! MUST match the exact order and types of the C++ CARMAParameters struct
    type, bind(C) :: c_carma_parameters
+      integer(c_int) :: max_bins = 100
+      integer(c_int) :: max_groups = 10
+
       ! Model dimensions
       integer(c_int) :: nz = 1
       integer(c_int) :: ny = 1
@@ -21,7 +25,6 @@ module carma_interface
       integer(c_int) :: nsolute = 0
       integer(c_int) :: ngas = 0
       integer(c_int) :: nwave = 30
-      integer(c_int) :: nrefidx = 1
 
       ! Time stepping parameters
       real(c_double) :: dtime = 1800.0d0
@@ -102,6 +105,24 @@ contains
       ! Copy parameters from C to Fortran structure
       call convert_c_to_fortran_params(c_params, f_params)
 
+      print *, "Running CARMA with the following fortran parameters:"
+      print *, "max_bins:", f_params%max_bins
+      print *, "max_groups:", f_params%max_groups
+      print *, "nz:", f_params%nz
+      print *, "ny:", f_params%ny
+      print *, "nx:", f_params%nx
+      print *, "nelem:", f_params%nelem
+      print *, "ngroup:", f_params%ngroup
+      print *, "nbin:", f_params%nbin
+      print *, "nsolute:", f_params%nsolute
+      print *, "ngas:", f_params%ngas
+      print *, "nwave:", f_params%nwave
+      print *, "dtime:", f_params%dtime
+      print *, "nstep:", f_params%nstep
+      print *, "deltaz:", f_params%deltaz
+      print *, "zmin:", f_params%zmin
+      print *, ""
+
    end subroutine internal_run_carma_with_parameters
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -112,6 +133,10 @@ contains
 
       type(c_carma_parameters), intent(in) :: c_params
       type(carma_parameters_type), intent(out) :: f_params
+
+      ! Maximum values
+      f_params%max_bins = c_params%max_bins
+      f_params%max_groups = c_params%max_groups
 
       ! Model dimensions
       f_params%nz = c_params%nz
@@ -125,12 +150,12 @@ contains
       f_params%nwave = c_params%nwave
 
       ! Time stepping parameters
-      f_params%dtime = real(c_params%dtime, kind=selected_real_kind(15,307))
+      f_params%dtime = real(c_params%dtime, kind=c_double)
       f_params%nstep = c_params%nstep
 
       ! Spatial parameters
-      f_params%deltaz = real(c_params%deltaz, kind=selected_real_kind(15,307))
-      f_params%zmin = real(c_params%zmin, kind=selected_real_kind(15,307))
+      f_params%deltaz = real(c_params%deltaz, kind=c_double)
+      f_params%zmin = real(c_params%zmin, kind=c_double)
 
    end subroutine convert_c_to_fortran_params
 
