@@ -51,7 +51,10 @@ extensions = [
     'sphinx.ext.intersphinx'
 ]
 
+breathe_projects = { "musica": "../build/xml" }
 breathe_default_project = "musica"
+
+
 
 bibtex_bibfiles = ['references.bib']
 suppress_warnings = ["bibtex.missing_field"]
