@@ -26,15 +26,21 @@ Welcome to MUSICA's documentation!
         :link: user_guide/index
         :link-type: doc
 
+        Learn how to configure MUSICA for your mechanisms here!
+
     .. grid-item-card::  API reference
         :img-top: _static/index_api.svg
         :link: api/index
         :link-type: doc
 
+        The source code for MUSICA is heavily documented. This reference will help you extend MUSICA for your needs.
+
     .. grid-item-card::  Contributors guide
         :img-top: _static/index_contribute.svg
         :link: contributing/index
         :link-type: doc
+
+        If you'd like to contribute some new science code or update the docs, checkout the contributor's guide!
 
 
 .. toctree::
