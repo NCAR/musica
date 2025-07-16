@@ -49,7 +49,7 @@ Welcome to MUSICA's documentation!
 
    getting_started/getting_started
    user_guide/index
-   tutorial/tutorial
+   tutorials/tutorials
    api/index
    contributing/index
 
