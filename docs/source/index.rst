@@ -52,6 +52,7 @@ Welcome to MUSICA's documentation!
    tutorials/tutorials
    api/index
    contributing/index
+   citing/index
 
 Indices and tables
 ==================
