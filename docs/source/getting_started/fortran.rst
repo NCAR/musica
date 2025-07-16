@@ -1,4 +1,4 @@
-Installation
+Fortran
 ============
 
 MUSICA source code may be cloned from its public GitHub repository
