@@ -24,7 +24,5 @@
    Memcheck:Cond
    fun:setupvf_
    fun:__carmastate_mod_MOD_carmastate_step
-   fun:__carma_interface_MOD_run_carma_simulation
-   fun:InternalRunCarmaWithParameters
    ...
 }
