@@ -53,6 +53,7 @@ extensions = [
 
 breathe_projects = { "musica": "../build/xml" }
 breathe_default_project = "musica"
+highlight_language = 'python'
 
 
 
