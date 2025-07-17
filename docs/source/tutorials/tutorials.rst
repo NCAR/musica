@@ -8,6 +8,9 @@ MUSICA offers a series of tutorial snippets in Fortran as well as tutorial noteb
 
 Fortran
 ========
+1. :ref:`installing MUSICA <installing_musica>`
+2. :ref:`first Fortran MUSICA program <chapter1>`
+3. :ref:`box model example <chapter2>`
 
 
 Python
@@ -51,4 +54,4 @@ The tutorial notebooks are also included here in the documentation for convenien
    3. user_defined_reactions
    4. local_parallelization
    5. hpc_parallelization
-   6. gpu_so
+   6. gpu_solver
