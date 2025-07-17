@@ -57,14 +57,6 @@ inherit.cmake.define = "append"
 cmake.define.MUSICA_ENABLE_TUVX = "OFF"
 cmake.define.MUSICA_ENABLE_CARMA = "OFF"
 
-# macOS architecture-specific overrides
-[[tool.scikit-build.overrides]]
-if.platform-system = "darwin"
-inherit.cmake.define = "append"
-cmake.define.CMAKE_OSX_DEPLOYMENT_TARGET = "10.15"
-cmake.define.CMAKE_FIND_FRAMEWORK = "NEVER"
-cmake.define.CMAKE_FIND_APPBUNDLE = "NEVER"
-
 [project.urls]
 homepage = "https://wiki.ucar.edu/display/MUSICA/MUSICA+Home"
 
@@ -95,7 +87,7 @@ skip = "cp27-* cp34-* cp35-* cp36-* *musllinux*"
 # Set up pre-build hooks
 [tool.cibuildwheel.macos]
 environment.MACOSX_DEPLOYMENT_TARGET = "10.15"
-before-build = "bash musica/tools/prepare_build_environment_macos.sh"
+before-all = "bash musica/tools/prepare_build_environment_macos.sh"
 
 [tool.cibuildwheel.linux]
 before-all = "musica/tools/prepare_build_environment_linux.sh"
