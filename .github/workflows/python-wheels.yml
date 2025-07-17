@@ -36,17 +36,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: ubuntu-latest
-            python-version: "3.13"
-          - os: windows-latest
-            python-version: "3.13"
-          - os: macos-13  # Intel runner for x86_64 and universal2
-            python-version: "3.13"
-            cibw_archs: "x86_64 universal2"
-          - os: macos-14  # ARM runner for arm64
-            python-version: "3.13"
-            cibw_archs: "arm64"
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.15"]
 
     steps:
     - uses: actions/checkout@v4
@@ -65,13 +56,11 @@ jobs:
 
     - name: CI Build Wheels
       uses: pypa/cibuildwheel@v2.17
-      env:
-        CIBW_ARCHS: ${{ matrix.cibw_archs || '' }}
 
     - name: Upload wheels
       uses: actions/upload-artifact@v4
       with:
-        name: cibw-wheels-${{ matrix.os }}-${{ matrix.cibw_archs || 'default' }}-py${{ matrix.python-version }}
+        name: cibw-wheels-${{ matrix.os }}-py${{ matrix.python-version }}
         path: wheelhouse/*.whl
 
   upload_all:

@@ -81,15 +81,7 @@ version = "${version}"
 build-verbosity = 3
 
 # Add your desired build configuration
-build = [
-  "cp39-*",
-  "cp310-*",
-  "cp311-*",
-  "cp312-*",
-  "cp313-*",
-  "cp314-*",
-  "cp315-*",
-]
+build = ["cp39-*", "cp310-*", "cp311-*", "cp312-*", "cp313-*", "cp314-*", "cp315-*"]
 skip = "cp27-* cp34-* cp35-* cp36-* *musllinux*"
 
 # Set up pre-build hooks
