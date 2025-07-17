@@ -1,7 +1,7 @@
 Python
 ========
 
-1. Downloading MUSICA
+1. Installing MUSICA
 ------------------------
 To install MUSICA onto your device, run
 
