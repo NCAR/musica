@@ -47,6 +47,12 @@ jobs:
     - uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
+  
+    - name: Set up QEMU for cross-architecture builds
+        if: matrix.os == 'ubuntu-latest'
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: all
 
     - name: CI Build Wheels
       uses: pypa/cibuildwheel@v2.17
