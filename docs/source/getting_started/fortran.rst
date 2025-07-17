@@ -49,7 +49,7 @@ Finally, build and install MUSICA:
   make install
 
 1b. Docker Installation
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Alternatively, you can build and install MUSICA using Docker. First, ensure
 that you have
@@ -74,7 +74,7 @@ the container will be deleted along with any files you created or modified when
 you exit.)
 
 2. An MICM Box Model Example in Fortran
---------------------------------------
+-----------------------------------------
 
 In this next MUSICA Fortran example, we will setup a MICM solver, starting with a set of MICM configuration files,
 and run the solver for a single integration time step.

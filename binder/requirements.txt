@@ -1,0 +1,8 @@
+musica
+pandas
+matplotlib
+numpy
+scipy
+seaborn
+dask[distributed]
+dask-jobqueue
