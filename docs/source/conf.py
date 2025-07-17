@@ -51,10 +51,9 @@ extensions = [
     'sphinx.ext.intersphinx'
 ]
 
-breathe_projects = { "musica": "../build/xml" }
+breathe_projects = {"musica": "../build/xml"}
 breathe_default_project = "musica"
 highlight_language = 'python'
-
 
 
 bibtex_bibfiles = ['references.bib']
