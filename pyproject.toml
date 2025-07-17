@@ -37,7 +37,7 @@ cmake.define.MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE = "1"
 
 [[tool.scikit-build.overrides]]
 if.platform-system = "linux"
-if.any.env.BUILD_GPU = true
+if.env.BUILD_GPU = "1"
 inherit.cmake.define = "append"
 cmake.define.MUSICA_GPU_TYPE = "all_major"
 cmake.define.CMAKE_CUDA_COMPILER = "/usr/local/cuda/bin/nvcc"
@@ -56,6 +56,14 @@ if.platform-system = "win32"
 inherit.cmake.define = "append"
 cmake.define.MUSICA_ENABLE_TUVX = "OFF"
 cmake.define.MUSICA_ENABLE_CARMA = "OFF"
+
+# macOS architecture-specific overrides
+[[tool.scikit-build.overrides]]
+if.platform-system = "darwin"
+inherit.cmake.define = "append"
+cmake.define.CMAKE_OSX_DEPLOYMENT_TARGET = "10.15"
+cmake.define.CMAKE_FIND_FRAMEWORK = "NEVER"
+cmake.define.CMAKE_FIND_APPBUNDLE = "NEVER"
 
 [project.urls]
 homepage = "https://wiki.ucar.edu/display/MUSICA/MUSICA+Home"
@@ -86,12 +94,10 @@ skip = "cp27-* cp34-* cp35-* cp36-* *musllinux*"
 
 # Set up pre-build hooks
 [tool.cibuildwheel.macos]
-archs = ["x86_64", "arm64", "universal2"]
 environment.MACOSX_DEPLOYMENT_TARGET = "10.15"
-before-all = "musica/tools/prepare_build_environment_macos.sh"
+before-build = "bash musica/tools/prepare_build_environment_macos.sh"
 
 [tool.cibuildwheel.linux]
-archs = ["x86_64", "aarch64", "i686"]
 before-all = "musica/tools/prepare_build_environment_linux.sh"
 repair-wheel-command = "bash musica/tools/repair_wheel_gpu.sh {wheel} {dest_dir}"
 # Use manylinux_2_28 for modern GCC 8.5 and NetCDF compatibility
@@ -102,7 +108,6 @@ manylinux-aarch64-image = "manylinux_2_28"
 CUDA_PATH = "/usr/local/cuda"
 PATH = "/usr/local/cuda/bin:$PATH"
 LD_LIBRARY_PATH = "/usr/local/cuda/lib64:$LD_LIBRARY_PATH"
-BUILD_GPU = 1
+BUILD_GPU = "1"
 
 [tool.cibuildwheel.windows]
-archs = ["AMD64", "x86", "ARM64"]
