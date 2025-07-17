@@ -29,6 +29,7 @@ option(MUSICA_ENABLE_MEMCHECK "Enable memory checking" OFF)
 option(MUSICA_BUILD_DOCS "Build the documentation" OFF)
 option(MUSICA_ENABLE_MICM "Enable MICM" ON)
 option(MUSICA_ENABLE_TUVX "Enable TUV-x" ON)
+option(MUSICA_ENABLE_CARMA "Enable CARMA" ON)
 option(MUSICA_ENABLE_PIC "Build the library with position independent code" OFF)
 option(MUSICA_ENABLE_COVERAGE "Enable code coverage output" OFF)
 option(MUSICA_BUNDLE_DEPENDENCIES "Bundle dependencies with the library" ON)
@@ -39,6 +40,9 @@ set(MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE "4" CACHE STRING "Set MICM vector-ordere
 
 cmake_dependent_option(
   MUSICA_ENABLE_PYTHON_LIBRARY "Adds pybind11, a lightweight header-only library that exposes C++ types in Python and vice versa" OFF "MUSICA_BUILD_C_CXX_INTERFACE" OFF)
+
+cmake_dependent_option(
+  MUSICA_ONLY_PYTHON "Build only the Python bindings. This option is used when building Python wheels primarily" OFF "MUSICA_ENABLE_PYTHON_LIBRARY" OFF)
 
 ################################################################################
 # Projet wide setup variables 
@@ -92,7 +96,7 @@ endif()
 # since sources are collected so that python libraries can target them directly,
 # we need to know if we are targeting Fortran before we collect the sources
 # otherwise cmake freaks out, and I don't know why, but this fixes it
-if(MUSICA_ENABLE_TUVX)
+if(MUSICA_ENABLE_TUVX OR MUSICA_ENABLE_CARMA)
     enable_language(Fortran)
 endif()
 

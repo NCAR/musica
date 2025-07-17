@@ -48,6 +48,15 @@ if(MUSICA_ENABLE_TUVX)
     ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/radiator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/radiator_map.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/tuvx.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/tuvx_c_interface.cpp
+  )
+endif()
+
+if(MUSICA_ENABLE_CARMA)
+  set(MUSICA_CARMA_SOURCES
+  ${CMAKE_CURRENT_SOURCE_DIR}/carma/carma.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/carma/carma_c_interface.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/carma/interface.F90
   )
 endif()
 
@@ -55,6 +64,7 @@ set(MUSICA_SOURCES
   ${MUSICA_COMMON_SOURCES}
   ${MUSICA_MICM_SOURCES}
   ${MUSICA_TUVX_SOURCES}
+  ${MUSICA_CARMA_SOURCES}
   CACHE INTERNAL "List of sources for MUSICA"
 )
 
@@ -65,6 +75,12 @@ configure_file(version.cpp.in ${CMAKE_BINARY_DIR}/version.cpp @ONLY)
 # MUSICA
 
 include(setup_musica_target)
+
+if (MUSICA_ONLY_PYTHON)
+  message(STATUS "Building only the Python bindings, skipping MUSICA C/C++ library")
+  message(STATUS "The musica library is not needed for the python bindings since we build the sources directly")
+  return()
+endif()
 
 add_library(musica)
 add_library(musica::musica ALIAS musica)

@@ -3,29 +3,35 @@
 #
 # This file is part of the musica Python package.
 # For more information, see the LICENSE file in the top-level directory of this distribution.
+from .reactions import Reactions, ReactionType
+from .user_defined import UserDefined, _UserDefined
+from .simpol_phase_transfer import SimpolPhaseTransfer, _SimpolPhaseTransfer
+from .henrys_law import HenrysLaw, _HenrysLaw
+from .wet_deposition import WetDeposition, _WetDeposition
+from .aqueous_equilibrium import AqueousEquilibrium, _AqueousEquilibrium
+from .first_order_loss import FirstOrderLoss, _FirstOrderLoss
+from .emission import Emission, _Emission
+from .condensed_phase_photolysis import CondensedPhasePhotolysis, _CondensedPhasePhotolysis
+from .photolysis import Photolysis, _Photolysis
+from .surface import Surface, _Surface
+from .tunneling import Tunneling, _Tunneling
+from .branched import Branched, _Branched
+from .troe import Troe, _Troe
+from .condensed_phase_arrhenius import CondensedPhaseArrhenius, _CondensedPhaseArrhenius
+from .arrhenius import Arrhenius, _Arrhenius
+from .phase import Phase
+from .species import Species
 import os
 import json
 import yaml
 from typing import Optional, Any, Dict, List
-from musica import _Mechanism, _Version, _Parser
-from .species import Species
-from .phase import Phase
-from .arrhenius import Arrhenius, _Arrhenius
-from .condensed_phase_arrhenius import CondensedPhaseArrhenius, _CondensedPhaseArrhenius
-from .troe import Troe, _Troe
-from .branched import Branched, _Branched
-from .tunneling import Tunneling, _Tunneling
-from .surface import Surface, _Surface
-from .photolysis import Photolysis, _Photolysis
-from .condensed_phase_photolysis import CondensedPhasePhotolysis, _CondensedPhasePhotolysis
-from .emission import Emission, _Emission
-from .first_order_loss import FirstOrderLoss, _FirstOrderLoss
-from .aqueous_equilibrium import AqueousEquilibrium, _AqueousEquilibrium
-from .wet_deposition import WetDeposition, _WetDeposition
-from .henrys_law import HenrysLaw, _HenrysLaw
-from .simpol_phase_transfer import SimpolPhaseTransfer, _SimpolPhaseTransfer
-from .user_defined import UserDefined, _UserDefined
-from .reactions import Reactions, ReactionType
+from .. import backend
+
+_backend = backend.get_backend()
+_mc = _backend._mechanism_configuration
+_Mechanism = _mc._Mechanism
+_Version = _mc._Version
+_Parser = _mc._Parser
 
 
 class Version(_Version):
@@ -68,7 +74,8 @@ class Mechanism(_Mechanism):
         self.name = name
         self.species = species if species is not None else []
         self.phases = phases if phases is not None else []
-        self.reactions = Reactions(reactions=reactions if reactions is not None else [])
+        self.reactions = Reactions(
+            reactions=reactions if reactions is not None else [])
         self.version = version if version is not None else Version()
 
     def to_dict(self) -> Dict:
@@ -87,9 +94,11 @@ class Mechanism(_Mechanism):
             elif isinstance(reaction, (_Branched, Branched)):
                 reactions_list.append(Branched.serialize(reaction))
             elif isinstance(reaction, (_CondensedPhaseArrhenius, CondensedPhaseArrhenius)):
-                reactions_list.append(CondensedPhaseArrhenius.serialize(reaction))
+                reactions_list.append(
+                    CondensedPhaseArrhenius.serialize(reaction))
             elif isinstance(reaction, (_CondensedPhasePhotolysis, CondensedPhasePhotolysis)):
-                reactions_list.append(CondensedPhasePhotolysis.serialize(reaction))
+                reactions_list.append(
+                    CondensedPhasePhotolysis.serialize(reaction))
             elif isinstance(reaction, (_Emission, Emission)):
                 reactions_list.append(Emission.serialize(reaction))
             elif isinstance(reaction, (_FirstOrderLoss, FirstOrderLoss)):
@@ -113,7 +122,8 @@ class Mechanism(_Mechanism):
             elif isinstance(reaction, (_UserDefined, UserDefined)):
                 reactions_list.append(UserDefined.serialize(reaction))
             else:
-                raise TypeError(f'Reaction type {type(reaction)} is not supported for export.')
+                raise TypeError(
+                    f'Reaction type {type(reaction)} is not supported for export.')
 
         return {
             "name": self.name,
@@ -139,7 +149,7 @@ class MechanismSerializer():
     """
 
     @staticmethod
-    def serialize(mechanism: Mechanism, file_path: str = "./mechanism.json") -> None:        
+    def serialize(mechanism: Mechanism, file_path: str = "./mechanism.json") -> None:
         if not isinstance(mechanism, Mechanism):
             raise TypeError(f"Object {mechanism} is not of type Mechanism.")
 
@@ -147,7 +157,7 @@ class MechanismSerializer():
         if directory:
             os.makedirs(directory, exist_ok=True)
         dictionary = mechanism.to_dict()
-        
+
         _, file_ext = os.path.splitext(file)
         file_ext = file_ext.lower()
         if file_ext in ['.yaml', '.yml']:
@@ -158,4 +168,5 @@ class MechanismSerializer():
             with open(file_path, 'w') as file:
                 file.write(json_str)
         else:
-            raise Exception('Allowable write formats are .json, .yaml, and .yml')
+            raise ValueError(
+                'Allowable write formats are .json, .yaml, and .yml')

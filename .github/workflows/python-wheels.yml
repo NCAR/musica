@@ -56,13 +56,6 @@ jobs:
 
     - name: CI Build Wheels
       uses: pypa/cibuildwheel@v2.17
-      env:
-        CIBW_ENVIRONMENT_PASS_LINUX: CIBW_ARCHS
-        CIBW_ENVIRONMENT_LINUX: >
-          CUDA_PATH=/usr/local/cuda
-          PATH=/usr/local/cuda/bin:$PATH
-          LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
-          BUILD_GPU=1
 
     - name: Upload wheels
       uses: actions/upload-artifact@v4

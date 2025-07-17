@@ -23,6 +23,9 @@ At present the project encompasses these core components
 - [MICM](https://github.com/NCAR/micm)
     - Model Independent Chemical Module
 
+- [CARMA](https://github.com/ESCOMP/CARMA)
+    - Community Aerosol and Radiation Model for Atmospheres (integration in development)
+
 - [Mechanism Configuration](https://github.com/NCAR/MechanismConfiguration)
     - The standardized format to describe atmospheric chemistry
 
@@ -39,6 +42,27 @@ MUSICA is installable via pip for Python or CMake for C++.
 pip install musica
 ```
 
+If you would like GPU support, you must first [add the NVIDIA pypi index](https://docs.nvidia.com/cuda/cuda-quick-start-guide/#pip-wheels-linux) and then you can specify the gpu install option for MUSICA. Note that GPU support has only been tested on linux.
+
+```
+pip install --upgrade setuptools pip wheel
+pip install nvidia-pyindex
+pip install musica[gpu]
+```
+
+To build the package locally,
+
+```
+pip install -e .
+```
+
+If you have an NVIDIA GPU and cuda installed, you can enable a build of musica with GPU support by setting the environment 
+variable `BUILD_GPU`.
+
+```
+BUILD_GPU=1 pip install -e .
+```
+
 ## CMake
 ```
 $ git clone https://github.com/NCAR/musica.git
@@ -52,7 +76,7 @@ $ make install
 
 # Using the MUSICA Python API
 MUSICA makes its chemical mechanism analysis and visualization available through a Python API. The following example works through solving a simple chemistry system. Please refer to the [official documentation](https://ncar.github.io/musica/index.html) for further tutorials and examples.
-```
+```python
 # --- Import Musica ---
 import musica
 import musica.mechanism_configuration as mc
@@ -169,41 +193,6 @@ Specifying a specific version of `tuv-x` by has, but using the official reposito
 
     $ cmake .. \
         -DTUVX_GIT_TAG=a6b2c4d8745
-
-
-### Python build
-Musica has python bindings. If you want to install the python package, you may `pip install musica`.
-
-#### PyPi
-If you only want to use the CPU components, 
-
-```
-pip install musica
-```
-
-Note that GPU support has only been tested on linux. If you have an NVIDIA GPU and would like to take 
-advantage of our GPU solver, you must first [add the NVIDIA pypi index](https://docs.nvidia.com/cuda/cuda-quick-start-guide/#pip-wheels-linux) and then install musica with our gpu option.
-
-```
-pip install --upgrade setuptools pip wheel
-pip install nvidia-pyindex
-pip install musica[gpu]
-```
-
-#### Local build
-
-Musica has python bindings. To build the package locally,
-
-```
-pip install -e .
-```
-
-If you have an NVIDIA GPU and cuda installed, you can enable a build of musica with GPU support by setting the environment 
-variable `BUILD_GPU`.
-
-```
-BUILD_GPU=1 pip install -e .
-```
 
 # Contributing
 

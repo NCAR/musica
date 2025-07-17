@@ -1,9 +1,13 @@
-from typing import Optional, Any, Dict, List, Union, Tuple
-from musica import _Branched, _ReactionComponent
-from .phase import Phase
-from .species import Species
-from .reactions import ReactionComponentSerializer
 from .utils import _add_other_properties, _remove_empty_keys
+from .reactions import ReactionComponentSerializer
+from .species import Species
+from .phase import Phase
+from typing import Optional, Any, Dict, List, Union, Tuple
+from .. import backend
+
+_backend = backend.get_backend()
+_Branched = _backend._mechanism_configuration._Branched
+_ReactionComponent = _backend._mechanism_configuration._ReactionComponent
 
 
 class Branched(_Branched):
@@ -32,9 +36,12 @@ class Branched(_Branched):
         Y: Optional[float] = None,
         a0: Optional[float] = None,
         n: Optional[float] = None,
-        reactants: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
-        nitrate_products: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
-        alkoxy_products: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
+        reactants: Optional[List[Union[Species,
+                                       Tuple[float, Species]]]] = None,
+        nitrate_products: Optional[List[Union[Species,
+                                              Tuple[float, Species]]]] = None,
+        alkoxy_products: Optional[List[Union[Species,
+                                             Tuple[float, Species]]]] = None,
         gas_phase: Optional[Phase] = None,
         other_properties: Optional[Dict[str, Any]] = None,
     ):
@@ -107,9 +114,12 @@ class Branched(_Branched):
             "Y": instance.Y,
             "a0": instance.a0,
             "n": instance.n,
-            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(instance.reactants),
-            "nitrate products": ReactionComponentSerializer.serialize_list_reaction_components(instance.nitrate_products),
-            "alkoxy products": ReactionComponentSerializer.serialize_list_reaction_components(instance.alkoxy_products),
+            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(
+                instance.reactants),
+            "nitrate products": ReactionComponentSerializer.serialize_list_reaction_components(
+                instance.nitrate_products),
+            "alkoxy products": ReactionComponentSerializer.serialize_list_reaction_components(
+                instance.alkoxy_products),
             "gas phase": instance.gas_phase,
         }
         _add_other_properties(serialize_dict, instance.other_properties)

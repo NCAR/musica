@@ -19,6 +19,7 @@ RUN apt update \
     gfortran \
     git \
     lcov \
+    liblapack-dev \
     libcurl4-openssl-dev \
     libhdf5-dev \
     libnetcdf-dev \
@@ -50,9 +51,10 @@ COPY . musica
 # Build and install MUSICA
 RUN cd musica \
     && cmake -S . \
-             -B build \
-             -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
-             -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
+        -B build \
+        -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+        -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
+        -D MUSICA_ENABLE_CARMA=OFF \
     && cd build \
     && make install -j
 
