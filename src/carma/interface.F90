@@ -43,7 +43,6 @@ contains
    subroutine internal_get_carma_version(version_ptr, version_length) &
       bind(C, name="InternalGetCarmaVersion")
       use iso_c_binding, only: c_ptr, c_int, c_f_pointer, c_null_char, c_loc, c_char
-      use musica_string, only: string_t
       use carma_version, only: get_carma_version
 
       ! arguments
@@ -183,16 +182,24 @@ contains
       real(kind=f) :: deltaz, zmin
 
       ! Gas and particle variables
-      real(kind=f), allocatable :: mmr_gas(:,:), mmr(:,:,:)
+      real(kind=f), allocatable :: mmr(:,:,:)
+      real(kind=f), allocatable :: mmr_gas(:,:)  ! Keep for potential future use
 
       ! Loop indices
       integer :: i, iy, ix, istep, igas, ielem, ibin
 
-      ! Physical constants and parameters
-      real(kind=f), parameter :: rmin = 2.e-8_f
+      ! Physical constants and parameters from aluminum test
+      real(kind=f), parameter :: rmin = 21.5e-6_f
+      real(kind=f), parameter :: rmon = 21.5e-6_f
       real(kind=f), parameter :: rmrat = 2._f
-      real(kind=f), parameter :: RHO_SULFATE = 1.923_f
-      integer, parameter :: I_H2SO4 = 1
+      real(kind=f), parameter :: RHO_ALUMINUM = 3.95_f   ! dry density of aluminum particles (g/cm3)
+      real(kind=f), parameter :: falpha = 1._f           ! satellite aerosol fractal packing coefficient
+      integer, parameter :: I_ALUMINUM = 1
+      integer, parameter :: I_GRP_ALUM = 1      
+      integer, parameter :: I_ELEM_ALUM = 1
+
+      ! Fractal dimension array
+      real(kind=f), allocatable :: df(:,:)
 
       rc = 0
 
@@ -212,6 +219,11 @@ contains
       deltaz = real(f_params%deltaz, kind=f)
       zmin = real(f_params%zmin, kind=f)
 
+      ! Allocate and set fractal dimension array
+      allocate(df(NBIN, NGROUP))
+      ! Set fractal dimension - satellite aerosol fractal dimension, aluminum oxide
+      df(:,:) = 1.6_f
+
       ! Set up simple grid
       iy = 1
       ix = 1
@@ -220,13 +232,13 @@ contains
       allocate(lat(NY), lon(NX))
       allocate(zc(NZ), zl(NZP1), p(NZ), pl(NZP1), t(NZ), rhoa(NZ))
       allocate(t_orig(NZ))  ! Allocate original temperature array
-      allocate(mmr_gas(NZ, NGAS), mmr(NZ, NELEM, NBIN))
+      allocate(mmr(NZ, NELEM, NBIN))
+      if (NGAS > 0) allocate(mmr_gas(NZ, NGAS))
 
       print *, "Creating CARMA instance..."
 
       ! Create the CARMA instance
-      call CARMA_Create(carma, NBIN, NELEM, NGROUP, NSOLUTE, NGAS, NWAVE, rc, &
-         LUNOPRT=LUNOPRT)
+      call CARMA_Create(carma, NBIN, NELEM, NGROUP, NSOLUTE, NGAS, NWAVE, rc, LUNOPRT=LUNOPRT)
       if (rc /= 0) then
          print *, "*** CARMA_Create FAILED ***, rc=", rc
          return
@@ -234,52 +246,38 @@ contains
 
       carma_ptr => carma
 
-      ! Set up a simple test configuration based on aluminum test
+      ! Set up aluminum particle configuration matching test_aluminum_simple
       if (NGROUP >= 1 .and. NELEM >= 1) then
-         ! Create a simple particle group
-         call CARMAGROUP_Create(carma, 1, "test_group", rmin, rmrat, I_SPHERE, 1._f, .false., rc)
+         ! Create aluminum particle group with fractal properties
+         call CARMAGROUP_Create(carma, I_GRP_ALUM, "aluminum", rmin, rmrat, &
+            I_SPHERE, 1._f, .false., rc,&
+            is_fractal=.TRUE., rmon=rmon, df=df, falpha=falpha, &
+            irhswell=I_NO_SWELLING, do_drydep=.true., &
+            shortname="PRALUM", is_sulfate=.false.)
          if (rc /= 0) then
             print *, "*** CARMAGROUP_Create FAILED ***, rc=", rc
             return
          end if
 
-         ! Create a simple element
-         call CARMAELEMENT_Create(carma, 1, 1, "test_element", RHO_SULFATE, I_INVOLATILE, I_H2SO4, rc)
+         ! Create aluminum element
+         call CARMAELEMENT_Create(carma, I_ELEM_ALUM, I_GRP_ALUM, "Aluminum", RHO_ALUMINUM, I_INVOLATILE, I_ALUMINUM, rc, shortname="ALUM")
          if (rc /= 0) then
             print *, "*** CARMAELEMENT_Create FAILED ***, rc=", rc
             return
          end if
       end if
 
-      ! Create gases if specified
-      if (NGAS >= 1) then
-         call CARMAGAS_Create(carma, 1, "Water Vapor", WTMOL_H2O, I_VAPRTN_H2O_MURPHY2005, &
-            I_GCOMP_H2O, rc)
+      ! Setup CARMA processes - coagulation for aluminum particles
+      if (NGROUP >= 1) then
+         call CARMA_AddCoagulation(carma, I_GRP_ALUM, I_GRP_ALUM, I_GRP_ALUM, I_COLLEC_FUCHS, rc)
          if (rc /= 0) then
-            print *, "*** CARMAGAS_Create FAILED ***, rc=", rc
+            print *, "*** CARMA_AddCoagulation FAILED ***, rc=", rc
             return
          end if
       end if
 
-      if (NGAS >= 2) then
-         call CARMAGAS_Create(carma, 2, "Sulphuric Acid", 98.078479_f, I_VAPRTN_H2SO4_AYERS1980, &
-            I_GCOMP_H2SO4, rc)
-         if (rc /= 0) then
-            print *, "*** CARMAGAS_Create FAILED ***, rc=", rc
-            return
-         end if
-
-         ! Set up growth process if we have H2SO4
-         call CARMA_AddGrowth(carma, 1, 2, rc)
-         if (rc /= 0) then
-            print *, "*** CARMA_AddGrowth FAILED ***, rc=", rc
-            return
-         end if
-      end if
-
-      ! Initialize CARMA
-      call CARMA_Initialize(carma, rc, do_grow=.true., do_coag=.false., do_substep=.true., &
-         do_thermo=.false., maxretries=16, maxsubsteps=32, dt_threshold=1._f)
+      ! Initialize CARMA with coagulation settings matching test_aluminum_simple
+      call CARMA_Initialize(carma, rc, do_grow=.false., do_coag=.true., do_substep=.false., do_vtran=.FALSE.)
       if (rc /= 0) then
          print *, "*** CARMA_Initialize FAILED ***, rc=", rc
          return
@@ -287,8 +285,8 @@ contains
 
       print *, "Setting up atmosphere..."
 
-      ! Set up simple atmospheric conditions
-      lat(iy) = -40.0_f
+      ! Set up atmospheric conditions matching test_aluminum_simple
+      lat(iy) = 0.0_f
       lon(ix) = -105.0_f
 
       ! Vertical grid setup
@@ -309,18 +307,18 @@ contains
       ! Store original temperature for told parameter
       t_orig(:) = t(:)
 
-      ! Initialize gas mixing ratios
-      mmr_gas(:,:) = 0._f
-      if (NGAS >= 1) mmr_gas(:,1) = 100.e-6_f  ! H2O g/g
-      if (NGAS >= 2) mmr_gas(:,2) = 0.1e-9_f * (98._f / 29._f)  ! H2SO4
+      ! Initialize gas mixing ratios (no gases in aluminum test)
+      if (NGAS > 0) then
+         mmr_gas(:,:) = 0._f
+      end if
 
-      ! Initialize particle mixing ratios
-      mmr(:,:,:) = 0._f
+      ! Initialize particle mixing ratios with aluminum concentration
+      mmr(:,:,:) = 5e9_f / (deltaz * 2.57474699e14_f) / rhoa(1)
 
       print *, "Running time integration..."
 
-      ! Time integration loop
-      carma_time_integration: do istep = 1, nstep
+      ! Time integration loop - start from step 2 to match test_aluminum_simple
+      carma_time_integration: do istep = 2, nstep + 1
 
          ! Calculate the model time
          time = (istep - 1) * dtime
@@ -331,8 +329,7 @@ contains
             zc(:), zl(:), &
             p(:),  pl(:), &
             t(:), rc, &
-            told=t_orig(:), &
-            qh2o=mmr_gas(:,1))
+            told=t(:))
          if (rc /= 0) then
             print *, "*** CARMASTATE_Create FAILED ***, rc=", rc
             return
@@ -347,15 +344,6 @@ contains
                   return
                end if
             end do
-         end do
-
-         ! Send the gas mmrs to CARMA
-         do igas = 1, NGAS
-            call CARMASTATE_SetGas(cstate, igas, mmr_gas(:,igas), rc)
-            if (rc /= 0) then
-               print *, "*** CARMASTATE_SetGas FAILED ***, rc=", rc
-               return
-            end if
          end do
 
          ! Execute the time step
@@ -376,22 +364,6 @@ contains
             end do
          end do
 
-         ! Get the updated gas mmr
-         do igas = 1, NGAS
-            call CARMASTATE_GetGas(cstate, igas, mmr_gas(:,igas), rc)
-            if (rc /= 0) then
-               print *, "*** CARMASTATE_GetGas FAILED ***, rc=", rc
-               return
-            end if
-         end do
-
-         ! Clean up the carma state for this step
-         call CARMASTATE_Destroy(cstate, rc)
-         if (rc /= 0) then
-            print *, "*** CARMASTATE_Destroy FAILED ***, rc=", rc
-            return
-         end if
-
          ! Print progress every 10 steps
          if (mod(istep, max(1, nstep/10)) == 0) then
             print *, "Completed step", istep, "of", nstep
@@ -401,6 +373,13 @@ contains
 
       print *, "CARMA simulation completed with error code:", rc
 
+      ! Clean up the carma state for this step
+      call CARMASTATE_Destroy(cstate, rc)
+      if (rc /= 0) then
+         print *, "*** CARMASTATE_Destroy FAILED ***, rc=", rc
+         return
+      end if
+
       ! Clean up the carma instance
       call CARMA_Destroy(carma, rc)
       if (rc /= 0) then
@@ -408,7 +387,9 @@ contains
       end if
 
       ! Deallocate arrays
-      deallocate(lat, lon, zc, zl, p, pl, t, rhoa, t_orig, mmr_gas, mmr)
+      deallocate(lat, lon, zc, zl, p, pl, t, rhoa, t_orig, mmr)
+      deallocate(df)
+      if (NGAS > 0) deallocate(mmr_gas)
 
    end subroutine run_carma_simulation
 
