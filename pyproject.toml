@@ -34,6 +34,8 @@ cmake.define.MUSICA_ONLY_PYTHON = "ON"
 cmake.define.MUSICA_ENABLE_TESTS = "OFF"
 cmake.define.CMAKE_POLICY_VERSION_MINIMUM = "3.5"
 cmake.define.MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE = "1"
+cmake.define.CMAKE_VERBOSE_MAKEFILE = "ON"
+cmake.verbose = true
 
 [[tool.scikit-build.overrides]]
 if.platform-system = "linux"
@@ -48,8 +50,13 @@ if.platform-system = "linux"
 if.platform-machine = "i686"
 inherit.cmake.define = "append"
 cmake.define.MUSICA_GPU_TYPE = "None"
-cmake.define.MUSICA_ENABLE_TUVX = "OFF"
-cmake.define.MUSICA_ENABLE_CARMA = "OFF"
+
+# Skip GPU for aarch64 builds
+[[tool.scikit-build.overrides]]
+if.platform-system = "linux"
+if.platform-machine = "aarch64"
+inherit.cmake.define = "append"
+cmake.define.MUSICA_GPU_TYPE = "None"
 
 [[tool.scikit-build.overrides]]
 if.platform-system = "win32"
