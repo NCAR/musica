@@ -34,6 +34,8 @@ cmake.define.MUSICA_ONLY_PYTHON = "ON"
 cmake.define.MUSICA_ENABLE_TESTS = "OFF"
 cmake.define.CMAKE_POLICY_VERSION_MINIMUM = "3.5"
 cmake.define.MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE = "1"
+cmake.define.CMAKE_VERBOSE_MAKEFILE = "ON"
+cmake.verbose = true
 
 [[tool.scikit-build.overrides]]
 if.platform-system = "linux"
@@ -50,6 +52,13 @@ inherit.cmake.define = "append"
 cmake.define.MUSICA_GPU_TYPE = "None"
 cmake.define.MUSICA_ENABLE_TUVX = "OFF"
 cmake.define.MUSICA_ENABLE_CARMA = "OFF"
+
+# Skip GPU for aarch64 builds
+[[tool.scikit-build.overrides]]
+if.platform-system = "linux"
+if.platform-machine = "aarch64"
+inherit.cmake.define = "append"
+cmake.define.MUSICA_GPU_TYPE = "None"
 
 [[tool.scikit-build.overrides]]
 if.platform-system = "win32"
@@ -83,12 +92,11 @@ build-verbosity = 3
 # Add your desired build configuration
 build = ["cp39-*", "cp310-*", "cp311-*", "cp312-*", "cp313-*", "cp314-*", "cp315-*"]
 skip = "cp27-* cp34-* cp35-* cp36-* *musllinux*"
-archs = "auto"
 
 # Set up pre-build hooks
 [tool.cibuildwheel.macos]
 environment.MACOSX_DEPLOYMENT_TARGET = "10.15"
-before-all = "musica/tools/prepare_build_environment_macos.sh"
+before-all = "bash musica/tools/prepare_build_environment_macos.sh"
 
 [tool.cibuildwheel.linux]
 before-all = "musica/tools/prepare_build_environment_linux.sh"

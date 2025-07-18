@@ -23,7 +23,7 @@ echo "Using package manager: $PKG_MGR"
 
 $PKG_MGR -y update
 
-if [ "$target_arch" = "x86_64" ]; then
+if [ "$target_arch" = "x86_64" ] || [ "$target_arch" = "aarch64" ]; then
   # For manylinux_2_28 (AlmaLinux 8), epel-release is required to get netcdf, for some reason
   $PKG_MGR install -y epel-release
   $PKG_MGR install -y netcdf-devel netcdf-fortran-devel
