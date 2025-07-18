@@ -50,6 +50,8 @@ if.platform-system = "linux"
 if.platform-machine = "i686"
 inherit.cmake.define = "append"
 cmake.define.MUSICA_GPU_TYPE = "None"
+cmake.define.MUSICA_ENABLE_TUVX = "OFF"
+cmake.define.MUSICA_ENABLE_CARMA = "OFF"
 
 # Skip GPU for aarch64 builds
 [[tool.scikit-build.overrides]]
