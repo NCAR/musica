@@ -7,12 +7,21 @@
 #include <musica/carma/carma_c_interface.hpp>
 
 #include <cstring>
+#include <stdexcept>
 
 namespace musica
 {
+  CARMA::CARMA()
+  {
+  }
+
+  CARMA::~CARMA()
+  {
+  }
+
   std::string CARMA::GetVersion()
   {
-    char *version_ptr = nullptr;
+    char* version_ptr = nullptr;
     int version_length = 0;
 
     InternalGetCarmaVersion(&version_ptr, &version_length);
@@ -23,6 +32,17 @@ namespace musica
     InternalFreeCarmaVersion(version_ptr, version_length);
 
     return version;
+  }
+
+  void CARMA::Run(const CARMAParameters& params)
+  {
+    int return_code = 0;
+    InternalRunCarmaWithParameters(params, &return_code);
+
+    if (return_code != 0)
+    {
+      throw std::runtime_error("CARMA simulation failed with return code: " + std::to_string(return_code));
+    }
   }
 
 }  // namespace musica
