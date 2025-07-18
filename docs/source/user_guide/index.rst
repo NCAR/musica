@@ -22,6 +22,6 @@ the Python API can be found on the :ref:`Tutorials <tutorials page>` page.
    installation/index
    chemistry/index
    model/index
-   multigrid/index
    output/index
+   multigrid/index
    examples/index
