@@ -269,27 +269,9 @@ namespace musica
 
           for (int ib = 0; ib < nbin; ++ib)
           {
-            // Temporary test: hard-code the expected values to verify the mechanism works
-            if (iz == 0 && ig == 0)
-            {
-              if (ib == 0)
-                output->bin_wet_radius[iz][ig][ib] = 0.215;
-              else if (ib == 1)
-                output->bin_wet_radius[iz][ig][ib] = 0.271;
-              else if (ib == 2)
-                output->bin_wet_radius[iz][ig][ib] = 0.341;
-              else if (ib == 3)
-                output->bin_wet_radius[iz][ig][ib] = 0.430;
-              else if (ib == 4)
-                output->bin_wet_radius[iz][ig][ib] = 0.542;
-              else
-                output->bin_wet_radius[iz][ig][ib] = 0.0;
-            }
-            else
-            {
-              int idx = ib;
-              output->bin_wet_radius[iz][ig][ib] = bin_wet_radius[idx];
-            }
+            // Use the actual simulation results for bin_wet_radius
+            int idx = ib;
+            output->bin_wet_radius[iz][ig][ib] = bin_wet_radius[idx];
 
             // Use the actual arrays for other variables
             int idx = ib;
