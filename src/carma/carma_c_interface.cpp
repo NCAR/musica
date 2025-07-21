@@ -269,12 +269,8 @@ namespace musica
 
           for (int ib = 0; ib < nbin; ++ib)
           {
-            // Use the actual simulation results for bin_wet_radius
             int idx = ib;
             output->bin_wet_radius[iz][ig][ib] = bin_wet_radius[idx];
-
-            // Use the actual arrays for other variables
-            int idx = ib;
             output->bin_number_density[iz][ig][ib] = bin_number_density[idx];
             output->bin_density[iz][ig][ib] = bin_density[idx];
             output->bin_mass_mixing_ratio[iz][ig][ib] = bin_mass_mixing_ratio[idx];

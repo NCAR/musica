@@ -12,8 +12,8 @@ namespace musica
 {
   struct CARMAParameters
   {
-    int max_bins = 100;   // Maximum number of size bins
-    int max_groups = 10;  // Maximum number of groups for fractal dimension
+    int max_bins = 100;
+    int max_groups = 10;
 
     // Model dimensions
     int nz = 1;
@@ -61,12 +61,12 @@ namespace musica
     std::vector<double> delta_temperature;  // Temperature change [K]
 
     // Gas variables (nz x ngas)
-    std::vector<std::vector<double>> gas_mmr;                // Gas mass mixing ratio [kg/kg]
-    std::vector<std::vector<double>> gas_saturation_liquid;  // Saturation over liquid
-    std::vector<std::vector<double>> gas_saturation_ice;     // Saturation over ice
-    std::vector<std::vector<double>> gas_vapor_pressure_ice;                 // Evaporation rate over ice
-    std::vector<std::vector<double>> gas_vapor_pressure_liquid;                 // Evaporation rate over liquid
-    std::vector<std::vector<double>> gas_weight_percent;                 // Gas weight
+    std::vector<std::vector<double>> gas_mmr;                    // Gas mass mixing ratio [kg/kg]
+    std::vector<std::vector<double>> gas_saturation_liquid;      // Saturation over liquid
+    std::vector<std::vector<double>> gas_saturation_ice;         // Saturation over ice
+    std::vector<std::vector<double>> gas_vapor_pressure_ice;     // Evaporation rate over ice
+    std::vector<std::vector<double>> gas_vapor_pressure_liquid;  // Evaporation rate over liquid
+    std::vector<std::vector<double>> gas_weight_percent;         // Gas weight
 
     // Group-integrated variables (nz x ngroup)
     std::vector<std::vector<double>> number_density;        // Number density [#/cm3]
