@@ -106,4 +106,5 @@ With each grid cell `state` now properly initialized, the `solver` can be run as
 Preparing and Visualizing Results (new)
 ---------------------------------------
 When running simulations with multiple grid cells, you’ll need to track larger numbers of concentrations and results, which can make data visualization more complex.
-For guidance on handling and visualizing outputs from multi-grid-cell simulations, see the :ref:`Interactive Tutorials <tutorials page>`.
+For guidance on handling and visualizing outputs from multi-grid-cell simulations, see the `Multiple Grid Cells in MUSICA <../../../tutorials/1.%20multiple_grid_cells.ipynb/>`_
+notebook on the :ref:`Interactive Tutorials <tutorials page>` page.

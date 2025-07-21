@@ -227,4 +227,6 @@ Batching can be implemented as follows::
 Preparing and visualizing results
 ----------------------------------
 As previously mentioned throughout this guide, multiple grid cells calculations - particularly at this scale - tracks significantly
-larger numbers of concentrations and results than a box model. For guidance on handling and visualizing outputs from multi-grid-cell simulations, see the :ref:`Interactive Tutorials <tutorials page>`.
+larger numbers of concentrations and results than a box model. For guidance on handling and visualizing outputs from multi-grid-cell simulations,
+see the `Parallelizing Multiple Grid Cells on a High-Performance Computing Cluster <../../../tutorials/5.%20hpc_parallelization.ipynb/>`_ notebook on the
+:ref:`Interactive Tutorials <tutorials page>` page.
