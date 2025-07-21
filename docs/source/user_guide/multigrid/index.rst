@@ -12,6 +12,8 @@ The following libraries will be used::
     import matplotlib.pyplot as plt
     import pandas as pd
     import numpy as np
+    from scipy.stats import qmc
+    import seaborn as sns
 
 .. toctree::
    :maxdepth: 1

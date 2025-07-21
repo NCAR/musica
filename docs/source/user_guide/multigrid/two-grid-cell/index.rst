@@ -1,3 +1,5 @@
+.. _2grid:
+
 Simple 2-Grid-Cell Setup
 ========================
 This page highlights the key differences in your MUSICA workflow set up for multi-grid cell simulations with a toy, 2-grid-cell example.
@@ -63,7 +65,7 @@ we recommend the use of arrays to store the `conditions` and `concentrations` de
 The elements within each array item are ordered as follows:
 * temperature (Kelvin),
 * pressure (Pascals), and
-* the concentrations of each of the species (mol/m<sup>3</sup>).
+* the concentrations of each of the 3 species (mol/m<sup>3</sup>).
 
 
 Splitting up the array output (new)
