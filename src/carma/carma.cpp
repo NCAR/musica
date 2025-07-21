@@ -34,15 +34,18 @@ namespace musica
     return version;
   }
 
-  void CARMA::Run(const CARMAParameters& params)
+  CARMAOutput CARMA::Run(const CARMAParameters& params)
   {
     int return_code = 0;
-    InternalRunCarmaWithParameters(params, &return_code);
+    CARMAOutput output;
+    InternalRunCarma(params, static_cast<void*>(&output), &return_code);
 
     if (return_code != 0)
     {
       throw std::runtime_error("CARMA simulation failed with return code: " + std::to_string(return_code));
     }
+
+    return output;
   }
 
 }  // namespace musica

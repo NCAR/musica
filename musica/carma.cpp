@@ -6,6 +6,9 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include <iostream>
+#include <format>
+
 namespace py = pybind11;
 
 void bind_carma(py::module_& carma)
@@ -79,7 +82,37 @@ void bind_carma(py::module_& carma)
 
         try
         {
-          carma_instance->Run(params);
+          musica::CARMAOutput output = carma_instance->Run(params);
+
+          std::cout << "CARMA simulation completed successfully." << std::endl;
+          std::cout << std::format(
+              "Dimensions: nz={}, ny={}, nx={}, nelem={}, ngroup={}, nbin={}, ngas={}, nstep={}",
+              output.nz, output.ny, output.nx, output.nelem, output.ngroup, output.nbin, output.ngas, output.nstep)
+                    << std::endl;
+          std::cout << "Output data size: lat=" << output.lat.size()
+                    << ", lon=" << output.lon.size()
+                    << ", zc=" << output.zc.size()
+                    << ", zl=" << output.zl.size()
+                    << ", pressure=" << output.pressure.size()
+                    << ", temperature=" << output.temperature.size()
+                    << ", air_density=" << output.air_density.size()
+                    << ", radiative_heating=" << output.radiative_heating.size()
+                    << ", delta_temperature=" << output.delta_temperature.size()
+                    << ", number_density=" << output.number_density.size()
+                    << ", surface_area=" << output.surface_area.size()
+                    << ", mass_density=" << output.mass_density.size()
+                    << ", effective_radius=" << output.effective_radius.size()
+                    << ", mass_mixing_ratio=" << output.mass_mixing_ratio.size()
+                    << std::endl;
+          std::cout << "Gas MMR\n";
+          for (const auto& gas : output.gas_mmr)
+          {
+            std::cout << "  Size: " << gas.size() << std::endl;
+            for (const auto& value : gas)
+            {
+              std::cout << "    " << value << std::endl;
+            }
+          }
         }
         catch (const std::exception& e)
         {

@@ -36,6 +36,42 @@ module carma_interface
 
    end type c_carma_parameters
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   ! Interface to the C++ TransferCarmaOutputToCpp function
+   interface
+      subroutine TransferCarmaOutputToCpp( &
+         c_output_ptr, &
+         nz, ny, nx, nelem, ngroup, nbin, ngas, nstep, &
+         current_time, current_step, &
+         lat, lon, zc, zl, &
+         pressure, temperature, air_density, &
+         number_density, surface_area, mass_density, effective_radius, &
+         mass_mixing_ratio, &
+         bin_wet_radius, bin_number_density, bin_mass_mixing_ratio) &
+         bind(C, name="TransferCarmaOutputToCpp")
+         use iso_c_binding, only: c_ptr, c_int, c_double
+         use carma_precision_mod
+
+         type(c_ptr), intent(in), value :: c_output_ptr
+         integer(c_int), intent(in), value :: nz, ny, nx, nelem, ngroup, nbin, ngas, nstep
+         real(c_double), intent(in), value :: current_time
+         integer(c_int), intent(in), value :: current_step
+
+         real(kind=f), intent(in) :: lat(ny), lon(nx), zc(nz), zl(nz+1)
+         real(kind=f), intent(in) :: pressure(nz), temperature(nz), air_density(nz)
+         real(kind=f), intent(in) :: number_density(nz, ngroup), surface_area(nz, ngroup)
+         real(kind=f), intent(in) :: mass_density(nz, ngroup), effective_radius(nz, ngroup)
+         real(kind=f), intent(in) :: mass_mixing_ratio(nz, ngroup)
+         real(kind=f), intent(in) :: bin_wet_radius(nz, ngroup, nbin)
+         real(kind=f), intent(in) :: bin_number_density(nz, ngroup, nbin)
+         real(kind=f), intent(in) :: bin_mass_mixing_ratio(nz, ngroup, nbin)
+
+      end subroutine TransferCarmaOutputToCpp
+   end interface
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -88,12 +124,13 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-   subroutine internal_run_carma_with_parameters(c_params, rc) &
-      bind(C, name="InternalRunCarmaWithParameters")
-      use iso_c_binding, only: c_int
+   subroutine internal_run_carma(c_params, c_output, rc) &
+      bind(C, name="InternalRunCarma")
+      use iso_c_binding, only: c_int, c_ptr, c_f_pointer
       use carma_parameters_mod, only: carma_parameters_type
 
       type(c_carma_parameters), intent(in) :: c_params
+      type(c_ptr), value, intent(in) :: c_output
       integer(c_int), intent(out) :: rc
 
       ! Convert C parameters to Fortran parameters
@@ -104,10 +141,10 @@ contains
       ! Copy parameters from C to Fortran structure
       call convert_c_to_fortran_params(c_params, f_params)
 
-      ! Actually run CARMA simulation
-      call run_carma_simulation(f_params, rc)
+      ! Run CARMA simulation with optional output
+      call run_carma_simulation(f_params, rc, c_output)
 
-   end subroutine internal_run_carma_with_parameters
+   end subroutine internal_run_carma
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -145,7 +182,7 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-   subroutine run_carma_simulation(f_params, rc)
+   subroutine run_carma_simulation(f_params, rc, c_output_ptr)
       use carma_precision_mod
       use carma_constants_mod
       use carma_enums_mod
@@ -157,11 +194,13 @@ contains
       use carma_mod
       use atmosphere_mod
       use carma_parameters_mod, only: carma_parameters_type
+      use iso_c_binding, only: c_ptr, c_null_ptr, c_associated
 
       implicit none
 
       type(carma_parameters_type), intent(in) :: f_params
       integer, intent(out) :: rc
+      type(c_ptr), intent(in), optional :: c_output_ptr
 
       ! Local variables for CARMA simulation
       type(carma_type), target :: carma
@@ -195,7 +234,7 @@ contains
       real(kind=f), parameter :: RHO_ALUMINUM = 3.95_f   ! dry density of aluminum particles (g/cm3)
       real(kind=f), parameter :: falpha = 1._f           ! satellite aerosol fractal packing coefficient
       integer, parameter :: I_ALUMINUM = 1
-      integer, parameter :: I_GRP_ALUM = 1      
+      integer, parameter :: I_GRP_ALUM = 1
       integer, parameter :: I_ELEM_ALUM = 1
 
       ! Fractal dimension array
@@ -373,6 +412,17 @@ contains
 
       print *, "CARMA simulation completed with error code:", rc
 
+      ! Transfer output data to C++ if output pointer is provided
+      if (present(c_output_ptr) .and. c_associated(c_output_ptr)) then
+         print *, "Transferring output data to C++..."
+         call transfer_carma_output_data(c_output_ptr, &
+            NZ, NY, NX, NELEM, NGROUP, NBIN, NGAS, nstep, &
+            real(time, kind=8), int(nstep), &
+            lat, lon, zc, zl, p, t, rhoa, &
+            mmr)
+         print *, "Output transfer completed"
+      end if
+
       ! Clean up the carma state for this step
       call CARMASTATE_Destroy(cstate, rc)
       if (rc /= 0) then
@@ -394,5 +444,70 @@ contains
    end subroutine run_carma_simulation
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   subroutine transfer_carma_output_data(c_output_ptr, &
+      nz, ny, nx, nelem, ngroup, nbin, ngas, nstep, &
+      current_time, current_step, &
+      lat, lon, zc, zl, pressure, temperature, air_density, &
+      mass_mixing_ratio)
+      use carma_precision_mod
+      use iso_c_binding, only: c_ptr, c_int, c_double
+
+      implicit none
+
+      ! Input parameters
+      type(c_ptr), intent(in) :: c_output_ptr
+      integer, intent(in) :: nz, ny, nx, nelem, ngroup, nbin, ngas, nstep
+      real(kind=8), intent(in) :: current_time
+      integer, intent(in) :: current_step
+      real(kind=f), intent(in) :: lat(ny), lon(nx)
+      real(kind=f), intent(in) :: zc(nz), zl(nz+1)
+      real(kind=f), intent(in) :: pressure(nz), temperature(nz), air_density(nz)
+      real(kind=f), intent(in) :: mass_mixing_ratio(nz, nelem, nbin)
+
+      ! Create dummy arrays for data not available in simplified simulation
+      real(kind=f), allocatable :: number_density(:,:), surface_area(:,:), mass_density(:,:)
+      real(kind=f), allocatable :: effective_radius(:,:)
+      real(kind=f), allocatable :: bin_wet_radius(:,:,:), bin_number_density(:,:,:)
+      real(kind=f), allocatable :: bin_mass_mixing_ratio(:,:,:)
+
+      ! Allocate and initialize dummy arrays
+      allocate(number_density(nz, ngroup))
+      allocate(surface_area(nz, ngroup))
+      allocate(mass_density(nz, ngroup))
+      allocate(effective_radius(nz, ngroup))
+      allocate(bin_wet_radius(nz, ngroup, nbin))
+      allocate(bin_number_density(nz, ngroup, nbin))
+      allocate(bin_mass_mixing_ratio(nz, ngroup, nbin))
+
+      ! Set dummy values (in a real implementation, these would come from CARMA state)
+      number_density = 1.0e6_f     ! particles/cm3
+      surface_area = 1.0e-6_f      ! cm2/cm3
+      mass_density = 1.0e-12_f     ! g/cm3
+      effective_radius = 1.0e-5_f  ! cm
+      bin_wet_radius = 1.0e-5_f    ! cm
+      bin_number_density = 1.0e5_f ! particles/cm3
+      bin_mass_mixing_ratio = mass_mixing_ratio ! Use actual MMR data
+
+      ! Call the C++ transfer function
+      call TransferCarmaOutputToCpp( &
+         c_output_ptr, &
+         int(nz, c_int), int(ny, c_int), int(nx, c_int), &
+         int(nelem, c_int), int(ngroup, c_int), int(nbin, c_int), &
+         int(ngas, c_int), int(nstep, c_int), &
+         real(current_time, c_double), int(current_step, c_int), &
+         lat, lon, zc, zl, &
+         pressure, temperature, air_density, &
+         number_density, surface_area, mass_density, effective_radius, &
+         mass_mixing_ratio, &
+         bin_wet_radius, bin_number_density, bin_mass_mixing_ratio)
+
+      ! Clean up
+      deallocate(number_density, surface_area, mass_density, effective_radius)
+      deallocate(bin_wet_radius, bin_number_density, bin_mass_mixing_ratio)
+
+   end subroutine transfer_carma_output_data
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 end module carma_interface
