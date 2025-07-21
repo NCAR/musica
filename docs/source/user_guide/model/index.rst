@@ -1,4 +1,6 @@
-Model Solving and Options
+.. _model:
+
+Model solving and options
 ==========================
 .. note::
     
