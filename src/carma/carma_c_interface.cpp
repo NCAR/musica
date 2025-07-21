@@ -106,56 +106,56 @@ namespace musica
       output->lat.resize(ny);
       for (int i = 0; i < ny; ++i)
       {
-        std::cout << "lat[" << i << "] = " << lat[i] << std::endl;
+        output->lat[i] = lat[i];
       }
 
       output->lon.resize(nx);
       for (int i = 0; i < nx; ++i)
       {
-        output->lon[i] = static_cast<double>(lon[i]);
+        output->lon[i] = lon[i];
       }
 
       output->vertical_center.resize(nz);
       for (int i = 0; i < nz; ++i)
       {
-        output->vertical_center[i] = static_cast<double>(vertical_center[i]);
+        output->vertical_center[i] = vertical_center[i];
       }
 
       output->vertical_levels.resize(nz + 1);
       for (int i = 0; i < nz + 1; ++i)
       {
-        output->vertical_levels[i] = static_cast<double>(vertical_levels[i]);
+        output->vertical_levels[i] = vertical_levels[i];
       }
 
       // Copy atmospheric state variables
       output->pressure.resize(nz);
       for (int i = 0; i < nz; ++i)
       {
-        output->pressure[i] = static_cast<double>(pressure[i]);
+        output->pressure[i] = pressure[i];
       }
 
       output->temperature.resize(nz);
       for (int i = 0; i < nz; ++i)
       {
-        output->temperature[i] = static_cast<double>(temperature[i]);
+        output->temperature[i] = temperature[i];
       }
 
       output->air_density.resize(nz);
       for (int i = 0; i < nz; ++i)
       {
-        output->air_density[i] = static_cast<double>(air_density[i]);
+        output->air_density[i] = air_density[i];
       }
 
       output->radiative_heating.resize(nz);
       for (int i = 0; i < nz; ++i)
       {
-        output->radiative_heating[i] = static_cast<double>(radiative_heating[i]);
+        output->radiative_heating[i] = radiative_heating[i];
       }
 
       output->delta_temperature.resize(nz);
       for (int i = 0; i < nz; ++i)
       {
-        output->delta_temperature[i] = static_cast<double>(delta_temperature[i]);
+        output->delta_temperature[i] = delta_temperature[i];
       }
 
       // Copy gas variables (2D arrays: nz x ngas)
@@ -182,12 +182,12 @@ namespace musica
             // Fortran uses column-major ordering: arr(nz, ngas)
             // C index = iz + ig * nz
             int idx = iz + ig * nz;
-            output->gas_mmr[iz][ig] = static_cast<double>(gas_mmr[idx]);
-            output->gas_saturation_liquid[iz][ig] = static_cast<double>(gas_saturation_liquid[idx]);
-            output->gas_saturation_ice[iz][ig] = static_cast<double>(gas_saturation_ice[idx]);
-            output->gas_vapor_pressure_ice[iz][ig] = static_cast<double>(gas_vapor_pressure_ice[idx]);
-            output->gas_vapor_pressure_liquid[iz][ig] = static_cast<double>(gas_vapor_pressure_liquid[idx]);
-            output->gas_weight_percent[iz][ig] = static_cast<double>(gas_weight_percent[idx]);
+            output->gas_mmr[iz][ig] = gas_mmr[idx];
+            output->gas_saturation_liquid[iz][ig] = gas_saturation_liquid[idx];
+            output->gas_saturation_ice[iz][ig] = gas_saturation_ice[idx];
+            output->gas_vapor_pressure_ice[iz][ig] = gas_vapor_pressure_ice[idx];
+            output->gas_vapor_pressure_liquid[iz][ig] = gas_vapor_pressure_liquid[idx];
+            output->gas_weight_percent[iz][ig] = gas_weight_percent[idx];
           }
         }
       }
@@ -228,19 +228,19 @@ namespace musica
           // Fortran uses column-major ordering: arr(nz, ngroup)
           // C index = iz + ig * nz
           int idx = iz + ig * nz;
-          output->number_density[iz][ig] = static_cast<double>(number_density[idx]);
-          output->surface_area[iz][ig] = static_cast<double>(surface_area[idx]);
-          output->mass_density[iz][ig] = static_cast<double>(mass_density[idx]);
-          output->effective_radius[iz][ig] = static_cast<double>(effective_radius[idx]);
-          output->effective_radius_wet[iz][ig] = static_cast<double>(effective_radius_wet[idx]);
-          output->mean_radius[iz][ig] = static_cast<double>(mean_radius[idx]);
-          output->nucleation_rate[iz][ig] = static_cast<double>(nucleation_rate[idx]);
-          output->mass_mixing_ratio[iz][ig] = static_cast<double>(mass_mixing_ratio[idx]);
-          output->projected_area[iz][ig] = static_cast<double>(projected_area[idx]);
-          output->aspect_ratio[iz][ig] = static_cast<double>(aspect_ratio[idx]);
-          output->vertical_mass_flux[iz][ig] = static_cast<double>(vertical_mass_flux[idx]);
-          output->extinction[iz][ig] = static_cast<double>(extinction[idx]);
-          output->optical_depth[iz][ig] = static_cast<double>(optical_depth[idx]);
+          output->number_density[iz][ig] = number_density[idx];
+          output->surface_area[iz][ig] = surface_area[idx];
+          output->mass_density[iz][ig] = mass_density[idx];
+          output->effective_radius[iz][ig] = effective_radius[idx];
+          output->effective_radius_wet[iz][ig] = effective_radius_wet[idx];
+          output->mean_radius[iz][ig] = mean_radius[idx];
+          output->nucleation_rate[iz][ig] = nucleation_rate[idx];
+          output->mass_mixing_ratio[iz][ig] = mass_mixing_ratio[idx];
+          output->projected_area[iz][ig] = projected_area[idx];
+          output->aspect_ratio[iz][ig] = aspect_ratio[idx];
+          output->vertical_mass_flux[iz][ig] = vertical_mass_flux[idx];
+          output->extinction[iz][ig] = extinction[idx];
+          output->optical_depth[iz][ig] = optical_depth[idx];
         }
       }
 
@@ -288,15 +288,15 @@ namespace musica
             else
             {
               int idx = ib;
-              output->bin_wet_radius[iz][ig][ib] = static_cast<double>(bin_wet_radius[idx]);
+              output->bin_wet_radius[iz][ig][ib] = bin_wet_radius[idx];
             }
 
             // Use the actual arrays for other variables
             int idx = ib;
-            output->bin_number_density[iz][ig][ib] = static_cast<double>(bin_number_density[idx]);
-            output->bin_density[iz][ig][ib] = static_cast<double>(bin_density[idx]);
-            output->bin_mass_mixing_ratio[iz][ig][ib] = static_cast<double>(bin_mass_mixing_ratio[idx]);
-            output->bin_deposition_velocity[iz][ig][ib] = static_cast<double>(bin_deposition_velocity[idx]);
+            output->bin_number_density[iz][ig][ib] = bin_number_density[idx];
+            output->bin_density[iz][ig][ib] = bin_density[idx];
+            output->bin_mass_mixing_ratio[iz][ig][ib] = bin_mass_mixing_ratio[idx];
+            output->bin_deposition_velocity[iz][ig][ib] = bin_deposition_velocity[idx];
           }
         }
       }
@@ -323,12 +323,12 @@ namespace musica
           // Fortran uses column-major ordering: arr(nbin, ngroup)
           // C index = ib + ig * nbin
           int idx = ib + ig * nbin;
-          output->group_radius[ib][ig] = static_cast<double>(group_radius[idx]);
-          output->group_mass[ib][ig] = static_cast<double>(group_mass[idx]);
-          output->group_volume[ib][ig] = static_cast<double>(group_volume[idx]);
-          output->group_radius_ratio[ib][ig] = static_cast<double>(group_radius_ratio[idx]);
-          output->group_aspect_ratio[ib][ig] = static_cast<double>(group_aspect_ratio[idx]);
-          output->group_fractal_dimension[ib][ig] = static_cast<double>(group_fractal_dimension[idx]);
+          output->group_radius[ib][ig] = group_radius[idx];
+          output->group_mass[ib][ig] = group_mass[idx];
+          output->group_volume[ib][ig] = group_volume[idx];
+          output->group_radius_ratio[ib][ig] = group_radius_ratio[idx];
+          output->group_aspect_ratio[ib][ig] = group_aspect_ratio[idx];
+          output->group_fractal_dimension[ib][ig] = group_fractal_dimension[idx];
         }
       }
 
@@ -350,9 +350,6 @@ namespace musica
       {
         output->gas_names[i] = "Gas_" + std::to_string(i + 1);
       }
-
-      std::cout << "Successfully transferred CARMA output data to C++ structure." << std::endl;
-      std::cout << "Dimensions: nz=" << nz << ", ngroup=" << ngroup << ", nbin=" << nbin << std::endl;
     }
 
 #ifdef __cplusplus

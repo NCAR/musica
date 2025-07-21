@@ -553,48 +553,48 @@ contains
       group_fractal_dimension(:,:) = 3.0_c_double  ! Default to 3.0 (spherical)
 
 
-      print *, ""
-      print *, "nz =", nz, "ny =", ny, "nx =", nx, &
-         "nelem =", nelem, "ngroup =", ngroup, "nbin =", nbin, "ngas =", ngas, "nstep =", nstep
-      print *, "lat: ", lat
-      print *, "lon: ", lon
-      print *, "Vertical center:", vertical_center
-      print *, "Vertical levels:", vertical_levels
-      print *, "Pressure:", pressure
-      print *, "Temperature:", temperature
-      print *, "Air density:", air_density
-      print *, "Radiative heating:", radiative_heating
-      print *, "Delta temperature:", delta_temperature
-      print *, "Gas MMR:", gas_mmr
-      print *, "Gas saturation liquid:", gas_saturation_liquid
-      print *, "Gas saturation ice:", gas_saturation_ice
-      print *, "Gas vapor pressure ice:", gas_vapor_pressure_ice
-      print *, "Gas vapor pressure liquid:", gas_vapor_pressure_liquid
-      print *, "Gas weight percent:", gas_weight_percent
-      print *, "Number density:", number_density
-      print *, "Surface area:", surface_area
-      print *, "Mass density:", mass_density
-      print *, "Effective radius:", effective_radius
-      print *, "Effective radius wet:", effective_radius_wet
-      print *, "Mean radius:", mean_radius
-      print *, "Nucleation rate:", nucleation_rate
-      print *, "Mass mixing ratio:", mass_mixing_ratio
-      print *, "Projected area:", projected_area
-      print *, "Aspect ratio:", aspect_ratio
-      print *, "Vertical mass flux:", vertical_mass_flux
-      print *, "Extinction:", extinction
-      print *, "Optical depth:", optical_depth
-      print *, "Bin wet radius:", bin_wet_radius
-      print *, "Bin number density:", bin_number_density
-      print *, "Bin density:", bin_density
-      print *, "Bin mass mixing ratio:", bin_mass_mixing_ratio
-      print *, "Bin deposition velocity:", bin_deposition_velocity
-      print *, "Group radius:", group_radius
-      print *, "Group mass:", group_mass
-      print *, "Group volume:", group_volume
-      print *, "Group radius ratio:", group_radius_ratio
-      print *, "Group aspect ratio:", group_aspect_ratio
-      print *, "Group fractal dimension:", group_fractal_dimension
+      ! print *, ""
+      ! print *, "nz =", nz, "ny =", ny, "nx =", nx, &
+      !    "nelem =", nelem, "ngroup =", ngroup, "nbin =", nbin, "ngas =", ngas, "nstep =", nstep
+      ! print *, "lat: ", lat
+      ! print *, "lon: ", lon
+      ! print *, "Vertical center:", vertical_center
+      ! print *, "Vertical levels:", vertical_levels
+      ! print *, "Pressure:", pressure
+      ! print *, "Temperature:", temperature
+      ! print *, "Air density:", air_density
+      ! print *, "Radiative heating:", radiative_heating
+      ! print *, "Delta temperature:", delta_temperature
+      ! print *, "Gas MMR:", gas_mmr
+      ! print *, "Gas saturation liquid:", gas_saturation_liquid
+      ! print *, "Gas saturation ice:", gas_saturation_ice
+      ! print *, "Gas vapor pressure ice:", gas_vapor_pressure_ice
+      ! print *, "Gas vapor pressure liquid:", gas_vapor_pressure_liquid
+      ! print *, "Gas weight percent:", gas_weight_percent
+      ! print *, "Number density:", number_density
+      ! print *, "Surface area:", surface_area
+      ! print *, "Mass density:", mass_density
+      ! print *, "Effective radius:", effective_radius
+      ! print *, "Effective radius wet:", effective_radius_wet
+      ! print *, "Mean radius:", mean_radius
+      ! print *, "Nucleation rate:", nucleation_rate
+      ! print *, "Mass mixing ratio:", mass_mixing_ratio
+      ! print *, "Projected area:", projected_area
+      ! print *, "Aspect ratio:", aspect_ratio
+      ! print *, "Vertical mass flux:", vertical_mass_flux
+      ! print *, "Extinction:", extinction
+      ! print *, "Optical depth:", optical_depth
+      ! print *, "Bin wet radius:", bin_wet_radius
+      ! print *, "Bin number density:", bin_number_density
+      ! print *, "Bin density:", bin_density
+      ! print *, "Bin mass mixing ratio:", bin_mass_mixing_ratio
+      ! print *, "Bin deposition velocity:", bin_deposition_velocity
+      ! print *, "Group radius:", group_radius
+      ! print *, "Group mass:", group_mass
+      ! print *, "Group volume:", group_volume
+      ! print *, "Group radius ratio:", group_radius_ratio
+      ! print *, "Group aspect ratio:", group_aspect_ratio
+      ! print *, "Group fractal dimension:", group_fractal_dimension
 
       ! Call the C++ transfer function with real CARMA data
       call TransferCarmaOutputToCpp( &
