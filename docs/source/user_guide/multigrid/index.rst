@@ -9,11 +9,12 @@ The following libraries will be used::
 
     import musica
     import musica.mechanism_configuration as mc
-    import matplotlib.pyplot as plt
-    import pandas as pd
     import numpy as np
     from scipy.stats import qmc
-    import seaborn as sns
+    import dask
+    from dask import delayed, compute
+    from dask.distributed import Client
+    from dask_jobqueue import PBSCluster
 
 .. toctree::
    :maxdepth: 1

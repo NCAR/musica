@@ -68,7 +68,7 @@ The elements within each array item are ordered as follows:
 * the concentrations of each of the 3 species (mol/m<sup>3</sup>).
 
 
-Splitting up the array output (new)
+Splitting up array output (new)
 -----------------------------------
 Next, values from the box_model_values array are unpacked into variables representing the five model inputs.
 Each row corresponds to a grid cell, and each column to a specific variable. These variables are then passed into the `solver’s` state.
