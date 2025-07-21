@@ -428,8 +428,8 @@ contains
       ! Clean up the carma instance
       call CARMA_Destroy(carma, rc)
       if (rc /= 0) then
+         return
       end if
-
       ! Deallocate arrays
       deallocate(lat, lon, zc, zl, p, pl, t, rhoa, t_orig, mmr)
       deallocate(df)
