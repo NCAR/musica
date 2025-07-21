@@ -553,22 +553,6 @@ contains
       group_fractal_dimension(:,:) = 3.0_c_double  ! Default to 3.0 (spherical)
 
 
-      ! print *, ""
-      ! print *, "nz =", nz, "ny =", ny, "nx =", nx, &
-      !    "nelem =", nelem, "ngroup =", ngroup, "nbin =", nbin, "ngas =", ngas, "nstep =", nstep
-      ! print *, "lat: ", lat
-      ! print *, "lon: ", lon
-      ! print *, "Vertical center:", vertical_center
-      ! print *, "Vertical levels:", vertical_levels
-      ! print *, "Pressure:", pressure
-      ! print *, "Temperature:", temperature
-      ! print *, "Air density:", air_density
-      ! print *, "Radiative heating:", radiative_heating
-      ! print *, "Delta temperature:", delta_temperature
-      ! print *, "Gas MMR:", gas_mmr
-      ! print *, "Gas saturation liquid:", gas_saturation_liquid
-      ! print *, "Gas saturation ice:", gas_saturation_ice
-      ! print *, "Gas vapor pressure ice:", gas_vapor_pressure_ice
       ! print *, "Gas vapor pressure liquid:", gas_vapor_pressure_liquid
       ! print *, "Gas weight percent:", gas_weight_percent
       ! print *, "Number density:", number_density
