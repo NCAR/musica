@@ -7,10 +7,16 @@ Model solving and options
     MUSICA uses the Model-Independent Chemical Module (MICM) as its core chemistry solver. For more information about available reaction types,
     species configuration, and solver behavior, see the `MICM documentation <micm:index>`_.
 
+To work with a MUSICA model and solve, please be sure to import the following::
+
+    import musica
+
 This section details the components of a MICM solver, conditions, and solutions. To initialize a MICM solver, 
 the previously defined in-code mechanism (see :ref:`Defining chemical systems <chemistry>`) can be used as follows::
     
     solver = musica.MICM(mechanism=mechanism, solver_type=musica.SolverType.rosenbrock_standard_order)
+
+While the Rosenbrock Standard Order solver was used here, several other types of solvers are made available `through MICM <https://ncar.github.io/micm/user_guide/solver_configurations.html>`_.
 
 Conditions
 -----------
@@ -19,6 +25,8 @@ temperature (K), pressure (Pa), and optionally air density define the environmen
 Without an air density provided, the Ideal Gas Law is used to calculate this parameter. The initial concentrations of each
 Species is also included::
     
+    temperature=300.0
+    pressure=101000.0
     state = solver.create_state()
     state.set_concentrations({"X": 1.0, "Y": 3.0, "Z": 5.0})
     state.set_conditions(temperature, pressure)
