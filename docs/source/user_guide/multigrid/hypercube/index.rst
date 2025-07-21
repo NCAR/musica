@@ -1,3 +1,5 @@
+.. _LHS:
+
 Initializing Larger Numbers of Grid Cells
 ==========================================
 In the :ref:`2-grid-cell example <2grid>`, all grid cells had to be manually filled in with data.

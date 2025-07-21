@@ -24,4 +24,5 @@ the Python API can be found on the :ref:`Tutorials <tutorials page>` page.
    model/index
    output/index
    multigrid/index
+   gpu/index
    examples/index
