@@ -43,29 +43,47 @@ module carma_interface
       subroutine TransferCarmaOutputToCpp( &
          c_output_ptr, &
          nz, ny, nx, nelem, ngroup, nbin, ngas, nstep, &
-         current_time, current_step, &
-         lat, lon, zc, zl, &
+         lat, lon, vertical_center, vertical_levels, &
          pressure, temperature, air_density, &
+         radiative_heating, delta_temperature, &
+         gas_mmr, gas_saturation_liquid, gas_saturation_ice, &
+         gas_ei, gas_el, gas_wt, &
          number_density, surface_area, mass_density, effective_radius, &
-         mass_mixing_ratio, &
-         bin_wet_radius, bin_number_density, bin_mass_mixing_ratio) &
+         effective_radius_wet, mean_radius, nucleation_rate, &
+         mass_mixing_ratio, projected_area, aspect_ratio, &
+         vertical_mass_flux, extinction, optical_depth, &
+         bin_wet_radius, bin_number_density, bin_density, &
+         bin_mass_mixing_ratio, bin_deposition_velocity, &
+         group_radius, group_mass, group_volume, &
+         group_radius_ratio, group_aspect_ratio, group_fractal_dimension) &
          bind(C, name="TransferCarmaOutputToCpp")
          use iso_c_binding, only: c_ptr, c_int, c_double
          use carma_precision_mod
 
          type(c_ptr), intent(in), value :: c_output_ptr
          integer(c_int), intent(in), value :: nz, ny, nx, nelem, ngroup, nbin, ngas, nstep
-         real(c_double), intent(in), value :: current_time
-         integer(c_int), intent(in), value :: current_step
 
-         real(kind=f), intent(in) :: lat(ny), lon(nx), zc(nz), zl(nz+1)
-         real(kind=f), intent(in) :: pressure(nz), temperature(nz), air_density(nz)
-         real(kind=f), intent(in) :: number_density(nz, ngroup), surface_area(nz, ngroup)
-         real(kind=f), intent(in) :: mass_density(nz, ngroup), effective_radius(nz, ngroup)
-         real(kind=f), intent(in) :: mass_mixing_ratio(nz, ngroup)
-         real(kind=f), intent(in) :: bin_wet_radius(nz, ngroup, nbin)
-         real(kind=f), intent(in) :: bin_number_density(nz, ngroup, nbin)
-         real(kind=f), intent(in) :: bin_mass_mixing_ratio(nz, ngroup, nbin)
+         real(kind=c_double), intent(in) :: lat(ny), lon(nx), vertical_center(nz), vertical_levels(nz+1)
+         real(kind=c_double), intent(in) :: pressure(nz), temperature(nz), air_density(nz)
+         real(kind=c_double), intent(in) :: radiative_heating(nz), delta_temperature(nz)
+         real(kind=c_double), intent(in) :: gas_mmr(nz, max(1,ngas)), gas_saturation_liquid(nz, max(1,ngas))
+         real(kind=c_double), intent(in) :: gas_saturation_ice(nz, max(1,ngas)), gas_ei(nz, max(1,ngas))
+         real(kind=c_double), intent(in) :: gas_el(nz, max(1,ngas)), gas_wt(nz, max(1,ngas))
+         real(kind=c_double), intent(in) :: number_density(nz, ngroup), surface_area(nz, ngroup)
+         real(kind=c_double), intent(in) :: mass_density(nz, ngroup), effective_radius(nz, ngroup)
+         real(kind=c_double), intent(in) :: effective_radius_wet(nz, ngroup), mean_radius(nz, ngroup)
+         real(kind=c_double), intent(in) :: nucleation_rate(nz, ngroup), mass_mixing_ratio(nz, ngroup)
+         real(kind=c_double), intent(in) :: projected_area(nz, ngroup), aspect_ratio(nz, ngroup)
+         real(kind=c_double), intent(in) :: vertical_mass_flux(nz, ngroup), extinction(nz, ngroup)
+         real(kind=c_double), intent(in) :: optical_depth(nz, ngroup)
+         real(kind=c_double), intent(in) :: bin_wet_radius(nz, ngroup, nbin)
+         real(kind=c_double), intent(in) :: bin_number_density(nz, ngroup, nbin)
+         real(kind=c_double), intent(in) :: bin_density(nz, ngroup, nbin)
+         real(kind=c_double), intent(in) :: bin_mass_mixing_ratio(nz, ngroup, nbin)
+         real(kind=c_double), intent(in) :: bin_deposition_velocity(nz, ngroup, nbin)
+         real(kind=c_double), intent(in) :: group_radius(nbin, ngroup), group_mass(nbin, ngroup)
+         real(kind=c_double), intent(in) :: group_volume(nbin, ngroup), group_radius_ratio(nbin, ngroup)
+         real(kind=c_double), intent(in) :: group_aspect_ratio(nbin, ngroup), group_fractal_dimension(nbin, ngroup)
 
       end subroutine TransferCarmaOutputToCpp
    end interface
@@ -212,33 +230,33 @@ contains
       integer, parameter :: LUNOPRT = 6
 
       ! Grid and atmospheric variables
-      real(kind=f), allocatable :: lat(:), lon(:)
-      real(kind=f), allocatable :: zc(:), zl(:), p(:), pl(:), t(:), rhoa(:)
-      real(kind=f), allocatable :: t_orig(:)
-      real(kind=f) :: time
-      real(kind=f) :: dtime
+      real(kind=c_double), allocatable :: lat(:), lon(:)
+      real(kind=c_double), allocatable :: zc(:), zl(:), p(:), pl(:), t(:), rhoa(:)
+      real(kind=c_double), allocatable :: t_orig(:)
+      real(kind=c_double) :: time
+      real(kind=c_double) :: dtime
       integer :: nstep
-      real(kind=f) :: deltaz, zmin
+      real(kind=c_double) :: deltaz, zmin
 
       ! Gas and particle variables
-      real(kind=f), allocatable :: mmr(:,:,:)
-      real(kind=f), allocatable :: mmr_gas(:,:)  ! Keep for potential future use
+      real(kind=c_double), allocatable :: mmr(:,:,:)
+      real(kind=c_double), allocatable :: mmr_gas(:,:)  ! Keep for potential future use
 
       ! Loop indices
       integer :: i, iy, ix, istep, igas, ielem, ibin
 
       ! Physical constants and parameters from aluminum test
-      real(kind=f), parameter :: rmin = 21.5e-6_f
-      real(kind=f), parameter :: rmon = 21.5e-6_f
-      real(kind=f), parameter :: rmrat = 2._f
-      real(kind=f), parameter :: RHO_ALUMINUM = 3.95_f   ! dry density of aluminum particles (g/cm3)
-      real(kind=f), parameter :: falpha = 1._f           ! satellite aerosol fractal packing coefficient
+      real(kind=c_double), parameter :: rmin = 21.5e-6_c_double
+      real(kind=c_double), parameter :: rmon = 21.5e-6_c_double
+      real(kind=c_double), parameter :: rmrat = 2.0_c_double
+      real(kind=c_double), parameter :: RHO_ALUMINUM = 3.95_c_double   ! dry density of aluminum particles (g/cm3)
+      real(kind=c_double), parameter :: falpha = 1.0_c_double           ! satellite aerosol fractal packing coefficient
       integer, parameter :: I_ALUMINUM = 1
       integer, parameter :: I_GRP_ALUM = 1
       integer, parameter :: I_ELEM_ALUM = 1
 
       ! Fractal dimension array
-      real(kind=f), allocatable :: df(:,:)
+      real(kind=c_double), allocatable :: df(:,:)
 
       rc = 0
 
@@ -253,15 +271,15 @@ contains
       NSOLUTE = f_params%nsolute
       NGAS = f_params%ngas
       NWAVE = f_params%nwave
-      dtime = real(f_params%dtime, kind=f)
+      dtime = real(f_params%dtime, kind=c_double)
       nstep = f_params%nstep
-      deltaz = real(f_params%deltaz, kind=f)
-      zmin = real(f_params%zmin, kind=f)
+      deltaz = real(f_params%deltaz, kind=c_double)
+      zmin = real(f_params%zmin, kind=c_double)
 
       ! Allocate and set fractal dimension array
       allocate(df(NBIN, NGROUP))
       ! Set fractal dimension - satellite aerosol fractal dimension, aluminum oxide
-      df(:,:) = 1.6_f
+      df(:,:) = 1.6_c_double
 
       ! Set up simple grid
       iy = 1
@@ -274,12 +292,9 @@ contains
       allocate(mmr(NZ, NELEM, NBIN))
       if (NGAS > 0) allocate(mmr_gas(NZ, NGAS))
 
-      print *, "Creating CARMA instance..."
-
       ! Create the CARMA instance
       call CARMA_Create(carma, NBIN, NELEM, NGROUP, NSOLUTE, NGAS, NWAVE, rc, LUNOPRT=LUNOPRT)
       if (rc /= 0) then
-         print *, "*** CARMA_Create FAILED ***, rc=", rc
          return
       end if
 
@@ -289,19 +304,17 @@ contains
       if (NGROUP >= 1 .and. NELEM >= 1) then
          ! Create aluminum particle group with fractal properties
          call CARMAGROUP_Create(carma, I_GRP_ALUM, "aluminum", rmin, rmrat, &
-            I_SPHERE, 1._f, .false., rc,&
+            I_SPHERE, 1.0_c_double, .false., rc,&
             is_fractal=.TRUE., rmon=rmon, df=df, falpha=falpha, &
             irhswell=I_NO_SWELLING, do_drydep=.true., &
             shortname="PRALUM", is_sulfate=.false.)
          if (rc /= 0) then
-            print *, "*** CARMAGROUP_Create FAILED ***, rc=", rc
             return
          end if
 
          ! Create aluminum element
          call CARMAELEMENT_Create(carma, I_ELEM_ALUM, I_GRP_ALUM, "Aluminum", RHO_ALUMINUM, I_INVOLATILE, I_ALUMINUM, rc, shortname="ALUM")
          if (rc /= 0) then
-            print *, "*** CARMAELEMENT_Create FAILED ***, rc=", rc
             return
          end if
       end if
@@ -310,7 +323,6 @@ contains
       if (NGROUP >= 1) then
          call CARMA_AddCoagulation(carma, I_GRP_ALUM, I_GRP_ALUM, I_GRP_ALUM, I_COLLEC_FUCHS, rc)
          if (rc /= 0) then
-            print *, "*** CARMA_AddCoagulation FAILED ***, rc=", rc
             return
          end if
       end if
@@ -318,19 +330,17 @@ contains
       ! Initialize CARMA with coagulation settings matching test_aluminum_simple
       call CARMA_Initialize(carma, rc, do_grow=.false., do_coag=.true., do_substep=.false., do_vtran=.FALSE.)
       if (rc /= 0) then
-         print *, "*** CARMA_Initialize FAILED ***, rc=", rc
          return
       end if
 
-      print *, "Setting up atmosphere..."
 
       ! Set up atmospheric conditions matching test_aluminum_simple
-      lat(iy) = 0.0_f
-      lon(ix) = -105.0_f
+      lat(iy) = 0.0_c_double
+      lon(ix) = -105.0_c_double
 
       ! Vertical grid setup
       do i = 1, NZ
-         zc(i) = zmin + (deltaz * (i - 0.5_f))
+         zc(i) = zmin + (deltaz * (i - 0.5_c_double))
       end do
 
       call GetStandardAtmosphere(zc, p=p, t=t)
@@ -341,20 +351,18 @@ contains
       call GetStandardAtmosphere(zl, p=pl)
 
       ! Set up initial conditions
-      rhoa(:) = (p(:) * 10._f) / (R_AIR * t(:)) * (1e-3_f * 1e6_f)
+      rhoa(:) = (p(:) * 10.0_c_double) / (R_AIR * t(:)) * (1e-3_c_double * 1e6_c_double)
 
       ! Store original temperature for told parameter
       t_orig(:) = t(:)
 
       ! Initialize gas mixing ratios (no gases in aluminum test)
       if (NGAS > 0) then
-         mmr_gas(:,:) = 0._f
+         mmr_gas(:,:) = 0.0_c_double
       end if
 
       ! Initialize particle mixing ratios with aluminum concentration
-      mmr(:,:,:) = 5e9_f / (deltaz * 2.57474699e14_f) / rhoa(1)
-
-      print *, "Running time integration..."
+      mmr(:,:,:) = 5e9_c_double / (deltaz * 2.57474699e14_c_double) / rhoa(1)
 
       ! Time integration loop - start from step 2 to match test_aluminum_simple
       carma_time_integration: do istep = 2, nstep + 1
@@ -370,7 +378,6 @@ contains
             t(:), rc, &
             told=t(:))
          if (rc /= 0) then
-            print *, "*** CARMASTATE_Create FAILED ***, rc=", rc
             return
          end if
 
@@ -379,7 +386,6 @@ contains
             do ibin = 1, NBIN
                call CARMASTATE_SetBin(cstate, ielem, ibin, mmr(:,ielem,ibin), rc)
                if (rc /= 0) then
-                  print *, "*** CARMASTATE_SetBin FAILED ***, rc=", rc
                   return
                end if
             end do
@@ -388,7 +394,6 @@ contains
          ! Execute the time step
          call CARMASTATE_Step(cstate, rc)
          if (rc /= 0) then
-            print *, "*** CARMASTATE_Step FAILED ***, rc=", rc
             return
          end if
 
@@ -397,43 +402,32 @@ contains
             do ibin = 1, NBIN
                call CARMASTATE_GetBin(cstate, ielem, ibin, mmr(:,ielem,ibin), rc)
                if (rc /= 0) then
-                  print *, "*** CARMASTATE_GetBin FAILED ***, rc=", rc
                   return
                end if
             end do
          end do
 
-         ! Print progress every 10 steps
-         if (mod(istep, max(1, nstep/10)) == 0) then
-            print *, "Completed step", istep, "of", nstep
-         end if
-
       end do carma_time_integration
 
-      print *, "CARMA simulation completed with error code:", rc
-
       ! Transfer output data to C++ if output pointer is provided
+      ! This must happen before the CARMA state is destroyed
       if (present(c_output_ptr) .and. c_associated(c_output_ptr)) then
-         print *, "Transferring output data to C++..."
          call transfer_carma_output_data(c_output_ptr, &
+            cstate, carma_ptr, &
             NZ, NY, NX, NELEM, NGROUP, NBIN, NGAS, nstep, &
             real(time, kind=8), int(nstep), &
-            lat, lon, zc, zl, p, t, rhoa, &
-            mmr)
-         print *, "Output transfer completed"
+            lat, lon, zc, zl, p, t, rhoa, deltaz)
       end if
 
       ! Clean up the carma state for this step
       call CARMASTATE_Destroy(cstate, rc)
       if (rc /= 0) then
-         print *, "*** CARMASTATE_Destroy FAILED ***, rc=", rc
          return
       end if
 
       ! Clean up the carma instance
       call CARMA_Destroy(carma, rc)
       if (rc /= 0) then
-         print *, "*** CARMA_Destroy FAILED ***, rc=", rc
       end if
 
       ! Deallocate arrays
@@ -446,67 +440,392 @@ contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    subroutine transfer_carma_output_data(c_output_ptr, &
+      cstate, carma_ptr, &
       nz, ny, nx, nelem, ngroup, nbin, ngas, nstep, &
       current_time, current_step, &
-      lat, lon, zc, zl, pressure, temperature, air_density, &
-      mass_mixing_ratio)
+      lat, lon, vertical_center, vertical_levels, pressure, temperature, air_density, deltaz)
       use carma_precision_mod
+      use carma_types_mod
       use iso_c_binding, only: c_ptr, c_int, c_double
 
       implicit none
 
       ! Input parameters
       type(c_ptr), intent(in) :: c_output_ptr
+      type(carmastate_type), intent(in) :: cstate
+      type(carma_type), intent(in), target :: carma_ptr
       integer, intent(in) :: nz, ny, nx, nelem, ngroup, nbin, ngas, nstep
       real(kind=8), intent(in) :: current_time
       integer, intent(in) :: current_step
-      real(kind=f), intent(in) :: lat(ny), lon(nx)
-      real(kind=f), intent(in) :: zc(nz), zl(nz+1)
-      real(kind=f), intent(in) :: pressure(nz), temperature(nz), air_density(nz)
-      real(kind=f), intent(in) :: mass_mixing_ratio(nz, nelem, nbin)
+      real(kind=c_double), intent(in) :: lat(ny), lon(nx)
+      real(kind=c_double), intent(in) :: vertical_center(nz), vertical_levels(nz+1)
+      real(kind=c_double), intent(in) :: pressure(nz), temperature(nz), air_density(nz)
+      real(kind=c_double), intent(in) :: deltaz
 
-      ! Create dummy arrays for data not available in simplified simulation
-      real(kind=f), allocatable :: number_density(:,:), surface_area(:,:), mass_density(:,:)
-      real(kind=f), allocatable :: effective_radius(:,:)
-      real(kind=f), allocatable :: bin_wet_radius(:,:,:), bin_number_density(:,:,:)
-      real(kind=f), allocatable :: bin_mass_mixing_ratio(:,:,:)
+      ! Arrays for CARMA diagnostics output
+      real(kind=c_double), allocatable :: number_density(:,:), surface_area(:,:), mass_density(:,:)
+      real(kind=c_double), allocatable :: effective_radius(:,:), effective_radius_wet(:,:), mean_radius(:,:)
+      real(kind=c_double), allocatable :: nucleation_rate(:,:), mass_mixing_ratio(:,:)
+      real(kind=c_double), allocatable :: projected_area(:,:), aspect_ratio(:,:), vertical_mass_flux(:,:)
+      real(kind=c_double), allocatable :: extinction(:,:), optical_depth(:,:)
 
-      ! Allocate and initialize dummy arrays
+      ! Bin-resolved arrays
+      real(kind=c_double), allocatable :: bin_wet_radius(:,:,:), bin_number_density(:,:,:)
+      real(kind=c_double), allocatable :: bin_density(:,:,:), bin_mass_mixing_ratio(:,:,:)
+      real(kind=c_double), allocatable :: bin_deposition_velocity(:,:,:)
+
+      ! Additional arrays for missing fields
+      real(kind=c_double), allocatable :: radiative_heating(:), delta_temperature(:)
+      real(kind=c_double), allocatable :: gas_mmr(:,:), gas_saturation_liquid(:,:), gas_saturation_ice(:,:)
+      real(kind=c_double), allocatable :: gas_vapor_pressure_ice(:,:), gas_vapor_pressure_liquid(:,:), gas_weight_percent(:,:)
+      real(kind=c_double), allocatable :: group_radius(:,:), group_mass(:,:), group_volume(:,:)
+      real(kind=c_double), allocatable :: group_radius_ratio(:,:), group_aspect_ratio(:,:), group_fractal_dimension(:,:)
+
+      ! Allocate arrays for carmadiags output
       allocate(number_density(nz, ngroup))
       allocate(surface_area(nz, ngroup))
       allocate(mass_density(nz, ngroup))
       allocate(effective_radius(nz, ngroup))
+      allocate(effective_radius_wet(nz, ngroup))
+      allocate(mean_radius(nz, ngroup))
+      allocate(nucleation_rate(nz, ngroup))
+      allocate(mass_mixing_ratio(nz, ngroup))
+      allocate(projected_area(nz, ngroup))
+      allocate(aspect_ratio(nz, ngroup))
+      allocate(vertical_mass_flux(nz, ngroup))
+      allocate(extinction(nz, ngroup))
+      allocate(optical_depth(nz, ngroup))
+
       allocate(bin_wet_radius(nz, ngroup, nbin))
       allocate(bin_number_density(nz, ngroup, nbin))
+      allocate(bin_density(nz, ngroup, nbin))
       allocate(bin_mass_mixing_ratio(nz, ngroup, nbin))
+      allocate(bin_deposition_velocity(nz, ngroup, nbin))
 
-      ! Set dummy values (in a real implementation, these would come from CARMA state)
-      number_density = 1.0e6_f     ! particles/cm3
-      surface_area = 1.0e-6_f      ! cm2/cm3
-      mass_density = 1.0e-12_f     ! g/cm3
-      effective_radius = 1.0e-5_f  ! cm
-      bin_wet_radius = 1.0e-5_f    ! cm
-      bin_number_density = 1.0e5_f ! particles/cm3
-      bin_mass_mixing_ratio = mass_mixing_ratio ! Use actual MMR data
+      ! Extract diagnostics from CARMA state using carmadiags
+      call carmadiags(cstate, carma_ptr, nz, nbin, nelem, ngroup, 0, &
+         deltaz, &
+         nd=number_density, ad=surface_area, md=mass_density, &
+         re=effective_radius, rew=effective_radius_wet, rm=mean_radius, &
+         jn=nucleation_rate, mr=mass_mixing_ratio, &
+         pa=projected_area, ar=aspect_ratio, vm=vertical_mass_flux, &
+         ex=extinction, od=optical_depth, &
+         wr_bin=bin_wet_radius, nd_bin=bin_number_density, &
+         ro_bin=bin_density, mr_bin=bin_mass_mixing_ratio, &
+         vd_bin=bin_deposition_velocity)
 
-      ! Call the C++ transfer function
+      allocate(radiative_heating(nz))
+      allocate(delta_temperature(nz))
+      ! Allocate and initialize atmospheric state variables
+      radiative_heating(:) = 0.0_c_double  ! Default value
+      delta_temperature(:) = 0.0_c_double  ! Default value
+
+      ! Allocate and initialize gas variables if gases exist
+      if (ngas > 0) then
+         allocate(gas_mmr(nz, ngas), gas_saturation_liquid(nz, ngas), gas_saturation_ice(nz, ngas))
+         allocate(gas_vapor_pressure_ice(nz, ngas), gas_vapor_pressure_liquid(nz, ngas), gas_weight_percent(nz, ngas))
+         gas_mmr(:,:) = 0.0_c_double
+         gas_saturation_liquid(:,:) = 0.0_c_double
+         gas_saturation_ice(:,:) = 0.0_c_double
+         gas_vapor_pressure_ice(:,:) = 0.0_c_double
+         gas_vapor_pressure_liquid(:,:) = 0.0_c_double
+         gas_weight_percent(:,:) = 0.0_c_double
+      else
+         ! Allocate minimal arrays for zero gas case
+         allocate(gas_mmr(nz, 1), gas_saturation_liquid(nz, 1), gas_saturation_ice(nz, 1))
+         allocate(gas_vapor_pressure_ice(nz, 1), gas_vapor_pressure_liquid(nz, 1), gas_weight_percent(nz, 1))
+         gas_mmr(:,:) = 0.0_c_double
+         gas_saturation_liquid(:,:) = 0.0_c_double
+         gas_saturation_ice(:,:) = 0.0_c_double
+         gas_vapor_pressure_ice(:,:) = 0.0_c_double
+         gas_vapor_pressure_liquid(:,:) = 0.0_c_double
+         gas_weight_percent(:,:) = 0.0_c_double
+      end if
+
+      ! Allocate and initialize group properties with default values
+      allocate(group_radius(nbin, ngroup), group_mass(nbin, ngroup), group_volume(nbin, ngroup))
+      allocate(group_radius_ratio(nbin, ngroup), group_aspect_ratio(nbin, ngroup), group_fractal_dimension(nbin, ngroup))
+      group_radius(:,:) = 0.0_c_double
+      group_mass(:,:) = 0.0_c_double
+      group_volume(:,:) = 0.0_c_double
+      group_radius_ratio(:,:) = 1.0_c_double  ! Default to 1.0
+      group_aspect_ratio(:,:) = 1.0_c_double  ! Default to 1.0
+      group_fractal_dimension(:,:) = 3.0_c_double  ! Default to 3.0 (spherical)
+
+
+      print *, ""
+      print *, "nz =", nz, "ny =", ny, "nx =", nx, &
+         "nelem =", nelem, "ngroup =", ngroup, "nbin =", nbin, "ngas =", ngas, "nstep =", nstep
+      print *, "lat: ", lat
+      print *, "lon: ", lon
+      print *, "Vertical center:", vertical_center
+      print *, "Vertical levels:", vertical_levels
+      print *, "Pressure:", pressure
+      print *, "Temperature:", temperature
+      print *, "Air density:", air_density
+      print *, "Radiative heating:", radiative_heating
+      print *, "Delta temperature:", delta_temperature
+      print *, "Gas MMR:", gas_mmr
+      print *, "Gas saturation liquid:", gas_saturation_liquid
+      print *, "Gas saturation ice:", gas_saturation_ice
+      print *, "Gas vapor pressure ice:", gas_vapor_pressure_ice
+      print *, "Gas vapor pressure liquid:", gas_vapor_pressure_liquid
+      print *, "Gas weight percent:", gas_weight_percent
+      print *, "Number density:", number_density
+      print *, "Surface area:", surface_area
+      print *, "Mass density:", mass_density
+      print *, "Effective radius:", effective_radius
+      print *, "Effective radius wet:", effective_radius_wet
+      print *, "Mean radius:", mean_radius
+      print *, "Nucleation rate:", nucleation_rate
+      print *, "Mass mixing ratio:", mass_mixing_ratio
+      print *, "Projected area:", projected_area
+      print *, "Aspect ratio:", aspect_ratio
+      print *, "Vertical mass flux:", vertical_mass_flux
+      print *, "Extinction:", extinction
+      print *, "Optical depth:", optical_depth
+      print *, "Bin wet radius:", bin_wet_radius
+      print *, "Bin number density:", bin_number_density
+      print *, "Bin density:", bin_density
+      print *, "Bin mass mixing ratio:", bin_mass_mixing_ratio
+      print *, "Bin deposition velocity:", bin_deposition_velocity
+      print *, "Group radius:", group_radius
+      print *, "Group mass:", group_mass
+      print *, "Group volume:", group_volume
+      print *, "Group radius ratio:", group_radius_ratio
+      print *, "Group aspect ratio:", group_aspect_ratio
+      print *, "Group fractal dimension:", group_fractal_dimension
+
+      ! Call the C++ transfer function with real CARMA data
       call TransferCarmaOutputToCpp( &
          c_output_ptr, &
          int(nz, c_int), int(ny, c_int), int(nx, c_int), &
          int(nelem, c_int), int(ngroup, c_int), int(nbin, c_int), &
          int(ngas, c_int), int(nstep, c_int), &
-         real(current_time, c_double), int(current_step, c_int), &
-         lat, lon, zc, zl, &
+         lat, lon, vertical_center, vertical_levels, &
          pressure, temperature, air_density, &
+         radiative_heating, delta_temperature, &
+         gas_mmr, gas_saturation_liquid, gas_saturation_ice, &
+         gas_vapor_pressure_ice, gas_vapor_pressure_liquid, gas_weight_percent, &
          number_density, surface_area, mass_density, effective_radius, &
-         mass_mixing_ratio, &
-         bin_wet_radius, bin_number_density, bin_mass_mixing_ratio)
+         effective_radius_wet, mean_radius, nucleation_rate, &
+         mass_mixing_ratio, projected_area, aspect_ratio, &
+         vertical_mass_flux, extinction, optical_depth, &
+         bin_wet_radius, bin_number_density, bin_density, &
+         bin_mass_mixing_ratio, bin_deposition_velocity, &
+         group_radius, group_mass, group_volume, &
+         group_radius_ratio, group_aspect_ratio, group_fractal_dimension)
 
       ! Clean up
-      deallocate(number_density, surface_area, mass_density, effective_radius)
-      deallocate(bin_wet_radius, bin_number_density, bin_mass_mixing_ratio)
+      deallocate(number_density, surface_area, mass_density)
+      deallocate(effective_radius, effective_radius_wet, mean_radius)
+      deallocate(nucleation_rate, mass_mixing_ratio, projected_area, aspect_ratio)
+      deallocate(vertical_mass_flux, extinction, optical_depth)
+      deallocate(bin_wet_radius, bin_number_density, bin_density)
+      deallocate(bin_mass_mixing_ratio, bin_deposition_velocity)
+      deallocate(radiative_heating, delta_temperature)
+      deallocate(gas_mmr, gas_saturation_liquid, gas_saturation_ice)
+      deallocate(gas_vapor_pressure_ice, gas_vapor_pressure_liquid, gas_weight_percent)
+      deallocate(group_radius, group_mass, group_volume)
+      deallocate(group_radius_ratio, group_aspect_ratio, group_fractal_dimension)
 
    end subroutine transfer_carma_output_data
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   subroutine carmadiags(cstate, carma, nlev, nbin, nelem, ngroup, nwave, &
+      dz, qext, idx_wave, &
+      nd, ad, md, re, rew, rm, jn, mr, pa, ar, vm, ex, od,&
+      wr_bin, nd_bin, ro_bin, mr_bin, vd_bin)
+      use carma_precision_mod
+      use carma_enums_mod
+      use carma_constants_mod
+      use carma_types_mod
+      use carmaelement_mod
+      use carmagroup_mod
+      use carmastate_mod
+
+      ! Input
+      type(carma_type), intent(in)       :: carma
+      type(carmastate_type), intent(in)  :: cstate
+      integer, intent(in)                :: nlev, nbin, nelem, ngroup, nwave
+      integer, intent(in), optional      :: idx_wave
+      real(kind=c_double), intent(in)           :: dz
+      real(kind=c_double), intent(in), optional :: qext(nwave, nbin, ngroup)
+
+      ! Output
+      real(kind=c_double), intent(out), optional :: nd(nlev, ngroup)
+      real(kind=c_double), intent(out), optional :: ad(nlev, ngroup)
+      real(kind=c_double), intent(out), optional :: md(nlev, ngroup)
+      real(kind=c_double), intent(out), optional :: re(nlev, ngroup)
+      real(kind=c_double), intent(out), optional :: rew(nlev, ngroup)
+      real(kind=c_double), intent(out), optional :: rm(nlev, ngroup)
+      real(kind=c_double), intent(out), optional :: jn(nlev, ngroup)
+      real(kind=c_double), intent(out), optional :: mr(nlev, ngroup)
+      real(kind=c_double), intent(out), optional :: pa(nlev, ngroup)
+      real(kind=c_double), intent(out), optional :: ar(nlev, ngroup)
+      real(kind=c_double), intent(out), optional :: vm(nlev, ngroup)
+      real(kind=c_double), intent(out), optional :: ex(nlev, ngroup)
+      real(kind=c_double), intent(out), optional :: od(nlev, ngroup)
+
+      real(kind=c_double), intent(out), optional :: wr_bin(nlev, ngroup, nbin)
+      real(kind=c_double), intent(out), optional :: nd_bin(nlev, ngroup, nbin)
+      real(kind=c_double), intent(out), optional :: ro_bin(nlev, ngroup, nbin)
+      real(kind=c_double), intent(out), optional :: mr_bin(nlev, ngroup, nbin)
+      real(kind=c_double), intent(out), optional :: vd_bin(nlev, ngroup, nbin)
+
+      ! Local Variables
+      integer      :: igroup, ielem, ibin, ienconc, rc, cnsttype, maxbin
+      real(kind=c_double) :: r(nbin), rmass(nbin), rrat(nbin), arat(nbin)
+      logical      :: is_cloud, is_ice, grp_do_drydep
+      real(kind=c_double) :: vqext(nbin, ngroup)
+
+      real(kind=c_double)           :: mmr(nlev)             !! the bin mass mixing ratio [kg/kg]
+      real(kind=c_double)           :: totalmmr(nlev)        !! mmr of the entire particle (kg/m3)
+      real(kind=c_double)           :: numberDensity(nlev)   !! number density [#/cm3]
+      real(kind=c_double)           :: nucleationRate(nlev)  !! nucleation rate [1/cm3/s]
+      real(kind=c_double)           :: rwet(nlev)           !! wet particle radius [cm]
+      real(kind=c_double)           :: rhop_wet(nlev)        !! wet particle density [g/cm3]
+      real(kind=c_double)           :: dd                    !! particle sedimentation mass flux to surface [kg/m2/s]
+      real(kind=c_double)           :: vd                    !! deposition velocity [cm/s]
+      real(kind=c_double)           :: vf(nlev+1)            !! fall velocity [cm/s]
+      real(kind=c_double)           :: dtpart(nlev)          !! delta particle temperature [K]
+      real(kind=c_double)           :: re2(nlev, ngroup), re3(nlev, ngroup)
+      real(kind=c_double)           :: rew2(nlev, ngroup), rew3(nlev, ngroup)
+
+
+      real(kind=f) :: vnd(nlev, ngroup)
+      real(kind=f) :: vad(nlev, ngroup)
+      real(kind=f) :: vmd(nlev, ngroup)
+      real(kind=f) :: vre(nlev, ngroup)
+      real(kind=f) :: vrew(nlev, ngroup)
+      real(kind=f) :: vrm(nlev, ngroup)
+      real(kind=f) :: vjn(nlev, ngroup)
+      real(kind=f) :: vmr(nlev, ngroup)
+      real(kind=f) :: vpa(nlev, ngroup)
+      real(kind=f) :: var(nlev, ngroup)
+      real(kind=f) :: vvm(nlev, ngroup)
+      real(kind=f) :: vex(nlev, ngroup)
+      real(kind=f) :: vod(nlev, ngroup)
+
+      real(kind=f) :: vwr_bin(nlev, ngroup, nbin)
+      real(kind=f) :: vnd_bin(nlev, ngroup, nbin)
+      real(kind=f) :: vro_bin(nlev, ngroup, nbin)
+      real(kind=f) :: vmr_bin(nlev, ngroup, nbin)
+      real(kind=f) :: vvd_bin(nlev, ngroup, nbin)
+
+
+      ! Initialization
+      re2(:, :) = 0._f
+      re3(:, :) = 0._f
+      rew2(:, :) = 0._f
+      rew3(:, :) = 0._f
+
+      vnd(:, :)   = 0._f
+      vad(:, :)   = 0._f
+      vmd(:, :)   = 0._f
+      vre(:, :)   = 0._f
+      vrew(:, :)  = 0._f
+      vrm(:, :)   = 0._f
+      vjn(:, :)   = 0._f
+      vmr(:, :)   = 0._f
+      vpa(:, :)   = 0._f
+      var(:, :)   = 0._f
+      vvm(:, :)   = 0._f
+      vex(:, :)   = 0._f
+      vod(:, :)   = 0._f
+      vwr_bin(:, :, :) = 0._f
+      vnd_bin(:, :, :) = 0._f
+      vro_bin(:, :, :) = 0._f
+      vvd_bin(:, :, :) = 0._f
+
+      vqext(:, :) = 2.0_f
+      if (present(qext)) vqext(:, :) = qext(idx_wave, :, :)
+
+      ! Calculation
+      do ielem = 1, nelem
+
+         call CARMAELEMENT_Get(carma, ielem, rc, igroup=igroup)
+         if (rc /=0) stop "    *** CARMAELEMENT_Get FAILED ***"
+
+         call CARMAGROUP_Get(carma, igroup, rc, ienconc=ienconc, cnsttype=cnsttype, r=r, rmass=rmass, maxbin=maxbin, &
+            is_cloud=is_cloud, is_ice=is_ice, do_drydep=grp_do_drydep, rrat=rrat, arat=arat)
+
+         do ibin = 1, nbin
+            call CARMASTATE_GetBin(cstate, ielem, ibin, mmr, rc, &
+               numberDensity=numberDensity, nucleationRate=nucleationRate, r_wet=rwet, rhop_wet=rhop_wet, &
+               sedimentationflux=dd, vd=vd, vf=vf, dtpart=dtpart, totalmmr=totalmmr)
+
+            if (rc /=0) stop "    *** CARMASTATE_GetBin FAILED ***"
+
+            if (ielem == ienconc) then
+
+               vnd(:, igroup)   = vnd(:, igroup)  + numberDensity(:)
+               re2(:, igroup)   = re2(:, igroup)  + numberDensity(:) * ((r(ibin)*rrat(ibin))**2)
+               re3(:, igroup)   = re3(:, igroup)  + numberDensity(:) * ((r(ibin)*rrat(ibin))**3)
+               rew2(:, igroup)  = rew2(:, igroup) + numberDensity(:) * ((rwet*rrat(ibin))**2)
+               rew3(:, igroup)  = rew3(:, igroup) + numberDensity(:) * ((rwet*rrat(ibin))**3)
+               vad(:, igroup)   = vad(:, igroup)  + numberDensity(:) * 4.0_f * PI * (rwet**2) * 1.0e8_f
+               vmd(:, igroup)   = vmd(:, igroup)  + numberDensity(:) * rmass(ibin)
+               vmr(:, igroup)   = vmr(:, igroup)  + totalmmr(:)
+               vpa(:, igroup)   = vpa(:, igroup)  + numberDensity(:) * PI * ((rwet * rrat(ibin))**2) * arat(ibin)
+               vvm(:, igroup)   = vvm(:, igroup)  + numberDensity(:) * rmass(ibin) * vf(2:)
+               vex(:, igroup)   = vex(:, igroup)  + numberDensity(:) * vqext(ibin,igroup) * PI * (r(ibin)**2) * 1e5_f
+               vod(:, igroup)   = vod(:, igroup)  + numberDensity(:) * vqext(ibin,igroup) * PI * (r(ibin)**2) * dz * 100._f
+
+               vmr_bin(:, igroup, ibin) = totalmmr(:)
+               vnd_bin(:, igroup, ibin) = numberDensity(:)
+               vro_bin(:, igroup, ibin) = rhop_wet(:)
+               vwr_bin(:, igroup, ibin) = rwet(:)* 1e4_f
+
+               vjn(:, igroup)  = vjn(:, igroup)  + nucleationRate(:)
+
+               if (cnsttype == I_CNSTTYPE_PROGNOSTIC) then
+                  if (ibin <= maxbin) then
+                     if (grp_do_drydep) then
+                        vvd_bin(:, igroup, ibin) = - vd / 100._f
+                     end if
+                  end if
+               end if
+
+            end if
+         end do   ! loop over bins
+
+         if (ielem == ienconc) then
+            where (re2(:, igroup) > 0.0_f)
+               vre(:, igroup)  = (re3(:, igroup) / re2(:, igroup)) * 1e4_f
+               vrew(:, igroup) = (rew3(:, igroup) / rew2(:, igroup)) * 1e4_f
+               vrm(:, igroup)  = (3._f / 4._f) * (vmd(:, igroup)  / (0.917_f * vpa(:, igroup))) * 1e4_f
+               var(:, igroup)  = vpa(:, igroup) / PI / rew2(:, igroup)
+            end where
+
+            where (vmd(:, igroup) > 0.0_f)
+               vvm(:, igroup) = vvm(:, igroup) / vmd(:, igroup)
+            end where
+         end if
+
+      end do      ! loop over elements
+
+      if (present(nd))     nd(:, :)  = vnd(:, :)
+      if (present(ad))     ad(:, :)  = vad(:, :)
+      if (present(md))     md(:, :)  = vmd(:, :)
+      if (present(re))    re(:, :)  = vre(:, :)
+      if (present(rew))    rew(:, :) = vrew(:, :)
+      if (present(rm))     rm(:, :)  = vrm(:, :)
+      if (present(jn))     jn(:, :)  = vjn(:, :)
+      if (present(mr))     mr(:, :)  = vmr(:, :)
+      if (present(pa))     pa(:, :)  = vpa(:, :)
+      if (present(ar))     ar(:, :)  = var(:, :)
+      if (present(vm))     vm(:, :)  = vvm(:, :)
+      if (present(ex))     ex(:, :)  = vex(:, :)
+      if (present(od))     od(:, :)  = vod(:, :)
+      if (present(wr_bin)) wr_bin(:, :, :) = vwr_bin(:, :, :)
+      if (present(nd_bin)) nd_bin(:, :, :) = vnd_bin(:, :, :)
+      if (present(ro_bin)) ro_bin(:, :, :) = vro_bin(:, :, :)
+      if (present(mr_bin)) mr_bin(:, :, :) = vmr_bin(:, :, :)
+      if (present(vd_bin)) vd_bin(:, :, :) = vvd_bin(:, :, :)
+
+   end subroutine carmadiags
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

@@ -6,10 +6,38 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include <iostream>
 #include <format>
+#include <iostream>
 
 namespace py = pybind11;
+
+void print_2d_vector(const std::vector<std::vector<double>>& vec)
+{
+  for (const auto& row : vec)
+  {
+    for (const auto& value : row)
+    {
+      std::cout << value << " ";
+    }
+  }
+  std::cout << std::endl;
+}
+
+void print_3d_vector(const std::vector<std::vector<std::vector<double>>>& vec)
+{
+  for (const auto& matrix : vec)
+  {
+    for (const auto& row : matrix)
+    {
+      for (const auto& value : row)
+      {
+        std::cout << value << " ";
+      }
+      std::cout << std::endl;
+    }
+    std::cout << "-----" << std::endl;  // Separator for matrices
+  }
+}
 
 void bind_carma(py::module_& carma)
 {
@@ -84,35 +112,141 @@ void bind_carma(py::module_& carma)
         {
           musica::CARMAOutput output = carma_instance->Run(params);
 
-          std::cout << "CARMA simulation completed successfully." << std::endl;
           std::cout << std::format(
-              "Dimensions: nz={}, ny={}, nx={}, nelem={}, ngroup={}, nbin={}, ngas={}, nstep={}",
-              output.nz, output.ny, output.nx, output.nelem, output.ngroup, output.nbin, output.ngas, output.nstep)
+                           "nz={}, ny={}, nx={}, nelem={}, ngroup={}, nbin={}, ngas={}, nstep={}",
+                           output.nz,
+                           output.ny,
+                           output.nx,
+                           output.nelem,
+                           output.ngroup,
+                           output.nbin,
+                           output.ngas,
+                           output.nstep)
                     << std::endl;
-          std::cout << "Output data size: lat=" << output.lat.size()
-                    << ", lon=" << output.lon.size()
-                    << ", zc=" << output.zc.size()
-                    << ", zl=" << output.zl.size()
-                    << ", pressure=" << output.pressure.size()
-                    << ", temperature=" << output.temperature.size()
-                    << ", air_density=" << output.air_density.size()
-                    << ", radiative_heating=" << output.radiative_heating.size()
-                    << ", delta_temperature=" << output.delta_temperature.size()
-                    << ", number_density=" << output.number_density.size()
-                    << ", surface_area=" << output.surface_area.size()
-                    << ", mass_density=" << output.mass_density.size()
-                    << ", effective_radius=" << output.effective_radius.size()
-                    << ", mass_mixing_ratio=" << output.mass_mixing_ratio.size()
-                    << std::endl;
-          std::cout << "Gas MMR\n";
-          for (const auto& gas : output.gas_mmr)
+
+          std::cout << "lat: ";
+          for (const auto& value : output.lat)
           {
-            std::cout << "  Size: " << gas.size() << std::endl;
-            for (const auto& value : gas)
-            {
-              std::cout << "    " << value << std::endl;
-            }
+            std::cout << value << " ";
           }
+          std::cout << std::endl;
+
+          std::cout << "lon: ";
+          for (const auto& value : output.lon)
+          {
+            std::cout << value << " ";
+          }
+          std::cout << std::endl;
+
+          std::cout << "Vertical center: ";
+          for (const auto& value : output.vertical_center)
+          {
+            std::cout << value << " ";
+          }
+          std::cout << std::endl;
+
+          std::cout << "Vertical levels: ";
+          for (const auto& value : output.vertical_levels)
+          {
+            std::cout << value << " ";
+          }
+          std::cout << std::endl;
+
+          std::cout << "Pressure: ";
+          for (const auto& value : output.pressure)
+          {
+            std::cout << value << " ";
+          }
+          std::cout << std::endl;
+
+          std::cout << "Temperature: ";
+          for (const auto& value : output.temperature)
+          {
+            std::cout << value << " ";
+          }
+          std::cout << std::endl;
+
+          std::cout << "Air density: ";
+          for (const auto& value : output.air_density)
+          {
+            std::cout << value << " ";
+          }
+          std::cout << std::endl;
+
+          std::cout << "Radiative heating: ";
+          for (const auto& value : output.radiative_heating)
+          {
+            std::cout << value << " ";
+          }
+          std::cout << std::endl;
+
+          std::cout << "Delta temperature: ";
+          for (const auto& value : output.delta_temperature)
+          {
+            std::cout << value << " ";
+          }
+          std::cout << std::endl;
+
+          std::cout << "Gas MMR: ";
+          print_2d_vector(output.gas_mmr);
+          std::cout << "Gas saturation liquid: ";
+          print_2d_vector(output.gas_saturation_liquid);
+          std::cout << "Gas saturation ice: ";
+          print_2d_vector(output.gas_saturation_ice);
+          std::cout << "Gas vapor pressure ice: ";
+          print_2d_vector(output.gas_vapor_pressure_ice);
+          std::cout << "Gas vapor pressure liquid: ";
+          print_2d_vector(output.gas_vapor_pressure_liquid);
+          std::cout << "Gas weight percent: ";
+          print_2d_vector(output.gas_weight_percent);
+          std::cout << "Number density: ";
+          print_2d_vector(output.number_density);
+          std::cout << "Surface area: ";
+          print_2d_vector(output.surface_area);
+          std::cout << "Mass density: ";
+          print_2d_vector(output.mass_density);
+          std::cout << "Effective radius: ";
+          print_2d_vector(output.effective_radius);
+          std::cout << "Effective radius wet: ";
+          print_2d_vector(output.effective_radius_wet);
+          std::cout << "Mean radius: ";
+          print_2d_vector(output.mean_radius);
+          std::cout << "Nucleation rate: ";
+          print_2d_vector(output.nucleation_rate);
+          std::cout << "Mass mixing ratio: ";
+          print_2d_vector(output.mass_mixing_ratio);
+          std::cout << "Projected area: ";
+          print_2d_vector(output.projected_area);
+          std::cout << "Aspect ratio: ";
+          print_2d_vector(output.aspect_ratio);
+          std::cout << "Vertical mass flux: ";
+          print_2d_vector(output.vertical_mass_flux);
+          std::cout << "Extinction: ";
+          print_2d_vector(output.extinction);
+          std::cout << "Optical depth: ";
+          print_2d_vector(output.optical_depth);
+          std::cout << "Bin wet radius: ";
+          print_3d_vector(output.bin_wet_radius);
+          std::cout << "Bin number density: ";
+          print_3d_vector(output.bin_number_density);
+          std::cout << "Bin density: ";
+          print_3d_vector(output.bin_density);
+          std::cout << "Bin mass mixing ratio: ";
+          print_3d_vector(output.bin_mass_mixing_ratio);
+          std::cout << "Bin deposition velocity: ";
+          print_3d_vector(output.bin_deposition_velocity);
+          std::cout << "Group radius: ";
+          print_2d_vector(output.group_radius);
+          std::cout << "Group mass: ";
+          print_2d_vector(output.group_mass);
+          std::cout << "Group volume: ";
+          print_2d_vector(output.group_volume);
+          std::cout << "Group radius ratio: ";
+          print_2d_vector(output.group_radius_ratio);
+          std::cout << "Group aspect ratio: ";
+          print_2d_vector(output.group_aspect_ratio);
+          std::cout << "Group fractal dimension: ";
+          print_2d_vector(output.group_fractal_dimension);
         }
         catch (const std::exception& e)
         {

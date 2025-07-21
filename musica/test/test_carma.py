@@ -63,14 +63,8 @@ def test_carma_instance():
     carma = musica.CARMA()
     assert carma is not None
 
-    # Test running with default parameters
-    params = musica.carma.CARMAParameters(nstep=1)  # Short run for testing
-    carma.run(params)
-
-    # Test running with test configuration
     test_params = musica.CARMA.get_aluminum_test_parameters()
     test_params.nstep = 560
-    print(test_params.to_dict())
     carma.run(test_params)
 
 

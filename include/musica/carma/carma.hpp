@@ -50,8 +50,8 @@ namespace musica
     // Grid and coordinate arrays
     std::vector<double> lat;  // Latitude [degrees]
     std::vector<double> lon;  // Longitude [degrees]
-    std::vector<double> zc;   // Height at cell centers [m]
-    std::vector<double> zl;   // Height at cell interfaces [m]
+    std::vector<double> vertical_center;   // Height at cell centers [m]
+    std::vector<double> vertical_levels;   // Height at cell interfaces [m]
 
     // Atmospheric state variables (nz elements)
     std::vector<double> pressure;           // Pressure [Pa]
@@ -64,9 +64,9 @@ namespace musica
     std::vector<std::vector<double>> gas_mmr;                // Gas mass mixing ratio [kg/kg]
     std::vector<std::vector<double>> gas_saturation_liquid;  // Saturation over liquid
     std::vector<std::vector<double>> gas_saturation_ice;     // Saturation over ice
-    std::vector<std::vector<double>> gas_ei;                 // Evaporation rate over ice
-    std::vector<std::vector<double>> gas_el;                 // Evaporation rate over liquid
-    std::vector<std::vector<double>> gas_wt;                 // Gas weight
+    std::vector<std::vector<double>> gas_vapor_pressure_ice;                 // Evaporation rate over ice
+    std::vector<std::vector<double>> gas_vapor_pressure_liquid;                 // Evaporation rate over liquid
+    std::vector<std::vector<double>> gas_weight_percent;                 // Gas weight
 
     // Group-integrated variables (nz x ngroup)
     std::vector<std::vector<double>> number_density;        // Number density [#/cm3]
@@ -102,10 +102,6 @@ namespace musica
     std::vector<std::string> element_names;
     std::vector<std::string> group_names;
     std::vector<std::string> gas_names;
-
-    // Time information
-    double current_time = 0.0;  // Current simulation time [s]
-    int current_step = 0;       // Current time step
   };
 
   class CARMA
