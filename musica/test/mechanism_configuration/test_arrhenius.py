@@ -8,9 +8,10 @@ instead of inheritance and maintains all expected functionality.
 
 import sys
 import os
+import pytest
 
 # Add the musica module to the path for testing
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'musica'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 try:
     import musica.mechanism_configuration as mc
@@ -19,7 +20,7 @@ try:
 except ImportError as e:
     print(f"Import failed: {e}")
     print("This test requires the full MUSICA build environment")
-    sys.exit(1)
+    pytest.skip("MUSICA build environment not available", allow_module_level=True)
 
 
 def test_arrhenius_composition():
@@ -231,29 +232,5 @@ def test_arrhenius_gas_phase_types():
     print("✓ Gas phase type handling working correctly")
 
 
-def main():
-    """Run all tests."""
-    print("Testing refactored Arrhenius class...")
-    
-    try:
-        test_arrhenius_composition()
-        test_arrhenius_property_delegation()
-        test_arrhenius_ea_conversion()
-        test_arrhenius_reactants_products()
-        test_arrhenius_serialize()
-        test_arrhenius_serialize_static()
-        test_arrhenius_gas_phase_types()
-        
-        print("\n🎉 All tests passed! Arrhenius refactoring is working correctly.")
-        return True
-        
-    except Exception as e:
-        print(f"\n❌ Test failed: {e}")
-        import traceback
-        traceback.print_exc()
-        return False
-
-
-if __name__ == "__main__":
-    success = main()
-    sys.exit(0 if success else 1)
+if __name__ == '__main__':
+    pytest.main([__file__])
