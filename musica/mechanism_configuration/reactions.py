@@ -27,7 +27,19 @@ class Reactions(_Reactions):
         Args:
             reactions (List[]): A list of reactions in the mechanism.
         """
-        super().__init__(reactions)
+        # Convert Python Arrhenius objects to C++ _Arrhenius objects for the C++ constructor
+        if reactions is not None:
+            cpp_reactions = []
+            for reaction in reactions:
+                if hasattr(reaction, '_instance'):
+                    # This is a Python wrapper around a C++ object, use the internal instance
+                    cpp_reactions.append(reaction._instance)
+                else:
+                    # This is already a C++ object or other supported type
+                    cpp_reactions.append(reaction)
+            super().__init__(cpp_reactions)
+        else:
+            super().__init__(reactions)
 
 
 class ReactionsIterator(_ReactionsIterator):

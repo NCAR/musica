@@ -10,6 +10,7 @@ import pytest
 
 import musica.mechanism_configuration as mc
 from musica.constants import BOLTZMANN
+from musica.mechanism_configuration.arrhenius import _Arrhenius
 
 
 def test_arrhenius_composition():
@@ -34,7 +35,7 @@ def test_arrhenius_composition():
     
     # Test that it has the internal instance
     assert hasattr(arr, '_instance'), "Arrhenius should have _instance attribute"
-    assert not isinstance(arr, mc._Arrhenius), "Arrhenius should not inherit from _Arrhenius"
+    assert not isinstance(arr, _Arrhenius), "Arrhenius should not inherit from _Arrhenius"
     
     # Test property access
     assert arr.name == "A->B"
@@ -209,6 +210,17 @@ def test_arrhenius_gas_phase_types():
     # Test setting with Phase object
     arr2.gas_phase = gas
     assert arr2.gas_phase == "gas"
+
+
+def test_arrhenius_type_property():
+    """Test that the type property returns the correct ReactionType."""
+    from musica.mechanism_configuration.reactions import ReactionType
+    
+    A = mc.Species(name="A")
+    gas = mc.Phase(name="gas", species=[A])
+    
+    arr = mc.Arrhenius(name="test", gas_phase=gas)
+    assert arr.type == ReactionType.Arrhenius
     
 
 
