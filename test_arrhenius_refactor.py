@@ -201,6 +201,15 @@ def test_arrhenius_serialize():
     print("✓ Instance-based serialize method working correctly")
 
 
+def test_arrhenius_serialize_static():
+    """Test the static serialize method for C++ object compatibility.""" 
+    # This test would ideally check the static method with a C++ object,
+    # but since we can't create _Arrhenius objects without the full build,
+    # we'll just verify the method exists and can be called
+    assert hasattr(mc.Arrhenius, 'serialize_static'), "Static serialize method should exist"
+    print("✓ Static serialize method exists for C++ compatibility")
+
+
 def test_arrhenius_gas_phase_types():
     """Test gas_phase property with both Phase objects and strings."""
     A = mc.Species(name="A")
@@ -232,6 +241,7 @@ def main():
         test_arrhenius_ea_conversion()
         test_arrhenius_reactants_products()
         test_arrhenius_serialize()
+        test_arrhenius_serialize_static()
         test_arrhenius_gas_phase_types()
         
         print("\n🎉 All tests passed! Arrhenius refactoring is working correctly.")

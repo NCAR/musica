@@ -270,3 +270,29 @@ class Arrhenius:
         }
         _add_other_properties(serialize_dict, self.other_properties)
         return _remove_empty_keys(serialize_dict)
+
+    @staticmethod
+    def serialize_static(instance) -> Dict:
+        """
+        Static serialize method for compatibility with C++ _Arrhenius objects.
+        
+        Args:
+            instance: The _Arrhenius instance to serialize.
+            
+        Returns:
+            Dict: A dictionary representation of the Arrhenius object.
+        """
+        serialize_dict = {
+            "type": "ARRHENIUS",
+            "name": instance.name,
+            "A": instance.A,
+            "B": instance.B,
+            "C": instance.C,
+            "D": instance.D,
+            "E": instance.E,
+            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(instance.reactants),
+            "products": ReactionComponentSerializer.serialize_list_reaction_components(instance.products),
+            "gas phase": instance.gas_phase,
+        }
+        _add_other_properties(serialize_dict, instance.other_properties)
+        return _remove_empty_keys(serialize_dict)
