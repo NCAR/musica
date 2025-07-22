@@ -82,7 +82,6 @@ In the model, conditions are assigned by modifying the state::
     state = solver.create_state()
     state.set_concentrations({"A": 1.0, "B": 3.0, "C": 5.0})
     state.set_conditions(temperature, pressure)
-    initial_pressure = state.get_conditions()['air_density'][0] # store for visualization and output
 
 Note that concentrations are in mol/m<sup>3</sup>
 
