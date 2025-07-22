@@ -11,7 +11,7 @@ _CondensedPhaseArrhenius = _backend._mechanism_configuration._CondensedPhaseArrh
 _ReactionComponent = _backend._mechanism_configuration._ReactionComponent
 
 
-class CondensedPhaseArrhenius(_CondensedPhaseArrhenius):
+class CondensedPhaseArrhenius:
     """
     A class representing a condensed phase Arrhenius rate constant.
 
@@ -63,17 +63,37 @@ class CondensedPhaseArrhenius(_CondensedPhaseArrhenius):
             aerosol_phase_water (Species): The water species in the aerosol phase.
             other_properties (Dict[str, Any]): A dictionary of other properties of the condensed phase Arrhenius rate constant.
         """
-        super().__init__()
-        self.name = name if name is not None else self.name
-        self.A = A if A is not None else self.A
-        self.B = B if B is not None else self.B
+        # Create the internal C++ instance
+        self._instance = _CondensedPhaseArrhenius()
+        
+        # Store Python objects for reactants, products, phases
+        self._reactants = reactants if reactants is not None else []
+        self._products = products if products is not None else []
+        self._aerosol_phase = aerosol_phase
+        self._aerosol_phase_water = aerosol_phase_water
+        self._other_properties = other_properties if other_properties is not None else {}
+        
+        # Set basic properties on the C++ instance
+        if name is not None:
+            self._instance.name = name
+        if A is not None:
+            self._instance.A = A
+        if B is not None:
+            self._instance.B = B
         if C is not None and Ea is not None:
             raise ValueError("Cannot specify both C and Ea.")
-        self.C = -Ea / BOLTZMANN if Ea is not None else C if C is not None else self.C
-        self.D = D if D is not None else self.D
-        self.E = E if E is not None else self.E
-        self.reactants = (
-            [
+        if Ea is not None:
+            self._instance.C = -Ea / BOLTZMANN
+        elif C is not None:
+            self._instance.C = C
+        if D is not None:
+            self._instance.D = D
+        if E is not None:
+            self._instance.E = E
+        
+        # Set reactants on the C++ instance
+        if reactants is not None:
+            self._instance.reactants = [
                 (
                     _ReactionComponent(r.name)
                     if isinstance(r, Species)
@@ -81,11 +101,10 @@ class CondensedPhaseArrhenius(_CondensedPhaseArrhenius):
                 )
                 for r in reactants
             ]
-            if reactants is not None
-            else self.reactants
-        )
-        self.products = (
-            [
+        
+        # Set products on the C++ instance
+        if products is not None:
+            self._instance.products = [
                 (
                     _ReactionComponent(p.name)
                     if isinstance(p, Species)
@@ -93,29 +112,188 @@ class CondensedPhaseArrhenius(_CondensedPhaseArrhenius):
                 )
                 for p in products
             ]
-            if products is not None
-            else self.products
-        )
-        self.aerosol_phase = aerosol_phase.name if aerosol_phase is not None else self.aerosol_phase
-        self.aerosol_phase_water = (
-            aerosol_phase_water.name if aerosol_phase_water is not None else self.aerosol_phase_water
-        )
-        self.other_properties = other_properties if other_properties is not None else self.other_properties
+        
+        # Set phase information on the C++ instance
+        if aerosol_phase is not None:
+            self._instance.aerosol_phase = aerosol_phase.name
+        if aerosol_phase_water is not None:
+            self._instance.aerosol_phase_water = aerosol_phase_water.name
+        if other_properties is not None:
+            self._instance.other_properties = other_properties
 
-    @staticmethod
-    def serialize(instance) -> Dict:
+    @property
+    def name(self) -> str:
+        """The name of the condensed phase Arrhenius rate constant."""
+        return self._instance.name
+
+    @name.setter
+    def name(self, value: str):
+        self._instance.name = value
+
+    @property
+    def A(self) -> float:
+        """Pre-exponential factor [(mol m-3)^(n-1)s-1]."""
+        return self._instance.A
+
+    @A.setter
+    def A(self, value: float):
+        self._instance.A = value
+
+    @property
+    def B(self) -> float:
+        """Temperature exponent [unitless]."""
+        return self._instance.B
+
+    @B.setter
+    def B(self, value: float):
+        self._instance.B = value
+
+    @property
+    def C(self) -> float:
+        """Exponential term [K-1]."""
+        return self._instance.C
+
+    @C.setter
+    def C(self, value: float):
+        self._instance.C = value
+
+    @property
+    def D(self) -> float:
+        """Reference Temperature [K]."""
+        return self._instance.D
+
+    @D.setter
+    def D(self, value: float):
+        self._instance.D = value
+
+    @property
+    def E(self) -> float:
+        """Pressure scaling term [Pa-1]."""
+        return self._instance.E
+
+    @E.setter
+    def E(self, value: float):
+        self._instance.E = value
+
+    @property
+    def reactants(self) -> List[Union[Species, Tuple[float, Species]]]:
+        """A list of reactants involved in the reaction."""
+        return self._reactants
+
+    @reactants.setter
+    def reactants(self, value: List[Union[Species, Tuple[float, Species]]]):
+        self._reactants = value
+        # Update the C++ instance
+        self._instance.reactants = [
+            (
+                _ReactionComponent(r.name)
+                if isinstance(r, Species)
+                else _ReactionComponent(r[1].name, r[0])
+            )
+            for r in value
+        ]
+
+    @property
+    def products(self) -> List[Union[Species, Tuple[float, Species]]]:
+        """A list of products formed in the reaction."""
+        return self._products
+
+    @products.setter
+    def products(self, value: List[Union[Species, Tuple[float, Species]]]):
+        self._products = value
+        # Update the C++ instance
+        self._instance.products = [
+            (
+                _ReactionComponent(p.name)
+                if isinstance(p, Species)
+                else _ReactionComponent(p[1].name, p[0])
+            )
+            for p in value
+        ]
+
+    @property
+    def aerosol_phase(self) -> Phase:
+        """The aerosol phase in which the reaction occurs."""
+        return self._aerosol_phase
+
+    @aerosol_phase.setter
+    def aerosol_phase(self, value: Phase):
+        self._aerosol_phase = value
+        # Update the C++ instance
+        self._instance.aerosol_phase = value.name if value is not None else ""
+
+    @property
+    def aerosol_phase_water(self) -> Species:
+        """The water species in the aerosol phase."""
+        return self._aerosol_phase_water
+
+    @aerosol_phase_water.setter
+    def aerosol_phase_water(self, value: Species):
+        self._aerosol_phase_water = value
+        # Update the C++ instance
+        self._instance.aerosol_phase_water = value.name if value is not None else ""
+
+    @property
+    def other_properties(self) -> Dict[str, Any]:
+        """A dictionary of other properties of the condensed phase Arrhenius rate constant."""
+        return self._other_properties
+
+    @other_properties.setter
+    def other_properties(self, value: Dict[str, Any]):
+        self._other_properties = value
+        # Update the C++ instance
+        self._instance.other_properties = value
+
+    def serialize(self) -> Dict:
+        """
+        Serialize the CondensedPhaseArrhenius instance to a dictionary.
+        
+        Returns:
+            Dict: A dictionary representation of the condensed phase Arrhenius rate constant.
+        """
+        # Convert Python reactants/products to serializable format
+        def serialize_python_components(components):
+            result = []
+            for component in components:
+                if isinstance(component, Species):
+                    result.append(component.name)
+                elif isinstance(component, tuple) and len(component) == 2:
+                    # Handle (coefficient, Species) tuples
+                    coefficient, species = component
+                    result.append({
+                        "species name": species.name,
+                        "coefficient": coefficient
+                    })
+                else:
+                    # Fallback: treat as Species
+                    result.append(component.name if hasattr(component, 'name') else str(component))
+            return result
+        
         serialize_dict = {
             "type": "CONDENSED_PHASE_ARRHENIUS",
-            "name": instance.name,
-            "A": instance.A,
-            "B": instance.B,
-            "C": instance.C,
-            "D": instance.D,
-            "E": instance.E,
-            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(instance.reactants),
-            "products": ReactionComponentSerializer.serialize_list_reaction_components(instance.products),
-            "aerosol phase": instance.aerosol_phase,
-            "aerosol-phase water": instance.aerosol_phase_water,
+            "name": self.name,
+            "A": self.A,
+            "B": self.B,
+            "C": self.C,
+            "D": self.D,
+            "E": self.E,
+            "reactants": serialize_python_components(self._reactants),
+            "products": serialize_python_components(self._products),
+            "aerosol phase": self._aerosol_phase.name if self._aerosol_phase is not None else "",
+            "aerosol-phase water": self._aerosol_phase_water.name if self._aerosol_phase_water is not None else "",
         }
-        _add_other_properties(serialize_dict, instance.other_properties)
+        _add_other_properties(serialize_dict, self._other_properties)
         return _remove_empty_keys(serialize_dict)
+
+    @staticmethod
+    def serialize_static(instance) -> Dict:
+        """
+        Static serialize method for backward compatibility.
+        
+        Args:
+            instance: The CondensedPhaseArrhenius instance to serialize.
+            
+        Returns:
+            Dict: A dictionary representation of the condensed phase Arrhenius rate constant.
+        """
+        return instance.serialize()
