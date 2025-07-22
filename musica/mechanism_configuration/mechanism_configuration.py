@@ -90,7 +90,7 @@ class Mechanism(_Mechanism):
         reactions_list = []
         for reaction in self.reactions:
             if isinstance(reaction, (_Arrhenius, Arrhenius)):
-                reactions_list.append(Arrhenius.serialize(reaction))
+                reactions_list.append(reaction.serialize())
             elif isinstance(reaction, (_Branched, Branched)):
                 reactions_list.append(Branched.serialize(reaction))
             elif isinstance(reaction, (_CondensedPhaseArrhenius, CondensedPhaseArrhenius)):
