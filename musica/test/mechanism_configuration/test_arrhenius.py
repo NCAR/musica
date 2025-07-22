@@ -6,21 +6,10 @@ This test validates that the Arrhenius class correctly uses composition
 instead of inheritance and maintains all expected functionality.
 """
 
-import sys
-import os
 import pytest
 
-# Add the musica module to the path for testing
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
-
-try:
-    import musica.mechanism_configuration as mc
-    from musica.constants import BOLTZMANN
-    print("Successfully imported mechanism_configuration")
-except ImportError as e:
-    print(f"Import failed: {e}")
-    print("This test requires the full MUSICA build environment")
-    pytest.skip("MUSICA build environment not available", allow_module_level=True)
+import musica.mechanism_configuration as mc
+from musica.constants import BOLTZMANN
 
 
 def test_arrhenius_composition():
@@ -54,8 +43,6 @@ def test_arrhenius_composition():
     assert arr.C == 150.0
     assert arr.D == 298.0
     assert arr.E == 1.0e-6
-    
-    print("✓ Composition pattern working correctly")
 
 
 def test_arrhenius_property_delegation():
@@ -84,8 +71,6 @@ def test_arrhenius_property_delegation():
     
     arr.E = 5.0e-7
     assert arr.E == 5.0e-7
-    
-    print("✓ Property delegation working correctly")
 
 
 def test_arrhenius_ea_conversion():
@@ -111,7 +96,6 @@ def test_arrhenius_ea_conversion():
     except ValueError as e:
         assert "Cannot specify both C and Ea" in str(e)
     
-    print("✓ C/Ea parameter handling working correctly")
 
 
 def test_arrhenius_reactants_products():
@@ -161,7 +145,6 @@ def test_arrhenius_reactants_products():
     # Second product without coefficient
     assert products[1].name == "C"
     
-    print("✓ Reactants and products conversion working correctly")
 
 
 def test_arrhenius_serialize():
@@ -199,7 +182,6 @@ def test_arrhenius_serialize():
     assert "products" in serialized
     assert serialized["custom_prop"] == "test_value"
     
-    print("✓ Instance-based serialize method working correctly")
 
 
 def test_arrhenius_serialize_static():
@@ -208,7 +190,6 @@ def test_arrhenius_serialize_static():
     # but since we can't create _Arrhenius objects without the full build,
     # we'll just verify the method exists and can be called
     assert hasattr(mc.Arrhenius, 'serialize_static'), "Static serialize method should exist"
-    print("✓ Static serialize method exists for C++ compatibility")
 
 
 def test_arrhenius_gas_phase_types():
@@ -229,7 +210,6 @@ def test_arrhenius_gas_phase_types():
     arr2.gas_phase = gas
     assert arr2.gas_phase == "gas"
     
-    print("✓ Gas phase type handling working correctly")
 
 
 if __name__ == '__main__':

@@ -249,6 +249,29 @@ class Arrhenius:
         """Set the other properties."""
         self._instance.other_properties = value
 
+    def _create_serialize_dict(self, instance) -> Dict:
+        """
+        Helper method to create the serialization dictionary.
+        
+        Args:
+            instance: The instance to serialize (either self._instance or a _Arrhenius object).
+            
+        Returns:
+            Dict: Base serialization dictionary.
+        """
+        return {
+            "type": "ARRHENIUS",
+            "name": instance.name,
+            "A": instance.A,
+            "B": instance.B,
+            "C": instance.C,
+            "D": instance.D,
+            "E": instance.E,
+            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(instance.reactants),
+            "products": ReactionComponentSerializer.serialize_list_reaction_components(instance.products),
+            "gas phase": instance.gas_phase,
+        }
+
     def serialize(self) -> Dict:
         """
         Serialize the Arrhenius object to a dictionary using only Python-visible data.
@@ -256,18 +279,7 @@ class Arrhenius:
         Returns:
             Dict: A dictionary representation of the Arrhenius object.
         """
-        serialize_dict = {
-            "type": "ARRHENIUS",
-            "name": self.name,
-            "A": self.A,
-            "B": self.B,
-            "C": self.C,
-            "D": self.D,
-            "E": self.E,
-            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(self._instance.reactants),
-            "products": ReactionComponentSerializer.serialize_list_reaction_components(self._instance.products),
-            "gas phase": self.gas_phase,
-        }
+        serialize_dict = self._create_serialize_dict(self._instance)
         _add_other_properties(serialize_dict, self.other_properties)
         return _remove_empty_keys(serialize_dict)
 
@@ -282,17 +294,8 @@ class Arrhenius:
         Returns:
             Dict: A dictionary representation of the Arrhenius object.
         """
-        serialize_dict = {
-            "type": "ARRHENIUS",
-            "name": instance.name,
-            "A": instance.A,
-            "B": instance.B,
-            "C": instance.C,
-            "D": instance.D,
-            "E": instance.E,
-            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(instance.reactants),
-            "products": ReactionComponentSerializer.serialize_list_reaction_components(instance.products),
-            "gas phase": instance.gas_phase,
-        }
+        # Create a temporary Arrhenius object to use the helper method
+        temp_arrhenius = Arrhenius()
+        serialize_dict = temp_arrhenius._create_serialize_dict(instance)
         _add_other_properties(serialize_dict, instance.other_properties)
         return _remove_empty_keys(serialize_dict)
