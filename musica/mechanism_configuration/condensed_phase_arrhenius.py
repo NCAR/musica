@@ -121,6 +121,15 @@ class CondensedPhaseArrhenius:
         if other_properties is not None:
             self._instance.other_properties = other_properties
 
+    def __getattr__(self, name):
+        """Delegate unknown attribute access to the internal instance."""
+        return getattr(self._instance, name)
+
+    @property
+    def type(self):
+        """The reaction type."""
+        return self._instance.type
+
     @property
     def name(self) -> str:
         """The name of the condensed phase Arrhenius rate constant."""
