@@ -4,7 +4,7 @@
 module carma_interface
 
    use iso_c_binding, only: c_int, c_double, c_ptr, c_char, c_null_char, &
-      c_loc, c_f_pointer, c_associated
+      c_loc, c_f_pointer, c_associated, c_null_ptr
    implicit none
 
    private
@@ -33,6 +33,9 @@ module carma_interface
       ! Spatial parameters
       real(c_double) :: deltaz = 1000.0d0
       real(c_double) :: zmin = 16500.0d0
+
+      ! Optical parameters
+      type(c_ptr) :: extinction_coefficient = c_null_ptr  ! Pointer to extinction coefficient array
 
    end type c_carma_parameters
 
@@ -162,16 +165,25 @@ contains
       ! Run CARMA simulation with optional output
       call run_carma_simulation(f_params, rc, c_output)
 
+      ! Clean up extinction coefficient if allocated
+      if (allocated(f_params%extinction_coefficient)) then
+         deallocate(f_params%extinction_coefficient)
+      end if
+
    end subroutine internal_run_carma
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    subroutine convert_c_to_fortran_params(c_params, f_params)
       use carma_parameters_mod, only: carma_parameters_type
-      use iso_c_binding, only: c_associated
+      use iso_c_binding, only: c_associated, c_f_pointer
 
       type(c_carma_parameters), intent(in) :: c_params
       type(carma_parameters_type), intent(out) :: f_params
+
+      ! Local variables for extinction coefficient handling
+      real(c_double), pointer :: qext_flat(:)
+      integer :: i, j, k, idx
 
       ! Maximum values
       f_params%max_bins = c_params%max_bins
@@ -195,6 +207,27 @@ contains
       ! Spatial parameters
       f_params%deltaz = real(c_params%deltaz, kind=c_double)
       f_params%zmin = real(c_params%zmin, kind=c_double)
+
+      ! Handle extinction coefficient if provided
+      if (c_associated(c_params%extinction_coefficient)) then
+         ! Allocate the 3D array in Fortran
+         allocate(f_params%extinction_coefficient(c_params%nwave, c_params%nbin, c_params%ngroup))
+         
+         ! Convert flat array pointer to 3D array
+         call c_f_pointer(c_params%extinction_coefficient, qext_flat, &
+                         [c_params%nwave * c_params%nbin * c_params%ngroup])
+         
+         ! Copy data from flat array to 3D array using proper indexing
+         ! C++ indexing: idx = i + j*nwave + k*nwave*nbin
+         do k = 1, c_params%ngroup
+            do j = 1, c_params%nbin
+               do i = 1, c_params%nwave
+                  idx = i + (j-1)*c_params%nwave + (k-1)*c_params%nwave*c_params%nbin
+                  f_params%extinction_coefficient(i, j, k) = qext_flat(idx)
+               end do
+            end do
+         end do
+      end if
 
    end subroutine convert_c_to_fortran_params
 
@@ -413,7 +446,7 @@ contains
       ! This must happen before the CARMA state is destroyed
       if (present(c_output_ptr) .and. c_associated(c_output_ptr)) then
          call transfer_carma_output_data(c_output_ptr, &
-            cstate, carma_ptr, &
+            cstate, carma_ptr, f_params, &
             NZ, NY, NX, NELEM, NGROUP, NBIN, NGAS, nstep, &
             real(time, kind=8), int(nstep), &
             lat, lon, zc, zl, p, t, rhoa, deltaz)
@@ -434,18 +467,19 @@ contains
       deallocate(lat, lon, zc, zl, p, pl, t, rhoa, t_orig, mmr)
       deallocate(df)
       if (NGAS > 0) deallocate(mmr_gas)
-
+      
    end subroutine run_carma_simulation
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    subroutine transfer_carma_output_data(c_output_ptr, &
-      cstate, carma_ptr, &
+      cstate, carma_ptr, f_params, &
       nz, ny, nx, nelem, ngroup, nbin, ngas, nstep, &
       current_time, current_step, &
       lat, lon, vertical_center, vertical_levels, pressure, temperature, air_density, deltaz)
       use carma_precision_mod
       use carma_types_mod
+      use carma_parameters_mod, only: carma_parameters_type
       use iso_c_binding, only: c_ptr, c_int, c_double
 
       implicit none
@@ -454,6 +488,7 @@ contains
       type(c_ptr), intent(in) :: c_output_ptr
       type(carmastate_type), intent(in) :: cstate
       type(carma_type), intent(in), target :: carma_ptr
+      type(carma_parameters_type), intent(in) :: f_params
       integer, intent(in) :: nz, ny, nx, nelem, ngroup, nbin, ngas, nstep
       real(kind=8), intent(in) :: current_time
       integer, intent(in) :: current_step
@@ -503,16 +538,29 @@ contains
       allocate(bin_deposition_velocity(nz, ngroup, nbin))
 
       ! Extract diagnostics from CARMA state using carmadiags
-      call carmadiags(cstate, carma_ptr, nz, nbin, nelem, ngroup, 0, &
-         deltaz, &
-         nd=number_density, ad=surface_area, md=mass_density, &
-         re=effective_radius, rew=effective_radius_wet, rm=mean_radius, &
-         jn=nucleation_rate, mr=mass_mixing_ratio, &
-         pa=projected_area, ar=aspect_ratio, vm=vertical_mass_flux, &
-         ex=extinction, od=optical_depth, &
-         wr_bin=bin_wet_radius, nd_bin=bin_number_density, &
-         ro_bin=bin_density, mr_bin=bin_mass_mixing_ratio, &
-         vd_bin=bin_deposition_velocity)
+      if (allocated(f_params%extinction_coefficient)) then
+         call carmadiags(cstate, carma_ptr, nz, nbin, nelem, ngroup, f_params%nwave, &
+            deltaz, qext=f_params%extinction_coefficient, idx_wave=f_params%idx_wave, &
+            nd=number_density, ad=surface_area, md=mass_density, &
+            re=effective_radius, rew=effective_radius_wet, rm=mean_radius, &
+            jn=nucleation_rate, mr=mass_mixing_ratio, &
+            pa=projected_area, ar=aspect_ratio, vm=vertical_mass_flux, &
+            ex=extinction, od=optical_depth, &
+            wr_bin=bin_wet_radius, nd_bin=bin_number_density, &
+            ro_bin=bin_density, mr_bin=bin_mass_mixing_ratio, &
+            vd_bin=bin_deposition_velocity)
+      else
+         call carmadiags(cstate, carma_ptr, nz, nbin, nelem, ngroup, 0, &
+            deltaz, &
+            nd=number_density, ad=surface_area, md=mass_density, &
+            re=effective_radius, rew=effective_radius_wet, rm=mean_radius, &
+            jn=nucleation_rate, mr=mass_mixing_ratio, &
+            pa=projected_area, ar=aspect_ratio, vm=vertical_mass_flux, &
+            ex=extinction, od=optical_depth, &
+            wr_bin=bin_wet_radius, nd_bin=bin_number_density, &
+            ro_bin=bin_density, mr_bin=bin_mass_mixing_ratio, &
+            vd_bin=bin_deposition_velocity)
+      end if
 
       allocate(radiative_heating(nz))
       allocate(delta_temperature(nz))
@@ -551,34 +599,6 @@ contains
       group_radius_ratio(:,:) = 1.0_c_double  ! Default to 1.0
       group_aspect_ratio(:,:) = 1.0_c_double  ! Default to 1.0
       group_fractal_dimension(:,:) = 3.0_c_double  ! Default to 3.0 (spherical)
-
-
-      ! print *, "Gas vapor pressure liquid:", gas_vapor_pressure_liquid
-      ! print *, "Gas weight percent:", gas_weight_percent
-      ! print *, "Number density:", number_density
-      ! print *, "Surface area:", surface_area
-      ! print *, "Mass density:", mass_density
-      ! print *, "Effective radius:", effective_radius
-      ! print *, "Effective radius wet:", effective_radius_wet
-      ! print *, "Mean radius:", mean_radius
-      ! print *, "Nucleation rate:", nucleation_rate
-      ! print *, "Mass mixing ratio:", mass_mixing_ratio
-      ! print *, "Projected area:", projected_area
-      ! print *, "Aspect ratio:", aspect_ratio
-      ! print *, "Vertical mass flux:", vertical_mass_flux
-      ! print *, "Extinction:", extinction
-      ! print *, "Optical depth:", optical_depth
-      ! print *, "Bin wet radius:", bin_wet_radius
-      ! print *, "Bin number density:", bin_number_density
-      ! print *, "Bin density:", bin_density
-      ! print *, "Bin mass mixing ratio:", bin_mass_mixing_ratio
-      ! print *, "Bin deposition velocity:", bin_deposition_velocity
-      ! print *, "Group radius:", group_radius
-      ! print *, "Group mass:", group_mass
-      ! print *, "Group volume:", group_volume
-      ! print *, "Group radius ratio:", group_radius_ratio
-      ! print *, "Group aspect ratio:", group_aspect_ratio
-      ! print *, "Group fractal dimension:", group_fractal_dimension
 
       ! Call the C++ transfer function with real CARMA data
       call TransferCarmaOutputToCpp( &

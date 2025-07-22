@@ -38,10 +38,12 @@ class CARMAParameters:
                  nsolute: int = 0,
                  ngas: int = 0,
                  nwave: int = 30,
+                 idx_wave: int = 0,
                  dtime: float = 1800.0,
                  nstep: int = 100,
                  deltaz: float = 1000.0,
-                 zmin: float = 16500.0):
+                 zmin: float = 16500.0,
+                 extinction_coefficient: Optional[List[List[List[float]]]] = None):
         """
         Initialize CARMA parameters.
 
@@ -57,10 +59,12 @@ class CARMAParameters:
             nsolute: Number of solutes (default: 0)
             ngas: Number of gases (default: 0)
             nwave: Number of wavelengths for optics (default: 30)
+            idx_wave: Index of wavelength for extinction coefficient (default: 0)
             dtime: Time step in seconds (default: 1800.0)
             nstep: Number of time steps (default: 100)
             deltaz: Vertical grid spacing in meters (default: 1000.0)
             zmin: Minimum altitude in meters (default: 16500.0)
+            extinction_coefficient: Extinction coefficient qext [NWAVE x NBIN x NGROUP] (default: None)
         """
         self.max_bins = max_bins
         self.max_groups = max_groups
@@ -73,10 +77,12 @@ class CARMAParameters:
         self.nsolute = nsolute
         self.ngas = ngas
         self.nwave = nwave
+        self.idx_wave = idx_wave
         self.dtime = dtime
         self.nstep = nstep
         self.deltaz = deltaz
         self.zmin = zmin
+        self.extinction_coefficient = extinction_coefficient
 
     def __repr__(self):
         """String representation of CARMAParameters."""
@@ -471,34 +477,4 @@ class CARMA:
                 "CARMA backend is not available on this platform.")
 
         params_dict = _backend._carma._get_aluminum_test_params()
-        return CARMAParameters.from_dict(params_dict)
-
-    @staticmethod
-    def get_fractal_optics_test_parameters() -> CARMAParameters:
-        """
-        Get parameters for fractal optics test configuration.
-
-        Returns:
-            CARMAParameters configured for fractal optics test
-        """
-        if not backend.carma_available():
-            raise ValueError(
-                "CARMA backend is not available on this platform.")
-
-        params_dict = _backend._carma._get_fractal_optics_test_params()
-        return CARMAParameters.from_dict(params_dict)
-
-    @staticmethod
-    def get_sulfate_test_parameters() -> CARMAParameters:
-        """
-        Get parameters for sulfate test configuration.
-
-        Returns:
-            CARMAParameters configured for sulfate test
-        """
-        if not backend.carma_available():
-            raise ValueError(
-                "CARMA backend is not available on this platform.")
-
-        params_dict = _backend._carma._get_sulfate_test_params()
         return CARMAParameters.from_dict(params_dict)

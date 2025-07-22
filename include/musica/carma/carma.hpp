@@ -25,6 +25,7 @@ namespace musica
     int nsolute = 0;
     int ngas = 0;
     int nwave = 30;
+    int idx_wave = 0; // TODO: is there a better name?
 
     // Time stepping parameters
     double dtime = 1800.0;
@@ -33,6 +34,91 @@ namespace musica
     // Spatial parameters
     double deltaz = 1000.0;
     double zmin = 16500.0;
+
+    // Optical parameters
+    double* extinction_coefficient = nullptr;  // Extinction coefficient qext [NWAVE * NBIN * NGROUP]
+
+    // Constructor
+    CARMAParameters() = default;
+
+    // Destructor to clean up dynamically allocated memory
+    ~CARMAParameters()
+    {
+      if (extinction_coefficient != nullptr)
+      {
+        delete[] extinction_coefficient;
+        extinction_coefficient = nullptr;
+      }
+    }
+
+    // Copy constructor
+    CARMAParameters(const CARMAParameters& other)
+        : max_bins(other.max_bins),
+          max_groups(other.max_groups),
+          nz(other.nz),
+          ny(other.ny),
+          nx(other.nx),
+          nelem(other.nelem),
+          ngroup(other.ngroup),
+          nbin(other.nbin),
+          nsolute(other.nsolute),
+          ngas(other.ngas),
+          nwave(other.nwave),
+          idx_wave(other.idx_wave),
+          dtime(other.dtime),
+          nstep(other.nstep),
+          deltaz(other.deltaz),
+          zmin(other.zmin),
+          extinction_coefficient(nullptr)
+    {
+      if (other.extinction_coefficient != nullptr)
+      {
+        size_t size = nwave * nbin * ngroup;
+        extinction_coefficient = new double[size];
+        std::copy(other.extinction_coefficient, other.extinction_coefficient + size, extinction_coefficient);
+      }
+    }
+
+    // Copy assignment operator
+    CARMAParameters& operator=(const CARMAParameters& other)
+    {
+      if (this != &other)
+      {
+        // Clean up existing memory
+        if (extinction_coefficient != nullptr)
+        {
+          delete[] extinction_coefficient;
+          extinction_coefficient = nullptr;
+        }
+
+        // Copy basic members
+        max_bins = other.max_bins;
+        max_groups = other.max_groups;
+        nz = other.nz;
+        ny = other.ny;
+        nx = other.nx;
+        nelem = other.nelem;
+        ngroup = other.ngroup;
+        nbin = other.nbin;
+        nsolute = other.nsolute;
+        ngas = other.ngas;
+        nwave = other.nwave;
+        idx_wave = other.idx_wave;
+        dtime = other.dtime;
+        nstep = other.nstep;
+        deltaz = other.deltaz;
+        zmin = other.zmin;
+
+        // Copy extinction coefficient if it exists
+        if (other.extinction_coefficient != nullptr)
+        {
+          size_t size = nwave * nbin * ngroup;
+          extinction_coefficient = new double[size];
+          std::copy(other.extinction_coefficient, other.extinction_coefficient + size, extinction_coefficient);
+        }
+      }
+      return *this;
+    }
   };
 
   struct CARMAOutput
@@ -48,10 +134,10 @@ namespace musica
     int nstep = 0;
 
     // Grid and coordinate arrays
-    std::vector<double> lat;  // Latitude [degrees]
-    std::vector<double> lon;  // Longitude [degrees]
-    std::vector<double> vertical_center;   // Height at cell centers [m]
-    std::vector<double> vertical_levels;   // Height at cell interfaces [m]
+    std::vector<double> lat;              // Latitude [degrees]
+    std::vector<double> lon;              // Longitude [degrees]
+    std::vector<double> vertical_center;  // Height at cell centers [m]
+    std::vector<double> vertical_levels;  // Height at cell interfaces [m]
 
     // Atmospheric state variables (nz elements)
     std::vector<double> pressure;           // Pressure [Pa]
@@ -139,6 +225,7 @@ namespace musica
       params.nsolute = 0;
       params.ngas = 0;
       params.nwave = 30;
+      params.idx_wave = 5;
 
       // Time parameters
       params.dtime = 1800.0;
@@ -150,71 +237,5 @@ namespace musica
 
       return params;
     }
-
-    /// @brief Create parameters for fractal optics test (carma_fractalopticstest_2nc.F90)
-    static CARMAParameters CreateFractalOpticsTestParams()
-    {
-      CARMAParameters params;
-
-      // Model dimensions
-      params.nz = 1;
-      params.ny = 1;
-      params.nx = 1;
-      params.nelem = 1;
-      params.ngroup = 1;
-      params.nbin = 5;
-      params.nsolute = 0;
-      params.ngas = 0;
-      params.nwave = 30;
-
-      return params;
-    }
-
-    /// @brief Create parameters for fractal optics test IQ variant (carma_fractalopticstest_2nc_iq.F90)
-    static CARMAParameters CreateFractalOpticsIQTestParams()
-    {
-      CARMAParameters params;
-
-      // Model dimensions
-      params.nz = 1;
-      params.ny = 1;
-      params.nx = 1;
-      params.nelem = 1;
-      params.ngroup = 1;
-      params.nbin = 10;  // Different from standard test
-      params.nsolute = 0;
-      params.ngas = 0;
-      params.nwave = 30;
-
-      return params;
-    }
-
-    /// @brief Create parameters for sulfate test (carma_sulfatetest_2nc.F90)
-    static CARMAParameters CreateSulfateTestParams()
-    {
-      CARMAParameters params;
-
-      // Model dimensions
-      params.nz = 1;
-      params.ny = 1;
-      params.nx = 1;
-      params.nelem = 1;
-      params.ngroup = 1;
-      params.nbin = 22;  // More bins for sulfate
-      params.nsolute = 0;
-      params.ngas = 2;   // Water vapor and H2SO4
-      params.nwave = 0;  // No optics for this test
-
-      // Time parameters
-      params.dtime = 1800.0;
-      params.nstep = 180000 / static_cast<int>(params.dtime);
-
-      // Spatial parameters
-      params.deltaz = 10000.0;  // Larger vertical spacing
-      params.zmin = 145000.0;   // Higher altitude
-
-      return params;
-    }
-
   }  // namespace CARMATestConfigs
 }  // namespace musica

@@ -78,6 +78,30 @@ void bind_carma(py::module_& carma)
           params.deltaz = params_dict["deltaz"].cast<double>();
         if (params_dict.contains("zmin"))
           params.zmin = params_dict["zmin"].cast<double>();
+        if (params_dict.contains("extinction_coefficient"))
+        {
+          auto extinction_coeff_py = params_dict["extinction_coefficient"];
+          if (!extinction_coeff_py.is_none())
+          {
+            // Convert 3D Python list to flat array
+            auto extinction_3d = extinction_coeff_py.cast<std::vector<std::vector<std::vector<double>>>>();
+            size_t total_size = params.nwave * params.nbin * params.ngroup;
+            params.extinction_coefficient = new double[total_size];
+
+            // Copy data using proper indexing: index = i + j*nwave + k*nwave*nbin
+            for (int k = 0; k < params.ngroup; ++k)
+            {
+              for (int j = 0; j < params.nbin; ++j)
+              {
+                for (int i = 0; i < params.nwave; ++i)
+                {
+                  size_t idx = i + j * params.nwave + k * params.nwave * params.nbin;
+                  params.extinction_coefficient[idx] = extinction_3d[i][j][k];
+                }
+              }
+            }
+          }
+        }
 
         try
         {
@@ -186,54 +210,4 @@ void bind_carma(py::module_& carma)
         return result;
       },
       "Get aluminum test parameters");
-
-  carma.def(
-      "_get_fractal_optics_test_params",
-      []()
-      {
-        auto params = musica::CARMATestConfigs::CreateFractalOpticsTestParams();
-        py::dict result;
-        result["max_bins"] = params.max_bins;
-        result["max_groups"] = params.max_groups;
-        result["nz"] = params.nz;
-        result["ny"] = params.ny;
-        result["nx"] = params.nx;
-        result["nelem"] = params.nelem;
-        result["ngroup"] = params.ngroup;
-        result["nbin"] = params.nbin;
-        result["nsolute"] = params.nsolute;
-        result["ngas"] = params.ngas;
-        result["nwave"] = params.nwave;
-        result["dtime"] = params.dtime;
-        result["nstep"] = params.nstep;
-        result["deltaz"] = params.deltaz;
-        result["zmin"] = params.zmin;
-        return result;
-      },
-      "Get fractal optics test parameters");
-
-  carma.def(
-      "_get_sulfate_test_params",
-      []()
-      {
-        auto params = musica::CARMATestConfigs::CreateSulfateTestParams();
-        py::dict result;
-        result["max_bins"] = params.max_bins;
-        result["max_groups"] = params.max_groups;
-        result["nz"] = params.nz;
-        result["ny"] = params.ny;
-        result["nx"] = params.nx;
-        result["nelem"] = params.nelem;
-        result["ngroup"] = params.ngroup;
-        result["nbin"] = params.nbin;
-        result["nsolute"] = params.nsolute;
-        result["ngas"] = params.ngas;
-        result["nwave"] = params.nwave;
-        result["dtime"] = params.dtime;
-        result["nstep"] = params.nstep;
-        result["deltaz"] = params.deltaz;
-        result["zmin"] = params.zmin;
-        return result;
-      },
-      "Get sulfate test parameters");
 }

@@ -25,6 +25,7 @@ module carma_parameters_mod
       integer :: nsolute = 0
       integer :: ngas = 0
       integer :: nwave = 30
+      integer :: idx_wave = 0
 
       ! Time stepping parameters
       real(real64) :: dtime = 1800.0_real64
@@ -33,6 +34,9 @@ module carma_parameters_mod
       ! Spatial parameters
       real(real64) :: deltaz = 1000.0_real64
       real(real64) :: zmin = 16500.0_real64
+
+      ! Optical parameters
+      real(real64), allocatable :: extinction_coefficient(:,:,:)  ! qext(NWAVE, NBIN, NGROUP)
    end type carma_parameters_type
 
 end module carma_parameters_mod

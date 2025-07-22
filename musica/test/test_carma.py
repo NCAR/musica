@@ -46,17 +46,6 @@ def test_carma_test_configurations():
     assert isinstance(aluminum_params, musica.carma.CARMAParameters)
     assert aluminum_params.nbin == 5
 
-    # Test fractal optics test parameters
-    fractal_params = musica.CARMA.get_fractal_optics_test_parameters()
-    assert isinstance(fractal_params, musica.carma.CARMAParameters)
-    assert fractal_params.nbin == 5
-
-    # Test sulfate test parameters
-    sulfate_params = musica.CARMA.get_sulfate_test_parameters()
-    assert isinstance(sulfate_params, musica.carma.CARMAParameters)
-    assert sulfate_params.nbin == 22
-    assert sulfate_params.ngas == 2
-
 
 def test_carma_instance():
     # Test CARMA instance creation
