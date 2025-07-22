@@ -300,9 +300,29 @@ class CondensedPhaseArrhenius:
         Static serialize method for backward compatibility.
         
         Args:
-            instance: The CondensedPhaseArrhenius instance to serialize.
+            instance: The CondensedPhaseArrhenius instance to serialize (can be Python wrapper or C++ type).
             
         Returns:
             Dict: A dictionary representation of the condensed phase Arrhenius rate constant.
         """
-        return instance.serialize()
+        # Check if it's the new composition-based Python wrapper
+        if hasattr(instance, '_instance'):
+            # New Python wrapper - use instance method
+            return instance.serialize()
+        else:
+            # Old C++ wrapper type - use direct attribute access
+            serialize_dict = {
+                "type": "CONDENSED_PHASE_ARRHENIUS",
+                "name": instance.name,
+                "A": instance.A,
+                "B": instance.B,
+                "C": instance.C,
+                "D": instance.D,
+                "E": instance.E,
+                "reactants": ReactionComponentSerializer.serialize_list_reaction_components(instance.reactants),
+                "products": ReactionComponentSerializer.serialize_list_reaction_components(instance.products),
+                "aerosol phase": instance.aerosol_phase,
+                "aerosol-phase water": instance.aerosol_phase_water,
+            }
+            _add_other_properties(serialize_dict, instance.other_properties)
+            return _remove_empty_keys(serialize_dict)
