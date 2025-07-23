@@ -246,4 +246,69 @@ namespace musica
     c_params.elements_size = 0;
   }
 
+  CARMAParameters CARMA::CreateAluminumTestParams()
+  {
+    CARMAParameters params;
+
+    // Set default values for the aluminum test case
+    params.max_bins = 100;
+    params.max_groups = 10;
+    params.nz = 1;
+    params.ny = 1;
+    params.nx = 1;
+    params.nbin = 5;
+    params.nsolute = 0;
+    params.ngas = 0;
+    params.nwave = 30;
+    params.idx_wave = 0;  // TODO: is there a better name?
+    params.dtime = 1800.0; // 30 minutes
+    params.deltaz = 1000.0; // 1 km
+    params.zmin = 16500.0; // 16.5 km
+
+    // Create a default group
+    CARMAGroupConfig group;
+    group.id = 1;
+    group.name = "aluminum";
+    group.shortname = "PRALUM";
+    group.rmin = 21.5e-6; // minimum radius [cm]
+    group.rmrat = 2.0; // volume ratio between bins
+    group.ishape = ParticleShape::SPHERE;
+    group.eshape = 1.0; // aspect ratio
+    group.is_ice = false;
+    group.is_fractal = true;
+    group.do_mie = true;
+    group.do_wetdep = false;
+    group.do_drydep = true;
+    group.do_vtran = true;
+    group.solfac = 0.0; // no solvation
+    group.scavcoef = 0.0; // no scavenging
+    group.rmon = 21.5e-6; // monomer radius [cm]
+    group.df = {1.6, 1.6, 1.6, 1.6, 1.6}; // fractal dimension per bin
+    group.falpha = 1.0; // fractal packing coefficient
+
+    // Add the group to the parameters
+    params.groups.push_back(group);
+
+    // Create a default element
+    CARMAElementConfig element;
+    element.id = 1;
+    element.igroup = 1; // belongs to the first group
+    element.name = "Aluminum";
+    element.shortname = "ALUM";
+    element.rho = 3.5; // bulk density [g/cm3]
+    element.itype = ParticleType::INVOLATILE;
+    element.icomposition = ParticleComposition::ALUMINUM;
+    element.isolute = 0; // no solute
+    element.rhobin = {1.0, 1.0, 1.0, 1.0, 1.0}; // no density per bin
+    element.arat = {1.0, 1.0, 1.0, 1.0, 1.0}; // no area ratio per bin
+    element.kappa = 0.0; // no hygroscopicity
+    element.isShell = true; // part of the shell
+
+    // Add the element to the parameters
+    params.elements.push_back(element);
+
+    return params;
+
+  }
+
 }  // namespace musica

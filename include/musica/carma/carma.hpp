@@ -209,6 +209,10 @@ namespace musica
     /// @brief Free memory allocated in CCARMAParameters
     /// @param c_params The C-compatible parameters to clean up
     static void FreeCCompatible(struct CCARMAParameters& c_params);
+
+    /// @brief Returns a set of test parameters for the aluminum test case
+    /// @return A CARMAParameters object with the aluminum test case configuration
+    static CARMAParameters CreateAluminumTestParams();
   };
 
 }  // namespace musica

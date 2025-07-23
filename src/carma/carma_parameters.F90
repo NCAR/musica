@@ -5,8 +5,8 @@
 module carma_parameters_mod
 
    use iso_fortran_env, only: real64
-   use iso_c_binding, only: c_int, c_double, c_ptr, c_bool
-   
+   use iso_c_binding, only: c_int, c_double, c_ptr, c_bool, c_char
+
    implicit none
 
    private
@@ -16,9 +16,9 @@ module carma_parameters_mod
    type, bind(c) :: carma_group_config_t
       integer(c_int) :: id
       integer(c_int) :: name_length
-      type(c_ptr) :: name
+      character(len=1, kind=c_char) :: name(256)
       integer(c_int) :: shortname_length
-      type(c_ptr) :: shortname
+      character(len=1, kind=c_char) :: shortname(7)
       real(c_double) :: rmin
       real(c_double) :: rmrat
       integer(c_int) :: ishape
@@ -41,9 +41,9 @@ module carma_parameters_mod
       integer(c_int) :: id
       integer(c_int) :: igroup
       integer(c_int) :: name_length
-      type(c_ptr) :: name
+      character(len=1, kind=c_char) :: name(256)
       integer(c_int) :: shortname_length
-      type(c_ptr) :: shortname
+      character(len=1, kind=c_char) :: shortname(7)
       real(c_double) :: rho
       integer(c_int) :: itype
       integer(c_int) :: icomposition

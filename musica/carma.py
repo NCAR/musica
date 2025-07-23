@@ -332,8 +332,8 @@ class CARMAParameters:
             itype= ParticleType.INVOLATILE,
             icomposition= ParticleComposition.ALUMINUM,
             isolute=0,
-            rhobin=[],
-            arat=[],
+            rhobin=[1.0] * 5,  # 5 bins with density 1.0
+            arat=[1.0] * 5,  # 5 bins with area ratio 1.0
             kappa=0.0,
             is_shell=True
         )
@@ -380,6 +380,8 @@ def _carma_dict_to_xarray(output_dict: Dict) -> xr.Dataset:
     nz = output_dict.get('nz', 0)
     ny = output_dict.get('ny', 0)
     nx = output_dict.get('nx', 0)
+    nelem = output_dict.get('nelem', 0)
+    ngroup = output_dict.get('ngroup', 0)
     nbin = output_dict.get('nbin', 0)
     ngas = output_dict.get('ngas', 0)
     nstep = output_dict.get('nstep', 0)

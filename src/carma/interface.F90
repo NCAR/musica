@@ -321,6 +321,9 @@ contains
          if (rc /= 0) then
             return
          end if
+      else
+         carma%f_icollec = I_COLLEC_CONST
+         carma%f_icoagop  = I_COAGOP_CONST         
       end if
 
       print *, "Starting CARMA initialization."
@@ -441,7 +444,6 @@ contains
       end if
       ! Deallocate arrays
       deallocate(lat, lon, zc, zl, p, pl, t, rhoa, t_orig, mmr)
-      deallocate(df)
       if (NGAS > 0) deallocate(mmr_gas)
 
    end subroutine run_carma_simulation
