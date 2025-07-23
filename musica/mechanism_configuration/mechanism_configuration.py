@@ -99,7 +99,7 @@ class Mechanism(_Mechanism):
                 reactions_list.append(Branched.serialize(reaction))
             elif isinstance(reaction, (_CondensedPhaseArrhenius, CondensedPhaseArrhenius)):
                 reactions_list.append(
-                    CondensedPhaseArrhenius.serialize(reaction))
+                    CondensedPhaseArrhenius.serialize_static(reaction))
             elif isinstance(reaction, (_CondensedPhasePhotolysis, CondensedPhasePhotolysis)):
                 reactions_list.append(
                     CondensedPhasePhotolysis.serialize(reaction))
