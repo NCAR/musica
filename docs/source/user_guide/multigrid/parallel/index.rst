@@ -172,44 +172,55 @@ Batching can be implemented as follows::
 
     @delayed
     def solve_batch(start_idx, end_idx, temperatures, pressures, concentrations, sim_length, time_step):
+        batch_size = end_idx - start_idx
+
+        # define the system
+        A = mc.Species(name="A")
+        B = mc.Species(name="B")
+        C = mc.Species(name="C")
+        species = [A, B, C]
+        gas = mc.Phase(name="gas", species=species)
+
+        r1 = mc.Arrhenius(name="A_to_B", A=4.0e-3, C=50, reactants=[A], products=[B], gas_phase=gas)
+        r2 = mc.Arrhenius(name="B_to_C", A=4.0e-3, C=50, reactants=[B], products=[C], gas_phase=gas)
+
+        mechanism = mc.Mechanism(
+            name="musica_micm_example",
+            species=species,
+            phases=[gas],
+            reactions=[r1, r2]
+        )
+
+        # create state for all cells in this batch
+        solver = musica.MICM(mechanism=mechanism, solver_type=musica.SolverType.rosenbrock_standard_order)
+        state = solver.create_state(batch_size)
+
+        # set conditions and concentrations
+        batch_temps = temperatures[start_idx:end_idx]
+        batch_pressures = pressures[start_idx:end_idx]
+        batch_air_densities = []
+
+        state.set_conditions(batch_temps, batch_pressures)
+        air_density = state.get_conditions()['air_density'] # track for later visualization
+        batch_air_densities.append(air_density)
+
+        # set concentrations: need shape (batch_size,) for each species
+        for species_name, all_values in concentrations.items():
+            # slice this batch
+            state.set_concentrations({species_name: all_values[start_idx:end_idx]})
+
+        # time stepping
+        time = 0.0
         batch_results = []
-        air_densities = [] #track for later visualization
-        for cell_index in range(start_idx, end_idx):
-            # build mechanism as before
-            A = mc.Species(name="A")
-            B = mc.Species(name="B")
-            C = mc.Species(name="C")
-            species = [A, B, C]
-            gas = mc.Phase(name="gas", species=species)
 
-            r1 = mc.Arrhenius(name="A_to_B", A=4.0e-3, C=50, reactants=[A], products=[B], gas_phase=gas)
-            r2 = mc.Arrhenius(name="B_to_C", A=4.0e-3, C=50, reactants=[B], products=[C], gas_phase=gas)
+        while time <= sim_length:
+            solver.solve(state, time)
+            # get concentrations for all cells at this timestep
+            concs = state.get_concentrations().copy() 
+            batch_results.append(concs)
+            time += time_step
 
-            mechanism = mc.Mechanism(
-                name="musica_micm_example",
-                species=species,
-                phases=[gas],
-                reactions=[r1, r2]
-            )
-            
-            solver = musica.MICM(mechanism=mechanism, solver_type=musica.SolverType.rosenbrock_standard_order)
-            state = solver.create_state(1)
-            state.set_conditions(temperatures[cell_index], pressures[cell_index])
-            air_density = state.get_conditions()['air_density']
-            air_densities.append(air_density)
-            cur_concentrations = {key: value[cell_index] for key, value in concentrations.items()}
-            state.set_concentrations(cur_concentrations)
-
-            time = 0.0
-            result = []
-            while time <= sim_length:
-                solver.solve(state, time)
-                result.append(state.get_concentrations().copy())
-                time += time_step
-
-            batch_results.append(np.stack(result))
-
-        return np.stack(batch_results), np.array(air_densities)  # shape: (num_cells_in_batch, num_timesteps, num_species)
+        return np.stack(batch_results), np.array(batch_air_densities)
 
     batch_size = 100 #number of grid cells solved on a single worker
 
