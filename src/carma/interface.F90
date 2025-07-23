@@ -323,7 +323,7 @@ contains
          end if
       end if
 
-      print *, "Starting CARMA initialization..."
+      print *, "Starting CARMA initialization."
 
       ! Initialize CARMA with coagulation settings matching test_aluminum_simple
       call CARMA_Initialize(carma, rc, do_grow=.false., do_coag=.true., do_substep=.false., do_vtran=.FALSE.)
@@ -349,6 +349,8 @@ contains
       end do
       call GetStandardAtmosphere(zl, p=pl)
 
+      print *, "Vertical grid and atmospheric conditions set up:"
+
       ! Set up initial conditions
       rhoa(:) = (p(:) * 10.0_c_double) / (R_AIR * t(:)) * (1e-3_c_double * 1e6_c_double)
 
@@ -363,12 +365,20 @@ contains
       ! Initialize particle mixing ratios with aluminum concentration
       mmr(:,:,:) = 5e9_c_double / (deltaz * 2.57474699e14_c_double) / rhoa(1)
 
+      print *, "Initial conditions set up:"
+      print *, "  Lat:", lat(iy), "Lon:", lon(ix)
+      print *, "  Vertical center:", zc(:)
+      print *, "  Pressure:", p(:)
+      print *, "  Temperature:", t(:)
+      print *, "  Air density:", rhoa(:)
+
       ! Time integration loop - start from step 2 to match test_aluminum_simple
       carma_time_integration: do istep = 2, nstep + 1
 
          ! Calculate the model time
          time = (istep - 1) * dtime
 
+         print *, "CARMA time step:", istep, "Time:", time
          ! Create a CARMASTATE for this column
          call CARMASTATE_Create(cstate, carma_ptr, time, dtime, NZ, &
             I_CART, lat(iy), lon(ix), &
