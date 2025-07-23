@@ -40,7 +40,8 @@ namespace musica
     ICE = 4,
     H2O = 5,
     BLACKCARBON = 6,
-    ORGANICCARBON = 7
+    ORGANICCARBON = 7,
+    OTHER = 8
   };
 
   // Structure representing a CARMA group configuration

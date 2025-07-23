@@ -41,10 +41,14 @@ class ParticleComposition:
     WATER = 5
     BLACK_CARBON = 6
     ORGANIC_CARBON = 7
+    OTHER = 8
 
 
 class CARMAGroupConfig:
-    """Configuration for a CARMA particle group."""
+    """Configuration for a CARMA particle group.
+    
+    A CARMA particle group represents a collection of particles with similar properties.
+    """
 
     def __init__(self,
                  id: int = 1,
@@ -65,6 +69,29 @@ class CARMAGroupConfig:
                  rmon: float = 0.0,
                  df: Optional[List[float]] = None,
                  falpha: float = 1.0):
+        """
+        Initialize a CARMA group configuration.
+
+        Args:
+            id: Unique identifier for the group (default: 1)
+            name: Name of the group (default: "default_group")
+            shortname: Short name for the group (default: "")
+            rmin: Radius of particles in the first bin [cm] (default: 1e-7)
+            rmrat: Ratio of masses of particles in consecutive bins (default: 2.0)
+            ishape: Shape of the particles (default: ParticleShape.SPHERE)
+            eshape: Ratio of particle length / diameter (default: 1.0)
+            is_ice: Whether the particles are ice (default: False)
+            is_fractal: Whether the particles are fractal (default: False)
+            do_mie: Whether to do Mie calculations (default: True)
+            do_wetdep: Whether to include wet deposition (default: False)
+            do_drydep: Whether to include dry deposition (default: False)
+            do_vtran: Whether to include vertical transport (default: True)
+            solfac: Solubility factor for wet deposition (default: 0.0)
+            scavcoef: Scavenging coefficient for wet deposition [mm-1] (default: 0.0)
+            rmon: Monomer radius of fractal particles [cm] (default: 0.0)
+            df: List of fractal dimensions for each size bin (default: None)
+            falpha: Fractal packing coefficient (default: 1.0)
+        """
         self.id = id
         self.name = name
         self.shortname = shortname
@@ -90,7 +117,10 @@ class CARMAGroupConfig:
 
 
 class CARMAElementConfig:
-    """Configuration for a CARMA particle element."""
+    """Configuration for a CARMA particle element.
+
+    A CARMA particle element represents one of the components of a cloud or aerosol particle.
+    """
 
     def __init__(self,
                  id: int = 1,
@@ -99,12 +129,29 @@ class CARMAElementConfig:
                  shortname: str = "",
                  rho: float = 1.0,
                  itype: int = ParticleType.INVOLATILE,
-                 icomposition: int = ParticleComposition.ALUMINUM,
+                 icomposition: int = ParticleComposition.OTHER,
                  isolute: int = 0,
                  rhobin: Optional[List[float]] = None,
                  arat: Optional[List[float]] = None,
                  kappa: float = 0.0,
                  is_shell: bool = True):
+        """
+        Initialize a CARMA element configuration.
+
+        Args:
+            id: Unique identifier for the element (default: 1)
+            igroup: Group ID this element belongs to (default: 1)
+            name: Name of the element (default: "default_element")
+            shortname: Short name for the element (default: "")
+            rho: Density of the element in g/cm3 (default: 1.0)
+            itype: Type of the particle (default: ParticleType.INVOLATILE)
+            icomposition: Composition of the particle (default: ParticleComposition.OTHER)
+            isolute: Index of the solute (default: 0)
+            rhobin: List of densities for each size bin (default: None)
+            arat: List of area ratios for each size bin (default: None)
+            kappa: Hygroscopicity parameter (default: 0.0)
+            is_shell: For core/shell optics, whether this element is part of the shell (True) or core (False) (default: True)
+        """
         self.id = id
         self.igroup = igroup
         self.name = name
