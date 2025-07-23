@@ -16,6 +16,32 @@ _backend = backend.get_backend()
 
 version = _backend._carma._get_carma_version() if backend.carma_available() else None
 
+class ParticleShape:
+    """Enumeration for particle shapes used in CARMA."""
+    SPHERE = 1
+    HEXAGON = 2
+    CYLINDER = 3
+
+
+class ParticleType:
+    """Enumeration for particle types used in CARMA."""
+    INVOLATILE = 1
+    VOLATILE = 2
+    CORE_MASS = 3
+    VOLATILE_CORE = 4
+    CORE_MASS_TWO_MOMENTS = 5
+
+
+class ParticleComposition:
+    """Enumeration for particle compositions used in CARMA."""
+    ALUMINUM = 1
+    SULFURIC_ACID = 2
+    DUST = 3
+    ICE = 4
+    WATER = 5
+    BLACK_CARBON = 6
+    ORGANIC_CARBON = 7
+
 
 class CARMAGroupConfig:
     """Configuration for a CARMA particle group."""
@@ -26,7 +52,7 @@ class CARMAGroupConfig:
                  shortname: str = "",
                  rmin: float = 1e-7,
                  rmrat: float = 2.0,
-                 ishape: int = 1,  # 1=SPHERE, 2=HEXAGON, 3=CYLINDER
+                 ishape: int = ParticleShape.SPHERE,
                  eshape: float = 1.0,
                  is_ice: bool = False,
                  is_fractal: bool = False,
@@ -72,13 +98,13 @@ class CARMAElementConfig:
                  name: str = "default_element",
                  shortname: str = "",
                  rho: float = 1.0,
-                 itype: int = 1,  # 1=INVOLATILE, 2=VOLATILE, etc.
-                 icomposition: int = 1,  # 1=ALUMINUM, 2=H2SO4, etc.
+                 itype: int = ParticleType.INVOLATILE,
+                 icomposition: int = ParticleComposition.ALUMINUM,
                  isolute: int = 0,
                  rhobin: Optional[List[float]] = None,
                  arat: Optional[List[float]] = None,
                  kappa: float = 0.0,
-                 isShell: bool = True):
+                 is_shell: bool = True):
         self.id = id
         self.igroup = igroup
         self.name = name
@@ -90,7 +116,7 @@ class CARMAElementConfig:
         self.rhobin = rhobin or []
         self.arat = arat or []
         self.kappa = kappa
-        self.isShell = isShell
+        self.is_shell = is_shell
 
     def to_dict(self) -> Dict:
         """Convert to dictionary."""
@@ -234,7 +260,7 @@ class CARMAParameters:
             shortname="PRALUM",
             rmin=21.5e-6,
             rmrat=2.0,
-            ishape=1,  # SPHERE
+            ishape=ParticleShape.SPHERE,
             eshape=1.0,
             is_ice=False,
             is_fractal=True,
@@ -256,13 +282,13 @@ class CARMAParameters:
             name="Aluminum",
             shortname="ALUM",
             rho=3.95,  # g/cm3
-            itype=1,   # INVOLATILE
-            icomposition=1,  # ALUMINUM
+            itype= ParticleType.INVOLATILE,
+            icomposition= ParticleComposition.ALUMINUM,
             isolute=0,
             rhobin=[],
             arat=[],
             kappa=0.0,
-            isShell=True
+            is_shell=True
         )
 
         params = cls(

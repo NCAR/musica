@@ -167,8 +167,8 @@ void bind_carma(py::module_& carma)
                 element.arat = element_dict["arat"].cast<std::vector<double>>();
               if (element_dict.contains("kappa"))
                 element.kappa = element_dict["kappa"].cast<double>();
-              if (element_dict.contains("isShell"))
-                element.isShell = element_dict["isShell"].cast<bool>();
+              if (element_dict.contains("is_shell"))
+                element.isShell = element_dict["is_shell"].cast<bool>();
 
               params.elements.push_back(element);
             }
