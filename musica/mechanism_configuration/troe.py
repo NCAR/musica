@@ -8,6 +8,7 @@ from .utils import _add_other_properties, _remove_empty_keys
 _backend = backend.get_backend()
 _Troe = _backend._mechanism_configuration._Troe
 _ReactionComponent = _backend._mechanism_configuration._ReactionComponent
+ReactionType = _backend._mechanism_configuration._ReactionType
 
 
 class Troe:
@@ -294,9 +295,6 @@ class Troe:
     @property
     def type(self):
         """Get the reaction type."""
-        # Import here to avoid circular imports
-        from .. import backend
-        ReactionType = backend.get_backend()._mechanism_configuration._ReactionType
         return ReactionType.Troe
 
     def _create_serialize_dict(self, instance) -> Dict:
