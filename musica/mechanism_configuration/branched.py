@@ -287,20 +287,7 @@ class Branched:
         Returns:
             Dict: A dictionary representation of the Branched object.
         """
-        serialize_dict = {
-            "type": "BRANCHED_NO_RO2",
-            "name": instance.name,
-            "X": instance.X,
-            "Y": instance.Y,
-            "a0": instance.a0,
-            "n": instance.n,
-            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(
-                instance.reactants),
-            "nitrate products": ReactionComponentSerializer.serialize_list_reaction_components(
-                instance.nitrate_products),
-            "alkoxy products": ReactionComponentSerializer.serialize_list_reaction_components(
-                instance.alkoxy_products),
-            "gas phase": instance.gas_phase,
-        }
-        _add_other_properties(serialize_dict, instance.other_properties)
-        return _remove_empty_keys(serialize_dict)
+        # Create a temporary Branched object and use its instance serialize method
+        temp_branched = Branched()
+        temp_branched._instance = instance
+        return temp_branched.serialize()
