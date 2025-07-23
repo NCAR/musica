@@ -75,11 +75,11 @@ class Arrhenius:
         """
         # Create the internal C++ instance
         self._instance = _Arrhenius()
-        
+
         # Validate mutually exclusive parameters
         if C is not None and Ea is not None:
             raise ValueError("Cannot specify both C and Ea.")
-        
+
         # Set all parameters
         if name is not None:
             self.name = name
@@ -109,62 +109,62 @@ class Arrhenius:
     def name(self) -> str:
         """Get the name of the Arrhenius rate constant."""
         return self._instance.name
-    
+
     @name.setter
     def name(self, value: str):
         """Set the name of the Arrhenius rate constant."""
         self._instance.name = value
-    
+
     @property
     def A(self) -> float:
         """Get the pre-exponential factor."""
         return self._instance.A
-    
+
     @A.setter
     def A(self, value: float):
         """Set the pre-exponential factor."""
         self._instance.A = value
-    
+
     @property
     def B(self) -> float:
         """Get the temperature exponent."""
         return self._instance.B
-    
+
     @B.setter
     def B(self, value: float):
         """Set the temperature exponent."""
         self._instance.B = value
-    
+
     @property
     def C(self) -> float:
         """Get the exponential term."""
         return self._instance.C
-    
+
     @C.setter
     def C(self, value: float):
         """Set the exponential term."""
         self._instance.C = value
-    
+
     @property
     def D(self) -> float:
         """Get the reference temperature."""
         return self._instance.D
-    
+
     @D.setter
     def D(self, value: float):
         """Set the reference temperature."""
         self._instance.D = value
-    
+
     @property
     def E(self) -> float:
         """Get the pressure scaling term."""
         return self._instance.E
-    
+
     @E.setter
     def E(self, value: float):
         """Set the pressure scaling term."""
         self._instance.E = value
-    
+
     @property
     def reactants(self) -> List[Union[Species, Tuple[float, Species]]]:
         """Get the reactants as Python objects."""
@@ -180,7 +180,7 @@ class Arrhenius:
                 species = Species(name=rc.species_name)
                 result.append(species)
         return result
-    
+
     @reactants.setter
     def reactants(self, value: List[Union[Species, Tuple[float, Species]]]):
         """Set the reactants, converting from Python to C++ objects."""
@@ -194,7 +194,7 @@ class Arrhenius:
             else:
                 raise ValueError(f"Invalid reactant format: {r}")
         self._instance.reactants = cpp_reactants
-    
+
     @property
     def products(self) -> List[Union[Species, Tuple[float, Species]]]:
         """Get the products as Python objects."""
@@ -210,7 +210,7 @@ class Arrhenius:
                 species = Species(name=rc.species_name)
                 result.append(species)
         return result
-    
+
     @products.setter
     def products(self, value: List[Union[Species, Tuple[float, Species]]]):
         """Set the products, converting from Python to C++ objects."""
@@ -224,12 +224,12 @@ class Arrhenius:
             else:
                 raise ValueError(f"Invalid product format: {p}")
         self._instance.products = cpp_products
-    
+
     @property
     def gas_phase(self) -> str:
         """Get the gas phase name."""
         return self._instance.gas_phase
-    
+
     @gas_phase.setter
     def gas_phase(self, value: Union[Phase, str]):
         """Set the gas phase."""
@@ -239,12 +239,12 @@ class Arrhenius:
             self._instance.gas_phase = value
         else:
             raise ValueError(f"Invalid gas_phase type: {type(value)}")
-    
+
     @property
     def other_properties(self) -> Dict[str, Any]:
         """Get the other properties."""
         return self._instance.other_properties
-    
+
     @other_properties.setter
     def other_properties(self, value: Dict[str, Any]):
         """Set the other properties."""
@@ -258,10 +258,10 @@ class Arrhenius:
     def _create_serialize_dict(self, instance) -> Dict:
         """
         Helper method to create the serialization dictionary.
-        
+
         Args:
             instance: The instance to serialize (either self._instance or a _Arrhenius object).
-            
+
         Returns:
             Dict: Base serialization dictionary.
         """
@@ -281,7 +281,7 @@ class Arrhenius:
     def serialize(self) -> Dict:
         """
         Serialize the Arrhenius object to a dictionary using only Python-visible data.
-        
+
         Returns:
             Dict: A dictionary representation of the Arrhenius object.
         """
@@ -293,10 +293,10 @@ class Arrhenius:
     def serialize_static(instance) -> Dict:
         """
         Static serialize method for compatibility with C++ _Arrhenius objects.
-        
+
         Args:
             instance: The _Arrhenius instance to serialize.
-            
+
         Returns:
             Dict: A dictionary representation of the Arrhenius object.
         """
