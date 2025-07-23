@@ -65,8 +65,6 @@ namespace musica
     c_params.nz = params.nz;
     c_params.ny = params.ny;
     c_params.nx = params.nx;
-    c_params.nelem = params.nelem;
-    c_params.ngroup = params.ngroup;
     c_params.nbin = params.nbin;
     c_params.nsolute = params.nsolute;
     c_params.ngas = params.ngas;
@@ -76,16 +74,6 @@ namespace musica
     c_params.nstep = params.nstep;
     c_params.deltaz = params.deltaz;
     c_params.zmin = params.zmin;
-
-    // Update nelem and ngroup based on actual array sizes if they differ
-    if (!params.elements.empty())
-    {
-      c_params.nelem = static_cast<int>(params.elements.size());
-    }
-    if (!params.groups.empty())
-    {
-      c_params.ngroup = static_cast<int>(params.groups.size());
-    }
 
     // Handle extinction coefficient array
     if (!params.extinction_coefficient.empty())

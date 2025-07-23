@@ -67,8 +67,6 @@ namespace musica
       int nz;
       int ny;
       int nx;
-      int nelem;
-      int ngroup;
       int nbin;
       int nsolute;
       int ngas;

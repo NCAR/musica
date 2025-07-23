@@ -281,30 +281,4 @@ void bind_carma(py::module_& carma)
         }
       },
       "Run CARMA with specified parameters");
-
-  // Expose test configuration factory functions
-  carma.def(
-      "_get_aluminum_test_params",
-      []()
-      {
-        auto params = musica::CARMATestConfigs::CreateAluminumTestParams();
-        py::dict result;
-        result["max_bins"] = params.max_bins;
-        result["max_groups"] = params.max_groups;
-        result["nz"] = params.nz;
-        result["ny"] = params.ny;
-        result["nx"] = params.nx;
-        result["nelem"] = params.nelem;
-        result["ngroup"] = params.ngroup;
-        result["nbin"] = params.nbin;
-        result["nsolute"] = params.nsolute;
-        result["ngas"] = params.ngas;
-        result["nwave"] = params.nwave;
-        result["dtime"] = params.dtime;
-        result["nstep"] = params.nstep;
-        result["deltaz"] = params.deltaz;
-        result["zmin"] = params.zmin;
-        return result;
-      },
-      "Get aluminum test parameters");
 }

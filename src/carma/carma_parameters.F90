@@ -64,8 +64,6 @@ module carma_parameters_mod
       integer(c_int) :: nz = 1
       integer(c_int) :: ny = 1
       integer(c_int) :: nx = 1
-      integer(c_int) :: nelem = 1
-      integer(c_int) :: ngroup = 1
       integer(c_int) :: nbin = 5
       integer(c_int) :: nsolute = 0
       integer(c_int) :: ngas = 0

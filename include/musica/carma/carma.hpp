@@ -210,33 +210,4 @@ namespace musica
     static void FreeCCompatible(struct CCARMAParameters& c_params);
   };
 
-  /// @brief Factory functions for creating test-specific CARMA parameters
-  namespace CARMATestConfigs
-  {
-    /// @brief Create parameters for aluminum test (carma_aluminumtest_2nc.F90)
-    static CARMAParameters CreateAluminumTestParams()
-    {
-      CARMAParameters params;
-
-      // Model dimensions
-      params.nz = 1;
-      params.ny = 1;
-      params.nx = 1;
-      params.nbin = 5;
-      params.nsolute = 0;
-      params.ngas = 0;
-      params.nwave = 30;
-      params.idx_wave = 5;
-
-      // Time parameters
-      params.dtime = 1800.0;
-      params.nstep = 432000 / static_cast<int>(params.dtime);
-
-      // Spatial parameters
-      params.deltaz = 1000.0;
-      params.zmin = 16500.0;
-
-      return params;
-    }
-  }  // namespace CARMATestConfigs
 }  // namespace musica

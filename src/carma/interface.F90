@@ -219,14 +219,7 @@ contains
       integer :: i, iy, ix, istep, igas, ielem, ibin, igroup
 
       ! Physical constants and parameters from aluminum test
-      real(kind=c_double), parameter :: rmin = 21.5e-6_c_double
-      real(kind=c_double), parameter :: rmon = 21.5e-6_c_double
-      real(kind=c_double), parameter :: rmrat = 2.0_c_double
-      real(kind=c_double), parameter :: RHO_ALUMINUM = 3.95_c_double   ! dry density of aluminum particles (g/cm3)
-      real(kind=c_double), parameter :: falpha = 1.0_c_double           ! satellite aerosol fractal packing coefficient
-      integer, parameter :: I_ALUMINUM = 1
       integer, parameter :: I_GRP_ALUM = 1
-      integer, parameter :: I_ELEM_ALUM = 1
 
       ! Group parameters
       type(carma_group_config_t), pointer :: group_config(:)
@@ -246,8 +239,8 @@ contains
       NY = int(params%ny)
       NX = int(params%nx)
       NZP1 = NZ + 1
-      NELEM = int(params%nelem)
-      NGROUP = int(params%ngroup)
+      NELEM = int(params%elements_size)
+      NGROUP = int(params%groups_size)
       NBIN = int(params%nbin)
       NSOLUTE = int(params%nsolute)
       NGAS = int(params%ngas)
@@ -256,6 +249,13 @@ contains
       nstep = int(params%nstep)
       deltaz = real(params%deltaz, kind=real64)
       zmin = real(params%zmin, kind=real64)
+
+      print *, "Running CARMA simulation with parameters:"
+      print *, "NZ:", NZ, "NY:", NY, "NX:", NX
+      print *, "NELEM:", NELEM, "NGROUP:", NGROUP, "NBIN:", NBIN
+      print *, "NSOLUTE:", NSOLUTE, "NGAS:", NGAS, "NWAVE:", NWAVE
+      print *, "dtime:", dtime
+      print *, "nstep:", nstep, "deltaz:", deltaz, "zmin:", zmin
 
       ! Set up simple grid
       iy = 1
@@ -281,8 +281,8 @@ contains
          call c_f_pointer(params%groups, group_config, [params%groups_size])
          do igroup = 1, params%groups_size
          associate(group => group_config(igroup))
-            group_name = c_to_f_string(group%name, group%name_length)
-            group_short_name = c_to_f_string(group%shortname, group%shortname_length)
+            group_name = c_to_f_string(c_loc(group%name), group%name_length)
+            group_short_name = c_to_f_string(c_loc(group%shortname), group%shortname_length)
             call c_f_pointer(group%df, df, [group%df_size])
             call CARMAGROUP_Create(carma, int(group%id), group_name, real(group%rmin, kind=real64), &
                real(group%rmrat, kind=real64), &
@@ -303,8 +303,8 @@ contains
          call c_f_pointer(params%elements, element_config, [params%elements_size])
          do ielem = 1, params%elements_size
          associate(elem => element_config(ielem))
-            element_name = c_to_f_string(elem%name, elem%name_length)
-            element_short_name = c_to_f_string(elem%shortname, elem%shortname_length)
+            element_name = c_to_f_string(c_loc(elem%name), elem%name_length)
+            element_short_name = c_to_f_string(c_loc(elem%shortname), elem%shortname_length)
             call c_f_pointer(elem%rhobin, rhobin, [elem%rhobin_size])
             call c_f_pointer(elem%arat, arat, [elem%arat_size])
             call CARMAELEMENT_Create(carma, int(elem%id), int(elem%igroup), element_name, real(elem%rho, kind=real64), &
@@ -323,12 +323,15 @@ contains
          end if
       end if
 
+      print *, "Starting CARMA initialization..."
+
       ! Initialize CARMA with coagulation settings matching test_aluminum_simple
       call CARMA_Initialize(carma, rc, do_grow=.false., do_coag=.true., do_substep=.false., do_vtran=.FALSE.)
       if (rc /= 0) then
          return
       end if
 
+      print *, "CARMA initialized successfully."
 
       ! Set up atmospheric conditions matching test_aluminum_simple
       lat(iy) = 0.0_c_double
@@ -508,7 +511,7 @@ contains
       extinction_coefficient => null( )
       if (c_associated(params%extinction_coefficient)) then
          call c_f_pointer(params%extinction_coefficient, extinction_coefficient, &
-         [params%nwave, params%nbin, params%ngroup])
+         [params%nwave, params%nbin, ngroup])
       end if
 
       ! Extract diagnostics from CARMA state using carmadiags
