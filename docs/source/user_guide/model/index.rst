@@ -5,7 +5,7 @@ Model solving and options
 .. note::
     
     MUSICA uses the Model-Independent Chemical Module (MICM) as its core chemistry solver. For more information about available reaction types,
-    species configuration, and solver behavior, see the `MICM documentation <micm:index>`_.
+    species configuration, and solver behavior, see the `MICM documentation <https://ncar.github.io/micm/index.html>`_.
 
 To work with a MUSICA model and solve, please be sure to import the following::
 
@@ -16,7 +16,7 @@ the previously defined in-code mechanism (see :ref:`Defining chemical systems <c
     
     solver = musica.MICM(mechanism=mechanism, solver_type=musica.SolverType.rosenbrock_standard_order)
 
-While the Rosenbrock Standard Order solver was used here, several other types of solvers are made available `through MICM <https://ncar.github.io/micm/user_guide/solver_configurations.html>`_.
+While the Rosenbrock Standard Order solver was used here, several other types of solvers are made available :doc:`through MICM <micm:user_guide/solver_configurations>`.
 
 Conditions
 -----------
@@ -38,7 +38,7 @@ Each MUSICA model should be run for a given amount of time (seconds) and that ti
     time_step = 4  # stepping
     sim_length = 20  # total simulation time
 
-For further descriptions of these MusicBox attributes, please see the `API Reference <https://ncar.github.io/music-box/branch/main/api/index.html>`_.
+For further descriptions of these MusicBox attributes, please see the :doc:`API Reference <mb:api/index>`.
 
 Solving
 --------

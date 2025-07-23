@@ -35,6 +35,7 @@ The system is the fundamental building block of MUSICA. The following steps will
 ~~~~~~~~~~~~~~~~~~~~~~~~
 A species is a reactant or product in a chemical reaction. You have the freedom to name a species anything in MusicBox, just make sure that it is logical to you.
 For extended documentation about the Species class, go `here <https://ncar.github.io/musica/api/python.html#musica.mechanism_configuration.Species>`_.
+
 Here is a snippet that defines three chemical species::
 
     A = mc.Species(name="A")
@@ -66,7 +67,7 @@ There are a handful of solvers available, but Rosenbrock Standard Order is used 
 
     solver = musica.MICM(mechanism=mechanism, solver_type=musica.SolverType.rosenbrock_standard_order)
 
-For more information on the types of solvers available, go `here <https://ncar.github.io/micm/user_guide/solver_configurations.html>`_.
+For more information on the types of solvers available, see the :doc:`MICM User Guide <micm:user_guide/solver_configurations>`.
 
 5. Define environmental conditions
 -----------------------------------
