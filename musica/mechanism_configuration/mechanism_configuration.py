@@ -95,8 +95,12 @@ class Mechanism(_Mechanism):
             elif isinstance(reaction, Arrhenius):
                 # Handle Python Arrhenius objects with instance serialize call
                 reactions_list.append(reaction.serialize())
-            elif isinstance(reaction, (_Branched, Branched)):
-                reactions_list.append(Branched.serialize(reaction))
+            elif isinstance(reaction, _Branched):
+                # Handle C++ _Branched objects with static serialize call
+                reactions_list.append(Branched.serialize_static(reaction))
+            elif isinstance(reaction, Branched):
+                # Handle Python Branched objects with instance serialize call
+                reactions_list.append(reaction.serialize())
             elif isinstance(reaction, (_CondensedPhaseArrhenius, CondensedPhaseArrhenius)):
                 reactions_list.append(
                     CondensedPhaseArrhenius.serialize_static(reaction))
