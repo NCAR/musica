@@ -90,7 +90,7 @@ class Mechanism(_Mechanism):
         reactions_list = []
         for reaction in self.reactions:
             if isinstance(reaction, _Arrhenius):
-                # Handle C++ _Arrhenius objects with static serialize call 
+                # Handle C++ _Arrhenius objects with static serialize call
                 reactions_list.append(Arrhenius.serialize_static(reaction))
             elif isinstance(reaction, Arrhenius):
                 # Handle Python Arrhenius objects with instance serialize call
