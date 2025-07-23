@@ -17,6 +17,86 @@ _backend = backend.get_backend()
 version = _backend._carma._get_carma_version() if backend.carma_available() else None
 
 
+class CARMAGroupConfig:
+    """Configuration for a CARMA particle group."""
+
+    def __init__(self,
+                 id: int = 1,
+                 name: str = "default_group",
+                 shortname: str = "",
+                 rmin: float = 1e-7,
+                 rmrat: float = 2.0,
+                 ishape: int = 1,  # 1=SPHERE, 2=HEXAGON, 3=CYLINDER
+                 eshape: float = 1.0,
+                 is_ice: bool = False,
+                 is_fractal: bool = False,
+                 do_mie: bool = True,
+                 do_wetdep: bool = False,
+                 do_drydep: bool = False,
+                 do_vtran: bool = True,
+                 solfac: float = 0.0,
+                 scavcoef: float = 0.0,
+                 rmon: float = 0.0,
+                 df: Optional[List[float]] = None,
+                 falpha: float = 1.0):
+        self.id = id
+        self.name = name
+        self.shortname = shortname
+        self.rmin = rmin
+        self.rmrat = rmrat
+        self.ishape = ishape
+        self.eshape = eshape
+        self.is_ice = is_ice
+        self.is_fractal = is_fractal
+        self.do_mie = do_mie
+        self.do_wetdep = do_wetdep
+        self.do_drydep = do_drydep
+        self.do_vtran = do_vtran
+        self.solfac = solfac
+        self.scavcoef = scavcoef
+        self.rmon = rmon
+        self.df = df or []
+        self.falpha = falpha
+
+    def to_dict(self) -> Dict:
+        """Convert to dictionary."""
+        return {k: v for k, v in self.__dict__.items()}
+
+
+class CARMAElementConfig:
+    """Configuration for a CARMA particle element."""
+
+    def __init__(self,
+                 id: int = 1,
+                 igroup: int = 1,
+                 name: str = "default_element",
+                 shortname: str = "",
+                 rho: float = 1.0,
+                 itype: int = 1,  # 1=INVOLATILE, 2=VOLATILE, etc.
+                 icomposition: int = 1,  # 1=ALUMINUM, 2=H2SO4, etc.
+                 isolute: int = 0,
+                 rhobin: Optional[List[float]] = None,
+                 arat: Optional[List[float]] = None,
+                 kappa: float = 0.0,
+                 isShell: bool = True):
+        self.id = id
+        self.igroup = igroup
+        self.name = name
+        self.shortname = shortname
+        self.rho = rho
+        self.itype = itype
+        self.icomposition = icomposition
+        self.isolute = isolute
+        self.rhobin = rhobin or []
+        self.arat = arat or []
+        self.kappa = kappa
+        self.isShell = isShell
+
+    def to_dict(self) -> Dict:
+        """Convert to dictionary."""
+        return {k: v for k, v in self.__dict__.items()}
+
+
 class CARMAParameters:
     """
     Parameters for CARMA aerosol model simulation.
@@ -32,8 +112,6 @@ class CARMAParameters:
                  nz: int = 1,
                  ny: int = 1,
                  nx: int = 1,
-                 nelem: int = 1,
-                 ngroup: int = 1,
                  nbin: int = 5,
                  nsolute: int = 0,
                  ngas: int = 0,
@@ -43,7 +121,9 @@ class CARMAParameters:
                  nstep: int = 100,
                  deltaz: float = 1000.0,
                  zmin: float = 16500.0,
-                 extinction_coefficient: Optional[List[List[List[float]]]] = None):
+                 extinction_coefficient: Optional[List[List[List[float]]]] = None,
+                 groups: Optional[List[CARMAGroupConfig]] = None,
+                 elements: Optional[List[CARMAElementConfig]] = None):
         """
         Initialize CARMA parameters.
 
@@ -53,8 +133,6 @@ class CARMAParameters:
             nz: Number of vertical levels (default: 1)
             ny: Number of y-direction grid points (default: 1)
             nx: Number of x-direction grid points (default: 1)
-            nelem: Number of elements (default: 1)
-            ngroup: Number of groups (default: 1)
             nbin: Number of size bins (default: 5)
             nsolute: Number of solutes (default: 0)
             ngas: Number of gases (default: 0)
@@ -65,14 +143,14 @@ class CARMAParameters:
             deltaz: Vertical grid spacing in meters (default: 1000.0)
             zmin: Minimum altitude in meters (default: 16500.0)
             extinction_coefficient: Extinction coefficient qext [NWAVE x NBIN x NGROUP] (default: None)
+            groups: List of group configurations (default: None)
+            elements: List of element configurations (default: None)
         """
         self.max_bins = max_bins
         self.max_groups = max_groups
         self.nz = nz
         self.ny = ny
         self.nx = nx
-        self.nelem = nelem
-        self.ngroup = ngroup
         self.nbin = nbin
         self.nsolute = nsolute
         self.ngas = ngas
@@ -84,31 +162,131 @@ class CARMAParameters:
         self.zmin = zmin
         self.extinction_coefficient = extinction_coefficient
 
+        # Initialize group and element configurations
+        self.groups = groups or []
+        self.elements = elements or []
+
+    def add_group(self, group: CARMAGroupConfig):
+        """Add a group configuration."""
+        self.groups.append(group)
+        self.update_dimensions()
+
+    def add_element(self, element: CARMAElementConfig):
+        """Add an element configuration."""
+        self.elements.append(element)
+        self.update_dimensions()
+
     def __repr__(self):
         """String representation of CARMAParameters."""
         return (f"CARMAParameters(max_bins={self.max_bins}, max_groups={self.max_groups}, "
-                f"nz={self.nz}, ny={self.ny}, nx={self.nx}, nelem={self.nelem}, "
-                f"ngroup={self.ngroup}, nbin={self.nbin}, nsolute={self.nsolute}, "
+                f"nz={self.nz}, ny={self.ny}, nx={self.nx}, "
+                f"nbin={self.nbin}, nsolute={self.nsolute}, "
                 f"ngas={self.ngas}, nwave={self.nwave}, dtime={self.dtime}, "
                 f"nstep={self.nstep}, deltaz={self.deltaz}, zmin={self.zmin})")
 
     def __str__(self):
         """String representation of CARMAParameters."""
         return (f"CARMAParameters(max_bins={self.max_bins}, max_groups={self.max_groups}, "
-                f"nz={self.nz}, ny={self.ny}, nx={self.nx}, nelem={self.nelem}, "
-                f"ngroup={self.ngroup}, nbin={self.nbin}, nsolute={self.nsolute}, "
+                f"nz={self.nz}, ny={self.ny}, nx={self.nx}, "
+                f"nbin={self.nbin}, nsolute={self.nsolute}, "
                 f"ngas={self.ngas}, nwave={self.nwave}, dtime={self.dtime}, "
                 f"nstep={self.nstep}, deltaz={self.deltaz}, zmin={self.zmin})")
 
     def to_dict(self) -> Dict:
         """Convert parameters to dictionary for C++ interface."""
-        # Use introspection to get all instance attributes except methods and built-ins
-        return {k: v for k, v in self.__dict__.items() if not k.startswith('__') and not callable(v)}
+        # Get all basic attributes
+        params_dict = {}
+        for k, v in self.__dict__.items():
+            if not k.startswith('__') and not callable(v):
+                if k == 'groups':
+                    params_dict[k] = [group.to_dict() for group in v]
+                elif k == 'elements':
+                    params_dict[k] = [element.to_dict() for element in v]
+                else:
+                    params_dict[k] = v
+        return params_dict
 
     @classmethod
     def from_dict(cls, params_dict: Dict) -> 'CARMAParameters':
         """Create parameters from dictionary."""
-        return cls(**params_dict)
+        # Handle groups and elements separately
+        groups = []
+        if 'groups' in params_dict:
+            groups = [CARMAGroupConfig(**group_dict)
+                      for group_dict in params_dict['groups']]
+            del params_dict['groups']
+
+        elements = []
+        if 'elements' in params_dict:
+            elements = [CARMAElementConfig(**element_dict)
+                        for element_dict in params_dict['elements']]
+            del params_dict['elements']
+
+        return cls(groups=groups, elements=elements, **params_dict)
+
+    @classmethod
+    def create_aluminum_test_config(cls) -> 'CARMAParameters':
+        """Create parameters for aluminum test configuration."""
+        # Create aluminum group
+        group = CARMAGroupConfig(
+            id=1,
+            name="aluminum",
+            shortname="PRALUM",
+            rmin=21.5e-6,
+            rmrat=2.0,
+            ishape=1,  # SPHERE
+            eshape=1.0,
+            is_ice=False,
+            is_fractal=True,
+            do_mie=True,
+            do_wetdep=False,
+            do_drydep=True,
+            do_vtran=True,
+            solfac=0.0,
+            scavcoef=0.0,
+            rmon=21.5e-6,
+            df=[1.6] * 5,  # 5 bins with fractal dimension 1.6
+            falpha=1.0
+        )
+
+        # Create aluminum element
+        element = CARMAElementConfig(
+            id=1,
+            igroup=1,
+            name="Aluminum",
+            shortname="ALUM",
+            rho=3.95,  # g/cm3
+            itype=1,   # INVOLATILE
+            icomposition=1,  # ALUMINUM
+            isolute=0,
+            rhobin=[],
+            arat=[],
+            kappa=0.0,
+            isShell=True
+        )
+
+        params = cls(
+            max_bins=100,
+            max_groups=10,
+            nz=1,
+            ny=1,
+            nx=1,
+            nbin=5,
+            nsolute=0,
+            ngas=0,
+            nwave=30,
+            idx_wave=0,
+            deltaz=1000.0,
+            zmin=16500.0,
+            extinction_coefficient=None,  # Not used in this test
+            groups=[group],
+            elements=[element]
+        )
+
+        params.dtime=1800.0
+        params.nstep=432000 / params.dtime
+
+        return params
 
 
 def _carma_dict_to_xarray(output_dict: Dict) -> xr.Dataset:
@@ -130,9 +308,7 @@ def _carma_dict_to_xarray(output_dict: Dict) -> xr.Dataset:
     ny = output_dict.get('ny', 0)
     nx = output_dict.get('nx', 0)
     nbin = output_dict.get('nbin', 0)
-    ngroup = output_dict.get('ngroup', 0)
     ngas = output_dict.get('ngas', 0)
-    nelem = output_dict.get('nelem', 0)
     nstep = output_dict.get('nstep', 0)
 
     # Create coordinates
@@ -159,8 +335,6 @@ def _carma_dict_to_xarray(output_dict: Dict) -> xr.Dataset:
 
     if ngas > 0:
         coords['gas'] = ('gas', list(range(1, ngas + 1)))
-    if nelem > 0:
-        coords['elem'] = ('elem', list(range(1, nelem + 1)))
 
     # Initialize data variables dictionary
     data_vars = {}
@@ -398,8 +572,6 @@ def _carma_dict_to_xarray(output_dict: Dict) -> xr.Dataset:
             'nz': nz,
             'ny': ny,
             'nx': nx,
-            'nelem': nelem,
-            'ngroup': ngroup,
             'nbin': nbin,
             'ngas': ngas,
             'nstep': nstep
@@ -463,18 +635,3 @@ class CARMA:
 
         # Convert dictionary directly to xarray Dataset
         return _carma_dict_to_xarray(output_dict)
-
-    @staticmethod
-    def get_aluminum_test_parameters() -> CARMAParameters:
-        """
-        Get parameters for aluminum test configuration.
-
-        Returns:
-            CARMAParameters configured for aluminum test
-        """
-        if not backend.carma_available():
-            raise ValueError(
-                "CARMA backend is not available on this platform.")
-
-        params_dict = _backend._carma._get_aluminum_test_params()
-        return CARMAParameters.from_dict(params_dict)

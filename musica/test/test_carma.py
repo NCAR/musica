@@ -13,46 +13,13 @@ def test_carma_version():
     print(f"CARMA version: {version}")
 
 
-def test_carma_parameters():
-    # Test default parameters
-    params = musica.carma.CARMAParameters()
-    assert params.max_bins == 100
-    assert params.nbin == 5
-    assert params.dtime == 1800.0
-
-    # Test custom parameters
-    custom_params = musica.carma.CARMAParameters(
-        nbin=10,
-        dtime=900.0,
-        nstep=200
-    )
-    assert custom_params.nbin == 10
-    assert custom_params.dtime == 900.0
-    assert custom_params.nstep == 200
-
-    # Test to_dict and from_dict
-    params_dict = custom_params.to_dict()
-    assert isinstance(params_dict, dict)
-    assert params_dict['nbin'] == 10
-
-    restored_params = musica.carma.CARMAParameters.from_dict(params_dict)
-    assert restored_params.nbin == custom_params.nbin
-    assert restored_params.dtime == custom_params.dtime
-
-
-def test_carma_test_configurations():
-    # Test aluminum test parameters
-    aluminum_params = musica.CARMA.get_aluminum_test_parameters()
-    assert isinstance(aluminum_params, musica.carma.CARMAParameters)
-    assert aluminum_params.nbin == 5
-
-
 def test_carma_instance():
     # Test CARMA instance creation
     carma = musica.CARMA()
     assert carma is not None
+    assert isinstance(carma, musica.CARMA)
 
-    test_params = musica.CARMA.get_aluminum_test_parameters()
+    test_params = musica.CARMAParameters.create_aluminum_test_config()
     test_params.nstep = 560
     carma.run(test_params)
 

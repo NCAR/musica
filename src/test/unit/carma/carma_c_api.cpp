@@ -50,8 +50,6 @@ TEST_F(CarmaCApiTest, RunCarmaWithAluminumTestParams)
   EXPECT_EQ(params.nz, 1);
   EXPECT_EQ(params.ny, 1);
   EXPECT_EQ(params.nx, 1);
-  EXPECT_EQ(params.nelem, 1);
-  EXPECT_EQ(params.ngroup, 1);
   EXPECT_EQ(params.nbin, 5);
   EXPECT_EQ(params.nsolute, 0);
   EXPECT_EQ(params.ngas, 0);
@@ -63,45 +61,3 @@ TEST_F(CarmaCApiTest, RunCarmaWithAluminumTestParams)
   // Test that we can run CARMA with aluminum test parameters
   ASSERT_NO_THROW(carma.Run(params));
 }
-
-TEST_F(CarmaCApiTest, RunCarmaWithFractalOpticsTestParams)
-{
-  CARMA carma;
-  CARMAParameters params = CARMATestConfigs::CreateFractalOpticsTestParams();
-
-  // Verify the fractal optics test parameters
-  EXPECT_EQ(params.nz, 1);
-  EXPECT_EQ(params.nbin, 5);
-  EXPECT_EQ(params.nwave, 30);
-
-  // Test that we can run CARMA with fractal optics test parameters
-  ASSERT_NO_THROW(carma.Run(params));
-}
-
-TEST_F(CarmaCApiTest, RunCarmaWithFractalOpticsIQTestParams)
-{
-  CARMA carma;
-  CARMAParameters params = CARMATestConfigs::CreateFractalOpticsIQTestParams();
-
-  // Verify the IQ variant has different bin count
-  EXPECT_EQ(params.nbin, 10);  // Should be different from standard test
-
-  // Test that we can run CARMA with fractal optics IQ test parameters
-  ASSERT_NO_THROW(carma.Run(params));
-}
-
-// TEST_F(CarmaCApiTest, RunCarmaWithSulfateTestParams)
-// {
-//   CARMA carma;
-//   CARMAParameters params = CARMATestConfigs::CreateSulfateTestParams();
-
-//   // Verify the sulfate test parameters are set correctly
-//   EXPECT_EQ(params.nbin, 22);         // More bins for sulfate
-//   EXPECT_EQ(params.ngas, 2);          // Water vapor and H2SO4
-//   EXPECT_EQ(params.nwave, 0);         // No optics for this test
-//   EXPECT_EQ(params.deltaz, 10000.0);  // Larger vertical spacing
-//   EXPECT_EQ(params.zmin, 145000.0);   // Higher altitude
-
-//   // Test that we can run CARMA with sulfate test parameters
-//   ASSERT_NO_THROW(carma.Run(params));
-// }

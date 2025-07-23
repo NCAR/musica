@@ -37,6 +37,9 @@ module carma_parameters_mod
 
       ! Optical parameters
       real(real64), allocatable :: extinction_coefficient(:,:,:)  ! qext(NWAVE, NBIN, NGROUP)
+
+      ! Group and element configurations (will be handled through C interface)
+      ! Note: groups and elements are managed through C pointers in interface
    end type carma_parameters_type
 
 end module carma_parameters_mod

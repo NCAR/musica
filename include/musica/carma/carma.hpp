@@ -10,6 +10,79 @@
 
 namespace musica
 {
+  // Forward declarations for C interface types
+  struct CCARMAParameters;
+
+  // Enumeration for particle shapes
+  enum class ParticleShape
+  {
+    SPHERE = 1,
+    HEXAGON = 2,
+    CYLINDER = 3
+  };
+
+  // Enumeration for particle types
+  enum class ParticleType
+  {
+    INVOLATILE = 1,
+    VOLATILE = 2,
+    COREMASS = 3,
+    VOLCORE = 4,
+    CORE2MOM = 5
+  };
+
+  // Enumeration for particle compositions
+  enum class ParticleComposition
+  {
+    ALUMINUM = 1,
+    H2SO4 = 2,
+    DUST = 3,
+    ICE = 4,
+    H2O = 5,
+    BLACKCARBON = 6,
+    ORGANICCARBON = 7
+  };
+
+  // Structure representing a CARMA group configuration
+  struct CARMAGroupConfig
+  {
+    int id = 1;
+    std::string name = "default_group";
+    std::string shortname = "";
+    double rmin = 1e-7;  // minimum radius [cm]
+    double rmrat = 2.0;  // volume ratio between bins
+    ParticleShape ishape = ParticleShape::SPHERE;
+    double eshape = 1.0;  // aspect ratio
+    bool is_ice = false;
+    bool is_fractal = false;
+    bool do_mie = true;
+    bool do_wetdep = false;
+    bool do_drydep = false;
+    bool do_vtran = true;
+    double solfac = 0.0;
+    double scavcoef = 0.0;
+    double rmon = 0.0;       // monomer radius [cm]
+    std::vector<double> df;  // fractal dimension per bin
+    double falpha = 1.0;     // fractal packing coefficient
+  };
+
+  // Structure representing a CARMA element configuration
+  struct CARMAElementConfig
+  {
+    int id = 1;
+    int igroup = 1;  // group this element belongs to
+    std::string name = "default_element";
+    std::string shortname = "";
+    double rho = 1.0;  // bulk density [g/cm3]
+    ParticleType itype = ParticleType::INVOLATILE;
+    ParticleComposition icomposition = ParticleComposition::ALUMINUM;
+    int isolute = 0;             // solute index
+    std::vector<double> rhobin;  // density per bin [g/cm3]
+    std::vector<double> arat;    // projected area ratio per bin
+    double kappa = 0.0;          // hygroscopicity parameter
+    bool isShell = true;         // is this part of shell or core
+  };
+
   struct CARMAParameters
   {
     int max_bins = 100;
@@ -25,7 +98,7 @@ namespace musica
     int nsolute = 0;
     int ngas = 0;
     int nwave = 30;
-    int idx_wave = 0; // TODO: is there a better name?
+    int idx_wave = 0;  // TODO: is there a better name?
 
     // Time stepping parameters
     double dtime = 1800.0;
@@ -36,89 +109,10 @@ namespace musica
     double zmin = 16500.0;
 
     // Optical parameters
-    double* extinction_coefficient = nullptr;  // Extinction coefficient qext [NWAVE * NBIN * NGROUP]
+    std::vector<double> extinction_coefficient;  // Extinction coefficient qext [NWAVE * NBIN * NGROUP]
 
-    // Constructor
-    CARMAParameters() = default;
-
-    // Destructor to clean up dynamically allocated memory
-    ~CARMAParameters()
-    {
-      if (extinction_coefficient != nullptr)
-      {
-        delete[] extinction_coefficient;
-        extinction_coefficient = nullptr;
-      }
-    }
-
-    // Copy constructor
-    CARMAParameters(const CARMAParameters& other)
-        : max_bins(other.max_bins),
-          max_groups(other.max_groups),
-          nz(other.nz),
-          ny(other.ny),
-          nx(other.nx),
-          nelem(other.nelem),
-          ngroup(other.ngroup),
-          nbin(other.nbin),
-          nsolute(other.nsolute),
-          ngas(other.ngas),
-          nwave(other.nwave),
-          idx_wave(other.idx_wave),
-          dtime(other.dtime),
-          nstep(other.nstep),
-          deltaz(other.deltaz),
-          zmin(other.zmin),
-          extinction_coefficient(nullptr)
-    {
-      if (other.extinction_coefficient != nullptr)
-      {
-        size_t size = nwave * nbin * ngroup;
-        extinction_coefficient = new double[size];
-        std::copy(other.extinction_coefficient, other.extinction_coefficient + size, extinction_coefficient);
-      }
-    }
-
-    // Copy assignment operator
-    CARMAParameters& operator=(const CARMAParameters& other)
-    {
-      if (this != &other)
-      {
-        // Clean up existing memory
-        if (extinction_coefficient != nullptr)
-        {
-          delete[] extinction_coefficient;
-          extinction_coefficient = nullptr;
-        }
-
-        // Copy basic members
-        max_bins = other.max_bins;
-        max_groups = other.max_groups;
-        nz = other.nz;
-        ny = other.ny;
-        nx = other.nx;
-        nelem = other.nelem;
-        ngroup = other.ngroup;
-        nbin = other.nbin;
-        nsolute = other.nsolute;
-        ngas = other.ngas;
-        nwave = other.nwave;
-        idx_wave = other.idx_wave;
-        dtime = other.dtime;
-        nstep = other.nstep;
-        deltaz = other.deltaz;
-        zmin = other.zmin;
-
-        // Copy extinction coefficient if it exists
-        if (other.extinction_coefficient != nullptr)
-        {
-          size_t size = nwave * nbin * ngroup;
-          extinction_coefficient = new double[size];
-          std::copy(other.extinction_coefficient, other.extinction_coefficient + size, extinction_coefficient);
-        }
-      }
-      return *this;
-    }
+    std::vector<CARMAGroupConfig> groups;
+    std::vector<CARMAElementConfig> elements;
   };
 
   struct CARMAOutput
@@ -200,16 +194,25 @@ namespace musica
     /// @return The version string of the CARMA instance
     static std::string GetVersion();
 
-    /// @brief Run CARMA with the specified parameters
+    /// @brief Run CARMA with the specified parameters and configuration
     /// @param params The CARMA parameters to use for the simulation
-    /// @param output The structure to fill with CARMA output data
+    /// @param config The group and element configuration (optional)
+    /// @return The CARMA output data
     CARMAOutput Run(const CARMAParameters& params);
+
+    /// @brief Convert CARMAParameters to C-compatible CCARMAParameters
+    /// @param params The C++ CARMA parameters to convert
+    /// @return The C-compatible CARMA parameters structure
+    static struct CCARMAParameters ToCCompatible(const CARMAParameters& params);
+
+    /// @brief Free memory allocated in CCARMAParameters
+    /// @param c_params The C-compatible parameters to clean up
+    static void FreeCCompatible(struct CCARMAParameters& c_params);
   };
 
   /// @brief Factory functions for creating test-specific CARMA parameters
   namespace CARMATestConfigs
   {
-
     /// @brief Create parameters for aluminum test (carma_aluminumtest_2nc.F90)
     static CARMAParameters CreateAluminumTestParams()
     {
@@ -219,8 +222,6 @@ namespace musica
       params.nz = 1;
       params.ny = 1;
       params.nx = 1;
-      params.nelem = 1;
-      params.ngroup = 1;
       params.nbin = 5;
       params.nsolute = 0;
       params.ngas = 0;

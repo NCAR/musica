@@ -4,13 +4,13 @@
 module carma_interface
 
    use iso_c_binding, only: c_int, c_double, c_ptr, c_char, c_null_char, &
-      c_loc, c_f_pointer, c_associated, c_null_ptr
+      c_loc, c_f_pointer, c_associated, c_null_ptr, c_bool
    implicit none
 
    private
 
    ! C-compatible structure for CARMA parameters
-   ! MUST match the exact order and types of the C++ CARMAParameters struct
+   ! MUST match the exact order and types of the C++ CCARMAParameters struct
    type, bind(C) :: c_carma_parameters
       integer(c_int) :: max_bins = 100
       integer(c_int) :: max_groups = 10
@@ -25,6 +25,7 @@ module carma_interface
       integer(c_int) :: nsolute = 0
       integer(c_int) :: ngas = 0
       integer(c_int) :: nwave = 30
+      integer(c_int) :: idx_wave = 0
 
       ! Time stepping parameters
       real(c_double) :: dtime = 1800.0d0
@@ -36,57 +37,79 @@ module carma_interface
 
       ! Optical parameters
       type(c_ptr) :: extinction_coefficient = c_null_ptr  ! Pointer to extinction coefficient array
+      integer(c_int) :: extinction_coefficient_size = 0   ! Size of extinction coefficient array
+
+      ! Group and element configurations
+      type(c_ptr) :: groups = c_null_ptr       ! Pointer to groups array
+      integer(c_int) :: groups_size = 0        ! Number of groups
+      type(c_ptr) :: elements = c_null_ptr     ! Pointer to elements array
+      integer(c_int) :: elements_size = 0      ! Number of elements
 
    end type c_carma_parameters
+
+   ! C-compatible structure for CARMA output data
+   ! MUST match the exact order and types of the C++ CARMAOutputData struct
+   type, bind(C) :: c_carma_output_data
+      type(c_ptr) :: c_output_ptr
+      integer(c_int) :: nz
+      integer(c_int) :: ny
+      integer(c_int) :: nx
+      integer(c_int) :: nelem
+      integer(c_int) :: ngroup
+      integer(c_int) :: nbin
+      integer(c_int) :: ngas
+      integer(c_int) :: nstep
+      type(c_ptr) :: lat
+      type(c_ptr) :: lon
+      type(c_ptr) :: vertical_center
+      type(c_ptr) :: vertical_levels
+      type(c_ptr) :: pressure
+      type(c_ptr) :: temperature
+      type(c_ptr) :: air_density
+      type(c_ptr) :: radiative_heating
+      type(c_ptr) :: delta_temperature
+      type(c_ptr) :: gas_mmr
+      type(c_ptr) :: gas_saturation_liquid
+      type(c_ptr) :: gas_saturation_ice
+      type(c_ptr) :: gas_vapor_pressure_ice
+      type(c_ptr) :: gas_vapor_pressure_liquid
+      type(c_ptr) :: gas_weight_percent
+      type(c_ptr) :: number_density
+      type(c_ptr) :: surface_area
+      type(c_ptr) :: mass_density
+      type(c_ptr) :: effective_radius
+      type(c_ptr) :: effective_radius_wet
+      type(c_ptr) :: mean_radius
+      type(c_ptr) :: nucleation_rate
+      type(c_ptr) :: mass_mixing_ratio
+      type(c_ptr) :: projected_area
+      type(c_ptr) :: aspect_ratio
+      type(c_ptr) :: vertical_mass_flux
+      type(c_ptr) :: extinction
+      type(c_ptr) :: optical_depth
+      type(c_ptr) :: bin_wet_radius
+      type(c_ptr) :: bin_number_density
+      type(c_ptr) :: bin_density
+      type(c_ptr) :: bin_mass_mixing_ratio
+      type(c_ptr) :: bin_deposition_velocity
+      type(c_ptr) :: group_radius
+      type(c_ptr) :: group_mass
+      type(c_ptr) :: group_volume
+      type(c_ptr) :: group_radius_ratio
+      type(c_ptr) :: group_aspect_ratio
+      type(c_ptr) :: group_fractal_dimension
+   end type c_carma_output_data
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    ! Interface to the C++ TransferCarmaOutputToCpp function
    interface
-      subroutine TransferCarmaOutputToCpp( &
-         c_output_ptr, &
-         nz, ny, nx, nelem, ngroup, nbin, ngas, nstep, &
-         lat, lon, vertical_center, vertical_levels, &
-         pressure, temperature, air_density, &
-         radiative_heating, delta_temperature, &
-         gas_mmr, gas_saturation_liquid, gas_saturation_ice, &
-         gas_ei, gas_el, gas_wt, &
-         number_density, surface_area, mass_density, effective_radius, &
-         effective_radius_wet, mean_radius, nucleation_rate, &
-         mass_mixing_ratio, projected_area, aspect_ratio, &
-         vertical_mass_flux, extinction, optical_depth, &
-         bin_wet_radius, bin_number_density, bin_density, &
-         bin_mass_mixing_ratio, bin_deposition_velocity, &
-         group_radius, group_mass, group_volume, &
-         group_radius_ratio, group_aspect_ratio, group_fractal_dimension) &
+      subroutine TransferCarmaOutputToCpp(output_data) &
          bind(C, name="TransferCarmaOutputToCpp")
-         use iso_c_binding, only: c_ptr, c_int, c_double
-         use carma_precision_mod
+         use iso_c_binding, only: c_ptr
+         import :: c_carma_output_data
 
-         type(c_ptr), intent(in), value :: c_output_ptr
-         integer(c_int), intent(in), value :: nz, ny, nx, nelem, ngroup, nbin, ngas, nstep
-
-         real(kind=c_double), intent(in) :: lat(ny), lon(nx), vertical_center(nz), vertical_levels(nz+1)
-         real(kind=c_double), intent(in) :: pressure(nz), temperature(nz), air_density(nz)
-         real(kind=c_double), intent(in) :: radiative_heating(nz), delta_temperature(nz)
-         real(kind=c_double), intent(in) :: gas_mmr(nz, max(1,ngas)), gas_saturation_liquid(nz, max(1,ngas))
-         real(kind=c_double), intent(in) :: gas_saturation_ice(nz, max(1,ngas)), gas_ei(nz, max(1,ngas))
-         real(kind=c_double), intent(in) :: gas_el(nz, max(1,ngas)), gas_wt(nz, max(1,ngas))
-         real(kind=c_double), intent(in) :: number_density(nz, ngroup), surface_area(nz, ngroup)
-         real(kind=c_double), intent(in) :: mass_density(nz, ngroup), effective_radius(nz, ngroup)
-         real(kind=c_double), intent(in) :: effective_radius_wet(nz, ngroup), mean_radius(nz, ngroup)
-         real(kind=c_double), intent(in) :: nucleation_rate(nz, ngroup), mass_mixing_ratio(nz, ngroup)
-         real(kind=c_double), intent(in) :: projected_area(nz, ngroup), aspect_ratio(nz, ngroup)
-         real(kind=c_double), intent(in) :: vertical_mass_flux(nz, ngroup), extinction(nz, ngroup)
-         real(kind=c_double), intent(in) :: optical_depth(nz, ngroup)
-         real(kind=c_double), intent(in) :: bin_wet_radius(nz, ngroup, nbin)
-         real(kind=c_double), intent(in) :: bin_number_density(nz, ngroup, nbin)
-         real(kind=c_double), intent(in) :: bin_density(nz, ngroup, nbin)
-         real(kind=c_double), intent(in) :: bin_mass_mixing_ratio(nz, ngroup, nbin)
-         real(kind=c_double), intent(in) :: bin_deposition_velocity(nz, ngroup, nbin)
-         real(kind=c_double), intent(in) :: group_radius(nbin, ngroup), group_mass(nbin, ngroup)
-         real(kind=c_double), intent(in) :: group_volume(nbin, ngroup), group_radius_ratio(nbin, ngroup)
-         real(kind=c_double), intent(in) :: group_aspect_ratio(nbin, ngroup), group_fractal_dimension(nbin, ngroup)
+         type(c_carma_output_data), intent(in) :: output_data
 
       end subroutine TransferCarmaOutputToCpp
    end interface
@@ -199,6 +222,7 @@ contains
       f_params%nsolute = c_params%nsolute
       f_params%ngas = c_params%ngas
       f_params%nwave = c_params%nwave
+      f_params%idx_wave = c_params%idx_wave
 
       ! Time stepping parameters
       f_params%dtime = real(c_params%dtime, kind=c_double)
@@ -209,21 +233,23 @@ contains
       f_params%zmin = real(c_params%zmin, kind=c_double)
 
       ! Handle extinction coefficient if provided
-      if (c_associated(c_params%extinction_coefficient)) then
+      if (c_associated(c_params%extinction_coefficient) .and. c_params%extinction_coefficient_size > 0) then
          ! Allocate the 3D array in Fortran
          allocate(f_params%extinction_coefficient(c_params%nwave, c_params%nbin, c_params%ngroup))
-         
+
          ! Convert flat array pointer to 3D array
          call c_f_pointer(c_params%extinction_coefficient, qext_flat, &
-                         [c_params%nwave * c_params%nbin * c_params%ngroup])
-         
+            [c_params%extinction_coefficient_size])
+
          ! Copy data from flat array to 3D array using proper indexing
          ! C++ indexing: idx = i + j*nwave + k*nwave*nbin
          do k = 1, c_params%ngroup
             do j = 1, c_params%nbin
                do i = 1, c_params%nwave
                   idx = i + (j-1)*c_params%nwave + (k-1)*c_params%nwave*c_params%nbin
-                  f_params%extinction_coefficient(i, j, k) = qext_flat(idx)
+                  if (idx <= c_params%extinction_coefficient_size) then
+                     f_params%extinction_coefficient(i, j, k) = qext_flat(idx)
+                  end if
                end do
             end do
          end do
@@ -333,23 +359,23 @@ contains
 
       carma_ptr => carma
 
-      ! Set up aluminum particle configuration matching test_aluminum_simple
-      if (NGROUP >= 1 .and. NELEM >= 1) then
-         ! Create aluminum particle group with fractal properties
-         call CARMAGROUP_Create(carma, I_GRP_ALUM, "aluminum", rmin, rmrat, &
-            I_SPHERE, 1.0_c_double, .false., rc,&
-            is_fractal=.TRUE., rmon=rmon, df=df, falpha=falpha, &
-            irhswell=I_NO_SWELLING, do_drydep=.true., &
-            shortname="PRALUM", is_sulfate=.false.)
-         if (rc /= 0) then
-            return
-         end if
+      ! Create groups and elements based on configuration
+      ! TODO: For now, create default aluminum group and element
+      ! Future: implement configurable groups/elements through separate mechanism
+      allocate(df(NBIN, NGROUP))
+      df(:,:) = 1.6_c_double
+      call CARMAGROUP_Create(carma, I_GRP_ALUM, "aluminum", rmin, rmrat, &
+         I_SPHERE, 1.0_c_double, .false., rc,&
+         is_fractal=.TRUE., rmon=rmon, df=df, falpha=falpha, &
+         irhswell=I_NO_SWELLING, do_drydep=.true., &
+         shortname="PRALUM", is_sulfate=.false.)
+      if (rc /= 0) then
+         return
+      end if
 
-         ! Create aluminum element
-         call CARMAELEMENT_Create(carma, I_ELEM_ALUM, I_GRP_ALUM, "Aluminum", RHO_ALUMINUM, I_INVOLATILE, I_ALUMINUM, rc, shortname="ALUM")
-         if (rc /= 0) then
-            return
-         end if
+      call CARMAELEMENT_Create(carma, I_ELEM_ALUM, I_GRP_ALUM, "Aluminum", RHO_ALUMINUM, I_INVOLATILE, I_ALUMINUM, rc, shortname="ALUM")
+      if (rc /= 0) then
+         return
       end if
 
       ! Setup CARMA processes - coagulation for aluminum particles
@@ -467,7 +493,7 @@ contains
       deallocate(lat, lon, zc, zl, p, pl, t, rhoa, t_orig, mmr)
       deallocate(df)
       if (NGAS > 0) deallocate(mmr_gas)
-      
+
    end subroutine run_carma_simulation
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -480,7 +506,7 @@ contains
       use carma_precision_mod
       use carma_types_mod
       use carma_parameters_mod, only: carma_parameters_type
-      use iso_c_binding, only: c_ptr, c_int, c_double
+      use iso_c_binding, only: c_ptr, c_int, c_double, c_loc
 
       implicit none
 
@@ -492,29 +518,32 @@ contains
       integer, intent(in) :: nz, ny, nx, nelem, ngroup, nbin, ngas, nstep
       real(kind=8), intent(in) :: current_time
       integer, intent(in) :: current_step
-      real(kind=c_double), intent(in) :: lat(ny), lon(nx)
-      real(kind=c_double), intent(in) :: vertical_center(nz), vertical_levels(nz+1)
-      real(kind=c_double), intent(in) :: pressure(nz), temperature(nz), air_density(nz)
+      real(kind=c_double), intent(in), target :: lat(ny), lon(nx)
+      real(kind=c_double), intent(in), target :: vertical_center(nz), vertical_levels(nz+1)
+      real(kind=c_double), intent(in), target :: pressure(nz), temperature(nz), air_density(nz)
       real(kind=c_double), intent(in) :: deltaz
 
       ! Arrays for CARMA diagnostics output
-      real(kind=c_double), allocatable :: number_density(:,:), surface_area(:,:), mass_density(:,:)
-      real(kind=c_double), allocatable :: effective_radius(:,:), effective_radius_wet(:,:), mean_radius(:,:)
-      real(kind=c_double), allocatable :: nucleation_rate(:,:), mass_mixing_ratio(:,:)
-      real(kind=c_double), allocatable :: projected_area(:,:), aspect_ratio(:,:), vertical_mass_flux(:,:)
-      real(kind=c_double), allocatable :: extinction(:,:), optical_depth(:,:)
+      real(kind=c_double), allocatable, target :: number_density(:,:), surface_area(:,:), mass_density(:,:)
+      real(kind=c_double), allocatable, target :: effective_radius(:,:), effective_radius_wet(:,:), mean_radius(:,:)
+      real(kind=c_double), allocatable, target :: nucleation_rate(:,:), mass_mixing_ratio(:,:)
+      real(kind=c_double), allocatable, target :: projected_area(:,:), aspect_ratio(:,:), vertical_mass_flux(:,:)
+      real(kind=c_double), allocatable, target :: extinction(:,:), optical_depth(:,:)
 
       ! Bin-resolved arrays
-      real(kind=c_double), allocatable :: bin_wet_radius(:,:,:), bin_number_density(:,:,:)
-      real(kind=c_double), allocatable :: bin_density(:,:,:), bin_mass_mixing_ratio(:,:,:)
-      real(kind=c_double), allocatable :: bin_deposition_velocity(:,:,:)
+      real(kind=c_double), allocatable, target :: bin_wet_radius(:,:,:), bin_number_density(:,:,:)
+      real(kind=c_double), allocatable, target :: bin_density(:,:,:), bin_mass_mixing_ratio(:,:,:)
+      real(kind=c_double), allocatable, target :: bin_deposition_velocity(:,:,:)
 
       ! Additional arrays for missing fields
-      real(kind=c_double), allocatable :: radiative_heating(:), delta_temperature(:)
-      real(kind=c_double), allocatable :: gas_mmr(:,:), gas_saturation_liquid(:,:), gas_saturation_ice(:,:)
-      real(kind=c_double), allocatable :: gas_vapor_pressure_ice(:,:), gas_vapor_pressure_liquid(:,:), gas_weight_percent(:,:)
-      real(kind=c_double), allocatable :: group_radius(:,:), group_mass(:,:), group_volume(:,:)
-      real(kind=c_double), allocatable :: group_radius_ratio(:,:), group_aspect_ratio(:,:), group_fractal_dimension(:,:)
+      real(kind=c_double), allocatable, target :: radiative_heating(:), delta_temperature(:)
+      real(kind=c_double), allocatable, target :: gas_mmr(:,:), gas_saturation_liquid(:,:), gas_saturation_ice(:,:)
+      real(kind=c_double), allocatable, target :: gas_vapor_pressure_ice(:,:), gas_vapor_pressure_liquid(:,:), gas_weight_percent(:,:)
+      real(kind=c_double), allocatable, target :: group_radius(:,:), group_mass(:,:), group_volume(:,:)
+      real(kind=c_double), allocatable, target :: group_radius_ratio(:,:), group_aspect_ratio(:,:), group_fractal_dimension(:,:)
+
+      ! Create and populate the output data struct
+      type(c_carma_output_data) :: output_data_struct
 
       ! Allocate arrays for carmadiags output
       allocate(number_density(nz, ngroup))
@@ -600,25 +629,59 @@ contains
       group_aspect_ratio(:,:) = 1.0_c_double  ! Default to 1.0
       group_fractal_dimension(:,:) = 3.0_c_double  ! Default to 3.0 (spherical)
 
-      ! Call the C++ transfer function with real CARMA data
-      call TransferCarmaOutputToCpp( &
-         c_output_ptr, &
-         int(nz, c_int), int(ny, c_int), int(nx, c_int), &
-         int(nelem, c_int), int(ngroup, c_int), int(nbin, c_int), &
-         int(ngas, c_int), int(nstep, c_int), &
-         lat, lon, vertical_center, vertical_levels, &
-         pressure, temperature, air_density, &
-         radiative_heating, delta_temperature, &
-         gas_mmr, gas_saturation_liquid, gas_saturation_ice, &
-         gas_vapor_pressure_ice, gas_vapor_pressure_liquid, gas_weight_percent, &
-         number_density, surface_area, mass_density, effective_radius, &
-         effective_radius_wet, mean_radius, nucleation_rate, &
-         mass_mixing_ratio, projected_area, aspect_ratio, &
-         vertical_mass_flux, extinction, optical_depth, &
-         bin_wet_radius, bin_number_density, bin_density, &
-         bin_mass_mixing_ratio, bin_deposition_velocity, &
-         group_radius, group_mass, group_volume, &
-         group_radius_ratio, group_aspect_ratio, group_fractal_dimension)
+      output_data_struct%c_output_ptr = c_output_ptr
+      output_data_struct%nz = int(nz, c_int)
+      output_data_struct%ny = int(ny, c_int)
+      output_data_struct%nx = int(nx, c_int)
+      output_data_struct%nelem = int(nelem, c_int)
+      output_data_struct%ngroup = int(ngroup, c_int)
+      output_data_struct%nbin = int(nbin, c_int)
+      output_data_struct%ngas = int(ngas, c_int)
+      output_data_struct%nstep = int(nstep, c_int)
+
+      ! Set pointers to array data
+      output_data_struct%lat = c_loc(lat)
+      output_data_struct%lon = c_loc(lon)
+      output_data_struct%vertical_center = c_loc(vertical_center)
+      output_data_struct%vertical_levels = c_loc(vertical_levels)
+      output_data_struct%pressure = c_loc(pressure)
+      output_data_struct%temperature = c_loc(temperature)
+      output_data_struct%air_density = c_loc(air_density)
+      output_data_struct%radiative_heating = c_loc(radiative_heating)
+      output_data_struct%delta_temperature = c_loc(delta_temperature)
+      output_data_struct%gas_mmr = c_loc(gas_mmr)
+      output_data_struct%gas_saturation_liquid = c_loc(gas_saturation_liquid)
+      output_data_struct%gas_saturation_ice = c_loc(gas_saturation_ice)
+      output_data_struct%gas_vapor_pressure_ice = c_loc(gas_vapor_pressure_ice)
+      output_data_struct%gas_vapor_pressure_liquid = c_loc(gas_vapor_pressure_liquid)
+      output_data_struct%gas_weight_percent = c_loc(gas_weight_percent)
+      output_data_struct%number_density = c_loc(number_density)
+      output_data_struct%surface_area = c_loc(surface_area)
+      output_data_struct%mass_density = c_loc(mass_density)
+      output_data_struct%effective_radius = c_loc(effective_radius)
+      output_data_struct%effective_radius_wet = c_loc(effective_radius_wet)
+      output_data_struct%mean_radius = c_loc(mean_radius)
+      output_data_struct%nucleation_rate = c_loc(nucleation_rate)
+      output_data_struct%mass_mixing_ratio = c_loc(mass_mixing_ratio)
+      output_data_struct%projected_area = c_loc(projected_area)
+      output_data_struct%aspect_ratio = c_loc(aspect_ratio)
+      output_data_struct%vertical_mass_flux = c_loc(vertical_mass_flux)
+      output_data_struct%extinction = c_loc(extinction)
+      output_data_struct%optical_depth = c_loc(optical_depth)
+      output_data_struct%bin_wet_radius = c_loc(bin_wet_radius)
+      output_data_struct%bin_number_density = c_loc(bin_number_density)
+      output_data_struct%bin_density = c_loc(bin_density)
+      output_data_struct%bin_mass_mixing_ratio = c_loc(bin_mass_mixing_ratio)
+      output_data_struct%bin_deposition_velocity = c_loc(bin_deposition_velocity)
+      output_data_struct%group_radius = c_loc(group_radius)
+      output_data_struct%group_mass = c_loc(group_mass)
+      output_data_struct%group_volume = c_loc(group_volume)
+      output_data_struct%group_radius_ratio = c_loc(group_radius_ratio)
+      output_data_struct%group_aspect_ratio = c_loc(group_aspect_ratio)
+      output_data_struct%group_fractal_dimension = c_loc(group_fractal_dimension)
+
+      ! Call the C++ transfer function with the struct
+      call TransferCarmaOutputToCpp(output_data_struct)
 
       ! Clean up
       deallocate(number_density, surface_area, mass_density)
