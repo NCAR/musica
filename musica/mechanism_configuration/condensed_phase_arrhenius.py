@@ -65,14 +65,14 @@ class CondensedPhaseArrhenius:
         """
         # Create the internal C++ instance
         self._instance = _CondensedPhaseArrhenius()
-        
+
         # Store Python objects for reactants, products, phases
         self._reactants = reactants if reactants is not None else []
         self._products = products if products is not None else []
         self._aerosol_phase = aerosol_phase
         self._aerosol_phase_water = aerosol_phase_water
         self._other_properties = other_properties if other_properties is not None else {}
-        
+
         # Set basic properties on the C++ instance
         if name is not None:
             self._instance.name = name
@@ -90,7 +90,7 @@ class CondensedPhaseArrhenius:
             self._instance.D = D
         if E is not None:
             self._instance.E = E
-        
+
         # Set reactants on the C++ instance
         if reactants is not None:
             self._instance.reactants = [
@@ -101,7 +101,7 @@ class CondensedPhaseArrhenius:
                 )
                 for r in reactants
             ]
-        
+
         # Set products on the C++ instance
         if products is not None:
             self._instance.products = [
@@ -112,7 +112,7 @@ class CondensedPhaseArrhenius:
                 )
                 for p in products
             ]
-        
+
         # Set phase information on the C++ instance
         if aerosol_phase is not None:
             self._instance.aerosol_phase = aerosol_phase.name
@@ -256,7 +256,7 @@ class CondensedPhaseArrhenius:
     def serialize(self) -> Dict:
         """
         Serialize the CondensedPhaseArrhenius instance to a dictionary.
-        
+
         Returns:
             Dict: A dictionary representation of the condensed phase Arrhenius rate constant.
         """
@@ -277,7 +277,7 @@ class CondensedPhaseArrhenius:
                     # Fallback: treat as Species
                     result.append(component.name if hasattr(component, 'name') else str(component))
             return result
-        
+
         serialize_dict = {
             "type": "CONDENSED_PHASE_ARRHENIUS",
             "name": self.name,
@@ -298,10 +298,10 @@ class CondensedPhaseArrhenius:
     def serialize_static(instance) -> Dict:
         """
         Static serialize method for backward compatibility.
-        
+
         Args:
             instance: The CondensedPhaseArrhenius instance to serialize (can be Python wrapper or C++ type).
-            
+
         Returns:
             Dict: A dictionary representation of the condensed phase Arrhenius rate constant.
         """
