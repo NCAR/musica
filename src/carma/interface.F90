@@ -9,44 +9,6 @@ module carma_interface
 
    private
 
-   ! C-compatible structure for CARMA parameters
-   ! MUST match the exact order and types of the C++ CCARMAParameters struct
-   type, bind(C) :: c_carma_parameters
-      integer(c_int) :: max_bins = 100
-      integer(c_int) :: max_groups = 10
-
-      ! Model dimensions
-      integer(c_int) :: nz = 1
-      integer(c_int) :: ny = 1
-      integer(c_int) :: nx = 1
-      integer(c_int) :: nelem = 1
-      integer(c_int) :: ngroup = 1
-      integer(c_int) :: nbin = 5
-      integer(c_int) :: nsolute = 0
-      integer(c_int) :: ngas = 0
-      integer(c_int) :: nwave = 30
-      integer(c_int) :: idx_wave = 0
-
-      ! Time stepping parameters
-      real(c_double) :: dtime = 1800.0d0
-      integer(c_int) :: nstep = 100
-
-      ! Spatial parameters
-      real(c_double) :: deltaz = 1000.0d0
-      real(c_double) :: zmin = 16500.0d0
-
-      ! Optical parameters
-      type(c_ptr) :: extinction_coefficient = c_null_ptr  ! Pointer to extinction coefficient array
-      integer(c_int) :: extinction_coefficient_size = 0   ! Size of extinction coefficient array
-
-      ! Group and element configurations
-      type(c_ptr) :: groups = c_null_ptr       ! Pointer to groups array
-      integer(c_int) :: groups_size = 0        ! Number of groups
-      type(c_ptr) :: elements = c_null_ptr     ! Pointer to elements array
-      integer(c_int) :: elements_size = 0      ! Number of elements
-
-   end type c_carma_parameters
-
    ! C-compatible structure for CARMA output data
    ! MUST match the exact order and types of the C++ CARMAOutputData struct
    type, bind(C) :: c_carma_output_data
@@ -168,98 +130,48 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-   subroutine internal_run_carma(c_params, c_output, rc) &
+   subroutine internal_run_carma(params, c_output, rc) &
       bind(C, name="InternalRunCarma")
       use iso_c_binding, only: c_int, c_ptr, c_f_pointer
-      use carma_parameters_mod, only: carma_parameters_type
+      use carma_parameters_mod, only: carma_parameters_t
 
-      type(c_carma_parameters), intent(in) :: c_params
+      type(carma_parameters_t), intent(in) :: params
       type(c_ptr), value, intent(in) :: c_output
       integer(c_int), intent(out) :: rc
 
-      ! Convert C parameters to Fortran parameters
-      type(carma_parameters_type) :: f_params
-
       rc = 0
 
-      ! Copy parameters from C to Fortran structure
-      call convert_c_to_fortran_params(c_params, f_params)
-
       ! Run CARMA simulation with optional output
-      call run_carma_simulation(f_params, rc, c_output)
-
-      ! Clean up extinction coefficient if allocated
-      if (allocated(f_params%extinction_coefficient)) then
-         deallocate(f_params%extinction_coefficient)
-      end if
+      call run_carma_simulation(params, rc, c_output)
 
    end subroutine internal_run_carma
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-   subroutine convert_c_to_fortran_params(c_params, f_params)
-      use carma_parameters_mod, only: carma_parameters_type
-      use iso_c_binding, only: c_associated, c_f_pointer
+  function c_to_f_string(c_string, string_size) result(f_string)
 
-      type(c_carma_parameters), intent(in) :: c_params
-      type(carma_parameters_type), intent(out) :: f_params
+     use iso_c_binding, only: c_ptr, c_loc, c_char
 
-      ! Local variables for extinction coefficient handling
-      real(c_double), pointer :: qext_flat(:)
-      integer :: i, j, k, idx
+     type(c_ptr), intent(in) :: c_string
+     integer(c_int), intent(in) :: string_size
 
-      ! Maximum values
-      f_params%max_bins = c_params%max_bins
-      f_params%max_groups = c_params%max_groups
+     character(kind=c_char), pointer :: c_string_ptr(:)
+     character(len=string_size), allocatable :: f_string
+     integer :: i
 
-      ! Model dimensions
-      f_params%nz = c_params%nz
-      f_params%ny = c_params%ny
-      f_params%nx = c_params%nx
-      f_params%nelem = c_params%nelem
-      f_params%ngroup = c_params%ngroup
-      f_params%nbin = c_params%nbin
-      f_params%nsolute = c_params%nsolute
-      f_params%ngas = c_params%ngas
-      f_params%nwave = c_params%nwave
-      f_params%idx_wave = c_params%idx_wave
+     ! Convert C string to Fortran string
+     allocate(character(len=string_size) :: f_string)
+     call c_f_pointer(c_string, c_string_ptr, [string_size])
+     do i = 1, string_size
+        if (c_string_ptr(i) == c_null_char) exit
+        f_string(i:i) = c_string_ptr(i)
+     end do
 
-      ! Time stepping parameters
-      f_params%dtime = real(c_params%dtime, kind=c_double)
-      f_params%nstep = c_params%nstep
-
-      ! Spatial parameters
-      f_params%deltaz = real(c_params%deltaz, kind=c_double)
-      f_params%zmin = real(c_params%zmin, kind=c_double)
-
-      ! Handle extinction coefficient if provided
-      if (c_associated(c_params%extinction_coefficient) .and. c_params%extinction_coefficient_size > 0) then
-         ! Allocate the 3D array in Fortran
-         allocate(f_params%extinction_coefficient(c_params%nwave, c_params%nbin, c_params%ngroup))
-
-         ! Convert flat array pointer to 3D array
-         call c_f_pointer(c_params%extinction_coefficient, qext_flat, &
-            [c_params%extinction_coefficient_size])
-
-         ! Copy data from flat array to 3D array using proper indexing
-         ! C++ indexing: idx = i + j*nwave + k*nwave*nbin
-         do k = 1, c_params%ngroup
-            do j = 1, c_params%nbin
-               do i = 1, c_params%nwave
-                  idx = i + (j-1)*c_params%nwave + (k-1)*c_params%nwave*c_params%nbin
-                  if (idx <= c_params%extinction_coefficient_size) then
-                     f_params%extinction_coefficient(i, j, k) = qext_flat(idx)
-                  end if
-               end do
-            end do
-         end do
-      end if
-
-   end subroutine convert_c_to_fortran_params
+   end function c_to_f_string
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-   subroutine run_carma_simulation(f_params, rc, c_output_ptr)
+   subroutine run_carma_simulation(params, rc, c_output_ptr)
       use carma_precision_mod
       use carma_constants_mod
       use carma_enums_mod
@@ -270,12 +182,14 @@ contains
       use carmastate_mod
       use carma_mod
       use atmosphere_mod
-      use carma_parameters_mod, only: carma_parameters_type
+      use carma_parameters_mod, only: carma_parameters_t, carma_group_config_t, &
+                                      carma_element_config_t
+      use iso_fortran_env, only: real64
       use iso_c_binding, only: c_ptr, c_null_ptr, c_associated
 
       implicit none
 
-      type(carma_parameters_type), intent(in) :: f_params
+      type(carma_parameters_t), intent(in) :: params
       integer, intent(out) :: rc
       type(c_ptr), intent(in), optional :: c_output_ptr
 
@@ -302,7 +216,7 @@ contains
       real(kind=c_double), allocatable :: mmr_gas(:,:)  ! Keep for potential future use
 
       ! Loop indices
-      integer :: i, iy, ix, istep, igas, ielem, ibin
+      integer :: i, iy, ix, istep, igas, ielem, ibin, igroup
 
       ! Physical constants and parameters from aluminum test
       real(kind=c_double), parameter :: rmin = 21.5e-6_c_double
@@ -314,31 +228,34 @@ contains
       integer, parameter :: I_GRP_ALUM = 1
       integer, parameter :: I_ELEM_ALUM = 1
 
-      ! Fractal dimension array
-      real(kind=c_double), allocatable :: df(:,:)
+      ! Group parameters
+      type(carma_group_config_t), pointer :: group_config(:)
+      character(len=:), allocatable :: group_name, group_short_name
+      real(kind=real64), pointer :: df(:) ! fractal dimension per group (NBINS)
+
+      ! Element parameters
+      type(carma_element_config_t), pointer :: element_config(:)
+      character(len=:), allocatable :: element_name, element_short_name
+      real(real64), pointer :: rhobin(:) ! rho bin for element (NBINS)
+      real(real64), pointer :: arat(:) ! area ratio for element (NBINS)
 
       rc = 0
 
       ! Set dimensions from parameters
-      NZ = f_params%nz
-      NY = f_params%ny
-      NX = f_params%nx
+      NZ = int(params%nz)
+      NY = int(params%ny)
+      NX = int(params%nx)
       NZP1 = NZ + 1
-      NELEM = f_params%nelem
-      NGROUP = f_params%ngroup
-      NBIN = f_params%nbin
-      NSOLUTE = f_params%nsolute
-      NGAS = f_params%ngas
-      NWAVE = f_params%nwave
-      dtime = real(f_params%dtime, kind=c_double)
-      nstep = f_params%nstep
-      deltaz = real(f_params%deltaz, kind=c_double)
-      zmin = real(f_params%zmin, kind=c_double)
-
-      ! Allocate and set fractal dimension array
-      allocate(df(NBIN, NGROUP))
-      ! Set fractal dimension - satellite aerosol fractal dimension, aluminum oxide
-      df(:,:) = 1.6_c_double
+      NELEM = int(params%nelem)
+      NGROUP = int(params%ngroup)
+      NBIN = int(params%nbin)
+      NSOLUTE = int(params%nsolute)
+      NGAS = int(params%ngas)
+      NWAVE = int(params%nwave)
+      dtime = real(params%dtime, kind=real64)
+      nstep = int(params%nstep)
+      deltaz = real(params%deltaz, kind=real64)
+      zmin = real(params%zmin, kind=real64)
 
       ! Set up simple grid
       iy = 1
@@ -359,23 +276,43 @@ contains
 
       carma_ptr => carma
 
-      ! Create groups and elements based on configuration
-      ! TODO: For now, create default aluminum group and element
-      ! Future: implement configurable groups/elements through separate mechanism
-      allocate(df(NBIN, NGROUP))
-      df(:,:) = 1.6_c_double
-      call CARMAGROUP_Create(carma, I_GRP_ALUM, "aluminum", rmin, rmrat, &
-         I_SPHERE, 1.0_c_double, .false., rc,&
-         is_fractal=.TRUE., rmon=rmon, df=df, falpha=falpha, &
-         irhswell=I_NO_SWELLING, do_drydep=.true., &
-         shortname="PRALUM", is_sulfate=.false.)
-      if (rc /= 0) then
-         return
+      ! Create groups based on configuration
+      if (c_associated(params%groups)) then
+         call c_f_pointer(params%groups, group_config, [params%groups_size])
+         do igroup = 1, params%groups_size
+         associate(group => group_config(igroup))
+            group_name = c_to_f_string(group%name, group%name_length)
+            group_short_name = c_to_f_string(group%shortname, group%shortname_length)
+            call c_f_pointer(group%df, df, [group%df_size])
+            call CARMAGROUP_Create(carma, int(group%id), group_name, real(group%rmin, kind=real64), &
+               real(group%rmrat, kind=real64), &
+               int(group%ishape), real(group%eshape, kind=real64), logical(group%is_ice), rc,&
+               is_fractal=logical(group%is_fractal), &
+               irhswell=I_NO_SWELLING, do_mie=logical(group%do_mie), do_wetdep=logical(group%do_wetdep), &
+               do_drydep=logical(group%do_drydep), do_vtran=logical(group%do_vtran), &
+               solfac=real(group%solfac, kind=real64), scavcoef=real(group%scavcoef, kind=real64), &
+               shortname=group_short_name, rmon=real(group%rmon, kind=real64), df=df, falpha=real(group%falpha, kind=real64), &
+               is_sulfate=.false.)
+            if (rc /= 0) return
+         end associate
+         end do
       end if
 
-      call CARMAELEMENT_Create(carma, I_ELEM_ALUM, I_GRP_ALUM, "Aluminum", RHO_ALUMINUM, I_INVOLATILE, I_ALUMINUM, rc, shortname="ALUM")
-      if (rc /= 0) then
-         return
+      ! Create elements based on configuration
+      if (c_associated(params%elements)) then
+         call c_f_pointer(params%elements, element_config, [params%elements_size])
+         do ielem = 1, params%elements_size
+         associate(elem => element_config(ielem))
+            element_name = c_to_f_string(elem%name, elem%name_length)
+            element_short_name = c_to_f_string(elem%shortname, elem%shortname_length)
+            call c_f_pointer(elem%rhobin, rhobin, [elem%rhobin_size])
+            call c_f_pointer(elem%arat, arat, [elem%arat_size])
+            call CARMAELEMENT_Create(carma, int(elem%id), int(elem%igroup), element_name, real(elem%rho, kind=real64), &
+               int(elem%itype), int(elem%icomposition), rc, shortname=element_short_name, isolute=int(elem%isolute), &
+               rhobin=rhobin, arat=arat, kappa=real(elem%kappa, kind=real64), isShell=logical(elem%isShell))
+            if (rc /= 0) return
+         end associate
+         end do
       end if
 
       ! Setup CARMA processes - coagulation for aluminum particles
@@ -472,7 +409,7 @@ contains
       ! This must happen before the CARMA state is destroyed
       if (present(c_output_ptr) .and. c_associated(c_output_ptr)) then
          call transfer_carma_output_data(c_output_ptr, &
-            cstate, carma_ptr, f_params, &
+            cstate, carma_ptr, params, &
             NZ, NY, NX, NELEM, NGROUP, NBIN, NGAS, nstep, &
             real(time, kind=8), int(nstep), &
             lat, lon, zc, zl, p, t, rhoa, deltaz)
@@ -499,14 +436,15 @@ contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    subroutine transfer_carma_output_data(c_output_ptr, &
-      cstate, carma_ptr, f_params, &
+      cstate, carma_ptr, params, &
       nz, ny, nx, nelem, ngroup, nbin, ngas, nstep, &
       current_time, current_step, &
       lat, lon, vertical_center, vertical_levels, pressure, temperature, air_density, deltaz)
       use carma_precision_mod
       use carma_types_mod
-      use carma_parameters_mod, only: carma_parameters_type
+      use carma_parameters_mod, only: carma_parameters_t
       use iso_c_binding, only: c_ptr, c_int, c_double, c_loc
+      use iso_fortran_env, only: real64
 
       implicit none
 
@@ -514,7 +452,7 @@ contains
       type(c_ptr), intent(in) :: c_output_ptr
       type(carmastate_type), intent(in) :: cstate
       type(carma_type), intent(in), target :: carma_ptr
-      type(carma_parameters_type), intent(in) :: f_params
+      type(carma_parameters_t), intent(in) :: params
       integer, intent(in) :: nz, ny, nx, nelem, ngroup, nbin, ngas, nstep
       real(kind=8), intent(in) :: current_time
       integer, intent(in) :: current_step
@@ -522,6 +460,7 @@ contains
       real(kind=c_double), intent(in), target :: vertical_center(nz), vertical_levels(nz+1)
       real(kind=c_double), intent(in), target :: pressure(nz), temperature(nz), air_density(nz)
       real(kind=c_double), intent(in) :: deltaz
+      real(kind=real64), pointer :: extinction_coefficient(:,:,:)
 
       ! Arrays for CARMA diagnostics output
       real(kind=c_double), allocatable, target :: number_density(:,:), surface_area(:,:), mass_density(:,:)
@@ -566,10 +505,16 @@ contains
       allocate(bin_mass_mixing_ratio(nz, ngroup, nbin))
       allocate(bin_deposition_velocity(nz, ngroup, nbin))
 
+      extinction_coefficient => null( )
+      if (c_associated(params%extinction_coefficient)) then
+         call c_f_pointer(params%extinction_coefficient, extinction_coefficient, &
+         [params%nwave, params%nbin, params%ngroup])
+      end if
+
       ! Extract diagnostics from CARMA state using carmadiags
-      if (allocated(f_params%extinction_coefficient)) then
-         call carmadiags(cstate, carma_ptr, nz, nbin, nelem, ngroup, f_params%nwave, &
-            deltaz, qext=f_params%extinction_coefficient, idx_wave=f_params%idx_wave, &
+      if (associated(extinction_coefficient)) then
+         call carmadiags(cstate, carma_ptr, nz, nbin, nelem, ngroup, params%nwave, &
+            deltaz, qext=extinction_coefficient, idx_wave=params%idx_wave, &
             nd=number_density, ad=surface_area, md=mass_density, &
             re=effective_radius, rew=effective_radius_wet, rm=mean_radius, &
             jn=nucleation_rate, mr=mass_mixing_ratio, &
