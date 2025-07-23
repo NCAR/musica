@@ -350,24 +350,3 @@ class Troe:
         serialize_dict = temp_troe._create_serialize_dict(instance)
         _add_other_properties(serialize_dict, instance.other_properties)
         return _remove_empty_keys(serialize_dict)
-
-    @staticmethod
-    def serialize(instance) -> Dict:
-        """
-        Legacy static serialize method for backward compatibility.
-        
-        This method maintains compatibility with the original static interface.
-        For new code, prefer using the instance method serialize() on Troe objects,
-        or serialize_static() for C++ _Troe objects.
-
-        Args:
-            instance: Either a Troe or _Troe instance to serialize.
-
-        Returns:
-            Dict: A dictionary representation of the Troe object.
-        """
-        if isinstance(instance, Troe):
-            return instance.serialize()
-        else:
-            # Assume it's a _Troe instance
-            return Troe.serialize_static(instance)
