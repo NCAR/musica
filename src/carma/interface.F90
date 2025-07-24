@@ -171,7 +171,7 @@ contains
       bind(C, name="InternalDestroyCarma")
       use carma_types_mod, only: carma_type
       use carma_mod, only: CARMA_Destroy
-      use iso_c_binding, only: c_ptr, c_int, c_f_pointer
+      use iso_c_binding, only: c_ptr, c_int, c_f_pointer, c_associated
 
       type(c_ptr),    value, intent(in)  :: carma_cptr
       integer(c_int),        intent(out) :: rc
@@ -265,6 +265,8 @@ contains
       real(real64), pointer :: rhobin(:) ! rho bin for element (NBINS)
       real(real64), pointer :: arat(:) ! area ratio for element (NBINS)
 
+      integer :: alloc_stat
+
       rc = 0
 
       ! Set dimensions from parameters
@@ -276,7 +278,12 @@ contains
       NWAVE = int(params%wavelength_bin_size)
 
       ! Create the CARMA instance
-      allocate(carma)
+      allocate(carma, stat=alloc_stat)
+      if (alloc_stat /= 0) then
+         rc = 1
+         return
+      end if
+
       if (NWAVE>0) then
          call c_f_pointer(params%wavelength_bins, wavelength_bins, [NWAVE])
          allocate(wave_centers(NWAVE))

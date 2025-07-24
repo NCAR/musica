@@ -27,7 +27,7 @@ namespace musica
     int return_code = 0;
     FreeCCompatible(carma_parameters_);
     InternalDestroyCarma(f_carma_type_, &return_code);
-    f_carma_type_ = nullptr;  // Clear the pointer to avoid dangling reference
+    f_carma_type_ = nullptr;  // Clear the pointer to avoid dangling pointer
   }
 
   std::string CARMA::GetVersion()
