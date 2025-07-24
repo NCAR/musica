@@ -16,6 +16,7 @@ RUN dnf -y update \
         lcov \
         make \
         netcdf-fortran-devel \
+        pandoc \
         pip \
         python \
         python-devel \
