@@ -27,7 +27,8 @@ COPY . /musica/
 
 RUN cd /musica &&  python -m pip install -e .
 
-RUN python -m pip install -r /musica/docs/requirements.txt 
+RUN python -m pip install -r /musica/docs/requirements.txt
+RUN pip install --upgrade pip ipython ipykernel
 
 ARG SUFFIX=""
 ENV SWITCHER_SUFFIX=$SUFFIX
