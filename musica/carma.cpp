@@ -75,7 +75,7 @@ void bind_carma(py::module_& carma)
         if (params_dict.contains("dtime"))
           params.dtime = params_dict["dtime"].cast<double>();
         if (params_dict.contains("nstep"))
-          params.nstep = params_dict["nstep"].cast<float>();
+          params.nstep = static_cast<int>(params_dict["nstep"].cast<float>());
         if (params_dict.contains("deltaz"))
           params.deltaz = params_dict["deltaz"].cast<double>();
         if (params_dict.contains("zmin"))
