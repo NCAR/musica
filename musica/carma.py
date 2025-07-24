@@ -16,6 +16,7 @@ _backend = backend.get_backend()
 
 version = _backend._carma._get_carma_version() if backend.carma_available() else None
 
+
 class ParticleShape:
     """Enumeration for particle shapes used in CARMA."""
     SPHERE = 1
@@ -46,7 +47,7 @@ class ParticleComposition:
 
 class CARMAGroupConfig:
     """Configuration for a CARMA particle group.
-    
+
     A CARMA particle group represents a collection of particles with similar properties.
     """
 
@@ -329,8 +330,8 @@ class CARMAParameters:
             name="Aluminum",
             shortname="ALUM",
             rho=3.95,  # g/cm3
-            itype= ParticleType.INVOLATILE,
-            icomposition= ParticleComposition.ALUMINUM,
+            itype=ParticleType.INVOLATILE,
+            icomposition=ParticleComposition.ALUMINUM,
             isolute=0,
             rhobin=[1.0] * 5,  # 5 bins with density 1.0
             arat=[1.0] * 5,  # 5 bins with area ratio 1.0
@@ -357,8 +358,8 @@ class CARMAParameters:
         )
 
         FIVE_DAYS_IN_SECONDS = 432000
-        params.dtime=1800.0
-        params.nstep=FIVE_DAYS_IN_SECONDS / params.dtime
+        params.dtime = 1800.0
+        params.nstep = FIVE_DAYS_IN_SECONDS / params.dtime
 
         return params
 
