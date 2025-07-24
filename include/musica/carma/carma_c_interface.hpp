@@ -103,7 +103,6 @@ namespace musica
       int elements_size;              // Number of elements
     };
 
-
     struct CARMAOutputDataC
     {
       void* c_output_ptr;
