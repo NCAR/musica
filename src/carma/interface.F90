@@ -152,19 +152,18 @@ contains
 
      use iso_c_binding, only: c_ptr, c_loc, c_char
 
-     type(c_ptr), intent(in) :: c_string
+     character(len=1, kind=c_char), intent(in) :: c_string(:)
      integer(c_int), intent(in) :: string_size
 
-     character(kind=c_char), pointer :: c_string_ptr(:)
      character(len=string_size), allocatable :: f_string
      integer :: i
 
      ! Convert C string to Fortran string
      allocate(character(len=string_size) :: f_string)
-     call c_f_pointer(c_string, c_string_ptr, [string_size])
+     f_string(:) = ' '  ! Initialize with spaces
      do i = 1, string_size
-        if (c_string_ptr(i) == c_null_char) exit
-        f_string(i:i) = c_string_ptr(i)
+        if (c_string(i) == c_null_char) exit
+        f_string(i:i) = c_string(i)
      end do
 
    end function c_to_f_string
@@ -281,8 +280,8 @@ contains
          call c_f_pointer(params%groups, group_config, [params%groups_size])
          do igroup = 1, params%groups_size
          associate(group => group_config(igroup))
-            group_name = c_to_f_string(c_loc(group%name), group%name_length)
-            group_short_name = c_to_f_string(c_loc(group%shortname), group%shortname_length)
+            group_name = c_to_f_string(group%name, group%name_length)
+            group_short_name = c_to_f_string(group%shortname, group%shortname_length)
             call c_f_pointer(group%df, df, [group%df_size])
             call CARMAGROUP_Create(carma, int(group%id), group_name, real(group%rmin, kind=real64), &
                real(group%rmrat, kind=real64), &
@@ -303,8 +302,8 @@ contains
          call c_f_pointer(params%elements, element_config, [params%elements_size])
          do ielem = 1, params%elements_size
          associate(elem => element_config(ielem))
-            element_name = c_to_f_string(c_loc(elem%name), elem%name_length)
-            element_short_name = c_to_f_string(c_loc(elem%shortname), elem%shortname_length)
+            element_name = c_to_f_string(elem%name, elem%name_length)
+            element_short_name = c_to_f_string(elem%shortname, elem%shortname_length)
             call c_f_pointer(elem%rhobin, rhobin, [elem%rhobin_size])
             call c_f_pointer(elem%arat, arat, [elem%arat_size])
             call CARMAELEMENT_Create(carma, int(elem%id), int(elem%igroup), element_name, real(elem%rho, kind=real64), &
