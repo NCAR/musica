@@ -5,20 +5,21 @@ ARG BUILD_TYPE=Release
 
 RUN dnf -y update \
     && dnf -y install \
-        doxygen \
-        gcc-c++ \
-        gcc \
-        gfortran \
-        gdb \
-        git \
         cmake \
+        doxygen \
+        gcc \
+        gcc-c++ \
+        gdb \
+        gfortran \
+        git \
+        lapack-devel \
+        lcov \
         make \
         netcdf-fortran-devel \
-        lcov \
-        valgrind \
         pip \
         python \
         python-devel \
+        valgrind \
     && dnf clean all
 
 COPY . /musica/
