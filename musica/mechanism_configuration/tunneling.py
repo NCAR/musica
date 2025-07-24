@@ -244,15 +244,7 @@ class Tunneling:
         Returns:
             Dict: A dictionary representation of the Tunneling object.
         """
-        serialize_dict = {
-            "type": "TUNNELING",
-            "name": instance.name,
-            "A": instance.A,
-            "B": instance.B,
-            "C": instance.C,
-            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(instance.reactants),
-            "products": ReactionComponentSerializer.serialize_list_reaction_components(instance.products),
-            "gas phase": instance.gas_phase,
-        }
-        _add_other_properties(serialize_dict, instance.other_properties)
-        return _remove_empty_keys(serialize_dict)
+        # Create a temporary Tunneling object and use its serialize method
+        temp_tunneling = Tunneling()
+        temp_tunneling._instance = instance
+        return temp_tunneling.serialize()
