@@ -70,10 +70,12 @@ void bind_carma(py::module_& carma)
           params.ngas = params_dict["ngas"].cast<int>();
         if (params_dict.contains("nwave"))
           params.nwave = params_dict["nwave"].cast<int>();
+        if (params_dict.contains("idx_wave"))
+          params.idx_wave = params_dict["idx_wave"].cast<int>();
         if (params_dict.contains("dtime"))
           params.dtime = params_dict["dtime"].cast<double>();
         if (params_dict.contains("nstep"))
-          params.nstep = params_dict["nstep"].cast<int>();
+          params.nstep = params_dict["nstep"].cast<float>();
         if (params_dict.contains("deltaz"))
           params.deltaz = params_dict["deltaz"].cast<double>();
         if (params_dict.contains("zmin"))

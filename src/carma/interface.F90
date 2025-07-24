@@ -250,13 +250,6 @@ contains
       deltaz = real(params%deltaz, kind=real64)
       zmin = real(params%zmin, kind=real64)
 
-      print *, "Running CARMA simulation with parameters:"
-      print *, "NZ:", NZ, "NY:", NY, "NX:", NX
-      print *, "NELEM:", NELEM, "NGROUP:", NGROUP, "NBIN:", NBIN
-      print *, "NSOLUTE:", NSOLUTE, "NGAS:", NGAS, "NWAVE:", NWAVE
-      print *, "dtime:", dtime
-      print *, "nstep:", nstep, "deltaz:", deltaz, "zmin:", zmin
-
       ! Set up simple grid
       iy = 1
       ix = 1
@@ -326,15 +319,11 @@ contains
          carma%f_icoagop  = I_COAGOP_CONST         
       end if
 
-      print *, "Starting CARMA initialization."
-
       ! Initialize CARMA with coagulation settings matching test_aluminum_simple
       call CARMA_Initialize(carma, rc, do_grow=.false., do_coag=.true., do_substep=.false., do_vtran=.FALSE.)
       if (rc /= 0) then
          return
       end if
-
-      print *, "CARMA initialized successfully."
 
       ! Set up atmospheric conditions matching test_aluminum_simple
       lat(iy) = 0.0_c_double
@@ -352,8 +341,6 @@ contains
       end do
       call GetStandardAtmosphere(zl, p=pl)
 
-      print *, "Vertical grid and atmospheric conditions set up:"
-
       ! Set up initial conditions
       rhoa(:) = (p(:) * 10.0_c_double) / (R_AIR * t(:)) * (1e-3_c_double * 1e6_c_double)
 
@@ -368,20 +355,12 @@ contains
       ! Initialize particle mixing ratios with aluminum concentration
       mmr(:,:,:) = 5e9_c_double / (deltaz * 2.57474699e14_c_double) / rhoa(1)
 
-      print *, "Initial conditions set up:"
-      print *, "  Lat:", lat(iy), "Lon:", lon(ix)
-      print *, "  Vertical center:", zc(:)
-      print *, "  Pressure:", p(:)
-      print *, "  Temperature:", t(:)
-      print *, "  Air density:", rhoa(:)
-
       ! Time integration loop - start from step 2 to match test_aluminum_simple
       carma_time_integration: do istep = 2, nstep + 1
 
          ! Calculate the model time
          time = (istep - 1) * dtime
 
-         print *, "CARMA time step:", istep, "Time:", time
          ! Create a CARMASTATE for this column
          call CARMASTATE_Create(cstate, carma_ptr, time, dtime, NZ, &
             I_CART, lat(iy), lon(ix), &
