@@ -356,8 +356,9 @@ class CARMAParameters:
             elements=[element]
         )
 
+        FIVE_DAYS_IN_SECONDS = 432000
         params.dtime=1800.0
-        params.nstep=432000 / params.dtime
+        params.nstep=FIVE_DAYS_IN_SECONDS / params.dtime
 
         return params
 
