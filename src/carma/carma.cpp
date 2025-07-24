@@ -292,10 +292,10 @@ namespace musica
     params.nbin = 5;
     params.nsolute = 0;
     params.ngas = 0;
-    params.idx_wave = 0;  // TODO: is there a better name?
-    params.dtime = 1800.0; // 30 minutes
-    params.deltaz = 1000.0; // 1 km
-    params.zmin = 16500.0; // 16.5 km
+    params.idx_wave = 0;     // TODO: is there a better name?
+    params.dtime = 1800.0;   // 30 minutes
+    params.deltaz = 1000.0;  // 1 km
+    params.zmin = 16500.0;   // 16.5 km
 
     // Wavelength grid
     params.wavelength_bins = {
