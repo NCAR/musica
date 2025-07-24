@@ -13,6 +13,7 @@ RUN dnf -y update \
         git \
         cmake \
         make \
+        netcdf-fortran-devel \
         lcov \
         valgrind \
         pip \
