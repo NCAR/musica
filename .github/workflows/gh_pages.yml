@@ -58,7 +58,7 @@ jobs:
           # 1. the frozen version, represented as vX.X in the version switcher
           docker build -t musica -f docker/Dockerfile.docs .
           id=$(docker create musica)
-          docker cp $id:/musica/docs/build/html  tmpdocs
+          docker cp $id:/musica/docs/build/html tmpdocs
           docker rm -v $id
           version=$(sed -nr "s/^release = f'v(.+)\{suffix\}'.*$/\1/p" docs/source/conf.py)
           mv tmpdocs _build/html/versions/${version}
