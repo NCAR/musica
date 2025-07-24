@@ -19,7 +19,10 @@ maintainers = [
 ]
 license = { file = "LICENSE" }
 
-dependencies = ["pyyaml>=6.0.2"]
+dependencies = [
+  "pyyaml>=6.0.2",
+  "xarray>=2022.3.0",
+]
 
 [project.optional-dependencies]
 test = ["numpy", "pytest"]

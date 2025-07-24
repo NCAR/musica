@@ -57,6 +57,7 @@ if(MUSICA_ENABLE_CARMA)
   ${CMAKE_CURRENT_SOURCE_DIR}/carma/carma.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/carma/carma_c_interface.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/carma/interface.F90
+  ${CMAKE_CURRENT_SOURCE_DIR}/carma/carma_parameters.F90
   )
 endif()
 

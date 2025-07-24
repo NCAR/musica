@@ -13,3 +13,16 @@
    fun:InternalRunTuvx
    ...
 }
+
+##############################################################
+#
+# CARMA suppression
+#
+##############################################################
+{
+   <CarmaConditionalJump>
+   Memcheck:Cond
+   fun:setupvf_
+   fun:__carmastate_mod_MOD_carmastate_step
+   ...
+}
