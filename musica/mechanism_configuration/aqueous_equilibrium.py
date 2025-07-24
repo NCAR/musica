@@ -223,6 +223,28 @@ class AqueousEquilibrium:
         """Get the reaction type."""
         return ReactionType.AqueousEquilibrium
 
+    def _create_serialize_dict(self, instance) -> Dict:
+        """
+        Helper method to create the serialization dictionary.
+
+        Args:
+            instance: The instance to serialize (either self._instance or a _AqueousEquilibrium object).
+
+        Returns:
+            Dict: Base serialization dictionary.
+        """
+        return {
+            "type": "AQUEOUS_EQUILIBRIUM",
+            "name": instance.name,
+            "aerosol phase": instance.aerosol_phase,
+            "aerosol-phase water": instance.aerosol_phase_water,
+            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(instance.reactants),
+            "products": ReactionComponentSerializer.serialize_list_reaction_components(instance.products),
+            "A": instance.A,
+            "C": instance.C,
+            "k_reverse": instance.k_reverse,
+        }
+
     def serialize(self) -> Dict:
         """
         Serialize the AqueousEquilibrium object to a dictionary using only Python-visible data.
@@ -230,17 +252,7 @@ class AqueousEquilibrium:
         Returns:
             Dict: A dictionary representation of the AqueousEquilibrium object.
         """
-        serialize_dict = {
-            "type": "AQUEOUS_EQUILIBRIUM",
-            "name": self.name,
-            "aerosol phase": self.aerosol_phase,
-            "aerosol-phase water": self.aerosol_phase_water,
-            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(self._instance.reactants),
-            "products": ReactionComponentSerializer.serialize_list_reaction_components(self._instance.products),
-            "A": self.A,
-            "C": self.C,
-            "k_reverse": self.k_reverse,
-        }
+        serialize_dict = self._create_serialize_dict(self._instance)
         _add_other_properties(serialize_dict, self.other_properties)
         return _remove_empty_keys(serialize_dict)
 
@@ -255,16 +267,8 @@ class AqueousEquilibrium:
         Returns:
             Dict: A dictionary representation of the AqueousEquilibrium object.
         """
-        serialize_dict = {
-            "type": "AQUEOUS_EQUILIBRIUM",
-            "name": instance.name,
-            "aerosol phase": instance.aerosol_phase,
-            "aerosol-phase water": instance.aerosol_phase_water,
-            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(instance.reactants),
-            "products": ReactionComponentSerializer.serialize_list_reaction_components(instance.products),
-            "A": instance.A,
-            "C": instance.C,
-            "k_reverse": instance.k_reverse,
-        }
+        # Create a temporary AqueousEquilibrium object to use the helper method
+        temp_aqueous_equilibrium = AqueousEquilibrium()
+        serialize_dict = temp_aqueous_equilibrium._create_serialize_dict(instance)
         _add_other_properties(serialize_dict, instance.other_properties)
         return _remove_empty_keys(serialize_dict)
