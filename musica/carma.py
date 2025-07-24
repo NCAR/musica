@@ -16,6 +16,7 @@ _backend = backend.get_backend()
 
 version = _backend._carma._get_carma_version() if backend.carma_available() else None
 
+
 class ParticleShape:
     """Enumeration for particle shapes used in CARMA."""
     SPHERE = 1
@@ -46,7 +47,7 @@ class ParticleComposition:
 
 class CARMAGroupConfig:
     """Configuration for a CARMA particle group.
-    
+
     A CARMA particle group represents a collection of particles with similar properties.
     """
 
@@ -189,7 +190,6 @@ class CARMAParameters:
                  nsolute: int = 0,
                  ngas: int = 0,
                  nwave: int = 30,
-                 idx_wave: int = 0,
                  dtime: float = 1800.0,
                  nstep: int = 100,
                  deltaz: float = 1000.0,
@@ -210,7 +210,6 @@ class CARMAParameters:
             nsolute: Number of solutes (default: 0)
             ngas: Number of gases (default: 0)
             nwave: Number of wavelengths for optics (default: 30)
-            idx_wave: Index of wavelength for extinction coefficient (default: 0)
             dtime: Time step in seconds (default: 1800.0)
             nstep: Number of time steps (default: 100)
             deltaz: Vertical grid spacing in meters (default: 1000.0)
@@ -228,7 +227,6 @@ class CARMAParameters:
         self.nsolute = nsolute
         self.ngas = ngas
         self.nwave = nwave
-        self.idx_wave = idx_wave
         self.dtime = dtime
         self.nstep = nstep
         self.deltaz = deltaz
@@ -329,8 +327,8 @@ class CARMAParameters:
             name="Aluminum",
             shortname="ALUM",
             rho=3.95,  # g/cm3
-            itype= ParticleType.INVOLATILE,
-            icomposition= ParticleComposition.ALUMINUM,
+            itype=ParticleType.INVOLATILE,
+            icomposition=ParticleComposition.ALUMINUM,
             isolute=0,
             rhobin=[1.0] * 5,  # 5 bins with density 1.0
             arat=[1.0] * 5,  # 5 bins with area ratio 1.0
@@ -348,7 +346,6 @@ class CARMAParameters:
             nsolute=0,
             ngas=0,
             nwave=30,
-            idx_wave=0,
             deltaz=1000.0,
             zmin=16500.0,
             extinction_coefficient=None,  # Not used in this test
@@ -357,13 +354,13 @@ class CARMAParameters:
         )
 
         FIVE_DAYS_IN_SECONDS = 432000
-        params.dtime=1800.0
-        params.nstep=FIVE_DAYS_IN_SECONDS / params.dtime
+        params.dtime = 1800.0
+        params.nstep = FIVE_DAYS_IN_SECONDS / params.dtime
 
         return params
 
 
-def _carma_dict_to_xarray(output_dict: Dict) -> xr.Dataset:
+def _carma_dict_to_xarray(output_dict: Dict, parameters: 'CARMAParameters') -> xr.Dataset:
     """
     Convert CARMA output dictionary to xarray Dataset for netCDF export.
 
@@ -372,20 +369,21 @@ def _carma_dict_to_xarray(output_dict: Dict) -> xr.Dataset:
 
     Args:
         output_dict: Dictionary containing CARMA output data from C++ backend
+        parameters: The CARMAParameters object containing model configuration
 
     Returns:
         xr.Dataset: Dataset containing all CARMA output variables with proper
                    dimensions and metadata
     """
-    # Extract dimensions from the dictionary
-    nz = output_dict.get('nz', 0)
-    ny = output_dict.get('ny', 0)
-    nx = output_dict.get('nx', 0)
-    nelem = output_dict.get('nelem', 0)
-    ngroup = output_dict.get('ngroup', 0)
-    nbin = output_dict.get('nbin', 0)
-    ngas = output_dict.get('ngas', 0)
-    nstep = output_dict.get('nstep', 0)
+    # Extract dimensions from the parameters
+    nz = parameters.nz
+    ny = parameters.ny
+    nx = parameters.nx
+    nbin = parameters.nbin
+    nelem = len(parameters.elements)
+    ngroup = len(parameters.groups)
+    ngas = parameters.ngas
+    nstep = parameters.nstep
 
     # Create coordinates
     coords = {}
@@ -408,6 +406,11 @@ def _carma_dict_to_xarray(output_dict: Dict) -> xr.Dataset:
     # Bin coordinates (1-indexed like Fortran)
     coords['bin'] = ('bin', list(range(1, nbin + 1)))
     coords['group'] = ('group', list(range(1, ngroup + 1)))
+    coords['elem'] = ('elem', list(range(1, nelem + 1)))
+    coords['nwave'] = ('nwave', list(range(1, parameters.nwave + 1)))
+
+    # Create z_interface coordinate for variables defined at interfaces (nz+1 levels)
+    coords['z_interface'] = ('z_interface', list(range(1, nz + 2)))
 
     if ngas > 0:
         coords['gas'] = ('gas', list(range(1, ngas + 1)))
@@ -441,32 +444,11 @@ def _carma_dict_to_xarray(output_dict: Dict) -> xr.Dataset:
         data_vars['dT'] = ('z', delta_temperature, {
                            'units': 'K', 'long_name': 'Temperature change'})
 
-    # Gas variables (if any gases present)
-    gas_mmr = output_dict.get('gas_mmr', [])
-    if ngas > 0 and gas_mmr:
-        data_vars['gas_mmr'] = (('z', 'gas'), np.array(gas_mmr),
-                                {'units': 'kg/kg', 'long_name': 'Gas mass mixing ratio'})
-
-    gas_saturation_liquid = output_dict.get('gas_saturation_liquid', [])
-    if ngas > 0 and gas_saturation_liquid:
-        data_vars['gas_satliq'] = (('z', 'gas'), np.array(gas_saturation_liquid),
-                                   {'long_name': 'Gas saturation over liquid'})
-
-    gas_saturation_ice = output_dict.get('gas_saturation_ice', [])
-    if ngas > 0 and gas_saturation_ice:
-        data_vars['gas_satice'] = (('z', 'gas'), np.array(gas_saturation_ice),
-                                   {'long_name': 'Gas saturation over ice'})
-
-    gas_weight_percent = output_dict.get('gas_weight_percent', [])
-    if ngas > 0 and gas_weight_percent:
-        data_vars['gas_wt'] = (('z', 'gas'), np.array(gas_weight_percent),
-                               {'units': '%', 'long_name': 'Gas weight percent'})
-
-    # Group-integrated variables
+    # Particle state variables (3D: nz x nbin x nelem)
     number_density = output_dict.get('number_density', [])
     if number_density:
-        data_vars['nd'] = (('z', 'group'), np.array(number_density),
-                           {'units': '#/cm3', 'long_name': 'Number density'})
+        data_vars['pc'] = (('z', 'bin', 'elem'), np.array(number_density),
+                           {'units': '#/cm3', 'long_name': 'Particle concentration'})
 
     surface_area = output_dict.get('surface_area', [])
     if surface_area:
@@ -495,8 +477,8 @@ def _carma_dict_to_xarray(output_dict: Dict) -> xr.Dataset:
 
     mass_mixing_ratio = output_dict.get('mass_mixing_ratio', [])
     if mass_mixing_ratio:
-        data_vars['mr'] = (('z', 'group'), np.array(mass_mixing_ratio),
-                           {'units': 'kg/kg', 'long_name': 'Mass mixing ratio'})
+        data_vars['mmr'] = (('z', 'bin', 'elem'), np.array(mass_mixing_ratio),
+                            {'units': 'kg/kg', 'long_name': 'Mass mixing ratio'})
 
     projected_area = output_dict.get('projected_area', [])
     if projected_area:
@@ -510,13 +492,37 @@ def _carma_dict_to_xarray(output_dict: Dict) -> xr.Dataset:
 
     vertical_mass_flux = output_dict.get('vertical_mass_flux', [])
     if vertical_mass_flux:
-        data_vars['vm'] = (('z', 'group'), np.array(vertical_mass_flux),
+        data_vars['vm'] = (('z_interface', 'bin', 'group'), np.array(vertical_mass_flux),
                            {'units': 'g/cm2/s', 'long_name': 'Vertical mass flux'})
 
     extinction = output_dict.get('extinction', [])
     if extinction:
-        data_vars['ex_vis'] = (('z', 'group'), np.array(extinction),
-                               {'units': '1/km', 'long_name': 'Extinction coefficient'})
+        # Check the actual dimensions of the extinction data
+        ext_array = np.array(extinction)
+        print(f"DEBUG: extinction array shape: {ext_array.shape}")
+        print(
+            f"DEBUG: expected dimensions: nwave={parameters.nwave}, nbin={nbin}, ngroup={ngroup}")
+
+        # Handle different possible shapes
+        if ext_array.ndim == 3 and ext_array.shape[0] == parameters.nwave:
+            # Expected case: (nwave, nbin, ngroup)
+            data_vars['ex_vis'] = (('nwave', 'bin', 'group'), ext_array,
+                                   {'units': '1/km', 'long_name': 'Extinction coefficient'})
+        elif ext_array.ndim == 2:
+            # Might be (nbin, ngroup) - single wavelength
+            data_vars['ex_vis'] = (('bin', 'group'), ext_array,
+                                   {'units': '1/km', 'long_name': 'Extinction coefficient'})
+        elif ext_array.ndim == 1:
+            # Might be just a 1D array
+            if len(ext_array) == ngroup:
+                data_vars['ex_vis'] = ('group', ext_array,
+                                       {'units': '1/km', 'long_name': 'Extinction coefficient'})
+            elif len(ext_array) == nbin:
+                data_vars['ex_vis'] = ('bin', ext_array,
+                                       {'units': '1/km', 'long_name': 'Extinction coefficient'})
+        else:
+            print(
+                f"WARNING: Unexpected extinction array shape: {ext_array.shape}, skipping")
 
     optical_depth = output_dict.get('optical_depth', [])
     if optical_depth:
@@ -526,28 +532,24 @@ def _carma_dict_to_xarray(output_dict: Dict) -> xr.Dataset:
     # Bin-resolved variables
     bin_wet_radius = output_dict.get('bin_wet_radius', [])
     if bin_wet_radius:
-        data_vars['wr_bin'] = (('z', 'group', 'bin'), np.array(bin_wet_radius),
-                               {'units': 'um', 'long_name': 'Bin wet radius'})
-
-    bin_number_density = output_dict.get('bin_number_density', [])
-    if bin_number_density:
-        data_vars['nd_bin'] = (('z', 'group', 'bin'), np.array(bin_number_density),
-                               {'units': '#/cm3', 'long_name': 'Bin number density'})
+        data_vars['wr_bin'] = (('z', 'bin', 'group'), np.array(bin_wet_radius),
+                               {'units': 'cm', 'long_name': 'Bin wet radius'})
 
     bin_density = output_dict.get('bin_density', [])
     if bin_density:
-        data_vars['ro_bin'] = (('z', 'group', 'bin'), np.array(bin_density),
+        data_vars['ro_bin'] = (('z', 'bin', 'group'), np.array(bin_density),
                                {'units': 'g/cm3', 'long_name': 'Bin particle density'})
 
-    bin_mass_mixing_ratio = output_dict.get('bin_mass_mixing_ratio', [])
-    if bin_mass_mixing_ratio:
-        data_vars['mr_bin'] = (('z', 'group', 'bin'), np.array(bin_mass_mixing_ratio),
-                               {'units': 'kg/kg', 'long_name': 'Bin mass mixing ratio'})
+    # New bin-resolved variables
+    nucleation_rate = output_dict.get('nucleation_rate', [])
+    if nucleation_rate:
+        data_vars['nuc_rate'] = (('z', 'bin', 'group'), np.array(nucleation_rate),
+                                 {'units': '1/cm3/s', 'long_name': 'Nucleation rate'})
 
-    bin_deposition_velocity = output_dict.get('bin_deposition_velocity', [])
-    if bin_deposition_velocity:
-        data_vars['vd_bin'] = (('z', 'group', 'bin'), np.array(bin_deposition_velocity),
-                               {'units': 'cm/s', 'long_name': 'Bin deposition velocity'})
+    deposition_velocity = output_dict.get('deposition_velocity', [])
+    if deposition_velocity:
+        data_vars['vd'] = (('z', 'bin', 'group'), np.array(deposition_velocity),
+                           {'units': 'cm/s', 'long_name': 'Deposition velocity'})
 
     # Group properties (constant arrays)
     group_radius = output_dict.get('group_radius', [])
@@ -638,6 +640,35 @@ def _carma_dict_to_xarray(output_dict: Dict) -> xr.Dataset:
             data_vars['df'] = (('bin', 'group'), arr.reshape(-1, 1),
                                {'long_name': 'Fractal dimension'})
 
+    # Group mapping and properties (1D arrays)
+    concentration_element = output_dict.get('concentration_element', [])
+    if concentration_element:
+        data_vars['concentration_element'] = ('group', np.array(concentration_element),
+                                              {'long_name': 'Concentration element per group'})
+
+    element_group_map = output_dict.get('element_group_map', [])
+    if element_group_map:
+        # Add element coordinate if we have elements
+        if nelem > 0:
+            coords['element'] = ('element', list(range(1, nelem + 1)))
+        data_vars['element_group_map'] = ('element', np.array(element_group_map),
+                                          {'long_name': 'Group per element'})
+
+    constituent_type = output_dict.get('constituent_type', [])
+    if constituent_type:
+        data_vars['constituent_type'] = ('group', np.array(constituent_type),
+                                         {'long_name': 'Constituent type per group'})
+
+    max_prognostic_bin = output_dict.get('max_prognostic_bin', [])
+    if max_prognostic_bin:
+        data_vars['max_prognostic_bin'] = ('group', np.array(max_prognostic_bin),
+                                           {'long_name': 'Max prognostic bin per group'})
+
+    do_dry_deposition = output_dict.get('do_dry_deposition', [])
+    if do_dry_deposition:
+        data_vars['do_dry_deposition'] = ('group', np.array(do_dry_deposition),
+                                          {'long_name': 'Dry deposition flag per group'})
+
     # Create the dataset
     ds = xr.Dataset(
         data_vars=data_vars,
@@ -649,6 +680,8 @@ def _carma_dict_to_xarray(output_dict: Dict) -> xr.Dataset:
             'ny': ny,
             'nx': nx,
             'nbin': nbin,
+            'nelem': nelem,
+            'ngroup': ngroup,
             'ngas': ngas,
             'nstep': nstep
         }
@@ -710,4 +743,4 @@ class CARMA:
             self._carma_instance, params_dict)
 
         # Convert dictionary directly to xarray Dataset
-        return _carma_dict_to_xarray(output_dict)
+        return _carma_dict_to_xarray(output_dict, parameters)

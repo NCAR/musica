@@ -71,7 +71,6 @@ namespace musica
       int nsolute;
       int ngas;
       int nwave;
-      int idx_wave;
 
       // Time stepping parameters
       double dtime;
@@ -92,18 +91,11 @@ namespace musica
       int elements_size;              // Number of elements
     };
 
-
     struct CARMAOutputDataC
     {
       void* c_output_ptr;
-      int nz;
-      int ny;
-      int nx;
-      int nelem;
-      int ngroup;
-      int nbin;
-      int ngas;
-      int nstep;
+
+      // Grid and atmospheric data
       const double* lat;
       const double* lon;
       const double* vertical_center;
@@ -111,38 +103,36 @@ namespace musica
       const double* pressure;
       const double* temperature;
       const double* air_density;
-      const double* radiative_heating;
-      const double* delta_temperature;
-      const double* gas_mmr;
-      const double* gas_saturation_liquid;
-      const double* gas_saturation_ice;
-      const double* gas_vapor_pressure_ice;
-      const double* gas_vapor_pressure_liquid;
-      const double* gas_weight_percent;
-      const double* number_density;
-      const double* surface_area;
-      const double* mass_density;
-      const double* effective_radius;
-      const double* effective_radius_wet;
-      const double* mean_radius;
-      const double* nucleation_rate;
-      const double* mass_mixing_ratio;
-      const double* projected_area;
-      const double* aspect_ratio;
-      const double* vertical_mass_flux;
-      const double* extinction;
-      const double* optical_depth;
-      const double* bin_wet_radius;
-      const double* bin_number_density;
-      const double* bin_density;
-      const double* bin_mass_mixing_ratio;
-      const double* bin_deposition_velocity;
-      const double* group_radius;
-      const double* group_mass;
-      const double* group_volume;
-      const double* group_radius_ratio;
-      const double* group_aspect_ratio;
-      const double* group_fractal_dimension;
+
+      // Fundamental particle state data [nz, nbin, nelem]
+      const double* particle_concentration;  // number density [#/cm³]
+      const double* mass_mixing_ratio;       // mass mixing ratio [kg/kg]
+
+      // Bin-level particle properties [nz, nbin, ngroup]
+      const double* wet_radius;           // wet particle radius [cm]
+      const double* wet_density;          // wet particle density [g/cm³]
+      const double* fall_velocity;        // fall velocity [cm/s] (nz+1, nbin, ngroup)
+      const double* nucleation_rate;      // nucleation rate [1/cm³/s]
+      const double* deposition_velocity;  // deposition velocity [cm/s]
+
+      // Group configuration data [nbin, ngroup]
+      const double* dry_radius;     // dry particle radius [cm]
+      const double* particle_mass;  // particle mass [g]
+      const double* radius_ratio;   // radius ratio
+      const double* area_ratio;     // area ratio
+
+      // Group mapping and properties (integer data stored as doubles)
+      const double* concentration_element;  // concentration element per group [ngroup]
+      const double* element_group_map;      // group per element [nelem]
+      const double* constituent_type;       // constituent type per group [ngroup]
+      const double* max_prognostic_bin;     // max prognostic bin per group [ngroup]
+      const double* do_dry_deposition;      // dry deposition flag per group [ngroup]
+
+      // Optional optical data [nwave, nbin, ngroup] or [1, nbin, ngroup]
+      const double* extinction_efficiency;  // extinction efficiency
+
+      // Simulation parameters
+      double layer_thickness;  // dz [cm]
     };
 
     // The external C API for CARMA
@@ -158,7 +148,15 @@ namespace musica
     void InternalRunCarma(const CCARMAParameters& params, void* output, int* rc);
 
     // Transfer function called from Fortran
-    void TransferCarmaOutputToCpp(const CARMAOutputDataC* output_data);
+    void TransferCarmaOutputToCpp(
+        const CARMAOutputDataC* output_data,
+        int nz,
+        int ny,
+        int nx,
+        int nbin,
+        int nelem,
+        int ngroup,
+        int nwave);
 
 #ifdef __cplusplus
   }  // extern "C"

@@ -68,7 +68,6 @@ module carma_parameters_mod
       integer(c_int) :: nsolute = 0
       integer(c_int) :: ngas = 0
       integer(c_int) :: nwave = 30
-      integer(c_int) :: idx_wave = 0
 
       ! Time stepping parameters
       real(c_double) :: dtime = 1800.0_real64

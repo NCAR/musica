@@ -70,8 +70,6 @@ void bind_carma(py::module_& carma)
           params.ngas = params_dict["ngas"].cast<int>();
         if (params_dict.contains("nwave"))
           params.nwave = params_dict["nwave"].cast<int>();
-        if (params_dict.contains("idx_wave"))
-          params.idx_wave = params_dict["idx_wave"].cast<int>();
         if (params_dict.contains("dtime"))
           params.dtime = params_dict["dtime"].cast<double>();
         if (params_dict.contains("nstep"))
@@ -210,15 +208,6 @@ void bind_carma(py::module_& carma)
           py::dict result;
 
           // Dimensions
-          result["nz"] = output.nz;
-          result["ny"] = output.ny;
-          result["nx"] = output.nx;
-          result["nelem"] = output.nelem;
-          result["ngroup"] = output.ngroup;
-          result["nbin"] = output.nbin;
-          result["ngas"] = output.ngas;
-          result["nstep"] = output.nstep;
-
           // Grid and coordinate arrays
           result["lat"] = output.lat;
           result["lon"] = output.lon;
@@ -229,51 +218,31 @@ void bind_carma(py::module_& carma)
           result["pressure"] = output.pressure;
           result["temperature"] = output.temperature;
           result["air_density"] = output.air_density;
-          result["radiative_heating"] = output.radiative_heating;
-          result["delta_temperature"] = output.delta_temperature;
-
-          // Gas variables
-          result["gas_mmr"] = output.gas_mmr;
-          result["gas_saturation_liquid"] = output.gas_saturation_liquid;
-          result["gas_saturation_ice"] = output.gas_saturation_ice;
-          result["gas_vapor_pressure_ice"] = output.gas_vapor_pressure_ice;
-          result["gas_vapor_pressure_liquid"] = output.gas_vapor_pressure_liquid;
-          result["gas_weight_percent"] = output.gas_weight_percent;
 
           // Group-integrated variables
           result["number_density"] = output.number_density;
-          result["surface_area"] = output.surface_area;
-          result["mass_density"] = output.mass_density;
-          result["effective_radius"] = output.effective_radius;
-          result["effective_radius_wet"] = output.effective_radius_wet;
-          result["mean_radius"] = output.mean_radius;
-          result["nucleation_rate"] = output.nucleation_rate;
           result["mass_mixing_ratio"] = output.mass_mixing_ratio;
-          result["projected_area"] = output.projected_area;
-          result["aspect_ratio"] = output.aspect_ratio;
           result["vertical_mass_flux"] = output.vertical_mass_flux;
           result["extinction"] = output.extinction;
-          result["optical_depth"] = output.optical_depth;
 
           // Bin-resolved variables
           result["bin_wet_radius"] = output.bin_wet_radius;
-          result["bin_number_density"] = output.bin_number_density;
           result["bin_density"] = output.bin_density;
-          result["bin_mass_mixing_ratio"] = output.bin_mass_mixing_ratio;
-          result["bin_deposition_velocity"] = output.bin_deposition_velocity;
+          result["nucleation_rate"] = output.nucleation_rate;
+          result["deposition_velocity"] = output.deposition_velocity;
 
           // Group properties
           result["group_radius"] = output.group_radius;
           result["group_mass"] = output.group_mass;
-          result["group_volume"] = output.group_volume;
           result["group_radius_ratio"] = output.group_radius_ratio;
           result["group_aspect_ratio"] = output.group_aspect_ratio;
-          result["group_fractal_dimension"] = output.group_fractal_dimension;
 
-          // Names
-          result["element_names"] = output.element_names;
-          result["group_names"] = output.group_names;
-          result["gas_names"] = output.gas_names;
+          // Group mapping and configuration data
+          result["concentration_element"] = output.concentration_element;
+          result["element_group_map"] = output.element_group_map;
+          result["constituent_type"] = output.constituent_type;
+          result["max_prognostic_bin"] = output.max_prognostic_bin;
+          result["do_dry_deposition"] = output.do_dry_deposition;
 
           return result;
         }

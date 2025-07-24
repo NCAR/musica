@@ -99,7 +99,6 @@ namespace musica
     int nsolute = 0;
     int ngas = 0;
     int nwave = 30;
-    int idx_wave = 0;  // TODO: is there a better name?
 
     // Time stepping parameters
     double dtime = 1800.0;
@@ -118,16 +117,6 @@ namespace musica
 
   struct CARMAOutput
   {
-    // Dimensions for validation
-    int nz = 0;
-    int ny = 0;
-    int nx = 0;
-    int nelem = 0;
-    int ngroup = 0;
-    int nbin = 0;
-    int ngas = 0;
-    int nstep = 0;
-
     // Grid and coordinate arrays
     std::vector<double> lat;              // Latitude [degrees]
     std::vector<double> lon;              // Longitude [degrees]
@@ -135,54 +124,37 @@ namespace musica
     std::vector<double> vertical_levels;  // Height at cell interfaces [m]
 
     // Atmospheric state variables (nz elements)
-    std::vector<double> pressure;           // Pressure [Pa]
-    std::vector<double> temperature;        // Temperature [K]
-    std::vector<double> air_density;        // Air density [kg/m3]
-    std::vector<double> radiative_heating;  // Radiative heating [K/s]
-    std::vector<double> delta_temperature;  // Temperature change [K]
+    std::vector<double> pressure;     // Pressure [Pa]
+    std::vector<double> temperature;  // Temperature [K]
+    std::vector<double> air_density;  // Air density [kg/m3]
 
-    // Gas variables (nz x ngas)
-    std::vector<std::vector<double>> gas_mmr;                    // Gas mass mixing ratio [kg/kg]
-    std::vector<std::vector<double>> gas_saturation_liquid;      // Saturation over liquid
-    std::vector<std::vector<double>> gas_saturation_ice;         // Saturation over ice
-    std::vector<std::vector<double>> gas_vapor_pressure_ice;     // Evaporation rate over ice
-    std::vector<std::vector<double>> gas_vapor_pressure_liquid;  // Evaporation rate over liquid
-    std::vector<std::vector<double>> gas_weight_percent;         // Gas weight
+    // Fundamental CARMA data for Python calculations
+    // Particle state arrays (3D: nz x nbin x nelem)
+    std::vector<std::vector<std::vector<double>>> number_density;     // pc - particle concentration [#/cm³]
+    std::vector<std::vector<std::vector<double>>> mass_mixing_ratio;  // mmr - mass mixing ratio [kg/kg]
 
-    // Group-integrated variables (nz x ngroup)
-    std::vector<std::vector<double>> number_density;        // Number density [#/cm3]
-    std::vector<std::vector<double>> surface_area;          // Surface area density [cm2/cm3]
-    std::vector<std::vector<double>> mass_density;          // Mass density [g/cm3]
-    std::vector<std::vector<double>> effective_radius;      // Effective radius [cm]
-    std::vector<std::vector<double>> effective_radius_wet;  // Wet effective radius [cm]
-    std::vector<std::vector<double>> mean_radius;           // Mean radius [cm]
-    std::vector<std::vector<double>> nucleation_rate;       // Nucleation rate [#/cm3/s]
-    std::vector<std::vector<double>> mass_mixing_ratio;     // Mass mixing ratio [kg/kg]
-    std::vector<std::vector<double>> projected_area;        // Projected area [cm2/cm3]
-    std::vector<std::vector<double>> aspect_ratio;          // Aspect ratio
-    std::vector<std::vector<double>> vertical_mass_flux;    // Vertical mass flux [g/cm2/s]
-    std::vector<std::vector<double>> extinction;            // Extinction coefficient [1/km]
-    std::vector<std::vector<double>> optical_depth;         // Optical depth
+    // Particle properties (3D: nz x nbin x ngroup)
+    std::vector<std::vector<std::vector<double>>> bin_wet_radius;       // r_wet - wet radius [cm]
+    std::vector<std::vector<std::vector<double>>> bin_density;          // rhop_wet - wet density [g/cm³]
+    std::vector<std::vector<std::vector<double>>> vertical_mass_flux;   // vf - fall velocity [cm/s] (nz+1 x nbin x ngroup)
+    std::vector<std::vector<std::vector<double>>> nucleation_rate;      // nucleation rate [1/cm³/s] (nz x nbin x ngroup)
+    std::vector<std::vector<std::vector<double>>> deposition_velocity;  // deposition velocity [cm/s] (nz x nbin x ngroup)
 
-    // Bin-resolved variables (nz x ngroup x nbin)
-    std::vector<std::vector<std::vector<double>>> bin_wet_radius;           // Wet radius [um]
-    std::vector<std::vector<std::vector<double>>> bin_number_density;       // Number density [#/cm3]
-    std::vector<std::vector<std::vector<double>>> bin_density;              // Particle density [g/cm3]
-    std::vector<std::vector<std::vector<double>>> bin_mass_mixing_ratio;    // Mass mixing ratio [kg/kg]
-    std::vector<std::vector<std::vector<double>>> bin_deposition_velocity;  // Deposition velocity [cm/s]
+    // Group configuration arrays (2D: nbin x ngroup)
+    std::vector<std::vector<double>> group_radius;        // r_dry - dry radius [cm]
+    std::vector<std::vector<double>> group_mass;          // rmass - mass per bin [g]
+    std::vector<std::vector<double>> group_radius_ratio;  // rrat - radius ratio
+    std::vector<std::vector<double>> group_aspect_ratio;  // arat - area ratio
 
-    // Group properties (constant for each group)
-    std::vector<std::vector<double>> group_radius;             // Bin center radius [cm] (nbin x ngroup)
-    std::vector<std::vector<double>> group_mass;               // Bin mass [g] (nbin x ngroup)
-    std::vector<std::vector<double>> group_volume;             // Bin volume [cm3] (nbin x ngroup)
-    std::vector<std::vector<double>> group_radius_ratio;       // Radius ratio (nbin x ngroup)
-    std::vector<std::vector<double>> group_aspect_ratio;       // Aspect ratio (nbin x ngroup)
-    std::vector<std::vector<double>> group_fractal_dimension;  // Fractal dimension (nbin x ngroup)
+    // Group mapping and properties (1D arrays)
+    std::vector<double> concentration_element;  // concentration element per group [ngroup]
+    std::vector<double> element_group_map;      // group per element [nelem]
+    std::vector<double> constituent_type;       // constituent type per group [ngroup]
+    std::vector<double> max_prognostic_bin;     // max prognostic bin per group [ngroup]
+    std::vector<double> do_dry_deposition;      // dry deposition flag per group [ngroup]
 
-    // Element and group names for identification
-    std::vector<std::string> element_names;
-    std::vector<std::string> group_names;
-    std::vector<std::string> gas_names;
+    // Optical data (3D: nwave x nbin x ngroup)
+    std::vector<std::vector<std::vector<double>>> extinction;  // qext - extinction efficiency
   };
 
   class CARMA
