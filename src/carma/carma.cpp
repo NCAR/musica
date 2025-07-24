@@ -11,12 +11,23 @@
 
 namespace musica
 {
-  CARMA::CARMA()
+  CARMA::CARMA(const CARMAParameters& params)
   {
+    int return_code = 0;
+    carma_parameters_ = ToCCompatible(params);
+    f_carma_type_ = InternalCreateCarma(*carma_parameters_, &return_code);
+    if (return_code != 0)
+    {
+      throw std::runtime_error("Failed to create CARMA instance with return code: " + std::to_string(return_code));
+    }
   }
 
   CARMA::~CARMA()
   {
+    int return_code = 0;
+    FreeCCompatible(carma_parameters_);
+    InternalDestroyCarma(f_carma_type_, &return_code);
+    f_carma_type_ = nullptr;  // Clear the pointer to avoid dangling reference
   }
 
   std::string CARMA::GetVersion()
@@ -34,18 +45,12 @@ namespace musica
     return version;
   }
 
-  CARMAOutput CARMA::Run(const CARMAParameters& params)
+  CARMAOutput CARMA::Run()
   {
     int return_code = 0;
     CARMAOutput output;
 
-    // Convert to C-compatible parameters
-    CCARMAParameters c_params = ToCCompatible(params);
-
-    InternalRunCarma(c_params, static_cast<void*>(&output), &return_code);
-
-    // Clean up the C-compatible parameters
-    FreeCCompatible(c_params);
+    InternalRunCarma(*carma_parameters_, f_carma_type_, static_cast<void*>(&output), &return_code);
 
     if (return_code != 0)
     {
@@ -55,52 +60,52 @@ namespace musica
     return output;
   }
 
-  CCARMAParameters CARMA::ToCCompatible(const CARMAParameters& params)
+  CCARMAParameters * CARMA::ToCCompatible(const CARMAParameters& params)
   {
-    CCARMAParameters c_params = {};
+    CCARMAParameters *c_params = new CCARMAParameters();
 
     // Copy simple scalar values
-    c_params.max_bins = params.max_bins;
-    c_params.max_groups = params.max_groups;
-    c_params.nz = params.nz;
-    c_params.ny = params.ny;
-    c_params.nx = params.nx;
-    c_params.nbin = params.nbin;
-    c_params.nsolute = params.nsolute;
-    c_params.ngas = params.ngas;
-    c_params.nwave = params.nwave;
-    c_params.idx_wave = params.idx_wave;
-    c_params.dtime = params.dtime;
-    c_params.nstep = params.nstep;
-    c_params.deltaz = params.deltaz;
-    c_params.zmin = params.zmin;
+    c_params->max_bins = params.max_bins;
+    c_params->max_groups = params.max_groups;
+    c_params->nz = params.nz;
+    c_params->ny = params.ny;
+    c_params->nx = params.nx;
+    c_params->nbin = params.nbin;
+    c_params->nsolute = params.nsolute;
+    c_params->ngas = params.ngas;
+    c_params->nwave = params.nwave;
+    c_params->idx_wave = params.idx_wave;
+    c_params->dtime = params.dtime;
+    c_params->nstep = params.nstep;
+    c_params->deltaz = params.deltaz;
+    c_params->zmin = params.zmin;
 
     // Handle extinction coefficient array
     if (!params.extinction_coefficient.empty())
     {
-      c_params.extinction_coefficient_size = static_cast<int>(params.extinction_coefficient.size());
-      c_params.extinction_coefficient = new double[c_params.extinction_coefficient_size];
+      c_params->extinction_coefficient_size = static_cast<int>(params.extinction_coefficient.size());
+      c_params->extinction_coefficient = new double[c_params->extinction_coefficient_size];
       std::memcpy(
-          c_params.extinction_coefficient,
+          c_params->extinction_coefficient,
           params.extinction_coefficient.data(),
-          c_params.extinction_coefficient_size * sizeof(double));
+          c_params->extinction_coefficient_size * sizeof(double));
     }
     else
     {
-      c_params.extinction_coefficient = nullptr;
-      c_params.extinction_coefficient_size = 0;
+      c_params->extinction_coefficient = nullptr;
+      c_params->extinction_coefficient_size = 0;
     }
 
     // Handle groups array
     if (!params.groups.empty())
     {
-      c_params.groups_size = static_cast<int>(params.groups.size());
-      c_params.groups = new CARMAGroupConfigC[c_params.groups_size];
+      c_params->groups_size = static_cast<int>(params.groups.size());
+      c_params->groups = new CARMAGroupConfigC[c_params->groups_size];
 
-      for (int i = 0; i < c_params.groups_size; ++i)
+      for (int i = 0; i < c_params->groups_size; ++i)
       {
         const auto& group = params.groups[i];
-        auto& c_group = c_params.groups[i];
+        auto& c_group = c_params->groups[i];
 
         c_group.id = group.id;
         c_group.name_length = std::min(static_cast<int>(group.name.length()), 255);
@@ -142,20 +147,20 @@ namespace musica
     }
     else
     {
-      c_params.groups = nullptr;
-      c_params.groups_size = 0;
+      c_params->groups = nullptr;
+      c_params->groups_size = 0;
     }
 
     // Handle elements array
     if (!params.elements.empty())
     {
-      c_params.elements_size = static_cast<int>(params.elements.size());
-      c_params.elements = new CARMAElementConfigC[c_params.elements_size];
+      c_params->elements_size = static_cast<int>(params.elements.size());
+      c_params->elements = new CARMAElementConfigC[c_params->elements_size];
 
-      for (int i = 0; i < c_params.elements_size; ++i)
+      for (int i = 0; i < c_params->elements_size; ++i)
       {
         const auto& element = params.elements[i];
-        auto& c_element = c_params.elements[i];
+        auto& c_element = c_params->elements[i];
 
         c_element.id = element.id;
         c_element.igroup = element.igroup;
@@ -204,46 +209,49 @@ namespace musica
     }
     else
     {
-      c_params.elements = nullptr;
-      c_params.elements_size = 0;
+      c_params->elements = nullptr;
+      c_params->elements_size = 0;
     }
 
     return c_params;
   }
 
-  void CARMA::FreeCCompatible(CCARMAParameters& c_params)
+  void CARMA::FreeCCompatible(CCARMAParameters * c_params)
   {
     // Free extinction coefficient array
-    delete[] c_params.extinction_coefficient;
-    c_params.extinction_coefficient = nullptr;
+    delete[] c_params->extinction_coefficient;
+    c_params->extinction_coefficient = nullptr;
 
     // Free groups array and its nested arrays
-    if (c_params.groups != nullptr)
+    if (c_params->groups != nullptr)
     {
-      for (int i = 0; i < c_params.groups_size; ++i)
+      for (int i = 0; i < c_params->groups_size; ++i)
       {
-        delete[] c_params.groups[i].df;
+        delete[] c_params->groups[i].df;
       }
-      delete[] c_params.groups;
-      c_params.groups = nullptr;
+      delete[] c_params->groups;
+      c_params->groups = nullptr;
     }
 
     // Free elements array and its nested arrays
-    if (c_params.elements != nullptr)
+    if (c_params->elements != nullptr)
     {
-      for (int i = 0; i < c_params.elements_size; ++i)
+      for (int i = 0; i < c_params->elements_size; ++i)
       {
-        delete[] c_params.elements[i].rhobin;
-        delete[] c_params.elements[i].arat;
+        delete[] c_params->elements[i].rhobin;
+        delete[] c_params->elements[i].arat;
       }
-      delete[] c_params.elements;
-      c_params.elements = nullptr;
+      delete[] c_params->elements;
+      c_params->elements = nullptr;
     }
 
     // Reset sizes
-    c_params.extinction_coefficient_size = 0;
-    c_params.groups_size = 0;
-    c_params.elements_size = 0;
+    c_params->extinction_coefficient_size = 0;
+    c_params->groups_size = 0;
+    c_params->elements_size = 0;
+
+    // Delete the C-compatible parameters structure itself
+    delete c_params;
   }
 
   CARMAParameters CARMA::CreateAluminumTestParams()

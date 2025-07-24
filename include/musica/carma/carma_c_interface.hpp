@@ -154,8 +154,12 @@ namespace musica
     void InternalGetCarmaVersion(char** version_ptr, int* version_length);
     void InternalFreeCarmaVersion(char* version_ptr, int version_length);
 
+    // CARMA instance management functions
+    void* InternalCreateCarma(const CCARMAParameters& params, int* rc);
+    void InternalDestroyCarma(void* carma_instance, int* rc);
+
     // CARMA driver interface functions
-    void InternalRunCarma(const CCARMAParameters& params, void* output, int* rc);
+    void InternalRunCarma(const CCARMAParameters& params, void* carma_instance, void* output, int* rc);
 
     // Transfer function called from Fortran
     void TransferCarmaOutputToCpp(const CARMAOutputDataC* output_data);

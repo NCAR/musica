@@ -188,7 +188,12 @@ namespace musica
   class CARMA
   {
    public:
-    CARMA();
+
+    /// @brief Constructor for CARMA
+    /// @param params The CARMA parameters to initialize the model
+    /// @throws std::runtime_error if the CARMA instance cannot be created
+    explicit CARMA(const CARMAParameters& params);
+
     ~CARMA();
 
     /// @brief Get the version of CARMA
@@ -196,23 +201,25 @@ namespace musica
     static std::string GetVersion();
 
     /// @brief Run CARMA with the specified parameters and configuration
-    /// @param params The CARMA parameters to use for the simulation
-    /// @param config The group and element configuration (optional)
     /// @return The CARMA output data
-    CARMAOutput Run(const CARMAParameters& params);
+    CARMAOutput Run();
 
     /// @brief Convert CARMAParameters to C-compatible CCARMAParameters
     /// @param params The C++ CARMA parameters to convert
     /// @return The C-compatible CARMA parameters structure
-    static struct CCARMAParameters ToCCompatible(const CARMAParameters& params);
+    static struct CCARMAParameters * ToCCompatible(const CARMAParameters& params);
 
     /// @brief Free memory allocated in CCARMAParameters
     /// @param c_params The C-compatible parameters to clean up
-    static void FreeCCompatible(struct CCARMAParameters& c_params);
+    static void FreeCCompatible(struct CCARMAParameters * c_params);
 
     /// @brief Returns a set of test parameters for the aluminum test case
     /// @return A CARMAParameters object with the aluminum test case configuration
     static CARMAParameters CreateAluminumTestParams();
+
+   private:
+    CCARMAParameters * carma_parameters_;  // C-compatible parameters
+    void * f_carma_type_ = nullptr;  // Pointer to the Fortran CARMA type
   };
 
 }  // namespace musica

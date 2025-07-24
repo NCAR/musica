@@ -665,7 +665,7 @@ class CARMA:
     with configurable parameters.
     """
 
-    def __init__(self):
+    def __init__(self, parameters: CARMAParameters):
         """
         Initialize a CARMA instance.
 
@@ -676,7 +676,7 @@ class CARMA:
             raise ValueError(
                 "CARMA backend is not available on this platform.")
 
-        self._carma_instance = _backend._carma._create_carma()
+        self._carma_instance = _backend._carma._create_carma(parameters.to_dict())
 
     def __del__(self):
         """Clean up the CARMA instance."""
@@ -691,7 +691,7 @@ class CARMA:
         """String representation of CARMA instance."""
         return f"CARMA() - Version: {version if version else 'Not available'}"
 
-    def run(self, parameters: CARMAParameters) -> xr.Dataset:
+    def run(self) -> xr.Dataset:
         """
         Run the CARMA aerosol model simulation.
 
@@ -705,9 +705,7 @@ class CARMA:
         Raises:
             ValueError: If the simulation fails
         """
-        params_dict = parameters.to_dict()
-        output_dict = _backend._carma._run_carma_with_parameters(
-            self._carma_instance, params_dict)
+        output_dict = _backend._carma._run_carma(self._carma_instance)
 
         # Convert dictionary directly to xarray Dataset
         return _carma_dict_to_xarray(output_dict)

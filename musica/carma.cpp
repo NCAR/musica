@@ -16,35 +16,8 @@ void bind_carma(py::module_& carma)
 
   carma.def(
       "_create_carma",
-      []()
+      [](py::dict params_dict)
       {
-        try
-        {
-          auto carma_instance = new musica::CARMA();
-          return reinterpret_cast<std::uintptr_t>(carma_instance);
-        }
-        catch (const std::exception& e)
-        {
-          throw py::value_error("Error creating CARMA instance: " + std::string(e.what()));
-        }
-      },
-      "Create a CARMA instance");
-
-  carma.def(
-      "_delete_carma",
-      [](std::uintptr_t carma_ptr)
-      {
-        musica::CARMA* carma_instance = reinterpret_cast<musica::CARMA*>(carma_ptr);
-        delete carma_instance;
-      },
-      "Delete a CARMA instance");
-
-  carma.def(
-      "_run_carma_with_parameters",
-      [](std::uintptr_t carma_ptr, py::dict params_dict)
-      {
-        musica::CARMA* carma_instance = reinterpret_cast<musica::CARMA*>(carma_ptr);
-
         // Convert Python dict to CARMAParameters
         musica::CARMAParameters params;
 
@@ -204,7 +177,35 @@ void bind_carma(py::module_& carma)
 
         try
         {
-          musica::CARMAOutput output = carma_instance->Run(params);
+          auto carma_instance = new musica::CARMA(params);
+          return reinterpret_cast<std::uintptr_t>(carma_instance);
+        }
+        catch (const std::exception& e)
+        {
+          throw py::value_error("Error creating CARMA instance: " + std::string(e.what()));
+        }
+        
+      },
+      "Create a CARMA instance");
+
+  carma.def(
+      "_delete_carma",
+      [](std::uintptr_t carma_ptr)
+      {
+        musica::CARMA* carma_instance = reinterpret_cast<musica::CARMA*>(carma_ptr);
+        delete carma_instance;
+      },
+      "Delete a CARMA instance");
+
+  carma.def(
+      "_run_carma",
+      [](std::uintptr_t carma_ptr)
+      {
+        musica::CARMA* carma_instance = reinterpret_cast<musica::CARMA*>(carma_ptr);
+
+        try
+        {
+          musica::CARMAOutput output = carma_instance->Run();
 
           // Convert CARMAOutput to Python dictionary
           py::dict result;
