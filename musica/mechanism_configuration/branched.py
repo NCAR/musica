@@ -63,7 +63,7 @@ class Branched:
         """
         # Create the internal C++ instance
         self._instance = _Branched()
-        
+
         # Set all parameters
         if name is not None:
             self.name = name
