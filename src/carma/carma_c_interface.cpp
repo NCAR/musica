@@ -227,7 +227,7 @@ namespace musica
 
           for (int ib = 0; ib < output_data->nbin; ++ib)
           {
-            int idx = ib;
+            int idx = ib + ig * output_data->nbin + iz * output_data->nbin * output_data->ngroup;
             output->bin_wet_radius[iz][ig][ib] = output_data->bin_wet_radius[idx];
             output->bin_number_density[iz][ig][ib] = output_data->bin_number_density[idx];
             output->bin_density[iz][ig][ib] = output_data->bin_density[idx];
