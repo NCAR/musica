@@ -8,6 +8,7 @@ from .. import backend
 _backend = backend.get_backend()
 _AqueousEquilibrium = _backend._mechanism_configuration._AqueousEquilibrium
 _ReactionComponent = _backend._mechanism_configuration._ReactionComponent
+ReactionType = _backend._mechanism_configuration._ReactionType
 
 
 class AqueousEquilibrium:
@@ -216,6 +217,11 @@ class AqueousEquilibrium:
     def other_properties(self, value: Dict[str, Any]):
         """Set the other properties."""
         self._instance.other_properties = value
+
+    @property
+    def type(self):
+        """Get the reaction type."""
+        return ReactionType.AqueousEquilibrium
 
     def serialize(self) -> Dict:
         """
