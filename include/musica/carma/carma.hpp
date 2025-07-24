@@ -44,6 +44,14 @@ namespace musica
     OTHER = 8
   };
 
+  // Structure representing a wavelength bin
+  struct CARMAWavelengthBin
+  {
+    double center;           // Center of the wavelength bin [m]
+    double width;            // Width of the wavelength bin [m]
+    bool do_emission = true; // Flag to indicate if emission is considered for this bin
+  };
+
   // Structure representing a CARMA group configuration
   struct CARMAGroupConfig
   {
@@ -98,7 +106,6 @@ namespace musica
     int nbin = 5;
     int nsolute = 0;
     int ngas = 0;
-    int nwave = 30;
     int idx_wave = 0;  // TODO: is there a better name?
 
     // Time stepping parameters
@@ -108,6 +115,10 @@ namespace musica
     // Spatial parameters
     double deltaz = 1000.0;
     double zmin = 16500.0;
+
+    // Wavelength grid
+    std::vector<CARMAWavelengthBin> wavelength_bins;   // Wavelength bins
+    int number_of_refractive_indices = 0;              // Number of refractive indices per wavelength
 
     // Optical parameters
     std::vector<double> extinction_coefficient;  // Extinction coefficient qext [NWAVE * NBIN * NGROUP]

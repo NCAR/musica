@@ -227,7 +227,7 @@ contains
       use carma_mod
       use atmosphere_mod
       use carma_parameters_mod, only: carma_parameters_t, carma_group_config_t, &
-                                      carma_element_config_t
+                                      carma_element_config_t, carma_wavelength_bin_t
       use iso_fortran_env, only: real64
       use iso_c_binding, only: c_ptr, c_loc
 
@@ -242,13 +242,17 @@ contains
 
       ! Model dimensions
       integer :: NZ, NY, NX, NZP1, NELEM, NGROUP, NBIN, NSOLUTE, NGAS, NWAVE
-      integer, parameter :: LUNOPRT = 6
 
       ! Temporary index for first group
       integer, parameter :: I_FIRST_GROUP = 1
 
       ! Loop indices
-      integer :: ielem, igroup
+      integer :: iwave, ielem, igroup
+
+      ! Wavelength grid parameters
+      type(carma_wavelength_bin_t), pointer :: wavelength_bins(:)
+      real(real64), allocatable :: wave_centers(:), wave_widths(:)
+      logical, allocatable  :: wave_do_emission(:)
 
       ! Group parameters
       type(carma_group_config_t), pointer :: group_config(:)
@@ -269,11 +273,28 @@ contains
       NBIN = int(params%nbin)
       NSOLUTE = int(params%nsolute)
       NGAS = int(params%ngas)
-      NWAVE = int(params%nwave)
+      NWAVE = int(params%wavelength_bin_size)
 
       ! Create the CARMA instance
       allocate(carma)
-      call CARMA_Create(carma, NBIN, NELEM, NGROUP, NSOLUTE, NGAS, NWAVE, rc, LUNOPRT=LUNOPRT)
+      if (NWAVE>0) then
+         call c_f_pointer(params%wavelength_bins, wavelength_bins, [NWAVE])
+         allocate(wave_centers(NWAVE))
+         allocate(wave_widths(NWAVE))
+         allocate(wave_do_emission(NWAVE))
+         do iwave = 1, NWAVE
+            wave_centers(iwave) = wavelength_bins(iwave)%center * 100.0_real64 ! Convert m to cm
+            wave_widths(iwave) = wavelength_bins(iwave)%width * 100.0_real64 ! Convert m to cm
+            wave_do_emission(iwave) = wavelength_bins(iwave)%do_emission
+         end do
+         call CARMA_Create(carma, NBIN, NELEM, NGROUP, NSOLUTE, NGAS, NWAVE, rc, &
+            wave = wave_centers, &
+            dwave = wave_widths, &
+            do_wave_emit = wave_do_emission, &
+            NREFIDX = params%number_of_refractive_indices)
+      else
+         call CARMA_Create(carma, NBIN, NELEM, NGROUP, NSOLUTE, NGAS, NWAVE, rc)
+      end if
       if (rc /= 0) then
          return
       end if
@@ -415,7 +436,7 @@ contains
       NBIN = int(params%nbin)
       NSOLUTE = int(params%nsolute)
       NGAS = int(params%ngas)
-      NWAVE = int(params%nwave)
+      NWAVE = int(params%wavelength_bin_size)
       dtime = real(params%dtime, kind=real64)
       nstep = int(params%nstep)
       deltaz = real(params%deltaz, kind=real64)
@@ -605,12 +626,12 @@ contains
       extinction_coefficient => null( )
       if (c_associated(params%extinction_coefficient)) then
          call c_f_pointer(params%extinction_coefficient, extinction_coefficient, &
-         [params%nwave, params%nbin, ngroup])
+         [params%wavelength_bin_size, params%nbin, ngroup])
       end if
 
       ! Extract diagnostics from CARMA state using carmadiags
       if (associated(extinction_coefficient)) then
-         call carmadiags(cstate, carma_ptr, nz, nbin, nelem, ngroup, params%nwave, &
+         call carmadiags(cstate, carma_ptr, nz, nbin, nelem, ngroup, params%wavelength_bin_size, &
             deltaz, qext=extinction_coefficient, idx_wave=params%idx_wave, &
             nd=number_density, ad=surface_area, md=mass_density, &
             re=effective_radius, rew=effective_radius_wet, rm=mean_radius, &
