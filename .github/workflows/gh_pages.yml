@@ -67,7 +67,7 @@ jobs:
           # edit conf.py to produce a version string that looks like vX.X (stable)
           docker build -t musica -f docker/Dockerfile.docs --build-arg SUFFIX=" (stable)" .
           id=$(docker create musica)
-          docker cp $id:/musica/docs/build/html  tmpdocs
+          docker cp $id:/musica/docs/build/html tmpdocs
           docker rm -v $id
           mv tmpdocs _build/html/versions/stable
           # Delete everything under _gh-pages/ that is from the
