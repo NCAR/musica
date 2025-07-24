@@ -8,6 +8,7 @@ RUN dnf -y update \
         doxygen \
         gcc-c++ \
         gcc \
+        gfortran \
         gdb \
         git \
         cmake \
