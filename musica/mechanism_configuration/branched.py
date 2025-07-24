@@ -8,6 +8,7 @@ from .. import backend
 _backend = backend.get_backend()
 _Branched = _backend._mechanism_configuration._Branched
 _ReactionComponent = _backend._mechanism_configuration._ReactionComponent
+ReactionType = _backend._mechanism_configuration._ReactionType
 
 
 class Branched:
@@ -250,6 +251,11 @@ class Branched:
     def other_properties(self, value: Dict[str, Any]):
         """Set the other properties."""
         self._instance.other_properties = value
+
+    @property
+    def type(self):
+        """Get the reaction type."""
+        return ReactionType.Branched
 
     def serialize(self) -> Dict:
         """
