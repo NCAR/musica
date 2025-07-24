@@ -476,6 +476,7 @@ contains
 
       ! Create and populate the output data struct
       type(c_carma_output_data) :: output_data_struct
+      integer :: gas_size
 
       ! Allocate arrays for carmadiags output
       allocate(number_density(nz, ngroup))
@@ -535,27 +536,16 @@ contains
       radiative_heating(:) = 0.0_c_double  ! Default value
       delta_temperature(:) = 0.0_c_double  ! Default value
 
-      ! Allocate and initialize gas variables if gases exist
-      if (ngas > 0) then
-         allocate(gas_mmr(nz, ngas), gas_saturation_liquid(nz, ngas), gas_saturation_ice(nz, ngas))
-         allocate(gas_vapor_pressure_ice(nz, ngas), gas_vapor_pressure_liquid(nz, ngas), gas_weight_percent(nz, ngas))
-         gas_mmr(:,:) = 0.0_c_double
-         gas_saturation_liquid(:,:) = 0.0_c_double
-         gas_saturation_ice(:,:) = 0.0_c_double
-         gas_vapor_pressure_ice(:,:) = 0.0_c_double
-         gas_vapor_pressure_liquid(:,:) = 0.0_c_double
-         gas_weight_percent(:,:) = 0.0_c_double
-      else
-         ! Allocate minimal arrays for zero gas case
-         allocate(gas_mmr(nz, 1), gas_saturation_liquid(nz, 1), gas_saturation_ice(nz, 1))
-         allocate(gas_vapor_pressure_ice(nz, 1), gas_vapor_pressure_liquid(nz, 1), gas_weight_percent(nz, 1))
-         gas_mmr(:,:) = 0.0_c_double
-         gas_saturation_liquid(:,:) = 0.0_c_double
-         gas_saturation_ice(:,:) = 0.0_c_double
-         gas_vapor_pressure_ice(:,:) = 0.0_c_double
-         gas_vapor_pressure_liquid(:,:) = 0.0_c_double
-         gas_weight_percent(:,:) = 0.0_c_double
-      end if
+      ! Set gas_size to at least 1, even if ngas is zero
+      gas_size = max(ngas, 1)
+      allocate(gas_mmr(nz, gas_size), gas_saturation_liquid(nz, gas_size), gas_saturation_ice(nz, gas_size))
+      allocate(gas_vapor_pressure_ice(nz, gas_size), gas_vapor_pressure_liquid(nz, gas_size), gas_weight_percent(nz, gas_size))
+      gas_mmr(:,:) = 0.0_c_double
+      gas_saturation_liquid(:,:) = 0.0_c_double
+      gas_saturation_ice(:,:) = 0.0_c_double
+      gas_vapor_pressure_ice(:,:) = 0.0_c_double
+      gas_vapor_pressure_liquid(:,:) = 0.0_c_double
+      gas_weight_percent(:,:) = 0.0_c_double
 
       ! Allocate and initialize group properties with default values
       allocate(group_radius(nbin, ngroup), group_mass(nbin, ngroup), group_volume(nbin, ngroup))
