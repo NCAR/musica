@@ -46,21 +46,18 @@ module carma_interface
       ! Group properties
       type(c_ptr) :: constituent_type           ! constituent type per group [ngroup]
       type(c_ptr) :: max_prognostic_bin         ! max prognostic bin per group [ngroup]
-
-      ! Optional optical data [nwave, nbin, ngroup] or [1, nbin, ngroup]
-      type(c_ptr) :: extinction_efficiency      ! extinction efficiency
    end type c_carma_output_data
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    ! Interface to the C++ TransferCarmaOutputToCpp function
    interface
-      subroutine TransferCarmaOutputToCpp(output_data, nz, ny, nx, nbin, nelem, ngroup, nwave) &
+      subroutine TransferCarmaOutputToCpp(output_data, nz, ny, nx, nbin, nelem, ngroup) &
          bind(C, name="TransferCarmaOutputToCpp")
          use iso_c_binding, only: c_int
          import :: c_carma_output_data
          type(c_carma_output_data), intent(in) :: output_data
-         integer(c_int), value, intent(in) :: nz, ny, nx, nbin, nelem, ngroup, nwave
+         integer(c_int), value, intent(in) :: nz, ny, nx, nbin, nelem, ngroup
       end subroutine TransferCarmaOutputToCpp
    end interface!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -462,12 +459,8 @@ contains
       integer(kind=c_int), allocatable, target :: constituent_type(:) ! constituent type per group
       integer(kind=c_int), allocatable, target :: maxbin(:)           ! max prognostic bin per group
 
-      ! Optional: extinction efficiency if optical calculations needed
-      real(kind=c_double), allocatable, target :: qext(:,:,:)         ! extinction efficiency (nwave, nbin, ngroup)
-
       ! Create and populate the output data struct
       type(c_carma_output_data) :: output_data_struct
-      real(kind=real64), pointer :: extinction_coefficient(:,:,:)
 
       ! Allocate fundamental arrays for Python calculation
       allocate(pc(nz, nbin, nelem))
@@ -511,17 +504,6 @@ contains
          r_dry, rmass, rrat, arat, &
          ienconc, constituent_type, maxbin)
 
-      ! Handle extinction coefficient if provided
-      if (c_associated(params%extinction_coefficient)) then
-         allocate(qext(params%nwave, nbin, ngroup))
-         call c_f_pointer(params%extinction_coefficient, extinction_coefficient, &
-            [params%nwave, params%nbin, ngroup])
-         qext(:,:,:) = extinction_coefficient(:,:,:)
-      else
-         allocate(qext(1, nbin, ngroup))  ! Allocate minimal array even if no optical data
-         qext(:,:,:) = 2.0_c_double       ! Default extinction efficiency
-      end if
-
       output_data_struct%c_output_ptr = c_output_ptr
 
       ! Set pointers to fundamental data arrays
@@ -555,19 +537,15 @@ contains
       output_data_struct%constituent_type = c_loc(constituent_type)  ! constituent type per group [ngroup]
       output_data_struct%max_prognostic_bin = c_loc(maxbin)            ! max prognostic bin per group [ngroup]
 
-      ! Optical data if available
-      output_data_struct%extinction_efficiency = c_loc(qext)           ! extinction efficiency [nwave,nbin,ngroup]
-
       ! Call the C++ transfer function with the struct and dimensions
       call TransferCarmaOutputToCpp(output_data_struct, &
          int(nz, c_int), int(ny, c_int), int(nx, c_int), int(nbin, c_int), &
-         int(nelem, c_int), int(ngroup, c_int), int(size(qext, 1), c_int))
+         int(nelem, c_int), int(ngroup, c_int))
 
       ! Clean up fundamental data arrays
       deallocate(pc, mmr, r_wet, rhop_wet, vf, nucleation, vd)
       deallocate(r_dry, rmass, rrat, arat)
       deallocate(ienconc, constituent_type, maxbin)
-      deallocate(qext)
 
    end subroutine transfer_carma_output_data
 

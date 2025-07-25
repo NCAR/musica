@@ -74,22 +74,6 @@ namespace musica
     c_params.deltaz = params.deltaz;
     c_params.zmin = params.zmin;
 
-    // Handle extinction coefficient array
-    if (!params.extinction_coefficient.empty())
-    {
-      c_params.extinction_coefficient_size = static_cast<int>(params.extinction_coefficient.size());
-      c_params.extinction_coefficient = new double[c_params.extinction_coefficient_size];
-      std::memcpy(
-          c_params.extinction_coefficient,
-          params.extinction_coefficient.data(),
-          c_params.extinction_coefficient_size * sizeof(double));
-    }
-    else
-    {
-      c_params.extinction_coefficient = nullptr;
-      c_params.extinction_coefficient_size = 0;
-    }
-
     // Handle groups array
     if (!params.groups.empty())
     {
@@ -212,10 +196,6 @@ namespace musica
 
   void CARMA::FreeCCompatible(CCARMAParameters& c_params)
   {
-    // Free extinction coefficient array
-    delete[] c_params.extinction_coefficient;
-    c_params.extinction_coefficient = nullptr;
-
     // Free groups array and its nested arrays
     if (c_params.groups != nullptr)
     {
@@ -240,7 +220,6 @@ namespace musica
     }
 
     // Reset sizes
-    c_params.extinction_coefficient_size = 0;
     c_params.groups_size = 0;
     c_params.elements_size = 0;
   }

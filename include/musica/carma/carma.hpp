@@ -108,9 +108,6 @@ namespace musica
     double deltaz = 1000.0;
     double zmin = 16500.0;
 
-    // Optical parameters
-    std::vector<double> extinction_coefficient;  // Extinction coefficient qext [NWAVE * NBIN * NGROUP]
-
     std::vector<CARMAGroupConfig> groups;
     std::vector<CARMAElementConfig> elements;
   };
@@ -150,9 +147,6 @@ namespace musica
     std::vector<double> group_particle_number_concentration;  // concentration element per group [ngroup]
     std::vector<double> constituent_type;       // constituent type per group [ngroup]
     std::vector<double> max_prognostic_bin;     // max prognostic bin per group [ngroup]
-
-    // Optical data (3D: nwave x nbin x ngroup)
-    std::vector<std::vector<std::vector<double>>> extinction;  // qext - extinction efficiency
   };
 
   class CARMA

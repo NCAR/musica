@@ -42,8 +42,7 @@ namespace musica
         int nx,
         int nbin,
         int nelem,
-        int ngroup,
-        int nwave)
+        int ngroup)
     {
       if (!output_data)
       {
@@ -278,22 +277,6 @@ namespace musica
       for (int ig = 0; ig < ngroup; ++ig)
       {
         output->max_prognostic_bin[ig] = output_data->max_prognostic_bin[ig];
-      }
-
-      output->extinction.resize(nwave);
-      for (int iw = 0; iw < nwave; ++iw)
-      {
-        output->extinction[iw].resize(nbin);
-        for (int ib = 0; ib < nbin; ++ib)
-        {
-          output->extinction[iw][ib].resize(ngroup);
-          for (int ig = 0; ig < ngroup; ++ig)
-          {
-            // Fortran: qext(nwave, nbin, ngroup) -> C index = iw + ib*nwave + ig*nwave*nbin
-            int idx = iw + ib * nwave + ig * nwave * nbin;
-            output->extinction[iw][ib][ig] = output_data->extinction_efficiency[idx];
-          }
-        }
       }
     }
 

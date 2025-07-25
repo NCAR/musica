@@ -194,7 +194,6 @@ class CARMAParameters:
                  nstep: int = 100,
                  deltaz: float = 1000.0,
                  zmin: float = 16500.0,
-                 extinction_coefficient: Optional[List[List[List[float]]]] = None,
                  groups: Optional[List[CARMAGroupConfig]] = None,
                  elements: Optional[List[CARMAElementConfig]] = None):
         """
@@ -214,7 +213,6 @@ class CARMAParameters:
             nstep: Number of time steps (default: 100)
             deltaz: Vertical grid spacing in meters (default: 1000.0)
             zmin: Minimum altitude in meters (default: 16500.0)
-            extinction_coefficient: Extinction coefficient qext [NWAVE x NBIN x NGROUP] (default: None)
             groups: List of group configurations (default: None)
             elements: List of element configurations (default: None)
         """
@@ -231,7 +229,6 @@ class CARMAParameters:
         self.nstep = nstep
         self.deltaz = deltaz
         self.zmin = zmin
-        self.extinction_coefficient = extinction_coefficient
 
         # Initialize group and element configurations
         self.groups = groups or []
@@ -348,7 +345,6 @@ class CARMAParameters:
             nwave=30,
             deltaz=1000.0,
             zmin=16500.0,
-            extinction_coefficient=None,  # Not used in this test
             groups=[group],
             elements=[element]
         )
@@ -462,10 +458,6 @@ def _carma_dict_to_xarray(output_dict: Dict, parameters: 'CARMAParameters') -> x
 
     max_prognostic_bin = output_dict.get('max_prognostic_bin', [])
     data_vars['max_prognostic_bin'] = (('group'), np.array(max_prognostic_bin), {'units': '1', 'long_name': 'Maximum prognostic bin for each group'})
-
-    # extinction_coefficient = output_dict.get('extinction_coefficient', [])
-    # print(extinction_coefficient)
-    # data_vars['extinction_coefficient'] = (('nwave', 'bin', 'group'), np.array(extinction_coefficient), {'units': '1', 'long_name': 'Extinction coefficient for each wavelength, bin, and group'})
 
     # Create the dataset
     ds = xr.Dataset(

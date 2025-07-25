@@ -80,10 +80,6 @@ namespace musica
       double deltaz;
       double zmin;
 
-      // Optical parameters
-      double* extinction_coefficient;   // Pointer to extinction coefficient array
-      int extinction_coefficient_size;  // Size of extinction coefficient array
-
       // Group and element configurations
       CARMAGroupConfigC* groups;      // Pointer to groups array
       int groups_size;                // Number of groups
@@ -125,9 +121,6 @@ namespace musica
       const double* group_particle_number_concentration;  // concentration element per group [ngroup]
       const double* constituent_type;       // constituent type per group [ngroup]
       const double* max_prognostic_bin;     // max prognostic bin per group [ngroup]
-
-      // Optional optical data [nwave, nbin, ngroup] or [1, nbin, ngroup]
-      const double* extinction_efficiency;  // extinction efficiency
     };
 
     // The external C API for CARMA
@@ -150,8 +143,7 @@ namespace musica
         int nx,
         int nbin,
         int nelem,
-        int ngroup,
-        int nwave);
+        int ngroup);
 
 #ifdef __cplusplus
   }  // extern "C"

@@ -77,10 +77,6 @@ module carma_parameters_mod
       real(c_double) :: deltaz = 1000.0_real64
       real(c_double) :: zmin = 16500.0_real64
 
-      ! Optical parameters
-      type(c_ptr) :: extinction_coefficient  ! qext(NWAVE, NBIN, NGROUP)
-      integer(c_int) :: extinction_coefficient_size
-
       ! Group and element configurations (will be handled through C interface)
       ! Note: groups and elements are managed through C pointers in interface
       type(c_ptr) :: groups

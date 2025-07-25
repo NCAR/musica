@@ -175,31 +175,6 @@ void bind_carma(py::module_& carma)
           }
         }
 
-        if (params_dict.contains("extinction_coefficient"))
-        {
-          auto extinction_coeff_py = params_dict["extinction_coefficient"];
-          if (!extinction_coeff_py.is_none())
-          {
-            // Convert 3D Python list to flat array
-            auto extinction_3d = extinction_coeff_py.cast<std::vector<std::vector<std::vector<double>>>>();
-            size_t total_size = params.nwave * params.nbin * params.ngroup;
-            params.extinction_coefficient.resize(total_size);
-
-            // Copy data using proper indexing: index = i + j*nwave + k*nwave*nbin
-            for (int k = 0; k < params.ngroup; ++k)
-            {
-              for (int j = 0; j < params.nbin; ++j)
-              {
-                for (int i = 0; i < params.nwave; ++i)
-                {
-                  size_t idx = i + j * params.nwave + k * params.nwave * params.nbin;
-                  params.extinction_coefficient[idx] = extinction_3d[i][j][k];
-                }
-              }
-            }
-          }
-        }
-
         try
         {
           musica::CARMAOutput output = carma_instance->Run(params);
@@ -240,9 +215,6 @@ void bind_carma(py::module_& carma)
           result["group_particle_number_concentration"] = output.group_particle_number_concentration;
           result["constituent_type"] = output.constituent_type;
           result["max_prognostic_bin"] = output.max_prognostic_bin;
-
-          // Optical data (3D: nwave x nbin x ngroup)
-          result["extinction"] = output.extinction;
 
           return result;
         }
