@@ -45,32 +45,32 @@ namespace musica
   enum class FallVelocityAlgorithm
   {
     NONE = 0,
-    STANDARD_SPHERICAL_ONLY = 1, // Standard algorithm for spherical particles only
-    STANDARD_SHAPE_SUPPORT = 2,  // Standard algorithm with support for different shapes
-    HEYMSFIELD_2010 = 3          // Heymsfield and Westbrook 2010
+    STANDARD_SPHERICAL_ONLY = 1,  // Standard algorithm for spherical particles only
+    STANDARD_SHAPE_SUPPORT = 2,   // Standard algorithm with support for different shapes
+    HEYMSFIELD_2010 = 3           // Heymsfield and Westbrook 2010
   };
 
   // Enumeration for Mie calculation methods
   enum class MieCalculationAlgorithm
   {
     NONE = 0,
-    TOON_1981 = 1,   // Shell/Core Toon & Ackerman 1981 Mie calculation
-    BOHREN_1983 = 2, // Homogeneous Sphere Bohren and Huffman 1983 Mie calculation
-    BOTET_1997 = 3   // Fractal Mean-Field Botet et al. 1997 Mie calculation
+    TOON_1981 = 1,    // Shell/Core Toon & Ackerman 1981 Mie calculation
+    BOHREN_1983 = 2,  // Homogeneous Sphere Bohren and Huffman 1983 Mie calculation
+    BOTET_1997 = 3    // Fractal Mean-Field Botet et al. 1997 Mie calculation
   };
 
   // Enumeration for optics algorithms
   enum class OpticsAlgorithm
   {
     NONE = 0,
-    FIXED = 1,             // Fixed composition
-    MIXED_YU_2015 = 2,     // Yu (2015) mixed composition
-    SULFATE_YU_2015 = 3,   // Yu (2015) pure sulfate composition
-    MIXED_H2O_YU_2015 = 4, // Yu (2015) mixed composition with water in shell
-    MIXED_CORE_SHELL = 5,  // Core-Shell mixed composition
-    MIXED_VOLUME = 6,      // Volume mixed composition
-    MIXED_MAXWELL = 7,     // Maxwell-Garnett mixed composition
-    SULFATE = 8            // Sulfate, refractive index varies with WTP/RH
+    FIXED = 1,              // Fixed composition
+    MIXED_YU_2015 = 2,      // Yu (2015) mixed composition
+    SULFATE_YU_2015 = 3,    // Yu (2015) pure sulfate composition
+    MIXED_H2O_YU_2015 = 4,  // Yu (2015) mixed composition with water in shell
+    MIXED_CORE_SHELL = 5,   // Core-Shell mixed composition
+    MIXED_VOLUME = 6,       // Volume mixed composition
+    MIXED_MAXWELL = 7,      // Maxwell-Garnett mixed composition
+    SULFATE = 8             // Sulfate, refractive index varies with WTP/RH
   };
 
   // Enumeration for particle types
@@ -107,8 +107,8 @@ namespace musica
   // Structure defining an approach to particle swelling
   struct CARMASwellingApproach
   {
-    ParticleSwellingAlgorithm algorithm = ParticleSwellingAlgorithm::NONE; // Swelling algorithm
-    ParticleSwellingComposition composition = ParticleSwellingComposition::NONE; // Composition for swelling
+    ParticleSwellingAlgorithm algorithm = ParticleSwellingAlgorithm::NONE;        // Swelling algorithm
+    ParticleSwellingComposition composition = ParticleSwellingComposition::NONE;  // Composition for swelling
   };
 
   // Structure representing a CARMA group configuration
@@ -116,15 +116,15 @@ namespace musica
   {
     std::string name = "default_group";
     std::string shortname = "";
-    double rmin = 1e-9;  // minimum radius [m]
-    double rmrat = 2.0;  // volume ratio between bins
-    double rmassmin = 0.0; // minimum mass [kg] (When rmassmin > 0, rmin is ignored)
+    double rmin = 1e-9;     // minimum radius [m]
+    double rmrat = 2.0;     // volume ratio between bins
+    double rmassmin = 0.0;  // minimum mass [kg] (When rmassmin > 0, rmin is ignored)
     ParticleShape ishape = ParticleShape::SPHERE;
-    double eshape = 1.0;  // aspect ratio (length/width)
-    CARMASwellingApproach swelling_approach; // Swelling from RH approach
+    double eshape = 1.0;                      // aspect ratio (length/width)
+    CARMASwellingApproach swelling_approach;  // Swelling from RH approach
     FallVelocityAlgorithm fall_velocity_routine = FallVelocityAlgorithm::STANDARD_SPHERICAL_ONLY;
     MieCalculationAlgorithm mie_calculation_algorithm = MieCalculationAlgorithm::NONE;
-    OpticsAlgorithm optics_algorithm = OpticsAlgorithm::FIXED; // Optics algorithm
+    OpticsAlgorithm optics_algorithm = OpticsAlgorithm::FIXED;  // Optics algorithm
     bool is_ice = false;
     bool is_fractal = false;
     bool is_cloud = false;
@@ -132,13 +132,13 @@ namespace musica
     bool do_wetdep = false;
     bool do_drydep = false;
     bool do_vtran = true;
-    double solfac = 0.0;        // Solubility factor for wet deposition
-    double scavcoef = 0.0;      // Scavenging coefficient for wet deposition
-    double dpc_threshold = 0.0; // convergence criteria for particle concentration [fraction]
-    double rmon = 0.0;          // monomer radius [m]
-    std::vector<double> df;     // fractal dimension per bin
-    double falpha = 1.0;        // fractal packing coefficient
-    double neutral_volfrc = 0.0; // neutral volume fraction for fractal particles
+    double solfac = 0.0;          // Solubility factor for wet deposition
+    double scavcoef = 0.0;        // Scavenging coefficient for wet deposition
+    double dpc_threshold = 0.0;   // convergence criteria for particle concentration [fraction]
+    double rmon = 0.0;            // monomer radius [m]
+    std::vector<double> df;       // fractal dimension per bin
+    double falpha = 1.0;          // fractal packing coefficient
+    double neutral_volfrc = 0.0;  // neutral volume fraction for fractal particles
   };
 
   // Structure representing a CARMA element configuration
