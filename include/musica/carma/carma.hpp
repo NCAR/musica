@@ -116,7 +116,7 @@ namespace musica
   {
     std::string name = "default_group";
     std::string shortname = "";
-    double rmin = 1e-7;  // minimum radius [m]
+    double rmin = 1e-9;  // minimum radius [m]
     double rmrat = 2.0;  // volume ratio between bins
     double rmassmin = 0.0; // minimum mass [kg] (When rmassmin > 0, rmin is ignored)
     ParticleShape ishape = ParticleShape::SPHERE;

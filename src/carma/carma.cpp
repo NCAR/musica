@@ -138,7 +138,6 @@ namespace musica
         c_group.rmassmin = group.rmassmin;
         c_group.ishape = static_cast<int>(group.ishape);
         c_group.eshape = group.eshape;
-        c_group.is_ice = group.is_ice;
         c_group.swelling_algorithm = static_cast<int>(group.swelling_approach.algorithm);
         c_group.swelling_composition = static_cast<int>(group.swelling_approach.composition);
         c_group.fall_velocity_routine = static_cast<int>(group.fall_velocity_routine);
@@ -316,7 +315,7 @@ namespace musica
     CARMAGroupConfig group;
     group.name = "aluminum";
     group.shortname = "PRALUM";
-    group.rmin = 21.5e-6;  // minimum radius [cm]
+    group.rmin = 21.5e-8;  // minimum radius [m]
     group.rmrat = 2.0;     // volume ratio between bins
     group.ishape = ParticleShape::SPHERE;
     group.eshape = 1.0;  // aspect ratio
@@ -328,7 +327,7 @@ namespace musica
     group.do_vtran = true;
     group.solfac = 0.0;                      // no solvation
     group.scavcoef = 0.0;                    // no scavenging
-    group.rmon = 21.5e-6;                    // monomer radius [cm]
+    group.rmon = 21.5e-8;                    // monomer radius [m]
     group.df = { 1.6, 1.6, 1.6, 1.6, 1.6 };  // fractal dimension per bin
     group.falpha = 1.0;                      // fractal packing coefficient
 

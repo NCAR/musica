@@ -318,7 +318,7 @@ contains
                carma, &
                igroup, &
                group_name, &
-               real(group%rmin, kind=real64), &
+               real(group%rmin, kind=real64) * 100.0_real64, & ! Convert m to cm
                real(group%rmrat, kind=real64), &
                int(group%ishape), &
                real(group%eshape, kind=real64), &
@@ -336,12 +336,12 @@ contains
                shortname=group_short_name, &
                ifallrtn=int(group%fall_velocity_routine), &
                is_cloud= logical(group%is_cloud), &
-               rmassmin=real(group%rmassmin, kind=real64), &
+               rmassmin=real(group%rmassmin, kind=real64) * 1000.0_real64, & ! Convert kg to g
                imiertn=int(group%mie_calculation_algorithm), &
                iopticstype=int(group%optics_algorithm), &
                is_sulfate=logical(group%is_sulfate), &
                dpc_threshold=real(group%dpc_threshold, kind=real64), &
-               rmon=real(group%rmon, kind=real64), &
+               rmon=real(group%rmon, kind=real64) * 100.0_real64, & ! Convert m to cm
                df=df, &
                falpha=real(group%falpha, kind=real64), &
                neutral_volfrc=real(group%neutral_volfrc, kind=real64))

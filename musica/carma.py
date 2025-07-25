@@ -157,9 +157,9 @@ class CARMAGroupConfig:
         Args:
             name: Name of the group (default: "default_group")
             shortname: Short name for the group (default: "")
-            rmin: Radius of particles in the first bin [cm] (default: 1e-7)
+            rmin: Radius of particles in the first bin [m] (default: 1e-9)
             rmrat: Ratio of masses of particles in consecutive bins (default: 2.0)
-            rmassmin: Minimum mass of particles [g] (default: 0.0)
+            rmassmin: Minimum mass of particles [kg] (default: 0.0)
             ishape: Shape of the particles (default: ParticleShape.SPHERE)
             eshape: Ratio of particle length / diameter (default: 1.0)
             swelling_approach: Dictionary specifying swelling algorithm and composition (default: NONE)
@@ -174,9 +174,9 @@ class CARMAGroupConfig:
             do_drydep: Whether to include dry deposition (default: False)
             do_vtran: Whether to include vertical transport (default: True)
             solfac: Solubility factor for wet deposition (default: 0.0)
-            scavcoef: Scavenging coefficient for wet deposition [mm-1] (default: 0.0)
+            scavcoef: Scavenging coefficient for wet deposition (default: 0.0)
             dpc_threshold: Threshold for dry particle collection (default: 0.0)
-            rmon: Monomer radius of fractal particles [cm] (default: 0.0)
+            rmon: Monomer radius of fractal particles [m] (default: 0.0)
             df: List of fractal dimensions for each size bin (default: None)
             falpha: Fractal packing coefficient (default: 1.0)
             neutral_volfrc: Neutral volume fraction for fractal particles (default: 0.0)
@@ -411,7 +411,7 @@ class CARMAParameters:
         group = CARMAGroupConfig(
             name="aluminum",
             shortname="PRALUM",
-            rmin=21.5e-6,
+            rmin=21.5e-8,
             rmrat=2.0,
             ishape=ParticleShape.SPHERE,
             eshape=1.0,
@@ -423,7 +423,7 @@ class CARMAParameters:
             do_vtran=True,
             solfac=0.0,
             scavcoef=0.0,
-            rmon=21.5e-6,
+            rmon=21.5e-8,
             df=[1.6] * 5,  # 5 bins with fractal dimension 1.6
             falpha=1.0
         )
