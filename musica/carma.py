@@ -131,8 +131,8 @@ class CARMAGroupConfig:
                  ishape: int = ParticleShape.SPHERE,
                  eshape: float = 1.0,
                  swelling_approach: dict = {
-                    "algorithm": ParticleSwellingAlgorithm.NONE,
-                    "composition": ParticleSwellingComposition.NONE
+                     "algorithm": ParticleSwellingAlgorithm.NONE,
+                     "composition": ParticleSwellingComposition.NONE
                  },
                  fall_velocity_routine: int = ParticleFallVelocityAlgorithm.STANDARD_SPHERICAL_ONLY,
                  mie_calculation_algorithm: int = MieCalculationAlgorithm.NONE,

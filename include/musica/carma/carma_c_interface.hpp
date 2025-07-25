@@ -26,20 +26,20 @@ namespace musica
 
     struct CARMAGroupConfigC
     {
-      int name_length;       // length of name string
-      char name[256];        // 255 chars + null terminator
-      int shortname_length;  // length of shortname string
-      char shortname[7];     // 6 chars + null terminator
-      double rmin;           // minimum radius [m]
-      double rmrat;          // volume ratio between bins
-      double rmassmin;       // minimum mass [kg] (When rmassmin > 0, rmin is ignored)
-      int ishape;            // Particle shape (enum value)
-      double eshape;         // aspect ratio
-      int swelling_algorithm; // Swelling algorithm (enum value)
-      int swelling_composition; // Composition for swelling (enum value)
-      int fall_velocity_routine; // Fall velocity algorithm (enum value)
-      int mie_calculation_algorithm; // Mie calculation algorithm (enum value)
-      int optics_algorithm;  // Optics algorithm (enum value)
+      int name_length;                // length of name string
+      char name[256];                 // 255 chars + null terminator
+      int shortname_length;           // length of shortname string
+      char shortname[7];              // 6 chars + null terminator
+      double rmin;                    // minimum radius [m]
+      double rmrat;                   // volume ratio between bins
+      double rmassmin;                // minimum mass [kg] (When rmassmin > 0, rmin is ignored)
+      int ishape;                     // Particle shape (enum value)
+      double eshape;                  // aspect ratio
+      int swelling_algorithm;         // Swelling algorithm (enum value)
+      int swelling_composition;       // Composition for swelling (enum value)
+      int fall_velocity_routine;      // Fall velocity algorithm (enum value)
+      int mie_calculation_algorithm;  // Mie calculation algorithm (enum value)
+      int optics_algorithm;           // Optics algorithm (enum value)
       bool is_ice;
       bool is_fractal;
       bool is_cloud;
@@ -47,14 +47,14 @@ namespace musica
       bool do_wetdep;
       bool do_drydep;
       bool do_vtran;
-      double solfac; // Solubility factor for wet deposition
-      double scavcoef; // Scavenging coefficient for wet deposition
-      double dpc_threshold; // convergence criteria for particle concentration [fraction]
-      double rmon; // monomer radius [m]
-      double* df;   // fractal dimension per bin (allocated separately)
-      int df_size;  // size of df array
-      double falpha; // fractal packing coefficient
-      double neutral_volfrc; // neutral volume fraction for fractal particles
+      double solfac;          // Solubility factor for wet deposition
+      double scavcoef;        // Scavenging coefficient for wet deposition
+      double dpc_threshold;   // convergence criteria for particle concentration [fraction]
+      double rmon;            // monomer radius [m]
+      double* df;             // fractal dimension per bin (allocated separately)
+      int df_size;            // size of df array
+      double falpha;          // fractal packing coefficient
+      double neutral_volfrc;  // neutral volume fraction for fractal particles
     };
 
     struct CARMAElementConfigC
