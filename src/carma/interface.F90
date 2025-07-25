@@ -169,7 +169,7 @@ contains
 
         ! Clean up the carma instance
         call CARMA_Destroy(carma, rc)
-        if (rc /= 0) 
+        if (rc /= 0) then
             print *, "Error destroying CARMA instance"
             return
         end if
@@ -311,7 +311,7 @@ contains
                   solfac=real(group%solfac, kind=real64), scavcoef=real(group%scavcoef, kind=real64), &
                   shortname=group_short_name, rmon=real(group%rmon, kind=real64), df=df, falpha=real(group%falpha, kind=real64), &
                   is_sulfate=.false.)
-               if (rc /= 0) 
+               if (rc /= 0) then
                   print *, "Error creating CARMA group"
                   return
                end if
@@ -331,7 +331,7 @@ contains
                call CARMAELEMENT_Create(carma, int(elem%id), int(elem%igroup), element_name, real(elem%rho, kind=real64), &
                   int(elem%itype), int(elem%icomposition), rc, shortname=element_short_name, isolute=int(elem%isolute), &
                   rhobin=rhobin, arat=arat, kappa=real(elem%kappa, kind=real64), isShell=logical(elem%isShell))
-               if (rc /= 0) 
+               if (rc /= 0) then
                   print *, "Error creating CARMA element"
                   return
                end if
