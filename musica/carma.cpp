@@ -21,10 +21,6 @@ void bind_carma(py::module_& carma)
         // Convert Python dict to CARMAParameters
         musica::CARMAParameters params;
 
-        if (params_dict.contains("max_bins"))
-          params.max_bins = params_dict["max_bins"].cast<int>();
-        if (params_dict.contains("max_groups"))
-          params.max_groups = params_dict["max_groups"].cast<int>();
         if (params_dict.contains("nz"))
           params.nz = params_dict["nz"].cast<int>();
         if (params_dict.contains("ny"))
@@ -62,8 +58,6 @@ void bind_carma(py::module_& carma)
               auto group_dict = group_py.cast<py::dict>();
               musica::CARMAGroupConfig group;
 
-              if (group_dict.contains("id"))
-                group.id = group_dict["id"].cast<int>();
               if (group_dict.contains("name"))
                 group.name = group_dict["name"].cast<std::string>();
               if (group_dict.contains("shortname"))
@@ -72,16 +66,37 @@ void bind_carma(py::module_& carma)
                 group.rmin = group_dict["rmin"].cast<double>();
               if (group_dict.contains("rmrat"))
                 group.rmrat = group_dict["rmrat"].cast<double>();
+              if (group_dict.contains("rmassmin"))
+                group.rmassmin = group_dict["rmassmin"].cast<double>();
               if (group_dict.contains("ishape"))
                 group.ishape = static_cast<musica::ParticleShape>(group_dict["ishape"].cast<int>());
               if (group_dict.contains("eshape"))
                 group.eshape = group_dict["eshape"].cast<double>();
+              if (group_dict.contains("swelling_approach"))
+                if (group_dict["swelling_approach"].contains("algorithm") &&
+                    group_dict["swelling_approach"].contains("composition"))
+                {
+                  group.swelling_approach.algorithm = static_cast<musica::ParticleSwellingAlgorithm>(
+                      group_dict["swelling_approach"]["algorithm"].cast<int>());
+                  group.swelling_approach.composition = static_cast<musica::ParticleSwellingComposition>(
+                      group_dict["swelling_approach"]["composition"].cast<int>());
+                }
+              if (group_dict.contains("fall_velocity_routine"))
+                group.fall_velocity_routine = static_cast<musica::FallVelocityAlgorithm>(
+                    group_dict["fall_velocity_routine"].cast<int>());
+              if (group_dict.contains("mie_calculation_algorithm"))
+                group.mie_calculation_algorithm = static_cast<musica::MieCalculationAlgorithm>(
+                    group_dict["mie_calculation_algorithm"].cast<int>());
+              if (group_dict.contains("optics_algorithm"))
+                group.optics_algorithm = static_cast<musica::OpticsAlgorithm>(group_dict["optics_algorithm"].cast<int>());
               if (group_dict.contains("is_ice"))
                 group.is_ice = group_dict["is_ice"].cast<bool>();
               if (group_dict.contains("is_fractal"))
                 group.is_fractal = group_dict["is_fractal"].cast<bool>();
-              if (group_dict.contains("do_mie"))
-                group.do_mie = group_dict["do_mie"].cast<bool>();
+              if (group_dict.contains("is_cloud"))
+                group.is_cloud = group_dict["is_cloud"].cast<bool>();
+              if (group_dict.contains("is_sulfate"))
+                group.is_sulfate = group_dict["is_sulfate"].cast<bool>();
               if (group_dict.contains("do_wetdep"))
                 group.do_wetdep = group_dict["do_wetdep"].cast<bool>();
               if (group_dict.contains("do_drydep"))
@@ -92,12 +107,16 @@ void bind_carma(py::module_& carma)
                 group.solfac = group_dict["solfac"].cast<double>();
               if (group_dict.contains("scavcoef"))
                 group.scavcoef = group_dict["scavcoef"].cast<double>();
+              if (group_dict.contains("dpc_threshold"))
+                group.dpc_threshold = group_dict["dpc_threshold"].cast<double>();
               if (group_dict.contains("rmon"))
                 group.rmon = group_dict["rmon"].cast<double>();
               if (group_dict.contains("df"))
                 group.df = group_dict["df"].cast<std::vector<double>>();
               if (group_dict.contains("falpha"))
                 group.falpha = group_dict["falpha"].cast<double>();
+              if (group_dict.contains("neutral_volfrc"))
+                group.neutral_volfrc = group_dict["neutral_volfrc"].cast<double>();
 
               params.groups.push_back(group);
             }

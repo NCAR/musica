@@ -298,24 +298,43 @@ contains
       if (c_associated(params%groups)) then
          call c_f_pointer(params%groups, group_config, [params%groups_size])
          do igroup = 1, params%groups_size
-            associate(group => group_config(igroup))
-               group_name = c_to_f_string(group%name, group%name_length)
-               group_short_name = c_to_f_string(group%shortname, group%shortname_length)
-               call c_f_pointer(group%df, df, [group%df_size])
-               call CARMAGROUP_Create(carma, int(group%id), group_name, real(group%rmin, kind=real64), &
-                  real(group%rmrat, kind=real64), &
-                  int(group%ishape), real(group%eshape, kind=real64), logical(group%is_ice), rc,&
-                  is_fractal=logical(group%is_fractal), &
-                  irhswell=I_NO_SWELLING, do_mie=logical(group%do_mie), do_wetdep=logical(group%do_wetdep), &
-                  do_drydep=logical(group%do_drydep), do_vtran=logical(group%do_vtran), &
-                  solfac=real(group%solfac, kind=real64), scavcoef=real(group%scavcoef, kind=real64), &
-                  shortname=group_short_name, rmon=real(group%rmon, kind=real64), df=df, falpha=real(group%falpha, kind=real64), &
-                  is_sulfate=.false.)
-               if (rc /= 0) then
-                  print *, "Error creating CARMA group"
-                  return
-               end if
-            end associate
+         associate(group => group_config(igroup))
+            group_name = c_to_f_string(group%name, group%name_length)
+            group_short_name = c_to_f_string(group%shortname, group%shortname_length)
+            call c_f_pointer(group%df, df, [group%df_size])
+            call CARMAGROUP_Create( &
+               carma, &
+               igroup, &
+               group_name, &
+               real(group%rmin, kind=real64) * 100.0_real64, & ! Convert m to cm
+               real(group%rmrat, kind=real64), &
+               int(group%ishape), &
+               real(group%eshape, kind=real64), &
+               logical(group%is_ice), &
+               rc, &
+               is_fractal=logical(group%is_fractal), &
+               irhswell=int(group%swelling_algorithm), &
+               irhswcomp=int(group%swelling_composition), &
+               do_mie=(group%mie_calculation_algorithm /= 0), &
+               do_wetdep=logical(group%do_wetdep), &
+               do_drydep=logical(group%do_drydep), &
+               do_vtran=logical(group%do_vtran), &
+               solfac=real(group%solfac, kind=real64), &
+               scavcoef=real(group%scavcoef, kind=real64), &
+               shortname=group_short_name, &
+               ifallrtn=int(group%fall_velocity_routine), &
+               is_cloud= logical(group%is_cloud), &
+               rmassmin=real(group%rmassmin, kind=real64) * 1000.0_real64, & ! Convert kg to g
+               imiertn=int(group%mie_calculation_algorithm), &
+               iopticstype=int(group%optics_algorithm), &
+               is_sulfate=logical(group%is_sulfate), &
+               dpc_threshold=real(group%dpc_threshold, kind=real64), &
+               rmon=real(group%rmon, kind=real64) * 100.0_real64, & ! Convert m to cm
+               df=df, &
+               falpha=real(group%falpha, kind=real64), &
+               neutral_volfrc=real(group%neutral_volfrc, kind=real64))
+            if (rc /= 0) return
+         end associate
          end do
       end if
 

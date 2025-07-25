@@ -33,6 +33,53 @@ class ParticleType:
     CORE_MASS_TWO_MOMENTS = 5
 
 
+class ParticleSwellingAlgorithm:
+    """Enumeration for particle swelling algorithms used in CARMA."""
+    NONE = 0
+    FITZGERALD = 1
+    GERBER = 2
+    WEIGHT_PERCENT_H2SO4 = 3
+    PETTERS = 4
+
+
+class ParticleSwellingComposition:
+    """Enumeration for particle swelling compositions used in CARMA."""
+    NONE = 0
+    AMMONIUM_SULFATE = 1
+    SEA_SALT = 2
+    URBAN = 3
+    RURAL = 4
+
+
+class ParticleFallVelocityAlgorithm:
+    """Enumeration for particle fall velocity algorithms used in CARMA."""
+    NONE = 0
+    STANDARD_SPHERICAL_ONLY = 1
+    STANDARD_SHAPE_SUPPORT = 2
+    HEYMSFIELD_2010 = 3
+
+
+class MieCalculationAlgorithm:
+    """Enumeration for Mie calculation algorithms used in CARMA."""
+    NONE = 0
+    TOON_1981 = 1
+    BOHREN_1983 = 2
+    BOTET_1997 = 3
+
+
+class OpticsAlgorithm:
+    """Enumeration for optics algorithms used in CARMA."""
+    NONE = 0
+    FIXED = 1
+    MIXED_YU_2015 = 2
+    SULFATE_YU_2015 = 3
+    MIXED_H2O_YU_2015 = 4
+    MIXED_CORE_SHELL = 5
+    MIXED_VOLUME = 6
+    MIXED_MAXWELL = 7
+    SULFATE = 8
+
+
 class ParticleComposition:
     """Enumeration for particle compositions used in CARMA."""
     ALUMINUM = 1
@@ -76,65 +123,89 @@ class CARMAGroupConfig:
     """
 
     def __init__(self,
-                 id: int = 1,
                  name: str = "default_group",
                  shortname: str = "",
                  rmin: float = 1e-7,
                  rmrat: float = 2.0,
+                 rmassmin: float = 0.0,
                  ishape: int = ParticleShape.SPHERE,
                  eshape: float = 1.0,
+                 swelling_approach: dict = {
+                    "algorithm": ParticleSwellingAlgorithm.NONE,
+                    "composition": ParticleSwellingComposition.NONE
+                 },
+                 fall_velocity_routine: int = ParticleFallVelocityAlgorithm.STANDARD_SPHERICAL_ONLY,
+                 mie_calculation_algorithm: int = MieCalculationAlgorithm.NONE,
+                 optics_algorithm: int = OpticsAlgorithm.FIXED,
                  is_ice: bool = False,
                  is_fractal: bool = False,
-                 do_mie: bool = True,
+                 is_cloud: bool = False,
+                 is_sulfate: bool = False,
                  do_wetdep: bool = False,
                  do_drydep: bool = False,
                  do_vtran: bool = True,
                  solfac: float = 0.0,
                  scavcoef: float = 0.0,
+                 dpc_threshold: float = 0.0,
                  rmon: float = 0.0,
                  df: Optional[List[float]] = None,
-                 falpha: float = 1.0):
+                 falpha: float = 1.0,
+                 neutral_volfrc: float = 0.0):
         """
         Initialize a CARMA group configuration.
 
         Args:
-            id: Unique identifier for the group (default: 1)
             name: Name of the group (default: "default_group")
             shortname: Short name for the group (default: "")
-            rmin: Radius of particles in the first bin [cm] (default: 1e-7)
+            rmin: Radius of particles in the first bin [m] (default: 1e-9)
             rmrat: Ratio of masses of particles in consecutive bins (default: 2.0)
+            rmassmin: Minimum mass of particles [kg] (default: 0.0)
             ishape: Shape of the particles (default: ParticleShape.SPHERE)
             eshape: Ratio of particle length / diameter (default: 1.0)
+            swelling_approach: Dictionary specifying swelling algorithm and composition (default: NONE)
+            fall_velocity_routine: Algorithm for fall velocity (default: STANDARD_SPHERICAL_ONLY)
+            mie_calculation_algorithm: Algorithm for Mie calculations (default: NONE)
+            optics_algorithm: Algorithm for optics (default: FIXED)
             is_ice: Whether the particles are ice (default: False)
             is_fractal: Whether the particles are fractal (default: False)
-            do_mie: Whether to do Mie calculations (default: True)
+            is_cloud: Whether the group is a cloud (default: False)
+            is_sulfate: Whether the group is sulfate (default: False)
             do_wetdep: Whether to include wet deposition (default: False)
             do_drydep: Whether to include dry deposition (default: False)
             do_vtran: Whether to include vertical transport (default: True)
             solfac: Solubility factor for wet deposition (default: 0.0)
-            scavcoef: Scavenging coefficient for wet deposition [mm-1] (default: 0.0)
-            rmon: Monomer radius of fractal particles [cm] (default: 0.0)
+            scavcoef: Scavenging coefficient for wet deposition (default: 0.0)
+            dpc_threshold: Threshold for dry particle collection (default: 0.0)
+            rmon: Monomer radius of fractal particles [m] (default: 0.0)
             df: List of fractal dimensions for each size bin (default: None)
             falpha: Fractal packing coefficient (default: 1.0)
+            neutral_volfrc: Neutral volume fraction for fractal particles (default: 0.0)
         """
-        self.id = id
         self.name = name
         self.shortname = shortname
         self.rmin = rmin
         self.rmrat = rmrat
+        self.rmassmin = rmassmin
         self.ishape = ishape
         self.eshape = eshape
+        self.swelling_approach = swelling_approach
+        self.fall_velocity_routine = fall_velocity_routine
+        self.mie_calculation_algorithm = mie_calculation_algorithm
+        self.optics_algorithm = optics_algorithm
         self.is_ice = is_ice
         self.is_fractal = is_fractal
-        self.do_mie = do_mie
+        self.is_cloud = is_cloud
+        self.is_sulfate = is_sulfate
         self.do_wetdep = do_wetdep
         self.do_drydep = do_drydep
         self.do_vtran = do_vtran
         self.solfac = solfac
         self.scavcoef = scavcoef
+        self.dpc_threshold = dpc_threshold
         self.rmon = rmon
         self.df = df or []
         self.falpha = falpha
+        self.neutral_volfrc = neutral_volfrc
 
     def to_dict(self) -> Dict:
         """Convert to dictionary."""
@@ -332,22 +403,21 @@ class CARMAParameters:
 
         # Create aluminum group
         group = CARMAGroupConfig(
-            id=1,
             name="aluminum",
             shortname="PRALUM",
-            rmin=21.5e-6,
+            rmin=21.5e-8,
             rmrat=2.0,
             ishape=ParticleShape.SPHERE,
             eshape=1.0,
+            mie_calculation_algorithm=MieCalculationAlgorithm.TOON_1981,
             is_ice=False,
             is_fractal=True,
-            do_mie=True,
             do_wetdep=False,
             do_drydep=True,
             do_vtran=True,
             solfac=0.0,
             scavcoef=0.0,
-            rmon=21.5e-6,
+            rmon=21.5e-8,
             df=[1.6] * 5,  # 5 bins with fractal dimension 1.6
             falpha=1.0
         )

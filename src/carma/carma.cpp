@@ -65,8 +65,6 @@ namespace musica
     CCARMAParameters* c_params = new CCARMAParameters();
 
     // Copy simple scalar values
-    c_params->max_bins = params.max_bins;
-    c_params->max_groups = params.max_groups;
     c_params->nz = params.nz;
     c_params->ny = params.ny;
     c_params->nx = params.nx;
@@ -110,7 +108,6 @@ namespace musica
         const auto& group = params.groups[i];
         auto& c_group = c_params->groups[i];
 
-        c_group.id = group.id;
         c_group.name_length = std::min(static_cast<int>(group.name.length()), 255);
         std::strncpy(c_group.name, group.name.c_str(), 255);
         c_group.name[255] = '\0';
@@ -121,18 +118,27 @@ namespace musica
 
         c_group.rmin = group.rmin;
         c_group.rmrat = group.rmrat;
+        c_group.rmassmin = group.rmassmin;
         c_group.ishape = static_cast<int>(group.ishape);
         c_group.eshape = group.eshape;
+        c_group.swelling_algorithm = static_cast<int>(group.swelling_approach.algorithm);
+        c_group.swelling_composition = static_cast<int>(group.swelling_approach.composition);
+        c_group.fall_velocity_routine = static_cast<int>(group.fall_velocity_routine);
+        c_group.mie_calculation_algorithm = static_cast<int>(group.mie_calculation_algorithm);
+        c_group.optics_algorithm = static_cast<int>(group.optics_algorithm);
         c_group.is_ice = group.is_ice;
         c_group.is_fractal = group.is_fractal;
-        c_group.do_mie = group.do_mie;
+        c_group.is_cloud = group.is_cloud;
+        c_group.is_sulfate = group.is_sulfate;
         c_group.do_wetdep = group.do_wetdep;
         c_group.do_drydep = group.do_drydep;
         c_group.do_vtran = group.do_vtran;
         c_group.solfac = group.solfac;
         c_group.scavcoef = group.scavcoef;
+        c_group.dpc_threshold = group.dpc_threshold;
         c_group.rmon = group.rmon;
         c_group.falpha = group.falpha;
+        c_group.neutral_volfrc = group.neutral_volfrc;
 
         // Handle df array
         if (!group.df.empty())
@@ -262,8 +268,6 @@ namespace musica
     CARMAParameters params;
 
     // Set default values for the aluminum test case
-    params.max_bins = 100;
-    params.max_groups = 10;
     params.nz = 1;
     params.ny = 1;
     params.nx = 1;
@@ -286,22 +290,21 @@ namespace musica
 
     // Create a default group
     CARMAGroupConfig group;
-    group.id = 1;
     group.name = "aluminum";
     group.shortname = "PRALUM";
-    group.rmin = 21.5e-6;  // minimum radius [cm]
+    group.rmin = 21.5e-8;  // minimum radius [m]
     group.rmrat = 2.0;     // volume ratio between bins
     group.ishape = ParticleShape::SPHERE;
     group.eshape = 1.0;  // aspect ratio
     group.is_ice = false;
     group.is_fractal = true;
-    group.do_mie = true;
+    group.mie_calculation_algorithm = MieCalculationAlgorithm::TOON_1981; // Toon & Ackerman 1981
     group.do_wetdep = false;
     group.do_drydep = true;
     group.do_vtran = true;
     group.solfac = 0.0;                      // no solvation
     group.scavcoef = 0.0;                    // no scavenging
-    group.rmon = 21.5e-6;                    // monomer radius [cm]
+    group.rmon = 21.5e-8;                    // monomer radius [m]
     group.df = { 1.6, 1.6, 1.6, 1.6, 1.6 };  // fractal dimension per bin
     group.falpha = 1.0;                      // fractal packing coefficient
 
