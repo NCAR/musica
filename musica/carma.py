@@ -148,47 +148,47 @@ class CARMAElementConfig:
     """
 
     def __init__(self,
-                 id: int = 1,
                  igroup: int = 1,
+                 isolute: int = 0,
                  name: str = "default_element",
                  shortname: str = "",
-                 rho: float = 1.0,
                  itype: int = ParticleType.INVOLATILE,
                  icomposition: int = ParticleComposition.OTHER,
-                 isolute: int = 0,
+                 is_shell: bool = True,
+                 rho: float = 1.0,
                  rhobin: Optional[List[float]] = None,
                  arat: Optional[List[float]] = None,
                  kappa: float = 0.0,
-                 is_shell: bool = True):
+                 refidx: Optional[List[List[float]]] = None):
         """
         Initialize a CARMA element configuration.
 
         Args:
-            id: Unique identifier for the element (default: 1)
             igroup: Group ID this element belongs to (default: 1)
+            isolute: Index of the solute (default: 0)
             name: Name of the element (default: "default_element")
             shortname: Short name for the element (default: "")
-            rho: Density of the element in g/cm3 (default: 1.0)
             itype: Type of the particle (default: ParticleType.INVOLATILE)
             icomposition: Composition of the particle (default: ParticleComposition.OTHER)
-            isolute: Index of the solute (default: 0)
+            is_shell: For core/shell optics, whether this element is part of the shell (True) or core (False) (default: True)
+            rho: Density of the element in g/cm3 (default: 1.0)
             rhobin: List of densities for each size bin (default: None)
             arat: List of area ratios for each size bin (default: None)
             kappa: Hygroscopicity parameter (default: 0.0)
-            is_shell: For core/shell optics, whether this element is part of the shell (True) or core (False) (default: True)
+            refidx: List of lists of refractive indices for each wavelength bin (default: None)
         """
-        self.id = id
         self.igroup = igroup
+        self.isolute = isolute
         self.name = name
         self.shortname = shortname
-        self.rho = rho
         self.itype = itype
         self.icomposition = icomposition
-        self.isolute = isolute
+        self.is_shell = is_shell
+        self.rho = rho
         self.rhobin = rhobin or []
         self.arat = arat or []
         self.kappa = kappa
-        self.is_shell = is_shell
+        self.refidx = refidx or []
 
     def to_dict(self) -> Dict:
         """Convert to dictionary."""
@@ -354,18 +354,17 @@ class CARMAParameters:
 
         # Create aluminum element
         element = CARMAElementConfig(
-            id=1,
             igroup=1,
+            isolute=0,
             name="Aluminum",
             shortname="ALUM",
-            rho=3.95,  # g/cm3
             itype=ParticleType.INVOLATILE,
             icomposition=ParticleComposition.ALUMINUM,
-            isolute=0,
-            rhobin=[1.0] * 5,  # 5 bins with density 1.0
+            is_shell=True,
+            rho=0.395,  # kg/m3
+            rhobin=[0.395] * 5,  # 5 bins with density 0.395 kg/m3
             arat=[1.0] * 5,  # 5 bins with area ratio 1.0
             kappa=0.0,
-            is_shell=True
         )
 
         params = cls(

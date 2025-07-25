@@ -116,31 +116,55 @@ void bind_carma(py::module_& carma)
               auto element_dict = element_py.cast<py::dict>();
               musica::CARMAElementConfig element;
 
-              if (element_dict.contains("id"))
-                element.id = element_dict["id"].cast<int>();
               if (element_dict.contains("igroup"))
                 element.igroup = element_dict["igroup"].cast<int>();
+              if (element_dict.contains("isolute"))
+                element.isolute = element_dict["isolute"].cast<int>();
               if (element_dict.contains("name"))
                 element.name = element_dict["name"].cast<std::string>();
               if (element_dict.contains("shortname"))
                 element.shortname = element_dict["shortname"].cast<std::string>();
-              if (element_dict.contains("rho"))
-                element.rho = element_dict["rho"].cast<double>();
               if (element_dict.contains("itype"))
                 element.itype = static_cast<musica::ParticleType>(element_dict["itype"].cast<int>());
               if (element_dict.contains("icomposition"))
                 element.icomposition = static_cast<musica::ParticleComposition>(element_dict["icomposition"].cast<int>());
-              if (element_dict.contains("isolute"))
-                element.isolute = element_dict["isolute"].cast<int>();
+              if (element_dict.contains("is_shell"))
+                element.isShell = element_dict["is_shell"].cast<bool>();
+              if (element_dict.contains("rho"))
+                element.rho = element_dict["rho"].cast<double>();
               if (element_dict.contains("rhobin"))
                 element.rhobin = element_dict["rhobin"].cast<std::vector<double>>();
               if (element_dict.contains("arat"))
                 element.arat = element_dict["arat"].cast<std::vector<double>>();
               if (element_dict.contains("kappa"))
                 element.kappa = element_dict["kappa"].cast<double>();
-              if (element_dict.contains("is_shell"))
-                element.isShell = element_dict["is_shell"].cast<bool>();
-
+              if (element_dict.contains("refidx"))
+              {
+                auto refidx_py = element_dict["refidx"];
+                if (!refidx_py.is_none() && py::isinstance<py::list>(refidx_py))
+                {
+                  auto refidx_outer_list = refidx_py.cast<py::list>();
+                  for (auto refidx_row_py : refidx_outer_list)
+                  {
+                    std::vector<musica::CARMAComplex> refidx_row;
+                    if (!refidx_row_py.is_none() && py::isinstance<py::list>(refidx_row_py))
+                    {
+                      auto refidx_inner_list = refidx_row_py.cast<py::list>();
+                      for (auto refidx_item : refidx_inner_list)
+                      {
+                        auto refidx_dict = refidx_item.cast<py::dict>();
+                        musica::CARMAComplex refidx_value;
+                        if (refidx_dict.contains("real"))
+                          refidx_value.real = refidx_dict["real"].cast<double>();
+                        if (refidx_dict.contains("imaginary"))
+                          refidx_value.imaginary = refidx_dict["imaginary"].cast<double>();
+                        refidx_row.push_back(refidx_value);
+                      }
+                    }
+                    element.refidx.push_back(refidx_row);
+                  }
+                }
+              }
               params.elements.push_back(element);
             }
           }
