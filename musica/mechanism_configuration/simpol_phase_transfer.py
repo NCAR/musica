@@ -211,14 +211,7 @@ class SimpolPhaseTransfer:
         Returns:
             Dict: A dictionary representation of the SimpolPhaseTransfer object.
         """
-        serialize_dict = {
-            "type": "SIMPOL_PHASE_TRANSFER",
-            "name": instance.name,
-            "gas phase": instance.gas_phase,
-            "gas-phase species": instance.gas_phase_species.species_name,
-            "aerosol phase": instance.aerosol_phase,
-            "aerosol-phase species": instance.aerosol_phase_species.species_name,
-            "B": instance.B,
-        }
-        _add_other_properties(serialize_dict, instance.other_properties)
-        return _remove_empty_keys(serialize_dict)
+        # Create a local copy to call serialize
+        temp_obj = SimpolPhaseTransfer()
+        temp_obj._instance = instance
+        return temp_obj.serialize()
