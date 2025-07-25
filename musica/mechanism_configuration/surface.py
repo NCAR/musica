@@ -225,3 +225,56 @@ class Surface:
         # Add other properties
         _add_other_properties(serialize_dict, self._other_properties)
         return _remove_empty_keys(serialize_dict)
+
+    @staticmethod
+    def serialize_static(instance) -> Dict:
+        """
+        Static serialize method for compatibility with C++ _Surface objects.
+
+        Args:
+            instance: The _Surface instance to serialize.
+
+        Returns:
+            Dict: A dictionary representation of the Surface object.
+        """
+        serialize_dict = {
+            "type": "SURFACE",
+            "name": instance.name,
+            "reaction probability": instance.reaction_probability,
+        }
+        
+        # Handle gas_phase_species serialization from C++ object
+        if hasattr(instance, 'gas_phase_species') and instance.gas_phase_species is not None:
+            gas_species = instance.gas_phase_species
+            if hasattr(gas_species, 'coefficient') and gas_species.coefficient != 1.0:
+                serialize_dict["gas-phase species"] = {
+                    "species name": gas_species.species_name,
+                    "coefficient": gas_species.coefficient,
+                }
+            else:
+                serialize_dict["gas-phase species"] = gas_species.species_name
+        
+        # Handle gas_phase_products serialization from C++ object
+        if hasattr(instance, 'gas_phase_products') and instance.gas_phase_products:
+            products = []
+            for p in instance.gas_phase_products:
+                if hasattr(p, 'coefficient') and p.coefficient != 1.0:
+                    products.append({
+                        "species name": p.species_name,
+                        "coefficient": p.coefficient,
+                    })
+                else:
+                    products.append(p.species_name)
+            serialize_dict["gas-phase products"] = products
+        
+        # Handle phase names from C++ object
+        if hasattr(instance, 'gas_phase') and instance.gas_phase:
+            serialize_dict["gas phase"] = instance.gas_phase
+        if hasattr(instance, 'aerosol_phase') and instance.aerosol_phase:
+            serialize_dict["aerosol phase"] = instance.aerosol_phase
+        
+        # Add other properties
+        if hasattr(instance, 'other_properties'):
+            _add_other_properties(serialize_dict, instance.other_properties)
+        
+        return _remove_empty_keys(serialize_dict)
