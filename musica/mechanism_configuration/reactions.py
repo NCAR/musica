@@ -56,7 +56,19 @@ class ReactionComponentSerializer():
     @staticmethod
     def serialize_reaction_component(rc) -> Union[Dict, str]:
         if isinstance(rc, Species) or isinstance(rc, _Species):
-            return rc.name
+            return {
+                "species name": rc.name,
+                "coefficient": 1.0,  # Default coefficient for single species
+            }
+        
+        if isinstance(rc, tuple) and len(rc) == 2:
+            # Handle tuple with coefficient and species
+            coefficient, species = rc
+            if isinstance(species, Species):
+                return {
+                    "species name": species.name,
+                    "coefficient": coefficient,
+                }
 
         return _remove_empty_keys({
             "species name": rc.species_name,

@@ -187,8 +187,8 @@ class Surface:
         """
         serialize_dict = {
             "type": "SURFACE",
-            "name": self._name,
-            "reaction probability": self._reaction_probability,
+            "name": self.name,
+            "reaction probability": self.reaction_probability,
         }
         
         # Handle gas_phase_species serialization - should be just the species name string
@@ -205,9 +205,9 @@ class Surface:
                 serialize_dict["gas-phase species"] = self._gas_phase_species.name
         
         # Handle gas_phase_products serialization - should be list of objects with "species name" and "coefficient"
-        if self._gas_phase_products:
+        if self.gas_phase_products:
             products = []
-            for p in self._gas_phase_products:
+            for p in self.gas_phase_products:
                 if isinstance(p, tuple):
                     coefficient, species = p
                     products.append({
@@ -223,10 +223,10 @@ class Surface:
             serialize_dict["gas-phase products"] = products
         
         # Handle phase names
-        if self._gas_phase is not None:
-            serialize_dict["gas phase"] = self._gas_phase.name
-        if self._aerosol_phase is not None:
-            serialize_dict["aerosol phase"] = self._aerosol_phase.name
+        if self.gas_phase is not None:
+            serialize_dict["gas phase"] = self.gas_phase.name
+        if self.aerosol_phase is not None:
+            serialize_dict["aerosol phase"] = self.aerosol_phase.name
         
         # Add other properties
         _add_other_properties(serialize_dict, self._other_properties)
@@ -243,36 +243,6 @@ class Surface:
         Returns:
             Dict: A dictionary representation of the Surface object.
         """
-        serialize_dict = {
-            "type": "SURFACE",
-            "name": instance.name,
-            "reaction probability": instance.reaction_probability,
-        }
-        
-        # Handle gas_phase_species serialization from C++ object - should be just the species name string
-        if hasattr(instance, 'gas_phase_species') and instance.gas_phase_species is not None:
-            gas_species = instance.gas_phase_species
-            # For gas-phase species, always use just the species name (based on examples)
-            serialize_dict["gas-phase species"] = gas_species.species_name
-        
-        # Handle gas_phase_products serialization from C++ object - should be list of objects
-        if hasattr(instance, 'gas_phase_products') and instance.gas_phase_products:
-            products = []
-            for p in instance.gas_phase_products:
-                products.append({
-                    "species name": p.species_name,
-                    "coefficient": p.coefficient,
-                })
-            serialize_dict["gas-phase products"] = products
-        
-        # Handle phase names from C++ object
-        if hasattr(instance, 'gas_phase') and instance.gas_phase:
-            serialize_dict["gas phase"] = instance.gas_phase
-        if hasattr(instance, 'aerosol_phase') and instance.aerosol_phase:
-            serialize_dict["aerosol phase"] = instance.aerosol_phase
-        
-        # Add other properties
-        if hasattr(instance, 'other_properties'):
-            _add_other_properties(serialize_dict, instance.other_properties)
-        
-        return _remove_empty_keys(serialize_dict)
+        temp_surface = Surface()
+        temp_surface._instance = instance
+        return temp_surface.serialize()

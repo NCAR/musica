@@ -7,7 +7,7 @@ from test_util_full_mechanism import get_fully_defined_mechanism, validate_full_
 def test_mechanism_export_loop(tmp_path):
     parser = Parser()
     MECHANISM_FULLY_DEFINED = get_fully_defined_mechanism()
-    extensions = [".yml", ".yaml", ".json"]
+    extensions = [".json", ".yml", ".yaml"]
     for extension in extensions:
         path = f"{tmp_path}/test_mechanism{extension}"
         MECHANISM_FULLY_DEFINED.export(path)
@@ -67,3 +67,6 @@ def test_overwrite_file(tmp_path):
     MechanismSerializer.serialize(mechanism, file_path)
     files = list(tmp_path.iterdir())
     assert len(files) == 1
+
+if __name__ == "__main__":
+    pytest.main([__file__])

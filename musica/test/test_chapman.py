@@ -137,3 +137,6 @@ def GetMechanism():
         phases=[gas],
         reactions=[jO2, R2, jO31, R4, jO32, R6, R7],
     )
+
+if __name__ == "__main__":
+    pytest.main([__file__])
