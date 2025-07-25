@@ -113,8 +113,12 @@ class Mechanism(_Mechanism):
                 reactions_list.append(FirstOrderLoss.serialize(reaction))
             elif isinstance(reaction, (_SimpolPhaseTransfer, SimpolPhaseTransfer)):
                 reactions_list.append(SimpolPhaseTransfer.serialize(reaction))
-            elif isinstance(reaction, (_AqueousEquilibrium, AqueousEquilibrium)):
-                reactions_list.append(AqueousEquilibrium.serialize(reaction))
+            elif isinstance(reaction, _AqueousEquilibrium):
+                # Handle C++ _AqueousEquilibrium objects with static serialize call
+                reactions_list.append(AqueousEquilibrium.serialize_static(reaction))
+            elif isinstance(reaction, AqueousEquilibrium):
+                # Handle Python AqueousEquilibrium objects with instance serialize call
+                reactions_list.append(reaction.serialize())
             elif isinstance(reaction, (_WetDeposition, WetDeposition)):
                 reactions_list.append(WetDeposition.serialize(reaction))
             elif isinstance(reaction, (_HenrysLaw, HenrysLaw)):
@@ -129,8 +133,12 @@ class Mechanism(_Mechanism):
             elif isinstance(reaction, Troe):
                 # Handle Python Troe objects with instance serialize call
                 reactions_list.append(reaction.serialize())
-            elif isinstance(reaction, (_Tunneling, Tunneling)):
-                reactions_list.append(Tunneling.serialize(reaction))
+            elif isinstance(reaction, _Tunneling):
+                # Handle C++ _Tunneling objects with static serialize call
+                reactions_list.append(Tunneling.serialize_static(reaction))
+            elif isinstance(reaction, Tunneling):
+                # Handle Python Tunneling objects with instance serialize call
+                reactions_list.append(reaction.serialize())
             elif isinstance(reaction, (_UserDefined, UserDefined)):
                 reactions_list.append(UserDefined.serialize(reaction))
             else:

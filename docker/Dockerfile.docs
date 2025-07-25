@@ -5,25 +5,30 @@ ARG BUILD_TYPE=Release
 
 RUN dnf -y update \
     && dnf -y install \
-        doxygen \
-        gcc-c++ \
-        gcc \
-        gdb \
-        git \
         cmake \
-        make \
+        doxygen \
+        gcc \
+        gcc-c++ \
+        gdb \
+        gfortran \
+        git \
+        lapack-devel \
         lcov \
-        valgrind \
+        make \
+        netcdf-fortran-devel \
+        pandoc \
         pip \
         python \
         python-devel \
+        valgrind \
     && dnf clean all
 
 COPY . /musica/
 
 RUN cd /musica &&  python -m pip install -e .
 
-RUN python -m pip install -r /musica/docs/requirements.txt 
+RUN python -m pip install -r /musica/docs/requirements.txt
+RUN pip install --upgrade pip ipython ipykernel
 
 ARG SUFFIX=""
 ENV SWITCHER_SUFFIX=$SUFFIX

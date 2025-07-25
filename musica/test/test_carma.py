@@ -15,13 +15,14 @@ def test_carma_version():
 
 def test_carma_instance():
     # Test CARMA instance creation
-    carma = musica.CARMA()
+    test_params = musica.CARMAParameters.create_aluminum_test_config()
+    test_params.nstep = 560
+
+    carma = musica.CARMA(test_params)
     assert carma is not None
     assert isinstance(carma, musica.CARMA)
 
-    test_params = musica.CARMAParameters.create_aluminum_test_config()
-    test_params.nstep = 560
-    carma.run(test_params)
+    carma.run()
 
 
 if __name__ == '__main__':

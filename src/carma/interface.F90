@@ -113,25 +113,71 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-   subroutine internal_run_carma(params, c_output, rc) &
+   function internal_create_carma(params, rc) &
+      bind(C, name="InternalCreateCarma") result(carma_cptr)
+      use iso_c_binding, only: c_int, c_ptr, c_f_pointer
+      use carma_parameters_mod, only: carma_parameters_t
+
+      type(carma_parameters_t), intent(in)  :: params
+      integer(c_int),           intent(out) :: rc
+      type(c_ptr)                           :: carma_cptr
+
+      rc = 0
+
+      ! Create CARMA instance with the provided parameters
+      call create_carma_instance(params, carma_cptr, rc)
+
+   end function internal_create_carma
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   subroutine internal_run_carma(params, carma_cptr, c_output, rc) &
       bind(C, name="InternalRunCarma")
       use iso_c_binding, only: c_int, c_ptr, c_f_pointer
       use carma_parameters_mod, only: carma_parameters_t
 
-      type(carma_parameters_t), intent(in) :: params
-      type(c_ptr), value, intent(in) :: c_output
-      integer(c_int), intent(out) :: rc
+      type(carma_parameters_t), intent(in)  :: params
+      type(c_ptr), value,       intent(in)  :: carma_cptr
+      type(c_ptr), value,       intent(in)  :: c_output
+      integer(c_int),           intent(out) :: rc
 
       rc = 0
 
       ! Run CARMA simulation with optional output
-      call run_carma_simulation(params, rc, c_output)
+      call run_carma_simulation(params, carma_cptr, rc, c_output)
 
    end subroutine internal_run_carma
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-   function c_to_f_string(c_string, string_size) result(f_string)
+   subroutine internal_destroy_carma(carma_cptr, rc) &
+      bind(C, name="InternalDestroyCarma")
+      use carma_types_mod, only: carma_type
+      use carma_mod, only: CARMA_Destroy
+      use iso_c_binding, only: c_ptr, c_int, c_f_pointer, c_associated
+
+      type(c_ptr),    value, intent(in)  :: carma_cptr
+      integer(c_int),        intent(out) :: rc
+
+      type(carma_type), pointer :: carma
+
+      rc = 0
+
+      ! Check if carma_cptr is associated
+      if (c_associated(carma_cptr)) then
+         call c_f_pointer(carma_cptr, carma)
+
+        ! Clean up the carma instance
+        call CARMA_Destroy(carma, rc)
+        if (rc /= 0) return
+        deallocate(carma)
+      end if
+
+   end subroutine internal_destroy_carma
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function c_to_f_string(c_string, string_size) result(f_string)
 
       use iso_c_binding, only: c_ptr, c_loc, c_char
 
@@ -153,7 +199,7 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-   subroutine run_carma_simulation(params, rc, c_output_ptr)
+   subroutine create_carma_instance(params, carma_cptr, rc)
       use carma_precision_mod
       use carma_constants_mod
       use carma_enums_mod
@@ -161,47 +207,35 @@ contains
       use carmaelement_mod
       use carmagroup_mod
       use carmagas_mod
-      use carmastate_mod
       use carma_mod
       use atmosphere_mod
       use carma_parameters_mod, only: carma_parameters_t, carma_group_config_t, &
-         carma_element_config_t
+                                      carma_element_config_t, carma_wavelength_bin_t
       use iso_fortran_env, only: real64
-      use iso_c_binding, only: c_ptr, c_null_ptr, c_associated
+      use iso_c_binding, only: c_ptr, c_loc
 
       implicit none
 
-      type(carma_parameters_t), intent(in) :: params
-      integer, intent(out) :: rc
-      type(c_ptr), intent(in), optional :: c_output_ptr
+      type(carma_parameters_t), intent(in)  :: params
+      type(c_ptr),              intent(out) :: carma_cptr
+      integer,                  intent(out) :: rc
 
       ! Local variables for CARMA simulation
-      type(carma_type), target :: carma
-      type(carma_type), pointer :: carma_ptr
-      type(carmastate_type) :: cstate
+      type(carma_type), pointer :: carma
 
       ! Model dimensions
       integer :: NZ, NY, NX, NZP1, NELEM, NGROUP, NBIN, NSOLUTE, NGAS, NWAVE
-      integer, parameter :: LUNOPRT = 6
 
-      ! Grid and atmospheric variables
-      real(kind=c_double), allocatable :: lat(:), lon(:)
-      real(kind=c_double), allocatable :: zc(:), zl(:), p(:), pl(:), t(:), rhoa(:)
-      real(kind=c_double), allocatable :: t_orig(:)
-      real(kind=c_double) :: time
-      real(kind=c_double) :: dtime
-      integer :: nstep
-      real(kind=c_double) :: deltaz, zmin
-
-      ! Gas and particle variables
-      real(kind=c_double), allocatable :: mmr(:,:,:)
-      real(kind=c_double), allocatable :: mmr_gas(:,:)  ! Keep for potential future use
+      ! Temporary index for first group
+      integer, parameter :: I_FIRST_GROUP = 1
 
       ! Loop indices
-      integer :: i, iy, ix, istep, igas, ielem, ibin, igroup
+      integer :: iwave, ielem, igroup
 
-      ! Physical constants and parameters from aluminum test
-      integer, parameter :: I_GRP_ALUM = 1
+      ! Wavelength grid parameters
+      type(carma_wavelength_bin_t), pointer :: wavelength_bins(:)
+      real(real64), allocatable :: wave_centers(:), wave_widths(:)
+      logical, allocatable  :: wave_do_emission(:)
 
       ! Group parameters
       type(carma_group_config_t), pointer :: group_config(:)
@@ -214,42 +248,46 @@ contains
       real(real64), pointer :: rhobin(:) ! rho bin for element (NBINS)
       real(real64), pointer :: arat(:) ! area ratio for element (NBINS)
 
+      integer :: alloc_stat
+
       rc = 0
 
       ! Set dimensions from parameters
-      NZ = int(params%nz)
-      NY = int(params%ny)
-      NX = int(params%nx)
-      NZP1 = NZ + 1
       NELEM = int(params%elements_size)
       NGROUP = int(params%groups_size)
       NBIN = int(params%nbin)
       NSOLUTE = int(params%nsolute)
       NGAS = int(params%ngas)
-      NWAVE = int(params%nwave)
-      dtime = real(params%dtime, kind=real64)
-      nstep = int(params%nstep)
-      deltaz = real(params%deltaz, kind=real64)
-      zmin = real(params%zmin, kind=real64)
-
-      ! Set up simple grid
-      iy = 1
-      ix = 1
-
-      ! Allocate arrays
-      allocate(lat(NY), lon(NX))
-      allocate(zc(NZ), zl(NZP1), p(NZ), pl(NZP1), t(NZ), rhoa(NZ))
-      allocate(t_orig(NZ))  ! Allocate original temperature array
-      allocate(mmr(NZ, NELEM, NBIN))
-      if (NGAS > 0) allocate(mmr_gas(NZ, NGAS))
+      NWAVE = int(params%wavelength_bin_size)
 
       ! Create the CARMA instance
-      call CARMA_Create(carma, NBIN, NELEM, NGROUP, NSOLUTE, NGAS, NWAVE, rc, LUNOPRT=LUNOPRT)
-      if (rc /= 0) then
+      allocate(carma, stat=alloc_stat)
+      if (alloc_stat /= 0) then
+         rc = 1
          return
       end if
 
-      carma_ptr => carma
+      if (NWAVE>0) then
+         call c_f_pointer(params%wavelength_bins, wavelength_bins, [NWAVE])
+         allocate(wave_centers(NWAVE))
+         allocate(wave_widths(NWAVE))
+         allocate(wave_do_emission(NWAVE))
+         do iwave = 1, NWAVE
+            wave_centers(iwave) = wavelength_bins(iwave)%center * 100.0_real64 ! Convert m to cm
+            wave_widths(iwave) = wavelength_bins(iwave)%width * 100.0_real64 ! Convert m to cm
+            wave_do_emission(iwave) = wavelength_bins(iwave)%do_emission
+         end do
+         call CARMA_Create(carma, NBIN, NELEM, NGROUP, NSOLUTE, NGAS, NWAVE, rc, &
+            wave = wave_centers, &
+            dwave = wave_widths, &
+            do_wave_emit = wave_do_emission, &
+            NREFIDX = params%number_of_refractive_indices)
+      else
+         call CARMA_Create(carma, NBIN, NELEM, NGROUP, NSOLUTE, NGAS, NWAVE, rc)
+      end if
+      if (rc /= 0) then
+         return
+      end if
 
       ! Create groups based on configuration
       if (c_associated(params%groups)) then
@@ -292,7 +330,7 @@ contains
 
       ! Setup CARMA processes - coagulation for aluminum particles
       if (NGROUP >= 1) then
-         call CARMA_AddCoagulation(carma, I_GRP_ALUM, I_GRP_ALUM, I_GRP_ALUM, I_COLLEC_FUCHS, rc)
+         call CARMA_AddCoagulation(carma, I_FIRST_GROUP, I_FIRST_GROUP, I_FIRST_GROUP, I_COLLEC_FUCHS, rc)
          if (rc /= 0) then
             return
          end if
@@ -306,6 +344,104 @@ contains
       if (rc /= 0) then
          return
       end if
+
+      carma_cptr = c_loc(carma)
+
+   end subroutine create_carma_instance
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   subroutine run_carma_simulation(params, carma_cptr, rc, c_output_ptr)
+      use carma_precision_mod
+      use carma_constants_mod
+      use carma_enums_mod
+      use carma_types_mod
+      use carmaelement_mod
+      use carmagroup_mod
+      use carmagas_mod
+      use carmastate_mod
+      use carma_mod
+      use atmosphere_mod
+      use carma_parameters_mod, only: carma_parameters_t, carma_group_config_t, &
+                                      carma_element_config_t
+      use iso_fortran_env, only: real64
+      use iso_c_binding, only: c_ptr, c_null_ptr, c_associated
+
+      implicit none
+
+      type(carma_parameters_t), intent(in)  :: params
+      type(c_ptr),              intent(in)  :: carma_cptr
+      integer,                  intent(out) :: rc
+      type(c_ptr), optional,    intent(in)  :: c_output_ptr
+
+      ! Local variables for CARMA simulation
+      type(carma_type), pointer :: carma
+      type(carmastate_type)     :: cstate
+
+      ! Model dimensions
+      integer :: NZ, NY, NX, NZP1, NELEM, NGROUP, NBIN, NSOLUTE, NGAS, NWAVE
+      integer, parameter :: LUNOPRT = 6
+
+      ! Grid and atmospheric variables
+      real(kind=c_double), allocatable :: lat(:), lon(:)
+      real(kind=c_double), allocatable :: zc(:), zl(:), p(:), pl(:), t(:), rhoa(:)
+      real(kind=c_double), allocatable :: t_orig(:)
+      real(kind=c_double) :: time
+      real(kind=c_double) :: dtime
+      integer :: nstep
+      real(kind=c_double) :: deltaz, zmin
+
+      ! Gas and particle variables
+      real(kind=c_double), allocatable :: mmr(:,:,:)
+      real(kind=c_double), allocatable :: mmr_gas(:,:)  ! Keep for potential future use
+
+      ! Loop indices
+      integer :: i, iy, ix, istep, igas, ielem, ibin, igroup
+
+      ! Physical constants and parameters from aluminum test
+      integer, parameter :: I_GRP_ALUM = 1
+
+      ! Group parameters
+      type(carma_group_config_t), pointer :: group_config(:)
+      character(len=:), allocatable :: group_name, group_short_name
+      real(kind=real64), pointer :: df(:) ! fractal dimension per group (NBINS)
+
+      ! Element parameters
+      type(carma_element_config_t), pointer :: element_config(:)
+      character(len=:), allocatable :: element_name, element_short_name
+      real(real64), pointer :: rhobin(:) ! rho bin for element (NBINS)
+      real(real64), pointer :: arat(:) ! area ratio for element (NBINS)
+
+      rc = 0
+
+      call c_f_pointer(carma_cptr, carma)
+
+      ! Set dimensions from parameters
+      NZ = int(params%nz)
+      NY = int(params%ny)
+      NX = int(params%nx)
+      NZP1 = NZ + 1
+      NELEM = int(params%elements_size)
+      NGROUP = int(params%groups_size)
+      NBIN = int(params%nbin)
+      NSOLUTE = int(params%nsolute)
+      NGAS = int(params%ngas)
+      NWAVE = int(params%wavelength_bin_size)
+      dtime = real(params%dtime, kind=real64)
+      nstep = int(params%nstep)
+      deltaz = real(params%deltaz, kind=real64)
+      zmin = real(params%zmin, kind=real64)
+
+      ! Set up simple grid
+      iy = 1
+      ix = 1
+
+      ! Allocate arrays
+      allocate(lat(NY), lon(NX))
+      allocate(zc(NZ), zl(NZP1), p(NZ), pl(NZP1), t(NZ), rhoa(NZ))
+      allocate(t_orig(NZ))  ! Allocate original temperature array
+      allocate(mmr(NZ, NELEM, NBIN))
+      if (NGAS > 0) allocate(mmr_gas(NZ, NGAS))
 
       ! Set up atmospheric conditions matching test_aluminum_simple
       lat(iy) = 0.0_c_double
@@ -344,7 +480,7 @@ contains
          time = (istep - 1) * dtime
 
          ! Create a CARMASTATE for this column
-         call CARMASTATE_Create(cstate, carma_ptr, time, dtime, NZ, &
+         call CARMASTATE_Create(cstate, carma, time, dtime, NZ, &
             I_CART, lat(iy), lon(ix), &
             zc(:), zl(:), &
             p(:),  pl(:), &
@@ -386,7 +522,7 @@ contains
       ! This must happen before the CARMA state is destroyed
       if (present(c_output_ptr) .and. c_associated(c_output_ptr)) then
          call transfer_carma_output_data(c_output_ptr, &
-            cstate, carma_ptr, params, &
+            cstate, carma, params, &
             NZ, NY, NX, NELEM, NGROUP, NBIN, NGAS, nstep, &
             real(time, kind=8), int(nstep), &
             lat, lon, zc, zl, p, t, rhoa, deltaz)
@@ -398,11 +534,6 @@ contains
          return
       end if
 
-      ! Clean up the carma instance
-      call CARMA_Destroy(carma, rc)
-      if (rc /= 0) then
-         return
-      end if
       ! Deallocate arrays
       deallocate(lat, lon, zc, zl, p, pl, t, rhoa, t_orig, mmr)
       if (NGAS > 0) deallocate(mmr_gas)
