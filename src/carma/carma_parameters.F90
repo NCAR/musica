@@ -12,13 +12,19 @@ module carma_parameters_mod
    private
 
    public :: carma_group_config_t, carma_element_config_t, carma_parameters_t, &
-             carma_wavelength_bin_t
+             carma_wavelength_bin_t, carma_complex_t
 
    type, bind(c) :: carma_wavelength_bin_t
       real(c_double) :: center       ! Center of the wavelength bin [m]
       real(c_double) :: width        ! Width of the wavelength bin [m]
       logical(c_bool) :: do_emission ! Flag to indicate if emission is considered for this bin
    end type carma_wavelength_bin_t
+
+   ! Complex number type for CARMA
+   type, bind(c) :: carma_complex_t
+      real(c_double) :: real_part    ! Real part of the complex number
+      real(c_double) :: imag_part    ! Imaginary part of the complex number
+   end type carma_complex_t
 
    type, bind(c) :: carma_group_config_t
       integer(c_int) :: name_length
@@ -53,22 +59,24 @@ module carma_parameters_mod
    end type carma_group_config_t
 
    type, bind(c) :: carma_element_config_t
-      integer(c_int) :: id
       integer(c_int) :: igroup
+      integer(c_int) :: isolute
       integer(c_int) :: name_length
       character(len=1, kind=c_char) :: name(256)
       integer(c_int) :: shortname_length
       character(len=1, kind=c_char) :: shortname(7)
-      real(c_double) :: rho
       integer(c_int) :: itype
       integer(c_int) :: icomposition
-      integer(c_int) :: isolute
+      logical(c_bool) :: isShell
+      real(c_double) :: rho
       type(c_ptr) :: rhobin
       integer(c_int) :: rhobin_size
       type(c_ptr) :: arat
       integer(c_int) :: arat_size
       real(c_double) :: kappa
-      logical(c_bool) :: isShell
+      type(c_ptr) :: refidx  ! Complex refractive index
+      integer(c_int) :: refidx_dim_1_size
+      integer(c_int) :: refidx_dim_2_size
    end type carma_element_config_t
 
    type, bind(c) :: carma_parameters_t

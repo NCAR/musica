@@ -9,6 +9,9 @@ module carma_interface
 
    private
 
+   integer, parameter, public :: ERROR_MEMORY_ALLOCATION = 97
+   integer, parameter, public :: ERROR_DIMENSION_MISMATCH = 98
+
    ! C-compatible structure for CARMA fundamental data
    ! Contains only the minimal essential data needed for Python calculations
    type, bind(C) :: c_carma_output_data
@@ -213,7 +216,8 @@ contains
       use carma_mod
       use atmosphere_mod
       use carma_parameters_mod, only: carma_parameters_t, carma_group_config_t, &
-                                      carma_element_config_t, carma_wavelength_bin_t
+                                      carma_element_config_t, carma_wavelength_bin_t, &
+                                      carma_complex_t
       use iso_fortran_env, only: real64
       use iso_c_binding, only: c_ptr, c_loc
 
@@ -250,6 +254,8 @@ contains
       character(len=:), allocatable :: element_name, element_short_name
       real(real64), pointer :: rhobin(:) ! rho bin for element (NBINS)
       real(real64), pointer :: arat(:) ! area ratio for element (NBINS)
+      type(carma_complex_t), pointer :: refidx_t(:,:) ! refractive index [NWAVE, number_of_refractive_indices]
+      complex(kind=real64), allocatable :: refidx(:,:) ! refractive index [NWAVE, number_of_refractive_indices]
 
       integer :: alloc_stat
 
@@ -345,11 +351,66 @@ contains
             associate(elem => element_config(ielem))
                element_name = c_to_f_string(elem%name, elem%name_length)
                element_short_name = c_to_f_string(elem%shortname, elem%shortname_length)
-               call c_f_pointer(elem%rhobin, rhobin, [elem%rhobin_size])
-               call c_f_pointer(elem%arat, arat, [elem%arat_size])
-               call CARMAELEMENT_Create(carma, int(elem%id), int(elem%igroup), element_name, real(elem%rho, kind=real64), &
-                  int(elem%itype), int(elem%icomposition), rc, shortname=element_short_name, isolute=int(elem%isolute), &
-                  rhobin=rhobin, arat=arat, kappa=real(elem%kappa, kind=real64), isShell=logical(elem%isShell))
+               if (elem%rhobin_size > 0) then
+                 call c_f_pointer(elem%rhobin, rhobin, [elem%rhobin_size])
+                 rhobin(:) = rhobin(:) * 0.001_real64 ! Convert kg m-3 to g cm-3
+                 if (elem%rhobin_size /= NBIN) then
+                    print *, "Error: rhobin size does not match NBIN"
+                    rc = ERROR_DIMENSION_MISMATCH
+                    return
+                 end if
+               else
+                 rhobin => null( )
+               end if
+               if (elem%arat_size > 0) then
+                  call c_f_pointer(elem%arat, arat, [elem%arat_size])
+                  if (elem%arat_size /= NBIN) then
+                     print *, "Error: arat size does not match NBIN"
+                     rc = ERROR_DIMENSION_MISMATCH
+                     return
+                  end if
+               else
+                  arat => null( )
+               end if
+               if (elem%refidx_dim_1_size > 0 .and. elem%refidx_dim_2_size > 0) then
+                  if (elem%refidx_dim_2_size /= NWAVE) then
+                     print *, "Error: refidx_dim_2_size does not match NWAVE"
+                     rc = ERROR_DIMENSION_MISMATCH
+                     return
+                  end if
+                  if (elem%refidx_dim_1_size /= params%number_of_refractive_indices) then
+                     print *, "Error: refidx_dim_1_size does not match number_of_refractive_indices"
+                     rc = ERROR_DIMENSION_MISMATCH
+                     return
+                  end if
+                  call c_f_pointer(elem%refidx, refidx_t, [elem%refidx_dim_2_size, elem%refidx_dim_1_size])
+                  allocate(refidx(elem%refidx_dim_2_size, elem%refidx_dim_1_size), stat=alloc_stat)
+                  if (alloc_stat /= 0) then
+                     print *, "Error allocating refractive index array"
+                     rc = ERROR_MEMORY_ALLOCATION
+                     return
+                  end if
+                  do iwave = 1, NWAVE
+                     refidx(iwave,:) = cmplx(refidx_t(iwave,1:params%number_of_refractive_indices)%real_part, &
+                                             refidx_t(iwave,1:params%number_of_refractive_indices)%imag_part, kind=real64)
+                  end do
+               end if
+               call CARMAELEMENT_Create( &
+                  carma, &
+                  ielem, &
+                  int(elem%igroup), &
+                  element_name, &
+                  real(elem%rho, kind=real64) * 0.001_real64, & ! Convert kg m-3 to g cm-3
+                  int(elem%itype), &
+                  int(elem%icomposition), &
+                  rc, &
+                  shortname=element_short_name, &
+                  isolute=int(elem%isolute), &
+                  rhobin=rhobin, &
+                  arat=arat, &
+                  kappa=real(elem%kappa, kind=real64), &
+                  refidx=refidx, &
+                  isShell=logical(elem%isShell))
                if (rc /= 0) then
                   print *, "Error creating CARMA element"
                   return
