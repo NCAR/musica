@@ -207,7 +207,6 @@ void bind_carma(py::module_& carma)
           // Convert CARMAOutput to Python dictionary
           py::dict result;
 
-          // Dimensions
           // Grid and coordinate arrays
           result["lat"] = output.lat;
           result["lon"] = output.lon;
@@ -219,30 +218,31 @@ void bind_carma(py::module_& carma)
           result["temperature"] = output.temperature;
           result["air_density"] = output.air_density;
 
-          // Group-integrated variables
-          result["number_density"] = output.number_density;
+          // Fundamental CARMA data for Python calculations
+          // Particle state arrays (3D: nz x nbin x nelem)
+          result["particle_concentration"] = output.particle_concentration;
           result["mass_mixing_ratio"] = output.mass_mixing_ratio;
-          result["vertical_mass_flux"] = output.vertical_mass_flux;
-          result["extinction"] = output.extinction;
 
-          // Bin-resolved variables
-          result["bin_wet_radius"] = output.bin_wet_radius;
-          result["bin_density"] = output.bin_density;
+          // Particle properties (3D: nz x nbin x ngroup)
+          result["wet_radius"] = output.wet_radius;
+          result["wet_density"] = output.wet_density;
+          result["fall_velocity"] = output.fall_velocity;
           result["nucleation_rate"] = output.nucleation_rate;
           result["deposition_velocity"] = output.deposition_velocity;
 
-          // Group properties
-          result["group_radius"] = output.group_radius;
-          result["group_mass"] = output.group_mass;
-          result["group_radius_ratio"] = output.group_radius_ratio;
-          result["group_aspect_ratio"] = output.group_aspect_ratio;
+          // Group configuration arrays (2D: nbin x ngroup)
+          result["dry_radius"] = output.dry_radius;
+          result["mass_per_bin"] = output.mass_per_bin;
+          result["radius_ratio"] = output.radius_ratio;
+          result["aspect_ratio"] = output.aspect_ratio;
 
-          // Group mapping and configuration data
-          result["concentration_element"] = output.concentration_element;
-          result["element_group_map"] = output.element_group_map;
+          // Group mapping and properties (1D arrays)
+          result["group_particle_number_concentration"] = output.group_particle_number_concentration;
           result["constituent_type"] = output.constituent_type;
           result["max_prognostic_bin"] = output.max_prognostic_bin;
-          result["do_dry_deposition"] = output.do_dry_deposition;
+
+          // Optical data (3D: nwave x nbin x ngroup)
+          result["extinction"] = output.extinction;
 
           return result;
         }

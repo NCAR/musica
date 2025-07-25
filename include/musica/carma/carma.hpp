@@ -130,28 +130,26 @@ namespace musica
 
     // Fundamental CARMA data for Python calculations
     // Particle state arrays (3D: nz x nbin x nelem)
-    std::vector<std::vector<std::vector<double>>> number_density;     // pc - particle concentration [#/cm³]
-    std::vector<std::vector<std::vector<double>>> mass_mixing_ratio;  // mmr - mass mixing ratio [kg/kg]
+    std::vector<std::vector<std::vector<double>>> particle_concentration; // particle concentration [# cm-3]
+    std::vector<std::vector<std::vector<double>>> mass_mixing_ratio;      // mass mixing ratio [kg kg-1]
 
     // Particle properties (3D: nz x nbin x ngroup)
-    std::vector<std::vector<std::vector<double>>> bin_wet_radius;       // r_wet - wet radius [cm]
-    std::vector<std::vector<std::vector<double>>> bin_density;          // rhop_wet - wet density [g/cm³]
-    std::vector<std::vector<std::vector<double>>> vertical_mass_flux;   // vf - fall velocity [cm/s] (nz+1 x nbin x ngroup)
-    std::vector<std::vector<std::vector<double>>> nucleation_rate;      // nucleation rate [1/cm³/s] (nz x nbin x ngroup)
-    std::vector<std::vector<std::vector<double>>> deposition_velocity;  // deposition velocity [cm/s] (nz x nbin x ngroup)
+    std::vector<std::vector<std::vector<double>>> wet_radius;       // wet radius [cm]
+    std::vector<std::vector<std::vector<double>>> wet_density;      // wet density [g cm-3]
+    std::vector<std::vector<std::vector<double>>> fall_velocity;        // fall velocity [cm s-1] (nz+1 x nbin x ngroup)
+    std::vector<std::vector<std::vector<double>>> nucleation_rate;      // nucleation rate [cm-3 s-1] (nz x nbin x ngroup)
+    std::vector<std::vector<std::vector<double>>> deposition_velocity;  // deposition velocity [cm s-1] (nz x nbin x ngroup)
 
     // Group configuration arrays (2D: nbin x ngroup)
-    std::vector<std::vector<double>> group_radius;        // r_dry - dry radius [cm]
-    std::vector<std::vector<double>> group_mass;          // rmass - mass per bin [g]
-    std::vector<std::vector<double>> group_radius_ratio;  // rrat - radius ratio
-    std::vector<std::vector<double>> group_aspect_ratio;  // arat - area ratio
+    std::vector<std::vector<double>> dry_radius;    // dry radius [cm]
+    std::vector<std::vector<double>> mass_per_bin;  // mass per bin [g]
+    std::vector<std::vector<double>> radius_ratio;  // radius ratio
+    std::vector<std::vector<double>> aspect_ratio;  // area ratio
 
     // Group mapping and properties (1D arrays)
-    std::vector<double> concentration_element;  // concentration element per group [ngroup]
-    std::vector<double> element_group_map;      // group per element [nelem]
+    std::vector<double> group_particle_number_concentration;  // concentration element per group [ngroup]
     std::vector<double> constituent_type;       // constituent type per group [ngroup]
     std::vector<double> max_prognostic_bin;     // max prognostic bin per group [ngroup]
-    std::vector<double> do_dry_deposition;      // dry deposition flag per group [ngroup]
 
     // Optical data (3D: nwave x nbin x ngroup)
     std::vector<std::vector<std::vector<double>>> extinction;  // qext - extinction efficiency

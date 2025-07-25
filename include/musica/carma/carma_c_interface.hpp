@@ -117,22 +117,17 @@ namespace musica
 
       // Group configuration data [nbin, ngroup]
       const double* dry_radius;     // dry particle radius [cm]
-      const double* particle_mass;  // particle mass [g]
+      const double* mass_per_bin;  // particle mass [g]
       const double* radius_ratio;   // radius ratio
       const double* area_ratio;     // area ratio
 
       // Group mapping and properties (integer data stored as doubles)
-      const double* concentration_element;  // concentration element per group [ngroup]
-      const double* element_group_map;      // group per element [nelem]
+      const double* group_particle_number_concentration;  // concentration element per group [ngroup]
       const double* constituent_type;       // constituent type per group [ngroup]
       const double* max_prognostic_bin;     // max prognostic bin per group [ngroup]
-      const double* do_dry_deposition;      // dry deposition flag per group [ngroup]
 
       // Optional optical data [nwave, nbin, ngroup] or [1, nbin, ngroup]
       const double* extinction_efficiency;  // extinction efficiency
-
-      // Simulation parameters
-      double layer_thickness;  // dz [cm]
     };
 
     // The external C API for CARMA

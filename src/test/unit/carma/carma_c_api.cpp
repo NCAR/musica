@@ -23,7 +23,6 @@ TEST_F(CarmaCApiTest, GetCarmaVersion)
 {
   std::string version = CARMA::GetVersion();
   ASSERT_FALSE(version.empty());
-  std::cout << "CARMA version: " << version << std::endl;
 
   char *version_ptr = GetCarmaVersion();
   ASSERT_NE(version_ptr, nullptr);
@@ -92,11 +91,7 @@ TEST_F(CarmaCApiTest, RunCarmaWithAluminumTestParams)
   }
 
   // Verify that the new 1D group mapping arrays are properly sized
-  EXPECT_EQ(output.concentration_element.size(), params.groups.size());
-  EXPECT_EQ(output.element_group_map.size(), params.elements.size());
+  EXPECT_EQ(output.group_particle_number_concentration.size(), params.groups.size());
   EXPECT_EQ(output.constituent_type.size(), params.groups.size());
   EXPECT_EQ(output.max_prognostic_bin.size(), params.groups.size());
-  EXPECT_EQ(output.do_dry_deposition.size(), params.groups.size());
-
-  std::cout << "Successfully ran CARMA with aluminum test parameters and verified additional output fields" << std::endl;
 }

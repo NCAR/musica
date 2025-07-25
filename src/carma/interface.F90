@@ -36,24 +36,19 @@ module carma_interface
 
       ! Group configuration data [nbin, ngroup]
       type(c_ptr) :: dry_radius                 ! dry particle radius [cm]
-      type(c_ptr) :: particle_mass              ! particle mass [g]
+      type(c_ptr) :: mass_per_bin               ! particle mass [g]
       type(c_ptr) :: radius_ratio               ! radius ratio
       type(c_ptr) :: area_ratio                 ! area ratio
 
       ! Group mapping data
-      type(c_ptr) :: concentration_element      ! concentration element per group [ngroup]
-      type(c_ptr) :: element_group_map          ! group per element [nelem]
+      type(c_ptr) :: group_particle_number_concentration      ! concentration element per group [ngroup]
 
       ! Group properties
       type(c_ptr) :: constituent_type           ! constituent type per group [ngroup]
       type(c_ptr) :: max_prognostic_bin         ! max prognostic bin per group [ngroup]
-      type(c_ptr) :: do_dry_deposition          ! dry deposition flag per group [ngroup]
 
       ! Optional optical data [nwave, nbin, ngroup] or [1, nbin, ngroup]
       type(c_ptr) :: extinction_efficiency      ! extinction efficiency
-
-      ! Simulation parameters
-      real(c_double) :: layer_thickness         ! dz [cm]
    end type c_carma_output_data
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -464,10 +459,8 @@ contains
 
       ! Group mapping and properties
       integer(kind=c_int), allocatable, target :: ienconc(:)          ! concentration element per group
-      integer(kind=c_int), allocatable, target :: igroup_elem(:)      ! group per element
-      integer(kind=c_int), allocatable, target :: cnsttype(:)         ! constituent type per group
+      integer(kind=c_int), allocatable, target :: constituent_type(:) ! constituent type per group
       integer(kind=c_int), allocatable, target :: maxbin(:)           ! max prognostic bin per group
-      logical(kind=c_bool), allocatable, target :: do_drydep(:)       ! dry deposition flag per group
 
       ! Optional: extinction efficiency if optical calculations needed
       real(kind=c_double), allocatable, target :: qext(:,:,:)         ! extinction efficiency (nwave, nbin, ngroup)
@@ -493,10 +486,8 @@ contains
 
       ! Group mapping and properties arrays
       allocate(ienconc(ngroup))
-      allocate(igroup_elem(nelem))
-      allocate(cnsttype(ngroup))
+      allocate(constituent_type(ngroup))
       allocate(maxbin(ngroup))
-      allocate(do_drydep(ngroup))
 
       ! Initialize arrays
       pc(:,:,:) = 0.0_c_double
@@ -511,16 +502,14 @@ contains
       rrat(:,:) = 1.0_c_double
       arat(:,:) = 1.0_c_double
       ienconc(:) = 0
-      igroup_elem(:) = 0
-      cnsttype(:) = 0
+      constituent_type(:) = 0
       maxbin(:) = 0
-      do_drydep(:) = .false.
 
       ! Extract fundamental data from CARMA state
       call extract_carma_fundamental_data(cstate, carma_ptr, nz, nbin, nelem, ngroup, &
          pc, mmr, r_wet, rhop_wet, vf, nucleation, vd, &
          r_dry, rmass, rrat, arat, &
-         ienconc, igroup_elem, cnsttype, maxbin, do_drydep)
+         ienconc, constituent_type, maxbin)
 
       ! Handle extinction coefficient if provided
       if (c_associated(params%extinction_coefficient)) then
@@ -534,7 +523,6 @@ contains
       end if
 
       output_data_struct%c_output_ptr = c_output_ptr
-      output_data_struct%layer_thickness = deltaz
 
       ! Set pointers to fundamental data arrays
       output_data_struct%lat = c_loc(lat)
@@ -558,16 +546,14 @@ contains
 
       ! Group configuration arrays [nbin, ngroup]
       output_data_struct%dry_radius = c_loc(r_dry)                     ! dry radius [cm]
-      output_data_struct%particle_mass = c_loc(rmass)                  ! particle mass [g]
+      output_data_struct%mass_per_bin = c_loc(rmass)                  ! particle mass [g]
       output_data_struct%radius_ratio = c_loc(rrat)                    ! radius ratio
       output_data_struct%area_ratio = c_loc(arat)                      ! area ratio
 
       ! Group mapping and properties
-      output_data_struct%concentration_element = c_loc(ienconc)        ! concentration element per group [ngroup]
-      output_data_struct%element_group_map = c_loc(igroup_elem)        ! group per element [nelem]
-      output_data_struct%constituent_type = c_loc(cnsttype)            ! constituent type per group [ngroup]
+      output_data_struct%group_particle_number_concentration = c_loc(ienconc)        ! concentration element per group [ngroup]
+      output_data_struct%constituent_type = c_loc(constituent_type)  ! constituent type per group [ngroup]
       output_data_struct%max_prognostic_bin = c_loc(maxbin)            ! max prognostic bin per group [ngroup]
-      output_data_struct%do_dry_deposition = c_loc(do_drydep)          ! dry deposition flag per group [ngroup]
 
       ! Optical data if available
       output_data_struct%extinction_efficiency = c_loc(qext)           ! extinction efficiency [nwave,nbin,ngroup]
@@ -580,7 +566,7 @@ contains
       ! Clean up fundamental data arrays
       deallocate(pc, mmr, r_wet, rhop_wet, vf, nucleation, vd)
       deallocate(r_dry, rmass, rrat, arat)
-      deallocate(ienconc, igroup_elem, cnsttype, maxbin, do_drydep)
+      deallocate(ienconc, constituent_type, maxbin)
       deallocate(qext)
 
    end subroutine transfer_carma_output_data
@@ -590,7 +576,7 @@ contains
    subroutine extract_carma_fundamental_data(cstate, carma_ptr, nz, nbin, nelem, ngroup, &
       pc, mmr, r_wet, rhop_wet, vf, nucleation, vd, &
       r_dry, rmass, rrat, arat, &
-      ienconc, igroup_elem, cnsttype, maxbin, do_drydep)
+      ienconc, constituent_type, maxbin)
       use carma_precision_mod
       use carma_types_mod
       use carmaelement_mod
@@ -619,10 +605,8 @@ contains
       real(kind=c_double), intent(out) :: rrat(nbin, ngroup)            ! radius ratio
       real(kind=c_double), intent(out) :: arat(nbin, ngroup)            ! area ratio
       integer(kind=c_int), intent(out) :: ienconc(ngroup)               ! concentration element per group
-      integer(kind=c_int), intent(out) :: igroup_elem(nelem)            ! group per element
-      integer(kind=c_int), intent(out) :: cnsttype(ngroup)              ! constituent type per group
+      integer(kind=c_int), intent(out) :: constituent_type(ngroup)      ! constituent type per group
       integer(kind=c_int), intent(out) :: maxbin(ngroup)                ! max prognostic bin per group
-      logical(kind=c_bool), intent(out) :: do_drydep(ngroup)            ! dry deposition flag per group
 
       ! Local variables
       integer :: ielem, ibin, igroup, rc
@@ -630,8 +614,7 @@ contains
       real(kind=c_double) :: numberDensity(nz), rwet_bin(nz), rhop_wet_bin(nz)
       real(kind=c_double) :: vf_bin(nz+1), nucleationRate(nz), vd_scalar
       real(kind=c_double) :: r_group(nbin), rmass_group(nbin), rrat_group(nbin), arat_group(nbin)
-      integer :: ienconc_tmp, cnsttype_tmp, maxbin_tmp
-      logical :: grp_do_drydep
+      integer :: ienconc_tmp, maxbin_tmp, cnsttype_tmp
 
       ! Initialize arrays
       pc(:,:,:) = 0.0_c_double
@@ -647,12 +630,8 @@ contains
          ! Get the group for this element
          call CARMAELEMENT_Get(carma_ptr, ielem, rc, igroup=igroup)
          if (rc /= 0) then
-            print *, "ERROR: CARMAELEMENT_Get failed for element", ielem
-            stop
+            return 
          end if
-
-         ! Store group mapping
-         igroup_elem(ielem) = igroup
 
          do ibin = 1, nbin
             ! Get fundamental bin data - all the data needed for Python calculations
@@ -660,8 +639,7 @@ contains
                numberDensity=numberDensity, r_wet=rwet_bin, rhop_wet=rhop_wet_bin, &
                vf=vf_bin, nucleationRate=nucleationRate, vd=vd_scalar)
             if (rc /= 0) then
-               print *, "ERROR: CARMASTATE_GetBin failed for element", ielem, "bin", ibin
-               stop
+               return
             end if
 
             ! Store the data - only for concentration elements to match carmadiags logic
@@ -680,10 +658,9 @@ contains
          ! Get group properties - all data needed for Python calculations
          call CARMAGROUP_Get(carma_ptr, igroup, rc, ienconc=ienconc_tmp, cnsttype=cnsttype_tmp, &
             r=r_group, rmass=rmass_group, rrat=rrat_group, arat=arat_group, &
-            maxbin=maxbin_tmp, do_drydep=grp_do_drydep)
+            maxbin=maxbin_tmp)
          if (rc /= 0) then
-            print *, "ERROR: CARMAGROUP_Get failed for group", igroup
-            stop
+            return
          end if
 
          ! Store group configuration data
@@ -692,9 +669,8 @@ contains
          rrat(:, igroup) = rrat_group(:)                               ! radius ratio
          arat(:, igroup) = arat_group(:)                               ! area ratio
          ienconc(igroup) = ienconc_tmp                                 ! concentration element per group
-         cnsttype(igroup) = cnsttype_tmp                               ! constituent type per group
+         constituent_type(igroup) = cnsttype_tmp                      ! constituent type per group
          maxbin(igroup) = maxbin_tmp                                   ! max prognostic bin per group
-         do_drydep(igroup) = grp_do_drydep                             ! dry deposition flag per group
       end do
 
    end subroutine extract_carma_fundamental_data

@@ -102,18 +102,18 @@ namespace musica
         output->air_density[i] = output_data->air_density[i];
       }
 
-      output->number_density.resize(nz);
+      output->particle_concentration.resize(nz);
       for (int iz = 0; iz < nz; ++iz)
       {
-        output->number_density[iz].resize(nbin);
+        output->particle_concentration[iz].resize(nbin);
         for (int ib = 0; ib < nbin; ++ib)
         {
-          output->number_density[iz][ib].resize(nelem);
+          output->particle_concentration[iz][ib].resize(nelem);
           for (int ie = 0; ie < nelem; ++ie)
           {
             // Fortran: pc(nz, nbin, nelem) -> C index = iz + ib*nz + ie*nz*nbin
             int idx = iz + ib * nz + ie * nz * nbin;
-            output->number_density[iz][ib][ie] = output_data->particle_concentration[idx];
+            output->particle_concentration[iz][ib][ie] = output_data->particle_concentration[idx];
           }
         }
       }
@@ -133,49 +133,49 @@ namespace musica
         }
       }
 
-      output->bin_wet_radius.resize(nz);
+      output->wet_radius.resize(nz);
       for (int iz = 0; iz < nz; ++iz)
       {
-        output->bin_wet_radius[iz].resize(nbin);
+        output->wet_radius[iz].resize(nbin);
         for (int ib = 0; ib < nbin; ++ib)
         {
-          output->bin_wet_radius[iz][ib].resize(ngroup);
+          output->wet_radius[iz][ib].resize(ngroup);
           for (int ig = 0; ig < ngroup; ++ig)
           {
             // Fortran: r_wet(nz, nbin, ngroup) -> C index = iz + ib*nz + ig*nz*nbin
             int idx = iz + ib * nz + ig * nz * nbin;
-            output->bin_wet_radius[iz][ib][ig] = output_data->wet_radius[idx];
+            output->wet_radius[iz][ib][ig] = output_data->wet_radius[idx];
           }
         }
       }
 
-      output->bin_density.resize(nz);
+      output->wet_density.resize(nz);
       for (int iz = 0; iz < nz; ++iz)
       {
-        output->bin_density[iz].resize(nbin);
+        output->wet_density[iz].resize(nbin);
         for (int ib = 0; ib < nbin; ++ib)
         {
-          output->bin_density[iz][ib].resize(ngroup);
+          output->wet_density[iz][ib].resize(ngroup);
           for (int ig = 0; ig < ngroup; ++ig)
           {
             int idx = iz + ib * nz + ig * nz * nbin;
-            output->bin_density[iz][ib][ig] = output_data->wet_density[idx];
+            output->wet_density[iz][ib][ig] = output_data->wet_density[idx];
           }
         }
       }
 
-      output->vertical_mass_flux.resize(nz + 1);
+      output->fall_velocity.resize(nz + 1);
       for (int iz = 0; iz < nz + 1; ++iz)
       {
-        output->vertical_mass_flux[iz].resize(nbin);
+        output->fall_velocity[iz].resize(nbin);
         for (int ib = 0; ib < nbin; ++ib)
         {
-          output->vertical_mass_flux[iz][ib].resize(ngroup);
+          output->fall_velocity[iz][ib].resize(ngroup);
           for (int ig = 0; ig < ngroup; ++ig)
           {
             // Fortran: vf(nz+1, nbin, ngroup) -> C index = iz + ib*(nz+1) + ig*(nz+1)*nbin
             int idx = iz + ib * (nz + 1) + ig * (nz + 1) * nbin;
-            output->vertical_mass_flux[iz][ib][ig] = output_data->fall_velocity[idx];
+            output->fall_velocity[iz][ib][ig] = output_data->fall_velocity[idx];
           }
         }
       }
@@ -213,65 +213,59 @@ namespace musica
       }
 
       // Dry radius
-      output->group_radius.resize(nbin);
+      output->dry_radius.resize(nbin);
       for (int ib = 0; ib < nbin; ++ib)
       {
-        output->group_radius[ib].resize(ngroup);
+        output->dry_radius[ib].resize(ngroup);
         for (int ig = 0; ig < ngroup; ++ig)
         {
           // Fortran: r_dry(nbin, ngroup) -> C index = ib + ig * nbin
           int idx = ib + ig * nbin;
-          output->group_radius[ib][ig] = output_data->dry_radius[idx];
+          output->dry_radius[ib][ig] = output_data->dry_radius[idx];
         }
       }
 
       // Mass per bin
-      output->group_mass.resize(nbin);
+      output->mass_per_bin.resize(nbin);
       for (int ib = 0; ib < nbin; ++ib)
       {
-        output->group_mass[ib].resize(ngroup);
+        output->mass_per_bin[ib].resize(ngroup);
         for (int ig = 0; ig < ngroup; ++ig)
         {
           int idx = ib + ig * nbin;
-          output->group_mass[ib][ig] = output_data->particle_mass[idx];
+          output->mass_per_bin[ib][ig] = output_data->mass_per_bin[idx];
         }
       }
 
       // Radius ratio
-      output->group_radius_ratio.resize(nbin);
+      output->radius_ratio.resize(nbin);
       for (int ib = 0; ib < nbin; ++ib)
       {
-        output->group_radius_ratio[ib].resize(ngroup);
+        output->radius_ratio[ib].resize(ngroup);
         for (int ig = 0; ig < ngroup; ++ig)
         {
           int idx = ib + ig * nbin;
-          output->group_radius_ratio[ib][ig] = output_data->radius_ratio[idx];
+          output->radius_ratio[ib][ig] = output_data->radius_ratio[idx];
         }
       }
 
       // Area ratio
-      output->group_aspect_ratio.resize(nbin);
+      output->aspect_ratio.resize(nbin);
       for (int ib = 0; ib < nbin; ++ib)
       {
-        output->group_aspect_ratio[ib].resize(ngroup);
+        output->aspect_ratio[ib].resize(ngroup);
         for (int ig = 0; ig < ngroup; ++ig)
         {
           int idx = ib + ig * nbin;
-          output->group_aspect_ratio[ib][ig] = output_data->area_ratio[idx];
+          output->aspect_ratio[ib][ig] = output_data->area_ratio[idx];
         }
       }
 
       // Group mapping and properties (1D arrays)
-      output->concentration_element.resize(ngroup);
+      output->group_particle_number_concentration.resize(ngroup);
       for (int ig = 0; ig < ngroup; ++ig)
       {
-        output->concentration_element[ig] = output_data->concentration_element[ig];
-      }
-
-      output->element_group_map.resize(nelem);
-      for (int ie = 0; ie < nelem; ++ie)
-      {
-        output->element_group_map[ie] = output_data->element_group_map[ie];
+        output->group_particle_number_concentration[ig] = output_data->group_particle_number_concentration[ig];
       }
 
       output->constituent_type.resize(ngroup);
@@ -284,12 +278,6 @@ namespace musica
       for (int ig = 0; ig < ngroup; ++ig)
       {
         output->max_prognostic_bin[ig] = output_data->max_prognostic_bin[ig];
-      }
-
-      output->do_dry_deposition.resize(ngroup);
-      for (int ig = 0; ig < ngroup; ++ig)
-      {
-        output->do_dry_deposition[ig] = output_data->do_dry_deposition[ig];
       }
 
       output->extinction.resize(nwave);
