@@ -169,7 +169,10 @@ contains
 
         ! Clean up the carma instance
         call CARMA_Destroy(carma, rc)
-        if (rc /= 0) return
+        if (rc /= 0) 
+            print *, "Error destroying CARMA instance"
+            return
+        end if
         deallocate(carma)
       end if
 
@@ -264,6 +267,7 @@ contains
       allocate(carma, stat=alloc_stat)
       if (alloc_stat /= 0) then
          rc = 1
+         print *, "Error allocating CARMA instance"
          return
       end if
 
@@ -286,6 +290,7 @@ contains
          call CARMA_Create(carma, NBIN, NELEM, NGROUP, NSOLUTE, NGAS, NWAVE, rc)
       end if
       if (rc /= 0) then
+         print *, "Error creating CARMA instance"
          return
       end if
 
@@ -306,7 +311,10 @@ contains
                   solfac=real(group%solfac, kind=real64), scavcoef=real(group%scavcoef, kind=real64), &
                   shortname=group_short_name, rmon=real(group%rmon, kind=real64), df=df, falpha=real(group%falpha, kind=real64), &
                   is_sulfate=.false.)
-               if (rc /= 0) return
+               if (rc /= 0) 
+                  print *, "Error creating CARMA group"
+                  return
+               end if
             end associate
          end do
       end if
@@ -323,7 +331,10 @@ contains
                call CARMAELEMENT_Create(carma, int(elem%id), int(elem%igroup), element_name, real(elem%rho, kind=real64), &
                   int(elem%itype), int(elem%icomposition), rc, shortname=element_short_name, isolute=int(elem%isolute), &
                   rhobin=rhobin, arat=arat, kappa=real(elem%kappa, kind=real64), isShell=logical(elem%isShell))
-               if (rc /= 0) return
+               if (rc /= 0) 
+                  print *, "Error creating CARMA element"
+                  return
+               end if
             end associate
          end do
       end if
@@ -332,6 +343,7 @@ contains
       if (NGROUP >= 1) then
          call CARMA_AddCoagulation(carma, I_FIRST_GROUP, I_FIRST_GROUP, I_FIRST_GROUP, I_COLLEC_FUCHS, rc)
          if (rc /= 0) then
+            print *, "Error adding CARMA coagulation"
             return
          end if
       else
@@ -342,6 +354,7 @@ contains
       ! Initialize CARMA with coagulation settings matching test_aluminum_simple
       call CARMA_Initialize(carma, rc, do_grow=.false., do_coag=.true., do_substep=.false., do_vtran=.FALSE.)
       if (rc /= 0) then
+         print *, "Error initializing CARMA"
          return
       end if
 
@@ -487,6 +500,7 @@ contains
             t(:), rc, &
             told=t(:))
          if (rc /= 0) then
+            print *, "Error creating CARMA state"
             return
          end if
 
@@ -495,6 +509,7 @@ contains
             do ibin = 1, NBIN
                call CARMASTATE_SetBin(cstate, ielem, ibin, mmr(:,ielem,ibin), rc)
                if (rc /= 0) then
+                  print *, "Error setting CARMA state bin"
                   return
                end if
             end do
@@ -503,6 +518,7 @@ contains
          ! Execute the time step
          call CARMASTATE_Step(cstate, rc)
          if (rc /= 0) then
+            print *, "Error executing CARMA state step"
             return
          end if
 
@@ -511,6 +527,7 @@ contains
             do ibin = 1, NBIN
                call CARMASTATE_GetBin(cstate, ielem, ibin, mmr(:,ielem,ibin), rc)
                if (rc /= 0) then
+                  print *, "Error getting CARMA state bin"
                   return
                end if
             end do
@@ -531,6 +548,7 @@ contains
       ! Clean up the carma state for this step
       call CARMASTATE_Destroy(cstate, rc)
       if (rc /= 0) then
+         print *, "Error destroying CARMA state"
          return
       end if
 
@@ -739,6 +757,7 @@ contains
          ! Get the group for this element
          call CARMAELEMENT_Get(carma_ptr, ielem, rc, igroup=igroup)
          if (rc /= 0) then
+            print *, "Error getting CARMA element group"
             return 
          end if
 
@@ -748,6 +767,7 @@ contains
                numberDensity=numberDensity, r_wet=rwet_bin, rhop_wet=rhop_wet_bin, &
                vf=vf_bin, nucleationRate=nucleationRate, vd=vd_scalar)
             if (rc /= 0) then
+               print *, "Error getting CARMA state bin"
                return
             end if
 
@@ -769,6 +789,7 @@ contains
             r=r_group, rmass=rmass_group, rrat=rrat_group, arat=arat_group, &
             maxbin=maxbin_tmp)
          if (rc /= 0) then
+            print *, "Error getting CARMA group properties"
             return
          end if
 
