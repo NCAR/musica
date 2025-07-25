@@ -133,8 +133,12 @@ class Mechanism(_Mechanism):
             elif isinstance(reaction, Troe):
                 # Handle Python Troe objects with instance serialize call
                 reactions_list.append(reaction.serialize())
-            elif isinstance(reaction, (_Tunneling, Tunneling)):
-                reactions_list.append(Tunneling.serialize(reaction))
+            elif isinstance(reaction, _Tunneling):
+                # Handle C++ _Tunneling objects with static serialize call
+                reactions_list.append(Tunneling.serialize_static(reaction))
+            elif isinstance(reaction, Tunneling):
+                # Handle Python Tunneling objects with instance serialize call
+                reactions_list.append(reaction.serialize())
             elif isinstance(reaction, (_UserDefined, UserDefined)):
                 reactions_list.append(UserDefined.serialize(reaction))
             else:
