@@ -27,27 +27,35 @@ module carma_parameters_mod
    end type carma_complex_t
 
    type, bind(c) :: carma_group_config_t
-      integer(c_int) :: id
       integer(c_int) :: name_length
       character(len=1, kind=c_char) :: name(256)
       integer(c_int) :: shortname_length
       character(len=1, kind=c_char) :: shortname(7)
       real(c_double) :: rmin
       real(c_double) :: rmrat
+      real(c_double) :: rmassmin
       integer(c_int) :: ishape
       real(c_double) :: eshape
+      integer(c_int) :: swelling_algorithm
+      integer(c_int) :: swelling_composition
+      integer(c_int) :: fall_velocity_routine
+      integer(c_int) :: mie_calculation_algorithm
+      integer(c_int) :: optics_algorithm
       logical(c_bool) :: is_ice
       logical(c_bool) :: is_fractal
-      logical(c_bool) :: do_mie
+      logical(c_bool) :: is_cloud
+      logical(c_bool) :: is_sulfate
       logical(c_bool) :: do_wetdep
       logical(c_bool) :: do_drydep
       logical(c_bool) :: do_vtran
       real(c_double) :: solfac
       real(c_double) :: scavcoef
+      real(c_double) :: dpc_threshold
       real(c_double) :: rmon
       type(c_ptr) :: df
       integer(c_int) :: df_size
       real(c_double) :: falpha
+      real(c_double) :: neutral_volfrc
    end type carma_group_config_t
 
    type, bind(c) :: carma_element_config_t
@@ -72,8 +80,6 @@ module carma_parameters_mod
    end type carma_element_config_t
 
    type, bind(c) :: carma_parameters_t
-      integer(c_int) :: max_bins = 100
-      integer(c_int) :: max_groups = 10
 
       ! Model dimensions
       integer(c_int) :: nz = 1
