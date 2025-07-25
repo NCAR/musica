@@ -102,7 +102,7 @@ class Surface:
         self._instance.reaction_probability = value
 
     @property
-    def gas_phase_species(self) -> Union[Species, Tuple[float, Species]]:
+    def gas_phase_species(self) -> Union[Species, Tuple[float, Species], None]:
         """Get the gas phase species (returns Python objects)."""
         return self._gas_phase_species
 
@@ -141,7 +141,7 @@ class Surface:
         self._instance.gas_phase_products = cpp_products
 
     @property
-    def gas_phase(self) -> Phase:
+    def gas_phase(self) -> Union[Phase, None]:
         """Get the gas phase (returns Python object)."""
         return self._gas_phase
 
@@ -152,7 +152,7 @@ class Surface:
         self._instance.gas_phase = value.name
 
     @property
-    def aerosol_phase(self) -> Phase:
+    def aerosol_phase(self) -> Union[Phase, None]:
         """Get the aerosol phase (returns Python object)."""
         return self._aerosol_phase
 
