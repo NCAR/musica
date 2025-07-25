@@ -125,7 +125,6 @@ namespace musica
         const auto& group = params.groups[i];
         auto& c_group = c_params->groups[i];
 
-        c_group.id = group.id;
         c_group.name_length = std::min(static_cast<int>(group.name.length()), 255);
         std::strncpy(c_group.name, group.name.c_str(), 255);
         c_group.name[255] = '\0';
@@ -136,18 +135,28 @@ namespace musica
 
         c_group.rmin = group.rmin;
         c_group.rmrat = group.rmrat;
+        c_group.rmassmin = group.rmassmin;
         c_group.ishape = static_cast<int>(group.ishape);
         c_group.eshape = group.eshape;
         c_group.is_ice = group.is_ice;
+        c_group.swelling_algorithm = static_cast<int>(group.swelling_approach.algorithm);
+        c_group.swelling_composition = static_cast<int>(group.swelling_approach.composition);
+        c_group.fall_velocity_routine = static_cast<int>(group.fall_velocity_routine);
+        c_group.mie_calculation_algorithm = static_cast<int>(group.mie_calculation_algorithm);
+        c_group.optics_algorithm = static_cast<int>(group.optics_algorithm);
+        c_group.is_ice = group.is_ice;
         c_group.is_fractal = group.is_fractal;
-        c_group.do_mie = group.do_mie;
+        c_group.is_cloud = group.is_cloud;
+        c_group.is_sulfate = group.is_sulfate;
         c_group.do_wetdep = group.do_wetdep;
         c_group.do_drydep = group.do_drydep;
         c_group.do_vtran = group.do_vtran;
         c_group.solfac = group.solfac;
         c_group.scavcoef = group.scavcoef;
+        c_group.dpc_threshold = group.dpc_threshold;
         c_group.rmon = group.rmon;
         c_group.falpha = group.falpha;
+        c_group.neutral_volfrc = group.neutral_volfrc;
 
         // Handle df array
         if (!group.df.empty())
@@ -305,7 +314,6 @@ namespace musica
 
     // Create a default group
     CARMAGroupConfig group;
-    group.id = 1;
     group.name = "aluminum";
     group.shortname = "PRALUM";
     group.rmin = 21.5e-6;  // minimum radius [cm]
@@ -314,7 +322,7 @@ namespace musica
     group.eshape = 1.0;  // aspect ratio
     group.is_ice = false;
     group.is_fractal = true;
-    group.do_mie = true;
+    group.mie_calculation_algorithm = MieCalculationAlgorithm::TOON_1981; // Toon & Ackerman 1981
     group.do_wetdep = false;
     group.do_drydep = true;
     group.do_vtran = true;
