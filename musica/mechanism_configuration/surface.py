@@ -10,7 +10,7 @@ _Surface = _backend._mechanism_configuration._Surface
 _ReactionComponent = _backend._mechanism_configuration._ReactionComponent
 
 
-class Surface(_Surface):
+class Surface:
     """
     A class representing a surface in a chemical mechanism.
 
@@ -51,44 +51,177 @@ class Surface(_Surface):
             aerosol_phase (Phase): The aerosol phase in which the reaction occurs.
             other_properties (Dict[str, Any]): A dictionary of other properties of the surface.
         """
-        super().__init__()
-        self.name = name if name is not None else self.name
-        self.reaction_probability = reaction_probability if reaction_probability is not None else self.reaction_probability
-        self.gas_phase_species = (
-            (
-                _ReactionComponent(gas_phase_species.name)
-                if isinstance(gas_phase_species, Species)
-                else _ReactionComponent(gas_phase_species[1].name, gas_phase_species[0])
-            )
-            if gas_phase_species is not None
-            else self.gas_phase_species
-        )
-        self.gas_phase_products = (
-            [
-                (
-                    _ReactionComponent(p.name)
-                    if isinstance(p, Species)
-                    else _ReactionComponent(p[1].name, p[0])
-                )
-                for p in gas_phase_products
-            ]
-            if gas_phase_products is not None
-            else self.gas_phase_products
-        )
-        self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
-        self.aerosol_phase = aerosol_phase.name if aerosol_phase is not None else self.aerosol_phase
-        self.other_properties = other_properties if other_properties is not None else self.other_properties
+        # Create the internal C++ instance
+        self._instance = _Surface()
+        
+        # Store Python objects for public interface
+        self._name = name
+        self._reaction_probability = reaction_probability
+        self._gas_phase_species = gas_phase_species
+        self._gas_phase_products = gas_phase_products if gas_phase_products is not None else []
+        self._gas_phase = gas_phase
+        self._aerosol_phase = aerosol_phase
+        self._other_properties = other_properties if other_properties is not None else {}
+        
+        # Set properties on the C++ instance using the property setters
+        if name is not None:
+            self.name = name
+        if reaction_probability is not None:
+            self.reaction_probability = reaction_probability
+        if gas_phase_species is not None:
+            self.gas_phase_species = gas_phase_species
+        if gas_phase_products is not None:
+            self.gas_phase_products = gas_phase_products
+        if gas_phase is not None:
+            self.gas_phase = gas_phase
+        if aerosol_phase is not None:
+            self.aerosol_phase = aerosol_phase
+        if other_properties is not None:
+            self.other_properties = other_properties
 
-    @staticmethod
-    def serialize(instance) -> Dict:
+    @property
+    def name(self) -> str:
+        """Get the name of the surface."""
+        return self._instance.name
+
+    @name.setter
+    def name(self, value: str):
+        """Set the name of the surface."""
+        self._name = value
+        self._instance.name = value
+
+    @property
+    def reaction_probability(self) -> float:
+        """Get the reaction probability."""
+        return self._instance.reaction_probability
+
+    @reaction_probability.setter
+    def reaction_probability(self, value: float):
+        """Set the reaction probability."""
+        self._reaction_probability = value
+        self._instance.reaction_probability = value
+
+    @property
+    def gas_phase_species(self) -> Union[Species, Tuple[float, Species]]:
+        """Get the gas phase species (returns Python objects)."""
+        return self._gas_phase_species
+
+    @gas_phase_species.setter
+    def gas_phase_species(self, value: Union[Species, Tuple[float, Species]]):
+        """Set the gas phase species."""
+        self._gas_phase_species = value
+        # Convert to C++ ReactionComponent
+        if isinstance(value, Species):
+            self._instance.gas_phase_species = _ReactionComponent(value.name)
+        elif isinstance(value, tuple) and len(value) == 2:
+            coefficient, species = value
+            self._instance.gas_phase_species = _ReactionComponent(species.name, coefficient)
+        else:
+            raise ValueError("gas_phase_species must be a Species or Tuple[float, Species]")
+
+    @property
+    def gas_phase_products(self) -> List[Union[Species, Tuple[float, Species]]]:
+        """Get the gas phase products (returns Python objects)."""
+        return self._gas_phase_products
+
+    @gas_phase_products.setter
+    def gas_phase_products(self, value: List[Union[Species, Tuple[float, Species]]]):
+        """Set the gas phase products."""
+        self._gas_phase_products = value
+        # Convert to C++ ReactionComponents
+        cpp_products = []
+        for p in value:
+            if isinstance(p, Species):
+                cpp_products.append(_ReactionComponent(p.name))
+            elif isinstance(p, tuple) and len(p) == 2:
+                coefficient, species = p
+                cpp_products.append(_ReactionComponent(species.name, coefficient))
+            else:
+                raise ValueError("Each gas_phase_product must be a Species or Tuple[float, Species]")
+        self._instance.gas_phase_products = cpp_products
+
+    @property
+    def gas_phase(self) -> Phase:
+        """Get the gas phase (returns Python object)."""
+        return self._gas_phase
+
+    @gas_phase.setter
+    def gas_phase(self, value: Phase):
+        """Set the gas phase."""
+        self._gas_phase = value
+        self._instance.gas_phase = value.name
+
+    @property
+    def aerosol_phase(self) -> Phase:
+        """Get the aerosol phase (returns Python object)."""
+        return self._aerosol_phase
+
+    @aerosol_phase.setter
+    def aerosol_phase(self, value: Phase):
+        """Set the aerosol phase."""
+        self._aerosol_phase = value
+        self._instance.aerosol_phase = value.name
+
+    @property
+    def other_properties(self) -> Dict[str, Any]:
+        """Get other properties."""
+        return self._other_properties
+
+    @other_properties.setter
+    def other_properties(self, value: Dict[str, Any]):
+        """Set other properties."""
+        self._other_properties = value
+        self._instance.other_properties = value
+
+    @property
+    def type(self):
+        """Get the reaction type from the C++ instance."""
+        return self._instance.type
+
+    def serialize(self) -> Dict:
+        """
+        Serialize the Surface instance to a dictionary using Python-visible data.
+        
+        Returns:
+            Dict: Serialized representation of the Surface.
+        """
         serialize_dict = {
             "type": "SURFACE",
-            "name": instance.name,
-            "reaction probability": instance.reaction_probability,
-            "gas-phase species": instance.gas_phase_species.species_name,
-            "gas-phase products": ReactionComponentSerializer.serialize_list_reaction_components(instance.gas_phase_products),
-            "gas phase": instance.gas_phase,
-            "aerosol phase": instance.aerosol_phase,
+            "name": self._name,
+            "reaction probability": self._reaction_probability,
         }
-        _add_other_properties(serialize_dict, instance.other_properties)
+        
+        # Handle gas_phase_species serialization
+        if self._gas_phase_species is not None:
+            if isinstance(self._gas_phase_species, Species):
+                serialize_dict["gas-phase species"] = self._gas_phase_species.name
+            elif isinstance(self._gas_phase_species, tuple):
+                coefficient, species = self._gas_phase_species
+                serialize_dict["gas-phase species"] = {
+                    "species name": species.name,
+                    "coefficient": coefficient,
+                }
+        
+        # Handle gas_phase_products serialization
+        if self._gas_phase_products:
+            products = []
+            for p in self._gas_phase_products:
+                if isinstance(p, Species):
+                    products.append(p.name)
+                elif isinstance(p, tuple):
+                    coefficient, species = p
+                    products.append({
+                        "species name": species.name,
+                        "coefficient": coefficient,
+                    })
+            serialize_dict["gas-phase products"] = products
+        
+        # Handle phase names
+        if self._gas_phase is not None:
+            serialize_dict["gas phase"] = self._gas_phase.name
+        if self._aerosol_phase is not None:
+            serialize_dict["aerosol phase"] = self._aerosol_phase.name
+        
+        # Add other properties
+        _add_other_properties(serialize_dict, self._other_properties)
         return _remove_empty_keys(serialize_dict)
