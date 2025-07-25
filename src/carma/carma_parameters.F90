@@ -80,7 +80,6 @@ module carma_parameters_mod
       integer(c_int) :: nbin = 5
       integer(c_int) :: nsolute = 0
       integer(c_int) :: ngas = 0
-      integer(c_int) :: idx_wave = 0
 
       ! Time stepping parameters
       real(c_double) :: dtime = 1800.0_real64
@@ -94,10 +93,6 @@ module carma_parameters_mod
       type(c_ptr) :: wavelength_bins  ! wavelength_bins(NWAVE)
       integer(c_int) :: wavelength_bin_size = 0
       integer(c_int) :: number_of_refractive_indices = 0  ! Number of refractive indices per wavelength
-
-      ! Optical parameters
-      type(c_ptr) :: extinction_coefficient  ! qext(NWAVE, NBIN, NGROUP)
-      integer(c_int) :: extinction_coefficient_size
 
       ! Group and element configurations (will be handled through C interface)
       ! Note: groups and elements are managed through C pointers in interface

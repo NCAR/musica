@@ -37,8 +37,6 @@ void bind_carma(py::module_& carma)
           params.nsolute = params_dict["nsolute"].cast<int>();
         if (params_dict.contains("ngas"))
           params.ngas = params_dict["ngas"].cast<int>();
-        if (params_dict.contains("idx_wave"))
-          params.idx_wave = params_dict["idx_wave"].cast<int>();
         if (params_dict.contains("dtime"))
           params.dtime = params_dict["dtime"].cast<double>();
         if (params_dict.contains("nstep"))
@@ -195,32 +193,6 @@ void bind_carma(py::module_& carma)
           params.number_of_refractive_indices = params_dict["number_of_refractive_indices"].cast<int>();
         }
 
-        // Handle extinction coefficient
-        if (params_dict.contains("extinction_coefficient"))
-        {
-          auto extinction_coeff_py = params_dict["extinction_coefficient"];
-          if (!extinction_coeff_py.is_none())
-          {
-            // Convert 3D Python list to flat array
-            auto extinction_3d = extinction_coeff_py.cast<std::vector<std::vector<std::vector<double>>>>();
-            size_t total_size = params.wavelength_bins.size() * params.nbin * params.ngroup;
-            params.extinction_coefficient.resize(total_size);
-
-            // Copy data using proper indexing: index = i + j*nwave + k*nwave*nbin
-            for (int k = 0; k < params.ngroup; ++k)
-            {
-              for (int j = 0; j < params.nbin; ++j)
-              {
-                for (int i = 0; i < params.wavelength_bins.size(); ++i)
-                {
-                  size_t idx = i + j * params.wavelength_bins.size() + k * params.wavelength_bins.size() * params.nbin;
-                  params.extinction_coefficient[idx] = extinction_3d[i][j][k];
-                }
-              }
-            }
-          }
-        }
-
         try
         {
           auto carma_instance = new musica::CARMA(params);
@@ -256,16 +228,6 @@ void bind_carma(py::module_& carma)
           // Convert CARMAOutput to Python dictionary
           py::dict result;
 
-          // Dimensions
-          result["nz"] = output.nz;
-          result["ny"] = output.ny;
-          result["nx"] = output.nx;
-          result["nelem"] = output.nelem;
-          result["ngroup"] = output.ngroup;
-          result["nbin"] = output.nbin;
-          result["ngas"] = output.ngas;
-          result["nstep"] = output.nstep;
-
           // Grid and coordinate arrays
           result["lat"] = output.lat;
           result["lon"] = output.lon;
@@ -276,51 +238,29 @@ void bind_carma(py::module_& carma)
           result["pressure"] = output.pressure;
           result["temperature"] = output.temperature;
           result["air_density"] = output.air_density;
-          result["radiative_heating"] = output.radiative_heating;
-          result["delta_temperature"] = output.delta_temperature;
 
-          // Gas variables
-          result["gas_mmr"] = output.gas_mmr;
-          result["gas_saturation_liquid"] = output.gas_saturation_liquid;
-          result["gas_saturation_ice"] = output.gas_saturation_ice;
-          result["gas_vapor_pressure_ice"] = output.gas_vapor_pressure_ice;
-          result["gas_vapor_pressure_liquid"] = output.gas_vapor_pressure_liquid;
-          result["gas_weight_percent"] = output.gas_weight_percent;
-
-          // Group-integrated variables
-          result["number_density"] = output.number_density;
-          result["surface_area"] = output.surface_area;
-          result["mass_density"] = output.mass_density;
-          result["effective_radius"] = output.effective_radius;
-          result["effective_radius_wet"] = output.effective_radius_wet;
-          result["mean_radius"] = output.mean_radius;
-          result["nucleation_rate"] = output.nucleation_rate;
+          // Fundamental CARMA data for Python calculations
+          // Particle state arrays (3D: nz x nbin x nelem)
+          result["particle_concentration"] = output.particle_concentration;
           result["mass_mixing_ratio"] = output.mass_mixing_ratio;
-          result["projected_area"] = output.projected_area;
+
+          // Particle properties (3D: nz x nbin x ngroup)
+          result["wet_radius"] = output.wet_radius;
+          result["wet_density"] = output.wet_density;
+          result["fall_velocity"] = output.fall_velocity;
+          result["nucleation_rate"] = output.nucleation_rate;
+          result["deposition_velocity"] = output.deposition_velocity;
+
+          // Group configuration arrays (2D: nbin x ngroup)
+          result["dry_radius"] = output.dry_radius;
+          result["mass_per_bin"] = output.mass_per_bin;
+          result["radius_ratio"] = output.radius_ratio;
           result["aspect_ratio"] = output.aspect_ratio;
-          result["vertical_mass_flux"] = output.vertical_mass_flux;
-          result["extinction"] = output.extinction;
-          result["optical_depth"] = output.optical_depth;
 
-          // Bin-resolved variables
-          result["bin_wet_radius"] = output.bin_wet_radius;
-          result["bin_number_density"] = output.bin_number_density;
-          result["bin_density"] = output.bin_density;
-          result["bin_mass_mixing_ratio"] = output.bin_mass_mixing_ratio;
-          result["bin_deposition_velocity"] = output.bin_deposition_velocity;
-
-          // Group properties
-          result["group_radius"] = output.group_radius;
-          result["group_mass"] = output.group_mass;
-          result["group_volume"] = output.group_volume;
-          result["group_radius_ratio"] = output.group_radius_ratio;
-          result["group_aspect_ratio"] = output.group_aspect_ratio;
-          result["group_fractal_dimension"] = output.group_fractal_dimension;
-
-          // Names
-          result["element_names"] = output.element_names;
-          result["group_names"] = output.group_names;
-          result["gas_names"] = output.gas_names;
+          // Group mapping and properties (1D arrays)
+          result["group_particle_number_concentration"] = output.group_particle_number_concentration;
+          result["constituent_type"] = output.constituent_type;
+          result["max_prognostic_bin"] = output.max_prognostic_bin;
 
           return result;
         }

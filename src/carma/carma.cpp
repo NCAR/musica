@@ -60,9 +60,9 @@ namespace musica
     return output;
   }
 
-  CCARMAParameters * CARMA::ToCCompatible(const CARMAParameters& params)
+  CCARMAParameters* CARMA::ToCCompatible(const CARMAParameters& params)
   {
-    CCARMAParameters *c_params = new CCARMAParameters();
+    CCARMAParameters* c_params = new CCARMAParameters();
 
     // Copy simple scalar values
     c_params->nz = params.nz;
@@ -71,7 +71,6 @@ namespace musica
     c_params->nbin = params.nbin;
     c_params->nsolute = params.nsolute;
     c_params->ngas = params.ngas;
-    c_params->idx_wave = params.idx_wave;
     c_params->dtime = params.dtime;
     c_params->nstep = params.nstep;
     c_params->deltaz = params.deltaz;
@@ -97,22 +96,6 @@ namespace musica
 
     // Handle number of refractive indices
     c_params->number_of_refractive_indices = params.number_of_refractive_indices;
-
-    // Handle extinction coefficient array
-    if (!params.extinction_coefficient.empty())
-    {
-      c_params->extinction_coefficient_size = static_cast<int>(params.extinction_coefficient.size());
-      c_params->extinction_coefficient = new double[c_params->extinction_coefficient_size];
-      std::memcpy(
-          c_params->extinction_coefficient,
-          params.extinction_coefficient.data(),
-          c_params->extinction_coefficient_size * sizeof(double));
-    }
-    else
-    {
-      c_params->extinction_coefficient = nullptr;
-      c_params->extinction_coefficient_size = 0;
-    }
 
     // Handle groups array
     if (!params.groups.empty())
@@ -242,15 +225,11 @@ namespace musica
     return c_params;
   }
 
-  void CARMA::FreeCCompatible(CCARMAParameters * c_params)
+  void CARMA::FreeCCompatible(CCARMAParameters* c_params)
   {
     // Free wavelength bin centers array
     delete[] c_params->wavelength_bins;
     c_params->wavelength_bins = nullptr;
-
-    // Free extinction coefficient array
-    delete[] c_params->extinction_coefficient;
-    c_params->extinction_coefficient = nullptr;
 
     // Free groups array and its nested arrays
     if (c_params->groups != nullptr)
@@ -277,7 +256,6 @@ namespace musica
 
     // Reset sizes
     c_params->wavelength_bin_size = 0;
-    c_params->extinction_coefficient_size = 0;
     c_params->groups_size = 0;
     c_params->elements_size = 0;
 
@@ -296,20 +274,19 @@ namespace musica
     params.nbin = 5;
     params.nsolute = 0;
     params.ngas = 0;
-    params.idx_wave = 0;     // TODO: is there a better name?
     params.dtime = 1800.0;   // 30 minutes
     params.deltaz = 1000.0;  // 1 km
     params.zmin = 16500.0;   // 16.5 km
 
     // Wavelength grid
     params.wavelength_bins = {
-        {0.55e-6, 0.01e-6, true}, // Example wavelength bin at 550 nm with 10 nm width
-        {0.65e-6, 0.01e-6, true}, // Example wavelength bin at 650 nm with 10 nm width
-        {0.75e-6, 0.01e-6, true}, // Example wavelength bin at 750 nm with 10 nm width
-        {0.85e-6, 0.01e-6, true}, // Example wavelength bin at 850 nm with 10 nm width
-        {0.95e-6, 0.01e-6, true}  // Example wavelength bin at 950 nm with 10 nm width
+      { 0.55e-6, 0.01e-6, true },  // Example wavelength bin at 550 nm with 10 nm width
+      { 0.65e-6, 0.01e-6, true },  // Example wavelength bin at 650 nm with 10 nm width
+      { 0.75e-6, 0.01e-6, true },  // Example wavelength bin at 750 nm with 10 nm width
+      { 0.85e-6, 0.01e-6, true },  // Example wavelength bin at 850 nm with 10 nm width
+      { 0.95e-6, 0.01e-6, true }   // Example wavelength bin at 950 nm with 10 nm width
     };
-    params.number_of_refractive_indices = 1; // Assume one refractive index per wavelength
+    params.number_of_refractive_indices = 1;  // Assume one refractive index per wavelength
 
     // Create a default group
     CARMAGroupConfig group;

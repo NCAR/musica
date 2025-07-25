@@ -99,9 +99,9 @@ namespace musica
   // Structure representing a wavelength bin
   struct CARMAWavelengthBin
   {
-    double center;           // Center of the wavelength bin [m]
-    double width;            // Width of the wavelength bin [m]
-    bool do_emission = true; // Flag to indicate if emission is considered for this bin
+    double center;            // Center of the wavelength bin [m]
+    double width;             // Width of the wavelength bin [m]
+    bool do_emission = true;  // Flag to indicate if emission is considered for this bin
   };
 
   // Structure defining an approach to particle swelling
@@ -169,7 +169,6 @@ namespace musica
     int nbin = 5;
     int nsolute = 0;
     int ngas = 0;
-    int idx_wave = 0;  // TODO: is there a better name?
 
     // Time stepping parameters
     double dtime = 1800.0;
@@ -180,11 +179,8 @@ namespace musica
     double zmin = 16500.0;
 
     // Wavelength grid
-    std::vector<CARMAWavelengthBin> wavelength_bins;   // Wavelength bins
-    int number_of_refractive_indices = 0;              // Number of refractive indices per wavelength
-
-    // Optical parameters
-    std::vector<double> extinction_coefficient;  // Extinction coefficient qext [NWAVE * NBIN * NGROUP]
+    std::vector<CARMAWavelengthBin> wavelength_bins;  // Wavelength bins
+    int number_of_refractive_indices = 0;             // Number of refractive indices per wavelength
 
     std::vector<CARMAGroupConfig> groups;
     std::vector<CARMAElementConfig> elements;
@@ -192,16 +188,6 @@ namespace musica
 
   struct CARMAOutput
   {
-    // Dimensions for validation
-    int nz = 0;
-    int ny = 0;
-    int nx = 0;
-    int nelem = 0;
-    int ngroup = 0;
-    int nbin = 0;
-    int ngas = 0;
-    int nstep = 0;
-
     // Grid and coordinate arrays
     std::vector<double> lat;              // Latitude [degrees]
     std::vector<double> lon;              // Longitude [degrees]
@@ -209,60 +195,37 @@ namespace musica
     std::vector<double> vertical_levels;  // Height at cell interfaces [m]
 
     // Atmospheric state variables (nz elements)
-    std::vector<double> pressure;           // Pressure [Pa]
-    std::vector<double> temperature;        // Temperature [K]
-    std::vector<double> air_density;        // Air density [kg/m3]
-    std::vector<double> radiative_heating;  // Radiative heating [K/s]
-    std::vector<double> delta_temperature;  // Temperature change [K]
+    std::vector<double> pressure;     // Pressure [Pa]
+    std::vector<double> temperature;  // Temperature [K]
+    std::vector<double> air_density;  // Air density [kg/m3]
 
-    // Gas variables (nz x ngas)
-    std::vector<std::vector<double>> gas_mmr;                    // Gas mass mixing ratio [kg/kg]
-    std::vector<std::vector<double>> gas_saturation_liquid;      // Saturation over liquid
-    std::vector<std::vector<double>> gas_saturation_ice;         // Saturation over ice
-    std::vector<std::vector<double>> gas_vapor_pressure_ice;     // Evaporation rate over ice
-    std::vector<std::vector<double>> gas_vapor_pressure_liquid;  // Evaporation rate over liquid
-    std::vector<std::vector<double>> gas_weight_percent;         // Gas weight
+    // Fundamental CARMA data for Python calculations
+    // Particle state arrays (3D: nz x nbin x nelem)
+    std::vector<std::vector<std::vector<double>>> particle_concentration;  // particle concentration [# cm-3]
+    std::vector<std::vector<std::vector<double>>> mass_mixing_ratio;       // mass mixing ratio [kg kg-1]
 
-    // Group-integrated variables (nz x ngroup)
-    std::vector<std::vector<double>> number_density;        // Number density [#/cm3]
-    std::vector<std::vector<double>> surface_area;          // Surface area density [cm2/cm3]
-    std::vector<std::vector<double>> mass_density;          // Mass density [g/cm3]
-    std::vector<std::vector<double>> effective_radius;      // Effective radius [cm]
-    std::vector<std::vector<double>> effective_radius_wet;  // Wet effective radius [cm]
-    std::vector<std::vector<double>> mean_radius;           // Mean radius [cm]
-    std::vector<std::vector<double>> nucleation_rate;       // Nucleation rate [#/cm3/s]
-    std::vector<std::vector<double>> mass_mixing_ratio;     // Mass mixing ratio [kg/kg]
-    std::vector<std::vector<double>> projected_area;        // Projected area [cm2/cm3]
-    std::vector<std::vector<double>> aspect_ratio;          // Aspect ratio
-    std::vector<std::vector<double>> vertical_mass_flux;    // Vertical mass flux [g/cm2/s]
-    std::vector<std::vector<double>> extinction;            // Extinction coefficient [1/km]
-    std::vector<std::vector<double>> optical_depth;         // Optical depth
+    // Particle properties (3D: nz x nbin x ngroup)
+    std::vector<std::vector<std::vector<double>>> wet_radius;           // wet radius [cm]
+    std::vector<std::vector<std::vector<double>>> wet_density;          // wet density [g cm-3]
+    std::vector<std::vector<std::vector<double>>> fall_velocity;        // fall velocity [cm s-1] (nz+1 x nbin x ngroup)
+    std::vector<std::vector<std::vector<double>>> nucleation_rate;      // nucleation rate [cm-3 s-1] (nz x nbin x ngroup)
+    std::vector<std::vector<std::vector<double>>> deposition_velocity;  // deposition velocity [cm s-1] (nz x nbin x ngroup)
 
-    // Bin-resolved variables (nz x ngroup x nbin)
-    std::vector<std::vector<std::vector<double>>> bin_wet_radius;           // Wet radius [um]
-    std::vector<std::vector<std::vector<double>>> bin_number_density;       // Number density [#/cm3]
-    std::vector<std::vector<std::vector<double>>> bin_density;              // Particle density [g/cm3]
-    std::vector<std::vector<std::vector<double>>> bin_mass_mixing_ratio;    // Mass mixing ratio [kg/kg]
-    std::vector<std::vector<std::vector<double>>> bin_deposition_velocity;  // Deposition velocity [cm/s]
+    // Group configuration arrays (2D: nbin x ngroup)
+    std::vector<std::vector<double>> dry_radius;    // dry radius [cm]
+    std::vector<std::vector<double>> mass_per_bin;  // mass per bin [g]
+    std::vector<std::vector<double>> radius_ratio;  // radius ratio
+    std::vector<std::vector<double>> aspect_ratio;  // area ratio
 
-    // Group properties (constant for each group)
-    std::vector<std::vector<double>> group_radius;             // Bin center radius [cm] (nbin x ngroup)
-    std::vector<std::vector<double>> group_mass;               // Bin mass [g] (nbin x ngroup)
-    std::vector<std::vector<double>> group_volume;             // Bin volume [cm3] (nbin x ngroup)
-    std::vector<std::vector<double>> group_radius_ratio;       // Radius ratio (nbin x ngroup)
-    std::vector<std::vector<double>> group_aspect_ratio;       // Aspect ratio (nbin x ngroup)
-    std::vector<std::vector<double>> group_fractal_dimension;  // Fractal dimension (nbin x ngroup)
-
-    // Element and group names for identification
-    std::vector<std::string> element_names;
-    std::vector<std::string> group_names;
-    std::vector<std::string> gas_names;
+    // Group mapping and properties (1D arrays)
+    std::vector<double> group_particle_number_concentration;  // concentration element per group [ngroup]
+    std::vector<double> constituent_type;                     // constituent type per group [ngroup]
+    std::vector<double> max_prognostic_bin;                   // max prognostic bin per group [ngroup]
   };
 
   class CARMA
   {
    public:
-
     /// @brief Constructor for CARMA
     /// @param params The CARMA parameters to initialize the model
     /// @throws std::runtime_error if the CARMA instance cannot be created
@@ -281,19 +244,19 @@ namespace musica
     /// @brief Convert CARMAParameters to C-compatible CCARMAParameters
     /// @param params The C++ CARMA parameters to convert
     /// @return The C-compatible CARMA parameters structure
-    static struct CCARMAParameters * ToCCompatible(const CARMAParameters& params);
+    static struct CCARMAParameters* ToCCompatible(const CARMAParameters& params);
 
     /// @brief Free memory allocated in CCARMAParameters
     /// @param c_params The C-compatible parameters to clean up
-    static void FreeCCompatible(struct CCARMAParameters * c_params);
+    static void FreeCCompatible(struct CCARMAParameters* c_params);
 
     /// @brief Returns a set of test parameters for the aluminum test case
     /// @return A CARMAParameters object with the aluminum test case configuration
     static CARMAParameters CreateAluminumTestParams();
 
    private:
-    CCARMAParameters * carma_parameters_;  // C-compatible parameters
-    void * f_carma_type_ = nullptr;  // Pointer to the Fortran CARMA type
+    CCARMAParameters* carma_parameters_;  // C-compatible parameters
+    void* f_carma_type_ = nullptr;        // Pointer to the Fortran CARMA type
   };
 
 }  // namespace musica
