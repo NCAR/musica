@@ -11,6 +11,13 @@ namespace musica
   {
 #endif
 
+    struct CARMAWavelengthBinC
+    {
+      double center;    // Center of the wavelength bin [m]
+      double width;     // Width of the wavelength bin [m]
+      bool do_emission; // Flag to indicate if emission is considered for this bin
+    };
+
     struct CARMAGroupConfigC
     {
       int id;
@@ -57,7 +64,7 @@ namespace musica
     };
 
     // C-compatible structure for CARMA parameters
-    // MUST match the exact order and types of the C++ CARMAParameters struct
+    // MUST match the exact order and types of the Fortran carma_parameters_t struct
     struct CCARMAParameters
     {
       int max_bins;
@@ -70,7 +77,6 @@ namespace musica
       int nbin;
       int nsolute;
       int ngas;
-      int nwave;
       int idx_wave;
 
       // Time stepping parameters
@@ -80,6 +86,11 @@ namespace musica
       // Spatial parameters
       double deltaz;
       double zmin;
+
+      // Wavelength grid
+      CARMAWavelengthBinC* wavelength_bins;   // Pointer to wavelength bins array
+      int wavelength_bin_size;                // Size of wavelength bin arrays
+      int number_of_refractive_indices;       // Number of refractive indices per wavelength
 
       // Optical parameters
       double* extinction_coefficient;   // Pointer to extinction coefficient array
@@ -153,8 +164,12 @@ namespace musica
     void InternalGetCarmaVersion(char** version_ptr, int* version_length);
     void InternalFreeCarmaVersion(char* version_ptr, int version_length);
 
+    // CARMA instance management functions
+    void* InternalCreateCarma(const CCARMAParameters& params, int* rc);
+    void InternalDestroyCarma(void* carma_instance, int* rc);
+
     // CARMA driver interface functions
-    void InternalRunCarma(const CCARMAParameters& params, void* output, int* rc);
+    void InternalRunCarma(const CCARMAParameters& params, void* carma_instance, void* output, int* rc);
 
     // Transfer function called from Fortran
     void TransferCarmaOutputToCpp(const CARMAOutputDataC* output_data);

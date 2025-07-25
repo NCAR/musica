@@ -45,6 +45,30 @@ class ParticleComposition:
     OTHER = 8
 
 
+class CARMAWavelengthBin:
+    """Configuration for a CARMA wavelength bin.
+
+    A CARMA wavelength bin represents a specific wavelength range used in optical calculations.
+    """
+
+    def __init__(self, center: float, width: float, do_emission: bool = True):
+        """
+        Initialize a CARMA wavelength bin.
+
+        Args:
+            center: Center wavelength in micrometers.
+            width: Width of the wavelength bin in micrometers.
+            do_emission: Whether to include this wavelength in emission calculations (default: True).
+        """
+        self.center = center
+        self.width = width
+        self.do_emission = do_emission
+
+    def to_dict(self) -> Dict:
+        """Convert to dictionary."""
+        return {k: v for k, v in self.__dict__.items()}
+
+
 class CARMAGroupConfig:
     """Configuration for a CARMA particle group.
 
@@ -181,20 +205,18 @@ class CARMAParameters:
     """
 
     def __init__(self,
-                 max_bins: int = 100,
-                 max_groups: int = 10,
                  nz: int = 1,
                  ny: int = 1,
                  nx: int = 1,
                  nbin: int = 5,
                  nsolute: int = 0,
                  ngas: int = 0,
-                 nwave: int = 30,
                  idx_wave: int = 0,
                  dtime: float = 1800.0,
                  nstep: int = 100,
                  deltaz: float = 1000.0,
                  zmin: float = 16500.0,
+                 wavelength_bins: Optional[List[CARMAWavelengthBin]] = None,
                  extinction_coefficient: Optional[List[List[List[float]]]] = None,
                  groups: Optional[List[CARMAGroupConfig]] = None,
                  elements: Optional[List[CARMAElementConfig]] = None):
@@ -202,33 +224,28 @@ class CARMAParameters:
         Initialize CARMA parameters.
 
         Args:
-            max_bins: Maximum number of size bins (default: 100)
-            max_groups: Maximum number of groups for fractal dimension (default: 10)
             nz: Number of vertical levels (default: 1)
             ny: Number of y-direction grid points (default: 1)
             nx: Number of x-direction grid points (default: 1)
             nbin: Number of size bins (default: 5)
             nsolute: Number of solutes (default: 0)
             ngas: Number of gases (default: 0)
-            nwave: Number of wavelengths for optics (default: 30)
             idx_wave: Index of wavelength for extinction coefficient (default: 0)
             dtime: Time step in seconds (default: 1800.0)
             nstep: Number of time steps (default: 100)
             deltaz: Vertical grid spacing in meters (default: 1000.0)
             zmin: Minimum altitude in meters (default: 16500.0)
+            wavelength_bins: List of CARMAWavelengthBin objects defining the wavelength grid (default: None)
             extinction_coefficient: Extinction coefficient qext [NWAVE x NBIN x NGROUP] (default: None)
             groups: List of group configurations (default: None)
             elements: List of element configurations (default: None)
         """
-        self.max_bins = max_bins
-        self.max_groups = max_groups
         self.nz = nz
         self.ny = ny
         self.nx = nx
         self.nbin = nbin
         self.nsolute = nsolute
         self.ngas = ngas
-        self.nwave = nwave
         self.idx_wave = idx_wave
         self.dtime = dtime
         self.nstep = nstep
@@ -236,34 +253,36 @@ class CARMAParameters:
         self.zmin = zmin
         self.extinction_coefficient = extinction_coefficient
 
-        # Initialize group and element configurations
+        # Initialize lists
+        self.wavelength_bins = wavelength_bins or []
         self.groups = groups or []
         self.elements = elements or []
+
+    def add_wavelength_bin(self, wavelength_bin: CARMAWavelengthBin):
+        """Add a wavelength bin configuration."""
+        self.wavelength_bins.append(wavelength_bin)
 
     def add_group(self, group: CARMAGroupConfig):
         """Add a group configuration."""
         self.groups.append(group)
-        self.update_dimensions()
 
     def add_element(self, element: CARMAElementConfig):
         """Add an element configuration."""
         self.elements.append(element)
-        self.update_dimensions()
 
     def __repr__(self):
         """String representation of CARMAParameters."""
-        return (f"CARMAParameters(max_bins={self.max_bins}, max_groups={self.max_groups}, "
-                f"nz={self.nz}, ny={self.ny}, nx={self.nx}, "
+        return (f"CARMAParameters(nz={self.nz}, ny={self.ny}, nx={self.nx}, "
                 f"nbin={self.nbin}, nsolute={self.nsolute}, "
-                f"ngas={self.ngas}, nwave={self.nwave}, dtime={self.dtime}, "
+                f"ngas={self.ngas}, dtime={self.dtime}, "
                 f"nstep={self.nstep}, deltaz={self.deltaz}, zmin={self.zmin})")
 
     def __str__(self):
         """String representation of CARMAParameters."""
-        return (f"CARMAParameters(max_bins={self.max_bins}, max_groups={self.max_groups}, "
+        return (f"CARMAParameters(nz={self.nz}, ny={self.ny}, nx={self.nx}, "
                 f"nz={self.nz}, ny={self.ny}, nx={self.nx}, "
                 f"nbin={self.nbin}, nsolute={self.nsolute}, "
-                f"ngas={self.ngas}, nwave={self.nwave}, dtime={self.dtime}, "
+                f"ngas={self.ngas}, dtime={self.dtime}, "
                 f"nstep={self.nstep}, deltaz={self.deltaz}, zmin={self.zmin})")
 
     def to_dict(self) -> Dict:
@@ -276,6 +295,8 @@ class CARMAParameters:
                     params_dict[k] = [group.to_dict() for group in v]
                 elif k == 'elements':
                     params_dict[k] = [element.to_dict() for element in v]
+                elif k == 'wavelength_bins':
+                    params_dict[k] = [bin.to_dict() for bin in v]
                 else:
                     params_dict[k] = v
         return params_dict
@@ -283,7 +304,12 @@ class CARMAParameters:
     @classmethod
     def from_dict(cls, params_dict: Dict) -> 'CARMAParameters':
         """Create parameters from dictionary."""
-        # Handle groups and elements separately
+        # Handle lists separately
+        wavelength_bins = []
+        if 'wavelength_bins' in params_dict:
+            wavelength_bins = [CARMAWavelengthBin(**bin_dict)
+                               for bin_dict in params_dict['wavelength_bins']]
+            del params_dict['wavelength_bins']
         groups = []
         if 'groups' in params_dict:
             groups = [CARMAGroupConfig(**group_dict)
@@ -296,11 +322,20 @@ class CARMAParameters:
                         for element_dict in params_dict['elements']]
             del params_dict['elements']
 
-        return cls(groups=groups, elements=elements, **params_dict)
+        return cls(wavelength_bins=wavelength_bins, groups=groups, elements=elements, **params_dict)
 
     @classmethod
     def create_aluminum_test_config(cls) -> 'CARMAParameters':
         """Create parameters for aluminum test configuration."""
+        # Set up a wavelength grid
+        wavelength_bins = [
+            CARMAWavelengthBin(center=0.55e-6, width=0.01e-6, do_emission=True),
+            CARMAWavelengthBin(center=0.65e-6, width=0.01e-6, do_emission=True),
+            CARMAWavelengthBin(center=0.75e-6, width=0.01e-6, do_emission=True),
+            CARMAWavelengthBin(center=0.85e-6, width=0.01e-6, do_emission=True),
+            CARMAWavelengthBin(center=0.95e-6, width=0.01e-6, do_emission=True)
+        ]
+
         # Create aluminum group
         group = CARMAGroupConfig(
             id=1,
@@ -340,18 +375,16 @@ class CARMAParameters:
         )
 
         params = cls(
-            max_bins=100,
-            max_groups=10,
             nz=1,
             ny=1,
             nx=1,
             nbin=5,
             nsolute=0,
             ngas=0,
-            nwave=30,
             idx_wave=0,
             deltaz=1000.0,
             zmin=16500.0,
+            wavelength_bins=wavelength_bins,
             extinction_coefficient=None,  # Not used in this test
             groups=[group],
             elements=[element]
@@ -666,7 +699,7 @@ class CARMA:
     with configurable parameters.
     """
 
-    def __init__(self):
+    def __init__(self, parameters: CARMAParameters):
         """
         Initialize a CARMA instance.
 
@@ -677,7 +710,7 @@ class CARMA:
             raise ValueError(
                 "CARMA backend is not available on this platform.")
 
-        self._carma_instance = _backend._carma._create_carma()
+        self._carma_instance = _backend._carma._create_carma(parameters.to_dict())
 
     def __del__(self):
         """Clean up the CARMA instance."""
@@ -692,7 +725,7 @@ class CARMA:
         """String representation of CARMA instance."""
         return f"CARMA() - Version: {version if version else 'Not available'}"
 
-    def run(self, parameters: CARMAParameters) -> xr.Dataset:
+    def run(self) -> xr.Dataset:
         """
         Run the CARMA aerosol model simulation.
 
@@ -706,9 +739,7 @@ class CARMA:
         Raises:
             ValueError: If the simulation fails
         """
-        params_dict = parameters.to_dict()
-        output_dict = _backend._carma._run_carma_with_parameters(
-            self._carma_instance, params_dict)
+        output_dict = _backend._carma._run_carma(self._carma_instance)
 
         # Convert dictionary directly to xarray Dataset
         return _carma_dict_to_xarray(output_dict)

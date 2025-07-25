@@ -11,7 +11,14 @@ module carma_parameters_mod
 
    private
 
-   public :: carma_group_config_t, carma_element_config_t, carma_parameters_t
+   public :: carma_group_config_t, carma_element_config_t, carma_parameters_t, &
+             carma_wavelength_bin_t
+
+   type, bind(c) :: carma_wavelength_bin_t
+      real(c_double) :: center       ! Center of the wavelength bin [m]
+      real(c_double) :: width        ! Width of the wavelength bin [m]
+      logical(c_bool) :: do_emission ! Flag to indicate if emission is considered for this bin
+   end type carma_wavelength_bin_t
 
    type, bind(c) :: carma_group_config_t
       integer(c_int) :: id
@@ -67,7 +74,6 @@ module carma_parameters_mod
       integer(c_int) :: nbin = 5
       integer(c_int) :: nsolute = 0
       integer(c_int) :: ngas = 0
-      integer(c_int) :: nwave = 30
       integer(c_int) :: idx_wave = 0
 
       ! Time stepping parameters
@@ -77,6 +83,11 @@ module carma_parameters_mod
       ! Spatial parameters
       real(c_double) :: deltaz = 1000.0_real64
       real(c_double) :: zmin = 16500.0_real64
+
+      ! Wavelength grid
+      type(c_ptr) :: wavelength_bins  ! wavelength_bins(NWAVE)
+      integer(c_int) :: wavelength_bin_size = 0
+      integer(c_int) :: number_of_refractive_indices = 0  ! Number of refractive indices per wavelength
 
       ! Optical parameters
       type(c_ptr) :: extinction_coefficient  ! qext(NWAVE, NBIN, NGROUP)

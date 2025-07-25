@@ -16,35 +16,8 @@ void bind_carma(py::module_& carma)
 
   carma.def(
       "_create_carma",
-      []()
+      [](py::dict params_dict)
       {
-        try
-        {
-          auto carma_instance = new musica::CARMA();
-          return reinterpret_cast<std::uintptr_t>(carma_instance);
-        }
-        catch (const std::exception& e)
-        {
-          throw py::value_error("Error creating CARMA instance: " + std::string(e.what()));
-        }
-      },
-      "Create a CARMA instance");
-
-  carma.def(
-      "_delete_carma",
-      [](std::uintptr_t carma_ptr)
-      {
-        musica::CARMA* carma_instance = reinterpret_cast<musica::CARMA*>(carma_ptr);
-        delete carma_instance;
-      },
-      "Delete a CARMA instance");
-
-  carma.def(
-      "_run_carma_with_parameters",
-      [](std::uintptr_t carma_ptr, py::dict params_dict)
-      {
-        musica::CARMA* carma_instance = reinterpret_cast<musica::CARMA*>(carma_ptr);
-
         // Convert Python dict to CARMAParameters
         musica::CARMAParameters params;
 
@@ -68,8 +41,6 @@ void bind_carma(py::module_& carma)
           params.nsolute = params_dict["nsolute"].cast<int>();
         if (params_dict.contains("ngas"))
           params.ngas = params_dict["ngas"].cast<int>();
-        if (params_dict.contains("nwave"))
-          params.nwave = params_dict["nwave"].cast<int>();
         if (params_dict.contains("idx_wave"))
           params.idx_wave = params_dict["idx_wave"].cast<int>();
         if (params_dict.contains("dtime"))
@@ -177,6 +148,35 @@ void bind_carma(py::module_& carma)
           }
         }
 
+        // Handle wavelength bins
+        if (params_dict.contains("wavelength_bins"))
+        {
+          auto wavelength_bins_py = params_dict["wavelength_bins"];
+          if (!wavelength_bins_py.is_none() && py::isinstance<py::list>(wavelength_bins_py))
+          {
+            auto wavelength_bins_list = wavelength_bins_py.cast<py::list>();
+            for (auto bin_py : wavelength_bins_list)
+            {
+              auto bin_dict = bin_py.cast<py::dict>();
+              musica::CARMAWavelengthBin bin;
+
+              if (bin_dict.contains("center"))
+                bin.center = bin_dict["center"].cast<double>();
+              if (bin_dict.contains("width"))
+                bin.width = bin_dict["width"].cast<double>();
+              if (bin_dict.contains("do_emission"))
+                bin.do_emission = bin_dict["do_emission"].cast<bool>();
+
+              params.wavelength_bins.push_back(bin);
+            }
+          }
+        }
+        if (params_dict.contains("number_of_refractive_indices"))
+        {
+          params.number_of_refractive_indices = params_dict["number_of_refractive_indices"].cast<int>();
+        }
+
+        // Handle extinction coefficient
         if (params_dict.contains("extinction_coefficient"))
         {
           auto extinction_coeff_py = params_dict["extinction_coefficient"];
@@ -184,7 +184,7 @@ void bind_carma(py::module_& carma)
           {
             // Convert 3D Python list to flat array
             auto extinction_3d = extinction_coeff_py.cast<std::vector<std::vector<std::vector<double>>>>();
-            size_t total_size = params.nwave * params.nbin * params.ngroup;
+            size_t total_size = params.wavelength_bins.size() * params.nbin * params.ngroup;
             params.extinction_coefficient.resize(total_size);
 
             // Copy data using proper indexing: index = i + j*nwave + k*nwave*nbin
@@ -192,9 +192,9 @@ void bind_carma(py::module_& carma)
             {
               for (int j = 0; j < params.nbin; ++j)
               {
-                for (int i = 0; i < params.nwave; ++i)
+                for (int i = 0; i < params.wavelength_bins.size(); ++i)
                 {
-                  size_t idx = i + j * params.nwave + k * params.nwave * params.nbin;
+                  size_t idx = i + j * params.wavelength_bins.size() + k * params.wavelength_bins.size() * params.nbin;
                   params.extinction_coefficient[idx] = extinction_3d[i][j][k];
                 }
               }
@@ -204,7 +204,35 @@ void bind_carma(py::module_& carma)
 
         try
         {
-          musica::CARMAOutput output = carma_instance->Run(params);
+          auto carma_instance = new musica::CARMA(params);
+          return reinterpret_cast<std::uintptr_t>(carma_instance);
+        }
+        catch (const std::exception& e)
+        {
+          throw py::value_error("Error creating CARMA instance: " + std::string(e.what()));
+        }
+        
+      },
+      "Create a CARMA instance");
+
+  carma.def(
+      "_delete_carma",
+      [](std::uintptr_t carma_ptr)
+      {
+        musica::CARMA* carma_instance = reinterpret_cast<musica::CARMA*>(carma_ptr);
+        delete carma_instance;
+      },
+      "Delete a CARMA instance");
+
+  carma.def(
+      "_run_carma",
+      [](std::uintptr_t carma_ptr)
+      {
+        musica::CARMA* carma_instance = reinterpret_cast<musica::CARMA*>(carma_ptr);
+
+        try
+        {
+          musica::CARMAOutput output = carma_instance->Run();
 
           // Convert CARMAOutput to Python dictionary
           py::dict result;

@@ -44,6 +44,14 @@ namespace musica
     OTHER = 8
   };
 
+  // Structure representing a wavelength bin
+  struct CARMAWavelengthBin
+  {
+    double center;           // Center of the wavelength bin [m]
+    double width;            // Width of the wavelength bin [m]
+    bool do_emission = true; // Flag to indicate if emission is considered for this bin
+  };
+
   // Structure representing a CARMA group configuration
   struct CARMAGroupConfig
   {
@@ -98,7 +106,6 @@ namespace musica
     int nbin = 5;
     int nsolute = 0;
     int ngas = 0;
-    int nwave = 30;
     int idx_wave = 0;  // TODO: is there a better name?
 
     // Time stepping parameters
@@ -108,6 +115,10 @@ namespace musica
     // Spatial parameters
     double deltaz = 1000.0;
     double zmin = 16500.0;
+
+    // Wavelength grid
+    std::vector<CARMAWavelengthBin> wavelength_bins;   // Wavelength bins
+    int number_of_refractive_indices = 0;              // Number of refractive indices per wavelength
 
     // Optical parameters
     std::vector<double> extinction_coefficient;  // Extinction coefficient qext [NWAVE * NBIN * NGROUP]
@@ -188,7 +199,12 @@ namespace musica
   class CARMA
   {
    public:
-    CARMA();
+
+    /// @brief Constructor for CARMA
+    /// @param params The CARMA parameters to initialize the model
+    /// @throws std::runtime_error if the CARMA instance cannot be created
+    explicit CARMA(const CARMAParameters& params);
+
     ~CARMA();
 
     /// @brief Get the version of CARMA
@@ -196,23 +212,25 @@ namespace musica
     static std::string GetVersion();
 
     /// @brief Run CARMA with the specified parameters and configuration
-    /// @param params The CARMA parameters to use for the simulation
-    /// @param config The group and element configuration (optional)
     /// @return The CARMA output data
-    CARMAOutput Run(const CARMAParameters& params);
+    CARMAOutput Run();
 
     /// @brief Convert CARMAParameters to C-compatible CCARMAParameters
     /// @param params The C++ CARMA parameters to convert
     /// @return The C-compatible CARMA parameters structure
-    static struct CCARMAParameters ToCCompatible(const CARMAParameters& params);
+    static struct CCARMAParameters * ToCCompatible(const CARMAParameters& params);
 
     /// @brief Free memory allocated in CCARMAParameters
     /// @param c_params The C-compatible parameters to clean up
-    static void FreeCCompatible(struct CCARMAParameters& c_params);
+    static void FreeCCompatible(struct CCARMAParameters * c_params);
 
     /// @brief Returns a set of test parameters for the aluminum test case
     /// @return A CARMAParameters object with the aluminum test case configuration
     static CARMAParameters CreateAluminumTestParams();
+
+   private:
+    CCARMAParameters * carma_parameters_;  // C-compatible parameters
+    void * f_carma_type_ = nullptr;  // Pointer to the Fortran CARMA type
   };
 
 }  // namespace musica
