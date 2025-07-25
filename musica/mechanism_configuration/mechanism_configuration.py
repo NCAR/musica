@@ -125,8 +125,12 @@ class Mechanism(_Mechanism):
                 reactions_list.append(HenrysLaw.serialize(reaction))
             elif isinstance(reaction, (_Photolysis, Photolysis)):
                 reactions_list.append(Photolysis.serialize(reaction))
-            elif isinstance(reaction, (_Surface, Surface)):
-                reactions_list.append(Surface.serialize(reaction))
+            elif isinstance(reaction, _Surface):
+                # Handle C++ _Surface objects with static serialize call
+                reactions_list.append(Surface.serialize_static(reaction))
+            elif isinstance(reaction, Surface):
+                # Handle Python Surface objects with instance serialize call
+                reactions_list.append(reaction.serialize())
             elif isinstance(reaction, _Troe):
                 # Handle C++ _Troe objects with static serialize call
                 reactions_list.append(Troe.serialize_static(reaction))
