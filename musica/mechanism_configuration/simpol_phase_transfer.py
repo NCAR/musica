@@ -21,7 +21,7 @@ class SimpolPhaseTransfer:
         aerosol_phase (Phase): The aerosol phase in which the reaction occurs.
         aerosol_phase_species (Union[Species, Tuple[float, Species]]): The aerosol phase species involved in the reaction.
         B (List[float]): The B parameters [unitless].
-        unknown_properties (Dict[str, Any]): A dictionary of other properties of the simplified phase transfer reaction rate constant.
+        other_properties (Dict[str, Any]): A dictionary of other properties of the simplified phase transfer reaction rate constant.
     """
 
     def __init__(
@@ -46,7 +46,7 @@ class SimpolPhaseTransfer:
             aerosol_phase (Phase): The aerosol phase in which the reaction occurs.
             aerosol_phase_species (Union[Species, Tuple[float, Species]]): The aerosol phase species involved in the reaction.
             B (List[float]): The B parameters [unitless].
-            other_properties (Dict[str, Any]): A dictionary of other properties of the simplified phase transfer reaction rate constant.
+            unknown_properties (Dict[str, Any]): A dictionary of other properties of the simplified phase transfer reaction rate constant.
         """
         # Create the internal C++ instance
         self._instance = _SimpolPhaseTransfer()
