@@ -111,8 +111,12 @@ class Mechanism(_Mechanism):
                 reactions_list.append(Emission.serialize(reaction))
             elif isinstance(reaction, (_FirstOrderLoss, FirstOrderLoss)):
                 reactions_list.append(FirstOrderLoss.serialize(reaction))
-            elif isinstance(reaction, (_SimpolPhaseTransfer, SimpolPhaseTransfer)):
-                reactions_list.append(SimpolPhaseTransfer.serialize(reaction))
+            elif isinstance(reaction, _SimpolPhaseTransfer):
+                # Handle C++ _SimpolPhaseTransfer objects with static serialize call
+                reactions_list.append(SimpolPhaseTransfer.serialize_static(reaction))
+            elif isinstance(reaction, SimpolPhaseTransfer):
+                # Handle Python SimpolPhaseTransfer objects with instance serialize call
+                reactions_list.append(reaction.serialize())
             elif isinstance(reaction, _AqueousEquilibrium):
                 # Handle C++ _AqueousEquilibrium objects with static serialize call
                 reactions_list.append(AqueousEquilibrium.serialize_static(reaction))
