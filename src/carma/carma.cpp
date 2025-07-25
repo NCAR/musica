@@ -60,9 +60,9 @@ namespace musica
     return output;
   }
 
-  CCARMAParameters * CARMA::ToCCompatible(const CARMAParameters& params)
+  CCARMAParameters* CARMA::ToCCompatible(const CARMAParameters& params)
   {
-    CCARMAParameters *c_params = new CCARMAParameters();
+    CCARMAParameters* c_params = new CCARMAParameters();
 
     // Copy simple scalar values
     c_params->max_bins = params.max_bins;
@@ -236,7 +236,7 @@ namespace musica
     return c_params;
   }
 
-  void CARMA::FreeCCompatible(CCARMAParameters * c_params)
+  void CARMA::FreeCCompatible(CCARMAParameters* c_params)
   {
     // Free wavelength bin centers array
     delete[] c_params->wavelength_bins;
@@ -299,13 +299,13 @@ namespace musica
 
     // Wavelength grid
     params.wavelength_bins = {
-        {0.55e-6, 0.01e-6, true}, // Example wavelength bin at 550 nm with 10 nm width
-        {0.65e-6, 0.01e-6, true}, // Example wavelength bin at 650 nm with 10 nm width
-        {0.75e-6, 0.01e-6, true}, // Example wavelength bin at 750 nm with 10 nm width
-        {0.85e-6, 0.01e-6, true}, // Example wavelength bin at 850 nm with 10 nm width
-        {0.95e-6, 0.01e-6, true}  // Example wavelength bin at 950 nm with 10 nm width
+      { 0.55e-6, 0.01e-6, true },  // Example wavelength bin at 550 nm with 10 nm width
+      { 0.65e-6, 0.01e-6, true },  // Example wavelength bin at 650 nm with 10 nm width
+      { 0.75e-6, 0.01e-6, true },  // Example wavelength bin at 750 nm with 10 nm width
+      { 0.85e-6, 0.01e-6, true },  // Example wavelength bin at 850 nm with 10 nm width
+      { 0.95e-6, 0.01e-6, true }   // Example wavelength bin at 950 nm with 10 nm width
     };
-    params.number_of_refractive_indices = 1; // Assume one refractive index per wavelength
+    params.number_of_refractive_indices = 1;  // Assume one refractive index per wavelength
 
     // Create a default group
     CARMAGroupConfig group;

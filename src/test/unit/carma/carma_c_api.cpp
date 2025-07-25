@@ -35,7 +35,7 @@ TEST_F(CarmaCApiTest, GetCarmaVersion)
 TEST_F(CarmaCApiTest, RunCarmaWithDefaultParameters)
 {
   CARMAParameters default_params;
-  CARMA carma{default_params};
+  CARMA carma{ default_params };
 
   // Test that we can run CARMA with default parameters without throwing
   ASSERT_NO_THROW(carma.Run());
@@ -44,7 +44,7 @@ TEST_F(CarmaCApiTest, RunCarmaWithDefaultParameters)
 TEST_F(CarmaCApiTest, RunCarmaWithAluminumTestParams)
 {
   CARMAParameters params = CARMA::CreateAluminumTestParams();
-  CARMA carma{params};
+  CARMA carma{ params };
 
   // Verify the aluminum test parameters are set correctly
   EXPECT_EQ(params.nz, 1);
