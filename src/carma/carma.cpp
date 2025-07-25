@@ -298,7 +298,7 @@ namespace musica
     group.eshape = 1.0;  // aspect ratio
     group.is_ice = false;
     group.is_fractal = true;
-    group.mie_calculation_algorithm = MieCalculationAlgorithm::TOON_1981; // Toon & Ackerman 1981
+    group.mie_calculation_algorithm = MieCalculationAlgorithm::TOON_1981;  // Toon & Ackerman 1981
     group.do_wetdep = false;
     group.do_drydep = true;
     group.do_vtran = true;
