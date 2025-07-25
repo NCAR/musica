@@ -138,12 +138,12 @@ namespace musica
 
     // Fundamental CARMA data for Python calculations
     // Particle state arrays (3D: nz x nbin x nelem)
-    std::vector<std::vector<std::vector<double>>> particle_concentration; // particle concentration [# cm-3]
-    std::vector<std::vector<std::vector<double>>> mass_mixing_ratio;      // mass mixing ratio [kg kg-1]
+    std::vector<std::vector<std::vector<double>>> particle_concentration;  // particle concentration [# cm-3]
+    std::vector<std::vector<std::vector<double>>> mass_mixing_ratio;       // mass mixing ratio [kg kg-1]
 
     // Particle properties (3D: nz x nbin x ngroup)
-    std::vector<std::vector<std::vector<double>>> wet_radius;       // wet radius [cm]
-    std::vector<std::vector<std::vector<double>>> wet_density;      // wet density [g cm-3]
+    std::vector<std::vector<std::vector<double>>> wet_radius;           // wet radius [cm]
+    std::vector<std::vector<std::vector<double>>> wet_density;          // wet density [g cm-3]
     std::vector<std::vector<std::vector<double>>> fall_velocity;        // fall velocity [cm s-1] (nz+1 x nbin x ngroup)
     std::vector<std::vector<std::vector<double>>> nucleation_rate;      // nucleation rate [cm-3 s-1] (nz x nbin x ngroup)
     std::vector<std::vector<std::vector<double>>> deposition_velocity;  // deposition velocity [cm s-1] (nz x nbin x ngroup)
@@ -156,8 +156,8 @@ namespace musica
 
     // Group mapping and properties (1D arrays)
     std::vector<double> group_particle_number_concentration;  // concentration element per group [ngroup]
-    std::vector<double> constituent_type;       // constituent type per group [ngroup]
-    std::vector<double> max_prognostic_bin;     // max prognostic bin per group [ngroup]
+    std::vector<double> constituent_type;                     // constituent type per group [ngroup]
+    std::vector<double> max_prognostic_bin;                   // max prognostic bin per group [ngroup]
   };
 
   class CARMA

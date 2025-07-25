@@ -123,15 +123,15 @@ namespace musica
       const double* deposition_velocity;  // deposition velocity [cm/s]
 
       // Group configuration data [nbin, ngroup]
-      const double* dry_radius;     // dry particle radius [cm]
+      const double* dry_radius;    // dry particle radius [cm]
       const double* mass_per_bin;  // particle mass [g]
-      const double* radius_ratio;   // radius ratio
-      const double* area_ratio;     // area ratio
+      const double* radius_ratio;  // radius ratio
+      const double* area_ratio;    // area ratio
 
       // Group mapping and properties (integer data stored as doubles)
       const double* group_particle_number_concentration;  // concentration element per group [ngroup]
-      const double* constituent_type;       // constituent type per group [ngroup]
-      const double* max_prognostic_bin;     // max prognostic bin per group [ngroup]
+      const double* constituent_type;                     // constituent type per group [ngroup]
+      const double* max_prognostic_bin;                   // max prognostic bin per group [ngroup]
     };
 
     // The external C API for CARMA
@@ -151,14 +151,8 @@ namespace musica
     void InternalRunCarma(const CCARMAParameters& params, void* carma_instance, void* output, int* rc);
 
     // Transfer function called from Fortran
-    void TransferCarmaOutputToCpp(
-        const CARMAOutputDataC* output_data,
-        int nz,
-        int ny,
-        int nx,
-        int nbin,
-        int nelem,
-        int ngroup);
+    void
+    TransferCarmaOutputToCpp(const CARMAOutputDataC* output_data, int nz, int ny, int nx, int nbin, int nelem, int ngroup);
 
 #ifdef __cplusplus
   }  // extern "C"
