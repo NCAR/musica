@@ -181,26 +181,6 @@ class SimpolPhaseTransfer:
         """Get the reaction type."""
         return ReactionType.SimpolPhaseTransfer
 
-    def _create_serialize_dict(self, instance) -> Dict:
-        """
-        Helper method to create the serialization dictionary.
-
-        Args:
-            instance: The instance to serialize (either self._instance or a _SimpolPhaseTransfer object).
-
-        Returns:
-            Dict: Base serialization dictionary.
-        """
-        return {
-            "type": "SIMPOL_PHASE_TRANSFER",
-            "name": instance.name,
-            "gas phase": instance.gas_phase,
-            "gas-phase species": instance.gas_phase_species.species_name,
-            "aerosol phase": instance.aerosol_phase,
-            "aerosol-phase species": instance.aerosol_phase_species.species_name,
-            "B": instance.B,
-        }
-
     def serialize(self) -> Dict:
         """
         Serialize the SimpolPhaseTransfer object to a dictionary using only Python-visible data.
@@ -208,7 +188,15 @@ class SimpolPhaseTransfer:
         Returns:
             Dict: A dictionary representation of the SimpolPhaseTransfer object.
         """
-        serialize_dict = self._create_serialize_dict(self._instance)
+        serialize_dict = {
+            "type": "SIMPOL_PHASE_TRANSFER",
+            "name": self._instance.name,
+            "gas phase": self._instance.gas_phase,
+            "gas-phase species": self._instance.gas_phase_species.species_name,
+            "aerosol phase": self._instance.aerosol_phase,
+            "aerosol-phase species": self._instance.aerosol_phase_species.species_name,
+            "B": self._instance.B,
+        }
         _add_other_properties(serialize_dict, self.other_properties)
         return _remove_empty_keys(serialize_dict)
 
@@ -223,8 +211,14 @@ class SimpolPhaseTransfer:
         Returns:
             Dict: A dictionary representation of the SimpolPhaseTransfer object.
         """
-        # Create a temporary SimpolPhaseTransfer object to use the helper method
-        temp_simpol = SimpolPhaseTransfer()
-        serialize_dict = temp_simpol._create_serialize_dict(instance)
+        serialize_dict = {
+            "type": "SIMPOL_PHASE_TRANSFER",
+            "name": instance.name,
+            "gas phase": instance.gas_phase,
+            "gas-phase species": instance.gas_phase_species.species_name,
+            "aerosol phase": instance.aerosol_phase,
+            "aerosol-phase species": instance.aerosol_phase_species.species_name,
+            "B": instance.B,
+        }
         _add_other_properties(serialize_dict, instance.other_properties)
         return _remove_empty_keys(serialize_dict)
