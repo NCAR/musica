@@ -211,13 +211,11 @@ class CARMAParameters:
                  nbin: int = 5,
                  nsolute: int = 0,
                  ngas: int = 0,
-                 idx_wave: int = 0,
                  dtime: float = 1800.0,
                  nstep: int = 100,
                  deltaz: float = 1000.0,
                  zmin: float = 16500.0,
                  wavelength_bins: Optional[List[CARMAWavelengthBin]] = None,
-                 extinction_coefficient: Optional[List[List[List[float]]]] = None,
                  groups: Optional[List[CARMAGroupConfig]] = None,
                  elements: Optional[List[CARMAElementConfig]] = None):
         """
@@ -230,13 +228,11 @@ class CARMAParameters:
             nbin: Number of size bins (default: 5)
             nsolute: Number of solutes (default: 0)
             ngas: Number of gases (default: 0)
-            idx_wave: Index of wavelength for extinction coefficient (default: 0)
             dtime: Time step in seconds (default: 1800.0)
             nstep: Number of time steps (default: 100)
             deltaz: Vertical grid spacing in meters (default: 1000.0)
             zmin: Minimum altitude in meters (default: 16500.0)
             wavelength_bins: List of CARMAWavelengthBin objects defining the wavelength grid (default: None)
-            extinction_coefficient: Extinction coefficient qext [NWAVE x NBIN x NGROUP] (default: None)
             groups: List of group configurations (default: None)
             elements: List of element configurations (default: None)
         """
@@ -246,12 +242,10 @@ class CARMAParameters:
         self.nbin = nbin
         self.nsolute = nsolute
         self.ngas = ngas
-        self.idx_wave = idx_wave
         self.dtime = dtime
         self.nstep = nstep
         self.deltaz = deltaz
         self.zmin = zmin
-        self.extinction_coefficient = extinction_coefficient
 
         # Initialize lists
         self.wavelength_bins = wavelength_bins or []
@@ -381,11 +375,9 @@ class CARMAParameters:
             nbin=5,
             nsolute=0,
             ngas=0,
-            idx_wave=0,
             deltaz=1000.0,
             zmin=16500.0,
             wavelength_bins=wavelength_bins,
-            extinction_coefficient=None,  # Not used in this test
             groups=[group],
             elements=[element]
         )
@@ -397,7 +389,7 @@ class CARMAParameters:
         return params
 
 
-def _carma_dict_to_xarray(output_dict: Dict) -> xr.Dataset:
+def _carma_dict_to_xarray(output_dict: Dict, parameters: 'CARMAParameters') -> xr.Dataset:
     """
     Convert CARMA output dictionary to xarray Dataset for netCDF export.
 
@@ -406,20 +398,21 @@ def _carma_dict_to_xarray(output_dict: Dict) -> xr.Dataset:
 
     Args:
         output_dict: Dictionary containing CARMA output data from C++ backend
+        parameters: The CARMAParameters object containing model configuration
 
     Returns:
         xr.Dataset: Dataset containing all CARMA output variables with proper
                    dimensions and metadata
     """
-    # Extract dimensions from the dictionary
-    nz = output_dict.get('nz', 0)
-    ny = output_dict.get('ny', 0)
-    nx = output_dict.get('nx', 0)
-    nelem = output_dict.get('nelem', 0)
-    ngroup = output_dict.get('ngroup', 0)
-    nbin = output_dict.get('nbin', 0)
-    ngas = output_dict.get('ngas', 0)
-    nstep = output_dict.get('nstep', 0)
+    # Extract dimensions from the parameters
+    nz = parameters.nz
+    ny = parameters.ny
+    nx = parameters.nx
+    nbin = parameters.nbin
+    nelem = len(parameters.elements)
+    ngroup = len(parameters.groups)
+    ngas = parameters.ngas
+    nstep = parameters.nstep
 
     # Create coordinates
     coords = {}
@@ -430,247 +423,74 @@ def _carma_dict_to_xarray(output_dict: Dict) -> xr.Dataset:
     vertical_center = output_dict.get('vertical_center', [])
     vertical_levels = output_dict.get('vertical_levels', [])
 
-    if lat:
-        coords['lat'] = ('y', lat)
-    if lon:
-        coords['lon'] = ('x', lon)
-    if vertical_center:
-        coords['z'] = ('z', vertical_center)
-    if vertical_levels:
-        coords['z_levels'] = ('z_levels', vertical_levels)
+    coords['lat'] = ('y', lat)
+    coords['lon'] = ('x', lon)
+    coords['z'] = ('z', vertical_center)
+    coords['z_levels'] = ('z_levels', vertical_levels)
 
     # Bin coordinates (1-indexed like Fortran)
     coords['bin'] = ('bin', list(range(1, nbin + 1)))
     coords['group'] = ('group', list(range(1, ngroup + 1)))
+    coords['elem'] = ('elem', list(range(1, nelem + 1)))
+    coords['nwave'] = ('nwave', list(range(1, len(parameters.wavelength_bins) + 1)))
 
-    if ngas > 0:
-        coords['gas'] = ('gas', list(range(1, ngas + 1)))
+    # Create z_interface coordinate for variables defined at interfaces (nz+1 levels)
+    coords['z_interface'] = ('z_interface', list(range(1, nz + 2)))
 
-    # Initialize data variables dictionary
     data_vars = {}
 
     # Atmospheric state variables
     pressure = output_dict.get('pressure', [])
-    if pressure:
-        data_vars['p'] = (
-            'z', pressure, {'units': 'Pa', 'long_name': 'Pressure'})
+    data_vars['pressure'] = ( 'z', pressure, {'units': 'Pa', 'long_name': 'Pressure'})
 
     temperature = output_dict.get('temperature', [])
-    if temperature:
-        data_vars['t'] = ('z', temperature, {
-                          'units': 'K', 'long_name': 'Temperature'})
+    data_vars['temperature'] = ('z', temperature, { 'units': 'K', 'long_name': 'Temperature'})
 
     air_density = output_dict.get('air_density', [])
-    if air_density:
-        data_vars['rhoa'] = ('z', air_density, {
-                             'units': 'kg/m3', 'long_name': 'Air density'})
+    data_vars['air_density'] = ('z', air_density, { 'units': 'kg m-3', 'long_name': 'Air density'})
 
-    radiative_heating = output_dict.get('radiative_heating', [])
-    if radiative_heating:
-        data_vars['rlheat'] = ('z', radiative_heating, {
-                               'units': 'K/s', 'long_name': 'Radiative heating'})
-
-    delta_temperature = output_dict.get('delta_temperature', [])
-    if delta_temperature:
-        data_vars['dT'] = ('z', delta_temperature, {
-                           'units': 'K', 'long_name': 'Temperature change'})
-
-    # Gas variables (if any gases present)
-    gas_mmr = output_dict.get('gas_mmr', [])
-    if ngas > 0 and gas_mmr:
-        data_vars['gas_mmr'] = (('z', 'gas'), np.array(gas_mmr),
-                                {'units': 'kg/kg', 'long_name': 'Gas mass mixing ratio'})
-
-    gas_saturation_liquid = output_dict.get('gas_saturation_liquid', [])
-    if ngas > 0 and gas_saturation_liquid:
-        data_vars['gas_satliq'] = (('z', 'gas'), np.array(gas_saturation_liquid),
-                                   {'long_name': 'Gas saturation over liquid'})
-
-    gas_saturation_ice = output_dict.get('gas_saturation_ice', [])
-    if ngas > 0 and gas_saturation_ice:
-        data_vars['gas_satice'] = (('z', 'gas'), np.array(gas_saturation_ice),
-                                   {'long_name': 'Gas saturation over ice'})
-
-    gas_weight_percent = output_dict.get('gas_weight_percent', [])
-    if ngas > 0 and gas_weight_percent:
-        data_vars['gas_wt'] = (('z', 'gas'), np.array(gas_weight_percent),
-                               {'units': '%', 'long_name': 'Gas weight percent'})
-
-    # Group-integrated variables
-    number_density = output_dict.get('number_density', [])
-    if number_density:
-        data_vars['nd'] = (('z', 'group'), np.array(number_density),
-                           {'units': '#/cm3', 'long_name': 'Number density'})
-
-    surface_area = output_dict.get('surface_area', [])
-    if surface_area:
-        data_vars['ad'] = (('z', 'group'), np.array(surface_area),
-                           {'units': 'cm2/cm3', 'long_name': 'Surface area density'})
-
-    mass_density = output_dict.get('mass_density', [])
-    if mass_density:
-        data_vars['md'] = (('z', 'group'), np.array(mass_density),
-                           {'units': 'g/cm3', 'long_name': 'Mass density'})
-
-    effective_radius = output_dict.get('effective_radius', [])
-    if effective_radius:
-        data_vars['re'] = (('z', 'group'), np.array(effective_radius),
-                           {'units': 'cm', 'long_name': 'Effective radius'})
-
-    effective_radius_wet = output_dict.get('effective_radius_wet', [])
-    if effective_radius_wet:
-        data_vars['rew'] = (('z', 'group'), np.array(effective_radius_wet),
-                            {'units': 'cm', 'long_name': 'Wet effective radius'})
-
-    mean_radius = output_dict.get('mean_radius', [])
-    if mean_radius:
-        data_vars['rm'] = (('z', 'group'), np.array(mean_radius),
-                           {'units': 'cm', 'long_name': 'Mean radius'})
+    # Particle state variables (3D: nz x nbin x nelem)
+    particle_concentration = output_dict.get('particle_concentration', [])
+    data_vars['particle_concentration'] = (('z', 'bin', 'elem'), np.array(particle_concentration), {'units': '# cm-3', 'long_name': 'Particle concentration'})
 
     mass_mixing_ratio = output_dict.get('mass_mixing_ratio', [])
-    if mass_mixing_ratio:
-        data_vars['mr'] = (('z', 'group'), np.array(mass_mixing_ratio),
-                           {'units': 'kg/kg', 'long_name': 'Mass mixing ratio'})
+    data_vars['mass_mixing_ratio'] = (('z', 'bin', 'elem'), np.array(mass_mixing_ratio), {'units': 'kg kg-1', 'long_name': 'Mass mixing ratio'})
 
-    projected_area = output_dict.get('projected_area', [])
-    if projected_area:
-        data_vars['pa'] = (('z', 'group'), np.array(projected_area),
-                           {'units': 'cm2/cm3', 'long_name': 'Projected area'})
+    wet_radius = output_dict.get('wet_radius', [])
+    data_vars['wet_radius'] = (('z', 'bin', 'group'), np.array(wet_radius), {'units': 'cm', 'long_name': 'Wet radius of particles'})
+
+    wet_density = output_dict.get('wet_density', [])
+    data_vars['wet_density'] = (('z', 'bin', 'group'), np.array(wet_density), {'units': 'g cm-3', 'long_name': 'Wet density of particles'})
+
+    fall_velocity = output_dict.get('fall_velocity', [])
+    data_vars['fall_velocity'] = (('z_interface', 'bin', 'group'), np.array(fall_velocity), {'units': 'cm s-1', 'long_name': 'Fall velocity of particles'})
+
+    nucleation_rate = output_dict.get('nucleation_rate', [])
+    data_vars['nucleation_rate'] = (('z', 'bin', 'group'), np.array(nucleation_rate), {'units': 'cm-3 s-1', 'long_name': 'Nucleation rate of particles'})
+
+    deposition_velocity = output_dict.get('deposition_velocity', [])
+    data_vars['deposition_velocity'] = (('z', 'bin', 'group'), np.array(deposition_velocity), {'units': 'cm s-1', 'long_name': 'Deposition velocity of particles'})
+
+    dry_radius = output_dict.get('dry_radius', [])
+    data_vars['dry_radius'] = (('bin', 'group'), np.array(dry_radius), {'units': 'cm', 'long_name': 'Dry radius of particles'})
+
+    mass_per_bin = output_dict.get('mass_per_bin', [])
+    data_vars['mass_per_bin'] = (('bin', 'group'), np.array(mass_per_bin), {'units': 'g', 'long_name': 'Mass per bin of particles'})
+
+    radius_ratio = output_dict.get('radius_ratio', [])
+    data_vars['radius_ratio'] = (('bin', 'group'), np.array(radius_ratio), {'units': '1', 'long_name': 'Radius ratio of particles'})
 
     aspect_ratio = output_dict.get('aspect_ratio', [])
-    if aspect_ratio:
-        data_vars['ar'] = (('z', 'group'), np.array(aspect_ratio),
-                           {'long_name': 'Aspect ratio'})
+    data_vars['aspect_ratio'] = (('bin', 'group'), np.array(aspect_ratio), {'units': '1', 'long_name': 'Aspect ratio of particles'})
 
-    vertical_mass_flux = output_dict.get('vertical_mass_flux', [])
-    if vertical_mass_flux:
-        data_vars['vm'] = (('z', 'group'), np.array(vertical_mass_flux),
-                           {'units': 'g/cm2/s', 'long_name': 'Vertical mass flux'})
+    group_particle_number_concentration = output_dict.get('group_particle_number_concentration', [])
+    data_vars['group_particle_number_concentration'] = (('group'), np.array(group_particle_number_concentration), {'units': '# cm-3', 'long_name': 'Group particle number concentration'})
 
-    extinction = output_dict.get('extinction', [])
-    if extinction:
-        data_vars['ex_vis'] = (('z', 'group'), np.array(extinction),
-                               {'units': '1/km', 'long_name': 'Extinction coefficient'})
+    constituent_type = output_dict.get('constituent_type', [])
+    data_vars['constituent_type'] = (('group'), np.array(constituent_type), {'units': '1', 'long_name': 'Constituent type of particle groups'})
 
-    optical_depth = output_dict.get('optical_depth', [])
-    if optical_depth:
-        data_vars['od_vis'] = (('z', 'group'), np.array(optical_depth),
-                               {'long_name': 'Optical depth'})
-
-    # Bin-resolved variables
-    bin_wet_radius = output_dict.get('bin_wet_radius', [])
-    if bin_wet_radius:
-        data_vars['wr_bin'] = (('z', 'group', 'bin'), np.array(bin_wet_radius),
-                               {'units': 'um', 'long_name': 'Bin wet radius'})
-
-    bin_number_density = output_dict.get('bin_number_density', [])
-    if bin_number_density:
-        data_vars['nd_bin'] = (('z', 'group', 'bin'), np.array(bin_number_density),
-                               {'units': '#/cm3', 'long_name': 'Bin number density'})
-
-    bin_density = output_dict.get('bin_density', [])
-    if bin_density:
-        data_vars['ro_bin'] = (('z', 'group', 'bin'), np.array(bin_density),
-                               {'units': 'g/cm3', 'long_name': 'Bin particle density'})
-
-    bin_mass_mixing_ratio = output_dict.get('bin_mass_mixing_ratio', [])
-    if bin_mass_mixing_ratio:
-        data_vars['mr_bin'] = (('z', 'group', 'bin'), np.array(bin_mass_mixing_ratio),
-                               {'units': 'kg/kg', 'long_name': 'Bin mass mixing ratio'})
-
-    bin_deposition_velocity = output_dict.get('bin_deposition_velocity', [])
-    if bin_deposition_velocity:
-        data_vars['vd_bin'] = (('z', 'group', 'bin'), np.array(bin_deposition_velocity),
-                               {'units': 'cm/s', 'long_name': 'Bin deposition velocity'})
-
-    # Group properties (constant arrays)
-    group_radius = output_dict.get('group_radius', [])
-    if group_radius:
-        # Convert to numpy array and check dimensions
-        arr = np.array(group_radius)
-        if arr.ndim == 2:
-            # If it's already (nbin, ngroup), use as-is
-            if arr.shape == (nbin, ngroup):
-                data_vars['r'] = (('bin', 'group'), arr,
-                                  {'units': 'cm', 'long_name': 'Bin center radius'})
-            # If it's (ngroup, nbin), transpose it
-            elif arr.shape == (ngroup, nbin):
-                data_vars['r'] = (('bin', 'group'), arr.T,
-                                  {'units': 'cm', 'long_name': 'Bin center radius'})
-        elif arr.ndim == 1:
-            # If it's 1D, reshape to (nbin, 1) assuming single group
-            data_vars['r'] = (('bin', 'group'), arr.reshape(-1, 1),
-                              {'units': 'cm', 'long_name': 'Bin center radius'})
-
-    group_mass = output_dict.get('group_mass', [])
-    if group_mass:
-        arr = np.array(group_mass)
-        if arr.ndim == 2:
-            if arr.shape == (nbin, ngroup):
-                data_vars['rmass'] = (('bin', 'group'), arr,
-                                      {'units': 'g', 'long_name': 'Bin mass'})
-            elif arr.shape == (ngroup, nbin):
-                data_vars['rmass'] = (('bin', 'group'), arr.T,
-                                      {'units': 'g', 'long_name': 'Bin mass'})
-        elif arr.ndim == 1:
-            data_vars['rmass'] = (('bin', 'group'), arr.reshape(-1, 1),
-                                  {'units': 'g', 'long_name': 'Bin mass'})
-
-    group_volume = output_dict.get('group_volume', [])
-    if group_volume:
-        arr = np.array(group_volume)
-        if arr.ndim == 2:
-            if arr.shape == (nbin, ngroup):
-                data_vars['vol'] = (('bin', 'group'), arr,
-                                    {'units': 'cm3', 'long_name': 'Bin volume'})
-            elif arr.shape == (ngroup, nbin):
-                data_vars['vol'] = (('bin', 'group'), arr.T,
-                                    {'units': 'cm3', 'long_name': 'Bin volume'})
-        elif arr.ndim == 1:
-            data_vars['vol'] = (('bin', 'group'), arr.reshape(-1, 1),
-                                {'units': 'cm3', 'long_name': 'Bin volume'})
-
-    group_radius_ratio = output_dict.get('group_radius_ratio', [])
-    if group_radius_ratio:
-        arr = np.array(group_radius_ratio)
-        if arr.ndim == 2:
-            if arr.shape == (nbin, ngroup):
-                data_vars['rrat'] = (('bin', 'group'), arr,
-                                     {'long_name': 'Radius ratio'})
-            elif arr.shape == (ngroup, nbin):
-                data_vars['rrat'] = (('bin', 'group'), arr.T,
-                                     {'long_name': 'Radius ratio'})
-        elif arr.ndim == 1:
-            data_vars['rrat'] = (('bin', 'group'), arr.reshape(-1, 1),
-                                 {'long_name': 'Radius ratio'})
-
-    group_aspect_ratio = output_dict.get('group_aspect_ratio', [])
-    if group_aspect_ratio:
-        arr = np.array(group_aspect_ratio)
-        if arr.ndim == 2:
-            if arr.shape == (nbin, ngroup):
-                data_vars['arat'] = (('bin', 'group'), arr,
-                                     {'long_name': 'Aspect ratio'})
-            elif arr.shape == (ngroup, nbin):
-                data_vars['arat'] = (('bin', 'group'), arr.T,
-                                     {'long_name': 'Aspect ratio'})
-        elif arr.ndim == 1:
-            data_vars['arat'] = (('bin', 'group'), arr.reshape(-1, 1),
-                                 {'long_name': 'Aspect ratio'})
-
-    group_fractal_dimension = output_dict.get('group_fractal_dimension', [])
-    if group_fractal_dimension:
-        arr = np.array(group_fractal_dimension)
-        if arr.ndim == 2:
-            if arr.shape == (nbin, ngroup):
-                data_vars['df'] = (('bin', 'group'), arr,
-                                   {'long_name': 'Fractal dimension'})
-            elif arr.shape == (ngroup, nbin):
-                data_vars['df'] = (('bin', 'group'), arr.T,
-                                   {'long_name': 'Fractal dimension'})
-        elif arr.ndim == 1:
-            data_vars['df'] = (('bin', 'group'), arr.reshape(-1, 1),
-                               {'long_name': 'Fractal dimension'})
+    max_prognostic_bin = output_dict.get('max_prognostic_bin', [])
+    data_vars['max_prognostic_bin'] = (('group'), np.array(max_prognostic_bin), {'units': '1', 'long_name': 'Maximum prognostic bin for each group'})
 
     # Create the dataset
     ds = xr.Dataset(
@@ -683,6 +503,8 @@ def _carma_dict_to_xarray(output_dict: Dict) -> xr.Dataset:
             'ny': ny,
             'nx': nx,
             'nbin': nbin,
+            'nelem': nelem,
+            'ngroup': ngroup,
             'ngas': ngas,
             'nstep': nstep
         }
@@ -711,6 +533,7 @@ class CARMA:
                 "CARMA backend is not available on this platform.")
 
         self._carma_instance = _backend._carma._create_carma(parameters.to_dict())
+        self.__parameters = parameters
 
     def __del__(self):
         """Clean up the CARMA instance."""
@@ -742,4 +565,4 @@ class CARMA:
         output_dict = _backend._carma._run_carma(self._carma_instance)
 
         # Convert dictionary directly to xarray Dataset
-        return _carma_dict_to_xarray(output_dict)
+        return _carma_dict_to_xarray(output_dict, self.__parameters)

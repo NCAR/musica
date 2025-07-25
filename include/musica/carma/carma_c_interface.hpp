@@ -77,7 +77,6 @@ namespace musica
       int nbin;
       int nsolute;
       int ngas;
-      int idx_wave;
 
       // Time stepping parameters
       double dtime;
@@ -92,10 +91,6 @@ namespace musica
       int wavelength_bin_size;               // Size of wavelength bin arrays
       int number_of_refractive_indices;      // Number of refractive indices per wavelength
 
-      // Optical parameters
-      double* extinction_coefficient;   // Pointer to extinction coefficient array
-      int extinction_coefficient_size;  // Size of extinction coefficient array
-
       // Group and element configurations
       CARMAGroupConfigC* groups;      // Pointer to groups array
       int groups_size;                // Number of groups
@@ -106,14 +101,8 @@ namespace musica
     struct CARMAOutputDataC
     {
       void* c_output_ptr;
-      int nz;
-      int ny;
-      int nx;
-      int nelem;
-      int ngroup;
-      int nbin;
-      int ngas;
-      int nstep;
+
+      // Grid and atmospheric data
       const double* lat;
       const double* lon;
       const double* vertical_center;
@@ -121,38 +110,28 @@ namespace musica
       const double* pressure;
       const double* temperature;
       const double* air_density;
-      const double* radiative_heating;
-      const double* delta_temperature;
-      const double* gas_mmr;
-      const double* gas_saturation_liquid;
-      const double* gas_saturation_ice;
-      const double* gas_vapor_pressure_ice;
-      const double* gas_vapor_pressure_liquid;
-      const double* gas_weight_percent;
-      const double* number_density;
-      const double* surface_area;
-      const double* mass_density;
-      const double* effective_radius;
-      const double* effective_radius_wet;
-      const double* mean_radius;
-      const double* nucleation_rate;
-      const double* mass_mixing_ratio;
-      const double* projected_area;
-      const double* aspect_ratio;
-      const double* vertical_mass_flux;
-      const double* extinction;
-      const double* optical_depth;
-      const double* bin_wet_radius;
-      const double* bin_number_density;
-      const double* bin_density;
-      const double* bin_mass_mixing_ratio;
-      const double* bin_deposition_velocity;
-      const double* group_radius;
-      const double* group_mass;
-      const double* group_volume;
-      const double* group_radius_ratio;
-      const double* group_aspect_ratio;
-      const double* group_fractal_dimension;
+
+      // Fundamental particle state data [nz, nbin, nelem]
+      const double* particle_concentration;  // number density [#/cm³]
+      const double* mass_mixing_ratio;       // mass mixing ratio [kg/kg]
+
+      // Bin-level particle properties [nz, nbin, ngroup]
+      const double* wet_radius;           // wet particle radius [cm]
+      const double* wet_density;          // wet particle density [g/cm³]
+      const double* fall_velocity;        // fall velocity [cm/s] (nz+1, nbin, ngroup)
+      const double* nucleation_rate;      // nucleation rate [1/cm³/s]
+      const double* deposition_velocity;  // deposition velocity [cm/s]
+
+      // Group configuration data [nbin, ngroup]
+      const double* dry_radius;     // dry particle radius [cm]
+      const double* mass_per_bin;  // particle mass [g]
+      const double* radius_ratio;   // radius ratio
+      const double* area_ratio;     // area ratio
+
+      // Group mapping and properties (integer data stored as doubles)
+      const double* group_particle_number_concentration;  // concentration element per group [ngroup]
+      const double* constituent_type;       // constituent type per group [ngroup]
+      const double* max_prognostic_bin;     // max prognostic bin per group [ngroup]
     };
 
     // The external C API for CARMA
@@ -172,7 +151,14 @@ namespace musica
     void InternalRunCarma(const CCARMAParameters& params, void* carma_instance, void* output, int* rc);
 
     // Transfer function called from Fortran
-    void TransferCarmaOutputToCpp(const CARMAOutputDataC* output_data);
+    void TransferCarmaOutputToCpp(
+        const CARMAOutputDataC* output_data,
+        int nz,
+        int ny,
+        int nx,
+        int nbin,
+        int nelem,
+        int ngroup);
 
 #ifdef __cplusplus
   }  // extern "C"
