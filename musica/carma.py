@@ -441,56 +441,83 @@ def _carma_dict_to_xarray(output_dict: Dict, parameters: 'CARMAParameters') -> x
 
     # Atmospheric state variables
     pressure = output_dict.get('pressure', [])
-    data_vars['pressure'] = ( 'z', pressure, {'units': 'Pa', 'long_name': 'Pressure'})
+    data_vars['pressure'] = ('z', pressure, {'units': 'Pa', 'long_name': 'Pressure'})
 
     temperature = output_dict.get('temperature', [])
-    data_vars['temperature'] = ('z', temperature, { 'units': 'K', 'long_name': 'Temperature'})
+    data_vars['temperature'] = ('z', temperature, {'units': 'K', 'long_name': 'Temperature'})
 
     air_density = output_dict.get('air_density', [])
-    data_vars['air_density'] = ('z', air_density, { 'units': 'kg m-3', 'long_name': 'Air density'})
+    data_vars['air_density'] = ('z', air_density, {'units': 'kg m-3', 'long_name': 'Air density'})
 
     # Particle state variables (3D: nz x nbin x nelem)
     particle_concentration = output_dict.get('particle_concentration', [])
-    data_vars['particle_concentration'] = (('z', 'bin', 'elem'), np.array(particle_concentration), {'units': '# cm-3', 'long_name': 'Particle concentration'})
+    data_vars['particle_concentration'] = (
+        ('z', 'bin', 'elem'), np.array(particle_concentration), {
+            'units': '# cm-3', 'long_name': 'Particle concentration'})
 
     mass_mixing_ratio = output_dict.get('mass_mixing_ratio', [])
-    data_vars['mass_mixing_ratio'] = (('z', 'bin', 'elem'), np.array(mass_mixing_ratio), {'units': 'kg kg-1', 'long_name': 'Mass mixing ratio'})
+    data_vars['mass_mixing_ratio'] = (
+        ('z', 'bin', 'elem'), np.array(mass_mixing_ratio), {
+            'units': 'kg kg-1', 'long_name': 'Mass mixing ratio'})
 
     wet_radius = output_dict.get('wet_radius', [])
-    data_vars['wet_radius'] = (('z', 'bin', 'group'), np.array(wet_radius), {'units': 'cm', 'long_name': 'Wet radius of particles'})
+    data_vars['wet_radius'] = (
+        ('z', 'bin', 'group'), np.array(wet_radius), {
+            'units': 'cm', 'long_name': 'Wet radius of particles'})
 
     wet_density = output_dict.get('wet_density', [])
-    data_vars['wet_density'] = (('z', 'bin', 'group'), np.array(wet_density), {'units': 'g cm-3', 'long_name': 'Wet density of particles'})
+    data_vars['wet_density'] = (
+        ('z', 'bin', 'group'), np.array(wet_density), {
+            'units': 'g cm-3', 'long_name': 'Wet density of particles'})
 
     fall_velocity = output_dict.get('fall_velocity', [])
-    data_vars['fall_velocity'] = (('z_interface', 'bin', 'group'), np.array(fall_velocity), {'units': 'cm s-1', 'long_name': 'Fall velocity of particles'})
+    data_vars['fall_velocity'] = (('z_interface', 'bin', 'group'), np.array(fall_velocity), {
+                                  'units': 'cm s-1', 'long_name': 'Fall velocity of particles'})
 
     nucleation_rate = output_dict.get('nucleation_rate', [])
-    data_vars['nucleation_rate'] = (('z', 'bin', 'group'), np.array(nucleation_rate), {'units': 'cm-3 s-1', 'long_name': 'Nucleation rate of particles'})
+    data_vars['nucleation_rate'] = (
+        ('z', 'bin', 'group'), np.array(nucleation_rate), {
+            'units': 'cm-3 s-1', 'long_name': 'Nucleation rate of particles'})
 
     deposition_velocity = output_dict.get('deposition_velocity', [])
-    data_vars['deposition_velocity'] = (('z', 'bin', 'group'), np.array(deposition_velocity), {'units': 'cm s-1', 'long_name': 'Deposition velocity of particles'})
+    data_vars['deposition_velocity'] = (
+        ('z', 'bin', 'group'), np.array(deposition_velocity), {
+            'units': 'cm s-1', 'long_name': 'Deposition velocity of particles'})
 
     dry_radius = output_dict.get('dry_radius', [])
-    data_vars['dry_radius'] = (('bin', 'group'), np.array(dry_radius), {'units': 'cm', 'long_name': 'Dry radius of particles'})
+    data_vars['dry_radius'] = (
+        ('bin', 'group'), np.array(dry_radius), {
+            'units': 'cm', 'long_name': 'Dry radius of particles'})
 
     mass_per_bin = output_dict.get('mass_per_bin', [])
-    data_vars['mass_per_bin'] = (('bin', 'group'), np.array(mass_per_bin), {'units': 'g', 'long_name': 'Mass per bin of particles'})
+    data_vars['mass_per_bin'] = (
+        ('bin', 'group'), np.array(mass_per_bin), {
+            'units': 'g', 'long_name': 'Mass per bin of particles'})
 
     radius_ratio = output_dict.get('radius_ratio', [])
-    data_vars['radius_ratio'] = (('bin', 'group'), np.array(radius_ratio), {'units': '1', 'long_name': 'Radius ratio of particles'})
+    data_vars['radius_ratio'] = (
+        ('bin', 'group'), np.array(radius_ratio), {
+            'units': '1', 'long_name': 'Radius ratio of particles'})
 
     aspect_ratio = output_dict.get('aspect_ratio', [])
-    data_vars['aspect_ratio'] = (('bin', 'group'), np.array(aspect_ratio), {'units': '1', 'long_name': 'Aspect ratio of particles'})
+    data_vars['aspect_ratio'] = (
+        ('bin', 'group'), np.array(aspect_ratio), {
+            'units': '1', 'long_name': 'Aspect ratio of particles'})
 
     group_particle_number_concentration = output_dict.get('group_particle_number_concentration', [])
-    data_vars['group_particle_number_concentration'] = (('group'), np.array(group_particle_number_concentration), {'units': '# cm-3', 'long_name': 'Group particle number concentration'})
+    data_vars['group_particle_number_concentration'] = (
+        ('group'), np.array(group_particle_number_concentration), {
+            'units': '# cm-3', 'long_name': 'Group particle number concentration'})
 
     constituent_type = output_dict.get('constituent_type', [])
-    data_vars['constituent_type'] = (('group'), np.array(constituent_type), {'units': '1', 'long_name': 'Constituent type of particle groups'})
+    data_vars['constituent_type'] = (
+        ('group'), np.array(constituent_type), {
+            'units': '1', 'long_name': 'Constituent type of particle groups'})
 
     max_prognostic_bin = output_dict.get('max_prognostic_bin', [])
-    data_vars['max_prognostic_bin'] = (('group'), np.array(max_prognostic_bin), {'units': '1', 'long_name': 'Maximum prognostic bin for each group'})
+    data_vars['max_prognostic_bin'] = (
+        ('group'), np.array(max_prognostic_bin), {
+            'units': '1', 'long_name': 'Maximum prognostic bin for each group'})
 
     # Create the dataset
     ds = xr.Dataset(
