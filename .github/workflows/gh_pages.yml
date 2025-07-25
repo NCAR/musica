@@ -1,11 +1,8 @@
 # Build and deploy documentation to GitHub Pages
 name: GitHub Pages
 
-on:
+on: 
   push:
-    branches:
-      - main
-      - release
   pull_request:
   workflow_dispatch:
 
@@ -15,14 +12,7 @@ env:
 jobs:
   build-and-deploy:
     name: Build and deploy to gh-pages
-    runs-on: ubuntu-24.04
-    strategy:
-      matrix:
-        gcc-version: [13]
-    env:
-      CXX: g++-${{ matrix.gcc-version }}
-      CC: gcc-${{ matrix.gcc-version }}
-      FC: gfortran-${{ matrix.gcc-version }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
@@ -94,7 +84,8 @@ jobs:
       # _gh-pages/branch/$brname (transforming '/' into '--')
       - name: Build and copy documentation (branch)
         if: |
-          contains(github.event_name, 'push') &&
+          (contains(github.event_name, 'push') ||
+          contains(github.event_name, 'pull_request')) &&
           !contains(github.ref, env.DEFAULT_BRANCH)
         run: |
           set -x
@@ -102,10 +93,16 @@ jobs:
           id=$(docker create musica)
           docker cp $id:/build/docs/sphinx tmpdocs
           docker rm -v $id
-          brname="${{github.ref}}"
-          brname="${brname##refs/heads/}"
+          # Determine branch name for deployment directory
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            brname="${{ github.head_ref }}"
+          else
+            brname="${{ github.ref }}"
+            brname="${brname##refs/heads/}"
+          fi
           brdir=${brname//\//--}   # replace '/' with '--'
           rm -rf   _gh-pages/branch/${brdir}
+          mkdir -p _gh-pages/branch/${brdir}
           rsync -a tmpdocs/ _gh-pages/branch/${brdir}
 
       # Go through each branch in _gh-pages/branch/, if it's not a
