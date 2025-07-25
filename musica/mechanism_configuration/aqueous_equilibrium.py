@@ -56,7 +56,7 @@ class AqueousEquilibrium:
         """
         # Create the internal C++ instance
         self._instance = _AqueousEquilibrium()
-        
+
         # Set all parameters
         if name is not None:
             self.name = name
