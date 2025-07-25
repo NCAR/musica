@@ -454,7 +454,7 @@ def _carma_dict_to_xarray(output_dict: Dict, parameters: 'CARMAParameters') -> x
     data_vars['particle_concentration'] = (('z', 'bin', 'elem'), np.array(particle_concentration), {'units': '# cm-3', 'long_name': 'Particle concentration'})
 
     mass_mixing_ratio = output_dict.get('mass_mixing_ratio', [])
-    data_vars['mass_mixing_ratio'] = (('z', 'bin', 'elem'), np.array(mass_mixing_ratio), {'units': 'g cm-3', 'long_name': 'Mass mixing ratio'})
+    data_vars['mass_mixing_ratio'] = (('z', 'bin', 'elem'), np.array(mass_mixing_ratio), {'units': 'kg kg-1', 'long_name': 'Mass mixing ratio'})
 
     wet_radius = output_dict.get('wet_radius', [])
     data_vars['wet_radius'] = (('z', 'bin', 'group'), np.array(wet_radius), {'units': 'cm', 'long_name': 'Wet radius of particles'})
