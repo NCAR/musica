@@ -13,9 +13,9 @@ namespace musica
 
     struct CARMAWavelengthBinC
     {
-      double center;    // Center of the wavelength bin [m]
-      double width;     // Width of the wavelength bin [m]
-      bool do_emission; // Flag to indicate if emission is considered for this bin
+      double center;     // Center of the wavelength bin [m]
+      double width;      // Width of the wavelength bin [m]
+      bool do_emission;  // Flag to indicate if emission is considered for this bin
     };
 
     struct CARMAGroupConfigC
@@ -88,9 +88,9 @@ namespace musica
       double zmin;
 
       // Wavelength grid
-      CARMAWavelengthBinC* wavelength_bins;   // Pointer to wavelength bins array
-      int wavelength_bin_size;                // Size of wavelength bin arrays
-      int number_of_refractive_indices;       // Number of refractive indices per wavelength
+      CARMAWavelengthBinC* wavelength_bins;  // Pointer to wavelength bins array
+      int wavelength_bin_size;               // Size of wavelength bin arrays
+      int number_of_refractive_indices;      // Number of refractive indices per wavelength
 
       // Optical parameters
       double* extinction_coefficient;   // Pointer to extinction coefficient array
