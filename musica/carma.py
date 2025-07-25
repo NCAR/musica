@@ -125,7 +125,7 @@ class CARMAGroupConfig:
     def __init__(self,
                  name: str = "default_group",
                  shortname: str = "",
-                 rmin: float = 1e-7,
+                 rmin: float = 1e-9,
                  rmrat: float = 2.0,
                  rmassmin: float = 0.0,
                  ishape: int = ParticleShape.SPHERE,
@@ -226,7 +226,7 @@ class CARMAElementConfig:
                  itype: int = ParticleType.INVOLATILE,
                  icomposition: int = ParticleComposition.OTHER,
                  is_shell: bool = True,
-                 rho: float = 1.0,
+                 rho: float = 1000.0,
                  rhobin: Optional[List[float]] = None,
                  arat: Optional[List[float]] = None,
                  kappa: float = 0.0,
@@ -242,8 +242,8 @@ class CARMAElementConfig:
             itype: Type of the particle (default: ParticleType.INVOLATILE)
             icomposition: Composition of the particle (default: ParticleComposition.OTHER)
             is_shell: For core/shell optics, whether this element is part of the shell (True) or core (False) (default: True)
-            rho: Density of the element in g/cm3 (default: 1.0)
-            rhobin: List of densities for each size bin (default: None)
+            rho: Density of the element in kg/m3 (default: 1.0)
+            rhobin: List of densities for each size bin in kg/m3 (default: None)
             arat: List of area ratios for each size bin (default: None)
             kappa: Hygroscopicity parameter (default: 0.0)
             refidx: List of lists of refractive indices for each wavelength bin (default: None)
@@ -431,8 +431,7 @@ class CARMAParameters:
             itype=ParticleType.INVOLATILE,
             icomposition=ParticleComposition.ALUMINUM,
             is_shell=True,
-            rho=0.395,  # kg/m3
-            rhobin=[0.395] * 5,  # 5 bins with density 0.395 kg/m3
+            rho=2700.0,  # kg/m3
             arat=[1.0] * 5,  # 5 bins with area ratio 1.0
             kappa=0.0,
         )

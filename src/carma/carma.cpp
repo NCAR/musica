@@ -337,11 +337,10 @@ namespace musica
     element.igroup = 1;  // belongs to the first group
     element.name = "Aluminum";
     element.shortname = "ALUM";
-    element.rho = 3.5;  // bulk density [g/cm3]
+    element.rho = 2700.0;  // bulk density [kg/m3]
     element.itype = ParticleType::INVOLATILE;
     element.icomposition = ParticleComposition::ALUMINUM;
     element.isolute = 0;                           // no solute
-    element.rhobin = { 1.0, 1.0, 1.0, 1.0, 1.0 };  // no density per bin
     element.arat = { 1.0, 1.0, 1.0, 1.0, 1.0 };    // no area ratio per bin
     element.kappa = 0.0;                           // no hygroscopicity
     element.isShell = true;                        // part of the shell

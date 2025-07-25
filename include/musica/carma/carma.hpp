@@ -158,7 +158,7 @@ namespace musica
     ParticleType itype = ParticleType::INVOLATILE;
     ParticleComposition icomposition = ParticleComposition::ALUMINUM;
     bool isShell = true;         // is this part of shell or core
-    double rho = 0.1;            // bulk density [kg/m3]
+    double rho = 1000.0;         // bulk density [kg/m3]
     std::vector<double> rhobin;  // density per bin [kg/m3]
     std::vector<double> arat;    // projected area ratio per bin
     double kappa = 0.0;          // hygroscopicity parameter

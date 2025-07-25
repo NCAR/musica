@@ -353,7 +353,7 @@ contains
                element_short_name = c_to_f_string(elem%shortname, elem%shortname_length)
                if (elem%rhobin_size > 0) then
                  call c_f_pointer(elem%rhobin, rhobin, [elem%rhobin_size])
-                 rhobin(:) = rhobin(:) * 10.0_real64 ! Convert kg m-3 to g cm-3
+                 rhobin(:) = rhobin(:) * 0.001_real64 ! Convert kg m-3 to g cm-3
                  if (elem%rhobin_size /= NBIN) then
                     print *, "Error: rhobin size does not match NBIN"
                     rc = ERROR_DIMENSION_MISMATCH
@@ -400,7 +400,7 @@ contains
                   ielem, &
                   int(elem%igroup), &
                   element_name, &
-                  real(elem%rho, kind=real64) * 10.0_real64, & ! Convert kg m-3 to g cm-3
+                  real(elem%rho, kind=real64) * 0.001_real64, & ! Convert kg m-3 to g cm-3
                   int(elem%itype), &
                   int(elem%icomposition), &
                   rc, &
