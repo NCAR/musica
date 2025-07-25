@@ -35,14 +35,8 @@ namespace musica
     }
 
     // This function is called from Fortran to populate the C++ output structure
-    void TransferCarmaOutputToCpp(
-        const CARMAOutputDataC* output_data,
-        int nz,
-        int ny,
-        int nx,
-        int nbin,
-        int nelem,
-        int ngroup)
+    void
+    TransferCarmaOutputToCpp(const CARMAOutputDataC* output_data, int nz, int ny, int nx, int nbin, int nelem, int ngroup)
     {
       if (!output_data)
       {
