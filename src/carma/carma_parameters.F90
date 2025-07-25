@@ -64,8 +64,6 @@ module carma_parameters_mod
    end type carma_element_config_t
 
    type, bind(c) :: carma_parameters_t
-      integer(c_int) :: max_bins = 100
-      integer(c_int) :: max_groups = 10
 
       ! Model dimensions
       integer(c_int) :: nz = 1

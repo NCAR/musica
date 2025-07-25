@@ -65,8 +65,6 @@ namespace musica
     CCARMAParameters *c_params = new CCARMAParameters();
 
     // Copy simple scalar values
-    c_params->max_bins = params.max_bins;
-    c_params->max_groups = params.max_groups;
     c_params->nz = params.nz;
     c_params->ny = params.ny;
     c_params->nx = params.nx;
@@ -284,8 +282,6 @@ namespace musica
     CARMAParameters params;
 
     // Set default values for the aluminum test case
-    params.max_bins = 100;
-    params.max_groups = 10;
     params.nz = 1;
     params.ny = 1;
     params.nx = 1;

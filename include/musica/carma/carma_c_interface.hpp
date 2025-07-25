@@ -67,9 +67,6 @@ namespace musica
     // MUST match the exact order and types of the Fortran carma_parameters_t struct
     struct CCARMAParameters
     {
-      int max_bins;
-      int max_groups;
-
       // Model dimensions
       int nz;
       int ny;

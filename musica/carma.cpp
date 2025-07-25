@@ -21,10 +21,6 @@ void bind_carma(py::module_& carma)
         // Convert Python dict to CARMAParameters
         musica::CARMAParameters params;
 
-        if (params_dict.contains("max_bins"))
-          params.max_bins = params_dict["max_bins"].cast<int>();
-        if (params_dict.contains("max_groups"))
-          params.max_groups = params_dict["max_groups"].cast<int>();
         if (params_dict.contains("nz"))
           params.nz = params_dict["nz"].cast<int>();
         if (params_dict.contains("ny"))

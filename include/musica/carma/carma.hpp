@@ -94,9 +94,6 @@ namespace musica
 
   struct CARMAParameters
   {
-    int max_bins = 100;
-    int max_groups = 10;
-
     // Model dimensions
     int nz = 1;
     int ny = 1;
