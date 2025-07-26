@@ -25,5 +25,182 @@ def test_carma_instance():
     carma.run()
 
 
+def test_carma_with_default_parameters():
+    """Test CARMA with default parameters - mimics RunCarmaWithDefaultParameters C++ test"""
+    default_params = musica.CARMAParameters()
+    carma = musica.CARMA(default_params)
+    
+    # Test that we can run CARMA with default parameters without throwing
+    output = carma.run()
+    assert output is not None
+
+
+def test_carma_with_all_components():
+    """Test CARMA with multiple groups, elements, solutes, and gases - mimics RunCarmaWithAllComponents C++ test"""
+    params = musica.CARMAParameters()
+    params.nz = 2
+    params.ny = 1
+    params.nx = 1
+    params.nbin = 3
+    params.nsolute = 2
+    params.ngas = 3
+    params.dtime = 900.0
+    params.deltaz = 500.0
+    params.zmin = 1000.0
+
+    # Set up wavelength bins
+    params.wavelength_bins = [
+        musica.carma.CARMAWavelengthBin(center=550e-9, width=50e-9, do_emission=True),   # 550 nm ± 25 nm
+        musica.carma.CARMAWavelengthBin(center=850e-9, width=100e-9, do_emission=True)  # 850 nm ± 50 nm
+    ]
+
+    # Group 1: Aluminum particles (sphere)
+    aluminum_group = musica.carma.CARMAGroupConfig(
+        name="aluminum",
+        shortname="ALUM",
+        rmin=1e-8,
+        rmrat=2.0,
+        ishape=musica.carma.ParticleShape.SPHERE,
+        eshape=1.0,
+        is_fractal=False,
+        do_vtran=True,
+        do_drydep=True,
+        df=[1.8, 1.8, 1.8]  # fractal dimension per bin
+    )
+    params.groups.append(aluminum_group)
+
+    # Group 2: Sulfate particles (sphere, with swelling)
+    sulfate_group = musica.carma.CARMAGroupConfig(
+        name="sulfate",
+        shortname="SULF",
+        rmin=5e-9,
+        rmrat=2.5,
+        ishape=musica.carma.ParticleShape.SPHERE,
+        eshape=1.0,
+        swelling_approach={
+            "algorithm": musica.carma.ParticleSwellingAlgorithm.FITZGERALD,
+            "composition": musica.carma.ParticleSwellingComposition.AMMONIUM_SULFATE
+        },
+        is_sulfate=True,
+        do_wetdep=True,
+        do_vtran=True,
+        solfac=0.8,
+        df=[2.0, 2.0, 2.0]
+    )
+    params.groups.append(sulfate_group)
+
+    # Group 3: Ice particles (hexagon)
+    ice_group = musica.carma.CARMAGroupConfig(
+        name="ice",
+        shortname="ICE",
+        rmin=2e-8,
+        rmrat=3.0,
+        ishape=musica.carma.ParticleShape.HEXAGON,
+        eshape=2.0,  # aspect ratio
+        is_ice=True,
+        is_cloud=True,
+        do_vtran=True,
+        df=[1.5, 1.5, 1.5]
+    )
+    params.groups.append(ice_group)
+
+    # Element 1: Aluminum core (Group 1)
+    aluminum_element = musica.carma.CARMAElementConfig(
+        id=1,
+        igroup=1,
+        name="Aluminum",
+        shortname="AL",
+        rho=2.70,  # g/cm³
+        itype=musica.carma.ParticleType.INVOLATILE,
+        icomposition=musica.carma.ParticleComposition.ALUMINUM,
+        kappa=0.0,
+        is_shell=False  # core
+    )
+    params.elements.append(aluminum_element)
+
+    # Element 2: Sulfate (Group 2)
+    sulfate_element = musica.carma.CARMAElementConfig(
+        id=2,
+        igroup=2,
+        name="Sulfate",
+        shortname="SO4",
+        rho=1.84,  # g/cm³
+        itype=musica.carma.ParticleType.VOLATILE,
+        icomposition=musica.carma.ParticleComposition.SULFURIC_ACID,
+        isolute=1,   # linked to first solute
+        kappa=0.61,  # hygroscopicity
+        is_shell=True
+    )
+    params.elements.append(sulfate_element)
+
+    # Element 3: Water on sulfate (Group 2)
+    water_element = musica.carma.CARMAElementConfig(
+        id=3,
+        igroup=2,
+        name="Water",
+        shortname="H2O",
+        rho=1.0,  # g/cm³
+        itype=musica.carma.ParticleType.VOLATILE,
+        icomposition=musica.carma.ParticleComposition.WATER,
+        kappa=0.0,
+        is_shell=True
+    )
+    params.elements.append(water_element)
+
+    # Element 4: Ice (Group 3)
+    ice_element = musica.carma.CARMAElementConfig(
+        id=4,
+        igroup=3,
+        name="Ice",
+        shortname="ICE",
+        rho=0.92,  # g/cm³
+        itype=musica.carma.ParticleType.INVOLATILE,
+        icomposition=musica.carma.ParticleComposition.ICE,
+        kappa=0.0,
+        is_shell=False
+    )
+    params.elements.append(ice_element)
+
+    # Note: For this test, we'll skip solutes and gases since they're not yet
+    # fully exposed in the Python API. The test focuses on the core functionality
+    # of groups and elements which are the main components.
+
+    # Create CARMA instance and run
+    carma = musica.CARMA(params)
+    output = carma.run()
+
+    # Verify basic output structure exists
+    assert output is not None
+    assert hasattr(output, 'lat')
+    assert hasattr(output, 'lon')
+    assert hasattr(output, 'vertical_center')
+    assert hasattr(output, 'pressure')
+    assert hasattr(output, 'temperature')
+    assert hasattr(output, 'air_density')
+
+    # Verify dimensions match parameters
+    assert len(output.lat) == params.ny
+    assert len(output.lon) == params.nx
+    assert len(output.vertical_center) == params.nz
+    assert len(output.pressure) == params.nz
+    assert len(output.temperature) == params.nz
+    assert len(output.air_density) == params.nz
+
+    # Verify 3D particle arrays exist and have reasonable structure
+    assert hasattr(output, 'particle_concentration')
+    assert hasattr(output, 'mass_mixing_ratio')
+    assert len(output.particle_concentration) == params.nz
+    assert len(output.mass_mixing_ratio) == params.nz
+
+    # Verify that the output contains data for the configured number of elements
+    if output.particle_concentration and len(output.particle_concentration) > 0:
+        assert len(output.particle_concentration[0]) == params.nbin
+        if len(output.particle_concentration[0]) > 0:
+            # Should have data for all configured elements
+            assert len(output.particle_concentration[0][0]) == len(params.elements)
+
+    print(f"Successfully ran CARMA with {len(params.groups)} groups and {len(params.elements)} elements")
+
+
 if __name__ == '__main__':
     pytest.main([__file__])

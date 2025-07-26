@@ -222,6 +222,89 @@ namespace musica
       c_params->elements_size = 0;
     }
 
+    // Handle solutes array
+    if (!params.solutes.empty())
+    {
+      c_params->solutes_size = static_cast<int>(params.solutes.size());
+      c_params->solutes = new CARMASoluteConfigC[c_params->solutes_size];
+
+      for (int i = 0; i < c_params->solutes_size; ++i)
+      {
+        const auto& solute = params.solutes[i];
+        auto& c_solute = c_params->solutes[i];
+
+        c_solute.name_length = std::min(static_cast<int>(solute.name.length()), 255);
+        std::strncpy(c_solute.name, solute.name.c_str(), 255);
+        c_solute.name[255] = '\0';
+
+        c_solute.shortname_length = std::min(static_cast<int>(solute.shortname.length()), 6);
+        std::strncpy(c_solute.shortname, solute.shortname.c_str(), 6);
+        c_solute.shortname[6] = '\0';
+
+        c_solute.ions = solute.ions;
+        c_solute.wtmol = solute.wtmol;
+        c_solute.rho = solute.rho;
+      }
+    }
+    else
+    {
+      c_params->solutes = nullptr;
+      c_params->solutes_size = 0;
+    }
+
+    // Handle gases array
+    if (!params.gases.empty())
+    {
+      c_params->gases_size = static_cast<int>(params.gases.size());
+      c_params->gases = new CARMAGasConfigC[c_params->gases_size];
+
+      for (int i = 0; i < c_params->gases_size; ++i)
+      {
+        const auto& gas = params.gases[i];
+        auto& c_gas = c_params->gases[i];
+
+        c_gas.name_length = std::min(static_cast<int>(gas.name.length()), 255);
+        std::strncpy(c_gas.name, gas.name.c_str(), 255);
+        c_gas.name[255] = '\0';
+
+        c_gas.shortname_length = std::min(static_cast<int>(gas.shortname.length()), 6);
+        std::strncpy(c_gas.shortname, gas.shortname.c_str(), 6);
+        c_gas.shortname[6] = '\0';
+
+        c_gas.wtmol = gas.wtmol;
+        c_gas.ivaprtn = static_cast<int>(gas.ivaprtn);
+        c_gas.icomposition = static_cast<int>(gas.icomposition);
+        c_gas.dgc_threshold = gas.dgc_threshold;
+        c_gas.ds_threshold = gas.ds_threshold;
+
+        // Handle refractive indices
+        if (!gas.refidx.empty())
+        {
+          c_gas.refidx_dim_1_size = static_cast<int>(gas.refidx.size());
+          c_gas.refidx_dim_2_size = static_cast<int>(gas.refidx[0].size());
+          c_gas.refidx = new CARMAComplexC[c_gas.refidx_dim_1_size * c_gas.refidx_dim_2_size];
+          for (int j = 0; j < c_gas.refidx_dim_1_size; ++j)
+          {
+            for (int k = 0; k < c_gas.refidx_dim_2_size; ++k)
+            {
+              c_gas.refidx[j * c_gas.refidx_dim_2_size + k].real = gas.refidx[j][k].real;
+              c_gas.refidx[j * c_gas.refidx_dim_2_size + k].imaginary = gas.refidx[j][k].imaginary;
+            }
+          }
+        }
+        else
+        {
+          c_gas.refidx = nullptr;
+          c_gas.refidx_dim_1_size = 0;
+          c_gas.refidx_dim_2_size = 0;
+        }
+      }
+    }
+    else
+    {
+      c_params->gases = nullptr;
+      c_params->gases_size = 0;
+    }
     return c_params;
   }
 
@@ -254,10 +337,30 @@ namespace musica
       c_params->elements = nullptr;
     }
 
+    // Free solutes array
+    if (c_params->solutes != nullptr)
+    {
+      delete[] c_params->solutes;
+      c_params->solutes = nullptr;
+    }
+
+    // Free gases array and its nested arrays
+    if (c_params->gases != nullptr)
+    {
+      for (int i = 0; i < c_params->gases_size; ++i)
+      {
+        delete[] c_params->gases[i].refidx;
+      }
+      delete[] c_params->gases;
+      c_params->gases = nullptr;
+    }
+
     // Reset sizes
     c_params->wavelength_bin_size = 0;
     c_params->groups_size = 0;
     c_params->elements_size = 0;
+    c_params->solutes_size = 0;
+    c_params->gases_size = 0;
 
     // Delete the C-compatible parameters structure itself
     delete c_params;
