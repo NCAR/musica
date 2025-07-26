@@ -80,6 +80,23 @@ class OpticsAlgorithm:
     SULFATE = 8
 
 
+class VaporizationAlgorithm:
+    """Enumeration for vaporization algorithms used in CARMA."""
+    NONE = 0
+    H2O_BUCK_1981 = 1
+    H2O_MURPHY_2005 = 2
+    H2O_GOFF_1946 = 3
+    H2SO4_AYERS_1980 = 4
+
+
+class GasComposition:
+    """Enumeration for gas compositions used in CARMA."""
+    NONE = 0
+    H2O = 1
+    H2SO4 = 2
+    SO2 = 3
+
+
 class ParticleComposition:
     """Enumeration for particle compositions used in CARMA."""
     ALUMINUM = 1
@@ -260,6 +277,81 @@ class CARMAElementConfig:
         self.arat = arat or []
         self.kappa = kappa
         self.is_shell = is_shell
+
+    def to_dict(self) -> Dict:
+        """Convert to dictionary."""
+        return {k: v for k, v in self.__dict__.items()}
+
+
+class CARMASoluteConfig:
+    """Configuration for a CARMA solute.
+
+    A CARMA solute represents a chemical species that can dissolve in water and affect particle properties.
+    """
+
+    def __init__(self,
+                 name: str = "default_solute",
+                 shortname: str = "",
+                 ions: int = 0,
+                 wtmol: float = 0.0,
+                 rho: float = 0.0):
+        """
+        Initialize a CARMA solute configuration.
+
+        Args:
+            name: Name of the solute (default: "default_solute")
+            shortname: Short name for the solute (default: "")
+            ions: Number of ions (default: 0)
+            wtmol: Molecular weight in kg/mol (default: 0.0)
+            rho: Density in kg/cm3 (default: 0.0)
+        """
+        self.name = name
+        self.shortname = shortname
+        self.ions = ions
+        self.wtmol = wtmol
+        self.rho = rho
+
+    def to_dict(self) -> Dict:
+        """Convert to dictionary."""
+        return {k: v for k, v in self.__dict__.items()}
+
+
+class CARMAGasConfig:
+    """Configuration for a CARMA gas.
+
+    A CARMA gas represents a gaseous species in the atmosphere.
+    """
+
+    def __init__(self,
+                 name: str = "default_gas",
+                 shortname: str = "",
+                 wtmol: float = 0.0,
+                 ivaprtn: VaporizationAlgorithm = VaporizationAlgorithm.NONE,
+                 icomposition: GasComposition = GasComposition.NONE,
+                 dgc_threshold: float = 0.0,
+                 ds_threshold: float = 0.0,
+                 refidx: Optional[List[List[float]]] = None):
+        """
+        Initialize a CARMA gas configuration.
+
+        Args:
+            name: Name of the gas (default: "default_gas")
+            shortname: Short name for the gas (default: "")
+            mw: Molecular weight in kg/mol (default: 0.0)
+            ivaprtn: Vaporization algorithm used for this gas (default: VaporizationAlgorithm.NONE)
+            icomposition: Composition of the gas (default: GasComposition.NONE)
+            dgc_threshold: Threshold for gas density gradient (default: 0.0)
+            ds_threshold: Threshold for gas saturation (default: 0.0)
+            refidx: Reference indices for gas (default: None)
+        """
+        self.name = name
+        self.shortname = shortname
+        self.wtmol = wtmol
+        self.ivaprtn = ivaprtn
+        self.icomposition = icomposition
+        self.dgc_threshold = dgc_threshold
+        self.ds_threshold = ds_threshold
+        self.refidx = refidx or []
 
     def to_dict(self) -> Dict:
         """Convert to dictionary."""

@@ -9,6 +9,9 @@ module carma_interface
 
    private
 
+   integer, parameter, public :: ERROR_MEMORY_ALLOCATION = 97
+   integer, parameter, public :: ERROR_DIMENSION_MISMATCH = 98
+
    ! C-compatible structure for CARMA fundamental data
    ! Contains only the minimal essential data needed for Python calculations
    type, bind(C) :: c_carma_output_data
@@ -210,10 +213,12 @@ contains
       use carmaelement_mod
       use carmagroup_mod
       use carmagas_mod
+      use carmasolute_mod
       use carma_mod
       use atmosphere_mod
       use carma_parameters_mod, only: carma_parameters_t, carma_group_config_t, &
-                                      carma_element_config_t, carma_wavelength_bin_t
+                                      carma_element_config_t, carma_wavelength_bin_t, &
+                                      carma_complex_t, carma_solute_config_t, carma_gas_config_t
       use iso_fortran_env, only: real64
       use iso_c_binding, only: c_ptr, c_loc
 
@@ -233,7 +238,7 @@ contains
       integer, parameter :: I_FIRST_GROUP = 1
 
       ! Loop indices
-      integer :: iwave, ielem, igroup
+      integer :: iwave, ielem, igroup, isolute, igas
 
       ! Wavelength grid parameters
       type(carma_wavelength_bin_t), pointer :: wavelength_bins(:)
@@ -250,6 +255,16 @@ contains
       character(len=:), allocatable :: element_name, element_short_name
       real(real64), pointer :: rhobin(:) ! rho bin for element (NBINS)
       real(real64), pointer :: arat(:) ! area ratio for element (NBINS)
+
+      ! Solute parameters
+      type(carma_solute_config_t), pointer :: solute_config(:)
+      character(len=:), allocatable :: solute_name, solute_short_name
+
+      ! Gas parameters
+      type(carma_gas_config_t), pointer :: gas_config(:)
+      character(len=:), allocatable :: gas_name, gas_short_name
+      type(carma_complex_t), pointer :: gas_refidx_t(:,:) ! refractive index [NWAVE, number_of_refractive_indices]
+      complex(kind=real64), allocatable :: gas_refidx(:,:) ! refractive index [NWAVE, number_of_refractive_indices]
 
       integer :: alloc_stat
 
@@ -352,6 +367,80 @@ contains
                   rhobin=rhobin, arat=arat, kappa=real(elem%kappa, kind=real64), isShell=logical(elem%isShell))
                if (rc /= 0) then
                   print *, "Error creating CARMA element"
+                  return
+               end if
+            end associate
+         end do
+      end if
+
+      ! Create solutes based on configuration
+      if (c_associated(params%solutes)) then
+         call c_f_pointer(params%solutes, solute_config, [params%nsolute])
+         do isolute = 1, params%solutes_size
+            associate(solute => solute_config(isolute))
+               solute_name = c_to_f_string(solute%name, solute%name_length)
+               solute_short_name = c_to_f_string(solute%shortname, solute%shortname_length)
+               call CARMASOLUTE_Create( &
+                  carma, &
+                  isolute, &
+                  solute_name, &
+                  int(solute%ions), &
+                  real(solute%wtmol, kind=real64), &
+                  real(solute%rho, kind=real64), &
+                  rc, &
+                  shortname=solute_short_name)
+               if (rc /= 0) then
+                  print *, "Error creating CARMA solute"
+                  return
+               end if
+            end associate
+         end do
+      end if
+
+      ! Create gases based on configuration
+      if (c_associated(params%gases)) then
+         call c_f_pointer(params%gases, gas_config, [params%ngas])
+         do igas = 1, params%ngas
+            associate(gas => gas_config(igas))
+               gas_name = c_to_f_string(gas%name, gas%name_length)
+               gas_short_name = c_to_f_string(gas%shortname, gas%shortname_length)
+               if (gas%refidx_dim_1_size > 0 .and. gas%refidx_dim_2_size > 0) then
+                  if (gas%refidx_dim_2_size /= NWAVE) then
+                     print *, "Error: refidx_dim_2_size does not match NWAVE"
+                     rc = ERROR_DIMENSION_MISMATCH
+                     return
+                  end if
+                  if (gas%refidx_dim_1_size /= params%number_of_refractive_indices) then
+                     print *, "Error: refidx_dim_1_size does not match number_of_refractive_indices"
+                     rc = ERROR_DIMENSION_MISMATCH
+                     return
+                  end if
+                  call c_f_pointer(gas%refidx, gas_refidx_t, [gas%refidx_dim_2_size, gas%refidx_dim_1_size])
+                  allocate(gas_refidx(gas%refidx_dim_2_size, gas%refidx_dim_1_size), stat=alloc_stat)
+                  if (alloc_stat /= 0) then
+                     print *, "Error allocating refractive index array"
+                     rc = ERROR_MEMORY_ALLOCATION
+                     return
+                  end if
+                  do iwave = 1, NWAVE
+                     gas_refidx(iwave,:) = cmplx(gas_refidx_t(iwave,1:params%number_of_refractive_indices)%real_part, &
+                                                 gas_refidx_t(iwave,1:params%number_of_refractive_indices)%imag_part, kind=real64)
+                  end do
+               end if
+               call CARMAGAS_Create( &
+                  carma, &
+                  igas, &
+                  gas_name, &
+                  real(gas%wtmol, kind=real64), &
+                  int(gas%ivaprtn), &
+                  int(gas%icomposition), &
+                  rc, &
+                  shortname=gas_short_name, &
+                  dgc_threshold=real(gas%dgc_threshold, kind=real64), &
+                  ds_threshold=real(gas%ds_threshold, kind=real64), &
+                  refidx=gas_refidx)
+               if (rc /= 0) then
+                  print *, "Error creating CARMA gas"
                   return
                end if
             end associate
