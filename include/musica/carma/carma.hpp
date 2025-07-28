@@ -213,11 +213,7 @@ namespace musica
     int nz = 1;
     int ny = 1;
     int nx = 1;
-    int nelem = 1;
-    int ngroup = 1;
     int nbin = 5;
-    int nsolute = 0;
-    int ngas = 0;
 
     // Time stepping parameters
     double dtime = 1800.0;
@@ -269,9 +265,9 @@ namespace musica
     std::vector<std::vector<double>> aspect_ratio;  // area ratio
 
     // Group mapping and properties (1D arrays)
-    std::vector<double> group_particle_number_concentration;  // concentration element per group [ngroup]
-    std::vector<double> constituent_type;                     // constituent type per group [ngroup]
-    std::vector<double> max_prognostic_bin;                   // max prognostic bin per group [ngroup]
+    std::vector<int> group_particle_number_concentration;  // concentration element per group [ngroup]
+    std::vector<int> constituent_type;                     // constituent type per group [ngroup]
+    std::vector<int> max_prognostic_bin;                   // max prognostic bin per group [ngroup]
   };
 
   class CARMA

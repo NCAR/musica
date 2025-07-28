@@ -117,8 +117,6 @@ namespace musica
       int ny;
       int nx;
       int nbin;
-      int nsolute;
-      int ngas;
 
       // Time stepping parameters
       double dtime;
@@ -175,9 +173,9 @@ namespace musica
       const double* area_ratio;    // area ratio
 
       // Group mapping and properties (integer data stored as doubles)
-      const double* group_particle_number_concentration;  // concentration element per group [ngroup]
-      const double* constituent_type;                     // constituent type per group [ngroup]
-      const double* max_prognostic_bin;                   // max prognostic bin per group [ngroup]
+      const int* group_particle_number_concentration;  // concentration element per group [ngroup]
+      const int* constituent_type;                     // constituent type per group [ngroup]
+      const int* max_prognostic_bin;                   // max prognostic bin per group [ngroup]
     };
 
     // The external C API for CARMA

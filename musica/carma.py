@@ -372,15 +372,15 @@ class CARMAParameters:
                  ny: int = 1,
                  nx: int = 1,
                  nbin: int = 5,
-                 nsolute: int = 0,
-                 ngas: int = 0,
                  dtime: float = 1800.0,
                  nstep: int = 100,
                  deltaz: float = 1000.0,
                  zmin: float = 16500.0,
                  wavelength_bins: Optional[List[CARMAWavelengthBin]] = None,
                  groups: Optional[List[CARMAGroupConfig]] = None,
-                 elements: Optional[List[CARMAElementConfig]] = None):
+                 elements: Optional[List[CARMAElementConfig]] = None,
+                 solutes: Optional[List[CARMASoluteConfig]] = None,
+                 gases: Optional[List[CARMAGasConfig]] = None):
         """
         Initialize CARMA parameters.
 
@@ -389,8 +389,6 @@ class CARMAParameters:
             ny: Number of y-direction grid points (default: 1)
             nx: Number of x-direction grid points (default: 1)
             nbin: Number of size bins (default: 5)
-            nsolute: Number of solutes (default: 0)
-            ngas: Number of gases (default: 0)
             dtime: Time step in seconds (default: 1800.0)
             nstep: Number of time steps (default: 100)
             deltaz: Vertical grid spacing in meters (default: 1000.0)
@@ -398,13 +396,13 @@ class CARMAParameters:
             wavelength_bins: List of CARMAWavelengthBin objects defining the wavelength grid (default: None)
             groups: List of group configurations (default: None)
             elements: List of element configurations (default: None)
+            solutes: List of solute configurations (default: None)
+            gases: List of gas configurations (default: None)
         """
         self.nz = nz
         self.ny = ny
         self.nx = nx
         self.nbin = nbin
-        self.nsolute = nsolute
-        self.ngas = ngas
         self.dtime = dtime
         self.nstep = nstep
         self.deltaz = deltaz
@@ -414,6 +412,8 @@ class CARMAParameters:
         self.wavelength_bins = wavelength_bins or []
         self.groups = groups or []
         self.elements = elements or []
+        self.solutes = solutes or []
+        self.gases = gases or []
 
     def add_wavelength_bin(self, wavelength_bin: CARMAWavelengthBin):
         """Add a wavelength bin configuration."""
@@ -427,19 +427,25 @@ class CARMAParameters:
         """Add an element configuration."""
         self.elements.append(element)
 
+    def add_solute(self, solute: CARMASoluteConfig):
+        """Add a solute configuration."""
+        self.solutes.append(solute)
+
+    def add_gas(self, gas: CARMAGasConfig):
+        """Add a gas configuration."""
+        self.gases.append(gas)
+
     def __repr__(self):
         """String representation of CARMAParameters."""
         return (f"CARMAParameters(nz={self.nz}, ny={self.ny}, nx={self.nx}, "
-                f"nbin={self.nbin}, nsolute={self.nsolute}, "
-                f"ngas={self.ngas}, dtime={self.dtime}, "
+                f"nbin={self.nbin}, dtime={self.dtime}, "
                 f"nstep={self.nstep}, deltaz={self.deltaz}, zmin={self.zmin})")
 
     def __str__(self):
         """String representation of CARMAParameters."""
         return (f"CARMAParameters(nz={self.nz}, ny={self.ny}, nx={self.nx}, "
                 f"nz={self.nz}, ny={self.ny}, nx={self.nx}, "
-                f"nbin={self.nbin}, nsolute={self.nsolute}, "
-                f"ngas={self.ngas}, dtime={self.dtime}, "
+                f"nbin={self.nbin}, dtime={self.dtime}, "
                 f"nstep={self.nstep}, deltaz={self.deltaz}, zmin={self.zmin})")
 
     def to_dict(self) -> Dict:
@@ -452,6 +458,10 @@ class CARMAParameters:
                     params_dict[k] = [group.to_dict() for group in v]
                 elif k == 'elements':
                     params_dict[k] = [element.to_dict() for element in v]
+                elif k == 'solutes':
+                    params_dict[k] = [solute.to_dict() for solute in v]
+                elif k == 'gases':
+                    params_dict[k] = [gas.to_dict() for gas in v]
                 elif k == 'wavelength_bins':
                     params_dict[k] = [bin.to_dict() for bin in v]
                 else:
@@ -479,7 +489,19 @@ class CARMAParameters:
                         for element_dict in params_dict['elements']]
             del params_dict['elements']
 
-        return cls(wavelength_bins=wavelength_bins, groups=groups, elements=elements, **params_dict)
+        solutes = []
+        if 'solutes' in params_dict:
+            solutes = [CARMASoluteConfig(**solute_dict)
+                       for solute_dict in params_dict['solutes']]
+            del params_dict['solutes']
+
+        gases = []
+        if 'gases' in params_dict:
+            gases = [CARMAGasConfig(**gas_dict)
+                     for gas_dict in params_dict['gases']]
+            del params_dict['gases']
+
+        return cls(wavelength_bins=wavelength_bins, groups=groups, elements=elements, solutes=solutes, gases=gases, **params_dict)
 
     @classmethod
     def create_aluminum_test_config(cls) -> 'CARMAParameters':
@@ -533,8 +555,6 @@ class CARMAParameters:
             ny=1,
             nx=1,
             nbin=5,
-            nsolute=0,
-            ngas=0,
             deltaz=1000.0,
             zmin=16500.0,
             wavelength_bins=wavelength_bins,
@@ -571,7 +591,7 @@ def _carma_dict_to_xarray(output_dict: Dict, parameters: 'CARMAParameters') -> x
     nbin = parameters.nbin
     nelem = len(parameters.elements)
     ngroup = len(parameters.groups)
-    ngas = parameters.ngas
+    ngas = len(parameters.gases)
     nstep = parameters.nstep
 
     # Create coordinates

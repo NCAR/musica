@@ -47,10 +47,6 @@ TEST_F(CarmaCApiTest, RunCarmaWithAllComponents)
   params.ny = 1;
   params.nx = 1;
   params.nbin = 3;
-  params.ngroup = 3;
-  params.nelem = 4;
-  params.nsolute = 2;
-  params.ngas = 3;
   params.dtime = 900.0;
   params.deltaz = 500.0;
   params.zmin = 1000.0;
@@ -109,7 +105,6 @@ TEST_F(CarmaCApiTest, RunCarmaWithAllComponents)
 
   // Element 1: Aluminum core (Group 1)
   CARMAElementConfig aluminum_element;
-  aluminum_element.id = 1;
   aluminum_element.igroup = 1;
   aluminum_element.name = "Aluminum";
   aluminum_element.shortname = "AL";
@@ -122,8 +117,8 @@ TEST_F(CarmaCApiTest, RunCarmaWithAllComponents)
 
   // Element 2: Sulfate (Group 2)
   CARMAElementConfig sulfate_element;
-  sulfate_element.id = 2;
   sulfate_element.igroup = 2;
+  sulfate_element.isolute = 1; // linked to first solute
   sulfate_element.name = "Sulfate";
   sulfate_element.shortname = "SO4";
   sulfate_element.rho = 1.84;  // g/cm³
@@ -136,12 +131,11 @@ TEST_F(CarmaCApiTest, RunCarmaWithAllComponents)
 
   // Element 3: Water on sulfate (Group 2)
   CARMAElementConfig water_element;
-  water_element.id = 3;
   water_element.igroup = 2;
   water_element.name = "Water";
   water_element.shortname = "H2O";
   water_element.rho = 1.0;  // g/cm³
-  water_element.itype = ParticleType::VOLATILE;
+  water_element.itype = ParticleType::COREMASS;
   water_element.icomposition = ParticleComposition::H2O;
   water_element.kappa = 0.0;
   water_element.isShell = true;
@@ -149,7 +143,6 @@ TEST_F(CarmaCApiTest, RunCarmaWithAllComponents)
 
   // Element 4: Ice (Group 3)
   CARMAElementConfig ice_element;
-  ice_element.id = 4;
   ice_element.igroup = 3;
   ice_element.name = "Ice";
   ice_element.shortname = "ICE";
@@ -160,23 +153,14 @@ TEST_F(CarmaCApiTest, RunCarmaWithAllComponents)
   ice_element.isShell = false;
   params.elements.push_back(ice_element);
 
-  // Solute 1: Ammonium sulfate
-  CARMASoluteConfig nh4so4_solute;
-  nh4so4_solute.name = "Ammonium Sulfate";
-  nh4so4_solute.shortname = "NH4SO4";
-  nh4so4_solute.ions = 3;           // (NH4)2SO4 dissociates into 3 ions
-  nh4so4_solute.wtmol = 132.14e-3;  // kg/mol
-  nh4so4_solute.rho = 1769.0;       // kg/m³
-  params.solutes.push_back(nh4so4_solute);
-
-  // Solute 2: Sodium chloride
-  CARMASoluteConfig nacl_solute;
-  nacl_solute.name = "Sodium Chloride";
-  nacl_solute.shortname = "NACL";
-  nacl_solute.ions = 2;          // NaCl dissociates into 2 ions
-  nacl_solute.wtmol = 58.44e-3;  // kg/mol
-  nacl_solute.rho = 2165.0;      // kg/m³
-  params.solutes.push_back(nacl_solute);
+  // Solute 1: Sulfate
+  CARMASoluteConfig sulfate_solute;
+  sulfate_solute.name = "Sulfate";
+  sulfate_solute.shortname = "NH4SO4";
+  sulfate_solute.ions = 3;           // (NH4)2SO4 dissociates into 3 ions
+  sulfate_solute.wtmol = 132.14e-3;  // kg/mol
+  sulfate_solute.rho = 1769.0;       // kg/m³
+  params.solutes.push_back(sulfate_solute);
 
   // Gas 1: Water vapor
   CARMAGasConfig h2o_gas;
@@ -194,7 +178,7 @@ TEST_F(CarmaCApiTest, RunCarmaWithAllComponents)
   h2so4_gas.name = "Sulfuric Acid";
   h2so4_gas.shortname = "H2SO4V";
   h2so4_gas.wtmol = 98.08e-3;  // kg/mol
-  h2so4_gas.ivaprtn = VaporizationAlgorithm::H2SO4_AYERS_1980;
+  h2so4_gas.ivaprtn = VaporizationAlgorithm::H2O_BUCK_1981;
   h2so4_gas.icomposition = GasComposition::H2SO4;
   h2so4_gas.dgc_threshold = 1e-8;
   h2so4_gas.ds_threshold = 1e-6;
@@ -205,7 +189,7 @@ TEST_F(CarmaCApiTest, RunCarmaWithAllComponents)
   so2_gas.name = "Sulfur Dioxide";
   so2_gas.shortname = "SO2";
   so2_gas.wtmol = 64.07e-3;  // kg/mol
-  so2_gas.ivaprtn = VaporizationAlgorithm::NONE;
+  so2_gas.ivaprtn = VaporizationAlgorithm::H2O_BUCK_1981;
   so2_gas.icomposition = GasComposition::SO2;
   so2_gas.dgc_threshold = 0.0;  // no convergence check
   so2_gas.ds_threshold = 0.0;
@@ -232,14 +216,14 @@ TEST_F(CarmaCApiTest, RunCarmaWithAllComponents)
     EXPECT_EQ(output.particle_concentration[0].size(), params.nbin);
     if (!output.particle_concentration[0].empty())
     {
-      EXPECT_EQ(output.particle_concentration[0][0].size(), params.nelem);
+      EXPECT_EQ(output.particle_concentration[0][0].size(), params.elements.size());
     }
   }
 
   // Verify 3D group arrays (nz x nbin x ngroup)
   EXPECT_EQ(output.wet_radius.size(), params.nz);
   EXPECT_EQ(output.wet_density.size(), params.nz);
-  EXPECT_EQ(output.fall_velocity.size(), params.nz);
+  EXPECT_EQ(output.fall_velocity.size(), params.nz + 1);
   EXPECT_EQ(output.nucleation_rate.size(), params.nz);
   EXPECT_EQ(output.deposition_velocity.size(), params.nz);
 
@@ -248,13 +232,13 @@ TEST_F(CarmaCApiTest, RunCarmaWithAllComponents)
   EXPECT_EQ(output.mass_per_bin.size(), params.nbin);
   if (!output.dry_radius.empty())
   {
-    EXPECT_EQ(output.dry_radius[0].size(), params.ngroup);
+    EXPECT_EQ(output.dry_radius[0].size(), params.groups.size());
   }
 
   // Verify 1D group arrays
-  EXPECT_EQ(output.group_particle_number_concentration.size(), params.ngroup);
-  EXPECT_EQ(output.constituent_type.size(), params.ngroup);
-  EXPECT_EQ(output.max_prognostic_bin.size(), params.ngroup);
+  EXPECT_EQ(output.group_particle_number_concentration.size(), params.groups.size());
+  EXPECT_EQ(output.constituent_type.size(), params.groups.size());
+  EXPECT_EQ(output.max_prognostic_bin.size(), params.groups.size());
 }
 
 TEST_F(CarmaCApiTest, RunCarmaWithAluminumTestParams)
@@ -267,8 +251,6 @@ TEST_F(CarmaCApiTest, RunCarmaWithAluminumTestParams)
   EXPECT_EQ(params.ny, 1);
   EXPECT_EQ(params.nx, 1);
   EXPECT_EQ(params.nbin, 5);
-  EXPECT_EQ(params.nsolute, 0);
-  EXPECT_EQ(params.ngas, 0);
   EXPECT_EQ(params.dtime, 1800.0);
   EXPECT_EQ(params.deltaz, 1000.0);
   EXPECT_EQ(params.zmin, 16500.0);

@@ -27,16 +27,8 @@ void bind_carma(py::module_& carma)
           params.ny = params_dict["ny"].cast<int>();
         if (params_dict.contains("nx"))
           params.nx = params_dict["nx"].cast<int>();
-        if (params_dict.contains("nelem"))
-          params.nelem = params_dict["nelem"].cast<int>();
-        if (params_dict.contains("ngroup"))
-          params.ngroup = params_dict["ngroup"].cast<int>();
         if (params_dict.contains("nbin"))
           params.nbin = params_dict["nbin"].cast<int>();
-        if (params_dict.contains("nsolute"))
-          params.nsolute = params_dict["nsolute"].cast<int>();
-        if (params_dict.contains("ngas"))
-          params.ngas = params_dict["ngas"].cast<int>();
         if (params_dict.contains("dtime"))
           params.dtime = params_dict["dtime"].cast<double>();
         if (params_dict.contains("nstep"))

@@ -111,8 +111,6 @@ module carma_parameters_mod
       integer(c_int) :: ny = 1
       integer(c_int) :: nx = 1
       integer(c_int) :: nbin = 5
-      integer(c_int) :: nsolute = 0
-      integer(c_int) :: ngas = 0
 
       ! Time stepping parameters
       real(c_double) :: dtime = 1800.0_real64

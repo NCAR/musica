@@ -42,8 +42,6 @@ def test_carma_with_all_components():
     params.ny = 1
     params.nx = 1
     params.nbin = 3
-    params.nsolute = 2
-    params.ngas = 3
     params.dtime = 900.0
     params.deltaz = 500.0
     params.zmin = 1000.0
@@ -106,7 +104,6 @@ def test_carma_with_all_components():
 
     # Element 1: Aluminum core (Group 1)
     aluminum_element = musica.carma.CARMAElementConfig(
-        id=1,
         igroup=1,
         name="Aluminum",
         shortname="AL",
@@ -120,14 +117,13 @@ def test_carma_with_all_components():
 
     # Element 2: Sulfate (Group 2)
     sulfate_element = musica.carma.CARMAElementConfig(
-        id=2,
         igroup=2,
+        isolute=1,  # linked to first solute
         name="Sulfate",
         shortname="SO4",
         rho=1.84,  # g/cm³
         itype=musica.carma.ParticleType.VOLATILE,
         icomposition=musica.carma.ParticleComposition.SULFURIC_ACID,
-        isolute=1,   # linked to first solute
         kappa=0.61,  # hygroscopicity
         is_shell=True
     )
@@ -135,12 +131,11 @@ def test_carma_with_all_components():
 
     # Element 3: Water on sulfate (Group 2)
     water_element = musica.carma.CARMAElementConfig(
-        id=3,
         igroup=2,
         name="Water",
         shortname="H2O",
         rho=1.0,  # g/cm³
-        itype=musica.carma.ParticleType.VOLATILE,
+        itype=musica.carma.ParticleType.CORE_MASS,
         icomposition=musica.carma.ParticleComposition.WATER,
         kappa=0.0,
         is_shell=True
@@ -149,7 +144,6 @@ def test_carma_with_all_components():
 
     # Element 4: Ice (Group 3)
     ice_element = musica.carma.CARMAElementConfig(
-        id=4,
         igroup=3,
         name="Ice",
         shortname="ICE",
@@ -161,9 +155,51 @@ def test_carma_with_all_components():
     )
     params.elements.append(ice_element)
 
-    # Note: For this test, we'll skip solutes and gases since they're not yet
-    # fully exposed in the Python API. The test focuses on the core functionality
-    # of groups and elements which are the main components.
+    # Solute: Sulfate
+    sulfate_solute = musica.carma.CARMASoluteConfig(
+        name="Sulfate",
+        shortname="SO4",
+        ions=2,
+        wtmol=0.1324, # kg mol-1
+        rho=1840.0 # kg m-3
+    )
+    params.solutes.append(sulfate_solute)
+
+    # Gas: Water vapor
+    water_gas = musica.carma.CARMAGasConfig(
+        name="Water Vapor",
+        shortname="H2O",
+        wtmol=0.01801528,  # kg mol-1
+        ivaprtn=musica.carma.VaporizationAlgorithm.H2O_MURPHY_2005,
+        icomposition=musica.carma.GasComposition.H2O,
+        dgc_threshold=1.0e-6,
+        ds_threshold=1.0e-4
+    )
+    params.gases.append(water_gas)
+
+    # Gas: Sulfuric acid
+    h2so4_gas = musica.carma.CARMAGasConfig(
+        name="Sulfuric Acid",
+        shortname="H2SO4",
+        wtmol=0.098079,  # kg mol-1
+        ivaprtn=musica.carma.VaporizationAlgorithm.H2O_BUCK_1981,
+        icomposition=musica.carma.GasComposition.H2SO4,
+        dgc_threshold=0.05,
+        ds_threshold=0.1
+    )
+    params.gases.append(h2so4_gas)
+
+    # Gas: Sulfur dioxide
+    so2_gas = musica.carma.CARMAGasConfig(
+        name="Sulfur Dioxide",
+        shortname="SO2",
+        wtmol=0.064066,  # kg mol-1
+        ivaprtn=musica.carma.VaporizationAlgorithm.H2O_BUCK_1981,
+        icomposition=musica.carma.GasComposition.SO2,
+        dgc_threshold=0.05,
+        ds_threshold=0.1
+    )
+    params.gases.append(so2_gas)
 
     # Create CARMA instance and run
     carma = musica.CARMA(params)
@@ -173,7 +209,7 @@ def test_carma_with_all_components():
     assert output is not None
     assert hasattr(output, 'lat')
     assert hasattr(output, 'lon')
-    assert hasattr(output, 'vertical_center')
+    assert hasattr(output, 'z')
     assert hasattr(output, 'pressure')
     assert hasattr(output, 'temperature')
     assert hasattr(output, 'air_density')
@@ -181,7 +217,7 @@ def test_carma_with_all_components():
     # Verify dimensions match parameters
     assert len(output.lat) == params.ny
     assert len(output.lon) == params.nx
-    assert len(output.vertical_center) == params.nz
+    assert len(output.z) == params.nz
     assert len(output.pressure) == params.nz
     assert len(output.temperature) == params.nz
     assert len(output.air_density) == params.nz
@@ -193,11 +229,9 @@ def test_carma_with_all_components():
     assert len(output.mass_mixing_ratio) == params.nz
 
     # Verify that the output contains data for the configured number of elements
-    if output.particle_concentration and len(output.particle_concentration) > 0:
-        assert len(output.particle_concentration[0]) == params.nbin
-        if len(output.particle_concentration[0]) > 0:
-            # Should have data for all configured elements
-            assert len(output.particle_concentration[0][0]) == len(params.elements)
+    assert len(output.particle_concentration[0]) == params.nbin
+    # Should have data for all configured elements
+    assert len(output.particle_concentration[0][0]) == len(params.elements)
 
     print(f"Successfully ran CARMA with {len(params.groups)} groups and {len(params.elements)} elements")
 

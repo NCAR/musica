@@ -276,8 +276,8 @@ contains
       NELEM = int(params%elements_size)
       NGROUP = int(params%groups_size)
       NBIN = int(params%nbin)
-      NSOLUTE = int(params%nsolute)
-      NGAS = int(params%ngas)
+      NSOLUTE = int(params%solutes_size)
+      NGAS = int(params%gases_size)
       NWAVE = int(params%wavelength_bin_size)
 
       ! Create the CARMA instance
@@ -302,7 +302,8 @@ contains
             wave = wave_centers, &
             dwave = wave_widths, &
             do_wave_emit = wave_do_emission, &
-            NREFIDX = params%number_of_refractive_indices)
+            NREFIDX = params%number_of_refractive_indices, &
+            LUNOPRT=6) ! Direct output to stdout
       else
          call CARMA_Create(carma, NBIN, NELEM, NGROUP, NSOLUTE, NGAS, NWAVE, rc)
       end if
@@ -432,7 +433,7 @@ contains
 
       ! Create solutes based on configuration
       if (c_associated(params%solutes)) then
-         call c_f_pointer(params%solutes, solute_config, [params%nsolute])
+         call c_f_pointer(params%solutes, solute_config, [params%solutes_size])
          do isolute = 1, params%solutes_size
             associate(solute => solute_config(isolute))
                solute_name = c_to_f_string(solute%name, solute%name_length)
@@ -456,8 +457,8 @@ contains
 
       ! Create gases based on configuration
       if (c_associated(params%gases)) then
-         call c_f_pointer(params%gases, gas_config, [params%ngas])
-         do igas = 1, params%ngas
+         call c_f_pointer(params%gases, gas_config, [params%gases_size])
+         do igas = 1, params%gases_size
             associate(gas => gas_config(igas))
                gas_name = c_to_f_string(gas%name, gas%name_length)
                gas_short_name = c_to_f_string(gas%shortname, gas%shortname_length)
@@ -602,8 +603,8 @@ contains
       NELEM = int(params%elements_size)
       NGROUP = int(params%groups_size)
       NBIN = int(params%nbin)
-      NSOLUTE = int(params%nsolute)
-      NGAS = int(params%ngas)
+      NSOLUTE = int(params%solutes_size)
+      NGAS = int(params%gases_size)
       NWAVE = int(params%wavelength_bin_size)
       dtime = real(params%dtime, kind=real64)
       nstep = int(params%nstep)

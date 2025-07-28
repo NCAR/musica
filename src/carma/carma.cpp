@@ -69,8 +69,6 @@ namespace musica
     c_params->ny = params.ny;
     c_params->nx = params.nx;
     c_params->nbin = params.nbin;
-    c_params->nsolute = params.nsolute;
-    c_params->ngas = params.ngas;
     c_params->dtime = params.dtime;
     c_params->nstep = params.nstep;
     c_params->deltaz = params.deltaz;
@@ -396,8 +394,6 @@ namespace musica
     params.ny = 1;
     params.nx = 1;
     params.nbin = 5;
-    params.nsolute = 0;
-    params.ngas = 0;
     params.dtime = 1800.0;   // 30 minutes
     params.deltaz = 1000.0;  // 1 km
     params.zmin = 16500.0;   // 16.5 km
