@@ -29,7 +29,7 @@ def test_carma_with_default_parameters():
     """Test CARMA with default parameters - mimics RunCarmaWithDefaultParameters C++ test"""
     default_params = musica.CARMAParameters()
     carma = musica.CARMA(default_params)
-    
+
     # Test that we can run CARMA with default parameters without throwing
     output = carma.run()
     assert output is not None
@@ -160,8 +160,8 @@ def test_carma_with_all_components():
         name="Sulfate",
         shortname="SO4",
         ions=2,
-        wtmol=0.1324, # kg mol-1
-        rho=1840.0 # kg m-3
+        wtmol=0.1324,  # kg mol-1
+        rho=1840.0  # kg m-3
     )
     params.solutes.append(sulfate_solute)
 
