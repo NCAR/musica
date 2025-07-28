@@ -65,8 +65,9 @@ To access concentration data for a specific species in a specific grid cell:
 
 .. code-block:: fortran
 
+  cell_stride = state%species_strides%grid_cell
   var_stride = state%species_strides%variable
-  cell_concentration = state%concentrations((cell_id - 1) + species_index * var_stride)
+  cell_concentration = state%concentrations(1 + (cell_id - 1) * cell_stride + (species_index - 1) * var_stride)
 
 **Simultaneous Solving:**
 
@@ -115,9 +116,9 @@ Assuming you name the executable ``micm_multiple_grid_cells``, you can run the p
  Grid Cell 1 (T= 273.0K):
     0.382   1.468   0.670   1.116   1.150   1.214
  Grid Cell 2 (T= 283.0K):
-    0.751   2.462   1.234   2.105   2.201   2.347
+    0.764   2.936   1.340   2.232   2.300   2.428
  Grid Cell 3 (T= 293.0K):
-    0.195   0.831   0.381   0.602   0.625   0.666
+    0.191   0.734   0.335   0.558   0.575   0.607
 
  Solver completed successfully for all           3 grid cells!
   $
@@ -127,12 +128,13 @@ Assuming you name the executable ``micm_multiple_grid_cells``, you can run the p
 Notice how each grid cell evolves differently:
 
 - **Grid Cell 1** (273K): Starting with concentrations of 1.0, the cooler temperature leads to slower reaction rates
-- **Grid Cell 2** (283K): Starting with higher concentrations (2.0), the moderate temperature produces intermediate reaction rates  
-- **Grid Cell 3** (293K): Starting with lower concentrations (0.5), the warmer temperature leads to faster reaction rates
+- **Grid Cell 2** (283K): Starting with higher concentrations (2.0), shows proportionally similar evolution patterns but at roughly double the scale
+- **Grid Cell 3** (293K): Starting with lower concentrations (0.5), the warmer temperature leads to faster reaction rates but proportionally similar patterns
 
-The chemical mechanism responds to both the initial concentrations and the temperature conditions,
-demonstrating how MUSICA can handle realistic atmospheric variability across multiple air masses
-in a single, efficient computation.
+The chemical mechanism responds to both the initial concentrations and the temperature conditions.
+You can observe that Grid Cell 2, which starts with twice the concentration of Grid Cell 1, 
+maintains roughly twice the final concentrations, demonstrating the linear scaling behavior of the system.
+Meanwhile, the different temperatures lead to slightly different reaction efficiencies across the cells.
 
 This multiple grid cell approach is essential for atmospheric modeling applications
 where hundreds or thousands of grid cells need to be processed simultaneously

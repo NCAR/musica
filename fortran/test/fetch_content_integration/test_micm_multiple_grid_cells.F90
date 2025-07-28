@@ -59,7 +59,8 @@ contains
     end do
 
     ! Set initial concentrations for each grid cell
-    associate( var_stride => state%species_strides%variable )
+    associate( cell_stride => state%species_strides%grid_cell, &
+               var_stride => state%species_strides%variable )
       do cell_id = 1, num_grid_cells
         ! Set different initial concentrations for each cell
         do i = 1, 6  ! Assuming 6 species
@@ -67,22 +68,23 @@ contains
           ! Cell 2: all species start at 2.0  
           ! Cell 3: all species start at 0.5
           if (cell_id == 1) then
-            state%concentrations((cell_id - 1) + i * var_stride) = 1.0
+            state%concentrations(1 + (cell_id - 1) * cell_stride + (i - 1) * var_stride) = 1.0
           else if (cell_id == 2) then
-            state%concentrations((cell_id - 1) + i * var_stride) = 2.0
+            state%concentrations(1 + (cell_id - 1) * cell_stride + (i - 1) * var_stride) = 2.0
           else
-            state%concentrations((cell_id - 1) + i * var_stride) = 0.5
+            state%concentrations(1 + (cell_id - 1) * cell_stride + (i - 1) * var_stride) = 0.5
           end if
         end do
       end do
     end associate
 
     ! Set rate parameters for each grid cell
-    associate( rate_stride => state%rate_parameters_strides%variable )
+    associate( cell_stride => state%rate_parameters_strides%grid_cell, &
+               var_stride => state%rate_parameters_strides%variable )
       do cell_id = 1, num_grid_cells
         ! Set the same rate parameters for all cells
-        state%rate_parameters((cell_id - 1) + 1) = 0.001
-        state%rate_parameters((cell_id - 1) + 1 + rate_stride) = 0.002
+        state%rate_parameters(1 + (cell_id - 1) * cell_stride + 0 * var_stride) = 0.001
+        state%rate_parameters(1 + (cell_id - 1) * cell_stride + 1 * var_stride) = 0.002
       end do
     end associate
     
@@ -96,13 +98,14 @@ contains
     ! Print initial concentrations for each grid cell
     write(*,*) ""
     write(*,*) "Initial concentrations by grid cell:"
-    associate( var_stride => state%species_strides%variable )
+    associate( cell_stride => state%species_strides%grid_cell, &
+               var_stride => state%species_strides%variable )
       do cell_id = 1, num_grid_cells
         write(*,'(A,I0,A,F6.1,A)') "Grid Cell ", cell_id, " (T=", &
                state%conditions(cell_id)%temperature, "K):"
         do i = 1, 6
           write(*,'(A,F8.3)', advance='no') "  ", &
-                 state%concentrations((cell_id - 1) + i * var_stride)
+                 state%concentrations(1 + (cell_id - 1) * cell_stride + (i - 1) * var_stride)
         end do
         write(*,*) ""
       end do
@@ -119,13 +122,14 @@ contains
     ! Print final concentrations for each grid cell
     write(*,*) ""
     write(*,*) "Final concentrations by grid cell:"
-    associate( var_stride => state%species_strides%variable )
+    associate( cell_stride => state%species_strides%grid_cell, &
+               var_stride => state%species_strides%variable )
       do cell_id = 1, num_grid_cells
         write(*,'(A,I0,A,F6.1,A)') "Grid Cell ", cell_id, " (T=", &
                state%conditions(cell_id)%temperature, "K):"
         do i = 1, 6
           write(*,'(A,F8.3)', advance='no') "  ", &
-                 state%concentrations((cell_id - 1) + i * var_stride)
+                 state%concentrations(1 + (cell_id - 1) * cell_stride + (i - 1) * var_stride)
         end do
         write(*,*) ""
       end do
