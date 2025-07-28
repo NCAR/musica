@@ -94,15 +94,16 @@ namespace musica
     // C-Compatible structure for CARMA gas species configuration
     struct CARMAGasConfigC
     {
-      int name_length;        // length of name string
-      char name[256];         // 255 chars + null terminator
-      int shortname_length;   // length of shortname string
-      char shortname[7];      // 6 chars + null terminator
-      double wtmol;           // molar mass of the gas [kg/mol]
-      int ivaprtn;            // vaporization routine (enum value)
-      int icomposition;       // composition of the gas (enum value)
-      double dgc_threshold;   // convergence criteria for gas concentration [0 : off; > 0 : fraction]
-      double ds_threshold;    // convergence criteria for gas saturation [0 : off; > 0 : fraction; < 0 : amount past 0 crossing]
+      int name_length;       // length of name string
+      char name[256];        // 255 chars + null terminator
+      int shortname_length;  // length of shortname string
+      char shortname[7];     // 6 chars + null terminator
+      double wtmol;          // molar mass of the gas [kg/mol]
+      int ivaprtn;           // vaporization routine (enum value)
+      int icomposition;      // composition of the gas (enum value)
+      double dgc_threshold;  // convergence criteria for gas concentration [0 : off; > 0 : fraction]
+      double
+          ds_threshold;  // convergence criteria for gas saturation [0 : off; > 0 : fraction; < 0 : amount past 0 crossing]
       CARMAComplexC* refidx;  // pointer to wavelength-resolved refractive indices (allocated separately)
       int refidx_dim_1_size;  // size of first dimension
       int refidx_dim_2_size;  // size of second dimension
@@ -136,9 +137,9 @@ namespace musica
       int groups_size;                // Number of groups
       CARMAElementConfigC* elements;  // Pointer to elements array
       int elements_size;              // Number of elements
-      CARMASoluteConfigC* solutes;   // Pointer to solutes array
+      CARMASoluteConfigC* solutes;    // Pointer to solutes array
       int solutes_size;               // Number of solutes
-      CARMAGasConfigC* gases;        // Pointer to gases array
+      CARMAGasConfigC* gases;         // Pointer to gases array
       int gases_size;                 // Number of gases
     };
 

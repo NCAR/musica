@@ -202,9 +202,10 @@ namespace musica
     double wtmol = 0.0;                                           // molar mass of the gas [kg/mol]
     VaporizationAlgorithm ivaprtn = VaporizationAlgorithm::NONE;  // vaporization routine
     GasComposition icomposition = GasComposition::OTHER;          // composition of the gas
-    double dgc_threshold = 0.0;                                   // convergence criteria for gas concentration [0 : off; > 0 : fraction]
-    double ds_threshold = 0.0;                                    // convergence criteria for gas saturation [0 : off; > 0 : fraction; < 0 : amount past 0 crossing]
-    std::vector<std::vector<CARMAComplex>> refidx;                // wavelength-resolved refractive indices (n_ref_idx, n_wave)
+    double dgc_threshold = 0.0;  // convergence criteria for gas concentration [0 : off; > 0 : fraction]
+    double ds_threshold =
+        0.0;  // convergence criteria for gas saturation [0 : off; > 0 : fraction; < 0 : amount past 0 crossing]
+    std::vector<std::vector<CARMAComplex>> refidx;  // wavelength-resolved refractive indices (n_ref_idx, n_wave)
   };
 
   struct CARMAParameters
