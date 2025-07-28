@@ -118,7 +118,7 @@ TEST_F(CarmaCApiTest, RunCarmaWithAllComponents)
   // Element 2: Sulfate (Group 2)
   CARMAElementConfig sulfate_element;
   sulfate_element.igroup = 2;
-  sulfate_element.isolute = 1; // linked to first solute
+  sulfate_element.isolute = 1;  // linked to first solute
   sulfate_element.name = "Sulfate";
   sulfate_element.shortname = "SO4";
   sulfate_element.rho = 1.84;  // g/cm³
