@@ -501,7 +501,13 @@ class CARMAParameters:
                      for gas_dict in params_dict['gases']]
             del params_dict['gases']
 
-        return cls(wavelength_bins=wavelength_bins, groups=groups, elements=elements, solutes=solutes, gases=gases, **params_dict)
+        return cls(
+            wavelength_bins=wavelength_bins,
+            groups=groups,
+            elements=elements,
+            solutes=solutes,
+            gases=gases,
+            **params_dict)
 
     @classmethod
     def create_aluminum_test_config(cls) -> 'CARMAParameters':
