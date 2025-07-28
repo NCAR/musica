@@ -303,7 +303,7 @@ class CARMASoluteConfig:
             shortname: Short name for the solute (default: "")
             ions: Number of ions (default: 0)
             wtmol: Molecular weight in kg/mol (default: 0.0)
-            rho: Density in kg/cm3 (default: 0.0)
+            rho: Density in kg/m3 (default: 0.0)
         """
         self.name = name
         self.shortname = shortname
@@ -337,7 +337,7 @@ class CARMAGasConfig:
         Args:
             name: Name of the gas (default: "default_gas")
             shortname: Short name for the gas (default: "")
-            mw: Molecular weight in kg/mol (default: 0.0)
+            wtmol: Molecular weight in kg/mol (default: 0.0)
             ivaprtn: Vaporization algorithm used for this gas (default: VaporizationAlgorithm.NONE)
             icomposition: Composition of the gas (default: GasComposition.NONE)
             dgc_threshold: Threshold for gas density gradient (default: 0.0)

@@ -253,8 +253,8 @@ namespace musica
         auto& c_solute = c_params->solutes[i];
 
         c_solute.name_length = std::min(static_cast<int>(solute.name.length()), 255);
-        std::strncpy(c_solute.name, solute.name.c_str(), 255);
-        c_solute.name[255] = '\0';
+        std::strncpy(c_solute.name, solute.name.c_str(), c_solute.name_length);
+        c_solute.name[c_solute.name_length] = '\0';
 
         c_solute.shortname_length = std::min(static_cast<int>(solute.shortname.length()), 6);
         std::strncpy(c_solute.shortname, solute.shortname.c_str(), 6);
