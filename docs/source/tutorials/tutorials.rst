@@ -11,6 +11,7 @@ Fortran
 1. :ref:`installing MUSICA <installing_musica>`
 2. :ref:`first Fortran MUSICA program <chapter1>`
 3. :ref:`box model example <chapter2>`
+4. :ref:`multiple grid cells box model <chapter3>`
 
 
 Python
