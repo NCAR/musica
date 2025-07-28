@@ -12,7 +12,7 @@ module carma_parameters_mod
    private
 
    public :: carma_group_config_t, carma_element_config_t, carma_parameters_t, &
-             carma_wavelength_bin_t, carma_complex_t
+             carma_wavelength_bin_t, carma_complex_t, carma_solute_config_t, carma_gas_config_t
 
    type, bind(c) :: carma_wavelength_bin_t
       real(c_double) :: center       ! Center of the wavelength bin [m]
@@ -79,6 +79,31 @@ module carma_parameters_mod
       integer(c_int) :: refidx_dim_2_size
    end type carma_element_config_t
 
+   type, bind(c) :: carma_solute_config_t
+      integer(c_int) :: name_length
+      character(len=1, kind=c_char) :: name(256)
+      integer(c_int) :: shortname_length
+      character(len=1, kind=c_char) :: shortname(7)
+      integer(c_int) :: ions
+      real(c_double) :: wtmol
+      real(c_double) :: rho
+   end type carma_solute_config_t
+
+   type, bind(c) :: carma_gas_config_t
+      integer(c_int) :: name_length
+      character(len=1, kind=c_char) :: name(256)
+      integer(c_int) :: shortname_length
+      character(len=1, kind=c_char) :: shortname(7)
+      real(c_double) :: wtmol          ! Molar mass of the gas [kg/mol]
+      integer(c_int) :: ivaprtn        ! Vaporization routine
+      integer(c_int) :: icomposition   ! Composition of the gas
+      real(c_double) :: dgc_threshold  ! Convergence criteria for gas concentration [0 : off; > 0 : fraction]
+      real(c_double) :: ds_threshold   ! Convergence criteria for gas saturation [0 : off; > 0 : fraction; < 0 : amount past 0 crossing]
+      type(c_ptr) :: refidx            ! Wavelength-resolved refractive indices (n_ref_idx, n_wave)
+      integer(c_int) :: refidx_dim_1_size  ! Size of first dimension
+      integer(c_int) :: refidx_dim_2_size  ! Size of second dimension
+   end type carma_gas_config_t
+
    type, bind(c) :: carma_parameters_t
 
       ! Model dimensions
@@ -86,8 +111,6 @@ module carma_parameters_mod
       integer(c_int) :: ny = 1
       integer(c_int) :: nx = 1
       integer(c_int) :: nbin = 5
-      integer(c_int) :: nsolute = 0
-      integer(c_int) :: ngas = 0
 
       ! Time stepping parameters
       real(c_double) :: dtime = 1800.0_real64
@@ -102,12 +125,16 @@ module carma_parameters_mod
       integer(c_int) :: wavelength_bin_size = 0
       integer(c_int) :: number_of_refractive_indices = 0  ! Number of refractive indices per wavelength
 
-      ! Group and element configurations (will be handled through C interface)
-      ! Note: groups and elements are managed through C pointers in interface
+      ! Component configurations (will be handled through C interface)
+      ! Note: components are managed through C pointers in interface
       type(c_ptr) :: groups
       integer(c_int) :: groups_size
       type(c_ptr) :: elements
       integer(c_int) :: elements_size
+      type(c_ptr) :: solutes
+      integer(c_int) :: solutes_size
+      type(c_ptr) :: gases
+      integer(c_int) :: gases_size
    end type carma_parameters_t
 
 end module carma_parameters_mod

@@ -27,16 +27,8 @@ void bind_carma(py::module_& carma)
           params.ny = params_dict["ny"].cast<int>();
         if (params_dict.contains("nx"))
           params.nx = params_dict["nx"].cast<int>();
-        if (params_dict.contains("nelem"))
-          params.nelem = params_dict["nelem"].cast<int>();
-        if (params_dict.contains("ngroup"))
-          params.ngroup = params_dict["ngroup"].cast<int>();
         if (params_dict.contains("nbin"))
           params.nbin = params_dict["nbin"].cast<int>();
-        if (params_dict.contains("nsolute"))
-          params.nsolute = params_dict["nsolute"].cast<int>();
-        if (params_dict.contains("ngas"))
-          params.ngas = params_dict["ngas"].cast<int>();
         if (params_dict.contains("dtime"))
           params.dtime = params_dict["dtime"].cast<double>();
         if (params_dict.contains("nstep"))
@@ -185,6 +177,93 @@ void bind_carma(py::module_& carma)
                 }
               }
               params.elements.push_back(element);
+            }
+          }
+        }
+
+        // Handle solutes configuration
+        if (params_dict.contains("solutes"))
+        {
+          auto solutes_py = params_dict["solutes"];
+          if (!solutes_py.is_none() && py::isinstance<py::list>(solutes_py))
+          {
+            auto solutes_list = solutes_py.cast<py::list>();
+            for (auto solute_py : solutes_list)
+            {
+              auto solute_dict = solute_py.cast<py::dict>();
+              musica::CARMASoluteConfig solute;
+
+              if (solute_dict.contains("name"))
+                solute.name = solute_dict["name"].cast<std::string>();
+              if (solute_dict.contains("shortname"))
+                solute.shortname = solute_dict["shortname"].cast<std::string>();
+              if (solute_dict.contains("ions"))
+                solute.ions = solute_dict["ions"].cast<int>();
+              if (solute_dict.contains("wtmol"))
+                solute.wtmol = solute_dict["wtmol"].cast<double>();
+              if (solute_dict.contains("rho"))
+                solute.rho = solute_dict["rho"].cast<double>();
+
+              params.solutes.push_back(solute);
+            }
+          }
+        }
+
+        // Handle gases configuration
+        if (params_dict.contains("gases"))
+        {
+          auto gases_py = params_dict["gases"];
+          if (!gases_py.is_none() && py::isinstance<py::list>(gases_py))
+          {
+            auto gases_list = gases_py.cast<py::list>();
+            for (auto gas_py : gases_list)
+            {
+              auto gas_dict = gas_py.cast<py::dict>();
+              musica::CARMAGasConfig gas;
+
+              if (gas_dict.contains("name"))
+                gas.name = gas_dict["name"].cast<std::string>();
+              if (gas_dict.contains("shortname"))
+                gas.shortname = gas_dict["shortname"].cast<std::string>();
+              if (gas_dict.contains("wtmol"))
+                gas.wtmol = gas_dict["wtmol"].cast<double>();
+              if (gas_dict.contains("ivaprtn"))
+                gas.ivaprtn = static_cast<musica::VaporizationAlgorithm>(gas_dict["ivaprtn"].cast<int>());
+              if (gas_dict.contains("icomposition"))
+                gas.icomposition = static_cast<musica::GasComposition>(gas_dict["icomposition"].cast<int>());
+              if (gas_dict.contains("dgc_threshold"))
+                gas.dgc_threshold = gas_dict["dgc_threshold"].cast<double>();
+              if (gas_dict.contains("ds_threshold"))
+                gas.ds_threshold = gas_dict["ds_threshold"].cast<double>();
+              if (gas_dict.contains("refidx"))
+              {
+                auto refidx_py = gas_dict["refidx"];
+                if (!refidx_py.is_none() && py::isinstance<py::list>(refidx_py))
+                {
+                  auto refidx_outer_list = refidx_py.cast<py::list>();
+                  for (auto refidx_row_py : refidx_outer_list)
+                  {
+                    std::vector<musica::CARMAComplex> refidx_row;
+                    if (!refidx_row_py.is_none() && py::isinstance<py::list>(refidx_row_py))
+                    {
+                      auto refidx_inner_list = refidx_row_py.cast<py::list>();
+                      for (auto refidx_item : refidx_inner_list)
+                      {
+                        auto refidx_dict = refidx_item.cast<py::dict>();
+                        musica::CARMAComplex refidx_value;
+                        if (refidx_dict.contains("real"))
+                          refidx_value.real = refidx_dict["real"].cast<double>();
+                        if (refidx_dict.contains("imaginary"))
+                          refidx_value.imaginary = refidx_dict["imaginary"].cast<double>();
+                        refidx_row.push_back(refidx_value);
+                      }
+                    }
+                    gas.refidx.push_back(refidx_row);
+                  }
+                }
+              }
+
+              params.gases.push_back(gas);
             }
           }
         }

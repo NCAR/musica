@@ -73,6 +73,16 @@ namespace musica
     SULFATE = 8             // Sulfate, refractive index varies with WTP/RH
   };
 
+  // Enumeration for vaporization algorithms
+  enum class VaporizationAlgorithm
+  {
+    NONE = 0,
+    H2O_BUCK_1981 = 1,    // Buck 1981 for water vaporization
+    H2O_MURPHY_2005 = 2,  // Murphy and Koop 2005 for water vaporization
+    H2O_GOFF_1946 = 3,    // Goff 1946 for water vaporization (used in CAM)
+    H2SO4_AYERS_1980 = 4  // Ayers 1980 & Kumala 1990 for sulfuric acid vaporization
+  };
+
   // Enumeration for particle types
   enum class ParticleType
   {
@@ -81,6 +91,15 @@ namespace musica
     COREMASS = 3,
     VOLCORE = 4,
     CORE2MOM = 5
+  };
+
+  // Enumeration for gas compositions
+  enum GasComposition
+  {
+    OTHER = 0,  // Other gas composition
+    H2O = 1,    // Water vapor
+    H2SO4 = 2,  // Sulfuric acid
+    SO2 = 3,    // Sulfur dioxide
   };
 
   // Enumeration for particle compositions
@@ -165,17 +184,36 @@ namespace musica
     std::vector<std::vector<CARMAComplex>> refidx;  // wavelength-resolved refractive indices (n_ref_idx, n_wave)
   };
 
+  // Structure representing a CARMA solute configuration
+  struct CARMASoluteConfig
+  {
+    std::string name = "default_solute";
+    std::string shortname = "";
+    int ions = 0;        // number of ions the solute dissociates into
+    double wtmol = 0.0;  // molar mass of the solute [kg/mol]
+    double rho = 0.0;    // mass density of the solute [kg/m3]
+  };
+
+  // Structure representing a CARMA gas species configuration
+  struct CARMAGasConfig
+  {
+    std::string name = "default_gas";
+    std::string shortname = "";
+    double wtmol = 0.0;                                           // molar mass of the gas [kg/mol]
+    VaporizationAlgorithm ivaprtn = VaporizationAlgorithm::NONE;  // vaporization routine
+    GasComposition icomposition = GasComposition::OTHER;          // composition of the gas
+    double dgc_threshold = 0.0;                                   // convergence criteria for gas concentration [0 : off; > 0 : fraction]
+    double ds_threshold = 0.0;                                    // convergence criteria for gas saturation [0 : off; > 0 : fraction; < 0 : amount past 0 crossing]
+    std::vector<std::vector<CARMAComplex>> refidx;                // wavelength-resolved refractive indices (n_ref_idx, n_wave)
+  };
+
   struct CARMAParameters
   {
     // Model dimensions
     int nz = 1;
     int ny = 1;
     int nx = 1;
-    int nelem = 1;
-    int ngroup = 1;
     int nbin = 5;
-    int nsolute = 0;
-    int ngas = 0;
 
     // Time stepping parameters
     double dtime = 1800.0;
@@ -191,6 +229,8 @@ namespace musica
 
     std::vector<CARMAGroupConfig> groups;
     std::vector<CARMAElementConfig> elements;
+    std::vector<CARMASoluteConfig> solutes;
+    std::vector<CARMAGasConfig> gases;
   };
 
   struct CARMAOutput
@@ -225,9 +265,9 @@ namespace musica
     std::vector<std::vector<double>> aspect_ratio;  // area ratio
 
     // Group mapping and properties (1D arrays)
-    std::vector<double> group_particle_number_concentration;  // concentration element per group [ngroup]
-    std::vector<double> constituent_type;                     // constituent type per group [ngroup]
-    std::vector<double> max_prognostic_bin;                   // max prognostic bin per group [ngroup]
+    std::vector<int> group_particle_number_concentration;  // concentration element per group [ngroup]
+    std::vector<int> constituent_type;                     // constituent type per group [ngroup]
+    std::vector<int> max_prognostic_bin;                   // max prognostic bin per group [ngroup]
   };
 
   class CARMA

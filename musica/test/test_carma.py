@@ -25,5 +25,216 @@ def test_carma_instance():
     carma.run()
 
 
+def test_carma_with_default_parameters():
+    """Test CARMA with default parameters - mimics RunCarmaWithDefaultParameters C++ test"""
+    default_params = musica.CARMAParameters()
+    carma = musica.CARMA(default_params)
+    
+    # Test that we can run CARMA with default parameters without throwing
+    output = carma.run()
+    assert output is not None
+
+
+def test_carma_with_all_components():
+    """Test CARMA with multiple groups, elements, solutes, and gases - mimics RunCarmaWithAllComponents C++ test"""
+    params = musica.CARMAParameters()
+    params.nz = 2
+    params.ny = 1
+    params.nx = 1
+    params.nbin = 3
+    params.dtime = 900.0
+    params.deltaz = 500.0
+    params.zmin = 1000.0
+
+    # Set up wavelength bins
+    params.wavelength_bins = [
+        musica.carma.CARMAWavelengthBin(center=550e-9, width=50e-9, do_emission=True),   # 550 nm ± 25 nm
+        musica.carma.CARMAWavelengthBin(center=850e-9, width=100e-9, do_emission=True)  # 850 nm ± 50 nm
+    ]
+
+    # Group 1: Aluminum particles (sphere)
+    aluminum_group = musica.carma.CARMAGroupConfig(
+        name="aluminum",
+        shortname="ALUM",
+        rmin=1e-8,
+        rmrat=2.0,
+        ishape=musica.carma.ParticleShape.SPHERE,
+        eshape=1.0,
+        is_fractal=False,
+        do_vtran=True,
+        do_drydep=True,
+        df=[1.8, 1.8, 1.8]  # fractal dimension per bin
+    )
+    params.groups.append(aluminum_group)
+
+    # Group 2: Sulfate particles (sphere, with swelling)
+    sulfate_group = musica.carma.CARMAGroupConfig(
+        name="sulfate",
+        shortname="SULF",
+        rmin=5e-9,
+        rmrat=2.5,
+        ishape=musica.carma.ParticleShape.SPHERE,
+        eshape=1.0,
+        swelling_approach={
+            "algorithm": musica.carma.ParticleSwellingAlgorithm.FITZGERALD,
+            "composition": musica.carma.ParticleSwellingComposition.AMMONIUM_SULFATE
+        },
+        is_sulfate=True,
+        do_wetdep=True,
+        do_vtran=True,
+        solfac=0.8,
+        df=[2.0, 2.0, 2.0]
+    )
+    params.groups.append(sulfate_group)
+
+    # Group 3: Ice particles (hexagon)
+    ice_group = musica.carma.CARMAGroupConfig(
+        name="ice",
+        shortname="ICE",
+        rmin=2e-8,
+        rmrat=3.0,
+        ishape=musica.carma.ParticleShape.HEXAGON,
+        eshape=2.0,  # aspect ratio
+        is_ice=True,
+        is_cloud=True,
+        do_vtran=True,
+        df=[1.5, 1.5, 1.5]
+    )
+    params.groups.append(ice_group)
+
+    # Element 1: Aluminum core (Group 1)
+    aluminum_element = musica.carma.CARMAElementConfig(
+        igroup=1,
+        name="Aluminum",
+        shortname="AL",
+        rho=2.70,  # g/cm³
+        itype=musica.carma.ParticleType.INVOLATILE,
+        icomposition=musica.carma.ParticleComposition.ALUMINUM,
+        kappa=0.0,
+        is_shell=False  # core
+    )
+    params.elements.append(aluminum_element)
+
+    # Element 2: Sulfate (Group 2)
+    sulfate_element = musica.carma.CARMAElementConfig(
+        igroup=2,
+        isolute=1,  # linked to first solute
+        name="Sulfate",
+        shortname="SO4",
+        rho=1.84,  # g/cm³
+        itype=musica.carma.ParticleType.VOLATILE,
+        icomposition=musica.carma.ParticleComposition.SULFURIC_ACID,
+        kappa=0.61,  # hygroscopicity
+        is_shell=True
+    )
+    params.elements.append(sulfate_element)
+
+    # Element 3: Water on sulfate (Group 2)
+    water_element = musica.carma.CARMAElementConfig(
+        igroup=2,
+        name="Water",
+        shortname="H2O",
+        rho=1.0,  # g/cm³
+        itype=musica.carma.ParticleType.CORE_MASS,
+        icomposition=musica.carma.ParticleComposition.WATER,
+        kappa=0.0,
+        is_shell=True
+    )
+    params.elements.append(water_element)
+
+    # Element 4: Ice (Group 3)
+    ice_element = musica.carma.CARMAElementConfig(
+        igroup=3,
+        name="Ice",
+        shortname="ICE",
+        rho=0.92,  # g/cm³
+        itype=musica.carma.ParticleType.INVOLATILE,
+        icomposition=musica.carma.ParticleComposition.ICE,
+        kappa=0.0,
+        is_shell=False
+    )
+    params.elements.append(ice_element)
+
+    # Solute: Sulfate
+    sulfate_solute = musica.carma.CARMASoluteConfig(
+        name="Sulfate",
+        shortname="SO4",
+        ions=2,
+        wtmol=0.1324, # kg mol-1
+        rho=1840.0 # kg m-3
+    )
+    params.solutes.append(sulfate_solute)
+
+    # Gas: Water vapor
+    water_gas = musica.carma.CARMAGasConfig(
+        name="Water Vapor",
+        shortname="H2O",
+        wtmol=0.01801528,  # kg mol-1
+        ivaprtn=musica.carma.VaporizationAlgorithm.H2O_MURPHY_2005,
+        icomposition=musica.carma.GasComposition.H2O,
+        dgc_threshold=1.0e-6,
+        ds_threshold=1.0e-4
+    )
+    params.gases.append(water_gas)
+
+    # Gas: Sulfuric acid
+    h2so4_gas = musica.carma.CARMAGasConfig(
+        name="Sulfuric Acid",
+        shortname="H2SO4",
+        wtmol=0.098079,  # kg mol-1
+        ivaprtn=musica.carma.VaporizationAlgorithm.H2O_BUCK_1981,
+        icomposition=musica.carma.GasComposition.H2SO4,
+        dgc_threshold=0.05,
+        ds_threshold=0.1
+    )
+    params.gases.append(h2so4_gas)
+
+    # Gas: Sulfur dioxide
+    so2_gas = musica.carma.CARMAGasConfig(
+        name="Sulfur Dioxide",
+        shortname="SO2",
+        wtmol=0.064066,  # kg mol-1
+        ivaprtn=musica.carma.VaporizationAlgorithm.H2O_BUCK_1981,
+        icomposition=musica.carma.GasComposition.SO2,
+        dgc_threshold=0.05,
+        ds_threshold=0.1
+    )
+    params.gases.append(so2_gas)
+
+    # Create CARMA instance and run
+    carma = musica.CARMA(params)
+    output = carma.run()
+
+    # Verify basic output structure exists
+    assert output is not None
+    assert hasattr(output, 'lat')
+    assert hasattr(output, 'lon')
+    assert hasattr(output, 'z')
+    assert hasattr(output, 'pressure')
+    assert hasattr(output, 'temperature')
+    assert hasattr(output, 'air_density')
+
+    # Verify dimensions match parameters
+    assert len(output.lat) == params.ny
+    assert len(output.lon) == params.nx
+    assert len(output.z) == params.nz
+    assert len(output.pressure) == params.nz
+    assert len(output.temperature) == params.nz
+    assert len(output.air_density) == params.nz
+
+    # Verify 3D particle arrays exist and have reasonable structure
+    assert hasattr(output, 'particle_concentration')
+    assert hasattr(output, 'mass_mixing_ratio')
+    assert len(output.particle_concentration) == params.nz
+    assert len(output.mass_mixing_ratio) == params.nz
+
+    # Verify that the output contains data for the configured number of elements
+    assert len(output.particle_concentration[0]) == params.nbin
+    # Should have data for all configured elements
+    assert len(output.particle_concentration[0][0]) == len(params.elements)
+
+    print(f"Successfully ran CARMA with {len(params.groups)} groups and {len(params.elements)} elements")
+
+
 if __name__ == '__main__':
     pytest.main([__file__])

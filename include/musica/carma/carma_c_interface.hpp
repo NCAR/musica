@@ -79,6 +79,35 @@ namespace musica
       int refidx_dim_2_size;  // size of refractive indices array second dimension
     };
 
+    // C-Compatible structure for CARMA solute configuration
+    struct CARMASoluteConfigC
+    {
+      int name_length;       // length of name string
+      char name[256];        // 255 chars + null terminator
+      int shortname_length;  // length of shortname string
+      char shortname[7];     // 6 chars + null terminator
+      int ions;              // number of ions the solute dissociates into
+      double wtmol;          // molar mass of the solute [kg/mol]
+      double rho;            // mass density of the solute [kg/m3]
+    };
+
+    // C-Compatible structure for CARMA gas species configuration
+    struct CARMAGasConfigC
+    {
+      int name_length;        // length of name string
+      char name[256];         // 255 chars + null terminator
+      int shortname_length;   // length of shortname string
+      char shortname[7];      // 6 chars + null terminator
+      double wtmol;           // molar mass of the gas [kg/mol]
+      int ivaprtn;            // vaporization routine (enum value)
+      int icomposition;       // composition of the gas (enum value)
+      double dgc_threshold;   // convergence criteria for gas concentration [0 : off; > 0 : fraction]
+      double ds_threshold;    // convergence criteria for gas saturation [0 : off; > 0 : fraction; < 0 : amount past 0 crossing]
+      CARMAComplexC* refidx;  // pointer to wavelength-resolved refractive indices (allocated separately)
+      int refidx_dim_1_size;  // size of first dimension
+      int refidx_dim_2_size;  // size of second dimension
+    };
+
     // C-compatible structure for CARMA parameters
     // MUST match the exact order and types of the Fortran carma_parameters_t struct
     struct CCARMAParameters
@@ -88,8 +117,6 @@ namespace musica
       int ny;
       int nx;
       int nbin;
-      int nsolute;
-      int ngas;
 
       // Time stepping parameters
       double dtime;
@@ -104,11 +131,15 @@ namespace musica
       int wavelength_bin_size;               // Size of wavelength bin arrays
       int number_of_refractive_indices;      // Number of refractive indices per wavelength
 
-      // Group and element configurations
+      // Component configurations
       CARMAGroupConfigC* groups;      // Pointer to groups array
       int groups_size;                // Number of groups
       CARMAElementConfigC* elements;  // Pointer to elements array
       int elements_size;              // Number of elements
+      CARMASoluteConfigC* solutes;   // Pointer to solutes array
+      int solutes_size;               // Number of solutes
+      CARMAGasConfigC* gases;        // Pointer to gases array
+      int gases_size;                 // Number of gases
     };
 
     struct CARMAOutputDataC
@@ -142,9 +173,9 @@ namespace musica
       const double* area_ratio;    // area ratio
 
       // Group mapping and properties (integer data stored as doubles)
-      const double* group_particle_number_concentration;  // concentration element per group [ngroup]
-      const double* constituent_type;                     // constituent type per group [ngroup]
-      const double* max_prognostic_bin;                   // max prognostic bin per group [ngroup]
+      const int* group_particle_number_concentration;  // concentration element per group [ngroup]
+      const int* constituent_type;                     // constituent type per group [ngroup]
+      const int* max_prognostic_bin;                   // max prognostic bin per group [ngroup]
     };
 
     // The external C API for CARMA
