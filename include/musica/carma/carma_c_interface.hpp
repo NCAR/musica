@@ -59,22 +59,24 @@ namespace musica
 
     struct CARMAElementConfigC
     {
-      int id;
       int igroup;
+      int isolute;
       int name_length;       // length of name string
       char name[256];        // 255 chars + null terminator
       int shortname_length;  // length of shortname string
       char shortname[7];     // 6 chars + null terminator
-      double rho;
       int itype;
       int icomposition;
-      int isolute;
+      bool isShell;
+      double rho;
       double* rhobin;   // density per bin (allocated separately)
       int rhobin_size;  // size of rhobin array
       double* arat;     // area ratio per bin (allocated separately)
       int arat_size;    // size of arat array
-      double kappa;
-      bool isShell;
+      double kappa;     // hygroscopicity parameter
+      CARMAComplexC* refidx;  // pointer to refractive indices array
+      int refidx_dim_1_size;  // size of refractive indices array first dimension
+      int refidx_dim_2_size;  // size of refractive indices array second dimension
     };
 
     // C-Compatible structure for CARMA solute configuration

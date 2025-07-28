@@ -171,8 +171,8 @@ namespace musica
         const auto& element = params.elements[i];
         auto& c_element = c_params->elements[i];
 
-        c_element.id = element.id;
         c_element.igroup = element.igroup;
+        c_element.isolute = element.isolute;
 
         c_element.name_length = std::min(static_cast<int>(element.name.length()), 255);
         std::strncpy(c_element.name, element.name.c_str(), 255);
@@ -182,12 +182,11 @@ namespace musica
         std::strncpy(c_element.shortname, element.shortname.c_str(), 6);
         c_element.shortname[6] = '\0';
 
-        c_element.rho = element.rho;
         c_element.itype = static_cast<int>(element.itype);
         c_element.icomposition = static_cast<int>(element.icomposition);
-        c_element.isolute = element.isolute;
-        c_element.kappa = element.kappa;
         c_element.isShell = element.isShell;
+        c_element.rho = element.rho;
+        c_element.kappa = element.kappa;
 
         // Handle rhobin array
         if (!element.rhobin.empty())
@@ -213,6 +212,28 @@ namespace musica
         {
           c_element.arat = nullptr;
           c_element.arat_size = 0;
+        }
+
+        // Handle refractive indices
+        if (!element.refidx.empty())
+        {
+          c_element.refidx_dim_1_size = static_cast<int>(element.refidx.size());
+          c_element.refidx_dim_2_size = static_cast<int>(element.refidx[0].size());
+          c_element.refidx = new CARMAComplexC[c_element.refidx_dim_1_size * c_element.refidx_dim_2_size];
+          for (int j = 0; j < c_element.refidx_dim_1_size; ++j)
+          {
+            for (int k = 0; k < c_element.refidx_dim_2_size; ++k)
+            {
+              c_element.refidx[j * c_element.refidx_dim_2_size + k].real = element.refidx[j][k].real;
+              c_element.refidx[j * c_element.refidx_dim_2_size + k].imaginary = element.refidx[j][k].imaginary;
+            }
+          }
+        }
+        else
+        {
+          c_element.refidx = nullptr;
+          c_element.refidx_dim_1_size = 0;
+          c_element.refidx_dim_2_size = 0;
         }
       }
     }
@@ -416,15 +437,13 @@ namespace musica
 
     // Create a default element
     CARMAElementConfig element;
-    element.id = 1;
     element.igroup = 1;  // belongs to the first group
     element.name = "Aluminum";
     element.shortname = "ALUM";
-    element.rho = 3.5;  // bulk density [g/cm3]
+    element.rho = 2700.0;  // bulk density [kg/m3]
     element.itype = ParticleType::INVOLATILE;
     element.icomposition = ParticleComposition::ALUMINUM;
     element.isolute = 0;                           // no solute
-    element.rhobin = { 1.0, 1.0, 1.0, 1.0, 1.0 };  // no density per bin
     element.arat = { 1.0, 1.0, 1.0, 1.0, 1.0 };    // no area ratio per bin
     element.kappa = 0.0;                           // no hygroscopicity
     element.isShell = true;                        // part of the shell

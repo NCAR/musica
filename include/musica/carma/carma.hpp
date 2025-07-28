@@ -170,18 +170,18 @@ namespace musica
   // Structure representing a CARMA element configuration
   struct CARMAElementConfig
   {
-    int id = 1;
-    int igroup = 1;  // group this element belongs to
+    int igroup = 1;              // group this element belongs to
+    int isolute = 0;             // solute index
     std::string name = "default_element";
     std::string shortname = "";
-    double rho = 1.0;  // bulk density [g/cm3]
     ParticleType itype = ParticleType::INVOLATILE;
     ParticleComposition icomposition = ParticleComposition::ALUMINUM;
-    int isolute = 0;             // solute index
-    std::vector<double> rhobin;  // density per bin [g/cm3]
+    bool isShell = true;         // is this part of shell or core
+    double rho = 1000.0;         // bulk density [kg/m3]
+    std::vector<double> rhobin;  // density per bin [kg/m3]
     std::vector<double> arat;    // projected area ratio per bin
     double kappa = 0.0;          // hygroscopicity parameter
-    bool isShell = true;         // is this part of shell or core
+    std::vector<std::vector<CARMAComplex>> refidx; // wavelength-resolved refractive indices (n_ref_idx, n_wave)
   };
 
   // Structure representing a CARMA solute configuration
