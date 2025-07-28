@@ -443,10 +443,10 @@ namespace musica
     element.rho = 2700.0;  // bulk density [kg/m3]
     element.itype = ParticleType::INVOLATILE;
     element.icomposition = ParticleComposition::ALUMINUM;
-    element.isolute = 0;                           // no solute
-    element.arat = { 1.0, 1.0, 1.0, 1.0, 1.0 };    // no area ratio per bin
-    element.kappa = 0.0;                           // no hygroscopicity
-    element.isShell = true;                        // part of the shell
+    element.isolute = 0;                         // no solute
+    element.arat = { 1.0, 1.0, 1.0, 1.0, 1.0 };  // no area ratio per bin
+    element.kappa = 0.0;                         // no hygroscopicity
+    element.isShell = true;                      // part of the shell
 
     // Add the element to the parameters
     params.elements.push_back(element);
