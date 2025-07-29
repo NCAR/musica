@@ -218,7 +218,9 @@ contains
       use atmosphere_mod
       use carma_parameters_mod, only: carma_parameters_t, carma_group_config_t, &
                                       carma_element_config_t, carma_wavelength_bin_t, &
-                                      carma_complex_t, carma_solute_config_t, carma_gas_config_t
+                                      carma_complex_t, carma_solute_config_t, carma_gas_config_t, &
+                                       carma_coagulation_config_t, carma_growth_config_t, &
+                                       carma_nucleation_config_t
       use iso_fortran_env, only: real64
       use iso_c_binding, only: c_ptr, c_loc
 
@@ -234,11 +236,8 @@ contains
       ! Model dimensions
       integer :: NZ, NY, NX, NZP1, NELEM, NGROUP, NBIN, NSOLUTE, NGAS, NWAVE
 
-      ! Temporary index for first group
-      integer, parameter :: I_FIRST_GROUP = 1
-
       ! Loop indices
-      integer :: iwave, ielem, igroup, isolute, igas
+      integer :: iwave, ielem, igroup, isolute, igas, icoag, igrowth, inucleation
 
       ! Wavelength grid parameters
       type(carma_wavelength_bin_t), pointer :: wavelength_bins(:)
@@ -267,6 +266,16 @@ contains
       character(len=:), allocatable :: gas_name, gas_short_name
       type(carma_complex_t), pointer :: gas_refidx_t(:,:) ! refractive index [NWAVE, number_of_refractive_indices]
       complex(kind=real64), allocatable :: gas_refidx(:,:) ! refractive index [NWAVE, number_of_refractive_indices]
+
+      ! Process parameters
+      ! Coagulation
+      type(carma_coagulation_config_t), pointer :: coagulation_config(:)
+
+      ! Growth parameters
+      type(carma_growth_config_t), pointer :: growth_config(:)
+
+      ! Nucleation parameters
+      type(carma_nucleation_config_t), pointer :: nucleation_config(:)
 
       integer :: alloc_stat
 
@@ -505,16 +514,70 @@ contains
          end do
       end if
 
-      ! Setup CARMA processes - coagulation for aluminum particles
-      if (NGROUP >= 1) then
-         call CARMA_AddCoagulation(carma, I_FIRST_GROUP, I_FIRST_GROUP, I_FIRST_GROUP, I_COLLEC_FUCHS, rc)
-         if (rc /= 0) then
-            print *, "Error adding CARMA coagulation"
-            return
-         end if
+      ! Create coagulation processes based on configuration
+      if (c_associated(params%coagulations)) then
+         call c_f_pointer(params%coagulations, coagulation_config, [params%coagulations_size])
+         do icoag = 1, params%coagulations_size
+            associate(coag => coagulation_config(icoag))
+               call CARMA_AddCoagulation( &
+                  carma, &
+                  int(coag%igroup1), &
+                  int(coag%igroup2), &
+                  int(coag%igroup3), &
+                  int(coag%algorithm), &
+                  rc, &
+                  ck0=real(coag%ck0, kind=real64), &
+                  grav_e_coll0=real(coag%grav_e_coll0, kind=real64), &
+                  use_ccd=logical(coag%use_ccd))
+               if (rc /= 0) then
+                  print *, "Error adding CARMA coagulation"
+                  return
+               end if
+            end associate
+         end do
       else
-         carma%f_icollec = I_COLLEC_CONST
-         carma%f_icoagop  = I_COAGOP_CONST
+         carma%f_icoagop = 0 ! Disable coagulation if no processes defined
+         carma%f_icollec = 0 ! Disable collection if no processes defined
+      end if
+
+      ! Create growth processes based on configuration
+      if (c_associated(params%growths)) then
+         call c_f_pointer(params%growths, growth_config, [params%growths_size])
+         do igrowth = 1, params%growths_size
+            associate(growth => growth_config(igrowth))
+               call CARMA_AddGrowth( &
+                  carma, &
+                  int(growth%ielem), &
+                  int(growth%igas), &
+                  rc)
+               if (rc /= 0) then
+                  print *, "Error adding CARMA growth"
+                  return
+               end if
+            end associate
+         end do
+      end if
+
+      ! Create nucleation processes based on configuration
+      if (c_associated(params%nucleations)) then
+         call c_f_pointer(params%nucleations, nucleation_config, [params%nucleations_size])
+         do inucleation = 1, params%nucleations_size
+            associate(nucleation => nucleation_config(inucleation))
+               call CARMA_AddNucleation( &
+                  carma, &
+                  int(nucleation%ielemfrom), &
+                  int(nucleation%ielemto), &
+                  int(nucleation%algorithm), &
+                  real(nucleation%rlh_nuc, kind=real64) * 1.0e4_real64, & ! convert m2 s-2 to cm2 s-2
+                  rc, &
+                  igas=int(nucleation%igas), &
+                  ievp2elem=int(nucleation%ievp2elem))
+               if (rc /= 0) then
+                  print *, "Error adding CARMA nucleation"
+                  return
+               end if
+            end associate
+         end do
       end if
 
       ! Initialize CARMA with coagulation settings matching test_aluminum_simple

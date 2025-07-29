@@ -268,6 +268,90 @@ void bind_carma(py::module_& carma)
           }
         }
 
+        // Handle coagulation configuration
+        if (params_dict.contains("coagulations"))
+        {
+          auto coagulations_py = params_dict["coagulations"];
+          if (!coagulations_py.is_none() && py::isinstance<py::list>(coagulations_py))
+          {
+            auto coagulations_list = coagulations_py.cast<py::list>();
+            for (auto coagulation_py : coagulations_list)
+            {
+              auto coagulation_dict = coagulation_py.cast<py::dict>();
+              musica::CARMACoagulationConfig coagulation;
+
+              if (coagulation_dict.contains("igroup1"))
+                coagulation.igroup1 = coagulation_dict["igroup1"].cast<int>();
+              if (coagulation_dict.contains("igroup2"))
+                coagulation.igroup2 = coagulation_dict["igroup2"].cast<int>();
+              if (coagulation_dict.contains("igroup3"))
+                coagulation.igroup3 = coagulation_dict["igroup3"].cast<int>();
+              if (coagulation_dict.contains("algorithm"))
+                coagulation.algorithm = static_cast<musica::ParticleCollectionAlgorithm>(coagulation_dict["algorithm"].cast<int>());
+              if (coagulation_dict.contains("ck0"))
+                coagulation.ck0 = coagulation_dict["ck0"].cast<double>();
+              if (coagulation_dict.contains("grav_e_coll0"))
+                coagulation.grav_e_coll0 = coagulation_dict["grav_e_coll0"].cast<double>();
+              if (coagulation_dict.contains("use_ccd"))
+                coagulation.use_ccd = coagulation_dict["use_ccd"].cast<bool>();
+
+              params.coagulations.push_back(coagulation);
+            }
+          }
+        }
+
+        // Handle growth configuration
+        if (params_dict.contains("growths"))
+        {
+          auto growths_py = params_dict["growths"];
+          if (!growths_py.is_none() && py::isinstance<py::list>(growths_py))
+          {
+            auto growths_list = growths_py.cast<py::list>();
+            for (auto growth_py : growths_list)
+            {
+              auto growth_dict = growth_py.cast<py::dict>();
+              musica::CARMAGrowthConfig growth;
+
+              if (growth_dict.contains("ielem"))
+                growth.ielem = growth_dict["ielem"].cast<int>();
+              if (growth_dict.contains("igas"))
+                growth.igas = growth_dict["igas"].cast<int>();
+
+              params.growths.push_back(growth);
+            }
+          }
+        }
+
+        // Handle nucleation configuration
+        if (params_dict.contains("nucleations"))
+        {
+          auto nucleations_py = params_dict["nucleations"];
+          if (!nucleations_py.is_none() && py::isinstance<py::list>(nucleations_py))
+          {
+            auto nucleations_list = nucleations_py.cast<py::list>();
+            for (auto nucleation_py : nucleations_list)
+            {
+              auto nucleation_dict = nucleation_py.cast<py::dict>();
+              musica::CARMANucleationConfig nucleation;
+
+              if (nucleation_dict.contains("ielemfrom"))
+                nucleation.ielemfrom = nucleation_dict["ielemfrom"].cast<int>();
+              if (nucleation_dict.contains("ielemto"))
+                nucleation.ielemto = nucleation_dict["ielemto"].cast<int>();
+              if (nucleation_dict.contains("algorithm"))
+                nucleation.algorithm = static_cast<musica::ParticleNucleationAlgorithm>(nucleation_dict["algorithm"].cast<int>());
+              if (nucleation_dict.contains("rlh_nuc"))
+                nucleation.rlh_nuc = nucleation_dict["rlh_nuc"].cast<double>();
+              if (nucleation_dict.contains("igas"))
+                nucleation.igas = nucleation_dict["igas"].cast<int>();
+              if (nucleation_dict.contains("ievp2elem"))
+                nucleation.ievp2elem = nucleation_dict["ievp2elem"].cast<int>();
+
+              params.nucleations.push_back(nucleation);
+            }
+          }
+        }
+
         // Handle wavelength bins
         if (params_dict.contains("wavelength_bins"))
         {
