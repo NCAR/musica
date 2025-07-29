@@ -563,7 +563,7 @@ class CARMAState:
         if temperature is None:
             temperature = centered_variables.t.values
         if pressure is None:
-           pressure = edge_variables.p.values
+           pressure = centered_variables.p.values
         if pressure_levels is None:
            pressure_levels = centered_variables.p.values
         
