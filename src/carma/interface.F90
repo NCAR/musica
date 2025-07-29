@@ -9,6 +9,8 @@ module carma_interface
    implicit none
    private
 
+   integer, parameter, public :: ERROR_MEMORY_ALLOCATION = 97
+   integer, parameter, public :: ERROR_DIMENSION_MISMATCH = 98
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    ! Interface to the C++ TransferCarmaOutputToCpp function
@@ -237,10 +239,15 @@ contains
       use carmaelement_mod
       use carmagroup_mod
       use carmagas_mod
+      use carmasolute_mod
       use carma_mod
       use atmosphere_mod
       use carma_parameters_mod, only: carma_parameters_t, carma_group_config_t, &
-         carma_element_config_t, carma_wavelength_bin_t
+                                      carma_element_config_t, carma_wavelength_bin_t, &
+                                      carma_element_config_t, carma_wavelength_bin_t, &
+                                      carma_complex_t, carma_solute_config_t, carma_gas_config_t, &
+                                      carma_coagulation_config_t, carma_growth_config_t, &
+                                      carma_nucleation_config_t
       use iso_fortran_env, only: real64
       use iso_c_binding, only: c_ptr, c_loc
 
@@ -256,11 +263,8 @@ contains
       ! Model dimensions
       integer :: NZ, NY, NX, NZP1, NELEM, NGROUP, NBIN, NSOLUTE, NGAS, NWAVE
 
-      ! Temporary index for first group
-      integer, parameter :: I_FIRST_GROUP = 1
-
       ! Loop indices
-      integer :: iwave, ielem, igroup
+      integer :: iwave, ielem, igroup, isolute, igas, icoag, igrowth, inucleation
 
       ! Wavelength grid parameters
       type(carma_wavelength_bin_t), pointer :: wavelength_bins(:)
@@ -277,6 +281,28 @@ contains
       character(len=:), allocatable :: element_name, element_short_name
       real(real64), pointer :: rhobin(:) ! rho bin for element (NBINS)
       real(real64), pointer :: arat(:) ! area ratio for element (NBINS)
+      type(carma_complex_t), pointer :: refidx_t(:,:) ! refractive index [NWAVE, number_of_refractive_indices]
+      complex(kind=real64), allocatable :: refidx(:,:) ! refractive index [NWAVE, number_of_refractive_indices]
+
+      ! Solute parameters
+      type(carma_solute_config_t), pointer :: solute_config(:)
+      character(len=:), allocatable :: solute_name, solute_short_name
+
+      ! Gas parameters
+      type(carma_gas_config_t), pointer :: gas_config(:)
+      character(len=:), allocatable :: gas_name, gas_short_name
+      type(carma_complex_t), pointer :: gas_refidx_t(:,:) ! refractive index [NWAVE, number_of_refractive_indices]
+      complex(kind=real64), allocatable :: gas_refidx(:,:) ! refractive index [NWAVE, number_of_refractive_indices]
+
+      ! Process parameters
+      ! Coagulation
+      type(carma_coagulation_config_t), pointer :: coagulation_config(:)
+
+      ! Growth parameters
+      type(carma_growth_config_t), pointer :: growth_config(:)
+
+      ! Nucleation parameters
+      type(carma_nucleation_config_t), pointer :: nucleation_config(:)
 
       integer :: alloc_stat
 
@@ -286,8 +312,8 @@ contains
       NELEM = int(params%elements_size)
       NGROUP = int(params%groups_size)
       NBIN = int(params%nbin)
-      NSOLUTE = int(params%nsolute)
-      NGAS = int(params%ngas)
+      NSOLUTE = int(params%solutes_size)
+      NGAS = int(params%gases_size)
       NWAVE = int(params%wavelength_bin_size)
 
       ! Create the CARMA instance
@@ -312,7 +338,8 @@ contains
             wave = wave_centers, &
             dwave = wave_widths, &
             do_wave_emit = wave_do_emission, &
-            NREFIDX = params%number_of_refractive_indices)
+            NREFIDX = params%number_of_refractive_indices, &
+            LUNOPRT=6) ! Direct output to stdout
       else
          call CARMA_Create(carma, NBIN, NELEM, NGROUP, NSOLUTE, NGAS, NWAVE, rc)
       end if
@@ -325,24 +352,43 @@ contains
       if (c_associated(params%groups)) then
          call c_f_pointer(params%groups, group_config, [params%groups_size])
          do igroup = 1, params%groups_size
-            associate(group => group_config(igroup))
-               group_name = c_to_f_string(group%name, group%name_length)
-               group_short_name = c_to_f_string(group%shortname, group%shortname_length)
-               call c_f_pointer(group%df, df, [group%df_size])
-               call CARMAGROUP_Create(carma, int(group%id), group_name, real(group%rmin, kind=real64), &
-                  real(group%rmrat, kind=real64), &
-                  int(group%ishape), real(group%eshape, kind=real64), logical(group%is_ice), rc,&
-                  is_fractal=logical(group%is_fractal), &
-                  irhswell=I_NO_SWELLING, do_mie=logical(group%do_mie), do_wetdep=logical(group%do_wetdep), &
-                  do_drydep=logical(group%do_drydep), do_vtran=logical(group%do_vtran), &
-                  solfac=real(group%solfac, kind=real64), scavcoef=real(group%scavcoef, kind=real64), &
-                  shortname=group_short_name, rmon=real(group%rmon, kind=real64), df=df, falpha=real(group%falpha, kind=real64), &
-                  is_sulfate=.false.)
-               if (rc /= 0) then
-                  print *, "Error creating CARMA group"
-                  return
-               end if
-            end associate
+         associate(group => group_config(igroup))
+            group_name = c_to_f_string(group%name, group%name_length)
+            group_short_name = c_to_f_string(group%shortname, group%shortname_length)
+            call c_f_pointer(group%df, df, [group%df_size])
+            call CARMAGROUP_Create( &
+               carma, &
+               igroup, &
+               group_name, &
+               real(group%rmin, kind=real64) * 100.0_real64, & ! Convert m to cm
+               real(group%rmrat, kind=real64), &
+               int(group%ishape), &
+               real(group%eshape, kind=real64), &
+               logical(group%is_ice), &
+               rc, &
+               is_fractal=logical(group%is_fractal), &
+               irhswell=int(group%swelling_algorithm), &
+               irhswcomp=int(group%swelling_composition), &
+               do_mie=(group%mie_calculation_algorithm /= 0), &
+               do_wetdep=logical(group%do_wetdep), &
+               do_drydep=logical(group%do_drydep), &
+               do_vtran=logical(group%do_vtran), &
+               solfac=real(group%solfac, kind=real64), &
+               scavcoef=real(group%scavcoef, kind=real64), &
+               shortname=group_short_name, &
+               ifallrtn=int(group%fall_velocity_routine), &
+               is_cloud= logical(group%is_cloud), &
+               rmassmin=real(group%rmassmin, kind=real64) * 1000.0_real64, & ! Convert kg to g
+               imiertn=int(group%mie_calculation_algorithm), &
+               iopticstype=int(group%optics_algorithm), &
+               is_sulfate=logical(group%is_sulfate), &
+               dpc_threshold=real(group%dpc_threshold, kind=real64), &
+               rmon=real(group%rmon, kind=real64) * 100.0_real64, & ! Convert m to cm
+               df=df, &
+               falpha=real(group%falpha, kind=real64), &
+               neutral_volfrc=real(group%neutral_volfrc, kind=real64))
+            if (rc /= 0) return
+         end associate
          end do
       end if
 
@@ -353,11 +399,66 @@ contains
             associate(elem => element_config(ielem))
                element_name = c_to_f_string(elem%name, elem%name_length)
                element_short_name = c_to_f_string(elem%shortname, elem%shortname_length)
-               call c_f_pointer(elem%rhobin, rhobin, [elem%rhobin_size])
-               call c_f_pointer(elem%arat, arat, [elem%arat_size])
-               call CARMAELEMENT_Create(carma, int(elem%id), int(elem%igroup), element_name, real(elem%rho, kind=real64), &
-                  int(elem%itype), int(elem%icomposition), rc, shortname=element_short_name, isolute=int(elem%isolute), &
-                  rhobin=rhobin, arat=arat, kappa=real(elem%kappa, kind=real64), isShell=logical(elem%isShell))
+               if (elem%rhobin_size > 0) then
+                 call c_f_pointer(elem%rhobin, rhobin, [elem%rhobin_size])
+                 rhobin(:) = rhobin(:) * 0.001_real64 ! Convert kg m-3 to g cm-3
+                 if (elem%rhobin_size /= NBIN) then
+                    print *, "Error: rhobin size does not match NBIN"
+                    rc = ERROR_DIMENSION_MISMATCH
+                    return
+                 end if
+               else
+                 rhobin => null( )
+               end if
+               if (elem%arat_size > 0) then
+                  call c_f_pointer(elem%arat, arat, [elem%arat_size])
+                  if (elem%arat_size /= NBIN) then
+                     print *, "Error: arat size does not match NBIN"
+                     rc = ERROR_DIMENSION_MISMATCH
+                     return
+                  end if
+               else
+                  arat => null( )
+               end if
+               if (elem%refidx_dim_1_size > 0 .and. elem%refidx_dim_2_size > 0) then
+                  if (elem%refidx_dim_2_size /= NWAVE) then
+                     print *, "Error: refidx_dim_2_size does not match NWAVE"
+                     rc = ERROR_DIMENSION_MISMATCH
+                     return
+                  end if
+                  if (elem%refidx_dim_1_size /= params%number_of_refractive_indices) then
+                     print *, "Error: refidx_dim_1_size does not match number_of_refractive_indices"
+                     rc = ERROR_DIMENSION_MISMATCH
+                     return
+                  end if
+                  call c_f_pointer(elem%refidx, refidx_t, [elem%refidx_dim_2_size, elem%refidx_dim_1_size])
+                  allocate(refidx(elem%refidx_dim_2_size, elem%refidx_dim_1_size), stat=alloc_stat)
+                  if (alloc_stat /= 0) then
+                     print *, "Error allocating refractive index array"
+                     rc = ERROR_MEMORY_ALLOCATION
+                     return
+                  end if
+                  do iwave = 1, NWAVE
+                     refidx(iwave,:) = cmplx(refidx_t(iwave,1:params%number_of_refractive_indices)%real_part, &
+                                             refidx_t(iwave,1:params%number_of_refractive_indices)%imag_part, kind=real64)
+                  end do
+               end if
+               call CARMAELEMENT_Create( &
+                  carma, &
+                  ielem, &
+                  int(elem%igroup), &
+                  element_name, &
+                  real(elem%rho, kind=real64) * 0.001_real64, & ! Convert kg m-3 to g cm-3
+                  int(elem%itype), &
+                  int(elem%icomposition), &
+                  rc, &
+                  shortname=element_short_name, &
+                  isolute=int(elem%isolute), &
+                  rhobin=rhobin, &
+                  arat=arat, &
+                  kappa=real(elem%kappa, kind=real64), &
+                  refidx=refidx, &
+                  isShell=logical(elem%isShell))
                if (rc /= 0) then
                   print *, "Error creating CARMA element"
                   return
@@ -366,16 +467,144 @@ contains
          end do
       end if
 
-      ! Setup CARMA processes - coagulation for aluminum particles
-      if (NGROUP >= 1) then
-         call CARMA_AddCoagulation(carma, I_FIRST_GROUP, I_FIRST_GROUP, I_FIRST_GROUP, I_COLLEC_FUCHS, rc)
-         if (rc /= 0) then
-            print *, "Error adding CARMA coagulation"
-            return
-         end if
+      ! Create solutes based on configuration
+      if (c_associated(params%solutes)) then
+         call c_f_pointer(params%solutes, solute_config, [params%solutes_size])
+         do isolute = 1, params%solutes_size
+            associate(solute => solute_config(isolute))
+               solute_name = c_to_f_string(solute%name, solute%name_length)
+               solute_short_name = c_to_f_string(solute%shortname, solute%shortname_length)
+               call CARMASOLUTE_Create( &
+                  carma, &
+                  isolute, &
+                  solute_name, &
+                  int(solute%ions), &
+                  real(solute%wtmol, kind=real64), &
+                  real(solute%rho, kind=real64), &
+                  rc, &
+                  shortname=solute_short_name)
+               if (rc /= 0) then
+                  print *, "Error creating CARMA solute"
+                  return
+               end if
+            end associate
+         end do
+      end if
+
+      ! Create gases based on configuration
+      if (c_associated(params%gases)) then
+         call c_f_pointer(params%gases, gas_config, [params%gases_size])
+         do igas = 1, params%gases_size
+            associate(gas => gas_config(igas))
+               gas_name = c_to_f_string(gas%name, gas%name_length)
+               gas_short_name = c_to_f_string(gas%shortname, gas%shortname_length)
+               if (gas%refidx_dim_1_size > 0 .and. gas%refidx_dim_2_size > 0) then
+                  if (gas%refidx_dim_2_size /= NWAVE) then
+                     print *, "Error: refidx_dim_2_size does not match NWAVE"
+                     rc = ERROR_DIMENSION_MISMATCH
+                     return
+                  end if
+                  if (gas%refidx_dim_1_size /= params%number_of_refractive_indices) then
+                     print *, "Error: refidx_dim_1_size does not match number_of_refractive_indices"
+                     rc = ERROR_DIMENSION_MISMATCH
+                     return
+                  end if
+                  call c_f_pointer(gas%refidx, gas_refidx_t, [gas%refidx_dim_2_size, gas%refidx_dim_1_size])
+                  allocate(gas_refidx(gas%refidx_dim_2_size, gas%refidx_dim_1_size), stat=alloc_stat)
+                  if (alloc_stat /= 0) then
+                     print *, "Error allocating refractive index array"
+                     rc = ERROR_MEMORY_ALLOCATION
+                     return
+                  end if
+                  do iwave = 1, NWAVE
+                     gas_refidx(iwave,:) = cmplx(gas_refidx_t(iwave,1:params%number_of_refractive_indices)%real_part, &
+                                                 gas_refidx_t(iwave,1:params%number_of_refractive_indices)%imag_part, kind=real64)
+                  end do
+               end if
+               call CARMAGAS_Create( &
+                  carma, &
+                  igas, &
+                  gas_name, &
+                  real(gas%wtmol, kind=real64), &
+                  int(gas%ivaprtn), &
+                  int(gas%icomposition), &
+                  rc, &
+                  shortname=gas_short_name, &
+                  dgc_threshold=real(gas%dgc_threshold, kind=real64), &
+                  ds_threshold=real(gas%ds_threshold, kind=real64), &
+                  refidx=gas_refidx)
+               if (rc /= 0) then
+                  print *, "Error creating CARMA gas"
+                  return
+               end if
+            end associate
+         end do
+      end if
+
+      ! Create coagulation processes based on configuration
+      if (c_associated(params%coagulations)) then
+         call c_f_pointer(params%coagulations, coagulation_config, [params%coagulations_size])
+         do icoag = 1, params%coagulations_size
+            associate(coag => coagulation_config(icoag))
+               call CARMA_AddCoagulation( &
+                  carma, &
+                  int(coag%igroup1), &
+                  int(coag%igroup2), &
+                  int(coag%igroup3), &
+                  int(coag%algorithm), &
+                  rc, &
+                  ck0=real(coag%ck0, kind=real64), &
+                  grav_e_coll0=real(coag%grav_e_coll0, kind=real64), &
+                  use_ccd=logical(coag%use_ccd))
+               if (rc /= 0) then
+                  print *, "Error adding CARMA coagulation"
+                  return
+               end if
+            end associate
+         end do
       else
-         carma%f_icollec = I_COLLEC_CONST
-         carma%f_icoagop  = I_COAGOP_CONST
+         carma%f_icoagop = 0 ! Disable coagulation if no processes defined
+         carma%f_icollec = 0 ! Disable collection if no processes defined
+      end if
+
+      ! Create growth processes based on configuration
+      if (c_associated(params%growths)) then
+         call c_f_pointer(params%growths, growth_config, [params%growths_size])
+         do igrowth = 1, params%growths_size
+            associate(growth => growth_config(igrowth))
+               call CARMA_AddGrowth( &
+                  carma, &
+                  int(growth%ielem), &
+                  int(growth%igas), &
+                  rc)
+               if (rc /= 0) then
+                  print *, "Error adding CARMA growth"
+                  return
+               end if
+            end associate
+         end do
+      end if
+
+      ! Create nucleation processes based on configuration
+      if (c_associated(params%nucleations)) then
+         call c_f_pointer(params%nucleations, nucleation_config, [params%nucleations_size])
+         do inucleation = 1, params%nucleations_size
+            associate(nucleation => nucleation_config(inucleation))
+               call CARMA_AddNucleation( &
+                  carma, &
+                  int(nucleation%ielemfrom), &
+                  int(nucleation%ielemto), &
+                  int(nucleation%algorithm), &
+                  real(nucleation%rlh_nuc, kind=real64) * 1.0e4_real64, & ! convert m2 s-2 to cm2 s-2
+                  rc, &
+                  igas=int(nucleation%igas), &
+                  ievp2elem=int(nucleation%ievp2elem))
+               if (rc /= 0) then
+                  print *, "Error adding CARMA nucleation"
+                  return
+               end if
+            end associate
+         end do
       end if
 
       ! Initialize CARMA with coagulation settings matching test_aluminum_simple
@@ -462,8 +691,8 @@ contains
       NELEM = int(params%elements_size)
       NGROUP = int(params%groups_size)
       NBIN = int(params%nbin)
-      NSOLUTE = int(params%nsolute)
-      NGAS = int(params%ngas)
+      NSOLUTE = int(params%solutes_size)
+      NGAS = int(params%gases_size)
       NWAVE = int(params%wavelength_bin_size)
       dtime = real(params%dtime, kind=real64)
       nstep = int(params%nstep)

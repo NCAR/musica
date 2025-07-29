@@ -22,22 +22,10 @@ void bind_carma(py::module_& carma)
         // Convert Python dict to CARMAParameters
         musica::CARMAParameters params;
 
-        if (params_dict.contains("max_bins"))
-          params.max_bins = params_dict["max_bins"].cast<int>();
-        if (params_dict.contains("max_groups"))
-          params.max_groups = params_dict["max_groups"].cast<int>();
         if (params_dict.contains("nz"))
           params.nz = params_dict["nz"].cast<int>();
-        if (params_dict.contains("nelem"))
-          params.nelem = params_dict["nelem"].cast<int>();
-        if (params_dict.contains("ngroup"))
-          params.ngroup = params_dict["ngroup"].cast<int>();
         if (params_dict.contains("nbin"))
           params.nbin = params_dict["nbin"].cast<int>();
-        if (params_dict.contains("nsolute"))
-          params.nsolute = params_dict["nsolute"].cast<int>();
-        if (params_dict.contains("ngas"))
-          params.ngas = params_dict["ngas"].cast<int>();
         if (params_dict.contains("dtime"))
           params.dtime = params_dict["dtime"].cast<double>();
         if (params_dict.contains("nstep"))
@@ -59,8 +47,6 @@ void bind_carma(py::module_& carma)
               auto group_dict = group_py.cast<py::dict>();
               musica::CARMAGroupConfig group;
 
-              if (group_dict.contains("id"))
-                group.id = group_dict["id"].cast<int>();
               if (group_dict.contains("name"))
                 group.name = group_dict["name"].cast<std::string>();
               if (group_dict.contains("shortname"))
@@ -69,16 +55,37 @@ void bind_carma(py::module_& carma)
                 group.rmin = group_dict["rmin"].cast<double>();
               if (group_dict.contains("rmrat"))
                 group.rmrat = group_dict["rmrat"].cast<double>();
+              if (group_dict.contains("rmassmin"))
+                group.rmassmin = group_dict["rmassmin"].cast<double>();
               if (group_dict.contains("ishape"))
                 group.ishape = static_cast<musica::ParticleShape>(group_dict["ishape"].cast<int>());
               if (group_dict.contains("eshape"))
                 group.eshape = group_dict["eshape"].cast<double>();
+              if (group_dict.contains("swelling_approach"))
+                if (group_dict["swelling_approach"].contains("algorithm") &&
+                    group_dict["swelling_approach"].contains("composition"))
+                {
+                  group.swelling_approach.algorithm = static_cast<musica::ParticleSwellingAlgorithm>(
+                      group_dict["swelling_approach"]["algorithm"].cast<int>());
+                  group.swelling_approach.composition = static_cast<musica::ParticleSwellingComposition>(
+                      group_dict["swelling_approach"]["composition"].cast<int>());
+                }
+              if (group_dict.contains("fall_velocity_routine"))
+                group.fall_velocity_routine = static_cast<musica::FallVelocityAlgorithm>(
+                    group_dict["fall_velocity_routine"].cast<int>());
+              if (group_dict.contains("mie_calculation_algorithm"))
+                group.mie_calculation_algorithm = static_cast<musica::MieCalculationAlgorithm>(
+                    group_dict["mie_calculation_algorithm"].cast<int>());
+              if (group_dict.contains("optics_algorithm"))
+                group.optics_algorithm = static_cast<musica::OpticsAlgorithm>(group_dict["optics_algorithm"].cast<int>());
               if (group_dict.contains("is_ice"))
                 group.is_ice = group_dict["is_ice"].cast<bool>();
               if (group_dict.contains("is_fractal"))
                 group.is_fractal = group_dict["is_fractal"].cast<bool>();
-              if (group_dict.contains("do_mie"))
-                group.do_mie = group_dict["do_mie"].cast<bool>();
+              if (group_dict.contains("is_cloud"))
+                group.is_cloud = group_dict["is_cloud"].cast<bool>();
+              if (group_dict.contains("is_sulfate"))
+                group.is_sulfate = group_dict["is_sulfate"].cast<bool>();
               if (group_dict.contains("do_wetdep"))
                 group.do_wetdep = group_dict["do_wetdep"].cast<bool>();
               if (group_dict.contains("do_drydep"))
@@ -89,12 +96,16 @@ void bind_carma(py::module_& carma)
                 group.solfac = group_dict["solfac"].cast<double>();
               if (group_dict.contains("scavcoef"))
                 group.scavcoef = group_dict["scavcoef"].cast<double>();
+              if (group_dict.contains("dpc_threshold"))
+                group.dpc_threshold = group_dict["dpc_threshold"].cast<double>();
               if (group_dict.contains("rmon"))
                 group.rmon = group_dict["rmon"].cast<double>();
               if (group_dict.contains("df"))
                 group.df = group_dict["df"].cast<std::vector<double>>();
               if (group_dict.contains("falpha"))
                 group.falpha = group_dict["falpha"].cast<double>();
+              if (group_dict.contains("neutral_volfrc"))
+                group.neutral_volfrc = group_dict["neutral_volfrc"].cast<double>();
 
               params.groups.push_back(group);
             }
@@ -113,32 +124,227 @@ void bind_carma(py::module_& carma)
               auto element_dict = element_py.cast<py::dict>();
               musica::CARMAElementConfig element;
 
-              if (element_dict.contains("id"))
-                element.id = element_dict["id"].cast<int>();
               if (element_dict.contains("igroup"))
                 element.igroup = element_dict["igroup"].cast<int>();
+              if (element_dict.contains("isolute"))
+                element.isolute = element_dict["isolute"].cast<int>();
               if (element_dict.contains("name"))
                 element.name = element_dict["name"].cast<std::string>();
               if (element_dict.contains("shortname"))
                 element.shortname = element_dict["shortname"].cast<std::string>();
-              if (element_dict.contains("rho"))
-                element.rho = element_dict["rho"].cast<double>();
               if (element_dict.contains("itype"))
                 element.itype = static_cast<musica::ParticleType>(element_dict["itype"].cast<int>());
               if (element_dict.contains("icomposition"))
                 element.icomposition = static_cast<musica::ParticleComposition>(element_dict["icomposition"].cast<int>());
-              if (element_dict.contains("isolute"))
-                element.isolute = element_dict["isolute"].cast<int>();
+              if (element_dict.contains("is_shell"))
+                element.isShell = element_dict["is_shell"].cast<bool>();
+              if (element_dict.contains("rho"))
+                element.rho = element_dict["rho"].cast<double>();
               if (element_dict.contains("rhobin"))
                 element.rhobin = element_dict["rhobin"].cast<std::vector<double>>();
               if (element_dict.contains("arat"))
                 element.arat = element_dict["arat"].cast<std::vector<double>>();
               if (element_dict.contains("kappa"))
                 element.kappa = element_dict["kappa"].cast<double>();
-              if (element_dict.contains("is_shell"))
-                element.isShell = element_dict["is_shell"].cast<bool>();
-
+              if (element_dict.contains("refidx"))
+              {
+                auto refidx_py = element_dict["refidx"];
+                if (!refidx_py.is_none() && py::isinstance<py::list>(refidx_py))
+                {
+                  auto refidx_outer_list = refidx_py.cast<py::list>();
+                  for (auto refidx_row_py : refidx_outer_list)
+                  {
+                    std::vector<musica::CARMAComplex> refidx_row;
+                    if (!refidx_row_py.is_none() && py::isinstance<py::list>(refidx_row_py))
+                    {
+                      auto refidx_inner_list = refidx_row_py.cast<py::list>();
+                      for (auto refidx_item : refidx_inner_list)
+                      {
+                        auto refidx_dict = refidx_item.cast<py::dict>();
+                        musica::CARMAComplex refidx_value;
+                        if (refidx_dict.contains("real"))
+                          refidx_value.real = refidx_dict["real"].cast<double>();
+                        if (refidx_dict.contains("imaginary"))
+                          refidx_value.imaginary = refidx_dict["imaginary"].cast<double>();
+                        refidx_row.push_back(refidx_value);
+                      }
+                    }
+                    element.refidx.push_back(refidx_row);
+                  }
+                }
+              }
               params.elements.push_back(element);
+            }
+          }
+        }
+
+        // Handle solutes configuration
+        if (params_dict.contains("solutes"))
+        {
+          auto solutes_py = params_dict["solutes"];
+          if (!solutes_py.is_none() && py::isinstance<py::list>(solutes_py))
+          {
+            auto solutes_list = solutes_py.cast<py::list>();
+            for (auto solute_py : solutes_list)
+            {
+              auto solute_dict = solute_py.cast<py::dict>();
+              musica::CARMASoluteConfig solute;
+
+              if (solute_dict.contains("name"))
+                solute.name = solute_dict["name"].cast<std::string>();
+              if (solute_dict.contains("shortname"))
+                solute.shortname = solute_dict["shortname"].cast<std::string>();
+              if (solute_dict.contains("ions"))
+                solute.ions = solute_dict["ions"].cast<int>();
+              if (solute_dict.contains("wtmol"))
+                solute.wtmol = solute_dict["wtmol"].cast<double>();
+              if (solute_dict.contains("rho"))
+                solute.rho = solute_dict["rho"].cast<double>();
+
+              params.solutes.push_back(solute);
+            }
+          }
+        }
+
+        // Handle gases configuration
+        if (params_dict.contains("gases"))
+        {
+          auto gases_py = params_dict["gases"];
+          if (!gases_py.is_none() && py::isinstance<py::list>(gases_py))
+          {
+            auto gases_list = gases_py.cast<py::list>();
+            for (auto gas_py : gases_list)
+            {
+              auto gas_dict = gas_py.cast<py::dict>();
+              musica::CARMAGasConfig gas;
+
+              if (gas_dict.contains("name"))
+                gas.name = gas_dict["name"].cast<std::string>();
+              if (gas_dict.contains("shortname"))
+                gas.shortname = gas_dict["shortname"].cast<std::string>();
+              if (gas_dict.contains("wtmol"))
+                gas.wtmol = gas_dict["wtmol"].cast<double>();
+              if (gas_dict.contains("ivaprtn"))
+                gas.ivaprtn = static_cast<musica::VaporizationAlgorithm>(gas_dict["ivaprtn"].cast<int>());
+              if (gas_dict.contains("icomposition"))
+                gas.icomposition = static_cast<musica::GasComposition>(gas_dict["icomposition"].cast<int>());
+              if (gas_dict.contains("dgc_threshold"))
+                gas.dgc_threshold = gas_dict["dgc_threshold"].cast<double>();
+              if (gas_dict.contains("ds_threshold"))
+                gas.ds_threshold = gas_dict["ds_threshold"].cast<double>();
+              if (gas_dict.contains("refidx"))
+              {
+                auto refidx_py = gas_dict["refidx"];
+                if (!refidx_py.is_none() && py::isinstance<py::list>(refidx_py))
+                {
+                  auto refidx_outer_list = refidx_py.cast<py::list>();
+                  for (auto refidx_row_py : refidx_outer_list)
+                  {
+                    std::vector<musica::CARMAComplex> refidx_row;
+                    if (!refidx_row_py.is_none() && py::isinstance<py::list>(refidx_row_py))
+                    {
+                      auto refidx_inner_list = refidx_row_py.cast<py::list>();
+                      for (auto refidx_item : refidx_inner_list)
+                      {
+                        auto refidx_dict = refidx_item.cast<py::dict>();
+                        musica::CARMAComplex refidx_value;
+                        if (refidx_dict.contains("real"))
+                          refidx_value.real = refidx_dict["real"].cast<double>();
+                        if (refidx_dict.contains("imaginary"))
+                          refidx_value.imaginary = refidx_dict["imaginary"].cast<double>();
+                        refidx_row.push_back(refidx_value);
+                      }
+                    }
+                    gas.refidx.push_back(refidx_row);
+                  }
+                }
+              }
+
+              params.gases.push_back(gas);
+            }
+          }
+        }
+
+        // Handle coagulation configuration
+        if (params_dict.contains("coagulations"))
+        {
+          auto coagulations_py = params_dict["coagulations"];
+          if (!coagulations_py.is_none() && py::isinstance<py::list>(coagulations_py))
+          {
+            auto coagulations_list = coagulations_py.cast<py::list>();
+            for (auto coagulation_py : coagulations_list)
+            {
+              auto coagulation_dict = coagulation_py.cast<py::dict>();
+              musica::CARMACoagulationConfig coagulation;
+
+              if (coagulation_dict.contains("igroup1"))
+                coagulation.igroup1 = coagulation_dict["igroup1"].cast<int>();
+              if (coagulation_dict.contains("igroup2"))
+                coagulation.igroup2 = coagulation_dict["igroup2"].cast<int>();
+              if (coagulation_dict.contains("igroup3"))
+                coagulation.igroup3 = coagulation_dict["igroup3"].cast<int>();
+              if (coagulation_dict.contains("algorithm"))
+                coagulation.algorithm = static_cast<musica::ParticleCollectionAlgorithm>(coagulation_dict["algorithm"].cast<int>());
+              if (coagulation_dict.contains("ck0"))
+                coagulation.ck0 = coagulation_dict["ck0"].cast<double>();
+              if (coagulation_dict.contains("grav_e_coll0"))
+                coagulation.grav_e_coll0 = coagulation_dict["grav_e_coll0"].cast<double>();
+              if (coagulation_dict.contains("use_ccd"))
+                coagulation.use_ccd = coagulation_dict["use_ccd"].cast<bool>();
+
+              params.coagulations.push_back(coagulation);
+            }
+          }
+        }
+
+        // Handle growth configuration
+        if (params_dict.contains("growths"))
+        {
+          auto growths_py = params_dict["growths"];
+          if (!growths_py.is_none() && py::isinstance<py::list>(growths_py))
+          {
+            auto growths_list = growths_py.cast<py::list>();
+            for (auto growth_py : growths_list)
+            {
+              auto growth_dict = growth_py.cast<py::dict>();
+              musica::CARMAGrowthConfig growth;
+
+              if (growth_dict.contains("ielem"))
+                growth.ielem = growth_dict["ielem"].cast<int>();
+              if (growth_dict.contains("igas"))
+                growth.igas = growth_dict["igas"].cast<int>();
+
+              params.growths.push_back(growth);
+            }
+          }
+        }
+
+        // Handle nucleation configuration
+        if (params_dict.contains("nucleations"))
+        {
+          auto nucleations_py = params_dict["nucleations"];
+          if (!nucleations_py.is_none() && py::isinstance<py::list>(nucleations_py))
+          {
+            auto nucleations_list = nucleations_py.cast<py::list>();
+            for (auto nucleation_py : nucleations_list)
+            {
+              auto nucleation_dict = nucleation_py.cast<py::dict>();
+              musica::CARMANucleationConfig nucleation;
+
+              if (nucleation_dict.contains("ielemfrom"))
+                nucleation.ielemfrom = nucleation_dict["ielemfrom"].cast<int>();
+              if (nucleation_dict.contains("ielemto"))
+                nucleation.ielemto = nucleation_dict["ielemto"].cast<int>();
+              if (nucleation_dict.contains("algorithm"))
+                nucleation.algorithm = static_cast<musica::ParticleNucleationAlgorithm>(nucleation_dict["algorithm"].cast<int>());
+              if (nucleation_dict.contains("rlh_nuc"))
+                nucleation.rlh_nuc = nucleation_dict["rlh_nuc"].cast<double>();
+              if (nucleation_dict.contains("igas"))
+                nucleation.igas = nucleation_dict["igas"].cast<int>();
+              if (nucleation_dict.contains("ievp2elem"))
+                nucleation.ievp2elem = nucleation_dict["ievp2elem"].cast<int>();
+
+              params.nucleations.push_back(nucleation);
             }
           }
         }
@@ -281,7 +487,7 @@ void bind_carma(py::module_& carma)
 
         musica::CARMAStateParameters params;
         params.longitude = kwargs.contains("longitude") ? kwargs["longitude"].cast<double>() : 0.0;
-        params.lattitude = kwargs.contains("latitude") ? kwargs["latitude"].cast<double>() : 0.0;
+        params.latitude = kwargs.contains("latitude") ? kwargs["latitude"].cast<double>() : 0.0;
         params.coordinates = kwargs.contains("coordinates") ? static_cast<musica::CarmaCoordinates>(kwargs["coordinates"].cast<int>()) : musica::CarmaCoordinates::CARTESIAN;
         params.vertical_center = to_vector_double(kwargs["vertical_center"]);
         params.vertical_levels = to_vector_double(kwargs["vertical_levels"]);
