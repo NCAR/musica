@@ -456,7 +456,7 @@ contains
 
       ! Set dimensions from parameters
       NZ = int(params%nz)
-      NY = 1 ! TODO: Replace this with the number of staetes in the y direction
+      NY = 1 ! TODO: Replace this with the number of states in the y direction
       NX = 1 ! TODO: Replace this with the number of states in the x direction
       NZP1 = NZ + 1
       NELEM = int(params%elements_size)
