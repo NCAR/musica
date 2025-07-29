@@ -480,7 +480,6 @@ class CARMANucleationConfig:
         return {k: v for k, v in self.__dict__.items()}
 
 
-
 class CARMAParameters:
     """
     Parameters for CARMA aerosol model simulation.
