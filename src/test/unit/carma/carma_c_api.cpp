@@ -197,7 +197,7 @@ TEST_F(CarmaCApiTest, RunCarmaWithAllComponents)
 
   // Coagulation configuration
   CARMACoagulationConfig coagulation_config;
-  coagulation_config.igroup1 = 2;  // Aluminum group
+  coagulation_config.igroup1 = 2;  // Sulfate group
   coagulation_config.igroup2 = 2;  // Sulfate group
   coagulation_config.igroup3 = 2;  // Resulting particles in sulfate group
   coagulation_config.algorithm = ParticleCollectionAlgorithm::CONSTANT;

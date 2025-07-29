@@ -124,7 +124,7 @@ namespace musica
     DATA = 3       // Collection efficiency from input data
   };
 
-  // Enumeration for particle nucelation algorithms
+  // Enumeration for particle nucleation algorithms
   enum class ParticleNucleationAlgorithm
   {
     NONE = 0,

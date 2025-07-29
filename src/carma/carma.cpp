@@ -541,7 +541,7 @@ namespace musica
     // Add the element to the parameters
     params.elements.push_back(element);
 
-    // Add coaguation
+    // Add coagulation
     CARMACoagulationConfig coagulation;
     coagulation.igroup1 = 1;  // coagulation within the first group
     coagulation.igroup2 = 1;  // coagulation within the first group
