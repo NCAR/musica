@@ -135,7 +135,7 @@ namespace musica
     struct CARMAStateParametersC {
       double time;  // Time in seconds
       double longitude;  // Longitude in degrees
-      double lattitude;  // Latitude in degrees
+      double latitude;  // Latitude in degrees
       int coordinates;  // Coordinate system 
       const double* vertical_center;  // Vertical center heights [m]
       int vertical_center_size;        // Size of vertical center array
