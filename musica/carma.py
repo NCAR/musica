@@ -565,7 +565,7 @@ class CARMAState:
         if pressure is None:
            pressure = centered_variables.p.values
         if pressure_levels is None:
-           pressure_levels = centered_variables.p.values
+           pressure_levels = edge_variables.p.values
         
         self._carma_state_instance = _backend._carma._create_carma_state(
             carma_pointer=carma_pointer,
