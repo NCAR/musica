@@ -66,8 +66,6 @@ namespace musica
 
     // Copy simple scalar values
     c_params->nz = params.nz;
-    c_params->ny = params.ny;
-    c_params->nx = params.nx;
     c_params->nbin = params.nbin;
     c_params->dtime = params.dtime;
     c_params->nstep = params.nstep;
@@ -485,8 +483,6 @@ namespace musica
 
     // Set default values for the aluminum test case
     params.nz = 1;
-    params.ny = 1;
-    params.nx = 1;
     params.nbin = 5;
     params.dtime = 1800.0;   // 30 minutes
     params.deltaz = 1000.0;  // 1 km

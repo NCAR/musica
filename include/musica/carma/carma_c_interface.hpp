@@ -145,8 +145,6 @@ namespace musica
     {
       // Model dimensions
       int nz;
-      int ny;
-      int nx;
       int nbin;
 
       // Time stepping parameters
@@ -217,6 +215,23 @@ namespace musica
       const int* max_prognostic_bin;                   // max prognostic bin per group [ngroup]
     };
 
+    struct CARMAStateParametersC {
+      double time;  // Time in seconds
+      double longitude;  // Longitude in degrees
+      double latitude;  // Latitude in degrees
+      int coordinates;  // Coordinate system 
+      const double* vertical_center;  // Vertical center heights [m]
+      int vertical_center_size;        // Size of vertical center array
+      const double* vertical_levels;  // Vertical levels heights [m]
+      int vertical_levels_size;        // Size of vertical levels array
+      const double* temperature;       // Temperature profile [K]
+      int temperature_size;            // Size of temperature array
+      const double* pressure;          // Pressure profile [Pa]
+      int pressure_size;               // Size of pressure array
+      const double* pressure_levels;   // Pressure levels [Pa]
+      int pressure_levels_size;        // Size of pressure levels array
+    };
+
     // The external C API for CARMA
     // callable by wrappers in other languages
 
@@ -229,6 +244,13 @@ namespace musica
     // CARMA instance management functions
     void* InternalCreateCarma(const CCARMAParameters& params, int* rc);
     void InternalDestroyCarma(void* carma_instance, int* rc);
+
+    // CARMA State management functions
+    void* InternalCreateCarmaState(
+        void* carma_instance,
+        const CCARMAParameters& carma_params,
+        const CARMAStateParametersC& state_params,
+        int* rc);
 
     // CARMA driver interface functions
     void InternalRunCarma(const CCARMAParameters& params, void* carma_instance, void* output, int* rc);

@@ -268,8 +268,6 @@ namespace musica
   {
     // Model dimensions
     int nz = 1;
-    int ny = 1;
-    int nx = 1;
     int nbin = 5;
 
     // Time stepping parameters
@@ -350,6 +348,16 @@ namespace musica
     /// @brief Run CARMA with the specified parameters and configuration
     /// @return The CARMA output data
     CARMAOutput Run();
+
+    CCARMAParameters* GetParameters() const
+    {
+      return carma_parameters_;
+    }
+
+    void* GetCarmaInstance() const
+    {
+      return f_carma_type_;
+    }
 
     /// @brief Convert CARMAParameters to C-compatible CCARMAParameters
     /// @param params The C++ CARMA parameters to convert
