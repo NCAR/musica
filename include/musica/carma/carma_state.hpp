@@ -26,7 +26,7 @@ namespace musica
   {
     double time;
     double longitude;
-    double lattitude;
+    double latitude;
     CarmaCoordinates coordinates;
     std::vector<double> vertical_center;
     std::vector<double> vertical_levels;
