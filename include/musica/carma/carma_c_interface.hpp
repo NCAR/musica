@@ -215,21 +215,22 @@ namespace musica
       const int* max_prognostic_bin;                   // max prognostic bin per group [ngroup]
     };
 
-    struct CARMAStateParametersC {
-      double time;  // Time in seconds
-      double longitude;  // Longitude in degrees
-      double latitude;  // Latitude in degrees
-      int coordinates;  // Coordinate system 
+    struct CARMAStateParametersC
+    {
+      double time;                    // Time in seconds
+      double longitude;               // Longitude in degrees
+      double latitude;                // Latitude in degrees
+      int coordinates;                // Coordinate system
       const double* vertical_center;  // Vertical center heights [m]
-      int vertical_center_size;        // Size of vertical center array
+      int vertical_center_size;       // Size of vertical center array
       const double* vertical_levels;  // Vertical levels heights [m]
-      int vertical_levels_size;        // Size of vertical levels array
-      const double* temperature;       // Temperature profile [K]
-      int temperature_size;            // Size of temperature array
-      const double* pressure;          // Pressure profile [Pa]
-      int pressure_size;               // Size of pressure array
-      const double* pressure_levels;   // Pressure levels [Pa]
-      int pressure_levels_size;        // Size of pressure levels array
+      int vertical_levels_size;       // Size of vertical levels array
+      const double* temperature;      // Temperature profile [K]
+      int temperature_size;           // Size of temperature array
+      const double* pressure;         // Pressure profile [Pa]
+      int pressure_size;              // Size of pressure array
+      const double* pressure_levels;  // Pressure levels [Pa]
+      int pressure_levels_size;       // Size of pressure levels array
     };
 
     // The external C API for CARMA
