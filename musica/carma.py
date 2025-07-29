@@ -522,7 +522,7 @@ def _carma_dict_to_xarray(output_dict: Dict, parameters: 'CARMAParameters') -> x
 
 class CARMAState:
     """
-    Represents the environemental variables used in CARMA simulations."""
+    Represents the environmental variables used in CARMA simulations."""
 
     def __init__(self, 
                  carma_pointer: c_void_p,
