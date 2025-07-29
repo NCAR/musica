@@ -43,4 +43,4 @@ namespace musica
       throw std::runtime_error(error_message);
     }
   }
-}
+}  // namespace musica
