@@ -7,8 +7,6 @@
 #include <musica/carma/carma_state.hpp>
 
 #include <cstring>
-#include <format>
-#include <iostream>
 #include <stdexcept>
 
 namespace musica
