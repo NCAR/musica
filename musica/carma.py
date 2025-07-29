@@ -501,6 +501,7 @@ class CARMANucleationConfig:
         """Convert to dictionary."""
         return {k: (v.value if isinstance(v, Enum) else v) for k, v in self.__dict__.items()}
 
+
 class CARMAParameters:
     """
     Parameters for CARMA aerosol model simulation.
