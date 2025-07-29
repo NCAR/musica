@@ -39,7 +39,8 @@ namespace musica
         &rc);  // No return code needed in this context
     if (f_carma_state_ == nullptr || rc != 0)
     {
-      throw std::runtime_error(std::format("Failed to create CARMA state with return code: {}", rc));
+      std::string error_message = "Failed to create CARMA state with return code: " + std::to_string(rc);
+      throw std::runtime_error(error_message);
     }
   }
 }
