@@ -551,7 +551,6 @@ namespace musica
     // Add the coagulation to the parameters
     params.coagulations.push_back(coagulation);
 
-
     return params;
   }
 

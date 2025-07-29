@@ -201,9 +201,9 @@ TEST_F(CarmaCApiTest, RunCarmaWithAllComponents)
   coagulation_config.igroup2 = 2;  // Sulfate group
   coagulation_config.igroup3 = 2;  // Resulting particles in sulfate group
   coagulation_config.algorithm = ParticleCollectionAlgorithm::CONSTANT;
-  coagulation_config.ck0 = 0.5;  // Collection efficiency coefficient
+  coagulation_config.ck0 = 0.5;           // Collection efficiency coefficient
   coagulation_config.grav_e_coll0 = 0.1;  // Gravitational collection efficiency coefficient
-  coagulation_config.use_ccd = true;  // Use constant collection efficiency data
+  coagulation_config.use_ccd = true;      // Use constant collection efficiency data
   params.coagulations.push_back(coagulation_config);
 
   // Growth configuration
@@ -218,7 +218,7 @@ TEST_F(CarmaCApiTest, RunCarmaWithAllComponents)
   nucleation_config.ielemto = 2;    // To sulfate element
   nucleation_config.algorithm = ParticleNucleationAlgorithm::HOMOGENEOUS_NUCLEATION;
   nucleation_config.rlh_nuc = 1.0e6;  // Latent heat of nucleation [m² s⁻²]
-  nucleation_config.igas = 2;  // Sulfuric acid gas
+  nucleation_config.igas = 2;         // Sulfuric acid gas
   params.nucleations.push_back(nucleation_config);
 
   // Create CARMA instance and run

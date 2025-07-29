@@ -177,7 +177,7 @@ namespace musica
       int coagulations_size;                  // Number of coagulations
       CARMAGrowthConfigC* growths;            // Pointer to growths array
       int growths_size;                       // Number of growths
-      CARMANucleationConfigC* nucleations;     // Pointer to nucleations array
+      CARMANucleationConfigC* nucleations;    // Pointer to nucleations array
       int nucleations_size;                   // Number of nucleations
     };
 

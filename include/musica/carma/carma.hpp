@@ -128,15 +128,15 @@ namespace musica
   enum class ParticleNucleationAlgorithm
   {
     NONE = 0,
-    AEROSOL_FREEZING_TABAZDEH_2000 = 1,  // Aerosol freezing, Tabazdeh et al. 2000
-    AEROSOL_FREEZING_KOOP_2000 = 2,  // Aerosol freezing, Koop et al. 2000
-    AEROSOL_FREEZING_MURRAY_2010 = 3,  // Aerosol freezing, Murray et al. 2010
-    DROPLET_ACTIVATION = 256,  // Droplet activation
-    AEROSOL_FREEZING = 512,    // Aerosol freezing
-    DROPLET_FREEZING = 1024,     // Droplet freezing
-    ICE_MELTING = 2048,  // Ice melting
-    HETEROGENEOUS_NUCLEATION = 4096,  // Heterogeneous nucleation
-    HOMOGENEOUS_NUCLEATION = 8192,  // Binary Homogeneous gas-to-particle nucleation
+    AEROSOL_FREEZING_TABAZDEH_2000 = 1,             // Aerosol freezing, Tabazdeh et al. 2000
+    AEROSOL_FREEZING_KOOP_2000 = 2,                 // Aerosol freezing, Koop et al. 2000
+    AEROSOL_FREEZING_MURRAY_2010 = 3,               // Aerosol freezing, Murray et al. 2010
+    DROPLET_ACTIVATION = 256,                       // Droplet activation
+    AEROSOL_FREEZING = 512,                         // Aerosol freezing
+    DROPLET_FREEZING = 1024,                        // Droplet freezing
+    ICE_MELTING = 2048,                             // Ice melting
+    HETEROGENEOUS_NUCLEATION = 4096,                // Heterogeneous nucleation
+    HOMOGENEOUS_NUCLEATION = 8192,                  // Binary Homogeneous gas-to-particle nucleation
     HETEROGENEOUS_SULFURIC_ACID_NUCLEATION = 16384  // Heterogeneous sulfuric acid nucleation
   };
 
@@ -236,11 +236,11 @@ namespace musica
   // Structure representing CARMA coagulation configuration
   struct CARMACoagulationConfig
   {
-    int igroup1 = 0;            // first group index (first group to coagulate)
-    int igroup2 = 0;            // second group index (second group to coagulate)
-    int igroup3 = 0;            // third group index (coagulated particles)
+    int igroup1 = 0;  // first group index (first group to coagulate)
+    int igroup2 = 0;  // second group index (second group to coagulate)
+    int igroup3 = 0;  // third group index (coagulated particles)
     ParticleCollectionAlgorithm algorithm = ParticleCollectionAlgorithm::NONE;  // collection algorithm
-    double ck0 = 0.0;           // collection efficiency constant (0.0 = off)
+    double ck0 = 0.0;                                                           // collection efficiency constant (0.0 = off)
     double grav_e_coll0 = 0.0;  // gravitational collection efficiency constant (0.0 = off)
     bool use_ccd = false;       // use constant collection efficiency data
   };
@@ -255,12 +255,12 @@ namespace musica
   // Structure representing CARMA nucleation configuration
   struct CARMANucleationConfig
   {
-    int ielemfrom = 0;     // element index to nucleate from
-    int ielemto = 0;       // element index to nucleate to
+    int ielemfrom = 0;                                                          // element index to nucleate from
+    int ielemto = 0;                                                            // element index to nucleate to
     ParticleNucleationAlgorithm algorithm = ParticleNucleationAlgorithm::NONE;  // nucleation algorithm
-    double rlh_nuc = 0.0;  // latent heat of nucleation [m2 s-2]
-    int igas = 0;          // gas index to nucleate from
-    int ievp2elem = 0;     // element index to evaporate to (if applicable)
+    double rlh_nuc = 0.0;                                                       // latent heat of nucleation [m2 s-2]
+    int igas = 0;                                                               // gas index to nucleate from
+    int ievp2elem = 0;  // element index to evaporate to (if applicable)
   };
 
   // Structure representing CARMA parameters
