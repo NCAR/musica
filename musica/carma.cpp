@@ -1,6 +1,7 @@
 #include "binding_common.hpp"
 
 #include <musica/carma/carma.hpp>
+#include <musica/carma/carma_state.hpp>
 
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
@@ -27,10 +28,6 @@ void bind_carma(py::module_& carma)
           params.max_groups = params_dict["max_groups"].cast<int>();
         if (params_dict.contains("nz"))
           params.nz = params_dict["nz"].cast<int>();
-        if (params_dict.contains("ny"))
-          params.ny = params_dict["ny"].cast<int>();
-        if (params_dict.contains("nx"))
-          params.nx = params_dict["nx"].cast<int>();
         if (params_dict.contains("nelem"))
           params.nelem = params_dict["nelem"].cast<int>();
         if (params_dict.contains("ngroup"))
@@ -183,7 +180,6 @@ void bind_carma(py::module_& carma)
         {
           throw py::value_error("Error creating CARMA instance: " + std::string(e.what()));
         }
-        
       },
       "Create a CARMA instance");
 
@@ -251,4 +247,59 @@ void bind_carma(py::module_& carma)
         }
       },
       "Run CARMA with specified parameters");
+
+  carma.def(
+      "_create_carma_state",
+      [](std::uintptr_t carma_ptr, py::kwargs kwargs)
+      {
+        // Helper lambdas for robust flexible casting
+        auto to_vector_double = [](const py::object& obj) -> std::vector<double>
+        {
+          if (obj.is_none())
+            return {};
+          if (py::isinstance<py::array>(obj))
+          {
+            auto arr = obj.cast<py::array>();
+            if (arr.size() == 0)
+              return {};
+            // Accept both 0d, 1d arrays
+            if (arr.ndim() == 0)
+              return { arr.cast<double>() };
+            if (arr.ndim() == 1)
+              return py::cast<std::vector<double>>(obj);
+            throw std::invalid_argument("Expected 1D array for 1D double vector");
+          }
+          if (py::isinstance<py::sequence>(obj))
+          {
+            auto seq = obj.cast<py::sequence>();
+            if (seq.size() == 0)
+              return {};
+            return py::cast<std::vector<double>>(obj);
+          }
+          return {};
+        };
+
+        musica::CARMAStateParameters params;
+        params.longitude = kwargs.contains("longitude") ? kwargs["longitude"].cast<double>() : 0.0;
+        params.lattitude = kwargs.contains("latitude") ? kwargs["latitude"].cast<double>() : 0.0;
+        params.coordinates = kwargs.contains("coordinates") ? static_cast<musica::CarmaCoordinates>(kwargs["coordinates"].cast<int>()) : musica::CarmaCoordinates::CARTESIAN;
+        params.vertical_center = to_vector_double(kwargs["vertical_center"]);
+        params.vertical_levels = to_vector_double(kwargs["vertical_levels"]);
+        params.temperature = to_vector_double(kwargs["temperature"]);
+        params.pressure = to_vector_double(kwargs["pressure"]);
+        params.pressure_levels = to_vector_double(kwargs["pressure_levels"]);
+
+        musica::CARMA* carma_instance = reinterpret_cast<musica::CARMA*>(carma_ptr);
+        try
+        {
+          auto carma_state = new musica::CARMAState(carma_instance, params);
+          return reinterpret_cast<std::uintptr_t>(carma_state);
+        }
+        catch (const std::exception& e)
+        {
+          throw py::value_error("Error creating CARMA instance: " + std::string(e.what()));
+        }
+      },
+      py::arg("carma_pointer"),
+      "Create a CARMA state for a specific column with named arguments");
 }

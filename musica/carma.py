@@ -7,9 +7,12 @@ It allows users to create a CARMA instance and run simulations with specified pa
 Note: CARMA is only available on macOS and Linux platforms.
 """
 
-from typing import Dict, Optional, List
+from typing import Dict, Optional, List, Union
+from ctypes import c_void_p
 import numpy as np
 import xarray as xr
+import ussa1976
+from enum import Enum
 from . import backend
 
 _backend = backend.get_backend()
@@ -17,14 +20,14 @@ _backend = backend.get_backend()
 version = _backend._carma._get_carma_version() if backend.carma_available() else None
 
 
-class ParticleShape:
+class ParticleShape(Enum):
     """Enumeration for particle shapes used in CARMA."""
     SPHERE = 1
     HEXAGON = 2
     CYLINDER = 3
 
 
-class ParticleType:
+class ParticleType(Enum):
     """Enumeration for particle types used in CARMA."""
     INVOLATILE = 1
     VOLATILE = 2
@@ -33,7 +36,7 @@ class ParticleType:
     CORE_MASS_TWO_MOMENTS = 5
 
 
-class ParticleComposition:
+class ParticleComposition(Enum):
     """Enumeration for particle compositions used in CARMA."""
     ALUMINUM = 1
     SULFURIC_ACID = 2
@@ -43,6 +46,17 @@ class ParticleComposition:
     BLACK_CARBON = 6
     ORGANIC_CARBON = 7
     OTHER = 8
+
+
+class CarmaCoordinates(Enum):
+    """Enumeration for CARMA coordinates."""
+    CARTESIAN = 1
+    SIGMA = 2
+    LONGITUDE_LATITUDE = 3
+    LAMBERT_CONFORMAL = 4
+    POLAR_STEREOGRAPHIC = 5
+    MERCATOR = 6
+    HYBRID = 7
 
 
 class CARMAWavelengthBin:
@@ -138,7 +152,7 @@ class CARMAGroupConfig:
 
     def to_dict(self) -> Dict:
         """Convert to dictionary."""
-        return {k: v for k, v in self.__dict__.items()}
+        return {k: (v.value if isinstance(v, Enum) else v) for k, v in self.__dict__.items()}
 
 
 class CARMAElementConfig:
@@ -192,7 +206,7 @@ class CARMAElementConfig:
 
     def to_dict(self) -> Dict:
         """Convert to dictionary."""
-        return {k: v for k, v in self.__dict__.items()}
+        return {k: (v.value if isinstance(v, Enum) else v) for k, v in self.__dict__.items()}
 
 
 class CARMAParameters:
@@ -206,8 +220,6 @@ class CARMAParameters:
 
     def __init__(self,
                  nz: int = 1,
-                 ny: int = 1,
-                 nx: int = 1,
                  nbin: int = 5,
                  nsolute: int = 0,
                  ngas: int = 0,
@@ -223,8 +235,6 @@ class CARMAParameters:
 
         Args:
             nz: Number of vertical levels (default: 1)
-            ny: Number of y-direction grid points (default: 1)
-            nx: Number of x-direction grid points (default: 1)
             nbin: Number of size bins (default: 5)
             nsolute: Number of solutes (default: 0)
             ngas: Number of gases (default: 0)
@@ -237,8 +247,6 @@ class CARMAParameters:
             elements: List of element configurations (default: None)
         """
         self.nz = nz
-        self.ny = ny
-        self.nx = nx
         self.nbin = nbin
         self.nsolute = nsolute
         self.ngas = ngas
@@ -266,15 +274,15 @@ class CARMAParameters:
 
     def __repr__(self):
         """String representation of CARMAParameters."""
-        return (f"CARMAParameters(nz={self.nz}, ny={self.ny}, nx={self.nx}, "
+        return (f"CARMAParameters(nz={self.nz}, "
                 f"nbin={self.nbin}, nsolute={self.nsolute}, "
                 f"ngas={self.ngas}, dtime={self.dtime}, "
                 f"nstep={self.nstep}, deltaz={self.deltaz}, zmin={self.zmin})")
 
     def __str__(self):
         """String representation of CARMAParameters."""
-        return (f"CARMAParameters(nz={self.nz}, ny={self.ny}, nx={self.nx}, "
-                f"nz={self.nz}, ny={self.ny}, nx={self.nx}, "
+        return (f"CARMAParameters(nz={self.nz}, "
+                f"nz={self.nz}, "
                 f"nbin={self.nbin}, nsolute={self.nsolute}, "
                 f"ngas={self.ngas}, dtime={self.dtime}, "
                 f"nstep={self.nstep}, deltaz={self.deltaz}, zmin={self.zmin})")
@@ -292,7 +300,10 @@ class CARMAParameters:
                 elif k == 'wavelength_bins':
                     params_dict[k] = [bin.to_dict() for bin in v]
                 else:
-                    params_dict[k] = v
+                    if isinstance(v, Enum):
+                        params_dict[k] = v.value
+                    else:
+                        params_dict[k] = v
         return params_dict
 
     @classmethod
@@ -370,8 +381,6 @@ class CARMAParameters:
 
         params = cls(
             nz=1,
-            ny=1,
-            nx=1,
             nbin=5,
             nsolute=0,
             ngas=0,
@@ -406,8 +415,6 @@ def _carma_dict_to_xarray(output_dict: Dict, parameters: 'CARMAParameters') -> x
     """
     # Extract dimensions from the parameters
     nz = parameters.nz
-    ny = parameters.ny
-    nx = parameters.nx
     nbin = parameters.nbin
     nelem = len(parameters.elements)
     ngroup = len(parameters.groups)
@@ -500,8 +507,8 @@ def _carma_dict_to_xarray(output_dict: Dict, parameters: 'CARMAParameters') -> x
             'title': 'CARMA aerosol model output',
             'description': 'Output from CARMA aerosol simulation',
             'nz': nz,
-            'ny': ny,
-            'nx': nx,
+            'ny': 1, # TODO: replace this with the y dimensions corresponding to states or something
+            'nx': 1,
             'nbin': nbin,
             'nelem': nelem,
             'ngroup': ngroup,
@@ -512,6 +519,79 @@ def _carma_dict_to_xarray(output_dict: Dict, parameters: 'CARMAParameters') -> x
 
     return ds
 
+
+class CARMAState:
+    """
+    Represents the environemental variables used in CARMA simulations."""
+
+    def __init__(self, 
+                 carma_pointer: c_void_p,
+                 time: float = 0.0,
+                 latitude: float = 0.0,
+                 longitude: float = 0.0,
+                 coordinates: CarmaCoordinates = CarmaCoordinates.CARTESIAN,
+                 zmin: float = 0.0,
+                 n_levels: int = 1,
+                 delta_z: float = 1000.0,
+                 temperature: Optional[List[float]] = None,
+                 pressure: Optional[List[float]] = None,
+                 pressure_levels: Optional[List[float]] = None,
+                 ):
+        """
+        Initialize a CARMAState instance.
+
+        Args:
+            carma_pointer: Pointer to the CARMA C++ instance
+            time: Simulation time in seconds (default: 0.0)
+            latitude: Latitude in degrees (default: 0.0)
+            longitude: Longitude in degrees (default: 0.0)
+            coordinates: Coordinate system for the simulation (default: Cartesian)
+            zmin: Minimum altitude in meters (default: 0.0)
+            n_levels: Number of vertical levels (default: 1)
+            delta_z: Vertical grid spacing in meters (default: 1000.0)
+            temperature: Optional list of temperatures at vertical centers (default: None). If None, will be derived from the US Standard Atmosphere model.
+            pressure: Optional list of pressures at vertical centers (default: None). If None, will be derived from the US Standard Atmosphere model.
+            pressure_levels: Optional list of pressures at vertical levels (default: None). If None, will be derived from the US Standard Atmosphere model.
+        """
+        vertical_center = zmin + (np.arange(n_levels) + 0.5) * delta_z
+        vertical_levels = zmin + np.arange(n_levels + 1) * delta_z
+
+        centered_variables = ussa1976.compute(z = vertical_center, variables=["t", "p", "rho"])
+        edge_variables = ussa1976.compute(z = vertical_levels, variables=["p"])
+
+        # Get standard atmosphere properties at these heights
+        if temperature is None:
+            temperature = centered_variables.t.values
+        if pressure is None:
+           pressure = edge_variables.p.values
+        if pressure_levels is None:
+           pressure_levels = centered_variables.p.values
+        
+        self._carma_state_instance = _backend._carma._create_carma_state(
+            carma_pointer=carma_pointer,
+            time=time,
+            latitude=latitude,
+            longitude=longitude,
+            coordinates=coordinates.value,
+            temperature=temperature,
+            pressure=pressure,
+            pressure_levels=pressure_levels,
+            vertical_center=vertical_center.tolist(),
+            vertical_levels=vertical_levels.tolist(),
+        )
+    
+    def __repr__(self):
+        """String representation of CARMAState."""
+        return (f"CARMAState(latitude={self.latitude}, longitude={self.longitude}")
+    
+    def __str__(self):
+        """String representation of CARMAState."""
+        return (f"CARMAState(latitude={self.latitude}, longitude={self.longitude}")
+    
+    def to_dict(self) -> Dict:
+        """Convert CARMAState to dictionary."""
+        return { k: v for k, v in self.__dict__.items() if not k.startswith('__') and not callable(v) }
+    
 
 class CARMA:
     """
@@ -566,3 +646,22 @@ class CARMA:
 
         # Convert dictionary directly to xarray Dataset
         return _carma_dict_to_xarray(output_dict, self.__parameters)
+
+    def create_state(self, **kwargs) -> CARMAState:
+        """
+        Create a CARMAState instance based on the current parameters.
+
+        Args:
+            **kwargs: Additional keyword arguments to pass to CARMAState
+
+        Returns:
+            CARMAState: Instance containing environmental variables for the simulation
+        """
+
+        return CARMAState(
+            self._carma_instance,
+            zmin=self.__parameters.zmin,
+            n_levels=self.__parameters.nz,
+            delta_z=self.__parameters.deltaz,
+            **kwargs
+        )

@@ -5,48 +5,9 @@ module carma_interface
 
    use iso_c_binding, only: c_int, c_double, c_ptr, c_char, c_null_char, &
       c_loc, c_f_pointer, c_associated, c_null_ptr, c_bool
+
    implicit none
-
    private
-
-   ! C-compatible structure for CARMA fundamental data
-   ! Contains only the minimal essential data needed for Python calculations
-   type, bind(C) :: c_carma_output_data
-      type(c_ptr) :: c_output_ptr
-
-      ! Grid and atmospheric data
-      type(c_ptr) :: lat
-      type(c_ptr) :: lon
-      type(c_ptr) :: vertical_center
-      type(c_ptr) :: vertical_levels
-      type(c_ptr) :: pressure
-      type(c_ptr) :: temperature
-      type(c_ptr) :: air_density
-
-      ! Fundamental particle state data [nz, nbin, nelem]
-      type(c_ptr) :: particle_concentration     ! number density [#/cm³]
-      type(c_ptr) :: mass_mixing_ratio          ! mass mixing ratio [kg/kg]
-
-      ! Bin-level particle properties [nz, nbin, ngroup]
-      type(c_ptr) :: wet_radius                 ! wet particle radius [cm]
-      type(c_ptr) :: wet_density                ! wet particle density [g/cm³]
-      type(c_ptr) :: fall_velocity              ! fall velocity [cm/s] (nz+1, nbin, ngroup)
-      type(c_ptr) :: nucleation_rate            ! nucleation rate [1/cm³/s]
-      type(c_ptr) :: deposition_velocity        ! deposition velocity [cm/s]
-
-      ! Group configuration data [nbin, ngroup]
-      type(c_ptr) :: dry_radius                 ! dry particle radius [cm]
-      type(c_ptr) :: mass_per_bin               ! particle mass [g]
-      type(c_ptr) :: radius_ratio               ! radius ratio
-      type(c_ptr) :: area_ratio                 ! area ratio
-
-      ! Group mapping data
-      type(c_ptr) :: group_particle_number_concentration      ! concentration element per group [ngroup]
-
-      ! Group properties
-      type(c_ptr) :: constituent_type           ! constituent type per group [ngroup]
-      type(c_ptr) :: max_prognostic_bin         ! max prognostic bin per group [ngroup]
-   end type c_carma_output_data
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -55,8 +16,8 @@ module carma_interface
       subroutine TransferCarmaOutputToCpp(output_data, nz, ny, nx, nbin, nelem, ngroup) &
          bind(C, name="TransferCarmaOutputToCpp")
          use iso_c_binding, only: c_int
-         import :: c_carma_output_data
-         type(c_carma_output_data), intent(in) :: output_data
+         use carma_parameters_mod, only: carma_output_data_t
+         type(carma_output_data_t), intent(in) :: output_data
          integer(c_int), value, intent(in) :: nz, ny, nx, nbin, nelem, ngroup
       end subroutine TransferCarmaOutputToCpp
    end interface!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -131,6 +92,72 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+   function internal_create_carma_state(carma_cptr, carma_params, carma_state_params, rc) &
+      bind(C, name="InternalCreateCarmaState") result(carma_state_cptr)
+      use iso_c_binding, only: c_ptr, c_int, c_double, c_loc, c_f_pointer
+      use iso_fortran_env, only: real64
+      use carma_types_mod, only: carma_type
+      use carma_parameters_mod, only: carma_parameters_t, carma_state_parameter_t
+      use carma_types_mod
+      use carmastate_mod
+
+      ! Arguments
+      type(c_ptr),            value, intent(in)  :: carma_cptr
+      type(carma_parameters_t),      intent(in)  :: carma_params
+      type(carma_state_parameter_t), intent(in)  :: carma_state_params
+      integer(c_int),                intent(out) :: rc
+
+      ! Local variables
+      type(carma_type), pointer      :: carma
+      type(carmastate_type), pointer :: cstate
+      real(kind=real64), pointer     :: vertical_center(:)
+      real(kind=real64), pointer     :: vertical_levels(:)
+      real(kind=real64), pointer     :: temperature(:)
+      real(kind=real64), pointer     :: pressure(:)
+      real(kind=real64), pointer     :: pressure_levels(:)
+      type(c_ptr)                    :: carma_state_cptr
+      integer :: alloc_stat
+
+      rc = 0
+
+      ! Create the CARMA instance
+      allocate(cstate, stat=alloc_stat)
+      if (alloc_stat /= 0) then
+         rc = 1
+         print *, "Error allocating CARMA instance"
+         return
+      end if
+
+      call c_f_pointer(carma_state_params%vertical_center, vertical_center, [carma_state_params%vertical_center_size])
+      call c_f_pointer(carma_state_params%vertical_levels, vertical_levels, [carma_state_params%vertical_levels_size])
+      call c_f_pointer(carma_state_params%temperature, temperature, [carma_state_params%temperature_size])
+      call c_f_pointer(carma_state_params%pressure, pressure, [carma_state_params%pressure_size])
+      call c_f_pointer(carma_state_params%pressure_levels, pressure_levels, [carma_state_params%pressure_levels_size])
+
+      ! Check if carma_cptr is associated
+      if (c_associated(carma_cptr)) then
+         call c_f_pointer(carma_cptr, carma)
+         call CARMASTATE_Create(cstate, carma, &
+            carma_state_params%time, carma_params%dtime, carma_params%nz, &
+            carma_state_params%coordinates, carma_state_params%latitude, carma_state_params%longitude, &
+            vertical_center(:), vertical_levels(:), &
+            pressure(:), pressure_levels(:), &
+            temperature(:), rc, &
+            told=temperature(:))
+         if (rc /= 0) then
+            print *, "Error creating CARMA state"
+            return
+         end if
+      else
+         rc = 1
+         print *, "CARMA pointer is not associated"
+      end if
+
+      carma_state_cptr = c_loc(cstate)
+   end function internal_create_carma_state
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
    subroutine internal_run_carma(params, carma_cptr, c_output, rc) &
       bind(C, name="InternalRunCarma")
       use iso_c_binding, only: c_int, c_ptr, c_f_pointer
@@ -167,20 +194,20 @@ contains
       if (c_associated(carma_cptr)) then
          call c_f_pointer(carma_cptr, carma)
 
-        ! Clean up the carma instance
-        call CARMA_Destroy(carma, rc)
-        if (rc /= 0) then
+         ! Clean up the carma instance
+         call CARMA_Destroy(carma, rc)
+         if (rc /= 0) then
             print *, "Error destroying CARMA instance"
             return
-        end if
-        deallocate(carma)
+         end if
+         deallocate(carma)
       end if
 
    end subroutine internal_destroy_carma
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  function c_to_f_string(c_string, string_size) result(f_string)
+   function c_to_f_string(c_string, string_size) result(f_string)
 
       use iso_c_binding, only: c_ptr, c_loc, c_char
 
@@ -213,7 +240,7 @@ contains
       use carma_mod
       use atmosphere_mod
       use carma_parameters_mod, only: carma_parameters_t, carma_group_config_t, &
-                                      carma_element_config_t, carma_wavelength_bin_t
+         carma_element_config_t, carma_wavelength_bin_t
       use iso_fortran_env, only: real64
       use iso_c_binding, only: c_ptr, c_loc
 
@@ -376,7 +403,7 @@ contains
       use carma_mod
       use atmosphere_mod
       use carma_parameters_mod, only: carma_parameters_t, carma_group_config_t, &
-                                      carma_element_config_t
+         carma_element_config_t
       use iso_fortran_env, only: real64
       use iso_c_binding, only: c_ptr, c_null_ptr, c_associated
 
@@ -398,7 +425,6 @@ contains
       ! Grid and atmospheric variables
       real(kind=c_double), allocatable :: lat(:), lon(:)
       real(kind=c_double), allocatable :: zc(:), zl(:), p(:), pl(:), t(:), rhoa(:)
-      real(kind=c_double), allocatable :: t_orig(:)
       real(kind=c_double) :: time
       real(kind=c_double) :: dtime
       integer :: nstep
@@ -417,7 +443,6 @@ contains
       ! Group parameters
       type(carma_group_config_t), pointer :: group_config(:)
       character(len=:), allocatable :: group_name, group_short_name
-      real(kind=real64), pointer :: df(:) ! fractal dimension per group (NBINS)
 
       ! Element parameters
       type(carma_element_config_t), pointer :: element_config(:)
@@ -431,8 +456,8 @@ contains
 
       ! Set dimensions from parameters
       NZ = int(params%nz)
-      NY = int(params%ny)
-      NX = int(params%nx)
+      NY = 1 ! TODO: Replace this with the number of staetes in the y direction
+      NX = 1 ! TODO: Replace this with the number of states in the x direction
       NZP1 = NZ + 1
       NELEM = int(params%elements_size)
       NGROUP = int(params%groups_size)
@@ -452,7 +477,6 @@ contains
       ! Allocate arrays
       allocate(lat(NY), lon(NX))
       allocate(zc(NZ), zl(NZP1), p(NZ), pl(NZP1), t(NZ), rhoa(NZ))
-      allocate(t_orig(NZ))  ! Allocate original temperature array
       allocate(mmr(NZ, NELEM, NBIN))
       if (NGAS > 0) allocate(mmr_gas(NZ, NGAS))
 
@@ -476,7 +500,6 @@ contains
       rhoa(:) = (p(:) * 10.0_c_double) / (R_AIR * t(:)) * (1e-3_c_double * 1e6_c_double)
 
       ! Store original temperature for told parameter
-      t_orig(:) = t(:)
 
       ! Initialize gas mixing ratios (no gases in aluminum test)
       if (NGAS > 0) then
@@ -553,7 +576,7 @@ contains
       end if
 
       ! Deallocate arrays
-      deallocate(lat, lon, zc, zl, p, pl, t, rhoa, t_orig, mmr)
+      deallocate(lat, lon, zc, zl, p, pl, t, rhoa, mmr)
       if (NGAS > 0) deallocate(mmr_gas)
 
    end subroutine run_carma_simulation
@@ -570,6 +593,7 @@ contains
       use carma_parameters_mod, only: carma_parameters_t
       use iso_c_binding, only: c_ptr, c_int, c_double, c_loc
       use iso_fortran_env, only: real64
+      use carma_parameters_mod, only: carma_output_data_t
 
       implicit none
 
@@ -609,7 +633,7 @@ contains
       integer(kind=c_int), allocatable, target :: maxbin(:)           ! max prognostic bin per group
 
       ! Create and populate the output data struct
-      type(c_carma_output_data) :: output_data_struct
+      type(carma_output_data_t) :: output_data_struct
 
       ! Allocate fundamental arrays for Python calculation
       allocate(pc(nz, nbin, nelem))
@@ -758,7 +782,7 @@ contains
          call CARMAELEMENT_Get(carma_ptr, ielem, rc, igroup=igroup)
          if (rc /= 0) then
             print *, "Error getting CARMA element group"
-            return 
+            return
          end if
 
          do ibin = 1, nbin

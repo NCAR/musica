@@ -68,8 +68,6 @@ namespace musica
     c_params->max_bins = params.max_bins;
     c_params->max_groups = params.max_groups;
     c_params->nz = params.nz;
-    c_params->ny = params.ny;
-    c_params->nx = params.nx;
     c_params->nbin = params.nbin;
     c_params->nsolute = params.nsolute;
     c_params->ngas = params.ngas;
@@ -265,8 +263,6 @@ namespace musica
     params.max_bins = 100;
     params.max_groups = 10;
     params.nz = 1;
-    params.ny = 1;
-    params.nx = 1;
     params.nbin = 5;
     params.nsolute = 0;
     params.ngas = 0;

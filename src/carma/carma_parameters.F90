@@ -12,7 +12,7 @@ module carma_parameters_mod
    private
 
    public :: carma_group_config_t, carma_element_config_t, carma_parameters_t, &
-             carma_wavelength_bin_t
+             carma_wavelength_bin_t, carma_output_data_t, carma_state_parameter_t
 
    type, bind(c) :: carma_wavelength_bin_t
       real(c_double) :: center       ! Center of the wavelength bin [m]
@@ -69,8 +69,6 @@ module carma_parameters_mod
 
       ! Model dimensions
       integer(c_int) :: nz = 1
-      integer(c_int) :: ny = 1
-      integer(c_int) :: nx = 1
       integer(c_int) :: nbin = 5
       integer(c_int) :: nsolute = 0
       integer(c_int) :: ngas = 0
@@ -95,5 +93,60 @@ module carma_parameters_mod
       type(c_ptr) :: elements
       integer(c_int) :: elements_size
    end type carma_parameters_t
+
+   type, bind(C) :: carma_output_data_t
+      type(c_ptr) :: c_output_ptr
+
+      ! Grid and atmospheric data
+      type(c_ptr) :: lat
+      type(c_ptr) :: lon
+      type(c_ptr) :: vertical_center
+      type(c_ptr) :: vertical_levels
+      type(c_ptr) :: pressure
+      type(c_ptr) :: temperature
+      type(c_ptr) :: air_density
+
+      ! Fundamental particle state data [nz, nbin, nelem]
+      type(c_ptr) :: particle_concentration     ! number density [#/cm³]
+      type(c_ptr) :: mass_mixing_ratio          ! mass mixing ratio [kg/kg]
+
+      ! Bin-level particle properties [nz, nbin, ngroup]
+      type(c_ptr) :: wet_radius                 ! wet particle radius [cm]
+      type(c_ptr) :: wet_density                ! wet particle density [g/cm³]
+      type(c_ptr) :: fall_velocity              ! fall velocity [cm/s] (nz+1, nbin, ngroup)
+      type(c_ptr) :: nucleation_rate            ! nucleation rate [1/cm³/s]
+      type(c_ptr) :: deposition_velocity        ! deposition velocity [cm/s]
+
+      ! Group configuration data [nbin, ngroup]
+      type(c_ptr) :: dry_radius                 ! dry particle radius [cm]
+      type(c_ptr) :: mass_per_bin               ! particle mass [g]
+      type(c_ptr) :: radius_ratio               ! radius ratio
+      type(c_ptr) :: area_ratio                 ! area ratio
+
+      ! Group mapping data
+      type(c_ptr) :: group_particle_number_concentration      ! concentration element per group [ngroup]
+
+      ! Group properties
+      type(c_ptr) :: constituent_type           ! constituent type per group [ngroup]
+      type(c_ptr) :: max_prognostic_bin         ! max prognostic bin per group [ngroup]
+   end type carma_output_data_t
+
+   type, bind(C) :: carma_state_parameter_t
+      real(c_double) :: time
+      real(c_double) :: longitude
+      real(c_double) :: latitude
+      integer(c_int) :: coordinates
+
+      type(c_ptr) :: vertical_center       ! vertical center of the grid [m]
+      integer(c_int) :: vertical_center_size
+      type(c_ptr) :: vertical_levels       ! vertical levels of the grid [m]
+      integer(c_int) :: vertical_levels_size
+      type(c_ptr) :: temperature           ! temperature at each vertical level [K]
+      integer(c_int) :: temperature_size
+      type(c_ptr) :: pressure              ! pressure at each vertical level [Pa]
+      integer(c_int) :: pressure_size
+      type(c_ptr) :: pressure_levels    ! pressure levels of the grid [Pa]
+      integer(c_int) :: pressure_levels_size
+   end type carma_state_parameter_t
 
 end module carma_parameters_mod

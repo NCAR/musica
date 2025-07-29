@@ -46,8 +46,6 @@ TEST_F(CarmaCApiTest, RunCarmaWithAluminumTestParams)
 
   // Verify the aluminum test parameters are set correctly
   EXPECT_EQ(params.nz, 1);
-  EXPECT_EQ(params.ny, 1);
-  EXPECT_EQ(params.nx, 1);
   EXPECT_EQ(params.nbin, 5);
   EXPECT_EQ(params.nsolute, 0);
   EXPECT_EQ(params.ngas, 0);
@@ -62,8 +60,8 @@ TEST_F(CarmaCApiTest, RunCarmaWithAluminumTestParams)
   ASSERT_NO_THROW(output = carma.Run());
 
   // Verify that the basic dimensions are correct
-  EXPECT_EQ(output.lat.size(), params.ny);
-  EXPECT_EQ(output.lon.size(), params.nx);
+  EXPECT_EQ(output.lat.size(), 1);
+  EXPECT_EQ(output.lon.size(), 1);
   EXPECT_EQ(output.vertical_center.size(), params.nz);
   EXPECT_EQ(output.pressure.size(), params.nz);
   EXPECT_EQ(output.temperature.size(), params.nz);
