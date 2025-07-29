@@ -109,6 +109,29 @@ class ParticleComposition:
     OTHER = 8
 
 
+class ParticleCollectionAlgorithm:
+    """Enumeration for particle collection algorithms used in CARMA."""
+    NONE = 0
+    CONSTANT = 1
+    FUCHS = 2
+    DATA = 3
+
+
+class ParticleNucleationAlgorithm:
+    """Enumeration for particle nucleation algorithms used in CARMA."""
+    NONE = 0
+    AEROSOL_FREEZING_TABAZDEH_2000 = 1
+    AEROSOL_FREEZING_KOOP_2000 = 2
+    AEROSOL_FREEZING_MURRAY_2010 = 3
+    DROPLET_ACTIVATION = 256
+    AEROSOL_FREEZING = 512
+    DROPLET_FREEZING = 1024
+    ICE_MELTING = 2048
+    HETEROGENEOUS_NUCLEATION = 4096
+    HOMOGENEOUS_NUCLEATION = 8192
+    HETEROGENEOUS_SULFURIC_ACID_NUCLEATION = 16384
+
+
 class CARMAWavelengthBin:
     """Configuration for a CARMA wavelength bin.
 
@@ -358,6 +381,106 @@ class CARMAGasConfig:
         return {k: v for k, v in self.__dict__.items()}
 
 
+class CARMACoagulationConfig:
+    """Configuration for CARMA coagulation process.
+
+    This class defines how particles coagulate in the CARMA model.
+    """
+
+    def __init__(self,
+                 igroup1: int = 1,
+                 igroup2: int = 1,
+                 igroup3: int = 1,
+                 algorithm: int = ParticleCollectionAlgorithm.CONSTANT,
+                 ck0: float = 0.0,
+                 grav_e_coll0: float = 0.0,
+                 use_ccd: bool = False):
+        """
+        Initialize a CARMA coagulation configuration.
+
+        Args:
+            igroup1: First group index (default: 1)
+            igroup2: Second group index (default: 1)
+            igroup3: Third group index (default: 1)
+            algorithm: Coagulation algorithm (default: ParticleCollectionAlgorithm.CONSTANT)
+            ck0: Collection efficiency constant (default: 0.0)
+            grav_e_coll0: Gravitational collection efficiency constant (default: 0.0)
+            use_ccd: Whether to use constant collection efficiency data (default: False)
+        """
+        self.igroup1 = igroup1
+        self.igroup2 = igroup2
+        self.igroup3 = igroup3
+        self.algorithm = algorithm
+        self.ck0 = ck0
+        self.grav_e_coll0 = grav_e_coll0
+        self.use_ccd = use_ccd
+
+    def to_dict(self) -> Dict:
+        """Convert to dictionary."""
+        return {k: v for k, v in self.__dict__.items()}
+
+
+class CARMAGrowthConfig:
+    """Configuration for CARMA particle growth process.
+
+    This class defines how particles grow in the CARMA model.
+    """
+
+    def __init__(self,
+                 ielem: int = 0,
+                 igas: int = 0):
+        """
+        Initialize a CARMA growth configuration.
+
+        Args:
+            ielem: Element index for the particles (default: 0)
+            igas: Index of the gas (default: 0)
+        """
+        self.ielem = ielem
+        self.igas = igas
+
+    def to_dict(self) -> Dict:
+        """Convert to dictionary."""
+        return {k: v for k, v in self.__dict__.items()}
+
+
+class CARMANucleationConfig:
+    """Configuration for CARMA particle nucleation process.
+
+    This class defines how new particles are formed in the CARMA model.
+    """
+
+    def __init__(self,
+                 ielemfrom: int = 0,
+                 ielemto: int = 0,
+                 algorithm: ParticleNucleationAlgorithm = ParticleNucleationAlgorithm.NONE,
+                 rlh_nuc: float = 0.0,
+                 igas: int = 0,
+                 ievp2elem: int = 0):
+        """
+        Initialize a CARMA nucleation configuration.
+
+        Args:
+            ielemfrom: Element index to nucleate from (default: 0)
+            ielemto: Element index to nucleate to (default: 0)
+            algorithm: Nucleation algorithm (default: ParticleNucleationAlgorithm.NONE)
+            rlh_nuc: Latent heat of nucleation [m2 s-2] (default: 0.0)
+            igas: Gas index to nucleate from (default: 0)
+            ievp2elem: Element index to evaporate to (if applicable) (default: 0)
+        """
+        self.ielemfrom = ielemfrom
+        self.ielemto = ielemto
+        self.algorithm = algorithm
+        self.rlh_nuc = rlh_nuc
+        self.igas = igas
+        self.ievp2elem = ievp2elem
+
+    def to_dict(self) -> Dict:
+        """Convert to dictionary."""
+        return {k: v for k, v in self.__dict__.items()}
+
+
+
 class CARMAParameters:
     """
     Parameters for CARMA aerosol model simulation.
@@ -380,7 +503,10 @@ class CARMAParameters:
                  groups: Optional[List[CARMAGroupConfig]] = None,
                  elements: Optional[List[CARMAElementConfig]] = None,
                  solutes: Optional[List[CARMASoluteConfig]] = None,
-                 gases: Optional[List[CARMAGasConfig]] = None):
+                 gases: Optional[List[CARMAGasConfig]] = None,
+                 coagulations: Optional[List[CARMACoagulationConfig]] = None,
+                 growths: Optional[List[CARMAGrowthConfig]] = None,
+                 nucleations: Optional[List[CARMANucleationConfig]] = None):
         """
         Initialize CARMA parameters.
 
@@ -398,6 +524,9 @@ class CARMAParameters:
             elements: List of element configurations (default: None)
             solutes: List of solute configurations (default: None)
             gases: List of gas configurations (default: None)
+            coagulations: List of coagulation configurations (default: None)
+            growths: List of growth configurations (default: None)
+            nucleations: List of nucleation configurations (default: None)
         """
         self.nz = nz
         self.ny = ny
@@ -414,6 +543,9 @@ class CARMAParameters:
         self.elements = elements or []
         self.solutes = solutes or []
         self.gases = gases or []
+        self.coagulations = coagulations or []
+        self.growths = growths or []
+        self.nucleations = nucleations or []
 
     def add_wavelength_bin(self, wavelength_bin: CARMAWavelengthBin):
         """Add a wavelength bin configuration."""
@@ -434,6 +566,18 @@ class CARMAParameters:
     def add_gas(self, gas: CARMAGasConfig):
         """Add a gas configuration."""
         self.gases.append(gas)
+
+    def add_coagulation(self, coagulation: CARMACoagulationConfig):
+        """Add a coagulation configuration."""
+        self.coagulations.append(coagulation)
+
+    def add_growth(self, growth: CARMAGrowthConfig):
+        """Add a growth configuration."""
+        self.growths.append(growth)
+
+    def add_nucleation(self, nucleation: CARMANucleationConfig):
+        """Add a nucleation configuration."""
+        self.nucleations.append(nucleation)
 
     def __repr__(self):
         """String representation of CARMAParameters."""
@@ -462,6 +606,12 @@ class CARMAParameters:
                     params_dict[k] = [solute.to_dict() for solute in v]
                 elif k == 'gases':
                     params_dict[k] = [gas.to_dict() for gas in v]
+                elif k == 'coagulations':
+                    params_dict[k] = [coagulation.to_dict() for coagulation in v]
+                elif k == 'growths':
+                    params_dict[k] = [growth.to_dict() for growth in v]
+                elif k == 'nucleations':
+                    params_dict[k] = [nucleation.to_dict() for nucleation in v]
                 elif k == 'wavelength_bins':
                     params_dict[k] = [bin.to_dict() for bin in v]
                 else:
@@ -501,12 +651,33 @@ class CARMAParameters:
                      for gas_dict in params_dict['gases']]
             del params_dict['gases']
 
+        coagulations = []
+        if 'coagulations' in params_dict:
+            coagulations = [CARMACoagulationConfig(**coag_dict)
+                            for coag_dict in params_dict['coagulations']]
+            del params_dict['coagulations']
+
+        growths = []
+        if 'growths' in params_dict:
+            growths = [CARMAGrowthConfig(**growth_dict)
+                       for growth_dict in params_dict['growths']]
+            del params_dict['growths']
+
+        nucleations = []
+        if 'nucleations' in params_dict:
+            nucleations = [CARMANucleationConfig(**nucleation_dict)
+                           for nucleation_dict in params_dict['nucleations']]
+            del params_dict['nucleations']
+
         return cls(
             wavelength_bins=wavelength_bins,
             groups=groups,
             elements=elements,
             solutes=solutes,
             gases=gases,
+            coagulations=coagulations,
+            growths=growths,
+            nucleations=nucleations,
             **params_dict)
 
     @classmethod
@@ -556,6 +727,13 @@ class CARMAParameters:
             kappa=0.0,
         )
 
+        # Create coagulation
+        coagulation = CARMACoagulationConfig(
+            igroup1=1,
+            igroup2=1,
+            igroup3=1,
+            algorithm=ParticleCollectionAlgorithm.FUCHS)
+
         params = cls(
             nz=1,
             ny=1,
@@ -565,7 +743,8 @@ class CARMAParameters:
             zmin=16500.0,
             wavelength_bins=wavelength_bins,
             groups=[group],
-            elements=[element]
+            elements=[element],
+            coagulations=[coagulation]
         )
 
         FIVE_DAYS_IN_SECONDS = 432000

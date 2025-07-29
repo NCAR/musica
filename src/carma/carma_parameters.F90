@@ -12,7 +12,8 @@ module carma_parameters_mod
    private
 
    public :: carma_group_config_t, carma_element_config_t, carma_parameters_t, &
-             carma_wavelength_bin_t, carma_complex_t, carma_solute_config_t, carma_gas_config_t
+             carma_wavelength_bin_t, carma_complex_t, carma_solute_config_t, carma_gas_config_t, &
+             carma_coagulation_config_t, carma_growth_config_t, carma_nucleation_config_t
 
    type, bind(c) :: carma_wavelength_bin_t
       real(c_double) :: center       ! Center of the wavelength bin [m]
@@ -104,6 +105,30 @@ module carma_parameters_mod
       integer(c_int) :: refidx_dim_2_size  ! Size of second dimension
    end type carma_gas_config_t
 
+   type, bind(c) :: carma_coagulation_config_t
+      integer(c_int) :: igroup1       ! First group index (first group to coagulate)
+      integer(c_int) :: igroup2       ! Second group index (second group to coagulate)
+      integer(c_int) :: igroup3       ! Third group index (coagulated particles)
+      integer(c_int) :: algorithm     ! Coagulation algorithm
+      real(c_double) :: ck0           ! Collection efficiency coefficient
+      real(c_double) :: grav_e_coll0  ! Gravitational collection efficiency coefficient
+      logical(c_bool) :: use_ccd      ! Use constant collection efficiency data
+   end type carma_coagulation_config_t
+
+   type, bind(c) :: carma_growth_config_t
+      integer(c_int) :: ielem  ! Element index to grow
+      integer(c_int) :: igas   ! Gas index to grow from
+   end type carma_growth_config_t
+
+   type, bind(c) :: carma_nucleation_config_t
+      integer(c_int) :: ielemfrom   ! Element index to nucleate from
+      integer(c_int) :: ielemto     ! Element index to nucleate to
+      integer(c_int) :: algorithm   ! Nucleation algorithm
+      real(c_double) :: rlh_nuc     ! Latent heat of nucleation [m2 s-2]
+      integer(c_int) :: igas        ! Gas index to nucleate from
+      integer(c_int) :: ievp2elem   ! Element index to evaporate to (if applicable)
+   end type carma_nucleation_config_t
+
    type, bind(c) :: carma_parameters_t
 
       ! Model dimensions
@@ -135,6 +160,14 @@ module carma_parameters_mod
       integer(c_int) :: solutes_size
       type(c_ptr) :: gases
       integer(c_int) :: gases_size
+
+      ! Process configurations
+      type(c_ptr) :: coagulations  ! Pointer to coagulations array
+      integer(c_int) :: coagulations_size  ! Number of coagulations
+      type(c_ptr) :: growths        ! Pointer to growths array
+      integer(c_int) :: growths_size  ! Number of growths
+      type(c_ptr) :: nucleations     ! Pointer to nucleations array
+      integer(c_int) :: nucleations_size  ! Number of nucleations
    end type carma_parameters_t
 
 end module carma_parameters_mod

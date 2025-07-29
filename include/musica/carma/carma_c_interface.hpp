@@ -109,6 +109,36 @@ namespace musica
       int refidx_dim_2_size;  // size of second dimension
     };
 
+    // C-Compatible structure for CARMA coagulation configuration
+    struct CARMACoagulationConfigC
+    {
+      int igroup1;          // first group index (first group to coagulate)
+      int igroup2;          // second group index (second group to coagulate)
+      int igroup3;          // third group index (coagulated particles)
+      int algorithm;        // collection algorithm (enum value)
+      double ck0;           // collection efficiency constant (0.0 = off)
+      double grav_e_coll0;  // gravitational collection efficiency constant (0.0 = off)
+      bool use_ccd;         // use constant collection efficiency data
+    };
+
+    // C-Compatible structure for CARMA growth configuration
+    struct CARMAGrowthConfigC
+    {
+      int ielem;  // element index to grow
+      int igas;   // gas index to grow from
+    };
+
+    // C-Compatible structure for CARMA nucleation configuration
+    struct CARMANucleationConfigC
+    {
+      int ielemfrom;   // element index to nucleate from
+      int ielemto;     // element index to nucleate to
+      int algorithm;   // nucleation algorithm (enum value)
+      double rlh_nuc;  // latent heat of nucleation [m2 s-2]
+      int igas;        // gas index to nucleate from
+      int ievp2elem;   // element index to evaporate to (if applicable)
+    };
+
     // C-compatible structure for CARMA parameters
     // MUST match the exact order and types of the Fortran carma_parameters_t struct
     struct CCARMAParameters
@@ -141,6 +171,14 @@ namespace musica
       int solutes_size;               // Number of solutes
       CARMAGasConfigC* gases;         // Pointer to gases array
       int gases_size;                 // Number of gases
+
+      // Process configurations
+      CARMACoagulationConfigC* coagulations;  // Pointer to coagulations array
+      int coagulations_size;                  // Number of coagulations
+      CARMAGrowthConfigC* growths;            // Pointer to growths array
+      int growths_size;                       // Number of growths
+      CARMANucleationConfigC* nucleations;     // Pointer to nucleations array
+      int nucleations_size;                   // Number of nucleations
     };
 
     struct CARMAOutputDataC
