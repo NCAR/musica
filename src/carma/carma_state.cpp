@@ -20,7 +20,7 @@ namespace musica
     CARMAStateParametersC state_params;
     state_params.time = params.time;
     state_params.longitude = params.longitude;
-    state_params.lattitude = params.lattitude;
+    state_params.latitude = params.latitude;
     state_params.coordinates = static_cast<int>(params.coordinates);
     state_params.vertical_center_size = static_cast<int>(params.vertical_center.size());
     state_params.vertical_center = params.vertical_center.empty() ? nullptr : params.vertical_center.data();
