@@ -528,6 +528,13 @@ void bind_carma(py::module_& carma)
       {
         auto carma_state = reinterpret_cast<musica::CARMAState*>(carma_state_ptr);
         auto values = to_vector_double(value);
+        std::cout << "Setting bin " << bin_index << ", element " << element_index
+                  << " with values: ";
+        for (const auto& val : values)
+        {
+          std::cout << val << " ";
+        }
+        std::cout << std::endl;
         carma_state->SetBin(bin_index, element_index, values);
       },
       "Set values for a specific bin and element in the CARMA state");

@@ -169,20 +169,20 @@ contains
       type(c_ptr),    value, intent(in)  :: carma_state_cptr
       integer(c_int),        intent(out) :: rc
 
-      type(carmastate_type), pointer :: carma_state
+      type(carmastate_type), pointer :: cstate
 
       rc = 0
 
       ! Check if carma_state_cptr is associated
       if (c_associated(carma_state_cptr)) then
-         call c_f_pointer(carma_state_cptr, carma_state)
+         call c_f_pointer(carma_state_cptr, cstate)
          ! Clean up the carma state instance
-         call CARMASTATE_Destroy(carma_state, rc)
+         call CARMASTATE_Destroy(cstate, rc)
          if (rc /= 0) then
             print *, "Error destroying CARMA state instance"
             return
          end if
-         deallocate(carma_state)
+         deallocate(cstate)
       end if
    end subroutine internal_destroy_carma_state
 
@@ -205,19 +205,19 @@ contains
 
       ! Local variables
       real(kind=real64), pointer :: values(:)
-      type(carmastate_type), pointer :: carma_state
+      type(carmastate_type), pointer :: cstate
 
       print *, "Setting bin values for bin_index:", bin_index, "element_index:", element_index
       print *, "Values size: ", values_size
 
       ! Check if carma_state_cptr is associated
       if (c_associated(carma_state_cptr)) then
-         call c_f_pointer(carma_state_cptr, carma_state)
+         call c_f_pointer(carma_state_cptr, cstate)
          call c_f_pointer(values_ptr, values, [values_size])
 
          print *, "Values to set:", values
 
-         call CARMASTATE_SetBin(carma_state, bin_index, element_index, values, rc)
+         call CARMASTATE_SetBin(cstate, bin_index, element_index, values, rc)
       end if
 
    end subroutine internal_set_bin

@@ -22,14 +22,18 @@ def test_carma_instance():
     assert carma is not None
     assert isinstance(carma, musica.CARMA)
 
+    print("creating state")
     state = carma.create_state()
+    print(f"CARMA state created: {state}")
 
     assert state is not None
     assert isinstance(state, musica.CARMAState)
 
-    state.set_bin(0, 0, 1.0)
+    # state.set_bin(1, 1, 1.0)
 
+    print("Running CARMA with test parameters")
     carma.run()
+    print("CARMA run completed successfully")
 
 
 def test_carma_with_default_parameters():

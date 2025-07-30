@@ -997,11 +997,11 @@ class CARMAState:
 
     def __repr__(self):
         """String representation of CARMAState."""
-        return (f"CARMAState(latitude={self.latitude}, longitude={self.longitude}")
+        return (f"CARMAState")
 
     def __str__(self):
         """String representation of CARMAState."""
-        return (f"CARMAState(latitude={self.latitude}, longitude={self.longitude}")
+        return (f"CARMAState")
 
     def to_dict(self) -> Dict:
         """Convert CARMAState to dictionary."""
@@ -1017,11 +1017,10 @@ class CARMAState:
             element_index: Index of the element (1-indexed)
             value: Value to set, can be a single float or a list of floats
         """
-        if isinstance(value, list):
-            _backend._carma._set_bin(self._carma_state_instance, bin_index, element_index, value)
-        else:
-            vals = np.repeat(value, self.n_levels)
-            _backend._carma._set_bin(self._carma_state_instance, bin_index, element_index, vals)
+        if not isinstance(value, float):
+            value = np.repeat(value, self.n_levels)
+        print("Calling set_bin with value:", value)
+        _backend._carma._set_bin(self._carma_state_instance, bin_index, element_index, value)
 
 
 class CARMA:
