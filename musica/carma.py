@@ -1097,7 +1097,7 @@ class CARMAState:
             vertical_center=vertical_center.tolist(),
             vertical_levels=vertical_levels.tolist(),
         )
-    
+
     def __del__(self):
         """Clean up the CARMAState instance."""
         if hasattr(self, '_carma_state_instance') and self._carma_state_instance is not None:
@@ -1114,7 +1114,6 @@ class CARMAState:
     def to_dict(self) -> Dict:
         """Convert CARMAState to dictionary."""
         return {k: v for k, v in self.__dict__.items() if not k.startswith('__') and not callable(v)}
-    
 
     def set_bin(self, bin_index: int, element_index: int, value: Union[float, List[float]]):
         """
@@ -1130,7 +1129,7 @@ class CARMAState:
         elif not isinstance(value, list):
             value = list(value)
         _backend._carma._set_bin(self._carma_state_instance, bin_index, element_index, value)
-    
+
     def set_detrain(self, bin_index: int, element_index: int, value: float):
         """
         Set the mass of the detrained condensate for the bin
@@ -1145,8 +1144,14 @@ class CARMAState:
         elif not isinstance(value, list):
             value = list(value)
         _backend._carma._set_detrain(self._carma_state_instance, bin_index, element_index, value)
-    
-    def set_gas(self, gas_index: int, value: Union[float, List[float]], old_mmr: Optional[List[float]] = None, gas_saturation_wrt_ice: Optional[List[float]] = None, gas_saturation_wrt_liquid: Optional[List[float]] = None):
+
+    def set_gas(self,
+                gas_index: int,
+                value: Union[float,
+                             List[float]],
+                old_mmr: Optional[List[float]] = None,
+                gas_saturation_wrt_ice: Optional[List[float]] = None,
+                gas_saturation_wrt_liquid: Optional[List[float]] = None):
         """
         Set the value for a specific gas.
 
@@ -1173,7 +1178,13 @@ class CARMAState:
             gas_saturation_wrt_ice = list(gas_saturation_wrt_ice)
         if not isinstance(gas_saturation_wrt_liquid, list):
             gas_saturation_wrt_liquid = list(gas_saturation_wrt_liquid)
-        _backend._carma._set_gas(self._carma_state_instance, gas_index, value, old_mmr, gas_saturation_wrt_ice, gas_saturation_wrt_liquid)
+        _backend._carma._set_gas(
+            self._carma_state_instance,
+            gas_index,
+            value,
+            old_mmr,
+            gas_saturation_wrt_ice,
+            gas_saturation_wrt_liquid)
 
 
 class CARMA:
