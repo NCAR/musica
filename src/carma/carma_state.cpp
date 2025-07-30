@@ -144,17 +144,4 @@ namespace musica
     }
   }
 
-  CARMAState::~CARMAState()
-  {
-    if (f_carma_state_)
-    {
-      int rc = 0;
-      InternalDestroyCarmaState(f_carma_state_, &rc);
-      f_carma_state_ = nullptr;  // Clear the pointer to avoid dangling pointer
-      if (rc != 0)
-      {
-        std::cerr << "Warning: CARMA state destruction returned non-zero code: " << rc << std::endl;
-      }
-    }
-  }
 }  // namespace musica

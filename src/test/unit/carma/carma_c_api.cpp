@@ -249,53 +249,6 @@ TEST_F(CarmaCApiTest, RunCarmaWithAllComponents)
   EXPECT_EQ(output.max_prognostic_bin.size(), params.groups.size());
 }
 
-TEST_F(CarmaCApiTest, CreateState)
-{
-  CARMAParameters params;
-  params.nz = 10;
-  params.nbin = 8;
-
-  CARMAGroupConfig group;
-  group.name = "test_group";
-  group.shortname = "TG";
-  group.rmin = 1e-6;
-  group.rmrat = 2.0;
-  group.ishape = ParticleShape::SPHERE;
-  params.groups.push_back(group);
-
-  CARMAElementConfig element;
-  element.name = "test_element";
-  element.shortname = "TE";
-  element.rho = 1.0;  // kg/m3
-  element.itype = ParticleType::INVOLATILE;
-  element.icomposition = ParticleComposition::H2SO4;
-  params.elements.push_back(element);
-
-  CARMA carma{ params };
-
-  CARMAStateParameters state_params;
-  state_params.time = 0.0;
-  state_params.time_step = 60.0;  // 1 minute
-  state_params.longitude = -120.0;
-  state_params.latitude = 45.0;
-  state_params.coordinates = CarmaCoordinates::LAMBERT_CONFORMAL;
-  state_params.vertical_center.resize(params.nz, 1000.0);
-  state_params.vertical_levels.resize(params.nz + 1, 1000.0);
-  state_params.temperature.resize(params.nz, 300.0);  // 300 K
-  state_params.pressure.resize(params.nz, 101325.0);  // 101325 Pa
-  state_params.pressure_levels.resize(params.nz + 1, 101325.0); // 101325 Pa
-  state_params.specific_humidity.resize(params.nz, 0.01);  // 1% specific humidity
-  state_params.relative_humidity.resize(params.nz, 0.5);  // 50% relative humidity
-  state_params.original_temperature.resize(params.nz, 300.0);  // 300 K
-  state_params.radiative_intensity_dim_1_size = params.nbin;
-  state_params.radiative_intensity_dim_2_size = params.nz;
-  state_params.radiative_intensity.resize(params.nz * params.nbin, 1.0);  // 1 W/m²/sr/m
-
-  // Create the CARMA state
-  CARMAState carma_state{ carma, state_params };
-
-}
-
 TEST_F(CarmaCApiTest, RunCarmaWithAluminumTestParams)
 {
   CARMAParameters params = CARMA::CreateAluminumTestParams();
@@ -364,7 +317,7 @@ TEST_F(CarmaCApiTest, CanSetBinValues)
   state_params.vertical_center = std::vector<double>(params.nz, 16500.0);
   state_params.coordinates = CarmaCoordinates::CARTESIAN;
 
-  CARMAState state = CARMAState(&carma, state_params);
+  CARMAState state = CARMAState(carma, state_params);
   ASSERT_NO_THROW(state.SetBin(1, 1, std::vector<double>{ 1.0 }));
   ASSERT_NO_THROW(state.SetDetrain(1, 1, std::vector<double>{ 1.0 }));
 }

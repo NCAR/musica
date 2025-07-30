@@ -117,10 +117,14 @@ contains
       real(kind=real64), pointer     :: temperature(:)
       real(kind=real64), pointer     :: pressure(:)
       real(kind=real64), pointer     :: pressure_levels(:)
-      real(kind=real64), pointer     :: specific_humidity(:)
-      real(kind=real64), pointer     :: relative_humidity(:)
-      real(kind=real64), pointer     :: original_temperature(:)
-      real(kind=real64), pointer     :: radiative_intensity(:,:)
+      real(kind=real64), pointer     :: specific_humidity_ptr(:)
+      real(kind=real64), pointer     :: relative_humidity_ptr(:)
+      real(kind=real64), pointer     :: original_temperature_ptr(:)
+      real(kind=real64), pointer     :: radiative_intensity_ptr(:,:)
+      real(kind=real64), allocatable :: specific_humidity(:)
+      real(kind=real64), allocatable :: relative_humidity(:)
+      real(kind=real64), allocatable :: original_temperature(:)
+      real(kind=real64), allocatable :: radiative_intensity(:,:)
       type(c_ptr)                    :: carma_state_cptr
       integer :: alloc_stat
 
@@ -140,25 +144,25 @@ contains
       call c_f_pointer(carma_state_params%pressure, pressure, [carma_state_params%pressure_size])
       call c_f_pointer(carma_state_params%pressure_levels, pressure_levels, [carma_state_params%pressure_levels_size])
       if (carma_state_params%specific_humidity_size > 0) then
-         call c_f_pointer(carma_state_params%specific_humidity, specific_humidity, [carma_state_params%specific_humidity_size])
-      else
-         specific_humidity => null()
+         call c_f_pointer(carma_state_params%specific_humidity, specific_humidity_ptr, [carma_state_params%specific_humidity_size])
+         allocate(specific_humidity(carma_state_params%specific_humidity_size))
+         specific_humidity(:) = specific_humidity_ptr(:)
       end if
       if (carma_state_params%relative_humidity_size > 0) then
-         call c_f_pointer(carma_state_params%relative_humidity, relative_humidity, [carma_state_params%relative_humidity_size])
-      else
-         relative_humidity => null()
+         call c_f_pointer(carma_state_params%relative_humidity, relative_humidity_ptr, [carma_state_params%relative_humidity_size])
+         allocate(relative_humidity(carma_state_params%relative_humidity_size))
+         relative_humidity(:) = relative_humidity_ptr(:)
       end if
       if (carma_state_params%original_temperature_size > 0) then
-         call c_f_pointer(carma_state_params%original_temperature, original_temperature, [carma_state_params%original_temperature_size])
-      else
-         original_temperature => null()
+         call c_f_pointer(carma_state_params%original_temperature, original_temperature_ptr, [carma_state_params%original_temperature_size])
+         allocate(original_temperature(carma_state_params%original_temperature_size))
+         original_temperature(:) = original_temperature_ptr(:)
       end if
       if (carma_state_params%radiative_intensity_dim_1_size > 0 .and. &
           carma_state_params%radiative_intensity_dim_2_size > 0) then
-          call c_f_pointer(carma_state_params%radiative_intensity, radiative_intensity, [carma_state_params%radiative_intensity_dim_2_size, carma_state_params%radiative_intensity_dim_1_size])
-      else
-          radiative_intensity => null()
+          call c_f_pointer(carma_state_params%radiative_intensity, radiative_intensity_ptr, [carma_state_params%radiative_intensity_dim_2_size, carma_state_params%radiative_intensity_dim_1_size])
+          allocate(radiative_intensity(carma_state_params%radiative_intensity_dim_2_size, carma_state_params%radiative_intensity_dim_1_size))
+          radiative_intensity(:,:) = radiative_intensity_ptr(:,:)
       end if
 
       ! Check if carma_cptr is associated
