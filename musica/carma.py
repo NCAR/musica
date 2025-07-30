@@ -1022,6 +1022,21 @@ class CARMAState:
         elif not isinstance(value, list):
             value = list(value)
         _backend._carma._set_bin(self._carma_state_instance, bin_index, element_index, value)
+    
+    def set_detrain(self, bin_index: int, element_index: int, value: float):
+        """
+        Set the mass of the detrained condensate for the bin
+
+        Args:
+            bin_index: Index of the size bin (1-indexed)
+            element_index: Index of the element (1-indexed)
+            value: Value to set
+        """
+        if np.isscalar(value):
+            value = np.repeat(value, self.n_levels).tolist()
+        elif not isinstance(value, list):
+            value = list(value)
+        _backend._carma._set_detrain(self._carma_state_instance, bin_index, element_index, value)
 
 
 class CARMA:

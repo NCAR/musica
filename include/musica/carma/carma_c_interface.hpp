@@ -261,6 +261,13 @@ namespace musica
         const double* values,
         int values_size,
         int* rc);
+    void InternalSetDetrain(
+        void* carma_state_instance,
+        int bin_index,
+        int element_index,
+        const double* values,
+        int values_size,
+        int* rc);
 
     // CARMA driver interface functions
     void InternalRunCarma(const CCARMAParameters& params, void* carma_instance, void* output, int* rc);

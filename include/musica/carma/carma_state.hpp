@@ -43,6 +43,7 @@ namespace musica
     ~CARMAState();
 
     void SetBin(int bin_index, int element_index, const std::vector<double>& values);
+    void SetDetrain(int bin_index, int element_index, const std::vector<double>& values);
 
    private:
     void* f_carma_state_;

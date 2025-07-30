@@ -530,4 +530,13 @@ void bind_carma(py::module_& carma)
         carma_state->SetBin(bin_index, element_index, to_vector_double(value));
       },
       "Set values for a specific bin and element in the CARMA state");
+  
+  carma.def(
+      "_set_detrain",
+      [](std::uintptr_t carma_state_ptr, int bin_index, int element_index, py::object value)
+      {
+        auto carma_state = reinterpret_cast<musica::CARMAState*>(carma_state_ptr);
+        carma_state->SetBin(bin_index, element_index, to_vector_double(value));
+      },
+      "Set the mass of the detrained condensate for the bin");
 }

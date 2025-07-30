@@ -231,6 +231,48 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+   subroutine internal_set_detrain(carma_state_cptr, bin_index, element_index, values_ptr, values_size, rc) &
+      bind(C, name="InternalSetDetrain")
+      use iso_c_binding, only: c_ptr, c_int, c_double
+      use carmastate_mod, only: CARMASTATE_SetDetrain
+      use carma_types_mod, only: carmastate_type
+      use iso_fortran_env, only: real64
+
+      ! Arguments
+      type(c_ptr),    value, intent(in)  :: carma_state_cptr
+      integer(c_int), value, intent(in)  :: bin_index
+      integer(c_int), value, intent(in)  :: element_index
+      type(c_ptr),    value              :: values_ptr
+      integer(c_int), value, intent(in)  :: values_size
+      integer(c_int), intent(out)        :: rc
+
+      ! Local variables
+      real(kind=real64), pointer :: values(:)
+      type(carmastate_type), pointer :: cstate
+
+      if (element_index < 1) then
+         rc = ERROR_DIMENSION_MISMATCH
+         print *, "Error: element_index must be >= 1"
+         return
+      end if
+
+      if (bin_index < 1) then
+         rc = ERROR_DIMENSION_MISMATCH
+         print *, "Error: bin_index must be >= 1"
+         return
+      end if
+
+      ! Check if carma_state_cptr is associated
+      if (c_associated(carma_state_cptr)) then
+         call c_f_pointer(carma_state_cptr, cstate)
+         call c_f_pointer(values_ptr, values, [values_size])
+
+         call CARMASTATE_SetDetrain(cstate, bin_index, element_index, values, rc)
+      end if
+
+   end subroutine internal_set_detrain
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
    subroutine internal_run_carma(params, carma_cptr, c_output, rc) &
       bind(C, name="InternalRunCarma")
       use iso_c_binding, only: c_int, c_ptr, c_f_pointer

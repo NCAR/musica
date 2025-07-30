@@ -336,4 +336,5 @@ TEST_F(CarmaCApiTest, CanSetBinValues)
 
   CARMAState state = CARMAState(&carma, state_params);
   ASSERT_NO_THROW(state.SetBin(1, 1, std::vector<double>{1.0}));
+  ASSERT_NO_THROW(state.SetDetrain(1, 1, std::vector<double>{1.0}));
 }

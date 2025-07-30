@@ -77,4 +77,24 @@ namespace musica
       throw std::runtime_error("Failed to set bin values with return code: " + std::to_string(rc));
     }
   }
+
+  void CARMAState::SetDetrain(int bin_index, int element_index, const std::vector<double>& values)
+  {
+    if (f_carma_state_ == nullptr)
+    {
+      throw std::runtime_error("CARMA state instance is not initialized.");
+    }
+
+    if (values.empty())
+    {
+      throw std::invalid_argument("Values vector cannot be empty.");
+    }
+
+    int rc;
+    InternalSetDetrain(f_carma_state_, bin_index, element_index, values.data(), static_cast<int>(values.size()), &rc);
+    if (rc != 0)
+    {
+      throw std::runtime_error("Failed to set detrain values with return code: " + std::to_string(rc));
+    }
+  }
 }  // namespace musica
