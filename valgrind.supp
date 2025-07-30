@@ -56,6 +56,14 @@
 }
 
 {
+   <gsolve_conditional_jump>
+   Memcheck:Cond
+   ...
+   fun:snprintf
+   ...
+}
+
+{
    <step_param_write>
    Memcheck:Param
    write(buf)
