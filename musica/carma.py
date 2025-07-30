@@ -1037,6 +1037,35 @@ class CARMAState:
         elif not isinstance(value, list):
             value = list(value)
         _backend._carma._set_detrain(self._carma_state_instance, bin_index, element_index, value)
+    
+    def set_gas(self, gas_index: int, value: Union[float, List[float]], old_mmr: Optional[List[float]] = None, gas_saturation_wrt_ice: Optional[List[float]] = None, gas_saturation_wrt_liquid: Optional[List[float]] = None):
+        """
+        Set the value for a specific gas.
+
+        Args:
+            gas_index: Index of the gas (1-indexed)
+            value: Value to set, can be a single float or a list of floats
+            old_mmr: Optional list of old mass mixing ratios for the gas (default: None)
+            gas_saturation_wrt_ice: Optional list of gas saturation with respect to ice (default: None)
+            gas_saturation_wrt_liquid: Optional list of gas saturation with respect to liquid (default: None)
+        """
+        if np.isscalar(value):
+            value = np.repeat(value, self.n_levels).tolist()
+        elif not isinstance(value, list):
+            value = list(value)
+        if old_mmr is None:
+            old_mmr = []
+        if gas_saturation_wrt_ice is None:
+            gas_saturation_wrt_ice = []
+        if gas_saturation_wrt_liquid is None:
+            gas_saturation_wrt_liquid = []
+        if not isinstance(old_mmr, list):
+            old_mmr = list(old_mmr)
+        if not isinstance(gas_saturation_wrt_ice, list):
+            gas_saturation_wrt_ice = list(gas_saturation_wrt_ice)
+        if not isinstance(gas_saturation_wrt_liquid, list):
+            gas_saturation_wrt_liquid = list(gas_saturation_wrt_liquid)
+        _backend._carma._set_gas(self._carma_state_instance, gas_index, value, old_mmr, gas_saturation_wrt_ice, gas_saturation_wrt_liquid)
 
 
 class CARMA:

@@ -539,4 +539,13 @@ void bind_carma(py::module_& carma)
         carma_state->SetBin(bin_index, element_index, to_vector_double(value));
       },
       "Set the mass of the detrained condensate for the bin");
+  
+  carma.def(
+      "_set_gas",
+      [](std::uintptr_t carma_state_ptr, int gas_index, py::object value, py::object old_mmr, py::object gas_saturation_wrt_ice, py::object gas_saturation_wrt_liquid)
+      {
+        auto carma_state = reinterpret_cast<musica::CARMAState*>(carma_state_ptr);
+        carma_state->SetGas(gas_index, to_vector_double(value), to_vector_double(old_mmr), to_vector_double(gas_saturation_wrt_ice), to_vector_double(gas_saturation_wrt_liquid));
+      },
+      "Set the gas mass mixing ratio for a specific gas index in the CARMA state");
 }

@@ -6,8 +6,8 @@
 #include <musica/carma/carma_c_interface.hpp>
 #include <musica/carma/carma_state.hpp>
 
-#include <iostream>
 #include <cstring>
+#include <iostream>
 #include <stdexcept>
 
 namespace musica
@@ -95,6 +95,35 @@ namespace musica
     if (rc != 0)
     {
       throw std::runtime_error("Failed to set detrain values with return code: " + std::to_string(rc));
+    }
+  }
+
+  void CARMAState::SetGas(
+      int gas_index,
+      const std::vector<double>& values,
+      const std::vector<double>& old_mmr,
+      const std::vector<double>& gas_saturation_wrt_ice,
+      const std::vector<double>& gas_saturation_wrt_liquid)
+  {
+    if (f_carma_state_ == nullptr)
+    {
+      throw std::runtime_error("CARMA state instance is not initialized.");
+    }
+
+    if (values.empty())
+    {
+      throw std::invalid_argument("Values vector cannot be empty.");
+    }
+
+    int rc;
+    InternalSetGas(f_carma_state_, gas_index, values.data(), static_cast<int>(values.size()),
+                   old_mmr.data(), static_cast<int>(old_mmr.size()),
+                   gas_saturation_wrt_ice.data(), static_cast<int>(gas_saturation_wrt_ice.size()),
+                   gas_saturation_wrt_liquid.data(), static_cast<int>(gas_saturation_wrt_liquid.size()),
+                   &rc);
+    if (rc != 0)
+    {
+      throw std::runtime_error("Failed to set gas values with return code: " + std::to_string(rc));
     }
   }
 }  // namespace musica

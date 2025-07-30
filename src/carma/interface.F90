@@ -271,6 +271,73 @@ contains
       end if
 
    end subroutine internal_set_detrain
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   subroutine internal_set_gas(carma_state_cptr, gas_index, values_ptr, values_size, old_mmr_ptr, old_mmr_size, &
+                                gas_saturation_wrt_ice_ptr, gas_saturation_wrt_ice_size, &
+                                gas_saturation_wrt_liquid_ptr, gas_saturation_wrt_liquid_size, rc) &
+      bind(C, name="InternalSetGas")
+      use iso_c_binding, only: c_ptr, c_int, c_double
+      use carmastate_mod, only: CARMASTATE_SetGas
+      use carma_types_mod, only: carmastate_type
+      use iso_fortran_env, only: real64
+
+      ! Arguments
+      type(c_ptr),    value, intent(in)  :: carma_state_cptr
+      integer(c_int), value, intent(in)  :: gas_index
+      type(c_ptr),    value              :: values_ptr
+      integer(c_int), value, intent(in)  :: values_size
+      type(c_ptr),    value              :: old_mmr_ptr
+      integer(c_int), value, intent(in)  :: old_mmr_size
+      type(c_ptr),    value              :: gas_saturation_wrt_ice_ptr
+      integer(c_int), value, intent(in)  :: gas_saturation_wrt_ice_size
+      type(c_ptr),    value              :: gas_saturation_wrt_liquid_ptr
+      integer(c_int), value, intent(in)  :: gas_saturation_wrt_liquid_size
+      integer(c_int), intent(out)        :: rc
+
+      ! Local variables
+      real(kind=real64), pointer :: values(:)
+      real(kind=real64), allocatable :: old_mmr(:)
+      real(kind=real64), allocatable :: gas_saturation_wrt_ice(:)
+      real(kind=real64), allocatable :: gas_saturation_wrt_liquid(:)
+      type(carmastate_type), pointer :: cstate
+      integer :: index
+
+      if (gas_index < 1) then
+         rc = ERROR_DIMENSION_MISMATCH
+         print *, "Error: gas_index must be >= 1"
+         return
+      end if
+
+      if (old_mmr_size > 0) then
+         allocate(old_mmr(old_mmr_size))
+         call c_f_pointer(old_mmr_ptr, values, [old_mmr_size])
+         old_mmr = values
+      end if
+
+      if (gas_saturation_wrt_ice_size > 0) then
+         allocate(gas_saturation_wrt_ice(gas_saturation_wrt_ice_size))
+         call c_f_pointer(gas_saturation_wrt_ice_ptr, values, [gas_saturation_wrt_ice_size])
+         gas_saturation_wrt_ice = values
+      end if
+
+      if (gas_saturation_wrt_liquid_size > 0) then
+         allocate(gas_saturation_wrt_liquid(gas_saturation_wrt_liquid_size))
+         call c_f_pointer(gas_saturation_wrt_liquid_ptr, values, [gas_saturation_wrt_liquid_size])
+         gas_saturation_wrt_liquid = values
+      end if
+
+      ! Check if carma_state_cptr is associated
+      if (c_associated(carma_state_cptr)) then
+         call c_f_pointer(carma_state_cptr, cstate)
+         call c_f_pointer(values_ptr, values, [values_size])
+
+         call CARMASTATE_SetGas(cstate, gas_index, values, rc, old_mmr, gas_saturation_wrt_ice, gas_saturation_wrt_liquid)
+      end if
+
+   end subroutine internal_set_gas
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    subroutine internal_run_carma(params, carma_cptr, c_output, rc) &
