@@ -1,3 +1,2 @@
 gfortran
-libnetcdf-dev
-netcdf-bin
+libnetcdf-fortran
