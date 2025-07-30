@@ -1017,12 +1017,10 @@ class CARMAState:
             element_index: Index of the element (1-indexed)
             value: Value to set, can be a single float or a list of floats
         """
-        # Ensure value is a list of correct length
-        if isinstance(value, (float, int)):
-            value = [value] * self.n_levels
+        if np.isscalar(value):
+            value = np.repeat(value, self.n_levels).tolist()
         elif not isinstance(value, list):
             value = list(value)
-        print("Calling set_bin with value:", value)
         _backend._carma._set_bin(self._carma_state_instance, bin_index, element_index, value)
 
 

@@ -70,14 +70,6 @@ namespace musica
       throw std::invalid_argument("Values vector cannot be empty.");
     }
 
-    // print out values
-    std::cout << "values: ";
-    for (const auto& value : values)
-    {
-      std::cout << value << " ";
-    }
-    std::cout << std::endl;
-
     int rc;
     InternalSetBin(f_carma_state_, bin_index, element_index, values.data(), static_cast<int>(values.size()), &rc);
     if (rc != 0)
