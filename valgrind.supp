@@ -48,6 +48,22 @@
 }
 
 {
+   <value8_step>
+   Memcheck:Value8
+   ...
+   fun:__carmastate_mod_MOD_carmastate_step
+   ...
+}
+
+{
+   <addr8_step>
+   Memcheck:Addr8
+   ...
+   fun:__carmastate_mod_MOD_carmastate_step
+   ...
+}
+
+{
    <gsolve_value8>
    Memcheck:Value8
    ...
