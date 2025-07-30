@@ -1,4 +1,4 @@
-git+https://github.com/NCAR/musica.git@main
+-e git+https://github.com/NCAR/musica.git@main#egg=musica
 pandas
 matplotlib
 numpy
