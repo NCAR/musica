@@ -73,6 +73,38 @@
 }
 
 {
+   <cond_getbin>
+   Memcheck:Cond
+   ...
+   fun:__carmastate_mod_MOD_carmastate_getbin
+   ...
+}
+
+{
+   <cond_step>
+   Memcheck:Cond
+   ...
+   fun:__carmastate_mod_MOD_carmastate_step
+   ...
+}
+
+{
+   <cond_fixcorecol>
+   Memcheck:Cond
+   ...
+   fun:fixcorecol_
+   ...
+}
+
+{
+   <cond_coremasscheck>
+   Memcheck:Cond
+   ...
+   fun:coremasscheck_
+   ...
+}
+
+{
    <step_param_write>
    Memcheck:Param
    write(buf)
