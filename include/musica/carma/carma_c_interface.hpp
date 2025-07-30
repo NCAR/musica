@@ -139,7 +139,7 @@ namespace musica
       int ievp2elem;   // element index to evaporate to (if applicable)
     };
 
-    // C-Compatible structure for CARMA intialization configuration
+    // C-Compatible structure for CARMA initialization configuration
     struct CARMAInitializationConfigC
     {
       bool do_cnst_rlh;  // use constant values for latent heats
@@ -163,10 +163,10 @@ namespace musica
       int maxretries;  // maximum number of retries
       double conmax; // minimum relative concentration to consider
       double dt_threshold; // convergence criteria for temperature [fraction] (0: off)
-      double cstick; // accomodation coefficient for coagulation
-      double gsticki; // accomodation coefficient for growth of ice
-      double gstickl; // accomodation coefficient for growth of liquid
-      double tstick; // accomodation coefficient temperature
+      double cstick; // accommodation coefficient for coagulation
+      double gsticki; // accommodation coefficient for growth of ice
+      double gstickl; // accommodation coefficient for growth of liquid
+      double tstick; // accommodation coefficient temperature
     };
 
     // C-compatible structure for CARMA parameters

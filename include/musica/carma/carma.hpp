@@ -287,10 +287,10 @@ namespace musica
     int maxretries = 5;             // maximum number of retries
     double conmax = 1.0e-1;         // minimum relative concentration to consider
     double dt_threshold = 0.0;      // convergence criteria for temperature [fraction] (0: off)
-    double cstick = 1.0;            // accomodation coefficient for coagulation
-    double gsticki = 0.93;          // accomodation coefficient for growth of ice
-    double gstickl = 1.0;           // accomodation coefficient for growth of liquid
-    double tstick = 1.0;            // accomodation coefficient temperature
+    double cstick = 1.0;            // accommodation coefficient for coagulation
+    double gsticki = 0.93;          // accommodation coefficient for growth of ice
+    double gstickl = 1.0;           // accommodation coefficient for growth of liquid
+    double tstick = 1.0;            // accommodation coefficient temperature
   };
 
   // Structure representing CARMA parameters

@@ -58,7 +58,7 @@
 }
 
 {
-   <print_unitialized>
+   <print_uninitialized>
    Memcheck:Cond
    ...
    fun:formatted_transfer_scalar_write
