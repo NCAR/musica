@@ -40,6 +40,22 @@
 }
 
 {
+   <gsolve_value8>
+   Memcheck:Value8
+   ...
+   fun:gsolve_
+   ...
+}
+
+{
+   <gsolve_value8>
+   Memcheck:Value8
+   ...
+   fun:snprintf
+   ...
+}
+
+{
    <step_param_write>
    Memcheck:Param
    write(buf)
@@ -71,8 +87,6 @@
    <print_value8>
    Memcheck:Value8
    ...
-   fun:formatted_transfer_scalar_write
-   fun:formatted_transfer
    fun:gsolve_
    ...
 }
