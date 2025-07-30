@@ -272,7 +272,7 @@ namespace musica
     bool do_incloud = false;        // do in-cloud processes (growth, coagulation)
     bool do_explised = false;       // do sedimentation with substepping
     bool do_substep = false;        // do substepping
-    bool do_thermo = false;          // do thermodynamic processes
+    bool do_thermo = false;         // do thermodynamic processes
     bool do_vdiff = false;          // do Brownian diffusion
     bool do_vtran = true;           // do sedimentation
     bool do_drydep = false;         // do dry deposition

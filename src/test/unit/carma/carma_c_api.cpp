@@ -198,8 +198,8 @@ TEST_F(CarmaCApiTest, RunCarmaWithAllComponents)
   params.nucleations.push_back(nucleation_config);
 
   // Initialization configuration
-  params.initialization.do_thermo = true;          // Enable thermodynamic processes
-  params.initialization.do_vdiff = true;           // Enable Brownian diffusion
+  params.initialization.do_thermo = true;  // Enable thermodynamic processes
+  params.initialization.do_vdiff = true;   // Enable Brownian diffusion
 
   // Create CARMA instance and run
   CARMA carma{ params };
