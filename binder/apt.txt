@@ -1,2 +1,2 @@
 gfortran
-netcdff
+libnetcdf-dev
