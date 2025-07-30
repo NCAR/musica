@@ -1069,6 +1069,7 @@ class CARMAState:
             pressure: Optional list of pressures at vertical centers (default: None). If None, will be derived from the US Standard Atmosphere model.
             pressure_levels: Optional list of pressures at vertical levels (default: None). If None, will be derived from the US Standard Atmosphere model.
         """
+        self.n_levels = n_levels
         vertical_center = zmin + (np.arange(n_levels) + 0.5) * delta_z
         vertical_levels = zmin + np.arange(n_levels + 1) * delta_z
 
@@ -1096,18 +1097,83 @@ class CARMAState:
             vertical_center=vertical_center.tolist(),
             vertical_levels=vertical_levels.tolist(),
         )
+    
+    def __del__(self):
+        """Clean up the CARMAState instance."""
+        if hasattr(self, '_carma_state_instance') and self._carma_state_instance is not None:
+            _backend._carma._delete_carma_state(self._carma_state_instance)
 
     def __repr__(self):
         """String representation of CARMAState."""
-        return (f"CARMAState(latitude={self.latitude}, longitude={self.longitude}")
+        return (f"CARMAState")
 
     def __str__(self):
         """String representation of CARMAState."""
-        return (f"CARMAState(latitude={self.latitude}, longitude={self.longitude}")
+        return (f"CARMAState")
 
     def to_dict(self) -> Dict:
         """Convert CARMAState to dictionary."""
         return {k: v for k, v in self.__dict__.items() if not k.startswith('__') and not callable(v)}
+    
+
+    def set_bin(self, bin_index: int, element_index: int, value: Union[float, List[float]]):
+        """
+        Set the value for a specific bin and element.
+
+        Args:
+            bin_index: Index of the size bin (1-indexed)
+            element_index: Index of the element (1-indexed)
+            value: Value to set, can be a single float or a list of floats
+        """
+        if np.isscalar(value):
+            value = np.repeat(value, self.n_levels).tolist()
+        elif not isinstance(value, list):
+            value = list(value)
+        _backend._carma._set_bin(self._carma_state_instance, bin_index, element_index, value)
+    
+    def set_detrain(self, bin_index: int, element_index: int, value: float):
+        """
+        Set the mass of the detrained condensate for the bin
+
+        Args:
+            bin_index: Index of the size bin (1-indexed)
+            element_index: Index of the element (1-indexed)
+            value: Value to set
+        """
+        if np.isscalar(value):
+            value = np.repeat(value, self.n_levels).tolist()
+        elif not isinstance(value, list):
+            value = list(value)
+        _backend._carma._set_detrain(self._carma_state_instance, bin_index, element_index, value)
+    
+    def set_gas(self, gas_index: int, value: Union[float, List[float]], old_mmr: Optional[List[float]] = None, gas_saturation_wrt_ice: Optional[List[float]] = None, gas_saturation_wrt_liquid: Optional[List[float]] = None):
+        """
+        Set the value for a specific gas.
+
+        Args:
+            gas_index: Index of the gas (1-indexed)
+            value: Value to set, can be a single float or a list of floats
+            old_mmr: Optional list of old mass mixing ratios for the gas (default: None)
+            gas_saturation_wrt_ice: Optional list of gas saturation with respect to ice (default: None)
+            gas_saturation_wrt_liquid: Optional list of gas saturation with respect to liquid (default: None)
+        """
+        if np.isscalar(value):
+            value = np.repeat(value, self.n_levels).tolist()
+        elif not isinstance(value, list):
+            value = list(value)
+        if old_mmr is None:
+            old_mmr = []
+        if gas_saturation_wrt_ice is None:
+            gas_saturation_wrt_ice = []
+        if gas_saturation_wrt_liquid is None:
+            gas_saturation_wrt_liquid = []
+        if not isinstance(old_mmr, list):
+            old_mmr = list(old_mmr)
+        if not isinstance(gas_saturation_wrt_ice, list):
+            gas_saturation_wrt_ice = list(gas_saturation_wrt_ice)
+        if not isinstance(gas_saturation_wrt_liquid, list):
+            gas_saturation_wrt_liquid = list(gas_saturation_wrt_liquid)
+        _backend._carma._set_gas(self._carma_state_instance, gas_index, value, old_mmr, gas_saturation_wrt_ice, gas_saturation_wrt_liquid)
 
 
 class CARMA:

@@ -285,6 +285,34 @@ namespace musica
         const CCARMAParameters& carma_params,
         const CARMAStateParametersC& state_params,
         int* rc);
+    void InternalDestroyCarmaState(void* carma_state_instance, int* rc);
+
+    void InternalSetBin(
+        void* carma_state_instance,
+        int bin_index,
+        int element_index,
+        const double* values,
+        int values_size,
+        int* rc);
+    void InternalSetDetrain(
+        void* carma_state_instance,
+        int bin_index,
+        int element_index,
+        const double* values,
+        int values_size,
+        int* rc);
+    void InternalSetGas(
+        void* carma_state_instance,
+        int gas_index,
+        const double* values,
+        int values_size,
+        const double* old_mmr,
+        int old_mmr_size,
+        const double* gas_saturation_wrt_ice,
+        int gas_saturation_wrt_ice_size,
+        const double* gas_saturation_wrt_liquid,
+        int gas_saturation_wrt_liquid_size,
+        int* rc);
 
     // CARMA driver interface functions
     void InternalRunCarma(const CCARMAParameters& params, void* carma_instance, void* output, int* rc);
