@@ -77,8 +77,6 @@
    <print_uninitialized>
    Memcheck:Cond
    ...
-   fun:formatted_transfer_scalar_write
-   fun:formatted_transfer
    fun:gsolve_
    ...
 }
