@@ -480,6 +480,99 @@ class CARMANucleationConfig:
         return {k: v for k, v in self.__dict__.items()}
 
 
+class CARMAInitializationConfig:
+    """Configuration for CARMA initialization.
+
+    This class defines how the CARMA model is initialized before running simulations.
+    """
+
+    def __init__(self,
+                 do_cnst_rlh: bool = False,
+                 do_detrain: bool = False,
+                 do_fixedinit: bool = False,
+                 do_incloud: bool = False,
+                 do_explised: bool = False,
+                 do_substep: bool = False,
+                 do_thermo: bool = False,
+                 do_vdiff: bool = False,
+                 do_vtran: bool = True,
+                 do_drydep: bool = False,
+                 do_pheat: bool = False,
+                 do_pheatatm: bool = False,
+                 do_clearsky: bool = False,
+                 do_partialinit: bool = False,
+                 do_coremasscheck: bool = False,
+                 vf_const: float = 0.0,
+                 minsubsteps: int = 1,
+                 maxsubsteps: int = 1,
+                 maxretries: int = 5,
+                 conmax: float = 1.0e-1,
+                 dt_threshold: float = 0.0,
+                 cstick: float = 1.0,
+                 gsticki: float = 0.93,
+                 gstickl: float = 1.0,
+                 tstick: float = 1.0):
+        """
+        Initialize a CARMA initialization configuration.
+
+        Args:
+            do_cnst_rlh: Use constant values for latent heats (default: False)
+            do_detrain: Do detrainment (default: False)
+            do_fixedinit: Use fixed initialization from reference atmosphere (default: False)
+            do_incloud: Do in-cloud processes (growth, coagulation) (default: False)
+            do_explised: Do sedimentation with substepping (default: False)
+            do_substep: Do substepping (default: False)
+            do_thermo: Do thermodynamic processes (default: False)
+            do_vdiff: Do Brownian diffusion (default: False)
+            do_vtran: Do sedimentation (default: True)
+            do_drydep: Do dry deposition (default: False)
+            do_pheat: Do particle heating (default: False)
+            do_pheatatm: Do particle heating of atmosphere (default: False)
+            do_clearsky: Do clear sky growth and coagulation (default: False)
+            do_partialinit: Do initialization of coagulation from reference atmosphere (requires do_fixedinit) (default: False)
+            do_coremasscheck: Check core mass for particles (default: False)
+            vf_const: Constant fall velocity [m/s] (0: off) (default: 0.0)
+            minsubsteps: Minimum number of substeps (default: 1)
+            maxsubsteps: Maximum number of substeps (default: 1)
+            maxretries: Maximum number of retries (default: 5)
+            conmax: Minimum relative concentration to consider (default: 1.0e-1)
+            dt_threshold: Convergence criteria for temperature [fraction] (0: off) (default: 0.0)
+            cstick: Accommodation coefficient for coagulation (default: 1.0)
+            gsticki: Accommodation coefficient for growth of ice (default: 0.93)
+            gstickl: Accommodation coefficient for growth of liquid (default: 1.0)
+            tstick: Accommodation coefficient temperature (default: 1.0)
+        """
+        self.do_cnst_rlh = do_cnst_rlh
+        self.do_detrain = do_detrain
+        self.do_fixedinit = do_fixedinit
+        self.do_incloud = do_incloud
+        self.do_explised = do_explised
+        self.do_substep = do_substep
+        self.do_thermo = do_thermo
+        self.do_vdiff = do_vdiff
+        self.do_vtran = do_vtran
+        self.do_drydep = do_drydep
+        self.do_pheat = do_pheat
+        self.do_pheatatm = do_pheatatm
+        self.do_clearsky = do_clearsky
+        self.do_partialinit = do_partialinit
+        self.do_coremasscheck = do_coremasscheck
+        self.vf_const = vf_const
+        self.minsubsteps = minsubsteps
+        self.maxsubsteps = maxsubsteps
+        self.maxretries = maxretries
+        self.conmax = conmax
+        self.dt_threshold = dt_threshold
+        self.cstick = cstick
+        self.gsticki = gsticki
+        self.gstickl = gstickl
+        self.tstick = tstick
+
+    def to_dict(self) -> Dict:
+        """Convert to dictionary."""
+        return {k: v for k, v in self.__dict__.items()}
+
+
 class CARMAParameters:
     """
     Parameters for CARMA aerosol model simulation.
@@ -505,7 +598,8 @@ class CARMAParameters:
                  gases: Optional[List[CARMAGasConfig]] = None,
                  coagulations: Optional[List[CARMACoagulationConfig]] = None,
                  growths: Optional[List[CARMAGrowthConfig]] = None,
-                 nucleations: Optional[List[CARMANucleationConfig]] = None):
+                 nucleations: Optional[List[CARMANucleationConfig]] = None,
+                 initialization: Optional[CARMAInitializationConfig] = None):
         """
         Initialize CARMA parameters.
 
@@ -526,6 +620,7 @@ class CARMAParameters:
             coagulations: List of coagulation configurations (default: None)
             growths: List of growth configurations (default: None)
             nucleations: List of nucleation configurations (default: None)
+            initialization: Initialization configuration (default: None)
         """
         self.nz = nz
         self.ny = ny
@@ -545,6 +640,7 @@ class CARMAParameters:
         self.coagulations = coagulations or []
         self.growths = growths or []
         self.nucleations = nucleations or []
+        self.initialization = initialization or CARMAInitializationConfig()
 
     def add_wavelength_bin(self, wavelength_bin: CARMAWavelengthBin):
         """Add a wavelength bin configuration."""
@@ -577,6 +673,10 @@ class CARMAParameters:
     def add_nucleation(self, nucleation: CARMANucleationConfig):
         """Add a nucleation configuration."""
         self.nucleations.append(nucleation)
+
+    def set_initialization(self, initialization: CARMAInitializationConfig):
+        """Set the initialization configuration."""
+        self.initialization = initialization
 
     def __repr__(self):
         """String representation of CARMAParameters."""
@@ -613,6 +713,8 @@ class CARMAParameters:
                     params_dict[k] = [nucleation.to_dict() for nucleation in v]
                 elif k == 'wavelength_bins':
                     params_dict[k] = [bin.to_dict() for bin in v]
+                elif k == 'initialization':
+                    params_dict[k] = v.to_dict() if v else None
                 else:
                     params_dict[k] = v
         return params_dict
@@ -668,6 +770,11 @@ class CARMAParameters:
                            for nucleation_dict in params_dict['nucleations']]
             del params_dict['nucleations']
 
+        initialization = None
+        if 'initialization' in params_dict and params_dict['initialization']:
+            initialization = CARMAInitializationConfig(**params_dict['initialization'])
+            del params_dict['initialization']
+
         return cls(
             wavelength_bins=wavelength_bins,
             groups=groups,
@@ -677,6 +784,7 @@ class CARMAParameters:
             coagulations=coagulations,
             growths=growths,
             nucleations=nucleations,
+            initialization=initialization,
             **params_dict)
 
     @classmethod

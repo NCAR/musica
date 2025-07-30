@@ -13,3 +13,85 @@
    fun:InternalRunTuvx
    ...
 }
+
+##############################################################
+#
+# CARMA suppressions
+#
+# Review these after all the CARMASTATE_* functions have been wrapped
+##############################################################
+
+{
+   <invalid_read_step>
+   Memcheck:Addr8
+   ...
+   fun:__carmastate_mod_MOD_carmastate_step
+   fun:__carma_interface_MOD_run_carma_simulation
+   ...
+}
+
+{
+   <step_value8>
+   Memcheck:Value8
+   ...
+   fun:__carmastate_mod_MOD_carmastate_step
+   fun:__carma_interface_MOD_run_carma_simulation
+   ...
+}
+
+{
+   <step_param_write>
+   Memcheck:Param
+   write(buf)
+   ...
+   fun:__carmastate_mod_MOD_carmastate_step
+   ...
+}
+
+{
+   <conditional_jump_getbin>
+   Memcheck:Cond
+   ...
+   fun:__carmastate_mod_MOD_carmastate_getbin
+   fun:__carma_interface_MOD_run_carma_simulation
+   ...
+}
+
+{
+   <print_unitialized>
+   Memcheck:Cond
+   ...
+   fun:formatted_transfer_scalar_write
+   fun:formatted_transfer
+   fun:gsolve_
+   ...
+}
+
+{
+   <print_value8>
+   Memcheck:Value8
+   ...
+   fun:formatted_transfer_scalar_write
+   fun:formatted_transfer
+   fun:gsolve_
+   ...
+}
+
+{
+   <conditional_jump_several>
+   Memcheck:Cond
+   ...
+   fun:__carmastate_mod_MOD_carmastate_step
+   fun:__carma_interface_MOD_run_carma_simulation
+   ...
+}
+
+{
+   <uninitialized_carma_f_pc>
+   Memcheck:Cond
+   fun:__carmastate_mod_MOD_carmastate_getbin
+   fun:__carma_interface_MOD_extract_carma_fundamental_data
+   fun:__carma_interface_MOD_transfer_carma_output_data
+   fun:__carma_interface_MOD_run_carma_simulation
+   ...
+}

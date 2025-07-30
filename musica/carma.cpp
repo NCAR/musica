@@ -352,6 +352,67 @@ void bind_carma(py::module_& carma)
           }
         }
 
+        // Handle initialization configuration
+        if (params_dict.contains("initialization"))
+        {
+          auto initialization_py = params_dict["initialization"];
+          if (!initialization_py.is_none() && py::isinstance<py::dict>(initialization_py))
+          {
+            auto initialization_dict = initialization_py.cast<py::dict>();
+
+            if (initialization_dict.contains("do_cnst_rlh"))
+              params.initialization.do_cnst_rlh = initialization_dict["do_cnst_rlh"].cast<bool>();
+            if (initialization_dict.contains("do_detrain"))
+              params.initialization.do_detrain = initialization_dict["do_detrain"].cast<bool>();
+            if (initialization_dict.contains("do_fixedinit"))
+              params.initialization.do_fixedinit = initialization_dict["do_fixedinit"].cast<bool>();
+            if (initialization_dict.contains("do_incloud"))
+              params.initialization.do_incloud = initialization_dict["do_incloud"].cast<bool>();
+            if (initialization_dict.contains("do_explised"))
+              params.initialization.do_explised = initialization_dict["do_explised"].cast<bool>();
+            if (initialization_dict.contains("do_substep"))
+              params.initialization.do_substep = initialization_dict["do_substep"].cast<bool>();
+            if (initialization_dict.contains("do_thermo"))
+              params.initialization.do_thermo = initialization_dict["do_thermo"].cast<bool>();
+            if (initialization_dict.contains("do_vdiff"))
+              params.initialization.do_vdiff = initialization_dict["do_vdiff"].cast<bool>();
+            if (initialization_dict.contains("do_vtran"))
+              params.initialization.do_vtran = initialization_dict["do_vtran"].cast<bool>();
+            if (initialization_dict.contains("do_drydep"))
+              params.initialization.do_drydep = initialization_dict["do_drydep"].cast<bool>();
+            if (initialization_dict.contains("do_pheat"))
+              params.initialization.do_pheat = initialization_dict["do_pheat"].cast<bool>();
+            if (initialization_dict.contains("do_pheatatm"))
+              params.initialization.do_pheatatm = initialization_dict["do_pheatatm"].cast<bool>();
+            if (initialization_dict.contains("do_clearsky"))
+              params.initialization.do_clearsky = initialization_dict["do_clearsky"].cast<bool>();
+            if (initialization_dict.contains("do_partialinit"))
+              params.initialization.do_partialinit = initialization_dict["do_partialinit"].cast<bool>();
+            if (initialization_dict.contains("do_coremasscheck"))
+              params.initialization.do_coremasscheck = initialization_dict["do_coremasscheck"].cast<bool>();
+            if (initialization_dict.contains("vf_const"))
+              params.initialization.vf_const = initialization_dict["vf_const"].cast<double>();
+            if (initialization_dict.contains("minsubsteps"))
+              params.initialization.minsubsteps = initialization_dict["minsubsteps"].cast<int>();
+            if (initialization_dict.contains("maxsubsteps"))
+              params.initialization.maxsubsteps = initialization_dict["maxsubsteps"].cast<int>();
+            if (initialization_dict.contains("maxretries"))
+              params.initialization.maxretries = initialization_dict["maxretries"].cast<int>();
+            if (initialization_dict.contains("conmax"))
+              params.initialization.conmax = initialization_dict["conmax"].cast<double>();
+            if (initialization_dict.contains("dt_threshold"))
+              params.initialization.dt_threshold = initialization_dict["dt_threshold"].cast<double>();
+            if (initialization_dict.contains("cstick"))
+              params.initialization.cstick = initialization_dict["cstick"].cast<double>();
+            if (initialization_dict.contains("gsticki"))
+              params.initialization.gsticki = initialization_dict["gsticki"].cast<double>();
+            if (initialization_dict.contains("gstickl"))
+              params.initialization.gstickl = initialization_dict["gstickl"].cast<double>();
+            if (initialization_dict.contains("tstick"))
+              params.initialization.tstick = initialization_dict["tstick"].cast<double>();
+          }
+        }
+
         // Handle wavelength bins
         if (params_dict.contains("wavelength_bins"))
         {
