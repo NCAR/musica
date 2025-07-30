@@ -10,7 +10,7 @@
 [![PyPI version](https://badge.fury.io/py/musica.svg)](https://pypi.org/p/musica)
 [![FAIR checklist badge](https://fairsoftwarechecklist.net/badge.svg)](https://fairsoftwarechecklist.net/v0.2?f=31&a=32113&i=22322&r=123)
 [![codecov](https://codecov.io/gh/NCAR/musica/branch/main/graph/badge.svg)](https://codecov.io/gh/NCAR/musica)
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/NCAR/musica/2821e3b4703a49a7ac7ff75748bf50ad6fd9fecf?urlpath=lab%2Ftree%2Ftutorials)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/NCAR/musica/ce286ed880191d958fca89b35b126e743b3ed26b?urlpath=lab%2Ftree%2Ftutorials)
 
 
 Multi-Scale Infrastructure for Chemistry and Aerosols
