@@ -27,6 +27,8 @@ def test_carma_instance():
     assert state is not None
     assert isinstance(state, musica.CARMAState)
 
+    state.set_bin(1, 1, 1.0)
+    state.set_detrain(1, 1, 1.0)
     carma.run()
 
 

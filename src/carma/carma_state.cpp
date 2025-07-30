@@ -7,6 +7,7 @@
 #include <musica/carma/carma_state.hpp>
 
 #include <cstring>
+#include <iostream>
 #include <stdexcept>
 
 namespace musica
@@ -49,8 +50,97 @@ namespace musica
         &rc);  // No return code needed in this context
     if (f_carma_state_ == nullptr || rc != 0)
     {
-      std::string error_message = "Failed to create CARMA state with return code: " + std::to_string(rc);
-      throw std::runtime_error(error_message);
+      throw std::runtime_error("Failed to create CARMA state with return code: " + std::to_string(rc));
+    }
+  }
+
+  CARMAState::~CARMAState()
+  {
+    if (f_carma_state_ != nullptr)
+    {
+      int rc;
+      InternalDestroyCarmaState(f_carma_state_, &rc);
+      f_carma_state_ = nullptr;
+      if (rc != 0)
+      {
+        std::cerr << "Failed to destroy CARMA state with return code: " << rc << std::endl;
+      }
+    }
+  }
+
+  void CARMAState::SetBin(int bin_index, int element_index, const std::vector<double>& values)
+  {
+    if (f_carma_state_ == nullptr)
+    {
+      throw std::runtime_error("CARMA state instance is not initialized.");
+    }
+
+    if (values.empty())
+    {
+      throw std::invalid_argument("Values vector cannot be empty.");
+    }
+
+    int rc;
+    InternalSetBin(f_carma_state_, bin_index, element_index, values.data(), static_cast<int>(values.size()), &rc);
+    if (rc != 0)
+    {
+      throw std::runtime_error("Failed to set bin values with return code: " + std::to_string(rc));
+    }
+  }
+
+  void CARMAState::SetDetrain(int bin_index, int element_index, const std::vector<double>& values)
+  {
+    if (f_carma_state_ == nullptr)
+    {
+      throw std::runtime_error("CARMA state instance is not initialized.");
+    }
+
+    if (values.empty())
+    {
+      throw std::invalid_argument("Values vector cannot be empty.");
+    }
+
+    int rc;
+    InternalSetDetrain(f_carma_state_, bin_index, element_index, values.data(), static_cast<int>(values.size()), &rc);
+    if (rc != 0)
+    {
+      throw std::runtime_error("Failed to set detrain values with return code: " + std::to_string(rc));
+    }
+  }
+
+  void CARMAState::SetGas(
+      int gas_index,
+      const std::vector<double>& values,
+      const std::vector<double>& old_mmr,
+      const std::vector<double>& gas_saturation_wrt_ice,
+      const std::vector<double>& gas_saturation_wrt_liquid)
+  {
+    if (f_carma_state_ == nullptr)
+    {
+      throw std::runtime_error("CARMA state instance is not initialized.");
+    }
+
+    if (values.empty())
+    {
+      throw std::invalid_argument("Values vector cannot be empty.");
+    }
+
+    int rc;
+    InternalSetGas(
+        f_carma_state_,
+        gas_index,
+        values.data(),
+        static_cast<int>(values.size()),
+        old_mmr.data(),
+        static_cast<int>(old_mmr.size()),
+        gas_saturation_wrt_ice.data(),
+        static_cast<int>(gas_saturation_wrt_ice.size()),
+        gas_saturation_wrt_liquid.data(),
+        static_cast<int>(gas_saturation_wrt_liquid.size()),
+        &rc);
+    if (rc != 0)
+    {
+      throw std::runtime_error("Failed to set gas values with return code: " + std::to_string(rc));
     }
   }
 

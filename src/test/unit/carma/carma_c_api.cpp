@@ -1,6 +1,7 @@
 #include <musica/carma/carma.hpp>
 #include <musica/carma/carma_state.hpp>
 #include <musica/carma/carma_c_interface.hpp>
+#include <musica/carma/carma_state.hpp>
 
 #include <gtest/gtest.h>
 
@@ -347,4 +348,23 @@ TEST_F(CarmaCApiTest, RunCarmaWithAluminumTestParams)
   EXPECT_EQ(output.group_particle_number_concentration.size(), params.groups.size());
   EXPECT_EQ(output.constituent_type.size(), params.groups.size());
   EXPECT_EQ(output.max_prognostic_bin.size(), params.groups.size());
+}
+
+TEST_F(CarmaCApiTest, CanSetBinValues)
+{
+  CARMAParameters params = CARMA::CreateAluminumTestParams();
+  CARMA carma{ params };
+  CARMAStateParameters state_params;
+  state_params.longitude = 0.0;
+  state_params.latitude = 0.0;
+  state_params.temperature = std::vector<double>(params.nz, 273.15);
+  state_params.pressure = std::vector<double>(params.nz, 101325.0);
+  state_params.pressure_levels = std::vector<double>(params.nz + 1, 101325.0);
+  state_params.vertical_levels = std::vector<double>(params.nz + 1, 1.0);
+  state_params.vertical_center = std::vector<double>(params.nz, 16500.0);
+  state_params.coordinates = CarmaCoordinates::CARTESIAN;
+
+  CARMAState state = CARMAState(&carma, state_params);
+  ASSERT_NO_THROW(state.SetBin(1, 1, std::vector<double>{ 1.0 }));
+  ASSERT_NO_THROW(state.SetDetrain(1, 1, std::vector<double>{ 1.0 }));
 }

@@ -53,6 +53,15 @@ namespace musica
 
     ~CARMAState();
 
+    void SetBin(int bin_index, int element_index, const std::vector<double>& values);
+    void SetDetrain(int bin_index, int element_index, const std::vector<double>& values);
+    void SetGas(
+        int gas_index,
+        const std::vector<double>& values,
+        const std::vector<double>& old_mmr,
+        const std::vector<double>& gas_saturation_wrt_ice,
+        const std::vector<double>& gas_saturation_wrt_liquid);
+
    private:
     void* f_carma_state_;
   };
