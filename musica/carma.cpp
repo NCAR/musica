@@ -609,4 +609,23 @@ void bind_carma(py::module_& carma)
         carma_state->SetGas(gas_index, to_vector_double(value), to_vector_double(old_mmr), to_vector_double(gas_saturation_wrt_ice), to_vector_double(gas_saturation_wrt_liquid));
       },
       "Set the gas mass mixing ratio for a specific gas index in the CARMA state");
+  
+  carma.def(
+      "_get_step_statistics",
+      [](std::uintptr_t carma_state_ptr)
+      {
+        auto carma_state = reinterpret_cast<musica::CARMAState*>(carma_state_ptr);
+        musica::CarmaStatistics stats = carma_state->GetStepStatistics();
+        py::dict result;
+        result["max_number_of_substeps"] = stats.max_number_of_substeps;
+        result["max_number_of_retries"] = stats.max_number_of_retries;
+        result["total_number_of_steps"] = stats.total_number_of_steps;
+        result["total_number_of_substeps"] = stats.total_number_of_substeps;
+        result["total_number_of_retries"] = stats.total_number_of_retries;
+        result["z_substeps"] = stats.z_substeps;
+        result["xc"] = stats.xc;
+        result["yc"] = stats.yc;
+        return result;
+      },
+      "Get the step statistics for the current CARMAState");
 }

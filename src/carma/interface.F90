@@ -340,6 +340,45 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+   subroutine internal_get_state_statistics(carma_state_cptr, max_number_of_substeps, max_number_of_retries, &
+                                            total_number_of_steps, total_number_of_substeps, total_number_of_retries, &
+                                            xc, yc, z_substeps, z_substeps_size, rc) & 
+         bind(C, name="InternalGetStepStatistics")
+      use iso_c_binding, only: c_ptr, c_int, c_double
+      use iso_fortran_env, only: real64
+      use carma_types_mod, only: carmastate_type
+      use carmastate_mod, only: CARMASTATE_Get
+
+      type(c_ptr), value, intent(in)     :: carma_state_cptr
+      integer(c_int), intent(out)  :: max_number_of_substeps
+      real(real64), intent(out)    :: max_number_of_retries
+      real(real64), intent(out)    :: total_number_of_steps
+      integer(c_int), intent(out)  :: total_number_of_substeps
+      real(real64), intent(out)    :: total_number_of_retries
+      real(real64), intent(out)    :: xc
+      real(real64), intent(out)    :: yc
+      type(c_ptr),    value              :: z_substeps
+      integer(c_int), value, intent(in)  :: z_substeps_size
+      integer(c_int), intent(out)        :: rc
+
+      ! Local variables
+      type(carmastate_type), pointer :: cstate
+      real(kind=real64), pointer      :: values(:)
+
+      if (c_associated(carma_state_cptr)) then
+         call c_f_pointer(carma_state_cptr, cstate)
+         call c_f_pointer(z_substeps, values, [z_substeps_size])
+
+         ! Get state statistics
+         call CARMASTATE_Get(cstate, rc, max_number_of_substeps, max_number_of_retries, &
+                                        total_number_of_steps, total_number_of_substeps, total_number_of_retries, &
+                                        values, xc, yc)
+      end if
+
+   end subroutine internal_get_state_statistics
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
    subroutine internal_run_carma(params, carma_cptr, c_output, rc) &
       bind(C, name="InternalRunCarma")
       use iso_c_binding, only: c_int, c_ptr, c_f_pointer

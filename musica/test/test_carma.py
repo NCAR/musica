@@ -30,6 +30,7 @@ def test_carma_instance():
     state.set_bin(1, 1, 1.0)
     state.set_detrain(1, 1, 1.0)
     carma.run()
+    print(state.get_step_statistics())
 
 
 def test_carma_with_default_parameters():

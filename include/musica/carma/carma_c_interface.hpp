@@ -313,6 +313,20 @@ namespace musica
         const double* gas_saturation_wrt_liquid,
         int gas_saturation_wrt_liquid_size,
         int* rc);
+    
+    void InternalGetStepStatistics(
+        void* carma_state_instance,
+        int* max_number_of_substeps,
+        double* max_number_of_retries,
+        double* total_number_of_steps,
+        int* total_number_of_substeps,
+        double* total_number_of_retries,
+        double* xc,
+        double* yc,
+        double* z_substeps,
+        int z_substeps_size,
+        int* rc
+      );
 
     // CARMA driver interface functions
     void InternalRunCarma(const CCARMAParameters& params, void* carma_instance, void* output, int* rc);

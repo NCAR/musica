@@ -7,7 +7,7 @@ It allows users to create a CARMA instance and run simulations with specified pa
 Note: CARMA is only available on macOS and Linux platforms.
 """
 
-from typing import Dict, Optional, List, Union
+from typing import Dict, Optional, List, Union, Any
 from ctypes import c_void_p
 import numpy as np
 import xarray as xr
@@ -1185,6 +1185,16 @@ class CARMAState:
             old_mmr,
             gas_saturation_wrt_ice,
             gas_saturation_wrt_liquid)
+    
+    def get_step_statistics(self) -> Dict[str, Any]:
+        """
+        Get the step statistics for the current CARMAState.
+
+        Returns:
+            Dict[str, Any]: Dictionary containing step statistics such as
+                            number of substeps, convergence status, etc.
+        """
+        return _backend._carma._get_step_statistics(self._carma_state_instance)
 
 
 class CARMA:

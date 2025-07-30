@@ -16,6 +16,7 @@ namespace musica
   CARMAState::CARMAState(CARMA* carma, const CARMAStateParameters& params)
   {
     CCARMAParameters* carma_params = carma->GetParameters();
+    this->nz = carma_params->nz;
     CARMAStateParametersC state_params;
     state_params.time = params.time;
     state_params.longitude = params.longitude;
@@ -133,4 +134,35 @@ namespace musica
       throw std::runtime_error("Failed to set gas values with return code: " + std::to_string(rc));
     }
   }
+
+
+   CarmaStatistics CARMAState::GetStepStatistics() const
+   {
+      if (f_carma_state_ == nullptr)
+      {
+        throw std::runtime_error("CARMA state instance is not initialized.");
+      }
+
+      CarmaStatistics stats;
+      stats.z_substeps.resize(nz);
+      int rc;
+      InternalGetStepStatistics(
+        f_carma_state_,
+        &stats.max_number_of_substeps,
+        &stats.max_number_of_retries,
+        &stats.total_number_of_steps,
+        &stats.total_number_of_substeps,
+        &stats.total_number_of_retries,
+        &stats.xc,
+        &stats.yc,
+        stats.z_substeps.data(),
+        static_cast<int>(stats.z_substeps.size()),
+        &rc
+      );
+      if (rc != 0)
+      {
+        throw std::runtime_error("Failed to get CARMA step statistics with return code: " + std::to_string(rc));
+      }
+      return stats;
+    }
 }  // namespace musica

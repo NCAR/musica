@@ -35,6 +35,17 @@ namespace musica
     std::vector<double> pressure_levels;
   };
 
+  struct CarmaStatistics {
+    int max_number_of_substeps;  // Maximum number of substeps taken in the last run
+    double max_number_of_retries;  // Maximum number of retries for convergence
+    double total_number_of_steps;  // Total number of steps taken in the last run
+    int total_number_of_substeps;  // Total number of substeps taken in the last run
+    double total_number_of_retries;  // Total number of retries for convergence
+    std::vector<double> z_substeps;  // number of substeps per vertical level
+    double xc;  // x location at the center of this CARMA state
+    double yc;  // y location at the center of this CARMA state
+  };
+
   class CARMAState
   {
    public:
@@ -50,9 +61,11 @@ namespace musica
         const std::vector<double>& old_mmr,
         const std::vector<double>& gas_saturation_wrt_ice,
         const std::vector<double>& gas_saturation_wrt_liquid);
+   CarmaStatistics GetStepStatistics() const;
 
    private:
     void* f_carma_state_;
+    int nz; // Number of vertical levels
   };
 
 }  // namespace musica
