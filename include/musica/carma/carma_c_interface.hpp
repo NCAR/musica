@@ -142,31 +142,31 @@ namespace musica
     // C-Compatible structure for CARMA initialization configuration
     struct CARMAInitializationConfigC
     {
-      bool do_cnst_rlh;  // use constant values for latent heats
-      bool do_detrain;  // do detrainment
-      bool do_fixedinit;  // use fixed initialization from reference atmosphere
-      bool do_incloud;  // do in-cloud processes (growth, coagulation)
-      bool do_explised; // do sedimentation with substepping
-      bool do_substep;  // do substepping
-      bool do_thermo; // do thermodynamic processes
-      bool do_vdiff; // do Brownian diffusion
-      bool do_vtran;  // do sedimentation
-      bool do_drydep; // do dry deposition
-      bool do_pheat;  // do particle heating
-      bool do_pheatatm; // do particle heating of atmosphere
-      bool do_clearsky; // do clear sky growth and coagulation
-      bool do_partialinit; // do initialization of coagulation from reference atmosphere (requires do_fixedinit)
-      bool do_coremasscheck; // check core mass for particles
-      double vf_const; // constant fall velocity [m/s] (0: off)
-      int minsubsteps;  // minimum number of substeps
-      int maxsubsteps;  // maximum number of substeps
-      int maxretries;  // maximum number of retries
-      double conmax; // minimum relative concentration to consider
-      double dt_threshold; // convergence criteria for temperature [fraction] (0: off)
-      double cstick; // accommodation coefficient for coagulation
-      double gsticki; // accommodation coefficient for growth of ice
-      double gstickl; // accommodation coefficient for growth of liquid
-      double tstick; // accommodation coefficient temperature
+      bool do_cnst_rlh;       // use constant values for latent heats
+      bool do_detrain;        // do detrainment
+      bool do_fixedinit;      // use fixed initialization from reference atmosphere
+      bool do_incloud;        // do in-cloud processes (growth, coagulation)
+      bool do_explised;       // do sedimentation with substepping
+      bool do_substep;        // do substepping
+      bool do_thermo;         // do thermodynamic processes
+      bool do_vdiff;          // do Brownian diffusion
+      bool do_vtran;          // do sedimentation
+      bool do_drydep;         // do dry deposition
+      bool do_pheat;          // do particle heating
+      bool do_pheatatm;       // do particle heating of atmosphere
+      bool do_clearsky;       // do clear sky growth and coagulation
+      bool do_partialinit;    // do initialization of coagulation from reference atmosphere (requires do_fixedinit)
+      bool do_coremasscheck;  // check core mass for particles
+      double vf_const;        // constant fall velocity [m/s] (0: off)
+      int minsubsteps;        // minimum number of substeps
+      int maxsubsteps;        // maximum number of substeps
+      int maxretries;         // maximum number of retries
+      double conmax;          // minimum relative concentration to consider
+      double dt_threshold;    // convergence criteria for temperature [fraction] (0: off)
+      double cstick;          // accommodation coefficient for coagulation
+      double gsticki;         // accommodation coefficient for growth of ice
+      double gstickl;         // accommodation coefficient for growth of liquid
+      double tstick;          // accommodation coefficient temperature
     };
 
     // C-compatible structure for CARMA parameters
