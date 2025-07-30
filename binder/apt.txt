@@ -1,3 +1,4 @@
 gfortran
 libnetcdf-dev
 libnetcdff-dev
+libblas-dev
