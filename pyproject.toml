@@ -31,6 +31,7 @@ test = ["numpy", "pytest"]
 gpu = ["nvidia-cublas-cu12", "nvidia-cuda-runtime-cu12"]
 
 [tool.scikit-build]
+# build-dir="python_build"
 cmake.build-type = "Release"
 cmake.define.MUSICA_ENABLE_PYTHON_LIBRARY = "ON"
 cmake.define.MUSICA_BUILD_FORTRAN_INTERFACE = "OFF"
