@@ -7,8 +7,8 @@
 #include <musica/carma/carma_c_interface.hpp>
 
 #include <cstring>
-#include <stdexcept>
 #include <iostream>
+#include <stdexcept>
 
 namespace musica
 {
