@@ -1,2 +1,2 @@
 gfortran
-netcdf-fortran-devel
+netcdff
