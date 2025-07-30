@@ -24,26 +24,26 @@ namespace musica
 
   struct CARMAStateParameters
   {
-    double time = 0.0;  // Time [s]
+    double time = 0.0;       // Time [s]
     double time_step = 0.0;  // Time step [s]
     double longitude = 0.0;  // Longitude [degrees]
-    double latitude = 0.0;  // Latitude [degrees]
+    double latitude = 0.0;   // Latitude [degrees]
     CarmaCoordinates coordinates = CarmaCoordinates::CARTESIAN;
-    std::vector<double> vertical_center; // Vertical center heights [m]
-    std::vector<double> vertical_levels; // Vertical levels [m]
-    std::vector<double> temperature; // Temperature at vertical centers [K]
-    std::vector<double> pressure; // Pressure at vertical centers [Pa]
-    std::vector<double> pressure_levels; // Pressure at vertical levels [Pa]
-    std::vector<double> specific_humidity; // Specific humidity at vertical centers [kg/kg]
-    std::vector<double> relative_humidity; // Relative humidity at vertical centers [fraction]
-    std::vector<double> original_temperature; // Original temperature at vertical centers [K]
+    std::vector<double> vertical_center;       // Vertical center heights [m]
+    std::vector<double> vertical_levels;       // Vertical levels [m]
+    std::vector<double> temperature;           // Temperature at vertical centers [K]
+    std::vector<double> pressure;              // Pressure at vertical centers [Pa]
+    std::vector<double> pressure_levels;       // Pressure at vertical levels [Pa]
+    std::vector<double> specific_humidity;     // Specific humidity at vertical centers [kg/kg]
+    std::vector<double> relative_humidity;     // Relative humidity at vertical centers [fraction]
+    std::vector<double> original_temperature;  // Original temperature at vertical centers [K]
 
     // 2D array for radiative intensity
     // This is flattened into a 1D vector so we can pass it to Fortran
     // The first dimension is the wavelength bins, the second is the vertical centers
-    std::vector<double> radiative_intensity; // Radiative intensity at wavelength bins and vertical centers [W/m²/sr/m]
-    int radiative_intensity_dim_1_size = 0; // Number of wavelength bins
-    int radiative_intensity_dim_2_size = 0; // Number of vertical centers
+    std::vector<double> radiative_intensity;  // Radiative intensity at wavelength bins and vertical centers [W/m²/sr/m]
+    int radiative_intensity_dim_1_size = 0;   // Number of wavelength bins
+    int radiative_intensity_dim_2_size = 0;   // Number of vertical centers
   };
 
   class CARMAState

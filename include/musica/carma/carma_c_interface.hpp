@@ -250,30 +250,30 @@ namespace musica
 
     struct CARMAStateParametersC
     {
-      double time;                    // Time [s]
-      double time_step;               // Time step [s]
-      double longitude;               // Longitude [degrees]
-      double latitude;                // Latitude [degrees]
-      int coordinates;                // Coordinate system
-      const double* vertical_center;  // Vertical center heights [m]
-      int vertical_center_size;       // Size of vertical center array
-      const double* vertical_levels;  // Vertical levels heights [m]
-      int vertical_levels_size;       // Size of vertical levels array
-      const double* temperature;      // Temperature profile [K]
-      int temperature_size;           // Size of temperature array
-      const double* pressure;         // Pressure profile [Pa]
-      int pressure_size;              // Size of pressure array
-      const double* pressure_levels;  // Pressure levels [Pa]
-      int pressure_levels_size;       // Size of pressure levels array
-      const double* specific_humidity;  // Specific humidity profile [kg/kg]
-      int specific_humidity_size;       // Size of specific humidity array
-      const double* relative_humidity;  // Relative humidity profile [fraction]
-      int relative_humidity_size;       // Size of relative humidity array
+      double time;                         // Time [s]
+      double time_step;                    // Time step [s]
+      double longitude;                    // Longitude [degrees]
+      double latitude;                     // Latitude [degrees]
+      int coordinates;                     // Coordinate system
+      const double* vertical_center;       // Vertical center heights [m]
+      int vertical_center_size;            // Size of vertical center array
+      const double* vertical_levels;       // Vertical levels heights [m]
+      int vertical_levels_size;            // Size of vertical levels array
+      const double* temperature;           // Temperature profile [K]
+      int temperature_size;                // Size of temperature array
+      const double* pressure;              // Pressure profile [Pa]
+      int pressure_size;                   // Size of pressure array
+      const double* pressure_levels;       // Pressure levels [Pa]
+      int pressure_levels_size;            // Size of pressure levels array
+      const double* specific_humidity;     // Specific humidity profile [kg/kg]
+      int specific_humidity_size;          // Size of specific humidity array
+      const double* relative_humidity;     // Relative humidity profile [fraction]
+      int relative_humidity_size;          // Size of relative humidity array
       const double* original_temperature;  // Original temperature profile [K]
       int original_temperature_size;       // Size of original temperature array
-      const double* radiative_intensity;  // Radiative intensity [W/m²/sr/m]
-      int radiative_intensity_dim_1_size;       // Size of radiative intensity array
-      int radiative_intensity_dim_2_size;       // Size of radiative intensity array
+      const double* radiative_intensity;   // Radiative intensity [W/m²/sr/m]
+      int radiative_intensity_dim_1_size;  // Size of radiative intensity array
+      int radiative_intensity_dim_2_size;  // Size of radiative intensity array
     };
 
     // The external C API for CARMA

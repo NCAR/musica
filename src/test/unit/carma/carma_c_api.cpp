@@ -1,6 +1,6 @@
 #include <musica/carma/carma.hpp>
-#include <musica/carma/carma_state.hpp>
 #include <musica/carma/carma_c_interface.hpp>
+#include <musica/carma/carma_state.hpp>
 
 #include <gtest/gtest.h>
 
