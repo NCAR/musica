@@ -21,7 +21,7 @@ The Python tutorials are written in `Jupyter <https://jupyter.org>`_ Notebooks a
 Interactive Notebooks
 ----------------------
 The MUSICA repository utilizes `Binder <https://mybinder.readthedocs.io/en/latest/index.html#>`_ to allow users to interact with the tutorial notebooks on a `JupyterHub <https://jupyter.org/hub>`_.
-Each of the links below will open a JupyterHub set up with all necessary dependencies to run each tutorial:
+To use the latest version MUSICA, please launch our `Binder page <https://mybinder.org/v2/gh/NCAR/musica/HEAD>`_ and navigate to the `tutorials` folder. Each of the links below will open a JupyterHub set up with all necessary dependencies to run each tutorial:
 
 1. `working with multiple grid cells <https://mybinder.org/v2/gh/NCAR/musica/2821e3b4703a49a7ac7ff75748bf50ad6fd9fecf?urlpath=lab%2Ftree%2Ftutorials%2F1.%20multiple_grid_cells.ipynb>`_
 2. `latin hypercube sampling <https://mybinder.org/v2/gh/NCAR/musica/2821e3b4703a49a7ac7ff75748bf50ad6fd9fecf?urlpath=lab%2Ftree%2Ftutorials%2F2.%20hypercube.ipynb>`_
