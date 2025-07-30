@@ -207,15 +207,22 @@ contains
       real(kind=real64), pointer :: values(:)
       type(carmastate_type), pointer :: cstate
 
-      print *, "Setting bin values for bin_index:", bin_index, "element_index:", element_index
-      print *, "Values size: ", values_size
+      if (element_index < 1) then
+         rc = ERROR_DIMENSION_MISMATCH
+         print *, "Error: element_index must be >= 1"
+         return
+      end if
+
+      if (bin_index < 1) then
+         rc = ERROR_DIMENSION_MISMATCH
+         print *, "Error: bin_index must be >= 1"
+         return
+      end if
 
       ! Check if carma_state_cptr is associated
       if (c_associated(carma_state_cptr)) then
          call c_f_pointer(carma_state_cptr, cstate)
          call c_f_pointer(values_ptr, values, [values_size])
-
-         print *, "Values to set:", values
 
          call CARMASTATE_SetBin(cstate, bin_index, element_index, values, rc)
       end if
