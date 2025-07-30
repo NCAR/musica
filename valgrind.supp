@@ -64,6 +64,15 @@
 }
 
 {
+   <param_write_gsolve>
+   Memcheck:Param
+   write(buf)
+   ...
+   fun:gsolve_
+   ...
+}
+
+{
    <step_param_write>
    Memcheck:Param
    write(buf)
