@@ -116,11 +116,18 @@ namespace musica
     }
 
     int rc;
-    InternalSetGas(f_carma_state_, gas_index, values.data(), static_cast<int>(values.size()),
-                   old_mmr.data(), static_cast<int>(old_mmr.size()),
-                   gas_saturation_wrt_ice.data(), static_cast<int>(gas_saturation_wrt_ice.size()),
-                   gas_saturation_wrt_liquid.data(), static_cast<int>(gas_saturation_wrt_liquid.size()),
-                   &rc);
+    InternalSetGas(
+        f_carma_state_,
+        gas_index,
+        values.data(),
+        static_cast<int>(values.size()),
+        old_mmr.data(),
+        static_cast<int>(old_mmr.size()),
+        gas_saturation_wrt_ice.data(),
+        static_cast<int>(gas_saturation_wrt_ice.size()),
+        gas_saturation_wrt_liquid.data(),
+        static_cast<int>(gas_saturation_wrt_liquid.size()),
+        &rc);
     if (rc != 0)
     {
       throw std::runtime_error("Failed to set gas values with return code: " + std::to_string(rc));
