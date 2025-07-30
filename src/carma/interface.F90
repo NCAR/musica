@@ -117,6 +117,10 @@ contains
       real(kind=real64), pointer     :: temperature(:)
       real(kind=real64), pointer     :: pressure(:)
       real(kind=real64), pointer     :: pressure_levels(:)
+      real(kind=real64), pointer     :: specific_humidity(:)
+      real(kind=real64), pointer     :: relative_humidity(:)
+      real(kind=real64), pointer     :: original_temperature(:)
+      real(kind=real64), pointer     :: radiative_intensity(:,:)
       type(c_ptr)                    :: carma_state_cptr
       integer :: alloc_stat
 
@@ -135,17 +139,50 @@ contains
       call c_f_pointer(carma_state_params%temperature, temperature, [carma_state_params%temperature_size])
       call c_f_pointer(carma_state_params%pressure, pressure, [carma_state_params%pressure_size])
       call c_f_pointer(carma_state_params%pressure_levels, pressure_levels, [carma_state_params%pressure_levels_size])
+      if (carma_state_params%specific_humidity_size > 0) then
+         call c_f_pointer(carma_state_params%specific_humidity, specific_humidity, [carma_state_params%specific_humidity_size])
+      else
+         specific_humidity => null()
+      end if
+      if (carma_state_params%relative_humidity_size > 0) then
+         call c_f_pointer(carma_state_params%relative_humidity, relative_humidity, [carma_state_params%relative_humidity_size])
+      else
+         relative_humidity => null()
+      end if
+      if (carma_state_params%original_temperature_size > 0) then
+         call c_f_pointer(carma_state_params%original_temperature, original_temperature, [carma_state_params%original_temperature_size])
+      else
+         original_temperature => null()
+      end if
+      if (carma_state_params%radiative_intensity_dim_1_size > 0 .and. &
+          carma_state_params%radiative_intensity_dim_2_size > 0) then
+          call c_f_pointer(carma_state_params%radiative_intensity, radiative_intensity, [carma_state_params%radiative_intensity_dim_2_size, carma_state_params%radiative_intensity_dim_1_size])
+      else
+          radiative_intensity => null()
+      end if
 
       ! Check if carma_cptr is associated
       if (c_associated(carma_cptr)) then
          call c_f_pointer(carma_cptr, carma)
-         call CARMASTATE_Create(cstate, carma, &
-            carma_state_params%time, carma_params%dtime, carma_params%nz, &
-            carma_state_params%coordinates, carma_state_params%latitude, carma_state_params%longitude, &
-            vertical_center(:), vertical_levels(:), &
-            pressure(:), pressure_levels(:), &
-            temperature(:), rc, &
-            told=temperature(:))
+         call CARMASTATE_Create( &
+            cstate, &
+            carma, &
+            carma_state_params%time, &
+            carma_state_params%time_step, &
+            carma_params%nz, &
+            carma_state_params%coordinates, &
+            carma_state_params%latitude, &
+            carma_state_params%longitude, &
+            vertical_center(:), &
+            vertical_levels(:), &
+            pressure(:), &
+            pressure_levels(:), &
+            temperature(:), &
+            rc, &
+            qh2o=specific_humidity(:), &
+            relhum=relative_humidity(:), &
+            told=original_temperature(:), &
+            radint=radiative_intensity(:,:))
          if (rc /= 0) then
             print *, "Error creating CARMA state"
             return
