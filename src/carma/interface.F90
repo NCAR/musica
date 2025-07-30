@@ -608,7 +608,37 @@ contains
       end if
 
       ! Initialize CARMA with coagulation settings matching test_aluminum_simple
-      call CARMA_Initialize(carma, rc, do_grow=.false., do_coag=.true., do_substep=.false., do_vtran=.FALSE.)
+      call CARMA_Initialize( &
+         carma, &
+         rc, &
+         do_cnst_rlh=logical(params%initialization%do_cnst_rlh), &
+         do_coag=params%coagulations_size > 0, &
+         do_detrain=logical(params%initialization%do_detrain), &
+         do_fixedinit=logical(params%initialization%do_fixedinit), &
+         do_grow=params%growths_size > 0 .or. params%nucleations_size > 0, &
+         do_incloud=logical(params%initialization%do_incloud), &
+         do_explised=logical(params%initialization%do_explised), &
+         do_substep=logical(params%initialization%do_substep), &
+         do_thermo=logical(params%initialization%do_thermo), &
+         do_vdiff=logical(params%initialization%do_vdiff), &
+         do_vtran=logical(params%initialization%do_vtran), &
+         do_drydep=logical(params%initialization%do_drydep), &
+         vf_const=real(params%initialization%vf_const, kind=real64) * 100.0_real64, & ! Convert m to cm
+         minsubsteps=int(params%initialization%minsubsteps), &
+         maxsubsteps=int(params%initialization%maxsubsteps), &
+         maxretries=int(params%initialization%maxretries), &
+         conmax=real(params%initialization%conmax, kind=real64), &
+         do_pheat=logical(params%initialization%do_pheat), &
+         do_pheatatm=logical(params%initialization%do_pheatatm), &
+         dt_threshold=real(params%initialization%dt_threshold, kind=real64), &
+         cstick=real(params%initialization%cstick, kind=real64), &
+         gsticki=real(params%initialization%gsticki, kind=real64), &
+         gstickl=real(params%initialization%gstickl, kind=real64), &
+         tstick=real(params%initialization%tstick, kind=real64), &
+         do_clearsky=logical(params%initialization%do_clearsky), &
+         do_partialinit=logical(params%initialization%do_partialinit), &
+         do_coremasscheck=logical(params%initialization%do_coremasscheck) &
+         )
       if (rc /= 0) then
          print *, "Error initializing CARMA"
          return
@@ -765,6 +795,15 @@ contains
                   return
                end if
             end do
+         end do
+
+         ! Set the gas mixing ratios if applicable
+         do igas = 1, NGAS
+            call CARMASTATE_SetGas(cstate, igas, mmr_gas(:,igas), rc)
+            if (rc /= 0) then
+               print *, "Error setting CARMA state gas"
+               return
+            end if
          end do
 
          ! Execute the time step

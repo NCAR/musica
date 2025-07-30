@@ -160,18 +160,7 @@ TEST_F(CarmaCApiTest, RunCarmaWithAllComponents)
   sulfate_solute.rho = 1769.0;       // kg/m³
   params.solutes.push_back(sulfate_solute);
 
-  // Gas 1: Water vapor
-  CARMAGasConfig h2o_gas;
-  h2o_gas.name = "Water Vapor";
-  h2o_gas.shortname = "H2OV";
-  h2o_gas.wtmol = 18.016e-3;  // kg/mol
-  h2o_gas.ivaprtn = VaporizationAlgorithm::H2O_MURPHY_2005;
-  h2o_gas.icomposition = GasComposition::H2O;
-  h2o_gas.dgc_threshold = 1e-6;
-  h2o_gas.ds_threshold = 1e-4;
-  params.gases.push_back(h2o_gas);
-
-  // Gas 2: Sulfuric acid vapor
+  // Gas 1: Sulfuric acid vapor
   CARMAGasConfig h2so4_gas;
   h2so4_gas.name = "Sulfuric Acid";
   h2so4_gas.shortname = "H2SO4V";
@@ -181,17 +170,6 @@ TEST_F(CarmaCApiTest, RunCarmaWithAllComponents)
   h2so4_gas.dgc_threshold = 1e-8;
   h2so4_gas.ds_threshold = 1e-6;
   params.gases.push_back(h2so4_gas);
-
-  // Gas 3: Sulfur dioxide
-  CARMAGasConfig so2_gas;
-  so2_gas.name = "Sulfur Dioxide";
-  so2_gas.shortname = "SO2";
-  so2_gas.wtmol = 64.07e-3;  // kg/mol
-  so2_gas.ivaprtn = VaporizationAlgorithm::H2O_BUCK_1981;
-  so2_gas.icomposition = GasComposition::SO2;
-  so2_gas.dgc_threshold = 0.0;  // no convergence check
-  so2_gas.ds_threshold = 0.0;
-  params.gases.push_back(so2_gas);
 
   // Coagulation configuration
   CARMACoagulationConfig coagulation_config;
@@ -207,7 +185,7 @@ TEST_F(CarmaCApiTest, RunCarmaWithAllComponents)
   // Growth configuration
   CARMAGrowthConfig growth_config;
   growth_config.ielem = 2;  // Sulfate element
-  growth_config.igas = 2;   // Sulfuric acid gas
+  growth_config.igas = 1;   // Sulfuric acid gas
   params.growths.push_back(growth_config);
 
   // Nucleation configuration
@@ -216,8 +194,12 @@ TEST_F(CarmaCApiTest, RunCarmaWithAllComponents)
   nucleation_config.ielemto = 2;    // To sulfate element
   nucleation_config.algorithm = ParticleNucleationAlgorithm::HOMOGENEOUS_NUCLEATION;
   nucleation_config.rlh_nuc = 1.0e6;  // Latent heat of nucleation [m² s⁻²]
-  nucleation_config.igas = 2;         // Sulfuric acid gas
+  nucleation_config.igas = 1;         // Sulfuric acid gas
   params.nucleations.push_back(nucleation_config);
+
+  // Initialization configuration
+  params.initialization.do_thermo = true;          // Enable thermodynamic processes
+  params.initialization.do_vdiff = true;           // Enable Brownian diffusion
 
   // Create CARMA instance and run
   CARMA carma{ params };

@@ -14,7 +14,7 @@ module carma_parameters_mod
    public :: carma_group_config_t, carma_element_config_t, carma_parameters_t, &
              carma_wavelength_bin_t, carma_complex_t, carma_solute_config_t, carma_gas_config_t, &
              carma_coagulation_config_t, carma_growth_config_t, carma_nucleation_config_t, &
-             carma_output_data_t, carma_state_parameter_t
+             carma_initialization_config_t, carma_output_data_t, carma_state_parameter_t
 
    type, bind(c) :: carma_wavelength_bin_t
       real(c_double) :: center       ! Center of the wavelength bin [m]
@@ -130,6 +130,34 @@ module carma_parameters_mod
       integer(c_int) :: ievp2elem   ! Element index to evaporate to (if applicable)
    end type carma_nucleation_config_t
 
+   type, bind(c) :: carma_initialization_config_t
+      logical(c_bool) :: do_cnst_rlh
+      logical(c_bool) :: do_detrain
+      logical(c_bool) :: do_fixedinit
+      logical(c_bool) :: do_incloud
+      logical(c_bool) :: do_explised
+      logical(c_bool) :: do_substep
+      logical(c_bool) :: do_thermo
+      logical(c_bool) :: do_vdiff
+      logical(c_bool) :: do_vtran
+      logical(c_bool) :: do_drydep
+      logical(c_bool) :: do_pheat
+      logical(c_bool) :: do_pheatatm
+      logical(c_bool) :: do_clearsky
+      logical(c_bool) :: do_partialinit
+      logical(c_bool) :: do_coremasscheck
+      real(c_double) :: vf_const
+      integer(c_int) :: minsubsteps
+      integer(c_int) :: maxsubsteps
+      integer(c_int) :: maxretries
+      real(c_double) :: conmax
+      real(c_double) :: dt_threshold
+      real(c_double) :: cstick
+      real(c_double) :: gsticki
+      real(c_double) :: gstickl
+      real(c_double) :: tstick
+   end type carma_initialization_config_t
+
    type, bind(c) :: carma_parameters_t
 
       ! Model dimensions
@@ -167,6 +195,9 @@ module carma_parameters_mod
       integer(c_int) :: growths_size  ! Number of growths
       type(c_ptr) :: nucleations     ! Pointer to nucleations array
       integer(c_int) :: nucleations_size  ! Number of nucleations
+
+      ! Initialization configuration
+      type(carma_initialization_config_t) :: initialization
    end type carma_parameters_t
 
    type, bind(C) :: carma_output_data_t

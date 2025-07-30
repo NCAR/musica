@@ -263,6 +263,36 @@ namespace musica
     int ievp2elem = 0;  // element index to evaporate to (if applicable)
   };
 
+  // Structure representing CARMA initialization configuration
+  struct CARMAInitializationConfig
+  {
+    bool do_cnst_rlh = false;       // use constant values for latent heats
+    bool do_detrain = false;        // do detrainment
+    bool do_fixedinit = false;      // use fixed initialization from reference atmosphere
+    bool do_incloud = false;        // do in-cloud processes (growth, coagulation)
+    bool do_explised = false;       // do sedimentation with substepping
+    bool do_substep = false;        // do substepping
+    bool do_thermo = false;          // do thermodynamic processes
+    bool do_vdiff = false;          // do Brownian diffusion
+    bool do_vtran = true;           // do sedimentation
+    bool do_drydep = false;         // do dry deposition
+    bool do_pheat = false;          // do particle heating
+    bool do_pheatatm = false;       // do particle heating of atmosphere
+    bool do_clearsky = false;       // do clear sky growth and coagulation
+    bool do_partialinit = false;    // do initialization of coagulation from reference atmosphere (requires do_fixedinit)
+    bool do_coremasscheck = false;  // check core mass for particles
+    double vf_const = 0.0;          // constant fall velocity [m/s] (0: off)
+    int minsubsteps = 1;            // minimum number of substeps
+    int maxsubsteps = 1;            // maximum number of substeps
+    int maxretries = 5;             // maximum number of retries
+    double conmax = 1.0e-1;         // minimum relative concentration to consider
+    double dt_threshold = 0.0;      // convergence criteria for temperature [fraction] (0: off)
+    double cstick = 1.0;            // accommodation coefficient for coagulation
+    double gsticki = 0.93;          // accommodation coefficient for growth of ice
+    double gstickl = 1.0;           // accommodation coefficient for growth of liquid
+    double tstick = 1.0;            // accommodation coefficient temperature
+  };
+
   // Structure representing CARMA parameters
   struct CARMAParameters
   {
@@ -292,6 +322,9 @@ namespace musica
     std::vector<CARMACoagulationConfig> coagulations;
     std::vector<CARMAGrowthConfig> growths;
     std::vector<CARMANucleationConfig> nucleations;
+
+    // Initialization configuration
+    CARMAInitializationConfig initialization;
   };
 
   struct CARMAOutput

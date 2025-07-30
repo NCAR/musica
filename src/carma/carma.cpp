@@ -392,6 +392,33 @@ namespace musica
       c_params->nucleations_size = 0;
     }
 
+    // Handle initialization configuration
+    c_params->initialization.do_cnst_rlh = params.initialization.do_cnst_rlh;
+    c_params->initialization.do_detrain = params.initialization.do_detrain;
+    c_params->initialization.do_fixedinit = params.initialization.do_fixedinit;
+    c_params->initialization.do_incloud = params.initialization.do_incloud;
+    c_params->initialization.do_explised = params.initialization.do_explised;
+    c_params->initialization.do_substep = params.initialization.do_substep;
+    c_params->initialization.do_thermo = params.initialization.do_thermo;
+    c_params->initialization.do_vdiff = params.initialization.do_vdiff;
+    c_params->initialization.do_vtran = params.initialization.do_vtran;
+    c_params->initialization.do_drydep = params.initialization.do_drydep;
+    c_params->initialization.do_pheat = params.initialization.do_pheat;
+    c_params->initialization.do_pheatatm = params.initialization.do_pheatatm;
+    c_params->initialization.do_clearsky = params.initialization.do_clearsky;
+    c_params->initialization.do_partialinit = params.initialization.do_partialinit;
+    c_params->initialization.do_coremasscheck = params.initialization.do_coremasscheck;
+    c_params->initialization.vf_const = params.initialization.vf_const;
+    c_params->initialization.minsubsteps = params.initialization.minsubsteps;
+    c_params->initialization.maxsubsteps = params.initialization.maxsubsteps;
+    c_params->initialization.maxretries = params.initialization.maxretries;
+    c_params->initialization.conmax = params.initialization.conmax;
+    c_params->initialization.dt_threshold = params.initialization.dt_threshold;
+    c_params->initialization.cstick = params.initialization.cstick;
+    c_params->initialization.gsticki = params.initialization.gsticki;
+    c_params->initialization.gstickl = params.initialization.gstickl;
+    c_params->initialization.tstick = params.initialization.tstick;
+
     return c_params;
   }
 
