@@ -563,7 +563,7 @@ void bind_carma(py::module_& carma)
         musica::CARMA* carma_instance = reinterpret_cast<musica::CARMA*>(carma_ptr);
         try
         {
-          auto carma_state = new musica::CARMAState(carma_instance, params);
+          auto carma_state = new musica::CARMAState(*carma_instance, params);
           return reinterpret_cast<std::uintptr_t>(carma_state);
         }
         catch (const std::exception& e)

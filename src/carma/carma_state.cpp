@@ -13,11 +13,12 @@
 namespace musica
 {
 
-  CARMAState::CARMAState(CARMA* carma, const CARMAStateParameters& params)
+  CARMAState::CARMAState(const CARMA& carma, const CARMAStateParameters& params)
   {
-    CCARMAParameters* carma_params = carma->GetParameters();
+    CCARMAParameters* carma_params = carma.GetParameters();
     CARMAStateParametersC state_params;
     state_params.time = params.time;
+    state_params.time_step = params.time_step;
     state_params.longitude = params.longitude;
     state_params.latitude = params.latitude;
     state_params.coordinates = static_cast<int>(params.coordinates);
@@ -31,10 +32,19 @@ namespace musica
     state_params.pressure = params.pressure.empty() ? nullptr : params.pressure.data();
     state_params.pressure_levels_size = static_cast<int>(params.pressure_levels.size());
     state_params.pressure_levels = params.pressure_levels.empty() ? nullptr : params.pressure_levels.data();
+    state_params.specific_humidity_size = static_cast<int>(params.specific_humidity.size());
+    state_params.specific_humidity = params.specific_humidity.empty() ? nullptr : params.specific_humidity.data();
+    state_params.relative_humidity_size = static_cast<int>(params.relative_humidity.size());
+    state_params.relative_humidity = params.relative_humidity.empty() ? nullptr : params.relative_humidity.data();
+    state_params.original_temperature_size = static_cast<int>(params.original_temperature.size());
+    state_params.original_temperature = params.original_temperature.empty() ? nullptr : params.original_temperature.data();
+    state_params.radiative_intensity_dim_1_size = params.radiative_intensity_dim_1_size;
+    state_params.radiative_intensity_dim_2_size = params.radiative_intensity_dim_2_size;
+    state_params.radiative_intensity = params.radiative_intensity.empty() ? nullptr : params.radiative_intensity.data();
 
     int rc;
     f_carma_state_ = InternalCreateCarmaState(
-        carma->GetCarmaInstance(),
+        carma.GetCarmaInstance(),
         *carma_params,
         state_params,
         &rc);  // No return code needed in this context
@@ -133,4 +143,5 @@ namespace musica
       throw std::runtime_error("Failed to set gas values with return code: " + std::to_string(rc));
     }
   }
+
 }  // namespace musica

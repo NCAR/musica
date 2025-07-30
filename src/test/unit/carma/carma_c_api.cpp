@@ -1,6 +1,6 @@
 #include <musica/carma/carma.hpp>
-#include <musica/carma/carma_c_interface.hpp>
 #include <musica/carma/carma_state.hpp>
+#include <musica/carma/carma_c_interface.hpp>
 
 #include <gtest/gtest.h>
 
@@ -316,7 +316,7 @@ TEST_F(CarmaCApiTest, CanSetBinValues)
   state_params.vertical_center = std::vector<double>(params.nz, 16500.0);
   state_params.coordinates = CarmaCoordinates::CARTESIAN;
 
-  CARMAState state = CARMAState(&carma, state_params);
+  CARMAState state = CARMAState(carma, state_params);
   ASSERT_NO_THROW(state.SetBin(1, 1, std::vector<double>{ 1.0 }));
   ASSERT_NO_THROW(state.SetDetrain(1, 1, std::vector<double>{ 1.0 }));
 }
