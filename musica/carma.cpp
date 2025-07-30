@@ -11,6 +11,32 @@
 
 namespace py = pybind11;
 
+auto to_vector_double = [](const py::object& obj) -> std::vector<double>
+{
+  if (obj.is_none())
+    return {};
+  if (py::isinstance<py::array>(obj))
+  {
+    auto arr = obj.cast<py::array>();
+    if (arr.size() == 0)
+      return {};
+    // Accept both 0d, 1d arrays
+    if (arr.ndim() == 0)
+      return { arr.cast<double>() };
+    if (arr.ndim() == 1)
+      return py::cast<std::vector<double>>(obj);
+    throw std::invalid_argument("Expected 1D array for 1D double vector");
+  }
+  if (py::isinstance<py::sequence>(obj))
+  {
+    auto seq = obj.cast<py::sequence>();
+    if (seq.size() == 0)
+      return {};
+    return py::cast<std::vector<double>>(obj);
+  }
+  return {};
+};
+
 void bind_carma(py::module_& carma)
 {
   carma.def("_get_carma_version", []() { return musica::CARMA::GetVersion(); }, "Get the version of the CARMA instance");
@@ -71,11 +97,11 @@ void bind_carma(py::module_& carma)
                       group_dict["swelling_approach"]["composition"].cast<int>());
                 }
               if (group_dict.contains("fall_velocity_routine"))
-                group.fall_velocity_routine = static_cast<musica::FallVelocityAlgorithm>(
-                    group_dict["fall_velocity_routine"].cast<int>());
+                group.fall_velocity_routine =
+                    static_cast<musica::FallVelocityAlgorithm>(group_dict["fall_velocity_routine"].cast<int>());
               if (group_dict.contains("mie_calculation_algorithm"))
-                group.mie_calculation_algorithm = static_cast<musica::MieCalculationAlgorithm>(
-                    group_dict["mie_calculation_algorithm"].cast<int>());
+                group.mie_calculation_algorithm =
+                    static_cast<musica::MieCalculationAlgorithm>(group_dict["mie_calculation_algorithm"].cast<int>());
               if (group_dict.contains("optics_algorithm"))
                 group.optics_algorithm = static_cast<musica::OpticsAlgorithm>(group_dict["optics_algorithm"].cast<int>());
               if (group_dict.contains("is_ice"))
@@ -284,7 +310,8 @@ void bind_carma(py::module_& carma)
               if (coagulation_dict.contains("igroup3"))
                 coagulation.igroup3 = coagulation_dict["igroup3"].cast<int>();
               if (coagulation_dict.contains("algorithm"))
-                coagulation.algorithm = static_cast<musica::ParticleCollectionAlgorithm>(coagulation_dict["algorithm"].cast<int>());
+                coagulation.algorithm =
+                    static_cast<musica::ParticleCollectionAlgorithm>(coagulation_dict["algorithm"].cast<int>());
               if (coagulation_dict.contains("ck0"))
                 coagulation.ck0 = coagulation_dict["ck0"].cast<double>();
               if (coagulation_dict.contains("grav_e_coll0"))
@@ -336,7 +363,8 @@ void bind_carma(py::module_& carma)
               if (nucleation_dict.contains("ielemto"))
                 nucleation.ielemto = nucleation_dict["ielemto"].cast<int>();
               if (nucleation_dict.contains("algorithm"))
-                nucleation.algorithm = static_cast<musica::ParticleNucleationAlgorithm>(nucleation_dict["algorithm"].cast<int>());
+                nucleation.algorithm =
+                    static_cast<musica::ParticleNucleationAlgorithm>(nucleation_dict["algorithm"].cast<int>());
               if (nucleation_dict.contains("rlh_nuc"))
                 nucleation.rlh_nuc = nucleation_dict["rlh_nuc"].cast<double>();
               if (nucleation_dict.contains("igas"))
@@ -459,36 +487,12 @@ void bind_carma(py::module_& carma)
       [](std::uintptr_t carma_ptr, py::kwargs kwargs)
       {
         // Helper lambdas for robust flexible casting
-        auto to_vector_double = [](const py::object& obj) -> std::vector<double>
-        {
-          if (obj.is_none())
-            return {};
-          if (py::isinstance<py::array>(obj))
-          {
-            auto arr = obj.cast<py::array>();
-            if (arr.size() == 0)
-              return {};
-            // Accept both 0d, 1d arrays
-            if (arr.ndim() == 0)
-              return { arr.cast<double>() };
-            if (arr.ndim() == 1)
-              return py::cast<std::vector<double>>(obj);
-            throw std::invalid_argument("Expected 1D array for 1D double vector");
-          }
-          if (py::isinstance<py::sequence>(obj))
-          {
-            auto seq = obj.cast<py::sequence>();
-            if (seq.size() == 0)
-              return {};
-            return py::cast<std::vector<double>>(obj);
-          }
-          return {};
-        };
-
         musica::CARMAStateParameters params;
         params.longitude = kwargs.contains("longitude") ? kwargs["longitude"].cast<double>() : 0.0;
         params.latitude = kwargs.contains("latitude") ? kwargs["latitude"].cast<double>() : 0.0;
-        params.coordinates = kwargs.contains("coordinates") ? static_cast<musica::CarmaCoordinates>(kwargs["coordinates"].cast<int>()) : musica::CarmaCoordinates::CARTESIAN;
+        params.coordinates = kwargs.contains("coordinates")
+                                 ? static_cast<musica::CarmaCoordinates>(kwargs["coordinates"].cast<int>())
+                                 : musica::CarmaCoordinates::CARTESIAN;
         params.vertical_center = to_vector_double(kwargs["vertical_center"]);
         params.vertical_levels = to_vector_double(kwargs["vertical_levels"]);
         params.temperature = to_vector_double(kwargs["temperature"]);
@@ -508,4 +512,23 @@ void bind_carma(py::module_& carma)
       },
       py::arg("carma_pointer"),
       "Create a CARMA state for a specific column with named arguments");
+
+  carma.def(
+      "_delete_carma_state",
+      [](std::uintptr_t carma_state_ptr)
+      {
+        auto carma_state = reinterpret_cast<musica::CARMAState*>(carma_state_ptr);
+        delete carma_state;
+      },
+      "Delete a CARMA state instance");
+
+  carma.def(
+      "_set_bin",
+      [](std::uintptr_t carma_state_ptr, int bin_index, int element_index, py::object value)
+      {
+        auto carma_state = reinterpret_cast<musica::CARMAState*>(carma_state_ptr);
+        auto values = to_vector_double(value);
+        carma_state->SetBin(bin_index, element_index, values);
+      },
+      "Set values for a specific bin and element in the CARMA state");
 }

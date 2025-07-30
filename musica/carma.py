@@ -961,6 +961,7 @@ class CARMAState:
             pressure: Optional list of pressures at vertical centers (default: None). If None, will be derived from the US Standard Atmosphere model.
             pressure_levels: Optional list of pressures at vertical levels (default: None). If None, will be derived from the US Standard Atmosphere model.
         """
+        self.n_levels = n_levels
         vertical_center = zmin + (np.arange(n_levels) + 0.5) * delta_z
         vertical_levels = zmin + np.arange(n_levels + 1) * delta_z
 
@@ -988,6 +989,11 @@ class CARMAState:
             vertical_center=vertical_center.tolist(),
             vertical_levels=vertical_levels.tolist(),
         )
+    
+    def __del__(self):
+        """Clean up the CARMAState instance."""
+        if hasattr(self, '_carma_state_instance') and self._carma_state_instance is not None:
+            _backend._carma._delete_carma_state(self._carma_state_instance)
 
     def __repr__(self):
         """String representation of CARMAState."""
@@ -1000,6 +1006,22 @@ class CARMAState:
     def to_dict(self) -> Dict:
         """Convert CARMAState to dictionary."""
         return {k: v for k, v in self.__dict__.items() if not k.startswith('__') and not callable(v)}
+    
+
+    def set_bin(self, bin_index: int, element_index: int, value: Union[float, List[float]]):
+        """
+        Set the value for a specific bin and element.
+
+        Args:
+            bin_index: Index of the size bin (1-indexed)
+            element_index: Index of the element (1-indexed)
+            value: Value to set, can be a single float or a list of floats
+        """
+        if isinstance(value, list):
+            _backend._carma._set_bin(self._carma_state_instance, bin_index, element_index, value)
+        else:
+            vals = np.repeat(value, self.n_levels)
+            _backend._carma._set_bin(self._carma_state_instance, bin_index, element_index, vals)
 
 
 class CARMA:

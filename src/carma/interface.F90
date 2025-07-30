@@ -160,6 +160,70 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+   subroutine internal_destroy_carma_state(carma_state_cptr, rc) &
+      bind(C, name="InternalDestroyCarmaState")
+      use iso_c_binding, only: c_ptr, c_int
+      use carma_types_mod, only: carmastate_type
+      use carmastate_mod, only: CARMASTATE_Destroy
+
+      type(c_ptr),    value, intent(in)  :: carma_state_cptr
+      integer(c_int),        intent(out) :: rc
+
+      type(carmastate_type), pointer :: carma_state
+
+      rc = 0
+
+      ! Check if carma_state_cptr is associated
+      if (c_associated(carma_state_cptr)) then
+         call c_f_pointer(carma_state_cptr, carma_state)
+         ! Clean up the carma state instance
+         call CARMASTATE_Destroy(carma_state, rc)
+         if (rc /= 0) then
+            print *, "Error destroying CARMA state instance"
+            return
+         end if
+         deallocate(carma_state)
+      end if
+   end subroutine internal_destroy_carma_state
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   subroutine internal_set_bin(carma_state_cptr, bin_index, element_index, values_ptr, values_size, rc) &
+      bind(C, name="InternalSetBin")
+      use iso_c_binding, only: c_ptr, c_int, c_double
+      use carmastate_mod, only: CARMASTATE_SetBin
+      use carma_types_mod, only: carmastate_type
+      use iso_fortran_env, only: real64
+
+      ! Arguments
+      type(c_ptr),    value, intent(in)  :: carma_state_cptr
+      integer(c_int), value, intent(in)  :: bin_index
+      integer(c_int), value, intent(in)  :: element_index
+      type(c_ptr),    value              :: values_ptr
+      integer(c_int), value, intent(in)  :: values_size
+      integer(c_int), intent(out)        :: rc
+
+      ! Local variables
+      real(kind=real64), pointer :: values(:)
+      type(carmastate_type), pointer :: carma_state
+
+      print *, "Setting bin values for bin_index:", bin_index, "element_index:", element_index
+      print *, "Values size: ", values_size
+
+      ! Check if carma_state_cptr is associated
+      if (c_associated(carma_state_cptr)) then
+         call c_f_pointer(carma_state_cptr, carma_state)
+         call c_f_pointer(values_ptr, values, [values_size])
+
+         print *, "Values to set:", values
+
+         call CARMASTATE_SetBin(carma_state, bin_index, element_index, values, rc)
+      end if
+
+   end subroutine internal_set_bin
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
    subroutine internal_run_carma(params, carma_cptr, c_output, rc) &
       bind(C, name="InternalRunCarma")
       use iso_c_binding, only: c_int, c_ptr, c_f_pointer

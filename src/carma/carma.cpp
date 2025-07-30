@@ -8,6 +8,7 @@
 
 #include <cstring>
 #include <stdexcept>
+#include <iostream>
 
 namespace musica
 {
@@ -28,6 +29,10 @@ namespace musica
     FreeCCompatible(carma_parameters_);
     InternalDestroyCarma(f_carma_type_, &return_code);
     f_carma_type_ = nullptr;  // Clear the pointer to avoid dangling pointer
+    if (return_code != 0)
+    {
+      std::cerr << "Warning: CARMA destruction returned non-zero code: " << return_code << std::endl;
+    }
   }
 
   std::string CARMA::GetVersion()
