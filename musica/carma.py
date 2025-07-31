@@ -1035,6 +1035,52 @@ def _carma_dict_to_xarray(output_dict: Dict, parameters: 'CARMAParameters') -> x
 
     return ds
 
+class CARMASurfaceProperties:
+    """
+    Represents the surface properties used in CARMA simulations.
+
+    This class encapsulates the surface properties such as albedo, emissivity,
+    and roughness length for different surfaces.
+    """
+
+    def __init__(self,
+                 surface_friction_velocity: float = 0.0,
+                 aerodynamic_resistance: float = 0.0,
+                 area_fraction: float = 0.0):
+        """
+        Initialize CARMASurfaceProperties instance.
+
+        Args:
+            surface_friction_velocity: Friction velocity at the surface (default: 0.0)
+            aerodynamic_resistance: Aerodynamic resistance at the surface (default: 0.0)
+            area_fraction: Area fraction of the surface (default: 0.0)
+        """
+        self.surface_friction_velocity = surface_friction_velocity
+        self.aerodynamic_resistance = aerodynamic_resistance
+        self.area_fraction = area_fraction
+
+    def __repr__(self):
+        """Represent the surface properties as a string."""
+        return (f"CARMASurfaceProperties("
+                f"surface_friction_velocity={self.surface_friction_velocity}, "
+                f"aerodynamic_resistance={self.aerodynamic_resistance}, "
+                f"area_fraction={self.area_fraction})")
+
+    def __str__(self):
+        """String representation of surface properties."""
+        return (f"Surface Friction Velocity: {self.surface_friction_velocity} m/s, "
+                f"Aerodynamic Resistance: {self.aerodynamic_resistance} s/m, "
+                f"Area Fraction: {self.area_fraction}")
+
+    def to_dict(self) -> Dict:
+        """Convert surface properties to dictionary."""
+        return {
+            'surface_friction_velocity': self.surface_friction_velocity,
+            'aerodynamic_resistance': self.aerodynamic_resistance,
+            'area_fraction': self.area_fraction
+        }
+
+
 
 class CARMAState:
     """
@@ -1185,6 +1231,34 @@ class CARMAState:
             old_mmr,
             gas_saturation_wrt_ice,
             gas_saturation_wrt_liquid)
+
+
+    def step(
+        self,
+        cloud_fraction: Optional[List[float]] = None,
+        critical_relative_humidity: Optional[List[float]] = None,
+        land: Optional[CARMASurfaceProperties] = None,
+        ocean: Optional[CARMASurfaceProperties] = None,
+        ice: Optional[CARMASurfaceProperties] = None
+    ):
+        """
+        Perform a single step in the CARMA simulation.
+
+        Args:
+            cloud_fraction: Optional list of cloud fractions for each vertical level (default: None)
+            critical_relative_humidity: Optional list of critical relative humidities for each vertical level (default: None)
+            land: Optional dictionary of land surface properties (default: None)
+            ocean: Optional dictionary of ocean surface properties (default: None)
+            ice: Optional dictionary of ice surface properties (default: None)
+        """
+        _backend._carma._step(
+            self._carma_state_instance,
+            cloud_fraction=cloud_fraction,
+            critical_relative_humidity=critical_relative_humidity,
+            land=land,
+            ocean=ocean,
+            ice=ice
+        )
 
 
 class CARMA:

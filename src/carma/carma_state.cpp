@@ -144,4 +144,34 @@ namespace musica
     }
   }
 
+  void CARMAState::Step(CARMAStateStepConfig& step_config)
+  {
+    if (f_carma_state_ == nullptr)
+    {
+      throw std::runtime_error("CARMA state instance is not initialized.");
+    }
+
+    CARMAStateStepConfigC step_config_c;
+    step_config_c.cloud_fraction = step_config.cloud_fraction.empty() ? nullptr : step_config.cloud_fraction.data();
+    step_config_c.cloud_fraction_size = static_cast<int>(step_config.cloud_fraction.size());
+    step_config_c.critical_relative_humidity = step_config.critical_relative_humidity.empty() ? nullptr : step_config.critical_relative_humidity.data();
+    step_config_c.critical_relative_humidity_size = static_cast<int>(step_config.critical_relative_humidity.size());
+    step_config_c.land.surface_friction_velocity = step_config.land.surface_friction_velocity;
+    step_config_c.land.aerodynamic_resistance = step_config.land.aerodynamic_resistance;
+    step_config_c.land.area_fraction = step_config.land.area_fraction;
+    step_config_c.ocean.surface_friction_velocity = step_config.ocean.surface_friction_velocity;
+    step_config_c.ocean.aerodynamic_resistance = step_config.ocean.aerodynamic_resistance;
+    step_config_c.ocean.area_fraction = step_config.ocean.area_fraction;
+    step_config_c.ice.surface_friction_velocity = step_config.ice.surface_friction_velocity;
+    step_config_c.ice.aerodynamic_resistance = step_config.ice.aerodynamic_resistance;
+    step_config_c.ice.area_fraction = step_config.ice.area_fraction;
+    
+    int rc;
+    InternalStepCarmaState(f_carma_state_, step_config_c, &rc);
+    if (rc != 0)
+    {
+      throw std::runtime_error("Failed to step CARMA state with return code: " + std::to_string(rc));
+    }
+  }
+
 }  // namespace musica

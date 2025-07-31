@@ -381,6 +381,65 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+   subroutine internal_step(carma_state_cptr, step_config, rc) &
+      bind(C, name="InternalStepCarmaState")
+      use iso_c_binding, only: c_ptr, c_int
+      use iso_fortran_env, only: real64
+      use carmastate_mod, only: CARMASTATE_Step
+      use carma_types_mod, only: carmastate_type
+      use carma_parameters_mod, only: carma_state_step_config_t
+
+      ! Arguments
+      type(c_ptr),                     value, intent(in)  :: carma_state_cptr
+      type(carma_state_step_config_t), value, intent(in)  :: step_config
+      integer(c_int),                         intent(out) :: rc
+
+      ! Local variables
+      type(carmastate_type), pointer :: cstate
+      real(real64), pointer :: cloud_fraction(:), critical_rh(:)
+
+      rc = 0
+
+      ! Check if carma_state_cptr is associated
+      if (c_associated(carma_state_cptr)) then
+         call c_f_pointer(carma_state_cptr, cstate)
+         if (step_config%cloud_fraction_size > 0) then
+            call c_f_pointer(step_config%cloud_fraction, cloud_fraction, &
+                             [step_config%cloud_fraction_size])
+         else
+            allocate(cloud_fraction(cstate%f_NZ))
+            cloud_fraction(:) = 1.0_real64
+         end if
+         if (step_config%critical_relative_humidity_size > 0) then
+            call c_f_pointer(step_config%critical_relative_humidity, critical_rh, &
+                             [step_config%critical_relative_humidity_size])
+         else
+            allocate(critical_rh(cstate%f_NZ))
+            critical_rh(:) = 1.0_real64
+         end if
+         call CARMASTATE_Step( &
+            cstate, &
+            rc, &
+            cldfrc=cloud_fraction, &
+            rhcrit=critical_rh, &
+            lndfv=step_config%land%surface_friction_velocity, &
+            ocnfv=step_config%ocean%surface_friction_velocity, &
+            icefv=step_config%ice%surface_friction_velocity, &
+            lndram=step_config%land%aerodynamic_resistance, &
+            ocnram=step_config%ocean%aerodynamic_resistance, &
+            iceram=step_config%ice%aerodynamic_resistance, &
+            lndfrac=step_config%land%area_fraction, &
+            ocnfrac=step_config%ocean%area_fraction, &
+            icefrac=step_config%ice%area_fraction)
+      else
+         rc = 1
+         print *, "CARMA state pointer is not associated"
+      end if
+
+   end subroutine internal_step
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
    subroutine internal_run_carma(params, carma_cptr, c_output, rc) &
       bind(C, name="InternalRunCarma")
       use iso_c_binding, only: c_int, c_ptr, c_f_pointer
