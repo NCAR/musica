@@ -305,6 +305,18 @@ TEST_F(CarmaCApiTest, RunCarmaWithAluminumTestParams)
 TEST_F(CarmaCApiTest, CanSetBinValues)
 {
   CARMAParameters params = CARMA::CreateAluminumTestParams();
+
+  // Add a gas to the parameters
+  CARMAGasConfig gas_config;
+  gas_config.name = "TestGas";
+  gas_config.shortname = "TG";
+  gas_config.wtmol = 0.018;  // Water vapor
+  gas_config.ivaprtn = VaporizationAlgorithm::H2O_BUCK_1981;
+  gas_config.icomposition = GasComposition::H2O;
+  gas_config.dgc_threshold = 1e-8;
+  gas_config.ds_threshold = 1e-6;
+  params.gases.push_back(gas_config);
+
   CARMA carma{ params };
   CARMAStateParameters state_params;
   state_params.longitude = 0.0;
@@ -317,8 +329,11 @@ TEST_F(CarmaCApiTest, CanSetBinValues)
   state_params.coordinates = CarmaCoordinates::CARTESIAN;
 
   CARMAState state = CARMAState(carma, state_params);
-  ASSERT_NO_THROW(state.SetBin(1, 1, std::vector<double>{ 1.0 }));
+  ASSERT_NO_THROW(state.SetBin(1, 1, std::vector<double>{ 1.0 }, 0.0001));
   ASSERT_NO_THROW(state.SetDetrain(1, 1, std::vector<double>{ 1.0 }));
+  ASSERT_NO_THROW(state.SetGas(1, std::vector<double>(params.nz, 1.4e-3), std::vector<double>(params.nz, 2.3e-4), std::vector<double>(params.nz, 0.3), std::vector<double>(params.nz, 0.5)));
+  ASSERT_NO_THROW(state.SetTemperature(std::vector<double>(params.nz, 273.15)));
+  ASSERT_NO_THROW(state.SetAirDensity(std::vector<double>(params.nz, 1.225)));
 
   CARMAStateStepConfig step_config;
   step_config.cloud_fraction = std::vector<double>(params.nz, 0.5);

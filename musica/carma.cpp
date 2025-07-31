@@ -612,10 +612,10 @@ void bind_carma(py::module_& carma)
 
   carma.def(
       "_set_bin",
-      [](std::uintptr_t carma_state_ptr, int bin_index, int element_index, py::object value)
+      [](std::uintptr_t carma_state_ptr, int bin_index, int element_index, py::object value, double surface_mass)
       {
         auto carma_state = reinterpret_cast<musica::CARMAState*>(carma_state_ptr);
-        carma_state->SetBin(bin_index, element_index, to_vector_double(value));
+        carma_state->SetBin(bin_index, element_index, to_vector_double(value), surface_mass);
       },
       "Set values for a specific bin and element in the CARMA state");
   
@@ -624,7 +624,7 @@ void bind_carma(py::module_& carma)
       [](std::uintptr_t carma_state_ptr, int bin_index, int element_index, py::object value)
       {
         auto carma_state = reinterpret_cast<musica::CARMAState*>(carma_state_ptr);
-        carma_state->SetBin(bin_index, element_index, to_vector_double(value));
+        carma_state->SetDetrain(bin_index, element_index, to_vector_double(value));
       },
       "Set the mass of the detrained condensate for the bin");
   
@@ -636,6 +636,24 @@ void bind_carma(py::module_& carma)
         carma_state->SetGas(gas_index, to_vector_double(value), to_vector_double(old_mmr), to_vector_double(gas_saturation_wrt_ice), to_vector_double(gas_saturation_wrt_liquid));
       },
       "Set the gas mass mixing ratio for a specific gas index in the CARMA state");
+
+  carma.def(
+      "_set_temperature",
+      [](std::uintptr_t carma_state_ptr, py::object temperature)
+      {
+        auto carma_state = reinterpret_cast<musica::CARMAState*>(carma_state_ptr);
+        carma_state->SetTemperature(to_vector_double(temperature));
+      },
+      "Set the temperature profile [K] for the CARMA state");
+
+  carma.def(
+      "_set_air_density",
+      [](std::uintptr_t carma_state_ptr, py::object air_density)
+      {
+        auto carma_state = reinterpret_cast<musica::CARMAState*>(carma_state_ptr);
+        carma_state->SetAirDensity(to_vector_double(air_density));
+      },
+      "Set the air density profile [kg/m³] for the CARMA state");
 
   carma.def(
       "_step",

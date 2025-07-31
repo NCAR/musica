@@ -68,7 +68,7 @@ namespace musica
     }
   }
 
-  void CARMAState::SetBin(int bin_index, int element_index, const std::vector<double>& values)
+  void CARMAState::SetBin(int bin_index, int element_index, const std::vector<double>& values, const double surface_mass)
   {
     if (f_carma_state_ == nullptr)
     {
@@ -81,7 +81,7 @@ namespace musica
     }
 
     int rc;
-    InternalSetBin(f_carma_state_, bin_index, element_index, values.data(), static_cast<int>(values.size()), &rc);
+    InternalSetBin(f_carma_state_, bin_index, element_index, values.data(), static_cast<int>(values.size()), surface_mass, &rc);
     if (rc != 0)
     {
       throw std::runtime_error("Failed to set bin values with return code: " + std::to_string(rc));
@@ -141,6 +141,46 @@ namespace musica
     if (rc != 0)
     {
       throw std::runtime_error("Failed to set gas values with return code: " + std::to_string(rc));
+    }
+  }
+
+  void CARMAState::SetTemperature(const std::vector<double>& temperature)
+  {
+    if (f_carma_state_ == nullptr)
+    {
+      throw std::runtime_error("CARMA state instance is not initialized.");
+    }
+
+    if (temperature.empty())
+    {
+      throw std::invalid_argument("Temperature vector cannot be empty.");
+    }
+
+    int rc;
+    InternalSetTemperature(f_carma_state_, temperature.data(), static_cast<int>(temperature.size()), &rc);
+    if (rc != 0)
+    {
+      throw std::runtime_error("Failed to set temperature with return code: " + std::to_string(rc));
+    }
+  }
+
+  void CARMAState::SetAirDensity(const std::vector<double>& air_density)
+  {
+    if (f_carma_state_ == nullptr)
+    {
+      throw std::runtime_error("CARMA state instance is not initialized.");
+    }
+
+    if (air_density.empty())
+    {
+      throw std::invalid_argument("Air density vector cannot be empty.");
+    }
+
+    int rc;
+    InternalSetAirDensity(f_carma_state_, air_density.data(), static_cast<int>(air_density.size()), &rc);
+    if (rc != 0)
+    {
+      throw std::runtime_error("Failed to set air density with return code: " + std::to_string(rc));
     }
   }
 
