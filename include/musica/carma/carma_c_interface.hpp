@@ -376,6 +376,16 @@ namespace musica
         int* rc
       );
 
+      void InternalGetEnvironmentalValues(
+        void* carma_state_instance,
+        int nz,
+        double* temperature,
+        double* pressure,
+        double* air_density,
+        double* latent_heat,
+        int* rc
+      );
+
     // CARMA driver interface functions
     void InternalRunCarma(const CCARMAParameters& params, void* carma_instance, void* output, int* rc);
 

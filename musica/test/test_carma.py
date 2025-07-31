@@ -33,6 +33,7 @@ def test_carma_instance():
     print(state.get_step_statistics())
     print(state.get_bin(1, 1))
     print(state.get_detrain(1, 1))
+    print(state.get_environmental_values())
 
 
 def test_carma_with_default_parameters():

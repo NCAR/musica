@@ -281,4 +281,34 @@ namespace musica
 
     return gas_values;
   }
+
+  CarmaEnvironmentalValues CARMAState::GetEnvironmentalValues() const {
+    if (f_carma_state_ == nullptr)
+    {
+      throw std::runtime_error("CARMA state instance is not initialized.");
+    }
+
+    CarmaEnvironmentalValues values;
+    values.temperature.resize(nz);
+    values.pressure.resize(nz);
+    values.air_density.resize(nz);
+    values.latent_heat.resize(nz);
+    int rc;
+
+    InternalGetEnvironmentalValues(
+        f_carma_state_,
+        nz,
+        values.temperature.data(),
+        values.pressure.data(),
+        values.air_density.data(),
+        values.latent_heat.data(),
+        &rc);
+
+    if (rc != 0)
+    {
+      throw std::runtime_error("Failed to get CARMA environmental values with return code: " + std::to_string(rc));
+    }
+
+    return values;
+  }
 }  // namespace musica

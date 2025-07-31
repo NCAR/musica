@@ -603,6 +603,59 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+   subroutine internal_get_state_environmental_values(carma_state_cptr, nz, temperature_ptr, pressure_ptr, air_density_ptr, latent_heat_ptr, rc) &
+         bind(C, name="InternalGetEnvironmentalValues")
+      use iso_c_binding, only: c_ptr, c_int, c_double
+      use iso_fortran_env, only: real64
+      use carma_types_mod, only: carmastate_type
+      use carmastate_mod, only: CARMASTATE_GetState
+
+      type(c_ptr),    value, intent(in)  :: carma_state_cptr
+      integer(c_int), value, intent(in)  :: nz
+      type(c_ptr),    value              :: temperature_ptr
+      type(c_ptr),    value              :: pressure_ptr
+      type(c_ptr),    value              :: air_density_ptr
+      type(c_ptr),    value              :: latent_heat_ptr
+      integer(c_int), intent(out)        :: rc
+
+      ! Local variables
+      real(real64), pointer :: temperature(:)
+      real(real64), pointer :: pressure(:)
+      real(real64), pointer :: air_density(:)
+      real(real64), pointer :: latent_heat(:)
+
+      type(carmastate_type), pointer :: cstate
+
+      rc = 0
+
+      if (c_associated(carma_state_cptr)) then
+         call c_f_pointer(carma_state_cptr, cstate)
+         call c_f_pointer(temperature_ptr, temperature, [nz])
+         call c_f_pointer(pressure_ptr, pressure, [nz])
+         call c_f_pointer(air_density_ptr, air_density, [nz])
+         call c_f_pointer(latent_heat_ptr, latent_heat, [nz])
+
+         if (allocated(cstate%f_rlheat)) then
+            ! the latent heat is only allocated if it is used in the simulation
+            ! therefore we can only pass that argument to CARMASTATE_GetState if it is allocated
+            call CARMASTATE_GetState(cstate, t=temperature, p=pressure, &
+               rhoa_wet=air_density, rlheat=latent_heat, rc=rc)
+         else
+            ! -1 allows us to know to set this to None in the python wrapper, which will indicate
+            ! that no latent heat was calculated
+            latent_heat = -1.0
+            call CARMASTATE_GetState(cstate, t=temperature, p=pressure, &
+               rhoa_wet=air_density, rc=rc)
+         end if
+      else
+         rc = 1
+         print *, "CARMA state pointer is not associated"
+      end if
+
+      end subroutine internal_get_state_environmental_values
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
    subroutine internal_run_carma(params, carma_cptr, c_output, rc) &
       bind(C, name="InternalRunCarma")
       use iso_c_binding, only: c_int, c_ptr, c_f_pointer

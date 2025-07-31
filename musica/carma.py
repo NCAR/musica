@@ -1233,6 +1233,15 @@ class CARMAState:
             List[float]: Values for the specified gas
         """
         return _backend._carma._get_gas(self._carma_state_instance, gas_index)
+    
+    def get_environmental_values(self) -> Dict[str, Any]:
+        """
+        Get all state values for the current CARMAState.
+
+        Returns:
+            Dict[str, Any]: Dictionary containing all state values
+        """
+        return _backend._carma._get_environmental_values(self._carma_state_instance)
 
 
 

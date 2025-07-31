@@ -84,6 +84,14 @@ namespace musica
     std::vector<double> weight_pct_aerosol_composition;  // Weight percentage of aerosol composition [weight %]
   };
 
+  struct CarmaEnvironmentalValues
+  {
+    std::vector<double> temperature;               // Temperature [K]
+    std::vector<double> pressure;                  // Pressure [Pa]
+    std::vector<double> air_density;               // Air density [kg m-3]
+    std::vector<double> latent_heat;               // Latent heat [K s-1]
+  };
+
   class CARMAState
   {
    public:
@@ -103,6 +111,7 @@ namespace musica
     CarmaBinValues GetBinValues(int bin_index, int element_index) const;
     CarmaDetrainValues GetDetrain(int bin_index, int element_index) const;
     CarmaGasValues GetGas(int gas_index) const;
+    CarmaEnvironmentalValues GetEnvironmentalValues() const;
 
    private:
     void* f_carma_state_;

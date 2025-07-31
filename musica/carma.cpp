@@ -704,4 +704,26 @@ void bind_carma(py::module_& carma)
         return result;
       },
       "Get the gas values for a specific element in the CARMA state");
+
+  carma.def(
+      "_get_environmental_values",
+      [](std::uintptr_t carma_state_ptr)
+      {
+        auto carma_state = reinterpret_cast<musica::CARMAState*>(carma_state_ptr);
+        musica::CarmaEnvironmentalValues values = carma_state->GetEnvironmentalValues();
+        py::dict result;
+        result["temperature"] = values.temperature;
+        result["pressure"] = values.pressure;
+        result["air_density"] = values.air_density;
+        if (std::all_of(values.latent_heat.begin(), values.latent_heat.end(), [](int val) { return val == -1; }))
+        {
+          result["latent_heat"] = py::none();
+        }
+        else
+        {
+          result["latent_heat"] = values.latent_heat;
+        }
+        return result;
+      },
+      "Get the state values for the current CARMAState");
 }
