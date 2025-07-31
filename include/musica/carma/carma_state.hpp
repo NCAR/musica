@@ -127,8 +127,25 @@ namespace musica
 
     ~CARMAState();
 
-    void SetBin(int bin_index, int element_index, const std::vector<double>& values);
+    /// @brief Set the values for a specific bin and element
+    /// @param bin_index The index of the bin
+    /// @param element_index The index of the particle element
+    /// @param values Bin mixing ratio at vertical centers [kg/kg]
+    /// @param surface_mass Element mass on the surface [kg m-2] (0: off)
+    void SetBin(int bin_index, int element_index, const std::vector<double>& values, const double surface_mass);
+
+    /// @brief Set the mass of the detrained condensate for the bin for each particle element
+    /// @param bin_index The index of the bin
+    /// @param element_index The index of the particle element
+    /// @param values Bin mixing ratio at vertical centers [kg/kg]
     void SetDetrain(int bin_index, int element_index, const std::vector<double>& values);
+
+    /// @brief Set the gas profile
+    /// @param gas_index The index of the gas
+    /// @param values Mass mixing ratios at vertical centers [kg/kg]
+    /// @param old_mmr Original mass mixing ratios at vertical centers [kg/kg]
+    /// @param gas_saturation_wrt_ice The gas saturation with respect to ice [fraction]
+    /// @param gas_saturation_wrt_liquid The gas saturation with respect to liquid [fraction]
     void SetGas(
         int gas_index,
         const std::vector<double>& values,
@@ -140,6 +157,14 @@ namespace musica
     CarmaDetrainValues GetDetrain(int bin_index, int element_index) const;
     CarmaGasValues GetGas(int gas_index) const;
     CarmaEnvironmentalValues GetEnvironmentalValues() const;
+
+    /// @brief Set the temperature profile
+    /// @param temperature The temperature profile [K] (number of vertical centers)
+    void SetTemperature(const std::vector<double>& temperature);
+
+    /// @brief Set the air density profile
+    /// @param air_density The air density profile [kg/m3] (number of vertical centers)
+    void SetAirDensity(const std::vector<double>& air_density);
     void Step(CARMAStateStepConfig& step_config);
 
    private:

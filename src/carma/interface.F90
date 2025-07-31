@@ -231,20 +231,21 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-   subroutine internal_set_bin(carma_state_cptr, bin_index, element_index, values_ptr, values_size, rc) &
-      bind(C, name="InternalSetBin")
+   subroutine internal_set_bin(carma_state_cptr, bin_index, element_index, &
+      values_ptr, values_size, surface_mass, rc) bind(C, name="InternalSetBin")
       use iso_c_binding, only: c_ptr, c_int, c_double
       use carmastate_mod, only: CARMASTATE_SetBin
       use carma_types_mod, only: carmastate_type
       use iso_fortran_env, only: real64
 
       ! Arguments
-      type(c_ptr),    value, intent(in)  :: carma_state_cptr
-      integer(c_int), value, intent(in)  :: bin_index
-      integer(c_int), value, intent(in)  :: element_index
-      type(c_ptr),    value              :: values_ptr
-      integer(c_int), value, intent(in)  :: values_size
-      integer(c_int), intent(out)        :: rc
+      type(c_ptr),       value, intent(in)  :: carma_state_cptr
+      integer(c_int),    value, intent(in)  :: bin_index
+      integer(c_int),    value, intent(in)  :: element_index
+      type(c_ptr),       value              :: values_ptr
+      integer(c_int),    value, intent(in)  :: values_size
+      real(kind=real64), value, intent(in)  :: surface_mass
+      integer(c_int),           intent(out) :: rc
 
       ! Local variables
       real(kind=real64), pointer :: values(:)
@@ -266,7 +267,13 @@ contains
          call c_f_pointer(carma_state_cptr, cstate)
          call c_f_pointer(values_ptr, values, [values_size])
 
-         call CARMASTATE_SetBin(cstate, bin_index, element_index, values, rc)
+         call CARMASTATE_SetBin( &
+            cstate, &
+            bin_index, &
+            element_index, &
+            values, &
+            rc, &
+            surface=surface_mass)
       end if
 
    end subroutine internal_set_bin
@@ -696,8 +703,71 @@ contains
          rc = 1
          print *, "CARMA state pointer is not associated"
       end if
-
    end subroutine internal_get_state_environmental_values
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   subroutine internal_set_temperature(carma_state_cptr, temperature_ptr, &
+      temperature_size, rc) bind(C, name="InternalSetTemperature")
+      use iso_c_binding, only: c_ptr, c_int, c_double
+      use carmastate_mod, only: CARMASTATE_SetState
+      use carma_types_mod, only: carmastate_type
+      use iso_fortran_env, only: real64
+
+      ! Arguments
+      type(c_ptr),    value, intent(in)  :: carma_state_cptr
+      type(c_ptr),    value              :: temperature_ptr
+      integer(c_int), value, intent(in)  :: temperature_size
+      integer(c_int), intent(out)        :: rc
+
+      ! Local variables
+      real(kind=real64), pointer :: temperature(:)
+      type(carmastate_type), pointer :: cstate
+
+      ! Check if carma_state_cptr is associated
+      if (c_associated(carma_state_cptr)) then
+         call c_f_pointer(carma_state_cptr, cstate)
+         call c_f_pointer(temperature_ptr, temperature, [temperature_size])
+
+         call CARMASTATE_SetState(cstate, rc, t=temperature)
+      else
+         rc = 1
+         print *, "CARMA state pointer is not associated"
+      end if
+
+   end subroutine internal_set_temperature
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   subroutine internal_set_air_density(carma_state_cptr, air_density_ptr, &
+      air_density_size, rc) bind(C, name="InternalSetAirDensity")
+      use iso_c_binding, only: c_ptr, c_int, c_double
+      use carmastate_mod, only: CARMASTATE_SetState
+      use carma_types_mod, only: carmastate_type
+      use iso_fortran_env, only: real64
+
+      ! Arguments
+      type(c_ptr),    value, intent(in)  :: carma_state_cptr
+      type(c_ptr),    value              :: air_density_ptr
+      integer(c_int), value, intent(in)  :: air_density_size
+      integer(c_int), intent(out)        :: rc
+
+      ! Local variables
+      real(kind=real64), pointer :: air_density(:)
+      type(carmastate_type), pointer :: cstate
+
+      ! Check if carma_state_cptr is associated
+      if (c_associated(carma_state_cptr)) then
+         call c_f_pointer(carma_state_cptr, cstate)
+         call c_f_pointer(air_density_ptr, air_density, [air_density_size])
+
+         call CARMASTATE_SetState(cstate, rc, rhoa_wet=air_density)
+      else
+         rc = 1
+         print *, "CARMA state pointer is not associated"
+      end if
+
+   end subroutine internal_set_air_density
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

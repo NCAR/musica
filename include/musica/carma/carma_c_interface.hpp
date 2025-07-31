@@ -321,6 +321,7 @@ namespace musica
         int element_index,
         const double* values,
         int values_size,
+        double surface_mass,
         int* rc);
     void InternalSetDetrain(
         void* carma_state_instance,
@@ -413,6 +414,10 @@ namespace musica
         double* latent_heat,
         int* rc
       );
+
+    void InternalSetTemperature(void* carma_state_instance, const double* temperature, int temperature_size, int* rc);
+
+    void InternalSetAirDensity(void* carma_state_instance, const double* air_density, int air_density_size, int* rc);
 
     void InternalStepCarmaState(void* carma_state_instance, const CARMAStateStepConfigC step_config, int* rc);
 

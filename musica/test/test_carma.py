@@ -16,13 +16,32 @@ def test_carma_version():
 def test_carma_instance():
     # Test CARMA instance creation
     test_params = musica.CARMAParameters.create_aluminum_test_config()
-    test_params.nstep = 560
+
+    # Add a gas to the parameters
+    test_params.gases.append(
+        musica.carma.CARMAGasConfig(
+            name="Test Gas",
+            shortname="TG",
+            wtmol=0.018,  # kg mol-1
+            ivaprtn=musica.carma.VaporizationAlgorithm.H2O_BUCK_1981,
+            icomposition=musica.carma.GasComposition.H2O,
+            dgc_threshold=1.0e-8,
+            ds_threshold=1.0e-6
+        )
+    )
 
     carma = musica.CARMA(test_params)
     assert carma is not None
     assert isinstance(carma, musica.CARMA)
 
-    state = carma.create_state()
+    state = carma.create_state(
+        longitude=0.0,
+        latitude=0.0,
+        temperature=[300.0, 280.0],
+        pressure=[101335.0, 90000.0],
+        pressure_levels=[101325.0, 90050.0, 80000.0],
+        coordinates=musica.carma.CarmaCoordinates.CARTESIAN
+    )
 
     assert state is not None
     assert isinstance(state, musica.CARMAState)
@@ -30,13 +49,17 @@ def test_carma_instance():
     state.set_bin(1, 1, 1.0)
     state.set_detrain(1, 1, 1.0)
     carma.run()
+    state.set_gas(1, 1.4e-3)
+    state.set_temperature(300.0)
+    state.set_air_density(1.2)
+    state.step(land=musica.carma.CARMASurfaceProperties(surface_friction_velocity=0.42, area_fraction=0.3),
+               ocean=musica.carma.CARMASurfaceProperties(aerodynamic_resistance=0.1),
+               ice=musica.carma.CARMASurfaceProperties(area_fraction=0.2))
     print(state.get_step_statistics())
     print(state.get_bin(1, 1))
     print(state.get_detrain(1, 1))
     print(state.get_environmental_values())
-    state.step(land=musica.carma.CARMASurfaceProperties(surface_friction_velocity=0.42, area_fraction=0.3),
-               ocean=musica.carma.CARMASurfaceProperties(aerodynamic_resistance=0.1),
-               ice=musica.carma.CARMASurfaceProperties(area_fraction=0.2))
+    print(state.get_gas(1))
 
 
 def test_carma_with_default_parameters():
