@@ -285,13 +285,13 @@ namespace musica
 
     struct CARMAStateStepConfigC
     {
-      const double* cloud_fraction;  // Cloud fraction at vertical centers [fraction]
-      int cloud_fraction_size;       // Size of cloud fraction array
+      const double* cloud_fraction;              // Cloud fraction at vertical centers [fraction]
+      int cloud_fraction_size;                   // Size of cloud fraction array
       const double* critical_relative_humidity;  // Critical relative humidity for liquid clouds [fraction]
       int critical_relative_humidity_size;       // Size of critical relative humidity array
-      CARMASurfacePropertiesC land;  // Surface properties for land
-      CARMASurfacePropertiesC ocean;  // Surface properties for ocean
-      CARMASurfacePropertiesC ice;    // Surface properties for ice
+      CARMASurfacePropertiesC land;              // Surface properties for land
+      CARMASurfacePropertiesC ocean;             // Surface properties for ocean
+      CARMASurfacePropertiesC ice;               // Surface properties for ice
     };
 
     // The external C API for CARMA
@@ -342,10 +342,7 @@ namespace musica
         int gas_saturation_wrt_liquid_size,
         int* rc);
 
-    void InternalStepCarmaState(
-        void* carma_state_instance,
-        const CARMAStateStepConfigC step_config,
-        int* rc);
+    void InternalStepCarmaState(void* carma_state_instance, const CARMAStateStepConfigC step_config, int* rc);
 
     // CARMA driver interface functions
     void InternalRunCarma(const CCARMAParameters& params, void* carma_instance, void* output, int* rc);
