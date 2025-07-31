@@ -676,15 +676,32 @@ void bind_carma(py::module_& carma)
       "_get_detrain",
       [](std::uintptr_t carma_state_ptr, int bin_index, int element_index)
       {
-    auto carma_state = reinterpret_cast<musica::CARMAState*>(carma_state_ptr);
-    musica::CarmaDetrainValues values = carma_state->GetDetrain(bin_index, element_index);
-    py::dict result;
-    result["mass_mixing_ratio"] = values.mass_mixing_ratio;
-    result["number_mixing_ratio"] = values.number_mixing_ratio;
-    result["number_density"] = values.number_density;
-    result["wet_particle_radius"] = values.wet_particle_radius;
-    result["wet_particle_density"] = values.wet_particle_density;
-    return result;
+        auto carma_state = reinterpret_cast<musica::CARMAState*>(carma_state_ptr);
+        musica::CarmaDetrainValues values = carma_state->GetDetrain(bin_index, element_index);
+        py::dict result;
+        result["mass_mixing_ratio"] = values.mass_mixing_ratio;
+        result["number_mixing_ratio"] = values.number_mixing_ratio;
+        result["number_density"] = values.number_density;
+        result["wet_particle_radius"] = values.wet_particle_radius;
+        result["wet_particle_density"] = values.wet_particle_density;
+        return result;
       },
       "Get the detrained condensate values for a specific bin and element in the CARMA state");
+
+  carma.def(
+      "_get_gas",
+      [](std::uintptr_t carma_state_ptr, int gas_index)
+      {
+        auto carma_state = reinterpret_cast<musica::CARMAState*>(carma_state_ptr);
+        musica::CarmaGasValues values = carma_state->GetGas(gas_index);
+        py::dict result;
+        result["mass_mixing_ratio"] = values.mass_mixing_ratio;
+        result["gas_saturation_wrt_ice"] = values.gas_saturation_wrt_ice;
+        result["gas_saturation_wrt_liquid"] = values.gas_saturation_wrt_liquid;
+        result["gas_vapor_pressure_wrt_ice"] = values.gas_vapor_pressure_wrt_ice;
+        result["gas_vapor_pressure_wrt_liquid"] = values.gas_vapor_pressure_wrt_liquid;
+        result["weight_pct_aerosol_composition"] = values.weight_pct_aerosol_composition;
+        return result;
+      },
+      "Get the gas values for a specific element in the CARMA state");
 }

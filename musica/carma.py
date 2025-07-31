@@ -1196,7 +1196,7 @@ class CARMAState:
         """
         return _backend._carma._get_step_statistics(self._carma_state_instance)
     
-    def get_bin(self, bin_index: int, element_index: int) -> List[float]:
+    def get_bin(self, bin_index: int, element_index: int) -> Dict[str, Any]:
         """
         Get the values for a specific bin and element.
 
@@ -1208,8 +1208,8 @@ class CARMAState:
             List[float]: Values for the specified bin and element
         """
         return _backend._carma._get_bin(self._carma_state_instance, bin_index, element_index)
-    
-    def get_detrain(self, bin_index: int, element_index: int) -> List[float]:
+
+    def get_detrain(self, bin_index: int, element_index: int) -> Dict[str, Any]:
         """
         Get the mass of the detrained condensate for the bin for each particle in the grid
 
@@ -1221,6 +1221,18 @@ class CARMAState:
             List[float]: Mass of the detrained condensate for the specified bin and element
         """
         return _backend._carma._get_detrain(self._carma_state_instance, bin_index, element_index)
+
+    def get_gas(self, gas_index: int) -> Dict[str, Any]:
+        """
+        Get the values for a specific gas.
+
+        Args:
+            gas_index: Index of the gas (1-indexed)
+
+        Returns:
+            List[float]: Values for the specified gas
+        """
+        return _backend._carma._get_gas(self._carma_state_instance, gas_index)
 
 
 

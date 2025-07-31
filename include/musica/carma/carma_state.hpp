@@ -74,6 +74,16 @@ namespace musica
     std::vector<double> wet_particle_density;  // Wet particle density for detrainment [g cm-3]
   };
 
+  struct CarmaGasValues
+  {
+    std::vector<double> mass_mixing_ratio;               // Mass mixing ratio for the gas [kg kg-1]
+    std::vector<double> gas_saturation_wrt_ice;          // Gas saturation with respect to ice [kg kg-1]
+    std::vector<double> gas_saturation_wrt_liquid;       // Gas saturation with respect to liquid [kg kg-1]
+    std::vector<double> gas_vapor_pressure_wrt_ice;      // Vapor pressure with respect to ice [Pa]
+    std::vector<double> gas_vapor_pressure_wrt_liquid;   // Vapor pressure with respect to liquid [Pa]
+    std::vector<double> weight_pct_aerosol_composition;  // Weight percentage of aerosol composition [weight %]
+  };
+
   class CARMAState
   {
    public:
@@ -92,6 +102,7 @@ namespace musica
     CarmaStatistics GetStepStatistics() const;
     CarmaBinValues GetBinValues(int bin_index, int element_index) const;
     CarmaDetrainValues GetDetrain(int bin_index, int element_index) const;
+    CarmaGasValues GetGas(int gas_index) const;
 
    private:
     void* f_carma_state_;

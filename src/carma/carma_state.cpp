@@ -185,7 +185,6 @@ namespace musica
     bin_values.total_mass_mixing_ratio.resize(nz);
     int rc;
 
-    // Assuming InternalGetBinValues is a function that retrieves the bin values
     InternalGetBin(
         f_carma_state_,
         bin_index,
@@ -229,7 +228,6 @@ namespace musica
     detrain_values.wet_particle_density.resize(nz);
     int rc;
 
-    // Assuming InternalGetDetrainValues is a function that retrieves the detrain values
     InternalGetDetrain(
         f_carma_state_,
         bin_index,
@@ -248,5 +246,39 @@ namespace musica
     }
 
     return detrain_values;
+  }
+
+  CarmaGasValues CARMAState::GetGas(int gas_index) const {
+    if (f_carma_state_ == nullptr)
+    {
+      throw std::runtime_error("CARMA state instance is not initialized.");
+    }
+    CarmaGasValues gas_values;
+    gas_values.mass_mixing_ratio.resize(nz);
+    gas_values.gas_saturation_wrt_ice.resize(nz);
+    gas_values.gas_saturation_wrt_liquid.resize(nz);
+    gas_values.gas_vapor_pressure_wrt_ice.resize(nz);
+    gas_values.gas_vapor_pressure_wrt_liquid.resize(nz);
+    gas_values.weight_pct_aerosol_composition.resize(nz);
+    int rc; 
+
+    InternalGetGas(
+        f_carma_state_,
+        gas_index,
+        nz,
+        gas_values.mass_mixing_ratio.data(),
+        gas_values.gas_saturation_wrt_ice.data(),
+        gas_values.gas_saturation_wrt_liquid.data(),
+        gas_values.gas_vapor_pressure_wrt_ice.data(),
+        gas_values.gas_vapor_pressure_wrt_liquid.data(),
+        gas_values.weight_pct_aerosol_composition.data(),
+        &rc);
+
+    if (rc != 0)
+    {
+      throw std::runtime_error("Failed to get CARMA gas values with return code: " + std::to_string(rc));
+    }
+
+    return gas_values;
   }
 }  // namespace musica

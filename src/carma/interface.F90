@@ -136,7 +136,6 @@ contains
       call c_f_pointer(carma_state_params%pressure, pressure, [carma_state_params%pressure_size])
       call c_f_pointer(carma_state_params%pressure_levels, pressure_levels, [carma_state_params%pressure_levels_size])
 
-      ! Check if carma_cptr is associated
       if (c_associated(carma_cptr)) then
          call c_f_pointer(carma_cptr, carma)
          call CARMASTATE_Create(cstate, carma, &
@@ -173,7 +172,6 @@ contains
 
       rc = 0
 
-      ! Check if carma_state_cptr is associated
       if (c_associated(carma_state_cptr)) then
          call c_f_pointer(carma_state_cptr, cstate)
          ! Clean up the carma state instance
@@ -219,7 +217,6 @@ contains
          return
       end if
 
-      ! Check if carma_state_cptr is associated
       if (c_associated(carma_state_cptr)) then
          call c_f_pointer(carma_state_cptr, cstate)
          call c_f_pointer(values_ptr, values, [values_size])
@@ -262,7 +259,6 @@ contains
          return
       end if
 
-      ! Check if carma_state_cptr is associated
       if (c_associated(carma_state_cptr)) then
          call c_f_pointer(carma_state_cptr, cstate)
          call c_f_pointer(values_ptr, values, [values_size])
@@ -328,7 +324,6 @@ contains
          gas_saturation_wrt_liquid = values
       end if
 
-      ! Check if carma_state_cptr is associated
       if (c_associated(carma_state_cptr)) then
          call c_f_pointer(carma_state_cptr, cstate)
          call c_f_pointer(values_ptr, values, [values_size])
@@ -457,11 +452,9 @@ contains
          return
       end if
 
-      ! Check if carma_state_cptr is associated
       if (c_associated(carma_state_cptr)) then
          call c_f_pointer(carma_state_cptr, cstate)
 
-         ! Allocate pointers for the output arrays
          call c_f_pointer(mass_mixing_ratio_ptr, mass_mixing_ratio, [nz])
          call c_f_pointer(number_mixing_ratio_ptr, number_mixing_ratio, [nz])
          call c_f_pointer(number_density_ptr, number_density, [nz])
@@ -474,7 +467,6 @@ contains
          call c_f_pointer(kappa_ptr, kappa, [nz])
          call c_f_pointer(total_mass_mixing_ratio_ptr, total_mass_mixing_ratio, [nz])
 
-         ! Get the bin data
          call CARMASTATE_GetBin(cstate, ibin=bin_index, ielem=element_index, mmr=mass_mixing_ratio, rc=rc,&
             nmr=number_mixing_ratio, numberDensity=number_density, nucleationRate=nucleation_rate, r_wet=wet_particle_radius, &
             rhop_wet=wet_particle_density, rhop_dry=dry_particle_density, surface=particle_mass_on_surface, &
@@ -530,16 +522,14 @@ contains
          return
       end if
 
-      ! Check if carma_state_cptr is associated
       if (c_associated(carma_state_cptr)) then
          call c_f_pointer(carma_state_cptr, cstate)
-         ! Allocate pointers for the output arrays
          call c_f_pointer(mass_mixing_ratio_ptr, mass_mixing_ratio, [nz])
          call c_f_pointer(number_mixing_ratio_ptr, number_mixing_ratio, [nz])
          call c_f_pointer(number_density_ptr, number_density, [nz])
          call c_f_pointer(wet_particle_radius_ptr, wet_particle_radius, [nz])
          call c_f_pointer(wet_particle_density_ptr, wet_particle_density, [nz])
-         ! Get the detrain data
+
          call CARMASTATE_GetDetrain(cstate, ibin=bin_index, ielem=element_index, &
             mmr=mass_mixing_ratio, rc=rc, nmr=number_mixing_ratio, &
             numberDensity=number_density, r_wet=wet_particle_radius, &
@@ -549,6 +539,67 @@ contains
          print *, "CARMA state pointer is not associated"
       end if
    end subroutine internal_get_detrain
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   subroutine internal_get_gas(carma_state_cptr, gas_index, nz, &
+      mass_mixing_ratio_ptr, gas_saturation_wrt_ice_ptr, &
+      gas_saturation_wrt_liquid_ptr, gas_vapor_pressure_wrt_ice_ptr, &
+      gas_vapor_pressure_wrt_liquid_ptr, weight_pct_aerosol_composition_ptr, rc) &
+         bind(C, name="InternalGetGas")
+      use iso_c_binding, only: c_ptr, c_int, c_double
+      use iso_fortran_env, only: real64
+      use carma_types_mod, only: carmastate_type
+      use carmastate_mod, only: CARMASTATE_GetGas
+
+      type(c_ptr),    value, intent(in)  :: carma_state_cptr
+      integer(c_int), value, intent(in)  :: gas_index
+      integer(c_int), value, intent(in)  :: nz
+      type(c_ptr),    value              :: mass_mixing_ratio_ptr
+      type(c_ptr),    value              :: gas_saturation_wrt_ice_ptr
+      type(c_ptr),    value              :: gas_saturation_wrt_liquid_ptr
+      type(c_ptr),    value              :: gas_vapor_pressure_wrt_ice_ptr
+      type(c_ptr),    value              :: gas_vapor_pressure_wrt_liquid_ptr
+      type(c_ptr),    value              :: weight_pct_aerosol_composition_ptr
+      integer(c_int), intent(out)        :: rc
+
+      ! Local variables
+      real(real64), pointer :: mass_mixing_ratio(:)
+      real(real64), pointer :: gas_vapor_pressure_wrt_ice(:)
+      real(real64), pointer :: gas_vapor_pressure_wrt_liquid(:)
+      real(real64), pointer :: gas_saturation_wrt_ice(:)
+      real(real64), pointer :: gas_saturation_wrt_liquid(:)
+      real(real64), pointer :: weight_pct_aerosol_composition(:)
+      type(carmastate_type), pointer :: cstate
+
+      rc = 0
+
+      if (gas_index < 1) then
+         rc = ERROR_DIMENSION_MISMATCH
+         print *, "Error: gas_index must be >= 1"
+         return
+      end if
+
+      if (c_associated(carma_state_cptr)) then
+         call c_f_pointer(carma_state_cptr, cstate)
+         call c_f_pointer(mass_mixing_ratio_ptr, mass_mixing_ratio, [nz])
+         call c_f_pointer(gas_saturation_wrt_ice_ptr, gas_saturation_wrt_ice, [nz])
+         call c_f_pointer(gas_saturation_wrt_liquid_ptr, gas_saturation_wrt_liquid, [nz])
+         call c_f_pointer(gas_vapor_pressure_wrt_ice_ptr, gas_vapor_pressure_wrt_ice, [nz])
+         call c_f_pointer(gas_vapor_pressure_wrt_liquid_ptr, gas_vapor_pressure_wrt_liquid, [nz])
+         call c_f_pointer(weight_pct_aerosol_composition_ptr, weight_pct_aerosol_composition, [nz])
+
+         call CARMASTATE_GetGas(cstate, igas=gas_index, mmr=mass_mixing_ratio, rc=rc, &
+            satice=gas_saturation_wrt_ice, &
+            satliq=gas_saturation_wrt_liquid, &
+            eqice=gas_vapor_pressure_wrt_ice, &
+            eqliq=gas_vapor_pressure_wrt_liquid, &
+            wtpct=weight_pct_aerosol_composition)
+      else
+         rc = 1
+         print *, "CARMA state pointer is not associated"
+      end if
+   end subroutine internal_get_gas
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -584,7 +635,6 @@ contains
 
       rc = 0
 
-      ! Check if carma_cptr is associated
       if (c_associated(carma_cptr)) then
          call c_f_pointer(carma_cptr, carma)
 
@@ -1125,7 +1175,6 @@ contains
       iy = 1
       ix = 1
 
-      ! Allocate arrays
       allocate(lat(NY), lon(NX))
       allocate(zc(NZ), zl(NZP1), p(NZ), pl(NZP1), t(NZ), rhoa(NZ))
       allocate(mmr(NZ, NELEM, NBIN))
@@ -1205,7 +1254,6 @@ contains
             return
          end if
 
-         ! Get the updated bin mmr
          do ielem = 1, NELEM
             do ibin = 1, NBIN
                call CARMASTATE_GetBin(cstate, ielem, ibin, mmr(:,ielem,ibin), rc)
@@ -1295,7 +1343,6 @@ contains
       ! Create and populate the output data struct
       type(carma_output_data_t) :: output_data_struct
 
-      ! Allocate fundamental arrays for Python calculation
       allocate(pc(nz, nbin, nelem))
       allocate(mmr(nz, nbin, nelem))
       allocate(r_wet(nz, nbin, ngroup))
@@ -1438,7 +1485,6 @@ contains
 
       ! Extract data for all elements and bins
       do ielem = 1, nelem
-         ! Get the group for this element
          call CARMAELEMENT_Get(carma_ptr, ielem, rc, igroup=igroup)
          if (rc /= 0) then
             print *, "Error getting CARMA element group"

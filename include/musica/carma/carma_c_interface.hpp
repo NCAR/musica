@@ -363,6 +363,19 @@ namespace musica
         int* rc
       );
 
+      void InternalGetGas(
+        void* carma_state_instance,
+        int gas_index,
+        int nz,
+        double* mass_mixing_ratio,
+        double* gas_saturation_wrt_ice,
+        double* gas_saturation_wrt_liquid,
+        double* gas_vapor_pressure_wrt_ice,
+        double* gas_vapor_pressure_wrt_liquid,
+        double* weight_pct_aerosol_composition,
+        int* rc
+      );
+
     // CARMA driver interface functions
     void InternalRunCarma(const CCARMAParameters& params, void* carma_instance, void* output, int* rc);
 
