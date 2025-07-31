@@ -1035,6 +1035,7 @@ def _carma_dict_to_xarray(output_dict: Dict, parameters: 'CARMAParameters') -> x
 
     return ds
 
+
 class CARMASurfaceProperties:
     """
     Represents the surface properties used in CARMA simulations.
@@ -1080,7 +1081,6 @@ class CARMASurfaceProperties:
             'aerodynamic_resistance': self.aerodynamic_resistance,
             'area_fraction': self.area_fraction
         }
-
 
 
 class CARMAState:
@@ -1232,7 +1232,6 @@ class CARMAState:
             old_mmr,
             gas_saturation_wrt_ice,
             gas_saturation_wrt_liquid)
-
 
     def step(
         self,
