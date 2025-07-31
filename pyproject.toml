@@ -31,6 +31,12 @@ test = ["numpy", "pytest"]
 gpu = ["nvidia-cublas-cu12", "nvidia-cuda-runtime-cu12"]
 
 [tool.scikit-build]
+# uncomment this line and set the build type to debug if you want to use gdb to find segfaults
+# then uncomment the line below to set the build directory so that the degbug articacts are not deleted
+# then build and run the python docker file with:
+#   docker build -t musica -f docker/Dockerfile.python .
+#   docker run -it --rm musica
+#   gdb --args python /musica/musica/test/test_carma.py
 # build-dir="python_build"
 cmake.build-type = "Release"
 cmake.define.MUSICA_ENABLE_PYTHON_LIBRARY = "ON"

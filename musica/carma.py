@@ -7,7 +7,7 @@ It allows users to create a CARMA instance and run simulations with specified pa
 Note: CARMA is only available on macOS and Linux platforms.
 """
 
-from typing import Dict, Optional, List, Union
+from typing import Dict, Optional, List, Union, Any
 from ctypes import c_void_p
 import numpy as np
 import xarray as xr
@@ -1237,6 +1237,64 @@ class CARMAState:
             old_mmr,
             gas_saturation_wrt_ice,
             gas_saturation_wrt_liquid)
+    
+    def get_step_statistics(self) -> Dict[str, Any]:
+        """
+        Get the step statistics for the current CARMAState.
+
+        Returns:
+            Dict[str, Any]: Dictionary containing step statistics such as
+                            number of substeps, convergence status, etc.
+        """
+        return _backend._carma._get_step_statistics(self._carma_state_instance)
+    
+    def get_bin(self, bin_index: int, element_index: int) -> Dict[str, Any]:
+        """
+        Get the values for a specific bin and element.
+
+        Args:
+            bin_index: Index of the size bin (1-indexed)
+            element_index: Index of the element (1-indexed)
+
+        Returns:
+            List[float]: Values for the specified bin and element
+        """
+        return _backend._carma._get_bin(self._carma_state_instance, bin_index, element_index)
+
+    def get_detrain(self, bin_index: int, element_index: int) -> Dict[str, Any]:
+        """
+        Get the mass of the detrained condensate for the bin for each particle in the grid
+
+        Args:
+            bin_index: Index of the size bin (1-indexed)
+            element_index: Index of the element (1-indexed)
+
+        Returns:
+            List[float]: Mass of the detrained condensate for the specified bin and element
+        """
+        return _backend._carma._get_detrain(self._carma_state_instance, bin_index, element_index)
+
+    def get_gas(self, gas_index: int) -> Dict[str, Any]:
+        """
+        Get the values for a specific gas.
+
+        Args:
+            gas_index: Index of the gas (1-indexed)
+
+        Returns:
+            List[float]: Values for the specified gas
+        """
+        return _backend._carma._get_gas(self._carma_state_instance, gas_index)
+    
+    def get_environmental_values(self) -> Dict[str, Any]:
+        """
+        Get all state values for the current CARMAState.
+
+        Returns:
+            Dict[str, Any]: Dictionary containing all state values
+        """
+        return _backend._carma._get_environmental_values(self._carma_state_instance)
+
 
     def set_temperature(self, temperature: Union[float, List[float]]):
         """

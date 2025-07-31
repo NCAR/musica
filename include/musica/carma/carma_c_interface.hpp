@@ -342,6 +342,78 @@ namespace musica
         const double* gas_saturation_wrt_liquid,
         int gas_saturation_wrt_liquid_size,
         int* rc);
+    
+    void InternalGetStepStatistics(
+        void* carma_state_instance,
+        int* max_number_of_substeps,
+        double* max_number_of_retries,
+        double* total_number_of_steps,
+        int* total_number_of_substeps,
+        double* total_number_of_retries,
+        double* xc,
+        double* yc,
+        double* z_substeps,
+        int nz,
+        int* rc
+      );
+    
+      void InternalGetBin(
+        void* carma_state_instance,
+        int bin_index,
+        int element_index,
+        int nz,
+        double* mass_mixing_ratio,
+        double* number_mixing_ratio,
+        double* number_density,
+        double* nucleation_rate,
+        double* wet_particle_radius,
+        double* wet_particle_density,
+        double* dry_particle_density,
+        double* particle_mass_on_surface,
+        double* sedimentation_flux,
+        double* fall_velocity,
+        double* deposition_velocity,
+        double* delta_particle_temperature,
+        double* kappa,
+        double* total_mass_mixing_ratio,
+        int* rc
+      );
+
+      void InternalGetDetrain(
+        void* carma_state_instance,
+        int bin_index,
+        int element_index,
+        int nz,
+        double* mass_mixing_ratio,
+        double* number_mixing_ratio,
+        double* number_density,
+        double* wet_particle_radius,
+        double* wet_particle_density,
+        int* rc
+      );
+
+      void InternalGetGas(
+        void* carma_state_instance,
+        int gas_index,
+        int nz,
+        double* mass_mixing_ratio,
+        double* gas_saturation_wrt_ice,
+        double* gas_saturation_wrt_liquid,
+        double* gas_vapor_pressure_wrt_ice,
+        double* gas_vapor_pressure_wrt_liquid,
+        double* weight_pct_aerosol_composition,
+        int* rc
+      );
+
+      void InternalGetEnvironmentalValues(
+        void* carma_state_instance,
+        int nz,
+        double* temperature,
+        double* pressure,
+        double* air_density,
+        double* latent_heat,
+        int* rc
+      );
 
     void InternalSetTemperature(void* carma_state_instance, const double* temperature, int temperature_size, int* rc);
 

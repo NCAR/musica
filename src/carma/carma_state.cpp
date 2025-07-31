@@ -15,6 +15,7 @@ namespace musica
 
   CARMAState::CARMAState(const CARMA& carma, const CARMAStateParameters& params)
   {
+    this->nz = static_cast<int>(params.vertical_levels.size());
     CCARMAParameters* carma_params = carma.GetParameters();
     CARMAStateParametersC state_params;
     state_params.time = params.time;
@@ -183,6 +184,182 @@ namespace musica
     {
       throw std::runtime_error("Failed to set air density with return code: " + std::to_string(rc));
     }
+  }
+
+  CarmaStatistics CARMAState::GetStepStatistics() const
+  {
+    if (f_carma_state_ == nullptr)
+    {
+      throw std::runtime_error("CARMA state instance is not initialized.");
+    }
+    CarmaStatistics stats;
+    stats.z_substeps.resize(nz);
+    int rc;
+    InternalGetStepStatistics(
+        f_carma_state_,
+        &stats.max_number_of_substeps,
+        &stats.max_number_of_retries,
+        &stats.total_number_of_steps,
+        &stats.total_number_of_substeps,
+        &stats.total_number_of_retries,
+        &stats.xc,
+        &stats.yc,
+        stats.z_substeps.data(),
+        nz,
+        &rc);
+    if (rc != 0)
+    {
+      throw std::runtime_error("Failed to get CARMA step statistics with return code: " + std::to_string(rc));
+    }
+    return stats;
+  }
+
+  CarmaBinValues CARMAState::GetBinValues(int bin_index, int element_index) const
+  {
+    if (f_carma_state_ == nullptr)
+    {
+      throw std::runtime_error("CARMA state instance is not initialized.");
+    }
+
+    CarmaBinValues bin_values;
+    bin_values.mass_mixing_ratio.resize(nz);
+    bin_values.number_mixing_ratio.resize(nz);
+    bin_values.number_density.resize(nz);
+    bin_values.nucleation_rate.resize(nz);
+    bin_values.wet_particle_radius.resize(nz);
+    bin_values.wet_particle_density.resize(nz);
+    bin_values.dry_particle_density.resize(nz);
+    bin_values.fall_velocity.resize(nz + 1);
+    bin_values.delta_particle_temperature.resize(nz);
+    bin_values.kappa.resize(nz);
+    bin_values.total_mass_mixing_ratio.resize(nz);
+    int rc;
+
+    InternalGetBin(
+        f_carma_state_,
+        bin_index,
+        element_index,
+        nz,
+        bin_values.mass_mixing_ratio.data(),
+        bin_values.number_mixing_ratio.data(),
+        bin_values.number_density.data(),
+        bin_values.nucleation_rate.data(),
+        bin_values.wet_particle_radius.data(),
+        bin_values.wet_particle_density.data(),
+        bin_values.dry_particle_density.data(),
+        &bin_values.particle_mass_on_surface,
+        &bin_values.sedimentation_flux,
+        bin_values.fall_velocity.data(),
+        &bin_values.deposition_velocity,
+        bin_values.delta_particle_temperature.data(),
+        bin_values.kappa.data(),
+        bin_values.total_mass_mixing_ratio.data(),
+        &rc);
+
+    if (rc != 0)
+    {
+      throw std::runtime_error("Failed to get CARMA bin values with return code: " + std::to_string(rc));
+    }
+
+    return bin_values;
+  }
+
+  CarmaDetrainValues CARMAState::GetDetrain(int bin_index, int element_index) const {
+    if (f_carma_state_ == nullptr)
+    {
+      throw std::runtime_error("CARMA state instance is not initialized.");
+    }
+
+    CarmaDetrainValues detrain_values;
+    detrain_values.mass_mixing_ratio.resize(nz);
+    detrain_values.number_mixing_ratio.resize(nz);
+    detrain_values.number_density.resize(nz);
+    detrain_values.wet_particle_radius.resize(nz);
+    detrain_values.wet_particle_density.resize(nz);
+    int rc;
+
+    InternalGetDetrain(
+        f_carma_state_,
+        bin_index,
+        element_index,
+        nz,
+        detrain_values.mass_mixing_ratio.data(),
+        detrain_values.number_mixing_ratio.data(),
+        detrain_values.number_density.data(),
+        detrain_values.wet_particle_radius.data(),
+        detrain_values.wet_particle_density.data(),
+        &rc);
+
+    if (rc != 0)
+    {
+      throw std::runtime_error("Failed to get CARMA detrain values with return code: " + std::to_string(rc));
+    }
+
+    return detrain_values;
+  }
+
+  CarmaGasValues CARMAState::GetGas(int gas_index) const {
+    if (f_carma_state_ == nullptr)
+    {
+      throw std::runtime_error("CARMA state instance is not initialized.");
+    }
+    CarmaGasValues gas_values;
+    gas_values.mass_mixing_ratio.resize(nz);
+    gas_values.gas_saturation_wrt_ice.resize(nz);
+    gas_values.gas_saturation_wrt_liquid.resize(nz);
+    gas_values.gas_vapor_pressure_wrt_ice.resize(nz);
+    gas_values.gas_vapor_pressure_wrt_liquid.resize(nz);
+    gas_values.weight_pct_aerosol_composition.resize(nz);
+    int rc; 
+
+    InternalGetGas(
+        f_carma_state_,
+        gas_index,
+        nz,
+        gas_values.mass_mixing_ratio.data(),
+        gas_values.gas_saturation_wrt_ice.data(),
+        gas_values.gas_saturation_wrt_liquid.data(),
+        gas_values.gas_vapor_pressure_wrt_ice.data(),
+        gas_values.gas_vapor_pressure_wrt_liquid.data(),
+        gas_values.weight_pct_aerosol_composition.data(),
+        &rc);
+
+    if (rc != 0)
+    {
+      throw std::runtime_error("Failed to get CARMA gas values with return code: " + std::to_string(rc));
+    }
+
+    return gas_values;
+  }
+
+  CarmaEnvironmentalValues CARMAState::GetEnvironmentalValues() const {
+    if (f_carma_state_ == nullptr)
+    {
+      throw std::runtime_error("CARMA state instance is not initialized.");
+    }
+
+    CarmaEnvironmentalValues values;
+    values.temperature.resize(nz);
+    values.pressure.resize(nz);
+    values.air_density.resize(nz);
+    values.latent_heat.resize(nz);
+    int rc;
+
+    InternalGetEnvironmentalValues(
+        f_carma_state_,
+        nz,
+        values.temperature.data(),
+        values.pressure.data(),
+        values.air_density.data(),
+        values.latent_heat.data(),
+        &rc);
+
+    if (rc != 0)
+    {
+      throw std::runtime_error("Failed to get CARMA environmental values with return code: " + std::to_string(rc));
+    }
+
+    return values;
   }
 
   void CARMAState::Step(CARMAStateStepConfig& step_config)

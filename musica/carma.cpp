@@ -618,7 +618,7 @@ void bind_carma(py::module_& carma)
         carma_state->SetBin(bin_index, element_index, to_vector_double(value), surface_mass);
       },
       "Set values for a specific bin and element in the CARMA state");
-  
+
   carma.def(
       "_set_detrain",
       [](std::uintptr_t carma_state_ptr, int bin_index, int element_index, py::object value)
@@ -627,15 +627,132 @@ void bind_carma(py::module_& carma)
         carma_state->SetDetrain(bin_index, element_index, to_vector_double(value));
       },
       "Set the mass of the detrained condensate for the bin");
-  
+
   carma.def(
       "_set_gas",
-      [](std::uintptr_t carma_state_ptr, int gas_index, py::object value, py::object old_mmr, py::object gas_saturation_wrt_ice, py::object gas_saturation_wrt_liquid)
+      [](std::uintptr_t carma_state_ptr,
+         int gas_index,
+         py::object value,
+         py::object old_mmr,
+         py::object gas_saturation_wrt_ice,
+         py::object gas_saturation_wrt_liquid)
       {
         auto carma_state = reinterpret_cast<musica::CARMAState*>(carma_state_ptr);
-        carma_state->SetGas(gas_index, to_vector_double(value), to_vector_double(old_mmr), to_vector_double(gas_saturation_wrt_ice), to_vector_double(gas_saturation_wrt_liquid));
+        carma_state->SetGas(
+            gas_index,
+            to_vector_double(value),
+            to_vector_double(old_mmr),
+            to_vector_double(gas_saturation_wrt_ice),
+            to_vector_double(gas_saturation_wrt_liquid));
       },
       "Set the gas mass mixing ratio for a specific gas index in the CARMA state");
+
+  carma.def(
+      "_get_step_statistics",
+      [](std::uintptr_t carma_state_ptr)
+      {
+        auto carma_state = reinterpret_cast<musica::CARMAState*>(carma_state_ptr);
+        musica::CarmaStatistics stats = carma_state->GetStepStatistics();
+        py::dict result;
+        result["max_number_of_substeps"] = stats.max_number_of_substeps;
+        result["max_number_of_retries"] = stats.max_number_of_retries;
+        result["total_number_of_steps"] = stats.total_number_of_steps;
+        result["total_number_of_substeps"] = stats.total_number_of_substeps;
+        result["total_number_of_retries"] = stats.total_number_of_retries;
+        // check if stats.z_substeps is all -1s, if so, set the result to None
+        if (std::all_of(stats.z_substeps.begin(), stats.z_substeps.end(), [](int val) { return val == -1; }))
+        {
+          result["z_substeps"] = py::none();
+        }
+        else
+        {
+          result["z_substeps"] = stats.z_substeps;
+        }
+        result["xc"] = stats.xc;
+        result["yc"] = stats.yc;
+        return result;
+      },
+      "Get the step statistics for the current CARMAState");
+
+  carma.def(
+      "_get_bin",
+      [](std::uintptr_t carma_state_ptr, int bin_index, int element_index)
+      {
+        auto carma_state = reinterpret_cast<musica::CARMAState*>(carma_state_ptr);
+        musica::CarmaBinValues values = carma_state->GetBinValues(bin_index, element_index);
+        py::dict result;
+        result["mass_mixing_ratio"] = values.mass_mixing_ratio;
+        result["number_mixing_ratio"] = values.number_mixing_ratio;
+        result["number_density"] = values.number_density;
+        result["nucleation_rate"] = values.nucleation_rate;
+        result["wet_particle_radius"] = values.wet_particle_radius;
+        result["wet_particle_density"] = values.wet_particle_density;
+        result["dry_particle_density"] = values.dry_particle_density;
+        result["particle_mass_on_surface"] = values.particle_mass_on_surface;
+        result["sedimentation_flux"] = values.sedimentation_flux;
+        result["fall_velocity"] = values.fall_velocity;
+        result["deposition_velocity"] = values.deposition_velocity;
+        result["delta_particle_temperature"] = values.delta_particle_temperature;
+        result["kappa"] = values.kappa;
+        result["total_mass_mixing_ratio"] = values.total_mass_mixing_ratio;
+        return result;
+      },
+      "Get the values for a specific bin and element in the CARMA state");
+
+  carma.def(
+      "_get_detrain",
+      [](std::uintptr_t carma_state_ptr, int bin_index, int element_index)
+      {
+        auto carma_state = reinterpret_cast<musica::CARMAState*>(carma_state_ptr);
+        musica::CarmaDetrainValues values = carma_state->GetDetrain(bin_index, element_index);
+        py::dict result;
+        result["mass_mixing_ratio"] = values.mass_mixing_ratio;
+        result["number_mixing_ratio"] = values.number_mixing_ratio;
+        result["number_density"] = values.number_density;
+        result["wet_particle_radius"] = values.wet_particle_radius;
+        result["wet_particle_density"] = values.wet_particle_density;
+        return result;
+      },
+      "Get the detrained condensate values for a specific bin and element in the CARMA state");
+
+  carma.def(
+      "_get_gas",
+      [](std::uintptr_t carma_state_ptr, int gas_index)
+      {
+        auto carma_state = reinterpret_cast<musica::CARMAState*>(carma_state_ptr);
+        musica::CarmaGasValues values = carma_state->GetGas(gas_index);
+        py::dict result;
+        result["mass_mixing_ratio"] = values.mass_mixing_ratio;
+        result["gas_saturation_wrt_ice"] = values.gas_saturation_wrt_ice;
+        result["gas_saturation_wrt_liquid"] = values.gas_saturation_wrt_liquid;
+        result["gas_vapor_pressure_wrt_ice"] = values.gas_vapor_pressure_wrt_ice;
+        result["gas_vapor_pressure_wrt_liquid"] = values.gas_vapor_pressure_wrt_liquid;
+        result["weight_pct_aerosol_composition"] = values.weight_pct_aerosol_composition;
+        return result;
+      },
+      "Get the gas values for a specific element in the CARMA state");
+
+  carma.def(
+      "_get_environmental_values",
+      [](std::uintptr_t carma_state_ptr)
+      {
+        auto carma_state = reinterpret_cast<musica::CARMAState*>(carma_state_ptr);
+        musica::CarmaEnvironmentalValues values = carma_state->GetEnvironmentalValues();
+        py::dict result;
+        result["temperature"] = values.temperature;
+        result["pressure"] = values.pressure;
+        result["air_density"] = values.air_density;
+        if (std::all_of(values.latent_heat.begin(), values.latent_heat.end(), [](double val) { return val == -1; }))
+        {
+          result["latent_heat"] = py::none();
+        }
+        else
+        {
+          result["latent_heat"] = values.latent_heat;
+        }
+        return result;
+      },
+      "Get the state values for the current CARMAState");
 
   carma.def(
       "_set_temperature",
