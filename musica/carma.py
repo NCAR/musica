@@ -1162,7 +1162,11 @@ class CARMAState:
         """Convert CARMAState to dictionary."""
         return {k: v for k, v in self.__dict__.items() if not k.startswith('__') and not callable(v)}
 
-    def set_bin(self, bin_index: int, element_index: int, value: Union[float, List[float]]):
+    def set_bin(self,
+                bin_index: int,
+                element_index: int,
+                value: Union[float, List[float]],
+                surface_mass: Optional[float] = 0.0):
         """
         Set the value for a specific bin and element.
 
@@ -1170,12 +1174,13 @@ class CARMAState:
             bin_index: Index of the size bin (1-indexed)
             element_index: Index of the element (1-indexed)
             value: Value to set, can be a single float or a list of floats
+            surface_mass: Optional surface mass for the bin [kg m-2] (default: 0.0)
         """
         if np.isscalar(value):
             value = np.repeat(value, self.n_levels).tolist()
         elif not isinstance(value, list):
             value = list(value)
-        _backend._carma._set_bin(self._carma_state_instance, bin_index, element_index, value)
+        _backend._carma._set_bin(self._carma_state_instance, bin_index, element_index, value, surface_mass)
 
     def set_detrain(self, bin_index: int, element_index: int, value: float):
         """
@@ -1232,6 +1237,32 @@ class CARMAState:
             old_mmr,
             gas_saturation_wrt_ice,
             gas_saturation_wrt_liquid)
+
+    def set_temperature(self, temperature: Union[float, List[float]]):
+        """
+        Set the temperature for the vertical levels.
+
+        Args:
+            temperature: Temperature value to set, can be a single float or a list of floats
+        """
+        if np.isscalar(temperature):
+            temperature = np.repeat(temperature, self.n_levels).tolist()
+        elif not isinstance(temperature, list):
+            temperature = list(temperature)
+        _backend._carma._set_temperature(self._carma_state_instance, temperature)
+
+    def set_air_density(self, air_density: Union[float, List[float]]):
+        """
+        Set the air density for the vertical levels.
+
+        Args:
+            air_density: Air density value to set, can be a single float or a list of floats
+        """
+        if np.isscalar(air_density):
+            air_density = np.repeat(air_density, self.n_levels).tolist()
+        elif not isinstance(air_density, list):
+            air_density = list(air_density)
+        _backend._carma._set_air_density(self._carma_state_instance, air_density)
 
     def step(
         self,
