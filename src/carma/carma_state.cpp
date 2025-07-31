@@ -155,7 +155,7 @@ namespace musica
         &stats.xc,
         &stats.yc,
         stats.z_substeps.data(),
-        static_cast<int>(stats.z_substeps.size()),
+        nz,
         &rc);
     if (rc != 0)
     {

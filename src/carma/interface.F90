@@ -337,7 +337,7 @@ contains
 
    subroutine internal_get_state_statistics(carma_state_cptr, max_number_of_substeps, max_number_of_retries, &
       total_number_of_steps, total_number_of_substeps, total_number_of_retries, &
-      xc, yc, z_substeps, z_substeps_size, rc) &
+      xc, yc, z_substeps, nz, rc) &
       bind(C, name="InternalGetStepStatistics")
       use iso_c_binding, only: c_ptr, c_int, c_double
       use iso_fortran_env, only: real64
@@ -353,7 +353,7 @@ contains
       real(real64), intent(out)    :: xc
       real(real64), intent(out)    :: yc
       type(c_ptr),    value              :: z_substeps
-      integer(c_int), value, intent(in)  :: z_substeps_size
+      integer(c_int), value, intent(in)  :: nz
       integer(c_int), intent(out)        :: rc
 
       ! Local variables
@@ -362,7 +362,7 @@ contains
 
       if (c_associated(carma_state_cptr)) then
          call c_f_pointer(carma_state_cptr, cstate)
-         call c_f_pointer(z_substeps, values, [z_substeps_size])
+         call c_f_pointer(z_substeps, values, [nz])
 
          ! Get state statistics
          if (allocated(cstate%f_zsubsteps)) then

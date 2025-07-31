@@ -324,7 +324,7 @@ namespace musica
         double* xc,
         double* yc,
         double* z_substeps,
-        int z_substeps_size,
+        int nz,
         int* rc
       );
     
