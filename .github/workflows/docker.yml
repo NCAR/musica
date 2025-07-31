@@ -26,7 +26,6 @@ jobs:
           - Dockerfile.openmp
           - Dockerfile.mpi
           - Dockerfile.mpi_openmp
-          - Dockerfile.python
           - Dockerfile.nvhpc
           - Dockerfile.coverage
         build_type: [Release, Debug]

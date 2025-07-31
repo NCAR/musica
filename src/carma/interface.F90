@@ -370,9 +370,30 @@ contains
          call c_f_pointer(z_substeps, values, [z_substeps_size])
 
          ! Get state statistics
-         call CARMASTATE_Get(cstate, rc, max_number_of_substeps, max_number_of_retries, &
-                                        total_number_of_steps, total_number_of_substeps, total_number_of_retries, &
-                                        values, xc, yc)
+         if (allocated(cstate%f_zsubsteps)) then
+            ! the z substeps are only allocated if substepping happens
+            ! therefore we can only pass that argument to CARMASTATE_Get if it is allocated
+            call CARMASTATE_Get(cstate, rc, &
+               max_nsubstep=max_number_of_substeps, &
+               max_nretry=max_number_of_retries, &
+               nstep=total_number_of_steps, &
+               nsubstep=total_number_of_substeps, &
+               nretry=total_number_of_retries, &
+               zsubsteps=values, &
+               xc=xc, yc=yc)
+         else
+            ! -1 allows us to know to set this to None in the python wrapper, which will indicate
+            ! that no z substeps were taken
+            ! we have to remove the z_substeps argument in this call to not get a segfault
+            values = -1
+            call CARMASTATE_Get(cstate, rc, &
+               max_nsubstep=max_number_of_substeps, &
+               max_nretry=max_number_of_retries, &
+               nstep=total_number_of_steps, &
+               nsubstep=total_number_of_substeps, &
+               nretry=total_number_of_retries, &
+               xc=xc, yc=yc)
+         end if
       end if
 
    end subroutine internal_get_state_statistics
