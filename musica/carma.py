@@ -1237,7 +1237,7 @@ class CARMAState:
             old_mmr,
             gas_saturation_wrt_ice,
             gas_saturation_wrt_liquid)
-    
+
     def get_step_statistics(self) -> Dict[str, Any]:
         """
         Get the step statistics for the current CARMAState.
@@ -1247,7 +1247,7 @@ class CARMAState:
                             number of substeps, convergence status, etc.
         """
         return _backend._carma._get_step_statistics(self._carma_state_instance)
-    
+
     def get_bin(self, bin_index: int, element_index: int) -> Dict[str, Any]:
         """
         Get the values for a specific bin and element.
@@ -1285,7 +1285,7 @@ class CARMAState:
             List[float]: Values for the specified gas
         """
         return _backend._carma._get_gas(self._carma_state_instance, gas_index)
-    
+
     def get_environmental_values(self) -> Dict[str, Any]:
         """
         Get all state values for the current CARMAState.
@@ -1294,7 +1294,6 @@ class CARMAState:
             Dict[str, Any]: Dictionary containing all state values
         """
         return _backend._carma._get_environmental_values(self._carma_state_instance)
-
 
     def set_temperature(self, temperature: Union[float, List[float]]):
         """
