@@ -327,6 +327,28 @@ namespace musica
         int z_substeps_size,
         int* rc
       );
+    
+      void InternalGetBin(
+        void* carma_state_instance,
+        int bin_index,
+        int element_index,
+        int nz,
+        double* mass_mixing_ratio,
+        double* number_mixing_ratio,
+        double* number_density,
+        double* nucleation_rate,
+        double* wet_particle_radius,
+        double* wet_particle_density,
+        double* dry_particle_density,
+        double* particle_mass_on_surface,
+        double* sedimentation_flex,
+        double* fall_velocity,
+        double* deposition_velocity,
+        double* delta_particle_temperature,
+        double* kappa,
+        double* total_mass_mixing_ratio,
+        int* rc
+      );
 
     // CARMA driver interface functions
     void InternalRunCarma(const CCARMAParameters& params, void* carma_instance, void* output, int* rc);

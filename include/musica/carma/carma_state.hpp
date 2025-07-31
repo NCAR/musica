@@ -46,6 +46,23 @@ namespace musica
     double yc;  // y location at the center of this CARMA state
   };
 
+  struct CarmaBinValues {
+    std::vector<double> mass_mixing_ratio;          // Values for the bin [kg kg-1]
+    std::vector<double> number_mixing_ratio;        // Number mixing ratio for the bin [# cm-3]
+    std::vector<double> number_density;             // Number density for the bin [# cm-3]
+    std::vector<double> nucleation_rate;            // Nucleation rate for the bin [# cm-3 s-1]
+    std::vector<double> wet_particle_radius;        // Wet particle radius for the bin [cm]
+    std::vector<double> wet_particle_density;       // Wet particle density for the bin [g cm-3]
+    std::vector<double> dry_particle_density;       // Dry particle density for the bin [g cm-3]
+    double particle_mass_on_surface;                // Mass of the particle on the surface [kg m-2]
+    double sedimentation_flux;                      // Sedimentation flex for the bin [kg m-2 s-1]
+    std::vector<double> fall_velocity;              // Fall velocity for the bin [cm s-1]
+    double deposition_velocity;                     // Deposition velocity for the bin [cm s-1]
+    std::vector<double> delta_particle_temperature; // [K]
+    std::vector<double> kappa;                      // hygroscopicity parameter for the bin
+    std::vector<double> total_mass_mixing_ratio;    // kg m-3
+  };
+
   class CARMAState
   {
    public:
@@ -62,6 +79,7 @@ namespace musica
         const std::vector<double>& gas_saturation_wrt_ice,
         const std::vector<double>& gas_saturation_wrt_liquid);
    CarmaStatistics GetStepStatistics() const;
+   CarmaBinValues GetBinValues(int bin_index, int element_index) const;
 
    private:
     void* f_carma_state_;

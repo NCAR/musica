@@ -591,7 +591,7 @@ void bind_carma(py::module_& carma)
         carma_state->SetBin(bin_index, element_index, to_vector_double(value));
       },
       "Set values for a specific bin and element in the CARMA state");
-  
+
   carma.def(
       "_set_detrain",
       [](std::uintptr_t carma_state_ptr, int bin_index, int element_index, py::object value)
@@ -600,16 +600,26 @@ void bind_carma(py::module_& carma)
         carma_state->SetBin(bin_index, element_index, to_vector_double(value));
       },
       "Set the mass of the detrained condensate for the bin");
-  
+
   carma.def(
       "_set_gas",
-      [](std::uintptr_t carma_state_ptr, int gas_index, py::object value, py::object old_mmr, py::object gas_saturation_wrt_ice, py::object gas_saturation_wrt_liquid)
+      [](std::uintptr_t carma_state_ptr,
+         int gas_index,
+         py::object value,
+         py::object old_mmr,
+         py::object gas_saturation_wrt_ice,
+         py::object gas_saturation_wrt_liquid)
       {
         auto carma_state = reinterpret_cast<musica::CARMAState*>(carma_state_ptr);
-        carma_state->SetGas(gas_index, to_vector_double(value), to_vector_double(old_mmr), to_vector_double(gas_saturation_wrt_ice), to_vector_double(gas_saturation_wrt_liquid));
+        carma_state->SetGas(
+            gas_index,
+            to_vector_double(value),
+            to_vector_double(old_mmr),
+            to_vector_double(gas_saturation_wrt_ice),
+            to_vector_double(gas_saturation_wrt_liquid));
       },
       "Set the gas mass mixing ratio for a specific gas index in the CARMA state");
-  
+
   carma.def(
       "_get_step_statistics",
       [](std::uintptr_t carma_state_ptr)
@@ -636,4 +646,29 @@ void bind_carma(py::module_& carma)
         return result;
       },
       "Get the step statistics for the current CARMAState");
+
+  carma.def(
+      "_get_bin",
+      [](std::uintptr_t carma_state_ptr, int bin_index, int element_index)
+      {
+        auto carma_state = reinterpret_cast<musica::CARMAState*>(carma_state_ptr);
+        musica::CarmaBinValues values = carma_state->GetBinValues(bin_index, element_index);
+        py::dict result;
+        result["mass_mixing_ratio"] = values.mass_mixing_ratio;
+        result["number_mixing_ratio"] = values.number_mixing_ratio;
+        result["number_density"] = values.number_density;
+        result["nucleation_rate"] = values.nucleation_rate;
+        result["wet_particle_radius"] = values.wet_particle_radius;
+        result["wet_particle_density"] = values.wet_particle_density;
+        result["dry_particle_density"] = values.dry_particle_density;
+        result["particle_mass_on_surface"] = values.particle_mass_on_surface;
+        result["sedimentation_flux"] = values.sedimentation_flux;
+        result["fall_velocity"] = values.fall_velocity;
+        result["deposition_velocity"] = values.deposition_velocity;
+        result["delta_particle_temperature"] = values.delta_particle_temperature;
+        result["kappa"] = values.kappa;
+        result["total_mass_mixing_ratio"] = values.total_mass_mixing_ratio;
+        return result;
+      },
+      "Get the values for a specific bin and element in the CARMA state");
 }

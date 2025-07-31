@@ -400,6 +400,95 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+   subroutine internal_get_bin(carma_state_cptr, bin_index, element_index, nz, mass_mixing_ratio_ptr, &
+               number_mixing_ratio_ptr, number_density_ptr, nucleation_rate_ptr, wet_particle_radius_ptr, &
+               wet_particle_density_ptr, dry_particle_density_ptr, particle_mass_on_surface, &
+               sedimentation_flux, fall_velocity_ptr, deposition_velocity, delta_particle_temperature_ptr, &
+               kappa_ptr, total_mass_mixing_ratio_ptr, rc) &
+            bind(C, name="InternalGetBin")
+      use iso_c_binding, only: c_ptr, c_int, c_double
+      use iso_fortran_env, only: real64
+      use carma_types_mod, only: carmastate_type
+      use carmastate_mod, only: CARMASTATE_GetBin
+
+      type(c_ptr),    value, intent(in)  :: carma_state_cptr
+      integer(c_int), value, intent(in)  :: bin_index
+      integer(c_int), value, intent(in)  :: element_index
+      integer(c_int), value, intent(in)  :: nz
+      type(c_ptr),    value              :: mass_mixing_ratio_ptr
+      type(c_ptr),    value              :: number_mixing_ratio_ptr
+      type(c_ptr),    value              :: number_density_ptr
+      type(c_ptr),    value              :: nucleation_rate_ptr
+      type(c_ptr),    value              :: wet_particle_radius_ptr
+      type(c_ptr),    value              :: wet_particle_density_ptr
+      type(c_ptr),    value              :: dry_particle_density_ptr
+      real(real64),   intent(out)        :: particle_mass_on_surface
+      real(real64),   intent(out)        :: sedimentation_flux
+      type(c_ptr),    value              :: fall_velocity_ptr
+      real(real64),   intent(out)        :: deposition_velocity
+      type(c_ptr),    value              :: delta_particle_temperature_ptr
+      type(c_ptr),    value              :: kappa_ptr
+      type(c_ptr),    value              :: total_mass_mixing_ratio_ptr
+      integer(c_int), intent(out)        :: rc
+
+      ! Local variables
+      real(real64), pointer :: mass_mixing_ratio(:)
+      real(real64), pointer :: number_mixing_ratio(:)
+      real(real64), pointer :: number_density(:)
+      real(real64), pointer :: nucleation_rate(:)
+      real(real64), pointer :: wet_particle_radius(:)
+      real(real64), pointer :: wet_particle_density(:)
+      real(real64), pointer :: dry_particle_density(:)
+      real(real64), pointer :: fall_velocity(:)
+      real(real64), pointer :: delta_particle_temperature(:)
+      real(real64), pointer :: kappa(:)
+      real(real64), pointer :: total_mass_mixing_ratio(:)
+      type(carmastate_type), pointer :: cstate
+
+      rc = 0
+      if (element_index < 1) then
+         rc = ERROR_DIMENSION_MISMATCH
+         print *, "Error: element_index must be >= 1"
+         return
+      end if
+      if (bin_index < 1) then
+         rc = ERROR_DIMENSION_MISMATCH
+         print *, "Error: bin_index must be >= 1"
+         return
+      end if
+
+      ! Check if carma_state_cptr is associated
+      if (c_associated(carma_state_cptr)) then
+         call c_f_pointer(carma_state_cptr, cstate)
+
+         ! Allocate pointers for the output arrays
+         call c_f_pointer(mass_mixing_ratio_ptr, mass_mixing_ratio, [nz])
+         call c_f_pointer(number_mixing_ratio_ptr, number_mixing_ratio, [nz])
+         call c_f_pointer(number_density_ptr, number_density, [nz])
+         call c_f_pointer(nucleation_rate_ptr, nucleation_rate, [nz])
+         call c_f_pointer(wet_particle_radius_ptr, wet_particle_radius, [nz])
+         call c_f_pointer(wet_particle_density_ptr, wet_particle_density, [nz])
+         call c_f_pointer(dry_particle_density_ptr, dry_particle_density, [nz])
+         call c_f_pointer(fall_velocity_ptr, fall_velocity, [nz+1])
+         call c_f_pointer(delta_particle_temperature_ptr, delta_particle_temperature, [nz])
+         call c_f_pointer(kappa_ptr, kappa, [nz])
+         call c_f_pointer(total_mass_mixing_ratio_ptr, total_mass_mixing_ratio, [nz])
+
+         ! Get the bin data
+         call CARMASTATE_GetBin(cstate, ibin=bin_index, ielem=element_index, mmr=mass_mixing_ratio, rc=rc,&
+            nmr=number_mixing_ratio, numberDensity=number_density, nucleationRate=nucleation_rate, r_wet=wet_particle_radius, &
+            rhop_wet=wet_particle_density, rhop_dry=dry_particle_density, surface=particle_mass_on_surface, &
+            sedimentationFlux=sedimentation_flux, vf=fall_velocity, vd=deposition_velocity, &
+            dtpart=delta_particle_temperature, kappa=kappa, totalmmr=total_mass_mixing_ratio)
+      else
+         rc = 1
+         print *, "CARMA state pointer is not associated"
+      end if
+   end subroutine internal_get_bin
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
    subroutine internal_run_carma(params, carma_cptr, c_output, rc) &
       bind(C, name="InternalRunCarma")
       use iso_c_binding, only: c_int, c_ptr, c_f_pointer

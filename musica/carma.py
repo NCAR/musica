@@ -1195,6 +1195,19 @@ class CARMAState:
                             number of substeps, convergence status, etc.
         """
         return _backend._carma._get_step_statistics(self._carma_state_instance)
+    
+    def get_bin(self, bin_index: int, element_index: int) -> List[float]:
+        """
+        Get the value for a specific bin and element.
+
+        Args:
+            bin_index: Index of the size bin (1-indexed)
+            element_index: Index of the element (1-indexed)
+
+        Returns:
+            List[float]: Values for the specified bin and element
+        """
+        return _backend._carma._get_bin(self._carma_state_instance, bin_index, element_index)
 
 
 class CARMA:
