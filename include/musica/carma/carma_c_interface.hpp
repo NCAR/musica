@@ -343,17 +343,9 @@ namespace musica
         int gas_saturation_wrt_liquid_size,
         int* rc);
 
-    void InternalSetTemperature(
-        void* carma_state_instance,
-        const double* temperature,
-        int temperature_size,
-        int* rc);
+    void InternalSetTemperature(void* carma_state_instance, const double* temperature, int temperature_size, int* rc);
 
-    void InternalSetAirDensity(
-        void* carma_state_instance,
-        const double* air_density,
-        int air_density_size,
-        int* rc);
+    void InternalSetAirDensity(void* carma_state_instance, const double* air_density, int air_density_size, int* rc);
 
     void InternalStepCarmaState(void* carma_state_instance, const CARMAStateStepConfigC step_config, int* rc);
 

@@ -81,7 +81,8 @@ namespace musica
     }
 
     int rc;
-    InternalSetBin(f_carma_state_, bin_index, element_index, values.data(), static_cast<int>(values.size()), surface_mass, &rc);
+    InternalSetBin(
+        f_carma_state_, bin_index, element_index, values.data(), static_cast<int>(values.size()), surface_mass, &rc);
     if (rc != 0)
     {
       throw std::runtime_error("Failed to set bin values with return code: " + std::to_string(rc));
