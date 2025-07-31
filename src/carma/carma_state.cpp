@@ -264,7 +264,8 @@ namespace musica
     return bin_values;
   }
 
-  CarmaDetrainValues CARMAState::GetDetrain(int bin_index, int element_index) const {
+  CarmaDetrainValues CARMAState::GetDetrain(int bin_index, int element_index) const
+  {
     if (f_carma_state_ == nullptr)
     {
       throw std::runtime_error("CARMA state instance is not initialized.");
@@ -298,7 +299,8 @@ namespace musica
     return detrain_values;
   }
 
-  CarmaGasValues CARMAState::GetGas(int gas_index) const {
+  CarmaGasValues CARMAState::GetGas(int gas_index) const
+  {
     if (f_carma_state_ == nullptr)
     {
       throw std::runtime_error("CARMA state instance is not initialized.");
@@ -310,7 +312,7 @@ namespace musica
     gas_values.gas_vapor_pressure_wrt_ice.resize(nz);
     gas_values.gas_vapor_pressure_wrt_liquid.resize(nz);
     gas_values.weight_pct_aerosol_composition.resize(nz);
-    int rc; 
+    int rc;
 
     InternalGetGas(
         f_carma_state_,
@@ -332,7 +334,8 @@ namespace musica
     return gas_values;
   }
 
-  CarmaEnvironmentalValues CARMAState::GetEnvironmentalValues() const {
+  CarmaEnvironmentalValues CARMAState::GetEnvironmentalValues() const
+  {
     if (f_carma_state_ == nullptr)
     {
       throw std::runtime_error("CARMA state instance is not initialized.");

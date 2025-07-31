@@ -114,10 +114,10 @@ namespace musica
 
   struct CarmaEnvironmentalValues
   {
-    std::vector<double> temperature;               // Temperature [K]
-    std::vector<double> pressure;                  // Pressure [Pa]
-    std::vector<double> air_density;               // Air density [kg m-3]
-    std::vector<double> latent_heat;               // Latent heat [K s-1]
+    std::vector<double> temperature;  // Temperature [K]
+    std::vector<double> pressure;     // Pressure [Pa]
+    std::vector<double> air_density;  // Air density [kg m-3]
+    std::vector<double> latent_heat;  // Latent heat [K s-1]
   };
 
   class CARMAState

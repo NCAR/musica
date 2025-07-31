@@ -342,7 +342,7 @@ namespace musica
         const double* gas_saturation_wrt_liquid,
         int gas_saturation_wrt_liquid_size,
         int* rc);
-    
+
     void InternalGetStepStatistics(
         void* carma_state_instance,
         int* max_number_of_substeps,
@@ -354,10 +354,9 @@ namespace musica
         double* yc,
         double* z_substeps,
         int nz,
-        int* rc
-      );
-    
-      void InternalGetBin(
+        int* rc);
+
+    void InternalGetBin(
         void* carma_state_instance,
         int bin_index,
         int element_index,
@@ -376,10 +375,9 @@ namespace musica
         double* delta_particle_temperature,
         double* kappa,
         double* total_mass_mixing_ratio,
-        int* rc
-      );
+        int* rc);
 
-      void InternalGetDetrain(
+    void InternalGetDetrain(
         void* carma_state_instance,
         int bin_index,
         int element_index,
@@ -389,10 +387,9 @@ namespace musica
         double* number_density,
         double* wet_particle_radius,
         double* wet_particle_density,
-        int* rc
-      );
+        int* rc);
 
-      void InternalGetGas(
+    void InternalGetGas(
         void* carma_state_instance,
         int gas_index,
         int nz,
@@ -402,18 +399,16 @@ namespace musica
         double* gas_vapor_pressure_wrt_ice,
         double* gas_vapor_pressure_wrt_liquid,
         double* weight_pct_aerosol_composition,
-        int* rc
-      );
+        int* rc);
 
-      void InternalGetEnvironmentalValues(
+    void InternalGetEnvironmentalValues(
         void* carma_state_instance,
         int nz,
         double* temperature,
         double* pressure,
         double* air_density,
         double* latent_heat,
-        int* rc
-      );
+        int* rc);
 
     void InternalSetTemperature(void* carma_state_instance, const double* temperature, int temperature_size, int* rc);
 
