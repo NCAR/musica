@@ -715,7 +715,7 @@ void bind_carma(py::module_& carma)
         result["temperature"] = values.temperature;
         result["pressure"] = values.pressure;
         result["air_density"] = values.air_density;
-        if (std::all_of(values.latent_heat.begin(), values.latent_heat.end(), [](int val) { return val == -1; }))
+        if (std::all_of(values.latent_heat.begin(), values.latent_heat.end(), [](double val) { return val == -1; }))
         {
           result["latent_heat"] = py::none();
         }
