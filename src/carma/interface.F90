@@ -196,6 +196,10 @@ contains
          print *, "CARMA pointer is not associated"
       end if
 
+      ! Set the weight percents to zero to avoid uninitialized values
+      ! Actual values can be set once the CARMASTATE_SetGas() function is implemented
+      cstate%f_wtpct(:) = 0.0_real64
+
       carma_state_cptr = c_loc(cstate)
    end function internal_create_carma_state
 
@@ -397,8 +401,11 @@ contains
       ! Local variables
       type(carmastate_type), pointer :: cstate
       real(real64), pointer :: cloud_fraction(:), critical_rh(:)
+      logical :: deallocate_cloud_fraction, deallocate_critical_rh
 
       rc = 0
+      deallocate_cloud_fraction = .false.
+      deallocate_critical_rh = .false.
 
       ! Check if carma_state_cptr is associated
       if (c_associated(carma_state_cptr)) then
@@ -409,6 +416,7 @@ contains
          else
             allocate(cloud_fraction(cstate%f_NZ))
             cloud_fraction(:) = 1.0_real64
+            deallocate_cloud_fraction = .true.
          end if
          if (step_config%critical_relative_humidity_size > 0) then
             call c_f_pointer(step_config%critical_relative_humidity, critical_rh, &
@@ -416,6 +424,7 @@ contains
          else
             allocate(critical_rh(cstate%f_NZ))
             critical_rh(:) = 1.0_real64
+            deallocate_critical_rh = .true.
          end if
          call CARMASTATE_Step( &
             cstate, &
@@ -431,6 +440,12 @@ contains
             lndfrac=step_config%land%area_fraction, &
             ocnfrac=step_config%ocean%area_fraction, &
             icefrac=step_config%ice%area_fraction)
+         if (deallocate_cloud_fraction) then
+            deallocate(cloud_fraction)
+         end if
+         if (deallocate_critical_rh) then
+            deallocate(critical_rh)
+         end if
       else
          rc = 1
          print *, "CARMA state pointer is not associated"

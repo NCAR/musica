@@ -1039,8 +1039,9 @@ class CARMASurfaceProperties:
     """
     Represents the surface properties used in CARMA simulations.
 
-    This class encapsulates the surface properties such as albedo, emissivity,
-    and roughness length for different surfaces.
+    This class encapsulates the surface properties such as friction velocity,
+    aerodynamic resistance, and area fraction, which are used in CARMA simulations
+    to model the interaction between the atmosphere and the surface.
     """
 
     def __init__(self,
@@ -1051,9 +1052,9 @@ class CARMASurfaceProperties:
         Initialize CARMASurfaceProperties instance.
 
         Args:
-            surface_friction_velocity: Friction velocity at the surface (default: 0.0)
-            aerodynamic_resistance: Aerodynamic resistance at the surface (default: 0.0)
-            area_fraction: Area fraction of the surface (default: 0.0)
+            surface_friction_velocity: Friction velocity at the surface [m/s] (default: 0.0)
+            aerodynamic_resistance: Aerodynamic resistance at the surface [s/m] (default: 0.0)
+            area_fraction: Area fraction of the surface [fraction] (default: 0.0)
         """
         self.surface_friction_velocity = surface_friction_velocity
         self.aerodynamic_resistance = aerodynamic_resistance
@@ -1247,9 +1248,9 @@ class CARMAState:
         Args:
             cloud_fraction: Optional list of cloud fractions for each vertical level (default: None)
             critical_relative_humidity: Optional list of critical relative humidities for each vertical level (default: None)
-            land: Optional dictionary of land surface properties (default: None)
-            ocean: Optional dictionary of ocean surface properties (default: None)
-            ice: Optional dictionary of ice surface properties (default: None)
+            land: Optional CARMASurfaceProperties instance representing land surface properties (default: None)
+            ocean: Optional CARMASurfaceProperties instance representing ocean surface properties (default: None)
+            ice: Optional CARMASurfaceProperties instance representing ice surface properties (default: None)
         """
         _backend._carma._step(
             self._carma_state_instance,
