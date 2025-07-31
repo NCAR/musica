@@ -135,18 +135,17 @@ namespace musica
     }
   }
 
+  CarmaStatistics CARMAState::GetStepStatistics() const
+  {
+    if (f_carma_state_ == nullptr)
+    {
+      throw std::runtime_error("CARMA state instance is not initialized.");
+    }
 
-   CarmaStatistics CARMAState::GetStepStatistics() const
-   {
-      if (f_carma_state_ == nullptr)
-      {
-        throw std::runtime_error("CARMA state instance is not initialized.");
-      }
-
-      CarmaStatistics stats;
-      stats.z_substeps.resize(nz);
-      int rc;
-      InternalGetStepStatistics(
+    CarmaStatistics stats;
+    stats.z_substeps.resize(nz);
+    int rc;
+    InternalGetStepStatistics(
         f_carma_state_,
         &stats.max_number_of_substeps,
         &stats.max_number_of_retries,
@@ -157,62 +156,97 @@ namespace musica
         &stats.yc,
         stats.z_substeps.data(),
         static_cast<int>(stats.z_substeps.size()),
-        &rc
-      );
-      if (rc != 0)
-      {
-        throw std::runtime_error("Failed to get CARMA step statistics with return code: " + std::to_string(rc));
-      }
-      return stats;
+        &rc);
+    if (rc != 0)
+    {
+      throw std::runtime_error("Failed to get CARMA step statistics with return code: " + std::to_string(rc));
+    }
+    return stats;
+  }
+
+  CarmaBinValues CARMAState::GetBinValues(int bin_index, int element_index) const
+  {
+    if (f_carma_state_ == nullptr)
+    {
+      throw std::runtime_error("CARMA state instance is not initialized.");
     }
 
-    CarmaBinValues CARMAState::GetBinValues(int bin_index, int element_index) const {
-      if (f_carma_state_ == nullptr)
-      {
-        throw std::runtime_error("CARMA state instance is not initialized.");
-      }
+    CarmaBinValues bin_values;
+    bin_values.mass_mixing_ratio.resize(nz);
+    bin_values.number_mixing_ratio.resize(nz);
+    bin_values.number_density.resize(nz);
+    bin_values.nucleation_rate.resize(nz);
+    bin_values.wet_particle_radius.resize(nz);
+    bin_values.wet_particle_density.resize(nz);
+    bin_values.dry_particle_density.resize(nz);
+    bin_values.fall_velocity.resize(nz + 1);
+    bin_values.delta_particle_temperature.resize(nz);
+    bin_values.kappa.resize(nz);
+    bin_values.total_mass_mixing_ratio.resize(nz);
+    int rc;
 
-      CarmaBinValues bin_values;
-      bin_values.mass_mixing_ratio.resize(nz);
-      bin_values.number_mixing_ratio.resize(nz);
-      bin_values.number_density.resize(nz);
-      bin_values.nucleation_rate.resize(nz);
-      bin_values.wet_particle_radius.resize(nz);
-      bin_values.wet_particle_density.resize(nz);
-      bin_values.dry_particle_density.resize(nz);
-      bin_values.fall_velocity.resize(nz+1);
-      bin_values.delta_particle_temperature.resize(nz);
-      bin_values.kappa.resize(nz);
-      bin_values.total_mass_mixing_ratio.resize(nz);
-      int rc;
+    // Assuming InternalGetBinValues is a function that retrieves the bin values
+    InternalGetBin(
+        f_carma_state_,
+        bin_index,
+        element_index,
+        nz,
+        bin_values.mass_mixing_ratio.data(),
+        bin_values.number_mixing_ratio.data(),
+        bin_values.number_density.data(),
+        bin_values.nucleation_rate.data(),
+        bin_values.wet_particle_radius.data(),
+        bin_values.wet_particle_density.data(),
+        bin_values.dry_particle_density.data(),
+        &bin_values.particle_mass_on_surface,
+        &bin_values.sedimentation_flux,
+        bin_values.fall_velocity.data(),
+        &bin_values.deposition_velocity,
+        bin_values.delta_particle_temperature.data(),
+        bin_values.kappa.data(),
+        bin_values.total_mass_mixing_ratio.data(),
+        &rc);
 
-      // Assuming InternalGetBinValues is a function that retrieves the bin values
-      InternalGetBin(
-          f_carma_state_,
-          bin_index,
-          element_index,
-          nz,
-          bin_values.mass_mixing_ratio.data(),
-          bin_values.number_mixing_ratio.data(),
-          bin_values.number_density.data(),
-          bin_values.nucleation_rate.data(),
-          bin_values.wet_particle_radius.data(),
-          bin_values.wet_particle_density.data(),
-          bin_values.dry_particle_density.data(),
-          &bin_values.particle_mass_on_surface,
-          &bin_values.sedimentation_flux,
-          bin_values.fall_velocity.data(),
-          &bin_values.deposition_velocity,
-          bin_values.delta_particle_temperature.data(),
-          bin_values.kappa.data(),
-          bin_values.total_mass_mixing_ratio.data(),
-          &rc);
-
-      if (rc != 0)
-      {
-        throw std::runtime_error("Failed to get CARMA bin values with return code: " + std::to_string(rc));
-      }
-
-      return bin_values;
+    if (rc != 0)
+    {
+      throw std::runtime_error("Failed to get CARMA bin values with return code: " + std::to_string(rc));
     }
+
+    return bin_values;
+  }
+
+  CarmaDetrainValues CARMAState::GetDetrain(int bin_index, int element_index) const {
+    if (f_carma_state_ == nullptr)
+    {
+      throw std::runtime_error("CARMA state instance is not initialized.");
+    }
+
+    CarmaDetrainValues detrain_values;
+    detrain_values.mass_mixing_ratio.resize(nz);
+    detrain_values.number_mixing_ratio.resize(nz);
+    detrain_values.number_density.resize(nz);
+    detrain_values.wet_particle_radius.resize(nz);
+    detrain_values.wet_particle_density.resize(nz);
+    int rc;
+
+    // Assuming InternalGetDetrainValues is a function that retrieves the detrain values
+    InternalGetDetrain(
+        f_carma_state_,
+        bin_index,
+        element_index,
+        nz,
+        detrain_values.mass_mixing_ratio.data(),
+        detrain_values.number_mixing_ratio.data(),
+        detrain_values.number_density.data(),
+        detrain_values.wet_particle_radius.data(),
+        detrain_values.wet_particle_density.data(),
+        &rc);
+
+    if (rc != 0)
+    {
+      throw std::runtime_error("Failed to get CARMA detrain values with return code: " + std::to_string(rc));
+    }
+
+    return detrain_values;
+  }
 }  // namespace musica

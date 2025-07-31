@@ -1198,7 +1198,7 @@ class CARMAState:
     
     def get_bin(self, bin_index: int, element_index: int) -> List[float]:
         """
-        Get the value for a specific bin and element.
+        Get the values for a specific bin and element.
 
         Args:
             bin_index: Index of the size bin (1-indexed)
@@ -1208,6 +1208,20 @@ class CARMAState:
             List[float]: Values for the specified bin and element
         """
         return _backend._carma._get_bin(self._carma_state_instance, bin_index, element_index)
+    
+    def get_detrain(self, bin_index: int, element_index: int) -> List[float]:
+        """
+        Get the mass of the detrained condensate for the bin for each particle in the grid
+
+        Args:
+            bin_index: Index of the size bin (1-indexed)
+            element_index: Index of the element (1-indexed)
+
+        Returns:
+            List[float]: Mass of the detrained condensate for the specified bin and element
+        """
+        return _backend._carma._get_detrain(self._carma_state_instance, bin_index, element_index)
+
 
 
 class CARMA:

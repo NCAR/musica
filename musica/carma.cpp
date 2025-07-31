@@ -671,4 +671,20 @@ void bind_carma(py::module_& carma)
         return result;
       },
       "Get the values for a specific bin and element in the CARMA state");
+
+  carma.def(
+      "_get_detrain",
+      [](std::uintptr_t carma_state_ptr, int bin_index, int element_index)
+      {
+    auto carma_state = reinterpret_cast<musica::CARMAState*>(carma_state_ptr);
+    musica::CarmaDetrainValues values = carma_state->GetDetrain(bin_index, element_index);
+    py::dict result;
+    result["mass_mixing_ratio"] = values.mass_mixing_ratio;
+    result["number_mixing_ratio"] = values.number_mixing_ratio;
+    result["number_density"] = values.number_density;
+    result["wet_particle_radius"] = values.wet_particle_radius;
+    result["wet_particle_density"] = values.wet_particle_density;
+    return result;
+      },
+      "Get the detrained condensate values for a specific bin and element in the CARMA state");
 }

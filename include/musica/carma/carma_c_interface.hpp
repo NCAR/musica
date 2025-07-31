@@ -350,6 +350,19 @@ namespace musica
         int* rc
       );
 
+      void InternalGetDetrain(
+        void* carma_state_instance,
+        int bin_index,
+        int element_index,
+        int nz,
+        double* mass_mixing_ratio,
+        double* number_mixing_ratio,
+        double* number_density,
+        double* wet_particle_radius,
+        double* wet_particle_density,
+        int* rc
+      );
+
     // CARMA driver interface functions
     void InternalRunCarma(const CCARMAParameters& params, void* carma_instance, void* output, int* rc);
 

@@ -275,8 +275,8 @@ contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    subroutine internal_set_gas(carma_state_cptr, gas_index, values_ptr, values_size, old_mmr_ptr, old_mmr_size, &
-                                gas_saturation_wrt_ice_ptr, gas_saturation_wrt_ice_size, &
-                                gas_saturation_wrt_liquid_ptr, gas_saturation_wrt_liquid_size, rc) &
+      gas_saturation_wrt_ice_ptr, gas_saturation_wrt_ice_size, &
+      gas_saturation_wrt_liquid_ptr, gas_saturation_wrt_liquid_size, rc) &
       bind(C, name="InternalSetGas")
       use iso_c_binding, only: c_ptr, c_int, c_double
       use carmastate_mod, only: CARMASTATE_SetGas
@@ -341,9 +341,9 @@ contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    subroutine internal_get_state_statistics(carma_state_cptr, max_number_of_substeps, max_number_of_retries, &
-                                            total_number_of_steps, total_number_of_substeps, total_number_of_retries, &
-                                            xc, yc, z_substeps, z_substeps_size, rc) & 
-         bind(C, name="InternalGetStepStatistics")
+      total_number_of_steps, total_number_of_substeps, total_number_of_retries, &
+      xc, yc, z_substeps, z_substeps_size, rc) &
+      bind(C, name="InternalGetStepStatistics")
       use iso_c_binding, only: c_ptr, c_int, c_double
       use iso_fortran_env, only: real64
       use carma_types_mod, only: carmastate_type
@@ -401,11 +401,11 @@ contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    subroutine internal_get_bin(carma_state_cptr, bin_index, element_index, nz, mass_mixing_ratio_ptr, &
-               number_mixing_ratio_ptr, number_density_ptr, nucleation_rate_ptr, wet_particle_radius_ptr, &
-               wet_particle_density_ptr, dry_particle_density_ptr, particle_mass_on_surface, &
-               sedimentation_flux, fall_velocity_ptr, deposition_velocity, delta_particle_temperature_ptr, &
-               kappa_ptr, total_mass_mixing_ratio_ptr, rc) &
-            bind(C, name="InternalGetBin")
+      number_mixing_ratio_ptr, number_density_ptr, nucleation_rate_ptr, wet_particle_radius_ptr, &
+      wet_particle_density_ptr, dry_particle_density_ptr, particle_mass_on_surface, &
+      sedimentation_flux, fall_velocity_ptr, deposition_velocity, delta_particle_temperature_ptr, &
+      kappa_ptr, total_mass_mixing_ratio_ptr, rc) &
+      bind(C, name="InternalGetBin")
       use iso_c_binding, only: c_ptr, c_int, c_double
       use iso_fortran_env, only: real64
       use carma_types_mod, only: carmastate_type
@@ -486,6 +486,69 @@ contains
       end if
    end subroutine internal_get_bin
 
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   subroutine internal_get_detrain(carma_state_cptr, bin_index, element_index, nz, mass_mixing_ratio_ptr, &
+      number_mixing_ratio_ptr, number_density_ptr, wet_particle_radius_ptr, &
+      wet_particle_density_ptr, rc) &
+      bind(C, name="InternalGetDetrain")
+      use iso_c_binding, only: c_ptr, c_int, c_double
+      use iso_fortran_env, only: real64
+      use carma_types_mod, only: carmastate_type
+      use carmastate_mod, only: CARMASTATE_GetDetrain
+
+      type(c_ptr),    value, intent(in)  :: carma_state_cptr
+      integer(c_int), value, intent(in)  :: bin_index
+      integer(c_int), value, intent(in)  :: element_index
+      integer(c_int), value, intent(in)  :: nz
+      type(c_ptr),    value              :: mass_mixing_ratio_ptr
+      type(c_ptr),    value              :: number_mixing_ratio_ptr
+      type(c_ptr),    value              :: number_density_ptr
+      type(c_ptr),    value              :: wet_particle_radius_ptr
+      type(c_ptr),    value              :: wet_particle_density_ptr
+      integer(c_int), intent(out)        :: rc
+
+      ! Local variables
+      real(real64), pointer :: mass_mixing_ratio(:)
+      real(real64), pointer :: number_mixing_ratio(:)
+      real(real64), pointer :: number_density(:)
+      real(real64), pointer :: wet_particle_radius(:)
+      real(real64), pointer :: wet_particle_density(:)
+      type(carmastate_type), pointer :: cstate
+
+      rc = 0
+
+      if (element_index < 1) then
+         rc = ERROR_DIMENSION_MISMATCH
+         print *, "Error: element_index must be >= 1"
+         return
+      end if
+      if (bin_index < 1) then
+         rc = ERROR_DIMENSION_MISMATCH
+         print *, "Error: bin_index must be >= 1"
+         return
+      end if
+
+      ! Check if carma_state_cptr is associated
+      if (c_associated(carma_state_cptr)) then
+         call c_f_pointer(carma_state_cptr, cstate)
+         ! Allocate pointers for the output arrays
+         call c_f_pointer(mass_mixing_ratio_ptr, mass_mixing_ratio, [nz])
+         call c_f_pointer(number_mixing_ratio_ptr, number_mixing_ratio, [nz])
+         call c_f_pointer(number_density_ptr, number_density, [nz])
+         call c_f_pointer(wet_particle_radius_ptr, wet_particle_radius, [nz])
+         call c_f_pointer(wet_particle_density_ptr, wet_particle_density, [nz])
+         ! Get the detrain data
+         call CARMASTATE_GetDetrain(cstate, ibin=bin_index, ielem=element_index, &
+            mmr=mass_mixing_ratio, rc=rc, nmr=number_mixing_ratio, &
+            numberDensity=number_density, r_wet=wet_particle_radius, &
+            rhop_wet=wet_particle_density)
+      else
+         rc = 1
+         print *, "CARMA state pointer is not associated"
+      end if
+   end subroutine internal_get_detrain
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -572,11 +635,11 @@ contains
       use carma_mod
       use atmosphere_mod
       use carma_parameters_mod, only: carma_parameters_t, carma_group_config_t, &
-                                      carma_element_config_t, carma_wavelength_bin_t, &
-                                      carma_element_config_t, carma_wavelength_bin_t, &
-                                      carma_complex_t, carma_solute_config_t, carma_gas_config_t, &
-                                      carma_coagulation_config_t, carma_growth_config_t, &
-                                      carma_nucleation_config_t
+         carma_element_config_t, carma_wavelength_bin_t, &
+         carma_element_config_t, carma_wavelength_bin_t, &
+         carma_complex_t, carma_solute_config_t, carma_gas_config_t, &
+         carma_coagulation_config_t, carma_growth_config_t, &
+         carma_nucleation_config_t
       use iso_fortran_env, only: real64
       use iso_c_binding, only: c_ptr, c_loc
 
@@ -681,43 +744,43 @@ contains
       if (c_associated(params%groups)) then
          call c_f_pointer(params%groups, group_config, [params%groups_size])
          do igroup = 1, params%groups_size
-         associate(group => group_config(igroup))
-            group_name = c_to_f_string(group%name, group%name_length)
-            group_short_name = c_to_f_string(group%shortname, group%shortname_length)
-            call c_f_pointer(group%df, df, [group%df_size])
-            call CARMAGROUP_Create( &
-               carma, &
-               igroup, &
-               group_name, &
-               real(group%rmin, kind=real64) * 100.0_real64, & ! Convert m to cm
-               real(group%rmrat, kind=real64), &
-               int(group%ishape), &
-               real(group%eshape, kind=real64), &
-               logical(group%is_ice), &
-               rc, &
-               is_fractal=logical(group%is_fractal), &
-               irhswell=int(group%swelling_algorithm), &
-               irhswcomp=int(group%swelling_composition), &
-               do_mie=(group%mie_calculation_algorithm /= 0), &
-               do_wetdep=logical(group%do_wetdep), &
-               do_drydep=logical(group%do_drydep), &
-               do_vtran=logical(group%do_vtran), &
-               solfac=real(group%solfac, kind=real64), &
-               scavcoef=real(group%scavcoef, kind=real64), &
-               shortname=group_short_name, &
-               ifallrtn=int(group%fall_velocity_routine), &
-               is_cloud= logical(group%is_cloud), &
-               rmassmin=real(group%rmassmin, kind=real64) * 1000.0_real64, & ! Convert kg to g
-               imiertn=int(group%mie_calculation_algorithm), &
-               iopticstype=int(group%optics_algorithm), &
-               is_sulfate=logical(group%is_sulfate), &
-               dpc_threshold=real(group%dpc_threshold, kind=real64), &
-               rmon=real(group%rmon, kind=real64) * 100.0_real64, & ! Convert m to cm
-               df=df, &
-               falpha=real(group%falpha, kind=real64), &
-               neutral_volfrc=real(group%neutral_volfrc, kind=real64))
-            if (rc /= 0) return
-         end associate
+            associate(group => group_config(igroup))
+               group_name = c_to_f_string(group%name, group%name_length)
+               group_short_name = c_to_f_string(group%shortname, group%shortname_length)
+               call c_f_pointer(group%df, df, [group%df_size])
+               call CARMAGROUP_Create( &
+                  carma, &
+                  igroup, &
+                  group_name, &
+                  real(group%rmin, kind=real64) * 100.0_real64, & ! Convert m to cm
+                  real(group%rmrat, kind=real64), &
+                  int(group%ishape), &
+                  real(group%eshape, kind=real64), &
+                  logical(group%is_ice), &
+                  rc, &
+                  is_fractal=logical(group%is_fractal), &
+                  irhswell=int(group%swelling_algorithm), &
+                  irhswcomp=int(group%swelling_composition), &
+                  do_mie=(group%mie_calculation_algorithm /= 0), &
+                  do_wetdep=logical(group%do_wetdep), &
+                  do_drydep=logical(group%do_drydep), &
+                  do_vtran=logical(group%do_vtran), &
+                  solfac=real(group%solfac, kind=real64), &
+                  scavcoef=real(group%scavcoef, kind=real64), &
+                  shortname=group_short_name, &
+                  ifallrtn=int(group%fall_velocity_routine), &
+                  is_cloud= logical(group%is_cloud), &
+                  rmassmin=real(group%rmassmin, kind=real64) * 1000.0_real64, & ! Convert kg to g
+                  imiertn=int(group%mie_calculation_algorithm), &
+                  iopticstype=int(group%optics_algorithm), &
+                  is_sulfate=logical(group%is_sulfate), &
+                  dpc_threshold=real(group%dpc_threshold, kind=real64), &
+                  rmon=real(group%rmon, kind=real64) * 100.0_real64, & ! Convert m to cm
+                  df=df, &
+                  falpha=real(group%falpha, kind=real64), &
+                  neutral_volfrc=real(group%neutral_volfrc, kind=real64))
+               if (rc /= 0) return
+            end associate
          end do
       end if
 
@@ -729,15 +792,15 @@ contains
                element_name = c_to_f_string(elem%name, elem%name_length)
                element_short_name = c_to_f_string(elem%shortname, elem%shortname_length)
                if (elem%rhobin_size > 0) then
-                 call c_f_pointer(elem%rhobin, rhobin, [elem%rhobin_size])
-                 rhobin(:) = rhobin(:) * 0.001_real64 ! Convert kg m-3 to g cm-3
-                 if (elem%rhobin_size /= NBIN) then
-                    print *, "Error: rhobin size does not match NBIN"
-                    rc = ERROR_DIMENSION_MISMATCH
-                    return
-                 end if
+                  call c_f_pointer(elem%rhobin, rhobin, [elem%rhobin_size])
+                  rhobin(:) = rhobin(:) * 0.001_real64 ! Convert kg m-3 to g cm-3
+                  if (elem%rhobin_size /= NBIN) then
+                     print *, "Error: rhobin size does not match NBIN"
+                     rc = ERROR_DIMENSION_MISMATCH
+                     return
+                  end if
                else
-                 rhobin => null( )
+                  rhobin => null( )
                end if
                if (elem%arat_size > 0) then
                   call c_f_pointer(elem%arat, arat, [elem%arat_size])
@@ -769,7 +832,7 @@ contains
                   end if
                   do iwave = 1, NWAVE
                      refidx(iwave,:) = cmplx(refidx_t(iwave,1:params%number_of_refractive_indices)%real_part, &
-                                             refidx_t(iwave,1:params%number_of_refractive_indices)%imag_part, kind=real64)
+                        refidx_t(iwave,1:params%number_of_refractive_indices)%imag_part, kind=real64)
                   end do
                end if
                call CARMAELEMENT_Create( &
@@ -847,7 +910,7 @@ contains
                   end if
                   do iwave = 1, NWAVE
                      gas_refidx(iwave,:) = cmplx(gas_refidx_t(iwave,1:params%number_of_refractive_indices)%real_part, &
-                                                 gas_refidx_t(iwave,1:params%number_of_refractive_indices)%imag_part, kind=real64)
+                        gas_refidx_t(iwave,1:params%number_of_refractive_indices)%imag_part, kind=real64)
                   end do
                end if
                call CARMAGAS_Create( &
