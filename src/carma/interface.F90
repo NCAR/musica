@@ -196,6 +196,10 @@ contains
          print *, "CARMA pointer is not associated"
       end if
 
+      ! Set the weight percents to zero to avoid uninitialized values
+      ! Actual values can be set once the CARMASTATE_SetGas() function is implemented
+      cstate%f_wtpct(:) = 0.0_real64
+
       carma_state_cptr = c_loc(cstate)
    end function internal_create_carma_state
 
@@ -378,6 +382,76 @@ contains
       end if
 
    end subroutine internal_set_gas
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   subroutine internal_step(carma_state_cptr, step_config, rc) &
+      bind(C, name="InternalStepCarmaState")
+      use iso_c_binding, only: c_ptr, c_int
+      use iso_fortran_env, only: real64
+      use carmastate_mod, only: CARMASTATE_Step
+      use carma_types_mod, only: carmastate_type
+      use carma_parameters_mod, only: carma_state_step_config_t
+
+      ! Arguments
+      type(c_ptr),                     value, intent(in)  :: carma_state_cptr
+      type(carma_state_step_config_t), value, intent(in)  :: step_config
+      integer(c_int),                         intent(out) :: rc
+
+      ! Local variables
+      type(carmastate_type), pointer :: cstate
+      real(real64), pointer :: cloud_fraction(:), critical_rh(:)
+      logical :: deallocate_cloud_fraction, deallocate_critical_rh
+
+      rc = 0
+      deallocate_cloud_fraction = .false.
+      deallocate_critical_rh = .false.
+
+      ! Check if carma_state_cptr is associated
+      if (c_associated(carma_state_cptr)) then
+         call c_f_pointer(carma_state_cptr, cstate)
+         if (step_config%cloud_fraction_size > 0) then
+            call c_f_pointer(step_config%cloud_fraction, cloud_fraction, &
+                             [step_config%cloud_fraction_size])
+         else
+            allocate(cloud_fraction(cstate%f_NZ))
+            cloud_fraction(:) = 1.0_real64
+            deallocate_cloud_fraction = .true.
+         end if
+         if (step_config%critical_relative_humidity_size > 0) then
+            call c_f_pointer(step_config%critical_relative_humidity, critical_rh, &
+                             [step_config%critical_relative_humidity_size])
+         else
+            allocate(critical_rh(cstate%f_NZ))
+            critical_rh(:) = 1.0_real64
+            deallocate_critical_rh = .true.
+         end if
+         call CARMASTATE_Step( &
+            cstate, &
+            rc, &
+            cldfrc=cloud_fraction, &
+            rhcrit=critical_rh, &
+            lndfv=step_config%land%surface_friction_velocity, &
+            ocnfv=step_config%ocean%surface_friction_velocity, &
+            icefv=step_config%ice%surface_friction_velocity, &
+            lndram=step_config%land%aerodynamic_resistance, &
+            ocnram=step_config%ocean%aerodynamic_resistance, &
+            iceram=step_config%ice%aerodynamic_resistance, &
+            lndfrac=step_config%land%area_fraction, &
+            ocnfrac=step_config%ocean%area_fraction, &
+            icefrac=step_config%ice%area_fraction)
+         if (deallocate_cloud_fraction) then
+            deallocate(cloud_fraction)
+         end if
+         if (deallocate_critical_rh) then
+            deallocate(critical_rh)
+         end if
+      else
+         rc = 1
+         print *, "CARMA state pointer is not associated"
+      end if
+
+   end subroutine internal_step
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

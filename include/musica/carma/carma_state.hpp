@@ -46,6 +46,22 @@ namespace musica
     int radiative_intensity_dim_2_size = 0;   // Number of vertical centers
   };
 
+  struct CARMASurfaceProperties
+  {
+    double surface_friction_velocity = 0.0;  // Surface friction velocity [m/s]
+    double aerodynamic_resistance = 0.0;  // Aerodynamic resistance [s/m]
+    double area_fraction = 0.0;  // Area fraction [fraction]
+  };
+
+  struct CARMAStateStepConfig
+  {
+    std::vector<double> cloud_fraction;  // Cloud fraction at vertical centers [fraction]
+    std::vector<double> critical_relative_humidity;  // Relative humidity for onset of liquid clouds at vertical centers [fraction]
+    CARMASurfaceProperties land;  // Surface properties for land
+    CARMASurfaceProperties ocean;  // Surface properties for ocean
+    CARMASurfaceProperties ice;  // Surface properties for ice
+  };
+
   class CARMAState
   {
    public:
@@ -61,7 +77,7 @@ namespace musica
         const std::vector<double>& old_mmr,
         const std::vector<double>& gas_saturation_wrt_ice,
         const std::vector<double>& gas_saturation_wrt_liquid);
-
+    void Step(CARMAStateStepConfig& step_config);
    private:
     void* f_carma_state_;
   };
