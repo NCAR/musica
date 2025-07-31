@@ -34,6 +34,9 @@ def test_carma_instance():
     print(state.get_bin(1, 1))
     print(state.get_detrain(1, 1))
     print(state.get_environmental_values())
+    state.step(land=musica.carma.CARMASurfaceProperties(surface_friction_velocity=0.42, area_fraction=0.3),
+               ocean=musica.carma.CARMASurfaceProperties(aerodynamic_resistance=0.1),
+               ice=musica.carma.CARMASurfaceProperties(area_fraction=0.2))
 
 
 def test_carma_with_default_parameters():

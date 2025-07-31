@@ -37,6 +37,33 @@ auto to_vector_double = [](const py::object& obj) -> std::vector<double>
   return {};
 };
 
+auto to_surface_properties = [](const py::object& obj) -> musica::CARMASurfaceProperties
+{
+  if (obj.is_none())
+    return {};
+  if (py::isinstance<py::dict>(obj))
+  {
+    auto dict = obj.cast<py::dict>();
+    musica::CARMASurfaceProperties props;
+    if (dict.contains("surface_friction_velocity"))
+      props.surface_friction_velocity = dict["surface_friction_velocity"].cast<double>();
+    if (dict.contains("aerodynamic_resistance"))
+      props.aerodynamic_resistance = dict["aerodynamic_resistance"].cast<double>();
+    if (dict.contains("area_fraction"))
+      props.area_fraction = dict["area_fraction"].cast<double>();
+    return props;
+  }
+  if (py::isinstance<py::object>(obj))
+  {
+    musica::CARMASurfaceProperties props;
+    props.surface_friction_velocity = obj.attr("surface_friction_velocity").cast<double>();
+    props.aerodynamic_resistance = obj.attr("aerodynamic_resistance").cast<double>();
+    props.area_fraction = obj.attr("area_fraction").cast<double>();
+    return props;
+  }
+  throw std::invalid_argument("Expected a dictionary for surface properties");
+};
+
 void bind_carma(py::module_& carma)
 {
   carma.def("_get_carma_version", []() { return musica::CARMA::GetVersion(); }, "Get the version of the CARMA instance");
@@ -563,7 +590,7 @@ void bind_carma(py::module_& carma)
         musica::CARMA* carma_instance = reinterpret_cast<musica::CARMA*>(carma_ptr);
         try
         {
-          auto carma_state = new musica::CARMAState(carma_instance, params);
+          auto carma_state = new musica::CARMAState(*carma_instance, params);
           return reinterpret_cast<std::uintptr_t>(carma_state);
         }
         catch (const std::exception& e)
@@ -726,4 +753,33 @@ void bind_carma(py::module_& carma)
         return result;
       },
       "Get the state values for the current CARMAState");
+
+  carma.def(
+      "_step",
+      [](std::uintptr_t carma_state_ptr, py::kwargs kwargs)
+      {
+        auto carma_state = reinterpret_cast<musica::CARMAState*>(carma_state_ptr);
+        musica::CARMAStateStepConfig step_config;
+
+        if (kwargs.contains("cloud_fraction"))
+          step_config.cloud_fraction = to_vector_double(kwargs["cloud_fraction"]);
+        if (kwargs.contains("critical_relative_humidity"))
+          step_config.critical_relative_humidity = to_vector_double(kwargs["critical_relative_humidity"]);
+        if (kwargs.contains("land"))
+          step_config.land = to_surface_properties(kwargs["land"]);
+        if (kwargs.contains("ocean"))
+          step_config.ocean = to_surface_properties(kwargs["ocean"]);
+        if (kwargs.contains("ice"))
+          step_config.ice = to_surface_properties(kwargs["ice"]);
+
+        try
+        {
+          carma_state->Step(step_config);
+        }
+        catch (const std::exception& e)
+        {
+          throw py::value_error("Error stepping CARMA state: " + std::string(e.what()));
+        }
+      },
+      "Step the CARMA state with specified parameters");
 }

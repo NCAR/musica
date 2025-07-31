@@ -14,7 +14,8 @@ module carma_parameters_mod
    public :: carma_group_config_t, carma_element_config_t, carma_parameters_t, &
              carma_wavelength_bin_t, carma_complex_t, carma_solute_config_t, carma_gas_config_t, &
              carma_coagulation_config_t, carma_growth_config_t, carma_nucleation_config_t, &
-             carma_initialization_config_t, carma_output_data_t, carma_state_parameter_t
+             carma_initialization_config_t, carma_output_data_t, carma_state_parameter_t, &
+               carma_state_step_config_t, carma_surface_properties_t
 
    type, bind(c) :: carma_wavelength_bin_t
       real(c_double) :: center       ! Center of the wavelength bin [m]
@@ -239,6 +240,7 @@ module carma_parameters_mod
 
    type, bind(C) :: carma_state_parameter_t
       real(c_double) :: time
+      real(c_double) :: time_step
       real(c_double) :: longitude
       real(c_double) :: latitude
       integer(c_int) :: coordinates
@@ -253,6 +255,31 @@ module carma_parameters_mod
       integer(c_int) :: pressure_size
       type(c_ptr) :: pressure_levels    ! pressure levels of the grid [Pa]
       integer(c_int) :: pressure_levels_size
+      type(c_ptr) :: specific_humidity    ! specific humidity at each vertical level [kg/kg]
+      integer(c_int) :: specific_humidity_size
+      type(c_ptr) :: relative_humidity    ! relative humidity at each vertical level [fraction]
+      integer(c_int) :: relative_humidity_size
+      type(c_ptr) :: original_temperature  ! original temperature profile at each vertical level [K]
+      integer(c_int) :: original_temperature_size
+      type(c_ptr) :: radiative_intensity   ! radiative intensity at each vertical level [W/m²/sr/m]
+      integer(c_int) :: radiative_intensity_dim_1_size
+      integer(c_int) :: radiative_intensity_dim_2_size
    end type carma_state_parameter_t
+
+   type, bind(c) :: carma_surface_properties_t
+      real(c_double) :: surface_friction_velocity ! Surface friction velocity [m/s]
+      real(c_double) :: aerodynamic_resistance    ! Aerodynamic resistance [s/m]
+      real(c_double) :: area_fraction             ! Area fraction of the surface type [fraction]
+   end type carma_surface_properties_t
+
+   type, bind(c) :: carma_state_step_config_t
+      type(c_ptr) :: cloud_fraction              ! Cloud fraction at each vertical level [fraction]
+      integer(c_int) :: cloud_fraction_size
+      type(c_ptr) :: critical_relative_humidity  ! Critical relative humidity at each vertical level [fraction]
+      integer(c_int) :: critical_relative_humidity_size
+      type(carma_surface_properties_t) :: land   ! Surface properties for land
+      type(carma_surface_properties_t) :: ocean  ! Surface properties for ocean
+      type(carma_surface_properties_t) :: ice    ! Surface properties for ice
+   end type carma_state_step_config_t
 
 end module carma_parameters_mod

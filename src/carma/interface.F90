@@ -117,6 +117,14 @@ contains
       real(kind=real64), pointer     :: temperature(:)
       real(kind=real64), pointer     :: pressure(:)
       real(kind=real64), pointer     :: pressure_levels(:)
+      real(kind=real64), pointer     :: specific_humidity_ptr(:)
+      real(kind=real64), pointer     :: relative_humidity_ptr(:)
+      real(kind=real64), pointer     :: original_temperature_ptr(:)
+      real(kind=real64), pointer     :: radiative_intensity_ptr(:,:)
+      real(kind=real64), allocatable :: specific_humidity(:)
+      real(kind=real64), allocatable :: relative_humidity(:)
+      real(kind=real64), allocatable :: original_temperature(:)
+      real(kind=real64), allocatable :: radiative_intensity(:,:)
       type(c_ptr)                    :: carma_state_cptr
       integer :: alloc_stat
 
@@ -135,16 +143,49 @@ contains
       call c_f_pointer(carma_state_params%temperature, temperature, [carma_state_params%temperature_size])
       call c_f_pointer(carma_state_params%pressure, pressure, [carma_state_params%pressure_size])
       call c_f_pointer(carma_state_params%pressure_levels, pressure_levels, [carma_state_params%pressure_levels_size])
+      if (carma_state_params%specific_humidity_size > 0) then
+         call c_f_pointer(carma_state_params%specific_humidity, specific_humidity_ptr, [carma_state_params%specific_humidity_size])
+         allocate(specific_humidity(carma_state_params%specific_humidity_size))
+         specific_humidity(:) = specific_humidity_ptr(:)
+      end if
+      if (carma_state_params%relative_humidity_size > 0) then
+         call c_f_pointer(carma_state_params%relative_humidity, relative_humidity_ptr, [carma_state_params%relative_humidity_size])
+         allocate(relative_humidity(carma_state_params%relative_humidity_size))
+         relative_humidity(:) = relative_humidity_ptr(:)
+      end if
+      if (carma_state_params%original_temperature_size > 0) then
+         call c_f_pointer(carma_state_params%original_temperature, original_temperature_ptr, [carma_state_params%original_temperature_size])
+         allocate(original_temperature(carma_state_params%original_temperature_size))
+         original_temperature(:) = original_temperature_ptr(:)
+      end if
+      if (carma_state_params%radiative_intensity_dim_1_size > 0 .and. &
+         carma_state_params%radiative_intensity_dim_2_size > 0) then
+         call c_f_pointer(carma_state_params%radiative_intensity, radiative_intensity_ptr, [carma_state_params%radiative_intensity_dim_2_size, carma_state_params%radiative_intensity_dim_1_size])
+         allocate(radiative_intensity(carma_state_params%radiative_intensity_dim_2_size, carma_state_params%radiative_intensity_dim_1_size))
+         radiative_intensity(:,:) = radiative_intensity_ptr(:,:)
+      end if
 
       if (c_associated(carma_cptr)) then
          call c_f_pointer(carma_cptr, carma)
-         call CARMASTATE_Create(cstate, carma, &
-            carma_state_params%time, carma_params%dtime, carma_params%nz, &
-            carma_state_params%coordinates, carma_state_params%latitude, carma_state_params%longitude, &
-            vertical_center(:), vertical_levels(:), &
-            pressure(:), pressure_levels(:), &
-            temperature(:), rc, &
-            told=temperature(:))
+         call CARMASTATE_Create( &
+            cstate, &
+            carma, &
+            carma_state_params%time, &
+            carma_state_params%time_step, &
+            carma_params%nz, &
+            carma_state_params%coordinates, &
+            carma_state_params%latitude, &
+            carma_state_params%longitude, &
+            vertical_center(:), &
+            vertical_levels(:), &
+            pressure(:), &
+            pressure_levels(:), &
+            temperature(:), &
+            rc, &
+            qh2o=specific_humidity(:), &
+            relhum=relative_humidity(:), &
+            told=original_temperature(:), &
+            radint=radiative_intensity(:,:))
          if (rc /= 0) then
             print *, "Error creating CARMA state"
             return
@@ -153,6 +194,10 @@ contains
          rc = 1
          print *, "CARMA pointer is not associated"
       end if
+
+      ! Set the weight percents to zero to avoid uninitialized values
+      ! Actual values can be set once the CARMASTATE_SetGas() function is implemented
+      cstate%f_wtpct(:) = 0.0_real64
 
       carma_state_cptr = c_loc(cstate)
    end function internal_create_carma_state
@@ -546,7 +591,7 @@ contains
       mass_mixing_ratio_ptr, gas_saturation_wrt_ice_ptr, &
       gas_saturation_wrt_liquid_ptr, gas_vapor_pressure_wrt_ice_ptr, &
       gas_vapor_pressure_wrt_liquid_ptr, weight_pct_aerosol_composition_ptr, rc) &
-         bind(C, name="InternalGetGas")
+      bind(C, name="InternalGetGas")
       use iso_c_binding, only: c_ptr, c_int, c_double
       use iso_fortran_env, only: real64
       use carma_types_mod, only: carmastate_type
@@ -604,7 +649,7 @@ contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    subroutine internal_get_state_environmental_values(carma_state_cptr, nz, temperature_ptr, pressure_ptr, air_density_ptr, latent_heat_ptr, rc) &
-         bind(C, name="InternalGetEnvironmentalValues")
+      bind(C, name="InternalGetEnvironmentalValues")
       use iso_c_binding, only: c_ptr, c_int, c_double
       use iso_fortran_env, only: real64
       use carma_types_mod, only: carmastate_type
@@ -652,7 +697,76 @@ contains
          print *, "CARMA state pointer is not associated"
       end if
 
-      end subroutine internal_get_state_environmental_values
+   end subroutine internal_get_state_environmental_values
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   subroutine internal_step(carma_state_cptr, step_config, rc) &
+      bind(C, name="InternalStepCarmaState")
+      use iso_c_binding, only: c_ptr, c_int
+      use iso_fortran_env, only: real64
+      use carmastate_mod, only: CARMASTATE_Step
+      use carma_types_mod, only: carmastate_type
+      use carma_parameters_mod, only: carma_state_step_config_t
+
+      ! Arguments
+      type(c_ptr),                     value, intent(in)  :: carma_state_cptr
+      type(carma_state_step_config_t), value, intent(in)  :: step_config
+      integer(c_int),                         intent(out) :: rc
+
+      ! Local variables
+      type(carmastate_type), pointer :: cstate
+      real(real64), pointer :: cloud_fraction(:), critical_rh(:)
+      logical :: deallocate_cloud_fraction, deallocate_critical_rh
+
+      rc = 0
+      deallocate_cloud_fraction = .false.
+      deallocate_critical_rh = .false.
+
+      ! Check if carma_state_cptr is associated
+      if (c_associated(carma_state_cptr)) then
+         call c_f_pointer(carma_state_cptr, cstate)
+         if (step_config%cloud_fraction_size > 0) then
+            call c_f_pointer(step_config%cloud_fraction, cloud_fraction, &
+               [step_config%cloud_fraction_size])
+         else
+            allocate(cloud_fraction(cstate%f_NZ))
+            cloud_fraction(:) = 1.0_real64
+            deallocate_cloud_fraction = .true.
+         end if
+         if (step_config%critical_relative_humidity_size > 0) then
+            call c_f_pointer(step_config%critical_relative_humidity, critical_rh, &
+               [step_config%critical_relative_humidity_size])
+         else
+            allocate(critical_rh(cstate%f_NZ))
+            critical_rh(:) = 1.0_real64
+            deallocate_critical_rh = .true.
+         end if
+         call CARMASTATE_Step( &
+            cstate, &
+            rc, &
+            cldfrc=cloud_fraction, &
+            rhcrit=critical_rh, &
+            lndfv=step_config%land%surface_friction_velocity, &
+            ocnfv=step_config%ocean%surface_friction_velocity, &
+            icefv=step_config%ice%surface_friction_velocity, &
+            lndram=step_config%land%aerodynamic_resistance, &
+            ocnram=step_config%ocean%aerodynamic_resistance, &
+            iceram=step_config%ice%aerodynamic_resistance, &
+            lndfrac=step_config%land%area_fraction, &
+            ocnfrac=step_config%ocean%area_fraction, &
+            icefrac=step_config%ice%area_fraction)
+         if (deallocate_cloud_fraction) then
+            deallocate(cloud_fraction)
+         end if
+         if (deallocate_critical_rh) then
+            deallocate(critical_rh)
+         end if
+      else
+         rc = 1
+         print *, "CARMA state pointer is not associated"
+      end if
+   end subroutine internal_step
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

@@ -24,15 +24,43 @@ namespace musica
 
   struct CARMAStateParameters
   {
-    double time;
-    double longitude;
-    double latitude;
-    CarmaCoordinates coordinates;
-    std::vector<double> vertical_center;
-    std::vector<double> vertical_levels;
-    std::vector<double> temperature;
-    std::vector<double> pressure;
-    std::vector<double> pressure_levels;
+    double time = 0.0;       // Time [s]
+    double time_step = 0.0;  // Time step [s]
+    double longitude = 0.0;  // Longitude [degrees]
+    double latitude = 0.0;   // Latitude [degrees]
+    CarmaCoordinates coordinates = CarmaCoordinates::CARTESIAN;
+    std::vector<double> vertical_center;       // Vertical center heights [m]
+    std::vector<double> vertical_levels;       // Vertical levels [m]
+    std::vector<double> temperature;           // Temperature at vertical centers [K]
+    std::vector<double> pressure;              // Pressure at vertical centers [Pa]
+    std::vector<double> pressure_levels;       // Pressure at vertical levels [Pa]
+    std::vector<double> specific_humidity;     // Specific humidity at vertical centers [kg/kg]
+    std::vector<double> relative_humidity;     // Relative humidity at vertical centers [fraction]
+    std::vector<double> original_temperature;  // Original temperature at vertical centers [K]
+
+    // 2D array for radiative intensity
+    // This is flattened into a 1D vector so we can pass it to Fortran
+    // The first dimension is the wavelength bins, the second is the vertical centers
+    std::vector<double> radiative_intensity;  // Radiative intensity at wavelength bins and vertical centers [W/m²/sr/m]
+    int radiative_intensity_dim_1_size = 0;   // Number of wavelength bins
+    int radiative_intensity_dim_2_size = 0;   // Number of vertical centers
+  };
+
+  struct CARMASurfaceProperties
+  {
+    double surface_friction_velocity = 0.0;  // Surface friction velocity [m/s]
+    double aerodynamic_resistance = 0.0;     // Aerodynamic resistance [s/m]
+    double area_fraction = 0.0;              // Area fraction [fraction]
+  };
+
+  struct CARMAStateStepConfig
+  {
+    std::vector<double> cloud_fraction;  // Cloud fraction at vertical centers [fraction]
+    std::vector<double>
+        critical_relative_humidity;  // Relative humidity for onset of liquid clouds at vertical centers [fraction]
+    CARMASurfaceProperties land;     // Surface properties for land
+    CARMASurfaceProperties ocean;    // Surface properties for ocean
+    CARMASurfaceProperties ice;      // Surface properties for ice
   };
 
   struct CarmaStatistics
@@ -95,7 +123,7 @@ namespace musica
   class CARMAState
   {
    public:
-    explicit CARMAState(CARMA* carma, const CARMAStateParameters& params);
+    explicit CARMAState(const CARMA& carma, const CARMAStateParameters& params);
 
     ~CARMAState();
 
@@ -112,6 +140,7 @@ namespace musica
     CarmaDetrainValues GetDetrain(int bin_index, int element_index) const;
     CarmaGasValues GetGas(int gas_index) const;
     CarmaEnvironmentalValues GetEnvironmentalValues() const;
+    void Step(CARMAStateStepConfig& step_config);
 
    private:
     void* f_carma_state_;

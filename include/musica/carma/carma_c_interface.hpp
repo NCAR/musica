@@ -250,20 +250,48 @@ namespace musica
 
     struct CARMAStateParametersC
     {
-      double time;                    // Time in seconds
-      double longitude;               // Longitude in degrees
-      double latitude;                // Latitude in degrees
-      int coordinates;                // Coordinate system
-      const double* vertical_center;  // Vertical center heights [m]
-      int vertical_center_size;       // Size of vertical center array
-      const double* vertical_levels;  // Vertical levels heights [m]
-      int vertical_levels_size;       // Size of vertical levels array
-      const double* temperature;      // Temperature profile [K]
-      int temperature_size;           // Size of temperature array
-      const double* pressure;         // Pressure profile [Pa]
-      int pressure_size;              // Size of pressure array
-      const double* pressure_levels;  // Pressure levels [Pa]
-      int pressure_levels_size;       // Size of pressure levels array
+      double time;                         // Time [s]
+      double time_step;                    // Time step [s]
+      double longitude;                    // Longitude [degrees]
+      double latitude;                     // Latitude [degrees]
+      int coordinates;                     // Coordinate system
+      const double* vertical_center;       // Vertical center heights [m]
+      int vertical_center_size;            // Size of vertical center array
+      const double* vertical_levels;       // Vertical levels heights [m]
+      int vertical_levels_size;            // Size of vertical levels array
+      const double* temperature;           // Temperature profile [K]
+      int temperature_size;                // Size of temperature array
+      const double* pressure;              // Pressure profile [Pa]
+      int pressure_size;                   // Size of pressure array
+      const double* pressure_levels;       // Pressure levels [Pa]
+      int pressure_levels_size;            // Size of pressure levels array
+      const double* specific_humidity;     // Specific humidity profile [kg/kg]
+      int specific_humidity_size;          // Size of specific humidity array
+      const double* relative_humidity;     // Relative humidity profile [fraction]
+      int relative_humidity_size;          // Size of relative humidity array
+      const double* original_temperature;  // Original temperature profile [K]
+      int original_temperature_size;       // Size of original temperature array
+      const double* radiative_intensity;   // Radiative intensity [W/m²/sr/m]
+      int radiative_intensity_dim_1_size;  // Size of radiative intensity array
+      int radiative_intensity_dim_2_size;  // Size of radiative intensity array
+    };
+
+    struct CARMASurfacePropertiesC
+    {
+      double surface_friction_velocity;  // Surface friction velocity [m/s]
+      double aerodynamic_resistance;     // Aerodynamic resistance [s/m]
+      double area_fraction;              // Area fraction [fraction]
+    };
+
+    struct CARMAStateStepConfigC
+    {
+      const double* cloud_fraction;              // Cloud fraction at vertical centers [fraction]
+      int cloud_fraction_size;                   // Size of cloud fraction array
+      const double* critical_relative_humidity;  // Critical relative humidity for liquid clouds [fraction]
+      int critical_relative_humidity_size;       // Size of critical relative humidity array
+      CARMASurfacePropertiesC land;              // Surface properties for land
+      CARMASurfacePropertiesC ocean;             // Surface properties for ocean
+      CARMASurfacePropertiesC ice;               // Surface properties for ice
     };
 
     // The external C API for CARMA
@@ -385,6 +413,8 @@ namespace musica
         double* latent_heat,
         int* rc
       );
+
+    void InternalStepCarmaState(void* carma_state_instance, const CARMAStateStepConfigC step_config, int* rc);
 
     // CARMA driver interface functions
     void InternalRunCarma(const CCARMAParameters& params, void* carma_instance, void* output, int* rc);

@@ -13,12 +13,13 @@
 namespace musica
 {
 
-  CARMAState::CARMAState(CARMA* carma, const CARMAStateParameters& params)
+  CARMAState::CARMAState(const CARMA& carma, const CARMAStateParameters& params)
   {
-    CCARMAParameters* carma_params = carma->GetParameters();
-    this->nz = carma_params->nz;
+    this->nz = static_cast<int>(params.vertical_levels.size());
+    CCARMAParameters* carma_params = carma.GetParameters();
     CARMAStateParametersC state_params;
     state_params.time = params.time;
+    state_params.time_step = params.time_step;
     state_params.longitude = params.longitude;
     state_params.latitude = params.latitude;
     state_params.coordinates = static_cast<int>(params.coordinates);
@@ -32,10 +33,19 @@ namespace musica
     state_params.pressure = params.pressure.empty() ? nullptr : params.pressure.data();
     state_params.pressure_levels_size = static_cast<int>(params.pressure_levels.size());
     state_params.pressure_levels = params.pressure_levels.empty() ? nullptr : params.pressure_levels.data();
+    state_params.specific_humidity_size = static_cast<int>(params.specific_humidity.size());
+    state_params.specific_humidity = params.specific_humidity.empty() ? nullptr : params.specific_humidity.data();
+    state_params.relative_humidity_size = static_cast<int>(params.relative_humidity.size());
+    state_params.relative_humidity = params.relative_humidity.empty() ? nullptr : params.relative_humidity.data();
+    state_params.original_temperature_size = static_cast<int>(params.original_temperature.size());
+    state_params.original_temperature = params.original_temperature.empty() ? nullptr : params.original_temperature.data();
+    state_params.radiative_intensity_dim_1_size = params.radiative_intensity_dim_1_size;
+    state_params.radiative_intensity_dim_2_size = params.radiative_intensity_dim_2_size;
+    state_params.radiative_intensity = params.radiative_intensity.empty() ? nullptr : params.radiative_intensity.data();
 
     int rc;
     f_carma_state_ = InternalCreateCarmaState(
-        carma->GetCarmaInstance(),
+        carma.GetCarmaInstance(),
         *carma_params,
         state_params,
         &rc);  // No return code needed in this context
@@ -141,7 +151,6 @@ namespace musica
     {
       throw std::runtime_error("CARMA state instance is not initialized.");
     }
-
     CarmaStatistics stats;
     stats.z_substeps.resize(nz);
     int rc;
@@ -311,4 +320,36 @@ namespace musica
 
     return values;
   }
+
+  void CARMAState::Step(CARMAStateStepConfig& step_config)
+  {
+    if (f_carma_state_ == nullptr)
+    {
+      throw std::runtime_error("CARMA state instance is not initialized.");
+    }
+
+    CARMAStateStepConfigC step_config_c;
+    step_config_c.cloud_fraction = step_config.cloud_fraction.empty() ? nullptr : step_config.cloud_fraction.data();
+    step_config_c.cloud_fraction_size = static_cast<int>(step_config.cloud_fraction.size());
+    step_config_c.critical_relative_humidity =
+        step_config.critical_relative_humidity.empty() ? nullptr : step_config.critical_relative_humidity.data();
+    step_config_c.critical_relative_humidity_size = static_cast<int>(step_config.critical_relative_humidity.size());
+    step_config_c.land.surface_friction_velocity = step_config.land.surface_friction_velocity;
+    step_config_c.land.aerodynamic_resistance = step_config.land.aerodynamic_resistance;
+    step_config_c.land.area_fraction = step_config.land.area_fraction;
+    step_config_c.ocean.surface_friction_velocity = step_config.ocean.surface_friction_velocity;
+    step_config_c.ocean.aerodynamic_resistance = step_config.ocean.aerodynamic_resistance;
+    step_config_c.ocean.area_fraction = step_config.ocean.area_fraction;
+    step_config_c.ice.surface_friction_velocity = step_config.ice.surface_friction_velocity;
+    step_config_c.ice.aerodynamic_resistance = step_config.ice.aerodynamic_resistance;
+    step_config_c.ice.area_fraction = step_config.ice.area_fraction;
+
+    int rc;
+    InternalStepCarmaState(f_carma_state_, step_config_c, &rc);
+    if (rc != 0)
+    {
+      throw std::runtime_error("Failed to step CARMA state with return code: " + std::to_string(rc));
+    }
+  }
+
 }  // namespace musica
