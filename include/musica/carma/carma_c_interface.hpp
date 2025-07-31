@@ -341,7 +341,7 @@ namespace musica
         double* wet_particle_density,
         double* dry_particle_density,
         double* particle_mass_on_surface,
-        double* sedimentation_flex,
+        double* sedimentation_flux,
         double* fall_velocity,
         double* deposition_velocity,
         double* delta_particle_temperature,
