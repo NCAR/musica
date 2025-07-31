@@ -622,7 +622,15 @@ void bind_carma(py::module_& carma)
         result["total_number_of_steps"] = stats.total_number_of_steps;
         result["total_number_of_substeps"] = stats.total_number_of_substeps;
         result["total_number_of_retries"] = stats.total_number_of_retries;
-        result["z_substeps"] = stats.z_substeps;
+        // check if stats.z_substeps is all -1s, if so, set the result to None
+        if (std::all_of(stats.z_substeps.begin(), stats.z_substeps.end(), [](int val) { return val == -1; }))
+        {
+          result["z_substeps"] = py::none();
+        }
+        else
+        {
+          result["z_substeps"] = stats.z_substeps;
+        }
         result["xc"] = stats.xc;
         result["yc"] = stats.yc;
         return result;
