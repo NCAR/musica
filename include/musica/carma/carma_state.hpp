@@ -77,7 +77,7 @@ namespace musica
     /// @param surface_mass Element mass on the surface [kg m-2] (0: off)
     void SetBin(int bin_index, int element_index, const std::vector<double>& values, const double surface_mass);
 
-    /// @brief Set the mass of the detrtrained condensate for the bin for each particle element
+    /// @brief Set the mass of the detrained condensate for the bin for each particle element
     /// @param bin_index The index of the bin
     /// @param element_index The index of the particle element
     /// @param values Bin mixing ratio at vertical centers [kg/kg]
