@@ -154,7 +154,8 @@ namespace musica
     CARMAStateStepConfigC step_config_c;
     step_config_c.cloud_fraction = step_config.cloud_fraction.empty() ? nullptr : step_config.cloud_fraction.data();
     step_config_c.cloud_fraction_size = static_cast<int>(step_config.cloud_fraction.size());
-    step_config_c.critical_relative_humidity = step_config.critical_relative_humidity.empty() ? nullptr : step_config.critical_relative_humidity.data();
+    step_config_c.critical_relative_humidity =
+        step_config.critical_relative_humidity.empty() ? nullptr : step_config.critical_relative_humidity.data();
     step_config_c.critical_relative_humidity_size = static_cast<int>(step_config.critical_relative_humidity.size());
     step_config_c.land.surface_friction_velocity = step_config.land.surface_friction_velocity;
     step_config_c.land.aerodynamic_resistance = step_config.land.aerodynamic_resistance;
@@ -165,7 +166,7 @@ namespace musica
     step_config_c.ice.surface_friction_velocity = step_config.ice.surface_friction_velocity;
     step_config_c.ice.aerodynamic_resistance = step_config.ice.aerodynamic_resistance;
     step_config_c.ice.area_fraction = step_config.ice.area_fraction;
-    
+
     int rc;
     InternalStepCarmaState(f_carma_state_, step_config_c, &rc);
     if (rc != 0)
