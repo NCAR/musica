@@ -331,7 +331,12 @@ TEST_F(CarmaCApiTest, CanSetBinValues)
   CARMAState state = CARMAState(carma, state_params);
   ASSERT_NO_THROW(state.SetBin(1, 1, std::vector<double>{ 1.0 }, 0.0001));
   ASSERT_NO_THROW(state.SetDetrain(1, 1, std::vector<double>{ 1.0 }));
-  ASSERT_NO_THROW(state.SetGas(1, std::vector<double>(params.nz, 1.4e-3), std::vector<double>(params.nz, 2.3e-4), std::vector<double>(params.nz, 0.3), std::vector<double>(params.nz, 0.5)));
+  ASSERT_NO_THROW(state.SetGas(
+      1,
+      std::vector<double>(params.nz, 1.4e-3),
+      std::vector<double>(params.nz, 2.3e-4),
+      std::vector<double>(params.nz, 0.3),
+      std::vector<double>(params.nz, 0.5)));
   ASSERT_NO_THROW(state.SetTemperature(std::vector<double>(params.nz, 273.15)));
   ASSERT_NO_THROW(state.SetAirDensity(std::vector<double>(params.nz, 1.225)));
 

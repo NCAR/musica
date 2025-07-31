@@ -16,7 +16,7 @@ def test_carma_version():
 def test_carma_instance():
     # Test CARMA instance creation
     test_params = musica.CARMAParameters.create_aluminum_test_config()
-    
+
     # Add a gas to the parameters
     test_params.gases.append(
         musica.carma.CARMAGasConfig(
