@@ -1451,7 +1451,7 @@ class CARMA:
             solute_index: Index of the solute (1-indexed)
 
         Returns:
-            Tuple[CARMASoluteConfig, Dict[str, Any]]: The solute configuration and its properties
+            CARMASoluteConfig: The solute configuration
         """
         if solute_index < 1 or solute_index > len(self.__parameters.solutes):
             raise IndexError("Solute index out of range.")
