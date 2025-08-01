@@ -13,10 +13,12 @@
 namespace musica
 {
   CARMA::CARMA(const CARMAParameters& params)
+   : carma_parameters_(params),
+     c_carma_parameters_(ToCCompatible(params)),
+     f_carma_type_(nullptr)
   {
     int return_code = 0;
-    carma_parameters_ = ToCCompatible(params);
-    f_carma_type_ = InternalCreateCarma(*carma_parameters_, &return_code);
+    f_carma_type_ = InternalCreateCarma(*c_carma_parameters_, &return_code);
     if (return_code != 0)
     {
       throw std::runtime_error("Failed to create CARMA instance with return code: " + std::to_string(return_code));
@@ -26,7 +28,7 @@ namespace musica
   CARMA::~CARMA()
   {
     int return_code = 0;
-    FreeCCompatible(carma_parameters_);
+    FreeCCompatible(c_carma_parameters_);
     InternalDestroyCarma(f_carma_type_, &return_code);
     f_carma_type_ = nullptr;  // Clear the pointer to avoid dangling pointer
     if (return_code != 0)
@@ -55,7 +57,7 @@ namespace musica
     int return_code = 0;
     CARMAOutput output;
 
-    InternalRunCarma(*carma_parameters_, f_carma_type_, static_cast<void*>(&output), &return_code);
+    InternalRunCarma(*c_carma_parameters_, f_carma_type_, static_cast<void*>(&output), &return_code);
 
     if (return_code != 0)
     {
@@ -63,6 +65,65 @@ namespace musica
     }
 
     return output;
+  }
+
+  CARMAGroupProperties CARMA::GetGroup(int group_index) const
+  {
+    if (f_carma_type_ == nullptr)
+    {
+      throw std::runtime_error("CARMA instance is not initialized.");
+    }
+    CARMAGroupProperties group_props;
+    group_props.bin_radius.resize(carma_parameters_.nbin);
+    group_props.bin_radius_lower_bound.resize(carma_parameters_.nbin);
+    group_props.bin_radius_upper_bound.resize(carma_parameters_.nbin);
+    group_props.bin_width.resize(carma_parameters_.nbin);
+    group_props.bin_mass.resize(carma_parameters_.nbin);
+    group_props.bin_width_mass.resize(carma_parameters_.nbin);
+    group_props.bin_volume.resize(carma_parameters_.nbin);
+    group_props.projected_area_ratio.resize(carma_parameters_.nbin);
+    group_props.radius_ratio.resize(carma_parameters_.nbin);
+    group_props.porusity_ratio.resize(carma_parameters_.nbin);
+    group_props.extinction_coefficient.resize(carma_parameters_.wavelength_bins.size() * carma_parameters_.nbin);
+    group_props.single_scattering_albedo.resize(carma_parameters_.wavelength_bins.size() * carma_parameters_.nbin);
+    group_props.asymmetry_factor.resize(carma_parameters_.wavelength_bins.size() * carma_parameters_.nbin);
+    group_props.element_index_of_core_mass_elements.resize(carma_parameters_.elements.size());
+    group_props.number_of_monomers_per_bin.resize(carma_parameters_.nbin);
+
+    int rc;
+
+    InternalGetGroupProperties(
+        f_carma_type_,
+        group_index,
+        carma_parameters_.nbin,
+        static_cast<int>(carma_parameters_.wavelength_bins.size()),
+        static_cast<int>(carma_parameters_.elements.size()),
+        group_props.bin_radius.data(),
+        group_props.bin_radius_lower_bound.data(),
+        group_props.bin_radius_upper_bound.data(),
+        group_props.bin_width.data(),
+        group_props.bin_mass.data(),
+        group_props.bin_width_mass.data(),
+        group_props.bin_volume.data(),
+        group_props.projected_area_ratio.data(),
+        group_props.radius_ratio.data(),
+        group_props.porusity_ratio.data(),
+        group_props.extinction_coefficient.data(),
+        group_props.single_scattering_albedo.data(),
+        group_props.asymmetry_factor.data(),
+        &group_props.particle_number_element_for_group,
+        &group_props.number_of_core_mass_elements_for_group,
+        group_props.element_index_of_core_mass_elements.data(),
+        &group_props.last_prognostic_bin,
+        group_props.number_of_monomers_per_bin.data(),
+        &rc);
+
+    if (rc != 0)
+    {
+      throw std::runtime_error("Failed to get group properties");
+    }
+
+    return group_props;
   }
 
   CCARMAParameters* CARMA::ToCCompatible(const CARMAParameters& params)

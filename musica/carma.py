@@ -7,7 +7,7 @@ It allows users to create a CARMA instance and run simulations with specified pa
 Note: CARMA is only available on macOS and Linux platforms.
 """
 
-from typing import Dict, Optional, List, Union, Any
+from typing import Dict, Optional, List, Union, Any, Tuple
 from ctypes import c_void_p
 import numpy as np
 import xarray as xr
@@ -791,7 +791,8 @@ class CARMAParameters:
 
         initialization = None
         if 'initialization' in params_dict and params_dict['initialization']:
-            initialization = CARMAInitializationConfig(**params_dict['initialization'])
+            initialization = CARMAInitializationConfig(
+                **params_dict['initialization'])
             del params_dict['initialization']
 
         return cls(
@@ -1180,7 +1181,8 @@ class CARMAState:
             value = np.repeat(value, self.n_levels).tolist()
         elif not isinstance(value, list):
             value = list(value)
-        _backend._carma._set_bin(self._carma_state_instance, bin_index, element_index, value, surface_mass)
+        _backend._carma._set_bin(
+            self._carma_state_instance, bin_index, element_index, value, surface_mass)
 
     def set_detrain(self, bin_index: int, element_index: int, value: float):
         """
@@ -1195,7 +1197,8 @@ class CARMAState:
             value = np.repeat(value, self.n_levels).tolist()
         elif not isinstance(value, list):
             value = list(value)
-        _backend._carma._set_detrain(self._carma_state_instance, bin_index, element_index, value)
+        _backend._carma._set_detrain(
+            self._carma_state_instance, bin_index, element_index, value)
 
     def set_gas(self,
                 gas_index: int,
@@ -1306,7 +1309,8 @@ class CARMAState:
             temperature = np.repeat(temperature, self.n_levels).tolist()
         elif not isinstance(temperature, list):
             temperature = list(temperature)
-        _backend._carma._set_temperature(self._carma_state_instance, temperature)
+        _backend._carma._set_temperature(
+            self._carma_state_instance, temperature)
 
     def set_air_density(self, air_density: Union[float, List[float]]):
         """
@@ -1319,7 +1323,8 @@ class CARMAState:
             air_density = np.repeat(air_density, self.n_levels).tolist()
         elif not isinstance(air_density, list):
             air_density = list(air_density)
-        _backend._carma._set_air_density(self._carma_state_instance, air_density)
+        _backend._carma._set_air_density(
+            self._carma_state_instance, air_density)
 
     def step(
         self,
@@ -1422,3 +1427,17 @@ class CARMA:
             delta_z=self.__parameters.deltaz,
             **kwargs
         )
+
+    def get_group(self, group_index: int) -> Tuple[CARMAGroupConfig, Dict[str, Any]]:
+        """
+        Get the group properties for a specific group index.
+
+        Args:
+            group_index: Index of the group (1-indexed)
+
+        Returns:
+            Dict[str, Any]: The properties for the specified group
+        """
+        group = self.__parameters.groups[group_index - 1]
+        props = _backend._carma._get_group(self._carma_instance, group_index)
+        return (group, props)
