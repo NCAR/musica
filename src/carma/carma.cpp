@@ -83,7 +83,7 @@ namespace musica
     group_props.bin_volume.resize(carma_parameters_.nbin);
     group_props.projected_area_ratio.resize(carma_parameters_.nbin);
     group_props.radius_ratio.resize(carma_parameters_.nbin);
-    group_props.porusity_ratio.resize(carma_parameters_.nbin);
+    group_props.porosity_ratio.resize(carma_parameters_.nbin);
     group_props.extinction_coefficient.resize(carma_parameters_.wavelength_bins.size() * carma_parameters_.nbin);
     group_props.single_scattering_albedo.resize(carma_parameters_.wavelength_bins.size() * carma_parameters_.nbin);
     group_props.asymmetry_factor.resize(carma_parameters_.wavelength_bins.size() * carma_parameters_.nbin);
