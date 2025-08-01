@@ -269,8 +269,8 @@ contains
 
          call CARMASTATE_SetBin( &
             cstate, &
-            bin_index, &
             element_index, &
+            bin_index, &
             values, &
             rc, &
             surface=surface_mass)
@@ -315,7 +315,7 @@ contains
          call c_f_pointer(carma_state_cptr, cstate)
          call c_f_pointer(values_ptr, values, [values_size])
 
-         call CARMASTATE_SetDetrain(cstate, bin_index, element_index, values, rc)
+         call CARMASTATE_SetDetrain(cstate, element_index, bin_index, values, rc)
       end if
 
    end subroutine internal_set_detrain
@@ -519,7 +519,7 @@ contains
          call c_f_pointer(kappa_ptr, kappa, [nz])
          call c_f_pointer(total_mass_mixing_ratio_ptr, total_mass_mixing_ratio, [nz])
 
-         call CARMASTATE_GetBin(cstate, ibin=bin_index, ielem=element_index, mmr=mass_mixing_ratio, rc=rc,&
+         call CARMASTATE_GetBin(cstate, ielem=element_index, ibin=bin_index, mmr=mass_mixing_ratio, rc=rc,&
             nmr=number_mixing_ratio, numberDensity=number_density, nucleationRate=nucleation_rate, r_wet=wet_particle_radius, &
             rhop_wet=wet_particle_density, rhop_dry=dry_particle_density, surface=particle_mass_on_surface, &
             sedimentationFlux=sedimentation_flux, vf=fall_velocity, vd=deposition_velocity, &
@@ -582,7 +582,7 @@ contains
          call c_f_pointer(wet_particle_radius_ptr, wet_particle_radius, [nz])
          call c_f_pointer(wet_particle_density_ptr, wet_particle_density, [nz])
 
-         call CARMASTATE_GetDetrain(cstate, ibin=bin_index, ielem=element_index, &
+         call CARMASTATE_GetDetrain(cstate, ielem=element_index, ibin=bin_index, &
             mmr=mass_mixing_ratio, rc=rc, nmr=number_mixing_ratio, &
             numberDensity=number_density, r_wet=wet_particle_radius, &
             rhop_wet=wet_particle_density)
@@ -837,25 +837,6 @@ contains
          print *, "CARMA state pointer is not associated"
       end if
    end subroutine internal_step
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-   subroutine internal_run_carma(params, carma_cptr, c_output, rc) &
-      bind(C, name="InternalRunCarma")
-      use iso_c_binding, only: c_int, c_ptr, c_f_pointer
-      use carma_parameters_mod, only: carma_parameters_t
-
-      type(carma_parameters_t), intent(in)  :: params
-      type(c_ptr), value,       intent(in)  :: carma_cptr
-      type(c_ptr), value,       intent(in)  :: c_output
-      integer(c_int),           intent(out) :: rc
-
-      rc = 0
-
-      ! Run CARMA simulation with optional output
-      call run_carma_simulation(params, carma_cptr, rc, c_output)
-
-   end subroutine internal_run_carma
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -1326,205 +1307,6 @@ contains
       carma_cptr = c_loc(carma)
 
    end subroutine create_carma_instance
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-   subroutine run_carma_simulation(params, carma_cptr, rc, c_output_ptr)
-      use carma_precision_mod
-      use carma_constants_mod
-      use carma_enums_mod
-      use carma_types_mod
-      use carmaelement_mod
-      use carmagroup_mod
-      use carmagas_mod
-      use carmastate_mod
-      use carma_mod
-      use atmosphere_mod
-      use carma_parameters_mod, only: carma_parameters_t, carma_group_config_t, &
-         carma_element_config_t
-      use iso_fortran_env, only: real64
-      use iso_c_binding, only: c_ptr, c_null_ptr, c_associated
-
-      implicit none
-
-      type(carma_parameters_t), intent(in)  :: params
-      type(c_ptr),              intent(in)  :: carma_cptr
-      integer,                  intent(out) :: rc
-      type(c_ptr), optional,    intent(in)  :: c_output_ptr
-
-      ! Local variables for CARMA simulation
-      type(carma_type), pointer :: carma
-      type(carmastate_type)     :: cstate
-
-      ! Model dimensions
-      integer :: NZ, NY, NX, NZP1, NELEM, NGROUP, NBIN, NSOLUTE, NGAS, NWAVE
-      integer, parameter :: LUNOPRT = 6
-
-      ! Grid and atmospheric variables
-      real(kind=c_double), allocatable :: lat(:), lon(:)
-      real(kind=c_double), allocatable :: zc(:), zl(:), p(:), pl(:), t(:), rhoa(:)
-      real(kind=c_double) :: time
-      real(kind=c_double) :: dtime
-      integer :: nstep
-      real(kind=c_double) :: deltaz, zmin
-
-      ! Gas and particle variables
-      real(kind=c_double), allocatable :: mmr(:,:,:)
-      real(kind=c_double), allocatable :: mmr_gas(:,:)  ! Keep for potential future use
-
-      ! Loop indices
-      integer :: i, iy, ix, istep, igas, ielem, ibin, igroup
-
-      ! Physical constants and parameters from aluminum test
-      integer, parameter :: I_GRP_ALUM = 1
-
-      ! Group parameters
-      type(carma_group_config_t), pointer :: group_config(:)
-      character(len=:), allocatable :: group_name, group_short_name
-
-      ! Element parameters
-      type(carma_element_config_t), pointer :: element_config(:)
-      character(len=:), allocatable :: element_name, element_short_name
-      real(real64), pointer :: rhobin(:) ! rho bin for element (NBINS)
-      real(real64), pointer :: arat(:) ! area ratio for element (NBINS)
-
-      rc = 0
-
-      call c_f_pointer(carma_cptr, carma)
-
-      ! Set dimensions from parameters
-      NZ = int(params%nz)
-      NY = 1 ! TODO: Replace this with the number of states in the y direction
-      NX = 1 ! TODO: Replace this with the number of states in the x direction
-      NZP1 = NZ + 1
-      NELEM = int(params%elements_size)
-      NGROUP = int(params%groups_size)
-      NBIN = int(params%nbin)
-      NSOLUTE = int(params%solutes_size)
-      NGAS = int(params%gases_size)
-      NWAVE = int(params%wavelength_bin_size)
-      dtime = real(params%dtime, kind=real64)
-      nstep = int(params%nstep)
-      deltaz = real(params%deltaz, kind=real64)
-      zmin = real(params%zmin, kind=real64)
-
-      ! Set up simple grid
-      iy = 1
-      ix = 1
-
-      allocate(lat(NY), lon(NX))
-      allocate(zc(NZ), zl(NZP1), p(NZ), pl(NZP1), t(NZ), rhoa(NZ))
-      allocate(mmr(NZ, NELEM, NBIN))
-      if (NGAS > 0) allocate(mmr_gas(NZ, NGAS))
-
-      ! Set up atmospheric conditions matching test_aluminum_simple
-      lat(iy) = 0.0_c_double
-      lon(ix) = -105.0_c_double
-
-      ! Vertical grid setup
-      do i = 1, NZ
-         zc(i) = zmin + (deltaz * (i - 0.5_c_double))
-      end do
-
-      call GetStandardAtmosphere(zc, p=p, t=t)
-
-      do i = 1, NZP1
-         zl(i) = zmin + ((i - 1) * deltaz)
-      end do
-      call GetStandardAtmosphere(zl, p=pl)
-
-      ! Set up initial conditions
-      rhoa(:) = (p(:) * 10.0_c_double) / (R_AIR * t(:)) * (1e-3_c_double * 1e6_c_double)
-
-      ! Store original temperature for told parameter
-
-      ! Initialize gas mixing ratios (no gases in aluminum test)
-      if (NGAS > 0) then
-         mmr_gas(:,:) = 0.0_c_double
-      end if
-
-      ! Initialize particle mixing ratios with aluminum concentration
-      mmr(:,:,:) = 5e9_c_double / (deltaz * 2.57474699e14_c_double) / rhoa(1)
-
-      ! Time integration loop - start from step 2 to match test_aluminum_simple
-      carma_time_integration: do istep = 2, nstep + 1
-
-         ! Calculate the model time
-         time = (istep - 1) * dtime
-
-         ! Create a CARMASTATE for this column
-         call CARMASTATE_Create(cstate, carma, time, dtime, NZ, &
-            I_CART, lat(iy), lon(ix), &
-            zc(:), zl(:), &
-            p(:),  pl(:), &
-            t(:), rc, &
-            told=t(:))
-         if (rc /= 0) then
-            print *, "Error creating CARMA state"
-            return
-         end if
-
-         ! Send the bin mmrs to CARMA
-         do ielem = 1, NELEM
-            do ibin = 1, NBIN
-               call CARMASTATE_SetBin(cstate, ielem, ibin, mmr(:,ielem,ibin), rc)
-               if (rc /= 0) then
-                  print *, "Error setting CARMA state bin"
-                  return
-               end if
-            end do
-         end do
-
-         ! Set the gas mixing ratios if applicable
-         do igas = 1, NGAS
-            call CARMASTATE_SetGas(cstate, igas, mmr_gas(:,igas), rc)
-            if (rc /= 0) then
-               print *, "Error setting CARMA state gas"
-               return
-            end if
-         end do
-
-         ! Execute the time step
-         call CARMASTATE_Step(cstate, rc)
-         if (rc /= 0) then
-            print *, "Error executing CARMA state step"
-            return
-         end if
-
-         do ielem = 1, NELEM
-            do ibin = 1, NBIN
-               call CARMASTATE_GetBin(cstate, ielem, ibin, mmr(:,ielem,ibin), rc)
-               if (rc /= 0) then
-                  print *, "Error getting CARMA state bin"
-                  return
-               end if
-            end do
-         end do
-
-      end do carma_time_integration
-
-      ! Transfer output data to C++ if output pointer is provided
-      ! This must happen before the CARMA state is destroyed
-      if (present(c_output_ptr) .and. c_associated(c_output_ptr)) then
-         call transfer_carma_output_data(c_output_ptr, &
-            cstate, carma, params, &
-            NZ, NY, NX, NELEM, NGROUP, NBIN, NGAS, nstep, &
-            real(time, kind=8), int(nstep), &
-            lat, lon, zc, zl, p, t, rhoa, deltaz)
-      end if
-
-      ! Clean up the carma state for this step
-      call CARMASTATE_Destroy(cstate, rc)
-      if (rc /= 0) then
-         print *, "Error destroying CARMA state"
-         return
-      end if
-
-      ! Deallocate arrays
-      deallocate(lat, lon, zc, zl, p, pl, t, rhoa, mmr)
-      if (NGAS > 0) deallocate(mmr_gas)
-
-   end subroutine run_carma_simulation
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

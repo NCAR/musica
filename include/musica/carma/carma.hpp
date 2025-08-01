@@ -378,10 +378,6 @@ namespace musica
     /// @return The version string of the CARMA instance
     static std::string GetVersion();
 
-    /// @brief Run CARMA with the specified parameters and configuration
-    /// @return The CARMA output data
-    CARMAOutput Run();
-
     CCARMAParameters* GetParameters() const
     {
       return carma_parameters_;

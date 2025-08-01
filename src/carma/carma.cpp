@@ -50,21 +50,6 @@ namespace musica
     return version;
   }
 
-  CARMAOutput CARMA::Run()
-  {
-    int return_code = 0;
-    CARMAOutput output;
-
-    InternalRunCarma(*carma_parameters_, f_carma_type_, static_cast<void*>(&output), &return_code);
-
-    if (return_code != 0)
-    {
-      throw std::runtime_error("CARMA simulation failed with return code: " + std::to_string(return_code));
-    }
-
-    return output;
-  }
-
   CCARMAParameters* CARMA::ToCCompatible(const CARMAParameters& params)
   {
     CCARMAParameters* c_params = new CCARMAParameters();

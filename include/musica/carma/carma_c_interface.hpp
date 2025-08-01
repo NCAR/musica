@@ -416,9 +416,6 @@ namespace musica
 
     void InternalStepCarmaState(void* carma_state_instance, const CARMAStateStepConfigC step_config, int* rc);
 
-    // CARMA driver interface functions
-    void InternalRunCarma(const CCARMAParameters& params, void* carma_instance, void* output, int* rc);
-
     // Transfer function called from Fortran
     void
     TransferCarmaOutputToCpp(const CARMAOutputDataC* output_data, int nz, int ny, int nx, int nbin, int nelem, int ngroup);

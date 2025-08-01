@@ -36,9 +36,6 @@ TEST_F(CarmaCApiTest, RunCarmaWithDefaultParameters)
 {
   CARMAParameters default_params;
   CARMA carma{ default_params };
-
-  // Test that we can run CARMA with default parameters without throwing
-  ASSERT_NO_THROW(carma.Run());
 }
 
 TEST_F(CarmaCApiTest, RunCarmaWithAllComponents)
@@ -202,50 +199,8 @@ TEST_F(CarmaCApiTest, RunCarmaWithAllComponents)
   params.initialization.do_thermo = true;  // Enable thermodynamic processes
   params.initialization.do_vdiff = true;   // Enable Brownian diffusion
 
-  // Create CARMA instance and run
   CARMA carma{ params };
-  CARMAOutput output;
-  ASSERT_NO_THROW(output = carma.Run());
 
-  // Verify dimensions match parameters
-  EXPECT_EQ(output.lat.size(), 1);
-  EXPECT_EQ(output.lon.size(), 1);
-  EXPECT_EQ(output.vertical_center.size(), params.nz);
-  EXPECT_EQ(output.pressure.size(), params.nz);
-  EXPECT_EQ(output.temperature.size(), params.nz);
-  EXPECT_EQ(output.air_density.size(), params.nz);
-
-  // Verify 3D particle arrays (nz x nbin x nelem)
-  EXPECT_EQ(output.particle_concentration.size(), params.nz);
-  EXPECT_EQ(output.mass_mixing_ratio.size(), params.nz);
-  if (!output.particle_concentration.empty())
-  {
-    EXPECT_EQ(output.particle_concentration[0].size(), params.nbin);
-    if (!output.particle_concentration[0].empty())
-    {
-      EXPECT_EQ(output.particle_concentration[0][0].size(), params.elements.size());
-    }
-  }
-
-  // Verify 3D group arrays (nz x nbin x ngroup)
-  EXPECT_EQ(output.wet_radius.size(), params.nz);
-  EXPECT_EQ(output.wet_density.size(), params.nz);
-  EXPECT_EQ(output.fall_velocity.size(), params.nz + 1);
-  EXPECT_EQ(output.nucleation_rate.size(), params.nz);
-  EXPECT_EQ(output.deposition_velocity.size(), params.nz);
-
-  // Verify 2D arrays (nbin x ngroup)
-  EXPECT_EQ(output.dry_radius.size(), params.nbin);
-  EXPECT_EQ(output.mass_per_bin.size(), params.nbin);
-  if (!output.dry_radius.empty())
-  {
-    EXPECT_EQ(output.dry_radius[0].size(), params.groups.size());
-  }
-
-  // Verify 1D group arrays
-  EXPECT_EQ(output.group_particle_number_concentration.size(), params.groups.size());
-  EXPECT_EQ(output.constituent_type.size(), params.groups.size());
-  EXPECT_EQ(output.max_prognostic_bin.size(), params.groups.size());
 }
 
 TEST_F(CarmaCApiTest, RunCarmaWithAluminumTestParams)
@@ -262,44 +217,6 @@ TEST_F(CarmaCApiTest, RunCarmaWithAluminumTestParams)
   EXPECT_EQ(params.wavelength_bins.size(), 5);
   EXPECT_EQ(params.number_of_refractive_indices, 1);
 
-  // Run CARMA and get the output
-  CARMAOutput output;
-  ASSERT_NO_THROW(output = carma.Run());
-
-  // Verify that the basic dimensions are correct
-  EXPECT_EQ(output.lat.size(), 1);
-  EXPECT_EQ(output.lon.size(), 1);
-  EXPECT_EQ(output.vertical_center.size(), params.nz);
-  EXPECT_EQ(output.pressure.size(), params.nz);
-  EXPECT_EQ(output.temperature.size(), params.nz);
-  EXPECT_EQ(output.air_density.size(), params.nz);
-
-  // Verify that the new nucleation_rate field is properly sized (3D: nz x nbin x ngroup)
-  EXPECT_EQ(output.nucleation_rate.size(), params.nz);
-  if (!output.nucleation_rate.empty())
-  {
-    EXPECT_EQ(output.nucleation_rate[0].size(), params.nbin);
-    if (!output.nucleation_rate[0].empty())
-    {
-      EXPECT_EQ(output.nucleation_rate[0][0].size(), params.groups.size());
-    }
-  }
-
-  // Verify that the new deposition_velocity field is properly sized (3D: nz x nbin x ngroup)
-  EXPECT_EQ(output.deposition_velocity.size(), params.nz);
-  if (!output.deposition_velocity.empty())
-  {
-    EXPECT_EQ(output.deposition_velocity[0].size(), params.nbin);
-    if (!output.deposition_velocity[0].empty())
-    {
-      EXPECT_EQ(output.deposition_velocity[0][0].size(), params.groups.size());
-    }
-  }
-
-  // Verify that the new 1D group mapping arrays are properly sized
-  EXPECT_EQ(output.group_particle_number_concentration.size(), params.groups.size());
-  EXPECT_EQ(output.constituent_type.size(), params.groups.size());
-  EXPECT_EQ(output.max_prognostic_bin.size(), params.groups.size());
 }
 
 TEST_F(CarmaCApiTest, CanSetBinValues)

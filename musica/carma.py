@@ -19,6 +19,8 @@ _backend = backend.get_backend()
 
 version = _backend._carma._get_carma_version() if backend.carma_available() else None
 
+MOLECULAR_WEIGHT_AIR = 0.028966  # kg/mol (matches CARMA value)
+IDEAL_GAS_CONSTANT = 8.3143  # J/(mol K) (matches CARMA value)
 
 class ParticleShape(Enum):
     """Enumeration for particle shapes used in CARMA."""
@@ -1090,6 +1092,7 @@ class CARMAState:
     def __init__(self,
                  carma_pointer: c_void_p,
                  time: float = 0.0,
+                 time_step: float = 0.0,
                  latitude: float = 0.0,
                  longitude: float = 0.0,
                  coordinates: CarmaCoordinates = CarmaCoordinates.CARTESIAN,
@@ -1099,6 +1102,10 @@ class CARMAState:
                  temperature: Optional[List[float]] = None,
                  pressure: Optional[List[float]] = None,
                  pressure_levels: Optional[List[float]] = None,
+                 air_density: Optional[List[float]] = None,
+                 specific_humidity: Optional[List[float]] = None,
+                 relative_humidity: Optional[List[float]] = None,
+                 original_temperature: Optional[List[float]] = None
                  ):
         """
         Initialize a CARMAState instance.
@@ -1106,23 +1113,33 @@ class CARMAState:
         Args:
             carma_pointer: Pointer to the CARMA C++ instance
             time: Simulation time in seconds (default: 0.0)
+            time_step: Time step in seconds (default: 0.0)
             latitude: Latitude in degrees (default: 0.0)
             longitude: Longitude in degrees (default: 0.0)
             coordinates: Coordinate system for the simulation (default: Cartesian)
             zmin: Minimum altitude in meters (default: 0.0)
             n_levels: Number of vertical levels (default: 1)
             delta_z: Vertical grid spacing in meters (default: 1000.0)
-            temperature: Optional list of temperatures at vertical centers (default: None). If None, will be derived from the US Standard Atmosphere model.
-            pressure: Optional list of pressures at vertical centers (default: None). If None, will be derived from the US Standard Atmosphere model.
-            pressure_levels: Optional list of pressures at vertical levels (default: None). If None, will be derived from the US Standard Atmosphere model.
+            temperature: Optional list of temperatures [K] at vertical centers (default: None). If None, will be derived from the US Standard Atmosphere model.
+            pressure: Optional list of pressures [Pa] at vertical centers (default: None). If None, will be derived from the US Standard Atmosphere model.
+            pressure_levels: Optional list of pressures [Pa] at vertical levels (default: None). If None, will be derived from the US Standard Atmosphere model.
+            air_density: Optional list of air densities [kg/kg] at vertical centers (default: None). If None, will be derived from the US Standard Atmosphere model.
+            specific_humidity: Optional list of specific humidity [kg/kg] at vertical centers (default: None)
+            relative_humidity: Optional list of relative humidity [%] at vertical centers (default: None)
+            original_temperature: Optional list of original temperatures [K] at vertical centers (default: None
         """
+        self.time = time
+        self.time_step = time_step
+        self.latitude = latitude
+        self.longitude = longitude
+        self.coordinates = coordinates
         self.n_levels = n_levels
-        vertical_center = zmin + (np.arange(n_levels) + 0.5) * delta_z
-        vertical_levels = zmin + np.arange(n_levels + 1) * delta_z
+        self.vertical_center = zmin + (np.arange(n_levels) + 0.5) * delta_z
+        self.vertical_levels = zmin + np.arange(n_levels + 1) * delta_z
 
         centered_variables = ussa1976.compute(
-            z=vertical_center, variables=["t", "p", "rho"])
-        edge_variables = ussa1976.compute(z=vertical_levels, variables=["p"])
+            z=self.vertical_center, variables=["t", "p", "rho"])
+        edge_variables = ussa1976.compute(z=self.vertical_levels, variables=["p"])
 
         # Get standard atmosphere properties at these heights
         if temperature is None:
@@ -1131,19 +1148,34 @@ class CARMAState:
             pressure = centered_variables.p.values
         if pressure_levels is None:
             pressure_levels = edge_variables.p.values
+        self.temperature = temperature
+        self.pressure = pressure
+        self.pressure_levels = pressure_levels
+        self.specific_humidity = specific_humidity
+        self.relative_humidity = relative_humidity
+        self.original_temperature = original_temperature
 
         self._carma_state_instance = _backend._carma._create_carma_state(
             carma_pointer=carma_pointer,
-            time=time,
-            latitude=latitude,
-            longitude=longitude,
-            coordinates=coordinates.value,
-            temperature=temperature,
-            pressure=pressure,
-            pressure_levels=pressure_levels,
-            vertical_center=vertical_center.tolist(),
-            vertical_levels=vertical_levels.tolist(),
+            time=self.time,
+            time_step=self.time_step,
+            latitude=self.latitude,
+            longitude=self.longitude,
+            coordinates=self.coordinates.value,
+            temperature=self.temperature,
+            pressure=self.pressure,
+            pressure_levels=self.pressure_levels,
+            vertical_center=self.vertical_center.tolist(),
+            vertical_levels=self.vertical_levels.tolist(),
+            specific_humidity=self.specific_humidity,
+            relative_humidity=self.relative_humidity,
+            original_temperature=self.original_temperature
         )
+
+        if air_density is None:
+            self.air_density = np.array(pressure) * MOLECULAR_WEIGHT_AIR / (IDEAL_GAS_CONSTANT * np.array(temperature))
+        else:
+            self.set_air_density(air_density)
 
     def __del__(self):
         """Clean up the CARMAState instance."""
@@ -1306,6 +1338,7 @@ class CARMAState:
             temperature = np.repeat(temperature, self.n_levels).tolist()
         elif not isinstance(temperature, list):
             temperature = list(temperature)
+        self.temperature = temperature
         _backend._carma._set_temperature(self._carma_state_instance, temperature)
 
     def set_air_density(self, air_density: Union[float, List[float]]):
@@ -1319,6 +1352,7 @@ class CARMAState:
             air_density = np.repeat(air_density, self.n_levels).tolist()
         elif not isinstance(air_density, list):
             air_density = list(air_density)
+        self.air_density = air_density
         _backend._carma._set_air_density(self._carma_state_instance, air_density)
 
     def step(
