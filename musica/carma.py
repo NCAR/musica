@@ -1457,7 +1457,7 @@ class CARMA:
         return self.__parameters.gases[gas_index - 1]
     
 
-    def get_solute(self, solute_index: int) -> CARMASoluteConfig:
+    def get_solute_properties(self, solute_index: int) -> CARMASoluteConfig:
         """
         Get the solute properties for a specific solute index.
 

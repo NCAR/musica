@@ -1,12 +1,12 @@
 // Copyright (C) 2025 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-
 #include <mechanism_configuration/constants.hpp>
 #include <mechanism_configuration/v1/parser.hpp>
 #include <mechanism_configuration/v1/types.hpp>
 #include <mechanism_configuration/v1/validation.hpp>
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+
 #include <variant>
 
 namespace py = pybind11;
@@ -57,21 +57,23 @@ struct ReactionsIterator
   size_t inner_index = 0;
 
   ReactionsIterator(Reactions &reactions)
-      : reaction_lists{ std::vector<VariantType>(reactions.arrhenius.begin(), reactions.arrhenius.end()),
-                        std::vector<VariantType>(reactions.branched.begin(), reactions.branched.end()),
-                        std::vector<VariantType>(reactions.condensed_phase_arrhenius.begin(), reactions.condensed_phase_arrhenius.end()),
-                        std::vector<VariantType>(reactions.condensed_phase_photolysis.begin(), reactions.condensed_phase_photolysis.end()),
-                        std::vector<VariantType>(reactions.emission.begin(), reactions.emission.end()),
-                        std::vector<VariantType>(reactions.first_order_loss.begin(), reactions.first_order_loss.end()),
-                        std::vector<VariantType>(reactions.simpol_phase_transfer.begin(), reactions.simpol_phase_transfer.end()),
-                        std::vector<VariantType>(reactions.aqueous_equilibrium.begin(), reactions.aqueous_equilibrium.end()),
-                        std::vector<VariantType>(reactions.wet_deposition.begin(), reactions.wet_deposition.end()),
-                        std::vector<VariantType>(reactions.henrys_law.begin(), reactions.henrys_law.end()),
-                        std::vector<VariantType>(reactions.photolysis.begin(), reactions.photolysis.end()),
-                        std::vector<VariantType>(reactions.surface.begin(), reactions.surface.end()),
-                        std::vector<VariantType>(reactions.troe.begin(), reactions.troe.end()),
-                        std::vector<VariantType>(reactions.tunneling.begin(), reactions.tunneling.end()),
-                        std::vector<VariantType>(reactions.user_defined.begin(), reactions.user_defined.end()) }
+      : reaction_lists{
+          std::vector<VariantType>(reactions.arrhenius.begin(), reactions.arrhenius.end()),
+          std::vector<VariantType>(reactions.branched.begin(), reactions.branched.end()),
+          std::vector<VariantType>(reactions.condensed_phase_arrhenius.begin(), reactions.condensed_phase_arrhenius.end()),
+          std::vector<VariantType>(reactions.condensed_phase_photolysis.begin(), reactions.condensed_phase_photolysis.end()),
+          std::vector<VariantType>(reactions.emission.begin(), reactions.emission.end()),
+          std::vector<VariantType>(reactions.first_order_loss.begin(), reactions.first_order_loss.end()),
+          std::vector<VariantType>(reactions.simpol_phase_transfer.begin(), reactions.simpol_phase_transfer.end()),
+          std::vector<VariantType>(reactions.aqueous_equilibrium.begin(), reactions.aqueous_equilibrium.end()),
+          std::vector<VariantType>(reactions.wet_deposition.begin(), reactions.wet_deposition.end()),
+          std::vector<VariantType>(reactions.henrys_law.begin(), reactions.henrys_law.end()),
+          std::vector<VariantType>(reactions.photolysis.begin(), reactions.photolysis.end()),
+          std::vector<VariantType>(reactions.surface.begin(), reactions.surface.end()),
+          std::vector<VariantType>(reactions.troe.begin(), reactions.troe.end()),
+          std::vector<VariantType>(reactions.tunneling.begin(), reactions.tunneling.end()),
+          std::vector<VariantType>(reactions.user_defined.begin(), reactions.user_defined.end())
+        }
   {
   }
 
@@ -91,84 +93,129 @@ struct ReactionsIterator
   }
 };
 
-std::vector<ReactionComponent> get_reaction_components(const py::list& components)
+std::vector<ReactionComponent> get_reaction_components(const py::list &components)
 {
   std::vector<ReactionComponent> reaction_components;
-  for (const auto &item : components) {
-    if (py::isinstance<Species>(item)) {
+  for (const auto &item : components)
+  {
+    if (py::isinstance<Species>(item))
+    {
+      ReactionComponent component;
+      component.species_name = item.cast<Species>().name;
+      reaction_components.push_back(component);
+    }
+    else if (py::isinstance<py::tuple>(item) && py::len(item.cast<py::tuple>()) == 2)
+    {
+      auto item_tuple = item.cast<py::tuple>();
+      if (py::isinstance<py::float_>(item_tuple[0]) && py::isinstance<Species>(item_tuple[1]))
+      {
         ReactionComponent component;
-        component.species_name = item.cast<Species>().name;
+        component.species_name = item_tuple[1].cast<Species>().name;
+        component.coefficient = item_tuple[0].cast<double>();
         reaction_components.push_back(component);
-    } else if (py::isinstance<py::tuple>(item) && py::len(item.cast<py::tuple>()) == 2) {
-        auto item_tuple = item.cast<py::tuple>();
-        if (py::isinstance<py::float_>(item_tuple[0]) && py::isinstance<Species>(item_tuple[1])) {
-            ReactionComponent component;
-            component.species_name = item_tuple[1].cast<Species>().name;
-            component.coefficient = item_tuple[0].cast<double>();
-            reaction_components.push_back(component);
-        } else if (py::isinstance<py::int_>(item_tuple[0]) && py::isinstance<Species>(item_tuple[1])) {
-            ReactionComponent component;
-            component.species_name = item_tuple[1].cast<Species>().name;
-            component.coefficient = item_tuple[0].cast<int>();
-            reaction_components.push_back(component);
-        } else {
-            throw py::value_error("Invalid tuple format. Expected (float, Species).");
-        }
-    } else {
-        throw py::value_error("Invalid type for reactant. Expected a Species or a tuple of (float, Species).");
+      }
+      else if (py::isinstance<py::int_>(item_tuple[0]) && py::isinstance<Species>(item_tuple[1]))
+      {
+        ReactionComponent component;
+        component.species_name = item_tuple[1].cast<Species>().name;
+        component.coefficient = item_tuple[0].cast<int>();
+        reaction_components.push_back(component);
+      }
+      else
+      {
+        throw py::value_error("Invalid tuple format. Expected (float, Species).");
+      }
+    }
+    else
+    {
+      throw py::value_error("Invalid type for reactant. Expected a Species or a tuple of (float, Species).");
     }
   }
   std::unordered_set<std::string> component_names;
-  for (const auto &component : reaction_components) {
-    if (!component_names.insert(component.species_name).second) {
-        throw py::value_error("Duplicate reaction component name found: " + component.species_name);
+  for (const auto &component : reaction_components)
+  {
+    if (!component_names.insert(component.species_name).second)
+    {
+      throw py::value_error("Duplicate reaction component name found: " + component.species_name);
     }
   }
   return reaction_components;
 }
 
-Reactions create_reactions(const py::list& reactions)
+Reactions create_reactions(const py::list &reactions)
 {
   Reactions reaction_obj;
-  for (const auto &item : reactions) {
-    if (py::isinstance<Arrhenius>(item)) {
+  for (const auto &item : reactions)
+  {
+    if (py::isinstance<Arrhenius>(item))
+    {
       reaction_obj.arrhenius.push_back(item.cast<Arrhenius>());
-    } else if (py::isinstance<Branched>(item)) {
+    }
+    else if (py::isinstance<Branched>(item))
+    {
       reaction_obj.branched.push_back(item.cast<Branched>());
-    } else if (py::isinstance<CondensedPhaseArrhenius>(item)) {
+    }
+    else if (py::isinstance<CondensedPhaseArrhenius>(item))
+    {
       reaction_obj.condensed_phase_arrhenius.push_back(item.cast<CondensedPhaseArrhenius>());
-    } else if (py::isinstance<CondensedPhasePhotolysis>(item)) {
+    }
+    else if (py::isinstance<CondensedPhasePhotolysis>(item))
+    {
       reaction_obj.condensed_phase_photolysis.push_back(item.cast<CondensedPhasePhotolysis>());
-    } else if (py::isinstance<Emission>(item)) {
+    }
+    else if (py::isinstance<Emission>(item))
+    {
       reaction_obj.emission.push_back(item.cast<Emission>());
-    } else if (py::isinstance<FirstOrderLoss>(item)) {
+    }
+    else if (py::isinstance<FirstOrderLoss>(item))
+    {
       reaction_obj.first_order_loss.push_back(item.cast<FirstOrderLoss>());
-    } else if (py::isinstance<SimpolPhaseTransfer>(item)) {
+    }
+    else if (py::isinstance<SimpolPhaseTransfer>(item))
+    {
       reaction_obj.simpol_phase_transfer.push_back(item.cast<SimpolPhaseTransfer>());
-    } else if (py::isinstance<AqueousEquilibrium>(item)) {
+    }
+    else if (py::isinstance<AqueousEquilibrium>(item))
+    {
       reaction_obj.aqueous_equilibrium.push_back(item.cast<AqueousEquilibrium>());
-    } else if (py::isinstance<WetDeposition>(item)) {
+    }
+    else if (py::isinstance<WetDeposition>(item))
+    {
       reaction_obj.wet_deposition.push_back(item.cast<WetDeposition>());
-    } else if (py::isinstance<HenrysLaw>(item)) {
+    }
+    else if (py::isinstance<HenrysLaw>(item))
+    {
       reaction_obj.henrys_law.push_back(item.cast<HenrysLaw>());
-    } else if (py::isinstance<Photolysis>(item)) {
+    }
+    else if (py::isinstance<Photolysis>(item))
+    {
       reaction_obj.photolysis.push_back(item.cast<Photolysis>());
-    } else if (py::isinstance<Surface>(item)) {
+    }
+    else if (py::isinstance<Surface>(item))
+    {
       reaction_obj.surface.push_back(item.cast<Surface>());
-    } else if (py::isinstance<Troe>(item)) {
+    }
+    else if (py::isinstance<Troe>(item))
+    {
       reaction_obj.troe.push_back(item.cast<Troe>());
-    } else if (py::isinstance<Tunneling>(item)) {
+    }
+    else if (py::isinstance<Tunneling>(item))
+    {
       reaction_obj.tunneling.push_back(item.cast<Tunneling>());
-    } else if (py::isinstance<UserDefined>(item)) {
+    }
+    else if (py::isinstance<UserDefined>(item))
+    {
       reaction_obj.user_defined.push_back(item.cast<UserDefined>());
-    } else {
-        throw py::value_error("Invalid reaction type.");
+    }
+    else
+    {
+      throw py::value_error("Invalid reaction type.");
     }
   }
   return reaction_obj;
 }
 
-void bind_mechanism_configuration(py::module_ & mechanism_configuration)
+void bind_mechanism_configuration(py::module_ &mechanism_configuration)
 {
   py::enum_<ReactionType>(mechanism_configuration, "_ReactionType")
       .value("Arrhenius", ReactionType::Arrhenius)
@@ -212,17 +259,21 @@ void bind_mechanism_configuration(py::module_ & mechanism_configuration)
 
   py::class_<ReactionComponent>(mechanism_configuration, "_ReactionComponent")
       .def(py::init<>())
-      .def(py::init([](const std::string &species_name) {
-          ReactionComponent rc;
-          rc.species_name = species_name;
-          return rc;
-      }))
-      .def(py::init([](const std::string &species_name, double coefficient) {
-          ReactionComponent rc;
-          rc.species_name = species_name;
-          rc.coefficient = coefficient;
-          return rc;
-      }))
+      .def(py::init(
+          [](const std::string &species_name)
+          {
+            ReactionComponent rc;
+            rc.species_name = species_name;
+            return rc;
+          }))
+      .def(py::init(
+          [](const std::string &species_name, double coefficient)
+          {
+            ReactionComponent rc;
+            rc.species_name = species_name;
+            rc.coefficient = coefficient;
+            return rc;
+          }))
       .def_readwrite("species_name", &ReactionComponent::species_name)
       .def_readwrite("coefficient", &ReactionComponent::coefficient)
       .def_readwrite("other_properties", &ReactionComponent::unknown_properties)
@@ -347,7 +398,8 @@ void bind_mechanism_configuration(py::module_ & mechanism_configuration)
       .def_readwrite("other_properties", &CondensedPhasePhotolysis::unknown_properties)
       .def("__str__", [](const CondensedPhasePhotolysis &cpp) { return cpp.name; })
       .def("__repr__", [](const CondensedPhasePhotolysis &cpp) { return "<CondensedPhasePhotolysis: " + cpp.name + ">"; })
-      .def_property_readonly("type", [](const CondensedPhasePhotolysis &) { return ReactionType::CondensedPhasePhotolysis; });
+      .def_property_readonly(
+          "type", [](const CondensedPhasePhotolysis &) { return ReactionType::CondensedPhasePhotolysis; });
 
   py::class_<Emission>(mechanism_configuration, "_Emission")
       .def(py::init<>())
@@ -436,9 +488,7 @@ void bind_mechanism_configuration(py::module_ & mechanism_configuration)
 
   py::class_<Reactions>(mechanism_configuration, "_Reactions")
       .def(py::init<>())
-      .def(py::init([](const py::list &reactions) {
-          return create_reactions(reactions);
-      }))
+      .def(py::init([](const py::list &reactions) { return create_reactions(reactions); }))
       .def_readwrite("arrhenius", &Reactions::arrhenius)
       .def_readwrite("branched", &Reactions::branched)
       .def_readwrite("condensed_phase_arrhenius", &Reactions::condensed_phase_arrhenius)
@@ -458,9 +508,10 @@ void bind_mechanism_configuration(py::module_ & mechanism_configuration)
           "__len__",
           [](const Reactions &r)
           {
-            return r.arrhenius.size() + r.branched.size() + r.condensed_phase_arrhenius.size() + r.condensed_phase_photolysis.size() +
-                   r.emission.size() + r.first_order_loss.size() + r.simpol_phase_transfer.size() + r.aqueous_equilibrium.size() +
-                   r.wet_deposition.size() + r.henrys_law.size() + r.photolysis.size() + r.surface.size() + r.troe.size() + r.tunneling.size() +
+            return r.arrhenius.size() + r.branched.size() + r.condensed_phase_arrhenius.size() +
+                   r.condensed_phase_photolysis.size() + r.emission.size() + r.first_order_loss.size() +
+                   r.simpol_phase_transfer.size() + r.aqueous_equilibrium.size() + r.wet_deposition.size() +
+                   r.henrys_law.size() + r.photolysis.size() + r.surface.size() + r.troe.size() + r.tunneling.size() +
                    r.user_defined.size();
           })
       .def("__str__", [](const Reactions &r) { return "Reactions"; })
