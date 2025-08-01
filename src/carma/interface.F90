@@ -991,7 +991,7 @@ contains
                refidx=refidx, &
                isShell=isShell)
          end if
-         element_props%isShell = logical(isShell, kind=c_bool)
+         element_props%isShell = isShell
          refidx_c(:,:)%real_part = real(real(refidx(:,:)), kind=c_double)
          refidx_c(:,:)%imag_part = real(aimag(refidx(:,:)), kind=c_double)
          deallocate(refidx)

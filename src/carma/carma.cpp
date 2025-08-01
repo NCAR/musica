@@ -132,8 +132,8 @@ namespace musica
     {
       throw std::runtime_error("CARMA instance is not initialized.");
     }
-    CARMAElementProperties element_props;
-    CARMAElementPropertiesC element_props_c;
+    CARMAElementProperties element_props = {};
+    CARMAElementPropertiesC element_props_c = {};
 
     element_props.rho.resize(carma_parameters_.nbin);
     element_props_c.rho = element_props.rho.data();
@@ -153,7 +153,7 @@ namespace musica
 
     if (rc != 0)
     {
-      throw std::runtime_error("Failed to get element parameters with return code: " + std::to_string(rc));
+      throw std::runtime_error("Failed to get element properties with return code: " + std::to_string(rc));
     }
 
     return element_props;
