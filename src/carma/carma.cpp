@@ -107,7 +107,7 @@ namespace musica
         group_props.bin_volume.data(),
         group_props.projected_area_ratio.data(),
         group_props.radius_ratio.data(),
-        group_props.porusity_ratio.data(),
+        group_props.porosity_ratio.data(),
         group_props.extinction_coefficient.data(),
         group_props.single_scattering_albedo.data(),
         group_props.asymmetry_factor.data(),
