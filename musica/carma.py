@@ -1455,3 +1455,18 @@ class CARMA:
         if gas_index < 1 or gas_index > len(self.__parameters.gases):
             raise IndexError("Gas index out of range.")
         return self.__parameters.gases[gas_index - 1]
+    
+
+    def get_solute(self, solute_index: int) -> CARMASoluteConfig:
+        """
+        Get the solute properties for a specific solute index.
+
+        Args:
+            solute_index: Index of the solute (1-indexed)
+
+        Returns:
+            CARMASoluteConfig: The solute configuration
+        """
+        if solute_index < 1 or solute_index > len(self.__parameters.solutes):
+            raise IndexError("Solute index out of range.")
+        return self.__parameters.solutes[solute_index - 1]
