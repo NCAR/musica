@@ -1443,7 +1443,7 @@ class CARMA:
         return (group, props)
     
 
-    def get_solute(self, solute_index: int) -> CARMASoluteConfig
+    def get_solute(self, solute_index: int) -> CARMASoluteConfig:
         """
         Get the solute properties for a specific solute index.
 
