@@ -1441,3 +1441,18 @@ class CARMA:
         group = self.__parameters.groups[group_index - 1]
         props = _backend._carma._get_group(self._carma_instance, group_index)
         return (group, props)
+    
+
+    def get_solute(self, solute_index: int) -> CARMASoluteConfig:
+        """
+        Get the solute properties for a specific solute index.
+
+        Args:
+            solute_index: Index of the solute (1-indexed)
+
+        Returns:
+            CARMASoluteConfig: The solute configuration
+        """
+        if solute_index < 1 or solute_index > len(self.__parameters.solutes):
+            raise IndexError("Solute index out of range.")
+        return self.__parameters.solutes[solute_index - 1]
