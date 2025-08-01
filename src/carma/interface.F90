@@ -9,16 +9,7 @@ module carma_interface
    implicit none
    private
 
-   integer, parameter, public :: ERROR_MEMORY_ALLOCATION = 97
-   integer, parameter, public :: ERROR_DIMENSION_MISMATCH = 98
-   integer, parameter, public :: ERROR_CREATION_FAILED = 99
-   integer, parameter, public :: ERROR_UNASSOCIATED_POINTER = 100
-   integer, parameter, public :: ERROR_DESTROY_FAILED = 101
-   integer, parameter, public :: ERROR_ADD_CARMA_OBJECT_FAILED = 102
-   integer, parameter, public :: ERROR_INITIALIZATION_FAILED = 103
-   integer, parameter, public :: ERROR_SET_FAILED = 104
-   integer, parameter, public :: ERROR_STEP_FAILED = 105
-   integer, parameter, public :: ERROR_GET_FAILED = 106
+#include "musica/carma/error.hpp"
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -143,7 +134,7 @@ contains
       ! Create the CARMA instance
       allocate(cstate, stat=alloc_stat)
       if (alloc_stat /= 0) then
-         rc = ERROR_MEMORY_ALLOCATION
+         rc = MUSICA_CARMA_ERROR_CODE_MEMORY_ALLOCATION
          return
       end if
 
@@ -196,7 +187,7 @@ contains
             told=original_temperature(:), &
             radint=radiative_intensity(:,:))
          if (rc /= 0) then
-            rc = ERROR_CREATION_FAILED
+            rc = MUSICA_CARMA_ERROR_CODE_CREATION_FAILED
             return
          end if
 
@@ -204,7 +195,7 @@ contains
          ! Actual values can be set once the CARMASTATE_SetGas() function is implemented
          cstate%f_wtpct(:) = 0.0_real64
       else
-         rc = ERROR_UNASSOCIATED_POINTER
+         rc = MUSICA_CARMA_ERROR_CODE_UNASSOCIATED_POINTER
          return
       end if
 
@@ -232,7 +223,7 @@ contains
          ! Clean up the carma state instance
          call CARMASTATE_Destroy(cstate, rc)
          if (rc /= 0) then
-            rc = ERROR_DESTROY_FAILED
+            rc = MUSICA_CARMA_ERROR_CODE_DESTROY_FAILED
             return
          end if
          deallocate(cstate)
@@ -262,12 +253,12 @@ contains
       type(carmastate_type), pointer :: cstate
 
       if (element_index < 1) then
-         rc = ERROR_DIMENSION_MISMATCH
+         rc = MUSICA_CARMA_ERROR_CODE_DIMENSION_MISMATCH
          return
       end if
 
       if (bin_index < 1) then
-         rc = ERROR_DIMENSION_MISMATCH
+         rc = MUSICA_CARMA_ERROR_CODE_DIMENSION_MISMATCH
          return
       end if
 
@@ -283,7 +274,7 @@ contains
             rc, &
             surface=surface_mass)
          if (rc /= 0) then
-            rc = ERROR_SET_FAILED
+            rc = MUSICA_CARMA_ERROR_CODE_SET_FAILED
             return
          end if
       end if
@@ -312,12 +303,12 @@ contains
       type(carmastate_type), pointer :: cstate
 
       if (element_index < 1) then
-         rc = ERROR_DIMENSION_MISMATCH
+         rc = MUSICA_CARMA_ERROR_CODE_DIMENSION_MISMATCH
          return
       end if
 
       if (bin_index < 1) then
-         rc = ERROR_DIMENSION_MISMATCH
+         rc = MUSICA_CARMA_ERROR_CODE_DIMENSION_MISMATCH
          return
       end if
 
@@ -327,7 +318,7 @@ contains
 
          call CARMASTATE_SetDetrain(cstate, bin_index, element_index, values, rc)
          if (rc /= 0) then
-            rc = ERROR_SET_FAILED
+            rc = MUSICA_CARMA_ERROR_CODE_SET_FAILED
             return
          end if
       end if
@@ -367,7 +358,7 @@ contains
       integer :: index
 
       if (gas_index < 1) then
-         rc = ERROR_DIMENSION_MISMATCH
+         rc = MUSICA_CARMA_ERROR_CODE_DIMENSION_MISMATCH
          return
       end if
 
@@ -396,7 +387,7 @@ contains
          call CARMASTATE_SetGas(cstate, gas_index, values, rc, old_mmr, gas_saturation_wrt_ice, gas_saturation_wrt_liquid)
          
          if (rc /= 0) then
-            rc = ERROR_SET_FAILED
+            rc = MUSICA_CARMA_ERROR_CODE_SET_FAILED
             return
          end if
       end if
@@ -461,7 +452,7 @@ contains
          end if
 
          if (rc /= 0) then
-            rc = ERROR_GET_FAILED
+            rc = MUSICA_CARMA_ERROR_CODE_GET_FAILED
             return
          end if
       end if
@@ -517,11 +508,11 @@ contains
 
       rc = 0
       if (element_index < 1) then
-         rc = ERROR_DIMENSION_MISMATCH
+         rc = MUSICA_CARMA_ERROR_CODE_DIMENSION_MISMATCH
          return
       end if
       if (bin_index < 1) then
-         rc = ERROR_DIMENSION_MISMATCH
+         rc = MUSICA_CARMA_ERROR_CODE_DIMENSION_MISMATCH
          return
       end if
 
@@ -546,11 +537,11 @@ contains
             sedimentationFlux=sedimentation_flux, vf=fall_velocity, vd=deposition_velocity, &
             dtpart=delta_particle_temperature, kappa=kappa, totalmmr=total_mass_mixing_ratio)
          if (rc /= 0) then
-            rc = ERROR_GET_FAILED
+            rc = MUSICA_CARMA_ERROR_CODE_GET_FAILED
             return
          end if
       else
-         rc = ERROR_UNASSOCIATED_POINTER
+         rc = MUSICA_CARMA_ERROR_CODE_UNASSOCIATED_POINTER
       end if
    end subroutine internal_get_bin
 
@@ -588,11 +579,11 @@ contains
       rc = 0
 
       if (element_index < 1) then
-         rc = ERROR_DIMENSION_MISMATCH
+         rc = MUSICA_CARMA_ERROR_CODE_DIMENSION_MISMATCH
          return
       end if
       if (bin_index < 1) then
-         rc = ERROR_DIMENSION_MISMATCH
+         rc = MUSICA_CARMA_ERROR_CODE_DIMENSION_MISMATCH
          return
       end if
 
@@ -609,11 +600,11 @@ contains
             numberDensity=number_density, r_wet=wet_particle_radius, &
             rhop_wet=wet_particle_density)
          if (rc /= 0) then
-            rc = ERROR_GET_FAILED
+            rc = MUSICA_CARMA_ERROR_CODE_GET_FAILED
             return
          end if
       else
-         rc = ERROR_UNASSOCIATED_POINTER
+         rc = MUSICA_CARMA_ERROR_CODE_UNASSOCIATED_POINTER
       end if
    end subroutine internal_get_detrain
 
@@ -652,7 +643,7 @@ contains
       rc = 0
 
       if (gas_index < 1) then
-         rc = ERROR_DIMENSION_MISMATCH
+         rc = MUSICA_CARMA_ERROR_CODE_DIMENSION_MISMATCH
          return
       end if
 
@@ -673,11 +664,11 @@ contains
             wtpct=weight_pct_aerosol_composition)
          
          if (rc /= 0) then
-            rc = ERROR_GET_FAILED
+            rc = MUSICA_CARMA_ERROR_CODE_GET_FAILED
             return
          end if
       else
-         rc = ERROR_UNASSOCIATED_POINTER
+         rc = MUSICA_CARMA_ERROR_CODE_UNASSOCIATED_POINTER
       end if
    end subroutine internal_get_gas
 
@@ -729,11 +720,11 @@ contains
          end if
 
          if (rc /= 0) then
-            rc = ERROR_GET_FAILED
+            rc = MUSICA_CARMA_ERROR_CODE_GET_FAILED
             return
          end if
       else
-         rc = ERROR_UNASSOCIATED_POINTER
+         rc = MUSICA_CARMA_ERROR_CODE_UNASSOCIATED_POINTER
       end if
    end subroutine internal_get_state_environmental_values
 
@@ -764,11 +755,11 @@ contains
          call CARMASTATE_SetState(cstate, rc, t=temperature)
 
          if (rc /= 0) then
-            rc = ERROR_SET_FAILED
+            rc = MUSICA_CARMA_ERROR_CODE_SET_FAILED
             return
          end if
       else
-         rc = ERROR_UNASSOCIATED_POINTER
+         rc = MUSICA_CARMA_ERROR_CODE_UNASSOCIATED_POINTER
       end if
 
    end subroutine internal_set_temperature
@@ -800,11 +791,11 @@ contains
          call CARMASTATE_SetState(cstate, rc, rhoa_wet=air_density)
 
          if (rc /= 0) then
-            rc = ERROR_SET_FAILED
+            rc = MUSICA_CARMA_ERROR_CODE_SET_FAILED
             return
          end if
       else
-         rc = ERROR_UNASSOCIATED_POINTER
+         rc = MUSICA_CARMA_ERROR_CODE_UNASSOCIATED_POINTER
       end if
 
    end subroutine internal_set_air_density
@@ -867,7 +858,7 @@ contains
             ocnfrac=step_config%ocean%area_fraction, &
             icefrac=step_config%ice%area_fraction)
          if (rc /= 0) then
-            rc = ERROR_STEP_FAILED
+            rc = MUSICA_CARMA_ERROR_CODE_STEP_FAILED
             return
          end if
          if (deallocate_cloud_fraction) then
@@ -877,7 +868,7 @@ contains
             deallocate(critical_rh)
          end if
       else
-         rc = ERROR_UNASSOCIATED_POINTER
+         rc = MUSICA_CARMA_ERROR_CODE_UNASSOCIATED_POINTER
       end if
    end subroutine internal_step
 
@@ -969,11 +960,11 @@ contains
             ncore=number_of_core_mass_elements_for_group_ptr, &
             maxbin=last_prognostic_bin, nmon=numbers_of_monomers_per_bin)
          if (rc /= 0) then
-            rc = ERROR_GET_FAILED
+            rc = MUSICA_CARMA_ERROR_CODE_GET_FAILED
             return
          end if
       else
-         rc = ERROR_UNASSOCIATED_POINTER
+         rc = MUSICA_CARMA_ERROR_CODE_UNASSOCIATED_POINTER
       end if
 
    end subroutine internal_get_carma_parameters
@@ -1018,7 +1009,7 @@ contains
          ! Clean up the carma instance
          call CARMA_Destroy(carma, rc)
          if (rc /= 0) then
-            rc = ERROR_DESTROY_FAILED
+            rc = MUSICA_CARMA_ERROR_CODE_DESTROY_FAILED
             return
          end if
          deallocate(carma)
@@ -1138,7 +1129,7 @@ contains
       ! Create the CARMA instance
       allocate(carma, stat=alloc_stat)
       if (alloc_stat /= 0) then
-         rc = ERROR_ALLOCATION_FAILED
+         rc = MUSICA_CARMA_ERROR_CODE_MEMORY_ALLOCATION
          return
       end if
 
@@ -1162,7 +1153,7 @@ contains
          call CARMA_Create(carma, NBIN, NELEM, NGROUP, NSOLUTE, NGAS, NWAVE, rc)
       end if
       if (rc /= 0) then
-         rc = ERROR_CREATION_FAILED
+         rc = MUSICA_CARMA_ERROR_CODE_CREATION_FAILED
          return
       end if
 
@@ -1206,7 +1197,7 @@ contains
                   falpha=real(group%falpha, kind=real64), &
                   neutral_volfrc=real(group%neutral_volfrc, kind=real64))
                if (rc /= 0) then
-                  rc = ERROR_CREATION_FAILED
+                  rc = MUSICA_CARMA_ERROR_CODE_CREATION_FAILED
                   return
                end if
             end associate
@@ -1224,7 +1215,7 @@ contains
                   call c_f_pointer(elem%rhobin, rhobin, [elem%rhobin_size])
                   rhobin(:) = rhobin(:) * 0.001_real64 ! Convert kg m-3 to g cm-3
                   if (elem%rhobin_size /= NBIN) then
-                     rc = ERROR_DIMENSION_MISMATCH
+                     rc = MUSICA_CARMA_ERROR_CODE_DIMENSION_MISMATCH
                      return
                   end if
                else
@@ -1233,7 +1224,7 @@ contains
                if (elem%arat_size > 0) then
                   call c_f_pointer(elem%arat, arat, [elem%arat_size])
                   if (elem%arat_size /= NBIN) then
-                     rc = ERROR_DIMENSION_MISMATCH
+                     rc = MUSICA_CARMA_ERROR_CODE_DIMENSION_MISMATCH
                      return
                   end if
                else
@@ -1241,17 +1232,17 @@ contains
                end if
                if (elem%refidx_dim_1_size > 0 .and. elem%refidx_dim_2_size > 0) then
                   if (elem%refidx_dim_2_size /= NWAVE) then
-                     rc = ERROR_DIMENSION_MISMATCH
+                     rc = MUSICA_CARMA_ERROR_CODE_DIMENSION_MISMATCH
                      return
                   end if
                   if (elem%refidx_dim_1_size /= params%number_of_refractive_indices) then
-                     rc = ERROR_DIMENSION_MISMATCH
+                     rc = MUSICA_CARMA_ERROR_CODE_DIMENSION_MISMATCH
                      return
                   end if
                   call c_f_pointer(elem%refidx, refidx_t, [elem%refidx_dim_2_size, elem%refidx_dim_1_size])
                   allocate(refidx(elem%refidx_dim_2_size, elem%refidx_dim_1_size), stat=alloc_stat)
                   if (alloc_stat /= 0) then
-                     rc = ERROR_MEMORY_ALLOCATION
+                     rc = MUSICA_CARMA_ERROR_CODE_MEMORY_ALLOCATION
                      return
                   end if
                   do iwave = 1, NWAVE
@@ -1276,7 +1267,7 @@ contains
                   refidx=refidx, &
                   isShell=logical(elem%isShell))
                if (rc /= 0) then
-                  rc = ERROR_CREATION_FAILED
+                  rc = MUSICA_CARMA_ERROR_CODE_CREATION_FAILED
                   return
                end if
             end associate
@@ -1300,7 +1291,7 @@ contains
                   rc, &
                   shortname=solute_short_name)
                if (rc /= 0) then
-                  rc = ERROR_CREATION_FAILED
+                  rc = MUSICA_CARMA_ERROR_CODE_CREATION_FAILED
                   return
                end if
             end associate
@@ -1316,17 +1307,17 @@ contains
                gas_short_name = c_to_f_string(gas%shortname, gas%shortname_length)
                if (gas%refidx_dim_1_size > 0 .and. gas%refidx_dim_2_size > 0) then
                   if (gas%refidx_dim_2_size /= NWAVE) then
-                     rc = ERROR_DIMENSION_MISMATCH
+                     rc = MUSICA_CARMA_ERROR_CODE_DIMENSION_MISMATCH
                      return
                   end if
                   if (gas%refidx_dim_1_size /= params%number_of_refractive_indices) then
-                     rc = ERROR_DIMENSION_MISMATCH
+                     rc = MUSICA_CARMA_ERROR_CODE_DIMENSION_MISMATCH
                      return
                   end if
                   call c_f_pointer(gas%refidx, gas_refidx_t, [gas%refidx_dim_2_size, gas%refidx_dim_1_size])
                   allocate(gas_refidx(gas%refidx_dim_2_size, gas%refidx_dim_1_size), stat=alloc_stat)
                   if (alloc_stat /= 0) then
-                     rc = ERROR_MEMORY_ALLOCATION
+                     rc = MUSICA_CARMA_ERROR_CODE_MEMORY_ALLOCATION
                      return
                   end if
                   do iwave = 1, NWAVE
@@ -1347,7 +1338,7 @@ contains
                   ds_threshold=real(gas%ds_threshold, kind=real64), &
                   refidx=gas_refidx)
                if (rc /= 0) then
-                  rc = ERROR_CREATION_FAILED
+                  rc = MUSICA_CARMA_ERROR_CODE_CREATION_FAILED
                   return
                end if
             end associate
@@ -1370,7 +1361,7 @@ contains
                   grav_e_coll0=real(coag%grav_e_coll0, kind=real64), &
                   use_ccd=logical(coag%use_ccd))
                if (rc /= 0) then
-                  rc = ERROR_ADD_CARMA_OBJECT_FAILED
+                  rc = MUSICA_CARMA_ERROR_CODE_ADD_CARMA_OBJECT_FAILED
                   return
                end if
             end associate
@@ -1391,7 +1382,7 @@ contains
                   int(growth%igas), &
                   rc)
                if (rc /= 0) then
-                  rc = ERROR_ADD_CARMA_OBJECT_FAILED
+                  rc = MUSICA_CARMA_ERROR_CODE_ADD_CARMA_OBJECT_FAILED
                   return
                end if
             end associate
@@ -1413,7 +1404,7 @@ contains
                   igas=int(nucleation%igas), &
                   ievp2elem=int(nucleation%ievp2elem))
                if (rc /= 0) then
-                  rc = ERROR_ADD_CARMA_OBJECT_FAILED
+                  rc = MUSICA_CARMA_ERROR_CODE_ADD_CARMA_OBJECT_FAILED
                   return
                end if
             end associate
@@ -1453,7 +1444,7 @@ contains
          do_coremasscheck=logical(params%initialization%do_coremasscheck) &
          )
       if (rc /= 0) then
-         rc = ERROR_INITIALIZATION_FAILED
+         rc = MUSICA_CARMA_ERROR_CODE_INITIALIZATION_FAILED
          return
       end if
 
@@ -1594,7 +1585,7 @@ contains
             t(:), rc, &
             told=t(:))
          if (rc /= 0) then
-            rc = ERROR_CREATION_FAILED
+            rc = MUSICA_CARMA_ERROR_CODE_CREATION_FAILED
             return
          end if
 
@@ -1603,7 +1594,7 @@ contains
             do ibin = 1, NBIN
                call CARMASTATE_SetBin(cstate, ielem, ibin, mmr(:,ielem,ibin), rc)
                if (rc /= 0) then
-                  rc = ERROR_SET_FAILED
+                  rc = MUSICA_CARMA_ERROR_CODE_SET_FAILED
                   return
                end if
             end do
@@ -1613,7 +1604,7 @@ contains
          do igas = 1, NGAS
             call CARMASTATE_SetGas(cstate, igas, mmr_gas(:,igas), rc)
             if (rc /= 0) then
-               rc = ERROR_SET_FAILED   
+               rc = MUSICA_CARMA_ERROR_CODE_SET_FAILED   
                return
             end if
          end do
@@ -1621,7 +1612,7 @@ contains
          ! Execute the time step
          call CARMASTATE_Step(cstate, rc)
          if (rc /= 0) then
-            rc = ERROR_STEP_FAILED
+            rc = MUSICA_CARMA_ERROR_CODE_STEP_FAILED
             return
          end if
 
@@ -1629,7 +1620,7 @@ contains
             do ibin = 1, NBIN
                call CARMASTATE_GetBin(cstate, ielem, ibin, mmr(:,ielem,ibin), rc)
                if (rc /= 0) then
-                  rc = ERROR_GET_FAILED
+                  rc = MUSICA_CARMA_ERROR_CODE_GET_FAILED
                   return
                end if
             end do
@@ -1650,7 +1641,7 @@ contains
       ! Clean up the carma state for this step
       call CARMASTATE_Destroy(cstate, rc)
       if (rc /= 0) then
-         rc = ERROR_DESTROY_FAILED
+         rc = MUSICA_CARMA_ERROR_CODE_DESTROY_FAILED
          return
       end if
 
@@ -1858,7 +1849,7 @@ contains
       do ielem = 1, nelem
          call CARMAELEMENT_Get(carma_ptr, ielem, rc, igroup=igroup)
          if (rc /= 0) then
-            rc = ERROR_GET_FAILED
+            rc = MUSICA_CARMA_ERROR_CODE_GET_FAILED
             return
          end if
 
@@ -1868,7 +1859,7 @@ contains
                numberDensity=numberDensity, r_wet=rwet_bin, rhop_wet=rhop_wet_bin, &
                vf=vf_bin, nucleationRate=nucleationRate, vd=vd_scalar)
             if (rc /= 0) then
-               rc = ERROR_GET_FAILED
+               rc = MUSICA_CARMA_ERROR_CODE_GET_FAILED
                return
             end if
 
@@ -1890,7 +1881,7 @@ contains
             r=r_group, rmass=rmass_group, rrat=rrat_group, arat=arat_group, &
             maxbin=maxbin_tmp)
          if (rc /= 0) then
-            rc = ERROR_GET_FAILED
+            rc = MUSICA_CARMA_ERROR_CODE_GET_FAILED
             return
          end if
 
