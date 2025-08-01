@@ -68,6 +68,25 @@ void bind_carma(py::module_& carma)
 {
   carma.def("_get_carma_version", []() { return musica::CARMA::GetVersion(); }, "Get the version of the CARMA instance");
 
+  py::enum_<musica::ParticleType>(carma, "ParticleType")
+      .value("INVOLATILE", musica::ParticleType::INVOLATILE)
+      .value("VOLATILE", musica::ParticleType::VOLATILE)
+      .value("COREMASS", musica::ParticleType::COREMASS)
+      .value("VOLCORE", musica::ParticleType::VOLCORE)
+      .value("CORE2MOM", musica::ParticleType::CORE2MOM)
+      .export_values();
+
+  py::enum_<musica::ParticleComposition>(carma, "ParticleComposition")
+      .value("ALUMINUM", musica::ParticleComposition::ALUMINUM)
+      .value("H2SO4", musica::ParticleComposition::H2SO4)
+      .value("DUST", musica::ParticleComposition::DUST)
+      .value("ICE", musica::ParticleComposition::ICE)
+      .value("H2O", musica::ParticleComposition::H2O)
+      .value("BLACKCARBON", musica::ParticleComposition::BLACKCARBON)
+      .value("ORGANICCARBON", musica::ParticleComposition::ORGANICCARBON)
+      .value("OTHER", musica::ParticleComposition::OTHER)
+      .export_values();
+
   carma.def(
       "_create_carma",
       [](py::dict params_dict)
@@ -570,36 +589,57 @@ void bind_carma(py::module_& carma)
       },
       "Run CARMA with specified parameters");
 
-  carma.def(
-      "_get_group",
-      [](std::uintptr_t carma_ptr, int group_index)
-      {
-        musica::CARMA* carma_instance = reinterpret_cast<musica::CARMA*>(carma_ptr);
-        musica::CARMAGroupProperties group_props = carma_instance->GetGroup(group_index);
-        py::dict result;
+  carma
+      .def(
+          "_get_group_properties",
+          [](std::uintptr_t carma_ptr, int group_index)
+          {
+            musica::CARMA* carma_instance = reinterpret_cast<musica::CARMA*>(carma_ptr);
+            musica::CARMAGroupProperties group_props = carma_instance->GetGroupProperties(group_index);
+            py::dict result;
 
-        result["bin_radius"] = group_props.bin_radius;
-        result["bin_radius_lower_bound"] = group_props.bin_radius_lower_bound;
-        result["bin_radius_upper_bound"] = group_props.bin_radius_upper_bound;
-        result["bin_width"] = group_props.bin_width;
-        result["bin_mass"] = group_props.bin_mass;
-        result["bin_width_mass"] = group_props.bin_width_mass;
-        result["bin_volume"] = group_props.bin_volume;
-        result["projected_area_ratio"] = group_props.projected_area_ratio;
-        result["radius_ratio"] = group_props.radius_ratio;
-        result["porosity_ratio"] = group_props.porosity_ratio;
-        result["extinction_coefficient"] = group_props.extinction_coefficient;
-        result["single_scattering_albedo"] = group_props.single_scattering_albedo;
-        result["asymmetry_factor"] = group_props.asymmetry_factor;
-        result["element_index_of_core_mass_elements"] = group_props.element_index_of_core_mass_elements;
-        result["number_of_monomers_per_bin"] = group_props.number_of_monomers_per_bin;
-        result["particle_number_element_for_group"] = group_props.particle_number_element_for_group;
-        result["number_of_core_mass_elements_for_group"] = group_props.number_of_core_mass_elements_for_group;
-        result["last_prognostic_bin"] = group_props.last_prognostic_bin;
+            result["bin_radius"] = group_props.bin_radius;
+            result["bin_radius_lower_bound"] = group_props.bin_radius_lower_bound;
+            result["bin_radius_upper_bound"] = group_props.bin_radius_upper_bound;
+            result["bin_width"] = group_props.bin_width;
+            result["bin_mass"] = group_props.bin_mass;
+            result["bin_width_mass"] = group_props.bin_width_mass;
+            result["bin_volume"] = group_props.bin_volume;
+            result["projected_area_ratio"] = group_props.projected_area_ratio;
+            result["radius_ratio"] = group_props.radius_ratio;
+            result["porosity_ratio"] = group_props.porosity_ratio;
+            result["extinction_coefficient"] = group_props.extinction_coefficient;
+            result["single_scattering_albedo"] = group_props.single_scattering_albedo;
+            result["asymmetry_factor"] = group_props.asymmetry_factor;
+            result["element_index_of_core_mass_elements"] = group_props.element_index_of_core_mass_elements;
+            result["number_of_monomers_per_bin"] = group_props.number_of_monomers_per_bin;
+            result["particle_number_element_for_group"] = group_props.particle_number_element_for_group;
+            result["number_of_core_mass_elements_for_group"] = group_props.number_of_core_mass_elements_for_group;
+            result["last_prognostic_bin"] = group_props.last_prognostic_bin;
 
-        return result;
-      },
-      "Get properties of a specific CARMA group");
+            return result;
+          }, "Get properties of a specific CARMA group");
+
+  carma
+      .def(
+          "_get_element_properties",
+          [](std::uintptr_t carma_ptr, int element_index)
+          {
+            musica::CARMA* carma_instance = reinterpret_cast<musica::CARMA*>(carma_ptr);
+            musica::CARMAElementProperties element_props = carma_instance->GetElementProperties(element_index);
+            py::dict result;
+
+            result["group_index"] = element_props.group_index;
+            result["solute_index"] = element_props.solute_index;
+            result["type"] = element_props.type;
+            result["composition"] = element_props.composition;
+            result["is_shell"] = element_props.is_shell;
+            result["kappa"] = element_props.kappa;
+            result["rho"] = element_props.rho;
+            result["refidx"] = element_props.refidx;
+
+            return result;
+          }, "Get properties of a specific CARMA element");
 
   carma.def(
       "_create_carma_state",
