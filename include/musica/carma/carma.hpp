@@ -374,7 +374,7 @@ namespace musica
     std::vector<double> bin_volume;  // Bin volume for the group [cm3]
     std::vector<double> projected_area_ratio;  // Projected area ratio for the group, area / area enclosing sphere
     std::vector<double> radius_ratio; // maximum dimension / radius of enclosing sphere
-    std::vector<double> porusity_ratio; // scaled porusity radius / equiv. sphere
+    std::vector<double> porosity_ratio; // scaled porosity radius / equiv. sphere
     std::vector<double> extinction_coefficient;  // Extinction coefficient for the group
     std::vector<double> single_scattering_albedo;  // Single scattering albedo for the group
     std::vector<double> asymmetry_factor;  // Asymmetry factor for the group
