@@ -641,36 +641,36 @@ void bind_carma(py::module_& carma)
             return result;
           }, "Get properties of a specific CARMA element");
 
-          carma.def(
-              "_create_carma_state",
-              [](std::uintptr_t carma_ptr, py::kwargs kwargs)
-              {
-                // Helper lambdas for robust flexible casting
-                musica::CARMAStateParameters params;
-                params.longitude = kwargs.contains("longitude") ? kwargs["longitude"].cast<double>() : 0.0;
-                params.latitude = kwargs.contains("latitude") ? kwargs["latitude"].cast<double>() : 0.0;
-                params.coordinates = kwargs.contains("coordinates")
-                                         ? static_cast<musica::CarmaCoordinates>(kwargs["coordinates"].cast<int>())
-                                         : musica::CarmaCoordinates::CARTESIAN;
-                params.vertical_center = to_vector_double(kwargs["vertical_center"]);
-                params.vertical_levels = to_vector_double(kwargs["vertical_levels"]);
-                params.temperature = to_vector_double(kwargs["temperature"]);
-                params.pressure = to_vector_double(kwargs["pressure"]);
-                params.pressure_levels = to_vector_double(kwargs["pressure_levels"]);
+  carma.def(
+      "_create_carma_state",
+      [](std::uintptr_t carma_ptr, py::kwargs kwargs)
+      {
+        // Helper lambdas for robust flexible casting
+        musica::CARMAStateParameters params;
+        params.longitude = kwargs.contains("longitude") ? kwargs["longitude"].cast<double>() : 0.0;
+        params.latitude = kwargs.contains("latitude") ? kwargs["latitude"].cast<double>() : 0.0;
+        params.coordinates = kwargs.contains("coordinates")
+                                 ? static_cast<musica::CarmaCoordinates>(kwargs["coordinates"].cast<int>())
+                                 : musica::CarmaCoordinates::CARTESIAN;
+        params.vertical_center = to_vector_double(kwargs["vertical_center"]);
+        params.vertical_levels = to_vector_double(kwargs["vertical_levels"]);
+        params.temperature = to_vector_double(kwargs["temperature"]);
+        params.pressure = to_vector_double(kwargs["pressure"]);
+        params.pressure_levels = to_vector_double(kwargs["pressure_levels"]);
 
-                musica::CARMA* carma_instance = reinterpret_cast<musica::CARMA*>(carma_ptr);
-                try
-                {
-                  auto carma_state = new musica::CARMAState(*carma_instance, params);
-                  return reinterpret_cast<std::uintptr_t>(carma_state);
-                }
-                catch (const std::exception& e)
-                {
-                  throw py::value_error("Error creating CARMA instance: " + std::string(e.what()));
-                }
-              },
-              py::arg("carma_pointer"),
-              "Create a CARMA state for a specific column with named arguments");
+        musica::CARMA* carma_instance = reinterpret_cast<musica::CARMA*>(carma_ptr);
+        try
+        {
+          auto carma_state = new musica::CARMAState(*carma_instance, params);
+          return reinterpret_cast<std::uintptr_t>(carma_state);
+        }
+        catch (const std::exception& e)
+        {
+          throw py::value_error("Error creating CARMA instance: " + std::string(e.what()));
+        }
+      },
+      py::arg("carma_pointer"),
+      "Create a CARMA state for a specific column with named arguments");
 
   carma.def(
       "_delete_carma_state",

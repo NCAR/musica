@@ -1442,6 +1442,7 @@ class CARMA:
         props = _backend._carma._get_group_properties(self._carma_instance, group_index)
         return (group, props)
 
+
     def get_element_properties(self, element_index: int) -> Tuple[CARMAElementConfig, Dict[str, Any]]:
         """
         Get the element properties for a specific element index.
@@ -1455,3 +1456,34 @@ class CARMA:
         element = self.__parameters.elements[element_index - 1]
         props = _backend._carma._get_element_properties(self._carma_instance, element_index)
         return (element, props)
+
+      
+    def get_gas_properties(self, gas_index: int) -> CARMAGasConfig:
+        """
+        Get the gas properties for a specific gas index.
+
+        Args:
+            gas_index: Index of the gas (1-indexed)
+
+        Returns:
+            CARMAGasConfig: The gas configuration
+        """
+        if gas_index < 1 or gas_index > len(self.__parameters.gases):
+            raise IndexError("Gas index out of range.")
+        return self.__parameters.gases[gas_index - 1]
+    
+
+    def get_solute_properties(self, solute_index: int) -> CARMASoluteConfig:
+        """
+        Get the solute properties for a specific solute index.
+
+        Args:
+            solute_index: Index of the solute (1-indexed)
+
+        Returns:
+            CARMASoluteConfig: The solute configuration
+        """
+        if solute_index < 1 or solute_index > len(self.__parameters.solutes):
+            raise IndexError("Solute index out of range.")
+        return self.__parameters.solutes[solute_index - 1]
+
