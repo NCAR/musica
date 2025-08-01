@@ -570,67 +570,67 @@ void bind_carma(py::module_& carma)
       },
       "Run CARMA with specified parameters");
 
-  carma
-      .def(
-          "_get_group",
-          [](std::uintptr_t carma_ptr, int group_index)
-          {
-            musica::CARMA* carma_instance = reinterpret_cast<musica::CARMA*>(carma_ptr);
-            musica::CARMAGroupProperties group_props = carma_instance->GetGroup(group_index);
-            py::dict result;
+  carma.def(
+      "_get_group",
+      [](std::uintptr_t carma_ptr, int group_index)
+      {
+        musica::CARMA* carma_instance = reinterpret_cast<musica::CARMA*>(carma_ptr);
+        musica::CARMAGroupProperties group_props = carma_instance->GetGroup(group_index);
+        py::dict result;
 
-            result["bin_radius"] = group_props.bin_radius;
-            result["bin_radius_lower_bound"] = group_props.bin_radius_lower_bound;
-            result["bin_radius_upper_bound"] = group_props.bin_radius_upper_bound;
-            result["bin_width"] = group_props.bin_width;
-            result["bin_mass"] = group_props.bin_mass;
-            result["bin_width_mass"] = group_props.bin_width_mass;
-            result["bin_volume"] = group_props.bin_volume;
-            result["projected_area_ratio"] = group_props.projected_area_ratio;
-            result["radius_ratio"] = group_props.radius_ratio;
-            result["porosity_ratio"] = group_props.porosity_ratio;
-            result["extinction_coefficient"] = group_props.extinction_coefficient;
-            result["single_scattering_albedo"] = group_props.single_scattering_albedo;
-            result["asymmetry_factor"] = group_props.asymmetry_factor;
-            result["element_index_of_core_mass_elements"] = group_props.element_index_of_core_mass_elements;
-            result["number_of_monomers_per_bin"] = group_props.number_of_monomers_per_bin;
-            result["particle_number_element_for_group"] = group_props.particle_number_element_for_group;
-            result["number_of_core_mass_elements_for_group"] = group_props.number_of_core_mass_elements_for_group;
-            result["last_prognostic_bin"] = group_props.last_prognostic_bin;
+        result["bin_radius"] = group_props.bin_radius;
+        result["bin_radius_lower_bound"] = group_props.bin_radius_lower_bound;
+        result["bin_radius_upper_bound"] = group_props.bin_radius_upper_bound;
+        result["bin_width"] = group_props.bin_width;
+        result["bin_mass"] = group_props.bin_mass;
+        result["bin_width_mass"] = group_props.bin_width_mass;
+        result["bin_volume"] = group_props.bin_volume;
+        result["projected_area_ratio"] = group_props.projected_area_ratio;
+        result["radius_ratio"] = group_props.radius_ratio;
+        result["porosity_ratio"] = group_props.porosity_ratio;
+        result["extinction_coefficient"] = group_props.extinction_coefficient;
+        result["single_scattering_albedo"] = group_props.single_scattering_albedo;
+        result["asymmetry_factor"] = group_props.asymmetry_factor;
+        result["element_index_of_core_mass_elements"] = group_props.element_index_of_core_mass_elements;
+        result["number_of_monomers_per_bin"] = group_props.number_of_monomers_per_bin;
+        result["particle_number_element_for_group"] = group_props.particle_number_element_for_group;
+        result["number_of_core_mass_elements_for_group"] = group_props.number_of_core_mass_elements_for_group;
+        result["last_prognostic_bin"] = group_props.last_prognostic_bin;
 
-            return result;
-          }, "Get properties of a specific CARMA group");
+        return result;
+      },
+      "Get properties of a specific CARMA group");
 
-          carma.def(
-              "_create_carma_state",
-              [](std::uintptr_t carma_ptr, py::kwargs kwargs)
-              {
-                // Helper lambdas for robust flexible casting
-                musica::CARMAStateParameters params;
-                params.longitude = kwargs.contains("longitude") ? kwargs["longitude"].cast<double>() : 0.0;
-                params.latitude = kwargs.contains("latitude") ? kwargs["latitude"].cast<double>() : 0.0;
-                params.coordinates = kwargs.contains("coordinates")
-                                         ? static_cast<musica::CarmaCoordinates>(kwargs["coordinates"].cast<int>())
-                                         : musica::CarmaCoordinates::CARTESIAN;
-                params.vertical_center = to_vector_double(kwargs["vertical_center"]);
-                params.vertical_levels = to_vector_double(kwargs["vertical_levels"]);
-                params.temperature = to_vector_double(kwargs["temperature"]);
-                params.pressure = to_vector_double(kwargs["pressure"]);
-                params.pressure_levels = to_vector_double(kwargs["pressure_levels"]);
+  carma.def(
+      "_create_carma_state",
+      [](std::uintptr_t carma_ptr, py::kwargs kwargs)
+      {
+        // Helper lambdas for robust flexible casting
+        musica::CARMAStateParameters params;
+        params.longitude = kwargs.contains("longitude") ? kwargs["longitude"].cast<double>() : 0.0;
+        params.latitude = kwargs.contains("latitude") ? kwargs["latitude"].cast<double>() : 0.0;
+        params.coordinates = kwargs.contains("coordinates")
+                                 ? static_cast<musica::CarmaCoordinates>(kwargs["coordinates"].cast<int>())
+                                 : musica::CarmaCoordinates::CARTESIAN;
+        params.vertical_center = to_vector_double(kwargs["vertical_center"]);
+        params.vertical_levels = to_vector_double(kwargs["vertical_levels"]);
+        params.temperature = to_vector_double(kwargs["temperature"]);
+        params.pressure = to_vector_double(kwargs["pressure"]);
+        params.pressure_levels = to_vector_double(kwargs["pressure_levels"]);
 
-                musica::CARMA* carma_instance = reinterpret_cast<musica::CARMA*>(carma_ptr);
-                try
-                {
-                  auto carma_state = new musica::CARMAState(*carma_instance, params);
-                  return reinterpret_cast<std::uintptr_t>(carma_state);
-                }
-                catch (const std::exception& e)
-                {
-                  throw py::value_error("Error creating CARMA instance: " + std::string(e.what()));
-                }
-              },
-              py::arg("carma_pointer"),
-              "Create a CARMA state for a specific column with named arguments");
+        musica::CARMA* carma_instance = reinterpret_cast<musica::CARMA*>(carma_ptr);
+        try
+        {
+          auto carma_state = new musica::CARMAState(*carma_instance, params);
+          return reinterpret_cast<std::uintptr_t>(carma_state);
+        }
+        catch (const std::exception& e)
+        {
+          throw py::value_error("Error creating CARMA instance: " + std::string(e.what()));
+        }
+      },
+      py::arg("carma_pointer"),
+      "Create a CARMA state for a specific column with named arguments");
 
   carma.def(
       "_delete_carma_state",
