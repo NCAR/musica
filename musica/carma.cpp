@@ -588,7 +588,7 @@ void bind_carma(py::module_& carma)
             result["bin_volume"] = group_props.bin_volume;
             result["projected_area_ratio"] = group_props.projected_area_ratio;
             result["radius_ratio"] = group_props.radius_ratio;
-            result["porusity_ratio"] = group_props.porusity_ratio;
+            result["porosity_ratio"] = group_props.porosity_ratio;
             result["extinction_coefficient"] = group_props.extinction_coefficient;
             result["single_scattering_albedo"] = group_props.single_scattering_albedo;
             result["asymmetry_factor"] = group_props.asymmetry_factor;
