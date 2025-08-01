@@ -908,7 +908,7 @@ contains
          call c_f_pointer(bin_volume_ptr, bin_volume, [nbin])
          call c_f_pointer(projected_area_ratio_ptr, projected_area_ratio, [nbin])
          call c_f_pointer(radius_ratio_ptr, radius_ratio, [nbin])
-         call c_f_pointer(porusity_ratio_ptr, porusity_ratio, [nbin])
+         call c_f_pointer(porosity_ratio_ptr, porosity_ratio, [nbin])
          call c_f_pointer(extinction_coefficient_ptr, extinction_coefficient, [nwav, nbin])
          call c_f_pointer(single_scattering_albedo_ptr, single_scattering_albedo, [nwav, nbin])
          call c_f_pointer(asymmetry_factor_ptr, asymmetry_factor, [nwav, nbin])
