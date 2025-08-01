@@ -11,9 +11,17 @@ module carma_interface
 
    integer, parameter, public :: ERROR_MEMORY_ALLOCATION = 97
    integer, parameter, public :: ERROR_DIMENSION_MISMATCH = 98
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   integer, parameter, public :: ERROR_CREATION_FAILED = 99
+   integer, parameter, public :: ERROR_UNASSOCIATED_POINTER = 100
+   integer, parameter, public :: ERROR_DESTROY_FAILED = 101
+   integer, parameter, public :: ERROR_ADD_CARMA_OBJECT_FAILED = 102
+   integer, parameter, public :: ERROR_INITIALIZATION_FAILED = 103
+   integer, parameter, public :: ERROR_SET_FAILED = 104
+   integer, parameter, public :: ERROR_STEP_FAILED = 105
+   integer, parameter, public :: ERROR_GET_FAILED = 106
 
-   ! Interface to the C++ TransferCarmaOutputToCpp function
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
    interface
       subroutine TransferCarmaOutputToCpp(output_data, nz, ny, nx, nbin, nelem, ngroup) &
          bind(C, name="TransferCarmaOutputToCpp")
@@ -22,7 +30,9 @@ module carma_interface
          type(carma_output_data_t), intent(in) :: output_data
          integer(c_int), value, intent(in) :: nz, ny, nx, nbin, nelem, ngroup
       end subroutine TransferCarmaOutputToCpp
-   end interface!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   end interface
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 contains
 
@@ -133,8 +143,7 @@ contains
       ! Create the CARMA instance
       allocate(cstate, stat=alloc_stat)
       if (alloc_stat /= 0) then
-         rc = 1
-         print *, "Error allocating CARMA instance"
+         rc = ERROR_MEMORY_ALLOCATION
          return
       end if
 
@@ -187,17 +196,18 @@ contains
             told=original_temperature(:), &
             radint=radiative_intensity(:,:))
          if (rc /= 0) then
-            print *, "Error creating CARMA state"
+            rc = ERROR_CREATION_FAILED
             return
          end if
+
+         ! Set the weight percents to zero to avoid uninitialized values
+         ! Actual values can be set once the CARMASTATE_SetGas() function is implemented
+         cstate%f_wtpct(:) = 0.0_real64
       else
-         rc = 1
-         print *, "CARMA pointer is not associated"
+         rc = ERROR_UNASSOCIATED_POINTER
+         return
       end if
 
-      ! Set the weight percents to zero to avoid uninitialized values
-      ! Actual values can be set once the CARMASTATE_SetGas() function is implemented
-      cstate%f_wtpct(:) = 0.0_real64
 
       carma_state_cptr = c_loc(cstate)
    end function internal_create_carma_state
@@ -222,7 +232,7 @@ contains
          ! Clean up the carma state instance
          call CARMASTATE_Destroy(cstate, rc)
          if (rc /= 0) then
-            print *, "Error destroying CARMA state instance"
+            rc = ERROR_DESTROY_FAILED
             return
          end if
          deallocate(cstate)
@@ -253,13 +263,11 @@ contains
 
       if (element_index < 1) then
          rc = ERROR_DIMENSION_MISMATCH
-         print *, "Error: element_index must be >= 1"
          return
       end if
 
       if (bin_index < 1) then
          rc = ERROR_DIMENSION_MISMATCH
-         print *, "Error: bin_index must be >= 1"
          return
       end if
 
@@ -274,6 +282,10 @@ contains
             values, &
             rc, &
             surface=surface_mass)
+         if (rc /= 0) then
+            rc = ERROR_SET_FAILED
+            return
+         end if
       end if
 
    end subroutine internal_set_bin
@@ -301,13 +313,11 @@ contains
 
       if (element_index < 1) then
          rc = ERROR_DIMENSION_MISMATCH
-         print *, "Error: element_index must be >= 1"
          return
       end if
 
       if (bin_index < 1) then
          rc = ERROR_DIMENSION_MISMATCH
-         print *, "Error: bin_index must be >= 1"
          return
       end if
 
@@ -316,6 +326,10 @@ contains
          call c_f_pointer(values_ptr, values, [values_size])
 
          call CARMASTATE_SetDetrain(cstate, bin_index, element_index, values, rc)
+         if (rc /= 0) then
+            rc = ERROR_SET_FAILED
+            return
+         end if
       end if
 
    end subroutine internal_set_detrain
@@ -354,7 +368,6 @@ contains
 
       if (gas_index < 1) then
          rc = ERROR_DIMENSION_MISMATCH
-         print *, "Error: gas_index must be >= 1"
          return
       end if
 
@@ -381,6 +394,11 @@ contains
          call c_f_pointer(values_ptr, values, [values_size])
 
          call CARMASTATE_SetGas(cstate, gas_index, values, rc, old_mmr, gas_saturation_wrt_ice, gas_saturation_wrt_liquid)
+         
+         if (rc /= 0) then
+            rc = ERROR_SET_FAILED
+            return
+         end if
       end if
 
    end subroutine internal_set_gas
@@ -441,6 +459,11 @@ contains
                nretry=total_number_of_retries, &
                xc=xc, yc=yc)
          end if
+
+         if (rc /= 0) then
+            rc = ERROR_GET_FAILED
+            return
+         end if
       end if
 
    end subroutine internal_get_state_statistics
@@ -495,12 +518,10 @@ contains
       rc = 0
       if (element_index < 1) then
          rc = ERROR_DIMENSION_MISMATCH
-         print *, "Error: element_index must be >= 1"
          return
       end if
       if (bin_index < 1) then
          rc = ERROR_DIMENSION_MISMATCH
-         print *, "Error: bin_index must be >= 1"
          return
       end if
 
@@ -524,9 +545,12 @@ contains
             rhop_wet=wet_particle_density, rhop_dry=dry_particle_density, surface=particle_mass_on_surface, &
             sedimentationFlux=sedimentation_flux, vf=fall_velocity, vd=deposition_velocity, &
             dtpart=delta_particle_temperature, kappa=kappa, totalmmr=total_mass_mixing_ratio)
+         if (rc /= 0) then
+            rc = ERROR_GET_FAILED
+            return
+         end if
       else
-         rc = 1
-         print *, "CARMA state pointer is not associated"
+         rc = ERROR_UNASSOCIATED_POINTER
       end if
    end subroutine internal_get_bin
 
@@ -565,12 +589,10 @@ contains
 
       if (element_index < 1) then
          rc = ERROR_DIMENSION_MISMATCH
-         print *, "Error: element_index must be >= 1"
          return
       end if
       if (bin_index < 1) then
          rc = ERROR_DIMENSION_MISMATCH
-         print *, "Error: bin_index must be >= 1"
          return
       end if
 
@@ -586,9 +608,12 @@ contains
             mmr=mass_mixing_ratio, rc=rc, nmr=number_mixing_ratio, &
             numberDensity=number_density, r_wet=wet_particle_radius, &
             rhop_wet=wet_particle_density)
+         if (rc /= 0) then
+            rc = ERROR_GET_FAILED
+            return
+         end if
       else
-         rc = 1
-         print *, "CARMA state pointer is not associated"
+         rc = ERROR_UNASSOCIATED_POINTER
       end if
    end subroutine internal_get_detrain
 
@@ -628,7 +653,6 @@ contains
 
       if (gas_index < 1) then
          rc = ERROR_DIMENSION_MISMATCH
-         print *, "Error: gas_index must be >= 1"
          return
       end if
 
@@ -647,9 +671,13 @@ contains
             eqice=gas_vapor_pressure_wrt_ice, &
             eqliq=gas_vapor_pressure_wrt_liquid, &
             wtpct=weight_pct_aerosol_composition)
+         
+         if (rc /= 0) then
+            rc = ERROR_GET_FAILED
+            return
+         end if
       else
-         rc = 1
-         print *, "CARMA state pointer is not associated"
+         rc = ERROR_UNASSOCIATED_POINTER
       end if
    end subroutine internal_get_gas
 
@@ -699,9 +727,13 @@ contains
             call CARMASTATE_GetState(cstate, t=temperature, p=pressure, &
                rhoa_wet=air_density, rc=rc)
          end if
+
+         if (rc /= 0) then
+            rc = ERROR_GET_FAILED
+            return
+         end if
       else
-         rc = 1
-         print *, "CARMA state pointer is not associated"
+         rc = ERROR_UNASSOCIATED_POINTER
       end if
    end subroutine internal_get_state_environmental_values
 
@@ -730,9 +762,13 @@ contains
          call c_f_pointer(temperature_ptr, temperature, [temperature_size])
 
          call CARMASTATE_SetState(cstate, rc, t=temperature)
+
+         if (rc /= 0) then
+            rc = ERROR_SET_FAILED
+            return
+         end if
       else
-         rc = 1
-         print *, "CARMA state pointer is not associated"
+         rc = ERROR_UNASSOCIATED_POINTER
       end if
 
    end subroutine internal_set_temperature
@@ -762,9 +798,13 @@ contains
          call c_f_pointer(air_density_ptr, air_density, [air_density_size])
 
          call CARMASTATE_SetState(cstate, rc, rhoa_wet=air_density)
+
+         if (rc /= 0) then
+            rc = ERROR_SET_FAILED
+            return
+         end if
       else
-         rc = 1
-         print *, "CARMA state pointer is not associated"
+         rc = ERROR_UNASSOCIATED_POINTER
       end if
 
    end subroutine internal_set_air_density
@@ -826,6 +866,10 @@ contains
             lndfrac=step_config%land%area_fraction, &
             ocnfrac=step_config%ocean%area_fraction, &
             icefrac=step_config%ice%area_fraction)
+         if (rc /= 0) then
+            rc = ERROR_STEP_FAILED
+            return
+         end if
          if (deallocate_cloud_fraction) then
             deallocate(cloud_fraction)
          end if
@@ -833,8 +877,7 @@ contains
             deallocate(critical_rh)
          end if
       else
-         rc = 1
-         print *, "CARMA state pointer is not associated"
+         rc = ERROR_UNASSOCIATED_POINTER
       end if
    end subroutine internal_step
 
@@ -925,9 +968,12 @@ contains
             icorelem=element_index_of_core_mass_elements, &
             ncore=number_of_core_mass_elements_for_group_ptr, &
             maxbin=last_prognostic_bin, nmon=numbers_of_monomers_per_bin)
+         if (rc /= 0) then
+            rc = ERROR_GET_FAILED
+            return
+         end if
       else
-         rc = 1
-         print *, "CARMA pointer is not associated"
+         rc = ERROR_UNASSOCIATED_POINTER
       end if
 
    end subroutine internal_get_carma_parameters
@@ -972,7 +1018,7 @@ contains
          ! Clean up the carma instance
          call CARMA_Destroy(carma, rc)
          if (rc /= 0) then
-            print *, "Error destroying CARMA instance"
+            rc = ERROR_DESTROY_FAILED
             return
          end if
          deallocate(carma)
@@ -1092,8 +1138,7 @@ contains
       ! Create the CARMA instance
       allocate(carma, stat=alloc_stat)
       if (alloc_stat /= 0) then
-         rc = 1
-         print *, "Error allocating CARMA instance"
+         rc = ERROR_ALLOCATION_FAILED
          return
       end if
 
@@ -1117,7 +1162,7 @@ contains
          call CARMA_Create(carma, NBIN, NELEM, NGROUP, NSOLUTE, NGAS, NWAVE, rc)
       end if
       if (rc /= 0) then
-         print *, "Error creating CARMA instance"
+         rc = ERROR_CREATION_FAILED
          return
       end if
 
@@ -1160,7 +1205,10 @@ contains
                   df=df, &
                   falpha=real(group%falpha, kind=real64), &
                   neutral_volfrc=real(group%neutral_volfrc, kind=real64))
-               if (rc /= 0) return
+               if (rc /= 0) then
+                  rc = ERROR_CREATION_FAILED
+                  return
+               end if
             end associate
          end do
       end if
@@ -1176,7 +1224,6 @@ contains
                   call c_f_pointer(elem%rhobin, rhobin, [elem%rhobin_size])
                   rhobin(:) = rhobin(:) * 0.001_real64 ! Convert kg m-3 to g cm-3
                   if (elem%rhobin_size /= NBIN) then
-                     print *, "Error: rhobin size does not match NBIN"
                      rc = ERROR_DIMENSION_MISMATCH
                      return
                   end if
@@ -1186,7 +1233,6 @@ contains
                if (elem%arat_size > 0) then
                   call c_f_pointer(elem%arat, arat, [elem%arat_size])
                   if (elem%arat_size /= NBIN) then
-                     print *, "Error: arat size does not match NBIN"
                      rc = ERROR_DIMENSION_MISMATCH
                      return
                   end if
@@ -1195,19 +1241,16 @@ contains
                end if
                if (elem%refidx_dim_1_size > 0 .and. elem%refidx_dim_2_size > 0) then
                   if (elem%refidx_dim_2_size /= NWAVE) then
-                     print *, "Error: refidx_dim_2_size does not match NWAVE"
                      rc = ERROR_DIMENSION_MISMATCH
                      return
                   end if
                   if (elem%refidx_dim_1_size /= params%number_of_refractive_indices) then
-                     print *, "Error: refidx_dim_1_size does not match number_of_refractive_indices"
                      rc = ERROR_DIMENSION_MISMATCH
                      return
                   end if
                   call c_f_pointer(elem%refidx, refidx_t, [elem%refidx_dim_2_size, elem%refidx_dim_1_size])
                   allocate(refidx(elem%refidx_dim_2_size, elem%refidx_dim_1_size), stat=alloc_stat)
                   if (alloc_stat /= 0) then
-                     print *, "Error allocating refractive index array"
                      rc = ERROR_MEMORY_ALLOCATION
                      return
                   end if
@@ -1233,7 +1276,7 @@ contains
                   refidx=refidx, &
                   isShell=logical(elem%isShell))
                if (rc /= 0) then
-                  print *, "Error creating CARMA element"
+                  rc = ERROR_CREATION_FAILED
                   return
                end if
             end associate
@@ -1257,7 +1300,7 @@ contains
                   rc, &
                   shortname=solute_short_name)
                if (rc /= 0) then
-                  print *, "Error creating CARMA solute"
+                  rc = ERROR_CREATION_FAILED
                   return
                end if
             end associate
@@ -1273,19 +1316,16 @@ contains
                gas_short_name = c_to_f_string(gas%shortname, gas%shortname_length)
                if (gas%refidx_dim_1_size > 0 .and. gas%refidx_dim_2_size > 0) then
                   if (gas%refidx_dim_2_size /= NWAVE) then
-                     print *, "Error: refidx_dim_2_size does not match NWAVE"
                      rc = ERROR_DIMENSION_MISMATCH
                      return
                   end if
                   if (gas%refidx_dim_1_size /= params%number_of_refractive_indices) then
-                     print *, "Error: refidx_dim_1_size does not match number_of_refractive_indices"
                      rc = ERROR_DIMENSION_MISMATCH
                      return
                   end if
                   call c_f_pointer(gas%refidx, gas_refidx_t, [gas%refidx_dim_2_size, gas%refidx_dim_1_size])
                   allocate(gas_refidx(gas%refidx_dim_2_size, gas%refidx_dim_1_size), stat=alloc_stat)
                   if (alloc_stat /= 0) then
-                     print *, "Error allocating refractive index array"
                      rc = ERROR_MEMORY_ALLOCATION
                      return
                   end if
@@ -1307,7 +1347,7 @@ contains
                   ds_threshold=real(gas%ds_threshold, kind=real64), &
                   refidx=gas_refidx)
                if (rc /= 0) then
-                  print *, "Error creating CARMA gas"
+                  rc = ERROR_CREATION_FAILED
                   return
                end if
             end associate
@@ -1330,7 +1370,7 @@ contains
                   grav_e_coll0=real(coag%grav_e_coll0, kind=real64), &
                   use_ccd=logical(coag%use_ccd))
                if (rc /= 0) then
-                  print *, "Error adding CARMA coagulation"
+                  rc = ERROR_ADD_CARMA_OBJECT_FAILED
                   return
                end if
             end associate
@@ -1351,7 +1391,7 @@ contains
                   int(growth%igas), &
                   rc)
                if (rc /= 0) then
-                  print *, "Error adding CARMA growth"
+                  rc = ERROR_ADD_CARMA_OBJECT_FAILED
                   return
                end if
             end associate
@@ -1373,7 +1413,7 @@ contains
                   igas=int(nucleation%igas), &
                   ievp2elem=int(nucleation%ievp2elem))
                if (rc /= 0) then
-                  print *, "Error adding CARMA nucleation"
+                  rc = ERROR_ADD_CARMA_OBJECT_FAILED
                   return
                end if
             end associate
@@ -1413,7 +1453,7 @@ contains
          do_coremasscheck=logical(params%initialization%do_coremasscheck) &
          )
       if (rc /= 0) then
-         print *, "Error initializing CARMA"
+         rc = ERROR_INITIALIZATION_FAILED
          return
       end if
 
@@ -1554,7 +1594,7 @@ contains
             t(:), rc, &
             told=t(:))
          if (rc /= 0) then
-            print *, "Error creating CARMA state"
+            rc = ERROR_CREATION_FAILED
             return
          end if
 
@@ -1563,7 +1603,7 @@ contains
             do ibin = 1, NBIN
                call CARMASTATE_SetBin(cstate, ielem, ibin, mmr(:,ielem,ibin), rc)
                if (rc /= 0) then
-                  print *, "Error setting CARMA state bin"
+                  rc = ERROR_SET_FAILED
                   return
                end if
             end do
@@ -1573,7 +1613,7 @@ contains
          do igas = 1, NGAS
             call CARMASTATE_SetGas(cstate, igas, mmr_gas(:,igas), rc)
             if (rc /= 0) then
-               print *, "Error setting CARMA state gas"
+               rc = ERROR_SET_FAILED   
                return
             end if
          end do
@@ -1581,7 +1621,7 @@ contains
          ! Execute the time step
          call CARMASTATE_Step(cstate, rc)
          if (rc /= 0) then
-            print *, "Error executing CARMA state step"
+            rc = ERROR_STEP_FAILED
             return
          end if
 
@@ -1589,7 +1629,7 @@ contains
             do ibin = 1, NBIN
                call CARMASTATE_GetBin(cstate, ielem, ibin, mmr(:,ielem,ibin), rc)
                if (rc /= 0) then
-                  print *, "Error getting CARMA state bin"
+                  rc = ERROR_GET_FAILED
                   return
                end if
             end do
@@ -1610,7 +1650,7 @@ contains
       ! Clean up the carma state for this step
       call CARMASTATE_Destroy(cstate, rc)
       if (rc /= 0) then
-         print *, "Error destroying CARMA state"
+         rc = ERROR_DESTROY_FAILED
          return
       end if
 
@@ -1818,7 +1858,7 @@ contains
       do ielem = 1, nelem
          call CARMAELEMENT_Get(carma_ptr, ielem, rc, igroup=igroup)
          if (rc /= 0) then
-            print *, "Error getting CARMA element group"
+            rc = ERROR_GET_FAILED
             return
          end if
 
@@ -1828,7 +1868,7 @@ contains
                numberDensity=numberDensity, r_wet=rwet_bin, rhop_wet=rhop_wet_bin, &
                vf=vf_bin, nucleationRate=nucleationRate, vd=vd_scalar)
             if (rc /= 0) then
-               print *, "Error getting CARMA state bin"
+               rc = ERROR_GET_FAILED
                return
             end if
 
@@ -1850,7 +1890,7 @@ contains
             r=r_group, rmass=rmass_group, rrat=rrat_group, arat=arat_group, &
             maxbin=maxbin_tmp)
          if (rc /= 0) then
-            print *, "Error getting CARMA group properties"
+            rc = ERROR_GET_FAILED
             return
          end if
 
