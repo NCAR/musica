@@ -843,7 +843,7 @@ contains
    subroutine internal_get_carma_parameters(carma_cptr, group_index, nbin, nwav, nelem, bin_radius_ptr, bin_radius_lower_bound_ptr, &
       bin_radius_upper_bound_ptr, bin_width_ptr, bin_mass_ptr, &
       bin_width_mass_ptr, bin_volume_ptr, projected_area_ratio_ptr, &
-      radius_ratio_ptr, porusity_ratio_ptr, extinction_coefficient_ptr, &
+      radius_ratio_ptr, porosity_ratio_ptr, extinction_coefficient_ptr, &
       single_scattering_albedo_ptr, asymmetry_factor_ptr, &
       particle_number_element_for_group, number_of_core_mass_elements_for_group_ptr, &
       element_index_of_core_mass_elements_ptr, last_prognostic_bin, &
