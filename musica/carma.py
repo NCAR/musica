@@ -1455,7 +1455,6 @@ class CARMA:
         if gas_index < 1 or gas_index > len(self.__parameters.gases):
             raise IndexError("Gas index out of range.")
         return self.__parameters.gases[gas_index - 1]
-    
 
     def get_solute_properties(self, solute_index: int) -> CARMASoluteConfig:
         """
