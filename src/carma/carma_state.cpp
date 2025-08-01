@@ -5,6 +5,7 @@
 // This file contains the implementation of the CARMA state class
 #include <musica/carma/carma_c_interface.hpp>
 #include <musica/carma/carma_state.hpp>
+#include <musica/carma/error.hpp>
 
 #include <cstring>
 #include <iostream>
@@ -49,9 +50,9 @@ namespace musica
         *carma_params,
         state_params,
         &rc);  // No return code needed in this context
-    if (f_carma_state_ == nullptr || rc != 0)
+    if (rc != 0)
     {
-      throw std::runtime_error("Failed to create CARMA state with return code: " + std::to_string(rc));
+      throw std::runtime_error(CarmaErrorCodeToMessage(rc));
     }
   }
 
@@ -64,7 +65,7 @@ namespace musica
       f_carma_state_ = nullptr;
       if (rc != 0)
       {
-        std::cerr << "Failed to destroy CARMA state with return code: " << rc << std::endl;
+        std::cerr << "Failed to destroy CARMA state with return code: " + CarmaErrorCodeToMessage(rc) << std::endl;
       }
     }
   }
@@ -86,7 +87,7 @@ namespace musica
         f_carma_state_, bin_index, element_index, values.data(), static_cast<int>(values.size()), surface_mass, &rc);
     if (rc != 0)
     {
-      throw std::runtime_error("Failed to set bin values with return code: " + std::to_string(rc));
+      throw std::runtime_error(CarmaErrorCodeToMessage(rc));
     }
   }
 
@@ -106,7 +107,7 @@ namespace musica
     InternalSetDetrain(f_carma_state_, bin_index, element_index, values.data(), static_cast<int>(values.size()), &rc);
     if (rc != 0)
     {
-      throw std::runtime_error("Failed to set detrain values with return code: " + std::to_string(rc));
+      throw std::runtime_error(CarmaErrorCodeToMessage(rc));
     }
   }
 
@@ -142,7 +143,7 @@ namespace musica
         &rc);
     if (rc != 0)
     {
-      throw std::runtime_error("Failed to set gas values with return code: " + std::to_string(rc));
+      throw std::runtime_error(CarmaErrorCodeToMessage(rc));
     }
   }
 
@@ -162,7 +163,7 @@ namespace musica
     InternalSetTemperature(f_carma_state_, temperature.data(), static_cast<int>(temperature.size()), &rc);
     if (rc != 0)
     {
-      throw std::runtime_error("Failed to set temperature with return code: " + std::to_string(rc));
+      throw std::runtime_error(CarmaErrorCodeToMessage(rc));
     }
   }
 
@@ -182,7 +183,7 @@ namespace musica
     InternalSetAirDensity(f_carma_state_, air_density.data(), static_cast<int>(air_density.size()), &rc);
     if (rc != 0)
     {
-      throw std::runtime_error("Failed to set air density with return code: " + std::to_string(rc));
+      throw std::runtime_error(CarmaErrorCodeToMessage(rc));
     }
   }
 
@@ -209,7 +210,7 @@ namespace musica
         &rc);
     if (rc != 0)
     {
-      throw std::runtime_error("Failed to get CARMA step statistics with return code: " + std::to_string(rc));
+      throw std::runtime_error(CarmaErrorCodeToMessage(rc));
     }
     return stats;
   }
@@ -258,7 +259,7 @@ namespace musica
 
     if (rc != 0)
     {
-      throw std::runtime_error("Failed to get CARMA bin values with return code: " + std::to_string(rc));
+      throw std::runtime_error(CarmaErrorCodeToMessage(rc));
     }
 
     return bin_values;
@@ -293,7 +294,7 @@ namespace musica
 
     if (rc != 0)
     {
-      throw std::runtime_error("Failed to get CARMA detrain values with return code: " + std::to_string(rc));
+      throw std::runtime_error(CarmaErrorCodeToMessage(rc));
     }
 
     return detrain_values;
@@ -328,7 +329,7 @@ namespace musica
 
     if (rc != 0)
     {
-      throw std::runtime_error("Failed to get CARMA gas values with return code: " + std::to_string(rc));
+      throw std::runtime_error(CarmaErrorCodeToMessage(rc));
     }
 
     return gas_values;
@@ -359,7 +360,7 @@ namespace musica
 
     if (rc != 0)
     {
-      throw std::runtime_error("Failed to get CARMA environmental values with return code: " + std::to_string(rc));
+      throw std::runtime_error(CarmaErrorCodeToMessage(rc));
     }
 
     return values;
@@ -392,8 +393,7 @@ namespace musica
     InternalStepCarmaState(f_carma_state_, step_config_c, &rc);
     if (rc != 0)
     {
-      throw std::runtime_error("Failed to step CARMA state with return code: " + std::to_string(rc));
+      throw std::runtime_error(CarmaErrorCodeToMessage(rc));
     }
   }
-
 }  // namespace musica
