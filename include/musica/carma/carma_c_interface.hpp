@@ -431,7 +431,7 @@ namespace musica
         double* bin_volume,
         double* projected_area_ratio,
         double* radius_ratio,
-        double* porusity_ratio,
+        double* porosity_ratio,
         double* extinction_coefficient,
         double* single_scattering_albedo,
         double* asymmetry_factor,
