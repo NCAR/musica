@@ -919,7 +919,7 @@ contains
          call CARMAGROUP_Get(carma=carma, igroup=group_index, rc=rc,&
             r=bin_radius, rlow=bin_radius_lower_bound, rup=bin_radius_upper_bound, &
             dr=bin_width, rmass=bin_mass, dm=bin_width_mass, vol=bin_volume, &
-            arat=projected_area_ratio, rrat=radius_ratio, rprat=porusity_ratio, &
+            arat=projected_area_ratio, rrat=radius_ratio, rprat=porosity_ratio, &
             qext=extinction_coefficient, ssa=single_scattering_albedo, asym=asymmetry_factor, &
             ienconc=particle_number_element_for_group, &
             icorelem=element_index_of_core_mass_elements, &
