@@ -890,7 +890,7 @@ contains
       real(kind=c_double), pointer :: bin_volume(:)
       real(kind=c_double), pointer :: projected_area_ratio(:)
       real(kind=c_double), pointer :: radius_ratio(:)
-      real(kind=c_double), pointer :: porusity_ratio(:)
+      real(kind=c_double), pointer :: porosity_ratio(:)
       real(kind=c_double), pointer :: extinction_coefficient(:, :)
       real(kind=c_double), pointer :: single_scattering_albedo(:, :)
       real(kind=c_double), pointer :: asymmetry_factor(:, :)
