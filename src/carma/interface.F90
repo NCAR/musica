@@ -868,7 +868,7 @@ contains
       type(c_ptr),    value              :: bin_volume_ptr
       type(c_ptr),    value              :: projected_area_ratio_ptr
       type(c_ptr),    value              :: radius_ratio_ptr
-      type(c_ptr),    value              :: porusity_ratio_ptr
+      type(c_ptr),    value              :: porosity_ratio_ptr
       type(c_ptr),    value              :: extinction_coefficient_ptr
       type(c_ptr),    value              :: single_scattering_albedo_ptr
       type(c_ptr),    value              :: asymmetry_factor_ptr
