@@ -61,6 +61,7 @@ def test_carma_instance():
     print(state.get_environmental_values())
     print(state.get_gas(1))
     print(carma.get_group(1))
+    print(carma.get_gas_properties(1))
 
 
 def test_carma_with_default_parameters():

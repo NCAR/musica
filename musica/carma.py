@@ -1441,3 +1441,17 @@ class CARMA:
         group = self.__parameters.groups[group_index - 1]
         props = _backend._carma._get_group(self._carma_instance, group_index)
         return (group, props)
+
+    def get_gas_properties(self, gas_index: int) -> CARMAGasConfig:
+        """
+        Get the gas properties for a specific gas index.
+
+        Args:
+            gas_index: Index of the gas (1-indexed)
+
+        Returns:
+            CARMAGasConfig: The gas configuration
+        """
+        if gas_index < 1 or gas_index > len(self.__parameters.gases):
+            raise IndexError("Gas index out of range.")
+        return self.__parameters.gases[gas_index - 1]
