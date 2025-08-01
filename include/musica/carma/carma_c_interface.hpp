@@ -416,6 +416,32 @@ namespace musica
 
     void InternalStepCarmaState(void* carma_state_instance, const CARMAStateStepConfigC step_config, int* rc);
 
+    void InternalGetGroupProperties(
+        void* carma_instance,
+        int group_index,
+        int nbin,
+        int nwave,
+        int nelem,
+        double* bin_radius,
+        double* bin_radius_lower_bound,
+        double* bin_radius_upper_bound,
+        double* bin_width,
+        double* bin_mass,
+        double* bin_width_mass,
+        double* bin_volume,
+        double* projected_area_ratio,
+        double* radius_ratio,
+        double* porosity_ratio,
+        double* extinction_coefficient,
+        double* single_scattering_albedo,
+        double* asymmetry_factor,
+        int* particle_number_element_for_group,
+        int* number_of_core_mass_elements_for_group,
+        int* element_index_of_core_mass_elements,
+        int* last_prognostic_bin,
+        double* numbers_of_monomers_per_bin,
+        int* rc);
+
     // CARMA driver interface functions
     void InternalRunCarma(const CCARMAParameters& params, void* carma_instance, void* output, int* rc);
 

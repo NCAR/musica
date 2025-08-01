@@ -840,6 +840,100 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+   subroutine internal_get_carma_parameters(carma_cptr, group_index, nbin, nwav, nelem, bin_radius_ptr, bin_radius_lower_bound_ptr, &
+      bin_radius_upper_bound_ptr, bin_width_ptr, bin_mass_ptr, &
+      bin_width_mass_ptr, bin_volume_ptr, projected_area_ratio_ptr, &
+      radius_ratio_ptr, porosity_ratio_ptr, extinction_coefficient_ptr, &
+      single_scattering_albedo_ptr, asymmetry_factor_ptr, &
+      particle_number_element_for_group, number_of_core_mass_elements_for_group_ptr, &
+      element_index_of_core_mass_elements_ptr, last_prognostic_bin, &
+      numbers_of_monomers_per_bin_ptr, rc) &
+      bind(C, name="InternalGetGroupProperties")
+      use iso_c_binding, only: c_ptr, c_int, c_double
+      use carma_types_mod, only: carma_type
+      use carmagroup_mod, only: CARMAGROUP_Get
+
+      ! Arguments
+      type(c_ptr),    value, intent(in)  :: carma_cptr
+      integer(c_int), value, intent(in)  :: group_index
+      integer(c_int), value, intent(in)  :: nbin
+      integer(c_int), value, intent(in)  :: nwav
+      integer(c_int), value, intent(in)  :: nelem
+      type(c_ptr),    value              :: bin_radius_ptr
+      type(c_ptr),    value              :: bin_radius_lower_bound_ptr
+      type(c_ptr),    value              :: bin_radius_upper_bound_ptr
+      type(c_ptr),    value              :: bin_width_ptr
+      type(c_ptr),    value              :: bin_mass_ptr
+      type(c_ptr),    value              :: bin_width_mass_ptr
+      type(c_ptr),    value              :: bin_volume_ptr
+      type(c_ptr),    value              :: projected_area_ratio_ptr
+      type(c_ptr),    value              :: radius_ratio_ptr
+      type(c_ptr),    value              :: porosity_ratio_ptr
+      type(c_ptr),    value              :: extinction_coefficient_ptr
+      type(c_ptr),    value              :: single_scattering_albedo_ptr
+      type(c_ptr),    value              :: asymmetry_factor_ptr
+      integer(c_int), intent(out)        :: particle_number_element_for_group
+      integer(c_int), intent(out)        :: number_of_core_mass_elements_for_group_ptr
+      type(c_ptr),    value              :: element_index_of_core_mass_elements_ptr
+      integer(c_int), intent(out)        :: last_prognostic_bin
+      type(c_ptr),    value              :: numbers_of_monomers_per_bin_ptr
+      integer(c_int), intent(out)        :: rc
+
+      ! Local variables
+      type(carma_type), pointer :: carma
+      real(kind=c_double), pointer :: bin_radius(:)
+      real(kind=c_double), pointer :: bin_radius_lower_bound(:)
+      real(kind=c_double), pointer :: bin_radius_upper_bound(:)
+      real(kind=c_double), pointer :: bin_width(:)
+      real(kind=c_double), pointer :: bin_mass(:)
+      real(kind=c_double), pointer :: bin_width_mass(:)
+      real(kind=c_double), pointer :: bin_volume(:)
+      real(kind=c_double), pointer :: projected_area_ratio(:)
+      real(kind=c_double), pointer :: radius_ratio(:)
+      real(kind=c_double), pointer :: porosity_ratio(:)
+      real(kind=c_double), pointer :: extinction_coefficient(:, :)
+      real(kind=c_double), pointer :: single_scattering_albedo(:, :)
+      real(kind=c_double), pointer :: asymmetry_factor(:, :)
+      integer(c_int), pointer :: element_index_of_core_mass_elements(:)
+      real(kind=c_double), pointer :: numbers_of_monomers_per_bin(:)
+
+      if (c_associated(carma_cptr)) then
+         call c_f_pointer(carma_cptr, carma)
+         call c_f_pointer(bin_radius_ptr, bin_radius, [nbin])
+         call c_f_pointer(bin_radius_lower_bound_ptr, bin_radius_lower_bound, [nbin])
+         call c_f_pointer(bin_radius_upper_bound_ptr, bin_radius_upper_bound, [nbin])
+         call c_f_pointer(bin_width_ptr, bin_width, [nbin])
+         call c_f_pointer(bin_mass_ptr, bin_mass, [nbin])
+         call c_f_pointer(bin_width_mass_ptr, bin_width_mass, [nbin])
+         call c_f_pointer(bin_volume_ptr, bin_volume, [nbin])
+         call c_f_pointer(projected_area_ratio_ptr, projected_area_ratio, [nbin])
+         call c_f_pointer(radius_ratio_ptr, radius_ratio, [nbin])
+         call c_f_pointer(porosity_ratio_ptr, porosity_ratio, [nbin])
+         call c_f_pointer(extinction_coefficient_ptr, extinction_coefficient, [nwav, nbin])
+         call c_f_pointer(single_scattering_albedo_ptr, single_scattering_albedo, [nwav, nbin])
+         call c_f_pointer(asymmetry_factor_ptr, asymmetry_factor, [nwav, nbin])
+         call c_f_pointer(element_index_of_core_mass_elements_ptr, element_index_of_core_mass_elements, [nelem])
+         call c_f_pointer(numbers_of_monomers_per_bin_ptr, numbers_of_monomers_per_bin, [nbin])
+
+         ! Get group parameters
+         call CARMAGROUP_Get(carma=carma, igroup=group_index, rc=rc,&
+            r=bin_radius, rlow=bin_radius_lower_bound, rup=bin_radius_upper_bound, &
+            dr=bin_width, rmass=bin_mass, dm=bin_width_mass, vol=bin_volume, &
+            arat=projected_area_ratio, rrat=radius_ratio, rprat=porosity_ratio, &
+            qext=extinction_coefficient, ssa=single_scattering_albedo, asym=asymmetry_factor, &
+            ienconc=particle_number_element_for_group, &
+            icorelem=element_index_of_core_mass_elements, &
+            ncore=number_of_core_mass_elements_for_group_ptr, &
+            maxbin=last_prognostic_bin, nmon=numbers_of_monomers_per_bin)
+      else
+         rc = 1
+         print *, "CARMA pointer is not associated"
+      end if
+
+   end subroutine internal_get_carma_parameters
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
    subroutine internal_run_carma(params, carma_cptr, c_output, rc) &
       bind(C, name="InternalRunCarma")
       use iso_c_binding, only: c_int, c_ptr, c_f_pointer

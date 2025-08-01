@@ -364,6 +364,27 @@ namespace musica
     std::vector<int> max_prognostic_bin;                   // max prognostic bin per group [ngroup]
   };
 
+  struct CARMAGroupProperties {
+    std::vector<double> bin_radius;  // Bin radius for the group [cm]
+    std::vector<double> bin_radius_lower_bound;  // Lower bound of the bin radius [cm]
+    std::vector<double> bin_radius_upper_bound;  // Upper bound of the bin radius [cm]
+    std::vector<double> bin_width;  // bin width in radius space [cm]
+    std::vector<double> bin_mass;  // Bin mass for the group [g]
+    std::vector<double> bin_width_mass;  // Bin width in mass space [g]
+    std::vector<double> bin_volume;  // Bin volume for the group [cm3]
+    std::vector<double> projected_area_ratio;  // Projected area ratio for the group, area / area enclosing sphere
+    std::vector<double> radius_ratio; // maximum dimension / radius of enclosing sphere
+    std::vector<double> porosity_ratio; // scaled porosity radius / equiv. sphere
+    std::vector<double> extinction_coefficient;  // Extinction coefficient for the group
+    std::vector<double> single_scattering_albedo;  // Single scattering albedo for the group
+    std::vector<double> asymmetry_factor;  // Asymmetry factor for the group
+    int particle_number_element_for_group; // index of the element that is used to calculate the particle number concentration for this group
+    int number_of_core_mass_elements_for_group; // number of elements that are used to calculate the core mass for this group
+    std::vector<int> element_index_of_core_mass_elements; // indices of the elements that are used to calculate the core mass for this group
+    int last_prognostic_bin;
+    std::vector<double> number_of_monomers_per_bin;
+  };
+
   class CARMA
   {
    public:
@@ -384,13 +405,15 @@ namespace musica
 
     CCARMAParameters* GetParameters() const
     {
-      return carma_parameters_;
+      return c_carma_parameters_;
     }
 
     void* GetCarmaInstance() const
     {
       return f_carma_type_;
     }
+
+    CARMAGroupProperties GetGroup(int group_index) const;
 
     /// @brief Convert CARMAParameters to C-compatible CCARMAParameters
     /// @param params The C++ CARMA parameters to convert
@@ -405,9 +428,12 @@ namespace musica
     /// @return A CARMAParameters object with the aluminum test case configuration
     static CARMAParameters CreateAluminumTestParams();
 
+
+
    private:
-    CCARMAParameters* carma_parameters_;  // C-compatible parameters
-    void* f_carma_type_ = nullptr;        // Pointer to the Fortran CARMA type
+    CARMAParameters carma_parameters_;      // C++ parameters
+    CCARMAParameters* c_carma_parameters_;  // C-compatible parameters
+    void* f_carma_type_ = nullptr;          // Pointer to the Fortran CARMA type
   };
 
 }  // namespace musica
