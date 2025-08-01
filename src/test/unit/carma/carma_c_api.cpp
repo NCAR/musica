@@ -347,4 +347,7 @@ TEST_F(CarmaCApiTest, CanSetBinValues)
   step_config.land.aerodynamic_resistance = 100.0;
   step_config.land.area_fraction = 0.5;
   ASSERT_NO_THROW(state.Step(step_config));
+
+  CARMAGroupProperties group_props = carma.GetGroupProperties(1);
+  CARMAElementProperties element_props = carma.GetElementProperties(1);
 }

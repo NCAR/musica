@@ -934,6 +934,76 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+   subroutine internal_get_element_properties(carma_cptr, element_index, &
+      element_props, rc) bind(C, name="InternalGetElementProperties")
+
+      use iso_c_binding, only: c_ptr, c_int, c_double
+      use iso_fortran_env, only: real64
+      use carma_parameters_mod, only: carma_element_properties_t, carma_complex_t
+      use carma_types_mod, only: carma_type
+      use carmaelement_mod, only: CARMAELEMENT_Get
+
+      type(c_ptr), value, intent(in)  :: carma_cptr
+      integer(c_int), value, intent(in) :: element_index
+      type(carma_element_properties_t), intent(inout) :: element_props
+      integer(c_int), intent(out) :: rc
+
+      type(carma_type), pointer :: carma
+      real(kind=real64), pointer :: rho(:)
+      type(carma_complex_t), pointer :: refidx_c(:,:)
+      complex(kind=real64), allocatable :: refidx(:,:)
+      logical :: isShell
+
+      rc = 0
+
+      if (c_associated(carma_cptr)) then
+         call c_f_pointer(carma_cptr, carma)
+         call c_f_pointer(element_props%rho, rho, [element_props%rho_size])
+         call c_f_pointer(element_props%refidx, refidx_c, &
+            [element_props%refidx_dim_2_size, element_props%refidx_dim_1_size])
+         allocate(refidx(element_props%refidx_dim_2_size, element_props%refidx_dim_1_size))
+         refidx(:,:) = cmplx(0.0, 0.0, kind=real64)
+         
+         ! Get element properties
+         if (carma%f_NWAVE < 1 .or. carma%f_NREFIDX < 1) then
+            call CARMAELEMENT_Get( &
+               carma, &
+               element_index, &
+               rc, &
+               igroup=element_props%igroup, &
+               rho=rho, &
+               itype=element_props%itype, &
+               icomposition=element_props%icomposition, &
+               isolute=element_props%isolute, &
+               kappa=element_props%kappa, &
+               isShell=isShell)
+         else
+            call CARMAELEMENT_Get( &
+               carma, &
+               element_index, &
+               rc, &
+               igroup=element_props%igroup, &
+               rho=rho, &
+               itype=element_props%itype, &
+               icomposition=element_props%icomposition, &
+               isolute=element_props%isolute, &
+               kappa=element_props%kappa, &
+               refidx=refidx, &
+               isShell=isShell)
+         end if
+         element_props%isShell = logical(isShell, kind=c_bool)
+         refidx_c(:,:)%real_part = real(real(refidx(:,:)), kind=c_double)
+         refidx_c(:,:)%imag_part = real(aimag(refidx(:,:)), kind=c_double)
+         deallocate(refidx)
+      else
+         rc = 1
+         print *, "CARMA pointer is not associated"
+      end if
+
+   end subroutine internal_get_element_properties
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
    subroutine internal_run_carma(params, carma_cptr, c_output, rc) &
       bind(C, name="InternalRunCarma")
       use iso_c_binding, only: c_int, c_ptr, c_f_pointer

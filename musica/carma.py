@@ -1428,7 +1428,7 @@ class CARMA:
             **kwargs
         )
 
-    def get_group(self, group_index: int) -> Tuple[CARMAGroupConfig, Dict[str, Any]]:
+    def get_group_properties(self, group_index: int) -> Tuple[CARMAGroupConfig, Dict[str, Any]]:
         """
         Get the group properties for a specific group index.
 
@@ -1439,5 +1439,19 @@ class CARMA:
             Dict[str, Any]: The properties for the specified group
         """
         group = self.__parameters.groups[group_index - 1]
-        props = _backend._carma._get_group(self._carma_instance, group_index)
+        props = _backend._carma._get_group_properties(self._carma_instance, group_index)
         return (group, props)
+
+    def get_element_properties(self, element_index: int) -> Tuple[CARMAElementConfig, Dict[str, Any]]:
+        """
+        Get the element properties for a specific element index.
+
+        Args:
+            element_index: Index of the element (1-indexed)
+
+        Returns:
+            Tuple[CARMAElementConfig, Dict[str, Any]]: The properties for the specified element
+        """
+        element = self.__parameters.elements[element_index - 1]
+        props = _backend._carma._get_element_properties(self._carma_instance, element_index)
+        return (element, props)
