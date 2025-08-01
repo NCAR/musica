@@ -1441,7 +1441,6 @@ class CARMA:
         group = self.__parameters.groups[group_index - 1]
         props = _backend._carma._get_group(self._carma_instance, group_index)
         return (group, props)
-    
 
     def get_solute(self, solute_index: int) -> CARMASoluteConfig:
         """
