@@ -13,9 +13,9 @@
 namespace musica
 {
   CARMA::CARMA(const CARMAParameters& params)
-   : carma_parameters_(params),
-     c_carma_parameters_(ToCCompatible(params)),
-     f_carma_type_(nullptr)
+      : carma_parameters_(params),
+        c_carma_parameters_(ToCCompatible(params)),
+        f_carma_type_(nullptr)
   {
     int return_code = 0;
     f_carma_type_ = InternalCreateCarma(*c_carma_parameters_, &return_code);
