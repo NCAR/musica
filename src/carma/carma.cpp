@@ -5,6 +5,7 @@
 // to the CARMA aerosol model, allowing it to be used in a C++ context.
 #include <musica/carma/carma.hpp>
 #include <musica/carma/carma_c_interface.hpp>
+#include <musica/carma/error.hpp>
 
 #include <cstring>
 #include <iostream>
@@ -17,23 +18,23 @@ namespace musica
         c_carma_parameters_(ToCCompatible(params)),
         f_carma_type_(nullptr)
   {
-    int return_code = 0;
-    f_carma_type_ = InternalCreateCarma(*c_carma_parameters_, &return_code);
-    if (return_code != 0)
+    int rc = 0;
+    f_carma_type_ = InternalCreateCarma(*c_carma_parameters_, &rc);
+    if (rc != 0)
     {
-      throw std::runtime_error("Failed to create CARMA instance with return code: " + std::to_string(return_code));
+      throw std::runtime_error(CarmaErrorCodeToMessage(rc));
     }
   }
 
   CARMA::~CARMA()
   {
-    int return_code = 0;
+    int rc = 0;
     FreeCCompatible(c_carma_parameters_);
-    InternalDestroyCarma(f_carma_type_, &return_code);
+    InternalDestroyCarma(f_carma_type_, &rc);
     f_carma_type_ = nullptr;  // Clear the pointer to avoid dangling pointer
-    if (return_code != 0)
+    if (rc != 0)
     {
-      std::cerr << "Warning: CARMA destruction returned non-zero code: " << return_code << std::endl;
+      std::cerr << "Warning: CARMA destruction returned non-zero code: " + CarmaErrorCodeToMessage(rc) << std::endl;
     }
   }
 
@@ -54,14 +55,14 @@ namespace musica
 
   CARMAOutput CARMA::Run()
   {
-    int return_code = 0;
+    int rc = 0;
     CARMAOutput output;
 
-    InternalRunCarma(*c_carma_parameters_, f_carma_type_, static_cast<void*>(&output), &return_code);
+    InternalRunCarma(*c_carma_parameters_, f_carma_type_, static_cast<void*>(&output), &rc);
 
-    if (return_code != 0)
+    if (rc != 0)
     {
-      throw std::runtime_error("CARMA simulation failed with return code: " + std::to_string(return_code));
+      throw std::runtime_error(CarmaErrorCodeToMessage(rc));
     }
 
     return output;
@@ -120,7 +121,7 @@ namespace musica
 
     if (rc != 0)
     {
-      throw std::runtime_error("Failed to get group properties with return code: " + std::to_string(rc));
+      throw std::runtime_error("Failed to get group properties with return code: " + CarmaErrorCodeToMessage(rc));
     }
 
     return group_props;
