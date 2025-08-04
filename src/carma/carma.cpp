@@ -34,7 +34,7 @@ namespace musica
     f_carma_type_ = nullptr;  // Clear the pointer to avoid dangling pointer
     if (rc != 0)
     {
-      std::cerr << "Warning: CARMA destruction returned non-zero code: " + CarmaErrorCodeToMessage(rc) << std::endl;
+      std::cerr << CarmaErrorCodeToMessage(rc) << std::endl;
     }
   }
 
@@ -121,7 +121,7 @@ namespace musica
 
     if (rc != 0)
     {
-      throw std::runtime_error("Failed to get group properties with return code: " + CarmaErrorCodeToMessage(rc));
+      throw std::runtime_error(CarmaErrorCodeToMessage(rc));
     }
 
     return group_props;
