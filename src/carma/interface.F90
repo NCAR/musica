@@ -268,10 +268,10 @@ contains
 
          call CARMASTATE_SetBin( &
             cstate, &
-            bin_index, &
-            element_index, &
-            values, &
-            rc, &
+            ibin=bin_index, &
+            ielem=element_index, &
+            mmr=values, &
+            rc=rc, &
             surface=surface_mass)
          if (rc /= 0) then
             rc = MUSICA_CARMA_ERROR_CODE_SET_FAILED

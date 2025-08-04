@@ -606,6 +606,7 @@ class CARMAParameters:
 
     def __init__(self,
                  nz: int = 1,
+                 nbin: int = 5,
                  dtime: float = 1800.0,
                  nstep: int = 100,
                  deltaz: float = 1000.0,
@@ -624,6 +625,7 @@ class CARMAParameters:
 
         Args:
             nz: Number of vertical levels (default: 1)
+            nbin: Number of size bins (default: 5)
             dtime: Time step in seconds (default: 1800.0)
             nstep: Number of time steps (default: 100)
             deltaz: Vertical grid spacing in meters (default: 1000.0)
@@ -639,6 +641,7 @@ class CARMAParameters:
             initialization: Initialization configuration (default: None)
         """
         self.nz = nz
+        self.nbin = nbin
         self.dtime = dtime
         self.nstep = nstep
         self.deltaz = deltaz
@@ -694,13 +697,13 @@ class CARMAParameters:
     def __repr__(self):
         """String representation of CARMAParameters."""
         return (f"CARMAParameters(nz={self.nz}, "
-                f"dtime={self.dtime}, "
+                f"nbin={self.nbin}, dtime={self.dtime}, "
                 f"nstep={self.nstep}, deltaz={self.deltaz}, zmin={self.zmin})")
 
     def __str__(self):
         """String representation of CARMAParameters."""
         return (f"CARMAParameters(nz={self.nz}, "
-                f"dtime={self.dtime}, "
+                f"nbin={self.nbin}, dtime={self.dtime}, "
                 f"nstep={self.nstep}, deltaz={self.deltaz}, zmin={self.zmin})")
 
     def to_dict(self) -> Dict:
@@ -864,6 +867,7 @@ class CARMAParameters:
 
         params = cls(
             nz=1,
+            nbin=5,
             deltaz=1000.0,
             zmin=16500.0,
             dtime=1800.0,
@@ -897,7 +901,7 @@ def _carma_dict_to_xarray(output_dict: Dict, parameters: 'CARMAParameters') -> x
     """
     # Extract dimensions from the parameters
     nz = parameters.nz
-    nbin = len(parameters.wavelength_bins)
+    nbin = parameters.nbin
     nelem = len(parameters.elements)
     ngroup = len(parameters.groups)
     ngas = len(parameters.gases)
@@ -1115,12 +1119,15 @@ class CARMAState:
             pressure_levels: Optional list of pressures at vertical levels (default: None). If None, will be derived from the US Standard Atmosphere model.
         """
         self.n_levels = n_levels
-        vertical_center = zmin + (np.arange(n_levels) + 0.5) * delta_z
-        vertical_levels = zmin + np.arange(n_levels + 1) * delta_z
+        self.vertical_center = zmin + (np.arange(n_levels) + 0.5) * delta_z
+        self.vertical_levels = zmin + np.arange(n_levels + 1) * delta_z
+        self.latitude = latitude
+        self.longitude = longitude
+        self.coordinates = coordinates
 
         centered_variables = ussa1976.compute(
-            z=vertical_center, variables=["t", "p", "rho"])
-        edge_variables = ussa1976.compute(z=vertical_levels, variables=["p"])
+            z=self.vertical_center, variables=["t", "p", "rho"])
+        edge_variables = ussa1976.compute(z=self.vertical_levels, variables=["p"])
 
         # Get standard atmosphere properties at these heights
         if temperature is None:
@@ -1139,8 +1146,8 @@ class CARMAState:
             temperature=temperature,
             pressure=pressure,
             pressure_levels=pressure_levels,
-            vertical_center=vertical_center.tolist(),
-            vertical_levels=vertical_levels.tolist(),
+            vertical_center=self.vertical_center.tolist(),
+            vertical_levels=self.vertical_levels.tolist(),
         )
 
     def __del__(self):
