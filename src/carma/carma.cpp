@@ -145,11 +145,7 @@ namespace musica
 
     int rc;
 
-    InternalGetElementProperties(
-        f_carma_type_,
-        element_index,
-        &element_props_c,
-        &rc);
+    InternalGetElementProperties(f_carma_type_, element_index, &element_props_c, &rc);
 
     if (rc != 0)
     {

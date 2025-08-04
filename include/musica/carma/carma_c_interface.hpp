@@ -172,15 +172,15 @@ namespace musica
     // C-compatible structure for CARMA element properties
     struct CARMAElementPropertiesC
     {
-      int group_index;  // Group index
-      int solute_index;  // Solute index
-      int composition;  // Composition enum
-      int type;  // Type enum
-      bool is_shell;  // Is shell flag
-      double kappa;  // Hygroscopicity parameter
-      double* rho; // Mass density of the particle element [kg/m³] (allocated separately)
-      int rho_size; // Size of rho array
-      CARMAComplex* refidx; // Refractive indices array [real, imaginary] (allocated separately)
+      int group_index;        // Group index
+      int solute_index;       // Solute index
+      int composition;        // Composition enum
+      int type;               // Type enum
+      bool is_shell;          // Is shell flag
+      double kappa;           // Hygroscopicity parameter
+      double* rho;            // Mass density of the particle element [kg/m³] (allocated separately)
+      int rho_size;           // Size of rho array
+      CARMAComplex* refidx;   // Refractive indices array [real, imaginary] (allocated separately)
       int refidx_dim_1_size;  // Size of first dimension of refractive indices array (indices)
       int refidx_dim_2_size;  // Size of second dimension of refractive indices array (wavelengths)
     };
