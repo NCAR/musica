@@ -5,6 +5,7 @@
 // to the CARMA aerosol model, allowing it to be used in a C++ context.
 #include <musica/carma/carma.hpp>
 #include <musica/carma/carma_c_interface.hpp>
+#include <musica/carma/error.hpp>
 
 #include <cstring>
 #include <iostream>
@@ -17,23 +18,23 @@ namespace musica
         c_carma_parameters_(ToCCompatible(params)),
         f_carma_type_(nullptr)
   {
-    int return_code = 0;
-    f_carma_type_ = InternalCreateCarma(*c_carma_parameters_, &return_code);
-    if (return_code != 0)
+    int rc = 0;
+    f_carma_type_ = InternalCreateCarma(*c_carma_parameters_, &rc);
+    if (rc != 0)
     {
-      throw std::runtime_error("Failed to create CARMA instance with return code: " + std::to_string(return_code));
+      throw std::runtime_error(CarmaErrorCodeToMessage(rc));
     }
   }
 
   CARMA::~CARMA()
   {
-    int return_code = 0;
+    int rc = 0;
     FreeCCompatible(c_carma_parameters_);
-    InternalDestroyCarma(f_carma_type_, &return_code);
+    InternalDestroyCarma(f_carma_type_, &rc);
     f_carma_type_ = nullptr;  // Clear the pointer to avoid dangling pointer
-    if (return_code != 0)
+    if (rc != 0)
     {
-      std::cerr << "Warning: CARMA destruction returned non-zero code: " << return_code << std::endl;
+      std::cerr << "Warning: CARMA destruction returned non-zero code: " + CarmaErrorCodeToMessage(rc) << std::endl;
     }
   }
 
@@ -54,20 +55,20 @@ namespace musica
 
   CARMAOutput CARMA::Run()
   {
-    int return_code = 0;
+    int rc = 0;
     CARMAOutput output;
 
-    InternalRunCarma(*c_carma_parameters_, f_carma_type_, static_cast<void*>(&output), &return_code);
+    InternalRunCarma(*c_carma_parameters_, f_carma_type_, static_cast<void*>(&output), &rc);
 
-    if (return_code != 0)
+    if (rc != 0)
     {
-      throw std::runtime_error("CARMA simulation failed with return code: " + std::to_string(return_code));
+      throw std::runtime_error(CarmaErrorCodeToMessage(rc));
     }
 
     return output;
   }
 
-  CARMAGroupProperties CARMA::GetGroup(int group_index) const
+  CARMAGroupProperties CARMA::GetGroupProperties(int group_index) const
   {
     if (f_carma_type_ == nullptr)
     {
@@ -120,10 +121,39 @@ namespace musica
 
     if (rc != 0)
     {
-      throw std::runtime_error("Failed to get group properties");
+      throw std::runtime_error("Failed to get group properties with return code: " + CarmaErrorCodeToMessage(rc));
     }
 
     return group_props;
+  }
+
+  CARMAElementProperties CARMA::GetElementProperties(int element_index) const
+  {
+    if (f_carma_type_ == nullptr)
+    {
+      throw std::runtime_error("CARMA instance is not initialized.");
+    }
+    CARMAElementProperties element_props = {};
+    CARMAElementPropertiesC element_props_c = {};
+
+    element_props.rho.resize(carma_parameters_.nbin);
+    element_props_c.rho = element_props.rho.data();
+    element_props_c.rho_size = static_cast<int>(element_props.rho.size());
+    element_props.refidx.resize(carma_parameters_.number_of_refractive_indices * carma_parameters_.wavelength_bins.size());
+    element_props_c.refidx = element_props.refidx.data();
+    element_props_c.refidx_dim_1_size = carma_parameters_.number_of_refractive_indices;
+    element_props_c.refidx_dim_2_size = carma_parameters_.wavelength_bins.size();
+
+    int rc;
+
+    InternalGetElementProperties(f_carma_type_, element_index, &element_props_c, &rc);
+
+    if (rc != 0)
+    {
+      throw std::runtime_error("Failed to get element properties with return code: " + std::to_string(rc));
+    }
+
+    return element_props;
   }
 
   CCARMAParameters* CARMA::ToCCompatible(const CARMAParameters& params)

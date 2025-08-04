@@ -169,6 +169,22 @@ namespace musica
       double tstick;          // accommodation coefficient temperature
     };
 
+    // C-compatible structure for CARMA element properties
+    struct CARMAElementPropertiesC
+    {
+      int group_index;        // Group index
+      int solute_index;       // Solute index
+      int composition;        // Composition enum
+      int type;               // Type enum
+      bool is_shell;          // Is shell flag
+      double kappa;           // Hygroscopicity parameter
+      double* rho;            // Mass density of the particle element [kg/m³] (allocated separately)
+      int rho_size;           // Size of rho array
+      CARMAComplex* refidx;   // Refractive indices array [real, imaginary] (allocated separately)
+      int refidx_dim_1_size;  // Size of first dimension of refractive indices array (indices)
+      int refidx_dim_2_size;  // Size of second dimension of refractive indices array (wavelengths)
+    };
+
     // C-compatible structure for CARMA parameters
     // MUST match the exact order and types of the Fortran carma_parameters_t struct
     struct CCARMAParameters
@@ -440,6 +456,12 @@ namespace musica
         int* element_index_of_core_mass_elements,
         int* last_prognostic_bin,
         double* numbers_of_monomers_per_bin,
+        int* rc);
+
+    void InternalGetElementProperties(
+        void* carma_instance,
+        int element_index,
+        CARMAElementPropertiesC* element_properties,
         int* rc);
 
     // CARMA driver interface functions

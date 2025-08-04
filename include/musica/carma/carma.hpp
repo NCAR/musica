@@ -389,6 +389,20 @@ namespace musica
     std::vector<double> number_of_monomers_per_bin;
   };
 
+  struct CARMAElementProperties
+  {
+    int group_index;                   // Index of the group this element belongs to
+    int solute_index;                  // Index of the solute this element belongs to
+    ParticleComposition composition;   // Composition of the element
+    ParticleType type;                 // Type of the element
+    bool is_shell;                     // Is this part of shell or core
+    double kappa;                      // Hygroscopicity parameter [unitless]
+    std::vector<double> rho;           // Mass density of the particle element [kg/m3]
+    std::vector<CARMAComplex> refidx;  // Refractive indices (n_indices, n_wavelengths)
+    int number_of_refractive_indices;  // Number of refractive indices per wavelength
+    int number_of_wavelengths;         // Number of wavelengths for refractive indices
+  };
+
   class CARMA
   {
    public:
@@ -417,7 +431,15 @@ namespace musica
       return f_carma_type_;
     }
 
-    CARMAGroupProperties GetGroup(int group_index) const;
+    /// @brief Get properties calculated in CARMA for a specific group
+    /// @param group_index The index of the group to retrieve properties for
+    /// @return A CARMAGroupProperties object containing the properties for the specified group
+    CARMAGroupProperties GetGroupProperties(int group_index) const;
+
+    /// @brief Get properties calculated in CARMA for a specific element
+    /// @param element_index The index of the element to retrieve properties for
+    /// @return A CARMAElementProperties object containing the properties for the specified element
+    CARMAElementProperties GetElementProperties(int element_index) const;
 
     /// @brief Convert CARMAParameters to C-compatible CCARMAParameters
     /// @param params The C++ CARMA parameters to convert
