@@ -1604,7 +1604,7 @@ contains
          do igas = 1, NGAS
             call CARMASTATE_SetGas(cstate, igas, mmr_gas(:,igas), rc)
             if (rc /= 0) then
-               rc = MUSICA_CARMA_ERROR_CODE_SET_FAILED   
+               rc = MUSICA_CARMA_ERROR_CODE_SET_FAILED
                return
             end if
          end do
