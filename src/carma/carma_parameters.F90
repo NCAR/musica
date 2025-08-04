@@ -15,7 +15,7 @@ module carma_parameters_mod
              carma_wavelength_bin_t, carma_complex_t, carma_solute_config_t, carma_gas_config_t, &
              carma_coagulation_config_t, carma_growth_config_t, carma_nucleation_config_t, &
              carma_initialization_config_t, carma_output_data_t, carma_state_parameter_t, &
-               carma_state_step_config_t, carma_surface_properties_t
+             carma_state_step_config_t, carma_surface_properties_t, carma_element_properties_t
 
    type, bind(c) :: carma_wavelength_bin_t
       real(c_double) :: center       ! Center of the wavelength bin [m]
@@ -158,6 +158,20 @@ module carma_parameters_mod
       real(c_double) :: gstickl
       real(c_double) :: tstick
    end type carma_initialization_config_t
+
+   type, bind(c) :: carma_element_properties_t
+      integer(c_int) :: igroup
+      integer(c_int) :: isolute
+      integer(c_int) :: itype
+      integer(c_int) :: icomposition
+      logical(c_bool) :: isShell
+      real(c_double) :: kappa
+      type(c_ptr) :: rho
+      integer(c_int) :: rho_size
+      type(c_ptr) :: refidx
+      integer(c_int) :: refidx_dim_1_size
+      integer(c_int) :: refidx_dim_2_size
+   end type carma_element_properties_t
 
    type, bind(c) :: carma_parameters_t
 
