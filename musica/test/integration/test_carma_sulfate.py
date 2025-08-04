@@ -21,9 +21,9 @@ def extract_data(params, state, env, data):
 
     coords['lat'] = ('y', [state.latitude])
     coords['lon'] = ('x', [state.longitude])
-    coords['z'] = ('z', vertical_center)
-    coords['z_levels'] = ('z_levels', vertical_levels)
-    coords['time'] = ('time', list(range(int(params.nstep))))
+    coords['z'] = ('z', vertical_center, {'units': 'm', 'long_name': 'Vertical center height'})
+    coords['z_levels'] = ('z_levels', vertical_levels, {'units': 'm', 'long_name': 'Vertical interface height'})
+    coords['time'] = ('time', list(range(int(params.nstep))), {'units': 'step', 'long_name': 'Time step'})
 
     # Bin coordinates (1-indexed like Fortran)
     coords['bin'] = ('bin', list(range(1, nbin + 1)))
@@ -55,18 +55,30 @@ def extract_data(params, state, env, data):
     print(f"shape: {np.array(data).shape}")
 
     def _extract_data(data, key):
-      result = []
-      for data_step in data:
-          step_data = []
-          for i in range(nbin):
-              bin_data = []
-              for j in range(nelem):
-                  bin_data.append(data_step[i][j][key])
-              step_data.append(bin_data)
-          result.append(step_data)
-      return np.transpose(result, (0, 3, 1, 2))
+        result = []
+        for data_step in data:
+            step_data = []
+            for i in range(nbin):
+                bin_data = []
+                for j in range(nelem):
+                    bin_data.append(data_step[i][j][key])
+                step_data.append(bin_data)
+            result.append(step_data)
+        return np.transpose(result, (0, 3, 1, 2))
 
+    def _extract_scalar_data(data, key):
+        result = []
+        for data_step in data:
+            step_data = []
+            for i in range(nbin):
+                bin_data = []
+                for j in range(nelem):
+                    bin_data.append(data_step[i][j][key])
+                step_data.append(bin_data)
+            result.append(step_data)
+        return result
 
+    # Vector data (with z-dimension)
     data_vars['mass_mixing_ratio'] = (
         ('time', 'z', 'bin', 'elem'), _extract_data(data, 'mass_mixing_ratio'), {
             'units': 'kg kg-1', 'long_name': 'Mass mixing ratio'})
@@ -76,6 +88,41 @@ def extract_data(params, state, env, data):
     data_vars['number_density'] = (
         ('time', 'z', 'bin', 'elem'), _extract_data(data, 'number_density'), {
             'units': '# cm-3', 'long_name': 'Number density'})
+    data_vars['nucleation_rate'] = (
+        ('time', 'z', 'bin', 'elem'), _extract_data(data, 'nucleation_rate'), {
+            'units': '# cm-3 s-1', 'long_name': 'Nucleation rate'})
+    data_vars['wet_particle_radius'] = (
+        ('time', 'z', 'bin', 'elem'), _extract_data(data, 'wet_particle_radius'), {
+            'units': 'cm', 'long_name': 'Wet particle radius'})
+    data_vars['wet_particle_density'] = (
+        ('time', 'z', 'bin', 'elem'), _extract_data(data, 'wet_particle_density'), {
+            'units': 'g cm-3', 'long_name': 'Wet particle density'})
+    data_vars['dry_particle_density'] = (
+        ('time', 'z', 'bin', 'elem'), _extract_data(data, 'dry_particle_density'), {
+            'units': 'g cm-3', 'long_name': 'Dry particle density'})
+    data_vars['fall_velocity'] = (
+        ('time', 'z_levels', 'bin', 'elem'), _extract_data(data, 'fall_velocity'), {
+            'units': 'cm s-1', 'long_name': 'Fall velocity'})
+    data_vars['delta_particle_temperature'] = (
+        ('time', 'z', 'bin', 'elem'), _extract_data(data, 'delta_particle_temperature'), {
+            'units': 'K', 'long_name': 'Delta particle temperature'})
+    data_vars['kappa'] = (
+        ('time', 'z', 'bin', 'elem'), _extract_data(data, 'kappa'), {
+            'units': '', 'long_name': 'Hygroscopicity parameter'})
+    data_vars['total_mass_mixing_ratio'] = (
+        ('time', 'z', 'bin', 'elem'), _extract_data(data, 'total_mass_mixing_ratio'), {
+            'units': 'kg m-3', 'long_name': 'Total mass mixing ratio'})
+
+    # Scalar data (no z-dimension)
+    data_vars['particle_mass_on_surface'] = (
+        ('time', 'bin', 'elem'), _extract_scalar_data(data, 'particle_mass_on_surface'), {
+            'units': 'kg m-2', 'long_name': 'Mass of particle on surface'})
+    data_vars['sedimentation_flux'] = (
+        ('time', 'bin', 'elem'), _extract_scalar_data(data, 'sedimentation_flux'), {
+            'units': 'kg m-2 s-1', 'long_name': 'Sedimentation flux'})
+    data_vars['deposition_velocity'] = (
+        ('time', 'bin', 'elem'), _extract_scalar_data(data, 'deposition_velocity'), {
+            'units': 'cm s-1', 'long_name': 'Deposition velocity'})
 
     # Create the dataset
     return xr.Dataset(
@@ -138,5 +185,5 @@ def test_carma_aluminum():
 
 
 if __name__ == '__main__':
-    # pytest.main([__file__])
-    test_carma_aluminum()
+    import sys
+    pytest.main([__file__] + sys.argv[1:])
