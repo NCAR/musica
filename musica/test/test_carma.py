@@ -274,6 +274,29 @@ def test_carma_with_all_components():
 
     print(f"Successfully ran CARMA with {len(params.groups)} groups and {len(params.elements)} elements")
 
+def test_carma_aluminum():
+    # Test CARMA instance creation
+    test_params = musica.CARMAParameters.create_aluminum_test_config()
+
+    carma = musica.CARMA(test_params)
+    state = carma.create_state(
+        longitude=0.0,
+        latitude=0.0,
+        coordinates=musica.carma.CarmaCoordinates.CARTESIAN
+    )
+    print(state.get_environmental_values())
+
+    # carma.run()
+    # state.step(land=musica.carma.CARMASurfaceProperties(surface_friction_velocity=0.42, area_fraction=0.3),
+    #            ocean=musica.carma.CARMASurfaceProperties(aerodynamic_resistance=0.1),
+    #            ice=musica.carma.CARMASurfaceProperties(area_fraction=0.2))
+    # state.get_step_statistics()
+    # state.get_bin(1, 1)
+    # state.get_detrain(1, 1)
+    # state.get_environmental_values()
+    # state.get_gas(1)
+    # carma.get_group(1)
+
 
 if __name__ == '__main__':
     pytest.main([__file__])

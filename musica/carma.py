@@ -517,7 +517,7 @@ class CARMAInitializationConfig:
                  do_substep: bool = False,
                  do_thermo: bool = False,
                  do_vdiff: bool = False,
-                 do_vtran: bool = True,
+                 do_vtran: bool = False,
                  do_drydep: bool = False,
                  do_pheat: bool = False,
                  do_pheatatm: bool = False,
@@ -606,7 +606,6 @@ class CARMAParameters:
 
     def __init__(self,
                  nz: int = 1,
-                 nbin: int = 5,
                  dtime: float = 1800.0,
                  nstep: int = 100,
                  deltaz: float = 1000.0,
@@ -625,7 +624,6 @@ class CARMAParameters:
 
         Args:
             nz: Number of vertical levels (default: 1)
-            nbin: Number of size bins (default: 5)
             dtime: Time step in seconds (default: 1800.0)
             nstep: Number of time steps (default: 100)
             deltaz: Vertical grid spacing in meters (default: 1000.0)
@@ -641,7 +639,6 @@ class CARMAParameters:
             initialization: Initialization configuration (default: None)
         """
         self.nz = nz
-        self.nbin = nbin
         self.dtime = dtime
         self.nstep = nstep
         self.deltaz = deltaz
@@ -697,13 +694,13 @@ class CARMAParameters:
     def __repr__(self):
         """String representation of CARMAParameters."""
         return (f"CARMAParameters(nz={self.nz}, "
-                f"nbin={self.nbin}, dtime={self.dtime}, "
+                f"dtime={self.dtime}, "
                 f"nstep={self.nstep}, deltaz={self.deltaz}, zmin={self.zmin})")
 
     def __str__(self):
         """String representation of CARMAParameters."""
         return (f"CARMAParameters(nz={self.nz}, "
-                f"nbin={self.nbin}, dtime={self.dtime}, "
+                f"dtime={self.dtime}, "
                 f"nstep={self.nstep}, deltaz={self.deltaz}, zmin={self.zmin})")
 
     def to_dict(self) -> Dict:
@@ -827,8 +824,9 @@ class CARMAParameters:
         group = CARMAGroupConfig(
             name="aluminum",
             shortname="PRALUM",
-            rmin=21.5e-8,
             rmrat=2.0,
+            rmin=21.5e-6,
+            rmon=21.5e-6,
             ishape=ParticleShape.SPHERE,
             eshape=1.0,
             mie_calculation_algorithm=MieCalculationAlgorithm.TOON_1981,
@@ -839,7 +837,6 @@ class CARMAParameters:
             do_vtran=True,
             solfac=0.0,
             scavcoef=0.0,
-            rmon=21.5e-8,
             df=[1.6] * 5,  # 5 bins with fractal dimension 1.6
             falpha=1.0
         )
@@ -853,7 +850,7 @@ class CARMAParameters:
             itype=ParticleType.INVOLATILE,
             icomposition=ParticleComposition.ALUMINUM,
             is_shell=True,
-            rho=2700.0,  # kg/m3
+            rho=3.95,  # g/m3
             arat=[1.0] * 5,  # 5 bins with area ratio 1.0
             kappa=0.0,
         )
@@ -867,9 +864,9 @@ class CARMAParameters:
 
         params = cls(
             nz=1,
-            nbin=5,
             deltaz=1000.0,
             zmin=16500.0,
+            dtime=1800.0,
             wavelength_bins=wavelength_bins,
             groups=[group],
             elements=[element],
@@ -877,8 +874,8 @@ class CARMAParameters:
         )
 
         FIVE_DAYS_IN_SECONDS = 432000
-        params.dtime = 1800.0
-        params.nstep = FIVE_DAYS_IN_SECONDS / params.dtime
+        params.nstep = FIVE_DAYS_IN_SECONDS // params.dtime
+        params.initialization.do_vtran = False
 
         return params
 
@@ -900,7 +897,7 @@ def _carma_dict_to_xarray(output_dict: Dict, parameters: 'CARMAParameters') -> x
     """
     # Extract dimensions from the parameters
     nz = parameters.nz
-    nbin = parameters.nbin
+    nbin = len(parameters.wavelength_bins)
     nelem = len(parameters.elements)
     ngroup = len(parameters.groups)
     ngas = len(parameters.gases)
