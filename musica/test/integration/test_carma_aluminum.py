@@ -153,7 +153,6 @@ def extract_bin_data_for_timestep(params, state):
 def test_carma_aluminum():
     # Test CARMA instance creation
     params = musica.CARMAParameters.create_aluminum_test_config()
-    params.nz = 1
 
     carma = musica.CARMA(params)
     state = carma.create_state(
