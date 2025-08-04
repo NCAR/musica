@@ -16,7 +16,7 @@ namespace musica
 
   CARMAState::CARMAState(const CARMA& carma, const CARMAStateParameters& params)
   {
-    this->nz = static_cast<int>(params.vertical_levels.size());
+    this->nz = static_cast<int>(params.vertical_center.size());
     CCARMAParameters* carma_params = carma.GetParameters();
     CARMAStateParametersC state_params;
     state_params.time = params.time;

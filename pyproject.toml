@@ -37,8 +37,8 @@ gpu = ["nvidia-cublas-cu12", "nvidia-cuda-runtime-cu12"]
 #   docker build -t musica -f docker/Dockerfile.python .
 #   docker run -it --rm musica
 #   gdb --args python /musica/musica/test/test_carma.py
-# build-dir="python_build"
-cmake.build-type = "Release"
+build-dir="python_build"
+cmake.build-type = "Debug"
 cmake.define.MUSICA_ENABLE_PYTHON_LIBRARY = "ON"
 cmake.define.MUSICA_BUILD_FORTRAN_INTERFACE = "OFF"
 cmake.define.MUSICA_ONLY_PYTHON = "ON"
