@@ -89,22 +89,11 @@ models:
       - cloud
 
 reactions:
-- type: HL_PHASE_TRANSFER
-  gas:
-    name: gas
-    species:
-      - H2O2
-  particle:
-    phase: aqueous
-    solutes:
-      - H2O2_aq
-    solvent: H2O
-  name: my henry's law
 - type: SIMPOL_PHASE_TRANSFER
   gas phase: gas
   gas-phase species: ethanol
-  aqueous phase: aqueous
-  aqueous-phase species: ethanol_aq
+  condensed phase: aqueous
+  condensed-phase species: ethanol_aq
   B:
   - -1970
   - 2.91
@@ -112,7 +101,8 @@ reactions:
   - -0.496
   name: my simpol
 - type: AQUEOUS_EQUILIBRIUM
-  aqueous phase: aqueous
+  condensed phase: aqueous
+  condensed-phase water: H2O
   A: 0.0114
   C: 2300
   k_reverse: 0.32
@@ -126,7 +116,7 @@ reactions:
     coefficient: 1
   name: my aqueous eq
 - type: CONDENSED_PHASE_ARRHENIUS
-  aqueous phase: aqueous
+  condensed phase: aqueous
   A: 123.45
   Ea: 123.45
   B: 1.3
@@ -142,7 +132,7 @@ reactions:
     coefficient: 1
   name: my condensed arrhenius
 - type: CONDENSED_PHASE_ARRHENIUS
-  aqueous phase: aqueous
+  condensed phase: aqueous
   A: 123.45
   C: 123.45
   B: 1.3
@@ -158,7 +148,7 @@ reactions:
     coefficient: 1
   name: my other condensed arrhenius
 - type: CONDENSED_PHASE_PHOTOLYSIS
-  aqueous phase: aqueous
+  condensed phase: aqueous
   reactants:
   - species name: H2O2_aq
     coefficient: 1
@@ -200,7 +190,7 @@ reactions:
     coefficient: 1
   - species name: C
     coefficient: 1
-  aqueous phase: surface reacting phase
+  condensed phase: surface reacting phase
   name: my surface
 - type: TROE
   gas phase: gas
@@ -250,7 +240,7 @@ reactions:
   - species name: C
     coefficient: 1
 - type: WET_DEPOSITION
-  aqueous phase: cloud
+  condensed phase: cloud
   name: rxn cloud
   scaling factor: 12.3
 - type: ARRHENIUS

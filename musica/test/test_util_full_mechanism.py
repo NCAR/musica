@@ -87,8 +87,7 @@ def get_fully_defined_mechanism():
 
     my_condensed_arrhenius = mc.CondensedPhaseArrhenius(
         name="my condensed arrhenius",
-        aerosol_phase=aqueous_aerosol,
-        aerosol_phase_water=H2O_aq,
+        condensed_phase=aqueous_aerosol,
         A=123.45,
         B=1.3,
         Ea=123.45,
@@ -101,8 +100,7 @@ def get_fully_defined_mechanism():
 
     my_other_condensed_arrhenius = mc.CondensedPhaseArrhenius(
         name="my other condensed arrhenius",
-        aerosol_phase=aqueous_aerosol,
-        aerosol_phase_water=H2O_aq,
+        condensed_phase=aqueous_aerosol,
         A=123.45,
         B=1.3,
         C=123.45,
@@ -158,7 +156,7 @@ def get_fully_defined_mechanism():
         gas_phase_species=A,
         reaction_probability=2.0e-2,
         gas_phase_products=[B, C],
-        aerosol_phase=surface_reacting_phase,
+        condensed_phase=surface_reacting_phase,
         other_properties={"__irrelevant": "2"},
     )
 
@@ -173,8 +171,7 @@ def get_fully_defined_mechanism():
 
     condensed_photo_B = mc.CondensedPhasePhotolysis(
         name="condensed photo B",
-        aerosol_phase=aqueous_aerosol,
-        aerosol_phase_water=H2O_aq,
+        condensed_phase=aqueous_aerosol,
         reactants=[H2O2_aq],
         products=[ethanol_aq],
         scaling_factor=12.3,
@@ -199,8 +196,8 @@ def get_fully_defined_mechanism():
 
     my_aqueous_equilibrium = mc.AqueousEquilibrium(
         name="my aqueous eq",
-        aerosol_phase=aqueous_aerosol,
-        aerosol_phase_water=H2O_aq,
+        condensed_phase=aqueous_aerosol,
+        condensed_phase_water=H2O_aq,
         A=1.14e-2,
         C=2300.0,
         k_reverse=0.32,
@@ -211,18 +208,8 @@ def get_fully_defined_mechanism():
 
     my_wet_deposition = mc.WetDeposition(
         name="rxn cloud",
-        aerosol_phase=cloud,
+        condensed_phase=cloud,
         scaling_factor=12.3,
-        other_properties={"__irrelevant": "2"},
-    )
-
-    my_henrys_law = mc.HenrysLaw(
-        name="my henry's law",
-        gas_phase=gas,
-        gas_phase_species=H2O2,
-        aerosol_phase=aqueous_aerosol,
-        aerosol_phase_species=H2O2_aq,
-        aerosol_phase_water=H2O_aq,
         other_properties={"__irrelevant": "2"},
     )
 
@@ -230,8 +217,8 @@ def get_fully_defined_mechanism():
         name="my simpol",
         gas_phase=gas,
         gas_phase_species=ethanol,
-        aerosol_phase=aqueous_aerosol,
-        aerosol_phase_species=ethanol_aq,
+        condensed_phase=aqueous_aerosol,
+        condensed_phase_species=ethanol_aq,
         B=[-1.97e03, 2.91e00, 1.96e-03, -4.96e-01],
         other_properties={"__irrelevant": "2"},
     )
@@ -255,7 +242,7 @@ def get_fully_defined_mechanism():
                    my_other_condensed_arrhenius, my_troe, my_branched,
                    my_tunneling, my_surface, photo_B, condensed_photo_B,
                    my_emission, my_first_order_loss, my_aqueous_equilibrium,
-                   my_wet_deposition, my_henrys_law, my_simpol_phase_transfer,
+                   my_wet_deposition, my_simpol_phase_transfer,
                    user_defined],
         version=mc.Version(1, 0, 0),
     )
@@ -400,29 +387,14 @@ def _validate_arrhenius(reactions):
     assert reactions[1].other_properties == {}
 
 
-def _validate_henrys_law(reactions):
-    assert reactions[0].type == mc.ReactionType.HenrysLaw
-    assert reactions[0].gas_phase == "gas"
-    assert _extract_components([reactions[0].gas_phase_species]) == [
-        {"species name": "H2O2", "coefficient": 1}
-    ]
-    assert reactions[0].aerosol_phase == "aqueous aerosol"
-    assert _extract_components([reactions[0].aerosol_phase_species]) == [
-        {"species name": "H2O2_aq", "coefficient": 1}
-    ]
-    assert reactions[0].aerosol_phase_water == "H2O_aq"
-    assert reactions[0].name == "my henry's law"
-    assert reactions[0].other_properties == {"__irrelevant": "2"}
-
-
 def _validate_simpol_phase_transfer(reactions):
     assert reactions[0].type == mc.ReactionType.SimpolPhaseTransfer
     assert reactions[0].gas_phase == "gas"
     assert _extract_components([reactions[0].gas_phase_species]) == [
         {"species name": "ethanol", "coefficient": 1}
     ]
-    assert reactions[0].aerosol_phase == "aqueous aerosol"
-    assert _extract_components([reactions[0].aerosol_phase_species]) == [
+    assert reactions[0].condensed_phase == "aqueous aerosol"
+    assert _extract_components([reactions[0].condensed_phase_species]) == [
         {"species name": "ethanol_aq", "coefficient": 1}
     ]
     assert reactions[0].B == [-1.97e03, 2.91e00, 1.96e-03, -4.96e-01]
@@ -432,8 +404,8 @@ def _validate_simpol_phase_transfer(reactions):
 
 def _validate_aqueous_equilibrium(reactions):
     assert reactions[0].type == mc.ReactionType.AqueousEquilibrium
-    assert reactions[0].aerosol_phase == "aqueous aerosol"
-    assert reactions[0].aerosol_phase_water == "H2O_aq"
+    assert reactions[0].condensed_phase == "aqueous aerosol"
+    assert reactions[0].condensed_phase_water == "H2O_aq"
     assert reactions[0].A == 1.14e-2
     assert reactions[0].C == 2300.0
     assert reactions[0].k_reverse == 0.32
@@ -451,8 +423,7 @@ def _validate_aqueous_equilibrium(reactions):
 def _validate_condensed_phase_arrhenius(reactions):
     for reaction in reactions:
         assert reaction.type == mc.ReactionType.CondensedPhaseArrhenius
-        assert reaction.aerosol_phase == "aqueous aerosol"
-        assert reaction.aerosol_phase_water == "H2O_aq"
+        assert reaction.condensed_phase == "aqueous aerosol"
         assert reaction.A == 123.45
         assert reaction.B == 1.3
         assert reaction.D == 300.0
@@ -473,8 +444,7 @@ def _validate_condensed_phase_arrhenius(reactions):
 
 def _validate_condensed_phase_photolysis(reactions):
     assert reactions[0].type == mc.ReactionType.CondensedPhasePhotolysis
-    assert reactions[0].aerosol_phase == "aqueous aerosol"
-    assert reactions[0].aerosol_phase_water == "H2O_aq"
+    assert reactions[0].condensed_phase == "aqueous aerosol"
     assert _extract_components(reactions[0].reactants) == [
         {"species name": "H2O2_aq", "coefficient": 1}
     ]
@@ -533,7 +503,7 @@ def _validate_surface(reactions):
         {"species name": "B", "coefficient": 1},
         {"species name": "C", "coefficient": 1},
     ]
-    assert reactions[0].aerosol_phase == "surface reacting phase"
+    assert reactions[0].condensed_phase == "surface reacting phase"
     assert reactions[0].name == "my surface"
     assert reactions[0].other_properties == {"__irrelevant": "2"}
 
@@ -599,7 +569,7 @@ def _validate_tunneling(reactions):
 def _validate_wet_deposition(reactions):
     assert reactions[0].type == mc.ReactionType.WetDeposition
     assert reactions[0].name == "rxn cloud"
-    assert reactions[0].aerosol_phase == "cloud"
+    assert reactions[0].condensed_phase == "cloud"
     assert reactions[0].scaling_factor == 12.3
     assert reactions[0].other_properties == {"__irrelevant": "2"}
 
@@ -643,8 +613,6 @@ def validate_full_v1_mechanism(mechanism):
     _validate_emission(mechanism.reactions.emission)
     assert len(mechanism.reactions.first_order_loss) == 1
     _validate_first_order_loss(mechanism.reactions.first_order_loss)
-    assert len(mechanism.reactions.henrys_law) == 1
-    _validate_henrys_law(mechanism.reactions.henrys_law)
     assert len(mechanism.reactions.photolysis) == 1
     _validate_photolysis(mechanism.reactions.photolysis)
     assert len(mechanism.reactions.simpol_phase_transfer) == 1
@@ -662,7 +630,7 @@ def validate_full_v1_mechanism(mechanism):
     assert mechanism.version.major == 1
     assert mechanism.version.minor == 0
     assert mechanism.version.patch == 0
-    assert len(mechanism.reactions) == 17
+    assert len(mechanism.reactions) == 16
     for reaction in mechanism.reactions:
         assert reaction is not None
         assert isinstance(reaction.type, mc.ReactionType)

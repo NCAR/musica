@@ -19,6 +19,7 @@ class Species(_Species):
         N_star (float): A parameter used to calculate the mass accomodation factor (Ervens et al., 2003)
         molecular_weight_kg_mol (float): Molecular weight [kg mol-1]
         density_kg_m3 (float): Density [kg m-3]
+        tracer_type (str): Type of tracer: 'THIRD_BODY' or None [Deprecated, use is_third_body instead]
         constant_concentration_mol_m3 (float): Constant concentration of the species (mol m-3)
         constant_mixing_ratio_mol_mol (float): Constant mixing ratio of the species (mol mol-1)
         is_third_body (bool): Whether the species is a third body.
@@ -34,6 +35,7 @@ class Species(_Species):
         N_star: Optional[float] = None,
         molecular_weight_kg_mol: Optional[float] = None,
         density_kg_m3: Optional[float] = None,
+        tracer_type: Optional[str] = None,  # Deprecated use is_third_body instead
         constant_concentration_mol_m3: Optional[float] = None,
         constant_mixing_ratio_mol_mol: Optional[float] = None,
         is_third_body: Optional[bool] = False,
@@ -50,6 +52,7 @@ class Species(_Species):
             N_star (float): A parameter used to calculate the mass accomodation factor (Ervens et al., 2003)
             molecular_weight_kg_mol (float): Molecular weight [kg mol-1]
             density_kg_m3 (float): Density [kg m-3]
+            tracer_type (str): Type of tracer: 'THIRD_BODY' or None [Deprecated, use is_third_body instead]
             constant_concentration_mol_m3 (float): Constant concentration of the species (mol m-3)
             constant_mixing_ratio_mol_mol (float): Constant mixing ratio of the species (mol mol-1)
             is_third_body (bool): Whether the species is a third body.
@@ -63,6 +66,7 @@ class Species(_Species):
         self.N_star = N_star if N_star is not None else self.N_star
         self.molecular_weight_kg_mol = molecular_weight_kg_mol if molecular_weight_kg_mol is not None else self.molecular_weight_kg_mol
         self.density_kg_m3 = density_kg_m3 if density_kg_m3 is not None else self.density_kg_m3
+        self.tracer_type = tracer_type if tracer_type is not None else self.tracer_type
         self.constant_concentration_mol_m3 = constant_concentration_mol_m3 if constant_concentration_mol_m3 is not None else self.constant_concentration_mol_m3
         self.constant_mixing_ratio_mol_mol = constant_mixing_ratio_mol_mol if constant_mixing_ratio_mol_mol is not None else self.constant_mixing_ratio_mol_mol
         self.is_third_body = is_third_body if is_third_body is not None else self.is_third_body
@@ -78,6 +82,7 @@ class Species(_Species):
             "N star": instance.N_star,
             "molecular weight [kg mol-1]": instance.molecular_weight_kg_mol,
             "density [kg m-3]": instance.density_kg_m3,
+            "tracer type": instance.tracer_type,
             "constant concentration [mol m-3]": instance.constant_concentration_mol_m3,
             "constant mixing ratio [mol mol-1]": instance.constant_mixing_ratio_mol_mol,
             "is third body": instance.is_third_body,

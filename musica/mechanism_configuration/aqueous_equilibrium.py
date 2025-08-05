@@ -17,8 +17,8 @@ class AqueousEquilibrium:
 
     Attributes:
         name (str): The name of the aqueous equilibrium reaction rate constant.
-        aerosol_phase (Phase): The aerosol phase in which the reaction occurs.
-        aerosol_phase_water (Species): The water species in the aerosol phase.
+        condensed_phase (Phase): The condensed phase in which the reaction occurs.
+        condensed_phase_water (Species): The water species in the condensed phase.
         reactants (List[Union[Species, Tuple[float, Species]]]): A list of reactants involved in the reaction.
         products (List[Union[Species, Tuple[float, Species]]]): A list of products formed in the reaction.
         A (float): Pre-exponential factor [(mol m-3)^(n-1)s-1].
@@ -30,8 +30,8 @@ class AqueousEquilibrium:
     def __init__(
         self,
         name: Optional[str] = None,
-        aerosol_phase: Optional[Phase] = None,
-        aerosol_phase_water: Optional[Species] = None,
+        condensed_phase: Optional[Phase] = None,
+        condensed_phase_water: Optional[Species] = None,
         reactants: Optional[List[Union[Species,
                                        Tuple[float, Species]]]] = None,
         products: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
@@ -45,8 +45,8 @@ class AqueousEquilibrium:
 
         Args:
             name (str): The name of the aqueous equilibrium reaction rate constant.
-            aerosol_phase (Phase): The aerosol phase in which the reaction occurs.
-            aerosol_phase_water (Species): The water species in the aerosol phase.
+            condensed_phase (Phase): The condensed phase in which the reaction occurs.
+            condensed_phase_water (Species): The water species in the condensed phase.
             reactants (List[Union[Species, Tuple[float, Species]]]): A list of reactants involved in the reaction.
             products (List[Union[Species, Tuple[float, Species]]]): A list of products formed in the reaction.
             A (float): Pre-exponential factor [(mol m-3)^(n-1)s-1].
@@ -60,10 +60,10 @@ class AqueousEquilibrium:
         # Set all parameters
         if name is not None:
             self.name = name
-        if aerosol_phase is not None:
-            self.aerosol_phase = aerosol_phase
-        if aerosol_phase_water is not None:
-            self.aerosol_phase_water = aerosol_phase_water
+        if condensed_phase is not None:
+            self.condensed_phase = condensed_phase
+        if condensed_phase_water is not None:
+            self.condensed_phase_water = condensed_phase_water
         if reactants is not None:
             self.reactants = reactants
         if products is not None:
@@ -89,34 +89,34 @@ class AqueousEquilibrium:
         self._instance.name = value
 
     @property
-    def aerosol_phase(self) -> str:
-        """Get the aerosol phase name."""
-        return self._instance.aerosol_phase
+    def condensed_phase(self) -> str:
+        """Get the condensed phase name."""
+        return self._instance.condensed_phase
 
-    @aerosol_phase.setter
-    def aerosol_phase(self, value: Union[Phase, str]):
-        """Set the aerosol phase."""
+    @condensed_phase.setter
+    def condensed_phase(self, value: Union[Phase, str]):
+        """Set the condensed phase."""
         if isinstance(value, Phase):
-            self._instance.aerosol_phase = value.name
+            self._instance.condensed_phase = value.name
         elif isinstance(value, str):
-            self._instance.aerosol_phase = value
+            self._instance.condensed_phase = value
         else:
-            raise ValueError(f"Invalid aerosol_phase type: {type(value)}")
+            raise ValueError(f"Invalid condensed_phase type: {type(value)}")
 
     @property
-    def aerosol_phase_water(self) -> str:
-        """Get the aerosol phase water species name."""
-        return self._instance.aerosol_phase_water
+    def condensed_phase_water(self) -> str:
+        """Get the condensed phase water species name."""
+        return self._instance.condensed_phase_water
 
-    @aerosol_phase_water.setter
-    def aerosol_phase_water(self, value: Union[Species, str]):
-        """Set the aerosol phase water species."""
+    @condensed_phase_water.setter
+    def condensed_phase_water(self, value: Union[Species, str]):
+        """Set the condensed phase water species."""
         if isinstance(value, Species):
-            self._instance.aerosol_phase_water = value.name
+            self._instance.condensed_phase_water = value.name
         elif isinstance(value, str):
-            self._instance.aerosol_phase_water = value
+            self._instance.condensed_phase_water = value
         else:
-            raise ValueError(f"Invalid aerosol_phase_water type: {type(value)}")
+            raise ValueError(f"Invalid condensed_phase_water type: {type(value)}")
 
     @property
     def reactants(self) -> List[Union[Species, Tuple[float, Species]]]:
@@ -236,8 +236,8 @@ class AqueousEquilibrium:
         return {
             "type": "AQUEOUS_EQUILIBRIUM",
             "name": instance.name,
-            "aerosol phase": instance.aerosol_phase,
-            "aerosol-phase water": instance.aerosol_phase_water,
+            "condensed phase": instance.condensed_phase,
+            "condensed-phase water": instance.condensed_phase_water,
             "reactants": ReactionComponentSerializer.serialize_list_reaction_components(instance.reactants),
             "products": ReactionComponentSerializer.serialize_list_reaction_components(instance.products),
             "A": instance.A,
