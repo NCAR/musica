@@ -53,21 +53,6 @@ namespace musica
     return version;
   }
 
-  CARMAOutput CARMA::Run()
-  {
-    int rc = 0;
-    CARMAOutput output;
-
-    InternalRunCarma(*c_carma_parameters_, f_carma_type_, static_cast<void*>(&output), &rc);
-
-    if (rc != 0)
-    {
-      throw std::runtime_error(CarmaErrorCodeToMessage(rc));
-    }
-
-    return output;
-  }
-
   CARMAGroupProperties CARMA::GetGroupProperties(int group_index) const
   {
     if (f_carma_type_ == nullptr)

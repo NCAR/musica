@@ -852,7 +852,6 @@ class CARMAParameters:
             shortname="ALUM",
             itype=ParticleType.INVOLATILE,
             icomposition=ParticleComposition.ALUMINUM,
-            is_shell=True,
             rho=3.95,  # g/m3
             arat=[1.0] * 5,  # 5 bins with area ratio 1.0
             kappa=0.0,
@@ -871,7 +870,7 @@ class CARMAParameters:
             deltaz=1000.0,
             zmin=16500.0,
             dtime=1800.0,
-            wavelength_bins=wavelength_bins,
+            # wavelength_bins=wavelength_bins,
             groups=[group],
             elements=[element],
             coagulations=[coagulation]
@@ -882,160 +881,6 @@ class CARMAParameters:
         params.initialization.do_vtran = False
 
         return params
-
-
-def _carma_dict_to_xarray(output_dict: Dict, parameters: 'CARMAParameters') -> xr.Dataset:
-    """
-    Convert CARMA output dictionary to xarray Dataset for netCDF export.
-
-    This function creates an xarray Dataset with proper dimensions and coordinates
-    following the structure used in the CARMA Fortran aluminum test.
-
-    Args:
-        output_dict: Dictionary containing CARMA output data from C++ backend
-        parameters: The CARMAParameters object containing model configuration
-
-    Returns:
-        xr.Dataset: Dataset containing all CARMA output variables with proper
-                   dimensions and metadata
-    """
-    # Extract dimensions from the parameters
-    nz = parameters.nz
-    nbin = parameters.nbin
-    nelem = len(parameters.elements)
-    ngroup = len(parameters.groups)
-    ngas = len(parameters.gases)
-    nstep = parameters.nstep
-
-    # Create coordinates
-    coords = {}
-
-    # Spatial coordinates
-    lat = output_dict.get('lat', [])
-    lon = output_dict.get('lon', [])
-    vertical_center = output_dict.get('vertical_center', [])
-    vertical_levels = output_dict.get('vertical_levels', [])
-
-    coords['lat'] = ('y', lat)
-    coords['lon'] = ('x', lon)
-    coords['z'] = ('z', vertical_center)
-    coords['z_levels'] = ('z_levels', vertical_levels)
-
-    # Bin coordinates (1-indexed like Fortran)
-    coords['bin'] = ('bin', list(range(1, nbin + 1)))
-    coords['group'] = ('group', list(range(1, ngroup + 1)))
-    coords['elem'] = ('elem', list(range(1, nelem + 1)))
-    coords['nwave'] = ('nwave', list(
-        range(1, len(parameters.wavelength_bins) + 1)))
-
-    # Create z_interface coordinate for variables defined at interfaces (nz+1 levels)
-    coords['z_interface'] = ('z_interface', list(range(1, nz + 2)))
-
-    data_vars = {}
-
-    # Atmospheric state variables
-    pressure = output_dict.get('pressure', [])
-    data_vars['pressure'] = (
-        'z', pressure, {'units': 'Pa', 'long_name': 'Pressure'})
-
-    temperature = output_dict.get('temperature', [])
-    data_vars['temperature'] = (
-        'z', temperature, {'units': 'K', 'long_name': 'Temperature'})
-
-    air_density = output_dict.get('air_density', [])
-    data_vars['air_density'] = (
-        'z', air_density, {'units': 'kg m-3', 'long_name': 'Air density'})
-
-    # Particle state variables (3D: nz x nbin x nelem)
-    particle_concentration = output_dict.get('particle_concentration', [])
-    data_vars['particle_concentration'] = (
-        ('z', 'bin', 'elem'), np.array(particle_concentration), {
-            'units': '# cm-3', 'long_name': 'Particle concentration'})
-
-    mass_mixing_ratio = output_dict.get('mass_mixing_ratio', [])
-    data_vars['mass_mixing_ratio'] = (
-        ('z', 'bin', 'elem'), np.array(mass_mixing_ratio), {
-            'units': 'kg kg-1', 'long_name': 'Mass mixing ratio'})
-
-    wet_radius = output_dict.get('wet_radius', [])
-    data_vars['wet_radius'] = (
-        ('z', 'bin', 'group'), np.array(wet_radius), {
-            'units': 'cm', 'long_name': 'Wet radius of particles'})
-
-    wet_density = output_dict.get('wet_density', [])
-    data_vars['wet_density'] = (
-        ('z', 'bin', 'group'), np.array(wet_density), {
-            'units': 'g cm-3', 'long_name': 'Wet density of particles'})
-
-    fall_velocity = output_dict.get('fall_velocity', [])
-    data_vars['fall_velocity'] = (('z_interface', 'bin', 'group'), np.array(fall_velocity), {
-                                  'units': 'cm s-1', 'long_name': 'Fall velocity of particles'})
-
-    nucleation_rate = output_dict.get('nucleation_rate', [])
-    data_vars['nucleation_rate'] = (
-        ('z', 'bin', 'group'), np.array(nucleation_rate), {
-            'units': 'cm-3 s-1', 'long_name': 'Nucleation rate of particles'})
-
-    deposition_velocity = output_dict.get('deposition_velocity', [])
-    data_vars['deposition_velocity'] = (
-        ('z', 'bin', 'group'), np.array(deposition_velocity), {
-            'units': 'cm s-1', 'long_name': 'Deposition velocity of particles'})
-
-    dry_radius = output_dict.get('dry_radius', [])
-    data_vars['dry_radius'] = (
-        ('bin', 'group'), np.array(dry_radius), {
-            'units': 'cm', 'long_name': 'Dry radius of particles'})
-
-    mass_per_bin = output_dict.get('mass_per_bin', [])
-    data_vars['mass_per_bin'] = (
-        ('bin', 'group'), np.array(mass_per_bin), {
-            'units': 'g', 'long_name': 'Mass per bin of particles'})
-
-    radius_ratio = output_dict.get('radius_ratio', [])
-    data_vars['radius_ratio'] = (
-        ('bin', 'group'), np.array(radius_ratio), {
-            'units': '1', 'long_name': 'Radius ratio of particles'})
-
-    aspect_ratio = output_dict.get('aspect_ratio', [])
-    data_vars['aspect_ratio'] = (
-        ('bin', 'group'), np.array(aspect_ratio), {
-            'units': '1', 'long_name': 'Aspect ratio of particles'})
-
-    group_particle_number_concentration = output_dict.get(
-        'group_particle_number_concentration', [])
-    data_vars['group_particle_number_concentration'] = (
-        ('group'), np.array(group_particle_number_concentration), {
-            'units': '# cm-3', 'long_name': 'Group particle number concentration'})
-
-    constituent_type = output_dict.get('constituent_type', [])
-    data_vars['constituent_type'] = (
-        ('group'), np.array(constituent_type), {
-            'units': '1', 'long_name': 'Constituent type of particle groups'})
-
-    max_prognostic_bin = output_dict.get('max_prognostic_bin', [])
-    data_vars['max_prognostic_bin'] = (
-        ('group'), np.array(max_prognostic_bin), {
-            'units': '1', 'long_name': 'Maximum prognostic bin for each group'})
-
-    # Create the dataset
-    ds = xr.Dataset(
-        data_vars=data_vars,
-        coords=coords,
-        attrs={
-            'title': 'CARMA aerosol model output',
-            'description': 'Output from CARMA aerosol simulation',
-            'nz': nz,
-            'ny': 1,  # TODO: replace this with the y dimensions corresponding to states or something
-            'nx': 1,
-            'nbin': nbin,
-            'nelem': nelem,
-            'ngroup': ngroup,
-            'ngas': ngas,
-            'nstep': nstep
-        }
-    )
-
-    return ds
 
 
 class CARMASurfaceProperties:
@@ -1092,6 +937,7 @@ class CARMAState:
     def __init__(self,
                  carma_pointer: c_void_p,
                  time: float = 0.0,
+                 time_step: float = 0.0,
                  latitude: float = 0.0,
                  longitude: float = 0.0,
                  coordinates: CarmaCoordinates = CarmaCoordinates.CARTESIAN,
@@ -1108,6 +954,7 @@ class CARMAState:
         Args:
             carma_pointer: Pointer to the CARMA C++ instance
             time: Simulation time in seconds (default: 0.0)
+            time_step: Time step in seconds (default: 0.0)
             latitude: Latitude in degrees (default: 0.0)
             longitude: Longitude in degrees (default: 0.0)
             coordinates: Coordinate system for the simulation (default: Cartesian)
@@ -1140,6 +987,7 @@ class CARMAState:
         self._carma_state_instance = _backend._carma._create_carma_state(
             carma_pointer=carma_pointer,
             time=time,
+            time_step=time_step,
             latitude=latitude,
             longitude=longitude,
             coordinates=coordinates.value,
@@ -1394,25 +1242,6 @@ class CARMA:
         """String representation of CARMA instance."""
         return f"CARMA() - Version: {version if version else 'Not available'}"
 
-    def run(self) -> xr.Dataset:
-        """
-        Run the CARMA aerosol model simulation.
-
-        Args:
-            parameters: CARMAParameters instance containing simulation configuration
-
-        Returns:
-            xr.Dataset: Dataset containing all CARMA output variables with proper
-                       dimensions and metadata
-
-        Raises:
-            ValueError: If the simulation fails
-        """
-        output_dict = _backend._carma._run_carma(self._carma_instance)
-
-        # Convert dictionary directly to xarray Dataset
-        return _carma_dict_to_xarray(output_dict, self.__parameters)
-
     def create_state(self, **kwargs) -> CARMAState:
         """
         Create a CARMAState instance based on the current parameters.
@@ -1426,6 +1255,7 @@ class CARMA:
 
         return CARMAState(
             self._carma_instance,
+            time_step=self.__parameters.dtime,
             zmin=self.__parameters.zmin,
             n_levels=self.__parameters.nz,
             delta_z=self.__parameters.deltaz,

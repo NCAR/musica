@@ -48,7 +48,6 @@ def test_carma_instance():
 
     state.set_bin(1, 1, 1.0)
     state.set_detrain(1, 1, 1.0)
-    carma.run()
     state.set_gas(1, 1.4e-3)
     state.set_temperature(300.0)
     state.set_air_density(1.2)
@@ -56,28 +55,19 @@ def test_carma_instance():
                ocean=musica.carma.CARMASurfaceProperties(
                    aerodynamic_resistance=0.1),
                ice=musica.carma.CARMASurfaceProperties(area_fraction=0.2))
-    # print(state.get_step_statistics())
-    # print(state.get_bin(1, 1))
-    # print(state.get_detrain(1, 1))
-    # print(state.get_environmental_values())
-    # print(state.get_gas(1))
-    # print(carma.get_group_properties(1))
-    # print(carma.get_element_properties(1))
-    # print(carma.get_gas_properties(1))
+    print(state.get_step_statistics())
+    print(state.get_bin(1, 1))
+    print(state.get_detrain(1, 1))
+    print(state.get_environmental_values())
+    print(state.get_gas(1))
+    print(carma.get_group_properties(1))
+    print(carma.get_element_properties(1))
+    print(carma.get_gas_properties(1))
 
-
-def test_carma_with_default_parameters():
-    """Test CARMA with default parameters - mimics RunCarmaWithDefaultParameters C++ test"""
-    default_params = musica.CARMAParameters()
-    carma = musica.CARMA(default_params)
-
-    # Test that we can run CARMA with default parameters without throwing
-    output = carma.run()
-    assert output is not None
 
 
 def test_carma_with_all_components():
-    """Test CARMA with multiple groups, elements, solutes, and gases - mimics RunCarmaWithAllComponents C++ test"""
+    """Test CARMA with multiple groups, elements, solutes, and gases"""
     params = musica.CARMAParameters()
     params.nz = 2
     params.ny = 1
@@ -246,38 +236,6 @@ def test_carma_with_all_components():
 
     # Create CARMA instance and run
     carma = musica.CARMA(params)
-    output = carma.run()
-
-    # Verify basic output structure exists
-    assert output is not None
-    assert hasattr(output, 'lat')
-    assert hasattr(output, 'lon')
-    assert hasattr(output, 'z')
-    assert hasattr(output, 'pressure')
-    assert hasattr(output, 'temperature')
-    assert hasattr(output, 'air_density')
-
-    # Verify dimensions match parameters
-    assert len(output.lat) == params.ny
-    assert len(output.lon) == params.nx
-    assert len(output.z) == params.nz
-    assert len(output.pressure) == params.nz
-    assert len(output.temperature) == params.nz
-    assert len(output.air_density) == params.nz
-
-    # Verify 3D particle arrays exist and have reasonable structure
-    assert hasattr(output, 'particle_concentration')
-    assert hasattr(output, 'mass_mixing_ratio')
-    assert len(output.particle_concentration) == params.nz
-    assert len(output.mass_mixing_ratio) == params.nz
-
-    # Verify that the output contains data for the configured number of elements
-    assert len(output.particle_concentration[0]) == params.nbin
-    # Should have data for all configured elements
-    assert len(output.particle_concentration[0][0]) == len(params.elements)
-
-    # print(f"Successfully ran CARMA with {len(params.groups)} groups and {len(params.elements)} elements")
-
 
 if __name__ == '__main__':
     pytest.main([__file__])
