@@ -4,8 +4,8 @@
   "species": [
     {
       "name": "A",
-      "diffusion coefficient [m2 s-1]": 1.46E-05,
-      "molecular weight [kg mol-1]": 0.0340147,
+      "diffusion coefficient [m2 s-1]": 1.0e-05,
+      "molecular weight [kg mol-1]": 0.02897,
       "__absolute tolerance": 1.0e-30
     },
     {
@@ -49,7 +49,7 @@
       "__absolute tolerance": 1.0e-10
     },
     {
-      "name": "H2O_aq",
+      "name": "H2O",
       "density [kg m-3]": 1000.0,
       "molecular weight [kg mol-1]": 0.01801
     },
@@ -73,14 +73,15 @@
         "A",
         "B",
         "C",
-        "ethanol"
+        "ethanol",
+        "H2O2"
       ]
     },
     {
-      "name": "aqueous aerosol",
+      "name": "aqueous",
       "species": [
         "H2O2_aq",
-        "H2O_aq",
+        "H2O",
         "ethanol_aq",
         "A",
         "B",
@@ -95,29 +96,58 @@
       ]
     },
     {
-      "name": "cloud",
+      "name": "organic",
       "species": [
         "B",
         "C"
       ]
     }
   ],
+  "models": [
+    {
+      "name": "gas",
+      "type": "GAS_PHASE",
+      "phase": "gas"
+    },
+    {
+      "name": "aqueous",
+      "type": "MODAL",
+      "modes": [
+        {
+          "name": "aitken",
+          "geometric mean diameter [m]": 2.6e-8,
+          "geometric standard deviation": 1.6,
+          "phases": "aqueous"
+        },
+        {
+          "name": "accumulation",
+          "geometric mean diameter [m]": 1.1e-7,
+          "geometric standard deviation": 1.8,
+          "phases": ["aqueous", "organic"]
+        }
+      ]
+    }
+  ],
   "reactions": [
     {
       "type": "HL_PHASE_TRANSFER",
-      "gas phase": "gas",
-      "gas-phase species": "H2O2",
-      "aerosol phase": "aqueous aerosol",
-      "aerosol-phase species": "H2O2_aq",
-      "aerosol-phase water": "H2O_aq",
+      "gas": {
+        "name": "gas",
+        "species": ["H2O2"]
+      },
+      "particle": {
+        "phase": "aqueous",
+        "solutes": ["H2O2_aq"],
+        "solvent": "H2O"
+      },
       "name": "my henry's law"
     },
     {
       "type": "SIMPOL_PHASE_TRANSFER",
       "gas phase": "gas",
       "gas-phase species": "ethanol",
-      "aerosol phase": "aqueous aerosol",
-      "aerosol-phase species": "ethanol_aq",
+      "aqueous phase": "aqueous",
+      "aqueous-phase species": "ethanol_aq",
       "B": [
         -1.97E+03,
         2.91E+00,
@@ -128,8 +158,7 @@
     },
     {
       "type": "AQUEOUS_EQUILIBRIUM",
-      "aerosol phase": "aqueous aerosol",
-      "aerosol-phase water": "H2O_aq",
+      "aqueous phase": "aqueous",
       "A": 1.14e-2,
       "C": 2300.0,
       "k_reverse": 0.32,
@@ -153,8 +182,7 @@
     },
     {
       "type": "CONDENSED_PHASE_ARRHENIUS",
-      "aerosol phase": "aqueous aerosol",
-      "aerosol-phase water": "H2O_aq",
+      "aqueous phase": "aqueous",
       "A": 123.45,
       "Ea": 123.45,
       "B": 1.3,
@@ -166,7 +194,7 @@
           "coefficient": 1
         },
         {
-          "species name": "H2O_aq",
+          "species name": "H2O",
           "coefficient": 1
         }
       ],
@@ -180,8 +208,7 @@
     },
     {
       "type": "CONDENSED_PHASE_ARRHENIUS",
-      "aerosol phase": "aqueous aerosol",
-      "aerosol-phase water": "H2O_aq",
+      "aqueous phase": "aqueous",
       "A": 123.45,
       "C": 123.45,
       "B": 1.3,
@@ -193,7 +220,7 @@
           "coefficient": 1
         },
         {
-          "species name": "H2O_aq",
+          "species name": "H2O",
           "coefficient": 1
         }
       ],
@@ -203,12 +230,11 @@
           "coefficient": 1
         }
       ],
-      "name": "my condensed arrhenius"
+      "name": "my other condensed arrhenius"
     },
     {
       "type": "CONDENSED_PHASE_PHOTOLYSIS",
-      "aerosol phase": "aqueous aerosol",
-      "aerosol-phase water": "H2O_aq",
+      "aqueous phase": "aqueous",
       "reactants": [
         {
           "species name": "H2O2_aq",
@@ -281,7 +307,7 @@
           "coefficient": 1
         }
       ],
-      "aerosol phase": "surface reacting phase",
+      "aqueous phase": "surface reacting phase",
       "name": "my surface"
     },
     {
@@ -362,7 +388,7 @@
     },
     {
       "type": "WET_DEPOSITION",
-      "aerosol phase": "cloud",
+      "aqueous phase": "aqueous",
       "name": "rxn cloud",
       "scaling factor": 12.3
     },
@@ -387,6 +413,50 @@
       "D": 63.4,
       "E": -1.3,
       "name": "my arrhenius"
+    },
+    {
+      "type": "ARRHENIUS",
+      "gas phase": "gas",
+      "reactants": [
+        {
+          "species name": "A",
+          "coefficient": 1
+        }
+      ],
+      "products": [
+        {
+          "species name": "B",
+          "coefficient": 1.2
+        }
+      ],
+      "A": 29.3,
+      "B": -1.5,
+      "Ea": 101.2,
+      "D": 82.6,
+      "E": -0.98,
+      "name": "my other arrhenius"
+    },
+    {
+      "type": "USER_DEFINED",
+      "gas phase": "gas",
+      "reactants": [
+        {
+          "species name": "A",
+          "coefficient": 1
+        },
+        {
+          "species name": "B",
+          "coefficient": 1
+        }
+      ],
+      "products": [
+        {
+          "species name": "C",
+          "coefficient": 1.3
+        }
+      ],
+      "name": "my user defined",
+      "scaling factor": 12.3
     }
   ]
 }
