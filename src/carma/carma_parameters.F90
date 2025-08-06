@@ -176,16 +176,11 @@ module carma_parameters_mod
    type, bind(c) :: carma_parameters_t
 
       ! Model dimensions
-      integer(c_int) :: nz = 1
       integer(c_int) :: nbin = 5
+      integer(c_int) :: nz = 1
 
       ! Time stepping parameters
       real(c_double) :: dtime = 1800.0_real64
-      integer(c_int) :: nstep = 100
-
-      ! Spatial parameters
-      real(c_double) :: deltaz = 1000.0_real64
-      real(c_double) :: zmin = 16500.0_real64
 
       ! Wavelength grid
       type(c_ptr) :: wavelength_bins  ! wavelength_bins(NWAVE)

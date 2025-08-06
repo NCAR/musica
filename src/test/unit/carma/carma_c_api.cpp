@@ -38,8 +38,6 @@ TEST_F(CarmaCApiTest, CreateWithParams)
   params.nz = 2;
   params.nbin = 3;
   params.dtime = 900.0;
-  params.deltaz = 500.0;
-  params.zmin = 1000.0;
 
   // Set up wavelength bins
   params.wavelength_bins = {
@@ -203,11 +201,8 @@ TEST_F(CarmaCApiTest, CreateWithAluminumTestParams)
   CARMA carma{ params };
 
   // Verify the aluminum test parameters are set correctly
-  EXPECT_EQ(params.nz, 1);
   EXPECT_EQ(params.nbin, 5);
   EXPECT_EQ(params.dtime, 1800.0);
-  EXPECT_EQ(params.deltaz, 1000.0);
-  EXPECT_EQ(params.zmin, 16500.0);
   EXPECT_EQ(params.wavelength_bins.size(), 5);
   EXPECT_EQ(params.number_of_refractive_indices, 1);
 }

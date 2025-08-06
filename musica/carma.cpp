@@ -100,12 +100,6 @@ void bind_carma(py::module_& carma)
           params.nbin = params_dict["nbin"].cast<int>();
         if (params_dict.contains("dtime"))
           params.dtime = params_dict["dtime"].cast<double>();
-        if (params_dict.contains("nstep"))
-          params.nstep = static_cast<int>(params_dict["nstep"].cast<float>());
-        if (params_dict.contains("deltaz"))
-          params.deltaz = params_dict["deltaz"].cast<double>();
-        if (params_dict.contains("zmin"))
-          params.zmin = params_dict["zmin"].cast<double>();
 
         // Handle groups configuration
         if (params_dict.contains("groups"))

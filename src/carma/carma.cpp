@@ -146,12 +146,9 @@ namespace musica
     CCARMAParameters* c_params = new CCARMAParameters();
 
     // Copy simple scalar values
-    c_params->nz = params.nz;
     c_params->nbin = params.nbin;
     c_params->dtime = params.dtime;
-    c_params->nstep = params.nstep;
-    c_params->deltaz = params.deltaz;
-    c_params->zmin = params.zmin;
+    c_params->nz = params.nz;  // Add nz parameter
 
     // Handle wavelength grid
     if (!params.wavelength_bins.empty())
@@ -590,11 +587,8 @@ namespace musica
     CARMAParameters params;
 
     // Set default values for the aluminum test case
-    params.nz = 1;
     params.nbin = 5;
     params.dtime = 1800.0;   // 30 minutes
-    params.deltaz = 1000.0;  // 1 km
-    params.zmin = 16500.0;   // 16.5 km
 
     // Wavelength grid
     params.wavelength_bins = {

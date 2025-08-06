@@ -190,16 +190,11 @@ namespace musica
     struct CCARMAParameters
     {
       // Model dimensions
-      int nz;
       int nbin;
+      int nz;
 
       // Time stepping parameters
       double dtime;
-      int nstep;
-
-      // Spatial parameters
-      double deltaz;
-      double zmin;
 
       // Wavelength grid
       CARMAWavelengthBinC* wavelength_bins;  // Pointer to wavelength bins array

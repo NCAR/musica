@@ -2,6 +2,7 @@ import xarray as xr
 import numpy as np
 import pytest
 import musica
+import ussa1976
 
 available = musica.backend.carma_available()
 pytestmark = pytest.mark.skipif(
@@ -35,7 +36,7 @@ def _extract_scalar_bin_data(data, key, nbin, nelem):
         result.append(step_data)
     return result
 
-def extract_data(params, state, env, bin_data, time_array):
+def extract_data(params, state, env, bin_data, time_array, vertical_center, vertical_levels):
     nz = params.nz
     nbin = params.nbin
     nelem = len(params.elements)
@@ -45,10 +46,6 @@ def extract_data(params, state, env, bin_data, time_array):
 
     # Create coordinates
     coords = {}
-
-    # Spatial coordinates
-    vertical_center = state.vertical_center
-    vertical_levels = state.vertical_levels
 
     coords['lat'] = ('y', [state.latitude])
     coords['lon'] = ('x', [state.longitude])
@@ -160,16 +157,35 @@ def extract_bin_data_for_timestep(params, state):
 def test_carma_aluminum():
     # Test CARMA instance creation
     params = musica.CARMAParameters.create_aluminum_test_config()
+    n_levels = params.nz
+    deltaz=1000.0
+    zmin=16500.0
+
+    vertical_center = zmin + (np.arange(n_levels) + 0.5) * deltaz
+    vertical_levels = zmin + np.arange(n_levels + 1) * deltaz
+
+    centered_variables = ussa1976.compute(z=vertical_center, variables=["t", "p", "rho"])
+    edge_variables = ussa1976.compute(z=vertical_levels, variables=["p"])
+
+    temperature = centered_variables.t.values
+    pressure = centered_variables.p.values
+    pressure_levels = edge_variables.p.values
+    density = centered_variables.rho.values
 
     carma = musica.CARMA(params)
 
+    mmr_initial = 5e9 / (deltaz * 2.57474699e14) / density[0]
+
     state = carma.create_state(
+        temperature=temperature,
+        pressure=pressure,
+        pressure_levels=pressure_levels,
+        vertical_center=vertical_center,
+        vertical_levels=vertical_levels,
         longitude=0.0,
         latitude=-105.0,
         coordinates=musica.carma.CarmaCoordinates.CARTESIAN,
     )
-
-    mmr_initial = 5e9 / (params.deltaz * 2.57474699e14) / state.get_environmental_values()["air_density"][0]
 
     for i in range(params.nbin):
         for j in range(len(params.elements)):
@@ -186,7 +202,7 @@ def test_carma_aluminum():
         env.append(state.get_environmental_values())
         time_array.append(step * params.dtime)
 
-    ds = extract_data(params, state, env, bin_data, time_array)
+    ds = extract_data(params, state, env, bin_data, time_array, vertical_center, vertical_levels)
     print(ds)
 
 if __name__ == '__main__':

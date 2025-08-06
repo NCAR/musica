@@ -297,16 +297,11 @@ namespace musica
   struct CARMAParameters
   {
     // Model dimensions
-    int nz = 1;
     int nbin = 5;
+    int nz = 1;  // Number of vertical levels
 
     // Time stepping parameters
     double dtime = 1800.0;
-    int nstep = 100;
-
-    // Spatial parameters
-    double deltaz = 1000.0;
-    double zmin = 16500.0;
 
     // Wavelength grid
     std::vector<CARMAWavelengthBin> wavelength_bins;  // Wavelength bins

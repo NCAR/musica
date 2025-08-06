@@ -1122,7 +1122,7 @@ contains
       type(carma_type), pointer :: carma
 
       ! Model dimensions
-      integer :: NZ, NY, NX, NZP1, NELEM, NGROUP, NBIN, NSOLUTE, NGAS, NWAVE
+      integer :: NELEM, NGROUP, NBIN, NSOLUTE, NGAS, NWAVE
 
       ! Loop indices
       integer :: iwave, ielem, igroup, isolute, igas, icoag, igrowth, inucleation

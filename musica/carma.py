@@ -11,7 +11,6 @@ from typing import Dict, Optional, List, Union, Any, Tuple
 from ctypes import c_void_p
 import numpy as np
 import xarray as xr
-import ussa1976
 from enum import Enum
 from . import backend
 
@@ -605,12 +604,9 @@ class CARMAParameters:
     """
 
     def __init__(self,
-                 nz: int = 1,
                  nbin: int = 5,
+                 nz: int = 1,
                  dtime: float = 1800.0,
-                 nstep: int = 100,
-                 deltaz: float = 1000.0,
-                 zmin: float = 16500.0,
                  wavelength_bins: Optional[List[CARMAWavelengthBin]] = None,
                  groups: Optional[List[CARMAGroupConfig]] = None,
                  elements: Optional[List[CARMAElementConfig]] = None,
@@ -624,12 +620,9 @@ class CARMAParameters:
         Initialize CARMA parameters.
 
         Args:
-            nz: Number of vertical levels (default: 1)
             nbin: Number of size bins (default: 5)
+            nz: Number of vertical levels (default: 1)
             dtime: Time step in seconds (default: 1800.0)
-            nstep: Number of time steps (default: 100)
-            deltaz: Vertical grid spacing in meters (default: 1000.0)
-            zmin: Minimum altitude in meters (default: 16500.0)
             wavelength_bins: List of CARMAWavelengthBin objects defining the wavelength grid (default: None)
             groups: List of group configurations (default: None)
             elements: List of element configurations (default: None)
@@ -640,12 +633,9 @@ class CARMAParameters:
             nucleations: List of nucleation configurations (default: None)
             initialization: Initialization configuration (default: None)
         """
-        self.nz = nz
         self.nbin = nbin
         self.dtime = dtime
-        self.nstep = nstep
-        self.deltaz = deltaz
-        self.zmin = zmin
+        self.nz = nz
 
         # Initialize lists
         self.wavelength_bins = wavelength_bins or []
@@ -696,15 +686,21 @@ class CARMAParameters:
 
     def __repr__(self):
         """String representation of CARMAParameters."""
-        return (f"CARMAParameters(nz={self.nz}, "
-                f"nbin={self.nbin}, dtime={self.dtime}, "
-                f"nstep={self.nstep}, deltaz={self.deltaz}, zmin={self.zmin})")
+        return (f"CARMAParameters(nbin={self.nbin}, dtime={self.dtime}, nz={self.nz}, "
+                f"wavelength_bins={len(self.wavelength_bins)}, "
+                f"groups={len(self.groups)}, elements={len(self.elements)}, "
+                f"solutes={len(self.solutes)}, gases={len(self.gases)}, "
+                f"coagulations={len(self.coagulations)}, growths={len(self.growths)}, "
+                f"nucleations={len(self.nucleations)})")
 
     def __str__(self):
         """String representation of CARMAParameters."""
-        return (f"CARMAParameters(nz={self.nz}, "
-                f"nbin={self.nbin}, dtime={self.dtime}, "
-                f"nstep={self.nstep}, deltaz={self.deltaz}, zmin={self.zmin})")
+        return (f"CARMAParameters(nbin={self.nbin}, dtime={self.dtime}, nz={self.nz}, "
+                f"wavelength_bins={len(self.wavelength_bins)}, "
+                f"groups={len(self.groups)}, elements={len(self.elements)}, "
+                f"solutes={len(self.solutes)}, gases={len(self.gases)}, "
+                f"coagulations={len(self.coagulations)}, growths={len(self.growths)}, "
+                f"nucleations={len(self.nucleations)})")
 
     def to_dict(self) -> Dict:
         """Convert parameters to dictionary for C++ interface."""
@@ -852,10 +848,8 @@ class CARMAParameters:
             algorithm=ParticleCollectionAlgorithm.FUCHS)
 
         params = cls(
-            nz=1,
             nbin=5,
-            deltaz=1000.0,
-            zmin=16500.0,
+            nz=1,
             dtime=1800.0,
             groups=[group],
             elements=[element],
@@ -921,63 +915,47 @@ class CARMAState:
 
     def __init__(self,
                  carma_pointer: c_void_p,
+                 vertical_center: Optional[List[float]],
+                 vertical_levels: Optional[List[float]],
+                 temperature: Optional[List[float]],
+                 pressure: Optional[List[float]],
+                 pressure_levels: Optional[List[float]],
                  time_step: float = 0.0,
                  latitude: float = 0.0,
                  longitude: float = 0.0,
                  coordinates: CarmaCoordinates = CarmaCoordinates.CARTESIAN,
-                 zmin: float = 0.0,
-                 n_levels: int = 1,
-                 delta_z: float = 1000.0,
-                 temperature: Optional[List[float]] = None,
-                 pressure: Optional[List[float]] = None,
-                 pressure_levels: Optional[List[float]] = None,
                  ):
         """
         Initialize a CARMAState instance.
 
         Args:
             carma_pointer: Pointer to the CARMA C++ instance
+            vertical_center: Optional list of vertical centers (default: None)
+            vertical_levels: Optional list of vertical levels (default: None). If None, will be
+            temperature: Optional list of temperatures at vertical centers (default: None). If None, will be derived from the US Standard Atmosphere model.
+            pressure: Optional list of pressures at vertical centers (default: None). If None, will be derived from the US Standard Atmosphere model.
+            pressure_levels: Optional list of pressures at vertical levels (default: None). If None, will be derived from the US Standard Atmosphere model.
             time_step: Time step in seconds (default: 0.0)
             latitude: Latitude in degrees (default: 0.0)
             longitude: Longitude in degrees (default: 0.0)
             coordinates: Coordinate system for the simulation (default: Cartesian)
-            zmin: Minimum altitude in meters (default: 0.0)
-            n_levels: Number of vertical levels (default: 1)
-            delta_z: Vertical grid spacing in meters (default: 1000.0)
-            temperature: Optional list of temperatures at vertical centers (default: None). If None, will be derived from the US Standard Atmosphere model.
-            pressure: Optional list of pressures at vertical centers (default: None). If None, will be derived from the US Standard Atmosphere model.
-            pressure_levels: Optional list of pressures at vertical levels (default: None). If None, will be derived from the US Standard Atmosphere model.
         """
-        self.n_levels = n_levels
-        self.vertical_center = zmin + (np.arange(n_levels) + 0.5) * delta_z
-        self.vertical_levels = zmin + np.arange(n_levels + 1) * delta_z
         self.latitude = latitude
         self.longitude = longitude
         self.coordinates = coordinates
-
-        centered_variables = ussa1976.compute(
-            z=self.vertical_center, variables=["t", "p", "rho"])
-        edge_variables = ussa1976.compute(z=self.vertical_levels, variables=["p"])
-
-        # Get standard atmosphere properties at these heights
-        if temperature is None:
-            temperature = centered_variables.t.values
-        if pressure is None:
-            pressure = centered_variables.p.values
-        if pressure_levels is None:
-            pressure_levels = edge_variables.p.values
+        self.n_levels = len(vertical_center)
 
         self._carma_state_instance = _backend._carma._create_carma_state(
             carma_pointer=carma_pointer,
+            temperature=temperature,
+            pressure=pressure,
+            pressure_levels=pressure_levels,
+            vertical_center=vertical_center,
+            vertical_levels=vertical_levels,
             time_step=time_step,
             latitude=latitude,
             longitude=longitude,
             coordinates=coordinates.value,
-            temperature=temperature,
-            pressure=pressure,
-            pressure_levels=pressure_levels,
-            vertical_center=self.vertical_center.tolist(),
-            vertical_levels=self.vertical_levels.tolist(),
         )
 
     def __del__(self):
@@ -1238,9 +1216,6 @@ class CARMA:
         return CARMAState(
             self._carma_instance,
             time_step=self.__parameters.dtime,
-            zmin=self.__parameters.zmin,
-            n_levels=self.__parameters.nz,
-            delta_z=self.__parameters.deltaz,
             **kwargs
         )
 
