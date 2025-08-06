@@ -170,7 +170,7 @@ contains
          call CARMASTATE_Create( &
             cstate=cstate, &
             carma_ptr=carma, &
-            time=0.0_real64, & ! This paramter doesn't actually matter in carma and need not be set
+            time=0.0_real64, & ! This parameter doesn't actually matter in carma and need not be set
             dtime=carma_state_params%time_step, &
             NZ=carma_params%nz, &
             igridv=carma_state_params%coordinates, &
