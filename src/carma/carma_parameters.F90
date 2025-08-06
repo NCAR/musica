@@ -147,6 +147,7 @@ module carma_parameters_mod
       logical(c_bool) :: do_clearsky
       logical(c_bool) :: do_partialinit
       logical(c_bool) :: do_coremasscheck
+      integer(c_int) :: sulfnucl_method
       real(c_double) :: vf_const
       integer(c_int) :: minsubsteps
       integer(c_int) :: maxsubsteps

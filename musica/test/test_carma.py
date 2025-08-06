@@ -35,6 +35,8 @@ def test_carma_instance():
     assert isinstance(carma, musica.CARMA)
 
     state = carma.create_state(
+        time=0.0,
+        time_step=900.0,  # 15 minutes
         longitude=0.0,
         latitude=0.0,
         temperature=[300.0, 280.0],

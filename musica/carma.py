@@ -135,6 +135,13 @@ class ParticleNucleationAlgorithm(Enum):
     HETEROGENEOUS_SULFURIC_ACID_NUCLEATION = 16384
 
 
+class SulfateNucleationMethod(Enum):
+    """Enumeration for sulfate nucleation methods used in CARMA."""
+    NONE = 0
+    ZHAO_TURCO = 1
+    VEHKAMAKI = 2
+
+
 class CarmaCoordinates(Enum):
     """Enumeration for CARMA coordinates."""
     CARTESIAN = 1
@@ -524,6 +531,7 @@ class CARMAInitializationConfig:
                  do_clearsky: bool = False,
                  do_partialinit: bool = False,
                  do_coremasscheck: bool = False,
+                 sulfnucl_method: SulfateNucleationMethod = SulfateNucleationMethod.NONE,
                  vf_const: float = 0.0,
                  minsubsteps: int = 1,
                  maxsubsteps: int = 1,
@@ -553,6 +561,7 @@ class CARMAInitializationConfig:
             do_clearsky: Do clear sky growth and coagulation (default: False)
             do_partialinit: Do initialization of coagulation from reference atmosphere (requires do_fixedinit) (default: False)
             do_coremasscheck: Check core mass for particles (default: False)
+            sulfnucl_method: Method for sulfate nucleation (default: SulfateNucleationMethod.NONE)
             vf_const: Constant fall velocity [m/s] (0: off) (default: 0.0)
             minsubsteps: Minimum number of substeps (default: 1)
             maxsubsteps: Maximum number of substeps (default: 1)
@@ -579,6 +588,7 @@ class CARMAInitializationConfig:
         self.do_clearsky = do_clearsky
         self.do_partialinit = do_partialinit
         self.do_coremasscheck = do_coremasscheck
+        self.sulfnucl_method = sulfnucl_method
         self.vf_const = vf_const
         self.minsubsteps = minsubsteps
         self.maxsubsteps = maxsubsteps
@@ -591,8 +601,8 @@ class CARMAInitializationConfig:
         self.tstick = tstick
 
     def to_dict(self) -> Dict:
-        """Convert to dictionary."""
-        return {k: v for k, v in self.__dict__.items()}
+        """Convert to dictionary, converting Enums to ints."""
+        return {k: (v.value if isinstance(v, Enum) else v) for k, v in self.__dict__.items()}
 
 
 class CARMAParameters:
@@ -1091,6 +1101,7 @@ class CARMAState:
     def __init__(self,
                  carma_pointer: c_void_p,
                  time: float = 0.0,
+                 time_step: float = 0.0,
                  latitude: float = 0.0,
                  longitude: float = 0.0,
                  coordinates: CarmaCoordinates = CarmaCoordinates.CARTESIAN,
@@ -1107,6 +1118,7 @@ class CARMAState:
         Args:
             carma_pointer: Pointer to the CARMA C++ instance
             time: Simulation time in seconds (default: 0.0)
+            time_step: Time step in seconds (default: 0.0)
             latitude: Latitude in degrees (default: 0.0)
             longitude: Longitude in degrees (default: 0.0)
             coordinates: Coordinate system for the simulation (default: Cartesian)
@@ -1136,6 +1148,7 @@ class CARMAState:
         self._carma_state_instance = _backend._carma._create_carma_state(
             carma_pointer=carma_pointer,
             time=time,
+            time_step=time_step,
             latitude=latitude,
             longitude=longitude,
             coordinates=coordinates.value,

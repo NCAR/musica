@@ -87,6 +87,12 @@ void bind_carma(py::module_& carma)
       .value("OTHER", musica::ParticleComposition::OTHER)
       .export_values();
 
+  py::enum_<musica::SulfateNucleationMethod>(carma, "SulfateNucleationMethod")
+      .value("NONE", musica::SulfateNucleationMethod::NONE)
+      .value("ZHAO_TURCO", musica::SulfateNucleationMethod::ZHAO_TURCO)
+      .value("VEHKAMAKI", musica::SulfateNucleationMethod::VEHKAMAKI)
+      .export_values();
+
   carma.def(
       "_create_carma",
       [](py::dict params_dict)
@@ -134,14 +140,22 @@ void bind_carma(py::module_& carma)
               if (group_dict.contains("eshape"))
                 group.eshape = group_dict["eshape"].cast<double>();
               if (group_dict.contains("swelling_approach"))
-                if (group_dict["swelling_approach"].contains("algorithm") &&
-                    group_dict["swelling_approach"].contains("composition"))
+              {
+                auto swell_py = group_dict["swelling_approach"];
+                if (py::isinstance<py::dict>(swell_py))
                 {
-                  group.swelling_approach.algorithm = static_cast<musica::ParticleSwellingAlgorithm>(
-                      group_dict["swelling_approach"]["algorithm"].cast<int>());
-                  group.swelling_approach.composition = static_cast<musica::ParticleSwellingComposition>(
-                      group_dict["swelling_approach"]["composition"].cast<int>());
+                  auto swell_dict = swell_py.cast<py::dict>();
+                  if (swell_dict.contains("algorithm"))
+                    group.swelling_approach.algorithm = static_cast<musica::ParticleSwellingAlgorithm>(
+                        swell_dict["algorithm"].cast<int>());
+                  if (swell_dict.contains("composition"))
+                    group.swelling_approach.composition = static_cast<musica::ParticleSwellingComposition>(
+                        swell_dict["composition"].cast<int>());
+                } else {
+                  throw py::type_error(
+                      "Expected 'swelling_approach' to be a dictionary with 'algorithm' and 'composition' keys");
                 }
+              }
               if (group_dict.contains("fall_velocity_routine"))
                 group.fall_velocity_routine =
                     static_cast<musica::FallVelocityAlgorithm>(group_dict["fall_velocity_routine"].cast<int>());
@@ -461,6 +475,9 @@ void bind_carma(py::module_& carma)
               params.initialization.do_partialinit = initialization_dict["do_partialinit"].cast<bool>();
             if (initialization_dict.contains("do_coremasscheck"))
               params.initialization.do_coremasscheck = initialization_dict["do_coremasscheck"].cast<bool>();
+            if (initialization_dict.contains("sulfnucl_method"))
+              params.initialization.sulfnucl_method =
+                  static_cast<musica::SulfateNucleationMethod>(initialization_dict["sulfnucl_method"].cast<int>());
             if (initialization_dict.contains("vf_const"))
               params.initialization.vf_const = initialization_dict["vf_const"].cast<double>();
             if (initialization_dict.contains("minsubsteps"))
@@ -647,6 +664,8 @@ void bind_carma(py::module_& carma)
       {
         // Helper lambdas for robust flexible casting
         musica::CARMAStateParameters params;
+        params.time = kwargs.contains("time") ? kwargs["time"].cast<double>() : 0.0;
+        params.time_step = kwargs.contains("time_step") ? kwargs["time_step"].cast<double>() : 0.0;
         params.longitude = kwargs.contains("longitude") ? kwargs["longitude"].cast<double>() : 0.0;
         params.latitude = kwargs.contains("latitude") ? kwargs["latitude"].cast<double>() : 0.0;
         params.coordinates = kwargs.contains("coordinates")

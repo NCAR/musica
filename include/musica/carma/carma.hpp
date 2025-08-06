@@ -140,6 +140,13 @@ namespace musica
     HETEROGENEOUS_SULFURIC_ACID_NUCLEATION = 16384  // Heterogeneous sulfuric acid nucleation
   };
 
+  enum class SulfateNucleationMethod
+  {
+    NONE = 0,          // No sulfate nucleation
+    ZHAO_TURCO = 1,    // Zhao and Turco sulfate nucleation
+    VEHKAMAKI = 2      // Vehkamaki et al. sulfate nucleation
+  };
+
   // Structure representing a wavelength bin
   struct CARMAWavelengthBin
   {
@@ -281,6 +288,7 @@ namespace musica
     bool do_clearsky = false;       // do clear sky growth and coagulation
     bool do_partialinit = false;    // do initialization of coagulation from reference atmosphere (requires do_fixedinit)
     bool do_coremasscheck = false;  // check core mass for particles
+    SulfateNucleationMethod sulfnucl_method = SulfateNucleationMethod::NONE;  // method for sulfate nucleation
     double vf_const = 0.0;          // constant fall velocity [m/s] (0: off)
     int minsubsteps = 1;            // minimum number of substeps
     int maxsubsteps = 1;            // maximum number of substeps

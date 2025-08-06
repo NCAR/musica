@@ -1183,6 +1183,7 @@ contains
 
       ! Nucleation parameters
       type(carma_nucleation_config_t), pointer :: nucleation_config(:)
+      character(len=:), allocatable :: sulfate_nucleation_method
 
       integer :: alloc_stat
 
@@ -1482,6 +1483,14 @@ contains
       end if
 
       ! Initialize CARMA with coagulation settings matching test_aluminum_simple
+      select case(int(params%initialization%sulfnucl_method))
+         case(1)
+            sulfate_nucleation_method = "ZhaoTurco"
+         case(2)
+            sulfate_nucleation_method = "Vehkamaki"
+         case default
+            sulfate_nucleation_method = "NONE"
+      end select
       call CARMA_Initialize( &
          carma, &
          rc, &
@@ -1511,7 +1520,8 @@ contains
          tstick=real(params%initialization%tstick, kind=real64), &
          do_clearsky=logical(params%initialization%do_clearsky), &
          do_partialinit=logical(params%initialization%do_partialinit), &
-         do_coremasscheck=logical(params%initialization%do_coremasscheck) &
+         do_coremasscheck=logical(params%initialization%do_coremasscheck), &
+         sulfnucl_method=sulfate_nucleation_method &
          )
       if (rc /= 0) then
          rc = MUSICA_CARMA_ERROR_CODE_INITIALIZATION_FAILED
