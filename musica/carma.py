@@ -1109,6 +1109,7 @@ class CARMAState:
                  n_levels: int = 1,
                  delta_z: float = 1000.0,
                  temperature: Optional[List[float]] = None,
+                 original_temperature: Optional[List[float]] = None,
                  pressure: Optional[List[float]] = None,
                  pressure_levels: Optional[List[float]] = None,
                  ):
@@ -1126,6 +1127,7 @@ class CARMAState:
             n_levels: Number of vertical levels (default: 1)
             delta_z: Vertical grid spacing in meters (default: 1000.0)
             temperature: Optional list of temperatures at vertical centers (default: None). If None, will be derived from the US Standard Atmosphere model.
+            original_temperature: Optional list of original temperatures at vertical centers (default: None). If None, will be set to the same as temperature.
             pressure: Optional list of pressures at vertical centers (default: None). If None, will be derived from the US Standard Atmosphere model.
             pressure_levels: Optional list of pressures at vertical levels (default: None). If None, will be derived from the US Standard Atmosphere model.
         """
@@ -1140,6 +1142,8 @@ class CARMAState:
         # Get standard atmosphere properties at these heights
         if temperature is None:
             temperature = centered_variables.t.values
+        if original_temperature is None:
+            original_temperature = temperature
         if pressure is None:
             pressure = centered_variables.p.values
         if pressure_levels is None:
@@ -1153,6 +1157,7 @@ class CARMAState:
             longitude=longitude,
             coordinates=coordinates.value,
             temperature=temperature,
+            original_temperature=original_temperature,
             pressure=pressure,
             pressure_levels=pressure_levels,
             vertical_center=vertical_center.tolist(),
@@ -1193,7 +1198,17 @@ class CARMAState:
         if np.isscalar(value):
             value = np.repeat(value, self.n_levels).tolist()
         elif not isinstance(value, list):
+            # Ensure value is a list of floats with length n_levels
+            if isinstance(value, np.ndarray):
+                value = value.tolist()
+        if not isinstance(value, list):
+            # Convert to list if not already
             value = list(value)
+        if len(value) != self.n_levels:
+            raise ValueError(
+                f"Value must be a scalar or a list of length {self.n_levels}, got length {len(value)}")
+        if not all(isinstance(v, float) for v in value):
+            raise ValueError("All elements in value must be floats")
         _backend._carma._set_bin(
             self._carma_state_instance, bin_index, element_index, value, surface_mass)
 

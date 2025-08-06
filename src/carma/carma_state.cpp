@@ -16,9 +16,10 @@ namespace musica
 
   CARMAState::CARMAState(const CARMA& carma, const CARMAStateParameters& params)
   {
-    this->nz = static_cast<int>(params.vertical_levels.size());
     CCARMAParameters* carma_params = carma.GetParameters();
     CARMAStateParametersC state_params;
+    this->nz = carma_params->nz;
+    int n_wavelength_bins = carma_params->wavelength_bin_size;
     state_params.time = params.time;
     state_params.time_step = params.time_step;
     state_params.longitude = params.longitude;
@@ -26,24 +27,47 @@ namespace musica
     state_params.coordinates = static_cast<int>(params.coordinates);
     state_params.vertical_center_size = static_cast<int>(params.vertical_center.size());
     state_params.vertical_center = params.vertical_center.empty() ? nullptr : params.vertical_center.data();
+    if (state_params.vertical_center != nullptr && state_params.vertical_center_size != this->nz)
+      throw std::invalid_argument("Vertical center heights size must match the number of vertical centers.");
     state_params.vertical_levels_size = static_cast<int>(params.vertical_levels.size());
     state_params.vertical_levels = params.vertical_levels.empty() ? nullptr : params.vertical_levels.data();
+    if (state_params.vertical_levels != nullptr && state_params.vertical_levels_size != this->nz+1)
+      throw std::invalid_argument("Vertical levels size must match the number of vertical levels.");
     state_params.temperature_size = static_cast<int>(params.temperature.size());
     state_params.temperature = params.temperature.empty() ? nullptr : params.temperature.data();
+    if (state_params.temperature != nullptr && state_params.temperature_size != this->nz)
+      throw std::invalid_argument("Temperature profile size must match the number of vertical centers.");
     state_params.pressure_size = static_cast<int>(params.pressure.size());
     state_params.pressure = params.pressure.empty() ? nullptr : params.pressure.data();
+    if (state_params.pressure != nullptr && state_params.pressure_size != this->nz)
+      throw std::invalid_argument("Pressure profile size must match the number of vertical centers.");
     state_params.pressure_levels_size = static_cast<int>(params.pressure_levels.size());
     state_params.pressure_levels = params.pressure_levels.empty() ? nullptr : params.pressure_levels.data();
+    if (state_params.pressure_levels != nullptr && state_params.pressure_levels_size != this->nz+1)
+      throw std::invalid_argument("Pressure levels size must match the number of vertical levels.");
     state_params.specific_humidity_size = static_cast<int>(params.specific_humidity.size());
     state_params.specific_humidity = params.specific_humidity.empty() ? nullptr : params.specific_humidity.data();
+    if (state_params.specific_humidity != nullptr && state_params.specific_humidity_size != this->nz)
+      throw std::invalid_argument("Specific humidity profile size must match the number of vertical centers.");
     state_params.relative_humidity_size = static_cast<int>(params.relative_humidity.size());
     state_params.relative_humidity = params.relative_humidity.empty() ? nullptr : params.relative_humidity.data();
+    if (state_params.relative_humidity != nullptr && state_params.relative_humidity_size != this->nz)
+      throw std::invalid_argument("Relative humidity profile size must match the number of vertical centers.");
     state_params.original_temperature_size = static_cast<int>(params.original_temperature.size());
     state_params.original_temperature = params.original_temperature.empty() ? nullptr : params.original_temperature.data();
+    if (state_params.original_temperature != nullptr && state_params.original_temperature_size != this->nz)
+      throw std::invalid_argument("Original temperature profile size must match the number of vertical centers.");
     state_params.radiative_intensity_dim_1_size = params.radiative_intensity_dim_1_size;
     state_params.radiative_intensity_dim_2_size = params.radiative_intensity_dim_2_size;
     state_params.radiative_intensity = params.radiative_intensity.empty() ? nullptr : params.radiative_intensity.data();
-
+    if (state_params.radiative_intensity != nullptr)
+    {
+      if (state_params.radiative_intensity_dim_1_size != n_wavelength_bins)
+        throw std::invalid_argument("Radiative intensity first dimension size must match the number of wavelength bins.");
+      if (state_params.radiative_intensity_dim_2_size != this->nz)
+        throw std::invalid_argument("Radiative intensity second dimension size must match the number of vertical centers.");
+    }
+    
     int rc;
     f_carma_state_ = InternalCreateCarmaState(
         carma.GetCarmaInstance(),

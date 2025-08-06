@@ -674,6 +674,7 @@ void bind_carma(py::module_& carma)
         params.vertical_center = to_vector_double(kwargs["vertical_center"]);
         params.vertical_levels = to_vector_double(kwargs["vertical_levels"]);
         params.temperature = to_vector_double(kwargs["temperature"]);
+        params.original_temperature = to_vector_double(kwargs["original_temperature"]);
         params.pressure = to_vector_double(kwargs["pressure"]);
         params.pressure_levels = to_vector_double(kwargs["pressure_levels"]);
 

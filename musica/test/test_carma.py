@@ -39,9 +39,9 @@ def test_carma_instance():
         time_step=900.0,  # 15 minutes
         longitude=0.0,
         latitude=0.0,
-        temperature=[300.0, 280.0],
-        pressure=[101335.0, 90000.0],
-        pressure_levels=[101325.0, 90050.0, 80000.0],
+        temperature=[280.0],
+        pressure=[90000.0],
+        pressure_levels=[101325.0, 90050.0],
         coordinates=musica.carma.CarmaCoordinates.CARTESIAN
     )
 

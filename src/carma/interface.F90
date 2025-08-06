@@ -267,11 +267,11 @@ contains
          call c_f_pointer(values_ptr, values, [values_size])
 
          call CARMASTATE_SetBin( &
-            cstate, &
-            bin_index, &
-            element_index, &
-            values, &
-            rc, &
+            cstate=cstate, &
+            ielem=element_index, &
+            ibin=bin_index, &
+            mmr=values, &
+            rc=rc, &
             surface=surface_mass)
          if (rc /= 0) then
             rc = MUSICA_CARMA_ERROR_CODE_SET_FAILED
@@ -316,7 +316,12 @@ contains
          call c_f_pointer(carma_state_cptr, cstate)
          call c_f_pointer(values_ptr, values, [values_size])
 
-         call CARMASTATE_SetDetrain(cstate, bin_index, element_index, values, rc)
+         call CARMASTATE_SetDetrain( &
+             cstate=cstate, &
+             ielem=element_index, &
+             ibin=bin_index, &
+             mmr=values, &
+             rc=rc)
          if (rc /= 0) then
             rc = MUSICA_CARMA_ERROR_CODE_SET_FAILED
             return
@@ -384,8 +389,15 @@ contains
          call c_f_pointer(carma_state_cptr, cstate)
          call c_f_pointer(values_ptr, values, [values_size])
 
-         call CARMASTATE_SetGas(cstate, gas_index, values, rc, old_mmr, gas_saturation_wrt_ice, gas_saturation_wrt_liquid)
-         
+         call CARMASTATE_SetGas( &
+             cstate=cstate, &
+             igas=gas_index, &
+             mmr=values, &
+             rc=rc, &
+             mmr_old=old_mmr, &
+             satice_old=gas_saturation_wrt_ice, &
+             satliq_old=gas_saturation_wrt_liquid)
+
          if (rc /= 0) then
             rc = MUSICA_CARMA_ERROR_CODE_SET_FAILED
             return
