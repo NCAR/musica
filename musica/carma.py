@@ -424,7 +424,7 @@ class CARMACoagulationConfig:
             igroup2: Second group index (default: 1)
             igroup3: Third group index (default: 1)
             algorithm: Coagulation algorithm (default: ParticleCollectionAlgorithm.CONSTANT)
-            ck0: Collection efficiency constant (default: -1.0). If -1.0, it will not be specified when setting up the coagualation process in carma
+            ck0: Collection efficiency constant (default: -1.0). If -1.0, it will not be specified when setting up the coagulation process in carma
             grav_e_coll0: Gravitational collection efficiency constant (default: 0.0)
             use_ccd: Whether to use constant collection efficiency data (default: False)
         """
