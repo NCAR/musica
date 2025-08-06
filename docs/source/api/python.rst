@@ -45,3 +45,21 @@ Musica Types
    :members:
    :undoc-members:
    :show-inheritance:
+
+TUVX
+----
+
+.. automodule:: musica.tuvx
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :private-members:
+
+CARMA
+-----
+
+.. automodule:: musica.carma
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :private-members:
