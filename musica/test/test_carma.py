@@ -35,13 +35,15 @@ def test_carma_instance():
     assert isinstance(carma, musica.CARMA)
 
     state = carma.create_state(
+        vertical_center=[16500.0],
+        vertical_levels=[16500.0, 17000.0],
+        pressure=[90000.0],
+        pressure_levels=[101325.0, 90050.0],
+        temperature=[280.0],
         time=0.0,
         time_step=900.0,  # 15 minutes
         longitude=0.0,
         latitude=0.0,
-        temperature=[280.0],
-        pressure=[90000.0],
-        pressure_levels=[101325.0, 90050.0],
         coordinates=musica.carma.CarmaCoordinates.CARTESIAN
     )
 
@@ -50,12 +52,12 @@ def test_carma_instance():
 
     state.set_bin(1, 1, 1.0)
     state.set_detrain(1, 1, 1.0)
-    carma.run()
     state.set_gas(1, 1.4e-3)
     state.set_temperature(300.0)
     state.set_air_density(1.2)
     state.step(land=musica.carma.CARMASurfaceProperties(surface_friction_velocity=0.42, area_fraction=0.3),
-               ocean=musica.carma.CARMASurfaceProperties(aerodynamic_resistance=0.1),
+               ocean=musica.carma.CARMASurfaceProperties(
+                   aerodynamic_resistance=0.1),
                ice=musica.carma.CARMASurfaceProperties(area_fraction=0.2))
     print(state.get_step_statistics())
     print(state.get_bin(1, 1))
@@ -67,18 +69,9 @@ def test_carma_instance():
     print(carma.get_gas_properties(1))
 
 
-def test_carma_with_default_parameters():
-    """Test CARMA with default parameters - mimics RunCarmaWithDefaultParameters C++ test"""
-    default_params = musica.CARMAParameters()
-    carma = musica.CARMA(default_params)
-
-    # Test that we can run CARMA with default parameters without throwing
-    output = carma.run()
-    assert output is not None
-
 
 def test_carma_with_all_components():
-    """Test CARMA with multiple groups, elements, solutes, and gases - mimics RunCarmaWithAllComponents C++ test"""
+    """Test CARMA with multiple groups, elements, solutes, and gases"""
     params = musica.CARMAParameters()
     params.nz = 2
     params.ny = 1
@@ -90,8 +83,10 @@ def test_carma_with_all_components():
 
     # Set up wavelength bins
     params.wavelength_bins = [
-        musica.carma.CARMAWavelengthBin(center=550e-9, width=50e-9, do_emission=True),   # 550 nm ± 25 nm
-        musica.carma.CARMAWavelengthBin(center=850e-9, width=100e-9, do_emission=True)  # 850 nm ± 50 nm
+        musica.carma.CARMAWavelengthBin(
+            center=550e-9, width=50e-9, do_emission=True),   # 550 nm ± 25 nm
+        musica.carma.CARMAWavelengthBin(
+            center=850e-9, width=100e-9, do_emission=True)  # 850 nm ± 50 nm
     ]
 
     # Group 1: Aluminum particles (sphere)
@@ -245,38 +240,6 @@ def test_carma_with_all_components():
 
     # Create CARMA instance and run
     carma = musica.CARMA(params)
-    output = carma.run()
-
-    # Verify basic output structure exists
-    assert output is not None
-    assert hasattr(output, 'lat')
-    assert hasattr(output, 'lon')
-    assert hasattr(output, 'z')
-    assert hasattr(output, 'pressure')
-    assert hasattr(output, 'temperature')
-    assert hasattr(output, 'air_density')
-
-    # Verify dimensions match parameters
-    assert len(output.lat) == params.ny
-    assert len(output.lon) == params.nx
-    assert len(output.z) == params.nz
-    assert len(output.pressure) == params.nz
-    assert len(output.temperature) == params.nz
-    assert len(output.air_density) == params.nz
-
-    # Verify 3D particle arrays exist and have reasonable structure
-    assert hasattr(output, 'particle_concentration')
-    assert hasattr(output, 'mass_mixing_ratio')
-    assert len(output.particle_concentration) == params.nz
-    assert len(output.mass_mixing_ratio) == params.nz
-
-    # Verify that the output contains data for the configured number of elements
-    assert len(output.particle_concentration[0]) == params.nbin
-    # Should have data for all configured elements
-    assert len(output.particle_concentration[0][0]) == len(params.elements)
-
-    print(f"Successfully ran CARMA with {len(params.groups)} groups and {len(params.elements)} elements")
-
 
 if __name__ == '__main__':
     pytest.main([__file__])

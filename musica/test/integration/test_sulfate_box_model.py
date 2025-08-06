@@ -1,3 +1,4 @@
+import pytest
 import musica
 from musica.constants import GAS_CONSTANT
 import musica.mechanism_configuration as mc
@@ -260,6 +261,12 @@ def run_box_model():
     dt = 30.0
     num_steps = int(time_seconds / dt)
 
+    # Set up the vertical grid in CARMA
+    zmin = 0.0
+    deltaz = 100.0
+    vertical_center = zmin + (np.arange(NUMBER_OF_GRID_CELLS) + 0.5) * deltaz
+    vertical_levels = zmin + np.arange(NUMBER_OF_GRID_CELLS + 1) * deltaz
+
     # Initialize state arrays
     sulfate_mmr = np.zeros((NUMBER_OF_AEROSOL_SECTIONS, NUMBER_OF_GRID_CELLS))
     carma_water = np.zeros(NUMBER_OF_GRID_CELLS)
@@ -279,13 +286,15 @@ def run_box_model():
         micm_output = state.get_concentrations()
 
         carma_state = carma.create_state(
+            vertical_center=vertical_center,
+            vertical_levels=vertical_levels,
+            temperature=current_temperature,
+            pressure=environmental_conditions["pressure"],
+            pressure_levels=environmental_conditions["pressure levels"],
             time=i_time * dt,
             time_step=dt,
             latitude=-40.0,
             longitude=-105.0,
-            temperature=current_temperature,
-            pressure=environmental_conditions["pressure"],
-            pressure_levels=environmental_conditions["pressure levels"]
         )
 
         for i_bin in range(NUMBER_OF_AEROSOL_SECTIONS):
@@ -294,7 +303,7 @@ def run_box_model():
                 element_index=1,  # Sulfate element index
                 value=sulfate_mmr[i_bin, :]
             )
-            
+
         carma_state.set_gas(
             gas_index=1,  # Water vapor gas index
             value=micm_output["H2O"] / environmental_conditions["air density"] * MOLECULAR_MASS_H2O / MOLECULAR_MASS_AIR,
@@ -330,20 +339,41 @@ def run_box_model():
         concentrations.append(micm_output)
 
 
-    # Plot H2SO4 concentration over time
+    # Collect output data
     concentrations = pd.DataFrame(concentrations)
-    time = np.linspace(0.0, time_hours, num_steps + 1)
-    plt.plot(time, [conc[0] for conc in concentrations["H2SO4"]])
+    times = np.arange(num_steps + 1) * dt / 3600.0  # Time in hours
+
+    return concentrations, times
+
+
+def test_sulfate_box_model():
+    # Test the sulfate box model implementation
+    run_box_model()
+
+
+def plot_results(concentrations, times):
+    """    Plots the results of the sulfate box model simulation.
+    Args:
+        concentrations (pd.DataFrame): DataFrame containing the concentrations of chemical species over time.
+        times (np.ndarray): Array of time values corresponding to the concentrations.
+    """
+    # Plot H2O and H2SO4 concentrations over time at the first grid cell
+    h2o_concentration = np.array([conc[0] for conc in [conc["H2O"] for _, conc in concentrations.iterrows()]])
+    h2so4_concentration = np.array([conc[0] for conc in [conc["H2SO4"] for _, conc in concentrations.iterrows()]])
+    plt.figure(figsize=(12, 6))
+    plt.plot(times, h2o_concentration, label="H2O Concentration (moles/m³)")
+    plt.plot(times, h2so4_concentration, label="H2SO4 Concentration (moles/m³)")
     plt.xlabel("Time (hours)")
-    plt.ylabel("H2SO4 Concentration (moles/m³)")
-    plt.title("Sulfate Box Model: H2SO4 Concentration Over Time")
+    plt.ylabel("Concentration (moles/m³)")
+    plt.title("Sulfate Box Model: H2O and H2SO4 Concentration Over Time")
+    plt.legend()
     plt.grid()
     plt.show()
 
-    # Plot sulfate mmr in each bin over time
-    sulfate_mmr = np.array([conc["SULFATE"] for conc in concentrations])
+    # Plot sulfate mmr in each bin over time at the first grid cell
+    sulfate_mmr = np.array([conc[0] for conc in [conc["SULFATE"] for _, conc in concentrations.iterrows()]])
     for i_bin in range(NUMBER_OF_AEROSOL_SECTIONS):
-        plt.plot(time, sulfate_mmr[:, i_bin], label=f"Bin {i_bin + 1}")
+        plt.plot(times, sulfate_mmr[:, i_bin], label=f"Bin {i_bin + 1}")
     plt.xlabel("Time (hours)")
     plt.ylabel("Sulfate Molar Mass Mixing Ratio (kg/kg)")
     plt.title("Sulfate Box Model: Molar Mass Mixing Ratio Over Time")
@@ -353,4 +383,5 @@ def run_box_model():
 
 
 if __name__ == "__main__":
-    run_box_model()
+    concentrations, times = run_box_model()
+    plot_results(concentrations, times)

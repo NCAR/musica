@@ -18,3 +18,5 @@ musica.egg-info
 wheelhouse
 
 error.json
+
+.ipynb_checkpoints

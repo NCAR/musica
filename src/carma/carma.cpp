@@ -34,7 +34,7 @@ namespace musica
     f_carma_type_ = nullptr;  // Clear the pointer to avoid dangling pointer
     if (rc != 0)
     {
-      std::cerr << "Warning: CARMA destruction returned non-zero code: " + CarmaErrorCodeToMessage(rc) << std::endl;
+      std::cerr << CarmaErrorCodeToMessage(rc) << std::endl;
     }
   }
 
@@ -51,21 +51,6 @@ namespace musica
     InternalFreeCarmaVersion(version_ptr, version_length);
 
     return version;
-  }
-
-  CARMAOutput CARMA::Run()
-  {
-    int rc = 0;
-    CARMAOutput output;
-
-    InternalRunCarma(*c_carma_parameters_, f_carma_type_, static_cast<void*>(&output), &rc);
-
-    if (rc != 0)
-    {
-      throw std::runtime_error(CarmaErrorCodeToMessage(rc));
-    }
-
-    return output;
   }
 
   CARMAGroupProperties CARMA::GetGroupProperties(int group_index) const
@@ -121,7 +106,7 @@ namespace musica
 
     if (rc != 0)
     {
-      throw std::runtime_error("Failed to get group properties with return code: " + CarmaErrorCodeToMessage(rc));
+      throw std::runtime_error(CarmaErrorCodeToMessage(rc));
     }
 
     return group_props;
@@ -161,12 +146,9 @@ namespace musica
     CCARMAParameters* c_params = new CCARMAParameters();
 
     // Copy simple scalar values
-    c_params->nz = params.nz;
     c_params->nbin = params.nbin;
     c_params->dtime = params.dtime;
-    c_params->nstep = params.nstep;
-    c_params->deltaz = params.deltaz;
-    c_params->zmin = params.zmin;
+    c_params->nz = params.nz;  // Add nz parameter
 
     // Handle wavelength grid
     if (!params.wavelength_bins.empty())
@@ -606,11 +588,8 @@ namespace musica
     CARMAParameters params;
 
     // Set default values for the aluminum test case
-    params.nz = 1;
     params.nbin = 5;
     params.dtime = 1800.0;   // 30 minutes
-    params.deltaz = 1000.0;  // 1 km
-    params.zmin = 16500.0;   // 16.5 km
 
     // Wavelength grid
     params.wavelength_bins = {

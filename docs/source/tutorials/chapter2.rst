@@ -23,13 +23,13 @@ the reactions configuration file ``reactions.json``.
 
 The contents of the ``config.json`` file for this example are:
 
-  .. literalinclude:: ../../../configs/analytical/config.json
+  .. literalinclude:: ../../../configs/v0/analytical/config.json
     :language: json
 
 For this example, we will have a system of three chemical species
 `A`, `B`, and `C`, defined in the JSON file ``species.json`` as follows:
 
-  .. literalinclude:: ../../../configs/analytical/species.json
+  .. literalinclude:: ../../../configs/v0/analytical/species.json
     :language: json
 
 The ``reactions.json`` specifies a mechanism, or a set of reactions for the system.
@@ -43,7 +43,7 @@ are needed to determine the rate constants, such as in the case of photolysis re
 
 The ``reactions.json`` file for this example should look like this:
 
-  .. literalinclude:: ../../../configs/analytical/reactions.json
+  .. literalinclude:: ../../../configs/v0/analytical/reactions.json
     :language: json
 
 More information on MICM configurations and reactions can be found in the `MICM documentation

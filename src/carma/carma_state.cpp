@@ -89,7 +89,7 @@ namespace musica
       f_carma_state_ = nullptr;
       if (rc != 0)
       {
-        std::cerr << "Failed to destroy CARMA state with return code: " + CarmaErrorCodeToMessage(rc) << std::endl;
+        std::cerr << CarmaErrorCodeToMessage(rc) << std::endl;
       }
     }
   }

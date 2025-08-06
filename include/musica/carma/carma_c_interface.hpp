@@ -191,16 +191,11 @@ namespace musica
     struct CCARMAParameters
     {
       // Model dimensions
-      int nz;
       int nbin;
+      int nz;
 
       // Time stepping parameters
       double dtime;
-      int nstep;
-
-      // Spatial parameters
-      double deltaz;
-      double zmin;
 
       // Wavelength grid
       CARMAWavelengthBinC* wavelength_bins;  // Pointer to wavelength bins array
@@ -267,7 +262,7 @@ namespace musica
 
     struct CARMAStateParametersC
     {
-      double time;                         // Time [s]
+      double time;                         // Current time [s]
       double time_step;                    // Time step [s]
       double longitude;                    // Longitude [degrees]
       double latitude;                     // Latitude [degrees]
@@ -464,13 +459,6 @@ namespace musica
         int element_index,
         CARMAElementPropertiesC* element_properties,
         int* rc);
-
-    // CARMA driver interface functions
-    void InternalRunCarma(const CCARMAParameters& params, void* carma_instance, void* output, int* rc);
-
-    // Transfer function called from Fortran
-    void
-    TransferCarmaOutputToCpp(const CARMAOutputDataC* output_data, int nz, int ny, int nx, int nbin, int nelem, int ngroup);
 
 #ifdef __cplusplus
   }  // extern "C"
