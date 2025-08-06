@@ -915,11 +915,11 @@ class CARMAState:
 
     def __init__(self,
                  carma_pointer: c_void_p,
-                 vertical_center: Optional[List[float]],
-                 vertical_levels: Optional[List[float]],
-                 temperature: Optional[List[float]],
-                 pressure: Optional[List[float]],
-                 pressure_levels: Optional[List[float]],
+                 vertical_center: List[float],
+                 vertical_levels: List[float],
+                 temperature: List[float],
+                 pressure: List[float],
+                 pressure_levels: List[float],
                  time_step: float = 0.0,
                  latitude: float = 0.0,
                  longitude: float = 0.0,
@@ -930,11 +930,11 @@ class CARMAState:
 
         Args:
             carma_pointer: Pointer to the CARMA C++ instance
-            vertical_center: Optional list of vertical centers (default: None)
-            vertical_levels: Optional list of vertical levels (default: None). If None, will be
-            temperature: Optional list of temperatures at vertical centers (default: None). If None, will be derived from the US Standard Atmosphere model.
-            pressure: Optional list of pressures at vertical centers (default: None). If None, will be derived from the US Standard Atmosphere model.
-            pressure_levels: Optional list of pressures at vertical levels (default: None). If None, will be derived from the US Standard Atmosphere model.
+            vertical_center: The vertical centers of the model [m]
+            vertical_levels: The vertical levels of the model [m]
+            temperature: The temperatures at vertical centers [K]
+            pressure: The pressures at vertical centers [Pa]
+            pressure_levels: The pressures at vertical levels [Pa]
             time_step: Time step in seconds (default: 0.0)
             latitude: Latitude in degrees (default: 0.0)
             longitude: Longitude in degrees (default: 0.0)
