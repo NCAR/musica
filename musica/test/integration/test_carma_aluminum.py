@@ -3,6 +3,10 @@ import numpy as np
 import pytest
 import musica
 
+available = musica.backend.carma_available()
+pytestmark = pytest.mark.skipif(
+    not available, reason="CARMA backend is not available")
+
 def _extract_bin_data(data, key, nbin, nelem):
     # input data is time * bin * elem, each element contains data for each vertical level
     # so output should be time * bin * elem * z
@@ -184,13 +188,6 @@ def test_carma_aluminum():
 
     ds = extract_data(params, state, env, bin_data, time_array)
     print(ds)
-    mean = ds.number_density.mean(dim='time')
-    min_ = ds.number_density.min(dim='time')
-    max_ = ds.number_density.max(dim='time')
-    print(f"{'Bin':<5} {'Mean':<15} {'Min':<15} {'Max':<15}")
-    for i in range(params.nbin):
-        print(f"{i+1:<5} {mean[:, i, 0][0]:<15.6e} {min_[:, i, 0][0]:<15.6e} {max_[:, i, 0][0]:<15.6e}")
-
 
 if __name__ == '__main__':
     import sys
