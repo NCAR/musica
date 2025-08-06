@@ -810,19 +810,6 @@ class CARMAParameters:
     @classmethod
     def create_aluminum_test_config(cls) -> 'CARMAParameters':
         """Create parameters for aluminum test configuration."""
-        # Set up a wavelength grid
-        wavelength_bins = [
-            CARMAWavelengthBin(
-                center=0.55e-6, width=0.01e-6, do_emission=True),
-            CARMAWavelengthBin(
-                center=0.65e-6, width=0.01e-6, do_emission=True),
-            CARMAWavelengthBin(
-                center=0.75e-6, width=0.01e-6, do_emission=True),
-            CARMAWavelengthBin(
-                center=0.85e-6, width=0.01e-6, do_emission=True),
-            CARMAWavelengthBin(center=0.95e-6, width=0.01e-6, do_emission=True)
-        ]
-
         # Create aluminum group
         group = CARMAGroupConfig(
             name="aluminum",
@@ -881,7 +868,6 @@ class CARMAParameters:
         params.initialization.do_vtran = False
 
         return params
-
 
 class CARMASurfaceProperties:
     """
