@@ -253,7 +253,6 @@ module carma_parameters_mod
    end type carma_output_data_t
 
    type, bind(C) :: carma_state_parameter_t
-      real(c_double) :: time
       real(c_double) :: time_step
       real(c_double) :: longitude
       real(c_double) :: latitude

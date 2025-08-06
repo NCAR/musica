@@ -922,7 +922,6 @@ class CARMAState:
 
     def __init__(self,
                  carma_pointer: c_void_p,
-                 time: float = 0.0,
                  time_step: float = 0.0,
                  latitude: float = 0.0,
                  longitude: float = 0.0,
@@ -939,7 +938,6 @@ class CARMAState:
 
         Args:
             carma_pointer: Pointer to the CARMA C++ instance
-            time: Simulation time in seconds (default: 0.0)
             time_step: Time step in seconds (default: 0.0)
             latitude: Latitude in degrees (default: 0.0)
             longitude: Longitude in degrees (default: 0.0)
@@ -972,7 +970,6 @@ class CARMAState:
 
         self._carma_state_instance = _backend._carma._create_carma_state(
             carma_pointer=carma_pointer,
-            time=time,
             time_step=time_step,
             latitude=latitude,
             longitude=longitude,

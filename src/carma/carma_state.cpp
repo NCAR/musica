@@ -19,7 +19,6 @@ namespace musica
     this->nz = static_cast<int>(params.vertical_center.size());
     CCARMAParameters* carma_params = carma.GetParameters();
     CARMAStateParametersC state_params;
-    state_params.time = params.time;
     state_params.time_step = params.time_step;
     state_params.longitude = params.longitude;
     state_params.latitude = params.latitude;

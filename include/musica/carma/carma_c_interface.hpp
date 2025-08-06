@@ -266,7 +266,6 @@ namespace musica
 
     struct CARMAStateParametersC
     {
-      double time;                         // Time [s]
       double time_step;                    // Time step [s]
       double longitude;                    // Longitude [degrees]
       double latitude;                     // Latitude [degrees]

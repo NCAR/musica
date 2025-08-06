@@ -591,7 +591,6 @@ void bind_carma(py::module_& carma)
       {
         // Helper lambdas for robust flexible casting
         musica::CARMAStateParameters params;
-        params.time = kwargs.contains("time") ? kwargs["time"].cast<double>() : 0.0;
         params.time_step = kwargs.contains("time_step") ? kwargs["time_step"].cast<double>() : 0.0;
         params.longitude = kwargs.contains("longitude") ? kwargs["longitude"].cast<double>() : 0.0;
         params.latitude = kwargs.contains("latitude") ? kwargs["latitude"].cast<double>() : 0.0;
