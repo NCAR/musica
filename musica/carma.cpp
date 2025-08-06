@@ -100,12 +100,6 @@ void bind_carma(py::module_& carma)
           params.nbin = params_dict["nbin"].cast<int>();
         if (params_dict.contains("dtime"))
           params.dtime = params_dict["dtime"].cast<double>();
-        if (params_dict.contains("nstep"))
-          params.nstep = static_cast<int>(params_dict["nstep"].cast<float>());
-        if (params_dict.contains("deltaz"))
-          params.deltaz = params_dict["deltaz"].cast<double>();
-        if (params_dict.contains("zmin"))
-          params.zmin = params_dict["zmin"].cast<double>();
 
         // Handle groups configuration
         if (params_dict.contains("groups"))
@@ -534,62 +528,6 @@ void bind_carma(py::module_& carma)
       "Delete a CARMA instance");
 
   carma.def(
-      "_run_carma",
-      [](std::uintptr_t carma_ptr)
-      {
-        musica::CARMA* carma_instance = reinterpret_cast<musica::CARMA*>(carma_ptr);
-
-        try
-        {
-          musica::CARMAOutput output = carma_instance->Run();
-
-          // Convert CARMAOutput to Python dictionary
-          py::dict result;
-
-          // Grid and coordinate arrays
-          result["lat"] = output.lat;
-          result["lon"] = output.lon;
-          result["vertical_center"] = output.vertical_center;
-          result["vertical_levels"] = output.vertical_levels;
-
-          // Atmospheric state variables
-          result["pressure"] = output.pressure;
-          result["temperature"] = output.temperature;
-          result["air_density"] = output.air_density;
-
-          // Fundamental CARMA data for Python calculations
-          // Particle state arrays (3D: nz x nbin x nelem)
-          result["particle_concentration"] = output.particle_concentration;
-          result["mass_mixing_ratio"] = output.mass_mixing_ratio;
-
-          // Particle properties (3D: nz x nbin x ngroup)
-          result["wet_radius"] = output.wet_radius;
-          result["wet_density"] = output.wet_density;
-          result["fall_velocity"] = output.fall_velocity;
-          result["nucleation_rate"] = output.nucleation_rate;
-          result["deposition_velocity"] = output.deposition_velocity;
-
-          // Group configuration arrays (2D: nbin x ngroup)
-          result["dry_radius"] = output.dry_radius;
-          result["mass_per_bin"] = output.mass_per_bin;
-          result["radius_ratio"] = output.radius_ratio;
-          result["aspect_ratio"] = output.aspect_ratio;
-
-          // Group mapping and properties (1D arrays)
-          result["group_particle_number_concentration"] = output.group_particle_number_concentration;
-          result["constituent_type"] = output.constituent_type;
-          result["max_prognostic_bin"] = output.max_prognostic_bin;
-
-          return result;
-        }
-        catch (const std::exception& e)
-        {
-          throw py::value_error("Error running CARMA: " + std::string(e.what()));
-        }
-      },
-      "Run CARMA with specified parameters");
-
-  carma.def(
       "_get_group_properties",
       [](std::uintptr_t carma_ptr, int group_index)
       {
@@ -647,6 +585,7 @@ void bind_carma(py::module_& carma)
       {
         // Helper lambdas for robust flexible casting
         musica::CARMAStateParameters params;
+        params.time_step = kwargs.contains("time_step") ? kwargs["time_step"].cast<double>() : 0.0;
         params.longitude = kwargs.contains("longitude") ? kwargs["longitude"].cast<double>() : 0.0;
         params.latitude = kwargs.contains("latitude") ? kwargs["latitude"].cast<double>() : 0.0;
         params.coordinates = kwargs.contains("coordinates")

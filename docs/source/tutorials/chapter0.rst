@@ -1,3 +1,5 @@
+.. _chapter0:
+
 Chapter 0
 =========
 

@@ -16,10 +16,9 @@ namespace musica
 
   CARMAState::CARMAState(const CARMA& carma, const CARMAStateParameters& params)
   {
-    this->nz = static_cast<int>(params.vertical_levels.size());
+    this->nz = static_cast<int>(params.vertical_center.size());
     CCARMAParameters* carma_params = carma.GetParameters();
     CARMAStateParametersC state_params;
-    state_params.time = params.time;
     state_params.time_step = params.time_step;
     state_params.longitude = params.longitude;
     state_params.latitude = params.latitude;
@@ -65,7 +64,7 @@ namespace musica
       f_carma_state_ = nullptr;
       if (rc != 0)
       {
-        std::cerr << "Failed to destroy CARMA state with return code: " + CarmaErrorCodeToMessage(rc) << std::endl;
+        std::cerr << CarmaErrorCodeToMessage(rc) << std::endl;
       }
     }
   }

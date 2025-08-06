@@ -24,7 +24,6 @@ namespace musica
 
   struct CARMAStateParameters
   {
-    double time = 0.0;       // Time [s]
     double time_step = 0.0;  // Time step [s]
     double longitude = 0.0;  // Longitude [degrees]
     double latitude = 0.0;   // Latitude [degrees]
@@ -78,7 +77,7 @@ namespace musica
   struct CarmaBinValues
   {
     std::vector<double> mass_mixing_ratio;           // Values for the bin [kg kg-1]
-    std::vector<double> number_mixing_ratio;         // Number mixing ratio for the bin [# cm-3]
+    std::vector<double> number_mixing_ratio;         // Number mixing ratio for the bin [# kg-1]
     std::vector<double> number_density;              // Number density for the bin [# cm-3]
     std::vector<double> nucleation_rate;             // Nucleation rate for the bin [# cm-3 s-1]
     std::vector<double> wet_particle_radius;         // Wet particle radius for the bin [cm]

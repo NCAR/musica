@@ -168,24 +168,25 @@ contains
       if (c_associated(carma_cptr)) then
          call c_f_pointer(carma_cptr, carma)
          call CARMASTATE_Create( &
-            cstate, &
-            carma, &
-            carma_state_params%time, &
-            carma_state_params%time_step, &
-            carma_params%nz, &
-            carma_state_params%coordinates, &
-            carma_state_params%latitude, &
-            carma_state_params%longitude, &
-            vertical_center(:), &
-            vertical_levels(:), &
-            pressure(:), &
-            pressure_levels(:), &
-            temperature(:), &
-            rc, &
+            cstate=cstate, &
+            carma_ptr=carma, &
+            time=0.0_real64, & ! This parameter doesn't actually matter in carma and need not be set
+            dtime=carma_state_params%time_step, &
+            NZ=carma_params%nz, &
+            igridv=carma_state_params%coordinates, &
+            xc=carma_state_params%latitude, &
+            yc=carma_state_params%longitude, &
+            zc=vertical_center(:), &
+            zl=vertical_levels(:), &
+            p=pressure(:), &
+            pl=pressure_levels(:), &
+            t=temperature(:), &
+            rc=rc, &
             qh2o=specific_humidity(:), &
             relhum=relative_humidity(:), &
             told=original_temperature(:), &
-            radint=radiative_intensity(:,:))
+            radint=radiative_intensity(:,:) &
+            )
          if (rc /= 0) then
             rc = MUSICA_CARMA_ERROR_CODE_CREATION_FAILED
             return
@@ -198,7 +199,6 @@ contains
          rc = MUSICA_CARMA_ERROR_CODE_UNASSOCIATED_POINTER
          return
       end if
-
 
       carma_state_cptr = c_loc(cstate)
    end function internal_create_carma_state
@@ -268,10 +268,10 @@ contains
 
          call CARMASTATE_SetBin( &
             cstate, &
-            bin_index, &
-            element_index, &
-            values, &
-            rc, &
+            ibin=bin_index, &
+            ielem=element_index, &
+            mmr=values, &
+            rc=rc, &
             surface=surface_mass)
          if (rc /= 0) then
             rc = MUSICA_CARMA_ERROR_CODE_SET_FAILED
@@ -385,7 +385,7 @@ contains
          call c_f_pointer(values_ptr, values, [values_size])
 
          call CARMASTATE_SetGas(cstate, gas_index, values, rc, old_mmr, gas_saturation_wrt_ice, gas_saturation_wrt_liquid)
-         
+
          if (rc /= 0) then
             rc = MUSICA_CARMA_ERROR_CODE_SET_FAILED
             return
@@ -662,7 +662,7 @@ contains
             eqice=gas_vapor_pressure_wrt_ice, &
             eqliq=gas_vapor_pressure_wrt_liquid, &
             wtpct=weight_pct_aerosol_composition)
-         
+
          if (rc /= 0) then
             rc = MUSICA_CARMA_ERROR_CODE_GET_FAILED
             return
@@ -806,7 +806,7 @@ contains
       bind(C, name="InternalStepCarmaState")
       use iso_c_binding, only: c_ptr, c_int
       use iso_fortran_env, only: real64
-      use carmastate_mod, only: CARMASTATE_Step
+      use carmastate_mod, only: CARMASTATE_Step, CARMASTATE_GetBin
       use carma_types_mod, only: carmastate_type
       use carma_parameters_mod, only: carma_state_step_config_t
 
@@ -844,8 +844,8 @@ contains
             deallocate_critical_rh = .true.
          end if
          call CARMASTATE_Step( &
-            cstate, &
-            rc, &
+            cstate=cstate, &
+            rc=rc, &
             cldfrc=cloud_fraction, &
             rhcrit=critical_rh, &
             lndfv=step_config%land%surface_friction_velocity, &
@@ -1000,7 +1000,7 @@ contains
             [element_props%refidx_dim_2_size, element_props%refidx_dim_1_size])
          allocate(refidx(element_props%refidx_dim_2_size, element_props%refidx_dim_1_size))
          refidx(:,:) = cmplx(0.0, 0.0, kind=real64)
-         
+
          ! Get element properties
          if (carma%f_NWAVE < 1 .or. carma%f_NREFIDX < 1) then
             call CARMAELEMENT_Get( &
@@ -1038,25 +1038,6 @@ contains
       end if
 
    end subroutine internal_get_element_properties
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-   subroutine internal_run_carma(params, carma_cptr, c_output, rc) &
-      bind(C, name="InternalRunCarma")
-      use iso_c_binding, only: c_int, c_ptr, c_f_pointer
-      use carma_parameters_mod, only: carma_parameters_t
-
-      type(carma_parameters_t), intent(in)  :: params
-      type(c_ptr), value,       intent(in)  :: carma_cptr
-      type(c_ptr), value,       intent(in)  :: c_output
-      integer(c_int),           intent(out) :: rc
-
-      rc = 0
-
-      ! Run CARMA simulation with optional output
-      call run_carma_simulation(params, carma_cptr, rc, c_output)
-
-   end subroutine internal_run_carma
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -1141,7 +1122,7 @@ contains
       type(carma_type), pointer :: carma
 
       ! Model dimensions
-      integer :: NZ, NY, NX, NZP1, NELEM, NGROUP, NBIN, NSOLUTE, NGAS, NWAVE
+      integer :: NELEM, NGROUP, NBIN, NSOLUTE, NGAS, NWAVE
 
       ! Loop indices
       integer :: iwave, ielem, igroup, isolute, igas, icoag, igrowth, inucleation
@@ -1420,16 +1401,28 @@ contains
          call c_f_pointer(params%coagulations, coagulation_config, [params%coagulations_size])
          do icoag = 1, params%coagulations_size
             associate(coag => coagulation_config(icoag))
-               call CARMA_AddCoagulation( &
-                  carma, &
-                  int(coag%igroup1), &
-                  int(coag%igroup2), &
-                  int(coag%igroup3), &
-                  int(coag%algorithm), &
-                  rc, &
-                  ck0=real(coag%ck0, kind=real64), &
-                  grav_e_coll0=real(coag%grav_e_coll0, kind=real64), &
-                  use_ccd=logical(coag%use_ccd))
+               if (coag%ck0 .ge. 0.0_real64) then
+                  call CARMA_AddCoagulation( &
+                     carma=carma, &
+                     igroup1=int(coag%igroup1), &
+                     igroup2=int(coag%igroup2), &
+                     igroup3=int(coag%igroup3), &
+                     icollec=int(coag%algorithm), &
+                     rc=rc, &
+                     ck0=real(coag%ck0, kind=real64), &
+                     grav_e_coll0=real(coag%grav_e_coll0, kind=real64), &
+                     use_ccd=logical(coag%use_ccd))
+               else
+                  call CARMA_AddCoagulation( &
+                     carma=carma, &
+                     igroup1=int(coag%igroup1), &
+                     igroup2=int(coag%igroup2), &
+                     igroup3=int(coag%igroup3), &
+                     icollec=int(coag%algorithm), &
+                     rc=rc, &
+                     grav_e_coll0=real(coag%grav_e_coll0, kind=real64), &
+                     use_ccd=logical(coag%use_ccd))
+               endif
                if (rc /= 0) then
                   rc = MUSICA_CARMA_ERROR_CODE_ADD_CARMA_OBJECT_FAILED
                   return
@@ -1521,451 +1514,6 @@ contains
       carma_cptr = c_loc(carma)
 
    end subroutine create_carma_instance
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-   subroutine run_carma_simulation(params, carma_cptr, rc, c_output_ptr)
-      use carma_precision_mod
-      use carma_constants_mod
-      use carma_enums_mod
-      use carma_types_mod
-      use carmaelement_mod
-      use carmagroup_mod
-      use carmagas_mod
-      use carmastate_mod
-      use carma_mod
-      use atmosphere_mod
-      use carma_parameters_mod, only: carma_parameters_t, carma_group_config_t, &
-         carma_element_config_t
-      use iso_fortran_env, only: real64
-      use iso_c_binding, only: c_ptr, c_null_ptr, c_associated
-
-      implicit none
-
-      type(carma_parameters_t), intent(in)  :: params
-      type(c_ptr),              intent(in)  :: carma_cptr
-      integer,                  intent(out) :: rc
-      type(c_ptr), optional,    intent(in)  :: c_output_ptr
-
-      ! Local variables for CARMA simulation
-      type(carma_type), pointer :: carma
-      type(carmastate_type)     :: cstate
-
-      ! Model dimensions
-      integer :: NZ, NY, NX, NZP1, NELEM, NGROUP, NBIN, NSOLUTE, NGAS, NWAVE
-      integer, parameter :: LUNOPRT = 6
-
-      ! Grid and atmospheric variables
-      real(kind=c_double), allocatable :: lat(:), lon(:)
-      real(kind=c_double), allocatable :: zc(:), zl(:), p(:), pl(:), t(:), rhoa(:)
-      real(kind=c_double) :: time
-      real(kind=c_double) :: dtime
-      integer :: nstep
-      real(kind=c_double) :: deltaz, zmin
-
-      ! Gas and particle variables
-      real(kind=c_double), allocatable :: mmr(:,:,:)
-      real(kind=c_double), allocatable :: mmr_gas(:,:)  ! Keep for potential future use
-
-      ! Loop indices
-      integer :: i, iy, ix, istep, igas, ielem, ibin, igroup
-
-      ! Physical constants and parameters from aluminum test
-      integer, parameter :: I_GRP_ALUM = 1
-
-      ! Group parameters
-      type(carma_group_config_t), pointer :: group_config(:)
-      character(len=:), allocatable :: group_name, group_short_name
-
-      ! Element parameters
-      type(carma_element_config_t), pointer :: element_config(:)
-      character(len=:), allocatable :: element_name, element_short_name
-      real(real64), pointer :: rhobin(:) ! rho bin for element (NBINS)
-      real(real64), pointer :: arat(:) ! area ratio for element (NBINS)
-
-      rc = 0
-
-      call c_f_pointer(carma_cptr, carma)
-
-      ! Set dimensions from parameters
-      NZ = int(params%nz)
-      NY = 1 ! TODO: Replace this with the number of states in the y direction
-      NX = 1 ! TODO: Replace this with the number of states in the x direction
-      NZP1 = NZ + 1
-      NELEM = int(params%elements_size)
-      NGROUP = int(params%groups_size)
-      NBIN = int(params%nbin)
-      NSOLUTE = int(params%solutes_size)
-      NGAS = int(params%gases_size)
-      NWAVE = int(params%wavelength_bin_size)
-      dtime = real(params%dtime, kind=real64)
-      nstep = int(params%nstep)
-      deltaz = real(params%deltaz, kind=real64)
-      zmin = real(params%zmin, kind=real64)
-
-      ! Set up simple grid
-      iy = 1
-      ix = 1
-
-      allocate(lat(NY), lon(NX))
-      allocate(zc(NZ), zl(NZP1), p(NZ), pl(NZP1), t(NZ), rhoa(NZ))
-      allocate(mmr(NZ, NELEM, NBIN))
-      if (NGAS > 0) allocate(mmr_gas(NZ, NGAS))
-
-      ! Set up atmospheric conditions matching test_aluminum_simple
-      lat(iy) = 0.0_c_double
-      lon(ix) = -105.0_c_double
-
-      ! Vertical grid setup
-      do i = 1, NZ
-         zc(i) = zmin + (deltaz * (i - 0.5_c_double))
-      end do
-
-      call GetStandardAtmosphere(zc, p=p, t=t)
-
-      do i = 1, NZP1
-         zl(i) = zmin + ((i - 1) * deltaz)
-      end do
-      call GetStandardAtmosphere(zl, p=pl)
-
-      ! Set up initial conditions
-      rhoa(:) = (p(:) * 10.0_c_double) / (R_AIR * t(:)) * (1e-3_c_double * 1e6_c_double)
-
-      ! Store original temperature for told parameter
-
-      ! Initialize gas mixing ratios (no gases in aluminum test)
-      if (NGAS > 0) then
-         mmr_gas(:,:) = 0.0_c_double
-      end if
-
-      ! Initialize particle mixing ratios with aluminum concentration
-      mmr(:,:,:) = 5e9_c_double / (deltaz * 2.57474699e14_c_double) / rhoa(1)
-
-      ! Time integration loop - start from step 2 to match test_aluminum_simple
-      carma_time_integration: do istep = 2, nstep + 1
-
-         ! Calculate the model time
-         time = (istep - 1) * dtime
-
-         ! Create a CARMASTATE for this column
-         call CARMASTATE_Create(cstate, carma, time, dtime, NZ, &
-            I_CART, lat(iy), lon(ix), &
-            zc(:), zl(:), &
-            p(:),  pl(:), &
-            t(:), rc, &
-            told=t(:))
-         if (rc /= 0) then
-            rc = MUSICA_CARMA_ERROR_CODE_CREATION_FAILED
-            return
-         end if
-
-         ! Send the bin mmrs to CARMA
-         do ielem = 1, NELEM
-            do ibin = 1, NBIN
-               call CARMASTATE_SetBin(cstate, ielem, ibin, mmr(:,ielem,ibin), rc)
-               if (rc /= 0) then
-                  rc = MUSICA_CARMA_ERROR_CODE_SET_FAILED
-                  return
-               end if
-            end do
-         end do
-
-         ! Set the gas mixing ratios if applicable
-         do igas = 1, NGAS
-            call CARMASTATE_SetGas(cstate, igas, mmr_gas(:,igas), rc)
-            if (rc /= 0) then
-               rc = MUSICA_CARMA_ERROR_CODE_SET_FAILED
-               return
-            end if
-         end do
-
-         ! Execute the time step
-         call CARMASTATE_Step(cstate, rc)
-         if (rc /= 0) then
-            rc = MUSICA_CARMA_ERROR_CODE_STEP_FAILED
-            return
-         end if
-
-         do ielem = 1, NELEM
-            do ibin = 1, NBIN
-               call CARMASTATE_GetBin(cstate, ielem, ibin, mmr(:,ielem,ibin), rc)
-               if (rc /= 0) then
-                  rc = MUSICA_CARMA_ERROR_CODE_GET_FAILED
-                  return
-               end if
-            end do
-         end do
-
-      end do carma_time_integration
-
-      ! Transfer output data to C++ if output pointer is provided
-      ! This must happen before the CARMA state is destroyed
-      if (present(c_output_ptr) .and. c_associated(c_output_ptr)) then
-         call transfer_carma_output_data(c_output_ptr, &
-            cstate, carma, params, &
-            NZ, NY, NX, NELEM, NGROUP, NBIN, NGAS, nstep, &
-            real(time, kind=8), int(nstep), &
-            lat, lon, zc, zl, p, t, rhoa, deltaz)
-      end if
-
-      ! Clean up the carma state for this step
-      call CARMASTATE_Destroy(cstate, rc)
-      if (rc /= 0) then
-         rc = MUSICA_CARMA_ERROR_CODE_DESTROY_FAILED
-         return
-      end if
-
-      ! Deallocate arrays
-      deallocate(lat, lon, zc, zl, p, pl, t, rhoa, mmr)
-      if (NGAS > 0) deallocate(mmr_gas)
-
-   end subroutine run_carma_simulation
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-   subroutine transfer_carma_output_data(c_output_ptr, &
-      cstate, carma_ptr, params, &
-      nz, ny, nx, nelem, ngroup, nbin, ngas, nstep, &
-      current_time, current_step, &
-      lat, lon, vertical_center, vertical_levels, pressure, temperature, air_density, deltaz)
-      use carma_precision_mod
-      use carma_types_mod
-      use carma_parameters_mod, only: carma_parameters_t
-      use iso_c_binding, only: c_ptr, c_int, c_double, c_loc
-      use iso_fortran_env, only: real64
-      use carma_parameters_mod, only: carma_output_data_t
-
-      implicit none
-
-      ! Input parameters
-      type(c_ptr), intent(in) :: c_output_ptr
-      type(carmastate_type), intent(in) :: cstate
-      type(carma_type), intent(in), target :: carma_ptr
-      type(carma_parameters_t), intent(in) :: params
-      integer, intent(in) :: nz, ny, nx, nelem, ngroup, nbin, ngas, nstep
-      real(kind=8), intent(in) :: current_time
-      integer, intent(in) :: current_step
-      real(kind=c_double), intent(in), target :: lat(ny), lon(nx)
-      real(kind=c_double), intent(in), target :: vertical_center(nz), vertical_levels(nz+1)
-      real(kind=c_double), intent(in), target :: pressure(nz), temperature(nz), air_density(nz)
-      real(kind=c_double), intent(in) :: deltaz
-
-      ! Fundamental arrays for Python calculations - core state variables
-      real(kind=c_double), allocatable, target :: pc(:,:,:)           ! particle concentration [#/cm³]
-      real(kind=c_double), allocatable, target :: mmr(:,:,:)          ! mass mixing ratio [kg/kg]
-
-      ! Particle properties [nz, nbin, ngroup]
-      real(kind=c_double), allocatable, target :: r_wet(:,:,:)        ! wet radius [cm]
-      real(kind=c_double), allocatable, target :: rhop_wet(:,:,:)     ! wet density [g/cm³]
-      real(kind=c_double), allocatable, target :: vf(:,:,:)           ! fall velocity [cm/s] (nz+1, nbin, ngroup)
-      real(kind=c_double), allocatable, target :: nucleation(:,:,:)   ! nucleation rate [1/cm³/s]
-      real(kind=c_double), allocatable, target :: vd(:,:,:)           ! deposition velocity [cm/s]
-
-      ! Group configuration arrays [nbin, ngroup]
-      real(kind=c_double), allocatable, target :: r_dry(:,:)          ! dry radius [cm]
-      real(kind=c_double), allocatable, target :: rmass(:,:)          ! mass per bin [g]
-      real(kind=c_double), allocatable, target :: rrat(:,:)           ! radius ratio
-      real(kind=c_double), allocatable, target :: arat(:,:)           ! area ratio
-
-      ! Group mapping and properties
-      integer(kind=c_int), allocatable, target :: ienconc(:)          ! concentration element per group
-      integer(kind=c_int), allocatable, target :: constituent_type(:) ! constituent type per group
-      integer(kind=c_int), allocatable, target :: maxbin(:)           ! max prognostic bin per group
-
-      ! Create and populate the output data struct
-      type(carma_output_data_t) :: output_data_struct
-
-      allocate(pc(nz, nbin, nelem))
-      allocate(mmr(nz, nbin, nelem))
-      allocate(r_wet(nz, nbin, ngroup))
-      allocate(rhop_wet(nz, nbin, ngroup))
-      allocate(vf(nz+1, nbin, ngroup))
-      allocate(nucleation(nz, nbin, ngroup))
-      allocate(vd(nz, nbin, ngroup))
-
-      ! Group configuration arrays
-      allocate(r_dry(nbin, ngroup))
-      allocate(rmass(nbin, ngroup))
-      allocate(rrat(nbin, ngroup))
-      allocate(arat(nbin, ngroup))
-
-      ! Group mapping and properties arrays
-      allocate(ienconc(ngroup))
-      allocate(constituent_type(ngroup))
-      allocate(maxbin(ngroup))
-
-      ! Initialize arrays
-      pc(:,:,:) = 0.0_c_double
-      mmr(:,:,:) = 0.0_c_double
-      r_wet(:,:,:) = 0.0_c_double
-      rhop_wet(:,:,:) = 0.0_c_double
-      vf(:,:,:) = 0.0_c_double
-      nucleation(:,:,:) = 0.0_c_double
-      vd(:,:,:) = 0.0_c_double
-      r_dry(:,:) = 0.0_c_double
-      rmass(:,:) = 0.0_c_double
-      rrat(:,:) = 1.0_c_double
-      arat(:,:) = 1.0_c_double
-      ienconc(:) = 0
-      constituent_type(:) = 0
-      maxbin(:) = 0
-
-      ! Extract fundamental data from CARMA state
-      call extract_carma_fundamental_data(cstate, carma_ptr, nz, nbin, nelem, ngroup, &
-         pc, mmr, r_wet, rhop_wet, vf, nucleation, vd, &
-         r_dry, rmass, rrat, arat, &
-         ienconc, constituent_type, maxbin)
-
-      output_data_struct%c_output_ptr = c_output_ptr
-
-      ! Set pointers to fundamental data arrays
-      output_data_struct%lat = c_loc(lat)
-      output_data_struct%lon = c_loc(lon)
-      output_data_struct%vertical_center = c_loc(vertical_center)
-      output_data_struct%vertical_levels = c_loc(vertical_levels)
-      output_data_struct%pressure = c_loc(pressure)
-      output_data_struct%temperature = c_loc(temperature)
-      output_data_struct%air_density = c_loc(air_density)
-
-      ! Core fundamental data arrays - particle state [nz, nbin, nelem]
-      output_data_struct%particle_concentration = c_loc(pc)            ! particle concentration [#/cm³]
-      output_data_struct%mass_mixing_ratio = c_loc(mmr)                ! mass mixing ratio [kg/kg]
-
-      ! Bin-level particle properties [nz, nbin, ngroup]
-      output_data_struct%wet_radius = c_loc(r_wet)                     ! wet radius [cm]
-      output_data_struct%wet_density = c_loc(rhop_wet)                 ! wet density [g/cm³]
-      output_data_struct%fall_velocity = c_loc(vf)                     ! fall velocity [cm/s]
-      output_data_struct%nucleation_rate = c_loc(nucleation)           ! nucleation rate [1/cm³/s]
-      output_data_struct%deposition_velocity = c_loc(vd)               ! deposition velocity [cm/s]
-
-      ! Group configuration arrays [nbin, ngroup]
-      output_data_struct%dry_radius = c_loc(r_dry)                     ! dry radius [cm]
-      output_data_struct%mass_per_bin = c_loc(rmass)                  ! particle mass [g]
-      output_data_struct%radius_ratio = c_loc(rrat)                    ! radius ratio
-      output_data_struct%area_ratio = c_loc(arat)                      ! area ratio
-
-      ! Group mapping and properties
-      output_data_struct%group_particle_number_concentration = c_loc(ienconc)        ! concentration element per group [ngroup]
-      output_data_struct%constituent_type = c_loc(constituent_type)  ! constituent type per group [ngroup]
-      output_data_struct%max_prognostic_bin = c_loc(maxbin)            ! max prognostic bin per group [ngroup]
-
-      ! Call the C++ transfer function with the struct and dimensions
-      call TransferCarmaOutputToCpp(output_data_struct, &
-         int(nz, c_int), int(ny, c_int), int(nx, c_int), int(nbin, c_int), &
-         int(nelem, c_int), int(ngroup, c_int))
-
-      ! Clean up fundamental data arrays
-      deallocate(pc, mmr, r_wet, rhop_wet, vf, nucleation, vd)
-      deallocate(r_dry, rmass, rrat, arat)
-      deallocate(ienconc, constituent_type, maxbin)
-
-   end subroutine transfer_carma_output_data
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-   subroutine extract_carma_fundamental_data(cstate, carma_ptr, nz, nbin, nelem, ngroup, &
-      pc, mmr, r_wet, rhop_wet, vf, nucleation, vd, &
-      r_dry, rmass, rrat, arat, &
-      ienconc, constituent_type, maxbin)
-      use carma_precision_mod
-      use carma_types_mod
-      use carmaelement_mod
-      use carmagroup_mod
-      use carmastate_mod
-      use carma_enums_mod
-      use iso_c_binding, only: c_double, c_int, c_bool
-
-      implicit none
-
-      ! Input parameters
-      type(carmastate_type), intent(in) :: cstate
-      type(carma_type), intent(in) :: carma_ptr
-      integer, intent(in) :: nz, nbin, nelem, ngroup
-
-      ! Output arrays - fundamental data for Python
-      real(kind=c_double), intent(out) :: pc(nz, nbin, nelem)           ! particle concentration [#/cm³]
-      real(kind=c_double), intent(out) :: mmr(nz, nbin, nelem)          ! mass mixing ratio [kg/kg]
-      real(kind=c_double), intent(out) :: r_wet(nz, nbin, ngroup)       ! wet radius [cm]
-      real(kind=c_double), intent(out) :: rhop_wet(nz, nbin, ngroup)    ! wet density [g/cm³]
-      real(kind=c_double), intent(out) :: vf(nz+1, nbin, ngroup)        ! fall velocity [cm/s]
-      real(kind=c_double), intent(out) :: nucleation(nz, nbin, ngroup)  ! nucleation rate [1/cm³/s]
-      real(kind=c_double), intent(out) :: vd(nz, nbin, ngroup)          ! deposition velocity [cm/s]
-      real(kind=c_double), intent(out) :: r_dry(nbin, ngroup)           ! dry radius [cm]
-      real(kind=c_double), intent(out) :: rmass(nbin, ngroup)           ! mass per bin [g]
-      real(kind=c_double), intent(out) :: rrat(nbin, ngroup)            ! radius ratio
-      real(kind=c_double), intent(out) :: arat(nbin, ngroup)            ! area ratio
-      integer(kind=c_int), intent(out) :: ienconc(ngroup)               ! concentration element per group
-      integer(kind=c_int), intent(out) :: constituent_type(ngroup)      ! constituent type per group
-      integer(kind=c_int), intent(out) :: maxbin(ngroup)                ! max prognostic bin per group
-
-      ! Local variables
-      integer :: ielem, ibin, igroup, rc
-      real(kind=c_double) :: mmr_bin(nz)                                ! temporary for GetBin call
-      real(kind=c_double) :: numberDensity(nz), rwet_bin(nz), rhop_wet_bin(nz)
-      real(kind=c_double) :: vf_bin(nz+1), nucleationRate(nz), vd_scalar
-      real(kind=c_double) :: r_group(nbin), rmass_group(nbin), rrat_group(nbin), arat_group(nbin)
-      integer :: ienconc_tmp, maxbin_tmp, cnsttype_tmp
-
-      ! Initialize arrays
-      pc(:,:,:) = 0.0_c_double
-      mmr(:,:,:) = 0.0_c_double
-      r_wet(:,:,:) = 0.0_c_double
-      rhop_wet(:,:,:) = 0.0_c_double
-      vf(:,:,:) = 0.0_c_double
-      nucleation(:,:,:) = 0.0_c_double
-      vd(:,:,:) = 0.0_c_double
-
-      ! Extract data for all elements and bins
-      do ielem = 1, nelem
-         call CARMAELEMENT_Get(carma_ptr, ielem, rc, igroup=igroup)
-         if (rc /= 0) then
-            rc = MUSICA_CARMA_ERROR_CODE_GET_FAILED
-            return
-         end if
-
-         do ibin = 1, nbin
-            ! Get fundamental bin data - all the data needed for Python calculations
-            call CARMASTATE_GetBin(cstate, ielem, ibin, mmr_bin, rc, &
-               numberDensity=numberDensity, r_wet=rwet_bin, rhop_wet=rhop_wet_bin, &
-               vf=vf_bin, nucleationRate=nucleationRate, vd=vd_scalar)
-            if (rc /= 0) then
-               rc = MUSICA_CARMA_ERROR_CODE_GET_FAILED
-               return
-            end if
-
-            ! Store the data - only for concentration elements to match carmadiags logic
-            pc(:, ibin, ielem) = numberDensity(:)                      ! particle concentration [#/cm³]
-            mmr(:, ibin, ielem) = mmr_bin(:)                           ! mass mixing ratio [kg/kg]
-            r_wet(:, ibin, igroup) = rwet_bin(:)                       ! wet radius [cm]
-            rhop_wet(:, ibin, igroup) = rhop_wet_bin(:)                ! wet density [g/cm³]
-            vf(:, ibin, igroup) = vf_bin(:)                            ! fall velocity [cm/s]
-            nucleation(:, ibin, igroup) = nucleationRate(:)           ! nucleation rate [1/cm³/s]
-            vd(:, ibin, igroup) = vd_scalar                            ! deposition velocity [cm/s]
-         end do
-      end do
-
-      ! Extract group configuration data
-      do igroup = 1, ngroup
-         ! Get group properties - all data needed for Python calculations
-         call CARMAGROUP_Get(carma_ptr, igroup, rc, ienconc=ienconc_tmp, cnsttype=cnsttype_tmp, &
-            r=r_group, rmass=rmass_group, rrat=rrat_group, arat=arat_group, &
-            maxbin=maxbin_tmp)
-         if (rc /= 0) then
-            rc = MUSICA_CARMA_ERROR_CODE_GET_FAILED
-            return
-         end if
-
-         ! Store group configuration data
-         r_dry(:, igroup) = r_group(:)                                 ! dry radius [cm]
-         rmass(:, igroup) = rmass_group(:)                             ! mass per bin [g]
-         rrat(:, igroup) = rrat_group(:)                               ! radius ratio
-         arat(:, igroup) = arat_group(:)                               ! area ratio
-         ienconc(igroup) = ienconc_tmp                                 ! concentration element per group
-         constituent_type(igroup) = cnsttype_tmp                      ! constituent type per group
-         maxbin(igroup) = maxbin_tmp                                   ! max prognostic bin per group
-      end do
-
-   end subroutine extract_carma_fundamental_data
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
