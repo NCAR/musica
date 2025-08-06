@@ -177,6 +177,7 @@ def test_carma_aluminum():
     mmr_initial = 5e9 / (deltaz * 2.57474699e14) / density[0]
 
     state = carma.create_state(
+        time_step=params.dtime,
         temperature=temperature,
         pressure=pressure,
         pressure_levels=pressure_levels,

@@ -1215,7 +1215,6 @@ class CARMA:
 
         return CARMAState(
             self._carma_instance,
-            time_step=self.__parameters.dtime,
             **kwargs
         )
 

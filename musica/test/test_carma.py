@@ -37,6 +37,9 @@ def test_carma_instance():
     state = carma.create_state(
         longitude=0.0,
         latitude=0.0,
+        time_step=test_params.dtime,
+        vertical_center=[16500.0, 17500.0],
+        vertical_levels=[16500.0, 17000.0, 17500.0],
         temperature=[300.0, 280.0],
         pressure=[101335.0, 90000.0],
         pressure_levels=[101325.0, 90050.0, 80000.0],
