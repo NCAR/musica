@@ -857,7 +857,6 @@ class CARMAParameters:
             deltaz=1000.0,
             zmin=16500.0,
             dtime=1800.0,
-            # wavelength_bins=wavelength_bins,
             groups=[group],
             elements=[element],
             coagulations=[coagulation]

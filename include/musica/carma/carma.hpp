@@ -167,7 +167,7 @@ namespace musica
   {
     std::string name = "default_group";
     std::string shortname = "";
-    double rmin = 1e-9;     // minimum radius [cm]
+    double rmin = 1e-9;     // minimum radius [m]
     double rmrat = 2.0;     // volume ratio between bins
     double rmassmin = 0.0;  // minimum mass [kg] (When rmassmin > 0, rmin is ignored)
     ParticleShape ishape = ParticleShape::SPHERE;
@@ -186,7 +186,7 @@ namespace musica
     double solfac = 0.0;          // Solubility factor for wet deposition
     double scavcoef = 0.0;        // Scavenging coefficient for wet deposition
     double dpc_threshold = 0.0;   // convergence criteria for particle concentration [fraction]
-    double rmon = 0.0;            // monomer radius [cm]
+    double rmon = 0.0;            // monomer radius [m]
     std::vector<double> df;       // fractal dimension per bin
     double falpha = 1.0;          // fractal packing coefficient
     double neutral_volfrc = 0.0;  // neutral volume fraction for fractal particles
