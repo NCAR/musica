@@ -68,7 +68,6 @@ def test_carma_instance():
     print(carma.get_gas_properties(1))
 
 
-
 def test_carma_with_all_components():
     """Test CARMA with multiple groups, elements, solutes, and gases"""
     params = musica.CARMAParameters()
@@ -239,6 +238,7 @@ def test_carma_with_all_components():
 
     # Create CARMA instance and run
     carma = musica.CARMA(params)
+
 
 if __name__ == '__main__':
     pytest.main([__file__])

@@ -862,6 +862,7 @@ class CARMAParameters:
 
         return params
 
+
 class CARMASurfaceProperties:
     """
     Represents the surface properties used in CARMA simulations.
@@ -1273,4 +1274,3 @@ class CARMA:
         if solute_index < 1 or solute_index > len(self.__parameters.solutes):
             raise IndexError("Solute index out of range.")
         return self.__parameters.solutes[solute_index - 1]
-    

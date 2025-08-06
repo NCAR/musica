@@ -588,7 +588,7 @@ namespace musica
 
     // Set default values for the aluminum test case
     params.nbin = 5;
-    params.dtime = 1800.0;   // 30 minutes
+    params.dtime = 1800.0;  // 30 minutes
 
     // Wavelength grid
     params.wavelength_bins = {
