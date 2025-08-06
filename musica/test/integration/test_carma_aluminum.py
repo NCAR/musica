@@ -8,6 +8,7 @@ available = musica.backend.carma_available()
 pytestmark = pytest.mark.skipif(
     not available, reason="CARMA backend is not available")
 
+
 def _extract_bin_data(data, key, nbin, nelem):
     # input data is time * bin * elem, each element contains data for each vertical level
     # so output should be time * bin * elem * z
@@ -24,6 +25,7 @@ def _extract_bin_data(data, key, nbin, nelem):
     # transpose to match expected output shape: time * z * bin * elem
     return np.transpose(result, (0, 3, 1, 2))
 
+
 def _extract_scalar_bin_data(data, key, nbin, nelem):
     result = []
     for data_step in data:
@@ -35,6 +37,7 @@ def _extract_scalar_bin_data(data, key, nbin, nelem):
             step_data.append(bin_data)
         result.append(step_data)
     return result
+
 
 def extract_data(params, state, env, bin_data, time_array, vertical_center, vertical_levels):
     nz = params.nz
@@ -158,8 +161,8 @@ def test_carma_aluminum():
     # Test CARMA instance creation
     params = musica.CARMAParameters.create_aluminum_test_config()
     n_levels = params.nz
-    deltaz=1000.0
-    zmin=16500.0
+    deltaz = 1000.0
+    zmin = 16500.0
 
     vertical_center = zmin + (np.arange(n_levels) + 0.5) * deltaz
     vertical_levels = zmin + np.arange(n_levels + 1) * deltaz
@@ -205,6 +208,7 @@ def test_carma_aluminum():
 
     ds = extract_data(params, state, env, bin_data, time_array, vertical_center, vertical_levels)
     print(ds)
+
 
 if __name__ == '__main__':
     import sys
