@@ -167,7 +167,7 @@ namespace musica
   {
     std::string name = "default_group";
     std::string shortname = "";
-    double rmin = 1e-9;     // minimum radius [m]
+    double rmin = 1e-9;     // minimum radius [cm]
     double rmrat = 2.0;     // volume ratio between bins
     double rmassmin = 0.0;  // minimum mass [kg] (When rmassmin > 0, rmin is ignored)
     ParticleShape ishape = ParticleShape::SPHERE;
@@ -186,7 +186,7 @@ namespace musica
     double solfac = 0.0;          // Solubility factor for wet deposition
     double scavcoef = 0.0;        // Scavenging coefficient for wet deposition
     double dpc_threshold = 0.0;   // convergence criteria for particle concentration [fraction]
-    double rmon = 0.0;            // monomer radius [m]
+    double rmon = 0.0;            // monomer radius [cm]
     std::vector<double> df;       // fractal dimension per bin
     double falpha = 1.0;          // fractal packing coefficient
     double neutral_volfrc = 0.0;  // neutral volume fraction for fractal particles
@@ -327,43 +327,6 @@ namespace musica
     CARMAInitializationConfig initialization;
   };
 
-  struct CARMAOutput
-  {
-    // Grid and coordinate arrays
-    std::vector<double> lat;              // Latitude [degrees]
-    std::vector<double> lon;              // Longitude [degrees]
-    std::vector<double> vertical_center;  // Height at cell centers [m]
-    std::vector<double> vertical_levels;  // Height at cell interfaces [m]
-
-    // Atmospheric state variables (nz elements)
-    std::vector<double> pressure;     // Pressure [Pa]
-    std::vector<double> temperature;  // Temperature [K]
-    std::vector<double> air_density;  // Air density [kg/m3]
-
-    // Fundamental CARMA data for Python calculations
-    // Particle state arrays (3D: nz x nbin x nelem)
-    std::vector<std::vector<std::vector<double>>> particle_concentration;  // particle concentration [# cm-3]
-    std::vector<std::vector<std::vector<double>>> mass_mixing_ratio;       // mass mixing ratio [kg kg-1]
-
-    // Particle properties (3D: nz x nbin x ngroup)
-    std::vector<std::vector<std::vector<double>>> wet_radius;           // wet radius [cm]
-    std::vector<std::vector<std::vector<double>>> wet_density;          // wet density [g cm-3]
-    std::vector<std::vector<std::vector<double>>> fall_velocity;        // fall velocity [cm s-1] (nz+1 x nbin x ngroup)
-    std::vector<std::vector<std::vector<double>>> nucleation_rate;      // nucleation rate [cm-3 s-1] (nz x nbin x ngroup)
-    std::vector<std::vector<std::vector<double>>> deposition_velocity;  // deposition velocity [cm s-1] (nz x nbin x ngroup)
-
-    // Group configuration arrays (2D: nbin x ngroup)
-    std::vector<std::vector<double>> dry_radius;    // dry radius [cm]
-    std::vector<std::vector<double>> mass_per_bin;  // mass per bin [g]
-    std::vector<std::vector<double>> radius_ratio;  // radius ratio
-    std::vector<std::vector<double>> aspect_ratio;  // area ratio
-
-    // Group mapping and properties (1D arrays)
-    std::vector<int> group_particle_number_concentration;  // concentration element per group [ngroup]
-    std::vector<int> constituent_type;                     // constituent type per group [ngroup]
-    std::vector<int> max_prognostic_bin;                   // max prognostic bin per group [ngroup]
-  };
-
   struct CARMAGroupProperties
   {
     std::vector<double> bin_radius;                // Bin radius for the group [cm]
@@ -416,10 +379,6 @@ namespace musica
     /// @brief Get the version of CARMA
     /// @return The version string of the CARMA instance
     static std::string GetVersion();
-
-    /// @brief Run CARMA with the specified parameters and configuration
-    /// @return The CARMA output data
-    CARMAOutput Run();
 
     CCARMAParameters* GetParameters() const
     {

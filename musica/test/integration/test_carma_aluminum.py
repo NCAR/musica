@@ -79,7 +79,6 @@ def extract_data(params, state, env, bin_data, time_array):
     # so bin_data's shape is: time * bin * elem * z
 
     # Vector data (with z-dimension)
-    print(f"mmr shape: {_extract_bin_data(bin_data, 'mass_mixing_ratio', nbin, nelem).shape}")
     data_vars['mass_mixing_ratio'] = (
         ('time', 'z', 'bin', 'elem'), _extract_bin_data(bin_data, 'mass_mixing_ratio', nbin, nelem), {
             'units': 'kg kg-1', 'long_name': 'Mass mixing ratio'})
@@ -157,7 +156,6 @@ def extract_bin_data_for_timestep(params, state):
 def test_carma_aluminum():
     # Test CARMA instance creation
     params = musica.CARMAParameters.create_aluminum_test_config()
-    params.nstep = 5
 
     carma = musica.CARMA(params)
 

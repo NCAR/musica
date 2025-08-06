@@ -414,7 +414,7 @@ class CARMACoagulationConfig:
                  igroup2: int = 1,
                  igroup3: int = 1,
                  algorithm: int = ParticleCollectionAlgorithm.CONSTANT,
-                 ck0: float = 0.0,
+                 ck0: float = -1.0,
                  grav_e_coll0: float = 0.0,
                  use_ccd: bool = False):
         """
@@ -425,7 +425,7 @@ class CARMACoagulationConfig:
             igroup2: Second group index (default: 1)
             igroup3: Third group index (default: 1)
             algorithm: Coagulation algorithm (default: ParticleCollectionAlgorithm.CONSTANT)
-            ck0: Collection efficiency constant (default: 0.0)
+            ck0: Collection efficiency constant (default: -1.0). If -1.0, it will not be specified when setting up the coagualation process in carma
             grav_e_coll0: Gravitational collection efficiency constant (default: 0.0)
             use_ccd: Whether to use constant collection efficiency data (default: False)
         """
@@ -852,7 +852,7 @@ class CARMAParameters:
             shortname="ALUM",
             itype=ParticleType.INVOLATILE,
             icomposition=ParticleComposition.ALUMINUM,
-            rho=3.95,  # g/m3
+            rho=0.00395,  # kg/m3
             arat=[1.0] * 5,  # 5 bins with area ratio 1.0
             kappa=0.0,
         )

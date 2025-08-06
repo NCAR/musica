@@ -168,24 +168,25 @@ contains
       if (c_associated(carma_cptr)) then
          call c_f_pointer(carma_cptr, carma)
          call CARMASTATE_Create( &
-            cstate, &
-            carma, &
-            carma_state_params%time, &
-            carma_state_params%time_step, &
-            carma_params%nz, &
-            carma_state_params%coordinates, &
-            carma_state_params%latitude, &
-            carma_state_params%longitude, &
-            vertical_center(:), &
-            vertical_levels(:), &
-            pressure(:), &
-            pressure_levels(:), &
-            temperature(:), &
-            rc, &
+            cstate=cstate, &
+            carma_ptr=carma, &
+            time=carma_state_params%time, &
+            dtime=carma_state_params%time_step, &
+            NZ=carma_params%nz, &
+            igridv=carma_state_params%coordinates, &
+            xc=carma_state_params%latitude, &
+            yc=carma_state_params%longitude, &
+            zc=vertical_center(:), &
+            zl=vertical_levels(:), &
+            p=pressure(:), &
+            pl=pressure_levels(:), &
+            t=temperature(:), &
+            rc=rc, &
             qh2o=specific_humidity(:), &
             relhum=relative_humidity(:), &
             told=original_temperature(:), &
-            radint=radiative_intensity(:,:))
+            radint=radiative_intensity(:,:) &
+            )
          if (rc /= 0) then
             rc = MUSICA_CARMA_ERROR_CODE_CREATION_FAILED
             return
@@ -384,7 +385,7 @@ contains
          call c_f_pointer(values_ptr, values, [values_size])
 
          call CARMASTATE_SetGas(cstate, gas_index, values, rc, old_mmr, gas_saturation_wrt_ice, gas_saturation_wrt_liquid)
-         
+
          if (rc /= 0) then
             rc = MUSICA_CARMA_ERROR_CODE_SET_FAILED
             return
@@ -661,7 +662,7 @@ contains
             eqice=gas_vapor_pressure_wrt_ice, &
             eqliq=gas_vapor_pressure_wrt_liquid, &
             wtpct=weight_pct_aerosol_composition)
-         
+
          if (rc /= 0) then
             rc = MUSICA_CARMA_ERROR_CODE_GET_FAILED
             return
@@ -805,7 +806,7 @@ contains
       bind(C, name="InternalStepCarmaState")
       use iso_c_binding, only: c_ptr, c_int
       use iso_fortran_env, only: real64
-      use carmastate_mod, only: CARMASTATE_Step
+      use carmastate_mod, only: CARMASTATE_Step, CARMASTATE_GetBin
       use carma_types_mod, only: carmastate_type
       use carma_parameters_mod, only: carma_state_step_config_t
 
@@ -843,8 +844,8 @@ contains
             deallocate_critical_rh = .true.
          end if
          call CARMASTATE_Step( &
-            cstate, &
-            rc, &
+            cstate=cstate, &
+            rc=rc, &
             cldfrc=cloud_fraction, &
             rhcrit=critical_rh, &
             lndfv=step_config%land%surface_friction_velocity, &
@@ -999,7 +1000,7 @@ contains
             [element_props%refidx_dim_2_size, element_props%refidx_dim_1_size])
          allocate(refidx(element_props%refidx_dim_2_size, element_props%refidx_dim_1_size))
          refidx(:,:) = cmplx(0.0, 0.0, kind=real64)
-         
+
          ! Get element properties
          if (carma%f_NWAVE < 1 .or. carma%f_NREFIDX < 1) then
             call CARMAELEMENT_Get( &
@@ -1400,16 +1401,28 @@ contains
          call c_f_pointer(params%coagulations, coagulation_config, [params%coagulations_size])
          do icoag = 1, params%coagulations_size
             associate(coag => coagulation_config(icoag))
-               call CARMA_AddCoagulation( &
-                  carma, &
-                  int(coag%igroup1), &
-                  int(coag%igroup2), &
-                  int(coag%igroup3), &
-                  int(coag%algorithm), &
-                  rc, &
-                  ck0=real(coag%ck0, kind=real64), &
-                  grav_e_coll0=real(coag%grav_e_coll0, kind=real64), &
-                  use_ccd=logical(coag%use_ccd))
+               if (coag%ck0 .ge. 0.0_real64) then
+                  call CARMA_AddCoagulation( &
+                     carma=carma, &
+                     igroup1=int(coag%igroup1), &
+                     igroup2=int(coag%igroup2), &
+                     igroup3=int(coag%igroup3), &
+                     icollec=int(coag%algorithm), &
+                     rc=rc, &
+                     ck0=real(coag%ck0, kind=real64), &
+                     grav_e_coll0=real(coag%grav_e_coll0, kind=real64), &
+                     use_ccd=logical(coag%use_ccd))
+               else
+                  call CARMA_AddCoagulation( &
+                     carma=carma, &
+                     igroup1=int(coag%igroup1), &
+                     igroup2=int(coag%igroup2), &
+                     igroup3=int(coag%igroup3), &
+                     icollec=int(coag%algorithm), &
+                     rc=rc, &
+                     grav_e_coll0=real(coag%grav_e_coll0, kind=real64), &
+                     use_ccd=logical(coag%use_ccd))
+               endif
                if (rc /= 0) then
                   rc = MUSICA_CARMA_ERROR_CODE_ADD_CARMA_OBJECT_FAILED
                   return
