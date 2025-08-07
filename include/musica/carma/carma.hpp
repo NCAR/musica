@@ -142,9 +142,9 @@ namespace musica
 
   enum class SulfateNucleationMethod
   {
-    NONE = 0,          // No sulfate nucleation
-    ZHAO_TURCO = 1,    // Zhao and Turco sulfate nucleation
-    VEHKAMAKI = 2      // Vehkamaki et al. sulfate nucleation
+    NONE = 0,        // No sulfate nucleation
+    ZHAO_TURCO = 1,  // Zhao and Turco sulfate nucleation
+    VEHKAMAKI = 2    // Vehkamaki et al. sulfate nucleation
   };
 
   // Structure representing a wavelength bin
@@ -289,16 +289,16 @@ namespace musica
     bool do_partialinit = false;    // do initialization of coagulation from reference atmosphere (requires do_fixedinit)
     bool do_coremasscheck = false;  // check core mass for particles
     SulfateNucleationMethod sulfnucl_method = SulfateNucleationMethod::NONE;  // method for sulfate nucleation
-    double vf_const = 0.0;          // constant fall velocity [m/s] (0: off)
-    int minsubsteps = 1;            // minimum number of substeps
-    int maxsubsteps = 1;            // maximum number of substeps
-    int maxretries = 5;             // maximum number of retries
-    double conmax = 1.0e-1;         // minimum relative concentration to consider
-    double dt_threshold = 0.0;      // convergence criteria for temperature [fraction] (0: off)
-    double cstick = 1.0;            // accommodation coefficient for coagulation
-    double gsticki = 0.93;          // accommodation coefficient for growth of ice
-    double gstickl = 1.0;           // accommodation coefficient for growth of liquid
-    double tstick = 1.0;            // accommodation coefficient temperature
+    double vf_const = 0.0;                                                    // constant fall velocity [m/s] (0: off)
+    int minsubsteps = 1;                                                      // minimum number of substeps
+    int maxsubsteps = 1;                                                      // maximum number of substeps
+    int maxretries = 5;                                                       // maximum number of retries
+    double conmax = 1.0e-1;                                                   // minimum relative concentration to consider
+    double dt_threshold = 0.0;  // convergence criteria for temperature [fraction] (0: off)
+    double cstick = 1.0;        // accommodation coefficient for coagulation
+    double gsticki = 0.93;      // accommodation coefficient for growth of ice
+    double gstickl = 1.0;       // accommodation coefficient for growth of liquid
+    double tstick = 1.0;        // accommodation coefficient temperature
   };
 
   // Structure representing CARMA parameters

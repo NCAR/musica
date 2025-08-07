@@ -31,7 +31,7 @@ namespace musica
       throw std::invalid_argument("Vertical center heights size must match the number of vertical centers.");
     state_params.vertical_levels_size = static_cast<int>(params.vertical_levels.size());
     state_params.vertical_levels = params.vertical_levels.empty() ? nullptr : params.vertical_levels.data();
-    if (state_params.vertical_levels != nullptr && state_params.vertical_levels_size != this->nz+1)
+    if (state_params.vertical_levels != nullptr && state_params.vertical_levels_size != this->nz + 1)
       throw std::invalid_argument("Vertical levels size must match the number of vertical levels.");
     state_params.temperature_size = static_cast<int>(params.temperature.size());
     state_params.temperature = params.temperature.empty() ? nullptr : params.temperature.data();
@@ -43,7 +43,7 @@ namespace musica
       throw std::invalid_argument("Pressure profile size must match the number of vertical centers.");
     state_params.pressure_levels_size = static_cast<int>(params.pressure_levels.size());
     state_params.pressure_levels = params.pressure_levels.empty() ? nullptr : params.pressure_levels.data();
-    if (state_params.pressure_levels != nullptr && state_params.pressure_levels_size != this->nz+1)
+    if (state_params.pressure_levels != nullptr && state_params.pressure_levels_size != this->nz + 1)
       throw std::invalid_argument("Pressure levels size must match the number of vertical levels.");
     state_params.specific_humidity_size = static_cast<int>(params.specific_humidity.size());
     state_params.specific_humidity = params.specific_humidity.empty() ? nullptr : params.specific_humidity.data();
@@ -67,7 +67,7 @@ namespace musica
       if (state_params.radiative_intensity_dim_2_size != this->nz)
         throw std::invalid_argument("Radiative intensity second dimension size must match the number of vertical centers.");
     }
-    
+
     int rc;
     f_carma_state_ = InternalCreateCarmaState(
         carma.GetCarmaInstance(),
