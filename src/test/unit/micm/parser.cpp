@@ -98,3 +98,7 @@ TEST(Parser, CanParseFullV1)
     EXPECT_EQ(chemistry.processes.size(), 9);
   }
 }
+
+TEST(Parse, CanConvertFromV0ToV1) {
+  mechanism_configuration::v1::types::Mechanism  mechanism = musica::ConvertV0MechanismToV1("configs/v0/chapman");
+}

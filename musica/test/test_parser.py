@@ -1,5 +1,5 @@
 import pytest
-from musica.mechanism_configuration import *
+from musica.mechanism_configuration import Parser
 from test_util_full_mechanism import get_fully_defined_mechanism, validate_full_v1_mechanism
 
 

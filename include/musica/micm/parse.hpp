@@ -62,6 +62,10 @@ namespace musica
   Chemistry ConvertV1Mechanism(const mechanism_configuration::v1::types::Mechanism& v1_mechanism);
   Chemistry ParserV1(const mechanism_configuration::ParserResult<>& result);
 
+  mechanism_configuration::v1::types::Mechanism ConvertV0MechanismToV1(const std::string& config_path);
+  mechanism_configuration::v1::types::Mechanism ConvertV0MechanismToV1(
+      const mechanism_configuration::v0::types::Mechanism& v0_mechanism);
+
   // Utility functions to check types and perform conversions
   bool IsBool(const std::string& value);
   bool IsInt(const std::string& value);

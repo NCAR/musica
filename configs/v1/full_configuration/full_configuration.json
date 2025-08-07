@@ -105,11 +105,19 @@
   "reactions": [
     {
       "type": "HL_PHASE_TRANSFER",
-      "gas phase": "gas",
-      "gas-phase species": "H2O2",
-      "aerosol phase": "aqueous aerosol",
-      "aerosol-phase species": "H2O2_aq",
-      "aerosol-phase water": "H2O_aq",
+      "gas": {
+        "name": "gas",
+        "species": [
+          "H2O2"
+        ]
+      },
+      "particle": {
+        "phase": "aqueous",
+        "solutes": [
+          "H2O2_aq"
+        ],
+        "solvent": "H2O"
+      },
       "name": "my henry's law"
     },
     {
