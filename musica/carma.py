@@ -931,6 +931,9 @@ class CARMAState:
                  pressure_levels: List[float],
                  temperature: List[float],
                  original_temperature: Optional[List[float]] = None,
+                 relative_humidity: Optional[List[float]] = None,
+                 specific_humidity: Optional[List[float]] = None,
+                 radiative_intensity: Optional[List[List[float]]] = None,
                  time: float = 0.0,
                  time_step: float = 1.0,
                  latitude: float = 0.0,
@@ -948,6 +951,9 @@ class CARMAState:
             pressure_levels: List of pressures at vertical levels in Pascals
             temperature: List of temperatures at vertical centers in Kelvin
             original_temperature: List of original temperatures at vertical centers in Kelvin (default: None) If None, will use temperature
+            relative_humidity: List of relative humidity at vertical centers in percent (default: None)
+            specific_humidity: List of specific humidity at vertical centers in kg/kg (default: None)
+            radiative_intensity: List of radiative intensity at vertical centers in W/m² (wavelength, vertical_center) (default: None)
             time: Simulation time in seconds (default: 0.0)
             time_step: Time step in seconds (default: 1.0)
             latitude: Latitude in degrees (default: 0.0)
@@ -1131,10 +1137,10 @@ class CARMAState:
 
     def get_environmental_values(self) -> Dict[str, Any]:
         """
-        Get all state values for the current CARMAState.
+        Get all environmental conditions for the current CARMAState.
 
         Returns:
-            Dict[str, Any]: Dictionary containing all state values
+            Dict[str, Any]: Dictionary containing all environmental conditions
         """
         return _backend._carma._get_environmental_values(self._carma_state_instance)
 

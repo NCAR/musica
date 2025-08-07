@@ -37,6 +37,39 @@ auto to_vector_double = [](const py::object& obj) -> std::vector<double>
   return {};
 };
 
+auto array_2d_to_vector_double = [](const py::object& obj) -> std::tuple<std::vector<double>, int, int>
+{
+  if (obj.is_none())
+    return {};
+  if (py::isinstance<py::array>(obj))
+  {
+    auto arr = obj.cast<py::array>();
+    if (arr.ndim() != 2)
+      throw std::invalid_argument("Expected 2D array for 2D double vector");
+    auto shape = arr.shape();
+    return { arr.cast<std::vector<double>>(), static_cast<int>(shape[0]), static_cast<int>(shape[1]) };
+  }
+  if (py::isinstance<py::list>(obj))
+  {
+    auto list = obj.cast<py::list>();
+    if (list.size() == 0 || !py::isinstance<py::list>(list[0]))
+      throw std::invalid_argument("Expected list of lists for 2D double vector");
+    int rows = static_cast<int>(list.size());
+    int cols = static_cast<int>(list[0].cast<py::list>().size());
+    std::vector<double> result;
+    for (const auto& row : list)
+    {
+      auto row_list = row.cast<py::list>();
+      if (row_list.size() != cols)
+        throw std::invalid_argument("All rows must have the same number of elements");
+      for (const auto& item : row_list)
+        result.push_back(item.cast<double>());
+    }
+    return { result, rows, cols };
+  }
+  throw std::invalid_argument("Expected a 2D array or list of lists for 2D double vector");
+};
+
 auto to_surface_properties = [](const py::object& obj) -> musica::CARMASurfaceProperties
 {
   if (obj.is_none())
@@ -615,6 +648,21 @@ void bind_carma(py::module_& carma)
         params.original_temperature = to_vector_double(kwargs["original_temperature"]);
         params.pressure = to_vector_double(kwargs["pressure"]);
         params.pressure_levels = to_vector_double(kwargs["pressure_levels"]);
+        if (kwargs.contains("relative_humidity"))
+        {
+          params.relative_humidity = to_vector_double(kwargs["relative_humidity"]);
+        }
+        if (kwargs.contains("specific_humidity"))
+        {
+          params.specific_humidity = to_vector_double(kwargs["specific_humidity"]);
+        }
+        if (kwargs.contains("radiative_intensity"))
+        {
+          auto array_2d = array_2d_to_vector_double(kwargs["radiative_intensity"]);
+          params.radiative_intensity = std::get<0>(array_2d);
+          params.radiative_intensity_dim_1_size = std::get<1>(array_2d);
+          params.radiative_intensity_dim_2_size = std::get<2>(array_2d);
+        }
 
         musica::CARMA* carma_instance = reinterpret_cast<musica::CARMA*>(carma_ptr);
         try

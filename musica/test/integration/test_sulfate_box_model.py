@@ -5,16 +5,15 @@ import musica.mechanism_configuration as mc
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-pd.set_option('display.float_format', str)
-np.set_printoptions(suppress=True)
+import ussa1976
 
-MOLEC_CM3_TO_MOLE_M3 = 1.0e6 / 6.022e23  # Convert from molecules/cm³ to moles/m³
+MOLEC_CM3_TO_MOLE_M3 = np.float64(1.0e6) / np.float64(6.022e23)  # Convert from molecules/cm³ to moles/m³
 NUMBER_OF_GRID_CELLS = 120  # Number of grid cells for the simulation
 NUMBER_OF_AEROSOL_SECTIONS = 38  # Number of aerosol sections for the simulation
-DENSITY_SULFATE = 1923.0  # Density of sulfate in kg/m³
-MOLECULAR_MASS_H2O = 0.01801528  # kg/mol
-MOLECULAR_MASS_H2SO4 = 0.098078479  # kg/mol
-MOLECULAR_MASS_AIR = 0.029  # kg/mol (average molecular mass of air)
+DENSITY_SULFATE = np.float64(1923.0)  # Density of sulfate in kg/m³
+MOLECULAR_MASS_H2O = np.float64(0.01801528)  # kg/mol
+MOLECULAR_MASS_H2SO4 = np.float64(0.098078479)  # kg/mol
+MOLECULAR_MASS_AIR = np.float64(0.029)  # kg/mol (average molecular mass of air)
 
 
 def create_mechanism():
@@ -23,7 +22,7 @@ def create_mechanism():
     """
     HO2 = mc.Species(name="HO2")
     H2O2 = mc.Species(name="H2O2")
-    OH = mc.Species(name="OH", constant_mixing_ratio_mol_mol=0.8e-12)
+    OH = mc.Species(name="OH", constant_mixing_ratio_mol_mol=0.8e-11)
     SO2 = mc.Species(name="SO2")
     SO3 = mc.Species(name="SO3")
     H2SO4 = mc.Species(name="H2SO4")
@@ -111,8 +110,6 @@ def create_carma_solver():
     """
     params = musica.CARMAParameters()
     params.nz = NUMBER_OF_GRID_CELLS
-    params.zmin = 0.0
-    params.delta_z = 100.0  # Vertical grid spacing in meters
     params.nbin = NUMBER_OF_AEROSOL_SECTIONS
 
     # Set up a group for sulfate particles
@@ -214,26 +211,34 @@ def get_initial_conditions():
       - Concentrations are calculated using the conversion factor MOLEC_CM3_TO_MOLE_M3.
       - Some species are initialized to zero concentration.
     """
-    
-    temperature = np.full(NUMBER_OF_GRID_CELLS, 279.3)  # Temperature in Kelvin
-    pressure = np.full(NUMBER_OF_GRID_CELLS, 101300.0)  # Pressure in Pascals
-    air_density = pressure / (GAS_CONSTANT * temperature)  # Ideal gas law: rho = P / (R * T)
 
+    # Set up the vertical grid in CARMA
+    zmin = np.float64(0.0)
+    deltaz = np.float64(100.0)
+    grid = {
+        "vertical_center": zmin + (np.arange(NUMBER_OF_GRID_CELLS, dtype=np.float64) + 0.5) * deltaz,
+        "vertical_levels": zmin + np.arange(NUMBER_OF_GRID_CELLS + 1, dtype=np.float64) * deltaz
+    }
+
+    centered_variables = ussa1976.compute(z=grid["vertical_center"], variables=["t", "p"])
+    edge_variables = ussa1976.compute(z=grid["vertical_levels"], variables=["p"])
+    centered_variables["rho"] = centered_variables["p"] / (GAS_CONSTANT * centered_variables["t"])
     environmental_conditions = {
-      "temperature": temperature,
-      "pressure": pressure,
-      "pressure levels": np.full(NUMBER_OF_GRID_CELLS+1, 101300.0),  # Pressure in Pascals
-      "air density": air_density
+      "temperature": np.array(centered_variables["t"], dtype=np.float64),
+      "pressure": np.array(centered_variables["p"], dtype=np.float64),
+      "pressure levels": np.array(edge_variables["p"], dtype=np.float64),
+      "air density": np.array(centered_variables["rho"], dtype=np.float64)
     }
+
     initial_concentrations = {
-      "HO2": np.full(NUMBER_OF_GRID_CELLS, 2.5e19 * 80.0e-12 * MOLEC_CM3_TO_MOLE_M3),
-      "H2O2": np.full(NUMBER_OF_GRID_CELLS, 2.5e19 * 1.0e-9 * MOLEC_CM3_TO_MOLE_M3),
-      "SO2": np.full(NUMBER_OF_GRID_CELLS, 2.5e19 * 0.15e-9 * MOLEC_CM3_TO_MOLE_M3),
-      "SO3": np.zeros(NUMBER_OF_GRID_CELLS),
-      "H2SO4": np.zeros(NUMBER_OF_GRID_CELLS),
-      "H2O": np.full(NUMBER_OF_GRID_CELLS, 2.5e19 * 0.004 * MOLEC_CM3_TO_MOLE_M3),
+      "HO2": environmental_conditions["air density"] * 80.0e-12,
+      "H2O2": environmental_conditions["air density"] * 1.0e-9,
+      "SO2": environmental_conditions["air density"] * 0.15e-9,
+      "SO3": np.zeros(NUMBER_OF_GRID_CELLS, dtype=np.float64),
+      "H2SO4": np.zeros(NUMBER_OF_GRID_CELLS, dtype=np.float64),
+      "H2O": environmental_conditions["air density"] * 0.004,
     }
-    return environmental_conditions, initial_concentrations
+    return grid, environmental_conditions, initial_concentrations
 
 
 def run_box_model():
@@ -251,26 +256,20 @@ def run_box_model():
         traceback.print_exc()
 
     # Set initial conditions
-    environmental_conditions, initial_concentrations = get_initial_conditions()
+    grid, environmental_conditions, initial_concentrations = get_initial_conditions()
     state.set_conditions(environmental_conditions["temperature"], environmental_conditions["pressure"])
     state.set_concentrations(initial_concentrations)
 
     # Run the simulation for 6 hours with a timestep of 30 seconds
-    time_hours = 6.0
-    time_seconds = time_hours * 3600.0
-    dt = 30.0
+    time_hours = 2.0
+    time_seconds = time_hours * np.float64(3600.0)
+    dt = np.float64(30.0)
     num_steps = int(time_seconds / dt)
 
-    # Set up the vertical grid in CARMA
-    zmin = 0.0
-    deltaz = 100.0
-    vertical_center = zmin + (np.arange(NUMBER_OF_GRID_CELLS) + 0.5) * deltaz
-    vertical_levels = zmin + np.arange(NUMBER_OF_GRID_CELLS + 1) * deltaz
-
     # Initialize state arrays
-    sulfate_mmr = np.zeros((NUMBER_OF_AEROSOL_SECTIONS, NUMBER_OF_GRID_CELLS))
-    carma_water = np.zeros(NUMBER_OF_GRID_CELLS)
-    carma_sulfuric_acid = np.zeros(NUMBER_OF_GRID_CELLS)
+    sulfate_mmr = np.full((NUMBER_OF_AEROSOL_SECTIONS, NUMBER_OF_GRID_CELLS), 1.0e-10, dtype=np.float64)
+    carma_h2o_conc = np.zeros(NUMBER_OF_GRID_CELLS, dtype=np.float64)
+    carma_h2so4_conc = np.zeros(NUMBER_OF_GRID_CELLS, dtype=np.float64)
     output_state = state.get_concentrations()
     output_state["SULFATE"] = sulfate_mmr
     concentrations = [output_state.copy()]
@@ -278,16 +277,22 @@ def run_box_model():
     pressures = [environmental_conditions["pressure"]]
     current_temperature = environmental_conditions["temperature"].copy()
     current_pressure = environmental_conditions["pressure"].copy()
+    satliq_h2o = np.full(NUMBER_OF_GRID_CELLS, -1.0, dtype=np.float64)
+    satice_h2o = np.full(NUMBER_OF_GRID_CELLS, -1.0, dtype=np.float64)
+    satliq_h2so4 = np.full(NUMBER_OF_GRID_CELLS, -1.0, dtype=np.float64)
+    satice_h2so4 = np.full(NUMBER_OF_GRID_CELLS, -1.0, dtype=np.float64)
 
     for i_time in range(num_steps):
-
         state.set_conditions(temperatures=current_temperature, pressures=current_pressure)
         solver.solve(state, dt)
         micm_output = state.get_concentrations()
 
+        h2so4_mmr = np.array(micm_output["H2SO4"], dtype=np.float64) * MOLECULAR_MASS_H2SO4 / (environmental_conditions["air density"] * MOLECULAR_MASS_AIR)
+        h2o_mmr = np.array(micm_output["H2O"], dtype=np.float64) * MOLECULAR_MASS_H2O / (environmental_conditions["air density"] * MOLECULAR_MASS_AIR)
+
         carma_state = carma.create_state(
-            vertical_center=vertical_center,
-            vertical_levels=vertical_levels,
+            vertical_center=grid["vertical_center"],
+            vertical_levels=grid["vertical_levels"],
             temperature=current_temperature,
             pressure=environmental_conditions["pressure"],
             pressure_levels=environmental_conditions["pressure levels"],
@@ -295,6 +300,7 @@ def run_box_model():
             time_step=dt,
             latitude=-40.0,
             longitude=-105.0,
+            relative_humidity=h2o_mmr,
         )
 
         for i_bin in range(NUMBER_OF_AEROSOL_SECTIONS):
@@ -306,13 +312,17 @@ def run_box_model():
 
         carma_state.set_gas(
             gas_index=1,  # Water vapor gas index
-            value=micm_output["H2O"] / environmental_conditions["air density"] * MOLECULAR_MASS_H2O / MOLECULAR_MASS_AIR,
-            old_mmr=carma_water
+            value=h2o_mmr,
+            old_mmr=h2o_mmr,
+            gas_saturation_wrt_liquid=satliq_h2o,
+            gas_saturation_wrt_ice=satice_h2o
         )
         carma_state.set_gas(
             gas_index=2,  # Sulfuric acid gas index
-            value=micm_output["H2SO4"] / environmental_conditions["air density"] * MOLECULAR_MASS_H2SO4 / MOLECULAR_MASS_AIR,
-            old_mmr=carma_sulfuric_acid
+            value=h2so4_mmr,
+            old_mmr=h2so4_mmr,
+            gas_saturation_wrt_liquid=satliq_h2so4,
+            gas_saturation_wrt_ice=satice_h2so4
         )
 
         carma_state.step()
@@ -327,12 +337,21 @@ def run_box_model():
                 element_index=1  # Sulfate element index
             )["mass_mixing_ratio"]
         micm_output["SULFATE"] = sulfate_mmr
-        micm_output["H2O"] = carma_state.get_gas(
+        carma_h2o_conc = np.array(carma_state.get_gas(
             gas_index=1  # Water vapor gas index
-        )["mass_mixing_ratio"] * environmental_conditions["air density"] * MOLECULAR_MASS_AIR / MOLECULAR_MASS_H2O
-        micm_output["H2SO4"] = carma_state.get_gas(
+        )["mass_mixing_ratio"], dtype=np.float64) * environmental_conditions["air density"] * MOLECULAR_MASS_H2O / MOLECULAR_MASS_H2O
+        carma_h2so4_conc = np.array(carma_state.get_gas(
             gas_index=2  # Sulfuric acid gas index
-        )["mass_mixing_ratio"] * environmental_conditions["air density"] * MOLECULAR_MASS_AIR / MOLECULAR_MASS_H2SO4
+        )["mass_mixing_ratio"], dtype=np.float64) * environmental_conditions["air density"] * MOLECULAR_MASS_H2SO4  / MOLECULAR_MASS_AIR
+        conditions = carma_state.get_environmental_values()
+        current_temperature = conditions["temperature"]
+
+        micm_output["H2O"] = carma_h2o_conc
+        micm_output["H2SO4"] = carma_h2so4_conc
+        state.set_concentrations({
+            "H2O": carma_h2o_conc,
+            "H2SO4": carma_h2so4_conc
+        })
 
         temperatures.append(current_temperature)
         pressures.append(current_pressure)
@@ -357,17 +376,26 @@ def plot_results(concentrations, times):
         concentrations (pd.DataFrame): DataFrame containing the concentrations of chemical species over time.
         times (np.ndarray): Array of time values corresponding to the concentrations.
     """
-    # Plot H2O and H2SO4 concentrations over time at the first grid cell
-    h2o_concentration = np.array([conc[0] for conc in [conc["H2O"] for _, conc in concentrations.iterrows()]])
-    h2so4_concentration = np.array([conc[0] for conc in [conc["H2SO4"] for _, conc in concentrations.iterrows()]])
-    plt.figure(figsize=(12, 6))
-    plt.plot(times, h2o_concentration, label="H2O Concentration (moles/m³)")
-    plt.plot(times, h2so4_concentration, label="H2SO4 Concentration (moles/m³)")
-    plt.xlabel("Time (hours)")
-    plt.ylabel("Concentration (moles/m³)")
-    plt.title("Sulfate Box Model: H2O and H2SO4 Concentration Over Time")
-    plt.legend()
-    plt.grid()
+
+    # Create a 4-panel plot for H2O, H2SO4, SO2, and HO2 concentrations over time at the first grid cell
+    fig, axs = plt.subplots(2, 2, figsize=(14, 10), sharex=True)
+    species = ["H2O", "H2SO4", "SO2", "HO2"]
+    titles = [
+        "H2O Concentration (mol/m³)",
+        "H2SO4 Concentration (mol/m³)",
+        "SO2 Concentration (mol/m³)",
+        "HO2 Concentration (mol/m³)"
+    ]
+    for ax, specie, title in zip(axs.flat, species, titles):
+        conc = np.array([row[0] for row in [c[specie] for _, c in concentrations.iterrows()]])
+        ax.plot(times, conc, label=specie)
+        ax.set_title(title)
+        ax.set_ylabel("Concentration (mol/m³)")
+        ax.legend()
+        ax.grid()
+    for ax in axs[1]:
+        ax.set_xlabel("Time (hours)")
+    plt.tight_layout()
     plt.show()
 
     # Plot sulfate mmr in each bin over time at the first grid cell
@@ -383,5 +411,5 @@ def plot_results(concentrations, times):
 
 
 if __name__ == "__main__":
-    concentrations, times = run_box_model()
-    plot_results(concentrations, times)
+    concs, plot_times = run_box_model()
+    plot_results(concs, plot_times)
