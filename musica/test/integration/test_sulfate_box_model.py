@@ -247,6 +247,7 @@ def run_box_model():
     solver = musica.MICM(mechanism=mechanism, solver_type=musica.SolverType.rosenbrock_standard_order)
     state = solver.create_state(number_of_grid_cells=NUMBER_OF_GRID_CELLS)
 
+    carma = None
     try:
         carma = create_carma_solver()
     except Exception as e:
