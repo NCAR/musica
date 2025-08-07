@@ -7,6 +7,10 @@ import pandas as pd
 import numpy as np
 import ussa1976
 
+available = musica.backend.carma_available()
+pytestmark = pytest.mark.skipif(
+    not available, reason="CARMA backend is not available")
+    
 MOLEC_CM3_TO_MOLE_M3 = np.float64(1.0e6) / np.float64(6.022e23)  # Convert from molecules/cm³ to moles/m³
 NUMBER_OF_GRID_CELLS = 120  # Number of grid cells for the simulation
 NUMBER_OF_AEROSOL_SECTIONS = 38  # Number of aerosol sections for the simulation
