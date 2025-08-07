@@ -190,7 +190,7 @@ def create_carma_solver():
     params.initialization.maxretries=16
     params.initialization.maxsubsteps=32
     params.initialization.dt_threshold=1.0
-    params.initialization.sulfnucl_method = musica.carma.SulfateNucleationMethod.ZHAO_TURCO
+    params.initialization.sulfnucl_method = musica.carma.SulfateNucleationMethod.ZHAO_TURCO.value
 
     return musica.CARMA(params)
 
@@ -371,7 +371,7 @@ def test_sulfate_box_model():
 
 
 def plot_results(concentrations, times):
-    """    Plots the results of the sulfate box model simulation.
+    """Plots the results of the sulfate box model simulation.
     Args:
         concentrations (pd.DataFrame): DataFrame containing the concentrations of chemical species over time.
         times (np.ndarray): Array of time values corresponding to the concentrations.
