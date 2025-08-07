@@ -35,14 +35,15 @@ def test_carma_instance():
     assert isinstance(carma, musica.CARMA)
 
     state = carma.create_state(
+        vertical_center=[16500.0],
+        vertical_levels=[16500.0, 17000.0],
+        pressure=[90000.0],
+        pressure_levels=[101325.0, 90050.0],
+        temperature=[280.0],
+        time=0.0,
+        time_step=900.0,  # 15 minutes
         longitude=0.0,
         latitude=0.0,
-        time_step=test_params.dtime,
-        vertical_center=[16500.0, 17500.0],
-        vertical_levels=[16500.0, 17000.0, 17500.0],
-        temperature=[300.0, 280.0],
-        pressure=[101335.0, 90000.0],
-        pressure_levels=[101325.0, 90050.0, 80000.0],
         coordinates=musica.carma.CarmaCoordinates.CARTESIAN
     )
 

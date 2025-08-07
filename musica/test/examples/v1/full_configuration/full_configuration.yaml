@@ -65,19 +65,11 @@ phases:
   - B
   - C
 reactions:
-- type: HL_PHASE_TRANSFER
-  gas phase: gas
-  gas-phase species: H2O2
-  aerosol phase: aqueous aerosol
-  aerosol-phase species: H2O2_aq
-  aerosol-phase water: H2O_aq
-  name: my henry's law
-  __irrelevant: "2"
 - type: SIMPOL_PHASE_TRANSFER
   gas phase: gas
   gas-phase species: ethanol
-  aerosol phase: aqueous aerosol
-  aerosol-phase species: ethanol_aq
+  condensed phase: aqueous aerosol
+  condensed-phase species: ethanol_aq
   B:
   - -1970
   - 2.91
@@ -86,8 +78,8 @@ reactions:
   name: my simpol
   __irrelevant: "2"
 - type: AQUEOUS_EQUILIBRIUM
-  aerosol phase: aqueous aerosol
-  aerosol-phase water: H2O_aq
+  condensed phase: aqueous aerosol
+  condensed-phase water: H2O_aq
   A: 0.0114
   C: 2300
   k_reverse: 0.32
@@ -102,8 +94,7 @@ reactions:
   name: my aqueous eq
   __irrelevant: "2"
 - type: CONDENSED_PHASE_ARRHENIUS
-  aerosol phase: aqueous aerosol
-  aerosol-phase water: H2O_aq
+  condensed phase: aqueous aerosol
   A: 123.45
   Ea: 123.45
   B: 1.3
@@ -120,8 +111,7 @@ reactions:
   name: my condensed arrhenius
   __irrelevant: "2"
 - type: CONDENSED_PHASE_ARRHENIUS
-  aerosol phase: aqueous aerosol
-  aerosol-phase water: H2O_aq
+  condensed phase: aqueous aerosol
   A: 123.45
   C: 123.45
   B: 1.3
@@ -137,8 +127,7 @@ reactions:
     coefficient: 1
   name: my other condensed arrhenius
 - type: CONDENSED_PHASE_PHOTOLYSIS
-  aerosol phase: aqueous aerosol
-  aerosol-phase water: H2O_aq
+  condensed phase: aqueous aerosol
   reactants:
   - species name: H2O2_aq
     coefficient: 1
@@ -184,7 +173,7 @@ reactions:
     coefficient: 1
   - species name: C
     coefficient: 1
-  aerosol phase: surface reacting phase
+  condensed phase: surface reacting phase
   name: my surface
   __irrelevant: "2"
 - type: TROE
@@ -238,7 +227,7 @@ reactions:
     coefficient: 1
   __irrelevant: "2"
 - type: WET_DEPOSITION
-  aerosol phase: cloud
+  condensed phase: cloud
   name: rxn cloud
   scaling factor: 12.3
   __irrelevant: "2"

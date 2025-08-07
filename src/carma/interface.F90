@@ -170,9 +170,9 @@ contains
          call CARMASTATE_Create( &
             cstate=cstate, &
             carma_ptr=carma, &
-            time=0.0_real64, & ! This parameter doesn't actually matter in carma and need not be set
+            time=carma_state_params%time, &
             dtime=carma_state_params%time_step, &
-            NZ=carma_params%nz, &
+            nz=carma_params%nz, &
             igridv=carma_state_params%coordinates, &
             xc=carma_state_params%latitude, &
             yc=carma_state_params%longitude, &
@@ -267,9 +267,9 @@ contains
          call c_f_pointer(values_ptr, values, [values_size])
 
          call CARMASTATE_SetBin( &
-            cstate, &
-            ibin=bin_index, &
+            cstate=cstate, &
             ielem=element_index, &
+            ibin=bin_index, &
             mmr=values, &
             rc=rc, &
             surface=surface_mass)
@@ -316,7 +316,12 @@ contains
          call c_f_pointer(carma_state_cptr, cstate)
          call c_f_pointer(values_ptr, values, [values_size])
 
-         call CARMASTATE_SetDetrain(cstate, bin_index, element_index, values, rc)
+         call CARMASTATE_SetDetrain( &
+             cstate=cstate, &
+             ielem=element_index, &
+             ibin=bin_index, &
+             mmr=values, &
+             rc=rc)
          if (rc /= 0) then
             rc = MUSICA_CARMA_ERROR_CODE_SET_FAILED
             return
@@ -384,7 +389,14 @@ contains
          call c_f_pointer(carma_state_cptr, cstate)
          call c_f_pointer(values_ptr, values, [values_size])
 
-         call CARMASTATE_SetGas(cstate, gas_index, values, rc, old_mmr, gas_saturation_wrt_ice, gas_saturation_wrt_liquid)
+         call CARMASTATE_SetGas( &
+             cstate=cstate, &
+             igas=gas_index, &
+             mmr=values, &
+             rc=rc, &
+             mmr_old=old_mmr, &
+             satice_old=gas_saturation_wrt_ice, &
+             satliq_old=gas_saturation_wrt_liquid)
 
          if (rc /= 0) then
             rc = MUSICA_CARMA_ERROR_CODE_SET_FAILED
@@ -1164,6 +1176,7 @@ contains
 
       ! Nucleation parameters
       type(carma_nucleation_config_t), pointer :: nucleation_config(:)
+      character(len=:), allocatable :: sulfate_nucleation_method
 
       integer :: alloc_stat
 
@@ -1475,6 +1488,14 @@ contains
       end if
 
       ! Initialize CARMA with coagulation settings matching test_aluminum_simple
+      select case(int(params%initialization%sulfnucl_method))
+         case(1)
+            sulfate_nucleation_method = "ZhaoTurco"
+         case(2)
+            sulfate_nucleation_method = "Vehkamaki"
+         case default
+            sulfate_nucleation_method = "NONE"
+      end select
       call CARMA_Initialize( &
          carma, &
          rc, &
@@ -1504,7 +1525,8 @@ contains
          tstick=real(params%initialization%tstick, kind=real64), &
          do_clearsky=logical(params%initialization%do_clearsky), &
          do_partialinit=logical(params%initialization%do_partialinit), &
-         do_coremasscheck=logical(params%initialization%do_coremasscheck) &
+         do_coremasscheck=logical(params%initialization%do_coremasscheck), &
+         sulfnucl_method=sulfate_nucleation_method &
          )
       if (rc /= 0) then
          rc = MUSICA_CARMA_ERROR_CODE_INITIALIZATION_FAILED

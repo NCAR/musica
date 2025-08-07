@@ -486,6 +486,7 @@ namespace musica
     c_params->initialization.do_clearsky = params.initialization.do_clearsky;
     c_params->initialization.do_partialinit = params.initialization.do_partialinit;
     c_params->initialization.do_coremasscheck = params.initialization.do_coremasscheck;
+    c_params->initialization.sulfnucl_method = static_cast<int>(params.initialization.sulfnucl_method);
     c_params->initialization.vf_const = params.initialization.vf_const;
     c_params->initialization.minsubsteps = params.initialization.minsubsteps;
     c_params->initialization.maxsubsteps = params.initialization.maxsubsteps;

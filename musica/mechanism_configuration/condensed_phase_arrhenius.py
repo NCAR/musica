@@ -25,8 +25,7 @@ class CondensedPhaseArrhenius:
         E (float): Pressure scaling term [Pa-1].
         reactants (List[Union[Species, Tuple[float, Species]]]): A list of reactants involved in the reaction.
         products (List[Union[Species, Tuple[float, Species]]]): A list of products formed in the reaction.
-        aerosol_phase (Phase): The aerosol phase in which the reaction occurs.
-        aerosol_phase_water (Species): The water species in the aerosol phase.
+        condensed_phase (Phase): The condensed phase in which the reaction occurs.
         other_properties (Dict[str, Any]): A dictionary of other properties of the condensed phase Arrhenius rate constant.
     """
 
@@ -42,8 +41,7 @@ class CondensedPhaseArrhenius:
         reactants: Optional[List[Union[Species,
                                        Tuple[float, Species]]]] = None,
         products: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
-        aerosol_phase: Optional[Phase] = None,
-        aerosol_phase_water: Optional[Species] = None,
+        condensed_phase: Optional[Phase] = None,
         other_properties: Optional[Dict[str, Any]] = None,
     ):
         """
@@ -59,8 +57,7 @@ class CondensedPhaseArrhenius:
             E (float): Pressure scaling term [Pa-1].
             reactants (List[Union[Species, Tuple[float, Species]]]]: A list of reactants involved in the reaction.
             products (List[Union[Species, Tuple[float, Species]]]]: A list of products formed in the reaction.
-            aerosol_phase (Phase): The aerosol phase in which the reaction occurs.
-            aerosol_phase_water (Species): The water species in the aerosol phase.
+            condensed_phase (Phase): The condensed phase in which the reaction occurs.
             other_properties (Dict[str, Any]): A dictionary of other properties of the condensed phase Arrhenius rate constant.
         """
         # Create the internal C++ instance
@@ -69,8 +66,7 @@ class CondensedPhaseArrhenius:
         # Store Python objects for reactants, products, phases
         self._reactants = reactants if reactants is not None else []
         self._products = products if products is not None else []
-        self._aerosol_phase = aerosol_phase
-        self._aerosol_phase_water = aerosol_phase_water
+        self._condensed_phase = condensed_phase
         self._other_properties = other_properties if other_properties is not None else {}
 
         # Set basic properties on the C++ instance
@@ -114,10 +110,8 @@ class CondensedPhaseArrhenius:
             ]
 
         # Set phase information on the C++ instance
-        if aerosol_phase is not None:
-            self._instance.aerosol_phase = aerosol_phase.name
-        if aerosol_phase_water is not None:
-            self._instance.aerosol_phase_water = aerosol_phase_water.name
+        if condensed_phase is not None:
+            self._instance.condensed_phase = condensed_phase.name
         if other_properties is not None:
             self._instance.other_properties = other_properties
 
@@ -221,26 +215,15 @@ class CondensedPhaseArrhenius:
         ]
 
     @property
-    def aerosol_phase(self) -> Phase:
-        """The aerosol phase in which the reaction occurs."""
-        return self._aerosol_phase
+    def condensed_phase(self) -> Phase:
+        """The condensed phase in which the reaction occurs."""
+        return self._condensed_phase
 
-    @aerosol_phase.setter
-    def aerosol_phase(self, value: Phase):
-        self._aerosol_phase = value
+    @condensed_phase.setter
+    def condensed_phase(self, value: Phase):
+        self._condensed_phase = value
         # Update the C++ instance
-        self._instance.aerosol_phase = value.name if value is not None else ""
-
-    @property
-    def aerosol_phase_water(self) -> Species:
-        """The water species in the aerosol phase."""
-        return self._aerosol_phase_water
-
-    @aerosol_phase_water.setter
-    def aerosol_phase_water(self, value: Species):
-        self._aerosol_phase_water = value
-        # Update the C++ instance
-        self._instance.aerosol_phase_water = value.name if value is not None else ""
+        self._instance.condensed_phase = value.name if value is not None else ""
 
     @property
     def other_properties(self) -> Dict[str, Any]:
@@ -288,8 +271,7 @@ class CondensedPhaseArrhenius:
             "E": self.E,
             "reactants": serialize_python_components(self._reactants),
             "products": serialize_python_components(self._products),
-            "aerosol phase": self._aerosol_phase.name if self._aerosol_phase is not None else "",
-            "aerosol-phase water": self._aerosol_phase_water.name if self._aerosol_phase_water is not None else "",
+            "condensed phase": self._condensed_phase.name if self._condensed_phase is not None else "",
         }
         _add_other_properties(serialize_dict, self._other_properties)
         return _remove_empty_keys(serialize_dict)
@@ -321,8 +303,7 @@ class CondensedPhaseArrhenius:
                 "E": instance.E,
                 "reactants": ReactionComponentSerializer.serialize_list_reaction_components(instance.reactants),
                 "products": ReactionComponentSerializer.serialize_list_reaction_components(instance.products),
-                "aerosol phase": instance.aerosol_phase,
-                "aerosol-phase water": instance.aerosol_phase_water,
+                "condensed phase": instance.condensed_phase,
             }
             _add_other_properties(serialize_dict, instance.other_properties)
             return _remove_empty_keys(serialize_dict)

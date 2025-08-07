@@ -19,8 +19,7 @@ class CondensedPhasePhotolysis(_CondensedPhasePhotolysis):
         scaling_factor (float): The scaling factor for the photolysis rate constant.
         reactants (List[Union[Species, Tuple[float, Species]]]): A list of reactants involved in the reaction.
         products (List[Union[Species, Tuple[float, Species]]]): A list of products formed in the reaction.
-        aerosol_phase (Phase): The aerosol phase in which the reaction occurs.
-        aerosol_phase_water (float): The water species in the aerosol phase [unitless].
+        condensed_phase (Phase): The condensed phase in which the reaction occurs.
         other_properties (Dict[str, Any]): A dictionary of other properties of the condensed phase photolysis reaction rate constant.
     """
 
@@ -31,8 +30,7 @@ class CondensedPhasePhotolysis(_CondensedPhasePhotolysis):
         reactants: Optional[List[Union[Species,
                                        Tuple[float, Species]]]] = None,
         products: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
-        aerosol_phase: Optional[Phase] = None,
-        aerosol_phase_water: Optional[Species] = None,
+        condensed_phase: Optional[Phase] = None,
         other_properties: Optional[Dict[str, Any]] = None,
     ):
         """
@@ -43,8 +41,7 @@ class CondensedPhasePhotolysis(_CondensedPhasePhotolysis):
             scaling_factor (float): The scaling factor for the photolysis rate constant.
             reactants (List[Union[Species, Tuple[float, Species]]]): A list of reactants involved in the reaction.
             products (List[Union[Species, Tuple[float, Species]]]): A list of products formed in the reaction.
-            aerosol_phase (Phase): The aerosol phase in which the reaction occurs.
-            aerosol_phase_water (Species): The water species in the aerosol phase [unitless].
+            condensed_phase (Phase): The condensed phase in which the reaction occurs.
             other_properties (Dict[str, Any]): A dictionary of other properties of the condensed phase photolysis reaction rate constant.
         """
         super().__init__()
@@ -74,10 +71,7 @@ class CondensedPhasePhotolysis(_CondensedPhasePhotolysis):
             if products is not None
             else self.products
         )
-        self.aerosol_phase = aerosol_phase.name if aerosol_phase is not None else self.aerosol_phase
-        self.aerosol_phase_water = (
-            aerosol_phase_water.name if aerosol_phase_water is not None else self.aerosol_phase_water
-        )
+        self.condensed_phase = condensed_phase.name if condensed_phase is not None else self.condensed_phase
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 
     @staticmethod
@@ -88,8 +82,7 @@ class CondensedPhasePhotolysis(_CondensedPhasePhotolysis):
             "scaling factor": instance.scaling_factor,
             "reactants": ReactionComponentSerializer.serialize_list_reaction_components(instance.reactants),
             "products": ReactionComponentSerializer.serialize_list_reaction_components(instance.products),
-            "aerosol phase": instance.aerosol_phase,
-            "aerosol-phase water": instance.aerosol_phase_water,
+            "condensed phase": instance.condensed_phase,
         }
         _add_other_properties(serialize_dict, instance.other_properties)
         return _remove_empty_keys(serialize_dict)
