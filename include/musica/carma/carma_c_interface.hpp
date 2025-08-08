@@ -157,6 +157,7 @@ namespace musica
       bool do_clearsky;       // do clear sky growth and coagulation
       bool do_partialinit;    // do initialization of coagulation from reference atmosphere (requires do_fixedinit)
       bool do_coremasscheck;  // check core mass for particles
+      int sulfnucl_method;    // method for sulfate nucleation (enum value)
       double vf_const;        // constant fall velocity [m/s] (0: off)
       int minsubsteps;        // minimum number of substeps
       int maxsubsteps;        // maximum number of substeps
@@ -261,6 +262,7 @@ namespace musica
 
     struct CARMAStateParametersC
     {
+      double time;                         // Current time [s]
       double time_step;                    // Time step [s]
       double longitude;                    // Longitude [degrees]
       double latitude;                     // Latitude [degrees]

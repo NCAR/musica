@@ -92,13 +92,13 @@ TEST(Parser, CanParseFullV1)
   for (const auto& extension : extensions)
   {
     musica::Chemistry chemistry = musica::ReadConfiguration("configs/v1/full_configuration/full_configuration" + extension);
-    EXPECT_EQ(chemistry.system.gas_phase_.species_.size(), 4);
+    EXPECT_EQ(chemistry.system.gas_phase_.species_.size(), 5);
     EXPECT_EQ(chemistry.system.gas_phase_.name_, "gas");
     EXPECT_EQ(chemistry.system.phases_.size(), 3);
-    EXPECT_EQ(chemistry.processes.size(), 9);
+    EXPECT_EQ(chemistry.processes.size(), 11);
   }
 }
 
-TEST(Parse, CanConvertFromV0ToV1) {
+TEST(Parser, CanConvertFromV0ToV1) {
   mechanism_configuration::v1::types::Mechanism  mechanism = musica::ConvertV0MechanismToV1("configs/v0/chapman");
 }

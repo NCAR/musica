@@ -276,6 +276,17 @@ class State():
                 conditions["air_density"].append(
                     state.conditions[i_cell].air_density)
         return conditions
+    
+    def get_species_ordering(self) -> Dict[str, int]:
+        """
+        Get the species ordering for the state.
+
+        Returns
+        -------
+        Dict[str, int]
+            Dictionary of species names and their indices.
+        """
+        return self.__species_ordering
 
 
 class MICM():

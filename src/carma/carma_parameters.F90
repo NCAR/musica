@@ -147,6 +147,7 @@ module carma_parameters_mod
       logical(c_bool) :: do_clearsky
       logical(c_bool) :: do_partialinit
       logical(c_bool) :: do_coremasscheck
+      integer(c_int) :: sulfnucl_method
       real(c_double) :: vf_const
       integer(c_int) :: minsubsteps
       integer(c_int) :: maxsubsteps
@@ -248,6 +249,7 @@ module carma_parameters_mod
    end type carma_output_data_t
 
    type, bind(C) :: carma_state_parameter_t
+      real(c_double) :: time                ! Current time [s]
       real(c_double) :: time_step
       real(c_double) :: longitude
       real(c_double) :: latitude

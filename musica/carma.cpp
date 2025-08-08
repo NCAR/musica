@@ -37,6 +37,39 @@ auto to_vector_double = [](const py::object& obj) -> std::vector<double>
   return {};
 };
 
+auto array_2d_to_vector_double = [](const py::object& obj) -> std::tuple<std::vector<double>, int, int>
+{
+  if (obj.is_none())
+    return {};
+  if (py::isinstance<py::array>(obj))
+  {
+    auto arr = obj.cast<py::array>();
+    if (arr.ndim() != 2)
+      throw std::invalid_argument("Expected 2D array for 2D double vector");
+    auto shape = arr.shape();
+    return { arr.cast<std::vector<double>>(), static_cast<int>(shape[0]), static_cast<int>(shape[1]) };
+  }
+  if (py::isinstance<py::list>(obj))
+  {
+    auto list = obj.cast<py::list>();
+    if (list.size() == 0 || !py::isinstance<py::list>(list[0]))
+      throw std::invalid_argument("Expected list of lists for 2D double vector");
+    int rows = static_cast<int>(list.size());
+    int cols = static_cast<int>(list[0].cast<py::list>().size());
+    std::vector<double> result;
+    for (const auto& row : list)
+    {
+      auto row_list = row.cast<py::list>();
+      if (row_list.size() != cols)
+        throw std::invalid_argument("All rows must have the same number of elements");
+      for (const auto& item : row_list)
+        result.push_back(item.cast<double>());
+    }
+    return { result, rows, cols };
+  }
+  throw std::invalid_argument("Expected a 2D array or list of lists for 2D double vector");
+};
+
 auto to_surface_properties = [](const py::object& obj) -> musica::CARMASurfaceProperties
 {
   if (obj.is_none())
@@ -87,6 +120,12 @@ void bind_carma(py::module_& carma)
       .value("OTHER", musica::ParticleComposition::OTHER)
       .export_values();
 
+  py::enum_<musica::SulfateNucleationMethod>(carma, "SulfateNucleationMethod")
+      .value("NONE", musica::SulfateNucleationMethod::NONE)
+      .value("ZHAO_TURCO", musica::SulfateNucleationMethod::ZHAO_TURCO)
+      .value("VEHKAMAKI", musica::SulfateNucleationMethod::VEHKAMAKI)
+      .export_values();
+
   carma.def(
       "_create_carma",
       [](py::dict params_dict)
@@ -128,14 +167,22 @@ void bind_carma(py::module_& carma)
               if (group_dict.contains("eshape"))
                 group.eshape = group_dict["eshape"].cast<double>();
               if (group_dict.contains("swelling_approach"))
-                if (group_dict["swelling_approach"].contains("algorithm") &&
-                    group_dict["swelling_approach"].contains("composition"))
+              {
+                auto swell_py = group_dict["swelling_approach"];
+                if (py::isinstance<py::dict>(swell_py))
                 {
-                  group.swelling_approach.algorithm = static_cast<musica::ParticleSwellingAlgorithm>(
-                      group_dict["swelling_approach"]["algorithm"].cast<int>());
-                  group.swelling_approach.composition = static_cast<musica::ParticleSwellingComposition>(
-                      group_dict["swelling_approach"]["composition"].cast<int>());
+                  auto swell_dict = swell_py.cast<py::dict>();
+                  if (swell_dict.contains("algorithm"))
+                    group.swelling_approach.algorithm = static_cast<musica::ParticleSwellingAlgorithm>(
+                        swell_dict["algorithm"].cast<int>());
+                  if (swell_dict.contains("composition"))
+                    group.swelling_approach.composition = static_cast<musica::ParticleSwellingComposition>(
+                        swell_dict["composition"].cast<int>());
+                } else {
+                  throw py::type_error(
+                      "Expected 'swelling_approach' to be a dictionary with 'algorithm' and 'composition' keys");
                 }
+              }
               if (group_dict.contains("fall_velocity_routine"))
                 group.fall_velocity_routine =
                     static_cast<musica::FallVelocityAlgorithm>(group_dict["fall_velocity_routine"].cast<int>());
@@ -455,6 +502,9 @@ void bind_carma(py::module_& carma)
               params.initialization.do_partialinit = initialization_dict["do_partialinit"].cast<bool>();
             if (initialization_dict.contains("do_coremasscheck"))
               params.initialization.do_coremasscheck = initialization_dict["do_coremasscheck"].cast<bool>();
+            if (initialization_dict.contains("sulfnucl_method"))
+              params.initialization.sulfnucl_method =
+                  static_cast<musica::SulfateNucleationMethod>(initialization_dict["sulfnucl_method"].cast<int>());
             if (initialization_dict.contains("vf_const"))
               params.initialization.vf_const = initialization_dict["vf_const"].cast<double>();
             if (initialization_dict.contains("minsubsteps"))
@@ -585,6 +635,7 @@ void bind_carma(py::module_& carma)
       {
         // Helper lambdas for robust flexible casting
         musica::CARMAStateParameters params;
+        params.time = kwargs.contains("time") ? kwargs["time"].cast<double>() : 0.0;
         params.time_step = kwargs.contains("time_step") ? kwargs["time_step"].cast<double>() : 0.0;
         params.longitude = kwargs.contains("longitude") ? kwargs["longitude"].cast<double>() : 0.0;
         params.latitude = kwargs.contains("latitude") ? kwargs["latitude"].cast<double>() : 0.0;
@@ -594,8 +645,24 @@ void bind_carma(py::module_& carma)
         params.vertical_center = to_vector_double(kwargs["vertical_center"]);
         params.vertical_levels = to_vector_double(kwargs["vertical_levels"]);
         params.temperature = to_vector_double(kwargs["temperature"]);
+        params.original_temperature = to_vector_double(kwargs["original_temperature"]);
         params.pressure = to_vector_double(kwargs["pressure"]);
         params.pressure_levels = to_vector_double(kwargs["pressure_levels"]);
+        if (kwargs.contains("relative_humidity"))
+        {
+          params.relative_humidity = to_vector_double(kwargs["relative_humidity"]);
+        }
+        if (kwargs.contains("specific_humidity"))
+        {
+          params.specific_humidity = to_vector_double(kwargs["specific_humidity"]);
+        }
+        if (kwargs.contains("radiative_intensity"))
+        {
+          auto array_2d = array_2d_to_vector_double(kwargs["radiative_intensity"]);
+          params.radiative_intensity = std::get<0>(array_2d);
+          params.radiative_intensity_dim_1_size = std::get<1>(array_2d);
+          params.radiative_intensity_dim_2_size = std::get<2>(array_2d);
+        }
 
         musica::CARMA* carma_instance = reinterpret_cast<musica::CARMA*>(carma_ptr);
         try

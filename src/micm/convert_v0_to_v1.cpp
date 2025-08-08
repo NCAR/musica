@@ -50,7 +50,6 @@ namespace musica
     }
     v1_mechanism.phases.push_back(gas_phase);
 
-    // TODO: WHAT SHOULD GO HERE AND WHAT IS MICM SUPPOSED TO DO WITH THIS?
     mechanism_configuration::v1::types::Phase condensed_phase;
     condensed_phase.name = "condensed";
     for (const auto& species : v1_mechanism.species)
@@ -145,7 +144,7 @@ namespace musica
       v1_surface.gas_phase_species = convert_reaction_component_v0_to_v1(surface.gas_phase_species);
       v1_surface.gas_phase_products = convert_reaction_components_v0_to_v1(surface.gas_phase_products);
       v1_surface.gas_phase = "gas";
-      v1_surface.condensed_phase = "condensed"; // TODO: WHAT ARE WE SUPPOSED TO DO WITH THIS IN MICM
+      v1_surface.condensed_phase = "condensed";
       v1_surface.unknown_properties = surface.unknown_properties;
       v1_reactions.surface.push_back(v1_surface);
     }

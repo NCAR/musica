@@ -18,8 +18,8 @@ class SimpolPhaseTransfer:
         name (str): The name of the simplified phase transfer reaction rate constant.
         gas_phase (Phase): The gas phase in which the reaction occurs.
         gas_phase_species (Union[Species, Tuple[float, Species]]): The gas phase species involved in the reaction.
-        aerosol_phase (Phase): The aerosol phase in which the reaction occurs.
-        aerosol_phase_species (Union[Species, Tuple[float, Species]]): The aerosol phase species involved in the reaction.
+        condensed_phase (Phase): The condensed phase in which the reaction occurs.
+        condensed_phase_species (Union[Species, Tuple[float, Species]]): The condensed phase species involved in the reaction.
         B (List[float]): The B parameters [unitless].
         other_properties (Dict[str, Any]): A dictionary of other properties of the simplified phase transfer reaction rate constant.
     """
@@ -30,8 +30,8 @@ class SimpolPhaseTransfer:
         gas_phase: Optional[Phase] = None,
         gas_phase_species: Optional[Union[Species,
                                           Tuple[float, Species]]] = None,
-        aerosol_phase: Optional[Phase] = None,
-        aerosol_phase_species: Optional[Union[Species,
+        condensed_phase: Optional[Phase] = None,
+        condensed_phase_species: Optional[Union[Species,
                                               Tuple[float, Species]]] = None,
         B: Optional[List[float]] = None,
         other_properties: Optional[Dict[str, Any]] = None,
@@ -43,8 +43,8 @@ class SimpolPhaseTransfer:
             name (str): The name of the simplified phase transfer reaction rate constant.
             gas_phase (Phase): The gas phase in which the reaction occurs.
             gas_phase_species (Union[Species, Tuple[float, Species]]): The gas phase species involved in the reaction.
-            aerosol_phase (Phase): The aerosol phase in which the reaction occurs.
-            aerosol_phase_species (Union[Species, Tuple[float, Species]]): The aerosol phase species involved in the reaction.
+            condensed_phase (Phase): The condensed phase in which the reaction occurs.
+            condensed_phase_species (Union[Species, Tuple[float, Species]]): The condensed phase species involved in the reaction.
             B (List[float]): The B parameters [unitless].
             other_properties (Dict[str, Any]): A dictionary of other properties of the simplified phase transfer reaction rate constant.
         """
@@ -58,10 +58,10 @@ class SimpolPhaseTransfer:
             self.gas_phase = gas_phase
         if gas_phase_species is not None:
             self.gas_phase_species = gas_phase_species
-        if aerosol_phase is not None:
-            self.aerosol_phase = aerosol_phase
-        if aerosol_phase_species is not None:
-            self.aerosol_phase_species = aerosol_phase_species
+        if condensed_phase is not None:
+            self.condensed_phase = condensed_phase
+        if condensed_phase_species is not None:
+            self.condensed_phase_species = condensed_phase_species
         if B is not None:
             self.B = B
         if other_properties is not None:
@@ -117,24 +117,24 @@ class SimpolPhaseTransfer:
             raise ValueError(f"Invalid gas_phase_species format: {value}")
 
     @property
-    def aerosol_phase(self) -> str:
-        """Get the aerosol phase name."""
-        return self._instance.aerosol_phase
+    def condensed_phase(self) -> str:
+        """Get the condensed phase name."""
+        return self._instance.condensed_phase
 
-    @aerosol_phase.setter
-    def aerosol_phase(self, value: Union[Phase, str]):
-        """Set the aerosol phase."""
+    @condensed_phase.setter
+    def condensed_phase(self, value: Union[Phase, str]):
+        """Set the condensed phase."""
         if isinstance(value, Phase):
-            self._instance.aerosol_phase = value.name
+            self._instance.condensed_phase = value.name
         elif isinstance(value, str):
-            self._instance.aerosol_phase = value
+            self._instance.condensed_phase = value
         else:
-            raise ValueError(f"Invalid aerosol_phase type: {type(value)}")
+            raise ValueError(f"Invalid condensed_phase type: {type(value)}")
 
     @property
-    def aerosol_phase_species(self) -> Union[Species, Tuple[float, Species]]:
-        """Get the aerosol phase species as Python object."""
-        rc = self._instance.aerosol_phase_species
+    def condensed_phase_species(self) -> Union[Species, Tuple[float, Species]]:
+        """Get the condensed phase species as Python object."""
+        rc = self._instance.condensed_phase_species
         if hasattr(rc, 'coefficient') and rc.coefficient != 1.0:
             # Create a tuple with coefficient and species
             species = Species(name=rc.species_name)
@@ -143,16 +143,16 @@ class SimpolPhaseTransfer:
             # Just the species
             return Species(name=rc.species_name)
 
-    @aerosol_phase_species.setter
-    def aerosol_phase_species(self, value: Union[Species, Tuple[float, Species]]):
-        """Set the aerosol phase species, converting from Python to C++ object."""
+    @condensed_phase_species.setter
+    def condensed_phase_species(self, value: Union[Species, Tuple[float, Species]]):
+        """Set the condensed phase species, converting from Python to C++ object."""
         if isinstance(value, Species):
-            self._instance.aerosol_phase_species = _ReactionComponent(value.name)
+            self._instance.condensed_phase_species = _ReactionComponent(value.name)
         elif isinstance(value, tuple) and len(value) == 2:
             coefficient, species = value
-            self._instance.aerosol_phase_species = _ReactionComponent(species.name, coefficient)
+            self._instance.condensed_phase_species = _ReactionComponent(species.name, coefficient)
         else:
-            raise ValueError(f"Invalid aerosol_phase_species format: {value}")
+            raise ValueError(f"Invalid condensed_phase_species format: {value}")
 
     @property
     def B(self) -> List[float]:
@@ -193,8 +193,8 @@ class SimpolPhaseTransfer:
             "name": self._instance.name,
             "gas phase": self._instance.gas_phase,
             "gas-phase species": self._instance.gas_phase_species.species_name,
-            "aerosol phase": self._instance.aerosol_phase,
-            "aerosol-phase species": self._instance.aerosol_phase_species.species_name,
+            "condensed phase": self._instance.condensed_phase,
+            "condensed-phase species": self._instance.condensed_phase_species.species_name,
             "B": self._instance.B,
         }
         _add_other_properties(serialize_dict, self.other_properties)
