@@ -1,3 +1,4 @@
+curl
 gfortran
 libnetcdf-dev
 libnetcdff-dev
