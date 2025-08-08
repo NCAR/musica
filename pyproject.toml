@@ -30,6 +30,16 @@ test = ["numpy", "pytest", "matplotlib"]
 
 gpu = ["nvidia-cublas-cu12", "nvidia-cuda-runtime-cu12"]
 
+tutorial = [
+  "pandas",
+  "matplotlib",
+  "numpy",
+  "scipy",
+  "seaborn",
+  "dask[distributed]",
+  "dask-jobqueue",
+]
+
 [tool.scikit-build]
 # uncomment this line and set the build type to debug if you want to use gdb to find segfaults
 # then uncomment the line below to set the build directory so that the degbug articacts are not deleted
