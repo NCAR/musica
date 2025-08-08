@@ -32,7 +32,7 @@ class SimpolPhaseTransfer:
                                           Tuple[float, Species]]] = None,
         condensed_phase: Optional[Phase] = None,
         condensed_phase_species: Optional[Union[Species,
-                                              Tuple[float, Species]]] = None,
+                                                Tuple[float, Species]]] = None,
         B: Optional[List[float]] = None,
         other_properties: Optional[Dict[str, Any]] = None,
     ):

@@ -10,7 +10,7 @@ import ussa1976
 available = musica.backend.carma_available()
 pytestmark = pytest.mark.skipif(
     not available, reason="CARMA backend is not available")
-    
+
 MOLEC_CM3_TO_MOLE_M3 = np.float64(1.0e6) / np.float64(6.022e23)  # Convert from molecules/cm³ to moles/m³
 NUMBER_OF_GRID_CELLS = 120  # Number of grid cells for the simulation
 NUMBER_OF_AEROSOL_SECTIONS = 38  # Number of aerosol sections for the simulation
@@ -40,7 +40,7 @@ def create_mechanism():
         reactants=[HO2, HO2],
         products=[H2O2],
         gas_phase=gas,
-        A=3.0e-13/MOLEC_CM3_TO_MOLE_M3,
+        A=3.0e-13 / MOLEC_CM3_TO_MOLE_M3,
         Ea=-6.35099e-21)
 
     rxn_2HO2_M_H2O2 = mc.Arrhenius(
@@ -48,7 +48,7 @@ def create_mechanism():
         reactants=[HO2, HO2, M],
         products=[H2O2],
         gas_phase=gas,
-        A=2.1e-33/(MOLEC_CM3_TO_MOLE_M3**2),
+        A=2.1e-33 / (MOLEC_CM3_TO_MOLE_M3**2),
         Ea=-1.2702e-20)
 
     rxn_2HO2_H2O_H2O2 = mc.Arrhenius(
@@ -56,7 +56,7 @@ def create_mechanism():
         reactants=[HO2, HO2, H2O],
         products=[H2O2, H2O],
         gas_phase=gas,
-        A=4.2e-34/(MOLEC_CM3_TO_MOLE_M3**2),
+        A=4.2e-34 / (MOLEC_CM3_TO_MOLE_M3**2),
         Ea=-3.67253e-20)
 
     rxn_2HO2_H2O_M_H2O2 = mc.Arrhenius(
@@ -64,7 +64,7 @@ def create_mechanism():
         reactants=[HO2, HO2, H2O, M],
         products=[H2O2, H2O],
         gas_phase=gas,
-        A=2.94e-54/(MOLEC_CM3_TO_MOLE_M3**3),
+        A=2.94e-54 / (MOLEC_CM3_TO_MOLE_M3**3),
         Ea=-4.30762e-20)
 
     rxn_H2O2_OH_HO2_H2O = mc.Arrhenius(
@@ -72,16 +72,16 @@ def create_mechanism():
         reactants=[H2O2, OH],
         products=[HO2, H2O],
         gas_phase=gas,
-        A=1.8e-12/MOLEC_CM3_TO_MOLE_M3)
+        A=1.8e-12 / MOLEC_CM3_TO_MOLE_M3)
 
     rxn_SO2_OH_SO3_HO2 = mc.Troe(
         name="SO2 + OH -> SO3 + HO2",
         reactants=[SO2, OH],
         products=[SO3, HO2],
         gas_phase=gas,
-        k0_A=2.9e-31/MOLEC_CM3_TO_MOLE_M3,
+        k0_A=2.9e-31 / MOLEC_CM3_TO_MOLE_M3,
         k0_B=-4.1,
-        kinf_A=1.7e-12/MOLEC_CM3_TO_MOLE_M3,
+        kinf_A=1.7e-12 / MOLEC_CM3_TO_MOLE_M3,
         kinf_B=-0.2)
 
     rxn_SO3_2H2O_H2SO4_H2O = mc.Arrhenius(
@@ -89,7 +89,7 @@ def create_mechanism():
         reactants=[SO3, H2O, H2O],
         products=[H2SO4, H2O],
         gas_phase=gas,
-        A=8.5e-41/(MOLEC_CM3_TO_MOLE_M3**2),
+        A=8.5e-41 / (MOLEC_CM3_TO_MOLE_M3**2),
         C=6540.0)
 
     return mc.Mechanism(
@@ -171,7 +171,7 @@ def create_carma_solver():
         igas=2,  # Gas index for sulfuric acid
     )
     params.growths.append(h2so4_uptake)
-    
+
     nucleation = musica.carma.CARMANucleationConfig(
         ielemfrom=1,  # Element index for sulfate
         ielemto=1,  # Element index for sulfuric acid
@@ -189,11 +189,11 @@ def create_carma_solver():
     params.coagulations.append(coagulation)
 
     # Set initialization options
-    params.initialization.do_substep=True
-    params.initialization.do_thermo=True
-    params.initialization.maxretries=16
-    params.initialization.maxsubsteps=32
-    params.initialization.dt_threshold=1.0
+    params.initialization.do_substep = True
+    params.initialization.do_thermo = True
+    params.initialization.maxretries = 16
+    params.initialization.maxsubsteps = 32
+    params.initialization.dt_threshold = 1.0
     params.initialization.sulfnucl_method = musica.carma.SulfateNucleationMethod.ZHAO_TURCO.value
 
     return musica.CARMA(params)
@@ -228,19 +228,19 @@ def get_initial_conditions():
     edge_variables = ussa1976.compute(z=grid["vertical_levels"], variables=["p"])
     centered_variables["rho"] = centered_variables["p"] / (GAS_CONSTANT * centered_variables["t"])
     environmental_conditions = {
-      "temperature": np.array(centered_variables["t"], dtype=np.float64),
-      "pressure": np.array(centered_variables["p"], dtype=np.float64),
-      "pressure levels": np.array(edge_variables["p"], dtype=np.float64),
-      "air density": np.array(centered_variables["rho"], dtype=np.float64)
+        "temperature": np.array(centered_variables["t"], dtype=np.float64),
+        "pressure": np.array(centered_variables["p"], dtype=np.float64),
+        "pressure levels": np.array(edge_variables["p"], dtype=np.float64),
+        "air density": np.array(centered_variables["rho"], dtype=np.float64)
     }
 
     initial_concentrations = {
-      "HO2": environmental_conditions["air density"] * 80.0e-12,
-      "H2O2": environmental_conditions["air density"] * 1.0e-9,
-      "SO2": environmental_conditions["air density"] * 0.15e-9,
-      "SO3": np.zeros(NUMBER_OF_GRID_CELLS, dtype=np.float64),
-      "H2SO4": np.zeros(NUMBER_OF_GRID_CELLS, dtype=np.float64),
-      "H2O": environmental_conditions["air density"] * 0.004,
+        "HO2": environmental_conditions["air density"] * 80.0e-12,
+        "H2O2": environmental_conditions["air density"] * 1.0e-9,
+        "SO2": environmental_conditions["air density"] * 0.15e-9,
+        "SO3": np.zeros(NUMBER_OF_GRID_CELLS, dtype=np.float64),
+        "H2SO4": np.zeros(NUMBER_OF_GRID_CELLS, dtype=np.float64),
+        "H2O": environmental_conditions["air density"] * 0.004,
     }
     return grid, environmental_conditions, initial_concentrations
 
@@ -292,8 +292,10 @@ def run_box_model():
         solver.solve(state, dt)
         micm_output = state.get_concentrations()
 
-        h2so4_mmr = np.array(micm_output["H2SO4"], dtype=np.float64) * MOLECULAR_MASS_H2SO4 / (environmental_conditions["air density"] * MOLECULAR_MASS_AIR)
-        h2o_mmr = np.array(micm_output["H2O"], dtype=np.float64) * MOLECULAR_MASS_H2O / (environmental_conditions["air density"] * MOLECULAR_MASS_AIR)
+        h2so4_mmr = np.array(micm_output["H2SO4"], dtype=np.float64) * MOLECULAR_MASS_H2SO4 / \
+            (environmental_conditions["air density"] * MOLECULAR_MASS_AIR)
+        h2o_mmr = np.array(micm_output["H2O"], dtype=np.float64) * MOLECULAR_MASS_H2O / \
+            (environmental_conditions["air density"] * MOLECULAR_MASS_AIR)
 
         carma_state = carma.create_state(
             vertical_center=grid["vertical_center"],
@@ -310,7 +312,7 @@ def run_box_model():
 
         for i_bin in range(NUMBER_OF_AEROSOL_SECTIONS):
             carma_state.set_bin(
-                bin_index=i_bin+1,
+                bin_index=i_bin + 1,
                 element_index=1,  # Sulfate element index
                 value=sulfate_mmr[i_bin, :]
             )
@@ -338,7 +340,7 @@ def run_box_model():
 
         for i_bin in range(NUMBER_OF_AEROSOL_SECTIONS):
             sulfate_mmr[i_bin, :] = carma_state.get_bin(
-                bin_index=i_bin+1,
+                bin_index=i_bin + 1,
                 element_index=1  # Sulfate element index
             )["mass_mixing_ratio"]
         micm_output["SULFATE"] = sulfate_mmr
@@ -347,7 +349,7 @@ def run_box_model():
         )["mass_mixing_ratio"], dtype=np.float64) * environmental_conditions["air density"] * MOLECULAR_MASS_H2O / MOLECULAR_MASS_H2O
         carma_h2so4_conc = np.array(carma_state.get_gas(
             gas_index=2  # Sulfuric acid gas index
-        )["mass_mixing_ratio"], dtype=np.float64) * environmental_conditions["air density"] * MOLECULAR_MASS_H2SO4  / MOLECULAR_MASS_AIR
+        )["mass_mixing_ratio"], dtype=np.float64) * environmental_conditions["air density"] * MOLECULAR_MASS_H2SO4 / MOLECULAR_MASS_AIR
         conditions = carma_state.get_environmental_values()
         current_temperature = conditions["temperature"]
 
@@ -361,7 +363,6 @@ def run_box_model():
         temperatures.append(current_temperature)
         pressures.append(current_pressure)
         concentrations.append(micm_output)
-
 
     # Collect output data
     concentrations = pd.DataFrame(concentrations)
