@@ -4,6 +4,8 @@ channels:
 dependencies:
   - blas
   - cmake
+  - gcc
+  - gxx
   - gfortran
   - git
   - hdf5
@@ -18,4 +20,4 @@ dependencies:
   - zlib
   - pip:
     - ussa1976>=v0.3.4
-    - -e ../.[tutorial]
+    - ../.[tutorial]
