@@ -1,0 +1,858 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Parallelizing Larger Numbers of Grid Cells &#8212; MUSICA 0.12.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=bbe95013" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../../_static/documentation_options.js?v=61ccb1f1"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/multigrid/parallel/index';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.15.4';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://ncar.github.io/musica/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.12.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner = false;
+        </script>
+    <link rel="icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Enabling GPU Solving" href="../../gpu/index.html" />
+    <link rel="prev" title="Initializing Larger Numbers of Grid Cells" href="../hypercube/index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">MUSICA 0.12.0 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started/getting_started.html">
+    Getting Started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../tutorials/tutorials.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    MUSICA API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../contributing/index.html">
+    Contributing
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../citing/index.html">
+    Citing MUSICA
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button id="pst-version-switcher-button-2"
+      type="button"
+      class="version-switcher__button btn btn-sm dropdown-toggle"
+      data-bs-toggle="dropdown"
+      aria-haspopup="listbox"
+      aria-controls="pst-version-switcher-list-2"
+      aria-label="Version switcher list"
+    >
+      Choose version  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div id="pst-version-switcher-list-2"
+      class="version-switcher__menu dropdown-menu list-group-flush py-0"
+      role="listbox" aria-labelledby="pst-version-switcher-button-2">
+      <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NCAR/musica" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started/getting_started.html">
+    Getting Started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../tutorials/tutorials.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    MUSICA API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../contributing/index.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../citing/index.html">
+    Citing MUSICA
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button id="pst-version-switcher-button-3"
+      type="button"
+      class="version-switcher__button btn btn-sm dropdown-toggle"
+      data-bs-toggle="dropdown"
+      aria-haspopup="listbox"
+      aria-controls="pst-version-switcher-list-3"
+      aria-label="Version switcher list"
+    >
+      Choose version  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div id="pst-version-switcher-list-3"
+      class="version-switcher__menu dropdown-menu list-group-flush py-0"
+      role="listbox" aria-labelledby="pst-version-switcher-button-3">
+      <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NCAR/musica" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Fortran:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../fortran_c.html">Model Interface</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Python:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../installation/index.html">Installing MUSICA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../chemistry/index.html">Defining chemical systems</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../model/index.html">Model solving and options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../output/index.html">Output and visualization</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Multiple Grid Cell Calculations</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../two-grid-cell/index.html">Simple 2-Grid-Cell Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../hypercube/index.html">Initializing Larger Numbers of Grid Cells</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Parallelizing Larger Numbers of Grid Cells</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gpu/index.html">Enabling GPU Solving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples and tutorials</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">User Guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Multiple Grid Cell Calculations</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">Parallelizin...</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="parallelizing-larger-numbers-of-grid-cells">
+<h1>Parallelizing Larger Numbers of Grid Cells<a class="headerlink" href="#parallelizing-larger-numbers-of-grid-cells" title="Link to this heading">#</a></h1>
+<p>As users grow more familiar with MUSICA, they may wish to increase the complexity of their simulations by
+significantly increasing the number of grid cells used. By default, MUSICA executes on a single CPU core.
+Here, we will demonstrate how to use <a class="reference external" href="https://docs.dask.org/en/stable/">Dask</a> to paralellize multiple grid cell
+simulations across multiple CPUs.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The workflow provided here uses <a class="reference external" href="https://ncar-hpc-docs.readthedocs.io/en/latest/compute-systems/casper/">NCAR’s Casper HPC</a>.
+Users may find it helpful to first practice parallization locally, even without performance improvement. A proof-of-concept local
+parallelization notebook is provided with the <a class="reference internal" href="../../../tutorials/tutorials.html#tutorials-page"><span class="std std-ref">Interactive Tutorials</span></a>.</p>
+</div>
+<section id="dask-cluster-set-up">
+<h2>Dask cluster set up<a class="headerlink" href="#dask-cluster-set-up" title="Link to this heading">#</a></h2>
+<p>In order to use Dask, we first need to set up a Dask Cluster object. Here, we use the <a class="reference external" href="https://jobqueue.dask.org/en/latest/generated/dask_jobqueue.PBSCluster.html">Dask PBSCluster</a>
+as our HPC system uses a PBS-based scheduled. However, Dask also provides an equivalent <a class="reference external" href="https://jobqueue.dask.org/en/latest/generated/dask_jobqueue.SLURMCluster.html">SLURMCluster class</a>.
+When initializing the cluster, you can specify arguments similar to those in your job scripts—such as memory, cores, and walltime. Adjust these to match your workload and system. As a guideline,
+we find simulations with ~10,000 grid cells typically run well with about 8 GB of memory, while larger simulations (100,000–1,000,000 cells) may need around 15 GB.
+It’s often useful to request a bit more memory, as shown below (10 GB):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cluster</span> <span class="o">=</span> <span class="n">PBSCluster</span><span class="p">(</span>
+<span class="n">job_name</span> <span class="o">=</span> <span class="s1">&#39;dask-test&#39;</span><span class="p">,</span>
+<span class="n">cores</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+<span class="n">memory</span> <span class="o">=</span> <span class="s1">&#39;10GiB&#39;</span><span class="p">,</span>
+<span class="n">processes</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+<span class="n">local_directory</span> <span class="o">=</span> <span class="s1">&#39;/local_scratch/pbs.$PBS_JOBID/dask/spill&#39;</span><span class="p">,</span>
+<span class="n">resource_spec</span> <span class="o">=</span> <span class="s1">&#39;select=1:ncpus=1:mem=10GB&#39;</span><span class="p">,</span> <span class="c1">#memory and resource especially memory should match</span>
+<span class="n">queue</span> <span class="o">=</span> <span class="s1">&#39;casper&#39;</span><span class="p">,</span>
+<span class="n">walltime</span> <span class="o">=</span> <span class="s1">&#39;50:00&#39;</span><span class="p">,</span>
+<span class="n">interface</span> <span class="o">=</span> <span class="s1">&#39;ext&#39;</span>
+</pre></div>
+</div>
+<p>)</p>
+<p>For further scaling test results, please refer to the HPC parallelization notebook.</p>
+</section>
+<section id="checking-your-dask-configuration">
+<h2>Checking your Dask configuration<a class="headerlink" href="#checking-your-dask-configuration" title="Link to this heading">#</a></h2>
+<p>Before launcing Dask <cite>workers</cite> on your HPC system, it can be helpful to double-check any existing job configurations
+along with the job scrip that would be used for each <cite>worker</cite>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dask</span><span class="w"> </span><span class="kn">import</span> <span class="n">config</span>
+<span class="n">config</span><span class="o">.</span><span class="n">refresh</span><span class="p">()</span>
+<span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;jobqueue.pbs&#39;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">cluster</span><span class="o">.</span><span class="n">job_script</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<section id="dask-dashboard-and-launching-workers">
+<h2>Dask dashboard and launching workers<a class="headerlink" href="#dask-dashboard-and-launching-workers" title="Link to this heading">#</a></h2>
+<p>A convenient feature of Dask is its interactive dashboard which allows users to visualize the distribution and progress
+of their parallelized work. This dashboard can be accessed via the <cite>Client</cite>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">cluster</span><span class="p">)</span>
+<span class="n">client</span>
+</pre></div>
+</div>
+<p>With the <cite>Cluster</cite> and dashboard set up, you can now scale to your desired number of workers:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cluster</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">client</span><span class="o">.</span><span class="n">wait_for_workers</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># wait to launch jobs until all workers needed are available</span>
+</pre></div>
+</div>
+</section>
+<section id="setting-up-multiple-grid-cells">
+<h2>Setting up multiple grid cells<a class="headerlink" href="#setting-up-multiple-grid-cells" title="Link to this heading">#</a></h2>
+<p>As done in the previous Latin Hypercube Sampling page, here we initialize our desired number of grid
+cells with their temperatures, pressures, and <cite>Species</cite> concentrations:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">num_grid_cells</span> <span class="o">=</span> <span class="mi">10000</span>
+
+<span class="n">ndim</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">nsamples</span> <span class="o">=</span> <span class="n">num_grid_cells</span>
+
+<span class="c1"># Create a Latin Hypercube sampler in the unit hypercube</span>
+<span class="n">sampler</span> <span class="o">=</span> <span class="n">qmc</span><span class="o">.</span><span class="n">LatinHypercube</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">ndim</span><span class="p">)</span>
+
+<span class="c1"># Generate samples</span>
+<span class="n">sample</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">nsamples</span><span class="p">)</span>
+
+<span class="c1"># Define bounds for each dimension</span>
+<span class="n">l_bounds</span> <span class="o">=</span> <span class="p">[</span><span class="mi">275</span><span class="p">,</span> <span class="mf">100753.3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="c1"># Lower bounds</span>
+<span class="n">u_bounds</span> <span class="o">=</span> <span class="p">[</span><span class="mi">325</span><span class="p">,</span> <span class="mf">101753.3</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">]</span> <span class="c1"># Upper bounds</span>
+
+<span class="c1"># Scale the samples to the defined bounds</span>
+<span class="n">sample_scaled</span> <span class="o">=</span> <span class="n">qmc</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">l_bounds</span><span class="p">,</span> <span class="n">u_bounds</span><span class="p">)</span>
+
+<span class="n">temperatures</span> <span class="o">=</span> <span class="n">sample_scaled</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="n">pressures</span> <span class="o">=</span> <span class="n">sample_scaled</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="n">concentrations</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;A&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="s2">&quot;B&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="s2">&quot;C&quot;</span><span class="p">:</span> <span class="p">[]</span>
+<span class="p">}</span>
+<span class="n">concentrations</span><span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample_scaled</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="n">concentrations</span><span class="p">[</span><span class="s2">&quot;B&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample_scaled</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span>
+<span class="n">concentrations</span><span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample_scaled</span><span class="p">[:,</span> <span class="mi">4</span><span class="p">]</span>
+
+<span class="n">concentrations_solved</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">time_step_length</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">sim_length</span> <span class="o">=</span> <span class="mi">60</span>
+<span class="n">curr_time</span> <span class="o">=</span> <span class="mi">0</span>
+</pre></div>
+</div>
+<p>Note that, with Dask, this step happens prior to our <cite>Mechanism</cite> definitions.</p>
+</section>
+<section id="creating-a-delayed-dask-function">
+<h2>Creating a delayed Dask function<a class="headerlink" href="#creating-a-delayed-dask-function" title="Link to this heading">#</a></h2>
+<p>With Dask, the chemistry system is defined inside a delayed function that runs only when triggered to compute.
+This approach is necessary because Dask requires pickleable objects, and our chemistry objects are not currently pickleable by default.
+Defining them within the delayed function ensures compatibility:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@delayed</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">solve_one_cell</span><span class="p">(</span><span class="n">cell_index</span><span class="p">,</span><span class="n">temperatures</span><span class="p">,</span><span class="n">pressures</span><span class="p">,</span><span class="n">concentrations</span><span class="p">,</span> <span class="n">sim_length</span><span class="p">,</span> <span class="n">time_step</span><span class="p">):</span>
+
+    <span class="c1"># Define the system</span>
+
+    <span class="n">A</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">Species</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;A&quot;</span><span class="p">)</span> <span class="c1"># Create each of the species with their respective names</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">Species</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;B&quot;</span><span class="p">)</span>
+    <span class="n">C</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">Species</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;C&quot;</span><span class="p">)</span>
+    <span class="n">species</span> <span class="o">=</span> <span class="p">[</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">C</span><span class="p">]</span> <span class="c1"># Bundle the species into a list</span>
+    <span class="n">gas</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">Phase</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;gas&quot;</span><span class="p">,</span> <span class="n">species</span><span class="o">=</span><span class="n">species</span><span class="p">)</span> <span class="c1"># Create a gas phase object containing the species</span>
+
+    <span class="n">r1</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">Arrhenius</span><span class="p">(</span> <span class="c1"># Create the reactions with their name, constants, reactants, products, and phase</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;A_to_B&quot;</span><span class="p">,</span>
+        <span class="n">A</span><span class="o">=</span><span class="mf">4.0e-3</span><span class="p">,</span>  <span class="c1"># Pre-exponential factor</span>
+        <span class="n">C</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>      <span class="c1"># Activation energy (units assumed to be K)</span>
+        <span class="n">reactants</span><span class="o">=</span><span class="p">[</span><span class="n">A</span><span class="p">],</span>
+        <span class="n">products</span><span class="o">=</span><span class="p">[</span><span class="n">B</span><span class="p">],</span>
+        <span class="n">gas_phase</span><span class="o">=</span><span class="n">gas</span>
+    <span class="p">)</span>
+
+    <span class="n">r2</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">Arrhenius</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;B_to_C&quot;</span><span class="p">,</span>
+        <span class="n">A</span><span class="o">=</span><span class="mf">4.0e-3</span><span class="p">,</span>
+        <span class="n">C</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+        <span class="n">reactants</span><span class="o">=</span><span class="p">[</span><span class="n">B</span><span class="p">],</span>
+        <span class="n">products</span><span class="o">=</span><span class="p">[</span><span class="n">C</span><span class="p">],</span>
+        <span class="n">gas_phase</span><span class="o">=</span><span class="n">gas</span>
+    <span class="p">)</span>
+
+    <span class="n">mechanism</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">Mechanism</span><span class="p">(</span> <span class="c1"># Define the mechanism which contains a name, the species, the phases, and reactions</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;musica_micm_example&quot;</span><span class="p">,</span>
+        <span class="n">species</span><span class="o">=</span><span class="n">species</span><span class="p">,</span>
+        <span class="n">phases</span><span class="o">=</span><span class="p">[</span><span class="n">gas</span><span class="p">],</span>
+        <span class="n">reactions</span><span class="o">=</span><span class="p">[</span><span class="n">r1</span><span class="p">,</span> <span class="n">r2</span><span class="p">]</span>
+<span class="p">)</span>
+
+
+    <span class="c1">#create the solver</span>
+    <span class="n">solver</span> <span class="o">=</span> <span class="n">musica</span><span class="o">.</span><span class="n">MICM</span><span class="p">(</span><span class="n">mechanism</span><span class="o">=</span><span class="n">mechanism</span><span class="p">,</span> <span class="n">solver_type</span><span class="o">=</span><span class="n">musica</span><span class="o">.</span><span class="n">SolverType</span><span class="o">.</span><span class="n">rosenbrock_standard_order</span><span class="p">)</span>
+
+    <span class="c1">#create the state</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">create_state</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">set_conditions</span><span class="p">(</span><span class="n">temperatures</span><span class="p">[</span><span class="n">cell_index</span><span class="p">],</span><span class="n">pressures</span><span class="p">[</span><span class="n">cell_index</span><span class="p">])</span>
+    <span class="n">cur_concentrations</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="p">[</span><span class="n">cell_index</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">concentrations</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">set_concentrations</span><span class="p">(</span><span class="n">cur_concentrations</span><span class="p">)</span>
+
+    <span class="n">time</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">track_time</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">while</span> <span class="n">time</span> <span class="o">&lt;=</span> <span class="n">sim_length</span><span class="p">:</span>
+        <span class="n">solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">get_concentrations</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+        <span class="n">track_time</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+        <span class="n">time</span> <span class="o">+=</span> <span class="n">time_step</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;times&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">track_time</span><span class="p">),</span>
+        <span class="s2">&quot;concentrations&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="batch-solving-with-dask">
+<h2>Batch solving with Dask<a class="headerlink" href="#batch-solving-with-dask" title="Link to this heading">#</a></h2>
+<p>Since MUSICA already computes individual grid cells efficiently, the main performance gain from Dask comes from batching - or grouping multiple grid cells so each CPU core processes several at once.
+This approach maximizes core usage, reduces overhead, and improves throughput for large simulations.
+Batching can be implemented as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@delayed</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">solve_batch</span><span class="p">(</span><span class="n">start_idx</span><span class="p">,</span> <span class="n">end_idx</span><span class="p">,</span> <span class="n">temperatures</span><span class="p">,</span> <span class="n">pressures</span><span class="p">,</span> <span class="n">concentrations</span><span class="p">,</span> <span class="n">sim_length</span><span class="p">,</span> <span class="n">time_step</span><span class="p">):</span>
+    <span class="n">batch_size</span> <span class="o">=</span> <span class="n">end_idx</span> <span class="o">-</span> <span class="n">start_idx</span>
+
+    <span class="c1"># define the system</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">Species</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;A&quot;</span><span class="p">)</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">Species</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;B&quot;</span><span class="p">)</span>
+    <span class="n">C</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">Species</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;C&quot;</span><span class="p">)</span>
+    <span class="n">species</span> <span class="o">=</span> <span class="p">[</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">C</span><span class="p">]</span>
+    <span class="n">gas</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">Phase</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;gas&quot;</span><span class="p">,</span> <span class="n">species</span><span class="o">=</span><span class="n">species</span><span class="p">)</span>
+
+    <span class="n">r1</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">Arrhenius</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;A_to_B&quot;</span><span class="p">,</span> <span class="n">A</span><span class="o">=</span><span class="mf">4.0e-3</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">reactants</span><span class="o">=</span><span class="p">[</span><span class="n">A</span><span class="p">],</span> <span class="n">products</span><span class="o">=</span><span class="p">[</span><span class="n">B</span><span class="p">],</span> <span class="n">gas_phase</span><span class="o">=</span><span class="n">gas</span><span class="p">)</span>
+    <span class="n">r2</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">Arrhenius</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;B_to_C&quot;</span><span class="p">,</span> <span class="n">A</span><span class="o">=</span><span class="mf">4.0e-3</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">reactants</span><span class="o">=</span><span class="p">[</span><span class="n">B</span><span class="p">],</span> <span class="n">products</span><span class="o">=</span><span class="p">[</span><span class="n">C</span><span class="p">],</span> <span class="n">gas_phase</span><span class="o">=</span><span class="n">gas</span><span class="p">)</span>
+
+    <span class="n">mechanism</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">Mechanism</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;musica_micm_example&quot;</span><span class="p">,</span>
+        <span class="n">species</span><span class="o">=</span><span class="n">species</span><span class="p">,</span>
+        <span class="n">phases</span><span class="o">=</span><span class="p">[</span><span class="n">gas</span><span class="p">],</span>
+        <span class="n">reactions</span><span class="o">=</span><span class="p">[</span><span class="n">r1</span><span class="p">,</span> <span class="n">r2</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="c1"># create state for all cells in this batch</span>
+    <span class="n">solver</span> <span class="o">=</span> <span class="n">musica</span><span class="o">.</span><span class="n">MICM</span><span class="p">(</span><span class="n">mechanism</span><span class="o">=</span><span class="n">mechanism</span><span class="p">,</span> <span class="n">solver_type</span><span class="o">=</span><span class="n">musica</span><span class="o">.</span><span class="n">SolverType</span><span class="o">.</span><span class="n">rosenbrock_standard_order</span><span class="p">)</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">create_state</span><span class="p">(</span><span class="n">batch_size</span><span class="p">)</span>
+
+    <span class="c1"># set conditions and concentrations</span>
+    <span class="n">batch_temps</span> <span class="o">=</span> <span class="n">temperatures</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">]</span>
+    <span class="n">batch_pressures</span> <span class="o">=</span> <span class="n">pressures</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">]</span>
+    <span class="n">batch_air_densities</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">state</span><span class="o">.</span><span class="n">set_conditions</span><span class="p">(</span><span class="n">batch_temps</span><span class="p">,</span> <span class="n">batch_pressures</span><span class="p">)</span>
+    <span class="n">air_density</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">get_conditions</span><span class="p">()[</span><span class="s1">&#39;air_density&#39;</span><span class="p">]</span> <span class="c1"># track for later visualization</span>
+    <span class="n">batch_air_densities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">air_density</span><span class="p">)</span>
+
+    <span class="c1"># set concentrations: need shape (batch_size,) for each species</span>
+    <span class="k">for</span> <span class="n">species_name</span><span class="p">,</span> <span class="n">all_values</span> <span class="ow">in</span> <span class="n">concentrations</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="c1"># slice this batch</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">set_concentrations</span><span class="p">({</span><span class="n">species_name</span><span class="p">:</span> <span class="n">all_values</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">]})</span>
+
+    <span class="c1"># time stepping</span>
+    <span class="n">time</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">batch_results</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">while</span> <span class="n">time</span> <span class="o">&lt;=</span> <span class="n">sim_length</span><span class="p">:</span>
+        <span class="n">solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
+        <span class="c1"># get concentrations for all cells at this timestep</span>
+        <span class="n">concs</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">get_concentrations</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">batch_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">concs</span><span class="p">)</span>
+        <span class="n">time</span> <span class="o">+=</span> <span class="n">time_step</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">batch_results</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">batch_air_densities</span><span class="p">)</span>
+
+<span class="n">batch_size</span> <span class="o">=</span> <span class="mi">100</span> <span class="c1">#number of grid cells solved on a single worker</span>
+
+<span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">start_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">num_grid_cells</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">):</span>
+    <span class="n">end_idx</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">start_idx</span> <span class="o">+</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">num_grid_cells</span><span class="p">)</span>
+    <span class="n">task</span> <span class="o">=</span> <span class="n">solve_batch</span><span class="p">(</span>
+        <span class="n">start_idx</span><span class="p">,</span> <span class="n">end_idx</span><span class="p">,</span>
+        <span class="n">temperatures</span><span class="p">,</span> <span class="n">pressures</span><span class="p">,</span> <span class="n">concentrations</span><span class="p">,</span>
+        <span class="n">sim_length</span><span class="p">,</span> <span class="n">time_step_length</span>
+    <span class="p">)</span>
+    <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+<span class="n">results_and_densities</span> <span class="o">=</span> <span class="n">compute</span><span class="p">(</span><span class="o">*</span><span class="n">tasks</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="preparing-and-visualizing-results">
+<h2>Preparing and visualizing results<a class="headerlink" href="#preparing-and-visualizing-results" title="Link to this heading">#</a></h2>
+<p>As previously mentioned throughout this guide, multiple grid cells calculations - particularly at this scale - tracks significantly
+larger numbers of concentrations and results than a box model. For guidance on handling and visualizing outputs from multi-grid-cell simulations,
+see the <a class="reference external" href="../../../tutorials/5.%20hpc_parallelization.ipynb/">Parallelizing Multiple Grid Cells on a High-Performance Computing Cluster</a> notebook on the
+<a class="reference internal" href="../../../tutorials/tutorials.html#tutorials-page"><span class="std std-ref">Interactive Tutorials</span></a> page.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../hypercube/index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Initializing Larger Numbers of Grid Cells</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../../gpu/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Enabling GPU Solving</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dask-cluster-set-up">Dask cluster set up</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#checking-your-dask-configuration">Checking your Dask configuration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dask-dashboard-and-launching-workers">Dask dashboard and launching workers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-up-multiple-grid-cells">Setting up multiple grid cells</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-a-delayed-dask-function">Creating a delayed Dask function</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#batch-solving-with-dask">Batch solving with Dask</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#preparing-and-visualizing-results">Preparing and visualizing results</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../../../_sources/user_guide/multigrid/parallel/index.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024-2025, NSF NCAR.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.4.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
