@@ -1,8 +1,0 @@
--e git+https://github.com/NCAR/musica.git@main#egg=musica
-pandas
-matplotlib
-numpy
-scipy
-seaborn
-dask[distributed]
-dask-jobqueue
