@@ -966,12 +966,6 @@ class CARMAState:
         self.n_levels = len(vertical_center)
         if original_temperature is None:
             original_temperature = temperature
-        if relative_humidity is None:
-            relative_humidity = None
-        if specific_humidity is None:
-            specific_humidity = None
-        if radiative_intensity is None:
-            radiative_intensity = None
 
         self._carma_state_instance = _backend._carma._create_carma_state(
             carma_pointer=carma_pointer,
