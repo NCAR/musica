@@ -12035,7 +12035,7 @@
         },
         {
             "type": "SURFACE",
-            "name": "",
+            "name": "SURF.usr_NO2_aer",
             "reaction probability": 8e-06,
             "gas-phase species": "NO2",
             "gas-phase products": [
@@ -12057,7 +12057,7 @@
         },
         {
             "type": "SURFACE",
-            "name": "",
+            "name": "SURF.usr_HO2_aer",
             "reaction probability": 0.1,
             "gas-phase species": "HO2",
             "gas-phase products": [
@@ -12071,7 +12071,7 @@
         },
         {
             "type": "SURFACE",
-            "name": "",
+            "name": "SURF.usr_NO3_aer",
             "reaction probability": 0.002,
             "gas-phase species": "NO3",
             "gas-phase products": [
@@ -12085,7 +12085,7 @@
         },
         {
             "type": "SURFACE",
-            "name": "",
+            "name": "SURF.usr_ISOPNITA_aer",
             "reaction probability": 0.005,
             "gas-phase species": "ISOPNITA",
             "gas-phase products": [
@@ -12099,7 +12099,7 @@
         },
         {
             "type": "SURFACE",
-            "name": "",
+            "name": "SURF.usr_ISOPNITB_aer",
             "reaction probability": 0.005,
             "gas-phase species": "ISOPNITB",
             "gas-phase products": [
@@ -12113,7 +12113,7 @@
         },
         {
             "type": "SURFACE",
-            "name": "",
+            "name": "SURF.usr_GLYOXAL_aer",
             "reaction probability": 0.0002,
             "gas-phase species": "GLYOXAL",
             "gas-phase products": [
@@ -12127,7 +12127,7 @@
         },
         {
             "type": "SURFACE",
-            "name": "",
+            "name": "SURF.usr_ONITR_aer",
             "reaction probability": 0.005,
             "gas-phase species": "ONITR",
             "gas-phase products": [
@@ -12141,7 +12141,7 @@
         },
         {
             "type": "SURFACE",
-            "name": "",
+            "name": "SURF.usr_N2O5_aer",
             "reaction probability": 0.02,
             "gas-phase species": "N2O5",
             "gas-phase products": [
@@ -12155,7 +12155,7 @@
         },
         {
             "type": "SURFACE",
-            "name": "",
+            "name": "SURF.usr_HONITR_aer",
             "reaction probability": 0.005,
             "gas-phase species": "HONITR",
             "gas-phase products": [
@@ -12169,7 +12169,7 @@
         },
         {
             "type": "SURFACE",
-            "name": "",
+            "name": "SURF.usr_NC4CHO_aer",
             "reaction probability": 0.02,
             "gas-phase species": "NC4CHO",
             "gas-phase products": [
@@ -12183,7 +12183,7 @@
         },
         {
             "type": "SURFACE",
-            "name": "",
+            "name": "SURF.usr_TERPNIT_aer",
             "reaction probability": 0.01,
             "gas-phase species": "TERPNIT",
             "gas-phase products": [
@@ -12197,7 +12197,7 @@
         },
         {
             "type": "SURFACE",
-            "name": "",
+            "name": "SURF.usr_NTERPOOH_aer",
             "reaction probability": 0.01,
             "gas-phase species": "NTERPOOH",
             "gas-phase products": [
@@ -12211,7 +12211,7 @@
         },
         {
             "type": "SURFACE",
-            "name": "",
+            "name": "SURF.usr_NC4CH2OH_aer",
             "reaction probability": 0.005,
             "gas-phase species": "NC4CH2OH",
             "gas-phase products": [
