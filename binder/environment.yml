@@ -17,6 +17,7 @@ dependencies:
   - pip
   - pkg-config
   - python>=3.9
+  - yaml-cpp
   - zlib
   - pip:
     - ussa1976>=v0.3.4
