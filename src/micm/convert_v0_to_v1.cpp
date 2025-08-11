@@ -169,7 +169,7 @@ namespace musica
       v1_reactions.troe.push_back(v1_troe);
     }
 
-    // Convert troe reactions
+    // Convert ternary chemical activation reactions
     for (const auto& ternary : v0_reactions.ternary_chemical_activation)
     {
       mechanism_configuration::v1::types::TernaryChemicalActivation v1_ternary;
