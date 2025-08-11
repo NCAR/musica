@@ -56,5 +56,6 @@ def test_hard_coded_default_constructed_types():
     user_defined = UserDefined()
     assert user_defined.type == ReactionType.UserDefined
 
+
 if __name__ == "__main__":
     pytest.main([__file__])

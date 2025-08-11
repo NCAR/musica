@@ -173,12 +173,14 @@ void bind_carma(py::module_& carma)
                 {
                   auto swell_dict = swell_py.cast<py::dict>();
                   if (swell_dict.contains("algorithm"))
-                    group.swelling_approach.algorithm = static_cast<musica::ParticleSwellingAlgorithm>(
-                        swell_dict["algorithm"].cast<int>());
+                    group.swelling_approach.algorithm =
+                        static_cast<musica::ParticleSwellingAlgorithm>(swell_dict["algorithm"].cast<int>());
                   if (swell_dict.contains("composition"))
-                    group.swelling_approach.composition = static_cast<musica::ParticleSwellingComposition>(
-                        swell_dict["composition"].cast<int>());
-                } else {
+                    group.swelling_approach.composition =
+                        static_cast<musica::ParticleSwellingComposition>(swell_dict["composition"].cast<int>());
+                }
+                else
+                {
                   throw py::type_error(
                       "Expected 'swelling_approach' to be a dictionary with 'algorithm' and 'composition' keys");
                 }

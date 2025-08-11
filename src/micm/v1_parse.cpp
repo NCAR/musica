@@ -58,7 +58,8 @@ namespace musica
       if (elem.constant_mixing_ratio.has_value())
       {
         auto constant_mixing_ratio = elem.constant_mixing_ratio.value();
-        s.parameterize_ = [constant_mixing_ratio](const micm::Conditions& c) { return c.air_density_ * constant_mixing_ratio; };
+        s.parameterize_ = [constant_mixing_ratio](const micm::Conditions& c)
+        { return c.air_density_ * constant_mixing_ratio; };
       }
       for (auto& unknown : elem.unknown_properties)
       {
