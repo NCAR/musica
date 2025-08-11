@@ -140,6 +140,7 @@ namespace musica
     for (const auto& surface : v0_reactions.surface)
     {
       mechanism_configuration::v1::types::Surface v1_surface;
+      v1_surface.name = surface.name;
       v1_surface.reaction_probability = surface.reaction_probability;
       v1_surface.gas_phase_species = convert_reaction_component_v0_to_v1(surface.gas_phase_species);
       v1_surface.gas_phase_products = convert_reaction_components_v0_to_v1(surface.gas_phase_products);

@@ -29,7 +29,6 @@ state = solver.create_state(num_grid_cells)
 # | SURF             | Effective radius (meters)           | Particle number concentration (#/m3)|
 # | CONC             | Initial concentration (mol m-3)     | Unused                              |
 # | ENV              | Temperature (K) or Pressure (Pa)    | Unused                              |
-# | PHOTO            | Photolysis rate (s-1)               | Unused                              |
 # | USER             | User-defined parameter value        | Unused                              |
 conditions = pd.read_csv('configs/v1/ts1/initial_conditions.csv',
              sep=',', names=['parameter', 'value1', 'value2'])
@@ -45,14 +44,11 @@ initial_concentrations.loc[:, 'parameter'] = initial_concentrations.loc[:, 'para
 # grab the environmental conditions, anything prefixed with ENV.
 environmental_conditions = conditions[conditions['parameter'].str.contains('ENV')]
 
-# grab the photolysis rates, anything prefixed with PHOTO.
-photolysis_rates = conditions[conditions['parameter'].str.contains('PHOTO')]
-
 # grab the user defined conditions, anything prefixed with USER.
 user_defined_conditions = conditions[conditions['parameter'].str.contains('USER')]
 
 # make sure the length of all the subsets matches the total length of conditions
-assert len(surface_reactions) + len(initial_concentrations) + len(environmental_conditions) + len(photolysis_rates) + len(user_defined_conditions) == len(conditions)
+assert len(surface_reactions) + len(initial_concentrations) + len(environmental_conditions) + len(user_defined_conditions) == len(conditions)
 
 # To create a Latin Hypercube sample, we have to define the lower and upper bounds for each parameter
 # We will use the initial conditions from the file and add a small perturbation to create a range
@@ -60,8 +56,7 @@ lower_bounds = []
 upper_bounds = []
 
 concentration_perturbation = 0.1
-photolysis_perturbation = 0.05
-user_defined_perturbation = photolysis_perturbation
+user_defined_perturbation = 0.05
 surface_perturbation = 0.02
 environmental_perturbation = 0.2
 
@@ -69,10 +64,6 @@ environmental_perturbation = 0.2
 for concentration in initial_concentrations['value1']:
     lower_bounds.append(float(concentration) * (1 - concentration_perturbation))
     upper_bounds.append(float(concentration) * (1 + concentration_perturbation))
-
-for photolysis in photolysis_rates['value1']:
-    lower_bounds.append(float(photolysis) * (1 - photolysis_perturbation))
-    upper_bounds.append(float(photolysis) * (1 + photolysis_perturbation))
 
 for user in user_defined_conditions['value1']:
     lower_bounds.append(float(user) * (1 - user_defined_perturbation))

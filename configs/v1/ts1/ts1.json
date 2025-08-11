@@ -13137,7 +13137,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jterpnit",
+            "name": "jterpnit",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -13163,7 +13163,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jo2_b",
+            "name": "jo2_b",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -13181,7 +13181,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jmgly",
+            "name": "jmgly",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -13207,7 +13207,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jxylenooh",
+            "name": "jxylenooh",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -13253,7 +13253,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jch4_b",
+            "name": "jch4_b",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -13299,7 +13299,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jterp2ooh",
+            "name": "jterp2ooh",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -13345,7 +13345,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jbrono2_a",
+            "name": "jbrono2_a",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -13367,7 +13367,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jbigald4",
+            "name": "jbigald4",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -13397,7 +13397,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jsoa3_a2",
+            "name": "jsoa3_a2",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -13410,7 +13410,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jbro",
+            "name": "jbro",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -13432,7 +13432,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jtepomuc",
+            "name": "jtepomuc",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -13458,7 +13458,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jcof2",
+            "name": "jcof2",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -13476,7 +13476,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jch2o_b",
+            "name": "jch2o_b",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -13498,7 +13498,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jbrono2_b",
+            "name": "jbrono2_b",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -13520,7 +13520,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jno",
+            "name": "jno",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -13542,7 +13542,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jh2o_b",
+            "name": "jh2o_b",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -13564,7 +13564,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jc3h7ooh",
+            "name": "jc3h7ooh",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -13590,7 +13590,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jcfc113",
+            "name": "jcfc113",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -13616,7 +13616,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jccl4",
+            "name": "jccl4",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -13634,7 +13634,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jnoa",
+            "name": "jnoa",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -13660,7 +13660,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jh2so4",
+            "name": "jh2so4",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -13682,7 +13682,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jmacr_b",
+            "name": "jmacr_b",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -13704,7 +13704,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jnterpooh",
+            "name": "jnterpooh",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -13730,7 +13730,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jrooh",
+            "name": "jrooh",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -13756,7 +13756,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jhbr",
+            "name": "jhbr",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -13778,7 +13778,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jpooh",
+            "name": "jpooh",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -13808,7 +13808,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jsoa2_a2",
+            "name": "jsoa2_a2",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -13821,7 +13821,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jhyac",
+            "name": "jhyac",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -13847,7 +13847,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jhcfc142b",
+            "name": "jhcfc142b",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -13869,7 +13869,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jh2o2",
+            "name": "jh2o2",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -13887,7 +13887,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.joclo",
+            "name": "joclo",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -13909,7 +13909,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jsoa5_a2",
+            "name": "jsoa5_a2",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -13922,7 +13922,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jmacr_a",
+            "name": "jmacr_a",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -13952,7 +13952,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jbenzooh",
+            "name": "jbenzooh",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -13982,7 +13982,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jn2o5_b",
+            "name": "jn2o5_b",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14008,7 +14008,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jso",
+            "name": "jso",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14030,7 +14030,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jisopnooh",
+            "name": "jisopnooh",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14056,7 +14056,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jalkooh",
+            "name": "jalkooh",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14094,7 +14094,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jsoa1_a1",
+            "name": "jsoa1_a1",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14107,7 +14107,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jeooh",
+            "name": "jeooh",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14129,7 +14129,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jbrcl",
+            "name": "jbrcl",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14151,7 +14151,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jisopooh",
+            "name": "jisopooh",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14185,7 +14185,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jc6h5ooh",
+            "name": "jc6h5ooh",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14207,7 +14207,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jcfc114",
+            "name": "jcfc114",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14229,7 +14229,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jho2no2_b",
+            "name": "jho2no2_b",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14251,7 +14251,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jpan",
+            "name": "jpan",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14285,7 +14285,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jo3_b",
+            "name": "jo3_b",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14307,7 +14307,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jcf2cl2",
+            "name": "jcf2cl2",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14329,7 +14329,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jno3_b",
+            "name": "jno3_b",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14351,7 +14351,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jbigald2",
+            "name": "jbigald2",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14373,7 +14373,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jho2no2_a",
+            "name": "jho2no2_a",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14395,7 +14395,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jch3br",
+            "name": "jch3br",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14417,7 +14417,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jclono2_b",
+            "name": "jclono2_b",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14439,7 +14439,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jglyoxal",
+            "name": "jglyoxal",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14461,7 +14461,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jo3_a",
+            "name": "jo3_a",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14483,7 +14483,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jn2o5_a",
+            "name": "jn2o5_a",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14505,7 +14505,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jhpald",
+            "name": "jhpald",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14531,7 +14531,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jbzooh",
+            "name": "jbzooh",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14557,7 +14557,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jcl2o2",
+            "name": "jcl2o2",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14575,7 +14575,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jalknit",
+            "name": "jalknit",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14613,7 +14613,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jbigald",
+            "name": "jbigald",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14647,7 +14647,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jsoa5_a1",
+            "name": "jsoa5_a1",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14660,7 +14660,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jmvk",
+            "name": "jmvk",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14690,7 +14690,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jso3",
+            "name": "jso3",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14712,7 +14712,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jchbr3",
+            "name": "jchbr3",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14730,7 +14730,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jterprd2",
+            "name": "jterprd2",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14772,7 +14772,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jmek",
+            "name": "jmek",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14794,7 +14794,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jacet",
+            "name": "jacet",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14816,7 +14816,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jcf2clbr",
+            "name": "jcf2clbr",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14842,7 +14842,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jh2o_c",
+            "name": "jh2o_c",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14864,7 +14864,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jxylolooh",
+            "name": "jxylolooh",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14894,7 +14894,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jso2",
+            "name": "jso2",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14916,7 +14916,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jmekooh",
+            "name": "jmekooh",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14942,7 +14942,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jphenooh",
+            "name": "jphenooh",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14968,7 +14968,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jsoa4_a1",
+            "name": "jsoa4_a1",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -14981,7 +14981,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jno2",
+            "name": "jno2",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15003,7 +15003,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jbigald3",
+            "name": "jbigald3",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15029,7 +15029,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jch2br2",
+            "name": "jch2br2",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15047,7 +15047,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jhf",
+            "name": "jhf",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15069,7 +15069,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jbepomuc",
+            "name": "jbepomuc",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15095,7 +15095,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jn2o",
+            "name": "jn2o",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15117,7 +15117,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jch2o_a",
+            "name": "jch2o_a",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15139,7 +15139,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jhcfc22",
+            "name": "jhcfc22",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15161,7 +15161,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jnc4cho",
+            "name": "jnc4cho",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15187,7 +15187,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jhonitr",
+            "name": "jhonitr",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15237,7 +15237,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jxooh",
+            "name": "jxooh",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15255,7 +15255,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jch4_a",
+            "name": "jch4_a",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15277,7 +15277,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jhobr",
+            "name": "jhobr",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15299,7 +15299,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jno3_a",
+            "name": "jno3_a",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15321,7 +15321,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jh2o_a",
+            "name": "jh2o_a",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15343,7 +15343,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jch3co3h",
+            "name": "jch3co3h",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15369,7 +15369,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jonitr",
+            "name": "jonitr",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15387,7 +15387,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jterpooh",
+            "name": "jterpooh",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15421,7 +15421,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jcl2",
+            "name": "jcl2",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15439,7 +15439,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "USER.usr_DMS_OH",
+            "name": "usr_DMS_OH",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15465,7 +15465,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jch3cho",
+            "name": "jch3cho",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15491,7 +15491,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jbigald1",
+            "name": "jbigald1",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15513,7 +15513,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jhno3",
+            "name": "jhno3",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15535,7 +15535,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jc2h5ooh",
+            "name": "jc2h5ooh",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15561,7 +15561,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jco2",
+            "name": "jco2",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15583,7 +15583,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jcfc115",
+            "name": "jcfc115",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15609,7 +15609,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jhcfc141b",
+            "name": "jhcfc141b",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15631,7 +15631,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jterprd1",
+            "name": "jterprd1",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15657,7 +15657,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jmpan",
+            "name": "jmpan",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15679,7 +15679,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jclono2_a",
+            "name": "jclono2_a",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15701,7 +15701,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jsoa3_a1",
+            "name": "jsoa3_a1",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15714,7 +15714,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jsoa4_a2",
+            "name": "jsoa4_a2",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15727,7 +15727,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jcf3br",
+            "name": "jcf3br",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15753,7 +15753,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jch3cl",
+            "name": "jch3cl",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15775,7 +15775,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jhcl",
+            "name": "jhcl",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15797,7 +15797,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jtolooh",
+            "name": "jtolooh",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15839,7 +15839,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jch3ccl3",
+            "name": "jch3ccl3",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15857,7 +15857,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jsoa2_a1",
+            "name": "jsoa2_a1",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15870,7 +15870,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jglyald",
+            "name": "jglyald",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15896,7 +15896,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jocs",
+            "name": "jocs",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15918,7 +15918,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jsf6",
+            "name": "jsf6",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15936,7 +15936,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jhocl",
+            "name": "jhocl",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15958,7 +15958,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jch3ooh",
+            "name": "jch3ooh",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -15984,7 +15984,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jclo",
+            "name": "jclo",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -16006,7 +16006,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jcofcl",
+            "name": "jcofcl",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -16028,7 +16028,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jo2_a",
+            "name": "jo2_a",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -16050,7 +16050,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jh2402",
+            "name": "jh2402",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -16072,7 +16072,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jsoa1_a2",
+            "name": "jsoa1_a2",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -16085,7 +16085,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "PHOTO.jcfcl3",
+            "name": "jcfcl3",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -16107,7 +16107,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "USER.het17",
+            "name": "het17",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -16133,7 +16133,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "USER.het14",
+            "name": "het14",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -16155,7 +16155,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "USER.het5",
+            "name": "het5",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -16181,7 +16181,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "USER.het10",
+            "name": "het10",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -16207,7 +16207,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "USER.het3",
+            "name": "het3",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -16229,7 +16229,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "USER.het2",
+            "name": "het2",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -16251,7 +16251,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "USER.het11",
+            "name": "het11",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -16273,7 +16273,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "USER.het8",
+            "name": "het8",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -16295,7 +16295,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "USER.het16",
+            "name": "het16",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -16321,7 +16321,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "USER.het13",
+            "name": "het13",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -16343,7 +16343,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "USER.het9",
+            "name": "het9",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -16369,7 +16369,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "USER.het1",
+            "name": "het1",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -16387,7 +16387,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "USER.het6",
+            "name": "het6",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -16413,7 +16413,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "USER.het12",
+            "name": "het12",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -16431,7 +16431,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "USER.het7",
+            "name": "het7",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -16449,7 +16449,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "USER.het15",
+            "name": "het15",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -16475,7 +16475,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "USER.usr_CO_OH",
+            "name": "usr_CO_OH",
             "scaling factor": 1.0,
             "reactants": [
                 {
@@ -16501,7 +16501,7 @@
         },
         {
             "type": "USER_DEFINED",
-            "name": "USER.het4",
+            "name": "het4",
             "scaling factor": 1.0,
             "reactants": [
                 {
