@@ -3,7 +3,7 @@ from .. import backend
 from .phase import Phase
 from .species import Species
 from .reactions import ReactionComponentSerializer
-from .utils import _add_other_properties, _remove_empty_keys
+from .utils import _add_other_properties
 
 _backend = backend.get_backend()
 _Troe = _backend._mechanism_configuration._Troe
@@ -332,7 +332,7 @@ class Troe:
         """
         serialize_dict = self._create_serialize_dict(self._instance)
         _add_other_properties(serialize_dict, self.other_properties)
-        return _remove_empty_keys(serialize_dict)
+        return serialize_dict
 
     @staticmethod
     def serialize_static(instance) -> Dict:
@@ -349,4 +349,4 @@ class Troe:
         temp_troe = Troe()
         serialize_dict = temp_troe._create_serialize_dict(instance)
         _add_other_properties(serialize_dict, instance.other_properties)
-        return _remove_empty_keys(serialize_dict)
+        return serialize_dict

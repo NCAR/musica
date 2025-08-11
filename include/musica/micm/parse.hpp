@@ -59,7 +59,7 @@ namespace musica
 {
   Chemistry ReadConfiguration(const std::string& config_path);
   Chemistry ParserV0(const mechanism_configuration::ParserResult<>& result);
-  Chemistry ConvertV1Mechanism(const mechanism_configuration::v1::types::Mechanism& v1_mechanism);
+  Chemistry ConvertV1Mechanism(const mechanism_configuration::v1::types::Mechanism& v1_mechanism, bool ignore_non_gas_phases = false);
   Chemistry ParserV1(const mechanism_configuration::ParserResult<>& result);
 
   mechanism_configuration::v1::types::Mechanism ConvertV0MechanismToV1(const std::string& config_path);

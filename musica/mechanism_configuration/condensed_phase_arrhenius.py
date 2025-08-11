@@ -1,5 +1,5 @@
 from ..constants import BOLTZMANN
-from .utils import _add_other_properties, _remove_empty_keys
+from .utils import _add_other_properties
 from .reactions import ReactionComponentSerializer
 from .species import Species
 from .phase import Phase
@@ -274,7 +274,7 @@ class CondensedPhaseArrhenius:
             "condensed phase": self._condensed_phase.name if self._condensed_phase is not None else "",
         }
         _add_other_properties(serialize_dict, self._other_properties)
-        return _remove_empty_keys(serialize_dict)
+        return serialize_dict
 
     @staticmethod
     def serialize_static(instance) -> Dict:
@@ -306,4 +306,4 @@ class CondensedPhaseArrhenius:
                 "condensed phase": instance.condensed_phase,
             }
             _add_other_properties(serialize_dict, instance.other_properties)
-            return _remove_empty_keys(serialize_dict)
+            return serialize_dict

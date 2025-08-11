@@ -1,4 +1,4 @@
-from .utils import _add_other_properties, _remove_empty_keys
+from .utils import _add_other_properties
 from .reactions import ReactionComponentSerializer
 from .species import Species
 from .phase import Phase
@@ -85,4 +85,4 @@ class CondensedPhasePhotolysis(_CondensedPhasePhotolysis):
             "condensed phase": instance.condensed_phase,
         }
         _add_other_properties(serialize_dict, instance.other_properties)
-        return _remove_empty_keys(serialize_dict)
+        return serialize_dict

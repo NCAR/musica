@@ -100,5 +100,7 @@ TEST(Parser, CanParseFullV1)
 }
 
 TEST(Parser, CanConvertFromV0ToV1) {
-  mechanism_configuration::v1::types::Mechanism  mechanism = musica::ConvertV0MechanismToV1("configs/v0/chapman");
+  EXPECT_NO_THROW(
+    mechanism_configuration::v1::types::Mechanism  mechanism = musica::ConvertV0MechanismToV1("configs/v0/chapman");
+  );
 }

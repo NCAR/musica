@@ -287,6 +287,17 @@ class State():
             Dictionary of species names and their indices.
         """
         return self.__species_ordering
+    
+    def get_user_defined_rate_parameters_ordering(self) -> Dict[str, int]:
+        """
+        Get the user-defined rate parameters ordering for the state.
+
+        Returns
+        -------
+        Dict[str, int]
+            Dictionary of user-defined rate parameter names and their indices.
+        """
+        return self.__user_defined_rate_parameters_ordering
 
 
 class MICM():
@@ -311,7 +322,23 @@ class MICM():
         config_path: FilePath = None,
         mechanism: Mechanism = None,
         solver_type: Any = None,
+        ignore_non_gas_phases: bool = True,
     ):
+        """    Initialize the MICM solver.
+        
+        Parameters
+        ----------
+            config_path : FilePath, optional
+                Path to the configuration file. If provided, this will be used to create the solver.
+            mechanism : Mechanism, optional
+                Mechanism object which specifies the chemical mechanism to use. If provided, this will be used
+                to create the solver.
+            solver_type : SolverType, optional
+                Type of solver to use. If not provided, the default solver type will be used.
+            ignore_non_gas_phases : bool, optional
+                If True, non-gas phases will be ignored when configuring micm with the mechanism. This is only needed
+                until micm properly supports non-gas phases. This option is only supported when passing in a mechanism.
+        """
         self.__solver_type = solver_type
         self.__vector_size = _vector_size(solver_type)
         if config_path is None and mechanism is None:
@@ -324,7 +351,7 @@ class MICM():
             self.__solver = _create_solver(config_path, solver_type)
         elif mechanism is not None:
             self.__solver = _create_solver_from_mechanism(
-                mechanism, solver_type)
+                mechanism, solver_type, ignore_non_gas_phases)
 
     def solver_type(self) -> SolverType:
         """

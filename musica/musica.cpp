@@ -96,10 +96,10 @@ void bind_musica(py::module_ &core)
 
   core.def(
       "_create_solver_from_mechanism",
-      [](const v1::Mechanism &mechanism, musica::MICMSolver solver_type)
+      [](const v1::Mechanism &mechanism, musica::MICMSolver solver_type, bool ignore_non_gas_phases)
       {
         musica::Error error;
-        musica::Chemistry chemistry = musica::ConvertV1Mechanism(mechanism);
+        musica::Chemistry chemistry = musica::ConvertV1Mechanism(mechanism, ignore_non_gas_phases);
         musica::MICM *micm = musica::CreateMicmFromChemistryMechanism(&chemistry, solver_type, &error);
         if (!musica::IsSuccess(error))
         {

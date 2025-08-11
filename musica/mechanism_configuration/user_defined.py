@@ -3,7 +3,7 @@ from .. import backend
 from .phase import Phase
 from .species import Species
 from .reactions import ReactionComponentSerializer
-from .utils import _add_other_properties, _remove_empty_keys
+from .utils import _add_other_properties
 
 _backend = backend.get_backend()
 _UserDefined = _backend._mechanism_configuration._UserDefined
@@ -85,4 +85,4 @@ class UserDefined(_UserDefined):
             "gas phase": instance.gas_phase,
         }
         _add_other_properties(serialize_dict, instance.other_properties)
-        return _remove_empty_keys(serialize_dict)
+        return serialize_dict
