@@ -648,15 +648,15 @@ void bind_carma(py::module_& carma)
         params.original_temperature = to_vector_double(kwargs["original_temperature"]);
         params.pressure = to_vector_double(kwargs["pressure"]);
         params.pressure_levels = to_vector_double(kwargs["pressure_levels"]);
-        if (kwargs.contains("relative_humidity"))
+        if (kwargs.contains("relative_humidity") && !kwargs["relative_humidity"].is_none())
         {
           params.relative_humidity = to_vector_double(kwargs["relative_humidity"]);
         }
-        if (kwargs.contains("specific_humidity"))
+        if (kwargs.contains("specific_humidity") && !kwargs["specific_humidity"].is_none())
         {
           params.specific_humidity = to_vector_double(kwargs["specific_humidity"]);
         }
-        if (kwargs.contains("radiative_intensity"))
+        if (kwargs.contains("radiative_intensity") && !kwargs["radiative_intensity"].is_none())
         {
           auto array_2d = array_2d_to_vector_double(kwargs["radiative_intensity"]);
           params.radiative_intensity = std::get<0>(array_2d);
