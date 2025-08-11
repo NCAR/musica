@@ -188,8 +188,7 @@ class MechanismSerializer():
             reactions=reactions_list,
             species=list(cpp_mechanism.species),
             phases=list(cpp_mechanism.phases),
-            version=Version() if not hasattr(cpp_mechanism.version,
-                                             'major') else cpp_mechanism.version
+            version=Version() if cpp_mechanism.version is None else cpp_mechanism.version
         )
 
         return python_mechanism
