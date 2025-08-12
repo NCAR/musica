@@ -3,6 +3,7 @@
 #include <mechanism_configuration/constants.hpp>
 #include <mechanism_configuration/v1/parser.hpp>
 #include <mechanism_configuration/v1/types.hpp>
+#include <mechanism_configuration/v1/reaction_types.hpp>
 #include <mechanism_configuration/v1/validation.hpp>
 #include <musica/micm/parse.hpp>
 #include <pybind11/pybind11.h>
