@@ -95,7 +95,7 @@ TEST(Parser, CanParseFullV1)
     EXPECT_EQ(chemistry.system.gas_phase_.species_.size(), 5);
     EXPECT_EQ(chemistry.system.gas_phase_.name_, "gas");
     EXPECT_EQ(chemistry.system.phases_.size(), 3);
-    EXPECT_EQ(chemistry.processes.size(), 11);
+    EXPECT_EQ(chemistry.processes.size(), 12);
   }
 }
 
