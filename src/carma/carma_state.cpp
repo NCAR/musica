@@ -16,7 +16,7 @@ namespace musica
 
   CARMAState::CARMAState(const CARMA& carma, const CARMAStateParameters& params)
   {
-    CCARMAParameters* carma_params = carma.GetParameters();
+    CCARMAParameters* carma_params = carma.GetCParameters();
     CARMAStateParametersC state_params;
     this->nz = carma_params->nz;
     int n_wavelength_bins = carma_params->wavelength_bin_size;

@@ -60,8 +60,8 @@ def test_carma_instance():
                    aerodynamic_resistance=0.1),
                ice=musica.carma.CARMASurfaceProperties(area_fraction=0.2))
     print(state.get_step_statistics())
-    print(state.get_bin(1, 1))
-    print(state.get_detrain(1, 1))
+    print(state.get_bins())
+    print(state.get_detrained_masses())
     print(state.get_environmental_values())
     print(state.get_gas(1))
     print(carma.get_group_properties(1))

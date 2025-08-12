@@ -966,7 +966,10 @@ class CARMAState:
         self.n_levels = len(vertical_center)
         if original_temperature is None:
             original_temperature = temperature
+        self.vertical_center = vertical_center
+        self.vertical_levels = vertical_levels
 
+        self.dimensions = _backend._carma._get_dimensions(carma_pointer)
         self._carma_state_instance = _backend._carma._create_carma_state(
             carma_pointer=carma_pointer,
             time=time,
@@ -1100,31 +1103,189 @@ class CARMAState:
         """
         return _backend._carma._get_step_statistics(self._carma_state_instance)
 
-    def get_bin(self, bin_index: int, element_index: int) -> Dict[str, Any]:
+    def get_bins(self) -> xr.Dataset:
         """
-        Get the values for a specific bin and element.
-
-        Args:
-            bin_index: Index of the size bin (1-indexed)
-            element_index: Index of the element (1-indexed)
+        Get the CARMA aerosol state data for all bins and elements.
 
         Returns:
-            List[float]: Values for the specified bin and element
+            Dataset: Aerosol bin properties for all bins and elements
         """
-        return _backend._carma._get_bin(self._carma_state_instance, bin_index, element_index)
+        
+        # Collect bin data for each property into arrays
+        # Shape: [number_of_bins, number_of_elements, n_levels] for vertical properties
+        # and [number_of_bins, number_of_elements] for surface/level properties
 
-    def get_detrain(self, bin_index: int, element_index: int) -> Dict[str, Any]:
+        number_of_bins = self.dimensions["number_of_bins"]
+        number_of_elements = self.dimensions["number_of_elements"]
+        n_levels = len(self.vertical_center)
+        n_edges = len(self.vertical_levels)
+
+        # Initialize property arrays
+        properties = [
+            "mass_mixing_ratio",
+            "number_mixing_ratio",
+            "number_density",
+            "nucleation_rate",
+            "wet_particle_radius",
+            "wet_particle_density",
+            "dry_particle_density",
+            "particle_mass_on_surface",
+            "sedimentation_flux",
+            "fall_velocity",
+            "deposition_velocity",
+            "delta_particle_temperature",
+            "kappa",
+            "total_mass_mixing_ratio"
+        ]
+
+        # Determine which properties are per vertical_center, per vertical_level, or per bin/element only
+        per_vertical_center = [
+            "mass_mixing_ratio",
+            "number_mixing_ratio",
+            "number_density",
+            "nucleation_rate",
+            "wet_particle_radius",
+            "wet_particle_density",
+            "dry_particle_density",
+            "delta_particle_temperature",
+            "kappa",
+            "total_mass_mixing_ratio"
+        ]
+        per_vertical_level = [
+            "fall_velocity"
+        ]
+        per_bin_element = [
+            "particle_mass_on_surface",
+            "sedimentation_flux",
+            "deposition_velocity"
+        ]
+
+        # Prepare arrays
+        data = {prop: [] for prop in properties}
+        for i_bin in range(number_of_bins):
+            for i_elem in range(number_of_elements):
+                bin_value = _backend._carma._get_bin(
+                    self._carma_state_instance,
+                    i_bin + 1,
+                    i_elem + 1
+                )
+                for prop in properties:
+                    data[prop].append(bin_value.get(prop))
+
+        # Reshape arrays
+        def reshape(arr, shape):
+            return np.array(arr).reshape(shape)
+
+        # Helper for units
+        def _get_units(prop):
+            units = {
+                "mass_mixing_ratio": "kg kg-1",
+                "number_mixing_ratio": "kg-1",
+                "number_density": "m-3",
+                "nucleation_rate": "m-3 s-1",
+                "wet_particle_radius": "m",
+                "wet_particle_density": "kg m-3",
+                "dry_particle_density": "kg m-3",
+                "particle_mass_on_surface": "kg m-2",
+                "sedimentation_flux": "kg m-2 s-1",
+                "fall_velocity": "m s-1",
+                "deposition_velocity": "m s-1",
+                "delta_particle_temperature": "K",
+                "kappa": "m2 s-1",
+                "total_mass_mixing_ratio": "kg m-3"
+            }
+            return units.get(prop, "")
+
+        dataset_vars = {}
+
+        # Per-vertical_center properties: shape (number_of_bins, number_of_elements, n_levels)
+        for prop in per_vertical_center:
+            arr = reshape(data[prop], (number_of_bins, number_of_elements, n_levels))
+            dataset_vars[prop] = (("bin", "element", "vertical_center"), arr, {"units": _get_units(prop)})
+
+        # Per-vertical_level properties: shape (number_of_bins, number_of_elements, n_edges)
+        for prop in per_vertical_level:
+            arr = reshape(data[prop], (number_of_bins, number_of_elements, n_edges))
+            dataset_vars[prop] = (("bin", "element", "vertical_level"), arr, {"units": _get_units(prop)})
+
+        # Per-bin/element only properties: shape (number_of_bins, number_of_elements)
+        for prop in per_bin_element:
+            arr = reshape(data[prop], (number_of_bins, number_of_elements))
+            dataset_vars[prop] = (("bin", "element"), arr, {"units": _get_units(prop)})
+
+        return xr.Dataset(
+            data_vars=dataset_vars,
+            coords={
+                "bin": np.arange(1, number_of_bins + 1),
+                "element": np.arange(1, number_of_elements + 1),
+                "vertical_center": self.vertical_center,
+                "vertical_level": self.vertical_levels
+            }
+        )
+
+    def get_detrained_masses(self) -> xr.Dataset:
         """
         Get the mass of the detrained condensate for the bin for each particle in the grid
-
-        Args:
-            bin_index: Index of the size bin (1-indexed)
-            element_index: Index of the element (1-indexed)
 
         Returns:
             List[float]: Mass of the detrained condensate for the specified bin and element
         """
-        return _backend._carma._get_detrain(self._carma_state_instance, bin_index, element_index)
+
+        number_of_bins = self.dimensions["number_of_bins"]
+        number_of_elements = self.dimensions["number_of_elements"]
+        n_levels = len(self.vertical_center)
+
+        # Initialize property arrays
+        properties = [
+            "mass_mixing_ratio",
+            "number_mixing_ratio",
+            "number_density",
+            "wet_particle_radius",
+            "wet_particle_density"
+        ]
+
+        # Prepare arrays
+        data = {prop: [] for prop in properties}
+        for i_bin in range(number_of_bins):
+            for i_elem in range(number_of_elements):
+                bin_value = _backend._carma._get_detrain(
+                    self._carma_state_instance,
+                    i_bin + 1,
+                    i_elem + 1
+                )
+                for prop in properties:
+                    data[prop].append(bin_value.get(prop))
+
+        # Reshape arrays
+        def reshape(arr, shape):
+            return np.array(arr).reshape(shape)
+
+        # Helper for units
+        def _get_units(prop):
+            units = {
+                "mass_mixing_ratio": "kg kg-1",
+                "number_mixing_ratio": "kg-1",
+                "number_density": "m-3",
+                "wet_particle_radius": "m",
+                "wet_particle_density": "kg m-3"
+            }
+            return units.get(prop, "")
+
+        dataset_vars = {}
+
+        # Per-vertical_center properties: shape (number_of_bins, number_of_elements, n_levels)
+        for prop in properties:
+            arr = reshape(data[prop], (number_of_bins, number_of_elements, n_levels))
+            dataset_vars[prop] = (("bin", "element", "vertical_center"), arr, {"units": _get_units(prop)})
+
+        return xr.Dataset(
+            data_vars=dataset_vars,
+            coords={
+                "bin": np.arange(1, number_of_bins + 1),
+                "element": np.arange(1, number_of_elements + 1),
+                "vertical_center": self.vertical_center
+            }
+        )
 
     def get_gas(self, gas_index: int) -> Dict[str, Any]:
         """

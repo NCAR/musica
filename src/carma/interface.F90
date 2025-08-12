@@ -552,6 +552,14 @@ contains
             rc = MUSICA_CARMA_ERROR_CODE_GET_FAILED
             return
          end if
+         ! Convert to SI base units
+         number_density = number_density * 1.0e6  ! # cm-3 to # m-3
+         nucleation_rate = nucleation_rate * 1.0e6  ! # cm-3 s-1 to # m-3 s-1
+         wet_particle_radius = wet_particle_radius * 1.0e-2  ! cm to m
+         wet_particle_density = wet_particle_density * 1.0e3  ! g cm-3 to kg m-3
+         dry_particle_density = dry_particle_density * 1.0e3  ! g cm-3 to kg m-3
+         fall_velocity = fall_velocity * 1.0e-2  ! cm s-1 to m s-1
+         deposition_velocity = deposition_velocity * 1.0e-2  ! cm s-1 to m s-1
       else
          rc = MUSICA_CARMA_ERROR_CODE_UNASSOCIATED_POINTER
       end if
@@ -615,6 +623,10 @@ contains
             rc = MUSICA_CARMA_ERROR_CODE_GET_FAILED
             return
          end if
+         ! Convert to SI base units
+         number_density = number_density * 1.0e6  ! # cm-3 to # m-3
+         wet_particle_radius = wet_particle_radius * 1.0e-2  ! cm to m
+         wet_particle_density = wet_particle_density * 1.0e3  ! g cm-3 to kg m-3 
       else
          rc = MUSICA_CARMA_ERROR_CODE_UNASSOCIATED_POINTER
       end if

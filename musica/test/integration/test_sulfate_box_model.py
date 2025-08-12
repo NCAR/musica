@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import ussa1976
+import xarray as xr
 
 available = musica.backend.carma_available()
 pytestmark = pytest.mark.skipif(
@@ -269,6 +270,7 @@ def run_box_model():
     concentrations = [state.get_concentrations()]
     concentrations[0]["SULFATE"] = sulfate_mmr
     current_temperature = environmental_conditions["temperature"].copy()
+    bin_state = None
 
     # Set up additional CARMA state arrays
     satliq_h2o = np.full(NUMBER_OF_GRID_CELLS, -1.0, dtype=np.float64)
@@ -326,12 +328,11 @@ def run_box_model():
         carma_state.step()
 
         # Get updated state data from CARMA
-        for i_bin in range(NUMBER_OF_AEROSOL_SECTIONS):
-            sulfate_mmr[i_bin, :] = carma_state.get_bin(
-                bin_index=i_bin + 1,
-                element_index=1  # Sulfate element index
-            )["mass_mixing_ratio"]
-        micm_output["SULFATE"] = sulfate_mmr
+        if bin_state is None:
+            bin_state = carma_state.get_bins()
+            bin_state = bin_state.expand_dims({"time": [i_time * dt]})
+        else:
+            bin_state = xr.concat([bin_state, carma_state.get_bins().expand_dims({"time": [i_time * dt]})], dim="time")
 
         micm_output["H2O"] = np.array(carma_state.get_gas(
             gas_index=1  # Water vapor gas index
@@ -355,19 +356,42 @@ def run_box_model():
     concentrations = pd.DataFrame(concentrations)
     times = np.arange(num_steps + 1) * dt / 3600.0  # Time in hours
 
-    return concentrations, times
+    return concentrations, times, bin_state
 
 
 def test_sulfate_box_model():
-    # Test the sulfate box model implementation
-    run_box_model()
+    """Test the sulfate box model implementation."""
+    concentrations, times, sulfate_data = run_box_model()
+    
+    # Basic assertions to verify the simulation ran successfully
+    assert concentrations is not None, "Concentrations should not be None"
+    assert len(concentrations) > 0, "Should have concentration data"
+    assert times is not None, "Times should not be None"
+    assert len(times) > 0, "Should have time data"
+    assert sulfate_data is not None, "CARMA sulfate data should not be None"
+    
+    # Check that we have the expected species
+    expected_species = ["HO2", "H2O2", "SO2", "SO3", "H2SO4", "H2O"]
+    for species in expected_species:
+        assert species in concentrations.columns, f"Missing species: {species}"
+    
+    # Check that CARMA data has expected structure
+    assert hasattr(sulfate_data, "mass_mixing_ratio"), "CARMA data should have mass_mixing_ratio"
+    assert "time" in sulfate_data.dims, "CARMA data should have time dimension"
+    assert "bin" in sulfate_data.dims, "CARMA data should have bin dimension"
+    
+    print(f"✅ Test passed! Simulated {len(times)} time steps over {times[-1]:.2f} hours")
+    print(f"   Chemical species tracked: {list(concentrations.columns)}")
+    print(f"   CARMA bins: {len(sulfate_data.bin)}")
+    print(f"   Vertical levels: {len(sulfate_data.vertical_center)}")
 
 
-def plot_results(concentrations, times):
+def plot_results(concentrations, times, sulfate_data=None):
     """Plots the results of the sulfate box model simulation.
     Args:
         concentrations (pd.DataFrame): DataFrame containing the concentrations of chemical species over time.
         times (np.ndarray): Array of time values corresponding to the concentrations.
+        sulfate_data (xr.Dataset): xarray Dataset containing CARMA sulfate data over time.
     """
 
     # Create a 4-panel plot for H2O, H2SO4, SO2, and HO2 concentrations over time at the first grid cell
@@ -392,17 +416,19 @@ def plot_results(concentrations, times):
     plt.show()
 
     # Plot sulfate mmr in each bin over time at the first grid cell
-    sulfate_mmr = np.array([conc[0] for conc in [conc["SULFATE"] for _, conc in concentrations.iterrows()]])
-    for i_bin in range(NUMBER_OF_AEROSOL_SECTIONS):
-        plt.plot(times, sulfate_mmr[:, i_bin], label=f"Bin {i_bin + 1}")
-    plt.xlabel("Time (hours)")
-    plt.ylabel("Sulfate Molar Mass Mixing Ratio (kg/kg)")
-    plt.title("Sulfate Box Model: Molar Mass Mixing Ratio Over Time")
-    plt.legend()
-    plt.grid()
-    plt.show()
-
+    if sulfate_data is not None and hasattr(sulfate_data, "mass_mixing_ratio"):
+        # Plot all bins for the first vertical level
+        sulfate_data["mass_mixing_ratio"].isel(vertical_center=0).plot(x="time", col="bin", col_wrap=6)
+        plt.suptitle("Sulfate Mass Mixing Ratio by Bin Size (First Vertical Level)")
+        plt.show()
+    else:
+        print("SULFATE data structure:", sulfate_data)
+        if sulfate_data is not None:
+            print("Available variables:", list(sulfate_data.data_vars) if hasattr(sulfate_data, 'data_vars') else "No data_vars available")
+            print("Available dimensions:", list(sulfate_data.dims) if hasattr(sulfate_data, 'dims') else "No dims available")
+        else:
+            print("No SULFATE data available")
 
 if __name__ == "__main__":
-    concs, plot_times = run_box_model()
-    plot_results(concs, plot_times)
+    concs, plot_times, sulfate_data = run_box_model()
+    plot_results(concs, plot_times, sulfate_data)
