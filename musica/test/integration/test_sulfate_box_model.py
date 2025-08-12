@@ -336,14 +336,13 @@ def run_box_model():
         micm_output["H2O"] = np.array(carma_state.get_gas(
             gas_index=1  # Water vapor gas index
         )["mass_mixing_ratio"], dtype=np.float64) * environmental_conditions["air density"] * MOLECULAR_MASS_AIR / MOLECULAR_MASS_H2O
-        
+
         micm_output["H2SO4"] = np.array(carma_state.get_gas(
             gas_index=2  # Sulfuric acid gas index
-        )["mass_mixing_ratio"], dtype=np.float64) * environmental_conditions["air density"] * MOLECULAR_MASS_AIR  / MOLECULAR_MASS_H2SO4
-        
+        )["mass_mixing_ratio"], dtype=np.float64) * environmental_conditions["air density"] * MOLECULAR_MASS_AIR / MOLECULAR_MASS_H2SO4
+
         # save concentrations for output
         concentrations.append(micm_output)
-
 
         # prepare for next time step
         current_temperature = carma_state.get_environmental_values()["temperature"]
@@ -351,7 +350,6 @@ def run_box_model():
             "H2O": micm_output["H2O"],
             "H2SO4": micm_output["H2SO4"]
         })
-
 
     # Collect output data
     concentrations = pd.DataFrame(concentrations)

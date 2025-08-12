@@ -181,7 +181,7 @@ namespace musica
     CARMASwellingApproach swelling_approach;  // Swelling from RH approach
     FallVelocityAlgorithm fall_velocity_routine = FallVelocityAlgorithm::STANDARD_SPHERICAL_ONLY;
     MieCalculationAlgorithm mie_calculation_algorithm = MieCalculationAlgorithm::TOON_1981;  // Mie calculation algorithm
-    OpticsAlgorithm optics_algorithm = OpticsAlgorithm::FIXED;  // Optics algorithm
+    OpticsAlgorithm optics_algorithm = OpticsAlgorithm::FIXED;                               // Optics algorithm
     bool is_ice = false;
     bool is_fractal = false;
     bool is_cloud = false;
