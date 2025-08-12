@@ -48,6 +48,8 @@ def test_hard_coded_default_constructed_types():
     assert surface.type == mc.ReactionType.Surface
     troe = mc.Troe()
     assert troe.type == mc.ReactionType.Troe
+    ternary_chemical_activation = mc.TernaryChemicalActivation()
+    assert ternary_chemical_activation.type == mc.ReactionType.TernaryChemicalActivation
     tunneling = mc.Tunneling()
     assert tunneling.type == mc.ReactionType.Tunneling
     wet_deposition = mc.WetDeposition()
