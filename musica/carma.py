@@ -812,6 +812,7 @@ class CARMAParameters:
             initialization=initialization,
             **params_dict)
 
+
 class CARMASurfaceProperties:
     """
     Represents the surface properties used in CARMA simulations.
