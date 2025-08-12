@@ -145,7 +145,7 @@ def create_carma_solver():
     # Set up gases for water and sulfuric acid
     water = musica.carma.CARMAGasConfig(
         name="Water Vapor",
-        shortname="Q",
+        shortname="H2O",
         wtmol=MOLECULAR_MASS_H2O,  # Molar mass of water in kg/mol
         ivaprtn=musica.carma.VaporizationAlgorithm.H2O_MURPHY_2005,
         icomposition=musica.carma.GasComposition.H2O,
@@ -251,14 +251,7 @@ def run_box_model():
     solver = musica.MICM(mechanism=mechanism, solver_type=musica.SolverType.rosenbrock_standard_order)
     state = solver.create_state(number_of_grid_cells=NUMBER_OF_GRID_CELLS)
 
-    carma = None
-    try:
-        carma = create_carma_solver()
-    except Exception as e:
-        print(f"Error creating CARMA solver: {e}")
-        print(f'Error type: {type(e)}')
-        import traceback
-        traceback.print_exc()
+    carma = create_carma_solver()
 
     # Set initial conditions
     grid, environmental_conditions, initial_concentrations = get_initial_conditions()
@@ -271,24 +264,21 @@ def run_box_model():
     dt = np.float64(30.0)
     num_steps = int(time_seconds / dt)
 
-    # Initialize state arrays
+    # Initialize combined state arrays
     sulfate_mmr = np.full((NUMBER_OF_AEROSOL_SECTIONS, NUMBER_OF_GRID_CELLS), 1.0e-10, dtype=np.float64)
-    carma_h2o_conc = np.zeros(NUMBER_OF_GRID_CELLS, dtype=np.float64)
-    carma_h2so4_conc = np.zeros(NUMBER_OF_GRID_CELLS, dtype=np.float64)
-    output_state = state.get_concentrations()
-    output_state["SULFATE"] = sulfate_mmr
-    concentrations = [output_state.copy()]
-    temperatures = [environmental_conditions["temperature"]]
-    pressures = [environmental_conditions["pressure"]]
+    concentrations = [state.get_concentrations()]
+    concentrations[0]["SULFATE"] = sulfate_mmr
     current_temperature = environmental_conditions["temperature"].copy()
-    current_pressure = environmental_conditions["pressure"].copy()
+
+    # Set up additional CARMA state arrays
     satliq_h2o = np.full(NUMBER_OF_GRID_CELLS, -1.0, dtype=np.float64)
     satice_h2o = np.full(NUMBER_OF_GRID_CELLS, -1.0, dtype=np.float64)
     satliq_h2so4 = np.full(NUMBER_OF_GRID_CELLS, -1.0, dtype=np.float64)
     satice_h2so4 = np.full(NUMBER_OF_GRID_CELLS, -1.0, dtype=np.float64)
+    last_h2so4_mmr = np.zeros(NUMBER_OF_GRID_CELLS, dtype=np.float64)
 
     for i_time in range(num_steps):
-        state.set_conditions(temperatures=current_temperature, pressures=current_pressure)
+        state.set_conditions(temperatures=current_temperature, pressures=environmental_conditions["pressure"])
         solver.solve(state, dt)
         micm_output = state.get_concentrations()
 
@@ -307,7 +297,7 @@ def run_box_model():
             time_step=dt,
             latitude=-40.0,
             longitude=-105.0,
-            relative_humidity=h2o_mmr,
+            specific_humidity=h2o_mmr,
         )
 
         for i_bin in range(NUMBER_OF_AEROSOL_SECTIONS):
@@ -327,42 +317,41 @@ def run_box_model():
         carma_state.set_gas(
             gas_index=2,  # Sulfuric acid gas index
             value=h2so4_mmr,
-            old_mmr=h2so4_mmr,
+            old_mmr=last_h2so4_mmr,
             gas_saturation_wrt_liquid=satliq_h2so4,
             gas_saturation_wrt_ice=satice_h2so4
         )
+        last_h2so4_mmr = h2so4_mmr
 
         carma_state.step()
 
-        carma_env = carma_state.get_environmental_values()
-        current_temperature = carma_env["temperature"]
-        current_pressure = carma_env["pressure"]
-
+        # Get updated state data from CARMA
         for i_bin in range(NUMBER_OF_AEROSOL_SECTIONS):
             sulfate_mmr[i_bin, :] = carma_state.get_bin(
                 bin_index=i_bin + 1,
                 element_index=1  # Sulfate element index
             )["mass_mixing_ratio"]
         micm_output["SULFATE"] = sulfate_mmr
-        carma_h2o_conc = np.array(carma_state.get_gas(
-            gas_index=1  # Water vapor gas index
-        )["mass_mixing_ratio"], dtype=np.float64) * environmental_conditions["air density"] * MOLECULAR_MASS_H2O / MOLECULAR_MASS_H2O
-        carma_h2so4_conc = np.array(carma_state.get_gas(
-            gas_index=2  # Sulfuric acid gas index
-        )["mass_mixing_ratio"], dtype=np.float64) * environmental_conditions["air density"] * MOLECULAR_MASS_H2SO4 / MOLECULAR_MASS_AIR
-        conditions = carma_state.get_environmental_values()
-        current_temperature = conditions["temperature"]
 
-        micm_output["H2O"] = carma_h2o_conc
-        micm_output["H2SO4"] = carma_h2so4_conc
+        micm_output["H2O"] = np.array(carma_state.get_gas(
+            gas_index=1  # Water vapor gas index
+        )["mass_mixing_ratio"], dtype=np.float64) * environmental_conditions["air density"] * MOLECULAR_MASS_AIR / MOLECULAR_MASS_H2O
+        
+        micm_output["H2SO4"] = np.array(carma_state.get_gas(
+            gas_index=2  # Sulfuric acid gas index
+        )["mass_mixing_ratio"], dtype=np.float64) * environmental_conditions["air density"] * MOLECULAR_MASS_AIR  / MOLECULAR_MASS_H2SO4
+        
+        # save concentrations for output
+        concentrations.append(micm_output)
+
+
+        # prepare for next time step
+        current_temperature = carma_state.get_environmental_values()["temperature"]
         state.set_concentrations({
-            "H2O": carma_h2o_conc,
-            "H2SO4": carma_h2so4_conc
+            "H2O": micm_output["H2O"],
+            "H2SO4": micm_output["H2SO4"]
         })
 
-        temperatures.append(current_temperature)
-        pressures.append(current_pressure)
-        concentrations.append(micm_output)
 
     # Collect output data
     concentrations = pd.DataFrame(concentrations)
