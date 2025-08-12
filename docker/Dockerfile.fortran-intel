@@ -1,5 +1,4 @@
 # versions and sizes from here: https://hub.docker.com/r/intel/oneapi-hpckit/tags
-# FROM intel/oneapi-hpckit:2024.0.1-devel-ubuntu22.04
 FROM intel/oneapi-hpckit:2025.2.0-0-devel-ubuntu24.04
 
 
