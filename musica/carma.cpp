@@ -31,7 +31,6 @@ auto to_vector_double = [](const py::object& obj) -> std::vector<double>
     std::cerr << "Object repr: " << py::repr(obj).cast<std::string>() << std::endl;
     throw;
   }
-  return {};
 };
 
 auto array_2d_to_vector_double = [](const py::object& obj) -> std::tuple<std::vector<double>, int, int>
