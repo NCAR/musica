@@ -13,61 +13,67 @@ namespace py = pybind11;
 
 auto to_vector_double = [](const py::object& obj) -> std::vector<double>
 {
-  if (obj.is_none())
-    return {};
-  if (py::isinstance<py::array>(obj))
+  try
   {
-    auto arr = obj.cast<py::array>();
-    if (arr.size() == 0)
+    if (obj.is_none())
       return {};
-    // Accept both 0d, 1d arrays
-    if (arr.ndim() == 0)
-      return { arr.cast<double>() };
-    if (arr.ndim() == 1)
-      return py::cast<std::vector<double>>(obj);
-    throw std::invalid_argument("Expected 1D array for 1D double vector");
+    std::vector<double> result;
+    for (const auto& item : obj)
+    {
+      result.push_back(item.cast<double>());
+    }
+    return result;
   }
-  if (py::isinstance<py::sequence>(obj))
+  catch (const std::exception& e)
   {
-    auto seq = obj.cast<py::sequence>();
-    if (seq.size() == 0)
-      return {};
-    return py::cast<std::vector<double>>(obj);
+    std::cerr << "Error converting sequence to vector<double>: " << e.what() << std::endl;
+    std::cerr << "Object type: " << py::str(obj.get_type()).cast<std::string>() << std::endl;
+    std::cerr << "Object repr: " << py::repr(obj).cast<std::string>() << std::endl;
+    throw;
   }
-  return {};
 };
 
 auto array_2d_to_vector_double = [](const py::object& obj) -> std::tuple<std::vector<double>, int, int>
 {
-  if (obj.is_none())
-    return {};
-  if (py::isinstance<py::array>(obj))
+  try
   {
-    auto arr = obj.cast<py::array>();
-    if (arr.ndim() != 2)
-      throw std::invalid_argument("Expected 2D array for 2D double vector");
-    auto shape = arr.shape();
-    return { arr.cast<std::vector<double>>(), static_cast<int>(shape[0]), static_cast<int>(shape[1]) };
-  }
-  if (py::isinstance<py::list>(obj))
-  {
-    auto list = obj.cast<py::list>();
-    if (list.size() == 0 || !py::isinstance<py::list>(list[0]))
-      throw std::invalid_argument("Expected list of lists for 2D double vector");
-    int rows = static_cast<int>(list.size());
-    int cols = static_cast<int>(list[0].cast<py::list>().size());
-    std::vector<double> result;
-    for (const auto& row : list)
+    if (obj.is_none())
+      return {};
+    if (py::isinstance<py::array>(obj))
     {
-      auto row_list = row.cast<py::list>();
-      if (row_list.size() != cols)
-        throw std::invalid_argument("All rows must have the same number of elements");
-      for (const auto& item : row_list)
-        result.push_back(item.cast<double>());
+      auto arr = obj.cast<py::array>();
+      if (arr.ndim() != 2)
+        throw std::invalid_argument("Expected 2D array for 2D double vector");
+      auto shape = arr.shape();
+      return { arr.cast<std::vector<double>>(), static_cast<int>(shape[0]), static_cast<int>(shape[1]) };
     }
-    return { result, rows, cols };
+    if (py::isinstance<py::list>(obj))
+    {
+      auto list = obj.cast<py::list>();
+      if (list.size() == 0 || !py::isinstance<py::list>(list[0]))
+        throw std::invalid_argument("Expected list of lists for 2D double vector");
+      int rows = static_cast<int>(list.size());
+      int cols = static_cast<int>(list[0].cast<py::list>().size());
+      std::vector<double> result;
+      for (const auto& row : list)
+      {
+        auto row_list = row.cast<py::list>();
+        if (row_list.size() != cols)
+          throw std::invalid_argument("All rows must have the same number of elements");
+        for (const auto& item : row_list)
+          result.push_back(item.cast<double>());
+      }
+      return { result, rows, cols };
+    }
+    throw std::invalid_argument("Expected a 2D array or list of lists for 2D double vector");
   }
-  throw std::invalid_argument("Expected a 2D array or list of lists for 2D double vector");
+  catch (const std::exception& e)
+  {
+    std::cerr << "Error converting sequence to vector<double>: " << e.what() << std::endl;
+    std::cerr << "Object type: " << py::str(obj.get_type()).cast<std::string>() << std::endl;
+    std::cerr << "Object repr: " << py::repr(obj).cast<std::string>() << std::endl;
+    throw;
+  }
 };
 
 auto to_surface_properties = [](const py::object& obj) -> musica::CARMASurfaceProperties
@@ -173,12 +179,14 @@ void bind_carma(py::module_& carma)
                 {
                   auto swell_dict = swell_py.cast<py::dict>();
                   if (swell_dict.contains("algorithm"))
-                    group.swelling_approach.algorithm = static_cast<musica::ParticleSwellingAlgorithm>(
-                        swell_dict["algorithm"].cast<int>());
+                    group.swelling_approach.algorithm =
+                        static_cast<musica::ParticleSwellingAlgorithm>(swell_dict["algorithm"].cast<int>());
                   if (swell_dict.contains("composition"))
-                    group.swelling_approach.composition = static_cast<musica::ParticleSwellingComposition>(
-                        swell_dict["composition"].cast<int>());
-                } else {
+                    group.swelling_approach.composition =
+                        static_cast<musica::ParticleSwellingComposition>(swell_dict["composition"].cast<int>());
+                }
+                else
+                {
                   throw py::type_error(
                       "Expected 'swelling_approach' to be a dictionary with 'algorithm' and 'composition' keys");
                 }
@@ -214,7 +222,9 @@ void bind_carma(py::module_& carma)
               if (group_dict.contains("rmon"))
                 group.rmon = group_dict["rmon"].cast<double>();
               if (group_dict.contains("df"))
-                group.df = group_dict["df"].cast<std::vector<double>>();
+              {
+                group.df = to_vector_double(group_dict["df"]);
+              }
               if (group_dict.contains("falpha"))
                 group.falpha = group_dict["falpha"].cast<double>();
               if (group_dict.contains("neutral_volfrc"))
@@ -254,9 +264,9 @@ void bind_carma(py::module_& carma)
               if (element_dict.contains("rho"))
                 element.rho = element_dict["rho"].cast<double>();
               if (element_dict.contains("rhobin"))
-                element.rhobin = element_dict["rhobin"].cast<std::vector<double>>();
+                element.rhobin = to_vector_double(element_dict["rhobin"]);
               if (element_dict.contains("arat"))
-                element.arat = element_dict["arat"].cast<std::vector<double>>();
+                element.arat = to_vector_double(element_dict["arat"]);
               if (element_dict.contains("kappa"))
                 element.kappa = element_dict["kappa"].cast<double>();
               if (element_dict.contains("refidx"))
@@ -551,6 +561,7 @@ void bind_carma(py::module_& carma)
             }
           }
         }
+
         if (params_dict.contains("number_of_refractive_indices"))
         {
           params.number_of_refractive_indices = params_dict["number_of_refractive_indices"].cast<int>();
@@ -648,15 +659,15 @@ void bind_carma(py::module_& carma)
         params.original_temperature = to_vector_double(kwargs["original_temperature"]);
         params.pressure = to_vector_double(kwargs["pressure"]);
         params.pressure_levels = to_vector_double(kwargs["pressure_levels"]);
-        if (kwargs.contains("relative_humidity"))
+        if (kwargs.contains("relative_humidity") && !kwargs["relative_humidity"].is_none())
         {
           params.relative_humidity = to_vector_double(kwargs["relative_humidity"]);
         }
-        if (kwargs.contains("specific_humidity"))
+        if (kwargs.contains("specific_humidity") && !kwargs["specific_humidity"].is_none())
         {
           params.specific_humidity = to_vector_double(kwargs["specific_humidity"]);
         }
-        if (kwargs.contains("radiative_intensity"))
+        if (kwargs.contains("radiative_intensity") && !kwargs["radiative_intensity"].is_none())
         {
           auto array_2d = array_2d_to_vector_double(kwargs["radiative_intensity"]);
           params.radiative_intensity = std::get<0>(array_2d);

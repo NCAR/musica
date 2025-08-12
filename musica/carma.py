@@ -63,7 +63,6 @@ class ParticleFallVelocityAlgorithm(Enum):
 
 class MieCalculationAlgorithm(Enum):
     """Enumeration for Mie calculation algorithms used in CARMA."""
-    NONE = 0
     TOON_1981 = 1
     BOHREN_1983 = 2
     BOTET_1997 = 3
@@ -195,7 +194,7 @@ class CARMAGroupConfig:
                      "composition": ParticleSwellingComposition.NONE
                  },
                  fall_velocity_routine: int = ParticleFallVelocityAlgorithm.STANDARD_SPHERICAL_ONLY,
-                 mie_calculation_algorithm: int = MieCalculationAlgorithm.NONE,
+                 mie_calculation_algorithm: int = MieCalculationAlgorithm.TOON_1981,
                  optics_algorithm: int = OpticsAlgorithm.FIXED,
                  is_ice: bool = False,
                  is_fractal: bool = False,
@@ -204,8 +203,8 @@ class CARMAGroupConfig:
                  do_wetdep: bool = False,
                  do_drydep: bool = False,
                  do_vtran: bool = True,
-                 solfac: float = 0.0,
-                 scavcoef: float = 0.0,
+                 solfac: float = 0.3,
+                 scavcoef: float = 0.1,
                  dpc_threshold: float = 0.0,
                  rmon: float = 0.0,
                  df: Optional[List[float]] = None,
@@ -224,7 +223,7 @@ class CARMAGroupConfig:
             eshape: Ratio of particle length / diameter (default: 1.0)
             swelling_approach: Dictionary specifying swelling algorithm and composition (default: NONE)
             fall_velocity_routine: Algorithm for fall velocity (default: STANDARD_SPHERICAL_ONLY)
-            mie_calculation_algorithm: Algorithm for Mie calculations (default: NONE)
+            mie_calculation_algorithm: Algorithm for Mie calculations (default: TOON_1981)
             optics_algorithm: Algorithm for optics (default: FIXED)
             is_ice: Whether the particles are ice (default: False)
             is_fractal: Whether the particles are fractal (default: False)
@@ -233,8 +232,8 @@ class CARMAGroupConfig:
             do_wetdep: Whether to include wet deposition (default: False)
             do_drydep: Whether to include dry deposition (default: False)
             do_vtran: Whether to include vertical transport (default: True)
-            solfac: Solubility factor for wet deposition (default: 0.0)
-            scavcoef: Scavenging coefficient for wet deposition (default: 0.0)
+            solfac: Solubility factor for wet deposition (default: 0.3)
+            scavcoef: Scavenging coefficient for wet deposition (default: 0.1)
             dpc_threshold: Threshold for dry particle collection (default: 0.0)
             rmon: Monomer radius of fractal particles [m] (default: 0.0)
             df: List of fractal dimensions for each size bin (default: None)
@@ -981,6 +980,9 @@ class CARMAState:
             pressure_levels=pressure_levels,
             vertical_center=vertical_center,
             vertical_levels=vertical_levels,
+            relative_humidity=relative_humidity,
+            specific_humidity=specific_humidity,
+            radiative_intensity=radiative_intensity
         )
 
     def __del__(self):

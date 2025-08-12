@@ -53,7 +53,6 @@ namespace musica
   // Enumeration for Mie calculation methods
   enum class MieCalculationAlgorithm
   {
-    NONE = 0,
     TOON_1981 = 1,    // Shell/Core Toon & Ackerman 1981 Mie calculation
     BOHREN_1983 = 2,  // Homogeneous Sphere Bohren and Huffman 1983 Mie calculation
     BOTET_1997 = 3    // Fractal Mean-Field Botet et al. 1997 Mie calculation
@@ -142,9 +141,9 @@ namespace musica
 
   enum class SulfateNucleationMethod
   {
-    NONE = 0,          // No sulfate nucleation
-    ZHAO_TURCO = 1,    // Zhao and Turco sulfate nucleation
-    VEHKAMAKI = 2      // Vehkamaki et al. sulfate nucleation
+    NONE = 0,        // No sulfate nucleation
+    ZHAO_TURCO = 1,  // Zhao and Turco sulfate nucleation
+    VEHKAMAKI = 2    // Vehkamaki et al. sulfate nucleation
   };
 
   // Structure representing a wavelength bin
@@ -181,8 +180,8 @@ namespace musica
     double eshape = 1.0;                      // aspect ratio (length/width)
     CARMASwellingApproach swelling_approach;  // Swelling from RH approach
     FallVelocityAlgorithm fall_velocity_routine = FallVelocityAlgorithm::STANDARD_SPHERICAL_ONLY;
-    MieCalculationAlgorithm mie_calculation_algorithm = MieCalculationAlgorithm::NONE;
-    OpticsAlgorithm optics_algorithm = OpticsAlgorithm::FIXED;  // Optics algorithm
+    MieCalculationAlgorithm mie_calculation_algorithm = MieCalculationAlgorithm::TOON_1981;  // Mie calculation algorithm
+    OpticsAlgorithm optics_algorithm = OpticsAlgorithm::FIXED;                               // Optics algorithm
     bool is_ice = false;
     bool is_fractal = false;
     bool is_cloud = false;
@@ -190,8 +189,8 @@ namespace musica
     bool do_wetdep = false;
     bool do_drydep = false;
     bool do_vtran = true;
-    double solfac = 0.0;          // Solubility factor for wet deposition
-    double scavcoef = 0.0;        // Scavenging coefficient for wet deposition
+    double solfac = 0.3;          // Solubility factor for wet deposition
+    double scavcoef = 0.1;        // Scavenging coefficient for wet deposition
     double dpc_threshold = 0.0;   // convergence criteria for particle concentration [fraction]
     double rmon = 0.0;            // monomer radius [m]
     std::vector<double> df;       // fractal dimension per bin
@@ -289,16 +288,16 @@ namespace musica
     bool do_partialinit = false;    // do initialization of coagulation from reference atmosphere (requires do_fixedinit)
     bool do_coremasscheck = false;  // check core mass for particles
     SulfateNucleationMethod sulfnucl_method = SulfateNucleationMethod::NONE;  // method for sulfate nucleation
-    double vf_const = 0.0;          // constant fall velocity [m/s] (0: off)
-    int minsubsteps = 1;            // minimum number of substeps
-    int maxsubsteps = 1;            // maximum number of substeps
-    int maxretries = 5;             // maximum number of retries
-    double conmax = 1.0e-1;         // minimum relative concentration to consider
-    double dt_threshold = 0.0;      // convergence criteria for temperature [fraction] (0: off)
-    double cstick = 1.0;            // accommodation coefficient for coagulation
-    double gsticki = 0.93;          // accommodation coefficient for growth of ice
-    double gstickl = 1.0;           // accommodation coefficient for growth of liquid
-    double tstick = 1.0;            // accommodation coefficient temperature
+    double vf_const = 0.0;                                                    // constant fall velocity [m/s] (0: off)
+    int minsubsteps = 1;                                                      // minimum number of substeps
+    int maxsubsteps = 1;                                                      // maximum number of substeps
+    int maxretries = 5;                                                       // maximum number of retries
+    double conmax = 1.0e-1;                                                   // minimum relative concentration to consider
+    double dt_threshold = 0.0;  // convergence criteria for temperature [fraction] (0: off)
+    double cstick = 1.0;        // accommodation coefficient for coagulation
+    double gsticki = 0.93;      // accommodation coefficient for growth of ice
+    double gstickl = 1.0;       // accommodation coefficient for growth of liquid
+    double tstick = 1.0;        // accommodation coefficient temperature
   };
 
   // Structure representing CARMA parameters

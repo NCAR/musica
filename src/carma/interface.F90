@@ -1393,7 +1393,7 @@ contains
                   carma, &
                   igas, &
                   gas_name, &
-                  real(gas%wtmol, kind=real64), &
+                  real(gas%wtmol, kind=real64) * 1000.0_real64, & ! convert to g/mol
                   int(gas%ivaprtn), &
                   int(gas%icomposition), &
                   rc, &
@@ -1532,6 +1532,10 @@ contains
          rc = MUSICA_CARMA_ERROR_CODE_INITIALIZATION_FAILED
          return
       end if
+
+      ! turn off printing
+      carma%f_do_print = .false.
+      carma%f_lunoprt = 6
 
       carma_cptr = c_loc(carma)
 
