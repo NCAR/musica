@@ -158,8 +158,59 @@ def extract_bin_data_for_timestep(params, state):
 
 
 def test_carma_aluminum():
-    # Test CARMA instance creation
-    params = musica.CARMAParameters.create_aluminum_test_config()
+    group = musica.carma.CARMAGroupConfig(
+        name="aluminum",
+        shortname="PRALUM",
+        rmrat=2.0,
+        rmin=21.5e-6,
+        rmon=21.5e-6,
+        ishape=musica.carma.ParticleShape.SPHERE,
+        eshape=1.0,
+        mie_calculation_algorithm=musica.carma.MieCalculationAlgorithm.TOON_1981,
+        is_ice=False,
+        is_fractal=True,
+        do_wetdep=False,
+        do_drydep=True,
+        do_vtran=True,
+        solfac=0.0,
+        scavcoef=0.0,
+        df=[1.6] * 5,  # 5 bins with fractal dimension 1.6
+        falpha=1.0
+    )
+
+    # Create aluminum element
+    element = musica.carma.CARMAElementConfig(
+        igroup=1,
+        isolute=0,
+        name="Aluminum",
+        shortname="ALUM",
+        itype=musica.carma.ParticleType.INVOLATILE,
+        icomposition=musica.carma.ParticleComposition.ALUMINUM,
+        rho=0.00395,  # kg/m3
+        arat=[1.0] * 5,  # 5 bins with area ratio 1.0
+        kappa=0.0,
+    )
+
+    # Create coagulation
+    coagulation = musica.carma.CARMACoagulationConfig(
+        igroup1=1,
+        igroup2=1,
+        igroup3=1,
+        algorithm=musica.carma.ParticleCollectionAlgorithm.FUCHS)
+
+    params = musica.carma.CARMAParameters(
+        nbin=5,
+        nz=1,
+        dtime=1800.0,
+        groups=[group],
+        elements=[element],
+        coagulations=[coagulation]
+    )
+
+    FIVE_DAYS_IN_SECONDS = 432000
+    params.nstep = FIVE_DAYS_IN_SECONDS // params.dtime
+    params.initialization.do_vtran = False
+
     n_levels = params.nz
     deltaz = 1000.0
     zmin = 16500.0

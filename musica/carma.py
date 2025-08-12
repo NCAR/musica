@@ -812,66 +812,6 @@ class CARMAParameters:
             initialization=initialization,
             **params_dict)
 
-    @classmethod
-    def create_aluminum_test_config(cls) -> 'CARMAParameters':
-        """Create parameters for aluminum test configuration."""
-        # Create aluminum group
-        group = CARMAGroupConfig(
-            name="aluminum",
-            shortname="PRALUM",
-            rmrat=2.0,
-            rmin=21.5e-6,
-            rmon=21.5e-6,
-            ishape=ParticleShape.SPHERE,
-            eshape=1.0,
-            mie_calculation_algorithm=MieCalculationAlgorithm.TOON_1981,
-            is_ice=False,
-            is_fractal=True,
-            do_wetdep=False,
-            do_drydep=True,
-            do_vtran=True,
-            solfac=0.0,
-            scavcoef=0.0,
-            df=[1.6] * 5,  # 5 bins with fractal dimension 1.6
-            falpha=1.0
-        )
-
-        # Create aluminum element
-        element = CARMAElementConfig(
-            igroup=1,
-            isolute=0,
-            name="Aluminum",
-            shortname="ALUM",
-            itype=ParticleType.INVOLATILE,
-            icomposition=ParticleComposition.ALUMINUM,
-            rho=0.00395,  # kg/m3
-            arat=[1.0] * 5,  # 5 bins with area ratio 1.0
-            kappa=0.0,
-        )
-
-        # Create coagulation
-        coagulation = CARMACoagulationConfig(
-            igroup1=1,
-            igroup2=1,
-            igroup3=1,
-            algorithm=ParticleCollectionAlgorithm.FUCHS)
-
-        params = cls(
-            nbin=5,
-            nz=1,
-            dtime=1800.0,
-            groups=[group],
-            elements=[element],
-            coagulations=[coagulation]
-        )
-
-        FIVE_DAYS_IN_SECONDS = 432000
-        params.nstep = FIVE_DAYS_IN_SECONDS // params.dtime
-        params.initialization.do_vtran = False
-
-        return params
-
-
 class CARMASurfaceProperties:
     """
     Represents the surface properties used in CARMA simulations.
