@@ -12,7 +12,6 @@ ARG BUILD_TYPE=release
 
 RUN apt update \
     && apt -y install \
-    cmake \
     curl \
     gcc \
     gfortran \

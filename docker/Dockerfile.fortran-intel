@@ -1,20 +1,19 @@
 # versions and sizes from here: https://hub.docker.com/r/intel/oneapi-hpckit/tags
-FROM intel/oneapi-hpckit:2024.0.1-devel-ubuntu22.04
+# FROM intel/oneapi-hpckit:2024.0.1-devel-ubuntu22.04
+FROM intel/oneapi-hpckit:2025.2.0-0-devel-ubuntu24.04
 
 
 # Based off of this: https://dgpu-docs.intel.com/driver/installation.html#repository-public-key-used-for-package-and-repository-signing
 # however those docs (at the time of this writing are incorrect) and this is the correct url
 # community.intel.com/t5/Intel-oneAPI-Math-Kernel-Library/Cannot-update-any-packages-using-intel-oneapi-hpckit-latest/m-p/1603192#M36169
-RUN wget -qO - https://repositories.intel.com/gpu/intel-graphics.key | \
-  gpg --yes --dearmor --output /usr/share/keyrings/intel-graphics-archive-keyring.gpg
+# RUN wget -qO - https://repositories.intel.com/gpu/intel-graphics.key | \
+#   gpg --yes --dearmor --output /usr/share/keyrings/intel-graphics-archive-keyring.gpg
 
 ARG MUSICA_GIT_TAG=main
 ARG BUILD_TYPE=Release
 
 RUN apt update \
     && apt -y install \
-    cmake \
-    cmake-curses-gui \
     curl \
     gcc \
     gfortran \
