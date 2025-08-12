@@ -74,7 +74,6 @@ auto array_2d_to_vector_double = [](const py::object& obj) -> std::tuple<std::ve
     std::cerr << "Object repr: " << py::repr(obj).cast<std::string>() << std::endl;
     throw;
   }
-  return {};
 };
 
 auto to_surface_properties = [](const py::object& obj) -> musica::CARMASurfaceProperties
