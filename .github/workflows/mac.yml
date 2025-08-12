@@ -44,6 +44,7 @@ jobs:
       - name: Run Cmake 
         run: |
             PYTHON_PATH=$(which python)
+            SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX15.sdk/ \
             cmake -S . -B build \
                 -D CMAKE_CXX_FLAGS=-Wl,-ld_classic \
                 -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} \
