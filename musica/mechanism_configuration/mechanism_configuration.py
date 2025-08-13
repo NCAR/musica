@@ -109,8 +109,12 @@ class Mechanism(_Mechanism):
                     CondensedPhasePhotolysis.serialize(reaction))
             elif isinstance(reaction, (_Emission, Emission)):
                 reactions_list.append(Emission.serialize(reaction))
-            elif isinstance(reaction, (_FirstOrderLoss, FirstOrderLoss)):
-                reactions_list.append(FirstOrderLoss.serialize(reaction))
+            elif isinstance(reaction, _FirstOrderLoss):
+                # Handle C++ _FirstOrderLoss objects with static serialize call
+                reactions_list.append(FirstOrderLoss.serialize_static(reaction))
+            elif isinstance(reaction, FirstOrderLoss):
+                # Handle Python FirstOrderLoss objects with instance serialize call
+                reactions_list.append(reaction.serialize())
             elif isinstance(reaction, _SimpolPhaseTransfer):
                 # Handle C++ _SimpolPhaseTransfer objects with static serialize call
                 reactions_list.append(SimpolPhaseTransfer.serialize_static(reaction))

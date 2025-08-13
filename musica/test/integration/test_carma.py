@@ -13,67 +13,10 @@ def test_carma_version():
     print(f"CARMA version: {version}")
 
 
-def test_carma_instance():
-    # Test CARMA instance creation
-    test_params = musica.CARMAParameters.create_aluminum_test_config()
-
-    # Add a gas to the parameters
-    test_params.gases.append(
-        musica.carma.CARMAGasConfig(
-            name="Test Gas",
-            shortname="TG",
-            wtmol=0.018,  # kg mol-1
-            ivaprtn=musica.carma.VaporizationAlgorithm.H2O_BUCK_1981,
-            icomposition=musica.carma.GasComposition.H2O,
-            dgc_threshold=1.0e-8,
-            ds_threshold=1.0e-6
-        )
-    )
-
-    carma = musica.CARMA(test_params)
-    assert carma is not None
-    assert isinstance(carma, musica.CARMA)
-
-    state = carma.create_state(
-        vertical_center=[16500.0],
-        vertical_levels=[16500.0, 17000.0],
-        pressure=[90000.0],
-        pressure_levels=[101325.0, 90050.0],
-        temperature=[280.0],
-        time=0.0,
-        time_step=900.0,  # 15 minutes
-        longitude=0.0,
-        latitude=0.0,
-        coordinates=musica.carma.CarmaCoordinates.CARTESIAN
-    )
-
-    assert state is not None
-    assert isinstance(state, musica.CARMAState)
-
-    state.set_bin(1, 1, 1.0)
-    state.set_detrain(1, 1, 1.0)
-    state.set_gas(1, 1.4e-3)
-    state.set_temperature(300.0)
-    state.set_air_density(1.2)
-    state.step(land=musica.carma.CARMASurfaceProperties(surface_friction_velocity=0.42, area_fraction=0.3),
-               ocean=musica.carma.CARMASurfaceProperties(
-                   aerodynamic_resistance=0.1),
-               ice=musica.carma.CARMASurfaceProperties(area_fraction=0.2))
-    print(state.get_step_statistics())
-    print(state.get_bins())
-    print(state.get_detrained_masses())
-    print(state.get_environmental_values())
-    print(state.get_gases())
-    print(carma.get_group_properties())
-    print(carma.get_element_properties())
-    print(carma.get_gas_properties())
-    print(carma.get_solute_properties())
-
-
 def test_carma_with_all_components():
     """Test CARMA with multiple groups, elements, solutes, and gases"""
     params = musica.CARMAParameters()
-    params.nz = 2
+    params.nz = 1
     params.ny = 1
     params.nx = 1
     params.nbin = 3
@@ -241,6 +184,43 @@ def test_carma_with_all_components():
     # Create CARMA instance and run
     carma = musica.CARMA(params)
 
+    assert carma is not None
+    assert isinstance(carma, musica.CARMA)
+
+    state = carma.create_state(
+        vertical_center=[16500.0],
+        vertical_levels=[16500.0, 17000.0],
+        pressure=[90000.0],
+        pressure_levels=[101325.0, 90050.0],
+        temperature=[280.0],
+        time=0.0,
+        time_step=900.0,  # 15 minutes
+        longitude=0.0,
+        latitude=0.0,
+        coordinates=musica.carma.CarmaCoordinates.CARTESIAN
+    )
+
+    assert state is not None
+    assert isinstance(state, musica.CARMAState)
+
+    state.set_bin(1, 1, 1.0)
+    state.set_detrain(1, 1, 1.0)
+    state.set_gas(1, 1.4e-3)
+    state.set_temperature(300.0)
+    state.set_air_density(1.2)
+    state.step(land=musica.carma.CARMASurfaceProperties(surface_friction_velocity=0.42, area_fraction=0.3),
+               ocean=musica.carma.CARMASurfaceProperties(
+                   aerodynamic_resistance=0.1),
+               ice=musica.carma.CARMASurfaceProperties(area_fraction=0.2))
+    print(state.get_step_statistics())
+    print(state.get_bins())
+    print(state.get_detrained_masses())
+    print(state.get_environmental_values())
+    print(state.get_gases())
+    print(carma.get_group_properties())
+    print(carma.get_element_properties())
+    print(carma.get_gas_properties())
+    print(carma.get_solute_properties())
 
 if __name__ == '__main__':
     pytest.main([__file__])
