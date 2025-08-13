@@ -47,7 +47,7 @@ TEST(Parser, Version1Configuration)
   EXPECT_EQ(v1_mechanism->version.minor, 0);
   EXPECT_EQ(v1_mechanism->version.patch, 0);
   EXPECT_EQ(v1_mechanism->reactions.arrhenius.size(), 4);
-  EXPECT_EQ(v1_mechanism->reactions.user_defined.size(), 3);
+  EXPECT_EQ(v1_mechanism->reactions.photolysis.size(), 3);
   EXPECT_EQ(v1_mechanism->species.size(), 5);
 }
 
@@ -393,11 +393,13 @@ TEST(Parser, ConvertTernaryChemicalActivationV0ToV1)
   EXPECT_EQ(v1_mechanism.reactions.ternary_chemical_activation[0].products.size(), 1);
 
   // Check unit conversion for bimolecular reaction
+  double expected_k0_A = 2.0e-31 * MolesM3ToMoleculesCm3 * MolesM3ToMoleculesCm3;
   EXPECT_NEAR(
       v1_mechanism.reactions.ternary_chemical_activation[0].k0_A,
-      2.0e-31 * MolesM3ToMoleculesCm3 * MolesM3ToMoleculesCm3,
-      1e-40);
-  EXPECT_NEAR(v1_mechanism.reactions.ternary_chemical_activation[0].kinf_A, 1.5e-11 * MolesM3ToMoleculesCm3, 1e-20);
+      expected_k0_A,
+      expected_k0_A * 1e-13);
+  double expected_kinf_A = 1.5e-11 * MolesM3ToMoleculesCm3;
+  EXPECT_NEAR(v1_mechanism.reactions.ternary_chemical_activation[0].kinf_A, expected_kinf_A, expected_kinf_A * 1e-13);
 }
 
 TEST(Parser, ConvertTunnelingV0ToV1)
