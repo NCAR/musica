@@ -127,16 +127,16 @@ def get_fully_defined_mechanism():
     )
 
     my_ternary = mc.TernaryChemicalActivation(
-        name="my ternary",
+        name="my ternary chemical activation",
         gas_phase=gas,
-        k0_A=1.2e-12,
-        k0_B=167,
-        k0_C=3,
-        kinf_A=136,
-        kinf_B=5,
-        kinf_C=24,
-        Fc=0.9,
-        N=0.8,
+        k0_A=32.1,
+        k0_B=-2.3,
+        k0_C=102.3,
+        kinf_A=63.4,
+        kinf_B=-1.3,
+        kinf_C=908.5,
+        Fc=1.3,
+        N=32.1,
         reactants=[B, M],
         products=[C],
         other_properties={"__irrelevant": "2"},
@@ -556,15 +556,15 @@ def _validate_ternary_chemical_activation(reactions):
     assert _extract_components(reactions[0].products) == [
         {"species name": "C", "coefficient": 1}
     ]
-    assert reactions[0].k0_A == 1.2e-12
-    assert reactions[0].k0_B == 167
-    assert reactions[0].k0_C == 3
-    assert reactions[0].kinf_A == 136
-    assert reactions[0].kinf_B == 5
-    assert reactions[0].kinf_C == 24
-    assert reactions[0].Fc == 0.9
-    assert reactions[0].N == 0.8
-    assert reactions[0].name == "my troe"
+    assert reactions[0].k0_A == 32.1
+    assert reactions[0].k0_B == -2.3
+    assert reactions[0].k0_C == 102.3
+    assert reactions[0].kinf_A == 63.4
+    assert reactions[0].kinf_B == -1.3
+    assert reactions[0].kinf_C == 908.5
+    assert reactions[0].Fc == 1.3
+    assert reactions[0].N == 32.1
+    assert reactions[0].name == "my ternary chemical activation"
     assert reactions[0].other_properties == {"__irrelevant": "2"}
 
 def _validate_branched_no_ro2(reactions):

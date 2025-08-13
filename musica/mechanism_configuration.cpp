@@ -529,6 +529,7 @@ void bind_mechanism_configuration(py::module_ &mechanism_configuration)
       .def_readwrite("photolysis", &Reactions::photolysis)
       .def_readwrite("surface", &Reactions::surface)
       .def_readwrite("troe", &Reactions::troe)
+      .def_readwrite("ternary_chemical_activation", &Reactions::ternary_chemical_activation)
       .def_readwrite("tunneling", &Reactions::tunneling)
       .def_readwrite("user_defined", &Reactions::user_defined)
       .def(
