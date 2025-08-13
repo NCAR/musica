@@ -987,6 +987,14 @@ contains
             rc = MUSICA_CARMA_ERROR_CODE_GET_FAILED
             return
          end if
+         ! Convert to base SI untis
+         bin_radius = bin_radius * 0.01 ! Convert from cm to m
+         bin_radius_lower_bound = bin_radius_lower_bound * 0.01 ! Convert from cm to m
+         bin_radius_upper_bound = bin_radius_upper_bound * 0.01 ! Convert from cm to m
+         bin_width = bin_width * 0.01 ! Convert from cm to m
+         bin_mass = bin_mass * 1.0e-3 ! Convert from g to kg
+         bin_width_mass = bin_width_mass * 1.0e-3 ! Convert from g to kg
+         bin_volume = bin_volume * 1.0e-6 ! Convert from cm^3 to m^3
       else
          rc = MUSICA_CARMA_ERROR_CODE_UNASSOCIATED_POINTER
       end if
@@ -1056,6 +1064,8 @@ contains
          refidx_c(:,:)%real_part = real(real(refidx(:,:)), kind=c_double)
          refidx_c(:,:)%imag_part = real(aimag(refidx(:,:)), kind=c_double)
          deallocate(refidx)
+         ! Convert to base SI units
+         rho(:) = rho(:) * 1.0e-3  ! g/cm³ to kg/m³
       else
          rc = 1
          print *, "CARMA pointer is not associated"

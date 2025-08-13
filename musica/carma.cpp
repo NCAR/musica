@@ -643,9 +643,10 @@ void bind_carma(py::module_& carma)
         result["type"] = element_props.type;
         result["composition"] = element_props.composition;
         result["is_shell"] = element_props.is_shell;
-        result["kappa"] = element_props.kappa;
-        result["rho"] = element_props.rho;
-        result["refidx"] = element_props.refidx;
+        result["hygroscopicity_parameter"] = element_props.kappa;
+        result["mass_density"] = element_props.rho;
+        result["refractive_indices"] = element_props.refidx;
+        result["number_of_refractive_indices"] = element_props.number_of_refractive_indices;
 
         return result;
       },

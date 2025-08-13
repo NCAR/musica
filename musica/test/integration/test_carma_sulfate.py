@@ -162,10 +162,12 @@ def test_carma_sulfate():
     carma = musica.CARMA(params)
 
     # Output group properties
-    group_props = carma.get_group_properties(group_index=1)[1]
+    group_props, _ = carma.get_group_properties()
+    # Print bin radius and bin mass from group_props xarray Dataset
     for i_bin in range(NBIN):
         print(
-            f"Bin {i_bin+1}: bin radius = {group_props['bin_radius'][i_bin]}; bin mass = {group_props['bin_mass'][i_bin]}")
+            f"Bin {i_bin + 1}: bin radius = {group_props.isel(bin=i_bin)['bin_radius']}; bin mass = {group_props.isel(bin=i_bin)['bin_mass']}"
+        )
 
     bin_state = None
     gas_state = None
