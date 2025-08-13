@@ -144,6 +144,10 @@ jobs:
         shell: msys2 {0}
         run: echo "C:/msys64/mingw64/bin" >> $GITHUB_PATH
 
+      - name: Clean build directory
+        shell: msys2 {0}
+        run: rm -rf build
+
       - name: Configure with CMake
         shell: msys2 {0}
         run: |
