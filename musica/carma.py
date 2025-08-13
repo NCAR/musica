@@ -939,6 +939,7 @@ class CARMAState:
                  latitude: float = 0.0,
                  longitude: float = 0.0,
                  coordinates: CarmaCoordinates = CarmaCoordinates.CARTESIAN,
+                 gases: Optional[List[CARMAGasConfig]] = None,
                  ):
         """
         Initialize a CARMAState instance.
@@ -959,7 +960,9 @@ class CARMAState:
             latitude: Latitude in degrees (default: 0.0)
             longitude: Longitude in degrees (default: 0.0)
             coordinates: Coordinate system for the simulation (default: Cartesian)
+            gases: List of gas configurations
         """
+        self.gases = gases or []
         self.longitude = longitude
         self.latitude = latitude
         self.coordinates = coordinates
@@ -1287,26 +1290,105 @@ class CARMAState:
             }
         )
 
-    def get_gas(self, gas_index: int) -> Dict[str, Any]:
+    def get_gases(self) -> Tuple[xr.Dataset, Dict[str, int]]:
         """
-        Get the values for a specific gas.
-
-        Args:
-            gas_index: Index of the gas (1-indexed)
+        Get the values for all gases.
 
         Returns:
-            List[float]: Values for the specified gas
+            Tuple[xr.Dataset, Dict[str, int]] A dataset containing values for all gases and a mapping of gas names to their indices.
         """
-        return _backend._carma._get_gas(self._carma_state_instance, gas_index)
+        number_of_gases = self.dimensions["number_of_gases"]
+        n_levels = len(self.vertical_center)
 
-    def get_environmental_values(self) -> Dict[str, Any]:
+        # Initialize property arrays
+        properties = [
+            "mass_mixing_ratio",
+            "gas_saturation_wrt_ice",
+            "gas_saturation_wrt_liquid",
+            "gas_vapor_pressure_wrt_ice",
+            "gas_vapor_pressure_wrt_liquid",
+            "weight_pct_aerosol_composition"
+        ]
+
+        # Prepare arrays
+        data = {prop: [] for prop in properties}
+        for i_gas in range(number_of_gases):
+            gas_value = _backend._carma._get_gas(
+                self._carma_state_instance,
+                i_gas + 1
+            )
+            for prop in properties:
+                data[prop].append(gas_value.get(prop))
+
+        # Reshape arrays
+        def reshape(arr, shape):
+            return np.array(arr).reshape(shape)
+
+        # Helper for units
+        def _get_units(prop):
+            units = {
+                "mass_mixing_ratio": "kg kg-1",
+                "gas_saturation_wrt_ice": "none",
+                "gas_saturation_wrt_liquid": "none",
+                "gas_vapor_pressure_wrt_ice": "none",
+                "gas_vapor_pressure_wrt_liquid": "none",
+                "weight_pct_aerosol_composition": "none"
+            }
+            return units.get(prop, "")
+
+        dataset_vars = {}
+
+        # Per-vertical_center properties: shape (number_of_gases, n_levels)
+        for prop in properties:
+            arr = reshape(data[prop], (number_of_gases, n_levels))
+            dataset_vars[prop] = (("gas", "vertical_center"), arr, {"units": _get_units(prop)})
+
+        return xr.Dataset(
+            data_vars=dataset_vars,
+            coords={
+                "gas": [gas.shortname for gas in self.gases],
+                "vertical_center": self.vertical_center
+            }
+        ), {gas.shortname: idx for idx, gas in enumerate(self.gases)}
+
+    def get_environmental_values(self) -> xr.Dataset:
         """
         Get all environmental conditions for the current CARMAState.
 
         Returns:
-            Dict[str, Any]: Dictionary containing all environmental conditions
+            xr.Dataset: Dataset containing all environmental conditions
         """
-        return _backend._carma._get_environmental_values(self._carma_state_instance)
+        n_levels = len(self.vertical_center)
+ 
+        data = _backend._carma._get_environmental_values(self._carma_state_instance)
+
+        # Reshape arrays
+        def reshape(arr, shape):
+            return np.array(arr).reshape(shape)
+
+        # Helper for units
+        def _get_units(prop):
+            units = {
+                "temperature": "K",
+                "pressure": "Pa",
+                "air_density": "kg m-3",
+                "latent_heat": "K s-1"
+            }
+            return units.get(prop, "")
+
+        dataset_vars = {}
+
+        for prop in data:
+            if not prop is None:
+                arr = reshape(data[prop], (n_levels,))
+                dataset_vars[prop] = (("vertical_center"), arr, {"units": _get_units(prop)})
+
+        return xr.Dataset(
+            data_vars=dataset_vars,
+            coords={
+                "vertical_center": self.vertical_center
+            }
+        )
 
     def set_temperature(self, temperature: Union[float, List[float]]):
         """
@@ -1413,6 +1495,7 @@ class CARMA:
 
         return CARMAState(
             self._carma_instance,
+            gases=self.__parameters.gases,
             **kwargs
         )
 

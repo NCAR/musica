@@ -334,13 +334,9 @@ def run_box_model():
         else:
             bin_state = xr.concat([bin_state, carma_state.get_bins().expand_dims({"time": [i_time * dt]})], dim="time")
 
-        micm_output["H2O"] = np.array(carma_state.get_gas(
-            gas_index=1  # Water vapor gas index
-        )["mass_mixing_ratio"], dtype=np.float64) * environmental_conditions["air density"] * MOLECULAR_MASS_AIR / MOLECULAR_MASS_H2O
-
-        micm_output["H2SO4"] = np.array(carma_state.get_gas(
-            gas_index=2  # Sulfuric acid gas index
-        )["mass_mixing_ratio"], dtype=np.float64) * environmental_conditions["air density"] * MOLECULAR_MASS_AIR / MOLECULAR_MASS_H2SO4
+        gas_state, gas_index = carma_state.get_gases()
+        micm_output["H2O"] = np.array(gas_state.isel(gas=gas_index["H2O"])["mass_mixing_ratio"], dtype=np.float64) * environmental_conditions["air density"] * MOLECULAR_MASS_AIR / MOLECULAR_MASS_H2O
+        micm_output["H2SO4"] = np.array(gas_state.isel(gas=gas_index["H2SO4"])["mass_mixing_ratio"], dtype=np.float64) * environmental_conditions["air density"] * MOLECULAR_MASS_AIR / MOLECULAR_MASS_H2SO4
 
         # save concentrations for output
         concentrations.append(micm_output)

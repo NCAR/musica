@@ -63,7 +63,7 @@ def test_carma_instance():
     print(state.get_bins())
     print(state.get_detrained_masses())
     print(state.get_environmental_values())
-    print(state.get_gas(1))
+    print(state.get_gases())
     print(carma.get_group_properties(1))
     print(carma.get_element_properties(1))
     print(carma.get_gas_properties(1))
