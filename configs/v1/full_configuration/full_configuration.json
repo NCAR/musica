@@ -336,22 +336,18 @@
       "name": "my ternary chemical activation",
       "reactants": [
         {
-          "species name": "bar",
+          "species name": "B",
           "coefficient": 1
         },
         {
-          "species name": "baz",
+          "species name": "M",
           "coefficient": 1
         }
       ],
       "products": [
         {
-          "species name": "bar",
-          "coefficient": 0.5
-        },
-        {
-          "species name": "foo",
-          "coefficient": 0.0
+          "species name": "C",
+          "coefficient": 1
         }
       ],
       "k0_A": 32.1,
