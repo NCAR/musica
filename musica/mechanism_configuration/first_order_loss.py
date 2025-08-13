@@ -44,7 +44,7 @@ class FirstOrderLoss:
         """
         # Create the internal C++ instance
         self._instance = _FirstOrderLoss()
-        
+
         # Set properties if provided
         if name is not None:
             self.name = name
