@@ -93,6 +93,12 @@ def create_mechanism():
         A=8.5e-41 / (MOLEC_CM3_TO_MOLE_M3**2),
         C=6540.0)
 
+    rxn_SO2 = mc.Emission(
+        name="SO2",
+        products=[SO2],
+        gas_phase=gas
+    )
+
     return mc.Mechanism(
         name="Sulfate Box Model",
         phases=[gas],
@@ -103,7 +109,8 @@ def create_mechanism():
             rxn_2HO2_H2O_M_H2O2,
             rxn_H2O2_OH_HO2_H2O,
             rxn_SO2_OH_SO3_HO2,
-            rxn_SO3_2H2O_H2SO4_H2O
+            rxn_SO3_2H2O_H2SO4_H2O,
+            rxn_SO2
         ],
         species=[HO2, H2O2, OH, SO2, SO3, H2SO4, H2O, M]
     )
@@ -258,6 +265,7 @@ def run_box_model():
     grid, environmental_conditions, initial_concentrations = get_initial_conditions()
     state.set_conditions(environmental_conditions["temperature"], environmental_conditions["pressure"])
     state.set_concentrations(initial_concentrations)
+    state.set_user_defined_rate_parameters({"EMIS.SO2": np.full(NUMBER_OF_GRID_CELLS, 1.0e-8, dtype=np.float64)})
 
     # Run the simulation for 6 hours with a timestep of 30 seconds
     time_hours = 2.0
@@ -266,9 +274,7 @@ def run_box_model():
     num_steps = int(time_seconds / dt)
 
     # Initialize combined state arrays
-    sulfate_mmr = np.full((NUMBER_OF_AEROSOL_SECTIONS, NUMBER_OF_GRID_CELLS), 1.0e-10, dtype=np.float64)
     concentrations = [state.get_concentrations()]
-    concentrations[0]["SULFATE"] = sulfate_mmr
     current_temperature = environmental_conditions["temperature"].copy()
     bin_state = None
 
@@ -302,11 +308,17 @@ def run_box_model():
             specific_humidity=h2o_mmr,
         )
 
+        if bin_state is None:
+            bin_state = carma_state.get_bins()
+            bin_state = bin_state.expand_dims({"time": [0.0]}).copy(deep=True)
+            bin_state["mass_mixing_ratio"].values[0, :, :, :] = 0.0
+
+
         for i_bin in range(NUMBER_OF_AEROSOL_SECTIONS):
             carma_state.set_bin(
                 bin_index=i_bin + 1,
                 element_index=1,  # Sulfate element index
-                value=sulfate_mmr[i_bin, :]
+                value=bin_state.isel(time=i_time, bin=i_bin, element=0)["mass_mixing_ratio"].values,
             )
 
         carma_state.set_gas(
@@ -328,11 +340,7 @@ def run_box_model():
         carma_state.step()
 
         # Get updated state data from CARMA
-        if bin_state is None:
-            bin_state = carma_state.get_bins()
-            bin_state = bin_state.expand_dims({"time": [i_time * dt]})
-        else:
-            bin_state = xr.concat([bin_state, carma_state.get_bins().expand_dims({"time": [i_time * dt]})], dim="time")
+        bin_state = xr.concat([bin_state, carma_state.get_bins().expand_dims({"time": [(i_time + 1) * dt]})], dim="time")
 
         gas_state, gas_index = carma_state.get_gases()
         micm_output["H2O"] = np.array(gas_state.isel(gas=gas_index["H2O"])["mass_mixing_ratio"], dtype=np.float64) * environmental_conditions["air density"] * MOLECULAR_MASS_AIR / MOLECULAR_MASS_H2O
@@ -411,11 +419,14 @@ def plot_results(concentrations, times, sulfate_data=None):
     plt.tight_layout()
     plt.show()
 
-    # Plot sulfate mmr in each bin over time at the first grid cell
+    # Plot total sulfate mass mixing ratio (sum over all bins) over time at the first vertical level
     if sulfate_data is not None and hasattr(sulfate_data, "mass_mixing_ratio"):
-        # Plot all bins for the first vertical level
-        sulfate_data["mass_mixing_ratio"].isel(vertical_center=0).plot(x="time", col="bin", col_wrap=6)
-        plt.suptitle("Sulfate Mass Mixing Ratio by Bin Size (First Vertical Level)")
+        total_mmr = sulfate_data["mass_mixing_ratio"].isel(vertical_center=0).sum(dim="bin")
+        total_mmr.plot(x="time")
+        plt.title("Total Sulfate Mass Mixing Ratio (First Vertical Level)")
+        plt.ylabel("Mass Mixing Ratio (kg/kg)")
+        plt.xlabel("Time (hours)")
+        plt.grid()
         plt.show()
     else:
         print("SULFATE data structure:", sulfate_data)

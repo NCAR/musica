@@ -242,7 +242,6 @@ def test_carma_sulfate():
     print(gas_state)
     print(bin_state)
     print(f"\nTest completed!")
-    return True
 
 
 if __name__ == '__main__':
