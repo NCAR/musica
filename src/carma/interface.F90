@@ -626,7 +626,7 @@ contains
          ! Convert to SI base units
          number_density = number_density * 1.0e6  ! # cm-3 to # m-3
          wet_particle_radius = wet_particle_radius * 1.0e-2  ! cm to m
-         wet_particle_density = wet_particle_density * 1.0e3  ! g cm-3 to kg m-3 
+         wet_particle_density = wet_particle_density * 1.0e3  ! g cm-3 to kg m-3
       else
          rc = MUSICA_CARMA_ERROR_CODE_UNASSOCIATED_POINTER
       end if
@@ -987,7 +987,7 @@ contains
             rc = MUSICA_CARMA_ERROR_CODE_GET_FAILED
             return
          end if
-         ! Convert to base SI untis
+         ! Convert to base SI units
          bin_radius = bin_radius * 0.01 ! Convert from cm to m
          bin_radius_lower_bound = bin_radius_lower_bound * 0.01 ! Convert from cm to m
          bin_radius_upper_bound = bin_radius_upper_bound * 0.01 ! Convert from cm to m

@@ -1135,7 +1135,7 @@ class CARMAState:
                 "fall_velocity": "m s-1",
                 "deposition_velocity": "m s-1",
                 "delta_particle_temperature": "K",
-                "kappa": "m2 s-1",
+                "kappa": "-",
                 "total_mass_mixing_ratio": "kg m-3"
             }
             return units.get(prop, "")
@@ -1320,7 +1320,7 @@ class CARMAState:
         dataset_vars = {}
 
         for prop in data:
-            if not prop is None:
+            if prop is not None:
                 arr = reshape(data[prop], (n_levels,))
                 dataset_vars[prop] = (("vertical_center"), arr, {"units": _get_units(prop)})
 
