@@ -1600,21 +1600,17 @@ class CARMA:
         # Per-bin properties: shape (number_of_groups, number_of_bins)
         for prop in per_bin:
             arr = reshape(data[prop], (number_of_groups, number_of_bins))
-            dataset_vars[prop] = (("group", "bin"), arr, {
-                                  "units": _get_units(prop)})
+            dataset_vars[prop] = (("group", "bin"), arr, {"units": _get_units(prop)})
 
         # Per-bin-and-wavelength properties: shape (number_of_groups, number_of_bins, number_of_wavelength_bins)
         for prop in per_bin_and_wavelength:
-            arr = reshape(data[prop], (number_of_groups,
-                          number_of_bins, number_of_wavelength_bins))
-            dataset_vars[prop] = (("group", "bin", "wavelength"), arr, {
-                                  "units": _get_units(prop)})
+            arr = reshape(data[prop], (number_of_groups, number_of_bins, number_of_wavelength_bins))
+            dataset_vars[prop] = (("group", "bin", "wavelength"), arr, {"units": _get_units(prop)})
 
         # Per-element properties: shape (number_of_groups, number_of_elements)
         for prop in per_element:
             arr = reshape(data[prop], (number_of_groups, number_of_elements))
-            dataset_vars[prop] = (("group", "element"), arr, {
-                                  "units": _get_units(prop)})
+            dataset_vars[prop] = (("group", "element"), arr, {"units": _get_units(prop)})
 
         # Per-group properties: shape (number_of_groups,)
         for prop in per_group:
