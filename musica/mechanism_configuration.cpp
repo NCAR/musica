@@ -1,13 +1,14 @@
 // Copyright (C) 2025 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
-#include <mechanism_configuration/constants.hpp>
-#include <mechanism_configuration/v1/parser.hpp>
-#include <mechanism_configuration/v1/types.hpp>
-#include <mechanism_configuration/v1/validation.hpp>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
 #include <variant>
+
+#include <mechanism_configuration/v1/types.hpp>
+#include <mechanism_configuration/constants.hpp>
+#include <mechanism_configuration/v1/parser.hpp>
+#include <mechanism_configuration/v1/validation.hpp>
 
 namespace py = pybind11;
 namespace constants = mechanism_configuration::constants;
