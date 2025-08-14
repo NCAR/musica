@@ -6,29 +6,29 @@ from .reactions import ReactionComponentSerializer
 from .utils import _add_other_properties
 
 _backend = backend.get_backend()
-_Troe = _backend._mechanism_configuration._Troe
+_TernaryChemicalActivation = _backend._mechanism_configuration._TernaryChemicalActivation
 _ReactionComponent = _backend._mechanism_configuration._ReactionComponent
 ReactionType = _backend._mechanism_configuration._ReactionType
 
 
-class Troe:
+class TernaryChemicalActivation:
     """
-    A class representing a Troe rate constant.
+    A class representing a Ternary Chemical Activation rate constant.
 
     Attributes:
-        name (str): The name of the Troe rate constant.
+        name (str): The name of the Ternary Chemical Activation rate constant.
         k0_A (float): Pre-exponential factor for the low-pressure limit [(mol m-3)^(n-1)s-1].
         k0_B (float): Temperature exponent for the low-pressure limit [unitless].
         k0_C (float): Exponential term for the low-pressure limit [K-1].
         kinf_A (float): Pre-exponential factor for the high-pressure limit [(mol m-3)^(n-1)s-1].
         kinf_B (float): Temperature exponent for the high-pressure limit [unitless].
         kinf_C (float): Exponential term for the high-pressure limit [K-1].
-        Fc (float): Troe parameter [unitless].
-        N (float): Troe parameter [unitless].
+        Fc (float): Ternary Chemical Activation parameter [unitless].
+        N (float): Ternary Chemical Activation parameter [unitless].
         reactants (List[Union[Species, Tuple[float, Species]]]): A list of reactants involved in the reaction.
         products (List[Union[Species, Tuple[float, Species]]]): A list of products formed in the reaction.
         gas_phase (Phase): The gas phase in which the reaction occurs.
-        other_properties (Dict[str, Any]): A dictionary of other properties of the Troe rate constant.
+        other_properties (Dict[str, Any]): A dictionary of other properties of the Ternary Chemical Activation rate constant.
     """
 
     def __init__(
@@ -49,7 +49,7 @@ class Troe:
         other_properties: Optional[Dict[str, Any]] = None,
     ):
         """
-        Initializes the Troe object with the given parameters.
+        Initializes the Ternary Chemical Activation object with the given parameters.
 
         k0 = k0_A * exp( k0_C / T ) * ( T / 300.0 )^k0_B
         kinf = kinf_A * exp( kinf_C / T ) * ( T / 300.0 )^kinf_B
@@ -65,28 +65,28 @@ class Troe:
             kinf_A = pre-exponential factor for the high-pressure limit [(mol m-3)^(n-1)s-1]
             kinf_B = temperature exponent for the high-pressure limit [unitless]
             kinf_C = exponential term for the high-pressure limit [K-1]
-            Fc = Troe parameter [unitless]
-            N = Troe parameter [unitless]
+            Fc = Ternary Chemical Activation parameter [unitless]
+            N = Ternary Chemical Activation parameter [unitless]
             T = temperature [K]
             M = concentration of the third body [mol m-3]
 
         Args:
-            name (str): The name of the Troe rate constant.
+            name (str): The name of the Ternary Chemical Activation rate constant.
             k0_A (float): Pre-exponential factor for the low-pressure limit [(mol m-3)^(n-1)s-1].
             k0_B (float): Temperature exponent for the low-pressure limit [unitless].
             k0_C (float): Exponential term for the low-pressure limit [K-1].
             kinf_A (float): Pre-exponential factor for the high-pressure limit [(mol m-3)^(n-1)s-1].
             kinf_B (float): Temperature exponent for the high-pressure limit [unitless].
             kinf_C (float): Exponential term for the high-pressure limit [K-1].
-            Fc (float): Troe parameter [unitless].
-            N (float): Troe parameter [unitless].
+            Fc (float): Ternary Chemical Activation parameter [unitless].
+            N (float): Ternary Chemical Activation parameter [unitless].
             reactants (List[Union[Species, Tuple[float, Species]]]): A list of reactants involved in the reaction.
             products (List[Union[Species, Tuple[float, Species]]]): A list of products formed in the reaction.
             gas_phase (Phase): The gas phase in which the reaction occurs.
-            other_properties (Dict[str, Any]): A dictionary of other properties of the Troe rate constant.
+            other_properties (Dict[str, Any]): A dictionary of other properties of the Ternary Chemical Activation rate constant.
         """
         # Create the internal C++ instance
-        self._instance = _Troe()
+        self._instance = _TernaryChemicalActivation()
 
         # Set all parameters using properties
         if name is not None:
@@ -119,12 +119,12 @@ class Troe:
     # Property delegation to self._instance
     @property
     def name(self) -> str:
-        """Get the name of the Troe rate constant."""
+        """Get the name of the Ternary Chemical Activation rate constant."""
         return self._instance.name
 
     @name.setter
     def name(self, value: str):
-        """Set the name of the Troe rate constant."""
+        """Set the name of the Ternary Chemical Activation rate constant."""
         self._instance.name = value
 
     @property
@@ -189,22 +189,22 @@ class Troe:
 
     @property
     def Fc(self) -> float:
-        """Get the Troe parameter Fc."""
+        """Get the Ternary Chemical Activation parameter Fc."""
         return self._instance.Fc
 
     @Fc.setter
     def Fc(self, value: float):
-        """Set the Troe parameter Fc."""
+        """Set the Ternary Chemical Activation parameter Fc."""
         self._instance.Fc = value
 
     @property
     def N(self) -> float:
-        """Get the Troe parameter N."""
+        """Get the Ternary Chemical Activation parameter N."""
         return self._instance.N
 
     @N.setter
     def N(self, value: float):
-        """Set the Troe parameter N."""
+        """Set the Ternary Chemical Activation parameter N."""
         self._instance.N = value
 
     @property
@@ -295,20 +295,20 @@ class Troe:
     @property
     def type(self):
         """Get the reaction type."""
-        return ReactionType.Troe
+        return ReactionType.TernaryChemicalActivation
 
     def _create_serialize_dict(self, instance) -> Dict:
         """
         Helper method to create the serialization dictionary.
 
         Args:
-            instance: The instance to serialize (either self._instance or a _Troe object).
+            instance: The instance to serialize (either self._instance or a _TernaryChemicalActivation object).
 
         Returns:
             Dict: Base serialization dictionary.
         """
         return {
-            "type": "TROE",
+            "type": "TERNARY_CHEMICAL_ACTIVATION",
             "name": instance.name,
             "k0_A": instance.k0_A,
             "k0_B": instance.k0_B,
@@ -325,10 +325,10 @@ class Troe:
 
     def serialize(self) -> Dict:
         """
-        Serialize the Troe object to a dictionary using only Python-visible data.
+        Serialize the Ternary Chemical Activation object to a dictionary using only Python-visible data.
 
         Returns:
-            Dict: A dictionary representation of the Troe object.
+            Dict: A dictionary representation of the Ternary Chemical Activation object.
         """
         serialize_dict = self._create_serialize_dict(self._instance)
         _add_other_properties(serialize_dict, self.other_properties)
@@ -337,16 +337,16 @@ class Troe:
     @staticmethod
     def serialize_static(instance) -> Dict:
         """
-        Static serialize method for compatibility with C++ _Troe objects.
+        Static serialize method for compatibility with C++ _TernaryChemicalActivation objects.
 
         Args:
-            instance: The _Troe instance to serialize.
+            instance: The _TernaryChemicalActivation instance to serialize.
 
         Returns:
-            Dict: A dictionary representation of the Troe object.
+            Dict: A dictionary representation of the Ternary Chemical Activation object.
         """
-        # Create a temporary Troe object to use the helper method
-        temp_troe = Troe()
-        serialize_dict = temp_troe._create_serialize_dict(instance)
+        # Create a temporary Ternary Chemical Activation object to use the helper method
+        temp_tca = TernaryChemicalActivation()
+        serialize_dict = temp_tca._create_serialize_dict(instance)
         _add_other_properties(serialize_dict, instance.other_properties)
         return serialize_dict

@@ -1,4 +1,4 @@
-from .utils import _add_other_properties, _remove_empty_keys
+from .utils import _add_other_properties
 from .reactions import ReactionComponentSerializer
 from .species import Species
 from .phase import Phase
@@ -254,7 +254,7 @@ class AqueousEquilibrium:
         """
         serialize_dict = self._create_serialize_dict(self._instance)
         _add_other_properties(serialize_dict, self.other_properties)
-        return _remove_empty_keys(serialize_dict)
+        return serialize_dict
 
     @staticmethod
     def serialize_static(instance) -> Dict:
@@ -271,4 +271,4 @@ class AqueousEquilibrium:
         temp_aqueous_equilibrium = AqueousEquilibrium()
         serialize_dict = temp_aqueous_equilibrium._create_serialize_dict(instance)
         _add_other_properties(serialize_dict, instance.other_properties)
-        return _remove_empty_keys(serialize_dict)
+        return serialize_dict

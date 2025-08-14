@@ -20,14 +20,15 @@ set(MUSICA_COMMON_SOURCES
 
 if(MUSICA_ENABLE_MICM)
   set(MUSICA_MICM_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/micm/convert_v0_to_v1.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/micm/cuda_availability.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/micm/micm.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/micm/micm_c_interface.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/micm/parse.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/micm/state.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/micm/state_c_interface.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/micm/parse.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/micm/v0_parse.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/micm/v1_parse.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/micm/cuda_availability.cpp
   )
 endif()
 
