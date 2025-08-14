@@ -6,7 +6,9 @@
 #include <mechanism_configuration/v1/parser.hpp>
 #include <mechanism_configuration/v1/reaction_types.hpp>
 #include <mechanism_configuration/v1/types.hpp>
+#include <mechanism_configuration/v1/reaction_types.hpp>
 #include <mechanism_configuration/v1/validation.hpp>
+#include <musica/micm/parse.hpp>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
@@ -275,21 +277,23 @@ void bind_mechanism_configuration(py::module_ &mechanism_configuration)
 
   py::class_<ReactionComponent>(mechanism_configuration, "_ReactionComponent")
       .def(py::init<>())
-      .def(py::init(
-          [](const std::string &species_name)
-          {
-            ReactionComponent rc;
-            rc.species_name = species_name;
-            return rc;
-          }))
-      .def(py::init(
-          [](const std::string &species_name, double coefficient)
-          {
-            ReactionComponent rc;
-            rc.species_name = species_name;
-            rc.coefficient = coefficient;
-            return rc;
-          }))
+      .def(
+          py::init(
+              [](const std::string &species_name)
+              {
+                ReactionComponent rc;
+                rc.species_name = species_name;
+                return rc;
+              }))
+      .def(
+          py::init(
+              [](const std::string &species_name, double coefficient)
+              {
+                ReactionComponent rc;
+                rc.species_name = species_name;
+                rc.coefficient = coefficient;
+                return rc;
+              }))
       .def_readwrite("species_name", &ReactionComponent::species_name)
       .def_readwrite("coefficient", &ReactionComponent::coefficient)
       .def_readwrite("other_properties", &ReactionComponent::unknown_properties)

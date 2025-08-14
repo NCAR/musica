@@ -880,6 +880,7 @@ class CARMAState:
                  latitude: float = 0.0,
                  longitude: float = 0.0,
                  coordinates: CarmaCoordinates = CarmaCoordinates.CARTESIAN,
+                 gases: Optional[List[CARMAGasConfig]] = None,
                  ):
         """
         Initialize a CARMAState instance.
@@ -900,14 +901,19 @@ class CARMAState:
             latitude: Latitude in degrees (default: 0.0)
             longitude: Longitude in degrees (default: 0.0)
             coordinates: Coordinate system for the simulation (default: Cartesian)
+            gases: List of gas configurations
         """
+        self.gases = gases or []
         self.longitude = longitude
         self.latitude = latitude
         self.coordinates = coordinates
         self.n_levels = len(vertical_center)
         if original_temperature is None:
             original_temperature = temperature
+        self.vertical_center = vertical_center
+        self.vertical_levels = vertical_levels
 
+        self.dimensions = _backend._carma._get_dimensions(carma_pointer)
         self._carma_state_instance = _backend._carma._create_carma_state(
             carma_pointer=carma_pointer,
             time=time,
@@ -1041,52 +1047,289 @@ class CARMAState:
         """
         return _backend._carma._get_step_statistics(self._carma_state_instance)
 
-    def get_bin(self, bin_index: int, element_index: int) -> Dict[str, Any]:
+    def get_bins(self) -> xr.Dataset:
         """
-        Get the values for a specific bin and element.
-
-        Args:
-            bin_index: Index of the size bin (1-indexed)
-            element_index: Index of the element (1-indexed)
+        Get the CARMA aerosol state data for all bins and elements.
 
         Returns:
-            List[float]: Values for the specified bin and element
+            Dataset: Aerosol bin properties for all bins and elements
         """
-        return _backend._carma._get_bin(self._carma_state_instance, bin_index, element_index)
+        
+        # Collect bin data for each property into arrays
+        # Shape: [number_of_bins, number_of_elements, n_levels] for vertical properties
+        # and [number_of_bins, number_of_elements] for surface/level properties
 
-    def get_detrain(self, bin_index: int, element_index: int) -> Dict[str, Any]:
+        number_of_bins = self.dimensions["number_of_bins"]
+        number_of_elements = self.dimensions["number_of_elements"]
+        n_levels = len(self.vertical_center)
+        n_edges = len(self.vertical_levels)
+
+        # Initialize property arrays
+        properties = [
+            "mass_mixing_ratio",
+            "number_mixing_ratio",
+            "number_density",
+            "nucleation_rate",
+            "wet_particle_radius",
+            "wet_particle_density",
+            "dry_particle_density",
+            "particle_mass_on_surface",
+            "sedimentation_flux",
+            "fall_velocity",
+            "deposition_velocity",
+            "delta_particle_temperature",
+            "kappa",
+            "total_mass_mixing_ratio"
+        ]
+
+        # Determine which properties are per vertical_center, per vertical_level, or per bin/element only
+        per_vertical_center = [
+            "mass_mixing_ratio",
+            "number_mixing_ratio",
+            "number_density",
+            "nucleation_rate",
+            "wet_particle_radius",
+            "wet_particle_density",
+            "dry_particle_density",
+            "delta_particle_temperature",
+            "kappa",
+            "total_mass_mixing_ratio"
+        ]
+        per_vertical_level = [
+            "fall_velocity"
+        ]
+        per_bin_element = [
+            "particle_mass_on_surface",
+            "sedimentation_flux",
+            "deposition_velocity"
+        ]
+
+        # Prepare arrays
+        data = {prop: [] for prop in properties}
+        for i_bin in range(number_of_bins):
+            for i_elem in range(number_of_elements):
+                bin_value = _backend._carma._get_bin(
+                    self._carma_state_instance,
+                    i_bin + 1,
+                    i_elem + 1
+                )
+                for prop in properties:
+                    data[prop].append(bin_value.get(prop))
+
+        # Reshape arrays
+        def reshape(arr, shape):
+            return np.array(arr).reshape(shape)
+
+        # Helper for units
+        def _get_units(prop):
+            units = {
+                "mass_mixing_ratio": "kg kg-1",
+                "number_mixing_ratio": "kg-1",
+                "number_density": "m-3",
+                "nucleation_rate": "m-3 s-1",
+                "wet_particle_radius": "m",
+                "wet_particle_density": "kg m-3",
+                "dry_particle_density": "kg m-3",
+                "particle_mass_on_surface": "kg m-2",
+                "sedimentation_flux": "kg m-2 s-1",
+                "fall_velocity": "m s-1",
+                "deposition_velocity": "m s-1",
+                "delta_particle_temperature": "K",
+                "kappa": "-",
+                "total_mass_mixing_ratio": "kg m-3"
+            }
+            return units.get(prop, "")
+
+        dataset_vars = {}
+
+        # Per-vertical_center properties: shape (number_of_bins, number_of_elements, n_levels)
+        for prop in per_vertical_center:
+            arr = reshape(data[prop], (number_of_bins, number_of_elements, n_levels))
+            dataset_vars[prop] = (("bin", "element", "vertical_center"), arr, {"units": _get_units(prop)})
+
+        # Per-vertical_level properties: shape (number_of_bins, number_of_elements, n_edges)
+        for prop in per_vertical_level:
+            arr = reshape(data[prop], (number_of_bins, number_of_elements, n_edges))
+            dataset_vars[prop] = (("bin", "element", "vertical_level"), arr, {"units": _get_units(prop)})
+
+        # Per-bin/element only properties: shape (number_of_bins, number_of_elements)
+        for prop in per_bin_element:
+            arr = reshape(data[prop], (number_of_bins, number_of_elements))
+            dataset_vars[prop] = (("bin", "element"), arr, {"units": _get_units(prop)})
+
+        return xr.Dataset(
+            data_vars=dataset_vars,
+            coords={
+                "bin": np.arange(1, number_of_bins + 1),
+                "element": np.arange(1, number_of_elements + 1),
+                "vertical_center": self.vertical_center,
+                "vertical_level": self.vertical_levels
+            }
+        )
+
+    def get_detrained_masses(self) -> xr.Dataset:
         """
         Get the mass of the detrained condensate for the bin for each particle in the grid
-
-        Args:
-            bin_index: Index of the size bin (1-indexed)
-            element_index: Index of the element (1-indexed)
 
         Returns:
             List[float]: Mass of the detrained condensate for the specified bin and element
         """
-        return _backend._carma._get_detrain(self._carma_state_instance, bin_index, element_index)
 
-    def get_gas(self, gas_index: int) -> Dict[str, Any]:
+        number_of_bins = self.dimensions["number_of_bins"]
+        number_of_elements = self.dimensions["number_of_elements"]
+        n_levels = len(self.vertical_center)
+
+        # Initialize property arrays
+        properties = [
+            "mass_mixing_ratio",
+            "number_mixing_ratio",
+            "number_density",
+            "wet_particle_radius",
+            "wet_particle_density"
+        ]
+
+        # Prepare arrays
+        data = {prop: [] for prop in properties}
+        for i_bin in range(number_of_bins):
+            for i_elem in range(number_of_elements):
+                bin_value = _backend._carma._get_detrain(
+                    self._carma_state_instance,
+                    i_bin + 1,
+                    i_elem + 1
+                )
+                for prop in properties:
+                    data[prop].append(bin_value.get(prop))
+
+        # Reshape arrays
+        def reshape(arr, shape):
+            return np.array(arr).reshape(shape)
+
+        # Helper for units
+        def _get_units(prop):
+            units = {
+                "mass_mixing_ratio": "kg kg-1",
+                "number_mixing_ratio": "kg-1",
+                "number_density": "m-3",
+                "wet_particle_radius": "m",
+                "wet_particle_density": "kg m-3"
+            }
+            return units.get(prop, "")
+
+        dataset_vars = {}
+
+        # Per-vertical_center properties: shape (number_of_bins, number_of_elements, n_levels)
+        for prop in properties:
+            arr = reshape(data[prop], (number_of_bins, number_of_elements, n_levels))
+            dataset_vars[prop] = (("bin", "element", "vertical_center"), arr, {"units": _get_units(prop)})
+
+        return xr.Dataset(
+            data_vars=dataset_vars,
+            coords={
+                "bin": np.arange(1, number_of_bins + 1),
+                "element": np.arange(1, number_of_elements + 1),
+                "vertical_center": self.vertical_center
+            }
+        )
+
+    def get_gases(self) -> Tuple[xr.Dataset, Dict[str, int]]:
         """
-        Get the values for a specific gas.
-
-        Args:
-            gas_index: Index of the gas (1-indexed)
+        Get the values for all gases.
 
         Returns:
-            List[float]: Values for the specified gas
+            Tuple[xr.Dataset, Dict[str, int]] A dataset containing values for all gases and a mapping of gas names to their indices.
         """
-        return _backend._carma._get_gas(self._carma_state_instance, gas_index)
+        number_of_gases = self.dimensions["number_of_gases"]
+        n_levels = len(self.vertical_center)
 
-    def get_environmental_values(self) -> Dict[str, Any]:
+        # Initialize property arrays
+        properties = [
+            "mass_mixing_ratio",
+            "gas_saturation_wrt_ice",
+            "gas_saturation_wrt_liquid",
+            "gas_vapor_pressure_wrt_ice",
+            "gas_vapor_pressure_wrt_liquid",
+            "weight_pct_aerosol_composition"
+        ]
+
+        # Prepare arrays
+        data = {prop: [] for prop in properties}
+        for i_gas in range(number_of_gases):
+            gas_value = _backend._carma._get_gas(
+                self._carma_state_instance,
+                i_gas + 1
+            )
+            for prop in properties:
+                data[prop].append(gas_value.get(prop))
+
+        # Reshape arrays
+        def reshape(arr, shape):
+            return np.array(arr).reshape(shape)
+
+        # Helper for units
+        def _get_units(prop):
+            units = {
+                "mass_mixing_ratio": "kg kg-1",
+                "gas_saturation_wrt_ice": "none",
+                "gas_saturation_wrt_liquid": "none",
+                "gas_vapor_pressure_wrt_ice": "none",
+                "gas_vapor_pressure_wrt_liquid": "none",
+                "weight_pct_aerosol_composition": "none"
+            }
+            return units.get(prop, "")
+
+        dataset_vars = {}
+
+        # Per-vertical_center properties: shape (number_of_gases, n_levels)
+        for prop in properties:
+            arr = reshape(data[prop], (number_of_gases, n_levels))
+            dataset_vars[prop] = (("gas", "vertical_center"), arr, {"units": _get_units(prop)})
+
+        return xr.Dataset(
+            data_vars=dataset_vars,
+            coords={
+                "gas": [gas.shortname for gas in self.gases],
+                "vertical_center": self.vertical_center
+            }
+        ), {gas.shortname: idx for idx, gas in enumerate(self.gases)}
+
+    def get_environmental_values(self) -> xr.Dataset:
         """
         Get all environmental conditions for the current CARMAState.
 
         Returns:
-            Dict[str, Any]: Dictionary containing all environmental conditions
+            xr.Dataset: Dataset containing all environmental conditions
         """
-        return _backend._carma._get_environmental_values(self._carma_state_instance)
+        n_levels = len(self.vertical_center)
+ 
+        data = _backend._carma._get_environmental_values(self._carma_state_instance)
+
+        # Reshape arrays
+        def reshape(arr, shape):
+            return np.array(arr).reshape(shape)
+
+        # Helper for units
+        def _get_units(prop):
+            units = {
+                "temperature": "K",
+                "pressure": "Pa",
+                "air_density": "kg m-3",
+                "latent_heat": "K s-1"
+            }
+            return units.get(prop, "")
+
+        dataset_vars = {}
+
+        for prop in data:
+            if prop is not None:
+                arr = reshape(data[prop], (n_levels,))
+                dataset_vars[prop] = (("vertical_center"), arr, {"units": _get_units(prop)})
+
+        return xr.Dataset(
+            data_vars=dataset_vars,
+            coords={
+                "vertical_center": self.vertical_center
+            }
+        )
 
     def set_temperature(self, temperature: Union[float, List[float]]):
         """
@@ -1193,61 +1436,237 @@ class CARMA:
 
         return CARMAState(
             self._carma_instance,
+            gases=self.__parameters.gases,
             **kwargs
         )
 
-    def get_group_properties(self, group_index: int) -> Tuple[CARMAGroupConfig, Dict[str, Any]]:
+    def get_group_properties(self) -> Tuple[xr.Dataset, Dict[str, int]]:
         """
-        Get the group properties for a specific group index.
-
-        Args:
-            group_index: Index of the group (1-indexed)
+        Get the group properties for all groups.
 
         Returns:
-            Dict[str, Any]: The properties for the specified group
+            Tuple[xr.Dataset, Dict[str, int]]: The group properties for all groups and a dictionary with their indices
         """
-        group = self.__parameters.groups[group_index - 1]
-        props = _backend._carma._get_group_properties(self._carma_instance, group_index)
-        return (group, props)
+        number_of_groups = len(self.__parameters.groups)
+        number_of_elements = len(self.__parameters.elements)
+        number_of_bins = self.__parameters.nbin
+        number_of_wavelength_bins = len(self.__parameters.wavelength_bins)
 
-    def get_element_properties(self, element_index: int) -> Tuple[CARMAElementConfig, Dict[str, Any]]:
+        if number_of_groups == 0:
+            return xr.Dataset(), {}
+
+        # Initialize the property arrays
+        properties = [
+            "bin_radius",
+            "bin_radius_lower_bound",
+            "bin_radius_upper_bound",
+            "bin_width",
+            "bin_mass",
+            "bin_width_mass",
+            "bin_volume",
+            "projected_area_ratio",
+            "radius_ratio",
+            "porosity_ratio",
+            "extinction_coefficient",
+            "single_scattering_albedo",
+            "asymmetry_factor",
+            "element_index_of_core_mass_elements",
+            "number_of_monomers_per_bin",
+            "particle_number_element_for_group",
+            "number_of_core_mass_elements_for_group",
+            "last_prognostic_bin"
+        ]
+
+        # Group arrays by shape
+        per_bin = [
+            "bin_radius",
+            "bin_radius_lower_bound",
+            "bin_radius_upper_bound",
+            "bin_width",
+            "bin_mass",
+            "bin_width_mass",
+            "bin_volume",
+            "projected_area_ratio",
+            "radius_ratio",
+            "porosity_ratio",
+            "number_of_monomers_per_bin"
+        ]
+        per_bin_and_wavelength = [
+            "extinction_coefficient",
+            "single_scattering_albedo",
+            "asymmetry_factor"
+        ]
+        per_element = [
+            "element_index_of_core_mass_elements",
+        ]
+        per_group = [
+            "particle_number_element_for_group",
+            "number_of_core_mass_elements_for_group",
+            "last_prognostic_bin"
+        ]
+
+        # Prepare arrays
+        data = {prop: [] for prop in properties}
+        for i_group in range(number_of_groups):
+            group_value = _backend._carma._get_group_properties(self._carma_instance, i_group + 1)
+            for prop in properties:
+                data[prop].append(group_value.get(prop))
+
+        # Reshape arrays
+        def reshape(arr, shape):
+            return np.array(arr).reshape(shape)
+
+        # Helper for units
+        def _get_units(prop):
+            units = {
+                "bin_radius": "m",
+                "bin_radius_lower_bound": "m",
+                "bin_radius_upper_bound": "m",
+                "bin_width": "m",
+                "bin_mass": "kg",
+                "bin_width_mass": "kg",
+                "bin_volume": "m^3",
+                "projected_area_ratio": "-",
+                "radius_ratio": "-",
+                "porosity_ratio": "-",
+                "extinction_coefficient": "-",
+                "single_scattering_albedo": "-",
+                "asymmetry_factor": "-",
+                "element_index_of_core_mass_elements": "-",
+                "number_of_monomers_per_bin": "-",
+                "particle_number_element_for_group": "-",
+                "number_of_core_mass_elements_for_group": "-",
+                "last_prognostic_bin": "-"
+            }
+            return units.get(prop, "")
+
+        dataset_vars = {}
+
+        # Per-bin properties: shape (number_of_groups, number_of_bins)
+        for prop in per_bin:
+            arr = reshape(data[prop], (number_of_groups, number_of_bins))
+            dataset_vars[prop] = (("group", "bin"), arr, {"units": _get_units(prop)})
+
+        # Per-bin-and-wavelength properties: shape (number_of_groups, number_of_bins, number_of_wavelength_bins)
+        for prop in per_bin_and_wavelength:
+            arr = reshape(data[prop], (number_of_groups, number_of_bins, number_of_wavelength_bins))
+            dataset_vars[prop] = (("group", "bin", "wavelength"), arr, {"units": _get_units(prop)})
+
+        # Per-element properties: shape (number_of_groups, number_of_elements)
+        for prop in per_element:
+            arr = reshape(data[prop], (number_of_groups, number_of_elements))
+            dataset_vars[prop] = (("group", "element"), arr, {"units": _get_units(prop)})
+
+        # Per-group properties: shape (number_of_groups,)
+        for prop in per_group:
+            arr = reshape(data[prop], (number_of_groups,))
+            dataset_vars[prop] = (("group",), arr, {"units": _get_units(prop)})
+
+
+        return (xr.Dataset(
+            data_vars=dataset_vars,
+            coords={
+                "group": np.arange(1, number_of_groups + 1),
+                "bin": np.arange(1, number_of_bins + 1),
+                "wavelength": np.arange(1, number_of_wavelength_bins + 1),
+                "element": np.arange(1, number_of_elements + 1)
+            }
+        ), self.__parameters.groups)
+
+    def get_element_properties(self) -> Tuple[xr.Dataset, Dict[str, int]]:
         """
-        Get the element properties for a specific element index.
-
-        Args:
-            element_index: Index of the element (1-indexed)
+        Get the element properties for all elements
 
         Returns:
-            Tuple[CARMAElementConfig, Dict[str, Any]]: The properties for the specified element
+            Tuple[xr.Dataset, Dict[str, Any]]: The properties for each element and a dictionary of element indices
         """
-        element = self.__parameters.elements[element_index - 1]
-        props = _backend._carma._get_element_properties(self._carma_instance, element_index)
-        return (element, props)
+        number_of_elements = len(self.__parameters.elements)
+        number_of_bins = self.__parameters.nbin
+        number_of_wavelength_bins = len(self.__parameters.wavelength_bins)
+        number_of_refractive_indices = None
 
-    def get_gas_properties(self, gas_index: int) -> CARMAGasConfig:
+        if number_of_elements == 0:
+            return xr.Dataset(), {}
+
+        # Initialize the property arrays
+        properties = [
+            "mass_density",
+            "refractive_indices",
+            "hygroscopicity_parameter"
+        ]
+
+        # Group arrays by shape
+        per_bin = [ "mass_density" ]
+        per_wavelength_and_refidx = [ "refractive_indices" ]
+        per_element = [ "hygroscopicity_parameter" ]
+
+        # Prepare arrays
+        data = {prop: [] for prop in properties}
+        for i_elem in range(number_of_elements):
+            element_value = _backend._carma._get_element_properties(self._carma_instance, i_elem + 1)
+            if number_of_refractive_indices is None:
+                number_of_refractive_indices = element_value["number_of_refractive_indices"]
+            else:
+                if number_of_refractive_indices != element_value["number_of_refractive_indices"]:
+                    raise ValueError("Inconsistent number of refractive indices found.")
+            for prop in properties:
+                data[prop].append(element_value.get(prop))
+
+        # Reshape arrays
+        def reshape(arr, shape):
+            return np.array(arr).reshape(shape)
+
+        # Helper for units
+        def _get_units(prop):
+            units = {
+                "mass_density": "kg m-3",
+                "refractive_indices": "-",
+                "hygroscopicity_parameter": "-"
+            }
+            return units.get(prop, "")
+
+        dataset_vars = {}
+
+        # Per-bin properties: shape (number_of_elements, number_of_bins)
+        for prop in per_bin:
+            arr = reshape(data[prop], (number_of_elements, number_of_bins))
+            dataset_vars[prop] = (("element", "bin"), arr, {"units": _get_units(prop)})
+
+        # Per-wavelength and refractive index properties: shape (number_of_elements, number_of_refractive_indices, number_of_wavelength_bins)
+        for prop in per_wavelength_and_refidx:
+            arr = reshape(data[prop], (number_of_elements, number_of_refractive_indices, number_of_wavelength_bins))
+            dataset_vars[prop] = (("element", "refractive_index", "wavelength"), arr, {"units": _get_units(prop)})
+
+        # Per-element properties: shape (number_of_elements,)
+        for prop in per_element:
+            arr = reshape(data[prop], (number_of_elements,))
+            dataset_vars[prop] = (("element",), arr, {"units": _get_units(prop)})
+
+        
+        return (xr.Dataset(
+            data_vars=dataset_vars,
+            coords={
+                "bin": np.arange(1, number_of_bins + 1),
+                "wavelength": np.arange(1, number_of_wavelength_bins + 1),
+                "refractive_index": np.arange(1, number_of_refractive_indices + 1),
+                "element": np.arange(1, number_of_elements + 1)
+            }
+        ), self.__parameters.elements)
+
+    def get_gas_properties(self) -> CARMAGasConfig:
         """
-        Get the gas properties for a specific gas index.
-
-        Args:
-            gas_index: Index of the gas (1-indexed)
+        Get the gas properties for all gases.
 
         Returns:
-            CARMAGasConfig: The gas configuration
+            CARMAGasConfig: The gas configurations
         """
-        if gas_index < 1 or gas_index > len(self.__parameters.gases):
-            raise IndexError("Gas index out of range.")
-        return self.__parameters.gases[gas_index - 1]
+        return self.__parameters.gases
 
-    def get_solute_properties(self, solute_index: int) -> CARMASoluteConfig:
+    def get_solute_properties(self) -> CARMASoluteConfig:
         """
-        Get the solute properties for a specific solute index.
-
-        Args:
-            solute_index: Index of the solute (1-indexed)
+        Get the solute properties for all solutes.
 
         Returns:
-            CARMASoluteConfig: The solute configuration
+            CARMASoluteConfig: The solute configurations
         """
-        if solute_index < 1 or solute_index > len(self.__parameters.solutes):
-            raise IndexError("Solute index out of range.")
-        return self.__parameters.solutes[solute_index - 1]
+        return self.__parameters.solutes

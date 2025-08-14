@@ -162,10 +162,16 @@ def test_carma_sulfate():
     carma = musica.CARMA(params)
 
     # Output group properties
-    group_props = carma.get_group_properties(group_index=1)[1]
+    group_props, _ = carma.get_group_properties()
+    # Print bin radius and bin mass from group_props xarray Dataset
     for i_bin in range(NBIN):
         print(
-            f"Bin {i_bin+1}: bin radius = {group_props['bin_radius'][i_bin]}; bin mass = {group_props['bin_mass'][i_bin]}")
+            f"Bin {i_bin + 1}: bin radius = {group_props.isel(bin=i_bin)['bin_radius']}; bin mass = {group_props.isel(bin=i_bin)['bin_mass']}"
+        )
+
+    bin_state = None
+    gas_state = None
+    env_state = None
 
     for i_step in range(nsteps):
 
@@ -210,30 +216,32 @@ def test_carma_sulfate():
         # Perform model step
         state.step()
         stats = state.get_step_statistics()
+        print(f"Step {i_step + 1}/{nsteps}: {stats}")
 
         # Get updated state values
-        conditions = state.get_environmental_values()
-        mass_mixing_ratios['H2O'] = state.get_gas(gas_index=1)["mass_mixing_ratio"]
-        mass_mixing_ratios['H2SO4'] = state.get_gas(gas_index=2)["mass_mixing_ratio"]
-        satice['H2O'] = state.get_gas(gas_index=1)["gas_saturation_wrt_ice"]
-        satice['H2SO4'] = state.get_gas(gas_index=2)["gas_saturation_wrt_ice"]
-        satliq['H2O'] = state.get_gas(gas_index=1)["gas_saturation_wrt_liquid"]
-        satliq['H2SO4'] = state.get_gas(gas_index=2)["gas_saturation_wrt_liquid"]
-        for i_bin in range(1, NBIN + 1):
-            mass_mixing_ratios['SULFATE'][0][i_bin - 1] = state.get_bin(i_bin, 1)["mass_mixing_ratio"]
+        if bin_state is None:
+            bin_state = state.get_bins()
+            bin_state = bin_state.expand_dims({"time": [i_step * dtime]})
+        else:
+            bin_state = xr.concat([bin_state, state.get_bins().expand_dims({"time": [i_step * dtime]})], dim="time")
+        
+        if gas_state is None:
+            gas_state = state.get_gases()[0]
+            gas_state = gas_state.expand_dims({"time": [i_step * dtime]})
+        else:
+            gas_state = xr.concat([gas_state, state.get_gases()[0].expand_dims({"time": [i_step * dtime]})], dim="time")
 
-        print(f"CARMA State at timestep {i_step}:")
-        print(f"  Solver statistics: {stats}")
-        print(f"  Conditions: {conditions}")
-        for key, value in mass_mixing_ratios.items():
-            print(f"  {key} mass mixing ratio: {value}")
-        for key, value in satice.items():
-            print(f"  {key} saturation wrt ice: {value}")
-        for key, value in satliq.items():
-            print(f"  {key} saturation wrt liquid: {value}")
+        if env_state is None:
+            env_state = state.get_environmental_values()
+            env_state = env_state.expand_dims({"time": [i_step * dtime]})
+        else:
+            env_state = xr.concat([env_state, state.get_environmental_values().expand_dims({"time": [i_step * dtime]})], dim="time")
 
+
+    print(env_state)
+    print(gas_state)
+    print(bin_state)
     print(f"\nTest completed!")
-    return True
 
 
 if __name__ == '__main__':

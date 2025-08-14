@@ -589,6 +589,26 @@ void bind_carma(py::module_& carma)
       "Delete a CARMA instance");
 
   carma.def(
+      "_get_dimensions",
+      [](std::uintptr_t carma_ptr)
+      {
+        musica::CARMA* carma_instance = reinterpret_cast<musica::CARMA*>(carma_ptr);
+        auto params = carma_instance->GetParameters();
+        py::dict result;
+        result["number_of_bins"] = params.nbin;
+        result["number_of_vertical_levels"] = params.nz;
+        result["number_of_wavelength_bins"] = params.wavelength_bins.size();
+        result["number_of_refractive_indices"] = params.number_of_refractive_indices;
+        result["number_of_groups"] = params.groups.size();
+        result["number_of_elements"] = params.elements.size();
+        result["number_of_solutes"] = params.solutes.size();
+        result["number_of_gases"] = params.gases.size();
+        return result;
+      },
+      "Get the dimensions of the CARMA instance"
+  );
+
+  carma.def(
       "_get_group_properties",
       [](std::uintptr_t carma_ptr, int group_index)
       {
@@ -632,9 +652,10 @@ void bind_carma(py::module_& carma)
         result["type"] = element_props.type;
         result["composition"] = element_props.composition;
         result["is_shell"] = element_props.is_shell;
-        result["kappa"] = element_props.kappa;
-        result["rho"] = element_props.rho;
-        result["refidx"] = element_props.refidx;
+        result["hygroscopicity_parameter"] = element_props.kappa;
+        result["mass_density"] = element_props.rho;
+        result["refractive_indices"] = element_props.refidx;
+        result["number_of_refractive_indices"] = element_props.number_of_refractive_indices;
 
         return result;
       },
