@@ -567,6 +567,28 @@ def _validate_ternary_chemical_activation(reactions):
     assert reactions[0].name == "my ternary chemical activation"
     assert reactions[0].other_properties == {"__irrelevant": "2"}
 
+
+def _validate_ternary_chemical_activation(reactions):
+    assert reactions[0].type == mc.ReactionType.TernaryChemicalActivation
+    assert reactions[0].gas_phase == "gas"
+    assert _extract_components(reactions[0].reactants) == [
+        {"species name": "B", "coefficient": 1},
+        {"species name": "M", "coefficient": 1},
+    ]
+    assert _extract_components(reactions[0].products) == [
+        {"species name": "C", "coefficient": 1}
+    ]
+    assert reactions[0].k0_A == 32.1
+    assert reactions[0].k0_B == -2.3
+    assert reactions[0].k0_C == 102.3
+    assert reactions[0].kinf_A == 63.4
+    assert reactions[0].kinf_B == -1.3
+    assert reactions[0].kinf_C == 908.5
+    assert reactions[0].Fc == 1.3
+    assert reactions[0].N == 32.1
+    assert reactions[0].name == "my ternary chemical activation"
+    assert reactions[0].other_properties == {"__irrelevant": "2"}
+
 def _validate_branched_no_ro2(reactions):
     assert reactions[0].type == mc.ReactionType.Branched
     assert reactions[0].gas_phase == "gas"

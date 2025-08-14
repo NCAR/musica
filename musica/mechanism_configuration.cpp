@@ -1,7 +1,10 @@
 // Copyright (C) 2025 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
+#include <musica/micm/parse.hpp>
+
 #include <mechanism_configuration/constants.hpp>
 #include <mechanism_configuration/v1/parser.hpp>
+#include <mechanism_configuration/v1/reaction_types.hpp>
 #include <mechanism_configuration/v1/types.hpp>
 #include <mechanism_configuration/v1/reaction_types.hpp>
 #include <mechanism_configuration/v1/validation.hpp>
@@ -75,7 +78,9 @@ struct ReactionsIterator
           std::vector<VariantType>(reactions.photolysis.begin(), reactions.photolysis.end()),
           std::vector<VariantType>(reactions.surface.begin(), reactions.surface.end()),
           std::vector<VariantType>(reactions.troe.begin(), reactions.troe.end()),
-          std::vector<VariantType>(reactions.ternary_chemical_activation.begin(), reactions.ternary_chemical_activation.end()),
+          std::vector<VariantType>(
+              reactions.ternary_chemical_activation.begin(),
+              reactions.ternary_chemical_activation.end()),
           std::vector<VariantType>(reactions.tunneling.begin(), reactions.tunneling.end()),
           std::vector<VariantType>(reactions.user_defined.begin(), reactions.user_defined.end())
         }
@@ -363,7 +368,8 @@ void bind_mechanism_configuration(py::module_ &mechanism_configuration)
       .def_readwrite("other_properties", &TernaryChemicalActivation::unknown_properties)
       .def("__str__", [](const TernaryChemicalActivation &t) { return t.name; })
       .def("__repr__", [](const TernaryChemicalActivation &t) { return "<TernaryChemicalActivation: " + t.name + ">"; })
-      .def_property_readonly("type", [](const TernaryChemicalActivation &) { return ReactionType::TernaryChemicalActivation; });
+      .def_property_readonly(
+          "type", [](const TernaryChemicalActivation &) { return ReactionType::TernaryChemicalActivation; });
 
   py::class_<Branched>(mechanism_configuration, "_Branched")
       .def(py::init<>())
@@ -598,7 +604,7 @@ void bind_mechanism_configuration(py::module_ &mechanism_configuration)
           "parse_and_convert_v0",
           [](V1Parser &self, const std::string &path)
           {
-            mechanism_configuration::v1::types::Mechanism  mechanism = musica::ConvertV0MechanismToV1(path);
+            mechanism_configuration::v1::types::Mechanism mechanism = musica::ConvertV0MechanismToV1(path);
             return mechanism;
           },
           "Parse a v0 mechanism configuration file");
