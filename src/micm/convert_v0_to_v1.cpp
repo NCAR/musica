@@ -10,12 +10,13 @@ static constexpr double avogadro = 6.02214076e23;  // # mol^{-1}
 static constexpr double MolesM3ToMoleculesCm3 = 1.0e-6 * avogadro;
 static constexpr double MoleculesCm3ToMolesM3 = 1.0 / MolesM3ToMoleculesCm3;
 
-
 namespace musica
 {
-  double convert_molecules_cm3_to_moles_m3(std::vector<mechanism_configuration::v1::types::ReactionComponent> reactants, double molecules_cm3)
+  double convert_molecules_cm3_to_moles_m3(
+      std::vector<mechanism_configuration::v1::types::ReactionComponent> reactants,
+      double molecules_cm3)
   {
-    // This converts preexponential factors that were calculated for molec cm-3 units and 
+    // This converts preexponential factors that were calculated for molec cm-3 units and
     // converts them to SI units of mol m-3 for species concentrations
     // (molec cm-3)^-(N-1) s-1 --> (mol m-3)^-(N-1) s-1
     // N is the number of reactants
@@ -29,10 +30,12 @@ namespace musica
     return molecules_cm3 * std::pow(MoleculesCm3ToMolesM3, -(total_reactants - 1));
   }
 
-  double k0_A_convert_molecules_cm3_to_moles_m3(std::vector<mechanism_configuration::v1::types::ReactionComponent> reactants, double molecules_cm3)
+  double k0_A_convert_molecules_cm3_to_moles_m3(
+      std::vector<mechanism_configuration::v1::types::ReactionComponent> reactants,
+      double molecules_cm3)
   {
     // This is special to the Troe reactions because M is included in the rate
-    // This converts preexponential factors that were calculated for molec cm-3 units and 
+    // This converts preexponential factors that were calculated for molec cm-3 units and
     // converts them to SI units of mol m-3 for species concentrations
     // (molec cm-3)^-N s-1 --> (mol m-3)^-N s-1
     // N is the number of reactants
