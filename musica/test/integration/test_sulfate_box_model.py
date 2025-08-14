@@ -313,7 +313,6 @@ def run_box_model():
             bin_state = bin_state.expand_dims({"time": [0.0]}).copy(deep=True)
             bin_state["mass_mixing_ratio"].values[0, :, :, :] = 0.0
 
-
         for i_bin in range(NUMBER_OF_AEROSOL_SECTIONS):
             carma_state.set_bin(
                 bin_index=i_bin + 1,
@@ -340,11 +339,18 @@ def run_box_model():
         carma_state.step()
 
         # Get updated state data from CARMA
-        bin_state = xr.concat([bin_state, carma_state.get_bins().expand_dims({"time": [(i_time + 1) * dt]})], dim="time")
+        bin_state = xr.concat([bin_state, carma_state.get_bins().expand_dims(
+            {"time": [(i_time + 1) * dt]})], dim="time")
 
         gas_state, gas_index = carma_state.get_gases()
-        micm_output["H2O"] = np.array(gas_state.isel(gas=gas_index["H2O"])["mass_mixing_ratio"], dtype=np.float64) * environmental_conditions["air density"] * MOLECULAR_MASS_AIR / MOLECULAR_MASS_H2O
-        micm_output["H2SO4"] = np.array(gas_state.isel(gas=gas_index["H2SO4"])["mass_mixing_ratio"], dtype=np.float64) * environmental_conditions["air density"] * MOLECULAR_MASS_AIR / MOLECULAR_MASS_H2SO4
+        micm_output["H2O"] = np.array(
+            gas_state.isel(
+                gas=gas_index["H2O"])["mass_mixing_ratio"],
+            dtype=np.float64) * environmental_conditions["air density"] * MOLECULAR_MASS_AIR / MOLECULAR_MASS_H2O
+        micm_output["H2SO4"] = np.array(
+            gas_state.isel(
+                gas=gas_index["H2SO4"])["mass_mixing_ratio"],
+            dtype=np.float64) * environmental_conditions["air density"] * MOLECULAR_MASS_AIR / MOLECULAR_MASS_H2SO4
 
         # save concentrations for output
         concentrations.append(micm_output)
@@ -366,24 +372,24 @@ def run_box_model():
 def test_sulfate_box_model():
     """Test the sulfate box model implementation."""
     concentrations, times, sulfate_data = run_box_model()
-    
+
     # Basic assertions to verify the simulation ran successfully
     assert concentrations is not None, "Concentrations should not be None"
     assert len(concentrations) > 0, "Should have concentration data"
     assert times is not None, "Times should not be None"
     assert len(times) > 0, "Should have time data"
     assert sulfate_data is not None, "CARMA sulfate data should not be None"
-    
+
     # Check that we have the expected species
     expected_species = ["HO2", "H2O2", "SO2", "SO3", "H2SO4", "H2O"]
     for species in expected_species:
         assert species in concentrations.columns, f"Missing species: {species}"
-    
+
     # Check that CARMA data has expected structure
     assert hasattr(sulfate_data, "mass_mixing_ratio"), "CARMA data should have mass_mixing_ratio"
     assert "time" in sulfate_data.dims, "CARMA data should have time dimension"
     assert "bin" in sulfate_data.dims, "CARMA data should have bin dimension"
-    
+
     print(f"✅ Test passed! Simulated {len(times)} time steps over {times[-1]:.2f} hours")
     print(f"   Chemical species tracked: {list(concentrations.columns)}")
     print(f"   CARMA bins: {len(sulfate_data.bin)}")
@@ -431,10 +437,21 @@ def plot_results(concentrations, times, sulfate_data=None):
     else:
         print("SULFATE data structure:", sulfate_data)
         if sulfate_data is not None:
-            print("Available variables:", list(sulfate_data.data_vars) if hasattr(sulfate_data, 'data_vars') else "No data_vars available")
-            print("Available dimensions:", list(sulfate_data.dims) if hasattr(sulfate_data, 'dims') else "No dims available")
+            print(
+                "Available variables:",
+                list(
+                    sulfate_data.data_vars) if hasattr(
+                    sulfate_data,
+                    'data_vars') else "No data_vars available")
+            print(
+                "Available dimensions:",
+                list(
+                    sulfate_data.dims) if hasattr(
+                    sulfate_data,
+                    'dims') else "No dims available")
         else:
             print("No SULFATE data available")
+
 
 if __name__ == "__main__":
     concs, plot_times, sulfate_data = run_box_model()
