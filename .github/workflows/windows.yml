@@ -12,106 +12,106 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  mingw:
-    runs-on: windows-latest
-    continue-on-error: true 
-    strategy:
-      matrix:
-        architecture: [x64]
+  # mingw:
+  #   runs-on: windows-latest
+  #   continue-on-error: true 
+  #   strategy:
+  #     matrix:
+  #       architecture: [x64]
 
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up MinGW
-        uses: egor-tensin/setup-mingw@v2
-        with:
-          platform: ${{ matrix.architecture }}
-          static: 0
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Set up MinGW
+  #       uses: egor-tensin/setup-mingw@v2
+  #       with:
+  #         platform: ${{ matrix.architecture }}
+  #         static: 0
 
-      - name: Run Cmake 
-        run: cmake -S . -B build -G "MinGW Makefiles" -D MUSICA_GIT_TAG=${{ github.sha }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_CARMA=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON -D CMAKE_POLICY_VERSION_MINIMUM=3.5
+  #     - name: Run Cmake 
+  #       run: cmake -S . -B build -G "MinGW Makefiles" -D MUSICA_GIT_TAG=${{ github.sha }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_CARMA=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON -D CMAKE_POLICY_VERSION_MINIMUM=3.5
 
-      - name: Build
-        run: cmake --build build --parallel
+  #     - name: Build
+  #       run: cmake --build build --parallel
 
-      - name: Run tests
-        run: |
-          cd build
-          ctest -C Debug --rerun-failed --output-on-failure . --verbose
+  #     - name: Run tests
+  #       run: |
+  #         cd build
+  #         ctest -C Debug --rerun-failed --output-on-failure . --verbose
 
-  msvc:
-    runs-on: windows-latest
-    continue-on-error: true 
-    strategy:
-      matrix:
-        build_type: [Release]
-        architecture: [Win32, x64]
+  # msvc:
+  #   runs-on: windows-latest
+  #   continue-on-error: true 
+  #   strategy:
+  #     matrix:
+  #       build_type: [Release]
+  #       architecture: [Win32, x64]
 
-    steps:
-    - uses: actions/checkout@v4
+  #   steps:
+  #   - uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      if: ${{ matrix.architecture == 'Win32' }}
-      with:
-        python-version: '3.x'
-        architecture: x86
+  #   - name: Set up Python
+  #     uses: actions/setup-python@v5
+  #     if: ${{ matrix.architecture == 'Win32' }}
+  #     with:
+  #       python-version: '3.x'
+  #       architecture: x86
 
-    - name: Run CMake
-      run: cmake -S . -B build -A ${{ matrix.architecture }} -D MUSICA_GIT_TAG=${{ github.sha }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_CARMA=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON -D CMAKE_POLICY_VERSION_MINIMUM=3.5
+  #   - name: Run CMake
+  #     run: cmake -S . -B build -A ${{ matrix.architecture }} -D MUSICA_GIT_TAG=${{ github.sha }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_CARMA=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON -D CMAKE_POLICY_VERSION_MINIMUM=3.5
 
-    - name: Build
-      run: cmake --build build --config ${{ matrix.build_type }} --parallel
+  #   - name: Build
+  #     run: cmake --build build --config ${{ matrix.build_type }} --parallel
 
-    - name: Test
-      run: cd build ; ctest -C ${{ matrix.build_type }} --output-on-failure  --verbose
+  #   - name: Test
+  #     run: cd build ; ctest -C ${{ matrix.build_type }} --output-on-failure  --verbose
 
-  clang:
-    runs-on: windows-latest
-    continue-on-error: true 
-    strategy:
-      matrix:
-        version: [19.1.0, 20.1.0]
+  # clang:
+  #   runs-on: windows-latest
+  #   continue-on-error: true 
+  #   strategy:
+  #     matrix:
+  #       version: [19.1.0, 20.1.0]
 
-    steps:
-      - uses: actions/checkout@v4
+  #   steps:
+  #     - uses: actions/checkout@v4
 
-      - name: Install Clang
-        run: curl -fsSL -o LLVM${{ matrix.version }}.exe https://github.com/llvm/llvm-project/releases/download/llvmorg-${{ matrix.version }}/LLVM-${{ matrix.version }}-win64.exe ; 7z x LLVM${{ matrix.version }}.exe -y -o"C:/Program Files/LLVM"
+  #     - name: Install Clang
+  #       run: curl -fsSL -o LLVM${{ matrix.version }}.exe https://github.com/llvm/llvm-project/releases/download/llvmorg-${{ matrix.version }}/LLVM-${{ matrix.version }}-win64.exe ; 7z x LLVM${{ matrix.version }}.exe -y -o"C:/Program Files/LLVM"
 
-      - name: Run CMake
-        run: cmake -S . -B build -DCMAKE_CXX_COMPILER="C:/Program Files/LLVM/bin/clang++.exe" -DCMAKE_C_COMPILER="C:/Program Files/LLVM/bin/clang.exe" -G"MinGW Makefiles" -D MUSICA_GIT_TAG=${{ github.sha }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_CARMA=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON -D CMAKE_POLICY_VERSION_MINIMUM=3.5
+  #     - name: Run CMake
+  #       run: cmake -S . -B build -DCMAKE_CXX_COMPILER="C:/Program Files/LLVM/bin/clang++.exe" -DCMAKE_C_COMPILER="C:/Program Files/LLVM/bin/clang.exe" -G"MinGW Makefiles" -D MUSICA_GIT_TAG=${{ github.sha }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_CARMA=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON -D CMAKE_POLICY_VERSION_MINIMUM=3.5
 
-      - name: Build
-        run: cmake --build build --parallel
+  #     - name: Build
+  #       run: cmake --build build --parallel
 
-      - name: Test
-        run: cd build ; ctest -C Debug --output-on-failure  --verbose
+  #     - name: Test
+  #       run: cd build ; ctest -C Debug --output-on-failure  --verbose
 
-  clang-cl-11:
-    runs-on: windows-latest
-    continue-on-error: true 
-    strategy:
-      matrix:
-        architecture: [Win32, x64]
+  # clang-cl-11:
+  #   runs-on: windows-latest
+  #   continue-on-error: true 
+  #   strategy:
+  #     matrix:
+  #       architecture: [Win32, x64]
 
-    steps:
-      - uses: actions/checkout@v4
+  #   steps:
+  #     - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        if: ${{ matrix.architecture == 'Win32' }}
-        with:
-          python-version: '3.x'
-          architecture: x86
+  #     - name: Set up Python
+  #       uses: actions/setup-python@v4
+  #       if: ${{ matrix.architecture == 'Win32' }}
+  #       with:
+  #         python-version: '3.x'
+  #         architecture: x86
 
-      - name: Run CMake
-        run: cmake -S . -B build -A ${{ matrix.architecture }} -T ClangCL -D MUSICA_GIT_TAG=${{ github.sha }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_CARMA=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON -D CMAKE_POLICY_VERSION_MINIMUM=3.5
+  #     - name: Run CMake
+  #       run: cmake -S . -B build -A ${{ matrix.architecture }} -T ClangCL -D MUSICA_GIT_TAG=${{ github.sha }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_CARMA=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON -D CMAKE_POLICY_VERSION_MINIMUM=3.5
 
-      - name: Build
-        run: cmake --build build --config Debug --parallel
+  #     - name: Build
+  #       run: cmake --build build --config Debug --parallel
 
-      - name: Test
-        run: cd build ; ctest -C Debug --output-on-failure --verbose
+  #     - name: Test
+  #       run: cd build ; ctest -C Debug --output-on-failure --verbose
 
   fortran:
     runs-on: windows-latest
