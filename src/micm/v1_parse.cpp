@@ -257,7 +257,10 @@ namespace musica
       parameters.Fc_ = reaction.Fc;
       parameters.N_ = reaction.N;
       chemistry.processes.push_back(micm::Process(
-          reactants, products, std::make_unique<micm::TernaryChemicalActivationRateConstant>(parameters), chemistry.system.gas_phase_));
+          reactants,
+          products,
+          std::make_unique<micm::TernaryChemicalActivationRateConstant>(parameters),
+          chemistry.system.gas_phase_));
     }
   }
 
