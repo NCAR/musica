@@ -276,7 +276,7 @@ class State():
                 conditions["air_density"].append(
                     state.conditions[i_cell].air_density)
         return conditions
-    
+
     def get_species_ordering(self) -> Dict[str, int]:
         """
         Get the species ordering for the state.
@@ -287,7 +287,7 @@ class State():
             Dictionary of species names and their indices.
         """
         return self.__species_ordering
-    
+
     def get_user_defined_rate_parameters_ordering(self) -> Dict[str, int]:
         """
         Get the user-defined rate parameters ordering for the state.
@@ -325,7 +325,7 @@ class MICM():
         ignore_non_gas_phases: bool = True,
     ):
         """    Initialize the MICM solver.
-        
+
         Parameters
         ----------
             config_path : FilePath, optional
