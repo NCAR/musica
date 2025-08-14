@@ -8,9 +8,44 @@
 
 static constexpr double avogadro = 6.02214076e23;  // # mol^{-1}
 static constexpr double MolesM3ToMoleculesCm3 = 1.0e-6 * avogadro;
+static constexpr double MoleculesCm3ToMolesM3 = 1.0 / MolesM3ToMoleculesCm3;
+
 
 namespace musica
 {
+  double convert_molecules_cm3_to_moles_m3(std::vector<mechanism_configuration::v1::types::ReactionComponent> reactants, double molecules_cm3)
+  {
+    // This converts preexponential factors that were calculated for molec cm-3 units and 
+    // converts them to SI units of mol m-3 for species concentrations
+    // (molec cm-3)^-(N-1) s-1 --> (mol m-3)^-(N-1) s-1
+    // N is the number of reactants
+    int total_reactants = 0;
+    for (const auto& reactant : reactants)
+    {
+      total_reactants += static_cast<int>(reactant.coefficient);
+    }
+
+    // The total reactants ensures that the rate always ends up in moles m-3 s-1
+    return molecules_cm3 * std::pow(MoleculesCm3ToMolesM3, -(total_reactants - 1));
+  }
+
+  double k0_A_convert_molecules_cm3_to_moles_m3(std::vector<mechanism_configuration::v1::types::ReactionComponent> reactants, double molecules_cm3)
+  {
+    // This is special to the Troe reactions because M is included in the rate
+    // This converts preexponential factors that were calculated for molec cm-3 units and 
+    // converts them to SI units of mol m-3 for species concentrations
+    // (molec cm-3)^-N s-1 --> (mol m-3)^-N s-1
+    // N is the number of reactants
+    int total_reactants = 0;
+    for (const auto& reactant : reactants)
+    {
+      total_reactants += static_cast<int>(reactant.coefficient);
+    }
+
+    // The total reactants ensures that the rate always ends up in moles m-3 s-1
+    return molecules_cm3 * std::pow(MoleculesCm3ToMolesM3, -(total_reactants));
+  }
+
   // Forward declarations
   std::vector<mechanism_configuration::v1::types::Species> convert_species_v0_to_v1(
       const std::vector<mechanism_configuration::v0::types::Species>& v0_species);
@@ -111,22 +146,15 @@ namespace musica
     for (const auto& arr : v0_reactions.arrhenius)
     {
       mechanism_configuration::v1::types::Arrhenius v1_arr;
-      v1_arr.A = arr.A;
+      v1_arr.reactants = convert_reaction_components_v0_to_v1(arr.reactants);
+      v1_arr.products = convert_reaction_components_v0_to_v1(arr.products);
+      v1_arr.A = convert_molecules_cm3_to_moles_m3(v1_arr.reactants, arr.A);
       v1_arr.B = arr.B;
       v1_arr.C = arr.C;
       v1_arr.D = arr.D;
       v1_arr.E = arr.E;
-      v1_arr.reactants = convert_reaction_components_v0_to_v1(arr.reactants);
-      v1_arr.products = convert_reaction_components_v0_to_v1(arr.products);
       v1_arr.gas_phase = "gas";
       v1_arr.unknown_properties = arr.unknown_properties;
-      // now, convert from moles m-3 to molec cm-3
-      int total_moles = 0;
-      for (const auto& reactant : v1_arr.reactants)
-      {
-        total_moles += static_cast<int>(reactant.coefficient);
-      }
-      v1_arr.A *= std::pow(MolesM3ToMoleculesCm3, total_moles - 1);
       v1_reactions.arrhenius.push_back(v1_arr);
     }
 
@@ -134,22 +162,15 @@ namespace musica
     for (const auto& branched : v0_reactions.branched)
     {
       mechanism_configuration::v1::types::Branched v1_branched;
-      v1_branched.X = branched.X;
-      v1_branched.Y = branched.Y;
-      v1_branched.a0 = branched.a0;
-      v1_branched.n = branched.n;
       v1_branched.reactants = convert_reaction_components_v0_to_v1(branched.reactants);
       v1_branched.alkoxy_products = convert_reaction_components_v0_to_v1(branched.alkoxy_products);
       v1_branched.nitrate_products = convert_reaction_components_v0_to_v1(branched.nitrate_products);
+      v1_branched.X = convert_molecules_cm3_to_moles_m3(v1_branched.reactants, branched.X);
+      v1_branched.Y = branched.Y;
+      v1_branched.a0 = branched.a0;
+      v1_branched.n = branched.n;
       v1_branched.gas_phase = "gas";
       v1_branched.unknown_properties = branched.unknown_properties;
-      // now, convert from moles m-3 to molec cm-3
-      int total_moles = 0;
-      for (const auto& reactant : v1_branched.reactants)
-      {
-        total_moles += static_cast<int>(reactant.coefficient);
-      }
-      v1_branched.X *= std::pow(MolesM3ToMoleculesCm3, total_moles - 1);
       v1_reactions.branched.push_back(v1_branched);
     }
 
@@ -171,26 +192,18 @@ namespace musica
     for (const auto& troe : v0_reactions.troe)
     {
       mechanism_configuration::v1::types::Troe v1_troe;
-      v1_troe.k0_A = troe.k0_A;
+      v1_troe.reactants = convert_reaction_components_v0_to_v1(troe.reactants);
+      v1_troe.products = convert_reaction_components_v0_to_v1(troe.products);
+      v1_troe.k0_A = k0_A_convert_molecules_cm3_to_moles_m3(v1_troe.reactants, troe.k0_A);
+      v1_troe.kinf_A = convert_molecules_cm3_to_moles_m3(v1_troe.reactants, troe.kinf_A);
       v1_troe.k0_B = troe.k0_B;
       v1_troe.k0_C = troe.k0_C;
-      v1_troe.kinf_A = troe.kinf_A;
       v1_troe.kinf_B = troe.kinf_B;
       v1_troe.kinf_C = troe.kinf_C;
       v1_troe.Fc = troe.Fc;
       v1_troe.N = troe.N;
-      v1_troe.reactants = convert_reaction_components_v0_to_v1(troe.reactants);
-      v1_troe.products = convert_reaction_components_v0_to_v1(troe.products);
       v1_troe.gas_phase = "gas";
       v1_troe.unknown_properties = troe.unknown_properties;
-      // now, convert from moles m-3 to molec cm-3
-      int total_moles = 0;
-      for (const auto& reactant : v1_troe.reactants)
-      {
-        total_moles += static_cast<int>(reactant.coefficient);
-      }
-      v1_troe.k0_A *= std::pow(MolesM3ToMoleculesCm3, total_moles);
-      v1_troe.kinf_A *= std::pow(MolesM3ToMoleculesCm3, total_moles - 1);
       v1_reactions.troe.push_back(v1_troe);
     }
 
@@ -198,26 +211,18 @@ namespace musica
     for (const auto& ternary : v0_reactions.ternary_chemical_activation)
     {
       mechanism_configuration::v1::types::TernaryChemicalActivation v1_ternary;
-      v1_ternary.k0_A = ternary.k0_A;
+      v1_ternary.reactants = convert_reaction_components_v0_to_v1(ternary.reactants);
+      v1_ternary.products = convert_reaction_components_v0_to_v1(ternary.products);
+      v1_ternary.k0_A = convert_molecules_cm3_to_moles_m3(v1_ternary.reactants, ternary.k0_A);
+      v1_ternary.kinf_A = convert_molecules_cm3_to_moles_m3(v1_ternary.reactants, ternary.kinf_A);
       v1_ternary.k0_B = ternary.k0_B;
       v1_ternary.k0_C = ternary.k0_C;
-      v1_ternary.kinf_A = ternary.kinf_A;
       v1_ternary.kinf_B = ternary.kinf_B;
       v1_ternary.kinf_C = ternary.kinf_C;
       v1_ternary.Fc = ternary.Fc;
       v1_ternary.N = ternary.N;
-      v1_ternary.reactants = convert_reaction_components_v0_to_v1(ternary.reactants);
-      v1_ternary.products = convert_reaction_components_v0_to_v1(ternary.products);
       v1_ternary.gas_phase = "gas";
       v1_ternary.unknown_properties = ternary.unknown_properties;
-      // now, convert from moles m-3 to molec cm-3
-      int total_moles = 0;
-      for (const auto& reactant : v1_ternary.reactants)
-      {
-        total_moles += static_cast<int>(reactant.coefficient);
-      }
-      v1_ternary.k0_A *= std::pow(MolesM3ToMoleculesCm3, total_moles);
-      v1_ternary.kinf_A *= std::pow(MolesM3ToMoleculesCm3, total_moles - 1);
       v1_reactions.ternary_chemical_activation.push_back(v1_ternary);
     }
 
@@ -225,19 +230,13 @@ namespace musica
     for (const auto& tunneling : v0_reactions.tunneling)
     {
       mechanism_configuration::v1::types::Tunneling v1_tunneling;
-      v1_tunneling.A = tunneling.A;
-      v1_tunneling.B = tunneling.B;
-      v1_tunneling.C = tunneling.C;
       v1_tunneling.reactants = convert_reaction_components_v0_to_v1(tunneling.reactants);
       v1_tunneling.products = convert_reaction_components_v0_to_v1(tunneling.products);
+      v1_tunneling.A = convert_molecules_cm3_to_moles_m3(v1_tunneling.reactants, tunneling.A);
+      v1_tunneling.B = tunneling.B;
+      v1_tunneling.C = tunneling.C;
       v1_tunneling.gas_phase = "gas";
       v1_tunneling.unknown_properties = tunneling.unknown_properties;
-      int total_moles = 0;
-      for (const auto& reactant : v1_tunneling.reactants)
-      {
-        total_moles += static_cast<int>(reactant.coefficient);
-      }
-      v1_tunneling.A *= std::pow(MolesM3ToMoleculesCm3, total_moles - 1);
       v1_reactions.tunneling.push_back(v1_tunneling);
     }
 
