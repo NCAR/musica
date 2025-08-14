@@ -1285,7 +1285,7 @@ class CARMAState:
 
         # Initialize property arrays
         properties = [
-            "gas_mass_mixing_ratio",
+            "mass_mixing_ratio",
             "gas_saturation_wrt_ice",
             "gas_saturation_wrt_liquid",
             "gas_vapor_pressure_wrt_ice",
@@ -1310,7 +1310,7 @@ class CARMAState:
         # Helper for units
         def _get_units(prop):
             units = {
-                "gas_mass_mixing_ratio": "kg kg-1",
+                "mass_mixing_ratio": "kg kg-1",
                 "gas_saturation_wrt_ice": "none",
                 "gas_saturation_wrt_liquid": "none",
                 "gas_vapor_pressure_wrt_ice": "none",
@@ -1324,7 +1324,10 @@ class CARMAState:
         # Per-vertical_center properties: shape (number_of_gases, n_levels)
         for prop in properties:
             arr = reshape(data[prop], (number_of_gases, n_levels))
-            dataset_vars[prop] = (("gas", "vertical_center"), arr, {"units": _get_units(prop)})
+            if prop == 'mass_mixing_ratio':
+                dataset_vars[f'gas_{prop}'] = (("gas", "vertical_center"), arr, {"units": _get_units(prop)})
+            else:
+                dataset_vars[prop] = (("gas", "vertical_center"), arr, {"units": _get_units(prop)})
 
         return xr.Dataset(
             data_vars=dataset_vars,
