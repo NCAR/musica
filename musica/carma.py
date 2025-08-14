@@ -1324,8 +1324,7 @@ class CARMAState:
         # Per-vertical_center properties: shape (number_of_gases, n_levels)
         for prop in properties:
             arr = reshape(data[prop], (number_of_gases, n_levels))
-            dataset_vars[prop] = (("gas", "vertical_center"), arr, {
-                                  "units": _get_units(prop)})
+            dataset_vars[prop] = (("gas", "vertical_center"), arr, {"units": _get_units(prop)})
 
         return xr.Dataset(
             data_vars=dataset_vars,
@@ -1657,14 +1656,12 @@ class CARMA:
         # Prepare arrays
         data = {prop: [] for prop in properties}
         for i_elem in range(number_of_elements):
-            element_value = _backend._carma._get_element_properties(
-                self._carma_instance, i_elem + 1)
+            element_value = _backend._carma._get_element_properties(self._carma_instance, i_elem + 1)
             if number_of_refractive_indices is None:
                 number_of_refractive_indices = element_value["number_of_refractive_indices"]
             else:
                 if number_of_refractive_indices != element_value["number_of_refractive_indices"]:
-                    raise ValueError(
-                        "Inconsistent number of refractive indices found.")
+                    raise ValueError("Inconsistent number of refractive indices found.")
             for prop in properties:
                 data[prop].append(element_value.get(prop))
 
@@ -1686,8 +1683,7 @@ class CARMA:
         # Per-bin properties: shape (number_of_elements, number_of_bins)
         for prop in per_bin:
             arr = reshape(data[prop], (number_of_elements, number_of_bins))
-            dataset_vars[prop] = (("element", "bin"), arr, {
-                                  "units": _get_units(prop)})
+            dataset_vars[prop] = (("element", "bin"), arr, {"units": _get_units(prop)})
 
         # Per-wavelength and refractive index properties: shape
         # (number_of_elements, number_of_refractive_indices,
@@ -1695,8 +1691,7 @@ class CARMA:
         for prop in per_wavelength_and_refidx:
             arr = reshape(data[prop], (number_of_elements,
                           number_of_refractive_indices, number_of_wavelength_bins))
-            dataset_vars[prop] = (("element", "refractive_index", "wavelength"), arr, {
-                                  "units": _get_units(prop)})
+            dataset_vars[prop] = (("element", "refractive_index", "wavelength"), arr, {"units": _get_units(prop)})
 
         # Per-element properties: shape (number_of_elements,)
         for prop in per_element:
