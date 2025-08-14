@@ -1354,11 +1354,11 @@ class CARMAState:
             attributes = {
                 "temperature": {
                     "units": "K",
-                    "long_name": "Atmospheric temperature"
+                    "long_name": "Temperature"
                 },
                 "pressure": {
                     "units": "Pa",
-                    "long_name": "Atmospheric pressure"
+                    "long_name": "Pressure"
                 },
                 "air_density": {
                     "units": "kg m-3",
