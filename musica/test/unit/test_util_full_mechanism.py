@@ -589,6 +589,7 @@ def _validate_ternary_chemical_activation(reactions):
     assert reactions[0].name == "my ternary chemical activation"
     assert reactions[0].other_properties == {"__irrelevant": "2"}
 
+
 def _validate_branched_no_ro2(reactions):
     assert reactions[0].type == mc.ReactionType.Branched
     assert reactions[0].gas_phase == "gas"

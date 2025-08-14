@@ -224,7 +224,7 @@ def test_carma_sulfate():
             bin_state = bin_state.expand_dims({"time": [i_step * dtime]})
         else:
             bin_state = xr.concat([bin_state, state.get_bins().expand_dims({"time": [i_step * dtime]})], dim="time")
-        
+
         if gas_state is None:
             gas_state = state.get_gases()[0]
             gas_state = gas_state.expand_dims({"time": [i_step * dtime]})
@@ -235,8 +235,8 @@ def test_carma_sulfate():
             env_state = state.get_environmental_values()
             env_state = env_state.expand_dims({"time": [i_step * dtime]})
         else:
-            env_state = xr.concat([env_state, state.get_environmental_values().expand_dims({"time": [i_step * dtime]})], dim="time")
-
+            env_state = xr.concat([env_state, state.get_environmental_values(
+            ).expand_dims({"time": [i_step * dtime]})], dim="time")
 
     print(env_state)
     print(gas_state)

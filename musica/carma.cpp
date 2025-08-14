@@ -605,8 +605,7 @@ void bind_carma(py::module_& carma)
         result["number_of_gases"] = params.gases.size();
         return result;
       },
-      "Get the dimensions of the CARMA instance"
-  );
+      "Get the dimensions of the CARMA instance");
 
   carma.def(
       "_get_group_properties",

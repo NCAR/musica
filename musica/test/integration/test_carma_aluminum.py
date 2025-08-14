@@ -108,7 +108,8 @@ def test_carma_aluminum():
     for step in range(1, int(params.nstep)):
         state.step()
         bin_data = xr.concat([bin_data, state.get_bins().expand_dims({"time": [step * params.dtime]})], dim="time")
-        env = xr.concat([env, state.get_environmental_values().expand_dims({"time": [step * params.dtime]})], dim="time")
+        env = xr.concat([env, state.get_environmental_values().expand_dims(
+            {"time": [step * params.dtime]})], dim="time")
         time_array.append(step * params.dtime)
 
     print(xr.merge([bin_data, env]))

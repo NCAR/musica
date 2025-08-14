@@ -1054,7 +1054,7 @@ class CARMAState:
         Returns:
             Dataset: Aerosol bin properties for all bins and elements
         """
-        
+
         # Collect bin data for each property into arrays
         # Shape: [number_of_bins, number_of_elements, n_levels] for vertical properties
         # and [number_of_bins, number_of_elements] for surface/level properties
@@ -1300,7 +1300,7 @@ class CARMAState:
             xr.Dataset: Dataset containing all environmental conditions
         """
         n_levels = len(self.vertical_center)
- 
+
         data = _backend._carma._get_environmental_values(self._carma_state_instance)
 
         # Reshape arrays
@@ -1562,7 +1562,6 @@ class CARMA:
             arr = reshape(data[prop], (number_of_groups,))
             dataset_vars[prop] = (("group",), arr, {"units": _get_units(prop)})
 
-
         return (xr.Dataset(
             data_vars=dataset_vars,
             coords={
@@ -1596,9 +1595,9 @@ class CARMA:
         ]
 
         # Group arrays by shape
-        per_bin = [ "mass_density" ]
-        per_wavelength_and_refidx = [ "refractive_indices" ]
-        per_element = [ "hygroscopicity_parameter" ]
+        per_bin = ["mass_density"]
+        per_wavelength_and_refidx = ["refractive_indices"]
+        per_element = ["hygroscopicity_parameter"]
 
         # Prepare arrays
         data = {prop: [] for prop in properties}
@@ -1632,7 +1631,9 @@ class CARMA:
             arr = reshape(data[prop], (number_of_elements, number_of_bins))
             dataset_vars[prop] = (("element", "bin"), arr, {"units": _get_units(prop)})
 
-        # Per-wavelength and refractive index properties: shape (number_of_elements, number_of_refractive_indices, number_of_wavelength_bins)
+        # Per-wavelength and refractive index properties: shape
+        # (number_of_elements, number_of_refractive_indices,
+        # number_of_wavelength_bins)
         for prop in per_wavelength_and_refidx:
             arr = reshape(data[prop], (number_of_elements, number_of_refractive_indices, number_of_wavelength_bins))
             dataset_vars[prop] = (("element", "refractive_index", "wavelength"), arr, {"units": _get_units(prop)})
@@ -1642,7 +1643,6 @@ class CARMA:
             arr = reshape(data[prop], (number_of_elements,))
             dataset_vars[prop] = (("element",), arr, {"units": _get_units(prop)})
 
-        
         return (xr.Dataset(
             data_vars=dataset_vars,
             coords={
