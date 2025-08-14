@@ -206,8 +206,8 @@
       "name": "ISOPNITB",
       "type": "CHEM_SPEC",
       "__description": "1,4-hydroxynitrate from OH+isoprene chemistry",
-      "molecular weight [kg mol-1]": 0.147126,
-      "diffusion coefficient [m2 s-1]": 1000.0
+      "molecular weight [kg mol-1]": 0.147031980536874,
+      "diffusion coefficient [m2 s-1]": 1.0e-5
     },
     {
       "name": "SO3",
@@ -273,8 +273,8 @@
       "name": "N2O5",
       "type": "CHEM_SPEC",
       "__description": "dinitrogen pentoxide",
-      "molecular weight [kg mol-1]": 0.10801,
-      "diffusion coefficient [m2 s-1]": 1000.0
+      "molecular weight [kg mol-1]": 0.108023495904642,
+      "diffusion coefficient [m2 s-1]": 1.0e-5
     },
     {
       "name": "HCN",
@@ -322,8 +322,8 @@
       "name": "TERPNIT",
       "type": "CHEM_SPEC",
       "__description": "mostly hydroxynitrates from OH+terpene chemistry",
-      "molecular weight [kg mol-1]": 0.21524,
-      "diffusion coefficient [m2 s-1]": 1000.0
+      "molecular weight [kg mol-1]": 2.15154758199771e-01,
+      "diffusion coefficient [m2 s-1]": 1.0e-5
     },
     {
       "name": "ISOPO2VBS",
@@ -425,8 +425,8 @@
       "name": "NO2",
       "type": "CHEM_SPEC",
       "__description": "nitrogen dioxide",
-      "molecular weight [kg mol-1]": 0.0460055,
-      "diffusion coefficient [m2 s-1]": 1000.0
+      "molecular weight [kg mol-1]": 0.045803364407376784,
+      "diffusion coefficient [m2 s-1]": 1.0e-5
     },
     {
       "name": "EOOH",
@@ -438,8 +438,8 @@
       "name": "NTERPOOH",
       "type": "CHEM_SPEC",
       "__description": "nitrooxy-hydroperoxide from NO3+terpene chemistry",
-      "molecular weight [kg mol-1]": 0.23124,
-      "diffusion coefficient [m2 s-1]": 1000.0
+      "molecular weight [kg mol-1]": 0.23118008751781,
+      "diffusion coefficient [m2 s-1]": 1.0e-5
     },
     {
       "name": "XYLEO2VBS",
@@ -907,7 +907,7 @@
       "name": "GLYOXAL",
       "type": "CHEM_SPEC",
       "__description": "glyoxal",
-      "molecular weight [kg mol-1]": 0.0580356,
+      "molecular weight [kg mol-1]": 0.0580064525191708,
       "diffusion coefficient [m2 s-1]": 1e300
     },
     {
@@ -920,8 +920,8 @@
       "name": "NC4CH2OH",
       "type": "CHEM_SPEC",
       "__description": "nitrooxy-alcohol from NO3+isoprene chemistry",
-      "molecular weight [kg mol-1]": 0.147126,
-      "diffusion coefficient [m2 s-1]": 1000.0
+      "molecular weight [kg mol-1]": 0.147031980536874,
+      "diffusion coefficient [m2 s-1]": 1.0e-5
     },
     {
       "name": "ISOPOOH",
@@ -939,8 +939,8 @@
       "name": "HO2",
       "type": "CHEM_SPEC",
       "__description": "hydroperoxyl radical",
-      "molecular weight [kg mol-1]": 0.0330062,
-      "diffusion coefficient [m2 s-1]": 1000.0
+      "molecular weight [kg mol-1]": 0.03307754409115893,
+      "diffusion coefficient [m2 s-1]": 1.0e-5
     },
     {
       "name": "HOCH2OO",
@@ -1060,15 +1060,15 @@
       "name": "HONITR",
       "type": "CHEM_SPEC",
       "__description": "lumped hydroxynitrates from various compounds (formula updated 2017-04-06)",
-      "molecular weight [kg mol-1]": 0.1331,
-      "diffusion coefficient [m2 s-1]": 1000.0
+      "molecular weight [kg mol-1]": 0.133362340623015,
+      "diffusion coefficient [m2 s-1]": 1.0e-5
     },
     {
       "name": "ISOPNITA",
       "type": "CHEM_SPEC",
       "__description": "1,2-hydroxynitrate from OH+isoprene chemistry",
-      "molecular weight [kg mol-1]": 0.147126,
-      "diffusion coefficient [m2 s-1]": 1000.0
+      "molecular weight [kg mol-1]": 0.147031980536874,
+      "diffusion coefficient [m2 s-1]": 1.0e-5
     },
     {
       "name": "ISOPNOOH",
@@ -1086,8 +1086,8 @@
       "name": "ONITR",
       "type": "CHEM_SPEC",
       "__description": "lumped hydroxynitrates (formula updated 2017-04-06)",
-      "molecular weight [kg mol-1]": 0.147126,
-      "diffusion coefficient [m2 s-1]": 1000.0
+      "molecular weight [kg mol-1]": 0.147031980536874,
+      "diffusion coefficient [m2 s-1]": 1.0e-5
     },
     {
       "name": "H2SO4",
@@ -1105,8 +1105,8 @@
       "name": "NO3",
       "type": "CHEM_SPEC",
       "__description": "nitrate radical",
-      "molecular weight [kg mol-1]": 0.0620049,
-      "diffusion coefficient [m2 s-1]": 1000.0
+      "molecular weight [kg mol-1]": 0.06186298085408304,
+      "diffusion coefficient [m2 s-1]": 1.0e-5
     },
     {
       "name": "OH",
@@ -1256,8 +1256,8 @@
       "name": "NC4CHO",
       "type": "CHEM_SPEC",
       "__description": "nitrooxy-aldehyde from NO3+isoprene chemistry",
-      "molecular weight [kg mol-1]": 0.145111,
-      "diffusion coefficient [m2 s-1]": 1000.0
+      "molecular weight [kg mol-1]": 0.14461174234895102,
+      "diffusion coefficient [m2 s-1]": 1.0e-5
     },
     {
       "name": "TEPOMUC",
@@ -1274,6 +1274,7 @@
     {
       "name": "M",
       "type": "CHEM_SPEC",
+      "tracer type": "THIRD_BODY",
       "__description": "third-body species"
     }
 

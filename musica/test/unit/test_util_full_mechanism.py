@@ -126,6 +126,22 @@ def get_fully_defined_mechanism():
         other_properties={"__irrelevant": "2"},
     )
 
+    my_ternary = mc.TernaryChemicalActivation(
+        name="my ternary chemical activation",
+        gas_phase=gas,
+        k0_A=32.1,
+        k0_B=-2.3,
+        k0_C=102.3,
+        kinf_A=63.4,
+        kinf_B=-1.3,
+        kinf_C=908.5,
+        Fc=1.3,
+        N=32.1,
+        reactants=[B, M],
+        products=[C],
+        other_properties={"__irrelevant": "2"},
+    )
+
     my_branched = mc.Branched(
         name="my branched",
         gas_phase=gas,
@@ -239,7 +255,7 @@ def get_fully_defined_mechanism():
                  aerosol_stuff, more_aerosol_stuff],
         phases=[gas, aqueous_aerosol, surface_reacting_phase, cloud],
         reactions=[my_arrhenius, my_other_arrhenius, my_condensed_arrhenius,
-                   my_other_condensed_arrhenius, my_troe, my_branched,
+                   my_other_condensed_arrhenius, my_troe, my_ternary, my_branched,
                    my_tunneling, my_surface, photo_B, condensed_photo_B,
                    my_emission, my_first_order_loss, my_aqueous_equilibrium,
                    my_wet_deposition, my_simpol_phase_transfer,
@@ -530,6 +546,27 @@ def _validate_troe(reactions):
     assert reactions[0].other_properties == {"__irrelevant": "2"}
 
 
+def _validate_ternary_chemical_activation(reactions):
+    assert reactions[0].type == mc.ReactionType.TernaryChemicalActivation
+    assert reactions[0].gas_phase == "gas"
+    assert _extract_components(reactions[0].reactants) == [
+        {"species name": "B", "coefficient": 1},
+        {"species name": "M", "coefficient": 1},
+    ]
+    assert _extract_components(reactions[0].products) == [
+        {"species name": "C", "coefficient": 1}
+    ]
+    assert reactions[0].k0_A == 32.1
+    assert reactions[0].k0_B == -2.3
+    assert reactions[0].k0_C == 102.3
+    assert reactions[0].kinf_A == 63.4
+    assert reactions[0].kinf_B == -1.3
+    assert reactions[0].kinf_C == 908.5
+    assert reactions[0].Fc == 1.3
+    assert reactions[0].N == 32.1
+    assert reactions[0].name == "my ternary chemical activation"
+    assert reactions[0].other_properties == {"__irrelevant": "2"}
+
 def _validate_branched_no_ro2(reactions):
     assert reactions[0].type == mc.ReactionType.Branched
     assert reactions[0].gas_phase == "gas"
@@ -621,6 +658,8 @@ def validate_full_v1_mechanism(mechanism):
     _validate_surface(mechanism.reactions.surface)
     assert len(mechanism.reactions.troe) == 1
     _validate_troe(mechanism.reactions.troe)
+    assert len(mechanism.reactions.ternary_chemical_activation) == 1
+    _validate_ternary_chemical_activation(mechanism.reactions.ternary_chemical_activation)
     assert len(mechanism.reactions.tunneling) == 1
     _validate_tunneling(mechanism.reactions.tunneling)
     assert len(mechanism.reactions.wet_deposition) == 1

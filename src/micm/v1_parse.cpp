@@ -238,6 +238,29 @@ namespace musica
     }
   }
 
+  void convert_ternary_chemical_activation(
+      Chemistry& chemistry,
+      const std::vector<mechanism_configuration::v1::types::TernaryChemicalActivation>& ternary,
+      std::unordered_map<std::string, micm::Species>& species_map)
+  {
+    for (const auto& reaction : ternary)
+    {
+      auto reactants = reaction_components_to_reactants(reaction.reactants, species_map);
+      auto products = reaction_components_to_products(reaction.products, species_map);
+      micm::TernaryChemicalActivationRateConstantParameters parameters;
+      parameters.k0_A_ = reaction.k0_A;
+      parameters.k0_B_ = reaction.k0_B;
+      parameters.k0_C_ = reaction.k0_C;
+      parameters.kinf_A_ = reaction.kinf_A;
+      parameters.kinf_B_ = reaction.kinf_B;
+      parameters.kinf_C_ = reaction.kinf_C;
+      parameters.Fc_ = reaction.Fc;
+      parameters.N_ = reaction.N;
+      chemistry.processes.push_back(micm::Process(
+          reactants, products, std::make_unique<micm::TernaryChemicalActivationRateConstant>(parameters), chemistry.system.gas_phase_));
+    }
+  }
+
   void convert_tunneling(
       Chemistry& chemistry,
       const std::vector<mechanism_configuration::v1::types::Tunneling>& tunneling,
@@ -306,7 +329,7 @@ namespace musica
     }
   }
 
-  Chemistry ConvertV1Mechanism(const mechanism_configuration::v1::types::Mechanism& v1_mechanism)
+  Chemistry ConvertV1Mechanism(const mechanism_configuration::v1::types::Mechanism& v1_mechanism, bool ignore_non_gas_phases)
   {
     Chemistry chemistry{};
     auto species = convert_species(v1_mechanism.species);
@@ -323,7 +346,7 @@ namespace musica
       {
         gas_phase = phase;
       }
-      else
+      else if (!ignore_non_gas_phases)
       {
         chemistry.system.phases_[phase.name_] = phase;
       }
@@ -332,6 +355,7 @@ namespace musica
     convert_branched(chemistry, v1_mechanism.reactions.branched, species_map);
     convert_surface(chemistry, v1_mechanism.reactions.surface, species_map);
     convert_troe(chemistry, v1_mechanism.reactions.troe, species_map);
+    convert_ternary_chemical_activation(chemistry, v1_mechanism.reactions.ternary_chemical_activation, species_map);
     convert_tunneling(chemistry, v1_mechanism.reactions.tunneling, species_map);
     convert_user_defined(chemistry, v1_mechanism.reactions.photolysis, species_map, "PHOTO.");
     convert_user_defined(chemistry, v1_mechanism.reactions.emission, species_map, "EMIS.");

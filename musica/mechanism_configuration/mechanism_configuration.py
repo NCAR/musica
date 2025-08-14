@@ -17,6 +17,7 @@ from .surface import Surface, _Surface
 from .tunneling import Tunneling, _Tunneling
 from .branched import Branched, _Branched
 from .troe import Troe, _Troe
+from .ternary_chemical_activation import TernaryChemicalActivation, _TernaryChemicalActivation
 from .condensed_phase_arrhenius import CondensedPhaseArrhenius, _CondensedPhaseArrhenius
 from .arrhenius import Arrhenius, _Arrhenius
 from .phase import Phase
@@ -117,13 +118,15 @@ class Mechanism(_Mechanism):
                 reactions_list.append(reaction.serialize())
             elif isinstance(reaction, _SimpolPhaseTransfer):
                 # Handle C++ _SimpolPhaseTransfer objects with static serialize call
-                reactions_list.append(SimpolPhaseTransfer.serialize_static(reaction))
+                reactions_list.append(
+                    SimpolPhaseTransfer.serialize_static(reaction))
             elif isinstance(reaction, SimpolPhaseTransfer):
                 # Handle Python SimpolPhaseTransfer objects with instance serialize call
                 reactions_list.append(reaction.serialize())
             elif isinstance(reaction, _AqueousEquilibrium):
                 # Handle C++ _AqueousEquilibrium objects with static serialize call
-                reactions_list.append(AqueousEquilibrium.serialize_static(reaction))
+                reactions_list.append(
+                    AqueousEquilibrium.serialize_static(reaction))
             elif isinstance(reaction, AqueousEquilibrium):
                 # Handle Python AqueousEquilibrium objects with instance serialize call
                 reactions_list.append(reaction.serialize())
@@ -140,6 +143,12 @@ class Mechanism(_Mechanism):
                 reactions_list.append(Troe.serialize_static(reaction))
             elif isinstance(reaction, Troe):
                 # Handle Python Troe objects with instance serialize call
+                reactions_list.append(reaction.serialize())
+            elif isinstance(reaction, _TernaryChemicalActivation):
+                # Handle C++ _TernaryChemicalActivation objects with static serialize call
+                reactions_list.append(TernaryChemicalActivation.serialize_static(reaction))
+            elif isinstance(reaction, TernaryChemicalActivation):
+                # Handle Python TernaryChemicalActivation objects with instance serialize call
                 reactions_list.append(reaction.serialize())
             elif isinstance(reaction, _Tunneling):
                 # Handle C++ _Tunneling objects with static serialize call
@@ -177,13 +186,38 @@ class MechanismSerializer():
     """
 
     @staticmethod
+    def _convert_cpp_mechanism_to_python(cpp_mechanism: Any) -> Mechanism:
+        """
+        Convert a C++ _Mechanism object to a Python Mechanism object.
+        """
+        reactions_list = []
+        for reaction in cpp_mechanism.reactions:
+            reactions_list.append(reaction)
+
+        python_mechanism = Mechanism(
+            name=cpp_mechanism.name,
+            reactions=reactions_list,
+            species=list(cpp_mechanism.species),
+            phases=list(cpp_mechanism.phases),
+            version=Version() if cpp_mechanism.version is None else cpp_mechanism.version
+        )
+
+        return python_mechanism
+
+    @staticmethod
     def serialize(mechanism: Mechanism, file_path: str = "./mechanism.json") -> None:
-        if not isinstance(mechanism, Mechanism):
+        if not isinstance(mechanism, (Mechanism, _Mechanism)):
             raise TypeError(f"Object {mechanism} is not of type Mechanism.")
 
         directory, file = os.path.split(file_path)
         if directory:
             os.makedirs(directory, exist_ok=True)
+
+        if isinstance(mechanism, _Mechanism) and not isinstance(mechanism, Mechanism):
+            mechanism = MechanismSerializer._convert_cpp_mechanism_to_python(
+                mechanism)
+
+        # Now we can use the standard to_dict method
         dictionary = mechanism.to_dict()
 
         _, file_ext = os.path.splitext(file)

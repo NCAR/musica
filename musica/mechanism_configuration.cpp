@@ -3,7 +3,9 @@
 #include <mechanism_configuration/constants.hpp>
 #include <mechanism_configuration/v1/parser.hpp>
 #include <mechanism_configuration/v1/types.hpp>
+#include <mechanism_configuration/v1/reaction_types.hpp>
 #include <mechanism_configuration/v1/validation.hpp>
+#include <musica/micm/parse.hpp>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
@@ -29,6 +31,7 @@ enum class ReactionType
   Photolysis,
   Surface,
   Troe,
+  TernaryChemicalActivation,
   Tunneling,
   UserDefined
 };
@@ -49,6 +52,7 @@ struct ReactionsIterator
       Photolysis,
       Surface,
       Troe,
+      TernaryChemicalActivation,
       Tunneling,
       UserDefined>;
 
@@ -71,6 +75,7 @@ struct ReactionsIterator
           std::vector<VariantType>(reactions.photolysis.begin(), reactions.photolysis.end()),
           std::vector<VariantType>(reactions.surface.begin(), reactions.surface.end()),
           std::vector<VariantType>(reactions.troe.begin(), reactions.troe.end()),
+          std::vector<VariantType>(reactions.ternary_chemical_activation.begin(), reactions.ternary_chemical_activation.end()),
           std::vector<VariantType>(reactions.tunneling.begin(), reactions.tunneling.end()),
           std::vector<VariantType>(reactions.user_defined.begin(), reactions.user_defined.end())
         }
@@ -199,6 +204,10 @@ Reactions create_reactions(const py::list &reactions)
     {
       reaction_obj.troe.push_back(item.cast<Troe>());
     }
+    else if (py::isinstance<TernaryChemicalActivation>(item))
+    {
+      reaction_obj.ternary_chemical_activation.push_back(item.cast<TernaryChemicalActivation>());
+    }
     else if (py::isinstance<Tunneling>(item))
     {
       reaction_obj.tunneling.push_back(item.cast<Tunneling>());
@@ -231,6 +240,7 @@ void bind_mechanism_configuration(py::module_ &mechanism_configuration)
       .value("Photolysis", ReactionType::Photolysis)
       .value("Surface", ReactionType::Surface)
       .value("Troe", ReactionType::Troe)
+      .value("TernaryChemicalActivation", ReactionType::TernaryChemicalActivation)
       .value("Tunneling", ReactionType::Tunneling)
       .value("UserDefined", ReactionType::UserDefined);
 
@@ -262,21 +272,23 @@ void bind_mechanism_configuration(py::module_ &mechanism_configuration)
 
   py::class_<ReactionComponent>(mechanism_configuration, "_ReactionComponent")
       .def(py::init<>())
-      .def(py::init(
-          [](const std::string &species_name)
-          {
-            ReactionComponent rc;
-            rc.species_name = species_name;
-            return rc;
-          }))
-      .def(py::init(
-          [](const std::string &species_name, double coefficient)
-          {
-            ReactionComponent rc;
-            rc.species_name = species_name;
-            rc.coefficient = coefficient;
-            return rc;
-          }))
+      .def(
+          py::init(
+              [](const std::string &species_name)
+              {
+                ReactionComponent rc;
+                rc.species_name = species_name;
+                return rc;
+              }))
+      .def(
+          py::init(
+              [](const std::string &species_name, double coefficient)
+              {
+                ReactionComponent rc;
+                rc.species_name = species_name;
+                rc.coefficient = coefficient;
+                return rc;
+              }))
       .def_readwrite("species_name", &ReactionComponent::species_name)
       .def_readwrite("coefficient", &ReactionComponent::coefficient)
       .def_readwrite("other_properties", &ReactionComponent::unknown_properties)
@@ -333,6 +345,25 @@ void bind_mechanism_configuration(py::module_ &mechanism_configuration)
       .def("__str__", [](const Troe &t) { return t.name; })
       .def("__repr__", [](const Troe &t) { return "<Troe: " + t.name + ">"; })
       .def_property_readonly("type", [](const Troe &) { return ReactionType::Troe; });
+
+  py::class_<TernaryChemicalActivation>(mechanism_configuration, "_TernaryChemicalActivation")
+      .def(py::init<>())
+      .def_readwrite("k0_A", &TernaryChemicalActivation::k0_A)
+      .def_readwrite("k0_B", &TernaryChemicalActivation::k0_B)
+      .def_readwrite("k0_C", &TernaryChemicalActivation::k0_C)
+      .def_readwrite("kinf_A", &TernaryChemicalActivation::kinf_A)
+      .def_readwrite("kinf_B", &TernaryChemicalActivation::kinf_B)
+      .def_readwrite("kinf_C", &TernaryChemicalActivation::kinf_C)
+      .def_readwrite("Fc", &TernaryChemicalActivation::Fc)
+      .def_readwrite("N", &TernaryChemicalActivation::N)
+      .def_readwrite("reactants", &TernaryChemicalActivation::reactants)
+      .def_readwrite("products", &TernaryChemicalActivation::products)
+      .def_readwrite("name", &TernaryChemicalActivation::name)
+      .def_readwrite("gas_phase", &TernaryChemicalActivation::gas_phase)
+      .def_readwrite("other_properties", &TernaryChemicalActivation::unknown_properties)
+      .def("__str__", [](const TernaryChemicalActivation &t) { return t.name; })
+      .def("__repr__", [](const TernaryChemicalActivation &t) { return "<TernaryChemicalActivation: " + t.name + ">"; })
+      .def_property_readonly("type", [](const TernaryChemicalActivation &) { return ReactionType::TernaryChemicalActivation; });
 
   py::class_<Branched>(mechanism_configuration, "_Branched")
       .def(py::init<>())
@@ -498,6 +529,7 @@ void bind_mechanism_configuration(py::module_ &mechanism_configuration)
       .def_readwrite("photolysis", &Reactions::photolysis)
       .def_readwrite("surface", &Reactions::surface)
       .def_readwrite("troe", &Reactions::troe)
+      .def_readwrite("ternary_chemical_activation", &Reactions::ternary_chemical_activation)
       .def_readwrite("tunneling", &Reactions::tunneling)
       .def_readwrite("user_defined", &Reactions::user_defined)
       .def(
@@ -561,5 +593,13 @@ void bind_mechanism_configuration(py::module_ &mechanism_configuration)
               }
               throw std::runtime_error(error);
             }
-          });
+          })
+      .def(
+          "parse_and_convert_v0",
+          [](V1Parser &self, const std::string &path)
+          {
+            mechanism_configuration::v1::types::Mechanism  mechanism = musica::ConvertV0MechanismToV1(path);
+            return mechanism;
+          },
+          "Parse a v0 mechanism configuration file");
 }

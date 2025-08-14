@@ -1,7 +1,7 @@
 from typing import Optional, Any, Dict
 from .. import backend
 from .phase import Phase
-from .utils import _add_other_properties, _remove_empty_keys
+from .utils import _add_other_properties
 
 _backend = backend.get_backend()
 _WetDeposition = _backend._mechanism_configuration._WetDeposition
@@ -49,4 +49,4 @@ class WetDeposition(_WetDeposition):
             "condensed phase": instance.condensed_phase,
         }
         _add_other_properties(serialize_dict, instance.other_properties)
-        return _remove_empty_keys(serialize_dict)
+        return serialize_dict
