@@ -1036,9 +1036,9 @@ contains
          ! Get element properties
          if (carma%f_NWAVE < 1 .or. carma%f_NREFIDX < 1) then
             call CARMAELEMENT_Get( &
-               carma, &
-               element_index, &
-               rc, &
+               carma=carma, &
+               ielement=element_index, &
+               rc=rc, &
                igroup=element_props%igroup, &
                rho=rho, &
                itype=element_props%itype, &
@@ -1048,9 +1048,9 @@ contains
                isShell=isShell)
          else
             call CARMAELEMENT_Get( &
-               carma, &
-               element_index, &
-               rc, &
+               carma=carma, &
+               ielement=element_index, &
+               rc=rc, &
                igroup=element_props%igroup, &
                rho=rho, &
                itype=element_props%itype, &
@@ -1252,15 +1252,15 @@ contains
                group_short_name = c_to_f_string(group%shortname, group%shortname_length)
                call c_f_pointer(group%df, df, [group%df_size])
                call CARMAGROUP_Create( &
-                  carma, &
-                  igroup, &
-                  group_name, &
-                  real(group%rmin, kind=real64) * 100.0_real64, & ! Convert m to cm
-                  real(group%rmrat, kind=real64), &
-                  int(group%ishape), &
-                  real(group%eshape, kind=real64), &
-                  logical(group%is_ice), &
-                  rc, &
+                  carma=carma, &
+                  igroup=igroup, &
+                  name=group_name, &
+                  rmin=real(group%rmin, kind=real64) * 100.0_real64, & ! Convert m to cm
+                  rmrat=real(group%rmrat, kind=real64), &
+                  ishape=int(group%ishape), &
+                  eshape=real(group%eshape, kind=real64), &
+                  is_ice=logical(group%is_ice), &
+                  rc=rc, &
                   is_fractal=logical(group%is_fractal), &
                   irhswell=int(group%swelling_algorithm), &
                   irhswcomp=int(group%swelling_composition), &
@@ -1337,14 +1337,14 @@ contains
                   end do
                end if
                call CARMAELEMENT_Create( &
-                  carma, &
-                  ielem, &
-                  int(elem%igroup), &
-                  element_name, &
-                  real(elem%rho, kind=real64) * 0.001_real64, & ! Convert kg m-3 to g cm-3
-                  int(elem%itype), &
-                  int(elem%icomposition), &
-                  rc, &
+                  carma=carma, &
+                  ielement=ielem, &
+                  igroup=int(elem%igroup), &
+                  name=element_name, &
+                  rho=real(elem%rho, kind=real64) * 0.001_real64, & ! Convert kg m-3 to g cm-3
+                  itype=int(elem%itype), &
+                  icomposition=int(elem%icomposition), &
+                  rc=rc, &
                   shortname=element_short_name, &
                   isolute=int(elem%isolute), &
                   rhobin=rhobin, &
@@ -1368,13 +1368,13 @@ contains
                solute_name = c_to_f_string(solute%name, solute%name_length)
                solute_short_name = c_to_f_string(solute%shortname, solute%shortname_length)
                call CARMASOLUTE_Create( &
-                  carma, &
-                  isolute, &
-                  solute_name, &
-                  int(solute%ions), &
-                  real(solute%wtmol, kind=real64), &
-                  real(solute%rho, kind=real64), &
-                  rc, &
+                  carma=carma, &
+                  isolute=isolute, &
+                  name=solute_name, &
+                  ions=int(solute%ions), &
+                  wtmol=real(solute%wtmol, kind=real64), &
+                  rho=real(solute%rho, kind=real64), &
+                  rc=rc, &
                   shortname=solute_short_name)
                if (rc /= 0) then
                   rc = MUSICA_CARMA_ERROR_CODE_CREATION_FAILED
@@ -1412,13 +1412,13 @@ contains
                   end do
                end if
                call CARMAGAS_Create( &
-                  carma, &
-                  igas, &
-                  gas_name, &
-                  real(gas%wtmol, kind=real64) * 1000.0_real64, & ! convert to g/mol
-                  int(gas%ivaprtn), &
-                  int(gas%icomposition), &
-                  rc, &
+                  carma=carma, &
+                  igas=igas, &
+                  name=gas_name, &
+                  wtmol=real(gas%wtmol, kind=real64) * 1000.0_real64, & ! convert to g/mol
+                  ivaprtn=int(gas%ivaprtn), &
+                  icomposition=int(gas%icomposition), &
+                  rc=rc, &
                   shortname=gas_short_name, &
                   dgc_threshold=real(gas%dgc_threshold, kind=real64), &
                   ds_threshold=real(gas%ds_threshold, kind=real64), &
@@ -1475,10 +1475,10 @@ contains
          do igrowth = 1, params%growths_size
             associate(growth => growth_config(igrowth))
                call CARMA_AddGrowth( &
-                  carma, &
-                  int(growth%ielem), &
-                  int(growth%igas), &
-                  rc)
+                  carma=carma, &
+                  ielem=int(growth%ielem), &
+                  igas=int(growth%igas), &
+                  rc=rc)
                if (rc /= 0) then
                   rc = MUSICA_CARMA_ERROR_CODE_ADD_CARMA_OBJECT_FAILED
                   return
@@ -1493,12 +1493,12 @@ contains
          do inucleation = 1, params%nucleations_size
             associate(nucleation => nucleation_config(inucleation))
                call CARMA_AddNucleation( &
-                  carma, &
-                  int(nucleation%ielemfrom), &
-                  int(nucleation%ielemto), &
-                  int(nucleation%algorithm), &
-                  real(nucleation%rlh_nuc, kind=real64) * 1.0e4_real64, & ! convert m2 s-2 to cm2 s-2
-                  rc, &
+                  carma=carma, &
+                  ielemfrom=int(nucleation%ielemfrom), &
+                  ielemto=int(nucleation%ielemto), &
+                  inucproc=int(nucleation%algorithm), &
+                  rlh_nuc=real(nucleation%rlh_nuc, kind=real64) * 1.0e4_real64, & ! convert m2 s-2 to cm2 s-2
+                  rc=rc, &
                   igas=int(nucleation%igas), &
                   ievp2elem=int(nucleation%ievp2elem))
                if (rc /= 0) then
