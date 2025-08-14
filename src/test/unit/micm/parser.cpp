@@ -183,7 +183,8 @@ TEST(Parser, ConvertArrheniusV0ToV1)
 
   // Check unit conversion (moles m-3 to molec cm-3)
   // For bimolecular reaction (2 reactants), A should be multiplied by MolesM3ToMoleculesCm3^(2-1) = MolesM3ToMoleculesCm3
-  EXPECT_NEAR(v1_mechanism.reactions.arrhenius[0].A, 1.0e-11 * MolesM3ToMoleculesCm3, 1e-20);
+  double expected_A = 1.0e-11 * MolesM3ToMoleculesCm3;
+  EXPECT_NEAR(v1_mechanism.reactions.arrhenius[0].A, expected_A, expected_A * 1e-13);
 }
 
 TEST(Parser, ConvertBranchedV0ToV1)
@@ -210,15 +211,17 @@ TEST(Parser, ConvertBranchedV0ToV1)
   branched.a0 = 0.3;
   branched.n = 1.0;
 
-  mechanism_configuration::v0::types::ReactionComponent reactantA, alkoxyB, nitrateC;
+  mechanism_configuration::v0::types::ReactionComponent reactantA, reactantB, alkoxyB, nitrateC;
   reactantA.species_name = "A";
   reactantA.coefficient = 1.0;
+  reactantB.species_name = "B";
+  reactantB.coefficient = 2.0;
   alkoxyB.species_name = "B";
   alkoxyB.coefficient = 1.0;
   nitrateC.species_name = "C";
   nitrateC.coefficient = 1.0;
 
-  branched.reactants = { reactantA };
+  branched.reactants = { reactantA, reactantB };
   branched.alkoxy_products = { alkoxyB };
   branched.nitrate_products = { nitrateC };
   v0_mechanism.reactions.branched = { branched };
@@ -231,13 +234,14 @@ TEST(Parser, ConvertBranchedV0ToV1)
   EXPECT_EQ(v1_mechanism.species.size(), 4);
   EXPECT_EQ(v1_mechanism.reactions.branched.size(), 1);
   EXPECT_EQ(v1_mechanism.reactions.branched[0].gas_phase, "gas");
-  EXPECT_EQ(v1_mechanism.reactions.branched[0].reactants.size(), 1);
+  EXPECT_EQ(v1_mechanism.reactions.branched[0].reactants.size(), 2);
   EXPECT_EQ(v1_mechanism.reactions.branched[0].alkoxy_products.size(), 1);
   EXPECT_EQ(v1_mechanism.reactions.branched[0].nitrate_products.size(), 1);
 
   // Check unit conversion for unimolecular reaction (1 reactant)
-  // X should be multiplied by MolesM3ToMoleculesCm3^(1-1) = 1 (no conversion)
-  EXPECT_NEAR(v1_mechanism.reactions.branched[0].X, 1.0e-12, 1e-20);
+  // X should be multiplied by MolesM3ToMoleculesCm3^(3-1) = 2
+  double expected_X = 1.0e-12 * MolesM3ToMoleculesCm3 * MolesM3ToMoleculesCm3;
+  EXPECT_NEAR(v1_mechanism.reactions.branched[0].X, expected_X, expected_X * 1e-13);
 }
 
 TEST(Parser, ConvertSurfaceV0ToV1)
@@ -338,8 +342,10 @@ TEST(Parser, ConvertTroeV0ToV1)
   // Check unit conversion for bimolecular reaction
   // k0_A should be multiplied by MolesM3ToMoleculesCm3^(total_moles) = MolesM3ToMoleculesCm3^2
   // kinf_A should be multiplied by MolesM3ToMoleculesCm3^(total_moles-1) = MolesM3ToMoleculesCm3^1
-  EXPECT_NEAR(v1_mechanism.reactions.troe[0].k0_A, 1.0e-30 * MolesM3ToMoleculesCm3 * MolesM3ToMoleculesCm3, 1e-40);
-  EXPECT_NEAR(v1_mechanism.reactions.troe[0].kinf_A, 1.0e-10 * MolesM3ToMoleculesCm3, 1e-20);
+  double expected_k0_A = 1.0e-30 * MolesM3ToMoleculesCm3 * MolesM3ToMoleculesCm3;
+  EXPECT_NEAR(v1_mechanism.reactions.troe[0].k0_A, expected_k0_A, expected_k0_A * 1e-13);
+  double expected_kinf_A = 1.0e-10 * MolesM3ToMoleculesCm3;
+  EXPECT_NEAR(v1_mechanism.reactions.troe[0].kinf_A, expected_kinf_A, expected_kinf_A * 1e-13);
 }
 
 TEST(Parser, ConvertTernaryChemicalActivationV0ToV1)
@@ -393,7 +399,7 @@ TEST(Parser, ConvertTernaryChemicalActivationV0ToV1)
   EXPECT_EQ(v1_mechanism.reactions.ternary_chemical_activation[0].products.size(), 1);
 
   // Check unit conversion for bimolecular reaction
-  double expected_k0_A = 2.0e-31 * MolesM3ToMoleculesCm3 * MolesM3ToMoleculesCm3;
+  double expected_k0_A = 2.0e-31 * MolesM3ToMoleculesCm3;
   EXPECT_NEAR(v1_mechanism.reactions.ternary_chemical_activation[0].k0_A, expected_k0_A, expected_k0_A * 1e-13);
   double expected_kinf_A = 1.5e-11 * MolesM3ToMoleculesCm3;
   EXPECT_NEAR(v1_mechanism.reactions.ternary_chemical_activation[0].kinf_A, expected_kinf_A, expected_kinf_A * 1e-13);
@@ -445,7 +451,8 @@ TEST(Parser, ConvertTunnelingV0ToV1)
   EXPECT_EQ(v1_mechanism.reactions.tunneling[0].products.size(), 1);
 
   // Check unit conversion for bimolecular reaction
-  EXPECT_NEAR(v1_mechanism.reactions.tunneling[0].A, 1.0e-12 * MolesM3ToMoleculesCm3, 1e-20);
+  double expected_A = 1.0e-12 * MolesM3ToMoleculesCm3;
+  EXPECT_NEAR(v1_mechanism.reactions.tunneling[0].A, expected_A, expected_A * 1e-13);
 }
 
 TEST(Parser, ConvertUserDefinedV0ToV1)

@@ -1120,42 +1120,84 @@ class CARMAState:
         def reshape(arr, shape):
             return np.array(arr).reshape(shape)
 
-        # Helper for units
-        def _get_units(prop):
-            units = {
-                "mass_mixing_ratio": "kg kg-1",
-                "number_mixing_ratio": "kg-1",
-                "number_density": "m-3",
-                "nucleation_rate": "m-3 s-1",
-                "wet_particle_radius": "m",
-                "wet_particle_density": "kg m-3",
-                "dry_particle_density": "kg m-3",
-                "particle_mass_on_surface": "kg m-2",
-                "sedimentation_flux": "kg m-2 s-1",
-                "fall_velocity": "m s-1",
-                "deposition_velocity": "m s-1",
-                "delta_particle_temperature": "K",
-                "kappa": "-",
-                "total_mass_mixing_ratio": "kg m-3"
+        # Helper for units and long names
+        def _get_attributes(prop):
+            attributes = {
+                "mass_mixing_ratio": {
+                    "units": "kg kg-1",
+                    "long_name": "Aerosol particle mass mixing ratio"
+                },
+                "number_mixing_ratio": {
+                    "units": "kg-1",
+                    "long_name": "Aerosol particle number mixing ratio"
+                },
+                "number_density": {
+                    "units": "m-3",
+                    "long_name": "Aerosol particle number density"
+                },
+                "nucleation_rate": {
+                    "units": "m-3 s-1",
+                    "long_name": "Aerosol particle nucleation rate"
+                },
+                "wet_particle_radius": {
+                    "units": "m",
+                    "long_name": "Wet aerosol particle radius"
+                },
+                "wet_particle_density": {
+                    "units": "kg m-3",
+                    "long_name": "Wet aerosol particle density"
+                },
+                "dry_particle_density": {
+                    "units": "kg m-3",
+                    "long_name": "Dry aerosol particle density"
+                },
+                "particle_mass_on_surface": {
+                    "units": "kg m-2",
+                    "long_name": "Aerosol particle mass on surface"
+                },
+                "sedimentation_flux": {
+                    "units": "kg m-2 s-1",
+                    "long_name": "Aerosol particle sedimentation flux"
+                },
+                "fall_velocity": {
+                    "units": "m s-1",
+                    "long_name": "Aerosol particle fall velocity"
+                },
+                "deposition_velocity": {
+                    "units": "m s-1",
+                    "long_name": "Aerosol particle deposition velocity"
+                },
+                "delta_particle_temperature": {
+                    "units": "K",
+                    "long_name": "Aerosol particle temperature change"
+                },
+                "kappa": {
+                    "units": "-",
+                    "long_name": "Aerosol particle hygroscopicity parameter"
+                },
+                "total_mass_mixing_ratio": {
+                    "units": "kg m-3",
+                    "long_name": "Total aerosol particle mass mixing ratio"
+                }
             }
-            return units.get(prop, "")
+            return attributes.get(prop, {"units": "", "long_name": ""})
 
         dataset_vars = {}
 
         # Per-vertical_center properties: shape (number_of_bins, number_of_elements, n_levels)
         for prop in per_vertical_center:
             arr = reshape(data[prop], (number_of_bins, number_of_elements, n_levels))
-            dataset_vars[prop] = (("bin", "element", "vertical_center"), arr, {"units": _get_units(prop)})
+            dataset_vars[prop] = (("bin", "element", "vertical_center"), arr, _get_attributes(prop))
 
         # Per-vertical_level properties: shape (number_of_bins, number_of_elements, n_edges)
         for prop in per_vertical_level:
             arr = reshape(data[prop], (number_of_bins, number_of_elements, n_edges))
-            dataset_vars[prop] = (("bin", "element", "vertical_level"), arr, {"units": _get_units(prop)})
+            dataset_vars[prop] = (("bin", "element", "vertical_level"), arr, _get_attributes(prop))
 
         # Per-bin/element only properties: shape (number_of_bins, number_of_elements)
         for prop in per_bin_element:
             arr = reshape(data[prop], (number_of_bins, number_of_elements))
-            dataset_vars[prop] = (("bin", "element"), arr, {"units": _get_units(prop)})
+            dataset_vars[prop] = (("bin", "element"), arr, _get_attributes(prop))
 
         return xr.Dataset(
             data_vars=dataset_vars,
@@ -1282,7 +1324,10 @@ class CARMAState:
         # Per-vertical_center properties: shape (number_of_gases, n_levels)
         for prop in properties:
             arr = reshape(data[prop], (number_of_gases, n_levels))
-            dataset_vars[prop] = (("gas", "vertical_center"), arr, {"units": _get_units(prop)})
+            if prop == 'mass_mixing_ratio':
+                dataset_vars[f'gas_{prop}'] = (("gas", "vertical_center"), arr, {"units": _get_units(prop)})
+            else:
+                dataset_vars[prop] = (("gas", "vertical_center"), arr, {"units": _get_units(prop)})
 
         return xr.Dataset(
             data_vars=dataset_vars,
@@ -1307,22 +1352,34 @@ class CARMAState:
         def reshape(arr, shape):
             return np.array(arr).reshape(shape)
 
-        # Helper for units
-        def _get_units(prop):
-            units = {
-                "temperature": "K",
-                "pressure": "Pa",
-                "air_density": "kg m-3",
-                "latent_heat": "K s-1"
+        # Helper for units and long names
+        def _get_attributes(prop):
+            attributes = {
+                "temperature": {
+                    "units": "K",
+                    "long_name": "Temperature"
+                },
+                "pressure": {
+                    "units": "Pa",
+                    "long_name": "Pressure"
+                },
+                "air_density": {
+                    "units": "kg m-3",
+                    "long_name": "Air density"
+                },
+                "latent_heat": {
+                    "units": "K s-1",
+                    "long_name": "Latent heat release rate"
+                }
             }
-            return units.get(prop, "")
+            return attributes.get(prop, {"units": "", "long_name": ""})
 
         dataset_vars = {}
 
         for prop in data:
             if prop is not None:
                 arr = reshape(data[prop], (n_levels,))
-                dataset_vars[prop] = (("vertical_center"), arr, {"units": _get_units(prop)})
+                dataset_vars[prop] = (("vertical_center"), arr, _get_attributes(prop))
 
         return xr.Dataset(
             data_vars=dataset_vars,

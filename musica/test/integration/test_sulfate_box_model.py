@@ -345,11 +345,11 @@ def run_box_model():
         gas_state, gas_index = carma_state.get_gases()
         micm_output["H2O"] = np.array(
             gas_state.isel(
-                gas=gas_index["H2O"])["mass_mixing_ratio"],
+                gas=gas_index["H2O"])["gas_mass_mixing_ratio"],
             dtype=np.float64) * environmental_conditions["air density"] * MOLECULAR_MASS_AIR / MOLECULAR_MASS_H2O
         micm_output["H2SO4"] = np.array(
             gas_state.isel(
-                gas=gas_index["H2SO4"])["mass_mixing_ratio"],
+                gas=gas_index["H2SO4"])["gas_mass_mixing_ratio"],
             dtype=np.float64) * environmental_conditions["air density"] * MOLECULAR_MASS_AIR / MOLECULAR_MASS_H2SO4
 
         # save concentrations for output

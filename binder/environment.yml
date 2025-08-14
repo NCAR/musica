@@ -2,23 +2,6 @@ name: musica-env
 channels:
   - conda-forge
 dependencies:
-  - blas
-  - cmake
-  - gcc
-  - gxx
-  - gfortran
-  - git
-  - hdf5
-  - lapack
-  - libcurl
-  - make
-  - netcdf-fortran
-  - openssl
-  - pip
-  - pkg-config
   - python>=3.9
-  - yaml-cpp
-  - zlib
   - pip:
-    - ussa1976>=v0.3.4
-    - ../.[tutorial]
+    - musica[tutorial]
