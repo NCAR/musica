@@ -1186,23 +1186,18 @@ class CARMAState:
 
         # Per-vertical_center properties: shape (number_of_bins, number_of_elements, n_levels)
         for prop in per_vertical_center:
-            arr = reshape(data[prop], (number_of_bins,
-                          number_of_elements, n_levels))
-            dataset_vars[prop] = (
-                ("bin", "element", "vertical_center"), arr, _get_attributes(prop))
+            arr = reshape(data[prop], (number_of_bins, number_of_elements, n_levels))
+            dataset_vars[prop] = (("bin", "element", "vertical_center"), arr, _get_attributes(prop))
 
         # Per-vertical_level properties: shape (number_of_bins, number_of_elements, n_edges)
         for prop in per_vertical_level:
-            arr = reshape(data[prop], (number_of_bins,
-                          number_of_elements, n_edges))
-            dataset_vars[prop] = (
-                ("bin", "element", "vertical_level"), arr, _get_attributes(prop))
+            arr = reshape(data[prop], (number_of_bins, number_of_elements, n_edges))
+            dataset_vars[prop] = (("bin", "element", "vertical_level"), arr, _get_attributes(prop))
 
         # Per-bin/element only properties: shape (number_of_bins, number_of_elements)
         for prop in per_bin_element:
             arr = reshape(data[prop], (number_of_bins, number_of_elements))
-            dataset_vars[prop] = (("bin", "element"), arr,
-                                  _get_attributes(prop))
+            dataset_vars[prop] = (("bin", "element"), arr, _get_attributes(prop))
 
         return xr.Dataset(
             data_vars=dataset_vars,
@@ -1266,10 +1261,8 @@ class CARMAState:
 
         # Per-vertical_center properties: shape (number_of_bins, number_of_elements, n_levels)
         for prop in properties:
-            arr = reshape(data[prop], (number_of_bins,
-                          number_of_elements, n_levels))
-            dataset_vars[prop] = (("bin", "element", "vertical_center"), arr, {
-                                  "units": _get_units(prop)})
+            arr = reshape(data[prop], (number_of_bins, number_of_elements, n_levels))
+            dataset_vars[prop] = (("bin", "element", "vertical_center"), arr, {"units": _get_units(prop)})
 
         return xr.Dataset(
             data_vars=dataset_vars,
@@ -1351,8 +1344,7 @@ class CARMAState:
         """
         n_levels = len(self.vertical_center)
 
-        data = _backend._carma._get_environmental_values(
-            self._carma_state_instance)
+        data = _backend._carma._get_environmental_values(self._carma_state_instance)
 
         # Reshape arrays
         def reshape(arr, shape):
@@ -1385,8 +1377,7 @@ class CARMAState:
         for prop in data:
             if prop is not None:
                 arr = reshape(data[prop], (n_levels,))
-                dataset_vars[prop] = (
-                    ("vertical_center"), arr, _get_attributes(prop))
+                dataset_vars[prop] = (("vertical_center"), arr, _get_attributes(prop))
 
         return xr.Dataset(
             data_vars=dataset_vars,
@@ -1572,8 +1563,7 @@ class CARMA:
         # Prepare arrays
         data = {prop: [] for prop in properties}
         for i_group in range(number_of_groups):
-            group_value = _backend._carma._get_group_properties(
-                self._carma_instance, i_group + 1)
+            group_value = _backend._carma._get_group_properties(self._carma_instance, i_group + 1)
             for prop in properties:
                 data[prop].append(group_value.get(prop))
 
