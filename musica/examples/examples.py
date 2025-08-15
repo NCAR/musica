@@ -76,6 +76,21 @@ class _Examples:
     examples. It includes predefined examples and supports iteration, indexing, and
     attribute access patterns.
     """
+    CARMA_Aluminum = Example.from_config(
+        display_name='CARMA Aluminum',
+        short_name='CARMA_Aluminum',
+        path='carma_aluminum.py',
+        description='A CARMA example for simulating aluminum aerosol particles.')
+    CARMA_Sulfate = Example.from_config(
+        display_name='CARMA Sulfate',
+        short_name='CARMA_Sulfate',
+        path='carma_sulfate.py',
+        description='A CARMA example for simulating sulfate aerosol particles.')
+    Sulfate_Box_Model = Example.from_config(
+        display_name='Sulfate Box Model',
+        short_name='Sulfate_Box_Model',
+        path='sulfate_box_model.py',
+        description='A box model example for simulating sulfate aerosol particles.')
     TS1LatinHyperCube = Example.from_config(
         display_name='TS1 Latin Hypercube',
         short_name='TS1LatinHyperCube',
@@ -89,7 +104,7 @@ class _Examples:
         Returns:
             list[Example]: A list of all available Example instances.
         """
-        return [self.TS1LatinHyperCube]
+        return [self.CARMA_Aluminum, self.CARMA_Sulfate, self.Sulfate_Box_Model, self.TS1LatinHyperCube]
 
     def __iter__(self):
         """Make the class iterable over examples.
