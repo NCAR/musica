@@ -98,13 +98,13 @@ class _Examples:
         description='A Latin hypercube sampling example for the TS1 mechanism. This script shows how to sample an input space and run multiple box models in parallel on a single mechanism.')
 
     @classmethod
-    def get_all(self):
+    def get_all(cls):
         """Get all available examples.
 
         Returns:
             list[Example]: A list of all available Example instances.
         """
-        return [self.CARMA_Aluminum, self.CARMA_Sulfate, self.Sulfate_Box_Model, self.TS1LatinHyperCube]
+        return [cls.CARMA_Aluminum, cls.CARMA_Sulfate, cls.Sulfate_Box_Model, cls.TS1LatinHyperCube]
 
     def __iter__(self):
         """Make the class iterable over examples.

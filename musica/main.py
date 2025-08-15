@@ -78,7 +78,7 @@ def main():
 
     with ir.path(musica.examples, example.path) as example_path:
         logger.info(f"Copying example from {example_path} to {args.output}")
-        shutil.copy(example_path, args.output[0] if args.output else '.')
+        shutil.copy(example_path, args.output[0] if args.output and len(args.output) > 0 else '.')
 
     end = datetime.datetime.now()
     logger.info(f"End time: {end}")
