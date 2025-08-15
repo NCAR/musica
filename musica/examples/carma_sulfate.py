@@ -14,6 +14,7 @@ import musica
 
 available = musica.backend.carma_available()
 
+
 def run_carma_sulfate_example():
     """Test CARMA sulfate growth from gas condensation in a simple single grid box."""
 
