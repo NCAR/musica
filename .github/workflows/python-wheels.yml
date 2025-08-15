@@ -89,15 +89,7 @@ jobs:
         msystem: MINGW64
 
     - name: CI Build Wheels
-      shell: msys2 {0}
-      if: matrix.os == 'windows-latest'
       uses: pypa/cibuildwheel@v2.17
-      env:
-        CIBW_ARCHS: ${{ matrix.cibw_archs }}
-
-    - name: CI Build Wheels
-      uses: pypa/cibuildwheel@v2.17
-      if: matrix.os != 'windows-latest'
       env:
         CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
