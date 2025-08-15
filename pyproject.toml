@@ -84,8 +84,8 @@ cmake.define.MUSICA_GPU_TYPE = "None"
 [[tool.scikit-build.overrides]]
 if.platform-system = "win32"
 inherit.cmake.define = "append"
-cmake.define.MUSICA_ENABLE_TUVX = "OFF"
-cmake.define.MUSICA_ENABLE_CARMA = "OFF"
+cmake.define.MUSICA_ENABLE_TUVX = "ON"
+cmake.define.MUSICA_ENABLE_CARMA = "ON"
 
 [project.urls]
 homepage = "https://wiki.ucar.edu/display/MUSICA/MUSICA+Home"
@@ -133,3 +133,4 @@ LD_LIBRARY_PATH = "/usr/local/cuda/lib64:$LD_LIBRARY_PATH"
 BUILD_GPU = 1
 
 [tool.cibuildwheel.windows]
+before-all = "musica/tools/prepare_build_environment_windows.bat"
