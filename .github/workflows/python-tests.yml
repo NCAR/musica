@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [windows-latest, macos-13, ubuntu-latest]
+        platform: [windows-latest, windows-11-arm, macos-13, ubuntu-latest]
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
         # python versions: https://devguide.python.org/versions/
 
@@ -34,6 +34,22 @@ jobs:
       run: |
         brew install netcdf netcdf-fortran lapack
 
+    - name: Setup MSYS2
+      if: matrix.platform == 'windows-latest'
+      uses: msys2/setup-msys2@v2
+      with:
+        update: true
+        msystem: MINGW64
+        path-type: inherit
+        install: >-
+          base-devel
+          mingw-w64-x86_64-toolchain
+          mingw-w64-x86_64-gcc
+          mingw-w64-x86_64-gcc-fortran
+          mingw-w64-x86_64-netcdf
+          mingw-w64-x86_64-netcdf-fortran
+          mingw-w64-x86_64-lapack
+
     - uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
@@ -41,10 +57,22 @@ jobs:
     - name: Add requirements
       run: python -m pip install --upgrade wheel setuptools
 
-    - name: Build and install
+    - name: Build and install (Non-Windows)
+      if: matrix.platform != 'windows-latest'
       run: pip install --verbose .[test]
       env:
         FC: gfortran-14
 
-    - name: Test
+    - name: Build and install (Windows with MINGW)
+      if: matrix.platform == 'windows-latest'
+      shell: msys2 {0}
+      run: pip install --verbose .[test]
+
+    - name: Test (Non-Windows)
+      if: matrix.platform != 'windows-latest'
+      run: pytest -s
+
+    - name: Test (Windows with MINGW)
+      if: matrix.platform == 'windows-latest'
+      shell: msys2 {0}
       run: pytest -s

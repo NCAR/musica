@@ -30,6 +30,9 @@ dependencies = [
   "xarray>=2022.3.0", 
 ]
 
+[project.urls]
+homepage = "https://wiki.ucar.edu/display/MUSICA/MUSICA+Home"
+
 [project.optional-dependencies]
 test = [
   "pytest>=7.0.0", 
@@ -67,7 +70,8 @@ cmake.define.MUSICA_ENABLE_TESTS = "OFF"
 cmake.define.CMAKE_POLICY_VERSION_MINIMUM = "3.5"
 cmake.define.MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE = "1"
 cmake.define.CMAKE_VERBOSE_MAKEFILE = "ON"
-build.verbose = true
+cmake.verbose = true
+logging.level = "DEBUG"
 
 [[tool.scikit-build.overrides]]
 if.platform-system = "linux"
@@ -94,12 +98,22 @@ cmake.define.MUSICA_GPU_TYPE = "None"
 
 [[tool.scikit-build.overrides]]
 if.platform-system = "win32"
+if.platform-machine = "AMD64"
+inherit.cmake.define = "append"
+cmake.define.MUSICA_ENABLE_TUVX = "ON"
+cmake.define.MUSICA_ENABLE_CARMA = "ON"
+cmake.define.CMAKE_CXX_COMPILER = "g++"
+cmake.define.CMAKE_C_COMPILER = "gcc"
+cmake.define.CMAKE_Fortran_COMPILER = "gfortran"
+cmake.args = ["-G", "MinGW Makefiles"]
+
+# Turn off TUVX and CARMA for ARM-based Windows since mingw does not support ARM64, from what I understand
+[[tool.scikit-build.overrides]]
+if.platform-system = "win32"
+if.platform-machine = "ARM64"
 inherit.cmake.define = "append"
 cmake.define.MUSICA_ENABLE_TUVX = "OFF"
 cmake.define.MUSICA_ENABLE_CARMA = "OFF"
-
-[project.urls]
-homepage = "https://wiki.ucar.edu/display/MUSICA/MUSICA+Home"
 
 # dynamically read the version: https://scikit-build-core.readthedocs.io/en/latest/configuration.html#dynamic-metadata
 [tool.scikit-build.metadata.version]
@@ -143,5 +157,3 @@ CUDA_PATH = "/usr/local/cuda"
 PATH = "/usr/local/cuda/bin:$PATH"
 LD_LIBRARY_PATH = "/usr/local/cuda/lib64:$LD_LIBRARY_PATH"
 BUILD_GPU = 1
-
-[tool.cibuildwheel.windows]
