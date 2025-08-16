@@ -89,7 +89,6 @@ cmake.define.CMAKE_C_COMPILER = "C:/msys64/mingw64/bin/gcc.exe"
 cmake.define.CMAKE_CXX_COMPILER = "C:/msys64/mingw64/bin/g++.exe"
 cmake.define.CMAKE_Fortran_COMPILER = "C:/msys64/mingw64/bin/gfortran.exe"
 cmake.define.CMAKE_GENERATOR = "MSYS Makefiles"
-cmake.define.CMAKE_TOOLCHAIN_FILE = "cmake/mingw64-toolchain.cmake"
 
 [project.urls]
 homepage = "https://wiki.ucar.edu/display/MUSICA/MUSICA+Home"
