@@ -48,16 +48,16 @@ namespace musica
     double* GetOrderedRateParametersPointer(musica::State* state, size_t* array_size, Error* error);
 
     /// @brief Get the ordering of species
-    /// @param state Pointer to state object
-    /// @param error Error struct to indicate success or failure
-    /// @return Array of species' name-index pairs
-    Mappings GetSpeciesOrdering(musica::State* state, Error* error);
+    /// @param state Pointer to state object [input]
+    /// @param species_ordering Array of species' name-index pairs [output]
+    /// @param error Error struct to indicate success or failure [output]
+    void GetSpeciesOrdering(musica::State* state, Mappings* species_ordering, Error* error);
 
     /// @brief Get the ordering of user-defined reaction rates
-    /// @param state Pointer to state object
-    /// @param error Error struct to indicate success or failure
-    /// @return Array of reaction rate name-index pairs
-    Mappings GetUserDefinedRateParametersOrdering(musica::State* state, Error* error);
+    /// @param state Pointer to state object [input]
+    /// @param reaction_rates Array of reaction rate name-index pairs [output]
+    /// @param error Error struct to indicate success or failure [output]
+    void GetUserDefinedRateParametersOrdering(musica::State* state, Mappings* reaction_rates, Error* error);
 
     /// @brief Returns the number of grid cells in the solver state
     /// @param state Pointer to state object

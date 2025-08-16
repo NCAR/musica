@@ -18,11 +18,9 @@ jobs:
     strategy:
       matrix:
         compiler:
-          - { cpp: g++-12, c: gcc-12, fc: gfortran-12}
           - { cpp: g++-13, c: gcc-13, fc: gfortran-13}
           - { cpp: g++-14, c: gcc-14, fc: gfortran-14}
-          - { cpp: clang++, c: clang, fc: gfortran-12}
-          - { cpp: g++-14, c: gcc-14, fc: gfortran-14}
+          - { cpp: clang++, c: clang, fc: gfortran-14}
         build_type: [Release]
     env:
       CC: ${{ matrix.compiler.c }}
@@ -31,6 +29,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '16.4'
 
       - name: Install dependencies
         run: brew install netcdf netcdf-fortran

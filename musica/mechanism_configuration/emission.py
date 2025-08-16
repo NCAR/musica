@@ -1,9 +1,13 @@
-from typing import Optional, Any, Dict, List, Union, Tuple
-from musica import _Emission, _ReactionComponent
-from .phase import Phase
-from .species import Species
+from .utils import _add_other_properties
 from .reactions import ReactionComponentSerializer
-from .utils import _add_other_properties, _remove_empty_keys
+from .species import Species
+from .phase import Phase
+from typing import Optional, Any, Dict, List, Union, Tuple
+from .. import backend
+
+_backend = backend.get_backend()
+_Emission = _backend._mechanism_configuration._Emission
+_ReactionComponent = _backend._mechanism_configuration._ReactionComponent
 
 
 class Emission(_Emission):
@@ -64,4 +68,4 @@ class Emission(_Emission):
             "gas phase": instance.gas_phase,
         }
         _add_other_properties(serialize_dict, instance.other_properties)
-        return _remove_empty_keys(serialize_dict)
+        return serialize_dict

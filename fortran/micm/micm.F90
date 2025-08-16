@@ -67,20 +67,20 @@ module musica_micm
       type(error_t_c),            intent(inout) :: error
     end subroutine micm_solve_c
 
-    function get_micm_version_c() bind(C, name="MicmVersion")
+    subroutine get_micm_version_c(micm_version) bind(C, name="MicmVersion")
       use musica_util, only: string_t_c
-      type(string_t_c) :: get_micm_version_c
-    end function get_micm_version_c
+      type(string_t_c), intent(out)             :: micm_version
+    end subroutine get_micm_version_c
 
-    function get_species_property_string_c(micm, species_name, property_name, error) &
+    subroutine get_species_property_string_c(micm, species_name, property_name, species_property, error) &
         bind(c, name="GetSpeciesPropertyString")
       use musica_util, only: error_t_c, string_t_c
       import c_ptr, c_char
       type(c_ptr), value, intent(in)            :: micm
       character(len=1, kind=c_char), intent(in) :: species_name(*), property_name(*)
+      type(string_t_c), intent(out)             :: species_property
       type(error_t_c), intent(inout)            :: error
-      type(string_t_c)                          :: get_species_property_string_c
-    end function get_species_property_string_c
+    end subroutine get_species_property_string_c
 
     function get_species_property_double_c(micm, species_name, property_name, error) &
         bind(c, name="GetSpeciesPropertyDouble")
@@ -179,7 +179,7 @@ contains
     use musica_util, only: string_t, string_t_c
     type(string_t)   :: value
     type(string_t_c) :: string_c
-    string_c = get_micm_version_c()
+    call get_micm_version_c(string_c)
     value = string_t(string_c)        
   end function get_micm_version
 
@@ -367,8 +367,8 @@ contains
 
     type(error_t_c)              :: error_c
     type(string_t_c)             :: string_c
-    string_c = get_species_property_string_c(this%ptr,  &
-              to_c_string(species_name), to_c_string(property_name), error_c)
+    call get_species_property_string_c(this%ptr,  &
+       to_c_string(species_name), to_c_string(property_name), string_c, error_c)
     value = string_t(string_c)
     error = error_t(error_c)
   end function get_species_property_string

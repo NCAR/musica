@@ -13,6 +13,7 @@ RUN dnf -y update \
     gdb \
     git \
     hdf5-devel \
+    lapack-devel \
     lcov \
     libcurl-devel \
     m4 \
@@ -35,9 +36,10 @@ COPY . musica
 # Build and install MUSICA
 RUN cd musica \
     && cmake -S . \
-             -B build \
-             -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
-              -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
+        -B build \
+        -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+        -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
+        -D MUSICA_ENABLE_CARMA=OFF \
     && cd build \
     && make install -j
 

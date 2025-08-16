@@ -1,9 +1,13 @@
 from typing import Optional, Any, Dict, List, Union, Tuple
-from musica import _Surface, _ReactionComponent
+from .. import backend
 from .phase import Phase
 from .species import Species
 from .reactions import ReactionComponentSerializer
-from .utils import _add_other_properties, _remove_empty_keys
+from .utils import _add_other_properties
+
+_backend = backend.get_backend()
+_Surface = _backend._mechanism_configuration._Surface
+_ReactionComponent = _backend._mechanism_configuration._ReactionComponent
 
 
 class Surface(_Surface):
@@ -18,7 +22,7 @@ class Surface(_Surface):
         gas_phase_species (Union[Species, Tuple[float, Species]]): The gas phase species involved in the reaction.
         gas_phase_products (List[Union[Species, Tuple[float, Species]]]): The gas phase products formed in the reaction.
         gas_phase (Phase): The gas phase in which the reaction occurs.
-        aerosol_phase (Phase): The aerosol phase in which the reaction occurs.
+        condensed_phase (Phase): The condensed phase in which the reaction occurs.
         other_properties (Dict[str, Any]): A dictionary of other properties of the surface.
     """
 
@@ -26,12 +30,13 @@ class Surface(_Surface):
         self,
         name: Optional[str] = None,
         reaction_probability: Optional[float] = None,
-        gas_phase_species: Optional[Union[Species, Tuple[float, Species]]] = None,
+        gas_phase_species: Optional[Union[Species,
+                                          Tuple[float, Species]]] = None,
         gas_phase_products: Optional[
             List[Union[Species, Tuple[float, Species]]]
         ] = None,
         gas_phase: Optional[Phase] = None,
-        aerosol_phase: Optional[Phase] = None,
+        condensed_phase: Optional[Phase] = None,
         other_properties: Optional[Dict[str, Any]] = None,
     ):
         """
@@ -43,7 +48,7 @@ class Surface(_Surface):
             gas_phase_species (Union[Species, Tuple[float, Species]]): The gas phase species involved in the reaction.
             gas_phase_products (List[Union[Species, Tuple[float, Species]]]): The gas phase products formed in the reaction.
             gas_phase (Phase): The gas phase in which the reaction occurs.
-            aerosol_phase (Phase): The aerosol phase in which the reaction occurs.
+            condensed_phase (Phase): The condensed phase in which the reaction occurs.
             other_properties (Dict[str, Any]): A dictionary of other properties of the surface.
         """
         super().__init__()
@@ -71,7 +76,7 @@ class Surface(_Surface):
             else self.gas_phase_products
         )
         self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
-        self.aerosol_phase = aerosol_phase.name if aerosol_phase is not None else self.aerosol_phase
+        self.condensed_phase = condensed_phase.name if condensed_phase is not None else self.condensed_phase
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 
     @staticmethod
@@ -83,7 +88,7 @@ class Surface(_Surface):
             "gas-phase species": instance.gas_phase_species.species_name,
             "gas-phase products": ReactionComponentSerializer.serialize_list_reaction_components(instance.gas_phase_products),
             "gas phase": instance.gas_phase,
-            "aerosol phase": instance.aerosol_phase,
+            "condensed phase": instance.condensed_phase,
         }
         _add_other_properties(serialize_dict, instance.other_properties)
-        return _remove_empty_keys(serialize_dict)
+        return serialize_dict

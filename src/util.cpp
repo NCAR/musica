@@ -90,38 +90,34 @@ namespace musica
     return !(lhs == rhs);
   }
 
-  Configuration LoadConfigurationFromString(const char* data, Error* error)
+  void LoadConfigurationFromString(const char* data, Configuration* configuration, Error* error)
   {
     DeleteError(error);
-    Configuration config;
     try
     {
-      config.data_ = new YAML::Node(YAML::Load(data));
+      configuration->data_ = new YAML::Node(YAML::Load(data));
       *error = NoError();
     }
     catch (const std::exception& e)
     {
-      config.data_ = nullptr;
+      configuration->data_ = nullptr;
       *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_PARSING_FAILED, e.what());
     }
-    return config;
   }
 
-  Configuration LoadConfigurationFromFile(const char* filename, Error* error)
+  void LoadConfigurationFromFile(const char* filename, Configuration* configuration, Error* error)
   {
     DeleteError(error);
-    Configuration config;
     try
     {
-      config.data_ = new YAML::Node(YAML::LoadFile(filename));
+      configuration->data_ = new YAML::Node(YAML::LoadFile(filename));
       *error = NoError();
     }
     catch (const std::exception& e)
     {
-      config.data_ = nullptr;
+      configuration->data_ = nullptr;
       *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_PARSING_FAILED, e.what());
     }
-    return config;
   }
 
   void DeleteConfiguration(Configuration* config)
@@ -144,12 +140,10 @@ namespace musica
     return new Mapping[size];
   }
 
-  Mappings CreateMappings(std::size_t size)
+  void CreateMappings(std::size_t size, Mappings* mapping)
   {
-    Mappings mappings;
-    mappings.mappings_ = new Mapping[size];
-    mappings.size_ = size;
-    return mappings;
+    mapping->mappings_ = new Mapping[size];
+    mapping->size_ = size;
   }
 
   std::size_t FindMappingIndex(const Mappings mappings, const char* name, Error* error)
@@ -184,22 +178,22 @@ namespace musica
     delete[] mappings->mappings_;
   }
 
-  IndexMappings CreateIndexMappings(
+  void CreateIndexMappings(
       const Configuration configuration,
       const IndexMappingOptions map_options,
       const Mappings source,
       const Mappings target,
+      IndexMappings* index_mapping,
       Error* error)
   {
     DeleteError(error);
     std::size_t size = configuration.data_->size();
     std::vector<IndexMapping> mappings;
-    IndexMappings index_mappings;
-    index_mappings.size_ = 0;
+    index_mapping->size_ = 0;
     if (map_options == IndexMappingOptions::UndefinedMapping)
     {
       *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED, "Mapping options are undefined");
-      return index_mappings;
+      return;
     }
     for (std::size_t i = 0; i < size; i++)
     {
@@ -211,7 +205,7 @@ namespace musica
       {
         if (map_options == IndexMappingOptions::MapAll)
         {
-          return index_mappings;
+          return;
         }
         else
         {
@@ -222,14 +216,14 @@ namespace musica
       }
       else if (!IsSuccess(*error))
       {
-        return index_mappings;
+        return;
       }
       std::size_t target_index = FindMappingIndex(target, target_name.c_str(), error);
       if (error->code_ == MUSICA_ERROR_CODE_MAPPING_NOT_FOUND)
       {
         if (map_options == IndexMappingOptions::MapAll)
         {
-          return index_mappings;
+          return;
         }
         else
         {
@@ -240,7 +234,7 @@ namespace musica
       }
       else if (!IsSuccess(*error))
       {
-        return index_mappings;
+        return;
       }
       double scale_factor = 1.0;
       if (node["scale factor"].IsDefined())
@@ -249,13 +243,13 @@ namespace musica
       }
       mappings.push_back({ source_index, target_index, scale_factor });
     }
-    index_mappings.mappings_ = new IndexMapping[mappings.size()];
-    index_mappings.size_ = mappings.size();
+    index_mapping->mappings_ = new IndexMapping[mappings.size()];
+    index_mapping->size_ = mappings.size();
     for (std::size_t i = 0; i < mappings.size(); i++)
     {
-      index_mappings.mappings_[i] = mappings[i];
+      index_mapping->mappings_[i] = mappings[i];
     }
-    return index_mappings;
+    return;
   }
 
   std::size_t GetIndexMappingsSize(const IndexMappings mappings)

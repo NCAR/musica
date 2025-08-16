@@ -4,14 +4,13 @@
 #
 # Container versions, and sizes, can be found at https://catalog.ngc.nvidia.com/orgs/nvidia/containers/nvhpc/tags
 #
-FROM nvcr.io/nvidia/nvhpc:23.7-devel-cuda12.2-ubuntu22.04
+FROM nvcr.io/nvidia/nvhpc:25.7-devel-cuda12.9-ubuntu24.04
 
 ARG MUSICA_GIT_TAG=main
 ARG BUILD_TYPE=release
 
 RUN apt update \
     && apt -y install \
-    cmake \
     curl \
     gcc \
     gfortran \
@@ -48,12 +47,13 @@ COPY . musica
 
 # Build and install MUSICA
 RUN cd musica \
-&& cmake -S . \
--B build \
--D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
--D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
-&& cd build \
-&& make install -j
+    && cmake -S . \
+        -B build \
+        -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+        -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
+        -D MUSICA_ENABLE_CARMA=OFF \
+    && cd build \
+    && make install -j
 
 # Set environment variables to build MUSICA-Fortran using nvidia compilers
 ENV CXX=nvc++

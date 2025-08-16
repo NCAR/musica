@@ -100,52 +100,48 @@ namespace musica
         error);
   }
 
-  Mappings GetSpeciesOrdering(musica::State* state, Error* error)
+  void GetSpeciesOrdering(musica::State* state, Mappings* species_ordering, Error* error)
   {
-    return HandleErrors(
+    HandleErrors(
         [&]()
         {
-          Mappings species_ordering;
           std::map<std::string, std::size_t> map =
               std::visit([](auto& state) { return state.variable_map_; }, state->state_variant_);
 
-          species_ordering.mappings_ = new Mapping[map.size()];
-          species_ordering.size_ = map.size();
+          species_ordering->mappings_ = new Mapping[map.size()];
+          species_ordering->size_ = map.size();
 
           std::size_t i = 0;
           for (const auto& entry : map)
           {
-            species_ordering.mappings_[i] = ToMapping(entry.first.c_str(), entry.second);
+            species_ordering->mappings_[i] = ToMapping(entry.first.c_str(), entry.second);
             ++i;
           }
-
           *error = NoError();
-          return species_ordering;
+          return;
         },
         error);
   }
 
-  Mappings GetUserDefinedRateParametersOrdering(musica::State* state, Error* error)
+  void GetUserDefinedRateParametersOrdering(musica::State* state, Mappings* reaction_rates, Error* error)
   {
-    return HandleErrors(
+    HandleErrors(
         [&]()
         {
-          Mappings reaction_rates;
           std::map<std::string, std::size_t> map =
               std::visit([](auto& state) { return state.custom_rate_parameter_map_; }, state->state_variant_);
 
-          reaction_rates.mappings_ = new Mapping[map.size()];
-          reaction_rates.size_ = map.size();
+          reaction_rates->mappings_ = new Mapping[map.size()];
+          reaction_rates->size_ = map.size();
 
           std::size_t i = 0;
           for (const auto& entry : map)
           {
-            reaction_rates.mappings_[i] = ToMapping(entry.first.c_str(), entry.second);
+            reaction_rates->mappings_[i] = ToMapping(entry.first.c_str(), entry.second);
             ++i;
           }
-
           *error = NoError();
-          return reaction_rates;
+          return;
         },
         error);
   }

@@ -1,9 +1,13 @@
 from typing import Optional, Any, Dict, List, Union, Tuple
-from musica import _UserDefined, _ReactionComponent
+from .. import backend
 from .phase import Phase
 from .species import Species
 from .reactions import ReactionComponentSerializer
-from .utils import _add_other_properties, _remove_empty_keys
+from .utils import _add_other_properties
+
+_backend = backend.get_backend()
+_UserDefined = _backend._mechanism_configuration._UserDefined
+_ReactionComponent = _backend._mechanism_configuration._ReactionComponent
 
 
 class UserDefined(_UserDefined):
@@ -23,7 +27,8 @@ class UserDefined(_UserDefined):
         self,
         name: Optional[str] = None,
         scaling_factor: Optional[float] = None,
-        reactants: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
+        reactants: Optional[List[Union[Species,
+                                       Tuple[float, Species]]]] = None,
         products: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
         gas_phase: Optional[Phase] = None,
         other_properties: Optional[Dict[str, Any]] = None,
@@ -80,4 +85,4 @@ class UserDefined(_UserDefined):
             "gas phase": instance.gas_phase,
         }
         _add_other_properties(serialize_dict, instance.other_properties)
-        return _remove_empty_keys(serialize_dict)
+        return serialize_dict

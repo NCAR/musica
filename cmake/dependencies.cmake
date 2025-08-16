@@ -25,7 +25,7 @@ endif()
 
 if(MUSICA_BUILD_C_CXX_INTERFACE)
   set_git_default(MECH_CONFIG_GIT_REPOSITORY https://github.com/NCAR/MechanismConfiguration.git)
-  set_git_default(MECH_CONFIG_GIT_TAG v0.2.0)
+  set_git_default(MECH_CONFIG_GIT_TAG a3ef728c69f619f80c272d634bc2a17ca5ab4de9)
 
   FetchContent_Declare(mechanism_configuration
       GIT_REPOSITORY ${MECH_CONFIG_GIT_REPOSITORY}
@@ -104,7 +104,7 @@ if (MUSICA_ENABLE_TUVX AND MUSICA_BUILD_C_CXX_INTERFACE)
   set(TUVX_INSTALL_INCLUDE_DIR ${MUSICA_INSTALL_INCLUDE_DIR} CACHE STRING "" FORCE)
 
   set_git_default(TUVX_GIT_REPOSITORY https://github.com/NCAR/tuv-x.git)
-  set_git_default(TUVX_GIT_TAG v0.12.0)
+  set_git_default(TUVX_GIT_TAG 1e8c99b4d206829c030b9f5315bf6afb3e970e3c)
 
   FetchContent_Declare(tuvx
     GIT_REPOSITORY ${TUVX_GIT_REPOSITORY}
@@ -117,6 +117,23 @@ if (MUSICA_ENABLE_TUVX AND MUSICA_BUILD_C_CXX_INTERFACE)
   set(TUVX_ENABLE_REGRESSION_TESTS OFF)
 
   FetchContent_MakeAvailable(tuvx)
+endif()
+
+################################################################################
+# CARMA
+if(MUSICA_ENABLE_CARMA AND MUSICA_BUILD_C_CXX_INTERFACE)
+  set_git_default(CARMA_GIT_REPOSITORY https://github.com/NCAR/CARMA-ACOM-dev.git)
+  set_git_default(CARMA_GIT_TAG develop-carma-box)
+
+  FetchContent_Declare(carma
+      GIT_REPOSITORY ${CARMA_GIT_REPOSITORY}
+      GIT_TAG ${CARMA_GIT_TAG}
+      GIT_PROGRESS NOT ${FETCHCONTENT_QUIET}
+  )
+
+  set(CARMA_ENABLE_TESTS OFF)
+
+  FetchContent_MakeAvailable(carma)
 endif()
 
 ################################################################################

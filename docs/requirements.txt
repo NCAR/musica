@@ -1,4 +1,11 @@
 breathe
+dask
+ipykernel 
+matplotlib
+nbsphinx
+scikit-learn 
+scipy 
+seaborn 
 sphinx
 sphinx-book-theme
 sphinx-copybutton

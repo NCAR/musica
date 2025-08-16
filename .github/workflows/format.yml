@@ -1,0 +1,61 @@
+name: Format Code with Clang-Format and autopep8
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  format:
+    name: Run Formatting
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install Clang-Format
+        run: sudo apt-get update && sudo apt-get install clang-format && clang-format --version
+
+      - name: Check out code, run clang format, push changes
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: autopep8
+        uses: peter-evans/autopep8@v2
+        with:
+          args: --recursive --in-place --aggressive --aggressive --max-line-length 120 .
+
+      - name: Run clang-format
+        run: |
+          find include -type f \( -name '*.hpp' -or -name '*.h' \) -exec clang-format -i --style=file --verbose {} +
+          find src -type f \( -name '*.cpp' -or -name '*.c' \) -exec clang-format -i --style=file --verbose {} +
+          find musica -type f \( -name '*.cpp' -or -name '*.c' \) -exec clang-format -i --style=file --verbose {} +
+          find musica -type f \( -name '*.hpp' -or -name '*.h' \) -exec clang-format -i --style=file --verbose {} +
+
+      - name: Check for changes
+        id: check-changes
+        run: git diff --exit-code
+        continue-on-error: true
+
+      - name: Commit and push changes
+        # a failue of this step means changes were detected
+        if: steps.check-changes.outcome != 'success'
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git commit -am "Auto-format code using Clang-Format and autopep8" || echo "No changes to commit"
+
+      - name: Push changes to main-formatting branch
+        if: steps.check-changes.outcome != 'success'
+        run: git push origin HEAD:main-formatting
+
+      - name: Create Pull Request
+        if: steps.check-changes.outcome != 'success'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Auto-format code using Clang-Format and autopep8"
+          title: "Auto-format code changes"
+          body: "This is an automated pull request to apply code formatting using Clang-Format and autopep8."
+          branch: main-formatting

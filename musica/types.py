@@ -3,47 +3,36 @@
 #
 # This file is part of the musica Python package.
 # For more information, see the LICENSE file in the top-level directory of this distribution.
-from typing import Optional, Dict, List, Union, Tuple
+from __future__ import annotations
+from .constants import GAS_CONSTANT
+from typing import Optional, Dict, List, Union, Tuple, TYPE_CHECKING, Any
 from os import PathLike
 import math
-from musica import (
-    _Conditions,
-    _SolverType,
-    _Solver,
-    _State,
-    _create_solver,
-    _create_solver_from_mechanism,
-    _create_state,
-    _micm_solve,
-    _vector_size,
-    _species_ordering,
-    _user_defined_rate_parameters_ordering,
-)
-import musica.mechanism_configuration as mc
-from musica.constants import GAS_CONSTANT
+
+# Import backend symbols from the backend module
+from . import backend
+
+# Get all the backend symbols we need
+_backend = backend.get_backend()
+_Conditions = _backend._core._Conditions
+_SolverType = _backend._core._SolverType
+_create_solver = _backend._core._create_solver
+_create_solver_from_mechanism = _backend._core._create_solver_from_mechanism
+_create_state = _backend._core._create_state
+_micm_solve = _backend._core._micm_solve
+_vector_size = _backend._core._vector_size
+_species_ordering = _backend._core._species_ordering
+_user_defined_rate_parameters_ordering = _backend._core._user_defined_rate_parameters_ordering
+mc = _backend._mechanism_configuration
+
+
+# For type hints
+if TYPE_CHECKING:
+    from .mechanism_configuration import Mechanism
+else:
+    Mechanism = mc._Mechanism
 
 FilePath = Union[str, "PathLike[str]"]
-
-
-def _get_vector_matrix_indices(row_index: int, column_index: int, vector_size: int) -> Tuple[int, int]:
-    """
-    Get the row and column indices for a matrix given the row and column indices for a vector.
-
-    Parameters
-    ----------
-    row_index : int
-        Row index of the vector.
-    column_index : int
-        Column index of the vector.
-    vector_size : int
-        Size of the vector.
-
-    Returns
-    -------
-    tuple[int, int]
-        Index for which state matrix to use and the index in that matrix'x underlying data vector.
-    """
-    return (row_index // vector_size, column_index * (vector_size - 1) + row_index % vector_size)
 
 
 class Conditions(_Conditions):
@@ -89,20 +78,22 @@ class State():
     State class for the MICM solver. It contains the initial conditions and species concentrations.
     """
 
-    def __init__(self, solver: _Solver, number_of_grid_cells: int, vector_size: int = 0):
+    def __init__(self, solver: Any, number_of_grid_cells: int, vector_size: int = 0):
         if number_of_grid_cells < 1:
             raise ValueError("number_of_grid_cells must be greater than 0.")
         super().__init__()
         self.__states = [
-            _create_state(solver, min(vector_size, number_of_grid_cells - i * vector_size))
+            _create_state(solver, min(
+                vector_size, number_of_grid_cells - i * vector_size))
             for i in range(math.ceil(number_of_grid_cells / vector_size))
         ] if vector_size > 0 else [_create_state(solver, number_of_grid_cells)]
         self.__species_ordering = _species_ordering(self.__states[0])
-        self.__user_defined_rate_parameters_ordering = _user_defined_rate_parameters_ordering(self.__states[0])
+        self.__user_defined_rate_parameters_ordering = _user_defined_rate_parameters_ordering(
+            self.__states[0])
         self.__number_of_grid_cells = number_of_grid_cells
         self.__vector_size = vector_size
 
-    def get_internal_states(self) -> List[_State]:
+    def get_internal_states(self) -> List[Any]:
         """
         Get the internal states of the MICM solver.
 
@@ -131,13 +122,15 @@ class State():
             if isinstance(value, float) or isinstance(value, int):
                 value = [value]
             if len(value) != self.__number_of_grid_cells:
-                raise ValueError(f"Concentration list for {name} must have length {self.__number_of_grid_cells}.")
+                raise ValueError(
+                    f"Concentration list for {name} must have length {self.__number_of_grid_cells}.")
             # Counter 'k' is used to map grid cell indices across multiple state segments.
             k = 0
             for state in self.__states:
                 cell_stride, species_stride = state.concentration_strides()
                 for i_cell in range(state.number_of_grid_cells()):
-                    state.concentrations[i_species * species_stride + i_cell * cell_stride] = value[k]
+                    state.concentrations[i_species *
+                                         species_stride + i_cell * cell_stride] = value[k]
                     k += 1
 
     def set_user_defined_rate_parameters(
@@ -154,7 +147,8 @@ class State():
         """
         for name, value in user_defined_rate_parameters.items():
             if name not in self.__user_defined_rate_parameters_ordering:
-                raise ValueError(f"User-defined rate parameter {name} not found in the mechanism.")
+                raise ValueError(
+                    f"User-defined rate parameter {name} not found in the mechanism.")
             i_param = self.__user_defined_rate_parameters_ordering[name]
             if isinstance(value, float) or isinstance(value, int):
                 value = [value]
@@ -166,9 +160,9 @@ class State():
             for state in self.__states:
                 cell_stride, param_stride = state.user_defined_rate_parameter_strides()
                 for i_cell in range(state.number_of_grid_cells()):
-                    state.user_defined_rate_parameters[i_param * param_stride + i_cell * cell_stride] = value[k]
+                    state.user_defined_rate_parameters[i_param *
+                                                       param_stride + i_cell * cell_stride] = value[k]
                     k += 1
-
 
     def set_conditions(self,
                        temperatures: Union[Union[float, int], List[Union[float, int]]],
@@ -191,22 +185,28 @@ class State():
         """
         if isinstance(temperatures, float) or isinstance(temperatures, int):
             if self.__number_of_grid_cells > 1:
-                raise ValueError(f"temperatures must be a list of length {self.__number_of_grid_cells}.")
+                raise ValueError(
+                    f"temperatures must be a list of length {self.__number_of_grid_cells}.")
             temperatures = [temperatures]
         if isinstance(pressures, float) or isinstance(pressures, int):
             if self.__number_of_grid_cells > 1:
-                raise ValueError(f"pressures must be a list of length {self.__number_of_grid_cells}.")
+                raise ValueError(
+                    f"pressures must be a list of length {self.__number_of_grid_cells}.")
             pressures = [pressures]
         if air_densities is not None and (isinstance(air_densities, float) or isinstance(air_densities, int)):
             if self.__number_of_grid_cells > 1:
-                raise ValueError(f"air_densities must be a list of length {self.__number_of_grid_cells}.")
+                raise ValueError(
+                    f"air_densities must be a list of length {self.__number_of_grid_cells}.")
             air_densities = [air_densities]
         if len(temperatures) != self.__number_of_grid_cells:
-            raise ValueError(f"temperatures must be a list of length {self.__number_of_grid_cells}.")
+            raise ValueError(
+                f"temperatures must be a list of length {self.__number_of_grid_cells}.")
         if len(pressures) != self.__number_of_grid_cells:
-            raise ValueError(f"pressures must be a list of length {self.__number_of_grid_cells}.")
+            raise ValueError(
+                f"pressures must be a list of length {self.__number_of_grid_cells}.")
         if air_densities is not None and len(air_densities) != self.__number_of_grid_cells:
-            raise ValueError(f"air_densities must be a list of length {self.__number_of_grid_cells}.")
+            raise ValueError(
+                f"air_densities must be a list of length {self.__number_of_grid_cells}.")
         k = 0
         for state in self.__states:
             for condition in state.conditions:
@@ -269,10 +269,35 @@ class State():
         conditions["air_density"] = []
         for state in self.__states:
             for i_cell in range(state.number_of_grid_cells()):
-                conditions["temperature"].append(state.conditions[i_cell].temperature)
-                conditions["pressure"].append(state.conditions[i_cell].pressure)
-                conditions["air_density"].append(state.conditions[i_cell].air_density)
+                conditions["temperature"].append(
+                    state.conditions[i_cell].temperature)
+                conditions["pressure"].append(
+                    state.conditions[i_cell].pressure)
+                conditions["air_density"].append(
+                    state.conditions[i_cell].air_density)
         return conditions
+
+    def get_species_ordering(self) -> Dict[str, int]:
+        """
+        Get the species ordering for the state.
+
+        Returns
+        -------
+        Dict[str, int]
+            Dictionary of species names and their indices.
+        """
+        return self.__species_ordering
+
+    def get_user_defined_rate_parameters_ordering(self) -> Dict[str, int]:
+        """
+        Get the user-defined rate parameters ordering for the state.
+
+        Returns
+        -------
+        Dict[str, int]
+            Dictionary of user-defined rate parameter names and their indices.
+        """
+        return self.__user_defined_rate_parameters_ordering
 
 
 class MICM():
@@ -295,19 +320,38 @@ class MICM():
     def __init__(
         self,
         config_path: FilePath = None,
-        mechanism: mc.Mechanism = None,
-        solver_type: _SolverType = None,
+        mechanism: Mechanism = None,
+        solver_type: Any = None,
+        ignore_non_gas_phases: bool = True,
     ):
+        """    Initialize the MICM solver.
+
+        Parameters
+        ----------
+            config_path : FilePath, optional
+                Path to the configuration file. If provided, this will be used to create the solver.
+            mechanism : Mechanism, optional
+                Mechanism object which specifies the chemical mechanism to use. If provided, this will be used
+                to create the solver.
+            solver_type : SolverType, optional
+                Type of solver to use. If not provided, the default solver type will be used.
+            ignore_non_gas_phases : bool, optional
+                If True, non-gas phases will be ignored when configuring micm with the mechanism. This is only needed
+                until micm properly supports non-gas phases. This option is only supported when passing in a mechanism.
+        """
         self.__solver_type = solver_type
         self.__vector_size = _vector_size(solver_type)
         if config_path is None and mechanism is None:
-            raise ValueError("Either config_path or mechanism must be provided.")
+            raise ValueError(
+                "Either config_path or mechanism must be provided.")
         if config_path is not None and mechanism is not None:
-            raise ValueError("Only one of config_path or mechanism must be provided.")
+            raise ValueError(
+                "Only one of config_path or mechanism must be provided.")
         if config_path is not None:
             self.__solver = _create_solver(config_path, solver_type)
         elif mechanism is not None:
-            self.__solver = _create_solver_from_mechanism(mechanism, solver_type)
+            self.__solver = _create_solver_from_mechanism(
+                mechanism, solver_type, ignore_non_gas_phases)
 
     def solver_type(self) -> SolverType:
         """

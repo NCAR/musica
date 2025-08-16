@@ -102,21 +102,11 @@
   ],
   "reactions": [
     {
-      "type": "HL_PHASE_TRANSFER",
-      "gas phase": "gas",
-      "gas-phase species": "H2O2",
-      "aerosol phase": "aqueous aerosol",
-      "aerosol-phase species": "H2O2_aq",
-      "aerosol-phase water": "H2O_aq",
-      "name": "my henry's law",
-      "__irrelevant": "2"
-    },
-    {
       "type": "SIMPOL_PHASE_TRANSFER",
       "gas phase": "gas",
       "gas-phase species": "ethanol",
-      "aerosol phase": "aqueous aerosol",
-      "aerosol-phase species": "ethanol_aq",
+      "condensed phase": "aqueous aerosol",
+      "condensed-phase species": "ethanol_aq",
       "B": [
         -1.97E+03,
         2.91E+00,
@@ -128,8 +118,8 @@
     },
     {
       "type": "AQUEOUS_EQUILIBRIUM",
-      "aerosol phase": "aqueous aerosol",
-      "aerosol-phase water": "H2O_aq",
+      "condensed phase": "aqueous aerosol",
+      "condensed-phase water": "H2O_aq",
       "A": 1.14e-2,
       "C": 2300.0,
       "k_reverse": 0.32,
@@ -154,8 +144,7 @@
     },
     {
       "type": "CONDENSED_PHASE_ARRHENIUS",
-      "aerosol phase": "aqueous aerosol",
-      "aerosol-phase water": "H2O_aq",
+      "condensed phase": "aqueous aerosol",
       "A": 123.45,
       "Ea": 123.45,
       "B": 1.3,
@@ -182,8 +171,7 @@
     },
     {
       "type": "CONDENSED_PHASE_ARRHENIUS",
-      "aerosol phase": "aqueous aerosol",
-      "aerosol-phase water": "H2O_aq",
+      "condensed phase": "aqueous aerosol",
       "A": 123.45,
       "C": 123.45,
       "B": 1.3,
@@ -209,8 +197,7 @@
     },
     {
       "type": "CONDENSED_PHASE_PHOTOLYSIS",
-      "aerosol phase": "aqueous aerosol",
-      "aerosol-phase water": "H2O_aq",
+      "condensed phase": "aqueous aerosol",
       "reactants": [
         {
           "species name": "H2O2_aq",
@@ -287,7 +274,7 @@
           "coefficient": 1
         }
       ],
-      "aerosol phase": "surface reacting phase",
+      "condensed phase": "surface reacting phase",
       "name": "my surface",
       "__irrelevant": "2"
     },
@@ -319,6 +306,36 @@
       "Fc": 0.9,
       "N": 0.8,
       "name": "my troe",
+      "__irrelevant": "2"
+    },
+    {
+      "type": "TERNARY_CHEMICAL_ACTIVATION",
+      "gas phase": "gas",
+      "name": "my ternary chemical activation",
+      "reactants": [
+        {
+          "species name": "B",
+          "coefficient": 1
+        },
+        {
+          "species name": "M",
+          "coefficient": 1
+        }
+      ],
+      "products": [
+        {
+          "species name": "C",
+          "coefficient": 1
+        }
+      ],
+      "k0_A": 32.1,
+      "k0_B": -2.3,
+      "k0_C": 102.3,
+      "kinf_A": 63.4,
+      "kinf_B": -1.3,
+      "kinf_C": 908.5,
+      "Fc": 1.3,
+      "N": 32.1,
       "__irrelevant": "2"
     },
     {
@@ -372,7 +389,7 @@
     },
     {
       "type": "WET_DEPOSITION",
-      "aerosol phase": "cloud",
+      "condensed phase": "cloud",
       "name": "rxn cloud",
       "scaling factor": 12.3,
       "__irrelevant": "2"

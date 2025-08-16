@@ -12,8 +12,6 @@ message (STATUS "CMake build configuration for ${PROJECT_NAME} (${CMAKE_BUILD_TY
 ################################################################################
 # Sources
 
-include(silence_warnings)
-
 set(MUSICA_COMMON_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/util.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/component_versions.cpp
@@ -22,14 +20,15 @@ set(MUSICA_COMMON_SOURCES
 
 if(MUSICA_ENABLE_MICM)
   set(MUSICA_MICM_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/micm/convert_v0_to_v1.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/micm/cuda_availability.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/micm/micm.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/micm/micm_c_interface.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/micm/parse.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/micm/state.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/micm/state_c_interface.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/micm/parse.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/micm/v0_parse.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/micm/v1_parse.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/micm/cuda_availability.cpp
   )
 endif()
 
@@ -50,6 +49,17 @@ if(MUSICA_ENABLE_TUVX)
     ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/radiator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/radiator_map.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/tuvx.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/tuvx_c_interface.cpp
+  )
+endif()
+
+if(MUSICA_ENABLE_CARMA)
+  set(MUSICA_CARMA_SOURCES
+  ${CMAKE_CURRENT_SOURCE_DIR}/carma/carma.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/carma/carma_state.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/carma/carma_c_interface.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/carma/interface.F90
+  ${CMAKE_CURRENT_SOURCE_DIR}/carma/carma_parameters.F90
   )
 endif()
 
@@ -57,6 +67,7 @@ set(MUSICA_SOURCES
   ${MUSICA_COMMON_SOURCES}
   ${MUSICA_MICM_SOURCES}
   ${MUSICA_TUVX_SOURCES}
+  ${MUSICA_CARMA_SOURCES}
   CACHE INTERNAL "List of sources for MUSICA"
 )
 
@@ -67,6 +78,12 @@ configure_file(version.cpp.in ${CMAKE_BINARY_DIR}/version.cpp @ONLY)
 # MUSICA
 
 include(setup_musica_target)
+
+if (MUSICA_ONLY_PYTHON)
+  message(STATUS "Building only the Python bindings, skipping MUSICA C/C++ library")
+  message(STATUS "The musica library is not needed for the python bindings since we build the sources directly")
+  return()
+endif()
 
 add_library(musica)
 add_library(musica::musica ALIAS musica)

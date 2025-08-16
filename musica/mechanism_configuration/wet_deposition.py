@@ -1,7 +1,10 @@
 from typing import Optional, Any, Dict
-from musica import _WetDeposition
+from .. import backend
 from .phase import Phase
-from .utils import _add_other_properties, _remove_empty_keys
+from .utils import _add_other_properties
+
+_backend = backend.get_backend()
+_WetDeposition = _backend._mechanism_configuration._WetDeposition
 
 
 class WetDeposition(_WetDeposition):
@@ -11,7 +14,7 @@ class WetDeposition(_WetDeposition):
     Attributes:
         name (str): The name of the wet deposition reaction rate constant.
         scaling_factor (float): The scaling factor for the wet deposition rate constant.
-        aerosol_phase (Phase): The aerosol phase which undergoes wet deposition.
+        condensed_phase (Phase): The condensed phase which undergoes wet deposition.
         unknown_properties (Dict[str, Any]): A dictionary of other properties of the wet deposition reaction rate constant.
     """
 
@@ -19,7 +22,7 @@ class WetDeposition(_WetDeposition):
         self,
         name: Optional[str] = None,
         scaling_factor: Optional[float] = None,
-        aerosol_phase: Optional[Phase] = None,
+        condensed_phase: Optional[Phase] = None,
         other_properties: Optional[Dict[str, Any]] = None,
     ):
         """
@@ -28,13 +31,13 @@ class WetDeposition(_WetDeposition):
         Args:
             name (str): The name of the wet deposition reaction rate constant.
             scaling_factor (float): The scaling factor for the wet deposition rate constant.
-            aerosol_phase (Phase): The aerosol phase which undergoes wet deposition.
+            condensed_phase (Phase): The condensed phase which undergoes wet deposition.
             other_properties (Dict[str, Any]): A dictionary of other properties of the wet deposition reaction rate constant.
         """
         super().__init__()
         self.name = name if name is not None else self.name
         self.scaling_factor = scaling_factor if scaling_factor is not None else self.scaling_factor
-        self.aerosol_phase = aerosol_phase.name if aerosol_phase is not None else self.aerosol_phase
+        self.condensed_phase = condensed_phase.name if condensed_phase is not None else self.condensed_phase
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 
     @staticmethod
@@ -43,7 +46,7 @@ class WetDeposition(_WetDeposition):
             "type": "WET_DEPOSITION",
             "name": instance.name,
             "scaling factor": instance.scaling_factor,
-            "aerosol phase": instance.aerosol_phase,
+            "condensed phase": instance.condensed_phase,
         }
         _add_other_properties(serialize_dict, instance.other_properties)
-        return _remove_empty_keys(serialize_dict)
+        return serialize_dict

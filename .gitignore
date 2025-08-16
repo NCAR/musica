@@ -16,3 +16,8 @@ musica.egg-info
 **/*__pycache__*
 **/*.pyc
 wheelhouse
+
+error.json
+
+.ipynb_checkpoints
+configs/tuvx/output/

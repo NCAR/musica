@@ -4,18 +4,18 @@
 #
 # Container versions, and sizes, can be found at https://catalog.ngc.nvidia.com/orgs/nvidia/containers/nvhpc/tags
 #
-FROM nvcr.io/nvidia/nvhpc:23.7-devel-cuda12.2-ubuntu22.04
+FROM nvcr.io/nvidia/nvhpc:25.7-devel-cuda12.9-ubuntu24.04
 
 ARG MUSICA_GIT_TAG=main
 ARG BUILD_TYPE=release
 
 RUN apt update \
     && apt -y install \
-    cmake \
     curl \
     gcc \
     gfortran \
     git \
+    liblapack-dev \
     libhdf5-dev \
     libnetcdf-dev \
     libnetcdff-dev \
@@ -41,6 +41,7 @@ RUN cd musica \
     -D MUSICA_GPU_TYPE=a100 \
     -D MUSICA_ENABLE_INSTALL=OFF \
     -D MUSICA_ENABLE_TUVX=OFF \
+    -D MUSICA_ENABLE_CARMA=OFF \
     -D MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE=1 \
     && cd build \
     && make -j
