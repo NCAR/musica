@@ -85,6 +85,11 @@ if.platform-system = "win32"
 inherit.cmake.define = "append"
 cmake.define.MUSICA_ENABLE_TUVX = "ON"
 cmake.define.MUSICA_ENABLE_CARMA = "ON"
+cmake.define.CMAKE_C_COMPILER = "C:/msys64/mingw64/bin/gcc.exe"
+cmake.define.CMAKE_CXX_COMPILER = "C:/msys64/mingw64/bin/g++.exe"
+cmake.define.CMAKE_Fortran_COMPILER = "C:/msys64/mingw64/bin/gfortran.exe"
+cmake.define.CMAKE_GENERATOR = "MSYS Makefiles"
+cmake.define.CMAKE_TOOLCHAIN_FILE = "cmake/mingw64-toolchain.cmake"
 
 [project.urls]
 homepage = "https://wiki.ucar.edu/display/MUSICA/MUSICA+Home"
@@ -139,9 +144,16 @@ PATH = "/usr/local/cuda/bin:$PATH"
 LD_LIBRARY_PATH = "/usr/local/cuda/lib64:$LD_LIBRARY_PATH"
 BUILD_GPU = 1
 
+[tool.cibuildwheel.windows]
+before-all = "musica\\tools\\prepare_build_environment_windows.bat"
+
 [tool.cibuildwheel.windows.environment]
 PATH = "C:\\msys64\\mingw64\\bin;C:\\msys64\\usr\\bin;$PATH"
 CC = "C:\\msys64\\mingw64\\bin\\gcc.exe"
 CXX = "C:\\msys64\\mingw64\\bin\\g++.exe"
 FC = "C:\\msys64\\mingw64\\bin\\gfortran.exe"
 CMAKE_Fortran_COMPILER = "C:\\msys64\\mingw64\\bin\\gfortran.exe"
+CMAKE_C_COMPILER = "C:\\msys64\\mingw64\\bin\\gcc.exe"
+CMAKE_CXX_COMPILER = "C:\\msys64\\mingw64\\bin\\g++.exe"
+CMAKE_GENERATOR = "MSYS Makefiles"
+CMAKE_TOOLCHAIN_FILE = "cmake\\mingw64-toolchain.cmake"
