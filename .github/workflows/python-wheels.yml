@@ -72,6 +72,22 @@ jobs:
       with:
         platforms: all
 
+    - name: Setup MSYS2
+      if: matrix.os == 'windows-latest'
+      uses: msys2/setup-msys2@v2
+      with:
+        update: true
+        install: >-
+          base-devel
+          mingw-w64-x86_64-toolchain
+          mingw-w64-x86_64-gcc
+          mingw-w64-x86_64-gcc-fortran
+          mingw-w64-x86_64-cmake
+          mingw-w64-x86_64-netcdf
+          mingw-w64-x86_64-netcdf-fortran
+          mingw-w64-x86_64-lapack
+        msystem: MINGW64
+
     - name: CI Build Wheels
       uses: pypa/cibuildwheel@v2.17
       env:
