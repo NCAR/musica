@@ -20,11 +20,7 @@ maintainers = [
 ]
 license = { file = "LICENSE" }
 
-dependencies = [
-  "pyyaml>=6.0.2",
-  "xarray>=2022.3.0",
-  "ussa1976>=v0.3.4"
-]
+dependencies = ["pyyaml>=6.0.2", "xarray>=2022.3.0", "ussa1976>=v0.3.4"]
 
 [project.optional-dependencies]
 test = ["numpy", "pytest", "matplotlib"]
@@ -129,6 +125,7 @@ repair-wheel-command = "bash musica/tools/repair_wheel_gpu.sh {wheel} {dest_dir}
 # Use manylinux_2_28 for modern GCC 8.5 and NetCDF compatibility
 manylinux-x86_64-image = "manylinux_2_28"
 manylinux-aarch64-image = "manylinux_2_28"
+manylinux-i686-image = "manylinux_2_28"
 
 [tool.cibuildwheel.linux.environment]
 CUDA_PATH = "/usr/local/cuda"
