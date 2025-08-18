@@ -73,7 +73,7 @@ jobs:
         platforms: all
 
     - name: CI Build Wheels
-      uses: pypa/cibuildwheel@v2.22
+      uses: pypa/cibuildwheel@v3.1.3
       env:
         CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
