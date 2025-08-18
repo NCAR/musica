@@ -120,7 +120,7 @@ skip = ["*musllinux*"]
 
 # Set up pre-build hooks
 [tool.cibuildwheel.macos]
-environment.MACOSX_DEPLOYMENT_TARGET = "10.15"
+environment.MACOSX_DEPLOYMENT_TARGET = "15.0"
 before-all = "bash musica/tools/prepare_build_environment_macos.sh"
 
 [tool.cibuildwheel.linux]
