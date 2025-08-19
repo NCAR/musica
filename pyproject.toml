@@ -81,10 +81,12 @@ if.platform-system = "win32"
 inherit.cmake.define = "append"
 cmake.define.MUSICA_ENABLE_TUVX = "ON"
 cmake.define.MUSICA_ENABLE_CARMA = "ON"
-cmake.define.CMAKE_CPP_COMPILER = "g++"
+cmake.define.CMAKE_CXX_COMPILER = "g++"
 cmake.define.CMAKE_C_COMPILER = "gcc"
 cmake.define.CMAKE_Fortran_COMPILER = "gfortran"
-cmake.generator = "MinGW Makefiles"
+
+[tool.cibuildwheel.windows.environment]
+CMAKE_GENERATOR = "MinGW Makefiles"
 
 # dynamically read the version: https://scikit-build-core.readthedocs.io/en/latest/configuration.html#dynamic-metadata
 [tool.scikit-build.metadata.version]
@@ -135,4 +137,3 @@ CUDA_PATH = "/usr/local/cuda"
 PATH = "/usr/local/cuda/bin:$PATH"
 LD_LIBRARY_PATH = "/usr/local/cuda/lib64:$LD_LIBRARY_PATH"
 BUILD_GPU = 1
-
