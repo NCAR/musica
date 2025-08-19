@@ -111,7 +111,8 @@ version = "${version}"
 build-verbosity = 3
 
 # Add your desired build configuration
-build = ["cp39-*", "cp310-*", "cp311-*", "cp312-*", "cp313-*"]
+# build = ["cp39-*", "cp310-*", "cp311-*", "cp312-*", "cp313-*"]
+build = ["cp39-*"]
 skip = ["*musllinux*"]
 
 # Set up pre-build hooks
@@ -123,9 +124,9 @@ before-all = "bash musica/tools/prepare_build_environment_macos.sh"
 before-all = "musica/tools/prepare_build_environment_linux.sh"
 repair-wheel-command = "bash musica/tools/repair_wheel_gpu.sh {wheel} {dest_dir}"
 # Use manylinux_2_28 for modern GCC 8.5 and NetCDF compatibility
-manylinux-x86_64-image = "manylinux_2_28"
+manylinux-x86_64-image  = "manylinux_2_28"
 manylinux-aarch64-image = "manylinux_2_28"
-manylinux-i686-image = "manylinux_2_28"
+# manylinux-i686-image    = "manylinux_2_28"
 
 [tool.cibuildwheel.linux.environment]
 CUDA_PATH = "/usr/local/cuda"
