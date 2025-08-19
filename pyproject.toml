@@ -85,8 +85,9 @@ if.platform-system = "win32"
 inherit.cmake.define = "append"
 cmake.define.MUSICA_ENABLE_TUVX = "ON"
 cmake.define.MUSICA_ENABLE_CARMA = "ON"
-# Use CMAKE_GENERATOR to force MinGW makefiles
-cmake.define.CMAKE_GENERATOR = "MSYS Makefiles"
+cmake.define.CMAKE_C_COMPILER = "gcc"
+cmake.define.CMAKE_CXX_COMPILER = "g++"
+cmake.define.CMAKE_Fortran_COMPILER = "gfortran"
 
 [project.urls]
 homepage = "https://wiki.ucar.edu/display/MUSICA/MUSICA+Home"
@@ -142,4 +143,3 @@ LD_LIBRARY_PATH = "/usr/local/cuda/lib64:$LD_LIBRARY_PATH"
 BUILD_GPU = 1
 
 [tool.cibuildwheel.windows]
-before-all = "musica\\tools\\prepare_build_environment_windows.bat"
