@@ -11,6 +11,7 @@ import ussa1976
 
 available = musica.backend.carma_available()
 
+
 def run_carma_aluminum_example():
     group = musica.carma.CARMAGroupConfig(
         name="aluminum",

@@ -5,6 +5,7 @@ available = musica.backend.carma_available()
 pytestmark = pytest.mark.skipif(
     not available, reason="CARMA backend is not available")
 
+
 def test_carma_sulfate():
     from musica.examples import carma_sulfate
     env_state, gas_state, bin_state = carma_sulfate.run_carma_sulfate_example()
