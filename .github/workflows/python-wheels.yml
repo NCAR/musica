@@ -57,13 +57,13 @@ jobs:
             cibw_archs: "ARM64"
           
           # macOS Intel
-          - os: macos-13  # Intel runner
+          - os: macos-13
             python-version: "3.13"
             cibw_archs: "x86_64"
             fc: gfortran-15
           
           # macOS Apple Silicon
-          - os: macos-latest  # ARM64 runner
+          - os: macos-latest
             python-version: "3.13"
             cibw_archs: "arm64"
             fc: gfortran-15
@@ -103,9 +103,10 @@ jobs:
     # the if implicity uses the fact that arm on windows is not running on windows-latest
     - name: CI Build Wheels 
       if: matrix.os != 'windows-latest'
-      uses: pypa/cibuildwheel@v2.17
+      uses: pypa/cibuildwheel@v3.1.3
       env:
         CIBW_ARCHS: ${{ matrix.cibw_archs }}
+        FC: ${{ matrix.fc }}
     
     - name: CI Build Wheels (Windows with MINGW on AMD64)
       if: matrix.os == 'windows-latest'

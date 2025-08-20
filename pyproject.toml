@@ -70,7 +70,8 @@ cmake.define.MUSICA_ENABLE_TESTS = "OFF"
 cmake.define.CMAKE_POLICY_VERSION_MINIMUM = "3.5"
 cmake.define.MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE = "1"
 cmake.define.CMAKE_VERBOSE_MAKEFILE = "ON"
-cmake.verbose = true
+cmake.define.TUVX_ENABLE_LAPACK = "OFF"
+build.verbose = true
 logging.level = "DEBUG"
 
 [[tool.scikit-build.overrides]]
@@ -157,3 +158,6 @@ CUDA_PATH = "/usr/local/cuda"
 PATH = "/usr/local/cuda/bin:$PATH"
 LD_LIBRARY_PATH = "/usr/local/cuda/lib64:$LD_LIBRARY_PATH"
 BUILD_GPU = 1
+
+[tool.cibuildwheel.windows]
+repair-wheel-command = "bash python/musica/tools/repair_wheel_windows.sh {wheel} {dest_dir}"

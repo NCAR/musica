@@ -9,14 +9,20 @@ on:
 
 jobs:
   build:
+    name: Test Python (${{ matrix.os }}, ${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        platform: [windows-latest, windows-11-arm, macos-13, ubuntu-latest]
+        # os: [ubuntu-latest, ubuntu-24.04-arm, windows-latest, windows-11-arm, macos-13, macos-latest]
+        os: [windows-latest, windows-11-arm]
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
-        # python versions: https://devguide.python.org/versions/
-
-    runs-on: ${{ matrix.platform }}
+        exclude:
+          # Windows 11 ARM doesn't support Python 3.9 and 3.10
+          - os: windows-11-arm
+            python-version: "3.9"
+          - os: windows-11-arm
+            python-version: "3.10"
 
     steps:
     - uses: actions/checkout@v4
@@ -24,55 +30,89 @@ jobs:
         submodules: true
 
     - name: Install dependencies
-      if: matrix.platform == 'ubuntu-latest'
+      if: matrix.os == 'ubuntu-latest' || matrix.os == 'ubuntu-24.04-arm'
       run: |
         sudo apt-get update
         sudo apt-get install -y libnetcdf-dev netcdf-bin libnetcdff-dev liblapack-dev
     
     - name: Install dependencies
-      if: matrix.platform == 'macos-13'
+      if: matrix.os == 'macos-13' || matrix.os == 'macos-latest'
       run: |
         brew install netcdf netcdf-fortran lapack
 
-    - name: Setup MSYS2
-      if: matrix.platform == 'windows-latest'
-      uses: msys2/setup-msys2@v2
-      with:
-        update: true
-        msystem: MINGW64
-        path-type: inherit
-        install: >-
-          base-devel
-          mingw-w64-x86_64-toolchain
-          mingw-w64-x86_64-gcc
-          mingw-w64-x86_64-gcc-fortran
-          mingw-w64-x86_64-netcdf
-          mingw-w64-x86_64-netcdf-fortran
-          mingw-w64-x86_64-lapack
+    - name: Install rtools (Windows AMD64)
+      if: matrix.os == 'windows-latest'
+      run: |
+        # mingw-w64
+        choco install rtools -y --no-progress --force --version=4.3.5550
+        echo "c:\rtools43\ucrt64\bin;" >> $env:GITHUB_PATH
 
+    - name: Install additional packages with Rtools pacman (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        # Use Rtools pacman to install additional MinGW packages
+        C:\rtools43\usr\bin\pacman.exe -Sy --noconfirm
+        C:\rtools43\usr\bin\pacman.exe -S --noconfirm mingw-w64-ucrt-x86_64-pkg-config
+        C:\rtools43\usr\bin\pacman.exe -S --noconfirm mingw-w64-ucrt-x86_64-binutils
+        C:\rtools43\usr\bin\pacman.exe -S --noconfirm mingw-w64-ucrt-x86_64-netcdf
+        C:\rtools43\usr\bin\pacman.exe -S --noconfirm mingw-w64-ucrt-x86_64-netcdf-fortran  
+        C:\rtools43\usr\bin\pacman.exe -S --noconfirm mingw-w64-ucrt-x86_64-openblas
+        C:\rtools43\usr\bin\pacman.exe -S --noconfirm mingw-w64-ucrt-x86_64-hdf5
+    
     - uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
 
     - name: Add requirements
-      run: python -m pip install --upgrade wheel setuptools
+      run: python -m pip install --upgrade wheel setuptools build
 
-    - name: Build and install (Non-Windows)
-      if: matrix.platform != 'windows-latest'
-      run: pip install --verbose .[test]
+    - name: Build wheel (Windows AMD64)  
+      if: matrix.os == 'windows-latest'
       env:
-        FC: gfortran-14
+        CMAKE_PREFIX_PATH: "C:/rtools43/ucrt64"
+        PKG_CONFIG_PATH: "C:/rtools43/ucrt64/lib/pkgconfig"
+      run: |
+        # Add Rtools to PATH for build
+        $env:PATH = "C:\rtools43\ucrt64\bin;" + $env:PATH
+        python -m build --wheel
 
-    - name: Build and install (Windows with MINGW)
-      if: matrix.platform == 'windows-latest'
-      shell: msys2 {0}
-      run: pip install --verbose .[test]
+    - name: Build wheel (Windows ARM64)
+      if: matrix.os == 'windows-11-arm'
+      run: python -m build --wheel
 
-    - name: Test (Non-Windows)
-      if: matrix.platform != 'windows-latest'
-      run: pytest -s
+    - name: Repair wheel with delvewheel (Windows AMD64)
+      if: matrix.os == 'windows-latest'
+      run: |
+        # Add Rtools to PATH so delvewheel can find DLLs
+        $env:PATH = "C:\rtools43\ucrt64\bin;" + $env:PATH
+        pip install delvewheel
+        # Find the wheel file
+        $wheelFile = Get-ChildItem "dist\*.whl" | Select-Object -First 1
+        Write-Host "Original wheel: $($wheelFile.FullName)"
+        # Repair the wheel to bundle DLLs
+        delvewheel repair --add-path "C:\rtools43\ucrt64\bin" "$($wheelFile.FullName)"
+        # Show what we have now
+        Write-Host "Contents of dist/:"
+        Get-ChildItem dist
+        Write-Host "Contents of wheelhouse/:"
+        Get-ChildItem wheelhouse
+    
+    - name: Install repaired wheel (Windows AMD64)
+      if: matrix.os == 'windows-latest'
+      run: |
+        # Install the repaired wheel with test dependencies
+        $repairedWheel = Get-ChildItem "wheelhouse\*.whl" | Select-Object -First 1
+        if ($repairedWheel) {
+          Write-Host "Installing repaired wheel: $($repairedWheel.FullName)"
+          pip install "$($repairedWheel.FullName)[test]"
+        } else {
+          Write-Host "No repaired wheel found, installing original"
+          pip install dist/*.whl[test]
+        }
 
-    - name: Test (Windows with MINGW)
-      if: matrix.platform == 'windows-latest'
-      shell: msys2 {0}
+    - name: Install wheel (Windows ARM64)
+      if: matrix.os == 'windows-11-arm'
+      run: pip install dist/*.whl[test]
+    
+    - name: Test 
       run: pytest -s
