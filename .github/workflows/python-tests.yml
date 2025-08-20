@@ -11,6 +11,7 @@ jobs:
   build:
     strategy:
       fail-fast: false
+      runs-on: ${{ matrix.platform }}
       matrix:
         include: 
           - os: windows-lateset
@@ -29,8 +30,6 @@ jobs:
           
           - os: ubuntu-latest
             python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
-
-    runs-on: ${{ matrix.platform }}
 
     steps:
     - uses: actions/checkout@v4
