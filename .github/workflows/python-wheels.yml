@@ -45,7 +45,12 @@ jobs:
           # Windows builds
           - os: windows-latest
             python-version: "3.13"
-            cibw_archs: "AMD64 ARM64"
+            cibw_archs: "AMD64"
+
+          # Windows builds
+          - os: windows-latest
+            python-version: "3.13"
+            cibw_archs: "ARM64"
           
           # macOS Intel
           - os: macos-13  # Intel runner
