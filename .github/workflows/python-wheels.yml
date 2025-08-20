@@ -73,7 +73,7 @@ jobs:
         platforms: all
 
     - name: Setup MSYS2
-      if: matrix.os == 'windows-latest'
+      if: matrix.os == 'windows-latest' && matrix.cibw_archs == 'AMD64'
       uses: msys2/setup-msys2@v2
       with:
         update: true
@@ -88,14 +88,14 @@ jobs:
           mingw-w64-x86_64-netcdf-fortran
           mingw-w64-x86_64-lapack
 
-    - name: CI Build Wheels (Non-Windows)
+    - name: CI Build Wheels 
       if: matrix.os != 'windows-latest'
       uses: pypa/cibuildwheel@v2.17
       env:
         CIBW_ARCHS: ${{ matrix.cibw_archs }}
     
-    - name: CI Build Wheels (Windows with MINGW)
-      if: matrix.os == 'windows-latest'
+    - name: CI Build Wheels (Windows with MINGW on AMD64)
+      if: matrix.os == 'windows-latest' && matrix.cibw_archs == 'AMD64'
       shell: msys2 {0}
       run: |
         pipx run cibuildwheel
