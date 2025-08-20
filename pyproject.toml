@@ -76,14 +76,6 @@ if.platform-machine = "aarch64"
 inherit.cmake.define = "append"
 cmake.define.MUSICA_GPU_TYPE = "None"
 
-# Turn off TUVX and CARMA for ARM-based Windows since mingw does not support ARM64, from what I understand
-[[tool.scikit-build.overrides]]
-if.platform-system = "win32"
-if.platform-machine = "ARM64"
-inherit.cmake.define = "append"
-cmake.define.MUSICA_ENABLE_TUVX = "OFF"
-cmake.define.MUSICA_ENABLE_CARMA = "OFF"
-
 [[tool.scikit-build.overrides]]
 if.platform-system = "win32"
 inherit.cmake.define = "append"
@@ -93,6 +85,14 @@ cmake.define.CMAKE_CXX_COMPILER = "g++"
 cmake.define.CMAKE_C_COMPILER = "gcc"
 cmake.define.CMAKE_Fortran_COMPILER = "gfortran"
 cmake.args = ["-G", "MinGW Makefiles"]
+
+# Turn off TUVX and CARMA for ARM-based Windows since mingw does not support ARM64, from what I understand
+[[tool.scikit-build.overrides]]
+if.platform-system = "win32"
+if.platform-machine = "ARM64"
+inherit.cmake.define = "append"
+cmake.define.MUSICA_ENABLE_TUVX = "OFF"
+cmake.define.MUSICA_ENABLE_CARMA = "OFF"
 
 # dynamically read the version: https://scikit-build-core.readthedocs.io/en/latest/configuration.html#dynamic-metadata
 [tool.scikit-build.metadata.version]
