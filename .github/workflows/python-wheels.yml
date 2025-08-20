@@ -48,7 +48,7 @@ jobs:
             cibw_archs: "AMD64"
 
           # Windows builds
-          - os: windows-latest
+          - os: windows-11-arm
             python-version: "3.13"
             cibw_archs: "ARM64"
           
@@ -93,14 +93,15 @@ jobs:
           mingw-w64-x86_64-netcdf-fortran
           mingw-w64-x86_64-lapack
 
+    # the if implicity uses the fact that arm on windows is not running on windows-latest
     - name: CI Build Wheels 
-      if: matrix.os != 'windows-latest' || (matrix.os == 'windows-latest' && matrix.cibw_archs == 'ARM64')
+      if: matrix.os != 'windows-latest'
       uses: pypa/cibuildwheel@v2.17
       env:
         CIBW_ARCHS: ${{ matrix.cibw_archs }}
     
     - name: CI Build Wheels (Windows with MINGW on AMD64)
-      if: matrix.os == 'windows-latest' && matrix.cibw_archs == 'AMD64'
+      if: matrix.os == 'windows-latest'
       shell: msys2 {0}
       run: |
         pipx run cibuildwheel
