@@ -94,7 +94,7 @@ jobs:
           mingw-w64-x86_64-lapack
 
     - name: CI Build Wheels 
-      if: matrix.os != 'windows-latest'
+      if: matrix.os != 'windows-latest' || (matrix.os == 'windows-latest' && matrix.cibw_archs == 'ARM64')
       uses: pypa/cibuildwheel@v2.17
       env:
         CIBW_ARCHS: ${{ matrix.cibw_archs }}
