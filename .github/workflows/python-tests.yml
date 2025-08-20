@@ -12,9 +12,23 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [windows-latest, windows-11-arm, macos-13, ubuntu-latest]
-        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
-        # python versions: https://devguide.python.org/versions/
+        include: 
+          - os: windows-lateset
+            python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+
+          - os: windows-11-arm
+            python-version: ["3.11", "3.12", "3.13"]
+
+          # macOS Intel
+          - os: macos-13
+            python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+          
+          # macOS Apple Silicon
+          - os: macos-latest
+            python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+          
+          - os: ubuntu-latest
+            python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
 
     runs-on: ${{ matrix.platform }}
 

@@ -53,12 +53,12 @@ jobs:
             cibw_archs: "ARM64"
           
           # macOS Intel
-          - os: macos-13  # Intel runner
+          - os: macos-13
             python-version: "3.13"
             cibw_archs: "x86_64"
           
           # macOS Apple Silicon
-          - os: macos-latest  # ARM64 runner
+          - os: macos-latest
             python-version: "3.13"
             cibw_archs: "arm64"
 
