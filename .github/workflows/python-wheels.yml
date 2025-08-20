@@ -42,10 +42,10 @@ jobs:
             python-version: "3.13"
             cibw_archs: "x86_64 aarch64 i686"
           
-          # Windows builds (AMD64 only - ARM64 not supported with MinGW)
+          # Windows builds
           - os: windows-latest
             python-version: "3.13"
-            cibw_archs: "AMD64"
+            cibw_archs: "AMD64 ARM64"
           
           # macOS Intel
           - os: macos-13  # Intel runner
