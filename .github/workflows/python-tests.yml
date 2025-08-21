@@ -67,7 +67,7 @@ jobs:
       env:
         CMAKE_VERBOSE_MAKEFILE: "ON"
         VERBOSE: "1"
-      run: pip install -vvv --no-build-isolation .[test]
+      run: pip install -vvv .[test]
 
     - name: Build and install (Windows with MINGW)
       if: matrix.os == 'windows-latest'
@@ -75,7 +75,7 @@ jobs:
       env:
         CMAKE_VERBOSE_MAKEFILE: "ON"
         VERBOSE: "1"
-      run: pip install -vvv --no-build-isolation .[test]
+      run: pip install -vvv .[test]
 
     - name: Test (Non-Windows)
       if: matrix.os != 'windows-latest'
