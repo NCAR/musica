@@ -7,9 +7,8 @@ echo "Detected target_arch: $target_arch"
 
 dnf -y update
 
-# For 64 bit intel and amd systems, we can enable our fortran components
-# which require netcdf
-if [ "$target_arch" = "x86_64" ]; then
+# For 64 bit systems can enable our fortran components, but we require netcdf
+if [[ "$target_arch" == "x86_64" || "$target_arch" == "aarch64" ]]; then
   dnf install -y epel-release
   dnf install -y netcdf-devel netcdf-fortran-devel
 fi
