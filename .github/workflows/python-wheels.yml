@@ -55,13 +55,13 @@ jobs:
           - os: macos-13  # Intel runner
             python-version: "3.13"
             cibw_archs: "x86_64"
-            fc: gfortran-14
+            fc: gfortran-15
           
           # macOS Apple Silicon
           - os: macos-latest  # ARM64 runner
             python-version: "3.13"
             cibw_archs: "arm64"
-            fc: gfortran-14
+            fc: gfortran-15
 
     steps:
     - uses: actions/checkout@v4
