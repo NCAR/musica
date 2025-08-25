@@ -43,6 +43,8 @@ jobs:
 
     - name: Build and install
       run: pip install --verbose .[test]
+      env:
+        FC: gfortran-14
 
     - name: Test
       run: pytest -s
