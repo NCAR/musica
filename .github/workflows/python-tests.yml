@@ -64,7 +64,7 @@ jobs:
       run: python -m pip install --upgrade wheel setuptools
 
     - name: Build and install (Non-Windows)
-      if: !contains(matrix.os, 'windows')
+      if: "!contains(matrix.os, 'windows')"
       env:
         FC: gfortran-14
       run: pip install -vv .[test]
