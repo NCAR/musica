@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, windows-11-arm, macos-13, macos-latest]
+        os: [ubuntu-latest, ubuntu-24.04-arm, windows-latest, windows-11-arm, macos-13, macos-latest]
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
         exclude:
           # Windows 11 ARM doesn't support Python 3.9 and 3.10
@@ -67,7 +67,8 @@ jobs:
       env:
         CMAKE_VERBOSE_MAKEFILE: "ON"
         VERBOSE: "1"
-      run: pip install -vvv .[test]
+        FC: gfortran-14
+      run: pip install --verbose .[test]
 
     - name: Build and install (Windows with MINGW)
       if: matrix.os == 'windows-latest'
