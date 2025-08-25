@@ -67,16 +67,16 @@ jobs:
       if: "!contains(matrix.os, 'windows')"
       env:
         FC: gfortran-14
-      run: pip install -vv .[test]
+      run: pip install -v .[test]
 
     - name: Build and install (Windows ARM64)
       if: matrix.os == 'windows-11-arm'
-      run: pip install -vv .[test]
+      run: pip install -v .[test]
 
     - name: Build and install (Windows AMD64)
       if: matrix.os == 'windows-latest'
       shell: msys2 {0}
-      run: pip install -vv .[test]
+      run: pip install -v .[test]
 
     # - name: Test (Non-Windows)
     #   if: matrix.os != 'windows-latest'
