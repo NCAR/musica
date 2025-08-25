@@ -1,0 +1,899 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Chapter 2 &#8212; MUSICA 0.12.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=bbe95013" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=61ccb1f1"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorials/chapter2';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.15.4';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://ncar.github.io/musica/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.12.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner = false;
+        </script>
+    <link rel="icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Multiple Grid Cells in MUSICA" href="1.%20multiple_grid_cells.html" />
+    <link rel="prev" title="Chapter 1" href="chapter1.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">MUSICA 0.12.0 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/getting_started.html">
+    Getting Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="tutorials.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    MUSICA API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributing/index.html">
+    Contributing
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../citing/index.html">
+    Citing MUSICA
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button id="pst-version-switcher-button-2"
+      type="button"
+      class="version-switcher__button btn btn-sm dropdown-toggle"
+      data-bs-toggle="dropdown"
+      aria-haspopup="listbox"
+      aria-controls="pst-version-switcher-list-2"
+      aria-label="Version switcher list"
+    >
+      Choose version  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div id="pst-version-switcher-list-2"
+      class="version-switcher__menu dropdown-menu list-group-flush py-0"
+      role="listbox" aria-labelledby="pst-version-switcher-button-2">
+      <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NCAR/musica" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/getting_started.html">
+    Getting Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="tutorials.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    MUSICA API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributing/index.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../citing/index.html">
+    Citing MUSICA
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button id="pst-version-switcher-button-3"
+      type="button"
+      class="version-switcher__button btn btn-sm dropdown-toggle"
+      data-bs-toggle="dropdown"
+      aria-haspopup="listbox"
+      aria-controls="pst-version-switcher-list-3"
+      aria-label="Version switcher list"
+    >
+      Choose version  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div id="pst-version-switcher-list-3"
+      class="version-switcher__menu dropdown-menu list-group-flush py-0"
+      role="listbox" aria-labelledby="pst-version-switcher-button-3">
+      <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NCAR/musica" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="chapter0.html">Chapter 0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chapter1.html">Chapter 1</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Chapter 2</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="1.%20multiple_grid_cells.html">Multiple Grid Cells in MUSICA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2.%20hypercube.html">Latin Hypercube Sampling in MUSICA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="3.%20user_defined_reactions.html">User Defined Reactions in MUSICA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="4.%20local_parallelization.html">Parallelizing Multiple Grid Cells Locally</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5.%20hpc_parallelization.html">Parallelizing Multiple Grid Cells on a High-Performance Computing Cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6.%20gpu_solver.html">Enabling Your GPU for a Solver in MUSICA</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="tutorials.html" class="nav-link">Tutorials</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">Chapter 2</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="chapter-2">
+<span id="chapter2"></span><h1>Chapter 2<a class="headerlink" href="#chapter-2" title="Link to this heading">#</a></h1>
+<section id="an-micm-box-model-example-in-fortran">
+<h2>An MICM Box Model Example in Fortran<a class="headerlink" href="#an-micm-box-model-example-in-fortran" title="Link to this heading">#</a></h2>
+<p>In this next MUSICA Fortran example,
+we will setup a MICM solver, starting with a set of MICM configuration files,
+and run the solver for a single integration time step.</p>
+<p>The following three configuration files (<code class="docutils literal notranslate"><span class="pre">config.json</span></code>, <code class="docutils literal notranslate"><span class="pre">species.json</span></code>, and <code class="docutils literal notranslate"><span class="pre">reactions.json</span></code>)
+should be saved in a subdirectory named <code class="docutils literal notranslate"><span class="pre">configs/analytical</span></code> relative directory
+from which you plan to call the box model executable.</p>
+<p>(You can find a copy of these files in the MUSICA repository at <code class="docutils literal notranslate"><span class="pre">configs/analytical</span></code>.)</p>
+<p>The top-level MICM configuration <code class="docutils literal notranslate"><span class="pre">config.json</span></code> file
+simply lists the configuration files to parse. In this case, these are the
+chemical species configuration file <code class="docutils literal notranslate"><span class="pre">species.json</span></code> and
+the reactions configuration file <code class="docutils literal notranslate"><span class="pre">reactions.json</span></code>.</p>
+<p>The contents of the <code class="docutils literal notranslate"><span class="pre">config.json</span></code> file for this example are:</p>
+<blockquote>
+<div><div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;camp-files&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;species.json&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;reactions.json&quot;</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>For this example, we will have a system of three chemical species
+<cite>A</cite>, <cite>B</cite>, and <cite>C</cite>, defined in the JSON file <code class="docutils literal notranslate"><span class="pre">species.json</span></code> as follows:</p>
+<blockquote>
+<div><div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;camp-data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;A&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CHEM_SPEC&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;B&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CHEM_SPEC&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;C&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CHEM_SPEC&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;D&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CHEM_SPEC&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;E&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CHEM_SPEC&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;F&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CHEM_SPEC&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>The <code class="docutils literal notranslate"><span class="pre">reactions.json</span></code> specifies a mechanism, or a set of reactions for the system.
+Here, we will introduce two Arrhenius type reactions, the first
+with <cite>B</cite> evolving to <cite>C</cite>, and specifying all five reaction parameters,
+and the second reaction with <cite>A</cite> evolving to <cite>B</cite> and using only two reaction parameters.</p>
+<p>We also include two reactions with rate constants that are provided by the host
+application at runtime. These types of reactions are useful when outside calculations
+are needed to determine the rate constants, such as in the case of photolysis reactions.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">reactions.json</span></code> file for this example should look like this:</p>
+<blockquote>
+<div><div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;camp-data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MECHANISM&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;analytical test&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;reactions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ARRHENIUS&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;A&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.004</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;C&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;reactants&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;A&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">&quot;qty&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">          </span><span class="p">},</span>
+<span class="w">          </span><span class="nt">&quot;products&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;B&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">&quot;yield&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">          </span><span class="p">}</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ARRHENIUS&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;A&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.012</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;B&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">-2</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;C&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">75</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;D&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;E&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0e-6</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;reactants&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;B&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">&quot;qty&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">          </span><span class="p">},</span>
+<span class="w">          </span><span class="nt">&quot;products&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;C&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">&quot;yield&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">          </span><span class="p">}</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;USER_DEFINED&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;MUSICA name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;reaction 1&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;reactants&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;D&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">&quot;qty&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">          </span><span class="p">},</span>
+<span class="w">          </span><span class="nt">&quot;products&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;E&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">&quot;yield&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">          </span><span class="p">}</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;USER_DEFINED&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;MUSICA name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;reaction 2&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;reactants&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;E&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">&quot;qty&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">          </span><span class="p">},</span>
+<span class="w">          </span><span class="nt">&quot;products&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;F&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">&quot;yield&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">          </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>More information on MICM configurations and reactions can be found in the <a class="reference external" href="https://ncar.github.io/micm/user_guide/">MICM documentation</a></p>
+<p>To create a simple box model, save the following Fortran code to a file named <code class="docutils literal notranslate"><span class="pre">micm_box_model.F90</span></code>:</p>
+<blockquote>
+<div><div class="highlight-f90 notranslate"><div class="highlight"><pre><span></span><span class="k">program </span><span class="n">test_micm_box_model</span>
+
+<span class="w">  </span><span class="k">use</span><span class="p">,</span><span class="w"> </span><span class="k">intrinsic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="nb">iso_c_binding</span>
+<span class="nb">  </span><span class="k">use</span><span class="p">,</span><span class="w"> </span><span class="k">intrinsic</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ieee_arithmetic</span>
+
+<span class="w">  </span><span class="k">use </span><span class="n">iso_fortran_env</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">real64</span>
+<span class="w">  </span><span class="k">use </span><span class="n">musica_util</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">error_t</span><span class="p">,</span><span class="w"> </span><span class="n">string_t</span><span class="p">,</span><span class="w"> </span><span class="n">mapping_t</span>
+<span class="w">  </span><span class="k">use </span><span class="n">musica_micm</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">micm_t</span><span class="p">,</span><span class="w"> </span><span class="n">solver_stats_t</span>
+<span class="w">  </span><span class="k">use </span><span class="n">musica_micm</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">Rosenbrock</span><span class="p">,</span><span class="w"> </span><span class="n">RosenbrockStandardOrder</span>
+<span class="w">  </span><span class="k">use </span><span class="n">musica_state</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">conditions_t</span><span class="p">,</span><span class="w"> </span><span class="n">state_t</span>
+
+<span class="w">  </span><span class="k">implicit none</span>
+
+<span class="k">  call </span><span class="n">box_model_arrays</span><span class="p">()</span>
+<span class="w">  </span><span class="k">call </span><span class="n">box_model_c_ptrs</span><span class="p">()</span>
+
+<span class="k">contains</span>
+
+<span class="w">  </span><span class="c">!&gt; Runs a simple box model using the MICM solver and passing in fortran arrays</span>
+<span class="w">  </span><span class="k">subroutine </span><span class="n">box_model_arrays</span><span class="p">()</span>
+
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">256</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">config_path</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                 </span><span class="kd">::</span><span class="w"> </span><span class="n">solver_type</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                 </span><span class="kd">::</span><span class="w"> </span><span class="n">num_grid_cells</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">real64</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">GAS_CONSTANT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">8.31446261815324_real64</span><span class="w"> </span><span class="c">! J mol-1 K-1</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">real64</span><span class="p">)</span><span class="w">            </span><span class="kd">::</span><span class="w"> </span><span class="n">time_step</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">string_t</span><span class="p">)</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">solver_state</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">solver_stats_t</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">solver_stats</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">error_t</span><span class="p">)</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">error</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">micm_t</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">micm</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">state_t</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">state</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                 </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+
+<span class="w">    </span><span class="n">config_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;configs/v0/analytical&quot;</span>
+<span class="w">    </span><span class="n">solver_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RosenbrockStandardOrder</span>
+<span class="w">    </span><span class="n">num_grid_cells</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+
+<span class="w">    </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s2">&quot;Creating MICM solver...&quot;</span>
+<span class="w">    </span><span class="n">micm</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">micm_t</span><span class="p">(</span><span class="n">config_path</span><span class="p">,</span><span class="w"> </span><span class="n">solver_type</span><span class="p">,</span><span class="w"> </span><span class="n">error</span><span class="p">)</span><span class="w">  </span>
+
+<span class="w">    </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s2">&quot;Creating State...&quot;</span><span class="w">    </span>
+<span class="w">    </span><span class="n">state</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">micm</span><span class="p">%</span><span class="n">get_state</span><span class="p">(</span><span class="n">num_grid_cells</span><span class="p">,</span><span class="w"> </span><span class="n">error</span><span class="p">)</span>
+
+<span class="w">    </span><span class="n">time_step</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">200</span>
+
+<span class="w">    </span><span class="n">state</span><span class="p">%</span><span class="n">conditions</span><span class="p">(</span><span class="mi">1</span><span class="p">)%</span><span class="n">temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">27</span><span class="mf">3.0</span>
+<span class="w">    </span><span class="n">state</span><span class="p">%</span><span class="n">conditions</span><span class="p">(</span><span class="mi">1</span><span class="p">)%</span><span class="n">pressure</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0e5</span>
+<span class="w">    </span><span class="n">state</span><span class="p">%</span><span class="n">conditions</span><span class="p">(</span><span class="mi">1</span><span class="p">)%</span><span class="n">air_density</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">state</span><span class="p">%</span><span class="n">conditions</span><span class="p">(</span><span class="mi">1</span><span class="p">)%</span><span class="n">pressure</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">GAS_CONSTANT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">state</span><span class="p">%</span><span class="n">conditions</span><span class="p">(</span><span class="mi">1</span><span class="p">)%</span><span class="n">temperature</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">associate</span><span class="p">(</span><span class="w"> </span><span class="n">var_stride</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">state</span><span class="p">%</span><span class="n">species_strides</span><span class="p">%</span><span class="n">variable</span><span class="w"> </span><span class="p">)</span>
+<span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span>
+<span class="w">        </span><span class="n">state</span><span class="p">%</span><span class="n">concentrations</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">var_stride</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">      </span><span class="k">end do</span>
+<span class="k">    end associate</span>
+<span class="k">    associate</span><span class="p">(</span><span class="w"> </span><span class="n">var_stride</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">state</span><span class="p">%</span><span class="n">rate_parameters_strides</span><span class="p">%</span><span class="n">variable</span><span class="w"> </span><span class="p">)</span>
+<span class="w">      </span><span class="n">state</span><span class="p">%</span><span class="n">rate_parameters</span><span class="p">(</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.001</span>
+<span class="w">      </span><span class="n">state</span><span class="p">%</span><span class="n">rate_parameters</span><span class="p">(</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">var_stride</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.002</span>
+<span class="w">    </span><span class="k">end associate</span>
+<span class="k">    </span>
+<span class="k">    do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">state</span><span class="p">%</span><span class="n">species_ordering</span><span class="p">%</span><span class="n">size</span><span class="p">()</span>
+<span class="w">      </span><span class="k">print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Species Name:&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">state</span><span class="p">%</span><span class="n">species_ordering</span><span class="p">%</span><span class="n">name</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="s2">&quot;, Index:&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">state</span><span class="p">%</span><span class="n">species_ordering</span><span class="p">%</span><span class="nb">index</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">    </span><span class="k">end do</span>
+
+<span class="k">    write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s2">&quot;Solving starts...&quot;</span>
+<span class="w">    </span><span class="k">call </span><span class="n">micm</span><span class="p">%</span><span class="n">solve</span><span class="p">(</span><span class="n">time_step</span><span class="p">,</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">solver_state</span><span class="p">,</span><span class="w"> </span><span class="n">solver_stats</span><span class="p">,</span><span class="w"> </span><span class="n">error</span><span class="p">)</span>
+<span class="w">    </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s2">&quot;After solving, concentrations&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">state</span><span class="p">%</span><span class="n">concentrations</span>
+<span class="w">    </span><span class="k">deallocate</span><span class="p">(</span><span class="w"> </span><span class="n">micm</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="k">deallocate</span><span class="p">(</span><span class="w"> </span><span class="n">state</span><span class="w"> </span><span class="p">)</span>
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">box_model_arrays</span>
+
+<span class="w">  </span><span class="c">!&gt; Runs a simple box model using the MICM solver and passing in C pointers</span>
+<span class="w">  </span><span class="k">subroutine </span><span class="n">box_model_c_ptrs</span><span class="p">()</span>
+
+<span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">256</span><span class="p">)</span><span class="w">      </span><span class="kd">::</span><span class="w"> </span><span class="n">config_path</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                 </span><span class="kd">::</span><span class="w"> </span><span class="n">solver_type</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                 </span><span class="kd">::</span><span class="w"> </span><span class="n">num_grid_cells</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">real64</span><span class="p">),</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">GAS_CONSTANT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">8.31446261815324_real64</span><span class="w"> </span><span class="c">! J mol-1 K-1</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">(</span><span class="n">real64</span><span class="p">)</span><span class="w">            </span><span class="kd">::</span><span class="w"> </span><span class="n">time_step</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">string_t</span><span class="p">)</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">solver_state</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">solver_stats_t</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">solver_stats</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">error_t</span><span class="p">)</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">error</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">micm_t</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">   </span><span class="kd">::</span><span class="w"> </span><span class="n">micm</span>
+<span class="w">    </span><span class="k">type</span><span class="p">(</span><span class="n">state_t</span><span class="p">),</span><span class="w"> </span><span class="k">pointer</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">state</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w">                 </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+
+<span class="w">    </span><span class="n">config_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;configs/v0/analytical&quot;</span>
+<span class="w">    </span><span class="n">solver_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RosenbrockStandardOrder</span>
+<span class="w">    </span><span class="n">num_grid_cells</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+
+<span class="w">    </span><span class="n">time_step</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">200</span>
+
+<span class="w">    </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s2">&quot;Creating MICM solver...&quot;</span>
+<span class="w">    </span><span class="n">micm</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">micm_t</span><span class="p">(</span><span class="n">config_path</span><span class="p">,</span><span class="w"> </span><span class="n">solver_type</span><span class="p">,</span><span class="w"> </span><span class="n">error</span><span class="p">)</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s2">&quot;Creating State...&quot;</span>
+<span class="w">    </span><span class="n">state</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">micm</span><span class="p">%</span><span class="n">get_state</span><span class="p">(</span><span class="n">num_grid_cells</span><span class="p">,</span><span class="w"> </span><span class="n">error</span><span class="p">)</span>
+
+<span class="w">    </span><span class="n">state</span><span class="p">%</span><span class="n">conditions</span><span class="p">(</span><span class="mi">1</span><span class="p">)%</span><span class="n">temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">27</span><span class="mf">3.0</span>
+<span class="w">    </span><span class="n">state</span><span class="p">%</span><span class="n">conditions</span><span class="p">(</span><span class="mi">1</span><span class="p">)%</span><span class="n">pressure</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0e5</span>
+<span class="w">    </span><span class="n">state</span><span class="p">%</span><span class="n">conditions</span><span class="p">(</span><span class="mi">1</span><span class="p">)%</span><span class="n">air_density</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">state</span><span class="p">%</span><span class="n">conditions</span><span class="p">(</span><span class="mi">1</span><span class="p">)%</span><span class="n">pressure</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">GAS_CONSTANT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">state</span><span class="p">%</span><span class="n">conditions</span><span class="p">(</span><span class="mi">1</span><span class="p">)%</span><span class="n">temperature</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">associate</span><span class="p">(</span><span class="w"> </span><span class="n">var_stride</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">state</span><span class="p">%</span><span class="n">species_strides</span><span class="p">%</span><span class="n">variable</span><span class="w"> </span><span class="p">)</span>
+<span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span>
+<span class="w">        </span><span class="n">state</span><span class="p">%</span><span class="n">concentrations</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">var_stride</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">      </span><span class="k">end do</span>
+<span class="k">    end associate</span>
+<span class="k">    associate</span><span class="p">(</span><span class="w"> </span><span class="n">var_stride</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">state</span><span class="p">%</span><span class="n">rate_parameters_strides</span><span class="p">%</span><span class="n">variable</span><span class="w"> </span><span class="p">)</span>
+<span class="w">      </span><span class="n">state</span><span class="p">%</span><span class="n">rate_parameters</span><span class="p">(</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.001</span>
+<span class="w">      </span><span class="n">state</span><span class="p">%</span><span class="n">rate_parameters</span><span class="p">(</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">var_stride</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.002</span>
+<span class="w">    </span><span class="k">end associate</span>
+
+<span class="k">    do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">state</span><span class="p">%</span><span class="n">species_ordering</span><span class="p">%</span><span class="n">size</span><span class="p">()</span>
+<span class="w">      </span><span class="k">print</span><span class="w"> </span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Species Name:&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">state</span><span class="p">%</span><span class="n">species_ordering</span><span class="p">%</span><span class="n">name</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">               </span><span class="s2">&quot;, Index:&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">state</span><span class="p">%</span><span class="n">species_ordering</span><span class="p">%</span><span class="nb">index</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">    </span><span class="k">end do</span>
+
+<span class="k">    write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s2">&quot;Solving starts...&quot;</span>
+<span class="w">    </span><span class="k">call </span><span class="n">micm</span><span class="p">%</span><span class="n">solve</span><span class="p">(</span><span class="n">time_step</span><span class="p">,</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">solver_state</span><span class="p">,</span><span class="w"> </span><span class="n">solver_stats</span><span class="p">,</span><span class="w"> </span><span class="n">error</span><span class="p">)</span>
+<span class="w">    </span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="s2">&quot;After solving, concentrations&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">state</span><span class="p">%</span><span class="n">concentrations</span>
+
+<span class="w">    </span><span class="k">deallocate</span><span class="p">(</span><span class="w"> </span><span class="n">micm</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="k">deallocate</span><span class="p">(</span><span class="w"> </span><span class="n">state</span><span class="w"> </span><span class="p">)</span>
+<span class="w">  </span><span class="k">end subroutine </span><span class="n">box_model_c_ptrs</span>
+
+<span class="k">end program </span><span class="n">test_micm_box_model</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>From the <code class="docutils literal notranslate"><span class="pre">musica_util</span></code> module we need the Fortran types
+<code class="docutils literal notranslate"><span class="pre">error_t</span></code>, <code class="docutils literal notranslate"><span class="pre">string_t</span></code>, and <code class="docutils literal notranslate"><span class="pre">mapping_t</span></code>.
+A pointer to a <code class="docutils literal notranslate"><span class="pre">musica_micm::micm_t</span></code> will serve as the interface to the MICM solver
+(in the example the pointer name is <code class="docutils literal notranslate"><span class="pre">micm</span></code>).
+Note that the <code class="docutils literal notranslate"><span class="pre">config_path</span></code> in the code sample has been set to <code class="docutils literal notranslate"><span class="pre">configs/analytical</span></code>,
+so that subdirectory should be created relative to the main program and contain
+the MICM JSON configuration files,
+otherwise the <code class="docutils literal notranslate"><span class="pre">config_path</span></code> should be modified appropriately.
+The initial species concentrations are initialized in the <code class="docutils literal notranslate"><span class="pre">concentrations</span></code> array,
+which is an argument to the MICM solver.</p>
+<p>Finally, a single time step solution is obtained through a call to <code class="docutils literal notranslate"><span class="pre">micm%solve</span></code>,
+after which the updated concentrations may be displayed.</p>
+<p>To build the example, follow the instructions in <a class="reference internal" href="chapter1.html#chapter1"><span class="std std-ref">Chapter 1</span></a>.</p>
+<p>Assuming you name the executable <code class="docutils literal notranslate"><span class="pre">micm_box_model</span></code>, you can run the program as follows:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="w"> </span>$<span class="w"> </span>./micm_box_model
+Creating<span class="w"> </span>MICM<span class="w"> </span>solver...
+Species<span class="w"> </span>Name:A,<span class="w"> </span>Index:<span class="w">           </span><span class="m">1</span>
+Species<span class="w"> </span>Name:B,<span class="w"> </span>Index:<span class="w">           </span><span class="m">2</span>
+Species<span class="w"> </span>Name:C,<span class="w"> </span>Index:<span class="w">           </span><span class="m">5</span>
+Species<span class="w"> </span>Name:D,<span class="w"> </span>Index:<span class="w">           </span><span class="m">3</span>
+Species<span class="w"> </span>Name:E,<span class="w"> </span>Index:<span class="w">           </span><span class="m">4</span>
+Species<span class="w"> </span>Name:F,<span class="w"> </span>Index:<span class="w">           </span><span class="m">6</span>
+Solving<span class="w"> </span>starts...
+After<span class="w"> </span>solving,<span class="w"> </span>concentrations<span class="w">  </span><span class="m">0</span>.38236272259073301<span class="w">        </span><span class="m">1</span>.4676807523204496<span class="w">       </span><span class="m">0</span>.67030703490468713<span class="w">        </span><span class="m">1</span>.1155750798779909<span class="w">        </span><span class="m">1</span>.1499565250888166<span class="w">        </span><span class="m">1</span>.2141178852173222
+<span class="w"> </span>$
+</pre></div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="chapter1.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Chapter 1</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="1.%20multiple_grid_cells.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Multiple Grid Cells in MUSICA</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#an-micm-box-model-example-in-fortran">An MICM Box Model Example in Fortran</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/tutorials/chapter2.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024-2025, NSF NCAR.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.4.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
