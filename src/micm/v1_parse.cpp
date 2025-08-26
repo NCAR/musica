@@ -80,13 +80,13 @@ namespace musica
   }
 
   std::vector<micm::Species> collect_species(
-      std::vector<std::string> species_names,
+      std::vector<mechanism_configuration::v1::types::PhaseSpecies> phase_species_group,
       std::unordered_map<std::string, micm::Species>& species_map)
   {
     std::vector<micm::Species> species;
-    for (const auto& species_name : species_names)
+    for (const auto& each : phase_species_group)
     {
-      species.push_back(species_map[species_name]);
+      species.push_back(species_map[each.name]);
     }
     return species;
   }

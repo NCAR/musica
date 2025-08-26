@@ -87,7 +87,9 @@ namespace musica
     gas_phase.name = "gas";
     for (const auto& species : v1_mechanism.species)
     {
-      gas_phase.species.push_back(species.name);
+      mechanism_configuration::v1::types::PhaseSpecies phase_species;
+      phase_species.name = species.name;
+      gas_phase.species.push_back(phase_species);
     }
     v1_mechanism.phases.push_back(gas_phase);
 
@@ -95,7 +97,9 @@ namespace musica
     condensed_phase.name = "condensed";
     for (const auto& species : v1_mechanism.species)
     {
-      condensed_phase.species.push_back(species.name);
+      mechanism_configuration::v1::types::PhaseSpecies phase_species;
+      phase_species.name = species.name;
+      condensed_phase.species.push_back(phase_species);
     }
     v1_mechanism.phases.push_back(condensed_phase);
 
