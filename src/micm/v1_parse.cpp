@@ -80,13 +80,13 @@ namespace musica
   }
 
   std::vector<micm::Species> collect_species(
-      std::vector<mechanism_configuration::v1::types::PhaseSpecies> phase_species_group,
+      std::vector<std::string> species_names,
       std::unordered_map<std::string, micm::Species>& species_map)
   {
     std::vector<micm::Species> species;
-    for (const auto& each : phase_species_group)
+    for (const auto& species_name : species_names)
     {
-      species.push_back(species_map[each.name]);
+      species.push_back(species_map[species_name]);
     }
     return species;
   }
@@ -125,12 +125,12 @@ namespace musica
       const std::vector<mechanism_configuration::v1::types::ReactionComponent>& components,
       std::unordered_map<std::string, micm::Species>& species_map)
   {
-    std::vector<micm::Yield> species;
+    std::vector<micm::Yield> yields;
     for (const auto& component : components)
     {
-      species.push_back({ species_map[component.species_name], component.coefficient });
+      yields.push_back({ species_map[component.species_name], component.coefficient });
     }
-    return species;
+    return yields;
   }
 
   void convert_arrhenius(

@@ -82,7 +82,7 @@ namespace musica
     std::vector<micm::Yield> yields;
     for (const auto& component : components)
     {
-      yields.push_back({ micm::Yield(species_map[component.species_name], component.coefficient) });
+      yields.push_back(micm::Yield(species_map[component.species_name], component.coefficient));
     }
     return yields;
   }
