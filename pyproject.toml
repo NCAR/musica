@@ -7,6 +7,7 @@ name = "musica"
 dynamic = ["version"]
 readme = "README.md"
 description = "MUSICA is a Python library for performing computational simulations in atmospheric chemistry."
+requires-python = ">=3.9"
 authors = [
   { name = "Matthew Dawsom", email = "mattdawson@ucar.edu" },
   { name = "Jiwon Gim", email = "jiwongim@ucar.edu" },
@@ -19,11 +20,7 @@ maintainers = [
 ]
 license = { file = "LICENSE" }
 
-dependencies = [
-  "pyyaml>=6.0.2",
-  "xarray>=2022.3.0",
-  "ussa1976>=v0.3.4"
-]
+dependencies = ["pyyaml>=6.0.2", "xarray>=2022.3.0", "ussa1976>=v0.3.4"]
 
 [project.optional-dependencies]
 test = ["numpy", "pytest", "matplotlib"]
@@ -114,20 +111,21 @@ version = "${version}"
 build-verbosity = 3
 
 # Add your desired build configuration
-build = ["cp39-*", "cp310-*", "cp311-*", "cp312-*", "cp313-*", "cp314-*", "cp315-*"]
-skip = "cp27-* cp34-* cp35-* cp36-* *musllinux*"
+build = ["cp39-*", "cp310-*", "cp311-*", "cp312-*", "cp313-*"]
+skip = ["*musllinux*"]
 
 # Set up pre-build hooks
 [tool.cibuildwheel.macos]
-environment.MACOSX_DEPLOYMENT_TARGET = "10.15"
+environment.MACOSX_DEPLOYMENT_TARGET = "15.0"
 before-all = "bash musica/tools/prepare_build_environment_macos.sh"
 
 [tool.cibuildwheel.linux]
 before-all = "musica/tools/prepare_build_environment_linux.sh"
 repair-wheel-command = "bash musica/tools/repair_wheel_gpu.sh {wheel} {dest_dir}"
 # Use manylinux_2_28 for modern GCC 8.5 and NetCDF compatibility
-manylinux-x86_64-image = "manylinux_2_28"
+manylinux-x86_64-image  = "manylinux_2_28"
 manylinux-aarch64-image = "manylinux_2_28"
+manylinux-i686-image    = "manylinux_2_28"
 
 [tool.cibuildwheel.linux.environment]
 CUDA_PATH = "/usr/local/cuda"

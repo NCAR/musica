@@ -5,6 +5,7 @@ available = musica.backend.carma_available()
 pytestmark = pytest.mark.skipif(
     not available, reason="CARMA backend is not available")
 
+
 def test_sulfate_box_model():
     """Test the sulfate box model implementation."""
     from musica.examples import sulfate_box_model
@@ -31,4 +32,3 @@ def test_sulfate_box_model():
     print(f"   Chemical species tracked: {list(concentrations.columns)}")
     print(f"   CARMA bins: {len(sulfate_data.bin)}")
     print(f"   Vertical levels: {len(sulfate_data.vertical_center)}")
-
