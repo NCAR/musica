@@ -40,7 +40,7 @@ if (MUSICA_ENABLE_MICM)
   add_executable(test_micm_fortran_api test_micm_api.F90)
   add_executable(test_get_micm_version test_get_micm_version.F90)
   add_executable(test_micm_box_model test_micm_box_model.F90)
-  add_executable(test_micm_multiple_grid_cells add_executable.F90)
+  add_executable(test_micm_multiple_grid_cells test_micm_multiple_grid_cells.F90)
 
   target_link_libraries(test_micm_fortran_api
     PRIVATE
