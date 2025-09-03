@@ -4,10 +4,16 @@ program test_micm_multiple_grid_cells
   use, intrinsic :: ieee_arithmetic
 
   use iso_fortran_env, only : real64
-  use musica_util, only: error_t, string_t, mapping_t
+  use musica_util, only: assert, error_t, string_t, mapping_t
   use musica_micm, only: micm_t, solver_stats_t
   use musica_micm, only: Rosenbrock, RosenbrockStandardOrder
   use musica_state, only: conditions_t, state_t
+
+#define ASSERT( expr ) call assert( expr, __FILE__, __LINE__ )
+#define ASSERT_EQ( a, b ) call assert( a == b, __FILE__, __LINE__ )
+#define ASSERT_NE( a, b ) call assert( a /= b, __FILE__, __LINE__ )
+#define ASSERT_NEAR( a, b, tol ) call assert( abs(a - b) < abs(a + b) * tol, __FILE__, __LINE__ )
+#define ASSERT_GT( a, b ) call assert( a > b, __FILE__, __LINE__ )
 
   implicit none
 
@@ -36,17 +42,11 @@ contains
 
     write(*,*) "Creating MICM solver with", num_grid_cells, "grid cells..."
     micm => micm_t(config_path, solver_type, error)
-    if (error%is_error()) then
-      write(*,*) "Error creating MICM solver:", error%get_message()
-      return
-    end if
+    ASSERT( error%is_success() )
 
     write(*,*) "Creating State for multiple grid cells..."    
     state => micm%get_state(num_grid_cells, error)
-    if (error%is_error()) then
-      write(*,*) "Error creating state:", error%get_message()
-      return
-    end if
+    ASSERT( error%is_success() )
 
     time_step = 200
 
@@ -114,10 +114,7 @@ contains
     write(*,*) ""
     write(*,*) "Solving for all grid cells simultaneously..."
     call micm%solve(time_step, state, solver_state, solver_stats, error)
-    if (error%is_error()) then
-      write(*,*) "Error during solve:", error%get_message()
-      return
-    end if
+    ASSERT( error%is_success() )
 
     ! Print final concentrations for each grid cell
     write(*,*) ""
