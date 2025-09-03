@@ -67,6 +67,9 @@ To access concentration data for a specific species in a specific grid cell:
   var_stride = state%species_strides%variable
   cell_concentration = state%concentrations(1 + (cell_id - 1) * cell_stride + (species_index - 1) * var_stride)
 
+Fortran's 1-based indexing requires subtracting 1 from the 0-based ``cell_id``
+and ``species_index`` to adjust offsets.
+
 **Simultaneous Solving:**
 
 A call to ``micm%solve`` with a state that represents multiple grid cells is only
