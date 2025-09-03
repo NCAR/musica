@@ -13,12 +13,12 @@ This demonstrates how MUSICA can efficiently solve chemical mechanisms
 for multiple independent air masses simultaneously.
 
 Each grid cell represents an independent set of well-mixed air masses,
-allowing us to model different atmospheric conditions (temperature, pressure, initial concentrations)
+allowing us to model different atmospheric conditions (temperature, pressure, concentrations)
 and observe how the same chemical mechanism evolves differently under various conditions.
 
 We will use the same analytical configuration files from Chapter 2
 (``config.json``, ``species.json``, and ``reactions.json``)
-saved in the subdirectory ``configs/analytical`` or ``configs/v0/analytical``.
+saved in the subdirectory ``configs/v0/analytical``.
 
 For reference, these files define:
 
@@ -39,15 +39,13 @@ Key differences from the single grid cell example in Chapter 2:
 - Each grid cell can have different environmental conditions (temperature, pressure)
 - Each grid cell can start with different initial concentrations
 
-**State Management:**
+**Setting Conditions and Initial Values:**
 
 The ``state`` object now manages data for multiple grid cells using strides:
 
 - ``state%species_strides%variable`` provides the stride for accessing species data across cells
 - ``state%rate_parameters_strides%variable`` provides the stride for rate parameter data
 - Concentrations are stored in a flat array with stride-based indexing
-
-**Setting Conditions and Initial Values:**
 
 .. code-block:: fortran
 
@@ -71,7 +69,8 @@ To access concentration data for a specific species in a specific grid cell:
 
 **Simultaneous Solving:**
 
-The key advantage is that a single call to ``micm%solve`` processes all grid cells:
+A call to ``micm%solve`` with a state that represents multiple grid cells is only
+required once per time step; all grid cells are solved simultaneously in a multi-grid cell micm state.
 
 .. code-block:: fortran
 
