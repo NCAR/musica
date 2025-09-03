@@ -197,7 +197,8 @@ namespace musica
   void convert_surface(
       Chemistry& chemistry,
       const std::vector<mechanism_configuration::v1::types::Surface>& surface,
-      std::unordered_map<std::string, micm::Species>& species_map)
+      std::unordered_map<std::string, micm::Species>& species_map,
+      const std::string& prefix)
   {
     for (const auto& reaction : surface)
     {
@@ -205,7 +206,7 @@ namespace musica
       auto products = reaction_components_to_products(reaction.gas_phase_products, species_map);
       micm::SurfaceRateConstantParameters parameters;
       parameters.reaction_probability_ = reaction.reaction_probability;
-      parameters.label_ = reaction.name;
+      parameters.label_ = prefix + reaction.name;
       parameters.species_ = species_map[reaction.gas_phase_species.species_name];
       chemistry.processes.push_back(micm::ChemicalReactionBuilder()
                                         .SetReactants(reactants)
@@ -370,7 +371,7 @@ namespace musica
     }
     convert_arrhenius(chemistry, v1_mechanism.reactions.arrhenius, species_map);
     convert_branched(chemistry, v1_mechanism.reactions.branched, species_map);
-    convert_surface(chemistry, v1_mechanism.reactions.surface, species_map);
+    convert_surface(chemistry, v1_mechanism.reactions.surface, species_map, "SURF.");
     convert_troe(chemistry, v1_mechanism.reactions.troe, species_map);
     convert_ternary_chemical_activation(chemistry, v1_mechanism.reactions.ternary_chemical_activation, species_map);
     convert_tunneling(chemistry, v1_mechanism.reactions.tunneling, species_map);

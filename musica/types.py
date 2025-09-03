@@ -165,30 +165,31 @@ class State():
                     k += 1
 
     def set_conditions(self,
-                       temperatures: Union[Union[float, int], List[Union[float, int]]],
-                       pressures: Union[Union[float, int], List[Union[float, int]]],
+                       temperatures: Optional[Union[Union[float, int], List[Union[float, int]]]] = None,
+                       pressures: Optional[Union[Union[float, int], List[Union[float, int]]]] = None,
                        air_densities: Optional[Union[Union[float, int], List[Union[float, int]]]] = None):
         """
         Set the conditions for the state. The individual conditions can be a single value
         when solving for a single grid cell, or a list of values when solving for multiple grid cells.
         If air density is not provided, it will be calculated from the Ideal Gas Law using the provided
-        temperature and pressure.
+        temperature and pressure. If temperature or pressure are not provided, their values will remain
+        unchanged.
 
         Parameters
         ----------
-        temperatures : Union[float, List[float]]
+        temperatures : Optional[Union[float, List[float]]]
             Temperature in Kelvin.
-        pressures : Union[float, List[float]]
+        pressures : Optional[Union[float, List[float]]]
             Pressure in Pascals.
         air_densities : Optional[Union[float, List[float]]]
             Air density in mol m-3. If not provided, it will be calculated from the Ideal Gas Law.
         """
-        if isinstance(temperatures, float) or isinstance(temperatures, int):
+        if temperatures is not None and (isinstance(temperatures, float) or isinstance(temperatures, int)):
             if self.__number_of_grid_cells > 1:
                 raise ValueError(
                     f"temperatures must be a list of length {self.__number_of_grid_cells}.")
             temperatures = [temperatures]
-        if isinstance(pressures, float) or isinstance(pressures, int):
+        if pressures is not None and (isinstance(pressures, float) or isinstance(pressures, int)):
             if self.__number_of_grid_cells > 1:
                 raise ValueError(
                     f"pressures must be a list of length {self.__number_of_grid_cells}.")
@@ -198,10 +199,10 @@ class State():
                 raise ValueError(
                     f"air_densities must be a list of length {self.__number_of_grid_cells}.")
             air_densities = [air_densities]
-        if len(temperatures) != self.__number_of_grid_cells:
+        if temperatures is not None and len(temperatures) != self.__number_of_grid_cells:
             raise ValueError(
                 f"temperatures must be a list of length {self.__number_of_grid_cells}.")
-        if len(pressures) != self.__number_of_grid_cells:
+        if pressures is not None and len(pressures) != self.__number_of_grid_cells:
             raise ValueError(
                 f"pressures must be a list of length {self.__number_of_grid_cells}.")
         if air_densities is not None and len(air_densities) != self.__number_of_grid_cells:
@@ -210,10 +211,10 @@ class State():
         k = 0
         for state in self.__states:
             for condition in state.conditions:
-                condition.temperature = temperatures[k]
-                condition.pressure = pressures[k]
-                condition.air_density = air_densities[k] if air_densities is not None else pressures[k] / (
-                    GAS_CONSTANT * temperatures[k])
+                condition.temperature = temperatures[k] if temperatures is not None else condition.temperature
+                condition.pressure = pressures[k] if pressures is not None else condition.pressure
+                condition.air_density = air_densities[k] if air_densities is not None else condition.pressure / (
+                    GAS_CONSTANT * condition.temperature)
                 k += 1
 
     def get_concentrations(self) -> Dict[str, List[float]]:
@@ -334,11 +335,13 @@ class MICM():
                 Mechanism object which specifies the chemical mechanism to use. If provided, this will be used
                 to create the solver.
             solver_type : SolverType, optional
-                Type of solver to use. If not provided, the default solver type will be used.
+                Type of solver to use. If not provided, the default Rosenbrock (with standard-ordered matrices) solver type will be used.
             ignore_non_gas_phases : bool, optional
                 If True, non-gas phases will be ignored when configuring micm with the mechanism. This is only needed
                 until micm properly supports non-gas phases. This option is only supported when passing in a mechanism.
         """
+        if solver_type is None:
+            solver_type = SolverType.rosenbrock_standard_order
         self.__solver_type = solver_type
         self.__vector_size = _vector_size(solver_type)
         if config_path is None and mechanism is None:
