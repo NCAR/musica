@@ -91,6 +91,23 @@ if (MUSICA_ENABLE_MICM)
     COMMAND $<TARGET_FILE:test_micm_box_model>
     WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
   )
+
+  target_link_libraries(test_micm_multiple_grid_cells
+    PRIVATE
+      musica::musica-fortran
+  )
+
+  set_target_properties(test_micm_multiple_grid_cells
+    PROPERTIES
+      LINKER_LANGUAGE Fortran
+  )
+
+  add_test(
+    NAME test_micm_multiple_grid_cells
+    COMMAND $<TARGET_FILE:test_micm_multiple_grid_cells>
+    WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+  )
+
 endif()
 
 # API Test
