@@ -122,5 +122,7 @@ Assuming you name the executable ``micm_multiple_grid_cells``, you can run the p
  Grid Cell 3 (T= 293.0K):
     0.191   0.734   0.335   0.558   0.575   0.607
 
- Solver completed successfully for all           3 grid cells!
-  $
+ Solver completed successfully for all 3 grid cells!
+
+The results differ in each grid cell due to the varying conditions.
+
