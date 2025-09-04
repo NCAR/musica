@@ -87,7 +87,6 @@
       },
       {
          "name": "extraterrestrial flux",
-         "enable diagnostics" : true,
          "type": "extraterrestrial flux",
          "units": "photon cm-2 s-1",
          "file path": ["data/profiles/solar/susim_hi.flx",
@@ -130,7 +129,6 @@
       ],
       "radiators": [
          {
-            "enable diagnostics" : true,
             "name": "air",
             "type": "base",
             "treat as air": true,
@@ -139,7 +137,6 @@
             "vertical profile units": "molecule cm-3"
          },
          {
-            "enable diagnostics" : true,
             "name": "O2",
             "type": "base",
             "cross section": "O2",
@@ -147,7 +144,6 @@
             "vertical profile units": "molecule cm-3"
          },
          {
-            "enable diagnostics" : true,
             "name": "O3",
             "type": "base",
             "cross section": "O3",
@@ -155,7 +151,6 @@
             "vertical profile units": "molecule cm-3"
          },
          {
-            "enable diagnostics" : true,
             "name": "aerosols",
             "type": "aerosol",
             "optical depths": [2.40e-01, 1.06e-01, 4.56e-02, 1.91e-02, 1.01e-02, 7.63e-03,
@@ -174,7 +169,6 @@
       ]
    },
    "photolysis": {
-      "enable diagnostics" : false,
       "reactions": [
          {
             "name": "O2+hv->O+O",
@@ -1598,7 +1592,6 @@
       ]
    },
    "dose rates": {
-      "enable diagnostics": true,
       "rates": [
          {
             "name": "RB Meter, model 501",

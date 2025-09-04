@@ -72,6 +72,12 @@ namespace musica
       return tuvx->GetHeatingRatesOrdering(error);
     }
 
+    Mappings GetDoseRatesOrdering(TUVX *tuvx, Error *error)
+    {
+      DeleteError(error);
+      return tuvx->GetDoseRatesOrdering(error);
+    }
+
     void RunTuvx(
         TUVX *const tuvx,
         const double solar_zenith_angle,

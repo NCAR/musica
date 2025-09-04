@@ -8,16 +8,42 @@
       "name": "height",
       "units": "km",
       "type": "from config file",
-      "values": [0.0, 1.0, 2.0, 3.0]
+      "values": [0.0, 1.0, 2.0, 3.0, 4.0]
     },
     {
       "name": "wavelength",
       "units": "nm",
       "type": "from config file",
       "values": [300, 400, 500, 600, 700, 800]
+    },
+    {
+      "name": "time",
+      "units": "hours",
+      "type": "from config file",
+      "values": [0.0, 6.0, 12.0, 18.0]
     }
   ],
   "profiles": [
+    {
+      "name": "solar zenith angle",
+      "units": "degrees",
+      "type": "from config file",
+      "grid": {
+        "name": "time",
+        "units": "hours"
+      },
+      "values": [0.0, 30.0, 60.0, 85.0]
+    },
+    {
+      "name": "Earth-Sun distance",
+      "units": "AU",
+      "type": "from config file",
+      "grid": {
+        "name": "time",
+        "units": "hours"
+      },
+      "values": [1.0, 0.98, 0.95, 0.99]
+    },
     {
       "name": "temperature",
       "units": "K",
@@ -26,7 +52,7 @@
         "name": "height",
         "units": "km"
       },
-      "values": [300, 275, 260, 255]
+      "values": [300, 275, 260, 255, 230]
     },
     {
       "name": "air",
@@ -36,7 +62,7 @@
         "name": "height",
         "units": "km"
       },
-      "values": [2.0e19, 1.8e19, 1.6e19, 1.2e19]
+      "values": [2.0e19, 1.8e19, 1.6e19, 1.2e19, 1.0e19]
     },
     {
       "name": "O2",
@@ -46,7 +72,7 @@
         "name": "height",
         "units": "km"
       },
-      "values": [5.0e17, 4.5e17, 4.0e17, 2.3e17]
+      "values": [5.0e17, 4.5e17, 4.0e17, 2.3e17, 1.0e17]
     },
     {
       "name": "surface albedo",
@@ -157,6 +183,34 @@
         "quantum yield": {
           "type": "base",
           "constant value": 1.0
+        }
+      }
+    ]
+  },
+  "dose rates": {
+    "rates": [
+      {
+        "name": "UV-A, 315-400 nm",
+        "weights": {
+          "type": "Notch Filter",
+          "notch filter begin": 315.0,
+          "notch filter end": 400.0
+        }
+      },
+      {
+        "name": "UV-B, 280-315 nm",
+        "weights": {
+          "type": "Notch Filter",
+          "notch filter begin": 280.0,
+          "notch filter end": 315.0
+        }
+      },
+      {
+        "name": "UV-B*, 280-320 nm",
+        "weights": {
+          "type": "Notch Filter",
+          "notch filter begin": 280.0,
+          "notch filter end": 320.0
         }
       }
     ]
