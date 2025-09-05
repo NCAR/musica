@@ -11,7 +11,7 @@ Note: TUV-x is only available on macOS and Linux platforms.
 import os
 import json
 import tempfile
-from typing import Dict, Tuple, List
+from typing import Dict, Optional, Tuple, List
 import numpy as np
 from . import backend
 
@@ -24,35 +24,53 @@ class TUVX:
     """
     A Python interface to the TUV-x photolysis calculator.
 
-    This class provides a simplified interface that only requires a JSON configuration
-    file to set up and run TUV-x calculations. All parameters (solar zenith angle,
-    earth-sun distance, atmospheric profiles, etc.) are specified in the JSON config.
+    This class provides a simplified interface that only requires a JSON/YAML configuration
+    to set up and run TUV-x calculations. All parameters (solar zenith angle,
+    earth-sun distance, atmospheric profiles, etc.) are specified in the JSON/YAML configuration.
+
+    The configuration can be in a file or provided as a string. Exactly one of `config_path` or
+    `config_string` must be provided.
     """
 
-    def __init__(self, config_path: str):
+    def __init__(self,
+                 config_path: Optional[str] = None,
+                 config_string: Optional[str] = None):
         """
         Initialize a TUV-x instance from a configuration file.
 
         Args:
             config_path: Path to the JSON configuration file
+            config_string: JSON configuration as a string
 
         Raises:
             FileNotFoundError: If the configuration file doesn't exist
             ValueError: If TUV-x initialization fails or TUVX is not available
         """
         if not backend.tuvx_available():
-            raise ValueError("TUV-x backend is not available on windows.")
+            raise ValueError("TUV-x backend is not available.")
 
-        if not os.path.exists(config_path):
+        if (config_path is None and config_string is None) or \
+           (config_path is not None and config_string is not None):
+            raise ValueError(
+                "Exactly one of config_path or config_string must be provided.")
+
+        if config_path is not None and not os.path.exists(config_path):
             raise FileNotFoundError(
                 f"Configuration file not found: {config_path}")
 
-        self._tuvx_instance = _backend._tuvx._create_tuvx(config_path)
-        self._config_path = config_path
+        if config_path is not None:
+            self._tuvx_instance = _backend._tuvx._create_tuvx_from_file(config_path)
+            self._config_path = config_path
+            self._config_string = None
+        elif config_string is not None:
+            self._tuvx_instance = _backend._tuvx._create_tuvx_from_string(config_string)
+            self._config_path = None
+            self._config_string = config_string
 
         # Cache the names for efficiency
         self._photolysis_names = None
         self._heating_names = None
+        self._dose_names = None
 
     def __del__(self):
         """Clean up the TUV-x instance."""
@@ -60,32 +78,45 @@ class TUVX:
             _backend._tuvx._delete_tuvx(self._tuvx_instance)
 
     @property
-    def photolysis_rate_names(self) -> List[str]:
+    def photolysis_rate_names(self) -> dict[str, int]:
         """
         Get the names of photolysis rates.
 
         Returns:
-            List of photolysis rate names
+            Dictionary mapping photolysis rate names to their indices in the output arrays
         """
         if self._photolysis_names is None:
-            self._photolysis_names = _backend._tuvx._get_photolysis_rate_names(
+            self._photolysis_names = _backend._tuvx._get_photolysis_rate_constants_ordering(
                 self._tuvx_instance)
         return self._photolysis_names
 
     @property
-    def heating_rate_names(self) -> List[str]:
+    def heating_rate_names(self) -> dict[str, int]:
         """
         Get the names of heating rates.
 
         Returns:
-            List of heating rate names
+            Dictionary mapping heating rate names to their indices in the output arrays
         """
         if self._heating_names is None:
-            self._heating_names = _backend._tuvx._get_heating_rate_names(
+            self._heating_names = _backend._tuvx._get_heating_rates_ordering(
                 self._tuvx_instance)
         return self._heating_names
 
-    def run(self) -> Tuple[np.ndarray, np.ndarray]:
+    @property
+    def dose_rate_names(self) -> dict[str, int]:
+        """
+        Get the names of dose rates.
+
+        Returns:
+            Dictionary mapping dose rate names to their indices in the output arrays
+        """
+        if self._dose_names is None:
+            self._dose_names = _backend._tuvx._get_dose_rates_ordering(
+                self._tuvx_instance)
+        return self._dose_names
+
+    def run(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Run the TUV-x photolysis calculator.
 
@@ -94,13 +125,14 @@ class TUVX:
 
         Returns:
             Tuple of (photolysis_rate_constants, heating_rates) as numpy arrays
-            - photolysis_rate_constants: Shape (n_layers, n_reactions) [s^-1]
-            - heating_rates: Shape (n_layers, n_heating_rates) [K s^-1]
+            - photolysis_rate_constants: Shape (n_sza, n_layers, n_reactions) [s^-1]
+            - heating_rates: Shape (n_sza, n_layers, n_heating_rates) [K s^-1]
+            - dose_rates: Shape (n_sza, n_layers, n_dose_rates) [W m^-2]
         """
-        photolysis_rates, heating_rates = _backend._tuvx._run_tuvx(
+        photolysis_rates, heating_rates, dose_rates = _backend._tuvx._run_tuvx(
             self._tuvx_instance)
 
-        return photolysis_rates, heating_rates
+        return photolysis_rates, heating_rates, dose_rates
 
     def get_photolysis_rate_constant(
         self,
@@ -127,7 +159,7 @@ class TUVX:
                 f"Available reactions: {names}"
             )
 
-        reaction_index = names.index(reaction_name)
+        reaction_index = names[reaction_name]
         return photolysis_rates[:, reaction_index]
 
     def get_heating_rate(
@@ -155,8 +187,36 @@ class TUVX:
                 f"Available rates: {names}"
             )
 
-        rate_index = names.index(rate_name)
+        rate_index = names[rate_name]
         return heating_rates[:, rate_index]
+
+    def get_dose_rate(
+        self,
+        rate_name: str,
+        dose_rates: np.ndarray
+    ) -> np.ndarray:
+        """
+        Extract dose rates for a specific rate type.
+
+        Args:
+            rate_name: Name of the dose rate
+            dose_rates: Output from run() method
+
+        Returns:
+            1D array of dose rates for all layers [W m^-2]
+
+        Raises:
+            KeyError: If rate_name is not found
+        """
+        names = self.dose_rate_names
+        if rate_name not in names:
+            raise KeyError(
+                f"Dose rate '{rate_name}' not found. "
+                f"Available rates: {names}"
+            )
+
+        rate_index = names[rate_name]
+        return dose_rates[:, rate_index]
 
     @staticmethod
     def create_config_from_dict(config_dict: Dict) -> 'TUVX':
