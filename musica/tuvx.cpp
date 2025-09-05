@@ -25,8 +25,7 @@ void bind_tuvx(py::module_& tuvx)
         }
         catch (const std::exception& e)
         {
-          throw py::value_error(
-              "Error creating TUV-x instance from config string: " + std::string(e.what()));
+          throw py::value_error("Error creating TUV-x instance from config string: " + std::string(e.what()));
         }
       },
       "Create a TUV-x instance from a JSON/YAML configuration string");
@@ -143,7 +142,7 @@ void bind_tuvx(py::module_& tuvx)
         return rate_dict;
       },
       "Get heating rate names and their ordering in the output arrays");
-      
+
   tuvx.def(
       "_get_dose_rates_ordering",
       [](std::uintptr_t tuvx_ptr)
