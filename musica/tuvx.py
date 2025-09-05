@@ -159,7 +159,7 @@ class TUVX:
                 f"Available reactions: {names}"
             )
 
-        reaction_index = names.index(reaction_name)
+        reaction_index = names[reaction_name]
         return photolysis_rates[:, reaction_index]
 
     def get_heating_rate(
@@ -187,7 +187,7 @@ class TUVX:
                 f"Available rates: {names}"
             )
 
-        rate_index = names.index(rate_name)
+        rate_index = names[rate_name]
         return heating_rates[:, rate_index]
 
     def get_dose_rate(
@@ -215,7 +215,7 @@ class TUVX:
                 f"Available rates: {names}"
             )
 
-        rate_index = names.index(rate_name)
+        rate_index = names[rate_name]
         return dose_rates[:, rate_index]
 
     @staticmethod

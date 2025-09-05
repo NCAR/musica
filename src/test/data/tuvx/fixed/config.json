@@ -8,7 +8,7 @@
       "name": "height",
       "units": "km",
       "type": "from config file",
-      "values": [0.0, 1.0, 2.0, 3.0, 4.0]
+      "values": [0.0, 1.0, 2.0, 3.0]
     },
     {
       "name": "wavelength",
@@ -20,7 +20,7 @@
       "name": "time",
       "units": "hours",
       "type": "from config file",
-      "values": [0.0, 6.0, 12.0, 18.0]
+      "values": [0.0, 6.0, 12.0, 18.0, 24.0]
     }
   ],
   "profiles": [
@@ -32,7 +32,7 @@
         "name": "time",
         "units": "hours"
       },
-      "values": [0.0, 30.0, 60.0, 85.0]
+      "values": [0.0, 30.0, 60.0, 85.0, 90.0]
     },
     {
       "name": "Earth-Sun distance",
@@ -42,7 +42,7 @@
         "name": "time",
         "units": "hours"
       },
-      "values": [1.0, 0.98, 0.95, 0.99]
+      "values": [1.0, 0.98, 0.95, 0.99, 1.0]
     },
     {
       "name": "temperature",
@@ -52,7 +52,7 @@
         "name": "height",
         "units": "km"
       },
-      "values": [300, 275, 260, 255, 230]
+      "values": [300, 275, 260, 255]
     },
     {
       "name": "air",
@@ -62,7 +62,7 @@
         "name": "height",
         "units": "km"
       },
-      "values": [2.0e19, 1.8e19, 1.6e19, 1.2e19, 1.0e19]
+      "values": [2.0e19, 1.8e19, 1.6e19, 1.2e19]
     },
     {
       "name": "O2",
@@ -72,7 +72,7 @@
         "name": "height",
         "units": "km"
       },
-      "values": [5.0e17, 4.5e17, 4.0e17, 2.3e17, 1.0e17]
+      "values": [5.0e17, 4.5e17, 4.0e17, 2.3e17]
     },
     {
       "name": "surface albedo",

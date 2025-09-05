@@ -59,12 +59,12 @@ def test_fixed_tuvx_from_file(monkeypatch):
 
     photolysis_rates, heating_rates, dose_rates = tuvx.run()
 
-    assert len(photolysis_rates) == 4, "Unexpected number of solar zenith angles for photolysis rates"
-    assert len(heating_rates) == 4, "Unexpected number of solar zenith angles for heating rates"
-    assert len(dose_rates) == 4, "Unexpected number of solar zenith angles for dose rates"
-    assert photolysis_rates.shape[1] == 5, "Unexpected number of layers for photolysis rates"
-    assert heating_rates.shape[1] == 5, "Unexpected number of layers for heating rates"
-    assert dose_rates.shape[1] == 5, "Unexpected number of layers for dose rates"
+    assert len(photolysis_rates) == 5, "Unexpected number of solar zenith angles for photolysis rates"
+    assert len(heating_rates) == 5, "Unexpected number of solar zenith angles for heating rates"
+    assert len(dose_rates) == 5, "Unexpected number of solar zenith angles for dose rates"
+    assert photolysis_rates.shape[1] == 4, "Unexpected number of layers for photolysis rates"
+    assert heating_rates.shape[1] == 4, "Unexpected number of layers for heating rates"
+    assert dose_rates.shape[1] == 4, "Unexpected number of layers for dose rates"
     assert photolysis_rates.shape[2] == len(photolysis_names_1), "Photolysis rates shape mismatch"
     assert heating_rates.shape[2] == len(heating_names_1), "Heating rates shape mismatch"
     assert dose_rates.shape[2] == len(dose_names_1), "Dose rates shape mismatch"
@@ -97,12 +97,12 @@ def test_fixed_tuvx_from_string(monkeypatch):
 
     photolysis_rates, heating_rates, dose_rates = tuvx.run()
 
-    assert len(photolysis_rates) == 4, "Unexpected number of solar zenith angles for photolysis rates"
-    assert len(heating_rates) == 4, "Unexpected number of solar zenith angles for heating rates"
-    assert len(dose_rates) == 4, "Unexpected number of solar zenith angles for dose rates"
-    assert photolysis_rates.shape[1] == 5, "Unexpected number of layers for photolysis rates"
-    assert heating_rates.shape[1] == 5, "Unexpected number of layers for heating rates"
-    assert dose_rates.shape[1] == 5, "Unexpected number of layers for dose rates"
+    assert len(photolysis_rates) == 5, "Unexpected number of solar zenith angles for photolysis rates"
+    assert len(heating_rates) == 5, "Unexpected number of solar zenith angles for heating rates"
+    assert len(dose_rates) == 5, "Unexpected number of solar zenith angles for dose rates"
+    assert photolysis_rates.shape[1] == 4, "Unexpected number of layers for photolysis rates"
+    assert heating_rates.shape[1] == 4, "Unexpected number of layers for heating rates"
+    assert dose_rates.shape[1] == 4, "Unexpected number of layers for dose rates"
     assert photolysis_rates.shape[2] == len(photolysis_names_1), "Photolysis rates shape mismatch"
     assert heating_rates.shape[2] == len(heating_names_1), "Heating rates shape mismatch"
     assert dose_rates.shape[2] == len(dose_names_1), "Dose rates shape mismatch"
