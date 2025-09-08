@@ -47,6 +47,38 @@ void bind_tuvx_grid(py::module_ &grid)
           }))
       .def("__del__", [](musica::Grid &grid) {})
       .def_property_readonly(
+          "name",
+          [](musica::Grid &self)
+          {
+            musica::Error error;
+            std::string name = self.GetName(&error);
+            if (!musica::IsSuccess(error))
+            {
+              std::string message = "Error getting grid name: " + std::string(error.message_.value_);
+              musica::DeleteError(&error);
+              throw py::value_error(message);
+            }
+            musica::DeleteError(&error);
+            return name;
+          },
+          "The name of the grid")
+      .def_property_readonly(
+          "units",
+          [](musica::Grid &self)
+          {
+            musica::Error error;
+            std::string units = self.GetUnits(&error);
+            if (!musica::IsSuccess(error))
+            {
+              std::string message = "Error getting grid units: " + std::string(error.message_.value_);
+              musica::DeleteError(&error);
+              throw py::value_error(message);
+            }
+            musica::DeleteError(&error);
+            return units;
+          },
+          "The units of the grid")
+      .def_property_readonly(
           "num_sections",
           [](musica::Grid &self)
           {

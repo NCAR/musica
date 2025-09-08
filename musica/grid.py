@@ -55,14 +55,14 @@ if backend.tuvx_available():
 
     def __str__(self):
         """User-friendly string representation."""
-        return f"Grid(num_sections={self.num_sections})"
+        return f"Grid(name={self.name}, units={self.units}, num_sections={self.num_sections})"
 
     Grid.__str__ = __str__
 
     def __repr__(self):
         """Detailed string representation for debugging."""
-        return (f"Grid(num_sections={self.num_sections}, "
-                f"edges={self.edges}), midpoints={self.midpoints})")
+        return (f"Grid(name={self.name}, units={self.units}, num_sections={self.num_sections}, "
+                f"edges={self.edges}, midpoints={self.midpoints})")
 
     Grid.__repr__ = __repr__
 
@@ -76,7 +76,9 @@ if backend.tuvx_available():
         """Check equality with another Grid instance."""
         if not isinstance(other, Grid):
             return NotImplemented
-        return (self.num_sections == other.num_sections and
+        return (self.name == other.name and
+                self.units == other.units and
+                self.num_sections == other.num_sections and
                 np.array_equal(self.edges, other.edges) and
                 np.array_equal(self.midpoints, other.midpoints))
 
