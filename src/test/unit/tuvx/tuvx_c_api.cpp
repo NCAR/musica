@@ -156,6 +156,10 @@ TEST_F(TuvxCApiTest, CanCreateGrid)
   Grid* grid = CreateGrid("foo", "m", 2, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_NE(grid, nullptr);
+  ASSERT_EQ(grid->GetName(&error), "foo");
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(grid->GetUnits(&error), "m");
+  ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(GetGridNumSections(grid, &error), 2);
   ASSERT_TRUE(IsSuccess(error));
   std::vector<double> edges = { 0.0, 100.0, 200.0 };

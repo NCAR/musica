@@ -34,6 +34,7 @@ namespace musica
 
   std::size_t GetGridNumSections(Grid *grid, Error *error)
   {
+    DeleteError(error);
     return grid->GetNumSections(error);
   }
 
@@ -93,8 +94,41 @@ namespace musica
     updater_ = nullptr;
   }
 
+  std::string Grid::GetName(Error *error)
+  {
+    DeleteError(error);
+    int error_code = 0;
+    String name = InternalGetGridName(grid_, &error_code);
+    if (error_code != 0)
+    {
+      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get grid name") };
+      return "";
+    }
+    *error = NoError();
+    std::string value(name.value_, name.size_);
+    DeleteString(&name);
+    return value;
+  }
+
+  std::string Grid::GetUnits(Error *error)
+  {
+    DeleteError(error);
+    int error_code = 0;
+    String units = InternalGetGridUnits(grid_, &error_code);
+    if (error_code != 0)
+    {
+      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get grid units") };
+      return "";
+    }
+    *error = NoError();
+    std::string value(units.value_, units.size_);
+    DeleteString(&units);
+    return value;
+  }
+
   std::size_t Grid::GetNumSections(Error *error)
   {
+    DeleteError(error);
     int error_code = 0;
     std::size_t n_sections = InternalGetNumSections(updater_, &error_code);
     if (error_code != 0)
@@ -102,11 +136,13 @@ namespace musica
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get number of sections") };
       return 0;
     }
+    *error = NoError();
     return n_sections;
   }
 
   void Grid::SetEdges(double edges[], std::size_t num_edges, Error *error)
   {
+    DeleteError(error);
     int error_code = 0;
     if (updater_ == nullptr)
     {
@@ -124,6 +160,7 @@ namespace musica
 
   void Grid::GetEdges(double edges[], std::size_t num_edges, Error *error)
   {
+    DeleteError(error);
     int error_code = 0;
     if (updater_ == nullptr)
     {
@@ -141,6 +178,7 @@ namespace musica
 
   void Grid::SetMidpoints(double midpoints[], std::size_t num_midpoints, Error *error)
   {
+    DeleteError(error);
     int error_code = 0;
     if (updater_ == nullptr)
     {
@@ -158,6 +196,7 @@ namespace musica
 
   void Grid::GetMidpoints(double midpoints[], std::size_t num_midpoints, Error *error)
   {
+    DeleteError(error);
     int error_code = 0;
     if (updater_ == nullptr)
     {

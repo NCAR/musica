@@ -116,6 +116,54 @@ module tuvx_interface_grid
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+  function internal_get_grid_name(grid, error_code) &
+      bind(C, name="InternalGetGridName") result(name)
+    use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_size_t
+    use tuvx_interface_util, only: string_t_c, create_string_t_c
+    use tuvx_grid_from_host, only: grid_from_host_t
+
+    ! arguments
+    type(c_ptr), value,  intent(in)  :: grid
+    integer(kind=c_int), intent(out) :: error_code
+
+    ! output
+    type(string_t_c) :: name
+
+    ! variables
+    type(grid_from_host_t), pointer :: f_grid
+  
+    call c_f_pointer(grid, f_grid)
+
+    name = create_string_t_c(f_grid%handle_%val_)
+
+  end function internal_get_grid_name
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function internal_get_grid_units(grid, error_code) &
+      bind(C, name="InternalGetGridUnits") result(units)
+    use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_size_t
+    use tuvx_interface_util, only: string_t_c, create_string_t_c
+    use tuvx_grid_from_host, only: grid_from_host_t
+
+    ! arguments
+    type(c_ptr), value,  intent(in)  :: grid
+    integer(kind=c_int), intent(out) :: error_code
+
+    ! output
+    type(string_t_c) :: units
+
+    ! variables
+    type(grid_from_host_t), pointer :: f_grid
+  
+    call c_f_pointer(grid, f_grid)
+
+    units = create_string_t_c(f_grid%units_%val_)
+
+  end function internal_get_grid_units
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
   function internal_get_num_sections(updater, error_code) &
       bind(C, name="InternalGetNumSections") result(num_sections)
     use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_size_t

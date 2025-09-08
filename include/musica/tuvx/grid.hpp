@@ -27,6 +27,16 @@ namespace musica
 
     ~Grid();
 
+    /// @brief Get the name of the grid
+    /// @param error The error struct to indicate success or failure
+    /// @return The name of the grid
+    std::string GetName(Error *error);
+
+    /// @brief Get the units of the grid
+    /// @param error The error struct to indicate success or failure
+    /// @return The units of the grid
+    std::string GetUnits(Error *error);
+
     /// @brief Return the number of sections in the grid
     /// @param error The error struct to indicate success or failure
     /// @return The number of sections in the grid
@@ -88,6 +98,18 @@ namespace musica
     /// @param error The error struct to indicate success or failure
     Grid *CreateGrid(const char *grid_name, const char *units, std::size_t num_sections, Error *error);
 
+    /// @brief Gets the name of the grid
+    /// @param grid The grid to get the name from
+    /// @param error The error struct to indicate success or failure
+    /// @return The name of the grid
+    const char *GetGridName(Grid *grid, Error *error);
+
+    /// @brief Gets the units of the grid
+    /// @param grid The grid to get the units from
+    /// @param error The error struct to indicate success or failure
+    /// @return The units of the grid
+    const char *GetGridUnits(Grid *grid, Error *error);
+
     /// @brief Gets the number of sections in the grid
     /// @param grid The grid to get the number of sections from
     /// @param error The error struct to indicate success or failure
@@ -140,8 +162,8 @@ namespace musica
     void InternalDeleteGrid(void *grid, int *error_code);
     void *InternalGetGridUpdater(void *grid, int *error_code);
     void InternalDeleteGridUpdater(void *updater, int *error_code);
-    std::string InternalGetGridName(void *grid, int *error_code);
-    std::string InternalGetGridUnits(void *grid, int *error_code);
+    String InternalGetGridName(void *grid, int *error_code);
+    String InternalGetGridUnits(void *grid, int *error_code);
     std::size_t InternalGetNumSections(void *grid, int *error_code);
     void InternalSetEdges(void *grid, double edges[], std::size_t num_edges, int *error_code);
     void InternalGetEdges(void *grid, double edges[], std::size_t num_edges, int *error_code);
