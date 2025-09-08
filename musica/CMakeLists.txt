@@ -18,6 +18,7 @@ set(
 if (MUSICA_ENABLE_TUVX)
   list(APPEND MUSICA_PYTHON_SOURCES
     tuvx.cpp
+    grid.cpp
   )
 endif()
 
