@@ -78,11 +78,11 @@ jobs:
       shell: msys2 {0}
       run: pip install -v .[test]
 
-    # - name: Test (Non-Windows)
-    #   if: matrix.os != 'windows-latest'
-    #   run: pytest -s
+    - name: Test (Non-Windows)
+      if: matrix.os != 'windows-latest'
+      run: pytest -s
 
-    # - name: Test (Windows with MINGW)
-    #   if: matrix.os == 'windows-latest'
-    #   shell: msys2 {0}
-    #   run: pytest -s
+    - name: Test (Windows with MINGW)
+      if: matrix.os == 'windows-latest'
+      shell: msys2 {0}
+      run: pytest -s
