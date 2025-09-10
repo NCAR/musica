@@ -272,8 +272,8 @@ def run_box_model():
     state.set_concentrations(initial_concentrations)
     state.set_user_defined_rate_parameters({"EMIS.SO2": np.full(NUMBER_OF_GRID_CELLS, 1.0e-8, dtype=np.float64)})
 
-    # Run the simulation for 6 hours with a timestep of 30 seconds
-    time_hours = 2.0
+    # Run the simulation for 30 minutes with a timestep of 30 seconds
+    time_hours = 0.5
     time_seconds = time_hours * np.float64(3600.0)
     dt = np.float64(30.0)
     num_steps = int(time_seconds / dt)

@@ -57,6 +57,12 @@ namespace musica
     /// @return Array of heating rate name-index pairs
     Mappings GetHeatingRatesOrdering(TUVX *tuvx, Error *error);
 
+    /// @brief Returns the ordering of dose rates
+    /// @param tuvx Pointer to TUVX instance
+    /// @param error Error struct to indicate success or failure
+    /// @return Array of dose rate name-index pairs
+    Mappings GetDoseRatesOrdering(TUVX *tuvx, Error *error);
+
     /// @brief Run the TUV-x photolysis calculator
     /// @param tuvx Pointer to TUVX instance
     /// @param solar_zenith_angle Solar zenith angle [radians]
@@ -89,6 +95,7 @@ namespace musica
     void *InternalGetRadiatorMap(void *tuvx, int *error_code);
     Mappings InternalGetPhotolysisRateConstantsOrdering(void *tuvx, int *error_code);
     Mappings InternalGetHeatingRatesOrdering(void *tuvx, int *error_code);
+    Mappings InternalGetDoseRatesOrdering(void *tuvx, int *error_code);
     void InternalRunTuvx(
         void *tuvx,
         const int number_of_layers,
@@ -101,14 +108,19 @@ namespace musica
     void InternalGetTuvxVersion(char **version_ptr, int *version_length);
     void InternalFreeTuvxVersion(char *version_ptr, int version_length);
 
-    void *InternalCreateTuvxFromConfig(const char *config_path, int config_path_length, int *error_code);
-    void InternalRunTuvxFromConfig(void *tuvx, double *photolysis_rates, double *heating_rates, int *error_code);
-    int InternalGetPhotolysisRateCount(void *tuvx, int *error_code);
+    void *InternalCreateTuvxFromConfigString(const char *config_string, int config_string_length, int *error_code);
+    void *InternalCreateTuvxFromConfigFile(const char *config_path, int config_path_length, int *error_code);
+    void InternalRunTuvxFromConfig(
+        void *tuvx,
+        double *photolysis_rates,
+        double *heating_rates,
+        double *dose_rates,
+        int *error_code);
+    int InternalGetPhotolysisRateConstantCount(void *tuvx, int *error_code);
     int InternalGetHeatingRateCount(void *tuvx, int *error_code);
+    int InternalGetDoseRateCount(void *tuvx, int *error_code);
     int InternalGetNumberOfLayers(void *tuvx, int *error_code);
     int InternalGetNumberOfSzaSteps(void *tuvx, int *error_code);
-    void InternalGetPhotolysisRateNames(void *tuvx, char **names, int *error_code);
-    void InternalGetHeatingRateNames(void *tuvx, char **names, int *error_code);
 
 #ifdef __cplusplus
   }

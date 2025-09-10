@@ -27,3 +27,5 @@ ENV CC=gcc
 ENV FC=gfortran
 
 RUN cd musica && pip install .[test]
+
+WORKDIR /musica

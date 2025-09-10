@@ -69,7 +69,30 @@ namespace musica
     }
   }
 
-  void TUVX::CreateFromConfigOnly(const char *config_path)
+  void TUVX::CreateFromConfigString(const char *config_string)
+  {
+    int error_code = 0;
+    if (config_string == nullptr || strlen(config_string) == 0)
+    {
+      throw std::runtime_error("Configuration string is empty");
+    }
+
+    tuvx_ = InternalCreateTuvxFromConfigString(config_string, strlen(config_string), &error_code);
+    if (error_code != 0 || tuvx_ == nullptr)
+    {
+      throw std::runtime_error("Failed to create TUV-x instance from JSON/YAML string");
+    }
+
+    is_config_only_mode_ = true;
+    // Get number of layers for this mode
+    this->number_of_layers_ = InternalGetNumberOfLayers(tuvx_, &error_code);
+    if (error_code != 0)
+    {
+      throw std::runtime_error("Failed to get number of layers");
+    }
+  }
+
+  void TUVX::CreateFromConfigFile(const char *config_path)
   {
     int error_code = 0;
 
@@ -79,10 +102,10 @@ namespace musica
       throw std::runtime_error("Config file does not exist: " + std::string(config_path));
     }
 
-    tuvx_ = InternalCreateTuvxFromConfig(config_path, strlen(config_path), &error_code);
+    tuvx_ = InternalCreateTuvxFromConfigFile(config_path, strlen(config_path), &error_code);
     if (error_code != 0 || tuvx_ == nullptr)
     {
-      throw std::runtime_error("Failed to create tuvx instance from config");
+      throw std::runtime_error("Failed to create TUV-x instance from JSON/YAML file");
     }
 
     is_config_only_mode_ = true;
@@ -138,7 +161,7 @@ namespace musica
   {
     *error = NoError();
     int error_code = 0;
-    Mappings mappings = InternalGetPhotolysisRateConstantsOrdering(tuvx_, &error_code);
+    musica::Mappings mappings = InternalGetPhotolysisRateConstantsOrdering(tuvx_, &error_code);
     if (error_code != 0)
     {
       *error =
@@ -151,10 +174,22 @@ namespace musica
   {
     *error = NoError();
     int error_code = 0;
-    Mappings mappings = InternalGetHeatingRatesOrdering(tuvx_, &error_code);
+    musica::Mappings mappings = InternalGetHeatingRatesOrdering(tuvx_, &error_code);
     if (error_code != 0)
     {
       *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get heating rates ordering") };
+    }
+    return mappings;
+  }
+
+  Mappings TUVX::GetDoseRatesOrdering(Error *error)
+  {
+    *error = NoError();
+    int error_code = 0;
+    musica::Mappings mappings = InternalGetDoseRatesOrdering(tuvx_, &error_code);
+    if (error_code != 0)
+    {
+      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get dose rates ordering") };
     }
     return mappings;
   }
@@ -183,7 +218,7 @@ namespace musica
     }
   }
 
-  void TUVX::RunFromConfig(double *const photolysis_rate_constants, double *const heating_rates)
+  void TUVX::RunFromConfig(double *const photolysis_rate_constants, double *const heating_rates, double *const dose_rates)
   {
     if (!is_config_only_mode_)
     {
@@ -191,25 +226,25 @@ namespace musica
     }
 
     int error_code = 0;
-    InternalRunTuvxFromConfig(tuvx_, photolysis_rate_constants, heating_rates, &error_code);
+    InternalRunTuvxFromConfig(tuvx_, photolysis_rate_constants, heating_rates, dose_rates, &error_code);
     if (error_code != 0)
     {
       throw std::runtime_error("Failed to run TUV-x from config");
     }
   }
 
-  int TUVX::GetPhotolysisRateCount()
+  int TUVX::GetPhotolysisRateConstantCount()
   {
     if (!is_config_only_mode_)
     {
-      throw std::runtime_error("GetPhotolysisRateCount requires config-only mode");
+      throw std::runtime_error("GetPhotolysisRateConstantCount requires config-only mode");
     }
 
     int error_code = 0;
-    int count = InternalGetPhotolysisRateCount(tuvx_, &error_code);
+    int count = InternalGetPhotolysisRateConstantCount(tuvx_, &error_code);
     if (error_code != 0)
     {
-      throw std::runtime_error("Failed to get photolysis rate count");
+      throw std::runtime_error("Failed to get photolysis rate constant count");
     }
     return count;
   }
@@ -226,6 +261,22 @@ namespace musica
     if (error_code != 0)
     {
       throw std::runtime_error("Failed to get heating rate count");
+    }
+    return count;
+  }
+
+  int TUVX::GetDoseRateCount()
+  {
+    if (!is_config_only_mode_)
+    {
+      throw std::runtime_error("GetDoseRateCount requires config-only mode");
+    }
+
+    int error_code = 0;
+    int count = InternalGetDoseRateCount(tuvx_, &error_code);
+    if (error_code != 0)
+    {
+      throw std::runtime_error("Failed to get dose rate count");
     }
     return count;
   }
@@ -260,56 +311,6 @@ namespace musica
       throw std::runtime_error("Failed to get number of SZA steps");
     }
     return count;
-  }
-
-  std::vector<std::string> TUVX::GetPhotolysisRateNames()
-  {
-    std::vector<std::string> names;
-
-    if (!is_config_only_mode_)
-    {
-      throw std::runtime_error("GetPhotolysisRateNames requires config-only mode");
-    }
-
-    // For now, return placeholder names since we'd need to implement
-    // GetPhotolysisRateNames in Fortran to get actual names
-    int error_code = 0;
-    int count = InternalGetPhotolysisRateCount(tuvx_, &error_code);
-    if (error_code != 0)
-    {
-      throw std::runtime_error("Failed to get photolysis rate count");
-    }
-
-    for (int i = 0; i < count; ++i)
-    {
-      names.push_back("photolysis_" + std::to_string(i));
-    }
-    return names;
-  }
-
-  std::vector<std::string> TUVX::GetHeatingRateNames()
-  {
-    std::vector<std::string> names;
-
-    if (!is_config_only_mode_)
-    {
-      throw std::runtime_error("GetHeatingRateNames requires config-only mode");
-    }
-
-    // For now, return placeholder names since we'd need to implement
-    // GetHeatingRateNames in Fortran to get actual names
-    int error_code = 0;
-    int count = InternalGetHeatingRateCount(tuvx_, &error_code);
-    if (error_code != 0)
-    {
-      throw std::runtime_error("Failed to get heating rate count");
-    }
-
-    for (int i = 0; i < count; ++i)
-    {
-      names.push_back("heating_" + std::to_string(i));
-    }
-    return names;
   }
 
   std::string TUVX::GetVersion()

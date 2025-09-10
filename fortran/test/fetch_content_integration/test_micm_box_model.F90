@@ -4,10 +4,16 @@ program test_micm_box_model
   use, intrinsic :: ieee_arithmetic
 
   use iso_fortran_env, only : real64
-  use musica_util, only: error_t, string_t, mapping_t
+  use musica_util, only: assert, error_t, string_t, mapping_t
   use musica_micm, only: micm_t, solver_stats_t
   use musica_micm, only: Rosenbrock, RosenbrockStandardOrder
   use musica_state, only: conditions_t, state_t
+
+#define ASSERT( expr ) call assert( expr, __FILE__, __LINE__ )
+#define ASSERT_EQ( a, b ) call assert( a == b, __FILE__, __LINE__ )
+#define ASSERT_NE( a, b ) call assert( a /= b, __FILE__, __LINE__ )
+#define ASSERT_NEAR( a, b, tol ) call assert( abs(a - b) < abs(a + b) * tol, __FILE__, __LINE__ )
+#define ASSERT_GT( a, b ) call assert( a > b, __FILE__, __LINE__ )
 
   implicit none
 
@@ -36,10 +42,12 @@ contains
     num_grid_cells = 1
 
     write(*,*) "Creating MICM solver..."
-    micm => micm_t(config_path, solver_type, error)  
+    micm => micm_t(config_path, solver_type, error)
+    ASSERT( error%is_success() )
 
     write(*,*) "Creating State..."    
     state => micm%get_state(num_grid_cells, error)
+    ASSERT( error%is_success() )
 
     time_step = 200
 
@@ -64,6 +72,8 @@ contains
 
     write(*,*) "Solving starts..."
     call micm%solve(time_step, state, solver_state, solver_stats, error)
+    ASSERT( error%is_success() )
+
     write(*,*) "After solving, concentrations", state%concentrations
     deallocate( micm )
     deallocate( state )
@@ -92,9 +102,11 @@ contains
 
     write(*,*) "Creating MICM solver..."
     micm => micm_t(config_path, solver_type, error)
+    ASSERT( error%is_success() )
     
     write(*,*) "Creating State..."
     state => micm%get_state(num_grid_cells, error)
+    ASSERT( error%is_success() )
 
     state%conditions(1)%temperature = 273.0
     state%conditions(1)%pressure    = 1.0e5
@@ -117,6 +129,7 @@ contains
 
     write(*,*) "Solving starts..."
     call micm%solve(time_step, state, solver_state, solver_stats, error)
+    ASSERT( error%is_success() )
     write(*,*) "After solving, concentrations", state%concentrations
 
     deallocate( micm )
