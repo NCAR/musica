@@ -2,6 +2,8 @@
 
 void bind_cuda(py::module_ &);
 void bind_musica(py::module_ &);
+void bind_tuvx_grid(py::module_ &);
+void bind_tuvx_grid_map(py::module_ &);
 #ifdef MUSICA_USE_TUVX
 void bind_tuvx(py::module_ &);
 #endif
@@ -22,6 +24,8 @@ void bind_all(py::module_ &m)
   bind_cuda(core);
   bind_musica(core);
 #ifdef MUSICA_USE_TUVX
+  bind_tuvx_grid(tuvx);
+  bind_tuvx_grid_map(tuvx);
   bind_tuvx(tuvx);
 #endif
 
