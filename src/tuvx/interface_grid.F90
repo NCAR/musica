@@ -9,6 +9,10 @@ module tuvx_interface_grid
 
   private
 
+  integer, parameter :: ERROR_NONE = 0
+  integer, parameter :: ERROR_UNALLOCATED_GRID_UPDATER = 1
+  integer, parameter :: ERROR_GRID_SIZE_MISMATCH = 2
+
   contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -34,6 +38,7 @@ module tuvx_interface_grid
     type(string_t) :: f_name, f_units
     integer :: i
 
+    error_code = ERROR_NONE
     allocate(character(len=grid_name_length) :: f_name%val_)
     do i = 1, grid_name_length
       f_name%val_(i:i) = grid_name(i)
@@ -62,6 +67,7 @@ module tuvx_interface_grid
     ! variables
     type(grid_t), pointer :: f_grid
 
+    error_code = ERROR_NONE
     call c_f_pointer(grid, f_grid)
     if (associated(f_grid)) then
       deallocate(f_grid)
@@ -86,7 +92,8 @@ module tuvx_interface_grid
     ! variables
     type(grid_from_host_t), pointer :: f_grid
     type(grid_updater_t), pointer :: f_updater
-  
+
+    error_code = ERROR_NONE 
     call c_f_pointer(grid, f_grid)
     allocate(f_updater, source = grid_updater_t(f_grid))
     updater = c_loc(f_updater)
@@ -107,6 +114,7 @@ module tuvx_interface_grid
     ! variables
     type(grid_updater_t), pointer :: f_updater
 
+    error_code = ERROR_NONE
     call c_f_pointer(updater, f_updater)
     if (associated(f_updater)) then
       deallocate(f_updater)
@@ -116,56 +124,56 @@ module tuvx_interface_grid
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  function internal_get_grid_name(grid, error_code) &
+  function internal_get_grid_name(updater, error_code) &
       bind(C, name="InternalGetGridName") result(name)
     use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_size_t
     use tuvx_interface_util, only: string_t_c, create_string_t_c
-    use tuvx_grid_from_host, only: grid_from_host_t
+    use tuvx_grid_from_host, only: grid_updater_t
 
     ! arguments
-    type(c_ptr), value,  intent(in)  :: grid
+    type(c_ptr), value,  intent(in)  :: updater
     integer(kind=c_int), intent(out) :: error_code
 
     ! output
     type(string_t_c) :: name
 
     ! variables
-    type(grid_from_host_t), pointer :: f_grid
-  
-    call c_f_pointer(grid, f_grid)
+    type(grid_updater_t), pointer :: f_updater
 
-    name = create_string_t_c(f_grid%handle_%val_)
+    error_code = ERROR_NONE
+    call c_f_pointer(updater, f_updater)
+    name = create_string_t_c(f_updater%grid_%handle_%val_)
 
   end function internal_get_grid_name
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  function internal_get_grid_units(grid, error_code) &
+  function internal_get_grid_units(updater, error_code) &
       bind(C, name="InternalGetGridUnits") result(units)
     use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_size_t
     use tuvx_interface_util, only: string_t_c, create_string_t_c
-    use tuvx_grid_from_host, only: grid_from_host_t
+    use tuvx_grid_from_host, only: grid_updater_t
 
     ! arguments
-    type(c_ptr), value,  intent(in)  :: grid
+    type(c_ptr), value,  intent(in)  :: updater
     integer(kind=c_int), intent(out) :: error_code
 
     ! output
     type(string_t_c) :: units
 
     ! variables
-    type(grid_from_host_t), pointer :: f_grid
-  
-    call c_f_pointer(grid, f_grid)
+    type(grid_updater_t), pointer :: f_updater
 
-    units = create_string_t_c(f_grid%units_%val_)
+    error_code = ERROR_NONE
+    call c_f_pointer(updater, f_updater)
+    units = create_string_t_c(f_updater%grid_%units_%val_)
 
   end function internal_get_grid_units
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  function internal_get_num_sections(updater, error_code) &
-      bind(C, name="InternalGetNumSections") result(num_sections)
+  function internal_get_number_of_sections(updater, error_code) &
+      bind(C, name="InternalGetNumberOfSections") result(num_sections)
     use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_size_t
     use tuvx_grid_from_host, only: grid_updater_t
 
@@ -179,11 +187,17 @@ module tuvx_interface_grid
     ! variables
     type(grid_updater_t), pointer :: f_updater
 
+    error_code = ERROR_NONE
     call c_f_pointer(updater, f_updater)
+    if (.not. associated(f_updater%grid_)) then
+      error_code = ERROR_UNALLOCATED_GRID_UPDATER
+      num_sections = 0
+      return
+    end if
     num_sections = f_updater%grid_%size( )
 
-  end function internal_get_num_sections
-  
+  end function internal_get_number_of_sections
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   subroutine internal_set_edges(grid_updater, edges, num_edges, error_code) &
@@ -206,7 +220,7 @@ module tuvx_interface_grid
     call c_f_pointer(edges, f_edges, [num_edges])
 
     if (size(f_updater%grid_%edge_) /= num_edges) then
-      error_code = 1
+      error_code = ERROR_GRID_SIZE_MISMATCH
       return
     end if
     f_updater%grid_%edge_(:) = f_edges(:)
@@ -236,7 +250,7 @@ module tuvx_interface_grid
     call c_f_pointer(edges, f_edges, [num_edges])
 
     if (size(f_updater%grid_%edge_) /= num_edges) then
-      error_code = 1
+      error_code = ERROR_GRID_SIZE_MISMATCH
       return
     end if
     f_edges(:) = f_updater%grid_%edge_(:)
@@ -265,7 +279,7 @@ module tuvx_interface_grid
     call c_f_pointer(midpoints, f_midpoints, [num_midpoints])
 
     if (size(f_updater%grid_%mid_) /= num_midpoints) then
-      error_code = 1
+      error_code = ERROR_GRID_SIZE_MISMATCH
       return
     end if
     f_updater%grid_%mid_(:) = f_midpoints(:)
@@ -294,7 +308,7 @@ module tuvx_interface_grid
     call c_f_pointer(midpoints, f_midpoints, [num_midpoints])
 
     if (size(f_updater%grid_%mid_) /= num_midpoints) then
-      error_code = 1
+      error_code = ERROR_GRID_SIZE_MISMATCH
       return
     end if
     f_midpoints(:) = f_updater%grid_%mid_(:)

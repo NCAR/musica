@@ -32,14 +32,14 @@ module musica_tuvx_grid
       type(error_t_c), intent(inout) :: error
     end subroutine delete_grid_c
 
-    function get_grid_num_sections_c(grid, error) &
-      bind(C, name="GetGridNumSections")
+    function get_grid_number_of_sections_c(grid, error) &
+      bind(C, name="GetGridNumberOfSections")
       use iso_c_binding, only : c_ptr, c_size_t
       use musica_util, only: error_t_c
       type(c_ptr), value, intent(in) :: grid
       type(error_t_c), intent(inout) :: error
-      integer(c_size_t) :: get_grid_num_sections_c
-    end function get_grid_num_sections_c
+      integer(c_size_t) :: get_grid_number_of_sections_c
+    end function get_grid_number_of_sections_c
 
     subroutine set_grid_edges_c(grid, edges, n_edges, error) &
       bind(C, name="SetGridEdges")
