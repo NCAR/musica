@@ -163,7 +163,7 @@ contains
     ! Local variables
     type(error_t_c) :: error_c
 
-    n_sections = int( get_grid_num_sections_c(this%ptr_, error_c) )
+    n_sections = int( get_grid_number_of_sections_c(this%ptr_, error_c) )
     error = error_t(error_c)
 
   end function number_of_sections
