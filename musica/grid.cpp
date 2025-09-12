@@ -83,7 +83,7 @@ void bind_tuvx_grid(py::module_ &grid)
           [](musica::Grid &self)
           {
             musica::Error error;
-            std::size_t num_sections = self.GetNumSections(&error);
+            std::size_t num_sections = self.GetNumberOfSections(&error);
             if (!musica::IsSuccess(error))
             {
               std::string message = "Error getting number of grid sections: " + std::string(error.message_.value_);
@@ -99,7 +99,7 @@ void bind_tuvx_grid(py::module_ &grid)
           [](musica::Grid &self)
           {
             musica::Error error;
-            size_t size = self.GetNumSections(&error) + 1;
+            size_t size = self.GetNumberOfSections(&error) + 1;
             if (!musica::IsSuccess(error))
             {
               std::string message = "Error getting number of grid sections: " + std::string(error.message_.value_);
@@ -123,7 +123,7 @@ void bind_tuvx_grid(py::module_ &grid)
           {
             py::buffer_info buf = array.request();
             musica::Error error;
-            size_t size = self.GetNumSections(&error) + 1;
+            size_t size = self.GetNumberOfSections(&error) + 1;
             if (!musica::IsSuccess(error))
             {
               std::string message = "Error getting number of grid sections: " + std::string(error.message_.value_);
@@ -154,7 +154,7 @@ void bind_tuvx_grid(py::module_ &grid)
           [](musica::Grid &self)
           {
             musica::Error error;
-            size_t size = self.GetNumSections(&error);
+            size_t size = self.GetNumberOfSections(&error);
             if (!musica::IsSuccess(error))
             {
               std::string message = "Error getting number of grid sections: " + std::string(error.message_.value_);
@@ -178,7 +178,7 @@ void bind_tuvx_grid(py::module_ &grid)
           {
             py::buffer_info buf = array.request();
             musica::Error error;
-            size_t size = self.GetNumSections(&error);
+            size_t size = self.GetNumberOfSections(&error);
             if (!musica::IsSuccess(error))
             {
               std::string message = "Error getting number of grid sections: " + std::string(error.message_.value_);

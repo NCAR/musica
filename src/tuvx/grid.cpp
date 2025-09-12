@@ -11,15 +11,17 @@ namespace
   constexpr int ERROR_NONE = 0;
   constexpr int ERROR_UNALLOCATED_GRID_UPDATER = 1;
   constexpr int ERROR_GRID_SIZE_MISMATCH = 2;
-  constexpr const char* GetErrorMessage(int code) {
-    switch (code) {
+  constexpr const char *GetErrorMessage(int code)
+  {
+    switch (code)
+    {
       case ERROR_NONE: return "Success";
       case ERROR_UNALLOCATED_GRID_UPDATER: return "Unallocated grid updater";
       case ERROR_GRID_SIZE_MISMATCH: return "Grid size mismatch";
       default: return "Unknown error";
     }
   }
-}
+}  // namespace
 
 namespace musica
 {
@@ -134,7 +136,7 @@ namespace musica
   {
     DeleteError(error);
     int error_code = 0;
-    if (grid_ == nullptr)
+    if (updater_ == nullptr)
     {
       *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
       return "";
