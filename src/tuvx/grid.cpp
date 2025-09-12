@@ -117,6 +117,7 @@ namespace musica
     int error_code = 0;
     if (updater_ == nullptr)
     {
+      error_code = ERROR_UNALLOCATED_GRID_UPDATER;
       *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
       return "";
     }
@@ -138,6 +139,7 @@ namespace musica
     int error_code = 0;
     if (updater_ == nullptr)
     {
+      error_code = ERROR_UNALLOCATED_GRID_UPDATER;
       *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
       return "";
     }
@@ -159,6 +161,7 @@ namespace musica
     int error_code = 0;
     if (updater_ == nullptr)
     {
+      error_code = ERROR_UNALLOCATED_GRID_UPDATER;
       *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
       return 0;
     }
@@ -178,6 +181,7 @@ namespace musica
     int error_code = 0;
     if (updater_ == nullptr)
     {
+      error_code = ERROR_UNALLOCATED_GRID_UPDATER;
       *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
       return;
     }
@@ -196,6 +200,7 @@ namespace musica
     int error_code = 0;
     if (updater_ == nullptr)
     {
+      error_code = ERROR_UNALLOCATED_GRID_UPDATER;
       *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
       return;
     }
@@ -214,6 +219,7 @@ namespace musica
     int error_code = 0;
     if (updater_ == nullptr)
     {
+      error_code = ERROR_UNALLOCATED_GRID_UPDATER;
       *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
       return;
     }
@@ -232,6 +238,7 @@ namespace musica
     int error_code = 0;
     if (updater_ == nullptr)
     {
+      error_code = ERROR_UNALLOCATED_GRID_UPDATER;
       *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
       return;
     }
