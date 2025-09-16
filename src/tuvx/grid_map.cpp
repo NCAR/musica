@@ -17,8 +17,10 @@ namespace
   constexpr int ERROR_GRID_TYPE_MISMATCH = 105;
   constexpr int ERROR_INDEX_OUT_OF_BOUNDS = 106;
   constexpr int INTERNAL_GRID_MAP_ERROR = 199;
-  constexpr const char* GetErrorMessage(int code) {
-    switch (code) {
+  constexpr const char *GetErrorMessage(int code)
+  {
+    switch (code)
+    {
       case ERROR_NONE: return "Success";
       case ERROR_UNALLOCATED_GRID_MAP: return "Unallocated grid map";
       case ERROR_UNALLOCATED_GRID: return "Unallocated grid";
@@ -30,7 +32,7 @@ namespace
       default: return "Unknown error";
     }
   }
-}
+}  // namespace
 
 namespace musica
 {
@@ -122,17 +124,23 @@ namespace musica
   {
     if (grid_map_ == nullptr)
     {
-      *error = Error{ ERROR_UNALLOCATED_GRID_MAP, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(ERROR_UNALLOCATED_GRID_MAP)) };
+      *error = Error{ ERROR_UNALLOCATED_GRID_MAP,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_GRID_MAP)) };
       return;
     }
     if (grid->grid_ == nullptr)
     {
-      *error = Error{ ERROR_UNALLOCATED_GRID, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(ERROR_UNALLOCATED_GRID)) };
+      *error = Error{ ERROR_UNALLOCATED_GRID,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_GRID)) };
       return;
     }
     if (grid->updater_ == nullptr)
     {
-      *error = Error{ ERROR_UNALLOCATED_GRID_UPDATER, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(ERROR_UNALLOCATED_GRID_UPDATER)) };
+      *error = Error{ ERROR_UNALLOCATED_GRID_UPDATER,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_GRID_UPDATER)) };
       return;
     }
 
@@ -175,7 +183,9 @@ namespace musica
     }
     catch (...)
     {
-      *error = Error{ INTERNAL_GRID_MAP_ERROR, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(INTERNAL_GRID_MAP_ERROR)) };
+      *error = Error{ INTERNAL_GRID_MAP_ERROR,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(INTERNAL_GRID_MAP_ERROR)) };
       return;
     }
     *error = NoError();
@@ -185,7 +195,9 @@ namespace musica
   {
     if (grid_map_ == nullptr)
     {
-      *error = Error{ ERROR_UNALLOCATED_GRID_MAP, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(ERROR_UNALLOCATED_GRID_MAP)) };
+      *error = Error{ ERROR_UNALLOCATED_GRID_MAP,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_GRID_MAP)) };
       return nullptr;
     }
 
@@ -210,8 +222,7 @@ namespace musica
       InternalDeleteGrid(grid_ptr, &error_code);
       if (error_code != 0)
       {
-        *error =
-            Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+        *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
         InternalDeleteGridUpdater(updater_ptr, &error_code);
         return nullptr;
       }
@@ -224,7 +235,9 @@ namespace musica
     }
     catch (...)
     {
-      *error = Error{ INTERNAL_GRID_MAP_ERROR, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(INTERNAL_GRID_MAP_ERROR)) };
+      *error = Error{ INTERNAL_GRID_MAP_ERROR,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(INTERNAL_GRID_MAP_ERROR)) };
       return nullptr;
     }
     *error = NoError();
@@ -235,7 +248,9 @@ namespace musica
   {
     if (grid_map_ == nullptr)
     {
-      *error = Error{ ERROR_UNALLOCATED_GRID_MAP, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(ERROR_UNALLOCATED_GRID_MAP)) };
+      *error = Error{ ERROR_UNALLOCATED_GRID_MAP,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_GRID_MAP)) };
       return nullptr;
     }
 
@@ -260,8 +275,7 @@ namespace musica
       InternalDeleteGrid(grid_ptr, &error_code);
       if (error_code != 0)
       {
-        *error =
-            Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+        *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
         InternalDeleteGridUpdater(updater_ptr, &error_code);
         return nullptr;
       }
@@ -274,7 +288,9 @@ namespace musica
     }
     catch (...)
     {
-      *error = Error{ INTERNAL_GRID_MAP_ERROR, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(INTERNAL_GRID_MAP_ERROR)) };
+      *error = Error{ INTERNAL_GRID_MAP_ERROR,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(INTERNAL_GRID_MAP_ERROR)) };
       return nullptr;
     }
     *error = NoError();
@@ -285,7 +301,9 @@ namespace musica
   {
     if (grid_map_ == nullptr)
     {
-      *error = Error{ ERROR_UNALLOCATED_GRID_MAP, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(ERROR_UNALLOCATED_GRID_MAP)) };
+      *error = Error{ ERROR_UNALLOCATED_GRID_MAP,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_GRID_MAP)) };
       return 0;
     }
 
@@ -308,7 +326,9 @@ namespace musica
     }
     catch (...)
     {
-      *error = Error{ INTERNAL_GRID_MAP_ERROR, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(INTERNAL_GRID_MAP_ERROR)) };
+      *error = Error{ INTERNAL_GRID_MAP_ERROR,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(INTERNAL_GRID_MAP_ERROR)) };
       return 0;
     }
     *error = NoError();
@@ -319,7 +339,9 @@ namespace musica
   {
     if (grid_map_ == nullptr)
     {
-      *error = Error{ ERROR_UNALLOCATED_GRID_MAP, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(ERROR_UNALLOCATED_GRID_MAP)) };
+      *error = Error{ ERROR_UNALLOCATED_GRID_MAP,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_GRID_MAP)) };
       return;
     }
 
@@ -340,7 +362,9 @@ namespace musica
     }
     catch (...)
     {
-      *error = Error{ INTERNAL_GRID_MAP_ERROR, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(INTERNAL_GRID_MAP_ERROR)) };
+      *error = Error{ INTERNAL_GRID_MAP_ERROR,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(INTERNAL_GRID_MAP_ERROR)) };
       return;
     }
     *error = NoError();
@@ -350,7 +374,9 @@ namespace musica
   {
     if (grid_map_ == nullptr)
     {
-      *error = Error{ ERROR_UNALLOCATED_GRID_MAP, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(ERROR_UNALLOCATED_GRID_MAP)) };
+      *error = Error{ ERROR_UNALLOCATED_GRID_MAP,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_GRID_MAP)) };
       return;
     }
 
@@ -371,7 +397,9 @@ namespace musica
     }
     catch (...)
     {
-      *error = Error{ INTERNAL_GRID_MAP_ERROR, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(INTERNAL_GRID_MAP_ERROR)) };
+      *error = Error{ INTERNAL_GRID_MAP_ERROR,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(INTERNAL_GRID_MAP_ERROR)) };
       return;
     }
     *error = NoError();

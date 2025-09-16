@@ -254,7 +254,7 @@ TEST_F(TuvxCApiTest, CanCreateGridMap)
   ASSERT_EQ(midpoint_values[1], 1.5);
   DeleteGrid(foo_copy, &error);
   ASSERT_TRUE(IsSuccess(error));
-  
+
   size_t num_grids = GetNumberOfGrids(grid_map, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(num_grids, 2);

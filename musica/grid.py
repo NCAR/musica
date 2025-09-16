@@ -19,14 +19,15 @@ Grid = _backend._tuvx._Grid if backend.tuvx_available() else None
 
 if backend.tuvx_available():
     original_init = Grid.__init__
+
     def __init__(self, *, name: str, units: str,
-                num_sections: Optional[int] = None,
-                edges: Optional[np.ndarray] = None,
-                midpoints: Optional[np.ndarray] = None,
-                **kwargs):
+                 num_sections: Optional[int] = None,
+                 edges: Optional[np.ndarray] = None,
+                 midpoints: Optional[np.ndarray] = None,
+                 **kwargs):
         """Initialize a Grid instance. Note that at least one of num_sections, edges, or midpoints
         must be provided.
-        
+
         Args:
             name: Name of the grid
             units: Units of the grid values
@@ -37,7 +38,7 @@ if backend.tuvx_available():
         """
         if (num_sections is None and edges is None and midpoints is None):
             raise ValueError("At least one of num_sections, edges, or midpoints must be provided.")
-        if (num_sections is None ):
+        if (num_sections is None):
             if (edges is not None):
                 num_sections = len(edges) - 1
             elif (midpoints is not None):
