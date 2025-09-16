@@ -42,6 +42,28 @@ namespace musica
     /// @return a profile pointer
     Profile *GetProfile(const char *profile_name, const char *profile_units, Error *error);
 
+    /// @brief Returns a profile by index in the map
+    /// @param index The index of the profile we want
+    /// @param error The error struct to indicate success or failure
+    /// @return a profile pointer
+    Profile *GetProfileByIndex(std::size_t index, Error *error);
+
+    /// @brief Removes a profile from the map by name and units
+    /// @param profile_name The name of the profile to remove
+    /// @param profile_units The units of the profile to remove
+    /// @param error The error struct to indicate success or failure
+    void RemoveProfile(const char *profile_name, const char *profile_units, Error *error);
+
+    /// @brief Removes a profile from the map by index
+    /// @param index The index of the profile to remove
+    /// @param error The error struct to indicate success or failure
+    void RemoveProfileByIndex(std::size_t index, Error *error);
+
+    /// @brief Gets the number of profiles in the map
+    /// @param error The error struct to indicate success or failure
+    /// @return The number of profiles in the map
+    std::size_t GetNumberOfProfiles(Error *error);
+
    private:
     void *profile_map_;
     bool owns_profile_map_;
@@ -81,6 +103,32 @@ namespace musica
     /// @return a profile pointer, or nullptr if the profile is not found
     Profile *GetProfile(ProfileMap *profile_map, const char *profile_name, const char *profile_units, Error *error);
 
+    /// @brief Returns a profile by index in the map
+    /// @param profile_map The profile map to get the profile from
+    /// @param index The index of the profile we want
+    /// @param error The error struct to indicate success or failure
+    /// @return a profile pointer, or nullptr if the index is out of range
+    Profile *GetProfileByIndex(ProfileMap *profile_map, std::size_t index, Error *error);
+
+    /// @brief Removes a profile from the map by name and units
+    /// @param profile_map The profile map to remove the profile from
+    /// @param profile_name The name of the profile to remove
+    /// @param profile_units The units of the profile to remove
+    /// @param error The error struct to indicate success or failure
+    void RemoveProfile(ProfileMap *profile_map, const char *profile_name, const char *profile_units, Error *error);
+
+    /// @brief Removes a profile from the map by index
+    /// @param profile_map The profile map to remove the profile from
+    /// @param index The index of the profile to remove
+    /// @param error The error struct to indicate success or failure
+    void RemoveProfileByIndex(ProfileMap *profile_map, std::size_t index, Error *error);  
+
+    /// @brief Gets the number of profiles in the map
+    /// @param profile_map The profile map to get the number of profiles from
+    /// @param error The error struct to indicate success or failure
+    /// @return The number of profiles in the map
+    std::size_t GetNumberOfProfiles(ProfileMap *profile_map, Error *error);
+
     // INTERNAL USE. If tuvx ever gets rewritten in C++, these functions will
     // go away but the C API will remain the same and downstream projects (like CAM-SIMA) will
     // not need to change
@@ -94,7 +142,17 @@ namespace musica
         const char *profile_units,
         std::size_t profile_units_length,
         int *error_code);
+    void *InternalGetProfileByIndex(void *profile_map, std::size_t index, int *error_code);
     void *InternalGetProfileUpdaterFromMap(void *profile_map, void *profile, int *error_code);
+    void InternalRemoveProfile(
+        void *profile_map,
+        const char *profile_name,
+        std::size_t profile_name_length,
+        const char *profile_units,
+        std::size_t profile_units_length,
+        int *error_code);
+    void InternalRemoveProfileByIndex(void *profile_map, std::size_t index, int *error_code);
+    std::size_t InternalGetNumberOfProfiles(void *profile_map, int *error_code);
 
 #ifdef __cplusplus
   }

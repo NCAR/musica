@@ -9,6 +9,10 @@ module tuvx_interface_profile
 
   private
 
+  integer, parameter :: ERROR_NONE = 0
+  integer, parameter :: ERROR_UNALLOCATED_PROFILE_UPDATER = 1
+  integer, parameter :: ERROR_PROFILE_SIZE_MISMATCH = 2
+
   contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -36,6 +40,7 @@ module tuvx_interface_profile
     type(string_t) :: f_name, f_units
     integer :: i
 
+    error_code = ERROR_NONE
     allocate(character(len=profile_name_length) :: f_name%val_)
     do i = 1, profile_name_length
       f_name%val_(i:i) = profile_name(i)
@@ -71,6 +76,7 @@ module tuvx_interface_profile
     type(profile_from_host_t), pointer :: f_profile
     type(profile_updater_t), pointer :: f_updater
 
+    error_code = ERROR_NONE
     call c_f_pointer(profile, f_profile)
     allocate(f_updater, source = profile_updater_t(f_profile))
     updater = c_loc(f_updater)
@@ -90,6 +96,7 @@ module tuvx_interface_profile
     ! variables
     type(profile_t), pointer :: f_profile
 
+    error_code = ERROR_NONE
     call c_f_pointer(profile, f_profile)
     if (associated(f_profile)) then
       deallocate(f_profile)
@@ -111,12 +118,61 @@ module tuvx_interface_profile
     ! variables
     type(profile_updater_t), pointer :: f_updater
 
+    error_code = ERROR_NONE
     call c_f_pointer(updater, f_updater)
     if (associated(f_updater)) then
       deallocate(f_updater)
     end if
 
   end subroutine internal_delete_profile_updater
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function internal_get_profile_name(updater, error) &
+      bind(C, name="InternalGetProfileName") result(name)
+    use iso_c_binding, only: c_ptr, c_f_pointer, c_char, c_size_t, c_int
+    use tuvx_interface_util, only: string_t_c, create_string_t_c
+    use tuvx_profile_from_host, only: profile_updater_t
+
+    ! arguments
+    type(c_ptr), value, intent(in) :: updater
+    integer(kind=c_int), intent(out) :: error
+
+    ! output
+    type(string_t_c) :: name
+
+    ! variables
+    type(profile_updater_t), pointer :: f_updater
+    
+    error = ERROR_NONE
+    call c_f_pointer(updater, f_updater)
+    name = create_string_t_c(f_updater%profile_%handle_%val_)
+
+  end function internal_get_profile_name
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function internal_get_profile_units(updater, error) &
+      bind(C, name="InternalGetProfileUnits") result(units)
+    use iso_c_binding, only: c_ptr, c_f_pointer, c_char, c_size_t, c_int
+    use tuvx_interface_util, only: string_t_c, create_string_t_c
+    use tuvx_profile_from_host, only: profile_updater_t
+
+    ! arguments
+    type(c_ptr), value, intent(in) :: updater
+    integer(kind=c_int), intent(out) :: error
+
+    ! output
+    type(string_t_c) :: units
+
+    ! variables
+    type(profile_updater_t), pointer :: f_updater
+
+    error = ERROR_NONE
+    call c_f_pointer(updater, f_updater)
+    units = create_string_t_c(f_updater%profile_%units_%val_)
+
+  end function internal_get_profile_units
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -136,11 +192,12 @@ module tuvx_interface_profile
     type(profile_updater_t), pointer :: f_updater
     real(kind=dk), pointer :: f_edge_values(:)
 
+    error_code = ERROR_NONE
     call c_f_pointer(profile_updater, f_updater)
     call c_f_pointer(edge_values, f_edge_values, [num_edge_values])
 
     if (size(f_updater%profile_%edge_val_) /= num_edge_values) then
-      error_code = 1
+      error_code = ERROR_PROFILE_SIZE_MISMATCH
       return
     end if
     f_updater%profile_%edge_val_(:) = f_edge_values(:)
@@ -167,11 +224,12 @@ module tuvx_interface_profile
     type(profile_updater_t), pointer :: f_updater
     real(kind=dk), pointer :: f_edge_values(:)
 
+    error_code = ERROR_NONE
     call c_f_pointer(profile_updater, f_updater)
     call c_f_pointer(edge_values, f_edge_values, [num_edge_values])
 
     if (size(f_updater%profile_%edge_val_) /= num_edge_values) then
-      error_code = 1
+      error_code = ERROR_PROFILE_SIZE_MISMATCH
       return
     end if
     f_edge_values(:) = f_updater%profile_%edge_val_(:)
@@ -196,11 +254,12 @@ module tuvx_interface_profile
     type(profile_updater_t), pointer :: f_updater
     real(kind=dk), pointer :: f_midpoint_values(:)
 
+    error_code = ERROR_NONE
     call c_f_pointer(profile_updater, f_updater)
     call c_f_pointer(midpoint_values, f_midpoint_values, [num_midpoint_values])
 
     if (size(f_updater%profile_%mid_val_) /= num_midpoint_values) then
-      error_code = 1
+      error_code = ERROR_PROFILE_SIZE_MISMATCH
       return
     end if
     f_updater%profile_%mid_val_(:) = f_midpoint_values(:)
@@ -225,11 +284,12 @@ module tuvx_interface_profile
     type(profile_updater_t), pointer :: f_updater
     real(kind=dk), pointer :: f_midpoint_values(:)
 
+    error_code = ERROR_NONE
     call c_f_pointer(profile_updater, f_updater)
     call c_f_pointer(midpoint_values, f_midpoint_values, [num_midpoint_values])
 
     if (size(f_updater%profile_%mid_val_) /= num_midpoint_values) then
-      error_code = 1
+      error_code = ERROR_PROFILE_SIZE_MISMATCH
       return
     end if
     f_midpoint_values(:) = f_updater%profile_%mid_val_(:)
@@ -254,11 +314,12 @@ module tuvx_interface_profile
     type(profile_updater_t), pointer :: f_updater
     real(kind=dk), pointer :: f_layer_densities(:)
 
+    error_code = ERROR_NONE
     call c_f_pointer(profile_updater, f_updater)
     call c_f_pointer(layer_densities, f_layer_densities, [num_layer_densities])
 
     if (size(f_updater%profile_%layer_dens_) /= num_layer_densities) then
-      error_code = 1
+      error_code = ERROR_PROFILE_SIZE_MISMATCH
       return
     end if
 
@@ -289,11 +350,12 @@ module tuvx_interface_profile
     type(profile_updater_t), pointer :: f_updater
     real(kind=dk), pointer :: f_layer_densities(:)
 
+    error_code = ERROR_NONE
     call c_f_pointer(profile_updater, f_updater)
     call c_f_pointer(layer_densities, f_layer_densities, [num_layer_densities])
 
     if (size(f_updater%profile_%layer_dens_) /= num_layer_densities) then
-      error_code = 1
+      error_code = ERROR_PROFILE_SIZE_MISMATCH
       return
     end if
     f_layer_densities(:) = f_updater%profile_%layer_dens_(:)
@@ -316,6 +378,7 @@ module tuvx_interface_profile
     ! variables
     type(profile_updater_t), pointer :: f_updater
 
+    error_code = ERROR_NONE
     call c_f_pointer(profile_updater, f_updater)
 
     associate(ld => f_updater%profile_%layer_dens_, &
@@ -343,6 +406,7 @@ module tuvx_interface_profile
     type(profile_updater_t), pointer :: f_updater
     real(kind=dk) :: exo_layer_density
 
+    error_code = ERROR_NONE
     call c_f_pointer(profile_updater, f_updater)
 
     associate(ld => f_updater%profile_%layer_dens_, &
@@ -373,6 +437,7 @@ module tuvx_interface_profile
     ! variables
     type(profile_updater_t), pointer :: f_updater
 
+    error_code = ERROR_NONE
     call c_f_pointer(profile_updater, f_updater)
     associate(eld => f_updater%profile_%exo_layer_dens_)
       exo_layer_density = real(eld(size(eld)), kind=c_double)
