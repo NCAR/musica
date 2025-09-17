@@ -120,13 +120,13 @@ namespace musica
     /// @param grid_name The name of the grid to remove
     /// @param grid_units The units of the grid to remove
     /// @param error The error struct to indicate success or failure
-    void RemoveGrid(GridMap* grid_map, const char *grid_name, const char *grid_units, Error *error);
+    void RemoveGrid(GridMap *grid_map, const char *grid_name, const char *grid_units, Error *error);
 
     /// @brief Removes a grid from the map by index
     /// @param grid_map The grid map to remove the grid from
     /// @param index The index of the grid to remove
     /// @param error The error struct to indicate success or failure
-    void RemoveGridByIndex(GridMap* grid_map, std::size_t index, Error *error);
+    void RemoveGridByIndex(GridMap *grid_map, std::size_t index, Error *error);
 
     // INTERNAL USE. If tuvx ever gets rewritten in C++, these functions will
     // go away but the C API will remain the same and downstream projects (like CAM-SIMA) will
@@ -144,7 +144,13 @@ namespace musica
     void *InternalGetGridUpdaterFromMap(void *grid_map, void *grid, int *error_code);
     std::size_t InternalGetNumberOfGrids(void *grid_map, int *error_code);
     void *InternalGetGridByIndex(void *grid_map, std::size_t index, int *error_code);
-    void InternalRemoveGrid(void *grid_map, const char *grid_name, std::size_t grid_name_length, const char *grid_units, std::size_t grid_units_length, int *error_code);
+    void InternalRemoveGrid(
+        void *grid_map,
+        const char *grid_name,
+        std::size_t grid_name_length,
+        const char *grid_units,
+        std::size_t grid_units_length,
+        int *error_code);
     void InternalRemoveGridByIndex(void *grid_map, std::size_t index, int *error_code);
 
 #ifdef __cplusplus

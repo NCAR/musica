@@ -6,7 +6,8 @@ from musica.grid import Grid, backend
 
 # Skip all tests if TUV-x is not available
 pytestmark = pytest.mark.skipif(not backend.tuvx_available(),
-                              reason="TUV-x backend is not available")
+                                reason="TUV-x backend is not available")
+
 
 def test_grid_initialization():
     """Test Grid initialization with various input combinations."""
@@ -44,10 +45,11 @@ def test_grid_initialization():
     with pytest.raises(ValueError, match="At least one of num_sections, edges, or midpoints must be provided"):
         Grid(name="test", units="m")
 
+
 def test_grid_properties():
     """Test Grid property getters and setters."""
     grid = Grid(name="test", units="m", num_sections=5)
-    
+
     # Test edges
     edges = np.array([0, 1, 2, 3, 4, 5])
     grid.edges = edges
@@ -66,6 +68,7 @@ def test_grid_properties():
     with pytest.raises(ValueError, match="Array size must be num_sections"):
         grid.midpoints = np.array([0.5, 1.5, 2.5])
 
+
 def test_grid_string_methods():
     """Test string representations of Grid."""
     grid = Grid(name="test", units="m", num_sections=5)
@@ -81,11 +84,12 @@ def test_grid_string_methods():
     assert "edges=" in repr(grid)
     assert "midpoints=" in repr(grid)
 
+
 def test_grid_comparison():
     """Test Grid comparison methods."""
     grid1 = Grid(name="test", units="m", num_sections=5)
     grid1.edges = np.array([0, 1, 2, 3, 4, 5])
-    
+
     # Test equal grids
     grid2 = Grid(name="test", units="m", num_sections=5)
     grid2.edges = np.array([0, 1, 2, 3, 4, 5])
@@ -108,6 +112,7 @@ def test_grid_comparison():
     grid6.edges = np.array([0, 1, 2, 3, 4, 5])
     assert grid1 != grid6
 
+
 def test_grid_container_methods():
     """Test Grid container methods (len, contains)."""
     grid = Grid(name="test", units="m", num_sections=5)
@@ -121,6 +126,7 @@ def test_grid_container_methods():
     assert 2.5 in grid
     assert -1 not in grid
     assert 6 not in grid
+
 
 def test_grid_bool():
     """Test Grid boolean evaluation."""

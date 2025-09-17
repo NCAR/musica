@@ -19,9 +19,10 @@ GridMap = _backend._tuvx._GridMap if backend.tuvx_available() else None
 
 if backend.tuvx_available():
     original_init = GridMap.__init__
+
     def __init__(self, **kwargs):
         """Initialize a GridMap instance.
-        
+
         Args:
             **kwargs: Additional arguments passed to the C++ constructor
         """
@@ -59,13 +60,13 @@ if backend.tuvx_available():
 
     def __getitem__(self, key) -> Grid:
         """Get a grid using dictionary-style access with (name, units) tuple as key.
-        
+
         Args:
             key: A tuple of (grid_name, grid_units)
-            
+
         Returns:
             The requested Grid object
-            
+
         Raises:
             KeyError: If no grid matches the given name and units
             TypeError: If key is not a tuple of (str, str)
@@ -82,11 +83,11 @@ if backend.tuvx_available():
 
     def __setitem__(self, key, grid):
         """Add a grid to the map using dictionary-style access.
-        
+
         Args:
             key: A tuple of (grid_name, grid_units)
             grid: The Grid object to add
-            
+
         Raises:
             TypeError: If key is not a tuple, or if key components are not strings
             TypeError: If grid is not a Grid object
@@ -117,10 +118,10 @@ if backend.tuvx_available():
 
     def __contains__(self, key) -> bool:
         """Check if a grid with given name and units exists in the map.
-        
+
         Args:
             key: A tuple of (grid_name, grid_units)
-            
+
         Returns:
             True if a matching grid exists, False otherwise
         """
