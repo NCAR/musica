@@ -178,10 +178,12 @@ namespace musica
     catch (const std::system_error &e)
     {
       *error = ToError(e);
+      return;
     }
     catch (...)
     {
       *error = Error{ INTERNAL_PROFILE_MAP_ERROR, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR)) };
+      return;
     }
     *error = NoError();
   }
@@ -226,10 +228,12 @@ namespace musica
     catch (const std::system_error &e)
     {
       *error = ToError(e);
+      return nullptr;
     }
     catch (...)
     {
       *error = Error{ INTERNAL_PROFILE_MAP_ERROR, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR)) };
+      return nullptr;
     }
     *error = NoError();
     return profile;
@@ -274,10 +278,12 @@ namespace musica
     catch (const std::system_error &e)
     {
       *error = ToError(e);
+      return nullptr;
     }
     catch (...)
     {
       *error = Error{ INTERNAL_PROFILE_MAP_ERROR, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR)) };
+      return nullptr;
     }
     *error = NoError();
     return profile;
@@ -300,15 +306,18 @@ namespace musica
       if (error_code != 0)
       {
         *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+        return;
       }
     }
     catch (const std::system_error &e)
     {
       *error = ToError(e);
+      return;
     }
     catch (...)
     {
       *error = Error{ INTERNAL_PROFILE_MAP_ERROR, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR)) };
+      return;
     }
     *error = NoError();
   }
@@ -330,15 +339,18 @@ namespace musica
       if (error_code != 0)
       {
         *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+        return;
       }
     }
     catch (const std::system_error &e)
     {
       *error = ToError(e);
+      return;
     }
     catch (...)
     {
       *error = Error{ INTERNAL_PROFILE_MAP_ERROR, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR)) };
+      return;
     }
     *error = NoError();
   }

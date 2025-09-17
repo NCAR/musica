@@ -168,7 +168,8 @@ namespace musica
     if (error_code != 0)
     {
       *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
-      InternalDeleteProfile(profile_, &error_code);
+      int cleanup_error = 0;
+      InternalDeleteProfile(profile_, &cleanup_error);
       return;
     }
     *error = NoError();
