@@ -60,5 +60,14 @@ def test_hard_coded_default_constructed_types():
     assert user_defined.type == mc.ReactionType.UserDefined
 
 
+def test_convert_v0_to_v1():
+    parser = Parser()
+    base = 'configs/v0'
+    configs = ['analytical', 'carbon_bond_5', 'chapman', 'robertson', 'TS1', 'surface']
+    for config in configs:
+        path = f"{base}/{config}/config.json"
+        mechanism = parser.parse_and_convert_v0(path)
+        assert mechanism is not None
+
 if __name__ == "__main__":
     pytest.main([__file__])
