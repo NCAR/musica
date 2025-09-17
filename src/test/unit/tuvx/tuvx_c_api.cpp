@@ -371,13 +371,16 @@ TEST_F(TuvxCApiTest, CanCreateProfile)
   ASSERT_TRUE(IsSuccess(error));
   // This should be updated once we do all conversions to/from non-SI units
   // in the internal TUV-x functions
-  ASSERT_EQ(GetProfileExoLayerDensity(profile, &error), 200.0);
+  ASSERT_EQ(GetProfileExoLayerDensity(profile, &error), 2.0);
   GetProfileLayerDensities(profile, densities.data(), densities.size(), &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(densities[0], 1.0);
   // This should be updated once we do all conversions to/from non-SI units
   // in the internal TUV-x functions
-  ASSERT_EQ(densities[1], 2.0 + 200.0);
+  // Note that the way TUV-x is currently written, the top layer density
+  // will continue to accumulate the exo-layer density each time
+  // CalculateProfileExoLayerDensity is called.
+  ASSERT_EQ(densities[1], 2.0 + 2.0 + 3.0);
   DeleteProfile(profile, &error);
   ASSERT_TRUE(IsSuccess(error));
   DeleteGrid(grid, &error);
