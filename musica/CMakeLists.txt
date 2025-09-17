@@ -20,6 +20,8 @@ if (MUSICA_ENABLE_TUVX)
     tuvx.cpp
     grid.cpp
     grid_map.cpp
+    profile.cpp
+    profile_map.cpp
   )
 endif()
 

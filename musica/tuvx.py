@@ -22,9 +22,12 @@ version = _backend._tuvx._get_tuvx_version() if backend.tuvx_available() else No
 # Import the GridMap class from the backend
 if backend.tuvx_available():
     from .grid_map import GridMap
+    from .profile import Profile
+    from .profile_map import ProfileMap
 else:
     GridMap = None
-
+    Profile = None
+    ProfileMap = None
 
 class TUVX:
     """
