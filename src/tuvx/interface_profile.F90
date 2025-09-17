@@ -409,10 +409,12 @@ module tuvx_interface_profile
     error_code = ERROR_NONE
     call c_f_pointer(profile_updater, f_updater)
 
-    associate(ld => f_updater%profile_%layer_dens_, &
+    associate(ev => f_updater%profile_%edge_val_, &
+              ld => f_updater%profile_%layer_dens_, &
               eld => f_updater%profile_%exo_layer_dens_)
+      eld(1:size(ld)) = ld(:)
       exo_layer_density = &
-          eld(size(ld)) * real(scale_height, kind=dk) * 100.0_dk ! m to cm
+          ev(size(ev)) * real(scale_height, kind=dk)
       eld(size(eld)) = exo_layer_density
       ld(size(ld)) = eld(size(ld)) + exo_layer_density
     end associate
@@ -444,6 +446,29 @@ module tuvx_interface_profile
     end associate
     
   end function internal_get_exo_layer_density
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function internal_profile_get_number_of_sections(profile_updater, error_code) &
+      bind(C, name="InternalProfileGetNumberOfSections") result(num_sections)
+    use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_size_t
+    use tuvx_profile_from_host, only: profile_updater_t
+
+    ! arguments
+    type(c_ptr), value, intent(in) :: profile_updater
+    integer(kind=c_int), intent(out) :: error_code
+
+    ! output
+    integer(kind=c_size_t) :: num_sections
+
+    ! variables
+    type(profile_updater_t), pointer :: f_updater
+
+    error_code = ERROR_NONE
+    call c_f_pointer(profile_updater, f_updater)
+    num_sections = f_updater%profile_%ncells_
+
+  end function internal_profile_get_number_of_sections
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

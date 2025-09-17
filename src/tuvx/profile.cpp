@@ -146,6 +146,12 @@ namespace musica
     return profile->GetExoLayerDensity(error);
   }
 
+  std::size_t GetProfileNumberOfSections(Profile *profile, Error *error)
+  {
+    DeleteError(error);
+    return profile->GetNumberOfSections(error);
+  }
+
   // Profile class functions
 
   Profile::Profile(const char *profile_name, const char *units, Grid *grid, Error *error)
@@ -382,6 +388,25 @@ namespace musica
     }
     *error = NoError();
     return exo_layer_density;
+  }
+
+  std::size_t Profile::GetNumberOfSections(Error *error)
+  {
+    DeleteError(error);
+    int error_code = 0;
+    if (updater_ == nullptr)
+    {
+      *error = Error{ ERROR_UNALLOCATED_PROFILE_UPDATER, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(ERROR_UNALLOCATED_PROFILE_UPDATER)) };
+      return 0;
+    }
+    std::size_t num_sections = InternalProfileGetNumberOfSections(updater_, &error_code);
+    if (error_code != 0)
+    {
+      *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+      return 0;
+    }
+    *error = NoError();
+    return num_sections;
   }
 
 }  // namespace musica

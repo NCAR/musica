@@ -327,6 +327,8 @@ TEST_F(TuvxCApiTest, CanCreateProfile)
   std::vector<double> edge_values = { 0.0, 1.0, 2.0 };
   SetProfileEdgeValues(profile, edge_values.data(), edge_values.size(), &error);
   ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(GetProfileNumberOfSections(profile, &error), 2);
+  ASSERT_TRUE(IsSuccess(error));
   for (auto& edge : edge_values)
   {
     edge = -100.0;

@@ -88,6 +88,11 @@ namespace musica
     /// @return The layer density above the top of the grid
     double GetExoLayerDensity(Error *error);
 
+    /// @brief Gets the number of sections in the profile's grid
+    /// @param error The error struct to indicate success or failure
+    /// @return The number of sections in the profile's grid
+    std::size_t GetNumberOfSections(Error *error);
+
    private:
     void *profile_;  // A valid pointer to a profile instance indicates ownership by this wrapper
     void *updater_;
@@ -195,6 +200,12 @@ namespace musica
     /// @return The exo layer density
     double GetProfileExoLayerDensity(Profile *profile, Error *error);
 
+    /// @brief Returns the number of sections in the profile's grid
+    /// @param profile The profile to get the number of sections of
+    /// @param error The error struct to indicate success or failure
+    /// @return The number of sections in the profile's grid
+    std::size_t GetProfileNumberOfSections(Profile *profile, Error *error);
+
     // INTERNAL USE. If tuvx ever gets rewritten in C++, these functions will
     // go away but the C API will remain the same and downstream projects (like CAM-SIMA) will
     // not need to change
@@ -219,6 +230,7 @@ namespace musica
     void InternalSetExoLayerDensity(void *profile, double exo_layer_density, int *error_code);
     void InternalCalculateExoLayerDensity(void *profile, double scale_height, int *error_code);
     double InternalGetExoLayerDensity(void *profile, int *error_code);
+    std::size_t InternalProfileGetNumberOfSections(void *profile, int *error_code);
 
 #ifdef __cplusplus
   }
