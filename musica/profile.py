@@ -21,13 +21,14 @@ Profile = _backend._tuvx._Profile if backend.tuvx_available() else None
 
 if backend.tuvx_available():
     original_init = Profile.__init__
+
     def __init__(self, *, name: str, units: str, grid: Grid,
-                edge_values: Optional[np.ndarray] = None,
-                midpoint_values: Optional[np.ndarray] = None,
-                layer_densities: Optional[np.ndarray] = None,
-                **kwargs):
+                 edge_values: Optional[np.ndarray] = None,
+                 midpoint_values: Optional[np.ndarray] = None,
+                 layer_densities: Optional[np.ndarray] = None,
+                 **kwargs):
         """Initialize a Profile instance.
-        
+
         Args:
             name: Name of the profile
             units: Units of the profile values

@@ -19,9 +19,10 @@ ProfileMap = _backend._tuvx._ProfileMap if backend.tuvx_available() else None
 
 if backend.tuvx_available():
     original_init = ProfileMap.__init__
+
     def __init__(self, **kwargs):
         """Initialize a ProfileMap instance.
-        
+
         Args:
             **kwargs: Additional arguments passed to the C++ constructor
         """
@@ -59,13 +60,13 @@ if backend.tuvx_available():
 
     def __getitem__(self, key) -> Profile:
         """Get a profile using dictionary-style access with (name, units) tuple as key.
-        
+
         Args:
             key: A tuple of (profile_name, profile_units)
-            
+
         Returns:
             The requested Profile object
-            
+
         Raises:
             KeyError: If no profile matches the given name and units
             TypeError: If key is not a tuple of (str, str)
@@ -82,11 +83,11 @@ if backend.tuvx_available():
 
     def __setitem__(self, key, profile):
         """Add a profile to the map using dictionary-style access.
-        
+
         Args:
             key: A tuple of (profile_name, profile_units)
             profile: The Profile object to add
-            
+
         Raises:
             TypeError: If key is not a tuple, or if key components are not strings
             TypeError: If profile is not a Profile object
@@ -117,10 +118,10 @@ if backend.tuvx_available():
 
     def __contains__(self, key) -> bool:
         """Check if a profile with given name and units exists in the map.
-        
+
         Args:
             key: A tuple of (profile_name, profile_units)
-            
+
         Returns:
             True if a matching profile exists, False otherwise
         """
