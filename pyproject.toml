@@ -24,19 +24,26 @@ maintainers = [
 license = { file = "LICENSE" }
 
 dependencies = [
+  "numpy>=2.0.0",
   "pyyaml>=6.0.2", 
+  "ussa1976>=v0.3.4",
   "xarray>=2022.3.0", 
-  "ussa1976>=v0.3.4"
 ]
 
 [project.optional-dependencies]
-test = ["numpy", "pytest", "matplotlib"]
+test = [
+  "pytest>=7.0.0", 
+  "matplotlib>=3.6.0",
+]
 
-gpu = ["nvidia-cublas-cu12", "nvidia-cuda-runtime-cu12"]
+gpu = [
+  "nvidia-cublas-cu12>=12.6.4.1", 
+  "nvidia-cuda-runtime-cu12>=12.6.68",
+]
 
 tutorial = [
-  "dask-jobqueue",
-  "dask[distributed]",
+  "dask-jobqueue>=0.8.0",
+  "dask[distributed]>=2022.3.0",
   "matplotlib>=3.6.0",
   "numpy>=2.0.0",
   "pandas>=2.2.0",

@@ -8,11 +8,7 @@
           "type": "SURFACE",
           "MUSICA name": "",
           "reaction probability": 1.0,
-          "gas-phase reactant": {
-            "A": {
-              "qty": 1
-            }
-          },
+          "gas-phase reactant": "A",
           "gas-phase products": {
             "B": {
               "yield": 1
