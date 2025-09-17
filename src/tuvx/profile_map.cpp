@@ -21,27 +21,18 @@ namespace
   {
     switch (error_code)
     {
-      case ERROR_NONE:
-        return "No error";
-      case ERROR_UNALLOCATED_PROFILE_MAP:
-        return "Profile map is unallocated";
-      case ERROR_UNALLOCATED_PROFILE:
-        return "Profile is unallocated";
-      case ERROR_UNALLOCATED_PROFILE_UPDATER:
-        return "Profile updater is unallocated";
-      case ERROR_PROFILE_NAME_NOT_FOUND:
-        return "Profile name not found in map";
-      case ERROR_PROFILE_UNITS_MISMATCH:
-        return "Profile units mismatch";
-      case ERROR_PROFILE_TYPE_MISMATCH:
-        return "Profile type mismatch";
-      case ERROR_INDEX_OUT_OF_BOUNDS:
-        return "Index out of bounds";
-      default:
-        return "Unknown error";
+      case ERROR_NONE: return "No error";
+      case ERROR_UNALLOCATED_PROFILE_MAP: return "Profile map is unallocated";
+      case ERROR_UNALLOCATED_PROFILE: return "Profile is unallocated";
+      case ERROR_UNALLOCATED_PROFILE_UPDATER: return "Profile updater is unallocated";
+      case ERROR_PROFILE_NAME_NOT_FOUND: return "Profile name not found in map";
+      case ERROR_PROFILE_UNITS_MISMATCH: return "Profile units mismatch";
+      case ERROR_PROFILE_TYPE_MISMATCH: return "Profile type mismatch";
+      case ERROR_INDEX_OUT_OF_BOUNDS: return "Index out of bounds";
+      default: return "Unknown error";
     }
   }
-}
+}  // namespace
 
 namespace musica
 {
@@ -135,17 +126,23 @@ namespace musica
     DeleteError(error);
     if (profile_map_ == nullptr)
     {
-      *error = Error{ ERROR_UNALLOCATED_PROFILE_MAP, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP)) };
+      *error = Error{ ERROR_UNALLOCATED_PROFILE_MAP,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP)) };
       return;
     }
     if (profile->profile_ == nullptr)
     {
-      *error = Error{ ERROR_UNALLOCATED_PROFILE, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(ERROR_UNALLOCATED_PROFILE)) };
+      *error = Error{ ERROR_UNALLOCATED_PROFILE,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_PROFILE)) };
       return;
     }
     if (profile->updater_ == nullptr)
     {
-      *error = Error{ ERROR_UNALLOCATED_PROFILE_UPDATER, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(ERROR_UNALLOCATED_PROFILE_UPDATER)) };
+      *error = Error{ ERROR_UNALLOCATED_PROFILE_UPDATER,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_PROFILE_UPDATER)) };
       return;
     }
 
@@ -182,7 +179,9 @@ namespace musica
     }
     catch (...)
     {
-      *error = Error{ INTERNAL_PROFILE_MAP_ERROR, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR)) };
+      *error = Error{ INTERNAL_PROFILE_MAP_ERROR,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR)) };
       return;
     }
     *error = NoError();
@@ -193,7 +192,9 @@ namespace musica
     DeleteError(error);
     if (profile_map_ == nullptr)
     {
-      *error = Error{ ERROR_UNALLOCATED_PROFILE_MAP, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP)) };
+      *error = Error{ ERROR_UNALLOCATED_PROFILE_MAP,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP)) };
       return nullptr;
     }
 
@@ -232,7 +233,9 @@ namespace musica
     }
     catch (...)
     {
-      *error = Error{ INTERNAL_PROFILE_MAP_ERROR, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR)) };
+      *error = Error{ INTERNAL_PROFILE_MAP_ERROR,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR)) };
       return nullptr;
     }
     *error = NoError();
@@ -244,7 +247,9 @@ namespace musica
     DeleteError(error);
     if (profile_map_ == nullptr)
     {
-      *error = Error{ ERROR_UNALLOCATED_PROFILE_MAP, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP)) };
+      *error = Error{ ERROR_UNALLOCATED_PROFILE_MAP,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP)) };
       return nullptr;
     }
 
@@ -282,7 +287,9 @@ namespace musica
     }
     catch (...)
     {
-      *error = Error{ INTERNAL_PROFILE_MAP_ERROR, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR)) };
+      *error = Error{ INTERNAL_PROFILE_MAP_ERROR,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR)) };
       return nullptr;
     }
     *error = NoError();
@@ -294,7 +301,9 @@ namespace musica
     DeleteError(error);
     if (profile_map_ == nullptr)
     {
-      *error = Error{ ERROR_UNALLOCATED_PROFILE_MAP, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP)) };
+      *error = Error{ ERROR_UNALLOCATED_PROFILE_MAP,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP)) };
       return;
     }
 
@@ -302,7 +311,8 @@ namespace musica
 
     try
     {
-      InternalRemoveProfile(profile_map_, profile_name, strlen(profile_name), profile_units, strlen(profile_units), &error_code);
+      InternalRemoveProfile(
+          profile_map_, profile_name, strlen(profile_name), profile_units, strlen(profile_units), &error_code);
       if (error_code != 0)
       {
         *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
@@ -316,7 +326,9 @@ namespace musica
     }
     catch (...)
     {
-      *error = Error{ INTERNAL_PROFILE_MAP_ERROR, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR)) };
+      *error = Error{ INTERNAL_PROFILE_MAP_ERROR,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR)) };
       return;
     }
     *error = NoError();
@@ -327,7 +339,9 @@ namespace musica
     DeleteError(error);
     if (profile_map_ == nullptr)
     {
-      *error = Error{ ERROR_UNALLOCATED_PROFILE_MAP, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP)) };
+      *error = Error{ ERROR_UNALLOCATED_PROFILE_MAP,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP)) };
       return;
     }
 
@@ -349,7 +363,9 @@ namespace musica
     }
     catch (...)
     {
-      *error = Error{ INTERNAL_PROFILE_MAP_ERROR, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR)) };
+      *error = Error{ INTERNAL_PROFILE_MAP_ERROR,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR)) };
       return;
     }
     *error = NoError();
@@ -360,7 +376,9 @@ namespace musica
     DeleteError(error);
     if (profile_map_ == nullptr)
     {
-      *error = Error{ ERROR_UNALLOCATED_PROFILE_MAP, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP)) };
+      *error = Error{ ERROR_UNALLOCATED_PROFILE_MAP,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP)) };
       return 0;
     }
 
@@ -383,7 +401,9 @@ namespace musica
     }
     catch (...)
     {
-      *error = Error{ INTERNAL_PROFILE_MAP_ERROR, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR)) };
+      *error = Error{ INTERNAL_PROFILE_MAP_ERROR,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR)) };
       return 0;
     }
     *error = NoError();

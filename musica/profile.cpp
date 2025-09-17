@@ -34,8 +34,8 @@ void bind_tuvx_profile(py::module_ &profile)
 
             std::string name = kwargs["name"].cast<std::string>();
             std::string units = kwargs["units"].cast<std::string>();
-            musica::Grid* grid = kwargs["grid"].cast<musica::Grid*>();
-            
+            musica::Grid *grid = kwargs["grid"].cast<musica::Grid *>();
+
             musica::Error error;
             auto profile_instance = new musica::Profile(name.c_str(), units.c_str(), grid, &error);
             if (!musica::IsSuccess(error))
