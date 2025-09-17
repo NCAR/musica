@@ -7,7 +7,8 @@ from musica.profile import Profile, backend
 
 # Skip all tests if TUV-x is not available
 pytestmark = pytest.mark.skipif(not backend.tuvx_available(),
-                              reason="TUV-x backend is not available")
+                                reason="TUV-x backend is not available")
+
 
 @pytest.fixture
 def sample_grid():
@@ -16,6 +17,7 @@ def sample_grid():
     grid.edges = np.array([0, 1, 2, 3, 4, 5])
     grid.midpoints = np.array([0.5, 1.5, 2.5, 3.5, 4.5])
     return grid
+
 
 def test_profile_initialization(sample_grid):
     """Test Profile initialization with various input combinations."""
@@ -44,12 +46,13 @@ def test_profile_initialization(sample_grid):
 
     # Test with all values
     profile = Profile(name="test", units="K", grid=sample_grid,
-                     edge_values=edge_values,
-                     midpoint_values=midpoint_values,
-                     layer_densities=layer_densities)
+                      edge_values=edge_values,
+                      midpoint_values=midpoint_values,
+                      layer_densities=layer_densities)
     np.testing.assert_array_equal(profile.edge_values, edge_values)
     np.testing.assert_array_equal(profile.midpoint_values, midpoint_values)
     np.testing.assert_array_equal(profile.layer_densities, layer_densities)
+
 
 def test_profile_properties(sample_grid):
     """Test Profile property getters and setters."""
@@ -89,6 +92,7 @@ def test_profile_properties(sample_grid):
     with pytest.raises(ValueError, match="Array size must be num_sections"):
         profile.layer_densities = np.array([1e25, 1e24, 1e23])
 
+
 def test_profile_string_methods(sample_grid):
     """Test string representations of Profile."""
     profile = Profile(name="test", units="K", grid=sample_grid)
@@ -106,12 +110,13 @@ def test_profile_string_methods(sample_grid):
     assert "layer_densities=" in repr_str
     assert "exo_layer_density=" in repr_str
 
+
 def test_profile_comparison(sample_grid):
     """Test Profile comparison methods."""
     edge_values1 = np.array([290, 280, 270, 260, 250, 240])
     profile1 = Profile(name="test", units="K", grid=sample_grid)
     profile1.edge_values = edge_values1
-    
+
     # Test equal profiles
     profile2 = Profile(name="test", units="K", grid=sample_grid)
     profile2.edge_values = edge_values1
@@ -131,6 +136,7 @@ def test_profile_comparison(sample_grid):
     profile5.edge_values = edge_values2
     assert profile1 != profile5
 
+
 def test_profile_container_methods(sample_grid):
     """Test Profile container methods (len)."""
     profile = Profile(name="test", units="K", grid=sample_grid)
@@ -145,6 +151,7 @@ def test_profile_bool(sample_grid):
     """Test Profile boolean evaluation."""
     profile = Profile(name="test", units="K", grid=sample_grid)
     assert bool(profile) is True  # True if grid has sections
+
 
 def test_exo_layer_density_calculation(sample_grid):
     """Test exospheric layer density calculation."""

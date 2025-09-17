@@ -121,7 +121,7 @@ namespace musica
     /// @param profile_map The profile map to remove the profile from
     /// @param index The index of the profile to remove
     /// @param error The error struct to indicate success or failure
-    void RemoveProfileByIndex(ProfileMap *profile_map, std::size_t index, Error *error);  
+    void RemoveProfileByIndex(ProfileMap *profile_map, std::size_t index, Error *error);
 
     /// @brief Gets the number of profiles in the map
     /// @param profile_map The profile map to get the number of profiles from

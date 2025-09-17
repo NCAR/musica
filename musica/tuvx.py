@@ -29,6 +29,7 @@ else:
     Profile = None
     ProfileMap = None
 
+
 class TUVX:
     """
     A Python interface to the TUV-x photolysis calculator.

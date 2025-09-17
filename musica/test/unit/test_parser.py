@@ -69,5 +69,6 @@ def test_convert_v0_to_v1():
         mechanism = parser.parse_and_convert_v0(path)
         assert mechanism is not None
 
+
 if __name__ == "__main__":
     pytest.main([__file__])

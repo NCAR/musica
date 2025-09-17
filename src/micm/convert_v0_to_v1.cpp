@@ -73,7 +73,8 @@ namespace musica
       {
         error_msg += error.second + "\n";
       }
-      throw std::system_error(make_error_code(MusicaParseErrc::ParsingFailed), "Failed to parse V0 mechanism configuration\n" + error_msg);
+      throw std::system_error(
+          make_error_code(MusicaParseErrc::ParsingFailed), "Failed to parse V0 mechanism configuration\n" + error_msg);
     }
     mechanism_configuration::v0::types::Mechanism mechanism = *parsed;
     return ConvertV0MechanismToV1(mechanism);
