@@ -1,0 +1,1454 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Parallelizing Multiple Grid Cells on a High-Performance Computing Cluster &#8212; MUSICA 0.12.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=bbe95013" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=61ccb1f1"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorials/5. hpc_parallelization';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.15.4';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://ncar.github.io/musica/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.12.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner = false;
+        </script>
+    <link rel="icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Enabling Your GPU for a Solver in MUSICA" href="6.%20gpu_solver.html" />
+    <link rel="prev" title="Parallelizing Multiple Grid Cells Locally" href="4.%20local_parallelization.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">MUSICA 0.12.0 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/getting_started.html">
+    Getting Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="tutorials.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    MUSICA API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributing/index.html">
+    Contributing
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../citing/index.html">
+    Citing MUSICA
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button id="pst-version-switcher-button-2"
+      type="button"
+      class="version-switcher__button btn btn-sm dropdown-toggle"
+      data-bs-toggle="dropdown"
+      aria-haspopup="listbox"
+      aria-controls="pst-version-switcher-list-2"
+      aria-label="Version switcher list"
+    >
+      Choose version  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div id="pst-version-switcher-list-2"
+      class="version-switcher__menu dropdown-menu list-group-flush py-0"
+      role="listbox" aria-labelledby="pst-version-switcher-button-2">
+      <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NCAR/musica" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/getting_started.html">
+    Getting Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="tutorials.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    MUSICA API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributing/index.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../citing/index.html">
+    Citing MUSICA
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button id="pst-version-switcher-button-3"
+      type="button"
+      class="version-switcher__button btn btn-sm dropdown-toggle"
+      data-bs-toggle="dropdown"
+      aria-haspopup="listbox"
+      aria-controls="pst-version-switcher-list-3"
+      aria-label="Version switcher list"
+    >
+      Choose version  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div id="pst-version-switcher-list-3"
+      class="version-switcher__menu dropdown-menu list-group-flush py-0"
+      role="listbox" aria-labelledby="pst-version-switcher-button-3">
+      <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NCAR/musica" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="chapter0.html">Chapter 0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chapter1.html">Chapter 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chapter2.html">Chapter 2</a></li>
+</ul>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="1.%20multiple_grid_cells.html">Multiple Grid Cells in MUSICA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2.%20hypercube.html">Latin Hypercube Sampling in MUSICA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="3.%20user_defined_reactions.html">User Defined Reactions in MUSICA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="4.%20local_parallelization.html">Parallelizing Multiple Grid Cells Locally</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Parallelizing Multiple Grid Cells on a High-Performance Computing Cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6.%20gpu_solver.html">Enabling Your GPU for a Solver in MUSICA</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="tutorials.html" class="nav-link">Tutorials</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">Parallelizin...</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="Parallelizing-Multiple-Grid-Cells-on-a-High-Performance-Computing-Cluster">
+<h1>Parallelizing Multiple Grid Cells on a High-Performance Computing Cluster<a class="headerlink" href="#Parallelizing-Multiple-Grid-Cells-on-a-High-Performance-Computing-Cluster" title="Link to this heading">#</a></h1>
+<p>Building off the previous tutorial, this notebook demonstrates how to use the <a class="reference external" href="https://jobqueue.dask.org/en/latest/generated/dask_jobqueue.PBSCluster.html">Dask PBSCluster</a> object to parallelize MUSICA simulations across HPC systems. While MUSICA is locally efficient for simulations up to around 10,000 grid cells, scaling to larger domains can benefit from parallelizing grid cell calculations to improve runtime performance. This tutorial walks through best practices for setting up and running
+parallel MUSICA workflows, with concrete examples and reference scaling tests performed on <a class="reference external" href="https://ncar-hpc-docs.readthedocs.io/en/latest/compute-systems/casper/">NCAR’s Casper HPC system</a>.</p>
+<section id="1.-Importing-Libraries">
+<h2>1. Importing Libraries<a class="headerlink" href="#1.-Importing-Libraries" title="Link to this heading">#</a></h2>
+<p>In addition to libraries previously used throughout MUSICA tutorials, this tutorial uses Dask. Note that if you’d like to visualize Dask graphs, you will also need <a class="reference external" href="https://graphviz.org">Graphviz</a> installed.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#import libraries</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">musica</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">musica.mechanism_configuration</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dask</span><span class="w"> </span><span class="kn">import</span> <span class="n">delayed</span><span class="p">,</span> <span class="n">compute</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dask.distributed</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dask_jobqueue</span><span class="w"> </span><span class="kn">import</span> <span class="n">PBSCluster</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">qmc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="2.-Dask-Cluster-Set-up">
+<h2>2. Dask Cluster Set up<a class="headerlink" href="#2.-Dask-Cluster-Set-up" title="Link to this heading">#</a></h2>
+<p>We first need to set up a Dask Cluster object. In this tutorial, we use the PBSCluster class since our HPC system uses a PBS-based scheduler, but Dask also provides an equivalent <a class="reference external" href="https://jobqueue.dask.org/en/latest/generated/dask_jobqueue.SLURMCluster.html">SLURMCluster</a> class for SLURM-based systems. When initializing the cluster, you’ll notice it accepts many arguments that may look familiar from your system’s job scripts such as requested memory, number of cores, and walltime. Keep in
+mind that these values should be adapted to fit your particular workload and system constraints. As a general guideline, we find MultiGrid cell simulations under ~10,000 cells to run comfortably with about 8 GB of memory, while larger simulations ranging from 100,000 to 1,000,000 grid cells may need closer to 15 GB to run efficiently. It can be helpful to initialize the PBSCluster with extra memory as done below (10 GB).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#casper</span>
+<span class="n">cluster</span> <span class="o">=</span> <span class="n">PBSCluster</span><span class="p">(</span>
+    <span class="n">job_name</span> <span class="o">=</span> <span class="s1">&#39;dask-test&#39;</span><span class="p">,</span>
+    <span class="n">cores</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">memory</span> <span class="o">=</span> <span class="s1">&#39;10GiB&#39;</span><span class="p">,</span>
+    <span class="n">processes</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">local_directory</span> <span class="o">=</span> <span class="s1">&#39;/local_scratch/pbs.$PBS_JOBID/dask/spill&#39;</span><span class="p">,</span>
+    <span class="n">resource_spec</span> <span class="o">=</span> <span class="s1">&#39;select=1:ncpus=1:mem=10GB&#39;</span><span class="p">,</span> <span class="c1">#memory and resource especially memory should match</span>
+    <span class="n">queue</span> <span class="o">=</span> <span class="s1">&#39;casper&#39;</span><span class="p">,</span>
+    <span class="n">walltime</span> <span class="o">=</span> <span class="s1">&#39;50:00&#39;</span><span class="p">,</span>
+    <span class="n">interface</span> <span class="o">=</span> <span class="s1">&#39;ext&#39;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Prior to running your simulation, it can be helfpul to check the active Dask PBS configuration and resulting job scrip that will be used for your Dask workers.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#view configuration file(s) within Python</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dask</span><span class="w"> </span><span class="kn">import</span> <span class="n">config</span>
+<span class="n">config</span><span class="o">.</span><span class="n">refresh</span><span class="p">()</span>
+<span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;jobqueue.pbs&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;name&#39;: &#39;dask-worker&#39;,
+ &#39;cores&#39;: None,
+ &#39;memory&#39;: None,
+ &#39;processes&#39;: None,
+ &#39;python&#39;: None,
+ &#39;interface&#39;: None,
+ &#39;death-timeout&#39;: 60,
+ &#39;local-directory&#39;: None,
+ &#39;shared-temp-directory&#39;: None,
+ &#39;extra&#39;: None,
+ &#39;worker-command&#39;: &#39;distributed.cli.dask_worker&#39;,
+ &#39;worker-extra-args&#39;: [],
+ &#39;shebang&#39;: &#39;#!/usr/bin/env bash&#39;,
+ &#39;queue&#39;: None,
+ &#39;account&#39;: None,
+ &#39;walltime&#39;: &#39;00:30:00&#39;,
+ &#39;env-extra&#39;: None,
+ &#39;job-script-prologue&#39;: [],
+ &#39;resource-spec&#39;: None,
+ &#39;job-extra&#39;: None,
+ &#39;job-extra-directives&#39;: [],
+ &#39;job-directives-skip&#39;: [],
+ &#39;log-directory&#39;: None,
+ &#39;scheduler-options&#39;: {}}
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">cluster</span><span class="o">.</span><span class="n">job_script</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+#!/usr/bin/env bash
+
+#PBS -N dask-test
+#PBS -q casper
+#PBS -A NTDD0005
+#PBS -l select=1:ncpus=1:mem=10GB
+#PBS -l walltime=50:00
+
+/glade/work/apak/conda-envs/musicbox/bin/python -m distributed.cli.dask_worker tcp://128.117.208.119:36453 --name dummy-name --nthreads 1 --memory-limit 10.00GiB --nanny --death-timeout 60 --local-directory /local_scratch/pbs.$PBS_JOBID/dask/spill --interface ext
+
+</pre></div></div>
+</div>
+<p>As in the <a class="reference internal" href="4.%20local_parallelization.html"><span class="doc">previous tutorial</span></a>, the Dask Cluster provides a convenient and interactive dashboard to visualize your parallelization work.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">cluster</span><span class="p">)</span>
+<span class="n">client</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+    <div style="width: 24px; height: 24px; background-color: #e1e1e1; border: 3px solid #9D9D9D; border-radius: 5px; position: absolute;"> </div>
+    <div style="margin-left: 48px;">
+        <h3 style="margin-bottom: 0px;">Client</h3>
+        <p style="color: #9D9D9D; margin-bottom: 0px;">Client-05c11d79-6197-11f0-9aeb-ac1f6bab1e7a</p>
+        <table style="width: 100%; text-align: left;">
+
+        <tr>
+
+            <td style="text-align: left;"><strong>Connection method:</strong> Cluster object</td>
+            <td style="text-align: left;"><strong>Cluster type:</strong> dask_jobqueue.PBSCluster</td>
+
+        </tr>
+
+
+            <tr>
+                <td style="text-align: left;">
+                    <strong>Dashboard: </strong> <a href="https://jupyterhub.hpc.ucar.edu/stable/user/apak/proxy/8787/status" target="_blank">https://jupyterhub.hpc.ucar.edu/stable/user/apak/proxy/8787/status</a>
+                </td>
+                <td style="text-align: left;"></td>
+            </tr>
+
+
+        </table>
+
+
+
+
+            <details>
+            <summary style="margin-bottom: 20px;"><h3 style="display: inline;">Cluster Info</h3></summary>
+            <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-mod-trusted jp-OutputArea-output">
+    <div style="width: 24px; height: 24px; background-color: #e1e1e1; border: 3px solid #9D9D9D; border-radius: 5px; position: absolute;">
+    </div>
+    <div style="margin-left: 48px;">
+        <h3 style="margin-bottom: 0px; margin-top: 0px;">PBSCluster</h3>
+        <p style="color: #9D9D9D; margin-bottom: 0px;">0e43aec4</p>
+        <table style="width: 100%; text-align: left;">
+            <tr>
+                <td style="text-align: left;">
+                    <strong>Dashboard:</strong> <a href="https://jupyterhub.hpc.ucar.edu/stable/user/apak/proxy/8787/status" target="_blank">https://jupyterhub.hpc.ucar.edu/stable/user/apak/proxy/8787/status</a>
+                </td>
+                <td style="text-align: left;">
+                    <strong>Workers:</strong> 0
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: left;">
+                    <strong>Total threads:</strong> 0
+                </td>
+                <td style="text-align: left;">
+                    <strong>Total memory:</strong> 0 B
+                </td>
+            </tr>
+
+        </table>
+
+        <details>
+            <summary style="margin-bottom: 20px;">
+                <h3 style="display: inline;">Scheduler Info</h3>
+            </summary>
+
+            <div style="">
+    <div>
+        <div style="width: 24px; height: 24px; background-color: #FFF7E5; border: 3px solid #FF6132; border-radius: 5px; position: absolute;"> </div>
+        <div style="margin-left: 48px;">
+            <h3 style="margin-bottom: 0px;">Scheduler</h3>
+            <p style="color: #9D9D9D; margin-bottom: 0px;">Scheduler-31c8add4-0019-4525-a08f-f35e07e0a301</p>
+            <table style="width: 100%; text-align: left;">
+                <tr>
+                    <td style="text-align: left;">
+                        <strong>Comm:</strong> tcp://128.117.208.119:36453
+                    </td>
+                    <td style="text-align: left;">
+                        <strong>Workers:</strong> 0
+                    </td>
+                </tr>
+                <tr>
+                    <td style="text-align: left;">
+                        <strong>Dashboard:</strong> <a href="https://jupyterhub.hpc.ucar.edu/stable/user/apak/proxy/8787/status" target="_blank">https://jupyterhub.hpc.ucar.edu/stable/user/apak/proxy/8787/status</a>
+                    </td>
+                    <td style="text-align: left;">
+                        <strong>Total threads:</strong> 0
+                    </td>
+                </tr>
+                <tr>
+                    <td style="text-align: left;">
+                        <strong>Started:</strong> Just now
+                    </td>
+                    <td style="text-align: left;">
+                        <strong>Total memory:</strong> 0 B
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <details style="margin-left: 48px;">
+        <summary style="margin-bottom: 20px;">
+            <h3 style="display: inline;">Workers</h3>
+        </summary>
+
+
+
+    </details>
+</div>
+
+        </details>
+    </div>
+</div>
+            </details>
+
+
+    </div>
+</div></div>
+</div>
+<p>After your cluster is created, it needs to be scaled to a certain number of Dask workers. For this tutorial, we have used between 1-4 workers and the results of their performance are included below in section 7. Note that due to the nature of the MUSICA code not releasing Python’s Global Interpreter Lock, it was not found to be particularly helpful for performance to increase threads.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cluster</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">client</span><span class="o">.</span><span class="n">wait_for_workers</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># wait to launch jobs until all workers needed are available</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># See the workers from the cluster object</span>
+<span class="n">cluster</span><span class="o">.</span><span class="n">workers</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;PBSCluster-1&#39;: &lt;dask_jobqueue.pbs.PBSJob: status=running&gt;,
+ &#39;PBSCluster-0&#39;: &lt;dask_jobqueue.pbs.PBSJob: status=running&gt;}
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># See the workers in the job scheduler</span>
+<span class="o">!</span>qstat<span class="w"> </span>-u<span class="w"> </span><span class="nv">$USER</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+                                                            Req&#39;d  Req&#39;d   Elap
+Job ID          Username Queue    Jobname    SessID NDS TSK Memory Time  S Time
+--------------- -------- -------- ---------- ------ --- --- ------ ----- - -----
+5630216.casper* apak     jhublog* cr-login-*  72033   1   1    4gb 720:0 R 00:01
+5630218.casper* apak     htc      dask-test  103102   1   1   10gb 00:50 R 00:00
+5630219.casper* apak     htc      dask-test  103114   1   1   10gb 00:50 R 00:00
+</pre></div></div>
+</div>
+</section>
+<section id="3.-Setting-up-Grid-Cells">
+<h2>3. Setting up Grid Cells<a class="headerlink" href="#3.-Setting-up-Grid-Cells" title="Link to this heading">#</a></h2>
+<p>We find parallelization for MUSICA simulations to increase performance on system sizes beyond ~10,000 grid cells. However, to keep simulation sizes sand batching reasonable, we use a 10,000 grid cell simulation here as an example. As in the local parallelization notebook, we first define the number of grid cells and set their initial conditions before initializing MUSICA chemistry objects.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[87]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">num_grid_cells</span> <span class="o">=</span> <span class="mi">10000</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ndim</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">nsamples</span> <span class="o">=</span> <span class="n">num_grid_cells</span>
+
+<span class="c1"># Create a Latin Hypercube sampler in the unit hypercube</span>
+<span class="n">sampler</span> <span class="o">=</span> <span class="n">qmc</span><span class="o">.</span><span class="n">LatinHypercube</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">ndim</span><span class="p">)</span>
+
+<span class="c1"># Generate samples</span>
+<span class="n">sample</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">nsamples</span><span class="p">)</span>
+
+<span class="c1"># Define bounds for each dimension</span>
+<span class="n">l_bounds</span> <span class="o">=</span> <span class="p">[</span><span class="mi">275</span><span class="p">,</span> <span class="mf">100753.3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="c1"># Lower bounds</span>
+<span class="n">u_bounds</span> <span class="o">=</span> <span class="p">[</span><span class="mi">325</span><span class="p">,</span> <span class="mf">101753.3</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">]</span> <span class="c1"># Upper bounds</span>
+
+<span class="c1"># Scale the samples to the defined bounds</span>
+<span class="n">sample_scaled</span> <span class="o">=</span> <span class="n">qmc</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">l_bounds</span><span class="p">,</span> <span class="n">u_bounds</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[86]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">temperatures</span> <span class="o">=</span> <span class="n">sample_scaled</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="n">pressures</span> <span class="o">=</span> <span class="n">sample_scaled</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="n">concentrations</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;A&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="s2">&quot;B&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="s2">&quot;C&quot;</span><span class="p">:</span> <span class="p">[]</span>
+<span class="p">}</span>
+<span class="n">concentrations</span><span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample_scaled</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="n">concentrations</span><span class="p">[</span><span class="s2">&quot;B&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample_scaled</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span>
+<span class="n">concentrations</span><span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample_scaled</span><span class="p">[:,</span> <span class="mi">4</span><span class="p">]</span>
+
+<span class="n">concentrations_solved</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">time_step_length</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">sim_length</span> <span class="o">=</span> <span class="mi">60</span>
+<span class="n">curr_time</span> <span class="o">=</span> <span class="mi">0</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="4.-Creating-a-Delayed-Function-for-Dask">
+<h2>4. Creating a Delayed Function for Dask<a class="headerlink" href="#4.-Creating-a-Delayed-Function-for-Dask" title="Link to this heading">#</a></h2>
+<p>The following delayed function is the same as the one created for the previous <a class="reference internal" href="4.%20local_parallelization.html"><span class="doc">Local Parallelization Tutorial</span></a>. However, here it is used to solve one grid cell at a time on an HPC system. Due to the low computational cost of solving single grid cells in MUSICA, this method is not recommended and is only used for scaling comparisons.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@delayed</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">solve_one_cell</span><span class="p">(</span><span class="n">cell_index</span><span class="p">,</span><span class="n">temperatures</span><span class="p">,</span><span class="n">pressures</span><span class="p">,</span><span class="n">concentrations</span><span class="p">,</span> <span class="n">sim_length</span><span class="p">,</span> <span class="n">time_step</span><span class="p">):</span>
+
+    <span class="c1"># Define the system</span>
+
+    <span class="n">A</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">Species</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;A&quot;</span><span class="p">)</span> <span class="c1"># Create each of the species with their respective names</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">Species</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;B&quot;</span><span class="p">)</span>
+    <span class="n">C</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">Species</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;C&quot;</span><span class="p">)</span>
+    <span class="n">species</span> <span class="o">=</span> <span class="p">[</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">C</span><span class="p">]</span> <span class="c1"># Bundle the species into a list</span>
+    <span class="n">gas</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">Phase</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;gas&quot;</span><span class="p">,</span> <span class="n">species</span><span class="o">=</span><span class="n">species</span><span class="p">)</span> <span class="c1"># Create a gas phase object containing the species</span>
+
+    <span class="n">r1</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">Arrhenius</span><span class="p">(</span> <span class="c1"># Create the reactions with their name, constants, reactants, products, and phase</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;A_to_B&quot;</span><span class="p">,</span>
+        <span class="n">A</span><span class="o">=</span><span class="mf">4.0e-3</span><span class="p">,</span>  <span class="c1"># Pre-exponential factor</span>
+        <span class="n">C</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>      <span class="c1"># Activation energy (units assumed to be K)</span>
+        <span class="n">reactants</span><span class="o">=</span><span class="p">[</span><span class="n">A</span><span class="p">],</span>
+        <span class="n">products</span><span class="o">=</span><span class="p">[</span><span class="n">B</span><span class="p">],</span>
+        <span class="n">gas_phase</span><span class="o">=</span><span class="n">gas</span>
+    <span class="p">)</span>
+
+    <span class="n">r2</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">Arrhenius</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;B_to_C&quot;</span><span class="p">,</span>
+        <span class="n">A</span><span class="o">=</span><span class="mf">4.0e-3</span><span class="p">,</span>
+        <span class="n">C</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+        <span class="n">reactants</span><span class="o">=</span><span class="p">[</span><span class="n">B</span><span class="p">],</span>
+        <span class="n">products</span><span class="o">=</span><span class="p">[</span><span class="n">C</span><span class="p">],</span>
+        <span class="n">gas_phase</span><span class="o">=</span><span class="n">gas</span>
+    <span class="p">)</span>
+
+    <span class="n">mechanism</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">Mechanism</span><span class="p">(</span> <span class="c1"># Define the mechanism which contains a name, the species, the phases, and reactions</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;musica_micm_example&quot;</span><span class="p">,</span>
+        <span class="n">species</span><span class="o">=</span><span class="n">species</span><span class="p">,</span>
+        <span class="n">phases</span><span class="o">=</span><span class="p">[</span><span class="n">gas</span><span class="p">],</span>
+        <span class="n">reactions</span><span class="o">=</span><span class="p">[</span><span class="n">r1</span><span class="p">,</span> <span class="n">r2</span><span class="p">]</span>
+<span class="p">)</span>
+
+
+    <span class="c1">#create the solver</span>
+    <span class="n">solver</span> <span class="o">=</span> <span class="n">musica</span><span class="o">.</span><span class="n">MICM</span><span class="p">(</span><span class="n">mechanism</span><span class="o">=</span><span class="n">mechanism</span><span class="p">,</span> <span class="n">solver_type</span><span class="o">=</span><span class="n">musica</span><span class="o">.</span><span class="n">SolverType</span><span class="o">.</span><span class="n">rosenbrock_standard_order</span><span class="p">)</span>
+
+    <span class="c1">#create the state</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">create_state</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">set_conditions</span><span class="p">(</span><span class="n">temperatures</span><span class="p">[</span><span class="n">cell_index</span><span class="p">],</span><span class="n">pressures</span><span class="p">[</span><span class="n">cell_index</span><span class="p">])</span>
+    <span class="n">cur_concentrations</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="p">[</span><span class="n">cell_index</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">concentrations</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">set_concentrations</span><span class="p">(</span><span class="n">cur_concentrations</span><span class="p">)</span>
+
+    <span class="n">time</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">track_time</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">while</span> <span class="n">time</span> <span class="o">&lt;=</span> <span class="n">sim_length</span><span class="p">:</span>
+        <span class="n">solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">get_concentrations</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+        <span class="n">track_time</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+        <span class="n">time</span> <span class="o">+=</span> <span class="n">time_step</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;times&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">track_time</span><span class="p">),</span>
+        <span class="s2">&quot;concentrations&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    <span class="p">}</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span><span class="n">solve_one_cell</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">temperatures</span><span class="p">,</span><span class="n">pressures</span><span class="p">,</span><span class="n">concentrations</span><span class="p">,</span> <span class="n">sim_length</span><span class="p">,</span> <span class="n">time_step_length</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_grid_cells</span><span class="p">)]</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">compute</span><span class="p">(</span><span class="o">*</span><span class="n">tasks</span><span class="p">)</span>
+<span class="n">elapsed</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;parallel 10000 cell finished in </span><span class="si">{</span><span class="n">elapsed</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+parallel 10000 cell finished in 60.77 seconds
+</pre></div></div>
+</div>
+</section>
+<section id="5.-Dask-With-Batching">
+<h2>5. Dask With Batching<a class="headerlink" href="#5.-Dask-With-Batching" title="Link to this heading">#</a></h2>
+<p>Since MUSICA already computes individual grid cells efficiently, the main performance gain from Dask comes from batching—grouping multiple grid cells together so each CPU core processes several cells at once. This allows us to fully use multiple cores while reducing overhead and improving throughput on large simulations.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[49]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@delayed</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">solve_batch</span><span class="p">(</span><span class="n">start_idx</span><span class="p">,</span> <span class="n">end_idx</span><span class="p">,</span> <span class="n">temperatures</span><span class="p">,</span> <span class="n">pressures</span><span class="p">,</span> <span class="n">concentrations</span><span class="p">,</span> <span class="n">sim_length</span><span class="p">,</span> <span class="n">time_step</span><span class="p">):</span>
+    <span class="n">batch_results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">air_densities</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1">#track for later visualization</span>
+    <span class="k">for</span> <span class="n">cell_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start_idx</span><span class="p">,</span> <span class="n">end_idx</span><span class="p">):</span>
+        <span class="c1"># build mechanism as before</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">Species</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;A&quot;</span><span class="p">)</span>
+        <span class="n">B</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">Species</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;B&quot;</span><span class="p">)</span>
+        <span class="n">C</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">Species</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;C&quot;</span><span class="p">)</span>
+        <span class="n">species</span> <span class="o">=</span> <span class="p">[</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">C</span><span class="p">]</span>
+        <span class="n">gas</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">Phase</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;gas&quot;</span><span class="p">,</span> <span class="n">species</span><span class="o">=</span><span class="n">species</span><span class="p">)</span>
+
+        <span class="n">r1</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">Arrhenius</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;A_to_B&quot;</span><span class="p">,</span> <span class="n">A</span><span class="o">=</span><span class="mf">4.0e-3</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">reactants</span><span class="o">=</span><span class="p">[</span><span class="n">A</span><span class="p">],</span> <span class="n">products</span><span class="o">=</span><span class="p">[</span><span class="n">B</span><span class="p">],</span> <span class="n">gas_phase</span><span class="o">=</span><span class="n">gas</span><span class="p">)</span>
+        <span class="n">r2</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">Arrhenius</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;B_to_C&quot;</span><span class="p">,</span> <span class="n">A</span><span class="o">=</span><span class="mf">4.0e-3</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">reactants</span><span class="o">=</span><span class="p">[</span><span class="n">B</span><span class="p">],</span> <span class="n">products</span><span class="o">=</span><span class="p">[</span><span class="n">C</span><span class="p">],</span> <span class="n">gas_phase</span><span class="o">=</span><span class="n">gas</span><span class="p">)</span>
+
+        <span class="n">mechanism</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">Mechanism</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;musica_micm_example&quot;</span><span class="p">,</span>
+            <span class="n">species</span><span class="o">=</span><span class="n">species</span><span class="p">,</span>
+            <span class="n">phases</span><span class="o">=</span><span class="p">[</span><span class="n">gas</span><span class="p">],</span>
+            <span class="n">reactions</span><span class="o">=</span><span class="p">[</span><span class="n">r1</span><span class="p">,</span> <span class="n">r2</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="n">solver</span> <span class="o">=</span> <span class="n">musica</span><span class="o">.</span><span class="n">MICM</span><span class="p">(</span><span class="n">mechanism</span><span class="o">=</span><span class="n">mechanism</span><span class="p">,</span> <span class="n">solver_type</span><span class="o">=</span><span class="n">musica</span><span class="o">.</span><span class="n">SolverType</span><span class="o">.</span><span class="n">rosenbrock_standard_order</span><span class="p">)</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">create_state</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">set_conditions</span><span class="p">(</span><span class="n">temperatures</span><span class="p">[</span><span class="n">cell_index</span><span class="p">],</span> <span class="n">pressures</span><span class="p">[</span><span class="n">cell_index</span><span class="p">])</span>
+        <span class="n">air_density</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">get_conditions</span><span class="p">()[</span><span class="s1">&#39;air_density&#39;</span><span class="p">]</span>
+        <span class="n">air_densities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">air_density</span><span class="p">)</span>
+        <span class="n">cur_concentrations</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="p">[</span><span class="n">cell_index</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">concentrations</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">set_concentrations</span><span class="p">(</span><span class="n">cur_concentrations</span><span class="p">)</span>
+
+        <span class="n">time</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="n">time</span> <span class="o">&lt;=</span> <span class="n">sim_length</span><span class="p">:</span>
+            <span class="n">solver</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">get_concentrations</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+            <span class="n">time</span> <span class="o">+=</span> <span class="n">time_step</span>
+
+        <span class="n">batch_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">batch_results</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">air_densities</span><span class="p">)</span>  <span class="c1"># shape: (num_cells_in_batch, num_timesteps, num_species)</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">batch_size</span> <span class="o">=</span> <span class="mi">100</span> <span class="c1">#number of grid cells solved on a single worker</span>
+
+<span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">start_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">num_grid_cells</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">):</span>
+    <span class="n">end_idx</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">start_idx</span> <span class="o">+</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">num_grid_cells</span><span class="p">)</span>
+    <span class="n">task</span> <span class="o">=</span> <span class="n">solve_batch</span><span class="p">(</span>
+        <span class="n">start_idx</span><span class="p">,</span> <span class="n">end_idx</span><span class="p">,</span>
+        <span class="n">temperatures</span><span class="p">,</span> <span class="n">pressures</span><span class="p">,</span> <span class="n">concentrations</span><span class="p">,</span>
+        <span class="n">sim_length</span><span class="p">,</span> <span class="n">time_step_length</span>
+    <span class="p">)</span>
+    <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+<br/></pre></div>
+</div>
+</div>
+<p>Upon solving this multiple grid cell calculation in batches, we see that it is much more efficient than it’s individually run counter part in section 4.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[51]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="n">results_and_densities</span> <span class="o">=</span> <span class="n">compute</span><span class="p">(</span><span class="o">*</span><span class="n">tasks</span><span class="p">)</span>
+<span class="n">elapsed</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;parallel 100000 cell batched finished in </span><span class="si">{</span><span class="n">elapsed</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+parallel 100000 cell batched finished in 9.87 seconds
+</pre></div></div>
+</div>
+</section>
+<section id="6.-Visualizing-Results">
+<h2>6. Visualizing Results<a class="headerlink" href="#6.-Visualizing-Results" title="Link to this heading">#</a></h2>
+<p>Similar to the <a class="reference internal" href="2.%20hypercube.html"><span class="doc">Latin Hypercube Sampling Tutorial</span></a>, the following code prepares the results of the parallelized simulations into a dataframe that gives each time step of each grid cell its own row. The formatting is slightly different due to the Dask calculation returning arrays rather than lists and dictionaries directly but the overall organization is the same.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#split results and air densities back into their own arrays</span>
+
+<span class="n">species_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">]</span>
+<span class="n">num_time_steps</span> <span class="o">=</span> <span class="n">sim_length</span> <span class="o">//</span> <span class="n">time_step_length</span> <span class="o">+</span> <span class="mi">1</span>
+
+<span class="n">all_results</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">all_air_densities</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">batch_result</span><span class="p">,</span> <span class="n">air_densities</span> <span class="ow">in</span> <span class="n">results_and_densities</span><span class="p">:</span>
+    <span class="n">all_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">batch_result</span><span class="p">)</span>        <span class="c1"># shape: (batch_size, num_timesteps, num_species)</span>
+    <span class="n">all_air_densities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">air_densities</span><span class="p">)</span> <span class="c1"># shape: (batch_size,)</span>
+
+<span class="c1"># Concatenate over grid cells</span>
+<span class="n">all_results</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">all_results</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>           <span class="c1"># shape: (num_grid_cells, num_timesteps, num_species)</span>
+<span class="n">all_air_densities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">all_air_densities</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># shape: (num_grid_cells,)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">concentrations_expanded</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">time</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_time_steps</span><span class="p">):</span>
+    <span class="n">current_time</span> <span class="o">=</span> <span class="n">t</span> <span class="o">*</span> <span class="n">time_step_length</span>
+    <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_grid_cells</span><span class="p">):</span>
+
+        <span class="c1"># all_results[g][t] is dict with species concentrations</span>
+
+        <span class="c1"># Extract the float value from each species list</span>
+        <span class="n">concentrations_expanded</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="n">cur_time</span><span class="p">:</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">all_results</span><span class="p">[</span><span class="n">g</span><span class="p">][</span><span class="n">t</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
+
+        <span class="n">time</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_time</span><span class="p">)</span>
+
+<span class="n">df_expanded</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">concentrations_expanded</span><span class="p">)</span>
+<span class="n">df_expanded</span> <span class="o">=</span> <span class="n">df_expanded</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+    <span class="s1">&#39;A&#39;</span><span class="p">:</span> <span class="s1">&#39;CONC.A.mol m-3&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;B&#39;</span><span class="p">:</span> <span class="s1">&#39;CONC.B.mol m-3&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="s1">&#39;CONC.C.mol m-3&#39;</span>
+<span class="p">})</span>
+<span class="n">df_expanded</span><span class="p">[</span><span class="s1">&#39;time.s&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span>
+
+<span class="c1"># Add environment columns same as before:</span>
+<span class="n">num_rows</span> <span class="o">=</span> <span class="n">num_time_steps</span> <span class="o">*</span> <span class="n">num_grid_cells</span>
+<span class="n">df_expanded</span><span class="p">[</span><span class="s1">&#39;ENV.temperature.K&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">temperatures</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">num_rows</span><span class="p">)</span>
+<span class="n">df_expanded</span><span class="p">[</span><span class="s1">&#39;ENV.pressure.Pa&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">pressures</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">num_rows</span><span class="p">)</span>
+<span class="n">df_expanded</span><span class="p">[</span><span class="s1">&#39;ENV.air number density.mol m-3&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">all_air_densities</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">num_rows</span><span class="p">)</span>
+
+<span class="n">df_expanded</span> <span class="o">=</span> <span class="n">df_expanded</span><span class="p">[[</span>
+    <span class="s1">&#39;time.s&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ENV.temperature.K&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ENV.pressure.Pa&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;ENV.air number density.mol m-3&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;CONC.A.mol m-3&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;CONC.B.mol m-3&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;CONC.C.mol m-3&#39;</span>
+<span class="p">]]</span>
+
+<span class="n">display</span><span class="p">(</span><span class="n">df_expanded</span><span class="p">)</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time.s</th>
+      <th>ENV.temperature.K</th>
+      <th>ENV.pressure.Pa</th>
+      <th>ENV.air number density.mol m-3</th>
+      <th>CONC.A.mol m-3</th>
+      <th>CONC.B.mol m-3</th>
+      <th>CONC.C.mol m-3</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>301.626773</td>
+      <td>101259.516561</td>
+      <td>40.376789</td>
+      <td>9.768133</td>
+      <td>7.142146</td>
+      <td>8.698319</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0</td>
+      <td>301.626773</td>
+      <td>101259.516561</td>
+      <td>40.376789</td>
+      <td>5.780753</td>
+      <td>9.547887</td>
+      <td>8.133570</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0</td>
+      <td>301.626773</td>
+      <td>101259.516561</td>
+      <td>40.376789</td>
+      <td>4.183914</td>
+      <td>0.864572</td>
+      <td>0.116974</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0</td>
+      <td>301.626773</td>
+      <td>101259.516561</td>
+      <td>40.376789</td>
+      <td>0.358964</td>
+      <td>8.126227</td>
+      <td>6.105201</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0</td>
+      <td>301.626773</td>
+      <td>101259.516561</td>
+      <td>40.376789</td>
+      <td>5.233886</td>
+      <td>4.299744</td>
+      <td>6.196699</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>609995</th>
+      <td>60</td>
+      <td>301.626773</td>
+      <td>101259.516561</td>
+      <td>40.376789</td>
+      <td>0.001229</td>
+      <td>0.011452</td>
+      <td>12.930998</td>
+    </tr>
+    <tr>
+      <th>609996</th>
+      <td>60</td>
+      <td>301.626773</td>
+      <td>101259.516561</td>
+      <td>40.376789</td>
+      <td>0.000421</td>
+      <td>0.004933</td>
+      <td>18.148737</td>
+    </tr>
+    <tr>
+      <th>609997</th>
+      <td>60</td>
+      <td>301.626773</td>
+      <td>101259.516561</td>
+      <td>40.376789</td>
+      <td>0.000106</td>
+      <td>0.002043</td>
+      <td>6.835295</td>
+    </tr>
+    <tr>
+      <th>609998</th>
+      <td>60</td>
+      <td>301.626773</td>
+      <td>101259.516561</td>
+      <td>40.376789</td>
+      <td>0.000370</td>
+      <td>0.004365</td>
+      <td>13.947568</td>
+    </tr>
+    <tr>
+      <th>609999</th>
+      <td>60</td>
+      <td>301.626773</td>
+      <td>101259.516561</td>
+      <td>40.376789</td>
+      <td>0.000526</td>
+      <td>0.004779</td>
+      <td>12.959798</td>
+    </tr>
+  </tbody>
+</table>
+<p>610000 rows × 7 columns</p>
+</div></div>
+</div>
+<p>Also as in previous tutorials, the results here are visualized with Seaborn to include a 95% confidence interval (CI) resulting from all grid cell results. Note here that due to this tutorial notebook having 10x the number of total grid cells along with the random nature of Latin Hypercube Sampling, the CI has started to converge.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[91]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sns</span><span class="o">.</span><span class="n">lineplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">df_expanded</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;time.s&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;CONC.A.mol m-3&#39;</span><span class="p">,</span> <span class="n">errorbar</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;ci&#39;</span><span class="p">,</span> <span class="mi">95</span><span class="p">),</span> <span class="n">err_kws</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;alpha&#39;</span> <span class="p">:</span> <span class="mf">0.4</span><span class="p">},</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;CONC.A.mol m-3&#39;</span><span class="p">)</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">lineplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">df_expanded</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;time.s&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;CONC.B.mol m-3&#39;</span><span class="p">,</span> <span class="n">errorbar</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;ci&#39;</span><span class="p">,</span> <span class="mi">95</span><span class="p">),</span> <span class="n">err_kws</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;alpha&#39;</span> <span class="p">:</span> <span class="mf">0.4</span><span class="p">},</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;CONC.B.mol m-3&#39;</span><span class="p">)</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">lineplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">df_expanded</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;time.s&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;CONC.C.mol m-3&#39;</span><span class="p">,</span> <span class="n">errorbar</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;ci&#39;</span><span class="p">,</span> <span class="mi">95</span><span class="p">),</span> <span class="n">err_kws</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;alpha&#39;</span> <span class="p">:</span> <span class="mf">0.4</span><span class="p">},</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;CONC.C.mol m-3&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Average concentration with CI over time&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Concentration (mol m-3)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Time (s)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;center right&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_5._hpc_parallelization_37_0.png" src="../_images/tutorials_5._hpc_parallelization_37_0.png" />
+</div>
+</div>
+</section>
+<section id="7.-Scaling-Tests-on-NCAR's-Casper-HPC-System">
+<h2>7. Scaling Tests on NCAR’s Casper HPC System<a class="headerlink" href="#7.-Scaling-Tests-on-NCAR's-Casper-HPC-System" title="Link to this heading">#</a></h2>
+<p>As a reference, the following visualizations use the dask_scaling_tests.csv located in this tutorials folder. These results summarize the scaling tests done on 10,000 and 100,000 grid cell calculations on NCAR’s Casper HPC system with 1-4 workers and batch sizes of 1-1,000 each.</p>
+<p>Starting with the 10,000 grid cell system. It was found that the greates improvement in performance occurs with the use of at least 2 workers and at least some form of batching. Performance improvements tapered at about 4 workes and batch sizes beyond 100 grid cells per batch. It should be noted that, locally, this simulation takes on average 5 seconds to run. So it is not until the use of at least 3 workers with batching that we regain this performance. The initial slowdown reflects Dask’s
+overhead, and we emphasize that parallelization should not replace efficient local runs when possible. We use this information to guide the higher expense 100,000 grid cell tests that follow.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load the CSV (replace &#39;your_file.csv&#39; with your actual filename)</span>
+<span class="n">scaling_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;config/dask_scaling_tests.csv&#39;</span><span class="p">)</span>
+
+<span class="c1"># Filter for grid_cells == 10000</span>
+<span class="n">df_10k</span> <span class="o">=</span> <span class="n">scaling_df</span><span class="p">[</span><span class="n">scaling_df</span><span class="p">[</span><span class="s1">&#39;grid_cells&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">10000</span><span class="p">]</span>
+
+<span class="c1"># Plot: batch_size on x, run_time (s) on y, grouped by workers</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">workers</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">df_10k</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;workers&#39;</span><span class="p">):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="s1">&#39;batch_size&#39;</span><span class="p">],</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;run_time (s)&#39;</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">workers</span><span class="si">}</span><span class="s1"> workers&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Batch Size&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Run Time (s)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Performance for 10,000 Grid Cells&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Workers&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>  <span class="c1"># Batch size varies a lot, log scale helps visualize</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_5._hpc_parallelization_41_0.png" src="../_images/tutorials_5._hpc_parallelization_41_0.png" />
+</div>
+</div>
+<p>Based on the 10,000 grid cell tests, we skipped individual runs and started directly with batching (100 cells per batch) for the 100,000 grid cell system. Again, the biggest gains came from using at least 2 workers, with improvements tapering beyond ~4 workers. Batch sizes between 100–500 cells were similarly efficient. Locally, this calculation takes on average 1 minute to run, so the use of Dask provides ~35% improvement in run time. We expect even greater benefits at larger scales, and users
+can apply these scaling results to optimize resource use on their own systems.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Filter for grid_cells == 10000</span>
+<span class="n">df_100k</span> <span class="o">=</span> <span class="n">scaling_df</span><span class="p">[</span><span class="n">scaling_df</span><span class="p">[</span><span class="s1">&#39;grid_cells&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">100000</span><span class="p">]</span>
+
+<span class="c1"># Plot: batch_size on x, run_time (s) on y, grouped by workers</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">workers</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">df_100k</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;workers&#39;</span><span class="p">):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="s1">&#39;batch_size&#39;</span><span class="p">],</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;run_time (s)&#39;</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">workers</span><span class="si">}</span><span class="s1"> workers&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Batch Size&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Run Time (s)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Performance for 100,000 Grid Cells&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Workers&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1">#plt.xscale(&#39;log&#39;)  # Batch size varies a lot, log scale helps visualize</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_5._hpc_parallelization_43_0.png" src="../_images/tutorials_5._hpc_parallelization_43_0.png" />
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="4.%20local_parallelization.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Parallelizing Multiple Grid Cells Locally</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="6.%20gpu_solver.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Enabling Your GPU for a Solver in MUSICA</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#1.-Importing-Libraries">1. Importing Libraries</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#2.-Dask-Cluster-Set-up">2. Dask Cluster Set up</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#3.-Setting-up-Grid-Cells">3. Setting up Grid Cells</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#4.-Creating-a-Delayed-Function-for-Dask">4. Creating a Delayed Function for Dask</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#5.-Dask-With-Batching">5. Dask With Batching</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#6.-Visualizing-Results">6. Visualizing Results</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#7.-Scaling-Tests-on-NCAR's-Casper-HPC-System">7. Scaling Tests on NCAR’s Casper HPC System</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/tutorials/5. hpc_parallelization.ipynb.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024-2025, NSF NCAR.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.4.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

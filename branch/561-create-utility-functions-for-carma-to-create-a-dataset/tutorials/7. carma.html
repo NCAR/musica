@@ -1,0 +1,2147 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>&lt;no title&gt; &#8212; MUSICA 0.12.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=bbe95013" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=61ccb1f1"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorials/7. carma';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.15.4';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://ncar.github.io/musica/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.12.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner = false;
+        </script>
+    <link rel="icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="MUSICA API" href="../api/index.html" />
+    <link rel="prev" title="Enabling Your GPU for a Solver in MUSICA" href="6.%20gpu_solver.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">MUSICA 0.12.0 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/getting_started.html">
+    Getting Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="tutorials.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    MUSICA API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributing/index.html">
+    Contributing
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../citing/index.html">
+    Citing MUSICA
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button id="pst-version-switcher-button-2"
+      type="button"
+      class="version-switcher__button btn btn-sm dropdown-toggle"
+      data-bs-toggle="dropdown"
+      aria-haspopup="listbox"
+      aria-controls="pst-version-switcher-list-2"
+      aria-label="Version switcher list"
+    >
+      Choose version  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div id="pst-version-switcher-list-2"
+      class="version-switcher__menu dropdown-menu list-group-flush py-0"
+      role="listbox" aria-labelledby="pst-version-switcher-button-2">
+      <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NCAR/musica" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/getting_started.html">
+    Getting Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="tutorials.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    MUSICA API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributing/index.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../citing/index.html">
+    Citing MUSICA
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button id="pst-version-switcher-button-3"
+      type="button"
+      class="version-switcher__button btn btn-sm dropdown-toggle"
+      data-bs-toggle="dropdown"
+      aria-haspopup="listbox"
+      aria-controls="pst-version-switcher-list-3"
+      aria-label="Version switcher list"
+    >
+      Choose version  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div id="pst-version-switcher-list-3"
+      class="version-switcher__menu dropdown-menu list-group-flush py-0"
+      role="listbox" aria-labelledby="pst-version-switcher-button-3">
+      <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NCAR/musica" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="chapter0.html">Chapter 0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chapter1.html">Chapter 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chapter2.html">Chapter 2</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="1.%20multiple_grid_cells.html">Multiple Grid Cells in MUSICA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="2.%20hypercube.html">Latin Hypercube Sampling in MUSICA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="3.%20user_defined_reactions.html">User Defined Reactions in MUSICA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="4.%20local_parallelization.html">Parallelizing Multiple Grid Cells Locally</a></li>
+<li class="toctree-l1"><a class="reference internal" href="5.%20hpc_parallelization.html">Parallelizing Multiple Grid Cells on a High-Performance Computing Cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="6.%20gpu_solver.html">Enabling Your GPU for a Solver in MUSICA</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="tutorials.html" class="nav-link">Tutorials</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">&lt;no title&gt;</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <p>The Community Aerosol and Radiation Model for Atmospheres, <a class="reference external" href="https://github.com/ESCOMP/CARMA">CARMA</a>, can be configured and run through musica. This tutorial walks through creating a series of small CARMA model runs of increasing complexity.</p>
+<p>First, we need to import our packages</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">musica</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ussa1976</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+</pre></div>
+</div>
+</div>
+<p>Next we will define a few helper functions which will create a dataset for us.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">_extract_bin_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">nbin</span><span class="p">,</span> <span class="n">nelem</span><span class="p">):</span>
+    <span class="c1"># input data is time * bin * elem, each element contains data for each vertical level</span>
+    <span class="c1"># so output should be time * bin * elem * z</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">data_step</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="n">step_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nbin</span><span class="p">):</span>
+            <span class="n">bin_data</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nelem</span><span class="p">):</span>
+                <span class="n">bin_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_step</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="n">key</span><span class="p">])</span>
+            <span class="n">step_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bin_data</span><span class="p">)</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step_data</span><span class="p">)</span>
+    <span class="c1"># result is time * bin * elem * z</span>
+    <span class="c1"># transpose to match expected output shape: time * z * bin * elem</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_extract_scalar_bin_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">nbin</span><span class="p">,</span> <span class="n">nelem</span><span class="p">):</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">data_step</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="n">step_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nbin</span><span class="p">):</span>
+            <span class="n">bin_data</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nelem</span><span class="p">):</span>
+                <span class="n">bin_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data_step</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">][</span><span class="n">key</span><span class="p">])</span>
+            <span class="n">step_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bin_data</span><span class="p">)</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step_data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_data</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">bin_data</span><span class="p">,</span> <span class="n">time_array</span><span class="p">,</span> <span class="n">vertical_center</span><span class="p">,</span> <span class="n">vertical_levels</span><span class="p">):</span>
+    <span class="n">nz</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">nz</span>
+    <span class="n">nbin</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">nbin</span>
+    <span class="n">nelem</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">elements</span><span class="p">)</span>
+    <span class="n">ngroup</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">groups</span><span class="p">)</span>
+    <span class="n">ngas</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">gases</span><span class="p">)</span>
+    <span class="n">nstep</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">nstep</span>
+
+    <span class="c1"># Create coordinates</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">coords</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">state</span><span class="o">.</span><span class="n">latitude</span><span class="p">])</span>
+    <span class="n">coords</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">state</span><span class="o">.</span><span class="n">longitude</span><span class="p">])</span>
+    <span class="n">coords</span><span class="p">[</span><span class="s1">&#39;z&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="n">vertical_center</span><span class="p">,</span> <span class="p">{</span>
+                   <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Vertical center height&#39;</span><span class="p">})</span>
+    <span class="n">coords</span><span class="p">[</span><span class="s1">&#39;z_levels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;z_levels&#39;</span><span class="p">,</span> <span class="n">vertical_levels</span><span class="p">,</span> <span class="p">{</span>
+                          <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Vertical interface height&#39;</span><span class="p">})</span>
+    <span class="n">coords</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="n">time_array</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Time&#39;</span><span class="p">})</span>
+
+    <span class="c1"># Bin coordinates (1-indexed like Fortran)</span>
+    <span class="n">coords</span><span class="p">[</span><span class="s1">&#39;bin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;bin&#39;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nbin</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)))</span>
+    <span class="n">coords</span><span class="p">[</span><span class="s1">&#39;group&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;group&#39;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">ngroup</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)))</span>
+    <span class="n">coords</span><span class="p">[</span><span class="s1">&#39;elem&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;elem&#39;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nelem</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)))</span>
+    <span class="n">coords</span><span class="p">[</span><span class="s1">&#39;nwave&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;nwave&#39;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span>
+        <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">wavelength_bins</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)))</span>
+
+    <span class="n">data_vars</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># Atmospheric state variables</span>
+    <span class="n">pressure</span> <span class="o">=</span> <span class="p">[</span><span class="n">env</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;pressure&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">env</span><span class="p">))]</span>
+    <span class="n">temperature</span> <span class="o">=</span> <span class="p">[</span><span class="n">env</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;temperature&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">env</span><span class="p">))]</span>
+    <span class="n">air_density</span> <span class="o">=</span> <span class="p">[</span><span class="n">env</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;air_density&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">env</span><span class="p">))]</span>
+
+    <span class="n">data_vars</span><span class="p">[</span><span class="s1">&#39;pressure&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">),</span> <span class="n">pressure</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;Pa&#39;</span><span class="p">,</span> <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Pressure&#39;</span><span class="p">})</span>
+    <span class="n">data_vars</span><span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">),</span> <span class="n">temperature</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;K&#39;</span><span class="p">,</span> <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Temperature&#39;</span><span class="p">})</span>
+    <span class="n">data_vars</span><span class="p">[</span><span class="s1">&#39;air_density&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">),</span> <span class="n">air_density</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;kg m-3&#39;</span><span class="p">,</span> <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Air density&#39;</span><span class="p">})</span>
+
+    <span class="c1"># bin_data is time * bin * elem, each element contains data for each vertical level</span>
+    <span class="c1"># so bin_data&#39;s shape is: time * bin * elem * z</span>
+
+    <span class="c1"># Vector data (with z-dimension)</span>
+    <span class="n">data_vars</span><span class="p">[</span><span class="s1">&#39;mass_mixing_ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;bin&#39;</span><span class="p">,</span> <span class="s1">&#39;elem&#39;</span><span class="p">),</span> <span class="n">_extract_bin_data</span><span class="p">(</span><span class="n">bin_data</span><span class="p">,</span> <span class="s1">&#39;mass_mixing_ratio&#39;</span><span class="p">,</span> <span class="n">nbin</span><span class="p">,</span> <span class="n">nelem</span><span class="p">),</span> <span class="p">{</span>
+            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;kg kg-1&#39;</span><span class="p">,</span> <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Mass mixing ratio&#39;</span><span class="p">})</span>
+    <span class="n">data_vars</span><span class="p">[</span><span class="s1">&#39;number_mixing_ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;bin&#39;</span><span class="p">,</span> <span class="s1">&#39;elem&#39;</span><span class="p">),</span> <span class="n">_extract_bin_data</span><span class="p">(</span><span class="n">bin_data</span><span class="p">,</span> <span class="s1">&#39;number_mixing_ratio&#39;</span><span class="p">,</span> <span class="n">nbin</span><span class="p">,</span> <span class="n">nelem</span><span class="p">),</span> <span class="p">{</span>
+            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;# kg-1&#39;</span><span class="p">,</span> <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Number mixing ratio&#39;</span><span class="p">})</span>
+    <span class="n">data_vars</span><span class="p">[</span><span class="s1">&#39;number_density&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;bin&#39;</span><span class="p">,</span> <span class="s1">&#39;elem&#39;</span><span class="p">),</span> <span class="n">_extract_bin_data</span><span class="p">(</span><span class="n">bin_data</span><span class="p">,</span> <span class="s1">&#39;number_density&#39;</span><span class="p">,</span> <span class="n">nbin</span><span class="p">,</span> <span class="n">nelem</span><span class="p">),</span> <span class="p">{</span>
+            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;# cm-3&#39;</span><span class="p">,</span> <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Number density&#39;</span><span class="p">})</span>
+    <span class="n">data_vars</span><span class="p">[</span><span class="s1">&#39;nucleation_rate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;bin&#39;</span><span class="p">,</span> <span class="s1">&#39;elem&#39;</span><span class="p">),</span> <span class="n">_extract_bin_data</span><span class="p">(</span><span class="n">bin_data</span><span class="p">,</span> <span class="s1">&#39;nucleation_rate&#39;</span><span class="p">,</span> <span class="n">nbin</span><span class="p">,</span> <span class="n">nelem</span><span class="p">),</span> <span class="p">{</span>
+            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;# cm-3 s-1&#39;</span><span class="p">,</span> <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Nucleation rate&#39;</span><span class="p">})</span>
+    <span class="n">data_vars</span><span class="p">[</span><span class="s1">&#39;wet_particle_radius&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;bin&#39;</span><span class="p">,</span> <span class="s1">&#39;elem&#39;</span><span class="p">),</span> <span class="n">_extract_bin_data</span><span class="p">(</span><span class="n">bin_data</span><span class="p">,</span> <span class="s1">&#39;wet_particle_radius&#39;</span><span class="p">,</span> <span class="n">nbin</span><span class="p">,</span> <span class="n">nelem</span><span class="p">),</span> <span class="p">{</span>
+            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;cm&#39;</span><span class="p">,</span> <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Wet particle radius&#39;</span><span class="p">})</span>
+    <span class="n">data_vars</span><span class="p">[</span><span class="s1">&#39;wet_particle_density&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;bin&#39;</span><span class="p">,</span> <span class="s1">&#39;elem&#39;</span><span class="p">),</span> <span class="n">_extract_bin_data</span><span class="p">(</span><span class="n">bin_data</span><span class="p">,</span> <span class="s1">&#39;wet_particle_density&#39;</span><span class="p">,</span> <span class="n">nbin</span><span class="p">,</span> <span class="n">nelem</span><span class="p">),</span> <span class="p">{</span>
+            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;g cm-3&#39;</span><span class="p">,</span> <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Wet particle density&#39;</span><span class="p">})</span>
+    <span class="n">data_vars</span><span class="p">[</span><span class="s1">&#39;dry_particle_density&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;bin&#39;</span><span class="p">,</span> <span class="s1">&#39;elem&#39;</span><span class="p">),</span> <span class="n">_extract_bin_data</span><span class="p">(</span><span class="n">bin_data</span><span class="p">,</span> <span class="s1">&#39;dry_particle_density&#39;</span><span class="p">,</span> <span class="n">nbin</span><span class="p">,</span> <span class="n">nelem</span><span class="p">),</span> <span class="p">{</span>
+            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;g cm-3&#39;</span><span class="p">,</span> <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Dry particle density&#39;</span><span class="p">})</span>
+    <span class="n">data_vars</span><span class="p">[</span><span class="s1">&#39;fall_velocity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;z_levels&#39;</span><span class="p">,</span> <span class="s1">&#39;bin&#39;</span><span class="p">,</span> <span class="s1">&#39;elem&#39;</span><span class="p">),</span> <span class="n">_extract_bin_data</span><span class="p">(</span><span class="n">bin_data</span><span class="p">,</span> <span class="s1">&#39;fall_velocity&#39;</span><span class="p">,</span> <span class="n">nbin</span><span class="p">,</span> <span class="n">nelem</span><span class="p">),</span> <span class="p">{</span>
+            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;cm s-1&#39;</span><span class="p">,</span> <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Fall velocity&#39;</span><span class="p">})</span>
+    <span class="n">data_vars</span><span class="p">[</span><span class="s1">&#39;delta_particle_temperature&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;bin&#39;</span><span class="p">,</span> <span class="s1">&#39;elem&#39;</span><span class="p">),</span> <span class="n">_extract_bin_data</span><span class="p">(</span><span class="n">bin_data</span><span class="p">,</span> <span class="s1">&#39;delta_particle_temperature&#39;</span><span class="p">,</span> <span class="n">nbin</span><span class="p">,</span> <span class="n">nelem</span><span class="p">),</span> <span class="p">{</span>
+            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;K&#39;</span><span class="p">,</span> <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Delta particle temperature&#39;</span><span class="p">})</span>
+    <span class="n">data_vars</span><span class="p">[</span><span class="s1">&#39;kappa&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;bin&#39;</span><span class="p">,</span> <span class="s1">&#39;elem&#39;</span><span class="p">),</span> <span class="n">_extract_bin_data</span><span class="p">(</span><span class="n">bin_data</span><span class="p">,</span> <span class="s1">&#39;kappa&#39;</span><span class="p">,</span> <span class="n">nbin</span><span class="p">,</span> <span class="n">nelem</span><span class="p">),</span> <span class="p">{</span>
+            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Hygroscopicity parameter&#39;</span><span class="p">})</span>
+    <span class="n">data_vars</span><span class="p">[</span><span class="s1">&#39;total_mass_mixing_ratio&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;bin&#39;</span><span class="p">,</span> <span class="s1">&#39;elem&#39;</span><span class="p">),</span> <span class="n">_extract_bin_data</span><span class="p">(</span><span class="n">bin_data</span><span class="p">,</span> <span class="s1">&#39;total_mass_mixing_ratio&#39;</span><span class="p">,</span> <span class="n">nbin</span><span class="p">,</span> <span class="n">nelem</span><span class="p">),</span> <span class="p">{</span>
+            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;kg m-3&#39;</span><span class="p">,</span> <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Total mass mixing ratio&#39;</span><span class="p">})</span>
+
+    <span class="c1"># Scalar data (no z-dimension)</span>
+    <span class="n">data_vars</span><span class="p">[</span><span class="s1">&#39;particle_mass_on_surface&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;bin&#39;</span><span class="p">,</span> <span class="s1">&#39;elem&#39;</span><span class="p">),</span> <span class="n">_extract_scalar_bin_data</span><span class="p">(</span><span class="n">bin_data</span><span class="p">,</span> <span class="s1">&#39;particle_mass_on_surface&#39;</span><span class="p">,</span> <span class="n">nbin</span><span class="p">,</span> <span class="n">nelem</span><span class="p">),</span> <span class="p">{</span>
+            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;kg m-2&#39;</span><span class="p">,</span> <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Mass of particle on surface&#39;</span><span class="p">})</span>
+    <span class="n">data_vars</span><span class="p">[</span><span class="s1">&#39;sedimentation_flux&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;bin&#39;</span><span class="p">,</span> <span class="s1">&#39;elem&#39;</span><span class="p">),</span> <span class="n">_extract_scalar_bin_data</span><span class="p">(</span><span class="n">bin_data</span><span class="p">,</span> <span class="s1">&#39;sedimentation_flux&#39;</span><span class="p">,</span> <span class="n">nbin</span><span class="p">,</span> <span class="n">nelem</span><span class="p">),</span> <span class="p">{</span>
+            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;kg m-2 s-1&#39;</span><span class="p">,</span> <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Sedimentation flux&#39;</span><span class="p">})</span>
+    <span class="n">data_vars</span><span class="p">[</span><span class="s1">&#39;deposition_velocity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;bin&#39;</span><span class="p">,</span> <span class="s1">&#39;elem&#39;</span><span class="p">),</span> <span class="n">_extract_scalar_bin_data</span><span class="p">(</span><span class="n">bin_data</span><span class="p">,</span> <span class="s1">&#39;deposition_velocity&#39;</span><span class="p">,</span> <span class="n">nbin</span><span class="p">,</span> <span class="n">nelem</span><span class="p">),</span> <span class="p">{</span>
+            <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;cm s-1&#39;</span><span class="p">,</span> <span class="s1">&#39;long_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Deposition velocity&#39;</span><span class="p">})</span>
+
+    <span class="c1"># Create the dataset</span>
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
+        <span class="n">data_vars</span><span class="o">=</span><span class="n">data_vars</span><span class="p">,</span>
+        <span class="n">coords</span><span class="o">=</span><span class="n">coords</span><span class="p">,</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span>
+            <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;CARMA aerosol model output&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;Output from CARMA aerosol simulation&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;nz&#39;</span><span class="p">:</span> <span class="n">nz</span><span class="p">,</span>
+            <span class="s1">&#39;nbin&#39;</span><span class="p">:</span> <span class="n">nbin</span><span class="p">,</span>
+            <span class="s1">&#39;nelem&#39;</span><span class="p">:</span> <span class="n">nelem</span><span class="p">,</span>
+            <span class="s1">&#39;ngroup&#39;</span><span class="p">:</span> <span class="n">ngroup</span><span class="p">,</span>
+            <span class="s1">&#39;ngas&#39;</span><span class="p">:</span> <span class="n">ngas</span><span class="p">,</span>
+            <span class="s1">&#39;nstep&#39;</span><span class="p">:</span> <span class="n">nstep</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_bin_data_for_timestep</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+    <span class="n">nbin</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">nbin</span>
+    <span class="n">nelem</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">elements</span><span class="p">)</span>
+    <span class="n">bin_data</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nbin</span><span class="p">)]</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nbin</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nelem</span><span class="p">):</span>
+            <span class="n">bin_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">get_bin</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">bin_data</span>
+</pre></div>
+</div>
+</div>
+<p>Finally, we can run a simple aluminum configuration. For now, we will use the pre-made configuration which hides the details of creating groups, elements, coagulation schemes so that we can get to running a simple box model quickly.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">params</span> <span class="o">=</span> <span class="n">musica</span><span class="o">.</span><span class="n">CARMAParameters</span><span class="o">.</span><span class="n">create_aluminum_test_config</span><span class="p">()</span>
+<span class="n">n_levels</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">nz</span>
+<span class="n">deltaz</span><span class="o">=</span><span class="mf">1000.0</span>
+<span class="n">zmin</span><span class="o">=</span><span class="mf">16500.0</span>
+
+<span class="n">vertical_center</span> <span class="o">=</span> <span class="n">zmin</span> <span class="o">+</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_levels</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="n">deltaz</span>
+<span class="n">vertical_levels</span> <span class="o">=</span> <span class="n">zmin</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_levels</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">deltaz</span>
+
+<span class="n">centered_variables</span> <span class="o">=</span> <span class="n">ussa1976</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="n">vertical_center</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;t&quot;</span><span class="p">,</span> <span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="s2">&quot;rho&quot;</span><span class="p">])</span>
+<span class="n">edge_variables</span> <span class="o">=</span> <span class="n">ussa1976</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="n">vertical_levels</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;p&quot;</span><span class="p">])</span>
+
+<span class="n">temperature</span> <span class="o">=</span> <span class="n">centered_variables</span><span class="o">.</span><span class="n">t</span><span class="o">.</span><span class="n">values</span>
+<span class="n">pressure</span> <span class="o">=</span> <span class="n">centered_variables</span><span class="o">.</span><span class="n">p</span><span class="o">.</span><span class="n">values</span>
+<span class="n">pressure_levels</span> <span class="o">=</span> <span class="n">edge_variables</span><span class="o">.</span><span class="n">p</span><span class="o">.</span><span class="n">values</span>
+<span class="n">density</span> <span class="o">=</span> <span class="n">centered_variables</span><span class="o">.</span><span class="n">rho</span><span class="o">.</span><span class="n">values</span>
+
+<span class="n">carma</span> <span class="o">=</span> <span class="n">musica</span><span class="o">.</span><span class="n">CARMA</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+<span class="n">mmr_initial</span> <span class="o">=</span> <span class="mf">5e9</span> <span class="o">/</span> <span class="p">(</span><span class="n">deltaz</span> <span class="o">*</span> <span class="mf">2.57474699e14</span><span class="p">)</span> <span class="o">/</span> <span class="n">density</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="n">state</span> <span class="o">=</span> <span class="n">carma</span><span class="o">.</span><span class="n">create_state</span><span class="p">(</span>
+    <span class="n">time_step</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">dtime</span><span class="p">,</span>
+    <span class="n">temperature</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span>
+    <span class="n">pressure</span><span class="o">=</span><span class="n">pressure</span><span class="p">,</span>
+    <span class="n">pressure_levels</span><span class="o">=</span><span class="n">pressure_levels</span><span class="p">,</span>
+    <span class="n">vertical_center</span><span class="o">=</span><span class="n">vertical_center</span><span class="p">,</span>
+    <span class="n">vertical_levels</span><span class="o">=</span><span class="n">vertical_levels</span><span class="p">,</span>
+    <span class="n">longitude</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">latitude</span><span class="o">=-</span><span class="mf">105.0</span><span class="p">,</span>
+    <span class="n">coordinates</span><span class="o">=</span><span class="n">musica</span><span class="o">.</span><span class="n">carma</span><span class="o">.</span><span class="n">CarmaCoordinates</span><span class="o">.</span><span class="n">CARTESIAN</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">nbin</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">elements</span><span class="p">)):</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">set_bin</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mmr_initial</span><span class="p">)</span>
+
+<span class="n">bin_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">extract_bin_data_for_timestep</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">state</span><span class="p">)]</span>
+<span class="n">env</span> <span class="o">=</span> <span class="p">[</span><span class="n">state</span><span class="o">.</span><span class="n">get_environmental_values</span><span class="p">()]</span>
+<span class="n">time_array</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span>  <span class="c1"># Start with time 0</span>
+
+<span class="c1"># Run the simulation for the specified number of steps</span>
+<span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">nstep</span><span class="p">)):</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+    <span class="n">bin_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">extract_bin_data_for_timestep</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">state</span><span class="p">))</span>
+    <span class="n">env</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">get_environmental_values</span><span class="p">())</span>
+    <span class="n">time_array</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">dtime</span><span class="p">)</span>
+
+<span class="n">ds</span> <span class="o">=</span> <span class="n">extract_data</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">bin_data</span><span class="p">,</span> <span class="n">time_array</span><span class="p">,</span> <span class="n">vertical_center</span><span class="p">,</span> <span class="n">vertical_levels</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div><svg style="position: absolute; width: 0; height: 0; overflow: hidden">
+<defs>
+<symbol id="icon-database" viewBox="0 0 32 32">
+<path d="M16 0c-8.837 0-16 2.239-16 5v4c0 2.761 7.163 5 16 5s16-2.239 16-5v-4c0-2.761-7.163-5-16-5z"></path>
+<path d="M16 17c-8.837 0-16-2.239-16-5v6c0 2.761 7.163 5 16 5s16-2.239 16-5v-6c0 2.761-7.163 5-16 5z"></path>
+<path d="M16 26c-8.837 0-16-2.239-16-5v6c0 2.761 7.163 5 16 5s16-2.239 16-5v-6c0 2.761-7.163 5-16 5z"></path>
+</symbol>
+<symbol id="icon-file-text2" viewBox="0 0 32 32">
+<path d="M28.681 7.159c-0.694-0.947-1.662-2.053-2.724-3.116s-2.169-2.030-3.116-2.724c-1.612-1.182-2.393-1.319-2.841-1.319h-15.5c-1.378 0-2.5 1.121-2.5 2.5v27c0 1.378 1.122 2.5 2.5 2.5h23c1.378 0 2.5-1.122 2.5-2.5v-19.5c0-0.448-0.137-1.23-1.319-2.841zM24.543 5.457c0.959 0.959 1.712 1.825 2.268 2.543h-4.811v-4.811c0.718 0.556 1.584 1.309 2.543 2.268zM28 29.5c0 0.271-0.229 0.5-0.5 0.5h-23c-0.271 0-0.5-0.229-0.5-0.5v-27c0-0.271 0.229-0.5 0.5-0.5 0 0 15.499-0 15.5 0v7c0 0.552 0.448 1 1 1h7v19.5z"></path>
+<path d="M23 26h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
+<path d="M23 22h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
+<path d="M23 18h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
+</symbol>
+</defs>
+</svg>
+<style>/* CSS stylesheet for displaying xarray objects in jupyterlab.
+ *
+ */
+
+:root {
+  --xr-font-color0: var(--jp-content-font-color0, rgba(0, 0, 0, 1));
+  --xr-font-color2: var(--jp-content-font-color2, rgba(0, 0, 0, 0.54));
+  --xr-font-color3: var(--jp-content-font-color3, rgba(0, 0, 0, 0.38));
+  --xr-border-color: var(--jp-border-color2, #e0e0e0);
+  --xr-disabled-color: var(--jp-layout-color3, #bdbdbd);
+  --xr-background-color: var(--jp-layout-color0, white);
+  --xr-background-color-row-even: var(--jp-layout-color1, white);
+  --xr-background-color-row-odd: var(--jp-layout-color2, #eeeeee);
+}
+
+html[theme="dark"],
+html[data-theme="dark"],
+body[data-theme="dark"],
+body.vscode-dark {
+  --xr-font-color0: rgba(255, 255, 255, 1);
+  --xr-font-color2: rgba(255, 255, 255, 0.54);
+  --xr-font-color3: rgba(255, 255, 255, 0.38);
+  --xr-border-color: #1f1f1f;
+  --xr-disabled-color: #515151;
+  --xr-background-color: #111111;
+  --xr-background-color-row-even: #111111;
+  --xr-background-color-row-odd: #313131;
+}
+
+.xr-wrap {
+  display: block !important;
+  min-width: 300px;
+  max-width: 700px;
+}
+
+.xr-text-repr-fallback {
+  /* fallback to plain text repr when CSS is not injected (untrusted notebook) */
+  display: none;
+}
+
+.xr-header {
+  padding-top: 6px;
+  padding-bottom: 6px;
+  margin-bottom: 4px;
+  border-bottom: solid 1px var(--xr-border-color);
+}
+
+.xr-header > div,
+.xr-header > ul {
+  display: inline;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.xr-obj-type,
+.xr-array-name {
+  margin-left: 2px;
+  margin-right: 10px;
+}
+
+.xr-obj-type {
+  color: var(--xr-font-color2);
+}
+
+.xr-sections {
+  padding-left: 0 !important;
+  display: grid;
+  grid-template-columns: 150px auto auto 1fr 0 20px 0 20px;
+}
+
+.xr-section-item {
+  display: contents;
+}
+
+.xr-section-item input {
+  display: inline-block;
+  opacity: 0;
+  height: 0;
+}
+
+.xr-section-item input + label {
+  color: var(--xr-disabled-color);
+}
+
+.xr-section-item input:enabled + label {
+  cursor: pointer;
+  color: var(--xr-font-color2);
+}
+
+.xr-section-item input:focus + label {
+  border: 2px solid var(--xr-font-color0);
+}
+
+.xr-section-item input:enabled + label:hover {
+  color: var(--xr-font-color0);
+}
+
+.xr-section-summary {
+  grid-column: 1;
+  color: var(--xr-font-color2);
+  font-weight: 500;
+}
+
+.xr-section-summary > span {
+  display: inline-block;
+  padding-left: 0.5em;
+}
+
+.xr-section-summary-in:disabled + label {
+  color: var(--xr-font-color2);
+}
+
+.xr-section-summary-in + label:before {
+  display: inline-block;
+  content: "►";
+  font-size: 11px;
+  width: 15px;
+  text-align: center;
+}
+
+.xr-section-summary-in:disabled + label:before {
+  color: var(--xr-disabled-color);
+}
+
+.xr-section-summary-in:checked + label:before {
+  content: "▼";
+}
+
+.xr-section-summary-in:checked + label > span {
+  display: none;
+}
+
+.xr-section-summary,
+.xr-section-inline-details {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.xr-section-inline-details {
+  grid-column: 2 / -1;
+}
+
+.xr-section-details {
+  display: none;
+  grid-column: 1 / -1;
+  margin-bottom: 5px;
+}
+
+.xr-section-summary-in:checked ~ .xr-section-details {
+  display: contents;
+}
+
+.xr-array-wrap {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 20px auto;
+}
+
+.xr-array-wrap > label {
+  grid-column: 1;
+  vertical-align: top;
+}
+
+.xr-preview {
+  color: var(--xr-font-color3);
+}
+
+.xr-array-preview,
+.xr-array-data {
+  padding: 0 5px !important;
+  grid-column: 2;
+}
+
+.xr-array-data,
+.xr-array-in:checked ~ .xr-array-preview {
+  display: none;
+}
+
+.xr-array-in:checked ~ .xr-array-data,
+.xr-array-preview {
+  display: inline-block;
+}
+
+.xr-dim-list {
+  display: inline-block !important;
+  list-style: none;
+  padding: 0 !important;
+  margin: 0;
+}
+
+.xr-dim-list li {
+  display: inline-block;
+  padding: 0;
+  margin: 0;
+}
+
+.xr-dim-list:before {
+  content: "(";
+}
+
+.xr-dim-list:after {
+  content: ")";
+}
+
+.xr-dim-list li:not(:last-child):after {
+  content: ",";
+  padding-right: 5px;
+}
+
+.xr-has-index {
+  font-weight: bold;
+}
+
+.xr-var-list,
+.xr-var-item {
+  display: contents;
+}
+
+.xr-var-item > div,
+.xr-var-item label,
+.xr-var-item > .xr-var-name span {
+  background-color: var(--xr-background-color-row-even);
+  margin-bottom: 0;
+}
+
+.xr-var-item > .xr-var-name:hover span {
+  padding-right: 5px;
+}
+
+.xr-var-list > li:nth-child(odd) > div,
+.xr-var-list > li:nth-child(odd) > label,
+.xr-var-list > li:nth-child(odd) > .xr-var-name span {
+  background-color: var(--xr-background-color-row-odd);
+}
+
+.xr-var-name {
+  grid-column: 1;
+}
+
+.xr-var-dims {
+  grid-column: 2;
+}
+
+.xr-var-dtype {
+  grid-column: 3;
+  text-align: right;
+  color: var(--xr-font-color2);
+}
+
+.xr-var-preview {
+  grid-column: 4;
+}
+
+.xr-index-preview {
+  grid-column: 2 / 5;
+  color: var(--xr-font-color2);
+}
+
+.xr-var-name,
+.xr-var-dims,
+.xr-var-dtype,
+.xr-preview,
+.xr-attrs dt {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 10px;
+}
+
+.xr-var-name:hover,
+.xr-var-dims:hover,
+.xr-var-dtype:hover,
+.xr-attrs dt:hover {
+  overflow: visible;
+  width: auto;
+  z-index: 1;
+}
+
+.xr-var-attrs,
+.xr-var-data,
+.xr-index-data {
+  display: none;
+  background-color: var(--xr-background-color) !important;
+  padding-bottom: 5px !important;
+}
+
+.xr-var-attrs-in:checked ~ .xr-var-attrs,
+.xr-var-data-in:checked ~ .xr-var-data,
+.xr-index-data-in:checked ~ .xr-index-data {
+  display: block;
+}
+
+.xr-var-data > table {
+  float: right;
+}
+
+.xr-var-name span,
+.xr-var-data,
+.xr-index-name div,
+.xr-index-data,
+.xr-attrs {
+  padding-left: 25px !important;
+}
+
+.xr-attrs,
+.xr-var-attrs,
+.xr-var-data,
+.xr-index-data {
+  grid-column: 1 / -1;
+}
+
+dl.xr-attrs {
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 125px auto;
+}
+
+.xr-attrs dt,
+.xr-attrs dd {
+  padding: 0;
+  margin: 0;
+  float: left;
+  padding-right: 10px;
+  width: auto;
+}
+
+.xr-attrs dt {
+  font-weight: normal;
+  grid-column: 1;
+}
+
+.xr-attrs dt:hover span {
+  display: inline-block;
+  background: var(--xr-background-color);
+  padding-right: 10px;
+}
+
+.xr-attrs dd {
+  grid-column: 2;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.xr-icon-database,
+.xr-icon-file-text2,
+.xr-no-icon {
+  display: inline-block;
+  vertical-align: middle;
+  width: 1em;
+  height: 1.5em !important;
+  stroke-width: 0;
+  stroke: currentColor;
+  fill: currentColor;
+}
+</style><pre class='xr-text-repr-fallback'>&lt;xarray.Dataset&gt; Size: 152kB
+Dimensions:                     (time: 240, z: 1, bin: 5, elem: 1, z_levels: 2,
+                                 y: 1, x: 1, group: 1, nwave: 0)
+Coordinates:
+    lat                         (y) float64 8B -105.0
+    lon                         (x) float64 8B 0.0
+  * z                           (z) float64 8B 1.7e+04
+  * z_levels                    (z_levels) float64 16B 1.65e+04 1.75e+04
+  * time                        (time) float64 2kB 0.0 1.8e+03 ... 4.302e+05
+  * bin                         (bin) int64 40B 1 2 3 4 5
+  * group                       (group) int64 8B 1
+  * elem                        (elem) int64 8B 1
+  * nwave                       (nwave) float64 0B
+Dimensions without coordinates: y, x
+Data variables: (12/17)
+    pressure                    (time, z) float64 2kB 8.85e+03 ... 8.85e+03
+    temperature                 (time, z) float64 2kB 216.6 216.6 ... 216.6
+    air_density                 (time, z) float64 2kB 0.1417 0.1417 ... 0.1417
+    mass_mixing_ratio           (time, z, bin, elem) float64 10kB 1.365e-07 ....
+    number_mixing_ratio         (time, z, bin, elem) float64 10kB 8.299e+08 ....
+    number_density              (time, z, bin, elem) float64 10kB 117.6 ... 7...
+    ...                          ...
+    delta_particle_temperature  (time, z, bin, elem) float64 10kB -999.0 ... ...
+    kappa                       (time, z, bin, elem) float64 10kB 0.0 ... -1....
+    total_mass_mixing_ratio     (time, z, bin, elem) float64 10kB 1.365e-07 ....
+    particle_mass_on_surface    (time, bin, elem) float64 10kB 0.0 0.0 ... 0.0
+    sedimentation_flux          (time, bin, elem) float64 10kB 0.0 0.0 ... 0.0
+    deposition_velocity         (time, bin, elem) float64 10kB -999.0 ... -999.0
+Attributes:
+    title:        CARMA aerosol model output
+    description:  Output from CARMA aerosol simulation
+    nz:           1
+    nbin:         5
+    nelem:        1
+    ngroup:       1
+    ngas:         0
+    nstep:        240.0</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.Dataset</div></div><ul class='xr-sections'><li class='xr-section-item'><input id='section-3346d9ee-5e86-45f9-a5ad-dbe556ab4ec8' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-3346d9ee-5e86-45f9-a5ad-dbe556ab4ec8' class='xr-section-summary'  title='Expand/collapse section'>Dimensions:</label><div class='xr-section-inline-details'><ul class='xr-dim-list'><li><span class='xr-has-index'>time</span>: 240</li><li><span class='xr-has-index'>z</span>: 1</li><li><span class='xr-has-index'>bin</span>: 5</li><li><span class='xr-has-index'>elem</span>: 1</li><li><span class='xr-has-index'>z_levels</span>: 2</li><li><span>y</span>: 1</li><li><span>x</span>: 1</li><li><span class='xr-has-index'>group</span>: 1</li><li><span class='xr-has-index'>nwave</span>: 0</li></ul></div><div class='xr-section-details'></div></li><li class='xr-section-item'><input id='section-f9d17c3c-a50d-42ec-b1e6-41733291a0bc' class='xr-section-summary-in' type='checkbox'  checked><label for='section-f9d17c3c-a50d-42ec-b1e6-41733291a0bc' class='xr-section-summary' >Coordinates: <span>(9)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>lat</span></div><div class='xr-var-dims'>(y)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>-105.0</div><input id='attrs-076667d8-ff7b-42a6-8702-0bba576b0798' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-076667d8-ff7b-42a6-8702-0bba576b0798' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-4ee5f3e2-2b4e-43db-a4e1-397d95813fb0' class='xr-var-data-in' type='checkbox'><label for='data-4ee5f3e2-2b4e-43db-a4e1-397d95813fb0' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([-105.])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>lon</span></div><div class='xr-var-dims'>(x)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0</div><input id='attrs-890d22d5-3a4e-4b08-8248-04f76ea09bd3' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-890d22d5-3a4e-4b08-8248-04f76ea09bd3' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-d1292c75-32ec-4182-ab0e-e61454b867a5' class='xr-var-data-in' type='checkbox'><label for='data-d1292c75-32ec-4182-ab0e-e61454b867a5' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([0.])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>z</span></div><div class='xr-var-dims'>(z)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>1.7e+04</div><input id='attrs-bbc4e7b5-dc77-4e86-afa2-bbb19e022efa' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-bbc4e7b5-dc77-4e86-afa2-bbb19e022efa' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-50c1482a-f145-4190-9dfb-e5400a3c33a4' class='xr-var-data-in' type='checkbox'><label for='data-50c1482a-f145-4190-9dfb-e5400a3c33a4' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>m</dd><dt><span>long_name :</span></dt><dd>Vertical center height</dd></dl></div><div class='xr-var-data'><pre>array([17000.])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>z_levels</span></div><div class='xr-var-dims'>(z_levels)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>1.65e+04 1.75e+04</div><input id='attrs-77276f8b-5360-4314-9da9-126ceaa23ece' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-77276f8b-5360-4314-9da9-126ceaa23ece' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-b34c10fa-16aa-4dae-8404-161e335cf89f' class='xr-var-data-in' type='checkbox'><label for='data-b34c10fa-16aa-4dae-8404-161e335cf89f' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>m</dd><dt><span>long_name :</span></dt><dd>Vertical interface height</dd></dl></div><div class='xr-var-data'><pre>array([16500., 17500.])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 1.8e+03 ... 4.284e+05 4.302e+05</div><input id='attrs-ffbacf0e-21e4-4c89-8fd9-17ec9d057e2f' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-ffbacf0e-21e4-4c89-8fd9-17ec9d057e2f' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-a6d6a073-8d14-4be8-b775-85c03ae66a13' class='xr-var-data-in' type='checkbox'><label for='data-a6d6a073-8d14-4be8-b775-85c03ae66a13' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>s</dd><dt><span>long_name :</span></dt><dd>Time</dd></dl></div><div class='xr-var-data'><pre>array([     0.,   1800.,   3600., ..., 426600., 428400., 430200.], shape=(240,))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>bin</span></div><div class='xr-var-dims'>(bin)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>1 2 3 4 5</div><input id='attrs-1b0b3ef6-141c-430c-9606-0494cfe99f59' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-1b0b3ef6-141c-430c-9606-0494cfe99f59' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-87b38e5f-6110-4aab-98e7-2439e32cf0bd' class='xr-var-data-in' type='checkbox'><label for='data-87b38e5f-6110-4aab-98e7-2439e32cf0bd' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([1, 2, 3, 4, 5])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>group</span></div><div class='xr-var-dims'>(group)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>1</div><input id='attrs-0cb53329-7725-46fe-b339-bdc9e547d1cb' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-0cb53329-7725-46fe-b339-bdc9e547d1cb' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-23b261d2-5bf3-4403-8621-75a89f9870cb' class='xr-var-data-in' type='checkbox'><label for='data-23b261d2-5bf3-4403-8621-75a89f9870cb' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([1])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>elem</span></div><div class='xr-var-dims'>(elem)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>1</div><input id='attrs-c6f39d5b-1265-4ed6-8937-15c8daa3dab9' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-c6f39d5b-1265-4ed6-8937-15c8daa3dab9' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-e95f425d-1ab9-4b0f-8b48-7cae3c845bb1' class='xr-var-data-in' type='checkbox'><label for='data-e95f425d-1ab9-4b0f-8b48-7cae3c845bb1' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([1])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>nwave</span></div><div class='xr-var-dims'>(nwave)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'></div><input id='attrs-f1d4f68d-5a16-466c-a99d-221431c47198' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-f1d4f68d-5a16-466c-a99d-221431c47198' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-5bcfe1ab-329a-4bce-8621-d1ebaf656b57' class='xr-var-data-in' type='checkbox'><label for='data-5bcfe1ab-329a-4bce-8621-d1ebaf656b57' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([], dtype=float64)</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-9b570000-b27e-4da2-a391-cc9d676d936c' class='xr-section-summary-in' type='checkbox'  ><label for='section-9b570000-b27e-4da2-a391-cc9d676d936c' class='xr-section-summary' >Data variables: <span>(17)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>pressure</span></div><div class='xr-var-dims'>(time, z)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>8.85e+03 8.85e+03 ... 8.85e+03</div><input id='attrs-8c6b8068-e25d-426f-8d96-6ea93fad4453' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-8c6b8068-e25d-426f-8d96-6ea93fad4453' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-80784232-d66d-417e-83a4-81909a73b5b1' class='xr-var-data-in' type='checkbox'><label for='data-80784232-d66d-417e-83a4-81909a73b5b1' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>Pa</dd><dt><span>long_name :</span></dt><dd>Pressure</dd></dl></div><div class='xr-var-data'><pre>array([[8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+...
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538],
+       [8849.7125538]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>temperature</span></div><div class='xr-var-dims'>(time, z)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>216.6 216.6 216.6 ... 216.6 216.6</div><input id='attrs-773fe259-1258-4ed2-9257-7a703c788994' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-773fe259-1258-4ed2-9257-7a703c788994' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-251ed94e-66f8-438b-a631-e0b32c632672' class='xr-var-data-in' type='checkbox'><label for='data-251ed94e-66f8-438b-a631-e0b32c632672' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>K</dd><dt><span>long_name :</span></dt><dd>Temperature</dd></dl></div><div class='xr-var-data'><pre>array([[216.65],
+       [216.65],
+       [216.65],
+       [216.65],
+       [216.65],
+       [216.65],
+       [216.65],
+       [216.65],
+       [216.65],
+       [216.65],
+       [216.65],
+       [216.65],
+       [216.65],
+       [216.65],
+       [216.65],
+       [216.65],
+       [216.65],
+       [216.65],
+       [216.65],
+       [216.65],
+...
+       [216.65],
+       [216.65],
+       [216.65],
+       [216.65],
+       [216.65],
+       [216.65],
+       [216.65],
+       [216.65],
+       [216.65],
+       [216.65],
+       [216.65],
+       [216.65],
+       [216.65],
+       [216.65],
+       [216.65],
+       [216.65],
+       [216.65],
+       [216.65],
+       [216.65],
+       [216.65]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>air_density</span></div><div class='xr-var-dims'>(time, z)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.1417 0.1417 ... 0.1417 0.1417</div><input id='attrs-be093b77-5b54-4377-b48e-53c4ec9c11ed' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-be093b77-5b54-4377-b48e-53c4ec9c11ed' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-ab22a3aa-2d0d-4c94-8653-4969a2a25cd3' class='xr-var-data-in' type='checkbox'><label for='data-ab22a3aa-2d0d-4c94-8653-4969a2a25cd3' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>kg m-3</dd><dt><span>long_name :</span></dt><dd>Air density</dd></dl></div><div class='xr-var-data'><pre>array([[0.14169855],
+       [0.14169855],
+       [0.14169855],
+       [0.14169855],
+       [0.14169855],
+       [0.14169855],
+       [0.14169855],
+       [0.14169855],
+       [0.14169855],
+       [0.14169855],
+       [0.14169855],
+       [0.14169855],
+       [0.14169855],
+       [0.14169855],
+       [0.14169855],
+       [0.14169855],
+       [0.14169855],
+       [0.14169855],
+       [0.14169855],
+       [0.14169855],
+...
+       [0.14169855],
+       [0.14169855],
+       [0.14169855],
+       [0.14169855],
+       [0.14169855],
+       [0.14169855],
+       [0.14169855],
+       [0.14169855],
+       [0.14169855],
+       [0.14169855],
+       [0.14169855],
+       [0.14169855],
+       [0.14169855],
+       [0.14169855],
+       [0.14169855],
+       [0.14169855],
+       [0.14169855],
+       [0.14169855],
+       [0.14169855],
+       [0.14169855]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>mass_mixing_ratio</span></div><div class='xr-var-dims'>(time, z, bin, elem)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>1.365e-07 1.365e-07 ... 1.453e-07</div><input id='attrs-23dd15e3-8c52-462f-9600-a6b9c5ab4d3e' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-23dd15e3-8c52-462f-9600-a6b9c5ab4d3e' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-7f1fd182-8458-40a2-8d98-f77d3ff81c9b' class='xr-var-data-in' type='checkbox'><label for='data-7f1fd182-8458-40a2-8d98-f77d3ff81c9b' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>kg kg-1</dd><dt><span>long_name :</span></dt><dd>Mass mixing ratio</dd></dl></div><div class='xr-var-data'><pre>array([[[[1.36466733e-07],
+         [1.36466733e-07],
+         [1.36466733e-07],
+         [1.36466733e-07],
+         [1.36466733e-07]]],
+
+
+       [[[1.36427335e-07],
+         [1.36453356e-07],
+         [1.36471940e-07],
+         [1.36477617e-07],
+         [1.36503414e-07]]],
+
+
+       [[[1.36387954e-07],
+         [1.36439975e-07],
+         [1.36477139e-07],
+         [1.36488498e-07],
+         [1.36540098e-07]]],
+
+...
+
+       [[[1.27556056e-07],
+         [1.33191071e-07],
+         [1.37458557e-07],
+         [1.38919919e-07],
+         [1.45208061e-07]]],
+
+
+       [[[1.27520200e-07],
+         [1.33176857e-07],
+         [1.37461746e-07],
+         [1.38929726e-07],
+         [1.45245134e-07]]],
+
+
+       [[[1.27484358e-07],
+         [1.33162640e-07],
+         [1.37464927e-07],
+         [1.38939528e-07],
+         [1.45282210e-07]]]], shape=(240, 1, 5, 1))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>number_mixing_ratio</span></div><div class='xr-var-dims'>(time, z, bin, elem)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>8.299e+08 4.149e+08 ... 5.522e+07</div><input id='attrs-ad226730-f276-4569-951f-5b227f0c315d' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-ad226730-f276-4569-951f-5b227f0c315d' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-b0e44a88-3407-4afd-a218-2476389e1e65' class='xr-var-data-in' type='checkbox'><label for='data-b0e44a88-3407-4afd-a218-2476389e1e65' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd># kg-1</dd><dt><span>long_name :</span></dt><dd>Number mixing ratio</dd></dl></div><div class='xr-var-data'><pre>array([[[[8.29899894e+08],
+         [4.14949947e+08],
+         [2.07474974e+08],
+         [1.03737487e+08],
+         [5.18687434e+07]]],
+
+
+       [[[8.29660306e+08],
+         [4.14909273e+08],
+         [2.07482891e+08],
+         [1.03745761e+08],
+         [5.18826855e+07]]],
+
+
+       [[[8.29420814e+08],
+         [4.14868586e+08],
+         [2.07490795e+08],
+         [1.03754032e+08],
+         [5.18966283e+07]]],
+
+...
+
+       [[[7.75711083e+08],
+         [4.04989749e+08],
+         [2.08982878e+08],
+         [1.05602318e+08],
+         [5.51911773e+07]]],
+
+
+       [[[7.75493033e+08],
+         [4.04946530e+08],
+         [2.08987726e+08],
+         [1.05609773e+08],
+         [5.52052684e+07]]],
+
+
+       [[[7.75275068e+08],
+         [4.04903301e+08],
+         [2.08992562e+08],
+         [1.05617224e+08],
+         [5.52193600e+07]]]], shape=(240, 1, 5, 1))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>number_density</span></div><div class='xr-var-dims'>(time, z, bin, elem)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>117.6 58.8 29.4 ... 14.97 7.825</div><input id='attrs-70786090-4e3e-4606-a469-2c980787c5f5' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-70786090-4e3e-4606-a469-2c980787c5f5' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-376c91bb-8bd2-4539-b4fc-6dea411350cb' class='xr-var-data-in' type='checkbox'><label for='data-376c91bb-8bd2-4539-b4fc-6dea411350cb' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd># cm-3</dd><dt><span>long_name :</span></dt><dd>Number density</dd></dl></div><div class='xr-var-data'><pre>array([[[[117.59561506],
+         [ 58.79780753],
+         [ 29.39890377],
+         [ 14.69945188],
+         [  7.34972594]]],
+
+
+       [[[117.56166572],
+         [ 58.7920441 ],
+         [ 29.40002563],
+         [ 14.70062432],
+         [  7.35170152]]],
+
+
+       [[[117.52773005],
+         [ 58.78627884],
+         [ 29.40114557],
+         [ 14.70179627],
+         [  7.3536772 ]]],
+
+...
+
+       [[[109.91713879],
+         [ 57.38646185],
+         [ 29.61257166],
+         [ 14.96369574],
+         [  7.82051002]]],
+
+
+       [[[109.88624145],
+         [ 57.38033772],
+         [ 29.61325863],
+         [ 14.96475208],
+         [  7.8225067 ]]],
+
+
+       [[[109.85535622],
+         [ 57.37421236],
+         [ 29.61394386],
+         [ 14.96580792],
+         [  7.82450347]]]], shape=(240, 1, 5, 1))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>nucleation_rate</span></div><div class='xr-var-dims'>(time, z, bin, elem)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>-999.0 -999.0 ... -999.0 -999.0</div><input id='attrs-d39928e3-d23a-442a-8469-3a415584bf92' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-d39928e3-d23a-442a-8469-3a415584bf92' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-82966457-ff59-4736-a502-45f9d8060939' class='xr-var-data-in' type='checkbox'><label for='data-82966457-ff59-4736-a502-45f9d8060939' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd># cm-3 s-1</dd><dt><span>long_name :</span></dt><dd>Nucleation rate</dd></dl></div><div class='xr-var-data'><pre>array([[[[-999.],
+         [-999.],
+         [-999.],
+         [-999.],
+         [-999.]]],
+
+
+       [[[-999.],
+         [-999.],
+         [-999.],
+         [-999.],
+         [-999.]]],
+
+
+       [[[-999.],
+         [-999.],
+         [-999.],
+         [-999.],
+         [-999.]]],
+
+...
+
+       [[[-999.],
+         [-999.],
+         [-999.],
+         [-999.],
+         [-999.]]],
+
+
+       [[[-999.],
+         [-999.],
+         [-999.],
+         [-999.],
+         [-999.]]],
+
+
+       [[[-999.],
+         [-999.],
+         [-999.],
+         [-999.],
+         [-999.]]]], shape=(240, 1, 5, 1))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>wet_particle_radius</span></div><div class='xr-var-dims'>(time, z, bin, elem)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 0.0 0.0 ... 0.0043 0.005418</div><input id='attrs-b1b60027-0922-46e0-832b-415be85de39d' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-b1b60027-0922-46e0-832b-415be85de39d' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-5faea87b-c5d9-43c5-81da-9abf88b4348b' class='xr-var-data-in' type='checkbox'><label for='data-5faea87b-c5d9-43c5-81da-9abf88b4348b' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>cm</dd><dt><span>long_name :</span></dt><dd>Wet particle radius</dd></dl></div><div class='xr-var-data'><pre>array([[[[0.        ],
+         [0.        ],
+         [0.        ],
+         [0.        ],
+         [0.        ]]],
+
+
+       [[[0.00215   ],
+         [0.00270883],
+         [0.00341291],
+         [0.0043    ],
+         [0.00541766]]],
+
+
+       [[[0.00215   ],
+         [0.00270883],
+         [0.00341291],
+         [0.0043    ],
+         [0.00541766]]],
+
+...
+
+       [[[0.00215   ],
+         [0.00270883],
+         [0.00341291],
+         [0.0043    ],
+         [0.00541766]]],
+
+
+       [[[0.00215   ],
+         [0.00270883],
+         [0.00341291],
+         [0.0043    ],
+         [0.00541766]]],
+
+
+       [[[0.00215   ],
+         [0.00270883],
+         [0.00341291],
+         [0.0043    ],
+         [0.00541766]]]], shape=(240, 1, 5, 1))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>wet_particle_density</span></div><div class='xr-var-dims'>(time, z, bin, elem)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 0.0 0.0 ... 3.95e-06 3.95e-06</div><input id='attrs-efe3fc0d-8a17-48b4-b843-b61cede16f94' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-efe3fc0d-8a17-48b4-b843-b61cede16f94' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-7324c407-cedc-4f42-bd0a-05ecddf3686b' class='xr-var-data-in' type='checkbox'><label for='data-7324c407-cedc-4f42-bd0a-05ecddf3686b' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>g cm-3</dd><dt><span>long_name :</span></dt><dd>Wet particle density</dd></dl></div><div class='xr-var-data'><pre>array([[[[0.00e+00],
+         [0.00e+00],
+         [0.00e+00],
+         [0.00e+00],
+         [0.00e+00]]],
+
+
+       [[[3.95e-06],
+         [3.95e-06],
+         [3.95e-06],
+         [3.95e-06],
+         [3.95e-06]]],
+
+
+       [[[3.95e-06],
+         [3.95e-06],
+         [3.95e-06],
+         [3.95e-06],
+         [3.95e-06]]],
+
+...
+
+       [[[3.95e-06],
+         [3.95e-06],
+         [3.95e-06],
+         [3.95e-06],
+         [3.95e-06]]],
+
+
+       [[[3.95e-06],
+         [3.95e-06],
+         [3.95e-06],
+         [3.95e-06],
+         [3.95e-06]]],
+
+
+       [[[3.95e-06],
+         [3.95e-06],
+         [3.95e-06],
+         [3.95e-06],
+         [3.95e-06]]]], shape=(240, 1, 5, 1))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>dry_particle_density</span></div><div class='xr-var-dims'>(time, z, bin, elem)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 0.0 0.0 ... 3.95e-06 3.95e-06</div><input id='attrs-205e7adb-e9d8-476a-8bbe-9cf4a096c71a' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-205e7adb-e9d8-476a-8bbe-9cf4a096c71a' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-c0e524b0-4161-4d1f-beed-11a0f0f98baa' class='xr-var-data-in' type='checkbox'><label for='data-c0e524b0-4161-4d1f-beed-11a0f0f98baa' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>g cm-3</dd><dt><span>long_name :</span></dt><dd>Dry particle density</dd></dl></div><div class='xr-var-data'><pre>array([[[[0.00e+00],
+         [0.00e+00],
+         [0.00e+00],
+         [0.00e+00],
+         [0.00e+00]]],
+
+
+       [[[3.95e-06],
+         [3.95e-06],
+         [3.95e-06],
+         [3.95e-06],
+         [3.95e-06]]],
+
+
+       [[[3.95e-06],
+         [3.95e-06],
+         [3.95e-06],
+         [3.95e-06],
+         [3.95e-06]]],
+
+...
+
+       [[[3.95e-06],
+         [3.95e-06],
+         [3.95e-06],
+         [3.95e-06],
+         [3.95e-06]]],
+
+
+       [[[3.95e-06],
+         [3.95e-06],
+         [3.95e-06],
+         [3.95e-06],
+         [3.95e-06]]],
+
+
+       [[[3.95e-06],
+         [3.95e-06],
+         [3.95e-06],
+         [3.95e-06],
+         [3.95e-06]]]], shape=(240, 1, 5, 1))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>fall_velocity</span></div><div class='xr-var-dims'>(time, z_levels, bin, elem)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>-999.0 -999.0 ... -999.0 -999.0</div><input id='attrs-515ee54f-d1b2-42a7-b90b-69b9246799a5' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-515ee54f-d1b2-42a7-b90b-69b9246799a5' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-e7b4dc47-9a6b-4d9c-8720-bd53ecad7430' class='xr-var-data-in' type='checkbox'><label for='data-e7b4dc47-9a6b-4d9c-8720-bd53ecad7430' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>cm s-1</dd><dt><span>long_name :</span></dt><dd>Fall velocity</dd></dl></div><div class='xr-var-data'><pre>array([[[[-999.],
+         [-999.],
+         [-999.],
+         [-999.],
+         [-999.]],
+
+        [[-999.],
+         [-999.],
+         [-999.],
+         [-999.],
+         [-999.]]],
+
+
+       [[[-999.],
+         [-999.],
+         [-999.],
+         [-999.],
+         [-999.]],
+
+        [[-999.],
+...
+         [-999.]],
+
+        [[-999.],
+         [-999.],
+         [-999.],
+         [-999.],
+         [-999.]]],
+
+
+       [[[-999.],
+         [-999.],
+         [-999.],
+         [-999.],
+         [-999.]],
+
+        [[-999.],
+         [-999.],
+         [-999.],
+         [-999.],
+         [-999.]]]], shape=(240, 2, 5, 1))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>delta_particle_temperature</span></div><div class='xr-var-dims'>(time, z, bin, elem)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>-999.0 -999.0 ... -999.0 -999.0</div><input id='attrs-43c852a6-d42e-42c8-a433-b5b5de59d62c' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-43c852a6-d42e-42c8-a433-b5b5de59d62c' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-33cd2fbe-93e6-40f6-b128-a0a3b0f28cc4' class='xr-var-data-in' type='checkbox'><label for='data-33cd2fbe-93e6-40f6-b128-a0a3b0f28cc4' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>K</dd><dt><span>long_name :</span></dt><dd>Delta particle temperature</dd></dl></div><div class='xr-var-data'><pre>array([[[[-999.],
+         [-999.],
+         [-999.],
+         [-999.],
+         [-999.]]],
+
+
+       [[[-999.],
+         [-999.],
+         [-999.],
+         [-999.],
+         [-999.]]],
+
+
+       [[[-999.],
+         [-999.],
+         [-999.],
+         [-999.],
+         [-999.]]],
+
+...
+
+       [[[-999.],
+         [-999.],
+         [-999.],
+         [-999.],
+         [-999.]]],
+
+
+       [[[-999.],
+         [-999.],
+         [-999.],
+         [-999.],
+         [-999.]]],
+
+
+       [[[-999.],
+         [-999.],
+         [-999.],
+         [-999.],
+         [-999.]]]], shape=(240, 1, 5, 1))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>kappa</span></div><div class='xr-var-dims'>(time, z, bin, elem)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 0.0 ... -1.798e+308 -1.798e+308</div><input id='attrs-98af49d3-fe71-4a87-9551-b1ffd48aa83a' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-98af49d3-fe71-4a87-9551-b1ffd48aa83a' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-15e2565c-21ab-49df-ab3f-27ce7defdd27' class='xr-var-data-in' type='checkbox'><label for='data-15e2565c-21ab-49df-ab3f-27ce7defdd27' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd></dd><dt><span>long_name :</span></dt><dd>Hygroscopicity parameter</dd></dl></div><div class='xr-var-data'><pre>array([[[[ 0.00000000e+000],
+         [ 0.00000000e+000],
+         [ 0.00000000e+000],
+         [ 0.00000000e+000],
+         [ 0.00000000e+000]]],
+
+
+       [[[-1.79769313e+308],
+         [-1.79769313e+308],
+         [-1.79769313e+308],
+         [-1.79769313e+308],
+         [-1.79769313e+308]]],
+
+
+       [[[-1.79769313e+308],
+         [-1.79769313e+308],
+         [-1.79769313e+308],
+         [-1.79769313e+308],
+         [-1.79769313e+308]]],
+
+...
+
+       [[[-1.79769313e+308],
+         [-1.79769313e+308],
+         [-1.79769313e+308],
+         [-1.79769313e+308],
+         [-1.79769313e+308]]],
+
+
+       [[[-1.79769313e+308],
+         [-1.79769313e+308],
+         [-1.79769313e+308],
+         [-1.79769313e+308],
+         [-1.79769313e+308]]],
+
+
+       [[[-1.79769313e+308],
+         [-1.79769313e+308],
+         [-1.79769313e+308],
+         [-1.79769313e+308],
+         [-1.79769313e+308]]]], shape=(240, 1, 5, 1))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>total_mass_mixing_ratio</span></div><div class='xr-var-dims'>(time, z, bin, elem)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>1.365e-07 1.365e-07 ... 1.453e-07</div><input id='attrs-65e960ac-30ed-4113-abf3-7f760ef69e98' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-65e960ac-30ed-4113-abf3-7f760ef69e98' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-2b26df3a-2fd4-4692-85ae-815824fc8e29' class='xr-var-data-in' type='checkbox'><label for='data-2b26df3a-2fd4-4692-85ae-815824fc8e29' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>kg m-3</dd><dt><span>long_name :</span></dt><dd>Total mass mixing ratio</dd></dl></div><div class='xr-var-data'><pre>array([[[[1.36466733e-07],
+         [1.36466733e-07],
+         [1.36466733e-07],
+         [1.36466733e-07],
+         [1.36466733e-07]]],
+
+
+       [[[1.36427335e-07],
+         [1.36453356e-07],
+         [1.36471940e-07],
+         [1.36477617e-07],
+         [1.36503414e-07]]],
+
+
+       [[[1.36387954e-07],
+         [1.36439975e-07],
+         [1.36477139e-07],
+         [1.36488498e-07],
+         [1.36540098e-07]]],
+
+...
+
+       [[[1.27556056e-07],
+         [1.33191071e-07],
+         [1.37458557e-07],
+         [1.38919919e-07],
+         [1.45208061e-07]]],
+
+
+       [[[1.27520200e-07],
+         [1.33176857e-07],
+         [1.37461746e-07],
+         [1.38929726e-07],
+         [1.45245134e-07]]],
+
+
+       [[[1.27484358e-07],
+         [1.33162640e-07],
+         [1.37464927e-07],
+         [1.38939528e-07],
+         [1.45282210e-07]]]], shape=(240, 1, 5, 1))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>particle_mass_on_surface</span></div><div class='xr-var-dims'>(time, bin, elem)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0</div><input id='attrs-fdf3b709-c303-45d2-9e9f-718b17bcd3a0' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-fdf3b709-c303-45d2-9e9f-718b17bcd3a0' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-4ab1b5fa-c9db-4f7e-921a-a80cec873fda' class='xr-var-data-in' type='checkbox'><label for='data-4ab1b5fa-c9db-4f7e-921a-a80cec873fda' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>kg m-2</dd><dt><span>long_name :</span></dt><dd>Mass of particle on surface</dd></dl></div><div class='xr-var-data'><pre>array([[[0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.]],
+
+       [[0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.]],
+
+       [[0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.]],
+
+       ...,
+
+       [[0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.]],
+
+       [[0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.]],
+
+       [[0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.]]], shape=(240, 5, 1))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>sedimentation_flux</span></div><div class='xr-var-dims'>(time, bin, elem)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 0.0 0.0 0.0 ... 0.0 0.0 0.0 0.0</div><input id='attrs-51895857-c94b-4cf6-ace8-4702b05524ad' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-51895857-c94b-4cf6-ace8-4702b05524ad' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-0684f872-a008-4d4f-8dd3-ac303bc76a21' class='xr-var-data-in' type='checkbox'><label for='data-0684f872-a008-4d4f-8dd3-ac303bc76a21' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>kg m-2 s-1</dd><dt><span>long_name :</span></dt><dd>Sedimentation flux</dd></dl></div><div class='xr-var-data'><pre>array([[[0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.]],
+
+       [[0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.]],
+
+       [[0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.]],
+
+       ...,
+
+       [[0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.]],
+
+       [[0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.]],
+
+       [[0.],
+        [0.],
+        [0.],
+        [0.],
+        [0.]]], shape=(240, 5, 1))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>deposition_velocity</span></div><div class='xr-var-dims'>(time, bin, elem)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>-999.0 -999.0 ... -999.0 -999.0</div><input id='attrs-baed5724-9858-42dd-933a-59131769e8a9' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-baed5724-9858-42dd-933a-59131769e8a9' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-fd08eba3-7dc8-4017-a24e-ca220aa71965' class='xr-var-data-in' type='checkbox'><label for='data-fd08eba3-7dc8-4017-a24e-ca220aa71965' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>units :</span></dt><dd>cm s-1</dd><dt><span>long_name :</span></dt><dd>Deposition velocity</dd></dl></div><div class='xr-var-data'><pre>array([[[-999.],
+        [-999.],
+        [-999.],
+        [-999.],
+        [-999.]],
+
+       [[-999.],
+        [-999.],
+        [-999.],
+        [-999.],
+        [-999.]],
+
+       [[-999.],
+        [-999.],
+        [-999.],
+        [-999.],
+        [-999.]],
+
+       ...,
+
+       [[-999.],
+        [-999.],
+        [-999.],
+        [-999.],
+        [-999.]],
+
+       [[-999.],
+        [-999.],
+        [-999.],
+        [-999.],
+        [-999.]],
+
+       [[-999.],
+        [-999.],
+        [-999.],
+        [-999.],
+        [-999.]]], shape=(240, 5, 1))</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-6305e6e1-9a17-41fc-957e-0bd08d400528' class='xr-section-summary-in' type='checkbox'  ><label for='section-6305e6e1-9a17-41fc-957e-0bd08d400528' class='xr-section-summary' >Indexes: <span>(7)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-index-name'><div>z</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-0915741e-e5ab-43e8-a570-923c76b48af2' class='xr-index-data-in' type='checkbox'/><label for='index-0915741e-e5ab-43e8-a570-923c76b48af2' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([17000.0], dtype=&#x27;float64&#x27;, name=&#x27;z&#x27;))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>z_levels</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-f7fcc4a3-3c65-4bdd-b0f4-1cc89a0ab007' class='xr-index-data-in' type='checkbox'/><label for='index-f7fcc4a3-3c65-4bdd-b0f4-1cc89a0ab007' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([16500.0, 17500.0], dtype=&#x27;float64&#x27;, name=&#x27;z_levels&#x27;))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>time</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-9fad5be9-bbfe-4104-a6d9-0e8c522bd25b' class='xr-index-data-in' type='checkbox'/><label for='index-9fad5be9-bbfe-4104-a6d9-0e8c522bd25b' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([     0.0,   1800.0,   3600.0,   5400.0,   7200.0,   9000.0,  10800.0,
+        12600.0,  14400.0,  16200.0,
+       ...
+       414000.0, 415800.0, 417600.0, 419400.0, 421200.0, 423000.0, 424800.0,
+       426600.0, 428400.0, 430200.0],
+      dtype=&#x27;float64&#x27;, name=&#x27;time&#x27;, length=240))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>bin</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-860d0197-d3bd-46d4-9a74-072d953eaae2' class='xr-index-data-in' type='checkbox'/><label for='index-860d0197-d3bd-46d4-9a74-072d953eaae2' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([1, 2, 3, 4, 5], dtype=&#x27;int64&#x27;, name=&#x27;bin&#x27;))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>group</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-c64db8f3-9afa-467d-84d3-3f51e5aeabe4' class='xr-index-data-in' type='checkbox'/><label for='index-c64db8f3-9afa-467d-84d3-3f51e5aeabe4' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([1], dtype=&#x27;int64&#x27;, name=&#x27;group&#x27;))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>elem</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-a905b5ed-ec2b-4772-bcc8-ec44a7bb2178' class='xr-index-data-in' type='checkbox'/><label for='index-a905b5ed-ec2b-4772-bcc8-ec44a7bb2178' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([1], dtype=&#x27;int64&#x27;, name=&#x27;elem&#x27;))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>nwave</div></div><div class='xr-index-preview'>PandasIndex</div><input type='checkbox' disabled/><label></label><input id='index-6a2cafdc-a57a-4687-a3a6-fc75d4aa0e39' class='xr-index-data-in' type='checkbox'/><label for='index-6a2cafdc-a57a-4687-a3a6-fc75d4aa0e39' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([], dtype=&#x27;float64&#x27;, name=&#x27;nwave&#x27;))</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-f80e0f8a-b21a-4385-b038-c9cf704f8095' class='xr-section-summary-in' type='checkbox'  checked><label for='section-f80e0f8a-b21a-4385-b038-c9cf704f8095' class='xr-section-summary' >Attributes: <span>(8)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'><dt><span>title :</span></dt><dd>CARMA aerosol model output</dd><dt><span>description :</span></dt><dd>Output from CARMA aerosol simulation</dd><dt><span>nz :</span></dt><dd>1</dd><dt><span>nbin :</span></dt><dd>5</dd><dt><span>nelem :</span></dt><dd>1</dd><dt><span>ngroup :</span></dt><dd>1</dd><dt><span>ngas :</span></dt><dd>0</dd><dt><span>nstep :</span></dt><dd>240.0</dd></dl></div></li></ul></div></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># convert from seconds to days</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">time</span> <span class="o">/</span> <span class="mi">86400</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">nrows</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="nb">vars</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;mass_mixing_ratio&#39;</span><span class="p">,</span> <span class="s1">&#39;number_mixing_ratio&#39;</span><span class="p">,</span> <span class="s1">&#39;number_density&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;wet_particle_radius&#39;</span><span class="p">,</span> <span class="s1">&#39;wet_particle_density&#39;</span><span class="p">,</span> <span class="s1">&#39;dry_particle_density&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;delta_particle_temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;fall_velocity&#39;</span><span class="p">,</span> <span class="s1">&#39;total_mass_mixing_ratio&#39;</span>
+<span class="p">]</span>
+
+<span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">ax</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">vars</span><span class="p">,</span> <span class="n">axs</span><span class="o">.</span><span class="n">ravel</span><span class="p">()):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>  <span class="c1"># 5 bins</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">line</span><span class="p">,</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Bin </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">buffer</span> <span class="o">=</span> <span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span> <span class="o">*</span> <span class="mf">4.50</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">buffer</span><span class="p">,</span> <span class="n">y</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="sa">f</span><span class="s1">&#39;Bin </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                <span class="n">va</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">line</span><span class="o">.</span><span class="n">get_color</span><span class="p">())</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[:]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;time [days]&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;[</span><span class="si">{</span><span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">units</span><span class="si">}</span><span class="s1">]&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">long_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s2">&quot;Bin Properties&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_7._carma_8_0.png" src="../_images/tutorials_7._carma_8_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">nrows</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="nb">vars</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;mass_mixing_ratio&#39;</span><span class="p">,</span> <span class="s1">&#39;number_mixing_ratio&#39;</span><span class="p">,</span> <span class="s1">&#39;number_density&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;wet_particle_radius&#39;</span><span class="p">,</span> <span class="s1">&#39;wet_particle_density&#39;</span><span class="p">,</span> <span class="s1">&#39;dry_particle_density&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;delta_particle_temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;fall_velocity&#39;</span><span class="p">,</span> <span class="s1">&#39;total_mass_mixing_ratio&#39;</span>
+<span class="p">]</span>
+
+<span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">ax</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">vars</span><span class="p">,</span> <span class="n">axs</span><span class="o">.</span><span class="n">ravel</span><span class="p">()):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s1">&#39;bin&#39;</span><span class="p">)[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[:]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;time [days]&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;[</span><span class="si">{</span><span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">units</span><span class="si">}</span><span class="s1">]&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">long_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s2">&quot;Bin Properties, summed&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_7._carma_9_0.png" src="../_images/tutorials_7._carma_9_0.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">group_config</span><span class="p">,</span> <span class="n">group_props</span> <span class="o">=</span> <span class="n">carma</span><span class="o">.</span><span class="n">get_group_properties</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">nrows</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="nb">vars</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;bin_radius&#39;</span><span class="p">,</span> <span class="s1">&#39;bin_mass&#39;</span><span class="p">,</span> <span class="s1">&#39;bin_volume&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;projected_area_ratio&#39;</span><span class="p">,</span> <span class="s1">&#39;radius_ratio&#39;</span><span class="p">,</span> <span class="s1">&#39;porosity_ratio&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;number_of_monomers_per_bin&#39;</span><span class="p">,</span> <span class="s1">&#39;bin_width_mass&#39;</span><span class="p">,</span> <span class="s1">&#39;bin_width&#39;</span>
+<span class="p">]</span>
+
+<span class="n">name_to_label</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;bin_radius&quot;</span><span class="p">:</span> <span class="s2">&quot;Bin radius&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bin_radius_lower_bound&quot;</span><span class="p">:</span> <span class="s2">&quot;Lower bound of bin radius&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bin_radius_upper_bound&quot;</span><span class="p">:</span> <span class="s2">&quot;Upper bound of bin radius&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bin_width&quot;</span><span class="p">:</span> <span class="s2">&quot;Bin width in radius space&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bin_mass&quot;</span><span class="p">:</span> <span class="s2">&quot;Bin mass&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bin_width_mass&quot;</span><span class="p">:</span> <span class="s2">&quot;Bin width in mass space&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bin_volume&quot;</span><span class="p">:</span> <span class="s2">&quot;Bin volume&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;projected_area_ratio&quot;</span><span class="p">:</span> <span class="s2">&quot;Projected area ratio&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;radius_ratio&quot;</span><span class="p">:</span> <span class="s2">&quot;Maximum dimension / radius of enclosing sphere&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;porosity_ratio&quot;</span><span class="p">:</span> <span class="s2">&quot;Scaled porosity radius / equiv. sphere&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;extinction_coefficient&quot;</span><span class="p">:</span> <span class="s2">&quot;Extinction coefficient&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;single_scattering_albedo&quot;</span><span class="p">:</span> <span class="s2">&quot;Single scattering albedo&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;asymmetry_factor&quot;</span><span class="p">:</span> <span class="s2">&quot;Asymmetry factor&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;particle_number_element_for_group&quot;</span><span class="p">:</span> <span class="s2">&quot;Index of element for particle number&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;number_of_core_mass_elements_for_group&quot;</span><span class="p">:</span> <span class="s2">&quot;Number of core mass elements&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;element_index_of_core_mass_elements&quot;</span><span class="p">:</span> <span class="s2">&quot;Indices of core mass elements&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;last_prognostic_bin&quot;</span><span class="p">:</span> <span class="s2">&quot;Last prognostic bin&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;number_of_monomers_per_bin&quot;</span><span class="p">:</span> <span class="s2">&quot;Number of monomers per bin&quot;</span>
+<span class="p">}</span>
+<span class="n">name_to_units</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;bin_radius&quot;</span><span class="p">:</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bin_radius_lower_bound&quot;</span><span class="p">:</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bin_radius_upper_bound&quot;</span><span class="p">:</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bin_width&quot;</span><span class="p">:</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bin_mass&quot;</span><span class="p">:</span> <span class="s2">&quot;g&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bin_width_mass&quot;</span><span class="p">:</span> <span class="s2">&quot;g&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bin_volume&quot;</span><span class="p">:</span> <span class="s2">&quot;cm3&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;projected_area_ratio&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;radius_ratio&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;porosity_ratio&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;extinction_coefficient&quot;</span><span class="p">:</span> <span class="s2">&quot;m-1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;single_scattering_albedo&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;asymmetry_factor&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;particle_number_element_for_group&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;number_of_core_mass_elements_for_group&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;element_index_of_core_mass_elements&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;last_prognostic_bin&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;number_of_monomers_per_bin&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+<span class="p">}</span>
+
+<span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">ax</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">vars</span><span class="p">,</span> <span class="n">axs</span><span class="o">.</span><span class="n">ravel</span><span class="p">()):</span>
+    <span class="n">line</span><span class="p">,</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">group_props</span><span class="p">[</span><span class="n">var</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[:]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Bins&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">name_to_units</span><span class="p">[</span><span class="n">var</span><span class="p">]:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;[</span><span class="si">{</span><span class="n">name_to_units</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="si">}</span><span class="s1">]&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name_to_label</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s2">&quot;Group Properties&quot;</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_7._carma_11_0.png" src="../_images/tutorials_7._carma_11_0.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">env_data</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">key</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">d</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">env</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;pressure&#39;</span><span class="p">,</span> <span class="s1">&#39;air_density&#39;</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="nb">vars</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;pressure&#39;</span><span class="p">,</span> <span class="s1">&#39;air_density&#39;</span>
+<span class="p">]</span>
+
+<span class="n">name_to_label</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="s2">&quot;Temperature&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pressure&quot;</span><span class="p">:</span> <span class="s2">&quot;Pressure&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;air_density&quot;</span><span class="p">:</span> <span class="s2">&quot;Air Density&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="n">name_to_units</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="s2">&quot;K&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pressure&quot;</span><span class="p">:</span> <span class="s2">&quot;Pa&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;air_density&quot;</span><span class="p">:</span> <span class="s2">&quot;kg m-3&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">ax</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">vars</span><span class="p">,</span> <span class="n">axs</span><span class="o">.</span><span class="n">ravel</span><span class="p">()):</span>
+
+    <span class="n">line</span><span class="p">,</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="n">env_data</span><span class="p">[</span><span class="n">var</span><span class="p">])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[:]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time [days]&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;[</span><span class="si">{</span><span class="n">name_to_units</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="si">}</span><span class="s1">]&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name_to_label</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s2">&quot;Environmental data&quot;</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_7._carma_13_0.png" src="../_images/tutorials_7._carma_13_0.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="6.%20gpu_solver.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Enabling Your GPU for a Solver in MUSICA</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../api/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">MUSICA API</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="simple visible nav section-nav flex-column">
+</ul>
+
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/tutorials/7. carma.ipynb.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024-2025, NSF NCAR.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.4.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
