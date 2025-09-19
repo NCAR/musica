@@ -35,6 +35,7 @@ else:
 
 FilePath = Union[str, "PathLike[str]"]
 
+
 def is_scalar_number(x):
     return (
         isinstance(x, (int, float, np.number))
