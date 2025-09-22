@@ -22,26 +22,6 @@ namespace musica
       {
         s.SetProperty(validation::molecular_weight, elem.molecular_weight.value());
       }
-      if (elem.diffusion_coefficient.has_value())
-      {
-        s.SetProperty(validation::diffusion_coefficient, elem.diffusion_coefficient.value());
-      }
-      if (elem.absolute_tolerance.has_value())
-      {
-        s.SetProperty(validation::absolute_tolerance, elem.absolute_tolerance.value());
-      }
-      if (elem.tracer_type.has_value())
-      {
-        s.SetProperty(validation::tracer_type, elem.tracer_type.value());
-        if (elem.tracer_type == validation::third_body)
-        {
-          s.SetThirdBody();
-        }
-      }
-      if (elem.is_third_body.has_value() && elem.is_third_body.value())
-      {
-        s.SetThirdBody();
-      }
       if (elem.constant_concentration.has_value())
       {
         auto constant_concentration = elem.constant_concentration.value();
@@ -52,6 +32,10 @@ namespace musica
         auto constant_mixing_ratio = elem.constant_mixing_ratio.value();
         s.parameterize_ = [constant_mixing_ratio](const micm::Conditions& c)
         { return c.air_density_ * constant_mixing_ratio; };
+      }
+      if (elem.is_third_body.value_or(false))
+      {
+        s.SetThirdBody();
       }
       for (auto& unknown : elem.unknown_properties)
       {
@@ -80,13 +64,15 @@ namespace musica
   }
 
   std::vector<micm::Species> collect_species(
-      std::vector<std::string> species_names,
+      std::vector<mechanism_configuration::v1::types::PhaseSpecies> phase_species,
       std::unordered_map<std::string, micm::Species>& species_map)
   {
     std::vector<micm::Species> species;
-    for (const auto& species_name : species_names)
+    for (const auto& each : phase_species)
     {
-      species.push_back(species_map[species_name]);
+      species.push_back(species_map[each.name]);
+      // TODO - This doesn't catpure the diffusion coefficient for species in a given phase
+      // Will address in the issue https://github.com/NCAR/musica/issues/616
     }
     return species;
   }
