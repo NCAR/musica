@@ -2,6 +2,7 @@ version: 1.0.0
 name: Full Configuration
 species:
   - name: A
+    molecular weight [kg mol-1]: 0.02897
     __absolute tolerance: 1.0e-30
   - name: B
     constant concentration [mol m-3]: 1.0e19

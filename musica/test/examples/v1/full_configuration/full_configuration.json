@@ -4,6 +4,7 @@
   "species": [
     {
       "name": "A",
+      "molecular weight [kg mol-1]": 0.02897,
       "__absolute tolerance": 1.0e-30
     },
     {
