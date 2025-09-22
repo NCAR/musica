@@ -22,10 +22,6 @@ namespace musica
       {
         s.SetProperty(validation::molecular_weight, elem.molecular_weight.value());
       }
-      if (elem.is_third_body.value_or(false))
-      {
-        s.SetThirdBody();
-      }
       if (elem.constant_concentration.has_value())
       {
         auto constant_concentration = elem.constant_concentration.value();
@@ -36,6 +32,10 @@ namespace musica
         auto constant_mixing_ratio = elem.constant_mixing_ratio.value();
         s.parameterize_ = [constant_mixing_ratio](const micm::Conditions& c)
         { return c.air_density_ * constant_mixing_ratio; };
+      }
+      if (elem.is_third_body.value_or(false))
+      {
+        s.SetThirdBody();
       }
       for (auto& unknown : elem.unknown_properties)
       {
