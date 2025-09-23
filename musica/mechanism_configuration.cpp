@@ -3,10 +3,10 @@
 #include <musica/micm/parse.hpp>
 
 #include <mechanism_configuration/constants.hpp>
-#include <mechanism_configuration/v1/parser.hpp>
-#include <mechanism_configuration/v1/reaction_types.hpp>
-#include <mechanism_configuration/v1/types.hpp>
-#include <mechanism_configuration/v1/validation.hpp>
+#include <mechanism_configuration/development/parser.hpp>
+#include <mechanism_configuration/development/reaction_types.hpp>
+#include <mechanism_configuration/development/types.hpp>
+#include <mechanism_configuration/development/validation.hpp>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
@@ -14,8 +14,8 @@
 
 namespace py = pybind11;
 namespace constants = mechanism_configuration::constants;
-namespace validation = mechanism_configuration::v1::validation;
-using namespace mechanism_configuration::v1::types;
+namespace validation = mechanism_configuration::development::validation;
+using namespace mechanism_configuration::development::types;
 
 enum class ReactionType
 {
