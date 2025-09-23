@@ -13,15 +13,16 @@ concurrency:
 
 jobs:
   c_cxx:
-    runs-on: macos-latest
+    runs-on: macos-15
     continue-on-error: true 
     strategy:
       matrix:
+        xcode: ['16.4']
+        build_type: [Release]
         compiler:
           - { cpp: g++-13, c: gcc-13, fc: gfortran-13}
           - { cpp: g++-14, c: gcc-14, fc: gfortran-14}
           - { cpp: clang++, c: clang, fc: gfortran-14}
-        build_type: [Release]
     env:
       CC: ${{ matrix.compiler.c }}
       CXX: ${{ matrix.compiler.cpp }}
@@ -32,7 +33,7 @@ jobs:
 
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '16.4'
+          xcode-version: ${{ matrix.xcode }}
 
       - name: Install dependencies
         run: brew install netcdf netcdf-fortran
