@@ -25,10 +25,11 @@ enum class ReactionType
   FirstOrderLoss,
   Photolysis,
   Surface,
-  Troe,
+  TaylorSeries,
   TernaryChemicalActivation,
+  Troe,
   Tunneling,
-  UserDefined
+  UserDefined,
 };
 
 struct ReactionsIterator
@@ -40,6 +41,7 @@ struct ReactionsIterator
       FirstOrderLoss,
       Photolysis,
       Surface,
+      TaylorSeries,
       Troe,
       TernaryChemicalActivation,
       Tunneling,
@@ -57,12 +59,14 @@ struct ReactionsIterator
           std::vector<VariantType>(reactions.first_order_loss.begin(), reactions.first_order_loss.end()),
           std::vector<VariantType>(reactions.photolysis.begin(), reactions.photolysis.end()),
           std::vector<VariantType>(reactions.surface.begin(), reactions.surface.end()),
+          std::vector<VariantType>(reactions.taylor_series.begin(), reactions.taylor_series.end()),
           std::vector<VariantType>(reactions.troe.begin(), reactions.troe.end()),
           std::vector<VariantType>(
               reactions.ternary_chemical_activation.begin(),
               reactions.ternary_chemical_activation.end()),
           std::vector<VariantType>(reactions.tunneling.begin(), reactions.tunneling.end()),
-          std::vector<VariantType>(reactions.user_defined.begin(), reactions.user_defined.end())
+          std::vector<VariantType>(reactions.user_defined.begin(), reactions.user_defined.end()),
+          std::vector<VariantType>(reactions.taylor_series.begin(), reactions.taylor_series.end())
         }
   {
   }
@@ -161,6 +165,10 @@ Reactions create_reactions(const py::list &reactions)
     {
       reaction_obj.surface.push_back(item.cast<Surface>());
     }
+    else if (py::isinstance<TaylorSeries>(item))
+    {
+      reaction_obj.taylor_series.push_back(item.cast<TaylorSeries>());
+    }
     else if (py::isinstance<Troe>(item))
     {
       reaction_obj.troe.push_back(item.cast<Troe>());
@@ -194,6 +202,7 @@ void bind_mechanism_configuration(py::module_ &mechanism_configuration)
       .value("FirstOrderLoss", ReactionType::FirstOrderLoss)
       .value("Photolysis", ReactionType::Photolysis)
       .value("Surface", ReactionType::Surface)
+      .value("TaylorSeries", ReactionType::TaylorSeries)
       .value("Troe", ReactionType::Troe)
       .value("TernaryChemicalActivation", ReactionType::TernaryChemicalActivation)
       .value("Tunneling", ReactionType::Tunneling)
@@ -391,6 +400,22 @@ void bind_mechanism_configuration(py::module_ &mechanism_configuration)
       .def("__str__", [](const UserDefined &p) { return p.name; })
       .def("__repr__", [](const UserDefined &p) { return "<UserDefined: " + p.name + ">"; })
       .def_property_readonly("type", [](const UserDefined &) { return ReactionType::UserDefined; });
+  
+  py::class_<TaylorSeries>(mechanism_configuration, "_TaylorSeries")
+      .def(py::init<>())
+      .def_readwrite("A", &TaylorSeries::A)
+      .def_readwrite("B", &TaylorSeries::B)
+      .def_readwrite("C", &TaylorSeries::C)
+      .def_readwrite("D", &TaylorSeries::D)
+      .def_readwrite("E", &TaylorSeries::E)
+      .def_readwrite("taylor_coefficients", &TaylorSeries::taylor_coefficients)
+      .def_readwrite("name", &TaylorSeries::name)
+      .def_readwrite("gas_phase", &TaylorSeries::gas_phase)
+      .def_readwrite("reactants", &TaylorSeries::reactants)
+      .def_readwrite("products", &TaylorSeries::products)
+      .def_readwrite("other_properties", &TaylorSeries::unknown_properties)
+      .def("__str__", [](const TaylorSeries &ts) { return "TaylorSeries"; })
+      .def("__repr__", [](const TaylorSeries &ts) { return "<TaylorSeries>"; });
 
   py::class_<Reactions>(mechanism_configuration, "_Reactions")
       .def(py::init<>())
@@ -401,6 +426,7 @@ void bind_mechanism_configuration(py::module_ &mechanism_configuration)
       .def_readwrite("first_order_loss", &Reactions::first_order_loss)
       .def_readwrite("photolysis", &Reactions::photolysis)
       .def_readwrite("surface", &Reactions::surface)
+      .def_readwrite("taylor_series", &Reactions::taylor_series)
       .def_readwrite("troe", &Reactions::troe)
       .def_readwrite("ternary_chemical_activation", &Reactions::ternary_chemical_activation)
       .def_readwrite("tunneling", &Reactions::tunneling)
@@ -410,8 +436,11 @@ void bind_mechanism_configuration(py::module_ &mechanism_configuration)
           [](const Reactions &r)
           {
             return r.arrhenius.size() + r.branched.size() + 
-                   + r.emission.size() + r.first_order_loss.size() + r.photolysis.size() + r.surface.size() + r.troe.size() + r.tunneling.size() +
-                   r.user_defined.size();
+                   r.emission.size() + r.first_order_loss.size() +
+                   r.photolysis.size() + r.surface.size() 
+                   + r.troe.size() + r.tunneling.size() +
+                   r.user_defined.size() + r.taylor_series.size()
+                   ;
           })
       .def("__str__", [](const Reactions &r) { return "Reactions"; })
       .def("__repr__", [](const Reactions &r) { return "<Reactions>"; })

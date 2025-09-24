@@ -142,6 +142,19 @@ def get_fully_defined_mechanism():
         other_properties={"__irrelevant": "2"}
     )
 
+    taylor_series_reaction = mc.TaylorSeries(
+        name="my taylor series",
+        gas_phase=gas,
+        A=12.3,
+        B=-1.5,
+        C=1.0e-6,
+        D=340,
+        E=0.00032,
+        reactants=[B],
+        products=[C],
+        other_properties={"__irrelevant": "2"}
+    )
+
     # Mechanism
     return mc.Mechanism(
         name="Full Configuration",
@@ -149,7 +162,7 @@ def get_fully_defined_mechanism():
         phases=[gas],
         reactions=[my_arrhenius, my_other_arrhenius, my_troe, my_ternary, my_branched,
                    my_tunneling, my_surface, photo_B, 
-                   my_emission, my_first_order_loss, user_defined],
+                   my_emission, my_first_order_loss, user_defined, taylor_series_reaction],
         version=mc.Version(1, 0, 0),
     )
 
@@ -416,6 +429,22 @@ def _validate_user_defined(reactions):
     assert reactions[0].other_properties == {"__irrelevant": "2"}
 
 
+def _validate_taylor_series(reactions):
+    assert reactions[0].type == mc.ReactionType.TaylorSeries
+    assert reactions[0].gas_phase == "gas"
+    assert _extract_components(reactions[0].reactants) == [
+        {"species name": "B", "coefficient": 1}
+    ]
+    assert _extract_components(reactions[0].products) == [
+        {"species name": "C", "coefficient": 1}
+    ]
+    assert reactions[0].A == 12.3
+    assert reactions[0].B == -1.5
+    assert reactions[0].C == 1.0e-6
+    assert reactions[0].D == 340
+    assert reactions[0].E == 0.00032
+    assert reactions[0].name == "my taylor series"
+
 def validate_full_v1_mechanism(mechanism):
     assert mechanism is not None
     assert mechanism.name == "Full Configuration"
@@ -443,6 +472,8 @@ def validate_full_v1_mechanism(mechanism):
     _validate_tunneling(mechanism.reactions.tunneling)
     assert len(mechanism.reactions.user_defined) == 1
     _validate_user_defined(mechanism.reactions.user_defined)
+    assert len(mechanism.reactions.taylor_series) == 1
+    _validate_taylor_series(mechanism.reactions.taylor_series)
     assert mechanism.version.major == 1
     assert mechanism.version.minor == 0
     assert mechanism.version.patch == 0

@@ -6,33 +6,33 @@ from test_util_full_mechanism import get_fully_defined_mechanism, validate_full_
 
 def test_mechanism_export_loop(tmp_path):
     parser = Parser()
-    MECHANISM_FULLY_DEFINED = get_fully_defined_mechanism()
+    mechanism = get_fully_defined_mechanism()
     extensions = [".yml", ".yaml", ".json"]
     for extension in extensions:
         path = f"{tmp_path}/test_mechanism{extension}"
-        MECHANISM_FULLY_DEFINED.export(path)
+        mechanism.export(path)
         mechanism = parser.parse(path)
         validate_full_v1_mechanism(mechanism)
 
 
 def test_serialize_parser_loop(tmp_path):
     parser = Parser()
-    MECHANISM_FULLY_DEFINED = get_fully_defined_mechanism()
+    mechanism = get_fully_defined_mechanism()
     extensions = [".yml", ".yaml", ".json"]
     for extension in extensions:
         path = f"{tmp_path}/test_mechanism{extension}"
-        MechanismSerializer.serialize(MECHANISM_FULLY_DEFINED, path)
+        MechanismSerializer.serialize(mechanism, path)
         mechanism = parser.parse(path)
         validate_full_v1_mechanism(mechanism)
 
 
 def test_serialize_to_file(tmp_path):
-    MECHANISM_FULLY_DEFINED = get_fully_defined_mechanism()
+    mechanism = get_fully_defined_mechanism()
     extensions = [".yml", ".yaml", ".json"]
     for extension in extensions:
         file_path = f'{tmp_path}/test_mechanism{extension}'
         assert not os.path.exists(file_path)
-        MechanismSerializer.serialize(MECHANISM_FULLY_DEFINED, file_path)
+        MechanismSerializer.serialize(mechanism, file_path)
         assert os.path.exists(file_path)
 
 

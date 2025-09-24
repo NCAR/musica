@@ -82,7 +82,6 @@ class Surface(_Surface):
             "gas-phase species": instance.gas_phase_species.species_name,
             "gas-phase products": ReactionComponentSerializer.serialize_list_reaction_components(instance.gas_phase_products),
             "gas phase": instance.gas_phase,
-            "condensed phase": instance.condensed_phase,
         }
         _add_other_properties(serialize_dict, instance.other_properties)
         return serialize_dict
