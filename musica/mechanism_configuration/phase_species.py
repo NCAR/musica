@@ -1,0 +1,54 @@
+from typing import Optional, Any, Dict
+from .. import backend
+from .utils import _add_other_properties, _remove_empty_keys
+
+_backend = backend.get_backend()
+PhaseSpecies = _backend._mechanism_configuration._PhaseSpecies
+original_init = PhaseSpecies.__init__
+
+def init(
+    self,
+    name: Optional[str] = None,
+    diffusion_coefficient_m2_s: Optional[float] = None,
+    other_properties: Optional[Dict[str, Any]] = None,
+):
+    """
+    Initializes the PhaseSpecies object with the given parameters.
+
+    Args:
+        name (str): The name of the species.
+        diffusion_coefficient_m2_s (float): Diffusion coefficient [m2 s-1]
+        other_properties (Dict[str, Any]): A dictionary of other properties of the species.
+    """
+    original_init(self)
+    self.name = name if name is not None else self.name
+    self.diffusion_coefficient_m2_s = diffusion_coefficient_m2_s if diffusion_coefficient_m2_s is not None else self.diffusion_coefficient_m2_s
+    self.other_properties = other_properties if other_properties is not None else self.other_properties
+
+
+def serialize(self) -> Dict:
+    serialize_dict = {
+        "name": self.name,
+        "diffusion coefficient [m2 s-1]": self.diffusion_coefficient_m2_s,
+    }
+    _add_other_properties(serialize_dict, self.other_properties)
+    return _remove_empty_keys(serialize_dict)
+
+PhaseSpecies.__doc__ = """
+    A class representing a species in a chemical mechanism.
+
+    Attributes:
+        name (str): The name of the species.
+        diffusion_coefficient [m2 s-1] (float): Diffusion coefficient [m2 s-1]
+        other_properties (Dict[str, Any]): A dictionary of other properties of the species.
+    """
+
+def equals(self, other):
+    if not isinstance(other, PhaseSpecies):
+        return NotImplemented
+    return self.name == other.name and self.diffusion_coefficient_m2_s == other.diffusion_coefficient_m2_s
+
+
+PhaseSpecies.__init__ = init
+PhaseSpecies.serialize = serialize
+PhaseSpecies.__eq__ = equals

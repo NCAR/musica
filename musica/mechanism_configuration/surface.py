@@ -14,15 +14,12 @@ class Surface(_Surface):
     """
     A class representing a surface in a chemical mechanism.
 
-    (TODO: get details from MusicBox)
-
     Attributes:
         name (str): The name of the surface.
         reaction_probability (float): The probability of a reaction occurring on the surface.
         gas_phase_species (Union[Species, Tuple[float, Species]]): The gas phase species involved in the reaction.
         gas_phase_products (List[Union[Species, Tuple[float, Species]]]): The gas phase products formed in the reaction.
         gas_phase (Phase): The gas phase in which the reaction occurs.
-        condensed_phase (Phase): The condensed phase in which the reaction occurs.
         other_properties (Dict[str, Any]): A dictionary of other properties of the surface.
     """
 
@@ -36,7 +33,6 @@ class Surface(_Surface):
             List[Union[Species, Tuple[float, Species]]]
         ] = None,
         gas_phase: Optional[Phase] = None,
-        condensed_phase: Optional[Phase] = None,
         other_properties: Optional[Dict[str, Any]] = None,
     ):
         """
@@ -48,7 +44,6 @@ class Surface(_Surface):
             gas_phase_species (Union[Species, Tuple[float, Species]]): The gas phase species involved in the reaction.
             gas_phase_products (List[Union[Species, Tuple[float, Species]]]): The gas phase products formed in the reaction.
             gas_phase (Phase): The gas phase in which the reaction occurs.
-            condensed_phase (Phase): The condensed phase in which the reaction occurs.
             other_properties (Dict[str, Any]): A dictionary of other properties of the surface.
         """
         super().__init__()
@@ -76,7 +71,6 @@ class Surface(_Surface):
             else self.gas_phase_products
         )
         self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
-        self.condensed_phase = condensed_phase.name if condensed_phase is not None else self.condensed_phase
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 
     @staticmethod

@@ -143,6 +143,7 @@ reactions:
     products:
       - species name: C
         coefficient: 1
+    __irrelevant: 2
   - type: ARRHENIUS
     name: my other arrhenius
     A: 29.3

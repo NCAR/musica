@@ -1,6 +1,6 @@
 from typing import Optional, Any, Dict, List, Union
 from .. import backend
-from .species import Species, _Species
+from .species import Species
 from .utils import _remove_empty_keys
 
 _backend = backend.get_backend()
@@ -55,7 +55,7 @@ class ReactionComponentSerializer():
 
     @staticmethod
     def serialize_reaction_component(rc) -> Union[Dict, str]:
-        if isinstance(rc, Species) or isinstance(rc, _Species):
+        if isinstance(rc, Species):
             return rc.name
 
         return _remove_empty_keys({

@@ -239,7 +239,8 @@
           "species name": "C",
           "coefficient": 1
         }
-      ]
+      ],
+      "__irrelevant": "2"
     },
     {
       "type": "ARRHENIUS",

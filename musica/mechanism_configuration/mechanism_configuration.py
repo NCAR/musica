@@ -5,23 +5,18 @@
 # For more information, see the LICENSE file in the top-level directory of this distribution.
 from .reactions import Reactions, ReactionType
 from .user_defined import UserDefined, _UserDefined
-from .simpol_phase_transfer import SimpolPhaseTransfer, _SimpolPhaseTransfer
-from .henrys_law import HenrysLaw, _HenrysLaw
-from .wet_deposition import WetDeposition, _WetDeposition
-from .aqueous_equilibrium import AqueousEquilibrium, _AqueousEquilibrium
 from .first_order_loss import FirstOrderLoss, _FirstOrderLoss
 from .emission import Emission, _Emission
-from .condensed_phase_photolysis import CondensedPhasePhotolysis, _CondensedPhasePhotolysis
 from .photolysis import Photolysis, _Photolysis
 from .surface import Surface, _Surface
 from .tunneling import Tunneling, _Tunneling
 from .branched import Branched, _Branched
 from .troe import Troe, _Troe
 from .ternary_chemical_activation import TernaryChemicalActivation, _TernaryChemicalActivation
-from .condensed_phase_arrhenius import CondensedPhaseArrhenius, _CondensedPhaseArrhenius
 from .arrhenius import Arrhenius, _Arrhenius
 from .phase import Phase
 from .species import Species
+from .phase_species import PhaseSpecies
 import os
 import json
 import yaml
@@ -102,12 +97,6 @@ class Mechanism(_Mechanism):
             elif isinstance(reaction, Branched):
                 # Handle Python Branched objects with instance serialize call
                 reactions_list.append(reaction.serialize())
-            elif isinstance(reaction, (_CondensedPhaseArrhenius, CondensedPhaseArrhenius)):
-                reactions_list.append(
-                    CondensedPhaseArrhenius.serialize_static(reaction))
-            elif isinstance(reaction, (_CondensedPhasePhotolysis, CondensedPhasePhotolysis)):
-                reactions_list.append(
-                    CondensedPhasePhotolysis.serialize(reaction))
             elif isinstance(reaction, (_Emission, Emission)):
                 reactions_list.append(Emission.serialize(reaction))
             elif isinstance(reaction, _FirstOrderLoss):
@@ -116,24 +105,6 @@ class Mechanism(_Mechanism):
             elif isinstance(reaction, FirstOrderLoss):
                 # Handle Python FirstOrderLoss objects with instance serialize call
                 reactions_list.append(reaction.serialize())
-            elif isinstance(reaction, _SimpolPhaseTransfer):
-                # Handle C++ _SimpolPhaseTransfer objects with static serialize call
-                reactions_list.append(
-                    SimpolPhaseTransfer.serialize_static(reaction))
-            elif isinstance(reaction, SimpolPhaseTransfer):
-                # Handle Python SimpolPhaseTransfer objects with instance serialize call
-                reactions_list.append(reaction.serialize())
-            elif isinstance(reaction, _AqueousEquilibrium):
-                # Handle C++ _AqueousEquilibrium objects with static serialize call
-                reactions_list.append(
-                    AqueousEquilibrium.serialize_static(reaction))
-            elif isinstance(reaction, AqueousEquilibrium):
-                # Handle Python AqueousEquilibrium objects with instance serialize call
-                reactions_list.append(reaction.serialize())
-            elif isinstance(reaction, (_WetDeposition, WetDeposition)):
-                reactions_list.append(WetDeposition.serialize(reaction))
-            elif isinstance(reaction, (_HenrysLaw, HenrysLaw)):
-                reactions_list.append(HenrysLaw.serialize(reaction))
             elif isinstance(reaction, (_Photolysis, Photolysis)):
                 reactions_list.append(Photolysis.serialize(reaction))
             elif isinstance(reaction, (_Surface, Surface)):
