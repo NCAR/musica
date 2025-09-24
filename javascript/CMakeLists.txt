@@ -16,16 +16,6 @@ execute_process(
 string(REPLACE "\"" "" NODE_ADDON_API_DIR ${NODE_ADDON_API_DIR_RAW})
 string(STRIP ${NODE_ADDON_API_DIR} NODE_ADDON_API_DIR)
 
-# # Include directories
-# include_directories(${CMAKE_JS_INC})
-# include_directories(${NODE_ADDON_API_DIR})
-
-# Include MUSICA and component headers
-#include_directories(/Users/jason.blvck/Documents/Courses/Fall25/CSCE482/musica/include)
-#include_directories(/Users/jason.blvck/Documents/Courses/Fall25/CSCE482/musica/musica-js-addon/musica-deps/build/_deps/micm-src/include)
-#include_directories(/Users/jason.blvck/Documents/Courses/Fall25/CSCE482/musica/musica-js-addon/musica-deps/build/_deps/yaml-cpp-src/include)
-#include_directories(/Users/jason.blvck/Documents/Courses/Fall25/CSCE482/musica/musica-js-addon/musica-deps/build/_deps/mechanism_configuration-src/include)
-
 
 # Source files - using our MUSICA integrated addon
 set(SOURCE_FILES
@@ -58,33 +48,3 @@ if(APPLE)
         LINK_FLAGS "-undefined dynamic_lookup"
     )
 endif()
-
-# Debug output
-# message(STATUS "Raw node-addon-api path: ${NODE_ADDON_API_DIR_RAW}")
-# message(STATUS "Clean node-addon-api path: ${NODE_ADDON_API_DIR}")
-# message(STATUS "Node.js include: ${CMAKE_JS_INC}")
-# message(STATUS "Source files: ${SOURCE_FILES}")
-
-# Verify that napi.h exists
-# if(EXISTS "${NODE_ADDON_API_DIR}/napi.h")
-#     message(STATUS "Found napi.h at: ${NODE_ADDON_API_DIR}/napi.h")
-# else()
-#     message(WARNING "napi.h not found at: ${NODE_ADDON_API_DIR}/napi.h")
-    
-#     # Try alternative approach - find it manually
-#     find_path(NAPI_INCLUDE_DIR
-#         NAMES napi.h
-#         PATHS 
-#             ${CMAKE_SOURCE_DIR}/node_modules/node-addon-api
-#             ${CMAKE_SOURCE_DIR}/../node_modules/node-addon-api
-#             /usr/local/include/node-addon-api
-#         NO_DEFAULT_PATH
-#     )
-    
-#     if(NAPI_INCLUDE_DIR)
-#         message(STATUS "Found napi.h via find_path at: ${NAPI_INCLUDE_DIR}")
-#         include_directories(${NAPI_INCLUDE_DIR})
-#     else()
-#         message(FATAL_ERROR "Could not find napi.h anywhere")
-#     endif()
-#endif()

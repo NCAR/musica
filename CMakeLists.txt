@@ -45,8 +45,6 @@ cmake_dependent_option(
 cmake_dependent_option(
   MUSICA_ONLY_PYTHON "Build only the Python bindings. This option is used when building Python wheels primarily" OFF "MUSICA_ENABLE_PYTHON_LIBRARY" OFF)
 
-set_source_files_properties(src/micm/metal_availability.mm PROPERTIES
-    COMPILE_FLAGS "-fobjc-arc")  
 ################################################################################
 # Projet wide setup variables 
 set(MUSICA_INSTALL_INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR})
@@ -158,7 +156,6 @@ if(MUSICA_ENABLE_PYTHON_LIBRARY)
 endif()
 
 ################################################################################
-message(STATUS "MUSICA_ENABLE_JAVASCRIPT: ${MUSICA_ENABLE_JAVASCRIPT}")
 
 # Musica JavaScript Addon
 if(MUSICA_ENABLE_JAVASCRIPT)

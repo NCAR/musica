@@ -16,20 +16,6 @@ namespace musica_addon {
 // Forward declaration of implementation
 class MusicaWrapper::Impl {
 public:
-    musica::MICM* micm_solver_ = nullptr;
-    musica::State* micm_state_ = nullptr;
-    bool has_solver_ = false;
-
-    Impl() = default;
-    ~Impl() {
-        musica::Error error;
-        if (micm_state_) {
-            musica::DeleteState(micm_state_, &error);
-        }
-        if (micm_solver_) {
-            musica::DeleteMicm(micm_solver_, &error);
-        }
-    }
 };
 
 MusicaWrapper::MusicaWrapper() : pImpl_(std::make_unique<Impl>()) {

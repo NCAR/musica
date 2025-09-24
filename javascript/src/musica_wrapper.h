@@ -1,5 +1,4 @@
-#ifndef MUSICA_WRAPPER_H
-#define MUSICA_WRAPPER_H
+#pragma once
 
 #include <string>
 #include <memory>

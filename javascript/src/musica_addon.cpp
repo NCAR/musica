@@ -22,11 +22,6 @@ Napi::String GetVersion(const Napi::CallbackInfo& info) {
     }
 }
 
-Napi::String Hello(const Napi::CallbackInfo& info) {
-    Napi::Env env = info.Env();
-    return Napi::String::New(env, "Hello from MUSICA Native Addon!");
-}
-
 Napi::Object GetSystemInfo(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
     Napi::Object obj = Napi::Object::New(env);
@@ -52,9 +47,6 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
     // Basic functions
     exports.Set(Napi::String::New(env, "getVersion"),
                 Napi::Function::New(env, GetVersion));
-
-    exports.Set(Napi::String::New(env, "hello"),
-                Napi::Function::New(env, Hello));
 
     exports.Set(Napi::String::New(env, "getSystemInfo"),
                 Napi::Function::New(env, GetSystemInfo));
