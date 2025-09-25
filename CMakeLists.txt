@@ -33,6 +33,7 @@ option(MUSICA_ENABLE_CARMA "Enable CARMA" ON)
 option(MUSICA_ENABLE_PIC "Build the library with position independent code" OFF)
 option(MUSICA_ENABLE_COVERAGE "Enable code coverage output" OFF)
 option(MUSICA_BUNDLE_DEPENDENCIES "Bundle dependencies with the library" ON)
+option(MUSICA_ENABLE_JAVASCRIPT "Build the JavaScript addon" OFF)
 
 set(MUSICA_GPU_TYPE "None" CACHE STRING "The GPU type being targeted")
 
@@ -152,6 +153,13 @@ endif()
 # Musica python
 if(MUSICA_ENABLE_PYTHON_LIBRARY)
   add_subdirectory(musica)
+endif()
+
+################################################################################
+
+# Musica JavaScript Addon
+if(MUSICA_ENABLE_JAVASCRIPT)
+  add_subdirectory(javascript)
 endif()
 
 ################################################################################
