@@ -169,6 +169,7 @@ class State():
                     print(f"param_stride: {param_stride}, type: {type(param_stride)}")
                     print(f"i_cell: {i_cell}, type: {type(i_cell)}")
                     print(f"cell_stride: {cell_stride}, type: {type(cell_stride)}")
+                    print(f"value[k]: {value[k]}, type: {type(value[k])}")
                     state.user_defined_rate_parameters[i_param * param_stride + i_cell * cell_stride] = value[k]
                     k += 1
 
