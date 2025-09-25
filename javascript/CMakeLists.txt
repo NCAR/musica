@@ -36,7 +36,6 @@ target_link_libraries(${PROJECT_NAME}
 
 # Compiler definitions
 target_compile_definitions(${PROJECT_NAME} PRIVATE NAPI_VERSION=8)
-target_compile_definitions(${PROJECT_NAME} PRIVATE NAPI_DISABLE_CPP_EXCEPTIONS)
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_JS_INC} ${NODE_ADDON_API_DIR})
 
 # macOS specific settings
