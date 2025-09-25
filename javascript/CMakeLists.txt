@@ -12,7 +12,7 @@ execute_process(
      OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
-# # Remove quotes and clean the path
+# Remove quotes and clean the path
 string(REPLACE "\"" "" NODE_ADDON_API_DIR ${NODE_ADDON_API_DIR_RAW})
 string(STRIP ${NODE_ADDON_API_DIR} NODE_ADDON_API_DIR)
 
