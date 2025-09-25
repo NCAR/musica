@@ -13,7 +13,7 @@ from .species import Species
 from .phase import Phase
 from .reactions import Reactions
 from .reactions import Reactions, ReactionType
-from .user_defined import UserDefined, _UserDefined
+from .user_defined import UserDefined
 from .first_order_loss import FirstOrderLoss, _FirstOrderLoss
 from .emission import Emission
 from .photolysis import Photolysis
@@ -97,8 +97,8 @@ def to_dict(self) -> Dict:
             reactions_list.append(reaction.serialize())
         elif isinstance(reaction, Tunneling):
             reactions_list.append(reaction.serialize())
-        elif isinstance(reaction, (_UserDefined, UserDefined)):
-            reactions_list.append(UserDefined.serialize(reaction))
+        elif isinstance(reaction, (UserDefined)):
+            reactions_list.append(reaction.serialize())
         else:
             raise TypeError(
                 f'Reaction type {type(reaction)} is not supported for export.')

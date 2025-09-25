@@ -1,5 +1,5 @@
 from .reactions import Reactions, ReactionType
-from .user_defined import UserDefined, _UserDefined
+from .user_defined import UserDefined
 from .first_order_loss import FirstOrderLoss, _FirstOrderLoss
 from .emission import Emission
 from .photolysis import Photolysis
