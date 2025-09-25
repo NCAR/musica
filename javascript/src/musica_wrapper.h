@@ -22,5 +22,3 @@ public:
     std::unique_ptr<Impl> pImpl_;
 };
 }
-
-#endif // MUSICA_WRAPPER_H
