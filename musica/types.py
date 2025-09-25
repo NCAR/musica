@@ -94,7 +94,9 @@ class State():
         self.__user_defined_rate_parameters_ordering = _user_defined_rate_parameters_ordering(
             self.__states[0])
         self.__number_of_grid_cells = number_of_grid_cells
-        self.__vector_size = vector_size
+    
+    def __repr__(self):
+        return f"<State with {self.__number_of_grid_cells} grid cells>"
 
     def get_internal_states(self) -> List[Any]:
         """
