@@ -5,41 +5,42 @@ from .utils import _remove_empty_keys
 
 _backend = backend.get_backend()
 ReactionType = _backend._mechanism_configuration._ReactionType
-_Reactions = _backend._mechanism_configuration._Reactions
+Reactions = _backend._mechanism_configuration._Reactions
 
+original_init = Reactions.__init__
 
-class Reactions(_Reactions):
+Reactions.__doc__ = """
+A class representing a collection of reactions in a chemical mechanism.
+
+Attributes:
+    reactions (List[Any]): A list of reactions in the mechanism.
+"""
+
+def __init__(
+    self,
+    reactions: Optional[List[Any]] = None,
+):
     """
-    A class representing a collection of reactions in a chemical mechanism.
+    Initializes the Reactions object with the given parameters.
 
-    Attributes:
-        reactions (List[Any]): A list of reactions in the mechanism.
+    Args:
+        reactions (List[]): A list of reactions in the mechanism.
     """
-
-    def __init__(
-        self,
-        reactions: Optional[List[Any]] = None,
-    ):
-        """
-        Initializes the Reactions object with the given parameters.
-
-        Args:
-            reactions (List[]): A list of reactions in the mechanism.
-        """
-        # Convert Python Arrhenius objects to C++ _Arrhenius objects for the C++ constructor
-        if reactions is not None:
-            cpp_reactions = []
-            for reaction in reactions:
-                if hasattr(reaction, '_instance'):
-                    # This is a Python wrapper around a C++ object, use the internal instance
-                    cpp_reactions.append(reaction._instance)
-                else:
-                    # This is already a C++ object or other supported type
-                    cpp_reactions.append(reaction)
-            super().__init__(cpp_reactions)
-        else:
-            super().__init__(reactions)
-
+    # Convert Python Arrhenius objects to C++ _Arrhenius objects for the C++ constructor
+    if reactions is not None:
+        cpp_reactions = []
+        for reaction in reactions:
+            if hasattr(reaction, '_instance'):
+                # This is a Python wrapper around a C++ object, use the internal instance
+                cpp_reactions.append(reaction._instance)
+            else:
+                # This is already a C++ object or other supported type
+                cpp_reactions.append(reaction)
+        original_init(self, cpp_reactions)
+    else:
+        original_init(self, reactions)
+    
+Reactions.__init__ = __init__
 
 class ReactionComponentSerializer():
     """

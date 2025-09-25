@@ -3,7 +3,7 @@ from .user_defined import UserDefined, _UserDefined
 from .first_order_loss import FirstOrderLoss, _FirstOrderLoss
 from .emission import Emission
 from .photolysis import Photolysis
-from .surface import Surface, _Surface
+from .surface import Surface
 from .tunneling import Tunneling, _Tunneling
 from .branched import Branched
 from .taylor_series import TaylorSeries
