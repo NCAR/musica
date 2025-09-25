@@ -134,6 +134,11 @@ class State():
             for state in self.__states:
                 cell_stride, species_stride = state.concentration_strides()
                 for i_cell in range(state.number_of_grid_cells()):
+                    print(f"i_param: {i_species}, type: {type(i_species)}")
+                    print(f"param_stride: {species_stride}, type: {type(species_stride)}")
+                    print(f"i_cell: {i_cell}, type: {type(i_cell)}")
+                    print(f"cell_stride: {cell_stride}, type: {type(cell_stride)}")
+                    print(f"value[k]: {value[k]}, type: {type(value[k])}")
                     state.concentrations[i_species *
                                          species_stride + i_cell * cell_stride] = value[k]
                     k += 1
