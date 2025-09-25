@@ -40,12 +40,17 @@ def equals(self, other):
 
 
 PhaseSpecies.__doc__ = """
-    A class representing a species in a chemical mechanism.
+    Represents a chemical species within a specific phase of a mechanism, 
+    including phase-specific properties such as diffusion coefficients.
+
+    This class is distinct from a regular Species class in that it models 
+    properties relevant to the species' behavior in a particular phase 
+    (e.g., gas, liquid, or solid), such as the diffusion coefficient.
 
     Attributes:
         name (str): The name of the species.
-        diffusion_coefficient [m2 s-1] (float): Diffusion coefficient [m2 s-1]
-        other_properties (Dict[str, Any]): A dictionary of other properties of the species.
+        diffusion_coefficient_m2_s (float): Diffusion coefficient in the phase [m2 s-1].
+        other_properties (Dict[str, Any]): A dictionary of other phase-specific properties of the species.
     """
 PhaseSpecies.__init__ = __init__
 PhaseSpecies.serialize = serialize
