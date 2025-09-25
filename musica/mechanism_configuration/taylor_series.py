@@ -34,7 +34,17 @@ def __init__(
     Initializes the TaylorSeries object with the given parameters.
 
     Args:
-
+        name (Optional[str]): The name of the TaylorSeries object.
+        gas_phase (Optional[Phase]): The gas phase associated with the reaction.
+        A (Optional[float]): The A coefficient for the Taylor series.
+        B (Optional[float]): The B coefficient for the Taylor series.
+        C (Optional[float]): The C coefficient for the Taylor series.
+        D (Optional[float]): The D coefficient for the Taylor series.
+        E (Optional[float]): The E coefficient for the Taylor series.
+        taylor_coefficients (Optional[List[float]]): List of Taylor series coefficients.
+        reactants (Optional[List[Union[Species, Tuple[float, Species]]]]): List of reactants, either as Species or (stoichiometry, Species) tuples.
+        products (Optional[List[Union[Species, Tuple[float, Species]]]]): List of products, either as Species or (stoichiometry, Species) tuples.
+        other_properties (Optional[Dict[str, Any]]): Additional properties for the reaction.
     """
     original_init(self)
     self.name = name if name is not None else self.name
@@ -90,32 +100,31 @@ def serialize(self) -> Dict:
     return _remove_empty_keys(serialize_dict)
 
 TaylorSeries.__doc__ = """
-    A class representing an Arrhenius rate constant.
+    A class representing a Taylor series rate constant.
 
-    k = A * exp( C / T ) * ( T / D )^B * exp( 1 - E * P )
+    The rate constant k is represented as a Taylor series expansion in temperature (and optionally other variables):
+
+        k = a0 + a1*T + a2*T^2 + a3*T^3 + ... + an*T^n
 
     where:
         k = rate constant
-        A = pre-exponential factor [(mol m-3)^(n-1)s-1]
-        B = temperature exponent [unitless]
-        C = exponential term [K-1]
-        D = reference temperature [K]
-        E = pressure scaling term [Pa-1]
         T = temperature [K]
-        P = pressure [Pa]
-        n = number of reactants
+        a0, a1, ..., an = Taylor series coefficients
+
+    Optionally, additional parameters (A, B, C, D, E) may be provided for compatibility or extended forms.
 
     Attributes:
-        name (str): The name of the Arrhenius rate constant.
-        A (float): Pre-exponential factor [(mol m-3)^(n-1)s-1] where n is the number of reactants.
-        B (float): Temperature exponent [unitless].
-        C (float): Exponential term [K-1].
-        D (float): Reference Temperature [K].
-        E (float): Pressure scaling term [Pa-1].
+        name (str): The name of the Taylor series rate constant.
+        taylor_coefficients (List[float]): Coefficients [a0, a1, ..., an] for the Taylor series expansion.
+        A (float, optional): Optional parameter for extended forms.
+        B (float, optional): Optional parameter for extended forms.
+        C (float, optional): Optional parameter for extended forms.
+        D (float, optional): Optional parameter for extended forms.
+        E (float, optional): Optional parameter for extended forms.
         reactants (List[Union[Species, Tuple[float, Species]]]): A list of reactants involved in the reaction.
         products (List[Union[Species, Tuple[float, Species]]]): A list of products formed in the reaction.
         gas_phase (Phase): The gas phase in which the reaction occurs.
-        other_properties (Dict[str, Any]): A dictionary of other properties of the Arrhenius rate constant.
+        other_properties (Dict[str, Any]): A dictionary of other properties of the Taylor series rate constant.
     """
 
 

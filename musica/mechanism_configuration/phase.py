@@ -35,12 +35,13 @@ def init(
     original_init(self)
     self.name = name if name is not None else self.name
     converted_species = []
-    for s in species:
-        if isinstance(s, PhaseSpecies):
-            converted_species.append(s)
-        elif isinstance(s, Species):
-            converted_species.append(PhaseSpecies(name=s.name))
-    self.species = converted_species
+    if species is not None:
+        for s in species:
+            if isinstance(s, PhaseSpecies):
+                converted_species.append(s)
+            elif isinstance(s, Species):
+                converted_species.append(PhaseSpecies(name=s.name))
+    self.species = converted_species 
     self.other_properties = other_properties if other_properties is not None else self.other_properties
 
 
