@@ -34,7 +34,17 @@ def __init__(
     Initializes the TaylorSeries object with the given parameters.
 
     Args:
-
+        name (Optional[str]): The name of the TaylorSeries object.
+        gas_phase (Optional[Phase]): The gas phase associated with the reaction.
+        A (Optional[float]): The A coefficient for the Taylor series.
+        B (Optional[float]): The B coefficient for the Taylor series.
+        C (Optional[float]): The C coefficient for the Taylor series.
+        D (Optional[float]): The D coefficient for the Taylor series.
+        E (Optional[float]): The E coefficient for the Taylor series.
+        taylor_coefficients (Optional[List[float]]): List of Taylor series coefficients.
+        reactants (Optional[List[Union[Species, Tuple[float, Species]]]]): List of reactants, either as Species or (stoichiometry, Species) tuples.
+        products (Optional[List[Union[Species, Tuple[float, Species]]]]): List of products, either as Species or (stoichiometry, Species) tuples.
+        other_properties (Optional[Dict[str, Any]]): Additional properties for the reaction.
     """
     original_init(self)
     self.name = name if name is not None else self.name
