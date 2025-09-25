@@ -1,4 +1,4 @@
-from typing import Optional, Any, Dict, List
+from typing import Optional, Any, Dict, List, Union
 from .. import backend
 from .species import Species
 from .phase_species import PhaseSpecies
@@ -17,10 +17,11 @@ Phase.__doc__ = """
 
 original_init = Phase.__init__
 
+
 def init(
     self,
     name: Optional[str] = None,
-    species: Optional[List[Species] | List[PhaseSpecies]] = None,
+    species: Optional[Union[List[Species], List[PhaseSpecies]]] = None,
     other_properties: Optional[Dict[str, Any]] = None,
 ):
     """
@@ -39,8 +40,9 @@ def init(
             converted_species.append(s)
         elif isinstance(s, Species):
             converted_species.append(PhaseSpecies(name=s.name))
-    self.species = converted_species 
+    self.species = converted_species
     self.other_properties = other_properties if other_properties is not None else self.other_properties
+
 
 def serialize(instance):
     serialize_dict = {
@@ -49,6 +51,7 @@ def serialize(instance):
     }
     _add_other_properties(serialize_dict, instance.other_properties)
     return _remove_empty_keys(serialize_dict)
+
 
 Phase.__init__ = init
 Phase.serialize = serialize
