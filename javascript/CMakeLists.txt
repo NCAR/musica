@@ -29,9 +29,6 @@ add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES} ${CMAKE_JS_SRC})
 # Set target properties
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
 
-# Link MUSICA libraries and dependencies
-#set(MUSICA_BUILD_DIR "/Users/jason.blvck/Documents/Courses/Fall25/CSCE482/musica/build")
-
 target_link_libraries(${PROJECT_NAME}
     ${CMAKE_JS_LIB}
     musica::musica
