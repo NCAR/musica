@@ -15,8 +15,7 @@ from .reactions import Reactions
 from musica.mechanism_configuration import Version
 
 _backend = backend.get_backend()
-_mc = _backend._mechanism_configuration
-Mechanism = _mc._Mechanism
+Mechanism = _backend._mechanism_configuration._Mechanism
 
 original_init = Mechanism.__init__
 
