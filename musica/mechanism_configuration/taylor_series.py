@@ -16,9 +16,8 @@ original_init = TaylorSeries.__init__
 @property
 def type(self):
     return ReactionType.TaylorSeries
-TaylorSeries.type = type
 
-def init(
+def __init__(
     self,
     name: Optional[str] = None,
     gas_phase: Optional[Phase] = None,
@@ -93,8 +92,35 @@ def serialize(self) -> Dict:
     return _remove_empty_keys(serialize_dict)
 
 TaylorSeries.__doc__ = """
+    A class representing an Arrhenius rate constant.
+
+    k = A * exp( C / T ) * ( T / D )^B * exp( 1 - E * P )
+
+    where:
+        k = rate constant
+        A = pre-exponential factor [(mol m-3)^(n-1)s-1]
+        B = temperature exponent [unitless]
+        C = exponential term [K-1]
+        D = reference temperature [K]
+        E = pressure scaling term [Pa-1]
+        T = temperature [K]
+        P = pressure [Pa]
+        n = number of reactants
+
+    Attributes:
+        name (str): The name of the Arrhenius rate constant.
+        A (float): Pre-exponential factor [(mol m-3)^(n-1)s-1] where n is the number of reactants.
+        B (float): Temperature exponent [unitless].
+        C (float): Exponential term [K-1].
+        D (float): Reference Temperature [K].
+        E (float): Pressure scaling term [Pa-1].
+        reactants (List[Union[Species, Tuple[float, Species]]]): A list of reactants involved in the reaction.
+        products (List[Union[Species, Tuple[float, Species]]]): A list of products formed in the reaction.
+        gas_phase (Phase): The gas phase in which the reaction occurs.
+        other_properties (Dict[str, Any]): A dictionary of other properties of the Arrhenius rate constant.
     """
 
 
-TaylorSeries.__init__ = init
+TaylorSeries.__init__ = __init__
 TaylorSeries.serialize = serialize
+TaylorSeries.type = type

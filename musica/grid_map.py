@@ -9,7 +9,7 @@ The GridMap class allows dictionary-style access to grids using (name, units) tu
 Note: TUV-x is only available on macOS and Linux platforms.
 """
 
-from typing import Iterator, Sequence
+from typing import Iterator
 from . import backend
 from .grid import Grid
 
@@ -26,7 +26,7 @@ if backend.tuvx_available():
         Args:
             **kwargs: Additional arguments passed to the C++ constructor
         """
-        original_init(self, **kwargs)
+        original_init(self)
 
     GridMap.__init__ = __init__
 

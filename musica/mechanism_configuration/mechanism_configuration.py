@@ -23,9 +23,7 @@ from .branched import Branched, _Branched
 from .taylor_series import TaylorSeries
 from .troe import Troe, _Troe
 from .ternary_chemical_activation import TernaryChemicalActivation, _TernaryChemicalActivation
-from .arrhenius import Arrhenius, _Arrhenius
-
-from musica.decorators import py_constructor
+from .arrhenius import Arrhenius
 
 _backend = backend.get_backend()
 _mc = _backend._mechanism_configuration
@@ -33,12 +31,14 @@ Version = _mc._Version
 Parser = _mc._Parser
 Mechanism = _mc._Mechanism
 
+original_init = Mechanism.__init__
+
 
 def export(self, file_path: str) -> None:
     MechanismSerializer.serialize(self, file_path)
 
 
-def init(
+def __init__(
     self,
     name: Optional[str] = None,
     reactions: Optional[List[Any]] = None,
@@ -56,6 +56,7 @@ def init(
         phases (List[Phase]): A list of phases in the mechanism.
         version (Version): The version of the mechanism.
     """
+    original_init(self)
     self.name = name
     self.species = species if species is not None else []
     self.phases = phases if phases is not None else []
@@ -74,25 +75,17 @@ def to_dict(self) -> Dict:
 
     reactions_list = []
     for reaction in self.reactions:
-        if isinstance(reaction, _Arrhenius):
-            # Handle C++ _Arrhenius objects with static serialize call
-            reactions_list.append(Arrhenius.serialize_static(reaction))
-        elif isinstance(reaction, Arrhenius):
-            # Handle Python Arrhenius objects with instance serialize call
+        if isinstance(reaction, Arrhenius):
             reactions_list.append(reaction.serialize())
         elif isinstance(reaction, _Branched):
-            # Handle C++ _Branched objects with static serialize call
             reactions_list.append(Branched.serialize_static(reaction))
         elif isinstance(reaction, Branched):
-            # Handle Python Branched objects with instance serialize call
             reactions_list.append(reaction.serialize())
         elif isinstance(reaction, (_Emission, Emission)):
             reactions_list.append(Emission.serialize(reaction))
         elif isinstance(reaction, _FirstOrderLoss):
-            # Handle C++ _FirstOrderLoss objects with static serialize call
             reactions_list.append(FirstOrderLoss.serialize_static(reaction))
         elif isinstance(reaction, FirstOrderLoss):
-            # Handle Python FirstOrderLoss objects with instance serialize call
             reactions_list.append(reaction.serialize())
         elif isinstance(reaction, (_Photolysis, Photolysis)):
             reactions_list.append(Photolysis.serialize(reaction))
@@ -101,22 +94,16 @@ def to_dict(self) -> Dict:
         elif isinstance(reaction, TaylorSeries):
             reactions_list.append(reaction.serialize())
         elif isinstance(reaction, _Troe):
-            # Handle C++ _Troe objects with static serialize call
             reactions_list.append(Troe.serialize_static(reaction))
         elif isinstance(reaction, Troe):
-            # Handle Python Troe objects with instance serialize call
             reactions_list.append(reaction.serialize())
         elif isinstance(reaction, _TernaryChemicalActivation):
-            # Handle C++ _TernaryChemicalActivation objects with static serialize call
             reactions_list.append(TernaryChemicalActivation.serialize_static(reaction))
         elif isinstance(reaction, TernaryChemicalActivation):
-            # Handle Python TernaryChemicalActivation objects with instance serialize call
             reactions_list.append(reaction.serialize())
         elif isinstance(reaction, _Tunneling):
-            # Handle C++ _Tunneling objects with static serialize call
             reactions_list.append(Tunneling.serialize_static(reaction))
         elif isinstance(reaction, Tunneling):
-            # Handle Python Tunneling objects with instance serialize call
             reactions_list.append(reaction.serialize())
         elif isinstance(reaction, (_UserDefined, UserDefined)):
             reactions_list.append(UserDefined.serialize(reaction))
@@ -144,7 +131,7 @@ Mechanism.__doc__ = """
         version (Version): The version of the mechanism.
     """
 
-Mechanism = py_constructor(init)(Mechanism)
+Mechanism.__init__ = __init__
 Mechanism.to_dict = to_dict
 Mechanism.export = export
 

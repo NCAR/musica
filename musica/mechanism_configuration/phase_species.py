@@ -6,7 +6,7 @@ _backend = backend.get_backend()
 PhaseSpecies = _backend._mechanism_configuration._PhaseSpecies
 original_init = PhaseSpecies.__init__
 
-def init(
+def __init__(
     self,
     name: Optional[str] = None,
     diffusion_coefficient_m2_s: Optional[float] = None,
@@ -47,6 +47,6 @@ PhaseSpecies.__doc__ = """
         diffusion_coefficient [m2 s-1] (float): Diffusion coefficient [m2 s-1]
         other_properties (Dict[str, Any]): A dictionary of other properties of the species.
     """
-PhaseSpecies.__init__ = init
+PhaseSpecies.__init__ = __init__
 PhaseSpecies.serialize = serialize
 PhaseSpecies.__eq__ = equals
