@@ -163,8 +163,11 @@ class State():
             for state in self.__states:
                 cell_stride, param_stride = state.user_defined_rate_parameter_strides()
                 for i_cell in range(state.number_of_grid_cells()):
-                    state.user_defined_rate_parameters[i_param *
-                                                       param_stride + i_cell * cell_stride] = value[k]
+                    print(f"i_param: {i_param}, type: {type(i_param)}")
+                    print(f"i_param: {param_stride}, type: {type(param_stride)}")
+                    print(f"i_param: {i_cell}, type: {type(i_cell)}")
+                    print(f"i_param: {cell_stride}, type: {type(cell_stride)}")
+                    state.user_defined_rate_parameters[i_param * param_stride + i_cell * cell_stride] = value[k]
                     k += 1
 
     def set_conditions(self,
