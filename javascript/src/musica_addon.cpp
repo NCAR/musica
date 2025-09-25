@@ -36,7 +36,7 @@ Napi::Object GetSystemInfo(const Napi::CallbackInfo& info) {
         }
         obj.Set("musicaVersion", Napi::String::New(env, g_wrapper->GetVersion()));
     } catch (const std::exception& e) {
-        obj.Set("musicaVersion", Napi::String::New(env, "Error"));
+        obj.Set("musicaVersion", Napi::String::New(env, std::string("Error: ") + e.what()));
     }
 
     return obj;

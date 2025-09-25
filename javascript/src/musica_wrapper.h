@@ -5,9 +5,7 @@
 
 namespace musica_addon {
 
-/**
- * @brief C++ wrapper for MUSICA functionality
- */
+/// @brief C++ wrapper for exposing MUSICA functionality to Node.js
 class MusicaWrapper {
 public:
     MusicaWrapper();
