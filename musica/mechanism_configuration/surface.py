@@ -3,11 +3,11 @@ from .. import backend
 from .phase import Phase
 from .species import Species
 from .utils import _add_other_properties, _remove_empty_keys
+from .reaction_component import ReactionComponent
+from musica.mechanism_configuration import ReactionType
 
 _backend = backend.get_backend()
 Surface = _backend._mechanism_configuration._Surface
-_ReactionComponent = _backend._mechanism_configuration._ReactionComponent
-ReactionType = _backend._mechanism_configuration._ReactionType
 
 original_init = Surface.__init__
 
@@ -44,9 +44,9 @@ def __init__(
     self.reaction_probability = reaction_probability if reaction_probability is not None else self.reaction_probability
     self.gas_phase_species = (
         (
-            _ReactionComponent(gas_phase_species.name)
+            ReactionComponent(gas_phase_species.name)
             if isinstance(gas_phase_species, Species)
-            else _ReactionComponent(gas_phase_species[1].name, gas_phase_species[0])
+            else ReactionComponent(gas_phase_species[1].name, gas_phase_species[0])
         )
         if gas_phase_species is not None
         else self.gas_phase_species
@@ -54,9 +54,9 @@ def __init__(
     self.gas_phase_products = (
         [
             (
-                _ReactionComponent(p.name)
+                ReactionComponent(p.name)
                 if isinstance(p, Species)
-                else _ReactionComponent(p[1].name, p[0])
+                else ReactionComponent(p[1].name, p[0])
             )
             for p in gas_phase_products
         ]

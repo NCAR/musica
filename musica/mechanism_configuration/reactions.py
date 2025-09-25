@@ -4,7 +4,6 @@ from .species import Species
 from .utils import _remove_empty_keys
 
 _backend = backend.get_backend()
-ReactionType = _backend._mechanism_configuration._ReactionType
 Reactions = _backend._mechanism_configuration._Reactions
 
 original_init = Reactions.__init__

@@ -4,11 +4,11 @@ from .phase import Phase
 from .species import Species
 from .utils import _add_other_properties, _remove_empty_keys
 from ..constants import BOLTZMANN
+from .reaction_component import ReactionComponent
+from musica.mechanism_configuration import ReactionType
 
 _backend = backend.get_backend()
 Arrhenius = _backend._mechanism_configuration._Arrhenius
-_ReactionComponent = _backend._mechanism_configuration._ReactionComponent
-ReactionType = _backend._mechanism_configuration._ReactionType
 
 original_init = Arrhenius.__init__
 
@@ -69,9 +69,9 @@ def __init__(
     self.reactants = (
         [
             (
-                _ReactionComponent(r.name)
+                ReactionComponent(r.name)
                 if isinstance(r, Species)
-                else _ReactionComponent(r[1].name, r[0])
+                else ReactionComponent(r[1].name, r[0])
             )
             for r in reactants
         ]
@@ -81,9 +81,9 @@ def __init__(
     self.products = (
         [
             (
-                _ReactionComponent(p.name)
+                ReactionComponent(p.name)
                 if isinstance(p, Species)
-                else _ReactionComponent(p[1].name, p[0])
+                else ReactionComponent(p[1].name, p[0])
             )
             for p in products
         ]

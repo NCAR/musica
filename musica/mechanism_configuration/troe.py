@@ -3,11 +3,11 @@ from .. import backend
 from .phase import Phase
 from .species import Species
 from .utils import _add_other_properties, _remove_empty_keys
+from .reaction_component import ReactionComponent
+from musica.mechanism_configuration import ReactionType
 
 _backend = backend.get_backend()
 Troe = _backend._mechanism_configuration._Troe
-_ReactionComponent = _backend._mechanism_configuration._ReactionComponent
-ReactionType = _backend._mechanism_configuration._ReactionType
 
 original_init = Troe.__init__
 
@@ -86,9 +86,9 @@ def __init__(
     self.reactants = (
         [
             (
-                _ReactionComponent(r.name)
+                ReactionComponent(r.name)
                 if isinstance(r, Species)
-                else _ReactionComponent(r[1].name, r[0])
+                else ReactionComponent(r[1].name, r[0])
             )
             for r in reactants
         ]
@@ -98,9 +98,9 @@ def __init__(
     self.products = (
         [
             (
-                _ReactionComponent(p.name)
+                ReactionComponent(p.name)
                 if isinstance(p, Species)
-                else _ReactionComponent(p[1].name, p[0])
+                else ReactionComponent(p[1].name, p[0])
             )
             for p in products
         ]
@@ -108,11 +108,6 @@ def __init__(
         else self.products
     )
 
-
-@property
-def type(self):
-    """Get the reaction type."""
-    return ReactionType.Troe
 
 def serialize(self) -> Dict:
     """

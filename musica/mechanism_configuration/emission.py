@@ -3,11 +3,11 @@ from .species import Species
 from .phase import Phase
 from typing import Optional, Any, Dict, List, Union, Tuple
 from .. import backend
+from .reaction_component import ReactionComponent
+from musica.mechanism_configuration import ReactionType
 
 _backend = backend.get_backend()
 Emission = _backend._mechanism_configuration._Emission
-_ReactionComponent = _backend._mechanism_configuration._ReactionComponent
-ReactionType = _backend._mechanism_configuration._ReactionType
 
 original_init = Emission.__init__
 
@@ -39,9 +39,9 @@ def __init__(
     self.products = (
         [
             (
-                _ReactionComponent(p.name)
+                ReactionComponent(p.name)
                 if isinstance(p, Species)
-                else _ReactionComponent(p[1].name, p[0])
+                else ReactionComponent(p[1].name, p[0])
             )
             for p in products
         ]
