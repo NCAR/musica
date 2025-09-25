@@ -4,7 +4,7 @@ from .first_order_loss import FirstOrderLoss, _FirstOrderLoss
 from .emission import Emission
 from .photolysis import Photolysis
 from .surface import Surface
-from .tunneling import Tunneling, _Tunneling
+from .tunneling import Tunneling
 from .branched import Branched
 from .taylor_series import TaylorSeries
 from .troe import Troe
