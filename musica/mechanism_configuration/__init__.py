@@ -7,7 +7,7 @@ from .surface import Surface
 from .tunneling import Tunneling, _Tunneling
 from .branched import Branched
 from .taylor_series import TaylorSeries
-from .troe import Troe, _Troe
+from .troe import Troe
 from .ternary_chemical_activation import TernaryChemicalActivation
 from .arrhenius import Arrhenius
 from .phase import Phase
