@@ -12,9 +12,9 @@ from .. import backend
 from .species import Species
 from .phase import Phase
 from .reactions import Reactions
-from .reactions import Reactions, ReactionType
+from .reactions import Reactions
 from .user_defined import UserDefined
-from .first_order_loss import FirstOrderLoss, _FirstOrderLoss
+from .first_order_loss import FirstOrderLoss
 from .emission import Emission
 from .photolysis import Photolysis
 from .surface import Surface
@@ -35,7 +35,24 @@ original_init = Mechanism.__init__
 
 
 def export(self, file_path: str) -> None:
-    MechanismSerializer.serialize(self, file_path)
+    directory, file = os.path.split(file_path)
+    if directory:
+        os.makedirs(directory, exist_ok=True)
+
+    dictionary = self.serialize()
+
+    _, file_ext = os.path.splitext(file)
+    file_ext = file_ext.lower()
+    if file_ext in ['.yaml', '.yml']:
+        with open(file_path, 'w') as file:
+            yaml.dump(dictionary, file)
+    elif '.json' == file_ext:
+        json_str = json.dumps(dictionary, indent=4)
+        with open(file_path, 'w') as file:
+            file.write(json_str)
+    else:
+        raise ValueError(
+            'Allowable write formats are .json, .yaml, and .yml')
 
 
 def __init__(
@@ -64,7 +81,7 @@ def __init__(
     self.version = version if version is not None else Version()
 
 
-def to_dict(self) -> Dict:
+def serialize(self) -> Dict:
     species_list = []
     for species in self.species:
         species_list.append(Species.serialize(species))
@@ -75,33 +92,7 @@ def to_dict(self) -> Dict:
 
     reactions_list = []
     for reaction in self.reactions:
-        if isinstance(reaction, Arrhenius):
-            reactions_list.append(reaction.serialize())
-        elif isinstance(reaction, Branched):
-            reactions_list.append(reaction.serialize())
-        elif isinstance(reaction, (Emission)):
-            reactions_list.append(reaction.serialize())
-        elif isinstance(reaction, _FirstOrderLoss):
-            reactions_list.append(FirstOrderLoss.serialize_static(reaction))
-        elif isinstance(reaction, FirstOrderLoss):
-            reactions_list.append(reaction.serialize())
-        elif isinstance(reaction, (Photolysis)):
-            reactions_list.append(reaction.serialize())
-        elif isinstance(reaction, (Surface)):
-            reactions_list.append(reaction.serialize())
-        elif isinstance(reaction, TaylorSeries):
-            reactions_list.append(reaction.serialize())
-        elif isinstance(reaction, Troe):
-            reactions_list.append(reaction.serialize())
-        elif isinstance(reaction, TernaryChemicalActivation):
-            reactions_list.append(reaction.serialize())
-        elif isinstance(reaction, Tunneling):
-            reactions_list.append(reaction.serialize())
-        elif isinstance(reaction, (UserDefined)):
-            reactions_list.append(reaction.serialize())
-        else:
-            raise TypeError(
-                f'Reaction type {type(reaction)} is not supported for export.')
+        reactions_list.append(reaction.serialize())
 
     return {
         "name": self.name,
@@ -124,36 +115,5 @@ Mechanism.__doc__ = """
     """
 
 Mechanism.__init__ = __init__
-Mechanism.to_dict = to_dict
+Mechanism.serialize = serialize
 Mechanism.export = export
-
-
-class MechanismSerializer():
-    """
-    A class for exporting a chemical mechanism.
-    """
-
-    @staticmethod
-    def serialize(mechanism: Mechanism, file_path: str = "./mechanism.json") -> None:
-        if not isinstance(mechanism, (Mechanism)):
-            raise TypeError(f"Object {mechanism} is not of type Mechanism.")
-
-        directory, file = os.path.split(file_path)
-        if directory:
-            os.makedirs(directory, exist_ok=True)
-
-        # Now we can use the standard to_dict method
-        dictionary = mechanism.to_dict()
-
-        _, file_ext = os.path.splitext(file)
-        file_ext = file_ext.lower()
-        if file_ext in ['.yaml', '.yml']:
-            with open(file_path, 'w') as file:
-                yaml.dump(dictionary, file)
-        elif '.json' == file_ext:
-            json_str = json.dumps(dictionary, indent=4)
-            with open(file_path, 'w') as file:
-                file.write(json_str)
-        else:
-            raise ValueError(
-                'Allowable write formats are .json, .yaml, and .yml')
