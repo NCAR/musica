@@ -38,15 +38,15 @@ def serialize(self) -> Dict:
 
 
 ReactionComponent.__doc__ = """
-    A class representing a species in a chemical mechanism.
+    A class representing a reaction component in a chemical reaction.
+
+    A reaction component typically consists of a chemical species, its stoichiometric coefficient in the reaction,
+    and any additional properties relevant to its role in the reaction.
 
     Attributes:
-        name (str): The name of the species.
-        molecular_weight_kg_mol (float): Molecular weight [kg mol-1]
-        constant_concentration_mol_m3 (float): Constant concentration of the species (mol m-3)
-        constant_mixing_ratio_mol_mol (float): Constant mixing ratio of the species (mol mol-1)
-        is_third_body (bool): Whether the species is a third body.
-        other_properties (Dict[str, Any]): A dictionary of other properties of the species.
+        species_name (str): The name of the chemical species involved in the reaction.
+        coefficient (float): The stoichiometric coefficient of the species in the reaction.
+        other_properties (Dict[str, Any]): A dictionary of other properties relevant to the reaction component.
     """
 
 
