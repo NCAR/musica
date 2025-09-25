@@ -34,6 +34,11 @@ def serialize(self) -> Dict:
     _add_other_properties(serialize_dict, self.other_properties)
     return _remove_empty_keys(serialize_dict)
 
+
+def equals(self, other):
+    return self.name == other.name and self.diffusion_coefficient_m2_s == other.diffusion_coefficient_m2_s
+
+
 PhaseSpecies.__doc__ = """
     A class representing a species in a chemical mechanism.
 
@@ -42,13 +47,6 @@ PhaseSpecies.__doc__ = """
         diffusion_coefficient [m2 s-1] (float): Diffusion coefficient [m2 s-1]
         other_properties (Dict[str, Any]): A dictionary of other properties of the species.
     """
-
-def equals(self, other):
-    if not isinstance(other, PhaseSpecies):
-        return NotImplemented
-    return self.name == other.name and self.diffusion_coefficient_m2_s == other.diffusion_coefficient_m2_s
-
-
 PhaseSpecies.__init__ = init
 PhaseSpecies.serialize = serialize
 PhaseSpecies.__eq__ = equals

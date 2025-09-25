@@ -1,7 +1,7 @@
 import musica.mechanism_configuration as mc
 
 
-def get_fully_defined_mechanism():
+def get_fully_defined_mechanism() -> mc.Mechanism:
     # Chemical species
     A = mc.Species(name="A", molecular_weight_kg_mol=0.02897, other_properties={"__absolute tolerance": "1.0e-30"})
     B = mc.Species(name="B", constant_concentration_mol_m3=1e19)
@@ -23,7 +23,7 @@ def get_fully_defined_mechanism():
     )
 
     # Chemical phases
-    gas = mc.Phase(name="gas", species=[A, B, C, ethanol, H2O2])
+    gas = mc.Phase(name="gas", species=[mc.PhaseSpecies(name=A.name, diffusion_coefficient_m2_s=1.0), B, C, ethanol, H2O2])
 
     # Reactions
     my_arrhenius = mc.Arrhenius(
@@ -238,6 +238,8 @@ def _validate_phases(phases):
             phases_dict[name], "species"
         ), f"Phase '{name}' does not have a 'species' attribute."
         phase_species = getattr(phases_dict[name], "species")
+        print(phase_species)
+        print(expected_species)
         assert phase_species == expected_species, (
             f"Phase '{name}' has species {phase_species}, "
             f"expected {expected_species}."

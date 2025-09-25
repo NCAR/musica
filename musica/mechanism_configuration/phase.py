@@ -33,16 +33,19 @@ def init(
     """
     original_init(self)
     self.name = name if name is not None else self.name
-    if isinstance(species, list) and all(isinstance(s, PhaseSpecies) for s in species):
-        self.species = species
-    else:   
-        self.species = [PhaseSpecies(name=s.name) for s in species] if species is not None else self.species
+    converted_species = []
+    for s in species:
+        if isinstance(s, PhaseSpecies):
+            converted_species.append(s)
+        elif isinstance(s, Species):
+            converted_species.append(PhaseSpecies(name=s.name))
+    self.species = converted_species 
     self.other_properties = other_properties if other_properties is not None else self.other_properties
 
 def serialize(instance):
     serialize_dict = {
         "name": instance.name,
-        "species": instance.species,
+        "species": [s.serialize() for s in instance.species],
     }
     _add_other_properties(serialize_dict, instance.other_properties)
     return _remove_empty_keys(serialize_dict)

@@ -77,6 +77,7 @@ def init(
 
 def serialize(self) -> Dict:
     serialize_dict = {
+        "type": "TAYLOR_SERIES",
         "name": self.name,
         "A": self.A,
         "B": self.B,
