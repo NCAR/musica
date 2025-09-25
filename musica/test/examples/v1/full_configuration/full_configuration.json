@@ -38,9 +38,16 @@
     {
       "name": "gas",
       "species": [
-        {"name": "A"},
-        {"name": "B"},
-        {"name": "C"},
+        {
+          "name": "A",
+          "diffusion coefficient [m2 s-1]": 1.0
+        },
+        {
+          "name": "B"
+        },
+        {
+          "name": "C"
+        },
         {
           "name": "ethanol"
         },
@@ -298,7 +305,11 @@
       "C": 1.0e-6,
       "D": 340.0,
       "E": 0.00032,
-      "taylor coefficients": [1.0, 0.1, -0.01],
+      "taylor coefficients": [
+        1.0,
+        0.1,
+        -0.01
+      ],
       "gas phase": "gas",
       "reactants": [
         {

@@ -6,7 +6,6 @@ from .utils import _remove_empty_keys
 _backend = backend.get_backend()
 ReactionType = _backend._mechanism_configuration._ReactionType
 _Reactions = _backend._mechanism_configuration._Reactions
-_ReactionsIterator = _backend._mechanism_configuration._ReactionsIterator
 
 
 class Reactions(_Reactions):
@@ -40,12 +39,6 @@ class Reactions(_Reactions):
             super().__init__(cpp_reactions)
         else:
             super().__init__(reactions)
-
-
-class ReactionsIterator(_ReactionsIterator):
-    """
-    An iterator for the Reactions class.
-    """
 
 
 class ReactionComponentSerializer():

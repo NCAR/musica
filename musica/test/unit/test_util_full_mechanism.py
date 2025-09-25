@@ -223,28 +223,14 @@ def _validate_species(species):
 
 
 def _validate_phases(phases):
-    # Define the expected phases and their associated species
-    expected_phases = {
-        "gas": [mc.PhaseSpecies("A"), mc.PhaseSpecies("B"), mc.PhaseSpecies("C"), mc.PhaseSpecies("ethanol"), mc.PhaseSpecies("H2O2")],
-    }
-
-    # Create a dictionary for quick lookup of phases by name
-    phases_dict = {phase.name: phase for phase in phases}
-
-    # Validate each expected phase
-    for name, expected_species in expected_phases.items():
-        assert name in phases_dict, f"Phase '{name}' is missing."
-        assert hasattr(
-            phases_dict[name], "species"
-        ), f"Phase '{name}' does not have a 'species' attribute."
-        phase_species = getattr(phases_dict[name], "species")
-        print(phase_species)
-        print(expected_species)
-        assert phase_species == expected_species, (
-            f"Phase '{name}' has species {phase_species}, "
-            f"expected {expected_species}."
-        )
-
+    assert len(phases) == 1
+    assert phases[0].name == "gas"
+    assert phases[0].species[0].name == "A"
+    assert phases[0].species[0].diffusion_coefficient_m2_s == 1.0
+    assert phases[0].species[1].name == "B"
+    assert phases[0].species[2].name == "C"
+    assert phases[0].species[3].name == "ethanol"
+    assert phases[0].species[4].name == "H2O2"
 
 def _extract_components(components):
     return [

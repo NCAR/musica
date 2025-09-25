@@ -22,6 +22,7 @@ phases:
   - name: gas
     species:
       - name: A
+        diffusion coefficient [m2 s-1]: 1.0
       - name: B
       - name: C
       - name: ethanol

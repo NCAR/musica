@@ -26,12 +26,7 @@ _species_ordering = _backend._core._species_ordering
 _user_defined_rate_parameters_ordering = _backend._core._user_defined_rate_parameters_ordering
 mc = _backend._mechanism_configuration
 
-
-# For type hints
-if TYPE_CHECKING:
-    from .mechanism_configuration import Mechanism
-else:
-    Mechanism = mc._Mechanism
+from .mechanism_configuration import Mechanism
 
 FilePath = Union[str, "PathLike[str]"]
 

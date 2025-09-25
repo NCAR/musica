@@ -59,7 +59,6 @@ struct ReactionsIterator
           std::vector<VariantType>(reactions.first_order_loss.begin(), reactions.first_order_loss.end()),
           std::vector<VariantType>(reactions.photolysis.begin(), reactions.photolysis.end()),
           std::vector<VariantType>(reactions.surface.begin(), reactions.surface.end()),
-          std::vector<VariantType>(reactions.taylor_series.begin(), reactions.taylor_series.end()),
           std::vector<VariantType>(reactions.troe.begin(), reactions.troe.end()),
           std::vector<VariantType>(
               reactions.ternary_chemical_activation.begin(),

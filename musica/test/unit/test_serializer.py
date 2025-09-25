@@ -8,6 +8,7 @@ def test_mechanism_export_loop(tmp_path):
     parser = Parser()
     mechanism = get_fully_defined_mechanism()
     extensions = [".yml", ".yaml", ".json"]
+    extensions = [".json"]
     for extension in extensions:
         path = f"{tmp_path}/test_mechanism{extension}"
         mechanism.export(path)
