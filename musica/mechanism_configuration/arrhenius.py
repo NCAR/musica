@@ -2,7 +2,6 @@ from typing import Optional, Any, Dict, List, Union, Tuple
 from .. import backend
 from .phase import Phase
 from .species import Species
-from .reactions import ReactionComponentSerializer
 from .utils import _add_other_properties, _remove_empty_keys
 from ..constants import BOLTZMANN
 
@@ -108,8 +107,8 @@ def serialize(self) -> Dict:
         "C": self.C,
         "D": self.D,
         "E": self.E,
-        "reactants": ReactionComponentSerializer.serialize_list_reaction_components(self.reactants),
-        "products": ReactionComponentSerializer.serialize_list_reaction_components(self.products),
+        "reactants": [r.serialize() for r in self.reactants],
+        "products": [r.serialize() for r in self.products],
         "gas phase": self.gas_phase,
     }
     _add_other_properties(serialize_dict, self.other_properties)

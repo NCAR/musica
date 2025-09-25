@@ -1,5 +1,4 @@
 from .utils import _add_other_properties, _remove_empty_keys
-from .reactions import ReactionComponentSerializer
 from .species import Species
 from .phase import Phase
 from typing import Optional, Any, Dict, List, Union, Tuple
@@ -57,7 +56,7 @@ def serialize(self) -> Dict:
         "type": "EMISSION",
         "name": self.name,
         "scaling factor": self.scaling_factor,
-        "products": ReactionComponentSerializer.serialize_list_reaction_components(self.products),
+        "products": [r.serialize() for r in self.products],
         "gas phase": self.gas_phase,
     }
     _add_other_properties(serialize_dict, self.other_properties)

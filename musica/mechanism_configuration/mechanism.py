@@ -12,23 +12,10 @@ from .. import backend
 from .species import Species
 from .phase import Phase
 from .reactions import Reactions
-from .reactions import Reactions
-from .user_defined import UserDefined
-from .first_order_loss import FirstOrderLoss
-from .emission import Emission
-from .photolysis import Photolysis
-from .surface import Surface
-from .tunneling import Tunneling
-from .branched import Branched
-from .taylor_series import TaylorSeries
-from .troe import Troe
-from .ternary_chemical_activation import TernaryChemicalActivation
-from .arrhenius import Arrhenius
+from musica.mechanism_configuration import Version
 
 _backend = backend.get_backend()
 _mc = _backend._mechanism_configuration
-Version = _mc._Version
-Parser = _mc._Parser
 Mechanism = _mc._Mechanism
 
 original_init = Mechanism.__init__
@@ -82,23 +69,11 @@ def __init__(
 
 
 def serialize(self) -> Dict:
-    species_list = []
-    for species in self.species:
-        species_list.append(Species.serialize(species))
-
-    phases_list = []
-    for phase in self.phases:
-        phases_list.append(Phase.serialize(phase))
-
-    reactions_list = []
-    for reaction in self.reactions:
-        reactions_list.append(reaction.serialize())
-
     return {
         "name": self.name,
-        "reactions": reactions_list,
-        "species": species_list,
-        "phases": phases_list,
+        "reactions": [r.serialize() for r in self.reactions],
+        "species": [s.serialize() for s in self.species],
+        "phases": [p.serialize() for p in self.phases],
         "version": self.version.to_string(),
     }
 

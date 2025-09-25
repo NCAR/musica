@@ -6,7 +6,7 @@ _backend = backend.get_backend()
 Species = _backend._mechanism_configuration._Species
 original_init = Species.__init__
 
-def init(
+def __init__(
     self,
     name: Optional[str] = None,
     molecular_weight_kg_mol: Optional[float] = None,
@@ -59,5 +59,5 @@ Species.__doc__ = """
     """
 
 
-Species.__init__ = init
+Species.__init__ = __init__
 Species.serialize = serialize

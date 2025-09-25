@@ -1,5 +1,4 @@
 from .utils import _add_other_properties
-from .reactions import ReactionComponentSerializer
 from .species import Species
 from .phase import Phase
 from typing import Optional, Any, Dict, List, Union, Tuple
@@ -20,8 +19,7 @@ def __init__(
     self,
     name: Optional[str] = None,
     scaling_factor: Optional[float] = None,
-    reactants: Optional[List[Union[Species,
-                                    Tuple[float, Species]]]] = None,
+    reactants: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
     products: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
     gas_phase: Optional[Phase] = None,
     other_properties: Optional[Dict[str, Any]] = None,
@@ -67,16 +65,16 @@ def __init__(
     self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
     self.other_properties = other_properties if other_properties is not None else self.other_properties
 
-def serialize(instance) -> Dict:
+def serialize(self) -> Dict:
     serialize_dict = {
         "type": "PHOTOLYSIS",
-        "name": instance.name,
-        "scaling factor": instance.scaling_factor,
-        "reactants": ReactionComponentSerializer.serialize_list_reaction_components(instance.reactants),
-        "products": ReactionComponentSerializer.serialize_list_reaction_components(instance.products),
-        "gas phase": instance.gas_phase,
+        "name": self.name,
+        "scaling factor": self.scaling_factor,
+        "reactants": [r.serialize() for r in self.reactants],
+        "products": [r.serialize() for r in self.products],
+        "gas phase": self.gas_phase,
     }
-    _add_other_properties(serialize_dict, instance.other_properties)
+    _add_other_properties(serialize_dict, self.other_properties)
     return serialize_dict
 
 Photolysis.__doc__ = """

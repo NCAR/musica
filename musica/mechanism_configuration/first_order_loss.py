@@ -1,5 +1,4 @@
 from .utils import _add_other_properties, _remove_empty_keys
-from .reactions import ReactionComponentSerializer
 from .species import Species
 from .phase import Phase
 from typing import Optional, Any, Dict, List, Union, Tuple
@@ -65,7 +64,7 @@ def serialize(self) -> Dict:
         "type": "FIRST_ORDER_LOSS",
         "name": self.name,
         "scaling factor": self.scaling_factor,
-        "reactants": ReactionComponentSerializer.serialize_list_reaction_components(self.reactants),
+        "reactants": [r.serialize() for r in self.reactants],
         "gas phase": self.gas_phase,
     }
     _add_other_properties(serialize_dict, self.other_properties)

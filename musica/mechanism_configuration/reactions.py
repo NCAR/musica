@@ -26,42 +26,6 @@ def __init__(
     Args:
         reactions (List[]): A list of reactions in the mechanism.
     """
-    # Convert Python Arrhenius objects to C++ _Arrhenius objects for the C++ constructor
-    if reactions is not None:
-        cpp_reactions = []
-        for reaction in reactions:
-            if hasattr(reaction, '_instance'):
-                # This is a Python wrapper around a C++ object, use the internal instance
-                cpp_reactions.append(reaction._instance)
-            else:
-                # This is already a C++ object or other supported type
-                cpp_reactions.append(reaction)
-        original_init(self, cpp_reactions)
-    else:
-        original_init(self, reactions)
+    original_init(self, reactions)
     
 Reactions.__init__ = __init__
-
-class ReactionComponentSerializer():
-    """
-    A class for serializing reaction components.
-    """
-
-    @staticmethod
-    def serialize_reaction_component(rc) -> Union[Dict, str]:
-        if isinstance(rc, Species):
-            return rc.name
-
-        return _remove_empty_keys({
-            "species name": rc.species_name,
-            "coefficient": rc.coefficient,
-            "other_properties": rc.other_properties,
-        })
-
-    @staticmethod
-    def serialize_list_reaction_components(reaction_component_list) -> List[Union[Dict, str]]:
-        ret = []
-        for rc in reaction_component_list:
-            ret.append(
-                ReactionComponentSerializer.serialize_reaction_component(rc))
-        return ret

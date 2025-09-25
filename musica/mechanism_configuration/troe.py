@@ -2,7 +2,6 @@ from typing import Optional, Any, Dict, List, Union, Tuple
 from .. import backend
 from .phase import Phase
 from .species import Species
-from .reactions import ReactionComponentSerializer
 from .utils import _add_other_properties, _remove_empty_keys
 
 _backend = backend.get_backend()
@@ -133,8 +132,8 @@ def serialize(self) -> Dict:
         "kinf_C": self.kinf_C,
         "Fc": self.Fc,
         "N": self.N,
-        "reactants": ReactionComponentSerializer.serialize_list_reaction_components(self.reactants),
-        "products": ReactionComponentSerializer.serialize_list_reaction_components(self.products),
+        "reactants": [r.serialize() for r in self.reactants],
+        "products": [r.serialize() for r in self.products],
         "gas phase": self.gas_phase,
     }
     _add_other_properties(serialize_dict, self.other_properties)
