@@ -22,7 +22,7 @@ from .tunneling import Tunneling, _Tunneling
 from .branched import Branched
 from .taylor_series import TaylorSeries
 from .troe import Troe, _Troe
-from .ternary_chemical_activation import TernaryChemicalActivation, _TernaryChemicalActivation
+from .ternary_chemical_activation import TernaryChemicalActivation
 from .arrhenius import Arrhenius
 
 _backend = backend.get_backend()
@@ -95,8 +95,6 @@ def to_dict(self) -> Dict:
             reactions_list.append(Troe.serialize_static(reaction))
         elif isinstance(reaction, Troe):
             reactions_list.append(reaction.serialize())
-        elif isinstance(reaction, _TernaryChemicalActivation):
-            reactions_list.append(TernaryChemicalActivation.serialize_static(reaction))
         elif isinstance(reaction, TernaryChemicalActivation):
             reactions_list.append(reaction.serialize())
         elif isinstance(reaction, _Tunneling):

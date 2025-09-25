@@ -8,7 +8,7 @@ from .tunneling import Tunneling, _Tunneling
 from .branched import Branched
 from .taylor_series import TaylorSeries
 from .troe import Troe, _Troe
-from .ternary_chemical_activation import TernaryChemicalActivation, _TernaryChemicalActivation
+from .ternary_chemical_activation import TernaryChemicalActivation
 from .arrhenius import Arrhenius
 from .phase import Phase
 from .species import Species

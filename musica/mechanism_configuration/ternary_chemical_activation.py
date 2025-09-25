@@ -3,19 +3,60 @@ from .. import backend
 from .phase import Phase
 from .species import Species
 from .reactions import ReactionComponentSerializer
-from .utils import _add_other_properties
+from .utils import _add_other_properties, _remove_empty_keys
 
 _backend = backend.get_backend()
-_TernaryChemicalActivation = _backend._mechanism_configuration._TernaryChemicalActivation
+TernaryChemicalActivation = _backend._mechanism_configuration._TernaryChemicalActivation
 _ReactionComponent = _backend._mechanism_configuration._ReactionComponent
 ReactionType = _backend._mechanism_configuration._ReactionType
 
+original_init = TernaryChemicalActivation.__init__
 
-class TernaryChemicalActivation:
+@property
+def type(self):
+    return ReactionType.TernaryChemicalActivation
+
+
+def __init__(
+    self,
+    name: Optional[str] = None,
+    k0_A: Optional[float] = None,
+    k0_B: Optional[float] = None,
+    k0_C: Optional[float] = None,
+    kinf_A: Optional[float] = None,
+    kinf_B: Optional[float] = None,
+    kinf_C: Optional[float] = None,
+    Fc: Optional[float] = None,
+    N: Optional[float] = None,
+    reactants: Optional[List[Union[Species,
+                                    Tuple[float, Species]]]] = None,
+    products: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
+    gas_phase: Optional[Phase] = None,
+    other_properties: Optional[Dict[str, Any]] = None,
+):
     """
-    A class representing a Ternary Chemical Activation rate constant.
+    Initializes the Ternary Chemical Activation object with the given parameters.
 
-    Attributes:
+    k0 = k0_A * exp( k0_C / T ) * ( T / 300.0 )^k0_B
+    kinf = kinf_A * exp( kinf_C / T ) * ( T / 300.0 )^kinf_B
+    k = k0[M] / ( 1 + k0[M] / kinf ) * Fc^(1 + 1/N*(log10(k0[M]/kinf))^2)^-1
+
+    where:
+        k = rate constant
+        k0 = low-pressure limit rate constant
+        kinf = high-pressure limit rate constant
+        k0_A = pre-exponential factor for the low-pressure limit [(mol m-3)^(n-1)s-1]
+        k0_B = temperature exponent for the low-pressure limit [unitless]
+        k0_C = exponential term for the low-pressure limit [K-1]
+        kinf_A = pre-exponential factor for the high-pressure limit [(mol m-3)^(n-1)s-1]
+        kinf_B = temperature exponent for the high-pressure limit [unitless]
+        kinf_C = exponential term for the high-pressure limit [K-1]
+        Fc = Ternary Chemical Activation parameter [unitless]
+        N = Ternary Chemical Activation parameter [unitless]
+        T = temperature [K]
+        M = concentration of the third body [mol m-3]
+
+    Args:
         name (str): The name of the Ternary Chemical Activation rate constant.
         k0_A (float): Pre-exponential factor for the low-pressure limit [(mol m-3)^(n-1)s-1].
         k0_B (float): Temperature exponent for the low-pressure limit [unitless].
@@ -30,323 +71,90 @@ class TernaryChemicalActivation:
         gas_phase (Phase): The gas phase in which the reaction occurs.
         other_properties (Dict[str, Any]): A dictionary of other properties of the Ternary Chemical Activation rate constant.
     """
+    original_init(self)
 
-    def __init__(
-        self,
-        name: Optional[str] = None,
-        k0_A: Optional[float] = None,
-        k0_B: Optional[float] = None,
-        k0_C: Optional[float] = None,
-        kinf_A: Optional[float] = None,
-        kinf_B: Optional[float] = None,
-        kinf_C: Optional[float] = None,
-        Fc: Optional[float] = None,
-        N: Optional[float] = None,
-        reactants: Optional[List[Union[Species,
-                                       Tuple[float, Species]]]] = None,
-        products: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
-        gas_phase: Optional[Phase] = None,
-        other_properties: Optional[Dict[str, Any]] = None,
-    ):
-        """
-        Initializes the Ternary Chemical Activation object with the given parameters.
 
-        k0 = k0_A * exp( k0_C / T ) * ( T / 300.0 )^k0_B
-        kinf = kinf_A * exp( kinf_C / T ) * ( T / 300.0 )^kinf_B
-        k = k0[M] / ( 1 + k0[M] / kinf ) * Fc^(1 + 1/N*(log10(k0[M]/kinf))^2)^-1
+    self.name = name if name is not None else self.name 
+    self.k0_A = k0_A if k0_A is not None else self.k0_A 
+    self.k0_B = k0_B if k0_B is not None else self.k0_B 
+    self.k0_C = k0_C if k0_C is not None else self.k0_C 
+    self.kinf_A = kinf_A if kinf_A is not None else self.kinf_A 
+    self.kinf_B = kinf_B if kinf_B is not None else self.kinf_B 
+    self.kinf_C = kinf_C if kinf_C is not None else self.kinf_C 
+    self.Fc = Fc if Fc is not None else self.Fc 
+    self.N = N if N is not None else self.N 
+    self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase 
+    self.other_properties = other_properties if other_properties is not None else self.other_properties 
+    self.reactants = (
+        [
+            (
+                _ReactionComponent(r.name)
+                if isinstance(r, Species)
+                else _ReactionComponent(r[1].name, r[0])
+            )
+            for r in reactants
+        ]
+        if reactants is not None
+        else self.reactants
+    )
+    self.products = (
+        [
+            (
+                _ReactionComponent(p.name)
+                if isinstance(p, Species)
+                else _ReactionComponent(p[1].name, p[0])
+            )
+            for p in products
+        ]
+        if products is not None
+        else self.products
+    )
 
-        where:
-            k = rate constant
-            k0 = low-pressure limit rate constant
-            kinf = high-pressure limit rate constant
-            k0_A = pre-exponential factor for the low-pressure limit [(mol m-3)^(n-1)s-1]
-            k0_B = temperature exponent for the low-pressure limit [unitless]
-            k0_C = exponential term for the low-pressure limit [K-1]
-            kinf_A = pre-exponential factor for the high-pressure limit [(mol m-3)^(n-1)s-1]
-            kinf_B = temperature exponent for the high-pressure limit [unitless]
-            kinf_C = exponential term for the high-pressure limit [K-1]
-            Fc = Ternary Chemical Activation parameter [unitless]
-            N = Ternary Chemical Activation parameter [unitless]
-            T = temperature [K]
-            M = concentration of the third body [mol m-3]
+def serialize(self) -> Dict:
+    """
+    Serialize the Ternary Chemical Activation object to a dictionary using only Python-visible data.
 
-        Args:
-            name (str): The name of the Ternary Chemical Activation rate constant.
-            k0_A (float): Pre-exponential factor for the low-pressure limit [(mol m-3)^(n-1)s-1].
-            k0_B (float): Temperature exponent for the low-pressure limit [unitless].
-            k0_C (float): Exponential term for the low-pressure limit [K-1].
-            kinf_A (float): Pre-exponential factor for the high-pressure limit [(mol m-3)^(n-1)s-1].
-            kinf_B (float): Temperature exponent for the high-pressure limit [unitless].
-            kinf_C (float): Exponential term for the high-pressure limit [K-1].
-            Fc (float): Ternary Chemical Activation parameter [unitless].
-            N (float): Ternary Chemical Activation parameter [unitless].
-            reactants (List[Union[Species, Tuple[float, Species]]]): A list of reactants involved in the reaction.
-            products (List[Union[Species, Tuple[float, Species]]]): A list of products formed in the reaction.
-            gas_phase (Phase): The gas phase in which the reaction occurs.
-            other_properties (Dict[str, Any]): A dictionary of other properties of the Ternary Chemical Activation rate constant.
-        """
-        # Create the internal C++ instance
-        self._instance = _TernaryChemicalActivation()
+    Returns:
+        Dict: A dictionary representation of the Ternary Chemical Activation object.
+    """
+    serialize_dict = {
+        "type": "TERNARY_CHEMICAL_ACTIVATION",
+        "name": self.name,
+        "k0_A": self.k0_A,
+        "k0_B": self.k0_B,
+        "k0_C": self.k0_C,
+        "kinf_A": self.kinf_A,
+        "kinf_B": self.kinf_B,
+        "kinf_C": self.kinf_C,
+        "Fc": self.Fc,
+        "N": self.N,
+        "reactants": ReactionComponentSerializer.serialize_list_reaction_components(self.reactants),
+        "products": ReactionComponentSerializer.serialize_list_reaction_components(self.products),
+        "gas phase": self.gas_phase,
+    }
+    _add_other_properties(serialize_dict, self.other_properties)
+    return _remove_empty_keys(serialize_dict)
 
-        # Set all parameters using properties
-        if name is not None:
-            self.name = name
-        if k0_A is not None:
-            self.k0_A = k0_A
-        if k0_B is not None:
-            self.k0_B = k0_B
-        if k0_C is not None:
-            self.k0_C = k0_C
-        if kinf_A is not None:
-            self.kinf_A = kinf_A
-        if kinf_B is not None:
-            self.kinf_B = kinf_B
-        if kinf_C is not None:
-            self.kinf_C = kinf_C
-        if Fc is not None:
-            self.Fc = Fc
-        if N is not None:
-            self.N = N
-        if reactants is not None:
-            self.reactants = reactants
-        if products is not None:
-            self.products = products
-        if gas_phase is not None:
-            self.gas_phase = gas_phase
-        if other_properties is not None:
-            self.other_properties = other_properties
 
-    # Property delegation to self._instance
-    @property
-    def name(self) -> str:
-        """Get the name of the Ternary Chemical Activation rate constant."""
-        return self._instance.name
+TernaryChemicalActivation.__doc__ = """
+A class representing a Ternary Chemical Activation rate constant.
 
-    @name.setter
-    def name(self, value: str):
-        """Set the name of the Ternary Chemical Activation rate constant."""
-        self._instance.name = value
+Attributes:
+    name (str): The name of the Ternary Chemical Activation rate constant.
+    k0_A (float): Pre-exponential factor for the low-pressure limit [(mol m-3)^(n-1)s-1].
+    k0_B (float): Temperature exponent for the low-pressure limit [unitless].
+    k0_C (float): Exponential term for the low-pressure limit [K-1].
+    kinf_A (float): Pre-exponential factor for the high-pressure limit [(mol m-3)^(n-1)s-1].
+    kinf_B (float): Temperature exponent for the high-pressure limit [unitless].
+    kinf_C (float): Exponential term for the high-pressure limit [K-1].
+    Fc (float): Ternary Chemical Activation parameter [unitless].
+    N (float): Ternary Chemical Activation parameter [unitless].
+    reactants (List[Union[Species, Tuple[float, Species]]]): A list of reactants involved in the reaction.
+    products (List[Union[Species, Tuple[float, Species]]]): A list of products formed in the reaction.
+    gas_phase (Phase): The gas phase in which the reaction occurs.
+    other_properties (Dict[str, Any]): A dictionary of other properties of the Ternary Chemical Activation rate constant.
+"""
 
-    @property
-    def k0_A(self) -> float:
-        """Get the pre-exponential factor for the low-pressure limit."""
-        return self._instance.k0_A
-
-    @k0_A.setter
-    def k0_A(self, value: float):
-        """Set the pre-exponential factor for the low-pressure limit."""
-        self._instance.k0_A = value
-
-    @property
-    def k0_B(self) -> float:
-        """Get the temperature exponent for the low-pressure limit."""
-        return self._instance.k0_B
-
-    @k0_B.setter
-    def k0_B(self, value: float):
-        """Set the temperature exponent for the low-pressure limit."""
-        self._instance.k0_B = value
-
-    @property
-    def k0_C(self) -> float:
-        """Get the exponential term for the low-pressure limit."""
-        return self._instance.k0_C
-
-    @k0_C.setter
-    def k0_C(self, value: float):
-        """Set the exponential term for the low-pressure limit."""
-        self._instance.k0_C = value
-
-    @property
-    def kinf_A(self) -> float:
-        """Get the pre-exponential factor for the high-pressure limit."""
-        return self._instance.kinf_A
-
-    @kinf_A.setter
-    def kinf_A(self, value: float):
-        """Set the pre-exponential factor for the high-pressure limit."""
-        self._instance.kinf_A = value
-
-    @property
-    def kinf_B(self) -> float:
-        """Get the temperature exponent for the high-pressure limit."""
-        return self._instance.kinf_B
-
-    @kinf_B.setter
-    def kinf_B(self, value: float):
-        """Set the temperature exponent for the high-pressure limit."""
-        self._instance.kinf_B = value
-
-    @property
-    def kinf_C(self) -> float:
-        """Get the exponential term for the high-pressure limit."""
-        return self._instance.kinf_C
-
-    @kinf_C.setter
-    def kinf_C(self, value: float):
-        """Set the exponential term for the high-pressure limit."""
-        self._instance.kinf_C = value
-
-    @property
-    def Fc(self) -> float:
-        """Get the Ternary Chemical Activation parameter Fc."""
-        return self._instance.Fc
-
-    @Fc.setter
-    def Fc(self, value: float):
-        """Set the Ternary Chemical Activation parameter Fc."""
-        self._instance.Fc = value
-
-    @property
-    def N(self) -> float:
-        """Get the Ternary Chemical Activation parameter N."""
-        return self._instance.N
-
-    @N.setter
-    def N(self, value: float):
-        """Set the Ternary Chemical Activation parameter N."""
-        self._instance.N = value
-
-    @property
-    def reactants(self) -> List[Union[Species, Tuple[float, Species]]]:
-        """Get the reactants as Python objects."""
-        # Convert from C++ _ReactionComponent objects to Python Species objects
-        result = []
-        for rc in self._instance.reactants:
-            if hasattr(rc, 'coefficient') and rc.coefficient != 1.0:
-                # Create a tuple with coefficient and species
-                species = Species(name=rc.species_name)
-                result.append((rc.coefficient, species))
-            else:
-                # Just the species
-                species = Species(name=rc.species_name)
-                result.append(species)
-        return result
-
-    @reactants.setter
-    def reactants(self, value: List[Union[Species, Tuple[float, Species]]]):
-        """Set the reactants, converting from Python to C++ objects."""
-        cpp_reactants = []
-        for r in value:
-            if isinstance(r, Species):
-                cpp_reactants.append(_ReactionComponent(r.name))
-            elif isinstance(r, tuple) and len(r) == 2:
-                coefficient, species = r
-                cpp_reactants.append(_ReactionComponent(species.name, coefficient))
-            else:
-                raise ValueError(f"Invalid reactant format: {r}")
-        self._instance.reactants = cpp_reactants
-
-    @property
-    def products(self) -> List[Union[Species, Tuple[float, Species]]]:
-        """Get the products as Python objects."""
-        # Convert from C++ _ReactionComponent objects to Python Species objects
-        result = []
-        for rc in self._instance.products:
-            if hasattr(rc, 'coefficient') and rc.coefficient != 1.0:
-                # Create a tuple with coefficient and species
-                species = Species(name=rc.species_name)
-                result.append((rc.coefficient, species))
-            else:
-                # Just the species
-                species = Species(name=rc.species_name)
-                result.append(species)
-        return result
-
-    @products.setter
-    def products(self, value: List[Union[Species, Tuple[float, Species]]]):
-        """Set the products, converting from Python to C++ objects."""
-        cpp_products = []
-        for p in value:
-            if isinstance(p, Species):
-                cpp_products.append(_ReactionComponent(p.name))
-            elif isinstance(p, tuple) and len(p) == 2:
-                coefficient, species = p
-                cpp_products.append(_ReactionComponent(species.name, coefficient))
-            else:
-                raise ValueError(f"Invalid product format: {p}")
-        self._instance.products = cpp_products
-
-    @property
-    def gas_phase(self) -> str:
-        """Get the gas phase name."""
-        return self._instance.gas_phase
-
-    @gas_phase.setter
-    def gas_phase(self, value: Union[Phase, str]):
-        """Set the gas phase."""
-        if isinstance(value, Phase):
-            self._instance.gas_phase = value.name
-        elif isinstance(value, str):
-            self._instance.gas_phase = value
-        else:
-            raise ValueError(f"Invalid gas_phase type: {type(value)}")
-
-    @property
-    def other_properties(self) -> Dict[str, Any]:
-        """Get the other properties."""
-        return self._instance.other_properties
-
-    @other_properties.setter
-    def other_properties(self, value: Dict[str, Any]):
-        """Set the other properties."""
-        self._instance.other_properties = value
-
-    @property
-    def type(self):
-        """Get the reaction type."""
-        return ReactionType.TernaryChemicalActivation
-
-    def _create_serialize_dict(self, instance) -> Dict:
-        """
-        Helper method to create the serialization dictionary.
-
-        Args:
-            instance: The instance to serialize (either self._instance or a _TernaryChemicalActivation object).
-
-        Returns:
-            Dict: Base serialization dictionary.
-        """
-        return {
-            "type": "TERNARY_CHEMICAL_ACTIVATION",
-            "name": instance.name,
-            "k0_A": instance.k0_A,
-            "k0_B": instance.k0_B,
-            "k0_C": instance.k0_C,
-            "kinf_A": instance.kinf_A,
-            "kinf_B": instance.kinf_B,
-            "kinf_C": instance.kinf_C,
-            "Fc": instance.Fc,
-            "N": instance.N,
-            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(instance.reactants),
-            "products": ReactionComponentSerializer.serialize_list_reaction_components(instance.products),
-            "gas phase": instance.gas_phase,
-        }
-
-    def serialize(self) -> Dict:
-        """
-        Serialize the Ternary Chemical Activation object to a dictionary using only Python-visible data.
-
-        Returns:
-            Dict: A dictionary representation of the Ternary Chemical Activation object.
-        """
-        serialize_dict = self._create_serialize_dict(self._instance)
-        _add_other_properties(serialize_dict, self.other_properties)
-        return serialize_dict
-
-    @staticmethod
-    def serialize_static(instance) -> Dict:
-        """
-        Static serialize method for compatibility with C++ _TernaryChemicalActivation objects.
-
-        Args:
-            instance: The _TernaryChemicalActivation instance to serialize.
-
-        Returns:
-            Dict: A dictionary representation of the Ternary Chemical Activation object.
-        """
-        # Create a temporary Ternary Chemical Activation object to use the helper method
-        temp_tca = TernaryChemicalActivation()
-        serialize_dict = temp_tca._create_serialize_dict(instance)
-        _add_other_properties(serialize_dict, instance.other_properties)
-        return serialize_dict
+TernaryChemicalActivation.__init__ = __init__
+TernaryChemicalActivation.serialize = serialize
+TernaryChemicalActivation.type = type
