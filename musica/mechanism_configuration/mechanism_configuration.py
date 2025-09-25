@@ -15,7 +15,7 @@ from .reactions import Reactions
 from .reactions import Reactions, ReactionType
 from .user_defined import UserDefined, _UserDefined
 from .first_order_loss import FirstOrderLoss, _FirstOrderLoss
-from .emission import Emission, _Emission
+from .emission import Emission
 from .photolysis import Photolysis, _Photolysis
 from .surface import Surface, _Surface
 from .tunneling import Tunneling, _Tunneling
@@ -79,8 +79,8 @@ def to_dict(self) -> Dict:
             reactions_list.append(reaction.serialize())
         elif isinstance(reaction, Branched):
             reactions_list.append(reaction.serialize())
-        elif isinstance(reaction, (_Emission, Emission)):
-            reactions_list.append(Emission.serialize(reaction))
+        elif isinstance(reaction, (Emission)):
+            reactions_list.append(reaction.serialize())
         elif isinstance(reaction, _FirstOrderLoss):
             reactions_list.append(FirstOrderLoss.serialize_static(reaction))
         elif isinstance(reaction, FirstOrderLoss):

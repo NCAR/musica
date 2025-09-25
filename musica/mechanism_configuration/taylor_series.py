@@ -12,7 +12,6 @@ ReactionType = _backend._mechanism_configuration._ReactionType
 
 original_init = TaylorSeries.__init__
 
-# add a property on TaylorSeries for type that returns ReactionType.TaylorSeries
 @property
 def type(self):
     return ReactionType.TaylorSeries
