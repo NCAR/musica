@@ -59,13 +59,11 @@ struct ReactionsIterator
           std::vector<VariantType>(reactions.first_order_loss.begin(), reactions.first_order_loss.end()),
           std::vector<VariantType>(reactions.photolysis.begin(), reactions.photolysis.end()),
           std::vector<VariantType>(reactions.surface.begin(), reactions.surface.end()),
+          std::vector<VariantType>(reactions.taylor_series.begin(), reactions.taylor_series.end()),
+          std::vector<VariantType>(reactions.ternary_chemical_activation.begin(), reactions.ternary_chemical_activation.end()),
           std::vector<VariantType>(reactions.troe.begin(), reactions.troe.end()),
-          std::vector<VariantType>(
-              reactions.ternary_chemical_activation.begin(),
-              reactions.ternary_chemical_activation.end()),
           std::vector<VariantType>(reactions.tunneling.begin(), reactions.tunneling.end()),
           std::vector<VariantType>(reactions.user_defined.begin(), reactions.user_defined.end()),
-          std::vector<VariantType>(reactions.taylor_series.begin(), reactions.taylor_series.end())
         }
   {
   }
@@ -434,12 +432,17 @@ void bind_mechanism_configuration(py::module_ &mechanism_configuration)
           "__len__",
           [](const Reactions &r)
           {
-            return r.arrhenius.size() + r.branched.size() + 
-                   r.emission.size() + r.first_order_loss.size() +
-                   r.photolysis.size() + r.surface.size() 
-                   + r.troe.size() + r.tunneling.size() +
-                   r.user_defined.size() + r.taylor_series.size()
-                   ;
+            return r.arrhenius.size() + 
+                   r.branched.size() + 
+                   r.emission.size() + 
+                   r.first_order_loss.size() +
+                   r.photolysis.size() + 
+                   r.surface.size() +
+                   r.taylor_series.size() +
+                   r.troe.size() + 
+                   r.ternary_chemical_activation.size() +
+                   r.tunneling.size() +
+                   r.user_defined.size();
           })
       .def("__str__", [](const Reactions &r) { return "Reactions"; })
       .def("__repr__", [](const Reactions &r) { return "<Reactions>"; })

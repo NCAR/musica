@@ -458,7 +458,7 @@ def validate_full_v1_mechanism(mechanism):
     assert mechanism.version.major == 1
     assert mechanism.version.minor == 0
     assert mechanism.version.patch == 0
-    assert len(mechanism.reactions) == 11
+    assert len(mechanism.reactions) == 12
     for reaction in mechanism.reactions:
         assert reaction is not None
         assert isinstance(reaction.type, mc.ReactionType)

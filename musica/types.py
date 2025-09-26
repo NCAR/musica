@@ -367,6 +367,8 @@ class MICM():
             print(f"parsed {len(mechanism.phases)} phases, {len(mechanism.species)} species, {len(mechanism.reactions)} reactions")
             for s in mechanism.species:
                 print(f"  species: {s.name}")
+            for r in mechanism.reactions:
+                print(f"  reaction: {r.type}")
             self.__solver = _create_solver_from_mechanism(
                 mechanism, solver_type, ignore_non_gas_phases)
 
