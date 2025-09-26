@@ -5,7 +5,7 @@ from .species import Species
 from .utils import _add_other_properties, _remove_empty_keys
 from ..constants import BOLTZMANN
 from .reaction_component import ReactionComponent
-from musica.mechanism_configuration import ReactionType
+from .ancillary import ReactionType
 
 _backend = backend.get_backend()
 Arrhenius = _backend._mechanism_configuration._Arrhenius

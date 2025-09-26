@@ -4,7 +4,7 @@ from .phase import Phase
 from typing import Optional, Any, Dict, List, Union, Tuple
 from .. import backend
 from .reaction_component import ReactionComponent
-from musica.mechanism_configuration import ReactionType
+from .ancillary import ReactionType
 
 _backend = backend.get_backend()
 Branched = _backend._mechanism_configuration._Branched

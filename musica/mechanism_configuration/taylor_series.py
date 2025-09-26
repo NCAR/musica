@@ -4,7 +4,7 @@ from .utils import _add_other_properties, _remove_empty_keys
 from .phase import Phase
 from .species import Species
 from .reaction_component import ReactionComponent
-from musica.mechanism_configuration import ReactionType
+from .ancillary import ReactionType
 
 _backend = backend.get_backend()
 TaylorSeries = _backend._mechanism_configuration._TaylorSeries

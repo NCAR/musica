@@ -12,7 +12,7 @@ from .. import backend
 from .species import Species
 from .phase import Phase
 from .reactions import Reactions
-from musica.mechanism_configuration import Version
+from .ancillary import Version
 
 _backend = backend.get_backend()
 Mechanism = _backend._mechanism_configuration._Mechanism

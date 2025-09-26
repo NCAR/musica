@@ -5,7 +5,7 @@
 # For more information, see the LICENSE file in the top-level directory of this distribution.
 from __future__ import annotations
 from .constants import GAS_CONSTANT
-from typing import Optional, Dict, List, Union, Tuple, TYPE_CHECKING, Any
+from typing import Optional, Dict, List, Union, Any
 from os import PathLike
 import math
 import numpy as np
@@ -94,6 +94,7 @@ class State():
         self.__user_defined_rate_parameters_ordering = _user_defined_rate_parameters_ordering(
             self.__states[0])
         self.__number_of_grid_cells = number_of_grid_cells
+        self.__vector_size = vector_size
     
     def __repr__(self):
         return f"<State with {self.__number_of_grid_cells} grid cells>"
@@ -139,8 +140,9 @@ class State():
                     print(f"i_cell: {i_cell}, type: {type(i_cell)}")
                     print(f"cell_stride: {cell_stride}, type: {type(cell_stride)}")
                     print(f"value[k]: {value[k]}, type: {type(value[k])}")
-                    state.concentrations[i_species *
-                                         species_stride + i_cell * cell_stride] = value[k]
+                    idx = i_species * species_stride + i_cell * cell_stride
+                    print(f"idx: {idx}, type: {type(idx)}")
+                    state.concentrations[idx] = value[k]
                     k += 1
 
     def set_user_defined_rate_parameters(

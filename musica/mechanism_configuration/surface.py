@@ -4,7 +4,7 @@ from .phase import Phase
 from .species import Species
 from .utils import _add_other_properties, _remove_empty_keys
 from .reaction_component import ReactionComponent
-from musica.mechanism_configuration import ReactionType
+from .ancillary import ReactionType
 
 _backend = backend.get_backend()
 Surface = _backend._mechanism_configuration._Surface
