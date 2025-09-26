@@ -11,6 +11,8 @@
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
 
+#include <iostream>
+
 namespace py = pybind11;
 namespace v1 = mechanism_configuration::v1::types;
 
@@ -100,6 +102,12 @@ void bind_musica(py::module_ &core)
       {
         musica::Error error;
         musica::Chemistry chemistry = musica::ConvertV1Mechanism(mechanism, ignore_non_gas_phases);
+        std::cout << "parsed " << chemistry.system.phases_.size() << " phases, "
+                  << chemistry.system.gas_phase_.species_.size() << " species, "
+                  << chemistry.processes.size() << " processes" << std::endl;
+        for (const auto &s : chemistry.system.gas_phase_.species_)
+            std::cout << "  species: " << s.name_ << std::endl;
+
         musica::MICM *micm = musica::CreateMicmFromChemistryMechanism(&chemistry, solver_type, &error);
         if (!musica::IsSuccess(error))
         {

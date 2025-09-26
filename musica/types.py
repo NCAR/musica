@@ -5,10 +5,11 @@
 # For more information, see the LICENSE file in the top-level directory of this distribution.
 from __future__ import annotations
 from .constants import GAS_CONSTANT
-from typing import Optional, Dict, List, Union, Tuple, TYPE_CHECKING, Any
+from typing import Optional, Dict, List, Union, Any
 from os import PathLike
 import math
 import numpy as np
+from musica.mechanism_configuration import Mechanism
 
 # Import backend symbols from the backend module
 from . import backend
@@ -16,7 +17,7 @@ from . import backend
 # Get all the backend symbols we need
 _backend = backend.get_backend()
 _Conditions = _backend._core._Conditions
-_SolverType = _backend._core._SolverType
+SolverType = _backend._core._SolverType
 _create_solver = _backend._core._create_solver
 _create_solver_from_mechanism = _backend._core._create_solver_from_mechanism
 _create_state = _backend._core._create_state
@@ -24,14 +25,7 @@ _micm_solve = _backend._core._micm_solve
 _vector_size = _backend._core._vector_size
 _species_ordering = _backend._core._species_ordering
 _user_defined_rate_parameters_ordering = _backend._core._user_defined_rate_parameters_ordering
-mc = _backend._mechanism_configuration
 
-
-# For type hints
-if TYPE_CHECKING:
-    from .mechanism_configuration import Mechanism
-else:
-    Mechanism = mc._Mechanism
 
 FilePath = Union[str, "PathLike[str]"]
 
@@ -75,12 +69,6 @@ class Conditions(_Conditions):
             self.air_density = 1.0 / (GAS_CONSTANT * temperature / pressure)
 
 
-class SolverType(_SolverType):
-    """
-    Enum class for the type of solver to use.
-    """
-
-
 class State():
     """
     State class for the MICM solver. It contains the initial conditions and species concentrations.
@@ -100,6 +88,9 @@ class State():
             self.__states[0])
         self.__number_of_grid_cells = number_of_grid_cells
         self.__vector_size = vector_size
+    
+    def __repr__(self):
+        return f"<State with {self.__number_of_grid_cells} grid cells>"
 
     def get_internal_states(self) -> List[Any]:
         """
@@ -133,12 +124,20 @@ class State():
                 raise ValueError(
                     f"Concentration list for {name} must have length {self.__number_of_grid_cells}.")
             # Counter 'k' is used to map grid cell indices across multiple state segments.
+            print(self.__states)
             k = 0
             for state in self.__states:
                 cell_stride, species_stride = state.concentration_strides()
                 for i_cell in range(state.number_of_grid_cells()):
-                    state.concentrations[i_species *
-                                         species_stride + i_cell * cell_stride] = value[k]
+                    print(f"i_param: {i_species}, type: {type(i_species)}")
+                    print(f"param_stride: {species_stride}, type: {type(species_stride)}")
+                    print(f"i_cell: {i_cell}, type: {type(i_cell)}")
+                    print(f"cell_stride: {cell_stride}, type: {type(cell_stride)}")
+                    print(f"value[k]: {value[k]}, type: {type(value[k])}")
+                    idx = i_species * species_stride + i_cell * cell_stride
+                    print(f"idx: {idx}, type: {type(idx)}")
+                    print(f"state.concentrations before: {state.concentrations}")
+                    state.concentrations[idx] = value[k]
                     k += 1
 
     def set_user_defined_rate_parameters(
@@ -168,8 +167,12 @@ class State():
             for state in self.__states:
                 cell_stride, param_stride = state.user_defined_rate_parameter_strides()
                 for i_cell in range(state.number_of_grid_cells()):
-                    state.user_defined_rate_parameters[i_param *
-                                                       param_stride + i_cell * cell_stride] = value[k]
+                    print(f"i_param: {i_param}, type: {type(i_param)}")
+                    print(f"param_stride: {param_stride}, type: {type(param_stride)}")
+                    print(f"i_cell: {i_cell}, type: {type(i_cell)}")
+                    print(f"cell_stride: {cell_stride}, type: {type(cell_stride)}")
+                    print(f"value[k]: {value[k]}, type: {type(value[k])}")
+                    state.user_defined_rate_parameters[i_param * param_stride + i_cell * cell_stride] = value[k]
                     k += 1
 
     def set_conditions(self,
@@ -361,6 +364,11 @@ class MICM():
         if config_path is not None:
             self.__solver = _create_solver(config_path, solver_type)
         elif mechanism is not None:
+            print(f"parsed {len(mechanism.phases)} phases, {len(mechanism.species)} species, {len(mechanism.reactions)} reactions")
+            for s in mechanism.species:
+                print(f"  species: {s.name}")
+            for r in mechanism.reactions:
+                print(f"  reaction: {r.type}")
             self.__solver = _create_solver_from_mechanism(
                 mechanism, solver_type, ignore_non_gas_phases)
 

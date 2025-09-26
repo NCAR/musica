@@ -22,26 +22,6 @@ namespace musica
       {
         s.SetProperty(validation::molecular_weight, elem.molecular_weight.value());
       }
-      if (elem.diffusion_coefficient.has_value())
-      {
-        s.SetProperty(validation::diffusion_coefficient, elem.diffusion_coefficient.value());
-      }
-      if (elem.absolute_tolerance.has_value())
-      {
-        s.SetProperty(validation::absolute_tolerance, elem.absolute_tolerance.value());
-      }
-      if (elem.tracer_type.has_value())
-      {
-        s.SetProperty(validation::tracer_type, elem.tracer_type.value());
-        if (elem.tracer_type == validation::third_body)
-        {
-          s.SetThirdBody();
-        }
-      }
-      if (elem.is_third_body.has_value() && elem.is_third_body.value())
-      {
-        s.SetThirdBody();
-      }
       if (elem.constant_concentration.has_value())
       {
         auto constant_concentration = elem.constant_concentration.value();
@@ -52,6 +32,10 @@ namespace musica
         auto constant_mixing_ratio = elem.constant_mixing_ratio.value();
         s.parameterize_ = [constant_mixing_ratio](const micm::Conditions& c)
         { return c.air_density_ * constant_mixing_ratio; };
+      }
+      if (elem.is_third_body.value_or(false))
+      {
+        s.SetThirdBody();
       }
       for (auto& unknown : elem.unknown_properties)
       {
@@ -80,13 +64,15 @@ namespace musica
   }
 
   std::vector<micm::Species> collect_species(
-      std::vector<std::string> species_names,
+      std::vector<mechanism_configuration::v1::types::PhaseSpecies> phase_species,
       std::unordered_map<std::string, micm::Species>& species_map)
   {
     std::vector<micm::Species> species;
-    for (const auto& species_name : species_names)
+    for (const auto& each : phase_species)
     {
-      species.push_back(species_map[species_name]);
+      species.push_back(species_map[each.name]);
+      // TODO - This doesn't catpure the diffusion coefficient for species in a given phase
+      // Will address in the issue https://github.com/NCAR/musica/issues/616
     }
     return species;
   }
@@ -293,6 +279,31 @@ namespace musica
     }
   }
 
+  void convert_taylor_series(
+      Chemistry& chemistry,
+      const std::vector<mechanism_configuration::v1::types::TaylorSeries>& taylor_series,
+      std::unordered_map<std::string, micm::Species>& species_map)
+  {
+    for (const auto& reaction : taylor_series)
+    {
+      auto reactants = reaction_components_to_reactants(reaction.reactants, species_map);
+      auto products = reaction_components_to_products(reaction.products, species_map);
+      micm::TaylorSeriesRateConstantParameters parameters;
+      parameters.A_ = reaction.A;
+      parameters.B_ = reaction.B;
+      parameters.C_ = reaction.C;
+      parameters.D_ = reaction.D;
+      parameters.E_ = reaction.E;
+      parameters.coefficients_ = reaction.taylor_coefficients;
+      chemistry.processes.push_back(micm::ChemicalReactionBuilder()
+                                        .SetReactants(reactants)
+                                        .SetProducts(products)
+                                        .SetRateConstant(micm::TaylorSeriesRateConstant(parameters))
+                                        .SetPhase(chemistry.system.gas_phase_)
+                                        .Build());
+    }
+  }
+
   // Helper traits to detect the presence of reactants and products members
   template<typename T, typename = void>
   struct has_reactants : std::false_type
@@ -372,6 +383,7 @@ namespace musica
     convert_arrhenius(chemistry, v1_mechanism.reactions.arrhenius, species_map);
     convert_branched(chemistry, v1_mechanism.reactions.branched, species_map);
     convert_surface(chemistry, v1_mechanism.reactions.surface, species_map, "SURF.");
+    convert_taylor_series(chemistry, v1_mechanism.reactions.taylor_series, species_map);
     convert_troe(chemistry, v1_mechanism.reactions.troe, species_map);
     convert_ternary_chemical_activation(chemistry, v1_mechanism.reactions.ternary_chemical_activation, species_map);
     convert_tunneling(chemistry, v1_mechanism.reactions.tunneling, species_map);

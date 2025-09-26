@@ -64,6 +64,7 @@ cmake.define.MUSICA_ENABLE_TESTS = "OFF"
 cmake.define.CMAKE_POLICY_VERSION_MINIMUM = "3.5"
 cmake.define.MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE = "1"
 cmake.define.CMAKE_VERBOSE_MAKEFILE = "ON"
+cmake.define.MUSICA_ENABLE_CARMA = "OFF"
 build.verbose = true
 
 [[tool.scikit-build.overrides]]
