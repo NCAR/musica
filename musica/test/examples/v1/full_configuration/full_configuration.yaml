@@ -16,12 +16,11 @@ species:
   - name: ethanol
     molecular weight [kg mol-1]: 0.04607
     __absolute tolerance: 1.0e-20
-  - name: H2O
-    molecular weight [kg mol-1]: 0.01801
 phases:
   - name: gas
     species:
       - name: A
+        diffusion coefficient [m2 s-1]: 1.0
       - name: B
       - name: C
       - name: ethanol
@@ -34,6 +33,7 @@ reactions:
     products:
       - species name: B
         coefficient: 1
+    __irrelevant: 2
   - type: FIRST_ORDER_LOSS
     name: my first order loss
     scaling factor: 12.3
@@ -41,6 +41,7 @@ reactions:
     reactants:
       - species name: C
         coefficient: 1
+    __irrelevant: 2
   - type: PHOTOLYSIS
     name: photo B
     scaling factor: 12.3
@@ -51,6 +52,7 @@ reactions:
     products:
       - species name: C
         coefficient: 1
+    __irrelevant: 2
   - type: SURFACE
     name: my surface
     reaction probability: 2.0e-2
@@ -61,6 +63,7 @@ reactions:
         coefficient: 1
       - species name: C
         coefficient: 1
+    __irrelevant: 2
   - type: TROE
     name: my troe
     k0_A: 1.2e-12
@@ -80,6 +83,7 @@ reactions:
     products:
       - species name: C
         coefficient: 1
+    __irrelevant: 2
   - type: TERNARY_CHEMICAL_ACTIVATION
     name: my ternary chemical activation
     gas phase: gas
@@ -92,15 +96,14 @@ reactions:
     Fc: 1.3
     N: 32.1
     reactants:
-      - species name: bar
+      - species name: B
         coefficient: 1
-      - species name: baz
+      - species name: M
         coefficient: 1
     products:
-      - species name: bar
-        coefficient: 0.5
-      - species name: foo
-        coefficient: 0.3
+      - species name: C
+        coefficient: 1
+    __irrelevant: 2
   - type: BRANCHED_NO_RO2
     name: my branched
     X: 1.2e-4
@@ -117,6 +120,7 @@ reactions:
     nitrate products:
       - species name: C
         coefficient: 1
+    __irrelevant: 2
   - type: TUNNELING
     name: my tunneling
     A: 123.45
@@ -129,6 +133,7 @@ reactions:
     products:
       - species name: C
         coefficient: 1
+    __irrelevant: 2
   - type: ARRHENIUS
     name: my arrhenius
     gas phase: gas
@@ -143,6 +148,7 @@ reactions:
     products:
       - species name: C
         coefficient: 1
+    __irrelevant: 2
   - type: ARRHENIUS
     name: my other arrhenius
     A: 29.3
@@ -169,6 +175,7 @@ reactions:
     products:
       - species name: C
         coefficient: 1.3
+    __irrelevant: 2
   - type: TAYLOR_SERIES
     name: my taylor series
     A: 12.3
