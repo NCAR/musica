@@ -1,6 +1,6 @@
 #include <musica/micm/parse.hpp>
 
-#include <micm/process/arrhenius_rate_constant.hpp>
+#include <micm/process/rate_constant/arrhenius_rate_constant.hpp>
 #include <micm/process/branched_rate_constant.hpp>
 #include <micm/process/process.hpp>
 #include <micm/process/surface_rate_constant.hpp>
