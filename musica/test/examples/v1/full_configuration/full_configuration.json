@@ -28,10 +28,6 @@
       "name": "ethanol",
       "molecular weight [kg mol-1]": 0.04607,
       "__absolute tolerance": 1.0e-20
-    },
-    {
-      "name": "H2O",
-      "molecular weight [kg mol-1]": 0.01801
     }
   ],
   "phases": [

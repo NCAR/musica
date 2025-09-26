@@ -17,13 +17,9 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
         molecular_weight_kg_mol=0.04607,
         other_properties={"__absolute tolerance": "1.0e-20"},
     )
-    H2O = mc.Species(
-        name="H2O",
-        molecular_weight_kg_mol=0.01801,
-    )
 
     # Chemical phases
-    gas = mc.Phase(name="gas", species=[mc.PhaseSpecies(name=A.name, diffusion_coefficient_m2_s=1.0), B, C, ethanol, H2O2])
+    gas = mc.Phase(name="gas", species=[mc.PhaseSpecies(name=A.name, diffusion_coefficient_m2_s=1.0), B, C, ethanol, H2O2, M])
 
     # Reactions
     my_arrhenius = mc.Arrhenius(
@@ -158,7 +154,7 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
     # Mechanism
     return mc.Mechanism(
         name="Full Configuration",
-        species=[A, B, C, M, H2O2, ethanol, H2O],
+        species=[A, B, C, M, H2O2, ethanol],
         phases=[gas],
         reactions=[my_arrhenius, my_other_arrhenius, my_troe, my_ternary, my_branched,
                    my_tunneling, my_surface, photo_B, 
@@ -188,10 +184,7 @@ def _validate_species(species):
         "ethanol": {
             "molecular_weight_kg_mol": 0.04607,
             "other_properties": {"__absolute tolerance": "1e-20"},
-        },
-        "H2O": {
-            "molecular_weight_kg_mol": 0.01801,
-        },
+        }
     }
 
     # Create a dictionary for quick lookup of species by name
@@ -436,7 +429,7 @@ def _validate_taylor_series(reactions):
 def validate_full_v1_mechanism(mechanism):
     assert mechanism is not None
     assert mechanism.name == "Full Configuration"
-    assert len(mechanism.species) == 7
+    assert len(mechanism.species) == 6
     _validate_species(mechanism.species)
     assert len(mechanism.phases) == 1
     _validate_phases(mechanism.phases)

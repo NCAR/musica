@@ -9,6 +9,7 @@ from typing import Optional, Dict, List, Union, Any
 from os import PathLike
 import math
 import numpy as np
+from musica.mechanism_configuration import Mechanism
 
 # Import backend symbols from the backend module
 from . import backend
@@ -16,7 +17,7 @@ from . import backend
 # Get all the backend symbols we need
 _backend = backend.get_backend()
 _Conditions = _backend._core._Conditions
-_SolverType = _backend._core._SolverType
+SolverType = _backend._core._SolverType
 _create_solver = _backend._core._create_solver
 _create_solver_from_mechanism = _backend._core._create_solver_from_mechanism
 _create_state = _backend._core._create_state
@@ -24,9 +25,7 @@ _micm_solve = _backend._core._micm_solve
 _vector_size = _backend._core._vector_size
 _species_ordering = _backend._core._species_ordering
 _user_defined_rate_parameters_ordering = _backend._core._user_defined_rate_parameters_ordering
-mc = _backend._mechanism_configuration
 
-from .mechanism_configuration import Mechanism
 
 FilePath = Union[str, "PathLike[str]"]
 
@@ -68,12 +67,6 @@ class Conditions(_Conditions):
             self.air_density = air_density
         elif temperature is not None and pressure is not None:
             self.air_density = 1.0 / (GAS_CONSTANT * temperature / pressure)
-
-
-class SolverType(_SolverType):
-    """
-    Enum class for the type of solver to use.
-    """
 
 
 class State():
@@ -371,6 +364,9 @@ class MICM():
         if config_path is not None:
             self.__solver = _create_solver(config_path, solver_type)
         elif mechanism is not None:
+            print(f"parsed {len(mechanism.phases)} phases, {len(mechanism.species)} species, {len(mechanism.reactions)} reactions")
+            for s in mechanism.species:
+                print(f"  species: {s.name}")
             self.__solver = _create_solver_from_mechanism(
                 mechanism, solver_type, ignore_non_gas_phases)
 

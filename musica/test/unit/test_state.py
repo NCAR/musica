@@ -26,6 +26,7 @@ def test_state_initialization():
 def test_set_get_concentrations():
     """Test setting and getting concentrations."""
     # Use the test mechanism
+    print()
     solver = MICM(mechanism=get_fully_defined_mechanism())
 
     # Test single grid cell
@@ -69,6 +70,7 @@ def test_set_get_concentrations():
 
 def test_set_get_conditions():
     """Test setting and getting environmental conditions."""
+    print()
     solver = MICM(mechanism=get_fully_defined_mechanism())
 
     # Test single grid cell
@@ -99,6 +101,7 @@ def test_set_get_conditions():
 def test_set_get_user_defined_rate_parameters():
     """Test setting and getting user-defined rate parameters."""
     # Use the test mechanism which includes a user-defined reaction
+    print()
     solver = MICM(mechanism=get_fully_defined_mechanism())
 
     # Test single grid cell
