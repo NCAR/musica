@@ -26,7 +26,7 @@ if backend.tuvx_available():
         Args:
             **kwargs: Additional arguments passed to the C++ constructor
         """
-        original_init(self)
+        original_init(self, **kwargs)
 
     GridMap.__init__ = __init__
 
