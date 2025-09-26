@@ -131,6 +131,7 @@ class State():
                 raise ValueError(
                     f"Concentration list for {name} must have length {self.__number_of_grid_cells}.")
             # Counter 'k' is used to map grid cell indices across multiple state segments.
+            print(self.__states)
             k = 0
             for state in self.__states:
                 cell_stride, species_stride = state.concentration_strides()
@@ -142,6 +143,7 @@ class State():
                     print(f"value[k]: {value[k]}, type: {type(value[k])}")
                     idx = i_species * species_stride + i_cell * cell_stride
                     print(f"idx: {idx}, type: {type(idx)}")
+                    print(f"state.concentrations before: {state.concentrations}")
                     state.concentrations[idx] = value[k]
                     k += 1
 
