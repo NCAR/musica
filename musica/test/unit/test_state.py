@@ -1,169 +1,14 @@
 """Tests for the State class."""
-from __future__ import annotations
-import pytest  # type: ignore # pylint: disable=import-error
-import numpy as np  # type: ignore # pylint: disable=import-error
+import pytest
+import numpy as np
 from musica.types import State, MICM
-import musica.mechanism_configuration as mc
-from musica.mechanism_configuration import Mechanism
-
-
-def create_test_mechanism() -> Mechanism:
-    """Helper function to create a test mechanism."""
-    # Chemical species
-    A = mc.Species(
-        name="A",
-        diffusion_coefficient_m2_s=20.3,
-        molecular_weight_kg_mol=13.2,
-        other_properties={
-            "__absolute tolerance": "1.0e-30"})
-    B = mc.Species(name="B")
-    C = mc.Species(name="C")
-    M = mc.Species(name="M", is_third_body=True)
-
-    # Chemical phases
-    gas = mc.Phase(name="gas", species=[A, B, C, M])
-
-    # Reactions
-    my_arrhenius = mc.Arrhenius(
-        name="my arrhenius",
-        A=32.1, B=-2.3, C=102.3, D=63.4, E=-1.3,
-        gas_phase=gas,
-        reactants=[B],
-        products=[C],
-        other_properties={"__irrelevant": "2"},
-    )
-
-    my_other_arrhenius = mc.Arrhenius(
-        name="my other arrhenius",
-        A=29.3, B=-1.5, Ea=101.2, D=82.6, E=-0.98,
-        gas_phase=gas,
-        reactants=[A],
-        products=[(1.2, B)]
-    )
-
-    my_troe = mc.Troe(
-        name="my troe",
-        gas_phase=gas,
-        k0_A=1.2e-12,
-        k0_B=167,
-        k0_C=3,
-        kinf_A=136,
-        kinf_B=5,
-        kinf_C=24,
-        Fc=0.9,
-        N=0.8,
-        reactants=[B, A],
-        products=[C],
-        other_properties={"__irrelevant": "2"},
-    )
-
-    my_ternary = mc.TernaryChemicalActivation(
-        name="my ternary chemical activation",
-        gas_phase=gas,
-        k0_A=32.1,
-        k0_B=-2.3,
-        k0_C=102.3,
-        kinf_A=63.4,
-        kinf_B=-1.3,
-        kinf_C=908.5,
-        Fc=1.3,
-        N=32.1,
-        reactants=[B, A],
-        products=[C],
-        other_properties={"__irrelevant": "2"},
-    )
-
-    my_branched = mc.Branched(
-        name="my branched",
-        gas_phase=gas,
-        reactants=[A],
-        alkoxy_products=[B],
-        nitrate_products=[C],
-        X=1.2e-4,
-        Y=167,
-        a0=0.15,
-        n=9,
-        other_properties={"__irrelevant": "2"},
-    )
-
-    my_tunneling = mc.Tunneling(
-        name="my tunneling",
-        gas_phase=gas,
-        reactants=[B],
-        products=[C],
-        A=123.45,
-        B=1200.0,
-        C=1.0e8,
-        other_properties={"__irrelevant": "2"},
-    )
-
-    my_surface = mc.Surface(
-        name="my surface",
-        gas_phase=gas,
-        gas_phase_species=A,
-        reaction_probability=2.0e-2,
-        gas_phase_products=[B, C],
-        other_properties={"__irrelevant": "2"},
-    )
-
-    photo_b = mc.Photolysis(
-        name="photo B",
-        gas_phase=gas,
-        reactants=[B],
-        products=[C],
-        scaling_factor=12.3,
-        other_properties={"__irrelevant": "2"},
-    )
-
-    my_emission = mc.Emission(
-        name="my emission",
-        gas_phase=gas,
-        products=[B],
-        scaling_factor=12.3,
-        other_properties={"__irrelevant": "2"},
-    )
-
-    my_first_order_loss = mc.FirstOrderLoss(
-        name="my first order loss",
-        gas_phase=gas,
-        reactants=[C],
-        scaling_factor=12.3,
-        other_properties={"__irrelevant": "2"},
-    )
-
-    user_defined = mc.UserDefined(
-        name="my user defined",
-        gas_phase=gas,
-        reactants=[A, B],
-        products=[(1.3, C)],
-        scaling_factor=12.3,
-        other_properties={"__irrelevant": "2"}
-    )
-
-    # Mechanism
-    return mc.Mechanism(
-        name="Full Configuration",
-        species=[A, B, C, M],
-        phases=[gas],
-        reactions=[my_arrhenius, my_other_arrhenius, my_troe, my_ternary,
-                   my_branched, my_tunneling, my_surface, photo_b,
-                   my_emission, my_first_order_loss, user_defined],
-        version=mc.Version(1, 0, 0),
-    )
-
-
-def get_test_solver(mech: Mechanism) -> MICM:
-    """Helper function to create a test solver."""
-    return MICM(mechanism=mech)
+from test_util_full_mechanism import get_fully_defined_mechanism
 
 
 def test_state_initialization():
     """Test State initialization with various grid cell configurations."""
-    # Use the test mechanism
-    mech = create_test_mechanism()
-
     # Create MICM instance
-    solver = get_test_solver(mech)
+    solver = MICM(mechanism=get_fully_defined_mechanism())
 
     # Test with valid input
     state = solver.create_state(number_of_grid_cells=1)
@@ -181,26 +26,26 @@ def test_state_initialization():
 def test_set_get_concentrations():
     """Test setting and getting concentrations."""
     # Use the test mechanism
-    mech = create_test_mechanism()
-    solver = get_test_solver(mech)
+    print()
+    solver = MICM(mechanism=get_fully_defined_mechanism())
 
     # Test single grid cell
     state = solver.create_state(number_of_grid_cells=1)
-    concentrations = {"A": 1.0, "B": 2.0, "C": 3.0}
+    concentrations = {"A": 1.0, "H2O2": 2.0, "ethanol": 3.0}
     state.set_concentrations(concentrations)
     result = state.get_concentrations()
     assert result["A"][0] == 1.0
-    assert result["B"][0] == 2.0
-    assert result["C"][0] == 3.0
+    assert result["H2O2"][0] == 2.0
+    assert result["ethanol"][0] == 3.0
 
     # Test multiple grid cells
     state_multi = solver.create_state(number_of_grid_cells=2)
-    concentrations_multi = {"A": [1.0, 2.0], "B": [3.0, 4.0], "C": [5.0, 6.0]}
+    concentrations_multi = {"A": [1.0, 2.0], "H2O2": [3.0, 4.0], "ethanol": [5.0, 6.0]}
     state_multi.set_concentrations(concentrations_multi)
     result_multi = state_multi.get_concentrations()
     assert result_multi["A"] == [1.0, 2.0]
-    assert result_multi["B"] == [3.0, 4.0]
-    assert result_multi["C"] == [5.0, 6.0]
+    assert result_multi["H2O2"] == [3.0, 4.0]
+    assert result_multi["ethanol"] == [5.0, 6.0]
 
     # Test invalid species
     with pytest.raises(ValueError, match="Species D not found in the mechanism"):
@@ -214,12 +59,19 @@ def test_set_get_concentrations():
     with pytest.raises(ValueError, match="Species M not found in the mechanism"):
         state.set_concentrations({"M": 1.0})
 
+    # Test cannot set constant concentration species
+    with pytest.raises(ValueError, match="Species B not found in the mechanism"):
+        state.set_concentrations({"B": 1.0})
+    
+    # Test cannot set constant mixing ratio species
+    with pytest.raises(ValueError, match="Species C not found in the mechanism"):
+        state.set_concentrations({"C": 1.0})
+
 
 def test_set_get_conditions():
     """Test setting and getting environmental conditions."""
-    # Use the test mechanism
-    mech = create_test_mechanism()
-    solver = get_test_solver(mech)
+    print()
+    solver = MICM(mechanism=get_fully_defined_mechanism())
 
     # Test single grid cell
     state = solver.create_state(number_of_grid_cells=1)
@@ -249,8 +101,8 @@ def test_set_get_conditions():
 def test_set_get_user_defined_rate_parameters():
     """Test setting and getting user-defined rate parameters."""
     # Use the test mechanism which includes a user-defined reaction
-    mech = create_test_mechanism()
-    solver = get_test_solver(mech)
+    print()
+    solver = MICM(mechanism=get_fully_defined_mechanism())
 
     # Test single grid cell
     state = solver.create_state(number_of_grid_cells=1)
@@ -270,8 +122,6 @@ def test_set_get_user_defined_rate_parameters():
     with pytest.raises(ValueError, match="User-defined rate parameter invalid_param not found"):
         state.set_user_defined_rate_parameters({"invalid_param": 1.0})
 
-    solver = get_test_solver(mech)
-
     state = solver.create_state(number_of_grid_cells=1)
 
     # Test species ordering
@@ -281,8 +131,8 @@ def test_set_get_user_defined_rate_parameters():
 
     # Dictionary style access
     assert species_ordering["A"] >= 0
-    assert species_ordering["B"] >= 0
-    assert species_ordering["C"] >= 0
+    assert species_ordering["ethanol"] >= 0
+    assert species_ordering["H2O2"] >= 0
 
     # Using get() method with default value
     assert species_ordering.get("A", -1) >= 0  # returns value if key exists
@@ -290,9 +140,11 @@ def test_set_get_user_defined_rate_parameters():
 
     # Test key membership
     assert "A" in species_ordering
-    assert "B" in species_ordering
-    assert "C" in species_ordering
+    assert "H2O2" in species_ordering
+    assert "ethanol" in species_ordering
     assert "M" not in species_ordering  # third-body not included
+    assert "B" not in species_ordering  # constant concentration not included
+    assert "C" not in species_ordering  # constant mixing ratio not included
 
     # Test parameter ordering
     param_ordering = state.get_user_defined_rate_parameters_ordering()
@@ -323,3 +175,6 @@ def test_set_get_user_defined_rate_parameters():
         "USER.my user defined"
     ]
     assert sorted(expected_params) == sorted(param_names)
+
+if __name__ == "__main__":
+    pytest.main([__file__])

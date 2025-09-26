@@ -9,7 +9,7 @@ Typically, this would be used to define vertical and wavelength grids.
 Note: TUV-x is only available on macOS and Linux platforms.
 """
 
-from typing import Dict, Optional
+from typing import Optional
 import numpy as np
 from . import backend
 

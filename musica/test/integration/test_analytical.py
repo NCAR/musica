@@ -216,31 +216,6 @@ def TestMultipleGridCell(solver, state, num_grid_cells, time_step, places=5):
         curr_time += time_step
 
 
-def GetMechanism():
-    A = mc.Species(name="A")
-    B = mc.Species(name="B")
-    C = mc.Species(name="C")
-    D = mc.Species(name="D")
-    E = mc.Species(name="E")
-    F = mc.Species(name="F")
-    gas = mc.Phase(name="gas", species=[A, B, C, D, E, F])
-    arr1 = mc.Arrhenius(name="A->B", A=0.004, C=50,
-                        gas_phase=gas, reactants=[A], products=[B])
-    arr2 = mc.Arrhenius(name="B->C", A=0.012, B=-2, C=75, D=50, E=1.0e-6,
-                        gas_phase=gas, reactants=[B], products=[C])
-    user1 = mc.UserDefined(name="reaction 1", gas_phase=gas,
-                           reactants=[D], products=[E])
-    user2 = mc.UserDefined(name="reaction 2", gas_phase=gas,
-                           reactants=[E], products=[F])
-    mechanism = mc.Mechanism(
-        name="analytical test",
-        species=[A, B, C, D, E, F],
-        phases=[gas],
-        reactions=[arr1, arr2, user1, user2],
-    )
-    return mechanism
-
-
 def test_single_grid_cell_standard_rosenbrock():
     solver = musica.MICM(
         config_path="configs/v0/analytical",
