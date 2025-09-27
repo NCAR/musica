@@ -9,7 +9,7 @@ from .simpol_phase_transfer import SimpolPhaseTransfer, _SimpolPhaseTransfer
 from .henrys_law import HenrysLaw, _HenrysLaw
 from .wet_deposition import WetDeposition, _WetDeposition
 from .aqueous_equilibrium import AqueousEquilibrium, _AqueousEquilibrium
-from .first_order_loss import FirstOrderLoss, _FirstOrderLoss
+from .first_order_loss import FirstOrderLoss
 from .emission import Emission
 from .condensed_phase_photolysis import CondensedPhasePhotolysis, _CondensedPhasePhotolysis
 from .photolysis import Photolysis, _Photolysis
@@ -104,9 +104,6 @@ class Mechanism(_Mechanism):
                     CondensedPhasePhotolysis.serialize(reaction))
             elif isinstance(reaction, ( Emission)):
                 reactions_list.append(reaction.serialize())
-            elif isinstance(reaction, _FirstOrderLoss):
-                # Handle C++ _FirstOrderLoss objects with static serialize call
-                reactions_list.append(FirstOrderLoss.serialize_static(reaction))
             elif isinstance(reaction, FirstOrderLoss):
                 # Handle Python FirstOrderLoss objects with instance serialize call
                 reactions_list.append(reaction.serialize())
