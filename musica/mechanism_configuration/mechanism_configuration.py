@@ -12,7 +12,7 @@ from .aqueous_equilibrium import AqueousEquilibrium, _AqueousEquilibrium
 from .first_order_loss import FirstOrderLoss
 from .emission import Emission
 from .condensed_phase_photolysis import CondensedPhasePhotolysis, _CondensedPhasePhotolysis
-from .photolysis import Photolysis, _Photolysis
+from .photolysis import Photolysis
 from .surface import Surface, _Surface
 from .tunneling import Tunneling, _Tunneling
 from .branched import Branched
@@ -125,8 +125,8 @@ class Mechanism(_Mechanism):
                 reactions_list.append(WetDeposition.serialize(reaction))
             elif isinstance(reaction, (_HenrysLaw, HenrysLaw)):
                 reactions_list.append(HenrysLaw.serialize(reaction))
-            elif isinstance(reaction, (_Photolysis, Photolysis)):
-                reactions_list.append(Photolysis.serialize(reaction))
+            elif isinstance(reaction, (Photolysis)):
+                reactions_list.append(reaction.serialize())
             elif isinstance(reaction, (_Surface, Surface)):
                 reactions_list.append(Surface.serialize(reaction))
             elif isinstance(reaction, _Troe):
