@@ -4,7 +4,7 @@
 # This file is part of the musica Python package.
 # For more information, see the LICENSE file in the top-level directory of this distribution.
 from .reactions import Reactions, ReactionType
-from .user_defined import UserDefined, _UserDefined
+from .user_defined import UserDefined
 from .simpol_phase_transfer import SimpolPhaseTransfer, _SimpolPhaseTransfer
 from .henrys_law import HenrysLaw, _HenrysLaw
 from .wet_deposition import WetDeposition, _WetDeposition
@@ -141,8 +141,8 @@ class Mechanism(_Mechanism):
             elif isinstance(reaction, Tunneling):
                 # Handle Python Tunneling objects with instance serialize call
                 reactions_list.append(reaction.serialize())
-            elif isinstance(reaction, (_UserDefined, UserDefined)):
-                reactions_list.append(UserDefined.serialize(reaction))
+            elif isinstance(reaction, (UserDefined)):
+                reactions_list.append(reaction.serialize())
             else:
                 raise TypeError(
                     f'Reaction type {type(reaction)} is not supported for export.')
