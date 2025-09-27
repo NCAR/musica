@@ -19,7 +19,7 @@ from .branched import Branched, _Branched
 from .troe import Troe, _Troe
 from .ternary_chemical_activation import TernaryChemicalActivation, _TernaryChemicalActivation
 from .condensed_phase_arrhenius import CondensedPhaseArrhenius, _CondensedPhaseArrhenius
-from .arrhenius import Arrhenius, _Arrhenius
+from .arrhenius import Arrhenius
 from .phase import Phase
 from .species import Species
 import os
@@ -90,10 +90,7 @@ class Mechanism(_Mechanism):
 
         reactions_list = []
         for reaction in self.reactions:
-            if isinstance(reaction, _Arrhenius):
-                # Handle C++ _Arrhenius objects with static serialize call
-                reactions_list.append(Arrhenius.serialize_static(reaction))
-            elif isinstance(reaction, Arrhenius):
+            if isinstance(reaction, Arrhenius):
                 # Handle Python Arrhenius objects with instance serialize call
                 reactions_list.append(reaction.serialize())
             elif isinstance(reaction, _Branched):
