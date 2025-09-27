@@ -16,7 +16,7 @@ from .photolysis import Photolysis
 from .surface import Surface, _Surface
 from .tunneling import Tunneling, _Tunneling
 from .branched import Branched
-from .troe import Troe, _Troe
+from .troe import Troe
 from .ternary_chemical_activation import TernaryChemicalActivation
 from .condensed_phase_arrhenius import CondensedPhaseArrhenius, _CondensedPhaseArrhenius
 from .arrhenius import Arrhenius
@@ -129,9 +129,6 @@ class Mechanism(_Mechanism):
                 reactions_list.append(reaction.serialize())
             elif isinstance(reaction, (_Surface, Surface)):
                 reactions_list.append(Surface.serialize(reaction))
-            elif isinstance(reaction, _Troe):
-                # Handle C++ _Troe objects with static serialize call
-                reactions_list.append(Troe.serialize_static(reaction))
             elif isinstance(reaction, Troe):
                 # Handle Python Troe objects with instance serialize call
                 reactions_list.append(reaction.serialize())
