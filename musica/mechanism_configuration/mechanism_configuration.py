@@ -10,7 +10,7 @@ from .henrys_law import HenrysLaw, _HenrysLaw
 from .wet_deposition import WetDeposition, _WetDeposition
 from .aqueous_equilibrium import AqueousEquilibrium, _AqueousEquilibrium
 from .first_order_loss import FirstOrderLoss, _FirstOrderLoss
-from .emission import Emission, _Emission
+from .emission import Emission
 from .condensed_phase_photolysis import CondensedPhasePhotolysis, _CondensedPhasePhotolysis
 from .photolysis import Photolysis, _Photolysis
 from .surface import Surface, _Surface
@@ -102,8 +102,8 @@ class Mechanism(_Mechanism):
             elif isinstance(reaction, (_CondensedPhasePhotolysis, CondensedPhasePhotolysis)):
                 reactions_list.append(
                     CondensedPhasePhotolysis.serialize(reaction))
-            elif isinstance(reaction, (_Emission, Emission)):
-                reactions_list.append(Emission.serialize(reaction))
+            elif isinstance(reaction, ( Emission)):
+                reactions_list.append(reaction.serialize())
             elif isinstance(reaction, _FirstOrderLoss):
                 # Handle C++ _FirstOrderLoss objects with static serialize call
                 reactions_list.append(FirstOrderLoss.serialize_static(reaction))
