@@ -15,7 +15,7 @@ from .condensed_phase_photolysis import CondensedPhasePhotolysis, _CondensedPhas
 from .photolysis import Photolysis, _Photolysis
 from .surface import Surface, _Surface
 from .tunneling import Tunneling, _Tunneling
-from .branched import Branched, _Branched
+from .branched import Branched
 from .troe import Troe, _Troe
 from .ternary_chemical_activation import TernaryChemicalActivation, _TernaryChemicalActivation
 from .condensed_phase_arrhenius import CondensedPhaseArrhenius, _CondensedPhaseArrhenius
@@ -93,9 +93,6 @@ class Mechanism(_Mechanism):
             if isinstance(reaction, Arrhenius):
                 # Handle Python Arrhenius objects with instance serialize call
                 reactions_list.append(reaction.serialize())
-            elif isinstance(reaction, _Branched):
-                # Handle C++ _Branched objects with static serialize call
-                reactions_list.append(Branched.serialize_static(reaction))
             elif isinstance(reaction, Branched):
                 # Handle Python Branched objects with instance serialize call
                 reactions_list.append(reaction.serialize())
