@@ -30,20 +30,12 @@ def test_hard_coded_full_v1_configuration():
 def test_hard_coded_default_constructed_types():
     arrhenius = mc.Arrhenius()
     assert arrhenius.type == mc.ReactionType.Arrhenius
-    condensed_phase_arrhenius = mc.CondensedPhaseArrhenius()
-    assert condensed_phase_arrhenius.type == mc.ReactionType.CondensedPhaseArrhenius
-    condensed_phase_photolysis = mc.CondensedPhasePhotolysis()
-    assert condensed_phase_photolysis.type == mc.ReactionType.CondensedPhasePhotolysis
     emission = mc.Emission()
     assert emission.type == mc.ReactionType.Emission
     first_order_loss = mc.FirstOrderLoss()
     assert first_order_loss.type == mc.ReactionType.FirstOrderLoss
-    henrys_law = mc.HenrysLaw()
-    assert henrys_law.type == mc.ReactionType.HenrysLaw
     photolysis = mc.Photolysis()
     assert photolysis.type == mc.ReactionType.Photolysis
-    simpol_phase_transfer = mc.SimpolPhaseTransfer()
-    assert simpol_phase_transfer.type == mc.ReactionType.SimpolPhaseTransfer
     surface = mc.Surface()
     assert surface.type == mc.ReactionType.Surface
     troe = mc.Troe()
@@ -52,8 +44,6 @@ def test_hard_coded_default_constructed_types():
     assert ternary_chemical_activation.type == mc.ReactionType.TernaryChemicalActivation
     tunneling = mc.Tunneling()
     assert tunneling.type == mc.ReactionType.Tunneling
-    wet_deposition = mc.WetDeposition()
-    assert wet_deposition.type == mc.ReactionType.WetDeposition
     branched = mc.Branched()
     assert branched.type == mc.ReactionType.Branched
     user_defined = mc.UserDefined()

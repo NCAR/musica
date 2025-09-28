@@ -65,17 +65,6 @@ phases:
   - B
   - C
 reactions:
-- type: CONDENSED_PHASE_PHOTOLYSIS
-  condensed phase: aqueous aerosol
-  reactants:
-  - species name: H2O2_aq
-    coefficient: 1
-  products:
-  - species name: ethanol_aq
-    coefficient: 1
-  scaling factor: 12.3
-  name: condensed photo B
-  __irrelevant: "2"
 - type: EMISSION
   gas phase: gas
   products:
@@ -184,11 +173,6 @@ reactions:
   products:
   - species name: C
     coefficient: 1
-  __irrelevant: "2"
-- type: WET_DEPOSITION
-  condensed phase: cloud
-  name: rxn cloud
-  scaling factor: 12.3
   __irrelevant: "2"
 - type: ARRHENIUS
   gas phase: gas
