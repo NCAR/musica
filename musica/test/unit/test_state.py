@@ -12,8 +12,6 @@ def create_test_mechanism() -> Mechanism:
     # Chemical species
     A = mc.Species(
         name="A",
-        diffusion_coefficient_m2_s=20.3,
-        molecular_weight_kg_mol=13.2,
         other_properties={
             "__absolute tolerance": "1.0e-30"})
     B = mc.Species(name="B")
@@ -97,14 +95,14 @@ def create_test_mechanism() -> Mechanism:
         other_properties={"__irrelevant": "2"},
     )
 
-    my_surface = mc.Surface(
-        name="my surface",
-        gas_phase=gas,
-        gas_phase_species=A,
-        reaction_probability=2.0e-2,
-        gas_phase_products=[B, C],
-        other_properties={"__irrelevant": "2"},
-    )
+    # my_surface = mc.Surface(
+    #     name="my surface",
+    #     gas_phase=gas,
+    #     gas_phase_species=A,
+    #     reaction_probability=2.0e-2,
+    #     gas_phase_products=[B, C],
+    #     other_properties={"__irrelevant": "2"},
+    # )
 
     photo_b = mc.Photolysis(
         name="photo B",
@@ -146,7 +144,9 @@ def create_test_mechanism() -> Mechanism:
         species=[A, B, C, M],
         phases=[gas],
         reactions=[my_arrhenius, my_other_arrhenius, my_troe, my_ternary,
-                   my_branched, my_tunneling, my_surface, photo_b,
+                   my_branched, my_tunneling, 
+                #    my_surface, 
+                   photo_b,
                    my_emission, my_first_order_loss, user_defined],
         version=mc.Version(1, 0, 0),
     )
@@ -297,11 +297,11 @@ def test_set_get_user_defined_rate_parameters():
     # Test parameter ordering
     param_ordering = state.get_user_defined_rate_parameters_ordering()
     assert isinstance(param_ordering, dict)
-    assert len(param_ordering) == 6
+    assert len(param_ordering) == 4
 
     # Convert dict keys to list using list() function
     param_names = list(param_ordering.keys())
-    assert len(param_names) == 6
+    assert len(param_names) == 4
     assert isinstance(param_names[0], str)
 
     # Alternative way using list comprehension
@@ -310,7 +310,7 @@ def test_set_get_user_defined_rate_parameters():
 
     # Sort the keys if needed - useful for consistent ordering in tests
     sorted_param_names = sorted(param_ordering.keys())
-    assert len(sorted_param_names) == 6
+    assert len(sorted_param_names) == 4
     assert all(isinstance(name, str) for name in sorted_param_names)
 
     # Verify all expected keys are present
@@ -318,8 +318,8 @@ def test_set_get_user_defined_rate_parameters():
         "PHOTO.photo B",
         "EMIS.my emission",
         "LOSS.my first order loss",
-        "SURF.my surface.effective radius [m]",
-        "SURF.my surface.particle number concentration [# m-3]",
+        # "SURF.my surface.effective radius [m]",
+        # "SURF.my surface.particle number concentration [# m-3]",
         "USER.my user defined"
     ]
     assert sorted(expected_params) == sorted(param_names)

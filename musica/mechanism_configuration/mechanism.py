@@ -13,7 +13,6 @@ from .species import Species
 from .phase import Phase
 from .reactions import Reactions
 from .ancillary import Version
-from .surface import Surface, _Surface
 
 _backend = backend.get_backend()
 Mechanism = _backend._mechanism_configuration._Mechanism
@@ -71,10 +70,7 @@ def __init__(
 def serialize(self) -> Dict:
     reactions = []
     for r in self.reactions:
-        if isinstance(r, (_Surface, Surface)):
-            reactions.append(Surface.serialize(r))
-        else:
-            reactions.append(r.serialize())
+        reactions.append(r.serialize())
     return {
         "name": self.name,
         "reactions": reactions,

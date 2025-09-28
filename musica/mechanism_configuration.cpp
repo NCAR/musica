@@ -208,6 +208,14 @@ void bind_mechanism_configuration(py::module_ &mechanism_configuration)
       .def("__str__", [](const Species &s) { return s.name; })
       .def("__repr__", [](const Species &s) { return "<Species: " + s.name + ">"; });
 
+  py::class_<PhaseSpecies>(mechanism_configuration, "_PhaseSpecies")
+      .def(py::init<>())
+      .def_readwrite("name", &PhaseSpecies::name)
+      .def_readwrite("diffusion_coefficient_m2_s", &PhaseSpecies::diffusion_coefficient)
+      .def_readwrite("other_properties", &PhaseSpecies::unknown_properties)
+      .def("__str__", [](const PhaseSpecies &s) { return s.name; })
+      .def("__repr__", [](const PhaseSpecies &s) { return "<PhaseSpecies: " + s.name + ">"; });
+
   py::class_<Phase>(mechanism_configuration, "_Phase")
       .def(py::init<>())
       .def_readwrite("name", &Phase::name)

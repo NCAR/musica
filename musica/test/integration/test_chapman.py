@@ -73,8 +73,8 @@ def TestSolve(solver):
 
 
 def GetMechanism():
-    M = mc.Species(tracer_type="THIRD_BODY")
-    O2 = mc.Species(name="O2", tracer_type="CONSTANT")
+    M = mc.Species(is_third_body=True)
+    O2 = mc.Species(name="O2")
     O = mc.Species(name="O", other_properties={
                    "__absolute_tolerance": "1e-12"})
     O1D = mc.Species(name="O1D", other_properties={
