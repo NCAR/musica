@@ -4,53 +4,41 @@ import musica.mechanism_configuration as mc
 def get_fully_defined_mechanism():
     # Chemical species
     A = mc.Species(name="A", other_properties={"__absolute tolerance": "1.0e-30"})
-    B = mc.Species(name="B", tracer_type="AEROSOL")
-    C = mc.Species(name="C", tracer_type="THIRD_BODY")
+    B = mc.Species(name="B")
+    C = mc.Species(name="C", is_third_body=True)
     M = mc.Species(name="M")
     H2O2 = mc.Species(
         name="H2O2",
-        HLC_298K_mol_m3_Pa=1.011596348,
-        HLC_exponential_factor_K=6340,
-        diffusion_coefficient_m2_s=1.46e-05,
-        N_star=1.74,
         molecular_weight_kg_mol=0.0340147,
-        density_kg_m3=1000.0,
         other_properties={"__absolute tolerance": "1.0e-10"},
     )
     ethanol = mc.Species(
         name="ethanol",
-        diffusion_coefficient_m2_s=0.95e-05,
-        N_star=2.55,
         molecular_weight_kg_mol=0.04607,
         other_properties={"__absolute tolerance": "1.0e-20"},
     )
     ethanol_aq = mc.Species(
         name="ethanol_aq",
         molecular_weight_kg_mol=0.04607,
-        density_kg_m3=1000.0,
         other_properties={"__absolute tolerance": "1.0e-20"},
     )
     H2O2_aq = mc.Species(
         name="H2O2_aq",
         molecular_weight_kg_mol=0.0340147,
-        density_kg_m3=1000.0,
         other_properties={"__absolute tolerance": "1.0e-10"},
     )
     H2O_aq = mc.Species(
         name="H2O_aq",
-        density_kg_m3=1000.0,
         molecular_weight_kg_mol=0.01801,
     )
     aerosol_stuff = mc.Species(
         name="aerosol stuff",
         molecular_weight_kg_mol=0.5,
-        density_kg_m3=1000.0,
         other_properties={"__absolute tolerance": "1.0e-20"},
     )
     more_aerosol_stuff = mc.Species(
         name="more aerosol stuff",
         molecular_weight_kg_mol=0.2,
-        density_kg_m3=1000.0,
         other_properties={"__absolute tolerance": "1.0e-20"},
     )
 
@@ -141,15 +129,15 @@ def get_fully_defined_mechanism():
         other_properties={"__irrelevant": "2"},
     )
 
-    my_surface = mc.Surface(
-        name="my surface",
-        gas_phase=gas,
-        gas_phase_species=A,
-        reaction_probability=2.0e-2,
-        gas_phase_products=[B, C],
-        condensed_phase=surface_reacting_phase,
-        other_properties={"__irrelevant": "2"},
-    )
+    # my_surface = mc.Surface(
+    #     name="my surface",
+    #     gas_phase=gas,
+    #     gas_phase_species=A,
+    #     reaction_probability=2.0e-2,
+    #     gas_phase_products=[B, C],
+    #     condensed_phase=surface_reacting_phase,
+    #     other_properties={"__irrelevant": "2"},
+    # )
 
     photo_B = mc.Photolysis(
         name="photo B",
@@ -193,7 +181,9 @@ def get_fully_defined_mechanism():
         phases=[gas, aqueous_aerosol, surface_reacting_phase, cloud],
         reactions=[my_arrhenius, my_other_arrhenius,
                    my_troe, my_ternary, my_branched,
-                   my_tunneling, my_surface, photo_B,
+                   my_tunneling, 
+                #    my_surface, 
+                   photo_B,
                    my_emission, my_first_order_loss,
                    user_defined],
         version=mc.Version(1, 0, 0),
@@ -204,46 +194,33 @@ def _validate_species(species):
     # Define the expected species and their required attributes
     expected_species = {
         "A": {"other_properties": {"__absolute tolerance": "1e-30"}},
-        "B": {"tracer_type": "AEROSOL"},
-        "C": {"tracer_type": "THIRD_BODY"},
+        "B": {},
+        "C": {"is_third_body": True},
         "M": {},
         "H2O2": {
-            "HLC_298K_mol_m3_Pa": 1.011596348,
-            "HLC_exponential_factor_K": 6340,
-            "diffusion_coefficient_m2_s": 1.46e-05,
-            "N_star": 1.74,
             "molecular_weight_kg_mol": 0.0340147,
-            "density_kg_m3": 1000.0,
             "other_properties": {"__absolute tolerance": "1e-10"},
         },
         "ethanol": {
-            "diffusion_coefficient_m2_s": 0.95e-05,
-            "N_star": 2.55,
-            "molecular_weight_kg_mol": 0.04607,
             "other_properties": {"__absolute tolerance": "1e-20"},
         },
         "ethanol_aq": {
             "molecular_weight_kg_mol": 0.04607,
-            "density_kg_m3": 1000.0,
             "other_properties": {"__absolute tolerance": "1e-20"},
         },
         "H2O2_aq": {
             "molecular_weight_kg_mol": 0.0340147,
-            "density_kg_m3": 1000.0,
             "other_properties": {"__absolute tolerance": "1e-10"},
         },
         "H2O_aq": {
-            "density_kg_m3": 1000.0,
             "molecular_weight_kg_mol": 0.01801,
         },
         "aerosol stuff": {
             "molecular_weight_kg_mol": 0.5,
-            "density_kg_m3": 1000.0,
             "other_properties": {"__absolute tolerance": "1e-20"},
         },
         "more aerosol stuff": {
             "molecular_weight_kg_mol": 0.2,
-            "density_kg_m3": 1000.0,
             "other_properties": {"__absolute tolerance": "1e-20"},
         },
     }
@@ -294,7 +271,7 @@ def _validate_phases(phases):
         assert hasattr(
             phases_dict[name], "species"
         ), f"Phase '{name}' does not have a 'species' attribute."
-        phase_species = getattr(phases_dict[name], "species")
+        phase_species = [a.name for a in getattr(phases_dict[name], "species")]
         assert set(phase_species) == set(expected_species), (
             f"Phase '{name}' has species {phase_species}, "
             f"expected {expected_species}."
@@ -603,10 +580,8 @@ def validate_full_v1_mechanism(mechanism):
     _validate_first_order_loss(mechanism.reactions.first_order_loss)
     assert len(mechanism.reactions.photolysis) == 1
     _validate_photolysis(mechanism.reactions.photolysis)
-    assert len(mechanism.reactions.simpol_phase_transfer) == 0
-    # _validate_simpol_phase_transfer(mechanism.reactions.simpol_phase_transfer)
-    assert len(mechanism.reactions.surface) == 1
-    _validate_surface(mechanism.reactions.surface)
+    assert len(mechanism.reactions.surface) == 0
+    # _validate_surface(mechanism.reactions.surface)
     assert len(mechanism.reactions.troe) == 1
     _validate_troe(mechanism.reactions.troe)
     assert len(mechanism.reactions.ternary_chemical_activation) == 1

@@ -5,7 +5,7 @@ from .first_order_loss import FirstOrderLoss
 from .mechanism import Mechanism
 from .ancillary import Version, Parser, ReactionType
 from .phase import Phase
-# from .phase_species import PhaseSpecies
+from .phase_species import PhaseSpecies
 from .photolysis import Photolysis
 from .reaction_component import ReactionComponent
 from .reactions import Reactions
