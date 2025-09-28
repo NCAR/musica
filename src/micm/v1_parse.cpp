@@ -22,23 +22,7 @@ namespace musica
       {
         s.SetProperty(validation::molecular_weight, elem.molecular_weight.value());
       }
-      if (elem.diffusion_coefficient.has_value())
-      {
-        s.SetProperty(validation::diffusion_coefficient, elem.diffusion_coefficient.value());
-      }
-      if (elem.absolute_tolerance.has_value())
-      {
-        s.SetProperty(validation::absolute_tolerance, elem.absolute_tolerance.value());
-      }
-      if (elem.tracer_type.has_value())
-      {
-        s.SetProperty(validation::tracer_type, elem.tracer_type.value());
-        if (elem.tracer_type == validation::third_body)
-        {
-          s.SetThirdBody();
-        }
-      }
-      if (elem.is_third_body.has_value() && elem.is_third_body.value())
+      if (elem.is_third_body.value_or(false))
       {
         s.SetThirdBody();
       }
@@ -80,13 +64,13 @@ namespace musica
   }
 
   std::vector<micm::Species> collect_species(
-      std::vector<std::string> species_names,
+      std::vector<mechanism_configuration::v1::types::PhaseSpecies> phase_species,
       std::unordered_map<std::string, micm::Species>& species_map)
   {
     std::vector<micm::Species> species;
-    for (const auto& species_name : species_names)
+    for (const auto& species_name : phase_species)
     {
-      species.push_back(species_map[species_name]);
+      species.push_back(species_map[species_name.name]);
     }
     return species;
   }
