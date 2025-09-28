@@ -70,7 +70,12 @@ namespace musica
     std::vector<micm::Species> species;
     for (const auto& species_name : phase_species)
     {
-      species.push_back(species_map[species_name.name]);
+      micm::Species& s = species_map[species_name.name];
+      if (species_name.diffusion_coefficient.has_value())
+      {
+        s.SetProperty(mechanism_configuration::v1::validation::diffusion_coefficient, species_name.diffusion_coefficient.value());
+      }
+      species.push_back(s);
     }
     return species;
   }
