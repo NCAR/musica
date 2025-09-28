@@ -2,7 +2,6 @@ from typing import Optional, Any, Dict, List, Union, Tuple
 from .. import backend
 from .phase import Phase
 from .species import Species
-from .reactions import ReactionComponentSerializer
 from .utils import _add_other_properties
 
 _backend = backend.get_backend()
@@ -86,7 +85,7 @@ class Surface(_Surface):
             "name": instance.name,
             "reaction probability": instance.reaction_probability,
             "gas-phase species": instance.gas_phase_species.species_name,
-            "gas-phase products": ReactionComponentSerializer.serialize_list_reaction_components(instance.gas_phase_products),
+            "gas-phase products": [r.serialize() for r in instance.gas_phase_products],
             "gas phase": instance.gas_phase,
             "condensed phase": instance.condensed_phase,
         }

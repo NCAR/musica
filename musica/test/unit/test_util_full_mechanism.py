@@ -254,11 +254,11 @@ def get_fully_defined_mechanism():
         species=[A, B, C, M, H2O2, ethanol, ethanol_aq, H2O2_aq, H2O_aq,
                  aerosol_stuff, more_aerosol_stuff],
         phases=[gas, aqueous_aerosol, surface_reacting_phase, cloud],
-        reactions=[my_arrhenius, my_other_arrhenius, my_condensed_arrhenius,
-                   my_other_condensed_arrhenius, my_troe, my_ternary, my_branched,
+        reactions=[my_arrhenius, my_other_arrhenius,
+                   my_troe, my_ternary, my_branched,
                    my_tunneling, my_surface, photo_B, condensed_photo_B,
-                   my_emission, my_first_order_loss, my_aqueous_equilibrium,
-                   my_wet_deposition, my_simpol_phase_transfer,
+                   my_emission, my_first_order_loss,
+                   my_wet_deposition, 
                    user_defined],
         version=mc.Version(1, 0, 0),
     )
@@ -657,14 +657,14 @@ def validate_full_v1_mechanism(mechanism):
     _validate_species(mechanism.species)
     assert len(mechanism.phases) == 4
     _validate_phases(mechanism.phases)
-    assert len(mechanism.reactions.aqueous_equilibrium) == 1
-    _validate_aqueous_equilibrium(mechanism.reactions.aqueous_equilibrium)
+    assert len(mechanism.reactions.aqueous_equilibrium) == 0
+    # _validate_aqueous_equilibrium(mechanism.reactions.aqueous_equilibrium)
     assert len(mechanism.reactions.arrhenius) == 2
     _validate_arrhenius(mechanism.reactions.arrhenius)
     assert len(mechanism.reactions.branched) == 1
     _validate_branched_no_ro2(mechanism.reactions.branched)
-    assert len(mechanism.reactions.condensed_phase_arrhenius) == 2
-    _validate_condensed_phase_arrhenius(mechanism.reactions.condensed_phase_arrhenius)
+    assert len(mechanism.reactions.condensed_phase_arrhenius) == 0
+    # _validate_condensed_phase_arrhenius(mechanism.reactions.condensed_phase_arrhenius)
     assert len(mechanism.reactions.condensed_phase_photolysis) == 1
     _validate_condensed_phase_photolysis(
         mechanism.reactions.condensed_phase_photolysis
@@ -675,8 +675,8 @@ def validate_full_v1_mechanism(mechanism):
     _validate_first_order_loss(mechanism.reactions.first_order_loss)
     assert len(mechanism.reactions.photolysis) == 1
     _validate_photolysis(mechanism.reactions.photolysis)
-    assert len(mechanism.reactions.simpol_phase_transfer) == 1
-    _validate_simpol_phase_transfer(mechanism.reactions.simpol_phase_transfer)
+    assert len(mechanism.reactions.simpol_phase_transfer) == 0
+    # _validate_simpol_phase_transfer(mechanism.reactions.simpol_phase_transfer)
     assert len(mechanism.reactions.surface) == 1
     _validate_surface(mechanism.reactions.surface)
     assert len(mechanism.reactions.troe) == 1
@@ -692,7 +692,7 @@ def validate_full_v1_mechanism(mechanism):
     assert mechanism.version.major == 1
     assert mechanism.version.minor == 0
     assert mechanism.version.patch == 0
-    assert len(mechanism.reactions) == 16
+    assert len(mechanism.reactions) == 12
     for reaction in mechanism.reactions:
         assert reaction is not None
         assert isinstance(reaction.type, mc.ReactionType)

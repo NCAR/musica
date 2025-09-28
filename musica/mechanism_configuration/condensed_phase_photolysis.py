@@ -1,5 +1,4 @@
 from .utils import _add_other_properties
-from .reactions import ReactionComponentSerializer
 from .species import Species
 from .phase import Phase
 from typing import Optional, Any, Dict, List, Union, Tuple
@@ -80,8 +79,8 @@ class CondensedPhasePhotolysis(_CondensedPhasePhotolysis):
             "type": "CONDENSED_PHASE_PHOTOLYSIS",
             "name": instance.name,
             "scaling factor": instance.scaling_factor,
-            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(instance.reactants),
-            "products": ReactionComponentSerializer.serialize_list_reaction_components(instance.products),
+            "reactants": [r.serialize() for r in instance.reactants],
+            "products": [r.serialize() for r in instance.products],
             "condensed phase": instance.condensed_phase,
         }
         _add_other_properties(serialize_dict, instance.other_properties)
