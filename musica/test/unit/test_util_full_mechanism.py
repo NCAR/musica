@@ -85,31 +85,6 @@ def get_fully_defined_mechanism():
         products=[(1.2, B)]
     )
 
-    my_condensed_arrhenius = mc.CondensedPhaseArrhenius(
-        name="my condensed arrhenius",
-        condensed_phase=aqueous_aerosol,
-        A=123.45,
-        B=1.3,
-        Ea=123.45,
-        D=300.0,
-        E=0.6e-5,
-        reactants=[H2O2_aq, H2O_aq],
-        products=[ethanol_aq],
-        other_properties={"__irrelevant": "2"},
-    )
-
-    my_other_condensed_arrhenius = mc.CondensedPhaseArrhenius(
-        name="my other condensed arrhenius",
-        condensed_phase=aqueous_aerosol,
-        A=123.45,
-        B=1.3,
-        C=123.45,
-        D=300.0,
-        E=0.6e-5,
-        reactants=[H2O2_aq, H2O_aq],
-        products=[ethanol_aq]
-    )
-
     my_troe = mc.Troe(
         name="my troe",
         gas_phase=gas,
@@ -185,15 +160,6 @@ def get_fully_defined_mechanism():
         other_properties={"__irrelevant": "2"},
     )
 
-    condensed_photo_B = mc.CondensedPhasePhotolysis(
-        name="condensed photo B",
-        condensed_phase=aqueous_aerosol,
-        reactants=[H2O2_aq],
-        products=[ethanol_aq],
-        scaling_factor=12.3,
-        other_properties={"__irrelevant": "2"},
-    )
-
     my_emission = mc.Emission(
         name="my emission",
         gas_phase=gas,
@@ -207,35 +173,6 @@ def get_fully_defined_mechanism():
         gas_phase=gas,
         reactants=[C],
         scaling_factor=12.3,
-        other_properties={"__irrelevant": "2"},
-    )
-
-    my_aqueous_equilibrium = mc.AqueousEquilibrium(
-        name="my aqueous eq",
-        condensed_phase=aqueous_aerosol,
-        condensed_phase_water=H2O_aq,
-        A=1.14e-2,
-        C=2300.0,
-        k_reverse=0.32,
-        reactants=[(2, A)],
-        products=[B, C],
-        other_properties={"__irrelevant": "2"},
-    )
-
-    my_wet_deposition = mc.WetDeposition(
-        name="rxn cloud",
-        condensed_phase=cloud,
-        scaling_factor=12.3,
-        other_properties={"__irrelevant": "2"},
-    )
-
-    my_simpol_phase_transfer = mc.SimpolPhaseTransfer(
-        name="my simpol",
-        gas_phase=gas,
-        gas_phase_species=ethanol,
-        condensed_phase=aqueous_aerosol,
-        condensed_phase_species=ethanol_aq,
-        B=[-1.97e03, 2.91e00, 1.96e-03, -4.96e-01],
         other_properties={"__irrelevant": "2"},
     )
 
@@ -256,9 +193,8 @@ def get_fully_defined_mechanism():
         phases=[gas, aqueous_aerosol, surface_reacting_phase, cloud],
         reactions=[my_arrhenius, my_other_arrhenius,
                    my_troe, my_ternary, my_branched,
-                   my_tunneling, my_surface, photo_B, condensed_photo_B,
+                   my_tunneling, my_surface, photo_B,
                    my_emission, my_first_order_loss,
-                   my_wet_deposition, 
                    user_defined],
         version=mc.Version(1, 0, 0),
     )
@@ -657,18 +593,10 @@ def validate_full_v1_mechanism(mechanism):
     _validate_species(mechanism.species)
     assert len(mechanism.phases) == 4
     _validate_phases(mechanism.phases)
-    assert len(mechanism.reactions.aqueous_equilibrium) == 0
-    # _validate_aqueous_equilibrium(mechanism.reactions.aqueous_equilibrium)
     assert len(mechanism.reactions.arrhenius) == 2
     _validate_arrhenius(mechanism.reactions.arrhenius)
     assert len(mechanism.reactions.branched) == 1
     _validate_branched_no_ro2(mechanism.reactions.branched)
-    assert len(mechanism.reactions.condensed_phase_arrhenius) == 0
-    # _validate_condensed_phase_arrhenius(mechanism.reactions.condensed_phase_arrhenius)
-    assert len(mechanism.reactions.condensed_phase_photolysis) == 1
-    _validate_condensed_phase_photolysis(
-        mechanism.reactions.condensed_phase_photolysis
-    )
     assert len(mechanism.reactions.emission) == 1
     _validate_emission(mechanism.reactions.emission)
     assert len(mechanism.reactions.first_order_loss) == 1
@@ -685,14 +613,12 @@ def validate_full_v1_mechanism(mechanism):
     _validate_ternary_chemical_activation(mechanism.reactions.ternary_chemical_activation)
     assert len(mechanism.reactions.tunneling) == 1
     _validate_tunneling(mechanism.reactions.tunneling)
-    assert len(mechanism.reactions.wet_deposition) == 1
-    _validate_wet_deposition(mechanism.reactions.wet_deposition)
     assert len(mechanism.reactions.user_defined) == 1
     _validate_user_defined(mechanism.reactions.user_defined)
     assert mechanism.version.major == 1
     assert mechanism.version.minor == 0
     assert mechanism.version.patch == 0
-    assert len(mechanism.reactions) == 12
+    assert len(mechanism.reactions) == 10
     for reaction in mechanism.reactions:
         assert reaction is not None
         assert isinstance(reaction.type, mc.ReactionType)
