@@ -1,6 +1,5 @@
 from ..constants import BOLTZMANN
 from .utils import _add_other_properties
-from .reactions import ReactionComponentSerializer
 from .species import Species
 from .phase import Phase
 from typing import Optional, Any, Dict, List, Union, Tuple
@@ -269,8 +268,8 @@ class CondensedPhaseArrhenius:
             "C": self.C,
             "D": self.D,
             "E": self.E,
-            "reactants": serialize_python_components(self._reactants),
-            "products": serialize_python_components(self._products),
+            "reactants": [r.serialize() for r in self.reactants],
+            "products": [r.serialize() for r in self.products],
             "condensed phase": self._condensed_phase.name if self._condensed_phase is not None else "",
         }
         _add_other_properties(serialize_dict, self._other_properties)

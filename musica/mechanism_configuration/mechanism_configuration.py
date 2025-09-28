@@ -3,7 +3,7 @@
 #
 # This file is part of the musica Python package.
 # For more information, see the LICENSE file in the top-level directory of this distribution.
-from .reactions import Reactions, ReactionType
+from .reactions import Reactions
 from .user_defined import UserDefined
 from .simpol_phase_transfer import SimpolPhaseTransfer, _SimpolPhaseTransfer
 from .henrys_law import HenrysLaw, _HenrysLaw
@@ -14,7 +14,7 @@ from .emission import Emission
 from .condensed_phase_photolysis import CondensedPhasePhotolysis, _CondensedPhasePhotolysis
 from .photolysis import Photolysis
 from .surface import Surface, _Surface
-from .tunneling import Tunneling, _Tunneling
+from .tunneling import Tunneling
 from .branched import Branched
 from .troe import Troe
 from .ternary_chemical_activation import TernaryChemicalActivation
@@ -135,9 +135,6 @@ class Mechanism(_Mechanism):
             elif isinstance(reaction, TernaryChemicalActivation):
                 # Handle Python TernaryChemicalActivation objects with instance serialize call
                 reactions_list.append(reaction.serialize())
-            elif isinstance(reaction, _Tunneling):
-                # Handle C++ _Tunneling objects with static serialize call
-                reactions_list.append(Tunneling.serialize_static(reaction))
             elif isinstance(reaction, Tunneling):
                 # Handle Python Tunneling objects with instance serialize call
                 reactions_list.append(reaction.serialize())

@@ -1,5 +1,4 @@
 from .utils import _add_other_properties
-from .reactions import ReactionComponentSerializer
 from .species import Species
 from .phase import Phase
 from typing import Optional, Any, Dict, List, Union, Tuple
@@ -238,8 +237,8 @@ class AqueousEquilibrium:
             "name": instance.name,
             "condensed phase": instance.condensed_phase,
             "condensed-phase water": instance.condensed_phase_water,
-            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(instance.reactants),
-            "products": ReactionComponentSerializer.serialize_list_reaction_components(instance.products),
+            "reactants": [r.serialize() for r in self.reactants],
+            "products": [r.serialize() for r in self.products],
             "A": instance.A,
             "C": instance.C,
             "k_reverse": instance.k_reverse,
