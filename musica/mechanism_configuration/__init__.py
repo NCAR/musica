@@ -11,7 +11,7 @@ from .reaction_component import ReactionComponent
 from .reactions import Reactions
 from .species import Species
 from .surface import Surface
-# from .taylor_series import TaylorSeries
+from .taylor_series import TaylorSeries
 from .ternary_chemical_activation import TernaryChemicalActivation
 from .troe import Troe
 from .tunneling import Tunneling

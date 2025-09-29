@@ -138,18 +138,18 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
         other_properties={"__irrelevant": "2"}
     )
 
-    # taylor_series_reaction = mc.TaylorSeries(
-    #     name="my taylor series",
-    #     gas_phase=gas,
-    #     A=12.3,
-    #     B=-1.5,
-    #     C=1.0e-6,
-    #     D=340,
-    #     E=0.00032,
-    #     reactants=[B],
-    #     products=[C],
-    #     other_properties={"__irrelevant": "2"}
-    # )
+    taylor_series_reaction = mc.TaylorSeries(
+        name="my taylor series",
+        gas_phase=gas,
+        A=12.3,
+        B=-1.5,
+        C=1.0e-6,
+        D=340,
+        E=0.00032,
+        reactants=[B],
+        products=[C],
+        other_properties={"__irrelevant": "2"}
+    )
 
     # Mechanism
     return mc.Mechanism(
@@ -159,7 +159,7 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
         reactions=[my_arrhenius, my_other_arrhenius, my_troe, my_ternary, my_branched,
                    my_tunneling, my_surface, photo_B, 
                    my_emission, my_first_order_loss, user_defined, 
-                #    taylor_series_reaction
+                   taylor_series_reaction
                    ],
         version=mc.Version(1, 0, 0),
     )
@@ -455,12 +455,12 @@ def validate_full_v1_mechanism(mechanism):
     _validate_tunneling(mechanism.reactions.tunneling)
     assert len(mechanism.reactions.user_defined) == 1
     _validate_user_defined(mechanism.reactions.user_defined)
-    # assert len(mechanism.reactions.taylor_series) == 1
-    # _validate_taylor_series(mechanism.reactions.taylor_series)
+    assert len(mechanism.reactions.taylor_series) == 1
+    _validate_taylor_series(mechanism.reactions.taylor_series)
     assert mechanism.version.major == 1
     assert mechanism.version.minor == 0
     assert mechanism.version.patch == 0
-    assert len(mechanism.reactions) == 11
+    assert len(mechanism.reactions) == 12
     for reaction in mechanism.reactions:
         assert reaction is not None
         assert isinstance(reaction.type, mc.ReactionType)
