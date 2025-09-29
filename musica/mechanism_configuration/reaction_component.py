@@ -22,7 +22,7 @@ def __init__(
         other_properties (Dict[str, Any]): A dictionary of other properties of the species.
     """
     original_init(self)
-    self.species_name = name if name is not None else self.name
+    self.species_name = name if name is not None else self.species_name
     self.coefficient = coefficient if coefficient is not None else self.coefficient
     self.other_properties = other_properties if other_properties is not None else self.other_properties
 
