@@ -12,6 +12,7 @@ def create_test_mechanism() -> Mechanism:
     # Chemical species
     A = mc.Species(
         name="A",
+        molecular_weight_kg_mol=32.1,
         other_properties={
             "__absolute tolerance": "1.0e-30"})
     B = mc.Species(name="B")
@@ -19,7 +20,7 @@ def create_test_mechanism() -> Mechanism:
     M = mc.Species(name="M", is_third_body=True)
 
     # Chemical phases
-    gas = mc.Phase(name="gas", species=[A, B, C, M])
+    gas = mc.Phase(name="gas", species=[mc.PhaseSpecies(name=A.name, diffusion_coefficient_m2_s=1.0), B, C, M])
 
     # Reactions
     my_arrhenius = mc.Arrhenius(
@@ -95,14 +96,14 @@ def create_test_mechanism() -> Mechanism:
         other_properties={"__irrelevant": "2"},
     )
 
-    # my_surface = mc.Surface(
-    #     name="my surface",
-    #     gas_phase=gas,
-    #     gas_phase_species=A,
-    #     reaction_probability=2.0e-2,
-    #     gas_phase_products=[B, C],
-    #     other_properties={"__irrelevant": "2"},
-    # )
+    my_surface = mc.Surface(
+        name="my surface",
+        gas_phase=gas,
+        gas_phase_species=A,
+        reaction_probability=2.0e-2,
+        gas_phase_products=[B, C],
+        other_properties={"__irrelevant": "2"},
+    )
 
     photo_b = mc.Photolysis(
         name="photo B",
@@ -145,8 +146,7 @@ def create_test_mechanism() -> Mechanism:
         phases=[gas],
         reactions=[my_arrhenius, my_other_arrhenius, my_troe, my_ternary,
                    my_branched, my_tunneling, 
-                #    my_surface, 
-                   photo_b,
+                   my_surface, photo_b,
                    my_emission, my_first_order_loss, user_defined],
         version=mc.Version(1, 0, 0),
     )
@@ -259,6 +259,15 @@ def test_set_get_user_defined_rate_parameters():
     result = state.get_user_defined_rate_parameters()
     assert result["EMIS.my emission"][0] == 1.0
 
+    params = {
+        "SURF.my surface.effective radius [m]": 0.5,
+        "SURF.my surface.particle number concentration [# m-3]": 1000.0,
+    }
+    state.set_user_defined_rate_parameters(params)
+    result = state.get_user_defined_rate_parameters()
+    assert result["SURF.my surface.effective radius [m]"][0] == 0.5
+    assert result["SURF.my surface.particle number concentration [# m-3]"][0] == 1000.0
+
     # Test multiple grid cells
     state_multi = solver.create_state(number_of_grid_cells=2)
     params_multi = {"PHOTO.photo B": [1.0, 2.0]}
@@ -297,11 +306,11 @@ def test_set_get_user_defined_rate_parameters():
     # Test parameter ordering
     param_ordering = state.get_user_defined_rate_parameters_ordering()
     assert isinstance(param_ordering, dict)
-    assert len(param_ordering) == 4
+    assert len(param_ordering) == 6
 
     # Convert dict keys to list using list() function
     param_names = list(param_ordering.keys())
-    assert len(param_names) == 4
+    assert len(param_names) == 6
     assert isinstance(param_names[0], str)
 
     # Alternative way using list comprehension
@@ -310,7 +319,7 @@ def test_set_get_user_defined_rate_parameters():
 
     # Sort the keys if needed - useful for consistent ordering in tests
     sorted_param_names = sorted(param_ordering.keys())
-    assert len(sorted_param_names) == 4
+    assert len(sorted_param_names) == 6
     assert all(isinstance(name, str) for name in sorted_param_names)
 
     # Verify all expected keys are present
@@ -318,8 +327,8 @@ def test_set_get_user_defined_rate_parameters():
         "PHOTO.photo B",
         "EMIS.my emission",
         "LOSS.my first order loss",
-        # "SURF.my surface.effective radius [m]",
-        # "SURF.my surface.particle number concentration [# m-3]",
+        "SURF.my surface.effective radius [m]",
+        "SURF.my surface.particle number concentration [# m-3]",
         "USER.my user defined"
     ]
     assert sorted(expected_params) == sorted(param_names)
