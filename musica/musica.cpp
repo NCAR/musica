@@ -7,19 +7,15 @@
 #include <musica/micm/state_c_interface.hpp>
 
 #include <mechanism_configuration/v1/types.hpp>
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-#include <pybind11/stl_bind.h>
+#include "binding_common.hpp"
 
 namespace py = pybind11;
 namespace v1 = mechanism_configuration::v1::types;
 
-PYBIND11_MAKE_OPAQUE(std::vector<double>)
 PYBIND11_MAKE_OPAQUE(std::vector<micm::Conditions>)
 
 void bind_musica(py::module_ &core)
 {
-  py::bind_vector<std::vector<double>>(core, "VectorDouble");
   py::bind_vector<std::vector<micm::Conditions>>(core, "VectorConditions");
 
   py::class_<micm::Conditions>(core, "_Conditions")

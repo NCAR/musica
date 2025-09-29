@@ -38,12 +38,8 @@
           "name": "A",
           "diffusion coefficient [m2 s-1]": 1.0
         },
-        {
-          "name": "B"
-        },
-        {
-          "name": "C"
-        },
+        {"name": "B"},
+        {"name": "C"},
         {
           "name": "ethanol"
         },
@@ -64,8 +60,7 @@
           "species name": "B",
           "coefficient": 1
         }
-      ],
-      "__irrelevant": "2"
+      ]
     },
     {
       "type": "FIRST_ORDER_LOSS",
@@ -77,8 +72,7 @@
           "species name": "C",
           "coefficient": 1
         }
-      ],
-      "__irrelevant": "2"
+      ]
     },
     {
       "type": "PHOTOLYSIS",
@@ -96,8 +90,7 @@
           "species name": "C",
           "coefficient": 1
         }
-      ],
-      "__irrelevant": "2"
+      ]
     },
     {
       "type": "SURFACE",
@@ -114,8 +107,7 @@
           "species name": "C",
           "coefficient": 1
         }
-      ],
-      "__irrelevant": "2"
+      ]
     },
     {
       "type": "TROE",
@@ -144,8 +136,7 @@
           "species name": "C",
           "coefficient": 1
         }
-      ],
-      "__irrelevant": "2"
+      ]
     },
     {
       "type": "TERNARY_CHEMICAL_ACTIVATION",
@@ -161,20 +152,24 @@
       "N": 32.1,
       "reactants": [
         {
-          "species name": "B",
+          "species name": "bar",
           "coefficient": 1
         },
         {
-          "species name": "M",
+          "species name": "baz",
           "coefficient": 1
         }
       ],
       "products": [
         {
-          "species name": "C",
+          "species name": "bar",
+          "coefficient": 0.5
+        },
+        {
+          "species name": "foo",
+          "coefficient": 0.3
         }
-      ],
-      "__irrelevant": "2"
+      ]
     },
     {
       "type": "BRANCHED_NO_RO2",
@@ -201,8 +196,7 @@
           "species name": "C",
           "coefficient": 1
         }
-      ],
-      "__irrelevant": "2"
+      ]
     },
     {
       "type": "TUNNELING",
@@ -222,8 +216,7 @@
           "species name": "C",
           "coefficient": 1
         }
-      ],
-      "__irrelevant": "2"
+      ]
     },
     {
       "type": "ARRHENIUS",
@@ -245,8 +238,7 @@
           "species name": "C",
           "coefficient": 1
         }
-      ],
-      "__irrelevant": "2"
+      ]
     },
     {
       "type": "ARRHENIUS",
@@ -290,8 +282,30 @@
           "species name": "C",
           "coefficient": 1.3
         }
-      ],
-      "__irrelevant": "2"
+      ]
     },
+    {
+      "type": "TAYLOR_SERIES",
+      "name": "my taylor series",
+      "A": 12.3,
+      "B": -1.5,
+      "C": 1.0e-6,
+      "D": 340.0,
+      "E": 0.00032,
+      "taylor coefficients": [1.0, 0.1, -0.01],
+      "gas phase": "gas",
+      "reactants": [
+        {
+          "species name": "B",
+          "coefficient": 1
+        }
+      ],
+      "products": [
+        {
+          "species name": "C",
+          "coefficient": 1
+        }
+      ]
+    }
   ]
 }

@@ -68,14 +68,11 @@ def __init__(
 
 
 def serialize(self) -> Dict:
-    reactions = []
-    for r in self.reactions:
-        reactions.append(r.serialize())
     return {
         "name": self.name,
-        "reactions": reactions,
-        "species": [Species.serialize(s) for s in self.species],
-        "phases": [Phase.serialize(p) for p in self.phases],
+        "reactions": [r.serialize() for r in self.reactions],
+        "species": [s.serialize() for s in self.species],
+        "phases": [p.serialize() for p in self.phases],
         "version": self.version.to_string(),
     }
 
