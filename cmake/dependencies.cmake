@@ -143,7 +143,7 @@ if(MUSICA_ENABLE_PYTHON_LIBRARY)
   set(PYBIND11_NEWPYTHON ON)
 
   set_git_default(PYBIND11_GIT_REPOSITORY https://github.com/pybind/pybind11)
-  set_git_default(PYBIND11_GIT_TAG v2.12.0)
+  set_git_default(PYBIND11_GIT_TAG v3.0.0)
 
   FetchContent_Declare(pybind11
       GIT_REPOSITORY ${PYBIND11_GIT_REPOSITORY}

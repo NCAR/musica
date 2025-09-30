@@ -4,7 +4,7 @@
   "species": [
     {
       "name": "A",
-      "molecular weight [kg mol-1]": 0.02897,
+      "molecular weight [kg mol-1]": 0.04607,
       "__absolute tolerance": 1.0e-30
     },
     {
@@ -38,14 +38,19 @@
     {
       "name": "gas",
       "species": [
-        {"name": "A"},
+        {
+          "name": "A",
+          "diffusion coefficient [m2 s-1]": 2.1e-5
+        },
         {"name": "B"},
         {"name": "C"},
         {
-          "name": "ethanol"
+          "name": "ethanol",
+          "diffusion coefficient [m2 s-1]": 2.1e-5
         },
         {
-          "name": "H2O2"
+          "name": "H2O2",
+          "diffusion coefficient [m2 s-1]": 2.1e-5
         }
       ]
     }
