@@ -70,12 +70,12 @@ namespace musica
     std::vector<micm::Phase> micm_phases;
     for (const auto& phase : phases)
     {
-      std::vector<micm::PhaseSpecies> phase_species_list; 
-      
+      std::vector<micm::PhaseSpecies> phase_species_list;
+
       for (const auto& phase_species : phase.species)
       {
         micm::PhaseSpecies micm_phase_species(species_map[phase_species.name]);
-        
+
         if (phase_species.diffusion_coefficient.has_value())
         {
           micm_phase_species.SetDiffusionCoefficient(phase_species.diffusion_coefficient.value());
@@ -189,22 +189,23 @@ namespace musica
       auto products = reaction_components_to_products(reaction.gas_phase_products, species_map);
 
       auto& phase_species_list = gas_phase.phase_species_;
-      auto it = std::find_if(phase_species_list.begin(), phase_species_list.end(),
-        [&reaction](const micm::PhaseSpecies& ps) {
-          return ps.species_.name_ == reaction.gas_phase_species.species_name; });
+      auto it = std::find_if(
+          phase_species_list.begin(),
+          phase_species_list.end(),
+          [&reaction](const micm::PhaseSpecies& ps)
+          { return ps.species_.name_ == reaction.gas_phase_species.species_name; });
 
       if (it == phase_species_list.end())
       {
         throw std::system_error(
-          make_error_code(MusicaParseErrc::ParsingFailed), 
-          "Species '" + reaction.gas_phase_species.species_name + "' for surface reaction in gas phase is not found\n");
+            make_error_code(MusicaParseErrc::ParsingFailed),
+            "Species '" + reaction.gas_phase_species.species_name + "' for surface reaction in gas phase is not found\n");
       }
 
       size_t surface_reaction_species_index = std::distance(phase_species_list.begin(), it);
-      micm::SurfaceRateConstantParameters parameters{
-        .label_ = prefix + reaction.name,
-        .phase_species_ = phase_species_list[surface_reaction_species_index],
-        .reaction_probability_ = reaction.reaction_probability};
+      micm::SurfaceRateConstantParameters parameters{ .label_ = prefix + reaction.name,
+                                                      .phase_species_ = phase_species_list[surface_reaction_species_index],
+                                                      .reaction_probability_ = reaction.reaction_probability };
 
       chemistry.processes.push_back(micm::ChemicalReactionBuilder()
                                         .SetReactants(reactants)

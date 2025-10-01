@@ -6,6 +6,7 @@ _backend = backend.get_backend()
 Species = _backend._mechanism_configuration._Species
 original_init = Species.__init__
 
+
 def __init__(
     self,
     name: Optional[str] = None,
@@ -45,6 +46,7 @@ def serialize(self) -> Dict:
     }
     _add_other_properties(serialize_dict, self.other_properties)
     return _remove_empty_keys(serialize_dict)
+
 
 Species.__doc__ = """
     A class representing a species in a chemical mechanism.

@@ -11,9 +11,11 @@ TaylorSeries = _backend._mechanism_configuration._TaylorSeries
 
 original_init = TaylorSeries.__init__
 
+
 @property
 def type(self):
     return ReactionType.TaylorSeries
+
 
 def __init__(
     self,
@@ -26,7 +28,7 @@ def __init__(
     E: Optional[float] = None,
     taylor_coefficients: Optional[List[float]] = None,
     reactants: Optional[List[Union[Species,
-                                    Tuple[float, Species]]]] = None,
+                                   Tuple[float, Species]]]] = None,
     products: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
     other_properties: Optional[Dict[str, Any]] = None,
 ):
@@ -98,6 +100,7 @@ def serialize(self) -> Dict:
     }
     _add_other_properties(serialize_dict, self.other_properties)
     return _remove_empty_keys(serialize_dict)
+
 
 TaylorSeries.__doc__ = """
     A class representing a Taylor series rate constant.

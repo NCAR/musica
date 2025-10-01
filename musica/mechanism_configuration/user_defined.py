@@ -11,16 +11,18 @@ UserDefined = _backend._mechanism_configuration._UserDefined
 
 original_init = UserDefined.__init__
 
+
 @property
 def type(self):
     return ReactionType.UserDefined
+
 
 def __init__(
     self,
     name: Optional[str] = None,
     scaling_factor: Optional[float] = None,
     reactants: Optional[List[Union[Species,
-                                    Tuple[float, Species]]]] = None,
+                                   Tuple[float, Species]]]] = None,
     products: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
     gas_phase: Optional[Phase] = None,
     other_properties: Optional[Dict[str, Any]] = None,
@@ -66,6 +68,7 @@ def __init__(
     self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
     self.other_properties = other_properties if other_properties is not None else self.other_properties
 
+
 def serialize(self) -> Dict:
     serialize_dict = {
         "type": "USER_DEFINED",
@@ -77,6 +80,7 @@ def serialize(self) -> Dict:
     }
     _add_other_properties(serialize_dict, self.other_properties)
     return _remove_empty_keys(serialize_dict)
+
 
 UserDefined.__doc__ = """
 A class representing a user-defined reaction rate constant.

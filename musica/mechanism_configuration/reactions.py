@@ -15,6 +15,7 @@ Attributes:
     reactions (List[Any]): A list of reactions in the mechanism.
 """
 
+
 def __init__(
     self,
     reactions: Optional[List[Any]] = None,
@@ -26,5 +27,6 @@ def __init__(
         reactions (List[]): A list of reactions in the mechanism.
     """
     original_init(self, reactions)
-    
+
+
 Reactions.__init__ = __init__

@@ -11,16 +11,18 @@ FirstOrderLoss = _backend._mechanism_configuration._FirstOrderLoss
 
 original_init = FirstOrderLoss.__init__
 
+
 @property
 def type(self):
     return ReactionType.FirstOrderLoss
+
 
 def __init__(
     self,
     name: Optional[str] = None,
     scaling_factor: Optional[float] = None,
     reactants: Optional[List[Union[Species,
-                                    Tuple[float, Species]]]] = None,
+                                   Tuple[float, Species]]]] = None,
     gas_phase: Optional[Phase] = None,
     other_properties: Optional[Dict[str, Any]] = None,
 ):
@@ -36,10 +38,10 @@ def __init__(
     """
     original_init(self)
 
-    self.name = name if name is not None else self.name 
-    self.scaling_factor = scaling_factor if scaling_factor is not None else self.scaling_factor 
-    self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase 
-    self.other_properties = other_properties if other_properties is not None else self.other_properties 
+    self.name = name if name is not None else self.name
+    self.scaling_factor = scaling_factor if scaling_factor is not None else self.scaling_factor
+    self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
+    self.other_properties = other_properties if other_properties is not None else self.other_properties
     self.reactants = (
         [
             (
@@ -52,6 +54,7 @@ def __init__(
         if reactants is not None
         else self.reactants
     )
+
 
 def serialize(self) -> Dict:
     """
@@ -69,6 +72,7 @@ def serialize(self) -> Dict:
     }
     _add_other_properties(serialize_dict, self.other_properties)
     return _remove_empty_keys(serialize_dict)
+
 
 FirstOrderLoss.__doc__ = """
 A class representing a first-order loss reaction rate constant.
