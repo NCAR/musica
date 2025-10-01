@@ -41,6 +41,28 @@ namespace musica
     /// @return a grid pointer
     Grid *GetGrid(const char *grid_name, const char *grid_units, Error *error);
 
+    /// @brief Gets a grid by index in the map
+    /// @param index The index of the grid we want
+    /// @param error The error struct to indicate success or failure
+    /// @return a grid pointer
+    Grid *GetGridByIndex(std::size_t index, Error *error);
+
+    /// @brief Removes a grid from the map.
+    /// @param grid_name The name of the grid to remove
+    /// @param grid_units The units of the grid to remove
+    /// @param error The error struct to indicate success or failure
+    void RemoveGrid(const char *grid_name, const char *grid_units, Error *error);
+
+    /// @brief Removes a grid from the map by index
+    /// @param index The index of the grid to remove
+    /// @param error The error struct to indicate success or failure
+    void RemoveGridByIndex(std::size_t index, Error *error);
+
+    /// @brief Gets the number of grids in the map
+    /// @param error The error struct to indicate success or failure
+    /// @return the number of grids in the map
+    std::size_t GetNumberOfGrids(Error *error);
+
    private:
     void *grid_map_;
     bool owns_grid_map_;
@@ -80,6 +102,32 @@ namespace musica
     /// @return The grid pointer, or nullptr if the grid is not found
     Grid *GetGrid(GridMap *grid_map, const char *grid_name, const char *grid_units, Error *error);
 
+    /// @brief Returns a grid by index from the grid map
+    /// @param grid_map The grid map to get the grid from
+    /// @param index The index of the grid we want
+    /// @param error The error struct to indicate success or failure
+    /// @return The grid pointer, or nullptr if the index is out of range
+    Grid *GetGridByIndex(GridMap *grid_map, std::size_t index, Error *error);
+
+    /// @brief Gets the number of grids in the map
+    /// @param grid_map The grid map to get the number of grids from
+    /// @param error The error struct to indicate success or failure
+    /// @return the number of grids in the map
+    std::size_t GetNumberOfGrids(GridMap *grid_map, Error *error);
+
+    /// @brief Removes a grid from the map
+    /// @param grid_map The grid map to remove the grid from
+    /// @param grid_name The name of the grid to remove
+    /// @param grid_units The units of the grid to remove
+    /// @param error The error struct to indicate success or failure
+    void RemoveGrid(GridMap *grid_map, const char *grid_name, const char *grid_units, Error *error);
+
+    /// @brief Removes a grid from the map by index
+    /// @param grid_map The grid map to remove the grid from
+    /// @param index The index of the grid to remove
+    /// @param error The error struct to indicate success or failure
+    void RemoveGridByIndex(GridMap *grid_map, std::size_t index, Error *error);
+
     // INTERNAL USE. If tuvx ever gets rewritten in C++, these functions will
     // go away but the C API will remain the same and downstream projects (like CAM-SIMA) will
     // not need to change
@@ -94,6 +142,16 @@ namespace musica
         std::size_t grid_units_length,
         int *error_code);
     void *InternalGetGridUpdaterFromMap(void *grid_map, void *grid, int *error_code);
+    std::size_t InternalGetNumberOfGrids(void *grid_map, int *error_code);
+    void *InternalGetGridByIndex(void *grid_map, std::size_t index, int *error_code);
+    void InternalRemoveGrid(
+        void *grid_map,
+        const char *grid_name,
+        std::size_t grid_name_length,
+        const char *grid_units,
+        std::size_t grid_units_length,
+        int *error_code);
+    void InternalRemoveGridByIndex(void *grid_map, std::size_t index, int *error_code);
 
 #ifdef __cplusplus
   }

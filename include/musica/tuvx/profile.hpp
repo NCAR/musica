@@ -27,6 +27,16 @@ namespace musica
 
     ~Profile();
 
+    /// @brief Get the name of the profile
+    /// @param error The error struct to indicate success or failure
+    /// @return The name of the profile
+    std::string GetName(Error *error);
+
+    /// @brief Get the units of the profile
+    /// @param error The error struct to indicate success or failure
+    /// @return The units of the profile
+    std::string GetUnits(Error *error);
+
     /// @brief Sets the profile values at the edges of the grid
     /// @param edge_values The values at the edges of the grid
     /// @param num_values The number of values
@@ -78,6 +88,11 @@ namespace musica
     /// @return The layer density above the top of the grid
     double GetExoLayerDensity(Error *error);
 
+    /// @brief Gets the number of sections in the profile's grid
+    /// @param error The error struct to indicate success or failure
+    /// @return The number of sections in the profile's grid
+    std::size_t GetNumberOfSections(Error *error);
+
    private:
     void *profile_;  // A valid pointer to a profile instance indicates ownership by this wrapper
     void *updater_;
@@ -112,6 +127,18 @@ namespace musica
     /// @param profile The profile to delete
     /// @param error The error struct to indicate success or failure
     void DeleteProfile(Profile *profile, Error *error);
+
+    /// @brief Gets the name of the profile
+    /// @param profile The profile to get the name of
+    /// @param error The error struct to indicate success or failure
+    /// @return The name of the profile
+    const char *GetProfileName(Profile *profile, Error *error);
+
+    /// @brief Gets the units of the profile
+    /// @param profile The profile to get the units of
+    /// @param error The error struct to indicate success or failure
+    /// @return The units of the profile
+    const char *GetProfileUnits(Profile *profile, Error *error);
 
     /// @brief Sets the values at edges of the profile grid
     /// @param profile The profile to set the edge values of
@@ -173,6 +200,12 @@ namespace musica
     /// @return The exo layer density
     double GetProfileExoLayerDensity(Profile *profile, Error *error);
 
+    /// @brief Returns the number of sections in the profile's grid
+    /// @param profile The profile to get the number of sections of
+    /// @param error The error struct to indicate success or failure
+    /// @return The number of sections in the profile's grid
+    std::size_t GetProfileNumberOfSections(Profile *profile, Error *error);
+
     // INTERNAL USE. If tuvx ever gets rewritten in C++, these functions will
     // go away but the C API will remain the same and downstream projects (like CAM-SIMA) will
     // not need to change
@@ -186,8 +219,8 @@ namespace musica
     void InternalDeleteProfile(void *profile, int *error_code);
     void *InternalGetProfileUpdater(void *profile, int *error_code);
     void InternalDeleteProfileUpdater(void *updater, int *error_code);
-    std::string InternalGetProfileName(void *profile, int *error_code);
-    std::string InternalGetProfileUnits(void *profile, int *error_code);
+    String InternalGetProfileName(void *profile, int *error_code);
+    String InternalGetProfileUnits(void *profile, int *error_code);
     void InternalSetEdgeValues(void *profile, double edge_values[], std::size_t num_values, int *error_code);
     void InternalGetEdgeValues(void *profile, double edge_values[], std::size_t num_values, int *error_code);
     void InternalSetMidpointValues(void *profile, double midpoint_values[], std::size_t num_values, int *error_code);
@@ -197,6 +230,7 @@ namespace musica
     void InternalSetExoLayerDensity(void *profile, double exo_layer_density, int *error_code);
     void InternalCalculateExoLayerDensity(void *profile, double scale_height, int *error_code);
     double InternalGetExoLayerDensity(void *profile, int *error_code);
+    std::size_t InternalProfileGetNumberOfSections(void *profile, int *error_code);
 
 #ifdef __cplusplus
   }

@@ -1,5 +1,7 @@
 // Copyright (C) 2023-2025 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
+#include "binding_common.hpp"
+
 #include <musica/micm/cuda_availability.hpp>
 #include <musica/micm/micm.hpp>
 #include <musica/micm/micm_c_interface.hpp>
@@ -7,19 +9,14 @@
 #include <musica/micm/state_c_interface.hpp>
 
 #include <mechanism_configuration/v1/types.hpp>
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-#include <pybind11/stl_bind.h>
 
 namespace py = pybind11;
 namespace v1 = mechanism_configuration::v1::types;
 
-PYBIND11_MAKE_OPAQUE(std::vector<double>)
 PYBIND11_MAKE_OPAQUE(std::vector<micm::Conditions>)
 
 void bind_musica(py::module_ &core)
 {
-  py::bind_vector<std::vector<double>>(core, "VectorDouble");
   py::bind_vector<std::vector<micm::Conditions>>(core, "VectorConditions");
 
   py::class_<micm::Conditions>(core, "_Conditions")

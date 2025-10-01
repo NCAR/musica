@@ -25,7 +25,7 @@ endif()
 
 if(MUSICA_BUILD_C_CXX_INTERFACE)
   set_git_default(MECH_CONFIG_GIT_REPOSITORY https://github.com/NCAR/MechanismConfiguration.git)
-  set_git_default(MECH_CONFIG_GIT_TAG a3ef728c69f619f80c272d634bc2a17ca5ab4de9)
+  set_git_default(MECH_CONFIG_GIT_TAG v1.0.0)
 
   FetchContent_Declare(mechanism_configuration
       GIT_REPOSITORY ${MECH_CONFIG_GIT_REPOSITORY}
@@ -75,7 +75,7 @@ endif()
 
 if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE)
   set_git_default(MICM_GIT_REPOSITORY https://github.com/NCAR/micm.git)
-  set_git_default(MICM_GIT_TAG d1c22955dc6af62cb4b2deb09d10bf19324e2340)
+  set_git_default(MICM_GIT_TAG e9123958129f34920491e61b79cd8b6baba28915)
 
   FetchContent_Declare(micm
       GIT_REPOSITORY ${MICM_GIT_REPOSITORY}
@@ -104,7 +104,7 @@ if (MUSICA_ENABLE_TUVX AND MUSICA_BUILD_C_CXX_INTERFACE)
   set(TUVX_INSTALL_INCLUDE_DIR ${MUSICA_INSTALL_INCLUDE_DIR} CACHE STRING "" FORCE)
 
   set_git_default(TUVX_GIT_REPOSITORY https://github.com/NCAR/tuv-x.git)
-  set_git_default(TUVX_GIT_TAG 1e8c99b4d206829c030b9f5315bf6afb3e970e3c)
+  set_git_default(TUVX_GIT_TAG v0.13.0)
 
   FetchContent_Declare(tuvx
     GIT_REPOSITORY ${TUVX_GIT_REPOSITORY}
@@ -142,7 +142,7 @@ if(MUSICA_ENABLE_PYTHON_LIBRARY)
   set(PYBIND11_NEWPYTHON ON)
 
   set_git_default(PYBIND11_GIT_REPOSITORY https://github.com/pybind/pybind11)
-  set_git_default(PYBIND11_GIT_TAG v2.12.0)
+  set_git_default(PYBIND11_GIT_TAG v3.0.0)
 
   FetchContent_Declare(pybind11
       GIT_REPOSITORY ${PYBIND11_GIT_REPOSITORY}

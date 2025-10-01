@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 
 # must be on the same line so that pyproject.toml can correctly identify the version
-project(musica-distribution VERSION 0.12.2)
+project(musica-distribution VERSION 0.13.0)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${PROJECT_SOURCE_DIR}/cmake)
 set(CMAKE_USER_MAKE_RULES_OVERRIDE ${PROJECT_SOURCE_DIR}/cmake/SetDefaults.cmake)
@@ -33,6 +33,7 @@ option(MUSICA_ENABLE_CARMA "Enable CARMA" ON)
 option(MUSICA_ENABLE_PIC "Build the library with position independent code" OFF)
 option(MUSICA_ENABLE_COVERAGE "Enable code coverage output" OFF)
 option(MUSICA_BUNDLE_DEPENDENCIES "Bundle dependencies with the library" ON)
+option(MUSICA_ENABLE_JAVASCRIPT "Build the JavaScript addon" OFF)
 
 set(MUSICA_GPU_TYPE "None" CACHE STRING "The GPU type being targeted")
 
@@ -152,6 +153,13 @@ endif()
 # Musica python
 if(MUSICA_ENABLE_PYTHON_LIBRARY)
   add_subdirectory(musica)
+endif()
+
+################################################################################
+
+# Musica JavaScript Addon
+if(MUSICA_ENABLE_JAVASCRIPT)
+  add_subdirectory(javascript)
 endif()
 
 ################################################################################

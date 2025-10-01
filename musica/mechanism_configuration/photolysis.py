@@ -1,20 +1,35 @@
 from .utils import _add_other_properties
-from .reactions import ReactionComponentSerializer
 from .species import Species
 from .phase import Phase
 from typing import Optional, Any, Dict, List, Union, Tuple
 from .. import backend
+from .reaction_component import ReactionComponent
+from .ancillary import ReactionType
 
 _backend = backend.get_backend()
-_Photolysis = _backend._mechanism_configuration._Photolysis
-_ReactionComponent = _backend._mechanism_configuration._ReactionComponent
+Photolysis = _backend._mechanism_configuration._Photolysis
+
+original_init = Photolysis.__init__
 
 
-class Photolysis(_Photolysis):
+@property
+def type(self):
+    return ReactionType.Photolysis
+
+
+def __init__(
+    self,
+    name: Optional[str] = None,
+    scaling_factor: Optional[float] = None,
+    reactants: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
+    products: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
+    gas_phase: Optional[Phase] = None,
+    other_properties: Optional[Dict[str, Any]] = None,
+):
     """
-    A class representing a photolysis reaction rate constant.
+    Initializes the Photolysis object with the given parameters.
 
-    Attributes:
+    Args:
         name (str): The name of the photolysis reaction rate constant.
         scaling_factor (float): The scaling factor for the photolysis rate constant.
         reactants (List[Union[Species, Tuple[float, Species]]]): A list of reactants involved in the reaction.
@@ -22,67 +37,62 @@ class Photolysis(_Photolysis):
         gas_phase (Phase): The gas phase in which the reaction occurs.
         other_properties (Dict[str, Any]): A dictionary of other properties of the photolysis reaction rate constant.
     """
+    original_init(self)
+    self.name = name if name is not None else self.name
+    self.scaling_factor = scaling_factor if scaling_factor is not None else self.scaling_factor
+    self.reactants = (
+        [
+            (
+                ReactionComponent(r.name)
+                if isinstance(r, Species)
+                else ReactionComponent(r[1].name, r[0])
+            )
+            for r in reactants
+        ]
+        if reactants is not None
+        else self.reactants
+    )
+    self.products = (
+        [
+            (
+                ReactionComponent(p.name)
+                if isinstance(p, Species)
+                else ReactionComponent(p[1].name, p[0])
+            )
+            for p in products
+        ]
+        if products is not None
+        else self.products
+    )
+    self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
+    self.other_properties = other_properties if other_properties is not None else self.other_properties
 
-    def __init__(
-        self,
-        name: Optional[str] = None,
-        scaling_factor: Optional[float] = None,
-        reactants: Optional[List[Union[Species,
-                                       Tuple[float, Species]]]] = None,
-        products: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
-        gas_phase: Optional[Phase] = None,
-        other_properties: Optional[Dict[str, Any]] = None,
-    ):
-        """
-        Initializes the Photolysis object with the given parameters.
 
-        Args:
-            name (str): The name of the photolysis reaction rate constant.
-            scaling_factor (float): The scaling factor for the photolysis rate constant.
-            reactants (List[Union[Species, Tuple[float, Species]]]): A list of reactants involved in the reaction.
-            products (List[Union[Species, Tuple[float, Species]]]): A list of products formed in the reaction.
-            gas_phase (Phase): The gas phase in which the reaction occurs.
-            other_properties (Dict[str, Any]): A dictionary of other properties of the photolysis reaction rate constant.
-        """
-        super().__init__()
-        self.name = name if name is not None else self.name
-        self.scaling_factor = scaling_factor if scaling_factor is not None else self.scaling_factor
-        self.reactants = (
-            [
-                (
-                    _ReactionComponent(r.name)
-                    if isinstance(r, Species)
-                    else _ReactionComponent(r[1].name, r[0])
-                )
-                for r in reactants
-            ]
-            if reactants is not None
-            else self.reactants
-        )
-        self.products = (
-            [
-                (
-                    _ReactionComponent(p.name)
-                    if isinstance(p, Species)
-                    else _ReactionComponent(p[1].name, p[0])
-                )
-                for p in products
-            ]
-            if products is not None
-            else self.products
-        )
-        self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
-        self.other_properties = other_properties if other_properties is not None else self.other_properties
+def serialize(self) -> Dict:
+    serialize_dict = {
+        "type": "PHOTOLYSIS",
+        "name": self.name,
+        "scaling factor": self.scaling_factor,
+        "reactants": [r.serialize() for r in self.reactants],
+        "products": [r.serialize() for r in self.products],
+        "gas phase": self.gas_phase,
+    }
+    _add_other_properties(serialize_dict, self.other_properties)
+    return serialize_dict
 
-    @staticmethod
-    def serialize(instance) -> Dict:
-        serialize_dict = {
-            "type": "PHOTOLYSIS",
-            "name": instance.name,
-            "scaling factor": instance.scaling_factor,
-            "reactants": ReactionComponentSerializer.serialize_list_reaction_components(instance.reactants),
-            "products": ReactionComponentSerializer.serialize_list_reaction_components(instance.products),
-            "gas phase": instance.gas_phase,
-        }
-        _add_other_properties(serialize_dict, instance.other_properties)
-        return serialize_dict
+
+Photolysis.__doc__ = """
+A class representing a photolysis reaction rate constant.
+
+Attributes:
+    name (str): The name of the photolysis reaction rate constant.
+    scaling_factor (float): The scaling factor for the photolysis rate constant.
+    reactants (List[Union[Species, Tuple[float, Species]]]): A list of reactants involved in the reaction.
+    products (List[Union[Species, Tuple[float, Species]]]): A list of products formed in the reaction.
+    gas_phase (Phase): The gas phase in which the reaction occurs.
+    other_properties (Dict[str, Any]): A dictionary of other properties of the photolysis reaction rate constant.
+"""
+
+Photolysis.__init__ = __init__
+Photolysis.serialize = serialize
+Photolysis.type = type

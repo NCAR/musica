@@ -156,7 +156,11 @@ TEST_F(TuvxCApiTest, CanCreateGrid)
   Grid* grid = CreateGrid("foo", "m", 2, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_NE(grid, nullptr);
-  ASSERT_EQ(GetGridNumSections(grid, &error), 2);
+  ASSERT_EQ(grid->GetName(&error), "foo");
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(grid->GetUnits(&error), "m");
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(GetGridNumberOfSections(grid, &error), 2);
   ASSERT_TRUE(IsSuccess(error));
   std::vector<double> edges = { 0.0, 100.0, 200.0 };
   SetGridEdges(grid, edges.data(), edges.size(), &error);
@@ -224,6 +228,10 @@ TEST_F(TuvxCApiTest, CanCreateGridMap)
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(midpoint_values[0], 0.5);
   ASSERT_EQ(midpoint_values[1], 1.5);
+  DeleteGrid(foo_grid, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteGrid(bar_grid, &error);
+  ASSERT_TRUE(IsSuccess(error));
   Grid* foo_copy = GetGrid(grid_map, "foo", "m", &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_NE(foo_copy, nullptr);
@@ -244,12 +252,45 @@ TEST_F(TuvxCApiTest, CanCreateGridMap)
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(midpoint_values[0], 0.5);
   ASSERT_EQ(midpoint_values[1], 1.5);
-  DeleteGrid(foo_grid, &error);
-  ASSERT_TRUE(IsSuccess(error));
-  DeleteGrid(bar_grid, &error);
-  ASSERT_TRUE(IsSuccess(error));
   DeleteGrid(foo_copy, &error);
   ASSERT_TRUE(IsSuccess(error));
+
+  size_t num_grids = GetNumberOfGrids(grid_map, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(num_grids, 2);
+  Grid* first_grid = GetGridByIndex(grid_map, 0, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_NE(first_grid, nullptr);
+  ASSERT_EQ(first_grid->GetName(&error), "foo");
+  ASSERT_TRUE(IsSuccess(error));
+  Grid* second_grid = GetGridByIndex(grid_map, 1, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_NE(second_grid, nullptr);
+  ASSERT_EQ(second_grid->GetName(&error), "bar");
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteGrid(first_grid, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteGrid(second_grid, &error);
+  ASSERT_TRUE(IsSuccess(error));
+
+  RemoveGrid(grid_map, "foo", "m", &error);
+  ASSERT_TRUE(IsSuccess(error));
+  num_grids = GetNumberOfGrids(grid_map, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(num_grids, 1);
+  Grid* removed_grid = GetGrid(grid_map, "foo", "m", &error);
+  ASSERT_FALSE(IsSuccess(error));
+  ASSERT_EQ(removed_grid, nullptr);
+  Grid* remaining_grid = GetGrid(grid_map, "bar", "m", &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_NE(remaining_grid, nullptr);
+  DeleteGrid(remaining_grid, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  RemoveGridByIndex(grid_map, 0, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  num_grids = GetNumberOfGrids(grid_map, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(num_grids, 0);
   DeleteGridMap(grid_map, &error);
   ASSERT_TRUE(IsSuccess(error));
   DeleteError(&error);
@@ -279,8 +320,14 @@ TEST_F(TuvxCApiTest, CanCreateProfile)
   Profile* profile = CreateProfile("bar", "molecule cm-3", grid, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_NE(profile, nullptr);
+  ASSERT_EQ(profile->GetName(&error), "bar");
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(profile->GetUnits(&error), "molecule cm-3");
+  ASSERT_TRUE(IsSuccess(error));
   std::vector<double> edge_values = { 0.0, 1.0, 2.0 };
   SetProfileEdgeValues(profile, edge_values.data(), edge_values.size(), &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(GetProfileNumberOfSections(profile, &error), 2);
   ASSERT_TRUE(IsSuccess(error));
   for (auto& edge : edge_values)
   {
@@ -324,13 +371,16 @@ TEST_F(TuvxCApiTest, CanCreateProfile)
   ASSERT_TRUE(IsSuccess(error));
   // This should be updated once we do all conversions to/from non-SI units
   // in the internal TUV-x functions
-  ASSERT_EQ(GetProfileExoLayerDensity(profile, &error), 200.0);
+  ASSERT_EQ(GetProfileExoLayerDensity(profile, &error), 2.0);
   GetProfileLayerDensities(profile, densities.data(), densities.size(), &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(densities[0], 1.0);
   // This should be updated once we do all conversions to/from non-SI units
   // in the internal TUV-x functions
-  ASSERT_EQ(densities[1], 2.0 + 200.0);
+  // Note that the way TUV-x is currently written, the top layer density
+  // will continue to accumulate the exo-layer density each time
+  // CalculateProfileExoLayerDensity is called.
+  ASSERT_EQ(densities[1], 2.0 + 2.0 + 3.0);
   DeleteProfile(profile, &error);
   ASSERT_TRUE(IsSuccess(error));
   DeleteGrid(grid, &error);
@@ -452,6 +502,43 @@ TEST_F(TuvxCApiTest, CanCreateProfileMap)
   ASSERT_TRUE(IsSuccess(error));
   DeleteGrid(bar_grid, &error);
   ASSERT_TRUE(IsSuccess(error));
+
+  size_t num_profiles = GetNumberOfProfiles(profile_map, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(num_profiles, 2);
+  Profile* first_profile = GetProfileByIndex(profile_map, 0, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_NE(first_profile, nullptr);
+  ASSERT_EQ(first_profile->GetName(&error), "foo");
+  ASSERT_TRUE(IsSuccess(error));
+  Profile* second_profile = GetProfileByIndex(profile_map, 1, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_NE(second_profile, nullptr);
+  ASSERT_EQ(second_profile->GetName(&error), "bar");
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteProfile(first_profile, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteProfile(second_profile, &error);
+  ASSERT_TRUE(IsSuccess(error));
+
+  RemoveProfile(profile_map, "foo", "molecule cm-3", &error);
+  ASSERT_TRUE(IsSuccess(error));
+  num_profiles = GetNumberOfProfiles(profile_map, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(num_profiles, 1);
+  Profile* removed_profile = GetProfile(profile_map, "foo", "molecule cm-3", &error);
+  ASSERT_FALSE(IsSuccess(error));
+  ASSERT_EQ(removed_profile, nullptr);
+  Profile* remaining_profile = GetProfile(profile_map, "bar", "molecule cm-3", &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_NE(remaining_profile, nullptr);
+  DeleteProfile(remaining_profile, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  RemoveProfileByIndex(profile_map, 0, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  num_profiles = GetNumberOfProfiles(profile_map, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(num_profiles, 0);
   DeleteProfileMap(profile_map, &error);
   ASSERT_TRUE(IsSuccess(error));
   DeleteError(&error);

@@ -3,7 +3,6 @@
       "The original TUV 5.4 source code and data sets can be found here: https://www2.acom.ucar.edu/modeling/tuv-download"
     ],
    "photolysis": {
-      "enable diagnostics" : true,
       "reactions": [
          {
             "name": "O2+hv->O+O",

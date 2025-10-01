@@ -8,6 +8,7 @@ from .constants import GAS_CONSTANT
 from typing import Optional, Dict, List, Union, Tuple, TYPE_CHECKING, Any
 from os import PathLike
 import math
+import numpy as np
 
 # Import backend symbols from the backend module
 from . import backend
@@ -33,6 +34,13 @@ else:
     Mechanism = mc._Mechanism
 
 FilePath = Union[str, "PathLike[str]"]
+
+
+def is_scalar_number(x):
+    return (
+        isinstance(x, (int, float, np.number))
+        and not isinstance(x, bool)
+    )
 
 
 class Conditions(_Conditions):
@@ -119,7 +127,7 @@ class State():
             if name not in self.__species_ordering:
                 raise ValueError(f"Species {name} not found in the mechanism.")
             i_species = self.__species_ordering[name]
-            if isinstance(value, float) or isinstance(value, int):
+            if is_scalar_number(value):
                 value = [value]
             if len(value) != self.__number_of_grid_cells:
                 raise ValueError(
@@ -150,7 +158,7 @@ class State():
                 raise ValueError(
                     f"User-defined rate parameter {name} not found in the mechanism.")
             i_param = self.__user_defined_rate_parameters_ordering[name]
-            if isinstance(value, float) or isinstance(value, int):
+            if is_scalar_number(value):
                 value = [value]
             if len(value) != self.__number_of_grid_cells:
                 raise ValueError(
@@ -184,17 +192,17 @@ class State():
         air_densities : Optional[Union[float, List[float]]]
             Air density in mol m-3. If not provided, it will be calculated from the Ideal Gas Law.
         """
-        if temperatures is not None and (isinstance(temperatures, float) or isinstance(temperatures, int)):
+        if temperatures is not None and is_scalar_number(temperatures):
             if self.__number_of_grid_cells > 1:
                 raise ValueError(
                     f"temperatures must be a list of length {self.__number_of_grid_cells}.")
             temperatures = [temperatures]
-        if pressures is not None and (isinstance(pressures, float) or isinstance(pressures, int)):
+        if pressures is not None and is_scalar_number(pressures):
             if self.__number_of_grid_cells > 1:
                 raise ValueError(
                     f"pressures must be a list of length {self.__number_of_grid_cells}.")
             pressures = [pressures]
-        if air_densities is not None and (isinstance(air_densities, float) or isinstance(air_densities, int)):
+        if air_densities is not None and is_scalar_number(air_densities):
             if self.__number_of_grid_cells > 1:
                 raise ValueError(
                     f"air_densities must be a list of length {self.__number_of_grid_cells}.")
