@@ -1,22 +1,11 @@
 #include "binding_common.hpp"
 
-void bind_cuda(py::module_ &);
-void bind_musica(py::module_ &);
-void bind_tuvx_grid(py::module_ &);
-void bind_tuvx_grid_map(py::module_ &);
-void bind_tuvx_profile(py::module_ &);
-void bind_tuvx_profile_map(py::module_ &);
-#ifdef MUSICA_USE_TUVX
-void bind_tuvx(py::module_ &);
-#endif
-#ifdef MUSICA_USE_CARMA
-void bind_carma(py::module_ &);
-#endif
-
 void bind_mechanism_configuration(py::module_ &);
 
 void bind_all(py::module_ &m)
 {
+  py::bind_vector<std::vector<double>>(m, "VectorDouble");
+
   py::module_ core = m.def_submodule("_core", "Wrapper classes for MUSICA C library structs and functions");
   py::module_ mechanism_configuration = m.def_submodule(
       "_mechanism_configuration", "Wrapper classes for Mechanism Configuration library structs and functions");

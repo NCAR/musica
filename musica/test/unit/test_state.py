@@ -12,8 +12,7 @@ def create_test_mechanism() -> Mechanism:
     # Chemical species
     A = mc.Species(
         name="A",
-        diffusion_coefficient_m2_s=20.3,
-        molecular_weight_kg_mol=13.2,
+        molecular_weight_kg_mol=32.1,
         other_properties={
             "__absolute tolerance": "1.0e-30"})
     B = mc.Species(name="B")
@@ -21,7 +20,7 @@ def create_test_mechanism() -> Mechanism:
     M = mc.Species(name="M", is_third_body=True)
 
     # Chemical phases
-    gas = mc.Phase(name="gas", species=[A, B, C, M])
+    gas = mc.Phase(name="gas", species=[mc.PhaseSpecies(name=A.name, diffusion_coefficient_m2_s=1.0), B, C, M])
 
     # Reactions
     my_arrhenius = mc.Arrhenius(
@@ -146,7 +145,8 @@ def create_test_mechanism() -> Mechanism:
         species=[A, B, C, M],
         phases=[gas],
         reactions=[my_arrhenius, my_other_arrhenius, my_troe, my_ternary,
-                   my_branched, my_tunneling, my_surface, photo_b,
+                   my_branched, my_tunneling, 
+                   my_surface, photo_b,
                    my_emission, my_first_order_loss, user_defined],
         version=mc.Version(1, 0, 0),
     )
@@ -259,6 +259,15 @@ def test_set_get_user_defined_rate_parameters():
     result = state.get_user_defined_rate_parameters()
     assert result["EMIS.my emission"][0] == 1.0
 
+    params = {
+        "SURF.my surface.effective radius [m]": 0.5,
+        "SURF.my surface.particle number concentration [# m-3]": 1000.0,
+    }
+    state.set_user_defined_rate_parameters(params)
+    result = state.get_user_defined_rate_parameters()
+    assert result["SURF.my surface.effective radius [m]"][0] == 0.5
+    assert result["SURF.my surface.particle number concentration [# m-3]"][0] == 1000.0
+
     # Test multiple grid cells
     state_multi = solver.create_state(number_of_grid_cells=2)
     params_multi = {"PHOTO.photo B": [1.0, 2.0]}
@@ -323,3 +332,6 @@ def test_set_get_user_defined_rate_parameters():
         "USER.my user defined"
     ]
     assert sorted(expected_params) == sorted(param_names)
+
+if __name__ == "__main__":
+    pytest.main([__file__])
