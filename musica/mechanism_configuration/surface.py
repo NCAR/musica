@@ -11,6 +11,7 @@ Surface = _backend._mechanism_configuration._Surface
 
 original_init = Surface.__init__
 
+
 @property
 def type(self):
     return ReactionType.Surface
@@ -21,7 +22,7 @@ def __init__(
     name: Optional[str] = None,
     reaction_probability: Optional[float] = None,
     gas_phase_species: Optional[Union[Species,
-                                        Tuple[float, Species]]] = None,
+                                      Tuple[float, Species]]] = None,
     gas_phase_products: Optional[
         List[Union[Species, Tuple[float, Species]]]
     ] = None,
@@ -66,6 +67,7 @@ def __init__(
     self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
     self.other_properties = other_properties if other_properties is not None else self.other_properties
 
+
 def serialize(self) -> Dict:
     serialize_dict = {
         "type": "SURFACE",
@@ -77,6 +79,7 @@ def serialize(self) -> Dict:
     }
     _add_other_properties(serialize_dict, self.other_properties)
     return _remove_empty_keys(serialize_dict)
+
 
 Surface.__doc__ = """
 A class representing a surface in a chemical mechanism.

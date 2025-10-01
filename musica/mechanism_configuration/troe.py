@@ -11,6 +11,7 @@ Troe = _backend._mechanism_configuration._Troe
 
 original_init = Troe.__init__
 
+
 @property
 def type(self):
     return ReactionType.Troe
@@ -28,7 +29,7 @@ def __init__(
     Fc: Optional[float] = None,
     N: Optional[float] = None,
     reactants: Optional[List[Union[Species,
-                                    Tuple[float, Species]]]] = None,
+                                   Tuple[float, Species]]]] = None,
     products: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
     gas_phase: Optional[Phase] = None,
     other_properties: Optional[Dict[str, Any]] = None,
@@ -72,17 +73,17 @@ def __init__(
     """
     original_init(self)
 
-    self.name = name if name is not None else self.name 
-    self.k0_A = k0_A if k0_A is not None else self.k0_A 
-    self.k0_B = k0_B if k0_B is not None else self.k0_B 
-    self.k0_C = k0_C if k0_C is not None else self.k0_C 
-    self.kinf_A = kinf_A if kinf_A is not None else self.kinf_A 
-    self.kinf_B = kinf_B if kinf_B is not None else self.kinf_B 
-    self.kinf_C = kinf_C if kinf_C is not None else self.kinf_C 
-    self.Fc = Fc if Fc is not None else self.Fc 
-    self.N = N if N is not None else self.N 
-    self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase 
-    self.other_properties = other_properties if other_properties is not None else self.other_properties 
+    self.name = name if name is not None else self.name
+    self.k0_A = k0_A if k0_A is not None else self.k0_A
+    self.k0_B = k0_B if k0_B is not None else self.k0_B
+    self.k0_C = k0_C if k0_C is not None else self.k0_C
+    self.kinf_A = kinf_A if kinf_A is not None else self.kinf_A
+    self.kinf_B = kinf_B if kinf_B is not None else self.kinf_B
+    self.kinf_C = kinf_C if kinf_C is not None else self.kinf_C
+    self.Fc = Fc if Fc is not None else self.Fc
+    self.N = N if N is not None else self.N
+    self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
+    self.other_properties = other_properties if other_properties is not None else self.other_properties
     self.reactants = (
         [
             (

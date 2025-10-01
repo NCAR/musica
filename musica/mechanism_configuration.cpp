@@ -1,5 +1,7 @@
 // Copyright (C) 2025 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
+#include "binding_common.hpp"
+
 #include <musica/micm/parse.hpp>
 
 #include <mechanism_configuration/constants.hpp>
@@ -7,7 +9,6 @@
 #include <mechanism_configuration/v1/reaction_types.hpp>
 #include <mechanism_configuration/v1/types.hpp>
 #include <mechanism_configuration/v1/validation.hpp>
-#include "binding_common.hpp"
 
 #include <variant>
 
@@ -44,27 +45,26 @@ struct ReactionsIterator
       TernaryChemicalActivation,
       Troe,
       Tunneling,
-      UserDefined
-      >;
+      UserDefined>;
 
   std::vector<std::vector<VariantType>> reaction_lists;
   size_t outer_index = 0;
   size_t inner_index = 0;
 
   ReactionsIterator(Reactions &reactions)
-      : reaction_lists{
-          std::vector<VariantType>(reactions.arrhenius.begin(), reactions.arrhenius.end()),
-          std::vector<VariantType>(reactions.branched.begin(), reactions.branched.end()),
-          std::vector<VariantType>(reactions.emission.begin(), reactions.emission.end()),
-          std::vector<VariantType>(reactions.first_order_loss.begin(), reactions.first_order_loss.end()),
-          std::vector<VariantType>(reactions.photolysis.begin(), reactions.photolysis.end()),
-          std::vector<VariantType>(reactions.surface.begin(), reactions.surface.end()),
-          std::vector<VariantType>(reactions.taylor_series.begin(), reactions.taylor_series.end()),
-          std::vector<VariantType>(reactions.ternary_chemical_activation.begin(), reactions.ternary_chemical_activation.end()),
-          std::vector<VariantType>(reactions.troe.begin(), reactions.troe.end()),
-          std::vector<VariantType>(reactions.tunneling.begin(), reactions.tunneling.end()),
-          std::vector<VariantType>(reactions.user_defined.begin(), reactions.user_defined.end())
-        }
+      : reaction_lists{ std::vector<VariantType>(reactions.arrhenius.begin(), reactions.arrhenius.end()),
+                        std::vector<VariantType>(reactions.branched.begin(), reactions.branched.end()),
+                        std::vector<VariantType>(reactions.emission.begin(), reactions.emission.end()),
+                        std::vector<VariantType>(reactions.first_order_loss.begin(), reactions.first_order_loss.end()),
+                        std::vector<VariantType>(reactions.photolysis.begin(), reactions.photolysis.end()),
+                        std::vector<VariantType>(reactions.surface.begin(), reactions.surface.end()),
+                        std::vector<VariantType>(reactions.taylor_series.begin(), reactions.taylor_series.end()),
+                        std::vector<VariantType>(
+                            reactions.ternary_chemical_activation.begin(),
+                            reactions.ternary_chemical_activation.end()),
+                        std::vector<VariantType>(reactions.troe.begin(), reactions.troe.end()),
+                        std::vector<VariantType>(reactions.tunneling.begin(), reactions.tunneling.end()),
+                        std::vector<VariantType>(reactions.user_defined.begin(), reactions.user_defined.end()) }
   {
   }
 
@@ -162,7 +162,7 @@ Reactions create_reactions(const py::list &reactions)
     {
       reaction_obj.surface.push_back(item.cast<Surface>());
     }
-    else if(py::isinstance<TaylorSeries>(item))
+    else if (py::isinstance<TaylorSeries>(item))
     {
       reaction_obj.taylor_series.push_back(item.cast<TaylorSeries>());
     }
@@ -285,7 +285,7 @@ void bind_mechanism_configuration(py::module_ &mechanism_configuration)
       .def_readwrite("products", &TaylorSeries::products)
       .def_readwrite("other_properties", &TaylorSeries::unknown_properties)
       .def("__str__", [](const TaylorSeries &ts) { return "TaylorSeries"; })
-      .def("__repr__", [](const TaylorSeries &ts) { return "<TaylorSeries>"; });      
+      .def("__repr__", [](const TaylorSeries &ts) { return "<TaylorSeries>"; });
 
   py::class_<Troe>(mechanism_configuration, "_Troe")
       .def(py::init<>())
@@ -432,17 +432,9 @@ void bind_mechanism_configuration(py::module_ &mechanism_configuration)
           "__len__",
           [](const Reactions &r)
           {
-            return r.arrhenius.size() + 
-                   r.branched.size() + 
-                   r.emission.size() + 
-                   r.first_order_loss.size() +
-                   r.photolysis.size() + 
-                   r.surface.size() +
-                   r.taylor_series.size() +
-                   r.troe.size() + 
-                   r.ternary_chemical_activation.size() +
-                   r.tunneling.size() +
-                   r.user_defined.size();
+            return r.arrhenius.size() + r.branched.size() + r.emission.size() + r.first_order_loss.size() +
+                   r.photolysis.size() + r.surface.size() + r.taylor_series.size() + r.troe.size() +
+                   r.ternary_chemical_activation.size() + r.tunneling.size() + r.user_defined.size();
           })
       .def("__str__", [](const Reactions &r) { return "Reactions"; })
       .def("__repr__", [](const Reactions &r) { return "<Reactions>"; })

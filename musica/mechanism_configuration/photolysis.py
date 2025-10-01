@@ -11,9 +11,11 @@ Photolysis = _backend._mechanism_configuration._Photolysis
 
 original_init = Photolysis.__init__
 
+
 @property
 def type(self):
     return ReactionType.Photolysis
+
 
 def __init__(
     self,
@@ -65,6 +67,7 @@ def __init__(
     self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
     self.other_properties = other_properties if other_properties is not None else self.other_properties
 
+
 def serialize(self) -> Dict:
     serialize_dict = {
         "type": "PHOTOLYSIS",
@@ -76,6 +79,7 @@ def serialize(self) -> Dict:
     }
     _add_other_properties(serialize_dict, self.other_properties)
     return serialize_dict
+
 
 Photolysis.__doc__ = """
 A class representing a photolysis reaction rate constant.

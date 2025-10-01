@@ -41,7 +41,7 @@ def init(
                 converted_species.append(s)
             elif isinstance(s, Species):
                 converted_species.append(PhaseSpecies(name=s.name))
-    self.species = converted_species 
+    self.species = converted_species
     self.other_properties = other_properties if other_properties is not None else self.other_properties
 
 

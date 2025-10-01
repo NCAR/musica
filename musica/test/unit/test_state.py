@@ -145,7 +145,7 @@ def create_test_mechanism() -> Mechanism:
         species=[A, B, C, M],
         phases=[gas],
         reactions=[my_arrhenius, my_other_arrhenius, my_troe, my_ternary,
-                   my_branched, my_tunneling, 
+                   my_branched, my_tunneling,
                    my_surface, photo_b,
                    my_emission, my_first_order_loss, user_defined],
         version=mc.Version(1, 0, 0),
@@ -332,6 +332,7 @@ def test_set_get_user_defined_rate_parameters():
         "USER.my user defined"
     ]
     assert sorted(expected_params) == sorted(param_names)
+
 
 if __name__ == "__main__":
     pytest.main([__file__])

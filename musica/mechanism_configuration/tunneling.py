@@ -11,6 +11,7 @@ Tunneling = _backend._mechanism_configuration._Tunneling
 
 original_init = Tunneling.__init__
 
+
 @property
 def type(self):
     return ReactionType.Tunneling
@@ -23,7 +24,7 @@ def __init__(
     B: Optional[float] = None,
     C: Optional[float] = None,
     reactants: Optional[List[Union[Species,
-                                    Tuple[float, Species]]]] = None,
+                                   Tuple[float, Species]]]] = None,
     products: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
     gas_phase: Optional[Phase] = None,
     other_properties: Optional[Dict[str, Any]] = None,
@@ -43,12 +44,12 @@ def __init__(
     """
     original_init(self)
 
-    self.name = name if name is not None else self.name 
-    self.A = A if A is not None else self.A 
-    self.B = B if B is not None else self.B 
-    self.C = C if C is not None else self.C 
-    self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase 
-    self.other_properties = other_properties if other_properties is not None else self.other_properties 
+    self.name = name if name is not None else self.name
+    self.A = A if A is not None else self.A
+    self.B = B if B is not None else self.B
+    self.C = C if C is not None else self.C
+    self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
+    self.other_properties = other_properties if other_properties is not None else self.other_properties
     self.reactants = (
         [
             (
@@ -94,6 +95,7 @@ def serialize(self) -> Dict:
     }
     _add_other_properties(serialize_dict, self.other_properties)
     return _remove_empty_keys(serialize_dict)
+
 
 Tunneling.__doc__ = """
 A class representing a quantum tunneling reaction rate constant.

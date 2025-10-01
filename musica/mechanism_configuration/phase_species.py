@@ -6,6 +6,7 @@ _backend = backend.get_backend()
 PhaseSpecies = _backend._mechanism_configuration._PhaseSpecies
 original_init = PhaseSpecies.__init__
 
+
 def __init__(
     self,
     name: Optional[str] = None,
@@ -40,11 +41,11 @@ def equals(self, other):
 
 
 PhaseSpecies.__doc__ = """
-    Represents a chemical species within a specific phase of a mechanism, 
+    Represents a chemical species within a specific phase of a mechanism,
     including phase-specific properties such as diffusion coefficients.
 
-    This class is distinct from a regular Species class in that it models 
-    properties relevant to the species' behavior in a particular phase 
+    This class is distinct from a regular Species class in that it models
+    properties relevant to the species' behavior in a particular phase
     (e.g., gas, liquid, or solid), such as the diffusion coefficient.
 
     Attributes:

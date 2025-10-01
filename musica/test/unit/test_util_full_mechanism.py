@@ -19,7 +19,17 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
     )
 
     # Chemical phases
-    gas = mc.Phase(name="gas", species=[mc.PhaseSpecies(name=A.name, diffusion_coefficient_m2_s=1.0), B, C, ethanol, H2O2, M])
+    gas = mc.Phase(
+        name="gas",
+        species=[
+            mc.PhaseSpecies(
+                name=A.name,
+                diffusion_coefficient_m2_s=1.0),
+            B,
+            C,
+            ethanol,
+            H2O2,
+            M])
 
     # Reactions
     my_arrhenius = mc.Arrhenius(
@@ -157,8 +167,8 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
         species=[A, B, C, M, H2O2, ethanol],
         phases=[gas],
         reactions=[my_arrhenius, my_other_arrhenius, my_troe, my_ternary, my_branched,
-                   my_tunneling, my_surface, photo_B, 
-                   my_emission, my_first_order_loss, user_defined, 
+                   my_tunneling, my_surface, photo_B,
+                   my_emission, my_first_order_loss, user_defined,
                    taylor_series_reaction
                    ],
         version=mc.Version(1, 0, 0),
@@ -226,6 +236,7 @@ def _validate_phases(phases):
     assert phases[0].species[2].name == "C"
     assert phases[0].species[3].name == "ethanol"
     assert phases[0].species[4].name == "H2O2"
+
 
 def _extract_components(components):
     return [
@@ -427,6 +438,7 @@ def _validate_taylor_series(reactions):
     assert reactions[0].D == 340
     assert reactions[0].E == 0.00032
     assert reactions[0].name == "my taylor series"
+
 
 def validate_full_v1_mechanism(mechanism):
     assert mechanism is not None

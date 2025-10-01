@@ -11,10 +11,12 @@ Branched = _backend._mechanism_configuration._Branched
 
 original_init = Branched.__init__
 
+
 @property
 def type(self):
     """Get the reaction type."""
     return ReactionType.Branched
+
 
 def __init__(
     self,
@@ -24,11 +26,11 @@ def __init__(
     a0: Optional[float] = None,
     n: Optional[float] = None,
     reactants: Optional[List[Union[Species,
-                                    Tuple[float, Species]]]] = None,
+                                   Tuple[float, Species]]]] = None,
     nitrate_products: Optional[List[Union[Species,
-                                            Tuple[float, Species]]]] = None,
+                                          Tuple[float, Species]]]] = None,
     alkoxy_products: Optional[List[Union[Species,
-                                            Tuple[float, Species]]]] = None,
+                                         Tuple[float, Species]]]] = None,
     gas_phase: Optional[Phase] = None,
     other_properties: Optional[Dict[str, Any]] = None,
 ):
@@ -49,13 +51,13 @@ def __init__(
     """
     original_init(self)
 
-    self.name = name if name is not None else self.name 
-    self.X = X if X is not None else self.X 
-    self.Y = Y if Y is not None else self.Y 
-    self.a0 = a0 if a0 is not None else self.a0 
-    self.n = n if n is not None else self.n 
-    self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase 
-    self.other_properties = other_properties if other_properties is not None else self.other_properties 
+    self.name = name if name is not None else self.name
+    self.X = X if X is not None else self.X
+    self.Y = Y if Y is not None else self.Y
+    self.a0 = a0 if a0 is not None else self.a0
+    self.n = n if n is not None else self.n
+    self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
+    self.other_properties = other_properties if other_properties is not None else self.other_properties
     self.reactants = (
         [
             (
@@ -93,6 +95,7 @@ def __init__(
         else self.alkoxy_products
     )
 
+
 def serialize(self) -> Dict:
     """
     Serialize the Branched object to a dictionary using only Python-visible data.
@@ -114,6 +117,7 @@ def serialize(self) -> Dict:
     }
     _add_other_properties(serialize_dict, self.other_properties)
     return _remove_empty_keys(serialize_dict)
+
 
 Branched.__doc__ = """
     A class representing a branched reaction rate constant.
