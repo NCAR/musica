@@ -75,8 +75,7 @@ endif()
 
 if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE)
   set_git_default(MICM_GIT_REPOSITORY https://github.com/NCAR/micm.git)
-  # set_git_default(MICM_GIT_TAG 9f773c85da99bfeec22656d47c55f8e7500ee613)
-  set_git_default(MICM_GIT_TAG investigate_musica_error)
+  set_git_default(MICM_GIT_TAG 845-create-PhaseSpecies-struct) # TODO
 
   FetchContent_Declare(micm
       GIT_REPOSITORY ${MICM_GIT_REPOSITORY}

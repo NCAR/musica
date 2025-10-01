@@ -63,23 +63,6 @@ namespace musica
     return micm_species;
   }
 
-  std::vector<micm::Species> collect_species(
-      std::vector<mechanism_configuration::v1::types::PhaseSpecies> phase_species,
-      std::unordered_map<std::string, micm::Species>& species_map)
-  {
-    std::vector<micm::Species> species;
-    for (const auto& species_name : phase_species)
-    {
-      micm::Species& s = species_map[species_name.name];
-      if (species_name.diffusion_coefficient.has_value())
-      {
-        s.SetProperty(mechanism_configuration::v1::validation::diffusion_coefficient, species_name.diffusion_coefficient.value());
-      }
-      species.push_back(s);
-    }
-    return species;
-  }
-
   std::vector<micm::Phase> convert_phases(
       const std::vector<mechanism_configuration::v1::types::Phase>& phases,
       std::unordered_map<std::string, micm::Species>& species_map)
@@ -87,10 +70,20 @@ namespace musica
     std::vector<micm::Phase> micm_phases;
     for (const auto& phase : phases)
     {
-      micm::Phase micm_phase;
-      micm_phase.name_ = phase.name;
-      micm_phase.species_ = collect_species(phase.species, species_map);
-      micm_phases.push_back(micm_phase);
+      std::vector<micm::PhaseSpecies> phase_species_list; 
+      
+      for (const auto& phase_species : phase.species)
+      {
+        micm::PhaseSpecies micm_phase_species(species_map[phase_species.name]);
+        
+        if (phase_species.diffusion_coefficient.has_value())
+        {
+          micm_phase_species.SetDiffusionCoefficient(phase_species.diffusion_coefficient.value());
+        }
+        phase_species_list.emplace_back(micm_phase_species);
+      }
+
+      micm_phases.emplace_back(micm::Phase(phase.name, phase_species_list));
     }
     return micm_phases;
   }
@@ -187,16 +180,32 @@ namespace musica
       Chemistry& chemistry,
       const std::vector<mechanism_configuration::v1::types::Surface>& surface,
       std::unordered_map<std::string, micm::Species>& species_map,
+      const micm::Phase& gas_phase,
       const std::string& prefix)
   {
     for (const auto& reaction : surface)
     {
       auto reactants = reaction_components_to_reactants({ reaction.gas_phase_species }, species_map);
       auto products = reaction_components_to_products(reaction.gas_phase_products, species_map);
-      micm::SurfaceRateConstantParameters parameters;
-      parameters.reaction_probability_ = reaction.reaction_probability;
-      parameters.label_ = prefix + reaction.name;
-      parameters.species_ = species_map[reaction.gas_phase_species.species_name];
+
+      auto& phase_species_list = gas_phase.phase_species_;
+      auto it = std::find_if(phase_species_list.begin(), phase_species_list.end(),
+        [&reaction](const micm::PhaseSpecies& ps) {
+          return ps.species_.name_ == reaction.gas_phase_species.species_name; });
+
+      if (it == phase_species_list.end())
+      {
+        throw std::system_error(
+          make_error_code(MusicaParseErrc::ParsingFailed), 
+          "Species '" + reaction.gas_phase_species.species_name + "' for surface reaction in gas phase is not found\n");
+      }
+
+      size_t surface_reaction_species_index = std::distance(phase_species_list.begin(), it);
+      micm::SurfaceRateConstantParameters parameters{
+        .label_ = prefix + reaction.name,
+        .phase_species_ = phase_species_list[surface_reaction_species_index],
+        .reaction_probability_ = reaction.reaction_probability};
+
       chemistry.processes.push_back(micm::ChemicalReactionBuilder()
                                         .SetReactants(reactants)
                                         .SetProducts(products)
@@ -385,7 +394,7 @@ namespace musica
     }
     convert_arrhenius(chemistry, v1_mechanism.reactions.arrhenius, species_map);
     convert_branched(chemistry, v1_mechanism.reactions.branched, species_map);
-    convert_surface(chemistry, v1_mechanism.reactions.surface, species_map, "SURF.");
+    convert_surface(chemistry, v1_mechanism.reactions.surface, species_map, gas_phase, "SURF.");
     convert_taylor_series(chemistry, v1_mechanism.reactions.taylor_series, species_map);
     convert_troe(chemistry, v1_mechanism.reactions.troe, species_map);
     convert_ternary_chemical_activation(chemistry, v1_mechanism.reactions.ternary_chemical_activation, species_map);
