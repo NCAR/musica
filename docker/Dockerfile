@@ -1,25 +1,23 @@
-# FROM fedora:40
+FROM fedora:latest
 
-# # ARG MUSICA_GIT_TAG=main
-# ARG BUILD_TYPE=Release
+ARG MUSICA_GIT_TAG=main
+ARG BUILD_TYPE=Release
 
-# RUN dnf -y update \
-#     && dnf -y install \
-#         cmake \
-#         gcc-c++ \
-#         gfortran \
-#         gdb \
-#         git \
-#         lapack-devel \
-#         lcov \
-#         make \
-#         netcdf-fortran-devel \
-#         python \
-#         valgrind \
-#         tree \
-#     && dnf clean all
-
-FROM jiwon
+RUN dnf -y update \
+    && dnf -y install \
+        cmake \
+        gcc-c++ \
+        gfortran \
+        gdb \
+        git \
+        lapack-devel \
+        lcov \
+        make \
+        netcdf-fortran-devel \
+        python \
+        valgrind \
+        tree \
+    && dnf clean all
 
 # Copy the musica code
 COPY . musica
@@ -29,7 +27,7 @@ RUN cd musica \
     && cmake -S . \
              -B build \
              -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
-            #  -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
+             -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
     && cd build \
     && make install -j 8
     
