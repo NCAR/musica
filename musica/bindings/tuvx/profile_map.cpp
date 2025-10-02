@@ -1,6 +1,6 @@
 // Copyright (C) 2023-2025 National Center for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
-#include "binding_common.hpp"
+#include "../common.hpp"
 
 #include <musica/tuvx/profile.hpp>
 #include <musica/tuvx/profile_map.hpp>

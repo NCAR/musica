@@ -22,10 +22,10 @@ def _gpu_deps_installed():
 
 def get_backend():
     """Get the appropriate backend module."""
-    if _gpu_deps_installed():
-        import musica._musica_gpu as backend
-    else:
-        import musica._musica as backend
+    # if _gpu_deps_installed():
+    #     import musica._musica_gpu as backend
+    # else:
+    #     import musica._musica as backend
     return backend
 
 

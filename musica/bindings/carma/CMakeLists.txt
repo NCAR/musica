@@ -1,0 +1,4 @@
+list(APPEND MUSICA_PYTHON_SOURCES
+  carma.cpp
+  PARENT_SCOPE
+)

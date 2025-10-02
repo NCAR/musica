@@ -1,0 +1,73 @@
+################################################################################
+# Python Extension Modules
+
+set(MUSICA_PYTHON_SOURCES
+  common.cpp
+  cuda.cpp 
+  musica.cpp 
+  ${MUSICA_SOURCES}
+)
+
+add_subdirectory(mechanism_configuration)
+
+if (MUSICA_ENABLE_TUVX)
+  add_subdirectory(tuvx)
+endif()
+
+if (MUSICA_ENABLE_CARMA)
+  add_subdirectory(carma)
+endif()
+
+message(STATUS "MUSICA_PYTHON_SOURCES: ${MUSICA_PYTHON_SOURCES}")
+
+pybind11_add_module(_musica 
+  cpu.cpp 
+  ${MUSICA_PYTHON_SOURCES}
+)
+
+# pybind11_add_module(_musica
+#   common.cpp
+#   cpu.cpp
+#   cuda.cpp
+#   musica.cpp
+#   ${CMAKE_CURRENT_LIST_DIR}/carma.cpp
+#   ${CMAKE_CURRENT_LIST_DIR}/mechanism_configuration/mechanism_configuration.cpp
+#   ${MUSICA_PYTHON_SOURCES})
+musica_setup_target(_musica MODE CPU)
+
+# Set separate Fortran module directory for _musica to avoid conflicts
+if (MUSICA_ENABLE_TUVX OR MUSICA_ENABLE_CARMA)
+  set_target_properties(_musica PROPERTIES
+    Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/musica_python_cpu_modules
+  )
+endif()
+
+if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None")
+  pybind11_add_module(_musica_gpu gpu.cpp ${MUSICA_PYTHON_SOURCES}) 
+  musica_setup_target(_musica_gpu MODE GPU)
+  
+  # Set separate Fortran module directory for _musica_gpu to avoid conflicts
+  if (MUSICA_ENABLE_TUVX OR MUSICA_ENABLE_CARMA)
+    set_target_properties(_musica_gpu PROPERTIES
+      Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/musica_python_gpu_modules
+    )
+  endif()
+  
+  list(APPEND PY_MODULES _musica_gpu)
+endif()
+
+foreach(lib ${PY_MODULES})
+  if (APPLE)
+    set_target_properties(${lib} PROPERTIES
+      INSTALL_RPATH "@loader_path"
+      BUILD_WITH_INSTALL_RPATH TRUE
+    )
+  elseif(UNIX)
+    set_target_properties(${lib} PROPERTIES
+      INSTALL_RPATH "$ORIGIN"
+      BUILD_WITH_INSTALL_RPATH TRUE
+    )
+  endif()
+
+  install(TARGETS ${lib} LIBRARY DESTINATION musica)
+endforeach()

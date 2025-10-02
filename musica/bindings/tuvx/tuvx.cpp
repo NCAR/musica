@@ -1,4 +1,4 @@
-#include "binding_common.hpp"
+#include "../common.hpp"
 
 #include <musica/tuvx/tuvx.hpp>
 #include <musica/util.hpp>

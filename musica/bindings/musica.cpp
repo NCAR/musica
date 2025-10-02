@@ -1,6 +1,6 @@
 // Copyright (C) 2023-2025 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
-#include "binding_common.hpp"
+#include "common.hpp"
 
 #include <musica/micm/cuda_availability.hpp>
 #include <musica/micm/micm.hpp>

@@ -10,9 +10,9 @@ concentrations.
 Note: TUV-x is only available on macOS and Linux platforms.
 """
 
-from typing import Dict, Optional
+from typing import Optional
 import numpy as np
-from . import backend
+from .. import backend
 from .grid import Grid
 
 _backend = backend.get_backend()
