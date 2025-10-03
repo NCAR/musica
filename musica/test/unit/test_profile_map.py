@@ -6,9 +6,9 @@ Tests for the TUV-x ProfileMap class.
 
 import pytest
 import numpy as np
-from musica.grid import Grid
-from musica.profile import Profile
-from musica.profile_map import ProfileMap, backend
+from musica.tuvx.grid import Grid
+from musica.tuvx.profile import Profile
+from musica.tuvx.profile_map import ProfileMap, backend
 
 # Skip all tests if TUV-x is not available
 pytestmark = pytest.mark.skipif(not backend.tuvx_available(),

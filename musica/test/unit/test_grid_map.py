@@ -6,8 +6,8 @@ Tests for the TUV-x GridMap class.
 
 import pytest
 import numpy as np
-from musica.grid import Grid, backend
-from musica.grid_map import GridMap
+from musica.tuvx.grid import Grid, backend
+from musica.tuvx.grid_map import GridMap
 
 # Skip all tests if TUV-x is not available
 pytestmark = pytest.mark.skipif(not backend.tuvx_available(),

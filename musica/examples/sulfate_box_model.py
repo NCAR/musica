@@ -125,7 +125,7 @@ def create_carma_solver():
     """
     Creates a CARMA solver with the sulfate box model configuration.
     """
-    params = musica.CARMAParameters()
+    params = musica.carma.CARMAParameters()
     params.nz = NUMBER_OF_GRID_CELLS
     params.nbin = NUMBER_OF_AEROSOL_SECTIONS
 
@@ -209,7 +209,7 @@ def create_carma_solver():
     params.initialization.dt_threshold = 1.0
     params.initialization.sulfnucl_method = musica.carma.SulfateNucleationMethod.ZHAO_TURCO.value
 
-    return musica.CARMA(params)
+    return musica.carma.CARMA(params)
 
 
 def get_initial_conditions():

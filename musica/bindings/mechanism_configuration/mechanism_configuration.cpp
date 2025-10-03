@@ -1,6 +1,6 @@
 // Copyright (C) 2025 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
-#include "binding_common.hpp"
+#include "../common.hpp"
 
 #include <musica/micm/parse.hpp>
 

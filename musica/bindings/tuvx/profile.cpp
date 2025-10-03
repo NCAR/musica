@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 // This file defines the Python bindings for the TUV-x Profile class in the musica library.
-#include "binding_common.hpp"
+#include "../common.hpp"
 
 #include <musica/tuvx/grid.hpp>
 #include <musica/tuvx/profile.hpp>

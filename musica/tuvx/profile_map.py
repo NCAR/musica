@@ -9,8 +9,8 @@ The ProfileMap class allows dictionary-style access to profiles using (name, uni
 Note: TUV-x is only available on macOS and Linux platforms.
 """
 
-from typing import Iterator, Sequence
-from . import backend
+from typing import Iterator
+from .. import backend
 from .profile import Profile
 
 _backend = backend.get_backend()

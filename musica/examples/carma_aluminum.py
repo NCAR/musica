@@ -81,7 +81,7 @@ def run_carma_aluminum_example():
     pressure_levels = edge_variables.p.values
     density = centered_variables.rho.values
 
-    carma = musica.CARMA(params)
+    carma = musica.carma.CARMA(params)
 
     mmr_initial = 5e9 / (deltaz * 2.57474699e14) / density[0]
 

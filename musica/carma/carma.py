@@ -12,7 +12,7 @@ from ctypes import c_void_p
 import numpy as np
 import xarray as xr
 from enum import Enum
-from . import backend
+from .. import backend
 
 _backend = backend.get_backend()
 

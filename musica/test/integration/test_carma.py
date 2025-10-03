@@ -15,7 +15,7 @@ def test_carma_version():
 
 def test_carma_with_all_components():
     """Test CARMA with multiple groups, elements, solutes, and gases"""
-    params = musica.CARMAParameters()
+    params = musica.carma.CARMAParameters()
     params.nz = 1
     params.ny = 1
     params.nx = 1
@@ -182,10 +182,10 @@ def test_carma_with_all_components():
     params.gases.append(so2_gas)
 
     # Create CARMA instance and run
-    carma = musica.CARMA(params)
+    carma = musica.carma.CARMA(params)
 
     assert carma is not None
-    assert isinstance(carma, musica.CARMA)
+    assert isinstance(carma, musica.carma.CARMA)
 
     state = carma.create_state(
         vertical_center=[16500.0],
@@ -201,7 +201,7 @@ def test_carma_with_all_components():
     )
 
     assert state is not None
-    assert isinstance(state, musica.CARMAState)
+    assert isinstance(state, musica.carma.CARMAState)
 
     state.set_bin(1, 1, 1.0)
     state.set_detrain(1, 1, 1.0)

@@ -2,7 +2,7 @@
 from __future__ import annotations
 import pytest  # type: ignore
 import numpy as np  # type: ignore
-from musica.grid import Grid, backend
+from musica.tuvx.grid import Grid, backend
 
 # Skip all tests if TUV-x is not available
 pytestmark = pytest.mark.skipif(not backend.tuvx_available(),

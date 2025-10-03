@@ -22,11 +22,15 @@ def _gpu_deps_installed():
 
 def get_backend():
     """Get the appropriate backend module."""
-    if _gpu_deps_installed():
-        import musica._musica_gpu as backend
-    else:
-        import musica._musica as backend
-    return backend
+    try:
+        if _gpu_deps_installed():
+            import musica._musica_gpu as backend
+        else:
+            import musica._musica as backend
+        return backend
+    except ImportError as e:
+        raise ImportError(f"Failed to import MUSICA backend. Make sure the package is properly built and installed. Error: {e}")
+
 
 
 def tuvx_available():
