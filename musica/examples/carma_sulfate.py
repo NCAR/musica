@@ -65,7 +65,7 @@ def run_carma_sulfate_example():
     }
 
     # Set up CARMA parameters
-    params = musica.CARMAParameters()
+    params = musica.carma.CARMAParameters()
     params.nz = NZ
     params.nbin = NBIN
 
@@ -154,7 +154,7 @@ def run_carma_sulfate_example():
     params.initialization.sulfnucl_method = musica.carma.SulfateNucleationMethod.ZHAO_TURCO.value
 
     # Create CARMA instance
-    carma = musica.CARMA(params)
+    carma = musica.carma.CARMA(params)
 
     # Output group properties
     group_props, _ = carma.get_group_properties()

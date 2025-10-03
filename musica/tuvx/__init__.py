@@ -1,4 +1,4 @@
-from .tuvx import TUVX
+from .tuvx import TUVX, version
 from .grid_map import GridMap
 from .grid import Grid
 from .profile_map import ProfileMap
