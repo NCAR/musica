@@ -1,0 +1,17 @@
+[
+  {
+      "name": "v0.10.1 (stable)",
+      "version": "v0.10.1 (stable)",
+      "url": "https://ncar.github.io/musica"
+  },
+  {
+    "name": "v0.10.0",
+    "version": "v0.10.0",
+    "url": "https://ncar.github.io/musica"
+  },
+  {
+    "name": "dev",
+    "version": "dev",
+    "url": "https://ncar.github.io/musica/branch/main/"
+  }
+]
