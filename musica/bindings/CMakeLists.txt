@@ -9,8 +9,6 @@ set(MUSICA_PYTHON_SOURCES
   ${MUSICA_SOURCES}
 )
 
-add_subdirectory(mechanism_configuration)
-
 if (MUSICA_ENABLE_TUVX)
   list(APPEND MUSICA_PYTHON_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/grid_map.cpp
@@ -27,13 +25,10 @@ if (MUSICA_ENABLE_CARMA)
   )
 endif()
 
-message(STATUS "MUSICA_PYTHON_SOURCES: ${MUSICA_PYTHON_SOURCES}")
-
 pybind11_add_module(_musica 
   cpu.cpp 
   ${MUSICA_PYTHON_SOURCES}
 )
-
 musica_setup_target(_musica MODE CPU)
 
 # Set separate Fortran module directory for _musica to avoid conflicts
