@@ -3,19 +3,28 @@
 
 set(MUSICA_PYTHON_SOURCES
   common.cpp
-  cuda.cpp 
-  musica.cpp 
+  cuda.cpp
+  musica.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/mechanism_configuration/mechanism_configuration.cpp
   ${MUSICA_SOURCES}
 )
 
 add_subdirectory(mechanism_configuration)
 
 if (MUSICA_ENABLE_TUVX)
-  add_subdirectory(tuvx)
+  list(APPEND MUSICA_PYTHON_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/grid_map.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/grid.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/profile_map.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/profile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/tuvx.cpp
+  )
 endif()
 
 if (MUSICA_ENABLE_CARMA)
-  add_subdirectory(carma)
+  list(APPEND MUSICA_PYTHON_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/carma/carma.cpp
+  )
 endif()
 
 message(STATUS "MUSICA_PYTHON_SOURCES: ${MUSICA_PYTHON_SOURCES}")
@@ -25,14 +34,6 @@ pybind11_add_module(_musica
   ${MUSICA_PYTHON_SOURCES}
 )
 
-# pybind11_add_module(_musica
-#   common.cpp
-#   cpu.cpp
-#   cuda.cpp
-#   musica.cpp
-#   ${CMAKE_CURRENT_LIST_DIR}/carma.cpp
-#   ${CMAKE_CURRENT_LIST_DIR}/mechanism_configuration/mechanism_configuration.cpp
-#   ${MUSICA_PYTHON_SOURCES})
 musica_setup_target(_musica MODE CPU)
 
 # Set separate Fortran module directory for _musica to avoid conflicts
