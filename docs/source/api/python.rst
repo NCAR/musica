@@ -7,14 +7,14 @@ C++ Bindings
 Core
 ^^^^
 
-.. automodule:: musica._musica._core
+.. automodule:: musica._musica._micm
    :members:
    :undoc-members:
    :show-inheritance:
    :private-members:
    :exclude-members: _SolverType
 
-.. autoclass:: musica._musica._core._SolverType
+.. autoclass:: musica._musica._micm._SolverType
    :members:
    :undoc-members:
    :show-inheritance:

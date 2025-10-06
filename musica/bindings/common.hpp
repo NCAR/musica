@@ -8,9 +8,16 @@ namespace py = pybind11;
 
 PYBIND11_MAKE_OPAQUE(std::vector<double>)
 
-void bind_all(py::module_ &m);
+void bind_all(py::module_ &);
 void bind_cuda(py::module_ &);
-void bind_musica(py::module_ &);
+
+// MICM
+void bind_micm(py::module_ &);
+void bind_micm_conditions(py::module_ &);
+void bind_micm_solver(py::module_ &);
+void bind_micm_state(py::module_ &);
+void bind_micm_utils(py::module_ &);
+
 #ifdef MUSICA_USE_TUVX
 void bind_tuvx(py::module_ &);
 void bind_tuvx_grid(py::module_ &);
@@ -18,6 +25,7 @@ void bind_tuvx_grid_map(py::module_ &);
 void bind_tuvx_profile(py::module_ &);
 void bind_tuvx_profile_map(py::module_ &);
 #endif
+
 #ifdef MUSICA_USE_CARMA
 void bind_carma(py::module_ &);
 #endif

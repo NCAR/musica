@@ -45,7 +45,7 @@ Creating the solver
 As done in :ref:`Model solving and options <model>` page, a `solver` must be defined to integrate the chemical reactions
 that determine how your mechanism of interest proceeds over time::
     
-    solver = musica.MICM(mechanism = mechanism, solver_type = musica.SolverType.rosenbrock_standard_order)
+    solver = musica.MICM(mechanism = mechanism, solver_type = musica.micm.SolverType.rosenbrock_standard_order)
 
 Creating the state (new)
 -------------------------

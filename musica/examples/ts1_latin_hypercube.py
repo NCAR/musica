@@ -11,7 +11,7 @@ parser = Parser()
 mechanism = parser.parse(path)
 
 solver = musica.MICM(mechanism=mechanism,
-                     solver_type=musica.SolverType.rosenbrock_standard_order)
+                     solver_type=musica.micm.SolverType.rosenbrock_standard_order)
 num_grid_cells = 100
 state = solver.create_state(num_grid_cells)
 

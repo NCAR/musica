@@ -54,7 +54,7 @@ are running on a GPU::
             reactions=[r1, r2]
         )
 
-        solver = musica.MICM(mechanism = mechanism, solver_type = musica.SolverType.cuda_rosenbrock)
+        solver = musica.MICM(mechanism = mechanism, solver_type = musica.micm.SolverType.cuda_rosenbrock)
 
         num_grid_cells = 100
         state = solver.create_state(num_grid_cells)

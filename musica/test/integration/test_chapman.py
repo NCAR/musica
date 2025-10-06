@@ -6,7 +6,7 @@ import musica.mechanism_configuration as mc
 def test_solve_with_config_path_v0():
     solver = musica.MICM(
         config_path="configs/v0/chapman",
-        solver_type=musica.SolverType.rosenbrock_standard_order,
+        solver_type=musica.micm.SolverType.rosenbrock_standard_order,
     )
     TestSolve(solver)
 
@@ -14,7 +14,7 @@ def test_solve_with_config_path_v0():
 def test_solve_with_config_path_v1_json():
     solver = musica.MICM(
         config_path="configs/v1/chapman/config.json",
-        solver_type=musica.SolverType.rosenbrock_standard_order,
+        solver_type=musica.micm.SolverType.rosenbrock_standard_order,
     )
     TestSolve(solver)
 
@@ -22,7 +22,7 @@ def test_solve_with_config_path_v1_json():
 def test_solve_with_config_path_v1_yaml():
     solver = musica.MICM(
         config_path="configs/v1/chapman/config.yaml",
-        solver_type=musica.SolverType.rosenbrock_standard_order,
+        solver_type=musica.micm.SolverType.rosenbrock_standard_order,
     )
     TestSolve(solver)
 
@@ -30,7 +30,7 @@ def test_solve_with_config_path_v1_yaml():
 def test_solve_with_mechanism():
     solver = musica.MICM(
         mechanism=GetMechanism(),
-        solver_type=musica.SolverType.rosenbrock_standard_order,
+        solver_type=musica.micm.SolverType.rosenbrock_standard_order,
     )
     TestSolve(solver)
 

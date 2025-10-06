@@ -261,7 +261,7 @@ def get_initial_conditions():
 def run_box_model():
     # Create the mechanism and solvers
     mechanism = create_mechanism()
-    solver = musica.MICM(mechanism=mechanism, solver_type=musica.SolverType.rosenbrock_standard_order)
+    solver = musica.MICM(mechanism=mechanism, solver_type=musica.micm.SolverType.rosenbrock_standard_order)
     state = solver.create_state(number_of_grid_cells=NUMBER_OF_GRID_CELLS)
 
     carma = create_carma_solver()

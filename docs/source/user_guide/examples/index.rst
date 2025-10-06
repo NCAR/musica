@@ -16,7 +16,7 @@ Each example (found in `configs/v0`) includes an associated set of JSON files ac
 
     solver = musica.MICM(
         config_path="/configs/v0/analytical",
-        solver_type=musica.SolverType.rosenbrock_standard_order)
+        solver_type=musica.micm.SolverType.rosenbrock_standard_order)
     state = solver.create_state()
 
     #set conditions

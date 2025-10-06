@@ -1,85 +1,17 @@
 # Copyright (C) 2023-2025 University Corporation for Atmospheric Research
 # SPDX-License-Identifier: Apache-2.0
-#
-# This file is part of the musica Python package.
-# For more information, see the LICENSE file in the top-level directory of this distribution.
-from __future__ import annotations
-from .constants import GAS_CONSTANT
-from typing import Optional, Dict, List, Union, TYPE_CHECKING, Any
-from os import PathLike
+
+
+from typing import Optional, Dict, List, Union, Any
 import math
-import numpy as np
 
-# Import backend symbols from the backend module
-from . import backend
+from ..constants import GAS_CONSTANT
+from .. import backend
+from .utils import is_scalar_number, species_ordering, user_defined_rate_parameters_ordering
 
-# Get all the backend symbols we need
 _backend = backend.get_backend()
-_Conditions = _backend._core._Conditions
-_SolverType = _backend._core._SolverType
-_create_solver = _backend._core._create_solver
-_create_solver_from_mechanism = _backend._core._create_solver_from_mechanism
-_create_state = _backend._core._create_state
-_micm_solve = _backend._core._micm_solve
-_vector_size = _backend._core._vector_size
-_species_ordering = _backend._core._species_ordering
-_user_defined_rate_parameters_ordering = _backend._core._user_defined_rate_parameters_ordering
-mc = _backend._mechanism_configuration
 
-
-# For type hints
-if TYPE_CHECKING:
-    from .mechanism_configuration import Mechanism
-else:
-    Mechanism = mc._Mechanism
-
-FilePath = Union[str, "PathLike[str]"]
-
-
-def is_scalar_number(x):
-    return (
-        isinstance(x, (int, float, np.number))
-        and not isinstance(x, bool)
-    )
-
-
-class Conditions(_Conditions):
-    """
-    Conditions class for the MICM solver. If air density is not provided,
-    it will be calculated from the Ideal Gas Law using the provided temperature and pressure.
-
-    Parameters
-    ----------
-    temperature : float
-        Temperature in Kelvin.
-    pressure : float
-        Pressure in Pascals.
-    air_density : float
-        Air density in mol m-3
-    """
-
-    def __init__(
-        self,
-        temperature: Optional[Union[float, int]] = None,
-        pressure: Optional[Union[float, int]] = None,
-        air_density: Optional[Union[float, int]] = None,
-    ):
-        super().__init__()
-        if temperature is not None:
-            self.temperature = temperature
-        if pressure is not None:
-            self.pressure = pressure
-        if air_density is not None:
-            self.air_density = air_density
-        elif temperature is not None and pressure is not None:
-            self.air_density = 1.0 / (GAS_CONSTANT * temperature / pressure)
-
-
-class SolverType(_SolverType):
-    """
-    Enum class for the type of solver to use.
-    """
-
+create_state = _backend._micm._create_state
 
 class State():
     """
@@ -91,12 +23,12 @@ class State():
             raise ValueError("number_of_grid_cells must be greater than 0.")
         super().__init__()
         self.__states = [
-            _create_state(solver, min(
+            create_state(solver, min(
                 vector_size, number_of_grid_cells - i * vector_size))
             for i in range(math.ceil(number_of_grid_cells / vector_size))
-        ] if vector_size > 0 else [_create_state(solver, number_of_grid_cells)]
-        self.__species_ordering = _species_ordering(self.__states[0])
-        self.__user_defined_rate_parameters_ordering = _user_defined_rate_parameters_ordering(
+        ] if vector_size > 0 else [create_state(solver, number_of_grid_cells)]
+        self.__species_ordering = species_ordering(self.__states[0])
+        self.__user_defined_rate_parameters_ordering = user_defined_rate_parameters_ordering(
             self.__states[0])
         self.__number_of_grid_cells = number_of_grid_cells
         self.__vector_size = vector_size
@@ -307,109 +239,3 @@ class State():
             Dictionary of user-defined rate parameter names and their indices.
         """
         return self.__user_defined_rate_parameters_ordering
-
-
-class MICM():
-    """
-    The MICM class is a wrapper around the C++ MICM solver. It provides methods to create a solver,
-    create a state, and solve the system of equations.
-
-    Parameters
-    ----------
-    config_path : FilePath
-        Path to the configuration file.
-    mechanism : mechanism_configuration.Mechanism
-        Mechanism object which specifies the chemical mechanism to use.
-    solver_type : SolverType
-        Type of solver to use.
-    number_of_grid_cells : int
-        Number of grid cells to use. The default is 1.
-    """
-
-    def __init__(
-        self,
-        config_path: FilePath = None,
-        mechanism: Mechanism = None,
-        solver_type: Any = None,
-        ignore_non_gas_phases: bool = True,
-    ):
-        """    Initialize the MICM solver.
-
-        Parameters
-        ----------
-            config_path : FilePath, optional
-                Path to the configuration file. If provided, this will be used to create the solver.
-            mechanism : Mechanism, optional
-                Mechanism object which specifies the chemical mechanism to use. If provided, this will be used
-                to create the solver.
-            solver_type : SolverType, optional
-                Type of solver to use. If not provided, the default Rosenbrock (with standard-ordered matrices) solver type will be used.
-            ignore_non_gas_phases : bool, optional
-                If True, non-gas phases will be ignored when configuring micm with the mechanism. This is only needed
-                until micm properly supports non-gas phases. This option is only supported when passing in a mechanism.
-        """
-        if solver_type is None:
-            solver_type = SolverType.rosenbrock_standard_order
-        self.__solver_type = solver_type
-        self.__vector_size = _vector_size(solver_type)
-        if config_path is None and mechanism is None:
-            raise ValueError(
-                "Either config_path or mechanism must be provided.")
-        if config_path is not None and mechanism is not None:
-            raise ValueError(
-                "Only one of config_path or mechanism must be provided.")
-        if config_path is not None:
-            self.__solver = _create_solver(config_path, solver_type)
-        elif mechanism is not None:
-            self.__solver = _create_solver_from_mechanism(
-                mechanism, solver_type, ignore_non_gas_phases)
-
-    def solver_type(self) -> SolverType:
-        """
-        Get the type of solver used.
-
-        Returns
-        -------
-        SolverType
-            The type of solver used.
-        """
-        return self.__solver_type
-
-    def create_state(self, number_of_grid_cells: int = 1) -> State:
-        """
-        Create a new state object.
-
-        Returns
-        -------
-        State
-            A new state object.
-        """
-        return State(self.__solver, number_of_grid_cells, self.__vector_size)
-
-    def solve(
-            self,
-            state: State,
-            time_step: float,
-    ):
-        """
-        Solve the system of equations for the given state and time step.
-
-        Parameters
-        ----------
-        state : State
-            State object containing the initial conditions.
-        time_step : float
-            Time step in seconds.
-
-        Returns
-        -------
-        State
-            Updated state object after solving the system of equations.
-        """
-        if not isinstance(state, State):
-            raise TypeError("state must be an instance of State.")
-        if not isinstance(time_step, (int, float)):
-            raise TypeError("time_step must be an int or float.")
-        states = state.get_internal_states()
-        for _state in states:
-            _micm_solve(self.__solver, _state, time_step)
