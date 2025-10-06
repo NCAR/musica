@@ -1,4 +1,4 @@
-#include "binding_common.hpp"
+#include "common.hpp"
 
 void bind_mechanism_configuration(py::module_ &);
 

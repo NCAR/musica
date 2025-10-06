@@ -1,4 +1,4 @@
-#include "binding_common.hpp"
+#include "../common.hpp"
 
 #include <musica/carma/carma.hpp>
 #include <musica/carma/carma_state.hpp>

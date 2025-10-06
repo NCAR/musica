@@ -5,7 +5,7 @@
 # For more information, see the LICENSE file in the top-level directory of this distribution.
 from __future__ import annotations
 from .constants import GAS_CONSTANT
-from typing import Optional, Dict, List, Union, Tuple, TYPE_CHECKING, Any
+from typing import Optional, Dict, List, Union, TYPE_CHECKING, Any
 from os import PathLike
 import math
 import numpy as np
