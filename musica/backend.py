@@ -29,8 +29,8 @@ def get_backend():
             import musica._musica as backend
         return backend
     except ImportError as e:
-        raise ImportError(f"Failed to import MUSICA backend. Make sure the package is properly built and installed. Error: {e}")
-
+        raise ImportError(
+            f"Failed to import MUSICA backend. Make sure the package is properly built and installed. Error: {e}")
 
 
 def tuvx_available():
