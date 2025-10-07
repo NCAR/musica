@@ -11,9 +11,7 @@ namespace py = pybind11;
 
 void bind_micm_state(py::module_ &m)
 {
-  py::class_<musica::State>(m, "_State")
-    .def(py::init<>())
-    .def("__del__", [](musica::State &state) {})
+    py::class_<musica::State, std::unique_ptr<musica::State, std::function<void(musica::State*)>>>(m, "_State")
     .def("number_of_grid_cells", [](musica::State &state) { return state.NumberOfGridCells(); })
     .def_property(
         "conditions",

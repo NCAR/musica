@@ -6,11 +6,11 @@ from typing import Union, Any, TYPE_CHECKING
 from os import PathLike
 
 from .state import State
+from .solver import SolverType
 from .. import backend
 
 _backend = backend.get_backend()
 
-SolverType = _backend._micm._SolverType
 create_solver = _backend._micm._create_solver
 create_solver_from_mechanism = _backend._micm._create_solver_from_mechanism
 micm_solve = _backend._micm._micm_solve

@@ -36,7 +36,6 @@ namespace musica
           {
             std::string msg = "MICM pointer is null, cannot create state.";
             *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND, msg.c_str());
-            delete micm;
             return nullptr;
           }
 
@@ -47,7 +46,7 @@ namespace musica
         error);
   }
 
-  void DeleteState(const State* state, Error* error)
+  void DeleteState(State* state, Error* error)
   {
     HandleErrors(
         [&]() -> void
