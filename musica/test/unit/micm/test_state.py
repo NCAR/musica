@@ -2,8 +2,8 @@
 from __future__ import annotations
 import pytest  # type: ignore # pylint: disable=import-error
 import numpy as np  # type: ignore # pylint: disable=import-error
-from musica.micm.micm import MICM
-from musica.micm.state import State
+from musica.micm import MICM
+from musica.micm import State
 import musica.mechanism_configuration as mc
 from musica.mechanism_configuration import Mechanism
 
