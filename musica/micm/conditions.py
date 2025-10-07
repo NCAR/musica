@@ -3,13 +3,13 @@
 
 from typing import Optional, Union
 from ..constants import GAS_CONSTANT
+
 from .. import backend
 
 _backend = backend.get_backend()
+_BaseConditions = _backend._micm._Conditions
 
-Conditions = _backend._micm._Conditions
-
-class Conditions(Conditions):
+class Conditions(_BaseConditions):
     """
     Conditions class for the MICM solver. If air density is not provided,
     it will be calculated from the Ideal Gas Law using the provided temperature and pressure.

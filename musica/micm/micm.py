@@ -5,8 +5,8 @@ from __future__ import annotations
 from typing import Union, Any, TYPE_CHECKING
 from os import PathLike
 
-from .. import backend
 from .state import State
+from .. import backend
 
 _backend = backend.get_backend()
 
@@ -78,7 +78,7 @@ class MICM():
         if config_path is not None:
             self.__solver = create_solver(config_path, solver_type)
         elif mechanism is not None:
-            self.__solver = _create_solver_from_mechanism(
+            self.__solver = create_solver_from_mechanism(
                 mechanism, solver_type, ignore_non_gas_phases)
 
     def solver_type(self) -> SolverType:

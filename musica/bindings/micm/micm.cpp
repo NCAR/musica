@@ -19,6 +19,10 @@ namespace v1 = mechanism_configuration::v1::types;
 
 void bind_micm(py::module_ & micm)
 {
+  py::class_<musica::MICM>(micm, "MICM")
+      .def(py::init<>())
+      .def("__del__", [](musica::MICM* self) { delete self; });
+  
   micm.def(
       "_vector_size",
       [](const musica::MICMSolver solver_type)

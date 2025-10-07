@@ -11,12 +11,10 @@ from .. import backend
 _backend = backend.get_backend()
 
 SolverType = _backend._micm._SolverType
-# create_solver = _backend._micm._create_solver
-# create_solver_from_mechanism = _backend._micm._create_solver_from_mechanism
-# micm_solve = _backend._micm._micm_solve
-# vector_size = _backend._micm._vector_size
-# # mc = _backend._mechanism_configuration
-
+create_solver = _backend._micm._create_solver
+create_solver_from_mechanism = _backend._micm._create_solver_from_mechanism
+micm_solve = _backend._micm._micm_solve
+vector_size = _backend._micm._vector_size
 
 class SolverType(SolverType):
     """

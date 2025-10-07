@@ -15,8 +15,12 @@ void bind_all(py::module_ &m)
 
   bind_cuda(micm);
   bind_micm(micm);
+  bind_micm_conditions(micm);
+  bind_micm_solver(micm);
+  bind_micm_state(micm);
   bind_mechanism_configuration(mechanism_configuration);
-  #ifdef MUSICA_USE_TUVX
+
+#ifdef MUSICA_USE_TUVX
   bind_tuvx_grid(tuvx);
   bind_tuvx_grid_map(tuvx);
   bind_tuvx_profile(tuvx);

@@ -242,7 +242,7 @@ def GetMechanism():
 
 
 def test_single_grid_cell_standard_rosenbrock():
-    solver = musica.MICM(
+    solver = musica.micm.MICM(
         config_path="configs/v0/analytical",
         solver_type=musica.micm.SolverType.rosenbrock_standard_order)
     state = solver.create_state()
@@ -251,7 +251,7 @@ def test_single_grid_cell_standard_rosenbrock():
 
 def test_multiple_grid_cells_standard_rosenbrock():
     for i in range(1, 11):
-        solver = musica.MICM(
+        solver = musica.micm.MICM(
             config_path="configs/v0/analytical",
             solver_type=musica.micm.SolverType.rosenbrock_standard_order)
         state = solver.create_state(i)
@@ -260,7 +260,7 @@ def test_multiple_grid_cells_standard_rosenbrock():
 
 def test_cuda_rosenbrock():
     if is_cuda_available():
-        solver = musica.MICM(
+        solver = musica.micm.MICM(
             config_path="configs/v0/analytical",
             solver_type=musica.micm.SolverType.cuda_rosenbrock)
         state = solver.create_state()
@@ -270,7 +270,7 @@ def test_cuda_rosenbrock():
 
 
 def test_single_grid_cell_backward_euler():
-    solver = musica.MICM(
+    solver = musica.micm.MICM(
         config_path="configs/v0/analytical",
         solver_type=musica.micm.SolverType.backward_euler_standard_order)
     state = solver.create_state()
@@ -279,7 +279,7 @@ def test_single_grid_cell_backward_euler():
 
 def test_multiple_grid_cells_backward_euler():
     for i in range(1, 11):
-        solver = musica.MICM(
+        solver = musica.micm.MICM(
             config_path="configs/v0/analytical",
             solver_type=musica.micm.SolverType.backward_euler_standard_order)
         state = solver.create_state(i)
@@ -287,7 +287,7 @@ def test_multiple_grid_cells_backward_euler():
 
 
 def test_single_grid_cell_rosenbrock():
-    solver = musica.MICM(
+    solver = musica.micm.MICM(
         config_path="configs/v0/analytical",
         solver_type=musica.micm.SolverType.rosenbrock)
     state = solver.create_state()
@@ -296,7 +296,7 @@ def test_single_grid_cell_rosenbrock():
 
 def test_multiple_grid_cells_rosenbrock():
     for i in range(1, 11):
-        solver = musica.MICM(
+        solver = musica.micm.MICM(
             config_path="configs/v0/analytical",
             solver_type=musica.micm.SolverType.rosenbrock)
         state = solver.create_state(i)
@@ -304,7 +304,7 @@ def test_multiple_grid_cells_rosenbrock():
 
 
 def test_single_grid_cell_backward_euler_standard_order():
-    solver = musica.MICM(
+    solver = musica.micm.MICM(
         config_path="configs/v0/analytical",
         solver_type=musica.micm.SolverType.backward_euler_standard_order)
     state = solver.create_state()
@@ -313,7 +313,7 @@ def test_single_grid_cell_backward_euler_standard_order():
 
 def test_multiple_grid_cells_backward_euler_standard_order():
     for i in range(1, 11):
-        solver = musica.MICM(
+        solver = musica.micm.MICM(
             config_path="configs/v0/analytical",
             solver_type=musica.micm.SolverType.backward_euler_standard_order)
         state = solver.create_state(i)

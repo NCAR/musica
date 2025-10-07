@@ -42,7 +42,7 @@ The following is identical to the system and solver set up done in the previous 
         reactions=[r1, r2]
     )
 
-    solver = musica.MICM(mechanism = mechanism, solver_type = musica.micm.SolverType.rosenbrock_standard_order)
+    solver = musica.micm.MICM(mechanism = mechanism, solver_type = musica.micm.SolverType.rosenbrock_standard_order)
 
 Creating the state
 -------------------
