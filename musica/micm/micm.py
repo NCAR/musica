@@ -20,8 +20,7 @@ vector_size = _backend._micm._vector_size
 if TYPE_CHECKING:
     from ..mechanism_configuration import Mechanism
 else:
-    # Mechanism = mc._Mechanism
-    Mechanism = _backend._mechanism_configuration
+    Mechanism = _backend._mechanism_configuration._Mechanism
 
 FilePath = Union[str, "PathLike[str]"]
     
