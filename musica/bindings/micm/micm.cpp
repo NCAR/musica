@@ -15,8 +15,6 @@
 namespace py = pybind11;
 namespace v1 = mechanism_configuration::v1::types;
 
-// PYBIND11_MAKE_OPAQUE(std::vector<micm::Conditions>)
-
 void bind_micm(py::module_ & micm)
 {
   py::class_<musica::MICM>(micm, "MICM")

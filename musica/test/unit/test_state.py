@@ -4,8 +4,6 @@ import pytest  # type: ignore # pylint: disable=import-error
 import numpy as np  # type: ignore # pylint: disable=import-error
 from musica.micm.micm import MICM
 from musica.micm.state import State
-from musica.tuvx.grid_map import GridMap
-
 import musica.mechanism_configuration as mc
 from musica.mechanism_configuration import Mechanism
 

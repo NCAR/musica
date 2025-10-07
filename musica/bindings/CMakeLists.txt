@@ -9,7 +9,6 @@ set(MUSICA_PYTHON_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/micm/micm.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/micm/solver.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/micm/state.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/micm/utils.cpp
   ${MUSICA_SOURCES}
 )
 

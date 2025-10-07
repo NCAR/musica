@@ -16,7 +16,6 @@ void bind_micm(py::module_ &);
 void bind_micm_conditions(py::module_ &);
 void bind_micm_solver(py::module_ &);
 void bind_micm_state(py::module_ &);
-// void bind_micm_utils(py::module_ &);
 
 #ifdef MUSICA_USE_TUVX
 void bind_tuvx(py::module_ &);

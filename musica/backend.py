@@ -35,7 +35,10 @@ def get_backend():
             import musica._musica_gpu as backend
         else:
             import musica._musica as backend
-        return backend
+            
+        _backend_instance = backend
+        return _backend_instance
+
     except ImportError as e:
         raise ImportError(
             f"Failed to import MUSICA backend. Make sure the package is properly built and installed. Error: {e}")

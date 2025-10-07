@@ -15,7 +15,6 @@ create_solver = _backend._micm._create_solver
 create_solver_from_mechanism = _backend._micm._create_solver_from_mechanism
 micm_solve = _backend._micm._micm_solve
 vector_size = _backend._micm._vector_size
-# mc = _backend._mechanism_configuration
 
 # For type hints
 if TYPE_CHECKING:

@@ -1,12 +1,7 @@
 # Copyright (C) 2023-2025 University Corporation for Atmospheric Research
 # SPDX-License-Identifier: Apache-2.0
 
-from __future__ import annotations
-# from typing import Union, Any, TYPE_CHECKING
-# from os import PathLike
-
 from .. import backend
-# from .state import State
 
 _backend = backend.get_backend()
 

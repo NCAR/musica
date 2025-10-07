@@ -31,5 +31,4 @@ void bind_all(py::module_ &m)
 #ifdef MUSICA_USE_CARMA
   bind_carma(carma);
 #endif
-
 }

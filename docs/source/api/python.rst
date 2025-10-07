@@ -41,7 +41,7 @@ Mechanism Configuration
 Musica Types
 ------------
 
-.. automodule:: musica.types
+.. automodule:: musica.micm
    :members:
    :undoc-members:
    :show-inheritance:
