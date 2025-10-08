@@ -9,6 +9,7 @@ from .. import backend
 _backend = backend.get_backend()
 _BaseConditions = _backend._micm._Conditions
 
+
 class Conditions(_BaseConditions):
     """
     Conditions class for the MICM solver. If air density is not provided,
