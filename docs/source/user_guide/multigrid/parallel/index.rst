@@ -141,7 +141,7 @@ Defining them within the delayed function ensures compatibility::
 
 
         #create the solver
-        solver = musica.micm.MICM(mechanism=mechanism, solver_type=musica.micm.SolverType.rosenbrock_standard_order)
+        solver = musica.MICM(mechanism=mechanism, solver_type=musica.SolverType.rosenbrock_standard_order)
 
         #create the state
         state = solver.create_state(1)
@@ -192,7 +192,7 @@ Batching can be implemented as follows::
         )
 
         # create state for all cells in this batch
-        solver = musica.micm.MICM(mechanism=mechanism, solver_type=musica.micm.SolverType.rosenbrock_standard_order)
+        solver = musica.MICM(mechanism=mechanism, solver_type=musica.SolverType.rosenbrock_standard_order)
         state = solver.create_state(batch_size)
 
         # set conditions and concentrations

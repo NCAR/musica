@@ -65,7 +65,7 @@ Go `here <https://ncar.github.io/musica/api/python.html#module-musica.mechanism_
 A solver must be initialized with either a configuration file or a mechanism, and it integrates the chemical reactions that determine how atmospheric chemistry proceeds over time.
 There are a handful of solvers available, but Rosenbrock Standard Order is used here::
 
-    solver = musica.micm.MICM(mechanism=mechanism, solver_type=musica.micm.SolverType.rosenbrock_standard_order)
+    solver = musica.MICM(mechanism=mechanism, solver_type=musica.SolverType.rosenbrock_standard_order)
 
 For more information on the types of solvers available, see the :doc:`MICM User Guide <micm:user_guide/solver_configurations>`.
 

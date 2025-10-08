@@ -14,7 +14,7 @@ To work with a MUSICA model and solve, please be sure to import the following::
 This section details the components of a MICM solver, conditions, and solutions. To initialize a MICM solver, 
 the previously defined in-code mechanism (see :ref:`Defining chemical systems <chemistry>`) can be used as follows::
     
-    solver = musica.micm.MICM(mechanism=mechanism, solver_type=musica.micm.SolverType.rosenbrock_standard_order)
+    solver = musica.MICM(mechanism=mechanism, solver_type=musica.SolverType.rosenbrock_standard_order)
 
 While the Rosenbrock Standard Order solver was used here, several other types of solvers are made available :doc:`through MICM <micm:user_guide/solver_configurations>`.
 

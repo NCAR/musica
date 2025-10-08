@@ -101,7 +101,7 @@ mechanism = mc.Mechanism(name="musica_example", species=species, phases=[gas], r
 # --- 3. Create MICM solver ---
 # A solver must be initialized with either a configuration file or a mechanism:
 
-solver = musica.micm.MICM(mechanism=mechanism, solver_type=musica.micm.SolverType.rosenbrock_standard_order)
+solver = musica.MICM(mechanism=mechanism, solver_type=musica.SolverType.rosenbrock_standard_order)
 
 # --- 4. Define environmental conditions ---
 temperature=300.0
