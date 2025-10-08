@@ -23,7 +23,8 @@ else:
     Mechanism = _backend._mechanism_configuration._Mechanism
 
 FilePath = Union[str, "PathLike[str]"]
-    
+
+
 class MICM():
     """
     The MICM class is a wrapper around the C++ MICM solver. It provides methods to create a solver,

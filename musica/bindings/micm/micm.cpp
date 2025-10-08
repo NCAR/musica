@@ -15,7 +15,7 @@
 namespace py = pybind11;
 namespace v1 = mechanism_configuration::v1::types;
 
-void bind_micm(py::module_ & micm)
+void bind_micm(py::module_ &micm)
 {
   py::class_<musica::MICM, std::shared_ptr<musica::MICM>>(micm, "MICM");
 
@@ -27,13 +27,10 @@ void bind_micm(py::module_ & micm)
         {
           case musica::MICMSolver::Rosenbrock:
           case musica::MICMSolver::BackwardEuler:
-          case musica::MICMSolver::CudaRosenbrock: 
-            return musica::MUSICA_VECTOR_SIZE;
+          case musica::MICMSolver::CudaRosenbrock: return musica::MUSICA_VECTOR_SIZE;
           case musica::MICMSolver::RosenbrockStandardOrder:
-          case musica::MICMSolver::BackwardEulerStandardOrder: 
-            return static_cast<std::size_t>(0);
-          default: 
-            throw py::value_error("Invalid MICM solver type.");
+          case musica::MICMSolver::BackwardEulerStandardOrder: return static_cast<std::size_t>(0);
+          default: throw py::value_error("Invalid MICM solver type.");
         }
       },
       "Returns the vector dimension for vector-ordered solvers, 0 otherwise.");
@@ -54,8 +51,9 @@ void bind_micm(py::module_ & micm)
         }
 
         return std::shared_ptr<musica::MICM>(
-          micm,
-          [](musica::MICM* ptr) {
+            micm,
+            [](musica::MICM *ptr)
+            {
               musica::Error error;
               musica::DeleteMicm(ptr, &error);
               if (!musica::IsSuccess(error))
@@ -63,7 +61,7 @@ void bind_micm(py::module_ & micm)
                 std::cerr << "Error deleting MICM: " << error.message_.value_ << std::endl;
                 musica::DeleteError(&error);
               }
-          });
+            });
       });
 
   micm.def(
@@ -81,8 +79,9 @@ void bind_micm(py::module_ & micm)
         }
 
         return std::shared_ptr<musica::MICM>(
-          micm,
-          [](musica::MICM* ptr) {
+            micm,
+            [](musica::MICM *ptr)
+            {
               musica::Error error;
               musica::DeleteMicm(ptr, &error);
               if (!musica::IsSuccess(error))
@@ -90,7 +89,7 @@ void bind_micm(py::module_ & micm)
                 std::cerr << "Error deleting MICM: " << error.message_.value_ << std::endl;
                 musica::DeleteError(&error);
               }
-          });
+            });
       });
 
   micm.def(
@@ -106,21 +105,21 @@ void bind_micm(py::module_ & micm)
           throw py::value_error(message);
         }
 
-        return std::unique_ptr<musica::State, std::function<void(musica::State*)>>(
-          state,
-          [](musica::State *ptr)
-          {
-            if (!ptr) return;
-
-            musica::Error error;
-            musica::DeleteState(ptr, &error);
-            if (!musica::IsSuccess(error))
+        return std::unique_ptr<musica::State, std::function<void(musica::State *)>>(
+            state,
+            [](musica::State *ptr)
             {
-              std::cerr << "Error deleting State: "
-                        << error.message_.value_ << std::endl;
-              musica::DeleteError(&error);
-            }
-          });
+              if (!ptr)
+                return;
+
+              musica::Error error;
+              musica::DeleteState(ptr, &error);
+              if (!musica::IsSuccess(error))
+              {
+                std::cerr << "Error deleting State: " << error.message_.value_ << std::endl;
+                musica::DeleteError(&error);
+              }
+            });
       });
 
   micm.def(

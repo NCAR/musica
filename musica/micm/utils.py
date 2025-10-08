@@ -10,6 +10,7 @@ _backend = backend.get_backend()
 species_ordering = _backend._micm._species_ordering
 user_defined_rate_parameters_ordering = _backend._micm._user_defined_rate_parameters_ordering
 
+
 def is_scalar_number(x):
     return (
         isinstance(x, (int, float, np.number))
