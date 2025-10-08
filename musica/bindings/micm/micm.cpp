@@ -1,6 +1,6 @@
 // Copyright (C) 2023-2025 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
-#include "common.hpp"
+#include "../common.hpp"
 
 #include <musica/micm/cuda_availability.hpp>
 #include <musica/micm/micm.hpp>
@@ -10,55 +10,16 @@
 
 #include <mechanism_configuration/v1/types.hpp>
 
+#include <iostream>
+
 namespace py = pybind11;
 namespace v1 = mechanism_configuration::v1::types;
 
-PYBIND11_MAKE_OPAQUE(std::vector<micm::Conditions>)
-
-void bind_musica(py::module_ &core)
+void bind_micm(py::module_ & micm)
 {
-  py::bind_vector<std::vector<micm::Conditions>>(core, "VectorConditions");
+  py::class_<musica::MICM, std::shared_ptr<musica::MICM>>(micm, "MICM");
 
-  py::class_<micm::Conditions>(core, "_Conditions")
-      .def(py::init<>())
-      .def_readwrite("temperature", &micm::Conditions::temperature_)
-      .def_readwrite("pressure", &micm::Conditions::pressure_)
-      .def_readwrite("air_density", &micm::Conditions::air_density_);
-
-  py::class_<musica::State>(core, "_State")
-      .def(py::init<>())
-      .def("__del__", [](musica::State &state) {})
-      .def("number_of_grid_cells", [](musica::State &state) { return state.NumberOfGridCells(); })
-      .def_property(
-          "conditions",
-          [](musica::State &state) -> std::vector<micm::Conditions> & { return state.GetConditions(); },
-          nullptr,
-          "list of conditions structs for each grid cell")
-      .def_property(
-          "concentrations",
-          [](musica::State &state) -> std::vector<double> & { return state.GetOrderedConcentrations(); },
-          nullptr,
-          "native 1D list of concentrations, ordered by species and grid cell according to matrix type")
-      .def_property(
-          "user_defined_rate_parameters",
-          [](musica::State &state) -> std::vector<double> & { return state.GetOrderedRateParameters(); },
-          nullptr,
-          "native 1D list of user-defined rate parameters, ordered by parameter and grid cell according to matrix type")
-      .def("concentration_strides", [](musica::State &state) { return state.GetConcentrationsStrides(); })
-      .def(
-          "user_defined_rate_parameter_strides",
-          [](musica::State &state) { return state.GetUserDefinedRateParametersStrides(); });
-
-  py::enum_<musica::MICMSolver>(core, "_SolverType")
-      .value("rosenbrock", musica::MICMSolver::Rosenbrock)
-      .value("rosenbrock_standard_order", musica::MICMSolver::RosenbrockStandardOrder)
-      .value("backward_euler", musica::MICMSolver::BackwardEuler)
-      .value("backward_euler_standard_order", musica::MICMSolver::BackwardEulerStandardOrder)
-      .value("cuda_rosenbrock", musica::MICMSolver::CudaRosenbrock);
-
-  py::class_<musica::MICM>(core, "_Solver");
-
-  core.def(
+  micm.def(
       "_vector_size",
       [](const musica::MICMSolver solver_type)
       {
@@ -66,15 +27,18 @@ void bind_musica(py::module_ &core)
         {
           case musica::MICMSolver::Rosenbrock:
           case musica::MICMSolver::BackwardEuler:
-          case musica::MICMSolver::CudaRosenbrock: return musica::MUSICA_VECTOR_SIZE;
+          case musica::MICMSolver::CudaRosenbrock: 
+            return musica::MUSICA_VECTOR_SIZE;
           case musica::MICMSolver::RosenbrockStandardOrder:
-          case musica::MICMSolver::BackwardEulerStandardOrder: return static_cast<std::size_t>(0);
-          default: throw py::value_error("Invalid MICM solver type.");
+          case musica::MICMSolver::BackwardEulerStandardOrder: 
+            return static_cast<std::size_t>(0);
+          default: 
+            throw py::value_error("Invalid MICM solver type.");
         }
       },
       "Returns the vector dimension for vector-ordered solvers, 0 otherwise.");
 
-  core.def(
+  micm.def(
       "_create_solver",
       [](const char *config_path, musica::MICMSolver solver_type)
       {
@@ -82,16 +46,27 @@ void bind_musica(py::module_ &core)
         musica::MICM *micm = musica::CreateMicm(config_path, solver_type, &error);
         if (!musica::IsSuccess(error))
         {
-          std::cout << "Error creating solver: " << error.message_.value_ << " solver_type: " << solver_type
+          std::cerr << "Error creating solver: " << error.message_.value_ << " solver_type: " << solver_type
                     << " config_path: " << config_path << std::endl;
           std::string message = "Error creating solver: " + std::string(error.message_.value_);
-          DeleteError(&error);
+          musica::DeleteError(&error);
           throw py::value_error(message);
         }
-        return micm;
+
+        return std::shared_ptr<musica::MICM>(
+          micm,
+          [](musica::MICM* ptr) {
+              musica::Error error;
+              musica::DeleteMicm(ptr, &error);
+              if (!musica::IsSuccess(error))
+              {
+                std::cerr << "Error deleting MICM: " << error.message_.value_ << std::endl;
+                musica::DeleteError(&error);
+              }
+          });
       });
 
-  core.def(
+  micm.def(
       "_create_solver_from_mechanism",
       [](const v1::Mechanism &mechanism, musica::MICMSolver solver_type, bool ignore_non_gas_phases)
       {
@@ -101,13 +76,24 @@ void bind_musica(py::module_ &core)
         if (!musica::IsSuccess(error))
         {
           std::string message = "Error creating solver: " + std::string(error.message_.value_);
-          DeleteError(&error);
+          musica::DeleteError(&error);
           throw py::value_error(message);
         }
-        return micm;
+
+        return std::shared_ptr<musica::MICM>(
+          micm,
+          [](musica::MICM* ptr) {
+              musica::Error error;
+              musica::DeleteMicm(ptr, &error);
+              if (!musica::IsSuccess(error))
+              {
+                std::cerr << "Error deleting MICM: " << error.message_.value_ << std::endl;
+                musica::DeleteError(&error);
+              }
+          });
       });
 
-  core.def(
+  micm.def(
       "_create_state",
       [](musica::MICM *micm, std::size_t number_of_grid_cells)
       {
@@ -119,10 +105,25 @@ void bind_musica(py::module_ &core)
           DeleteError(&error);
           throw py::value_error(message);
         }
-        return state;
+
+        return std::unique_ptr<musica::State, std::function<void(musica::State*)>>(
+          state,
+          [](musica::State *ptr)
+          {
+            if (!ptr) return;
+
+            musica::Error error;
+            musica::DeleteState(ptr, &error);
+            if (!musica::IsSuccess(error))
+            {
+              std::cerr << "Error deleting State: "
+                        << error.message_.value_ << std::endl;
+              musica::DeleteError(&error);
+            }
+          });
       });
 
-  core.def(
+  micm.def(
       "_micm_solve",
       [](musica::MICM *micm, musica::State *state, double time_step)
       {
@@ -139,7 +140,7 @@ void bind_musica(py::module_ &core)
       },
       "Solve the chemistry system");
 
-  core.def(
+  micm.def(
       "_species_ordering",
       [](musica::State *state)
       {
@@ -149,7 +150,7 @@ void bind_musica(py::module_ &core)
       },
       "Return map of species names to their indices in the state concentrations vector");
 
-  core.def(
+  micm.def(
       "_user_defined_rate_parameters_ordering",
       [](musica::State *state)
       {
@@ -160,9 +161,9 @@ void bind_musica(py::module_ &core)
       },
       "Return map of reaction rate parameters to their indices in the state user-defined rate parameters vector");
 
-  core.def("_is_cuda_available", &musica::IsCudaAvailable, "Check if CUDA is available");
+  micm.def("_is_cuda_available", &musica::IsCudaAvailable, "Check if CUDA is available");
 
-  core.def(
+  micm.def(
       "_print_state",
       [](musica::State *state, const double current_time)
       {

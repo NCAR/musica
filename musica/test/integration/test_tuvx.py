@@ -15,7 +15,7 @@ def test_tuvx_version():
 def test_full_tuvx(monkeypatch):
     monkeypatch.chdir("configs/tuvx")
     file = "tuv_5_4.json"
-    tuvx = musica.tuvx.TUVX(file)
+    tuvx = musica.TUVX(file)
     assert tuvx is not None
 
     photolysis_rates, heating_rates, dose_rates = tuvx.run()
@@ -37,7 +37,7 @@ def test_full_tuvx(monkeypatch):
 def test_fixed_tuvx_from_file(monkeypatch):
     monkeypatch.chdir("src")
     file = "test/data/tuvx/fixed/config.json"
-    tuvx = musica.tuvx.TUVX(config_path=file)
+    tuvx = musica.TUVX(config_path=file)
     assert tuvx is not None
 
     # Access properties multiple times
@@ -75,7 +75,7 @@ def test_fixed_tuvx_from_string(monkeypatch):
     file = "test/data/tuvx/fixed/config.json"
     with open(file, 'r') as f:
         config_str = f.read()
-    tuvx = musica.tuvx.TUVX(config_string=config_str)
+    tuvx = musica.TUVX(config_string=config_str)
     assert tuvx is not None
 
     # Access properties multiple times
@@ -112,7 +112,7 @@ def test_tuvx_initialization_errors():
     """Test error handling during TUVX initialization."""
     # Test with non-existent file
     with pytest.raises(FileNotFoundError):
-        musica.tuvx.TUVX("non_existent_config.json")
+        musica.TUVX("non_existent_config.json")
 
 
 if __name__ == '__main__':

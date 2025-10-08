@@ -4,8 +4,11 @@
 set(MUSICA_PYTHON_SOURCES
   common.cpp
   cuda.cpp
-  musica.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/mechanism_configuration/mechanism_configuration.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/micm/conditions.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/micm/micm.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/micm/solver.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/micm/state.cpp
   ${MUSICA_SOURCES}
 )
 

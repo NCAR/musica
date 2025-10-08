@@ -25,7 +25,7 @@ namespace musica
     /// @brief Deletes a state object
     /// @param state Pointer to state object
     /// @param error Error struct to indicate success or failure
-    void DeleteState(const State* state, Error* error);
+    void DeleteState(State* state, Error* error);
 
     /// @brief Get the pointer to the conditions struct
     /// @param state Pointer to state object

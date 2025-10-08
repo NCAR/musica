@@ -19,15 +19,26 @@ def _gpu_deps_installed():
         _safe_find_spec("nvidia-cuda-runtime-cu12") is not None
     )
 
+# Global backend instance to ensure it's only loaded once
+_backend_instance = None
 
 def get_backend():
     """Get the appropriate backend module."""
+    
+    global _backend_instance
+    
+    if _backend_instance is not None:
+        return _backend_instance
+
     try:
         if _gpu_deps_installed():
             import musica._musica_gpu as backend
         else:
             import musica._musica as backend
-        return backend
+            
+        _backend_instance = backend
+        return _backend_instance
+
     except ImportError as e:
         raise ImportError(
             f"Failed to import MUSICA backend. Make sure the package is properly built and installed. Error: {e}")
