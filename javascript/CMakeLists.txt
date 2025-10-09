@@ -19,6 +19,8 @@ string(STRIP ${NODE_ADDON_API_DIR} NODE_ADDON_API_DIR)
 
 # Source files - using our MUSICA integrated addon
 set(SOURCE_FILES
+    src/state_wrapper.cpp
+    src/micm_wrapper.cpp
     src/musica_addon.cpp
     src/musica_wrapper.cpp
 )
