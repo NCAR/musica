@@ -1,11 +1,14 @@
 {
   "name": "musica-addon",
-  "version": "0.1.0",
+  "version": "0.12.2",
   "description": "Native Node.js addon for MUSICA atmospheric chemistry modeling",
   "scripts": {
     "build": "cmake-js -p 4 compile --CDMUSICA_ENABLE_JAVASCRIPT=ON --CDMUSICA_ENABLE_PYTHON_LIBRARY=OFF --CDMUSICA_ENABLE_TUVX=OFF --CDMUSICA_ENABLE_CARMA=OFF --CDMUSICA_ENABLE_TESTS=OFF",
     "rebuild": "cmake-js rebuild",
-    "clean": "cmake-js clean"
+    "clean": "cmake-js clean",
+    "test": "node javascript/test/analytical.test.js",
+    "sync-version": "node scripts/version_utils.js sync",
+    "check-version": "node scripts/version_utils.js test"
   },
   "dependencies": {
     "musica": "^1.0.0",
