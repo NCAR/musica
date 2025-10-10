@@ -1,4 +1,3 @@
-#include "micm_wrapper.h"
 #include "state_wrapper.h"
 #include <sstream>
 #include <memory>
