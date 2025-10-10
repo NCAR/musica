@@ -67,7 +67,7 @@ cmake.define.CMAKE_POLICY_VERSION_MINIMUM = "3.5"
 cmake.define.MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE = "1"
 cmake.define.CMAKE_VERBOSE_MAKEFILE = "ON"
 build.verbose = true
-wheel.packages = ["python"]
+wheel.packages = ["python/musica"]
 
 [[tool.scikit-build.overrides]]
 if.platform-system = "linux"
@@ -108,7 +108,7 @@ input = "CMakeLists.txt"
 regex = 'musica-distribution VERSION\s+(?P<value>[0-9.]+)'
 
 [[tool.scikit-build.generate]]
-path = "python/_version.py"
+path = "python/musica/_version.py"
 template = '''
 version = "${version}"
 '''
