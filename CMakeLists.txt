@@ -152,7 +152,7 @@ endif()
 ################################################################################
 # Musica python
 if(MUSICA_ENABLE_PYTHON_LIBRARY)
-  add_subdirectory(musica)
+  add_subdirectory(python)
 endif()
 
 ################################################################################
