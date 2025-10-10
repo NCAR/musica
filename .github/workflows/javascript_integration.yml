@@ -1,0 +1,50 @@
+name: Run Tests
+
+on: 
+  push:
+    branches:
+      # - main
+      - TAMU_Capstone_FA25_CICD
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v4
+    #   NOTE (BRAYTON): I am seeing v4 everywhere so I am guessing keep it that way.
+
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        # node-version: 22
+        # NOTE (BRAYTON): Add a version matrix
+        node-version: '20.x' # NOTE (BRAYTON): This seems to be a common version for other projects
+        cache: 'npm'
+
+    - name: Restore npm cache
+      uses: actions/cache@v4
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json')}}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
+    - name: Install dependencies
+      # NOTE (BRAYTON): I do not think this is needed
+      # working-directory: ./
+      # NOTE (BRAYTON): npm ci here instead of install, unless we need something else
+      run: npm ci
+      
+    - name: Build platform
+      # NOTE (BRAYTON): I do not think this is needed
+      # working-directory: ./
+      run: npm run build
+      
+    - name: Test platform
+      # NOTE (BRAYTON): I do not think this is needed
+      # working-directory: ./
+      run: npm test
