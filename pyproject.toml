@@ -67,8 +67,6 @@ cmake.define.CMAKE_POLICY_VERSION_MINIMUM = "3.5"
 cmake.define.MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE = "1"
 cmake.define.CMAKE_VERBOSE_MAKEFILE = "ON"
 build.verbose = true
-wheel.install-dir = "musica"
-wheel.packages = ["python"]
 
 [[tool.scikit-build.overrides]]
 if.platform-system = "linux"
@@ -109,7 +107,7 @@ input = "CMakeLists.txt"
 regex = 'musica-distribution VERSION\s+(?P<value>[0-9.]+)'
 
 [[tool.scikit-build.generate]]
-path = "python/_version.py"
+path = "python/musica/_version.py"
 template = '''
 version = "${version}"
 '''
@@ -129,11 +127,11 @@ skip = ["*musllinux*"]
 # Set up pre-build hooks
 [tool.cibuildwheel.macos]
 environment.MACOSX_DEPLOYMENT_TARGET = "15.0"
-before-all = "bash python/tools/prepare_build_environment_macos.sh"
+before-all = "bash python/musica/tools/prepare_build_environment_macos.sh"
 
 [tool.cibuildwheel.linux]
-before-all = "python/tools/prepare_build_environment_linux.sh"
-repair-wheel-command = "bash python/tools/repair_wheel_gpu.sh {wheel} {dest_dir}"
+before-all = "python/musica/tools/prepare_build_environment_linux.sh"
+repair-wheel-command = "bash python/musica/tools/repair_wheel_gpu.sh {wheel} {dest_dir}"
 # Use manylinux_2_28 for modern GCC 8.5 and NetCDF compatibility
 manylinux-x86_64-image  = "manylinux_2_28"
 manylinux-aarch64-image = "manylinux_2_28"
