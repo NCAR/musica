@@ -173,9 +173,9 @@ namespace musica
       return std::visit([](auto &solver) { return solver->MaximumNumberOfGridCells(); }, solver_variant_);
     }
   
-    State* CreateState(std::size_t number_of_grid_cells)
+    std::unique_ptr<State> CreateState(std::size_t number_of_grid_cells)
     {
-      return new State(*this, number_of_grid_cells);
+      return std::make_unique<State>(*this, number_of_grid_cells);
     }
   };
 
