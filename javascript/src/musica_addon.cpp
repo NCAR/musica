@@ -1,8 +1,10 @@
 #include <napi.h>
 #include "musica_wrapper.h"
-#include "micm_wrapper.h"
 #include "state_wrapper.h"
 #include <memory>
+
+#include <musica/micm/micm.hpp>
+#include <musica/util.hpp>
 
 using namespace musica_addon;
 
@@ -330,7 +332,6 @@ public:
         Napi::Function func = DefineClass(env, "MICM", {
             InstanceMethod("createState", &MICMClass::CreateState),
             InstanceMethod("solve", &MICMClass::Solve),
-            InstanceMethod("getSolverType", &MICMClass::GetSolverType),
         });
 
         Napi::FunctionReference* constructor = new Napi::FunctionReference();
@@ -364,14 +365,14 @@ public:
         int solver_type = info[1].As<Napi::Number>().Int32Value();
 
         try {
-            micm_ = std::make_unique<MICMWrapper>(config_path, solver_type);
+            micm_ = std::make_unique<musica::MICM>(config_path.c_str(), static_cast<musica::MICMSolver>(solver_type));
         } catch (const std::exception& e) {
             Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
         }
     }
 
 private:
-    std::unique_ptr<MICMWrapper> micm_;
+    std::unique_ptr<musica::MICM> micm_;
     std::vector<std::shared_ptr<StateWrapper>> states_;
 
     Napi::Value CreateState(const Napi::CallbackInfo& info) {
@@ -430,17 +431,15 @@ private:
         double time_step = info[1].As<Napi::Number>().DoubleValue();
 
         try {
-            micm_->Solve(state_class->GetStateWrapper()->GetState(), time_step);
+            musica::Error error;
+            musica::String solver_state;
+            musica::SolverResultStats stats;
+            micm_->Solve(state_class->GetStateWrapper()->GetState(), time_step, &solver_state, &stats);
         } catch (const std::exception& e) {
             Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
         }
 
         return env.Undefined();
-    }
-
-    Napi::Value GetSolverType(const Napi::CallbackInfo& info) {
-        Napi::Env env = info.Env();
-        return Napi::Number::New(env, micm_->GetSolverType());
     }
 
     friend class StateClass;
