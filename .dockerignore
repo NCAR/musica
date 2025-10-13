@@ -13,7 +13,7 @@
 !include/
 !lib/
 !src/
-!musica/
+!python/
 !pyproject.toml
 !LICENSE
 !README.md

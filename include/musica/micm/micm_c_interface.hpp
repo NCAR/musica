@@ -44,7 +44,7 @@ namespace musica
     /// @brief Deletes a MICM object
     /// @param micm Pointer to MICM object
     /// @param error Error struct to indicate success or failure
-    void DeleteMicm(const MICM *micm, Error *error);
+    void DeleteMicm(MICM *micm, Error *error);
 
     /// @brief Solve the system
     /// @param micm Pointer to MICM object

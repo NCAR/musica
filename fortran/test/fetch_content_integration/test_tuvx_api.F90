@@ -325,20 +325,23 @@ contains
     ASSERT_EQ( temp_midpoint(2,3), 1.0 )
     ASSERT_EQ( temp_midpoint(2,4), 7.0 + 1.0 )
 
-    call profile%calculate_exo_layer_density( 10.0d0, error )
+    ! Bake in m-to-cm conversion factor until TUV-x internal functions are converted to SI units
+    call profile%calculate_exo_layer_density( 10.0d0 * 100.0d0, error )
     ASSERT( error%is_success() )
 
     temp_real = profile%get_exo_layer_density( error )
     ASSERT( error%is_success() )
     ! Revisit this after non-SI units are converted in the TUV-x internal functions
-    ASSERT_EQ( temp_real, 10.0 * 7.0 * 100.0 )
+    ASSERT_EQ( temp_real, 50.0 * 10.0 * 100.0 )
 
     call profile%get_layer_densities( temp_midpoint(2,:), error )
     ASSERT( error%is_success() )
     ASSERT_EQ( temp_midpoint(2,1), 2.0 )
     ASSERT_EQ( temp_midpoint(2,2), 4.0 )
     ASSERT_EQ( temp_midpoint(2,3), 1.0 )
-    ASSERT_EQ( temp_midpoint(2,4), 7.0 + 10.0 * 7.0 * 100.0 )
+    ! Note that because of the way TUV-x is currently implemented, the exo layer density
+    ! accumulates in the top layer density each time calculate_exo_layer_density is called
+    ASSERT_EQ( temp_midpoint(2,4), 7.0 + 1.0 + 50.0 * 10.0 * 100.0 )
 
     call profiles%add( profile, error )
     profile_copy => profiles%get( "baz", "qux", error )

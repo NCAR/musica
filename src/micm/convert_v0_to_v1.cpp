@@ -68,7 +68,13 @@ namespace musica
     auto parsed = parser.Parse(config_path);
     if (!parsed)
     {
-      throw std::system_error(make_error_code(MusicaParseErrc::ParsingFailed), "Failed to parse V0 mechanism configuration");
+      std::string error_msg = "";
+      for (auto& error : parsed.errors)
+      {
+        error_msg += error.second + "\n";
+      }
+      throw std::system_error(
+          make_error_code(MusicaParseErrc::ParsingFailed), "Failed to parse V0 mechanism configuration\n" + error_msg);
     }
     mechanism_configuration::v0::types::Mechanism mechanism = *parsed;
     return ConvertV0MechanismToV1(mechanism);
@@ -85,17 +91,23 @@ namespace musica
     // Create a single gas phase containing all species (v0 doesn't have explicit phases)
     mechanism_configuration::v1::types::Phase gas_phase;
     gas_phase.name = "gas";
-    for (const auto& species : v1_mechanism.species)
+    for (const auto& species : v0_mechanism.species)
     {
-      gas_phase.species.push_back(species.name);
+      mechanism_configuration::v1::types::PhaseSpecies phase_species;
+      phase_species.name = species.name;
+      phase_species.diffusion_coefficient = species.diffusion_coefficient;
+      gas_phase.species.push_back(phase_species);
     }
     v1_mechanism.phases.push_back(gas_phase);
 
     mechanism_configuration::v1::types::Phase condensed_phase;
     condensed_phase.name = "condensed";
-    for (const auto& species : v1_mechanism.species)
+    for (const auto& species : v0_mechanism.species)
     {
-      condensed_phase.species.push_back(species.name);
+      mechanism_configuration::v1::types::PhaseSpecies phase_species;
+      phase_species.name = species.name;
+      phase_species.diffusion_coefficient = species.diffusion_coefficient;
+      condensed_phase.species.push_back(phase_species);
     }
     v1_mechanism.phases.push_back(condensed_phase);
 
@@ -124,9 +136,6 @@ namespace musica
 
       v1_spec.name = v0_spec.name;
       v1_spec.molecular_weight = v0_spec.molecular_weight;
-      v1_spec.diffusion_coefficient = v0_spec.diffusion_coefficient;
-      v1_spec.absolute_tolerance = v0_spec.absolute_tolerance;
-      v1_spec.tracer_type = v0_spec.tracer_type;
 
       // Convert unknown properties
       for (const auto& prop : v0_spec.unknown_properties)
@@ -186,7 +195,6 @@ namespace musica
       v1_surface.gas_phase_species = convert_reaction_component_v0_to_v1(surface.gas_phase_species);
       v1_surface.gas_phase_products = convert_reaction_components_v0_to_v1(surface.gas_phase_products);
       v1_surface.gas_phase = "gas";
-      v1_surface.condensed_phase = "condensed";
       v1_surface.unknown_properties = surface.unknown_properties;
       v1_reactions.surface.push_back(v1_surface);
     }

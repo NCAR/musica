@@ -66,6 +66,30 @@ BUILD_GPU=1 pip install -e .
 ```
 
 ## CMake
+
+If you plan to build from source, you will need to install these packages, at a minimum. More packages may be
+required for more advancded installations.
+
+- cmake
+- pkg-config
+- netcdf
+- netcdf-fortran
+- blas
+- lapack
+
+MUSICA does have more dependencies that it builds with, but those are pulled in with cmake. If you want
+to use your own installation of these, you may, and our files are setup so that an installed package will
+be used rather than downloading one during the build, assuming you've installed it into a place where cmake
+can find it.
+
+**optional, pulled in by cmake**
+- pybind11
+- google test
+- micm
+- tuvx
+- mechanism configuration
+- carma
+
 ```
 $ git clone https://github.com/NCAR/musica.git
 $ cd musica
