@@ -107,7 +107,7 @@ input = "CMakeLists.txt"
 regex = 'musica-distribution VERSION\s+(?P<value>[0-9.]+)'
 
 [[tool.scikit-build.generate]]
-path = "python/musica/_version.py"
+path = "musica/_version.py"
 template = '''
 version = "${version}"
 '''
