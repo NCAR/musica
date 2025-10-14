@@ -163,9 +163,6 @@ namespace musica
           return species.GetProperty<T>(property_name);
         }
       }
-      // TODO - This function GetProperty<T>(property_name) can throw an exception
-      // if the property is not found; the error needs to be fixed.
-      // Issue: https://github.com/NCAR/musica/issues/617
       throw std::system_error(make_error_code(MusicaErrCode::SpeciesNotFound), "Species '" + species_name + "' not found");
     }
 
