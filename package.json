@@ -6,7 +6,7 @@
     "build": "cmake-js -p 4 compile --CDMUSICA_ENABLE_JAVASCRIPT=ON --CDMUSICA_ENABLE_PYTHON_LIBRARY=OFF --CDMUSICA_ENABLE_TUVX=OFF --CDMUSICA_ENABLE_CARMA=OFF --CDMUSICA_ENABLE_TESTS=OFF",
     "rebuild": "cmake-js rebuild",
     "clean": "cmake-js clean",
-    "test": "node javascript/analytical.test.js"
+    "test": "node javascript/tests/integration/analytical.test.js"
   },
   "dependencies": {
     "musica": "^1.0.0",

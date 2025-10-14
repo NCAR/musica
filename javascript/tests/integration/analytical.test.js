@@ -1,8 +1,8 @@
 const path = require('path');
-const { MICM, SolverType, GAS_CONSTANT } = require('./types.js');
+const { MICM, SolverType, GAS_CONSTANT } = require('../../types.js');
 
 // Test configuration
-const CONFIG_PATH = path.join(__dirname, '../configs/v0/analytical');
+const CONFIG_PATH = path.join(__dirname, '../../../configs/v0/analytical');
 
 // Helper function to check if values are close (equivalent to np.isclose)
 function isClose(a, b, atol = 1e-5, rtol = 1e-9) {
