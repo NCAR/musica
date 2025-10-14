@@ -16,7 +16,7 @@ jobs:
         platform: [windows-latest, macos-latest, ubuntu-latest]
         # NOTE (BRAYTON): Add node version? 
 
-    runs-on: ${{ matrix/platform }}
+    runs-on: ${{ matrix.platform }}
 
     steps:
     - name: Check out repository code
