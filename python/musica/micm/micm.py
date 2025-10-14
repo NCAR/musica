@@ -14,7 +14,6 @@ _backend = backend.get_backend()
 create_solver = _backend._micm._create_solver
 create_solver_from_mechanism = _backend._micm._create_solver_from_mechanism
 micm_solve = _backend._micm._micm_solve
-vector_size = _backend._micm._vector_size
 
 # For type hints
 if TYPE_CHECKING:
@@ -67,7 +66,6 @@ class MICM():
         if solver_type is None:
             solver_type = SolverType.rosenbrock_standard_order
         self.__solver_type = solver_type
-        self.__vector_size = vector_size(solver_type)
         if config_path is None and mechanism is None:
             raise ValueError(
                 "Either config_path or mechanism must be provided.")
@@ -100,7 +98,7 @@ class MICM():
         State
             A new state object.
         """
-        return State(self.__solver, number_of_grid_cells, self.__vector_size)
+        return State(self.__solver, number_of_grid_cells)
 
     def solve(
             self,
@@ -126,6 +124,5 @@ class MICM():
             raise TypeError("state must be an instance of State.")
         if not isinstance(time_step, (int, float)):
             raise TypeError("time_step must be an int or float.")
-        states = state.get_internal_states()
-        for _state in states:
-            micm_solve(self.__solver, _state, time_step)
+
+        micm_solve(self.__solver, state.get_internal_state(), time_step)
