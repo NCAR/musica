@@ -10,7 +10,13 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: 
+        platform: [windows-latest, macos-latest, ubuntu-latest]
+        # NOTE (BRAYTON): Add node version? 
+
+    runs-on: ${{ matrix/platform }}
 
     steps:
     - name: Check out repository code
@@ -37,7 +43,9 @@ jobs:
       # NOTE (BRAYTON): I do not think this is needed
       # working-directory: ./
       # NOTE (BRAYTON): npm ci here instead of install, unless we need something else
+      # if: matrix.platform == 'windows-latest'
       run: npm ci
+
       
     - name: Build platform
       # NOTE (BRAYTON): I do not think this is needed
