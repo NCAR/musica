@@ -4,6 +4,7 @@ project(musica-addon)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+
 # Get the node-addon-api include directory and clean it
 execute_process(
      COMMAND node -p "require('node-addon-api').include"
@@ -40,9 +41,17 @@ target_link_libraries(${PROJECT_NAME}
 target_compile_definitions(${PROJECT_NAME} PRIVATE NAPI_VERSION=8)
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_JS_INC} ${NODE_ADDON_API_DIR})
 
+################### BCL ########################
+if(MUSICA_ENABLE_PIC)
+    set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
+endif()
+################### BCL ########################
+
 # macOS specific settings
 if(APPLE)
     set_target_properties(${PROJECT_NAME} PROPERTIES
         LINK_FLAGS "-undefined dynamic_lookup"
     )
 endif()
+
+
