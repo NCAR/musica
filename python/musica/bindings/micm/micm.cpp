@@ -29,7 +29,7 @@ void bind_micm(py::module_ &micm)
           case musica::MICMSolver::BackwardEuler:
           case musica::MICMSolver::CudaRosenbrock: return musica::MUSICA_VECTOR_SIZE;
           case musica::MICMSolver::RosenbrockStandardOrder:
-          case musica::MICMSolver::BackwardEulerStandardOrder: return static_cast<std::size_t>(0);
+          case musica::MICMSolver::BackwardEulerStandardOrder: return static_cast<std::size_t>(1);
           default: throw py::value_error("Invalid MICM solver type.");
         }
       },
