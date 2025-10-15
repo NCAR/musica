@@ -11,7 +11,6 @@ from .utils import is_scalar_number, species_ordering, user_defined_rate_paramet
 _backend = backend.get_backend()
 
 create_state = _backend._micm._create_state
-vector_size = _backend._micm._vector_size
 
 
 class State():
