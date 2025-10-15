@@ -125,9 +125,9 @@ def test_oregonator():
         actual_solve = 0
         while actual_solve < time_step:
             result = solver.solve(state, time_step=time_step - actual_solve)
-            actual_solve += result[0].stats.final_time
+            actual_solve += result.stats.final_time
             if (actual_solve < time_step):
-                print(f"  Partial solve to {actual_solve:.6f} seconds, solver state: {result[0].state}")
+                print(f"  Partial solve to {actual_solve:.6f} seconds, solver state: {result.state}")
 
 
 def test_robertson():
@@ -161,9 +161,9 @@ def test_robertson():
         actual_solve = 0
         while actual_solve < time_step:
             result = solver.solve(state, time_step=time_step - actual_solve)
-            actual_solve += result[0].stats.final_time
+            actual_solve += result.stats.final_time
             if (actual_solve < time_step):
-                print(f"  Partial solve to {actual_solve:.6f} seconds, solver state: {result[0].state}")
+                print(f"  Partial solve to {actual_solve:.6f} seconds, solver state: {result.state}")
         time_step *= 10
 
 
