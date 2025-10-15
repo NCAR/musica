@@ -5,6 +5,7 @@ dependencies:
   - python>=3.9
   - ipykernel
   - graphviz
+  - ipycytoscape
   - pip
   - pip:
     - musica[tutorial]
