@@ -173,6 +173,10 @@ def test_state_initialization():
     state_multi = solver.create_state(number_of_grid_cells=3)
     assert isinstance(state_multi, State)
 
+    # Test with 6 grid cells
+    state_six = solver.create_state(number_of_grid_cells=6)
+    assert isinstance(state_six, State)
+
     # Test with invalid input
     with pytest.raises(ValueError, match="number_of_grid_cells must be greater than 0"):
         solver.create_state(number_of_grid_cells=0)
@@ -202,6 +206,19 @@ def test_set_get_concentrations():
     assert result_multi["B"] == [3.0, 4.0]
     assert result_multi["C"] == [5.0, 6.0]
 
+    # Test 6 grid cells
+    state_six = solver.create_state(number_of_grid_cells=6)
+    concentrations_six = {
+        "A": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0],
+        "B": [7.0, 8.0, 9.0, 10.0, 11.0, 12.0],
+        "C": [13.0, 14.0, 15.0, 16.0, 17.0, 18.0]
+    }
+    state_six.set_concentrations(concentrations_six)
+    result_six = state_six.get_concentrations()
+    assert result_six["A"] == [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
+    assert result_six["B"] == [7.0, 8.0, 9.0, 10.0, 11.0, 12.0]
+    assert result_six["C"] == [13.0, 14.0, 15.0, 16.0, 17.0, 18.0]
+
     # Test invalid species
     with pytest.raises(ValueError, match="Species D not found in the mechanism"):
         state.set_concentrations({"D": 1.0})
@@ -209,6 +226,10 @@ def test_set_get_concentrations():
     # Test invalid length
     with pytest.raises(ValueError, match="must have length"):
         state_multi.set_concentrations({"A": [1.0]})
+
+    # Test invalid length for 6 grid cells
+    with pytest.raises(ValueError, match="must have length"):
+        state_six.set_concentrations({"A": [1.0, 2.0, 3.0]})
 
     # Test cannot set third-body species
     with pytest.raises(ValueError, match="Species M not found in the mechanism"):
@@ -241,9 +262,25 @@ def test_set_get_conditions():
     assert conditions_multi["pressure"] == [101325.0, 101325.0]
     assert conditions_multi["air_density"] == [40.9, 39.5]
 
+    # Test 6 grid cells
+    state_six = solver.create_state(number_of_grid_cells=6)
+    state_six.set_conditions(
+        temperatures=[300.0, 305.0, 310.0, 315.0, 320.0, 325.0],
+        pressures=[101325.0, 101000.0, 100675.0, 100350.0, 100025.0, 99700.0],
+        air_densities=[40.9, 40.2, 39.5, 38.8, 38.1, 37.4]
+    )
+    conditions_six = state_six.get_conditions()
+    assert conditions_six["temperature"] == [300.0, 305.0, 310.0, 315.0, 320.0, 325.0]
+    assert conditions_six["pressure"] == [101325.0, 101000.0, 100675.0, 100350.0, 100025.0, 99700.0]
+    assert conditions_six["air_density"] == [40.9, 40.2, 39.5, 38.8, 38.1, 37.4]
+
     # Test invalid input length
     with pytest.raises(ValueError, match="must be a list of length"):
         state_multi.set_conditions(temperatures=[300.0])
+
+    # Test invalid input length for 6 grid cells
+    with pytest.raises(ValueError, match="must be a list of length"):
+        state_six.set_conditions(temperatures=[300.0, 305.0, 310.0])
 
 
 def test_set_get_user_defined_rate_parameters():
@@ -275,9 +312,37 @@ def test_set_get_user_defined_rate_parameters():
     result_multi = state_multi.get_user_defined_rate_parameters()
     assert result_multi["PHOTO.photo B"] == [1.0, 2.0]
 
+    # Test 6 grid cells
+    state_six = solver.create_state(number_of_grid_cells=6)
+    params_six = {
+        "PHOTO.photo B": [1.0, 1.5, 2.0, 2.5, 3.0, 3.5],
+        "EMIS.my emission": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6],
+        "LOSS.my first order loss": [10.0, 20.0, 30.0, 40.0, 50.0, 60.0]
+    }
+    state_six.set_user_defined_rate_parameters(params_six)
+    result_six = state_six.get_user_defined_rate_parameters()
+    assert result_six["PHOTO.photo B"] == [1.0, 1.5, 2.0, 2.5, 3.0, 3.5]
+    assert result_six["EMIS.my emission"] == [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
+    assert result_six["LOSS.my first order loss"] == [10.0, 20.0, 30.0, 40.0, 50.0, 60.0]
+
+    # Test surface parameters with 6 grid cells
+    surface_params_six = {
+        "SURF.my surface.effective radius [m]": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6],
+        "SURF.my surface.particle number concentration [# m-3]": [100.0, 200.0, 300.0, 400.0, 500.0, 600.0]
+    }
+    state_six.set_user_defined_rate_parameters(surface_params_six)
+    result_surface_six = state_six.get_user_defined_rate_parameters()
+    assert result_surface_six["SURF.my surface.effective radius [m]"] == [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
+    assert result_surface_six["SURF.my surface.particle number concentration [# m-3]"] == [100.0,
+                                                                                           200.0, 300.0, 400.0, 500.0, 600.0]
+
     # Test invalid parameter
     with pytest.raises(ValueError, match="User-defined rate parameter invalid_param not found"):
         state.set_user_defined_rate_parameters({"invalid_param": 1.0})
+
+    # Test invalid length for 6 grid cells
+    with pytest.raises(ValueError, match="must have length"):
+        state_six.set_user_defined_rate_parameters({"PHOTO.photo B": [1.0, 2.0, 3.0]})
 
     solver = get_test_solver(mech)
 
@@ -332,6 +397,84 @@ def test_set_get_user_defined_rate_parameters():
         "USER.my user defined"
     ]
     assert sorted(expected_params) == sorted(param_names)
+
+
+def test_six_grid_cells_comprehensive():
+    """Comprehensive test for 6 grid cells covering all functionality."""
+    # Use the test mechanism
+    mech = create_test_mechanism()
+    solver = get_test_solver(mech)
+
+    # Create state with 6 grid cells
+    state = solver.create_state(number_of_grid_cells=6)
+    assert isinstance(state, State)
+
+    # Test concentrations with realistic atmospheric values
+    concentrations = {
+        "A": [1.2e12, 1.5e12, 1.8e12, 2.1e12, 2.4e12, 2.7e12],  # molecules/cm³
+        "B": [3.2e11, 3.5e11, 3.8e11, 4.1e11, 4.4e11, 4.7e11],
+        "C": [5.1e10, 5.4e10, 5.7e10, 6.0e10, 6.3e10, 6.6e10]
+    }
+    state.set_concentrations(concentrations)
+    result_conc = state.get_concentrations()
+
+    for species in ["A", "B", "C"]:
+        assert len(result_conc[species]) == 6
+        for i in range(6):
+            assert result_conc[species][i] == concentrations[species][i]
+
+    # Test environmental conditions with altitude gradient
+    temperatures = [288.15, 285.15, 282.15, 279.15, 276.15, 273.15]  # K, decreasing with altitude
+    pressures = [101325.0, 95000.0, 89000.0, 83000.0, 77000.0, 71000.0]  # Pa, decreasing with altitude
+    air_densities = [42.1, 39.8, 37.5, 35.2, 32.9, 30.6]  # mol/m³
+
+    state.set_conditions(
+        temperatures=temperatures,
+        pressures=pressures,
+        air_densities=air_densities
+    )
+    conditions = state.get_conditions()
+
+    assert conditions["temperature"] == temperatures
+    assert conditions["pressure"] == pressures
+    assert conditions["air_density"] == air_densities
+
+    # Test all user-defined rate parameters with 6 grid cells
+    all_params = {
+        "PHOTO.photo B": [1.0e-5, 1.2e-5, 1.4e-5, 1.6e-5, 1.8e-5, 2.0e-5],
+        "EMIS.my emission": [1.0e-8, 1.5e-8, 2.0e-8, 2.5e-8, 3.0e-8, 3.5e-8],
+        "LOSS.my first order loss": [1.0e-6, 1.1e-6, 1.2e-6, 1.3e-6, 1.4e-6, 1.5e-6],
+        "SURF.my surface.effective radius [m]": [1.0e-7, 1.2e-7, 1.4e-7, 1.6e-7, 1.8e-7, 2.0e-7],
+        "SURF.my surface.particle number concentration [# m-3]": [1.0e6, 1.2e6, 1.4e6, 1.6e6, 1.8e6, 2.0e6],
+        "USER.my user defined": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
+    }
+
+    state.set_user_defined_rate_parameters(all_params)
+    result_params = state.get_user_defined_rate_parameters()
+
+    for param_name, expected_values in all_params.items():
+        assert param_name in result_params
+        assert len(result_params[param_name]) == 6
+        for i in range(6):
+            assert result_params[param_name][i] == expected_values[i]
+
+    # Test species and parameter ordering still work with 6 grid cells
+    species_ordering = state.get_species_ordering()
+    assert len(species_ordering) == 3  # A, B, C
+    assert all(species in species_ordering for species in ["A", "B", "C"])
+    assert "M" not in species_ordering  # third-body species not included
+
+    param_ordering = state.get_user_defined_rate_parameters_ordering()
+    assert len(param_ordering) == 6
+    expected_param_names = [
+        "PHOTO.photo B",
+        "EMIS.my emission",
+        "LOSS.my first order loss",
+        "SURF.my surface.effective radius [m]",
+        "SURF.my surface.particle number concentration [# m-3]",
+        "USER.my user defined"
+    ]
+    assert sorted(param_ordering.keys()) == sorted(expected_param_names)
 
 
 if __name__ == "__main__":
