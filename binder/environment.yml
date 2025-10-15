@@ -7,4 +7,4 @@ dependencies:
   - graphviz
   - pip
   - pip:
-    - musica[tutorial]
+    - -e musica[tutorial]
