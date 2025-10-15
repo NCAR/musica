@@ -44,5 +44,3 @@ jobs:
     - name: Build platform
       run: npm run build
       
-    - name: Test platform
-      run: npm run sync-version
