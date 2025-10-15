@@ -6,3 +6,5 @@ dependencies:
   - ipykernel
   - graphviz
   - pip
+  - pip:
+    - -e musica[tutorial]
