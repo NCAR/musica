@@ -49,6 +49,7 @@ tutorial = [
   "pandas>=2.2.0",
   "scipy>=1.10.0",
   "seaborn>=0.12.0",
+  "python-graphviz", 
 ]
 
 [project.scripts]
