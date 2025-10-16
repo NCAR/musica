@@ -65,7 +65,7 @@ cmake.define.MUSICA_BUILD_FORTRAN_INTERFACE = "OFF"
 cmake.define.MUSICA_ONLY_PYTHON = "ON"
 cmake.define.MUSICA_ENABLE_TESTS = "OFF"
 cmake.define.CMAKE_POLICY_VERSION_MINIMUM = "3.5"
-cmake.define.MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE = "1"
+cmake.define.MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE = "4"
 cmake.define.CMAKE_VERBOSE_MAKEFILE = "ON"
 build.verbose = true
 

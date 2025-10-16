@@ -32,3 +32,6 @@ def test_sulfate_box_model():
     print(f"   Chemical species tracked: {list(concentrations.columns)}")
     print(f"   CARMA bins: {len(sulfate_data.bin)}")
     print(f"   Vertical levels: {len(sulfate_data.vertical_center)}")
+
+if __name__ == "__main__":
+    pytest.main([__file__])

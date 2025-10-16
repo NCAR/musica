@@ -126,6 +126,5 @@ class MICM():
             raise TypeError("state must be an instance of State.")
         if not isinstance(time_step, (int, float)):
             raise TypeError("time_step must be an int or float.")
-        states = state.get_internal_states()
-        for _state in states:
-            micm_solve(self.__solver, _state, time_step)
+
+        micm_solve(self.__solver, state.get_internal_state(), time_step)
