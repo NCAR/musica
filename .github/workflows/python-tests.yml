@@ -78,6 +78,29 @@ jobs:
       shell: msys2 {0}
       run: pip install -v .[test]
 
+    - name: Copy DLLs for Windows testing
+      if: matrix.os == 'windows-latest'
+      shell: msys2 {0}
+      run: |
+        # Find where the _musica extension was installed
+        MUSICA_DIR=$(python -c "import musica; import os; print(os.path.dirname(musica.__file__))")
+        echo "MUSICA installed at: $MUSICA_DIR"
+        
+        # Copy essential DLLs to the musica package directory
+        cp /mingw64/bin/libnetcdf*.dll "$MUSICA_DIR/" 2>/dev/null || true
+        cp /mingw64/bin/libhdf5*.dll "$MUSICA_DIR/" 2>/dev/null || true
+        cp /mingw64/bin/libgfortran*.dll "$MUSICA_DIR/" 2>/dev/null || true
+        cp /mingw64/bin/libquadmath*.dll "$MUSICA_DIR/" 2>/dev/null || true
+        cp /mingw64/bin/libgcc_s_*.dll "$MUSICA_DIR/" 2>/dev/null || true
+        cp /mingw64/bin/libwinpthread*.dll "$MUSICA_DIR/" 2>/dev/null || true
+        cp /mingw64/bin/libz*.dll "$MUSICA_DIR/" 2>/dev/null || true
+        cp /mingw64/bin/libcurl*.dll "$MUSICA_DIR/" 2>/dev/null || true
+        cp /mingw64/bin/libssl*.dll "$MUSICA_DIR/" 2>/dev/null || true
+        cp /mingw64/bin/libcrypto*.dll "$MUSICA_DIR/" 2>/dev/null || true
+        
+        echo "Copied DLLs:"
+        ls -la "$MUSICA_DIR"/*.dll 2>/dev/null || echo "No DLLs found"
+
     - name: Test (Non-Windows)
       if: matrix.os != 'windows-latest'
       run: pytest -s
