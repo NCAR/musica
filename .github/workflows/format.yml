@@ -30,8 +30,8 @@ jobs:
         run: |
           find include -type f \( -name '*.hpp' -or -name '*.h' \) -exec clang-format -i --style=file --verbose {} +
           find src -type f \( -name '*.cpp' -or -name '*.c' \) -exec clang-format -i --style=file --verbose {} +
-          find musica -type f \( -name '*.cpp' -or -name '*.c' \) -exec clang-format -i --style=file --verbose {} +
-          find musica -type f \( -name '*.hpp' -or -name '*.h' \) -exec clang-format -i --style=file --verbose {} +
+          find python -type f \( -name '*.cpp' -or -name '*.c' \) -exec clang-format -i --style=file --verbose {} +
+          find python -type f \( -name '*.hpp' -or -name '*.h' \) -exec clang-format -i --style=file --verbose {} +
 
       - name: Check for changes
         id: check-changes
