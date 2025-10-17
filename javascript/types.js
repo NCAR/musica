@@ -1,6 +1,5 @@
 // JavaScript API for MUSICA - Compatibility layer over native addon
-const path = require('path');
-const addon = require(path.join(__dirname, '../build/Release/musica-addon.node'));
+const musica = require('../build/Release/musica-addon.node');
 
 const AVOGADRO = 6.02214076e23;  // mol^-1
 const BOLTZMANN = 1.380649e-23;  // J K^-1
@@ -130,7 +129,7 @@ class MICM {
         }
 
         // Create native MICM instance
-        this._nativeMICM = new addon.MICM(config_path, solver_type);
+        this._nativeMICM = new musica.MICM(config_path, solver_type);
         this._solverType = solver_type;
     }
 
