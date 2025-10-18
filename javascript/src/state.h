@@ -19,6 +19,7 @@ class StateClass : public Napi::ObjectWrap<StateClass>
  public:
   static Napi::Object Init(Napi::Env env, Napi::Object exports);
   StateClass(const Napi::CallbackInfo& info);
+  ~StateClass();
   musica::State* GetState()const;
 
  private:

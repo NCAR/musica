@@ -66,7 +66,6 @@ Napi::Value MICMClass::CreateState(const Napi::CallbackInfo& info)
   {
     musica::State* raw_state = micm_->CreateState(num_cells);
     auto state_wrapper = std::make_shared<StateWrapper>(raw_state);
-    states_.push_back(state_wrapper);
 
     // Return StateClass instance using global constructor
     if (g_StateConstructor == nullptr)

@@ -14,7 +14,6 @@ class MICMClass : public Napi::ObjectWrap<MICMClass>
 
  private:
   std::unique_ptr<MICMWrapper> micm_;
-  std::vector<std::shared_ptr<StateWrapper>> states_;
 
   Napi::Value CreateState(const Napi::CallbackInfo& info);
   Napi::Value Solve(const Napi::CallbackInfo& info);

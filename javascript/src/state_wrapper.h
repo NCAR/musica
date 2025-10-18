@@ -40,7 +40,6 @@ public:
 
 private:
     musica::State* state_;
-    bool owns_state_;
 };
 
 }
