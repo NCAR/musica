@@ -22,11 +22,11 @@ namespace musica_addon {
 // ============================================================================
 
 StateWrapper::StateWrapper(musica::State* state)
-    : state_(state) {
+    : state_(state), owns_state_(false) {
 }
 
 StateWrapper::~StateWrapper() {
-    if (state_ != nullptr) {
+    if (state_ != nullptr && owns_state_) {
         musica::Error error;
         musica::DeleteState(state_, &error);
         musica::DeleteError(&error);

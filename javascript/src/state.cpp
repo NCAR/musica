@@ -25,11 +25,7 @@ StateClass::StateClass(const Napi::CallbackInfo& info)
   state_ = info[0].As<Napi::External<StateWrapper>>().Data();
 }
 
-StateClass::~StateClass() {
-  if (state_ != nullptr) {
-    state_->~StateWrapper();
-  }
-}
+StateClass::~StateClass() = default;
 
 musica::State* StateClass::GetState() const
 { 

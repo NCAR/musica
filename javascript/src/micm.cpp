@@ -66,6 +66,11 @@ Napi::Value MICMClass::CreateState(const Napi::CallbackInfo& info)
   {
     musica::State* raw_state = micm_->CreateState(num_cells);
     auto state_wrapper = std::make_shared<StateWrapper>(raw_state);
+    auto ext = Napi::External<StateWrapper>::New(
+      env,
+      new StateWrapper(raw_state),
+      [](Napi::Env /*env*/, StateWrapper* ptr) { delete ptr; }
+    );
 
     // Return StateClass instance using global constructor
     if (g_StateConstructor == nullptr)
@@ -74,8 +79,7 @@ Napi::Value MICMClass::CreateState(const Napi::CallbackInfo& info)
       return env.Null();
     }
 
-    Napi::Object state_obj = g_StateConstructor.New({ Napi::External<StateWrapper>::New(env, state_wrapper.get()) });
-    return state_obj;
+    return g_StateConstructor.New({ ext });
   }
   catch (const std::exception& e)
   {
