@@ -6,6 +6,7 @@
 [![ubuntu](https://github.com/NCAR/musica/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/ubuntu.yml)
 [![windows](https://github.com/NCAR/musica/actions/workflows/windows.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/windows.yml)
 [![Python tests](https://github.com/NCAR/musica/actions/workflows/python-tests.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/python-tests.yml)
+[![Javascript tests](https://github.com/NCAR/musica/actions/workflows/javascript_integration.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/javascript_integration.yml)
 [![DOI](https://zenodo.org/badge/550370528.svg)](https://zenodo.org/doi/10.5281/zenodo.7458559)
 [![PyPI version](https://badge.fury.io/py/musica.svg)](https://pypi.org/p/musica)
 [![FAIR checklist badge](https://fairsoftwarechecklist.net/badge.svg)](https://fairsoftwarechecklist.net/v0.2?f=31&a=32113&i=22322&r=123)
@@ -66,6 +67,30 @@ BUILD_GPU=1 pip install -e .
 ```
 
 ## CMake
+
+If you plan to build from source, you will need to install these packages, at a minimum. More packages may be
+required for more advancded installations.
+
+- cmake
+- pkg-config
+- netcdf
+- netcdf-fortran
+- blas
+- lapack
+
+MUSICA does have more dependencies that it builds with, but those are pulled in with cmake. If you want
+to use your own installation of these, you may, and our files are setup so that an installed package will
+be used rather than downloading one during the build, assuming you've installed it into a place where cmake
+can find it.
+
+**optional, pulled in by cmake**
+- pybind11
+- google test
+- micm
+- tuvx
+- mechanism configuration
+- carma
+
 ```
 $ git clone https://github.com/NCAR/musica.git
 $ cd musica
