@@ -16,7 +16,7 @@ namespace musica_addon {
 class StateWrapper {
 public:
     StateWrapper(musica::State* state);
-    ~StateWrapper();
+    bool DeleteStateWrapper();
 
     void SetConcentrations(const std::map<std::string, std::vector<double>>& concentrations);
     std::map<std::string, std::vector<double>> GetConcentrations();
@@ -40,7 +40,6 @@ public:
 
 private:
     musica::State* state_;
-    bool owns_state_;
 };
 
 }

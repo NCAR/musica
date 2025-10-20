@@ -4,6 +4,7 @@
 #include <memory>
 #include <cstring>
 #include <stdexcept>
+#include <iostream>
 
 // Include MUSICA headers for real functionality
 #include <musica/micm/micm_c_interface.hpp>
@@ -22,15 +23,17 @@ namespace musica_addon {
 // ============================================================================
 
 StateWrapper::StateWrapper(musica::State* state)
-    : state_(state), owns_state_(false) {
+    : state_(state) {
 }
 
-StateWrapper::~StateWrapper() {
-    if (state_ != nullptr && owns_state_) {
+bool StateWrapper::DeleteStateWrapper() {
+    if (state_ != nullptr) {
         musica::Error error;
         musica::DeleteState(state_, &error);
         musica::DeleteError(&error);
+        return true;
     }
+    return false;
 }
 
 void StateWrapper::SetConcentrations(const std::map<std::string, std::vector<double>>& concentrations) {
