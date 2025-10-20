@@ -2,6 +2,8 @@
 // Copyright (C) 2023-2025 National Center for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 #endif
+#ifndef MUSICA_ERROR_HPP
+  #define MUSICA_ERROR_HPP
 
 #define MUSICA_ERROR_CATEGORY                           "MUSICA Error"
 #define MUSICA_ERROR_CODE_SPECIES_NOT_FOUND             1
@@ -16,3 +18,5 @@
 #define MUSICA_PARSE_INVALID_CONFIG_FILE       2
 #define MUSICA_PARSE_UNSUPPORTED_VERSION       3
 #define MUSICA_PARSE_FAILED_TO_CAST_TO_VERSION 4
+
+#endif

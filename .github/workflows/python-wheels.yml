@@ -37,7 +37,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Linux builds (supports cross-compilation via QEMU)
+          # Linux builds
           - os: ubuntu-latest
             python-version: "3.13"
             cibw_archs: "x86_64 i686"
@@ -51,11 +51,6 @@ jobs:
             python-version: "3.13"
             cibw_archs: "AMD64"
 
-          # Windows builds
-          - os: windows-11-arm
-            python-version: "3.13"
-            cibw_archs: "ARM64"
-          
           # macOS Intel
           - os: macos-13
             python-version: "3.13"
@@ -77,28 +72,9 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
   
-    - name: CI Build Wheels
-      if: ${{ matrix.fc != '' }}
-      uses: pypa/cibuildwheel@v3.1.3
-      env:
-        CIBW_ARCHS: ${{ matrix.cibw_archs }}
-        FC: ${{ matrix.fc }}
-
-    - name: Setup MSYS2
-      if: matrix.os == 'windows-latest' && matrix.cibw_archs == 'AMD64'
-      uses: msys2/setup-msys2@v2
-      with:
-        update: true
-        msystem: MINGW64
-        path-type: inherit
-        install: >-
-          base-devel
-          mingw-w64-x86_64-toolchain
-          mingw-w64-x86_64-gcc
-          mingw-w64-x86_64-gcc-fortran
-          mingw-w64-x86_64-netcdf
-          mingw-w64-x86_64-netcdf-fortran
-          mingw-w64-x86_64-lapack
+    - name: Set up Windows AMD64
+      if: matrix.os == 'windows-latest'
+      uses: ./.github/windows_amd64_steps
 
     # the if implicity uses the fact that arm on windows is not running on windows-latest
     - name: CI Build Wheels 
