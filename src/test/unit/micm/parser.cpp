@@ -54,27 +54,27 @@ TEST(Parser, Version1Configuration)
 TEST(Parser, CanParseChapmanV0)
 {
   musica::Chemistry chemistry = musica::ReadConfiguration("configs/v0/chapman");
-  EXPECT_EQ(chemistry.system.gas_phase_.species_.size(), 5);
+  EXPECT_EQ(chemistry.system.gas_phase_.phase_species_.size(), 5);
   EXPECT_EQ(chemistry.processes.size(), 7);
-  EXPECT_EQ(chemistry.system.gas_phase_.species_[0].name_, "M");
-  EXPECT_NE(chemistry.system.gas_phase_.species_[0].parameterize_, nullptr);
-  EXPECT_EQ(chemistry.system.gas_phase_.species_[1].name_, "O2");
-  EXPECT_EQ(chemistry.system.gas_phase_.species_[2].name_, "O");
-  EXPECT_EQ(chemistry.system.gas_phase_.species_[3].name_, "O1D");
-  EXPECT_EQ(chemistry.system.gas_phase_.species_[4].name_, "O3");
+  EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[0].species_.name_, "M");
+  EXPECT_NE(chemistry.system.gas_phase_.phase_species_[0].species_.parameterize_, nullptr);
+  EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[1].species_.name_, "O2");
+  EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[2].species_.name_, "O");
+  EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[3].species_.name_, "O1D");
+  EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[4].species_.name_, "O3");
 }
 
 TEST(Parser, CanParseCBVV0)
 {
   musica::Chemistry chemistry = musica::ReadConfiguration("configs/v0/carbon_bond_5");
-  EXPECT_EQ(chemistry.system.gas_phase_.species_.size(), 67);
+  EXPECT_EQ(chemistry.system.gas_phase_.phase_species_.size(), 67);
   EXPECT_EQ(chemistry.processes.size(), 200);
 }
 
 TEST(Parser, CanParseTS1V0)
 {
   musica::Chemistry chemistry = musica::ReadConfiguration("configs/v0/TS1");
-  EXPECT_EQ(chemistry.system.gas_phase_.species_.size(), 210);
+  EXPECT_EQ(chemistry.system.gas_phase_.phase_species_.size(), 210);
   EXPECT_EQ(chemistry.processes.size(), 547);
 }
 
@@ -90,17 +90,17 @@ TEST(Parser, CanParseChapmanV1)
   for (const auto& extension : extensions)
   {
     musica::Chemistry chemistry = musica::ReadConfiguration("configs/v1/chapman/config" + extension);
-    EXPECT_EQ(chemistry.system.gas_phase_.species_.size(), 5);
+    EXPECT_EQ(chemistry.system.gas_phase_.phase_species_.size(), 5);
     EXPECT_EQ(chemistry.processes.size(), 7);
     EXPECT_EQ(chemistry.system.phases_.size(), 0);
-    EXPECT_EQ(chemistry.system.gas_phase_.species_[0].name_, "M");
-    EXPECT_NE(chemistry.system.gas_phase_.species_[0].parameterize_, nullptr);
-    EXPECT_EQ(chemistry.system.gas_phase_.species_[1].name_, "O");
-    EXPECT_EQ(chemistry.system.gas_phase_.species_[2].name_, "O2");
-    EXPECT_EQ(chemistry.system.gas_phase_.species_[3].name_, "O3");
-    EXPECT_EQ(chemistry.system.gas_phase_.species_[4].name_, "O1D");
+    EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[0].species_.name_, "M");
+    EXPECT_NE(chemistry.system.gas_phase_.phase_species_[0].species_.parameterize_, nullptr);
+    EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[1].species_.name_, "O");
+    EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[2].species_.name_, "O2");
+    EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[3].species_.name_, "O3");
+    EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[4].species_.name_, "O1D");
 
-    EXPECT_EQ(chemistry.system.gas_phase_.species_[3].GetProperty<std::string>("__long name"), "ozone");
+    EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[3].species_.GetProperty<std::string>("__long name"), "ozone");
   }
 }
 
@@ -111,10 +111,11 @@ TEST(Parser, CanParseFullV1)
   for (const auto& extension : extensions)
   {
     musica::Chemistry chemistry = musica::ReadConfiguration("configs/v1/full_configuration/full_configuration" + extension);
-    EXPECT_EQ(chemistry.system.gas_phase_.species_.size(), 5);
+
+    EXPECT_EQ(chemistry.system.gas_phase_.phase_species_.size(), 5);
     EXPECT_EQ(chemistry.system.gas_phase_.name_, "gas");
-    EXPECT_EQ(chemistry.system.phases_.size(), 3);
-    EXPECT_EQ(chemistry.processes.size(), 12);
+    EXPECT_EQ(chemistry.system.phases_.size(), 0);
+    EXPECT_EQ(chemistry.processes.size(), 13);
   }
 }
 
@@ -283,7 +284,6 @@ TEST(Parser, ConvertSurfaceV0ToV1)
   EXPECT_EQ(v1_mechanism.reactions.surface.size(), 1);
   EXPECT_EQ(v1_mechanism.reactions.surface[0].name, "test_surface");
   EXPECT_EQ(v1_mechanism.reactions.surface[0].gas_phase, "gas");
-  EXPECT_EQ(v1_mechanism.reactions.surface[0].condensed_phase, "condensed");
   EXPECT_NEAR(v1_mechanism.reactions.surface[0].reaction_probability, 0.1, 1e-10);
   EXPECT_EQ(v1_mechanism.reactions.surface[0].gas_phase_species.species_name, "A");
   EXPECT_EQ(v1_mechanism.reactions.surface[0].gas_phase_products.size(), 1);

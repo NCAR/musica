@@ -155,8 +155,9 @@ namespace musica
     T GetSpeciesProperty(const std::string &species_name, const std::string &property_name)
     {
       micm::System system = std::visit([](auto &solver) -> micm::System { return solver->GetSystem(); }, solver_variant_);
-      for (const auto &species : system.gas_phase_.species_)
+      for (const auto &phase_species : system.gas_phase_.phase_species_)
       {
+        const auto &species = phase_species.species_;
         if (species.name_ == species_name)
         {
           return species.GetProperty<T>(property_name);

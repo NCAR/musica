@@ -51,7 +51,7 @@ namespace musica
         error);
   }
 
-  void DeleteMicm(const MICM *micm, Error *error)
+  void DeleteMicm(MICM *micm, Error *error)
   {
     HandleErrors(
         [&]()

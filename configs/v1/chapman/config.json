@@ -4,24 +4,24 @@
   "species": [
     {
       "name": "M",
-      "tracer type": "THIRD_BODY"
+      "is third body": true
     },
     {
       "name": "O2",
-      "tracer type": "CONSTANT"
+      "__tracer type": "CONSTANT"
     },
     {
       "name": "O",
-      "absolute tolerance": 1e-12
+      "__absolute tolerance": 1e-12
     },
     {
       "name": "O1D",
-      "absolute tolerance": 1e-12
+      "__absolute tolerance": 1e-12
     },
     {
       "name": "O3",
-      "absolute tolerance": 1e-12,
       "molecular weight [kg mol-1]": 0.048,
+      "__absolute tolerance": 1e-12,
       "__long name": "ozone",
       "__atoms": 3,
       "__do advect": true
