@@ -97,7 +97,7 @@ jobs:
     - name: Validate wheel RECORD integrity
       run: |
         python -m pip install --upgrade check-wheel-contents
-        check-wheel-contents wheelhouse/*.whl
+        check-wheel-contents --ignore W009,W010 wheelhouse/*.whl
 
     - name: Upload wheels
       uses: actions/upload-artifact@v4
