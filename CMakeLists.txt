@@ -163,13 +163,6 @@ if(MUSICA_ENABLE_JAVASCRIPT)
 endif()
 
 ################################################################################
-
-# Musica JavaScript Addon
-if(MUSICA_ENABLE_JAVASCRIPT)
-  add_subdirectory(javascript)
-endif()
-
-################################################################################
 ###
 # Configure and display a summary file for how musica was built.
 ###
