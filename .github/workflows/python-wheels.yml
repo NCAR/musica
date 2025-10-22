@@ -31,13 +31,13 @@ jobs:
         path: dist/*.tar.gz
 
   build_wheels:
-    name: Build wheels on ${{ matrix.os }} with Python ${{ matrix.python-version }}
+    name: Build wheels (${{ matrix.os }}, ${{ matrix.cibw_archs }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          # Linux builds (supports cross-compilation via QEMU)
+          # Linux builds
           - os: ubuntu-latest
             python-version: "3.13"
             cibw_archs: "x86_64 i686"
@@ -49,16 +49,16 @@ jobs:
           # Windows builds (separate runners needed for different archs)
           - os: windows-latest
             python-version: "3.13"
-            cibw_archs: "AMD64 x86 ARM64"
-          
+            cibw_archs: "AMD64"
+
           # macOS Intel
-          - os: macos-13  # Intel runner
+          - os: macos-13
             python-version: "3.13"
             cibw_archs: "x86_64"
             fc: gfortran-15
           
           # macOS Apple Silicon
-          - os: macos-latest  # ARM64 runner
+          - os: macos-latest
             python-version: "3.13"
             cibw_archs: "arm64"
             fc: gfortran-15
@@ -72,16 +72,25 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
   
-    - name: CI Build Wheels
-      if: ${{ matrix.fc != '' }}
+    - name: Set up Windows AMD64
+      if: matrix.os == 'windows-latest'
+      uses: ./.github/windows_amd64_steps
+
+    # the if implicitly uses the fact that arm on windows is not running on windows-latest
+    - name: CI Build Wheels 
+      if: matrix.os != 'windows-latest'
       uses: pypa/cibuildwheel@v3.1.3
       env:
         CIBW_ARCHS: ${{ matrix.cibw_archs }}
         FC: ${{ matrix.fc }}
-
-    - name: CI Build Wheels
-      if: ${{ matrix.fc == '' }}
-      uses: pypa/cibuildwheel@v3.1.3
+    
+    - name: CI Build Wheels (Windows with MINGW on AMD64)
+      if: matrix.os == 'windows-latest'
+      shell: msys2 {0}
+      run: |
+        MSYS2_PYTHON=$(cygpath -u "$pythonLocation")
+        "$MSYS2_PYTHON/python.exe" -m pip install --upgrade pip cibuildwheel
+        "$MSYS2_PYTHON/python.exe" -m cibuildwheel
       env:
         CIBW_ARCHS: ${{ matrix.cibw_archs }}
 

@@ -28,7 +28,7 @@ def test_sulfate_box_model():
     assert "time" in sulfate_data.dims, "CARMA data should have time dimension"
     assert "bin" in sulfate_data.dims, "CARMA data should have bin dimension"
 
-    print(f"✅ Test passed! Simulated {len(times)} time steps over {times[-1]:.2f} hours")
-    print(f"   Chemical species tracked: {list(concentrations.columns)}")
-    print(f"   CARMA bins: {len(sulfate_data.bin)}")
-    print(f"   Vertical levels: {len(sulfate_data.vertical_center)}")
+    print(f"Test passed! Simulated {len(times)} time steps over {times[-1]:.2f} hours")
+    print(f"Chemical species tracked: {list(concentrations.columns)}")
+    print(f"CARMA bins: {len(sulfate_data.bin)}")
+    print(f"Vertical levels: {len(sulfate_data.vertical_center)}")

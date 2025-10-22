@@ -1,0 +1,25 @@
+name: Windows ARM64 Setup
+description: Setup MSYS2 ARM64 for CI
+
+# this is currently not used because there was a compiler issue
+# where the visibilty flags set by pybind11 caused build failures
+# on Windows ARM64 with Clang. Leaving this action here for future use
+# because it was difficult for me to figure out what packages were needed
+
+runs:
+  using: "composite"
+  steps:
+    - uses: msys2/setup-msys2@v2
+      with:
+        msystem: CLANGARM64
+        update: true
+        install: |
+          mingw-w64-clang-aarch64-cmake
+          mingw-w64-clang-aarch64-clang
+          mingw-w64-clang-aarch64-flang
+          mingw-w64-clang-aarch64-hdf5
+          mingw-w64-clang-aarch64-ninja
+          mingw-w64-clang-aarch64-netcdf
+          mingw-w64-clang-aarch64-netcdf-fortran
+          mingw-w64-clang-aarch64-openblas
+          mingw-w64-clang-aarch64-pkgconf

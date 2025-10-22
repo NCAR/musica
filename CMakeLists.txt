@@ -133,6 +133,12 @@ if(MUSICA_ENABLE_TESTS)
   enable_testing()
 endif()
 
+
+# disable CMake module scanning on macOS
+if (APPLE)
+  set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
+endif()
+
 ################################################################################
 # MUSICA
 if(MUSICA_BUILD_C_CXX_INTERFACE)

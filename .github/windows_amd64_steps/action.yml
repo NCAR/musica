@@ -1,0 +1,20 @@
+name: Windows AMD64 Setup
+description: Setup MSYS2 UCRT64 for CI
+runs:
+  using: "composite"
+  steps:
+    - uses: msys2/setup-msys2@v2
+      with:
+        msystem: UCRT64
+        update: true
+        install: |
+          mingw-w64-ucrt-x86_64-cmake
+          mingw-w64-ucrt-x86_64-make
+          mingw-w64-ucrt-x86_64-ninja
+          mingw-w64-ucrt-x86_64-gcc
+          mingw-w64-ucrt-x86_64-gcc-fortran
+          mingw-w64-ucrt-x86_64-hdf5
+          mingw-w64-ucrt-x86_64-netcdf
+          mingw-w64-ucrt-x86_64-netcdf-fortran
+          mingw-w64-ucrt-x86_64-openblas
+          mingw-w64-ucrt-x86_64-pkg-config
