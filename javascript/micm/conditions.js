@@ -1,3 +1,5 @@
+const { GAS_CONSTANT } = require('./utils.js');
+
 class Conditions {
     constructor({
         temperature = null,
