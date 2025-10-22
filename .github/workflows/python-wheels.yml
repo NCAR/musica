@@ -76,7 +76,7 @@ jobs:
       if: matrix.os == 'windows-latest'
       uses: ./.github/windows_amd64_steps
 
-    # the if implicity uses the fact that arm on windows is not running on windows-latest
+    # the if implicitly uses the fact that arm on windows is not running on windows-latest
     - name: CI Build Wheels 
       if: matrix.os != 'windows-latest'
       uses: pypa/cibuildwheel@v3.1.3
