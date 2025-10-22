@@ -12,32 +12,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  mingw:
-    runs-on: windows-latest
-    continue-on-error: true 
-    strategy:
-      matrix:
-        architecture: [x64]
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up MinGW
-        uses: egor-tensin/setup-mingw@v2
-        with:
-          platform: ${{ matrix.architecture }}
-          static: 0
-
-      - name: Run Cmake 
-        run: cmake -S . -B build -G "MinGW Makefiles" -D MUSICA_GIT_TAG=${{ github.sha }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_CARMA=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON -D CMAKE_POLICY_VERSION_MINIMUM=3.5
-
-      - name: Build
-        run: cmake --build build --parallel
-
-      - name: Run tests
-        run: |
-          cd build
-          ctest -C Debug --rerun-failed --output-on-failure . --verbose
-
   msvc:
     runs-on: windows-latest
     continue-on-error: true 
@@ -129,28 +103,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup MSYS2
-        uses: msys2/setup-msys2@v2
-        with:
-          update: true
-          install: >-
-            base-devel
-            mingw-w64-x86_64-toolchain
-            mingw-w64-x86_64-gcc
-            mingw-w64-x86_64-gcc-fortran
-            mingw-w64-x86_64-cmake
-            mingw-w64-x86_64-netcdf
-            mingw-w64-x86_64-netcdf-fortran
-            mingw-w64-x86_64-lapack
-          msystem: MINGW64
+      - name: Set up Windows AMD64
+        if: matrix.os == 'windows-latest'
+        uses: ./.github/windows_amd64_steps
 
       - name: Add MSYS2 mingw64 to PATH
         shell: msys2 {0}
         run: echo "C:/msys64/mingw64/bin" >> $GITHUB_PATH
-
-      - name: Clean build directory
-        shell: msys2 {0}
-        run: rm -rf build
 
       - name: Configure with CMake
         shell: msys2 {0}
