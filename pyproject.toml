@@ -119,11 +119,11 @@ skip = ["*musllinux*"]
 # Set up pre-build hooks
 [tool.cibuildwheel.macos]
 environment.MACOSX_DEPLOYMENT_TARGET = "15.0"
-before-all = "bash python/musica/tools/prepare_build_environment_macos.sh"
+before-all = "bash python/tools/prepare_build_environment_macos.sh"
 
 [tool.cibuildwheel.linux]
-before-all = "python/musica/tools/prepare_build_environment_linux.sh"
-repair-wheel-command = "bash python/musica/tools/repair_wheel_gpu.sh {wheel} {dest_dir}"
+before-all = "python/tools/prepare_build_environment_linux.sh"
+repair-wheel-command = "bash python/tools/repair_wheel_gpu.sh {wheel} {dest_dir}"
 # Use manylinux_2_28 for modern GCC 8.5 and NetCDF compatibility
 manylinux-x86_64-image = "manylinux_2_28"
 manylinux-aarch64-image = "manylinux_2_28"
@@ -136,4 +136,4 @@ LD_LIBRARY_PATH = "/usr/local/cuda/lib64:$LD_LIBRARY_PATH"
 BUILD_GPU = 1
 
 [tool.cibuildwheel.windows]
-repair-wheel-command = "bash python/musica/tools/repair_wheel_windows.sh {wheel} {dest_dir}"
+repair-wheel-command = "bash python/tools/repair_wheel_windows.sh {wheel} {dest_dir}"

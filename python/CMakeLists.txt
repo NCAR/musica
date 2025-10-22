@@ -1,4 +1,1 @@
-################################################################################
-# Python Extension Modules
-
-add_subdirectory(musica)
+add_subdirectory(bindings)

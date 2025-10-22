@@ -1,5 +1,9 @@
+include(setup_musica_target)
+
 ################################################################################
 # Python Extension Modules
+
+set(PY_MODULES _musica)
 
 set(MUSICA_PYTHON_SOURCES
   common.cpp
