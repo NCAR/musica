@@ -136,4 +136,4 @@ LD_LIBRARY_PATH = "/usr/local/cuda/lib64:$LD_LIBRARY_PATH"
 BUILD_GPU = 1
 
 [tool.cibuildwheel.windows]
-# repair-wheel-command = "bash python/musica/tools/repair_wheel_windows.sh {wheel} {dest_dir}"
+repair-wheel-command = "bash python/musica/tools/repair_wheel_windows.sh {wheel} {dest_dir}"

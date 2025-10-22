@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, ubuntu-24.04-arm, windows-latest, windows-11-arm, macos-13, macos-latest]
+        os: [ubuntu-latest, ubuntu-24.04-arm, windows-latest,  macos-13, macos-latest]
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
 
     steps:
@@ -44,8 +44,17 @@ jobs:
     - name: Add python build tools
       run: python -m pip install --upgrade wheel setuptools build scikit-build-core
 
-    - name: Build wheel (linux/macos)
-      if: !startsWith(matrix.os, 'windows')
+    - name: Build wheel (linux)
+      if: startsWith(matrix.os, 'ubuntu')
+      run: |
+        python -m build --wheel --no-isolation --outdir wheelhouse
+
+    - name: Build wheel (macos)
+      if: startsWith(matrix.os, 'macos')
+      env:
+        FC: gfortran-14
+        CC: gcc-14
+        CXX: g++-14
       run: |
         python -m build --wheel --no-isolation --outdir wheelhouse
 
@@ -56,13 +65,13 @@ jobs:
         MSYS2_PYTHON=$(cygpath -u "$pythonLocation")
         "$MSYS2_PYTHON/python.exe" -m build --wheel --no-isolation --outdir wheelhouse
 
-    - name: Repair wheel with delvewheel
+    - name: Repair wheel (Windows)
       if: startsWith(matrix.os, 'windows')
       shell: msys2 {0}
       run: |
-        MSYS2_PYTHON=$(cygpath -u "$pythonLocation")
-        "$MSYS2_PYTHON/python.exe" -m pip install --upgrade pip delvewheel
-        "$MSYS2_PYTHON/python.exe" -m delvewheel repair --add-path /ucrt64/bin wheelhouse/*.whl
+        for whl in wheelhouse/*.whl; do
+          bash python/musica/tools/repair_wheel_windows.sh "$whl" wheelhouse
+        done
 
     - name: Install wheel (Windows)
       if: startsWith(matrix.os, 'windows')
@@ -71,8 +80,10 @@ jobs:
         pip install "$($whl.FullName)[test]"
     
     - name: Install wheel (linux/macos)
-      if: !startsWith(matrix.os, 'windows')
-      run: pip install wheelhouse/*.whl[test]
+      if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
+      run: |
+        whl=$(ls wheelhouse/*.whl | head -1)
+        pip install "${whl}[test]"
     
     - name: Test 
       run: pytest -s

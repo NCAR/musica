@@ -1,44 +1,44 @@
 #!/bin/bash
 set -e
 
-# Windows wheel repair script for MUSICA using delvewheel
-# This script bundles necessary DLLs from MSYS2 into the wheel
-# so that users don't need MSYS2 installed to use the package
+# Windows wheel repair script using delvewheel
+# Usage: repair_wheel_windows.sh <input_wheel> <output_directory>
 
-wheel_file="$1"
+input_wheel="$1"
 output_dir="$2"
 
-echo "=== MUSICA Windows Wheel Repair ==="
-echo "Input wheel: $wheel_file"
+if [[ -z "$input_wheel" || -z "$output_dir" ]]; then
+    echo "Usage: $0 <input_wheel> <output_directory>"
+    exit 1
+fi
+
+# Ensure output directory exists
+mkdir -p "$output_dir"
+
+# Check if we're in MSYS2 environment and find Python executable
+if [[ -n "$pythonLocation" ]]; then
+    # Convert Windows path to MSYS2 path for GitHub Actions
+    PYTHON_CMD=$(cygpath -u "$pythonLocation")/python.exe
+else
+    # Fallback to system python
+    PYTHON_CMD=python
+fi
+
+echo "Using Python: $PYTHON_CMD"
+echo "Input wheel: $input_wheel"
 echo "Output directory: $output_dir"
-echo "Current working directory: $(pwd)"
 
-pip install delvewheel
+# Install delvewheel if not already available
+"$PYTHON_CMD" -m pip install --upgrade delvewheel
 
-# Show what we're starting with
-echo "=== Original wheel contents ==="
-python -m zipfile -l "$wheel_file"
-
-# Use delvewheel to repair the wheel and bundle necessary DLLs
-echo "=== Running delvewheel repair ==="
-echo "Adding search paths: /mingw64/bin, /mingw64/lib"
-
-# Run delvewheel with verbose output
-delvewheel repair "$wheel_file" \
+# Repair the wheel using delvewheel
+# Add common Windows library paths where dependencies might be found
+"$PYTHON_CMD" -m delvewheel repair \
+    --add-path /ucrt64/bin \
+    --add-path /ucrt64/lib \
+    --add-path /mingw64/bin \
+    --add-path /mingw64/lib \
     --wheel-dir "$output_dir" \
-    --add-path "/mingw64/bin;/mingw64/lib" \
-    --verbose
+    "$input_wheel"
 
-echo "=== Repair completed ==="
-
-# Show what we ended up with
-echo "=== Repaired wheel contents ==="
-for whl in "$output_dir"/*.whl; do
-    if [[ -f "$whl" ]]; then
-        echo "Contents of $(basename "$whl"):"
-        python -m zipfile -l "$whl"
-        break
-    fi
-done
-
-echo "=== Windows wheel repair finished successfully ==="
+echo "Wheel repair completed successfully"

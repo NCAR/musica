@@ -88,7 +88,9 @@ jobs:
       if: matrix.os == 'windows-latest'
       shell: msys2 {0}
       run: |
-        pipx run cibuildwheel
+        MSYS2_PYTHON=$(cygpath -u "$pythonLocation")
+        "$MSYS2_PYTHON/python.exe" -m pip install --upgrade pip cibuildwheel
+        "$MSYS2_PYTHON/python.exe" -m cibuildwheel
       env:
         CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
