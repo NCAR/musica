@@ -2,8 +2,6 @@
 // Copyright (C) 2023-2025 National Center for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 #endif
-#ifndef MUSICA_CARMA_ERROR_HPP
-#define MUSICA_CARMA_ERROR_HPP
 
 #define MUSICA_CARMA_ERROR_CODE_MEMORY_ALLOCATION       97
 #define MUSICA_CARMA_ERROR_CODE_DIMENSION_MISMATCH      98
@@ -40,4 +38,3 @@ namespace musica
   }
 }  // namespace musica
 #endif
-#endif  // MUSICA_CARMA_ERROR_HPP
