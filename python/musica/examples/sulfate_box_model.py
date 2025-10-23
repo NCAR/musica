@@ -9,7 +9,6 @@ UNDER DEVELOPMENT
 import musica
 from musica.constants import GAS_CONSTANT
 import musica.mechanism_configuration as mc
-import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import ussa1976
@@ -381,6 +380,7 @@ def plot_results(concentrations, times, sulfate_data=None):
         times (np.ndarray): Array of time values corresponding to the concentrations.
         sulfate_data (xr.Dataset): xarray Dataset containing CARMA sulfate data over time.
     """
+    import matplotlib.pyplot as plt
 
     # Create a 4-panel plot for H2O, H2SO4, SO2, and HO2 concentrations over time at the first grid cell
     fig, axs = plt.subplots(2, 2, figsize=(14, 10), sharex=True)

@@ -25,3 +25,4 @@ configs/tuvx/output/
 node_modules/
 musica_env/
 .env
+uv.lock

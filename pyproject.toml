@@ -22,6 +22,7 @@ license = { file = "LICENSE" }
 
 dependencies = [
   "numpy>=2.0.0",
+  "pandas>=2.2.0",
   "pyyaml>=6.0.2",
   "ussa1976>=v0.3.4",
   "xarray>=2022.3.0",
@@ -31,19 +32,19 @@ dependencies = [
 homepage = "https://wiki.ucar.edu/display/MUSICA/MUSICA+Home"
 
 [project.optional-dependencies]
-test = ["pytest>=7.0.0", "matplotlib>=3.6.0"]
+test = [
+  "pytest>=7.0.0"
+]
 
 gpu = ["nvidia-cublas-cu12>=12.6.4.1", "nvidia-cuda-runtime-cu12>=12.6.68"]
 
 tutorial = [
   "dask-jobqueue>=0.8.0",
   "dask[distributed]>=2022.3.0",
-  "matplotlib>=3.6.0",
-  "numpy>=2.0.0",
-  "pandas>=2.2.0",
+  "matplotlib>=3.7.0",
   "scipy>=1.10.0",
   "seaborn>=0.12.0",
-  "python-graphviz>=0.20",
+  "graphviz>=0.18",
 ]
 
 [project.scripts]
@@ -113,17 +114,17 @@ version = "${version}"
 build-verbosity = 3
 
 # Add your desired build configuration
-build = ["cp39-*", "cp310-*", "cp311-*", "cp312-*", "cp313-*"]
+build = ["cp39-*", "cp310-*", "cp311-*", "cp312-*", "cp313-*", "cp314-*"]
 skip = ["*musllinux*"]
 
 # Set up pre-build hooks
 [tool.cibuildwheel.macos]
 environment.MACOSX_DEPLOYMENT_TARGET = "15.0"
-before-all = "bash python/musica/tools/prepare_build_environment_macos.sh"
+before-all = "bash python/tools/prepare_build_environment_macos.sh"
 
 [tool.cibuildwheel.linux]
-before-all = "python/musica/tools/prepare_build_environment_linux.sh"
-repair-wheel-command = "bash python/musica/tools/repair_wheel_gpu.sh {wheel} {dest_dir}"
+before-all = "python/tools/prepare_build_environment_linux.sh"
+repair-wheel-command = "bash python/tools/repair_wheel_gpu.sh {wheel} {dest_dir}"
 # Use manylinux_2_28 for modern GCC 8.5 and NetCDF compatibility
 manylinux-x86_64-image = "manylinux_2_28"
 manylinux-aarch64-image = "manylinux_2_28"
@@ -136,4 +137,4 @@ LD_LIBRARY_PATH = "/usr/local/cuda/lib64:$LD_LIBRARY_PATH"
 BUILD_GPU = 1
 
 [tool.cibuildwheel.windows]
-repair-wheel-command = "bash python/musica/tools/repair_wheel_windows.sh {wheel} {dest_dir}"
+repair-wheel-command = "bash python/tools/repair_wheel_windows.sh {wheel} {dest_dir}"

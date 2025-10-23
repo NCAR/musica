@@ -70,7 +70,7 @@ jobs:
       shell: msys2 {0}
       run: |
         for whl in wheelhouse/*.whl; do
-          bash python/musica/tools/repair_wheel_windows.sh "$whl" wheelhouse
+          bash python/tools/repair_wheel_windows.sh "$whl" wheelhouse
         done
 
     - name: Install wheel (Windows)
