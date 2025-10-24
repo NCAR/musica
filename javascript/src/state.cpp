@@ -29,7 +29,6 @@ StateClass::~StateClass() {
   if (state_ != nullptr)
   {
     state_->DeleteStateWrapper();
-    delete state_;
     state_ = nullptr;
   }
 }

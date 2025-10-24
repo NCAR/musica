@@ -1,5 +1,6 @@
 const path = require('path');
-const { MICM, SolverType, GAS_CONSTANT } = require('../../micm/musica.js');
+const musica = require('musica-addon');
+const { MICM, SolverType, GAS_CONSTANT } = musica.micmSolver;
 
 // Test configuration
 const CONFIG_PATH = path.join(__dirname, '../../../configs/v0/analytical');

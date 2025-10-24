@@ -23,17 +23,21 @@ namespace musica_addon {
 // ============================================================================
 
 StateWrapper::StateWrapper(musica::State* state)
-    : state_(state) {
+    : state_(state), deconstruct(false) {
 }
 
-bool StateWrapper::DeleteStateWrapper() {
-    if (state_ != nullptr) {
+StateWrapper::~StateWrapper() {
+    if (state_ != nullptr && deconstruct) {
         musica::Error error;
         musica::DeleteState(state_, &error);
         musica::DeleteError(&error);
-        return true;
     }
-    return false;
+}
+
+void StateWrapper::DeleteStateWrapper() {
+    if (state_ != nullptr) {
+        deconstruct = true;
+    }
 }
 
 void StateWrapper::SetConcentrations(const std::map<std::string, std::vector<double>>& concentrations) {
