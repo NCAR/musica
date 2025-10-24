@@ -23,7 +23,6 @@ public:
     musica::State* CreateState(size_t number_of_grid_cells);
     void Solve(musica::State* state, double time_step);
     int GetSolverType() const;
-    musica::MICM* GetMICM() const { return micm_; }
 
 private:
     musica::MICM* micm_;
