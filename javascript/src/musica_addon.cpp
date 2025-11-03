@@ -1,10 +1,9 @@
 #include <napi.h>
 #include <memory>
 
-#include "micm.h"
-#include "micm_wrapper.h"
-#include "state.h"
-#include "state_wrapper.h"
+#include "micm/micm.h"
+#include "micm/state.h"
+
 
 #include <musica/version.hpp>
 
