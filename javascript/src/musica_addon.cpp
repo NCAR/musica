@@ -4,6 +4,7 @@
 #include "micm/micm.h"
 #include "micm/state.h"
 
+#include "mechanism_configuration/types.h"
 
 #include <musica/version.hpp>
 
@@ -29,9 +30,15 @@ Napi::Object Init(Napi::Env env, Napi::Object exports)
   // Legacy functions
   exports.Set("getVersion", Napi::Function::New(env, GetVersion));
 
-  // Register classes
+  // MICM Solver classes
   StateClass::Init(env, exports);
   MICMClass::Init(env, exports);
+
+  // Mechanism Configuration classes
+  SpeciesClass::Init(env, exports);
+  PhaseSpeciesClass::Init(env, exports);
+  PhaseClass::Init(env, exports);
+  ReactionComponentClass::Init(env, exports);
 
   return exports;
 }
