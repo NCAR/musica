@@ -30,16 +30,16 @@ class Arrhenius {
 		let obj = {};
 		// REVIEW: is this how to identify reaction types?
 		obj['type'] = 'ARRHENIUS';
+		obj['name'] = this.name;
 		obj['A'] = this.A;
 		obj['B'] = this.B;
 		// REVIEW: Do I need to fuss with the Ea thing?
 		obj['C'] = this.C;
 		obj['D'] = this.D;
 		obj['E'] = this.E;
+		obj['gas phase'] = this.gas_phase;
 		obj['reactants'] = this.reactants.map((r) => r.getJSON());
 		obj['products'] = this.products.map((p) => p.getJSON());
-		obj['name'] = this.name;
-		obj['gas phase'] = this.gas_phase;
 		const ops = convertOtherProperties(this.other_properties);
 		Object.assign(obj, ops);
 		return obj;
@@ -74,15 +74,15 @@ class Branched {
 		let obj = {};
 		// REVIEW: is this how to identify reaction types?
 		obj['type'] = 'BRANCHED_NO_RO2';
+		obj['name'] = this.name;
 		obj['X'] = this.X;
 		obj['Y'] = this.Y;
 		obj['a0'] = this.a0;
 		obj['n'] = this.n;
+		obj['gas phase'] = this.gas_phase;
 		obj['reactants'] = this.reactants.map((r) => r.getJSON());
 		obj['nitrate products'] = this.nitrate_products.map((p) => p.getJSON());
 		obj['alkoxy products'] = this.alkoxy_products.map((p) => p.getJSON());
-		obj['name'] = this.name;
-		obj['gas phase'] = this.gas_phase;
 		const ops = convertOtherProperties(this.other_properties);
 		Object.assign(obj, ops);
 		return obj;
@@ -106,10 +106,10 @@ class Emission {
 	getJSON() {
 		let obj = {};
 		obj['type'] = 'EMISSION';
-		obj['scaling factor'] = this.scaling_factor;
-		obj['products'] = this.products.map((p) => p.getJSON());
 		obj['name'] = this.name;
+		obj['scaling factor'] = this.scaling_factor;
 		obj['gas phase'] = this.gas_phase;
+		obj['products'] = this.products.map((p) => p.getJSON());
 		const ops = convertOtherProperties(this.other_properties);
 		Object.assign(obj, ops);
 		return obj;
@@ -133,10 +133,10 @@ class FirstOrderLoss {
 	getJSON() {
 		let obj = {};
 		obj['type'] = 'FIRST_ORDER_LOSS';
-		obj['scaling factor'] = this.scaling_factor;
-		obj['reactants'] = this.reactants.map((r) => r.getJSON());
 		obj['name'] = this.name;
+		obj['scaling factor'] = this.scaling_factor;
 		obj['gas phase'] = this.gas_phase;
+		obj['reactants'] = this.reactants.map((r) => r.getJSON());
 		const ops = convertOtherProperties(this.other_properties);
 		Object.assign(obj, ops);
 		return obj;
@@ -162,11 +162,11 @@ class Photolysis {
 	getJSON() {
 		let obj = {};
 		obj['type'] = 'PHOTOLYSIS';
+		obj['name'] = this.name;
 		obj['scaling factor'] = this.scaling_factor;
+		obj['gas phase'] = this.gas_phase;
 		obj['reactants'] = this.reactants.map((r) => r.getJSON());
 		obj['products'] = this.products.map((p) => p.getJSON());
-		obj['name'] = this.name;
-		obj['gas phase'] = this.gas_phase;
 		const ops = convertOtherProperties(this.other_properties);
 		Object.assign(obj, ops);
 		return obj;
@@ -192,15 +192,15 @@ class Surface {
 	getJSON() {
 		let obj = {};
 		obj['type'] = 'SURFACE';
+		obj['name'] = this.name;
 		obj['reaction probability'] = this.reaction_probability;
+		obj['gas phase'] = this.gas_phase;
 		obj['gas-phase species'] = this.gas_phase_species.map((r) =>
 			r.getJSON()
 		);
 		obj['gas-phase products'] = this.gas_phase_products.map((p) =>
 			p.getJSON()
 		);
-		obj['name'] = this.name;
-		obj['gas phase'] = this.gas_phase;
 		const ops = convertOtherProperties(this.other_properties);
 		Object.assign(obj, ops);
 		return obj;
@@ -236,6 +236,7 @@ class TaylorSeries {
 	getJSON() {
 		let obj = {};
 		obj['type'] = 'TAYLOR_SERIES';
+		obj['name'] = this.name;
 		obj['A'] = this.A;
 		obj['B'] = this.B;
 		// REVIEW: Ea thing?
@@ -243,10 +244,9 @@ class TaylorSeries {
 		obj['D'] = this.D;
 		obj['E'] = this.E;
 		obj['taylor coefficients'] = this.taylor_coefficients;
+		obj['gas phase'] = this.gas_phase;
 		obj['reactants'] = this.reactants.map((r) => r.getJSON());
 		obj['products'] = this.products.map((p) => p.getJSON());
-		obj['name'] = this.name;
-		obj['gas phase'] = this.gas_phase;
 		const ops = convertOtherProperties(this.other_properties);
 		Object.assign(obj, ops);
 		return obj;
@@ -285,6 +285,7 @@ class Troe {
 	}
 	getJSON() {
 		let obj = {};
+		obj['name'] = this.name;
 		obj['type'] = 'TROE';
 		obj['k0_A'] = this.k0_A;
 		obj['k0_B'] = this.k0_B;
@@ -294,10 +295,9 @@ class Troe {
 		obj['kinf_C'] = this.kinf_C;
 		obj['Fc'] = this.Fc;
 		obj['N'] = this.N;
+		obj['gas phase'] = this.gas_phase;
 		obj['reactants'] = this.reactants.map((r) => r.getJSON());
 		obj['products'] = this.products.map((p) => p.getJSON());
-		obj['name'] = this.name;
-		obj['gas phase'] = this.gas_phase;
 		const ops = convertOtherProperties(this.other_properties);
 		Object.assign(obj, ops);
 		return obj;
@@ -337,6 +337,8 @@ class TernaryChemicalActivation {
 	getJSON() {
 		let obj = {};
 		obj['type'] = 'TERNARY_CHEMICAL_ACTIVATION';
+		obj['name'] = this.name;
+		obj['gas phase'] = this.gas_phase;
 		obj['k0_A'] = this.k0_A;
 		obj['k0_B'] = this.k0_B;
 		obj['k0_C'] = this.k0_C;
@@ -347,8 +349,6 @@ class TernaryChemicalActivation {
 		obj['N'] = this.N;
 		obj['reactants'] = this.reactants.map((r) => r.getJSON());
 		obj['products'] = this.products.map((p) => p.getJSON());
-		obj['name'] = this.name;
-		obj['gas phase'] = this.gas_phase;
 		const ops = convertOtherProperties(this.other_properties);
 		Object.assign(obj, ops);
 		return obj;
@@ -378,13 +378,13 @@ class Tunneling {
 	getJSON() {
 		let obj = {};
 		obj['type'] = 'TUNNELING';
+		obj['name'] = this.name;
 		obj['A'] = this.A;
 		obj['B'] = this.B;
 		obj['C'] = this.C;
+		obj['gas phase'] = this.gas_phase;
 		obj['reactants'] = this.reactants.map((r) => r.getJSON());
 		obj['products'] = this.products.map((p) => p.getJSON());
-		obj['name'] = this.name;
-		obj['gas phase'] = this.gas_phase;
 		const ops = convertOtherProperties(this.other_properties);
 		Object.assign(obj, ops);
 		return obj;
@@ -410,11 +410,11 @@ class UserDefined {
 	getJSON() {
 		let obj = {};
 		obj['type'] = 'USER_DEFINED';
+		obj['name'] = this.name;
 		obj['scaling factor'] = this.scaling_factor;
+		obj['gas phase'] = this.gas_phase;
 		obj['reactants'] = this.reactants.map((r) => r.getJSON());
 		obj['products'] = this.products.map((p) => p.getJSON());
-		obj['name'] = this.name;
-		obj['gas phase'] = this.gas_phase;
 		const ops = convertOtherProperties(this.other_properties);
 		Object.assign(obj, ops);
 		return obj;
@@ -480,7 +480,7 @@ class Reactions {
 	}
 }
 
-const reaction_types = {
+const reactionTypes = {
 	Arrhenius,
 	Branched,
 	Emission,
@@ -494,4 +494,5 @@ const reaction_types = {
 	UserDefined,
 	Reactions,
 };
-module.exports = { reaction_types };
+
+module.exports = { reactionTypes };

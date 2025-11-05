@@ -34,7 +34,7 @@ class Species {
 	}
 }
 
-class PhaseSpeces {
+class PhaseSpecies {
 	constructor({ name, diffusion_coefficient, other_properties = {} }) {
 		this.name = name;
 		this.diffusion_coefficient = diffusion_coefficient;
@@ -50,12 +50,25 @@ class PhaseSpeces {
 	}
 }
 
-// REVIEW: Kyle, how does does this class get parsed?
+// REVIEW: Did I do this right?
 class Phase {
 	constructor({ name, species, other_properties = {} }) {
 		this.name = name;
 		this.species = species;
 		this.other_properties = other_properties;
+	}
+	getJSON() {
+		let obj = {};
+		obj['name'] = this.name;
+		obj['species'] = this.species.map((s) => {
+			if (s instanceof PhaseSpecies) return s.getJSON();
+			if (s instanceof Species) {
+				return new PhaseSpecies({ name: s.name }).getJSON();
+			}
+		});
+		const ops = convertOtherProperties(this.other_properties);
+		Object.assign(obj, ops);
+		return obj;
 	}
 }
 
@@ -76,7 +89,7 @@ class ReactionComponent {
     }
 }
 
-const types = { Species, PhaseSpeces, Phase, ReactionComponent };
+const types = { Species, PhaseSpecies, Phase, ReactionComponent };
 
 module.exports = {
 	types,
