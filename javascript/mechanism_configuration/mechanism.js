@@ -1,7 +1,8 @@
 // ========== MECHANISM ==========
-// REVIEW: Is this how'd I'd need to do this?
 class Mechanism {
-    constructor({ species, phases, reactions }) {
+    constructor({ name, version, species, phases, reactions }) {
+        this.name = name;
+        this.version = version;
         this.species = species;
         this.phases = phases;
         this.reactions = reactions;

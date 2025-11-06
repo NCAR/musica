@@ -9,10 +9,12 @@ class Arrhenius {
 		C = 0.0,
 		D = 300.0,
 		E = 0.0,
+		Ea,
 		reactants,
 		products,
 		name,
 		gas_phase,
+		// FIXME: parse for other properties //vexplain why I do what I do
 		other_properties = {},
 	}) {
 		this.A = A;
@@ -20,6 +22,8 @@ class Arrhenius {
 		this.C = C;
 		this.D = D;
 		this.E = E;
+		// C and Ea are mutually exclusive
+		this.Ea = Ea;
 		this.reactants = reactants;
 		this.products = products;
 		this.name = name;
@@ -28,15 +32,14 @@ class Arrhenius {
 	}
 	getJSON() {
 		let obj = {};
-		// REVIEW: is this how to identify reaction types?
 		obj['type'] = 'ARRHENIUS';
 		obj['name'] = this.name;
 		obj['A'] = this.A;
 		obj['B'] = this.B;
-		// REVIEW: Do I need to fuss with the Ea thing?
 		obj['C'] = this.C;
 		obj['D'] = this.D;
 		obj['E'] = this.E;
+		obj['Ea'] = this.Ea;
 		obj['gas phase'] = this.gas_phase;
 		obj['reactants'] = this.reactants.map((r) => r.getJSON());
 		obj['products'] = this.products.map((p) => p.getJSON());
@@ -214,6 +217,7 @@ class TaylorSeries {
 		C = 0.0,
 		D = 300.0,
 		E = 0.0,
+		Ea,
 		taylor_coefficients = [1.0],
 		reactants,
 		products,
@@ -226,6 +230,7 @@ class TaylorSeries {
 		this.C = C;
 		this.D = D;
 		this.E = E;
+		this.Ea = Ea;
 		this.taylor_coefficients = taylor_coefficients;
 		this.reactants = reactants;
 		this.products = products;
@@ -239,10 +244,10 @@ class TaylorSeries {
 		obj['name'] = this.name;
 		obj['A'] = this.A;
 		obj['B'] = this.B;
-		// REVIEW: Ea thing?
 		obj['C'] = this.C;
 		obj['D'] = this.D;
 		obj['E'] = this.E;
+		obj['Ea'] = this.Ea;
 		obj['taylor coefficients'] = this.taylor_coefficients;
 		obj['gas phase'] = this.gas_phase;
 		obj['reactants'] = this.reactants.map((r) => r.getJSON());
