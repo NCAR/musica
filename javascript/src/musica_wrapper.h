@@ -14,7 +14,7 @@ public:
     // Version and build information
     std::string GetVersion() const;
 
-    private:
+private:
     // Internal implementation details
     class Impl;
     std::unique_ptr<Impl> pImpl_;
