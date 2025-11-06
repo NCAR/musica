@@ -18,6 +18,7 @@ namespace musica_addon {
 class MICMWrapper {
 public:
     MICMWrapper(const std::string& config_path, int solver_type);
+    MICMWrapper(const std::string& config_content, int solver_type, bool is_json_string);
     ~MICMWrapper();
 
     musica::State* CreateState(size_t number_of_grid_cells);

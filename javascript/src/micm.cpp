@@ -15,13 +15,13 @@ MICMClass::MICMClass(const Napi::CallbackInfo& info)
 
   if (info.Length() < 2)
   {
-    Napi::TypeError::New(env, "Expected 2 arguments: config_path and solver_type").ThrowAsJavaScriptException();
+    Napi::TypeError::New(env, "Expected 2 arguments: (config_path or config_json) and solver_type").ThrowAsJavaScriptException();
     return;
   }
 
-  if (!info[0].IsString())
+  if (!info[0].IsString() && !info[0].IsObject())
   {
-    Napi::TypeError::New(env, "config_path must be a string").ThrowAsJavaScriptException();
+    Napi::TypeError::New(env, "First argument must be a string (config_path or config_json) or an options object").ThrowAsJavaScriptException();
     return;
   }
 
@@ -31,12 +31,37 @@ MICMClass::MICMClass(const Napi::CallbackInfo& info)
     return;
   }
 
-  std::string config_path = info[0].As<Napi::String>().Utf8Value();
   int solver_type = info[1].As<Napi::Number>().Int32Value();
 
   try
   {
-    micm_ = std::make_unique<MICMWrapper>(config_path.c_str(), static_cast<musica::MICMSolver>(solver_type));
+    // Check if first argument is an object with config_json or config_path
+    if (info[0].IsObject())
+    {
+      Napi::Object options = info[0].As<Napi::Object>();
+
+      if (options.Has("config_json") && options.Get("config_json").IsString())
+      {
+        std::string config_json = options.Get("config_json").As<Napi::String>().Utf8Value();
+        micm_ = std::make_unique<MICMWrapper>(config_json, static_cast<musica::MICMSolver>(solver_type), true);
+      }
+      else if (options.Has("config_path") && options.Get("config_path").IsString())
+      {
+        std::string config_path = options.Get("config_path").As<Napi::String>().Utf8Value();
+        micm_ = std::make_unique<MICMWrapper>(config_path, static_cast<musica::MICMSolver>(solver_type));
+      }
+      else
+      {
+        Napi::TypeError::New(env, "Options object must have either 'config_json' or 'config_path' property").ThrowAsJavaScriptException();
+        return;
+      }
+    }
+    else
+    {
+      // Backward compatibility: first argument is string (assumed to be config_path)
+      std::string config_path = info[0].As<Napi::String>().Utf8Value();
+      micm_ = std::make_unique<MICMWrapper>(config_path, static_cast<musica::MICMSolver>(solver_type));
+    }
   }
   catch (const std::exception& e)
   {

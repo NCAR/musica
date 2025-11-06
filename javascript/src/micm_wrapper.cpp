@@ -40,6 +40,26 @@ MICMWrapper::MICMWrapper(const std::string& config_path, int solver_type)
     musica::DeleteError(&error);
 }
 
+MICMWrapper::MICMWrapper(const std::string& config_content, int solver_type, bool is_json_string)
+    : micm_(nullptr), solver_type_(solver_type) {
+    musica::Error error;
+    micm_ = musica::CreateMicmFromJsonString(
+        config_content.c_str(),
+        static_cast<musica::MICMSolver>(solver_type),
+        &error);
+
+    if (!musica::IsSuccess(error)) {
+        std::string error_msg = "Failed to create MICM solver from JSON string: ";
+        if (error.message_.value_ != nullptr) {
+            error_msg += error.message_.value_;
+            musica::DeleteString(&error.message_);
+        }
+        musica::DeleteError(&error);
+        throw std::runtime_error(error_msg);
+    }
+    musica::DeleteError(&error);
+}
+
 MICMWrapper::~MICMWrapper() {
     if (micm_ != nullptr) {
         musica::Error error;

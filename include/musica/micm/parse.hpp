@@ -58,6 +58,7 @@ inline std::error_code make_error_code(MusicaParseErrc e)
 namespace musica
 {
   Chemistry ReadConfiguration(const std::string& config_path);
+  Chemistry ReadConfigurationFromJsonString(const std::string& json_content);
   Chemistry ParserV0(const mechanism_configuration::ParserResult<>& result);
   Chemistry ConvertV1Mechanism(
       const mechanism_configuration::v1::types::Mechanism& v1_mechanism,
