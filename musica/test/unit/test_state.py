@@ -323,3 +323,7 @@ def test_set_get_user_defined_rate_parameters():
         "USER.my user defined"
     ]
     assert sorted(expected_params) == sorted(param_names)
+
+
+if __name__ == "__main__":
+    pytest.main([__file__])

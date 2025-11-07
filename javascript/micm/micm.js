@@ -69,7 +69,8 @@ class MICM {
      * @returns {State} State object with single internal state
      */
     createState(numberOfGridCells = 1) {
-        return new State(this._nativeMICM, numberOfGridCells);
+        const nativeState = this._nativeMICM.createState(numberOfGridCells);
+        return new State(nativeState);
     }
 
     /**
@@ -88,7 +89,7 @@ class MICM {
         }
 
         // Solve single internal state
-        this._nativeMICM.solve(state.getInternalState(), timeStep);
+        this._nativeMICM.solve(state._nativeState, timeStep);
     }
 }
 module.exports = { MICM };

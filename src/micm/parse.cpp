@@ -55,11 +55,8 @@ namespace musica
       throw std::system_error(make_error_code(MusicaParseErrc::ParsingFailed), errors);
     }
 
-    // Wrap v1-specific result in universal ParserResult for ParserV1 function
-    mechanism_configuration::ParserResult<> universal_result;
-    universal_result.mechanism = std::make_unique<mechanism_configuration::v1::types::Mechanism>(*v1_parsed.mechanism);
-
-    chemistry = ParserV1(universal_result);
+    // Convert v1 mechanism directly to Chemistry
+    chemistry = ConvertV1Mechanism(*v1_parsed.mechanism);
     return chemistry;
   }
 
