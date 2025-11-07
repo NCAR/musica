@@ -18,31 +18,26 @@ class State():
     State class for the MICM solver. It contains the initial conditions and species concentrations.
     """
 
-    def __init__(self, solver: Any, number_of_grid_cells: int, vector_size: int = 0):
+    def __init__(self, solver: Any, number_of_grid_cells: int):
         if number_of_grid_cells < 1:
             raise ValueError("number_of_grid_cells must be greater than 0.")
         super().__init__()
-        self.__states = [
-            create_state(solver, min(
-                vector_size, number_of_grid_cells - i * vector_size))
-            for i in range(math.ceil(number_of_grid_cells / vector_size))
-        ] if vector_size > 0 else [create_state(solver, number_of_grid_cells)]
-        self.__species_ordering = species_ordering(self.__states[0])
+        self.__state = create_state(solver, number_of_grid_cells)
+        self.__species_ordering = species_ordering(self.__state)
         self.__user_defined_rate_parameters_ordering = user_defined_rate_parameters_ordering(
-            self.__states[0])
+            self.__state)
         self.__number_of_grid_cells = number_of_grid_cells
-        self.__vector_size = vector_size
 
-    def get_internal_states(self) -> List[Any]:
+    def get_internal_state(self) -> Any:
         """
-        Get the internal states of the MICM solver.
+        Get the internal state of the MICM solver.
 
         Returns
         -------
-        List[_State]
-            List of internal states.
+        _State
+            Internal state object.
         """
-        return self.__states
+        return self.__state
 
     def set_concentrations(self, concentrations: Dict[str, Union[Union[float, int], List[Union[float, int]]]]):
         """
@@ -64,14 +59,10 @@ class State():
             if len(value) != self.__number_of_grid_cells:
                 raise ValueError(
                     f"Concentration list for {name} must have length {self.__number_of_grid_cells}.")
-            # Counter 'k' is used to map grid cell indices across multiple state segments.
-            k = 0
-            for state in self.__states:
-                cell_stride, species_stride = state.concentration_strides()
-                for i_cell in range(state.number_of_grid_cells()):
-                    state.concentrations[i_species *
-                                         species_stride + i_cell * cell_stride] = value[k]
-                    k += 1
+            cell_stride, species_stride = self.__state.concentration_strides()
+            for i_cell in range(self.__state.number_of_grid_cells()):
+                self.__state.concentrations[i_species *
+                                     species_stride + i_cell * cell_stride] = value[i_cell]
 
     def set_user_defined_rate_parameters(
             self, user_defined_rate_parameters: Dict[str, Union[Union[float, int], List[Union[float, int]]]]):
@@ -95,14 +86,10 @@ class State():
             if len(value) != self.__number_of_grid_cells:
                 raise ValueError(
                     f"User-defined rate parameter list for {name} must have length {self.__number_of_grid_cells}.")
-            # Initialize `k` to index the grid cells when assigning user-defined rate parameters.
-            k = 0
-            for state in self.__states:
-                cell_stride, param_stride = state.user_defined_rate_parameter_strides()
-                for i_cell in range(state.number_of_grid_cells()):
-                    state.user_defined_rate_parameters[i_param *
-                                                       param_stride + i_cell * cell_stride] = value[k]
-                    k += 1
+            cell_stride, param_stride = self.__state.user_defined_rate_parameter_strides()
+            for i_cell in range(self.__state.number_of_grid_cells()):
+                self.__state.user_defined_rate_parameters[i_param *
+                                                   param_stride + i_cell * cell_stride] = value[i_cell]
 
     def set_conditions(self,
                        temperatures: Optional[Union[Union[float, int], List[Union[float, int]]]] = None,
@@ -148,14 +135,11 @@ class State():
         if air_densities is not None and len(air_densities) != self.__number_of_grid_cells:
             raise ValueError(
                 f"air_densities must be a list of length {self.__number_of_grid_cells}.")
-        k = 0
-        for state in self.__states:
-            for condition in state.conditions:
-                condition.temperature = temperatures[k] if temperatures is not None else condition.temperature
-                condition.pressure = pressures[k] if pressures is not None else condition.pressure
-                condition.air_density = air_densities[k] if air_densities is not None else condition.pressure / (
-                    GAS_CONSTANT * condition.temperature)
-                k += 1
+        for i_cell, condition in enumerate(self.__state.conditions):
+            condition.temperature = temperatures[i_cell] if temperatures is not None else condition.temperature
+            condition.pressure = pressures[i_cell] if pressures is not None else condition.pressure
+            condition.air_density = air_densities[i_cell] if air_densities is not None else condition.pressure / (
+                GAS_CONSTANT * condition.temperature)
 
     def get_concentrations(self) -> Dict[str, List[float]]:
         """
@@ -167,13 +151,12 @@ class State():
             Dictionary of species names and their concentrations.
         """
         concentrations = {}
+        cell_stride, species_stride = self.__state.concentration_strides()
         for species, i_species in self.__species_ordering.items():
             concentrations[species] = []
-            for state in self.__states:
-                cell_stride, species_stride = state.concentration_strides()
-                for i_cell in range(state.number_of_grid_cells()):
-                    concentrations[species].append(
-                        state.concentrations[i_species * species_stride + i_cell * cell_stride])
+            for i_cell in range(self.__state.number_of_grid_cells()):
+                concentrations[species].append(
+                    self.__state.concentrations[i_species * species_stride + i_cell * cell_stride])
         return concentrations
 
     def get_user_defined_rate_parameters(self) -> Dict[str, List[float]]:
@@ -186,13 +169,12 @@ class State():
             Dictionary of user-defined rate parameter names and their values.
         """
         user_defined_rate_parameters = {}
+        cell_stride, param_stride = self.__state.user_defined_rate_parameter_strides()
         for param, i_param in self.__user_defined_rate_parameters_ordering.items():
             user_defined_rate_parameters[param] = []
-            for state in self.__states:
-                cell_stride, param_stride = state.user_defined_rate_parameter_strides()
-                for i_cell in range(state.number_of_grid_cells()):
-                    user_defined_rate_parameters[param].append(
-                        state.user_defined_rate_parameters[i_param * param_stride + i_cell * cell_stride])
+            for i_cell in range(self.__state.number_of_grid_cells()):
+                user_defined_rate_parameters[param].append(
+                    self.__state.user_defined_rate_parameters[i_param * param_stride + i_cell * cell_stride])
         return user_defined_rate_parameters
 
     def get_conditions(self) -> Dict[str, List[float]]:
@@ -208,14 +190,13 @@ class State():
         conditions["temperature"] = []
         conditions["pressure"] = []
         conditions["air_density"] = []
-        for state in self.__states:
-            for i_cell in range(state.number_of_grid_cells()):
-                conditions["temperature"].append(
-                    state.conditions[i_cell].temperature)
-                conditions["pressure"].append(
-                    state.conditions[i_cell].pressure)
-                conditions["air_density"].append(
-                    state.conditions[i_cell].air_density)
+        for i_cell in range(self.__state.number_of_grid_cells()):
+            conditions["temperature"].append(
+                self.__state.conditions[i_cell].temperature)
+            conditions["pressure"].append(
+                self.__state.conditions[i_cell].pressure)
+            conditions["air_density"].append(
+                self.__state.conditions[i_cell].air_density)
         return conditions
 
     def get_species_ordering(self) -> Dict[str, int]:

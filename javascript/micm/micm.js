@@ -1,10 +1,10 @@
 // MICM solver class
 
 const path = require('path');
-const State = require('./state');
+const { State } = require('./state');
 
 // Load the native addon
-const addon = require(path.join(__dirname, '../../build/Release/musica'));
+const addon = require(path.join(__dirname, '../../build/Release/musica-addon.node'));
 
 // Solver type enum - matches musica::MICMSolver
 const SolverType = {
@@ -80,7 +80,8 @@ class MICM {
      * @returns {State} State object with single internal state
      */
     createState(numberOfGridCells = 1) {
-        return new State(this._nativeMICM, numberOfGridCells);
+        const nativeState = this._nativeMICM.createState(numberOfGridCells);
+        return new State(nativeState);
     }
 
     /**
@@ -99,7 +100,7 @@ class MICM {
         }
 
         // Solve single internal state
-        this._nativeMICM.solve(state.getInternalState(), timeStep);
+        this._nativeMICM.solve(state._nativeState, timeStep);
     }
 }
 
