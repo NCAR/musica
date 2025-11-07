@@ -3,7 +3,24 @@
  * Tests the JavaScript API bindings for MUSICA/MICM reaction configuration
  */
 
-const { Species, Phase, Arrhenius, Photolysis, UserDefined, ReactionComponent } = require('musica');
+const musica = require('musica-addon');
+const { types, reactionTypes, Mechanism } = musica.mechanismConfiguration;
+const { Species, PhaseSpecies, Phase, ReactionComponent } = types;
+// Access to all reaction types
+const {
+    Arrhenius,
+    Branched,
+    Emission,
+    FirstOrderLoss,
+    Photolysis,
+    Surface,
+    TaylorSeries,
+    Troe,
+    TernaryChemicalActivation,
+    Tunneling,
+    UserDefined,
+    Reactions,
+} = reactionTypes;
 
 console.log('='.repeat(70));
 console.log('Testing MUSICA Reaction Types: Arrhenius, Photolysis, UserDefined');

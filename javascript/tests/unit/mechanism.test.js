@@ -1,4 +1,7 @@
-const { Species, Phase, Arrhenius, ReactionComponent } = require('musica');
+const musica = require('musica-addon');
+const { types, reactionTypes, Mechanism } = musica.mechanismConfiguration;
+const { Species, PhaseSpecies, Phase, ReactionComponent } = types;
+const { Arrhenius } = reactionTypes;
 
 console.log('Testing Mechanism Configuration Classes...\n');
 
