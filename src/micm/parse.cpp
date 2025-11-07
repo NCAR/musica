@@ -36,6 +36,33 @@ namespace musica
     return chemistry;
   }
 
+  Chemistry ReadConfigurationFromString(const std::string& json_or_yaml_string)
+  {
+    Chemistry chemistry{};
+
+    // Parse as v1 format
+    // Only v1 supports string parsing; JavaScript wrappers generate v1 format
+    mechanism_configuration::v1::Parser v1_parser;
+    auto v1_parsed = v1_parser.ParseFromString(json_or_yaml_string);
+
+    if (!v1_parsed)
+    {
+      std::string errors = "Failed to parse configuration string:\n";
+      for (auto& error : v1_parsed.errors)
+      {
+        errors += error.second + "\n";
+      }
+      throw std::system_error(make_error_code(MusicaParseErrc::ParsingFailed), errors);
+    }
+
+    // Wrap v1-specific result in universal ParserResult for ParserV1 function
+    mechanism_configuration::ParserResult<> universal_result;
+    universal_result.mechanism = std::make_unique<mechanism_configuration::v1::types::Mechanism>(*v1_parsed.mechanism);
+
+    chemistry = ParserV1(universal_result);
+    return chemistry;
+  }
+
   bool IsBool(const std::string& value)
   {
     return (value == "true" || value == "false");

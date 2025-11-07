@@ -33,6 +33,10 @@ namespace musica
       default: throw std::system_error(make_error_code(MusicaErrCode::Unknown), "Unknown solver type");
     }
   }
+  MICM::MICM(const char* config_path, MICMSolver solver_type)
+      : MICM(ReadConfiguration(std::string(config_path)), solver_type)
+  {
+  }
 
   MICM::MICM(const Chemistry& chemistry, MICMSolver solver_type)
   {
