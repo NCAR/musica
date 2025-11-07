@@ -125,6 +125,7 @@ namespace musica
    public:
     SolverVariant solver_variant_;
 
+    MICM(const char *config_path, MICMSolver solver_type);
     MICM(const Chemistry &chemistry, MICMSolver solver_type);
     MICM() = default;
     ~MICM()
@@ -171,6 +172,10 @@ namespace musica
     std::size_t GetMaximumNumberOfGridCells()
     {
       return std::visit([](auto &solver) { return solver->MaximumNumberOfGridCells(); }, solver_variant_);
+    }
+    std::unique_ptr<State> CreateState(std::size_t number_of_grid_cells)
+    {
+      return std::make_unique<State>(*this, number_of_grid_cells);
     }
   };
 

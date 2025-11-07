@@ -1,5 +1,7 @@
 const path = require('path');
-const { MICM, SolverType } = require('musica');
+const musica = require('../../index.js');
+const { MICM, SolverType } = musica.micmSolver;
+
 
 // Test configuration
 const CONFIG_PATH = path.join(__dirname, '../../../configs/v0/TS1');

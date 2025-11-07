@@ -5,19 +5,16 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 
-// Import MUSICA bindings
-const {
-    MICM,
-    SolverType,
-    Species,
-    ReactionComponent,
-    Phase,
-    Arrhenius,
-    Photolysis,
-    Emission,
-    UserDefined,
-    Mechanism
-} = require('../index.js');
+// Import MUSICA bindings with new architecture
+const addon = require('./index.js');
+
+// Extract MICM solver from new structure
+const { MICM, SolverType } = addon.micmSolver;
+
+// Extract mechanism configuration classes from new JavaScript wrappers
+const { Species, PhaseSpecies, Phase, ReactionComponent } = addon.mechanismConfiguration.types;
+const { Arrhenius, Photolysis, Emission, UserDefined } = addon.mechanismConfiguration.reactionTypes;
+const { Mechanism } = addon.mechanismConfiguration;
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -32,19 +29,19 @@ const PRESET_MECHANISMS = {
         id: 'ts1',
         name: 'TS1',
         description: '209 species tropospheric chemistry mechanism',
-        config_path: path.join(__dirname, '../configs/v0/ts1')
+        config_path: path.join(__dirname, '../configs/v0/ts1')  // v0 uses directory path
     },
     chapman: {
         id: 'chapman',
         name: 'Chapman',
         description: 'Stratospheric ozone chemistry',
-        config_path: path.join(__dirname, '../configs/v1/chapman')
+        config_path: path.join(__dirname, '../configs/v1/chapman/config.json')  // v1 uses file path
     },
     analytical: {
         id: 'analytical',
         name: 'Analytical',
         description: 'Simple analytical test case',
-        config_path: path.join(__dirname, '../configs/v0/analytical')
+        config_path: path.join(__dirname, '../configs/v0/analytical')  // v0 uses directory path
     }
 };
 
@@ -91,10 +88,10 @@ app.post('/api/mechanism/create', (req, res) => {
             });
         }
 
-        // Create Species objects
+        // Create Species objects (using new JavaScript wrapper API)
         const speciesObjs = species.map(s => new Species({
             name: s.name,
-            molecular_weight_kg_mol: s.molecular_weight_kg_mol,
+            molecular_weight: s.molecular_weight_kg_mol || s.molecular_weight, // Support both property names
             other_properties: s.other_properties || {}
         }));
 
@@ -141,8 +138,8 @@ app.post('/api/mechanism/create', (req, res) => {
             reactions: reactionObjs
         });
 
-        // Serialize for response
-        const mechanismData = mechanism.serialize();
+        // Serialize for response (using new JavaScript wrapper API)
+        const mechanismData = mechanism.getJSON();
 
         res.json({
             success: true,

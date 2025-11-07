@@ -2,7 +2,9 @@
 // Matches python/musica/test/integration/test_chapman.py
 
 const path = require('path');
-const { MICM, SolverType } = require('../../../index.js');
+const musica = require('../../index.js');
+const { MICM, SolverType } = musica.micmSolver;
+
 
 const CONFIG_PATH = path.join(__dirname, '../../../configs/v1/chapman/config.json');
 

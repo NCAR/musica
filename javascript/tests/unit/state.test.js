@@ -1,7 +1,8 @@
 // Unit tests for State class
 
 const path = require('path');
-const { MICM, SolverType } = require('musica');
+const musica = require('../../index.js');
+const { MICM, SolverType } = musica.micmSolver;
 
 const CONFIG_PATH = path.join(__dirname, '../../../configs/v0/analytical');
 
@@ -228,3 +229,6 @@ if (require.main === module) {
 }
 
 module.exports = { runTests };
+
+// Clean exit
+process.exit(0);
