@@ -1,18 +1,26 @@
 // Mechanism API integration test
 // Demonstrates creating a chemical mechanism entirely in code using the JavaScript API
 
+const musica = require('../../index.js');
+const { MICM, SolverType } = musica.micmSolver;
+const { types, reactionTypes, Mechanism } = musica.mechanismConfiguration;
+const { Species, PhaseSpecies, Phase, ReactionComponent } = types;
+// Access to all reaction types
 const {
-    MICM,
-    SolverType,
-    Species,
-    ReactionComponent,
-    Phase,
-    Arrhenius,
-    Photolysis,
-    Emission,
-    UserDefined,
-    Mechanism
-} = require('../../../index.js');
+	Arrhenius,
+	Branched,
+	Emission,
+	FirstOrderLoss,
+	Photolysis,
+	Surface,
+	TaylorSeries,
+	Troe,
+	TernaryChemicalActivation,
+	Tunneling,
+	UserDefined,
+	Reactions,
+} = reactionTypes;
+
 
 function testMechanismAPISimpleChemistry() {
     console.log('\n============================================================');
@@ -285,7 +293,7 @@ function testMechanismExport() {
 
     // Test serialize
     console.log('  - Testing serialize()...');
-    const serialized = mechanism.serialize();
+    const serialized = mechanism.getJSON();
 
     if (!serialized || typeof serialized !== 'object') {
         throw new Error('serialize() should return an object');

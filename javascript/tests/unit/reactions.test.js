@@ -3,7 +3,24 @@
  * Tests the JavaScript API bindings for MUSICA/MICM reaction configuration
  */
 
-const { Species, Phase, Arrhenius, Photolysis, UserDefined, ReactionComponent } = require('musica');
+const musica = require('../../index.js');
+const { types, reactionTypes, Mechanism } = musica.mechanismConfiguration;
+const { Species, PhaseSpecies, Phase, ReactionComponent } = types;
+// Access to all reaction types
+const {
+    Arrhenius,
+    Branched,
+    Emission,
+    FirstOrderLoss,
+    Photolysis,
+    Surface,
+    TaylorSeries,
+    Troe,
+    TernaryChemicalActivation,
+    Tunneling,
+    UserDefined,
+    Reactions,
+} = reactionTypes;
 
 console.log('='.repeat(70));
 console.log('Testing MUSICA Reaction Types: Arrhenius, Photolysis, UserDefined');
@@ -72,7 +89,7 @@ console.log('  ✓ Arrhenius simplified API successful');
 
 // Test 3: Arrhenius serialization
 console.log('\nTest 3: Arrhenius serialization');
-const arrhenius_serialized = arrhenius1.serialize();
+const arrhenius_serialized = arrhenius1.getJSON();
 console.log('  Serialized:', JSON.stringify(arrhenius_serialized, null, 2));
 console.log('  Type:', arrhenius_serialized.type);
 console.log('  ✓ Arrhenius serialization successful');
@@ -128,7 +145,7 @@ console.log('  ✓ Photolysis simplified API successful');
 
 // Test 7: Photolysis serialization
 console.log('\nTest 7: Photolysis serialization');
-const photolysis_serialized = photolysis1.serialize();
+const photolysis_serialized = photolysis1.getJSON();
 console.log('  Serialized:', JSON.stringify(photolysis_serialized, null, 2));
 console.log('  Type:', photolysis_serialized.type);
 console.log('  ✓ Photolysis serialization successful');
@@ -184,7 +201,7 @@ console.log('  ✓ UserDefined simplified API successful');
 
 // Test 11: UserDefined serialization
 console.log('\nTest 11: UserDefined serialization');
-const userDefined_serialized = userDefined1.serialize();
+const userDefined_serialized = userDefined1.getJSON();
 console.log('  Serialized:', JSON.stringify(userDefined_serialized, null, 2));
 console.log('  Type:', userDefined_serialized.type);
 console.log('  ✓ UserDefined serialization successful');
@@ -231,7 +248,7 @@ const reactions = [
 
 console.log('  Created', reactions.length, 'reactions:');
 reactions.forEach((rxn, idx) => {
-    const type = rxn.serialize().type;
+    const type = rxn.getJSON().type;
     console.log(`    ${idx + 1}. [${type}] ${rxn.name}`);
 });
 console.log('  ✓ Mixed reaction types successful');
@@ -303,3 +320,6 @@ console.log('  ✓ Advanced features: 2 tests passed');
 console.log('─'.repeat(70));
 console.log('Total: 16 tests passed');
 console.log('='.repeat(70));
+
+// Add at end of reactions.test.js  
+process.exit(0);

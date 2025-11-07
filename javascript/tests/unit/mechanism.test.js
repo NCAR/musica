@@ -1,4 +1,7 @@
-const { Species, Phase, Arrhenius, ReactionComponent } = require('musica');
+const musica = require('../../index.js');
+const { types, reactionTypes, Mechanism } = musica.mechanismConfiguration;
+const { Species, PhaseSpecies, Phase, ReactionComponent } = types;
+const { Arrhenius } = reactionTypes;
 
 console.log('Testing Mechanism Configuration Classes...\n');
 
@@ -26,7 +29,7 @@ console.log('  ✓ Species creation successful\n');
 
 // Test 2: Serialize Species
 console.log('Test 2: Serializing Species');
-const o3_serialized = o3.serialize();
+const o3_serialized = o3.getJSON();
 console.log('  O3 serialized:', JSON.stringify(o3_serialized, null, 2));
 console.log('  ✓ Species serialization successful\n');
 
@@ -75,7 +78,7 @@ console.log('  ✓ Arrhenius reaction creation successful\n');
 
 // Test 6: Serialize Arrhenius Reaction
 console.log('Test 6: Serializing Arrhenius Reaction');
-const reaction_serialized = reaction.serialize();
+const reaction_serialized = reaction.getJSON();
 console.log('  Reaction serialized:', JSON.stringify(reaction_serialized, null, 2));
 console.log('  ✓ Arrhenius serialization successful\n');
 
@@ -107,3 +110,6 @@ console.log('  ✓ Property modification successful\n');
 console.log('='.repeat(60));
 console.log('ALL MECHANISM CONFIGURATION TESTS PASSED!');
 console.log('='.repeat(60));
+
+// Add at end of mechanism.test.js
+process.exit(0);
