@@ -1,7 +1,7 @@
 // Mechanism API integration test
 // Demonstrates creating a chemical mechanism entirely in code using the JavaScript API
 
-const musica = require('../../index.js');
+const musica = require('musica-addon');
 const { MICM, SolverType } = musica.micmSolver;
 const { types, reactionTypes, Mechanism } = musica.mechanismConfiguration;
 const { Species, PhaseSpecies, Phase, ReactionComponent } = types;

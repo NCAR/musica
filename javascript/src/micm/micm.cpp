@@ -83,13 +83,10 @@ Napi::Value MICMClass::CreateState(const Napi::CallbackInfo& info)
   try
   {
     musica::State* raw_state = micm_->CreateState(num_cells);
-    // Create a single StateWrapper to avoid double-delete
-    StateWrapper* state_wrapper = new StateWrapper(raw_state);
-    state_wrapper->DeleteStateWrapper(); // Mark for cleanup
-
+    auto state_wrapper = std::make_shared<StateWrapper>(raw_state);
     auto ext = Napi::External<StateWrapper>::New(
       env,
-      state_wrapper,
+      new StateWrapper(raw_state),
       [](Napi::Env /*env*/, StateWrapper* ptr) { delete ptr; }
     );
 

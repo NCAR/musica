@@ -1,7 +1,7 @@
 // Unit tests for MICM class
 
 const path = require('path');
-const musica = require('../../index.js');
+const musica = require('musica-addon');
 const { MICM, SolverType } = musica.micmSolver;
 
 const CONFIG_PATH = path.join(__dirname, '../../../configs/v0/analytical');

@@ -1,23 +1,12 @@
-// MICM solver class
-
 const path = require('path');
-const State = require('./state');
+const addon = require(path.join(
+	__dirname,
+	'../../build/Release/musica-addon.node'
+));
 
-// Load the native addon
-const addon = require(path.join(__dirname, '../../build/Release/musica'));
+const { State } = require('./state.js');
+const { SolverType } = require('./solver');
 
-// Solver type enum - matches musica::MICMSolver
-const SolverType = {
-    rosenbrock: 1,                      // Vector-ordered Rosenbrock solver
-    rosenbrock_standard_order: 2,       // Standard-ordered Rosenbrock solver
-    backward_euler: 3,                  // Vector-ordered BackwardEuler solver
-    backward_euler_standard_order: 4,   // Standard-ordered BackwardEuler solver
-};
-
-/**
- * MICM (Modular Integrated Chemistry Module) solver
- * simplified state management
- */
 class MICM {
     /**
      * Create a MICM solver instance
@@ -102,8 +91,4 @@ class MICM {
         this._nativeMICM.solve(state.getInternalState(), timeStep);
     }
 }
-
-module.exports = {
-    MICM,
-    SolverType,
-};
+module.exports = { MICM };

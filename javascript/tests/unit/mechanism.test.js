@@ -1,4 +1,4 @@
-const musica = require('../../index.js');
+const musica = require('musica-addon');
 const { types, reactionTypes, Mechanism } = musica.mechanismConfiguration;
 const { Species, PhaseSpecies, Phase, ReactionComponent } = types;
 const { Arrhenius } = reactionTypes;

@@ -61,16 +61,10 @@ class Phase {
 		let obj = {};
 		obj['name'] = this.name;
 		obj['species'] = this.species.map((s) => {
-			// Handle string names (v1 format)
-			if (typeof s === 'string') return s;
-			// Handle PhaseSpecies objects
 			if (s instanceof PhaseSpecies) return s.getJSON();
-			// Handle Species objects - convert to PhaseSpecies
 			if (s instanceof Species) {
 				return new PhaseSpecies({ name: s.name }).getJSON();
 			}
-			// Default: return as-is
-			return s;
 		});
 		const ops = convertOtherProperties(this.other_properties);
 		Object.assign(obj, ops);
@@ -78,7 +72,7 @@ class Phase {
 	}
 }
 
-// Reaction component with species and coefficient
+// REVIEW: Kyle, how does does this class get parsed?
 class ReactionComponent {
 	constructor({ species_name, coefficient = 1.0, other_properties = {} }) {
 		this.species_name = species_name;

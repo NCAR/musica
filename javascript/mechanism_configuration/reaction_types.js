@@ -41,9 +41,8 @@ class Arrhenius {
 		obj['E'] = this.E;
 		obj['Ea'] = this.Ea;
 		obj['gas phase'] = this.gas_phase;
-		// Handle both string arrays and ReactionComponent objects
-		obj['reactants'] = this.reactants.map((r) => typeof r === 'string' ? { "species name": r, "coefficient": 1.0 } : r.getJSON());
-		obj['products'] = this.products.map((p) => typeof p === 'string' ? { "species name": p, "coefficient": 1.0 } : p.getJSON());
+		obj['reactants'] = this.reactants.map((r) => r.getJSON());
+		obj['products'] = this.products.map((p) => p.getJSON());
 		const ops = convertOtherProperties(this.other_properties);
 		Object.assign(obj, ops);
 		return obj;
@@ -84,10 +83,9 @@ class Branched {
 		obj['a0'] = this.a0;
 		obj['n'] = this.n;
 		obj['gas phase'] = this.gas_phase;
-		// Handle both string arrays and ReactionComponent objects
-		obj['reactants'] = this.reactants.map((r) => typeof r === 'string' ? { "species name": r, "coefficient": 1.0 } : r.getJSON());
-		obj['nitrate products'] = this.nitrate_products.map((p) => typeof p === 'string' ? { "species name": p, "coefficient": 1.0 } : p.getJSON());
-		obj['alkoxy products'] = this.alkoxy_products.map((p) => typeof p === 'string' ? { "species name": p, "coefficient": 1.0 } : p.getJSON());
+		obj['reactants'] = this.reactants.map((r) => r.getJSON());
+		obj['nitrate products'] = this.nitrate_products.map((p) => p.getJSON());
+		obj['alkoxy products'] = this.alkoxy_products.map((p) => p.getJSON());
 		const ops = convertOtherProperties(this.other_properties);
 		Object.assign(obj, ops);
 		return obj;
@@ -114,8 +112,7 @@ class Emission {
 		obj['name'] = this.name;
 		obj['scaling factor'] = this.scaling_factor;
 		obj['gas phase'] = this.gas_phase;
-		// Handle both string arrays and ReactionComponent objects
-		obj['products'] = this.products.map((p) => typeof p === 'string' ? { "species name": p, "coefficient": 1.0 } : p.getJSON());
+		obj['products'] = this.products.map((p) => p.getJSON());
 		const ops = convertOtherProperties(this.other_properties);
 		Object.assign(obj, ops);
 		return obj;
@@ -142,8 +139,7 @@ class FirstOrderLoss {
 		obj['name'] = this.name;
 		obj['scaling factor'] = this.scaling_factor;
 		obj['gas phase'] = this.gas_phase;
-		// Handle both string arrays and ReactionComponent objects
-		obj['reactants'] = this.reactants.map((r) => typeof r === 'string' ? { "species name": r, "coefficient": 1.0 } : r.getJSON());
+		obj['reactants'] = this.reactants.map((r) => r.getJSON());
 		const ops = convertOtherProperties(this.other_properties);
 		Object.assign(obj, ops);
 		return obj;
@@ -172,9 +168,8 @@ class Photolysis {
 		obj['name'] = this.name;
 		obj['scaling factor'] = this.scaling_factor;
 		obj['gas phase'] = this.gas_phase;
-		// Handle both string arrays and ReactionComponent objects
-		obj['reactants'] = this.reactants.map((r) => typeof r === 'string' ? { "species name": r, "coefficient": 1.0 } : r.getJSON());
-		obj['products'] = this.products.map((p) => typeof p === 'string' ? { "species name": p, "coefficient": 1.0 } : p.getJSON());
+		obj['reactants'] = this.reactants.map((r) => r.getJSON());
+		obj['products'] = this.products.map((p) => p.getJSON());
 		const ops = convertOtherProperties(this.other_properties);
 		Object.assign(obj, ops);
 		return obj;
@@ -203,12 +198,11 @@ class Surface {
 		obj['name'] = this.name;
 		obj['reaction probability'] = this.reaction_probability;
 		obj['gas phase'] = this.gas_phase;
-		// Handle both string arrays and ReactionComponent objects
 		obj['gas-phase species'] = this.gas_phase_species.map((r) =>
-			typeof r === 'string' ? { "species name": r, "coefficient": 1.0 } : r.getJSON()
+			r.getJSON()
 		);
 		obj['gas-phase products'] = this.gas_phase_products.map((p) =>
-			typeof p === 'string' ? { "species name": p, "coefficient": 1.0 } : p.getJSON()
+			p.getJSON()
 		);
 		const ops = convertOtherProperties(this.other_properties);
 		Object.assign(obj, ops);
@@ -256,9 +250,8 @@ class TaylorSeries {
 		obj['Ea'] = this.Ea;
 		obj['taylor coefficients'] = this.taylor_coefficients;
 		obj['gas phase'] = this.gas_phase;
-		// Handle both string arrays and ReactionComponent objects
-		obj['reactants'] = this.reactants.map((r) => typeof r === 'string' ? { "species name": r, "coefficient": 1.0 } : r.getJSON());
-		obj['products'] = this.products.map((p) => typeof p === 'string' ? { "species name": p, "coefficient": 1.0 } : p.getJSON());
+		obj['reactants'] = this.reactants.map((r) => r.getJSON());
+		obj['products'] = this.products.map((p) => p.getJSON());
 		const ops = convertOtherProperties(this.other_properties);
 		Object.assign(obj, ops);
 		return obj;
@@ -308,9 +301,8 @@ class Troe {
 		obj['Fc'] = this.Fc;
 		obj['N'] = this.N;
 		obj['gas phase'] = this.gas_phase;
-		// Handle both string arrays and ReactionComponent objects
-		obj['reactants'] = this.reactants.map((r) => typeof r === 'string' ? { "species name": r, "coefficient": 1.0 } : r.getJSON());
-		obj['products'] = this.products.map((p) => typeof p === 'string' ? { "species name": p, "coefficient": 1.0 } : p.getJSON());
+		obj['reactants'] = this.reactants.map((r) => r.getJSON());
+		obj['products'] = this.products.map((p) => p.getJSON());
 		const ops = convertOtherProperties(this.other_properties);
 		Object.assign(obj, ops);
 		return obj;
@@ -360,9 +352,8 @@ class TernaryChemicalActivation {
 		obj['kinf_C'] = this.kinf_C;
 		obj['Fc'] = this.Fc;
 		obj['N'] = this.N;
-		// Handle both string arrays and ReactionComponent objects
-		obj['reactants'] = this.reactants.map((r) => typeof r === 'string' ? { "species name": r, "coefficient": 1.0 } : r.getJSON());
-		obj['products'] = this.products.map((p) => typeof p === 'string' ? { "species name": p, "coefficient": 1.0 } : p.getJSON());
+		obj['reactants'] = this.reactants.map((r) => r.getJSON());
+		obj['products'] = this.products.map((p) => p.getJSON());
 		const ops = convertOtherProperties(this.other_properties);
 		Object.assign(obj, ops);
 		return obj;
@@ -397,9 +388,8 @@ class Tunneling {
 		obj['B'] = this.B;
 		obj['C'] = this.C;
 		obj['gas phase'] = this.gas_phase;
-		// Handle both string arrays and ReactionComponent objects
-		obj['reactants'] = this.reactants.map((r) => typeof r === 'string' ? { "species name": r, "coefficient": 1.0 } : r.getJSON());
-		obj['products'] = this.products.map((p) => typeof p === 'string' ? { "species name": p, "coefficient": 1.0 } : p.getJSON());
+		obj['reactants'] = this.reactants.map((r) => r.getJSON());
+		obj['products'] = this.products.map((p) => p.getJSON());
 		const ops = convertOtherProperties(this.other_properties);
 		Object.assign(obj, ops);
 		return obj;
@@ -428,9 +418,8 @@ class UserDefined {
 		obj['name'] = this.name;
 		obj['scaling factor'] = this.scaling_factor;
 		obj['gas phase'] = this.gas_phase;
-		// Handle both string arrays and ReactionComponent objects
-		obj['reactants'] = this.reactants.map((r) => typeof r === 'string' ? { "species name": r, "coefficient": 1.0 } : r.getJSON());
-		obj['products'] = this.products.map((p) => typeof p === 'string' ? { "species name": p, "coefficient": 1.0 } : p.getJSON());
+		obj['reactants'] = this.reactants.map((r) => r.getJSON());
+		obj['products'] = this.products.map((p) => p.getJSON());
 		const ops = convertOtherProperties(this.other_properties);
 		Object.assign(obj, ops);
 		return obj;
