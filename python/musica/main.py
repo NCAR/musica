@@ -105,6 +105,7 @@ def main():
 
     if not output:
         logger.debug("No output path specified, using current directory.")
+        output = '.'
 
     if convert:
         convert_configuration(logger, convert, output)
