@@ -60,7 +60,7 @@ def setup_logging(verbosity):
 
 
 def copy_example(logger, example_arg, output_path):
-    example = next(e for e in Examples if e.short_name == example_arg)
+    example = next((e for e in Examples if e.short_name == example_arg), None)
     if not example:
         raise ValueError(f"Example '{example_arg}' not found.")
 
