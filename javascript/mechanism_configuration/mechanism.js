@@ -9,9 +9,11 @@ class Mechanism {
     }
     getJSON() {
         let obj = {};
+        obj['name'] = this.name;
+        obj['version'] = this.version;
         for (const s in this.species) Object.assign(obj, s.getJSON());
         for (const p in this.phases) Object.assign(obj, p.getJSON());
-        for (const r in this.reactions) Object.assign(obj, r.getJSON());
+        Object.assign(obj, this.reactions.getJSON());
         return obj;
     }
 }

@@ -2,24 +2,26 @@ const { convertOtherProperties } = require('./utils');
 
 // =========== TYPES ===========
 class Species {
-	constructor({
-		name,
-		molecular_weight,
-		constant_concentration,
-		constant_mixing_ratio,
-        /* REVIEW: in the full_config, 
-         * the species don't have is_third_body if it's false
-         * So should I not initialize it?
-        */
-		is_third_body = false,
-		other_properties = {},
-	}) {
-		this.name = name;
-		this.molecular_weight = molecular_weight;
-		this.constant_concentration = constant_concentration;
-		this.constant_mixing_ratio = constant_mixing_ratio;
-		this.is_third_body = is_third_body;
-		this.other_properties = other_properties;
+	#keys = [
+		'name',
+		'molecular_weight',
+		'constant_concentration',
+		'constant_mixing_ratio',
+		'is_third_body',
+	];
+	constructor(params) {
+		this.name = params['name'];
+		this.molecular_weight = params['molecular_weight'];
+		this.constant_concentration = params['constant_concentration'];
+		this.constant_mixing_ratio = params['constant_mixing_ratio'];
+		this.is_third_body = params['is_third_body'];
+		this.other_properties = {};
+		// Allows end-users to add arbitrary properties as simple key-value pairs just like the other defined properties
+		Object.entries(params).forEach(([key, value]) => {
+			if (this.#keys.includes(key) == false) {
+				this.other_properties[key] = value;
+			}
+		});
 	}
 	getJSON() {
 		let obj = {};
@@ -35,10 +37,16 @@ class Species {
 }
 
 class PhaseSpecies {
-	constructor({ name, diffusion_coefficient, other_properties = {} }) {
-		this.name = name;
-		this.diffusion_coefficient = diffusion_coefficient;
-		this.other_properties = other_properties;
+	#keys = ['name', 'diffusion_coefficient'];
+	constructor(params) {
+		this.name = params['name'];
+		this.diffusion_coefficient = params['diffusion_coefficient'];
+		this.other_properties = {};
+		Object.entries(params).forEach(([key, value]) => {
+			if (this.#keys.includes(key) == false) {
+				this.other_properties[key] = value;
+			}
+		});
 	}
 	getJSON() {
 		let obj = {};
@@ -50,12 +58,17 @@ class PhaseSpecies {
 	}
 }
 
-// REVIEW: Did I do this right?
 class Phase {
-	constructor({ name, species, other_properties = {} }) {
-		this.name = name;
-		this.species = species;
-		this.other_properties = other_properties;
+	#keys = ['name', 'species'];
+	constructor(params) {
+		this.name = params['name'];
+		this.species = params['species'];
+		this.other_properties = {};
+		Object.entries(params).forEach(([key, value]) => {
+			if (this.#keys.includes(key) == false) {
+				this.other_properties[key] = value;
+			}
+		});
 	}
 	getJSON() {
 		let obj = {};
@@ -72,26 +85,28 @@ class Phase {
 	}
 }
 
-// REVIEW: Kyle, how does does this class get parsed?
 class ReactionComponent {
-	constructor({ species_name, coefficient = 1.0, other_properties = {} }) {
-		this.species_name = species_name;
-		this.coefficient = coefficient;
-		this.other_properties = other_properties;
+	#keys = ['species_name', 'coefficient'];
+	constructor(params) {
+		this.species_name = params['species_name'];
+		this.coefficient = params['coefficient'];
+		this.other_properties = {};
+		Object.entries(params).forEach(([key, value]) => {
+			if (this.#keys.includes(key) == false) {
+				this.other_properties[key] = value;
+			}
+		});
 	}
-    getJSON() {
-        let obj = {};
-        obj['species name'] = this.species_name;
-        obj['coefficient'] = this.coefficient;
-        const ops = convertOtherProperties(this.other_properties);
-        Object.assign(obj, ops);
-        return obj;
-    }
+	getJSON() {
+		let obj = {};
+		obj['species name'] = this.species_name;
+		obj['coefficient'] = this.coefficient;
+		const ops = convertOtherProperties(this.other_properties);
+		Object.assign(obj, ops);
+		return obj;
+	}
 }
 
 const types = { Species, PhaseSpecies, Phase, ReactionComponent };
 
-module.exports = {
-	types,
-	reaction_types,
-};
+module.exports = { types };

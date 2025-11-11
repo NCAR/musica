@@ -1,34 +1,37 @@
 const { convertOtherProperties } = require('./utils.js');
 
 // ========== REACTION TYPES ==========
-// REVIEW: Do you want these to all be in seprate files?
 class Arrhenius {
-	constructor({
-		A = 1.0,
-		B = 0.0,
-		C = 0.0,
-		D = 300.0,
-		E = 0.0,
-		Ea,
-		reactants,
-		products,
-		name,
-		gas_phase,
-		// FIXME: parse for other properties //vexplain why I do what I do
-		other_properties = {},
-	}) {
-		this.A = A;
-		this.B = B;
-		this.C = C;
-		this.D = D;
-		this.E = E;
+	#keys = [
+		'A',
+		'B',
+		'C',
+		'D',
+		'E',
+		'Ea',
+		'reactants',
+		'products',
+		'name',
+		'gas_phase',
+	];
+	constructor(params) {
+		this.A = params['A'] || 1.0;
+		this.B = params['B'] || 0.0;
+		this.C = params['C'] || 0.0;
+		this.D = params['D'] || 300.0;
+		this.E = params['E'] || 0.0;
 		// C and Ea are mutually exclusive
-		this.Ea = Ea;
-		this.reactants = reactants;
-		this.products = products;
-		this.name = name;
-		this.gas_phase = gas_phase;
-		this.other_properties = other_properties;
+		this.Ea = params['Ea'];
+		this.reactants = params['reactants'];
+		this.products = params['products'];
+		this.name = params['name'];
+		this.gas_phase = params['gas_phase'];
+		this.other_properties = {};
+		Object.entries(params).forEach(([key, value]) => {
+			if (this.#keys.includes(key) == false) {
+				this.other_properties[key] = value;
+			}
+		});
 	}
 	getJSON() {
 		let obj = {};
@@ -50,32 +53,36 @@ class Arrhenius {
 }
 
 class Branched {
-	constructor({
-		X,
-		Y,
-		a0,
-		n,
-		reactants,
-		nitrate_products,
-		alkoxy_products,
-		name,
-		gas_phase,
-		other_properties = {},
-	}) {
-		this.X = X;
-		this.Y = Y;
-		this.a0 = a0;
-		this.n = n;
-		this.reactants = reactants;
-		this.nitrate_products = nitrate_products;
-		this.alkoxy_products = alkoxy_products;
-		this.name = name;
-		this.gas_phase = gas_phase;
-		this.other_properties = other_properties;
+	#keys = [
+		'X',
+		'Y',
+		'a0',
+		'n',
+		'reactants',
+		'nitrate_products',
+		'alkoxy_products',
+		'name',
+		'gas_phase',
+	];
+	constructor(params) {
+		this.X = params['X'];
+		this.Y = params['Y'];
+		this.a0 = params['a0'];
+		this.n = params['n'];
+		this.reactants = params['reactants'];
+		this.nitrate_products = params['nitrate_products'];
+		this.alkoxy_products = params['alkoxy_products'];
+		this.name = params['name'];
+		this.gas_phase = params['gas_phase'];
+		this.other_properties = {};
+		Object.entries(params).forEach(([key, value]) => {
+			if (this.#keys.includes(key) == false) {
+				this.other_properties[key] = value;
+			}
+		});
 	}
 	getJSON() {
 		let obj = {};
-		// REVIEW: is this how to identify reaction types?
 		obj['type'] = 'BRANCHED_NO_RO2';
 		obj['name'] = this.name;
 		obj['X'] = this.X;
@@ -93,18 +100,18 @@ class Branched {
 }
 
 class Emission {
-	constructor({
-		scaling_factor = 1.0,
-		products,
-		name,
-		gas_phase,
-		other_properties = {},
-	}) {
-		this.scaling_factor = scaling_factor;
-		this.products = products;
-		this.name = name;
-		this.gas_phase = gas_phase;
-		this.other_properties = other_properties;
+	#keys = ['scaling_factor', 'products', 'name', 'gas_phase'];
+	constructor(params) {
+		this.scaling_factor = params['scaling_factor'] || 1.0;
+		this.products = params['products'];
+		this.name = params['name'];
+		this.gas_phase = params['gas_phase'];
+		this.other_properties = {};
+		Object.entries(params).forEach(([key, value]) => {
+			if (this.#keys.includes(key) == false) {
+				this.other_properties[key] = value;
+			}
+		});
 	}
 	getJSON() {
 		let obj = {};
@@ -120,18 +127,18 @@ class Emission {
 }
 
 class FirstOrderLoss {
-	constructor({
-		scaling_factor = 1.0,
-		reactants,
-		name,
-		gas_phase,
-		other_properties = {},
-	}) {
-		this.scaling_factor = scaling_factor;
-		this.reactants = reactants;
-		this.name = name;
-		this.gas_phase = gas_phase;
-		this.other_properties = other_properties;
+	#keys = ['scaling_factor', 'reactants', 'name', 'gas_phase'];
+	constructor(params) {
+		this.scaling_factor = params['scaling_factor'] || 1.0;
+		this.reactants = params['reactants'];
+		this.name = params['name'];
+		this.gas_phase = params['gas_phase'];
+		this.other_properties = {};
+		Object.entries(params).forEach(([key, value]) => {
+			if (this.#keys.includes(key) == false) {
+				this.other_properties[key] = value;
+			}
+		});
 	}
 	getJSON() {
 		let obj = {};
@@ -147,20 +154,19 @@ class FirstOrderLoss {
 }
 
 class Photolysis {
-	constructor({
-		scaling_factor = 1.0,
-		reactants,
-		products,
-		name,
-		gas_phase,
-		other_properties = {},
-	}) {
-		this.scaling_factor = scaling_factor;
-		this.reactants = reactants;
-		this.products = products;
-		this.name = name;
-		this.gas_phase = gas_phase;
-		this.other_properties = other_properties;
+	#keys = ['scaling_factor', 'reactants', 'products', 'name', 'gas_phase'];
+	constructor(params) {
+		this.scaling_factor = params['scaling_factor'] || 1.0;
+		this.reactants = params['reactants'];
+		this.products = params['products'];
+		this.name = params['name'];
+		this.gas_phase = params['gas_phase'];
+		this.other_properties = {};
+		Object.entries(params).forEach(([key, value]) => {
+			if (this.#keys.includes(key) == false) {
+				this.other_properties[key] = value;
+			}
+		});
 	}
 	getJSON() {
 		let obj = {};
@@ -177,20 +183,25 @@ class Photolysis {
 }
 
 class Surface {
-	constructor({
-		reaction_probability = 1.0,
-		gas_phase_species,
-		gas_phase_products,
-		name,
-		gas_phase,
-		other_properties = {},
-	}) {
-		this.reaction_probability = reaction_probability;
-		this.gas_phase_species = gas_phase_species;
-		this.gas_phase_products = gas_phase_products;
-		this.name = name;
-		this.gas_phase = gas_phase;
-		this.other_properties = other_properties;
+	#keys = [
+		'reaction_probability',
+		'gas_phase_species',
+		'gas_phase_products',
+		'name',
+		'gas_phase',
+	];
+	constructor(params) {
+		this.reaction_probability = params['reaction_probability'] || 1.0;
+		this.gas_phase_species = params['gas_phase_species'];
+		this.gas_phase_products = params['gas_phase_products'];
+		this.name = params['name'];
+		this.gas_phase = params['gas_phase'];
+		this.other_properties = {};
+		Object.entries(params).forEach(([key, value]) => {
+			if (this.#keys.includes(key) == false) {
+				this.other_properties[key] = value;
+			}
+		});
 	}
 	getJSON() {
 		let obj = {};
@@ -211,32 +222,38 @@ class Surface {
 }
 
 class TaylorSeries {
-	constructor({
-		A = 1.0,
-		B = 0.0,
-		C = 0.0,
-		D = 300.0,
-		E = 0.0,
-		Ea,
-		taylor_coefficients = [1.0],
-		reactants,
-		products,
-		name,
-		gas_phase,
-		other_properties = {},
-	}) {
-		this.A = A;
-		this.B = B;
-		this.C = C;
-		this.D = D;
-		this.E = E;
-		this.Ea = Ea;
-		this.taylor_coefficients = taylor_coefficients;
-		this.reactants = reactants;
-		this.products = products;
-		this.name = name;
-		this.gas_phase = gas_phase;
-		this.other_properties = other_properties;
+	#keys = [
+		'A',
+		'B',
+		'C',
+		'D',
+		'E',
+		'Ea',
+		'taylor_coefficients',
+		'reactants',
+		'products',
+		'name',
+		'gas_phase',
+	];
+	constructor(params) {
+		this.A = params['A'] || 1.0;
+		this.B = params['B'] || 0.0;
+		this.C = params['C'] || 0.0;
+		this.D = params['D'] || 300.0;
+		this.E = params['E'] || 0.0;
+		// C and Ea are mutually exclusive
+		this.Ea = params['Ea'];
+		this.taylor_coefficients = params['taylor_coefficients'] || [1.0];
+		this.reactants = params['reactants'];
+		this.products = params['products'];
+		this.name = params['name'];
+		this.gas_phase = params['gas_phase'];
+		this.other_properties = {};
+		Object.entries(params).forEach(([key, value]) => {
+			if (this.#keys.includes(key) == false) {
+				this.other_properties[key] = value;
+			}
+		});
 	}
 	getJSON() {
 		let obj = {};
@@ -259,34 +276,39 @@ class TaylorSeries {
 }
 
 class Troe {
-	constructor({
-		k0_A = 1.0,
-		k0_B = 0.0,
-		k0_C = 0.0,
-		kinf_A = 1.0,
-		kinf_B = 0.0,
-		kinf_C = 0.0,
-		Fc = 0.6,
-		N = 1.0,
-		reactants,
-		products,
-		name,
-		gas_phase,
-		other_properties = {},
-	}) {
-		this.k0_A = k0_A;
-		this.k0_B = k0_B;
-		this.k0_C = k0_C;
-		this.kinf_A = kinf_A;
-		this.kinf_B = kinf_B;
-		this.kinf_C = kinf_C;
-		this.Fc = Fc;
-		this.N = N;
-		this.reactants = reactants;
-		this.products = products;
-		this.name = name;
-		this.gas_phase = gas_phase;
-		this.other_properties = other_properties;
+	#keys = [
+		'k0_A',
+		'k0_B',
+		'k0_C',
+		'kinf_A',
+		'kinf_B',
+		'kinf_C',
+		'Fc',
+		'N',
+		'reactants',
+		'products',
+		'name',
+		'gas_phase',
+	];
+	constructor(params) {
+		this.k0_A = params['k0_A'] || 1.0;
+		this.k0_B = params['k0_B'] || 0.0;
+		this.k0_C = params['k0_C'] || 0.0;
+		this.kinf_A = params['kinf_A'] || 1.0;
+		this.kinf_B = params['kinf_B'] || 0.0;
+		this.kinf_C = params['kinf_C'] || 0.0;
+		this.Fc = params['Fc'] || 0.6;
+		this.N = params['N'] || 1.0;
+		this.reactants = params['reactants'];
+		this.products = params['products'];
+		this.name = params['name'];
+		this.gas_phase = params['gas_phase'];
+		this.other_properties = {};
+		Object.entries(params).forEach(([key, value]) => {
+			if (this.#keys.includes(key) == false) {
+				this.other_properties[key] = value;
+			}
+		});
 	}
 	getJSON() {
 		let obj = {};
@@ -310,34 +332,39 @@ class Troe {
 }
 
 class TernaryChemicalActivation {
-	constructor({
-		k0_A = 1.0,
-		k0_B = 0.0,
-		k0_C = 0.0,
-		kinf_A = 1.0,
-		kinf_B = 0.0,
-		kinf_C = 0.0,
-		Fc = 0.6,
-		N = 1.0,
-		reactants,
-		products,
-		name,
-		gas_phase,
-		other_properties = {},
-	}) {
-		this.k0_A = k0_A;
-		this.k0_B = k0_B;
-		this.k0_C = k0_C;
-		this.kinf_A = kinf_A;
-		this.kinf_B = kinf_B;
-		this.kinf_C = kinf_C;
-		this.Fc = Fc;
-		this.N = N;
-		this.reactants = reactants;
-		this.products = products;
-		this.name = name;
-		this.gas_phase = gas_phase;
-		this.other_properties = other_properties;
+	#keys = [
+		'k0_A',
+		'k0_B',
+		'k0_C',
+		'kinf_A',
+		'kinf_B',
+		'kinf_C',
+		'Fc',
+		'N',
+		'reactants',
+		'products',
+		'name',
+		'gas_phase',
+	];
+	constructor(params) {
+		this.k0_A = params['k0_A'] || 1.0;
+		this.k0_B = params['k0_B'] || 0.0;
+		this.k0_C = params['k0_C'] || 0.0;
+		this.kinf_A = params['kinf_A'] || 1.0;
+		this.kinf_B = params['kinf_B'] || 0.0;
+		this.kinf_C = params['kinf_C'] || 0.0;
+		this.Fc = params['Fc'] || 0.6;
+		this.N = params['N'] || 1.0;
+		this.reactants = params['reactants'];
+		this.products = params['products'];
+		this.name = params['name'];
+		this.gas_phase = params['gas_phase'];
+		this.other_properties = {};
+		Object.entries(params).forEach(([key, value]) => {
+			if (this.#keys.includes(key) == false) {
+				this.other_properties[key] = value;
+			}
+		});
 	}
 	getJSON() {
 		let obj = {};
@@ -361,24 +388,21 @@ class TernaryChemicalActivation {
 }
 
 class Tunneling {
-	constructor({
-		A = 1.0,
-		B = 0.0,
-		C = 0.0,
-		reactants,
-		products,
-		name,
-		gas_phase,
-		other_properties = {},
-	}) {
-		this.A = A;
-		this.B = B;
-		this.C = C;
-		this.reactants = reactants;
-		this.products = products;
-		this.name = name;
-		this.gas_phase = gas_phase;
-		this.other_properties = other_properties;
+	#keys = ['A', 'B', 'C', 'reactants', 'products', 'name', 'gas_phase'];
+	constructor(params) {
+		this.A = params['A'] || 1.0;
+		this.B = params['B'] || 0.0;
+		this.C = params['C'] || 0.0;
+		this.reactants = params['reactants'];
+		this.products = params['products'];
+		this.name = params['name'];
+		this.gas_phase = params['gas_phase'];
+		this.other_properties = {};
+		Object.entries(params).forEach(([key, value]) => {
+			if (this.#keys.includes(key) == false) {
+				this.other_properties[key] = value;
+			}
+		});
 	}
 	getJSON() {
 		let obj = {};
@@ -397,20 +421,19 @@ class Tunneling {
 }
 
 class UserDefined {
-	constructor({
-		scaling_factor = 1.0,
-		reactants,
-		products,
-		name,
-		gas_phase,
-		other_properties = {},
-	}) {
-		this.scaling_factor = scaling_factor;
-		this.reactants = reactants;
-		this.products = products;
-		this.name = name;
-		this.gas_phase = gas_phase;
-		this.other_properties = other_properties;
+	#keys = ['scaling_factor', 'reactants', 'products', 'name', 'gas_phase'];
+	constructor(params) {
+		this.scaling_factor = params['scaling_factor'] || 1.0;
+		this.reactants = params['reactants'];
+		this.products = params['products'];
+		this.name = params['name'];
+		this.gas_phase = params['gas_phase'];
+		this.other_properties = {};
+		Object.entries(params).forEach(([key, value]) => {
+			if (this.#keys.includes(key) == false) {
+				this.other_properties[key] = value;
+			}
+		});
 	}
 	getJSON() {
 		let obj = {};
