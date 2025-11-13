@@ -6,6 +6,25 @@
 #include <filesystem>
 #include <iostream>
 
+namespace
+{
+  constexpr int ERROR_NONE = 0;
+  constexpr int ERROR_RADIATOR_DIM_MISMATCH = 3201;
+  constexpr int ERROR_UNALLOCATED_RADIATOR = 3202;
+  constexpr int ERROR_UNALLOCATED_RADIATOR_UPDATER = 3203;
+  constexpr const char *GetErrorMessage(int error_code)
+  {
+    switch (error_code)
+    {
+      case ERROR_NONE: return "No error";
+      case ERROR_RADIATOR_DIM_MISMATCH: return "Radiator dimension mismatch";
+      case ERROR_UNALLOCATED_RADIATOR: return "Radiator is unallocated";
+      case ERROR_UNALLOCATED_RADIATOR_UPDATER: return "Radiator updater is unallocated";
+      default: return "Unknown error";
+    }
+  }
+}
+
 namespace musica
 {
 
@@ -30,6 +49,26 @@ namespace musica
       return;
     }
     *error = NoError();
+  }
+
+  const char *GetRadiatorName(Radiator *radiator, Error *error)
+  {
+    DeleteError(error);
+    try
+    {
+      std::string name = radiator->GetName(error);
+      if (error->code_ != ERROR_NONE)
+        return nullptr;
+
+      char *c_name = new char[name.size() + 1];
+      std::strcpy(c_name, name.c_str());
+      return c_name;
+    }
+    catch (const std::system_error &e)
+    {
+      *error = ToError(e);
+      return nullptr;
+    }
   }
 
   void SetRadiatorOpticalDepths(
@@ -100,23 +139,36 @@ namespace musica
     radiator->GetAsymmetryFactors(asymmetry_factors, num_vertical_layers, num_wavelength_bins, num_streams, error);
   }
 
+  std::size_t GetRadiatorNumberOfHeightSections(Radiator *radiator, Error *error)
+  {
+    DeleteError(error);
+    return radiator->GetNumberOfHeightSections(error);
+  }
+
+  std::size_t GetRadiatorNumberOfWavelengthSections(Radiator *radiator, Error *error)
+  {
+    DeleteError(error);
+    return radiator->GetNumberOfWavelengthSections(error);
+  }
+
   // Radiation class functions
 
   Radiator::Radiator(const char *radiator_name, Grid *height_grid, Grid *wavelength_grid, Error *error)
   {
-    int error_code = 0;
+    DeleteError(error);
+    int error_code = ERROR_NONE;
     radiator_ = InternalCreateRadiator(
         radiator_name, strlen(radiator_name), height_grid->updater_, wavelength_grid->updater_, &error_code);
-    if (error_code != 0)
+    if (error_code != ERROR_NONE)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create radiator") };
+      *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
       return;
     }
     updater_ = InternalGetRadiatorUpdater(radiator_, &error_code);
-    if (error_code != 0)
+    if (error_code != ERROR_NONE)
     {
       InternalDeleteRadiator(radiator_, &error_code);
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get radiator updater") };
+      *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
       return;
     }
     *error = NoError();
@@ -133,22 +185,47 @@ namespace musica
     updater_ = nullptr;
   }
 
+  std::string Radiator::GetName(Error *error)
+  {
+    DeleteError(error);
+    int error_code = ERROR_NONE;
+    if (updater_ == nullptr)
+    {
+      *error = Error{ ERROR_UNALLOCATED_RADIATOR_UPDATER,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_UPDATER)) };
+      return "";
+    }
+    String name = InternalGetRadiatorName(updater_, &error_code);
+    if (error_code != ERROR_NONE)
+    {
+      *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+      return "";
+    }
+    std::string result(name.value_, name.size_);
+    delete[] name.value_;
+    *error = NoError();
+    return result;
+  }
+
   void Radiator::SetOpticalDepths(
       double *optical_depths,
       std::size_t num_vertical_layers,
       std::size_t num_wavelength_bins,
       Error *error)
   {
-    int error_code = 0;
+    int error_code = ERROR_NONE;
     if (updater_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Radiator is not updatable") };
+      *error = Error{ ERROR_UNALLOCATED_RADIATOR_UPDATER,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_UPDATER)) };
       return;
     }
     InternalSetOpticalDepths(updater_, optical_depths, num_vertical_layers, num_wavelength_bins, &error_code);
-    if (error_code != 0)
+    if (error_code != ERROR_NONE)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to set optical depths") };
+      *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
       return;
     }
     *error = NoError();
@@ -160,16 +237,18 @@ namespace musica
       std::size_t num_wavelength_bins,
       Error *error)
   {
-    int error_code = 0;
+    int error_code = ERROR_NONE;
     if (updater_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Radiator is not updatable") };
+      *error = Error{ ERROR_UNALLOCATED_RADIATOR_UPDATER,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_UPDATER)) };
       return;
     }
     InternalGetOpticalDepths(updater_, optical_depths, num_vertical_layers, num_wavelength_bins, &error_code);
-    if (error_code != 0)
+    if (error_code != ERROR_NONE)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get optical depths") };
+      *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
       return;
     }
     *error = NoError();
@@ -181,17 +260,19 @@ namespace musica
       std::size_t num_wavelength_bins,
       Error *error)
   {
-    int error_code = 0;
+    int error_code = ERROR_NONE;
     if (updater_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Radiator is not updatable") };
+      *error = Error{ ERROR_UNALLOCATED_RADIATOR_UPDATER,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_UPDATER)) };
       return;
     }
     InternalSetSingleScatteringAlbedos(
         updater_, single_scattering_albedos, num_vertical_layers, num_wavelength_bins, &error_code);
-    if (error_code != 0)
+    if (error_code != ERROR_NONE)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to set single scattering albedos") };
+      *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
       return;
     }
     *error = NoError();
@@ -203,17 +284,19 @@ namespace musica
       std::size_t num_wavelength_bins,
       Error *error)
   {
-    int error_code = 0;
+    int error_code = ERROR_NONE;
     if (updater_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Radiator is not updatable") };
+      *error = Error{ ERROR_UNALLOCATED_RADIATOR_UPDATER,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_UPDATER)) };
       return;
     }
     InternalGetSingleScatteringAlbedos(
         updater_, single_scattering_albedos, num_vertical_layers, num_wavelength_bins, &error_code);
-    if (error_code != 0)
+    if (error_code != ERROR_NONE)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get single scattering albedos") };
+      *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
       return;
     }
     *error = NoError();
@@ -226,17 +309,19 @@ namespace musica
       std::size_t num_streams,
       Error *error)
   {
-    int error_code = 0;
+    int error_code = ERROR_NONE;
     if (updater_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Radiator is not updatable") };
+      *error = Error{ ERROR_UNALLOCATED_RADIATOR_UPDATER,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_UPDATER)) };
       return;
     }
     InternalSetAsymmetryFactors(
         updater_, asymmetry_factors, num_vertical_layers, num_wavelength_bins, num_streams, &error_code);
-    if (error_code != 0)
+    if (error_code != ERROR_NONE)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to set asymmetry factors") };
+      *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
       return;
     }
     *error = NoError();
@@ -249,20 +334,64 @@ namespace musica
       std::size_t num_streams,
       Error *error)
   {
-    int error_code = 0;
+    int error_code = ERROR_NONE;
     if (updater_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Radiator is not updatable") };
+      *error = Error{ ERROR_UNALLOCATED_RADIATOR_UPDATER,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_UPDATER)) };
       return;
     }
     InternalGetAsymmetryFactors(
         updater_, asymmetry_factors, num_vertical_layers, num_wavelength_bins, num_streams, &error_code);
-    if (error_code != 0)
+    if (error_code != ERROR_NONE)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get asymmetry factors") };
+      *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
       return;
     }
     *error = NoError();
+  }
+
+  std::size_t Radiator::GetNumberOfHeightSections(Error *error)
+  {
+    DeleteError(error);
+    int error_code = ERROR_NONE;
+    if (updater_ == nullptr)
+    {
+      *error = Error{ ERROR_UNALLOCATED_RADIATOR_UPDATER,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_UPDATER)) };
+      return 0;
+    }
+    std::size_t num_height_sections = InternalGetRadiatorNumberOfHeightSections(updater_, &error_code);
+    if (error_code != ERROR_NONE)
+    {
+      *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+      return 0;
+    }
+    *error = NoError();
+    return num_height_sections;
+  }
+
+  std::size_t Radiator::GetNumberOfWavelengthSections(Error *error)
+  {
+    DeleteError(error);
+    int error_code = ERROR_NONE;
+    if (updater_ == nullptr)
+    {
+      *error = Error{ ERROR_UNALLOCATED_RADIATOR_UPDATER,
+                      CreateString(MUSICA_ERROR_CATEGORY),
+                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_UPDATER)) };
+      return 0;
+    }
+    std::size_t num_wavelength_sections = InternalGetRadiatorNumberOfWavelengthSections(updater_, &error_code);
+    if (error_code != ERROR_NONE)
+    {
+      *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+      return 0;
+    }
+    *error = NoError();
+    return num_wavelength_sections;
   }
 
 }  // namespace musica

@@ -8,6 +8,11 @@ module tuvx_interface_radiator
 
   private
 
+  integer, parameter :: ERROR_NONE = 0
+  integer, parameter :: ERROR_RADIATOR_DIM_MISMATCH = 3201
+  integer, parameter :: ERROR_UNALLOCATED_RADIATOR = 3202
+  integer, parameter :: ERROR_UNALLOCATED_RADIATOR_UPDATER = 3203
+
   contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -35,6 +40,7 @@ module tuvx_interface_radiator
     type(grid_updater_t),       pointer :: f_wavelength_grid_updater
     integer                             :: i
 
+    error_code = ERROR_NONE
     allocate(character(len=radiator_name_length) :: f_name%val_)
     do i = 1, radiator_name_length
       f_name%val_(i:i) = radiator_name(i)
@@ -61,6 +67,7 @@ module tuvx_interface_radiator
     ! variables
     type(radiator_t), pointer :: f_radiator
 
+    error_code = ERROR_NONE
     call c_f_pointer(radiator, f_radiator)
     if (associated(f_radiator)) then
       deallocate(f_radiator)
@@ -86,6 +93,7 @@ module tuvx_interface_radiator
     type(radiator_from_host_t), pointer :: f_radiator
     type(radiator_updater_t),   pointer :: f_updater
 
+    error_code = ERROR_NONE
     call c_f_pointer(radiator, f_radiator)
     allocate(f_updater, source = radiator_updater_t(f_radiator))
     updater = c_loc(f_updater)
@@ -106,12 +114,38 @@ module tuvx_interface_radiator
     ! variables
     type(radiator_updater_t), pointer :: f_updater
 
+    error_code = ERROR_NONE
     call c_f_pointer(updater, f_updater)
     if (associated(f_updater)) then
       deallocate(f_updater)
     end if
 
   end subroutine internal_delete_radiator_updater
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function internal_get_radiator_name(updater, error) &
+      bind(C, name="InternalGetRadiatorName") result(name)
+    use iso_c_binding, only: c_ptr, c_f_pointer, c_char, c_size_t, c_int, &
+                             c_loc
+    use tuvx_interface_util, only: string_t_c, create_string_t_c
+    use tuvx_radiator_from_host, only: radiator_updater_t
+
+    ! arguments
+    type(c_ptr), value,  intent(in)  :: updater
+    integer(kind=c_int), intent(out) :: error
+
+    ! output
+    type(string_t_c) :: name
+
+    ! variables
+    type(radiator_updater_t), pointer :: f_updater
+
+    error = ERROR_NONE
+    call c_f_pointer(updater, f_updater)
+    name = create_string_t_c(f_updater%radiator_%handle_%val_)
+
+  end function internal_get_radiator_name
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -133,14 +167,19 @@ module tuvx_interface_radiator
     type(radiator_updater_t), pointer :: f_updater
     real(kind=dk),            pointer :: f_optical_depths(:,:)
 
+    error_code = ERROR_NONE
     call c_f_pointer(radiator_updater, f_updater)
     call c_f_pointer(optical_depths, f_optical_depths, &
         [num_vertical_layers, num_wavelength_bins])
 
+    if (.not. allocated(f_updater%radiator_%state_%layer_OD_)) then
+      error_code = ERROR_UNALLOCATED_RADIATOR
+      return
+    end if
     if ((size(f_updater%radiator_%state_%layer_OD_, 1) /= num_vertical_layers) &
       .or. (size(f_updater%radiator_%state_%layer_OD_, 2) /= num_wavelength_bins)) &
     then
-      error_code = 1
+      error_code = ERROR_RADIATOR_DIM_MISMATCH
       return
     end if
     f_updater%radiator_%state_%layer_OD_(:,:) = f_optical_depths(:,:)
@@ -167,14 +206,19 @@ module tuvx_interface_radiator
     type(radiator_updater_t), pointer :: f_updater
     real(kind=dk),            pointer :: f_optical_depths(:,:)
 
+    error_code = ERROR_NONE
     call c_f_pointer(radiator_updater, f_updater)
     call c_f_pointer(optical_depths, f_optical_depths, &
           [num_vertical_layers, num_wavelength_bins])
 
+    if (.not. allocated(f_updater%radiator_%state_%layer_OD_)) then
+      error_code = ERROR_UNALLOCATED_RADIATOR
+      return
+    end if
     if ((size(f_updater%radiator_%state_%layer_OD_, 1) /= num_vertical_layers) &
       .or. (size(f_updater%radiator_%state_%layer_OD_, 2) /= num_wavelength_bins)) &
     then
-      error_code = 1
+      error_code = ERROR_RADIATOR_DIM_MISMATCH
       return
     end if
     f_optical_depths(:,:) = f_updater%radiator_%state_%layer_OD_(:,:)
@@ -201,14 +245,19 @@ module tuvx_interface_radiator
     type(radiator_updater_t), pointer :: f_updater
     real(kind=dk),            pointer :: f_single_scattering_albedos(:,:)
 
+    error_code = ERROR_NONE
     call c_f_pointer(radiator_updater, f_updater)
     call c_f_pointer(single_scattering_albedos, f_single_scattering_albedos, &
           [num_vertical_layers, num_wavelength_bins])
 
+    if (.not. allocated(f_updater%radiator_%state_%layer_SSA_)) then
+      error_code = ERROR_UNALLOCATED_RADIATOR
+      return
+    end if
     if ((size(f_updater%radiator_%state_%layer_SSA_, 1) /= num_vertical_layers) &
       .or. (size(f_updater%radiator_%state_%layer_SSA_, 2) /= num_wavelength_bins)) &
     then
-      error_code = 1
+      error_code = ERROR_RADIATOR_DIM_MISMATCH
       return
     end if
     f_updater%radiator_%state_%layer_SSA_(:,:) = f_single_scattering_albedos(:,:)
@@ -235,14 +284,19 @@ module tuvx_interface_radiator
     type(radiator_updater_t), pointer :: f_updater
     real(kind=dk),            pointer :: f_single_scattering_albedos(:,:)
 
+    error_code = ERROR_NONE
     call c_f_pointer(radiator_updater, f_updater)
     call c_f_pointer(single_scattering_albedos, f_single_scattering_albedos, &
           [num_vertical_layers, num_wavelength_bins])
 
+    if (.not. allocated(f_updater%radiator_%state_%layer_SSA_)) then
+      error_code = ERROR_UNALLOCATED_RADIATOR
+      return
+    end if
     if ((size(f_updater%radiator_%state_%layer_SSA_, 1) /= num_vertical_layers) &
       .or. (size(f_updater%radiator_%state_%layer_SSA_, 2) /= num_wavelength_bins)) &
     then
-      error_code = 1
+      error_code = ERROR_RADIATOR_DIM_MISMATCH
       return
     end if
     f_single_scattering_albedos(:,:) = f_updater%radiator_%state_%layer_SSA_(:,:)
@@ -270,14 +324,19 @@ module tuvx_interface_radiator
     type(radiator_updater_t), pointer :: f_updater
     real(kind=dk),            pointer :: f_asymmetry_factors(:,:,:)
 
+    error_code = ERROR_NONE
     call c_f_pointer(radiator_updater, f_updater)
     call c_f_pointer(asymmetry_factors, f_asymmetry_factors, &
           [num_vertical_layers, num_wavelength_bins, num_streams])
 
+    if (.not. allocated(f_updater%radiator_%state_%layer_G_)) then
+      error_code = ERROR_UNALLOCATED_RADIATOR
+      return
+    end if
     if ((size(f_updater%radiator_%state_%layer_G_, 1) /= num_vertical_layers) &
       .or. (size(f_updater%radiator_%state_%layer_G_, 2) /= num_wavelength_bins) &
       .or. (size(f_updater%radiator_%state_%layer_G_, 3) /= num_streams)) then
-      error_code = 1
+      error_code = ERROR_RADIATOR_DIM_MISMATCH
       return
     end if
     f_updater%radiator_%state_%layer_G_(:,:,:) = f_asymmetry_factors(:,:,:)
@@ -305,19 +364,83 @@ module tuvx_interface_radiator
   type(radiator_updater_t), pointer :: f_updater
   real(kind=dk),            pointer :: f_asymmetry_factors(:,:,:)
 
+  error_code = ERROR_NONE
   call c_f_pointer(radiator_updater, f_updater)
   call c_f_pointer(asymmetry_factors, f_asymmetry_factors, &
         [num_vertical_layers, num_wavelength_bins, num_streams])
 
+  if (.not. allocated(f_updater%radiator_%state_%layer_G_)) then
+    error_code = ERROR_UNALLOCATED_RADIATOR
+    return
+  end if
   if ((size(f_updater%radiator_%state_%layer_G_, 1) /= num_vertical_layers) &
     .or. (size(f_updater%radiator_%state_%layer_G_, 2) /= num_wavelength_bins) &
     .or. (size(f_updater%radiator_%state_%layer_G_, 3) /= num_streams)) then
-    error_code = 1
+    error_code = ERROR_RADIATOR_DIM_MISMATCH
     return
   end if
   f_asymmetry_factors(:,:,:) = f_updater%radiator_%state_%layer_G_(:,:,:)
 
 end subroutine internal_get_asymmetry_factors
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function internal_get_number_of_height_sections(radiator_updater, error_code) &
+      bind(C, name="InternalGetRadiatorNumberOfHeightSections") &
+      result(num_sections)
+    use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_size_t
+    use tuvx_radiator_from_host, only: radiator_updater_t
+
+    ! arguments
+    type(c_ptr),            value, intent(in)  :: radiator_updater
+    integer(kind=c_int),           intent(out) :: error_code
+
+    ! output
+    integer(kind=c_size_t) :: num_sections
+
+    ! variables
+    type(radiator_updater_t), pointer :: f_updater
+
+    error_code = ERROR_NONE
+    call c_f_pointer(radiator_updater, f_updater)
+    if (.not. allocated(f_updater%radiator_%state_%layer_OD_)) then
+      error_code = ERROR_UNALLOCATED_RADIATOR
+      num_sections = -1
+      return
+    end if
+    num_sections = size(f_updater%radiator_%state_%layer_OD_, 1)
+
+  end function internal_get_number_of_height_sections
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function internal_get_number_of_wavelength_sections(radiator_updater, &
+      error_code) &
+      bind(C, name="InternalGetRadiatorNumberOfWavelengthSections") &
+      result(num_sections)
+    use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_size_t
+    use tuvx_radiator_from_host, only: radiator_updater_t
+
+    ! arguments
+    type(c_ptr),            value, intent(in)  :: radiator_updater
+    integer(kind=c_int),           intent(out) :: error_code
+
+    ! output
+    integer(kind=c_size_t) :: num_sections
+
+    ! variables
+    type(radiator_updater_t), pointer :: f_updater
+
+    error_code = ERROR_NONE
+    call c_f_pointer(radiator_updater, f_updater)
+    if (.not. allocated(f_updater%radiator_%state_%layer_OD_)) then
+      error_code = ERROR_UNALLOCATED_RADIATOR
+      num_sections = -1
+      return
+    end if
+    num_sections = size(f_updater%radiator_%state_%layer_OD_, 2)
+
+  end function internal_get_number_of_wavelength_sections
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

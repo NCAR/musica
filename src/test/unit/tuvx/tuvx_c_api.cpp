@@ -568,6 +568,12 @@ TEST_F(TuvxCApiTest, CanCreateRadiator)
   Radiator* radiator = CreateRadiator("foo", height, wavelength, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_NE(radiator, nullptr);
+  ASSERT_EQ(radiator->GetName(&error), "foo");
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(GetRadiatorNumberOfHeightSections(radiator, &error), 3);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(GetRadiatorNumberOfWavelengthSections(radiator, &error), 2);
+  ASSERT_TRUE(IsSuccess(error));
 
   // Test for optical depths
   std::size_t num_vertical_layers = 3;
@@ -854,6 +860,43 @@ TEST_F(TuvxCApiTest, CanCreateRadiatorMap)
   ASSERT_EQ(factors[1][1], 4);
   ASSERT_EQ(factors[2][0], 5);
   ASSERT_EQ(factors[2][1], 6);
+
+  size_t num_radiators = GetNumberOfRadiators(radiator_map, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(num_radiators, 2);
+  Radiator* first_radiator = GetRadiatorByIndex(radiator_map, 0, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_NE(first_radiator, nullptr);
+  ASSERT_EQ(first_radiator->GetName(&error), "foo");
+  ASSERT_TRUE(IsSuccess(error));
+  Radiator* second_radiator = GetRadiatorByIndex(radiator_map, 1, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_NE(second_radiator, nullptr);
+  ASSERT_EQ(second_radiator->GetName(&error), "bar");
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteRadiator(first_radiator, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteRadiator(second_radiator, &error);
+  ASSERT_TRUE(IsSuccess(error));
+
+  RemoveRadiator(radiator_map, "foo", &error);
+  ASSERT_TRUE(IsSuccess(error));
+  num_radiators = GetNumberOfRadiators(radiator_map, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(num_radiators, 1);
+  Radiator* removed_radiator = GetRadiator(radiator_map, "foo", &error);
+  ASSERT_FALSE(IsSuccess(error));
+  ASSERT_EQ(removed_radiator, nullptr);
+  Radiator* remaining_radiator = GetRadiator(radiator_map, "bar", &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_NE(remaining_radiator, nullptr);
+  DeleteRadiator(remaining_radiator, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  RemoveRadiatorByIndex(radiator_map, 0, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  num_radiators = GetNumberOfRadiators(radiator_map, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(num_radiators, 0);
 
   // Clean up
   DeleteRadiator(foo_radiator, &error);
