@@ -55,7 +55,7 @@ namespace musica
     DeleteError(error);
     try
     {
-      std::string name = profile->GetName(error);
+      std::string const name = profile->GetName(error);
       if (error->code_ != 0)
         return nullptr;
       char *name_cstr = new char[name.size() + 1];
@@ -74,7 +74,7 @@ namespace musica
     DeleteError(error);
     try
     {
-      std::string units = profile->GetUnits(error);
+      std::string const units = profile->GetUnits(error);
       if (error->code_ != 0)
         return nullptr;
       char *units_cstr = new char[units.size() + 1];
@@ -193,7 +193,7 @@ namespace musica
                       CreateString(GetErrorMessage(ERROR_UNALLOCATED_PROFILE_UPDATER)) };
       return "";
     }
-    String name = InternalGetProfileName(updater_, &error_code);
+    String const name = InternalGetProfileName(updater_, &error_code);
     if (error_code != 0)
     {
       *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
@@ -216,7 +216,7 @@ namespace musica
                       CreateString(GetErrorMessage(ERROR_UNALLOCATED_PROFILE_UPDATER)) };
       return "";
     }
-    String units = InternalGetProfileUnits(updater_, &error_code);
+    String const units = InternalGetProfileUnits(updater_, &error_code);
     if (error_code != 0)
     {
       *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
@@ -399,7 +399,7 @@ namespace musica
                       CreateString(GetErrorMessage(ERROR_UNALLOCATED_PROFILE_UPDATER)) };
       return 0.0;
     }
-    double exo_layer_density = InternalGetExoLayerDensity(updater_, &error_code);
+    double const exo_layer_density = InternalGetExoLayerDensity(updater_, &error_code);
     if (error_code != 0)
     {
       *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
@@ -420,7 +420,7 @@ namespace musica
                       CreateString(GetErrorMessage(ERROR_UNALLOCATED_PROFILE_UPDATER)) };
       return 0;
     }
-    std::size_t num_sections = InternalProfileGetNumberOfSections(updater_, &error_code);
+    std::size_t const num_sections = InternalProfileGetNumberOfSections(updater_, &error_code);
     if (error_code != 0)
     {
       *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };

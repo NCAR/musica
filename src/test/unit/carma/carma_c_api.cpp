@@ -22,7 +22,7 @@ class CarmaCApiTest : public ::testing::Test
 
 TEST_F(CarmaCApiTest, GetCarmaVersion)
 {
-  std::string version = CARMA::GetVersion();
+  std::string const version = CARMA::GetVersion();
   ASSERT_FALSE(version.empty());
 
   char *version_ptr = GetCarmaVersion();
@@ -192,13 +192,13 @@ TEST_F(CarmaCApiTest, CreateWithParams)
   params.initialization.do_vdiff = true;   // Enable Brownian diffusion
 
   // Create CARMA instance and run
-  CARMA carma{ params };
+  CARMA const carma{ params };
 }
 
 TEST_F(CarmaCApiTest, CreateWithAluminumTestParams)
 {
-  CARMAParameters params = CARMA::CreateAluminumTestParams();
-  CARMA carma{ params };
+  CARMAParameters const params = CARMA::CreateAluminumTestParams();
+  CARMA const carma{ params };
 
   // Verify the aluminum test parameters are set correctly
   EXPECT_EQ(params.nbin, 5);
@@ -222,7 +222,7 @@ TEST_F(CarmaCApiTest, CanSetBinValues)
   gas_config.ds_threshold = 1e-6;
   params.gases.push_back(gas_config);
 
-  CARMA carma{ params };
+  CARMA const carma{ params };
   CARMAStateParameters state_params;
   state_params.longitude = 0.0;
   state_params.latitude = 0.0;
@@ -253,6 +253,6 @@ TEST_F(CarmaCApiTest, CanSetBinValues)
   step_config.land.area_fraction = 0.5;
   ASSERT_NO_THROW(state.Step(step_config));
 
-  CARMAGroupProperties group_props = carma.GetGroupProperties(1);
-  CARMAElementProperties element_props = carma.GetElementProperties(1);
+  CARMAGroupProperties const group_props = carma.GetGroupProperties(1);
+  CARMAElementProperties const element_props = carma.GetElementProperties(1);
 }

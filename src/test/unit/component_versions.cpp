@@ -22,7 +22,7 @@ TEST(Musica, VersionIsNullTerminated)
 
   ASSERT_NE(versions, nullptr);
 
-  size_t length = strlen(versions);
+  size_t const length = strlen(versions);
   ASSERT_EQ(versions[length], '\0');  // Check if the last character is the null terminator
 
   free(versions);
