@@ -76,7 +76,8 @@ class Phase {
 		obj['species'] = this.species.map((s) => {
 			if (s instanceof PhaseSpecies) return s.getJSON();
 			if (s instanceof Species) {
-				return new PhaseSpecies({ name: s.name }).getJSON();
+				const ps = new PhaseSpecies({ name: s.name });
+				return ps.getJSON();
 			}
 		});
 		const ops = convertOtherProperties(this.other_properties);
@@ -89,7 +90,7 @@ class ReactionComponent {
 	#keys = ['species_name', 'coefficient'];
 	constructor(params) {
 		this.species_name = params['species_name'];
-		this.coefficient = params['coefficient'];
+		this.coefficient = params['coefficient'] || 1.0;
 		this.other_properties = {};
 		Object.entries(params).forEach(([key, value]) => {
 			if (this.#keys.includes(key) == false) {

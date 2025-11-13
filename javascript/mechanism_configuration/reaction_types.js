@@ -39,10 +39,10 @@ class Arrhenius {
 		obj['name'] = this.name;
 		obj['A'] = this.A;
 		obj['B'] = this.B;
-		obj['C'] = this.C;
+		if (this.Ea === undefined) obj['C'] = this.C;
+		else obj['Ea'] = this.Ea;
 		obj['D'] = this.D;
 		obj['E'] = this.E;
-		obj['Ea'] = this.Ea;
 		obj['gas phase'] = this.gas_phase;
 		obj['reactants'] = this.reactants.map((r) => r.getJSON());
 		obj['products'] = this.products.map((p) => p.getJSON());
@@ -209,9 +209,7 @@ class Surface {
 		obj['name'] = this.name;
 		obj['reaction probability'] = this.reaction_probability;
 		obj['gas phase'] = this.gas_phase;
-		obj['gas-phase species'] = this.gas_phase_species.map((r) =>
-			r.getJSON()
-		);
+		obj['gas-phase species'] = this.gas_phase_species.getJSON();
 		obj['gas-phase products'] = this.gas_phase_products.map((p) =>
 			p.getJSON()
 		);
@@ -261,10 +259,10 @@ class TaylorSeries {
 		obj['name'] = this.name;
 		obj['A'] = this.A;
 		obj['B'] = this.B;
-		obj['C'] = this.C;
+		if (this.Ea === undefined) obj['C'] = this.C;
+		else obj['Ea'] = this.Ea;
 		obj['D'] = this.D;
 		obj['E'] = this.E;
-		obj['Ea'] = this.Ea;
 		obj['taylor coefficients'] = this.taylor_coefficients;
 		obj['gas phase'] = this.gas_phase;
 		obj['reactants'] = this.reactants.map((r) => r.getJSON());
@@ -449,62 +447,16 @@ class UserDefined {
 	}
 }
 
+// FIXME: What in the world is this class doing?????
+// 		Why does it exist???
+// 		What is happening?
 class Reactions {
 	constructor({ reactions = [] }) {
-		for (const reaction in reactions) {
-			switch (typeof reaction) {
-				case 'Arrhenius':
-					this.arrhenius.push_back(reaction);
-					break;
-				case 'Branched':
-					this.branched.push_back(reaction);
-					break;
-				case 'Emission':
-					this.emission.push_back(reaction);
-					break;
-				case 'FirstOrderLoss':
-					this.first_order_loss.push_back(reaction);
-					break;
-				case 'Photolysis':
-					this.photolysis.push_back(reaction);
-					break;
-				case 'Surface':
-					this.surface.push_back(reaction);
-					break;
-				case 'TaylorSeries':
-					this.taylor_series.push_back(reaction);
-					break;
-				case 'Troe':
-					this.troe.push_back(reaction);
-					break;
-				case 'TernaryChemicalActivation':
-					this.ternary_chemical_activation.push_back(reaction);
-					break;
-				case 'Tunneling':
-					this.tunneling.push_back(reaction);
-					break;
-				case 'UserDefined':
-					this.user_defined.push_back(reaction);
-					break;
-			}
-		}
+		this.reactions = reactions;
 	}
 	getJSON() {
-		let obj = {};
-		for (const a in this.arrhenius) Object.assign(obj, a.getJSON());
-		for (const b in this.branched) Object.assign(obj, b.getJSON());
-		for (const e in this.emission) Object.assign(obj, e.getJSON());
-		for (const fol in this.first_order_loss)
-			Object.assign(obj, fol.getJSON());
-		for (const p in this.photolysis) Object.assign(obj, p.getJSON());
-		for (const s in this.surface) Object.assign(obj, s.getJSON());
-		for (const ts in this.taylor_series) Object.assign(obj, ts.getJSON());
-		for (const t in this.troe) Object.assign(obj, t.getJSON());
-		for (const tca in this.ternary_chemical_activation)
-			Object.assign(obj, tca.getJSON());
-		for (const tu in this.tunneling) Object.assign(obj, tu.getJSON());
-		for (const ud in this.user_defined) Object.assign(obj, ud.getJSON());
-		return obj;
+		const arr = this.reactions.map((r) => r.getJSON());
+		return { reactions: arr };
 	}
 }
 
