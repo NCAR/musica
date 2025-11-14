@@ -54,9 +54,9 @@ namespace musica
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
+      ToError(e, error);
     }
-    *error = NoError();
+    NoError(error);
   }
 
   void AddProfile(ProfileMap *profile_map, Profile *profile, Error *error)
@@ -104,10 +104,11 @@ namespace musica
     profile_map_ = InternalCreateProfileMap(&error_code);
     if (error_code != 0)
     {
-      *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      return;
     }
     owns_profile_map_ = true;
-    *error = NoError();
+    NoError(error);
   }
 
   ProfileMap::~ProfileMap()
@@ -126,23 +127,17 @@ namespace musica
     DeleteError(error);
     if (profile_map_ == nullptr)
     {
-      *error = Error{ ERROR_UNALLOCATED_PROFILE_MAP,
-                      CreateString(MUSICA_ERROR_CATEGORY),
-                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP)) };
+      ToError(MUSICA_ERROR_CATEGORY, ERROR_UNALLOCATED_PROFILE_MAP, GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP), error);
       return;
     }
     if (profile->profile_ == nullptr)
     {
-      *error = Error{ ERROR_UNALLOCATED_PROFILE,
-                      CreateString(MUSICA_ERROR_CATEGORY),
-                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_PROFILE)) };
+      ToError(MUSICA_ERROR_CATEGORY, ERROR_UNALLOCATED_PROFILE, GetErrorMessage(ERROR_UNALLOCATED_PROFILE), error);
       return;
     }
     if (profile->updater_ == nullptr)
     {
-      *error = Error{ ERROR_UNALLOCATED_PROFILE_UPDATER,
-                      CreateString(MUSICA_ERROR_CATEGORY),
-                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_PROFILE_UPDATER)) };
+      ToError(MUSICA_ERROR_CATEGORY, ERROR_UNALLOCATED_PROFILE_UPDATER, GetErrorMessage(ERROR_UNALLOCATED_PROFILE_UPDATER), error);
       return;
     }
 
@@ -153,38 +148,39 @@ namespace musica
       InternalAddProfile(profile_map_, profile->profile_, &error_code);
       if (error_code != 0)
       {
-        *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+        return;
       }
       InternalDeleteProfileUpdater(profile->updater_, &error_code);
       if (error_code != 0)
       {
-        *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+        return;
       }
       profile->updater_ = InternalGetProfileUpdaterFromMap(profile_map_, profile->profile_, &error_code);
       if (error_code != 0)
       {
-        *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+        return;
       }
       InternalDeleteProfile(profile->profile_, &error_code);
       if (error_code != 0)
       {
-        *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
       }
       profile->profile_ = nullptr;
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
+      ToError(e, error);
       return;
     }
     catch (...)
     {
-      *error = Error{ INTERNAL_PROFILE_MAP_ERROR,
-                      CreateString(MUSICA_ERROR_CATEGORY),
-                      CreateString(GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR)) };
+      ToError(MUSICA_ERROR_CATEGORY, INTERNAL_PROFILE_MAP_ERROR, GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR), error);
       return;
     }
-    *error = NoError();
+    NoError(error);
   }
 
   Profile *ProfileMap::GetProfile(const char *profile_name, const char *profile_units, Error *error)
@@ -192,9 +188,7 @@ namespace musica
     DeleteError(error);
     if (profile_map_ == nullptr)
     {
-      *error = Error{ ERROR_UNALLOCATED_PROFILE_MAP,
-                      CreateString(MUSICA_ERROR_CATEGORY),
-                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP)) };
+      ToError(MUSICA_ERROR_CATEGORY, ERROR_UNALLOCATED_PROFILE_MAP, GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP), error);
       return nullptr;
     }
 
@@ -207,20 +201,20 @@ namespace musica
           profile_map_, profile_name, strlen(profile_name), profile_units, strlen(profile_units), &error_code);
       if (error_code != 0)
       {
-        *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
         return nullptr;
       }
       void *updater_ptr = InternalGetProfileUpdaterFromMap(profile_map_, profile_ptr, &error_code);
       if (error_code != 0)
       {
-        *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
         InternalDeleteProfile(profile_ptr, &error_code);
         return nullptr;
       }
       InternalDeleteProfile(profile_ptr, &error_code);
       if (error_code != 0)
       {
-        *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
         InternalDeleteProfileUpdater(updater_ptr, &error_code);
         return nullptr;
       }
@@ -228,17 +222,15 @@ namespace musica
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
+      ToError(e, error);
       return nullptr;
     }
     catch (...)
     {
-      *error = Error{ INTERNAL_PROFILE_MAP_ERROR,
-                      CreateString(MUSICA_ERROR_CATEGORY),
-                      CreateString(GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR)) };
+      ToError(MUSICA_ERROR_CATEGORY, INTERNAL_PROFILE_MAP_ERROR, GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR), error);
       return nullptr;
     }
-    *error = NoError();
+    NoError(error);
     return profile;
   }
 
@@ -247,9 +239,7 @@ namespace musica
     DeleteError(error);
     if (profile_map_ == nullptr)
     {
-      *error = Error{ ERROR_UNALLOCATED_PROFILE_MAP,
-                      CreateString(MUSICA_ERROR_CATEGORY),
-                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP)) };
+      ToError(MUSICA_ERROR_CATEGORY, ERROR_UNALLOCATED_PROFILE_MAP, GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP), error);
       return nullptr;
     }
 
@@ -261,20 +251,20 @@ namespace musica
       void *profile_ptr = InternalGetProfileByIndex(profile_map_, index, &error_code);
       if (error_code != 0)
       {
-        *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
         return nullptr;
       }
       void *updater_ptr = InternalGetProfileUpdaterFromMap(profile_map_, profile_ptr, &error_code);
       if (error_code != 0)
       {
-        *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
         InternalDeleteProfile(profile_ptr, &error_code);
         return nullptr;
       }
       InternalDeleteProfile(profile_ptr, &error_code);
       if (error_code != 0)
       {
-        *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
         InternalDeleteProfileUpdater(updater_ptr, &error_code);
         return nullptr;
       }
@@ -282,17 +272,15 @@ namespace musica
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
+      ToError(e, error);
       return nullptr;
     }
     catch (...)
     {
-      *error = Error{ INTERNAL_PROFILE_MAP_ERROR,
-                      CreateString(MUSICA_ERROR_CATEGORY),
-                      CreateString(GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR)) };
+      ToError(MUSICA_ERROR_CATEGORY, INTERNAL_PROFILE_MAP_ERROR, GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR), error);
       return nullptr;
     }
-    *error = NoError();
+    NoError(error);
     return profile;
   }
 
@@ -301,9 +289,7 @@ namespace musica
     DeleteError(error);
     if (profile_map_ == nullptr)
     {
-      *error = Error{ ERROR_UNALLOCATED_PROFILE_MAP,
-                      CreateString(MUSICA_ERROR_CATEGORY),
-                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP)) };
+      ToError(MUSICA_ERROR_CATEGORY, ERROR_UNALLOCATED_PROFILE_MAP, GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP), error);
       return;
     }
 
@@ -311,27 +297,24 @@ namespace musica
 
     try
     {
-      InternalRemoveProfile(
-          profile_map_, profile_name, strlen(profile_name), profile_units, strlen(profile_units), &error_code);
+      InternalRemoveProfile(profile_map_, profile_name, strlen(profile_name), profile_units, strlen(profile_units), &error_code);
       if (error_code != 0)
       {
-        *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
         return;
       }
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
+      ToError(e, error);
       return;
     }
     catch (...)
     {
-      *error = Error{ INTERNAL_PROFILE_MAP_ERROR,
-                      CreateString(MUSICA_ERROR_CATEGORY),
-                      CreateString(GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR)) };
+      ToError(MUSICA_ERROR_CATEGORY, INTERNAL_PROFILE_MAP_ERROR, GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR), error);
       return;
     }
-    *error = NoError();
+    NoError(error);
   }
 
   void ProfileMap::RemoveProfileByIndex(std::size_t index, Error *error)
@@ -339,9 +322,7 @@ namespace musica
     DeleteError(error);
     if (profile_map_ == nullptr)
     {
-      *error = Error{ ERROR_UNALLOCATED_PROFILE_MAP,
-                      CreateString(MUSICA_ERROR_CATEGORY),
-                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP)) };
+      ToError(MUSICA_ERROR_CATEGORY, ERROR_UNALLOCATED_PROFILE_MAP, GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP), error);
       return;
     }
 
@@ -352,23 +333,21 @@ namespace musica
       InternalRemoveProfileByIndex(profile_map_, index, &error_code);
       if (error_code != 0)
       {
-        *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
         return;
       }
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
+      ToError(e, error);
       return;
     }
     catch (...)
     {
-      *error = Error{ INTERNAL_PROFILE_MAP_ERROR,
-                      CreateString(MUSICA_ERROR_CATEGORY),
-                      CreateString(GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR)) };
+      ToError(MUSICA_ERROR_CATEGORY, INTERNAL_PROFILE_MAP_ERROR, GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR), error);
       return;
     }
-    *error = NoError();
+    NoError(error);
   }
 
   std::size_t ProfileMap::GetNumberOfProfiles(Error *error)
@@ -376,9 +355,7 @@ namespace musica
     DeleteError(error);
     if (profile_map_ == nullptr)
     {
-      *error = Error{ ERROR_UNALLOCATED_PROFILE_MAP,
-                      CreateString(MUSICA_ERROR_CATEGORY),
-                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP)) };
+      ToError(MUSICA_ERROR_CATEGORY, ERROR_UNALLOCATED_PROFILE_MAP, GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP), error);
       return 0;
     }
 
@@ -390,23 +367,21 @@ namespace musica
       num_profiles = InternalGetNumberOfProfiles(profile_map_, &error_code);
       if (error_code != 0)
       {
-        *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
         return 0;
       }
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
+      ToError(e, error);
       return 0;
     }
     catch (...)
     {
-      *error = Error{ INTERNAL_PROFILE_MAP_ERROR,
-                      CreateString(MUSICA_ERROR_CATEGORY),
-                      CreateString(GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR)) };
+      ToError(MUSICA_ERROR_CATEGORY, INTERNAL_PROFILE_MAP_ERROR, GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR), error);
       return 0;
     }
-    *error = NoError();
+    NoError(error);
     return num_profiles;
   }
 }  // namespace musica

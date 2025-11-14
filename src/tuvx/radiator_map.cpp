@@ -26,9 +26,10 @@ namespace musica
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
+      ToError(e, error);
+      return;
     }
-    *error = NoError();
+    NoError(error);
   }
 
   void AddRadiator(RadiatorMap *radiator_map, Radiator *radiator, Error *error)
@@ -51,10 +52,10 @@ namespace musica
     radiator_map_ = InternalCreateRadiatorMap(&error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create radiator map") };
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to create radiator map", error);
     }
     owns_radiator_map_ = true;
-    *error = NoError();
+    NoError(error);
   }
 
   RadiatorMap::~RadiatorMap()
@@ -72,17 +73,17 @@ namespace musica
   {
     if (radiator_map_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Radiator map is null") };
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Radiator map is null", error);
       return;
     }
     if (radiator->radiator_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Cannot add unowned radiator to radiator map") };
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Cannot add unallocated radiator to radiator map", error);
       return;
     }
     if (radiator->updater_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Cannot add radiator in invalid state") };
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Cannot add radiator in invalid state", error);
       return;
     }
 
@@ -93,47 +94,45 @@ namespace musica
       InternalAddRadiator(radiator_map_, radiator->radiator_, &error_code);
       if (error_code != 0)
       {
-        *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to add radiator to radiator map") };
+        ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to add radiator to radiator map", error);
+        return;
       }
       InternalDeleteRadiatorUpdater(radiator->updater_, &error_code);
       if (error_code != 0)
       {
-        *error = Error{ 1,
-                        CreateString(MUSICA_ERROR_CATEGORY),
-                        CreateString("Failed to delete updater after transfer of ownership to radiator map") };
+        ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to delete updater after transfer of ownership to radiator map", error);
+        return;
       }
       radiator->updater_ = InternalGetRadiatorUpdaterFromMap(radiator_map_, radiator->radiator_, &error_code);
       if (error_code != 0)
       {
-        *error = Error{ 1,
-                        CreateString(MUSICA_ERROR_CATEGORY),
-                        CreateString("Failed to get updater after transfer of ownership to radiator map") };
+        ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to get updater after transfer of ownership to radiator map", error);
+        return;
       }
       InternalDeleteRadiator(radiator->radiator_, &error_code);
       if (error_code != 0)
       {
-        *error = Error{ 1,
-                        CreateString(MUSICA_ERROR_CATEGORY),
-                        CreateString("Failed to delete radiator during transfer of ownership to radiator map") };
+        ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to delete radiator during transfer of ownership to radiator map", error);
+        return;
       }
       radiator->radiator_ = nullptr;
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
+      ToError(e, error);
     }
     catch (...)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Internal error adding radiator") };
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Internal error adding radiator", error);
     }
-    *error = NoError();
+    NoError(error);
   }
 
   Radiator *RadiatorMap::GetRadiator(const char *radiator_name, Error *error)
   {
     if (radiator_map_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Radiator map is null") };
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Radiator map is null", error);
       return nullptr;
     }
 
@@ -145,21 +144,20 @@ namespace musica
       void *radiator_ptr = InternalGetRadiator(radiator_map_, radiator_name, strlen(radiator_name), &error_code);
       if (error_code != 0)
       {
-        *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get radiator from radiator map") };
+        ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to get radiator from radiator map", error);
         return nullptr;
       }
       void *updater_ptr = InternalGetRadiatorUpdaterFromMap(radiator_map_, radiator_ptr, &error_code);
       if (error_code != 0)
       {
-        *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get radiator updater") };
+        ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to get radiator updater", error);
         InternalDeleteRadiator(radiator_ptr, &error_code);
         return nullptr;
       }
       InternalDeleteRadiator(radiator_ptr, &error_code);
       if (error_code != 0)
       {
-        *error =
-            Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to delete radiator after getting updater") };
+        ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to delete radiator after getting updater", error);
         InternalDeleteRadiatorUpdater(updater_ptr, &error_code);
         return nullptr;
       }
@@ -167,13 +165,13 @@ namespace musica
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
+      ToError(e, error);
     }
     catch (...)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Internal error getting radiator") };
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Internal error getting radiator", error);
     }
-    *error = NoError();
+    NoError(error);
     return radiator;
   }
 

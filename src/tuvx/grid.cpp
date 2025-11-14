@@ -43,10 +43,10 @@ namespace musica
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
+      ToError(e, error);
       return;
     }
-    *error = NoError();
+    NoError(error);
   }
 
   std::size_t GetGridNumberOfSections(Grid *grid, Error *error)
@@ -87,17 +87,17 @@ namespace musica
     grid_ = InternalCreateGrid(grid_name, strlen(grid_name), units, strlen(units), num_sections, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
       return;
     }
     updater_ = InternalGetGridUpdater(grid_, &error_code);
     if (error_code != 0)
     {
       InternalDeleteGrid(grid_, &error_code);
-      *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
       return;
     }
-    *error = NoError();
+    NoError(error);
   }
 
   Grid::~Grid()
@@ -118,16 +118,17 @@ namespace musica
     if (updater_ == nullptr)
     {
       error_code = ERROR_UNALLOCATED_GRID_UPDATER;
-      *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
       return "";
     }
-    String name = InternalGetGridName(updater_, &error_code);
+    String name;
+    InternalGetGridName(updater_, &name, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
       return "";
     }
-    *error = NoError();
+    NoError(error);
     std::string value(name.value_, name.size_);
     DeleteString(&name);
     return value;
@@ -140,16 +141,17 @@ namespace musica
     if (updater_ == nullptr)
     {
       error_code = ERROR_UNALLOCATED_GRID_UPDATER;
-      *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
       return "";
     }
-    String units = InternalGetGridUnits(updater_, &error_code);
+    String units;
+    InternalGetGridUnits(updater_, &units, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
       return "";
     }
-    *error = NoError();
+    NoError(error);
     std::string value(units.value_, units.size_);
     DeleteString(&units);
     return value;
@@ -162,16 +164,16 @@ namespace musica
     if (updater_ == nullptr)
     {
       error_code = ERROR_UNALLOCATED_GRID_UPDATER;
-      *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
       return 0;
     }
     std::size_t n_sections = InternalGetNumberOfSections(updater_, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
       return 0;
     }
-    *error = NoError();
+    NoError(error);
     return n_sections;
   }
 
@@ -182,16 +184,16 @@ namespace musica
     if (updater_ == nullptr)
     {
       error_code = ERROR_UNALLOCATED_GRID_UPDATER;
-      *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
       return;
     }
     InternalSetEdges(updater_, edges, num_edges, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
       return;
     }
-    *error = NoError();
+    NoError(error);
   }
 
   void Grid::GetEdges(double edges[], std::size_t num_edges, Error *error)
@@ -201,16 +203,16 @@ namespace musica
     if (updater_ == nullptr)
     {
       error_code = ERROR_UNALLOCATED_GRID_UPDATER;
-      *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
       return;
     }
     InternalGetEdges(updater_, edges, num_edges, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
       return;
     }
-    *error = NoError();
+    NoError(error);
   }
 
   void Grid::SetMidpoints(double midpoints[], std::size_t num_midpoints, Error *error)
@@ -220,16 +222,16 @@ namespace musica
     if (updater_ == nullptr)
     {
       error_code = ERROR_UNALLOCATED_GRID_UPDATER;
-      *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
       return;
     }
     InternalSetMidpoints(updater_, midpoints, num_midpoints, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
       return;
     }
-    *error = NoError();
+    NoError(error);
   }
 
   void Grid::GetMidpoints(double midpoints[], std::size_t num_midpoints, Error *error)
@@ -239,16 +241,16 @@ namespace musica
     if (updater_ == nullptr)
     {
       error_code = ERROR_UNALLOCATED_GRID_UPDATER;
-      *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
       return;
     }
     InternalGetMidpoints(updater_, midpoints, num_midpoints, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
       return;
     }
-    *error = NoError();
+    NoError(error);
   }
 
 }  // namespace musica

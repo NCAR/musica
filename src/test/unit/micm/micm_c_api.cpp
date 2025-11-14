@@ -69,7 +69,8 @@ TEST_F(MicmCApiTestFixture, CreateStateSuccess)
 // Test case for bad configuration file path
 TEST(MicmCApiTest, BadConfigurationFilePath)
 {
-  Error error = NoError();
+  Error error;
+  NoError(&error);
   auto micm_bad_config = CreateMicm("bad config path", MICMSolver::Rosenbrock, &error);
   ASSERT_EQ(micm_bad_config, nullptr);
   ASSERT_TRUE(IsError(error, MUSICA_ERROR_CATEGORY_PARSING, MUSICA_PARSE_INVALID_CONFIG_FILE));
@@ -80,7 +81,8 @@ TEST(MicmCApiTest, BadConfigurationFilePath)
 TEST(MicmCApiTest, BadSolverType)
 {
   short solver_type = 999;
-  Error error = NoError();
+  Error error;
+  NoError(&error);
   auto micm_bad_solver_type = CreateMicm("configs/v0/chapman", static_cast<MICMSolver>(solver_type), &error);
   ASSERT_EQ(micm_bad_solver_type, nullptr);
   ASSERT_TRUE(IsError(error, MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND));
@@ -90,22 +92,23 @@ TEST(MicmCApiTest, BadSolverType)
 // Test case for missing species property
 TEST_F(MicmCApiTestFixture, MissingSpeciesProperty)
 {
-  Error error = NoError();
+  Error error;
+  NoError(&error);
   String string_value;
   GetSpeciesPropertyString(micm, "O3", "bad property", &string_value, &error);
   ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND));
   ASSERT_STREQ(string_value.value_, nullptr);
   DeleteString(&string_value);
   DeleteError(&error);
-  error = NoError();
+  NoError(&error);
   ASSERT_EQ(GetSpeciesPropertyDouble(micm, "O3", "bad property", &error), 0.0);
   ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND));
   DeleteError(&error);
-  error = NoError();
+  NoError(&error);
   ASSERT_EQ(GetSpeciesPropertyInt(micm, "O3", "bad property", &error), 0);
   ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND));
   DeleteError(&error);
-  error = NoError();
+  NoError(&error);
   ASSERT_FALSE(GetSpeciesPropertyBool(micm, "O3", "bad property", &error));
   ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND));
   DeleteError(&error);
