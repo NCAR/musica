@@ -570,8 +570,8 @@ TEST_F(TuvxCApiTest, CanCreateRadiator)
   ASSERT_NE(radiator, nullptr);
 
   // Test for optical depths
-  std::size_t num_vertical_layers = 3;
-  std::size_t num_wavelength_bins = 2;
+  std::size_t const num_vertical_layers = 3;
+  std::size_t const num_wavelength_bins = 2;
   // Allocate array as 1D
   double* optical_depths_1D = new double[num_wavelength_bins * num_vertical_layers];
   // Allocate an array of pointers to each row
@@ -658,7 +658,7 @@ TEST_F(TuvxCApiTest, CanCreateRadiator)
       i++;
     }
   }
-  std::size_t num_streams = 1;
+  std::size_t const num_streams = 1;
   SetRadiatorAsymmetryFactors(radiator, factors[0], num_vertical_layers, num_wavelength_bins, num_streams, &error);
   ASSERT_TRUE(IsSuccess(error));
   for (int row = 0; row < num_vertical_layers; row++)
@@ -716,8 +716,8 @@ TEST_F(TuvxCApiTest, CanCreateRadiatorMap)
   ASSERT_NE(radiator_map, nullptr);
 
   // Test for optical depths
-  std::size_t num_vertical_layers = 3;
-  std::size_t num_wavelength_bins = 2;
+  std::size_t const num_vertical_layers = 3;
+  std::size_t const num_wavelength_bins = 2;
   double* optical_depths_1D = new double[num_wavelength_bins * num_vertical_layers];
   double** optical_depths = new double*[num_vertical_layers];
   for (int row = 0; row < num_vertical_layers; row++)
@@ -756,7 +756,7 @@ TEST_F(TuvxCApiTest, CanCreateRadiatorMap)
   ASSERT_TRUE(IsSuccess(error));
 
   // Test for asymmetery factors
-  std::size_t num_streams = 1;
+  std::size_t const num_streams = 1;
   double* factors_1D = new double[num_wavelength_bins * num_vertical_layers];
   double** factors = new double*[num_vertical_layers];
   for (int row = 0; row < num_vertical_layers; row++)
