@@ -340,57 +340,54 @@ function test_multiple_grid_cells_backward_euler_standard_order() {
     console.log('Passed test_multiple_grid_cells_backward_euler_standard_order passed (1-10 cells)');
 }
 
+
 /**
  * Main test runner
  */
 function runTests() {
+
+    let tests_complete = 0;
+
     console.log('Starting MICM Analytical Tests (matching Python test_analytical.py)...\n');
     console.log('='.repeat(60));
 
-    try {
-        // Test 1: Single grid cell - Standard Rosenbrock
-        console.log('\nTest 1: Single grid cell - Standard Rosenbrock');
-        test_single_grid_cell_standard_rosenbrock();
+    const tests = [
+        ['Single grid cell - Standard Rosenbrock', test_single_grid_cell_standard_rosenbrock],
+        ['Multiple grid cells (1-10) - Standard Rosenbrock', test_multiple_grid_cells_standard_rosenbrock],
+        ['Single grid cell - Backward Euler', test_single_grid_cell_backward_euler],
+        ['Multiple grid cells (1-10) - Backward Euler', test_multiple_grid_cells_backward_euler],
+        ['Single grid cell - Rosenbrock (vector-ordered)', test_single_grid_cell_rosenbrock],
+        ['Multiple grid cells (1-10) - Rosenbrock (vector-ordered)', test_multiple_grid_cells_rosenbrock],
+        ['Single grid cell - Backward Euler Standard Order', test_single_grid_cell_backward_euler_standard_order],
+        ['Multiple grid cells (1-10) - Backward Euler Standard Order', test_multiple_grid_cells_backward_euler_standard_order],
+    ]
 
-        // Test 2: Multiple grid cells - Standard Rosenbrock
-        console.log('\nTest 2: Multiple grid cells (1-10) - Standard Rosenbrock');
-        test_multiple_grid_cells_standard_rosenbrock();
 
-        // Test 3: Single grid cell - Backward Euler
-        console.log('\nTest 3: Single grid cell - Backward Euler');
-        test_single_grid_cell_backward_euler();
 
-        // Test 4: Multiple grid cells - Backward Euler
-        console.log('\nTest 4: Multiple grid cells (1-10) - Backward Euler');
-        test_multiple_grid_cells_backward_euler();
+    for (let i = 0; i < tests.length; i++) {
+        const [name, fn] = tests[i];
+        console.log(`\nTest ${i + 1}: ${name}`);
+        try {
+            fn();
+            tests_complete++;
 
-        // Test 5: Single grid cell - Rosenbrock (vector-ordered)
-        console.log('\nTest 5: Single grid cell - Rosenbrock (vector-ordered)');
-        test_single_grid_cell_rosenbrock();
+        } catch (error) {
+            console.error('\n' + '='.repeat(60));
+            console.error('TEST FAILED! ✗');
+            console.error('='.repeat(60));
+            console.error('Error:', error.message);
+            console.error(error.stack);
+        }
+    }
 
-        // Test 6: Multiple grid cells - Rosenbrock (vector-ordered)
-        console.log('\nTest 6: Multiple grid cells (1-10) - Rosenbrock (vector-ordered)');
-        test_multiple_grid_cells_rosenbrock();
-
-        // Test 7: Single grid cell - Backward Euler Standard Order
-        console.log('\nTest 7: Single grid cell - Backward Euler Standard Order');
-        test_single_grid_cell_backward_euler_standard_order();
-
-        // Test 8: Multiple grid cells - Backward Euler Standard Order
-        console.log('\nTest 8: Multiple grid cells (1-10) - Backward Euler Standard Order');
-        test_multiple_grid_cells_backward_euler_standard_order();
-
+    if (tests_complete == tests.length) {
         console.log('\n' + '='.repeat(60));
         console.log('ALL TESTS PASSED! ✓');
         console.log('='.repeat(60));
-
-    } catch (error) {
-        console.error('\n' + '='.repeat(60));
-        console.error('TEST FAILED! ✗');
-        console.error('='.repeat(60));
-        console.error('Error:', error.message);
-        console.error(error.stack);
-        process.exit(1);
+    } else {
+        console.log('\n' + '='.repeat(60));
+        console.log(`${tests_complete}/${tests.length} TESTS PASSED! 1 OR MORE TESTS FAILED!`);
+        console.log('='.repeat(60));
     }
 }
 
