@@ -27,7 +27,7 @@ auto to_vector_double = [](const py::object& obj) -> std::vector<double>
   catch (const std::exception& e)
   {
     std::cerr << "Error converting sequence to vector<double>: " << e.what() << std::endl;
-    std::cerr << "Object type: " << py::str(obj.get_type()).cast<std::string>() << std::endl;
+    std::cerr << "Object type: " << py::str(py::type::of(obj)).cast<std::string>() << std::endl;
     std::cerr << "Object repr: " << py::repr(obj).cast<std::string>() << std::endl;
     throw;
   }
@@ -70,7 +70,7 @@ auto array_2d_to_vector_double = [](const py::object& obj) -> std::tuple<std::ve
   catch (const std::exception& e)
   {
     std::cerr << "Error converting sequence to vector<double>: " << e.what() << std::endl;
-    std::cerr << "Object type: " << py::str(obj.get_type()).cast<std::string>() << std::endl;
+    std::cerr << "Object type: " << py::str(py::type::of(obj)).cast<std::string>() << std::endl;
     std::cerr << "Object repr: " << py::repr(obj).cast<std::string>() << std::endl;
     throw;
   }

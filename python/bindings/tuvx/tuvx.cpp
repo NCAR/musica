@@ -96,7 +96,8 @@ void bind_tuvx(py::module_& tuvx)
         musica::TUVX* tuvx_instance = reinterpret_cast<musica::TUVX*>(tuvx_ptr);
 
         musica::Error error;
-        musica::Mappings rate_map = tuvx_instance->GetPhotolysisRateConstantsOrdering(&error);
+        musica::Mappings rate_map;
+        tuvx_instance->GetPhotolysisRateConstantsOrdering(&rate_map, &error);
         if (!musica::IsSuccess(error))
         {
           std::string error_message = std::string(error.message_.value_);
@@ -123,7 +124,8 @@ void bind_tuvx(py::module_& tuvx)
         musica::TUVX* tuvx_instance = reinterpret_cast<musica::TUVX*>(tuvx_ptr);
 
         musica::Error error;
-        musica::Mappings rate_map = tuvx_instance->GetHeatingRatesOrdering(&error);
+        musica::Mappings rate_map;
+        tuvx_instance->GetHeatingRatesOrdering(&rate_map, &error);
         if (!musica::IsSuccess(error))
         {
           std::string error_message = std::string(error.message_.value_);
@@ -150,7 +152,8 @@ void bind_tuvx(py::module_& tuvx)
         musica::TUVX* tuvx_instance = reinterpret_cast<musica::TUVX*>(tuvx_ptr);
 
         musica::Error error;
-        musica::Mappings rate_map = tuvx_instance->GetDoseRatesOrdering(&error);
+        musica::Mappings rate_map;
+        tuvx_instance->GetDoseRatesOrdering(&rate_map, &error);
         if (!musica::IsSuccess(error))
         {
           std::string error_message = std::string(error.message_.value_);

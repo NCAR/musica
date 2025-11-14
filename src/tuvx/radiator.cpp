@@ -26,10 +26,10 @@ namespace musica
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
+      ToError(e, error);
       return;
     }
-    *error = NoError();
+    NoError(error);
   }
 
   void SetRadiatorOpticalDepths(
@@ -109,17 +109,17 @@ namespace musica
         radiator_name, strlen(radiator_name), height_grid->updater_, wavelength_grid->updater_, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create radiator") };
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to create radiator", error);
       return;
     }
     updater_ = InternalGetRadiatorUpdater(radiator_, &error_code);
     if (error_code != 0)
     {
       InternalDeleteRadiator(radiator_, &error_code);
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get radiator updater") };
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to get radiator updater", error);
       return;
     }
-    *error = NoError();
+    NoError(error);
   }
 
   Radiator::~Radiator()
@@ -142,16 +142,16 @@ namespace musica
     int error_code = 0;
     if (updater_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Radiator is not updatable") };
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Radiator is not updatable", error);
       return;
     }
     InternalSetOpticalDepths(updater_, optical_depths, num_vertical_layers, num_wavelength_bins, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to set optical depths") };
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to set optical depths", error);
       return;
     }
-    *error = NoError();
+    NoError(error);
   }
 
   void Radiator::GetOpticalDepths(
@@ -163,16 +163,16 @@ namespace musica
     int error_code = 0;
     if (updater_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Radiator is not updatable") };
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Radiator is not updatable", error);
       return;
     }
     InternalGetOpticalDepths(updater_, optical_depths, num_vertical_layers, num_wavelength_bins, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get optical depths") };
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to get optical depths", error);
       return;
     }
-    *error = NoError();
+    NoError(error);
   }
 
   void Radiator::SetSingleScatteringAlbedos(
@@ -184,17 +184,17 @@ namespace musica
     int error_code = 0;
     if (updater_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Radiator is not updatable") };
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Radiator is not updatable", error);
       return;
     }
     InternalSetSingleScatteringAlbedos(
         updater_, single_scattering_albedos, num_vertical_layers, num_wavelength_bins, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to set single scattering albedos") };
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to set single scattering albedos", error);
       return;
     }
-    *error = NoError();
+    NoError(error);
   }
 
   void Radiator::GetSingleScatteringAlbedos(
@@ -206,17 +206,17 @@ namespace musica
     int error_code = 0;
     if (updater_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Radiator is not updatable") };
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Radiator is not updatable", error);
       return;
     }
     InternalGetSingleScatteringAlbedos(
         updater_, single_scattering_albedos, num_vertical_layers, num_wavelength_bins, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get single scattering albedos") };
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to get single scattering albedos", error);
       return;
     }
-    *error = NoError();
+    NoError(error);
   }
 
   void Radiator::SetAsymmetryFactors(
@@ -229,17 +229,17 @@ namespace musica
     int error_code = 0;
     if (updater_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Radiator is not updatable") };
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Radiator is not updatable", error);
       return;
     }
     InternalSetAsymmetryFactors(
         updater_, asymmetry_factors, num_vertical_layers, num_wavelength_bins, num_streams, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to set asymmetry factors") };
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to set asymmetry factors", error);
       return;
     }
-    *error = NoError();
+    NoError(error);
   }
 
   void Radiator::GetAsymmetryFactors(
@@ -252,17 +252,17 @@ namespace musica
     int error_code = 0;
     if (updater_ == nullptr)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Radiator is not updatable") };
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Radiator is not updatable", error);
       return;
     }
     InternalGetAsymmetryFactors(
         updater_, asymmetry_factors, num_vertical_layers, num_wavelength_bins, num_streams, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get asymmetry factors") };
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to get asymmetry factors", error);
       return;
     }
-    *error = NoError();
+    NoError(error);
   }
 
 }  // namespace musica
