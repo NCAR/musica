@@ -130,13 +130,12 @@ namespace musica
       parameters.E_ = reaction.E;
       auto reactants = reaction_components_to_reactants(reaction.reactants, species_map);
       auto products = reaction_components_to_products(reaction.products, species_map);
-      chemistry.processes.push_back(
-          micm::ChemicalReactionBuilder()
-              .SetReactants(reactants)
-              .SetProducts(products)
-              .SetRateConstant(micm::ArrheniusRateConstant(parameters))
-              .SetPhase(chemistry.system.gas_phase_)
-              .Build());
+      chemistry.processes.push_back(micm::ChemicalReactionBuilder()
+                                        .SetReactants(reactants)
+                                        .SetProducts(products)
+                                        .SetRateConstant(micm::ArrheniusRateConstant(parameters))
+                                        .SetPhase(chemistry.system.gas_phase_)
+                                        .Build());
     }
   }
 
@@ -159,23 +158,21 @@ namespace musica
 
       // Alkoxy branch
       parameters.branch_ = micm::BranchedRateConstantParameters::Branch::Alkoxy;
-      chemistry.processes.push_back(
-          micm::ChemicalReactionBuilder()
-              .SetReactants(reactants)
-              .SetProducts(alkoxy_products)
-              .SetRateConstant(micm::BranchedRateConstant(parameters))
-              .SetPhase(chemistry.system.gas_phase_)
-              .Build());
+      chemistry.processes.push_back(micm::ChemicalReactionBuilder()
+                                        .SetReactants(reactants)
+                                        .SetProducts(alkoxy_products)
+                                        .SetRateConstant(micm::BranchedRateConstant(parameters))
+                                        .SetPhase(chemistry.system.gas_phase_)
+                                        .Build());
 
       // Nitrate branch
       parameters.branch_ = micm::BranchedRateConstantParameters::Branch::Nitrate;
-      chemistry.processes.push_back(
-          micm::ChemicalReactionBuilder()
-              .SetReactants(reactants)
-              .SetProducts(nitrate_products)
-              .SetRateConstant(micm::BranchedRateConstant(parameters))
-              .SetPhase(chemistry.system.gas_phase_)
-              .Build());
+      chemistry.processes.push_back(micm::ChemicalReactionBuilder()
+                                        .SetReactants(reactants)
+                                        .SetProducts(nitrate_products)
+                                        .SetRateConstant(micm::BranchedRateConstant(parameters))
+                                        .SetPhase(chemistry.system.gas_phase_)
+                                        .Build());
     }
   }
 
@@ -211,13 +208,12 @@ namespace musica
                                                                 phase_species_list[surface_reaction_species_index],
                                                             .reaction_probability_ = reaction.reaction_probability };
 
-      chemistry.processes.push_back(
-          micm::ChemicalReactionBuilder()
-              .SetReactants(reactants)
-              .SetProducts(products)
-              .SetRateConstant(micm::SurfaceRateConstant(parameters))
-              .SetPhase(chemistry.system.gas_phase_)
-              .Build());
+      chemistry.processes.push_back(micm::ChemicalReactionBuilder()
+                                        .SetReactants(reactants)
+                                        .SetProducts(products)
+                                        .SetRateConstant(micm::SurfaceRateConstant(parameters))
+                                        .SetPhase(chemistry.system.gas_phase_)
+                                        .Build());
     }
   }
 
@@ -239,13 +235,12 @@ namespace musica
       parameters.kinf_C_ = reaction.kinf_C;
       parameters.Fc_ = reaction.Fc;
       parameters.N_ = reaction.N;
-      chemistry.processes.push_back(
-          micm::ChemicalReactionBuilder()
-              .SetReactants(reactants)
-              .SetProducts(products)
-              .SetRateConstant(micm::TroeRateConstant(parameters))
-              .SetPhase(chemistry.system.gas_phase_)
-              .Build());
+      chemistry.processes.push_back(micm::ChemicalReactionBuilder()
+                                        .SetReactants(reactants)
+                                        .SetProducts(products)
+                                        .SetRateConstant(micm::TroeRateConstant(parameters))
+                                        .SetPhase(chemistry.system.gas_phase_)
+                                        .Build());
     }
   }
 
@@ -267,13 +262,12 @@ namespace musica
       parameters.kinf_C_ = reaction.kinf_C;
       parameters.Fc_ = reaction.Fc;
       parameters.N_ = reaction.N;
-      chemistry.processes.push_back(
-          micm::ChemicalReactionBuilder()
-              .SetReactants(reactants)
-              .SetProducts(products)
-              .SetRateConstant(micm::TernaryChemicalActivationRateConstant(parameters))
-              .SetPhase(chemistry.system.gas_phase_)
-              .Build());
+      chemistry.processes.push_back(micm::ChemicalReactionBuilder()
+                                        .SetReactants(reactants)
+                                        .SetProducts(products)
+                                        .SetRateConstant(micm::TernaryChemicalActivationRateConstant(parameters))
+                                        .SetPhase(chemistry.system.gas_phase_)
+                                        .Build());
     }
   }
 
@@ -290,13 +284,12 @@ namespace musica
       parameters.A_ = reaction.A;
       parameters.B_ = reaction.B;
       parameters.C_ = reaction.C;
-      chemistry.processes.push_back(
-          micm::ChemicalReactionBuilder()
-              .SetReactants(reactants)
-              .SetProducts(products)
-              .SetRateConstant(micm::TunnelingRateConstant(parameters))
-              .SetPhase(chemistry.system.gas_phase_)
-              .Build());
+      chemistry.processes.push_back(micm::ChemicalReactionBuilder()
+                                        .SetReactants(reactants)
+                                        .SetProducts(products)
+                                        .SetRateConstant(micm::TunnelingRateConstant(parameters))
+                                        .SetPhase(chemistry.system.gas_phase_)
+                                        .Build());
     }
   }
 
@@ -316,13 +309,12 @@ namespace musica
       parameters.D_ = reaction.D;
       parameters.E_ = reaction.E;
       parameters.coefficients_ = reaction.taylor_coefficients;
-      chemistry.processes.push_back(
-          micm::ChemicalReactionBuilder()
-              .SetReactants(reactants)
-              .SetProducts(products)
-              .SetRateConstant(micm::TaylorSeriesRateConstant(parameters))
-              .SetPhase(chemistry.system.gas_phase_)
-              .Build());
+      chemistry.processes.push_back(micm::ChemicalReactionBuilder()
+                                        .SetReactants(reactants)
+                                        .SetProducts(products)
+                                        .SetRateConstant(micm::TaylorSeriesRateConstant(parameters))
+                                        .SetPhase(chemistry.system.gas_phase_)
+                                        .Build());
     }
   }
 
@@ -371,13 +363,12 @@ namespace musica
       micm::UserDefinedRateConstantParameters parameters;
       parameters.scaling_factor_ = reaction.scaling_factor;
       parameters.label_ = prefix + reaction.name;
-      chemistry.processes.push_back(
-          micm::ChemicalReactionBuilder()
-              .SetReactants(reactants)
-              .SetProducts(products)
-              .SetRateConstant(micm::UserDefinedRateConstant(parameters))
-              .SetPhase(chemistry.system.gas_phase_)
-              .Build());
+      chemistry.processes.push_back(micm::ChemicalReactionBuilder()
+                                        .SetReactants(reactants)
+                                        .SetProducts(products)
+                                        .SetRateConstant(micm::UserDefinedRateConstant(parameters))
+                                        .SetPhase(chemistry.system.gas_phase_)
+                                        .Build());
     }
   }
 

@@ -110,7 +110,8 @@ TEST(Parser, CanParseFullV1)
 
   for (const auto& extension : extensions)
   {
-    musica::Chemistry const chemistry = musica::ReadConfiguration("configs/v1/full_configuration/full_configuration" + extension);
+    musica::Chemistry const chemistry =
+        musica::ReadConfiguration("configs/v1/full_configuration/full_configuration" + extension);
 
     EXPECT_EQ(chemistry.system.gas_phase_.phase_species_.size(), 5);
     EXPECT_EQ(chemistry.system.gas_phase_.name_, "gas");
