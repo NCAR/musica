@@ -66,14 +66,14 @@ TEST(Parser, CanParseChapmanV0)
 
 TEST(Parser, CanParseCBVV0)
 {
-  musica::Chemistry chemistry = musica::ReadConfiguration("configs/v0/carbon_bond_5");
+  musica::Chemistry const chemistry = musica::ReadConfiguration("configs/v0/carbon_bond_5");
   EXPECT_EQ(chemistry.system.gas_phase_.phase_species_.size(), 67);
   EXPECT_EQ(chemistry.processes.size(), 200);
 }
 
 TEST(Parser, CanParseTS1V0)
 {
-  musica::Chemistry chemistry = musica::ReadConfiguration("configs/v0/TS1");
+  musica::Chemistry const chemistry = musica::ReadConfiguration("configs/v0/TS1");
   EXPECT_EQ(chemistry.system.gas_phase_.phase_species_.size(), 210);
   EXPECT_EQ(chemistry.processes.size(), 547);
 }
@@ -85,7 +85,7 @@ TEST(Parser, DetectsInvalidConfigV0)
 
 TEST(Parser, CanParseChapmanV1)
 {
-  std::vector<std::string> extensions = { ".json", ".yaml" };
+  std::vector<std::string> const extensions = { ".json", ".yaml" };
 
   for (const auto& extension : extensions)
   {
@@ -106,11 +106,12 @@ TEST(Parser, CanParseChapmanV1)
 
 TEST(Parser, CanParseFullV1)
 {
-  std::vector<std::string> extensions = { ".json", ".yaml" };
+  std::vector<std::string> const extensions = { ".json", ".yaml" };
 
   for (const auto& extension : extensions)
   {
-    musica::Chemistry chemistry = musica::ReadConfiguration("configs/v1/full_configuration/full_configuration" + extension);
+    musica::Chemistry const chemistry =
+        musica::ReadConfiguration("configs/v1/full_configuration/full_configuration" + extension);
 
     EXPECT_EQ(chemistry.system.gas_phase_.phase_species_.size(), 5);
     EXPECT_EQ(chemistry.system.gas_phase_.name_, "gas");
@@ -184,7 +185,7 @@ TEST(Parser, ConvertArrheniusV0ToV1)
 
   // Check unit conversion (moles m-3 to molec cm-3)
   // For bimolecular reaction (2 reactants), A should be multiplied by MolesM3ToMoleculesCm3^(2-1) = MolesM3ToMoleculesCm3
-  double expected_A = 1.0e-11 * MolesM3ToMoleculesCm3;
+  double const expected_A = 1.0e-11 * MolesM3ToMoleculesCm3;
   EXPECT_NEAR(v1_mechanism.reactions.arrhenius[0].A, expected_A, expected_A * 1e-13);
 }
 
@@ -241,7 +242,7 @@ TEST(Parser, ConvertBranchedV0ToV1)
 
   // Check unit conversion for unimolecular reaction (1 reactant)
   // X should be multiplied by MolesM3ToMoleculesCm3^(3-1) = 2
-  double expected_X = 1.0e-12 * MolesM3ToMoleculesCm3 * MolesM3ToMoleculesCm3;
+  double const expected_X = 1.0e-12 * MolesM3ToMoleculesCm3 * MolesM3ToMoleculesCm3;
   EXPECT_NEAR(v1_mechanism.reactions.branched[0].X, expected_X, expected_X * 1e-13);
 }
 
@@ -342,9 +343,9 @@ TEST(Parser, ConvertTroeV0ToV1)
   // Check unit conversion for bimolecular reaction
   // k0_A should be multiplied by MolesM3ToMoleculesCm3^(total_moles) = MolesM3ToMoleculesCm3^2
   // kinf_A should be multiplied by MolesM3ToMoleculesCm3^(total_moles-1) = MolesM3ToMoleculesCm3^1
-  double expected_k0_A = 1.0e-30 * MolesM3ToMoleculesCm3 * MolesM3ToMoleculesCm3;
+  double const expected_k0_A = 1.0e-30 * MolesM3ToMoleculesCm3 * MolesM3ToMoleculesCm3;
   EXPECT_NEAR(v1_mechanism.reactions.troe[0].k0_A, expected_k0_A, expected_k0_A * 1e-13);
-  double expected_kinf_A = 1.0e-10 * MolesM3ToMoleculesCm3;
+  double const expected_kinf_A = 1.0e-10 * MolesM3ToMoleculesCm3;
   EXPECT_NEAR(v1_mechanism.reactions.troe[0].kinf_A, expected_kinf_A, expected_kinf_A * 1e-13);
 }
 
@@ -399,9 +400,9 @@ TEST(Parser, ConvertTernaryChemicalActivationV0ToV1)
   EXPECT_EQ(v1_mechanism.reactions.ternary_chemical_activation[0].products.size(), 1);
 
   // Check unit conversion for bimolecular reaction
-  double expected_k0_A = 2.0e-31 * MolesM3ToMoleculesCm3;
+  double const expected_k0_A = 2.0e-31 * MolesM3ToMoleculesCm3;
   EXPECT_NEAR(v1_mechanism.reactions.ternary_chemical_activation[0].k0_A, expected_k0_A, expected_k0_A * 1e-13);
-  double expected_kinf_A = 1.5e-11 * MolesM3ToMoleculesCm3;
+  double const expected_kinf_A = 1.5e-11 * MolesM3ToMoleculesCm3;
   EXPECT_NEAR(v1_mechanism.reactions.ternary_chemical_activation[0].kinf_A, expected_kinf_A, expected_kinf_A * 1e-13);
 }
 
@@ -451,7 +452,7 @@ TEST(Parser, ConvertTunnelingV0ToV1)
   EXPECT_EQ(v1_mechanism.reactions.tunneling[0].products.size(), 1);
 
   // Check unit conversion for bimolecular reaction
-  double expected_A = 1.0e-12 * MolesM3ToMoleculesCm3;
+  double const expected_A = 1.0e-12 * MolesM3ToMoleculesCm3;
   EXPECT_NEAR(v1_mechanism.reactions.tunneling[0].A, expected_A, expected_A * 1e-13);
 }
 

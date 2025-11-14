@@ -70,6 +70,7 @@ def copy_example(logger, example_arg, output_path):
         logger.info(f"Copying example from {example_path} to {output_path}")
         shutil.copy(example_path, output_path)
 
+
 def convert_configuration(logger, configuration, output_path):
     logger.info(f"Converting configuration: {configuration} to {output_path}")
     if not os.path.exists(configuration):
@@ -78,6 +79,7 @@ def convert_configuration(logger, configuration, output_path):
     parser = musica.mechanism_configuration.Parser()
     mechanism = parser.parse_and_convert_v0(configuration)
     mechanism.export(output_path)
+
 
 def main():
     start = datetime.datetime.now()
@@ -93,13 +95,13 @@ def main():
     logger.debug(f"Working directory = {os.getcwd()}")
 
     # Figure out what action we are doing. We are either converting or copying an example.
-    convert = args.convert 
+    convert = args.convert
     example_arg = args.example
     output = args.output
 
     if not convert and not example_arg:
         raise ValueError("Either --convert or --example must be specified.")
-    
+
     if convert and example_arg:
         raise ValueError("Cannot specify both --convert and --example. Choose one.")
 

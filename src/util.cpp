@@ -151,7 +151,7 @@ namespace musica
         return mappings.mappings_[i].index_;
       }
     }
-    std::string msg = "Mapping element '" + std::string(name) + "' not found";
+    std::string const msg = "Mapping element '" + std::string(name) + "' not found";
     ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_MAPPING_NOT_FOUND, msg.c_str(), error);
     return 0;
   }
@@ -181,7 +181,7 @@ namespace musica
       Error* error)
   {
     DeleteError(error);
-    std::size_t size = configuration.data_->size();
+    std::size_t const size = configuration.data_->size();
     std::vector<IndexMapping> mappings;
     index_mapping->size_ = 0;
     if (map_options == IndexMappingOptions::UndefinedMapping)
@@ -192,9 +192,9 @@ namespace musica
     for (std::size_t i = 0; i < size; i++)
     {
       const YAML::Node& node = (*configuration.data_)[i];
-      std::string source_name = node["source"].as<std::string>();
-      std::string target_name = node["target"].as<std::string>();
-      std::size_t source_index = FindMappingIndex(source, source_name.c_str(), error);
+      std::string const source_name = node["source"].as<std::string>();
+      std::string const target_name = node["target"].as<std::string>();
+      std::size_t const source_index = FindMappingIndex(source, source_name.c_str(), error);
       if (error->code_ == MUSICA_ERROR_CODE_MAPPING_NOT_FOUND)
       {
         if (map_options == IndexMappingOptions::MapAll)
@@ -212,7 +212,7 @@ namespace musica
       {
         return;
       }
-      std::size_t target_index = FindMappingIndex(target, target_name.c_str(), error);
+      std::size_t const target_index = FindMappingIndex(target, target_name.c_str(), error);
       if (error->code_ == MUSICA_ERROR_CODE_MAPPING_NOT_FOUND)
       {
         if (map_options == IndexMappingOptions::MapAll)

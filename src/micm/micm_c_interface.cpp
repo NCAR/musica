@@ -31,7 +31,7 @@ namespace musica
     return HandleErrors(
         [&]()
         {
-          Chemistry chemistry = ReadConfiguration(std::string(config_path));
+          Chemistry const chemistry = ReadConfiguration(std::string(config_path));
           MICM* micm = new MICM(chemistry, solver_type);
           NoError(error);
           return micm;
@@ -90,8 +90,8 @@ namespace musica
     return HandleErrors(
         [&]()
         {
-          std::string species_name_str(species_name);
-          std::string property_name_str(property_name);
+          std::string const species_name_str(species_name);
+          std::string const property_name_str(property_name);
           T val = micm->GetSpeciesProperty<T>(species_name_str, property_name_str);
           NoError(error);
           return val;
@@ -106,7 +106,7 @@ namespace musica
       String* species_property,
       Error* error)
   {
-    std::string val = GetSpeciesProperty<std::string>(micm, species_name, property_name, error);
+    std::string const val = GetSpeciesProperty<std::string>(micm, species_name, property_name, error);
     if (!IsSuccess(*error))
     {
       *species_property = String();

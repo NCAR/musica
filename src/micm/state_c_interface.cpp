@@ -34,7 +34,7 @@ namespace musica
         {
           if (!micm)
           {
-            std::string msg = "MICM pointer is null, cannot create state.";
+            std::string const msg = "MICM pointer is null, cannot create state.";
             ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND, msg.c_str(), error);
             return nullptr;
           }
@@ -53,7 +53,7 @@ namespace musica
         {
           if (state == nullptr)
           {
-            std::string msg = "State pointer is null, cannot delete state.";
+            std::string const msg = "State pointer is null, cannot delete state.";
             ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND, msg.c_str(), error);
             return;
           }
@@ -104,7 +104,7 @@ namespace musica
     HandleErrors(
         [&]()
         {
-          std::map<std::string, std::size_t> map =
+          std::map<std::string, std::size_t> const map =
               std::visit([](auto& state) { return state.variable_map_; }, state->state_variant_);
 
           species_ordering->mappings_ = new Mapping[map.size()];
@@ -127,7 +127,7 @@ namespace musica
     HandleErrors(
         [&]()
         {
-          std::map<std::string, std::size_t> map =
+          std::map<std::string, std::size_t> const map =
               std::visit([](auto& state) { return state.custom_rate_parameter_map_; }, state->state_variant_);
 
           reaction_rates->mappings_ = new Mapping[map.size()];
@@ -150,7 +150,7 @@ namespace musica
     return HandleErrors(
         [&]() -> size_t
         {
-          size_t number_of_grid_cells = state->NumberOfGridCells();
+          size_t const number_of_grid_cells = state->NumberOfGridCells();
           NoError(error);
           return number_of_grid_cells;
         },
@@ -162,7 +162,7 @@ namespace musica
     return HandleErrors(
         [&]() -> size_t
         {
-          size_t number_of_species = state->NumberOfSpecies();
+          size_t const number_of_species = state->NumberOfSpecies();
           NoError(error);
           return number_of_species;
         },
@@ -187,7 +187,7 @@ namespace musica
     return HandleErrors(
         [&]() -> size_t
         {
-          size_t number_of_user_defined_rate_parameters = state->NumberOfUserDefinedRateParameters();
+          size_t const number_of_user_defined_rate_parameters = state->NumberOfUserDefinedRateParameters();
           NoError(error);
           return number_of_user_defined_rate_parameters;
         },

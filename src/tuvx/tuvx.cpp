@@ -207,7 +207,7 @@ namespace musica
       Error *const error)
   {
     int error_code = 0;
-    double sza_degrees = solar_zenith_angle * 180.0 / std::numbers::pi;
+    double const sza_degrees = solar_zenith_angle * 180.0 / std::numbers::pi;
     InternalRunTuvx(
         tuvx_,
         this->number_of_layers_,
@@ -248,7 +248,7 @@ namespace musica
     }
 
     int error_code = 0;
-    int count = InternalGetPhotolysisRateConstantCount(tuvx_, &error_code);
+    int const count = InternalGetPhotolysisRateConstantCount(tuvx_, &error_code);
     if (error_code != 0)
     {
       throw std::runtime_error("Failed to get photolysis rate constant count");
@@ -264,7 +264,7 @@ namespace musica
     }
 
     int error_code = 0;
-    int count = InternalGetHeatingRateCount(tuvx_, &error_code);
+    int const count = InternalGetHeatingRateCount(tuvx_, &error_code);
     if (error_code != 0)
     {
       throw std::runtime_error("Failed to get heating rate count");
@@ -280,7 +280,7 @@ namespace musica
     }
 
     int error_code = 0;
-    int count = InternalGetDoseRateCount(tuvx_, &error_code);
+    int const count = InternalGetDoseRateCount(tuvx_, &error_code);
     if (error_code != 0)
     {
       throw std::runtime_error("Failed to get dose rate count");
@@ -296,7 +296,7 @@ namespace musica
     }
 
     int error_code = 0;
-    int count = InternalGetNumberOfLayers(tuvx_, &error_code);
+    int const count = InternalGetNumberOfLayers(tuvx_, &error_code);
     if (error_code != 0)
     {
       throw std::runtime_error("Failed to get number of layers");
@@ -312,7 +312,7 @@ namespace musica
     }
 
     int error_code = 0;
-    int count = InternalGetNumberOfSzaSteps(tuvx_, &error_code);
+    int const count = InternalGetNumberOfSzaSteps(tuvx_, &error_code);
     if (error_code != 0)
     {
       throw std::runtime_error("Failed to get number of SZA steps");

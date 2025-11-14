@@ -167,7 +167,7 @@ namespace musica
       ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
       return 0;
     }
-    std::size_t n_sections = InternalGetNumberOfSections(updater_, &error_code);
+    std::size_t const n_sections = InternalGetNumberOfSections(updater_, &error_code);
     if (error_code != 0)
     {
       ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
