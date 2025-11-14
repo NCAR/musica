@@ -209,7 +209,8 @@ class Surface {
 		obj['name'] = this.name;
 		obj['reaction probability'] = this.reaction_probability;
 		obj['gas phase'] = this.gas_phase;
-		obj['gas-phase species'] = this.gas_phase_species.getJSON();
+		// b/c Kyle said so ??
+		obj['gas-phase species'] = this.gas_phase_species.species_name;
 		obj['gas-phase products'] = this.gas_phase_products.map((p) =>
 			p.getJSON()
 		);
@@ -447,19 +448,6 @@ class UserDefined {
 	}
 }
 
-// FIXME: What in the world is this class doing?????
-// 		Why does it exist???
-// 		What is happening?
-class Reactions {
-	constructor({ reactions = [] }) {
-		this.reactions = reactions;
-	}
-	getJSON() {
-		const arr = this.reactions.map((r) => r.getJSON());
-		return { reactions: arr };
-	}
-}
-
 const reactionTypes = {
 	Arrhenius,
 	Branched,
@@ -472,7 +460,6 @@ const reactionTypes = {
 	TernaryChemicalActivation,
 	Tunneling,
 	UserDefined,
-	Reactions,
 };
 
 module.exports = { reactionTypes };

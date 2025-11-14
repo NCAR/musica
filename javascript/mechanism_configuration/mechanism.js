@@ -13,7 +13,7 @@ class Mechanism {
         obj['version'] = this.version;
         obj['species'] = this.species.map(s => s.getJSON());
         obj['phases'] = this.phases.map(p => p.getJSON());
-        Object.assign(obj, this.reactions.getJSON());
+        obj['reactions'] = this.reactions.map(r => r.getJSON());
         return obj;
     }
 }

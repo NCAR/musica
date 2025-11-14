@@ -168,8 +168,12 @@ const my_ts = new reactionTypes.TaylorSeries({
 	products: [new ReactionComponent({ species_name: 'C' })],
 });
 
-// FIXME: I hate how this is implemented, how can we make this cleaner?
-const my_reactions = new reactionTypes.Reactions({
+// ===== Mechanism =====
+const full_config_mechanism = new Mechanism({
+	name: 'Full Configuration',
+	version: '1.0.0',
+	species: [A, B, C, M, H2O2, ethanol, H2O],
+	phases: [gas],
 	reactions: [
 		my_emission,
 		my_first_order_loss,
@@ -184,15 +188,6 @@ const my_reactions = new reactionTypes.Reactions({
 		my_ud,
 		my_ts,
 	],
-});
-
-// ===== Mechanism =====
-const full_config_mechanism = new Mechanism({
-	name: 'Full Configuration',
-	version: '1.0.0',
-	species: [A, B, C, M, H2O2, ethanol, H2O],
-	phases: [gas],
-	reactions: my_reactions,
 });
 
 const expected = {
@@ -300,7 +295,7 @@ const expected = {
 			name: 'my surface',
 			'reaction probability': 2.0e-2,
 			'gas phase': 'gas',
-			'gas-phase species': { 'species name': 'A', coefficient: 1 },
+			'gas-phase species': 'A',
 			'gas-phase products': [
 				{
 					'species name': 'B',
