@@ -198,8 +198,8 @@ namespace musica
           species_map[surface_species_name].GetProperty<double>(mechanism_configuration::v0::validation::DIFFUSION_COEFF));
 
       micm::SurfaceRateConstantParameters const parameters{ .label_ = reaction.name,
-                                                      .phase_species_ = surface_reaction_species,
-                                                      .reaction_probability_ = reaction.reaction_probability };
+                                                            .phase_species_ = surface_reaction_species,
+                                                            .reaction_probability_ = reaction.reaction_probability };
 
       chemistry.processes.push_back(micm::ChemicalReactionBuilder()
                                         .SetReactants(reactants)
