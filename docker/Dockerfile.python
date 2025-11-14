@@ -25,6 +25,7 @@ COPY . musica
 ENV CXX=g++
 ENV CC=gcc
 ENV FC=gfortran
+ENV CMAKE_BUILD_PARALLEL_LEVEL=1
 
 RUN cd musica && pip install -e .[test]
 

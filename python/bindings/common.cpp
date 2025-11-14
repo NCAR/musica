@@ -25,6 +25,8 @@ void bind_all(py::module_ &m)
   bind_tuvx_grid_map(tuvx);
   bind_tuvx_profile(tuvx);
   bind_tuvx_profile_map(tuvx);
+  bind_tuvx_radiator(tuvx);
+  bind_tuvx_radiator_map(tuvx);
   bind_tuvx(tuvx);
 #endif
 
