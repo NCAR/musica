@@ -508,10 +508,7 @@ const expected = {
 	],
 };
 
-// FIXME: The getJSON method in Mechanism class does not correctly serialize species and phases arrays
-const full_config_JSON = full_config_mechanism.getJSON();
-const full_config_str = JSON.stringify(full_config_JSON);
-const full_config_sanatized = JSON.parse(full_config_str);
+const full_config_sanatized = JSON.parse(full_config_mechanism.getString());
 // console.log(JSON.stringify(full_config_sanatized, null, 2));
 
 /**

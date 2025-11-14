@@ -16,5 +16,9 @@ class Mechanism {
         obj['reactions'] = this.reactions.map(r => r.getJSON());
         return obj;
     }
+    // Allows for one-step conversion to string to pass to C++
+    getString() {
+        return JSON.stringify(this.getJSON());
+    }
 }
 module.exports = { Mechanism };
