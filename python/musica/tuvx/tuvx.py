@@ -24,10 +24,14 @@ if backend.tuvx_available():
     from .grid_map import GridMap
     from .profile import Profile
     from .profile_map import ProfileMap
+    from .radiator import Radiator
+    from .radiator_map import RadiatorMap
 else:
     GridMap = None
     Profile = None
     ProfileMap = None
+    Radiator = None
+    RadiatorMap = None
 
 
 class TUVX:
