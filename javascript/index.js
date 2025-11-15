@@ -4,6 +4,9 @@ const { SolverType } = require('./micm/solver.js');
 const { Conditions } = require('./micm/conditions.js');
 const { MICM } = require('./micm/micm.js');
 const { State } = require('./micm/state.js');
+const { types } = require('./mechanism_configuration/types.js');
+const { reactionTypes } = require('./mechanism_configuration/reaction_types.js');
+const { Mechanism } = require('./mechanism_configuration/mechanism.js');
 
 const micmSolver = {
 	MICM,
@@ -15,5 +18,11 @@ const micmSolver = {
 	BOLTZMANN,
 };
 
-Object.assign(addon, { micmSolver });
+const mechanismConfiguration = {
+	types,
+	reactionTypes,
+	Mechanism,
+};
+
+Object.assign(addon, { micmSolver, mechanismConfiguration });
 module.exports = addon;

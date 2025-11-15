@@ -73,13 +73,13 @@ Napi::Value MICMClass::CreateState(const Napi::CallbackInfo& info)
     );
 
     // Return StateClass instance using global constructor
-    if (g_StateConstructor == nullptr)
+    if (StateClass::g_StateConstructor == nullptr)
     {
       Napi::Error::New(env, "State constructor not initialized").ThrowAsJavaScriptException();
       return env.Null();
     }
 
-    return g_StateConstructor.New({ ext });
+    return StateClass::g_StateConstructor.New({ ext });
   }
   catch (const std::exception& e)
   {
