@@ -134,7 +134,8 @@ namespace musica
     InternalGetRadiator(void *radiator_map, const char *radiator_name, std::size_t radiator_name_length, int *error_code);
     void *InternalGetRadiatorByIndex(void *radiator_map, std::size_t index, int *error_code);
     void *InternalGetRadiatorUpdaterFromMap(void *radiator_map, void *radiator, int *error_code);
-    void InternalRemoveRadiator(void *radiator_map, const char *radiator_name, std::size_t radiator_name_length, int *error_code);
+    void
+    InternalRemoveRadiator(void *radiator_map, const char *radiator_name, std::size_t radiator_name_length, int *error_code);
     void InternalRemoveRadiatorByIndex(void *radiator_map, std::size_t index, int *error_code);
     std::size_t InternalGetNumberOfRadiators(void *radiator_map, int *error_code);
 

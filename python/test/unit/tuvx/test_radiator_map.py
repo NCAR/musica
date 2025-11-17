@@ -21,6 +21,7 @@ def sample_height_grid():
     grid.midpoints = np.array([1, 3, 5, 7, 9], dtype=np.float64)
     return grid
 
+
 @pytest.fixture
 def sample_wavelength_grid():
     """Create a sample wavelength grid for testing."""
@@ -28,6 +29,7 @@ def sample_wavelength_grid():
     grid.edges = np.array([200e-9, 300e-9, 400e-9, 500e-9, 600e-9], dtype=np.float64)
     grid.midpoints = np.array([250e-9, 350e-9, 450e-9, 550e-9], dtype=np.float64)
     return grid
+
 
 def test_radiator_map_creation():
     """Test creating a RadiatorMap instance"""
@@ -133,6 +135,7 @@ def test_radiator_map_clear(sample_height_grid, sample_wavelength_grid):
     assert len(radiator_map) == 0
     assert bool(radiator_map) is False
 
+
 def test_radiator_map_error(sample_height_grid, sample_wavelength_grid):
     """Test error handling in RadiatorMap"""
     radiator_map = RadiatorMap()
@@ -156,4 +159,3 @@ def test_radiator_map_error(sample_height_grid, sample_wavelength_grid):
     # Invalid value type
     with pytest.raises(TypeError):
         radiator_map["invalid_radiator"] = 456
-

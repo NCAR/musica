@@ -79,7 +79,7 @@ if backend.tuvx_available():
             return radiator
         except Exception as e:
             raise KeyError(f"No radiator found with name='{key}'") from e
-        
+
     RadiatorMap.__getitem__ = __getitem__
 
     def __setitem__(self, key: str, radiator: Radiator):
@@ -126,7 +126,7 @@ if backend.tuvx_available():
             return radiator is not None
         except (ValueError, KeyError):
             return False
-        
+
     RadiatorMap.__contains__ = __contains__
 
     def clear(self):
@@ -171,4 +171,3 @@ if backend.tuvx_available():
             yield self.get_radiator_by_index(i)
 
     RadiatorMap.values = values
-    
