@@ -151,6 +151,7 @@ namespace musica
       if (error_code != ERROR_NONE)
       {
         *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+        return;
       }
       InternalDeleteRadiatorUpdater(radiator->updater_, &error_code);
       if (error_code != ERROR_NONE)
@@ -158,6 +159,7 @@ namespace musica
         *error = Error{ error_code,
                         CreateString(MUSICA_ERROR_CATEGORY),
                         CreateString(GetErrorMessage(error_code)) };
+        return;
       }
       radiator->updater_ = InternalGetRadiatorUpdaterFromMap(radiator_map_, radiator->radiator_, &error_code);
       if (error_code != ERROR_NONE)
@@ -165,6 +167,7 @@ namespace musica
         *error = Error{ error_code,
                         CreateString(MUSICA_ERROR_CATEGORY),
                         CreateString(GetErrorMessage(error_code)) };
+        return;
       }
       InternalDeleteRadiator(radiator->radiator_, &error_code);
       if (error_code != ERROR_NONE)
@@ -172,18 +175,21 @@ namespace musica
         *error = Error{ error_code,
                         CreateString(MUSICA_ERROR_CATEGORY),
                         CreateString(GetErrorMessage(error_code)) };
+        return;
       }
       radiator->radiator_ = nullptr;
     }
     catch (const std::system_error &e)
     {
       *error = ToError(e);
+      return;
     }
     catch (...)
     {
       *error = Error{ INTERNAL_RADIATOR_MAP_ERROR,
                       CreateString(MUSICA_ERROR_CATEGORY),
                       CreateString(GetErrorMessage(INTERNAL_RADIATOR_MAP_ERROR)) };
+      return;
     }
     *error = NoError();
   }
@@ -229,12 +235,14 @@ namespace musica
     catch (const std::system_error &e)
     {
       *error = ToError(e);
+      return nullptr;
     }
     catch (...)
     {
       *error = Error{ INTERNAL_RADIATOR_MAP_ERROR,
                       CreateString(MUSICA_ERROR_CATEGORY),
                       CreateString(GetErrorMessage(INTERNAL_RADIATOR_MAP_ERROR)) };
+      return nullptr;
     }
     *error = NoError();
     return radiator;
@@ -281,12 +289,14 @@ namespace musica
     catch (const std::system_error &e)
     {
       *error = ToError(e);
+      return nullptr;
     }
     catch (...)
     {
       *error = Error{ INTERNAL_RADIATOR_MAP_ERROR,
                       CreateString(MUSICA_ERROR_CATEGORY),
                       CreateString(GetErrorMessage(INTERNAL_RADIATOR_MAP_ERROR)) };
+      return nullptr;
     }
     *error = NoError();
     return radiator;

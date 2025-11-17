@@ -68,6 +68,6 @@ RUN cd musica/fortran/test/fetch_content_integration \
         -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
         -D CMAKE_EXE_LINKER_FLAGS="-Wl,--copy-dt-needed-entries" \
         -D MUSICA_ENABLE_MEMCHECK=ON \
-    && make -j
+    && make -j 2
 
 WORKDIR musica/fortran/test/fetch_content_integration/build

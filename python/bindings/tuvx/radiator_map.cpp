@@ -81,7 +81,7 @@ void bind_tuvx_radiator_map(py::module& m)
             {
               std::string message = "Error removing radiator: " + std::string(error.message_.value_);
               musica::DeleteError(&error);
-              throw py::value_error("Error removing radiator: " + message);
+              throw py::value_error(message);
             }
             DeleteError(&error);
           })

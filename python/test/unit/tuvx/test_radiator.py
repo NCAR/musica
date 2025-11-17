@@ -64,7 +64,7 @@ def test_radiator_initialization(sample_height_grid, sample_wavelength_grid):
     np.testing.assert_array_equal(radiator.single_scattering_albedos, ssa_values)
     np.testing.assert_array_equal(radiator.asymmetry_factors, asymmetry_values)
 
-    # test with unitiialized optional parameters
+    # test with uninitialized optional parameters
     radiator = Radiator(name="test_radiator",
                         height_grid=sample_height_grid,
                         wavelength_grid=sample_wavelength_grid)

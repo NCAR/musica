@@ -182,7 +182,8 @@ end subroutine internal_delete_radiator_map
       return
     end if
 
-    if (index < 0 .or. index >= size(radiator_warehouse%radiators_)) then
+    ! underflow of unsigned index is covered by this check
+    if (index >= size(radiator_warehouse%radiators_)) then
       error_code = ERROR_INDEX_OUT_OF_BOUNDS
       radiator_ptr = c_null_ptr
       return
@@ -296,7 +297,8 @@ end subroutine internal_delete_radiator_map
       return
     end if
 
-    if (index < 0 .or. index >= size(f_radiator_warehouse%radiators_)) then
+    ! underflow of unsigned index is covered by this check
+    if (index >= size(f_radiator_warehouse%radiators_)) then
       error_code = ERROR_INDEX_OUT_OF_BOUNDS
       return
     end if
