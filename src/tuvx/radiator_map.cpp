@@ -156,25 +156,19 @@ namespace musica
       InternalDeleteRadiatorUpdater(radiator->updater_, &error_code);
       if (error_code != ERROR_NONE)
       {
-        *error = Error{ error_code,
-                        CreateString(MUSICA_ERROR_CATEGORY),
-                        CreateString(GetErrorMessage(error_code)) };
+        *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
         return;
       }
       radiator->updater_ = InternalGetRadiatorUpdaterFromMap(radiator_map_, radiator->radiator_, &error_code);
       if (error_code != ERROR_NONE)
       {
-        *error = Error{ error_code,
-                        CreateString(MUSICA_ERROR_CATEGORY),
-                        CreateString(GetErrorMessage(error_code)) };
+        *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
         return;
       }
       InternalDeleteRadiator(radiator->radiator_, &error_code);
       if (error_code != ERROR_NONE)
       {
-        *error = Error{ error_code,
-                        CreateString(MUSICA_ERROR_CATEGORY),
-                        CreateString(GetErrorMessage(error_code)) };
+        *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
         return;
       }
       radiator->radiator_ = nullptr;

@@ -70,7 +70,7 @@ if backend.tuvx_available():
                 f"optical_depths={self.optical_depths}, "
                 f"single_scattering_albedos={self.single_scattering_albedos}, "
                 f"asymmetry_factors={self.asymmetry_factors})")
-    
+
     Radiator.__repr__ = __repr__
 
     def __eq__(self, other):
@@ -91,6 +91,5 @@ if backend.tuvx_available():
         return (bool(self.name) and
                 self.number_of_height_sections > 0 and
                 self.number_of_wavelength_sections > 0)
-    
+
     Radiator.__bool__ = __bool__
-    

@@ -20,6 +20,7 @@ def sample_height_grid():
     grid.midpoints = np.array([1, 3, 5, 7, 9], dtype=np.float64)
     return grid
 
+
 @pytest.fixture
 def sample_wavelength_grid():
     """Create a sample wavelength grid for testing."""
@@ -27,6 +28,7 @@ def sample_wavelength_grid():
     grid.edges = np.array([200e-9, 300e-9, 400e-9, 500e-9], dtype=np.float64)
     grid.midpoints = np.array([250e-9, 350e-9, 450e-9], dtype=np.float64)
     return grid
+
 
 def test_radiator_initialization(sample_height_grid, sample_wavelength_grid):
     """Test Radiator initialization with various input combinations."""
@@ -40,9 +42,9 @@ def test_radiator_initialization(sample_height_grid, sample_wavelength_grid):
 
     # Test with optical depth values (arrays ordered as [wavelength, height])
     optical_depth_values = np.array([[0.8, 0.85, 0.9, 0.95, 1.0],
-                                  [0.75, 0.8, 0.85, 0.9, 0.95],
-                                  [0.7, 0.75, 0.8, 0.85, 0.9]], dtype=np.float64)
-    
+                                     [0.75, 0.8, 0.85, 0.9, 0.95],
+                                     [0.7, 0.75, 0.8, 0.85, 0.9]], dtype=np.float64)
+
     ssa_values = np.array([[0.9, 0.92, 0.94, 0.96, 0.98],
                            [0.88, 0.9, 0.92, 0.94, 0.96],
                            [0.86, 0.88, 0.9, 0.92, 0.94]], dtype=np.float64)
@@ -72,11 +74,11 @@ def test_radiator_initialization(sample_height_grid, sample_wavelength_grid):
     assert radiator.number_of_height_sections == sample_height_grid.num_sections
     assert radiator.number_of_wavelength_sections == sample_wavelength_grid.num_sections
     np.testing.assert_array_equal(radiator.optical_depths, np.zeros((sample_wavelength_grid.num_sections,
-                                                            sample_height_grid.num_sections)))
+                                                                     sample_height_grid.num_sections)))
     np.testing.assert_array_equal(radiator.single_scattering_albedos, np.zeros((sample_wavelength_grid.num_sections,
-                                                            sample_height_grid.num_sections)))
+                                                                                sample_height_grid.num_sections)))
     np.testing.assert_array_equal(radiator.asymmetry_factors, np.zeros((sample_wavelength_grid.num_sections,
-                                                            sample_height_grid.num_sections)))
+                                                                        sample_height_grid.num_sections)))
 
 
 def test_radiator_properties(sample_height_grid, sample_wavelength_grid):
@@ -93,8 +95,8 @@ def test_radiator_properties(sample_height_grid, sample_wavelength_grid):
 
     # Test optical_depth_values
     optical_depth_values = np.array([[0.8, 0.85, 0.9, 0.95, 1.0],
-                                      [0.75, 0.8, 0.85, 0.9, 0.95],
-                                      [0.7, 0.75, 0.8, 0.85, 0.9]], dtype=np.float64)
+                                     [0.75, 0.8, 0.85, 0.9, 0.95],
+                                     [0.7, 0.75, 0.8, 0.85, 0.9]], dtype=np.float64)
     radiator.optical_depths = optical_depth_values
     np.testing.assert_array_equal(radiator.optical_depths, optical_depth_values)
 
@@ -115,22 +117,22 @@ def test_radiator_properties(sample_height_grid, sample_wavelength_grid):
     # test invalid shape assignment
     with pytest.raises(ValueError, match="Array shape must be"):
         radiator.optical_depths = np.array([[0.8, 0.85],
-                                                 [0.75, 0.8],
-                                                 [0.7, 0.75],
-                                                 [0.65, 0.7],
-                                                 [0.6, 0.65]], dtype=np.float64)
+                                            [0.75, 0.8],
+                                            [0.7, 0.75],
+                                            [0.65, 0.7],
+                                            [0.6, 0.65]], dtype=np.float64)
     with pytest.raises(ValueError, match="Array shape must be"):
         radiator.single_scattering_albedos = np.array([[0.9, 0.92],
-                                                            [0.88, 0.9],
-                                                            [0.86, 0.88],
-                                                            [0.84, 0.86],
-                                                            [0.82, 0.84]], dtype=np.float64)
+                                                       [0.88, 0.9],
+                                                       [0.86, 0.88],
+                                                       [0.84, 0.86],
+                                                       [0.82, 0.84]], dtype=np.float64)
     with pytest.raises(ValueError, match="Array shape must be"):
         radiator.asymmetry_factors = np.array([[0.7, 0.72],
-                                                     [0.68, 0.7],
-                                                     [0.66, 0.68],
-                                                     [0.64, 0.66],
-                                                     [0.62, 0.64]], dtype=np.float64)
+                                               [0.68, 0.7],
+                                               [0.66, 0.68],
+                                               [0.64, 0.66],
+                                               [0.62, 0.64]], dtype=np.float64)
 
 
 def test_radiator_string_methods(sample_height_grid, sample_wavelength_grid):
@@ -191,6 +193,7 @@ def test_radiator_comparison(sample_height_grid, sample_wavelength_grid):
     assert radiator1 != radiator2
     radiator1.asymmetry_factors = asymmetry_values
     assert radiator1 == radiator2
+
 
 def test_radiator_bool(sample_height_grid, sample_wavelength_grid):
     """Test Radiator boolean methods."""

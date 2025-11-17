@@ -23,7 +23,7 @@ namespace
       default: return "Unknown error";
     }
   }
-}
+}  // namespace
 
 namespace musica
 {
