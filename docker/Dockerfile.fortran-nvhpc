@@ -39,7 +39,7 @@ RUN git clone https://github.com/Unidata/netcdf-fortran.git \
     && git checkout v4.6.0 \
     && mkdir build && cd build \
     && cmake .. \
-    && make -j 8 \
+    && make -j 2 \
     && make install
 
 # Copy the musica code
@@ -53,7 +53,7 @@ RUN cd musica \
         -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
         -D MUSICA_ENABLE_CARMA=OFF \
     && cd build \
-    && make install -j
+    && make install -j 2
 
 # Set environment variables to build MUSICA-Fortran using nvidia compilers
 ENV CXX=nvc++
@@ -68,6 +68,6 @@ RUN cd musica/fortran/test/fetch_content_integration \
         -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
         -D CMAKE_EXE_LINKER_FLAGS="-Wl,--copy-dt-needed-entries" \
         -D MUSICA_ENABLE_MEMCHECK=ON \
-    && make -j
+    && make -j 2
 
 WORKDIR musica/fortran/test/fetch_content_integration/build
