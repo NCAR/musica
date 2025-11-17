@@ -44,4 +44,4 @@ RUN cd musica \
     -D MUSICA_ENABLE_CARMA=OFF \
     -D MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE=1 \
     && cd build \
-    && make -j
+    && make -j 2
