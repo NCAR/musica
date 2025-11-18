@@ -11,7 +11,8 @@
     "rebuild": "cmake-js rebuild",
     "clean": "cmake-js clean",
     "sync-version": "node scripts/extract_version.js sync",
-    "test": "node javascript/tests/integration/analytical.test.js"
+    "test": "node javascript/tests/integration/analytical.test.js",
+    "test_full_config": "node javascript/tests/unit/full_config.test.js"
   },
   "dependencies": {
     "musica": "^1.0.0",

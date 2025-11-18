@@ -18,16 +18,21 @@ string(STRIP ${NODE_ADDON_API_DIR} NODE_ADDON_API_DIR)
 
 
 # Source files - using our MUSICA integrated addon
-set(SOURCE_FILES
-    src/state_wrapper.cpp
-    src/micm_wrapper.cpp
-    src/state.cpp
-    src/micm.cpp
-    src/musica_addon.cpp
-)
+file(GLOB_RECURSE SOURCE_FILES "src/*.cpp")
 
 # Create the addon library
-add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES} ${CMAKE_JS_SRC})
+add_library(${PROJECT_NAME})
+
+target_sources(
+    ${PROJECT_NAME}
+    PRIVATE
+        ${CMAKE_JS_SRC}
+        src/musica_addon.cpp
+        src/micm/state_wrapper.cpp
+        src/micm/micm_wrapper.cpp
+        src/micm/state.cpp
+        src/micm/micm.cpp
+)
 
 # Set target properties
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")

@@ -1,10 +1,8 @@
 #include <napi.h>
 #include <memory>
 
-#include "micm.h"
-#include "micm_wrapper.h"
-#include "state.h"
-#include "state_wrapper.h"
+#include "micm/micm.h"
+#include "micm/state.h"
 
 #include <musica/version.hpp>
 
@@ -30,7 +28,7 @@ Napi::Object Init(Napi::Env env, Napi::Object exports)
   // Legacy functions
   exports.Set("getVersion", Napi::Function::New(env, GetVersion));
 
-  // Register classes
+  // MICM Solver classes
   StateClass::Init(env, exports);
   MICMClass::Init(env, exports);
 
