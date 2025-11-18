@@ -27,7 +27,8 @@ namespace musica
       DeleteError(error);
       try
       {
-        if (tuvx != nullptr) delete tuvx;
+        if (tuvx != nullptr)
+          delete tuvx;
       }
       catch (const std::system_error &e)
       {
@@ -55,19 +56,19 @@ namespace musica
       return tuvx->CreateRadiatorMap(error);
     }
 
-    void GetPhotolysisRateConstantsOrdering(TUVX *tuvx, Mappings* mappings, Error *error)
+    void GetPhotolysisRateConstantsOrdering(TUVX *tuvx, Mappings *mappings, Error *error)
     {
       DeleteError(error);
       return tuvx->GetPhotolysisRateConstantsOrdering(mappings, error);
     }
 
-    void GetHeatingRatesOrdering(TUVX *tuvx, Mappings* mappings, Error *error)
+    void GetHeatingRatesOrdering(TUVX *tuvx, Mappings *mappings, Error *error)
     {
       DeleteError(error);
       return tuvx->GetHeatingRatesOrdering(mappings, error);
     }
 
-    void GetDoseRatesOrdering(TUVX *tuvx, Mappings* mappings, Error *error)
+    void GetDoseRatesOrdering(TUVX *tuvx, Mappings *mappings, Error *error)
     {
       DeleteError(error);
       return tuvx->GetDoseRatesOrdering(mappings, error);

@@ -137,7 +137,11 @@ namespace musica
     }
     if (profile->updater_ == nullptr)
     {
-      ToError(MUSICA_ERROR_CATEGORY, ERROR_UNALLOCATED_PROFILE_UPDATER, GetErrorMessage(ERROR_UNALLOCATED_PROFILE_UPDATER), error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          ERROR_UNALLOCATED_PROFILE_UPDATER,
+          GetErrorMessage(ERROR_UNALLOCATED_PROFILE_UPDATER),
+          error);
       return;
     }
 
@@ -297,7 +301,8 @@ namespace musica
 
     try
     {
-      InternalRemoveProfile(profile_map_, profile_name, strlen(profile_name), profile_units, strlen(profile_units), &error_code);
+      InternalRemoveProfile(
+          profile_map_, profile_name, strlen(profile_name), profile_units, strlen(profile_units), &error_code);
       if (error_code != 0)
       {
         ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
