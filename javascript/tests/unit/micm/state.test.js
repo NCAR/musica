@@ -9,14 +9,7 @@ const assert = require('node:assert');
 const path = require('path');
 const musica = require('musica-addon');
 const { MICM } = musica.micmSolver;
-
-/**
- * Helper function to check if values are close (equivalent to np.isclose)
- */
-function isClose(a, b, atol = 1e-5, rtol = 1e-9) {
-    const diff = Math.abs(a - b);
-    return diff <= (atol + rtol * Math.abs(b));
-}
+const { isClose } = require('../util/testUtils');
 
 /**
  * Helper function to create a test mechanism
