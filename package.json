@@ -7,7 +7,7 @@
     ".": "./javascript/index.js"
   },
   "scripts": {
-    "build": "cmake-js -p 4 compile --CDMUSICA_ENABLE_JAVASCRIPT=ON --CDMUSICA_ENABLE_PYTHON_LIBRARY=OFF --CDMUSICA_ENABLE_TUVX=OFF --CDMUSICA_ENABLE_CARMA=OFF --CDMUSICA_ENABLE_TESTS=OFF --CDMUSICA_ENABLE_PIC=ON",
+    "build": "cmake-js -p 4 -D compile --CDMUSICA_ENABLE_JAVASCRIPT=ON --CDMUSICA_ENABLE_PYTHON_LIBRARY=OFF --CDMUSICA_ENABLE_TUVX=OFF --CDMUSICA_ENABLE_CARMA=OFF --CDMUSICA_ENABLE_TESTS=OFF --CDMUSICA_ENABLE_PIC=ON",
     "rebuild": "cmake-js rebuild",
     "clean": "cmake-js clean",
     "sync-version": "node scripts/extract_version.js sync",

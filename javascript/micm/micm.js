@@ -1,7 +1,7 @@
 const path = require('path');
 const addon = require(path.join(
 	__dirname,
-	'../../build/Release/musica-addon.node'
+	'../../build/Debug/musica-addon.node'
 ));
 
 const { State } = require('./state.js');

@@ -16,10 +16,6 @@ execute_process(
 string(REPLACE "\"" "" NODE_ADDON_API_DIR ${NODE_ADDON_API_DIR_RAW})
 string(STRIP ${NODE_ADDON_API_DIR} NODE_ADDON_API_DIR)
 
-
-# Source files - using our MUSICA integrated addon
-file(GLOB_RECURSE SOURCE_FILES "src/*.cpp")
-
 # Create the addon library
 add_library(${PROJECT_NAME} SHARED ${CMAKE_JS_SRC})
 

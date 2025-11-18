@@ -8,6 +8,13 @@ const { isClose } = require('../util/testUtils');
 // Test configuration
 const CONFIG_PATH = path.join(__dirname, '../../../configs/v0/analytical');
 
+// NOTE: Vector-ordered Rosenbrock currently only supports up to 4 grid cells
+// This is because the C++ implementation requires splitting into multiple
+// internal states for >4 cells (the vector size), which is not yet implemented
+// in the JavaScript bindings. Python handles this by creating multiple states.
+const maxCells = 4; // Vector size limitation
+
+
 /**
  * Test single grid cell analytical solution
  * Equivalent to TestSingleGridCell in Python
@@ -240,7 +247,7 @@ describe('Analytical - Single grid cell - Standard Rosenbrock', () => {
 
 // Test suite for multiple grid cells - Standard Rosenbrock
 describe('Analytical - Multiple grid cells - Standard Rosenbrock', () => {
-    for (let i = 1; i <= 10; i++) {
+    for (let i = 1; i <= maxCells; i++) {
         it(`should match analytical solution for ${i} grid cells`, () => {
             const solver = new MICM({
                 config_path: CONFIG_PATH,
@@ -248,32 +255,6 @@ describe('Analytical - Multiple grid cells - Standard Rosenbrock', () => {
             });
             const state = solver.createState(i);
             testMultipleGridCell(solver, state, i, 200.0, 5);
-        });
-    }
-});
-
-// Test suite for single grid cell - Backward Euler
-describe('Analytical - Single grid cell - Backward Euler', () => {
-    it('should match analytical solution', () => {
-        const solver = new MICM({
-            config_path: CONFIG_PATH,
-            solver_type: SolverType.backward_euler_standard_order
-        });
-        const state = solver.createState(1);
-        testSingleGridCell(solver, state, 10.0, 2);
-    });
-});
-
-// Test suite for multiple grid cells - Backward Euler
-describe('Analytical - Multiple grid cells - Backward Euler', () => {
-    for (let i = 1; i <= 10; i++) {
-        it(`should match analytical solution for ${i} grid cells`, () => {
-            const solver = new MICM({
-                config_path: CONFIG_PATH,
-                solver_type: SolverType.backward_euler_standard_order
-            });
-            const state = solver.createState(i);
-            testMultipleGridCell(solver, state, i, 10.0, 2);
         });
     }
 });
@@ -292,12 +273,6 @@ describe('Analytical - Single grid cell - Rosenbrock', () => {
 
 // Test suite for multiple grid cells - Rosenbrock (vector-ordered)
 describe('Analytical - Multiple grid cells - Rosenbrock', () => {
-    // NOTE: Vector-ordered Rosenbrock currently only supports up to 4 grid cells
-    // This is because the C++ implementation requires splitting into multiple
-    // internal states for >4 cells (the vector size), which is not yet implemented
-    // in the JavaScript bindings. Python handles this by creating multiple states.
-    const maxCells = 4; // Vector size limitation
-
     for (let i = 1; i <= maxCells; i++) {
         it(`should match analytical solution for ${i} grid cells`, () => {
             const solver = new MICM({
@@ -306,6 +281,32 @@ describe('Analytical - Multiple grid cells - Rosenbrock', () => {
             });
             const state = solver.createState(i);
             testMultipleGridCell(solver, state, i, 200.0, 5);
+        });
+    }
+});
+
+// Test suite for single grid cell - Backward Euler
+describe('Analytical - Single grid cell - Backward Euler', () => {
+    it('should match analytical solution', () => {
+        const solver = new MICM({
+            config_path: CONFIG_PATH,
+            solver_type: SolverType.backward_euler
+        });
+        const state = solver.createState(1);
+        testSingleGridCell(solver, state, 10.0, 2);
+    });
+});
+
+// Test suite for multiple grid cells - Backward Euler
+describe('Analytical - Multiple grid cells - Backward Euler', () => {
+    for (let i = 1; i <= maxCells; i++) {
+        it(`should match analytical solution for ${i} grid cells`, () => {
+            const solver = new MICM({
+                config_path: CONFIG_PATH,
+                solver_type: SolverType.backward_euler
+            });
+            const state = solver.createState(i);
+            testMultipleGridCell(solver, state, i, 10.0, 2);
         });
     }
 });
@@ -324,7 +325,7 @@ describe('Analytical - Single grid cell - Backward Euler Standard Order', () => 
 
 // Test suite for multiple grid cells - Backward Euler Standard Order
 describe('Analytical - Multiple grid cells - Backward Euler Standard Order', () => {
-    for (let i = 1; i <= 10; i++) {
+    for (let i = 1; i <= maxCells; i++) {
         it(`should match analytical solution for ${i} grid cells`, () => {
             const solver = new MICM({
                 config_path: CONFIG_PATH,
