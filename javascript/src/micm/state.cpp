@@ -8,7 +8,6 @@ Node API for MICM State Class
 #include <vector>
 
 using namespace musica_addon;
-Napi::FunctionReference g_StateConstructor;
 
 // State Class - N-API Wrapper
 StateClass::StateClass(const Napi::CallbackInfo& info)
@@ -383,6 +382,7 @@ Napi::Value StateClass::UserDefinedRateParameterStrides(const Napi::CallbackInfo
   return result;
 }
 
+Napi::FunctionReference StateClass::g_StateConstructor;
 Napi::Object StateClass::Init(Napi::Env env, Napi::Object exports)
 {
   Napi::Function func = DefineClass(
@@ -403,6 +403,7 @@ Napi::Object StateClass::Init(Napi::Env env, Napi::Object exports)
       });
 
   g_StateConstructor = Napi::Persistent(func);
+  g_StateConstructor.SuppressDestruct();
 
   exports.Set("State", func);
   return exports;

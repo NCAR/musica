@@ -27,6 +27,9 @@ class MICM {
 	}
 
 	createState(numberOfGridCells = 1) {
+		if (numberOfGridCells <= 0) {
+			throw new RangeError('number_of_grid_cells must be greater than 0');
+		}
 		const nativeState = this._nativeMICM.createState(numberOfGridCells);
 		return new State(nativeState);
 	}

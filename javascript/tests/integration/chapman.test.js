@@ -9,14 +9,7 @@ const assert = require('node:assert');
 const path = require('path');
 const musica = require('musica-addon');
 const { MICM, SolverType } = musica.micmSolver;
-
-/**
- * Helper function to check if values are close (equivalent to pytest.approx)
- */
-function isClose(a, b, rel = 1e-5) {
-    const diff = Math.abs(a - b);
-    return diff <= rel * Math.abs(b);
-}
+const { isClose } = require('../util/testUtils');
 
 /**
  * Test solver with Chapman mechanism

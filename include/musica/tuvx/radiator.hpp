@@ -250,7 +250,7 @@ namespace musica
     void InternalDeleteRadiator(void *radiator, int *error_code);
     void *InternalGetRadiatorUpdater(void *radiator, int *error_code);
     void InternalDeleteRadiatorUpdater(void *updater, int *error_code);
-    String InternalGetRadiatorName(void *radiator, int *error_code);
+    void InternalGetRadiatorName(void *radiator, String *str, int *error_code);
     void InternalSetOpticalDepths(
         void *radiator,
         double *optical_depths,

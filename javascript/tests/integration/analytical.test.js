@@ -1,25 +1,12 @@
-/**
- * Integration tests for Analytical mechanism
- * Mirrors python/test/integration/test_analytical.py
- * Uses Node.js built-in test runner
- */
-
 const { describe, it } = require('node:test');
 const assert = require('node:assert');
 const path = require('path');
 const musica = require('musica-addon');
 const { MICM, SolverType, GAS_CONSTANT } = musica.micmSolver;
+const { isClose } = require('../util/testUtils');
 
 // Test configuration
 const CONFIG_PATH = path.join(__dirname, '../../../configs/v0/analytical');
-
-/**
- * Helper function to check if values are close (equivalent to np.isclose)
- */
-function isClose(a, b, atol = 1e-5, rtol = 1e-9) {
-    const diff = Math.abs(a - b);
-    return diff <= (atol + rtol * Math.abs(b));
-}
 
 /**
  * Test single grid cell analytical solution
@@ -104,17 +91,17 @@ function testSingleGridCell(solver, state, timeStep, places = 5) {
             (1.0 + (k1 * Math.exp(-k2 * currTime) - k2 * Math.exp(-k1 * currTime)) / (k2 - k1));
 
         // Check concentrations
-        assert.ok(isClose(conc.A[0], A_conc, tolerance), 
+        assert.ok(isClose(conc.A[0], A_conc, tolerance),
             `A concentration mismatch at t=${currTime}: ${conc.A[0]} vs ${A_conc}`);
-        assert.ok(isClose(conc.B[0], B_conc, tolerance), 
+        assert.ok(isClose(conc.B[0], B_conc, tolerance),
             `B concentration mismatch at t=${currTime}: ${conc.B[0]} vs ${B_conc}`);
-        assert.ok(isClose(conc.C[0], C_conc, tolerance), 
+        assert.ok(isClose(conc.C[0], C_conc, tolerance),
             `C concentration mismatch at t=${currTime}: ${conc.C[0]} vs ${C_conc}`);
-        assert.ok(isClose(conc.D[0], D_conc, tolerance), 
+        assert.ok(isClose(conc.D[0], D_conc, tolerance),
             `D concentration mismatch at t=${currTime}: ${conc.D[0]} vs ${D_conc}`);
-        assert.ok(isClose(conc.E[0], E_conc, tolerance), 
+        assert.ok(isClose(conc.E[0], E_conc, tolerance),
             `E concentration mismatch at t=${currTime}: ${conc.E[0]} vs ${E_conc}`);
-        assert.ok(isClose(conc.F[0], F_conc, tolerance), 
+        assert.ok(isClose(conc.F[0], F_conc, tolerance),
             `F concentration mismatch at t=${currTime}: ${conc.F[0]} vs ${F_conc}`);
 
         currTime += timeStep;

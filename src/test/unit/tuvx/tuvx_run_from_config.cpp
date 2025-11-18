@@ -166,7 +166,8 @@ TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfig)
           expected_heating_rates[i][j] * 1.0e-5);
     }
   }
-  Mappings photo_rate_labels = GetPhotolysisRateConstantsOrdering(tuvx, &error);
+  Mappings photo_rate_labels;
+  GetPhotolysisRateConstantsOrdering(tuvx, &photo_rate_labels, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(photo_rate_labels.size_, 3);
   ASSERT_STREQ(photo_rate_labels.mappings_[0].name_.value_, "jfoo");
@@ -175,7 +176,8 @@ TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfig)
   ASSERT_EQ(photo_rate_labels.mappings_[1].index_, 1);
   ASSERT_STREQ(photo_rate_labels.mappings_[2].name_.value_, "jbaz");
   ASSERT_EQ(photo_rate_labels.mappings_[2].index_, 2);
-  Mappings heating_rate_labels = GetHeatingRatesOrdering(tuvx, &error);
+  Mappings heating_rate_labels;
+  GetHeatingRatesOrdering(tuvx, &heating_rate_labels, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(heating_rate_labels.size_, 2);
   ASSERT_STREQ(heating_rate_labels.mappings_[0].name_.value_, "jfoo");
@@ -267,7 +269,8 @@ TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfigAndHostData)
           expected_heating_rates[i][j] * 1.0e-5);
     }
   }
-  Mappings photo_rate_labels = GetPhotolysisRateConstantsOrdering(tuvx, &error);
+  Mappings photo_rate_labels;
+  GetPhotolysisRateConstantsOrdering(tuvx, &photo_rate_labels, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(photo_rate_labels.size_, 3);
   ASSERT_STREQ(photo_rate_labels.mappings_[0].name_.value_, "jfoo");
@@ -276,7 +279,8 @@ TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfigAndHostData)
   ASSERT_EQ(photo_rate_labels.mappings_[1].index_, 1);
   ASSERT_STREQ(photo_rate_labels.mappings_[2].name_.value_, "jbaz");
   ASSERT_EQ(photo_rate_labels.mappings_[2].index_, 2);
-  Mappings heating_rate_labels = GetHeatingRatesOrdering(tuvx, &error);
+  Mappings heating_rate_labels;
+  GetHeatingRatesOrdering(tuvx, &heating_rate_labels, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(heating_rate_labels.size_, 2);
   ASSERT_STREQ(heating_rate_labels.mappings_[0].name_.value_, "jfoo");

@@ -13,7 +13,7 @@
     "sync-version": "node scripts/extract_version.js sync",
     "test": "node --test javascript/tests/**/*.test.js",
     "test:integration": "node --test javascript/tests/integration/*.test.js",
-    "test:unit": "node --test javascript/tests/unit/**/*.test.js",
+    "test:unit": "node --test javascript/tests/unit/**/*.test.js"
   },
   "dependencies": {
     "musica": "^1.0.0",
