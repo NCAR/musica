@@ -34,8 +34,12 @@ jobs:
       - name: Print branch name
         run: echo "Branch name is $BRANCH_NAME"
 
-      - name: Delete huge unnecessary tools folder
-        run: rm -rf /opt/hostedtoolcache
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: false
 
       - name: Build Docker image
         run: docker build -t musica --build-arg MUSICA_GIT_TAG=${BRANCH_NAME} -f docker/${{ matrix.dockerfile }} .
