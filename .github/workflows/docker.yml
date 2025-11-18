@@ -35,8 +35,12 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Delete huge unnecessary tools folder
-        run: rm -rf /opt/hostedtoolcache
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: false
 
       - name: Build Docker image
         run: docker build -t musica -f docker/${{ matrix.dockerfile }} . --build-arg MUSICA_GIT_TAG=${{ github.sha }} --build-arg BUILD_TYPE=${{ matrix.build_type }}
