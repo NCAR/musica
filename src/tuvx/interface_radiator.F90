@@ -124,8 +124,8 @@ module tuvx_interface_radiator
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  function internal_get_radiator_name(updater, error) &
-      bind(C, name="InternalGetRadiatorName") result(name)
+  subroutine internal_get_radiator_name(updater, name, error) &
+      bind(C, name="InternalGetRadiatorName")
     use iso_c_binding, only: c_ptr, c_f_pointer, c_char, c_size_t, c_int, &
                              c_loc
     use tuvx_interface_util, only: string_t_c, create_string_t_c
@@ -133,10 +133,8 @@ module tuvx_interface_radiator
 
     ! arguments
     type(c_ptr), value,  intent(in)  :: updater
+    type(string_t_c), intent(out) :: name
     integer(kind=c_int), intent(out) :: error
-
-    ! output
-    type(string_t_c) :: name
 
     ! variables
     type(radiator_updater_t), pointer :: f_updater
@@ -145,7 +143,7 @@ module tuvx_interface_radiator
     call c_f_pointer(updater, f_updater)
     name = create_string_t_c(f_updater%radiator_%handle_%val_)
 
-  end function internal_get_radiator_name
+  end subroutine internal_get_radiator_name
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

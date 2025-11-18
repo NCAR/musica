@@ -53,9 +53,10 @@ namespace musica
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
+      ToError(e, error);
+      return;
     }
-    *error = NoError();
+    NoError(error);
   }
 
   void AddRadiator(RadiatorMap *radiator_map, Radiator *radiator, Error *error)
@@ -102,10 +103,10 @@ namespace musica
     radiator_map_ = InternalCreateRadiatorMap(&error_code);
     if (error_code != ERROR_NONE)
     {
-      *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
     }
     owns_radiator_map_ = true;
-    *error = NoError();
+    NoError(error);
   }
 
   RadiatorMap::~RadiatorMap()
@@ -121,81 +122,74 @@ namespace musica
 
   void RadiatorMap::AddRadiator(Radiator *radiator, Error *error)
   {
+    int error_code = ERROR_NONE;
     if (radiator_map_ == nullptr)
     {
-      *error = Error{ ERROR_UNALLOCATED_RADIATOR_MAP,
-                      CreateString(MUSICA_ERROR_CATEGORY),
-                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_MAP)) };
+      error_code = ERROR_UNALLOCATED_RADIATOR_MAP;
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
       return;
     }
     if (radiator->radiator_ == nullptr)
     {
-      *error = Error{ ERROR_UNALLOCATED_RADIATOR,
-                      CreateString(MUSICA_ERROR_CATEGORY),
-                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_RADIATOR)) };
+      error_code = ERROR_UNALLOCATED_RADIATOR;
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
       return;
     }
     if (radiator->updater_ == nullptr)
     {
-      *error = Error{ ERROR_UNALLOCATED_RADIATOR_UPDATER,
-                      CreateString(MUSICA_ERROR_CATEGORY),
-                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_UPDATER)) };
+      error_code = ERROR_UNALLOCATED_RADIATOR_UPDATER;
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
       return;
     }
-
-    int error_code = ERROR_NONE;
 
     try
     {
       InternalAddRadiator(radiator_map_, radiator->radiator_, &error_code);
       if (error_code != ERROR_NONE)
       {
-        *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
         return;
       }
       InternalDeleteRadiatorUpdater(radiator->updater_, &error_code);
       if (error_code != ERROR_NONE)
       {
-        *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
         return;
       }
       radiator->updater_ = InternalGetRadiatorUpdaterFromMap(radiator_map_, radiator->radiator_, &error_code);
       if (error_code != ERROR_NONE)
       {
-        *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
         return;
       }
       InternalDeleteRadiator(radiator->radiator_, &error_code);
       if (error_code != ERROR_NONE)
       {
-        *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
         return;
       }
       radiator->radiator_ = nullptr;
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
-      return;
+      ToError(e, error);
     }
     catch (...)
     {
-      *error = Error{ INTERNAL_RADIATOR_MAP_ERROR,
-                      CreateString(MUSICA_ERROR_CATEGORY),
-                      CreateString(GetErrorMessage(INTERNAL_RADIATOR_MAP_ERROR)) };
-      return;
+      error_code = INTERNAL_RADIATOR_MAP_ERROR;
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
     }
-    *error = NoError();
+    NoError(error);
   }
 
   Radiator *RadiatorMap::GetRadiator(const char *radiator_name, Error *error)
   {
+    int error_code = ERROR_NONE;
     DeleteError(error);
     if (radiator_map_ == nullptr)
     {
-      *error = Error{ ERROR_UNALLOCATED_RADIATOR_MAP,
-                      CreateString(MUSICA_ERROR_CATEGORY),
-                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_MAP)) };
+      error_code = ERROR_UNALLOCATED_RADIATOR_MAP;
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
       return nullptr;
     }
 
@@ -203,24 +197,23 @@ namespace musica
 
     try
     {
-      int error_code = ERROR_NONE;
       void *radiator_ptr = InternalGetRadiator(radiator_map_, radiator_name, strlen(radiator_name), &error_code);
       if (error_code != ERROR_NONE)
       {
-        *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
         return nullptr;
       }
       void *updater_ptr = InternalGetRadiatorUpdaterFromMap(radiator_map_, radiator_ptr, &error_code);
       if (error_code != ERROR_NONE)
       {
-        *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
         InternalDeleteRadiator(radiator_ptr, &error_code);
         return nullptr;
       }
       InternalDeleteRadiator(radiator_ptr, &error_code);
       if (error_code != ERROR_NONE)
       {
-        *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
         InternalDeleteRadiatorUpdater(updater_ptr, &error_code);
         return nullptr;
       }
@@ -228,28 +221,25 @@ namespace musica
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
-      return nullptr;
+      ToError(e, error);
     }
     catch (...)
     {
-      *error = Error{ INTERNAL_RADIATOR_MAP_ERROR,
-                      CreateString(MUSICA_ERROR_CATEGORY),
-                      CreateString(GetErrorMessage(INTERNAL_RADIATOR_MAP_ERROR)) };
-      return nullptr;
+      error_code = INTERNAL_RADIATOR_MAP_ERROR;
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
     }
-    *error = NoError();
+    NoError(error);
     return radiator;
   }
 
   Radiator *RadiatorMap::GetRadiatorByIndex(std::size_t index, Error *error)
   {
+    int error_code = ERROR_NONE;
     DeleteError(error);
     if (radiator_map_ == nullptr)
     {
-      *error = Error{ ERROR_UNALLOCATED_RADIATOR_MAP,
-                      CreateString(MUSICA_ERROR_CATEGORY),
-                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_MAP)) };
+      error_code = ERROR_UNALLOCATED_RADIATOR_MAP;
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
       return nullptr;
     }
 
@@ -257,24 +247,23 @@ namespace musica
 
     try
     {
-      int error_code = ERROR_NONE;
       void *radiator_ptr = InternalGetRadiatorByIndex(radiator_map_, index, &error_code);
       if (error_code != ERROR_NONE)
       {
-        *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
         return nullptr;
       }
       void *updater_ptr = InternalGetRadiatorUpdaterFromMap(radiator_map_, radiator_ptr, &error_code);
       if (error_code != ERROR_NONE)
       {
-        *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
         InternalDeleteRadiator(radiator_ptr, &error_code);
         return nullptr;
       }
       InternalDeleteRadiator(radiator_ptr, &error_code);
       if (error_code != ERROR_NONE)
       {
-        *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
         InternalDeleteRadiatorUpdater(updater_ptr, &error_code);
         return nullptr;
       }
@@ -282,102 +271,95 @@ namespace musica
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
+      ToError(e, error);
       return nullptr;
     }
     catch (...)
     {
-      *error = Error{ INTERNAL_RADIATOR_MAP_ERROR,
-                      CreateString(MUSICA_ERROR_CATEGORY),
-                      CreateString(GetErrorMessage(INTERNAL_RADIATOR_MAP_ERROR)) };
+      error_code = INTERNAL_RADIATOR_MAP_ERROR;
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
       return nullptr;
     }
-    *error = NoError();
+    NoError(error);
     return radiator;
   }
 
   void RadiatorMap::RemoveRadiator(const char *radiator_name, Error *error)
   {
     DeleteError(error);
+    int error_code = ERROR_NONE;
     if (radiator_map_ == nullptr)
     {
-      *error = Error{ ERROR_UNALLOCATED_RADIATOR_MAP,
-                      CreateString(MUSICA_ERROR_CATEGORY),
-                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_MAP)) };
+      error_code = ERROR_UNALLOCATED_RADIATOR_MAP;
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
       return;
     }
-
-    int error_code = ERROR_NONE;
 
     try
     {
       InternalRemoveRadiator(radiator_map_, radiator_name, strlen(radiator_name), &error_code);
       if (error_code != ERROR_NONE)
       {
-        *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
         return;
       }
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
+      ToError(e, error);
       return;
     }
     catch (...)
     {
-      *error = Error{ INTERNAL_RADIATOR_MAP_ERROR,
-                      CreateString(MUSICA_ERROR_CATEGORY),
-                      CreateString(GetErrorMessage(INTERNAL_RADIATOR_MAP_ERROR)) };
+      error_code = INTERNAL_RADIATOR_MAP_ERROR;
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
       return;
     }
-    *error = NoError();
+    NoError(error);
   }
 
   void RadiatorMap::RemoveRadiatorByIndex(std::size_t index, Error *error)
   {
+    int error_code = ERROR_NONE;
     DeleteError(error);
     if (radiator_map_ == nullptr)
     {
-      *error = Error{ ERROR_UNALLOCATED_RADIATOR_MAP,
-                      CreateString(MUSICA_ERROR_CATEGORY),
-                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_MAP)) };
+      error_code = ERROR_UNALLOCATED_RADIATOR_MAP;
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
       return;
     }
-
-    int error_code = ERROR_NONE;
 
     try
     {
       InternalRemoveRadiatorByIndex(radiator_map_, index, &error_code);
       if (error_code != ERROR_NONE)
       {
-        *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
         return;
       }
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
+      ToError(e, error);
       return;
     }
     catch (...)
     {
-      *error = Error{ INTERNAL_RADIATOR_MAP_ERROR,
-                      CreateString(MUSICA_ERROR_CATEGORY),
-                      CreateString(GetErrorMessage(INTERNAL_RADIATOR_MAP_ERROR)) };
+      error_code = INTERNAL_RADIATOR_MAP_ERROR;
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
       return;
     }
-    *error = NoError();
+    NoError(error);
   }
 
   std::size_t RadiatorMap::GetNumberOfRadiators(Error *error)
   {
     DeleteError(error);
+    int error_code = ERROR_NONE;
     if (radiator_map_ == nullptr)
     {
-      *error = Error{ ERROR_UNALLOCATED_RADIATOR_MAP,
-                      CreateString(MUSICA_ERROR_CATEGORY),
-                      CreateString(GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_MAP)) };
+      error_code = ERROR_UNALLOCATED_RADIATOR_MAP;
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
       return 0;
     }
 
@@ -385,27 +367,25 @@ namespace musica
 
     try
     {
-      int error_code = ERROR_NONE;
       num_radiators = InternalGetNumberOfRadiators(radiator_map_, &error_code);
       if (error_code != ERROR_NONE)
       {
-        *error = Error{ error_code, CreateString(MUSICA_ERROR_CATEGORY), CreateString(GetErrorMessage(error_code)) };
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
         return 0;
       }
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
+      ToError(e, error);
       return 0;
     }
     catch (...)
     {
-      *error = Error{ INTERNAL_RADIATOR_MAP_ERROR,
-                      CreateString(MUSICA_ERROR_CATEGORY),
-                      CreateString(GetErrorMessage(INTERNAL_RADIATOR_MAP_ERROR)) };
+      error_code = INTERNAL_RADIATOR_MAP_ERROR;
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
       return 0;
     }
-    *error = NoError();
+    NoError(error);
     return num_radiators;
   }
 

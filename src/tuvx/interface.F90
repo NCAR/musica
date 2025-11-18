@@ -159,8 +159,8 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-   function internal_get_photolysis_rate_constants_ordering(tuvx, error_code) &
-      result(photolysis_rate_constant_ordering) &
+   subroutine internal_get_photolysis_rate_constants_ordering(tuvx, &
+      photolysis_rate_constant_ordering, error_code) &
       bind(C, name="InternalGetPhotolysisRateConstantsOrdering")
       use iso_c_binding, only: c_ptr, c_f_pointer, c_int
       use tuvx_interface_util, only: create_string_t_c, mappings_t_c, &
@@ -168,10 +168,8 @@ contains
 
       ! arguments
       type(c_ptr), value,  intent(in)  :: tuvx
+      type(mappings_t_c), intent(out) :: photolysis_rate_constant_ordering
       integer(kind=c_int), intent(out) :: error_code
-
-      ! result
-      type(mappings_t_c) :: photolysis_rate_constant_ordering
 
       ! variables
       type(core_t), pointer :: core
@@ -195,12 +193,12 @@ contains
       photolysis_rate_constant_ordering%mappings_ = c_loc(mappings)
       photolysis_rate_constant_ordering%size_ = n_labels
 
-   end function internal_get_photolysis_rate_constants_ordering
+   end subroutine internal_get_photolysis_rate_constants_ordering
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-   function internal_get_heating_rates_ordering(tuvx, error_code) &
-      result(heating_rates_ordering) &
+   subroutine internal_get_heating_rates_ordering(tuvx, &
+      heating_rates_ordering, error_code) &
       bind(C, name="InternalGetHeatingRatesOrdering")
       use iso_c_binding, only: c_ptr, c_f_pointer, c_int
       use tuvx_interface_util, only: create_string_t_c, mappings_t_c, &
@@ -208,10 +206,8 @@ contains
 
       ! arguments
       type(c_ptr), value,  intent(in)  :: tuvx
+      type(mappings_t_c), intent(out) :: heating_rates_ordering
       integer(kind=c_int), intent(out) :: error_code
-
-      ! result
-      type(mappings_t_c) :: heating_rates_ordering
 
       ! variables
       type(core_t), pointer :: core
@@ -235,12 +231,12 @@ contains
       heating_rates_ordering%mappings_ = c_loc(mappings)
       heating_rates_ordering%size_ = n_labels
 
-   end function internal_get_heating_rates_ordering
+   end subroutine internal_get_heating_rates_ordering
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-   function internal_get_dose_rates_ordering(tuvx, error_code) &
-      result(dose_rates_ordering) &
+   subroutine internal_get_dose_rates_ordering(tuvx, &
+      dose_rates_ordering, error_code) &
       bind(C, name="InternalGetDoseRatesOrdering")
       use iso_c_binding, only: c_ptr, c_f_pointer, c_int
       use tuvx_interface_util, only: create_string_t_c, mappings_t_c, &
@@ -248,10 +244,8 @@ contains
 
       ! arguments
       type(c_ptr), value,  intent(in)  :: tuvx
+      type(mappings_t_c), intent(out) :: dose_rates_ordering
       integer(kind=c_int), intent(out) :: error_code
-
-      ! result
-      type(mappings_t_c) :: dose_rates_ordering
 
       ! variables
       type(core_t), pointer :: core
@@ -275,7 +269,7 @@ contains
       dose_rates_ordering%mappings_ = c_loc(mappings)
       dose_rates_ordering%size_ = n_labels
 
-   end function internal_get_dose_rates_ordering
+   end subroutine internal_get_dose_rates_ordering
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
