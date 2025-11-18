@@ -14,9 +14,6 @@
     "test": "node --test javascript/tests/**/*.test.js",
     "test:integration": "node --test javascript/tests/integration/*.test.js",
     "test:unit": "node --test javascript/tests/unit/**/*.test.js",
-    "test:analytical": "node --test javascript/tests/integration/analytical.test.js",
-    "test:chapman": "node --test javascript/tests/integration/chapman.test.js",
-    "test:state": "node --test javascript/tests/unit/micm/state.test.js"
   },
   "dependencies": {
     "musica": "^1.0.0",
