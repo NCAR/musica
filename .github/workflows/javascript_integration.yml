@@ -43,4 +43,7 @@ jobs:
       
     - name: Build platform
       run: npm run build
+
+    - name: Run tests
+      run: npm run test
       
