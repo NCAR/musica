@@ -126,7 +126,8 @@ namespace musica
     {
       ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to create grid map", error);
     }
-    else {
+    else
+    {
       NoError(error);
     }
     return grid_map;
@@ -140,7 +141,8 @@ namespace musica
     {
       ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to create profile map", error);
     }
-    else {
+    else
+    {
       NoError(error);
     }
     return profile_map;
@@ -154,13 +156,14 @@ namespace musica
     {
       ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to create radiator map", error);
     }
-    else {
+    else
+    {
       NoError(error);
     }
     return radiator_map;
   }
 
-  void TUVX::GetPhotolysisRateConstantsOrdering(Mappings* mappings, Error *error)
+  void TUVX::GetPhotolysisRateConstantsOrdering(Mappings *mappings, Error *error)
   {
     int error_code = 0;
     InternalGetPhotolysisRateConstantsOrdering(tuvx_, mappings, &error_code);
@@ -168,12 +171,13 @@ namespace musica
     {
       ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to get photolysis rate constants ordering", error);
     }
-    else {
+    else
+    {
       NoError(error);
     }
   }
 
-  void TUVX::GetHeatingRatesOrdering(Mappings* mappings, Error *error)
+  void TUVX::GetHeatingRatesOrdering(Mappings *mappings, Error *error)
   {
     int error_code = 0;
     InternalGetHeatingRatesOrdering(tuvx_, mappings, &error_code);
@@ -181,12 +185,13 @@ namespace musica
     {
       ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to get heating rates ordering", error);
     }
-    else {
+    else
+    {
       NoError(error);
     }
   }
 
-  void TUVX::GetDoseRatesOrdering(Mappings* mappings, Error *error)
+  void TUVX::GetDoseRatesOrdering(Mappings *mappings, Error *error)
   {
     int error_code = 0;
     InternalGetDoseRatesOrdering(tuvx_, mappings, &error_code);
@@ -194,7 +199,8 @@ namespace musica
     {
       ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to get dose rates ordering", error);
     }
-    else {
+    else
+    {
       NoError(error);
     }
   }
@@ -220,7 +226,8 @@ namespace musica
     {
       ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to run TUV-x", error);
     }
-    else {
+    else
+    {
       NoError(error);
     }
   }
