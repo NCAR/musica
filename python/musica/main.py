@@ -27,8 +27,7 @@ def parse_arguments():
     parser.add_argument(
         '-o', '--output',
         type=str,
-        action="append",
-        help=("Path to save the example script to.")
+        help=("Path to save the output to.")
     )
     parser.add_argument(
         '-v', '--verbose',
@@ -40,6 +39,11 @@ def parse_arguments():
         '--version',
         action='version',
         version=f'musica {__version__}',
+    )
+    parser.add_argument(
+        '--convert',
+        type=str,
+        help='Path to a musica v0 configuration to convert to v1 format.'
     )
     return parser.parse_args()
 
@@ -55,6 +59,28 @@ def setup_logging(verbosity):
     logging.basicConfig(level=log_level, handlers=[console_handler])
 
 
+def copy_example(logger, example_arg, output_path):
+    example = next((e for e in Examples if e.short_name == example_arg), None)
+    if not example:
+        raise ValueError(f"Example '{example_arg}' not found.")
+
+    logger.info(f"Copying example: {example} to {output_path}")
+
+    with ir.path(musica.examples, example.path) as example_path:
+        logger.info(f"Copying example from {example_path} to {output_path}")
+        shutil.copy(example_path, output_path)
+
+
+def convert_configuration(logger, configuration, output_path):
+    logger.info(f"Converting configuration: {configuration} to {output_path}")
+    if not os.path.exists(configuration):
+        raise ValueError(f"Configuration file '{configuration}' does not exist.")
+
+    parser = musica.mechanism_configuration.Parser()
+    mechanism = parser.parse_and_convert_v0(configuration)
+    mechanism.export(output_path)
+
+
 def main():
     start = datetime.datetime.now()
 
@@ -68,17 +94,25 @@ def main():
 
     logger.debug(f"Working directory = {os.getcwd()}")
 
-    example = next(e for e in Examples if e.short_name == args.example)
-    if example is None:
-        raise ValueError(f"Example not found: {args.example}")
-    if not args.output:
+    # Figure out what action we are doing. We are either converting or copying an example.
+    convert = args.convert
+    example_arg = args.example
+    output = args.output
+
+    if not convert and not example_arg:
+        raise ValueError("Either --convert or --example must be specified.")
+
+    if convert and example_arg:
+        raise ValueError("Cannot specify both --convert and --example. Choose one.")
+
+    if not output:
         logger.debug("No output path specified, using current directory.")
+        output = '.'
 
-    logger.info(f"Copying example: {example} to {args.output}")
-
-    with ir.path(musica.examples, example.path) as example_path:
-        logger.info(f"Copying example from {example_path} to {args.output}")
-        shutil.copy(example_path, args.output[0] if args.output and len(args.output) > 0 else '.')
+    if convert:
+        convert_configuration(logger, convert, output)
+    else:
+        copy_example(logger, example_arg, output)
 
     end = datetime.datetime.now()
     logger.info(f"End time: {end}")

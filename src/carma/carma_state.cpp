@@ -19,7 +19,7 @@ namespace musica
     CCARMAParameters* carma_params = carma.GetCParameters();
     CARMAStateParametersC state_params;
     this->nz = carma_params->nz;
-    int n_wavelength_bins = carma_params->wavelength_bin_size;
+    int const n_wavelength_bins = carma_params->wavelength_bin_size;
     state_params.time = params.time;
     state_params.time_step = params.time_step;
     state_params.longitude = params.longitude;

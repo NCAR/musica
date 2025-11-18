@@ -75,7 +75,7 @@ namespace musica
 #endif
 
       default:
-        std::string msg = "Solver type " + ToString(solver_type) + " not supported in this build";
+        std::string const msg = "Solver type " + ToString(solver_type) + " not supported in this build";
         throw std::system_error(make_error_code(MusicaErrCode::SolverTypeNotFound), msg);
     }
   }
@@ -91,7 +91,7 @@ namespace musica
     void Solve(SolverType& solver, StateType& state) const
     {
       auto result = solver->Solve(time_step, state);
-      *solver_state = CreateString(micm::SolverStateToString(result.state_).c_str());
+      CreateString(micm::SolverStateToString(result.state_).c_str(), solver_state);
       *solver_stats = { .function_calls_ = static_cast<int64_t>(result.stats_.function_calls_),
                         .jacobian_updates_ = static_cast<int64_t>(result.stats_.jacobian_updates_),
                         .number_of_steps_ = static_cast<int64_t>(result.stats_.number_of_steps_),

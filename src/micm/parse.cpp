@@ -21,14 +21,14 @@ namespace musica
     }
     else
     {
-      mechanism_configuration::Version version = parsed.mechanism->version;
+      mechanism_configuration::Version const version = parsed.mechanism->version;
 
       switch (version.major)
       {
         case 0: chemistry = ParserV0(parsed); break;
         case 1: chemistry = ParserV1(parsed); break;
         default:
-          std::string msg = "Version " + std::to_string(version.major) + " not supported";
+          std::string const msg = "Version " + std::to_string(version.major) + " not supported";
           throw std::system_error(make_error_code(MusicaParseErrc::UnsupportedVersion), msg);
       }
     }

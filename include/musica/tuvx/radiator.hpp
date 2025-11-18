@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 National Center for Atmospheric Research
+// Copyright (C) 2023-2025 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 #pragma once
 
@@ -23,6 +23,11 @@ namespace musica
     Radiator(const char *radiator_name, Grid *height_grid, Grid *wavelength_grid, Error *error);
 
     ~Radiator();
+
+    /// @brief Get the name of the radiator
+    /// @param error The error struct to indicate success or failure
+    /// @return The name of the radiator
+    std::string GetName(Error *error);
 
     /// @brief Sets optical depth values
     /// @param optical_depths 2D array of optical depth values
@@ -88,6 +93,16 @@ namespace musica
         std::size_t num_streams,
         Error *error);
 
+    /// @brief Return the number of sections in the radiator's height grid
+    /// @param error The error struct to indicate success or failure
+    /// @return The number of sections in the radiator's height grid
+    std::size_t GetNumberOfHeightSections(Error *error);
+
+    /// @brief Return the number of sections in the radiator's wavelength grid
+    /// @param error The error struct to indicate success or failure
+    /// @return The number of sections in the radiator's wavelength grid
+    std::size_t GetNumberOfWavelengthSections(Error *error);
+
    private:
     void *radiator_;  // A valid pointer to a radiator instance indicates ownership by this wrapper
     void *updater_;
@@ -122,6 +137,12 @@ namespace musica
     /// @param radiator Radiator
     /// @param error Error to indicate success or failure
     void DeleteRadiator(Radiator *radiator, Error *error);
+
+    /// @brief Gets the name of the radiator
+    /// @param radiator Radiator
+    /// @param error Error to indicate success or failure
+    /// @return The name of the radiator
+    const char *GetRadiatorName(Radiator *radiator, Error *error);
 
     /// @brief Sets optical depth values
     /// @param radiator Radiator
@@ -205,6 +226,18 @@ namespace musica
         std::size_t num_streams,
         Error *error);
 
+    /// @brief Return the number of sections in the radiator's height grid
+    /// @param radiator Radiator
+    /// @param error The error struct to indicate success or failure
+    /// @return The number of sections in the radiator's height grid
+    std::size_t GetRadiatorNumberOfHeightSections(Radiator *radiator, Error *error);
+
+    /// @brief Return the number of sections in the radiator's wavelength grid
+    /// @param radiator Radiator
+    /// @param error The error struct to indicate success or failure
+    /// @return The number of sections in the radiator's wavelength grid
+    std::size_t GetRadiatorNumberOfWavelengthSections(Radiator *radiator, Error *error);
+
     // INTERNAL USE. If tuvx ever gets rewritten in C++, these functions will
     // go away but the C API will remain the same and downstream projects (like CAM-SIMA) will
     // not need to change
@@ -217,6 +250,7 @@ namespace musica
     void InternalDeleteRadiator(void *radiator, int *error_code);
     void *InternalGetRadiatorUpdater(void *radiator, int *error_code);
     void InternalDeleteRadiatorUpdater(void *updater, int *error_code);
+    void InternalGetRadiatorName(void *radiator, String *str, int *error_code);
     void InternalSetOpticalDepths(
         void *radiator,
         double *optical_depths,
@@ -255,6 +289,8 @@ namespace musica
         std::size_t num_wavelength_bins,
         std::size_t num_streams,
         int *error_code);
+    std::size_t InternalGetRadiatorNumberOfHeightSections(void *radiator, int *error_code);
+    std::size_t InternalGetRadiatorNumberOfWavelengthSections(void *radiator, int *error_code);
 
 #ifdef __cplusplus
   }

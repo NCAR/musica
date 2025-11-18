@@ -11,7 +11,7 @@ namespace musica
   std::vector<micm::Species> convert_species(const std::vector<mechanism_configuration::v1::types::Species>& species)
   {
     using namespace mechanism_configuration::v1;
-    micm::Phase gas_phase;
+    micm::Phase const gas_phase;
     std::vector<micm::Species> micm_species;
     for (const auto& elem : species)
     {
@@ -202,10 +202,11 @@ namespace musica
             "Species '" + reaction.gas_phase_species.species_name + "' for surface reaction in gas phase is not found\n");
       }
 
-      size_t surface_reaction_species_index = std::distance(phase_species_list.begin(), it);
-      micm::SurfaceRateConstantParameters parameters{ .label_ = prefix + reaction.name,
-                                                      .phase_species_ = phase_species_list[surface_reaction_species_index],
-                                                      .reaction_probability_ = reaction.reaction_probability };
+      size_t const surface_reaction_species_index = std::distance(phase_species_list.begin(), it);
+      micm::SurfaceRateConstantParameters const parameters{ .label_ = prefix + reaction.name,
+                                                            .phase_species_ =
+                                                                phase_species_list[surface_reaction_species_index],
+                                                            .reaction_probability_ = reaction.reaction_probability };
 
       chemistry.processes.push_back(micm::ChemicalReactionBuilder()
                                         .SetReactants(reactants)

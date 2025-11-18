@@ -23,6 +23,8 @@ void bind_tuvx_grid(py::module_ &);
 void bind_tuvx_grid_map(py::module_ &);
 void bind_tuvx_profile(py::module_ &);
 void bind_tuvx_profile_map(py::module_ &);
+void bind_tuvx_radiator(py::module_ &);
+void bind_tuvx_radiator_map(py::module_ &);
 #endif
 
 #ifdef MUSICA_USE_CARMA

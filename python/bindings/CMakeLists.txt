@@ -22,6 +22,8 @@ if (MUSICA_ENABLE_TUVX)
     ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/grid.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/profile_map.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/profile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/radiator_map.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/radiator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/tuvx.cpp
   )
 endif()

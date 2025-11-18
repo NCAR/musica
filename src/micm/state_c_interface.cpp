@@ -18,11 +18,11 @@ namespace musica
     }
     catch (const std::system_error& e)
     {
-      *error = ToError(e);
+      ToError(e, error);
     }
     catch (const std::exception& e)
     {
-      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, e.what());
+      ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, e.what(), error);
     }
     return decltype(func())();
   }
@@ -34,8 +34,8 @@ namespace musica
         {
           if (!micm)
           {
-            std::string msg = "MICM pointer is null, cannot create state.";
-            *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND, msg.c_str());
+            std::string const msg = "MICM pointer is null, cannot create state.";
+            ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND, msg.c_str(), error);
             return nullptr;
           }
 
@@ -53,8 +53,8 @@ namespace musica
         {
           if (state == nullptr)
           {
-            std::string msg = "State pointer is null, cannot delete state.";
-            *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND, msg.c_str());
+            std::string const msg = "State pointer is null, cannot delete state.";
+            ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND, msg.c_str(), error);
             return;
           }
 
@@ -104,7 +104,7 @@ namespace musica
     HandleErrors(
         [&]()
         {
-          std::map<std::string, std::size_t> map =
+          std::map<std::string, std::size_t> const map =
               std::visit([](auto& state) { return state.variable_map_; }, state->state_variant_);
 
           species_ordering->mappings_ = new Mapping[map.size()];
@@ -113,10 +113,10 @@ namespace musica
           std::size_t i = 0;
           for (const auto& entry : map)
           {
-            species_ordering->mappings_[i] = ToMapping(entry.first.c_str(), entry.second);
+            ToMapping(entry.first.c_str(), entry.second, &species_ordering->mappings_[i]);
             ++i;
           }
-          *error = NoError();
+          NoError(error);
           return;
         },
         error);
@@ -127,7 +127,7 @@ namespace musica
     HandleErrors(
         [&]()
         {
-          std::map<std::string, std::size_t> map =
+          std::map<std::string, std::size_t> const map =
               std::visit([](auto& state) { return state.custom_rate_parameter_map_; }, state->state_variant_);
 
           reaction_rates->mappings_ = new Mapping[map.size()];
@@ -136,10 +136,10 @@ namespace musica
           std::size_t i = 0;
           for (const auto& entry : map)
           {
-            reaction_rates->mappings_[i] = ToMapping(entry.first.c_str(), entry.second);
+            ToMapping(entry.first.c_str(), entry.second, &reaction_rates->mappings_[i]);
             ++i;
           }
-          *error = NoError();
+          NoError(error);
           return;
         },
         error);
@@ -150,8 +150,8 @@ namespace musica
     return HandleErrors(
         [&]() -> size_t
         {
-          size_t number_of_grid_cells = state->NumberOfGridCells();
-          *error = NoError();
+          size_t const number_of_grid_cells = state->NumberOfGridCells();
+          NoError(error);
           return number_of_grid_cells;
         },
         error);
@@ -162,8 +162,8 @@ namespace musica
     return HandleErrors(
         [&]() -> size_t
         {
-          size_t number_of_species = state->NumberOfSpecies();
-          *error = NoError();
+          size_t const number_of_species = state->NumberOfSpecies();
+          NoError(error);
           return number_of_species;
         },
         error);
@@ -177,7 +177,7 @@ namespace musica
           auto strides = state->GetConcentrationsStrides();
           *grid_cell_stride = strides.first;
           *species_stride = strides.second;
-          *error = NoError();
+          NoError(error);
         },
         error);
   }
@@ -187,8 +187,8 @@ namespace musica
     return HandleErrors(
         [&]() -> size_t
         {
-          size_t number_of_user_defined_rate_parameters = state->NumberOfUserDefinedRateParameters();
-          *error = NoError();
+          size_t const number_of_user_defined_rate_parameters = state->NumberOfUserDefinedRateParameters();
+          NoError(error);
           return number_of_user_defined_rate_parameters;
         },
         error);
@@ -206,7 +206,7 @@ namespace musica
           auto strides = state->GetUserDefinedRateParametersStrides();
           *grid_cell_stride = strides.first;
           *rate_parameter_stride = strides.second;
-          *error = NoError();
+          NoError(error);
         },
         error);
   }

@@ -18,9 +18,9 @@ namespace musica
 {
   char* AddNameAndVersion(char* pos, const char* name, const char* version, const char* sep)
   {
-    size_t name_length = strlen(name);
-    size_t version_length = strlen(version);
-    size_t sep_length = strlen(sep);
+    size_t const name_length = strlen(name);
+    size_t const version_length = strlen(version);
+    size_t const sep_length = strlen(sep);
 
     memcpy(pos, name, name_length);
     pos += name_length;
@@ -37,7 +37,7 @@ namespace musica
   char* GetAllComponentVersions()
   {
     const char* sep = "\n";
-    size_t sep_size = strlen(sep);
+    size_t const sep_size = strlen(sep);
     size_t buf_size = 0;
 
     const char* musica_name = "musica: ";

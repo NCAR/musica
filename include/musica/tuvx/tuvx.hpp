@@ -66,17 +66,17 @@ namespace musica
     /// @brief Returns the ordering of photolysis rate constants
     /// @param error Error struct to indicate success or failure
     /// @return Array of photolysis rate constant name-index pairs
-    Mappings GetPhotolysisRateConstantsOrdering(Error *error);
+    void GetPhotolysisRateConstantsOrdering(Mappings *mappings, Error *error);
 
     /// @brief Returns the ordering of heating rates
     /// @param error Error struct to indicate success or failure
     /// @return Array of heating rate name-index pairs
-    Mappings GetHeatingRatesOrdering(Error *error);
+    void GetHeatingRatesOrdering(Mappings *mappings, Error *error);
 
     /// @brief Returns the ordering of dose rates
     /// @param error Error struct to indicate success or failure
     /// @return Array of dose rate name-index pairs
-    Mappings GetDoseRatesOrdering(Error *error);
+    void GetDoseRatesOrdering(Mappings *mappings, Error *error);
 
     /// @brief Run the TUV-x photolysis calculator
     /// @param solar_zenith_angle Solar zenith angle [radians]
