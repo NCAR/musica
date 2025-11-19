@@ -80,10 +80,11 @@ namespace musica
         const double earth_sun_distance,
         double *const photolysis_rate_constants,
         double *const heating_rates,
+        double *const dose_rates,
         Error *const error)
     {
       DeleteError(error);
-      tuvx->Run(solar_zenith_angle, earth_sun_distance, photolysis_rate_constants, heating_rates, error);
+      tuvx->Run(solar_zenith_angle, earth_sun_distance, photolysis_rate_constants, heating_rates, dose_rates, error);
     }
 
 #ifdef __cplusplus

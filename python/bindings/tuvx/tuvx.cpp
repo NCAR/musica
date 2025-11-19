@@ -15,12 +15,17 @@ void bind_tuvx(py::module_& tuvx)
 
   tuvx.def(
       "_create_tuvx_from_string",
-      [](const char* config_string)
+      [](const char* config_string, musica::GridMap *grids, musica::ProfileMap *profiles, musica::RadiatorMap *radiators)
       {
         try
         {
+          musica::Error error;
           auto tuvx_instance = new musica::TUVX();
-          tuvx_instance->CreateFromConfigString(config_string);
+          tuvx_instance->CreateFromConfigString(config_string, grids, profiles, radiators, &error);
+          if (!musica::IsSuccess(error))
+          {
+            throw py::value_error("Error creating TUV-x instance from config string: " + std::string(error.message_.value_));
+          }
           return reinterpret_cast<std::uintptr_t>(tuvx_instance);
         }
         catch (const std::exception& e)
@@ -32,12 +37,17 @@ void bind_tuvx(py::module_& tuvx)
 
   tuvx.def(
       "_create_tuvx_from_file",
-      [](const char* config_path)
+      [](const char* config_path, musica::GridMap *grids, musica::ProfileMap *profiles, musica::RadiatorMap *radiators)
       {
         try
         {
+          musica::Error error;
           auto tuvx_instance = new musica::TUVX();
-          tuvx_instance->CreateFromConfigFile(config_path);
+          tuvx_instance->Create(config_path, grids, profiles, radiators, &error);
+          if (!musica::IsSuccess(error))
+          {
+            throw py::value_error("Error creating TUV-x instance from config file: " + std::string(error.message_.value_));
+          }
           return reinterpret_cast<std::uintptr_t>(tuvx_instance);
         }
         catch (const std::exception& e)
@@ -59,7 +69,7 @@ void bind_tuvx(py::module_& tuvx)
 
   tuvx.def(
       "_run_tuvx",
-      [](std::uintptr_t tuvx_ptr)
+      [](std::uintptr_t tuvx_ptr, double sza_radians, double earth_sun_distance)
       {
         musica::TUVX* tuvx_instance = reinterpret_cast<musica::TUVX*>(tuvx_ptr);
 
@@ -68,26 +78,33 @@ void bind_tuvx(py::module_& tuvx)
         int n_heating = tuvx_instance->GetHeatingRateCount();
         int n_dose = tuvx_instance->GetDoseRateCount();
         int n_layers = tuvx_instance->GetNumberOfLayers();
-        int n_sza_steps = tuvx_instance->GetNumberOfSzaSteps();
 
-        // Allocate output arrays (3D: sza_step, layer, reaction/heating_type)
-        std::vector<double> photolysis_rates(n_sza_steps * n_layers * n_photolysis);
-        std::vector<double> heating_rates(n_sza_steps * n_layers * n_heating);
-        std::vector<double> dose_rates(n_sza_steps * n_layers * n_dose);
+        // Allocate output arrays (2D: layer, reaction/heating_type)
+        std::vector<double> photolysis_rates(n_layers * n_photolysis);
+        std::vector<double> heating_rates(n_layers * n_heating);
+        std::vector<double> dose_rates(n_layers * n_dose);
 
-        // Run TUV-x (everything comes from the JSON config)
-        tuvx_instance->RunFromConfig(photolysis_rates.data(), heating_rates.data(), dose_rates.data());
+        // Run TUV-x
+        musica::Error error;
+        tuvx_instance->Run(sza_radians, earth_sun_distance, photolysis_rates.data(), heating_rates.data(), dose_rates.data(), &error);
 
-        // Return as numpy arrays with shape (n_sza_steps, n_layers, n_reactions/n_heating)
-        py::array_t<double> py_photolysis =
-            py::array_t<double>({ n_sza_steps, n_layers, n_photolysis }, photolysis_rates.data());
-        py::array_t<double> py_heating = py::array_t<double>({ n_sza_steps, n_layers, n_heating }, heating_rates.data());
-        py::array_t<double> py_dose = py::array_t<double>({ n_sza_steps, n_layers, n_dose }, dose_rates.data());
+        if (!musica::IsSuccess(error))
+        {
+          std::string error_message = std::string(error.message_.value_);
+          musica::DeleteError(&error);
+          throw py::value_error("Error running TUV-x: " + error_message);
+        }
+        musica::DeleteError(&error);
+
+        // Return as numpy arrays with shape (n_layers, n_reactions/n_heating)
+        py::array_t<double> py_photolysis = py::array_t<double>({ n_layers, n_photolysis }, photolysis_rates.data());
+        py::array_t<double> py_heating = py::array_t<double>({ n_layers, n_heating }, heating_rates.data());
+        py::array_t<double> py_dose = py::array_t<double>({ n_layers, n_dose }, dose_rates.data());
 
         return py::make_tuple(py_photolysis, py_heating, py_dose);
       },
       "Run TUV-x (all parameters come from JSON config)",
-      py::arg("tuvx_instance"));
+      py::arg("tuvx_instance"), py::arg("sza_radians"), py::arg("earth_sun_distance"));
 
   tuvx.def(
       "_get_photolysis_rate_constants_ordering",

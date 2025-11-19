@@ -47,12 +47,18 @@ class TUVX:
     """
 
     def __init__(self,
+                 grid_map: GridMap,
+                 profile_map: ProfileMap,
+                 radiator_map: RadiatorMap,
                  config_path: Optional[str] = None,
                  config_string: Optional[str] = None):
         """
         Initialize a TUV-x instance from a configuration file.
 
         Args:
+            grid_map: GridMap instance containing grid definitions (height, wavelength)
+            profile_map: ProfileMap instance containing atmospheric profiles (temperature, species concentrations, surface albedo, ET flux)
+            radiator_map: RadiatorMap instance containing radiator definitions (optically active species)
             config_path: Path to the JSON configuration file
             config_string: JSON configuration as a string
 
@@ -73,11 +79,11 @@ class TUVX:
                 f"Configuration file not found: {config_path}")
 
         if config_path is not None:
-            self._tuvx_instance = _backend._tuvx._create_tuvx_from_file(config_path)
+            self._tuvx_instance = _backend._tuvx._create_tuvx_from_file(config_path, grid_map, profile_map, radiator_map)
             self._config_path = config_path
             self._config_string = None
         elif config_string is not None:
-            self._tuvx_instance = _backend._tuvx._create_tuvx_from_string(config_string)
+            self._tuvx_instance = _backend._tuvx._create_tuvx_from_string(config_string, grid_map, profile_map, radiator_map)
             self._config_path = None
             self._config_string = config_string
 
@@ -130,13 +136,17 @@ class TUVX:
                 self._tuvx_instance)
         return self._dose_names
 
-    def run(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def run(self, sza: float, earth_sun_distance: float) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Run the TUV-x photolysis calculator.
 
         All parameters (solar zenith angle, Earth-Sun distance, atmospheric profiles,
         etc.) are read from the JSON configuration file.
 
+        Args:
+            sza: Solar zenith angle in radians
+            earth_sun_distance: Earth-Sun distance in astronomical units (AU)
+        
         Returns:
             Tuple of (photolysis_rate_constants, heating_rates) as numpy arrays
             - photolysis_rate_constants: Shape (n_sza, n_layers, n_reactions) [s^-1]
@@ -144,7 +154,7 @@ class TUVX:
             - dose_rates: Shape (n_sza, n_layers, n_dose_rates) [W m^-2]
         """
         photolysis_rates, heating_rates, dose_rates = _backend._tuvx._run_tuvx(
-            self._tuvx_instance)
+            self._tuvx_instance, sza, earth_sun_distance)
 
         return photolysis_rates, heating_rates, dose_rates
 

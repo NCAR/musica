@@ -14,8 +14,7 @@
 namespace musica
 {
   TUVX::TUVX()
-      : tuvx_(nullptr),
-        is_config_only_mode_(false)
+      : tuvx_(nullptr)
   {
   }
 
@@ -55,7 +54,6 @@ namespace musica
       }
       else
       {
-        is_config_only_mode_ = false;
         NoError(error);
       }
     }
@@ -69,7 +67,7 @@ namespace musica
     }
   }
 
-  void TUVX::CreateFromConfigString(const char *config_string)
+  void TUVX::CreateFromConfigString(const char *config_string, GridMap *grids, ProfileMap *profiles, RadiatorMap *radiators, Error *error)
   {
     int error_code = 0;
     if (config_string == nullptr || strlen(config_string) == 0)
@@ -77,43 +75,31 @@ namespace musica
       throw std::runtime_error("Configuration string is empty");
     }
 
-    tuvx_ = InternalCreateTuvxFromConfigString(config_string, strlen(config_string), &error_code);
-    if (error_code != 0 || tuvx_ == nullptr)
-    {
-      throw std::runtime_error("Failed to create TUV-x instance from JSON/YAML string");
+    try {
+      tuvx_ = InternalCreateTuvxFromConfigString(
+        config_string,
+        strlen(config_string),
+        grids->grid_map_,
+        profiles->profile_map_,
+        radiators->radiator_map_,
+        &(this->number_of_layers_),
+        &error_code);
+      if (error_code != 0 || tuvx_ == nullptr)
+      {
+        ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to create TUV-x instance from config string", error);
+      }
+      else
+      {
+        NoError(error);
+      }
     }
-
-    is_config_only_mode_ = true;
-    // Get number of layers for this mode
-    this->number_of_layers_ = InternalGetNumberOfLayers(tuvx_, &error_code);
-    if (error_code != 0)
+    catch (const std::system_error &e)
     {
-      throw std::runtime_error("Failed to get number of layers");
+      ToError(e, error);
     }
-  }
-
-  void TUVX::CreateFromConfigFile(const char *config_path)
-  {
-    int error_code = 0;
-
-    // check that the file exists
-    if (!std::filesystem::exists(config_path))
+    catch (...)
     {
-      throw std::runtime_error("Config file does not exist: " + std::string(config_path));
-    }
-
-    tuvx_ = InternalCreateTuvxFromConfigFile(config_path, strlen(config_path), &error_code);
-    if (error_code != 0 || tuvx_ == nullptr)
-    {
-      throw std::runtime_error("Failed to create TUV-x instance from JSON/YAML file");
-    }
-
-    is_config_only_mode_ = true;
-    // Get number of layers for this mode
-    this->number_of_layers_ = InternalGetNumberOfLayers(tuvx_, &error_code);
-    if (error_code != 0)
-    {
-      throw std::runtime_error("Failed to get number of layers");
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to create TUV-x instance from config string", error);
     }
   }
 
@@ -210,50 +196,41 @@ namespace musica
       const double earth_sun_distance,
       double *const photolysis_rate_constants,
       double *const heating_rates,
+      double *const dose_rates,
       Error *const error)
   {
     int error_code = 0;
-    double const sza_degrees = solar_zenith_angle * 180.0 / std::numbers::pi;
-    InternalRunTuvx(
+    const double sza_degrees = solar_zenith_angle * 180.0 / std::numbers::pi;
+    try {
+      InternalRunTuvx(
         tuvx_,
         this->number_of_layers_,
         sza_degrees,
         earth_sun_distance,
         photolysis_rate_constants,
         heating_rates,
+        dose_rates,
         &error_code);
+    }
+    catch (const std::system_error &e)
+    {
+      ToError(e, error);
+      return;
+    }
+    catch (...)
+    {
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to run TUV-x", error);
+      return;
+    }
     if (error_code != 0)
     {
       ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to run TUV-x", error);
-    }
-    else
-    {
-      NoError(error);
-    }
-  }
-
-  void TUVX::RunFromConfig(double *const photolysis_rate_constants, double *const heating_rates, double *const dose_rates)
-  {
-    if (!is_config_only_mode_)
-    {
-      throw std::runtime_error("RunFromConfig can only be used with CreateFromConfigOnly");
-    }
-
-    int error_code = 0;
-    InternalRunTuvxFromConfig(tuvx_, photolysis_rate_constants, heating_rates, dose_rates, &error_code);
-    if (error_code != 0)
-    {
-      throw std::runtime_error("Failed to run TUV-x from config");
+      return;
     }
   }
 
   int TUVX::GetPhotolysisRateConstantCount()
   {
-    if (!is_config_only_mode_)
-    {
-      throw std::runtime_error("GetPhotolysisRateConstantCount requires config-only mode");
-    }
-
     int error_code = 0;
     int const count = InternalGetPhotolysisRateConstantCount(tuvx_, &error_code);
     if (error_code != 0)
@@ -265,11 +242,6 @@ namespace musica
 
   int TUVX::GetHeatingRateCount()
   {
-    if (!is_config_only_mode_)
-    {
-      throw std::runtime_error("GetHeatingRateCount requires config-only mode");
-    }
-
     int error_code = 0;
     int const count = InternalGetHeatingRateCount(tuvx_, &error_code);
     if (error_code != 0)
@@ -281,11 +253,6 @@ namespace musica
 
   int TUVX::GetDoseRateCount()
   {
-    if (!is_config_only_mode_)
-    {
-      throw std::runtime_error("GetDoseRateCount requires config-only mode");
-    }
-
     int error_code = 0;
     int const count = InternalGetDoseRateCount(tuvx_, &error_code);
     if (error_code != 0)
@@ -297,32 +264,11 @@ namespace musica
 
   int TUVX::GetNumberOfLayers()
   {
-    if (!is_config_only_mode_)
-    {
-      throw std::runtime_error("GetNumberOfLayers requires config-only mode");
-    }
-
     int error_code = 0;
     int const count = InternalGetNumberOfLayers(tuvx_, &error_code);
     if (error_code != 0)
     {
       throw std::runtime_error("Failed to get number of layers");
-    }
-    return count;
-  }
-
-  int TUVX::GetNumberOfSzaSteps()
-  {
-    if (!is_config_only_mode_)
-    {
-      throw std::runtime_error("GetNumberOfSzaSteps requires config-only mode");
-    }
-
-    int error_code = 0;
-    int const count = InternalGetNumberOfSzaSteps(tuvx_, &error_code);
-    if (error_code != 0)
-    {
-      throw std::runtime_error("Failed to get number of SZA steps");
     }
     return count;
   }
