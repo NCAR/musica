@@ -52,7 +52,7 @@ jobs:
             cibw_archs: "AMD64"
 
           # macOS Intel
-          - os: macos-14-large
+          - os: macos-15-intel
             python-version: "3.14"
             cibw_archs: "x86_64"
             fc: gfortran-15
