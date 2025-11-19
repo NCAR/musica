@@ -15,7 +15,7 @@ void bind_tuvx(py::module_& tuvx)
 
   tuvx.def(
       "_create_tuvx_from_string",
-      [](const char* config_string, musica::GridMap *grids, musica::ProfileMap *profiles, musica::RadiatorMap *radiators)
+      [](const char* config_string, musica::GridMap* grids, musica::ProfileMap* profiles, musica::RadiatorMap* radiators)
       {
         try
         {
@@ -37,7 +37,7 @@ void bind_tuvx(py::module_& tuvx)
 
   tuvx.def(
       "_create_tuvx_from_file",
-      [](const char* config_path, musica::GridMap *grids, musica::ProfileMap *profiles, musica::RadiatorMap *radiators)
+      [](const char* config_path, musica::GridMap* grids, musica::ProfileMap* profiles, musica::RadiatorMap* radiators)
       {
         try
         {
@@ -86,7 +86,8 @@ void bind_tuvx(py::module_& tuvx)
 
         // Run TUV-x
         musica::Error error;
-        tuvx_instance->Run(sza_radians, earth_sun_distance, photolysis_rates.data(), heating_rates.data(), dose_rates.data(), &error);
+        tuvx_instance->Run(
+            sza_radians, earth_sun_distance, photolysis_rates.data(), heating_rates.data(), dose_rates.data(), &error);
 
         if (!musica::IsSuccess(error))
         {
@@ -104,7 +105,9 @@ void bind_tuvx(py::module_& tuvx)
         return py::make_tuple(py_photolysis, py_heating, py_dose);
       },
       "Run TUV-x (all parameters come from JSON config)",
-      py::arg("tuvx_instance"), py::arg("sza_radians"), py::arg("earth_sun_distance"));
+      py::arg("tuvx_instance"),
+      py::arg("sza_radians"),
+      py::arg("earth_sun_distance"));
 
   tuvx.def(
       "_get_photolysis_rate_constants_ordering",

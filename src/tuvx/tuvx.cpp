@@ -67,7 +67,12 @@ namespace musica
     }
   }
 
-  void TUVX::CreateFromConfigString(const char *config_string, GridMap *grids, ProfileMap *profiles, RadiatorMap *radiators, Error *error)
+  void TUVX::CreateFromConfigString(
+      const char *config_string,
+      GridMap *grids,
+      ProfileMap *profiles,
+      RadiatorMap *radiators,
+      Error *error)
   {
     int error_code = 0;
     if (config_string == nullptr || strlen(config_string) == 0)
@@ -75,15 +80,16 @@ namespace musica
       throw std::runtime_error("Configuration string is empty");
     }
 
-    try {
+    try
+    {
       tuvx_ = InternalCreateTuvxFromConfigString(
-        config_string,
-        strlen(config_string),
-        grids->grid_map_,
-        profiles->profile_map_,
-        radiators->radiator_map_,
-        &(this->number_of_layers_),
-        &error_code);
+          config_string,
+          strlen(config_string),
+          grids->grid_map_,
+          profiles->profile_map_,
+          radiators->radiator_map_,
+          &(this->number_of_layers_),
+          &error_code);
       if (error_code != 0 || tuvx_ == nullptr)
       {
         ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to create TUV-x instance from config string", error);
@@ -201,16 +207,17 @@ namespace musica
   {
     int error_code = 0;
     const double sza_degrees = solar_zenith_angle * 180.0 / std::numbers::pi;
-    try {
+    try
+    {
       InternalRunTuvx(
-        tuvx_,
-        this->number_of_layers_,
-        sza_degrees,
-        earth_sun_distance,
-        photolysis_rate_constants,
-        heating_rates,
-        dose_rates,
-        &error_code);
+          tuvx_,
+          this->number_of_layers_,
+          sza_degrees,
+          earth_sun_distance,
+          photolysis_rate_constants,
+          heating_rates,
+          dose_rates,
+          &error_code);
     }
     catch (const std::system_error &e)
     {

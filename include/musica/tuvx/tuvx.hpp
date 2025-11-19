@@ -39,7 +39,12 @@ namespace musica
     /// @param profiles Profile map from host application
     /// @param radiators Radiator map from host application
     /// @param error Error struct to indicate success or failure
-    void CreateFromConfigString(const char *config_string, GridMap *grids, ProfileMap *profiles, RadiatorMap *radiators, Error *error);
+    void CreateFromConfigString(
+        const char *config_string,
+        GridMap *grids,
+        ProfileMap *profiles,
+        RadiatorMap *radiators,
+        Error *error);
 
     /// @brief Create a grid map. For now, this calls the interal tuvx fortran api, but will allow the change to c++ later on
     /// to be transparent to downstream projects
