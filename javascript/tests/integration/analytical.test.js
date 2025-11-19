@@ -1,15 +1,19 @@
+const { describe, it } = require('node:test');
+const assert = require('node:assert');
 const path = require('path');
 const musica = require('musica-addon');
 const { MICM, SolverType, GAS_CONSTANT } = musica.micmSolver;
+const { isClose } = require('../util/testUtils');
 
 // Test configuration
 const CONFIG_PATH = path.join(__dirname, '../../../configs/v0/analytical');
 
-// Helper function to check if values are close (equivalent to np.isclose)
-function isClose(a, b, atol = 1e-5, rtol = 1e-9) {
-    const diff = Math.abs(a - b);
-    return diff <= (atol + rtol * Math.abs(b));
-}
+// NOTE: Vector-ordered Rosenbrock currently only supports up to 4 grid cells
+// This is because the C++ implementation requires splitting into multiple
+// internal states for >4 cells (the vector size), which is not yet implemented
+// in the JavaScript bindings. Python handles this by creating multiple states.
+const maxCells = 4; // Vector size limitation
+
 
 /**
  * Test single grid cell analytical solution
@@ -47,17 +51,17 @@ function testSingleGridCell(solver, state, timeStep, places = 5) {
     const initialConditions = state.getConditions();
 
     // Verify initial conditions
-    console.assert(isClose(initialConcentrations.A[0], concentrations.A, 1e-13), 'Initial A concentration mismatch');
-    console.assert(isClose(initialConcentrations.B[0], concentrations.B, 1e-13), 'Initial B concentration mismatch');
-    console.assert(isClose(initialConcentrations.C[0], concentrations.C, 1e-13), 'Initial C concentration mismatch');
-    console.assert(isClose(initialConcentrations.D[0], concentrations.D, 1e-13), 'Initial D concentration mismatch');
-    console.assert(isClose(initialConcentrations.E[0], concentrations.E, 1e-13), 'Initial E concentration mismatch');
-    console.assert(isClose(initialConcentrations.F[0], concentrations.F, 1e-13), 'Initial F concentration mismatch');
-    console.assert(isClose(initialRateParameters['USER.reaction 1'][0], rateConstants['USER.reaction 1'], 1e-13), 'Rate parameter 1 mismatch');
-    console.assert(isClose(initialRateParameters['USER.reaction 2'][0], rateConstants['USER.reaction 2'], 1e-13), 'Rate parameter 2 mismatch');
-    console.assert(isClose(initialConditions.temperature[0], temperature, 1e-13), 'Temperature mismatch');
-    console.assert(isClose(initialConditions.pressure[0], pressure, 1e-13), 'Pressure mismatch');
-    console.assert(isClose(initialConditions.air_density[0], airDensity, 1e-13), 'Air density mismatch');
+    assert.ok(isClose(initialConcentrations.A[0], concentrations.A, 1e-13), 'Initial A concentration mismatch');
+    assert.ok(isClose(initialConcentrations.B[0], concentrations.B, 1e-13), 'Initial B concentration mismatch');
+    assert.ok(isClose(initialConcentrations.C[0], concentrations.C, 1e-13), 'Initial C concentration mismatch');
+    assert.ok(isClose(initialConcentrations.D[0], concentrations.D, 1e-13), 'Initial D concentration mismatch');
+    assert.ok(isClose(initialConcentrations.E[0], concentrations.E, 1e-13), 'Initial E concentration mismatch');
+    assert.ok(isClose(initialConcentrations.F[0], concentrations.F, 1e-13), 'Initial F concentration mismatch');
+    assert.ok(isClose(initialRateParameters['USER.reaction 1'][0], rateConstants['USER.reaction 1'], 1e-13), 'Rate parameter 1 mismatch');
+    assert.ok(isClose(initialRateParameters['USER.reaction 2'][0], rateConstants['USER.reaction 2'], 1e-13), 'Rate parameter 2 mismatch');
+    assert.ok(isClose(initialConditions.temperature[0], temperature, 1e-13), 'Temperature mismatch');
+    assert.ok(isClose(initialConditions.pressure[0], pressure, 1e-13), 'Pressure mismatch');
+    assert.ok(isClose(initialConditions.air_density[0], airDensity, 1e-13), 'Air density mismatch');
 
     timeStep = 1;
     const simLength = 100;
@@ -94,24 +98,18 @@ function testSingleGridCell(solver, state, timeStep, places = 5) {
             (1.0 + (k1 * Math.exp(-k2 * currTime) - k2 * Math.exp(-k1 * currTime)) / (k2 - k1));
 
         // Check concentrations
-        if (!isClose(conc.A[0], A_conc, tolerance)) {
-            throw new Error(`A concentration mismatch at t=${currTime}: ${conc.A[0]} vs ${A_conc}`);
-        }
-        if (!isClose(conc.B[0], B_conc, tolerance)) {
-            throw new Error(`B concentration mismatch at t=${currTime}: ${conc.B[0]} vs ${B_conc}`);
-        }
-        if (!isClose(conc.C[0], C_conc, tolerance)) {
-            throw new Error(`C concentration mismatch at t=${currTime}: ${conc.C[0]} vs ${C_conc}`);
-        }
-        if (!isClose(conc.D[0], D_conc, tolerance)) {
-            throw new Error(`D concentration mismatch at t=${currTime}: ${conc.D[0]} vs ${D_conc}`);
-        }
-        if (!isClose(conc.E[0], E_conc, tolerance)) {
-            throw new Error(`E concentration mismatch at t=${currTime}: ${conc.E[0]} vs ${E_conc}`);
-        }
-        if (!isClose(conc.F[0], F_conc, tolerance)) {
-            throw new Error(`F concentration mismatch at t=${currTime}: ${conc.F[0]} vs ${F_conc}`);
-        }
+        assert.ok(isClose(conc.A[0], A_conc, tolerance),
+            `A concentration mismatch at t=${currTime}: ${conc.A[0]} vs ${A_conc}`);
+        assert.ok(isClose(conc.B[0], B_conc, tolerance),
+            `B concentration mismatch at t=${currTime}: ${conc.B[0]} vs ${B_conc}`);
+        assert.ok(isClose(conc.C[0], C_conc, tolerance),
+            `C concentration mismatch at t=${currTime}: ${conc.C[0]} vs ${C_conc}`);
+        assert.ok(isClose(conc.D[0], D_conc, tolerance),
+            `D concentration mismatch at t=${currTime}: ${conc.D[0]} vs ${D_conc}`);
+        assert.ok(isClose(conc.E[0], E_conc, tolerance),
+            `E concentration mismatch at t=${currTime}: ${conc.E[0]} vs ${E_conc}`);
+        assert.ok(isClose(conc.F[0], F_conc, tolerance),
+            `F concentration mismatch at t=${currTime}: ${conc.F[0]} vs ${F_conc}`);
 
         currTime += timeStep;
     }
@@ -161,18 +159,18 @@ function testMultipleGridCell(solver, state, numGridCells, timeStep, places = 5)
 
     // Verify initial conditions
     for (let i = 0; i < numGridCells; i++) {
-        console.assert(isClose(initialConcentrations.A[i], concentrations.A[i], 1e-13));
-        console.assert(isClose(initialConcentrations.B[i], concentrations.B[i], 1e-13));
-        console.assert(isClose(initialConcentrations.C[i], concentrations.C[i], 1e-13));
-        console.assert(isClose(initialConcentrations.D[i], concentrations.D[i], 1e-13));
-        console.assert(isClose(initialConcentrations.E[i], concentrations.E[i], 1e-13));
-        console.assert(isClose(initialConcentrations.F[i], concentrations.F[i], 1e-13));
-        console.assert(isClose(initialRateParameters['USER.reaction 1'][i], rateConstants['USER.reaction 1'][i], 1e-13));
-        console.assert(isClose(initialRateParameters['USER.reaction 2'][i], rateConstants['USER.reaction 2'][i], 1e-13));
-        console.assert(isClose(conditions.temperature[i], temperatures[i], 1e-13));
-        console.assert(isClose(conditions.pressure[i], pressures[i], 1e-13));
+        assert.ok(isClose(initialConcentrations.A[i], concentrations.A[i], 1e-13));
+        assert.ok(isClose(initialConcentrations.B[i], concentrations.B[i], 1e-13));
+        assert.ok(isClose(initialConcentrations.C[i], concentrations.C[i], 1e-13));
+        assert.ok(isClose(initialConcentrations.D[i], concentrations.D[i], 1e-13));
+        assert.ok(isClose(initialConcentrations.E[i], concentrations.E[i], 1e-13));
+        assert.ok(isClose(initialConcentrations.F[i], concentrations.F[i], 1e-13));
+        assert.ok(isClose(initialRateParameters['USER.reaction 1'][i], rateConstants['USER.reaction 1'][i], 1e-13));
+        assert.ok(isClose(initialRateParameters['USER.reaction 2'][i], rateConstants['USER.reaction 2'][i], 1e-13));
+        assert.ok(isClose(conditions.temperature[i], temperatures[i], 1e-13));
+        assert.ok(isClose(conditions.pressure[i], pressures[i], 1e-13));
         const expectedAirDensity = pressures[i] / (8.31446261815324 * temperatures[i]);
-        console.assert(isClose(conditions.air_density[i], expectedAirDensity, 1e-13));
+        assert.ok(isClose(conditions.air_density[i], expectedAirDensity, 1e-13));
     }
 
     timeStep = 1;
@@ -217,188 +215,124 @@ function testMultipleGridCell(solver, state, numGridCells, timeStep, places = 5)
                 k1[i] * Math.exp(-k2[i] * currTime) - k2[i] * Math.exp(-k1[i] * currTime)) / (k2[i] - k1[i]));
 
             // Check concentrations
-            if (!isClose(conc.A[i], A_conc, tolerance)) {
-                throw new Error(`Grid cell ${i} of ${numGridCells}: A concentration mismatch. Initial A: ${initialConcentrations.A[i]}`);
-            }
-            if (!isClose(conc.B[i], B_conc, tolerance)) {
-                throw new Error(`Grid cell ${i} of ${numGridCells}: B concentration mismatch. Initial B: ${initialConcentrations.B[i]}`);
-            }
-            if (!isClose(conc.C[i], C_conc, tolerance)) {
-                throw new Error(`Grid cell ${i} of ${numGridCells}: C concentration mismatch. Initial C: ${initialConcentrations.C[i]}`);
-            }
-            if (!isClose(conc.D[i], D_conc, tolerance)) {
-                throw new Error(`Grid cell ${i} of ${numGridCells}: D concentration mismatch. Initial D: ${initialConcentrations.D[i]}`);
-            }
-            if (!isClose(conc.E[i], E_conc, tolerance)) {
-                throw new Error(`Grid cell ${i} of ${numGridCells}: E concentration mismatch. Initial E: ${initialConcentrations.E[i]}`);
-            }
-            if (!isClose(conc.F[i], F_conc, tolerance)) {
-                throw new Error(`Grid cell ${i} of ${numGridCells}: F concentration mismatch. Initial F: ${initialConcentrations.F[i]}`);
-            }
+            assert.ok(isClose(conc.A[i], A_conc, tolerance),
+                `Grid cell ${i} of ${numGridCells}: A concentration mismatch. Initial A: ${initialConcentrations.A[i]}`);
+            assert.ok(isClose(conc.B[i], B_conc, tolerance),
+                `Grid cell ${i} of ${numGridCells}: B concentration mismatch. Initial B: ${initialConcentrations.B[i]}`);
+            assert.ok(isClose(conc.C[i], C_conc, tolerance),
+                `Grid cell ${i} of ${numGridCells}: C concentration mismatch. Initial C: ${initialConcentrations.C[i]}`);
+            assert.ok(isClose(conc.D[i], D_conc, tolerance),
+                `Grid cell ${i} of ${numGridCells}: D concentration mismatch. Initial D: ${initialConcentrations.D[i]}`);
+            assert.ok(isClose(conc.E[i], E_conc, tolerance),
+                `Grid cell ${i} of ${numGridCells}: E concentration mismatch. Initial E: ${initialConcentrations.E[i]}`);
+            assert.ok(isClose(conc.F[i], F_conc, tolerance),
+                `Grid cell ${i} of ${numGridCells}: F concentration mismatch. Initial F: ${initialConcentrations.F[i]}`);
         }
 
         currTime += timeStep;
     }
 }
 
-/**
- * Test functions matching Python pytest structure
- */
-
-function test_single_grid_cell_standard_rosenbrock() {
-    const solver = new MICM({
-        config_path: CONFIG_PATH,
-        solver_type: SolverType.rosenbrock_standard_order
-    });
-    const state = solver.createState(1);
-    testSingleGridCell(solver, state, 200.0, 5);
-    console.log('Passed test_single_grid_cell_standard_rosenbrock passed');
-}
-
-function test_multiple_grid_cells_standard_rosenbrock() {
-    for (let i = 1; i <= 10; i++) {
+// Test suite for single grid cell - Standard Rosenbrock
+describe('Analytical - Single grid cell - Standard Rosenbrock', () => {
+    it('should match analytical solution', () => {
         const solver = new MICM({
             config_path: CONFIG_PATH,
             solver_type: SolverType.rosenbrock_standard_order
         });
-        const state = solver.createState(i);
-        testMultipleGridCell(solver, state, i, 200.0, 5);
-    }
-    console.log('Passed test_multiple_grid_cells_standard_rosenbrock passed (1-10 cells)');
-}
-
-function test_single_grid_cell_backward_euler() {
-    const solver = new MICM({
-        config_path: CONFIG_PATH,
-        solver_type: SolverType.backward_euler_standard_order
+        const state = solver.createState(1);
+        testSingleGridCell(solver, state, 200.0, 5);
     });
-    const state = solver.createState(1);
-    testSingleGridCell(solver, state, 10.0, 2);
-    console.log('Passed test_single_grid_cell_backward_euler passed');
-}
+});
 
-function test_multiple_grid_cells_backward_euler() {
-    for (let i = 1; i <= 10; i++) {
-        const solver = new MICM({
-            config_path: CONFIG_PATH,
-            solver_type: SolverType.backward_euler_standard_order
-        });
-        const state = solver.createState(i);
-        testMultipleGridCell(solver, state, i, 10.0, 2);
-    }
-    console.log('Passed test_multiple_grid_cells_backward_euler passed (1-10 cells)');
-}
-
-function test_single_grid_cell_rosenbrock() {
-    const solver = new MICM({
-        config_path: CONFIG_PATH,
-        solver_type: SolverType.rosenbrock
-    });
-    const state = solver.createState(1);
-    testSingleGridCell(solver, state, 200.0, 5);
-    console.log('Passed test_single_grid_cell_rosenbrock passed');
-}
-
-function test_multiple_grid_cells_rosenbrock() {
-    // NOTE: Vector-ordered Rosenbrock currently only supports up to 4 grid cells
-    // This is because the C++ implementation requires splitting into multiple
-    // internal states for >4 cells (the vector size), which is not yet implemented
-    // in the JavaScript bindings. Python handles this by creating multiple states.
-    // See musica/types.py lines 93-97 for the Python multi-state implementation.
-    const maxCells = 4; // Vector size limitation
-
+// Test suite for multiple grid cells - Standard Rosenbrock
+describe('Analytical - Multiple grid cells - Standard Rosenbrock', () => {
     for (let i = 1; i <= maxCells; i++) {
+        it(`should match analytical solution for ${i} grid cells`, () => {
+            const solver = new MICM({
+                config_path: CONFIG_PATH,
+                solver_type: SolverType.rosenbrock_standard_order
+            });
+            const state = solver.createState(i);
+            testMultipleGridCell(solver, state, i, 200.0, 5);
+        });
+    }
+});
+
+// Test suite for single grid cell - Rosenbrock (vector-ordered)
+describe('Analytical - Single grid cell - Rosenbrock', () => {
+    it('should match analytical solution', () => {
         const solver = new MICM({
             config_path: CONFIG_PATH,
             solver_type: SolverType.rosenbrock
         });
-        const state = solver.createState(i);
-        testMultipleGridCell(solver, state, i, 200.0, 5);
-    }
-    console.log(`Passed test_multiple_grid_cells_rosenbrock passed (1-${maxCells} cells) [Limited by vector size]`);
-}
-
-function test_single_grid_cell_backward_euler_standard_order() {
-    const solver = new MICM({
-        config_path: CONFIG_PATH,
-        solver_type: SolverType.backward_euler_standard_order
+        const state = solver.createState(1);
+        testSingleGridCell(solver, state, 200.0, 5);
     });
-    const state = solver.createState(1);
-    testSingleGridCell(solver, state, 10.0, 2);
-    console.log('Passed test_single_grid_cell_backward_euler_standard_order passed');
-}
+});
 
-function test_multiple_grid_cells_backward_euler_standard_order() {
-    for (let i = 1; i <= 10; i++) {
+// Test suite for multiple grid cells - Rosenbrock (vector-ordered)
+describe('Analytical - Multiple grid cells - Rosenbrock', () => {
+    for (let i = 1; i <= maxCells; i++) {
+        it(`should match analytical solution for ${i} grid cells`, () => {
+            const solver = new MICM({
+                config_path: CONFIG_PATH,
+                solver_type: SolverType.rosenbrock
+            });
+            const state = solver.createState(i);
+            testMultipleGridCell(solver, state, i, 200.0, 5);
+        });
+    }
+});
+
+// Test suite for single grid cell - Backward Euler
+describe('Analytical - Single grid cell - Backward Euler', () => {
+    it('should match analytical solution', () => {
+        const solver = new MICM({
+            config_path: CONFIG_PATH,
+            solver_type: SolverType.backward_euler
+        });
+        const state = solver.createState(1);
+        testSingleGridCell(solver, state, 10.0, 2);
+    });
+});
+
+// Test suite for multiple grid cells - Backward Euler
+describe('Analytical - Multiple grid cells - Backward Euler', () => {
+    for (let i = 1; i <= maxCells; i++) {
+        it(`should match analytical solution for ${i} grid cells`, () => {
+            const solver = new MICM({
+                config_path: CONFIG_PATH,
+                solver_type: SolverType.backward_euler
+            });
+            const state = solver.createState(i);
+            testMultipleGridCell(solver, state, i, 10.0, 2);
+        });
+    }
+});
+
+// Test suite for single grid cell - Backward Euler Standard Order
+describe('Analytical - Single grid cell - Backward Euler Standard Order', () => {
+    it('should match analytical solution', () => {
         const solver = new MICM({
             config_path: CONFIG_PATH,
             solver_type: SolverType.backward_euler_standard_order
         });
-        const state = solver.createState(i);
-        testMultipleGridCell(solver, state, i, 10.0, 2);
+        const state = solver.createState(1);
+        testSingleGridCell(solver, state, 10.0, 2);
+    });
+});
+
+// Test suite for multiple grid cells - Backward Euler Standard Order
+describe('Analytical - Multiple grid cells - Backward Euler Standard Order', () => {
+    for (let i = 1; i <= maxCells; i++) {
+        it(`should match analytical solution for ${i} grid cells`, () => {
+            const solver = new MICM({
+                config_path: CONFIG_PATH,
+                solver_type: SolverType.backward_euler_standard_order
+            });
+            const state = solver.createState(i);
+            testMultipleGridCell(solver, state, i, 10.0, 2);
+        });
     }
-    console.log('Passed test_multiple_grid_cells_backward_euler_standard_order passed (1-10 cells)');
-}
-
-
-/**
- * Main test runner
- */
-function runTests() {
-
-    let tests_complete = 0;
-
-    console.log('Starting MICM Analytical Tests (matching Python test_analytical.py)...\n');
-    console.log('='.repeat(60));
-
-    const tests = [
-        ['Single grid cell - Standard Rosenbrock', test_single_grid_cell_standard_rosenbrock],
-        ['Multiple grid cells (1-10) - Standard Rosenbrock', test_multiple_grid_cells_standard_rosenbrock],
-        ['Single grid cell - Backward Euler', test_single_grid_cell_backward_euler],
-        ['Multiple grid cells (1-10) - Backward Euler', test_multiple_grid_cells_backward_euler],
-        ['Single grid cell - Rosenbrock (vector-ordered)', test_single_grid_cell_rosenbrock],
-        ['Multiple grid cells (1-10) - Rosenbrock (vector-ordered)', test_multiple_grid_cells_rosenbrock],
-        ['Single grid cell - Backward Euler Standard Order', test_single_grid_cell_backward_euler_standard_order],
-        ['Multiple grid cells (1-10) - Backward Euler Standard Order', test_multiple_grid_cells_backward_euler_standard_order],
-    ]
-
-
-
-    for (let i = 0; i < tests.length; i++) {
-        const [name, fn] = tests[i];
-        console.log(`\nTest ${i + 1}: ${name}`);
-        try {
-            fn();
-            tests_complete++;
-
-        } catch (error) {
-            console.error('\n' + '='.repeat(60));
-            console.error('TEST FAILED! ✗');
-            console.error('='.repeat(60));
-            console.error('Error:', error.message);
-            console.error(error.stack);
-        }
-    }
-
-    if (tests_complete == tests.length) {
-        console.log('\n' + '='.repeat(60));
-        console.log('ALL TESTS PASSED! ✓');
-        console.log('='.repeat(60));
-    } else {
-        console.log('\n' + '='.repeat(60));
-        console.log(`${tests_complete}/${tests.length} TESTS PASSED! 1 OR MORE TESTS FAILED!`);
-        console.log('='.repeat(60));
-    }
-}
-
-// Run tests if this file is executed directly
-if (require.main === module) {
-    runTests();
-}
-
-module.exports = {
-    testSingleGridCell,
-    testMultipleGridCell,
-    runTests,
-    isClose
-};
+});

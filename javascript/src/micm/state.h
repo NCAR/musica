@@ -12,7 +12,6 @@
 
 using namespace musica_addon;
 
-
 class StateClass : public Napi::ObjectWrap<StateClass>
 {
  public:
@@ -20,10 +19,10 @@ class StateClass : public Napi::ObjectWrap<StateClass>
   static Napi::FunctionReference g_StateConstructor;
   StateClass(const Napi::CallbackInfo& info);
   ~StateClass();
-  musica::State* GetState()const;
+  musica::State* GetState() const;
 
  private:
-  StateWrapper* state_;
+  std::unique_ptr<StateWrapper> state_;
   Napi::Value SetConcentrations(const Napi::CallbackInfo& info);
   Napi::Value GetConcentrations(const Napi::CallbackInfo& info);
   Napi::Value SetUserDefinedRateParameters(const Napi::CallbackInfo& info);

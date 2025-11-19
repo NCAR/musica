@@ -1,3 +1,5 @@
+const { test } = require('node:test');
+const assert = require('node:assert');
 const musica = require('musica-addon');
 const { types, reactionTypes, Mechanism } = musica.mechanismConfiguration;
 const { Species, PhaseSpecies, Phase, ReactionComponent } = types;
@@ -508,45 +510,31 @@ const expected = {
 	],
 };
 
-const full_config_sanatized = JSON.parse(full_config_mechanism.getString());
-// console.log(JSON.stringify(full_config_sanatized, null, 2));
-
 /**
  * Recursively compare two objects (or arrays) for deep equality.
- * Returns true if they are deeply equal, false otherwise.
- * Prints the first difference found for debugging.
  * Arrays are compared as unordered collections.
  */
 function deepEqual(a, b, path = '') {
 	if (a === b) return true;
 	if (typeof a !== typeof b) {
-		// console.log(`Type mismatch at ${path}:`, a, b);
 		return false;
 	}
 	if (a === null || b === null) {
 		if (a !== b) {
-			// console.log(`Null mismatch at ${path}:`, a, b);
 			return false;
 		}
 		return true;
 	}
 	if (typeof a !== 'object') {
-		// console.log(`Value mismatch at ${path}:`, a, b);
 		return false;
 	}
 
 	// Arrays (unordered comparison)
 	if (Array.isArray(a)) {
 		if (!Array.isArray(b)) {
-			// console.log(`Array/Object mismatch at ${path}:`, a, b);
 			return false;
 		}
 		if (a.length !== b.length) {
-			// console.log(
-			// 	`Array length mismatch at ${path}:`,
-			// 	a.length,
-			// 	b.length
-			// );
 			return false;
 		}
 		// Track which elements in b have been matched
@@ -572,12 +560,10 @@ function deepEqual(a, b, path = '') {
 	const aKeys = Object.keys(a);
 	const bKeys = Object.keys(b);
 	if (aKeys.length !== bKeys.length) {
-		// console.log(`Object key length mismatch at ${path}:`, aKeys, bKeys);
 		return false;
 	}
 	for (const key of aKeys) {
 		if (!b.hasOwnProperty(key)) {
-			// console.log(`Missing key '${key}' at ${path} in second object`);
 			return false;
 		}
 		if (!deepEqual(a[key], b[key], path ? `${path}.${key}` : key))
@@ -586,12 +572,11 @@ function deepEqual(a, b, path = '') {
 	return true;
 }
 
-if (deepEqual(full_config_sanatized, expected, 'root')) {
-	console.log(
-		'✅ TEST PASSED: Full configuration export matches expected output'
+test('Full configuration export matches expected output', (t) => {
+	const full_config_sanatized = JSON.parse(full_config_mechanism.getString());
+
+	assert.ok(
+		deepEqual(full_config_sanatized, expected, 'root'),
+		'Full configuration should match expected output'
 	);
-} else {
-	console.log(
-		'❌ TEST FAILED: Full configuration export does not match expected output'
-	);
-}
+});

@@ -21,20 +21,15 @@ StateClass::StateClass(const Napi::CallbackInfo& info)
     return;
   }
 
-  state_ = info[0].As<Napi::External<StateWrapper>>().Data();
+  // Transfer ownership from External to unique_ptr
+  state_ = std::unique_ptr<StateWrapper>(info[0].As<Napi::External<StateWrapper>>().Data());
 }
 
-StateClass::~StateClass() {
-  if (state_ != nullptr)
-  {
-    state_->DeleteStateWrapper();
-    state_ = nullptr;
-  }
-}
+StateClass::~StateClass() = default;
 
 musica::State* StateClass::GetState() const
-{ 
-  return state_->GetState(); 
+{
+  return state_ ? state_->GetState() : nullptr;
 }
 
 Napi::Value StateClass::SetConcentrations(const Napi::CallbackInfo& info)

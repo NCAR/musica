@@ -65,12 +65,10 @@ Napi::Value MICMClass::CreateState(const Napi::CallbackInfo& info)
   try
   {
     musica::State* raw_state = micm_->CreateState(num_cells);
-    auto state_wrapper = std::make_shared<StateWrapper>(raw_state);
-    auto ext = Napi::External<StateWrapper>::New(
-      env,
-      new StateWrapper(raw_state),
-      [](Napi::Env /*env*/, StateWrapper* ptr) { delete ptr; }
-    );
+    auto state_wrapper = new StateWrapper(raw_state);
+
+    // Create External without finalizer - StateClass will manage lifetime
+    auto ext = Napi::External<StateWrapper>::New(env, state_wrapper);
 
     // Return StateClass instance using global constructor
     if (StateClass::g_StateConstructor == nullptr)
