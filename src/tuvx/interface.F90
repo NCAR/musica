@@ -327,7 +327,7 @@ contains
    subroutine internal_run_tuvx(tuvx, number_of_layers, solar_zenith_angle, &
       earth_sun_distance, photolysis_rate_constants, heating_rates, dose_rates, &
       error_code) bind(C, name="InternalRunTuvx")
-      use iso_c_binding, only: c_ptr, c_f_pointer, c_int
+      use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_associated
       use musica_constants, only: dk => musica_dk
 
       ! arguments
@@ -349,13 +349,20 @@ contains
          [number_of_layers + 1, core%number_of_photolysis_reactions()])
       call c_f_pointer(heating_rates, heat_rates, &
          [number_of_layers + 1, core%number_of_heating_rates()])
-      call c_f_pointer(dose_rates, doses, &
-         [number_of_layers + 1, core%number_of_dose_rates()])
-      call core%run(solar_zenith_angle, earth_sun_distance, &
-         photolysis_rate_constants = photo_rates, &
-         heating_rates = heat_rates, &
-         dose_rates = doses, &
-         diagnostic_label = "musica_tuvx_interface")
+      if (c_associated(dose_rates)) then
+         call c_f_pointer(dose_rates, doses, &
+            [number_of_layers + 1, core%number_of_dose_rates()])
+         call core%run(solar_zenith_angle, earth_sun_distance, &
+            photolysis_rate_constants = photo_rates, &
+            heating_rates = heat_rates, &
+            dose_rates = doses, &
+            diagnostic_label = "musica_tuvx_interface")
+      else
+         call core%run(solar_zenith_angle, earth_sun_distance, &
+            photolysis_rate_constants = photo_rates, &
+            heating_rates = heat_rates, &
+            diagnostic_label = "musica_tuvx_interface")
+      end if
       error_code = 0
 
    end subroutine internal_run_tuvx

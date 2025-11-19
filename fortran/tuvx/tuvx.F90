@@ -82,19 +82,19 @@ module musica_tuvx
          type(error_t_c), intent(inout) :: error
       end subroutine get_heating_rates_ordering_c
 
-    subroutine run_tuvx_c(tuvx, solar_zenith_angle, earth_sun_distance, &
-        photolysis_rate_constants, heating_rates, dose_rates, error) &
-        bind(C, name="RunTuvx")
-      use musica_util, only: error_t_c
-      use iso_c_binding, only: c_ptr, c_double
-      type(c_ptr), value,         intent(in)    :: tuvx
-      real(kind=c_double), value, intent(in)    :: solar_zenith_angle
-      real(kind=c_double), value, intent(in)    :: earth_sun_distance
-      type(c_ptr), value,         intent(in)    :: photolysis_rate_constants
-      type(c_ptr), value,         intent(in)    :: heating_rates
-      type(c_ptr), value,         intent(in)    :: dose_rates
-      type(error_t_c),            intent(inout) :: error
-    end subroutine run_tuvx_c
+      subroutine run_tuvx_c(tuvx, solar_zenith_angle, earth_sun_distance, &
+         photolysis_rate_constants, heating_rates, dose_rates, error) &
+         bind(C, name="RunTuvx")
+         use musica_util, only: error_t_c
+         use iso_c_binding, only: c_ptr, c_double
+         type(c_ptr), value,         intent(in)    :: tuvx
+         real(kind=c_double), value, intent(in)    :: solar_zenith_angle
+         real(kind=c_double), value, intent(in)    :: earth_sun_distance
+         type(c_ptr), value,         intent(in)    :: photolysis_rate_constants
+         type(c_ptr), value,         intent(in)    :: heating_rates
+         type(c_ptr), value,         intent(in)    :: dose_rates
+         type(error_t_c),            intent(inout) :: error
+      end subroutine run_tuvx_c
   end interface
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -287,8 +287,8 @@ contains
    !> Run the calculator
    subroutine run(this, solar_zenith_angle, earth_sun_distance, &
       photolysis_rate_constants, heating_rates, error)
-    use iso_c_binding, only: c_double, c_ptr, c_loc, c_null_ptr
-    use musica_util, only: error_t, error_t_c, dk => musica_dk
+      use iso_c_binding, only: c_double, c_ptr, c_loc, c_null_ptr
+      use musica_util, only: error_t, error_t_c, dk => musica_dk
 
       ! Arguments
       class(tuvx_t),                     intent(inout) :: this
@@ -302,13 +302,13 @@ contains
       type(error_t_c) :: error_c
       type(c_ptr)     :: photo_rate_c, heating_c
 
-    photo_rate_c = c_loc(photolysis_rate_constants(1,1))
-    heating_c    = c_loc(heating_rates(1,1))
-    call run_tuvx_c(this%ptr_, &
-                    real(solar_zenith_angle, kind=c_double), &
-                    real(earth_sun_distance, kind=c_double), &
-                    photo_rate_c, heating_c, c_null_ptr, error_c)
-    error = error_t(error_c)
+      photo_rate_c = c_loc(photolysis_rate_constants(1,1))
+      heating_c    = c_loc(heating_rates(1,1))
+      call run_tuvx_c(this%ptr_, &
+                      real(solar_zenith_angle, kind=c_double), &
+                      real(earth_sun_distance, kind=c_double), &
+                      photo_rate_c, heating_c, c_null_ptr, error_c)
+      error = error_t(error_c)
 
    end subroutine run
 

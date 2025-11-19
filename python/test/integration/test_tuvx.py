@@ -205,7 +205,6 @@ def get_profile_map(grid_map):
 
 
 def get_radiator_map(grid_map):
-    od = np.zeros((grid_map["wavelength", "nm"].num_sections, grid_map["height", "km"].num_sections))
     ssa = 0.99 * np.ones((grid_map["wavelength", "nm"].num_sections, grid_map["height", "km"].num_sections))
     asymmetry = 0.61 * np.ones((grid_map["wavelength", "nm"].num_sections, grid_map["height", "km"].num_sections))
 

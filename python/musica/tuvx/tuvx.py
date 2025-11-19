@@ -149,9 +149,9 @@ class TUVX:
         
         Returns:
             Tuple of (photolysis_rate_constants, heating_rates) as numpy arrays
-            - photolysis_rate_constants: Shape (n_sza, n_layers, n_reactions) [s^-1]
-            - heating_rates: Shape (n_sza, n_layers, n_heating_rates) [K s^-1]
-            - dose_rates: Shape (n_sza, n_layers, n_dose_rates) [W m^-2]
+            - photolysis_rate_constants: Shape (n_layers, n_reactions) [s^-1]
+            - heating_rates: Shape (n_layers, n_heating_rates) [K s^-1]
+            - dose_rates: Shape (n_layers, n_dose_rates) [W m^-2]
         """
         photolysis_rates, heating_rates, dose_rates = _backend._tuvx._run_tuvx(
             self._tuvx_instance, sza, earth_sun_distance)
