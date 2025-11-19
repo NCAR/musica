@@ -79,11 +79,13 @@ class TUVX:
                 f"Configuration file not found: {config_path}")
 
         if config_path is not None:
-            self._tuvx_instance = _backend._tuvx._create_tuvx_from_file(config_path, grid_map, profile_map, radiator_map)
+            self._tuvx_instance = _backend._tuvx._create_tuvx_from_file(
+                config_path, grid_map, profile_map, radiator_map)
             self._config_path = config_path
             self._config_string = None
         elif config_string is not None:
-            self._tuvx_instance = _backend._tuvx._create_tuvx_from_string(config_string, grid_map, profile_map, radiator_map)
+            self._tuvx_instance = _backend._tuvx._create_tuvx_from_string(
+                config_string, grid_map, profile_map, radiator_map)
             self._config_path = None
             self._config_string = config_string
 
@@ -146,7 +148,7 @@ class TUVX:
         Args:
             sza: Solar zenith angle in radians
             earth_sun_distance: Earth-Sun distance in astronomical units (AU)
-        
+
         Returns:
             Tuple of (photolysis_rate_constants, heating_rates) as numpy arrays
             - photolysis_rate_constants: Shape (n_layers, n_reactions) [s^-1]

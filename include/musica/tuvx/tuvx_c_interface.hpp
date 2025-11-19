@@ -28,7 +28,12 @@ namespace musica
     /// @param profiles Profile map from host application
     /// @param radiators Radiator map from host application
     /// @param error Error struct to indicate success or failure
-    TUVX *CreateTuvxFromConfigString(const char *config_string, GridMap *grids, ProfileMap *profiles, RadiatorMap *radiators, Error *error);
+    TUVX* CreateTuvxFromConfigString(
+        const char* config_string,
+        GridMap* grids,
+        ProfileMap* profiles,
+        RadiatorMap* radiators,
+        Error* error);
 
     /// @brief Deletes a TUVX instance
     /// @param tuvx Pointer to TUVX instance

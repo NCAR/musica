@@ -182,18 +182,21 @@ def get_grid_map():
 
 def get_profile_map(grid_map):
     # Simple exponential profiles for testing
-    midpoints = 1.0e-6 * 2.54e19 * np.exp(-(grid_map["height", "km"].midpoints - 120)/7) 
+    midpoints = 1.0e-6 * 2.54e19 * np.exp(-(grid_map["height", "km"].midpoints - 120) / 7)
     ozone = musica.Profile(name="O3", units="molecule cm-3", grid=grid_map["height", "km"], midpoint_values=midpoints)
-    midpoints = 2.54e19 * np.exp(-(grid_map["height", "km"].midpoints - 120)/7)
+    midpoints = 2.54e19 * np.exp(-(grid_map["height", "km"].midpoints - 120) / 7)
     air = musica.Profile(name="air", units="molecule cm-3", grid=grid_map["height", "km"], midpoint_values=midpoints)
-    midpoints = 0.21 * 2.54e19 * np.exp(-(grid_map["height", "km"].midpoints - 120)/7)
+    midpoints = 0.21 * 2.54e19 * np.exp(-(grid_map["height", "km"].midpoints - 120) / 7)
     oxygen = musica.Profile(name="O2", units="molecule cm-3", grid=grid_map["height", "km"], midpoint_values=midpoints)
-    midpoints = 298.0 * np.exp(-(grid_map["height", "km"].midpoints - 120)/7)
-    temperature = musica.Profile(name="temperature", units="K", grid=grid_map["height", "km"], midpoint_values=midpoints)
+    midpoints = 298.0 * np.exp(-(grid_map["height", "km"].midpoints - 120) / 7)
+    temperature = musica.Profile(name="temperature", units="K",
+                                 grid=grid_map["height", "km"], midpoint_values=midpoints)
     midpoints = 0.1 * np.ones(grid_map["wavelength", "nm"].num_sections)
-    surface_albedo = musica.Profile(name="surface albedo", units="none", grid=grid_map["wavelength", "nm"], midpoint_values=midpoints)
+    surface_albedo = musica.Profile(name="surface albedo", units="none",
+                                    grid=grid_map["wavelength", "nm"], midpoint_values=midpoints)
     midpoints = 1.0e18 * 1420.0 / 615.0 * 0.0001 * np.ones(grid_map["wavelength", "nm"].num_sections)
-    et_flux = musica.Profile(name="extraterrestrial flux", units="photon cm-2 s-1", grid=grid_map["wavelength", "nm"], midpoint_values=midpoints)
+    et_flux = musica.Profile(name="extraterrestrial flux", units="photon cm-2 s-1",
+                             grid=grid_map["wavelength", "nm"], midpoint_values=midpoints)
     profile_map = musica.ProfileMap()
     profile_map["O3", "molecule cm-3"] = ozone
     profile_map["air", "molecule cm-3"] = air
@@ -209,11 +212,27 @@ def get_radiator_map(grid_map):
     asymmetry = 0.61 * np.ones((grid_map["wavelength", "nm"].num_sections, grid_map["height", "km"].num_sections))
 
     # clouds
-    od = np.tile(1.0e-6 * np.exp(-(grid_map["height", "km"].midpoints - 120)/7), (grid_map["wavelength", "nm"].num_sections, 1))
-    clouds = musica.Radiator(name="clouds", height_grid=grid_map["height", "km"], wavelength_grid=grid_map["wavelength", "nm"], optical_depths=od, single_scattering_albedos=ssa, asymmetry_factors=asymmetry)
+    od = np.tile(1.0e-6 * np.exp(-(grid_map["height", "km"].midpoints - 120) / 7),
+                 (grid_map["wavelength", "nm"].num_sections, 1))
+    clouds = musica.Radiator(name="clouds",
+                             height_grid=grid_map["height",
+                                                  "km"],
+                             wavelength_grid=grid_map["wavelength",
+                                                      "nm"],
+                             optical_depths=od,
+                             single_scattering_albedos=ssa,
+                             asymmetry_factors=asymmetry)
     # hot air balloons
-    od = np.tile(1.8e-8 * np.exp(-(grid_map["height", "km"].midpoints - 120)/7), (grid_map["wavelength", "nm"].num_sections, 1)) 
-    hot_air_balloons = musica.Radiator(name="hot air balloons", height_grid=grid_map["height", "km"], wavelength_grid=grid_map["wavelength", "nm"], optical_depths=od, single_scattering_albedos=ssa, asymmetry_factors=asymmetry)
+    od = np.tile(1.8e-8 * np.exp(-(grid_map["height", "km"].midpoints - 120) / 7),
+                 (grid_map["wavelength", "nm"].num_sections, 1))
+    hot_air_balloons = musica.Radiator(name="hot air balloons",
+                                       height_grid=grid_map["height",
+                                                            "km"],
+                                       wavelength_grid=grid_map["wavelength",
+                                                                "nm"],
+                                       optical_depths=od,
+                                       single_scattering_albedos=ssa,
+                                       asymmetry_factors=asymmetry)
     radiator_map = musica.RadiatorMap()
     radiator_map["clouds"] = clouds
     radiator_map["hot air balloons"] = hot_air_balloons
@@ -345,7 +364,11 @@ def test_tuvx_initialization_errors():
     profile_map = get_profile_map(grid_map)
     radiator_map = get_radiator_map(grid_map)
     with pytest.raises(FileNotFoundError):
-        musica.TUVX(grid_map=grid_map, profile_map=profile_map, radiator_map=radiator_map, config_path="non_existent_config.json")
+        musica.TUVX(
+            grid_map=grid_map,
+            profile_map=profile_map,
+            radiator_map=radiator_map,
+            config_path="non_existent_config.json")
 
 
 if __name__ == '__main__':
