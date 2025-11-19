@@ -22,6 +22,14 @@ namespace musica
     /// @param error Error struct to indicate success or failure
     TUVX* CreateTuvx(const char* config_path, GridMap* grids, ProfileMap* profiles, RadiatorMap* radiators, Error* error);
 
+    /// @brief Creates a TUVX instance by passing a configuration string and host-defined grids, profiles, and radiators
+    /// @param config_string JSON/YAML configuration string
+    /// @param grids Grid map from host application
+    /// @param profiles Profile map from host application
+    /// @param radiators Radiator map from host application
+    /// @param error Error struct to indicate success or failure
+    TUVX *CreateTuvxFromConfigString(const char *config_string, GridMap *grids, ProfileMap *profiles, RadiatorMap *radiators, Error *error);
+
     /// @brief Deletes a TUVX instance
     /// @param tuvx Pointer to TUVX instance
     /// @param error Error struct to indicate success or failure
@@ -69,6 +77,7 @@ namespace musica
     /// @param earth_sun_distance Earth-Sun distance [AU]
     /// @param photolysis_rate_constants Photolysis rate constant for each layer and reaction [s^-1]
     /// @param heating_rates Heating rates for each layer and reaction [K/s]
+    /// @param dose_rates Dose rates for each layer and reaction [W/m^2]
     /// @param error Error struct to indicate success or failure
     void RunTuvx(
         TUVX* tuvx,
@@ -76,6 +85,7 @@ namespace musica
         const double earth_sun_distance,
         double* const photolysis_rate_constants,
         double* const heating_rates,
+        double* const dose_rates,
         Error* const error);
 
     // for use by musica internally. If tuvx ever gets rewritten in C++, these functions will
@@ -84,6 +94,14 @@ namespace musica
     void* InternalCreateTuvx(
         const char* config_path,
         std::size_t config_path_length,
+        void* grid_map,
+        void* profile_map,
+        void* radiator_map,
+        int* number_of_layers,
+        int* error_code);
+    void* InternalCreateTuvxFromConfigString(
+        const char* config_string,
+        std::size_t config_string_length,
         void* grid_map,
         void* profile_map,
         void* radiator_map,
@@ -103,24 +121,15 @@ namespace musica
         const double earth_sun_distance,
         double* photolysis_rate_constants,
         double* heating_rates,
+        double* dose_rates,
         int* error_code);
 
     void InternalGetTuvxVersion(char** version_ptr, int* version_length);
     void InternalFreeTuvxVersion(char* version_ptr, int version_length);
-
-    void* InternalCreateTuvxFromConfigString(const char* config_string, int config_string_length, int* error_code);
-    void* InternalCreateTuvxFromConfigFile(const char* config_path, int config_path_length, int* error_code);
-    void InternalRunTuvxFromConfig(
-        void* tuvx,
-        double* photolysis_rates,
-        double* heating_rates,
-        double* dose_rates,
-        int* error_code);
     int InternalGetPhotolysisRateConstantCount(void* tuvx, int* error_code);
     int InternalGetHeatingRateCount(void* tuvx, int* error_code);
     int InternalGetDoseRateCount(void* tuvx, int* error_code);
     int InternalGetNumberOfLayers(void* tuvx, int* error_code);
-    int InternalGetNumberOfSzaSteps(void* tuvx, int* error_code);
 
 #ifdef __cplusplus
   }

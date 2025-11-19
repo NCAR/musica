@@ -9,6 +9,7 @@ module tuvx_interface
    use tuvx_grid_warehouse,     only : grid_warehouse_t
    use tuvx_profile_warehouse,  only : profile_warehouse_t
    use tuvx_radiator_warehouse, only : radiator_warehouse_t
+   use musica_config,           only : config_t
    use musica_string,           only : string_t
 
    implicit none
@@ -65,6 +66,56 @@ contains
       internal_create_tuvx = c_loc(core)
 
    end function internal_create_tuvx
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   function internal_create_tuvx_from_config_string(c_config_string, &
+      config_string_length, c_grid_map, c_profile_map, c_radiator_map, &
+      number_of_layers, error_code) &
+      bind(C, name="InternalCreateTuvxFromConfigString")
+      use iso_c_binding, only: c_ptr, c_f_pointer
+
+      ! arguments
+      character(kind=c_char), dimension(*), intent(in)  :: c_config_string
+      integer(kind=c_size_t), value                     :: config_string_length
+      type(c_ptr), value,                   intent(in)  :: c_grid_map
+      type(c_ptr), value,                   intent(in)  :: c_profile_map
+      type(c_ptr), value,                   intent(in)  :: c_radiator_map
+      integer(kind=c_int),                  intent(out) :: number_of_layers
+      integer(kind=c_int),                  intent(out) :: error_code
+      type(c_ptr) :: internal_create_tuvx_from_config_string
+
+      ! local variables
+      character(len=:), allocatable       :: f_config_string
+      type(core_t), pointer               :: core
+      type(config_t)                      :: config
+      type(grid_warehouse_t),     pointer :: grid_map
+      type(profile_warehouse_t),  pointer :: profile_map
+      type(radiator_warehouse_t), pointer :: radiator_map
+      type(grid_t), pointer               :: height_grid
+      integer                             :: i
+
+      allocate(character(len=config_string_length) :: f_config_string)
+      do i = 1, config_string_length
+         f_config_string(i:i) = c_config_string(i)
+      end do
+
+      config = f_config_string
+      call c_f_pointer(c_grid_map, grid_map)
+      call c_f_pointer(c_profile_map, profile_map)
+      call c_f_pointer(c_radiator_map, radiator_map)
+      core => core_t(config, grids = grid_map, &
+         profiles = profile_map, radiators = radiator_map)
+      height_grid => core%get_grid("height", "km")
+      number_of_layers = height_grid%ncells_
+      deallocate(height_grid)
+
+      deallocate(f_config_string)
+      error_code = 0
+
+      internal_create_tuvx_from_config_string = c_loc(core)
+
+   end function internal_create_tuvx_from_config_string
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -274,9 +325,9 @@ contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    subroutine internal_run_tuvx(tuvx, number_of_layers, solar_zenith_angle, &
-      earth_sun_distance, photolysis_rate_constants, heating_rates, error_code) &
-      bind(C, name="InternalRunTuvx")
-      use iso_c_binding, only: c_ptr, c_f_pointer, c_int
+      earth_sun_distance, photolysis_rate_constants, heating_rates, dose_rates, &
+      error_code) bind(C, name="InternalRunTuvx")
+      use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_associated
       use musica_constants, only: dk => musica_dk
 
       ! arguments
@@ -286,21 +337,32 @@ contains
       real(kind=dk),       value,  intent(in)  :: earth_sun_distance         ! AU
       type(c_ptr),         value,  intent(in)  :: photolysis_rate_constants  ! s^-1 (layer, reaction)
       type(c_ptr),         value,  intent(in)  :: heating_rates              ! K s^-1 (layer, reaction)
+      type(c_ptr),         value,  intent(in)  :: dose_rates                 ! J m^-2 (layer, reaction)
       integer(kind=c_int),         intent(out) :: error_code
 
       ! variables
       type(core_t), pointer :: core
-      real(kind=dk), pointer :: photo_rates(:,:), heat_rates(:,:)
+      real(kind=dk), pointer :: photo_rates(:,:), heat_rates(:,:), doses(:,:)
 
       call c_f_pointer(tuvx, core)
       call c_f_pointer(photolysis_rate_constants, photo_rates, &
          [number_of_layers + 1, core%number_of_photolysis_reactions()])
       call c_f_pointer(heating_rates, heat_rates, &
          [number_of_layers + 1, core%number_of_heating_rates()])
-      call core%run(solar_zenith_angle, earth_sun_distance, &
-         photolysis_rate_constants = photo_rates, &
-         heating_rates = heat_rates, &
-         diagnostic_label = "musica_tuvx_interface")
+      if (c_associated(dose_rates)) then
+         call c_f_pointer(dose_rates, doses, &
+            [number_of_layers + 1, core%number_of_dose_rates()])
+         call core%run(solar_zenith_angle, earth_sun_distance, &
+            photolysis_rate_constants = photo_rates, &
+            heating_rates = heat_rates, &
+            dose_rates = doses, &
+            diagnostic_label = "musica_tuvx_interface")
+      else
+         call core%run(solar_zenith_angle, earth_sun_distance, &
+            photolysis_rate_constants = photo_rates, &
+            heating_rates = heat_rates, &
+            diagnostic_label = "musica_tuvx_interface")
+      end if
       error_code = 0
 
    end subroutine internal_run_tuvx
@@ -353,131 +415,6 @@ contains
       end if
 
    end subroutine internal_free_tuvx_version
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-   function internal_create_tuvx_from_config_string(c_config_string, &
-      config_string_length, error_code) &
-      bind(C, name="InternalCreateTuvxFromConfigString")
-      use iso_c_binding, only: c_ptr, c_f_pointer
-      use musica_config, only: config_t
-
-      ! arguments
-      character(kind=c_char), dimension(*), intent(in)  :: c_config_string
-      integer(kind=c_size_t), value                     :: config_string_length
-      integer(kind=c_int),                  intent(out) :: error_code
-      type(c_ptr)                                       :: internal_create_tuvx_from_config_string
-
-      ! local variables
-      character(len=:), allocatable :: f_config_string
-      type(core_t), pointer         :: core
-      type(config_t)                :: config
-      integer                       :: i
-
-      allocate(character(len=config_string_length) :: f_config_string)
-      do i = 1, config_string_length
-         f_config_string(i:i) = c_config_string(i)
-      end do
-
-      config = f_config_string
-
-      core => core_t(config)
-      internal_create_tuvx_from_config_string = c_loc(core)
-      error_code = 0
-
-   end function internal_create_tuvx_from_config_string
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-   function internal_create_tuvx_from_config_file(c_config_path, &
-      config_path_length, error_code) &
-      bind(C, name="InternalCreateTuvxFromConfigFile") result(tuvx_ptr)
-      use iso_c_binding, only: c_ptr, c_f_pointer
-
-      ! arguments
-      character(kind=c_char), dimension(*), intent(in)  :: c_config_path
-      integer(kind=c_size_t), value                     :: config_path_length
-      integer(kind=c_int),                  intent(out) :: error_code
-      type(c_ptr)                                       :: tuvx_ptr
-
-      ! local variables
-      character(len=:), allocatable :: f_config_path
-      type(core_t), pointer         :: core
-      type(string_t)                :: musica_config_path
-      integer                       :: i
-
-      allocate(character(len=config_path_length) :: f_config_path)
-      do i = 1, config_path_length
-         f_config_path(i:i) = c_config_path(i)
-      end do
-
-      musica_config_path = f_config_path
-
-      core => core_t(musica_config_path)
-      tuvx_ptr = c_loc(core)
-      error_code = 0
-
-   end function internal_create_tuvx_from_config_file
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-   subroutine internal_run_tuvx_from_config(tuvx, photolysis_rates_ptr, &
-      heating_rates_ptr, dose_rates_ptr, error_code) &
-      bind(C, name="InternalRunTuvxFromConfig")
-      use iso_c_binding, only: c_ptr, c_f_pointer
-      use musica_constants, only: dk => musica_dk
-      use tuvx_grid, only: grid_t
-      use tuvx_profile, only: profile_t
-
-      ! arguments
-      type(c_ptr), value,      intent(in)  :: tuvx
-      type(c_ptr), value,      intent(in)  :: photolysis_rates_ptr   ! (sza_step, layer, reaction)
-      type(c_ptr), value,      intent(in)  :: heating_rates_ptr      ! (sza_step, layer, heating_type)
-      type(c_ptr), value,      intent(in)  :: dose_rates_ptr         ! (sza_step, layer, dose_type)
-      integer(kind=c_int),     intent(out) :: error_code
-
-      ! variables
-      type(core_t), pointer :: core
-      real(kind=dk), pointer :: photo_rates(:,:,:), heat_rates(:,:,:), dose_rates(:,:,:)
-      class(grid_t), pointer :: height
-      class(profile_t), pointer :: sza, earth_sun_distance
-      integer :: i_sza, n_layers, n_sza_steps
-      character(len=2) :: diagnostic_label
-
-      call c_f_pointer(tuvx, core)
-
-      ! Get grids and profiles from the configuration
-      height => core%get_grid("height", "km")
-      sza => core%get_profile("solar zenith angle", "degrees")
-      earth_sun_distance => core%get_profile("Earth-Sun distance", "AU")
-
-      n_layers = height%ncells_ + 1
-      n_sza_steps = sza%ncells_ + 1
-
-      call c_f_pointer(photolysis_rates_ptr, photo_rates, &
-         [n_sza_steps, n_layers, core%number_of_photolysis_reactions()])
-      call c_f_pointer(heating_rates_ptr, heat_rates, &
-         [n_sza_steps, n_layers, core%number_of_heating_rates()])
-      call c_f_pointer(dose_rates_ptr, dose_rates, &
-         [n_sza_steps, n_layers, core%number_of_dose_rates()])
-
-      ! Run TUV-x for each solar zenith angle step (like in the Fortran driver)
-      do i_sza = 1, n_sza_steps
-         write(diagnostic_label,'(i2.2)') i_sza
-         call core%run(sza%edge_val_(i_sza), &
-            earth_sun_distance%edge_val_(i_sza), &
-            photolysis_rate_constants = photo_rates(i_sza, :, :), &
-            heating_rates = heat_rates(i_sza, :, :), &
-            dose_rates = dose_rates(i_sza, :, :), &
-            diagnostic_label = diagnostic_label)
-      end do
-
-      deallocate(height)
-      deallocate(sza)
-      deallocate(earth_sun_distance)
-      error_code = 0
-
-   end subroutine internal_run_tuvx_from_config
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -563,30 +500,6 @@ contains
       error_code = 0
 
    end function internal_get_number_of_layers
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-   function internal_get_number_of_sza_steps(tuvx, error_code) &
-      bind(C, name="InternalGetNumberOfSzaSteps") result(number_of_steps)
-      use iso_c_binding, only: c_ptr, c_f_pointer
-      use tuvx_profile, only: profile_t
-
-      ! arguments
-      type(c_ptr), value,      intent(in)  :: tuvx
-      integer(kind=c_int),     intent(out) :: error_code
-      integer(kind=c_int)                  :: number_of_steps
-
-      ! variables
-      type(core_t), pointer :: core
-      class(profile_t), pointer :: sza
-
-      call c_f_pointer(tuvx, core)
-      sza => core%get_profile("solar zenith angle", "degrees")
-      number_of_steps = sza%ncells_ + 1
-      deallocate(sza)
-      error_code = 0
-
-   end function internal_get_number_of_sza_steps
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
