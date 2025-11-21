@@ -37,17 +37,12 @@ module tuvx_interface_radiator_map
     type(c_ptr) :: radiator_map
 
     ! variables
-    class(radiator_warehouse_t), pointer :: f_radiator_warehouse
+    type(radiator_warehouse_t), pointer :: f_radiator_warehouse
 
     error_code = ERROR_NONE
-    f_radiator_warehouse => radiator_warehouse_t()
-    select type(f_radiator_warehouse)
-    type is(radiator_warehouse_t)
-      radiator_map = c_loc(f_radiator_warehouse)
-    class default
-      error_code = INTERNAL_RADIATOR_MAP_ERROR
-      radiator_map = c_null_ptr
-    end select
+    allocate(f_radiator_warehouse)
+    allocate(f_radiator_warehouse%radiators_(0))
+    radiator_map = c_loc(f_radiator_warehouse)
 
   end function internal_create_radiator_map
 
@@ -67,7 +62,12 @@ module tuvx_interface_radiator_map
 
     error_code = ERROR_NONE
     call c_f_pointer(radiator_map, f_radiator_warehouse)
-    deallocate(f_radiator_warehouse)
+    if (associated(f_radiator_warehouse)) then
+      if (allocated(f_radiator_warehouse%radiators_)) then
+        deallocate(f_radiator_warehouse%radiators_)
+      end if
+      deallocate(f_radiator_warehouse)
+    end if
 
 end subroutine internal_delete_radiator_map
 
@@ -87,6 +87,7 @@ end subroutine internal_delete_radiator_map
     ! variables
     type(radiator_warehouse_t), pointer :: f_radiator_warehouse
     type(radiator_from_host_t), pointer :: f_radiator
+    class(radiator_t),          pointer :: base_radiator
 
     error_code = ERROR_NONE
     call c_f_pointer(radiator_map, f_radiator_warehouse)
@@ -111,7 +112,7 @@ end subroutine internal_delete_radiator_map
     integer(kind=c_int),                   intent(out) :: error_code
 
     ! variables
-    class(radiator_t),          pointer :: f_radiator
+    type(radiator_from_host_t), pointer :: f_radiator
     class(radiator_t),          pointer :: f_radiator_ptr
     type(radiator_warehouse_t), pointer :: radiator_warehouse
     character(len=:),       allocatable :: f_radiator_name
@@ -139,17 +140,17 @@ end subroutine internal_delete_radiator_map
       radiator_ptr = c_null_ptr
     else
       f_radiator_ptr => radiator_warehouse%get_radiator(f_radiator_name)
-      allocate(f_radiator, source = f_radiator_ptr)
-      nullify(f_radiator_ptr)
-
-      select type(f_radiator)
+      f_radiator => null()
+      select type(base_radiator => f_radiator_ptr)
       type is(radiator_from_host_t)
-        radiator_ptr = c_loc(f_radiator)
+        allocate(f_radiator, source = base_radiator)
       class default
         error_code = ERROR_RADIATOR_TYPE_MISMATCH
-        deallocate(f_radiator)
         radiator_ptr = c_null_ptr
+        return
       end select
+
+      radiator_ptr = c_loc(f_radiator)
     end if
 
   end function internal_get_radiator
@@ -167,7 +168,7 @@ end subroutine internal_delete_radiator_map
     integer(kind=c_int),                   intent(out) :: error_code
 
     ! variables
-    class(radiator_t),          pointer :: f_radiator
+    type(radiator_from_host_t), pointer :: f_radiator
     type(radiator_warehouse_t), pointer :: radiator_warehouse
 
     ! result
@@ -188,18 +189,17 @@ end subroutine internal_delete_radiator_map
       radiator_ptr = c_null_ptr
       return
     end if
-    
     f_radiator => null()
-    allocate(f_radiator, source = radiator_warehouse%radiators_(index+1)%val_)
-
-    select type(f_radiator)
+    select type(base_radiator => radiator_warehouse%radiators_(index+1)%val_)
     type is(radiator_from_host_t)
-      radiator_ptr = c_loc(f_radiator)
+      allocate(f_radiator, source = base_radiator)
     class default
       error_code = ERROR_RADIATOR_TYPE_MISMATCH
-      deallocate(f_radiator)
       radiator_ptr = c_null_ptr
+      return
     end select
+
+    radiator_ptr = c_loc(f_radiator)
 
   end function internal_get_radiator_by_index
 

@@ -22,7 +22,7 @@ module tuvx_interface_radiator
       result(radiator) bind(C, name="InternalCreateRadiator")
     use iso_c_binding, only: c_ptr, c_f_pointer, c_char, c_loc, c_size_t, c_int
     use musica_string, only: string_t
-    use tuvx_radiator_from_host, only: radiator_from_host_t
+    use tuvx_radiator_from_host, only: radiator_from_host_t, constructor_char
     use tuvx_grid_from_host, only: grid_updater_t
 
     ! arguments
@@ -48,7 +48,7 @@ module tuvx_interface_radiator
 
     call c_f_pointer(height_grid_updater_c, f_height_grid_updater)
     call c_f_pointer(wavelength_grid_updater_c, f_wavelength_grid_updater)
-    f_radiator => radiator_from_host_t(f_name, f_height_grid_updater%grid_, &
+    f_radiator => constructor_char(f_name%val_, f_height_grid_updater%grid_, &
                                       f_wavelength_grid_updater%grid_)
     radiator = c_loc(f_radiator)
   
@@ -95,7 +95,8 @@ module tuvx_interface_radiator
 
     error_code = ERROR_NONE
     call c_f_pointer(radiator, f_radiator)
-    allocate(f_updater, source = radiator_updater_t(f_radiator))
+    allocate(f_updater)
+    f_updater%radiator_ => f_radiator
     updater = c_loc(f_updater)
 
   end function internal_get_radiator_updater

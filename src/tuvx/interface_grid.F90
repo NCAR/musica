@@ -22,7 +22,7 @@ contains
       bind(C, name="InternalCreateGrid") result(grid)
       use iso_c_binding, only: c_ptr, c_f_pointer, c_char, c_loc, c_size_t, c_int
       use musica_string, only: string_t
-      use tuvx_grid_from_host, only: grid_from_host_t
+      use tuvx_grid_from_host, only: grid_from_host_t, constructor_char
 
       ! arguments
       type(c_ptr) :: grid
@@ -49,7 +49,7 @@ contains
          f_units%val_(i:i) = units(i)
       end do
 
-      f_grid => grid_from_host_t(f_name, f_units, int(num_sections))
+      f_grid => constructor_char(f_name%val_, f_units%val_, int(num_sections))
       grid = c_loc(f_grid)
 
    end function internal_create_grid
@@ -95,7 +95,8 @@ contains
 
       error_code = ERROR_NONE
       call c_f_pointer(grid, f_grid)
-      allocate(f_updater, source = grid_updater_t(f_grid))
+      allocate(f_updater)
+      f_updater%grid_ => f_grid
       updater = c_loc(f_updater)
 
    end function internal_get_grid_updater

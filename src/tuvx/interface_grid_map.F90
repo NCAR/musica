@@ -38,17 +38,12 @@ module tuvx_interface_grid_map
     type(c_ptr) :: grid_map
 
     ! variables
-    class(grid_warehouse_t), pointer :: f_grid_warehouse
+    type(grid_warehouse_t), pointer :: f_grid_warehouse
 
-    f_grid_warehouse => grid_warehouse_t()
-    select type(f_grid_warehouse)
-    type is(grid_warehouse_t)
-      grid_map = c_loc(f_grid_warehouse)
-      error_code = ERROR_NONE
-    class default
-      error_code = INTERNAL_GRID_MAP_ERROR
-      grid_map = c_null_ptr
-    end select
+    allocate(f_grid_warehouse)
+    allocate(f_grid_warehouse%grids_(0))
+    grid_map = c_loc(f_grid_warehouse)
+    error_code = ERROR_NONE
 
   end function internal_create_grid_map
 
@@ -67,7 +62,12 @@ module tuvx_interface_grid_map
     type(grid_warehouse_t), pointer :: f_grid_warehouse
 
     call c_f_pointer(grid_map, f_grid_warehouse)
-    deallocate(f_grid_warehouse)
+    if (associated(f_grid_warehouse)) then
+      if (allocated(f_grid_warehouse%grids_)) then
+        deallocate(f_grid_warehouse%grids_)
+      end if
+      deallocate(f_grid_warehouse)
+    end if
     error_code = ERROR_NONE
 
   end subroutine internal_delete_grid_map
@@ -88,6 +88,7 @@ module tuvx_interface_grid_map
     ! variables
     type(grid_warehouse_t), pointer :: f_grid_warehouse
     type(grid_from_host_t), pointer :: f_grid
+    class(grid_t), pointer          :: base_grid
 
     call c_f_pointer(grid_map, f_grid_warehouse)
     call c_f_pointer(grid, f_grid)
@@ -115,7 +116,7 @@ module tuvx_interface_grid_map
     integer(kind=c_int), intent(out)                 :: error_code
   
     ! variables
-    class(grid_t), pointer          :: f_grid
+    type(grid_from_host_t), pointer :: f_grid
     type(grid_warehouse_t), pointer :: grid_warehouse
     character(len=:), allocatable   :: f_grid_name
     character(len=:), allocatable   :: f_grid_units
@@ -152,26 +153,25 @@ module tuvx_interface_grid_map
           grid_ptr = c_null_ptr
           return
         end if
-        allocate(f_grid, source=grid_warehouse%grids_(i_grid)%val_)
+        select type(base_grid => grid_warehouse%grids_(i_grid)%val_)
+        type is(grid_from_host_t)
+          allocate(f_grid, source=base_grid)
+        class default
+          error_code = ERROR_GRID_TYPE_MISMATCH
+          grid_ptr = c_null_ptr
+          return
+        end select
         exit
       end if
     end do
-    
-    if (.not.associated(f_grid)) then
+
+    if (.not. associated(f_grid)) then
       error_code = ERROR_GRID_NAME_NOT_FOUND
       grid_ptr = c_null_ptr
       return
     end if
-
-    select type(f_grid) 
-    type is(grid_from_host_t)
-      error_code = ERROR_NONE
-      grid_ptr = c_loc(f_grid)
-    class default
-      error_code = ERROR_GRID_TYPE_MISMATCH
-      deallocate(f_grid)
-      grid_ptr = c_null_ptr
-    end select
+    error_code = ERROR_NONE
+    grid_ptr = c_loc(f_grid)
   
   end function interal_get_grid
 
@@ -194,6 +194,7 @@ module tuvx_interface_grid_map
     ! variables
     type(grid_warehouse_t), pointer :: f_grid_warehouse
     type(grid_from_host_t), pointer :: f_grid
+    class(grid_t), pointer          :: base_grid
     type(grid_updater_t), pointer :: f_updater
 
     call c_f_pointer(grid_map, f_grid_warehouse)
@@ -220,7 +221,7 @@ module tuvx_interface_grid_map
     integer(kind=c_int), intent(out)                 :: error_code
   
     ! variables
-    class(grid_t), pointer          :: f_grid
+    type(grid_from_host_t), pointer :: f_grid
     type(grid_warehouse_t), pointer :: grid_warehouse
 
     ! result
@@ -244,17 +245,18 @@ module tuvx_interface_grid_map
       return
     end if
 
-    allocate(f_grid, source=grid_warehouse%grids_(index+1)%val_)
-
-    select type(f_grid) 
+    f_grid => null()
+    select type(base_grid => grid_warehouse%grids_(index+1)%val_)
     type is(grid_from_host_t)
-      error_code = ERROR_NONE
-      grid_ptr = c_loc(f_grid)
+      allocate(f_grid, source=base_grid)
     class default
       error_code = ERROR_GRID_TYPE_MISMATCH
-      deallocate(f_grid)
       grid_ptr = c_null_ptr
+      return
     end select
+
+    error_code = ERROR_NONE
+    grid_ptr = c_loc(f_grid)
   
   end function internal_get_grid_by_index
 

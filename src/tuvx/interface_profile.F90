@@ -23,7 +23,7 @@ contains
       use iso_c_binding, only: c_ptr, c_f_pointer, c_char, c_loc, c_size_t, c_int
       use musica_string, only: string_t
       use tuvx_grid_from_host, only: grid_updater_t
-      use tuvx_profile_from_host, only: profile_from_host_t
+      use tuvx_profile_from_host, only: profile_from_host_t, constructor_char
 
       ! arguments
       type(c_ptr) :: profile
@@ -52,7 +52,7 @@ contains
       end do
 
       call c_f_pointer(grid_updater_c, f_grid_updater)
-      f_profile => profile_from_host_t(f_name, f_units, &
+      f_profile => constructor_char(f_name%val_, f_units%val_, &
          f_grid_updater%grid_%size())
       profile = c_loc(f_profile)
 
@@ -78,7 +78,8 @@ contains
 
       error_code = ERROR_NONE
       call c_f_pointer(profile, f_profile)
-      allocate(f_updater, source = profile_updater_t(f_profile))
+      allocate(f_updater)
+      f_updater%profile_ => f_profile
       updater = c_loc(f_updater)
 
    end function internal_get_profile_updater

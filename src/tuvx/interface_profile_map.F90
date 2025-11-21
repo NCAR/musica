@@ -38,17 +38,12 @@ module tuvx_interface_profile_map
     type(c_ptr) :: profile_map
 
     ! variables
-    class(profile_warehouse_t), pointer :: f_profile_warehouse
+    type(profile_warehouse_t), pointer :: f_profile_warehouse
 
     error_code = ERROR_NONE
-    f_profile_warehouse => profile_warehouse_t()
-    select type(f_profile_warehouse)
-    type is(profile_warehouse_t)
-      profile_map = c_loc(f_profile_warehouse)
-    class default
-      error_code = INTERNAL_PROFILE_MAP_ERROR
-      profile_map = c_null_ptr
-    end select
+    allocate(f_profile_warehouse)
+    allocate(f_profile_warehouse%profiles_(0))
+    profile_map = c_loc(f_profile_warehouse)
 
   end function internal_create_profile_map
 
@@ -68,7 +63,12 @@ module tuvx_interface_profile_map
 
     error_code = ERROR_NONE
     call c_f_pointer(profile_map, f_profile_warehouse)
-    deallocate(f_profile_warehouse)
+    if (associated(f_profile_warehouse)) then
+      if (allocated(f_profile_warehouse%profiles_)) then
+        deallocate(f_profile_warehouse%profiles_)
+      end if
+      deallocate(f_profile_warehouse)
+    end if
 
   end subroutine internal_delete_profile_map
 
@@ -88,6 +88,7 @@ module tuvx_interface_profile_map
     ! variables
     type(profile_warehouse_t), pointer :: f_profile_warehouse
     type(profile_from_host_t), pointer :: f_profile
+    class(profile_t), pointer          :: base_profile
 
     error_code = ERROR_NONE
     call c_f_pointer(profile_map, f_profile_warehouse)
@@ -114,7 +115,7 @@ module tuvx_interface_profile_map
     integer(kind=c_int), intent(out)                 :: error_code
 
     ! variables
-    class(profile_t), pointer          :: f_profile
+    type(profile_from_host_t), pointer :: f_profile
     type(profile_warehouse_t), pointer :: profile_warehouse
     character(len=:), allocatable      :: f_profile_name
     character(len=:), allocatable      :: f_profile_units
@@ -152,7 +153,14 @@ module tuvx_interface_profile_map
           profile_ptr = c_null_ptr
           return
         end if
-        allocate(f_profile, source=profile_warehouse%profiles_(i_profile)%val_)
+        select type(base_profile => profile_warehouse%profiles_(i_profile)%val_)
+        type is(profile_from_host_t)
+          allocate(f_profile, source=base_profile)
+        class default
+          error_code = ERROR_PROFILE_TYPE_MISMATCH
+          profile_ptr = c_null_ptr
+          return
+        end select
         exit
       end if
     end do
@@ -162,14 +170,7 @@ module tuvx_interface_profile_map
       return
     end if
 
-    select type(f_profile)
-    type is(profile_from_host_t)
-      profile_ptr = c_loc(f_profile)
-    class default
-      error_code = ERROR_PROFILE_TYPE_MISMATCH
-      deallocate(f_profile)
-      profile_ptr = c_null_ptr
-    end select
+    profile_ptr = c_loc(f_profile)
 
   end function internal_get_profile
 
@@ -186,7 +187,7 @@ module tuvx_interface_profile_map
     integer(kind=c_int), intent(out) :: error_code
 
     ! variables
-    class(profile_t), pointer          :: f_profile
+    type(profile_from_host_t), pointer :: f_profile
     type(profile_warehouse_t), pointer :: profile_warehouse
 
     ! result
@@ -208,16 +209,16 @@ module tuvx_interface_profile_map
     end if
 
     f_profile => null()
-    allocate(f_profile, source=profile_warehouse%profiles_(index+1)%val_)
-
-    select type(f_profile)
+    select type(base_profile => profile_warehouse%profiles_(index+1)%val_)
     type is(profile_from_host_t)
-      profile_ptr = c_loc(f_profile)
+      allocate(f_profile, source=base_profile)
     class default
       error_code = ERROR_PROFILE_TYPE_MISMATCH
-      deallocate(f_profile)
       profile_ptr = c_null_ptr
+      return
     end select
+
+    profile_ptr = c_loc(f_profile)
 
   end function internal_get_profile_by_index
 

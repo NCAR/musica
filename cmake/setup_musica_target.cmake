@@ -16,7 +16,23 @@ function(musica_setup_target target)
   target_link_libraries(${target}
     PUBLIC
       musica::mechanism_configuration
+      yaml-cpp
   )
+  if (TARGET yaml-cpp::yaml-cpp)
+    set(_yaml_target yaml-cpp::yaml-cpp)
+  elseif (TARGET yaml-cpp)
+    set(_yaml_target yaml-cpp)
+  endif()
+  if (_yaml_target)
+    get_target_property(_yaml_location ${_yaml_target} IMPORTED_LOCATION_RELEASE)
+    if (NOT _yaml_location)
+      get_target_property(_yaml_location ${_yaml_target} IMPORTED_LOCATION)
+    endif()
+    if (_yaml_location)
+      get_filename_component(_yaml_dir "${_yaml_location}" DIRECTORY)
+      target_link_directories(${target} PUBLIC "${_yaml_dir}")
+    endif()
+  endif()
 
   if (MUSICA_ENABLE_MPI)
     list(APPEND musica_compile_definitions MUSICA_USE_MPI)
@@ -80,4 +96,3 @@ function(musica_setup_target target)
 
   target_compile_definitions(${target} PUBLIC ${musica_compile_definitions})
 endfunction()
-
