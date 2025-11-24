@@ -1,5 +1,16 @@
 function(musica_setup_target target)
   cmake_parse_arguments(ARG "" "MODE" "" ${ARGN})
+  if (NOT DEFINED musica_compile_definitions)
+    set(musica_compile_definitions "")
+  endif()
+
+  if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    if (MSVC)
+      target_compile_options(${target} PUBLIC /WX)
+    else()
+      target_compile_options(${target} PUBLIC -Werror)
+    endif()
+  endif()
 
   if (MUSICA_ENABLE_PYTHON_LIBRARY OR MUSICA_ENABLE_PIC)
     set_target_properties(${target} PROPERTIES POSITION_INDEPENDENT_CODE ON)
