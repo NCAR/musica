@@ -13,6 +13,9 @@ flags:
   javascript:
     paths:
       - javascript
+  python:
+    paths:
+      - python
 
 uploads:
   - target: coverage
@@ -21,3 +24,6 @@ uploads:
   - target: coverage
     flags: javascript
     path: javascript-coverage/lcov.info
+  - target: coverage
+    flags: python
+    path: python-coverage.xml
