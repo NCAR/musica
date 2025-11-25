@@ -1,8 +1,7 @@
 """Unit tests for the MICM class."""
 from __future__ import annotations
 import pytest
-import numpy as np
-from musica.micm import MICM, State, SolverType, SolverResult
+from musica.micm import MICM, State, SolverType, SolverResult, SolverState
 import musica.mechanism_configuration as mc
 
 
@@ -175,6 +174,7 @@ class TestMICMSolve:
         assert isinstance(results, list)
         assert len(results) == 1
         assert isinstance(results[0], SolverResult)
+        assert results[0].state == SolverState.Converged
     
     def test_solve_with_multiple_grid_cells(self):
         """Test solve with multiple grid cells."""
@@ -192,10 +192,8 @@ class TestMICMSolve:
             "USER.reaction 2": [0.002] * num_cells
         })
         
-        print(state.get_internal_states())
         # Solve
         results = micm.solve(state, time_step=1.0)
-        print(results)
         
         assert isinstance(results, list)
         assert len(results) == num_cells

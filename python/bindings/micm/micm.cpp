@@ -137,20 +137,35 @@ void bind_micm(py::module_& micm)
 
   py::class_<musica::SolverResultStats>(micm, "_SolverResultsStats")
       .def(py::init<>())
-      .def_readwrite("function_calls_", &musica::SolverResultStats::function_calls_)
-      .def_readwrite("jacobian_updates_", &musica::SolverResultStats::jacobian_updates_)
-      .def_readwrite("number_of_steps_", &musica::SolverResultStats::number_of_steps_)
-      .def_readwrite("accepted_", &musica::SolverResultStats::accepted_)
-      .def_readwrite("rejected_", &musica::SolverResultStats::rejected_)
-      .def_readwrite("decompositions_", &musica::SolverResultStats::decompositions_)
-      .def_readwrite("solves_", &musica::SolverResultStats::solves_)
-      .def_readwrite("final_time_", &musica::SolverResultStats::final_time_)
-      .def("__str__", [](const musica::SolverResultStats& e) { return "<SolverResultStats>"; })
-      .def("__repr__", [](const musica::SolverResultStats& e) { return "<SolverResultStats>"; });
+      .def_readwrite("function_calls", &musica::SolverResultStats::function_calls_)
+      .def_readwrite("jacobian_updates", &musica::SolverResultStats::jacobian_updates_)
+      .def_readwrite("number_of_steps", &musica::SolverResultStats::number_of_steps_)
+      .def_readwrite("accepted", &musica::SolverResultStats::accepted_)
+      .def_readwrite("rejected", &musica::SolverResultStats::rejected_)
+      .def_readwrite("decompositions", &musica::SolverResultStats::decompositions_)
+      .def_readwrite("solves", &musica::SolverResultStats::solves_)
+      .def_readwrite("final_time", &musica::SolverResultStats::final_time_)
+      .def("__str__", [](const musica::SolverResultStats& e) {
+        return std::string("SolverResultStats{function_calls: ") + std::to_string(e.function_calls_) +
+               ", jacobian_updates: " + std::to_string(e.jacobian_updates_) +
+               ", number_of_steps: " + std::to_string(e.number_of_steps_) +
+               ", accepted: " + std::to_string(e.accepted_) +
+               ", rejected: " + std::to_string(e.rejected_) +
+               ", decompositions: " + std::to_string(e.decompositions_) +
+               ", solves: " + std::to_string(e.solves_) +
+               ", final_time: " + std::to_string(e.final_time_) + "}";
+      })
+      .def("__repr__", [](const musica::SolverResultStats& e) {
+        return std::string("SolverResultStats(") + std::to_string(e.function_calls_) + ", " +
+               std::to_string(e.jacobian_updates_) + ", " + std::to_string(e.number_of_steps_) + ", " +
+               std::to_string(e.accepted_) + ", " + std::to_string(e.rejected_) + ", " +
+               std::to_string(e.decompositions_) + ", " + std::to_string(e.solves_) + ", " +
+               std::to_string(e.final_time_) + ")";
+      });
 
   py::class_<micm::SolverResult>(micm, "_SolverResult")
-      .def_readonly("state_", &micm::SolverResult::state_)
-      .def_readonly("stats_", &micm::SolverResult::stats_)
+      .def_readonly("state", &micm::SolverResult::state_)
+      .def_readonly("stats", &micm::SolverResult::stats_)
       .def("__str__", [](const micm::SolverResult& e) { return "<SolverResult>"; })
       .def("__repr__", [](const micm::SolverResult& e) { return "<SolverResult>"; });
 

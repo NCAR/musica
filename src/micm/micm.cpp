@@ -84,13 +84,6 @@ namespace musica
   {
     double time_step;
 
-    template<typename SolverType, typename StateType>
-    micm::SolverResult Solve(SolverType& solver, StateType& state) const
-    {
-      solver->CalculateRateConstants(state);
-      return solver->Solve(time_step, state);
-    }
-
     micm::SolverResult operator()(std::unique_ptr<micm::Rosenbrock>& solver, micm::VectorState& state) const
     {
       solver->CalculateRateConstants(state);
@@ -112,7 +105,7 @@ namespace musica
     micm::SolverResult operator()(std::unique_ptr<micm::BackwardEulerStandard>& solver, micm::StandardState& state) const
     {
       solver->CalculateRateConstants(state);
-      return Solve(solver, state);
+      return solver->Solve(time_step, state);
     }
 
 #ifdef MUSICA_ENABLE_CUDA
@@ -120,7 +113,7 @@ namespace musica
     {
       solver->CalculateRateConstants(state);
       state.SyncInputsToDevice();
-      auto result = Solve(solver, state);
+      auto result = solver->Solve(time_step, state);
       state.SyncOutputsToHost();
       return result;
     }
@@ -132,7 +125,6 @@ namespace musica
     {
       throw std::system_error(
           make_error_code(MusicaErrCode::UnsupportedSolverStatePair), "Unsupported solver/state combination");
-      return micm::SolverResult{};
     }
   };
 

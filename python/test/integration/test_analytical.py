@@ -6,6 +6,163 @@ import musica.mechanism_configuration as mc
 from musica.cuda import is_cuda_available
 from musica.constants import GAS_CONSTANT
 
+def oregonator():
+    """Helper function to create the Oregonator mechanism."""
+    # Create species
+    X = mc.Species(name="X")
+    Y = mc.Species(name="Y")
+    Z = mc.Species(name="Z")
+    P = mc.Species(name="P")
+    Q = mc.Species(name="Q")
+
+    # Create gas phase
+    gas_phase = mc.Phase(name="gas", species=[X, Y, Z, P, Q])
+
+    # Create processes
+    r1 = mc.UserDefined(
+        name="r1",
+        reactants=[Y],
+        products=[X]
+    )
+
+    r2 = mc.UserDefined(
+        name="r2",
+        reactants=[X, Y],
+        products=[P]
+    )
+
+    r3 = mc.UserDefined(
+        name="r3",
+        reactants=[X],
+        products=[Z, X, X]
+    )
+
+    r4 = mc.UserDefined(
+        name="r4",
+        reactants=[X, X],
+        products=[Q]
+    )
+
+    r5 = mc.UserDefined(
+        name="r5",
+        reactants=[Z],
+        products=[Y]
+    )
+
+    # Create mechanism
+    mechanism = mc.Mechanism(
+        name="Oregonator",
+        species=[X, Y, Z, P, Q],
+        phases=[gas_phase],
+        reactions=[r1, r2, r3, r4, r5]
+    )
+
+    return mechanism
+
+def robertson():
+    """Helper function to create the Robertson mechanism."""
+    # Create species
+    A = mc.Species(name="A")
+    B = mc.Species(name="B")
+    C = mc.Species(name="C")
+
+    # Create gas phase
+    gas_phase = mc.Phase(name="gas", species=[A, B, C])
+
+    # Create processes
+    r1 = mc.UserDefined(
+        name="r1",
+        reactants=[A],
+        products=[B]
+    )
+
+    r2 = mc.UserDefined(
+        name="r2",
+        reactants=[B, B],
+        products=[B, C]
+    )
+
+    r3 = mc.UserDefined(
+        name="r3",
+        reactants=[B, C],
+        products=[A, C]
+    )
+
+    # Create mechanism
+    mechanism = mc.Mechanism(
+        name="Robertson",
+        species=[A, B, C],
+        phases=[gas_phase],
+        reactions=[r1, r2, r3]
+    )
+
+    return mechanism
+
+def test_oregonator():
+    """Test setting and getting environmental conditions."""
+    # Use the test mechanism
+    mech = oregonator()
+    solver = musica.MICM(mechanism=mech)
+
+    # Test single grid cell
+    state = solver.create_state(number_of_grid_cells=1)
+    state.set_concentrations({"X": 1.0, "Y": 2.0, "Z": 3.0})
+
+    state.set_user_defined_rate_parameters({
+        "USER.r1": 1.34 * 0.06,
+        "USER.r2": 1.6e9,
+        "USER.r3": 8e3 * 0.06,
+        "USER.r4": 4e7,
+        "USER.r5": 1.0,
+    })
+
+    tau = 0.1610
+    time_step = 30 * tau
+    for i in range(12):
+      actual_solve = 0
+      while actual_solve < time_step:
+        result = solver.solve(state, time_step=time_step - actual_solve)
+        actual_solve += result[0].stats.final_time
+        if (actual_solve < time_step):
+            print(f"  Partial solve to {actual_solve:.6f} seconds, solver state: {result[0].state}")
+
+
+def test_robertson():
+    """Test setting and getting environmental conditions."""
+    # Use the test mechanism
+    mech = robertson()
+    solver = musica.MICM(mechanism=mech)
+
+    # Test single grid cell
+    state = solver.create_state(number_of_grid_cells=1)
+    state.set_concentrations({"A": 1.0, "B": 0.0, "C": 0.0})
+
+    state.set_user_defined_rate_parameters({
+        "USER.r1": 0.04,
+        "USER.r2": 3e7,
+        "USER.r3": 1e4,
+    })
+
+    temperature = 272.5
+    pressure = 101253.3
+    air_density = 1e6
+
+    state.set_conditions(
+        temperatures=temperature,
+        pressures=pressure,
+        air_densities=air_density
+    )
+
+    time_step = 1
+    for i in range(12):
+      actual_solve = 0
+      while actual_solve < time_step:
+        result = solver.solve(state, time_step=time_step - actual_solve)
+        print(state.get_concentrations())
+        actual_solve += result[0].stats.final_time
+        if (actual_solve < time_step):
+            print(f"  Partial solve to {actual_solve:.6f} seconds, solver state: {result[0].state}")
+      time_step *= 10
 
 def TestSingleGridCell(solver, state, time_step, places=5):
     temperature = 272.5
