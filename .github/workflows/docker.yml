@@ -30,7 +30,7 @@ jobs:
         build_type: [Release, Debug]
       exclude:
         - dockerfile: Dockerfile.nvhpc
-          build_type: Debug  # the -Werror flag causes some failures that are false posiives as well as unavoidable
+          build_type: Debug  # the -Werror flag causes some failures that are false positives as well as unavoidable
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
