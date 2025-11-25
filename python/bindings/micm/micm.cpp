@@ -15,9 +15,22 @@
 namespace py = pybind11;
 namespace v1 = mechanism_configuration::v1::types;
 
-void bind_micm(py::module_ &micm)
+void bind_micm(py::module_& micm)
 {
   py::class_<musica::MICM, std::shared_ptr<musica::MICM>>(micm, "MICM");
+
+  // Expose SolverState enum
+  py::enum_<micm::SolverState>(micm, "_SolverState")
+      .value("NotYetCalled", micm::SolverState::NotYetCalled)
+      .value("Running", micm::SolverState::Running)
+      .value("Converged", micm::SolverState::Converged)
+      .value("ConvergenceExceededMaxSteps", micm::SolverState::ConvergenceExceededMaxSteps)
+      .value("StepSizeTooSmall", micm::SolverState::StepSizeTooSmall)
+      .value("RepeatedlySingularMatrix", micm::SolverState::RepeatedlySingularMatrix)
+      .value("NaNDetected", micm::SolverState::NaNDetected)
+      .value("InfDetected", micm::SolverState::InfDetected)
+      .value("AcceptingUnconvergedIntegration", micm::SolverState::AcceptingUnconvergedIntegration)
+      .export_values();
 
   micm.def(
       "_vector_size",
@@ -37,10 +50,10 @@ void bind_micm(py::module_ &micm)
 
   micm.def(
       "_create_solver",
-      [](const char *config_path, musica::MICMSolver solver_type)
+      [](const char* config_path, musica::MICMSolver solver_type)
       {
         musica::Error error;
-        musica::MICM *micm = musica::CreateMicm(config_path, solver_type, &error);
+        musica::MICM* micm = musica::CreateMicm(config_path, solver_type, &error);
         if (!musica::IsSuccess(error))
         {
           std::cerr << "Error creating solver: " << error.message_.value_ << " solver_type: " << solver_type
@@ -52,7 +65,7 @@ void bind_micm(py::module_ &micm)
 
         return std::shared_ptr<musica::MICM>(
             micm,
-            [](musica::MICM *ptr)
+            [](musica::MICM* ptr)
             {
               musica::Error error;
               musica::DeleteMicm(ptr, &error);
@@ -66,11 +79,11 @@ void bind_micm(py::module_ &micm)
 
   micm.def(
       "_create_solver_from_mechanism",
-      [](const v1::Mechanism &mechanism, musica::MICMSolver solver_type, bool ignore_non_gas_phases)
+      [](const v1::Mechanism& mechanism, musica::MICMSolver solver_type, bool ignore_non_gas_phases)
       {
         musica::Error error;
         musica::Chemistry chemistry = musica::ConvertV1Mechanism(mechanism, ignore_non_gas_phases);
-        musica::MICM *micm = musica::CreateMicmFromChemistryMechanism(&chemistry, solver_type, &error);
+        musica::MICM* micm = musica::CreateMicmFromChemistryMechanism(&chemistry, solver_type, &error);
         if (!musica::IsSuccess(error))
         {
           std::string message = "Error creating solver: " + std::string(error.message_.value_);
@@ -80,7 +93,7 @@ void bind_micm(py::module_ &micm)
 
         return std::shared_ptr<musica::MICM>(
             micm,
-            [](musica::MICM *ptr)
+            [](musica::MICM* ptr)
             {
               musica::Error error;
               musica::DeleteMicm(ptr, &error);
@@ -94,10 +107,10 @@ void bind_micm(py::module_ &micm)
 
   micm.def(
       "_create_state",
-      [](musica::MICM *micm, std::size_t number_of_grid_cells)
+      [](musica::MICM* micm, std::size_t number_of_grid_cells)
       {
         musica::Error error;
-        musica::State *state = musica::CreateMicmState(micm, number_of_grid_cells, &error);
+        musica::State* state = musica::CreateMicmState(micm, number_of_grid_cells, &error);
         if (!musica::IsSuccess(error))
         {
           std::string message = "Error creating state: " + std::string(error.message_.value_);
@@ -105,9 +118,9 @@ void bind_micm(py::module_ &micm)
           throw py::value_error(message);
         }
 
-        return std::unique_ptr<musica::State, std::function<void(musica::State *)>>(
+        return std::unique_ptr<musica::State, std::function<void(musica::State*)>>(
             state,
-            [](musica::State *ptr)
+            [](musica::State* ptr)
             {
               if (!ptr)
                 return;
@@ -122,40 +135,47 @@ void bind_micm(py::module_ &micm)
             });
       });
 
+  py::class_<musica::SolverResultStats>(micm, "_SolverResultsStats")
+      .def(py::init<>())
+      .def_readwrite("function_calls_", &musica::SolverResultStats::function_calls_)
+      .def_readwrite("jacobian_updates_", &musica::SolverResultStats::jacobian_updates_)
+      .def_readwrite("number_of_steps_", &musica::SolverResultStats::number_of_steps_)
+      .def_readwrite("accepted_", &musica::SolverResultStats::accepted_)
+      .def_readwrite("rejected_", &musica::SolverResultStats::rejected_)
+      .def_readwrite("decompositions_", &musica::SolverResultStats::decompositions_)
+      .def_readwrite("solves_", &musica::SolverResultStats::solves_)
+      .def_readwrite("final_time_", &musica::SolverResultStats::final_time_)
+      .def("__str__", [](const musica::SolverResultStats& e) { return "<SolverResultStats>"; })
+      .def("__repr__", [](const musica::SolverResultStats& e) { return "<SolverResultStats>"; });
+
+  py::class_<micm::SolverResult>(micm, "_SolverResult")
+      .def_readonly("state_", &micm::SolverResult::state_)
+      .def_readonly("stats_", &micm::SolverResult::stats_)
+      .def("__str__", [](const micm::SolverResult& e) { return "<SolverResult>"; })
+      .def("__repr__", [](const micm::SolverResult& e) { return "<SolverResult>"; });
+
   micm.def(
       "_micm_solve",
-      [](musica::MICM *micm, musica::State *state, double time_step)
-      {
-        musica::String solver_state;
-        musica::SolverResultStats solver_stats;
-        musica::Error error;
-        musica::MicmSolve(micm, state, time_step, &solver_state, &solver_stats, &error);
-        if (!musica::IsSuccess(error))
-        {
-          std::string message = "Error solving system: " + std::string(error.message_.value_);
-          DeleteError(&error);
-          throw py::value_error(message);
-        }
-      },
+      [](musica::MICM* micm, musica::State* state, double time_step) { return micm->Solve(state, time_step); },
       "Solve the chemistry system");
 
   micm.def(
       "_species_ordering",
-      [](musica::State *state)
+      [](musica::State* state)
       {
         std::map<std::string, std::size_t> map;
-        std::visit([&map](auto &state) { map = state.variable_map_; }, state->state_variant_);
+        std::visit([&map](auto& state) { map = state.variable_map_; }, state->state_variant_);
         return map;
       },
       "Return map of species names to their indices in the state concentrations vector");
 
   micm.def(
       "_user_defined_rate_parameters_ordering",
-      [](musica::State *state)
+      [](musica::State* state)
       {
         std::map<std::string, std::size_t> map;
 
-        std::visit([&map](auto &state) { map = state.custom_rate_parameter_map_; }, state->state_variant_);
+        std::visit([&map](auto& state) { map = state.custom_rate_parameter_map_; }, state->state_variant_);
         return map;
       },
       "Return map of reaction rate parameters to their indices in the state user-defined rate parameters vector");
@@ -164,29 +184,29 @@ void bind_micm(py::module_ &micm)
 
   micm.def(
       "_print_state",
-      [](musica::State *state, const double current_time)
+      [](musica::State* state, const double current_time)
       {
         std::visit(
-            [&current_time](auto &state)
+            [&current_time](auto& state)
             {
               std::cout << "Current time: " << current_time << std::endl;
               std::cout << "State variables: " << std::endl;
               std::vector<std::string> species_names(state.variable_map_.size());
-              for (const auto &species : state.variable_map_)
+              for (const auto& species : state.variable_map_)
                 species_names[species.second] = species.first;
-              for (const auto &name : species_names)
+              for (const auto& name : species_names)
                 std::cout << name << ",";
               std::cout << std::endl << state.variables_ << std::endl;
               std::cout << "User-defined rate parameters: " << std::endl;
               std::vector<std::string> rate_param_names(state.custom_rate_parameter_map_.size());
-              for (const auto &rate : state.custom_rate_parameter_map_)
+              for (const auto& rate : state.custom_rate_parameter_map_)
                 rate_param_names[rate.second] = rate.first;
-              for (const auto &name : rate_param_names)
+              for (const auto& name : rate_param_names)
                 std::cout << name << ",";
               std::cout << std::endl << state.custom_rate_parameters_ << std::endl;
               std::cout << "Conditions: " << std::endl;
               std::cout << "Temperature,Pressure,Air density" << std::endl;
-              for (const auto &condition : state.conditions_)
+              for (const auto& condition : state.conditions_)
               {
                 std::cout << condition.temperature_ << "," << condition.pressure_ << "," << condition.air_density_
                           << std::endl;

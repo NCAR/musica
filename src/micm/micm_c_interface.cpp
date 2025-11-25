@@ -73,7 +73,9 @@ namespace musica
     HandleErrors(
         [&]()
         {
-          micm->Solve(state, time_step, solver_state, solver_stats);
+          micm::SolverResult result = micm->Solve(state, time_step);
+          *solver_stats = result.stats_;
+          CreateString(micm::SolverStateToString(result.state_).c_str(), solver_state);
           NoError(error);
         },
         error);

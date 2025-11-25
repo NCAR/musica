@@ -8,7 +8,6 @@
 #include <musica/micm/chemistry.hpp>
 #include <musica/micm/parse.hpp>
 #include <musica/micm/state.hpp>
-#include <musica/util.hpp>
 
 #include <micm/CPU.hpp>
 #ifdef MUSICA_ENABLE_CUDA
@@ -88,25 +87,7 @@ namespace musica
 
   std::string ToString(MICMSolver solver_type);
 
-  struct SolverResultStats
-  {
-    /// @brief The number of forcing function calls
-    int64_t function_calls_{};
-    /// @brief The number of jacobian function calls
-    int64_t jacobian_updates_{};
-    /// @brief The total number of internal time steps taken
-    int64_t number_of_steps_{};
-    /// @brief The number of accepted integrations
-    int64_t accepted_{};
-    /// @brief The number of rejected integrations
-    int64_t rejected_{};
-    /// @brief The number of LU decompositions
-    int64_t decompositions_{};
-    /// @brief The number of linear solves
-    int64_t solves_{};
-    /// @brief The final time the solver iterated to
-    double final_time_{};
-  };
+  using SolverResultStats = micm::SolverStats;
 
   class MICM
   {
@@ -143,9 +124,7 @@ namespace musica
     /// @brief Solve the system
     /// @param state Pointer to state object
     /// @param time_step Time [s] to advance the state by
-    /// @param solver_state State of the solver
-    /// @param solver_stats Statistics of the solver
-    void Solve(musica::State *state, double time_step, String *solver_state, SolverResultStats *solver_stats);
+    micm::SolverResult Solve(musica::State *state, double time_step);
 
     /// @brief Get a property for a chemical species
     /// @param species_name Name of the species

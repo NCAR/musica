@@ -7,7 +7,6 @@
 #include <musica/micm/micm.hpp>
 #include <musica/micm/parse.hpp>
 #include <musica/micm/state.hpp>
-#include <musica/util.hpp>
 
 #include <mechanism_configuration/parser.hpp>
 #include <mechanism_configuration/v0/types.hpp>
@@ -52,8 +51,8 @@ namespace musica
         break;
 
       case MICMSolver::RosenbrockStandardOrder:
-        solver_variant_ =
-            std::make_unique<micm::RosenbrockStandard>(configure(micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
+        solver_variant_ = std::make_unique<micm::RosenbrockStandard>(configure(
+            micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
                 micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())));
         break;
 
@@ -80,74 +79,56 @@ namespace musica
     }
   }
 
+  /// @brief Concept for states that support GPU synchronization
+  template<class State>
+  concept GpuState = requires(State& st) {
+    st.SyncInputsToDevice();
+    st.SyncOutputsToHost();
+  };
+
+  /// @brief Concept for solver-state pairs that support basic solving
+  template<class Solver, class State>
+  concept BasicSolvable = requires(Solver& s, State& st, double dt) {
+    s.CalculateRateConstants(st);
+    s.Solve(dt, st);
+  };
+
   /// @brief Visitor struct to handle different solver and state types
   struct VariantsVisitor
   {
-    double time_step;
-    String* solver_state;
-    SolverResultStats* solver_stats;
+    double dt;
 
-    template<typename SolverType, typename StateType>
-    void Solve(SolverType& solver, StateType& state) const
+    template<class Solver, class State>
+      requires BasicSolvable<Solver, State>
+    micm::SolverResult operator()(std::unique_ptr<Solver>& sp, State& st) const
     {
-      auto result = solver->Solve(time_step, state);
-      CreateString(micm::SolverStateToString(result.state_).c_str(), solver_state);
-      *solver_stats = { .function_calls_ = static_cast<int64_t>(result.stats_.function_calls_),
-                        .jacobian_updates_ = static_cast<int64_t>(result.stats_.jacobian_updates_),
-                        .number_of_steps_ = static_cast<int64_t>(result.stats_.number_of_steps_),
-                        .accepted_ = static_cast<int64_t>(result.stats_.accepted_),
-                        .rejected_ = static_cast<int64_t>(result.stats_.rejected_),
-                        .decompositions_ = static_cast<int64_t>(result.stats_.decompositions_),
-                        .solves_ = static_cast<int64_t>(result.stats_.solves_),
-                        .final_time_ = result.final_time_ };
+      sp->CalculateRateConstants(st);
+      return sp->Solve(dt, st);
     }
 
-    void operator()(std::unique_ptr<micm::Rosenbrock>& solver, micm::VectorState& state) const
+    // CUDA specialization
+    template<class Solver, class State>
+      requires GpuState<State>
+    micm::SolverResult operator()(std::unique_ptr<Solver>& sp, State& st) const
     {
-      solver->CalculateRateConstants(state);
-      Solve(solver, state);
+      sp->CalculateRateConstants(st);
+      st.SyncInputsToDevice();
+      auto r = sp->Solve(dt, st);
+      st.SyncOutputsToHost();
+      return r;
     }
 
-    void operator()(std::unique_ptr<micm::RosenbrockStandard>& solver, micm::StandardState& state) const
+    // Fallback
+    template<class S, class St>
+    micm::SolverResult operator()(std::unique_ptr<S>&, St&) const
     {
-      solver->CalculateRateConstants(state);
-      Solve(solver, state);
-    }
-
-    void operator()(std::unique_ptr<micm::BackwardEuler>& solver, micm::VectorState& state) const
-    {
-      solver->CalculateRateConstants(state);
-      Solve(solver, state);
-    }
-
-    void operator()(std::unique_ptr<micm::BackwardEulerStandard>& solver, micm::StandardState& state) const
-    {
-      solver->CalculateRateConstants(state);
-      Solve(solver, state);
-    }
-
-#ifdef MUSICA_ENABLE_CUDA
-    void operator()(std::unique_ptr<micm::CudaRosenbrock>& solver, micm::GpuState& state) const
-    {
-      solver->CalculateRateConstants(state);
-      state.SyncInputsToDevice();
-      Solve(solver, state);
-      state.SyncOutputsToHost();
-    }
-#endif
-
-    // Handle unsupported combinations
-    template<typename SolverT, typename StateT>
-    void operator()(std::unique_ptr<SolverT>&, StateT&) const
-    {
-      throw std::system_error(
-          make_error_code(MusicaErrCode::UnsupportedSolverStatePair), "Unsupported solver/state combination");
+      throw std::system_error(make_error_code(MusicaErrCode::UnsupportedSolverStatePair));
     }
   };
 
-  void MICM::Solve(musica::State* state, double time_step, String* solver_state, SolverResultStats* solver_stats)
+  micm::SolverResult MICM::Solve(musica::State* state, double dt)
   {
-    std::visit(VariantsVisitor{ time_step, solver_state, solver_stats }, this->solver_variant_, state->state_variant_);
+    return std::visit(VariantsVisitor{ dt }, solver_variant_, state->state_variant_);
   }
 
 }  // namespace musica
