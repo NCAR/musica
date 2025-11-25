@@ -21,7 +21,7 @@ namespace musica
   {
     str->size_ = std::strlen(value);
     str->value_ = new char[str->size_ + 1];
-    memcpy(str->value_, value, str->size_ + 1);
+    std::memcpy(str->value_, value, str->size_ + 1);
   }
 
   void DeleteString(String* str)

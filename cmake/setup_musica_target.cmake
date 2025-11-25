@@ -1,8 +1,5 @@
 function(musica_setup_target target)
   cmake_parse_arguments(ARG "" "MODE" "" ${ARGN})
-  if (NOT DEFINED musica_compile_definitions)
-    set(musica_compile_definitions "")
-  endif()
 
   if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     if (MSVC)
