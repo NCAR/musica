@@ -71,6 +71,7 @@ class MICM():
             solver_type = SolverType.rosenbrock_standard_order
         self.__solver_type = solver_type
         self.__vector_size = vector_size(solver_type)
+        assert(self.__vector_size > 0)
         if config_path is None and mechanism is None:
             raise ValueError(
                 "Either config_path or mechanism must be provided.")

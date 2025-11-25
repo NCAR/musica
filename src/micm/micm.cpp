@@ -79,56 +79,66 @@ namespace musica
     }
   }
 
-  /// @brief Concept for states that support GPU synchronization
-  template<class State>
-  concept GpuState = requires(State& st) {
-    st.SyncInputsToDevice();
-    st.SyncOutputsToHost();
-  };
-
-  /// @brief Concept for solver-state pairs that support basic solving
-  template<class Solver, class State>
-  concept BasicSolvable = requires(Solver& s, State& st, double dt) {
-    s.CalculateRateConstants(st);
-    s.Solve(dt, st);
-  };
-
   /// @brief Visitor struct to handle different solver and state types
   struct VariantsVisitor
   {
-    double dt;
+    double time_step;
 
-    template<class Solver, class State>
-      requires BasicSolvable<Solver, State>
-    micm::SolverResult operator()(std::unique_ptr<Solver>& sp, State& st) const
+    template<typename SolverType, typename StateType>
+    micm::SolverResult Solve(SolverType& solver, StateType& state) const
     {
-      sp->CalculateRateConstants(st);
-      return sp->Solve(dt, st);
+      solver->CalculateRateConstants(state);
+      return solver->Solve(time_step, state);
     }
 
-    // CUDA specialization
-    template<class Solver, class State>
-      requires GpuState<State>
-    micm::SolverResult operator()(std::unique_ptr<Solver>& sp, State& st) const
+    micm::SolverResult operator()(std::unique_ptr<micm::Rosenbrock>& solver, micm::VectorState& state) const
     {
-      sp->CalculateRateConstants(st);
-      st.SyncInputsToDevice();
-      auto r = sp->Solve(dt, st);
-      st.SyncOutputsToHost();
-      return r;
+      solver->CalculateRateConstants(state);
+      return solver->Solve(time_step, state);
     }
 
-    // Fallback
-    template<class S, class St>
-    micm::SolverResult operator()(std::unique_ptr<S>&, St&) const
+    micm::SolverResult operator()(std::unique_ptr<micm::RosenbrockStandard>& solver, micm::StandardState& state) const
     {
-      throw std::system_error(make_error_code(MusicaErrCode::UnsupportedSolverStatePair));
+      solver->CalculateRateConstants(state);
+      return solver->Solve(time_step, state);
+    }
+
+    micm::SolverResult operator()(std::unique_ptr<micm::BackwardEuler>& solver, micm::VectorState& state) const
+    {
+      solver->CalculateRateConstants(state);
+      return solver->Solve(time_step, state);
+    }
+
+    micm::SolverResult operator()(std::unique_ptr<micm::BackwardEulerStandard>& solver, micm::StandardState& state) const
+    {
+      solver->CalculateRateConstants(state);
+      return Solve(solver, state);
+    }
+
+#ifdef MUSICA_ENABLE_CUDA
+    micm::SolverResult operator()(std::unique_ptr<micm::CudaRosenbrock>& solver, micm::GpuState& state) const
+    {
+      solver->CalculateRateConstants(state);
+      state.SyncInputsToDevice();
+      auto result = Solve(solver, state);
+      state.SyncOutputsToHost();
+      return result;
+    }
+#endif
+
+    // Handle unsupported combinations
+    template<typename SolverT, typename StateT>
+    micm::SolverResult operator()(std::unique_ptr<SolverT>&, StateT&) const
+    {
+      throw std::system_error(
+          make_error_code(MusicaErrCode::UnsupportedSolverStatePair), "Unsupported solver/state combination");
+      return micm::SolverResult{};
     }
   };
 
-  micm::SolverResult MICM::Solve(musica::State* state, double dt)
+  micm::SolverResult MICM::Solve(musica::State* state, double time_step)
   {
-    return std::visit(VariantsVisitor{ dt }, solver_variant_, state->state_variant_);
+    return std::visit(VariantsVisitor{ time_step }, this->solver_variant_, state->state_variant_);
   }
 
 }  // namespace musica
