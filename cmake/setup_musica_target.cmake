@@ -1,6 +1,12 @@
 function(musica_setup_target target)
   cmake_parse_arguments(ARG "" "MODE" "" ${ARGN})
 
+  # Ensure the yaml-cpp target is available; fall back to finding a system
+  # package if a target has not already been provided by a dependency.
+  if(NOT TARGET yaml-cpp::yaml-cpp AND NOT TARGET yaml-cpp)
+    find_package(yaml-cpp CONFIG REQUIRED)
+  endif()
+
   if (MUSICA_ENABLE_PYTHON_LIBRARY OR MUSICA_ENABLE_PIC)
     set_target_properties(${target} PROPERTIES POSITION_INDEPENDENT_CODE ON)
   endif()
@@ -13,24 +19,30 @@ function(musica_setup_target target)
 
   target_compile_features(${target} PUBLIC cxx_std_20)
 
-  target_link_libraries(${target}
-    PUBLIC
-      musica::mechanism_configuration
-      yaml-cpp
-  )
   if (TARGET yaml-cpp::yaml-cpp)
     set(_yaml_target yaml-cpp::yaml-cpp)
   elseif (TARGET yaml-cpp)
     set(_yaml_target yaml-cpp)
+  else()
+    set(_yaml_target yaml-cpp)
   endif()
   if (_yaml_target)
-    get_target_property(_yaml_location ${_yaml_target} IMPORTED_LOCATION_RELEASE)
-    if (NOT _yaml_location)
-      get_target_property(_yaml_location ${_yaml_target} IMPORTED_LOCATION)
-    endif()
-    if (_yaml_location)
-      get_filename_component(_yaml_dir "${_yaml_location}" DIRECTORY)
-      target_link_directories(${target} PUBLIC "${_yaml_dir}")
+    target_link_libraries(${target}
+      PUBLIC
+        musica::mechanism_configuration
+        ${_yaml_target}
+    )
+  endif()
+  if (_yaml_target)
+    if (TARGET ${_yaml_target})
+      get_target_property(_yaml_location ${_yaml_target} IMPORTED_LOCATION_RELEASE)
+      if (NOT _yaml_location)
+        get_target_property(_yaml_location ${_yaml_target} IMPORTED_LOCATION)
+      endif()
+      if (_yaml_location)
+        get_filename_component(_yaml_dir "${_yaml_location}" DIRECTORY)
+        target_link_directories(${target} PUBLIC "${_yaml_dir}")
+      endif()
     endif()
   endif()
 

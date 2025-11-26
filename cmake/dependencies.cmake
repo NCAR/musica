@@ -15,9 +15,29 @@ endfunction(set_git_default)
 # NetCDF library
 
 if (MUSICA_BUILD_FORTRAN_INTERFACE)
+  # Prefer the bundled flang-built netcdf-fortran pkg-config metadata so we
+  # pick up compatible .mod files when using LLVM Flang.
+  set(_musica_netcdf_pc_dir
+      "${PROJECT_SOURCE_DIR}/flang-deps/netcdf-fortran-install/lib/pkgconfig")
+  if(EXISTS "${_musica_netcdf_pc_dir}")
+    set(ENV{PKG_CONFIG_PATH}
+        "${_musica_netcdf_pc_dir}:$ENV{PKG_CONFIG_PATH}")
+  endif()
+
   find_package(PkgConfig REQUIRED)
   pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
   pkg_check_modules(netcdfc IMPORTED_TARGET REQUIRED netcdf)
+
+  # Ensure the discovered include directories propagate to dependents, even if
+  # other pkg-config files are present on the system.
+  if(TARGET PkgConfig::netcdff)
+    set_property(TARGET PkgConfig::netcdff PROPERTY INTERFACE_INCLUDE_DIRECTORIES
+                                                   "${netcdff_INCLUDE_DIRS}")
+  endif()
+  if(TARGET PkgConfig::netcdfc)
+    set_property(TARGET PkgConfig::netcdfc PROPERTY INTERFACE_INCLUDE_DIRECTORIES
+                                                  "${netcdfc_INCLUDE_DIRS}")
+  endif()
 endif()
 
 ################################################################################
