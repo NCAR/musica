@@ -19,6 +19,7 @@ const SolverState = {
   RepeatedlySingularMatrix: 5,
   NaNDetected: 6,
   InfDetected: 7,
+  AcceptingUnconvergedIntegration: 8,
 };
 
 /**

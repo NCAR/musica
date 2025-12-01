@@ -1,10 +1,9 @@
-const path = require('path');
 var addon = require('bindings')('musica-addon.node')
 
 
 const { State } = require('./state.js');
 const { SolverType } = require('./solver');
-const { SolverState, SolverStats, SolverResult } = require('./solver_result');
+const { SolverStats, SolverResult } = require('./solver_result');
 
 class MICM {
 	constructor({ config_path = null, solver_type = null } = {}) {

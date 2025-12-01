@@ -77,11 +77,7 @@ namespace musica_addon
 
   micm::SolverResult MICMWrapper::Solve(musica::State* state, double time_step)
   {
-    musica::Error error;
-    micm::SolverResult result = micm_->Solve(state, time_step);
-
-    // No error handling needed as exceptions are propagated from MICM::Solve
-    return result;
+    return micm_->Solve(state, time_step);
   }
 
   int MICMWrapper::GetSolverType() const
