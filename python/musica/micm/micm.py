@@ -2,11 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
-from typing import Union, Any, TYPE_CHECKING
+from typing import Union, Any, TYPE_CHECKING, List
 from os import PathLike
 
 from .state import State
 from .solver import SolverType
+from .solver_result import SolverResult
 from .. import backend
 
 _backend = backend.get_backend()
@@ -19,8 +20,10 @@ vector_size = _backend._micm._vector_size
 # For type hints
 if TYPE_CHECKING:
     from ..mechanism_configuration import Mechanism
+    from .solver_result import SolverResult as SolverResultType
 else:
     Mechanism = _backend._mechanism_configuration._Mechanism
+    SolverResultType = SolverResult
 
 FilePath = Union[str, "PathLike[str]"]
 
@@ -68,6 +71,8 @@ class MICM():
             solver_type = SolverType.rosenbrock_standard_order
         self.__solver_type = solver_type
         self.__vector_size = vector_size(solver_type)
+        if self.__vector_size <= 0:
+            raise ValueError(f"Invalid vector size: {self.__vector_size}")
         if config_path is None and mechanism is None:
             raise ValueError(
                 "Either config_path or mechanism must be provided.")
@@ -106,7 +111,7 @@ class MICM():
             self,
             state: State,
             time_step: float,
-    ):
+    ) -> List[SolverResult]:
         """
         Solve the system of equations for the given state and time step.
 
@@ -119,13 +124,16 @@ class MICM():
 
         Returns
         -------
-        State
-            Updated state object after solving the system of equations.
+        List[SolverResult]
+            List of SolverResult objects, one for each grid cell, containing the solver state and statistics.
         """
         if not isinstance(state, State):
             raise TypeError("state must be an instance of State.")
         if not isinstance(time_step, (int, float)):
             raise TypeError("time_step must be an int or float.")
         states = state.get_internal_states()
+        results = []
         for _state in states:
-            micm_solve(self.__solver, _state, time_step)
+            result = micm_solve(self.__solver, _state, time_step)
+            results.append(result)
+        return results
