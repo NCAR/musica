@@ -6,6 +6,7 @@ import musica.mechanism_configuration as mc
 from musica.cuda import is_cuda_available
 from musica.constants import GAS_CONSTANT
 
+
 def oregonator():
     """Helper function to create the Oregonator mechanism."""
     # Create species
@@ -59,6 +60,7 @@ def oregonator():
 
     return mechanism
 
+
 def robertson():
     """Helper function to create the Robertson mechanism."""
     # Create species
@@ -98,6 +100,7 @@ def robertson():
 
     return mechanism
 
+
 def test_oregonator():
     """Test setting and getting environmental conditions."""
     # Use the test mechanism
@@ -119,12 +122,12 @@ def test_oregonator():
     tau = 0.1610
     time_step = 30 * tau
     for i in range(12):
-      actual_solve = 0
-      while actual_solve < time_step:
-        result = solver.solve(state, time_step=time_step - actual_solve)
-        actual_solve += result[0].stats.final_time
-        if (actual_solve < time_step):
-            print(f"  Partial solve to {actual_solve:.6f} seconds, solver state: {result[0].state}")
+        actual_solve = 0
+        while actual_solve < time_step:
+            result = solver.solve(state, time_step=time_step - actual_solve)
+            actual_solve += result[0].stats.final_time
+            if (actual_solve < time_step):
+                print(f"  Partial solve to {actual_solve:.6f} seconds, solver state: {result[0].state}")
 
 
 def test_robertson():
@@ -155,14 +158,15 @@ def test_robertson():
 
     time_step = 1
     for i in range(12):
-      actual_solve = 0
-      while actual_solve < time_step:
-        result = solver.solve(state, time_step=time_step - actual_solve)
-        print(state.get_concentrations())
-        actual_solve += result[0].stats.final_time
-        if (actual_solve < time_step):
-            print(f"  Partial solve to {actual_solve:.6f} seconds, solver state: {result[0].state}")
-      time_step *= 10
+        actual_solve = 0
+        while actual_solve < time_step:
+            result = solver.solve(state, time_step=time_step - actual_solve)
+            print(state.get_concentrations())
+            actual_solve += result[0].stats.final_time
+            if (actual_solve < time_step):
+                print(f"  Partial solve to {actual_solve:.6f} seconds, solver state: {result[0].state}")
+        time_step *= 10
+
 
 def TestSingleGridCell(solver, state, time_step, places=5):
     temperature = 272.5
