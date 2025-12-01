@@ -51,8 +51,8 @@ namespace musica
         break;
 
       case MICMSolver::RosenbrockStandardOrder:
-        solver_variant_ = std::make_unique<micm::RosenbrockStandard>(configure(
-            micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
+        solver_variant_ =
+            std::make_unique<micm::RosenbrockStandard>(configure(micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
                 micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())));
         break;
 
