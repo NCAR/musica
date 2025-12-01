@@ -25,6 +25,7 @@ target_sources(
         src/musica_addon.cpp
         src/micm/state_wrapper.cpp
         src/micm/micm_wrapper.cpp
+        src/micm/solver_result_wrapper.cpp
         src/micm/state.cpp
         src/micm/micm.cpp
 )
