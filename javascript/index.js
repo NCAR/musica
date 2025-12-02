@@ -1,6 +1,7 @@
-const addon = require('../build/Release/musica-addon.node');
+var addon = require('bindings')('musica-addon.node');
 const { GAS_CONSTANT, AVOGADRO, BOLTZMANN } = require('./micm/utils.js');
 const { SolverType } = require('./micm/solver.js');
+const { SolverState, SolverStats, SolverResult } = require('./micm/solver_result.js');
 const { Conditions } = require('./micm/conditions.js');
 const { MICM } = require('./micm/micm.js');
 const { State } = require('./micm/state.js');
@@ -13,6 +14,9 @@ const micmSolver = {
 	State,
 	Conditions,
 	SolverType,
+	SolverState,
+	SolverStats,
+	SolverResult,
 	GAS_CONSTANT,
 	AVOGADRO,
 	BOLTZMANN,

@@ -1,11 +1,9 @@
-const path = require('path');
-const addon = require(path.join(
-	__dirname,
-	'../../build/Release/musica-addon.node'
-));
+var addon = require('bindings')('musica-addon.node')
+
 
 const { State } = require('./state.js');
 const { SolverType } = require('./solver');
+const { SolverStats, SolverResult } = require('./solver_result');
 
 class MICM {
 	constructor({ config_path = null, solver_type = null } = {}) {
@@ -42,7 +40,11 @@ class MICM {
 			throw new TypeError('timeStep must be a number');
 		}
 
-		this._nativeMICM.solve(state._nativeState, timeStep);
+		const result = this._nativeMICM.solve(state._nativeState, timeStep);
+
+		// Convert the plain object to a SolverResult instance
+		const stats = new SolverStats(result.stats);
+		return new SolverResult(result.state, stats);
 	}
 }
 module.exports = { MICM };

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "micm_wrapper.h"
+#include "solver_result_wrapper.h"
 #include "state.h"
 #include "state_wrapper.h"
 

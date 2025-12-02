@@ -14,11 +14,7 @@ jobs:
       fail-fast: false
       matrix: 
         platform: [windows-latest, macos-latest, ubuntu-latest]
-        node-version: ["v20", "v22", "v24"]
-        exclude:
-          # exclude v20 on windows latest because node doesn't expand on v20
-          - platform: windows-latest
-            node-version: "v20"
+        node-version: ["v22", "v24"]
 
 
     runs-on: ${{ matrix.platform }}

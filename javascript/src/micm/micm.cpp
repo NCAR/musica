@@ -93,13 +93,13 @@ Napi::Value MICMClass::Solve(const Napi::CallbackInfo& info)
   if (info.Length() < 2)
   {
     Napi::TypeError::New(env, "Expected 2 arguments: state and time_step").ThrowAsJavaScriptException();
-    return env.Undefined();
+    return env.Null();
   }
 
   if (!info[0].IsObject() || !info[1].IsNumber())
   {
     Napi::TypeError::New(env, "Invalid arguments").ThrowAsJavaScriptException();
-    return env.Undefined();
+    return env.Null();
   }
 
   // Extract StateWrapper from the object
@@ -109,16 +109,14 @@ Napi::Value MICMClass::Solve(const Napi::CallbackInfo& info)
 
   try
   {
-    musica::String solver_state;
-    musica::SolverResultStats stats;
-    micm_->Solve(state_class->GetState(), time_step);
+    micm::SolverResult result = micm_->Solve(state_class->GetState(), time_step);
+    return SolverResultWrapper::ResultToJS(env, result);
   }
   catch (const std::exception& e)
   {
     Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
+    return env.Null();
   }
-
-  return env.Undefined();
 }
 
 Napi::Value MICMClass::GetSolverType(const Napi::CallbackInfo& info)

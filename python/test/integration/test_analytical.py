@@ -161,7 +161,6 @@ def test_robertson():
         actual_solve = 0
         while actual_solve < time_step:
             result = solver.solve(state, time_step=time_step - actual_solve)
-            print(state.get_concentrations())
             actual_solve += result[0].stats.final_time
             if (actual_solve < time_step):
                 print(f"  Partial solve to {actual_solve:.6f} seconds, solver state: {result[0].state}")
