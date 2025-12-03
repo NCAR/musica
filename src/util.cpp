@@ -1,6 +1,7 @@
 // Copyright (C) 2023-2025 National Center for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 #include <musica/util.hpp>
+#include <musica/version.hpp>
 
 #include <cstddef>
 #include <cstring>
@@ -273,6 +274,11 @@ namespace musica
       DeleteIndexMapping(&(mappings->mappings_[i]));
     }
     delete[] mappings->mappings_;
+  }
+
+  void MusicaVersion(String* musica_version)
+  {
+    CreateString(GetMusicaVersion(), musica_version);
   }
 
 }  // namespace musica

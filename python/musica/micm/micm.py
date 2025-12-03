@@ -17,6 +17,8 @@ create_solver_from_mechanism = _backend._micm._create_solver_from_mechanism
 micm_solve = _backend._micm._micm_solve
 vector_size = _backend._micm._vector_size
 
+version = _backend._micm._get_micm_version()
+
 # For type hints
 if TYPE_CHECKING:
     from ..mechanism_configuration import Mechanism

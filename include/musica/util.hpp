@@ -187,6 +187,10 @@ const size_t MUSICA_VECTOR_SIZE = 0;
     /// @param mappings The array of IndexMappings to delete
     void DeleteIndexMappings(IndexMappings* mappings);
 
+    /// @brief Get the MUSICA version
+    /// @param musica_version MUSICA version [output]
+    void MusicaVersion(String* musica_version);
+
 #ifdef __cplusplus
   }
   /// @brief Creates an Error from a category and code

@@ -15,7 +15,7 @@ module musica_util
       to_c_string, to_f_string, assert, copy_mappings, delete_string_c, &
       create_string_c, musica_rk, musica_dk, find_mapping_index, &
       MUSICA_INDEX_MAPPINGS_UNDEFINED, MUSICA_INDEX_MAPPINGS_MAP_ANY, &
-      MUSICA_INDEX_MAPPINGS_MAP_ALL
+      MUSICA_INDEX_MAPPINGS_MAP_ALL, get_musica_version
 
    !> Single precision kind
    integer, parameter :: musica_rk = real32
@@ -256,6 +256,11 @@ module musica_util
          type(c_ptr),              value, intent(in) :: source
          type(c_ptr),              value, intent(in) :: target
       end subroutine copy_data_c
+
+      subroutine get_musica_version_c(musica_version) bind(C, name="MusicaVersion")
+         import :: string_t_c
+         type(string_t_c), intent(out) :: musica_version
+      end subroutine get_musica_version_c
    end interface
 
 contains
@@ -903,6 +908,16 @@ contains
       end if
 
    end subroutine assert
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   !> Get the MUSICA version
+   function get_musica_version() result(value)
+      type(string_t)   :: value
+      type(string_t_c) :: string_c
+      call get_musica_version_c(string_c)
+      value = string_t(string_c)
+   end function get_musica_version
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

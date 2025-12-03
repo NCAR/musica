@@ -6,64 +6,53 @@
 #include <musica/component_versions.hpp>
 #include <musica/version.hpp>
 
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
+#include <string>
+
 #ifdef MUSICA_USE_MICM
   #include <micm/version.hpp>
+#endif
+#ifdef MUSICA_USE_TUVX
+  #include <musica/tuvx/tuvx.hpp>
+#endif
+#ifdef MUSICA_USE_CARMA
+  #include <musica/carma/carma.hpp>
 #endif
 
 namespace musica
 {
-  char* AddNameAndVersion(char* pos, const char* name, const char* version, const char* sep)
-  {
-    size_t const name_length = strlen(name);
-    size_t const version_length = strlen(version);
-    size_t const sep_length = strlen(sep);
-
-    memcpy(pos, name, name_length);
-    pos += name_length;
-
-    memcpy(pos, version, version_length);
-    pos += version_length;
-
-    memcpy(pos, sep, sep_length);
-    pos += sep_length;
-
-    return pos;
-  }
-
   char* GetAllComponentVersions()
   {
-    const char* sep = "\n";
-    size_t const sep_size = strlen(sep);
-    size_t buf_size = 0;
+    std::string result;
 
-    const char* musica_name = "musica: ";
-    const char* musica_version = musica::GetMusicaVersion();
-    buf_size += strlen(musica_name) + strlen(musica_version) + sep_size;
+    result += "musica: ";
+    result += musica::GetMusicaVersion();
+    result += "\n";
 
 #ifdef MUSICA_USE_MICM
-    const char* micm_name = "micm: ";
-    const char* micm_version = micm::GetMicmVersion();
-    buf_size += strlen(micm_name) + strlen(micm_name) + sep_size;
+    result += "micm: ";
+    result += micm::GetMicmVersion();
+    result += "\n";
 #endif
 
-    char* buf = (char*)malloc(sizeof(char) * (buf_size + 1));
+#ifdef MUSICA_USE_TUVX
+    result += "tuvx: ";
+    result += musica::TUVX::GetVersion();
+    result += "\n";
+#endif
 
+#ifdef MUSICA_USE_CARMA
+    result += "carma: ";
+    result += musica::CARMA::GetVersion();
+    result += "\n";
+#endif
+
+    char* buf = static_cast<char*>(std::malloc(result.size() + 1));
     if (buf)
     {
-      char* pos = buf;
-
-      pos = AddNameAndVersion(pos, musica_name, musica_version, sep);
-#ifdef MUSICA_USE_MICM
-      pos = AddNameAndVersion(pos, micm_name, micm_version, sep);
-#endif
-
-      *pos = '\0';
+      std::memcpy(buf, result.c_str(), result.size() + 1);
     }
-
     return buf;
   }
 }  // namespace musica
