@@ -111,7 +111,7 @@ class MICM():
             self,
             state: State,
             time_step: float,
-    ) -> List[SolverResult]:
+    ) -> SolverResult:
         """
         Solve the system of equations for the given state and time step.
 
@@ -124,16 +124,12 @@ class MICM():
 
         Returns
         -------
-        List[SolverResult]
-            List of SolverResult objects, one for each grid cell, containing the solver state and statistics.
+        SolverResult
+            A SolverResult object containing the solver state and statistics.
         """
         if not isinstance(state, State):
             raise TypeError("state must be an instance of State.")
         if not isinstance(time_step, (int, float)):
             raise TypeError("time_step must be an int or float.")
-        states = state.get_internal_states()
-        results = []
-        for _state in states:
-            result = micm_solve(self.__solver, _state, time_step)
-            results.append(result)
-        return results
+
+        return micm_solve(self.__solver, state.get_internal_state(), time_step)

@@ -171,10 +171,8 @@ class TestMICMSolve:
         # Solve
         results = micm.solve(state, time_step=1.0)
 
-        assert isinstance(results, list)
-        assert len(results) == 1
-        assert isinstance(results[0], SolverResult)
-        assert results[0].state == SolverState.Converged
+        assert isinstance(results, SolverResult)
+        assert results.state == SolverState.Converged
 
     def test_solve_with_multiple_grid_cells(self):
         """Test solve with multiple grid cells."""
@@ -195,10 +193,7 @@ class TestMICMSolve:
         # Solve
         results = micm.solve(state, time_step=1.0)
 
-        assert isinstance(results, list)
-        assert len(results) == num_cells
-        for result in results:
-            assert isinstance(result, SolverResult)
+        assert isinstance(results, SolverResult)
 
     def test_solve_with_float_timestep(self):
         """Test solve with float time step."""
@@ -209,7 +204,7 @@ class TestMICMSolve:
         state.set_user_defined_rate_parameters({"USER.reaction 1": 0.001, "USER.reaction 2": 0.002})
 
         results = micm.solve(state, time_step=1.5)
-        assert isinstance(results, list)
+        assert isinstance(results, SolverResult)
 
     def test_solve_with_int_timestep(self):
         """Test solve with integer time step."""
@@ -220,7 +215,7 @@ class TestMICMSolve:
         state.set_user_defined_rate_parameters({"USER.reaction 1": 0.001, "USER.reaction 2": 0.002})
 
         results = micm.solve(state, time_step=1)
-        assert isinstance(results, list)
+        assert isinstance(results, SolverResult)
 
     def test_solve_with_invalid_state_type_raises_error(self):
         """Test that solve with invalid state type raises TypeError."""
@@ -255,8 +250,7 @@ class TestMICMSolve:
         # Solve multiple times
         for _ in range(5):
             results = micm.solve(state, time_step=1.0)
-            assert isinstance(results, list)
-            assert len(results) == 1
+            assert isinstance(results, SolverResult)
 
 
 class TestMICMWithMechanism:
@@ -283,9 +277,7 @@ class TestMICMWithMechanism:
         # Solve
         results = micm.solve(state, time_step=1.0)
 
-        assert isinstance(results, list)
-        assert len(results) == 1
-        assert isinstance(results[0], SolverResult)
+        assert isinstance(results, SolverResult)
 
 
 class TestMICMIntegration:
@@ -321,9 +313,7 @@ class TestMICMIntegration:
         results = micm.solve(state, time_step=1.0)
 
         # Verify results
-        assert isinstance(results, list)
-        assert len(results) == 1
-        assert isinstance(results[0], SolverResult)
+        assert isinstance(results, SolverResult)
 
         # Get updated concentrations
         concentrations = state.get_concentrations()
@@ -352,8 +342,7 @@ class TestMICMIntegration:
         results = micm.solve(state, time_step=1.0)
 
         # Verify results
-        assert isinstance(results, list)
-        assert len(results) == 1
+        assert isinstance(results, SolverResult)
 
 
 if __name__ == '__main__':
