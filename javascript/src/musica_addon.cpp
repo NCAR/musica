@@ -40,7 +40,6 @@ Napi::String GetMicmVersion(const Napi::CallbackInfo& info)
 // Module Initialization
 Napi::Object Init(Napi::Env env, Napi::Object exports)
 {
-  // Legacy functions
   exports.Set("getVersion", Napi::Function::New(env, GetVersion));
   exports.Set("getMicmVersion", Napi::Function::New(env, GetMicmVersion));
 
