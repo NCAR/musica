@@ -87,6 +87,11 @@ namespace musica
       tuvx->Run(solar_zenith_angle, earth_sun_distance, photolysis_rate_constants, heating_rates, dose_rates, error);
     }
 
+    void TuvxVersion(String *tuvx_version) 
+    {
+      CreateString(TUVX::GetVersion().c_str(), tuvx_version);
+    }
+
 #ifdef __cplusplus
   }
 #endif

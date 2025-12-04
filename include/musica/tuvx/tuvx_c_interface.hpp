@@ -93,6 +93,10 @@ namespace musica
         double* const dose_rates,
         Error* const error);
 
+    /// @brief Get the TUVX version
+    /// @param tuvx_version TUVX version [output]
+    void TuvxVersion(String *tuvx_version);
+
     // for use by musica internally. If tuvx ever gets rewritten in C++, these functions will
     // go away but the C API will remain the same and downstream projects (like CAM-SIMA) will
     // not need to change

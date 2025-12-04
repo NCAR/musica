@@ -16,7 +16,7 @@ module musica_tuvx
 
    private
    public :: tuvx_t, grid_map_t, grid_t, profile_map_t, profile_t, &
-      radiator_map_t, radiator_t
+      radiator_map_t, radiator_t, get_tuvx_version
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -95,7 +95,13 @@ module musica_tuvx
          type(c_ptr), value,         intent(in)    :: dose_rates
          type(error_t_c),            intent(inout) :: error
       end subroutine run_tuvx_c
-  end interface
+
+      subroutine get_tuvx_version_c(tuvx_version) bind(C, name="TuvxVersion")
+         use musica_util, only: string_t_c
+         use iso_c_binding, only: c_char
+         type(string_t_c), intent(out) :: tuvx_version
+      end subroutine get_tuvx_version_c
+   end interface
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -312,6 +318,16 @@ contains
 
    end subroutine run
 
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   !> Get the TUVX version
+   function get_tuvx_version() result(value)
+      use musica_util, only: string_t, string_t_c
+      type(string_t)   :: value
+      type(string_t_c) :: string_c
+      call get_tuvx_version_c(string_c)
+      value = string_t(string_c)        
+   end function get_tuvx_version
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    !> Deallocate the tuvx instance
