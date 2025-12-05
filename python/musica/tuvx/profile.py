@@ -26,6 +26,7 @@ if backend.tuvx_available():
                  edge_values: Optional[np.ndarray] = None,
                  midpoint_values: Optional[np.ndarray] = None,
                  layer_densities: Optional[np.ndarray] = None,
+                 calculate_layer_densities: bool = False,
                  **kwargs):
         """Initialize a Profile instance.
 
@@ -36,18 +37,42 @@ if backend.tuvx_available():
             edge_values: Optional array of values at grid edges (length num_sections + 1)
             midpoint_values: Optional array of values at grid midpoints (length num_sections)
             layer_densities: Optional array of layer densities (length num_sections)
+            calculate_layer_densities: If True, calculate layer densities from edge values
             **kwargs: Additional arguments passed to the C++ constructor
         """
         # Call the original C++ constructor correctly
         original_init(self, name=name, units=units, grid=grid, **kwargs)
 
-        # Set values if provided
+
+        # Workaround for current non-SI units in TUV-x, layer densities must be in molecules/cm2
+        # and heights in km. This will be fixed in a future TUV-x release.
+        conv = 1
+        if grid.name == "height" and grid.units == "km":
+            conv = 1e5
+
+        # Set optional values if provided, otherwise calculate them
+        if edge_values is None and midpoint_values is None:
+            raise ValueError("At least one of edge_values or midpoint_values must be provided.")
         if edge_values is not None:
+            self.edge_values = edge_values
+        else:
+            edge_values = np.zeros(midpoint_values.size + 1, dtype=midpoint_values.dtype)
+            edge_values[1:-1] = 0.5 * (midpoint_values[:-1] + midpoint_values[1:])
+            # Extrapolate first and last edges
+            edge_values[0] = midpoint_values[0] - 0.5 * (midpoint_values[1] - midpoint_values[0])
+            edge_values[-1] = midpoint_values[-1] + 0.5 * (midpoint_values[-1] - midpoint_values[-2])
             self.edge_values = edge_values
         if midpoint_values is not None:
             self.midpoint_values = midpoint_values
+        else:
+            self.midpoint_values = 0.5 * (edge_values[:-1] + edge_values[1:])
         if layer_densities is not None:
+            if calculate_layer_densities:
+                raise ValueError("Cannot provide layer_densities and set calculate_layer_densities=True")
             self.layer_densities = layer_densities
+        elif calculate_layer_densities:
+            deltas = grid.edges[1:] - grid.edges[:-1]
+            self.layer_densities = self.midpoint_values * deltas * conv
 
     Profile.__init__ = __init__
 
