@@ -273,29 +273,21 @@ def test_full_tuvx(monkeypatch):
     assert photolysis_rates.shape[1] == len(tuvx.photolysis_rate_names), "Photolysis rates shape mismatch"
     assert dose_rates.shape[1] == len(tuvx.dose_rate_names), "Dose rates shape mismatch"
 
-    # Print out any negative rates for debugging
-    for j in range(photolysis_rates.shape[1]):
-        negative_indices = np.where(photolysis_rates[:, j] < 0)[0]
-        if negative_indices.size > 0:
-            rate_name = list(tuvx.photolysis_rate_names.keys())[list(tuvx.photolysis_rate_names.values()).index(j)]
-            print(f"Photolysis rate '{rate_name}' has negative values at layers: {negative_indices} with values {photolysis_rates[negative_indices, j]}")
-        nan_indices = np.where(np.isnan(photolysis_rates[:, j]))[0]
-        if nan_indices.size > 0:
-            rate_name = list(tuvx.photolysis_rate_names.keys())[list(tuvx.photolysis_rate_names.values()).index(j)]
-            print(f"Photolysis rate '{rate_name}' has NaN values at layers: {nan_indices}")
-
     # Make sure photolysis rates are reasonable
     assert np.all(photolysis_rates >= 0), "Negative photolysis rates found"
     assert np.any(photolysis_rates > 0), "All photolysis rates are zero"
 
-    # Double all the species concentrations and verify rates increase
+    # Double all the species concentrations and verify rates decrease
     profile_map["O3", "molecule cm-3"].midpoint_values *= 2.0
     profile_map["O2", "molecule cm-3"].midpoint_values *= 2.0
     profile_map["air", "molecule cm-3"].midpoint_values *= 2.0
+    profile_map["O3", "molecule cm-3"].calculate_layer_densities(grid_map["height", "km"])
+    profile_map["O2", "molecule cm-3"].calculate_layer_densities(grid_map["height", "km"])
+    profile_map["air", "molecule cm-3"].calculate_layer_densities(grid_map["height", "km"])
     profile_map["O3", "molecule cm-3"].calculate_exo_layer_density(8.5)
     profile_map["O2", "molecule cm-3"].calculate_exo_layer_density(8.5)
     profile_map["air", "molecule cm-3"].calculate_exo_layer_density(8.5)
-    photolysis_rates_doubled, _, _ = tuvx.run(2.3, 1.0)
+    photolysis_rates_doubled, _, _ = tuvx.run(sza, earth_sun_distance)
 
     # Verify that the photolysis of O2 and O3 decreased
     o2_index = tuvx.photolysis_rate_names["O2+hv->O+O"]
