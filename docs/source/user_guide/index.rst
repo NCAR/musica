@@ -20,6 +20,7 @@ the Python API can be found on the :ref:`Tutorials <tutorials page>` page.
    :caption: Python:
 
    installation/index
+   cli
    chemistry/index
    model/index
    output/index
