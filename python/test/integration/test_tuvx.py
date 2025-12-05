@@ -285,7 +285,7 @@ def test_full_tuvx(monkeypatch):
             print(f"Photolysis rate '{rate_name}' has NaN values at layers: {nan_indices}")
 
     # Make sure photolysis rates are reasonable
-    assert np.all(photolysis_rates >= -1.0e-2), "Negative photolysis rates found"
+    assert np.all(photolysis_rates >= 0), "Negative photolysis rates found"
     assert np.any(photolysis_rates > 0), "All photolysis rates are zero"
 
     # Double all the species concentrations and verify rates increase
