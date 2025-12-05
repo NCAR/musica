@@ -186,6 +186,69 @@ df.plot(x='time.s', y=['CONC.A.mol m-3', 'CONC.B.mol m-3', 'CONC.C.mol m-3'], ti
 plt.show()
 ```
 
+# Using the MUSICA CLI
+
+MUSICA provides a command-line interface (`musica-cli`) for working with examples and configuration conversion. The CLI is installed automatically when you install MUSICA via pip.
+
+## Installation with Tutorial Dependencies
+
+To use all features of the examples, install MUSICA with the tutorial dependencies:
+
+```bash
+pip install 'musica[tutorial]'
+```
+
+## Basic Usage
+
+Check the installed version:
+```bash
+musica-cli --version
+```
+
+View available options:
+```bash
+musica-cli -h
+```
+
+## Available Options
+
+| Option | Description |
+| ------ | ----------- |
+| `-h`, `--help` | Show help message and exit |
+| `-e`, `--example` | Name of the example to copy out |
+| `-o`, `--output` | Path to save the output to |
+| `-v`, `--verbose` | Increase logging verbosity. Use `-v` for info, `-vv` for debug |
+| `--version` | Show the installed MUSICA version |
+| `--convert` | Path to a MUSICA v0 configuration to convert to v1 format |
+
+## Available Examples
+
+| Example Name | Description |
+| ------------ | ----------- |
+| `CARMA_Aluminum` | A CARMA example for simulating aluminum aerosol particles |
+| `CARMA_Sulfate` | A CARMA example for simulating sulfate aerosol particles |
+| `Sulfate_Box_Model` | A box model example for simulating sulfate aerosol particles |
+| `TS1LatinHyperCube` | A Latin hypercube sampling example for the TS1 mechanism |
+
+## Example Workflow
+
+Copy an example to your current directory:
+```bash
+musica-cli -e TS1LatinHyperCube
+```
+
+Copy an example to a specific directory:
+```bash
+musica-cli -e TS1LatinHyperCube -o /path/to/output/
+```
+
+Convert a MUSICA v0 configuration to v1 format:
+```bash
+musica-cli --convert /path/to/v0/config.json -o /path/to/output/
+```
+
+For more detailed documentation, see the [official documentation](https://ncar.github.io/musica/index.html).
+
 # Available grids
 Pre-made grids for use in MUSICA are available [here](https://wiki.ucar.edu/display/MUSICA/Available+Grids).
 
