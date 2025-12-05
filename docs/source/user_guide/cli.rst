@@ -69,7 +69,7 @@ The following examples are available through the CLI:
    * - ``Sulfate_Box_Model``
      - A box model example for simulating sulfate aerosol particles
    * - ``TS1LatinHyperCube``
-     - A Latin hypercube sampling example for the TS1 mechanism. This script shows how to sample an input space and run multiple box models in parallel on a single mechanism.
+     - A Latin hypercube sampling example for the TS1 mechanism
 
 Example Workflow
 ================
