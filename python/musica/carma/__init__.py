@@ -1,3 +1,8 @@
+from .. import backend
+_backend = backend.get_backend()
+
+__version__ = _backend._carma._get_carma_version() if backend.carma_available() else None
+
 from .carma import (
     # Main classes
     CARMA, CARMAParameters, CARMAState, CARMASurfaceProperties,
@@ -13,7 +18,4 @@ from .carma import (
     MieCalculationAlgorithm, OpticsAlgorithm, VaporizationAlgorithm,
     GasComposition, ParticleComposition, ParticleCollectionAlgorithm,
     ParticleNucleationAlgorithm, SulfateNucleationMethod, CarmaCoordinates,
-
-    # Version
-    version
 )

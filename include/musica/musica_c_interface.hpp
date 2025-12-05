@@ -9,7 +9,9 @@ namespace musica
   {
 #endif
 
-    char* GetAllComponentVersions();
+    /// @brief Get the MUSICA version
+    /// @param musica_version MUSICA version [output]
+    void MusicaVersion(String *musica_version);
 
 #ifdef __cplusplus
   }

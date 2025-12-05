@@ -9,6 +9,7 @@
 #include <musica/micm/state_c_interface.hpp>
 
 #include <mechanism_configuration/v1/types.hpp>
+#include <micm/version.hpp>
 
 #include <iostream>
 
@@ -200,6 +201,8 @@ void bind_micm(py::module_& micm)
       "Return map of reaction rate parameters to their indices in the state user-defined rate parameters vector");
 
   micm.def("_is_cuda_available", &musica::IsCudaAvailable, "Check if CUDA is available");
+
+  micm.def("_get_micm_version", []() { return micm::GetMicmVersion(); }, "Get the version of MICM");
 
   micm.def(
       "_print_state",

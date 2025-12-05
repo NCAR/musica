@@ -7,6 +7,10 @@ from musica import Examples
 from musica import __version__
 import musica.examples
 import importlib.resources as ir
+import musica
+
+def versions():
+    return f"musica {musica.__version__} (MICM {musica.micm.__version__}, TUV-x {musica.tuvx.__version__}, CARMA {musica.carma.__version__})"
 
 
 def format_examples_help(examples):
@@ -38,7 +42,7 @@ def parse_arguments():
     parser.add_argument(
         '--version',
         action='version',
-        version=f'musica {__version__}',
+        version=versions(),
     )
     parser.add_argument(
         '--convert',
