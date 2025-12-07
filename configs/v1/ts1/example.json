@@ -1,0 +1,36 @@
+{
+  "name": "TS1 Tropospheric Mechanism",
+  "description": "210 species tropospheric mechanism - 6 hour simulation showing NOx and O3 chemistry",
+  "mechanism": "ts1",
+  "conditions": {
+    "basic": {
+      "duration": 21600,
+      "timeStep": 200,
+      "outputFrequency": 10
+    },
+    "initial": {
+      "temperature": 298.15,
+      "pressure": 101325,
+      "concentrations": {
+        "O2": 8.90261411,
+        "N2": 33.1007671,
+        "O3": 5.0e-8,
+        "NO": 1.0e-9,
+        "NO2": 1.0e-9,
+        "CO": 1.5e-7,
+        "CH4": 1.8e-6,
+        "H2O": 0.01,
+        "PAN": 4.25e-8,
+        "MVK": 2.61e-8,
+        "M": 1.0
+      }
+    },
+    "rateConstants": {
+      "USER.jo2_b": 1.0e-5,
+      "USER.jmgly": 5.0e-6,
+      "USER.jch4_b": 1.0e-7,
+      "USER.jterpnit": 2.0e-6,
+      "USER.jxylenooh": 3.0e-6
+    }
+  }
+}

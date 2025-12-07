@@ -32,6 +32,15 @@
     {
       "name": "H2O",
       "molecular weight [kg mol-1]": 0.01801
+    },
+    {
+      "name": "bar"
+    },
+    {
+      "name": "baz"
+    },
+    {
+      "name": "foo"
     }
   ],
   "phases": [
@@ -51,7 +60,12 @@
         {
           "name": "H2O2",
           "diffusion coefficient [m2 s-1]": 2.1e-5
-        }
+        },
+        {"name": "M"},
+        {"name": "H2O"},
+        {"name": "bar"},
+        {"name": "baz"},
+        {"name": "foo"}
       ]
     }
   ],

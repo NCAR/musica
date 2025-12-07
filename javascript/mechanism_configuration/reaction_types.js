@@ -203,10 +203,20 @@ class Surface {
 		obj['name'] = this.name;
 		obj['reaction probability'] = this.reaction_probability;
 		obj['gas phase'] = this.gas_phase;
-		// Handle both string arrays and ReactionComponent objects
-		obj['gas-phase species'] = this.gas_phase_species.map((r) =>
-			typeof r === 'string' ? { "species name": r, "coefficient": 1.0 } : r.getJSON()
-		);
+		// gas-phase species: Internal can be string, ReactionComponent, or array
+		// But JSON output must be a STRING (species name only)
+		if (Array.isArray(this.gas_phase_species)) {
+			// Array case: take first element and extract species name
+			const first = this.gas_phase_species[0];
+			obj['gas-phase species'] = typeof first === 'string' ? first : first.species_name;
+		} else if (typeof this.gas_phase_species === 'string') {
+			// String case: use as-is
+			obj['gas-phase species'] = this.gas_phase_species;
+		} else {
+			// ReactionComponent object case: extract species_name
+			obj['gas-phase species'] = this.gas_phase_species.species_name;
+		}
+		// gas-phase products is an ARRAY of reaction components
 		obj['gas-phase products'] = this.gas_phase_products.map((p) =>
 			typeof p === 'string' ? { "species name": p, "coefficient": 1.0 } : p.getJSON()
 		);
@@ -474,6 +484,24 @@ class Reactions {
 				case 'UserDefined':
 					this.user_defined.push_back(reaction);
 					break;
+				case 'CondensedPhaseArrhenius':
+					this.condensed_phase_arrhenius.push_back(reaction);
+					break;
+				case 'CondensedPhasePhotolysis':
+					this.condensed_phase_photolysis.push_back(reaction);
+					break;
+				case 'AqueousEquilibrium':
+					this.aqueous_equilibrium.push_back(reaction);
+					break;
+				case 'HenrysLaw':
+					this.henrys_law.push_back(reaction);
+					break;
+				case 'WetDeposition':
+					this.wet_deposition.push_back(reaction);
+					break;
+				case 'SimpolPhaseTransfer':
+					this.simpol_phase_transfer.push_back(reaction);
+					break;
 			}
 		}
 	}
@@ -492,6 +520,233 @@ class Reactions {
 			Object.assign(obj, tca.getJSON());
 		for (const tu in this.tunneling) Object.assign(obj, tu.getJSON());
 		for (const ud in this.user_defined) Object.assign(obj, ud.getJSON());
+		for (const cpa in this.condensed_phase_arrhenius)
+			Object.assign(obj, cpa.getJSON());
+		for (const cpp in this.condensed_phase_photolysis)
+			Object.assign(obj, cpp.getJSON());
+		for (const aq in this.aqueous_equilibrium)
+			Object.assign(obj, aq.getJSON());
+		for (const hl in this.henrys_law)
+			Object.assign(obj, hl.getJSON());
+		for (const wd in this.wet_deposition)
+			Object.assign(obj, wd.getJSON());
+		for (const spt in this.simpol_phase_transfer)
+			Object.assign(obj, spt.getJSON());
+		return obj;
+	}
+}
+
+// =========== CONDENSED PHASE REACTIONS ===========
+
+class CondensedPhaseArrhenius {
+	constructor({
+		A = 1.0,
+		B = 0.0,
+		C = 0.0,
+		D = 300.0,
+		E = 0.0,
+		Ea,
+		reactants,
+		products,
+		name,
+		condensed_phase,
+		other_properties = {},
+	}) {
+		this.A = A;
+		this.B = B;
+		this.C = C;
+		this.D = D;
+		this.E = E;
+		this.Ea = Ea;
+		this.reactants = reactants;
+		this.products = products;
+		this.name = name;
+		this.condensed_phase = condensed_phase;
+		this.other_properties = other_properties;
+	}
+	getJSON() {
+		let obj = {};
+		obj['type'] = 'CONDENSED_PHASE_ARRHENIUS';
+		if (this.name !== undefined) obj['name'] = this.name;
+		obj['condensed phase'] = this.condensed_phase;
+		obj['A'] = this.A;
+		obj['B'] = this.B;
+		obj['C'] = this.C;
+		obj['D'] = this.D;
+		obj['E'] = this.E;
+		if (this.Ea !== undefined) obj['Ea'] = this.Ea;
+		obj['reactants'] = this.reactants.map((r) =>
+			typeof r === 'string' ? { "species name": r, "coefficient": 1.0 } : r.getJSON()
+		);
+		obj['products'] = this.products.map((p) =>
+			typeof p === 'string' ? { "species name": p, "coefficient": 1.0 } : p.getJSON()
+		);
+		const ops = convertOtherProperties(this.other_properties);
+		Object.assign(obj, ops);
+		return obj;
+	}
+}
+
+class CondensedPhasePhotolysis {
+	constructor({
+		scaling_factor,
+		reactants,
+		products,
+		name,
+		condensed_phase,
+		other_properties = {},
+	}) {
+		this.scaling_factor = scaling_factor;
+		this.reactants = reactants;
+		this.products = products;
+		this.name = name;
+		this.condensed_phase = condensed_phase;
+		this.other_properties = other_properties;
+	}
+	getJSON() {
+		let obj = {};
+		obj['type'] = 'CONDENSED_PHASE_PHOTOLYSIS';
+		if (this.name !== undefined) obj['name'] = this.name;
+		obj['condensed phase'] = this.condensed_phase;
+		if (this.scaling_factor !== undefined) obj['scaling factor'] = this.scaling_factor;
+		obj['reactants'] = this.reactants.map((r) =>
+			typeof r === 'string' ? { "species name": r, "coefficient": 1.0 } : r.getJSON()
+		);
+		obj['products'] = this.products.map((p) =>
+			typeof p === 'string' ? { "species name": p, "coefficient": 1.0 } : p.getJSON()
+		);
+		const ops = convertOtherProperties(this.other_properties);
+		Object.assign(obj, ops);
+		return obj;
+	}
+}
+
+class AqueousEquilibrium {
+	constructor({
+		A,
+		C,
+		k_reverse,
+		reactants,
+		products,
+		name,
+		condensed_phase,
+		condensed_phase_water,
+		other_properties = {},
+	}) {
+		this.A = A;
+		this.C = C;
+		this.k_reverse = k_reverse;
+		this.reactants = reactants;
+		this.products = products;
+		this.name = name;
+		this.condensed_phase = condensed_phase;
+		this.condensed_phase_water = condensed_phase_water;
+		this.other_properties = other_properties;
+	}
+	getJSON() {
+		let obj = {};
+		obj['type'] = 'AQUEOUS_EQUILIBRIUM';
+		if (this.name !== undefined) obj['name'] = this.name;
+		obj['condensed phase'] = this.condensed_phase;
+		obj['condensed-phase water'] = this.condensed_phase_water;
+		if (this.A !== undefined) obj['A'] = this.A;
+		if (this.C !== undefined) obj['C'] = this.C;
+		if (this.k_reverse !== undefined) obj['k_reverse'] = this.k_reverse;
+		obj['reactants'] = this.reactants.map((r) =>
+			typeof r === 'string' ? { "species name": r, "coefficient": 1.0 } : r.getJSON()
+		);
+		obj['products'] = this.products.map((p) =>
+			typeof p === 'string' ? { "species name": p, "coefficient": 1.0 } : p.getJSON()
+		);
+		const ops = convertOtherProperties(this.other_properties);
+		Object.assign(obj, ops);
+		return obj;
+	}
+}
+
+class HenrysLaw {
+	constructor({
+		gas,
+		particle,
+		name,
+		other_properties = {},
+	}) {
+		this.gas = gas;
+		this.particle = particle;
+		this.name = name;
+		this.other_properties = other_properties;
+	}
+	getJSON() {
+		let obj = {};
+		obj['type'] = 'HL_PHASE_TRANSFER';
+		if (this.name !== undefined) obj['name'] = this.name;
+		obj['gas'] = this.gas;
+		obj['particle'] = this.particle;
+		const ops = convertOtherProperties(this.other_properties);
+		Object.assign(obj, ops);
+		return obj;
+	}
+}
+
+class WetDeposition {
+	constructor({
+		condensed_phase,
+		name,
+		scaling_factor,
+		other_properties = {},
+	}) {
+		this.condensed_phase = condensed_phase;
+		this.name = name;
+		this.scaling_factor = scaling_factor;
+		this.other_properties = other_properties;
+	}
+	getJSON() {
+		let obj = {};
+		obj['type'] = 'WET_DEPOSITION';
+		if (this.name !== undefined) obj['name'] = this.name;
+		obj['condensed phase'] = this.condensed_phase;
+		if (this.scaling_factor !== undefined) obj['scaling factor'] = this.scaling_factor;
+		const ops = convertOtherProperties(this.other_properties);
+		Object.assign(obj, ops);
+		return obj;
+	}
+}
+
+class SimpolPhaseTransfer {
+	constructor({
+		gas_phase,
+		gas_phase_species,
+		condensed_phase,
+		condensed_phase_species,
+		B,
+		name,
+		other_properties = {},
+	}) {
+		this.gas_phase = gas_phase;
+		this.gas_phase_species = gas_phase_species;
+		this.condensed_phase = condensed_phase;
+		this.condensed_phase_species = condensed_phase_species;
+		this.B = B;
+		this.name = name;
+		this.other_properties = other_properties;
+	}
+	getJSON() {
+		let obj = {};
+		obj['type'] = 'SIMPOL_PHASE_TRANSFER';
+		if (this.name !== undefined) obj['name'] = this.name;
+		obj['gas phase'] = this.gas_phase;
+		// gas-phase species is a STRING
+		obj['gas-phase species'] = typeof this.gas_phase_species === 'string'
+			? this.gas_phase_species
+			: this.gas_phase_species.species_name;
+		obj['condensed phase'] = this.condensed_phase;
+		// condensed-phase species is a STRING
+		obj['condensed-phase species'] = typeof this.condensed_phase_species === 'string'
+			? this.condensed_phase_species
+			: this.condensed_phase_species.species_name;
+		if (this.B !== undefined) obj['B'] = this.B;
+		const ops = convertOtherProperties(this.other_properties);
+		Object.assign(obj, ops);
 		return obj;
 	}
 }
@@ -508,7 +763,32 @@ const reactionTypes = {
 	TernaryChemicalActivation,
 	Tunneling,
 	UserDefined,
+	CondensedPhaseArrhenius,
+	CondensedPhasePhotolysis,
+	AqueousEquilibrium,
+	HenrysLaw,
+	WetDeposition,
+	SimpolPhaseTransfer,
 	Reactions,
 };
 
-module.exports = { reactionTypes };
+module.exports = {
+	Arrhenius,
+	Branched,
+	Emission,
+	FirstOrderLoss,
+	Photolysis,
+	Surface,
+	TaylorSeries,
+	Troe,
+	TernaryChemicalActivation,
+	Tunneling,
+	UserDefined,
+	CondensedPhaseArrhenius,
+	CondensedPhasePhotolysis,
+	AqueousEquilibrium,
+	HenrysLaw,
+	WetDeposition,
+	SimpolPhaseTransfer,
+	Reactions,
+};

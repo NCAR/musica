@@ -120,8 +120,8 @@ function testTS1Performance() {
     // Print summary
     console.log('\nPERFORMANCE TEST SUMMARY');
     console.log('\nSuccessful tests:');
-    console.log('Grid Cells | Species | Solve Time | Total Time | Memory (Heap Used)');
-    console.log('-'.repeat(70));
+    console.log('Grid Cells | Species | Solve Time | Total Time | Memory (RSS) | Memory (Heap Used)');
+    console.log('-'.repeat(82));
 
     const successful = results.filter(r => r.success);
     for (const result of successful) {
@@ -130,7 +130,8 @@ function testTS1Performance() {
             `${result.numSpecies.toString().padStart(7)} | ` +
             `${(result.solveTime + 'ms').padStart(10)} | ` +
             `${(result.totalTime + 'ms').padStart(10)} | ` +
-            `${result.memoryMB.heapUsed}MB`
+            `${(result.memoryMB.rss + 'MB').padStart(12)} | ` +
+            `${(result.memoryMB.heapUsed + 'MB').padStart(18)}`
         );
     }
 

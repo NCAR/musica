@@ -29,10 +29,10 @@ console.log();
 
 // Setup test species and phase
 console.log('Setup: Creating test species and phase...');
-const O3 = new Species({ name: "O3", molecular_weight_kg_mol: 48e-3 });
-const O2 = new Species({ name: "O2", molecular_weight_kg_mol: 32e-3 });
-const O = new Species({ name: "O", molecular_weight_kg_mol: 16e-3 });
-const O1D = new Species({ name: "O1D", molecular_weight_kg_mol: 16e-3 });
+const O3 = new Species({ name: "O3", molecular_weight: 48e-3 });
+const O2 = new Species({ name: "O2", molecular_weight: 32e-3 });
+const O = new Species({ name: "O", molecular_weight: 16e-3 });
+const O1D = new Species({ name: "O1D", molecular_weight: 16e-3 });
 const gasPhase = new Phase({ name: "gas", species: [O3, O2, O, O1D] });
 console.log('  ✓ Created species: O3, O2, O, O1D');
 console.log('  ✓ Created gas phase with 4 species');
