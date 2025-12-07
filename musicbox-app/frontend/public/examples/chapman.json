@@ -1,0 +1,28 @@
+{
+  "name": "Chapman Mechanism Example",
+  "description": "Stratospheric oxygen chemistry with photolysis - matches Python reference simulation",
+  "mechanism": "chapman",
+  "conditions": {
+    "basic": {
+      "duration": 250000,
+      "timeStep": 200,
+      "outputFrequency": 10
+    },
+    "initial": {
+      "temperature": 272.5,
+      "pressure": 101253.3,
+      "concentrations": {
+        "O2": 0.75,
+        "O": 0.0,
+        "O1D": 0.0,
+        "O3": 0.0000081,
+        "M": 1.0
+      }
+    },
+    "rateConstants": {
+      "PHOTO.jO2": 2.42e-17,
+      "PHOTO.jO3->O": 5.0e-11,
+      "PHOTO.jO3->O1D": 6.61e-9
+    }
+  }
+}

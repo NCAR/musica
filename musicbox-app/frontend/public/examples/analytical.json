@@ -1,0 +1,22 @@
+{
+  "name": "Analytical Mechanism Example",
+  "description": "Simple 3-species test mechanism (A→B→C)",
+  "mechanism": "analytical",
+  "conditions": {
+    "basic": {
+      "duration": 3600,
+      "timeStep": 200,
+      "outputFrequency": 10
+    },
+    "initial": {
+      "temperature": 298.15,
+      "pressure": 101325,
+      "concentrations": {
+        "A": 1.0,
+        "B": 0.0,
+        "C": 0.0
+      }
+    },
+    "rateConstants": {}
+  }
+}

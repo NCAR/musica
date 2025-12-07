@@ -9,17 +9,17 @@ console.log('Testing Mechanism Configuration Classes...\n');
 console.log('Test 1: Creating Species');
 const o3 = new Species({
     name: "O3",
-    molecular_weight_kg_mol: 48e-3
+    molecular_weight: 48e-3
 });
 
 const o2 = new Species({
     name: "O2",
-    molecular_weight_kg_mol: 32e-3
+    molecular_weight: 32e-3
 });
 
 const o = new Species({
     name: "O",
-    molecular_weight_kg_mol: 16e-3
+    molecular_weight: 16e-3
 });
 
 console.log('  Created O3:', o3.name);
@@ -100,8 +100,8 @@ console.log('  ✓ Simplified API successful\n');
 
 // Test 8: Modify properties
 console.log('Test 8: Modifying properties');
-o3.molecular_weight_kg_mol = 47.998e-3;
-console.log('  Updated O3 molecular weight:', o3.molecular_weight_kg_mol);
+o3.molecular_weight = 47.998e-3;
+console.log('  Updated O3 molecular weight:', o3.molecular_weight);
 
 reaction.A = 1.5e-10;
 console.log('  Updated reaction A:', reaction.A);

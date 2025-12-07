@@ -54,6 +54,7 @@
       "molecular weight [kg mol-1]": 0.01801
     },
     {
+<<<<<<< HEAD
       "name": "aerosol stuff",
       "molecular weight [kg mol-1]": 0.5,
       "density [kg m-3]": 1000.0,
@@ -64,6 +65,15 @@
       "molecular weight [kg mol-1]": 0.2,
       "density [kg m-3]": 1000.0,
       "__absolute tolerance": 1.0e-20
+=======
+      "name": "bar"
+    },
+    {
+      "name": "baz"
+    },
+    {
+      "name": "foo"
+>>>>>>> 7ec20bcf (Add MusicBox Interactive web app and current JavaScript bindings)
     }
   ],
   "phases": [
@@ -120,6 +130,7 @@
           "phases": "aqueous"
         },
         {
+<<<<<<< HEAD
           "name": "accumulation",
           "geometric mean diameter [m]": 1.1e-7,
           "geometric standard deviation": 1.8,
@@ -128,6 +139,16 @@
             "organic"
           ]
         }
+=======
+          "name": "H2O2",
+          "diffusion coefficient [m2 s-1]": 2.1e-5
+        },
+        {"name": "M"},
+        {"name": "H2O"},
+        {"name": "bar"},
+        {"name": "baz"},
+        {"name": "foo"}
+>>>>>>> 7ec20bcf (Add MusicBox Interactive web app and current JavaScript bindings)
       ]
     }
   ],

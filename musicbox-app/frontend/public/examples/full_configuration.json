@@ -1,0 +1,32 @@
+{
+  "name": "Full Configuration Test Mechanism",
+  "description": "Comprehensive test with all reaction types (EMISSION, FIRST_ORDER_LOSS, PHOTOLYSIS, SURFACE, TROE, TERNARY_CHEMICAL_ACTIVATION, BRANCHED_NO_RO2, TUNNELING, ARRHENIUS, USER_DEFINED, TAYLOR_SERIES) - 2 hour simulation",
+  "mechanism": "full_configuration",
+  "conditions": {
+    "basic": {
+      "duration": 7200,
+      "timeStep": 200,
+      "outputFrequency": 10
+    },
+    "initial": {
+      "temperature": 298.15,
+      "pressure": 101325,
+      "concentrations": {
+        "A": 1.0e-6,
+        "B": 1.0e-7,
+        "C": 0.0,
+        "M": 1.0,
+        "H2O2": 1.0e-8,
+        "ethanol": 1.0e-9,
+        "H2O": 0.02,
+        "bar": 1.0e-7,
+        "baz": 1.0e-7,
+        "foo": 0.0
+      }
+    },
+    "rateConstants": {
+      "PHOTO.jB": 1.0e-5,
+      "USER.my user defined": 1.0e-12
+    }
+  }
+}

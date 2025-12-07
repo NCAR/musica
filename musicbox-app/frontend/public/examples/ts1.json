@@ -1,0 +1,28 @@
+{
+  "name": "TS1 Mechanism Example",
+  "description": "209 species tropospheric mechanism - 6 hour simulation",
+  "mechanism": "ts1",
+  "conditions": {
+    "basic": {
+      "duration": 21600,
+      "timeStep": 200,
+      "outputFrequency": 10
+    },
+    "initial": {
+      "temperature": 272.5,
+      "pressure": 101253.3,
+      "concentrations": {
+        "M": 1.0,
+        "Ar": 0.0334,
+        "CO2": 0.000412,
+        "H2O": 0.00142,
+        "N2": 0.7808,
+        "O1D": 0.0,
+        "O": 0.0,
+        "O2": 0.2095,
+        "O3": 8.1e-09
+      }
+    },
+    "rateConstants": {}
+  }
+}

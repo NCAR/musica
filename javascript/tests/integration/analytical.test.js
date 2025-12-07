@@ -383,6 +383,7 @@ function runTests() {
         console.log('\n' + '='.repeat(60));
         console.log('ALL TESTS PASSED! ✓');
         console.log('='.repeat(60));
+        process.exit(0);
 
     } catch (error) {
         console.error('\n' + '='.repeat(60));
@@ -405,6 +406,3 @@ module.exports = {
     runTests,
     isClose
 };
-
-// Clean exit
-process.exit(0);

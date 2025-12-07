@@ -1,0 +1,42 @@
+{
+  "name": "TS1 with Diurnal Temperature Variation",
+  "description": "209 species tropospheric mechanism with realistic diurnal temperature and pressure changes over 24 hours",
+  "mechanism": "ts1",
+  "conditions": {
+    "basic": {
+      "duration": 86400,
+      "timeStep": 200,
+      "outputFrequency": 10
+    },
+    "initial": {
+      "temperature": 288.15,
+      "pressure": 101325,
+      "concentrations": {
+        "O2": 8.90261411,
+        "N2": 33.1007671,
+        "O3": 5.0e-8,
+        "NO": 1.0e-9,
+        "NO2": 1.0e-9,
+        "CO": 1.5e-7,
+        "CH4": 1.8e-6,
+        "H2O": 0.01,
+        "PAN": 4.25e-8,
+        "MVK": 2.61e-8,
+        "M": 1.0
+      }
+    },
+    "evolving": {
+      "enabled": true,
+      "times": [0, 21600, 43200, 64800, 86400],
+      "temperature": [288.15, 298.15, 308.15, 298.15, 288.15],
+      "pressure": [101325, 101200, 101100, 101200, 101325]
+    },
+    "rateConstants": {
+      "USER.jo2_b": 1.0e-5,
+      "USER.jmgly": 5.0e-6,
+      "USER.jch4_b": 1.0e-7,
+      "USER.jterpnit": 2.0e-6,
+      "USER.jxylenooh": 3.0e-6
+    }
+  }
+}

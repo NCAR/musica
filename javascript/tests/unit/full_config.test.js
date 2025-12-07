@@ -1,4 +1,4 @@
-const musica = require('musica-addon');
+const musica = require('../../index.js');
 const { types, reactionTypes, Mechanism } = musica.mechanismConfiguration;
 const { Species, PhaseSpecies, Phase, ReactionComponent } = types;
 
@@ -51,7 +51,9 @@ my_surface = new reactionTypes.Surface({
 	name: 'my surface',
 	reaction_probability: 2.0e-2,
 	gas_phase: 'gas',
-	gas_phase_species: new ReactionComponent({ species_name: 'A' }),
+	// gas_phase_species can be: string, ReactionComponent, or array
+	// All convert to string in JSON output
+	gas_phase_species: [new ReactionComponent({ species_name: 'A' })],
 	gas_phase_products: [
 		new ReactionComponent({ species_name: 'B' }),
 		new ReactionComponent({ species_name: 'C' }),

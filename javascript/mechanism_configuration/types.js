@@ -89,6 +89,4 @@ class ReactionComponent {
 	}
 }
 
-const types = { Species, PhaseSpecies, Phase, ReactionComponent };
-
-module.exports = { types };
+module.exports = { Species, PhaseSpecies, Phase, ReactionComponent };
