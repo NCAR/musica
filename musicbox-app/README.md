@@ -17,15 +17,73 @@ before you start, make sure you got these installed:
 
 - **node.js** (v18 or newer) - for running the frontend and backend
 - **npm** - comes with node, used for package management
-- **musica c++ library** - the actual chemistry solver (needs to be built first)
+- **cmake** (3.21+) - required to build the C++ addon
+- **c++ compiler** - g++, clang, or MSVC (comes with Xcode on macOS)
 
 ## installation
-## 1. install all dependencies
 
-from the `musicbox-app/` directory:
+**IMPORTANT:** You must build the C++ addon BEFORE installing the musicbox-app packages!
+
+### quick start (tl;dr)
+
 ```
+# clone repo and enter directory
+git clone https://github.com/NCAR/musica.git
+cd musica
+
+# build the C++ addon (this is the critical step!)
+npm install
+npm run build
+
+# install web app dependencies
+cd musicbox-app
+npm run install:all
+
+# run the servers (use 2 terminals)
+npm run server    # terminal 1 - backend on :3001
+npm run dev       # terminal 2 - frontend on :5173
+```
+
+### step 1: clone the repository
+
+```
+git clone https://github.com/NCAR/musica.git
+cd musica
+```
+
+### step 2: install root dependencies
+
+from the root `musica/` directory:
+```
+npm install
+```
+
+this installs cmake-js and node-addon-api needed for building the C++ addon.
+
+### step 3: build the C++ addon
+
+still in the root `musica/` directory:
+```
+npm run build
+```
+
+this compiles the MUSICA/MICM chemistry solver into a native Node.js addon. takes about 2-3 minutes.
+
+you should see output ending with:
+```
+[100%] Built target musica-addon
+```
+
+the compiled addon will be at: `build/Release/musica-addon.node`
+
+### step 4: install musicbox-app dependencies
+
+now go into the `musicbox-app/` directory:
+```
+cd musicbox-app
 npm run install:all
 ```
+
 this installs packages for root, frontend, and backend. it's basically running:
 ```
 npm install               # root packages
@@ -33,9 +91,9 @@ cd frontend && npm install
 cd backend && npm install
 ```
 
-if you see warnings about peer dependencies, usually safe to ignore. we're using react 19 which is pretty new.
+if you see warnings about peer dependencies or engine versions, usually safe to ignore. we're using react 19 which is pretty new.
 
-## 2. running FE and BE
+## running the app
 
 you need two terminals running at the same time:
 
@@ -68,7 +126,11 @@ open `http://localhost:5173` in your browser and you're good to go!
 
 # "cannot find module 'musica-addon.node'"
 
-the c++ addon wasn't built.
+the c++ addon wasn't built. go back to the root `musica/` directory and run:
+```
+npm install
+npm run build
+```
 
 # backend crashes with segfault
 
