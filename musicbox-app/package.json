@@ -8,7 +8,7 @@
     "build": "cd frontend && npm run build",
     "lint": "cd frontend && npm run lint",
     "preview": "cd frontend && npm run preview",
-    "server": "cd backend && npm start",
+    "server": "cd backend && npm run server",
     "server:dev": "cd backend && npm run dev",
     "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install"
   },
