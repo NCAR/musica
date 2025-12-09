@@ -236,10 +236,10 @@ function testMultipleGridCell(solver, state, numGridCells, timeStep, places = 5)
 // Test suite for single grid cell - Standard Rosenbrock
 describe('Analytical - Single grid cell - Standard Rosenbrock', () => {
     it('should match analytical solution', () => {
-        const solver = new MICM({
-            config_path: CONFIG_PATH,
-            solver_type: SolverType.rosenbrock_standard_order
-        });
+        const solver = MICM.fromConfigPath(
+            CONFIG_PATH,
+            SolverType.rosenbrock_standard_order
+        );
         const state = solver.createState(1);
         testSingleGridCell(solver, state, 200.0, 5);
     });
@@ -249,10 +249,10 @@ describe('Analytical - Single grid cell - Standard Rosenbrock', () => {
 describe('Analytical - Multiple grid cells - Standard Rosenbrock', () => {
     for (let i = 1; i <= maxCells; i++) {
         it(`should match analytical solution for ${i} grid cells`, () => {
-            const solver = new MICM({
-                config_path: CONFIG_PATH,
-                solver_type: SolverType.rosenbrock_standard_order
-            });
+            const solver = MICM.fromConfigPath(
+                CONFIG_PATH,
+                SolverType.rosenbrock_standard_order
+            );
             const state = solver.createState(i);
             testMultipleGridCell(solver, state, i, 200.0, 5);
         });
@@ -262,10 +262,10 @@ describe('Analytical - Multiple grid cells - Standard Rosenbrock', () => {
 // Test suite for single grid cell - Rosenbrock (vector-ordered)
 describe('Analytical - Single grid cell - Rosenbrock', () => {
     it('should match analytical solution', () => {
-        const solver = new MICM({
-            config_path: CONFIG_PATH,
-            solver_type: SolverType.rosenbrock
-        });
+        const solver = MICM.fromConfigPath(
+            CONFIG_PATH,
+            SolverType.rosenbrock
+        );
         const state = solver.createState(1);
         testSingleGridCell(solver, state, 200.0, 5);
     });
@@ -275,10 +275,10 @@ describe('Analytical - Single grid cell - Rosenbrock', () => {
 describe('Analytical - Multiple grid cells - Rosenbrock', () => {
     for (let i = 1; i <= maxCells; i++) {
         it(`should match analytical solution for ${i} grid cells`, () => {
-            const solver = new MICM({
-                config_path: CONFIG_PATH,
-                solver_type: SolverType.rosenbrock
-            });
+            const solver = MICM.fromConfigPath(
+                CONFIG_PATH,
+                SolverType.rosenbrock
+            );
             const state = solver.createState(i);
             testMultipleGridCell(solver, state, i, 200.0, 5);
         });
@@ -288,10 +288,10 @@ describe('Analytical - Multiple grid cells - Rosenbrock', () => {
 // Test suite for single grid cell - Backward Euler
 describe('Analytical - Single grid cell - Backward Euler', () => {
     it('should match analytical solution', () => {
-        const solver = new MICM({
-            config_path: CONFIG_PATH,
-            solver_type: SolverType.backward_euler
-        });
+        const solver = MICM.fromConfigPath(
+            CONFIG_PATH,
+            SolverType.backward_euler
+        );
         const state = solver.createState(1);
         testSingleGridCell(solver, state, 10.0, 2);
     });
@@ -301,10 +301,10 @@ describe('Analytical - Single grid cell - Backward Euler', () => {
 describe('Analytical - Multiple grid cells - Backward Euler', () => {
     for (let i = 1; i <= maxCells; i++) {
         it(`should match analytical solution for ${i} grid cells`, () => {
-            const solver = new MICM({
-                config_path: CONFIG_PATH,
-                solver_type: SolverType.backward_euler
-            });
+            const solver = MICM.fromConfigPath(
+                CONFIG_PATH,
+                SolverType.backward_euler
+            );
             const state = solver.createState(i);
             testMultipleGridCell(solver, state, i, 10.0, 2);
         });
@@ -314,10 +314,10 @@ describe('Analytical - Multiple grid cells - Backward Euler', () => {
 // Test suite for single grid cell - Backward Euler Standard Order
 describe('Analytical - Single grid cell - Backward Euler Standard Order', () => {
     it('should match analytical solution', () => {
-        const solver = new MICM({
-            config_path: CONFIG_PATH,
-            solver_type: SolverType.backward_euler_standard_order
-        });
+        const solver = MICM.fromConfigPath(
+            CONFIG_PATH,
+            SolverType.backward_euler_standard_order
+        );
         const state = solver.createState(1);
         testSingleGridCell(solver, state, 10.0, 2);
     });
@@ -327,10 +327,10 @@ describe('Analytical - Single grid cell - Backward Euler Standard Order', () => 
 describe('Analytical - Multiple grid cells - Backward Euler Standard Order', () => {
     for (let i = 1; i <= maxCells; i++) {
         it(`should match analytical solution for ${i} grid cells`, () => {
-            const solver = new MICM({
-                config_path: CONFIG_PATH,
-                solver_type: SolverType.backward_euler_standard_order
-            });
+            const solver = MICM.fromConfigPath(
+                CONFIG_PATH,
+                SolverType.backward_euler_standard_order
+            );
             const state = solver.createState(i);
             testMultipleGridCell(solver, state, i, 10.0, 2);
         });
