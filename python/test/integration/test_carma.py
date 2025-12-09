@@ -7,7 +7,7 @@ pytestmark = pytest.mark.skipif(
 
 
 def test_carma_version():
-    version = musica.carma.version
+    version = musica.carma.__version__
     assert version is not None
     assert isinstance(version, str)
     print(f"CARMA version: {version}")

@@ -14,7 +14,6 @@ message (STATUS "CMake build configuration for ${PROJECT_NAME} (${CMAKE_BUILD_TY
 
 set(MUSICA_COMMON_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/util.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/component_versions.cpp
   ${CMAKE_BINARY_DIR}/version.cpp
 )
 

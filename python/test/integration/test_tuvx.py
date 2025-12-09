@@ -1,6 +1,5 @@
 import pytest
 import musica
-import json
 import numpy as np
 
 available = musica.backend.tuvx_available()
@@ -240,7 +239,7 @@ def get_radiator_map(grid_map):
 
 
 def test_tuvx_version():
-    version = musica.tuvx.version
+    version = musica.tuvx.__version__
     assert version is not None
     assert isinstance(version, str)
 

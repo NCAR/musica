@@ -9,7 +9,6 @@
 #include <stdexcept>
 
 // Include MUSICA headers for real functionality
-#include <musica/component_versions.hpp>
 #include <musica/micm/micm.hpp>
 #include <musica/micm/micm_c_interface.hpp>
 #include <musica/micm/state.hpp>

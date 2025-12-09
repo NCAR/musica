@@ -55,6 +55,7 @@ target_link_libraries(musica-fortran
 
 target_sources(musica-fortran
   PRIVATE
+    musica.F90
     util.F90
 )
 
