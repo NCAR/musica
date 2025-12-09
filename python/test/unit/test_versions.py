@@ -15,12 +15,14 @@ def test_micm_version():
     assert isinstance(micm_version, str)
     assert len(micm_version) > 0
 
+
 @pytest.mark.skipif(not musica.backend.tuvx_available(), reason="TUV-x backend is not available")
 def test_tuvx_version():
     tuvx_version = musica.tuvx.__version__
     print(f"TUV-x version: {tuvx_version}")
     assert isinstance(tuvx_version, str)
     assert len(tuvx_version) > 0
+
 
 @pytest.mark.skipif(not musica.backend.carma_available(), reason="CARMA backend is not available")
 def test_carma_version():

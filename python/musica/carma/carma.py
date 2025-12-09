@@ -16,6 +16,7 @@ from .. import backend
 
 _backend = backend.get_backend()
 
+
 class ParticleShape(Enum):
     """Enumeration for particle shapes used in CARMA."""
     SPHERE = 1

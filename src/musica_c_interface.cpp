@@ -7,7 +7,7 @@ namespace musica
   {
 #endif
 
-    void MusicaVersion(String *musica_version) 
+    void MusicaVersion(String *musica_version)
     {
       CreateString(GetMusicaVersion(), musica_version);
     }

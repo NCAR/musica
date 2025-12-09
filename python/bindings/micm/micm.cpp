@@ -8,8 +8,9 @@
 #include <musica/micm/state.hpp>
 #include <musica/micm/state_c_interface.hpp>
 
-#include <mechanism_configuration/v1/types.hpp>
 #include <micm/version.hpp>
+
+#include <mechanism_configuration/v1/types.hpp>
 
 #include <iostream>
 
