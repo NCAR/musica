@@ -9,6 +9,7 @@ import musica.examples
 import importlib.resources as ir
 import musica
 
+
 def versions():
     return f"musica {musica.__version__} (MICM {musica.micm.__version__}, TUV-x {musica.tuvx.__version__}, CARMA {musica.carma.__version__})"
 
