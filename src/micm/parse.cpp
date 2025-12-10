@@ -21,7 +21,7 @@ namespace musica
     }
     else
     {
-      mechanism_configuration::Version version = parsed.mechanism->version;
+      const mechanism_configuration::Version version = parsed.mechanism->version;
 
       switch (version.major)
       {
