@@ -94,6 +94,14 @@ if.platform-system = "win32"
 if.platform-machine = "AMD64"
 inherit.cmake.define = "append"
 
+# macOS workaround for GCC 14 header conflicts with macOS 15 SDK
+# Use Clang instead of GCC on macOS
+[[tool.scikit-build.overrides]]
+if.platform-system = "darwin"
+inherit.cmake.define = "append"
+cmake.define.CMAKE_C_COMPILER = "clang"
+cmake.define.CMAKE_CXX_COMPILER = "clang++"
+
 # dynamically read the version: https://scikit-build-core.readthedocs.io/en/latest/configuration.html#dynamic-metadata
 [tool.scikit-build.metadata.version]
 provider = "scikit_build_core.metadata.regex"
