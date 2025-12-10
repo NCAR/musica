@@ -28,7 +28,7 @@ namespace musica
         case 0: chemistry = ParserV0(parsed); break;
         case 1: chemistry = ParserV1(parsed); break;
         default:
-          std::string msg = "Version " + std::to_string(version.major) + " not supported";
+          const std::string msg = "Version " + std::to_string(version.major) + " not supported";
           throw std::system_error(make_error_code(MusicaParseErrc::UnsupportedVersion), msg);
       }
     }
