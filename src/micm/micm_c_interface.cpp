@@ -59,7 +59,9 @@ namespace musica
         {
           // Parse JSON/YAML string to Chemistry object
           Chemistry chemistry = ReadConfigurationFromString(std::string(config_string));
-          return CreateMicmFromChemistryMechanism(&chemistry, solver_type, error);
+          MICM* micm = new MICM(chemistry, solver_type);
+          NoError(error);
+          return micm;
         },
         error);
   }
