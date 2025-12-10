@@ -5,6 +5,8 @@
 #include <musica/micm/micm.hpp>
 
 #include <mechanism_configuration/parser.hpp>
+#include <mechanism_configuration/v0/types.hpp>
+#include <mechanism_configuration/v1/mechanism.hpp>
 
 #include <stdexcept>
 #include <system_error>
