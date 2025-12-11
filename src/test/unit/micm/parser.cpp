@@ -123,15 +123,15 @@ TEST(Parser, CanParseFullV1)
 TEST(Parser, CanConvertFromV0ToV1)
 {
   EXPECT_NO_THROW(mechanism_configuration::v1::types::Mechanism mechanism =
-                      musica::ConvertV0MechanismToV1("configs/v0/chapman/configs.json"););
+                      musica::ConvertV0MechanismToV1("configs/v0/chapman/config.json"););
   EXPECT_NO_THROW(mechanism_configuration::v1::types::Mechanism mechanism =
-                      musica::ConvertV0MechanismToV1("configs/v0/analytical/configs.json"););
+                      musica::ConvertV0MechanismToV1("configs/v0/analytical/config.json"););
   EXPECT_NO_THROW(mechanism_configuration::v1::types::Mechanism mechanism =
-                      musica::ConvertV0MechanismToV1("configs/v0/carbon_bond_5/configs.json"););
+                      musica::ConvertV0MechanismToV1("configs/v0/carbon_bond_5/config.json"););
   EXPECT_NO_THROW(mechanism_configuration::v1::types::Mechanism mechanism =
-                      musica::ConvertV0MechanismToV1("configs/v0/robertson/configs.json"););
+                      musica::ConvertV0MechanismToV1("configs/v0/robertson/config.json"););
   EXPECT_NO_THROW(mechanism_configuration::v1::types::Mechanism mechanism =
-                      musica::ConvertV0MechanismToV1("configs/v0/TS1/configs.json"););
+                      musica::ConvertV0MechanismToV1("configs/v0/TS1/config.json"););
 }
 
 TEST(Parser, ConvertArrheniusV0ToV1)

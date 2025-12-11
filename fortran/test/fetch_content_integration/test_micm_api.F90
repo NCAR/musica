@@ -71,7 +71,7 @@ contains
     integer                               :: O2_index, O_index, O1D_index, O3_index
     integer                               :: jO2_index, jO3a_index, jO3b_index
     
-    config_path = "configs/v0/chapman/configs.json"
+    config_path = "configs/v0/chapman/config.json"
     solver_type = RosenbrockStandardOrder
     num_grid_cells = 1
     time_step = 200
