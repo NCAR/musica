@@ -18,7 +18,7 @@ and observe how the same chemical mechanism evolves differently under various co
 
 We will use the same analytical configuration files from Chapter 2
 (``config.json``, ``species.json``, and ``reactions.json``)
-saved in the subdirectory ``configs/v0/analytical/config.json``.
+saved in the subdirectory ``configs/v0/analytical``.
 
 For reference, these files define:
 

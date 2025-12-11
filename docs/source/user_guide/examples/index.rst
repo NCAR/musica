@@ -10,7 +10,7 @@ MUSICA provides a selection of pre-made example configurations for the user to w
 * `Chapman <https://github.com/NCAR/musica/tree/main/configs/v0/chapman/config.json>`_
 * `TS1 <https://github.com/NCAR/musica/tree/main/configs/v0/robertson/config.json>`_
 
-Each example (found in `configs/v0`) includes an associated set of JSON files acccessible through the a MICM `solver`::
+Each example (found in `configs/v0`) includes an associated set of JSON files accessible through the a MICM `solver`::
 
     import musica
 
