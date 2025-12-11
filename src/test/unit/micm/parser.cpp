@@ -123,15 +123,15 @@ TEST(Parser, CanParseFullV1)
 TEST(Parser, CanConvertFromV0ToV1)
 {
   EXPECT_NO_THROW(mechanism_configuration::v1::types::Mechanism mechanism =
-                      musica::ConvertV0MechanismToV1("configs/v0/chapman"););
+                      musica::ConvertV0MechanismToV1("configs/v0/chapman/configs.json"););
   EXPECT_NO_THROW(mechanism_configuration::v1::types::Mechanism mechanism =
-                      musica::ConvertV0MechanismToV1("configs/v0/analytical"););
+                      musica::ConvertV0MechanismToV1("configs/v0/analytical/configs.json"););
   EXPECT_NO_THROW(mechanism_configuration::v1::types::Mechanism mechanism =
-                      musica::ConvertV0MechanismToV1("configs/v0/carbon_bond_5"););
+                      musica::ConvertV0MechanismToV1("configs/v0/carbon_bond_5/configs.json"););
   EXPECT_NO_THROW(mechanism_configuration::v1::types::Mechanism mechanism =
-                      musica::ConvertV0MechanismToV1("configs/v0/robertson"););
+                      musica::ConvertV0MechanismToV1("configs/v0/robertson/configs.json"););
   EXPECT_NO_THROW(mechanism_configuration::v1::types::Mechanism mechanism =
-                      musica::ConvertV0MechanismToV1("configs/v0/TS1"););
+                      musica::ConvertV0MechanismToV1("configs/v0/TS1/configs.json"););
 }
 
 TEST(Parser, ConvertArrheniusV0ToV1)
