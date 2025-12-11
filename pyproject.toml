@@ -7,7 +7,7 @@ name = "musica"
 dynamic = ["version"]
 readme = "README.md"
 description = "MUSICA is a Python library for performing computational simulations in atmospheric chemistry."
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 authors = [
   { name = "Matthew Dawsom", email = "mattdawson@ucar.edu" },
   { name = "Jiwon Gim", email = "jiwongim@ucar.edu" },
@@ -123,7 +123,7 @@ version = "${version}"
 build-verbosity = 3
 
 # Add your desired build configuration
-build = ["cp39-*", "cp310-*", "cp311-*", "cp312-*", "cp313-*", "cp314-*"]
+build = ["cp310-*", "cp311-*", "cp312-*", "cp313-*", "cp314-*"]
 skip = ["*musllinux*"]
 
 # Set up pre-build hooks
