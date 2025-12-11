@@ -17,11 +17,12 @@ string(REPLACE "\"" "" NODE_ADDON_API_DIR ${NODE_ADDON_API_DIR_RAW})
 string(STRIP ${NODE_ADDON_API_DIR} NODE_ADDON_API_DIR)
 
 # Create the addon library
-add_library(${PROJECT_NAME} SHARED ${CMAKE_JS_SRC})
+add_library(${PROJECT_NAME} SHARED)
 
 target_sources(
     ${PROJECT_NAME}
     PRIVATE
+        ${CMAKE_JS_SRC}
         src/musica_addon.cpp
         src/micm/state_wrapper.cpp
         src/micm/micm_wrapper.cpp

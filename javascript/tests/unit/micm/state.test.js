@@ -24,21 +24,21 @@ function createTestMechanism() {
 describe('State initialization', () => {
     it('should create state with single grid cell', () => {
         const configPath = createTestMechanism();
-        const solver = new MICM({ config_path: configPath });
+        const solver = MICM.fromConfigPath(configPath);
         const state = solver.createState(1);
         assert.ok(state, 'State should be created');
     });
 
     it('should create state with multiple grid cells', () => {
         const configPath = createTestMechanism();
-        const solver = new MICM({ config_path: configPath });
+        const solver = MICM.fromConfigPath(configPath);
         const state = solver.createState(3);
         assert.ok(state, 'State with 3 grid cells should be created');
     });
 
     it('should throw error for invalid grid cell count', () => {
         const configPath = createTestMechanism();
-        const solver = new MICM({ config_path: configPath });
+        const solver = MICM.fromConfigPath(configPath);
         assert.throws(
             () => solver.createState(0),
             /number_of_grid_cells must be greater than 0/,
@@ -53,7 +53,7 @@ describe('Concentrations', () => {
 
     before(() => {
         const configPath = createTestMechanism();
-        solver = new MICM({ config_path: configPath });
+        solver = MICM.fromConfigPath(configPath);
     });
 
     it('should set and get concentrations for single grid cell', () => {
@@ -99,7 +99,7 @@ describe('Conditions', () => {
 
     before(() => {
         const configPath = createTestMechanism();
-        solver = new MICM({ config_path: configPath });
+        solver = MICM.fromConfigPath(configPath);
     });
 
     it('should set and get conditions for single grid cell', () => {
@@ -145,7 +145,7 @@ describe('User-defined rate parameters', () => {
 
     before(() => {
         const configPath = createTestMechanism();
-        solver = new MICM({ config_path: configPath });
+        solver = MICM.fromConfigPath(configPath);
     });
 
     it('should set and get user-defined rate parameters for single grid cell', () => {
@@ -185,7 +185,7 @@ describe('State ordering', () => {
 
     before(() => {
         const configPath = createTestMechanism();
-        solver = new MICM({ config_path: configPath });
+        solver = MICM.fromConfigPath(configPath);
         state = solver.createState(1);
     });
 
@@ -215,7 +215,7 @@ describe('State ordering', () => {
 describe('Grid cell operations', () => {
     it('should return correct number of grid cells', () => {
         const configPath = createTestMechanism();
-        const solver = new MICM({ config_path: configPath });
+        const solver = MICM.fromConfigPath(configPath);
 
         const state1 = solver.createState(1);
         assert.strictEqual(state1.getNumberOfGridCells(), 1, 'Should have 1 grid cell');

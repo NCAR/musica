@@ -11,36 +11,98 @@ using namespace musica_addon;
 MICMClass::MICMClass(const Napi::CallbackInfo& info)
     : Napi::ObjectWrap<MICMClass>(info)
 {
+  // Constructor can be empty when using factory methods
+  // Factory methods will initialize micm_ after construction
+  return;
+}
+
+Napi::Value MICMClass::FromConfigPath(const Napi::CallbackInfo& info)
+{
   Napi::Env env = info.Env();
 
-  if (info.Length() < 2)
+  if (info.Length() < 1)
   {
-    Napi::TypeError::New(env, "Expected 2 arguments: config_path and solver_type").ThrowAsJavaScriptException();
-    return;
+    Napi::TypeError::New(env, "Expected at least 1 argument: config_path").ThrowAsJavaScriptException();
+    return env.Null();
   }
 
   if (!info[0].IsString())
   {
     Napi::TypeError::New(env, "config_path must be a string").ThrowAsJavaScriptException();
-    return;
-  }
-
-  if (!info[1].IsNumber())
-  {
-    Napi::TypeError::New(env, "solver_type must be a number").ThrowAsJavaScriptException();
-    return;
+    return env.Null();
   }
 
   std::string config_path = info[0].As<Napi::String>().Utf8Value();
-  int solver_type = info[1].As<Napi::Number>().Int32Value();
+  int solver_type = 1;  // Default to rosenbrock_standard_order
+
+  if (info.Length() >= 2 && info[1].IsNumber())
+  {
+    solver_type = info[1].As<Napi::Number>().Int32Value();
+  }
 
   try
   {
-    micm_ = std::make_unique<MICMWrapper>(config_path.c_str(), static_cast<musica::MICMSolver>(solver_type));
+    // Get the constructor function
+    Napi::Function cons = env.GetInstanceData<Napi::FunctionReference>()->Value();
+
+    // Create new instance
+    Napi::Object instance = cons.New({});
+    MICMClass* obj = Napi::ObjectWrap<MICMClass>::Unwrap(instance);
+
+    // Initialize the wrapper with config path using factory method
+    obj->micm_ = MICMWrapper::FromConfigPath(config_path, solver_type);
+
+    return instance;
   }
   catch (const std::exception& e)
   {
     Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
+    return env.Null();
+  }
+}
+
+Napi::Value MICMClass::FromConfigString(const Napi::CallbackInfo& info)
+{
+  Napi::Env env = info.Env();
+
+  if (info.Length() < 1)
+  {
+    Napi::TypeError::New(env, "Expected at least 1 argument: config_string").ThrowAsJavaScriptException();
+    return env.Null();
+  }
+
+  if (!info[0].IsString())
+  {
+    Napi::TypeError::New(env, "config_string must be a string").ThrowAsJavaScriptException();
+    return env.Null();
+  }
+
+  std::string config_string = info[0].As<Napi::String>().Utf8Value();
+  int solver_type = 1;  // Default to rosenbrock_standard_order
+
+  if (info.Length() >= 2 && info[1].IsNumber())
+  {
+    solver_type = info[1].As<Napi::Number>().Int32Value();
+  }
+
+  try
+  {
+    // Get the constructor function
+    Napi::Function cons = env.GetInstanceData<Napi::FunctionReference>()->Value();
+
+    // Create new instance
+    Napi::Object instance = cons.New({});
+    MICMClass* obj = Napi::ObjectWrap<MICMClass>::Unwrap(instance);
+
+    // Initialize the wrapper with config string using factory method
+    obj->micm_ = MICMWrapper::FromConfigString(config_string, solver_type);
+
+    return instance;
+  }
+  catch (const std::exception& e)
+  {
+    Napi::Error::New(env, e.what()).ThrowAsJavaScriptException();
+    return env.Null();
   }
 }
 
@@ -134,6 +196,8 @@ Napi::Object MICMClass::Init(Napi::Env env, Napi::Object exports)
           InstanceMethod("createState", &MICMClass::CreateState),
           InstanceMethod("solve", &MICMClass::Solve),
           InstanceMethod("getSolverType", &MICMClass::GetSolverType),
+          StaticMethod("fromConfigPath", &MICMClass::FromConfigPath),
+          StaticMethod("fromConfigString", &MICMClass::FromConfigString),
       });
 
   Napi::FunctionReference* constructor = new Napi::FunctionReference();
