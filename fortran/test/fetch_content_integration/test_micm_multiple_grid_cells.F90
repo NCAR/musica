@@ -36,7 +36,7 @@ contains
     type(state_t), pointer  :: state
     integer                 :: i, j, cell_id
 
-    config_path = "configs/v0/analytical"
+    config_path = "configs/v0/analytical/config.json"
     solver_type = RosenbrockStandardOrder
     num_grid_cells = 3  ! Use 3 grid cells to demonstrate multiple cells
 

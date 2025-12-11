@@ -68,7 +68,7 @@ function testSolve(solver) {
 
 describe('Chapman mechanism with v0 config path', () => {
     it('should solve with v0 config directory', () => {
-        const configPath = path.join(__dirname, '../../../configs/v0/chapman');
+        const configPath = path.join(__dirname, '../../../configs/v0/chapman/config.json');
         const solver = new MICM({
             config_path: configPath,
             solver_type: SolverType.rosenbrock_standard_order

@@ -357,7 +357,7 @@ contains
     real(real64), parameter :: test_accuracy = 5.0e-3
     integer                 :: max_grid_cells
 
-    micm => micm_t( "configs/v0/analytical", Rosenbrock, error )
+    micm => micm_t( "configs/v0/analytical/config.json", Rosenbrock, error )
     ASSERT( error%is_success() )
     max_grid_cells = micm%get_maximum_number_of_grid_cells( )
     ASSERT_GT( max_grid_cells, 0 )
@@ -378,7 +378,7 @@ contains
     real(real64), parameter :: test_accuracy = 5.0e-3
     integer                 :: max_grid_cells
 
-    micm => micm_t( "configs/v0/analytical", RosenbrockStandardOrder, error )
+    micm => micm_t( "configs/v0/analytical/config.json", RosenbrockStandardOrder, error )
     ASSERT( error%is_success() )
     max_grid_cells = micm%get_maximum_number_of_grid_cells( )
     ASSERT_GT( max_grid_cells, 1e8 )
@@ -399,7 +399,7 @@ contains
     real(real64), parameter :: test_accuracy = 0.1
     integer                 :: max_grid_cells
 
-    micm => micm_t( "configs/v0/analytical", BackwardEuler, error )
+    micm => micm_t( "configs/v0/analytical/config.json", BackwardEuler, error )
     ASSERT( error%is_success() )
     max_grid_cells = micm%get_maximum_number_of_grid_cells( )
     ASSERT_GT( max_grid_cells, 0 )
@@ -420,7 +420,7 @@ contains
     real(real64), parameter :: test_accuracy = 0.1
     integer                 :: max_grid_cells
 
-    micm => micm_t( "configs/v0/analytical", BackwardEulerStandardOrder, error )
+    micm => micm_t( "configs/v0/analytical/config.json", BackwardEulerStandardOrder, error )
     ASSERT( error%is_success() )
     max_grid_cells = micm%get_maximum_number_of_grid_cells( )
     ASSERT_GT( max_grid_cells, 1e8 )
@@ -451,7 +451,7 @@ contains
       return
     end if
 
-    micm => micm_t( "configs/v0/analytical", CudaRosenbrock, error )
+    micm => micm_t( "configs/v0/analytical/config.json", CudaRosenbrock, error )
     ASSERT( error%is_success() )
     max_grid_cells = micm%get_maximum_number_of_grid_cells( )
     ASSERT_GT( max_grid_cells, 0 )
