@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 
 # must be on the same line so that pyproject.toml can correctly identify the version
-project(musica-distribution VERSION 0.13.0)
+project(musica-distribution VERSION 0.14.0)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${PROJECT_SOURCE_DIR}/cmake)
 set(CMAKE_USER_MAKE_RULES_OVERRIDE ${PROJECT_SOURCE_DIR}/cmake/SetDefaults.cmake)
@@ -95,8 +95,9 @@ if(MUSICA_ENABLE_TESTS)
     setup_target_for_coverage_lcov(
         NAME coverage
         EXECUTABLE "ctest"
-        EXCLUDE "${PROJECT_SOURCE_DIR}/test/*"
-        BASE_DIRECTORY "${PROJECT_SOURCE_DIR}/src")
+        EXCLUDE "${PROJECT_SOURCE_DIR}/src/test/*"
+        BASE_DIRECTORY "${PROJECT_SOURCE_DIR}/src"
+        LCOV_ARGS "--ignore-errors" "mismatch")
     
   endif()
   
