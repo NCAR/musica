@@ -86,10 +86,6 @@ jobs:
       run: |
         MSYS2_PYTHON=$(cygpath -u "$pythonLocation")
         whl=$(ls wheelhouse/*.whl | head -1)
-        export HDF5_DIR=/$MSYSTEM
-        export HDF5_LIBDIR=/$MSYSTEM/lib
-        export NETCDF4_DIR=/$MSYSTEM
-        export NETCDF4_LIBDIR=/$MSYSTEM/lib
         "$MSYS2_PYTHON/python.exe" -m pip install "${whl}[test]"
     
     - name: Install wheel (linux/macos)
