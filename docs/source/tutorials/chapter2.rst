@@ -23,7 +23,7 @@ the reactions configuration file ``reactions.json``.
 
 The contents of the ``config.json`` file for this example are:
 
-  .. literalinclude:: ../../../configs/v0/analytical/config.json
+  .. literalinclude:: ../../../configs/v0/analytical
     :language: json
 
 For this example, we will have a system of three chemical species

@@ -5,7 +5,7 @@ import musica.mechanism_configuration as mc
 
 def test_solve_with_config_path_v0():
     solver = musica.MICM(
-        config_path="configs/v0/chapman/config.json",
+        config_path="configs/v0/chapman",
         solver_type=musica.SolverType.rosenbrock_standard_order,
     )
     TestSolve(solver)

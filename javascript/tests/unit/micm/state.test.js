@@ -18,7 +18,7 @@ const { isClose } = require('../../util/testUtils');
 function createTestMechanism() {
     // For JavaScript, we'll use a config path instead of mechanism object
     // as the mechanism configuration API might not be fully exposed
-    return path.join(__dirname, '../../../../configs/v0/analytical/config.json');
+    return path.join(__dirname, '../../../../configs/v0/analytical');
 }
 
 describe('State initialization', () => {

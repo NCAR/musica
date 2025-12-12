@@ -18,7 +18,7 @@ TEST(Parser, BadConfigurationFilePath)
 TEST(Parser, Version0Configuration)
 {
   mechanism_configuration::UniversalParser parser;
-  auto parsed = parser.Parse("configs/v0/chapman/config.json");
+  auto parsed = parser.Parse("configs/v0/chapman");
   EXPECT_TRUE(parsed);
 
   using V0 = mechanism_configuration::v0::types::Mechanism;
@@ -53,7 +53,7 @@ TEST(Parser, Version1Configuration)
 
 TEST(Parser, CanParseChapmanV0)
 {
-  musica::Chemistry chemistry = musica::ReadConfiguration("configs/v0/chapman/config.json");
+  musica::Chemistry chemistry = musica::ReadConfiguration("configs/v0/chapman");
   EXPECT_EQ(chemistry.system.gas_phase_.phase_species_.size(), 5);
   EXPECT_EQ(chemistry.processes.size(), 7);
   EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[0].species_.name_, "M");
@@ -66,7 +66,7 @@ TEST(Parser, CanParseChapmanV0)
 
 TEST(Parser, CanParseCBVV0)
 {
-  musica::Chemistry const chemistry = musica::ReadConfiguration("configs/v0/carbon_bond_5/config.json");
+  musica::Chemistry const chemistry = musica::ReadConfiguration("configs/v0/carbon_bond_5");
   EXPECT_EQ(chemistry.system.gas_phase_.phase_species_.size(), 67);
   EXPECT_EQ(chemistry.processes.size(), 200);
 }
@@ -123,13 +123,13 @@ TEST(Parser, CanParseFullV1)
 TEST(Parser, CanConvertFromV0ToV1)
 {
   EXPECT_NO_THROW(mechanism_configuration::v1::types::Mechanism mechanism =
-                      musica::ConvertV0MechanismToV1("configs/v0/chapman/config.json"););
+                      musica::ConvertV0MechanismToV1("configs/v0/chapman"););
   EXPECT_NO_THROW(mechanism_configuration::v1::types::Mechanism mechanism =
-                      musica::ConvertV0MechanismToV1("configs/v0/analytical/config.json"););
+                      musica::ConvertV0MechanismToV1("configs/v0/analytical"););
   EXPECT_NO_THROW(mechanism_configuration::v1::types::Mechanism mechanism =
-                      musica::ConvertV0MechanismToV1("configs/v0/carbon_bond_5/config.json"););
+                      musica::ConvertV0MechanismToV1("configs/v0/carbon_bond_5"););
   EXPECT_NO_THROW(mechanism_configuration::v1::types::Mechanism mechanism =
-                      musica::ConvertV0MechanismToV1("configs/v0/robertson/config.json"););
+                      musica::ConvertV0MechanismToV1("configs/v0/robertson"););
   EXPECT_NO_THROW(mechanism_configuration::v1::types::Mechanism mechanism =
                       musica::ConvertV0MechanismToV1("configs/v0/TS1/config.json"););
 }

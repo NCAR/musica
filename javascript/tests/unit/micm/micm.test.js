@@ -16,7 +16,7 @@ const { SolverResult, SolverStats } = require('../../../micm/solver_result');
  * Helper to get the config path for testing
  */
 function getConfigPath() {
-  return path.join(__dirname, '../../../../configs/v0/analytical/config.json');
+  return path.join(__dirname, '../../../../configs/v0/analytical');
 }
 
 describe('MICM Initialization', () => {

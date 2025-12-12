@@ -6,7 +6,7 @@ const { MICM, SolverType, GAS_CONSTANT } = musica.micmSolver;
 const { isClose } = require('../util/testUtils');
 
 // Test configuration
-const CONFIG_PATH = path.join(__dirname, '../../../configs/v0/analytical/config.json');
+const CONFIG_PATH = path.join(__dirname, '../../../configs/v0/analytical');
 
 // NOTE: Vector-ordered Rosenbrock currently only supports up to 4 grid cells
 // This is because the C++ implementation requires splitting into multiple

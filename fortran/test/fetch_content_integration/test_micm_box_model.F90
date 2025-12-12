@@ -37,7 +37,7 @@ contains
     type(state_t), pointer  :: state
     integer                 :: i
 
-    config_path = "configs/v0/analytical/config.json"
+    config_path = "configs/v0/analytical"
     solver_type = RosenbrockStandardOrder
     num_grid_cells = 1
 
@@ -94,7 +94,7 @@ contains
     type(state_t), pointer  :: state
     integer                 :: i
 
-    config_path = "configs/v0/analytical/config.json"
+    config_path = "configs/v0/analytical"
     solver_type = RosenbrockStandardOrder
     num_grid_cells = 1
 

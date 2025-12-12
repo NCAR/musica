@@ -25,7 +25,7 @@ endif()
 
 if(MUSICA_BUILD_C_CXX_INTERFACE)
   set_git_default(MECH_CONFIG_GIT_REPOSITORY https://github.com/NCAR/MechanismConfiguration.git)
-  set_git_default(MECH_CONFIG_GIT_TAG v1.1.0)
+  set_git_default(MECH_CONFIG_GIT_TAG v1.1.1)
 
   FetchContent_Declare(mechanism_configuration
       GIT_REPOSITORY ${MECH_CONFIG_GIT_REPOSITORY}

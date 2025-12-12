@@ -7,7 +7,7 @@
 
 void DoChemistry(musica::MICMSolver solver_type)
 {
-  musica::Chemistry const chemistry = musica::ReadConfiguration("configs/v0/analytical/config.json");
+  musica::Chemistry const chemistry = musica::ReadConfiguration("configs/v0/analytical");
   musica::MICM micm = musica::MICM(chemistry, solver_type);
   musica::State state = musica::State(micm, 1);
 

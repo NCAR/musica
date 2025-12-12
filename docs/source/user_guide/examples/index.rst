@@ -5,10 +5,10 @@ Running premade examples
 -------------------------
 MUSICA provides a selection of pre-made example configurations for the user to work with:
 
-* `Analytical <https://github.com/NCAR/musica/tree/main/configs/v0/analytical/config.json>`_
-* `CarbonBond5 <https://github.com/NCAR/musica/tree/main/configs/v0/carbon_bond_5/config.json>`_
-* `Chapman <https://github.com/NCAR/musica/tree/main/configs/v0/chapman/config.json>`_
-* `TS1 <https://github.com/NCAR/musica/tree/main/configs/v0/robertson/config.json>`_
+* `Analytical <https://github.com/NCAR/musica/tree/main/configs/v0/analytical>`_
+* `CarbonBond5 <https://github.com/NCAR/musica/tree/main/configs/v0/carbon_bond_5>`_
+* `Chapman <https://github.com/NCAR/musica/tree/main/configs/v0/chapman>`_
+* `TS1 <https://github.com/NCAR/musica/tree/main/configs/v0/robertson>`_
 
 Each example (found in `configs/v0`) includes an associated set of JSON files accessible through the a MICM `solver`::
 
