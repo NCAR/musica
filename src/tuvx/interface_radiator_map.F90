@@ -120,6 +120,7 @@ end subroutine internal_delete_radiator_map
     ! result
     type(c_ptr) :: radiator_ptr
 
+    f_radiator => null()
     error_code = ERROR_NONE
     allocate(character(len=c_radiator_name_length) :: f_radiator_name)
     do i = 1, c_radiator_name_length
