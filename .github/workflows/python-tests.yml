@@ -82,9 +82,15 @@ jobs:
 
     - name: Install wheel (Windows)
       if: startsWith(matrix.os, 'windows')
+      shell: msys2 {0}
       run: |
-        $whl = Get-ChildItem -Path "$(pwd)\wheelhouse\*.whl" | Select-Object -First 1
-        pip install "$($whl.FullName)[test]"
+        MSYS2_PYTHON=$(cygpath -u "$pythonLocation")
+        whl=$(ls wheelhouse/*.whl | head -1)
+        export HDF5_DIR=/$MSYSTEM
+        export HDF5_LIBDIR=/$MSYSTEM/lib
+        export NETCDF4_DIR=/$MSYSTEM
+        export NETCDF4_LIBDIR=/$MSYSTEM/lib
+        "$MSYS2_PYTHON/python.exe" -m pip install "${whl}[test]"
     
     - name: Install wheel (linux/macos)
       if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
