@@ -14,8 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # os: [ubuntu-latest, ubuntu-24.04-arm, windows-latest, windows-11-arm, macos-15-intel, macos-latest]
-        os: [windows-11-arm]
+        os: [ubuntu-latest, ubuntu-24.04-arm, windows-latest, windows-11-arm, macos-15-intel, macos-latest]
         python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
         exclude:
           - os: windows-11-arm
@@ -83,9 +82,15 @@ jobs:
 
     - name: Install wheel (Windows)
       if: startsWith(matrix.os, 'windows')
+      shell: msys2 {0}
       run: |
-        $whl = Get-ChildItem -Path "$(pwd)\wheelhouse\*.whl" | Select-Object -First 1
-        pip install "$($whl.FullName)[test]"
+        MSYS2_PYTHON=$(cygpath -u "$pythonLocation")
+        whl=$(ls wheelhouse/*.whl | head -1)
+        export HDF5_DIR=/$MSYSTEM
+        export HDF5_LIBDIR=/$MSYSTEM/lib
+        export NETCDF4_DIR=/$MSYSTEM
+        export NETCDF4_LIBDIR=/$MSYSTEM/lib
+        "$MSYS2_PYTHON/python.exe" -m pip install "${whl}[test]"
     
     - name: Install wheel (linux/macos)
       if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
