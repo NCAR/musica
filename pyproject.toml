@@ -24,7 +24,6 @@ dependencies = [
   "numpy>=2.0.0",
   "pandas>=2.2.0",
   "pyyaml>=6.0.2",
-  "ussa1976>=v0.3.4",
   "xarray>=2022.3.0",
 ]
 
@@ -34,7 +33,8 @@ homepage = "https://wiki.ucar.edu/display/MUSICA/MUSICA+Home"
 [project.optional-dependencies]
 test = [
   "pytest>=7.0.0",
-  "pytest-cov>=4.0.0"
+  "pytest-cov>=4.0.0",
+  "ussa1976>=v0.3.4; platform_system != 'Windows' or platform_machine != 'ARM64'",
 ]
 
 gpu = ["nvidia-cublas-cu12>=12.6.4.1", "nvidia-cuda-runtime-cu12>=12.6.68"]
@@ -101,6 +101,12 @@ if.platform-system = "darwin"
 inherit.cmake.define = "append"
 cmake.define.CMAKE_C_COMPILER = "clang"
 cmake.define.CMAKE_CXX_COMPILER = "clang++"
+
+[[tool.scikit-build.overrides]]
+if.platform-system = "win32"
+if.platform-machine = "ARM64"
+inherit.cmake.define = "append"
+cmake.define.MUSICA_ENABLE_CARMA = "OFF"
 
 # dynamically read the version: https://scikit-build-core.readthedocs.io/en/latest/configuration.html#dynamic-metadata
 [tool.scikit-build.metadata.version]
