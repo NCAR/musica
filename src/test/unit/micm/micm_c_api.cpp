@@ -524,7 +524,7 @@ TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingVectorOrderedRosenbrock)
        num_grid_cells += static_cast<int>(std::floor(max_cells / 3)))
   {
     TestSolver(micm, num_grid_cells, time_step, test_accuracy);
-    DeleteError(&error);do
+    DeleteError(&error);
   }
 }
 

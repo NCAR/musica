@@ -73,7 +73,7 @@ TEST(Parser, CanParseCBVV0)
 
 TEST(Parser, CanParseTS1V0)
 {
-  musica::Chemistry const chemistry = musica::ReadConfiguration("configs/v0/TS1/config.json");
+  musica::Chemistry const chemistry = musica::ReadConfiguration("configs/v0/TS1");
   EXPECT_EQ(chemistry.system.gas_phase_.phase_species_.size(), 210);
   EXPECT_EQ(chemistry.processes.size(), 547);
 }
@@ -131,7 +131,7 @@ TEST(Parser, CanConvertFromV0ToV1)
   EXPECT_NO_THROW(mechanism_configuration::v1::types::Mechanism mechanism =
                       musica::ConvertV0MechanismToV1("configs/v0/robertson"););
   EXPECT_NO_THROW(mechanism_configuration::v1::types::Mechanism mechanism =
-                      musica::ConvertV0MechanismToV1("configs/v0/TS1/config.json"););
+                      musica::ConvertV0MechanismToV1("configs/v0/TS1"););
 }
 
 TEST(Parser, ConvertArrheniusV0ToV1)
