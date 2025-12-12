@@ -98,8 +98,9 @@ if(MUSICA_ENABLE_TESTS)
     setup_target_for_coverage_lcov(
         NAME coverage
         EXECUTABLE "ctest"
-        EXCLUDE "${PROJECT_SOURCE_DIR}/test/*"
-        BASE_DIRECTORY "${PROJECT_SOURCE_DIR}/src")
+        EXCLUDE "${PROJECT_SOURCE_DIR}/src/test/*"
+        BASE_DIRECTORY "${PROJECT_SOURCE_DIR}/src"
+        LCOV_ARGS "--ignore-errors" "mismatch")
     
   endif()
   
