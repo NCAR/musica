@@ -153,3 +153,5 @@ BUILD_GPU = 1
 
 [tool.cibuildwheel.windows]
 repair-wheel-command = "bash python/tools/repair_wheel_windows.sh {wheel} {dest_dir}"
+# Only build Windows ARM64 wheels for Python 3.11+
+skip = ["cp39-win_arm64", "cp310-win_arm64"]
