@@ -50,6 +50,10 @@ jobs:
           - os: windows-latest
             python-version: "3.14"
             cibw_archs: "AMD64"
+          
+          - os: windows-11-arm
+            python-version: "3.14"
+            cibw_archs: "ARM64"
 
           # macOS Intel
           - os: macos-15-intel

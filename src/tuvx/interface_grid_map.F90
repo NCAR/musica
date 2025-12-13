@@ -126,6 +126,8 @@ module tuvx_interface_grid_map
 
     integer :: i_grid
 
+    error_code = ERROR_NONE
+
     allocate(character(len=c_grid_name_length) :: f_grid_name)
     do i = 1, c_grid_name_length
       f_grid_name(i:i) = c_grid_name(i)
@@ -165,13 +167,17 @@ module tuvx_interface_grid_map
 
     select type(f_grid) 
     type is(grid_from_host_t)
-      error_code = ERROR_NONE
       grid_ptr = c_loc(f_grid)
     class default
       error_code = ERROR_GRID_TYPE_MISMATCH
-      deallocate(f_grid)
       grid_ptr = c_null_ptr
     end select
+
+    if (error_code /= ERROR_NONE) then
+      if (associated(f_grid)) then
+        deallocate(f_grid)
+      end if
+    end if
   
   end function interal_get_grid
 
@@ -226,6 +232,8 @@ module tuvx_interface_grid_map
     ! result
     type(c_ptr) :: grid_ptr
 
+    error_code = ERROR_NONE
+
     call c_f_pointer(grid_map, grid_warehouse)
 
     if (.not.allocated(grid_warehouse%grids_)) then
@@ -248,13 +256,17 @@ module tuvx_interface_grid_map
 
     select type(f_grid) 
     type is(grid_from_host_t)
-      error_code = ERROR_NONE
       grid_ptr = c_loc(f_grid)
     class default
       error_code = ERROR_GRID_TYPE_MISMATCH
-      deallocate(f_grid)
       grid_ptr = c_null_ptr
     end select
+
+    if (error_code /= ERROR_NONE) then
+      if (associated(f_grid)) then
+        deallocate(f_grid)
+      end if
+    end if
   
   end function internal_get_grid_by_index
 
