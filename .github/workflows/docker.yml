@@ -27,6 +27,7 @@ jobs:
           - Dockerfile.mpi
           - Dockerfile.mpi_openmp
           - Dockerfile.nvhpc
+          - Dockerfile.fortran-intel
         build_type: [Release, Debug]
         exclude:
           - dockerfile: Dockerfile.nvhpc
