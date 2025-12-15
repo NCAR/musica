@@ -80,6 +80,10 @@ jobs:
       if: matrix.os == 'windows-latest'
       uses: ./.github/windows_amd64_steps
 
+    - name: Set up Windows ARM64
+      if: matrix.os == 'windows-11-arm'
+      uses: ./.github/windows_arm64_steps
+
     # the if implicitly uses the fact that arm on windows is not running on windows-latest
     - name: CI Build Wheels 
       if: matrix.os != 'windows-latest'
@@ -89,7 +93,7 @@ jobs:
         FC: ${{ matrix.fc }}
     
     - name: CI Build Wheels (Windows with MINGW on AMD64)
-      if: matrix.os == 'windows-latest'
+      if: matrix.os == 'windows-latest' || matrix.os == 'windows-11-arm'
       shell: msys2 {0}
       run: |
         MSYS2_PYTHON=$(cygpath -u "$pythonLocation")
