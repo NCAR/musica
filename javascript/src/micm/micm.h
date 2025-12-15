@@ -13,6 +13,10 @@ class MICMClass : public Napi::ObjectWrap<MICMClass>
   static Napi::Object Init(Napi::Env env, Napi::Object exports);
   MICMClass(const Napi::CallbackInfo& info);
 
+  // Static factory methods
+  static Napi::Value FromConfigPath(const Napi::CallbackInfo& info);
+  static Napi::Value FromConfigString(const Napi::CallbackInfo& info);
+
  private:
   std::unique_ptr<MICMWrapper> micm_;
 

@@ -21,18 +21,42 @@ namespace musica
     }
     else
     {
-      mechanism_configuration::Version const version = parsed.mechanism->version;
+      const mechanism_configuration::Version version = parsed.mechanism->version;
 
       switch (version.major)
       {
         case 0: chemistry = ParserV0(parsed); break;
         case 1: chemistry = ParserV1(parsed); break;
         default:
-          std::string const msg = "Version " + std::to_string(version.major) + " not supported";
+          const std::string msg = "Version " + std::to_string(version.major) + " not supported";
           throw std::system_error(make_error_code(MusicaParseErrc::UnsupportedVersion), msg);
       }
     }
 
+    return chemistry;
+  }
+
+  Chemistry ReadConfigurationFromString(const std::string& json_or_yaml_string)
+  {
+    Chemistry chemistry{};
+
+    // Parse as v1 format
+    // Only v1 supports string parsing; JavaScript wrappers generate v1 format
+    mechanism_configuration::v1::Parser v1_parser;
+    auto v1_parsed = v1_parser.ParseFromString(json_or_yaml_string);
+
+    if (!v1_parsed)
+    {
+      std::string errors = "Failed to parse configuration string:\n";
+      for (auto& error : v1_parsed.errors)
+      {
+        errors += error.second + "\n";
+      }
+      throw std::system_error(make_error_code(MusicaParseErrc::ParsingFailed), errors);
+    }
+
+    // Convert v1 mechanism directly to Chemistry
+    chemistry = ConvertV1Mechanism(*v1_parsed.mechanism);
     return chemistry;
   }
 
