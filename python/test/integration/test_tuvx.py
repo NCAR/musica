@@ -283,8 +283,7 @@ def get_fixed_grid_map():
 
 
 def test_fixed_tuvx_from_file(monkeypatch):
-    monkeypatch.chdir("src")
-    file = "test/data/tuvx/full_from_host/config.json"
+    file = "configs/tuvx/data/full_from_host/config.json"
     grid_map = get_fixed_grid_map()
     profile_map = get_profile_map(grid_map)
     radiator_map = get_radiator_map(grid_map)
@@ -319,8 +318,7 @@ def test_fixed_tuvx_from_file(monkeypatch):
 
 
 def test_fixed_tuvx_from_string(monkeypatch):
-    monkeypatch.chdir("src")
-    file = "test/data/tuvx/full_from_host/config.json"
+    file = "configs/tuvx/data/full_from_host/config.json"
     with open(file, 'r') as f:
         config_str = f.read()
     grid_map = get_fixed_grid_map()

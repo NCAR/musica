@@ -140,7 +140,7 @@ class TuvxRunTest : public ::testing::Test
 
 TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfig)
 {
-  const char* json_config_path = "test/data/tuvx/fixed/config.json";
+  const char* json_config_path = "configs/tuvx/data/fixed/config.json";
   SetUp(json_config_path);
   ASSERT_NE(tuvx, nullptr);
   Error error;
@@ -191,7 +191,7 @@ TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfig)
 
 TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfigAndHostData)
 {
-  const char* json_config_path = "test/data/tuvx/from_host/config.json";
+  const char* json_config_path = "configs/tuvx/data/from_host/config.json";
   Error error;
   GridMap* grids = CreateGridMap(&error);
   ASSERT_TRUE(IsSuccess(error));

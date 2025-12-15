@@ -109,7 +109,7 @@
         "type": "base",
         "netcdf files": [
           {
-            "file path": "test/data/tuvx/fixed/O2_cross_section.nc"
+            "file path": "configs/tuvx/data/fixed/O2_cross_section.nc"
           }
         ]
       }
@@ -140,7 +140,7 @@
           "type": "base",
           "netcdf files": [
             {
-              "file path": "test/data/tuvx/fixed/foo_cross_section.nc"
+              "file path": "configs/tuvx/data/fixed/foo_cross_section.nc"
             }
           ]
         },
@@ -158,7 +158,7 @@
           "type": "base",
           "netcdf files": [
             {
-              "file path": "test/data/tuvx/fixed/bar_cross_section.nc"
+              "file path": "configs/tuvx/data/fixed/bar_cross_section.nc"
             }
           ]
         },
@@ -176,7 +176,7 @@
           "type": "base",
           "netcdf files": [
             {
-              "file path": "test/data/tuvx/fixed/foo_cross_section.nc"
+              "file path": "configs/tuvx/data/fixed/foo_cross_section.nc"
             }
           ]
         },

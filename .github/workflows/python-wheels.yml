@@ -1,4 +1,4 @@
-name: Publish Python Package
+name: Python
 
 on:
   push:
@@ -84,16 +84,15 @@ jobs:
       if: matrix.os == 'windows-11-arm'
       uses: ./.github/windows_arm64_steps
 
-    # the if implicitly uses the fact that arm on windows is not running on windows-latest
     - name: CI Build Wheels 
-      if: matrix.os != 'windows-latest'
+      if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
       uses: pypa/cibuildwheel@v3.1.3
       env:
         CIBW_ARCHS: ${{ matrix.cibw_archs }}
         FC: ${{ matrix.fc }}
     
-    - name: CI Build Wheels (Windows with MINGW on AMD64)
-      if: matrix.os == 'windows-latest' || matrix.os == 'windows-11-arm'
+    - name: CI Build Wheels (Windows)
+      if: startsWith(matrix.os, 'windows')
       shell: msys2 {0}
       run: |
         MSYS2_PYTHON=$(cygpath -u "$pythonLocation")

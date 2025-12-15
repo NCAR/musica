@@ -10,7 +10,7 @@ except ImportError:
 carma_available = musica.backend.carma_available()
 pytestmark = pytest.mark.skipif(
     not carma_available or not ussa1976_available,
-    reason="CARMA backend is not available" if not carma_available else "ussa1976 module is not available. This likely means you are runnig on arm-windows and netcdf4 is not available for this platform so ussa1976 cannot be installed."
+    reason="CARMA backend is not available" if not carma_available else "ussa1976 module is not available. This likely means you are running on arm-windows and netcdf4 is not available for this platform so ussa1976 cannot be installed."
 )
 
 
