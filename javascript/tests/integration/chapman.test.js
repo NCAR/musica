@@ -69,10 +69,10 @@ function testSolve(solver) {
 describe('Chapman mechanism with v0 config path', () => {
     it('should solve with v0 config directory', () => {
         const configPath = path.join(__dirname, '../../../configs/v0/chapman');
-        const solver = new MICM({
-            config_path: configPath,
-            solver_type: SolverType.rosenbrock_standard_order
-        });
+        const solver = MICM.fromConfigPath(
+            configPath,
+            SolverType.rosenbrock_standard_order
+        );
         testSolve(solver);
     });
 });
@@ -80,19 +80,19 @@ describe('Chapman mechanism with v0 config path', () => {
 describe('Chapman mechanism with v1 config files', () => {
     it('should solve with v1 JSON config file', () => {
         const configPath = path.join(__dirname, '../../../configs/v1/chapman/config.json');
-        const solver = new MICM({
-            config_path: configPath,
-            solver_type: SolverType.rosenbrock_standard_order
-        });
+        const solver = MICM.fromConfigPath(
+            configPath,
+            SolverType.rosenbrock_standard_order
+        );
         testSolve(solver);
     });
 
     it('should solve with v1 YAML config file', () => {
         const configPath = path.join(__dirname, '../../../configs/v1/chapman/config.yaml');
-        const solver = new MICM({
-            config_path: configPath,
-            solver_type: SolverType.rosenbrock_standard_order
-        });
+        const solver = MICM.fromConfigPath(
+            configPath,
+            SolverType.rosenbrock_standard_order
+        );
         testSolve(solver);
     });
 });

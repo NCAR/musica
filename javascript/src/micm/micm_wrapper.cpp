@@ -23,12 +23,16 @@ namespace musica_addon
   // MICMWrapper Implementation
   // ============================================================================
 
-  MICMWrapper::MICMWrapper(const std::string& config_path, int solver_type)
-      : micm_(nullptr),
+  MICMWrapper::MICMWrapper(musica::MICM* micm, int solver_type)
+      : micm_(micm),
         solver_type_(solver_type)
   {
+  }
+
+  std::unique_ptr<MICMWrapper> MICMWrapper::FromConfigPath(const std::string& config_path, int solver_type)
+  {
     musica::Error error;
-    micm_ = musica::CreateMicm(config_path.c_str(), static_cast<musica::MICMSolver>(solver_type), &error);
+    musica::MICM* micm = musica::CreateMicm(config_path.c_str(), static_cast<musica::MICMSolver>(solver_type), &error);
 
     if (!musica::IsSuccess(error))
     {
@@ -42,6 +46,27 @@ namespace musica_addon
       throw std::runtime_error(error_msg);
     }
     musica::DeleteError(&error);
+    return std::unique_ptr<MICMWrapper>(new MICMWrapper(micm, solver_type));
+  }
+
+  std::unique_ptr<MICMWrapper> MICMWrapper::FromConfigString(const std::string& config_string, int solver_type)
+  {
+    musica::Error error;
+    musica::MICM* micm = musica::CreateMicmFromConfigString(config_string.c_str(), static_cast<musica::MICMSolver>(solver_type), &error);
+
+    if (!musica::IsSuccess(error))
+    {
+      std::string error_msg = "Failed to create MICM solver from config string: ";
+      if (error.message_.value_ != nullptr)
+      {
+        error_msg += error.message_.value_;
+        musica::DeleteString(&error.message_);
+      }
+      musica::DeleteError(&error);
+      throw std::runtime_error(error_msg);
+    }
+    musica::DeleteError(&error);
+    return std::unique_ptr<MICMWrapper>(new MICMWrapper(micm, solver_type));
   }
 
   MICMWrapper::~MICMWrapper()

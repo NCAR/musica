@@ -1,5 +1,6 @@
 #include <musica/micm/cuda_availability.hpp>
 #include <musica/micm/micm_c_interface.hpp>
+#include <musica/micm/parse.hpp>
 
 namespace musica
 {
@@ -45,6 +46,20 @@ namespace musica
         [&]()
         {
           MICM* micm = new MICM(*chemistry, solver_type);
+          NoError(error);
+          return micm;
+        },
+        error);
+  }
+
+  MICM* CreateMicmFromConfigString(const char* config_string, MICMSolver solver_type, Error* error)
+  {
+    return HandleErrors(
+        [&]()
+        {
+          // Parse JSON/YAML string to Chemistry object
+          Chemistry chemistry = ReadConfigurationFromString(std::string(config_string));
+          MICM* micm = new MICM(chemistry, solver_type);
           NoError(error);
           return micm;
         },

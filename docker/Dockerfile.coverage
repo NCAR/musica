@@ -1,4 +1,4 @@
-FROM fedora:39
+FROM fedora:41
 
 ARG MUSICA_GIT_TAG=main
 ARG BUILD_TYPE=Release
