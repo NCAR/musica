@@ -52,7 +52,7 @@ namespace musica
         error);
   }
 
-  MICM *CreateMicmFromConfigString(const char *config_string, MICMSolver solver_type, Error *error)
+  MICM* CreateMicmFromConfigString(const char* config_string, MICMSolver solver_type, Error* error)
   {
     return HandleErrors(
         [&]()
