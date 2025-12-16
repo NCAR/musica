@@ -1,6 +1,7 @@
 
 #include <musica/micm/parse.hpp>
 
+#include <mechanism_configuration/v0/parser.hpp>
 #include <mechanism_configuration/v0/types.hpp>
 #include <mechanism_configuration/v0/validation.hpp>
 #include <mechanism_configuration/v1/types.hpp>

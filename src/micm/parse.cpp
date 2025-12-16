@@ -1,6 +1,7 @@
 #include <musica/micm/parse.hpp>
 
 #include <mechanism_configuration/parser.hpp>
+#include <mechanism_configuration/v1/parser.hpp>
 
 namespace musica
 {
