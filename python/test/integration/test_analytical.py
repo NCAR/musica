@@ -482,4 +482,3 @@ def test_multiple_grid_cells_backward_euler_standard_order():
 
 if __name__ == '__main__':
     pytest.main()
-
