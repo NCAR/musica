@@ -41,10 +41,17 @@ namespace musica
     /// @return Pointer to MICM object
     MICM *CreateMicmFromChemistryMechanism(const Chemistry *chemistry, MICMSolver solver_type, Error *error);
 
+    /// @brief Create a MICM object from a JSON or YAML configuration string
+    /// @param config_string JSON or YAML configuration string
+    /// @param solver_type Type of MICMSolver
+    /// @param error Error struct to indicate success or failure
+    /// @return Pointer to MICM object
+    MICM *CreateMicmFromConfigString(const char *config_string, MICMSolver solver_type, Error *error);
+
     /// @brief Deletes a MICM object
     /// @param micm Pointer to MICM object
     /// @param error Error struct to indicate success or failure
-    void DeleteMicm(const MICM *micm, Error *error);
+    void DeleteMicm(MICM *micm, Error *error);
 
     /// @brief Solve the system
     /// @param micm Pointer to MICM object

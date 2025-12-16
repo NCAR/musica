@@ -1,6 +1,7 @@
 // Copyright (C) 2023-2025 National Center for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 #include <musica/util.hpp>
+#include <musica/version.hpp>
 
 #include <cstddef>
 #include <cstring>
@@ -17,13 +18,11 @@ namespace
 namespace musica
 {
 
-  String CreateString(const char* value)
+  void CreateString(const char* value, String* str)
   {
-    String str;
-    str.size_ = std::strlen(value);
-    str.value_ = new char[str.size_ + 1];
-    std::strcpy(str.value_, value);
-    return str;
+    str->size_ = std::strlen(value);
+    str->value_ = new char[str->size_ + 1];
+    std::memcpy(str->value_, value, str->size_ + 1);
   }
 
   void DeleteString(String* str)
@@ -34,28 +33,26 @@ namespace musica
     str->size_ = 0;
   }
 
-  Error NoError()
+  void NoError(Error* error)
   {
-    return ToError("", 0, "Success");
+    ToError("", 0, "Success", error);
   }
 
-  Error ToError(const char* category, int code)
+  void ToError(const char* category, int code, Error* error)
   {
-    return ToError(category, code, "");
+    ToError(category, code, "", error);
   }
 
-  Error ToError(const char* category, int code, const char* message)
+  void ToError(const char* category, int code, const char* message, Error* error)
   {
-    Error error;
-    error.code_ = code;
-    error.category_ = CreateString(category);
-    error.message_ = CreateString(message);
-    return error;
+    error->code_ = code;
+    CreateString(category, &error->category_);
+    CreateString(message, &error->message_);
   }
 
-  Error ToError(const std::system_error& e)
+  void ToError(const std::system_error& e, Error* error)
   {
-    return ToError(e.code().category().name(), e.code().value(), e.what());
+    ToError(e.code().category().name(), e.code().value(), e.what(), error);
   }
 
   bool IsSuccess(const Error& error)
@@ -96,12 +93,12 @@ namespace musica
     try
     {
       configuration->data_ = new YAML::Node(YAML::Load(data));
-      *error = NoError();
+      NoError(error);
     }
     catch (const std::exception& e)
     {
       configuration->data_ = nullptr;
-      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_PARSING_FAILED, e.what());
+      ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_PARSING_FAILED, e.what(), error);
     }
   }
 
@@ -111,12 +108,12 @@ namespace musica
     try
     {
       configuration->data_ = new YAML::Node(YAML::LoadFile(filename));
-      *error = NoError();
+      NoError(error);
     }
     catch (const std::exception& e)
     {
       configuration->data_ = nullptr;
-      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_PARSING_FAILED, e.what());
+      ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_PARSING_FAILED, e.what(), error);
     }
   }
 
@@ -127,12 +124,10 @@ namespace musica
     config->data_ = nullptr;
   }
 
-  Mapping ToMapping(const char* name, std::size_t index)
+  void ToMapping(const char* name, std::size_t index, Mapping* mapping)
   {
-    Mapping mapping;
-    mapping.name_ = CreateString(name);
-    mapping.index_ = index;
-    return mapping;
+    CreateString(name, &mapping->name_);
+    mapping->index_ = index;
   }
 
   Mapping* AllocateMappingArray(const std::size_t size)
@@ -153,12 +148,12 @@ namespace musica
     {
       if (std::strcmp(mappings.mappings_[i].name_.value_, name) == 0)
       {
-        *error = NoError();
+        NoError(error);
         return mappings.mappings_[i].index_;
       }
     }
-    std::string msg = "Mapping element '" + std::string(name) + "' not found";
-    *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_MAPPING_NOT_FOUND, msg.c_str());
+    std::string const msg = "Mapping element '" + std::string(name) + "' not found";
+    ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_MAPPING_NOT_FOUND, msg.c_str(), error);
     return 0;
   }
 
@@ -187,20 +182,20 @@ namespace musica
       Error* error)
   {
     DeleteError(error);
-    std::size_t size = configuration.data_->size();
+    std::size_t const size = configuration.data_->size();
     std::vector<IndexMapping> mappings;
     index_mapping->size_ = 0;
     if (map_options == IndexMappingOptions::UndefinedMapping)
     {
-      *error = ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED, "Mapping options are undefined");
+      ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED, "Mapping options are undefined", error);
       return;
     }
     for (std::size_t i = 0; i < size; i++)
     {
       const YAML::Node& node = (*configuration.data_)[i];
-      std::string source_name = node["source"].as<std::string>();
-      std::string target_name = node["target"].as<std::string>();
-      std::size_t source_index = FindMappingIndex(source, source_name.c_str(), error);
+      std::string const source_name = node["source"].as<std::string>();
+      std::string const target_name = node["target"].as<std::string>();
+      std::size_t const source_index = FindMappingIndex(source, source_name.c_str(), error);
       if (error->code_ == MUSICA_ERROR_CODE_MAPPING_NOT_FOUND)
       {
         if (map_options == IndexMappingOptions::MapAll)
@@ -210,7 +205,7 @@ namespace musica
         else
         {
           DeleteError(error);
-          *error = NoError();
+          NoError(error);
           continue;
         }
       }
@@ -218,7 +213,7 @@ namespace musica
       {
         return;
       }
-      std::size_t target_index = FindMappingIndex(target, target_name.c_str(), error);
+      std::size_t const target_index = FindMappingIndex(target, target_name.c_str(), error);
       if (error->code_ == MUSICA_ERROR_CODE_MAPPING_NOT_FOUND)
       {
         if (map_options == IndexMappingOptions::MapAll)
@@ -228,7 +223,7 @@ namespace musica
         else
         {
           DeleteError(error);
-          *error = NoError();
+          NoError(error);
           continue;
         }
       }
@@ -279,6 +274,11 @@ namespace musica
       DeleteIndexMapping(&(mappings->mappings_[i]));
     }
     delete[] mappings->mappings_;
+  }
+
+  void MusicaVersion(String* musica_version)
+  {
+    CreateString(GetMusicaVersion(), musica_version);
   }
 
 }  // namespace musica

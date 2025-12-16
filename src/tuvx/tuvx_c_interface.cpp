@@ -25,20 +25,16 @@ namespace musica
     void DeleteTuvx(const TUVX *tuvx, Error *error)
     {
       DeleteError(error);
-      if (tuvx == nullptr)
-      {
-        *error = NoError();
-        return;
-      }
       try
       {
-        delete tuvx;
-        *error = NoError();
+        if (tuvx != nullptr)
+          delete tuvx;
       }
       catch (const std::system_error &e)
       {
-        *error = ToError(e);
+        ToError(e, error);
       }
+      NoError(error);
     }
 
     GridMap *GetGridMap(TUVX *tuvx, Error *error)
@@ -60,22 +56,22 @@ namespace musica
       return tuvx->CreateRadiatorMap(error);
     }
 
-    Mappings GetPhotolysisRateConstantsOrdering(TUVX *tuvx, Error *error)
+    void GetPhotolysisRateConstantsOrdering(TUVX *tuvx, Mappings *mappings, Error *error)
     {
       DeleteError(error);
-      return tuvx->GetPhotolysisRateConstantsOrdering(error);
+      return tuvx->GetPhotolysisRateConstantsOrdering(mappings, error);
     }
 
-    Mappings GetHeatingRatesOrdering(TUVX *tuvx, Error *error)
+    void GetHeatingRatesOrdering(TUVX *tuvx, Mappings *mappings, Error *error)
     {
       DeleteError(error);
-      return tuvx->GetHeatingRatesOrdering(error);
+      return tuvx->GetHeatingRatesOrdering(mappings, error);
     }
 
-    Mappings GetDoseRatesOrdering(TUVX *tuvx, Error *error)
+    void GetDoseRatesOrdering(TUVX *tuvx, Mappings *mappings, Error *error)
     {
       DeleteError(error);
-      return tuvx->GetDoseRatesOrdering(error);
+      return tuvx->GetDoseRatesOrdering(mappings, error);
     }
 
     void RunTuvx(
@@ -84,10 +80,16 @@ namespace musica
         const double earth_sun_distance,
         double *const photolysis_rate_constants,
         double *const heating_rates,
+        double *const dose_rates,
         Error *const error)
     {
       DeleteError(error);
-      tuvx->Run(solar_zenith_angle, earth_sun_distance, photolysis_rate_constants, heating_rates, error);
+      tuvx->Run(solar_zenith_angle, earth_sun_distance, photolysis_rate_constants, heating_rates, dose_rates, error);
+    }
+
+    void TuvxVersion(String *tuvx_version)
+    {
+      CreateString(TUVX::GetVersion().c_str(), tuvx_version);
     }
 
 #ifdef __cplusplus

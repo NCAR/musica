@@ -5,6 +5,8 @@
 #include <musica/micm/micm.hpp>
 
 #include <mechanism_configuration/parser.hpp>
+#include <mechanism_configuration/v0/types.hpp>
+#include <mechanism_configuration/v1/mechanism.hpp>
 
 #include <stdexcept>
 #include <system_error>
@@ -58,6 +60,7 @@ inline std::error_code make_error_code(MusicaParseErrc e)
 namespace musica
 {
   Chemistry ReadConfiguration(const std::string& config_path);
+  Chemistry ReadConfigurationFromString(const std::string& json_or_yaml_string);  // Parse from JSON/YAML string
   Chemistry ParserV0(const mechanism_configuration::ParserResult<>& result);
   Chemistry ConvertV1Mechanism(
       const mechanism_configuration::v1::types::Mechanism& v1_mechanism,

@@ -1,17 +1,28 @@
 {
   "name": "musica-addon",
-  "version": "0.1.0",
+  "version": "0.12.2",
   "description": "Native Node.js addon for MUSICA atmospheric chemistry modeling",
+  "main": "./javascript/index.js",
+  "exports": {
+    ".": "./javascript/index.js"
+  },
   "scripts": {
-    "build": "cmake-js -p 4 compile --CDMUSICA_ENABLE_JAVASCRIPT=ON --CDMUSICA_ENABLE_PYTHON_LIBRARY=OFF --CDMUSICA_ENABLE_TUVX=OFF --CDMUSICA_ENABLE_CARMA=OFF --CDMUSICA_ENABLE_TESTS=OFF",
+    "build": "cmake-js -p 4 compile --CDMUSICA_ENABLE_JAVASCRIPT=ON --CDMUSICA_ENABLE_PYTHON_LIBRARY=OFF --CDMUSICA_ENABLE_TUVX=OFF --CDMUSICA_ENABLE_CARMA=OFF --CDMUSICA_ENABLE_TESTS=OFF --CDMUSICA_ENABLE_PIC=ON",
     "rebuild": "cmake-js rebuild",
-    "clean": "cmake-js clean"
+    "clean": "cmake-js clean",
+    "sync-version": "node scripts/extract_version.js sync",
+    "test": "node --test 'javascript/tests/**/*.test.js'",
+    "test:integration": "node --test 'javascript/tests/integration/*.test.js'",
+    "test:unit": "node --test 'javascript/tests/unit/**/*.test.js'",
+    "test:coverage": "c8 --reporter=lcov --reporter=text --reports-dir=javascript-coverage node --test javascript/tests/**/*.test.js"
   },
   "dependencies": {
+    "bindings": "^1.5.0",
     "musica": "^1.0.0",
     "node-addon-api": "^8.5.0"
   },
   "devDependencies": {
+    "c8": "^10.1.3",
     "cmake-js": "^7.3.0"
   },
   "cmake-js": {

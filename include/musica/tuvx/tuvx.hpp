@@ -35,15 +35,16 @@ namespace musica
     /// All parameters (solar zenith angle, Earth-Sun distance, atmospheric profiles, etc.)
     /// are read from the JSON configuration file, similar to the Fortran tuvx.F90 driver
     /// @param config_string JSON/YAML configuration string
-    /// @throws std::runtime_error if operation fails
-    void CreateFromConfigString(const char *config_string);
-
-    /// @brief Create an instance of tuvx from a configuration file only (simple interface)
-    /// All parameters (solar zenith angle, Earth-Sun distance, atmospheric profiles, etc.)
-    /// are read from the JSON configuration file, similar to the Fortran tuvx.F90 driver
-    /// @param config_path Path to configuration file
-    /// @throws std::runtime_error if operation fails
-    void CreateFromConfigFile(const char *config_path);
+    /// @param grids Grid map from host application
+    /// @param profiles Profile map from host application
+    /// @param radiators Radiator map from host application
+    /// @param error Error struct to indicate success or failure
+    void CreateFromConfigString(
+        const char *config_string,
+        GridMap *grids,
+        ProfileMap *profiles,
+        RadiatorMap *radiators,
+        Error *error);
 
     /// @brief Create a grid map. For now, this calls the interal tuvx fortran api, but will allow the change to c++ later on
     /// to be transparent to downstream projects
@@ -66,43 +67,36 @@ namespace musica
     /// @brief Returns the ordering of photolysis rate constants
     /// @param error Error struct to indicate success or failure
     /// @return Array of photolysis rate constant name-index pairs
-    Mappings GetPhotolysisRateConstantsOrdering(Error *error);
+    void GetPhotolysisRateConstantsOrdering(Mappings *mappings, Error *error);
 
     /// @brief Returns the ordering of heating rates
     /// @param error Error struct to indicate success or failure
     /// @return Array of heating rate name-index pairs
-    Mappings GetHeatingRatesOrdering(Error *error);
+    void GetHeatingRatesOrdering(Mappings *mappings, Error *error);
 
     /// @brief Returns the ordering of dose rates
     /// @param error Error struct to indicate success or failure
     /// @return Array of dose rate name-index pairs
-    Mappings GetDoseRatesOrdering(Error *error);
+    void GetDoseRatesOrdering(Mappings *mappings, Error *error);
 
     /// @brief Run the TUV-x photolysis calculator
     /// @param solar_zenith_angle Solar zenith angle [radians]
     /// @param earth_sun_distance Earth-Sun distance [AU]
     /// @param photolysis_rate_constants Photolysis rate constant for each layer and reaction [s^-1]
     /// @param heating_rates Heating rates for each layer and reaction [K/s]
+    /// @param dose_rates Dose rates for each layer and reaction [W/m^2]
     /// @param error Error struct to indicate success or failure
     void Run(
         const double solar_zenith_angle,
         const double earth_sun_distance,
         double *const photolysis_rate_constants,
         double *const heating_rates,
+        double *const dose_rates,
         Error *const error);
 
     /// @brief Get the version of TUV-x
     /// @return TUV-x version string
     static std::string GetVersion();
-
-    /// @brief Run the TUV-x photolysis calculator (simple interface)
-    /// All parameters come from the JSON configuration file. Returns the computed
-    /// photolysis rates and heating rates directly.
-    /// @param photolysis_rate_constants Output array for photolysis rates [s^-1] (layer, reaction)
-    /// @param heating_rates Output array for heating rates [K/s] (layer, reaction)
-    /// @param dose_rates Output array for dose rates [photons/cm^2/s] (layer, reaction)
-    /// @throws std::runtime_error if operation fails
-    void RunFromConfig(double *const photolysis_rate_constants, double *const heating_rates, double *const dose_rates);
 
     /// @brief Get the number of photolysis reactions
     /// @return Number of photolysis reactions
@@ -124,15 +118,9 @@ namespace musica
     /// @throws std::runtime_error if operation fails
     int GetNumberOfLayers();
 
-    /// @brief Get the number of solar zenith angle steps
-    /// @return Number of solar zenith angle steps
-    /// @throws std::runtime_error if operation fails
-    int GetNumberOfSzaSteps();
-
    private:
     void *tuvx_;
     int number_of_layers_;
-    bool is_config_only_mode_;
   };
 
 }  // namespace musica

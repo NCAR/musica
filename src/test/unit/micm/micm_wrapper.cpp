@@ -7,7 +7,7 @@
 
 void DoChemistry(musica::MICMSolver solver_type)
 {
-  musica::Chemistry chemistry = musica::ReadConfiguration("configs/v0/analytical");
+  musica::Chemistry const chemistry = musica::ReadConfiguration("configs/v0/analytical");
   musica::MICM micm = musica::MICM(chemistry, solver_type);
   musica::State state = musica::State(micm, 1);
 
@@ -15,11 +15,9 @@ void DoChemistry(musica::MICMSolver solver_type)
   state.SetOrderedConcentrations(initial_concentrations);
   state.SetConditions({ { .temperature_ = 298.15, .pressure_ = 101325.0 } });
 
-  double time_step = 60;
-  musica::SolverResultStats solver_stats;
-  musica::String solver_state;
-  micm.Solve(&state, time_step, &solver_state, &solver_stats);
-  EXPECT_EQ(std::string(solver_state.value_), std::string("Converged"));
+  double const time_step = 60;
+  auto result = micm.Solve(&state, time_step);
+  EXPECT_EQ(result.state_, micm::SolverState::Converged);
   bool something_changed = false;
   for (int i = 0; i < initial_concentrations.size(); ++i)
   {
@@ -30,7 +28,6 @@ void DoChemistry(musica::MICMSolver solver_type)
     }
   }
   EXPECT_TRUE(something_changed);
-  DeleteString(&solver_state);
 }
 
 TEST(MICMWrapper, Rosenbrock)

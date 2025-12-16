@@ -20,48 +20,61 @@ namespace musica
     /// @param profiles Profile map from host application
     /// @param radiators Radiator map from host application
     /// @param error Error struct to indicate success or failure
-    TUVX *CreateTuvx(const char *config_path, GridMap *grids, ProfileMap *profiles, RadiatorMap *radiators, Error *error);
+    TUVX* CreateTuvx(const char* config_path, GridMap* grids, ProfileMap* profiles, RadiatorMap* radiators, Error* error);
+
+    /// @brief Creates a TUVX instance by passing a configuration string and host-defined grids, profiles, and radiators
+    /// @param config_string JSON/YAML configuration string
+    /// @param grids Grid map from host application
+    /// @param profiles Profile map from host application
+    /// @param radiators Radiator map from host application
+    /// @param error Error struct to indicate success or failure
+    TUVX* CreateTuvxFromConfigString(
+        const char* config_string,
+        GridMap* grids,
+        ProfileMap* profiles,
+        RadiatorMap* radiators,
+        Error* error);
 
     /// @brief Deletes a TUVX instance
     /// @param tuvx Pointer to TUVX instance
     /// @param error Error struct to indicate success or failure
-    void DeleteTuvx(const TUVX *tuvx, Error *error);
+    void DeleteTuvx(const TUVX* tuvx, Error* error);
 
     /// @brief Returns the set of grids used by TUVX
     /// @param tuvx Pointer to TUVX instance
     /// @param error Error struct to indicate success or failure
     /// @return Grid map
-    GridMap *GetGridMap(TUVX *tuvx, Error *error);
+    GridMap* GetGridMap(TUVX* tuvx, Error* error);
 
     /// @brief Returns the set of profiles used by TUVX
     /// @param tuvx Pointer to TUVX instance
     /// @param error Error struct to indicate success or failure
     /// @return Profile map
-    ProfileMap *GetProfileMap(TUVX *tuvx, Error *error);
+    ProfileMap* GetProfileMap(TUVX* tuvx, Error* error);
 
     /// @brief Returns the set of radiators used by TUVX
     /// @param tuvx Pointer to TUVX instance
     /// @param error Error struct to indicate success or failure
     /// @return Radiator map
-    RadiatorMap *GetRadiatorMap(TUVX *tuvx, Error *error);
+    RadiatorMap* GetRadiatorMap(TUVX* tuvx, Error* error);
 
     /// @brief Returns the ordering photolysis rate constants
     /// @param tuvx Pointer to TUVX instance
+    /// @param mappings Array of photolysis rate constant name-index pairs [output]
     /// @param error Error struct to indicate success or failure
-    /// @return Array of photolysis rate constant name-index pairs
-    Mappings GetPhotolysisRateConstantsOrdering(TUVX *tuvx, Error *error);
+    void GetPhotolysisRateConstantsOrdering(TUVX* tuvx, Mappings* mappings, Error* error);
 
     /// @brief Returns the ordering of heating rates
     /// @param tuvx Pointer to TUVX instance
+    /// @param mappings Array of heating rate name-index pairs [output]
     /// @param error Error struct to indicate success or failure
-    /// @return Array of heating rate name-index pairs
-    Mappings GetHeatingRatesOrdering(TUVX *tuvx, Error *error);
+    void GetHeatingRatesOrdering(TUVX* tuvx, Mappings* mappings, Error* error);
 
     /// @brief Returns the ordering of dose rates
     /// @param tuvx Pointer to TUVX instance
+    /// @param mappings Array of dose rate name-index pairs [output]
     /// @param error Error struct to indicate success or failure
-    /// @return Array of dose rate name-index pairs
-    Mappings GetDoseRatesOrdering(TUVX *tuvx, Error *error);
+    void GetDoseRatesOrdering(TUVX* tuvx, Mappings* mappings, Error* error);
 
     /// @brief Run the TUV-x photolysis calculator
     /// @param tuvx Pointer to TUVX instance
@@ -69,58 +82,63 @@ namespace musica
     /// @param earth_sun_distance Earth-Sun distance [AU]
     /// @param photolysis_rate_constants Photolysis rate constant for each layer and reaction [s^-1]
     /// @param heating_rates Heating rates for each layer and reaction [K/s]
+    /// @param dose_rates Dose rates for each layer and reaction [W/m^2]
     /// @param error Error struct to indicate success or failure
     void RunTuvx(
-        TUVX *tuvx,
+        TUVX* tuvx,
         const double solar_zenith_angle,
         const double earth_sun_distance,
-        double *const photolysis_rate_constants,
-        double *const heating_rates,
-        Error *const error);
+        double* const photolysis_rate_constants,
+        double* const heating_rates,
+        double* const dose_rates,
+        Error* const error);
+
+    /// @brief Get the TUVX version
+    /// @param tuvx_version TUVX version [output]
+    void TuvxVersion(String* tuvx_version);
 
     // for use by musica internally. If tuvx ever gets rewritten in C++, these functions will
     // go away but the C API will remain the same and downstream projects (like CAM-SIMA) will
     // not need to change
-    void *InternalCreateTuvx(
-        const char *config_path,
+    void* InternalCreateTuvx(
+        const char* config_path,
         std::size_t config_path_length,
-        void *grid_map,
-        void *profile_map,
-        void *radiator_map,
-        int *number_of_layers,
-        int *error_code);
-    void InternalDeleteTuvx(void *tuvx, int *error_code);
-    void *InternalGetGridMap(void *tuvx, int *error_code);
-    void *InternalGetProfileMap(void *tuvx, int *error_code);
-    void *InternalGetRadiatorMap(void *tuvx, int *error_code);
-    Mappings InternalGetPhotolysisRateConstantsOrdering(void *tuvx, int *error_code);
-    Mappings InternalGetHeatingRatesOrdering(void *tuvx, int *error_code);
-    Mappings InternalGetDoseRatesOrdering(void *tuvx, int *error_code);
+        void* grid_map,
+        void* profile_map,
+        void* radiator_map,
+        int* number_of_layers,
+        int* error_code);
+    void* InternalCreateTuvxFromConfigString(
+        const char* config_string,
+        std::size_t config_string_length,
+        void* grid_map,
+        void* profile_map,
+        void* radiator_map,
+        int* number_of_layers,
+        int* error_code);
+    void InternalDeleteTuvx(void* tuvx, int* error_code);
+    void* InternalGetGridMap(void* tuvx, int* error_code);
+    void* InternalGetProfileMap(void* tuvx, int* error_code);
+    void* InternalGetRadiatorMap(void* tuvx, int* error_code);
+    void InternalGetPhotolysisRateConstantsOrdering(void* tuvx, Mappings* mappings, int* error_code);
+    void InternalGetHeatingRatesOrdering(void* tuvx, Mappings* mappings, int* error_code);
+    void InternalGetDoseRatesOrdering(void* tuvx, Mappings* mappings, int* error_code);
     void InternalRunTuvx(
-        void *tuvx,
+        void* tuvx,
         const int number_of_layers,
         const double solar_zenith_angle,
         const double earth_sun_distance,
-        double *photolysis_rate_constants,
-        double *heating_rates,
-        int *error_code);
+        double* photolysis_rate_constants,
+        double* heating_rates,
+        double* dose_rates,
+        int* error_code);
 
-    void InternalGetTuvxVersion(char **version_ptr, int *version_length);
-    void InternalFreeTuvxVersion(char *version_ptr, int version_length);
-
-    void *InternalCreateTuvxFromConfigString(const char *config_string, int config_string_length, int *error_code);
-    void *InternalCreateTuvxFromConfigFile(const char *config_path, int config_path_length, int *error_code);
-    void InternalRunTuvxFromConfig(
-        void *tuvx,
-        double *photolysis_rates,
-        double *heating_rates,
-        double *dose_rates,
-        int *error_code);
-    int InternalGetPhotolysisRateConstantCount(void *tuvx, int *error_code);
-    int InternalGetHeatingRateCount(void *tuvx, int *error_code);
-    int InternalGetDoseRateCount(void *tuvx, int *error_code);
-    int InternalGetNumberOfLayers(void *tuvx, int *error_code);
-    int InternalGetNumberOfSzaSteps(void *tuvx, int *error_code);
+    void InternalGetTuvxVersion(char** version_ptr, int* version_length);
+    void InternalFreeTuvxVersion(char* version_ptr, int version_length);
+    int InternalGetPhotolysisRateConstantCount(void* tuvx, int* error_code);
+    int InternalGetHeatingRateCount(void* tuvx, int* error_code);
+    int InternalGetDoseRateCount(void* tuvx, int* error_code);
+    int InternalGetNumberOfLayers(void* tuvx, int* error_code);
 
 #ifdef __cplusplus
   }

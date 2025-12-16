@@ -192,14 +192,14 @@ namespace musica
             "Species '" + surface_species_name + "' for surface reaction in gas phase is not found\n");
       }
 
-      size_t surface_reaction_species_index = std::distance(phase_species_list.begin(), it);
+      size_t const surface_reaction_species_index = std::distance(phase_species_list.begin(), it);
       micm::PhaseSpecies& surface_reaction_species = phase_species_list[surface_reaction_species_index];
       surface_reaction_species.SetDiffusionCoefficient(
           species_map[surface_species_name].GetProperty<double>(mechanism_configuration::v0::validation::DIFFUSION_COEFF));
 
-      micm::SurfaceRateConstantParameters parameters{ .label_ = reaction.name,
-                                                      .phase_species_ = surface_reaction_species,
-                                                      .reaction_probability_ = reaction.reaction_probability };
+      micm::SurfaceRateConstantParameters const parameters{ .label_ = reaction.name,
+                                                            .phase_species_ = surface_reaction_species,
+                                                            .reaction_probability_ = reaction.reaction_probability };
 
       chemistry.processes.push_back(micm::ChemicalReactionBuilder()
                                         .SetReactants(reactants)

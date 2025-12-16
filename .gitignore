@@ -25,3 +25,10 @@ configs/tuvx/output/
 node_modules/
 musica_env/
 .env
+uv.lock
+
+# Coverage reports
+javascript-coverage/
+.nyc_output/
+coverage/
+*.lcov

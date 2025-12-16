@@ -568,10 +568,16 @@ TEST_F(TuvxCApiTest, CanCreateRadiator)
   Radiator* radiator = CreateRadiator("foo", height, wavelength, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_NE(radiator, nullptr);
+  ASSERT_EQ(radiator->GetName(&error), "foo");
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(GetRadiatorNumberOfHeightSections(radiator, &error), 3);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(GetRadiatorNumberOfWavelengthSections(radiator, &error), 2);
+  ASSERT_TRUE(IsSuccess(error));
 
   // Test for optical depths
-  std::size_t num_vertical_layers = 3;
-  std::size_t num_wavelength_bins = 2;
+  std::size_t const num_vertical_layers = 3;
+  std::size_t const num_wavelength_bins = 2;
   // Allocate array as 1D
   double* optical_depths_1D = new double[num_wavelength_bins * num_vertical_layers];
   // Allocate an array of pointers to each row
@@ -658,7 +664,7 @@ TEST_F(TuvxCApiTest, CanCreateRadiator)
       i++;
     }
   }
-  std::size_t num_streams = 1;
+  std::size_t const num_streams = 1;
   SetRadiatorAsymmetryFactors(radiator, factors[0], num_vertical_layers, num_wavelength_bins, num_streams, &error);
   ASSERT_TRUE(IsSuccess(error));
   for (int row = 0; row < num_vertical_layers; row++)
@@ -716,8 +722,8 @@ TEST_F(TuvxCApiTest, CanCreateRadiatorMap)
   ASSERT_NE(radiator_map, nullptr);
 
   // Test for optical depths
-  std::size_t num_vertical_layers = 3;
-  std::size_t num_wavelength_bins = 2;
+  std::size_t const num_vertical_layers = 3;
+  std::size_t const num_wavelength_bins = 2;
   double* optical_depths_1D = new double[num_wavelength_bins * num_vertical_layers];
   double** optical_depths = new double*[num_vertical_layers];
   for (int row = 0; row < num_vertical_layers; row++)
@@ -756,7 +762,7 @@ TEST_F(TuvxCApiTest, CanCreateRadiatorMap)
   ASSERT_TRUE(IsSuccess(error));
 
   // Test for asymmetery factors
-  std::size_t num_streams = 1;
+  std::size_t const num_streams = 1;
   double* factors_1D = new double[num_wavelength_bins * num_vertical_layers];
   double** factors = new double*[num_vertical_layers];
   for (int row = 0; row < num_vertical_layers; row++)
@@ -854,6 +860,43 @@ TEST_F(TuvxCApiTest, CanCreateRadiatorMap)
   ASSERT_EQ(factors[1][1], 4);
   ASSERT_EQ(factors[2][0], 5);
   ASSERT_EQ(factors[2][1], 6);
+
+  size_t num_radiators = GetNumberOfRadiators(radiator_map, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(num_radiators, 2);
+  Radiator* first_radiator = GetRadiatorByIndex(radiator_map, 0, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_NE(first_radiator, nullptr);
+  ASSERT_EQ(first_radiator->GetName(&error), "foo");
+  ASSERT_TRUE(IsSuccess(error));
+  Radiator* second_radiator = GetRadiatorByIndex(radiator_map, 1, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_NE(second_radiator, nullptr);
+  ASSERT_EQ(second_radiator->GetName(&error), "bar");
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteRadiator(first_radiator, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  DeleteRadiator(second_radiator, &error);
+  ASSERT_TRUE(IsSuccess(error));
+
+  RemoveRadiator(radiator_map, "foo", &error);
+  ASSERT_TRUE(IsSuccess(error));
+  num_radiators = GetNumberOfRadiators(radiator_map, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(num_radiators, 1);
+  Radiator* removed_radiator = GetRadiator(radiator_map, "foo", &error);
+  ASSERT_FALSE(IsSuccess(error));
+  ASSERT_EQ(removed_radiator, nullptr);
+  Radiator* remaining_radiator = GetRadiator(radiator_map, "bar", &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_NE(remaining_radiator, nullptr);
+  DeleteRadiator(remaining_radiator, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  RemoveRadiatorByIndex(radiator_map, 0, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  num_radiators = GetNumberOfRadiators(radiator_map, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_EQ(num_radiators, 0);
 
   // Clean up
   DeleteRadiator(foo_radiator, &error);

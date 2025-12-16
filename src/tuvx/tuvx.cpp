@@ -14,8 +14,7 @@
 namespace musica
 {
   TUVX::TUVX()
-      : tuvx_(nullptr),
-        is_config_only_mode_(false)
+      : tuvx_(nullptr)
   {
   }
 
@@ -37,7 +36,7 @@ namespace musica
       // check that the file exists
       if (!std::filesystem::exists(config_path))
       {
-        *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Config file does not exist") };
+        ToError(MUSICA_ERROR_CATEGORY, 1, "Config file does not exist", error);
         return;
       }
 
@@ -51,25 +50,29 @@ namespace musica
           &parsing_status);
       if (parsing_status == 1)
       {
-        *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create tuvx instance") };
+        ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to create tuvx instance", error);
       }
       else
       {
-        is_config_only_mode_ = false;
-        *error = NoError();
+        NoError(error);
       }
     }
     catch (const std::system_error &e)
     {
-      *error = ToError(e);
+      ToError(e, error);
     }
     catch (...)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create tuvx instance") };
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to create tuvx instance", error);
     }
   }
 
-  void TUVX::CreateFromConfigString(const char *config_string)
+  void TUVX::CreateFromConfigString(
+      const char *config_string,
+      GridMap *grids,
+      ProfileMap *profiles,
+      RadiatorMap *radiators,
+      Error *error)
   {
     int error_code = 0;
     if (config_string == nullptr || strlen(config_string) == 0)
@@ -77,121 +80,121 @@ namespace musica
       throw std::runtime_error("Configuration string is empty");
     }
 
-    tuvx_ = InternalCreateTuvxFromConfigString(config_string, strlen(config_string), &error_code);
-    if (error_code != 0 || tuvx_ == nullptr)
+    try
     {
-      throw std::runtime_error("Failed to create TUV-x instance from JSON/YAML string");
+      tuvx_ = InternalCreateTuvxFromConfigString(
+          config_string,
+          strlen(config_string),
+          grids->grid_map_,
+          profiles->profile_map_,
+          radiators->radiator_map_,
+          &(this->number_of_layers_),
+          &error_code);
+      if (error_code != 0 || tuvx_ == nullptr)
+      {
+        ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to create TUV-x instance from config string", error);
+      }
+      else
+      {
+        NoError(error);
+      }
     }
-
-    is_config_only_mode_ = true;
-    // Get number of layers for this mode
-    this->number_of_layers_ = InternalGetNumberOfLayers(tuvx_, &error_code);
-    if (error_code != 0)
+    catch (const std::system_error &e)
     {
-      throw std::runtime_error("Failed to get number of layers");
+      ToError(e, error);
     }
-  }
-
-  void TUVX::CreateFromConfigFile(const char *config_path)
-  {
-    int error_code = 0;
-
-    // check that the file exists
-    if (!std::filesystem::exists(config_path))
+    catch (...)
     {
-      throw std::runtime_error("Config file does not exist: " + std::string(config_path));
-    }
-
-    tuvx_ = InternalCreateTuvxFromConfigFile(config_path, strlen(config_path), &error_code);
-    if (error_code != 0 || tuvx_ == nullptr)
-    {
-      throw std::runtime_error("Failed to create TUV-x instance from JSON/YAML file");
-    }
-
-    is_config_only_mode_ = true;
-    // Get number of layers for this mode
-    this->number_of_layers_ = InternalGetNumberOfLayers(tuvx_, &error_code);
-    if (error_code != 0)
-    {
-      throw std::runtime_error("Failed to get number of layers");
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to create TUV-x instance from config string", error);
     }
   }
 
   GridMap *TUVX::CreateGridMap(Error *error)
   {
-    *error = NoError();
     int error_code = 0;
 
     GridMap *grid_map = new GridMap(InternalGetGridMap(tuvx_, &error_code));
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create grid map") };
-      return nullptr;
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to create grid map", error);
+    }
+    else
+    {
+      NoError(error);
     }
     return grid_map;
   }
 
   ProfileMap *TUVX::CreateProfileMap(Error *error)
   {
-    *error = NoError();
     int error_code = 0;
     ProfileMap *profile_map = new ProfileMap(InternalGetProfileMap(tuvx_, &error_code));
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create profile map") };
-      return nullptr;
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to create profile map", error);
+    }
+    else
+    {
+      NoError(error);
     }
     return profile_map;
   }
 
   RadiatorMap *TUVX::CreateRadiatorMap(Error *error)
   {
-    *error = NoError();
     int error_code = 0;
     RadiatorMap *radiator_map = new RadiatorMap(InternalGetRadiatorMap(tuvx_, &error_code));
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to create radiator map") };
-      return nullptr;
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to create radiator map", error);
+    }
+    else
+    {
+      NoError(error);
     }
     return radiator_map;
   }
 
-  Mappings TUVX::GetPhotolysisRateConstantsOrdering(Error *error)
+  void TUVX::GetPhotolysisRateConstantsOrdering(Mappings *mappings, Error *error)
   {
-    *error = NoError();
     int error_code = 0;
-    musica::Mappings mappings = InternalGetPhotolysisRateConstantsOrdering(tuvx_, &error_code);
+    InternalGetPhotolysisRateConstantsOrdering(tuvx_, mappings, &error_code);
     if (error_code != 0)
     {
-      *error =
-          Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get photolysis rate constants ordering") };
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to get photolysis rate constants ordering", error);
     }
-    return mappings;
+    else
+    {
+      NoError(error);
+    }
   }
 
-  Mappings TUVX::GetHeatingRatesOrdering(Error *error)
+  void TUVX::GetHeatingRatesOrdering(Mappings *mappings, Error *error)
   {
-    *error = NoError();
     int error_code = 0;
-    musica::Mappings mappings = InternalGetHeatingRatesOrdering(tuvx_, &error_code);
+    InternalGetHeatingRatesOrdering(tuvx_, mappings, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get heating rates ordering") };
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to get heating rates ordering", error);
     }
-    return mappings;
+    else
+    {
+      NoError(error);
+    }
   }
 
-  Mappings TUVX::GetDoseRatesOrdering(Error *error)
+  void TUVX::GetDoseRatesOrdering(Mappings *mappings, Error *error)
   {
-    *error = NoError();
     int error_code = 0;
-    musica::Mappings mappings = InternalGetDoseRatesOrdering(tuvx_, &error_code);
+    InternalGetDoseRatesOrdering(tuvx_, mappings, &error_code);
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to get dose rates ordering") };
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to get dose rates ordering", error);
     }
-    return mappings;
+    else
+    {
+      NoError(error);
+    }
   }
 
   void TUVX::Run(
@@ -199,49 +202,44 @@ namespace musica
       const double earth_sun_distance,
       double *const photolysis_rate_constants,
       double *const heating_rates,
+      double *const dose_rates,
       Error *const error)
   {
-    *error = NoError();
     int error_code = 0;
-    double sza_degrees = solar_zenith_angle * 180.0 / std::numbers::pi;
-    InternalRunTuvx(
-        tuvx_,
-        this->number_of_layers_,
-        sza_degrees,
-        earth_sun_distance,
-        photolysis_rate_constants,
-        heating_rates,
-        &error_code);
+    const double sza_degrees = solar_zenith_angle * 180.0 / std::numbers::pi;
+    try
+    {
+      InternalRunTuvx(
+          tuvx_,
+          this->number_of_layers_,
+          sza_degrees,
+          earth_sun_distance,
+          photolysis_rate_constants,
+          heating_rates,
+          dose_rates,
+          &error_code);
+    }
+    catch (const std::system_error &e)
+    {
+      ToError(e, error);
+      return;
+    }
+    catch (...)
+    {
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to run TUV-x", error);
+      return;
+    }
     if (error_code != 0)
     {
-      *error = Error{ 1, CreateString(MUSICA_ERROR_CATEGORY), CreateString("Failed to run TUV-x") };
-    }
-  }
-
-  void TUVX::RunFromConfig(double *const photolysis_rate_constants, double *const heating_rates, double *const dose_rates)
-  {
-    if (!is_config_only_mode_)
-    {
-      throw std::runtime_error("RunFromConfig can only be used with CreateFromConfigOnly");
-    }
-
-    int error_code = 0;
-    InternalRunTuvxFromConfig(tuvx_, photolysis_rate_constants, heating_rates, dose_rates, &error_code);
-    if (error_code != 0)
-    {
-      throw std::runtime_error("Failed to run TUV-x from config");
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to run TUV-x", error);
+      return;
     }
   }
 
   int TUVX::GetPhotolysisRateConstantCount()
   {
-    if (!is_config_only_mode_)
-    {
-      throw std::runtime_error("GetPhotolysisRateConstantCount requires config-only mode");
-    }
-
     int error_code = 0;
-    int count = InternalGetPhotolysisRateConstantCount(tuvx_, &error_code);
+    int const count = InternalGetPhotolysisRateConstantCount(tuvx_, &error_code);
     if (error_code != 0)
     {
       throw std::runtime_error("Failed to get photolysis rate constant count");
@@ -251,13 +249,8 @@ namespace musica
 
   int TUVX::GetHeatingRateCount()
   {
-    if (!is_config_only_mode_)
-    {
-      throw std::runtime_error("GetHeatingRateCount requires config-only mode");
-    }
-
     int error_code = 0;
-    int count = InternalGetHeatingRateCount(tuvx_, &error_code);
+    int const count = InternalGetHeatingRateCount(tuvx_, &error_code);
     if (error_code != 0)
     {
       throw std::runtime_error("Failed to get heating rate count");
@@ -267,13 +260,8 @@ namespace musica
 
   int TUVX::GetDoseRateCount()
   {
-    if (!is_config_only_mode_)
-    {
-      throw std::runtime_error("GetDoseRateCount requires config-only mode");
-    }
-
     int error_code = 0;
-    int count = InternalGetDoseRateCount(tuvx_, &error_code);
+    int const count = InternalGetDoseRateCount(tuvx_, &error_code);
     if (error_code != 0)
     {
       throw std::runtime_error("Failed to get dose rate count");
@@ -283,32 +271,11 @@ namespace musica
 
   int TUVX::GetNumberOfLayers()
   {
-    if (!is_config_only_mode_)
-    {
-      throw std::runtime_error("GetNumberOfLayers requires config-only mode");
-    }
-
     int error_code = 0;
-    int count = InternalGetNumberOfLayers(tuvx_, &error_code);
+    int const count = InternalGetNumberOfLayers(tuvx_, &error_code);
     if (error_code != 0)
     {
       throw std::runtime_error("Failed to get number of layers");
-    }
-    return count;
-  }
-
-  int TUVX::GetNumberOfSzaSteps()
-  {
-    if (!is_config_only_mode_)
-    {
-      throw std::runtime_error("GetNumberOfSzaSteps requires config-only mode");
-    }
-
-    int error_code = 0;
-    int count = InternalGetNumberOfSzaSteps(tuvx_, &error_code);
-    if (error_code != 0)
-    {
-      throw std::runtime_error("Failed to get number of SZA steps");
     }
     return count;
   }

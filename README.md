@@ -6,6 +6,7 @@
 [![ubuntu](https://github.com/NCAR/musica/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/ubuntu.yml)
 [![windows](https://github.com/NCAR/musica/actions/workflows/windows.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/windows.yml)
 [![Python tests](https://github.com/NCAR/musica/actions/workflows/python-tests.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/python-tests.yml)
+[![Javascript tests](https://github.com/NCAR/musica/actions/workflows/javascript_integration.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/javascript_integration.yml)
 [![DOI](https://zenodo.org/badge/550370528.svg)](https://zenodo.org/doi/10.5281/zenodo.7458559)
 [![PyPI version](https://badge.fury.io/py/musica.svg)](https://pypi.org/p/musica)
 [![FAIR checklist badge](https://fairsoftwarechecklist.net/badge.svg)](https://fairsoftwarechecklist.net/v0.2?f=31&a=32113&i=22322&r=123)
@@ -66,6 +67,30 @@ BUILD_GPU=1 pip install -e .
 ```
 
 ## CMake
+
+If you plan to build from source, you will need to install these packages, at a minimum. More packages may be
+required for more advancded installations.
+
+- cmake
+- pkg-config
+- netcdf
+- netcdf-fortran
+- blas
+- lapack
+
+MUSICA does have more dependencies that it builds with, but those are pulled in with cmake. If you want
+to use your own installation of these, you may, and our files are setup so that an installed package will
+be used rather than downloading one during the build, assuming you've installed it into a place where cmake
+can find it.
+
+**optional, pulled in by cmake**
+- pybind11
+- google test
+- micm
+- tuvx
+- mechanism configuration
+- carma
+
 ```
 $ git clone https://github.com/NCAR/musica.git
 $ cd musica
@@ -160,6 +185,69 @@ import matplotlib.pyplot as plt
 df.plot(x='time.s', y=['CONC.A.mol m-3', 'CONC.B.mol m-3', 'CONC.C.mol m-3'], title='Concentration over time', ylabel='Concentration (mol m-3)', xlabel='Time (s)')
 plt.show()
 ```
+
+# Using the MUSICA CLI
+
+MUSICA provides a command-line interface (`musica-cli`) for working with examples and configuration conversion. The CLI is installed automatically when you install MUSICA via pip.
+
+## Installation with Tutorial Dependencies
+
+To use all features of the examples, install MUSICA with the tutorial dependencies:
+
+```bash
+pip install 'musica[tutorial]'
+```
+
+## Basic Usage
+
+Check the installed version:
+```bash
+musica-cli --version
+```
+
+View available options:
+```bash
+musica-cli -h
+```
+
+## Available Options
+
+| Option | Description |
+| ------ | ----------- |
+| `-h`, `--help` | Show help message and exit |
+| `-e`, `--example` | Name of the example to copy out |
+| `-o`, `--output` | Path to save the output to |
+| `-v`, `--verbose` | Increase logging verbosity. Use `-v` for info, `-vv` for debug |
+| `--version` | Show the installed MUSICA version |
+| `--convert` | Path to a MUSICA v0 configuration to convert to v1 format |
+
+## Available Examples
+
+| Example Name | Description |
+| ------------ | ----------- |
+| `CARMA_Aluminum` | A CARMA example for simulating aluminum aerosol particles |
+| `CARMA_Sulfate` | A CARMA example for simulating sulfate aerosol particles |
+| `Sulfate_Box_Model` | A box model example for simulating sulfate aerosol particles |
+| `TS1LatinHyperCube` | A Latin hypercube sampling example for the TS1 mechanism |
+
+## Example Workflow
+
+Copy an example to your current directory:
+```bash
+musica-cli -e TS1LatinHyperCube
+```
+
+Copy an example to a specific directory:
+```bash
+musica-cli -e TS1LatinHyperCube -o /path/to/output/
+```
+
+Convert a MUSICA v0 configuration to v1 format:
+```bash
+musica-cli --convert /path/to/v0/config.json -o /path/to/output/
+```
+
+For more detailed documentation, see the [official documentation](https://ncar.github.io/musica/index.html).
 
 # Available grids
 Pre-made grids for use in MUSICA are available [here](https://wiki.ucar.edu/display/MUSICA/Available+Grids).
