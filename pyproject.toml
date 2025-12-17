@@ -139,7 +139,7 @@ test-sources = ["configs"]
 
 test-command = [
   '''python -c "import musica; print(f'musica v{musica.__version__}')"''',
-  "pytest -sv {project}/python/test",
+  "pytest {project}/python/test",
   "musica-cli --help",
 ]
 
