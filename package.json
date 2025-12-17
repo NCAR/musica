@@ -1,6 +1,6 @@
 {
   "name": "musica-addon",
-  "version": "0.12.2",
+  "version": "0.14.1",
   "description": "Native Node.js addon for MUSICA atmospheric chemistry modeling",
   "main": "./javascript/index.js",
   "exports": {
