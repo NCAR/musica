@@ -1,5 +1,7 @@
 // WASM module wrapper for MUSICA
 // This provides a JavaScript-friendly interface to the WASM module
+// NOTE: The WASM module file is expected to be named 'musica.js' as configured
+// in javascript/CMakeLists.txt (OUTPUT_NAME "musica")
 
 let musicaModule = null;
 
@@ -29,8 +31,11 @@ async function initModule() {
       throw new Error('MUSICA WASM module not found. Please build the WASM module first. Error: ' + error.message);
     }
   } else {
-    // Browser environment
-    throw new Error('Browser environment not yet fully supported. Please load musica.js script first.');
+    // Browser environment - requires musica.js to be loaded via script tag first
+    if (typeof createMusicaModule === 'undefined') {
+      throw new Error('Browser environment detected. Please load musica.js via script tag before using this module. See example.html for a working example.');
+    }
+    musicaModule = await createMusicaModule();
   }
   
   return musicaModule;

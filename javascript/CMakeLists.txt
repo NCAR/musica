@@ -13,6 +13,9 @@ if(EMSCRIPTEN)
     target_link_libraries(musica-wasm musica::musica)
     
     # Set output name and location
+    # NOTE: Writing to source directory is intentional for ease of use and
+    # to keep the WASM files alongside the JavaScript wrapper that uses them.
+    # The generated files (musica.js, musica.wasm) are excluded via .gitignore.
     set_target_properties(musica-wasm PROPERTIES
         OUTPUT_NAME "musica"
         SUFFIX ".js"

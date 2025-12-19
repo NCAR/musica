@@ -1,6 +1,9 @@
 const { describe, it } = require('node:test');
 const path = require('path');
 
+// Constant for build instructions to avoid duplication
+const WASM_BUILD_INSTRUCTIONS = 'To build WASM: emcmake cmake -S . -B build-wasm -DCMAKE_BUILD_TYPE=Release -DMUSICA_ENABLE_JAVASCRIPT=ON -DMUSICA_ENABLE_TUVX=OFF -DMUSICA_ENABLE_CARMA=OFF && cmake --build build-wasm';
+
 describe('WASM Version Tests', () => {
   it('should return the correct MUSICA version from WASM', async () => {
     try {
@@ -15,7 +18,7 @@ describe('WASM Version Tests', () => {
     } catch (error) {
       if (error.message.includes('WASM module not found')) {
         console.log('WASM module not built yet. This is expected if you have not run the WASM build.');
-        console.log('To build WASM: emcmake cmake -S . -B build-wasm -DCMAKE_BUILD_TYPE=Release -DMUSICA_ENABLE_JAVASCRIPT=ON -DMUSICA_ENABLE_TUVX=OFF -DMUSICA_ENABLE_CARMA=OFF && cmake --build build-wasm');
+        console.log(WASM_BUILD_INSTRUCTIONS);
       } else {
         throw error;
       }
@@ -34,7 +37,7 @@ describe('WASM Version Tests', () => {
     } catch (error) {
       if (error.message.includes('WASM module not found')) {
         console.log('WASM module not built yet. This is expected if you have not run the WASM build.');
-        console.log('To build WASM: emcmake cmake -S . -B build-wasm -DCMAKE_BUILD_TYPE=Release -DMUSICA_ENABLE_JAVASCRIPT=ON -DMUSICA_ENABLE_TUVX=OFF -DMUSICA_ENABLE_CARMA=OFF && cmake --build build-wasm');
+        console.log(WASM_BUILD_INSTRUCTIONS);
       } else {
         throw error;
       }
