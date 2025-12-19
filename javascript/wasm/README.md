@@ -63,6 +63,8 @@ const musica = require('musica-addon/wasm');
 
 ### Browser
 
+Copy `musica.js` and `musica.wasm` to your web server directory, then:
+
 ```html
 <script src="musica.js"></script>
 <script>
@@ -75,6 +77,8 @@ const musica = require('musica-addon/wasm');
   });
 </script>
 ```
+
+See `example.html` in this directory for a complete working example.
 
 ## Differences from Node.js Native Addon
 
