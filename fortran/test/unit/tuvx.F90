@@ -47,7 +47,7 @@ contains
     use musica_tuvx,              only : tuvx_t
 
     character(len=*), parameter :: my_name = "TUV-x fixed configuration tests"
-    character(len=*), parameter :: config_path = "configs/tuvx/data/fixed/config.json"
+    character(len=*), parameter :: config_path = "configs/tuvx/fixed/config.json"
     type(grid_map_t),     pointer :: grids
     type(profile_map_t),  pointer :: profiles
     type(radiator_map_t), pointer :: radiators
@@ -133,7 +133,7 @@ contains
     use musica_tuvx,              only : tuvx_t
 
     character(len=*), parameter :: my_name = "TUV-x from-host configuration tests"
-    character(len=*), parameter :: config_path = "configs/tuvx/data/from_host/config.json"
+    character(len=*), parameter :: config_path = "configs/tuvx/from_host/config.json"
     type(grid_t),         pointer :: heights, wavelengths
     type(grid_map_t),     pointer :: grids
     type(profile_t),      pointer :: temperatures
