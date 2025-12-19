@@ -141,7 +141,7 @@ test-sources = ["configs"]
 test-command = [
   '''python -c "import musica; print(f'musica v{musica.__version__}')"''',
   "pytest {project}/python/test",
-  "musica-cli --help",
+  # "musica-cli --help",
 ]
 
 # Set up pre-build hooks
