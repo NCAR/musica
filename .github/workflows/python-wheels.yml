@@ -39,31 +39,25 @@ jobs:
         include:
           # Linux builds
           - os: ubuntu-latest
-            python-version: "3.14"
             cibw_archs: "x86_64 i686"
           
           - os: ubuntu-24.04-arm
-            python-version: "3.14"
             cibw_archs: "aarch64"
 
           # Windows builds (separate runners needed for different archs)
           - os: windows-latest
-            python-version: "3.14"
             cibw_archs: "AMD64"
           
           - os: windows-11-arm
-            python-version: "3.14"
             cibw_archs: "ARM64"
 
           # macOS Intel
           - os: macos-15-intel
-            python-version: "3.14"
             cibw_archs: "x86_64"
             fc: gfortran-15
           
           # macOS Apple Silicon
           - os: macos-latest
-            python-version: "3.14"
             cibw_archs: "arm64"
             fc: gfortran-15
 
@@ -74,7 +68,7 @@ jobs:
     
     - uses: actions/setup-python@v5
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: "3.14"
   
     - name: Set up Windows AMD64
       if: matrix.os == 'windows-latest'
@@ -109,7 +103,7 @@ jobs:
     - name: Upload wheels
       uses: actions/upload-artifact@v4
       with:
-        name: cibw-wheels-${{ matrix.os }}-${{ matrix.cibw_archs }}-py${{ matrix.python-version }}
+        name: cibw-wheels-${{ matrix.os }}-${{ matrix.cibw_archs }}
         path: wheelhouse/*.whl
 
   upload_all:
