@@ -9,9 +9,7 @@
   },
   "scripts": {
     "build": "cmake-js -p 4 compile --CDMUSICA_ENABLE_JAVASCRIPT=ON --CDMUSICA_ENABLE_PYTHON_LIBRARY=OFF --CDMUSICA_ENABLE_TUVX=OFF --CDMUSICA_ENABLE_CARMA=OFF --CDMUSICA_ENABLE_TESTS=OFF --CDMUSICA_ENABLE_PIC=ON",
-    "build:wasm:help": "echo 'To build WASM, use: emcmake cmake -S . -B build-wasm -DCMAKE_BUILD_TYPE=Release -DMUSICA_ENABLE_JAVASCRIPT=ON -DMUSICA_ENABLE_TUVX=OFF -DMUSICA_ENABLE_CARMA=OFF && cmake --build build-wasm'",
-    "rebuild": "cmake-js rebuild",
-    "clean": "cmake-js clean",
+    "build:wasm": "emcmake cmake -S . -B build-wasm -DCMAKE_BUILD_TYPE=Release -DMUSICA_ENABLE_JAVASCRIPT=ON -DMUSICA_ENABLE_TUVX=OFF -DMUSICA_ENABLE_CARMA=OFF && cmake --build build-wasm",
     "sync-version": "node scripts/extract_version.js sync",
     "test": "node --test 'javascript/tests/**/*.test.js'",
     "test:integration": "node --test 'javascript/tests/integration/*.test.js'",

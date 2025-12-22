@@ -8,8 +8,11 @@ on:
   pull_request:
   workflow_dispatch:
 
+env:
+  EM_VERSION: 3.1.73
+
 jobs:
-  test:
+  node:
     strategy:
       fail-fast: false
       matrix: 
@@ -47,3 +50,39 @@ jobs:
     - name: Run tests
       run: npm run test
       
+  wasm:
+    name: Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "lts/*"
+
+      - name: Setup emscripten
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          no-install: true
+          version: ${{env.EM_VERSION}}
+          actions-cache-folder: "emsdk-cache"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build TypeScript
+        run: npm run build:ts
+
+      - name: Build wasm
+        run: |
+          emsdk install ${EM_VERSION}
+          emsdk activate ${EM_VERSION}
+          source $(dirname $(which emsdk))/emsdk_env.sh
+          which node
+          which clang++
+          npm run build:wasm
+
+      - name: Test
+        run: npm test

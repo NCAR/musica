@@ -5,6 +5,26 @@
 
 let musicaModule = null;
 
+const isNodeEnv = typeof process !== 'undefined' && process.versions && process.versions.node;
+
+// Fail fast at import time
+// when the compiled `.wasm` isn't present. Browsers cannot synchronously
+// verify remote resources at import time, so this check is Node-only.
+if (isNodeEnv) {
+  if (!isNodeEnv) return;
+  const path = require('path');
+  const fs = require('fs');
+  const wasmFile = path.resolve(__dirname, 'musica.wasm');
+  if (!fs.existsSync(wasmFile)) {
+    throw new Error(`MUSICA WASM file not found at ${wasmFile}. Build the WASM module before requiring this file.`);
+  }
+  const createMusicaModule = require('./musica.js');
+  musicaModule = await createMusicaModule();
+}
+else {
+
+}
+
 /**
  * Initialize the MUSICA WASM module
  * This must be called before using any other functions
@@ -14,15 +34,12 @@ async function initModule() {
   if (musicaModule) {
     return musicaModule;
   }
-  
+
   // In a browser environment, the WASM files should be served from the same directory
   // In Node.js, we need to load from the filesystem
   const isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
-  
+
   if (isNode) {
-    const path = require('path');
-    const fs = require('fs');
-    
     // Try to load the module factory
     try {
       const createMusicaModule = require('./musica.js');
@@ -37,7 +54,7 @@ async function initModule() {
     }
     musicaModule = await createMusicaModule();
   }
-  
+
   return musicaModule;
 }
 
