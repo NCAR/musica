@@ -42,7 +42,7 @@ const musica = require('musica-addon/wasm');
 ### Node.js Native Addon
 
 ```bash
-npm run build
+npm run build:node
 ```
 
 ### WASM Module
@@ -58,19 +58,8 @@ cd emsdk
 source ./emsdk_env.sh
 ```
 
-Then build the WASM module:
-
 ```bash
-# Configure
-emcmake cmake -S . -B build-wasm \
-  -DCMAKE_BUILD_TYPE=Release \
-  -DMUSICA_ENABLE_JAVASCRIPT=ON \
-  -DMUSICA_ENABLE_TUVX=OFF \
-  -DMUSICA_ENABLE_CARMA=OFF \
-  -DMUSICA_ENABLE_TESTS=OFF
-
-# Build
-cmake --build build-wasm
+npm run build:wasm
 ```
 
 The WASM files (`musica.js` and `musica.wasm`) will be automatically placed in the `javascript/wasm/` directory.
@@ -99,23 +88,3 @@ python3 -m http.server 8000
 
 You'll then be able to open http://localhost:8000/example.html in your browser
 and see musica return data from C++ through web assembly!
-
-## API Compatibility
-
-Both interfaces provide the same functionality, with the main differences being:
-
-| Feature | Native Addon | WASM |
-|---------|-------------|------|
-| API Style | Synchronous | Asynchronous (Promises) |
-| Initialization | Automatic | Manual (`initModule()`) |
-| Performance | Faster | Slightly slower |
-| Platform | Node.js only | Node.js + Browsers |
-| Binary Size | Varies by platform | ~same for all platforms |
-
-## Current Features
-
-Both interfaces currently support:
-- ✅ Getting MUSICA version
-- ✅ Getting MICM version
-
-Additional features from the native addon will be gradually added to the WASM interface in future updates.
