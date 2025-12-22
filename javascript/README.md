@@ -2,22 +2,8 @@
 
 MUSICA provides two JavaScript interfaces:
 
-1. **Node.js Native Addon** - High performance native C++ bindings for Node.js
-2. **WebAssembly (WASM)** - Portable interface for browsers and environments without native addon support
-
-## Choosing the Right Interface
-
-### Use the Node.js Native Addon when:
-- Running in Node.js environments
-- Performance is critical
-- You need full access to all MUSICA features
-- Platform-specific binaries are acceptable
-
-### Use the WASM Interface when:
-- Running in web browsers
-- You need maximum portability
-- You cannot use native addons (e.g., serverless environments)
-- You want a single binary that works across platforms
+1. **Node.js Native Addon** - Can include the full suite of musica software since a Fortra compiler can be made available
+2. **WebAssembly (WASM)** - Portable interface for browsers and environments without native addon support. This can't—[at least not without some work](https://gws.phd/posts/fortran_wasm/)—provide support for the Fortran parts of musica.
 
 ## Usage Examples
 
@@ -100,6 +86,19 @@ npm test
 ```bash
 npm run test:unit:wasm
 ```
+
+in [wasm](wasm) there is an [example.html](wasm/example.html) file which will
+display the version number from musica by making a call into musica with the built library.
+
+To run this, the file must be provided by a web server. A simple way to view this is
+to serve this file with python. Navigate to the [wasm](wasm) directory and run this command
+
+```bash
+python3 -m http.server 8000
+```
+
+You'll then be able to open http://localhost:8000/example.html in your browser
+and see musica return data from C++ through web assembly!
 
 ## API Compatibility
 
