@@ -24,7 +24,6 @@ dependencies = [
   "numpy>=2.0.0",
   "pandas>=2.2.0",
   "pyyaml>=6.0.2",
-  "ussa1976>=v0.3.4",
   "xarray>=2022.3.0",
 ]
 
@@ -34,7 +33,8 @@ homepage = "https://wiki.ucar.edu/display/MUSICA/MUSICA+Home"
 [project.optional-dependencies]
 test = [
   "pytest>=7.0.0",
-  "pytest-cov>=4.0.0"
+  "pytest-cov>=4.0.0",
+  "ussa1976>=0.3.4; platform_machine != 'i686' and (platform_machine != 'arm64' and platform_system != 'Windows')"
 ]
 
 gpu = ["nvidia-cublas-cu12>=12.6.4.1", "nvidia-cuda-runtime-cu12>=12.6.68"]
@@ -102,6 +102,12 @@ inherit.cmake.define = "append"
 cmake.define.CMAKE_C_COMPILER = "clang"
 cmake.define.CMAKE_CXX_COMPILER = "clang++"
 
+[[tool.scikit-build.overrides]]
+if.platform-system = "win32"
+if.platform-machine = "ARM64"
+inherit.cmake.define = "append"
+cmake.define.MUSICA_ENABLE_CARMA = "OFF"
+
 # dynamically read the version: https://scikit-build-core.readthedocs.io/en/latest/configuration.html#dynamic-metadata
 [tool.scikit-build.metadata.version]
 provider = "scikit_build_core.metadata.regex"
@@ -123,8 +129,20 @@ version = "${version}"
 build-verbosity = 3
 
 # Add your desired build configuration
-build = ["cp310-*", "cp311-*", "cp312-*", "cp313-*", "cp314-*"]
+# build = ["cp310-*", "cp311-*", "cp312-*", "cp313-*", "cp314-*"]
+build = ["cp314-*"]
 skip = ["*musllinux*"]
+
+# Will cause the wheel to be installed with `pip install <wheel_file>[test]`
+test-extras = ["test"]
+
+test-sources = ["configs"]
+
+test-command = [
+  '''python -c "import musica; print(f'musica v{musica.__version__}')"''',
+  "pytest {project}/python/test",
+  # "musica-cli --help",
+]
 
 # Set up pre-build hooks
 [tool.cibuildwheel.macos]
@@ -147,3 +165,5 @@ BUILD_GPU = 1
 
 [tool.cibuildwheel.windows]
 repair-wheel-command = "bash python/tools/repair_wheel_windows.sh {wheel} {dest_dir}"
+# Only build Windows ARM64 wheels for Python 3.11+
+skip = ["cp39-win_arm64", "cp310-win_arm64"]
