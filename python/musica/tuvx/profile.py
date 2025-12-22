@@ -45,10 +45,12 @@ if backend.tuvx_available():
 
         # Set optional values if provided, otherwise calculate them
         if edge_values is None and midpoint_values is None:
-            raise ValueError("At least one of edge_values or midpoint_values must be provided.")
+            self.edge_values = np.zeros(grid.num_sections + 1, dtype=np.float64)
+            self.midpoint_values = np.zeros(grid.num_sections, dtype=np.float64)
+            self.layer_densities = np.zeros(grid.num_sections, dtype=np.float64)
         if edge_values is not None:
             self.edge_values = edge_values
-        else:
+        elif midpoint_values is not None:
             edge_values = np.zeros(midpoint_values.size + 1, dtype=midpoint_values.dtype)
             edge_values[1:-1] = 0.5 * (midpoint_values[:-1] + midpoint_values[1:])
             # Extrapolate first and last edges
@@ -57,7 +59,7 @@ if backend.tuvx_available():
             self.edge_values = edge_values
         if midpoint_values is not None:
             self.midpoint_values = midpoint_values
-        else:
+        elif edge_values is not None:
             self.midpoint_values = 0.5 * (edge_values[:-1] + edge_values[1:])
         if layer_densities is not None:
             if calculate_layer_densities:
