@@ -138,10 +138,12 @@ test-extras = ["test"]
 
 test-sources = ["configs"]
 
+test-skip = "*-*linux_i686"
+
 test-command = [
   '''python -c "import musica; print(f'musica v{musica.__version__}')"''',
+  "musica-cli --help",
   "pytest {project}/python/test",
-  # "musica-cli --help",
 ]
 
 # Set up pre-build hooks
