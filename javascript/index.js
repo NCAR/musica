@@ -1,4 +1,5 @@
-var addon = require('bindings')('musica-addon.node');
+const addon = require('./load_addon');
+
 const { GAS_CONSTANT, AVOGADRO, BOLTZMANN } = require('./micm/utils.js');
 const { SolverType } = require('./micm/solver.js');
 const { SolverState, SolverStats, SolverResult } = require('./micm/solver_result.js');

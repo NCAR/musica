@@ -27,7 +27,6 @@ if(EMSCRIPTEN)
         "SHELL:-s WASM=1"
         "SHELL:-s MODULARIZE=1"
         "SHELL:-s EXPORT_NAME='createMusicaModule'"
-        "SHELL:-s EXPORTED_RUNTIME_METHODS=['ccall','cwrap']"
         "SHELL:-s DISABLE_EXCEPTION_CATCHING=0"
         "SHELL:-s ALLOW_MEMORY_GROWTH=1"
         "SHELL:--bind"

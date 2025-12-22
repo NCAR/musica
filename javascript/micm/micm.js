@@ -1,5 +1,4 @@
-var addon = require('bindings')('musica-addon.node')
-
+const addon = require('../load_addon');
 
 const { State } = require('./state.js');
 const { SolverType } = require('./solver');
