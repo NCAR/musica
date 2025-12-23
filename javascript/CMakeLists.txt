@@ -7,7 +7,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Check if we're building with Emscripten for WASM
 if(EMSCRIPTEN)
     # Building WASM module
-    add_executable(musica-wasm src/musica_wasm.cpp)
+    add_executable(musica-wasm 
+        src/musica_wasm.cpp
+        src/micm/state_wrapper.cpp
+        src/micm/micm_wrapper.cpp
+    )
     
     # Link against MUSICA
     target_link_libraries(musica-wasm musica::musica)
