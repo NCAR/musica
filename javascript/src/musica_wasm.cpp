@@ -28,6 +28,20 @@ std::string GetMicmVersion()
   return std::string(micm::GetMicmVersion());
 }
 
+// Helper function to convert JavaScript array to C++ vector
+template<typename T>
+std::vector<T> jsArrayToVector(const val& jsArray)
+{
+  std::vector<T> vec;
+  unsigned int length = jsArray["length"].as<unsigned int>();
+  vec.reserve(length);
+  for (unsigned int i = 0; i < length; ++i)
+  {
+    vec.push_back(jsArray[i].as<T>());
+  }
+  return vec;
+}
+
 // ============================================================================
 // StateWrapper bindings
 // ============================================================================
@@ -50,7 +64,7 @@ class StateWrapperWASM
     {
       std::string key = keys[i].as<std::string>();
       val value = concentrations[key];
-      std::vector<double> vec = vecFromJSArray<double>(value);
+      std::vector<double> vec = jsArrayToVector<double>(value);
       conc_map[key] = vec;
     }
     wrapper_.SetConcentrations(conc_map);
@@ -76,7 +90,7 @@ class StateWrapperWASM
     {
       std::string key = keys[i].as<std::string>();
       val value = params[key];
-      std::vector<double> vec = vecFromJSArray<double>(value);
+      std::vector<double> vec = jsArrayToVector<double>(value);
       param_map[key] = vec;
     }
     wrapper_.SetUserDefinedRateParameters(param_map);
@@ -103,17 +117,17 @@ class StateWrapperWASM
 
     if (conditions.hasOwnProperty("temperatures"))
     {
-      temp_vec = vecFromJSArray<double>(conditions["temperatures"]);
+      temp_vec = jsArrayToVector<double>(conditions["temperatures"]);
       temperatures = &temp_vec;
     }
     if (conditions.hasOwnProperty("pressures"))
     {
-      press_vec = vecFromJSArray<double>(conditions["pressures"]);
+      press_vec = jsArrayToVector<double>(conditions["pressures"]);
       pressures = &press_vec;
     }
     if (conditions.hasOwnProperty("air_densities"))
     {
-      air_vec = vecFromJSArray<double>(conditions["air_densities"]);
+      air_vec = jsArrayToVector<double>(conditions["air_densities"]);
       air_densities = &air_vec;
     }
 
