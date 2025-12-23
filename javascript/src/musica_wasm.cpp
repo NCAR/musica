@@ -54,6 +54,14 @@ class StateWrapperWASM
   {
   }
 
+  // Move constructor and assignment
+  StateWrapperWASM(StateWrapperWASM&& other) = default;
+  StateWrapperWASM& operator=(StateWrapperWASM&& other) = default;
+
+  // Delete copy constructor and assignment
+  StateWrapperWASM(const StateWrapperWASM&) = delete;
+  StateWrapperWASM& operator=(const StateWrapperWASM&) = delete;
+
   void setConcentrations(const val& concentrations)
   {
     std::map<std::string, std::vector<double>> conc_map;
@@ -209,6 +217,20 @@ class StateWrapperWASM
 class MICMWrapperWASM
 {
  public:
+  // Constructor
+  MICMWrapperWASM(std::unique_ptr<MICMWrapper> wrapper)
+      : wrapper_(std::move(wrapper))
+  {
+  }
+
+  // Move constructor and assignment
+  MICMWrapperWASM(MICMWrapperWASM&& other) = default;
+  MICMWrapperWASM& operator=(MICMWrapperWASM&& other) = default;
+
+  // Delete copy constructor and assignment
+  MICMWrapperWASM(const MICMWrapperWASM&) = delete;
+  MICMWrapperWASM& operator=(const MICMWrapperWASM&) = delete;
+
   static MICMWrapperWASM fromConfigPath(const std::string& config_path, int solver_type)
   {
     auto wrapper = MICMWrapper::FromConfigPath(config_path, solver_type);
@@ -247,7 +269,7 @@ class MICMWrapperWASM
     stats.set("rejected", val(result.stats_.rejected_));
     stats.set("decompositions", val(result.stats_.decompositions_));
     stats.set("solves", val(result.stats_.solves_));
-    stats.set("singular", val(result.stats_.singular_));
+    stats.set("final_time", val(result.stats_.final_time_));
     
     js_result.set("stats", stats);
     
@@ -260,11 +282,6 @@ class MICMWrapperWASM
   }
 
  private:
-  MICMWrapperWASM(std::unique_ptr<MICMWrapper> wrapper)
-      : wrapper_(std::move(wrapper))
-  {
-  }
-
   std::unique_ptr<MICMWrapper> wrapper_;
 };
 
