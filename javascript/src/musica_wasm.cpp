@@ -49,6 +49,7 @@ std::vector<T> jsArrayToVector(const val& jsArray)
 class StateWrapperWASM
 {
  public:
+  // Constructor - takes ownership of the state pointer via StateWrapper
   explicit StateWrapperWASM(musica::State* state)
       : wrapper_(std::make_unique<StateWrapper>(state))
   {
