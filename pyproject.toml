@@ -171,5 +171,5 @@ skip = ["cp39-win_arm64", "cp310-win_arm64"]
 test-command = [
   "python -c \"import musica; print(musica.__version__)\"",
   "musica-cli --help",
-  "pytest {project}\\python\\test --ignore-glob='*tuvx*'",
+  "pytest {project}\\python\\test -k 'not tuvx'",
 ]
