@@ -1,17 +1,25 @@
 const { isScalarNumber } = require('./utils');
 
 class State {
-	constructor(nativeState) {
+	constructor(nativeState, backendType = 'node') {
 		this._nativeState = nativeState;
+		this._backendType = backendType;
 	}
 
 	setConcentrations(concentrations) {
-		// Convert to format expected by native addon
+		// Convert to format expected by native addon/wasm
 		const formatted = {};
 		for (const [name, value] of Object.entries(concentrations)) {
 			formatted[name] = isScalarNumber(value) ? [value] : value;
 		}
-		this._nativeState.setConcentrations(formatted);
+		
+		if (this._backendType === 'wasm') {
+			// WASM expects a JavaScript object
+			this._nativeState.setConcentrations(formatted);
+		} else {
+			// Node.js addon
+			this._nativeState.setConcentrations(formatted);
+		}
 	}
 
 	getConcentrations() {
@@ -73,11 +81,23 @@ class State {
 	}
 
 	concentrationStrides() {
-		return this._nativeState.concentrationStrides();
+		const result = this._nativeState.concentrationStrides();
+		// WASM returns an object, Node.js might return different format
+		// Normalize to object format
+		if (typeof result === 'object' && 'cell_stride' in result) {
+			return result;
+		}
+		return result;
 	}
 
 	userDefinedRateParameterStrides() {
-		return this._nativeState.userDefinedRateParameterStrides();
+		const result = this._nativeState.userDefinedRateParameterStrides();
+		// WASM returns an object, Node.js might return different format
+		// Normalize to object format
+		if (typeof result === 'object' && 'cell_stride' in result) {
+			return result;
+		}
+		return result;
 	}
 }
 module.exports = { State };
