@@ -7,11 +7,8 @@
 const { describe, it } = require('node:test');
 const assert = require('node:assert');
 const path = require('path');
-const { MICM } = require('../../../micm/micm');
-const { State } = require('../../../micm/state');
-const { SolverType } = require('../../../micm/solver');
-const { SolverResult, SolverStats } = require('../../../micm/solver_result');
-const musica = require('musica-addon');
+const musica = require('@ncar/musica');
+const { MICM, SolverType, State, SolverResult, SolverStats } = musica.micmSolver;
 const { types, reactionTypes, Mechanism } = musica.mechanismConfiguration;
 const { Species, Phase, ReactionComponent } = types;
 
