@@ -47,17 +47,8 @@ async function initModule() {
   }
 
   // Wrap MICM and State to provide a consistent API
-  if (musicaModule.MICM) {
-    const OriginalMICM = musicaModule.MICM;
-    musicaModule.MICM = {
-      fromConfigPath: (configPath, solverType = 1) => {
-        return OriginalMICM.fromConfigPath(configPath, solverType);
-      },
-      fromConfigString: (configString, solverType = 1) => {
-        return OriginalMICM.fromConfigString(configString, solverType);
-      }
-    };
-  }
+  // Note: We don't need to wrap these classes as embind already provides
+  // the correct interface. Just return the module as-is.
 
   return musicaModule;
 }

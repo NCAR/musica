@@ -15,7 +15,7 @@ function getBackend() {
 			backendModule = addon;
 			backendType = 'node';
 		} catch (error) {
-			throw new Error('Backend not available. For WASM, please initialize with MICM.initWasm() first.');
+			throw new Error('Backend not available. For WASM, please initialize with "await MICM.initWasm()" first.');
 		}
 	}
 	return { backend: backendModule, type: backendType };

@@ -12,14 +12,7 @@ class State {
 		for (const [name, value] of Object.entries(concentrations)) {
 			formatted[name] = isScalarNumber(value) ? [value] : value;
 		}
-		
-		if (this._backendType === 'wasm') {
-			// WASM expects a JavaScript object
-			this._nativeState.setConcentrations(formatted);
-		} else {
-			// Node.js addon
-			this._nativeState.setConcentrations(formatted);
-		}
+		this._nativeState.setConcentrations(formatted);
 	}
 
 	getConcentrations() {

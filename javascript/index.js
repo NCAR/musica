@@ -8,7 +8,7 @@ try {
 	backendType = 'node';
 } catch (error) {
 	// Node addon not available, will use WASM if initialized
-	console.warn('Node.js addon not available. WASM backend can be initialized via MICM.initWasm()');
+	console.warn('Node.js addon not available. WASM backend can be initialized via "await MICM.initWasm()"');
 }
 
 const { GAS_CONSTANT, AVOGADRO, BOLTZMANN } = require('./micm/utils.js');

@@ -229,7 +229,9 @@ class MICMWrapperWASM
 
   val solve(StateWrapperWASM& state, double time_step)
   {
-    // Get the raw state pointer from the wrapper
+    // Note: We need to extract the raw state pointer to pass to the underlying
+    // MICM solver. The StateWrapperWASM maintains ownership of the state.
+    // This is safe as long as the state outlives this solve call.
     musica::State* raw_state = state.getWrapper().GetState();
     auto result = wrapper_->Solve(raw_state, time_step);
     
