@@ -1,0 +1,21 @@
+name: EMSDK Setup
+description: Setup EMSDK to build WebAssembly modules
+
+env:
+  EM_VERSION: 4.0.22
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup emscripten
+      uses: mymindstorm/setup-emsdk@v14
+      with:
+        no-install: true
+        version: ${{env.EM_VERSION}}
+
+    - name: Activate emscripten
+      shell: bash
+      run: |
+        emsdk install ${EM_VERSION}
+        emsdk activate ${EM_VERSION}
+        source $(dirname $(which emsdk))/emsdk_env.sh
