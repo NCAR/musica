@@ -2,7 +2,7 @@
   "enable diagnostics" : false,
   "__description": "This is a configuration for testing the TUV-x MUSICA API",
   "O2 absorption": {
-    "cross section parameters file": "configs/tuvx/data/full_from_host/O2_parameters.txt"
+    "cross section parameters file": "configs/tuvx/full_from_host/O2_parameters.txt"
   },
   "grids": [],
   "profiles": [],
@@ -20,7 +20,7 @@
         "type": "base",
         "netcdf files": [
           {
-            "file path": "configs/tuvx/data/full_from_host/O2_cross_section.nc"
+            "file path": "configs/tuvx/full_from_host/O2_cross_section.nc"
           }
         ]
       }
@@ -51,7 +51,7 @@
           "type": "base",
           "netcdf files": [
             {
-              "file path": "configs/tuvx/data/full_from_host/foo_cross_section.nc"
+              "file path": "configs/tuvx/full_from_host/foo_cross_section.nc"
             }
           ]
         },
@@ -69,7 +69,7 @@
           "type": "base",
           "netcdf files": [
             {
-              "file path": "configs/tuvx/data/full_from_host/bar_cross_section.nc"
+              "file path": "configs/tuvx/full_from_host/bar_cross_section.nc"
             }
           ]
         },
@@ -87,7 +87,7 @@
           "type": "base",
           "netcdf files": [
             {
-              "file path": "configs/tuvx/data/full_from_host/foo_cross_section.nc"
+              "file path": "configs/tuvx/full_from_host/foo_cross_section.nc"
             }
           ]
         },

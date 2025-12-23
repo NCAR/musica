@@ -10,7 +10,6 @@
    "grids": [],
    "profiles": [],
    "radiative transfer": {
-      "enable diagnostics" : false,
       "__output": true,
       "solver" : {
          "type" : "delta eddington"
