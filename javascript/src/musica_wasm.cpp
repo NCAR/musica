@@ -4,10 +4,10 @@
 // WASM bindings for MUSICA using Emscripten
 
 #include <emscripten/bind.h>
-#include <string>
 #include <map>
-#include <vector>
 #include <memory>
+#include <string>
+#include <vector>
 
 #include <musica/version.hpp>
 #include <micm/version.hpp>
