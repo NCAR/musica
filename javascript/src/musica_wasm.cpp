@@ -49,7 +49,7 @@ std::vector<T> jsArrayToVector(const val& jsArray)
 class StateWrapperWASM
 {
  public:
-  StateWrapperWASM(musica::State* state)
+  explicit StateWrapperWASM(musica::State* state)
       : wrapper_(state)
   {
   }
@@ -218,7 +218,7 @@ class MICMWrapperWASM
 {
  public:
   // Constructor
-  MICMWrapperWASM(std::unique_ptr<MICMWrapper> wrapper)
+  explicit MICMWrapperWASM(std::unique_ptr<MICMWrapper> wrapper)
       : wrapper_(std::move(wrapper))
   {
   }
