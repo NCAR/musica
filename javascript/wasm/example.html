@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MUSICA WASM Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .info {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .loading {
+            color: #666;
+        }
+        .version {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .error {
+            color: #dc3545;
+            background-color: #f8d7da;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>MUSICA WASM Example</h1>
+    <div id="content">
+        <p class="loading">Loading MUSICA WASM module...</p>
+    </div>
+
+    <!-- Load the WASM module -->
+    <script src="musica.js"></script>
+    <script>
+        // Initialize and use the MUSICA WASM module
+        async function initMUSICA() {
+            const contentDiv = document.getElementById('content');
+            
+            try {
+                // Create the MUSICA module
+                const module = await createMusicaModule();
+                
+                // Get versions
+                const musicaVersion = module.getVersion();
+                const micmVersion = module.getMicmVersion();
+                
+                // Display the results
+                contentDiv.innerHTML = `
+                    <div class="info">
+                        <h2>✅ MUSICA WASM Module Loaded Successfully</h2>
+                        <p><strong>MUSICA Version:</strong> <span class="version">${musicaVersion}</span></p>
+                        <p><strong>MICM Version:</strong> <span class="version">${micmVersion}</span></p>
+                    </div>
+                    <div class="info">
+                        <h3>About this example</h3>
+                        <p>This demonstrates the MUSICA library compiled to WebAssembly running directly in your browser.</p>
+                        <p>No server-side processing is required - all computation happens in your browser!</p>
+                    </div>
+                `;
+            } catch (error) {
+                contentDiv.innerHTML = `
+                    <div class="error">
+                        <h2>❌ Error Loading MUSICA WASM</h2>
+                        <p>${error.message}</p>
+                        <p>Make sure you've built the WASM module and are serving this page over HTTP (not file://).</p>
+                    </div>
+                `;
+                console.error('Error:', error);
+            }
+        }
+        
+        // Start initialization when page loads
+        initMUSICA();
+    </script>
+</body>
+</html>

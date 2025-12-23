@@ -7,7 +7,7 @@
 const { describe, it, before } = require('node:test');
 const assert = require('node:assert');
 const path = require('path');
-const musica = require('musica-addon');
+const musica = require('@ncar/musica');
 const { MICM } = musica.micmSolver;
 const { isClose } = require('../../util/testUtils');
 

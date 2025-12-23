@@ -1,5 +1,5 @@
 const { describe, it } = require('node:test');
-const musica = require('musica-addon');
+const musica = require('@ncar/musica');
 
 describe('Version Tests', () => {
   it('should return the correct MUSICA version', () => {

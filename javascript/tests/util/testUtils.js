@@ -1,3 +1,5 @@
+let musica_wasm = require('../../wasm/index.js');
+
 /**
  * Shared test utilities for JavaScript tests
  */
@@ -16,5 +18,6 @@ function isClose(a, b, atol = 1e-5, rtol = 1e-9) {
 }
 
 module.exports = {
-  isClose
+  isClose,
+  musica_wasm,
 };
