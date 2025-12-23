@@ -22,7 +22,19 @@ runs:
       run: |
         emsdk install ${EM_VERSION}
         emsdk activate ${EM_VERSION}
+
+        # Extract exports
         EMSDK_QUIET=1 EMSDK_BASH=1 emsdk construct_env \
         | grep '^export ' \
         | sed -e 's/^export //' -e 's/;$//' \
-        >> "$GITHUB_ENV"
+        > /tmp/emsdk.env
+
+        # PATH must NOT be quoted
+        grep '^PATH=' /tmp/emsdk.env | sed 's/^PATH=//' | tr -d '"' | while IFS=: read -ra p; do
+          for d in "${p[@]}"; do
+            echo "$d" >> "$GITHUB_PATH"
+          done
+        done
+
+        # Other variables can be quoted
+        grep -v '^PATH=' /tmp/emsdk.env >> "$GITHUB_ENV"
