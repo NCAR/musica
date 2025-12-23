@@ -50,7 +50,7 @@ class StateWrapperWASM
 {
  public:
   explicit StateWrapperWASM(musica::State* state)
-      : wrapper_(state)
+      : wrapper_(std::make_unique<StateWrapper>(state))
   {
   }
 
@@ -75,12 +75,12 @@ class StateWrapperWASM
       std::vector<double> vec = jsArrayToVector<double>(value);
       conc_map[key] = vec;
     }
-    wrapper_.SetConcentrations(conc_map);
+    wrapper_->SetConcentrations(conc_map);
   }
 
   val getConcentrations()
   {
-    auto conc_map = wrapper_.GetConcentrations();
+    auto conc_map = wrapper_->GetConcentrations();
     val result = val::object();
     for (const auto& pair : conc_map)
     {
@@ -101,12 +101,12 @@ class StateWrapperWASM
       std::vector<double> vec = jsArrayToVector<double>(value);
       param_map[key] = vec;
     }
-    wrapper_.SetUserDefinedRateParameters(param_map);
+    wrapper_->SetUserDefinedRateParameters(param_map);
   }
 
   val getUserDefinedRateParameters()
   {
-    auto param_map = wrapper_.GetUserDefinedRateParameters();
+    auto param_map = wrapper_->GetUserDefinedRateParameters();
     val result = val::object();
     for (const auto& pair : param_map)
     {
@@ -139,12 +139,12 @@ class StateWrapperWASM
       air_densities = &air_vec;
     }
 
-    wrapper_.SetConditions(temperatures, pressures, air_densities);
+    wrapper_->SetConditions(temperatures, pressures, air_densities);
   }
 
   val getConditions()
   {
-    auto cond_map = wrapper_.GetConditions();
+    auto cond_map = wrapper_->GetConditions();
     val result = val::object();
     for (const auto& pair : cond_map)
     {
@@ -155,7 +155,7 @@ class StateWrapperWASM
 
   val getSpeciesOrdering()
   {
-    auto ordering = wrapper_.GetSpeciesOrdering();
+    auto ordering = wrapper_->GetSpeciesOrdering();
     val result = val::object();
     for (const auto& pair : ordering)
     {
@@ -166,7 +166,7 @@ class StateWrapperWASM
 
   val getUserDefinedRateParametersOrdering()
   {
-    auto ordering = wrapper_.GetUserDefinedRateParametersOrdering();
+    auto ordering = wrapper_->GetUserDefinedRateParametersOrdering();
     val result = val::object();
     for (const auto& pair : ordering)
     {
@@ -177,13 +177,13 @@ class StateWrapperWASM
 
   size_t getNumberOfGridCells()
   {
-    return wrapper_.GetNumberOfGridCells();
+    return wrapper_->GetNumberOfGridCells();
   }
 
   val concentrationStrides()
   {
     size_t cell_stride, species_stride;
-    wrapper_.GetConcentrationStrides(cell_stride, species_stride);
+    wrapper_->GetConcentrationStrides(cell_stride, species_stride);
     val result = val::object();
     result.set("cell_stride", val(cell_stride));
     result.set("species_stride", val(species_stride));
@@ -193,7 +193,7 @@ class StateWrapperWASM
   val userDefinedRateParameterStrides()
   {
     size_t cell_stride, param_stride;
-    wrapper_.GetUserDefinedRateParameterStrides(cell_stride, param_stride);
+    wrapper_->GetUserDefinedRateParameterStrides(cell_stride, param_stride);
     val result = val::object();
     result.set("cell_stride", val(cell_stride));
     result.set("param_stride", val(param_stride));
@@ -203,11 +203,11 @@ class StateWrapperWASM
   // Make wrapper accessible for MICMWrapperWASM
   StateWrapper& getWrapper()
   {
-    return wrapper_;
+    return *wrapper_;
   }
 
  private:
-  StateWrapper wrapper_;
+  std::unique_ptr<StateWrapper> wrapper_;
 };
 
 // ============================================================================
