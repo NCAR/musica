@@ -22,4 +22,7 @@ runs:
       run: |
         emsdk install ${EM_VERSION}
         emsdk activate ${EM_VERSION}
-        source $(dirname $(which emsdk))/emsdk_env.sh
+        EMSDK_QUIET=1 EMSDK_BASH=1 emsdk construct_env \
+        | grep '^export ' \
+        | sed -e 's/^export //' -e 's/;$//' \
+        >> "$GITHUB_ENV"
