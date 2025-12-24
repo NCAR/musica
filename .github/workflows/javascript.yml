@@ -9,36 +9,15 @@ on:
   workflow_dispatch:
 
 jobs:
-  node:
+  wasm:
     strategy:
       fail-fast: false
       matrix: 
-        platform: [windows-latest, macos-latest, ubuntu-latest]
+        platform: [ubuntu-latest]
         node-version: ["v22", "v24"]
 
     runs-on: ${{ matrix.platform }}
 
-    steps:
-    - name: Check out repository code
-      uses: actions/checkout@v4
-
-    - name: Use Node.js
-      uses: actions/setup-node@v6
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Build platform
-      run: npm run build:node
-
-    - name: Run tests
-      run: npm run test
-      
-  wasm:
-    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -46,7 +25,8 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v6
         with:
-          node-version: "lts/*"
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
 
       - name: Set up EMSDK
         uses: ./.github/emsdk_steps
@@ -55,7 +35,7 @@ jobs:
         run: npm ci
 
       - name: Build wasm
-        run: npm run build:wasm
+        run: npm run build
 
       - name: Test
-        run: npm run test:unit:wasm
+        run: npm test
