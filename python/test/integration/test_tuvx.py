@@ -183,11 +183,26 @@ def get_profile_map(grid_map):
     # Simple exponential profiles for testing
     normalized_profile = np.exp(-(grid_map["height", "km"].midpoints - 0.5) / 25)
     midpoints = 1.0e-6 * 2.54e19 * normalized_profile
-    ozone = musica.Profile(name="O3", units="molecule cm-3", grid=grid_map["height", "km"], midpoint_values=midpoints, calculate_layer_densities=True)
+    ozone = musica.Profile(name="O3",
+                           units="molecule cm-3",
+                           grid=grid_map["height",
+                                         "km"],
+                           midpoint_values=midpoints,
+                           calculate_layer_densities=True)
     midpoints = 2.54e19 * normalized_profile
-    air = musica.Profile(name="air", units="molecule cm-3", grid=grid_map["height", "km"], midpoint_values=midpoints, calculate_layer_densities=True)
+    air = musica.Profile(name="air",
+                         units="molecule cm-3",
+                         grid=grid_map["height",
+                                       "km"],
+                         midpoint_values=midpoints,
+                         calculate_layer_densities=True)
     midpoints = 0.21 * 2.54e19 * normalized_profile
-    oxygen = musica.Profile(name="O2", units="molecule cm-3", grid=grid_map["height", "km"], midpoint_values=midpoints, calculate_layer_densities=True)
+    oxygen = musica.Profile(name="O2",
+                            units="molecule cm-3",
+                            grid=grid_map["height",
+                                          "km"],
+                            midpoint_values=midpoints,
+                            calculate_layer_densities=True)
     ozone.calculate_exo_layer_density(8.5)
     oxygen.calculate_exo_layer_density(8.5)
     air.calculate_exo_layer_density(8.5)
@@ -292,9 +307,12 @@ def test_full_tuvx(monkeypatch):
     o2_index = tuvx.photolysis_rate_names["O2+hv->O+O"]
     o3_o1d_index = tuvx.photolysis_rate_names["O3+hv->O2+O(1D)"]
     o3_o3p_index = tuvx.photolysis_rate_names["O3+hv->O2+O(3P)"]
-    assert np.all(photolysis_rates_doubled[:, o2_index] <= photolysis_rates[:, o2_index]), "O2 photolysis did not decrease"
-    assert np.all(photolysis_rates_doubled[:, o3_o1d_index] <= photolysis_rates[:, o3_o1d_index]), "O3 (1D) photolysis did not decrease"
-    assert np.all(photolysis_rates_doubled[:, o3_o3p_index] <= photolysis_rates[:, o3_o3p_index]), "O3 (3P) photolysis did not decrease"
+    assert np.all(photolysis_rates_doubled[:, o2_index] <=
+                  photolysis_rates[:, o2_index]), "O2 photolysis did not decrease"
+    assert np.all(photolysis_rates_doubled[:, o3_o1d_index] <=
+                  photolysis_rates[:, o3_o1d_index]), "O3 (1D) photolysis did not decrease"
+    assert np.all(photolysis_rates_doubled[:, o3_o3p_index] <=
+                  photolysis_rates[:, o3_o3p_index]), "O3 (3P) photolysis did not decrease"
 
 
 def get_fixed_grid_map():
