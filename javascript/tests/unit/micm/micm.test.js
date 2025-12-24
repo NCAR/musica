@@ -72,7 +72,7 @@ describe('MICM Initialization', () => {
     );
   });
 
-  it('should initialize with fromMechanism', async (t) => {
+  it('should initialize and solve with fromMechanism', async (t) => {
     // Create a simple mechanism for testing
     const A = new Species({ name: 'A' });
     const B = new Species({ name: 'B' });
@@ -108,6 +108,21 @@ describe('MICM Initialization', () => {
     const micm = MICM.fromMechanism(mechanism);
     assert.ok(micm, 'MICM should be created from mechanism');
     assert.ok(micm.solverType() !== null, 'Solver type should be set');
+
+    const state = micm.createState(1);
+    state.setConcentrations({ A: [1.0], B: [2.0], C: [3.0] });
+    state.setConditions({ temperatures: [298.15], pressures: [101325.0], air_densities: [1.0] });
+    state.setUserDefinedRateParameters({
+      'USER.reaction 1': 0.001,
+      'USER.reaction 2': 0.002
+    });
+
+    const result = micm.solve(state, 60.0);
+    let concentrations = state.getConcentrations();
+
+    assert.ok(concentrations.A !== 1.0, 'Concentration of A should have changed after solve');
+    assert.ok(concentrations.B !== 2.0, 'Concentration of B should have changed after solve');
+    assert.ok(concentrations.C !== 3.0, 'Concentration of C should have changed after solve');
   });
 
   it('should throw error with invalid mechanism', async (t) => {
