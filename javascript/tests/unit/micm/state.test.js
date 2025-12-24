@@ -22,21 +22,39 @@ function createTestMechanism() {
 }
 
 describe('State initialization', () => {
-    it('should create state with single grid cell', () => {
+    it('should create state with single grid cell', async (t) => {
+    const wasm = require('../../../wasm/index.js');
+    if (!wasm.hasWasm) {
+      t.skip();
+      return;
+    }
+    await MICM.initWasm();
         const configPath = createTestMechanism();
         const solver = MICM.fromConfigPath(configPath);
         const state = solver.createState(1);
         assert.ok(state, 'State should be created');
     });
 
-    it('should create state with multiple grid cells', () => {
+    it('should create state with multiple grid cells', async (t) => {
+    const wasm = require('../../../wasm/index.js');
+    if (!wasm.hasWasm) {
+      t.skip();
+      return;
+    }
+    await MICM.initWasm();
         const configPath = createTestMechanism();
         const solver = MICM.fromConfigPath(configPath);
         const state = solver.createState(3);
         assert.ok(state, 'State with 3 grid cells should be created');
     });
 
-    it('should throw error for invalid grid cell count', () => {
+    it('should throw error for invalid grid cell count', async (t) => {
+    const wasm = require('../../../wasm/index.js');
+    if (!wasm.hasWasm) {
+      t.skip();
+      return;
+    }
+    await MICM.initWasm();
         const configPath = createTestMechanism();
         const solver = MICM.fromConfigPath(configPath);
         assert.throws(
@@ -56,7 +74,13 @@ describe('Concentrations', () => {
         solver = MICM.fromConfigPath(configPath);
     });
 
-    it('should set and get concentrations for single grid cell', () => {
+    it('should set and get concentrations for single grid cell', async (t) => {
+    const wasm = require('../../../wasm/index.js');
+    if (!wasm.hasWasm) {
+      t.skip();
+      return;
+    }
+    await MICM.initWasm();
         state = solver.createState(1);
         const concentrations = { A: 1.0, B: 2.0, C: 3.0 };
         state.setConcentrations(concentrations);
@@ -67,7 +91,13 @@ describe('Concentrations', () => {
         assert.ok(isClose(result.C[0], 3.0, 1e-13), 'C concentration should be 3.0');
     });
 
-    it('should set and get concentrations for multiple grid cells', () => {
+    it('should set and get concentrations for multiple grid cells', async (t) => {
+    const wasm = require('../../../wasm/index.js');
+    if (!wasm.hasWasm) {
+      t.skip();
+      return;
+    }
+    await MICM.initWasm();
         state = solver.createState(2);
         const concentrations = { A: [1.0, 2.0], B: [3.0, 4.0], C: [5.0, 6.0] };
         state.setConcentrations(concentrations);
@@ -78,7 +108,13 @@ describe('Concentrations', () => {
         assert.deepStrictEqual(result.C, [5.0, 6.0], 'C concentrations should match');
     });
 
-    it('should handle empty concentration update', () => {
+    it('should handle empty concentration update', async (t) => {
+    const wasm = require('../../../wasm/index.js');
+    if (!wasm.hasWasm) {
+      t.skip();
+      return;
+    }
+    await MICM.initWasm();
         state = solver.createState(1);
         const concentrations = { A: 1.0, B: 2.0, C: 3.0 };
         state.setConcentrations(concentrations);
@@ -102,7 +138,13 @@ describe('Conditions', () => {
         solver = MICM.fromConfigPath(configPath);
     });
 
-    it('should set and get conditions for single grid cell', () => {
+    it('should set and get conditions for single grid cell', async (t) => {
+    const wasm = require('../../../wasm/index.js');
+    if (!wasm.hasWasm) {
+      t.skip();
+      return;
+    }
+    await MICM.initWasm();
         state = solver.createState(1);
         state.setConditions({ temperatures: 300.0, pressures: 101325.0 });
         const conditions = state.getConditions();
@@ -114,7 +156,13 @@ describe('Conditions', () => {
         assert.ok(isClose(conditions.air_density[0], expectedAirDensity, 0.1), 'Air density should be calculated');
     });
 
-    it('should set and get conditions for multiple grid cells', () => {
+    it('should set and get conditions for multiple grid cells', async (t) => {
+    const wasm = require('../../../wasm/index.js');
+    if (!wasm.hasWasm) {
+      t.skip();
+      return;
+    }
+    await MICM.initWasm();
         state = solver.createState(2);
         state.setConditions({
             temperatures: [300.0, 310.0],
@@ -128,7 +176,13 @@ describe('Conditions', () => {
         assert.deepStrictEqual(conditions.air_density, [40.9, 39.5], 'Air densities should match');
     });
 
-    it('should accept integer values for conditions', () => {
+    it('should accept integer values for conditions', async (t) => {
+    const wasm = require('../../../wasm/index.js');
+    if (!wasm.hasWasm) {
+      t.skip();
+      return;
+    }
+    await MICM.initWasm();
         state = solver.createState(1);
         // Test setting int values (from Python test)
         state.setConditions({ temperatures: 272, pressures: 101325 });
@@ -148,7 +202,13 @@ describe('User-defined rate parameters', () => {
         solver = MICM.fromConfigPath(configPath);
     });
 
-    it('should set and get user-defined rate parameters for single grid cell', () => {
+    it('should set and get user-defined rate parameters for single grid cell', async (t) => {
+    const wasm = require('../../../wasm/index.js');
+    if (!wasm.hasWasm) {
+      t.skip();
+      return;
+    }
+    await MICM.initWasm();
         state = solver.createState(1);
         const params = { 'USER.reaction 1': 1.0 };
         state.setUserDefinedRateParameters(params);
@@ -157,7 +217,13 @@ describe('User-defined rate parameters', () => {
         assert.ok(isClose(result['USER.reaction 1'][0], 1.0, 1e-13), 'Rate parameter should be 1.0');
     });
 
-    it('should set and get user-defined rate parameters for multiple grid cells', () => {
+    it('should set and get user-defined rate parameters for multiple grid cells', async (t) => {
+    const wasm = require('../../../wasm/index.js');
+    if (!wasm.hasWasm) {
+      t.skip();
+      return;
+    }
+    await MICM.initWasm();
         state = solver.createState(2);
         const params = { 'USER.reaction 1': [1.0, 2.0] };
         state.setUserDefinedRateParameters(params);
@@ -166,7 +232,13 @@ describe('User-defined rate parameters', () => {
         assert.deepStrictEqual(result['USER.reaction 1'], [1.0, 2.0], 'Rate parameters should match');
     });
 
-    it('should handle empty rate parameter update', () => {
+    it('should handle empty rate parameter update', async (t) => {
+    const wasm = require('../../../wasm/index.js');
+    if (!wasm.hasWasm) {
+      t.skip();
+      return;
+    }
+    await MICM.initWasm();
         state = solver.createState(1);
         const params = { 'USER.reaction 1': 1.0 };
         state.setUserDefinedRateParameters(params);
@@ -189,7 +261,13 @@ describe('State ordering', () => {
         state = solver.createState(1);
     });
 
-    it('should get species ordering', () => {
+    it('should get species ordering', async (t) => {
+    const wasm = require('../../../wasm/index.js');
+    if (!wasm.hasWasm) {
+      t.skip();
+      return;
+    }
+    await MICM.initWasm();
         const ordering = state.getSpeciesOrdering();
 
         assert.ok(typeof ordering === 'object', 'Ordering should be an object');
@@ -201,7 +279,13 @@ describe('State ordering', () => {
         assert.ok(ordering.C >= 0, 'C ordering should be non-negative');
     });
 
-    it('should get user-defined rate parameters ordering', () => {
+    it('should get user-defined rate parameters ordering', async (t) => {
+    const wasm = require('../../../wasm/index.js');
+    if (!wasm.hasWasm) {
+      t.skip();
+      return;
+    }
+    await MICM.initWasm();
         const ordering = state.getUserDefinedRateParametersOrdering();
 
         assert.ok(typeof ordering === 'object', 'Ordering should be an object');
@@ -213,7 +297,13 @@ describe('State ordering', () => {
 });
 
 describe('Grid cell operations', () => {
-    it('should return correct number of grid cells', () => {
+    it('should return correct number of grid cells', async (t) => {
+    const wasm = require('../../../wasm/index.js');
+    if (!wasm.hasWasm) {
+      t.skip();
+      return;
+    }
+    await MICM.initWasm();
         const configPath = createTestMechanism();
         const solver = MICM.fromConfigPath(configPath);
 

@@ -235,7 +235,13 @@ function testMultipleGridCell(solver, state, numGridCells, timeStep, places = 5)
 
 // Test suite for single grid cell - Standard Rosenbrock
 describe('Analytical - Single grid cell - Standard Rosenbrock', () => {
-    it('should match analytical solution', () => {
+    it('should match analytical solution', async (t) => {
+        const wasm = require('../../wasm/index.js');
+        if (!wasm.hasWasm) {
+            t.skip();
+            return;
+        }
+        await MICM.initWasm();
         const solver = MICM.fromConfigPath(
             CONFIG_PATH,
             SolverType.rosenbrock_standard_order
@@ -248,7 +254,13 @@ describe('Analytical - Single grid cell - Standard Rosenbrock', () => {
 // Test suite for multiple grid cells - Standard Rosenbrock
 describe('Analytical - Multiple grid cells - Standard Rosenbrock', () => {
     for (let i = 1; i <= maxCells; i++) {
-        it(`should match analytical solution for ${i} grid cells`, () => {
+        it(`should match analytical solution for ${i} grid cells`, async (t) => {
+            const wasm = require('../../wasm/index.js');
+            if (!wasm.hasWasm) {
+                t.skip();
+                return;
+            }
+            await MICM.initWasm();
             const solver = MICM.fromConfigPath(
                 CONFIG_PATH,
                 SolverType.rosenbrock_standard_order
@@ -261,7 +273,13 @@ describe('Analytical - Multiple grid cells - Standard Rosenbrock', () => {
 
 // Test suite for single grid cell - Rosenbrock (vector-ordered)
 describe('Analytical - Single grid cell - Rosenbrock', () => {
-    it('should match analytical solution', () => {
+    it('should match analytical solution', async (t) => {
+        const wasm = require('../../wasm/index.js');
+        if (!wasm.hasWasm) {
+            t.skip();
+            return;
+        }
+        await MICM.initWasm();
         const solver = MICM.fromConfigPath(
             CONFIG_PATH,
             SolverType.rosenbrock
@@ -274,7 +292,13 @@ describe('Analytical - Single grid cell - Rosenbrock', () => {
 // Test suite for multiple grid cells - Rosenbrock (vector-ordered)
 describe('Analytical - Multiple grid cells - Rosenbrock', () => {
     for (let i = 1; i <= maxCells; i++) {
-        it(`should match analytical solution for ${i} grid cells`, () => {
+        it(`should match analytical solution for ${i} grid cells`, async (t) => {
+            const wasm = require('../../wasm/index.js');
+            if (!wasm.hasWasm) {
+                t.skip();
+                return;
+            }
+            await MICM.initWasm();
             const solver = MICM.fromConfigPath(
                 CONFIG_PATH,
                 SolverType.rosenbrock
