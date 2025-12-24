@@ -10,12 +10,12 @@
   "scripts": {
     "build": "npm run build:node && npm run build:wasm",
     "build:node": "cmake-js -p 4 compile -O build-addon --CDMUSICA_ENABLE_JAVASCRIPT=ON --CDMUSICA_ENABLE_PYTHON_LIBRARY=OFF --CDMUSICA_ENABLE_TUVX=OFF --CDMUSICA_ENABLE_CARMA=OFF --CDMUSICA_ENABLE_TESTS=OFF --CDMUSICA_ENABLE_PIC=ON",
-    "build:wasm": "emcmake cmake -S . -B build-wasm -DCMAKE_BUILD_TYPE=Release -DMUSICA_ENABLE_JAVASCRIPT=ON -DMUSICA_ENABLE_TUVX=OFF -DMUSICA_ENABLE_CARMA=OFF && cmake --build build-wasm",
+    "build:wasm": "emcmake cmake -S . -B build-wasm -DCMAKE_BUILD_TYPE=Debug -DMUSICA_ENABLE_JAVASCRIPT=ON -DMUSICA_ENABLE_TUVX=OFF -DMUSICA_ENABLE_CARMA=OFF && cmake --build build-wasm",
     "sync-version": "node scripts/extract_version.js sync",
     "test": "node --test 'javascript/tests/**/*.test.js'",
-    "test:integration": "node --test 'javascript/tests/integration/*.test.js'",
-    "test:unit": "node --test 'javascript/tests/unit/**/*.test.js'",
-    "test:unit:wasm": "node --test javascript/tests/unit/wasm/version.test.js",
+    "test:integration": "node --test javascript/tests/integration/*.test.js",
+    "test:unit": "node --test javascript/tests/unit/**/*.test.js",
+    "test:unit:wasm": "node --test javascript/tests/unit/wasm/*.test.js",
     "test:coverage": "c8 --reporter=lcov --reporter=text --reports-dir=javascript-coverage node --test javascript/tests/**/*.test.js"
   },
   "dependencies": {

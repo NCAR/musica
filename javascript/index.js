@@ -1,4 +1,15 @@
-const addon = require('./load_addon');
+// Load the appropriate backend
+let backend = null;
+let backendType = null;
+
+// Try to load Node.js addon first (sync, always available if built)
+try {
+	backend = require('./load_addon');
+	backendType = 'node';
+} catch (error) {
+	// Node addon not available, will use WASM if initialized
+	console.warn('Node.js addon not available. WASM backend can be initialized via "await MICM.initWasm()"');
+}
 
 const { GAS_CONSTANT, AVOGADRO, BOLTZMANN } = require('./micm/utils.js');
 const { SolverType } = require('./micm/solver.js');
@@ -29,5 +40,18 @@ const mechanismConfiguration = {
 	Mechanism,
 };
 
-Object.assign(addon, { micmSolver, mechanismConfiguration });
-module.exports = addon;
+// Unified API for version functions that works with both backends
+// Node.js addon provides sync functions, so we keep them sync
+// For WASM, users should use the async versions from the wasm module directly
+const api = {
+	micmSolver,
+	mechanismConfiguration,
+};
+
+// Add version functions if Node.js addon is available
+if (backend) {
+	api.getVersion = backend.getVersion;
+	api.getMicmVersion = backend.getMicmVersion;
+}
+
+module.exports = api;

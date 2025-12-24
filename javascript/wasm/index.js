@@ -46,6 +46,10 @@ async function initModule() {
     musicaModule = await createMusicaModule();
   }
 
+  // Wrap MICM and State to provide a consistent API
+  // Note: We don't need to wrap these classes as embind already provides
+  // the correct interface. Just return the module as-is.
+
   return musicaModule;
 }
 
