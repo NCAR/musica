@@ -1,5 +1,7 @@
-# cmake and build stuff
+# copilot adds this when it works on prs
+_codeql_detected_source_root
 
+# cmake and build stuff
 build/
 build-wasm/
 build-addon/
