@@ -4,7 +4,7 @@
  * Uses Node.js built-in test runner
  */
 
-const { describe, it } = require('node:test');
+const { describe, it, before } = require('node:test');
 const assert = require('node:assert');
 const path = require('path');
 const musica = require('@ncar/musica');
@@ -20,13 +20,25 @@ function getConfigPath() {
 }
 
 describe('MICM Initialization', () => {
-  it('should initialize with fromConfigPath', () => {
+  it('should initialize with fromConfigPath', async (t) => {
+    const wasm = require('../../../wasm/index.js');
+    if (!wasm.hasWasm) {
+      t.skip();
+      return;
+    }
+    await MICM.initWasm();
     const micm = MICM.fromConfigPath(getConfigPath());
     assert.ok(micm, 'MICM should be created');
     assert.ok(micm.solverType() !== null, 'Solver type should be set');
   });
 
-  it('should initialize with fromConfigPath and solver_type', () => {
+  it('should initialize with fromConfigPath and solver_type', async (t) => {
+    const wasm = require('../../../wasm/index.js');
+    if (!wasm.hasWasm) {
+      t.skip();
+      return;
+    }
+    await MICM.initWasm();
     const micm = MICM.fromConfigPath(
       getConfigPath(),
       SolverType.rosenbrock_standard_order
@@ -39,7 +51,13 @@ describe('MICM Initialization', () => {
     );
   });
 
-  it('should throw error with invalid config_path type', () => {
+  it('should throw error with invalid config_path type', async (t) => {
+    const wasm = require('../../../wasm/index.js');
+    if (!wasm.hasWasm) {
+      t.skip();
+      return;
+    }
+    await MICM.initWasm();
     assert.throws(
       () => MICM.fromConfigPath(123),
       /configPath must be a string/,
@@ -47,7 +65,13 @@ describe('MICM Initialization', () => {
     );
   });
 
-  it('should use default solver type', () => {
+  it('should use default solver type', async (t) => {
+    const wasm = require('../../../wasm/index.js');
+    if (!wasm.hasWasm) {
+      t.skip();
+      return;
+    }
+    await MICM.initWasm();
     const micm = MICM.fromConfigPath(getConfigPath());
     assert.strictEqual(
       micm.solverType(),
@@ -56,7 +80,13 @@ describe('MICM Initialization', () => {
     );
   });
 
-  it('should initialize with backward_euler_standard_order', () => {
+  it('should initialize with backward_euler_standard_order', async (t) => {
+    const wasm = require('../../../wasm/index.js');
+    if (!wasm.hasWasm) {
+      t.skip();
+      return;
+    }
+    await MICM.initWasm();
     const micm = MICM.fromConfigPath(
       getConfigPath(),
       SolverType.backward_euler_standard_order
