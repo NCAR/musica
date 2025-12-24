@@ -31,6 +31,7 @@ phases:
         diffusion coefficient [m2 s-1]: 2.1e-5
 reactions:
   - type: EMISSION
+    __irrelevant: 2 
     name: my emission
     scaling factor: 12.3
     gas phase: gas
@@ -38,6 +39,7 @@ reactions:
       - species name: B
         coefficient: 1
   - type: FIRST_ORDER_LOSS
+    __irrelevant: 2 
     name: my first order loss
     scaling factor: 12.3
     gas phase: gas
@@ -45,6 +47,7 @@ reactions:
       - species name: C
         coefficient: 1
   - type: PHOTOLYSIS
+    __irrelevant: 2
     name: photo B
     scaling factor: 12.3
     gas phase: gas
@@ -55,6 +58,7 @@ reactions:
       - species name: C
         coefficient: 1
   - type: SURFACE
+    __irrelevant: 2
     name: my surface
     reaction probability: 2.0e-2
     gas phase: gas
@@ -65,6 +69,7 @@ reactions:
       - species name: C
         coefficient: 1
   - type: TROE
+    __irrelevant: 2
     name: my troe
     k0_A: 1.2e-12
     k0_B: 167
@@ -85,6 +90,7 @@ reactions:
         coefficient: 1
   - type: TERNARY_CHEMICAL_ACTIVATION
     name: my ternary chemical activation
+    __irrelevant: 2
     gas phase: gas
     k0_A: 32.1
     k0_B: -2.3
@@ -95,16 +101,14 @@ reactions:
     Fc: 1.3
     N: 32.1
     reactants:
-      - species name: bar
+      - species name: B
         coefficient: 1
-      - species name: baz
+      - species name: M
         coefficient: 1
     products:
-      - species name: bar
-        coefficient: 0.5
-      - species name: foo
-        coefficient: 0.3
+      - species name: C
   - type: BRANCHED_NO_RO2
+    __irrelevant: 2 
     name: my branched
     X: 1.2e-4
     Y: 167
@@ -121,6 +125,7 @@ reactions:
       - species name: C
         coefficient: 1
   - type: TUNNELING
+    __irrelevant: 2
     name: my tunneling
     A: 123.45
     B: 1200.0
@@ -146,6 +151,7 @@ reactions:
     products:
       - species name: C
         coefficient: 1
+    __irrelevant: 2 
   - type: ARRHENIUS
     name: my other arrhenius
     A: 29.3
@@ -161,6 +167,7 @@ reactions:
       - species name: B
         coefficient: 1.2
   - type: USER_DEFINED
+    __irrelevant: 2
     name: my user defined
     scaling factor: 12.3
     gas phase: gas

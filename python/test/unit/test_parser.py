@@ -8,7 +8,7 @@ def test_parsed_full_v1_configuration():
     parser = Parser()
     extensions = [".yaml", ".json"]
     for extension in extensions:
-        path = f"python/test/examples/v1/full_configuration/full_configuration{extension}"
+        path = f"configs/v1/full_configuration/full_configuration{extension}"
         mechanism = parser.parse(path)
         validate_full_v1_mechanism(mechanism)
 

@@ -159,7 +159,7 @@ TEST(Util, IndexMappingFromFile)
   Error error;
   NoError(&error);
   Configuration config;
-  LoadConfigurationFromFile("test/data/util_index_mapping_from_file.json", &config, &error);
+  LoadConfigurationFromFile("configs/util_index_mapping_from_file.json", &config, &error);
   EXPECT_TRUE(IsSuccess(error));
   Mappings source_map;
   Mappings target_map;
