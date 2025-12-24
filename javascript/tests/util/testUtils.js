@@ -1,4 +1,4 @@
-let musica_wasm = require('../../wasm/index.js');
+let musica_wasm = require('../../index.js');
 
 /**
  * Shared test utilities for JavaScript tests

@@ -21,7 +21,7 @@ function getConfigPath() {
 
 describe('MICM Initialization', () => {
   it('should initialize with fromConfigPath', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -33,7 +33,7 @@ describe('MICM Initialization', () => {
   });
 
   it('should initialize with fromConfigPath and solver_type', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -52,7 +52,7 @@ describe('MICM Initialization', () => {
   });
 
   it('should throw error with invalid config_path type', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -66,7 +66,7 @@ describe('MICM Initialization', () => {
   });
 
   it('should use default solver type', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -81,7 +81,7 @@ describe('MICM Initialization', () => {
   });
 
   it('should initialize with backward_euler_standard_order', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -99,7 +99,7 @@ describe('MICM Initialization', () => {
   });
 
   it('should initialize with fromMechanism', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -143,7 +143,7 @@ describe('MICM Initialization', () => {
   });
 
   it('should throw error with invalid mechanism', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -157,7 +157,7 @@ describe('MICM Initialization', () => {
   });
 
   it('should throw error with null mechanism', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -173,7 +173,7 @@ describe('MICM Initialization', () => {
 
 describe('MICM solverType method', () => {
   it('should return correct solver type', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -191,7 +191,7 @@ describe('MICM solverType method', () => {
   });
 
   it('should work with different solver types', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -217,7 +217,7 @@ describe('MICM createState method', () => {
   let micm;
 
   it('should create state with default single grid cell', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -229,7 +229,7 @@ describe('MICM createState method', () => {
   });
 
   it('should create state with explicit single grid cell', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -241,7 +241,7 @@ describe('MICM createState method', () => {
   });
 
   it('should create state with multiple grid cells', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -257,7 +257,7 @@ describe('MICM createState method', () => {
   });
 
   it('should throw error for zero grid cells', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -272,7 +272,7 @@ describe('MICM createState method', () => {
   });
 
   it('should throw error for negative grid cells', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -287,7 +287,7 @@ describe('MICM createState method', () => {
   });
 
   it('should create multiple independent states', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -307,7 +307,7 @@ describe('MICM solve method', () => {
   let micm;
 
   it('should solve with valid state and timestep', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -336,7 +336,7 @@ describe('MICM solve method', () => {
   });
 
   it('should solve with float timestep', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -361,7 +361,7 @@ describe('MICM solve method', () => {
   });
 
   it('should solve with integer timestep', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -386,7 +386,7 @@ describe('MICM solve method', () => {
   });
 
   it('should throw error for invalid state type', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -402,7 +402,7 @@ describe('MICM solve method', () => {
   });
 
   it('should throw error for invalid timestep type', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -419,7 +419,7 @@ describe('MICM solve method', () => {
   });
 
   it('should throw error for null state', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -435,7 +435,7 @@ describe('MICM solve method', () => {
   });
 
   it('should throw error for undefined state', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -451,7 +451,7 @@ describe('MICM solve method', () => {
   });
 
   it('should solve multiple times with same state', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -484,7 +484,7 @@ describe('MICM solve method', () => {
 
 describe('MICM Integration Tests', () => {
   it('should complete end-to-end workflow', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -535,7 +535,7 @@ describe('MICM Integration Tests', () => {
   });
 
   it('should handle multiple solve iterations', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -580,7 +580,7 @@ describe('MICM Integration Tests', () => {
   });
 
   it('should work with different solver types', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -619,7 +619,7 @@ describe('MICM Integration Tests', () => {
 
 describe('MICM SolverResult validation', () => {
   it('should return valid SolverResult structure', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;

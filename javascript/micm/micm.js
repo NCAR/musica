@@ -12,8 +12,8 @@ function getBackend() {
 	}
 
 	// WASM backend not initialized yet
-	const wasm = require('../wasm/index.js');
-	if (wasm && wasm.hasWasm) {
+	const musica = require('../index.js');
+	if (musica && musica.hasWasm) {
 		throw new Error('WASM backend not initialized. Call "await MICM.initWasm()" before using MICM.');
 	}
 
@@ -27,11 +27,11 @@ class MICM {
 	 * @returns {Promise<void>}
 	 */
 	static async initWasm() {
-		const wasm = require('../wasm/index.js');
-		if (!wasm.hasWasm) {
+		const musica = require('../index.js');
+		if (!musica.hasWasm) {
 			throw new Error('WASM module not built. Please run npm run build:wasm');
 		}
-		backendModule = await wasm.initModule();
+		backendModule = await musica.initModule();
 	}
 
 	/**

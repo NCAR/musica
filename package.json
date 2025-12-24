@@ -3,10 +3,6 @@
   "version": "0.14.1",
   "description": "MUSICA atmospheric chemistry modeling using WebAssembly",
   "main": "./javascript/index.js",
-  "exports": {
-    ".": "./javascript/index.js",
-    "./wasm": "./javascript/wasm/index.js"
-  },
   "scripts": {
     "build": "npm run build:wasm",
     "build:wasm": "emcmake cmake -S . -B build-wasm -DCMAKE_BUILD_TYPE=Debug -DMUSICA_ENABLE_JAVASCRIPT=ON -DMUSICA_ENABLE_TUVX=OFF -DMUSICA_ENABLE_CARMA=OFF && cmake --build build-wasm",

@@ -23,7 +23,7 @@ function createTestMechanism() {
 
 describe('State initialization', () => {
     it('should create state with single grid cell', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -36,7 +36,7 @@ describe('State initialization', () => {
     });
 
     it('should create state with multiple grid cells', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -49,7 +49,7 @@ describe('State initialization', () => {
     });
 
     it('should throw error for invalid grid cell count', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -75,7 +75,7 @@ describe('Concentrations', () => {
     });
 
     it('should set and get concentrations for single grid cell', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -92,7 +92,7 @@ describe('Concentrations', () => {
     });
 
     it('should set and get concentrations for multiple grid cells', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -109,7 +109,7 @@ describe('Concentrations', () => {
     });
 
     it('should handle empty concentration update', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -139,7 +139,7 @@ describe('Conditions', () => {
     });
 
     it('should set and get conditions for single grid cell', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -157,7 +157,7 @@ describe('Conditions', () => {
     });
 
     it('should set and get conditions for multiple grid cells', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -177,7 +177,7 @@ describe('Conditions', () => {
     });
 
     it('should accept integer values for conditions', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -203,7 +203,7 @@ describe('User-defined rate parameters', () => {
     });
 
     it('should set and get user-defined rate parameters for single grid cell', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -218,7 +218,7 @@ describe('User-defined rate parameters', () => {
     });
 
     it('should set and get user-defined rate parameters for multiple grid cells', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -233,7 +233,7 @@ describe('User-defined rate parameters', () => {
     });
 
     it('should handle empty rate parameter update', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -262,7 +262,7 @@ describe('State ordering', () => {
     });
 
     it('should get species ordering', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -280,7 +280,7 @@ describe('State ordering', () => {
     });
 
     it('should get user-defined rate parameters ordering', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -298,7 +298,7 @@ describe('State ordering', () => {
 
 describe('Grid cell operations', () => {
     it('should return correct number of grid cells', async (t) => {
-    const wasm = require('../../../wasm/index.js');
+    const wasm = require('../../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;

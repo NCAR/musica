@@ -68,7 +68,7 @@ function testSolve(solver) {
 
 describe('Chapman mechanism with v0 config path', () => {
     it('should solve with v0 config directory', async (t) => {
-        const wasm = require('../../wasm/index.js');
+        const wasm = require('../../index.js');
         if (!wasm.hasWasm) {
             t.skip();
             return;
@@ -85,7 +85,7 @@ describe('Chapman mechanism with v0 config path', () => {
 
 describe('Chapman mechanism with v1 config files', () => {
     it('should solve with v1 JSON config file', async (t) => {
-        const wasm = require('../../wasm/index.js');
+        const wasm = require('../../index.js');
         if (!wasm.hasWasm) {
             t.skip();
             return;
@@ -100,7 +100,7 @@ describe('Chapman mechanism with v1 config files', () => {
     });
 
     it('should solve with v1 YAML config file', async (t) => {
-        const wasm = require('../../wasm/index.js');
+        const wasm = require('../../index.js');
         if (!wasm.hasWasm) {
             t.skip();
             return;

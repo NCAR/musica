@@ -4,7 +4,7 @@ const musica = require('@ncar/musica');
 
 describe('Version Tests', () => {
   it('should return the MUSICA version', async (t) => {
-    const wasm = require('../../wasm/index.js');
+    const wasm = require('../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
@@ -15,7 +15,7 @@ describe('Version Tests', () => {
   });
 
   it('should return the MICM version',  async (t) => {
-    const wasm = require('../../wasm/index.js');
+    const wasm = require('../../index.js');
     if (!wasm.hasWasm) {
       t.skip();
       return;
