@@ -1,5 +1,6 @@
 # cmake and build stuff
 
+python_build/
 build/
 build-wasm/
 build-addon/
