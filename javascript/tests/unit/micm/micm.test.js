@@ -485,7 +485,6 @@ describe('MICM SolverResult validation', () => {
 
     // Validate stats structure
     const stats = result.stats;
-    console.log(stats)
     assert.ok(stats.function_calls > 0n);
     assert.ok(stats.jacobian_updates > 0n);
     assert.ok(stats.number_of_steps > 0n);

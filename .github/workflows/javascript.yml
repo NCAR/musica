@@ -26,7 +26,6 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
 
       - name: Set up EMSDK
         uses: ./.github/emsdk_steps
