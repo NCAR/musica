@@ -1,6 +1,6 @@
 const { test } = require('node:test');
 const assert = require('node:assert');
-const musica = require('@ncar/musica');
+const musica = require('../../index.js');
 const { types, reactionTypes, Mechanism } = musica.mechanismConfiguration;
 const { Species, PhaseSpecies, Phase, ReactionComponent } = types;
 

@@ -1,7 +1,7 @@
 {
   "name": "@ncar/musica",
   "version": "0.14.1",
-  "description": "MUSICA atmospheric chemistry modeling using WebAssembly",
+  "description": "The Multiscale Interface for Chemistry and Aerosols (MUSICA) javascript library",
   "main": "./javascript/index.js",
   "scripts": {
     "build": "npm run build:wasm",

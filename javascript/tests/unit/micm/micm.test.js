@@ -7,10 +7,14 @@
 const { describe, it, before } = require('node:test');
 const assert = require('node:assert');
 const path = require('path');
-const musica = require('@ncar/musica');
-const { MICM, SolverType, State, SolverResult, SolverStats } = musica.micmSolver;
+const musica = require('../../../index.js');
+const { MICM, SolverType, State, SolverResult, SolverStats } = musica;
 const { types, reactionTypes, Mechanism } = musica.mechanismConfiguration;
 const { Species, Phase, ReactionComponent } = types;
+
+before(async () => {
+  await musica.initModule();
+});
 
 /**
  * Helper to get the config path for testing
@@ -21,24 +25,12 @@ function getConfigPath() {
 
 describe('MICM Initialization', () => {
   it('should initialize with fromConfigPath', async (t) => {
-    const wasm = require('../../../index.js');
-    if (!wasm.hasWasm) {
-      t.skip();
-      return;
-    }
-    await MICM.initWasm();
     const micm = MICM.fromConfigPath(getConfigPath());
     assert.ok(micm, 'MICM should be created');
     assert.ok(micm.solverType() !== null, 'Solver type should be set');
   });
 
   it('should initialize with fromConfigPath and solver_type', async (t) => {
-    const wasm = require('../../../index.js');
-    if (!wasm.hasWasm) {
-      t.skip();
-      return;
-    }
-    await MICM.initWasm();
     const micm = MICM.fromConfigPath(
       getConfigPath(),
       SolverType.rosenbrock_standard_order
@@ -52,12 +44,6 @@ describe('MICM Initialization', () => {
   });
 
   it('should throw error with invalid config_path type', async (t) => {
-    const wasm = require('../../../index.js');
-    if (!wasm.hasWasm) {
-      t.skip();
-      return;
-    }
-    await MICM.initWasm();
     assert.throws(
       () => MICM.fromConfigPath(123),
       /configPath must be a string/,
@@ -66,12 +52,6 @@ describe('MICM Initialization', () => {
   });
 
   it('should use default solver type', async (t) => {
-    const wasm = require('../../../index.js');
-    if (!wasm.hasWasm) {
-      t.skip();
-      return;
-    }
-    await MICM.initWasm();
     const micm = MICM.fromConfigPath(getConfigPath());
     assert.strictEqual(
       micm.solverType(),
@@ -81,12 +61,6 @@ describe('MICM Initialization', () => {
   });
 
   it('should initialize with backward_euler_standard_order', async (t) => {
-    const wasm = require('../../../index.js');
-    if (!wasm.hasWasm) {
-      t.skip();
-      return;
-    }
-    await MICM.initWasm();
     const micm = MICM.fromConfigPath(
       getConfigPath(),
       SolverType.backward_euler_standard_order
@@ -99,12 +73,6 @@ describe('MICM Initialization', () => {
   });
 
   it('should initialize with fromMechanism', async (t) => {
-    const wasm = require('../../../index.js');
-    if (!wasm.hasWasm) {
-      t.skip();
-      return;
-    }
-    await MICM.initWasm();
     // Create a simple mechanism for testing
     const A = new Species({ name: 'A' });
     const B = new Species({ name: 'B' });
@@ -143,12 +111,6 @@ describe('MICM Initialization', () => {
   });
 
   it('should throw error with invalid mechanism', async (t) => {
-    const wasm = require('../../../index.js');
-    if (!wasm.hasWasm) {
-      t.skip();
-      return;
-    }
-    await MICM.initWasm();
     assert.throws(
       () => MICM.fromMechanism({}),
       /mechanism must be a valid Mechanism object with getJSON\(\) method/,
@@ -157,12 +119,6 @@ describe('MICM Initialization', () => {
   });
 
   it('should throw error with null mechanism', async (t) => {
-    const wasm = require('../../../index.js');
-    if (!wasm.hasWasm) {
-      t.skip();
-      return;
-    }
-    await MICM.initWasm();
     assert.throws(
       () => MICM.fromMechanism(null),
       /mechanism must be a valid Mechanism object with getJSON\(\) method/,
@@ -173,12 +129,6 @@ describe('MICM Initialization', () => {
 
 describe('MICM solverType method', () => {
   it('should return correct solver type', async (t) => {
-    const wasm = require('../../../index.js');
-    if (!wasm.hasWasm) {
-      t.skip();
-      return;
-    }
-    await MICM.initWasm();
     const micm = MICM.fromConfigPath(
       getConfigPath(),
       SolverType.rosenbrock_standard_order
@@ -191,12 +141,6 @@ describe('MICM solverType method', () => {
   });
 
   it('should work with different solver types', async (t) => {
-    const wasm = require('../../../index.js');
-    if (!wasm.hasWasm) {
-      t.skip();
-      return;
-    }
-    await MICM.initWasm();
     const solverTypes = [
       SolverType.rosenbrock_standard_order,
       SolverType.backward_euler_standard_order,
@@ -217,36 +161,18 @@ describe('MICM createState method', () => {
   let micm;
 
   it('should create state with default single grid cell', async (t) => {
-    const wasm = require('../../../index.js');
-    if (!wasm.hasWasm) {
-      t.skip();
-      return;
-    }
-    await MICM.initWasm();
     micm = MICM.fromConfigPath(getConfigPath());
     const state = micm.createState();
     assert.ok(state instanceof State, 'Should create State instance');
   });
 
   it('should create state with explicit single grid cell', async (t) => {
-    const wasm = require('../../../index.js');
-    if (!wasm.hasWasm) {
-      t.skip();
-      return;
-    }
-    await MICM.initWasm();
     micm = MICM.fromConfigPath(getConfigPath());
     const state = micm.createState(1);
     assert.ok(state instanceof State, 'Should create State instance');
   });
 
   it('should create state with multiple grid cells', async (t) => {
-    const wasm = require('../../../index.js');
-    if (!wasm.hasWasm) {
-      t.skip();
-      return;
-    }
-    await MICM.initWasm();
     micm = MICM.fromConfigPath(getConfigPath());
     const numCells = [2, 5, 10, 100];
 
@@ -257,12 +183,6 @@ describe('MICM createState method', () => {
   });
 
   it('should throw error for zero grid cells', async (t) => {
-    const wasm = require('../../../index.js');
-    if (!wasm.hasWasm) {
-      t.skip();
-      return;
-    }
-    await MICM.initWasm();
     micm = MICM.fromConfigPath(getConfigPath());
     assert.throws(
       () => micm.createState(0),
@@ -272,12 +192,6 @@ describe('MICM createState method', () => {
   });
 
   it('should throw error for negative grid cells', async (t) => {
-    const wasm = require('../../../index.js');
-    if (!wasm.hasWasm) {
-      t.skip();
-      return;
-    }
-    await MICM.initWasm();
     micm = MICM.fromConfigPath(getConfigPath());
     assert.throws(
       () => micm.createState(-1),
@@ -287,12 +201,6 @@ describe('MICM createState method', () => {
   });
 
   it('should create multiple independent states', async (t) => {
-    const wasm = require('../../../index.js');
-    if (!wasm.hasWasm) {
-      t.skip();
-      return;
-    }
-    await MICM.initWasm();
     micm = MICM.fromConfigPath(getConfigPath());
     const state1 = micm.createState(1);
     const state2 = micm.createState(5);
@@ -307,12 +215,6 @@ describe('MICM solve method', () => {
   let micm;
 
   it('should solve with valid state and timestep', async (t) => {
-    const wasm = require('../../../index.js');
-    if (!wasm.hasWasm) {
-      t.skip();
-      return;
-    }
-    await MICM.initWasm();
     micm = MICM.fromConfigPath(getConfigPath());
     const state = micm.createState(1);
 
@@ -336,12 +238,6 @@ describe('MICM solve method', () => {
   });
 
   it('should solve with float timestep', async (t) => {
-    const wasm = require('../../../index.js');
-    if (!wasm.hasWasm) {
-      t.skip();
-      return;
-    }
-    await MICM.initWasm();
     micm = MICM.fromConfigPath(getConfigPath());
     const state = micm.createState(1);
 
@@ -361,12 +257,6 @@ describe('MICM solve method', () => {
   });
 
   it('should solve with integer timestep', async (t) => {
-    const wasm = require('../../../index.js');
-    if (!wasm.hasWasm) {
-      t.skip();
-      return;
-    }
-    await MICM.initWasm();
     micm = MICM.fromConfigPath(getConfigPath());
     const state = micm.createState(1);
 
@@ -386,12 +276,6 @@ describe('MICM solve method', () => {
   });
 
   it('should throw error for invalid state type', async (t) => {
-    const wasm = require('../../../index.js');
-    if (!wasm.hasWasm) {
-      t.skip();
-      return;
-    }
-    await MICM.initWasm();
     micm = MICM.fromConfigPath(getConfigPath());
 
     assert.throws(
@@ -402,12 +286,6 @@ describe('MICM solve method', () => {
   });
 
   it('should throw error for invalid timestep type', async (t) => {
-    const wasm = require('../../../index.js');
-    if (!wasm.hasWasm) {
-      t.skip();
-      return;
-    }
-    await MICM.initWasm();
     micm = MICM.fromConfigPath(getConfigPath());
     const state = micm.createState(1);
 
@@ -419,12 +297,6 @@ describe('MICM solve method', () => {
   });
 
   it('should throw error for null state', async (t) => {
-    const wasm = require('../../../index.js');
-    if (!wasm.hasWasm) {
-      t.skip();
-      return;
-    }
-    await MICM.initWasm();
     micm = MICM.fromConfigPath(getConfigPath());
 
     assert.throws(
@@ -435,12 +307,6 @@ describe('MICM solve method', () => {
   });
 
   it('should throw error for undefined state', async (t) => {
-    const wasm = require('../../../index.js');
-    if (!wasm.hasWasm) {
-      t.skip();
-      return;
-    }
-    await MICM.initWasm();
     micm = MICM.fromConfigPath(getConfigPath());
 
     assert.throws(
@@ -451,12 +317,6 @@ describe('MICM solve method', () => {
   });
 
   it('should solve multiple times with same state', async (t) => {
-    const wasm = require('../../../index.js');
-    if (!wasm.hasWasm) {
-      t.skip();
-      return;
-    }
-    await MICM.initWasm();
     micm = MICM.fromConfigPath(getConfigPath());
     const state = micm.createState(1);
 
@@ -484,12 +344,6 @@ describe('MICM solve method', () => {
 
 describe('MICM Integration Tests', () => {
   it('should complete end-to-end workflow', async (t) => {
-    const wasm = require('../../../index.js');
-    if (!wasm.hasWasm) {
-      t.skip();
-      return;
-    }
-    await MICM.initWasm();
     // Initialize solver
     const micm = MICM.fromConfigPath(
       getConfigPath(),
@@ -535,12 +389,6 @@ describe('MICM Integration Tests', () => {
   });
 
   it('should handle multiple solve iterations', async (t) => {
-    const wasm = require('../../../index.js');
-    if (!wasm.hasWasm) {
-      t.skip();
-      return;
-    }
-    await MICM.initWasm();
     const micm = MICM.fromConfigPath(getConfigPath());
     const state = micm.createState(1);
 
@@ -580,12 +428,6 @@ describe('MICM Integration Tests', () => {
   });
 
   it('should work with different solver types', async (t) => {
-    const wasm = require('../../../index.js');
-    if (!wasm.hasWasm) {
-      t.skip();
-      return;
-    }
-    await MICM.initWasm();
     const solverTypes = [
       SolverType.rosenbrock_standard_order,
       SolverType.backward_euler_standard_order,
@@ -619,12 +461,6 @@ describe('MICM Integration Tests', () => {
 
 describe('MICM SolverResult validation', () => {
   it('should return valid SolverResult structure', async (t) => {
-    const wasm = require('../../../index.js');
-    if (!wasm.hasWasm) {
-      t.skip();
-      return;
-    }
-    await MICM.initWasm();
     const micm = MICM.fromConfigPath(getConfigPath());
     const state = micm.createState(1);
 
@@ -649,13 +485,14 @@ describe('MICM SolverResult validation', () => {
 
     // Validate stats structure
     const stats = result.stats;
-    assert.ok(typeof stats.function_calls === 'number', 'Should have function_calls');
-    assert.ok(typeof stats.jacobian_updates === 'number', 'Should have jacobian_updates');
-    assert.ok(typeof stats.number_of_steps === 'number', 'Should have number_of_steps');
-    assert.ok(typeof stats.accepted === 'number', 'Should have accepted');
-    assert.ok(typeof stats.rejected === 'number', 'Should have rejected');
-    assert.ok(typeof stats.decompositions === 'number', 'Should have decompositions');
-    assert.ok(typeof stats.solves === 'number', 'Should have solves');
-    assert.ok(typeof stats.final_time === 'number', 'Should have final_time');
+    console.log(stats)
+    assert.ok(stats.function_calls > 0n);
+    assert.ok(stats.jacobian_updates > 0n);
+    assert.ok(stats.number_of_steps > 0n);
+    assert.ok(stats.accepted > 0n);
+    assert.ok(stats.rejected >= 0n);
+    assert.ok(stats.decompositions > 0n);
+    assert.ok(stats.solves > 0n);
+    assert.ok(stats.final_time >= 0.0);
   });
 });

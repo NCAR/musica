@@ -31,5 +31,8 @@ target_link_options(musica-wasm PRIVATE
     "SHELL:-s EXPORT_NAME='createMusicaModule'"
     "SHELL:-s DISABLE_EXCEPTION_CATCHING=0"
     "SHELL:-s ALLOW_MEMORY_GROWTH=1"
+    "SHELL:-s FORCE_FILESYSTEM=1"
+    "SHELL:-lnodefs.js"
+    "SHELL:-s EXPORTED_RUNTIME_METHODS=['FS','NODEFS']"
     "SHELL:--bind"
 )

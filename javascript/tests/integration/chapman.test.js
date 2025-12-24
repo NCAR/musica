@@ -4,12 +4,16 @@
  * Uses Node.js built-in test runner
  */
 
-const { describe, it } = require('node:test');
+const { describe, it, before } = require('node:test');
 const assert = require('node:assert');
 const path = require('path');
-const musica = require('@ncar/musica');
-const { MICM, SolverType } = musica.micmSolver;
+const musica = require('../../index.js');
+const { MICM, SolverType } = musica;
 const { isClose } = require('../util/testUtils');
+
+before(async () => {
+  await musica.initModule();
+});
 
 /**
  * Test solver with Chapman mechanism
@@ -68,12 +72,6 @@ function testSolve(solver) {
 
 describe('Chapman mechanism with v0 config path', () => {
     it('should solve with v0 config directory', async (t) => {
-        const wasm = require('../../index.js');
-        if (!wasm.hasWasm) {
-            t.skip();
-            return;
-        }
-        await MICM.initWasm();
         const configPath = path.join(__dirname, '../../../configs/v0/chapman');
         const solver = MICM.fromConfigPath(
             configPath,
@@ -85,12 +83,6 @@ describe('Chapman mechanism with v0 config path', () => {
 
 describe('Chapman mechanism with v1 config files', () => {
     it('should solve with v1 JSON config file', async (t) => {
-        const wasm = require('../../index.js');
-        if (!wasm.hasWasm) {
-            t.skip();
-            return;
-        }
-        await MICM.initWasm();
         const configPath = path.join(__dirname, '../../../configs/v1/chapman/config.json');
         const solver = MICM.fromConfigPath(
             configPath,
@@ -100,12 +92,6 @@ describe('Chapman mechanism with v1 config files', () => {
     });
 
     it('should solve with v1 YAML config file', async (t) => {
-        const wasm = require('../../index.js');
-        if (!wasm.hasWasm) {
-            t.skip();
-            return;
-        }
-        await MICM.initWasm();
         const configPath = path.join(__dirname, '../../../configs/v1/chapman/config.yaml');
         const solver = MICM.fromConfigPath(
             configPath,

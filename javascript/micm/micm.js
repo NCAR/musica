@@ -1,39 +1,9 @@
 const { State } = require('./state.js');
 const { SolverType } = require('./solver');
 const { SolverStats, SolverResult } = require('./solver_result');
-
-// WASM backend module
-let backendModule = null;
-
-// Get the WASM backend, throwing an error if not initialized
-function getBackend() {
-	if (backendModule) {
-		return backendModule;
-	}
-
-	// WASM backend not initialized yet
-	const musica = require('../index.js');
-	if (musica && musica.hasWasm) {
-		throw new Error('WASM backend not initialized. Call "await MICM.initWasm()" before using MICM.');
-	}
-
-	throw new Error('WASM module not built. Please run npm run build:wasm');
-}
+const { getBackend } = require('../backend.js');
 
 class MICM {
-	/**
-	 * Initialize WASM backend
-	 * Call this before using MICM
-	 * @returns {Promise<void>}
-	 */
-	static async initWasm() {
-		const musica = require('../index.js');
-		if (!musica.hasWasm) {
-			throw new Error('WASM module not built. Please run npm run build:wasm');
-		}
-		backendModule = await musica.initModule();
-	}
-
 	/**
 	 * Create a MICM solver instance from a configuration file path
 	 * 
@@ -48,7 +18,7 @@ class MICM {
 
 		try {
 			const backend = getBackend();
-			const nativeMICM = backend.MICM.fromConfigPath(configPath, solverType);
+			const nativeMICM = backend.MICM.fromConfigPath(`/host/${configPath}`, solverType);
 			return new MICM(nativeMICM, solverType);
 		} catch (error) {
 			throw new Error(`Failed to create MICM solver from config path: ${error.message}`);
