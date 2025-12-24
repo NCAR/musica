@@ -37,7 +37,7 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
             mc.PhaseSpecies(
                 name=H2O2.name,
                 diffusion_coefficient_m2_s=2.1e-5)
-            ])
+        ])
 
     # Reactions
     my_arrhenius = mc.Arrhenius(
