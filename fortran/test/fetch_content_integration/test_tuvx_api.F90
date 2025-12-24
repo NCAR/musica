@@ -33,7 +33,7 @@ contains
     type(tuvx_t),         pointer :: tuvx
     type(error_t)                 :: error
 
-    config_path = "examples/ts1_tsmlt.json"
+    config_path = "configs/tuvx/ts1_tsmlt.json"
 
     grids => grid_map_t( error )
     ASSERT( error%is_success() )
@@ -111,7 +111,7 @@ contains
     asymmetry_factors(2,:,1,1) = (/ 3.0, 2.0, 1.0 /)
     asymmetry_factors(2,:,2,1) = (/ 7.0, 8.0, 9.0 /)
 
-    config_path = "examples/ts1_tsmlt.json"
+    config_path = "configs/tuvx/ts1_tsmlt.json"
 
     grids_from_host => grid_map_t( error )
     ASSERT( error%is_success() )

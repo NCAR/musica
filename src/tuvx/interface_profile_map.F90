@@ -167,9 +167,14 @@ module tuvx_interface_profile_map
       profile_ptr = c_loc(f_profile)
     class default
       error_code = ERROR_PROFILE_TYPE_MISMATCH
-      deallocate(f_profile)
       profile_ptr = c_null_ptr
     end select
+
+    if (error_code /= ERROR_NONE) then
+      if (associated(f_profile)) then
+        deallocate(f_profile)
+      end if
+    end if
 
   end function internal_get_profile
 
@@ -215,9 +220,14 @@ module tuvx_interface_profile_map
       profile_ptr = c_loc(f_profile)
     class default
       error_code = ERROR_PROFILE_TYPE_MISMATCH
-      deallocate(f_profile)
       profile_ptr = c_null_ptr
     end select
+
+    if (error_code /= ERROR_NONE) then
+      if (associated(f_profile)) then
+        deallocate(f_profile)
+      end if
+    end if
 
   end function internal_get_profile_by_index
 

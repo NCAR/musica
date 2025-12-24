@@ -1,52 +1,11 @@
 {
+  "enable diagnostics" : false,
   "__description": "This is a configuration for testing the TUV-x MUSICA API",
   "O2 absorption": {
-    "cross section parameters file": "test/data/tuvx/from_host/O2_parameters.txt"
+    "cross section parameters file": "configs/tuvx/full_from_host/O2_parameters.txt"
   },
-  "grids": [
-  ],
-  "profiles": [
-    {
-      "name": "air",
-      "units": "molecule cm-3",
-      "type": "from config file",
-      "grid": {
-        "name": "height",
-        "units": "km"
-      },
-      "values": [2.0e19, 1.8e19, 1.6e19, 1.2e19]
-    },
-    {
-      "name": "O2",
-      "units": "molecule cm-3",
-      "type": "from config file",
-      "grid": {
-        "name": "height",
-        "units": "km"
-      },
-      "values": [5.0e17, 4.5e17, 4.0e17, 2.3e17]
-    },
-    {
-      "name": "surface albedo",
-      "units": "none",
-      "type": "from config file",
-      "grid": {
-        "name": "wavelength",
-        "units": "nm"
-      },
-      "uniform value": 0.1
-    },
-    {
-      "name": "extraterrestrial flux",
-      "units": "photon cm-2 s-1",
-      "type": "from config file",
-      "grid": {
-        "name": "wavelength",
-        "units": "nm"
-      },
-      "values": [1.2e14, 1.3e14, 1.4e14, 1.5e14, 1.6e14, 1.7e14]
-    }
-  ],
+  "grids": [],
+  "profiles": [],
   "radiative transfer": {
     "solver": {
       "type": "delta eddington"
@@ -61,7 +20,7 @@
         "type": "base",
         "netcdf files": [
           {
-            "file path": "test/data/tuvx/from_host/O2_cross_section.nc"
+            "file path": "configs/tuvx/full_from_host/O2_cross_section.nc"
           }
         ]
       }
@@ -92,7 +51,7 @@
           "type": "base",
           "netcdf files": [
             {
-              "file path": "test/data/tuvx/from_host/foo_cross_section.nc"
+              "file path": "configs/tuvx/full_from_host/foo_cross_section.nc"
             }
           ]
         },
@@ -110,7 +69,7 @@
           "type": "base",
           "netcdf files": [
             {
-              "file path": "test/data/tuvx/from_host/bar_cross_section.nc"
+              "file path": "configs/tuvx/full_from_host/bar_cross_section.nc"
             }
           ]
         },
@@ -128,13 +87,41 @@
           "type": "base",
           "netcdf files": [
             {
-              "file path": "test/data/tuvx/from_host/foo_cross_section.nc"
+              "file path": "configs/tuvx/full_from_host/foo_cross_section.nc"
             }
           ]
         },
         "quantum yield": {
           "type": "base",
           "constant value": 1.0
+        }
+      }
+    ]
+  },
+  "dose rates": {
+    "rates": [
+      {
+        "name": "UV-A, 315-400 nm",
+        "weights": {
+          "type": "Notch Filter",
+          "notch filter begin": 315.0,
+          "notch filter end": 400.0
+        }
+      },
+      {
+        "name": "UV-B, 280-315 nm",
+        "weights": {
+          "type": "Notch Filter",
+          "notch filter begin": 280.0,
+          "notch filter end": 315.0
+        }
+      },
+      {
+        "name": "UV-B*, 280-320 nm",
+        "weights": {
+          "type": "Notch Filter",
+          "notch filter begin": 280.0,
+          "notch filter end": 320.0
         }
       }
     ]

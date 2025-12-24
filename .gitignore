@@ -2,6 +2,7 @@
 _codeql_detected_source_root
 
 # cmake and build stuff
+python_build/
 build/
 build-wasm/
 build-addon/
