@@ -8,17 +8,36 @@ let backendType = null;
 
 // Lazy load the backend on first use
 function getBackend() {
-	if (!backendModule) {
-		// Try Node.js addon first (synchronous)
-		try {
-			const addon = require('../load_addon');
-			backendModule = addon;
-			backendType = 'node';
-		} catch (error) {
-			throw new Error('Backend not available. For WASM, please initialize with "await MICM.initWasm()" first.');
-		}
+	if (backendModule) {
+		return { backend: backendModule, type: backendType };
 	}
-	return { backend: backendModule, type: backendType };
+
+	// Prefer the Node.js addon when available (synchronous path)
+	try {
+		const addon = require('../load_addon');
+		backendModule = addon;
+		backendType = 'node';
+		return { backend: backendModule, type: backendType };
+	} catch (err) {
+		// Node addon not available. If WASM has been initialized earlier,
+		// it will have populated `backendModule` — check and return if so.
+		if (backendModule && backendType === 'wasm') {
+			return { backend: backendModule, type: backendType };
+		}
+
+		// If a WASM package exists but hasn't been initialized, provide
+		// an actionable error telling the caller to initialize it.
+		try {
+			const wasm = require('../wasm/index.js');
+			if (wasm && wasm.hasWasm) {
+				throw new Error('Node addon not available. For WASM, call "await MICM.initWasm()" before using MICM.');
+			}
+		} catch (e) {
+			// wasm package not present or not built — fall through to generic error
+		}
+
+		throw new Error('No usable backend found. Build the Node addon or run `await MICM.initWasm()` to initialize the WASM backend.');
+	}
 }
 
 class MICM {
@@ -82,7 +101,7 @@ class MICM {
 			// JavaScript Mechanism → JSON String → C++ Parser
 			const mechanismJSON = mechanism.getJSON();
 			const jsonString = JSON.stringify(mechanismJSON);
-			
+
 			const nativeMICM = backend.MICM.fromConfigString(jsonString, solverType);
 			return new MICM(nativeMICM, solverType, type);
 		} catch (error) {

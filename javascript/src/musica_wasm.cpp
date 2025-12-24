@@ -3,16 +3,19 @@
 //
 // WASM bindings for MUSICA using Emscripten
 
+#include "micm/micm_wrapper.h"
+#include "micm/state_wrapper.h"
+
+#include <musica/version.hpp>
+
+#include <micm/version.hpp>
+
 #include <emscripten/bind.h>
+
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
-
-#include <musica/version.hpp>
-#include <micm/version.hpp>
-#include "micm/micm_wrapper.h"
-#include "micm/state_wrapper.h"
 
 using namespace emscripten;
 using namespace musica_addon;
@@ -121,7 +124,7 @@ class StateWrapperWASM
     const std::vector<double>* temperatures = nullptr;
     const std::vector<double>* pressures = nullptr;
     const std::vector<double>* air_densities = nullptr;
-    
+
     std::vector<double> temp_vec, press_vec, air_vec;
 
     if (conditions.hasOwnProperty("temperatures"))
@@ -232,22 +235,22 @@ class MICMWrapperWASM
   MICMWrapperWASM(const MICMWrapperWASM&) = delete;
   MICMWrapperWASM& operator=(const MICMWrapperWASM&) = delete;
 
-  static MICMWrapperWASM fromConfigPath(const std::string& config_path, int solver_type)
+  static std::shared_ptr<MICMWrapperWASM> fromConfigPath(const std::string& config_path, int solver_type)
   {
     auto wrapper = MICMWrapper::FromConfigPath(config_path, solver_type);
-    return MICMWrapperWASM(std::move(wrapper));
+    return std::make_shared<MICMWrapperWASM>(std::move(wrapper));
   }
 
-  static MICMWrapperWASM fromConfigString(const std::string& config_string, int solver_type)
+  static std::shared_ptr<MICMWrapperWASM> fromConfigString(const std::string& config_string, int solver_type)
   {
     auto wrapper = MICMWrapper::FromConfigString(config_string, solver_type);
-    return MICMWrapperWASM(std::move(wrapper));
+    return std::make_shared<MICMWrapperWASM>(std::move(wrapper));
   }
 
-  StateWrapperWASM createState(size_t number_of_grid_cells)
+  std::shared_ptr<StateWrapperWASM> createState(size_t number_of_grid_cells)
   {
     musica::State* state = wrapper_->CreateState(number_of_grid_cells);
-    return StateWrapperWASM(state);
+    return std::make_shared<StateWrapperWASM>(state);
   }
 
   val solve(StateWrapperWASM& state, double time_step)
@@ -257,11 +260,11 @@ class MICMWrapperWASM
     // This is safe as long as the state outlives this solve call.
     musica::State* raw_state = state.getWrapper().GetState();
     auto result = wrapper_->Solve(raw_state, time_step);
-    
+
     // Convert SolverResult to JavaScript object
     val js_result = val::object();
     js_result.set("state", val(static_cast<int>(result.state_)));
-    
+
     val stats = val::object();
     stats.set("function_calls", val(result.stats_.function_calls_));
     stats.set("jacobian_updates", val(result.stats_.jacobian_updates_));
@@ -271,9 +274,9 @@ class MICMWrapperWASM
     stats.set("decompositions", val(result.stats_.decompositions_));
     stats.set("solves", val(result.stats_.solves_));
     stats.set("final_time", val(result.stats_.final_time_));
-    
+
     js_result.set("stats", stats);
-    
+
     return js_result;
   }
 
@@ -292,6 +295,7 @@ EMSCRIPTEN_BINDINGS(musica_module)
   function("getMicmVersion", &GetMicmVersion);
 
   class_<StateWrapperWASM>("State")
+      .smart_ptr<std::shared_ptr<StateWrapperWASM>>("StatePtr")
       .function("setConcentrations", &StateWrapperWASM::setConcentrations)
       .function("getConcentrations", &StateWrapperWASM::getConcentrations)
       .function("setUserDefinedRateParameters", &StateWrapperWASM::setUserDefinedRateParameters)
@@ -305,6 +309,7 @@ EMSCRIPTEN_BINDINGS(musica_module)
       .function("userDefinedRateParameterStrides", &StateWrapperWASM::userDefinedRateParameterStrides);
 
   class_<MICMWrapperWASM>("MICM")
+      .smart_ptr<std::shared_ptr<MICMWrapperWASM>>("MICMPtr")
       .class_function("fromConfigPath", &MICMWrapperWASM::fromConfigPath)
       .class_function("fromConfigString", &MICMWrapperWASM::fromConfigString)
       .function("createState", &MICMWrapperWASM::createState)
