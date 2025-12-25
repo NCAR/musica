@@ -4,29 +4,39 @@
  * Uses Node.js built-in test runner
  */
 
-const { describe, it } = require('node:test');
-const assert = require('node:assert');
-const path = require('path');
-const musica = require('@ncar/musica');
-const { MICM, SolverType, State, SolverResult, SolverStats } = musica.micmSolver;
+import { describe, it, before } from 'node:test';
+import assert from 'node:assert';
+import path from 'path';
+import * as musica from '../../index.js';
+import { fileURLToPath } from 'url';
+
+const { MICM, SolverType, State, SolverResult, SolverStats } = musica;
 const { types, reactionTypes, Mechanism } = musica.mechanismConfiguration;
 const { Species, Phase, ReactionComponent } = types;
+
+// Convert import.meta.url to a file path
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+before(async () => {
+  await musica.initModule();
+});
 
 /**
  * Helper to get the config path for testing
  */
 function getConfigPath() {
-  return path.join(__dirname, '../../../../configs/v0/analytical');
+  return path.join(__dirname, '../../../configs/v0/analytical');
 }
 
 describe('MICM Initialization', () => {
-  it('should initialize with fromConfigPath', () => {
+  it('should initialize with fromConfigPath', async (t) => {
     const micm = MICM.fromConfigPath(getConfigPath());
     assert.ok(micm, 'MICM should be created');
     assert.ok(micm.solverType() !== null, 'Solver type should be set');
   });
 
-  it('should initialize with fromConfigPath and solver_type', () => {
+  it('should initialize with fromConfigPath and solver_type', async (t) => {
     const micm = MICM.fromConfigPath(
       getConfigPath(),
       SolverType.rosenbrock_standard_order
@@ -39,7 +49,7 @@ describe('MICM Initialization', () => {
     );
   });
 
-  it('should throw error with invalid config_path type', () => {
+  it('should throw error with invalid config_path type', async (t) => {
     assert.throws(
       () => MICM.fromConfigPath(123),
       /configPath must be a string/,
@@ -47,7 +57,7 @@ describe('MICM Initialization', () => {
     );
   });
 
-  it('should use default solver type', () => {
+  it('should use default solver type', async (t) => {
     const micm = MICM.fromConfigPath(getConfigPath());
     assert.strictEqual(
       micm.solverType(),
@@ -56,7 +66,7 @@ describe('MICM Initialization', () => {
     );
   });
 
-  it('should initialize with backward_euler_standard_order', () => {
+  it('should initialize with backward_euler_standard_order', async (t) => {
     const micm = MICM.fromConfigPath(
       getConfigPath(),
       SolverType.backward_euler_standard_order
@@ -68,12 +78,12 @@ describe('MICM Initialization', () => {
     );
   });
 
-  it('should initialize with fromMechanism', () => {
+  it('should initialize and solve with fromMechanism', async (t) => {
     // Create a simple mechanism for testing
     const A = new Species({ name: 'A' });
     const B = new Species({ name: 'B' });
     const C = new Species({ name: 'C' });
-    
+
     const gas = new Phase({
       name: 'gas',
       species: [A, B, C]
@@ -104,9 +114,25 @@ describe('MICM Initialization', () => {
     const micm = MICM.fromMechanism(mechanism);
     assert.ok(micm, 'MICM should be created from mechanism');
     assert.ok(micm.solverType() !== null, 'Solver type should be set');
+
+    const state = micm.createState(1);
+    state.setConcentrations({ A: [1.0], B: [2.0], C: [3.0] });
+    state.setConditions({ temperatures: [298.15], pressures: [101325.0], air_densities: [1.0] });
+    state.setUserDefinedRateParameters({
+      'USER.reaction 1': 0.001,
+      'USER.reaction 2': 0.002
+    });
+
+    const result = micm.solve(state, 60.0);
+    assert.ok(result, 'MICM.solve should return a result');
+    let concentrations = state.getConcentrations();
+
+    assert.ok(concentrations.A !== 1.0, 'Concentration of A should have changed after solve');
+    assert.ok(concentrations.B !== 2.0, 'Concentration of B should have changed after solve');
+    assert.ok(concentrations.C !== 3.0, 'Concentration of C should have changed after solve');
   });
 
-  it('should throw error with invalid mechanism', () => {
+  it('should throw error with invalid mechanism', async (t) => {
     assert.throws(
       () => MICM.fromMechanism({}),
       /mechanism must be a valid Mechanism object with getJSON\(\) method/,
@@ -114,7 +140,7 @@ describe('MICM Initialization', () => {
     );
   });
 
-  it('should throw error with null mechanism', () => {
+  it('should throw error with null mechanism', async (t) => {
     assert.throws(
       () => MICM.fromMechanism(null),
       /mechanism must be a valid Mechanism object with getJSON\(\) method/,
@@ -124,7 +150,7 @@ describe('MICM Initialization', () => {
 });
 
 describe('MICM solverType method', () => {
-  it('should return correct solver type', () => {
+  it('should return correct solver type', async (t) => {
     const micm = MICM.fromConfigPath(
       getConfigPath(),
       SolverType.rosenbrock_standard_order
@@ -136,7 +162,7 @@ describe('MICM solverType method', () => {
     );
   });
 
-  it('should work with different solver types', () => {
+  it('should work with different solver types', async (t) => {
     const solverTypes = [
       SolverType.rosenbrock_standard_order,
       SolverType.backward_euler_standard_order,
@@ -156,19 +182,19 @@ describe('MICM solverType method', () => {
 describe('MICM createState method', () => {
   let micm;
 
-  it('should create state with default single grid cell', () => {
+  it('should create state with default single grid cell', async (t) => {
     micm = MICM.fromConfigPath(getConfigPath());
     const state = micm.createState();
     assert.ok(state instanceof State, 'Should create State instance');
   });
 
-  it('should create state with explicit single grid cell', () => {
+  it('should create state with explicit single grid cell', async (t) => {
     micm = MICM.fromConfigPath(getConfigPath());
     const state = micm.createState(1);
     assert.ok(state instanceof State, 'Should create State instance');
   });
 
-  it('should create state with multiple grid cells', () => {
+  it('should create state with multiple grid cells', async (t) => {
     micm = MICM.fromConfigPath(getConfigPath());
     const numCells = [2, 5, 10, 100];
 
@@ -178,7 +204,7 @@ describe('MICM createState method', () => {
     }
   });
 
-  it('should throw error for zero grid cells', () => {
+  it('should throw error for zero grid cells', async (t) => {
     micm = MICM.fromConfigPath(getConfigPath());
     assert.throws(
       () => micm.createState(0),
@@ -187,7 +213,7 @@ describe('MICM createState method', () => {
     );
   });
 
-  it('should throw error for negative grid cells', () => {
+  it('should throw error for negative grid cells', async (t) => {
     micm = MICM.fromConfigPath(getConfigPath());
     assert.throws(
       () => micm.createState(-1),
@@ -196,7 +222,7 @@ describe('MICM createState method', () => {
     );
   });
 
-  it('should create multiple independent states', () => {
+  it('should create multiple independent states', async (t) => {
     micm = MICM.fromConfigPath(getConfigPath());
     const state1 = micm.createState(1);
     const state2 = micm.createState(5);
@@ -210,7 +236,7 @@ describe('MICM createState method', () => {
 describe('MICM solve method', () => {
   let micm;
 
-  it('should solve with valid state and timestep', () => {
+  it('should solve with valid state and timestep', async (t) => {
     micm = MICM.fromConfigPath(getConfigPath());
     const state = micm.createState(1);
 
@@ -233,7 +259,7 @@ describe('MICM solve method', () => {
     assert.ok(result.stats instanceof SolverStats, 'Should have SolverStats');
   });
 
-  it('should solve with float timestep', () => {
+  it('should solve with float timestep', async (t) => {
     micm = MICM.fromConfigPath(getConfigPath());
     const state = micm.createState(1);
 
@@ -252,7 +278,7 @@ describe('MICM solve method', () => {
     assert.ok(result instanceof SolverResult, 'Should solve with float timestep');
   });
 
-  it('should solve with integer timestep', () => {
+  it('should solve with integer timestep', async (t) => {
     micm = MICM.fromConfigPath(getConfigPath());
     const state = micm.createState(1);
 
@@ -271,7 +297,7 @@ describe('MICM solve method', () => {
     assert.ok(result instanceof SolverResult, 'Should solve with integer timestep');
   });
 
-  it('should throw error for invalid state type', () => {
+  it('should throw error for invalid state type', async (t) => {
     micm = MICM.fromConfigPath(getConfigPath());
 
     assert.throws(
@@ -281,7 +307,7 @@ describe('MICM solve method', () => {
     );
   });
 
-  it('should throw error for invalid timestep type', () => {
+  it('should throw error for invalid timestep type', async (t) => {
     micm = MICM.fromConfigPath(getConfigPath());
     const state = micm.createState(1);
 
@@ -292,7 +318,7 @@ describe('MICM solve method', () => {
     );
   });
 
-  it('should throw error for null state', () => {
+  it('should throw error for null state', async (t) => {
     micm = MICM.fromConfigPath(getConfigPath());
 
     assert.throws(
@@ -302,7 +328,7 @@ describe('MICM solve method', () => {
     );
   });
 
-  it('should throw error for undefined state', () => {
+  it('should throw error for undefined state', async (t) => {
     micm = MICM.fromConfigPath(getConfigPath());
 
     assert.throws(
@@ -312,7 +338,7 @@ describe('MICM solve method', () => {
     );
   });
 
-  it('should solve multiple times with same state', () => {
+  it('should solve multiple times with same state', async (t) => {
     micm = MICM.fromConfigPath(getConfigPath());
     const state = micm.createState(1);
 
@@ -339,7 +365,7 @@ describe('MICM solve method', () => {
 });
 
 describe('MICM Integration Tests', () => {
-  it('should complete end-to-end workflow', () => {
+  it('should complete end-to-end workflow', async (t) => {
     // Initialize solver
     const micm = MICM.fromConfigPath(
       getConfigPath(),
@@ -384,7 +410,7 @@ describe('MICM Integration Tests', () => {
     assert.ok('C' in concentrations, 'Should have species C');
   });
 
-  it('should handle multiple solve iterations', () => {
+  it('should handle multiple solve iterations', async (t) => {
     const micm = MICM.fromConfigPath(getConfigPath());
     const state = micm.createState(1);
 
@@ -423,7 +449,7 @@ describe('MICM Integration Tests', () => {
     assert.ok(finalConcentrations.A[0] !== 1.0, 'Concentration A should have changed');
   });
 
-  it('should work with different solver types', () => {
+  it('should work with different solver types', async (t) => {
     const solverTypes = [
       SolverType.rosenbrock_standard_order,
       SolverType.backward_euler_standard_order,
@@ -456,7 +482,7 @@ describe('MICM Integration Tests', () => {
 });
 
 describe('MICM SolverResult validation', () => {
-  it('should return valid SolverResult structure', () => {
+  it('should return valid SolverResult structure', async (t) => {
     const micm = MICM.fromConfigPath(getConfigPath());
     const state = micm.createState(1);
 
@@ -481,13 +507,13 @@ describe('MICM SolverResult validation', () => {
 
     // Validate stats structure
     const stats = result.stats;
-    assert.ok(typeof stats.function_calls === 'number', 'Should have function_calls');
-    assert.ok(typeof stats.jacobian_updates === 'number', 'Should have jacobian_updates');
-    assert.ok(typeof stats.number_of_steps === 'number', 'Should have number_of_steps');
-    assert.ok(typeof stats.accepted === 'number', 'Should have accepted');
-    assert.ok(typeof stats.rejected === 'number', 'Should have rejected');
-    assert.ok(typeof stats.decompositions === 'number', 'Should have decompositions');
-    assert.ok(typeof stats.solves === 'number', 'Should have solves');
-    assert.ok(typeof stats.final_time === 'number', 'Should have final_time');
+    assert.ok(stats.function_calls > 0n);
+    assert.ok(stats.jacobian_updates > 0n);
+    assert.ok(stats.number_of_steps > 0n);
+    assert.ok(stats.accepted > 0n);
+    assert.ok(stats.rejected >= 0n);
+    assert.ok(stats.decompositions > 0n);
+    assert.ok(stats.solves > 0n);
+    assert.ok(stats.final_time >= 0.0);
   });
 });

@@ -1,68 +1,9 @@
-const { State } = require('./state.js');
-const { SolverType } = require('./solver');
-const { SolverStats, SolverResult } = require('./solver_result');
+import { State } from './state.js';
+import { SolverType } from './solver.js';
+import { SolverStats, SolverResult } from './solver_result.js';
+import { getBackend } from '../backend.js';
 
-// Try to load backend - will be null if not initialized
-let backendModule = null;
-let backendType = null;
-
-// Lazy load the backend on first use
-function getBackend() {
-	if (backendModule) {
-		return { backend: backendModule, type: backendType };
-	}
-
-	// Prefer the Node.js addon when available (synchronous path)
-	try {
-		const addon = require('../load_addon');
-		backendModule = addon;
-		backendType = 'node';
-		return { backend: backendModule, type: backendType };
-	} catch (err) {
-		// Node addon not available. If WASM has been initialized earlier,
-		// it will have populated `backendModule` — check and return if so.
-		if (backendModule && backendType === 'wasm') {
-			return { backend: backendModule, type: backendType };
-		}
-
-		// If a WASM package exists but hasn't been initialized, provide
-		// an actionable error telling the caller to initialize it.
-		try {
-			const wasm = require('../wasm/index.js');
-			if (wasm && wasm.hasWasm) {
-				throw new Error('Node addon not available. For WASM, call "await MICM.initWasm()" before using MICM.');
-			}
-		} catch (e) {
-			// wasm package not present or not built — fall through to generic error
-		}
-
-		throw new Error('No usable backend found. Build the Node addon or run `await MICM.initWasm()` to initialize the WASM backend.');
-	}
-}
-
-class MICM {
-	/**
-	 * Initialize WASM backend (if available)
-	 * Call this before using MICM with WASM
-	 * @returns {Promise<void>}
-	 */
-	static async initWasm() {
-		const wasm = require('../wasm/index.js');
-		if (!wasm.hasWasm) {
-			throw new Error('WASM module not built. Please run npm run build:wasm');
-		}
-		backendModule = await wasm.initModule();
-		backendType = 'wasm';
-	}
-
-	/**
-	 * Get the current backend type
-	 * @returns {string|null} 'wasm' or 'node' or null
-	 */
-	static getBackendType() {
-		return backendType;
-	}
-
+export class MICM {
 	/**
 	 * Create a MICM solver instance from a configuration file path
 	 * 
@@ -76,9 +17,19 @@ class MICM {
 		}
 
 		try {
-			const { backend, type } = getBackend();
-			const nativeMICM = backend.MICM.fromConfigPath(configPath, solverType);
-			return new MICM(nativeMICM, solverType, type);
+			const backend = getBackend();
+			// In Node.js with NODEFS mounted, configuration files are exposed under /host.
+			// In browser environments, this prefix is invalid, so only add it when running under Node.
+			let resolvedConfigPath = configPath;
+			const isNodeEnv =
+				typeof process !== 'undefined' &&
+				process.versions != null &&
+				process.versions.node != null;
+			if (isNodeEnv && !configPath.startsWith('/host/')) {
+				resolvedConfigPath = `/host/${configPath}`;
+			}
+			const nativeMICM = backend.MICM.fromConfigPath(resolvedConfigPath, solverType);
+			return new MICM(nativeMICM, solverType);
 		} catch (error) {
 			throw new Error(`Failed to create MICM solver from config path: ${error.message}`);
 		}
@@ -97,13 +48,12 @@ class MICM {
 		}
 
 		try {
-			const { backend, type } = getBackend();
-			// JavaScript Mechanism → JSON String → C++ Parser
+			const backend = getBackend();
 			const mechanismJSON = mechanism.getJSON();
 			const jsonString = JSON.stringify(mechanismJSON);
 
 			const nativeMICM = backend.MICM.fromConfigString(jsonString, solverType);
-			return new MICM(nativeMICM, solverType, type);
+			return new MICM(nativeMICM, solverType);
 		} catch (error) {
 			throw new Error(`Failed to create MICM solver from mechanism: ${error.message}`);
 		}
@@ -113,10 +63,9 @@ class MICM {
 	 * Private constructor - use static factory methods instead
 	 * @private
 	 */
-	constructor(nativeMICM, solverType, backendType) {
+	constructor(nativeMICM, solverType) {
 		this._nativeMICM = nativeMICM;
 		this._solverType = solverType;
-		this._backendType = backendType;
 	}
 
 	solverType() {
@@ -128,7 +77,7 @@ class MICM {
 			throw new RangeError('number_of_grid_cells must be greater than 0');
 		}
 		const nativeState = this._nativeMICM.createState(numberOfGridCells);
-		return new State(nativeState, this._backendType);
+		return new State(nativeState);
 	}
 
 	solve(state, timeStep) {
@@ -146,4 +95,3 @@ class MICM {
 		return new SolverResult(result.state, stats);
 	}
 }
-module.exports = { MICM };

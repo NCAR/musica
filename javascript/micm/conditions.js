@@ -1,6 +1,6 @@
-const { GAS_CONSTANT } = require('./utils.js');
+import { GAS_CONSTANT } from './utils.js';
 
-class Conditions {
+export class Conditions {
     constructor({
         temperature = null,
         pressure = null,
@@ -17,4 +17,3 @@ class Conditions {
         }
     }
 }
-module.exports = { Conditions };

@@ -1,6 +1,5 @@
-const { convertOtherProperties } = require('./utils.js');
+import { convertOtherProperties } from './utils.js';
 
-// ========== REACTION TYPES ==========
 class Arrhenius {
 	#keys = [
 		'A',
@@ -448,7 +447,7 @@ class UserDefined {
 	}
 }
 
-const reactionTypes = {
+export const reactionTypes = {
 	Arrhenius,
 	Branched,
 	Emission,
@@ -461,5 +460,3 @@ const reactionTypes = {
 	Tunneling,
 	UserDefined,
 };
-
-module.exports = { reactionTypes };

@@ -1,6 +1,7 @@
-const { test } = require('node:test');
-const assert = require('node:assert');
-const musica = require('@ncar/musica');
+import { test } from 'node:test';
+import assert from 'node:assert';
+import * as musica from '../../index.js';
+
 const { types, reactionTypes, Mechanism } = musica.mechanismConfiguration;
 const { Species, PhaseSpecies, Phase, ReactionComponent } = types;
 
