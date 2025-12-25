@@ -124,6 +124,7 @@ describe('MICM Initialization', () => {
     });
 
     const result = micm.solve(state, 60.0);
+    assert.ok(result, 'MICM.solve should return a result');
     let concentrations = state.getConcentrations();
 
     assert.ok(concentrations.A !== 1.0, 'Concentration of A should have changed after solve');
