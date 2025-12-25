@@ -4,12 +4,18 @@
  * Uses Node.js built-in test runner
  */
 
-const { describe, it, before } = require('node:test');
-const assert = require('node:assert');
-const path = require('path');
-const musica = require('../../../index.js');
+import { describe, it, before } from 'node:test';
+import assert from 'node:assert';
+import path from 'path';
+import * as musica from '../../../index.js';
+import { isClose } from '../../util/testUtils.js';
+import { fileURLToPath } from 'url';
+
 const { MICM } = musica;
-const { isClose } = require('../../util/testUtils');
+
+// Convert import.meta.url to a file path
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 before(async () => {
   await musica.initModule();

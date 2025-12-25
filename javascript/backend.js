@@ -1,23 +1,38 @@
-let wasm = null;
+// backend.js (ESM)
+let wasmModule = null;
 
-async function initModule() {
-  if (wasm) return wasm;
-  const createMusicaModule = require('./wasm/musica.js');
-  wasm = await createMusicaModule();
+/**
+ * Initialize the MUSICA WASM module
+ * Must be called before using any WASM functionality
+ * @returns {Promise<Object>} The initialized WASM module
+ */
+export async function initModule() {
+  if (wasmModule) return wasmModule;
 
-  // Mount the host filesystem at /host
-  const { FS, NODEFS } = wasm;
-  FS.mkdir('/host');
-  FS.mount(NODEFS, { root: '/' }, '/host');
+  const isNode =
+    typeof process !== 'undefined' &&
+    process.versions?.node != null;
 
-  return wasm;
-}
+  // Dynamically import the Emscripten module in both environments
+  const { default: createMusicaModule } = await import('./wasm/musica.js');
+  wasmModule = await createMusicaModule();
 
-function getBackend() {
-  if (!wasm) {
-    throw new Error("WASM not initialized. Call await initModule()");
+  if (isNode) {
+    const { FS, NODEFS } = wasmModule;
+    FS.mkdir('/host');
+    FS.mount(NODEFS, { root: '/' }, '/host');
   }
-  return wasm;
+
+  return wasmModule;
 }
 
-module.exports = { initModule, getBackend };
+/**
+ * Get the initialized WASM module
+ * @returns {Object} WASM module
+ */
+export function getBackend() {
+  if (!wasmModule) {
+    throw new Error('WASM not initialized. Call await initModule() first.');
+  }
+  return wasmModule;
+}

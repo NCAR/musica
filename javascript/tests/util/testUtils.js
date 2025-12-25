@@ -1,9 +1,3 @@
-let musica_wasm = require('../../index.js');
-
-/**
- * Shared test utilities for JavaScript tests
- */
-
 /**
  * Check if two values are close (equivalent to pytest.approx or np.isclose)
  * @param {number} a - First value
@@ -12,12 +6,7 @@ let musica_wasm = require('../../index.js');
  * @param {number} rtol - Relative tolerance (default: 1e-9)
  * @returns {boolean} True if values are close within tolerance
  */
-function isClose(a, b, atol = 1e-5, rtol = 1e-9) {
+export function isClose(a, b, atol = 1e-5, rtol = 1e-9) {
   const diff = Math.abs(a - b);
   return diff <= (atol + rtol * Math.abs(b));
 }
-
-module.exports = {
-  isClose,
-  musica_wasm,
-};

@@ -1,6 +1,6 @@
-const { isScalarNumber } = require('./utils');
+import { isScalarNumber } from './utils.js';
 
-class State {
+export class State {
 	constructor(nativeState) {
 		this._nativeState = nativeState;
 	}
@@ -80,4 +80,3 @@ class State {
 		return this._nativeState.userDefinedRateParameterStrides();
 	}
 }
-module.exports = { State };

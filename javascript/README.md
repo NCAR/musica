@@ -111,7 +111,7 @@ to serve this file with python. Navigate to the [wasm](wasm) directory and run t
 python3 -m http.server 8000
 ```
 
-You'll then be able to open http://localhost:8000/example.html in your browser
+You'll then be able to open http://localhost:8000/wasm/example.html in your browser
 and see musica return data from C++ through web assembly!
 
 ## API Features

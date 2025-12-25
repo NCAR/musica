@@ -1,9 +1,9 @@
-const { State } = require('./state.js');
-const { SolverType } = require('./solver');
-const { SolverStats, SolverResult } = require('./solver_result');
-const { getBackend } = require('../backend.js');
+import { State } from './state.js';
+import { SolverType } from './solver.js';
+import { SolverStats, SolverResult } from './solver_result.js';
+import { getBackend } from '../backend.js';
 
-class MICM {
+export class MICM {
 	/**
 	 * Create a MICM solver instance from a configuration file path
 	 * 
@@ -39,7 +39,6 @@ class MICM {
 
 		try {
 			const backend = getBackend();
-			// JavaScript Mechanism → JSON String → C++ Parser
 			const mechanismJSON = mechanism.getJSON();
 			const jsonString = JSON.stringify(mechanismJSON);
 
@@ -86,4 +85,3 @@ class MICM {
 		return new SolverResult(result.state, stats);
 	}
 }
-module.exports = { MICM };

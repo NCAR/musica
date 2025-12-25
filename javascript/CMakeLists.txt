@@ -28,6 +28,7 @@ set_target_properties(musica-wasm PROPERTIES
 target_link_options(musica-wasm PRIVATE
     "SHELL:-s WASM=1"
     "SHELL:-s MODULARIZE=1"
+    "SHELL:-s EXPORT_ES6=1"
     "SHELL:-s EXPORT_NAME='createMusicaModule'"
     "SHELL:-s DISABLE_EXCEPTION_CATCHING=0"
     "SHELL:-s ALLOW_MEMORY_GROWTH=1"

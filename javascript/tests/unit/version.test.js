@@ -1,6 +1,6 @@
-const assert = require('node:assert');
-const { describe, it, before } = require('node:test');
-const musica = require('../../index.js');
+import { describe, it, before } from 'node:test';
+import assert from 'node:assert';
+import * as musica from '../../index.js';
 
 before(async () => {
   await musica.initModule();
