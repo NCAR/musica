@@ -9,7 +9,7 @@ import * as musica from '@ncar/musica';
 const { MICM } = musica;
 
 // Initialize WASM backend
-await MICM.initWasm();
+await musica.initModule();
 
 // Create MICM instance from configuration
 const micm = MICM.fromConfigPath('./configs/my_mechanism');
