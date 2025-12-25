@@ -1,5 +1,5 @@
-// sanatize jason object
-// output jsaon string
+// sanitize JSON object
+// output JSON string
 export function convertOtherProperties(other_properties) {
   let obj = {};
 	for (const key in other_properties) {
