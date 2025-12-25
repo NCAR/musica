@@ -18,7 +18,17 @@ export class MICM {
 
 		try {
 			const backend = getBackend();
-			const nativeMICM = backend.MICM.fromConfigPath(`/host/${configPath}`, solverType);
+			// In Node.js with NODEFS mounted, configuration files are exposed under /host.
+			// In browser environments, this prefix is invalid, so only add it when running under Node.
+			let resolvedConfigPath = configPath;
+			const isNodeEnv =
+				typeof process !== 'undefined' &&
+				process.versions != null &&
+				process.versions.node != null;
+			if (isNodeEnv && !configPath.startsWith('/host/')) {
+				resolvedConfigPath = `/host/${configPath}`;
+			}
+			const nativeMICM = backend.MICM.fromConfigPath(resolvedConfigPath, solverType);
 			return new MICM(nativeMICM, solverType);
 		} catch (error) {
 			throw new Error(`Failed to create MICM solver from config path: ${error.message}`);
