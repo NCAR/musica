@@ -7,8 +7,8 @@
 import { describe, it, before } from 'node:test';
 import assert from 'node:assert';
 import path from 'path';
-import * as musica from '../../../index.js';
-import { isClose } from '../../util/testUtils.js';
+import * as musica from '../../index.js';
+import { isClose } from '../util/testUtils.js';
 import { fileURLToPath } from 'url';
 
 const { MICM } = musica;
@@ -18,7 +18,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 before(async () => {
-  await musica.initModule();
+    await musica.initModule();
 });
 
 /**
@@ -28,7 +28,7 @@ before(async () => {
 function createTestMechanism() {
     // For JavaScript, we'll use a config path instead of mechanism object
     // as the mechanism configuration API might not be fully exposed
-    return path.join(__dirname, '../../../../configs/v0/analytical');
+    return path.join(__dirname, '../../../configs/v0/analytical');
 }
 
 describe('State initialization', () => {

@@ -7,7 +7,7 @@
 import { describe, it, before } from 'node:test';
 import assert from 'node:assert';
 import path from 'path';
-import * as musica from '../../../index.js';
+import * as musica from '../../index.js';
 import { fileURLToPath } from 'url';
 
 const { MICM, SolverType, State, SolverResult, SolverStats } = musica;
@@ -26,7 +26,7 @@ before(async () => {
  * Helper to get the config path for testing
  */
 function getConfigPath() {
-  return path.join(__dirname, '../../../../configs/v0/analytical');
+  return path.join(__dirname, '../../../configs/v0/analytical');
 }
 
 describe('MICM Initialization', () => {
@@ -83,7 +83,7 @@ describe('MICM Initialization', () => {
     const A = new Species({ name: 'A' });
     const B = new Species({ name: 'B' });
     const C = new Species({ name: 'C' });
-    
+
     const gas = new Phase({
       name: 'gas',
       species: [A, B, C]
