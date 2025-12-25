@@ -5,8 +5,8 @@ MUSICA provides a JavaScript interface using WebAssembly (WASM) for portable, cr
 ## Quick Start
 
 ```javascript
-const musica = require('@ncar/musica');
-const { MICM } = musica.micmSolver;
+import * as musica from '@ncar/musica';
+const { MICM } = musica;
 
 // Initialize WASM backend
 await MICM.initWasm();
@@ -24,7 +24,7 @@ const result = micm.solve(state, 60.0);
 The version functions use the WASM backend and are asynchronous:
 
 ```javascript
-const musica = require('@ncar/musica');
+import * as musica from '@ncar/musica';
 
 // Asynchronous API (returns Promises)
 const version = await musica.getVersion();
@@ -39,11 +39,11 @@ console.log('MICM Version:', micmVersion);
 The MICM solver provides a consistent interface for atmospheric chemistry modeling:
 
 ```javascript
-const musica = require('@ncar/musica');
-const { MICM, SolverType } = musica.micmSolver;
+import * as musica from '@ncar/musica';
+const { MICM, SolverType } = musica;
 
 // Initialize WASM backend
-await MICM.initWasm();
+await musica.initModule();
 
 // Create MICM instance from configuration
 const micm = MICM.fromConfigPath('./configs/analytical');
@@ -96,16 +96,17 @@ The WASM files (`musica.js` and `musica.wasm`) will be automatically placed in t
 ## Testing
 
 ```bash
-npm test
+npm run test
 ```
 
-## Browser Usage
+## Browser Example
 
 in [wasm](wasm) there is an [example.html](wasm/example.html) file which will
-display the version number from musica by making a call into musica with the built library.
+display the version number from musica and micm as well as solve a very simple
+system by making calls into musica with the built library.
 
 To run this, the file must be provided by a web server. A simple way to view this is
-to serve this file with python. Navigate to the [wasm](wasm) directory and run this command
+to serve this file with python. From this directory ([javascript](./)), run a server
 
 ```bash
 python3 -m http.server 8000
@@ -113,14 +114,3 @@ python3 -m http.server 8000
 
 You'll then be able to open http://localhost:8000/wasm/example.html in your browser
 and see musica return data from C++ through web assembly!
-
-## API Features
-
-### Completed
-- ✅ MICM class with `fromConfigPath`, `fromMechanism`, `createState`, `solve` methods
-- ✅ State class with all methods (concentrations, conditions, parameters, etc.)
-- ✅ Version functions (`getVersion`, `getMicmVersion`)
-- ✅ Unified JavaScript API using WASM backend
-- ✅ Full test suite for unit and integration tests
-
-The JavaScript interface is production-ready and actively maintained.
