@@ -112,9 +112,9 @@
                     const state = micm.createState(1);
 
                     // Set initial conditions and concentrations
-                    state.setConcentrations({ A: [1.0], B: [2.0], C: [3.0] });
+                    state.setConcentrations({ A: [1.0], B: [0.0], C: [0.0] });
                     state.setConditions({ temperatures: [298.15], pressures: [101325.0], air_densities: [1.0] });
-                    state.setUserDefinedRateParameters({ 'USER.reaction 1': 0.001, 'USER.reaction 2': 0.002 });
+                    state.setUserDefinedRateParameters({ 'USER.reaction 1': 0.1, 'USER.reaction 2': 0.2 });
 
                     // Prepare results table
                     const resultsContainer = document.createElement('div');
