@@ -54,4 +54,4 @@ jobs:
       
       - name: Run javascript tests in container
         if: matrix.dockerfile == 'Dockerfile.javascript'
-        run: docker run --name test-container -t musica bash -c 'cd javascript ci && npm run test'
+        run: docker run --name test-container -t musica bash -c 'npm run test'
