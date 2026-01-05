@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.24)
 
 # must be on the same line so that pyproject.toml can correctly identify the version
 project(musica-distribution VERSION 0.14.1)
