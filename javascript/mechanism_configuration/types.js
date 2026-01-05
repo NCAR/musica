@@ -1,6 +1,5 @@
-const { convertOtherProperties } = require('./utils');
+import { convertOtherProperties } from './utils.js';
 
-// =========== TYPES ===========
 class Species {
 	#keys = [
 		'name',
@@ -108,6 +107,4 @@ class ReactionComponent {
 	}
 }
 
-const types = { Species, PhaseSpecies, Phase, ReactionComponent };
-
-module.exports = { types };
+export const types = { Species, PhaseSpecies, Phase, ReactionComponent };

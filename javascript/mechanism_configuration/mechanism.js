@@ -1,5 +1,4 @@
-// ========== MECHANISM ==========
-class Mechanism {
+export class Mechanism {
     constructor({ name, version, species, phases, reactions }) {
         this.name = name;
         this.version = version;
@@ -21,4 +20,3 @@ class Mechanism {
         return JSON.stringify(this.getJSON());
     }
 }
-module.exports = { Mechanism };

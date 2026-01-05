@@ -10,7 +10,7 @@
 /**
  * Enum representing the state of the solver after execution
  */
-const SolverState = {
+export const SolverState = {
   NotYetCalled: 0,
   Running: 1,
   Converged: 2,
@@ -25,7 +25,7 @@ const SolverState = {
 /**
  * Class representing solver statistics
  */
-class SolverStats {
+export class SolverStats {
   constructor({
     function_calls = 0,
     jacobian_updates = 0,
@@ -54,7 +54,7 @@ class SolverStats {
 /**
  * Class representing the combined solver result
  */
-class SolverResult {
+export class SolverResult {
   /**
    * @param {number} state - The solver state (from SolverState enum)
    * @param {SolverStats} stats - The solver statistics
@@ -71,5 +71,3 @@ class SolverResult {
     return `SolverResult{state: ${stateName}, stats: ${this.stats}}`;
   }
 }
-
-module.exports = { SolverState, SolverStats, SolverResult };
