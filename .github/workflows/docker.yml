@@ -27,6 +27,7 @@ jobs:
           - Dockerfile.mpi
           - Dockerfile.mpi_openmp
           - Dockerfile.nvhpc
+          - Dockerfile.javascript
         build_type: [Release, Debug]
         exclude:
           - dockerfile: Dockerfile.nvhpc
@@ -48,5 +49,9 @@ jobs:
         run: docker build -t musica -f docker/${{ matrix.dockerfile }} . --build-arg MUSICA_GIT_TAG=${{ github.sha }} --build-arg BUILD_TYPE=${{ matrix.build_type }}
 
       - name: Run tests in container
-        if: matrix.dockerfile != 'Dockerfile.nvhpc'
+        if: matrix.dockerfile != 'Dockerfile.nvhpc' && matrix.dockerfile != 'Dockerfile.javascript'
         run: docker run --name test-container -t musica bash -c 'make test ARGS="--rerun-failed --output-on-failure -j8"'
+      
+      - name: Run javascript tests in container
+        if: matrix.dockerfile == 'Dockerfile.javascript'
+        run: docker run --name test-container -t musica bash -c 'npm run test'
