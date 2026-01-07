@@ -54,14 +54,10 @@ function(musica_setup_target target)
       PRIVATE
         $<TARGET_OBJECTS:tuvx_object>
     )
-    target_link_libraries(${target}
-      PUBLIC
-        tuvx_object
-    )
     target_include_directories(${target}
       PUBLIC
-        $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
-        $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
+        $<BUILD_INTERFACE:${MUSICA_CPP_MOD_DIR}>
+        $<INSTALL_INTERFACE:${MUSICA_INSTALL_CPP_MOD_DIR}>
     )
   endif()
 
@@ -71,20 +67,19 @@ function(musica_setup_target target)
       PRIVATE
         $<TARGET_OBJECTS:carma_object>
     )
-    target_link_libraries(${target}
-      PUBLIC
-        carma_object
-    )
     target_include_directories(${target}
       PUBLIC
-        $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
-        $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
+        $<BUILD_INTERFACE:${MUSICA_CPP_MOD_DIR}>
+        $<INSTALL_INTERFACE:${MUSICA_INSTALL_CPP_MOD_DIR}>
     )
     if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
       target_compile_options(carma_object PUBLIC $<$<COMPILE_LANGUAGE:Fortran>:-ffree-line-length-none>)
     endif()
   endif()
 
+  if (MUSICA_ENABLE_CARMA OR MUSICA_ENABLE_TUVX)
+    target_link_libraries(${target} PRIVATE PkgConfig::netcdfc PkgConfig::netcdff)
+  endif()
 
   target_compile_definitions(${target} PUBLIC ${musica_compile_definitions})
 endfunction()

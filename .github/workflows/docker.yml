@@ -55,3 +55,34 @@ jobs:
       - name: Run javascript tests in container
         if: matrix.dockerfile == 'Dockerfile.javascript'
         run: docker run --name test-container -t musica bash -c 'npm run test'
+
+  docker-fetch-content-integration:
+    name: FetchContent Integration Test
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        target:
+          - gcc-test
+          - intel-test
+          - nvhpc-test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: false
+
+      - name: Build Docker image
+        run: docker build -t musica -f docker/Dockerfile.fetch-contnent . --build-arg MUSICA_GIT_TAG=${{ github.sha }} --build-arg BUILD_TYPE=${{ matrix.build_type }}
+
+      - name: Run tests in container
+        if: matrix.dockerfile != 'Dockerfile.nvhpc'
+        run: docker run --name test-container -t musica bash -c 'make test ARGS="--rerun-failed --output-on-failure -j8"'

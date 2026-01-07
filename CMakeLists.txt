@@ -49,9 +49,16 @@ cmake_dependent_option(
 ################################################################################
 # Projet wide setup variables 
 set(MUSICA_INSTALL_INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR})
-set(MUSICA_MOD_DIR ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_INCLUDEDIR})
 set(MUSICA_LIB_DIR ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
 set(MUSICA_PROJECT_SRC_DIR ${PROJECT_SOURCE_DIR})
+
+# Top-level module directories
+set(MUSICA_CPP_MOD_DIR ${PROJECT_BINARY_DIR}/mod_cpp)
+set(MUSICA_FORTRAN_MOD_DIR ${PROJECT_BINARY_DIR}/mod_fortran)
+
+# Top-level install locations
+set(MUSICA_INSTALL_CPP_MOD_DIR ${CMAKE_INSTALL_INCLUDEDIR}/musica/cpp_mods)
+set(MUSICA_INSTALL_FORTRAN_MOD_DIR ${CMAKE_INSTALL_INCLUDEDIR}/musica/fortran)
 
 set(musica_compile_definitions "")
 

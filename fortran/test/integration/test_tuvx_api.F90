@@ -416,7 +416,7 @@ contains
     ASSERT_EQ( temp_asym(2,1,2,1), 7.0 )
     ASSERT_EQ( temp_asym(2,2,2,1), 8.0 )
     ASSERT_EQ( temp_asym(2,3,2,1), 9.0 )
-!
+
     call radiators%add( radiator, error )
     radiator_copy => radiators%get( "foo_radiator", error )
 

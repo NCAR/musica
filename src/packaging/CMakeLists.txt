@@ -49,33 +49,13 @@ if(MUSICA_ENABLE_MICM)
   )
 endif()
 
-# install TUV-x
-if (MUSICA_ENABLE_TUVX)
-  install(
-    TARGETS
-      tuvx_object
-    EXPORT
-      musica_Exports
-  )
-endif()
-
-# install CARMA
-if (MUSICA_ENABLE_CARMA)
-  install(
-    TARGETS
-      carma_object
-    EXPORT
-      musica_Exports
-  )
-endif()
-
 if (MUSICA_ENABLE_TUVX OR MUSICA_ENABLE_CARMA)
   # TUV-x and CARMA code is written in Fortran, so we need module files
   install(
     DIRECTORY
-      ${MUSICA_MOD_DIR}/../include/
+      ${MUSICA_CPP_MOD_DIR}/
     DESTINATION
-      ${MUSICA_INSTALL_INCLUDE_DIR}/musica/fortran
+      ${MUSICA_INSTALL_CPP_MOD_DIR}
     FILES_MATCHING PATTERN "*.mod"
   )
 endif()

@@ -11,9 +11,9 @@ install(
 
 install(
   DIRECTORY
-    ${MUSICA_FORTRAN_MOD_DIR}/../include/
+    ${MUSICA_FORTRAN_MOD_DIR}/
   DESTINATION
-    ${MUSICA_INSTALL_INCLUDE_DIR}/musica/fortran
+    ${MUSICA_INSTALL_FORTRAN_MOD_DIR}
   FILES_MATCHING PATTERN "*.mod"
 )
 

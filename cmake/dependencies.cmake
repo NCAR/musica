@@ -99,8 +99,8 @@ endif()
 
 if (MUSICA_ENABLE_TUVX AND MUSICA_BUILD_C_CXX_INTERFACE)
   set(TUVX_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
-  set(TUVX_MOD_DIR ${MUSICA_MOD_DIR} CACHE STRING "" FORCE)
-  set(TUVX_INSTALL_MOD_DIR ${MUSICA_INSTALL_INCLUDE_DIR} CACHE STRING "" FORCE)
+  set(TUVX_MOD_DIR ${MUSICA_CPP_MOD_DIR} CACHE STRING "" FORCE)
+  set(TUVX_INSTALL_MOD_DIR ${MUSICA_INSTALL_CPP_MOD_DIR} CACHE STRING "" FORCE)
   set(TUVX_INSTALL_INCLUDE_DIR ${MUSICA_INSTALL_INCLUDE_DIR} CACHE STRING "" FORCE)
 
   set_git_default(TUVX_GIT_REPOSITORY https://github.com/NCAR/tuv-x.git)
@@ -152,6 +152,15 @@ if(MUSICA_ENABLE_PYTHON_LIBRARY)
   )
 
   FetchContent_MakeAvailable(pybind11)
+endif()
+
+################################################################################
+# netcdf
+
+if (MUSICA_ENABLE_CARMA OR MUSICA_ENABLE_TUVX)
+  find_package(PkgConfig REQUIRED)
+  pkg_check_modules(netcdfc IMPORTED_TARGET REQUIRED netcdf)
+  pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
 endif()
 
 ################################################################################
