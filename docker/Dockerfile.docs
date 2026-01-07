@@ -1,31 +1,41 @@
-FROM fedora:latest
+FROM fedora:latest AS base
+
+RUN dnf -y update \
+  && dnf -y install \
+    cmake \
+    curl \
+    gcc \
+    gcc-c++ \
+    gcc-gfortran \
+    gdb \
+    git \
+    hdf5-devel \
+    lapack-devel \
+    lcov \
+    libcurl-devel \
+    m4 \
+    make \
+    netcdf-fortran-devel \
+    pip \
+    python \
+    python-devel \
+    tree \
+    valgrind \ 
+    vim \
+    zlib-devel \
+  && dnf clean all
+
+FROM base AS python
+
+# Copy the musica code
+COPY . musica
+
+RUN cd musica && pip install -e .[test]
+
+FROM python AS docs
 
 ARG MUSICA_GIT_TAG=main
 ARG BUILD_TYPE=Release
-
-RUN dnf -y update \
-    && dnf -y install \
-        cmake \
-        doxygen \
-        gcc \
-        gcc-c++ \
-        gdb \
-        gfortran \
-        git \
-        lapack-devel \
-        lcov \
-        make \
-        netcdf-fortran-devel \
-        pandoc \
-        pip \
-        python \
-        python-devel \
-        valgrind \
-    && dnf clean all
-
-COPY . /musica/
-
-RUN cd /musica &&  python -m pip install -e .
 
 RUN python -m pip install -r /musica/docs/requirements.txt
 RUN pip install --upgrade pip ipython ipykernel

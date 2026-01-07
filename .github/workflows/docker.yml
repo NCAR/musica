@@ -14,6 +14,8 @@ concurrency:
 jobs:
   docker-build-and-test:
     name: Build and Test - ${{ matrix.dockerfile }} - ${{ matrix.build_type }}
+    env:
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -27,26 +29,44 @@ jobs:
           - Dockerfile.mpi
           - Dockerfile.mpi_openmp
           - Dockerfile.nvhpc
+          - Dockerfile.fortran-intel
+          - Dockerfile.fortran-gcc.integration
+          - Dockerfile.fortran-nvhpc
         build_type: [Release, Debug]
         exclude:
           - dockerfile: Dockerfile.nvhpc
-            build_type: Debug  # the -Werror flag causes some failures that are false positives as well as unavoidable
+            build_type: Debug
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           submodules: recursive
 
+      - name: Print branch name
+        run: echo "Branch name is ${{ env.BRANCH_NAME }}"
+
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
         with:
-          # this might remove tools that are actually needed,
-          # if set to "true" but frees about 6 GB
           tool-cache: false
 
+      - uses: docker/setup-buildx-action@v3
+
       - name: Build Docker image
-        run: docker build -t musica -f docker/${{ matrix.dockerfile }} . --build-arg MUSICA_GIT_TAG=${{ github.sha }} --build-arg BUILD_TYPE=${{ matrix.build_type }}
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/${{ matrix.dockerfile }}
+          push: false
+          tags: musica:${{ matrix.dockerfile }}-${{ matrix.build_type }}
+          build-args: |
+            MUSICA_GIT_TAG=${{ env.BRANCH_NAME }}
+            BUILD_TYPE=${{ matrix.build_type }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Run tests in container
         if: matrix.dockerfile != 'Dockerfile.nvhpc'
-        run: docker run --name test-container -t musica bash -c 'make test ARGS="--rerun-failed --output-on-failure -j8"'
+        run: docker run --rm -t musica:${{ matrix.dockerfile }}-${{ matrix.build_type }} \
+              bash -c 'make test ARGS="--rerun-failed --output-on-failure -j8"'

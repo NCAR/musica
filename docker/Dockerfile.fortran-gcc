@@ -1,7 +1,4 @@
-FROM fedora:latest
-
-ARG MUSICA_GIT_TAG=main
-ARG BUILD_TYPE=Release
+FROM fedora:latest AS base
 
 RUN dnf -y update \
   && dnf -y install \
@@ -19,16 +16,19 @@ RUN dnf -y update \
     m4 \
     make \
     netcdf-fortran-devel \
+    pip \
+    python \
+    python-devel \
+    tree \
     valgrind \ 
     vim \
     zlib-devel \
   && dnf clean all
 
-# Set environment variables to install MUSICA using gcc
-ENV FC=gfortran
-ENV CXX=g++
-ENV CC=gcc
-ENV FFLAGS="-I/usr/include/"
+FROM base AS build
+
+ARG MUSICA_GIT_TAG=main
+ARG BUILD_TYPE=Release
 
 # Copy the musica code
 COPY . musica
@@ -40,9 +40,10 @@ RUN cd musica \
              -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
              -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
              -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
-             -D MUSICA_ENABLE_MEMCHECK=ON \
     && cd build \
-    && make install -j
+    && make install -j 8
+
+FROM build AS test
 
 # Try building a simple C application
 RUN cd musica/build \

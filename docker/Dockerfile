@@ -1,23 +1,34 @@
-FROM fedora:latest
+FROM fedora:latest AS base
+
+RUN dnf -y update \
+  && dnf -y install \
+    cmake \
+    curl \
+    gcc \
+    gcc-c++ \
+    gcc-gfortran \
+    gdb \
+    git \
+    hdf5-devel \
+    lapack-devel \
+    lcov \
+    libcurl-devel \
+    m4 \
+    make \
+    netcdf-fortran-devel \
+    pip \
+    python \
+    python-devel \
+    tree \
+    valgrind \ 
+    vim \
+    zlib-devel \
+  && dnf clean all
+
+FROM base AS build
 
 ARG MUSICA_GIT_TAG=main
 ARG BUILD_TYPE=Release
-
-RUN dnf -y update \
-    && dnf -y install \
-        cmake \
-        gcc-c++ \
-        gfortran \
-        gdb \
-        git \
-        lapack-devel \
-        lcov \
-        make \
-        netcdf-fortran-devel \
-        python \
-        valgrind \
-        tree \
-    && dnf clean all
 
 # Copy the musica code
 COPY . musica
@@ -28,6 +39,7 @@ RUN cd musica \
              -B build \
              -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
              -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
+             -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
     && cd build \
     && make install -j 8
     
