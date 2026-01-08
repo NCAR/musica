@@ -1,6 +1,6 @@
 name: Docker
 
-on: 
+on:
   push:
     branches:
       - main
@@ -31,7 +31,7 @@ jobs:
         build_type: [Release, Debug]
         exclude:
           - dockerfile: Dockerfile.nvhpc
-            build_type: Debug  # the -Werror flag causes some failures that are false positives as well as unavoidable
+            build_type: Debug  # the -Werror has false positives
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -51,31 +51,32 @@ jobs:
       - name: Run tests in container
         if: matrix.dockerfile != 'Dockerfile.nvhpc' && matrix.dockerfile != 'Dockerfile.javascript'
         run: docker run --name test-container -t musica bash -c 'make test ARGS="--rerun-failed --output-on-failure -j8"'
-      
+
       - name: Run javascript tests in container
         if: matrix.dockerfile == 'Dockerfile.javascript'
         run: docker run --name test-container -t musica bash -c 'npm run test'
 
   build-base:
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v4
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-        - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v3
 
-        - name: Build base layer
-          uses: docker/build-push-action@v6
-          with:
-            context: .
-            file: docker/Dockerfile.fetch-content
-            target: base
-            tags: musica-base:${{ github.sha }}
-            load: true
-            cache-to: type=gha,mode=max
-            cache-from: type=gha
+      - name: Build base layer
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile.fetch-content
+          target: base
+          tags: musica-base:${{ github.sha }}
+          load: true
+          cache-to: type=gha,mode=max
+          cache-from: type=gha
 
   fetch-content:
     name: FetchContent Integration Test
+    needs: build-base
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
