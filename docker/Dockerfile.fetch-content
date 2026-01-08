@@ -1,12 +1,12 @@
-# Multistage Dockerfile: build netcdf-fortran + MUSICA with GCC in `base`,
-# then compile the Fortran `fetch_content_integration` test in separate
-# compiler-specific stages (GCC, Intel, NVHPC).
+##############
+# Multi-stage Dockerfile to build and test MUSICA with FetchContent
+##############
 
 ARG MUSICA_GIT_TAG=main
 ARG BUILD_TYPE=Release
 
 ##############
-# Base stage: build dependencies, netcdf-fortran, and MUSICA with GCC
+# Base stage: build and install MUSICA with GCC
 ##############
 FROM fedora:latest AS base
 
@@ -37,15 +37,6 @@ RUN dnf -y update \
 
 ENV FC=gfortran CXX=g++ CC=gcc
 
-# # Build netcdf-fortran
-# RUN git clone https://github.com/Unidata/netcdf-fortran.git /tmp/netcdf-fortran \
-#  && cd /tmp/netcdf-fortran \
-#  && git checkout v4.6.0 \
-#  && mkdir build && cd build \
-#  && cmake .. \
-#  && make -j \
-#  && make install
-
 COPY . /musica
 
 # build and install MUSICA with GCC; install to /opt/musica
@@ -55,9 +46,9 @@ RUN cmake -S . -B build \
       -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
       -D MUSICA_ENABLE_CARMA=OFF \
       -D MUSICA_ENABLE_TUVX=ON \
-      -D CMAKE_INSTALL_PREFIX=/opt/musica \
- && cd build \
- && make install -j 4
+      -D MUSICA_ENABLE_TESTS=OFF \
+      -D CMAKE_INSTALL_PREFIX=/opt/musica 
+RUN cmake --build build --parallel 4 --target install
 
 ##############
 # GCC test stage
@@ -75,6 +66,7 @@ RUN dnf -y update \
     make \ 
     netcdf-devel \
     netcdf-fortran-devel \
+    tree \
   && dnf clean all
 
 ENV CC=gcc CXX=g++ FC=gfortran
@@ -86,14 +78,15 @@ COPY --from=base /opt/musica /opt/musica
 COPY fortran/test/fetch_content_integration /src/fetch_content_integration
 COPY fortran/test/tutorial /src/tutorial
 COPY fortran/test/integration /src/integration
+COPY src/test/test_simple.c /src/test/test_simple.c
 
 WORKDIR /src/fetch_content_integration
 
 RUN cmake -B build -S . \
       -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
       -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
-      -D CMAKE_PREFIX_PATH=/opt/musica \
-    && cmake --build build
+      -D CMAKE_PREFIX_PATH=/opt/musica
+RUN cmake --build build --parallel 4
 
 WORKDIR /src/fetch_content_integration/build
 COPY configs configs
@@ -112,7 +105,9 @@ RUN apt update \
     libhdf5-dev \
     liblapack-dev \
     libnetcdf-dev \
+    libnetcdff-dev \
     make \
+    tree \
   && apt clean
 
 ENV CC=icx CXX=icpx FC=ifx
@@ -131,7 +126,8 @@ RUN cmake -B build -S . \
       -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
       -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
       -D CMAKE_PREFIX_PATH=/opt/musica/lib64/cmake/ \
-    && cmake --build build
+      -D CMAKE_EXE_LINKER_FLAGS="-Wl,--copy-dt-needed-entries" # without this, libgfortran.so link error occurs
+RUN cmake --build build --parallel 4
 
 WORKDIR /src/fetch_content_integration/build
 COPY configs configs
@@ -150,7 +146,10 @@ RUN apt update \
     make \
     libhdf5-dev \
     libnetcdf-dev \
+    libnetcdff-dev \
     liblapack-dev \
+    pkg-config \
+    tree \
   && apt clean
 
 ENV CC=nvc CXX=nvc++ FC=nvfortran
@@ -169,7 +168,8 @@ RUN cmake -B build -S . \
       -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
       -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
       -D CMAKE_PREFIX_PATH=/opt/musica/lib64/cmake/ \
- && cmake --build build
+      -D CMAKE_EXE_LINKER_FLAGS="-Wl,--copy-dt-needed-entries" # without this, libgfortran.so link error occurs
+RUN cmake --build build --parallel 4
 
 WORKDIR /src/fetch_content_integration/build
 COPY configs configs
