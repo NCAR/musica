@@ -56,8 +56,8 @@ function(musica_setup_target target)
     )
     target_include_directories(${target}
       PUBLIC
-        $<BUILD_INTERFACE:${MUSICA_CPP_MOD_DIR}>
-        $<INSTALL_INTERFACE:${MUSICA_INSTALL_CPP_MOD_DIR}>
+        $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
+        $<INSTALL_INTERFACE:${MUSICA_INSTALL_MOD_DIR}>
     )
   endif()
 
@@ -69,8 +69,8 @@ function(musica_setup_target target)
     )
     target_include_directories(${target}
       PUBLIC
-        $<BUILD_INTERFACE:${MUSICA_CPP_MOD_DIR}>
-        $<INSTALL_INTERFACE:${MUSICA_INSTALL_CPP_MOD_DIR}>
+        $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
+        $<INSTALL_INTERFACE:${MUSICA_INSTALL_MOD_DIR}>
     )
     if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
       target_compile_options(carma_object PUBLIC $<$<COMPILE_LANGUAGE:Fortran>:-ffree-line-length-none>)

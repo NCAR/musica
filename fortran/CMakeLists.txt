@@ -19,15 +19,15 @@ set_target_properties(musica-fortran
   PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
     LIBRARY_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
-    Fortran_MODULE_DIRECTORY ${MUSICA_FORTRAN_MOD_DIR}
+    Fortran_MODULE_DIRECTORY ${MUSICA_MOD_DIR}
     VERSION ${PROJECT_VERSION}
     SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
 target_include_directories(musica-fortran
   PUBLIC
-    $<BUILD_INTERFACE:${MUSICA_FORTRAN_MOD_DIR}>
-    $<INSTALL_INTERFACE:${MUSICA_INSTALL_FORTRAN_MOD_DIR}>
+    $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
+    $<INSTALL_INTERFACE:${MUSICA_INSTALL_MOD_DIR}>
 )
 
 target_link_libraries(musica-fortran
@@ -46,10 +46,6 @@ if (MUSICA_ENABLE_MICM)
 endif()
 
 if (MUSICA_ENABLE_TUVX)
-  find_package(PkgConfig REQUIRED)
-  pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
-  pkg_check_modules(netcdfc IMPORTED_TARGET REQUIRED netcdf)
-
   add_subdirectory(tuvx)
 endif()
 
