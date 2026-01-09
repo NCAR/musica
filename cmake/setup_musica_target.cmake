@@ -83,7 +83,7 @@ function(musica_setup_target target)
     endif()
 
     if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
-      target_compile_options(carma_object PUBLIC $<$<COMPILE_LANGUAGE:Fortran>:-ffree-line-length-none>)
+      target_compile_options(${target} PUBLIC $<$<COMPILE_LANGUAGE:Fortran>:-ffree-line-length-none>)
     endif()
   endif()
 
