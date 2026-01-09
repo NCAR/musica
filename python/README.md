@@ -22,7 +22,7 @@ pip install nvidia-pyindex
 pip install musica[gpu]
 ```
 
-**Note:** GPU support has only been tested on Linux systems with NVIDIA GPUs and CUDA installed.
+**Note:** GPU support is only provided on Linux systems with NVIDIA GPUs and CUDA installed.
 
 ### Development Installation
 
@@ -249,4 +249,3 @@ MUSICA Python code follows PEP 8 style guidelines. Before submitting contributio
 - [Full Documentation](https://ncar.github.io/musica/index.html)
 - [Tutorials](https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials)
 - [Contributing Guide](../CONTRIBUTING.md)
-- [Main Repository README](../README.md)

@@ -93,78 +93,9 @@ MUSICA automatically downloads and builds additional dependencies (pybind11, goo
 
 # Quick Start
 
-## Python
-
-MUSICA provides a comprehensive Python API for atmospheric chemistry modeling. Here's a minimal example:
-
-```python
-import musica
-import musica.mechanism_configuration as mc
-
-# Define chemical species
-A = mc.Species(name="A")
-B = mc.Species(name="B")
-species = [A, B]
-gas = mc.Phase(name="gas", species=species)
-
-# Define reaction
-r1 = mc.Arrhenius(name="A->B", A=4.0e-3, C=50, reactants=[A], products=[B], gas_phase=gas)
-mechanism = mc.Mechanism(name="example", species=species, phases=[gas], reactions=[r1])
-
-# Create solver and solve
-solver = musica.MICM(mechanism=mechanism, solver_type=musica.SolverType.rosenbrock_standard_order)
-state = solver.create_state()
-state.set_concentrations({"A": 1.0, "B": 0.0})
-state.set_conditions(temperature=300.0, pressure=101000.0)
-
-# Solve for a time step
-solver.solve(state, time_step=60.0)
-concentrations = state.get_concentrations()
-```
-
-For complete examples, CLI usage, and development instructions, see the [Python README](python/README.md).
-
-## JavaScript
-
-```javascript
-import * as musica from '@ncar/musica';
-
-await musica.initModule();
-const micm = musica.MICM.fromConfigPath('./configs/analytical');
-const state = micm.createState(1);
-state.setConcentrations({'A': [1.0], 'B': [0.0]});
-state.setConditions({temperatures: [298.15], pressures: [101325.0]});
-micm.solve(state, 60.0);
-```
-
-For complete examples and development instructions, see the [JavaScript README](javascript/README.md).
-
-## Fortran
-
-```fortran
-program example
-  use musica_micm, only: micm_t, RosenbrockStandardOrder
-  use musica_state, only: state_t
-  use musica_util, only: error_t
-
-  implicit none
-  
-  type(micm_t), pointer :: micm
-  type(state_t), pointer :: state
-  type(error_t) :: error
-  integer :: num_grid_cells
-  real(kind=8) :: time_step
-
-  num_grid_cells = 1
-  time_step = 200.0
-
-  micm => micm_t("configs/v0/chapman", RosenbrockStandardOrder, error)
-  state => micm%get_state(num_grid_cells, error)
-  call micm%solve(state, time_step, error)
-end program example
-```
-
-For complete examples and development instructions, see the [Fortran README](fortran/README.md).
+- [Python](./python/README.md)
+- [Javascript](./javascript/README.md)
+- [Fortran](./fortran/README.md)
 
 # Documentation and Resources
 
@@ -174,13 +105,8 @@ For complete examples and development instructions, see the [Fortran README](for
 - [Interactive Tutorials](https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials) - Try MUSICA in your browser via Binder
 - [MUSICA Wiki](https://wiki.ucar.edu/display/MUSICA/MUSICA+Home) - Additional resources and community information
 
-## Language-Specific Documentation
 
-- [Python README](python/README.md) - Python interface documentation
-- [JavaScript README](javascript/README.md) - JavaScript/WebAssembly interface documentation
-- [Fortran README](fortran/README.md) - Fortran interface documentation
-
-# Available grids
+## Available grids
 Pre-made grids for use in MUSICA are available [here](https://wiki.ucar.edu/display/MUSICA/Available+Grids).
 
 ## Developer Options

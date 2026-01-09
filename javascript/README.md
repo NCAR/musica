@@ -4,12 +4,12 @@ MUSICA provides a JavaScript interface using WebAssembly (WASM) for portable, cr
 
 ## Installation
 
-The JavaScript interface is included in the MUSICA repository and requires building from source.
+<npm instructions when they become available>
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (version 18 or later recommended)
-- [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html) for compiling to WebAssembly
+- [Node.js](https://nodejs.org/) (version 22 or later recommended)
+- [Emscripten SDK >=4.0.2](https://emscripten.org/docs/getting_started/downloads.html) for compiling to WebAssembly
 - CMake (>= 3.21)
 
 ### Quick Start
@@ -21,65 +21,18 @@ const { MICM } = musica;
 // Initialize WASM backend
 await musica.initModule();
 
+const version = await musica.getVersion();
+const micmVersion = await musica.getMicmVersion();
+
+console.log('MUSICA Version:', version);
+console.log('MICM Version:', micmVersion);
+
 // Create MICM instance from configuration
 const micm = MICM.fromConfigPath('./configs/my_mechanism');
 const state = micm.createState(1);
 
 // Solve
 const result = micm.solve(state, 60.0);
-```
-
-## Version Functions
-
-The version functions use the WASM backend and are asynchronous:
-
-```javascript
-import * as musica from '@ncar/musica';
-
-// Asynchronous API (returns Promises)
-const version = await musica.getVersion();
-const micmVersion = await musica.getMicmVersion();
-
-console.log('MUSICA Version:', version);
-console.log('MICM Version:', micmVersion);
-```
-
-## MICM Solver Usage
-
-The MICM solver provides a consistent interface for atmospheric chemistry modeling:
-
-```javascript
-import * as musica from '@ncar/musica';
-const { MICM, SolverType } = musica;
-
-// Initialize WASM backend
-await musica.initModule();
-
-// Create MICM instance from configuration
-const micm = MICM.fromConfigPath('./configs/analytical');
-
-// Create a state with 1 grid cell
-const state = micm.createState(1);
-
-// Set initial conditions
-state.setConcentrations({
-  'A': [1.0],
-  'B': [0.0],
-  'C': [0.0]
-});
-
-state.setConditions({
-  temperatures: [298.15],
-  pressures: [101325.0],
-  air_densities: [1.0]
-});
-
-// Solve for a time step
-const result = micm.solve(state, 60.0);  // 60 second time step
-
-// Get updated concentrations
-const concentrations = state.getConcentrations();
-console.log('Concentrations:', concentrations);
 ```
 
 ## Complete Usage Example
@@ -224,46 +177,8 @@ Then open http://localhost:8000/javascript/wasm/example.html in your browser to 
 JavaScript code in MUSICA follows these conventions:
 
 - Use ES6+ module syntax (`import`/`export`)
-- Use `const` and `let` (avoid `var`)
-- Follow async/await patterns for asynchronous operations
-- Add JSDoc comments for public APIs
-- Use descriptive variable names
-
-### Debugging
-
-For debugging the WASM build, you can build in debug mode:
-
-```bash
-npm run build:wasm
-```
-
-This creates a debug build with symbols that can help diagnose issues.
-
-## API Reference
-
-### Main Functions
-
-- **`initModule()`**: Initialize the WebAssembly module (must be called before using MICM)
-- **`getVersion()`**: Get the MUSICA version string
-- **`getMicmVersion()`**: Get the MICM version string
-
-### MICM Class
-
-- **`MICM.fromConfigPath(configPath)`**: Create a MICM solver from a configuration directory
-- **`createState(numCells)`**: Create a state object for the specified number of grid cells
-- **`solve(state, timeStep)`**: Solve chemistry for the given time step
-
-### State Methods
-
-- **`setConcentrations(concentrations)`**: Set species concentrations
-- **`getConcentrations()`**: Get current species concentrations
-- **`setConditions(conditions)`**: Set environmental conditions (temperature, pressure, air density)
-- **`getConditions()`**: Get current environmental conditions
-- **`setUserDefinedRateParameters(params)`**: Set user-defined reaction rate parameters
-- **`getUserDefinedRateParameters()`**: Get current user-defined rate parameters
 
 ## More Information
 
 - [Full Documentation](https://ncar.github.io/musica/index.html)
 - [Contributing Guide](../CONTRIBUTING.md)
-- [Main Repository README](../README.md)

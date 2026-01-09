@@ -4,6 +4,10 @@ MUSICA provides a Fortran interface for atmospheric chemistry modeling, enabling
 
 ## Installation
 
+```bash
+spack install musica
+```
+
 ### Prerequisites
 
 Before building the Fortran interface, you need to install the following dependencies:
@@ -154,15 +158,6 @@ program musica_example
 end program musica_example
 ```
 
-### Key Components
-
-The Fortran interface provides several modules:
-
-- **`musica_micm`**: Interface to the MICM chemistry solver
-- **`musica_tuvx`**: Interface to the TUV-x photolysis calculator
-- **`musica_state`**: State management for chemical concentrations and conditions
-- **`musica_util`**: Utility types and functions (error handling, string types, etc.)
-
 ### Linking Your Fortran Code
 
 To use MUSICA in your Fortran project, link against the musica-fortran library:
@@ -186,9 +181,11 @@ The Fortran interface includes comprehensive tests. To build and run them:
 
 ```bash
 cd build
-cmake .. -DMUSICA_ENABLE_TESTS=ON
+cmake .. -DMUSICA_BUILD_FORTRAN_INTERFACE=ON
 make
 ctest
+# or
+make test
 ```
 
 ### Running Individual Tests
@@ -212,30 +209,6 @@ Fortran code in MUSICA follows these conventions:
 - Use modules to organize code
 - Follow the existing naming conventions (lowercase with underscores)
 
-### Debugging
-
-For debug builds with additional checks:
-
-```bash
-cmake .. -DCMAKE_BUILD_TYPE=Debug -DMUSICA_BUILD_FORTRAN_INTERFACE=ON
-make
-```
-
-## Additional Notes
-
-### Compiler Compatibility
-
-The Fortran interface has been tested with:
-
-- GNU Fortran (gfortran) 9.0+
-- Intel Fortran (ifort) 2021+
-
-### Module Files
-
-After building, Fortran module files (.mod) are located in:
-- `build/fortran/mod/` (build tree)
-- `${CMAKE_INSTALL_PREFIX}/include/` (after installation)
-
 ### Integration with Host Models
 
 The Fortran interface is designed for easy integration with existing atmospheric models. The key steps are:
@@ -249,5 +222,3 @@ The Fortran interface is designed for easy integration with existing atmospheric
 
 - [Full Documentation](https://ncar.github.io/musica/index.html)
 - [Contributing Guide](../CONTRIBUTING.md)
-- [Main Repository README](../README.md)
-- [MUSICA Wiki](https://wiki.ucar.edu/display/MUSICA/MUSICA+Home)
