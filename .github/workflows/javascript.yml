@@ -46,6 +46,8 @@ jobs:
     name: Build WASM for publishing
     runs-on: ubuntu-latest
     if: github.event_name == 'release' && github.event.action == 'published'
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout
