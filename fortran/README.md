@@ -67,9 +67,9 @@ Here's a simple example demonstrating the Fortran interface for MICM (atmospheri
 program musica_example
   use iso_c_binding
   use iso_fortran_env, only: real64
-  use musica_micm, only: micm_t, solver_stats_t, RosenbrockStandardOrder
+  use musica_micm, only: micm_t, RosenbrockStandardOrder
   use musica_state, only: state_t
-  use musica_util, only: error_t, string_t
+  use musica_util, only: error_t
 
   implicit none
 
