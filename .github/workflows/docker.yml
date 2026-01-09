@@ -58,32 +58,38 @@ jobs:
   fetch-content:
     name: FetchContent Integration Test
     runs-on: ubuntu-latest
+    env:
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           submodules: recursive
 
+      - name: Print branch name
+        run: echo "Branch name is $BRANCH_NAME"
+
       - name: Build Docker base image
         run: |
           docker build -t musica-base -f docker/Dockerfile.fetch-content . \
-          --build-arg MUSICA_GIT_TAG=${{ github.sha }} --build-arg BUILD_TYPE=${{ matrix.build_type }} \
+          --build-arg MUSICA_GIT_TAG=${BRANCH_NAME} --build-arg BUILD_TYPE=${{ matrix.build_type }} \
           --target base
 
       - name: Build gcc
         run: |
           docker build -t musica-gcc -f docker/Dockerfile.fetch-content . \
-          --build-arg MUSICA_GIT_TAG=${{ github.sha }} --build-arg BUILD_TYPE=${{ matrix.build_type }} \
+          --build-arg MUSICA_GIT_TAG=${BRANCH_NAME} --build-arg BUILD_TYPE=${{ matrix.build_type }} \
           --target gcc-test
 
       - name: Build intel
         run: |
           docker build -t musica-intel -f docker/Dockerfile.fetch-content . \
-          --build-arg MUSICA_GIT_TAG=${{ github.sha }} --build-arg BUILD_TYPE=${{ matrix.build_type }} \
+          --build-arg MUSICA_GIT_TAG=${BRANCH_NAME} --build-arg BUILD_TYPE=${{ matrix.build_type }} \
           --target intel-test
 
       - name: Build nvhpc
         run: |
           docker build -t musica-nvhpc -f docker/Dockerfile.fetch-content . \
-          --build-arg MUSICA_GIT_TAG=${{ github.sha }} --build-arg BUILD_TYPE=${{ matrix.build_type }} \
+          --build-arg MUSICA_GIT_TAG=${BRANCH_NAME} --build-arg BUILD_TYPE=${{ matrix.build_type }} \
           --target nvhpc-test
