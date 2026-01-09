@@ -55,59 +55,35 @@ jobs:
         if: matrix.dockerfile == 'Dockerfile.javascript'
         run: docker run --name test-container -t musica bash -c 'npm run test'
 
-  build-base:
-    name: Build MUSICA Base Image
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx (container driver)
-        uses: docker/setup-buildx-action@v3
-        with:
-          driver: docker-container
-
-      - name: Build base layer
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: docker/Dockerfile.fetch-content
-          target: base
-          tags: musica-base:${{ github.sha }}
-          load: true
-          cache-to: type=gha,mode=max,ref=musica-base:${{ github.sha }}
-          cache-from: type=gha
-
   fetch-content:
     name: FetchContent Integration Test
-    needs: build-base
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest]
-        target:
-          - gcc-test
-          - intel-test
-          - nvhpc-test
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           submodules: recursive
 
-      - name: Set up Docker Buildx (container driver)
-        uses: docker/setup-buildx-action@v3
-        with:
-          driver: docker-container
+      - name: Build Docker base image
+        run: |
+          docker build -t musica-base -f docker/Dockerfile.fetch-content . \
+          --build-arg MUSICA_GIT_TAG=${{ github.sha }} --build-arg BUILD_TYPE=${{ matrix.build_type }} \
+          --target base
 
-      - name: Build ${{ matrix.target }} using base image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: docker/Dockerfile.fetch-content
-          target: ${{ matrix.target }}
-          load: true
-          cache-from: type=gha,ref=musica-base:${{ github.sha }}
-          cache-to: type=gha,mode=max,ref=musica-base:${{ github.sha }}
-          build-args: |
-            MUSICA_GIT_TAG=${{ github.sha }}
+      - name: Build gcc
+        run: |
+          docker build -t musica-gcc -f docker/Dockerfile.fetch-content . \
+          --build-arg MUSICA_GIT_TAG=${{ github.sha }} --build-arg BUILD_TYPE=${{ matrix.build_type }} \
+          --target gcc-test
+
+      - name: Build intel
+        run: |
+          docker build -t musica-intel -f docker/Dockerfile.fetch-content . \
+          --build-arg MUSICA_GIT_TAG=${{ github.sha }} --build-arg BUILD_TYPE=${{ matrix.build_type }} \
+          --target intel-test
+
+      - name: Build nvhpc
+        run: |
+          docker build -t musica-nvhpc -f docker/Dockerfile.fetch-content . \
+          --build-arg MUSICA_GIT_TAG=${{ github.sha }} --build-arg BUILD_TYPE=${{ matrix.build_type }} \
+          --target nvhpc-test
