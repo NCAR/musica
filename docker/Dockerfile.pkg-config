@@ -1,0 +1,95 @@
+##############
+# Multi-stage Dockerfile to build and test MUSICA for use with PKG-Config
+##############
+
+ARG BUILD_TYPE=Release
+
+##############
+# Base stage: build and install MUSICA with GCC
+##############
+FROM fedora:latest AS base
+
+ARG BUILD_TYPE
+
+RUN dnf -y update \
+  && dnf -y install \
+    cmake \
+    curl \
+    gcc \
+    gcc-c++ \
+    gcc-gfortran \
+    gdb \
+    git \
+    hdf5-devel \
+    lapack-devel \
+    lcov \
+    libcurl-devel \
+    m4 \
+    make \
+    netcdf-devel \
+    netcdf-fortran-devel \
+    valgrind \ 
+    vim \
+    zlib-devel \
+  && dnf clean all
+
+ENV FC=gfortran CXX=g++ CC=gcc
+
+COPY . /musica
+
+RUN cmake -S musica -B build \
+      -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+      -D MUSICA_ENABLE_CARMA=OFF \
+      -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
+      -D CMAKE_INSTALL_PREFIX=/opt/musica \
+ && cmake --build build --target install --parallel 4
+
+
+##############
+# GCC PKG-Config test 
+##############
+FROM base AS gcc-test
+
+ENV PKG_CONFIG_PATH=/opt/musica/lib64/pkgconfig/
+
+# Copy MUSICA install
+COPY --from=base /opt/musica /opt/musica
+
+COPY musica/src/test/test_simple.c musica/src/test/test_simple.c
+COPY musica/fortran/test/tutorial/demo.F90 musica/fortran/test/tutorial/demo.F90
+
+# Try building a simple C application
+RUN gcc $(pkg-config --cflags musica) -o test_simple_c musica/src/test/test_simple.c $(pkg-config --libs musica) \
+    && ./test_simple_c
+
+# Try building a simple Fortran application
+RUN gfortran $(pkg-config --cflags musica-fortran musica) -o test_simple_fortran musica/fortran/test/tutorial/demo.F90 $(pkg-config --libs musica-fortran musica) -lstdc++ \
+    && ./test_simple_fortran  
+
+##############
+# NVHPC PKG-Config test 
+##############
+FROM nvcr.io/nvidia/nvhpc:25.7-devel-cuda12.9-ubuntu24.04 AS nvhpc-test
+
+ARG BUILD_TYPE
+
+RUN apt update \
+    && apt -y install \
+      pkg-config \
+    && apt clean
+
+ENV PKG_CONFIG_PATH=/opt/musica/lib64/pkgconfig/
+
+# Copy MUSICA install
+COPY --from=base /opt/musica /opt/musica
+
+COPY src/test/test_simple.c musica/src/test/test_simple.c
+COPY fortran/test/tutorial/demo.F90 musica/fortran/test/tutorial/demo.F90
+
+# Try building a simple C application
+RUN nvc $(pkg-config --cflags musica) -o test_simple_c musica/src/test/test_simple.c $(pkg-config --libs musica) \
+    && ./test_simple_c
+
+# Try building a simple Fortran application
+# RUN nvfortran $(pkg-config --cflags musica-fortran musica) -o test_simple_fortran musica/fortran/test/tutorial/demo.F90 $(pkg-config --libs musica-fortran musica) -lstdc++ \
+#     && ./test_simple_fortran  
