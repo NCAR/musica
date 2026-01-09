@@ -102,10 +102,10 @@ jobs:
           --target nvhpc-test
       
       - name: Run tests in gcc container
-        run: docker run --name fetch-content-gcc -t musica-gcc bash -c 'make test ARGS="--rerun-failed --output-on-failure -j8"
+        run: docker run --name fetch-content-gcc -t musica-gcc bash -c 'make test ARGS="--rerun-failed --output-on-failure -j8"'
 
       - name: Run tests in intel container
-        run: docker run --name fetch-content-intel -t musica-intel bash -c 'make test ARGS="--rerun-failed --output-on-failure -j8"
+        run: docker run --name fetch-content-intel -t musica-intel bash -c 'make test ARGS="--rerun-failed --output-on-failure -j8"'
 
       - name: Run tests in nvhpc container
-        run: docker run --name fetch-content-nvhpc -t musica-nvhpc bash -c 'make test ARGS="--rerun-failed --output-on-failure -j8"
+        run: docker run --name fetch-content-nvhpc -t musica-nvhpc bash -c 'make test ARGS="--rerun-failed --output-on-failure -j8"'
