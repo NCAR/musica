@@ -40,7 +40,6 @@ COPY . /musica
 RUN cmake -S musica -B build \
       -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
       -D MUSICA_ENABLE_CARMA=OFF \
-      -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
       -D CMAKE_INSTALL_PREFIX=/opt/musica \
  && cmake --build build --target install --parallel 4
 
@@ -55,8 +54,14 @@ ENV PKG_CONFIG_PATH=/opt/musica/lib64/pkgconfig/
 # Copy MUSICA install
 COPY --from=base /opt/musica /opt/musica
 
-COPY src/test/test_simple.c musica/src/test/test_simple.c
-COPY fortran/test/tutorial/demo.F90 musica/fortran/test/tutorial/demo.F90
+COPY . /musica
+
+RUN cmake -S musica -B build \
+      -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+      -D MUSICA_ENABLE_CARMA=OFF \
+      -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
+      -D CMAKE_INSTALL_PREFIX=/opt/musica \
+ && cmake --build build --target install --parallel 4
 
 # Try building a simple C application
 RUN gcc $(pkg-config --cflags musica) -o test_simple_c musica/src/test/test_simple.c $(pkg-config --libs musica) \
@@ -83,8 +88,14 @@ ENV PKG_CONFIG_PATH=/opt/musica/lib64/pkgconfig/
 # Copy MUSICA install
 COPY --from=base /opt/musica /opt/musica
 
-COPY src/test/test_simple.c musica/src/test/test_simple.c
-COPY fortran/test/tutorial/demo.F90 musica/fortran/test/tutorial/demo.F90
+COPY . /musica
+
+RUN cmake -S musica -B build \
+      -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+      -D MUSICA_ENABLE_CARMA=OFF \
+      -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
+      -D CMAKE_INSTALL_PREFIX=/opt/musica \
+ && cmake --build build --target install --parallel 4
 
 # Try building a simple C application
 RUN nvc $(pkg-config --cflags musica) -o test_simple_c musica/src/test/test_simple.c $(pkg-config --libs musica) \
