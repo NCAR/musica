@@ -67,7 +67,7 @@ Here's a simple example demonstrating the Fortran interface for MICM (atmospheri
 program musica_example
   use iso_c_binding
   use iso_fortran_env, only: real64
-  use musica_micm, only: micm_t, solver_stats_t
+  use musica_micm, only: micm_t, solver_stats_t, RosenbrockStandardOrder
   use musica_state, only: state_t
   use musica_util, only: error_t, string_t
 
@@ -81,10 +81,12 @@ program musica_example
   integer                     :: num_grid_cells
   real(real64)                :: time_step
   integer                     :: i
+  integer                     :: O2_index, O_index, O1D_index, O3_index
+  integer                     :: jO2_index, jO3a_index, jO3b_index
 
   ! Set up configuration
   config_path = "configs/v0/chapman"
-  solver_type = 1  ! RosenbrockStandardOrder
+  solver_type = RosenbrockStandardOrder
   num_grid_cells = 1
   time_step = 200.0
 
@@ -104,10 +106,7 @@ program musica_example
     stop 1
   end if
 
-  ! Set initial conditions
   ! Get species indices
-  integer :: O2_index, O_index, O1D_index, O3_index
-  
   O2_index = state%species_ordering%index("O2", error)
   O_index = state%species_ordering%index("O", error)
   O1D_index = state%species_ordering%index("O1D", error)
@@ -123,13 +122,12 @@ program musica_example
   state%conditions%temperature(1) = 272.5  ! K
   state%conditions%pressure(1) = 101253.3  ! Pa
 
-  ! Set rate parameters
-  integer :: jO2_index, jO3a_index, jO3b_index
-  
+  ! Get rate parameter indices
   jO2_index = state%rate_parameters_ordering%index("PHOTO.jO2", error)
   jO3a_index = state%rate_parameters_ordering%index("PHOTO.jO3->O", error)
   jO3b_index = state%rate_parameters_ordering%index("PHOTO.jO3->O1D", error)
 
+  ! Set rate parameters
   state%rate_parameters(jO2_index, 1) = 1.0e-5
   state%rate_parameters(jO3a_index, 1) = 1.0e-4
   state%rate_parameters(jO3b_index, 1) = 1.0e-5

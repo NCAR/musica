@@ -142,15 +142,26 @@ For complete examples and development instructions, see the [JavaScript README](
 ## Fortran
 
 ```fortran
-use musica_micm
-use musica_state
+program example
+  use musica_micm, only: micm_t, RosenbrockStandardOrder
+  use musica_state, only: state_t
+  use musica_util, only: error_t
 
-type(micm_t), pointer :: micm
-type(state_t), pointer :: state
+  implicit none
+  
+  type(micm_t), pointer :: micm
+  type(state_t), pointer :: state
+  type(error_t) :: error
+  integer :: num_grid_cells
+  real(kind=8) :: time_step
 
-micm => micm_t("configs/v0/chapman", RosenbrockStandardOrder, error)
-state => micm%get_state(num_grid_cells=1, error)
-call micm%solve(state, time_step, error)
+  num_grid_cells = 1
+  time_step = 200.0
+
+  micm => micm_t("configs/v0/chapman", RosenbrockStandardOrder, error)
+  state => micm%get_state(num_grid_cells, error)
+  call micm%solve(state, time_step, error)
+end program example
 ```
 
 For complete examples and development instructions, see the [Fortran README](fortran/README.md).
