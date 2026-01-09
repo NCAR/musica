@@ -14,7 +14,7 @@ endfunction(set_git_default)
 ################################################################################
 # NetCDF library
 
-if (MUSICA_BUILD_FORTRAN_INTERFACE)
+if (MUSICA_ENABLE_CARMA OR MUSICA_ENABLE_TUVX)
   find_package(PkgConfig REQUIRED)
   pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
   pkg_check_modules(netcdfc IMPORTED_TARGET REQUIRED netcdf)
@@ -155,15 +155,6 @@ if(MUSICA_ENABLE_PYTHON_LIBRARY)
   )
 
   FetchContent_MakeAvailable(pybind11)
-endif()
-
-################################################################################
-# netcdf
-
-if (MUSICA_ENABLE_CARMA OR MUSICA_ENABLE_TUVX)
-  find_package(PkgConfig REQUIRED)
-  pkg_check_modules(netcdfc IMPORTED_TARGET REQUIRED netcdf)
-  pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
 endif()
 
 ################################################################################
