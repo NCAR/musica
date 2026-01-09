@@ -14,7 +14,7 @@ endfunction(set_git_default)
 ################################################################################
 # NetCDF library
 
-if (MUSICA_BUILD_FORTRAN_INTERFACE)
+if (MUSICA_ENABLE_CARMA OR MUSICA_ENABLE_TUVX)
   find_package(PkgConfig REQUIRED)
   pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
   pkg_check_modules(netcdfc IMPORTED_TARGET REQUIRED netcdf)
@@ -100,7 +100,7 @@ endif()
 if (MUSICA_ENABLE_TUVX AND MUSICA_BUILD_C_CXX_INTERFACE)
   set(TUVX_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
   set(TUVX_MOD_DIR ${MUSICA_MOD_DIR} CACHE STRING "" FORCE)
-  set(TUVX_INSTALL_MOD_DIR ${MUSICA_INSTALL_INCLUDE_DIR} CACHE STRING "" FORCE)
+  set(TUVX_INSTALL_MOD_DIR ${MUSICA_INSTALL_MOD_DIR} CACHE STRING "" FORCE)
   set(TUVX_INSTALL_INCLUDE_DIR ${MUSICA_INSTALL_INCLUDE_DIR} CACHE STRING "" FORCE)
 
   set_git_default(TUVX_GIT_REPOSITORY https://github.com/NCAR/tuv-x.git)
@@ -124,6 +124,9 @@ endif()
 if(MUSICA_ENABLE_CARMA AND MUSICA_BUILD_C_CXX_INTERFACE)
   set_git_default(CARMA_GIT_REPOSITORY https://github.com/NCAR/CARMA-ACOM-dev.git)
   set_git_default(CARMA_GIT_TAG develop-carma-box)
+  set(CARMA_MOD_DIR ${MUSICA_MOD_DIR} CACHE STRING "" FORCE)
+  set(CARMA_INSTALL_MOD_DIR ${MUSICA_INSTALL_MOD_DIR} CACHE STRING "" FORCE)
+  set(CARMA_INSTALL_INCLUDE_DIR ${MUSICA_INSTALL_INCLUDE_DIR} CACHE STRING "" FORCE)
 
   FetchContent_Declare(carma
       GIT_REPOSITORY ${CARMA_GIT_REPOSITORY}

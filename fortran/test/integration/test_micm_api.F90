@@ -78,6 +78,7 @@ contains
 
     write(*,*) "[test micm fort api] Creating MICM solver..."
     micm => micm_t(config_path, solver_type, error)
+    ASSERT( error%is_success() )
 
     write(*,*) "Creating State..."
     state => micm%get_state(num_grid_cells, error)

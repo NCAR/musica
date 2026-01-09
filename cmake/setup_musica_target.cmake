@@ -54,14 +54,10 @@ function(musica_setup_target target)
       PRIVATE
         $<TARGET_OBJECTS:tuvx_object>
     )
-    target_link_libraries(${target}
-      PUBLIC
-        tuvx_object
-    )
     target_include_directories(${target}
       PUBLIC
         $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
-        $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
+        $<INSTALL_INTERFACE:${MUSICA_INSTALL_MOD_DIR}>
     )
   endif()
 
@@ -71,20 +67,30 @@ function(musica_setup_target target)
       PRIVATE
         $<TARGET_OBJECTS:carma_object>
     )
-    target_link_libraries(${target}
-      PUBLIC
-        carma_object
-    )
     target_include_directories(${target}
       PUBLIC
         $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
-        $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
+        $<INSTALL_INTERFACE:${MUSICA_INSTALL_MOD_DIR}>
     )
+
+    # since we are targeting the carma_object, we need to manually link its dependencies
+    find_package(BLAS REQUIRED)
+    find_package(LAPACK REQUIRED)
+    get_target_property(_carma_links carma_object INTERFACE_LINK_LIBRARIES)
+    if (_carma_links)
+      message(STATUS "Linking CARMA dependencies: ${_carma_links}")
+      target_link_libraries(${target} PUBLIC ${_carma_links})
+    endif()
+
     if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+      target_compile_options(${target} PUBLIC $<$<COMPILE_LANGUAGE:Fortran>:-ffree-line-length-none>)
       target_compile_options(carma_object PUBLIC $<$<COMPILE_LANGUAGE:Fortran>:-ffree-line-length-none>)
     endif()
   endif()
 
+  if (MUSICA_ENABLE_CARMA OR MUSICA_ENABLE_TUVX)
+    target_link_libraries(${target} PRIVATE PkgConfig::netcdfc PkgConfig::netcdff)
+  endif()
 
   target_compile_definitions(${target} PUBLIC ${musica_compile_definitions})
 endfunction()
