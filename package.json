@@ -4,6 +4,14 @@
   "description": "The Multiscale Interface for Chemistry and Aerosols (MUSICA) javascript library",
   "type": "module",
   "main": "./javascript/index.js",
+  "files": [
+    "javascript/**/*.js",
+    "!javascript/tests",
+    "!javascript/src",
+    "javascript/wasm/*.wasm",
+    "javascript/README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "npm run build:wasm",
     "build:wasm": "emcmake cmake -S . -B build-wasm -DCMAKE_BUILD_TYPE=Debug -DMUSICA_ENABLE_JAVASCRIPT=ON -DMUSICA_ENABLE_TUVX=OFF -DMUSICA_ENABLE_CARMA=OFF && cmake --build build-wasm",
@@ -13,6 +21,26 @@
     "test:unit": "node --test javascript/tests/unit/**/*.test.js",
     "test:coverage": "c8 --reporter=lcov --reporter=text --reports-dir=javascript-coverage node --test javascript/tests/**/*.test.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NCAR/musica.git"
+  },
+  "keywords": [
+    "atmospheric-chemistry",
+    "chemistry",
+    "aerosols",
+    "wasm",
+    "webassembly",
+    "musica",
+    "micm",
+    "tuvx"
+  ],
+  "author": "NCAR",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/NCAR/musica/issues"
+  },
+  "homepage": "https://ncar.github.io/musica/",
   "devDependencies": {
     "c8": "^10.1.3"
   }
