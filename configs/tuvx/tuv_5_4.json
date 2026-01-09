@@ -1,4 +1,5 @@
 {
+  "enable diagnostics" : false,
    "__description": [
      "TUV-x configuration that reporoduces photolysis rate constants of the TUV 5.4 calculator",
      "The original TUV 5.4 source code and data sets can be found here: https://www2.acom.ucar.edu/modeling/tuv-download"

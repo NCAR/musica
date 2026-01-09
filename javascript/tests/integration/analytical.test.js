@@ -1,9 +1,16 @@
-const { describe, it } = require('node:test');
-const assert = require('node:assert');
-const path = require('path');
-const musica = require('musica-addon');
-const { MICM, SolverType, GAS_CONSTANT } = musica.micmSolver;
-const { isClose } = require('../util/testUtils');
+import { describe, it, before } from 'node:test';
+import assert from 'node:assert';
+import path from 'path';
+import * as musica from '../../index.js';
+import { isClose } from '../util/testUtils.js';
+
+import { fileURLToPath } from 'url';
+
+// Convert import.meta.url to a file path
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const { MICM, SolverType, GAS_CONSTANT } = musica;
 
 // Test configuration
 const CONFIG_PATH = path.join(__dirname, '../../../configs/v0/analytical');
@@ -14,6 +21,9 @@ const CONFIG_PATH = path.join(__dirname, '../../../configs/v0/analytical');
 // in the JavaScript bindings. Python handles this by creating multiple states.
 const maxCells = 4; // Vector size limitation
 
+before(async () => {
+  await musica.initModule();
+});
 
 /**
  * Test single grid cell analytical solution
@@ -235,7 +245,7 @@ function testMultipleGridCell(solver, state, numGridCells, timeStep, places = 5)
 
 // Test suite for single grid cell - Standard Rosenbrock
 describe('Analytical - Single grid cell - Standard Rosenbrock', () => {
-    it('should match analytical solution', () => {
+    it('should match analytical solution', async (t) => {
         const solver = MICM.fromConfigPath(
             CONFIG_PATH,
             SolverType.rosenbrock_standard_order
@@ -248,7 +258,7 @@ describe('Analytical - Single grid cell - Standard Rosenbrock', () => {
 // Test suite for multiple grid cells - Standard Rosenbrock
 describe('Analytical - Multiple grid cells - Standard Rosenbrock', () => {
     for (let i = 1; i <= maxCells; i++) {
-        it(`should match analytical solution for ${i} grid cells`, () => {
+        it(`should match analytical solution for ${i} grid cells`, async (t) => {
             const solver = MICM.fromConfigPath(
                 CONFIG_PATH,
                 SolverType.rosenbrock_standard_order
@@ -261,7 +271,7 @@ describe('Analytical - Multiple grid cells - Standard Rosenbrock', () => {
 
 // Test suite for single grid cell - Rosenbrock (vector-ordered)
 describe('Analytical - Single grid cell - Rosenbrock', () => {
-    it('should match analytical solution', () => {
+    it('should match analytical solution', async (t) => {
         const solver = MICM.fromConfigPath(
             CONFIG_PATH,
             SolverType.rosenbrock
@@ -274,7 +284,7 @@ describe('Analytical - Single grid cell - Rosenbrock', () => {
 // Test suite for multiple grid cells - Rosenbrock (vector-ordered)
 describe('Analytical - Multiple grid cells - Rosenbrock', () => {
     for (let i = 1; i <= maxCells; i++) {
-        it(`should match analytical solution for ${i} grid cells`, () => {
+        it(`should match analytical solution for ${i} grid cells`, async (t) => {
             const solver = MICM.fromConfigPath(
                 CONFIG_PATH,
                 SolverType.rosenbrock

@@ -1,11 +1,9 @@
-var addon = require('bindings')('musica-addon.node')
+import { State } from './state.js';
+import { SolverType } from './solver.js';
+import { SolverStats, SolverResult } from './solver_result.js';
+import { getBackend } from '../backend.js';
 
-
-const { State } = require('./state.js');
-const { SolverType } = require('./solver');
-const { SolverStats, SolverResult } = require('./solver_result');
-
-class MICM {
+export class MICM {
 	/**
 	 * Create a MICM solver instance from a configuration file path
 	 * 
@@ -19,7 +17,18 @@ class MICM {
 		}
 
 		try {
-			const nativeMICM = addon.MICM.fromConfigPath(configPath, solverType);
+			const backend = getBackend();
+			// In Node.js with NODEFS mounted, configuration files are exposed under /host.
+			// In browser environments, this prefix is invalid, so only add it when running under Node.
+			let resolvedConfigPath = configPath;
+			const isNodeEnv =
+				typeof process !== 'undefined' &&
+				process.versions != null &&
+				process.versions.node != null;
+			if (isNodeEnv && !configPath.startsWith('/host/')) {
+				resolvedConfigPath = `/host/${configPath}`;
+			}
+			const nativeMICM = backend.MICM.fromConfigPath(resolvedConfigPath, solverType);
 			return new MICM(nativeMICM, solverType);
 		} catch (error) {
 			throw new Error(`Failed to create MICM solver from config path: ${error.message}`);
@@ -39,11 +48,11 @@ class MICM {
 		}
 
 		try {
-			// JavaScript Mechanism → JSON String → C++ Parser
+			const backend = getBackend();
 			const mechanismJSON = mechanism.getJSON();
 			const jsonString = JSON.stringify(mechanismJSON);
-			
-			const nativeMICM = addon.MICM.fromConfigString(jsonString, solverType);
+
+			const nativeMICM = backend.MICM.fromConfigString(jsonString, solverType);
 			return new MICM(nativeMICM, solverType);
 		} catch (error) {
 			throw new Error(`Failed to create MICM solver from mechanism: ${error.message}`);
@@ -86,4 +95,3 @@ class MICM {
 		return new SolverResult(result.state, stats);
 	}
 }
-module.exports = { MICM };

@@ -1,0 +1,75 @@
+name: Javascript Tests
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+  workflow_dispatch:
+  release:
+    types:
+      - published
+
+jobs:
+  wasm:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ubuntu-latest]
+        node-version: ["v22", "v24"]
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup node
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Set up EMSDK
+        uses: ./.github/emsdk_steps
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build wasm
+        run: npm run build
+
+      - name: Test
+        run: npm test
+
+  publish:
+    name: Build WASM for publishing
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' && github.event.action == 'published'
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "v24"
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Set up EMSDK
+        uses: ./.github/emsdk_steps
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build wasm
+        run: npm run build
+
+      - name: Test
+        run: npm test
+
+      - name: Publish to npm
+        run: npm publish --provenance --access public

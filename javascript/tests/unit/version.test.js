@@ -1,20 +1,21 @@
-const { describe, it } = require('node:test');
-const musica = require('musica-addon');
+import { describe, it, before } from 'node:test';
+import assert from 'node:assert';
+import * as musica from '../../index.js';
+
+before(async () => {
+  await musica.initModule();
+});
 
 describe('Version Tests', () => {
-  it('should return the correct MUSICA version', () => {
-    const version = musica.getVersion();
+  it('should return the MUSICA version', async (t) => {
+    const version = await musica.getVersion();
     console.log(`MUSICA Version: ${version}`);
-    if (typeof version !== 'string' || version.length === 0) {
-      throw new Error('Invalid MUSICA version string');
-    }
+    assert.ok(typeof version === 'string' && version.length > 0, 'Invalid MUSICA version string');
   });
 
-  it('should return the correct MICM version', () => {
-    const micmVersion = musica.getMicmVersion();
+  it('should return the MICM version',  async (t) => {
+    const micmVersion = await musica.getMicmVersion();
     console.log(`MICM Version: ${micmVersion}`);
-    if (typeof micmVersion !== 'string' || micmVersion.length === 0) {
-      throw new Error('Invalid MICM version string');
-    }
+    assert.ok(typeof micmVersion === 'string' && micmVersion.length > 0, 'Invalid MICM version string');
   });
 });

@@ -375,7 +375,7 @@ contains
       ASSERT( error%is_success() )
       call build_and_check_index_mapping_t( config, .true. )
 
-      call config%load_from_file( "test/data/util_index_mapping_from_file.json", &
+      call config%load_from_file( "configs/util_index_mapping_from_file.json", &
          error )
       ASSERT( error%is_success() )
       call build_and_check_index_mapping_t( config, .true. )

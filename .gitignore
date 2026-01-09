@@ -1,6 +1,11 @@
-# cmake and build stuff
+# copilot adds this when it works on prs
+_codeql_detected_source_root
 
+# cmake and build stuff
+python_build/
 build/
+build-wasm/
+build-addon/
 install/
 CMakeCache.txt
 CMakeFiles
@@ -32,3 +37,7 @@ javascript-coverage/
 .nyc_output/
 coverage/
 *.lcov
+
+# WASM build artifacts (generated files, not committed)
+javascript/wasm/musica.js
+javascript/wasm/musica.wasm

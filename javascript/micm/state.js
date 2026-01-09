@@ -1,12 +1,12 @@
-const { isScalarNumber } = require('./utils');
+import { isScalarNumber } from './utils.js';
 
-class State {
+export class State {
 	constructor(nativeState) {
 		this._nativeState = nativeState;
 	}
 
 	setConcentrations(concentrations) {
-		// Convert to format expected by native addon
+		// Convert to format expected by WASM
 		const formatted = {};
 		for (const [name, value] of Object.entries(concentrations)) {
 			formatted[name] = isScalarNumber(value) ? [value] : value;
@@ -80,4 +80,3 @@ class State {
 		return this._nativeState.userDefinedRateParameterStrides();
 	}
 }
-module.exports = { State };

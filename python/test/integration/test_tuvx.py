@@ -181,13 +181,32 @@ def get_grid_map():
 
 def get_profile_map(grid_map):
     # Simple exponential profiles for testing
-    midpoints = 1.0e-6 * 2.54e19 * np.exp(-(grid_map["height", "km"].midpoints - 120) / 7)
-    ozone = musica.Profile(name="O3", units="molecule cm-3", grid=grid_map["height", "km"], midpoint_values=midpoints)
-    midpoints = 2.54e19 * np.exp(-(grid_map["height", "km"].midpoints - 120) / 7)
-    air = musica.Profile(name="air", units="molecule cm-3", grid=grid_map["height", "km"], midpoint_values=midpoints)
-    midpoints = 0.21 * 2.54e19 * np.exp(-(grid_map["height", "km"].midpoints - 120) / 7)
-    oxygen = musica.Profile(name="O2", units="molecule cm-3", grid=grid_map["height", "km"], midpoint_values=midpoints)
-    midpoints = 298.0 * np.exp(-(grid_map["height", "km"].midpoints - 120) / 7)
+    normalized_profile = np.exp(-(grid_map["height", "km"].midpoints - 0.5) / 25)
+    midpoints = 1.0e-6 * 2.54e19 * normalized_profile
+    ozone = musica.Profile(name="O3",
+                           units="molecule cm-3",
+                           grid=grid_map["height",
+                                         "km"],
+                           midpoint_values=midpoints,
+                           calculate_layer_densities=True)
+    midpoints = 2.54e19 * normalized_profile
+    air = musica.Profile(name="air",
+                         units="molecule cm-3",
+                         grid=grid_map["height",
+                                       "km"],
+                         midpoint_values=midpoints,
+                         calculate_layer_densities=True)
+    midpoints = 0.21 * 2.54e19 * normalized_profile
+    oxygen = musica.Profile(name="O2",
+                            units="molecule cm-3",
+                            grid=grid_map["height",
+                                          "km"],
+                            midpoint_values=midpoints,
+                            calculate_layer_densities=True)
+    ozone.calculate_exo_layer_density(8.5)
+    oxygen.calculate_exo_layer_density(8.5)
+    air.calculate_exo_layer_density(8.5)
+    midpoints = 298.0 * normalized_profile
     temperature = musica.Profile(name="temperature", units="K",
                                  grid=grid_map["height", "km"], midpoint_values=midpoints)
     midpoints = 0.1 * np.ones(grid_map["wavelength", "nm"].num_sections)
@@ -253,7 +272,7 @@ def test_full_tuvx(monkeypatch):
     tuvx = musica.TUVX(grid_map, profile_map, radiator_map, config_path=file)
     assert tuvx is not None
 
-    sza = 2.0  # Radians
+    sza = 0.3  # Radians
     earth_sun_distance = 1.0  # AU
 
     photolysis_rates, heating_rates, dose_rates = tuvx.run(sza, earth_sun_distance)
@@ -267,6 +286,33 @@ def test_full_tuvx(monkeypatch):
     assert heating_rates.shape[1] == 0, "Should be no heating rates for this config"
     assert photolysis_rates.shape[1] == len(tuvx.photolysis_rate_names), "Photolysis rates shape mismatch"
     assert dose_rates.shape[1] == len(tuvx.dose_rate_names), "Dose rates shape mismatch"
+
+    # Make sure photolysis rates are reasonable
+    assert np.all(photolysis_rates >= 0), "Negative photolysis rates found"
+    assert np.any(photolysis_rates > 0), "All photolysis rates are zero"
+
+    # Double all the species concentrations and verify rates decrease
+    profile_map["O3", "molecule cm-3"].midpoint_values *= 2.0
+    profile_map["O2", "molecule cm-3"].midpoint_values *= 2.0
+    profile_map["air", "molecule cm-3"].midpoint_values *= 2.0
+    profile_map["O3", "molecule cm-3"].calculate_layer_densities(grid_map["height", "km"])
+    profile_map["O2", "molecule cm-3"].calculate_layer_densities(grid_map["height", "km"])
+    profile_map["air", "molecule cm-3"].calculate_layer_densities(grid_map["height", "km"])
+    profile_map["O3", "molecule cm-3"].calculate_exo_layer_density(8.5)
+    profile_map["O2", "molecule cm-3"].calculate_exo_layer_density(8.5)
+    profile_map["air", "molecule cm-3"].calculate_exo_layer_density(8.5)
+    photolysis_rates_doubled, _, _ = tuvx.run(sza, earth_sun_distance)
+
+    # Verify that the photolysis of O2 and O3 decreased
+    o2_index = tuvx.photolysis_rate_names["O2+hv->O+O"]
+    o3_o1d_index = tuvx.photolysis_rate_names["O3+hv->O2+O(1D)"]
+    o3_o3p_index = tuvx.photolysis_rate_names["O3+hv->O2+O(3P)"]
+    assert np.all(photolysis_rates_doubled[:, o2_index] <=
+                  photolysis_rates[:, o2_index]), "O2 photolysis did not decrease"
+    assert np.all(photolysis_rates_doubled[:, o3_o1d_index] <=
+                  photolysis_rates[:, o3_o1d_index]), "O3 (1D) photolysis did not decrease"
+    assert np.all(photolysis_rates_doubled[:, o3_o3p_index] <=
+                  photolysis_rates[:, o3_o3p_index]), "O3 (3P) photolysis did not decrease"
 
 
 def get_fixed_grid_map():
@@ -282,9 +328,8 @@ def get_fixed_grid_map():
     return grid_map
 
 
-def test_fixed_tuvx_from_file(monkeypatch):
-    monkeypatch.chdir("src")
-    file = "test/data/tuvx/full_from_host/config.json"
+def test_fixed_tuvx_from_file():
+    file = "configs/tuvx/full_from_host/config.json"
     grid_map = get_fixed_grid_map()
     profile_map = get_profile_map(grid_map)
     radiator_map = get_radiator_map(grid_map)
@@ -318,9 +363,8 @@ def test_fixed_tuvx_from_file(monkeypatch):
     assert dose_rates.shape[1] == len(dose_names_1), "Dose rates shape mismatch"
 
 
-def test_fixed_tuvx_from_string(monkeypatch):
-    monkeypatch.chdir("src")
-    file = "test/data/tuvx/full_from_host/config.json"
+def test_fixed_tuvx_from_string():
+    file = "configs/tuvx/full_from_host/config.json"
     with open(file, 'r') as f:
         config_str = f.read()
     grid_map = get_fixed_grid_map()

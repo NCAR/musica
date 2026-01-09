@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MUSICA WASM Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        .info {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        .loading {
+            color: #666;
+        }
+
+        .version {
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .error {
+            color: #dc3545;
+            background-color: #f8d7da;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>MUSICA WASM Example</h1>
+    <div id="content">
+        <p class="loading">Loading MUSICA WASM module...</p>
+    </div>
+
+    <script type="module">
+        import * as musica from '../index.js';
+
+        // Initialize and use the MUSICA package (uses WASM backend internally)
+        async function initMUSICA() {
+            const contentDiv = document.getElementById('content');
+
+            try {
+                await musica.initModule();
+
+                // Get versions
+                const musicaVersion = await musica.getVersion();
+                const micmVersion = await musica.getMicmVersion();
+
+                // Display the results
+                contentDiv.innerHTML = `
+                    <div class="info">
+                        <h2>✅ MUSICA WASM Module Loaded Successfully</h2>
+                        <p><strong>MUSICA Version:</strong> <span class="version">${musicaVersion}</span></p>
+                        <p><strong>MICM Version:</strong> <span class="version">${micmVersion}</span></p>
+                    </div>
+                    <div class="info">
+                        <h3>About this example</h3>
+                        <p>This demonstrates the MUSICA library compiled to WebAssembly running directly in your browser.</p>
+                        <p>No server-side processing is required - all computation happens in your browser!</p>
+                    </div>
+                `;
+
+                // Run a short in-browser simulation test similar to the unit test
+                try {
+                    // Build a simple mechanism and prepare for interactive simulation
+                    const { MICM } = musica;
+                    const { types, reactionTypes, Mechanism } = musica.mechanismConfiguration;
+                    const { Species, Phase, ReactionComponent } = types;
+
+                    // Create species and phases
+                    const A = new Species({ name: 'A' });
+                    const B = new Species({ name: 'B' });
+                    const C = new Species({ name: 'C' });
+
+                    const gas = new Phase({ name: 'gas', species: [A, B, C] });
+
+                    const reaction1 = new reactionTypes.UserDefined({
+                        name: 'reaction 1',
+                        gas_phase: 'gas',
+                        reactants: [new ReactionComponent({ species_name: 'A' })],
+                        products: [new ReactionComponent({ species_name: 'B' })]
+                    });
+
+                    const reaction2 = new reactionTypes.UserDefined({
+                        name: 'reaction 2',
+                        gas_phase: 'gas',
+                        reactants: [new ReactionComponent({ species_name: 'B' })],
+                        products: [new ReactionComponent({ species_name: 'C' })]
+                    });
+
+                    const mechanism = new Mechanism({
+                        name: 'Test Mechanism',
+                        version: '1.0.0',
+                        species: [A, B, C],
+                        phases: [gas],
+                        reactions: [reaction1, reaction2]
+                    });
+
+                    const micm = MICM.fromMechanism(mechanism);
+                    const state = micm.createState(1);
+
+                    // Set conditions and rate parameters once
+                    state.setConditions({ temperatures: [298.15], pressures: [101325.0], air_densities: [1.0] });
+                    state.setUserDefinedRateParameters({ 'USER.reaction 1': 0.1, 'USER.reaction 2': 0.2 });
+
+                    // Create interactive controls
+                    const controls = document.createElement('div');
+                    controls.className = 'info';
+                    controls.innerHTML = '<h3>Initial Concentrations</h3>';
+
+                    function createSlider(name, min, max, step, initial) {
+                        const wrapper = document.createElement('div');
+                        wrapper.style.marginTop = '8px';
+
+                        const label = document.createElement('label');
+                        label.textContent = name + ': ';
+                        label.style.marginRight = '8px';
+
+                        const valueSpan = document.createElement('span');
+                        valueSpan.textContent = String(initial);
+                        valueSpan.style.fontWeight = 'bold';
+                        valueSpan.style.marginLeft = '8px';
+
+                        const input = document.createElement('input');
+                        input.type = 'range';
+                        input.min = String(min);
+                        input.max = String(max);
+                        input.step = String(step);
+                        input.value = String(initial);
+                        input.style.width = '60%';
+                        input.style.marginLeft = '12px';
+
+                        wrapper.appendChild(label);
+                        wrapper.appendChild(input);
+                        wrapper.appendChild(valueSpan);
+
+                        return { wrapper, input, valueSpan };
+                    }
+
+                    // Default initial concentrations
+                    const sliderA = createSlider('A', 0, 1, 0.01, 1.0);
+                    const sliderB = createSlider('B', 0, 1, 0.01, 0.0);
+                    const sliderC = createSlider('C', 0, 1, 0.01, 0.0);
+
+                    controls.appendChild(sliderA.wrapper);
+                    controls.appendChild(sliderB.wrapper);
+                    controls.appendChild(sliderC.wrapper);
+
+                    contentDiv.appendChild(controls);
+
+                    // Prepare results table (reused on each run)
+                    const resultsContainer = document.createElement('div');
+                    resultsContainer.className = 'info';
+                    resultsContainer.innerHTML = '<h3>Simulation Results (10 solves)</h3>';
+
+                    const table = document.createElement('table');
+                    table.style.width = '100%';
+                    table.style.borderCollapse = 'collapse';
+                    table.style.marginTop = '8px';
+
+                    const thead = document.createElement('thead');
+                    const headerRow = document.createElement('tr');
+                    ['Time', 'A', 'B', 'C'].forEach(h => {
+                        const th = document.createElement('th');
+                        th.textContent = h;
+                        th.style.border = '1px solid #ddd';
+                        th.style.padding = '6px';
+                        th.style.textAlign = 'left';
+                        headerRow.appendChild(th);
+                    });
+                    thead.appendChild(headerRow);
+                    table.appendChild(thead);
+
+                    const tbody = document.createElement('tbody');
+                    table.appendChild(tbody);
+
+                    resultsContainer.appendChild(table);
+                    contentDiv.appendChild(resultsContainer);
+
+                    // Function to read slider values
+                    function readSliderValues() {
+                        const a = parseFloat(sliderA.input.value);
+                        const b = parseFloat(sliderB.input.value);
+                        const c = parseFloat(sliderC.input.value);
+                        return { A: a, B: b, C: c };
+                    }
+
+                    // Run the simulation and populate the results table
+                    function runSimulation(steps = 10, timeStep = 1.0) {
+                        // Reset table
+                        tbody.innerHTML = '';
+
+                        // Reset concentrations from sliders
+                        const vals = readSliderValues();
+                        state.setConcentrations({ A: [vals.A], B: [vals.B], C: [vals.C] });
+
+                        let cumulativeTime = 0.0;
+
+                        for (let i = 0; i < steps; i++) {
+                            micm.solve(state, timeStep);
+                            cumulativeTime += timeStep;
+
+                            const concentrations = state.getConcentrations();
+                            function val(spec) {
+                                const v = concentrations[spec];
+                                if (Array.isArray(v)) return v[0];
+                                return v;
+                            }
+
+                            const row = document.createElement('tr');
+                            [cumulativeTime.toFixed(2), val('A'), val('B'), val('C')].forEach(cellVal => {
+                                const td = document.createElement('td');
+                                td.textContent = String(cellVal);
+                                td.style.border = '1px solid #ddd';
+                                td.style.padding = '6px';
+                                row.appendChild(td);
+                            });
+                            tbody.appendChild(row);
+                        }
+                    }
+
+                    // Wire sliders to rerun simulation on input
+                    [sliderA, sliderB, sliderC].forEach(s => {
+                        s.input.addEventListener('input', () => {
+                            s.valueSpan.textContent = s.input.value;
+                            runSimulation();
+                        });
+                    });
+
+                    // Initial run
+                    runSimulation();
+                } catch (err) {
+                    const errDiv = document.createElement('div');
+                    errDiv.className = 'error';
+                    errDiv.innerHTML = `<h2>❌ Simulation Error</h2><p>${err.message}</p>`;
+                    contentDiv.appendChild(errDiv);
+                    console.error(err);
+                }
+            } catch (error) {
+                contentDiv.innerHTML = `
+                    <div class="error">
+                        <h2>❌ Error Loading MUSICA WASM</h2>
+                        <p>${error.message}</p>
+                        <p>Make sure you've built the WASM module and are serving this page over HTTP (not file://).</p>
+                    </div>
+                `;
+                console.error('Error:', error);
+            }
+        }
+
+        // Start initialization when page loads
+        initMUSICA();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,40 @@
+name: EMSDK Setup
+description: Setup EMSDK to build WebAssembly modules
+
+inputs:
+  em-version:
+    description: 'emsdk version'
+    default: '4.0.22'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup emscripten
+      uses: mymindstorm/setup-emsdk@v14
+      with:
+        no-install: true
+        version: ${{ inputs.em-version }}
+
+    - name: Activate emscripten
+      shell: bash
+      env:
+        EM_VERSION: ${{ inputs.em-version }}
+      run: |
+        emsdk install ${EM_VERSION}
+        emsdk activate ${EM_VERSION}
+
+        # Extract exports
+        EMSDK_QUIET=1 EMSDK_BASH=1 emsdk construct_env \
+        | grep '^export ' \
+        | sed -e 's/^export //' -e 's/;$//' \
+        > /tmp/emsdk.env
+
+        # PATH must NOT be quoted
+        grep '^PATH=' /tmp/emsdk.env | sed 's/^PATH=//' | tr -d '"' | while IFS=: read -ra p; do
+          for d in "${p[@]}"; do
+            echo "$d" >> "$GITHUB_PATH"
+          done
+        done
+
+        # Other variables can be quoted
+        grep -v '^PATH=' /tmp/emsdk.env >> "$GITHUB_ENV"

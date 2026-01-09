@@ -1,6 +1,6 @@
 name: Docker
 
-on: 
+on:
   push:
     branches:
       - main
@@ -22,15 +22,15 @@ jobs:
         dockerfile:
           - Dockerfile
           - Dockerfile.memcheck
-          - Dockerfile.fortran-gcc
           - Dockerfile.openmp
           - Dockerfile.mpi
           - Dockerfile.mpi_openmp
           - Dockerfile.nvhpc
-        build_type: [Release, Debug]
+          - Dockerfile.javascript
+        build_type: [Release]
         exclude:
           - dockerfile: Dockerfile.nvhpc
-            build_type: Debug  # the -Werror flag causes some failures that are false positives as well as unavoidable
+            build_type: Debug  # the -Werror has false positives
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -48,5 +48,68 @@ jobs:
         run: docker build -t musica -f docker/${{ matrix.dockerfile }} . --build-arg MUSICA_GIT_TAG=${{ github.sha }} --build-arg BUILD_TYPE=${{ matrix.build_type }}
 
       - name: Run tests in container
-        if: matrix.dockerfile != 'Dockerfile.nvhpc'
+        if: matrix.dockerfile != 'Dockerfile.nvhpc' && matrix.dockerfile != 'Dockerfile.javascript'
         run: docker run --name test-container -t musica bash -c 'make test ARGS="--rerun-failed --output-on-failure -j8"'
+
+      - name: Run javascript tests in container
+        if: matrix.dockerfile == 'Dockerfile.javascript'
+        run: docker run --name test-container -t musica bash -c 'npm run test'
+
+  fetch-content:
+    name: FetchContent Integration Test
+    runs-on: ubuntu-latest
+    env:
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: [Release]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Print branch name
+        run: echo "Branch name is $BRANCH_NAME"
+
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: false
+
+      - name: Build Docker base image
+        run: |
+          docker build -t musica-base -f docker/Dockerfile.fetch-content . \
+          --build-arg MUSICA_GIT_TAG=${BRANCH_NAME} --build-arg BUILD_TYPE=${{ matrix.build_type }} \
+          --target base
+
+      - name: Build gcc
+        run: |
+          docker build -t musica-gcc -f docker/Dockerfile.fetch-content . \
+          --build-arg MUSICA_GIT_TAG=${BRANCH_NAME} --build-arg BUILD_TYPE=${{ matrix.build_type }} \
+          --target gcc-test
+
+      - name: Build intel
+        run: |
+          docker build -t musica-intel -f docker/Dockerfile.fetch-content . \
+          --build-arg MUSICA_GIT_TAG=${BRANCH_NAME} --build-arg BUILD_TYPE=${{ matrix.build_type }} \
+          --target intel-test
+
+      - name: Build nvhpc
+        run: |
+          docker build -t musica-nvhpc -f docker/Dockerfile.fetch-content . \
+          --build-arg MUSICA_GIT_TAG=${BRANCH_NAME} --build-arg BUILD_TYPE=${{ matrix.build_type }} \
+          --target nvhpc-test
+      
+      - name: Run tests in gcc container
+        run: docker run --name fetch-content-gcc -t musica-gcc bash -c 'make test ARGS="--rerun-failed --output-on-failure -j8"'
+
+      - name: Run tests in intel container
+        run: docker run --name fetch-content-intel -t musica-intel bash -c 'make test ARGS="--rerun-failed --output-on-failure -j8"'
+
+      - name: Run tests in nvhpc container
+        run: docker run --name fetch-content-nvhpc -t musica-nvhpc bash -c 'make test ARGS="--rerun-failed --output-on-failure -j8"'

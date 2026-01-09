@@ -61,6 +61,9 @@ jobs:
         with:
           node-version: 'v20'
           cache: 'npm'
+    
+      - name: Set up EMSDK
+        uses: ./.github/emsdk_steps
 
       - name: Install dependencies
         run: npm ci
