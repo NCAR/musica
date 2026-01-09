@@ -1,6 +1,6 @@
 {
   "name": "@ncar/musica",
-  "version": "0.14.1",
+  "version": "0.14.2",
   "description": "The Multiscale Interface for Chemistry and Aerosols (MUSICA) javascript library",
   "type": "module",
   "main": "./javascript/index.js",
@@ -16,7 +16,6 @@
   "scripts": {
     "build": "npm run build:wasm",
     "build:wasm": "emcmake cmake -S . -B build-wasm -DCMAKE_BUILD_TYPE=Debug -DMUSICA_ENABLE_JAVASCRIPT=ON -DMUSICA_ENABLE_TUVX=OFF -DMUSICA_ENABLE_CARMA=OFF && cmake --build build-wasm",
-    "sync-version": "node scripts/extract_version.js sync",
     "test": "node --test javascript/tests/unit/*.test.js javascript/tests/integration/*.test.js",
     "test:integration": "node --test javascript/tests/integration/*.test.js",
     "test:unit": "node --test javascript/tests/unit/**/*.test.js",

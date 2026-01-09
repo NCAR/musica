@@ -1,10 +1,10 @@
 name: Javascript Tests
 
-on: 
+on:
   push:
     branches:
       - main
-      
+
   pull_request:
   workflow_dispatch:
   release:
@@ -15,7 +15,7 @@ jobs:
   wasm:
     strategy:
       fail-fast: false
-      matrix: 
+      matrix:
         platform: [ubuntu-latest]
         node-version: ["v22", "v24"]
 
@@ -42,7 +42,7 @@ jobs:
       - name: Test
         run: npm test
 
-  build_wasm:
+  publish:
     name: Build WASM for publishing
     runs-on: ubuntu-latest
     if: github.event_name == 'release' && github.event.action == 'published'
@@ -57,6 +57,7 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: "v24"
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Set up EMSDK
         uses: ./.github/emsdk_steps
@@ -67,52 +68,8 @@ jobs:
       - name: Build wasm
         run: npm run build
 
-      - name: Upload WASM artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: wasm-files
-          path: |
-            javascript/wasm/musica.js
-            javascript/wasm/musica.wasm
-
-  publish_npm:
-    name: Publish to npm
-    needs: [build_wasm]
-    if: github.event_name == 'release' && github.event.action == 'published'
-    runs-on: ubuntu-latest
-    environment:
-      name: npm
-      url: https://www.npmjs.com/package/@ncar/musica
-    permissions:
-      id-token: write
-      contents: read
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Setup node
-        uses: actions/setup-node@v6
-        with:
-          node-version: "v24"
-          registry-url: 'https://registry.npmjs.org'
-
-      - name: Download WASM artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: wasm-files
-          path: javascript/wasm
-
-      - name: Verify WASM files
-        run: |
-          ls -la javascript/wasm/
-          test -f javascript/wasm/musica.js
-          test -f javascript/wasm/musica.wasm
-
-      - name: Install dependencies
-        run: npm ci
+      - name: Test
+        run: npm test
 
       - name: Publish to npm
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --provenance --access public
