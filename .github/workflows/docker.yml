@@ -70,6 +70,13 @@ jobs:
       - name: Print branch name
         run: echo "Branch name is $BRANCH_NAME"
 
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: false
+
       - name: Build Docker base image
         run: |
           docker build -t musica-base -f docker/Dockerfile.fetch-content . \
