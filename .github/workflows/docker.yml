@@ -60,6 +60,10 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: [Release]
 
     steps:
       - name: Checkout code

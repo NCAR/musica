@@ -28,7 +28,7 @@ builds work for our fortran interface.
 | Intel Test   | Builds tests with Intel oneAPI (`ifx/icx/icpx`)    | x86-64 only              |
 | NVHPC Test   | Builds tests with NVHPC (`nvfortran/nvc/nvc++`), GPU-enabled | x86-64 only      |
 
-These are the commans that can be used to build each layer. Because this file is meant to test integration
+These are the commands that can be used to build each layer. Because this file is meant to test integration
 with fetch content, we must also supply the current branch as a build argument, like `--build-arg MUSICA_GIT_TAG=feature_branch`,
 so be sure to update that argument when running on your computer.
 
@@ -40,22 +40,22 @@ requires an `amd64` architecture.
 ### GCC
 
 ```bash
-docker build -t musica-gcc -f docker/Dockerfile.fortran-multistage --build-arg MUSICA_GIT_TAG=feature_branch --target gcc-test --platform linux/amd64 .
+docker build -t musica-gcc -f docker/Dockerfile.fetch-content --build-arg MUSICA_GIT_TAG=feature_branch --target gcc-test --platform linux/amd64 .
 
 # or ARM
-docker build -t musica-gcc -f docker/Dockerfile.fortran-multistage --build-arg MUSICA_GIT_TAG=feature_branch --target gcc-test --platform linux/arm64 .
+docker build -t musica-gcc -f docker/Dockerfile.fetch-content --build-arg MUSICA_GIT_TAG=feature_branch --target gcc-test --platform linux/arm64 .
 ```
 
 ### Intel
 
 ```bash
-docker build -t musica-gcc -f docker/Dockerfile.fortran-multistage --build-arg MUSICA_GIT_TAG=feature_branch --target intel-test --platform linux/amd64 .
+docker build -t musica-gcc -f docker/Dockerfile.fetch-content --build-arg MUSICA_GIT_TAG=feature_branch --target intel-test --platform linux/amd64 .
 ```
 
 ### NVHPC
 ```bash
-docker build -t musica-gcc -f docker/Dockerfile.fortran-multistage --build-arg MUSICA_GIT_TAG=feature_branch --target nvhpc-test --platform linux/amd64 .
+docker build -t musica-gcc -f docker/Dockerfile.fetch-content --build-arg MUSICA_GIT_TAG=feature_branch --target nvhpc-test --platform linux/amd64 .
 
 # or ARM
-docker build -t musica-gcc -f docker/Dockerfile.fortran-multistage --build-arg MUSICA_GIT_TAG=feature_branch --target nvhpc-test --platform linux/arm64 .
+docker build -t musica-gcc -f docker/Dockerfile.fetch-content --build-arg MUSICA_GIT_TAG=feature_branch --target nvhpc-test --platform linux/arm64 .
 ```
