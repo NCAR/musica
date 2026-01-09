@@ -27,7 +27,7 @@ jobs:
           - Dockerfile.mpi_openmp
           - Dockerfile.nvhpc
           - Dockerfile.javascript
-        build_type: [Release, Debug]
+        build_type: [Release]
         exclude:
           - dockerfile: Dockerfile.nvhpc
             build_type: Debug  # the -Werror has false positives
