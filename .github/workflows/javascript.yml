@@ -59,6 +59,7 @@ jobs:
         with:
           node-version: "v24"
           registry-url: 'https://registry.npmjs.org'
+          scope: "@ncar"
 
       - name: Set up EMSDK
         uses: ./.github/emsdk_steps
