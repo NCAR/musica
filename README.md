@@ -6,7 +6,7 @@
 [![ubuntu](https://github.com/NCAR/musica/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/ubuntu.yml)
 [![windows](https://github.com/NCAR/musica/actions/workflows/windows.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/windows.yml)
 [![Python](https://github.com/NCAR/musica/actions/workflows/python-wheels.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/python-wheels.yml)
-[![Javascript tests](https://github.com/NCAR/musica/actions/workflows/javascript_integration.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/javascript_integration.yml)
+[![Javascript tests](https://github.com/NCAR/musica/actions/workflows/javascript.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/javascript.yml)
 [![DOI](https://zenodo.org/badge/550370528.svg)](https://zenodo.org/doi/10.5281/zenodo.7458559)
 [![PyPI version](https://badge.fury.io/py/musica.svg)](https://pypi.org/p/musica)
 [![FAIR checklist badge](https://fairsoftwarechecklist.net/badge.svg)](https://fairsoftwarechecklist.net/v0.2?f=31&a=32113&i=22322&r=123)
