@@ -22,7 +22,6 @@ jobs:
         dockerfile:
           - Dockerfile
           - Dockerfile.memcheck
-          - Dockerfile.fortran-gcc
           - Dockerfile.openmp
           - Dockerfile.mpi
           - Dockerfile.mpi_openmp
@@ -57,11 +56,15 @@ jobs:
         run: docker run --name test-container -t musica bash -c 'npm run test'
 
   build-base:
+    name: Build MUSICA Base Image
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: docker/setup-buildx-action@v3
+      - name: Set up Docker Buildx (container driver)
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver: docker-container
 
       - name: Build base layer
         uses: docker/build-push-action@v6
@@ -71,7 +74,7 @@ jobs:
           target: base
           tags: musica-base:${{ github.sha }}
           load: true
-          cache-to: type=gha,mode=max
+          cache-to: type=gha,mode=max,ref=musica-base:${{ github.sha }}
           cache-from: type=gha
 
   fetch-content:
@@ -92,14 +95,19 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Build ${{ matrix.target }}
+      - name: Set up Docker Buildx (container driver)
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver: docker-container
+
+      - name: Build ${{ matrix.target }} using base image
         uses: docker/build-push-action@v6
         with:
           context: .
           file: docker/Dockerfile.fetch-content
           target: ${{ matrix.target }}
           load: true
-          cache-from: type=gha
-          cache-to: type=gha
+          cache-from: type=gha,ref=musica-base:${{ github.sha }}
+          cache-to: type=gha,mode=max,ref=musica-base:${{ github.sha }}
           build-args: |
             MUSICA_GIT_TAG=${{ github.sha }}
