@@ -55,8 +55,8 @@ ENV PKG_CONFIG_PATH=/opt/musica/lib64/pkgconfig/
 # Copy MUSICA install
 COPY --from=base /opt/musica /opt/musica
 
-COPY musica/src/test/test_simple.c musica/src/test/test_simple.c
-COPY musica/fortran/test/tutorial/demo.F90 musica/fortran/test/tutorial/demo.F90
+COPY src/test/test_simple.c musica/src/test/test_simple.c
+COPY fortran/test/tutorial/demo.F90 musica/fortran/test/tutorial/demo.F90
 
 # Try building a simple C application
 RUN gcc $(pkg-config --cflags musica) -o test_simple_c musica/src/test/test_simple.c $(pkg-config --libs musica) \
@@ -91,5 +91,5 @@ RUN nvc $(pkg-config --cflags musica) -o test_simple_c musica/src/test/test_simp
     && ./test_simple_c
 
 # Try building a simple Fortran application
-# RUN nvfortran $(pkg-config --cflags musica-fortran musica) -o test_simple_fortran musica/fortran/test/tutorial/demo.F90 $(pkg-config --libs musica-fortran musica) -lstdc++ \
-#     && ./test_simple_fortran  
+RUN nvfortran $(pkg-config --cflags musica-fortran musica) -o test_simple_fortran musica/fortran/test/tutorial/demo.F90 $(pkg-config --libs musica-fortran musica) -lstdc++ \
+    && ./test_simple_fortran  
