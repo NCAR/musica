@@ -65,7 +65,7 @@ species = [A, B, C]
 gas = mc.Phase(name="gas", species=species)
 
 # --- 2. Define a mechanism of interest ---
-# Through Musica, several different mechanisms can be explored to define reaction rates. 
+# Through MUSICA, several different mechanisms can be explored to define reaction rates. 
 # Here, we use the Arrhenius equation as a simple example.
 
 r1 = mc.Arrhenius(name="A->B", A=4.0e-3, C=50, reactants=[A], products=[B], gas_phase=gas)
