@@ -2,7 +2,17 @@
 
 MUSICA provides a JavaScript interface using WebAssembly (WASM) for portable, cross-platform atmospheric chemistry modeling. The WASM backend works in both Node.js and browser environments.
 
-## Quick Start
+## Installation
+
+The JavaScript interface is included in the MUSICA repository and requires building from source.
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (version 18 or later recommended)
+- [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html) for compiling to WebAssembly
+- CMake (>= 3.21)
+
+### Quick Start
 
 ```javascript
 import * as musica from '@ncar/musica';
@@ -72,45 +82,188 @@ const concentrations = state.getConcentrations();
 console.log('Concentrations:', concentrations);
 ```
 
-## Building
+## Complete Usage Example
 
-First, install and activate [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html):
+Here's a more detailed example that demonstrates time-stepping through a chemical simulation:
 
-```bash
-# Install Emscripten
-git clone https://github.com/emscripten-core/emsdk.git
-cd emsdk
-./emsdk install latest
-./emsdk activate latest
-source ./emsdk_env.sh
+```javascript
+import * as musica from '@ncar/musica';
+const { MICM, SolverType, GAS_CONSTANT } = musica;
+
+// Initialize WASM backend
+await musica.initModule();
+
+// Create MICM instance from configuration
+const micm = MICM.fromConfigPath('./configs/analytical');
+
+// Create a state with 1 grid cell
+const state = micm.createState(1);
+
+// Set environmental conditions
+const temperature = 272.5;  // K
+const pressure = 101253.3;  // Pa
+const airDensity = pressure / (GAS_CONSTANT * temperature);
+
+state.setConditions({
+  temperatures: [temperature],
+  pressures: [pressure],
+  air_densities: [airDensity]
+});
+
+// Set initial concentrations (mol/m³)
+state.setConcentrations({
+  'A': [0.75],
+  'B': [0.0],
+  'C': [0.4],
+  'D': [0.8],
+  'E': [0.0],
+  'F': [0.1]
+});
+
+// Set reaction rate parameters
+state.setUserDefinedRateParameters({
+  'USER.reaction 1': [0.001],
+  'USER.reaction 2': [0.002]
+});
+
+// Time-stepping loop
+const timeStep = 1.0;  // seconds
+const simLength = 100;  // seconds
+let currTime = 0;
+
+const results = [];
+while (currTime < simLength) {
+  // Solve chemistry for this time step
+  const result = micm.solve(state, timeStep);
+  
+  // Store results
+  const concentrations = state.getConcentrations();
+  results.push({
+    time: currTime,
+    A: concentrations.A[0],
+    B: concentrations.B[0],
+    C: concentrations.C[0]
+  });
+  
+  currTime += timeStep;
+}
+
+console.log('Simulation complete!');
+console.log(results);
 ```
 
-Then build the WASM module:
+## Development
 
-```bash
-npm run build
-```
+### Building from Source
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/NCAR/musica.git
+   cd musica
+   ```
+
+2. Install and activate [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html):
+   ```bash
+   git clone https://github.com/emscripten-core/emsdk.git
+   cd emsdk
+   ./emsdk install latest
+   ./emsdk activate latest
+   source ./emsdk_env.sh
+   cd ..
+   ```
+
+3. Install Node.js dependencies:
+   ```bash
+   npm install
+   ```
+
+4. Build the WASM module:
+   ```bash
+   npm run build
+   ```
 
 The WASM files (`musica.js` and `musica.wasm`) will be automatically placed in the `javascript/wasm/` directory.
 
-## Testing
+### Testing
 
+Run all tests:
 ```bash
 npm run test
 ```
 
-## Browser Example
+Run only unit tests:
+```bash
+npm run test:unit
+```
 
-in [wasm](wasm) there is an [example.html](wasm/example.html) file which will
-display the version number from musica and micm as well as solve a very simple
-system by making calls into musica with the built library.
+Run only integration tests:
+```bash
+npm run test:integration
+```
 
-To run this, the file must be provided by a web server. A simple way to view this is
-to serve this file with python. From this directory ([javascript](./)), run a server
+Run tests with coverage:
+```bash
+npm run test:coverage
+```
+
+### Browser Example
+
+The `wasm` directory contains an [example.html](wasm/example.html) file that demonstrates using MUSICA in a web browser. The example displays version numbers and solves a simple chemical system.
+
+To run the browser example, you need to serve the files through a web server (due to WASM security requirements):
 
 ```bash
+# From the repository root or javascript directory
 python3 -m http.server 8000
 ```
 
-You'll then be able to open http://localhost:8000/wasm/example.html in your browser
-and see musica return data from C++ through web assembly!
+Then open http://localhost:8000/javascript/wasm/example.html in your browser to see MUSICA running in WebAssembly!
+
+### Code Style
+
+JavaScript code in MUSICA follows these conventions:
+
+- Use ES6+ module syntax (`import`/`export`)
+- Use `const` and `let` (avoid `var`)
+- Follow async/await patterns for asynchronous operations
+- Add JSDoc comments for public APIs
+- Use descriptive variable names
+
+### Debugging
+
+For debugging the WASM build, you can build in debug mode:
+
+```bash
+npm run build:wasm
+```
+
+This creates a debug build with symbols that can help diagnose issues.
+
+## API Reference
+
+### Main Functions
+
+- **`initModule()`**: Initialize the WebAssembly module (must be called before using MICM)
+- **`getVersion()`**: Get the MUSICA version string
+- **`getMicmVersion()`**: Get the MICM version string
+
+### MICM Class
+
+- **`MICM.fromConfigPath(configPath)`**: Create a MICM solver from a configuration directory
+- **`createState(numCells)`**: Create a state object for the specified number of grid cells
+- **`solve(state, timeStep)`**: Solve chemistry for the given time step
+
+### State Methods
+
+- **`setConcentrations(concentrations)`**: Set species concentrations
+- **`getConcentrations()`**: Get current species concentrations
+- **`setConditions(conditions)`**: Set environmental conditions (temperature, pressure, air density)
+- **`getConditions()`**: Get current environmental conditions
+- **`setUserDefinedRateParameters(params)`**: Set user-defined reaction rate parameters
+- **`getUserDefinedRateParameters()`**: Get current user-defined rate parameters
+
+## More Information
+
+- [Full Documentation](https://ncar.github.io/musica/index.html)
+- [Contributing Guide](../CONTRIBUTING.md)
+- [Main Repository README](../README.md)
