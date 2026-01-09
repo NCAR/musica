@@ -11,8 +11,7 @@
     "!javascript/src",
     "javascript/wasm/*.wasm",
     "javascript/README.md",
-    "LICENSE",
-    "!README.md"
+    "LICENSE"
   ],
   "scripts": {
     "build": "npm run build:wasm",
