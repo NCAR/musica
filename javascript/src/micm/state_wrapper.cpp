@@ -67,20 +67,32 @@ namespace musica_addon
     musica::GetConcentrationsStrides(state_.get(), &error, &cell_stride, &species_stride);
 
     size_t num_cells = musica::GetNumberOfGridCells(state_.get(), &error);
+    size_t n_species = species_ordering.size_;
 
-    // Set concentrations
-    for (size_t i = 0; i < species_ordering.size_; ++i)
+    // The vector_size is the cell_stride for vector-ordered matrices
+    // For standard-ordered matrices, cell_stride is 1
+    size_t vector_size = cell_stride;
+
+    // Set concentrations using the correct indexing formula
+    for (size_t i = 0; i < n_species; ++i)
     {
       std::string species_name = species_ordering.mappings_[i].name_.value_;
-      size_t species_idx = species_ordering.mappings_[i].index_;
+      size_t i_species = species_ordering.mappings_[i].index_;
 
       auto it = concentrations.find(species_name);
       if (it != concentrations.end())
       {
         const auto& values = it->second;
-        for (size_t cell = 0; cell < num_cells && cell < values.size(); ++cell)
+        for (size_t i_cell = 0; i_cell < num_cells && i_cell < values.size(); ++i_cell)
         {
-          conc_ptr[species_idx * species_stride + cell * cell_stride] = values[cell];
+          // Calculate index using the formula:
+          // group_index = i_cell // vector_size
+          // row_in_group = i_cell % vector_size
+          // idx = (group_index * n_species + i_species) * vector_size + row_in_group
+          size_t group_index = i_cell / vector_size;
+          size_t row_in_group = i_cell % vector_size;
+          size_t idx = (group_index * n_species + i_species) * vector_size + row_in_group;
+          conc_ptr[idx] = values[i_cell];
         }
       }
     }
@@ -117,17 +129,29 @@ namespace musica_addon
     musica::GetConcentrationsStrides(state_.get(), &error, &cell_stride, &species_stride);
 
     size_t num_cells = musica::GetNumberOfGridCells(state_.get(), &error);
+    size_t n_species = species_ordering.size_;
 
-    // Get concentrations
-    for (size_t i = 0; i < species_ordering.size_; ++i)
+    // The vector_size is the cell_stride for vector-ordered matrices
+    // For standard-ordered matrices, cell_stride is 1
+    size_t vector_size = cell_stride;
+
+    // Get concentrations using the correct indexing formula
+    for (size_t i = 0; i < n_species; ++i)
     {
       std::string species_name = species_ordering.mappings_[i].name_.value_;
-      size_t species_idx = species_ordering.mappings_[i].index_;
+      size_t i_species = species_ordering.mappings_[i].index_;
 
       std::vector<double> values(num_cells);
-      for (size_t cell = 0; cell < num_cells; ++cell)
+      for (size_t i_cell = 0; i_cell < num_cells; ++i_cell)
       {
-        values[cell] = conc_ptr[species_idx * species_stride + cell * cell_stride];
+        // Calculate index using the formula:
+        // group_index = i_cell // vector_size
+        // row_in_group = i_cell % vector_size
+        // idx = (group_index * n_species + i_species) * vector_size + row_in_group
+        size_t group_index = i_cell / vector_size;
+        size_t row_in_group = i_cell % vector_size;
+        size_t idx = (group_index * n_species + i_species) * vector_size + row_in_group;
+        values[i_cell] = conc_ptr[idx];
       }
       result[species_name] = values;
     }
@@ -164,20 +188,32 @@ namespace musica_addon
     musica::GetUserDefinedRateParametersStrides(state_.get(), &error, &cell_stride, &param_stride);
 
     size_t num_cells = musica::GetNumberOfGridCells(state_.get(), &error);
+    size_t n_params = params_ordering.size_;
 
-    // Set parameters
-    for (size_t i = 0; i < params_ordering.size_; ++i)
+    // The vector_size is the cell_stride for vector-ordered matrices
+    // For standard-ordered matrices, cell_stride is 1
+    size_t vector_size = cell_stride;
+
+    // Set parameters using the correct indexing formula
+    for (size_t i = 0; i < n_params; ++i)
     {
       std::string param_name = params_ordering.mappings_[i].name_.value_;
-      size_t param_idx = params_ordering.mappings_[i].index_;
+      size_t i_param = params_ordering.mappings_[i].index_;
 
       auto it = params.find(param_name);
       if (it != params.end())
       {
         const auto& values = it->second;
-        for (size_t cell = 0; cell < num_cells && cell < values.size(); ++cell)
+        for (size_t i_cell = 0; i_cell < num_cells && i_cell < values.size(); ++i_cell)
         {
-          params_ptr[param_idx * param_stride + cell * cell_stride] = values[cell];
+          // Calculate index using the formula:
+          // group_index = i_cell // vector_size
+          // row_in_group = i_cell % vector_size
+          // idx = (group_index * n_params + i_param) * vector_size + row_in_group
+          size_t group_index = i_cell / vector_size;
+          size_t row_in_group = i_cell % vector_size;
+          size_t idx = (group_index * n_params + i_param) * vector_size + row_in_group;
+          params_ptr[idx] = values[i_cell];
         }
       }
     }
@@ -214,17 +250,29 @@ namespace musica_addon
     musica::GetUserDefinedRateParametersStrides(state_.get(), &error, &cell_stride, &param_stride);
 
     size_t num_cells = musica::GetNumberOfGridCells(state_.get(), &error);
+    size_t n_params = params_ordering.size_;
 
-    // Get parameters
-    for (size_t i = 0; i < params_ordering.size_; ++i)
+    // The vector_size is the cell_stride for vector-ordered matrices
+    // For standard-ordered matrices, cell_stride is 1
+    size_t vector_size = cell_stride;
+
+    // Get parameters using the correct indexing formula
+    for (size_t i = 0; i < n_params; ++i)
     {
       std::string param_name = params_ordering.mappings_[i].name_.value_;
-      size_t param_idx = params_ordering.mappings_[i].index_;
+      size_t i_param = params_ordering.mappings_[i].index_;
 
       std::vector<double> values(num_cells);
-      for (size_t cell = 0; cell < num_cells; ++cell)
+      for (size_t i_cell = 0; i_cell < num_cells; ++i_cell)
       {
-        values[cell] = params_ptr[param_idx * param_stride + cell * cell_stride];
+        // Calculate index using the formula:
+        // group_index = i_cell // vector_size
+        // row_in_group = i_cell % vector_size
+        // idx = (group_index * n_params + i_param) * vector_size + row_in_group
+        size_t group_index = i_cell / vector_size;
+        size_t row_in_group = i_cell % vector_size;
+        size_t idx = (group_index * n_params + i_param) * vector_size + row_in_group;
+        values[i_cell] = params_ptr[idx];
       }
       result[param_name] = values;
     }

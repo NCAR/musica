@@ -5,6 +5,17 @@ import { getBackend } from '../backend.js';
 
 export class MICM {
 	/**
+	 * Get the vector size for a given solver type
+	 * 
+	 * @param {number} solverType - Type of solver
+	 * @returns {number} The vector size for the solver type
+	 */
+	static vectorSize(solverType) {
+		const backend = getBackend();
+		return backend.MICM.vectorSize(solverType);
+	}
+
+	/**
 	 * Create a MICM solver instance from a configuration file path
 	 * 
 	 * @param {string} configPath - Path to the mechanism configuration directory
