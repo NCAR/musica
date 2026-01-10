@@ -365,6 +365,22 @@ describe('MICM solve method', () => {
 });
 
 describe('MICM Integration Tests', () => {
+  it('should return correct vector size for different solver types', async (t) => {
+    // Vector-ordered solvers should have vector size > 1
+    const rosenbrockVectorSize = MICM.vectorSize(SolverType.rosenbrock);
+    assert.ok(rosenbrockVectorSize > 1, 'Rosenbrock vector size should be greater than 1');
+
+    const backwardEulerVectorSize = MICM.vectorSize(SolverType.backward_euler);
+    assert.ok(backwardEulerVectorSize > 1, 'BackwardEuler vector size should be greater than 1');
+
+    // Standard-ordered solvers should have vector size of 1
+    const rosenbrockStandardSize = MICM.vectorSize(SolverType.rosenbrock_standard_order);
+    assert.strictEqual(rosenbrockStandardSize, 1, 'Rosenbrock standard order should have vector size 1');
+
+    const backwardEulerStandardSize = MICM.vectorSize(SolverType.backward_euler_standard_order);
+    assert.strictEqual(backwardEulerStandardSize, 1, 'BackwardEuler standard order should have vector size 1');
+  });
+
   it('should complete end-to-end workflow', async (t) => {
     // Initialize solver
     const micm = MICM.fromConfigPath(

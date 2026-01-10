@@ -109,4 +109,18 @@ namespace musica_addon
     return solver_type_;
   }
 
+  size_t MICMWrapper::GetVectorSize(int solver_type)
+  {
+    // Return vector size based on solver type, matching Python implementation
+    switch (static_cast<musica::MICMSolver>(solver_type))
+    {
+      case musica::MICMSolver::Rosenbrock:
+      case musica::MICMSolver::BackwardEuler:
+      case musica::MICMSolver::CudaRosenbrock: return musica::MUSICA_VECTOR_SIZE;
+      case musica::MICMSolver::RosenbrockStandardOrder:
+      case musica::MICMSolver::BackwardEulerStandardOrder: return 1;
+      default: throw std::runtime_error("Invalid MICM solver type");
+    }
+  }
+
 }  // namespace musica_addon

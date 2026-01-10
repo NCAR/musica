@@ -312,6 +312,7 @@ EMSCRIPTEN_BINDINGS(musica_module)
       .smart_ptr<std::shared_ptr<MICMWrapperWASM>>("MICMPtr")
       .class_function("fromConfigPath", &MICMWrapperWASM::fromConfigPath)
       .class_function("fromConfigString", &MICMWrapperWASM::fromConfigString)
+      .class_function("vectorSize", &MICMWrapper::GetVectorSize)
       .function("createState", &MICMWrapperWASM::createState)
       .function("solve", &MICMWrapperWASM::solve)
       .function("solverType", &MICMWrapperWASM::solverType);
