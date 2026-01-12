@@ -58,7 +58,7 @@ namespace musica
     std::visit(
         [&](auto& st)
         {
-          std::size_t vector_size_ = musica::GetMusicaVectorSize(solver_type);
+          std::size_t vector_size_ = musica::GetVectorSize(solver_type);
           size_t n_species = st.variable_map_.size();
           for (const auto& [name, values] : input)
           {
@@ -83,7 +83,7 @@ namespace musica
     return std::visit(
         [&](auto& st)
         {
-          std::size_t vector_size_ = musica::GetMusicaVectorSize(solver_type);
+          std::size_t vector_size_ = musica::GetVectorSize(solver_type);
           std::map<std::string, std::vector<double>> output;
           size_t n_species = st.variable_map_.size();
           for (const auto& [name, i_species] : st.variable_map_)
@@ -106,7 +106,7 @@ namespace musica
     std::visit(
         [&](auto& st)
         {
-          std::size_t vector_size_ = musica::GetMusicaVectorSize(solver_type);
+          std::size_t vector_size_ = musica::GetVectorSize(solver_type);
           size_t n_params = st.custom_rate_parameter_map_.size();
           for (const auto& [name, values] : input)
           {
@@ -130,7 +130,7 @@ namespace musica
     return std::visit(
         [&](auto& st)
         {
-          std::size_t vector_size_ = musica::GetMusicaVectorSize(solver_type);
+          std::size_t vector_size_ = musica::GetVectorSize(solver_type);
           std::map<std::string, std::vector<double>> output;
           size_t n_params = st.custom_rate_parameter_map_.size();
           for (const auto& [name, i_param] : st.custom_rate_parameter_map_)

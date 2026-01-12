@@ -193,7 +193,7 @@ EMSCRIPTEN_BINDINGS(musica_module)
               }))
       .function("get_maximum_number_of_grid_cells", &musica::MICM::GetMaximumNumberOfGridCells);
 
-  function("vector_size", musica::GetMusicaVectorSize);
+  function("vector_size", musica::GetVectorSize);
 
   function(
       "create_state",

@@ -97,7 +97,7 @@ namespace musica
 
     /// @brief  Get the MUSICA vector size
     /// @return The MUSICA vector size
-    std::size_t GetMusicaVectorSize(musica::MICMSolver);
+    std::size_t GetVectorSize(musica::MICMSolver);
 #ifdef __cplusplus
   }
 #endif

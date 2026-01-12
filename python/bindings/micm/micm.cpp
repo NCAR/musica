@@ -34,7 +34,7 @@ void bind_micm(py::module_& micm)
       .value("AcceptingUnconvergedIntegration", micm::SolverState::AcceptingUnconvergedIntegration)
       .export_values();
 
-  micm.def("_vector_size", &musica::GetMusicaVectorSize,
+  micm.def("_vector_size", &musica::GetVectorSize,
       "Returns the vector dimension for vector-ordered solvers, 0 otherwise.");
 
   micm.def(

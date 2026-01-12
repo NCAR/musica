@@ -157,7 +157,7 @@ namespace musica
     return micm->GetMaximumNumberOfGridCells();
   }
 
-  std::size_t GetMusicaVectorSize(musica::MICMSolver solver_type)
+  std::size_t GetVectorSize(musica::MICMSolver solver_type)
   {
     switch (solver_type)
     {
