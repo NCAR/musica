@@ -3,9 +3,6 @@
 //
 // WASM bindings for MUSICA using Emscripten
 
-#include "micm/micm_wrapper.h"
-#include "micm/state_wrapper.h"
-
 #include <musica/micm/micm.hpp>
 #include <musica/micm/micm_c_interface.hpp>
 #include <musica/micm/parse.hpp>
@@ -22,7 +19,6 @@
 #include <vector>
 
 using namespace emscripten;
-using namespace musica_addon;
 
 EMSCRIPTEN_BINDINGS(musica_module)
 {
