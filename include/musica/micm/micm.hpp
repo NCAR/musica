@@ -73,7 +73,7 @@ inline std::error_code make_error_code(MusicaErrCode e)
 
 namespace musica
 {
-  class State; // forward declaration to break circular include
+  class State;  // forward declaration to break circular include
   /// @brief Types of MICM solver
   enum MICMSolver
   {

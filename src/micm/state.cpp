@@ -102,7 +102,8 @@ namespace musica
         state_variant_);
   }
 
-  void State::SetRateConstants(const std::map<std::string, std::vector<double>>& input, musica::MICMSolver solver_type) {
+  void State::SetRateConstants(const std::map<std::string, std::vector<double>>& input, musica::MICMSolver solver_type)
+  {
     std::visit(
         [&](auto& st)
         {
@@ -126,7 +127,8 @@ namespace musica
         state_variant_);
   }
 
-  std::map<std::string, std::vector<double>> State::GetRateConstants(musica::MICMSolver solver_type) const {
+  std::map<std::string, std::vector<double>> State::GetRateConstants(musica::MICMSolver solver_type) const
+  {
     return std::visit(
         [&](auto& st)
         {
