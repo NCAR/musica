@@ -5,6 +5,14 @@ inputs:
   em-version:
     description: 'emsdk version'
     default: '4.0.22'
+  export-globally:
+    description: 'If true, add EMSDK to PATH and ENV for remaining steps'
+    default: 'true'
+
+outputs:
+  emsdk-env-file:
+    description: "Path to a file containing EMSDK environment variables you can source"
+    value: ${{ steps.activate_emsdk.outputs.emsdk-env-file }}
 
 runs:
   using: "composite"
@@ -16,25 +24,36 @@ runs:
         version: ${{ inputs.em-version }}
 
     - name: Activate emscripten
+      id: activate_emsdk
       shell: bash
       env:
         EM_VERSION: ${{ inputs.em-version }}
+        EXPORT_GLOBALLY: ${{ inputs.export-globally }}
       run: |
+        EMSDK_ENV_FILE=/tmp/emsdk.env
+
+        # Install and activate EMSDK
         emsdk install ${EM_VERSION}
         emsdk activate ${EM_VERSION}
 
-        # Extract exports
+        # Write EMSDK environment to a file
         EMSDK_QUIET=1 EMSDK_BASH=1 emsdk construct_env \
-        | grep '^export ' \
-        | sed -e 's/^export //' -e 's/;$//' \
-        > /tmp/emsdk.env
+          | grep '^export ' \
+          | sed -e 's/^export //' -e 's/;$//' \
+          > "${EMSDK_ENV_FILE}"
 
-        # PATH must NOT be quoted
-        grep '^PATH=' /tmp/emsdk.env | sed 's/^PATH=//' | tr -d '"' | while IFS=: read -ra p; do
-          for d in "${p[@]}"; do
-            echo "$d" >> "$GITHUB_PATH"
+        # Optionally export globally for remaining steps
+        if [ "$EXPORT_GLOBALLY" = "true" ]; then
+          # Add PATH entries
+          grep '^PATH=' "${EMSDK_ENV_FILE}" | sed 's/^PATH=//' | tr -d '"' | while IFS=: read -ra p; do
+            for d in "${p[@]}"; do
+              echo "$d" >> "$GITHUB_PATH"
+            done
           done
-        done
 
-        # Other variables can be quoted
-        grep -v '^PATH=' /tmp/emsdk.env >> "$GITHUB_ENV"
+          # Add other env vars
+          grep -v '^PATH=' "${EMSDK_ENV_FILE}" >> "$GITHUB_ENV"
+        fi
+
+        # Set output for workflow
+        echo "emsdk-env-file=${EMSDK_ENV_FILE}" >> $GITHUB_OUTPUT

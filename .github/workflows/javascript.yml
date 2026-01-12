@@ -4,12 +4,17 @@ on:
   push:
     branches:
       - main
+      - test_deploy
 
   pull_request:
   workflow_dispatch:
   release:
     types:
       - published
+
+permissions:
+  contents: read
+  id-token: write
 
 jobs:
   wasm:
@@ -45,10 +50,7 @@ jobs:
   publish:
     name: Build WASM for publishing
     runs-on: ubuntu-latest
-    if: (github.event_name == 'release' && github.event.action == 'published') || github.event_name == 'workflow_dispatch'
-    permissions:
-      contents: read
-      id-token: write
+    if: (github.event_name == 'release' && github.event.action == 'published') || github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/test_deploy')
 
     steps:
       - name: Checkout
@@ -57,21 +59,37 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v6
         with:
-          node-version: "v24"
+          node-version: 24
           registry-url: 'https://registry.npmjs.org'
-          scope: "@ncar"
 
       - name: Set up EMSDK
+        id: emsdk
         uses: ./.github/emsdk_steps
+        with:
+          export-globally: 'false'
 
       - name: Install dependencies
         run: npm ci
 
       - name: Build wasm
-        run: npm run build
+        run: |
+          source ${{ steps.emsdk.outputs.emsdk-env-file }}
+          npm --version
+          node --version
+          npm run build
 
       - name: Test
         run: npm run test
+      
+      - name: Copy javascript readme
+        run: cp javascript/README.md README.md # npm uses the root README for the package page
+      
+      - name: List config
+        run: |
+          npm --version
+          node --version
+          npm config list -l
+          echo "PATH=$PATH"
 
       - name: Publish to npm
-        run: npm publish --access public
+        run: NODE_AUTH_TOKEN="" npm publish --access public --provenance
