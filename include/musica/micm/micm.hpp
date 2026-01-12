@@ -7,7 +7,6 @@
 
 #include <musica/micm/chemistry.hpp>
 #include <musica/micm/parse.hpp>
-#include <musica/micm/state.hpp>
 
 #include <micm/CPU.hpp>
 #ifdef MUSICA_ENABLE_CUDA
@@ -45,7 +44,7 @@ namespace
   class MusicaErrorCategory : public std::error_category
   {
    public:
-    const char *name() const noexcept override
+    const char* name() const noexcept override
     {
       return MUSICA_ERROR_CATEGORY;
     }
@@ -74,6 +73,7 @@ inline std::error_code make_error_code(MusicaErrCode e)
 
 namespace musica
 {
+  class State; // forward declaration to break circular include
   /// @brief Types of MICM solver
   enum MICMSolver
   {
@@ -106,7 +106,8 @@ namespace musica
    public:
     SolverVariant solver_variant_;
 
-    MICM(const Chemistry &chemistry, MICMSolver solver_type);
+    MICM(const Chemistry& chemistry, MICMSolver solver_type);
+    MICM(std::string config_path, MICMSolver solver_type);
     MICM() = default;
     ~MICM()
     {
@@ -116,7 +117,7 @@ namespace musica
       // cuda must clean all of its runtime resources
       // Otherwise, we risk the CudaRosenbrock destructor running after
       // the cuda runtime has closed
-      std::visit([](auto &solver) { solver.reset(); }, solver_variant_);
+      std::visit([](auto& solver) { solver.reset(); }, solver_variant_);
       micm::cuda::CudaStreamSingleton::GetInstance().CleanUp();
 #endif
     }
@@ -124,19 +125,19 @@ namespace musica
     /// @brief Solve the system
     /// @param state Pointer to state object
     /// @param time_step Time [s] to advance the state by
-    micm::SolverResult Solve(musica::State *state, double time_step);
+    micm::SolverResult Solve(musica::State* state, double time_step);
 
     /// @brief Get a property for a chemical species
     /// @param species_name Name of the species
     /// @param property_name Name of the property
     /// @return Value of the property
     template<class T>
-    T GetSpeciesProperty(const std::string &species_name, const std::string &property_name)
+    T GetSpeciesProperty(const std::string& species_name, const std::string& property_name)
     {
-      micm::System system = std::visit([](auto &solver) -> micm::System { return solver->GetSystem(); }, solver_variant_);
-      for (const auto &phase_species : system.gas_phase_.phase_species_)
+      micm::System system = std::visit([](auto& solver) -> micm::System { return solver->GetSystem(); }, solver_variant_);
+      for (const auto& phase_species : system.gas_phase_.phase_species_)
       {
-        const auto &species = phase_species.species_;
+        const auto& species = phase_species.species_;
         if (species.name_ == species_name)
         {
           return species.GetProperty<T>(property_name);
@@ -149,7 +150,7 @@ namespace musica
     /// @return Maximum number of grid cells
     std::size_t GetMaximumNumberOfGridCells()
     {
-      return std::visit([](auto &solver) { return solver->MaximumNumberOfGridCells(); }, solver_variant_);
+      return std::visit([](auto& solver) { return solver->MaximumNumberOfGridCells(); }, solver_variant_);
     }
   };
 

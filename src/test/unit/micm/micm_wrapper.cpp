@@ -1,4 +1,5 @@
 #include <musica/micm/micm.hpp>
+#include <musica/micm/state.hpp>
 #include <musica/micm/parse.hpp>
 
 #include <gtest/gtest.h>

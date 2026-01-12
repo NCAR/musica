@@ -94,6 +94,10 @@ namespace musica
     size_t GetMaximumNumberOfGridCells(MICM *micm);
 
     bool _IsCudaAvailable(Error *error);
+
+    /// @brief  Get the MUSICA vector size
+    /// @return The MUSICA vector size
+    std::size_t GetVectorSize(musica::MICMSolver);
 #ifdef __cplusplus
   }
 #endif

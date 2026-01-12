@@ -3,9 +3,10 @@
 //
 // WASM bindings for MUSICA using Emscripten
 
-#include "micm/micm_wrapper.h"
-#include "micm/state_wrapper.h"
-
+#include <musica/micm/micm.hpp>
+#include <musica/micm/micm_c_interface.hpp>
+#include <musica/micm/parse.hpp>
+#include <musica/util.hpp>
 #include <musica/version.hpp>
 
 #include <micm/version.hpp>
@@ -18,301 +19,204 @@
 #include <vector>
 
 using namespace emscripten;
-using namespace musica_addon;
-
-// Wrapper functions to return std::string instead of const char*
-std::string GetVersion()
-{
-  return std::string(musica::GetMusicaVersion());
-}
-
-std::string GetMicmVersion()
-{
-  return std::string(micm::GetMicmVersion());
-}
-
-// Helper function to convert JavaScript array to C++ vector
-template<typename T>
-std::vector<T> jsArrayToVector(const val& jsArray)
-{
-  std::vector<T> vec;
-  unsigned int length = jsArray["length"].as<unsigned int>();
-  vec.reserve(length);
-  for (unsigned int i = 0; i < length; ++i)
-  {
-    vec.push_back(jsArray[i].as<T>());
-  }
-  return vec;
-}
-
-// ============================================================================
-// StateWrapper bindings
-// ============================================================================
-
-class StateWrapperWASM
-{
- public:
-  // Constructor - takes ownership of the state pointer via StateWrapper
-  explicit StateWrapperWASM(musica::State* state)
-      : wrapper_(std::make_unique<StateWrapper>(state))
-  {
-  }
-
-  // Move constructor and assignment
-  StateWrapperWASM(StateWrapperWASM&& other) = default;
-  StateWrapperWASM& operator=(StateWrapperWASM&& other) = default;
-
-  // Delete copy constructor and assignment
-  StateWrapperWASM(const StateWrapperWASM&) = delete;
-  StateWrapperWASM& operator=(const StateWrapperWASM&) = delete;
-
-  void setConcentrations(const val& concentrations)
-  {
-    std::map<std::string, std::vector<double>> conc_map;
-    // Convert JavaScript object to C++ map
-    auto keys = val::global("Object").call<val>("keys", concentrations);
-    unsigned int length = keys["length"].as<unsigned int>();
-    for (unsigned int i = 0; i < length; ++i)
-    {
-      std::string key = keys[i].as<std::string>();
-      val value = concentrations[key];
-      std::vector<double> vec = jsArrayToVector<double>(value);
-      conc_map[key] = vec;
-    }
-    wrapper_->SetConcentrations(conc_map);
-  }
-
-  val getConcentrations()
-  {
-    auto conc_map = wrapper_->GetConcentrations();
-    val result = val::object();
-    for (const auto& pair : conc_map)
-    {
-      result.set(pair.first, val::array(pair.second.begin(), pair.second.end()));
-    }
-    return result;
-  }
-
-  void setUserDefinedRateParameters(const val& params)
-  {
-    std::map<std::string, std::vector<double>> param_map;
-    auto keys = val::global("Object").call<val>("keys", params);
-    unsigned int length = keys["length"].as<unsigned int>();
-    for (unsigned int i = 0; i < length; ++i)
-    {
-      std::string key = keys[i].as<std::string>();
-      val value = params[key];
-      std::vector<double> vec = jsArrayToVector<double>(value);
-      param_map[key] = vec;
-    }
-    wrapper_->SetUserDefinedRateParameters(param_map);
-  }
-
-  val getUserDefinedRateParameters()
-  {
-    auto param_map = wrapper_->GetUserDefinedRateParameters();
-    val result = val::object();
-    for (const auto& pair : param_map)
-    {
-      result.set(pair.first, val::array(pair.second.begin(), pair.second.end()));
-    }
-    return result;
-  }
-
-  void setConditions(const val& conditions)
-  {
-    const std::vector<double>* temperatures = nullptr;
-    const std::vector<double>* pressures = nullptr;
-    const std::vector<double>* air_densities = nullptr;
-
-    std::vector<double> temp_vec, press_vec, air_vec;
-
-    if (conditions.hasOwnProperty("temperatures"))
-    {
-      temp_vec = jsArrayToVector<double>(conditions["temperatures"]);
-      temperatures = &temp_vec;
-    }
-    if (conditions.hasOwnProperty("pressures"))
-    {
-      press_vec = jsArrayToVector<double>(conditions["pressures"]);
-      pressures = &press_vec;
-    }
-    if (conditions.hasOwnProperty("air_densities"))
-    {
-      air_vec = jsArrayToVector<double>(conditions["air_densities"]);
-      air_densities = &air_vec;
-    }
-
-    wrapper_->SetConditions(temperatures, pressures, air_densities);
-  }
-
-  val getConditions()
-  {
-    auto cond_map = wrapper_->GetConditions();
-    val result = val::object();
-    for (const auto& pair : cond_map)
-    {
-      result.set(pair.first, val::array(pair.second.begin(), pair.second.end()));
-    }
-    return result;
-  }
-
-  val getSpeciesOrdering()
-  {
-    auto ordering = wrapper_->GetSpeciesOrdering();
-    val result = val::object();
-    for (const auto& pair : ordering)
-    {
-      result.set(pair.first, val(pair.second));
-    }
-    return result;
-  }
-
-  val getUserDefinedRateParametersOrdering()
-  {
-    auto ordering = wrapper_->GetUserDefinedRateParametersOrdering();
-    val result = val::object();
-    for (const auto& pair : ordering)
-    {
-      result.set(pair.first, val(pair.second));
-    }
-    return result;
-  }
-
-  size_t getNumberOfGridCells()
-  {
-    return wrapper_->GetNumberOfGridCells();
-  }
-
-  val concentrationStrides()
-  {
-    size_t cell_stride, species_stride;
-    wrapper_->GetConcentrationStrides(cell_stride, species_stride);
-    val result = val::object();
-    result.set("cell_stride", val(cell_stride));
-    result.set("species_stride", val(species_stride));
-    return result;
-  }
-
-  val userDefinedRateParameterStrides()
-  {
-    size_t cell_stride, param_stride;
-    wrapper_->GetUserDefinedRateParameterStrides(cell_stride, param_stride);
-    val result = val::object();
-    result.set("cell_stride", val(cell_stride));
-    result.set("param_stride", val(param_stride));
-    return result;
-  }
-
-  // Make wrapper accessible for MICMWrapperWASM
-  StateWrapper& getWrapper()
-  {
-    return *wrapper_;
-  }
-
- private:
-  std::unique_ptr<StateWrapper> wrapper_;
-};
-
-// ============================================================================
-// MICMWrapper bindings
-// ============================================================================
-
-class MICMWrapperWASM
-{
- public:
-  // Constructor
-  explicit MICMWrapperWASM(std::unique_ptr<MICMWrapper> wrapper)
-      : wrapper_(std::move(wrapper))
-  {
-  }
-
-  // Move constructor and assignment
-  MICMWrapperWASM(MICMWrapperWASM&& other) = default;
-  MICMWrapperWASM& operator=(MICMWrapperWASM&& other) = default;
-
-  // Delete copy constructor and assignment
-  MICMWrapperWASM(const MICMWrapperWASM&) = delete;
-  MICMWrapperWASM& operator=(const MICMWrapperWASM&) = delete;
-
-  static std::shared_ptr<MICMWrapperWASM> fromConfigPath(const std::string& config_path, int solver_type)
-  {
-    auto wrapper = MICMWrapper::FromConfigPath(config_path, solver_type);
-    return std::make_shared<MICMWrapperWASM>(std::move(wrapper));
-  }
-
-  static std::shared_ptr<MICMWrapperWASM> fromConfigString(const std::string& config_string, int solver_type)
-  {
-    auto wrapper = MICMWrapper::FromConfigString(config_string, solver_type);
-    return std::make_shared<MICMWrapperWASM>(std::move(wrapper));
-  }
-
-  std::shared_ptr<StateWrapperWASM> createState(size_t number_of_grid_cells)
-  {
-    musica::State* state = wrapper_->CreateState(number_of_grid_cells);
-    return std::make_shared<StateWrapperWASM>(state);
-  }
-
-  val solve(StateWrapperWASM& state, double time_step)
-  {
-    // Note: We need to extract the raw state pointer to pass to the underlying
-    // MICM solver. The StateWrapperWASM maintains ownership of the state.
-    // This is safe as long as the state outlives this solve call.
-    musica::State* raw_state = state.getWrapper().GetState();
-    auto result = wrapper_->Solve(raw_state, time_step);
-
-    // Convert SolverResult to JavaScript object
-    val js_result = val::object();
-    js_result.set("state", val(static_cast<int>(result.state_)));
-
-    val stats = val::object();
-    stats.set("function_calls", val(result.stats_.function_calls_));
-    stats.set("jacobian_updates", val(result.stats_.jacobian_updates_));
-    stats.set("number_of_steps", val(result.stats_.number_of_steps_));
-    stats.set("accepted", val(result.stats_.accepted_));
-    stats.set("rejected", val(result.stats_.rejected_));
-    stats.set("decompositions", val(result.stats_.decompositions_));
-    stats.set("solves", val(result.stats_.solves_));
-    stats.set("final_time", val(result.stats_.final_time_));
-
-    js_result.set("stats", stats);
-
-    return js_result;
-  }
-
-  int solverType() const
-  {
-    return wrapper_->GetSolverType();
-  }
-
- private:
-  std::unique_ptr<MICMWrapper> wrapper_;
-};
 
 EMSCRIPTEN_BINDINGS(musica_module)
 {
-  function("getVersion", &GetVersion);
-  function("getMicmVersion", &GetMicmVersion);
+  function("getVersion", optional_override([]() { return std::string(musica::GetMusicaVersion()); }));
 
-  class_<StateWrapperWASM>("State")
-      .smart_ptr<std::shared_ptr<StateWrapperWASM>>("StatePtr")
-      .function("setConcentrations", &StateWrapperWASM::setConcentrations)
-      .function("getConcentrations", &StateWrapperWASM::getConcentrations)
-      .function("setUserDefinedRateParameters", &StateWrapperWASM::setUserDefinedRateParameters)
-      .function("getUserDefinedRateParameters", &StateWrapperWASM::getUserDefinedRateParameters)
-      .function("setConditions", &StateWrapperWASM::setConditions)
-      .function("getConditions", &StateWrapperWASM::getConditions)
-      .function("getSpeciesOrdering", &StateWrapperWASM::getSpeciesOrdering)
-      .function("getUserDefinedRateParametersOrdering", &StateWrapperWASM::getUserDefinedRateParametersOrdering)
-      .function("getNumberOfGridCells", &StateWrapperWASM::getNumberOfGridCells)
-      .function("concentrationStrides", &StateWrapperWASM::concentrationStrides)
-      .function("userDefinedRateParameterStrides", &StateWrapperWASM::userDefinedRateParameterStrides);
+  function("getMicmVersion", optional_override([]() { return std::string(micm::GetMicmVersion()); }));
 
-  class_<MICMWrapperWASM>("MICM")
-      .smart_ptr<std::shared_ptr<MICMWrapperWASM>>("MICMPtr")
-      .class_function("fromConfigPath", &MICMWrapperWASM::fromConfigPath)
-      .class_function("fromConfigString", &MICMWrapperWASM::fromConfigString)
-      .function("createState", &MICMWrapperWASM::createState)
-      .function("solve", &MICMWrapperWASM::solve)
-      .function("solverType", &MICMWrapperWASM::solverType);
+  class_<micm::Conditions>("Condition")
+      .constructor<>()
+      .constructor<double, double, double>()
+      .property("temperature", &micm::Conditions::temperature_)
+      .property("pressure", &micm::Conditions::pressure_)
+      .property("air_density", &micm::Conditions::air_density_);
+
+  register_vector<double>("VectorDouble");
+  register_vector<micm::Conditions>("VectorConditions");
+  register_map<std::string, std::size_t>("MapStringSizeT");
+  register_map<std::string, std::vector<double>>("MapStringVectorDouble");
+
+  enum_<musica::MICMSolver>("SolverType")
+      .value("Rosenbrock", musica::MICMSolver::Rosenbrock)
+      .value("BackwardEuler", musica::MICMSolver::BackwardEuler)
+      .value("CudaRosenbrock", musica::MICMSolver::CudaRosenbrock)
+      .value("RosenbrockStandardOrder", musica::MICMSolver::RosenbrockStandardOrder)
+      .value("BackwardEulerStandardOrder", musica::MICMSolver::BackwardEulerStandardOrder);
+
+  enum_<micm::SolverState>("SolverState")
+      .value("NotYetCalled", micm::SolverState::NotYetCalled)
+      .value("Running", micm::SolverState::Running)
+      .value("Converged", micm::SolverState::Converged)
+      .value("ConvergenceExceededMaxSteps", micm::SolverState::ConvergenceExceededMaxSteps)
+      .value("StepSizeTooSmall", micm::SolverState::StepSizeTooSmall)
+      .value("RepeatedlySingularMatrix", micm::SolverState::RepeatedlySingularMatrix)
+      .value("NaNDetected", micm::SolverState::NaNDetected)
+      .value("InfDetected", micm::SolverState::InfDetected)
+      .value("AcceptingUnconvergedIntegration", micm::SolverState::AcceptingUnconvergedIntegration);
+
+  value_object<musica::SolverResultStats>("SolverResultsStats")
+      .field("function_calls", &musica::SolverResultStats::function_calls_)
+      .field("jacobian_updates", &musica::SolverResultStats::jacobian_updates_)
+      .field("number_of_steps", &musica::SolverResultStats::number_of_steps_)
+      .field("accepted", &musica::SolverResultStats::accepted_)
+      .field("rejected", &musica::SolverResultStats::rejected_)
+      .field("decompositions", &musica::SolverResultStats::decompositions_)
+      .field("solves", &musica::SolverResultStats::solves_)
+      .field("final_time", &musica::SolverResultStats::final_time_);
+
+  class_<micm::SolverResult>("SolverResult")
+      .constructor<micm::SolverState, musica::SolverResultStats>()
+      .property(
+          "state",
+          optional_override(
+              [](const micm::SolverResult& r)
+              {
+                return static_cast<int>(r.state_);
+              }))
+      .property("stats", &micm::SolverResult::stats_);
+
+  class_<musica::State>("State")
+      .smart_ptr<std::shared_ptr<musica::State>>("State")
+      .function("number_of_grid_cells", &musica::State::NumberOfGridCells)
+      .function("set_conditions", &musica::State::SetConditions)
+      .function(
+          "get_conditions",
+          optional_override(
+              [](std::shared_ptr<musica::State> state)
+              {
+                const std::vector<micm::Conditions>& cppVec = state->GetConditions();
+                emscripten::val result = emscripten::val::array();
+
+                for (size_t i = 0; i < cppVec.size(); ++i)
+                {
+                  emscripten::val cond = emscripten::val::object();
+                  cond.set("temperature", cppVec[i].temperature_);
+                  cond.set("pressure", cppVec[i].pressure_);
+                  cond.set("air_density", cppVec[i].air_density_);
+                  result.call<void>("push", cond);
+                }
+
+                return result;
+              }))
+      .function(
+          "get_concentrations",
+          optional_override(
+              [](std::shared_ptr<musica::State> state, musica::MICMSolver solver)
+              {
+                std::map<std::string, std::vector<double>> cppMap = state->GetConcentrations(solver);
+                emscripten::val result = emscripten::val::object();
+                for (auto& [key, vec] : cppMap)
+                {
+                  emscripten::val jsArray = emscripten::val::array();
+                  for (double v : vec)
+                  {
+                    jsArray.call<void>("push", v);
+                  }
+                  result.set(key, jsArray);
+                }
+                return result;
+              }))
+      .function(
+          "set_concentrations",
+          optional_override(
+              [](std::shared_ptr<musica::State> state, emscripten::val input, musica::MICMSolver solver)
+              {
+                std::map<std::string, std::vector<double>> cppMap;
+
+                emscripten::val keys = emscripten::val::global("Object").call<emscripten::val>("keys", input);
+                int len = keys["length"].as<int>();
+                for (int i = 0; i < len; ++i)
+                {
+                  std::string key = keys[i].as<std::string>();
+                  emscripten::val jsArray = input[key];
+                  cppMap[key] = emscripten::vecFromJSArray<double>(jsArray);
+                }
+
+                state->SetConcentrations(cppMap, solver);
+              }))
+      .function(
+          "set_user_defined_constants",
+          optional_override(
+              [](std::shared_ptr<musica::State> state, emscripten::val input, musica::MICMSolver solver)
+              {
+                std::map<std::string, std::vector<double>> cppMap;
+
+                emscripten::val keys = emscripten::val::global("Object").call<emscripten::val>("keys", input);
+                int len = keys["length"].as<int>();
+                for (int i = 0; i < len; ++i)
+                {
+                  std::string key = keys[i].as<std::string>();
+                  emscripten::val jsArray = input[key];
+                  cppMap[key] = emscripten::vecFromJSArray<double>(jsArray);
+                }
+
+                state->SetRateConstants(cppMap, solver);
+              }))
+      .function(
+          "get_user_defined_constants",
+          optional_override(
+              [](std::shared_ptr<musica::State> state, musica::MICMSolver solver)
+              {
+                std::map<std::string, std::vector<double>> cppMap = state->GetRateConstants(solver);
+                emscripten::val result = emscripten::val::object();
+                for (auto& [key, vec] : cppMap)
+                {
+                  emscripten::val jsArray = emscripten::val::array();
+                  for (double v : vec)
+                  {
+                    jsArray.call<void>("push", v);
+                  }
+                  result.set(key, jsArray);
+                }
+                return result;
+              }));
+
+  class_<musica::MICM>("MICM")
+      .smart_ptr<std::shared_ptr<musica::MICM>>("MICM")
+      .class_function(
+          "fromConfigPath",
+          optional_override([](std::string path, musica::MICMSolver solver)
+                            { return std::make_unique<musica::MICM>(path, solver); }))
+      .class_function(
+          "fromConfigString",
+          optional_override(
+              [](std::string config_string, musica::MICMSolver solver)
+              { return std::make_unique<musica::MICM>(musica::ReadConfigurationFromString(config_string), solver); }))
+      .function(
+          "solve",
+          optional_override(
+              [](musica::MICM& micm, std::shared_ptr<musica::State> state, double dt)
+              {
+                return micm.Solve(state.get(), dt);  // pass raw pointer internally
+              }))
+      .function("get_maximum_number_of_grid_cells", &musica::MICM::GetMaximumNumberOfGridCells);
+
+  function("vector_size", musica::GetVectorSize);
+
+  function(
+      "create_state",
+      optional_override([](musica::MICM& micm, std::size_t number_of_grid_cells)
+                        { return std::make_shared<musica::State>(micm, number_of_grid_cells); }));
+
+  function(
+      "species_ordering",
+      optional_override(
+          [](std::shared_ptr<musica::State> state)
+          {
+            std::map<std::string, std::size_t> map;
+            std::visit([&map](auto& s) { map = s.variable_map_; }, state->state_variant_);
+            return map;
+          }));
+
+  function(
+      "user_defined_rate_parameters_ordering",
+      optional_override(
+          [](std::shared_ptr<musica::State> state)
+          {
+            std::map<std::string, std::size_t> map;
+            std::visit([&map](auto& s) { map = s.custom_rate_parameter_map_; }, state->state_variant_);
+            return map;
+          }));
 }

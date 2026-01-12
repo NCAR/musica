@@ -1,15 +1,11 @@
 project(musica-wasm)
 
-# Set C++ standard (required for MUSICA headers)
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 # Building WASM module
 add_executable(musica-wasm 
     src/musica_wasm.cpp
-    src/micm/state_wrapper.cpp
-    src/micm/micm_wrapper.cpp
 )
+
+target_compile_features(musica-wasm PUBLIC cxx_std_20)
 
 # Link against MUSICA
 target_link_libraries(musica-wasm musica::musica)

@@ -34,20 +34,7 @@ void bind_micm(py::module_& micm)
       .value("AcceptingUnconvergedIntegration", micm::SolverState::AcceptingUnconvergedIntegration)
       .export_values();
 
-  micm.def(
-      "_vector_size",
-      [](const musica::MICMSolver solver_type)
-      {
-        switch (solver_type)
-        {
-          case musica::MICMSolver::Rosenbrock:
-          case musica::MICMSolver::BackwardEuler:
-          case musica::MICMSolver::CudaRosenbrock: return musica::MUSICA_VECTOR_SIZE;
-          case musica::MICMSolver::RosenbrockStandardOrder:
-          case musica::MICMSolver::BackwardEulerStandardOrder: return static_cast<std::size_t>(1);
-          default: throw py::value_error("Invalid MICM solver type.");
-        }
-      },
+  micm.def("_vector_size", &musica::GetVectorSize,
       "Returns the vector dimension for vector-ordered solvers, 0 otherwise.");
 
   micm.def(

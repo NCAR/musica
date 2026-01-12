@@ -33,6 +33,11 @@ namespace musica
     }
   }
 
+  MICM::MICM(std::string config_path, MICMSolver solver_type)
+      : MICM(ReadConfiguration(config_path), solver_type)
+  {
+  }
+
   MICM::MICM(const Chemistry& chemistry, MICMSolver solver_type)
   {
     auto configure = [&](auto builder)
