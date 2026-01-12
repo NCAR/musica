@@ -30,9 +30,6 @@ namespace musica_addon
     static std::unique_ptr<MICMWrapper> FromConfigPath(const std::string& config_path, int solver_type);
     static std::unique_ptr<MICMWrapper> FromConfigString(const std::string& config_string, int solver_type);
 
-    // Static method to get vector size from solver type
-    static size_t GetVectorSize(int solver_type);
-
     musica::State* CreateState(size_t number_of_grid_cells);
     micm::SolverResult Solve(musica::State* state, double time_step);
     int GetSolverType() const;
