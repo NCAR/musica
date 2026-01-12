@@ -68,7 +68,8 @@ export class State {
 		for (let i = 0; i < this._numberOfGridCells; i++) {
 			const T = temps[i] !== null ? temps[i] : NaN;
 			const P = pres[i] !== null ? pres[i] : NaN;
-			let rho = dens[i] !== null ? dens[i] : (T && P ? P / (GAS_CONSTANT * T) : NaN);
+      let rho = dens[i] !== null ? dens[i] : (!Number.isNaN(T) && !Number.isNaN(P) ? P / (GAS_CONSTANT * T) : NaN);  
+			
 
 			const cond = new backend.Condition(T, P, rho);
 			vec.push_back(cond);

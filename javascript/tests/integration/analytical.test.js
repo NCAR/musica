@@ -35,7 +35,7 @@ function testAnalytical(solver, state, numCells = 1, step = 1, places = 5) {
         rates['USER.reaction 2'].push(0.002);
     }
 
-    state.setConditions({ temperatures: temps, pressures: press, air_densities: Array(numCells).fill(airDensity) });
+    state.setConditions({ temperatures: temps, pressures: press, airDensities: Array(numCells).fill(airDensity) });
     state.setConcentrations(conc);
     state.setUserDefinedRateParameters(rates);
 
