@@ -5,6 +5,7 @@
 // solver configurations, leveraging both vector-ordered and standard-ordered state type.
 // It also includes functions for creating and deleting State instances with c bindings.
 #include <musica/micm/micm.hpp>
+#include <musica/micm/micm_c_interface.hpp>
 #include <musica/micm/state.hpp>
 #include <musica/util.hpp>
 
@@ -48,6 +49,102 @@ namespace musica
           {
             st.conditions_[i] = conditions[i];
           }
+        },
+        state_variant_);
+  }
+
+  void State::SetConcentrations(const std::map<std::string, std::vector<double>>& input, musica::MICMSolver solver_type)
+  {
+    std::visit(
+        [&](auto& st)
+        {
+          std::size_t vector_size_ = musica::GetMusicaVectorSize(solver_type);
+          size_t n_species = st.variable_map_.size();
+          for (const auto& [name, values] : input)
+          {
+            auto it = st.variable_map_.find(name);
+            if (it == st.variable_map_.end())
+              continue;
+            size_t i_species = it->second;
+            for (size_t i_cell = 0; i_cell < values.size(); ++i_cell)
+            {
+              size_t group_index = i_cell / vector_size_;
+              size_t row_in_group = i_cell % vector_size_;
+              size_t idx = (group_index * n_species + i_species) * vector_size_ + row_in_group;
+              st.variables_.AsVector()[idx] = values[i_cell];
+            }
+          }
+        },
+        state_variant_);
+  }
+
+  std::map<std::string, std::vector<double>> State::GetConcentrations(musica::MICMSolver solver_type) const
+  {
+    return std::visit(
+        [&](auto& st)
+        {
+          std::size_t vector_size_ = musica::GetMusicaVectorSize(solver_type);
+          std::map<std::string, std::vector<double>> output;
+          size_t n_species = st.variable_map_.size();
+          for (const auto& [name, i_species] : st.variable_map_)
+          {
+            output[name] = std::vector<double>(st.NumberOfGridCells());
+            for (size_t i_cell = 0; i_cell < st.NumberOfGridCells(); ++i_cell)
+            {
+              size_t group_index = i_cell / vector_size_;
+              size_t row_in_group = i_cell % vector_size_;
+              size_t idx = (group_index * n_species + i_species) * vector_size_ + row_in_group;
+              output[name][i_cell] = st.variables_.AsVector()[idx];
+            }
+          }
+          return output;
+        },
+        state_variant_);
+  }
+
+  void State::SetRateConstants(const std::map<std::string, std::vector<double>>& input, musica::MICMSolver solver_type) {
+    std::visit(
+        [&](auto& st)
+        {
+          std::size_t vector_size_ = musica::GetMusicaVectorSize(solver_type);
+          size_t n_params = st.custom_rate_parameter_map_.size();
+          for (const auto& [name, values] : input)
+          {
+            auto it = st.custom_rate_parameter_map_.find(name);
+            if (it == st.custom_rate_parameter_map_.end())
+              continue;
+            size_t i_param = it->second;
+            for (size_t i_cell = 0; i_cell < values.size(); ++i_cell)
+            {
+              size_t group_index = i_cell / vector_size_;
+              size_t row_in_group = i_cell % vector_size_;
+              size_t idx = (group_index * n_params + i_param) * vector_size_ + row_in_group;
+              st.custom_rate_parameters_.AsVector()[idx] = values[i_cell];
+            }
+          }
+        },
+        state_variant_);
+  }
+
+  std::map<std::string, std::vector<double>> State::GetRateConstants(musica::MICMSolver solver_type) const {
+    return std::visit(
+        [&](auto& st)
+        {
+          std::size_t vector_size_ = musica::GetMusicaVectorSize(solver_type);
+          std::map<std::string, std::vector<double>> output;
+          size_t n_params = st.custom_rate_parameter_map_.size();
+          for (const auto& [name, i_param] : st.custom_rate_parameter_map_)
+          {
+            output[name] = std::vector<double>(st.NumberOfGridCells());
+            for (size_t i_cell = 0; i_cell < st.NumberOfGridCells(); ++i_cell)
+            {
+              size_t group_index = i_cell / vector_size_;
+              size_t row_in_group = i_cell % vector_size_;
+              size_t idx = (group_index * n_params + i_param) * vector_size_ + row_in_group;
+              output[name][i_cell] = st.custom_rate_parameters_.AsVector()[idx];
+            }
+          }
+          return output;
         },
         state_variant_);
   }

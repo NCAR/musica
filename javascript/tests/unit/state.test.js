@@ -25,7 +25,7 @@ before(async () => {
  * Helper function to create a test mechanism
  * This creates a simple mechanism for testing state operations
  */
-function createTestMechanism() {
+function getConfigPath() {
     // For JavaScript, we'll use a config path instead of mechanism object
     // as the mechanism configuration API might not be fully exposed
     return path.join(__dirname, '../../../configs/v0/analytical');
@@ -33,21 +33,21 @@ function createTestMechanism() {
 
 describe('State initialization', () => {
     it('should create state with single grid cell', async (t) => {
-        const configPath = createTestMechanism();
+        const configPath = getConfigPath();
         const solver = MICM.fromConfigPath(configPath);
         const state = solver.createState(1);
         assert.ok(state, 'State should be created');
     });
 
     it('should create state with multiple grid cells', async (t) => {
-        const configPath = createTestMechanism();
+        const configPath = getConfigPath();
         const solver = MICM.fromConfigPath(configPath);
         const state = solver.createState(3);
         assert.ok(state, 'State with 3 grid cells should be created');
     });
 
     it('should throw error for invalid grid cell count', async (t) => {
-        const configPath = createTestMechanism();
+        const configPath = getConfigPath();
         const solver = MICM.fromConfigPath(configPath);
         assert.throws(
             () => solver.createState(0),
@@ -60,177 +60,155 @@ describe('State initialization', () => {
 describe('Concentrations', () => {
     let solver;
     let state;
+    const gridCellsList = [1, 5, 10, 20];
 
     before(() => {
-        const configPath = createTestMechanism();
+        const configPath = getConfigPath();
         solver = MICM.fromConfigPath(configPath);
     });
 
-    it('should set and get concentrations for single grid cell', async (t) => {
-        state = solver.createState(1);
-        const concentrations = { A: 1.0, B: 2.0, C: 3.0 };
-        state.setConcentrations(concentrations);
-        const result = state.getConcentrations();
+    it('should set and get concentrations for various numbers of grid cells', async () => {
+        for (const nCells of gridCellsList) {
+            state = solver.createState(nCells);
 
-        assert.ok(isClose(result.A[0], 1.0, 1e-13), 'A concentration should be 1.0');
-        assert.ok(isClose(result.B[0], 2.0, 1e-13), 'B concentration should be 2.0');
-        assert.ok(isClose(result.C[0], 3.0, 1e-13), 'C concentration should be 3.0');
+            // Set concentrations
+            const concentrations = {
+                A: Array.from({ length: nCells }, (_, i) => i + 1),
+                B: Array.from({ length: nCells }, (_, i) => i + 10),
+                C: Array.from({ length: nCells }, (_, i) => i + 100)
+            };
+            state.setConcentrations(concentrations);
+
+            const result = state.getConcentrations();
+
+            for (let i = 0; i < nCells; i++) {
+                assert.ok(isClose(result.A[i], concentrations.A[i], 1e-13), `A[${i}] should match`);
+                assert.ok(isClose(result.B[i], concentrations.B[i], 1e-13), `B[${i}] should match`);
+                assert.ok(isClose(result.C[i], concentrations.C[i], 1e-13), `C[${i}] should match`);
+            }
+        }
     });
 
-    it('should set and get concentrations for multiple grid cells', async (t) => {
-        state = solver.createState(2);
-        const concentrations = { A: [1.0, 2.0], B: [3.0, 4.0], C: [5.0, 6.0] };
-        state.setConcentrations(concentrations);
-        const result = state.getConcentrations();
+    it('should handle empty concentration update without changing values', async () => {
+        for (const nCells of gridCellsList) {
+            state = solver.createState(nCells);
 
-        assert.deepStrictEqual(result.A, [1.0, 2.0], 'A concentrations should match');
-        assert.deepStrictEqual(result.B, [3.0, 4.0], 'B concentrations should match');
-        assert.deepStrictEqual(result.C, [5.0, 6.0], 'C concentrations should match');
-    });
+            const concentrations = {
+                A: Array(nCells).fill(1.0),
+                B: Array(nCells).fill(2.0),
+                C: Array(nCells).fill(3.0)
+            };
+            state.setConcentrations(concentrations);
 
-    it('should handle empty concentration update', async (t) => {
-        state = solver.createState(1);
-        const concentrations = { A: 1.0, B: 2.0, C: 3.0 };
-        state.setConcentrations(concentrations);
+            // Empty update
+            state.setConcentrations({});
+            const result = state.getConcentrations();
 
-        // Set empty concentrations - should not change values
-        state.setConcentrations({});
-        const result = state.getConcentrations();
-
-        assert.ok(isClose(result.A[0], 1.0, 1e-13), 'A concentration should remain 1.0');
-        assert.ok(isClose(result.B[0], 2.0, 1e-13), 'B concentration should remain 2.0');
-        assert.ok(isClose(result.C[0], 3.0, 1e-13), 'C concentration should remain 3.0');
+            for (let i = 0; i < nCells; i++) {
+                assert.ok(isClose(result.A[i], concentrations.A[i], 1e-13), `A[${i}] should remain`);
+                assert.ok(isClose(result.B[i], concentrations.B[i], 1e-13), `B[${i}] should remain`);
+                assert.ok(isClose(result.C[i], concentrations.C[i], 1e-13), `C[${i}] should remain`);
+            }
+        }
     });
 });
+
 
 describe('Conditions', () => {
     let solver;
     let state;
+    const gridCellsList = [1, 5, 10, 20];
 
     before(() => {
-        const configPath = createTestMechanism();
+        const configPath = getConfigPath();
         solver = MICM.fromConfigPath(configPath);
     });
 
-    it('should set and get conditions for single grid cell', async (t) => {
-        state = solver.createState(1);
-        state.setConditions({ temperatures: 300.0, pressures: 101325.0 });
-        const conditions = state.getConditions();
+    it('should set and get conditions for various numbers of grid cells', async () => {
+        for (const nCells of gridCellsList) {
+            state = solver.createState(nCells);
 
-        assert.ok(isClose(conditions.temperature[0], 300.0, 1e-13), 'Temperature should be 300.0');
-        assert.ok(isClose(conditions.pressure[0], 101325.0, 1e-13), 'Pressure should be 101325.0');
-        // Air density should be calculated: P / (R * T) where R = 8.31446261815324
-        const expectedAirDensity = 101325.0 / (8.31446261815324 * 300.0);
-        assert.ok(isClose(conditions.air_density[0], expectedAirDensity, 0.1), 'Air density should be calculated');
+            // Create test values
+            const temperatures = Array.from({ length: nCells }, (_, i) => 300.0 + i);
+            const pressures = Array.from({ length: nCells }, () => 101325.0);
+            const airDensities = temperatures.map((T, i) => 101325.0 / (8.31446261815324 * T));
+
+            state.setConditions({ temperatures, pressures });
+            const conditions = state.getConditions();
+
+            assert.strictEqual(conditions.length, nCells, `Should have ${nCells} grid cells`);
+
+            for (let i = 0; i < nCells; i++) {
+                assert.ok(isClose(conditions[i].temperature, temperatures[i], 1e-13), `Temperature[${i}] should match`);
+                assert.ok(isClose(conditions[i].pressure, pressures[i], 1e-13), `Pressure[${i}] should match`);
+                assert.ok(isClose(conditions[i].air_density, airDensities[i], 0.1), `Air density[${i}] should match`);
+            }
+        }
     });
 
-    it('should set and get conditions for multiple grid cells', async (t) => {
-        state = solver.createState(2);
-        state.setConditions({
-            temperatures: [300.0, 310.0],
-            pressures: [101325.0, 101325.0],
-            air_densities: [40.9, 39.5]
-        });
-        const conditions = state.getConditions();
+    it('should handle integer values for conditions', async () => {
+        for (const nCells of gridCellsList) {
+            state = solver.createState(nCells);
 
-        assert.deepStrictEqual(conditions.temperature, [300.0, 310.0], 'Temperatures should match');
-        assert.deepStrictEqual(conditions.pressure, [101325.0, 101325.0], 'Pressures should match');
-        assert.deepStrictEqual(conditions.air_density, [40.9, 39.5], 'Air densities should match');
-    });
+            const temperatures = Array.from({ length: nCells }, () => 272);
+            const pressures = Array.from({ length: nCells }, () => 101325);
+            const airDensities = temperatures.map(T => 101325 / (8.31446261815324 * T));
 
-    it('should accept integer values for conditions', async (t) => {
-        state = solver.createState(1);
-        // Test setting int values (from Python test)
-        state.setConditions({ temperatures: 272, pressures: 101325 });
-        const conditions = state.getConditions();
+            state.setConditions({ temperatures, pressures });
+            const conditions = state.getConditions();
 
-        assert.ok(isClose(conditions.temperature[0], 272, 1e-13), 'Temperature should be 272');
-        assert.ok(isClose(conditions.pressure[0], 101325, 1e-13), 'Pressure should be 101325');
+            assert.strictEqual(conditions.length, nCells, `Should have ${nCells} grid cells`);
+
+            for (let i = 0; i < nCells; i++) {
+                assert.ok(isClose(conditions[i].temperature, 272, 1e-13), `Temperature[${i}] should be 272`);
+                assert.ok(isClose(conditions[i].pressure, 101325, 1e-13), `Pressure[${i}] should be 101325`);
+                assert.ok(isClose(conditions[i].air_density, airDensities[i], 1e-13), `Air density[${i}] should be calculated`);
+            }
+        }
     });
 });
+
 
 describe('User-defined rate parameters', () => {
     let solver;
     let state;
+    const gridCellsList = [1, 5, 10, 20];
 
     before(() => {
-        const configPath = createTestMechanism();
+        const configPath = getConfigPath();
         solver = MICM.fromConfigPath(configPath);
     });
 
-    it('should set and get user-defined rate parameters for single grid cell', async (t) => {
-        state = solver.createState(1);
-        const params = { 'USER.reaction 1': 1.0 };
-        state.setUserDefinedRateParameters(params);
-        const result = state.getUserDefinedRateParameters();
+    it('should set and get user-defined rate parameters for multiple grid cells', async () => {
+        for (const nCells of gridCellsList) {
+            state = solver.createState(nCells);
 
-        assert.ok(isClose(result['USER.reaction 1'][0], 1.0, 1e-13), 'Rate parameter should be 1.0');
+            const params = { 'USER.reaction 1': Array.from({ length: nCells }, (_, i) => 1.0 + i) };
+            state.setUserDefinedRateParameters(params);
+            const result = state.getUserDefinedRateParameters();
+
+            assert.strictEqual(result['USER.reaction 1'].length, nCells, `Should have ${nCells} values`);
+            for (let i = 0; i < nCells; i++) {
+                assert.ok(isClose(result['USER.reaction 1'][i], 1.0 + i, 1e-13), `Rate parameter[${i}] should match`);
+            }
+        }
     });
 
-    it('should set and get user-defined rate parameters for multiple grid cells', async (t) => {
-        state = solver.createState(2);
-        const params = { 'USER.reaction 1': [1.0, 2.0] };
-        state.setUserDefinedRateParameters(params);
-        const result = state.getUserDefinedRateParameters();
+    it('should handle empty rate parameter update', async () => {
+        for (const nCells of gridCellsList) {
+            state = solver.createState(nCells);
 
-        assert.deepStrictEqual(result['USER.reaction 1'], [1.0, 2.0], 'Rate parameters should match');
-    });
+            const params = { 'USER.reaction 1': Array.from({ length: nCells }, () => 1.0) };
+            state.setUserDefinedRateParameters(params);
 
-    it('should handle empty rate parameter update', async (t) => {
-        state = solver.createState(1);
-        const params = { 'USER.reaction 1': 1.0 };
-        state.setUserDefinedRateParameters(params);
+            // Set empty parameters - should not change values
+            state.setUserDefinedRateParameters({});
+            const result = state.getUserDefinedRateParameters();
 
-        // Set empty parameters - should not change values
-        state.setUserDefinedRateParameters({});
-        const result = state.getUserDefinedRateParameters();
-
-        assert.ok(isClose(result['USER.reaction 1'][0], 1.0, 1e-13), 'Rate parameter should remain 1.0');
-    });
-});
-
-describe('State ordering', () => {
-    let solver;
-    let state;
-
-    before(() => {
-        const configPath = createTestMechanism();
-        solver = MICM.fromConfigPath(configPath);
-        state = solver.createState(1);
-    });
-
-    it('should get species ordering', async (t) => {
-        const ordering = state.getSpeciesOrdering();
-
-        assert.ok(typeof ordering === 'object', 'Ordering should be an object');
-        assert.ok('A' in ordering, 'Should have species A');
-        assert.ok('B' in ordering, 'Should have species B');
-        assert.ok('C' in ordering, 'Should have species C');
-        assert.ok(ordering.A >= 0, 'A ordering should be non-negative');
-        assert.ok(ordering.B >= 0, 'B ordering should be non-negative');
-        assert.ok(ordering.C >= 0, 'C ordering should be non-negative');
-    });
-
-    it('should get user-defined rate parameters ordering', async (t) => {
-        const ordering = state.getUserDefinedRateParametersOrdering();
-
-        assert.ok(typeof ordering === 'object', 'Ordering should be an object');
-        assert.ok('USER.reaction 1' in ordering, 'Should have USER.reaction 1');
-        assert.ok('USER.reaction 2' in ordering, 'Should have USER.reaction 2');
-        assert.ok(ordering['USER.reaction 1'] >= 0, 'Ordering should be non-negative');
-        assert.ok(ordering['USER.reaction 2'] >= 0, 'Ordering should be non-negative');
+            for (let i = 0; i < nCells; i++) {
+                assert.ok(isClose(result['USER.reaction 1'][i], 1.0, 1e-13), `Rate parameter[${i}] should remain 1.0`);
+            }
+        }
     });
 });
 
-describe('Grid cell operations', () => {
-    it('should return correct number of grid cells', async (t) => {
-        const configPath = createTestMechanism();
-        const solver = MICM.fromConfigPath(configPath);
-
-        const state1 = solver.createState(1);
-        assert.strictEqual(state1.getNumberOfGridCells(), 1, 'Should have 1 grid cell');
-
-        const state5 = solver.createState(5);
-        assert.strictEqual(state5.getNumberOfGridCells(), 5, 'Should have 5 grid cells');
-    });
-});

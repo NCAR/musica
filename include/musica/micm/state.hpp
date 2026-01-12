@@ -72,6 +72,23 @@ namespace musica
     /// @param concentrations Vector of concentrations
     void SetOrderedConcentrations(const std::vector<double>& concentrations);
 
+    /// @brief Set the concentrations from a map of species name to concentration vectors
+    /// @param input 
+    void SetConcentrations(const std::map<std::string, std::vector<double>>& input, musica::MICMSolver solver_type);
+
+    /// @brief Get the concentrations as a map of species name to concentration vectors
+    /// @return Map of species name to concentration vectors
+    std::map<std::string, std::vector<double>> GetConcentrations(musica::MICMSolver solver_type) const;
+
+    /// @brief Set the rate constants from a map of species name to rate constant vectors
+    /// @param input
+    /// @param solver_type  
+    void SetRateConstants(const std::map<std::string, std::vector<double>>& input, musica::MICMSolver solver_type);
+
+    /// @brief Get the rate constants as a map of species name to rate constant vectors
+    /// @return Map of species name to rate constant vectors
+    std::map<std::string, std::vector<double>> GetRateConstants(musica::MICMSolver solver_type) const;
+
     /// @brief Get the vector of rate constants
     /// @return Vector of doubles
     std::vector<double>& GetOrderedRateParameters();

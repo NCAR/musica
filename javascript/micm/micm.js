@@ -1,5 +1,5 @@
 import { State } from './state.js';
-import { SolverType } from './solver.js';
+import { SolverType, toWasmSolverType } from './solver.js';
 import { SolverStats, SolverResult } from './solver_result.js';
 import { getBackend } from '../backend.js';
 
@@ -18,6 +18,7 @@ export class MICM {
 
 		try {
 			const backend = getBackend();
+			const wasmSolver = toWasmSolverType(solverType);
 			// In Node.js with NODEFS mounted, configuration files are exposed under /host.
 			// In browser environments, this prefix is invalid, so only add it when running under Node.
 			let resolvedConfigPath = configPath;
@@ -28,7 +29,7 @@ export class MICM {
 			if (isNodeEnv && !configPath.startsWith('/host/')) {
 				resolvedConfigPath = `/host/${configPath}`;
 			}
-			const nativeMICM = backend.MICM.fromConfigPath(resolvedConfigPath, solverType);
+			const nativeMICM = backend.MICM.fromConfigPath(resolvedConfigPath, wasmSolver);
 			return new MICM(nativeMICM, solverType);
 		} catch (error) {
 			throw new Error(`Failed to create MICM solver from config path: ${error.message}`);
@@ -49,10 +50,11 @@ export class MICM {
 
 		try {
 			const backend = getBackend();
+			const wasmSolver = toWasmSolverType(solverType);
 			const mechanismJSON = mechanism.getJSON();
 			const jsonString = JSON.stringify(mechanismJSON);
 
-			const nativeMICM = backend.MICM.fromConfigString(jsonString, solverType);
+			const nativeMICM = backend.MICM.fromConfigString(jsonString, wasmSolver);
 			return new MICM(nativeMICM, solverType);
 		} catch (error) {
 			throw new Error(`Failed to create MICM solver from mechanism: ${error.message}`);
@@ -76,8 +78,7 @@ export class MICM {
 		if (numberOfGridCells <= 0) {
 			throw new RangeError('number_of_grid_cells must be greater than 0');
 		}
-		const nativeState = this._nativeMICM.createState(numberOfGridCells);
-		return new State(nativeState);
+		return new State(this._nativeMICM, numberOfGridCells, this._solverType);
 	}
 
 	solve(state, timeStep) {
