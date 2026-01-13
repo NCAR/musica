@@ -1,4 +1,4 @@
-! Copyright (C) 2022 National Center for Atmospheric Research
+! Copyright (C) 2022 University Corporation for Atmospheric Research
 ! SPDX-License-Identifier: Apache-2.0
 !
 !> \file
