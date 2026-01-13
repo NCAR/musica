@@ -127,10 +127,6 @@ jobs:
         shell: msys2 {0}
         run: cmake --build build  --verbose
 
-      - name: Run single test
-        run: test_tuvx_c_api.exe
-        working-directory: build
-
       - name: Run tests
         shell: msys2 {0}
         run: ctest -C ${{ matrix.build_type }} --rerun-failed --output-on-failure . --verbose
