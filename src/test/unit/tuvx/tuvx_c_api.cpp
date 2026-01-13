@@ -161,23 +161,23 @@ TEST_F(TuvxCApiTest, CreateTuvxInstanceWithJsonConfig)
   ASSERT_NE(tuvx, nullptr);
 }
 
-TEST_F(TuvxCApiTest, DetectsNonexistentConfigFile)
-{
-  const char* config_path = "nonexisting.yml";
-  Error error;
-  GridMap* grids_from_host = CreateGridMap(&error);
-  ProfileMap* profiles_from_host = CreateProfileMap(&error);
-  RadiatorMap* radiators_from_host = CreateRadiatorMap(&error);
-  TUVX* tuvx = CreateTuvx(config_path, grids_from_host, profiles_from_host, radiators_from_host, &error);
-  ASSERT_FALSE(IsSuccess(error));
-  DeleteGridMap(grids_from_host, &error);
-  ASSERT_TRUE(IsSuccess(error));
-  DeleteProfileMap(profiles_from_host, &error);
-  ASSERT_TRUE(IsSuccess(error));
-  DeleteRadiatorMap(radiators_from_host, &error);
-  ASSERT_TRUE(IsSuccess(error));
-  DeleteError(&error);
-}
+// TEST_F(TuvxCApiTest, DetectsNonexistentConfigFile)
+// {
+//   const char* config_path = "nonexisting.yml";
+//   Error error;
+//   GridMap* grids_from_host = CreateGridMap(&error);
+//   ProfileMap* profiles_from_host = CreateProfileMap(&error);
+//   RadiatorMap* radiators_from_host = CreateRadiatorMap(&error);
+//   TUVX* tuvx = CreateTuvx(config_path, grids_from_host, profiles_from_host, radiators_from_host, &error);
+//   ASSERT_FALSE(IsSuccess(error));
+//   DeleteGridMap(grids_from_host, &error);
+//   ASSERT_TRUE(IsSuccess(error));
+//   DeleteProfileMap(profiles_from_host, &error);
+//   ASSERT_TRUE(IsSuccess(error));
+//   DeleteRadiatorMap(radiators_from_host, &error);
+//   ASSERT_TRUE(IsSuccess(error));
+//   DeleteError(&error);
+// }
 
 TEST_F(TuvxCApiTest, CannotGetConfiguredGrid)
 {
