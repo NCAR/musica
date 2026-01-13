@@ -80,33 +80,64 @@
                     const { types, reactionTypes, Mechanism } = musica.mechanismConfiguration;
                     const { Species, Phase, ReactionComponent } = types;
 
-                    // Create species and phases
-                    const A = new Species({ name: 'A' });
-                    const B = new Species({ name: 'B' });
-                    const C = new Species({ name: 'C' });
+                    // Create species and phases (Lorenz attractor mapping)
+                    const X = new Species({ name: 'X' });
+                    const Y = new Species({ name: 'Y' });
+                    const Z = new Species({ name: 'Z' });
 
-                    const gas = new Phase({ name: 'gas', species: [A, B, C] });
+                    const gas = new Phase({ name: 'gas', species: [X, Y, Z] });
 
-                    const reaction1 = new reactionTypes.UserDefined({
-                        name: 'reaction 1',
-                        gas_phase: 'gas',
-                        reactants: [new ReactionComponent({ species_name: 'A' })],
-                        products: [new ReactionComponent({ species_name: 'B' })]
-                    });
-
-                    const reaction2 = new reactionTypes.UserDefined({
-                        name: 'reaction 2',
-                        gas_phase: 'gas',
-                        reactants: [new ReactionComponent({ species_name: 'B' })],
-                        products: [new ReactionComponent({ species_name: 'C' })]
-                    });
+                    const reactions = [
+                        new reactionTypes.UserDefined({
+                            name: 'Y_to_X',
+                            gas_phase: 'gas',
+                            reactants: [new ReactionComponent({ species_name: 'Y' })],
+                            products: [new ReactionComponent({ species_name: 'X' })]
+                        }),
+                        new reactionTypes.UserDefined({
+                            name: 'X_to_Y',
+                            gas_phase: 'gas',
+                            reactants: [new ReactionComponent({ species_name: 'X' })],
+                            products: [new ReactionComponent({ species_name: 'Y' })]
+                        }),
+                        new reactionTypes.UserDefined({
+                            name: 'X_autocatalytic_Y',
+                            gas_phase: 'gas',
+                            reactants: [new ReactionComponent({ species_name: 'X' })],
+                            products: [new ReactionComponent({ species_name: 'X' }), new ReactionComponent({ species_name: 'Y' })]
+                        }),
+                        new reactionTypes.UserDefined({
+                            name: 'X_Z_quench',
+                            gas_phase: 'gas',
+                            reactants: [new ReactionComponent({ species_name: 'X' }), new ReactionComponent({ species_name: 'Z' })],
+                            products: [new ReactionComponent({ species_name: 'Z' })]
+                        }),
+                        new reactionTypes.UserDefined({
+                            name: 'Y_decay',
+                            gas_phase: 'gas',
+                            reactants: [new ReactionComponent({ species_name: 'Y' })],
+                            products: []
+                        }),
+                        new reactionTypes.UserDefined({
+                            name: 'XY_to_Z',
+                            gas_phase: 'gas',
+                            reactants: [new ReactionComponent({ species_name: 'X' }), new ReactionComponent({ species_name: 'Y' })],
+                            products: [new ReactionComponent({ species_name: 'X' }), new ReactionComponent({ species_name: 'Y' }), new ReactionComponent({ species_name: 'Z' })]
+                        }),
+                        new reactionTypes.UserDefined({
+                            name: 'Z_decay',
+                            gas_phase: 'gas',
+                            reactants: [new ReactionComponent({ species_name: 'Z' })],
+                            products: []
+                        })
+                    ];
 
                     const mechanism = new Mechanism({
-                        name: 'Test Mechanism',
+                        name: 'Lorenz Attractor',
                         version: '1.0.0',
-                        species: [A, B, C],
+                        species: [X, Y, Z],
                         phases: [gas],
-                        reactions: [reaction1, reaction2]
+                        reactions
                     });
 
                     const micm = MICM.fromMechanism(mechanism);
@@ -114,7 +145,26 @@
 
                     // Set conditions and rate parameters once
                     state.setConditions({ temperatures: [298.15], pressures: [101325.0], air_densities: [1.0] });
-                    state.setUserDefinedRateParameters({ 'USER.reaction 1': 0.1, 'USER.reaction 2': 0.2 });
+                    // state.setConcentrations({
+                    //     'X': [0.75],
+                    //     'Y': [0.0],
+                    //     'Z': [0.4],
+                    // });
+
+                    // Lorenz parameters
+                    const sigma = 10.0;
+                    const rho = 28.0;
+                    const beta = 8.0 / 3.0;
+
+                    state.setUserDefinedRateParameters({
+                        'USER.Y_to_X': sigma,
+                        'USER.X_to_Y': sigma,
+                        'USER.X_autocatalytic_Y': rho,
+                        'USER.X_Z_quench': 1.0,
+                        'USER.Y_decay': 1.0,
+                        'USER.XY_to_Z': 1.0,
+                        'USER.Z_decay': beta
+                    });
 
                     // Create interactive controls
                     const controls = document.createElement('div');
@@ -150,14 +200,14 @@
                         return { wrapper, input, valueSpan };
                     }
 
-                    // Default initial concentrations
-                    const sliderA = createSlider('A', 0, 1, 0.01, 1.0);
-                    const sliderB = createSlider('B', 0, 1, 0.01, 0.0);
-                    const sliderC = createSlider('C', 0, 1, 0.01, 0.0);
+                    // Default initial concentrations (Lorenz typical small values)
+                    const sliderX = createSlider('X', -30, 30, 0.01, 0.0);
+                    const sliderY = createSlider('Y', -30, 30, 0.01, 1.0);
+                    const sliderZ = createSlider('Z', -10, 50, 0.01, 1.05);
 
-                    controls.appendChild(sliderA.wrapper);
-                    controls.appendChild(sliderB.wrapper);
-                    controls.appendChild(sliderC.wrapper);
+                    controls.appendChild(sliderX.wrapper);
+                    controls.appendChild(sliderY.wrapper);
+                    controls.appendChild(sliderZ.wrapper);
 
                     contentDiv.appendChild(controls);
 
@@ -173,7 +223,7 @@
 
                     const thead = document.createElement('thead');
                     const headerRow = document.createElement('tr');
-                    ['Time', 'A', 'B', 'C'].forEach(h => {
+                    ['Time', 'X', 'Y', 'Z'].forEach(h => {
                         const th = document.createElement('th');
                         th.textContent = h;
                         th.style.border = '1px solid #ddd';
@@ -190,10 +240,28 @@
                     resultsContainer.appendChild(table);
                     contentDiv.appendChild(resultsContainer);
 
-                    // Create plot container
+                    // Hide the results table by default and add a toggle in controls
+                    resultsContainer.style.display = 'none';
+
+                    const tableToggleWrapper = document.createElement('div');
+                    tableToggleWrapper.style.marginTop = '8px';
+                    const toggleLabel = document.createElement('label');
+                    const toggle = document.createElement('input');
+                    toggle.type = 'checkbox';
+                    toggle.checked = false; // default hidden
+                    toggleLabel.appendChild(toggle);
+                    toggleLabel.appendChild(document.createTextNode(' Show results table'));
+                    tableToggleWrapper.appendChild(toggleLabel);
+                    controls.appendChild(tableToggleWrapper);
+
+                    toggle.addEventListener('change', () => {
+                        resultsContainer.style.display = toggle.checked ? '' : 'none';
+                    });
+
+                    // Create plot container (Lorenz attractor phase plot)
                     const plotContainer = document.createElement('div');
                     plotContainer.className = 'info';
-                    plotContainer.innerHTML = '<h3>Concentrations vs Time</h3>';
+                    plotContainer.innerHTML = '<h3>Lorenz Attractor (X vs Z)</h3>';
                     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
                     svg.setAttribute('width', '760');
                     svg.setAttribute('height', '320');
@@ -204,18 +272,18 @@
 
                     // Function to read slider values
                     function readSliderValues() {
-                        const a = parseFloat(sliderA.input.value);
-                        const b = parseFloat(sliderB.input.value);
-                        const c = parseFloat(sliderC.input.value);
-                        return { A: a, B: b, C: c };
+                        const x = parseFloat(sliderX.input.value);
+                        const y = parseFloat(sliderY.input.value);
+                        const z = parseFloat(sliderZ.input.value);
+                        return { X: x, Y: y, Z: z };
                     }
 
-                    // D3 plot updater
-                    function updatePlot(times, Aseries, Bseries, Cseries) {
+                    // D3 plot updater: draws Lorenz attractor as X vs Z phase plot
+                    function updatePlot(times, Xseries, Yseries, Zseries) {
                         // Clear previous contents
                         while (svg.firstChild) svg.removeChild(svg.firstChild);
 
-                        const margin = { top: 20, right: 80, bottom: 40, left: 50 };
+                        const margin = { top: 20, right: 20, bottom: 40, left: 50 };
                         const width = 760 - margin.left - margin.right;
                         const height = 320 - margin.top - margin.bottom;
 
@@ -223,14 +291,21 @@
                             .append('g')
                             .attr('transform', `translate(${margin.left},${margin.top})`);
 
-                        const maxTime = d3.max(times) || 1;
-                        const maxY = d3.max([d3.max(Aseries), d3.max(Bseries), d3.max(Cseries), 1.0]);
+                        // Prepare 2D points for X vs Z
+                        const points = Xseries.map((x, i) => ({ x: x, z: Zseries[i], t: times[i] }));
 
-                        const x = d3.scaleLinear().domain([0, maxTime]).range([0, width]);
-                        const y = d3.scaleLinear().domain([0, maxY]).range([height, 0]);
+                        const xExtent = d3.extent(points, d => d.x);
+                        const zExtent = d3.extent(points, d => d.z);
 
-                        const xAxis = d3.axisBottom(x).ticks(6);
-                        const yAxis = d3.axisLeft(y).ticks(6);
+                        // Add small padding
+                        const xPad = (xExtent[1] - xExtent[0]) * 0.1 || 1;
+                        const zPad = (zExtent[1] - zExtent[0]) * 0.1 || 1;
+
+                        const xScale = d3.scaleLinear().domain([xExtent[0] - xPad, xExtent[1] + xPad]).range([0, width]);
+                        const yScale = d3.scaleLinear().domain([zExtent[0] - zPad, zExtent[1] + zPad]).range([height, 0]);
+
+                        const xAxis = d3.axisBottom(xScale).ticks(6);
+                        const yAxis = d3.axisLeft(yScale).ticks(6);
 
                         g.append('g')
                             .attr('transform', `translate(0,${height})`)
@@ -239,59 +314,58 @@
                         g.append('g')
                             .call(yAxis);
 
+                        // Axis labels
+                        g.append('text')
+                            .attr('x', width / 2)
+                            .attr('y', height + 35)
+                            .attr('text-anchor', 'middle')
+                            .text('X');
+
+                        g.append('text')
+                            .attr('transform', 'rotate(-90)')
+                            .attr('x', -height / 2)
+                            .attr('y', -36)
+                            .attr('text-anchor', 'middle')
+                            .text('Z');
+
+                        // Line for the trajectory
                         const line = d3.line()
-                            .x((d, i) => x(times[i]))
-                            .y(d => y(d));
-
-                        const colors = { A: '#1f77b4', B: '#ff7f0e', C: '#2ca02c' };
+                            .x(d => xScale(d.x))
+                            .y(d => yScale(d.z));
 
                         g.append('path')
-                            .datum(Aseries)
+                            .datum(points)
                             .attr('fill', 'none')
-                            .attr('stroke', colors.A)
-                            .attr('stroke-width', 2)
+                            .attr('stroke', '#1f77b4')
+                            .attr('stroke-width', 1.5)
                             .attr('d', line);
 
-                        g.append('path')
-                            .datum(Bseries)
-                            .attr('fill', 'none')
-                            .attr('stroke', colors.B)
-                            .attr('stroke-width', 2)
-                            .attr('d', line);
-
-                        g.append('path')
-                            .datum(Cseries)
-                            .attr('fill', 'none')
-                            .attr('stroke', colors.C)
-                            .attr('stroke-width', 2)
-                            .attr('d', line);
-
-                        // Legend
-                        const legend = g.append('g')
-                            .attr('transform', `translate(${width + 10},0)`);
-
-                        [['A', colors.A], ['B', colors.B], ['C', colors.C]].forEach((d, i) => {
-                            const row = legend.append('g').attr('transform', `translate(0, ${i * 20})`);
-                            row.append('rect').attr('width', 12).attr('height', 12).attr('fill', d[1]);
-                            row.append('text').attr('x', 18).attr('y', 10).text(d[0]);
-                        });
+                        // Draw a small circle for the current (last) point
+                        const last = points[points.length - 1];
+                        if (last) {
+                            g.append('circle')
+                                .attr('cx', xScale(last.x))
+                                .attr('cy', yScale(last.z))
+                                .attr('r', 3)
+                                .attr('fill', '#d62728');
+                        }
                     }
 
                     // Run the simulation and populate the results table + plot
-                    function runSimulation(steps = 10, timeStep = 1.0) {
+                    function runSimulation(steps = 1000, timeStep = 0.01) {
                         // Reset table
                         tbody.innerHTML = '';
 
                         // Reset concentrations from sliders
                         const vals = readSliderValues();
-                        state.setConcentrations({ A: [vals.A], B: [vals.B], C: [vals.C] });
+                        state.setConcentrations({ X: [vals.X], Y: [vals.Y], Z: [vals.Z] });
 
                         let cumulativeTime = 0.0;
 
                         const times = [0.0];
-                        const As = [vals.A];
-                        const Bs = [vals.B];
-                        const Cs = [vals.C];
+                        const Xs = [vals.X];
+                        const Ys = [vals.Y];
+                        const Zs = [vals.Z];
 
                         for (let i = 0; i < steps; i++) {
                             micm.solve(state, timeStep);
@@ -304,17 +378,17 @@
                                 return v;
                             }
 
-                            const aVal = val('A');
-                            const bVal = val('B');
-                            const cVal = val('C');
+                            const xVal = val('X');
+                            const yVal = val('Y');
+                            const zVal = val('Z');
 
                             times.push(cumulativeTime);
-                            As.push(aVal);
-                            Bs.push(bVal);
-                            Cs.push(cVal);
+                            Xs.push(xVal);
+                            Ys.push(yVal);
+                            Zs.push(zVal);
 
                             const row = document.createElement('tr');
-                            [cumulativeTime.toFixed(2), aVal, bVal, cVal].forEach(cellVal => {
+                            [cumulativeTime.toFixed(2), xVal, yVal, zVal].forEach(cellVal => {
                                 const td = document.createElement('td');
                                 td.textContent = String(cellVal);
                                 td.style.border = '1px solid #ddd';
@@ -324,11 +398,11 @@
                             tbody.appendChild(row);
                         }
 
-                        updatePlot(times, As, Bs, Cs);
+                        updatePlot(times, Xs, Ys, Zs);
                     }
 
                     // Wire sliders to rerun simulation on input
-                    [sliderA, sliderB, sliderC].forEach(s => {
+                    [sliderX, sliderY, sliderZ].forEach(s => {
                         s.input.addEventListener('input', () => {
                             s.valueSpan.textContent = s.input.value;
                             runSimulation();
