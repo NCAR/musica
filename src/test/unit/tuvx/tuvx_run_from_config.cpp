@@ -5,6 +5,22 @@
 
 using namespace musica;
 
+#include <chrono>
+#include <iomanip>
+#include <iostream>
+#include <string>
+
+static void tuvx_log(const std::string& msg)
+{
+  using namespace std::chrono;
+  auto now = system_clock::now();
+  auto t = system_clock::to_time_t(now);
+  long ms = duration_cast<milliseconds>(now.time_since_epoch()).count() % 1000;
+  std::tm tm = *std::localtime(&t);
+  std::cout << "[tuvx] [" << std::put_time(&tm, "%F %T") << "." << std::setfill('0') << std::setw(3) << ms << "] " << msg
+            << std::endl;
+}
+
 // Expected values for photolysis rate constants and heating rates
 // were determined by running the stand-alone TUV-x model with the fixed configuration.
 const double expected_photolysis_rate_constants[3][4] = {
@@ -52,35 +68,48 @@ class TuvxRunTest : public ::testing::Test
     number_of_heating_rates = 0;
     photolysis_rate_constants = nullptr;
     heating_rates = nullptr;
+    tuvx_log("SetUp(): initialized members");
   }
 
   void SetUp(const char* config_path)
   {
     Error error;
+    tuvx_log(std::string("SetUp(config): starting for config: ") + (config_path ? config_path : "(null)"));
     grids_from_host = CreateGridMap(&error);
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("SetUp(config): CreateGridMap succeeded");
     profiles_from_host = CreateProfileMap(&error);
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("SetUp(config): CreateProfileMap succeeded");
     radiators_from_host = CreateRadiatorMap(&error);
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("SetUp(config): CreateRadiatorMap succeeded");
     tuvx = CreateTuvx(config_path, grids_from_host, profiles_from_host, radiators_from_host, &error);
     if (!IsSuccess(error))
     {
       std::cerr << "Error creating TUVX instance: " << error.message_.value_ << std::endl;
+      tuvx_log(
+          std::string("SetUp(config): CreateTuvx failed: ") +
+          (error.message_.value_ ? error.message_.value_ : "(no message)"));
     }
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("SetUp(config): CreateTuvx succeeded");
     grids_in_tuvx = GetGridMap(tuvx, &error);
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("SetUp(config): GetGridMap succeeded");
     profiles_in_tuvx = GetProfileMap(tuvx, &error);
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("SetUp(config): GetProfileMap succeeded");
     radiators_in_tuvx = GetRadiatorMap(tuvx, &error);
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("SetUp(config): GetRadiatorMap succeeded");
     number_of_layers = 3;
     number_of_wavelengths = 5;
     number_of_reactions = 3;
     number_of_heating_rates = 2;
     photolysis_rate_constants = new double[(number_of_layers + 1) * number_of_reactions];
     heating_rates = new double[(number_of_layers + 1) * number_of_heating_rates];
+    tuvx_log("SetUp(config): allocated photolysis_rate_constants and heating_rates");
     DeleteError(&error);
   }
 
@@ -90,24 +119,33 @@ class TuvxRunTest : public ::testing::Test
     grids_from_host = grids;
     profiles_from_host = profiles;
     radiators_from_host = radiators;
+    tuvx_log(std::string("SetUp(config,host): starting for config: ") + (config_path ? config_path : "(null)"));
     tuvx = CreateTuvx(config_path, grids, profiles, radiators, &error);
     if (!IsSuccess(error))
     {
       std::cerr << "Error creating TUVX instance: " << error.message_.value_ << std::endl;
+      tuvx_log(
+          std::string("SetUp(config,host): CreateTuvx failed: ") +
+          (error.message_.value_ ? error.message_.value_ : "(no message)"));
     }
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("SetUp(config,host): CreateTuvx succeeded");
     grids_in_tuvx = GetGridMap(tuvx, &error);
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("SetUp(config,host): GetGridMap succeeded");
     profiles_in_tuvx = GetProfileMap(tuvx, &error);
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("SetUp(config,host): GetProfileMap succeeded");
     radiators_in_tuvx = GetRadiatorMap(tuvx, &error);
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("SetUp(config,host): GetRadiatorMap succeeded");
     number_of_layers = 3;
     number_of_wavelengths = 5;
     number_of_reactions = 3;
     number_of_heating_rates = 2;
     photolysis_rate_constants = new double[(number_of_layers + 1) * number_of_reactions];
     heating_rates = new double[(number_of_layers + 1) * number_of_heating_rates];
+    tuvx_log("SetUp(config,host): allocated photolysis_rate_constants and heating_rates");
     DeleteError(&error);
   }
 
@@ -117,34 +155,46 @@ class TuvxRunTest : public ::testing::Test
     {
       return;
     }
+    tuvx_log("TearDown(): starting cleanup");
     Error error;
     DeleteTuvx(tuvx, &error);
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("TearDown(): DeleteTuvx succeeded");
     DeleteGridMap(grids_from_host, &error);
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("TearDown(): DeleteGridMap(grids_from_host) succeeded");
     DeleteProfileMap(profiles_from_host, &error);
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("TearDown(): DeleteProfileMap(profiles_from_host) succeeded");
     DeleteRadiatorMap(radiators_from_host, &error);
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("TearDown(): DeleteRadiatorMap(radiators_from_host) succeeded");
     DeleteGridMap(grids_in_tuvx, &error);
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("TearDown(): DeleteGridMap(grids_in_tuvx) succeeded");
     DeleteProfileMap(profiles_in_tuvx, &error);
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("TearDown(): DeleteProfileMap(profiles_in_tuvx) succeeded");
     DeleteRadiatorMap(radiators_in_tuvx, &error);
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("TearDown(): DeleteRadiatorMap(radiators_in_tuvx) succeeded");
     delete[] photolysis_rate_constants;
     delete[] heating_rates;
     DeleteError(&error);
+    tuvx_log("TearDown(): finished cleanup");
   }
 };
 
 TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfig)
 {
   const char* json_config_path = "configs/tuvx/fixed/config.json";
+  tuvx_log(std::string("Test CreateTuvxInstanceWithJsonConfig: calling SetUp with ") + json_config_path);
   SetUp(json_config_path);
   ASSERT_NE(tuvx, nullptr);
   Error error;
+  tuvx_log("Test CreateTuvxInstanceWithJsonConfig: calling RunTuvx");
   RunTuvx(tuvx, 0.1, 1.1, photolysis_rate_constants, heating_rates, nullptr, &error);
+  tuvx_log("Test CreateTuvxInstanceWithJsonConfig: RunTuvx returned");
   ASSERT_TRUE(IsSuccess(error));
   for (int i = 0; i < number_of_reactions; i++)
   {
@@ -193,14 +243,20 @@ TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfigAndHostData)
 {
   const char* json_config_path = "configs/tuvx/from_host/config.json";
   Error error;
+  tuvx_log(
+      std::string("Test CreateTuvxInstanceWithJsonConfigAndHostData: preparing host grids/profiles for ") +
+      json_config_path);
   GridMap* grids = CreateGridMap(&error);
   ASSERT_TRUE(IsSuccess(error));
+  tuvx_log("Created host GridMap");
   ProfileMap* profiles = CreateProfileMap(&error);
   ASSERT_TRUE(IsSuccess(error));
+  tuvx_log("Created host ProfileMap");
   RadiatorMap* radiators = CreateRadiatorMap(&error);
   Grid* heights = CreateGrid("height", "km", 3, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_NE(heights, nullptr);
+  tuvx_log("Created host Grid 'height'");
   double height_edges[4] = { 0.0, 1.0, 2.0, 3.0 };
   SetGridEdges(heights, height_edges, 4, &error);
   ASSERT_TRUE(IsSuccess(error));
@@ -208,6 +264,7 @@ TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfigAndHostData)
   SetGridMidpoints(heights, height_midpoints, 3, &error);
   ASSERT_TRUE(IsSuccess(error));
   AddGrid(grids, heights, &error);
+  tuvx_log("Added 'height' grid to host GridMap");
   Grid* wavelengths = CreateGrid("wavelength", "nm", 5, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_NE(wavelengths, nullptr);
@@ -219,9 +276,11 @@ TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfigAndHostData)
   ASSERT_TRUE(IsSuccess(error));
   AddGrid(grids, wavelengths, &error);
   ASSERT_TRUE(IsSuccess(error));
+  tuvx_log("Added 'wavelength' grid to host GridMap");
   Profile* temperature = CreateProfile("temperature", "K", heights, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_NE(temperature, nullptr);
+  tuvx_log("Created host Profile 'temperature'");
   AddProfile(profiles, temperature, &error);
   ASSERT_TRUE(IsSuccess(error));
   DeleteProfile(temperature, &error);
@@ -230,8 +289,10 @@ TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfigAndHostData)
   ASSERT_TRUE(IsSuccess(error));
   DeleteGrid(wavelengths, &error);
   ASSERT_TRUE(IsSuccess(error));
+  tuvx_log("Calling SetUp(config, host data)");
   SetUp(json_config_path, grids, profiles, radiators);
   ASSERT_NE(tuvx, nullptr);
+  tuvx_log("SetUp completed, TUVX instance created");
   heights = GetGrid(grids_in_tuvx, "height", "km", &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_NE(heights, nullptr);

@@ -5,6 +5,22 @@
 
 using namespace musica;
 
+#include <chrono>
+#include <iomanip>
+#include <iostream>
+#include <string>
+
+static void tuvx_log(const std::string& msg)
+{
+  using namespace std::chrono;
+  auto now = system_clock::now();
+  auto t = system_clock::to_time_t(now);
+  long ms = duration_cast<milliseconds>(now.time_since_epoch()).count() % 1000;
+  std::tm tm = *std::localtime(&t);
+  std::cout << "[tuvx] [" << std::put_time(&tm, "%F %T") << "." << std::setfill('0') << std::setw(3) << ms << "] " << msg
+            << std::endl;
+}
+
 // Test fixture for the TUVX C API
 class TuvxCApiTest : public ::testing::Test
 {
@@ -27,29 +43,41 @@ class TuvxCApiTest : public ::testing::Test
     grids_in_tuvx = nullptr;
     profiles_in_tuvx = nullptr;
     radiators_in_tuvx = nullptr;
+    tuvx_log("TuvxCApiTest::SetUp(): initialized members");
   }
 
   void SetUp(const char* config_path)
   {
     Error error;
+    tuvx_log(std::string("TuvxCApiTest::SetUp(config): starting for config: ") + (config_path ? config_path : "(null)"));
     grids_from_host = CreateGridMap(&error);
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("TuvxCApiTest::SetUp(config): CreateGridMap succeeded");
     profiles_from_host = CreateProfileMap(&error);
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("TuvxCApiTest::SetUp(config): CreateProfileMap succeeded");
     radiators_from_host = CreateRadiatorMap(&error);
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("TuvxCApiTest::SetUp(config): CreateRadiatorMap succeeded");
     tuvx = CreateTuvx(config_path, grids_from_host, profiles_from_host, radiators_from_host, &error);
     if (!IsSuccess(error))
     {
       std::cerr << "Error creating TUVX instance: " << error.message_.value_ << std::endl;
+      tuvx_log(
+          std::string("TuvxCApiTest::SetUp(config): CreateTuvx failed: ") +
+          (error.message_.value_ ? error.message_.value_ : "(no message)"));
     }
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("TuvxCApiTest::SetUp(config): CreateTuvx succeeded");
     grids_in_tuvx = GetGridMap(tuvx, &error);
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("TuvxCApiTest::SetUp(config): GetGridMap succeeded");
     profiles_in_tuvx = GetProfileMap(tuvx, &error);
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("TuvxCApiTest::SetUp(config): GetProfileMap succeeded");
     radiators_in_tuvx = GetRadiatorMap(tuvx, &error);
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("TuvxCApiTest::SetUp(config): GetRadiatorMap succeeded");
     DeleteError(&error);
   }
 
@@ -58,6 +86,7 @@ class TuvxCApiTest : public ::testing::Test
     Error error;
     grids_from_host = CreateGridMap(&error);
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("TuvxCApiTest::SetUp(config,host): created host maps");
     profiles_from_host = CreateProfileMap(&error);
     ASSERT_TRUE(IsSuccess(error));
     radiators_from_host = CreateRadiatorMap(&error);
@@ -66,14 +95,21 @@ class TuvxCApiTest : public ::testing::Test
     if (!IsSuccess(error))
     {
       std::cerr << "Error creating TUVX instance: " << error.message_.value_ << std::endl;
+      tuvx_log(
+          std::string("TuvxCApiTest::SetUp(config,host): CreateTuvx failed: ") +
+          (error.message_.value_ ? error.message_.value_ : "(no message)"));
     }
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("TuvxCApiTest::SetUp(config,host): CreateTuvx succeeded");
     grids_in_tuvx = GetGridMap(tuvx, &error);
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("TuvxCApiTest::SetUp(config,host): GetGridMap succeeded");
     profiles_in_tuvx = GetProfileMap(tuvx, &error);
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("TuvxCApiTest::SetUp(config,host): GetProfileMap succeeded");
     radiators_in_tuvx = GetRadiatorMap(tuvx, &error);
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("TuvxCApiTest::SetUp(config,host): GetRadiatorMap succeeded");
     DeleteError(&error);
   }
 
@@ -83,22 +119,31 @@ class TuvxCApiTest : public ::testing::Test
     {
       return;
     }
+    tuvx_log("TuvxCApiTest::TearDown(): starting cleanup");
     Error error;
     DeleteTuvx(tuvx, &error);
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("TuvxCApiTest::TearDown(): DeleteTuvx succeeded");
     DeleteGridMap(grids_from_host, &error);
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("TuvxCApiTest::TearDown(): DeleteGridMap(grids_from_host) succeeded");
     DeleteProfileMap(profiles_from_host, &error);
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("TuvxCApiTest::TearDown(): DeleteProfileMap(profiles_from_host) succeeded");
     DeleteRadiatorMap(radiators_from_host, &error);
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("TuvxCApiTest::TearDown(): DeleteRadiatorMap(gradiators_from_host) succeeded");
     DeleteGridMap(grids_in_tuvx, &error);
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("TuvxCApiTest::TearDown(): DeleteGridMap(grids_in_tuvx) succeeded");
     DeleteProfileMap(profiles_in_tuvx, &error);
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("TuvxCApiTest::TearDown(): DeleteProfileMap(profiles_in_tuvx) succeeded");
     DeleteRadiatorMap(radiators_in_tuvx, &error);
     ASSERT_TRUE(IsSuccess(error));
+    tuvx_log("TuvxCApiTest::TearDown(): DeleteRadiatorMap(radiators_in_tuvx) succeeded");
     DeleteError(&error);
+    tuvx_log("TuvxCApiTest::TearDown(): finished cleanup");
   }
 };
 
