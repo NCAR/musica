@@ -1,21 +1,24 @@
 {
   "name": "@ncar/musica",
-  "version": "0.14.2",
+  "version": "0.14.3",
   "description": "The Multiscale Interface for Chemistry and Aerosols (MUSICA) javascript library",
   "type": "module",
   "main": "./javascript/index.js",
-  "readme": "javascript/README.md",
+  "readmeCommets": [
+    "NPM uses the root readme to display package information, so we copy the javascript readme",
+    "to the root on publish. The below path is correct."
+  ],
+  "readme": "README.md",
   "files": [
     "javascript/**/*.js",
     "!javascript/tests",
     "!javascript/src",
     "javascript/wasm/*.wasm",
-    "javascript/README.md",
     "LICENSE"
   ],
   "scripts": {
     "build": "npm run build:wasm",
-    "build:wasm": "emcmake cmake -S . -B build-wasm -DCMAKE_BUILD_TYPE=Debug -DMUSICA_ENABLE_JAVASCRIPT=ON -DMUSICA_ENABLE_TUVX=OFF -DMUSICA_ENABLE_CARMA=OFF -DMUSICA_ENABLE_TESTS=OFF && cmake --build build-wasm",
+    "build:wasm": "emcmake cmake -S . -B build-wasm -DCMAKE_BUILD_TYPE=Release -DMUSICA_ENABLE_JAVASCRIPT=ON -DMUSICA_ENABLE_TUVX=OFF -DMUSICA_ENABLE_CARMA=OFF -DMUSICA_ENABLE_TESTS=OFF && cmake --build build-wasm",
     "test": "node --test javascript/tests/unit/*.test.js javascript/tests/integration/*.test.js",
     "test:integration": "node --test javascript/tests/integration/*.test.js",
     "test:unit": "node --test javascript/tests/unit/**/*.test.js",
@@ -32,8 +35,7 @@
     "wasm",
     "webassembly",
     "musica",
-    "micm",
-    "tuvx"
+    "micm"
   ],
   "author": "NCAR",
   "license": "Apache-2.0",

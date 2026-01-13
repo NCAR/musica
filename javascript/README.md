@@ -181,4 +181,4 @@ JavaScript code in MUSICA follows these conventions:
 ## More Information
 
 - [Full Documentation](https://ncar.github.io/musica/index.html)
-- [Contributing Guide](../CONTRIBUTING.md)
+- [Contributing Guide](https://github.com/NCAR/musica/blob/main/CONTRIBUTING.md)
