@@ -63,13 +63,16 @@ jobs:
           cache: 'npm'
     
       - name: Set up EMSDK
+        id: emsdk
         uses: ./.github/emsdk_steps
 
       - name: Install dependencies
         run: npm ci
 
       - name: Build
-        run: npm run build
+        run: |
+          source ${{ steps.emsdk.outputs.emsdk-env-file }}
+          npm run build
 
       - name: Run tests with coverage
         run: npm run test:coverage

@@ -7,7 +7,7 @@ inputs:
     default: '4.0.22'
   export-globally:
     description: 'If true, add EMSDK to PATH and ENV for remaining steps'
-    default: 'true'
+    default: 'false'
 
 outputs:
   emsdk-env-file:
@@ -36,24 +36,22 @@ runs:
         emsdk install ${EM_VERSION}
         emsdk activate ${EM_VERSION}
 
-        # Write EMSDK environment to a file
+        # Construct env without putting EMSDK Node first
         EMSDK_QUIET=1 EMSDK_BASH=1 emsdk construct_env \
+          | grep -v '^EMSDK_NODE=' \
           | grep '^export ' \
           | sed -e 's/^export //' -e 's/;$//' \
           > "${EMSDK_ENV_FILE}"
 
-        # Optionally export globally for remaining steps
+        # Optionally export globally for remaining steps (skip EMSDK_NODE)
         if [ "$EXPORT_GLOBALLY" = "true" ]; then
-          # Add PATH entries
           grep '^PATH=' "${EMSDK_ENV_FILE}" | sed 's/^PATH=//' | tr -d '"' | while IFS=: read -ra p; do
             for d in "${p[@]}"; do
               echo "$d" >> "$GITHUB_PATH"
             done
           done
-
-          # Add other env vars
           grep -v '^PATH=' "${EMSDK_ENV_FILE}" >> "$GITHUB_ENV"
         fi
 
         # Set output for workflow
-        echo "emsdk-env-file=${EMSDK_ENV_FILE}" >> $GITHUB_OUTPUT
+        echo "emsdk-env-file=${EMSDK_ENV_FILE}" >> "$GITHUB_OUTPUT"
