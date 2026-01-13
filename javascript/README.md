@@ -26,28 +26,42 @@ const micmVersion = await musica.getMicmVersion();
 
 console.log('MUSICA Version:', version);
 console.log('MICM Version:', micmVersion);
-
-// Create MICM instance from configuration
-const micm = MICM.fromConfigPath('./configs/my_mechanism');
-const state = micm.createState(1);
-
-// Solve
-const result = micm.solve(state, 60.0);
 ```
 
-## Complete Usage Example
+## Examples
 
-Here's a more detailed example that demonstrates time-stepping through a chemical simulation:
+Below are some more detailed examples that demonstrates time-stepping through a chemical simulation.
+
+### In-code mechanism
+
+Chemical mechanisms can be defined entirley in code using our mechanism configuration interface.
+
+```javascript
+
+```
+
+### Using a configuration file
+
+You may also use one of the configurations provided with this package. Note, this will require you to run in node,
+not the browser.
 
 ```javascript
 import * as musica from '@ncar/musica';
 const { MICM, SolverType, GAS_CONSTANT } = musica;
 
+import { createRequire } from "node:module";
+const require = createRequire(import.meta.url);
+
+function musicaConfig(path) {
+  return require.resolve(`@ncar/musica/configs/${path}`);
+}
+
 // Initialize WASM backend
 await musica.initModule();
 
 // Create MICM instance from configuration
-const micm = MICM.fromConfigPath('./configs/analytical');
+const micm = MICM.fromConfigPath(musicaConfig("v0/analytical"));
+
 
 // Create a state with 1 grid cell
 const state = micm.createState(1);

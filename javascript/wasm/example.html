@@ -36,6 +36,7 @@
             border-radius: 5px;
         }
     </style>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 
 <body>
@@ -189,6 +190,18 @@
                     resultsContainer.appendChild(table);
                     contentDiv.appendChild(resultsContainer);
 
+                    // Create plot container
+                    const plotContainer = document.createElement('div');
+                    plotContainer.className = 'info';
+                    plotContainer.innerHTML = '<h3>Concentrations vs Time</h3>';
+                    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                    svg.setAttribute('width', '760');
+                    svg.setAttribute('height', '320');
+                    svg.style.width = '100%';
+                    svg.style.maxWidth = '760px';
+                    plotContainer.appendChild(svg);
+                    contentDiv.appendChild(plotContainer);
+
                     // Function to read slider values
                     function readSliderValues() {
                         const a = parseFloat(sliderA.input.value);
@@ -197,7 +210,74 @@
                         return { A: a, B: b, C: c };
                     }
 
-                    // Run the simulation and populate the results table
+                    // D3 plot updater
+                    function updatePlot(times, Aseries, Bseries, Cseries) {
+                        // Clear previous contents
+                        while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+                        const margin = { top: 20, right: 80, bottom: 40, left: 50 };
+                        const width = 760 - margin.left - margin.right;
+                        const height = 320 - margin.top - margin.bottom;
+
+                        const g = d3.select(svg)
+                            .append('g')
+                            .attr('transform', `translate(${margin.left},${margin.top})`);
+
+                        const maxTime = d3.max(times) || 1;
+                        const maxY = d3.max([d3.max(Aseries), d3.max(Bseries), d3.max(Cseries), 1.0]);
+
+                        const x = d3.scaleLinear().domain([0, maxTime]).range([0, width]);
+                        const y = d3.scaleLinear().domain([0, maxY]).range([height, 0]);
+
+                        const xAxis = d3.axisBottom(x).ticks(6);
+                        const yAxis = d3.axisLeft(y).ticks(6);
+
+                        g.append('g')
+                            .attr('transform', `translate(0,${height})`)
+                            .call(xAxis);
+
+                        g.append('g')
+                            .call(yAxis);
+
+                        const line = d3.line()
+                            .x((d, i) => x(times[i]))
+                            .y(d => y(d));
+
+                        const colors = { A: '#1f77b4', B: '#ff7f0e', C: '#2ca02c' };
+
+                        g.append('path')
+                            .datum(Aseries)
+                            .attr('fill', 'none')
+                            .attr('stroke', colors.A)
+                            .attr('stroke-width', 2)
+                            .attr('d', line);
+
+                        g.append('path')
+                            .datum(Bseries)
+                            .attr('fill', 'none')
+                            .attr('stroke', colors.B)
+                            .attr('stroke-width', 2)
+                            .attr('d', line);
+
+                        g.append('path')
+                            .datum(Cseries)
+                            .attr('fill', 'none')
+                            .attr('stroke', colors.C)
+                            .attr('stroke-width', 2)
+                            .attr('d', line);
+
+                        // Legend
+                        const legend = g.append('g')
+                            .attr('transform', `translate(${width + 10},0)`);
+
+                        [['A', colors.A], ['B', colors.B], ['C', colors.C]].forEach((d, i) => {
+                            const row = legend.append('g').attr('transform', `translate(0, ${i * 20})`);
+                            row.append('rect').attr('width', 12).attr('height', 12).attr('fill', d[1]);
+                            row.append('text').attr('x', 18).attr('y', 10).text(d[0]);
+                        });
+                    }
+
+                    // Run the simulation and populate the results table + plot
                     function runSimulation(steps = 10, timeStep = 1.0) {
                         // Reset table
                         tbody.innerHTML = '';
@@ -207,6 +287,11 @@
                         state.setConcentrations({ A: [vals.A], B: [vals.B], C: [vals.C] });
 
                         let cumulativeTime = 0.0;
+
+                        const times = [0.0];
+                        const As = [vals.A];
+                        const Bs = [vals.B];
+                        const Cs = [vals.C];
 
                         for (let i = 0; i < steps; i++) {
                             micm.solve(state, timeStep);
@@ -219,8 +304,17 @@
                                 return v;
                             }
 
+                            const aVal = val('A');
+                            const bVal = val('B');
+                            const cVal = val('C');
+
+                            times.push(cumulativeTime);
+                            As.push(aVal);
+                            Bs.push(bVal);
+                            Cs.push(cVal);
+
                             const row = document.createElement('tr');
-                            [cumulativeTime.toFixed(2), val('A'), val('B'), val('C')].forEach(cellVal => {
+                            [cumulativeTime.toFixed(2), aVal, bVal, cVal].forEach(cellVal => {
                                 const td = document.createElement('td');
                                 td.textContent = String(cellVal);
                                 td.style.border = '1px solid #ddd';
@@ -229,6 +323,8 @@
                             });
                             tbody.appendChild(row);
                         }
+
+                        updatePlot(times, As, Bs, Cs);
                     }
 
                     // Wire sliders to rerun simulation on input
