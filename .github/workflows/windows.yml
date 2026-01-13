@@ -119,7 +119,7 @@ jobs:
                               -D MUSICA_ENABLE_MICM=ON \
                               -D MUSICA_ENABLE_TUVX=ON \
                               -D MUSICA_ENABLE_CARMA=ON \
-                              -D MUSICA_ENABLE_PYTHON_LIBRARY=ON \
+                              -D MUSICA_ENABLE_PYTHON_LIBRARY=OFF \
                               -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
                               -D CMAKE_POLICY_VERSION_MINIMUM=3.5
 
