@@ -231,6 +231,8 @@
                     let state = null;
                     let currentExampleId = null;
                     let currentSpeciesOrder = ['X', 'Y', 'Z'];
+                    // current simulation config (populated per-example)
+                    let currentSimConfig = { steps: 2000, timeStep: 0.01, burnout: 100 };
 
                     function createLorenzMechanism() {
                         const X = new Species({ name: 'X' });
@@ -290,16 +292,16 @@
                             name: 'Lorenz Polynomial CRN',
                             description: 'Lorenz-like polynomial chemical reaction network. The equations and rates are from <a href="https://link.springer.com/article/10.1007/s11071-025-11622-1" target="_blank">this paper</a>.',
                             initials: [{ species: 'X', min: -30, max: 30, step: 0.01, value: 1.0 }, { species: 'Y', min: -30, max: 30, step: 0.01, value: 28.0 }, { species: 'Z', min: -10, max: 50, step: 0.01, value: 1.0 }],
-                                builder: createLorenzMechanism,
-                                sim: { steps: 2000, timeStep: 0.01, burnout: 100 }
+                            builder: createLorenzMechanism,
+                            sim: { steps: 2000, timeStep: 0.01, burnout: 100 }
                         },
                         {
                             id: 'abc',
                             name: 'A → B → C',
                             description: 'Simple chain reaction A → B → C. Start with A=1, B=C=0.',
-                                initials: [ { species: 'A', min: 0, max: 5, step: 0.01, value: 1.0 }, { species: 'B', min: 0, max: 5, step: 0.01, value: 0.0 }, { species: 'C', min: 0, max: 5, step: 0.01, value: 0.0 } ],
-                                builder: createABCMechanism,
-                                sim: { steps: 10, timeStep: 0.1, burnout: 0 }
+                            initials: [{ species: 'A', min: 0, max: 5, step: 0.01, value: 1.0 }, { species: 'B', min: 0, max: 5, step: 0.01, value: 0.0 }, { species: 'C', min: 0, max: 5, step: 0.01, value: 0.0 }],
+                            builder: createABCMechanism,
+                            sim: { steps: 10, timeStep: 0.1, burnout: 0 }
                         }
                     ];
 
@@ -350,12 +352,22 @@
                         updateCheckbox.addEventListener('change', () => { updateWhileDragging = updateCheckbox.checked; });
                     }
 
+                    // Wire the toggle for showing/hiding the results table
+                    const toggleTableCheckbox = document.getElementById('toggle-table');
+                    if (toggleTableCheckbox) {
+                        toggleTableCheckbox.addEventListener('change', () => {
+                            if (resultsPanel) resultsPanel.style.display = toggleTableCheckbox.checked ? '' : 'none';
+                        });
+                    }
+
                     function loadExampleById(id) {
                         const ex = examples.find(e => e.id === id);
                         if (!ex) return;
                         // track current example and species order for plotting
                         currentExampleId = id;
                         currentSpeciesOrder = (ex.initials || []).map(cfg => cfg.species);
+                        // per-example simulation config (fallbacks)
+                        currentSimConfig = ex.sim || { steps: 2000, timeStep: 0.01, burnout: 100 };
 
                         exampleDesc.innerHTML = ex.description || '';
                         clearSliders();
@@ -442,7 +454,11 @@
                     }
 
                     // Run the simulation and populate the results table + plot
-                    function runSimulation(steps = 2000, timeStep = 0.01, burnout = 100) {
+                    function runSimulation(steps, timeStep, burnout) {
+                        // use per-example config when parameters are not provided
+                        if (typeof steps === 'undefined') steps = currentSimConfig.steps;
+                        if (typeof timeStep === 'undefined') timeStep = currentSimConfig.timeStep;
+                        if (typeof burnout === 'undefined') burnout = currentSimConfig.burnout;
                         // Reset table
                         resultsTbody.innerHTML = '';
 
