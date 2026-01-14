@@ -229,6 +229,8 @@
                     // Make mechanism/state example-driven. Builders will set these.
                     let micm = null;
                     let state = null;
+                    let currentExampleId = null;
+                    let currentSpeciesOrder = ['X', 'Y', 'Z'];
 
                     function createLorenzMechanism() {
                         const X = new Species({ name: 'X' });
@@ -239,142 +241,46 @@
 
                         // equations from this paper: https://link.springer.com/article/10.1007/s11071-025-11622-1 
                         const reactions = [
-                            // α1 : X → ∅
-                            new reactionTypes.UserDefined({
-                                name: 'X_decay',
-                                gas_phase: 'gas',
-                                reactants: [new ReactionComponent({ species_name: 'X' })],
-                                products: []
-                            }),
-
-                            // α2 : Y → X + Y
-                            new reactionTypes.UserDefined({
-                                name: 'Y_to_XY',
-                                gas_phase: 'gas',
-                                reactants: [new ReactionComponent({ species_name: 'Y' })],
-                                products: [
-                                    new ReactionComponent({ species_name: 'X' }),
-                                    new ReactionComponent({ species_name: 'Y' })
-                                ]
-                            }),
-
-                            // α3 : ∅ → Y
-                            new reactionTypes.UserDefined({
-                                name: 'Y_source',
-                                gas_phase: 'gas',
-                                reactants: [],
-                                products: [new ReactionComponent({ species_name: 'Y' })]
-                            }),
-
-                            // α4 : Y → ∅
-                            new reactionTypes.UserDefined({
-                                name: 'Y_sink',
-                                gas_phase: 'gas',
-                                reactants: [new ReactionComponent({ species_name: 'Y' })],
-                                products: []
-                            }),
-
-                            // α5 : X + Y → X + 2Y
-                            new reactionTypes.UserDefined({
-                                name: 'XY_to_X2Y',
-                                gas_phase: 'gas',
-                                reactants: [
-                                    new ReactionComponent({ species_name: 'X' }),
-                                    new ReactionComponent({ species_name: 'Y' })
-                                ],
-                                products: [
-                                    new ReactionComponent({ species_name: 'X' }),
-                                    new ReactionComponent({ species_name: 'Y' }),
-                                    new ReactionComponent({ species_name: 'Y' })
-                                ]
-                            }),
-
-                            // α6 : Y + Z → 2Y
-                            new reactionTypes.UserDefined({
-                                name: 'YZ_to_2Y',
-                                gas_phase: 'gas',
-                                reactants: [
-                                    new ReactionComponent({ species_name: 'Y' }),
-                                    new ReactionComponent({ species_name: 'Z' })
-                                ],
-                                products: [
-                                    new ReactionComponent({ species_name: 'Y' }),
-                                    new ReactionComponent({ species_name: 'Y' })
-                                ]
-                            }),
-
-                            // α7 : X + Y + Z → X + 2Z
-                            new reactionTypes.UserDefined({
-                                name: 'XYZ_to_X2Z',
-                                gas_phase: 'gas',
-                                reactants: [
-                                    new ReactionComponent({ species_name: 'X' }),
-                                    new ReactionComponent({ species_name: 'Y' }),
-                                    new ReactionComponent({ species_name: 'Z' })
-                                ],
-                                products: [
-                                    new ReactionComponent({ species_name: 'X' }),
-                                    new ReactionComponent({ species_name: 'Z' }),
-                                    new ReactionComponent({ species_name: 'Z' })
-                                ]
-                            }),
-
-                            // α8 : ∅ → Z
-                            new reactionTypes.UserDefined({
-                                name: 'Z_source',
-                                gas_phase: 'gas',
-                                reactants: [],
-                                products: [new ReactionComponent({ species_name: 'Z' })]
-                            }),
-
-                            // α9 : Z → 2Z
-                            new reactionTypes.UserDefined({
-                                name: 'Z_autocatalytic',
-                                gas_phase: 'gas',
-                                reactants: [new ReactionComponent({ species_name: 'Z' })],
-                                products: [
-                                    new ReactionComponent({ species_name: 'Z' }),
-                                    new ReactionComponent({ species_name: 'Z' })
-                                ]
-                            }),
-
-                            // α10 : X + Z → X
-                            new reactionTypes.UserDefined({
-                                name: 'XZ_quench',
-                                gas_phase: 'gas',
-                                reactants: [
-                                    new ReactionComponent({ species_name: 'X' }),
-                                    new ReactionComponent({ species_name: 'Z' })
-                                ],
-                                products: [new ReactionComponent({ species_name: 'X' })]
-                            })
-
+                            new reactionTypes.UserDefined({ name: 'X_decay', gas_phase: 'gas', reactants: [new ReactionComponent({ species_name: 'X' })], products: [] }),
+                            new reactionTypes.UserDefined({ name: 'Y_to_XY', gas_phase: 'gas', reactants: [new ReactionComponent({ species_name: 'Y' })], products: [new ReactionComponent({ species_name: 'X' }), new ReactionComponent({ species_name: 'Y' })] }),
+                            new reactionTypes.UserDefined({ name: 'Y_source', gas_phase: 'gas', reactants: [], products: [new ReactionComponent({ species_name: 'Y' })] }),
+                            new reactionTypes.UserDefined({ name: 'Y_sink', gas_phase: 'gas', reactants: [new ReactionComponent({ species_name: 'Y' })], products: [] }),
+                            new reactionTypes.UserDefined({ name: 'XY_to_X2Y', gas_phase: 'gas', reactants: [new ReactionComponent({ species_name: 'X' }), new ReactionComponent({ species_name: 'Y' })], products: [new ReactionComponent({ species_name: 'X' }), new ReactionComponent({ species_name: 'Y' }), new ReactionComponent({ species_name: 'Y' })] }),
+                            new reactionTypes.UserDefined({ name: 'YZ_to_2Y', gas_phase: 'gas', reactants: [new ReactionComponent({ species_name: 'Y' }), new ReactionComponent({ species_name: 'Z' })], products: [new ReactionComponent({ species_name: 'Y' }), new ReactionComponent({ species_name: 'Y' })] }),
+                            new reactionTypes.UserDefined({ name: 'XYZ_to_X2Z', gas_phase: 'gas', reactants: [new ReactionComponent({ species_name: 'X' }), new ReactionComponent({ species_name: 'Y' }), new ReactionComponent({ species_name: 'Z' })], products: [new ReactionComponent({ species_name: 'X' }), new ReactionComponent({ species_name: 'Z' }), new ReactionComponent({ species_name: 'Z' })] }),
+                            new reactionTypes.UserDefined({ name: 'Z_source', gas_phase: 'gas', reactants: [], products: [new ReactionComponent({ species_name: 'Z' })] }),
+                            new reactionTypes.UserDefined({ name: 'Z_autocatalytic', gas_phase: 'gas', reactants: [new ReactionComponent({ species_name: 'Z' })], products: [new ReactionComponent({ species_name: 'Z' }), new ReactionComponent({ species_name: 'Z' })] }),
+                            new reactionTypes.UserDefined({ name: 'XZ_quench', gas_phase: 'gas', reactants: [new ReactionComponent({ species_name: 'X' }), new ReactionComponent({ species_name: 'Z' })], products: [new ReactionComponent({ species_name: 'X' })] })
                         ];
 
-                        const mechanism = new Mechanism({
-                            name: 'Lorenz Polynomial CRN',
-                            version: '1.0.0',
-                            species: [X, Y, Z],
-                            phases: [gas],
-                            reactions: reactions
-                        });
+                        const mechanism = new Mechanism({ name: 'Lorenz Polynomial CRN', version: '1.0.0', species: [X, Y, Z], phases: [gas], reactions: reactions });
 
                         micm = MICM.fromMechanism(mechanism);
                         state = micm.createState(1);
 
                         let mu = 1.0 / 100;
-                        state.setUserDefinedRateParameters({
-                            'USER.X_decay': 10,
-                            'USER.Y_to_XY': 10,
-                            'USER.Y_source': 1 / mu,
-                            'USER.Y_sink': 1 / mu + 29,
-                            'USER.XY_to_X2Y': 1 + mu * 28,
-                            'USER.YZ_to_2Y': 1,
-                            'USER.XYZ_to_X2Z': mu,
-                            'USER.Z_source': 8 / (3 * mu),
-                            'USER.Z_autocatalytic': 1 / mu - 8 / 3,
-                            'USER.XZ_quench': 1
-                        });
+                        state.setUserDefinedRateParameters({ 'USER.X_decay': 10, 'USER.Y_to_XY': 10, 'USER.Y_source': 1 / mu, 'USER.Y_sink': 1 / mu + 29, 'USER.XY_to_X2Y': 1 + mu * 28, 'USER.YZ_to_2Y': 1, 'USER.XYZ_to_X2Z': mu, 'USER.Z_source': 8 / (3 * mu), 'USER.Z_autocatalytic': 1 / mu - 8 / 3, 'USER.XZ_quench': 1 });
+                    }
+
+                    function createABCMechanism() {
+                        const A = new Species({ name: 'A' });
+                        const B = new Species({ name: 'B' });
+                        const C = new Species({ name: 'C' });
+                        const gas = new Phase({ name: 'gas', species: [A, B, C] });
+
+                        // simple chain: A -> B -> C
+                        const reactions = [
+                            new reactionTypes.UserDefined({ name: 'A_to_B', gas_phase: 'gas', reactants: [new ReactionComponent({ species_name: 'A' })], products: [new ReactionComponent({ species_name: 'B' })] }),
+                            new reactionTypes.UserDefined({ name: 'B_to_C', gas_phase: 'gas', reactants: [new ReactionComponent({ species_name: 'B' })], products: [new ReactionComponent({ species_name: 'C' })] })
+                        ];
+
+                        const mechanism = new Mechanism({ name: 'A->B->C CRN', version: '1.0.0', species: [A, B, C], phases: [gas], reactions: reactions });
+
+                        micm = MICM.fromMechanism(mechanism);
+                        state = micm.createState(1);
+
+                        // choose simple rates
+                        state.setUserDefinedRateParameters({ 'USER.A_to_B': 1.0, 'USER.B_to_C': 0.5 });
                     }
 
                     // Data-driven examples (user may provide more later)
@@ -383,14 +289,18 @@
                             id: 'lorenz',
                             name: 'Lorenz Polynomial CRN',
                             description: 'Lorenz-like polynomial chemical reaction network. The equations and rates are from <a href="https://link.springer.com/article/10.1007/s11071-025-11622-1" target="_blank">this paper</a>.',
-                            initials: [
-                                { species: 'X', min: -30, max: 30, step: 0.01, value: 1.0 },
-                                { species: 'Y', min: -30, max: 30, step: 0.01, value: 28.0 },
-                                { species: 'Z', min: -10, max: 50, step: 0.01, value: 1.0 }
-                            ]
-                            ,
-                            builder: createLorenzMechanism
+                            initials: [{ species: 'X', min: -30, max: 30, step: 0.01, value: 1.0 }, { species: 'Y', min: -30, max: 30, step: 0.01, value: 28.0 }, { species: 'Z', min: -10, max: 50, step: 0.01, value: 1.0 }],
+                                builder: createLorenzMechanism,
+                                sim: { steps: 2000, timeStep: 0.01, burnout: 100 }
                         },
+                        {
+                            id: 'abc',
+                            name: 'A → B → C',
+                            description: 'Simple chain reaction A → B → C. Start with A=1, B=C=0.',
+                                initials: [ { species: 'A', min: 0, max: 5, step: 0.01, value: 1.0 }, { species: 'B', min: 0, max: 5, step: 0.01, value: 0.0 }, { species: 'C', min: 0, max: 5, step: 0.01, value: 0.0 } ],
+                                builder: createABCMechanism,
+                                sim: { steps: 10, timeStep: 0.1, burnout: 0 }
+                        }
                     ];
 
                     // Populate example selector
@@ -443,6 +353,10 @@
                     function loadExampleById(id) {
                         const ex = examples.find(e => e.id === id);
                         if (!ex) return;
+                        // track current example and species order for plotting
+                        currentExampleId = id;
+                        currentSpeciesOrder = (ex.initials || []).map(cfg => cfg.species);
+
                         exampleDesc.innerHTML = ex.description || '';
                         clearSliders();
                         currentSliders = [];
@@ -468,6 +382,13 @@
                             } catch (bErr) {
                                 console.error('Builder error for example', id, bErr);
                             }
+                        }
+
+                        // update results table header to reflect species names
+                        const headerRow = document.querySelector('#results-table thead tr');
+                        if (headerRow) {
+                            const ths = ['<th>Time</th>'].concat(currentSpeciesOrder.map(s => `<th>${s}</th>`)).join('');
+                            headerRow.innerHTML = ths;
                         }
 
                         // run an initial simulation for the loaded example if mechanism exists
@@ -496,47 +417,28 @@
                         return out;
                     }
 
-                    // Plotly plot updater: draws Lorenz attractor as a 3D trajectory
-                    function updatePlot(times, Xseries, Yseries, Zseries) {
+                    // Plot updater: 3D for lorenz, 2D time-series for other examples
+                    function updatePlot(times, seriesMap) {
                         const plotDiv = document.getElementById('lorenz-plot');
                         if (!plotDiv) return;
 
-                        const traj = {
-                            x: Xseries,
-                            y: Yseries,
-                            z: Zseries,
-                            mode: 'lines',
-                            type: 'scatter3d',
-                            line: { width: 2, color: '#1f77b4' },
-                            name: 'trajectory'
-                        };
+                        if (currentExampleId === 'lorenz') {
+                            const Xseries = seriesMap['X'] || [];
+                            const Yseries = seriesMap['Y'] || [];
+                            const Zseries = seriesMap['Z'] || [];
 
-                        const lastIdx = Xseries.length - 1;
-                        const current = {
-                            x: [Xseries[lastIdx]],
-                            y: [Yseries[lastIdx]],
-                            z: [Zseries[lastIdx]],
-                            mode: 'markers',
-                            type: 'scatter3d',
-                            marker: { size: 4, color: '#d62728' },
-                            name: 'current'
-                        };
+                            const traj = { x: Xseries, y: Yseries, z: Zseries, mode: 'lines', type: 'scatter3d', line: { width: 2, color: '#1f77b4' }, name: 'trajectory' };
+                            const lastIdx = Xseries.length - 1;
+                            const current = { x: [Xseries[lastIdx]], y: [Yseries[lastIdx]], z: [Zseries[lastIdx]], mode: 'markers', type: 'scatter3d', marker: { size: 4, color: '#d62728' }, name: 'current' };
 
-                        const layout = {
-                            margin: { l: 0, r: 0, b: 0, t: 0 },
-                            scene: {
-                                xaxis: { title: 'X' },
-                                yaxis: { title: 'Y' },
-                                zaxis: { title: 'Z' },
-                                camera: {
-                                    eye: { x: 1, y: -2, z: 1 },
-                                },
-                            },
-                            autosize: true,
-                            height: 420
-                        };
-
-                        Plotly.newPlot(plotDiv, [traj, current], layout, { responsive: true });
+                            const layout = { margin: { l: 0, r: 0, b: 0, t: 0 }, scene: { xaxis: { title: 'X' }, yaxis: { title: 'Y' }, zaxis: { title: 'Z' }, camera: { eye: { x: 1, y: -2, z: 1 } } }, autosize: true, height: 420 };
+                            Plotly.newPlot(plotDiv, [traj, current], layout, { responsive: true });
+                        } else {
+                            // 2D time-series plot for arbitrary species
+                            const traces = currentSpeciesOrder.map((name, idx) => ({ x: times, y: seriesMap[name] || [], mode: 'lines', name: name }));
+                            const layout2d = { margin: { l: 40, r: 10, b: 40, t: 10 }, xaxis: { title: 'Time' }, yaxis: { title: 'Concentration' }, autosize: true, height: 420 };
+                            Plotly.newPlot(plotDiv, traces, layout2d, { responsive: true });
+                        }
                     }
 
                     // Run the simulation and populate the results table + plot
@@ -547,17 +449,14 @@
                         // Reset concentrations from sliders
                         const vals = readSliderValues();
                         const conc = {};
-                        if ('X' in vals) conc.X = [vals.X];
-                        if ('Y' in vals) conc.Y = [vals.Y];
-                        if ('Z' in vals) conc.Z = [vals.Z];
+                        currentSpeciesOrder.forEach(spec => { conc[spec] = [(spec in vals) ? vals[spec] : 0]; });
                         state.setConcentrations(conc);
 
                         let cumulativeTime = 0.0;
 
                         const times = [];
-                        const Xs = [];
-                        const Ys = [];
-                        const Zs = [];
+                        const series = {};
+                        currentSpeciesOrder.forEach(s => { series[s] = []; });
 
                         for (let i = 0; i < steps; i++) {
                             micm.solve(state, timeStep);
@@ -570,18 +469,17 @@
                                 return v;
                             }
 
-                            const xVal = val('X');
-                            const yVal = val('Y');
-                            const zVal = val('Z');
+                            // collect current step values
+                            const valsNow = currentSpeciesOrder.map(s => val(s));
 
                             if (i < burnout) continue; // skip initial transient
+
                             times.push(cumulativeTime);
-                            Xs.push(xVal);
-                            Ys.push(yVal);
-                            Zs.push(zVal);
+                            currentSpeciesOrder.forEach((s, idx) => { series[s].push(valsNow[idx]); });
 
                             const row = document.createElement('tr');
-                            [cumulativeTime.toFixed(2), xVal, yVal, zVal].forEach(cellVal => {
+                            const rowVals = [cumulativeTime.toFixed(2)].concat(valsNow);
+                            rowVals.forEach(cellVal => {
                                 const td = document.createElement('td');
                                 td.textContent = String(cellVal);
                                 row.appendChild(td);
@@ -589,7 +487,7 @@
                             resultsTbody.appendChild(row);
                         }
 
-                        updatePlot(times, Xs, Ys, Zs);
+                        updatePlot(times, series);
                     }
 
                     // Initial run
