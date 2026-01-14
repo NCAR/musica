@@ -168,6 +168,11 @@
                         <label><input id="toggle-table" type="checkbox"> Show results table</label>
                     </div>
                 </div>
+
+                <div class="panel" id="reactions-panel">
+                    <h3>Reactions & Rates</h3>
+                    <div id="reactions-list" style="font-size:13px;color:#222"></div>
+                </div>
             </div>
 
             <div class="right">
@@ -233,6 +238,9 @@
                     let currentSpeciesOrder = ['X', 'Y', 'Z'];
                     // current simulation config (populated per-example)
                     let currentSimConfig = { steps: 2000, timeStep: 0.01, burnout: 100 };
+                    // mechanism and rate parameters for rendering reactions
+                    let currentMechanism = null;
+                    let currentRateParams = null;
 
                     function createLorenzMechanism() {
                         const X = new Species({ name: 'X' });
@@ -258,10 +266,15 @@
                         const mechanism = new Mechanism({ name: 'Lorenz Polynomial CRN', version: '1.0.0', species: [X, Y, Z], phases: [gas], reactions: reactions });
 
                         micm = MICM.fromMechanism(mechanism);
+                        // capture mechanism for rendering
+                        currentMechanism = mechanism;
                         state = micm.createState(1);
 
                         let mu = 1.0 / 100;
-                        state.setUserDefinedRateParameters({ 'USER.X_decay': 10, 'USER.Y_to_XY': 10, 'USER.Y_source': 1 / mu, 'USER.Y_sink': 1 / mu + 29, 'USER.XY_to_X2Y': 1 + mu * 28, 'USER.YZ_to_2Y': 1, 'USER.XYZ_to_X2Z': mu, 'USER.Z_source': 8 / (3 * mu), 'USER.Z_autocatalytic': 1 / mu - 8 / 3, 'USER.XZ_quench': 1 });
+                        const rateParams = { 'USER.X_decay': 10, 'USER.Y_to_XY': 10, 'USER.Y_source': 1 / mu, 'USER.Y_sink': 1 / mu + 29, 'USER.XY_to_X2Y': 1 + mu * 28, 'USER.YZ_to_2Y': 1, 'USER.XYZ_to_X2Z': mu, 'USER.Z_source': 8 / (3 * mu), 'USER.Z_autocatalytic': 1 / mu - 8 / 3, 'USER.XZ_quench': 1 };
+                        state.setUserDefinedRateParameters(rateParams);
+                        // store rates for rendering
+                        currentRateParams = rateParams;
                     }
 
                     function createABCMechanism() {
@@ -279,10 +292,14 @@
                         const mechanism = new Mechanism({ name: 'A->B->C CRN', version: '1.0.0', species: [A, B, C], phases: [gas], reactions: reactions });
 
                         micm = MICM.fromMechanism(mechanism);
+                        // capture mechanism for rendering
+                        currentMechanism = mechanism;
                         state = micm.createState(1);
 
-                        // choose simple rates
-                        state.setUserDefinedRateParameters({ 'USER.A_to_B': 1.0, 'USER.B_to_C': 0.5 });
+                        // choose simple rates and store them for rendering
+                        const abcRates = { 'USER.A_to_B': 1.0, 'USER.B_to_C': 0.5 };
+                        state.setUserDefinedRateParameters(abcRates);
+                        currentRateParams = abcRates;
                     }
 
                     // Data-driven examples (user may provide more later)
@@ -403,6 +420,9 @@
                             headerRow.innerHTML = ths;
                         }
 
+                        // render reactions (latex)
+                        renderReactions();
+
                         // run an initial simulation for the loaded example if mechanism exists
                         if (micm && state) {
                             runSimulation();
@@ -427,6 +447,53 @@
                         const out = {};
                         currentSliders.forEach(s => { out[s.species] = parseFloat(s.input.value); });
                         return out;
+                    }
+
+                    // Render reactions and their rates using LaTeX via KaTeX auto-render
+                    function renderReactions() {
+                        const container = document.getElementById('reactions-list');
+                        if (!container) return;
+                        container.innerHTML = '';
+
+                        if (!currentMechanism || !currentMechanism.reactions) {
+                            container.textContent = 'No mechanism available for this example.';
+                            return;
+                        }
+
+                        const reactions = currentMechanism.reactions;
+                        const ul = document.createElement('div');
+                        reactions.forEach(r => {
+                            // build LHS and RHS by counting species occurrences
+                            function sideToLatex(comps) {
+                                if (!comps || comps.length === 0) return '\\varnothing';
+                                const counts = {};
+                                comps.forEach(c => { const n = c.species_name || c.name || c.species; counts[n] = (counts[n] || 0) + 1; });
+                                const parts = Object.keys(counts).map(s => counts[s] === 1 ? s : `${counts[s]} ${s}`);
+                                return parts.join(' + ');
+                            }
+
+                            const lhs = sideToLatex(r.reactants || []);
+                            const rhs = sideToLatex(r.products || []);
+                            // lookup rate parameter (state stored rates use USER.<name>)
+                            let rateVal = null;
+                            if (currentRateParams) {
+                                const key = 'USER.' + r.name;
+                                rateVal = (key in currentRateParams) ? currentRateParams[key] : null;
+                            }
+
+                            const rateStr = (rateVal !== null && typeof rateVal !== 'undefined') ? String(rateVal) : `k_{${r.name}}`;
+                            const tex = `$$ ${lhs} \\xrightarrow{${Math.round(100*rateStr)/100}} ${rhs} $$`;
+                            const p = document.createElement('div');
+                            p.className = 'katex-math';
+                            p.innerHTML = tex;
+                            ul.appendChild(p);
+                        });
+
+                        container.appendChild(ul);
+                        // trigger KaTeX auto-render on the new content (if available)
+                        if (typeof renderMathInElement === 'function') {
+                            renderMathInElement(container, { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }] });
+                        }
                     }
 
                     // Plot updater: 3D for lorenz, 2D time-series for other examples
