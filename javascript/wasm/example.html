@@ -6,34 +6,131 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MUSICA WASM Example</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 20px;
+        :root {
+            --max-width: 1100px
         }
 
-        .info {
-            background-color: #f0f0f0;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 10px 0;
+        body {
+            font-family: Arial, sans-serif;
+            max-width: var(--max-width);
+            margin: 30px auto;
+            padding: 20px;
+            color: #222;
+        }
+
+        header.site-header {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 18px
+        }
+
+        header h1 {
+            font-size: 28px;
+            margin: 0
+        }
+
+        header .subheads {
+            display: flex;
+            gap: 12px;
+            align-items: center
+        }
+
+        header .subheads .ver {
+            font-size: 12px;
+            color: #666
+        }
+
+        .layout {
+            display: flex;
+            gap: 18px
+        }
+
+        .left {
+            flex: 0 0 360px
+        }
+
+        .right {
+            flex: 1;
+            min-width: 300px
+        }
+
+        .panel {
+            background: #f7f9fb;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 12px
+        }
+
+        .panel h3 {
+            margin: 0 0 8px 0;
+            font-size: 14px
         }
 
         .loading {
-            color: #666;
+            color: #666
         }
 
         .version {
-            font-weight: bold;
-            color: #007bff;
+            font-weight: 600;
+            color: #0a66c2
         }
 
         .error {
             color: #dc3545;
-            background-color: #f8d7da;
+            background: #fff0f0;
             padding: 10px;
-            border-radius: 5px;
+            border-radius: 6px
+        }
+
+        label.select-label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px
+        }
+
+        .slider-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 6px 0
+        }
+
+        .slider-row label {
+            width: 60px;
+            font-size: 13px
+        }
+
+        .slider-row input[type=range] {
+            flex: 1
+        }
+
+        .slider-row .val {
+            width: 56px;
+            text-align: right;
+            font-weight: 600
+        }
+
+        table.results {
+            width: 100%;
+            border-collapse: collapse
+        }
+
+        table.results th,
+        table.results td {
+            border: 1px solid #e6e6e6;
+            padding: 6px;
+            text-align: left
+        }
+
+        @media (max-width:900px) {
+            .layout {
+                flex-direction: column
+            }
+
+            .left {
+                flex-basis: auto
+            }
         }
     </style>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
@@ -43,9 +140,62 @@
 </head>
 
 <body>
-    <h1>MUSICA WASM Example</h1>
+    <header class="site-header">
+        <h1>MUSICA WASM</h1>
+        <div class="subheads">
+            <div class="ver">MUSICA Version: <span id="musica-version" class="version">—</span></div>
+            <div class="ver">MICM Version: <span id="micm-version" class="version">—</span></div>
+        </div>
+    </header>
+
     <div id="content">
-        <p class="loading">Loading MUSICA WASM module...</p>
+        <p class="loading">Initializing MUSICA WASM module...</p>
+
+        <div class="layout" id="app-layout" style="display:none">
+            <div class="left">
+                <div class="panel" id="example-panel">
+                    <h3>Example</h3>
+                    <label class="select-label">Choose an example</label>
+                    <select id="example-select"></select>
+                    <p id="example-desc" style="font-size:13px;color:#444;margin-top:8px"></p>
+                </div>
+
+                <div class="panel" id="controls-panel">
+                    <h3>Initial Conditions</h3>
+                    <div id="sliders-container"></div>
+                    <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px">
+                        <label><input id="update-during-drag" type="checkbox" checked> Update while dragging</label>
+                        <label><input id="toggle-table" type="checkbox"> Show results table</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right">
+                <div class="panel" id="plots-panel">
+                    <h3>Plots</h3>
+                    <div id="plot-area">
+                        <div id="lorenz-plot" style="width:100%;height:420px"></div>
+                    </div>
+                </div>
+
+                <div class="panel" id="results-panel" style="display:none">
+                    <h3>Simulation Results</h3>
+                    <div style="overflow:auto;max-height:260px">
+                        <table id="results-table" class="results">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>X</th>
+                                    <th>Y</th>
+                                    <th>Z</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script type="module">
@@ -62,79 +212,12 @@
                 const musicaVersion = await musica.getVersion();
                 const micmVersion = await musica.getMicmVersion();
 
-                // Display the results
-                contentDiv.innerHTML = `
-                    <div class="info">
-                        <h2>✅ MUSICA WASM Module Loaded Successfully</h2>
-                        <p><strong>MUSICA Version:</strong> <span class="version">${musicaVersion}</span></p>
-                        <p><strong>MICM Version:</strong> <span class="version">${micmVersion}</span></p>
-                    </div>
-                    <div class="info">
-                        <h3>About this example</h3>
-                        <p>This demonstrates the MUSICA library compiled to WebAssembly running directly in your browser.</p>
-                        <p>No server-side processing is required - all computation happens in your browser!</p>
-                    </div>
-                `;
-
-                // Brief Lorenz description and mapping to chemistry
-                const lorenzDesc = document.createElement('div');
-                lorenzDesc.className = 'info';
-                lorenzDesc.innerHTML = `
-                    <h3>Lorenz System</h3>
-                    <p>The Lorenz equations are a simple 3D dynamical system:</p>
-                    <p>$$\\frac{dx}{dt} = \\sigma (y - x)\\\\
-                    \\frac{dy}{dt} = x (\\rho - z) - y\\\\
-                    \\frac{dz}{dt} = x y - \\beta z$$</p>
-                    <p>In this example we represent variables <strong>X</strong>, <strong>Y</strong>, and <strong>Z</strong> as chemical species. Nonlinear interactions are approximated with user-defined reactions and tunable rate parameters:</p>
-                    <ul>
-                      <li><strong>σ</strong>: exchange terms between X and Y (reactions <em>Y_to_X</em> and <em>X_to_Y</em>).</li>
-                      <li><strong>ρ</strong>: promotes production of Y from X (reaction <em>X_autocatalytic_Y</em>).</li>
-                      <li><strong>β</strong>: decay of Z (reaction <em>Z_decay</em>).</li>
-                      <li>Additional reactions model coupling and decay: <em>X_Z_quench</em>, <em>Y_decay</em>, <em>XY_to_Z</em>.</li>
-                    </ul>
-                                `; // Original line ends here
-                lorenzDesc.innerHTML = `
-                                        <h3>Lorenz System</h3>
-                                        <p>The Lorenz equations are a simple 3D dynamical system:</p>
-                                        <p>$$\\frac{dx}{dt} = \\sigma (y - x)\\\\
-                                        \\frac{dy}{dt} = x (\\rho - z) - y\\\\
-                                        \\frac{dz}{dt} = x y - \\beta z$$</p>
-                                        <p>In this example we represent variables <strong>X</strong>, <strong>Y</strong>, and <strong>Z</strong> as chemical species. Nonlinear interactions are approximated with user-defined reactions and tunable rate parameters.</p>
-
-                                        <h4>Chemical Representation</h4>
-                                        <p>Each term in the Lorenz equations is approximated by one or more user-defined reactions. The mapping below explains which reactions and parameters correspond to the main terms:</p>
-                                        <ul>
-                                            <li><strong>Exchange (σ (y - x))</strong>: modeled by two first-order exchange reactions <em>Y_to_X</em> and <em>X_to_Y</em>. Setting both rates to <em>σ</em> approximates the linear coupling that drives x toward y and vice versa.</li>
-
-                                            <li><strong>Production &amp; coupling in y (<em>x(ρ - z)</em>)</strong>:
-                                                <ul>
-                                                    <li><em>X_autocatalytic_Y</em> (rate ~ <em>ρ</em>) represents production of Y driven by X (the x·ρ term).</li>
-                                                    <li><em>X_Z_quench</em> and <em>XY_to_Z</em> introduce coupling with Z: when Z is large, <em>X_Z_quench</em> reduces X (mimicking the −x·z term in combination with other steps), while <em>XY_to_Z</em> produces Z from X and Y to capture the x·y → z interaction that feeds back into Y dynamics via Z.</li>
-                                                    <li><em>Y_decay</em> provides a linear loss term for Y (the −y term).</li>
-                                                </ul>
-                                            </li>
-
-                                            <li><strong>Z dynamics (x·y − β z)</strong>: production of Z from the interaction of X and Y is modeled with <em>XY_to_Z</em> (the x·y term), and removal of Z is modeled with <em>Z_decay</em> with rate parameter <em>β</em>.</li>
-                                        </ul>
-
-                                        <p><em>Note:</em> This chemical encoding is an approximation: continuous nonlinear terms are represented by combinations of discrete user-defined reactions and tunable rates to mimic the Lorenz flow within the MUSICA/MICM framework.</p>
-                                `;
-                // contentDiv.appendChild(lorenzDesc);
-
-                // Attempt to render LaTeX in the lorenz description when KaTeX is ready
-                function tryRenderLorenz() {
-                    if (window.renderMathInElement) {
-                        renderMathInElement(lorenzDesc, {
-                            delimiters: [
-                                { left: '$$', right: '$$', display: true },
-                                { left: '$', right: '$', display: false }
-                            ]
-                        });
-                    } else {
-                        setTimeout(tryRenderLorenz, 50);
-                    }
-                }
-                // tryRenderLorenz();
+                // Set header versions and reveal the UI
+                document.getElementById('musica-version').textContent = musicaVersion;
+                document.getElementById('micm-version').textContent = micmVersion;
+                // hide the loading text and show the app layout
+                const loader = contentDiv.querySelector('.loading'); if (loader) loader.style.display = 'none';
+                document.getElementById('app-layout').style.display = '';
 
                 // Run a short in-browser simulation test similar to the unit test
                 try {
@@ -293,120 +376,109 @@
                         'USER.XZ_quench': 1
                     });
 
-                    // Create interactive controls
-                    const controls = document.createElement('div');
-                    controls.className = 'info';
-                    controls.innerHTML = '<h3>Initial Concentrations</h3>';
 
-                    function createSlider(name, min, max, step, initial) {
-                        const wrapper = document.createElement('div');
-                        wrapper.style.marginTop = '8px';
+                    // Data-driven examples (user may provide more later)
+                    const examples = [
+                        {
+                            id: 'lorenz',
+                            name: 'Lorenz Polynomial CRN',
+                            description: 'Lorenz-like polynomial chemical reaction network (demo).',
+                            initials: [
+                                { species: 'X', min: -30, max: 30, step: 0.01, value: 1.0 },
+                                { species: 'Y', min: -30, max: 30, step: 0.01, value: 28.0 },
+                                { species: 'Z', min: -10, max: 50, step: 0.01, value: 1.0 }
+                            ]
+                        },
+                        { id: 'example2', name: 'Example 2 (placeholder)', description: 'Placeholder — add example configuration later.', initials: [] },
+                        { id: 'example3', name: 'Example 3 (placeholder)', description: 'Placeholder — add example configuration later.', initials: [] }
+                    ];
 
+                    // Populate example selector
+                    const select = document.getElementById('example-select');
+                    examples.forEach(ex => {
+                        const opt = document.createElement('option');
+                        opt.value = ex.id;
+                        opt.textContent = ex.name;
+                        select.appendChild(opt);
+                    });
+
+                    const exampleDesc = document.getElementById('example-desc');
+                    const slidersContainer = document.getElementById('sliders-container');
+                    const resultsPanel = document.getElementById('results-panel');
+                    const resultsTbody = document.querySelector('#results-table tbody');
+
+                    function clearSliders() { slidersContainer.innerHTML = ''; }
+
+                    function createSliderRow(spec, min, max, step, initial) {
+                        const row = document.createElement('div');
+                        row.className = 'slider-row';
                         const label = document.createElement('label');
-                        label.textContent = name + ': ';
-                        label.style.marginRight = '8px';
-
-                        const valueSpan = document.createElement('span');
-                        valueSpan.textContent = String(initial);
-                        valueSpan.style.fontWeight = 'bold';
-                        valueSpan.style.marginLeft = '8px';
-
+                        label.textContent = spec;
                         const input = document.createElement('input');
                         input.type = 'range';
                         input.min = String(min);
                         input.max = String(max);
                         input.step = String(step);
                         input.value = String(initial);
-                        input.style.width = '60%';
-                        input.style.marginLeft = '12px';
-
-                        wrapper.appendChild(label);
-                        wrapper.appendChild(input);
-                        wrapper.appendChild(valueSpan);
-
-                        return { wrapper, input, valueSpan };
+                        const val = document.createElement('div');
+                        val.className = 'val';
+                        val.textContent = String(initial);
+                        input.addEventListener('input', () => { val.textContent = input.value; if (typeof updateWhileDragging !== 'undefined' && updateWhileDragging) runSimulation(); else runSimulationDebounced(); });
+                        row.appendChild(label);
+                        row.appendChild(input);
+                        row.appendChild(val);
+                        return { row, input };
                     }
 
-                    // Default initial concentrations (Lorenz typical small values)
-                    const X0 = 1.0;
-                    const Y0 = 28.0 * X0;
-                    const Z0 = X0 * X0;
+                    let currentSliders = [];
 
-                    const sliderX = createSlider('X', -30, 30, 0.01, X0);
-                    const sliderY = createSlider('Y', -30, 30, 0.01, Y0);
-                    const sliderZ = createSlider('Z', -10, 50, 0.01, Z0);
+                    // Option to update while dragging vs after drag stops
+                    let updateWhileDragging = true;
+                    const updateCheckbox = document.getElementById('update-during-drag');
+                    if (updateCheckbox) {
+                        updateWhileDragging = updateCheckbox.checked;
+                        updateCheckbox.addEventListener('change', () => { updateWhileDragging = updateCheckbox.checked; });
+                    }
 
-                    controls.appendChild(sliderX.wrapper);
-                    controls.appendChild(sliderY.wrapper);
-                    controls.appendChild(sliderZ.wrapper);
+                    function loadExampleById(id) {
+                        const ex = examples.find(e => e.id === id);
+                        if (!ex) return;
+                        exampleDesc.textContent = ex.description || '';
+                        clearSliders();
+                        currentSliders = [];
+                        if (!ex.initials || ex.initials.length === 0) {
+                            const p = document.createElement('p');
+                            p.style.fontSize = '13px';
+                            p.style.color = '#666';
+                            p.textContent = 'No initial condition sliders defined for this example.';
+                            slidersContainer.appendChild(p);
+                            return;
+                        }
+                        ex.initials.forEach(cfg => {
+                            const s = createSliderRow(cfg.species, cfg.min, cfg.max, cfg.step, cfg.value);
+                            slidersContainer.appendChild(s.row);
+                            currentSliders.push({ species: cfg.species, input: s.input });
+                        });
+                    }
 
-                    contentDiv.appendChild(controls);
+                    select.addEventListener('change', () => { loadExampleById(select.value); });
 
-                    // Prepare results table (reused on each run)
-                    const resultsContainer = document.createElement('div');
-                    resultsContainer.className = 'info';
-                    resultsContainer.innerHTML = '<h3>Simulation Results (10 solves)</h3>';
+                    // Load default example
+                    select.value = 'lorenz';
+                    loadExampleById('lorenz');
 
-                    const table = document.createElement('table');
-                    table.style.width = '100%';
-                    table.style.borderCollapse = 'collapse';
-                    table.style.marginTop = '8px';
+                    // Debounced runner to avoid excessive simulations while dragging
+                    let runTimer = null;
+                    function runSimulationDebounced() {
+                        if (runTimer) clearTimeout(runTimer);
+                        runTimer = setTimeout(() => { runSimulation(); runTimer = null; }, 250);
+                    }
 
-                    const thead = document.createElement('thead');
-                    const headerRow = document.createElement('tr');
-                    ['Time', 'X', 'Y', 'Z'].forEach(h => {
-                        const th = document.createElement('th');
-                        th.textContent = h;
-                        th.style.border = '1px solid #ddd';
-                        th.style.padding = '6px';
-                        th.style.textAlign = 'left';
-                        headerRow.appendChild(th);
-                    });
-                    thead.appendChild(headerRow);
-                    table.appendChild(thead);
-
-                    const tbody = document.createElement('tbody');
-                    table.appendChild(tbody);
-
-                    resultsContainer.appendChild(table);
-                    contentDiv.appendChild(resultsContainer);
-
-                    // Hide the results table by default and add a toggle in controls
-                    resultsContainer.style.display = 'none';
-
-                    const tableToggleWrapper = document.createElement('div');
-                    tableToggleWrapper.style.marginTop = '8px';
-                    const toggleLabel = document.createElement('label');
-                    const toggle = document.createElement('input');
-                    toggle.type = 'checkbox';
-                    toggle.checked = false; // default hidden
-                    toggleLabel.appendChild(toggle);
-                    toggleLabel.appendChild(document.createTextNode(' Show results table'));
-                    tableToggleWrapper.appendChild(toggleLabel);
-                    controls.appendChild(tableToggleWrapper);
-
-                    toggle.addEventListener('change', () => {
-                        resultsContainer.style.display = toggle.checked ? '' : 'none';
-                    });
-
-                    // Create plot container (Lorenz attractor 3D plot)
-                    const plotContainer = document.createElement('div');
-                    plotContainer.className = 'info';
-                    plotContainer.innerHTML = '<h3>Lorenz Attractor (3D)</h3>';
-                    const plotDiv = document.createElement('div');
-                    plotDiv.id = 'lorenz-plot';
-                    plotDiv.style.width = '100%';
-                    plotDiv.style.height = '420px';
-
-                    plotContainer.appendChild(plotDiv);
-                    contentDiv.appendChild(plotContainer);
-
-                    // Function to read slider values
+                    // Function to read slider values from data-driven sliders
                     function readSliderValues() {
-                        const x = parseFloat(sliderX.input.value);
-                        const y = parseFloat(sliderY.input.value);
-                        const z = parseFloat(sliderZ.input.value);
-                        return { X: x, Y: y, Z: z };
+                        const out = {};
+                        currentSliders.forEach(s => { out[s.species] = parseFloat(s.input.value); });
+                        return out;
                     }
 
                     // Plotly plot updater: draws Lorenz attractor as a 3D trajectory
@@ -455,11 +527,15 @@
                     // Run the simulation and populate the results table + plot
                     function runSimulation(steps = 2000, timeStep = 0.01, burnout = 100) {
                         // Reset table
-                        tbody.innerHTML = '';
+                        resultsTbody.innerHTML = '';
 
                         // Reset concentrations from sliders
                         const vals = readSliderValues();
-                        state.setConcentrations({ X: [vals.X], Y: [vals.Y], Z: [vals.Z] });
+                        const conc = {};
+                        if ('X' in vals) conc.X = [vals.X];
+                        if ('Y' in vals) conc.Y = [vals.Y];
+                        if ('Z' in vals) conc.Z = [vals.Z];
+                        state.setConcentrations(conc);
 
                         let cumulativeTime = 0.0;
 
@@ -493,23 +569,13 @@
                             [cumulativeTime.toFixed(2), xVal, yVal, zVal].forEach(cellVal => {
                                 const td = document.createElement('td');
                                 td.textContent = String(cellVal);
-                                td.style.border = '1px solid #ddd';
-                                td.style.padding = '6px';
                                 row.appendChild(td);
                             });
-                            tbody.appendChild(row);
+                            resultsTbody.appendChild(row);
                         }
 
                         updatePlot(times, Xs, Ys, Zs);
                     }
-
-                    // Wire sliders to rerun simulation on input
-                    [sliderX, sliderY, sliderZ].forEach(s => {
-                        s.input.addEventListener('input', () => {
-                            s.valueSpan.textContent = s.input.value;
-                            runSimulation();
-                        });
-                    });
 
                     // Initial run
                     runSimulation();
