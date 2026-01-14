@@ -226,155 +226,156 @@
                     const { types, reactionTypes, Mechanism } = musica.mechanismConfiguration;
                     const { Species, Phase, ReactionComponent } = types;
 
-                    // Create species and phases (Lorenz attractor mapping)
-                    const X = new Species({ name: 'X' });
-                    const Y = new Species({ name: 'Y' });
-                    const Z = new Species({ name: 'Z' });
+                    // Make mechanism/state example-driven. Builders will set these.
+                    let micm = null;
+                    let state = null;
 
-                    const gas = new Phase({ name: 'gas', species: [X, Y, Z] });
+                    function createLorenzMechanism() {
+                        const X = new Species({ name: 'X' });
+                        const Y = new Species({ name: 'Y' });
+                        const Z = new Species({ name: 'Z' });
 
-                    // equations from this paper: https://link.springer.com/article/10.1007/s11071-025-11622-1 
-                    const reactions = [
-                        // α1 : X → ∅
-                        new reactionTypes.UserDefined({
-                            name: 'X_decay',
-                            gas_phase: 'gas',
-                            reactants: [new ReactionComponent({ species_name: 'X' })],
-                            products: []
-                        }),
+                        const gas = new Phase({ name: 'gas', species: [X, Y, Z] });
 
-                        // α2 : Y → X + Y
-                        new reactionTypes.UserDefined({
-                            name: 'Y_to_XY',
-                            gas_phase: 'gas',
-                            reactants: [new ReactionComponent({ species_name: 'Y' })],
-                            products: [
-                                new ReactionComponent({ species_name: 'X' }),
-                                new ReactionComponent({ species_name: 'Y' })
-                            ]
-                        }),
+                        // equations from this paper: https://link.springer.com/article/10.1007/s11071-025-11622-1 
+                        const reactions = [
+                            // α1 : X → ∅
+                            new reactionTypes.UserDefined({
+                                name: 'X_decay',
+                                gas_phase: 'gas',
+                                reactants: [new ReactionComponent({ species_name: 'X' })],
+                                products: []
+                            }),
 
-                        // α3 : ∅ → Y
-                        new reactionTypes.UserDefined({
-                            name: 'Y_source',
-                            gas_phase: 'gas',
-                            reactants: [],
-                            products: [new ReactionComponent({ species_name: 'Y' })]
-                        }),
+                            // α2 : Y → X + Y
+                            new reactionTypes.UserDefined({
+                                name: 'Y_to_XY',
+                                gas_phase: 'gas',
+                                reactants: [new ReactionComponent({ species_name: 'Y' })],
+                                products: [
+                                    new ReactionComponent({ species_name: 'X' }),
+                                    new ReactionComponent({ species_name: 'Y' })
+                                ]
+                            }),
 
-                        // α4 : Y → ∅
-                        new reactionTypes.UserDefined({
-                            name: 'Y_sink',
-                            gas_phase: 'gas',
-                            reactants: [new ReactionComponent({ species_name: 'Y' })],
-                            products: []
-                        }),
+                            // α3 : ∅ → Y
+                            new reactionTypes.UserDefined({
+                                name: 'Y_source',
+                                gas_phase: 'gas',
+                                reactants: [],
+                                products: [new ReactionComponent({ species_name: 'Y' })]
+                            }),
 
-                        // α5 : X + Y → X + 2Y
-                        new reactionTypes.UserDefined({
-                            name: 'XY_to_X2Y',
-                            gas_phase: 'gas',
-                            reactants: [
-                                new ReactionComponent({ species_name: 'X' }),
-                                new ReactionComponent({ species_name: 'Y' })
-                            ],
-                            products: [
-                                new ReactionComponent({ species_name: 'X' }),
-                                new ReactionComponent({ species_name: 'Y' }),
-                                new ReactionComponent({ species_name: 'Y' })
-                            ]
-                        }),
+                            // α4 : Y → ∅
+                            new reactionTypes.UserDefined({
+                                name: 'Y_sink',
+                                gas_phase: 'gas',
+                                reactants: [new ReactionComponent({ species_name: 'Y' })],
+                                products: []
+                            }),
 
-                        // α6 : Y + Z → 2Y
-                        new reactionTypes.UserDefined({
-                            name: 'YZ_to_2Y',
-                            gas_phase: 'gas',
-                            reactants: [
-                                new ReactionComponent({ species_name: 'Y' }),
-                                new ReactionComponent({ species_name: 'Z' })
-                            ],
-                            products: [
-                                new ReactionComponent({ species_name: 'Y' }),
-                                new ReactionComponent({ species_name: 'Y' })
-                            ]
-                        }),
+                            // α5 : X + Y → X + 2Y
+                            new reactionTypes.UserDefined({
+                                name: 'XY_to_X2Y',
+                                gas_phase: 'gas',
+                                reactants: [
+                                    new ReactionComponent({ species_name: 'X' }),
+                                    new ReactionComponent({ species_name: 'Y' })
+                                ],
+                                products: [
+                                    new ReactionComponent({ species_name: 'X' }),
+                                    new ReactionComponent({ species_name: 'Y' }),
+                                    new ReactionComponent({ species_name: 'Y' })
+                                ]
+                            }),
 
-                        // α7 : X + Y + Z → X + 2Z
-                        new reactionTypes.UserDefined({
-                            name: 'XYZ_to_X2Z',
-                            gas_phase: 'gas',
-                            reactants: [
-                                new ReactionComponent({ species_name: 'X' }),
-                                new ReactionComponent({ species_name: 'Y' }),
-                                new ReactionComponent({ species_name: 'Z' })
-                            ],
-                            products: [
-                                new ReactionComponent({ species_name: 'X' }),
-                                new ReactionComponent({ species_name: 'Z' }),
-                                new ReactionComponent({ species_name: 'Z' })
-                            ]
-                        }),
+                            // α6 : Y + Z → 2Y
+                            new reactionTypes.UserDefined({
+                                name: 'YZ_to_2Y',
+                                gas_phase: 'gas',
+                                reactants: [
+                                    new ReactionComponent({ species_name: 'Y' }),
+                                    new ReactionComponent({ species_name: 'Z' })
+                                ],
+                                products: [
+                                    new ReactionComponent({ species_name: 'Y' }),
+                                    new ReactionComponent({ species_name: 'Y' })
+                                ]
+                            }),
 
-                        // α8 : ∅ → Z
-                        new reactionTypes.UserDefined({
-                            name: 'Z_source',
-                            gas_phase: 'gas',
-                            reactants: [],
-                            products: [new ReactionComponent({ species_name: 'Z' })]
-                        }),
+                            // α7 : X + Y + Z → X + 2Z
+                            new reactionTypes.UserDefined({
+                                name: 'XYZ_to_X2Z',
+                                gas_phase: 'gas',
+                                reactants: [
+                                    new ReactionComponent({ species_name: 'X' }),
+                                    new ReactionComponent({ species_name: 'Y' }),
+                                    new ReactionComponent({ species_name: 'Z' })
+                                ],
+                                products: [
+                                    new ReactionComponent({ species_name: 'X' }),
+                                    new ReactionComponent({ species_name: 'Z' }),
+                                    new ReactionComponent({ species_name: 'Z' })
+                                ]
+                            }),
 
-                        // α9 : Z → 2Z
-                        new reactionTypes.UserDefined({
-                            name: 'Z_autocatalytic',
-                            gas_phase: 'gas',
-                            reactants: [new ReactionComponent({ species_name: 'Z' })],
-                            products: [
-                                new ReactionComponent({ species_name: 'Z' }),
-                                new ReactionComponent({ species_name: 'Z' })
-                            ]
-                        }),
+                            // α8 : ∅ → Z
+                            new reactionTypes.UserDefined({
+                                name: 'Z_source',
+                                gas_phase: 'gas',
+                                reactants: [],
+                                products: [new ReactionComponent({ species_name: 'Z' })]
+                            }),
 
-                        // α10 : X + Z → X
-                        new reactionTypes.UserDefined({
-                            name: 'XZ_quench',
-                            gas_phase: 'gas',
-                            reactants: [
-                                new ReactionComponent({ species_name: 'X' }),
-                                new ReactionComponent({ species_name: 'Z' })
-                            ],
-                            products: [new ReactionComponent({ species_name: 'X' })]
-                        })
+                            // α9 : Z → 2Z
+                            new reactionTypes.UserDefined({
+                                name: 'Z_autocatalytic',
+                                gas_phase: 'gas',
+                                reactants: [new ReactionComponent({ species_name: 'Z' })],
+                                products: [
+                                    new ReactionComponent({ species_name: 'Z' }),
+                                    new ReactionComponent({ species_name: 'Z' })
+                                ]
+                            }),
 
-                    ];
+                            // α10 : X + Z → X
+                            new reactionTypes.UserDefined({
+                                name: 'XZ_quench',
+                                gas_phase: 'gas',
+                                reactants: [
+                                    new ReactionComponent({ species_name: 'X' }),
+                                    new ReactionComponent({ species_name: 'Z' })
+                                ],
+                                products: [new ReactionComponent({ species_name: 'X' })]
+                            })
 
-                    const mechanism = new Mechanism({
-                        name: 'Lorenz Polynomial CRN',
-                        version: '1.0.0',
-                        species: [X, Y, Z],
-                        phases: [gas],
-                        reactions
-                    });
+                        ];
 
-                    const micm = MICM.fromMechanism(mechanism);
-                    const state = micm.createState(1);
+                        const mechanism = new Mechanism({
+                            name: 'Lorenz Polynomial CRN',
+                            version: '1.0.0',
+                            species: [X, Y, Z],
+                            phases: [gas],
+                            reactions: reactions
+                        });
 
-                    // Set conditions and rate parameters once
-                    state.setConditions({ temperatures: [298.15], pressures: [101325.0], air_densities: [1.0] });
+                        micm = MICM.fromMechanism(mechanism);
+                        state = micm.createState(1);
 
-                    let mu = 1.0 / 100;
-
-                    state.setUserDefinedRateParameters({
-                        'USER.X_decay': 10,
-                        'USER.Y_to_XY': 10,
-                        'USER.Y_source': 1 / mu,
-                        'USER.Y_sink': 1 / mu + 29,
-                        'USER.XY_to_X2Y': 1 + mu * 28,
-                        'USER.YZ_to_2Y': 1,
-                        'USER.XYZ_to_X2Z': mu,
-                        'USER.Z_source': 8 / (3 * mu),
-                        'USER.Z_autocatalytic': 1 / mu - 8 / 3,
-                        'USER.XZ_quench': 1
-                    });
+                        let mu = 1.0 / 100;
+                        state.setUserDefinedRateParameters({
+                            'USER.X_decay': 10,
+                            'USER.Y_to_XY': 10,
+                            'USER.Y_source': 1 / mu,
+                            'USER.Y_sink': 1 / mu + 29,
+                            'USER.XY_to_X2Y': 1 + mu * 28,
+                            'USER.YZ_to_2Y': 1,
+                            'USER.XYZ_to_X2Z': mu,
+                            'USER.Z_source': 8 / (3 * mu),
+                            'USER.Z_autocatalytic': 1 / mu - 8 / 3,
+                            'USER.XZ_quench': 1
+                        });
+                    }
 
 
                     // Data-driven examples (user may provide more later)
@@ -382,15 +383,15 @@
                         {
                             id: 'lorenz',
                             name: 'Lorenz Polynomial CRN',
-                            description: 'Lorenz-like polynomial chemical reaction network (demo).',
+                            description: 'Lorenz-like polynomial chemical reaction network. The equation and rates are from <a href="https://link.springer.com/article/10.1007/s11071-025-11622-1" target="_blank">this paper</a>.',
                             initials: [
                                 { species: 'X', min: -30, max: 30, step: 0.01, value: 1.0 },
                                 { species: 'Y', min: -30, max: 30, step: 0.01, value: 28.0 },
                                 { species: 'Z', min: -10, max: 50, step: 0.01, value: 1.0 }
                             ]
+                            ,
+                            builder: createLorenzMechanism
                         },
-                        { id: 'example2', name: 'Example 2 (placeholder)', description: 'Placeholder — add example configuration later.', initials: [] },
-                        { id: 'example3', name: 'Example 3 (placeholder)', description: 'Placeholder — add example configuration later.', initials: [] }
                     ];
 
                     // Populate example selector
@@ -446,19 +447,34 @@
                         exampleDesc.textContent = ex.description || '';
                         clearSliders();
                         currentSliders = [];
+
                         if (!ex.initials || ex.initials.length === 0) {
                             const p = document.createElement('p');
                             p.style.fontSize = '13px';
                             p.style.color = '#666';
                             p.textContent = 'No initial condition sliders defined for this example.';
                             slidersContainer.appendChild(p);
-                            return;
+                        } else {
+                            ex.initials.forEach(cfg => {
+                                const s = createSliderRow(cfg.species, cfg.min, cfg.max, cfg.step, cfg.value);
+                                slidersContainer.appendChild(s.row);
+                                currentSliders.push({ species: cfg.species, input: s.input });
+                            });
                         }
-                        ex.initials.forEach(cfg => {
-                            const s = createSliderRow(cfg.species, cfg.min, cfg.max, cfg.step, cfg.value);
-                            slidersContainer.appendChild(s.row);
-                            currentSliders.push({ species: cfg.species, input: s.input });
-                        });
+
+                        // If the example provides a builder, create the mechanism/state now
+                        if (ex.builder && typeof ex.builder === 'function') {
+                            try {
+                                ex.builder();
+                            } catch (bErr) {
+                                console.error('Builder error for example', id, bErr);
+                            }
+                        }
+
+                        // run an initial simulation for the loaded example if mechanism exists
+                        if (micm && state) {
+                            runSimulation();
+                        }
                     }
 
                     select.addEventListener('change', () => { loadExampleById(select.value); });
