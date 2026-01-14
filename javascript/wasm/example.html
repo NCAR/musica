@@ -377,13 +377,12 @@
                         });
                     }
 
-
                     // Data-driven examples (user may provide more later)
                     const examples = [
                         {
                             id: 'lorenz',
                             name: 'Lorenz Polynomial CRN',
-                            description: 'Lorenz-like polynomial chemical reaction network. The equation and rates are from <a href="https://link.springer.com/article/10.1007/s11071-025-11622-1" target="_blank">this paper</a>.',
+                            description: 'Lorenz-like polynomial chemical reaction network. The equations and rates are from <a href="https://link.springer.com/article/10.1007/s11071-025-11622-1" target="_blank">this paper</a>.',
                             initials: [
                                 { species: 'X', min: -30, max: 30, step: 0.01, value: 1.0 },
                                 { species: 'Y', min: -30, max: 30, step: 0.01, value: 28.0 },
@@ -444,7 +443,7 @@
                     function loadExampleById(id) {
                         const ex = examples.find(e => e.id === id);
                         if (!ex) return;
-                        exampleDesc.textContent = ex.description || '';
+                        exampleDesc.innerHTML = ex.description || '';
                         clearSliders();
                         currentSliders = [];
 
