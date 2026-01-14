@@ -36,7 +36,10 @@
             border-radius: 5px;
         }
     </style>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
 </head>
 
 <body>
@@ -73,6 +76,66 @@
                     </div>
                 `;
 
+                // Brief Lorenz description and mapping to chemistry
+                const lorenzDesc = document.createElement('div');
+                lorenzDesc.className = 'info';
+                lorenzDesc.innerHTML = `
+                    <h3>Lorenz System</h3>
+                    <p>The Lorenz equations are a simple 3D dynamical system:</p>
+                    <p>$$\\frac{dx}{dt} = \\sigma (y - x)\\\\
+                    \\frac{dy}{dt} = x (\\rho - z) - y\\\\
+                    \\frac{dz}{dt} = x y - \\beta z$$</p>
+                    <p>In this example we represent variables <strong>X</strong>, <strong>Y</strong>, and <strong>Z</strong> as chemical species. Nonlinear interactions are approximated with user-defined reactions and tunable rate parameters:</p>
+                    <ul>
+                      <li><strong>σ</strong>: exchange terms between X and Y (reactions <em>Y_to_X</em> and <em>X_to_Y</em>).</li>
+                      <li><strong>ρ</strong>: promotes production of Y from X (reaction <em>X_autocatalytic_Y</em>).</li>
+                      <li><strong>β</strong>: decay of Z (reaction <em>Z_decay</em>).</li>
+                      <li>Additional reactions model coupling and decay: <em>X_Z_quench</em>, <em>Y_decay</em>, <em>XY_to_Z</em>.</li>
+                    </ul>
+                                `; // Original line ends here
+                lorenzDesc.innerHTML = `
+                                        <h3>Lorenz System</h3>
+                                        <p>The Lorenz equations are a simple 3D dynamical system:</p>
+                                        <p>$$\\frac{dx}{dt} = \\sigma (y - x)\\\\
+                                        \\frac{dy}{dt} = x (\\rho - z) - y\\\\
+                                        \\frac{dz}{dt} = x y - \\beta z$$</p>
+                                        <p>In this example we represent variables <strong>X</strong>, <strong>Y</strong>, and <strong>Z</strong> as chemical species. Nonlinear interactions are approximated with user-defined reactions and tunable rate parameters.</p>
+
+                                        <h4>Chemical Representation</h4>
+                                        <p>Each term in the Lorenz equations is approximated by one or more user-defined reactions. The mapping below explains which reactions and parameters correspond to the main terms:</p>
+                                        <ul>
+                                            <li><strong>Exchange (σ (y - x))</strong>: modeled by two first-order exchange reactions <em>Y_to_X</em> and <em>X_to_Y</em>. Setting both rates to <em>σ</em> approximates the linear coupling that drives x toward y and vice versa.</li>
+
+                                            <li><strong>Production &amp; coupling in y (<em>x(ρ - z)</em>)</strong>:
+                                                <ul>
+                                                    <li><em>X_autocatalytic_Y</em> (rate ~ <em>ρ</em>) represents production of Y driven by X (the x·ρ term).</li>
+                                                    <li><em>X_Z_quench</em> and <em>XY_to_Z</em> introduce coupling with Z: when Z is large, <em>X_Z_quench</em> reduces X (mimicking the −x·z term in combination with other steps), while <em>XY_to_Z</em> produces Z from X and Y to capture the x·y → z interaction that feeds back into Y dynamics via Z.</li>
+                                                    <li><em>Y_decay</em> provides a linear loss term for Y (the −y term).</li>
+                                                </ul>
+                                            </li>
+
+                                            <li><strong>Z dynamics (x·y − β z)</strong>: production of Z from the interaction of X and Y is modeled with <em>XY_to_Z</em> (the x·y term), and removal of Z is modeled with <em>Z_decay</em> with rate parameter <em>β</em>.</li>
+                                        </ul>
+
+                                        <p><em>Note:</em> This chemical encoding is an approximation: continuous nonlinear terms are represented by combinations of discrete user-defined reactions and tunable rates to mimic the Lorenz flow within the MUSICA/MICM framework.</p>
+                                `;
+                // contentDiv.appendChild(lorenzDesc);
+
+                // Attempt to render LaTeX in the lorenz description when KaTeX is ready
+                function tryRenderLorenz() {
+                    if (window.renderMathInElement) {
+                        renderMathInElement(lorenzDesc, {
+                            delimiters: [
+                                { left: '$$', right: '$$', display: true },
+                                { left: '$', right: '$', display: false }
+                            ]
+                        });
+                    } else {
+                        setTimeout(tryRenderLorenz, 50);
+                    }
+                }
+                // tryRenderLorenz();
+
                 // Run a short in-browser simulation test similar to the unit test
                 try {
                     // Build a simple mechanism and prepare for interactive simulation
@@ -87,53 +150,122 @@
 
                     const gas = new Phase({ name: 'gas', species: [X, Y, Z] });
 
+                    // equations from this paper: https://link.springer.com/article/10.1007/s11071-025-11622-1 
                     const reactions = [
+                        // α1 : X → ∅
                         new reactionTypes.UserDefined({
-                            name: 'Y_to_X',
-                            gas_phase: 'gas',
-                            reactants: [new ReactionComponent({ species_name: 'Y' })],
-                            products: [new ReactionComponent({ species_name: 'X' })]
-                        }),
-                        new reactionTypes.UserDefined({
-                            name: 'X_to_Y',
+                            name: 'X_decay',
                             gas_phase: 'gas',
                             reactants: [new ReactionComponent({ species_name: 'X' })],
+                            products: []
+                        }),
+
+                        // α2 : Y → X + Y
+                        new reactionTypes.UserDefined({
+                            name: 'Y_to_XY',
+                            gas_phase: 'gas',
+                            reactants: [new ReactionComponent({ species_name: 'Y' })],
+                            products: [
+                                new ReactionComponent({ species_name: 'X' }),
+                                new ReactionComponent({ species_name: 'Y' })
+                            ]
+                        }),
+
+                        // α3 : ∅ → Y
+                        new reactionTypes.UserDefined({
+                            name: 'Y_source',
+                            gas_phase: 'gas',
+                            reactants: [],
                             products: [new ReactionComponent({ species_name: 'Y' })]
                         }),
+
+                        // α4 : Y → ∅
                         new reactionTypes.UserDefined({
-                            name: 'X_autocatalytic_Y',
-                            gas_phase: 'gas',
-                            reactants: [new ReactionComponent({ species_name: 'X' })],
-                            products: [new ReactionComponent({ species_name: 'X' }), new ReactionComponent({ species_name: 'Y' })]
-                        }),
-                        new reactionTypes.UserDefined({
-                            name: 'X_Z_quench',
-                            gas_phase: 'gas',
-                            reactants: [new ReactionComponent({ species_name: 'X' }), new ReactionComponent({ species_name: 'Z' })],
-                            products: [new ReactionComponent({ species_name: 'Z' })]
-                        }),
-                        new reactionTypes.UserDefined({
-                            name: 'Y_decay',
+                            name: 'Y_sink',
                             gas_phase: 'gas',
                             reactants: [new ReactionComponent({ species_name: 'Y' })],
                             products: []
                         }),
+
+                        // α5 : X + Y → X + 2Y
                         new reactionTypes.UserDefined({
-                            name: 'XY_to_Z',
+                            name: 'XY_to_X2Y',
                             gas_phase: 'gas',
-                            reactants: [new ReactionComponent({ species_name: 'X' }), new ReactionComponent({ species_name: 'Y' })],
-                            products: [new ReactionComponent({ species_name: 'X' }), new ReactionComponent({ species_name: 'Y' }), new ReactionComponent({ species_name: 'Z' })]
+                            reactants: [
+                                new ReactionComponent({ species_name: 'X' }),
+                                new ReactionComponent({ species_name: 'Y' })
+                            ],
+                            products: [
+                                new ReactionComponent({ species_name: 'X' }),
+                                new ReactionComponent({ species_name: 'Y' }),
+                                new ReactionComponent({ species_name: 'Y' })
+                            ]
                         }),
+
+                        // α6 : Y + Z → 2Y
                         new reactionTypes.UserDefined({
-                            name: 'Z_decay',
+                            name: 'YZ_to_2Y',
+                            gas_phase: 'gas',
+                            reactants: [
+                                new ReactionComponent({ species_name: 'Y' }),
+                                new ReactionComponent({ species_name: 'Z' })
+                            ],
+                            products: [
+                                new ReactionComponent({ species_name: 'Y' }),
+                                new ReactionComponent({ species_name: 'Y' })
+                            ]
+                        }),
+
+                        // α7 : X + Y + Z → X + 2Z
+                        new reactionTypes.UserDefined({
+                            name: 'XYZ_to_X2Z',
+                            gas_phase: 'gas',
+                            reactants: [
+                                new ReactionComponent({ species_name: 'X' }),
+                                new ReactionComponent({ species_name: 'Y' }),
+                                new ReactionComponent({ species_name: 'Z' })
+                            ],
+                            products: [
+                                new ReactionComponent({ species_name: 'X' }),
+                                new ReactionComponent({ species_name: 'Z' }),
+                                new ReactionComponent({ species_name: 'Z' })
+                            ]
+                        }),
+
+                        // α8 : ∅ → Z
+                        new reactionTypes.UserDefined({
+                            name: 'Z_source',
+                            gas_phase: 'gas',
+                            reactants: [],
+                            products: [new ReactionComponent({ species_name: 'Z' })]
+                        }),
+
+                        // α9 : Z → 2Z
+                        new reactionTypes.UserDefined({
+                            name: 'Z_autocatalytic',
                             gas_phase: 'gas',
                             reactants: [new ReactionComponent({ species_name: 'Z' })],
-                            products: []
+                            products: [
+                                new ReactionComponent({ species_name: 'Z' }),
+                                new ReactionComponent({ species_name: 'Z' })
+                            ]
+                        }),
+
+                        // α10 : X + Z → X
+                        new reactionTypes.UserDefined({
+                            name: 'XZ_quench',
+                            gas_phase: 'gas',
+                            reactants: [
+                                new ReactionComponent({ species_name: 'X' }),
+                                new ReactionComponent({ species_name: 'Z' })
+                            ],
+                            products: [new ReactionComponent({ species_name: 'X' })]
                         })
+
                     ];
 
                     const mechanism = new Mechanism({
-                        name: 'Lorenz Attractor',
+                        name: 'Lorenz Polynomial CRN',
                         version: '1.0.0',
                         species: [X, Y, Z],
                         phases: [gas],
@@ -145,25 +277,20 @@
 
                     // Set conditions and rate parameters once
                     state.setConditions({ temperatures: [298.15], pressures: [101325.0], air_densities: [1.0] });
-                    // state.setConcentrations({
-                    //     'X': [0.75],
-                    //     'Y': [0.0],
-                    //     'Z': [0.4],
-                    // });
 
-                    // Lorenz parameters
-                    const sigma = 10.0;
-                    const rho = 28.0;
-                    const beta = 8.0 / 3.0;
+                    let mu = 1.0 / 100;
 
                     state.setUserDefinedRateParameters({
-                        'USER.Y_to_X': sigma,
-                        'USER.X_to_Y': sigma,
-                        'USER.X_autocatalytic_Y': rho,
-                        'USER.X_Z_quench': 1.0,
-                        'USER.Y_decay': 1.0,
-                        'USER.XY_to_Z': 1.0,
-                        'USER.Z_decay': beta
+                        'USER.X_decay': 10,
+                        'USER.Y_to_XY': 10,
+                        'USER.Y_source': 1 / mu,
+                        'USER.Y_sink': 1 / mu + 29,
+                        'USER.XY_to_X2Y': 1 + mu * 28,
+                        'USER.YZ_to_2Y': 1,
+                        'USER.XYZ_to_X2Z': mu,
+                        'USER.Z_source': 8 / (3 * mu),
+                        'USER.Z_autocatalytic': 1 / mu - 8 / 3,
+                        'USER.XZ_quench': 1
                     });
 
                     // Create interactive controls
@@ -201,9 +328,13 @@
                     }
 
                     // Default initial concentrations (Lorenz typical small values)
-                    const sliderX = createSlider('X', -30, 30, 0.01, 0.0);
-                    const sliderY = createSlider('Y', -30, 30, 0.01, 1.0);
-                    const sliderZ = createSlider('Z', -10, 50, 0.01, 1.05);
+                    const X0 = 1.0;
+                    const Y0 = 28.0 * X0;
+                    const Z0 = X0 * X0;
+
+                    const sliderX = createSlider('X', -30, 30, 0.01, X0);
+                    const sliderY = createSlider('Y', -30, 30, 0.01, Y0);
+                    const sliderZ = createSlider('Z', -10, 50, 0.01, Z0);
 
                     controls.appendChild(sliderX.wrapper);
                     controls.appendChild(sliderY.wrapper);
@@ -258,16 +389,16 @@
                         resultsContainer.style.display = toggle.checked ? '' : 'none';
                     });
 
-                    // Create plot container (Lorenz attractor phase plot)
+                    // Create plot container (Lorenz attractor 3D plot)
                     const plotContainer = document.createElement('div');
                     plotContainer.className = 'info';
-                    plotContainer.innerHTML = '<h3>Lorenz Attractor (X vs Z)</h3>';
-                    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                    svg.setAttribute('width', '760');
-                    svg.setAttribute('height', '320');
-                    svg.style.width = '100%';
-                    svg.style.maxWidth = '760px';
-                    plotContainer.appendChild(svg);
+                    plotContainer.innerHTML = '<h3>Lorenz Attractor (3D)</h3>';
+                    const plotDiv = document.createElement('div');
+                    plotDiv.id = 'lorenz-plot';
+                    plotDiv.style.width = '100%';
+                    plotDiv.style.height = '420px';
+
+                    plotContainer.appendChild(plotDiv);
                     contentDiv.appendChild(plotContainer);
 
                     // Function to read slider values
@@ -278,81 +409,48 @@
                         return { X: x, Y: y, Z: z };
                     }
 
-                    // D3 plot updater: draws Lorenz attractor as X vs Z phase plot
+                    // Plotly plot updater: draws Lorenz attractor as a 3D trajectory
                     function updatePlot(times, Xseries, Yseries, Zseries) {
-                        // Clear previous contents
-                        while (svg.firstChild) svg.removeChild(svg.firstChild);
+                        const plotDiv = document.getElementById('lorenz-plot');
+                        if (!plotDiv) return;
 
-                        const margin = { top: 20, right: 20, bottom: 40, left: 50 };
-                        const width = 760 - margin.left - margin.right;
-                        const height = 320 - margin.top - margin.bottom;
+                        const traj = {
+                            x: Xseries,
+                            y: Yseries,
+                            z: Zseries,
+                            mode: 'lines',
+                            type: 'scatter3d',
+                            line: { width: 2, color: '#1f77b4' },
+                            name: 'trajectory'
+                        };
 
-                        const g = d3.select(svg)
-                            .append('g')
-                            .attr('transform', `translate(${margin.left},${margin.top})`);
+                        const lastIdx = Xseries.length - 1;
+                        const current = {
+                            x: [Xseries[lastIdx]],
+                            y: [Yseries[lastIdx]],
+                            z: [Zseries[lastIdx]],
+                            mode: 'markers',
+                            type: 'scatter3d',
+                            marker: { size: 4, color: '#d62728' },
+                            name: 'current'
+                        };
 
-                        // Prepare 2D points for X vs Z
-                        const points = Xseries.map((x, i) => ({ x: x, z: Zseries[i], t: times[i] }));
+                        const layout = {
+                            margin: { l: 0, r: 0, b: 0, t: 0 },
+                            scene: {
+                                xaxis: { title: 'X' },
+                                yaxis: { title: 'Y' },
+                                zaxis: { title: 'Z' }
+                            },
+                            autosize: true,
+                            height: 420
+                        };
 
-                        const xExtent = d3.extent(points, d => d.x);
-                        const zExtent = d3.extent(points, d => d.z);
-
-                        // Add small padding
-                        const xPad = (xExtent[1] - xExtent[0]) * 0.1 || 1;
-                        const zPad = (zExtent[1] - zExtent[0]) * 0.1 || 1;
-
-                        const xScale = d3.scaleLinear().domain([xExtent[0] - xPad, xExtent[1] + xPad]).range([0, width]);
-                        const yScale = d3.scaleLinear().domain([zExtent[0] - zPad, zExtent[1] + zPad]).range([height, 0]);
-
-                        const xAxis = d3.axisBottom(xScale).ticks(6);
-                        const yAxis = d3.axisLeft(yScale).ticks(6);
-
-                        g.append('g')
-                            .attr('transform', `translate(0,${height})`)
-                            .call(xAxis);
-
-                        g.append('g')
-                            .call(yAxis);
-
-                        // Axis labels
-                        g.append('text')
-                            .attr('x', width / 2)
-                            .attr('y', height + 35)
-                            .attr('text-anchor', 'middle')
-                            .text('X');
-
-                        g.append('text')
-                            .attr('transform', 'rotate(-90)')
-                            .attr('x', -height / 2)
-                            .attr('y', -36)
-                            .attr('text-anchor', 'middle')
-                            .text('Z');
-
-                        // Line for the trajectory
-                        const line = d3.line()
-                            .x(d => xScale(d.x))
-                            .y(d => yScale(d.z));
-
-                        g.append('path')
-                            .datum(points)
-                            .attr('fill', 'none')
-                            .attr('stroke', '#1f77b4')
-                            .attr('stroke-width', 1.5)
-                            .attr('d', line);
-
-                        // Draw a small circle for the current (last) point
-                        const last = points[points.length - 1];
-                        if (last) {
-                            g.append('circle')
-                                .attr('cx', xScale(last.x))
-                                .attr('cy', yScale(last.z))
-                                .attr('r', 3)
-                                .attr('fill', '#d62728');
-                        }
+                        Plotly.newPlot(plotDiv, [traj, current], layout, { responsive: true });
                     }
 
                     // Run the simulation and populate the results table + plot
-                    function runSimulation(steps = 1000, timeStep = 0.01) {
+                    function runSimulation(steps = 1000, timeStep = 0.01, burnout = 100) {
                         // Reset table
                         tbody.innerHTML = '';
 
@@ -362,10 +460,10 @@
 
                         let cumulativeTime = 0.0;
 
-                        const times = [0.0];
-                        const Xs = [vals.X];
-                        const Ys = [vals.Y];
-                        const Zs = [vals.Z];
+                        const times = [];
+                        const Xs = [];
+                        const Ys = [];
+                        const Zs = [];
 
                         for (let i = 0; i < steps; i++) {
                             micm.solve(state, timeStep);
@@ -382,6 +480,7 @@
                             const yVal = val('Y');
                             const zVal = val('Z');
 
+                            if (i < burnout) continue; // skip initial transient
                             times.push(cumulativeTime);
                             Xs.push(xVal);
                             Ys.push(yVal);
