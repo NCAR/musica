@@ -26,28 +26,118 @@ const micmVersion = await musica.getMicmVersion();
 
 console.log('MUSICA Version:', version);
 console.log('MICM Version:', micmVersion);
-
-// Create MICM instance from configuration
-const micm = MICM.fromConfigPath('./configs/my_mechanism');
-const state = micm.createState(1);
-
-// Solve
-const result = micm.solve(state, 60.0);
 ```
 
-## Complete Usage Example
+## Examples
 
-Here's a more detailed example that demonstrates time-stepping through a chemical simulation:
+Below are some more detailed examples that demonstrates time-stepping through a chemical simulation.
+
+### In-code mechanism
+
+Chemical mechanisms can be defined entirely in code using our mechanism configuration interface.
 
 ```javascript
 import * as musica from '@ncar/musica';
 const { MICM, SolverType, GAS_CONSTANT } = musica;
 
+import { createRequire } from "node:module";
+const require = createRequire(import.meta.url);
+
+function musicaConfig(path) {
+  return require.resolve(`@ncar/musica/configs/${path}`);
+}
+
+// Initialize WASM backend
+await musica.initModule();
+
+const A = new Species({ name: 'A' });
+const B = new Species({ name: 'B' });
+const C = new Species({ name: 'C' });
+const gas = new Phase({ name: 'gas', species: [A, B, C] });
+
+// simple chain: A -> B -> C
+const reactions = [
+  new reactionTypes.UserDefined({ name: 'A_to_B', gas_phase: 'gas', reactants: [new ReactionComponent({ species_name: 'A' })], products: [new ReactionComponent({ species_name: 'B' })] }),
+  new reactionTypes.UserDefined({ name: 'B_to_C', gas_phase: 'gas', reactants: [new ReactionComponent({ species_name: 'B' })], products: [new ReactionComponent({ species_name: 'C' })] })
+];
+
+const mechanism = new Mechanism({ name: 'A->B->C CRN', version: '1.0.0', species: [A, B, C], phases: [gas], reactions: reactions });
+
+micm = MICM.fromMechanism(mechanism);
+state = micm.createState(1);
+
+// Set environmental conditions
+const temperature = 272.5;  // K
+const pressure = 101253.3;  // Pa
+const airDensity = pressure / (GAS_CONSTANT * temperature);
+
+state.setConditions({
+  temperatures: [temperature],
+  pressures: [pressure],
+  air_densities: [airDensity]
+});
+
+// Set initial concentrations (mol/m³)
+state.setConcentrations({
+  'A': [0.75],
+  'B': [0.0],
+  'C': [0.4],
+  'D': [0.8],
+  'E': [0.0],
+  'F': [0.1]
+});
+
+// Rate parameters
+state.setUserDefinedRateParameters({ 'USER.A_to_B': 1.0, 'USER.B_to_C': 0.5 });
+
+// Time-stepping loop
+const timeStep = 1.0;  // seconds
+const simLength = 100;  // seconds
+let currTime = 0;
+
+const results = [];
+while (currTime < simLength) {
+  // Solve chemistry for this time step
+  const result = micm.solve(state, timeStep);
+  
+  // Store results
+  const concentrations = state.getConcentrations();
+  results.push({
+    time: currTime,
+    A: concentrations.A[0],
+    B: concentrations.B[0],
+    C: concentrations.C[0]
+  });
+  
+  currTime += timeStep;
+}
+
+console.log('Simulation complete!');
+console.log(results);
+```
+
+### Using a configuration file
+
+You may also use one of the configurations provided with this package. Note, this will require you to run in node,
+not the browser.
+
+```javascript
+import * as musica from '@ncar/musica';
+const { MICM, SolverType, GAS_CONSTANT } = musica;
+
+import { createRequire } from "node:module";
+const require = createRequire(import.meta.url);
+
+function musicaConfig(path) {
+  return require.resolve(`@ncar/musica/configs/${path}`);
+}
+
 // Initialize WASM backend
 await musica.initModule();
 
 // Create MICM instance from configuration
-const micm = MICM.fromConfigPath('./configs/analytical');
+const micm = MICM.fromConfigPath(musicaConfig("v0/analytical"));
+
 
 // Create a state with 1 grid cell
 const state = micm.createState(1);
