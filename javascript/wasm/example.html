@@ -440,7 +440,10 @@
                             scene: {
                                 xaxis: { title: 'X' },
                                 yaxis: { title: 'Y' },
-                                zaxis: { title: 'Z' }
+                                zaxis: { title: 'Z' },
+                                camera: {
+                                    eye: { x: 1, y: -2, z: 1 },
+                                },
                             },
                             autosize: true,
                             height: 420
@@ -450,7 +453,7 @@
                     }
 
                     // Run the simulation and populate the results table + plot
-                    function runSimulation(steps = 1000, timeStep = 0.01, burnout = 100) {
+                    function runSimulation(steps = 2000, timeStep = 0.01, burnout = 100) {
                         // Reset table
                         tbody.innerHTML = '';
 
