@@ -524,8 +524,8 @@
                                 rateVal = (key in currentRateParams) ? currentRateParams[key] : null;
                             }
 
-                            const rateStr = (rateVal !== null && typeof rateVal !== 'undefined') ? String(rateVal) : `k_{${r.name}}`;
-                            const tex = `$$ ${lhs} \\xrightarrow{${Math.round(100 * rateStr) / 100}} ${rhs} $$`;
+                            const rateStr = (rateVal !== null && typeof rateVal !== 'undefined') ? String(Math.round(100 * rateVal) / 100) : `k_{${r.name}}`;
+                            const tex = `$$ ${lhs} \\xrightarrow{${rateStr}} ${rhs} $$`;
                             const p = document.createElement('div');
                             p.className = 'katex-math';
                             p.innerHTML = tex;
