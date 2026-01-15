@@ -43,7 +43,7 @@ MUSICA provides interfaces for multiple programming languages. Choose the instal
 
 ## Python
 
-Python is the recommended interface for most users. Install via pip:
+Most scientific users may prefer our python interface. It can be installed with pip:
 
 ```bash
 pip install musica
@@ -53,13 +53,22 @@ For detailed Python installation instructions, usage examples, and development i
 
 ## JavaScript
 
-The JavaScript interface uses WebAssembly for cross-platform compatibility. It works in both Node.js and browser environments.
+The JavaScript interface uses WebAssembly to run MUSICA components. This interface is most for tools developed for web 
+browsers and only supporst the C++ components of MUSICA. It can be installed from npm
+
+```bash
+npm install @ncar/musica
+```
 
 For detailed JavaScript installation instructions, usage examples, and development information, see the [JavaScript README](javascript/README.md).
 
 ## Fortran
 
-The Fortran interface is designed for integration with Fortran-based atmospheric models.
+The Fortran interface is designed for integration with Fortran-based atmospheric models. You can install this from spack
+
+```bash
+spack install musica
+```
 
 For detailed Fortran installation instructions, usage examples, and development information, see the [Fortran README](fortran/README.md).
 

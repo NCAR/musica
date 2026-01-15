@@ -16,15 +16,20 @@
     "!javascript/tests",
     "!javascript/src",
     "javascript/wasm/*.wasm",
+    "javascript/wasm/example.html",
     "LICENSE"
   ],
+  "bin": {
+    "musica-example": "javascript/tools/serve.js"
+  },
   "scripts": {
     "build": "npm run build:wasm",
     "build:wasm": "emcmake cmake -S . -B build-wasm -DCMAKE_BUILD_TYPE=Release -DMUSICA_ENABLE_JAVASCRIPT=ON -DMUSICA_ENABLE_TUVX=OFF -DMUSICA_ENABLE_CARMA=OFF -DMUSICA_ENABLE_TESTS=OFF && cmake --build build-wasm",
     "test": "node --test javascript/tests/unit/*.test.js javascript/tests/integration/*.test.js",
     "test:integration": "node --test javascript/tests/integration/*.test.js",
     "test:unit": "node --test javascript/tests/unit/**/*.test.js",
-    "test:coverage": "c8 --reporter=lcov --reporter=text --reports-dir=javascript-coverage node --test javascript/tests/**/*.test.js"
+    "test:coverage": "c8 --reporter=lcov --reporter=text --reports-dir=javascript-coverage node --test javascript/tests/**/*.test.js",
+    "example": "node javascript/tools/serve.js"
   },
   "repository": {
     "type": "git",

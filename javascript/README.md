@@ -251,13 +251,19 @@ npm run test:coverage
 
 ### Browser Example
 
-The `wasm` directory contains an [example.html](wasm/example.html) file that demonstrates using MUSICA in a web browser. The example displays version numbers and solves a simple chemical system.
+The `wasm` directory contains an [example.html](wasm/example.html) file that demonstrates using MUSICA in a web browser. 
+The example displays version numbers and contains some example mechanisms with interactive sliders.
 
-To run the browser example, you need to serve the files through a web server (due to WASM security requirements):
+To run the browser example, you need to serve the files through a web server:
 
+**If you're doing local development**
 ```bash
-# From the repository root or javascript directory
-python3 -m http.server 8000
+npm run example
+```
+
+**If you installed from npm, you can also run the examples**
+```bash
+npx musica-example
 ```
 
 Then open http://localhost:8000/javascript/wasm/example.html in your browser to see MUSICA running in WebAssembly!

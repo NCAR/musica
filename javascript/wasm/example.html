@@ -227,7 +227,7 @@
                 // Run a short in-browser simulation test similar to the unit test
                 try {
                     // Build a simple mechanism and prepare for interactive simulation
-                    const { MICM } = musica;
+                    const { MICM, SolverType } = musica;
                     const { types, reactionTypes, Mechanism } = musica.mechanismConfiguration;
                     const { Species, Phase, ReactionComponent } = types;
 
@@ -241,6 +241,46 @@
                     // mechanism and rate parameters for rendering reactions
                     let currentMechanism = null;
                     let currentRateParams = null;
+
+                    // selected solver (default to standard-order Rosenbrock if available)
+                    let selectedSolver = SolverType.rosenbrock_standard_order || SolverType.RosenbrockStandardOrder || SolverType.rosenbrock || 2;
+
+                    // add solver selector UI into the controls panel (before sliders)
+                    (function addSolverSelector() {
+                        const controlsPanel = document.getElementById('controls-panel');
+                        const ref = document.getElementById('sliders-container');
+                        if (!controlsPanel || !ref) return;
+
+                        const lbl = document.createElement('label');
+                        lbl.className = 'select-label';
+                        lbl.textContent = 'Solver Type';
+
+                        const sel = document.createElement('select');
+                        sel.id = 'solver-select';
+                        // Populate options from SolverType (skip numeric reverse keys)
+                        Object.keys(SolverType).filter(k => isNaN(Number(k))).forEach(key => {
+                            const opt = document.createElement('option');
+                            opt.value = String(SolverType[key]);
+                            opt.textContent = key;
+                            sel.appendChild(opt);
+                        });
+                        sel.value = String(selectedSolver);
+                        sel.addEventListener('change', () => {
+                            selectedSolver = Number(sel.value);
+                            // re-build mechanism for the current example to apply new solver
+                            if (currentExampleId) {
+                                const ex = examples.find(e => e.id === currentExampleId);
+                                if (ex && ex.builder) {
+                                    try { ex.builder(); } catch (e) { console.error('Error rebuilding mechanism with new solver', e); }
+                                }
+                                // run a fresh simulation
+                                if (typeof runSimulation === 'function') runSimulation();
+                            }
+                        });
+
+                        controlsPanel.insertBefore(lbl, ref);
+                        controlsPanel.insertBefore(sel, ref);
+                    })();
 
                     function createLorenzMechanism() {
                         const X = new Species({ name: 'X' });
@@ -265,7 +305,7 @@
 
                         const mechanism = new Mechanism({ name: 'Lorenz Polynomial CRN', version: '1.0.0', species: [X, Y, Z], phases: [gas], reactions: reactions });
 
-                        micm = MICM.fromMechanism(mechanism);
+                        micm = MICM.fromMechanism(mechanism, selectedSolver);
                         // capture mechanism for rendering
                         currentMechanism = mechanism;
                         state = micm.createState(1);
@@ -291,7 +331,7 @@
 
                         const mechanism = new Mechanism({ name: 'A->B->C CRN', version: '1.0.0', species: [A, B, C], phases: [gas], reactions: reactions });
 
-                        micm = MICM.fromMechanism(mechanism);
+                        micm = MICM.fromMechanism(mechanism, selectedSolver);
                         // capture mechanism for rendering
                         currentMechanism = mechanism;
                         state = micm.createState(1);
@@ -482,7 +522,7 @@
                             }
 
                             const rateStr = (rateVal !== null && typeof rateVal !== 'undefined') ? String(rateVal) : `k_{${r.name}}`;
-                            const tex = `$$ ${lhs} \\xrightarrow{${Math.round(100*rateStr)/100}} ${rhs} $$`;
+                            const tex = `$$ ${lhs} \\xrightarrow{${Math.round(100 * rateStr) / 100}} ${rhs} $$`;
                             const p = document.createElement('div');
                             p.className = 'katex-math';
                             p.innerHTML = tex;
