@@ -1,0 +1,61 @@
+name: Julia Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    continue-on-error: true
+    strategy:
+      matrix:
+        os: [ubuntu-24.04]
+        julia-version: ['1.6', '1.10']
+        compiler:
+          - { cpp: g++-14, c: gcc-14 }
+    env:
+      CC: ${{ matrix.compiler.c }}
+      CXX: ${{ matrix.compiler.cpp }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y liblapack-dev libblas-dev build-essential
+
+      - name: Set up Julia
+        uses: julia-actions/setup-julia@v2
+        with:
+          version: ${{ matrix.julia-version }}
+
+      - name: Build MUSICA with Julia support
+        run: |
+          cmake -S . -B build \
+                -D CMAKE_BUILD_TYPE=Release \
+                -D MUSICA_GIT_TAG=${{ github.sha }} \
+                -D MUSICA_ENABLE_JULIA=ON \
+                -D MUSICA_ENABLE_MICM=ON \
+                -D MUSICA_ENABLE_TUVX=OFF \
+                -D MUSICA_ENABLE_CARMA=OFF \
+                -D CMAKE_POLICY_VERSION_MINIMUM=3.5
+          cmake --build build --verbose
+
+      - name: Install Julia dependencies
+        working-directory: julia
+        run: |
+          julia --project=. -e 'using Pkg; Pkg.instantiate()'
+
+      - name: Run Julia tests
+        working-directory: julia
+        run: |
+          julia --project=. test/runtests.jl
