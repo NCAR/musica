@@ -243,7 +243,10 @@
                     let currentRateParams = null;
 
                     // selected solver (default to standard-order Rosenbrock if available)
-                    let selectedSolver = SolverType.rosenbrock_standard_order || SolverType.RosenbrockStandardOrder || SolverType.rosenbrock || 2;
+                    let selectedSolver = SolverType.rosenbrock_standard_order
+                        ?? SolverType.RosenbrockStandardOrder
+                        ?? SolverType.rosenbrock
+                        ?? 2;
 
                     // add solver selector UI into the controls panel (before sliders)
                     (function addSolverSelector() {
