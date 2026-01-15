@@ -48,7 +48,7 @@ add_custom_command(TARGET musica_julia POST_BUILD
     COMMENT "Copying musica_julia library to source tree for development"
 )
 
-# Install the library
+# Install the library and Julia package files
 if(MUSICA_ENABLE_INSTALL)
   install(TARGETS musica_julia
           LIBRARY DESTINATION julia/deps/lib
