@@ -27,12 +27,6 @@ set_target_properties(musica_julia PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
 
-# Install the library to the julia/deps/lib directory
-if(MUSICA_ENABLE_INSTALL)
-  install(TARGETS musica_julia
-          LIBRARY DESTINATION julia/deps/lib
-          ARCHIVE DESTINATION julia/deps/lib)
-
 # Set RPATH for the library
 if (APPLE)
   set_target_properties(musica_julia PROPERTIES
