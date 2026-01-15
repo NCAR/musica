@@ -274,7 +274,7 @@
                                     try { ex.builder(); } catch (e) { console.error('Error rebuilding mechanism with new solver', e); }
                                 }
                                 // run a fresh simulation
-                                if (typeof runSimulation === 'function') runSimulation();
+                                runSimulation();
                             }
                         });
 
