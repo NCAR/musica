@@ -54,7 +54,7 @@ For detailed Python installation instructions, usage examples, and development i
 ## JavaScript
 
 The JavaScript interface uses WebAssembly to run MUSICA components. This interface is most for tools developed for web 
-browsers and only supporst the C++ components of MUSICA. It can be installed from npm
+browsers and only supports the C++ components of MUSICA. It can be installed from npm
 
 ```bash
 npm install @ncar/musica
