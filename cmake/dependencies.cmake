@@ -158,6 +158,44 @@ if(MUSICA_ENABLE_PYTHON_LIBRARY)
 endif()
 
 ################################################################################
+# Julia
+
+if (MUSICA_ENABLE_JULIA AND MUSICA_BUILD_C_CXX_INTERFACE)
+  find_program(Julia_EXECUTABLE julia REQUIRED)
+
+  execute_process(
+    COMMAND ${Julia_EXECUTABLE} --project=${CMAKE_CURRENT_SOURCE_DIR} -e "using Pkg; Pkg.instantiate()"
+    RESULT_VARIABLE PKG_INSTANTIATE_RESULT
+    OUTPUT_VARIABLE PKG_INSTANTIATE_OUTPUT
+    ERROR_VARIABLE PKG_INSTANTIATE_ERROR
+  )
+
+  if(NOT PKG_INSTANTIATE_RESULT EQUAL 0)
+      message(WARNING "Failed to instantiate Julia project dependencies: ${PKG_INSTANTIATE_ERROR}")
+  endif()
+
+  # Try to get CxxWrap prefix path
+  execute_process(
+      COMMAND ${Julia_EXECUTABLE} --project=${CMAKE_SOURCE_DIR}/julia -e "using CxxWrap; print(CxxWrap.prefix_path())"
+      OUTPUT_VARIABLE CxxWrap_PREFIX
+      RESULT_VARIABLE CxxWrap_RESULT
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_VARIABLE CxxWrap_ERROR
+  )
+  if(CxxWrap_RESULT EQUAL 0 AND EXISTS ${CxxWrap_PREFIX})
+      message(STATUS "CxxWrap prefix: ${CxxWrap_PREFIX}")
+      list(APPEND CMAKE_PREFIX_PATH ${CxxWrap_PREFIX})
+      find_package(JlCxx REQUIRED)
+  else()
+      message(FATAL_ERROR 
+          "Failed to find CxxWrap.jl. Error: ${CxxWrap_ERROR}\n"
+          "Please ensure CxxWrap is properly installed"
+      )
+  endif()
+endif()
+
+
+################################################################################
 # Docs
 
 if(MUSICA_BUILD_DOCS)

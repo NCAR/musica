@@ -1,0 +1,11 @@
+name = "Musica"
+uuid = "D3D182EE-E566-4962-9279-3A9916BE1802"
+authors = ["ACOM MUSICA Developers <musica-support@ucar.edu>"]
+version = "0.14.4"
+
+[deps]
+CxxWrap = "1f15a43c-97ca-5a2a-ae31-89f07a497df4"
+
+[compat]
+julia = "1.10 - 1.11"
+CxxWrap = "^0.16"
