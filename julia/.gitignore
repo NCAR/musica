@@ -1,4 +1,4 @@
-# This file is machine-generated - do not edit manually!
-# It should be generated using Julia versions 1.6-1.10 to match Project.toml compatibility
-# The Manifest.toml will be auto-generated during CI builds and local builds
+# Julia build artifacts that should not be committed
+# Manifest.toml is machine-generated and will be created during builds
+Manifest.toml
 *.toml.bak

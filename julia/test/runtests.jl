@@ -6,7 +6,8 @@ using Musica
         version = Musica.get_version()
         @test version isa String
         @test !isempty(version)
-        @test occursin("0.14.4", version)
+        # Test version format (semantic versioning: X.Y.Z or X.Y.Z.W)
+        @test occursin(r"^\d+\.\d+\.\d+", version)
         println("MUSICA version: ", version)
     end
 end
