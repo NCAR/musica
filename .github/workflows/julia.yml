@@ -37,6 +37,11 @@ jobs:
         with:
           version: ${{ matrix.julia-version }}
 
+      - name: Install Julia dependencies (CxxWrap)
+        working-directory: julia
+        run: |
+          julia --project=. -e 'using Pkg; Pkg.instantiate()'
+
       - name: Build MUSICA with Julia support
         run: |
           cmake -S . -B build \
@@ -47,11 +52,6 @@ jobs:
                 -D MUSICA_ENABLE_CARMA=OFF \
                 -D CMAKE_POLICY_VERSION_MINIMUM=3.5
           cmake --build build --verbose
-
-      - name: Install Julia dependencies
-        working-directory: julia
-        run: |
-          julia --project=. -e 'using Pkg; Pkg.instantiate()'
 
       - name: Run Julia tests
         working-directory: julia
