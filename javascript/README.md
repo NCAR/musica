@@ -4,7 +4,9 @@ MUSICA provides a JavaScript interface using WebAssembly (WASM) for portable, cr
 
 ## Installation
 
-<npm instructions when they become available>
+```bash
+npm install @ncar/musica
+```
 
 ### Prerequisites
 
