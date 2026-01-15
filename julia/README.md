@@ -10,7 +10,7 @@ Musica.jl provides Julia bindings to the MUSICA atmospheric chemistry library, e
 
 ### Prerequisites
 
-- Julia 1.6 or later
+- Julia 1.6 through 1.10 (Note: Julia 1.11+ has compatibility issues with current CxxWrap versions)
 - CMake 3.24 or later
 - A C++ compiler with C++20 support
 - NetCDF library (for full functionality)
@@ -74,3 +74,14 @@ For questions or issues with the Julia wrapper, please file an issue on the [MUS
 ## License
 
 MUSICA is licensed under the Apache License 2.0. See the [LICENSE](../LICENSE) file for details.
+
+## Package Publishing
+
+This package is not yet published to the Julia General registry. To publish:
+
+1. Ensure all tests pass in CI
+2. Follow the [Julia package registration guide](https://github.com/JuliaRegistries/Registrator.jl)
+3. Register the package via pull request to the General registry
+4. Consider using [BinaryBuilder.jl](https://docs.binarybuilder.org/stable/) for platform-specific binary distributions
+
+For now, users must build from source as described in the installation section above.

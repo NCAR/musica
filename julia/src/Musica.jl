@@ -2,8 +2,9 @@ module Musica
 
 using CxxWrap
 
-# Load the C++ library
-const libmusica_julia = joinpath(@__DIR__, "..", "deps", "lib", "libmusica_julia.so")
+# Determine the library extension based on platform
+const lib_ext = Sys.iswindows() ? "dll" : (Sys.isapple() ? "dylib" : "so")
+const libmusica_julia = joinpath(@__DIR__, "..", "deps", "lib", "libmusica_julia.$lib_ext")
 
 @wrapmodule(() -> libmusica_julia)
 

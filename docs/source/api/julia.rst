@@ -9,7 +9,7 @@ Installation
 Prerequisites
 ^^^^^^^^^^^^^
 
-- Julia 1.6 or later
+- Julia 1.6 through 1.10 (Note: Julia 1.11+ has compatibility issues with current CxxWrap versions)
 - CMake 3.24 or later
 - A C++ compiler with C++20 support
 
