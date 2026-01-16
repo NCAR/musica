@@ -125,6 +125,8 @@ def main(output='lorenz.mp4', fps=30, n=2):
         to ``"lorenz.mp4"``.
     fps : int, optional
         Frames per second for the generated animation. Defaults to 30.
+    n : int, optional
+        The number of grid cells to simulate the attractor in
     Notes
     -----
     This function constructs the Lorenz mechanism, initializes the MICM solver, sets
