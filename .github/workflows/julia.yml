@@ -53,6 +53,14 @@ jobs:
                 -D CMAKE_POLICY_VERSION_MINIMUM=3.5
           cmake --build build --verbose
 
+      - name: Precompile Julia package with built library
+        working-directory: julia
+        run: |
+          # Clear any existing precompilation cache
+          rm -rf ~/.julia/compiled/v*/Musica
+          # Force precompilation with the built library available
+          julia --project=. -e 'using Pkg; Pkg.precompile()'
+
       - name: Run Julia tests
         working-directory: julia
         run: |
