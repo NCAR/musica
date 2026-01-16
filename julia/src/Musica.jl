@@ -6,8 +6,11 @@ using CxxWrap
 const lib_ext = Sys.iswindows() ? "dll" : (Sys.isapple() ? "dylib" : "so")
 const libmusica_julia = joinpath(@__DIR__, "..", "deps", "lib", "libmusica_julia.$lib_ext")
 
-# Check if the library exists and provide helpful error message
-function __check_library()
+# Declare the wrapped module but defer loading until __init__
+@wrapmodule(() -> libmusica_julia)
+
+function __init__()
+    # Check if the library exists
     if !isfile(libmusica_julia)
         error("""
         MUSICA Julia library not found at: $libmusica_julia
@@ -19,13 +22,8 @@ function __check_library()
         See the README.md for more information.
         """)
     end
-end
-
-__check_library()
-
-@wrapmodule(() -> libmusica_julia)
-
-function __init__()
+    
+    # Initialize the C++ wrapper
     @initcxx
 end
 
