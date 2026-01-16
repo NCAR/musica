@@ -7,6 +7,7 @@ import argparse
 import os
 import numpy as np
 
+
 def create_lorenz_mechanism():
     """
     Create a Lorenz mechanism
@@ -120,22 +121,22 @@ def main(output='lorenz.mp4', fps=30):
     # Rate parameters
     mu = 1.0 / 100
     rate_params = {
-            "USER.X_decay": 10,
-            "USER.Y_to_XY": 10,
-            "USER.Y_source": 1 / mu,
-            "USER.Y_sink": 1 / mu + 29,
-            "USER.XY_to_X2Y": 1 + mu * 28,
-            "USER.YZ_to_2Y": 1,
-            "USER.XYZ_to_X2Z": mu,
-            "USER.Z_source": 8 / (3 * mu),
-            "USER.Z_autocatalytic": 1 / mu - 8 / 3,
-            "USER.XZ_quench": 1
+        "USER.X_decay": 10,
+        "USER.Y_to_XY": 10,
+        "USER.Y_source": 1 / mu,
+        "USER.Y_sink": 1 / mu + 29,
+        "USER.XY_to_X2Y": 1 + mu * 28,
+        "USER.YZ_to_2Y": 1,
+        "USER.XYZ_to_X2Z": mu,
+        "USER.Z_source": 8 / (3 * mu),
+        "USER.Z_autocatalytic": 1 / mu - 8 / 3,
+        "USER.XZ_quench": 1
     }
     state.set_user_defined_rate_parameters(rate_params)
     state.set_concentrations({
-            "X": 1.0,
-            "Y": 28.0,
-            "Z": 1.0
+        "X": 1.0,
+        "Y": 28.0,
+        "Z": 1.0
     })
 
     nsteps = 2000
@@ -197,15 +198,15 @@ def main(output='lorenz.mp4', fps=30):
             line.set_data(Xs[:i], Ys[:i])
             line.set_3d_properties(Zs[:i])
             if i > 0:
-                point.set_data([Xs[i-1]], [Ys[i-1]])
-                point.set_3d_properties([Zs[i-1]])
+                point.set_data([Xs[i - 1]], [Ys[i - 1]])
+                point.set_3d_properties([Zs[i - 1]])
             return line, point
 
         frames = len(Xs)
         interval = 1000.0 / fps
 
         anim = animation.FuncAnimation(
-                fig, update, init_func=init, frames=frames, interval=interval, blit=True)
+            fig, update, init_func=init, frames=frames, interval=interval, blit=True)
 
         outdir = os.path.dirname(outpath) or '.'
         os.makedirs(outdir, exist_ok=True)
@@ -225,6 +226,7 @@ def main(output='lorenz.mp4', fps=30):
 
     # Save animation with defaults; CLI can override via args below
     create_animation(Xs, Ys, Zs, outpath=output, fps=fps)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run Lorenz CRN simulation and create animation')

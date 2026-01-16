@@ -109,7 +109,12 @@ class _Examples:
         Returns:
             list[Example]: A list of all available Example instances.
         """
-        return [cls.CARMA_Aluminum, cls.CARMA_Sulfate, cls.Sulfate_Box_Model, cls.TS1LatinHyperCube, cls.Lorenz_Attractor]
+        return [
+            cls.CARMA_Aluminum,
+            cls.CARMA_Sulfate,
+            cls.Sulfate_Box_Model,
+            cls.TS1LatinHyperCube,
+            cls.Lorenz_Attractor]
 
     def __iter__(self):
         """Make the class iterable over examples.
