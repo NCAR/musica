@@ -75,6 +75,7 @@ describe('MICM Initialization', () => {
         solverType,
         `Solver type should match ${solverType}`
       );
+      micm.delete();
     }
   });
 
@@ -113,6 +114,9 @@ describe('MICM Initialization', () => {
       assert.ok(concentrations.A !== 1.0, 'Concentration of A should have changed after solve');
       assert.ok(concentrations.B !== 2.0, 'Concentration of B should have changed after solve');
       assert.ok(concentrations.C !== 3.0, 'Concentration of C should have changed after solve');
+
+      micm.delete();
+      state.delete();
     }
   });
 
@@ -140,12 +144,16 @@ describe('MICM createState method', () => {
     micm = MICM.fromConfigPath(getConfigPath());
     const state = micm.createState();
     assert.ok(state instanceof State, 'Should create State instance');
+    state.delete();
+    micm.delete();
   });
 
   it('should create state with explicit single grid cell', async (t) => {
     micm = MICM.fromConfigPath(getConfigPath());
     const state = micm.createState(1);
     assert.ok(state instanceof State, 'Should create State instance');
+    state.delete();
+    micm.delete();
   });
 
   it('should create state with multiple grid cells', async (t) => {
@@ -155,7 +163,9 @@ describe('MICM createState method', () => {
     for (const num of numCells) {
       const state = micm.createState(num);
       assert.ok(state instanceof State, `Should create State with ${num} cells`);
+      state.delete();
     }
+    micm.delete();
   });
 
   it('should throw error for zero grid cells', async (t) => {
@@ -165,6 +175,7 @@ describe('MICM createState method', () => {
       /number_of_grid_cells must be greater than 0/,
       'Should throw error for 0 grid cells'
     );
+    micm.delete();
   });
 
   it('should throw error for negative grid cells', async (t) => {
@@ -174,6 +185,7 @@ describe('MICM createState method', () => {
       /number_of_grid_cells must be greater than 0/,
       'Should throw error for negative grid cells'
     );
+    micm.delete();
   });
 
   it('should create multiple independent states', async (t) => {
@@ -184,6 +196,9 @@ describe('MICM createState method', () => {
     assert.ok(state1 instanceof State, 'State1 should be State instance');
     assert.ok(state2 instanceof State, 'State2 should be State instance');
     assert.notStrictEqual(state1, state2, 'States should be independent');
+    state1.delete();
+    state2.delete();
+    micm.delete();
   });
 });
 
@@ -226,7 +241,9 @@ describe('MICM Solve - comprehensive', () => {
           assert.ok(updated.B[i] !== 0.0, `B[${i}] should have changed`);
           assert.ok(updated.C[i] !== 0.5, `C[${i}] should have changed`);
         }
+        state.delete();
       }
+      micm.delete();
     }
   });
 
@@ -259,7 +276,9 @@ describe('MICM Solve - comprehensive', () => {
           assert.ok(updated.B[i] !== 1.0, `B[${i}] should have changed`);
           assert.ok(updated.C[i] !== 0.0, `C[${i}] should have changed`);
         }
+        state.delete();
       }
+      micm.delete();
     }
   });
 
@@ -288,6 +307,9 @@ describe('MICM Solve - comprehensive', () => {
     for (let i = 0; i < 5; i++) {
       assert.ok(final.A[i] !== 1.0, `A[${i}] should have changed`);
     }
+
+    state.delete();
+    micm.delete();
   });
 
   it('should work with all solver types', async (t) => {
@@ -315,6 +337,9 @@ describe('MICM Solve - comprehensive', () => {
         assert.ok(updated.B[i] !== (i === 0 ? 0.0 : 0.5), `B[${i}] should have changed`);
         assert.ok(updated.C[i] !== (i === 0 ? 0.5 : 1.0), `C[${i}] should have changed`);
       }
+
+      state.delete();
+      micm.delete();
     }
   });
 });
@@ -354,5 +379,8 @@ describe('MICM SolverResult validation', () => {
     assert.ok(stats.decompositions > 0n);
     assert.ok(stats.solves > 0n);
     assert.ok(stats.final_time >= 0.0);
+
+    state.delete();
+    micm.delete();
   });
 });

@@ -95,4 +95,8 @@ export class MICM {
 		const stats = new SolverStats(result.stats);
 		return new SolverResult(result.state, stats);
 	}
+
+	delete() {
+		this._nativeMICM.delete();
+	}
 }
