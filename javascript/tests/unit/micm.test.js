@@ -75,7 +75,7 @@ describe('MICM Initialization', () => {
         solverType,
         `Solver type should match ${solverType}`
       );
-      micm.delete()
+      micm.delete();
     }
   });
 
