@@ -85,4 +85,8 @@ export class State {
 	getNumberOfGridCells() {
 		return this._numberOfGridCells;
 	}
+
+	delete() {
+		this._nativeState.delete();
+	}
 }
