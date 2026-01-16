@@ -1,36 +1,42 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
-tmpdir=$(mktemp -d)
-unzip -q "$1" -d "$tmpdir"
+INPUT_WHEEL="$1"
+OUTDIR="$2"
 
-# Remove nested wheel
-rm -f "$tmpdir"/*.whl
+mkdir -p "$OUTDIR"
 
-# Patch GPU .so files as before
-so_files=("$tmpdir"/musica/_musica_gpu*.so)
-if [[ -f "${so_files[0]}" ]]; then
-    so_path="${so_files[0]}"
-    patchelf --remove-rpath $so_path
-    patchelf --set-rpath "\$ORIGIN:\$ORIGIN/../nvidia/cublas/lib:\$ORIGIN/../nvidia/cuda_runtime/lib" --force-rpath $so_path
-    patchelf --replace-needed libcudart-b5a066d7.so.12.2.140 libcudart.so.12 $so_path
-    patchelf --replace-needed libcublas-e779a79d.so.12.2.5.6 libcublas.so.12 $so_path
-    patchelf --replace-needed libcublasLt-fbfbc8a1.so.12.2.5.6 libcublasLt.so.12 $so_path
-fi
+python -m pip install --upgrade wheel
 
-# Remove bundled CUDA libraries
-rm -f "$tmpdir"/musica.libs/libcudart-*.so*
-rm -f "$tmpdir"/musica.libs/libcublas-*.so*
-rm -f "$tmpdir"/musica.libs/libcublasLt-*.so*
+# 1. auditwheel FIRST (only time)
+auditwheel repair \
+  --exclude libcublas \
+  --exclude libcublasLt \
+  --exclude libcudart \
+  -w "$OUTDIR" "$INPUT_WHEEL"
 
-python -m pip install --upgrade pip
-python -m pip install wheel auditwheel
+# 2. Patch the repaired wheel
+for whl in "$OUTDIR"/*.whl; do
+  tmpdir="$(mktemp -d)"
+  unzip -q "$whl" -d "$tmpdir"
 
-# Repack wheel (generates correct RECORD)
-(cd "$tmpdir" && python -m wheel pack . -d "$tmpdir")
-interim_wheel=$(ls "$tmpdir"/*.whl)
+  so="$(ls "$tmpdir"/musica/_musica_gpu*.so 2>/dev/null || true)"
+  if [[ -n "$so" ]]; then
+    patchelf --remove-rpath "$so"
+    patchelf --set-rpath \
+      '$ORIGIN:$ORIGIN/../nvidia/cublas/lib:$ORIGIN/../nvidia/cuda_runtime/lib' \
+      --force-rpath "$so"
 
-# Repair with auditwheel
-auditwheel repair --exclude libcublas --exclude libcublasLt --exclude libcudart -w "$2" "$interim_wheel"
+    patchelf --replace-needed libcudart-*.so.* libcudart.so.12 "$so" || true
+    patchelf --replace-needed libcublas-*.so.* libcublas.so.12 "$so" || true
+    patchelf --replace-needed libcublasLt-*.so.* libcublasLt.so.12 "$so" || true
 
-rm -rf "$tmpdir"
+    rm -f "$tmpdir"/musica.libs/libcudart-*.so*
+    rm -f "$tmpdir"/musica.libs/libcublas-*.so*
+    rm -f "$tmpdir"/musica.libs/libcublasLt-*.so*
+  fi
+
+  rm "$whl"
+  (cd "$tmpdir" && python -m wheel pack . -d "$OUTDIR")
+  rm -rf "$tmpdir"
+done
