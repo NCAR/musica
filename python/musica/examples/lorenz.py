@@ -1,118 +1,116 @@
-from musica.micm import MICM, State, SolverType, SolverResult, SolverState
+from musica.micm import MICM, SolverType
 import musica.mechanism_configuration as mc
 import matplotlib.pyplot as plt
 from matplotlib import animation
 from matplotlib.animation import FFMpegWriter, PillowWriter
 import argparse
 import os
-
-def _to_scalar(v):
-    try:
-        return float(v)
-    except Exception:
-        # numpy scalar
-        try:
-            if hasattr(v, 'item'):
-                return float(v.item())
-        except Exception:
-            pass
-        # single-element sequence
-        try:
-            if hasattr(v, '__len__') and len(v) == 1:
-                return float(v[0])
-        except Exception:
-            pass
-        raise TypeError(f"Cannot convert value to scalar: {type(v)}")
+import numpy as np
 
 def create_lorenz_mechanism():
-  """
-  Create a Lorenz mechanism
+    """
+    Create a Lorenz mechanism
 
-  from https://doi.org/10.1007/s11071-025-11622-1
-  """
-  # Species
-  X = mc.Species(name="X")
-  Y = mc.Species(name="Y")
-  Z = mc.Species(name="Z")
+    from https://doi.org/10.1007/s11071-025-11622-1
+    """
+    # Species
+    X = mc.Species(name="X")
+    Y = mc.Species(name="Y")
+    Z = mc.Species(name="Z")
 
-  # Gas phase
-  gas = mc.Phase(name="gas", species=[X, Y, Z])
+    # Gas phase
+    gas = mc.Phase(name="gas", species=[X, Y, Z])
 
-  # User-defined reactions
-  reactions = [
-      mc.UserDefined(
-          name="X_decay",
-          gas_phase=gas,
-          reactants=[X],
-          products=[]
-      ),
-      mc.UserDefined(
-          name="Y_to_XY",
-          gas_phase=gas,
-          reactants=[Y],
-          products=[X, Y]
-      ),
-      mc.UserDefined(
-          name="Y_source",
-          gas_phase=gas,
-          reactants=[],
-          products=[Y]
-      ),
-      mc.UserDefined(
-          name="Y_sink",
-          gas_phase=gas,
-          reactants=[Y],
-          products=[]
-      ),
-      mc.UserDefined(
-          name="XY_to_X2Y",
-          gas_phase=gas,
-          reactants=[X, Y],
-          products=[X, Y, Y]
-      ),
-      mc.UserDefined(
-          name="YZ_to_2Y",
-          gas_phase=gas,
-          reactants=[Y, Z],
-          products=[Y, Y]
-      ),
-      mc.UserDefined(
-          name="XYZ_to_X2Z",
-          gas_phase=gas,
-          reactants=[X, Y, Z],
-          products=[X, Z, Z]
-      ),
-      mc.UserDefined(
-          name="Z_source",
-          gas_phase=gas,
-          reactants=[],
-          products=[Z]
-      ),
-      mc.UserDefined(
-          name="Z_autocatalytic",
-          gas_phase=gas,
-          reactants=[Z],
-          products=[Z, Z]
-      ),
-      mc.UserDefined(
-          name="XZ_quench",
-          gas_phase=gas,
-          reactants=[X, Z],
-          products=[X]
-      )
-  ]
+    # User-defined reactions
+    reactions = [
+        mc.UserDefined(
+            name="X_decay",
+            gas_phase=gas,
+            reactants=[X],
+            products=[]
+        ),
+        mc.UserDefined(
+            name="Y_to_XY",
+            gas_phase=gas,
+            reactants=[Y],
+            products=[X, Y]
+        ),
+        mc.UserDefined(
+            name="Y_source",
+            gas_phase=gas,
+            reactants=[],
+            products=[Y]
+        ),
+        mc.UserDefined(
+            name="Y_sink",
+            gas_phase=gas,
+            reactants=[Y],
+            products=[]
+        ),
+        mc.UserDefined(
+            name="XY_to_X2Y",
+            gas_phase=gas,
+            reactants=[X, Y],
+            products=[X, Y, Y]
+        ),
+        mc.UserDefined(
+            name="YZ_to_2Y",
+            gas_phase=gas,
+            reactants=[Y, Z],
+            products=[Y, Y]
+        ),
+        mc.UserDefined(
+            name="XYZ_to_X2Z",
+            gas_phase=gas,
+            reactants=[X, Y, Z],
+            products=[X, Z, Z]
+        ),
+        mc.UserDefined(
+            name="Z_source",
+            gas_phase=gas,
+            reactants=[],
+            products=[Z]
+        ),
+        mc.UserDefined(
+            name="Z_autocatalytic",
+            gas_phase=gas,
+            reactants=[Z],
+            products=[Z, Z]
+        ),
+        mc.UserDefined(
+            name="XZ_quench",
+            gas_phase=gas,
+            reactants=[X, Z],
+            products=[X]
+        )
+    ]
 
-  # Mechanism
-  mechanism = mc.Mechanism(
-      name="Lorenz Polynomial CRN",
-      species=[X, Y, Z],
-      phases=[gas],
-      reactions=reactions
-  )
-  return mechanism
+    # Mechanism
+    mechanism = mc.Mechanism(
+        name="Lorenz Polynomial CRN",
+        species=[X, Y, Z],
+        phases=[gas],
+        reactions=reactions
+    )
+    return mechanism
 
 
 def main(output='lorenz.mp4', fps=30):
+    """
+    Run the Lorenz polynomial chemical reaction network simulation and save an animation.
+    Parameters
+    ----------
+    output : str, optional
+        Path to the output animation file (e.g., MP4 or GIF) to be written. Defaults
+        to ``"lorenz.mp4"``.
+    fps : int, optional
+        Frames per second for the generated animation. Defaults to 30.
+    Notes
+    -----
+    This function constructs the Lorenz mechanism, initializes the MICM solver, sets
+    rate parameters and initial concentrations, advances the system for a fixed number
+    of time steps, and produces a time-evolving visualization of the state variables.
+    """
     mechanism = create_lorenz_mechanism()
 
     # Initialize MICM
@@ -143,25 +141,21 @@ def main(output='lorenz.mp4', fps=30):
     nsteps = 2000
     burnout = 200
 
-    times = []
     Xs = []
     Ys = []
     Zs = []
-    cumulative_time = 0.0
     time_step = 0.01
 
     for step in range(nsteps):
-        actual_solve = 0
-        while actual_solve < time_step:
+        elapsed_time = 0
+        while elapsed_time < time_step:
             result = micm.solve(state, time_step=time_step)
-            actual_solve += result.stats.final_time
-            cumulative_time += result.stats.final_time
+            elapsed_time += result.stats.final_time
 
         if step < burnout:
             continue
 
         concs = state.get_concentrations()
-        times.append(cumulative_time)
         Xs.append(concs["X"])
         Ys.append(concs["Y"])
         Zs.append(concs["Z"])
@@ -169,10 +163,10 @@ def main(output='lorenz.mp4', fps=30):
     print("Simulation complete.")
 
     def create_animation(Xs, Ys, Zs, outpath='lorenz.mp4', fps=30):
-        # Ensure values are scalars (arrays of length 1 from the state)
-        Xs = [_to_scalar(x) for x in Xs]
-        Ys = [_to_scalar(y) for y in Ys]
-        Zs = [_to_scalar(z) for z in Zs]
+        # Ensure values are scalars
+        Xs = np.ravel(Xs)
+        Ys = np.ravel(Ys)
+        Zs = np.ravel(Zs)
 
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
