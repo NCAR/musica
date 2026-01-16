@@ -7,6 +7,7 @@ import argparse
 import os
 import numpy as np
 
+
 def full_step(micm, state, time_step):
     """
     Advance the MICM state by a full time step, retrying if necessary.
