@@ -613,7 +613,7 @@
                             }
 
                             const layout = { margin: { l: 0, r: 0, b: 0, t: 0 }, scene: { xaxis: { title: 'X' }, yaxis: { title: 'Y' }, zaxis: { title: 'Z' }, camera: { eye: { x: 1, y: -2, z: 1 } } }, autosize: true, height: 420 };
-                            Plotly.newPlot(plotDiv, traces, layout, { responsive: true });
+                            Plotly.react(plotDiv, traces, layout, { responsive: true });
                         } else {
                             // 2D time-series plot for arbitrary species
                             const traces = [];
@@ -624,12 +624,13 @@
                                         x: times, 
                                         y: data, 
                                         mode: 'lines', 
+                                        type: 'scattergl', // Use WebGL for better performance
                                         name: numGridCells > 1 ? `${name} (cell ${cellIdx})` : name 
                                     });
                                 });
                             });
                             const layout2d = { margin: { l: 40, r: 10, b: 40, t: 10 }, xaxis: { title: 'Time' }, yaxis: { title: 'Concentration' }, autosize: true, height: 420 };
-                            Plotly.newPlot(plotDiv, traces, layout2d, { responsive: true });
+                            Plotly.react(plotDiv, traces, layout2d, { responsive: true });
                         }
                     }
 
@@ -671,7 +672,7 @@
                             if (i < burnout) continue; // skip initial transient
 
                             const concentrations = state.getConcentrations();
-                            
+
                             // collect values
                             currentSpeciesOrder.forEach(s => { 
                                 const valOrArray = concentrations[s]; 
