@@ -243,6 +243,10 @@
                     let currentRateParams = null;
                     let numGridCells = 1;
 
+                    // simulation results storage for animation
+                    let lastSimulationResults = null;
+                    let animationFrameId = null;
+
                     // selected solver (default to standard-order Rosenbrock if available)
                     let selectedSolver = SolverType.rosenbrock_standard_order
                         ?? SolverType.RosenbrockStandardOrder
@@ -308,6 +312,20 @@
 
                         controlsPanel.insertBefore(lblCells, ref);
                         controlsPanel.insertBefore(inputCells, ref);
+
+                        // Animate Button
+                        const btnAnimate = document.createElement('button');
+                        btnAnimate.textContent = 'Animate Results';
+                        btnAnimate.style.marginTop = '12px';
+                        btnAnimate.style.width = '100%';
+                        btnAnimate.style.padding = '8px';
+                        btnAnimate.style.cursor = 'pointer';
+                        
+                        btnAnimate.addEventListener('click', () => {
+                           animateResults(); 
+                        });
+
+                        controlsPanel.appendChild(btnAnimate);
                     })();
 
                     function createLorenzMechanism() {
@@ -573,10 +591,75 @@
                         }
                     }
 
+                    // Animation runner
+                    function animateResults() {
+                        if (!lastSimulationResults) return;
+                        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+                        
+                        const { times, series } = lastSimulationResults;
+                        const totalSteps = times.length;
+                        let step = 0;
+                        const stepsPerFrame = 2; // Reduced for smoother, slightly slower animation
+
+                        // Calculate fixed ranges to prevent plot resizing during animation
+                        let layoutCommon = {};
+                        if (currentExampleId === 'lorenz') {
+                             let xMin = Infinity, xMax = -Infinity;
+                             let yMin = Infinity, yMax = -Infinity;
+                             let zMin = Infinity, zMax = -Infinity;
+                             
+                             if (series['X']) series['X'].forEach(arr => arr.forEach(v => { if(v<xMin) xMin=v; if(v>xMax) xMax=v; }));
+                             if (series['Y']) series['Y'].forEach(arr => arr.forEach(v => { if(v<yMin) yMin=v; if(v>yMax) yMax=v; }));
+                             if (series['Z']) series['Z'].forEach(arr => arr.forEach(v => { if(v<zMin) zMin=v; if(v>zMax) zMax=v; }));
+                             
+                             // Add some padding
+                             const pad = (max, min) => (max - min) * 0.05;
+                             layoutCommon = {
+                                 scene: {
+                                     xaxis: { title: 'X', range: [xMin - pad(xMax,xMin), xMax + pad(xMax,xMin)], autorange: false },
+                                     yaxis: { title: 'Y', range: [yMin - pad(yMax,yMin), yMax + pad(yMax,yMin)], autorange: false },
+                                     zaxis: { title: 'Z', range: [zMin - pad(zMax,zMin), zMax + pad(zMax,zMin)], autorange: false },
+                                     // Only set camera initial view, let uirevision handle the rest
+                                     aspectmode: 'cube'
+                                 }
+                             };
+                        } else {
+                            let yMin = Infinity, yMax = -Infinity;
+                            Object.keys(series).forEach(k => {
+                                series[k].forEach(arr => arr.forEach(v => { if(v<yMin) yMin=v; if(v>yMax) yMax=v; }));
+                            });
+                            // Add some padding
+                            const pad = (yMax - yMin) * 0.05;
+                            layoutCommon = {
+                                xaxis: { title: 'Time', range: [times[0], times[times.length-1]], autorange: false },
+                                yaxis: { title: 'Concentration', range: [yMin - pad, yMax + pad], autorange: false }
+                            };
+                        }
+                        
+                        function loop() {
+                            if (step >= totalSteps) {
+                                animationFrameId = null;
+                                return;
+                            }
+                            
+                            // Update plot to show data up to `step`
+                            updatePlot(times, series, step, layoutCommon); 
+                            
+                            step += stepsPerFrame;
+                            animationFrameId = requestAnimationFrame(loop);
+                        }
+                        loop();
+                    }
+
                     // Plot updater: 3D for lorenz, 2D time-series for other examples
-                    function updatePlot(times, seriesMap) {
+                    function updatePlot(times, seriesMap, limitIndex = -1, fixedLayoutOverride = null) {
                         const plotDiv = document.getElementById('lorenz-plot');
                         if (!plotDiv) return;
+
+                        const maxIndex = (limitIndex >= 0 && limitIndex < times.length) ? limitIndex : times.length - 1;
+                        
+                        // Use uirevision to preserve user interaction state (camera, zoom) across updates
+                        const uirevision = 'musica_plot';
 
                         if (currentExampleId === 'lorenz') {
                             const XseriesList = seriesMap['X']; // array of N arrays
@@ -588,9 +671,9 @@
                             
                             for(let i=0; i < XseriesList.length; i++) {
                                   const color = cellColors[i % cellColors.length];
-                                  const xs = XseriesList[i];
-                                  const ys = YseriesList[i];
-                                  const zs = ZseriesList[i];
+                                  const xs = XseriesList[i].slice(0, maxIndex + 1);
+                                  const ys = YseriesList[i].slice(0, maxIndex + 1);
+                                  const zs = ZseriesList[i].slice(0, maxIndex + 1);
 
                                   const traj = { 
                                       x: xs, y: ys, z: zs, 
@@ -612,24 +695,51 @@
                                   }
                             }
 
-                            const layout = { margin: { l: 0, r: 0, b: 0, t: 0 }, scene: { xaxis: { title: 'X' }, yaxis: { title: 'Y' }, zaxis: { title: 'Z' }, camera: { eye: { x: 1, y: -2, z: 1 } } }, autosize: true, height: 420 };
+                            const layout = { 
+                                uirevision: uirevision,
+                                margin: { l: 0, r: 0, b: 0, t: 0 }, 
+                                scene: { 
+                                    xaxis: { title: 'X' }, 
+                                    yaxis: { title: 'Y' }, 
+                                    zaxis: { title: 'Z' }, 
+                                    camera: { eye: { x: 1, y: -2, z: 1 } },
+                                    aspectmode: 'cube'
+                                }, 
+                                autosize: true, 
+                                height: 420 
+                            };
+                            if (fixedLayoutOverride && fixedLayoutOverride.scene) {
+                                Object.assign(layout.scene, fixedLayoutOverride.scene);
+                            }
                             Plotly.react(plotDiv, traces, layout, { responsive: true });
                         } else {
                             // 2D time-series plot for arbitrary species
                             const traces = [];
+                            const timesSlice = times.slice(0, maxIndex + 1);
                             currentSpeciesOrder.forEach((name, idx) => {
                                 const dataList = seriesMap[name];
                                 dataList.forEach((data, cellIdx) => {
                                     traces.push({ 
-                                        x: times, 
-                                        y: data, 
+                                        x: timesSlice, 
+                                        y: data.slice(0, maxIndex + 1), 
                                         mode: 'lines', 
                                         type: 'scattergl', // Use WebGL for better performance
                                         name: numGridCells > 1 ? `${name} (cell ${cellIdx})` : name 
                                     });
                                 });
                             });
-                            const layout2d = { margin: { l: 40, r: 10, b: 40, t: 10 }, xaxis: { title: 'Time' }, yaxis: { title: 'Concentration' }, autosize: true, height: 420 };
+                            const layout2d = { 
+                                uirevision: uirevision,
+                                margin: { l: 40, r: 10, b: 40, t: 10 }, 
+                                xaxis: { title: 'Time' }, 
+                                yaxis: { title: 'Concentration' }, 
+                                autosize: true, 
+                                height: 420 
+                            };
+                            if (fixedLayoutOverride) {
+                                if (fixedLayoutOverride.xaxis) Object.assign(layout2d.xaxis, fixedLayoutOverride.xaxis);
+                                if (fixedLayoutOverride.yaxis) Object.assign(layout2d.yaxis, fixedLayoutOverride.yaxis);
+                            }
                             Plotly.react(plotDiv, traces, layout2d, { responsive: true });
                         }
                     }
@@ -705,6 +815,7 @@
                             resultsTbody.appendChild(row);
                         }
 
+                        lastSimulationResults = { times: times, series: series };
                         updatePlot(times, series);
                     }
 
