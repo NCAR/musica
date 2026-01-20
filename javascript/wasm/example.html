@@ -241,6 +241,11 @@
                     // mechanism and rate parameters for rendering reactions
                     let currentMechanism = null;
                     let currentRateParams = null;
+                    let numGridCells = 1;
+
+                    // simulation results storage for animation
+                    let lastSimulationResults = null;
+                    let animationFrameId = null;
 
                     // selected solver (default to standard-order Rosenbrock if available)
                     let selectedSolver = SolverType.rosenbrock_standard_order
@@ -248,41 +253,79 @@
                         ?? SolverType.rosenbrock
                         ?? 2;
 
-                    // add solver selector UI into the controls panel (before sliders)
-                    (function addSolverSelector() {
+                    // add solver selector and grid cells UI
+                    (function addControls() {
                         const controlsPanel = document.getElementById('controls-panel');
                         const ref = document.getElementById('sliders-container');
                         if (!controlsPanel || !ref) return;
 
-                        const lbl = document.createElement('label');
-                        lbl.className = 'select-label';
-                        lbl.textContent = 'Solver Type';
+                        // Solver Selector
+                        const lblSolver = document.createElement('label');
+                        lblSolver.className = 'select-label';
+                        lblSolver.textContent = 'Solver Type';
 
-                        const sel = document.createElement('select');
-                        sel.id = 'solver-select';
-                        // Populate options from SolverType (skip numeric reverse keys)
+                        const selSolver = document.createElement('select');
+                        selSolver.id = 'solver-select';
                         Object.keys(SolverType).filter(k => isNaN(Number(k))).forEach(key => {
                             const opt = document.createElement('option');
                             opt.value = String(SolverType[key]);
                             opt.textContent = key;
-                            sel.appendChild(opt);
+                            selSolver.appendChild(opt);
                         });
-                        sel.value = String(selectedSolver);
-                        sel.addEventListener('change', () => {
-                            selectedSolver = Number(sel.value);
-                            // re-build mechanism for the current example to apply new solver
+                        selSolver.value = String(selectedSolver);
+                        selSolver.addEventListener('change', () => {
+                            selectedSolver = Number(selSolver.value);
                             if (currentExampleId) {
-                                const ex = examples.find(e => e.id === currentExampleId);
-                                if (ex && ex.builder) {
-                                    try { ex.builder(); } catch (e) { console.error('Error rebuilding mechanism with new solver', e); }
-                                }
-                                // run a fresh simulation
-                                runSimulation();
+                                // reload to trigger builder
+                                loadExampleById(currentExampleId);
                             }
                         });
 
-                        controlsPanel.insertBefore(lbl, ref);
-                        controlsPanel.insertBefore(sel, ref);
+                        controlsPanel.insertBefore(lblSolver, ref);
+                        controlsPanel.insertBefore(selSolver, ref);
+
+                        // Grid Cells Input
+                        const lblCells = document.createElement('label');
+                        lblCells.className = 'select-label';
+                        lblCells.textContent = 'Grid Cells (N)';
+                        lblCells.style.marginTop = '8px';
+
+                        const inputCells = document.createElement('input');
+                        inputCells.type = 'number';
+                        inputCells.min = '1';
+                        inputCells.max = '50';
+                        inputCells.value = String(numGridCells);
+                        inputCells.style.width = '100%';
+                        inputCells.style.marginBottom = '8px';
+                        
+                        inputCells.addEventListener('change', () => {
+                            let n = parseInt(inputCells.value);
+                            if (isNaN(n) || n < 1) n = 1;
+                            if (n > 50) n = 50; 
+                            numGridCells = n;
+                            inputCells.value = String(n);
+                            
+                            if (currentExampleId) {
+                                loadExampleById(currentExampleId);
+                            }
+                        });
+
+                        controlsPanel.insertBefore(lblCells, ref);
+                        controlsPanel.insertBefore(inputCells, ref);
+
+                        // Animate Button
+                        const btnAnimate = document.createElement('button');
+                        btnAnimate.textContent = 'Animate Results';
+                        btnAnimate.style.marginTop = '12px';
+                        btnAnimate.style.width = '100%';
+                        btnAnimate.style.padding = '8px';
+                        btnAnimate.style.cursor = 'pointer';
+                        
+                        btnAnimate.addEventListener('click', () => {
+                           animateResults(); 
+                        });
+
+                        controlsPanel.appendChild(btnAnimate);
                     })();
 
                     function createLorenzMechanism() {
@@ -311,11 +354,16 @@
                         micm = MICM.fromMechanism(mechanism, selectedSolver);
                         // capture mechanism for rendering
                         currentMechanism = mechanism;
-                        state = micm.createState(1);
+                        state = micm.createState(numGridCells);
 
                         let mu = 1.0 / 100;
                         const rateParams = { 'USER.X_decay': 10, 'USER.Y_to_XY': 10, 'USER.Y_source': 1 / mu, 'USER.Y_sink': 1 / mu + 29, 'USER.XY_to_X2Y': 1 + mu * 28, 'USER.YZ_to_2Y': 1, 'USER.XYZ_to_X2Z': mu, 'USER.Z_source': 8 / (3 * mu), 'USER.Z_autocatalytic': 1 / mu - 8 / 3, 'USER.XZ_quench': 1 };
-                        state.setUserDefinedRateParameters(rateParams);
+                        
+                        const broadcast = {};
+                        for (const k in rateParams) {
+                            broadcast[k] = new Array(numGridCells).fill(rateParams[k]);
+                        }
+                        state.setUserDefinedRateParameters(broadcast);
                         // store rates for rendering
                         currentRateParams = rateParams;
                     }
@@ -337,11 +385,15 @@
                         micm = MICM.fromMechanism(mechanism, selectedSolver);
                         // capture mechanism for rendering
                         currentMechanism = mechanism;
-                        state = micm.createState(1);
+                        state = micm.createState(numGridCells);
 
                         // choose simple rates and store them for rendering
                         const abcRates = { 'USER.A_to_B': 1.0, 'USER.B_to_C': 0.5 };
-                        state.setUserDefinedRateParameters(abcRates);
+                        const broadcast = {};
+                        for (const k in abcRates) {
+                            broadcast[k] = new Array(numGridCells).fill(abcRates[k]);
+                        }
+                        state.setUserDefinedRateParameters(broadcast);
                         currentRateParams = abcRates;
                     }
 
@@ -353,7 +405,7 @@
                             description: 'Lorenz-like polynomial chemical reaction network. The equations and rates are from <a href="https://link.springer.com/article/10.1007/s11071-025-11622-1" target="_blank">this paper</a>.',
                             initials: [{ species: 'X', min: -30, max: 30, step: 0.01, value: 1.0 }, { species: 'Y', min: -30, max: 30, step: 0.01, value: 28.0 }, { species: 'Z', min: -10, max: 50, step: 0.01, value: 1.0 }],
                             builder: createLorenzMechanism,
-                            sim: { steps: 2000, timeStep: 0.01, burnout: 100 }
+                            sim: { steps: 900, timeStep: 0.01, burnout: 100 }
                         },
                         {
                             id: 'abc',
@@ -539,27 +591,156 @@
                         }
                     }
 
+                    // Animation runner
+                    function animateResults() {
+                        if (!lastSimulationResults) return;
+                        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+                        
+                        const { times, series } = lastSimulationResults;
+                        const totalSteps = times.length;
+                        let step = 0;
+                        const stepsPerFrame = 2; // Reduced for smoother, slightly slower animation
+
+                        // Calculate fixed ranges to prevent plot resizing during animation
+                        let layoutCommon = {};
+                        if (currentExampleId === 'lorenz') {
+                             let xMin = Infinity, xMax = -Infinity;
+                             let yMin = Infinity, yMax = -Infinity;
+                             let zMin = Infinity, zMax = -Infinity;
+                             
+                             if (series['X']) series['X'].forEach(arr => arr.forEach(v => { if(v<xMin) xMin=v; if(v>xMax) xMax=v; }));
+                             if (series['Y']) series['Y'].forEach(arr => arr.forEach(v => { if(v<yMin) yMin=v; if(v>yMax) yMax=v; }));
+                             if (series['Z']) series['Z'].forEach(arr => arr.forEach(v => { if(v<zMin) zMin=v; if(v>zMax) zMax=v; }));
+                             
+                             // Add some padding
+                             const pad = (max, min) => (max - min) * 0.05;
+                             layoutCommon = {
+                                 scene: {
+                                     xaxis: { title: 'X', range: [xMin - pad(xMax,xMin), xMax + pad(xMax,xMin)], autorange: false },
+                                     yaxis: { title: 'Y', range: [yMin - pad(yMax,yMin), yMax + pad(yMax,yMin)], autorange: false },
+                                     zaxis: { title: 'Z', range: [zMin - pad(zMax,zMin), zMax + pad(zMax,zMin)], autorange: false },
+                                     // Only set camera initial view, let uirevision handle the rest
+                                     aspectmode: 'cube'
+                                 }
+                             };
+                        } else {
+                            let yMin = Infinity, yMax = -Infinity;
+                            Object.keys(series).forEach(k => {
+                                series[k].forEach(arr => arr.forEach(v => { if(v<yMin) yMin=v; if(v>yMax) yMax=v; }));
+                            });
+                            // Add some padding
+                            const pad = (yMax - yMin) * 0.05;
+                            layoutCommon = {
+                                xaxis: { title: 'Time', range: [times[0], times[times.length-1]], autorange: false },
+                                yaxis: { title: 'Concentration', range: [yMin - pad, yMax + pad], autorange: false }
+                            };
+                        }
+                        
+                        function loop() {
+                            if (step >= totalSteps) {
+                                animationFrameId = null;
+                                return;
+                            }
+                            
+                            // Update plot to show data up to `step`
+                            updatePlot(times, series, step, layoutCommon); 
+                            
+                            step += stepsPerFrame;
+                            animationFrameId = requestAnimationFrame(loop);
+                        }
+                        loop();
+                    }
+
                     // Plot updater: 3D for lorenz, 2D time-series for other examples
-                    function updatePlot(times, seriesMap) {
+                    function updatePlot(times, seriesMap, limitIndex = -1, fixedLayoutOverride = null) {
                         const plotDiv = document.getElementById('lorenz-plot');
                         if (!plotDiv) return;
 
+                        const maxIndex = (limitIndex >= 0 && limitIndex < times.length) ? limitIndex : times.length - 1;
+                        
+                        // Use uirevision to preserve user interaction state (camera, zoom) across updates
+                        const uirevision = 'musica_plot';
+
                         if (currentExampleId === 'lorenz') {
-                            const Xseries = seriesMap['X'] || [];
-                            const Yseries = seriesMap['Y'] || [];
-                            const Zseries = seriesMap['Z'] || [];
+                            const XseriesList = seriesMap['X']; // array of N arrays
+                            const YseriesList = seriesMap['Y'];
+                            const ZseriesList = seriesMap['Z'];
+                            
+                            const traces = [];
+                            const cellColors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
+                            
+                            for(let i=0; i < XseriesList.length; i++) {
+                                  const color = cellColors[i % cellColors.length];
+                                  const xs = XseriesList[i].slice(0, maxIndex + 1);
+                                  const ys = YseriesList[i].slice(0, maxIndex + 1);
+                                  const zs = ZseriesList[i].slice(0, maxIndex + 1);
 
-                            const traj = { x: Xseries, y: Yseries, z: Zseries, mode: 'lines', type: 'scatter3d', line: { width: 2, color: '#1f77b4' }, name: 'trajectory' };
-                            const lastIdx = Xseries.length - 1;
-                            const current = { x: [Xseries[lastIdx]], y: [Yseries[lastIdx]], z: [Zseries[lastIdx]], mode: 'markers', type: 'scatter3d', marker: { size: 4, color: '#d62728' }, name: 'current' };
+                                  const traj = { 
+                                      x: xs, y: ys, z: zs, 
+                                      mode: 'lines', type: 'scatter3d', 
+                                      line: { width: 2, color: color }, 
+                                      name: `Cell ${i}` 
+                                  };
+                                  traces.push(traj);
+                                  
+                                  const lastIdx = xs.length - 1;
+                                  if (lastIdx >= 0) {
+                                      const current = { 
+                                          x: [xs[lastIdx]], y: [ys[lastIdx]], z: [zs[lastIdx]], 
+                                          mode: 'markers', type: 'scatter3d', 
+                                          marker: { size: 4, color: color }, 
+                                          showlegend: false 
+                                      };
+                                      traces.push(current);
+                                  }
+                            }
 
-                            const layout = { margin: { l: 0, r: 0, b: 0, t: 0 }, scene: { xaxis: { title: 'X' }, yaxis: { title: 'Y' }, zaxis: { title: 'Z' }, camera: { eye: { x: 1, y: -2, z: 1 } } }, autosize: true, height: 420 };
-                            Plotly.newPlot(plotDiv, [traj, current], layout, { responsive: true });
+                            const layout = { 
+                                uirevision: uirevision,
+                                margin: { l: 0, r: 0, b: 0, t: 0 }, 
+                                scene: { 
+                                    xaxis: { title: 'X' }, 
+                                    yaxis: { title: 'Y' }, 
+                                    zaxis: { title: 'Z' }, 
+                                    camera: { eye: { x: 1, y: -2, z: 1 } },
+                                    aspectmode: 'cube'
+                                }, 
+                                autosize: true, 
+                                height: 420 
+                            };
+                            if (fixedLayoutOverride && fixedLayoutOverride.scene) {
+                                Object.assign(layout.scene, fixedLayoutOverride.scene);
+                            }
+                            Plotly.react(plotDiv, traces, layout, { responsive: true });
                         } else {
                             // 2D time-series plot for arbitrary species
-                            const traces = currentSpeciesOrder.map((name, idx) => ({ x: times, y: seriesMap[name] || [], mode: 'lines', name: name }));
-                            const layout2d = { margin: { l: 40, r: 10, b: 40, t: 10 }, xaxis: { title: 'Time' }, yaxis: { title: 'Concentration' }, autosize: true, height: 420 };
-                            Plotly.newPlot(plotDiv, traces, layout2d, { responsive: true });
+                            const traces = [];
+                            const timesSlice = times.slice(0, maxIndex + 1);
+                            currentSpeciesOrder.forEach((name, idx) => {
+                                const dataList = seriesMap[name];
+                                dataList.forEach((data, cellIdx) => {
+                                    traces.push({ 
+                                        x: timesSlice, 
+                                        y: data.slice(0, maxIndex + 1), 
+                                        mode: 'lines', 
+                                        type: 'scattergl', // Use WebGL for better performance
+                                        name: numGridCells > 1 ? `${name} (cell ${cellIdx})` : name 
+                                    });
+                                });
+                            });
+                            const layout2d = { 
+                                uirevision: uirevision,
+                                margin: { l: 40, r: 10, b: 40, t: 10 }, 
+                                xaxis: { title: 'Time' }, 
+                                yaxis: { title: 'Concentration' }, 
+                                autosize: true, 
+                                height: 420 
+                            };
+                            if (fixedLayoutOverride) {
+                                if (fixedLayoutOverride.xaxis) Object.assign(layout2d.xaxis, fixedLayoutOverride.xaxis);
+                                if (fixedLayoutOverride.yaxis) Object.assign(layout2d.yaxis, fixedLayoutOverride.yaxis);
+                            }
+                            Plotly.react(plotDiv, traces, layout2d, { responsive: true });
                         }
                     }
 
@@ -572,39 +753,55 @@
                         // Reset table
                         resultsTbody.innerHTML = '';
 
-                        // Reset concentrations from sliders
+                        // Reset concentrations from sliders with perturbation
                         const vals = readSliderValues();
-                        const conc = {};
-                        currentSpeciesOrder.forEach(spec => { conc[spec] = [(spec in vals) ? vals[spec] : 0]; });
-                        state.setConcentrations(conc);
+                        const concState = {};
+                        currentSpeciesOrder.forEach(spec => { 
+                             const baseVal = (spec in vals) ? vals[spec] : 0;
+                            concState[spec] = Array.from({length: numGridCells}, (_, i) => baseVal + i * 0.1);
+                        });
+                        state.setConcentrations(concState);
 
                         let cumulativeTime = 0.0;
 
                         const times = [];
                         const series = {};
-                        currentSpeciesOrder.forEach(s => { series[s] = []; });
+                        currentSpeciesOrder.forEach(s => { 
+                            series[s] = Array.from({length: numGridCells}, () => []);
+                        });
 
                         for (let i = 0; i < steps; i++) {
                             micm.solve(state, timeStep);
                             cumulativeTime += timeStep;
 
-                            const concentrations = state.getConcentrations();
-                            function val(spec) {
-                                const v = concentrations[spec];
-                                if (Array.isArray(v)) return v[0];
-                                return v;
-                            }
-
-                            // collect current step values
-                            const valsNow = currentSpeciesOrder.map(s => val(s));
-
                             if (i < burnout) continue; // skip initial transient
 
-                            times.push(cumulativeTime);
-                            currentSpeciesOrder.forEach((s, idx) => { series[s].push(valsNow[idx]); });
+                            const concentrations = state.getConcentrations();
 
+                            // collect values
+                            currentSpeciesOrder.forEach(s => { 
+                                const valOrArray = concentrations[s]; 
+                                for (let c = 0; c < numGridCells; c++) {
+                                    let v;
+                                    // Handle case where binding returns scalar for single cell
+                                    if (numGridCells === 1 && typeof valOrArray === 'number') {
+                                        v = valOrArray;
+                                    } else {
+                                        v = valOrArray[c];
+                                    }
+                                    series[s][c].push(v);
+                                }
+                            });
+
+                            times.push(cumulativeTime);
+                            
+                            // Only populate table for cell 0
+                            const valsNow0 = currentSpeciesOrder.map(s => {
+                                const v = concentrations[s];
+                                return (numGridCells === 1 && typeof v === 'number') ? v : v[0];
+                            });
                             const row = document.createElement('tr');
-                            const rowVals = [cumulativeTime.toFixed(2)].concat(valsNow);
+                            const rowVals = [cumulativeTime.toFixed(2)].concat(valsNow0);
                             rowVals.forEach(cellVal => {
                                 const td = document.createElement('td');
                                 td.textContent = String(cellVal);
@@ -613,6 +810,7 @@
                             resultsTbody.appendChild(row);
                         }
 
+                        lastSimulationResults = { times: times, series: series };
                         updatePlot(times, series);
                     }
 
