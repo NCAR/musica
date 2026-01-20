@@ -40,7 +40,4 @@ export const mechanismConfiguration = {
   Mechanism: mc.Mechanism,
 };
 
-export {
-  initModule,
-  getBackend,
-};
+export { initModule, getBackend };

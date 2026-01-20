@@ -68,13 +68,7 @@ EMSCRIPTEN_BINDINGS(musica_module)
 
   class_<micm::SolverResult>("SolverResult")
       .constructor<micm::SolverState, musica::SolverResultStats>()
-      .property(
-          "state",
-          optional_override(
-              [](const micm::SolverResult& r)
-              {
-                return static_cast<int>(r.state_);
-              }))
+      .property("state", optional_override([](const micm::SolverResult& r) { return static_cast<int>(r.state_); }))
       .property("stats", &micm::SolverResult::stats_);
 
   class_<musica::State>("State")

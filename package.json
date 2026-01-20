@@ -29,7 +29,10 @@
     "test:integration": "node --test javascript/tests/integration/*.test.js",
     "test:unit": "node --test javascript/tests/unit/**/*.test.js",
     "test:coverage": "c8 --reporter=lcov --reporter=text --reports-dir=javascript-coverage node --test javascript/tests/**/*.test.js",
-    "example": "node javascript/tools/serve.js"
+    "example": "node javascript/tools/serve.js",
+    "format": "npm run format:js && npm run format:cpp",
+    "format:js": "prettier --write 'javascript/**/*.js'",
+    "format:cpp": "find javascript -type f \\( -name '*.cpp' -or -name '*.hpp' -or -name '*.c' -or -name '*.h' \\) -exec clang-format -i --style=file --verbose {} +"
   },
   "repository": {
     "type": "git",
@@ -51,6 +54,7 @@
   },
   "homepage": "https://ncar.github.io/musica/",
   "devDependencies": {
-    "c8": "^10.1.3"
+    "c8": "^10.1.3",
+    "prettier": "^3.8.0"
   }
 }
