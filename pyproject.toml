@@ -124,13 +124,25 @@ version = "${version}"
 # new python environment and install cibbuildwheel into it
 # then, run something like this:
 # CIBW_ARCHS=x86_64 CIBW_PLATFORM=linux cibuildwheel --output-dir wheelhouse > log.txt 2>&1
+#
+# if you want to speed up the build for linux x86_64 in particular since it requires pulling
+# down the cuda libraries, uncomment these lines lines:
+#   - `container-engine`
+#   - `manylinux-x86_64-image` pointing to `musica`
+# comment out these lines:
+#  - `manylinux-x86_64-image` pointing to `manylinux_2_28`
+#  - before-all line for linux
+# and build the musica docker image locally first with:
+# docker build --platform linux/amd64 -t musica -f docker/Dockerfile.manylinux.gpu .
+#
 [tool.cibuildwheel]
 # Increase pip debugging output
 build-verbosity = 3
 
+# container-engine = { name = "docker", create-args = ["--pull=never"] }
+
 # Add your desired build configuration
-# build = ["cp310-*", "cp311-*", "cp312-*", "cp313-*", "cp314-*"]
-build = ["cp310-*"]
+build = ["cp310-*", "cp311-*", "cp312-*", "cp313-*", "cp314-*"]
 skip = ["*musllinux*"]
 
 # Will cause the wheel to be installed with `pip install <wheel_file>[test]`
@@ -155,6 +167,7 @@ before-all = "bash python/tools/prepare_build_environment_macos.sh"
 before-all = "python/tools/prepare_build_environment_linux.sh"
 repair-wheel-command = "bash python/tools/repair_wheel_gpu.sh {wheel} {dest_dir}"
 # Use manylinux_2_28 for modern GCC 8.5 and NetCDF compatibility
+# manylinux-x86_64-image = "musica" # only for faster builds during local testing
 manylinux-x86_64-image = "manylinux_2_28"
 manylinux-aarch64-image = "manylinux_2_28"
 manylinux-i686-image = "manylinux_2_28"
