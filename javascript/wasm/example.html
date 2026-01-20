@@ -758,12 +758,7 @@
                         const concState = {};
                         currentSpeciesOrder.forEach(spec => { 
                              const baseVal = (spec in vals) ? vals[spec] : 0;
-                             if(currentExampleId === 'lorenz' && numGridCells > 1 && (spec === 'X' || spec === 'Y')) {
-                                  // perturbed
-                                  concState[spec] = Array.from({length: numGridCells}, (_, i) => baseVal + i * 0.1);
-                             } else {
-                                  concState[spec] = new Array(numGridCells).fill(baseVal);
-                             }
+                            concState[spec] = Array.from({length: numGridCells}, (_, i) => baseVal + i * 0.1);
                         });
                         state.setConcentrations(concState);
 
