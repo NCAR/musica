@@ -126,7 +126,7 @@ version = "${version}"
 # CIBW_ARCHS=x86_64 CIBW_PLATFORM=linux cibuildwheel --output-dir wheelhouse > log.txt 2>&1
 #
 # if you want to speed up the build for linux x86_64 in particular since it requires pulling
-# down the cuda libraries, uncomment these lines lines:
+# down the cuda libraries, uncomment these lines:
 #   - `container-engine`
 #   - `manylinux-x86_64-image` pointing to `musica`
 # comment out these lines:
