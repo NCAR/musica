@@ -100,6 +100,14 @@ jobs:
         python -m pip install --upgrade check-wheel-contents
         check-wheel-contents --ignore W009,W010 wheelhouse/*.whl
 
+        # Download PyPI's authoritative zipfiles.py validator once
+        wget -qO /tmp/zipfiles.py https://raw.githubusercontent.com/pypi/warehouse/refs/heads/main/warehouse/utils/zipfiles.py
+
+        # Validate each wheel individually
+        for whl in wheelhouse/*.whl; do
+          python /tmp/zipfiles.py "$whl"
+        done
+
     - name: Upload wheels
       uses: actions/upload-artifact@v4
       with:
