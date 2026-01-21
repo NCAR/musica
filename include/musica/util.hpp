@@ -1,5 +1,5 @@
 
-// Copyright (C) 2023-2025 National Center for Atmospheric Research
+// Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 #pragma once
 

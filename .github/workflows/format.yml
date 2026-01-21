@@ -1,4 +1,4 @@
-name: Format Code with Clang-Format and autopep8
+name: Format Code with Clang-Format, Prettier, and autopep8
 
 on:
   push:
@@ -21,6 +21,14 @@ jobs:
           ref: ${{ github.head_ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install npm dependencies
+        run: npm ci
+
       - name: autopep8
         uses: peter-evans/autopep8@v2
         with:
@@ -33,6 +41,9 @@ jobs:
           find python -type f \( -name '*.cpp' -or -name '*.c' \) -exec clang-format -i --style=file --verbose {} +
           find python -type f \( -name '*.hpp' -or -name '*.h' \) -exec clang-format -i --style=file --verbose {} +
 
+      - name: Format JavaScript and C++ in javascript directory
+        run: npm run format
+
       - name: Check for changes
         id: check-changes
         run: git diff --exit-code
@@ -44,7 +55,7 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git commit -am "Auto-format code using Clang-Format and autopep8" || echo "No changes to commit"
+          git commit -am "Auto-format code using Clang-Format, Prettier, and autopep8" || echo "No changes to commit"
 
       - name: Push changes to main-formatting branch
         if: steps.check-changes.outcome != 'success'
@@ -55,7 +66,7 @@ jobs:
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "Auto-format code using Clang-Format and autopep8"
+          commit-message: "Auto-format code using Clang-Format, Prettier, and autopep8"
           title: "Auto-format code changes"
-          body: "This is an automated pull request to apply code formatting using Clang-Format and autopep8."
+          body: "This is an automated pull request to apply code formatting using Clang-Format, Prettier, and autopep8."
           branch: main-formatting

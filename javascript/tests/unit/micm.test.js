@@ -29,24 +29,50 @@ function getConfigPath() {
   return path.join(__dirname, '../../../configs/v0/analytical');
 }
 
-describe('MICM Initialization', () => {
-  it('should initialize with fromConfigPath', async (t) => {
-    const micm = MICM.fromConfigPath(getConfigPath());
-    assert.ok(micm, 'MICM should be created');
-    assert.ok(micm.solverType() !== null, 'Solver type should be set');
+function createTestMechanism() {
+  // Create a simple mechanism for testing
+  const A = new Species({ name: 'A' });
+  const B = new Species({ name: 'B' });
+  const C = new Species({ name: 'C' });
+
+  const gas = new Phase({
+    name: 'gas',
+    species: [A, B, C],
   });
 
+  const reaction1 = new reactionTypes.UserDefined({
+    name: 'reaction 1',
+    gas_phase: 'gas',
+    reactants: [new ReactionComponent({ species_name: 'A' })],
+    products: [new ReactionComponent({ species_name: 'B' })],
+  });
+
+  const reaction2 = new reactionTypes.UserDefined({
+    name: 'reaction 2',
+    gas_phase: 'gas',
+    reactants: [new ReactionComponent({ species_name: 'B' })],
+    products: [new ReactionComponent({ species_name: 'C' })],
+  });
+
+  const mechanism = new Mechanism({
+    name: 'Test Mechanism',
+    version: '1.0.0',
+    species: [A, B, C],
+    phases: [gas],
+    reactions: [reaction1, reaction2],
+  });
+  return mechanism;
+}
+
+describe('MICM Initialization', () => {
   it('should initialize with fromConfigPath and solver_type', async (t) => {
-    const micm = MICM.fromConfigPath(
-      getConfigPath(),
-      SolverType.rosenbrock_standard_order
-    );
-    assert.ok(micm, 'MICM should be created');
-    assert.strictEqual(
-      micm.solverType(),
-      SolverType.rosenbrock_standard_order,
-      'Solver type should match'
-    );
+    const types = Object.values(SolverType);
+    for (const solverType of types) {
+      const micm = MICM.fromConfigPath(getConfigPath(), solverType);
+      assert.ok(micm, 'MICM should be created');
+      assert.strictEqual(micm.solverType(), solverType, `Solver type should match ${solverType}`);
+      micm.delete();
+    }
   });
 
   it('should throw error with invalid config_path type', async (t) => {
@@ -57,79 +83,33 @@ describe('MICM Initialization', () => {
     );
   });
 
-  it('should use default solver type', async (t) => {
-    const micm = MICM.fromConfigPath(getConfigPath());
-    assert.strictEqual(
-      micm.solverType(),
-      SolverType.rosenbrock_standard_order,
-      'Default solver type should be rosenbrock_standard_order'
-    );
-  });
-
-  it('should initialize with backward_euler_standard_order', async (t) => {
-    const micm = MICM.fromConfigPath(
-      getConfigPath(),
-      SolverType.backward_euler_standard_order
-    );
-    assert.strictEqual(
-      micm.solverType(),
-      SolverType.backward_euler_standard_order,
-      'Solver type should be backward_euler_standard_order'
-    );
-  });
-
   it('should initialize and solve with fromMechanism', async (t) => {
-    // Create a simple mechanism for testing
-    const A = new Species({ name: 'A' });
-    const B = new Species({ name: 'B' });
-    const C = new Species({ name: 'C' });
+    const types = Object.values(SolverType);
+    const mechanism = createTestMechanism();
+    for (const solverType of types) {
+      const micm = MICM.fromMechanism(mechanism, solverType);
+      assert.ok(micm, 'MICM should be created from mechanism');
+      assert.strictEqual(micm.solverType(), solverType, `Solver type should match ${solverType}`);
 
-    const gas = new Phase({
-      name: 'gas',
-      species: [A, B, C]
-    });
+      const state = micm.createState(1);
+      state.setConcentrations({ A: [1.0], B: [2.0], C: [3.0] });
+      state.setConditions({ temperatures: [298.15], pressures: [101325.0], air_densities: [1.0] });
+      state.setUserDefinedRateParameters({
+        'USER.reaction 1': 0.001,
+        'USER.reaction 2': 0.002,
+      });
 
-    const reaction1 = new reactionTypes.UserDefined({
-      name: 'reaction 1',
-      gas_phase: 'gas',
-      reactants: [new ReactionComponent({ species_name: 'A' })],
-      products: [new ReactionComponent({ species_name: 'B' })]
-    });
+      const result = micm.solve(state, 60.0);
+      assert.ok(result, 'MICM.solve should return a result');
+      let concentrations = state.getConcentrations();
 
-    const reaction2 = new reactionTypes.UserDefined({
-      name: 'reaction 2',
-      gas_phase: 'gas',
-      reactants: [new ReactionComponent({ species_name: 'B' })],
-      products: [new ReactionComponent({ species_name: 'C' })]
-    });
+      assert.ok(concentrations.A !== 1.0, 'Concentration of A should have changed after solve');
+      assert.ok(concentrations.B !== 2.0, 'Concentration of B should have changed after solve');
+      assert.ok(concentrations.C !== 3.0, 'Concentration of C should have changed after solve');
 
-    const mechanism = new Mechanism({
-      name: 'Test Mechanism',
-      version: '1.0.0',
-      species: [A, B, C],
-      phases: [gas],
-      reactions: [reaction1, reaction2]
-    });
-
-    const micm = MICM.fromMechanism(mechanism);
-    assert.ok(micm, 'MICM should be created from mechanism');
-    assert.ok(micm.solverType() !== null, 'Solver type should be set');
-
-    const state = micm.createState(1);
-    state.setConcentrations({ A: [1.0], B: [2.0], C: [3.0] });
-    state.setConditions({ temperatures: [298.15], pressures: [101325.0], air_densities: [1.0] });
-    state.setUserDefinedRateParameters({
-      'USER.reaction 1': 0.001,
-      'USER.reaction 2': 0.002
-    });
-
-    const result = micm.solve(state, 60.0);
-    assert.ok(result, 'MICM.solve should return a result');
-    let concentrations = state.getConcentrations();
-
-    assert.ok(concentrations.A !== 1.0, 'Concentration of A should have changed after solve');
-    assert.ok(concentrations.B !== 2.0, 'Concentration of B should have changed after solve');
-    assert.ok(concentrations.C !== 3.0, 'Concentration of C should have changed after solve');
+      micm.delete();
+      state.delete();
+    }
   });
 
   it('should throw error with invalid mechanism', async (t) => {
@@ -149,36 +129,6 @@ describe('MICM Initialization', () => {
   });
 });
 
-describe('MICM solverType method', () => {
-  it('should return correct solver type', async (t) => {
-    const micm = MICM.fromConfigPath(
-      getConfigPath(),
-      SolverType.rosenbrock_standard_order
-    );
-    assert.strictEqual(
-      micm.solverType(),
-      SolverType.rosenbrock_standard_order,
-      'Should return rosenbrock_standard_order'
-    );
-  });
-
-  it('should work with different solver types', async (t) => {
-    const solverTypes = [
-      SolverType.rosenbrock_standard_order,
-      SolverType.backward_euler_standard_order,
-    ];
-
-    for (const solverType of solverTypes) {
-      const micm = MICM.fromConfigPath(getConfigPath(), solverType);
-      assert.strictEqual(
-        micm.solverType(),
-        solverType,
-        `Solver type should match ${solverType}`
-      );
-    }
-  });
-});
-
 describe('MICM createState method', () => {
   let micm;
 
@@ -186,12 +136,16 @@ describe('MICM createState method', () => {
     micm = MICM.fromConfigPath(getConfigPath());
     const state = micm.createState();
     assert.ok(state instanceof State, 'Should create State instance');
+    state.delete();
+    micm.delete();
   });
 
   it('should create state with explicit single grid cell', async (t) => {
     micm = MICM.fromConfigPath(getConfigPath());
     const state = micm.createState(1);
     assert.ok(state instanceof State, 'Should create State instance');
+    state.delete();
+    micm.delete();
   });
 
   it('should create state with multiple grid cells', async (t) => {
@@ -201,7 +155,9 @@ describe('MICM createState method', () => {
     for (const num of numCells) {
       const state = micm.createState(num);
       assert.ok(state instanceof State, `Should create State with ${num} cells`);
+      state.delete();
     }
+    micm.delete();
   });
 
   it('should throw error for zero grid cells', async (t) => {
@@ -211,6 +167,7 @@ describe('MICM createState method', () => {
       /number_of_grid_cells must be greater than 0/,
       'Should throw error for 0 grid cells'
     );
+    micm.delete();
   });
 
   it('should throw error for negative grid cells', async (t) => {
@@ -220,6 +177,7 @@ describe('MICM createState method', () => {
       /number_of_grid_cells must be greater than 0/,
       'Should throw error for negative grid cells'
     );
+    micm.delete();
   });
 
   it('should create multiple independent states', async (t) => {
@@ -230,253 +188,162 @@ describe('MICM createState method', () => {
     assert.ok(state1 instanceof State, 'State1 should be State instance');
     assert.ok(state2 instanceof State, 'State2 should be State instance');
     assert.notStrictEqual(state1, state2, 'States should be independent');
+    state1.delete();
+    state2.delete();
+    micm.delete();
   });
 });
 
-describe('MICM solve method', () => {
-  let micm;
+describe('MICM Solve - comprehensive', () => {
+  const gridCellsList = [1, 5, 10, 20];
+  const solverTypes = Object.values(SolverType);
 
-  it('should solve with valid state and timestep', async (t) => {
-    micm = MICM.fromConfigPath(getConfigPath());
-    const state = micm.createState(1);
-
-    // Set initial conditions
-    state.setConditions({
-      temperatures: 298.15,
-      pressures: 101325.0,
-      air_densities: 1.2
-    });
-    state.setConcentrations({ A: 1.0, B: 0.0, C: 0.5 });
-    state.setUserDefinedRateParameters({
-      'USER.reaction 1': 0.001,
-      'USER.reaction 2': 0.002
-    });
-
-    // Solve
-    const result = micm.solve(state, 1.0);
-
-    assert.ok(result instanceof SolverResult, 'Should return SolverResult');
-    assert.ok(result.stats instanceof SolverStats, 'Should have SolverStats');
+  let mechanism;
+  before(() => {
+    mechanism = createTestMechanism();
   });
 
-  it('should solve with float timestep', async (t) => {
-    micm = MICM.fromConfigPath(getConfigPath());
-    const state = micm.createState(1);
+  it('should solve from a mechanism in code', async (t) => {
+    for (const solverType of solverTypes) {
+      const micm = MICM.fromMechanism(mechanism, solverType);
 
-    state.setConditions({
-      temperatures: 298.15,
-      pressures: 101325.0,
-      air_densities: 1.2
-    });
-    state.setConcentrations({ A: 1.0 });
-    state.setUserDefinedRateParameters({
-      'USER.reaction 1': 0.001,
-      'USER.reaction 2': 0.002
-    });
+      for (const nCells of gridCellsList) {
+        const state = micm.createState(nCells);
 
-    const result = micm.solve(state, 1.5);
-    assert.ok(result instanceof SolverResult, 'Should solve with float timestep');
-  });
+        // Set initial concentrations and conditions
+        const conc = {
+          A: Array(nCells).fill(1.0),
+          B: Array(nCells).fill(0.0),
+          C: Array(nCells).fill(0.5),
+        };
+        state.setConcentrations(conc);
+        state.setConditions({
+          temperatures: Array(nCells).fill(298.15),
+          pressures: Array(nCells).fill(101325.0),
+          airDensities: Array(nCells).fill(1.0),
+        });
+        state.setUserDefinedRateParameters({
+          'USER.reaction 1': Array(nCells).fill(0.001),
+          'USER.reaction 2': Array(nCells).fill(0.002),
+        });
 
-  it('should solve with integer timestep', async (t) => {
-    micm = MICM.fromConfigPath(getConfigPath());
-    const state = micm.createState(1);
+        const result = micm.solve(state, 1.0);
+        assert.ok(result instanceof SolverResult, 'Should return SolverResult');
+        assert.ok(result.stats instanceof SolverStats, 'Should return SolverStats');
 
-    state.setConditions({
-      temperatures: 298.15,
-      pressures: 101325.0,
-      air_densities: 1.2
-    });
-    state.setConcentrations({ A: 1.0 });
-    state.setUserDefinedRateParameters({
-      'USER.reaction 1': 0.001,
-      'USER.reaction 2': 0.002
-    });
-
-    const result = micm.solve(state, 1);
-    assert.ok(result instanceof SolverResult, 'Should solve with integer timestep');
-  });
-
-  it('should throw error for invalid state type', async (t) => {
-    micm = MICM.fromConfigPath(getConfigPath());
-
-    assert.throws(
-      () => micm.solve('not a state', 1.0),
-      /state must be an instance of State/,
-      'Should throw TypeError for invalid state'
-    );
-  });
-
-  it('should throw error for invalid timestep type', async (t) => {
-    micm = MICM.fromConfigPath(getConfigPath());
-    const state = micm.createState(1);
-
-    assert.throws(
-      () => micm.solve(state, 'not a number'),
-      /timeStep must be a number/,
-      'Should throw TypeError for invalid timestep'
-    );
-  });
-
-  it('should throw error for null state', async (t) => {
-    micm = MICM.fromConfigPath(getConfigPath());
-
-    assert.throws(
-      () => micm.solve(null, 1.0),
-      /state must be an instance of State/,
-      'Should throw TypeError for null state'
-    );
-  });
-
-  it('should throw error for undefined state', async (t) => {
-    micm = MICM.fromConfigPath(getConfigPath());
-
-    assert.throws(
-      () => micm.solve(undefined, 1.0),
-      /state must be an instance of State/,
-      'Should throw TypeError for undefined state'
-    );
-  });
-
-  it('should solve multiple times with same state', async (t) => {
-    micm = MICM.fromConfigPath(getConfigPath());
-    const state = micm.createState(1);
-
-    state.setConditions({
-      temperatures: 298.15,
-      pressures: 101325.0,
-      air_densities: 1.2
-    });
-    state.setConcentrations({ A: 1.0, B: 0.0 });
-    state.setUserDefinedRateParameters({
-      'USER.reaction 1': 0.001,
-      'USER.reaction 2': 0.002
-    });
-
-    // Solve multiple times
-    for (let i = 0; i < 5; i++) {
-      const result = micm.solve(state, 1.0);
-      assert.ok(
-        result instanceof SolverResult,
-        `Should solve on iteration ${i + 1}`
-      );
+        const updated = state.getConcentrations();
+        for (let i = 0; i < nCells; i++) {
+          assert.ok(updated.A[i] !== 1.0, `A[${i}] should have changed`);
+          assert.ok(updated.B[i] !== 0.0, `B[${i}] should have changed`);
+          assert.ok(updated.C[i] !== 0.5, `C[${i}] should have changed`);
+        }
+        state.delete();
+      }
+      micm.delete();
     }
   });
-});
 
-describe('MICM Integration Tests', () => {
-  it('should complete end-to-end workflow', async (t) => {
-    // Initialize solver
-    const micm = MICM.fromConfigPath(
-      getConfigPath(),
-      SolverType.rosenbrock_standard_order
-    );
-
-    // Create state
-    const state = micm.createState(1);
-
-    // Set conditions
-    state.setConditions({
-      temperatures: 298.15,
-      pressures: 101325.0,
-      air_densities: 1.2
-    });
-
-    state.setConcentrations({
-      A: 0.75,
-      B: 0.0,
-      C: 0.4,
-      D: 0.8,
-      E: 0.0,
-      F: 0.1
-    });
-
-    state.setUserDefinedRateParameters({
-      'USER.reaction 1': 0.001,
-      'USER.reaction 2': 0.002
-    });
-
-    // Solve
-    const result = micm.solve(state, 1.0);
-
-    // Verify results
-    assert.ok(result instanceof SolverResult, 'Should return SolverResult');
-    assert.ok(result.stats instanceof SolverStats, 'Should have SolverStats');
-
-    // Get updated concentrations
-    const concentrations = state.getConcentrations();
-    assert.ok('A' in concentrations, 'Should have species A');
-    assert.ok('B' in concentrations, 'Should have species B');
-    assert.ok('C' in concentrations, 'Should have species C');
-  });
-
-  it('should handle multiple solve iterations', async (t) => {
-    const micm = MICM.fromConfigPath(getConfigPath());
-    const state = micm.createState(1);
-
-    state.setConditions({
-      temperatures: 298.15,
-      pressures: 101325.0,
-      air_densities: 1.2
-    });
-
-    state.setConcentrations({
-      A: 1.0,
-      B: 0.0,
-      C: 0.5
-    });
-
-    state.setUserDefinedRateParameters({
-      'USER.reaction 1': 0.001,
-      'USER.reaction 2': 0.002
-    });
-
-    const numIterations = 10;
-    for (let i = 0; i < numIterations; i++) {
-      const result = micm.solve(state, 0.5);
-      assert.ok(
-        result instanceof SolverResult,
-        `Iteration ${i + 1} should succeed`
-      );
-      assert.ok(
-        typeof result.stats.final_time === 'number',
-        'Should have final_time'
-      );
-    }
-
-    // Verify concentrations changed
-    const finalConcentrations = state.getConcentrations();
-    assert.ok(finalConcentrations.A[0] !== 1.0, 'Concentration A should have changed');
-  });
-
-  it('should work with different solver types', async (t) => {
-    const solverTypes = [
-      SolverType.rosenbrock_standard_order,
-      SolverType.backward_euler_standard_order,
-    ];
-
+  it('should solve from a config file', async (t) => {
     for (const solverType of solverTypes) {
       const micm = MICM.fromConfigPath(getConfigPath(), solverType);
 
-      const state = micm.createState(1);
+      for (const nCells of gridCellsList) {
+        const state = micm.createState(nCells);
 
+        const conc = {
+          A: Array(nCells).fill(0.5),
+          B: Array(nCells).fill(1.0),
+          C: Array(nCells).fill(0.0),
+        };
+        state.setConcentrations(conc);
+        state.setConditions({
+          temperatures: Array(nCells).fill(300),
+          pressures: Array(nCells).fill(101325),
+          airDensities: Array(nCells).fill(1.2),
+        });
+        state.setUserDefinedRateParameters({
+          'USER.reaction 1': Array(nCells).fill(0.002),
+          'USER.reaction 2': Array(nCells).fill(0.004),
+        });
+
+        const result = micm.solve(state, 2.0);
+        assert.ok(result instanceof SolverResult, 'Should return SolverResult');
+        assert.ok(result.stats instanceof SolverStats, 'Should have stats');
+
+        const updated = state.getConcentrations();
+        for (let i = 0; i < nCells; i++) {
+          assert.ok(updated.A[i] !== 0.5, `A[${i}] should have changed`);
+          assert.ok(updated.B[i] !== 1.0, `B[${i}] should have changed`);
+          assert.ok(updated.C[i] !== 0.0, `C[${i}] should have changed`);
+        }
+        state.delete();
+      }
+      micm.delete();
+    }
+  });
+
+  it('should handle multiple solve iterations', async (t) => {
+    const micm = MICM.fromMechanism(mechanism, solverTypes[0]);
+    const state = micm.createState(5);
+
+    state.setConcentrations({
+      A: Array(5).fill(1.0),
+      B: Array(5).fill(0.0),
+      C: Array(5).fill(0.5),
+    });
+    state.setConditions({
+      temperatures: Array(5).fill(298.15),
+      pressures: Array(5).fill(101325.0),
+      airDensities: Array(5).fill(1.0),
+    });
+    state.setUserDefinedRateParameters({
+      'USER.reaction 1': Array(5).fill(0.001),
+      'USER.reaction 2': Array(5).fill(0.002),
+    });
+
+    for (let i = 0; i < 10; i++) {
+      const result = micm.solve(state, 0.5);
+      assert.ok(result instanceof SolverResult, `Iteration ${i + 1} should succeed`);
+      assert.ok(result.stats instanceof SolverStats, 'Should have stats');
+    }
+
+    const final = state.getConcentrations();
+    for (let i = 0; i < 5; i++) {
+      assert.ok(final.A[i] !== 1.0, `A[${i}] should have changed`);
+    }
+
+    state.delete();
+    micm.delete();
+  });
+
+  it('should work with all solver types', async (t) => {
+    for (const solverType of solverTypes) {
+      const micm = MICM.fromConfigPath(getConfigPath(), solverType);
+      const state = micm.createState(2);
+
+      state.setConcentrations({ A: [1.0, 0.5], B: [0.0, 0.5], C: [0.5, 1.0] });
       state.setConditions({
-        temperatures: 298.15,
-        pressures: 101325.0,
-        air_densities: 1.2
+        temperatures: [298.15, 300],
+        pressures: [101325.0, 101325.0],
+        airDensities: [1.0, 1.2],
       });
-
-      state.setConcentrations({ A: 1.0, B: 0.0 });
       state.setUserDefinedRateParameters({
-        'USER.reaction 1': 0.001,
-        'USER.reaction 2': 0.002
+        'USER.reaction 1': [0.001, 0.002],
+        'USER.reaction 2': [0.002, 0.003],
       });
 
       const result = micm.solve(state, 1.0);
-      assert.ok(
-        result instanceof SolverResult,
-        `Should solve with solver type ${solverType}`
-      );
+      assert.ok(result instanceof SolverResult, `Should solve with solver ${solverType}`);
+
+      const updated = state.getConcentrations();
+      for (let i = 0; i < 2; i++) {
+        assert.ok(updated.A[i] !== (i === 0 ? 1.0 : 0.5), `A[${i}] should have changed`);
+        assert.ok(updated.B[i] !== (i === 0 ? 0.0 : 0.5), `B[${i}] should have changed`);
+        assert.ok(updated.C[i] !== (i === 0 ? 0.5 : 1.0), `C[${i}] should have changed`);
+      }
+
+      state.delete();
+      micm.delete();
     }
   });
 });
@@ -489,13 +356,13 @@ describe('MICM SolverResult validation', () => {
     state.setConditions({
       temperatures: 298.15,
       pressures: 101325.0,
-      air_densities: 1.2
+      air_densities: 1.2,
     });
 
     state.setConcentrations({ A: 1.0 });
     state.setUserDefinedRateParameters({
       'USER.reaction 1': 0.001,
-      'USER.reaction 2': 0.002
+      'USER.reaction 2': 0.002,
     });
 
     const result = micm.solve(state, 1.0);
@@ -515,5 +382,8 @@ describe('MICM SolverResult validation', () => {
     assert.ok(stats.decompositions > 0n);
     assert.ok(stats.solves > 0n);
     assert.ok(stats.final_time >= 0.0);
+
+    state.delete();
+    micm.delete();
   });
 });

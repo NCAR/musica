@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 National Center for Atmospheric Research
+// Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 //
 // This file contains the implementation of the MICM class, which represents a
@@ -31,6 +31,11 @@ namespace musica
       case CudaRosenbrock: return "CudaRosenbrock";
       default: throw std::system_error(make_error_code(MusicaErrCode::Unknown), "Unknown solver type");
     }
+  }
+
+  MICM::MICM(std::string config_path, MICMSolver solver_type)
+      : MICM(ReadConfiguration(config_path), solver_type)
+  {
   }
 
   MICM::MICM(const Chemistry& chemistry, MICMSolver solver_type)

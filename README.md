@@ -6,7 +6,7 @@
 [![ubuntu](https://github.com/NCAR/musica/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/ubuntu.yml)
 [![windows](https://github.com/NCAR/musica/actions/workflows/windows.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/windows.yml)
 [![Python](https://github.com/NCAR/musica/actions/workflows/python-wheels.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/python-wheels.yml)
-[![Javascript tests](https://github.com/NCAR/musica/actions/workflows/javascript_integration.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/javascript_integration.yml)
+[![Javascript tests](https://github.com/NCAR/musica/actions/workflows/javascript.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/javascript.yml)
 [![DOI](https://zenodo.org/badge/550370528.svg)](https://zenodo.org/doi/10.5281/zenodo.7458559)
 [![PyPI version](https://badge.fury.io/py/musica.svg)](https://pypi.org/p/musica)
 [![FAIR checklist badge](https://fairsoftwarechecklist.net/badge.svg)](https://fairsoftwarechecklist.net/v0.2?f=31&a=32113&i=22322&r=123)
@@ -43,7 +43,7 @@ MUSICA provides interfaces for multiple programming languages. Choose the instal
 
 ## Python
 
-Python is the recommended interface for most users. Install via pip:
+Most scientific users may prefer our python interface. It can be installed with pip:
 
 ```bash
 pip install musica
@@ -53,13 +53,22 @@ For detailed Python installation instructions, usage examples, and development i
 
 ## JavaScript
 
-The JavaScript interface uses WebAssembly for cross-platform compatibility. It works in both Node.js and browser environments.
+The JavaScript interface uses WebAssembly to run MUSICA components. This interface is most for tools developed for web 
+browsers and only supports the C++ components of MUSICA. It can be installed from npm
+
+```bash
+npm install @ncar/musica
+```
 
 For detailed JavaScript installation instructions, usage examples, and development information, see the [JavaScript README](javascript/README.md).
 
 ## Fortran
 
-The Fortran interface is designed for integration with Fortran-based atmospheric models.
+The Fortran interface is designed for integration with Fortran-based atmospheric models. You can install this from spack
+
+```bash
+spack install musica
+```
 
 For detailed Fortran installation instructions, usage examples, and development information, see the [Fortran README](fortran/README.md).
 

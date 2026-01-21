@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 National Center for Atmospheric Research
+// Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 //
 // This file contains the defintion of the MICM class, which represents a multi-component reactive transport model.
@@ -94,6 +94,10 @@ namespace musica
     size_t GetMaximumNumberOfGridCells(MICM *micm);
 
     bool _IsCudaAvailable(Error *error);
+
+    /// @brief  Get the MUSICA vector size
+    /// @return The MUSICA vector size
+    std::size_t GetVectorSize(musica::MICMSolver);
 #ifdef __cplusplus
   }
 #endif

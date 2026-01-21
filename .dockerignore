@@ -21,3 +21,4 @@
 !javascript/
 !package.json
 !package-lock.json
+!wheelhouse

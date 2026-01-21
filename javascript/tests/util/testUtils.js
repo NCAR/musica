@@ -8,5 +8,5 @@
  */
 export function isClose(a, b, atol = 1e-5, rtol = 1e-9) {
   const diff = Math.abs(a - b);
-  return diff <= (atol + rtol * Math.abs(b));
+  return diff <= atol + rtol * Math.abs(b);
 }
