@@ -1,6 +1,6 @@
 /**
  * Module for solver result types from MICM.
- * 
+ *
  * This module provides:
  * - SolverState: Enum representing the final state of the solver
  * - SolverStats: Statistics from a solver run
@@ -65,9 +65,7 @@ export class SolverResult {
   }
 
   toString() {
-    const stateName = Object.keys(SolverState).find(
-      (key) => SolverState[key] === this.state
-    );
+    const stateName = Object.keys(SolverState).find((key) => SolverState[key] === this.state);
     return `SolverResult{state: ${stateName}, stats: ${this.stats}}`;
   }
 }

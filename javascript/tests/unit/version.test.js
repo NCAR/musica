@@ -13,9 +13,12 @@ describe('Version Tests', () => {
     assert.ok(typeof version === 'string' && version.length > 0, 'Invalid MUSICA version string');
   });
 
-  it('should return the MICM version',  async (t) => {
+  it('should return the MICM version', async (t) => {
     const micmVersion = await musica.getMicmVersion();
     console.log(`MICM Version: ${micmVersion}`);
-    assert.ok(typeof micmVersion === 'string' && micmVersion.length > 0, 'Invalid MICM version string');
+    assert.ok(
+      typeof micmVersion === 'string' && micmVersion.length > 0,
+      'Invalid MICM version string'
+    );
   });
 });

@@ -9,9 +9,7 @@ let wasmModule = null;
 export async function initModule() {
   if (wasmModule) return wasmModule;
 
-  const isNode =
-    typeof process !== 'undefined' &&
-    process.versions?.node != null;
+  const isNode = typeof process !== 'undefined' && process.versions?.node != null;
 
   // Dynamically import the Emscripten module in both environments
   const { default: createMusicaModule } = await import('./wasm/musica.js');

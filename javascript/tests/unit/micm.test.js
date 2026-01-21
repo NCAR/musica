@@ -37,21 +37,21 @@ function createTestMechanism() {
 
   const gas = new Phase({
     name: 'gas',
-    species: [A, B, C]
+    species: [A, B, C],
   });
 
   const reaction1 = new reactionTypes.UserDefined({
     name: 'reaction 1',
     gas_phase: 'gas',
     reactants: [new ReactionComponent({ species_name: 'A' })],
-    products: [new ReactionComponent({ species_name: 'B' })]
+    products: [new ReactionComponent({ species_name: 'B' })],
   });
 
   const reaction2 = new reactionTypes.UserDefined({
     name: 'reaction 2',
     gas_phase: 'gas',
     reactants: [new ReactionComponent({ species_name: 'B' })],
-    products: [new ReactionComponent({ species_name: 'C' })]
+    products: [new ReactionComponent({ species_name: 'C' })],
   });
 
   const mechanism = new Mechanism({
@@ -59,7 +59,7 @@ function createTestMechanism() {
     version: '1.0.0',
     species: [A, B, C],
     phases: [gas],
-    reactions: [reaction1, reaction2]
+    reactions: [reaction1, reaction2],
   });
   return mechanism;
 }
@@ -70,11 +70,7 @@ describe('MICM Initialization', () => {
     for (const solverType of types) {
       const micm = MICM.fromConfigPath(getConfigPath(), solverType);
       assert.ok(micm, 'MICM should be created');
-      assert.strictEqual(
-        micm.solverType(),
-        solverType,
-        `Solver type should match ${solverType}`
-      );
+      assert.strictEqual(micm.solverType(), solverType, `Solver type should match ${solverType}`);
       micm.delete();
     }
   });
@@ -93,18 +89,14 @@ describe('MICM Initialization', () => {
     for (const solverType of types) {
       const micm = MICM.fromMechanism(mechanism, solverType);
       assert.ok(micm, 'MICM should be created from mechanism');
-      assert.strictEqual(
-        micm.solverType(),
-        solverType,
-        `Solver type should match ${solverType}`
-      );
+      assert.strictEqual(micm.solverType(), solverType, `Solver type should match ${solverType}`);
 
       const state = micm.createState(1);
       state.setConcentrations({ A: [1.0], B: [2.0], C: [3.0] });
       state.setConditions({ temperatures: [298.15], pressures: [101325.0], air_densities: [1.0] });
       state.setUserDefinedRateParameters({
         'USER.reaction 1': 0.001,
-        'USER.reaction 2': 0.002
+        'USER.reaction 2': 0.002,
       });
 
       const result = micm.solve(state, 60.0);
@@ -219,16 +211,20 @@ describe('MICM Solve - comprehensive', () => {
         const state = micm.createState(nCells);
 
         // Set initial concentrations and conditions
-        const conc = { A: Array(nCells).fill(1.0), B: Array(nCells).fill(0.0), C: Array(nCells).fill(0.5) };
+        const conc = {
+          A: Array(nCells).fill(1.0),
+          B: Array(nCells).fill(0.0),
+          C: Array(nCells).fill(0.5),
+        };
         state.setConcentrations(conc);
         state.setConditions({
           temperatures: Array(nCells).fill(298.15),
           pressures: Array(nCells).fill(101325.0),
-          airDensities: Array(nCells).fill(1.0)
+          airDensities: Array(nCells).fill(1.0),
         });
         state.setUserDefinedRateParameters({
           'USER.reaction 1': Array(nCells).fill(0.001),
-          'USER.reaction 2': Array(nCells).fill(0.002)
+          'USER.reaction 2': Array(nCells).fill(0.002),
         });
 
         const result = micm.solve(state, 1.0);
@@ -254,16 +250,20 @@ describe('MICM Solve - comprehensive', () => {
       for (const nCells of gridCellsList) {
         const state = micm.createState(nCells);
 
-        const conc = { A: Array(nCells).fill(0.5), B: Array(nCells).fill(1.0), C: Array(nCells).fill(0.0) };
+        const conc = {
+          A: Array(nCells).fill(0.5),
+          B: Array(nCells).fill(1.0),
+          C: Array(nCells).fill(0.0),
+        };
         state.setConcentrations(conc);
         state.setConditions({
           temperatures: Array(nCells).fill(300),
           pressures: Array(nCells).fill(101325),
-          airDensities: Array(nCells).fill(1.2)
+          airDensities: Array(nCells).fill(1.2),
         });
         state.setUserDefinedRateParameters({
           'USER.reaction 1': Array(nCells).fill(0.002),
-          'USER.reaction 2': Array(nCells).fill(0.004)
+          'USER.reaction 2': Array(nCells).fill(0.004),
         });
 
         const result = micm.solve(state, 2.0);
@@ -286,15 +286,19 @@ describe('MICM Solve - comprehensive', () => {
     const micm = MICM.fromMechanism(mechanism, solverTypes[0]);
     const state = micm.createState(5);
 
-    state.setConcentrations({ A: Array(5).fill(1.0), B: Array(5).fill(0.0), C: Array(5).fill(0.5) });
+    state.setConcentrations({
+      A: Array(5).fill(1.0),
+      B: Array(5).fill(0.0),
+      C: Array(5).fill(0.5),
+    });
     state.setConditions({
       temperatures: Array(5).fill(298.15),
       pressures: Array(5).fill(101325.0),
-      airDensities: Array(5).fill(1.0)
+      airDensities: Array(5).fill(1.0),
     });
     state.setUserDefinedRateParameters({
       'USER.reaction 1': Array(5).fill(0.001),
-      'USER.reaction 2': Array(5).fill(0.002)
+      'USER.reaction 2': Array(5).fill(0.002),
     });
 
     for (let i = 0; i < 10; i++) {
@@ -321,11 +325,11 @@ describe('MICM Solve - comprehensive', () => {
       state.setConditions({
         temperatures: [298.15, 300],
         pressures: [101325.0, 101325.0],
-        airDensities: [1.0, 1.2]
+        airDensities: [1.0, 1.2],
       });
       state.setUserDefinedRateParameters({
         'USER.reaction 1': [0.001, 0.002],
-        'USER.reaction 2': [0.002, 0.003]
+        'USER.reaction 2': [0.002, 0.003],
       });
 
       const result = micm.solve(state, 1.0);
@@ -344,7 +348,6 @@ describe('MICM Solve - comprehensive', () => {
   });
 });
 
-
 describe('MICM SolverResult validation', () => {
   it('should return valid SolverResult structure', async (t) => {
     const micm = MICM.fromConfigPath(getConfigPath());
@@ -353,13 +356,13 @@ describe('MICM SolverResult validation', () => {
     state.setConditions({
       temperatures: 298.15,
       pressures: 101325.0,
-      air_densities: 1.2
+      air_densities: 1.2,
     });
 
     state.setConcentrations({ A: 1.0 });
     state.setUserDefinedRateParameters({
       'USER.reaction 1': 0.001,
-      'USER.reaction 2': 0.002
+      'USER.reaction 2': 0.002,
     });
 
     const result = micm.solve(state, 1.0);
