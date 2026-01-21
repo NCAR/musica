@@ -2,7 +2,7 @@
 set -e
 set -x
 
-auditwheel repair --exclude libcublas --exclude libcublasLt --exclude libcudart -w "$2" "$1"
+auditwheel repair --exclude libcublas --exclude libcublasLt --exclude libcudart --exclude libmvec -w "$2" "$1"
 
 pip install wheel
 
