@@ -96,6 +96,21 @@ jobs:
         CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
     - name: Validate wheel RECORD integrity
+      if: startsWith(matrix.os, 'windows')
+      shell: pwsh
+      run: |
+        python -m pip install --upgrade check-wheel-contents
+        check-wheel-contents --ignore W009,W010 wheelhouse/*.whl
+
+        Invoke-WebRequest -Uri https://raw.githubusercontent.com/pypi/warehouse/refs/heads/main/warehouse/utils/zipfiles.py -OutFile $env:TEMP\zipfiles.py
+        $scriptPath = Join-Path $env:TEMP "zipfiles.py"
+
+        Get-ChildItem wheelhouse\*.whl | ForEach-Object {
+            python $scriptPath $_.FullName
+        }
+
+    - name: Validate wheel RECORD integrity
+      if: !startsWith(matrix.os, 'windows')
       run: |
         python -m pip install --upgrade check-wheel-contents
         check-wheel-contents --ignore W009,W010 wheelhouse/*.whl
