@@ -1,10 +1,12 @@
 module Musica
 
 using CxxWrap
+using Libdl
 
-const lib_ext = Sys.iswindows() ? "dll" : (Sys.isapple() ? "dylib" : "so")
+const lib_ext = Libdl.dlext
+const lib_prefix = Sys.iswindows() ? "" : "lib"
 const libmusica_julia = joinpath(@__DIR__, "..", "deps", "lib",
-                                 "libmusica_julia.$lib_ext")
+                                 "$(lib_prefix)musica_julia.$lib_ext")
 
 function __init__()
     if !isfile(libmusica_julia)
