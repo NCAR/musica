@@ -280,9 +280,9 @@ def test_full_tuvx(monkeypatch):
     assert len(dataset["heating_rates"].coords["heating_rate"]) == 0, "Heating rate names should be empty for this config"
     assert len(dataset["photolysis_rate_constants"].coords["reaction"]) > 0, "No photolysis rate names found"
     assert len(dataset["dose_rates"].coords["dose_rate"]) > 0, "No dose rate names found"
-    assert len(dataset["heating_rates"].coords["layer"]) == 121, "Number of layers should be 121 for heating rates"
-    assert len(dataset["photolysis_rate_constants"].coords["layer"]) == 121, "Number of layers should be 121 for photolysis rates"
-    assert len(dataset["dose_rates"].coords["layer"]) == 121, "Number of layers should be 121 for dose rates"
+    assert len(dataset["heating_rates"].coords["vertical_edge"]) == 121, "Number of layers should be 121 for heating rates"
+    assert len(dataset["photolysis_rate_constants"].coords["vertical_edge"]) == 121, "Number of layers should be 121 for photolysis rates"
+    assert len(dataset["dose_rates"].coords["vertical_edge"]) == 121, "Number of layers should be 121 for dose rates"
     assert dataset["heating_rates"].shape[1] == 0, "Should be no heating rates for this config"
     assert dataset["photolysis_rate_constants"].shape[1] == len(tuvx.photolysis_rate_names), "Photolysis rates shape mismatch"
     assert dataset["dose_rates"].shape[1] == len(tuvx.dose_rate_names), "Dose rates shape mismatch"
@@ -321,6 +321,28 @@ def test_full_tuvx(monkeypatch):
         assert dataset["dose_rates"].coords["dose_rate"][i].item() == dose_rate, "Dose rate names order mismatch"
     for i, heating_rate in enumerate(tuvx.heating_rate_names):
         assert dataset["heating_rates"].coords["heating_rate"][i].item() == heating_rate, "Heating rate names order mismatch"
+
+    # Check the SZA and Earth-Sun distance values
+    assert np.isclose(dataset["solar_zenith_angle"].item(), sza), "Solar zenith angle value mismatch"
+    assert np.isclose(dataset["earth_sun_distance"].item(), earth_sun_distance), "Earth-Sun distance value mismatch"
+
+    # Check the dimensions, units, and values for the height and wavelength grids
+    height_midpoints = dataset["vertical_midpoint"].values
+    height_edges = dataset["vertical_edge"].values
+    wavelength_midpoints = dataset["wavelength_midpoint"].values
+    wavelength_edges = dataset["wavelength_edge"].values
+    np.testing.assert_array_almost_equal(height_midpoints, grid_map["height", "km"].midpoints, decimal=6,
+                                         err_msg="Height midpoints values mismatch")
+    np.testing.assert_array_almost_equal(height_edges, grid_map["height", "km"].edges, decimal=6,
+                                         err_msg="Height edges values mismatch")
+    np.testing.assert_array_almost_equal(wavelength_midpoints, grid_map["wavelength", "nm"].midpoints, decimal=6,
+                                         err_msg="Wavelength midpoints values mismatch")
+    np.testing.assert_array_almost_equal(wavelength_edges, grid_map["wavelength", "nm"].edges, decimal=6,
+                                         err_msg="Wavelength edges values mismatch")
+    assert dataset["vertical_midpoint"].attrs["units"] == "km", "Height midpoints units mismatch"
+    assert dataset["vertical_edge"].attrs["units"] == "km", "Height edges units mismatch"
+    assert dataset["wavelength_midpoint"].attrs["units"] == "nm", "Wavelength midpoints units mismatch"
+    assert dataset["wavelength_edge"].attrs["units"] == "nm", "Wavelength edges units mismatch"
 
 
 def get_fixed_grid_map():
@@ -363,9 +385,9 @@ def test_fixed_tuvx_from_file():
 
     dataset = tuvx.run(2.3, 1.0)
 
-    assert len(dataset["photolysis_rate_constants"].coords["layer"]) == 4, "Unexpected number of layers for photolysis rates"
-    assert len(dataset["heating_rates"].coords["layer"]) == 4, "Unexpected number of layers for heating rates"
-    assert len(dataset["dose_rates"].coords["layer"]) == 4, "Unexpected number of layers for dose rates"
+    assert len(dataset["photolysis_rate_constants"].coords["vertical_edge"]) == 4, "Unexpected number of layers for photolysis rates"
+    assert len(dataset["heating_rates"].coords["vertical_edge"]) == 4, "Unexpected number of layers for heating rates"
+    assert len(dataset["dose_rates"].coords["vertical_edge"]) == 4, "Unexpected number of layers for dose rates"
     assert dataset["photolysis_rate_constants"].shape[1] == len(photolysis_names_1), "Photolysis rates shape mismatch"
     assert dataset["heating_rates"].shape[1] == len(heating_names_1), "Heating rates shape mismatch"
     assert dataset["dose_rates"].shape[1] == len(dose_names_1), "Dose rates shape mismatch"
@@ -400,9 +422,9 @@ def test_fixed_tuvx_from_string():
 
     dataset = tuvx.run(2.3, 1.0)
 
-    assert len(dataset["photolysis_rate_constants"].coords["layer"]) == 4, "Unexpected number of layers for photolysis rates"
-    assert len(dataset["heating_rates"].coords["layer"]) == 4, "Unexpected number of layers for heating rates"
-    assert len(dataset["dose_rates"].coords["layer"]) == 4, "Unexpected number of layers for dose rates"
+    assert len(dataset["photolysis_rate_constants"].coords["vertical_edge"]) == 4, "Unexpected number of layers for photolysis rates"
+    assert len(dataset["heating_rates"].coords["vertical_edge"]) == 4, "Unexpected number of layers for heating rates"
+    assert len(dataset["dose_rates"].coords["vertical_edge"]) == 4, "Unexpected number of layers for dose rates"
     assert dataset["photolysis_rate_constants"].shape[1] == len(photolysis_names_1), "Photolysis rates shape mismatch"
     assert dataset["heating_rates"].shape[1] == len(heating_names_1), "Heating rates shape mismatch"
     assert dataset["dose_rates"].shape[1] == len(dose_names_1), "Dose rates shape mismatch"

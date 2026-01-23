@@ -110,6 +110,66 @@ void bind_tuvx(py::module_& tuvx)
       py::arg("earth_sun_distance"));
 
   tuvx.def(
+      "_get_grid_map",
+      [](std::uintptr_t tuvx_ptr) -> musica::GridMap*
+      {
+        musica::TUVX* tuvx_instance = reinterpret_cast<musica::TUVX*>(tuvx_ptr);
+
+        musica::Error error;
+        musica::GridMap* grid_map = tuvx_instance->GetGridMap(&error);
+        if (!musica::IsSuccess(error))
+        {
+          std::string error_message = std::string(error.message_.value_);
+          musica::DeleteError(&error);
+          throw py::value_error("Error getting GridMap from TUV-x instance: " + error_message);
+        }
+        musica::DeleteError(&error);
+
+        return grid_map;
+      },
+      "Get the GridMap used in this TUV-x instance");
+
+  tuvx.def(
+      "_get_profile_map",
+      [](std::uintptr_t tuvx_ptr) -> musica::ProfileMap*
+      {
+        musica::TUVX* tuvx_instance = reinterpret_cast<musica::TUVX*>(tuvx_ptr);
+
+        musica::Error error;
+        musica::ProfileMap* profile_map = tuvx_instance->GetProfileMap(&error);
+        if (!musica::IsSuccess(error))
+        {
+          std::string error_message = std::string(error.message_.value_);
+          musica::DeleteError(&error);
+          throw py::value_error("Error getting ProfileMap from TUV-x instance: " + error_message);
+        }
+        musica::DeleteError(&error);
+
+        return profile_map;
+      },
+      "Get the ProfileMap used in this TUV-x instance");
+
+  tuvx.def(
+      "_get_radiator_map",
+      [](std::uintptr_t tuvx_ptr) -> musica::RadiatorMap*
+      {
+        musica::TUVX* tuvx_instance = reinterpret_cast<musica::TUVX*>(tuvx_ptr);
+
+        musica::Error error;
+        musica::RadiatorMap* radiator_map = tuvx_instance->GetRadiatorMap(&error);
+        if (!musica::IsSuccess(error))
+        {
+          std::string error_message = std::string(error.message_.value_);
+          musica::DeleteError(&error);
+          throw py::value_error("Error getting RadiatorMap from TUV-x instance: " + error_message);
+        }
+        musica::DeleteError(&error);
+
+        return radiator_map;
+      },
+      "Get the RadiatorMap used in this TUV-x instance");
+
+  tuvx.def(
       "_get_photolysis_rate_constants_ordering",
       [](std::uintptr_t tuvx_ptr)
       {

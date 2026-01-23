@@ -176,21 +176,49 @@ class TUVX:
         assert dose_rates.shape[1] == len(dose_names), \
             "Dose rates shape does not match number of dose rates"
 
+        # Get the height and wavelength grids from the GridMap
+        grids = self.get_grid_map()
+        height_grid = grids["height", "km"]
+        wavelength_grid = grids["wavelength", "nm"]
+
+        # Sanity check on height grid dimensions
+        assert height_grid.edges.size == photolysis_rates.shape[0], \
+            "Height grid sections do not match number of layers in photolysis rates"
+        assert height_grid.edges.size == heating_rates.shape[0], \
+            "Height grid sections do not match number of layers in heating rates"
+        assert height_grid.edges.size == dose_rates.shape[0], \
+            "Height grid sections do not match number of layers in dose rates"
+
         dataset_vars = {
-            'photolysis_rate_constants': (('layer', 'reaction'), photolysis_rates, {'units': 's^-1'}),
-            'heating_rates': (('layer', 'heating_rate'), heating_rates, {'units': 'K s^-1'}),
-            'dose_rates': (('layer', 'dose_rate'), dose_rates, {'units': 'W m^-2'}),
+            'photolysis_rate_constants': (('vertical_edge', 'reaction'), photolysis_rates, {'units': 's^-1'}),
+            'heating_rates': (('vertical_edge', 'heating_rate'), heating_rates, {'units': 'K s^-1'}),
+            'dose_rates': (('vertical_edge', 'dose_rate'), dose_rates, {'units': 'W m^-2'}),
+            "solar_zenith_angle": ((), sza, {'units': 'radians'}),
+            "earth_sun_distance": ((), earth_sun_distance, {'units': 'AU'}),
         }
 
         return xr.Dataset(
             data_vars=dataset_vars,
             coords={
-                'layer': np.arange(photolysis_rates.shape[0]),
                 'reaction': reaction_names,
                 'heating_rate': heating_names,
                 'dose_rate': dose_names,
+                'vertical_midpoint': (('vertical_midpoint',),height_grid.midpoints, {'units': 'km'}),
+                'vertical_edge': (('vertical_edge',),height_grid.edges, {'units': 'km'}),
+                'wavelength_midpoint': (('wavelength_midpoint',),wavelength_grid.midpoints, {'units': 'nm'}),
+                'wavelength_edge': (('wavelength_edge',),wavelength_grid.edges, {'units': 'nm'}),
             }
         )
+
+    def get_grid_map(self) -> GridMap:
+        """
+        Get the GridMap used in this TUV-x instance.
+
+        Returns:
+            GridMap instance
+        """
+        return _backend._tuvx._get_grid_map(self._tuvx_instance)
+    
 
     def get_photolysis_rate_constant(
         self,
