@@ -163,20 +163,27 @@ endif()
 if (MUSICA_ENABLE_JULIA AND MUSICA_BUILD_C_CXX_INTERFACE)
   find_program(Julia_EXECUTABLE julia REQUIRED)
 
+  # Use the Julia project in the top-level julia subdirectory
+  set(JULIA_PROJECT_DIR "${CMAKE_SOURCE_DIR}/julia")
+
   execute_process(
-    COMMAND ${Julia_EXECUTABLE} --project=${CMAKE_CURRENT_SOURCE_DIR} -e "using Pkg; Pkg.instantiate()"
+    COMMAND ${Julia_EXECUTABLE} --project=${JULIA_PROJECT_DIR} -e "using Pkg; Pkg.instantiate()"
     RESULT_VARIABLE PKG_INSTANTIATE_RESULT
     OUTPUT_VARIABLE PKG_INSTANTIATE_OUTPUT
     ERROR_VARIABLE PKG_INSTANTIATE_ERROR
   )
 
   if(NOT PKG_INSTANTIATE_RESULT EQUAL 0)
-      message(WARNING "Failed to instantiate Julia project dependencies: ${PKG_INSTANTIATE_ERROR}")
+      message(FATAL_ERROR
+          "Failed to instantiate Julia project dependencies in ${JULIA_PROJECT_DIR}.\n"
+          "Stdout: ${PKG_INSTANTIATE_OUTPUT}\n"
+          "Stderr: ${PKG_INSTANTIATE_ERROR}"
+      )
   endif()
 
   # Try to get CxxWrap prefix path
   execute_process(
-      COMMAND ${Julia_EXECUTABLE} --project=${CMAKE_SOURCE_DIR}/julia -e "using CxxWrap; print(CxxWrap.prefix_path())"
+      COMMAND ${Julia_EXECUTABLE} --project=${JULIA_PROJECT_DIR} -e "using CxxWrap; print(CxxWrap.prefix_path())"
       OUTPUT_VARIABLE CxxWrap_PREFIX
       RESULT_VARIABLE CxxWrap_RESULT
       OUTPUT_STRIP_TRAILING_WHITESPACE
