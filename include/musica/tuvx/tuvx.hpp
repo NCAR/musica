@@ -46,20 +46,20 @@ namespace musica
         RadiatorMap *radiators,
         Error *error);
 
-    /// @brief Returns a copy of the internal grid map. For now, this calls the interal tuvx fortran api, but will allow the change to c++ later on
-    /// to be transparent to downstream projects
+    /// @brief Returns a copy of the internal grid map. For now, this calls the interal tuvx fortran api, but will allow the
+    /// change to c++ later on to be transparent to downstream projects
     /// @param error The error struct to indicate success or failure
     /// @return a grid map pointer
     GridMap *GetGridMap(Error *error);
 
-    /// @brief Returns a copy of the internal profile map. For now, this calls the interal tuvx fortran api, but will allow the change to c++ later
-    /// on to be transparent to downstream projects
+    /// @brief Returns a copy of the internal profile map. For now, this calls the interal tuvx fortran api, but will allow
+    /// the change to c++ later on to be transparent to downstream projects
     /// @param error The error struct to indicate success or failure
     /// @return a profile map pointer
     ProfileMap *GetProfileMap(Error *error);
 
-    /// @brief Returns a copy of the internal radiator map. For now, this calls the interal tuvx fortran api, but will allow the change to c++
-    /// later on to be transparent to downstream projects
+    /// @brief Returns a copy of the internal radiator map. For now, this calls the interal tuvx fortran api, but will allow
+    /// the change to c++ later on to be transparent to downstream projects
     /// @param error The error struct to indicate success or failure
     /// @return a radiator map pointer
     RadiatorMap *GetRadiatorMap(Error *error);
