@@ -9,5 +9,5 @@ Libdl = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
 
 [compat]
 CxxWrap = "^0.16"
-Libdl = "1.11.0"
+Libdl = "1.10, 1.11"
 julia = "1.10 - 1.11"
