@@ -109,14 +109,14 @@ namespace musica
     }
   }
 
-  GridMap *TUVX::CreateGridMap(Error *error)
+  GridMap *TUVX::GetGridMap(Error *error)
   {
     int error_code = 0;
 
     GridMap *grid_map = new GridMap(InternalGetGridMap(tuvx_, &error_code));
     if (error_code != 0)
     {
-      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to create grid map", error);
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to get grid map", error);
     }
     else
     {
@@ -125,13 +125,13 @@ namespace musica
     return grid_map;
   }
 
-  ProfileMap *TUVX::CreateProfileMap(Error *error)
+  ProfileMap *TUVX::GetProfileMap(Error *error)
   {
     int error_code = 0;
     ProfileMap *profile_map = new ProfileMap(InternalGetProfileMap(tuvx_, &error_code));
     if (error_code != 0)
     {
-      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to create profile map", error);
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to get profile map", error);
     }
     else
     {
@@ -140,13 +140,13 @@ namespace musica
     return profile_map;
   }
 
-  RadiatorMap *TUVX::CreateRadiatorMap(Error *error)
+  RadiatorMap *TUVX::GetRadiatorMap(Error *error)
   {
     int error_code = 0;
     RadiatorMap *radiator_map = new RadiatorMap(InternalGetRadiatorMap(tuvx_, &error_code));
     if (error_code != 0)
     {
-      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to create radiator map", error);
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to get radiator map", error);
     }
     else
     {

@@ -41,19 +41,19 @@ namespace musica
     {
       DeleteError(error);
 
-      return tuvx->CreateGridMap(error);
+      return tuvx->GetGridMap(error);
     }
 
     ProfileMap *GetProfileMap(TUVX *tuvx, Error *error)
     {
       DeleteError(error);
-      return tuvx->CreateProfileMap(error);
+      return tuvx->GetProfileMap(error);
     }
 
     RadiatorMap *GetRadiatorMap(TUVX *tuvx, Error *error)
     {
       DeleteError(error);
-      return tuvx->CreateRadiatorMap(error);
+      return tuvx->GetRadiatorMap(error);
     }
 
     void GetPhotolysisRateConstantsOrdering(TUVX *tuvx, Mappings *mappings, Error *error)

@@ -11,8 +11,9 @@ Note: TUV-x is only available on macOS and Linux platforms.
 import os
 import json
 import tempfile
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional
 import numpy as np
+import xarray as xr
 from .. import backend
 
 _backend = backend.get_backend()
@@ -136,7 +137,7 @@ class TUVX:
                 self._tuvx_instance)
         return self._dose_names
 
-    def run(self, sza: float, earth_sun_distance: float) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def run(self, sza: float, earth_sun_distance: float) -> xr.Dataset:
         """
         Run the TUV-x photolysis calculator.
 
@@ -148,15 +149,76 @@ class TUVX:
             earth_sun_distance: Earth-Sun distance in astronomical units (AU)
 
         Returns:
-            Tuple of (photolysis_rate_constants, heating_rates) as numpy arrays
+            XArray Dataset with data variables:
             - photolysis_rate_constants: Shape (n_layers, n_reactions) [s^-1]
             - heating_rates: Shape (n_layers, n_heating_rates) [K s^-1]
             - dose_rates: Shape (n_layers, n_dose_rates) [W m^-2]
         """
         photolysis_rates, heating_rates, dose_rates = _backend._tuvx._run_tuvx(
             self._tuvx_instance, sza, earth_sun_distance)
+        
+        # Create arrays of names sorted by index
+        reaction_names = [name for name, _ in sorted(
+            self.photolysis_rate_names.items(), key=lambda item: item[1]
+        )]
+        heating_names = [name for name, _ in sorted(
+            self.heating_rate_names.items(), key=lambda item: item[1]
+        )]
+        dose_names = [name for name, _ in sorted(
+            self.dose_rate_names.items(), key=lambda item: item[1]
+        )]
 
-        return photolysis_rates, heating_rates, dose_rates
+        # Sanity check on array dimensions
+        assert photolysis_rates.shape[1] == len(reaction_names), \
+            "Photolysis rates shape does not match number of reactions"
+        assert heating_rates.shape[1] == len(heating_names), \
+            "Heating rates shape does not match number of heating rates"
+        assert dose_rates.shape[1] == len(dose_names), \
+            "Dose rates shape does not match number of dose rates"
+
+        # Get the height and wavelength grids from the GridMap
+        grids = self.get_grid_map()
+        height_grid = grids["height", "km"]
+        wavelength_grid = grids["wavelength", "nm"]
+
+        # Sanity check on height grid dimensions
+        assert height_grid.edges.size == photolysis_rates.shape[0], \
+            "Height grid sections do not match number of layers in photolysis rates"
+        assert height_grid.edges.size == heating_rates.shape[0], \
+            "Height grid sections do not match number of layers in heating rates"
+        assert height_grid.edges.size == dose_rates.shape[0], \
+            "Height grid sections do not match number of layers in dose rates"
+
+        dataset_vars = {
+            'photolysis_rate_constants': (('vertical_edge', 'reaction'), photolysis_rates, {'units': 's^-1'}),
+            'heating_rates': (('vertical_edge', 'heating_rate'), heating_rates, {'units': 'K s^-1'}),
+            'dose_rates': (('vertical_edge', 'dose_rate'), dose_rates, {'units': 'W m^-2'}),
+            "solar_zenith_angle": ((), sza, {'units': 'radians'}),
+            "earth_sun_distance": ((), earth_sun_distance, {'units': 'AU'}),
+        }
+
+        return xr.Dataset(
+            data_vars=dataset_vars,
+            coords={
+                'reaction': reaction_names,
+                'heating_rate': heating_names,
+                'dose_rate': dose_names,
+                'vertical_midpoint': (('vertical_midpoint',),height_grid.midpoints, {'units': 'km'}),
+                'vertical_edge': (('vertical_edge',),height_grid.edges, {'units': 'km'}),
+                'wavelength_midpoint': (('wavelength_midpoint',),wavelength_grid.midpoints, {'units': 'nm'}),
+                'wavelength_edge': (('wavelength_edge',),wavelength_grid.edges, {'units': 'nm'}),
+            }
+        )
+
+    def get_grid_map(self) -> GridMap:
+        """
+        Get the GridMap used in this TUV-x instance.
+
+        Returns:
+            GridMap instance
+        """
+        return _backend._tuvx._get_grid_map(self._tuvx_instance)
+    
 
     def get_photolysis_rate_constant(
         self,
