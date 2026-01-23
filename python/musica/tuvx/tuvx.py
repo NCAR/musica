@@ -156,6 +156,25 @@ class TUVX:
         """
         photolysis_rates, heating_rates, dose_rates = _backend._tuvx._run_tuvx(
             self._tuvx_instance, sza, earth_sun_distance)
+        
+        # Create arrays of names sorted by index
+        reaction_names = [name for name, _ in sorted(
+            self.photolysis_rate_names.items(), key=lambda item: item[1]
+        )]
+        heating_names = [name for name, _ in sorted(
+            self.heating_rate_names.items(), key=lambda item: item[1]
+        )]
+        dose_names = [name for name, _ in sorted(
+            self.dose_rate_names.items(), key=lambda item: item[1]
+        )]
+
+        # Sanity check on array dimensions
+        assert photolysis_rates.shape[1] == len(reaction_names), \
+            "Photolysis rates shape does not match number of reactions"
+        assert heating_rates.shape[1] == len(heating_names), \
+            "Heating rates shape does not match number of heating rates"
+        assert dose_rates.shape[1] == len(dose_names), \
+            "Dose rates shape does not match number of dose rates"
 
         dataset_vars = {
             'photolysis_rate_constants': (('layer', 'reaction'), photolysis_rates, {'units': 's^-1'}),
@@ -167,9 +186,9 @@ class TUVX:
             data_vars=dataset_vars,
             coords={
                 'layer': np.arange(photolysis_rates.shape[0]),
-                'reaction': list(self.photolysis_rate_names.keys()),
-                'heating_rate': list(self.heating_rate_names.keys()),
-                'dose_rate': list(self.dose_rate_names.keys()),
+                'reaction': reaction_names,
+                'heating_rate': heating_names,
+                'dose_rate': dose_names,
             }
         )
 

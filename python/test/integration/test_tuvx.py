@@ -313,6 +313,14 @@ def test_full_tuvx(monkeypatch):
                   dataset["photolysis_rate_constants"][:, o3_o1d_index]), "O3 (1D) photolysis did not decrease"
     assert np.all(dataset_doubled["photolysis_rate_constants"][:, o3_o3p_index] <=
                   dataset["photolysis_rate_constants"][:, o3_o3p_index]), "O3 (3P) photolysis did not decrease"
+    
+    # Verify the labels in the XArray dataset are ordered the same as in the TUV-x label dicts
+    for i, reaction in enumerate(tuvx.photolysis_rate_names):
+        assert dataset["photolysis_rate_constants"].coords["reaction"][i].item() == reaction, "Photolysis rate names order mismatch"
+    for i, dose_rate in enumerate(tuvx.dose_rate_names):
+        assert dataset["dose_rates"].coords["dose_rate"][i].item() == dose_rate, "Dose rate names order mismatch"
+    for i, heating_rate in enumerate(tuvx.heating_rate_names):
+        assert dataset["heating_rates"].coords["heating_rate"][i].item() == heating_rate, "Heating rate names order mismatch"
 
 
 def get_fixed_grid_map():
