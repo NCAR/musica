@@ -1,8 +1,5 @@
 project(musica-julia)
 
-get_target_property(JlCxx_location JlCxx::cxxwrap_julia LOCATION)
-get_filename_component(JlCxx_location ${JlCxx_location} DIRECTORY)
-
 # Create the Julia wrapper library
 add_library(musica_julia SHARED
     bindings/musica_julia.cpp
