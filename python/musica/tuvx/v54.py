@@ -7,6 +7,14 @@ This module contains configuration settings for the v5.4 configuration of TUV-x
 import numpy as np
 from .grid import Grid
 
+def height_grid() -> Grid:
+    """Returns the v5.4 height grid for TUV-x."""
+    heights = Grid(name="height", units="km", num_sections=120)
+    heights.edges = np.linspace(0, 120, 121)
+    heights.midpoints = 0.5 * (heights.edges[:-1] + heights.edges[1:])
+    return heights
+
+
 def wavelength_grid() -> Grid:
     """Returns the v5.4 wavelength grid for TUV-x."""
     wavelengths = Grid(name="wavelength", units="nm", num_sections=156)

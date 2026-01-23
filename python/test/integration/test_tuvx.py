@@ -7,9 +7,7 @@ pytestmark = pytest.mark.skipif(not available, reason="TUV-x backend is not avai
 
 
 def get_grid_map():
-    heights = musica.Grid(name="height", units="km", num_sections=120)
-    heights.edges = np.linspace(0, 120, 121)
-    heights.midpoints = 0.5 * (heights.edges[:-1] + heights.edges[1:])
+    heights = musica.tuvx.v54.height_grid()
     wavelengths = musica.tuvx.v54.wavelength_grid()
     grid_map = musica.GridMap()
     grid_map["height", "km"] = heights
