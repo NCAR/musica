@@ -277,14 +277,18 @@ def test_full_tuvx(monkeypatch):
 
     dataset = tuvx.run(sza, earth_sun_distance)
 
-    assert len(dataset["heating_rates"].coords["heating_rate"]) == 0, "Heating rate names should be empty for this config"
+    assert len(dataset["heating_rates"].coords["heating_rate"]
+               ) == 0, "Heating rate names should be empty for this config"
     assert len(dataset["photolysis_rate_constants"].coords["reaction"]) > 0, "No photolysis rate names found"
     assert len(dataset["dose_rates"].coords["dose_rate"]) > 0, "No dose rate names found"
-    assert len(dataset["heating_rates"].coords["vertical_edge"]) == 121, "Number of layers should be 121 for heating rates"
-    assert len(dataset["photolysis_rate_constants"].coords["vertical_edge"]) == 121, "Number of layers should be 121 for photolysis rates"
+    assert len(dataset["heating_rates"].coords["vertical_edge"]
+               ) == 121, "Number of layers should be 121 for heating rates"
+    assert len(dataset["photolysis_rate_constants"].coords["vertical_edge"]
+               ) == 121, "Number of layers should be 121 for photolysis rates"
     assert len(dataset["dose_rates"].coords["vertical_edge"]) == 121, "Number of layers should be 121 for dose rates"
     assert dataset["heating_rates"].shape[1] == 0, "Should be no heating rates for this config"
-    assert dataset["photolysis_rate_constants"].shape[1] == len(tuvx.photolysis_rate_names), "Photolysis rates shape mismatch"
+    assert dataset["photolysis_rate_constants"].shape[1] == len(
+        tuvx.photolysis_rate_names), "Photolysis rates shape mismatch"
     assert dataset["dose_rates"].shape[1] == len(tuvx.dose_rate_names), "Dose rates shape mismatch"
 
     # Make sure photolysis rates are reasonable
@@ -313,14 +317,16 @@ def test_full_tuvx(monkeypatch):
                   dataset["photolysis_rate_constants"][:, o3_o1d_index]), "O3 (1D) photolysis did not decrease"
     assert np.all(dataset_doubled["photolysis_rate_constants"][:, o3_o3p_index] <=
                   dataset["photolysis_rate_constants"][:, o3_o3p_index]), "O3 (3P) photolysis did not decrease"
-    
+
     # Verify the labels in the XArray dataset are ordered the same as in the TUV-x label dicts
     for i, reaction in enumerate(tuvx.photolysis_rate_names):
-        assert dataset["photolysis_rate_constants"].coords["reaction"][i].item() == reaction, "Photolysis rate names order mismatch"
+        assert dataset["photolysis_rate_constants"].coords["reaction"][i].item(
+        ) == reaction, "Photolysis rate names order mismatch"
     for i, dose_rate in enumerate(tuvx.dose_rate_names):
         assert dataset["dose_rates"].coords["dose_rate"][i].item() == dose_rate, "Dose rate names order mismatch"
     for i, heating_rate in enumerate(tuvx.heating_rate_names):
-        assert dataset["heating_rates"].coords["heating_rate"][i].item() == heating_rate, "Heating rate names order mismatch"
+        assert dataset["heating_rates"].coords["heating_rate"][i].item(
+        ) == heating_rate, "Heating rate names order mismatch"
 
     # Check the SZA and Earth-Sun distance values
     assert np.isclose(dataset["solar_zenith_angle"].item(), sza), "Solar zenith angle value mismatch"
@@ -385,7 +391,8 @@ def test_fixed_tuvx_from_file():
 
     dataset = tuvx.run(2.3, 1.0)
 
-    assert len(dataset["photolysis_rate_constants"].coords["vertical_edge"]) == 4, "Unexpected number of layers for photolysis rates"
+    assert len(dataset["photolysis_rate_constants"].coords["vertical_edge"]
+               ) == 4, "Unexpected number of layers for photolysis rates"
     assert len(dataset["heating_rates"].coords["vertical_edge"]) == 4, "Unexpected number of layers for heating rates"
     assert len(dataset["dose_rates"].coords["vertical_edge"]) == 4, "Unexpected number of layers for dose rates"
     assert dataset["photolysis_rate_constants"].shape[1] == len(photolysis_names_1), "Photolysis rates shape mismatch"
@@ -422,7 +429,8 @@ def test_fixed_tuvx_from_string():
 
     dataset = tuvx.run(2.3, 1.0)
 
-    assert len(dataset["photolysis_rate_constants"].coords["vertical_edge"]) == 4, "Unexpected number of layers for photolysis rates"
+    assert len(dataset["photolysis_rate_constants"].coords["vertical_edge"]
+               ) == 4, "Unexpected number of layers for photolysis rates"
     assert len(dataset["heating_rates"].coords["vertical_edge"]) == 4, "Unexpected number of layers for heating rates"
     assert len(dataset["dose_rates"].coords["vertical_edge"]) == 4, "Unexpected number of layers for dose rates"
     assert dataset["photolysis_rate_constants"].shape[1] == len(photolysis_names_1), "Photolysis rates shape mismatch"

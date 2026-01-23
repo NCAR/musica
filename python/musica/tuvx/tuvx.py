@@ -156,7 +156,7 @@ class TUVX:
         """
         photolysis_rates, heating_rates, dose_rates = _backend._tuvx._run_tuvx(
             self._tuvx_instance, sza, earth_sun_distance)
-        
+
         # Create arrays of names sorted by index
         reaction_names = [name for name, _ in sorted(
             self.photolysis_rate_names.items(), key=lambda item: item[1]
@@ -203,10 +203,10 @@ class TUVX:
                 'reaction': reaction_names,
                 'heating_rate': heating_names,
                 'dose_rate': dose_names,
-                'vertical_midpoint': (('vertical_midpoint',),height_grid.midpoints, {'units': 'km'}),
-                'vertical_edge': (('vertical_edge',),height_grid.edges, {'units': 'km'}),
-                'wavelength_midpoint': (('wavelength_midpoint',),wavelength_grid.midpoints, {'units': 'nm'}),
-                'wavelength_edge': (('wavelength_edge',),wavelength_grid.edges, {'units': 'nm'}),
+                'vertical_midpoint': (('vertical_midpoint',), height_grid.midpoints, {'units': 'km'}),
+                'vertical_edge': (('vertical_edge',), height_grid.edges, {'units': 'km'}),
+                'wavelength_midpoint': (('wavelength_midpoint',), wavelength_grid.midpoints, {'units': 'nm'}),
+                'wavelength_edge': (('wavelength_edge',), wavelength_grid.edges, {'units': 'nm'}),
             }
         )
 
@@ -218,7 +218,6 @@ class TUVX:
             GridMap instance
         """
         return _backend._tuvx._get_grid_map(self._tuvx_instance)
-    
 
     def get_photolysis_rate_constant(
         self,
