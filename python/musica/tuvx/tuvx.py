@@ -13,6 +13,7 @@ import json
 import tempfile
 from typing import Dict, Optional, Tuple
 import numpy as np
+import xarray as xr
 from .. import backend
 
 _backend = backend.get_backend()
@@ -136,7 +137,7 @@ class TUVX:
                 self._tuvx_instance)
         return self._dose_names
 
-    def run(self, sza: float, earth_sun_distance: float) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def run(self, sza: float, earth_sun_distance: float) -> xr.Dataset:
         """
         Run the TUV-x photolysis calculator.
 
@@ -148,7 +149,7 @@ class TUVX:
             earth_sun_distance: Earth-Sun distance in astronomical units (AU)
 
         Returns:
-            Tuple of (photolysis_rate_constants, heating_rates) as numpy arrays
+            XArray Dataset with data variables:
             - photolysis_rate_constants: Shape (n_layers, n_reactions) [s^-1]
             - heating_rates: Shape (n_layers, n_heating_rates) [K s^-1]
             - dose_rates: Shape (n_layers, n_dose_rates) [W m^-2]
@@ -156,7 +157,21 @@ class TUVX:
         photolysis_rates, heating_rates, dose_rates = _backend._tuvx._run_tuvx(
             self._tuvx_instance, sza, earth_sun_distance)
 
-        return photolysis_rates, heating_rates, dose_rates
+        dataset_vars = {
+            'photolysis_rate_constants': (('layer', 'reaction'), photolysis_rates, {'units': 's^-1'}),
+            'heating_rates': (('layer', 'heating_rate'), heating_rates, {'units': 'K s^-1'}),
+            'dose_rates': (('layer', 'dose_rate'), dose_rates, {'units': 'W m^-2'}),
+        }
+
+        return xr.Dataset(
+            data_vars=dataset_vars,
+            coords={
+                'layer': np.arange(photolysis_rates.shape[0]),
+                'reaction': list(self.photolysis_rate_names.keys()),
+                'heating_rate': list(self.heating_rate_names.keys()),
+                'dose_rate': list(self.dose_rate_names.keys()),
+            }
+        )
 
     def get_photolysis_rate_constant(
         self,
