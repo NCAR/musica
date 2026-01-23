@@ -17,7 +17,9 @@ target_link_libraries(musica_julia
 
 # Set output properties
 set_target_properties(musica_julia PROPERTIES
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/julia/deps/lib"
+    LIBRARY_OUTPUT_DIRECTORY  "${CMAKE_SOURCE_DIR}/julia/deps/lib"
+    RUNTIME_OUTPUT_DIRECTORY  "${CMAKE_SOURCE_DIR}/julia/deps/lib"
+    ARCHIVE_OUTPUT_DIRECTORY  "${CMAKE_SOURCE_DIR}/julia/deps/lib"
 )
 
 # Install the library and Julia package files
