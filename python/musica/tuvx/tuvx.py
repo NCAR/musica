@@ -11,7 +11,7 @@ Note: TUV-x is only available on macOS and Linux platforms.
 import os
 import json
 import tempfile
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional
 import numpy as np
 import xarray as xr
 from .. import backend
