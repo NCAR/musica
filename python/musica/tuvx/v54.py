@@ -4,7 +4,9 @@ TUV-x v5.4 configuration
 This module contains configuration settings for the v5.4 configuration of TUV-x
 """
 
+import os
 import numpy as np
+from .profile import Profile
 from .grid import Grid
 
 def height_grid() -> Grid:
@@ -181,3 +183,116 @@ def wavelength_grid() -> Grid:
     )
     wavelengths.midpoints = 0.5 * (wavelengths.edges[:-1] + wavelengths.edges[1:])
     return wavelengths
+
+
+profile_data_files = {
+    "O3": "configs/tuvx/data/profiles/atmosphere/o3_v54.dat"
+}
+
+def profile(name: str, grid: Grid) -> Profile:
+    """
+    Returns a standard profile for TUV-x v5.4 by name.
+    
+    Reads profile data from .dat files and performs linear interpolation
+    if the grid values don't match the provided grid.
+    
+    Args:
+        name: Name of the profile (e.g., "O3")
+        grid: Grid instance to interpolate the profile onto
+    
+    Returns:
+        Profile instance with data interpolated to the provided grid
+    """
+    if name not in profile_data_files:
+        raise ValueError(f"Profile '{name}' not found in TUV-x v5.4 configuration.")
+    
+    # Resolve filepath relative to the musica package root
+    filepath = profile_data_files[name]
+    if not os.path.isabs(filepath):
+        # Get the package directory (go up from python/musica/tuvx to the root)
+        package_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+        filepath = os.path.join(package_dir, filepath)
+    
+    # Read the data file
+    with open(filepath, 'r') as f:
+        lines = f.readlines()
+    
+    # Parse midpoint and edge sections
+    midpoint_section = []
+    edge_section = []
+    current_section = None
+    
+    for line in lines:
+        line = line.strip()
+        if not line or line.startswith('#'):
+            # Check for section headers
+            if 'height (km), mid-point' in line:
+                current_section = 'midpoint'
+            elif 'height (km), edge' in line:
+                current_section = 'edge'
+            continue
+        
+        # Parse data lines - only extract first two columns
+        parts = line.split(',')
+        if current_section == 'midpoint':
+            # Format: height (km), mid-point, delta, layer density, ...
+            # Extract: height, profile value, layer density
+            values = [float(parts[0]), float(parts[1]), float(parts[3])]
+            midpoint_section.append(values)
+        elif current_section == 'edge':
+            # Format: height (km), edge
+            values = [float(parts[0]), float(parts[1])]
+            edge_section.append(values)
+    
+    # Convert to numpy arrays
+    midpoint_data = np.array(midpoint_section)
+    edge_data = np.array(edge_section)
+    
+    # Extract grid coordinates, profile values, and layer densities
+    # midpoint_data columns: 0=height (km), 1=profile value, 2=layer density
+    file_grid_midpoints = midpoint_data[:, 0]
+    file_midpoint_values = midpoint_data[:, 1]
+    file_layer_densities = midpoint_data[:, 2]
+    
+    # edge_data columns: 0=height (km), 1=profile value
+    file_grid_edges = edge_data[:, 0]
+    file_edge_values = edge_data[:, 1]
+    
+    # Determine if we need to interpolate based on whether grids match
+    grids_match = (len(grid.midpoints) == len(file_grid_midpoints) and
+                   np.allclose(grid.midpoints, file_grid_midpoints) and
+                   len(grid.edges) == len(file_grid_edges) and
+                   np.allclose(grid.edges, file_grid_edges))
+    
+    if not grids_match:
+        # Interpolate profile values to the provided grid coordinates
+        interpolated_midpoints = np.interp(
+            grid.midpoints,
+            file_grid_midpoints,
+            file_midpoint_values
+        )
+        interpolated_edges = np.interp(
+            grid.edges,
+            file_grid_edges,
+            file_edge_values
+        )
+        interpolated_layer_densities = np.interp(
+            grid.midpoints,
+            file_grid_midpoints,
+            file_layer_densities
+        )
+    else:
+        # Grids match, use values directly
+        interpolated_midpoints = file_midpoint_values
+        interpolated_edges = file_edge_values
+        interpolated_layer_densities = file_layer_densities
+    
+    # Create and return the Profile
+    return Profile(
+        name=name,
+        units="molecule cm-3",  # Standard units for atmospheric species
+        grid=grid,
+        edge_values=interpolated_edges,
+        midpoint_values=interpolated_midpoints,
+        layer_densities=interpolated_layer_densities
+    )
