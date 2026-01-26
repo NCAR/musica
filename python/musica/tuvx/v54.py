@@ -6,8 +6,9 @@ This module contains configuration settings for the v5.4 configuration of TUV-x
 
 import os
 import numpy as np
-from .profile import Profile
 from .grid import Grid
+from .profile import Profile
+from .radiator import Radiator
 
 def height_grid() -> Grid:
     """Returns the v5.4 height grid for TUV-x."""
@@ -329,4 +330,83 @@ def profile(name: str, grid: Grid, units: str = None) -> Profile:
         edge_values=interpolated_edges,
         midpoint_values=interpolated_midpoints,
         layer_densities=interpolated_layer_densities
+    )
+
+radiator_data_files = {
+    "aerosol": "configs/tuvx/data/radiators/aerosol.v54.dat"
+}
+
+def radiator(radiator_name: str, heights: Grid, wavelengths: Grid) -> Radiator:
+    """
+    Returns a standard radiator for TUV-x v5.4 by name.
+    
+    Args:
+        radiator_name: Name of the radiator (e.g., "aerosol")
+        heights: Height grid for the radiator
+        wavelengths: Wavelength grid for the radiator
+    
+    Returns:
+        Radiator instance with data loaded from the corresponding v5.4 data file
+    """
+    if radiator_name not in radiator_data_files:
+        raise ValueError(f"Radiator '{radiator_name}' not found in v5.4 configuration")
+    
+    filepath = radiator_data_files[radiator_name]
+    
+    # Get the absolute path to the data file
+    package_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+    full_path = os.path.join(package_dir, filepath)
+    
+    # Parse the file
+    with open(full_path, 'r') as f:
+        lines = f.readlines()
+    
+    # Skip header lines and parse data
+    # Format: Height (km), Wavelength (nm), Layer OD, Layer SSA, Layer G
+    data = []
+    for line in lines:
+        stripped = line.strip()
+        if not stripped or stripped.startswith('#'):
+            continue
+        parts = stripped.split()
+        if len(parts) >= 5:
+            height = float(parts[0])
+            wavelength = float(parts[1])
+            optical_depth = float(parts[2])
+            ssa = float(parts[3])
+            g = float(parts[4])
+            data.append([height, wavelength, optical_depth, ssa, g])
+    
+    data = np.array(data)
+    
+    # Organize data into 2D arrays (wavelengths x heights)
+    # Note: Radiator expects shape (num_wavelengths, num_heights)
+    num_heights = heights.num_sections
+    num_wavelengths = wavelengths.num_sections
+    
+    optical_depths = np.zeros((num_wavelengths, num_heights))
+    single_scattering_albedos = np.zeros((num_wavelengths, num_heights))
+    asymmetry_factors = np.zeros((num_wavelengths, num_heights))
+    
+    # Fill arrays by matching heights and wavelengths
+    for row in data:
+        file_height, file_wavelength, od, ssa, g = row
+        
+        # Find closest height index
+        height_idx = np.argmin(np.abs(heights.midpoints - file_height))
+        
+        # Find closest wavelength index
+        wavelength_idx = np.argmin(np.abs(wavelengths.midpoints - file_wavelength))
+        
+        optical_depths[wavelength_idx, height_idx] = od
+        single_scattering_albedos[wavelength_idx, height_idx] = ssa
+        asymmetry_factors[wavelength_idx, height_idx] = g
+    
+    return Radiator(
+        name=radiator_name,
+        height_grid=heights,
+        wavelength_grid=wavelengths,
+        optical_depths=optical_depths,
+        single_scattering_albedos=single_scattering_albedos,
+        asymmetry_factors=asymmetry_factors
     )
