@@ -186,10 +186,15 @@ def wavelength_grid() -> Grid:
 
 
 profile_data_files = {
-    "O3": "configs/tuvx/data/profiles/atmosphere/o3_v54.dat"
+    "O2": "configs/tuvx/data/profiles/atmosphere/o2.v54.dat",
+    "O3": "configs/tuvx/data/profiles/atmosphere/o3.v54.dat",
+    "air": "configs/tuvx/data/profiles/atmosphere/air.v54.dat",
+    "temperature": "configs/tuvx/data/profiles/atmosphere/temperature.v54.dat",
+    "surface albedo": "configs/tuvx/data/profiles/solar/surface_albedo.v54.dat",
+    "extraterrestrial flux": "configs/tuvx/data/profiles/solar/extraterrestrial_flux.v54.dat"
 }
 
-def profile(name: str, grid: Grid) -> Profile:
+def profile(name: str, grid: Grid, units: str = None) -> Profile:
     """
     Returns a standard profile for TUV-x v5.4 by name.
     
@@ -197,8 +202,9 @@ def profile(name: str, grid: Grid) -> Profile:
     if the grid values don't match the provided grid.
     
     Args:
-        name: Name of the profile (e.g., "O3")
+        name: Name of the profile (e.g., "O3", "air", "temperature")
         grid: Grid instance to interpolate the profile onto
+        units: Optional units override. If not provided, will attempt to extract from file header
     
     Returns:
         Profile instance with data interpolated to the provided grid
@@ -217,23 +223,51 @@ def profile(name: str, grid: Grid) -> Profile:
     with open(filepath, 'r') as f:
         lines = f.readlines()
     
+    # Extract units from header if not provided
+    if units is None:
+        for line in lines:
+            if line.startswith(' # Profile:') and '(' in line and ')' in line:
+                # Extract units from header like: # Profile: O3 (molecule cm-3)
+                start = line.find('(') + 1
+                end = line.find(')', start)
+                units = line[start:end]
+                break
+        if units is None:
+            units = "unknown"
+    
     # Parse midpoint and edge sections
     midpoint_section = []
     edge_section = []
     current_section = None
     
+    # Detect grid type from header
+    grid_type = None
+    for line in lines:
+        if '# height (km), mid-point' in line or '# height (km), edge' in line:
+            grid_type = 'height'
+            break
+        elif '# wavelength (nm), mid-point' in line or '# wavelength (nm), edge' in line:
+            grid_type = 'wavelength'
+            break
+    
+    if grid_type is None:
+        raise ValueError(f"Could not determine grid type from file headers")
+    
     for line in lines:
         line = line.strip()
         if not line or line.startswith('#'):
-            # Check for section headers
-            if 'height (km), mid-point' in line:
+            # Check for section headers (works for both height and wavelength)
+            if 'mid-point' in line and ('height (km)' in line or 'wavelength (nm)' in line):
                 current_section = 'midpoint'
-            elif 'height (km), edge' in line:
+            elif 'edge' in line and ('height (km)' in line or 'wavelength (nm)' in line):
                 current_section = 'edge'
             continue
         
         # Parse data lines - only extract first two columns
         parts = line.split(',')
+        # Skip footer lines that start with '---'
+        if parts[0].strip() == '---':
+            continue
         if current_section == 'midpoint':
             # Format: height (km), mid-point, delta, layer density, ...
             # Extract: height, profile value, layer density
@@ -290,7 +324,7 @@ def profile(name: str, grid: Grid) -> Profile:
     # Create and return the Profile
     return Profile(
         name=name,
-        units="molecule cm-3",  # Standard units for atmospheric species
+        units=units,
         grid=grid,
         edge_values=interpolated_edges,
         midpoint_values=interpolated_midpoints,

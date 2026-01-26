@@ -8,6 +8,7 @@ for the v5.4 configuration of TUV-x.
 import os
 import pytest
 import numpy as np
+from decimal import Decimal, getcontext
 from musica.tuvx import v54
 from musica.tuvx.grid import backend
 
@@ -75,14 +76,37 @@ class TestV54Grids:
 class TestV54Profile:
     """Tests for v5.4 profile loading and interpolation."""
     
-    def test_profile_load_o3(self):
-        """Test loading O3 profile."""
-        grid = v54.height_grid()
-        prof = v54.profile("O3", grid)
+    def test_profile_load_all(self):
+        """Test loading all available v5.4 profiles."""
+        # Test atmospheric profiles with height grid
+        height_grid = v54.height_grid()
+
+        o2_prof = v54.profile("O2", height_grid)
+        assert o2_prof.name == "O2"
+        assert o2_prof.units == "molecule cm-3"
         
-        assert prof.name == "O3"
-        assert prof.units == "molecule cm-3"
-        assert prof.number_of_sections == 120
+        o3_prof = v54.profile("O3", height_grid)
+        assert o3_prof.name == "O3"
+        assert o3_prof.units == "molecule cm-3"
+        
+        air_prof = v54.profile("air", height_grid)
+        assert air_prof.name == "air"
+        assert air_prof.units == "molecule cm-3"
+        
+        temp_prof = v54.profile("temperature", height_grid)
+        assert temp_prof.name == "temperature"
+        assert temp_prof.units == "K"
+        
+        # Test solar profiles with wavelength grid
+        wavelength_grid = v54.wavelength_grid()
+        
+        albedo_prof = v54.profile("surface albedo", wavelength_grid)
+        assert albedo_prof.name == "surface albedo"
+        assert albedo_prof.units == "none"
+        
+        flux_prof = v54.profile("extraterrestrial flux", wavelength_grid)
+        assert flux_prof.name == "extraterrestrial flux"
+        assert flux_prof.units == "photon cm-2 s-1"
     
     def test_profile_invalid_name(self):
         """Test that invalid profile name raises error."""
@@ -93,12 +117,27 @@ class TestV54Profile:
     
     def test_profile_exact_reproduction(self):
         """Test that profile can exactly reproduce the data file values."""
-        # Load the profile with the standard v5.4 grid
-        grid = v54.height_grid()
-        prof = v54.profile("O3", grid)
+        # Test all available profiles
+        profiles_to_test = [
+            ("O2", v54.height_grid()),
+            ("O3", v54.height_grid()),
+            ("air", v54.height_grid()),
+            ("temperature", v54.height_grid()),
+            ("surface albedo", v54.wavelength_grid()),
+            ("extraterrestrial flux", v54.wavelength_grid())
+        ]
         
-        # Read the original data file
-        filepath = "configs/tuvx/data/profiles/atmosphere/o3_v54.dat"
+        for profile_name, grid in profiles_to_test:
+            self._test_single_profile_reproduction(profile_name, grid)
+    
+    def _test_single_profile_reproduction(self, profile_name: str, grid):
+        """Helper method to test exact reproduction of a single profile."""
+        # Load the profile
+        prof = v54.profile(profile_name, grid)
+        
+        # Get the file path
+        from musica.tuvx.v54 import profile_data_files
+        filepath = profile_data_files[profile_name]
         package_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
         full_path = os.path.join(package_dir, filepath)
         
@@ -113,10 +152,15 @@ class TestV54Profile:
         for line in file_lines:
             stripped = line.strip()
             if not stripped or stripped.startswith('#'):
-                if 'height (km), mid-point' in stripped:
+                if 'mid-point' in stripped:
                     current_section = 'midpoint'
-                elif 'height (km), edge' in stripped:
+                elif 'edge' in stripped:
                     current_section = 'edge'
+                continue
+            
+            # Skip footer lines that start with '---'
+            parts = stripped.split(',')
+            if parts[0].strip() == '---':
                 continue
             
             if current_section == 'midpoint':
@@ -124,92 +168,106 @@ class TestV54Profile:
             elif current_section == 'edge':
                 file_edge_lines.append(stripped)
         
-        # Convert profile values back to text format and compare
-        # Midpoint section format: height (km), mid-point, delta, layer density, exo layer density, burden density
-        # Edge section format: height (km), edge
-        # We'll compare all columns that aren't marked as '---'
+        # Set decimal precision high enough for 20 digits
+        getcontext().prec = 50
         
         # Helper function to format numbers matching the file format
         def format_scientific(value):
             """Format a number in scientific notation matching the .dat file format."""
-            # Format with 16 decimal places in scientific notation
-            formatted = f"{value:.16E}"
-            # Python uses E+01 or E-01, but file uses E+001 or E-001
-            # Need to pad the exponent to 3 digits
-            if 'E' in formatted:
-                parts = formatted.split('E')
-                mantissa = parts[0]
-                exponent = parts[1]
-                # Pad exponent to 3 digits (including sign)
-                if exponent.startswith('+') or exponent.startswith('-'):
-                    sign = exponent[0]
-                    exp_num = exponent[1:]
-                    exponent_padded = f"{sign}{exp_num.zfill(3)}"
-                else:
-                    exponent_padded = exponent.zfill(3)
-                formatted = f"{mantissa}E{exponent_padded}"
-            return formatted
+            # Convert to Decimal for high precision
+            d = Decimal(str(value))
+            
+            # Get the scientific notation components
+            # Format: d.ddddddddddddddddE±nnn (17 significant figures: 1 before decimal + 16 after)
+            sign, digits, exponent = d.as_tuple()
+            
+            # Convert digits tuple to string
+            digits_str = ''.join(str(d) for d in digits)
+            
+            # Pad or truncate to exactly 17 digits
+            if len(digits) < 17:
+                digits_str = digits_str + '0' * (17 - len(digits))
+            else:
+                digits_str = digits_str[:17]
+            
+            # Calculate the exponent for scientific notation
+            # In Decimal.as_tuple(), exponent is the power of 10 to multiply by
+            # For scientific notation d.ddd...E+nnn, we need exponent relative to first digit
+            actual_exp = exponent + len(digits) - 1
+            
+            # Format as d.dddddddddddddddd (first digit, then decimal, then 16 more digits)
+            mantissa = digits_str[0] + '.' + digits_str[1:17]
+            
+            # Format exponent with sign and 3 digits
+            if actual_exp >= 0:
+                exp_str = f"+{actual_exp:03d}"
+            else:
+                exp_str = f"-{abs(actual_exp):03d}"
+            
+            # Add negative sign if needed
+            result = mantissa + 'E' + exp_str
+            if sign:
+                result = '-' + result
+            
+            return result
         
         # Check midpoint lines
         assert len(prof.midpoint_values) == len(file_midpoint_lines), \
-            f"Number of midpoints mismatch: {len(prof.midpoint_values)} vs {len(file_midpoint_lines)}"
+            f"{profile_name}: Number of midpoints mismatch: {len(prof.midpoint_values)} vs {len(file_midpoint_lines)}"
         
         for i, (grid_val, prof_val, layer_density) in enumerate(zip(grid.midpoints, prof.midpoint_values, prof.layer_densities)):
             file_line_parts = file_midpoint_lines[i].split(',')
             
-            # Column 0: height (km) at midpoint
-            file_grid = file_line_parts[0].strip()
-            grid_formatted = format_scientific(grid_val)
-            assert grid_formatted == file_grid, \
-                f"Grid midpoint mismatch at index {i}:\n  Expected: {file_grid}\n  Got: {grid_formatted}"
+            # Column 0: grid coordinate at midpoint
+            file_grid_str = file_line_parts[0].strip()
+            file_grid = Decimal(file_grid_str)
+            grid_decimal = Decimal(str(grid_val))
+            # Compare with tolerance appropriate for float64 (about 15-16 significant digits)
+            rel_error = abs((grid_decimal - file_grid) / file_grid) if file_grid != 0 else abs(grid_decimal)
+            assert rel_error < Decimal('1e-15'), \
+                f"{profile_name}: Grid midpoint mismatch at index {i}:\n  Expected: {file_grid_str}\n  Got: {format_scientific(grid_val)}\n  Relative error: {rel_error}"
             
             # Column 1: profile value at midpoint
-            file_prof = file_line_parts[1].strip()
-            prof_formatted = format_scientific(prof_val)
-            assert prof_formatted == file_prof, \
-                f"Profile midpoint value mismatch at index {i}:\n  Expected: {file_prof}\n  Got: {prof_formatted}"
-            
-            # Column 2: delta (difference) - we can skip this as it's derived
+            file_prof_str = file_line_parts[1].strip()
+            file_prof = Decimal(file_prof_str)
+            prof_decimal = Decimal(str(prof_val))
+            # Compare with tolerance appropriate for float64
+            rel_error = abs((prof_decimal - file_prof) / file_prof) if file_prof != 0 else abs(prof_decimal)
+            assert rel_error < Decimal('1e-15'), \
+                f"{profile_name}: Profile midpoint value mismatch at index {i}:\n  Expected: {file_prof_str}\n  Got: {format_scientific(prof_val)}\n  Relative error: {rel_error}"
             
             # Column 3: layer density
             file_layer_density = file_line_parts[3].strip()
-            # Check if it's a valid number (not '---')
             if file_layer_density != '---':
-                layer_density_formatted = f"{layer_density:.16E}"
-                # The file uses regular decimal notation for layer densities, not scientific
-                # Let's check what format is actually used
-                if 'E' in file_layer_density or 'e' in file_layer_density:
-                    # It's in scientific notation
-                    layer_density_formatted = format_scientific(layer_density)
-                else:
-                    # Regular decimal notation
-                    layer_density_formatted = f"{layer_density:.12f}"
+                file_ld = Decimal(file_layer_density)
+                ld_decimal = Decimal(str(layer_density))
+                rel_error = abs((ld_decimal - file_ld) / file_ld) if file_ld != 0 else abs(ld_decimal)
+                assert rel_error < Decimal('1e-15'), \
+                    f"{profile_name}: Layer density mismatch at index {i}:\n  Expected: {file_layer_density}\n  Got: {format_scientific(layer_density)}\n  Relative error: {rel_error}"
+        
+        # Check edge lines if they exist
+        if file_edge_lines:
+            assert len(prof.edge_values) == len(file_edge_lines), \
+                f"{profile_name}: Number of edges mismatch: {len(prof.edge_values)} vs {len(file_edge_lines)}"
+            
+            for i, (grid_val, prof_val) in enumerate(zip(grid.edges, prof.edge_values)):
+                file_line_parts = file_edge_lines[i].split(',')
                 
-                # For now, just verify they represent the same value
-                file_layer_density_val = float(file_layer_density)
-                assert abs(layer_density - file_layer_density_val) / max(abs(file_layer_density_val), 1e-10) < 1e-6, \
-                    f"Layer density mismatch at index {i}:\n  Expected: {file_layer_density}\n  Got: {layer_density}"
-            
-            # Columns 4 and 5 are marked as '---' so we skip them
-        
-        # Check edge lines
-        assert len(prof.edge_values) == len(file_edge_lines), \
-            f"Number of edges mismatch: {len(prof.edge_values)} vs {len(file_edge_lines)}"
-        
-        for i, (grid_val, prof_val) in enumerate(zip(grid.edges, prof.edge_values)):
-            file_line_parts = file_edge_lines[i].split(',')
-            
-            # Column 0: height (km) at edge
-            file_grid = file_line_parts[0].strip()
-            grid_formatted = format_scientific(grid_val)
-            assert grid_formatted == file_grid, \
-                f"Grid edge mismatch at index {i}:\n  Expected: {file_grid}\n  Got: {grid_formatted}"
-            
-            # Column 1: profile value at edge
-            file_prof = file_line_parts[1].strip()
-            prof_formatted = format_scientific(prof_val)
-            assert prof_formatted == file_prof, \
-                f"Profile edge value mismatch at index {i}:\n  Expected: {file_prof}\n  Got: {prof_formatted}"
+                # Column 0: grid coordinate at edge
+                file_grid_str = file_line_parts[0].strip()
+                file_grid = Decimal(file_grid_str)
+                grid_decimal = Decimal(str(grid_val))
+                rel_error = abs((grid_decimal - file_grid) / file_grid) if file_grid != 0 else abs(grid_decimal)
+                assert rel_error < Decimal('1e-15'), \
+                    f"{profile_name}: Grid edge mismatch at index {i}:\n  Expected: {file_grid_str}\n  Got: {format_scientific(grid_val)}\n  Relative error: {rel_error}"
+                
+                # Column 1: profile value at edge
+                file_prof_str = file_line_parts[1].strip()
+                file_prof = Decimal(file_prof_str)
+                prof_decimal = Decimal(str(prof_val))
+                rel_error = abs((prof_decimal - file_prof) / file_prof) if file_prof != 0 else abs(prof_decimal)
+                assert rel_error < Decimal('1e-15'), \
+                    f"{profile_name}: Profile edge value mismatch at index {i}:\n  Expected: {file_prof_str}\n  Got: {format_scientific(prof_val)}\n  Relative error: {rel_error}"
     
     def test_profile_interpolation(self):
         """Test that profile interpolation works with different grid."""
