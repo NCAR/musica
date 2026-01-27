@@ -81,10 +81,13 @@ namespace musica
         double *const photolysis_rate_constants,
         double *const heating_rates,
         double *const dose_rates,
+        double *const actinic_flux,
+        double *const spectral_irradiance,
         Error *const error)
     {
       DeleteError(error);
-      tuvx->Run(solar_zenith_angle, earth_sun_distance, photolysis_rate_constants, heating_rates, dose_rates, error);
+      tuvx->Run(solar_zenith_angle, earth_sun_distance, photolysis_rate_constants,
+                heating_rates, dose_rates, actinic_flux, spectral_irradiance, error);
     }
 
     void TuvxVersion(String *tuvx_version)

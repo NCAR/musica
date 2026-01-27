@@ -80,10 +80,13 @@ class TUVX:
         if config_path is not None:
             # Change the working directory to the config file's directory
             original_cwd = os.getcwd()
-            os.chdir(os.path.dirname(config_path))
+            new_cwd = os.path.dirname(config_path)
+            if new_cwd:
+                os.chdir(new_cwd)
+            file_path = os.path.basename(config_path)
             try:
                 self._tuvx_instance = _backend._tuvx._create_tuvx_from_file(
-                    config_path, grid_map, profile_map, radiator_map)
+                    file_path, grid_map, profile_map, radiator_map)
             finally:
                 os.chdir(original_cwd)
             self._config_path = config_path
@@ -156,12 +159,15 @@ class TUVX:
 
         Returns:
             XArray Dataset with data variables:
-            - photolysis_rate_constants: Shape (n_layers, n_reactions) [s^-1]
-            - heating_rates: Shape (n_layers, n_heating_rates) [K s^-1]
-            - dose_rates: Shape (n_layers, n_dose_rates) [W m^-2]
+            - photolysis_rate_constants: Shape (n_reactions, n_vertical_edge) [s^-1]
+            - heating_rates: Shape (n_heating_rates, n_vertical_edge) [K s^-1]
+            - dose_rates: Shape (n_dose_rates, n_vertical_edge) [W m^-2]
+            - actinic_flux: Shape (n_wavelengths, n_vertical_edge, 3 components: direct, upwelling, downwelling) [photons cm^-2 s^-1 nm^-1]
+            - spectral_irradiance: Shape (n_wavelengths, n_vertical_edge, 3 components: direct, upwelling, downwelling) [W m^-2 nm^-1]
         """
-        photolysis_rates, heating_rates, dose_rates = _backend._tuvx._run_tuvx(
-            self._tuvx_instance, sza, earth_sun_distance)
+        photolysis_rates, heating_rates, dose_rates, actinic_flux, \
+            spectral_irradiance = _backend._tuvx._run_tuvx(
+                self._tuvx_instance, sza, earth_sun_distance)
 
         # Create arrays of names sorted by index
         reaction_names = [name for name, _ in sorted(
@@ -173,14 +179,19 @@ class TUVX:
         dose_names = [name for name, _ in sorted(
             self.dose_rate_names.items(), key=lambda item: item[1]
         )]
+        radiation_components = ['direct', 'upwelling', 'downwelling']
 
         # Sanity check on array dimensions
-        assert photolysis_rates.shape[1] == len(reaction_names), \
-            "Photolysis rates shape does not match number of reactions"
-        assert heating_rates.shape[1] == len(heating_names), \
-            "Heating rates shape does not match number of heating rates"
-        assert dose_rates.shape[1] == len(dose_names), \
-            "Dose rates shape does not match number of dose rates"
+        assert photolysis_rates.shape[0] == len(reaction_names), \
+            f"Photolysis rates shape does not match number of reactions {photolysis_rates.shape[0]} /= {len(reaction_names)}"
+        assert heating_rates.shape[0] == len(heating_names), \
+            f"Heating rates shape does not match number of heating rates {heating_rates.shape[0]} /= {len(heating_names)}"
+        assert dose_rates.shape[0] == len(dose_names), \
+            f"Dose rates shape does not match number of dose rates {dose_rates.shape[0]} /= {len(dose_names)}"
+        assert actinic_flux.shape[2] == len(radiation_components), \
+            f"Actinic flux shape does not match number of radiation components {actinic_flux.shape[2]} /= {len(radiation_components)}"
+        assert spectral_irradiance.shape[2] == len(radiation_components), \
+            f"Spectral irradiance shape does not match number of radiation components {spectral_irradiance.shape[2]} /= {len(radiation_components)}"
 
         # Get the height and wavelength grids from the GridMap
         grids = self.get_grid_map()
@@ -188,17 +199,27 @@ class TUVX:
         wavelength_grid = grids["wavelength", "nm"]
 
         # Sanity check on height grid dimensions
-        assert height_grid.edges.size == photolysis_rates.shape[0], \
-            "Height grid sections do not match number of layers in photolysis rates"
-        assert height_grid.edges.size == heating_rates.shape[0], \
-            "Height grid sections do not match number of layers in heating rates"
-        assert height_grid.edges.size == dose_rates.shape[0], \
-            "Height grid sections do not match number of layers in dose rates"
-
+        assert height_grid.edges.size == photolysis_rates.shape[1], \
+            f"Height grid sections do not match number of layers in photolysis rates {height_grid.edges.size} /= {photolysis_rates.shape[1]}"
+        assert height_grid.edges.size == heating_rates.shape[1], \
+            f"Height grid sections do not match number of layers in heating rates {height_grid.edges.size} /= {heating_rates.shape[1]}"
+        assert height_grid.edges.size == dose_rates.shape[1], \
+            f"Height grid sections do not match number of layers in dose rates {height_grid.edges.size} /= {dose_rates.shape[1]}"
+        assert height_grid.edges.size == actinic_flux.shape[1], \
+            f"Height grid sections do not match number of layers in actinic flux {height_grid.edges.size} /= {actinic_flux.shape[1]}"
+        assert height_grid.edges.size == spectral_irradiance.shape[1], \
+            f"Height grid sections do not match number of layers in spectral irradiance {height_grid.edges.size} /= {spectral_irradiance.shape[1]}"
+        # Sanity check on wavelength grid dimensions
+        assert wavelength_grid.midpoints.size == actinic_flux.shape[0], \
+            f"Wavelength grid sections do not match number of wavelengths in actinic flux {wavelength_grid.midpoints.size} /= {actinic_flux.shape[0]}"
+        assert wavelength_grid.midpoints.size == spectral_irradiance.shape[0], \
+            f"Wavelength grid sections do not match number of wavelengths in spectral irradiance {wavelength_grid.midpoints.size} /= {spectral_irradiance.shape[0]}"
         dataset_vars = {
-            'photolysis_rate_constants': (('vertical_edge', 'reaction'), photolysis_rates, {'units': 's^-1'}),
-            'heating_rates': (('vertical_edge', 'heating_rate'), heating_rates, {'units': 'K s^-1'}),
-            'dose_rates': (('vertical_edge', 'dose_rate'), dose_rates, {'units': 'W m^-2'}),
+            'photolysis_rate_constants': (('reaction', 'vertical_edge'), photolysis_rates, {'units': 's^-1'}),
+            'heating_rates': (('heating_rate', 'vertical_edge'), heating_rates, {'units': 'K s^-1'}),
+            'dose_rates': (('dose_rate', 'vertical_edge'), dose_rates, {'units': 'W m^-2'}),
+            'actinic_flux': (('wavelength_midpoint', 'vertical_edge', 'component'), actinic_flux, {'units': 'photons cm^-2 s^-1 nm^-1'}),
+            'spectral_irradiance': (('wavelength_midpoint', 'vertical_edge', 'component'), spectral_irradiance, {'units': 'W m^-2 nm^-1'}),
             "solar_zenith_angle": ((), sza, {'units': 'radians'}),
             "earth_sun_distance": ((), earth_sun_distance, {'units': 'AU'}),
         }
@@ -213,6 +234,7 @@ class TUVX:
                 'vertical_edge': (('vertical_edge',), height_grid.edges, {'units': 'km'}),
                 'wavelength_midpoint': (('wavelength_midpoint',), wavelength_grid.midpoints, {'units': 'nm'}),
                 'wavelength_edge': (('wavelength_edge',), wavelength_grid.edges, {'units': 'nm'}),
+                'component': (('component',), radiation_components),
             }
         )
 

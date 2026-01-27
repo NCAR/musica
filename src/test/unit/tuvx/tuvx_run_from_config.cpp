@@ -144,7 +144,7 @@ TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfig)
   SetUp(json_config_path);
   ASSERT_NE(tuvx, nullptr);
   Error error;
-  RunTuvx(tuvx, 0.1, 1.1, photolysis_rate_constants, heating_rates, nullptr, &error);
+  RunTuvx(tuvx, 0.1, 1.1, photolysis_rate_constants, heating_rates, nullptr, , nullptr, nullptr, &error);
   ASSERT_TRUE(IsSuccess(error));
   for (int i = 0; i < number_of_reactions; i++)
   {
@@ -247,7 +247,7 @@ TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfigAndHostData)
   double temperature_midpoint_values[3] = { 287.5, 267.5, 257.5 };
   SetProfileMidpointValues(temperature, temperature_midpoint_values, 3, &error);
   ASSERT_TRUE(IsSuccess(error));
-  RunTuvx(tuvx, 0.1, 1.1, photolysis_rate_constants, heating_rates, nullptr, &error);
+  RunTuvx(tuvx, 0.1, 1.1, photolysis_rate_constants, heating_rates, nullptr, nullptr, nullptr, &error);
   ASSERT_TRUE(IsSuccess(error));
   for (int i = 0; i < number_of_reactions; i++)
   {

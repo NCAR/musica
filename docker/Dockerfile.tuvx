@@ -1,0 +1,45 @@
+FROM fedora:latest
+
+ARG MUSICA_GIT_TAG=main
+ARG BUILD_TYPE=Release
+
+RUN dnf -y update \
+    && dnf -y install \
+        cmake \
+        gcc-c++ \
+        gcc-fortran \
+        gdb \
+        git \
+        lapack-devel \
+        make \
+        netcdf-fortran-devel \
+        pip \
+        python \
+        python-devel \
+        valgrind \
+    && dnf clean all
+
+# Copy the musica code
+COPY . musica
+
+ENV CXX=g++
+ENV CC=gcc
+ENV FC=gfortran
+ENV TUVX_ROOT=/tuv-x
+
+# Install stand-alone TUV-x (same version as in MUSICA)
+# Extract TUV-x repo and tag from cmake/dependencies.cmake
+# build only - don't install so that musica still rebuilds the TUV-x library as part of its build
+RUN TUVX_REPO=$(grep "TUVX_GIT_REPOSITORY" musica/cmake/dependencies.cmake | grep -o 'https://[^")]*') && \
+    TUVX_TAG=$(grep "TUVX_GIT_TAG" musica/cmake/dependencies.cmake | grep "set_git_default" | sed -n 's/.*TUVX_GIT_TAG[[:space:]]*\([^)]*\)).*/\1/p' | tr -d '"' | tr -d ' ') && \
+    echo "Cloning TUV-x from ${TUVX_REPO} at tag ${TUVX_TAG}" && \
+    git clone --depth 1 --branch ${TUVX_TAG} ${TUVX_REPO} ${TUVX_ROOT} && \
+    cd tuv-x && \
+    mkdir build && cd build && \
+    cmake -D CMAKE_BUILD_TYPE=${BUILD_TYPE} .. && \
+    make -j
+
+# Install the MUSICA python package
+RUN cd musica && pip install -e .[test,tutorial]
+
+WORKDIR /musica

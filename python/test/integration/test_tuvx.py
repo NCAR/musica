@@ -122,10 +122,10 @@ def test_full_tuvx(monkeypatch):
     assert len(dataset["photolysis_rate_constants"].coords["vertical_edge"]
                ) == 121, "Number of layers should be 121 for photolysis rates"
     assert len(dataset["dose_rates"].coords["vertical_edge"]) == 121, "Number of layers should be 121 for dose rates"
-    assert dataset["heating_rates"].shape[1] == 0, "Should be no heating rates for this config"
-    assert dataset["photolysis_rate_constants"].shape[1] == len(
+    assert dataset["heating_rates"].shape[0] == 0, "Should be no heating rates for this config"
+    assert dataset["photolysis_rate_constants"].shape[0] == len(
         tuvx.photolysis_rate_names), "Photolysis rates shape mismatch"
-    assert dataset["dose_rates"].shape[1] == len(tuvx.dose_rate_names), "Dose rates shape mismatch"
+    assert dataset["dose_rates"].shape[0] == len(tuvx.dose_rate_names), "Dose rates shape mismatch"
 
     # Make sure photolysis rates are reasonable
     assert np.all(dataset["photolysis_rate_constants"] >= 0), "Negative photolysis rates found"
@@ -147,12 +147,12 @@ def test_full_tuvx(monkeypatch):
     o2_index = tuvx.photolysis_rate_names["O2+hv->O+O"]
     o3_o1d_index = tuvx.photolysis_rate_names["O3+hv->O2+O(1D)"]
     o3_o3p_index = tuvx.photolysis_rate_names["O3+hv->O2+O(3P)"]
-    assert np.all(dataset_doubled["photolysis_rate_constants"][:, o2_index] <=
-                  dataset["photolysis_rate_constants"][:, o2_index]), "O2 photolysis did not decrease"
-    assert np.all(dataset_doubled["photolysis_rate_constants"][:, o3_o1d_index] <=
-                  dataset["photolysis_rate_constants"][:, o3_o1d_index]), "O3 (1D) photolysis did not decrease"
-    assert np.all(dataset_doubled["photolysis_rate_constants"][:, o3_o3p_index] <=
-                  dataset["photolysis_rate_constants"][:, o3_o3p_index]), "O3 (3P) photolysis did not decrease"
+    assert np.all(dataset_doubled["photolysis_rate_constants"][o2_index, :] <=
+                  dataset["photolysis_rate_constants"][o2_index, :]), "O2 photolysis did not decrease"
+    assert np.all(dataset_doubled["photolysis_rate_constants"][o3_o1d_index, :] <=
+                  dataset["photolysis_rate_constants"][o3_o1d_index, :]), "O3 (1D) photolysis did not decrease"
+    assert np.all(dataset_doubled["photolysis_rate_constants"][o3_o3p_index, :] <=
+                  dataset["photolysis_rate_constants"][o3_o3p_index, :]), "O3 (3P) photolysis did not decrease"
 
     # Verify the labels in the XArray dataset are ordered the same as in the TUV-x label dicts
     for i, reaction in enumerate(tuvx.photolysis_rate_names):
@@ -231,9 +231,9 @@ def test_fixed_tuvx_from_file():
                ) == 4, "Unexpected number of layers for photolysis rates"
     assert len(dataset["heating_rates"].coords["vertical_edge"]) == 4, "Unexpected number of layers for heating rates"
     assert len(dataset["dose_rates"].coords["vertical_edge"]) == 4, "Unexpected number of layers for dose rates"
-    assert dataset["photolysis_rate_constants"].shape[1] == len(photolysis_names_1), "Photolysis rates shape mismatch"
-    assert dataset["heating_rates"].shape[1] == len(heating_names_1), "Heating rates shape mismatch"
-    assert dataset["dose_rates"].shape[1] == len(dose_names_1), "Dose rates shape mismatch"
+    assert dataset["photolysis_rate_constants"].shape[0] == len(photolysis_names_1), "Photolysis rates shape mismatch"
+    assert dataset["heating_rates"].shape[0] == len(heating_names_1), "Heating rates shape mismatch"
+    assert dataset["dose_rates"].shape[0] == len(dose_names_1), "Dose rates shape mismatch"
 
 
 def test_fixed_tuvx_from_string():
@@ -243,7 +243,15 @@ def test_fixed_tuvx_from_string():
     grid_map = get_fixed_grid_map()
     profile_map = get_profile_map(grid_map)
     radiator_map = get_radiator_map(grid_map)
-    tuvx = musica.TUVX(grid_map, profile_map, radiator_map, config_string=config_str)
+
+    # change to the config directory to mimic file-based relative paths
+    import os
+    original_cwd = os.getcwd()
+    os.chdir(os.path.dirname(file))
+    try:
+        tuvx = musica.TUVX(grid_map, profile_map, radiator_map, config_string=config_str)
+    finally:
+        os.chdir(original_cwd)
     assert tuvx is not None
 
     # Access properties multiple times
@@ -269,9 +277,9 @@ def test_fixed_tuvx_from_string():
                ) == 4, "Unexpected number of layers for photolysis rates"
     assert len(dataset["heating_rates"].coords["vertical_edge"]) == 4, "Unexpected number of layers for heating rates"
     assert len(dataset["dose_rates"].coords["vertical_edge"]) == 4, "Unexpected number of layers for dose rates"
-    assert dataset["photolysis_rate_constants"].shape[1] == len(photolysis_names_1), "Photolysis rates shape mismatch"
-    assert dataset["heating_rates"].shape[1] == len(heating_names_1), "Heating rates shape mismatch"
-    assert dataset["dose_rates"].shape[1] == len(dose_names_1), "Dose rates shape mismatch"
+    assert dataset["photolysis_rate_constants"].shape[0] == len(photolysis_names_1), "Photolysis rates shape mismatch"
+    assert dataset["heating_rates"].shape[0] == len(heating_names_1), "Heating rates shape mismatch"
+    assert dataset["dose_rates"].shape[0] == len(dose_names_1), "Dose rates shape mismatch"
 
 
 def test_v54_radiator_exact_reproduction():
