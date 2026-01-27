@@ -94,7 +94,7 @@ if backend.tuvx_available():
         if not isinstance(radiator, Radiator):
             raise TypeError("Value must be a Radiator instance.")
         if radiator.name != key:
-            raise ValueError("Radiator name does not match the key.")
+            raise ValueError(f"Radiator name does not match the key: {radiator.name} != {key}")
         self.add_radiator(radiator)
 
     RadiatorMap.__setitem__ = __setitem__

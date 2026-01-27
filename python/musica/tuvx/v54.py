@@ -9,6 +9,53 @@ import numpy as np
 from .grid import Grid
 from .profile import Profile
 from .radiator import Radiator
+from musica.tuvx import TUVX
+
+def get_tuvx_calculator() -> TUVX:
+    """Returns a TUV-x instance configured for the v5.4 photolysis setup."""
+    from .tuvx import TUVX
+    from .grid_map import GridMap
+    from .profile_map import ProfileMap
+    from .radiator_map import RadiatorMap
+
+    # Set up grids
+    grids = GridMap()
+    grids["height", "km"] = height_grid()
+    grids["wavelength", "nm"] = wavelength_grid()
+
+    # Set up profiles
+    profiles = ProfileMap()
+    profiles["air", "molecule cm-3"] = profile("air", grids["height", "km"])
+    profiles["O3", "molecule cm-3"] = profile("O3", grids["height", "km"])
+    profiles["O2", "molecule cm-3"] = profile("O2", grids["height", "km"])
+    profiles["temperature", "K"] = profile("temperature", grids["height", "km"])
+    profiles["surface albedo", "none"] = profile("surface albedo", grids["wavelength", "nm"])
+    profiles["extraterrestrial flux", "photon cm-2 s-1"] = profile(
+        "extraterrestrial flux", grids["wavelength", "nm"]
+    )
+
+    # Set up radiators
+    radiators = RadiatorMap()
+    radiators["aerosol"] = radiator("aerosol", grids["height", "km"], grids["wavelength", "nm"])
+
+    # Create TUV-x instance with v5.4 configuration file
+    tuvx = TUVX(
+        grid_map=grids,
+        profile_map=profiles,
+        radiator_map=radiators,
+        config_path=config_file_path()
+    )
+
+    return tuvx
+
+
+def config_file_path() -> str:
+    """Returns the file path to the TUV-x v5.4 configuration JSON file."""
+    # Get the package directory (go up from python/musica/tuvx to the root)
+    package_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+    config_path = os.path.join(package_dir, "configs", "tuvx", "tuv_5_4.json")
+    return config_path
+
 
 def height_grid() -> Grid:
     """Returns the v5.4 height grid for TUV-x."""
@@ -195,7 +242,7 @@ profile_data_files = {
     "extraterrestrial flux": "configs/tuvx/data/profiles/solar/extraterrestrial_flux.v54.dat"
 }
 
-def profile(name: str, grid: Grid, units: str = None) -> Profile:
+def profile(name: str, grid: Grid) -> Profile:
     """
     Returns a standard profile for TUV-x v5.4 by name.
     
@@ -205,7 +252,6 @@ def profile(name: str, grid: Grid, units: str = None) -> Profile:
     Args:
         name: Name of the profile (e.g., "O3", "air", "temperature")
         grid: Grid instance to interpolate the profile onto
-        units: Optional units override. If not provided, will attempt to extract from file header
     
     Returns:
         Profile instance with data interpolated to the provided grid
@@ -225,16 +271,16 @@ def profile(name: str, grid: Grid, units: str = None) -> Profile:
         lines = f.readlines()
     
     # Extract units from header if not provided
+    units: str | None = None
+    for line in lines:
+        if line.startswith(' # Profile:') and '(' in line and ')' in line:
+            # Extract units from header like: # Profile: O3 (molecule cm-3)
+            start = line.find('(') + 1
+            end = line.find(')', start)
+            units = line[start:end]
+            break
     if units is None:
-        for line in lines:
-            if line.startswith(' # Profile:') and '(' in line and ')' in line:
-                # Extract units from header like: # Profile: O3 (molecule cm-3)
-                start = line.find('(') + 1
-                end = line.find(')', start)
-                units = line[start:end]
-                break
-        if units is None:
-            units = "unknown"
+        units = "unknown"
     
     # Parse midpoint and edge sections
     midpoint_section = []

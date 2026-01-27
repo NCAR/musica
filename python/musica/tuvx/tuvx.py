@@ -58,7 +58,7 @@ class TUVX:
             grid_map: GridMap instance containing grid definitions (height, wavelength)
             profile_map: ProfileMap instance containing atmospheric profiles (temperature, species concentrations, surface albedo, ET flux)
             radiator_map: RadiatorMap instance containing radiator definitions (optically active species)
-            config_path: Path to the JSON configuration file
+            config_path: Path to the JSON configuration file (files paths in the json/yaml must be absolute or relative to the config file location)
             config_string: JSON configuration as a string
 
         Raises:
@@ -78,8 +78,14 @@ class TUVX:
                 f"Configuration file not found: {config_path}")
 
         if config_path is not None:
-            self._tuvx_instance = _backend._tuvx._create_tuvx_from_file(
-                config_path, grid_map, profile_map, radiator_map)
+            # Change the working directory to the config file's directory
+            original_cwd = os.getcwd()
+            os.chdir(os.path.dirname(config_path))
+            try:
+                self._tuvx_instance = _backend._tuvx._create_tuvx_from_file(
+                    config_path, grid_map, profile_map, radiator_map)
+            finally:
+                os.chdir(original_cwd)
             self._config_path = config_path
             self._config_string = None
         elif config_string is not None:
@@ -218,6 +224,24 @@ class TUVX:
             GridMap instance
         """
         return _backend._tuvx._get_grid_map(self._tuvx_instance)
+    
+    def get_profile_map(self) -> ProfileMap:
+        """
+        Get the ProfileMap used in this TUV-x instance.
+
+        Returns:
+            ProfileMap instance
+        """
+        return _backend._tuvx._get_profile_map(self._tuvx_instance)
+    
+    def get_radiator_map(self) -> RadiatorMap:
+        """
+        Get the RadiatorMap used in this TUV-x instance.
+
+        Returns:
+            RadiatorMap instance
+        """
+        return _backend._tuvx._get_radiator_map(self._tuvx_instance)
 
     def get_photolysis_rate_constant(
         self,
