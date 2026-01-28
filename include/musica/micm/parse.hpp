@@ -67,7 +67,9 @@ namespace musica
       bool ignore_non_gas_phases = false);
   Chemistry ParserV1(const mechanism_configuration::ParserResult<>& result);
 
-  mechanism_configuration::v1::types::Mechanism ConvertV0MechanismToV1(const std::string& config_path, bool convert_reaction_units = true);
+  mechanism_configuration::v1::types::Mechanism ConvertV0MechanismToV1(
+      const std::string& config_path,
+      bool convert_reaction_units = true);
   mechanism_configuration::v1::types::Mechanism ConvertV0MechanismToV1(
       const mechanism_configuration::v0::types::Mechanism& v0_mechanism,
       bool convert_reaction_units = true);
