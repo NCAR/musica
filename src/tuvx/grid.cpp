@@ -67,6 +67,12 @@ namespace musica
     grid->GetEdges(edges, num_edges, error);
   }
 
+  double* GetGridEdgesPointer(Grid *grid, Error *error)
+  {
+    DeleteError(error);
+    return grid->GetEdgesPointer(error);
+  }
+
   void SetGridMidpoints(Grid *grid, double midpoints[], std::size_t num_midpoints, Error *error)
   {
     DeleteError(error);
@@ -77,6 +83,12 @@ namespace musica
   {
     DeleteError(error);
     grid->GetMidpoints(midpoints, num_midpoints, error);
+  }
+
+  double* GetGridMidpointsPointer(Grid *grid, Error *error)
+  {
+    DeleteError(error);
+    return grid->GetMidpointsPointer(error);
   }
 
   // Grid class functions
@@ -215,6 +227,26 @@ namespace musica
     NoError(error);
   }
 
+  double* Grid::GetEdgesPointer(Error *error)
+  {
+    DeleteError(error);
+    int error_code = 0;
+    if (updater_ == nullptr)
+    {
+      error_code = ERROR_UNALLOCATED_GRID_UPDATER;
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      return nullptr;
+    }
+    double* edges_ptr = InternalGetEdgesPointer(updater_, &error_code);
+    if (error_code != 0)
+    {
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      return nullptr;
+    }
+    NoError(error);
+    return edges_ptr;
+  }
+
   void Grid::SetMidpoints(double midpoints[], std::size_t num_midpoints, Error *error)
   {
     DeleteError(error);
@@ -251,6 +283,26 @@ namespace musica
       return;
     }
     NoError(error);
+  }
+
+  double* Grid::GetMidpointsPointer(Error *error)
+  {
+    DeleteError(error);
+    int error_code = 0;
+    if (updater_ == nullptr)
+    {
+      error_code = ERROR_UNALLOCATED_GRID_UPDATER;
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      return nullptr;
+    }
+    double* midpoints_ptr = InternalGetMidpointsPointer(updater_, &error_code);
+    if (error_code != 0)
+    {
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      return nullptr;
+    }
+    NoError(error);
+    return midpoints_ptr;
   }
 
 }  // namespace musica
