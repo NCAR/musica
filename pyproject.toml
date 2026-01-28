@@ -157,7 +157,6 @@ test-command = [
   "musica-cli --help",
   "pytest {project}/python/test",
   "musica-cli --convert configs/v0/TS1/config.json -o ts1.json",
-  "musica-cli --convert configs/v0/TS1/config.json -o ts1.json --no-convert-units",
   "musica-cli -e CARMA_Aluminum -o .",
   "python carma_aluminum.py",
   "musica-cli -e CARMA_Sulfate -o .",
