@@ -34,7 +34,7 @@ homepage = "https://wiki.ucar.edu/display/MUSICA/MUSICA+Home"
 test = [
   "pytest>=7.0.0",
   "pytest-cov>=4.0.0",
-  "ussa1976>=0.3.4; platform_machine != 'i686' and (platform_machine != 'arm64' and platform_system != 'Windows')"
+  "ussa1976>=0.3.4; platform_machine != 'i686' and (platform_machine != 'arm64' or platform_system != 'Windows')"
 ]
 
 gpu = ["nvidia-cublas-cu12>=12.6.4.1", "nvidia-cuda-runtime-cu12>=12.6.68"]
