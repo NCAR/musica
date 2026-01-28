@@ -6,15 +6,12 @@
 #include <mechanism_configuration/v1/types.hpp>
 #include <mechanism_configuration/v1/validation.hpp>
 
-#include <iostream>
-#include <format>
-
 static constexpr double avogadro = 6.02214076e23;  // # mol^{-1}
 static constexpr double MolesM3ToMoleculesCm3 = 1.0e-6 * avogadro;
+static constexpr double MoleculesCm3ToMolesM3 = 1.0 / MolesM3ToMoleculesCm3;
 
 namespace musica
 {
-
   std::string strip_name(const std::string& name)
   {
     // remove USER. SURF. PHOTO. from name
@@ -45,7 +42,7 @@ namespace musica
     }
 
     // The total reactants ensures that the rate always ends up in moles m-3 s-1
-    return molecules_cm3 * std::pow(MolesM3ToMoleculesCm3, total_reactants - 1);
+    return molecules_cm3 * std::pow(MoleculesCm3ToMolesM3, -(total_reactants - 1));
   }
 
   double k0_A_convert_molecules_cm3_to_moles_m3(
@@ -64,7 +61,7 @@ namespace musica
     }
 
     // The total reactants ensures that the rate always ends up in moles m-3 s-1
-    return molecules_cm3 * std::pow(MolesM3ToMoleculesCm3, total_reactants);
+    return molecules_cm3 * std::pow(MoleculesCm3ToMolesM3, -total_reactants);
   }
 
   // Forward declarations
@@ -218,7 +215,7 @@ namespace musica
       mechanism_configuration::v1::types::Troe v1_troe;
       v1_troe.reactants = convert_reaction_components_v0_to_v1(troe.reactants);
       v1_troe.products = convert_reaction_components_v0_to_v1(troe.products);
-      v1_troe.k0_A = convert_reaction_units ? convert_molecules_cm3_to_moles_m3(v1_troe.reactants, troe.k0_A) : troe.k0_A;
+      v1_troe.k0_A = convert_reaction_units ? k0_A_convert_molecules_cm3_to_moles_m3(v1_troe.reactants, troe.k0_A) : troe.k0_A;
       v1_troe.kinf_A = convert_reaction_units ? convert_molecules_cm3_to_moles_m3(v1_troe.reactants, troe.kinf_A) : troe.kinf_A;
       v1_troe.k0_B = troe.k0_B;
       v1_troe.k0_C = troe.k0_C;
