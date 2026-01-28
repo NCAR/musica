@@ -36,7 +36,8 @@ surface_reactions = conditions[conditions['parameter'].str.contains('SURF')]
 initial_concentrations = conditions[conditions['parameter'].str.contains(
     'CONC')]
 # remove CONC. from the parameter names
-initial_concentrations.loc[:, 'parameter'] = initial_concentrations.loc[:, 'parameter'].str.replace('CONC.', '', regex=False)
+initial_concentrations.loc[:, 'parameter'] = initial_concentrations.loc[:,
+                                                                        'parameter'].str.replace('CONC.', '', regex=False)
 
 # grab the environmental conditions, anything prefixed with ENV.
 environmental_conditions = conditions[conditions['parameter'].str.contains('ENV')]
@@ -77,26 +78,26 @@ state.set_user_defined_rate_parameters(user_defined_dict)
 times = [0]
 concentrations = [state.get_concentrations()]
 time_step = 30  # seconds
-simulation_length = 1 * 60 * 60 # 1 hour in seconds
+simulation_length = 1 * 60 * 60  # 1 hour in seconds
 current_time = 0
 last_printed_percent = -5  # Track last printed percentage
 
 while current_time < simulation_length:
     elapsed = 0
     while elapsed < time_step:
-      remaining_time = time_step - elapsed
-      result = solver.solve(state, remaining_time)
-      elapsed += result.stats.final_time
-      current_time += result.stats.final_time
-      if result.state != SolverState.Converged:
-        print(f"Solver state: {result.state}, time: {current_time}")
-    
+        remaining_time = time_step - elapsed
+        result = solver.solve(state, remaining_time)
+        elapsed += result.stats.final_time
+        current_time += result.stats.final_time
+        if result.state != SolverState.Converged:
+            print(f"Solver state: {result.state}, time: {current_time}")
+
     # Print progress every 5%
     current_percent = (current_time / simulation_length) * 100
     if int(current_percent // 5) * 5 > last_printed_percent:
         last_printed_percent = int(current_percent // 5) * 5
         print(f"Simulation progress: {last_printed_percent}%")
-      
+
     times.append(current_time)
     concentrations.append(state.get_concentrations())
 

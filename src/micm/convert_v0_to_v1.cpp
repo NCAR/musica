@@ -17,7 +17,8 @@ namespace musica
     // remove USER. SURF. PHOTO. from name
     std::string stripped_name = name;
     const std::string prefixes[] = { "USER.", "SURF.", "PHOTO." };
-    for (const auto& prefix : prefixes) {
+    for (const auto& prefix : prefixes)
+    {
       if (stripped_name.find(prefix) == 0)
       {
         stripped_name = stripped_name.substr(prefix.length());
@@ -69,7 +70,8 @@ namespace musica
       const std::vector<mechanism_configuration::v0::types::Species>& v0_species);
 
   mechanism_configuration::v1::types::Reactions convert_reactions_v0_to_v1(
-      const mechanism_configuration::v0::types::Reactions& v0_reactions, bool convert_reaction_units);
+      const mechanism_configuration::v0::types::Reactions& v0_reactions,
+      bool convert_reaction_units);
 
   std::vector<mechanism_configuration::v1::types::ReactionComponent> convert_reaction_components_v0_to_v1(
       const std::vector<mechanism_configuration::v0::types::ReactionComponent>& v0_components);
@@ -77,7 +79,9 @@ namespace musica
   mechanism_configuration::v1::types::ReactionComponent convert_reaction_component_v0_to_v1(
       const mechanism_configuration::v0::types::ReactionComponent& v0_component);
 
-  mechanism_configuration::v1::types::Mechanism ConvertV0MechanismToV1(const std::string& config_path, bool convert_reaction_units)
+  mechanism_configuration::v1::types::Mechanism ConvertV0MechanismToV1(
+      const std::string& config_path,
+      bool convert_reaction_units)
   {
     mechanism_configuration::v0::Parser parser;
     auto parsed = parser.Parse(config_path);
@@ -160,7 +164,8 @@ namespace musica
   }
 
   mechanism_configuration::v1::types::Reactions convert_reactions_v0_to_v1(
-      const mechanism_configuration::v0::types::Reactions& v0_reactions, bool convert_reaction_units)
+      const mechanism_configuration::v0::types::Reactions& v0_reactions,
+      bool convert_reaction_units)
   {
     mechanism_configuration::v1::types::Reactions v1_reactions;
 
@@ -187,7 +192,8 @@ namespace musica
       v1_branched.reactants = convert_reaction_components_v0_to_v1(branched.reactants);
       v1_branched.alkoxy_products = convert_reaction_components_v0_to_v1(branched.alkoxy_products);
       v1_branched.nitrate_products = convert_reaction_components_v0_to_v1(branched.nitrate_products);
-      v1_branched.X = convert_reaction_units ? convert_molecules_cm3_to_moles_m3(v1_branched.reactants, branched.X) : branched.X;
+      v1_branched.X =
+          convert_reaction_units ? convert_molecules_cm3_to_moles_m3(v1_branched.reactants, branched.X) : branched.X;
       v1_branched.Y = branched.Y;
       v1_branched.a0 = branched.a0;
       v1_branched.n = branched.n;
@@ -215,8 +221,10 @@ namespace musica
       mechanism_configuration::v1::types::Troe v1_troe;
       v1_troe.reactants = convert_reaction_components_v0_to_v1(troe.reactants);
       v1_troe.products = convert_reaction_components_v0_to_v1(troe.products);
-      v1_troe.k0_A = convert_reaction_units ? k0_A_convert_molecules_cm3_to_moles_m3(v1_troe.reactants, troe.k0_A) : troe.k0_A;
-      v1_troe.kinf_A = convert_reaction_units ? convert_molecules_cm3_to_moles_m3(v1_troe.reactants, troe.kinf_A) : troe.kinf_A;
+      v1_troe.k0_A =
+          convert_reaction_units ? k0_A_convert_molecules_cm3_to_moles_m3(v1_troe.reactants, troe.k0_A) : troe.k0_A;
+      v1_troe.kinf_A =
+          convert_reaction_units ? convert_molecules_cm3_to_moles_m3(v1_troe.reactants, troe.kinf_A) : troe.kinf_A;
       v1_troe.k0_B = troe.k0_B;
       v1_troe.k0_C = troe.k0_C;
       v1_troe.kinf_B = troe.kinf_B;
@@ -234,8 +242,10 @@ namespace musica
       mechanism_configuration::v1::types::TernaryChemicalActivation v1_ternary;
       v1_ternary.reactants = convert_reaction_components_v0_to_v1(ternary.reactants);
       v1_ternary.products = convert_reaction_components_v0_to_v1(ternary.products);
-      v1_ternary.k0_A = convert_reaction_units ? convert_molecules_cm3_to_moles_m3(v1_ternary.reactants, ternary.k0_A) : ternary.k0_A;
-      v1_ternary.kinf_A = convert_reaction_units ? convert_molecules_cm3_to_moles_m3(v1_ternary.reactants, ternary.kinf_A) : ternary.kinf_A;
+      v1_ternary.k0_A =
+          convert_reaction_units ? convert_molecules_cm3_to_moles_m3(v1_ternary.reactants, ternary.k0_A) : ternary.k0_A;
+      v1_ternary.kinf_A =
+          convert_reaction_units ? convert_molecules_cm3_to_moles_m3(v1_ternary.reactants, ternary.kinf_A) : ternary.kinf_A;
       v1_ternary.k0_B = ternary.k0_B;
       v1_ternary.k0_C = ternary.k0_C;
       v1_ternary.kinf_B = ternary.kinf_B;
@@ -253,7 +263,8 @@ namespace musica
       mechanism_configuration::v1::types::Tunneling v1_tunneling;
       v1_tunneling.reactants = convert_reaction_components_v0_to_v1(tunneling.reactants);
       v1_tunneling.products = convert_reaction_components_v0_to_v1(tunneling.products);
-      v1_tunneling.A = convert_reaction_units ? convert_molecules_cm3_to_moles_m3(v1_tunneling.reactants, tunneling.A) : tunneling.A;
+      v1_tunneling.A =
+          convert_reaction_units ? convert_molecules_cm3_to_moles_m3(v1_tunneling.reactants, tunneling.A) : tunneling.A;
       v1_tunneling.B = tunneling.B;
       v1_tunneling.C = tunneling.C;
       v1_tunneling.gas_phase = "gas";

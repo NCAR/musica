@@ -492,9 +492,11 @@ void bind_mechanism_configuration(py::module_ &mechanism_configuration)
           "parse_and_convert_v0",
           [](V1Parser &self, const std::string &path, bool convert_reaction_units)
           {
-            mechanism_configuration::v1::types::Mechanism mechanism = musica::ConvertV0MechanismToV1(path, convert_reaction_units);
+            mechanism_configuration::v1::types::Mechanism mechanism =
+                musica::ConvertV0MechanismToV1(path, convert_reaction_units);
             return mechanism;
           },
-          py::arg("path"), py::arg("convert_reaction_units") = true,
+          py::arg("path"),
+          py::arg("convert_reaction_units") = true,
           "Parse a v0 mechanism configuration file");
 }
