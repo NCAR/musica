@@ -177,7 +177,7 @@ TEST(Parser, ConvertArrheniusV0ToV1)
   EXPECT_EQ(v1_mechanism.name, "Test Arrhenius");
   EXPECT_EQ(v1_mechanism.version.major, 1);
   EXPECT_EQ(v1_mechanism.species.size(), 3);
-  EXPECT_EQ(v1_mechanism.phases.size(), 2);
+  EXPECT_EQ(v1_mechanism.phases.size(), 1);
   EXPECT_EQ(v1_mechanism.reactions.arrhenius.size(), 1);
   EXPECT_EQ(v1_mechanism.reactions.arrhenius[0].gas_phase, "gas");
   EXPECT_EQ(v1_mechanism.reactions.arrhenius[0].reactants.size(), 2);
