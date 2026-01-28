@@ -1,5 +1,5 @@
 """
-Test against stand-alone TUV-x version 5.4 configuration
+Test against stand-alone TUV-x version TS1/TSMLT configuration
 """
 import os
 import subprocess
@@ -7,14 +7,14 @@ import pytest
 import numpy as np
 import xarray as xr
 import musica
-from musica.tuvx import v54
+from musica.tuvx import vTS1
 
 @pytest.mark.skipif(not musica.backend.tuvx_available(),
                     reason="TUV-x backend is not available")
 @pytest.mark.skipif(os.getenv("TUVX_ROOT") is None,
                     reason="TUVX_ROOT environment variable is not set")
 
-def test_v54_against_standalone_tuvx():
+def test_vts1_against_standalone_tuvx():
     """
     Compare Python interface results with standalone TUV-x executable.
     
@@ -24,13 +24,13 @@ def test_v54_against_standalone_tuvx():
     """
     tuvx_root = os.getenv("TUVX_ROOT")
     executable = os.path.join(tuvx_root, "build", "tuv-x")
-    config_file = os.path.join(tuvx_root, "examples", "tuv_5_4.json")
+    config_file = os.path.join(tuvx_root, "examples", "ts1_tsmlt.json")
     
     # Verify executable and config exist
     assert os.path.isfile(executable), f"TUV-x executable not found: {executable}"
     assert os.path.isfile(config_file), f"Config file not found: {config_file}"
-    
-    # Create a temporary directory for TUV-x outputs
+
+    # Create a temporary working directory
     import tempfile
     temp_dir = tempfile.mkdtemp(dir=tuvx_root)
     
@@ -60,13 +60,10 @@ def test_v54_against_standalone_tuvx():
 
     # Read standalone TUV-x output files
     photolysis_nc = os.path.join(temp_dir, "photolysis_rate_constants.nc")
-    dose_rates_nc = os.path.join(temp_dir, "dose_rates.nc")
-
+    
     assert os.path.isfile(photolysis_nc), f"Output file not found: {photolysis_nc}"
-    assert os.path.isfile(dose_rates_nc), f"Output file not found: {dose_rates_nc}"
     
     standalone_photolysis = xr.open_dataset(photolysis_nc, decode_timedelta=False)
-    standalone_dose = xr.open_dataset(dose_rates_nc, decode_timedelta=False)
     
     # Get solar zenith angles and Earth-Sun distances from standalone output
     sza_values = standalone_photolysis["solar zenith angle"].values
@@ -74,7 +71,7 @@ def test_v54_against_standalone_tuvx():
     n_times = len(sza_values)
     
     # Create Python interface TUV-x instance
-    tuvx = v54.get_tuvx_calculator()
+    tuvx = vTS1.get_tuvx_calculator()
     
     # Get grids and profiles for comparison
     grids = tuvx.get_grid_map()
@@ -182,6 +179,7 @@ def test_v54_against_standalone_tuvx():
             if np.any(mask):
                 rel_diff = np.abs((standalone_data[mask] - python_data[mask]) / standalone_data[mask])
                 max_rel_diff = np.max(rel_diff)
+                
                 if max_rel_diff >= 3e-2:
                     failures.append(
                         f"{var_name} at time={time_idx}: "
@@ -201,66 +199,10 @@ def test_v54_against_standalone_tuvx():
                         f"max_abs_diff={max_abs_diff:.2e}"
                     )
         
-        # Compare dose rates
-        for var_name in standalone_dose.data_vars:
-            if var_name in skip_vars:
-                continue
-            
-            # Skip variables we've already compared
-            if var_name in {'altitude', 'wavelength', 'temperature',
-                           'direct radiation', 'upward radiation', 'downward radiation',
-                           'vertical_level'}:
-                continue
-            
-            if var_name.startswith("cross section") or var_name.startswith("quantum yield"):
-                continue
-            
-            # Get standalone data for this time slice
-            standalone_data = standalone_dose[var_name].isel(time=time_idx).values
-            
-            # Get Python data - dose rates are stored as coordinates
-            # NetCDF sanitizes variable names (e.g., "/" becomes "_"), so we need to check both
-            python_dose_rates = python_result.coords.get('dose_rate', [])
-            if var_name in python_dose_rates:
-                python_data = python_result['dose_rates'].sel(dose_rate=var_name).values
-            else:
-                # Try with common character replacements (NetCDF sanitization)
-                normalized_name = var_name.replace('_', '/')
-                if normalized_name in python_dose_rates:
-                    python_data = python_result['dose_rates'].sel(dose_rate=normalized_name).values
-                else:
-                    # Skip dose rates not found in Python output
-                    continue
-            
-            # Compare shapes
-            assert standalone_data.shape == python_data.shape, \
-                f"Shape mismatch for {var_name} at time={time_idx}: {standalone_data.shape} vs {python_data.shape}"
-            
-            # Use relative tolerance for non-zero values
-            mask = np.abs(standalone_data) > 1e-30
-            if np.any(mask):
-                rel_diff = np.abs((standalone_data[mask] - python_data[mask]) / standalone_data[mask])
-                max_rel_diff = np.max(rel_diff)
-                if max_rel_diff >= 3e-2:
-                    failures.append(
-                        f"{var_name} (dose rate) at time={time_idx}: "
-                        f"max_rel_diff={max_rel_diff:.2e}"
-                    )
-            
-            # Use absolute tolerance for near-zero values
-            mask_zero = np.abs(standalone_data) <= 1e-30
-            if np.any(mask_zero):
-                abs_diff = np.abs(standalone_data[mask_zero] - python_data[mask_zero])
-                max_abs_diff = np.max(abs_diff)
-                if max_abs_diff >= 1e-30:
-                    failures.append(
-                        f"{var_name} (dose rate, near-zero) at time={time_idx}: "
-                        f"max_abs_diff={max_abs_diff:.2e}"
-                    )
+        # There are no dose or heating rates in the TS1/TSMLT config, so we skip those comparisons
     
     # Clean up
     standalone_photolysis.close()
-    standalone_dose.close()
     
     # Remove temporary directory
     import shutil

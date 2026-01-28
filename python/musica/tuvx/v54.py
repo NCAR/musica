@@ -252,15 +252,32 @@ def profile(name: str, grid: Grid) -> Profile:
     Args:
         name: Name of the profile (e.g., "O3", "air", "temperature")
         grid: Grid instance to interpolate the profile onto
+    Returns:
+        Profile instance with data interpolated to the provided grid
+    """
+    return profile_from_map(profile_data_files, name, grid)
+
+
+def profile_from_map(file_map: dict, name: str, grid: Grid) -> Profile:
+    """
+    Returns a standard profile for TUV-x v5.4 by name.
+    
+    Reads profile data from .dat files and performs linear interpolation
+    if the grid values don't match the provided grid.
+    
+    Args:
+        file_map: Dictionary mapping profile names to data file paths
+        name: Name of the profile (e.g., "O3", "air", "temperature")
+        grid: Grid instance to interpolate the profile onto
     
     Returns:
         Profile instance with data interpolated to the provided grid
     """
-    if name not in profile_data_files:
+    if name not in file_map:
         raise ValueError(f"Profile '{name}' not found in TUV-x v5.4 configuration.")
     
     # Resolve filepath relative to the musica package root
-    filepath = profile_data_files[name]
+    filepath = file_map[name]
     if not os.path.isabs(filepath):
         # Get the package directory (go up from python/musica/tuvx to the root)
         package_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
@@ -300,6 +317,8 @@ def profile(name: str, grid: Grid) -> Profile:
     if grid_type is None:
         raise ValueError(f"Could not determine grid type from file headers")
     
+
+    exo_layer_density = 0.0  # Default value if not present
     for line in lines:
         line = line.strip()
         if not line or line.startswith('#'):
@@ -312,25 +331,43 @@ def profile(name: str, grid: Grid) -> Profile:
         
         # Parse data lines - only extract first two columns
         parts = line.split(',')
-        # Skip footer lines that start with '---'
-        if parts[0].strip() == '---':
+        # Skip lines where all values are '---' (completely empty rows)
+        if all(p.strip() == '---' for p in parts if p.strip()):
             continue
         if current_section == 'midpoint':
             # Format: height (km), mid-point, delta, layer density, ...
             # Extract: height, profile value, layer density
-            values = [float(parts[0]), float(parts[1]), float(parts[3])]
-            midpoint_section.append(values)
+            # Skip '---' markers - they indicate unallocated/out-of-bounds array elements
+            try:
+                height = float(parts[0]) if parts[0].strip() != '---' else None
+                midpoint = float(parts[1]) if parts[1].strip() != '---' else None
+                layer_density = float(parts[3]) if len(parts) > 3 and parts[3].strip() != '---' else None
+                values = [height, midpoint, layer_density if layer_density is not None else 0.0]
+                # Only add rows with height and midpoint values
+                if height is not None and midpoint is not None:
+                    midpoint_section.append(values)
+                else:
+                    exo_layer_density = float(parts[4]) if len(parts) > 4 and parts[4].strip() != '---' else 0.0
+            except (ValueError, IndexError):
+                raise ValueError(f"Error parsing midpoint data line: {line}")
         elif current_section == 'edge':
             # Format: height (km), edge
-            values = [float(parts[0]), float(parts[1])]
-            edge_section.append(values)
+            try:
+                height = float(parts[0]) if parts[0].strip() != '---' else None
+                edge = float(parts[1]) if parts[1].strip() != '---' else None
+                # Only add row if we have valid numerical data
+                if height is not None and edge is not None:
+                    values = [height, edge]
+                    edge_section.append(values)
+            except (ValueError, IndexError):
+                raise ValueError(f"Error parsing edge data line: {line}")
     
     # Convert to numpy arrays
     midpoint_data = np.array(midpoint_section)
     edge_data = np.array(edge_section)
     
     # Extract grid coordinates, profile values, and layer densities
-    # midpoint_data columns: 0=height (km), 1=profile value, 2=layer density
+    # midpoint_data columns: 0=height (km), 1=profile value, 2=layer density, 3=exo layer density
     file_grid_midpoints = midpoint_data[:, 0]
     file_midpoint_values = midpoint_data[:, 1]
     file_layer_densities = midpoint_data[:, 2]
@@ -367,6 +404,11 @@ def profile(name: str, grid: Grid) -> Profile:
         interpolated_midpoints = file_midpoint_values
         interpolated_edges = file_edge_values
         interpolated_layer_densities = file_layer_densities
+
+    # Remove the exo layer density from the top layer density if present
+    # because it will be added back in by the Profile constructor
+    if exo_layer_density > 0.0:
+        interpolated_layer_densities[-1] -= exo_layer_density
     
     # Create and return the Profile
     return Profile(
@@ -375,7 +417,8 @@ def profile(name: str, grid: Grid) -> Profile:
         grid=grid,
         edge_values=interpolated_edges,
         midpoint_values=interpolated_midpoints,
-        layer_densities=interpolated_layer_densities
+        layer_densities=interpolated_layer_densities,
+        exo_layer_density=exo_layer_density
     )
 
 radiator_data_files = {
@@ -390,14 +433,29 @@ def radiator(radiator_name: str, heights: Grid, wavelengths: Grid) -> Radiator:
         radiator_name: Name of the radiator (e.g., "aerosol")
         heights: Height grid for the radiator
         wavelengths: Wavelength grid for the radiator
+    Returns:
+        Radiator instance with data loaded from the corresponding v5.4 data file
+    """
+    return radiator_from_map(radiator_data_files, radiator_name, heights, wavelengths)
+
+
+def radiator_from_map(file_map: dict, radiator_name: str, heights: Grid, wavelengths: Grid) -> Radiator:
+    """
+    Returns a standard radiator for TUV-x v5.4 by name.
+    
+    Args:
+        file_map: Dictionary mapping radiator names to data file paths
+        radiator_name: Name of the radiator (e.g., "aerosol")
+        heights: Height grid for the radiator
+        wavelengths: Wavelength grid for the radiator
     
     Returns:
         Radiator instance with data loaded from the corresponding v5.4 data file
     """
-    if radiator_name not in radiator_data_files:
+    if radiator_name not in file_map:
         raise ValueError(f"Radiator '{radiator_name}' not found in v5.4 configuration")
     
-    filepath = radiator_data_files[radiator_name]
+    filepath = file_map[radiator_name]
     
     # Get the absolute path to the data file
     package_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
