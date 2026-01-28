@@ -1,4 +1,5 @@
 import musica
+from musica.micm.solver_result import SolverState
 from musica.mechanism_configuration import Parser
 import pandas as pd
 import xarray as xr
@@ -73,29 +74,30 @@ state.set_concentrations(concentration_dict)
 state.set_user_defined_rate_parameters(user_defined_dict)
 
 # setup and run the box model simulation
+times = [0]
 concentrations = [state.get_concentrations()]
-times = []
 time_step = 30  # seconds
-simulation_length = 1 * 60 # seconds
+simulation_length = 1 * 60 * 60 # 1 hour in seconds
 current_time = 0
-
-iteration = 0
+last_printed_percent = -5  # Track last printed percentage
 
 while current_time < simulation_length:
-    if iteration > 100:
-        break
-    times.append(current_time)
     elapsed = 0
     while elapsed < time_step:
       result = solver.solve(state, time_step)
       elapsed += result.stats.final_time
-      print(f"Solver state: {result.state}")
-      iteration += 1
-      if iteration > 100:
-          break
-
+      current_time += result.stats.final_time
+      if result.state != SolverState.Converged:
+        print(f"Solver state: {result.state}, time: {current_time}")
+    
+    # Print progress every 5%
+    current_percent = (current_time / simulation_length) * 100
+    if int(current_percent // 5) * 5 > last_printed_percent:
+        last_printed_percent = int(current_percent // 5) * 5
+        print(f"Simulation progress: {last_printed_percent}%")
+      
+    times.append(current_time)
     concentrations.append(state.get_concentrations())
-    current_time += time_step
 
 conditions = state.get_conditions()
 
@@ -105,8 +107,13 @@ data_vars = {
     "air density": (["grid_cell"], conditions["air_density"]),
 }
 
-for user_param, values in state.get_user_defined_rate_parameters().items():
-    data_vars[user_param] = (["grid_cell"], values)
+# Collect user-defined rate parameters as a single array
+user_params = state.get_user_defined_rate_parameters()
+user_param_names = list(user_params.keys())
+user_param_values = [user_params[name] for name in user_param_names]
+
+if user_param_names:
+    data_vars["user_defined_rate_parameters"] = (["user_parameter", "grid_cell"], user_param_values)
 
 species_ordering = state.get_species_ordering()
 for species, _ in species_ordering.items():
@@ -114,42 +121,41 @@ for species, _ in species_ordering.items():
             for time_idx in range(len(concentrations))]
     data_vars[species] = (["time", "grid_cell"], data)
 
-ds = xr.Dataset(
-    data_vars,
-    coords={
-        "time": times + [current_time],
-        "grid_cell": range(num_grid_cells),
-    },
-)
+coords = {
+    "time": times,
+    "grid_cell": range(num_grid_cells),
+}
 
-print(ds)
+if user_param_names:
+    coords["user_parameter"] = user_param_names
+
+ds = xr.Dataset(data_vars, coords=coords)
 ds.to_netcdf('ts1_box_model.nc')
 
-# # plot O3, OH, NO, NO2
-# fig, ax = plt.subplots(2, 2, figsize=(12, 8))
+fig, ax = plt.subplots(2, 2, figsize=(12, 8))
 
-# # Convert time from seconds to hours for better readability
-# time_hours = ds['time'] / 3600
+# Convert time from seconds to hours for better readability
+time_hours = ds['time'] / 3600
 
-# # Plot each species
-# ax[0, 0].plot(time_hours, ds['BEPOMUC'].isel(grid_cell=0))
-# ax[0, 1].plot(time_hours, ds['C6H5OOH'].isel(grid_cell=0))
-# ax[1, 0].plot(time_hours, ds['CH3CO3'].isel(grid_cell=0))
-# ax[1, 1].plot(time_hours, ds['CH3COCH3'].isel(grid_cell=0))
+# Plot each species
+ax[0, 0].plot(time_hours, ds['BEPOMUC'].isel(grid_cell=0))
+ax[0, 1].plot(time_hours, ds['C6H5OOH'].isel(grid_cell=0))
+ax[1, 0].plot(time_hours, ds['BR'].isel(grid_cell=0))
+ax[1, 1].plot(time_hours, ds['CL'].isel(grid_cell=0))
 
-# for _ax in ax.flat:
-#     _ax.grid(True, alpha=0.5)
-#     _ax.spines[:].set_visible(False)
-#     _ax.tick_params(width=0)
-#     _ax.set_xlim(0, simulation_length / 3600)
-#     _ax.set_ylim(0, None)
-#     _ax.set_ylabel('Concentration [mol m-3]')
-#     _ax.set_xlabel('Time [hours]')
+for _ax in ax.flat:
+    _ax.grid(True, alpha=0.5)
+    _ax.spines[:].set_visible(False)
+    _ax.tick_params(width=0)
+    _ax.set_xlim(0, simulation_length / 3600)
+    _ax.set_ylim(0, None)
+    _ax.set_ylabel('Concentration [mol m-3]')
+    _ax.set_xlabel('Time [hours]')
 
-# ax[0, 0].set_title('BEPOMUC')
-# ax[0, 1].set_title('C6H5OOH')
-# ax[1, 0].set_title('CH3CO3')
-# ax[1, 1].set_title('CH3COCH3')
+ax[0, 0].set_title('BEPOMUC')
+ax[0, 1].set_title('C6H5OOH')
+ax[1, 0].set_title('BR')
+ax[1, 1].set_title('CL')
 
-# fig.tight_layout()
-# fig.savefig('ts1_box_model.png', dpi=300)
+fig.tight_layout()
+fig.savefig('ts1_box_model.png', dpi=300)

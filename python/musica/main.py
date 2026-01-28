@@ -50,6 +50,12 @@ def parse_arguments():
         type=str,
         help='Path to a musica v0 configuration to convert to v1 format.'
     )
+    parser.add_argument(
+        '--no-convert-units',
+        action='store_false',
+        dest='convert_units',
+        help='Do not convert units from molec-1 cm3 to mol-1 m3 when converting v0 configuration to v1 format. Only meaningful with --convert.'
+    )
     return parser.parse_args()
 
 
@@ -76,13 +82,13 @@ def copy_example(logger, example_arg, output_path):
         shutil.copy(example_path, output_path)
 
 
-def convert_configuration(logger, configuration, output_path):
+def convert_configuration(logger, configuration, output_path, convert_units=True):
     logger.info(f"Converting configuration: {configuration} to {output_path}")
     if not os.path.exists(configuration):
         raise ValueError(f"Configuration file '{configuration}' does not exist.")
 
     parser = musica.mechanism_configuration.Parser()
-    mechanism = parser.parse_and_convert_v0(configuration)
+    mechanism = parser.parse_and_convert_v0(configuration, convert_units)
     mechanism.export(output_path)
 
 
@@ -115,7 +121,7 @@ def main():
         output = '.'
 
     if convert:
-        convert_configuration(logger, convert, output)
+        convert_configuration(logger, convert, output, args.convert_units)
     else:
         copy_example(logger, example_arg, output)
 
