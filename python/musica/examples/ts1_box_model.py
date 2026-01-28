@@ -84,7 +84,8 @@ last_printed_percent = -5  # Track last printed percentage
 while current_time < simulation_length:
     elapsed = 0
     while elapsed < time_step:
-      result = solver.solve(state, time_step)
+      remaining_time = time_step - elapsed
+      result = solver.solve(state, remaining_time)
       elapsed += result.stats.final_time
       current_time += result.stats.final_time
       if result.state != SolverState.Converged:
