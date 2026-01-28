@@ -188,7 +188,7 @@ def run_test_v54_with_config(config_file_path: str):
             if np.any(mask):
                 rel_diff = np.abs((standalone_data[mask] - python_data[mask]) / standalone_data[mask])
                 max_rel_diff = np.max(rel_diff)
-                if max_rel_diff >= 3e-2:
+                if max_rel_diff >= 1e-4:
                     failures.append(
                         f"{var_name} at time={time_idx}: "
                         f"max_rel_diff={max_rel_diff:.2e}, "
