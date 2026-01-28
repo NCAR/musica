@@ -182,24 +182,8 @@ __CAM options:
       from: jmgly
       to: jglyoxal
 __description: TUV-x configuration for the MOZART-TS1 and MOZART-TSMLT chemical mechanisms
-grids:
-- begins at: 0.0
-  cell delta: 1.0
-  ends at: 120.0
-  name: height
-  type: equal interval
-  units: km
-- file path: data/grids/wavelength/cam.csv
-  name: wavelength
-  type: from csv file
-  units: nm
-- name: time
-  type: from config file
-  units: hours
-  values:
-  - 12.0
-  - 14.0
-photolysis:
+grids: []
+photolysis: []
   reactions:
   - __reaction: O2 + hv -> O + O1D
     cross section:
@@ -1589,60 +1573,6 @@ photolysis:
       constant value: 1.0
       type: base
 profiles:
-- file path: data/profiles/atmosphere/ussa.ozone
-  name: O3
-  type: O3
-  units: molecule cm-3
-- file path: data/profiles/atmosphere/ussa.dens
-  name: air
-  type: air
-  units: molecule cm-3
-- file path: data/profiles/atmosphere/ussa.dens
-  name: O2
-  type: O2
-  units: molecule cm-3
-- file path: data/profiles/atmosphere/ussa.temp
-  grid:
-    name: height
-    units: km
-  name: temperature
-  type: from csv file
-  units: K
-- day: 21
-  latitude: 0.0
-  longitude: 0.0
-  month: 3
-  name: solar zenith angle
-  type: solar zenith angle
-  units: degrees
-  year: 2002
-- day: 21
-  month: 3
-  name: Earth-Sun distance
-  type: Earth-Sun distance
-  units: AU
-  year: 2002
-- grid:
-    name: wavelength
-    units: nm
-  name: surface albedo
-  type: from config file
-  uniform value: 0.1
-  units: none
-- enable diagnostics: false
-  file path:
-  - data/profiles/solar/susim_hi.flx
-  - data/profiles/solar/atlas3_1994_317_a.dat
-  - data/profiles/solar/sao2010.solref.converted
-  - data/profiles/solar/neckel.flx
-  interpolator:
-  - ''
-  - ''
-  - ''
-  - fractional target
-  name: extraterrestrial flux
-  type: extraterrestrial flux
-  units: photon cm-2 s-1
 radiative transfer:
   __output: true
   cross sections:
@@ -1678,63 +1608,5 @@ radiative transfer:
     type: base
     vertical profile: O3
     vertical profile units: molecule cm-3
-  - 550 nm optical depth: 0.235
-    asymmetry factor: 0.61
-    enable diagnostics: false
-    name: aerosols
-    optical depths:
-    - 0.24
-    - 0.106
-    - 0.0456
-    - 0.0191
-    - 0.0101
-    - 0.00763
-    - 0.00538
-    - 0.005
-    - 0.00515
-    - 0.00494
-    - 0.00482
-    - 0.00451
-    - 0.00474
-    - 0.00437
-    - 0.00428
-    - 0.00403
-    - 0.00383
-    - 0.00378
-    - 0.00388
-    - 0.00308
-    - 0.00226
-    - 0.00164
-    - 0.00123
-    - 0.000945
-    - 0.000749
-    - 0.00063
-    - 0.00055
-    - 0.000421
-    - 0.000322
-    - 0.000248
-    - 0.00019
-    - 0.000145
-    - 0.000111
-    - 8.51e-05
-    - 6.52e-05
-    - 5.0e-05
-    - 3.83e-05
-    - 2.93e-05
-    - 2.25e-05
-    - 1.72e-05
-    - 1.32e-05
-    - 1.01e-05
-    - 7.72e-06
-    - 5.91e-06
-    - 4.53e-06
-    - 3.46e-06
-    - 2.66e-06
-    - 2.04e-06
-    - 1.56e-06
-    - 1.19e-06
-    - 9.14e-07
-    single scattering albedo: 0.99
-    type: aerosol
   solver:
     type: delta eddington

@@ -15,6 +15,12 @@ from musica.tuvx import vTS1
                     reason="TUVX_ROOT environment variable is not set")
 
 def test_vts1_against_standalone_tuvx():
+    """Test TUV-x vTS1/TSMLT configuration against standalone TUV-x executable."""
+    run_test_vts1_with_config("ts1_tsmlt.json")
+    run_test_vts1_with_config("ts1_tsmlt.yml")
+
+
+def run_test_vts1_with_config(config_file_path: str):
     """
     Compare Python interface results with standalone TUV-x executable.
     
@@ -24,7 +30,7 @@ def test_vts1_against_standalone_tuvx():
     """
     tuvx_root = os.getenv("TUVX_ROOT")
     executable = os.path.join(tuvx_root, "build", "tuv-x")
-    config_file = os.path.join(tuvx_root, "examples", "ts1_tsmlt.json")
+    config_file = os.path.join(tuvx_root, "examples", config_file_path)
     
     # Verify executable and config exist
     assert os.path.isfile(executable), f"TUV-x executable not found: {executable}"
