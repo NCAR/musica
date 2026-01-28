@@ -114,6 +114,24 @@ def test_radiator_properties(sample_height_grid, sample_wavelength_grid):
     radiator.asymmetry_factors = asymmetry_values
     np.testing.assert_array_equal(radiator.asymmetry_factors, asymmetry_values)
 
+    # Test setting optical depth elements
+    radiator.optical_depths[0, 0] = 0.95
+    assert radiator.optical_depths[0, 0] == 0.95
+    radiator.optical_depths[2, 4] = 0.85
+    assert radiator.optical_depths[2, 4] == 0.85
+
+    # Test setting single scattering albedo elements
+    radiator.single_scattering_albedos[1, 1] = 0.93
+    assert radiator.single_scattering_albedos[1, 1] == 0.93
+    radiator.single_scattering_albedos[2, 3] = 0.89
+    assert radiator.single_scattering_albedos[2, 3] == 0.89
+
+    # Test setting asymmetry factor elements
+    radiator.asymmetry_factors[0, 2] = 0.75
+    assert radiator.asymmetry_factors[0, 2] == 0.75
+    radiator.asymmetry_factors[1, 4] = 0.77
+    assert radiator.asymmetry_factors[1, 4] == 0.77
+
     # test invalid shape assignment
     with pytest.raises(ValueError, match="Array shape must be"):
         radiator.optical_depths = np.array([[0.8, 0.85],
