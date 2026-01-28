@@ -21,11 +21,14 @@ def run_tuvx_5_4_example():
     # Run TUV-x with standard v5.4 conditions for SZA = 0 degrees and average Earth-Sun distance
     standard_results: xr.Dataset = tuvx.run(sza=0.0, earth_sun_distance=1.0)
 
-    # Double the O3 concentration in the top layer and rerun
+    # Double the O3 concentrations in the column
+    grids = tuvx.get_grid_map()
+    heights = grids["height", "km"]
     profiles = tuvx.get_profile_map()
     o3 = profiles["O3", "molecule cm-3"]
-    o3.midpoint_values[-1] *= 2.0
-    o3.edge_values[-1] *= 2.0
+    o3.midpoint_values[:] *= 2.0
+    o3.edge_values[:] *= 2.0
+    o3.calculate_layer_densities(heights)
 
     # Rerun TUV-x with modified O3 profile
     modified_results: xr.Dataset = tuvx.run(sza=0.0, earth_sun_distance=1.0)
