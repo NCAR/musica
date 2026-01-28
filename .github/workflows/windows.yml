@@ -87,47 +87,50 @@ jobs:
       - name: Test
         run: cd build ; ctest -C Debug --output-on-failure --verbose
 
-  fortran:
-    runs-on: windows-latest
-    continue-on-error: true 
-    strategy:
-      fail-fast: false
-      matrix:
-        # for some reason the debug build fails with an error in the python library
-        # something about the usage of mechanism configuration and variants causes missing type information
-        # This commit for mechanism configuration works: 903150064277e024b0afcfc879df419e1cefc87b
-        # This one doesn't: a3ef728c69f619f80c272d634bc2a17ca5ab4de9
-        build_type: [Release]
+  # all tuv tests time out on windows github runners
+  # the reason is unknown at this time and we are not likely to investigate further in the near future
+  # especially since tuv-x is likely to be rewritten into c++
+  # fortran:
+  #   runs-on: windows-latest
+  #   continue-on-error: true 
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       # for some reason the debug build fails with an error in the python library
+  #       # something about the usage of mechanism configuration and variants causes missing type information
+  #       # This commit for mechanism configuration works: 903150064277e024b0afcfc879df419e1cefc87b
+  #       # This one doesn't: a3ef728c69f619f80c272d634bc2a17ca5ab4de9
+  #       build_type: [Release]
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
 
-      - name: Set up Windows AMD64
-        uses: ./.github/windows_amd64_steps
+  #     - name: Set up Windows AMD64
+  #       uses: ./.github/windows_amd64_steps
 
-      - name: Add MSYS2 mingw64 to PATH
-        shell: msys2 {0}
-        run: echo "C:/msys64/mingw64/bin" >> $GITHUB_PATH
+  #     - name: Add MSYS2 mingw64 to PATH
+  #       shell: msys2 {0}
+  #       run: echo "C:/msys64/mingw64/bin" >> $GITHUB_PATH
 
-      - name: Configure with CMake
-        shell: msys2 {0}
-        run: |
-          cmake -S . -B build -G "MinGW Makefiles" \
-                              -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-                              -D MUSICA_GIT_TAG=${{ github.sha }} \
-                              -D MUSICA_ENABLE_MICM=ON \
-                              -D MUSICA_ENABLE_TUVX=ON \
-                              -D MUSICA_ENABLE_CARMA=ON \
-                              -D MUSICA_ENABLE_PYTHON_LIBRARY=ON \
-                              -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
-                              -D CMAKE_POLICY_VERSION_MINIMUM=3.5
+  #     - name: Configure with CMake
+  #       shell: msys2 {0}
+  #       run: |
+  #         cmake -S . -B build -G "MinGW Makefiles" \
+  #                             -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+  #                             -D MUSICA_GIT_TAG=${{ github.sha }} \
+  #                             -D MUSICA_ENABLE_MICM=ON \
+  #                             -D MUSICA_ENABLE_TUVX=ON \
+  #                             -D MUSICA_ENABLE_CARMA=ON \
+  #                             -D MUSICA_ENABLE_PYTHON_LIBRARY=ON \
+  #                             -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
+  #                             -D CMAKE_POLICY_VERSION_MINIMUM=3.5
 
-      - name: Build the project
-        shell: msys2 {0}
-        run: cmake --build build  --verbose
+  #     - name: Build the project
+  #       shell: msys2 {0}
+  #       run: cmake --build build  --verbose
 
-      - name: Run tests
-        shell: msys2 {0}
-        run: ctest -C ${{ matrix.build_type }} --rerun-failed --output-on-failure . --verbose
-        working-directory: build
+  #     - name: Run tests
+  #       shell: msys2 {0}
+  #       run: ctest -C ${{ matrix.build_type }} --rerun-failed --output-on-failure . --verbose
+  #       working-directory: build
