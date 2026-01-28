@@ -3,7 +3,7 @@
 MUSICA API
 ==========
 
-Welcome to the MUSICA API documentation. Below, you can find links to the documentation for both the C++ and Python APIs.
+Welcome to the MUSICA API documentation. Below, you can find links to the documentation for the C++, Python, and Julia APIs.
 
 
 .. toctree::
@@ -12,4 +12,5 @@ Welcome to the MUSICA API documentation. Below, you can find links to the docume
 
    C++
    python
+   julia
   
