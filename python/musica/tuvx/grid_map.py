@@ -103,7 +103,7 @@ if backend.tuvx_available():
         if not isinstance(grid, Grid):
             raise TypeError("Value must be a Grid object")
         if grid.name != name or grid.units != units:
-            raise ValueError(f"Grid name/units must match the key tuple: {(grid.name, grid.units)}")
+            raise ValueError(f"Grid name/units must match the key tuple: {(grid.name, grid.units)} != {(name, units)}")
         self.add_grid(grid)
 
     GridMap.__setitem__ = __setitem__

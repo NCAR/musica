@@ -71,6 +71,8 @@ if backend.tuvx_available():
             self.layer_densities = layer_densities
         elif calculate_layer_densities:
             self.calculate_layer_densities(grid)
+        if exo_layer_density < 0.0:
+            raise ValueError("exo_layer_density must be non-negative")
         if exo_layer_density > 0.0:
             self.exo_layer_density = exo_layer_density # this sets the exo layer density and adjusts the top layer density
 

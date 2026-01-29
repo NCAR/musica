@@ -5,12 +5,12 @@ This module contains configuration settings for the TS1/TSMLT configuration of T
 """
 
 import os
-from profile import Profile
-from musica.tuvx.radiator import Radiator
 import numpy as np
 
 from musica.tuvx.tuvx import TUVX
 from musica.tuvx.grid import Grid
+from musica.tuvx.profile import Profile
+from musica.tuvx.radiator import Radiator
 from .v54 import height_grid
 from .v54 import profile_from_map
 from .v54 import radiator_from_map

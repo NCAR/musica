@@ -108,8 +108,8 @@ if backend.tuvx_available():
         for i in range(len(self)):
             try:
                 yield self.get_radiator_by_index(i).name
-            except (ValueError, Exception):
-                # Skip radiators with type mismatches or other errors
+            except (ValueError):
+                # Skip radiators with type mismatches
                 continue
 
     RadiatorMap.__iter__ = __iter__
@@ -151,8 +151,8 @@ if backend.tuvx_available():
             try:
                 radiator = self.get_radiator_by_index(i)
                 yield (radiator.name, radiator)
-            except (ValueError, Exception):
-                # Skip radiators with type mismatches or other errors
+            except (ValueError):
+                # Skip radiators with type mismatches
                 continue
 
     RadiatorMap.items = items
@@ -167,8 +167,8 @@ if backend.tuvx_available():
             try:
                 radiator = self.get_radiator_by_index(i)
                 yield radiator.name
-            except (ValueError, Exception):
-                # Skip radiators with type mismatches or other errors
+            except (ValueError):
+                # Skip radiators with type mismatches
                 continue
 
     RadiatorMap.keys = keys
@@ -182,8 +182,8 @@ if backend.tuvx_available():
         for i in range(len(self)):
             try:
                 yield self.get_radiator_by_index(i)
-            except (ValueError, Exception):
-                # Skip radiators with type mismatches or other errors
+            except (ValueError):
+                # Skip radiators with type mismatches
                 continue
 
     RadiatorMap.values = values

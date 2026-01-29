@@ -201,7 +201,7 @@ def get_fixed_grid_map():
 
 
 def test_fixed_tuvx_from_file():
-    file = "configs/tuvx/full_from_host/config.json"
+    file = "configs/tuvx/full_from_host/config_python.json"
     grid_map = get_fixed_grid_map()
     profile_map = get_profile_map(grid_map)
     radiator_map = get_radiator_map(grid_map)
@@ -237,7 +237,7 @@ def test_fixed_tuvx_from_file():
 
 
 def test_fixed_tuvx_from_string():
-    file = "configs/tuvx/full_from_host/config.json"
+    file = "configs/tuvx/full_from_host/config_python.json"
     with open(file, 'r') as f:
         config_str = f.read()
     grid_map = get_fixed_grid_map()
@@ -325,7 +325,6 @@ def test_v54_radiator_exact_reproduction():
             file_data.append([height, wavelength, od, ssa, g])
     
     # Verify that the radiator data matches the file
-    num_mismatches = 0
     max_relative_error_od = 0.0
     max_relative_error_ssa = 0.0
     max_relative_error_g = 0.0

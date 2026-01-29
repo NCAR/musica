@@ -7,7 +7,6 @@ mirror those used in the stand-alone TUV-x configuration version 5.4.
 """
 
 import xarray as xr
-import numpy as np
 import musica
 from musica.tuvx import v54
 

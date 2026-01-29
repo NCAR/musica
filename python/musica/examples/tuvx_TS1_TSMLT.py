@@ -7,7 +7,6 @@ mirror those used in the stand-alone TUV-x configuration version TS1/TSMLT.
 """
 
 import xarray as xr
-import numpy as np
 import musica
 from musica.tuvx import vTS1
 
