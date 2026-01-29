@@ -51,8 +51,8 @@ def get_tuvx_calculator() -> TUVX:
 
 def config_file_path() -> str:
     """Returns the file path to the TUV-x v5.4 configuration JSON file."""
-    # Get the package directory (go up from python/musica/tuvx to the root)
-    package_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+    # Get the package directory (musica package root from musica/tuvx/v54.py)
+    package_dir = os.path.dirname(os.path.dirname(__file__))
     config_path = os.path.join(package_dir, "configs", "tuvx", "tuv_5_4.json")
     return config_path
 
@@ -279,8 +279,8 @@ def profile_from_map(file_map: dict, name: str, grid: Grid) -> Profile:
     # Resolve filepath relative to the musica package root
     filepath = file_map[name]
     if not os.path.isabs(filepath):
-        # Get the package directory (go up from python/musica/tuvx to the root)
-        package_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+        # Get the package directory (musica package root from musica/tuvx/v54.py)
+        package_dir = os.path.dirname(os.path.dirname(__file__))
         filepath = os.path.join(package_dir, filepath)
     
     # Read the data file
@@ -457,8 +457,8 @@ def radiator_from_map(file_map: dict, radiator_name: str, heights: Grid, wavelen
     
     filepath = file_map[radiator_name]
     
-    # Get the absolute path to the data file
-    package_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+    # Get the absolute path to the data file (musica package root from musica/tuvx/v54.py)
+    package_dir = os.path.dirname(os.path.dirname(__file__))
     full_path = os.path.join(package_dir, filepath)
     
     # Parse the file

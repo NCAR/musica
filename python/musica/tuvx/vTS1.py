@@ -55,8 +55,8 @@ def get_tuvx_calculator() -> TUVX:
 
 def config_file_path() -> str:
     """Returns the file path to the TUV-x vTS1/TSMLT configuration JSON file."""
-    # Get the package directory (go up from python/musica/tuvx to the root)
-    package_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+    # Get the package directory (musica package root from musica/tuvx/vTS1.py)
+    package_dir = os.path.dirname(os.path.dirname(__file__))
     config_path = os.path.join(package_dir, "configs", "tuvx", "ts1_tsmlt.json")
     return config_path
 
