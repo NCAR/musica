@@ -161,43 +161,52 @@ endif()
 # Julia
 
 if (MUSICA_ENABLE_JULIA AND MUSICA_BUILD_C_CXX_INTERFACE)
-  find_program(Julia_EXECUTABLE julia REQUIRED)
+  # Check if JlCxx is already available in CMAKE_PREFIX_PATH (BinaryBuilder mode)
+  # This allows building without running Julia, which is needed for cross-compilation
+  find_package(JlCxx QUIET)
 
-  # Use the Julia project in the top-level julia subdirectory
-  set(JULIA_PROJECT_DIR "${CMAKE_SOURCE_DIR}/julia")
-
-  execute_process(
-    COMMAND ${Julia_EXECUTABLE} --project=${JULIA_PROJECT_DIR} -e "using Pkg; Pkg.instantiate()"
-    RESULT_VARIABLE PKG_INSTANTIATE_RESULT
-    OUTPUT_VARIABLE PKG_INSTANTIATE_OUTPUT
-    ERROR_VARIABLE PKG_INSTANTIATE_ERROR
-  )
-
-  if(NOT PKG_INSTANTIATE_RESULT EQUAL 0)
-      message(FATAL_ERROR
-          "Failed to instantiate Julia project dependencies in ${JULIA_PROJECT_DIR}.\n"
-          "Stdout: ${PKG_INSTANTIATE_OUTPUT}\n"
-          "Stderr: ${PKG_INSTANTIATE_ERROR}"
-      )
-  endif()
-
-  # Try to get CxxWrap prefix path
-  execute_process(
-      COMMAND ${Julia_EXECUTABLE} --project=${JULIA_PROJECT_DIR} -e "using CxxWrap; print(CxxWrap.prefix_path())"
-      OUTPUT_VARIABLE CxxWrap_PREFIX
-      RESULT_VARIABLE CxxWrap_RESULT
-      OUTPUT_STRIP_TRAILING_WHITESPACE
-      ERROR_VARIABLE CxxWrap_ERROR
-  )
-  if(CxxWrap_RESULT EQUAL 0 AND EXISTS ${CxxWrap_PREFIX})
-      message(STATUS "CxxWrap prefix: ${CxxWrap_PREFIX}")
-      list(APPEND CMAKE_PREFIX_PATH ${CxxWrap_PREFIX})
-      find_package(JlCxx REQUIRED)
+  if(JlCxx_FOUND)
+    message(STATUS "Found JlCxx via CMAKE_PREFIX_PATH (BinaryBuilder mode)")
   else()
-      message(FATAL_ERROR 
-          "Failed to find CxxWrap.jl. Error: ${CxxWrap_ERROR}\n"
-          "Please ensure CxxWrap is properly installed"
-      )
+    # Standard mode: Use Julia to find CxxWrap
+    find_program(Julia_EXECUTABLE julia REQUIRED)
+
+    # Use the Julia project in the top-level julia subdirectory
+    set(JULIA_PROJECT_DIR "${CMAKE_SOURCE_DIR}/julia")
+
+    execute_process(
+      COMMAND ${Julia_EXECUTABLE} --project=${JULIA_PROJECT_DIR} -e "using Pkg; Pkg.instantiate()"
+      RESULT_VARIABLE PKG_INSTANTIATE_RESULT
+      OUTPUT_VARIABLE PKG_INSTANTIATE_OUTPUT
+      ERROR_VARIABLE PKG_INSTANTIATE_ERROR
+    )
+
+    if(NOT PKG_INSTANTIATE_RESULT EQUAL 0)
+        message(FATAL_ERROR
+            "Failed to instantiate Julia project dependencies in ${JULIA_PROJECT_DIR}.\n"
+            "Stdout: ${PKG_INSTANTIATE_OUTPUT}\n"
+            "Stderr: ${PKG_INSTANTIATE_ERROR}"
+        )
+    endif()
+
+    # Try to get CxxWrap prefix path
+    execute_process(
+        COMMAND ${Julia_EXECUTABLE} --project=${JULIA_PROJECT_DIR} -e "using CxxWrap; print(CxxWrap.prefix_path())"
+        OUTPUT_VARIABLE CxxWrap_PREFIX
+        RESULT_VARIABLE CxxWrap_RESULT
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_VARIABLE CxxWrap_ERROR
+    )
+    if(CxxWrap_RESULT EQUAL 0 AND EXISTS ${CxxWrap_PREFIX})
+        message(STATUS "CxxWrap prefix: ${CxxWrap_PREFIX}")
+        list(APPEND CMAKE_PREFIX_PATH ${CxxWrap_PREFIX})
+        find_package(JlCxx REQUIRED)
+    else()
+        message(FATAL_ERROR
+            "Failed to find CxxWrap.jl. Error: ${CxxWrap_ERROR}\n"
+            "Please ensure CxxWrap is properly installed"
+        )
+    endif()
   endif()
 endif()
 

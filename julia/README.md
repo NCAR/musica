@@ -8,13 +8,26 @@ Musica.jl provides Julia bindings to the MUSICA atmospheric chemistry library, e
 
 ## Installation
 
-### Prerequisites
+### From Julia Registry (Recommended)
 
-- Julia 1.11 (`juliaup` is recommended for installing and managing multiple versions of julia)
+Once published, you will be able to install Musica.jl directly:
+
+```julia
+using Pkg
+Pkg.add("Musica")
+```
+
+> **Note:** The package is not yet registered in the Julia General registry. See [Development Installation](#development-installation) below for building from source.
+
+### Development Installation
+
+#### Prerequisites
+
+- Julia 1.10 or 1.11 (`juliaup` is recommended for managing Julia versions)
 - CMake 3.24 or later
 - A C++ compiler with C++20 support
 
-### Building from Source
+#### Building from Source
 
 1. Clone the MUSICA repository:
 ```bash
@@ -40,6 +53,11 @@ cd julia
 julia --project=. -e 'using Pkg; Pkg.instantiate()'
 ```
 
+4. Test the installation:
+```bash
+julia --project=. test/runtests.jl
+```
+
 ## Quick Start
 
 ```julia
@@ -48,6 +66,17 @@ using Musica
 # Get the MUSICA version
 version = Musica.get_version()
 println("MUSICA version: ", version)
+```
+
+## Configuration
+
+### Library Path Override
+
+For advanced use cases, you can override the library path using an environment variable:
+
+```bash
+export MUSICA_JULIA_LIB=/path/to/libmusica_julia.so
+julia -e 'using Musica; println(Musica.get_version())'
 ```
 
 ## Testing
@@ -59,11 +88,22 @@ cd julia
 julia --project=. test/runtests.jl
 ```
 
+Or from within Julia:
+
+```julia
+using Pkg
+Pkg.test("Musica")
+```
+
 ## Documentation
 
 For more information about MUSICA, visit:
 - [MUSICA Documentation](https://ncar.github.io/musica/)
 - [MUSICA Wiki](https://wiki.ucar.edu/display/MUSICA/MUSICA+Home)
+
+## Contributing
+
+See the [distribution guide](DISTRIBUTION.md) for information on the package release process.
 
 ## License
 

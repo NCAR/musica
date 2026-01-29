@@ -6,8 +6,19 @@ version = "0.14.4"
 [deps]
 CxxWrap = "1f15a43c-97ca-5a2a-ae31-89f07a497df4"
 Libdl = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
+Preferences = "21216c6a-2e73-6563-6e65-726566657250"
+
+# Note: Once Musica_jll is created in Yggdrasil, add it here:
+# Musica_jll = "<uuid-from-yggdrasil>"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
 
 [compat]
 CxxWrap = "^0.16"
 Libdl = "1.10, 1.11"
+Preferences = "1"
 julia = "1.10 - 1.11"
