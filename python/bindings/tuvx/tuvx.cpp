@@ -120,35 +120,34 @@ void bind_tuvx(py::module_& tuvx)
         double* actinic_flux_data = actinic_flux->data();
         double* spectral_irradiance_data = spectral_irradiance->data();
 
-        // Create capsules and transfer ownership atomically
+        // Create numpy arrays immediately after each capsule to ensure atomic ownership transfer
+        // Return as numpy arrays with shape (reaction/heating reaction/dose rate type, vertical edge)
         auto photolysis_capsule =
             py::capsule(photolysis_rates.get(), [](void* v) { delete reinterpret_cast<std::vector<double>*>(v); });
         photolysis_rates.release();
+        py::array_t<double> py_photolysis =
+            py::array_t<double>({ n_photolysis, n_layers + 1 }, photolysis_data, photolysis_capsule);
 
         auto heating_capsule =
             py::capsule(heating_rates.get(), [](void* v) { delete reinterpret_cast<std::vector<double>*>(v); });
         heating_rates.release();
+        py::array_t<double> py_heating = py::array_t<double>({ n_heating, n_layers + 1 }, heating_data, heating_capsule);
 
         auto dose_capsule = py::capsule(dose_rates.get(), [](void* v) { delete reinterpret_cast<std::vector<double>*>(v); });
         dose_rates.release();
+        py::array_t<double> py_dose = py::array_t<double>({ n_dose, n_layers + 1 }, dose_data, dose_capsule);
 
+        // ... and 3D arrays for actinic flux and spectral irradiance
+        // (wavelength, vertical edge, 3 components: direct, upwelling, downwelling)
         auto actinic_flux_capsule =
             py::capsule(actinic_flux.get(), [](void* v) { delete reinterpret_cast<std::vector<double>*>(v); });
         actinic_flux.release();
+        py::array_t<double> py_actinic_flux =
+            py::array_t<double>({ n_wavelengths, n_layers + 1, 3 }, actinic_flux_data, actinic_flux_capsule);
 
         auto spectral_irradiance_capsule =
             py::capsule(spectral_irradiance.get(), [](void* v) { delete reinterpret_cast<std::vector<double>*>(v); });
         spectral_irradiance.release();
-
-        // Return as numpy arrays with shape (reaction/heating reaction/dose rate type, vertical edge)
-        py::array_t<double> py_photolysis =
-            py::array_t<double>({ n_photolysis, n_layers + 1 }, photolysis_data, photolysis_capsule);
-        py::array_t<double> py_heating = py::array_t<double>({ n_heating, n_layers + 1 }, heating_data, heating_capsule);
-        py::array_t<double> py_dose = py::array_t<double>({ n_dose, n_layers + 1 }, dose_data, dose_capsule);
-        // ... and 3D arrays for actinic flux and spectral irradiance
-        // (wavelength, vertical edge, 3 components: direct, upwelling, downwelling)
-        py::array_t<double> py_actinic_flux =
-            py::array_t<double>({ n_wavelengths, n_layers + 1, 3 }, actinic_flux_data, actinic_flux_capsule);
         py::array_t<double> py_spectral_irradiance =
             py::array_t<double>({ n_wavelengths, n_layers + 1, 3 }, spectral_irradiance_data, spectral_irradiance_capsule);
 
