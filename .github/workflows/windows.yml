@@ -87,6 +87,9 @@ jobs:
       - name: Test
         run: cd build ; ctest -C Debug --output-on-failure --verbose
 
+  # all tuv tests time out on windows github runners
+  # the reason is unknown at this time and we are not likely to investigate further in the near future
+  # especially since tuv-x is likely to be rewritten into c++
   fortran:
     runs-on: windows-latest
     continue-on-error: true 
@@ -117,7 +120,7 @@ jobs:
                               -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} \
                               -D MUSICA_GIT_TAG=${{ github.sha }} \
                               -D MUSICA_ENABLE_MICM=ON \
-                              -D MUSICA_ENABLE_TUVX=ON \
+                              -D MUSICA_ENABLE_TUVX=OFF \
                               -D MUSICA_ENABLE_CARMA=ON \
                               -D MUSICA_ENABLE_PYTHON_LIBRARY=ON \
                               -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \

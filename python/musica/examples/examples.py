@@ -96,6 +96,11 @@ class _Examples:
         short_name='TS1LatinHyperCube',
         path='ts1_latin_hypercube.py',
         description='A Latin hypercube sampling example for the TS1 mechanism. This script shows how to sample an input space and run multiple box models in parallel on a single mechanism.')
+    TS1BoxModel = Example.from_config(
+        display_name='TS1 Box Model',
+        short_name='TS1BoxModel',
+        path='ts1_box_model.py',
+        description='A box model example for the TS1 mechanism demonstrating how to set up and run a box model simulation using initial conditions from a CSV file.')
     Lorenz_Attractor = Example.from_config(
         display_name='Lorenz Attractor',
         short_name='Lorenz_Attractor',
@@ -114,6 +119,7 @@ class _Examples:
             cls.CARMA_Sulfate,
             cls.Sulfate_Box_Model,
             cls.TS1LatinHyperCube,
+            cls.TS1BoxModel,
             cls.Lorenz_Attractor]
 
     def __iter__(self):

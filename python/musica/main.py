@@ -82,7 +82,10 @@ def convert_configuration(logger, configuration, output_path):
         raise ValueError(f"Configuration file '{configuration}' does not exist.")
 
     parser = musica.mechanism_configuration.Parser()
-    mechanism = parser.parse_and_convert_v0(configuration)
+    # the mechanism configuration automatically converts pre exponential factors to SI units
+    # so we don't need to convert units again here.
+    convert_units = False
+    mechanism = parser.parse_and_convert_v0(configuration, convert_units)
     mechanism.export(output_path)
 
 

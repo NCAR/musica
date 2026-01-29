@@ -29,9 +29,8 @@
     "test:unit": "node --test javascript/tests/unit/**/*.test.js",
     "test:coverage": "c8 --reporter=lcov --reporter=text --reports-dir=javascript-coverage node --test javascript/tests/**/*.test.js",
     "example": "node javascript/tools/serve.js",
-    "format": "npm run format:js && npm run format:cpp",
-    "format:js": "prettier --write 'javascript/**/*.js'",
-    "format:cpp": "find javascript -type f \\( -name '*.cpp' -or -name '*.hpp' -or -name '*.c' -or -name '*.h' \\) -exec clang-format -i --style=file --verbose {} +"
+    "format": "npm run format:js",
+    "format:js": "prettier --write 'javascript/**/*.js'"
   },
   "repository": {
     "type": "git",
