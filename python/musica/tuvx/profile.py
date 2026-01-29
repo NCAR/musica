@@ -27,6 +27,7 @@ if backend.tuvx_available():
                  midpoint_values: Optional[np.ndarray] = None,
                  layer_densities: Optional[np.ndarray] = None,
                  calculate_layer_densities: bool = False,
+                 exo_layer_density: Optional[float] = 0.0,
                  **kwargs):
         """Initialize a Profile instance.
 
@@ -38,6 +39,9 @@ if backend.tuvx_available():
             midpoint_values: Optional array of values at grid midpoints (length num_sections)
             layer_densities: Optional array of layer densities (length num_sections)
             calculate_layer_densities: If True, calculate layer densities from midpoint values
+            exo_layer_density: Optional exoatmospheric layer density value (scalar). If provided,
+                               this value will be used for the exoatmospheric layer density, and
+                               added to the uppermost layer density for consistency.
             **kwargs: Additional arguments passed to the C++ constructor
         """
         # Call the original C++ constructor correctly
@@ -67,6 +71,10 @@ if backend.tuvx_available():
             self.layer_densities = layer_densities
         elif calculate_layer_densities:
             self.calculate_layer_densities(grid)
+        if exo_layer_density < 0.0:
+            raise ValueError("exo_layer_density must be non-negative")
+        if exo_layer_density > 0.0:
+            self.exo_layer_density = exo_layer_density # this sets the exo layer density and adjusts the top layer density
 
     Profile.__init__ = __init__
 

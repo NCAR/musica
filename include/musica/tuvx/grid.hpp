@@ -54,6 +54,11 @@ namespace musica
     /// @param error the error struct to indicate success or failure
     void GetEdges(double edges[], std::size_t num_edges, Error* error);
 
+    /// @brief Return a pointer to the edges array
+    /// @param error the error struct to indicate success or failure
+    /// @return A pointer to the edges array
+    double* GetEdgesPointer(Error* error);
+
     /// @brief Set the midpoints of the grid
     /// @param midpoints The midpoints of the grid
     /// @param num_midpoints the number of midpoints
@@ -65,6 +70,11 @@ namespace musica
     /// @param num_midpoints the number of midpoints
     /// @param error the error struct to indicate success or failure
     void GetMidpoints(double midpoints[], std::size_t num_midpoints, Error* error);
+
+    /// @brief Return a pointer to the midpoints array
+    /// @param error the error struct to indicate success or failure
+    /// @return A pointer to the midpoints array
+    double* GetMidpointsPointer(Error* error);
 
    private:
     void* grid_;  // A valid pointer to a grid instance indicates ownership by this wrapper
@@ -135,6 +145,12 @@ namespace musica
     /// @param error The error struct to indicate success or failure
     void GetGridEdges(Grid* grid, double edges[], std::size_t num_edges, Error* error);
 
+    /// @brief Return a pointer to the edges array of the grid
+    /// @param grid The grid to get the edges pointer from
+    /// @param error The error struct to indicate success or failure
+    /// @return A pointer to the edges array
+    double* GetGridEdgesPointer(Grid* grid, Error* error);
+
     /// @brief Sets the values of the midpoints of the grid
     /// @param grid The grid to set the midpoints of
     /// @param midpoints The midpoint values to set for the grid
@@ -148,6 +164,12 @@ namespace musica
     /// @param num_midpoints The number of midpoints
     /// @param error The error struct to indicate success or failure
     void GetGridMidpoints(Grid* grid, double midpoints[], std::size_t num_midpoints, Error* error);
+
+    /// @brief Return a pointer to the midpoints array of the grid
+    /// @param grid The grid to get the midpoints pointer from
+    /// @param error The error struct to indicate success or failure
+    /// @return A pointer to the midpoints array
+    double* GetGridMidpointsPointer(Grid* grid, Error* error);
 
     // INTERNAL USE. If tuvx ever gets rewritten in C++, these functions will
     // go away but the C API will remain the same and downstream projects (like CAM-SIMA) will
@@ -167,8 +189,10 @@ namespace musica
     std::size_t InternalGetNumberOfSections(void* grid, int* error_code);
     void InternalSetEdges(void* grid, double edges[], std::size_t num_edges, int* error_code);
     void InternalGetEdges(void* grid, double edges[], std::size_t num_edges, int* error_code);
+    double* InternalGetEdgesPointer(void* grid, int* error_code);
     void InternalSetMidpoints(void* grid, double midpoints[], std::size_t num_midpoints, int* error_code);
     void InternalGetMidpoints(void* grid, double midpoints[], std::size_t num_midpoints, int* error_code);
+    double* InternalGetMidpointsPointer(void* grid, int* error_code);
 
 #ifdef __cplusplus
   }

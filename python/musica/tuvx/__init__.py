@@ -5,6 +5,7 @@ from .profile_map import ProfileMap
 from .grid import Grid
 from .grid_map import GridMap
 from .tuvx import TUVX
+from . import v54
 from .. import backend
 _backend = backend.get_backend()
 

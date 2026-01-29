@@ -94,7 +94,7 @@ if backend.tuvx_available():
         if not isinstance(radiator, Radiator):
             raise TypeError("Value must be a Radiator instance.")
         if radiator.name != key:
-            raise ValueError("Radiator name does not match the key.")
+            raise ValueError(f"Radiator name does not match the key: {radiator.name} != {key}")
         self.add_radiator(radiator)
 
     RadiatorMap.__setitem__ = __setitem__
@@ -106,7 +106,11 @@ if backend.tuvx_available():
             Radiator instances in the map
         """
         for i in range(len(self)):
-            yield self.get_radiator_by_index(i).name
+            try:
+                yield self.get_radiator_by_index(i).name
+            except (ValueError):
+                # Skip radiators with type mismatches
+                continue
 
     RadiatorMap.__iter__ = __iter__
 
@@ -144,8 +148,12 @@ if backend.tuvx_available():
             Tuples of (radiator_name, Radiator instance)
         """
         for i in range(len(self)):
-            radiator = self.get_radiator_by_index(i)
-            yield (radiator.name, radiator)
+            try:
+                radiator = self.get_radiator_by_index(i)
+                yield (radiator.name, radiator)
+            except (ValueError):
+                # Skip radiators with type mismatches
+                continue
 
     RadiatorMap.items = items
 
@@ -156,8 +164,12 @@ if backend.tuvx_available():
             Radiator names as strings
         """
         for i in range(len(self)):
-            radiator = self.get_radiator_by_index(i)
-            yield radiator.name
+            try:
+                radiator = self.get_radiator_by_index(i)
+                yield radiator.name
+            except (ValueError):
+                # Skip radiators with type mismatches
+                continue
 
     RadiatorMap.keys = keys
 
@@ -168,6 +180,10 @@ if backend.tuvx_available():
             Radiator instances
         """
         for i in range(len(self)):
-            yield self.get_radiator_by_index(i)
+            try:
+                yield self.get_radiator_by_index(i)
+            except (ValueError):
+                # Skip radiators with type mismatches
+                continue
 
     RadiatorMap.values = values

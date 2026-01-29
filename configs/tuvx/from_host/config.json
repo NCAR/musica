@@ -2,7 +2,7 @@
   "enable diagnostics" : false,
   "__description": "This is a configuration for testing the TUV-x MUSICA API",
   "O2 absorption": {
-    "cross section parameters file": "test/tuvx/from_host/O2_parameters.txt"
+    "cross section parameters file": "configs/tuvx/from_host/O2_parameters.txt"
   },
   "grids": [
   ],

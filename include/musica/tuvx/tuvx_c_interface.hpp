@@ -80,9 +80,11 @@ namespace musica
     /// @param tuvx Pointer to TUVX instance
     /// @param solar_zenith_angle Solar zenith angle [radians]
     /// @param earth_sun_distance Earth-Sun distance [AU]
-    /// @param photolysis_rate_constants Photolysis rate constant for each layer and reaction [s^-1]
-    /// @param heating_rates Heating rates for each layer and reaction [K/s]
-    /// @param dose_rates Dose rates for each layer and reaction [W/m^2]
+    /// @param photolysis_rate_constants Photolysis rate constant [s^-1] (reaction, vertical edge)
+    /// @param heating_rates Heating rates [K/s] (heating_reaction, vertical edge)
+    /// @param dose_rates Dose rates [W/m^2] (dose_rate type, vertical edge)
+    /// @param actinic_flux Actinic flux [photons cm^-2 s^-1 nm^-1] (wavelength, vertical edge, direct/upwelling/downwelling)
+    /// @param spectral_irradiance Spectral irradiance [W m^-2 nm^-1] (wavelength, vertical edge, direct/upwelling/downwelling)
     /// @param error Error struct to indicate success or failure
     void RunTuvx(
         TUVX* tuvx,
@@ -91,6 +93,8 @@ namespace musica
         double* const photolysis_rate_constants,
         double* const heating_rates,
         double* const dose_rates,
+        double* const actinic_flux,
+        double* const spectral_irradiance,
         Error* const error);
 
     /// @brief Get the TUVX version
@@ -106,7 +110,8 @@ namespace musica
         void* grid_map,
         void* profile_map,
         void* radiator_map,
-        int* number_of_layers,
+        int* number_of_height_midpoints,
+        int* number_of_wavelength_midpoints,
         int* error_code);
     void* InternalCreateTuvxFromConfigString(
         const char* config_string,
@@ -114,7 +119,8 @@ namespace musica
         void* grid_map,
         void* profile_map,
         void* radiator_map,
-        int* number_of_layers,
+        int* number_of_height_midpoints,
+        int* number_of_wavelength_midpoints,
         int* error_code);
     void InternalDeleteTuvx(void* tuvx, int* error_code);
     void* InternalGetGridMap(void* tuvx, int* error_code);
@@ -125,12 +131,15 @@ namespace musica
     void InternalGetDoseRatesOrdering(void* tuvx, Mappings* mappings, int* error_code);
     void InternalRunTuvx(
         void* tuvx,
-        const int number_of_layers,
+        const int number_of_height_midpoints,
+        const int number_of_wavelength_midpoints,
         const double solar_zenith_angle,
         const double earth_sun_distance,
         double* photolysis_rate_constants,
         double* heating_rates,
         double* dose_rates,
+        double* actinic_flux,
+        double* spectral_irradiance,
         int* error_code);
 
     void InternalGetTuvxVersion(char** version_ptr, int* version_length);
@@ -138,7 +147,8 @@ namespace musica
     int InternalGetPhotolysisRateConstantCount(void* tuvx, int* error_code);
     int InternalGetHeatingRateCount(void* tuvx, int* error_code);
     int InternalGetDoseRateCount(void* tuvx, int* error_code);
-    int InternalGetNumberOfLayers(void* tuvx, int* error_code);
+    int InternalGetNumberOfHeightMidpoints(void* tuvx, int* error_code);
+    int InternalGetNumberOfWavelengthMidpoints(void* tuvx, int* error_code);
 
 #ifdef __cplusplus
   }

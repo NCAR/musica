@@ -26,6 +26,6 @@ ENV CXX=g++
 ENV CC=gcc
 ENV FC=gfortran
 
-RUN cd musica && pip install -e .[test]
+RUN cd musica && pip install -e .[test,tutorial]
 
 WORKDIR /musica

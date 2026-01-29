@@ -103,7 +103,7 @@ if backend.tuvx_available():
         if not isinstance(profile, Profile):
             raise TypeError("Value must be a Profile object")
         if profile.name != name or profile.units != units:
-            raise ValueError("Profile name/units must match the key tuple")
+            raise ValueError(f"Profile name/units must match the key tuple: {(profile.name, profile.units)}")
         self.add_profile(profile)
 
     ProfileMap.__setitem__ = __setitem__

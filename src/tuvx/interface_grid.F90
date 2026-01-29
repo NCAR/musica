@@ -255,6 +255,30 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+   function internal_get_edges_pointer(grid_updater, error_code) &
+      bind(C, name="InternalGetEdgesPointer") result(edges_ptr)
+      use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_loc
+      use musica_constants, only: dk => musica_dk
+      use tuvx_grid_from_host, only: grid_updater_t
+
+      ! arguments
+      type(c_ptr), value, intent(in)         :: grid_updater
+      integer(kind=c_int), intent(out)       :: error_code
+
+      ! output
+      type(c_ptr) :: edges_ptr
+
+      ! variables
+      type(grid_updater_t), pointer :: f_updater
+
+      call c_f_pointer(grid_updater, f_updater)
+
+      edges_ptr = c_loc(f_updater%grid_%edge_(1))
+
+   end function internal_get_edges_pointer
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
    subroutine internal_set_midpoints(grid_updater, midpoints, num_midpoints, &
       error_code) bind(C, name="InternalSetMidpoints")
       use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_double, c_size_t
@@ -310,6 +334,30 @@ contains
       f_midpoints(:) = f_updater%grid_%mid_(:)
 
    end subroutine internal_get_midpoints
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   function internal_get_midpoints_pointer(grid_updater, error_code) &
+      bind(C, name="InternalGetMidpointsPointer") result(midpoints_ptr)
+      use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_loc
+      use musica_constants, only: dk => musica_dk
+      use tuvx_grid_from_host, only: grid_updater_t
+
+      ! arguments
+      type(c_ptr), value, intent(in)         :: grid_updater
+      integer(kind=c_int), intent(out)       :: error_code
+
+      ! output
+      type(c_ptr) :: midpoints_ptr
+
+      ! variables
+      type(grid_updater_t), pointer :: f_updater
+
+      call c_f_pointer(grid_updater, f_updater)
+
+      midpoints_ptr = c_loc(f_updater%grid_%mid_(1))
+
+   end function internal_get_midpoints_pointer
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

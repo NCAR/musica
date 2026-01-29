@@ -83,8 +83,8 @@ module musica_tuvx
       end subroutine get_heating_rates_ordering_c
 
       subroutine run_tuvx_c(tuvx, solar_zenith_angle, earth_sun_distance, &
-         photolysis_rate_constants, heating_rates, dose_rates, error) &
-         bind(C, name="RunTuvx")
+         photolysis_rate_constants, heating_rates, dose_rates, actinic_flux, &
+         spectral_irradiance, error) bind(C, name="RunTuvx")
          use musica_util, only: error_t_c
          use iso_c_binding, only: c_ptr, c_double
          type(c_ptr), value,         intent(in)    :: tuvx
@@ -93,6 +93,8 @@ module musica_tuvx
          type(c_ptr), value,         intent(in)    :: photolysis_rate_constants
          type(c_ptr), value,         intent(in)    :: heating_rates
          type(c_ptr), value,         intent(in)    :: dose_rates
+         type(c_ptr), value,         intent(in)    :: actinic_flux
+         type(c_ptr), value,         intent(in)    :: spectral_irradiance
          type(error_t_c),            intent(inout) :: error
       end subroutine run_tuvx_c
 
@@ -313,7 +315,8 @@ contains
       call run_tuvx_c(this%ptr_, &
                       real(solar_zenith_angle, kind=c_double), &
                       real(earth_sun_distance, kind=c_double), &
-                      photo_rate_c, heating_c, c_null_ptr, error_c)
+                      photo_rate_c, heating_c, c_null_ptr, c_null_ptr, &
+                      c_null_ptr, error_c)
       error = error_t(error_c)
 
    end subroutine run

@@ -77,17 +77,22 @@ void bind_tuvx(py::module_& tuvx)
         int n_photolysis = tuvx_instance->GetPhotolysisRateConstantCount();
         int n_heating = tuvx_instance->GetHeatingRateCount();
         int n_dose = tuvx_instance->GetDoseRateCount();
-        int n_layers = tuvx_instance->GetNumberOfLayers();
+        int n_layers = tuvx_instance->GetNumberOfHeightMidpoints();
+        int n_wavelengths = tuvx_instance->GetNumberOfWavelengthMidpoints();
 
-        // Allocate output arrays (2D: layer, reaction/heating_type)
-        std::vector<double> photolysis_rates(n_layers * n_photolysis);
-        std::vector<double> heating_rates(n_layers * n_heating);
-        std::vector<double> dose_rates(n_layers * n_dose);
+        // Allocate output arrays (2D: reaction/heating reaction/dose rate type, vertical edge)
+        std::vector<double> photolysis_rates(n_photolysis * (n_layers + 1));
+        std::vector<double> heating_rates(n_heating * (n_layers + 1));
+        std::vector<double> dose_rates(n_dose * (n_layers + 1));
+        // ... and 3D arrays for actinic flux and spectral irradiance
+        // (wavelength, vertical edge, 3 components: direct, upwelling, downwelling)
+        std::vector<double> actinic_flux(n_wavelengths * (n_layers + 1) * 3);
+        std::vector<double> spectral_irradiance(n_wavelengths * (n_layers + 1) * 3);
 
         // Run TUV-x
         musica::Error error;
         tuvx_instance->Run(
-            sza_radians, earth_sun_distance, photolysis_rates.data(), heating_rates.data(), dose_rates.data(), &error);
+            sza_radians, earth_sun_distance, photolysis_rates.data(), heating_rates.data(), dose_rates.data(), actinic_flux.data(), spectral_irradiance.data(), &error);
 
         if (!musica::IsSuccess(error))
         {
@@ -97,12 +102,16 @@ void bind_tuvx(py::module_& tuvx)
         }
         musica::DeleteError(&error);
 
-        // Return as numpy arrays with shape (n_layers, n_reactions/n_heating)
-        py::array_t<double> py_photolysis = py::array_t<double>({ n_layers, n_photolysis }, photolysis_rates.data());
-        py::array_t<double> py_heating = py::array_t<double>({ n_layers, n_heating }, heating_rates.data());
-        py::array_t<double> py_dose = py::array_t<double>({ n_layers, n_dose }, dose_rates.data());
+        // Return as numpy arrays with shape (reaction/heating reaction/dose rate type, vertical edge)
+        py::array_t<double> py_photolysis = py::array_t<double>({ n_photolysis, n_layers + 1 }, photolysis_rates.data());
+        py::array_t<double> py_heating = py::array_t<double>({ n_heating, n_layers + 1 }, heating_rates.data());
+        py::array_t<double> py_dose = py::array_t<double>({ n_dose, n_layers + 1 }, dose_rates.data());
+        // ... and 3D arrays for actinic flux and spectral irradiance
+        // (wavelength, vertical edge, 3 components: direct, upwelling, downwelling)
+        py::array_t<double> py_actinic_flux = py::array_t<double>({ n_wavelengths, n_layers + 1, 3 }, actinic_flux.data());
+        py::array_t<double> py_spectral_irradiance = py::array_t<double>({ n_wavelengths, n_layers + 1, 3 }, spectral_irradiance.data());
 
-        return py::make_tuple(py_photolysis, py_heating, py_dose);
+        return py::make_tuple(py_photolysis, py_heating, py_dose, py_actinic_flux, py_spectral_irradiance);
       },
       "Run TUV-x (all parameters come from JSON config)",
       py::arg("tuvx_instance"),

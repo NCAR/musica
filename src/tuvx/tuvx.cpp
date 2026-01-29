@@ -46,7 +46,8 @@ namespace musica
           grids->grid_map_,
           profiles->profile_map_,
           radiators->radiator_map_,
-          &(this->number_of_layers_),
+          &(this->number_of_height_midpoints_),
+          &(this->number_of_wavelength_midpoints_),
           &parsing_status);
       if (parsing_status == 1)
       {
@@ -88,7 +89,8 @@ namespace musica
           grids->grid_map_,
           profiles->profile_map_,
           radiators->radiator_map_,
-          &(this->number_of_layers_),
+          &(this->number_of_height_midpoints_),
+          &(this->number_of_wavelength_midpoints_),
           &error_code);
       if (error_code != 0 || tuvx_ == nullptr)
       {
@@ -203,6 +205,8 @@ namespace musica
       double *const photolysis_rate_constants,
       double *const heating_rates,
       double *const dose_rates,
+      double *const actinic_flux,
+      double *const spectral_irradiance,
       Error *const error)
   {
     int error_code = 0;
@@ -211,12 +215,15 @@ namespace musica
     {
       InternalRunTuvx(
           tuvx_,
-          this->number_of_layers_,
+          this->number_of_height_midpoints_,
+          this->number_of_wavelength_midpoints_,
           sza_degrees,
           earth_sun_distance,
           photolysis_rate_constants,
           heating_rates,
           dose_rates,
+          actinic_flux,
+          spectral_irradiance,
           &error_code);
     }
     catch (const std::system_error &e)
@@ -269,13 +276,24 @@ namespace musica
     return count;
   }
 
-  int TUVX::GetNumberOfLayers()
+  int TUVX::GetNumberOfHeightMidpoints()
   {
     int error_code = 0;
-    int const count = InternalGetNumberOfLayers(tuvx_, &error_code);
+    int const count = InternalGetNumberOfHeightMidpoints(tuvx_, &error_code);
     if (error_code != 0)
     {
-      throw std::runtime_error("Failed to get number of layers");
+      throw std::runtime_error("Failed to get number of height midpoints");
+    }
+    return count;
+  }
+
+  int TUVX::GetNumberOfWavelengthMidpoints()
+  {
+    int error_code = 0;
+    int const count = InternalGetNumberOfWavelengthMidpoints(tuvx_, &error_code);
+    if (error_code != 0)
+    {
+      throw std::runtime_error("Failed to get number of wavelength midpoints");
     }
     return count;
   }
