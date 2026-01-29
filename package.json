@@ -11,7 +11,6 @@
   "readme": "README.md",
   "files": [
     "configs",
-    "!configs/tuvx",
     "javascript/**/*.js",
     "!javascript/tests",
     "!javascript/src",
