@@ -74,7 +74,7 @@ CARMA:              ON (develop-carma-box)
 ## 4. Build
 
 ```bash
-make -j4
+make -j$(nproc)
 ```
 
 Build completes at 100% producing:
