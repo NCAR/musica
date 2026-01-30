@@ -99,7 +99,7 @@ make
 make install
 ```
 
-For a complete step-by-step build example on NCAR Derecho, see [DERECHO_BUILD.md](DERECHO_BUILD.md).
+For a complete step-by-step build example on NCAR Derecho, see [BUILD_DERECHO.md](BUILD_DERECHO.md).
 
 MUSICA automatically downloads and builds additional dependencies (pybind11, googletest, MICM, TUV-x, Mechanism Configuration, CARMA) using CMake's FetchContent. If you have these packages already installed where CMake can find them, they will be used instead of being downloaded.
 

@@ -34,38 +34,17 @@ nf-config --version    # netCDF-Fortran 4.6.1
 gcc --version          # GCC 13.2.0 (Spack, via gcc-toolchain)
 ```
 
-## 2. Fix: Remove `yaml-cpp` from install targets
-
-The file `src/packaging/CMakeLists.txt` references a `yaml-cpp` target in its
-`install(TARGETS ...)` call, but `yaml-cpp` is only built internally by the
-`mechanism_configuration` dependency (via FetchContent). This causes a CMake
-configuration error:
-
-```
-CMake Error at src/packaging/CMakeLists.txt:3 (install):
-  install TARGETS given target "yaml-cpp" which does not exist.
-```
-
-**Fix:** Remove `yaml-cpp` from line 6 of `src/packaging/CMakeLists.txt`:
-
-```diff
- install(
-   TARGETS
-     musica
--    yaml-cpp
-     mechanism_configuration
-   EXPORT
-     musica_Exports
-```
-
-## 3. Create the build directory
+## 2. Create the build directory
 
 ```bash
 mkdir -p build
 cd build
 ```
 
-## 4. Configure with CMake
+## 3. Configure with CMake
+
+Set `CMAKE_INSTALL_PREFIX` to the directory where you want MUSICA installed,
+e.g. `/glade/work/$USER/packages`:
 
 ```bash
 cmake .. \
@@ -73,7 +52,8 @@ cmake .. \
   -DMUSICA_ENABLE_TUVX=ON \
   -DMUSICA_ENABLE_CARMA=OFF \
   -DMUSICA_ENABLE_TESTS=ON \
-  -DCMAKE_BUILD_TYPE=Release
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX=/glade/work/$USER/packages
 ```
 
 ### Notes on options
@@ -103,7 +83,7 @@ TUV-X:              ON (v0.14.0)
 CARMA:              OFF
 ```
 
-## 5. Build
+## 4. Build
 
 ```bash
 make -j4
@@ -121,7 +101,7 @@ Build completes at 100% producing:
 - `--gcc-toolchain` option not supported by `ifort` (passed by ncarcompilers wrapper).
 - Several Fortran `INTENT(OUT)` warnings in TUV-x interface files.
 
-## 6. Run tests
+## 5. Run tests
 
 ```bash
 ctest --output-on-failure
@@ -137,3 +117,41 @@ All 6 tests passed (total time 1.57s):
 | 4 | parser | Passed | 0.21s |
 | 5 | tuvx_c_api | Passed | 1.17s |
 | 6 | tuvx_run_from_config | Passed | 0.04s |
+
+## 6. Install
+
+```bash
+make install
+```
+
+Installs to the path set by `CMAKE_INSTALL_PREFIX` (e.g. `/glade/work/$USER/packages`):
+
+```
+<install-prefix>/
+├── include/
+│   ├── micm/          # MICM headers
+│   └── musica/        # MUSICA headers, TUV-x Fortran modules
+│       ├── micm/
+│       ├── tuvx/
+│       ├── carma/
+│       └── fortran/   # .mod files for TUV-x Fortran interface
+├── lib64/
+│   ├── libmusica.a
+│   ├── libmechanism_configuration.a
+│   ├── cmake/musica/  # CMake package config files
+│   └── pkgconfig/     # pkg-config file (musica.pc)
+```
+
+To use the installed library in another CMake project:
+
+```cmake
+find_package(musica REQUIRED)
+target_link_libraries(my_target musica::musica)
+```
+
+Or via pkg-config:
+
+```bash
+export PKG_CONFIG_PATH=<install-prefix>/lib64/pkgconfig:$PKG_CONFIG_PATH
+pkg-config --cflags --libs musica
+```
