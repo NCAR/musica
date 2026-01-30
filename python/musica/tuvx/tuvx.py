@@ -246,7 +246,7 @@ class TUVX:
             GridMap instance
         """
         return _backend._tuvx._get_grid_map(self._tuvx_instance)
-    
+
     def get_profile_map(self) -> ProfileMap:
         """
         Get the ProfileMap used in this TUV-x instance.
@@ -255,7 +255,7 @@ class TUVX:
             ProfileMap instance
         """
         return _backend._tuvx._get_profile_map(self._tuvx_instance)
-    
+
     def get_radiator_map(self) -> RadiatorMap:
         """
         Get the RadiatorMap used in this TUV-x instance.

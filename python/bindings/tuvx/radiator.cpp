@@ -117,9 +117,9 @@ void bind_tuvx_radiator(py::module_ &radiator)
               musica::DeleteError(&error);
               throw py::value_error(message);
             }
-            
+
             // Get a pointer to the internal C++ array
-            double* data_ptr = self.GetOpticalDepthsPointer(&error);
+            double *data_ptr = self.GetOpticalDepthsPointer(&error);
             if (!musica::IsSuccess(error))
             {
               std::string message = "Error getting optical depths pointer: " + std::string(error.message_.value_);
@@ -129,15 +129,17 @@ void bind_tuvx_radiator(py::module_ &radiator)
 
             // Create a numpy array that references the internal C++ array directly
             // using py::capsule to manage the lifetime correctly
-            py::capsule owner = py::capsule(data_ptr, [](void *f) {
-              // No deletion here since the memory is managed by the Radiator class
-            });
+            py::capsule owner = py::capsule(
+                data_ptr,
+                [](void *f)
+                {
+                  // No deletion here since the memory is managed by the Radiator class
+                });
             return py::array_t<double>(
-              { num_wavelength_sections, num_height_sections }, // shape
-              { sizeof(double) * num_height_sections, sizeof(double) }, // stride
-              data_ptr, // data pointer
-              owner
-            );
+                { num_wavelength_sections, num_height_sections },          // shape
+                { sizeof(double) * num_height_sections, sizeof(double) },  // stride
+                data_ptr,                                                  // data pointer
+                owner);
           },
           // Setter - converts 2D numpy array to C++ array
           [](musica::Radiator &self, py::array_t<double, py::array::c_style | py::array::forcecast> array)
@@ -195,9 +197,9 @@ void bind_tuvx_radiator(py::module_ &radiator)
               musica::DeleteError(&error);
               throw py::value_error(message);
             }
-            
+
             // Get a pointer to the internal C++ array
-            double* data_ptr = self.GetSingleScatteringAlbedosPointer(&error);
+            double *data_ptr = self.GetSingleScatteringAlbedosPointer(&error);
             if (!musica::IsSuccess(error))
             {
               std::string message = "Error getting single scattering albedos pointer: " + std::string(error.message_.value_);
@@ -207,15 +209,17 @@ void bind_tuvx_radiator(py::module_ &radiator)
 
             // Create a numpy array that references the internal C++ array directly
             // using py::capsule to manage the lifetime correctly
-            py::capsule owner = py::capsule(data_ptr, [](void *f) {
-              // No deletion here since the memory is managed by the Radiator class
-            });
+            py::capsule owner = py::capsule(
+                data_ptr,
+                [](void *f)
+                {
+                  // No deletion here since the memory is managed by the Radiator class
+                });
             return py::array_t<double>(
-              { num_wavelength_sections, num_height_sections }, // shape
-              { sizeof(double) * num_height_sections, sizeof(double) }, // stride
-              data_ptr, // data pointer
-              owner
-            );
+                { num_wavelength_sections, num_height_sections },          // shape
+                { sizeof(double) * num_height_sections, sizeof(double) },  // stride
+                data_ptr,                                                  // data pointer
+                owner);
           },
           // Setter - converts 2D numpy array to C++ array
           [](musica::Radiator &self, py::array_t<double, py::array::c_style | py::array::forcecast> array)
@@ -274,9 +278,9 @@ void bind_tuvx_radiator(py::module_ &radiator)
               throw py::value_error(message);
             }
             constexpr size_t num_streams = 1;
-            
+
             // Get a pointer to the internal C++ array
-            double* data_ptr = self.GetAsymmetryFactorsPointer(&error);
+            double *data_ptr = self.GetAsymmetryFactorsPointer(&error);
             if (!musica::IsSuccess(error))
             {
               std::string message = "Error getting asymmetry factors pointer: " + std::string(error.message_.value_);
@@ -286,15 +290,17 @@ void bind_tuvx_radiator(py::module_ &radiator)
 
             // Create a numpy array that references the internal C++ array directly
             // using py::capsule to manage the lifetime correctly
-            py::capsule owner = py::capsule(data_ptr, [](void *f) {
-              // No deletion here since the memory is managed by the Radiator class
-            });
+            py::capsule owner = py::capsule(
+                data_ptr,
+                [](void *f)
+                {
+                  // No deletion here since the memory is managed by the Radiator class
+                });
             return py::array_t<double>(
-              { num_wavelength_sections, num_height_sections }, // shape
-              { sizeof(double) * num_height_sections, sizeof(double) }, // stride
-              data_ptr, // data pointer
-              owner
-            );
+                { num_wavelength_sections, num_height_sections },          // shape
+                { sizeof(double) * num_height_sections, sizeof(double) },  // stride
+                data_ptr,                                                  // data pointer
+                owner);
           },
           // Setter - converts 2D numpy array to C++ array
           [](musica::Radiator &self, py::array_t<double, py::array::c_style | py::array::forcecast> array)

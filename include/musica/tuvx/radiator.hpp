@@ -48,7 +48,7 @@ namespace musica
     /// @brief Returns a pointer to the optical depths array
     /// @param error Error to indicate success or failure
     /// @return A pointer to the optical depths array
-    double* GetOpticalDepthsPointer(Error *error);
+    double *GetOpticalDepthsPointer(Error *error);
 
     /// @brief Sets single scattering albedos values
     /// @param single_scattering_albedos 2D array of single scattering albedos values
@@ -75,7 +75,7 @@ namespace musica
     /// @brief Return a pointer to the single scattering albedos array
     /// @param error Error to indicate success or failure
     /// @return A pointer to the single scattering albedos array
-    double* GetSingleScatteringAlbedosPointer(Error *error);
+    double *GetSingleScatteringAlbedosPointer(Error *error);
 
     /// @brief Sets asymmetry factor values
     /// @param asymmetry_factor 3D array of asymmetery factor values
@@ -106,7 +106,7 @@ namespace musica
     /// @brief Return a pointer to the asymmetry factors array
     /// @param error Error to indicate success or failure
     /// @return A pointer to the asymmetry factors array
-    double* GetAsymmetryFactorsPointer(Error *error);
+    double *GetAsymmetryFactorsPointer(Error *error);
 
     /// @brief Return the number of sections in the radiator's height grid
     /// @param error The error struct to indicate success or failure
@@ -189,7 +189,7 @@ namespace musica
     /// @param radiator Radiator
     /// @param error Error to indicate success or failure
     /// @return A pointer to the optical depths array
-    double* GetRadiatorOpticalDepthsPointer(Radiator *radiator, Error *error);
+    double *GetRadiatorOpticalDepthsPointer(Radiator *radiator, Error *error);
 
     /// @brief Sets single scattering albedos values
     /// @param radiator Radiator
@@ -221,7 +221,7 @@ namespace musica
     /// @param radiator Radiator
     /// @param error Error to indicate success or failure
     /// @return A pointer to the single scattering albedos array
-    double* GetRadiatorSingleScatteringAlbedosPointer(Radiator *radiator, Error *error);
+    double *GetRadiatorSingleScatteringAlbedosPointer(Radiator *radiator, Error *error);
 
     /// @brief Sets asymmetry factor values
     /// @param radiator Radiator
@@ -257,7 +257,7 @@ namespace musica
     /// @param radiator Radiator
     /// @param error Error to indicate success or failure
     /// @return A pointer to the asymmetry factors array
-    double* GetRadiatorAsymmetryFactorsPointer(Radiator *radiator, Error *error);
+    double *GetRadiatorAsymmetryFactorsPointer(Radiator *radiator, Error *error);
 
     /// @brief Return the number of sections in the radiator's height grid
     /// @param radiator Radiator
@@ -296,7 +296,7 @@ namespace musica
         std::size_t num_vertical_layers,
         std::size_t num_wavelength_bins,
         int *error_code);
-    double* InternalGetOpticalDepthsPointer(void *radiator, int *error_code);
+    double *InternalGetOpticalDepthsPointer(void *radiator, int *error_code);
     void InternalSetSingleScatteringAlbedos(
         void *radiator,
         double *single_scattering_albedos,
@@ -309,7 +309,7 @@ namespace musica
         std::size_t num_vertical_layers,
         std::size_t num_wavelength_bins,
         int *error_code);
-    double* InternalGetSingleScatteringAlbedosPointer(void *radiator, int *error_code);
+    double *InternalGetSingleScatteringAlbedosPointer(void *radiator, int *error_code);
     void InternalSetAsymmetryFactors(
         void *radiator,
         double *asymmetry_factors,
@@ -324,7 +324,7 @@ namespace musica
         std::size_t num_wavelength_bins,
         std::size_t num_streams,
         int *error_code);
-    double* InternalGetAsymmetryFactorsPointer(void *radiator, int *error_code);
+    double *InternalGetAsymmetryFactorsPointer(void *radiator, int *error_code);
     std::size_t InternalGetRadiatorNumberOfHeightSections(void *radiator, int *error_code);
     std::size_t InternalGetRadiatorNumberOfWavelengthSections(void *radiator, int *error_code);
 
