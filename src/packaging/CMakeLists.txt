@@ -8,6 +8,9 @@ set(_musica_export_targets musica mechanism_configuration)
 # will locate it via find_dependency in musicaConfig.cmake instead.
 if(TARGET yaml-cpp AND NOT yaml-cpp_FOUND)
   list(APPEND _musica_export_targets yaml-cpp)
+  set(MUSICA_YAML_CPP_BUNDLED TRUE)
+else()
+  set(MUSICA_YAML_CPP_BUNDLED FALSE)
 endif()
 
 install(
