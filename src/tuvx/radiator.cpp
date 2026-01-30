@@ -93,6 +93,12 @@ namespace musica
     radiator->GetOpticalDepths(optical_depths, num_vertical_layers, num_wavelength_bins, error);
   }
 
+  double* GetRadiatorOpticalDepthsPointer(Radiator *radiator, Error *error)
+  {
+    DeleteError(error);
+    return radiator->GetOpticalDepthsPointer(error);
+  }
+
   void SetRadiatorSingleScatteringAlbedos(
       Radiator *radiator,
       double *single_scattering_albedos,
@@ -113,6 +119,12 @@ namespace musica
   {
     DeleteError(error);
     radiator->GetSingleScatteringAlbedos(single_scattering_albedos, num_vertical_layers, num_wavelength_bins, error);
+  }
+
+  double* GetRadiatorSingleScatteringAlbedosPointer(Radiator *radiator, Error *error)
+  {
+    DeleteError(error);
+    return radiator->GetSingleScatteringAlbedosPointer(error);
   }
 
   void SetRadiatorAsymmetryFactors(
@@ -137,6 +149,12 @@ namespace musica
   {
     DeleteError(error);
     radiator->GetAsymmetryFactors(asymmetry_factors, num_vertical_layers, num_wavelength_bins, num_streams, error);
+  }
+
+  double* GetRadiatorAsymmetryFactorsPointer(Radiator *radiator, Error *error)
+  {
+    DeleteError(error);
+    return radiator->GetAsymmetryFactorsPointer(error);
   }
 
   std::size_t GetRadiatorNumberOfHeightSections(Radiator *radiator, Error *error)
@@ -252,6 +270,26 @@ namespace musica
     NoError(error);
   }
 
+  double* Radiator::GetOpticalDepthsPointer(Error *error)
+  {
+    DeleteError(error);
+    int error_code = ERROR_NONE;
+    if (updater_ == nullptr)
+    {
+      error_code = ERROR_UNALLOCATED_RADIATOR_UPDATER;
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      return nullptr;
+    }
+    double* optical_depths_ptr = InternalGetOpticalDepthsPointer(updater_, &error_code);
+    if (error_code != ERROR_NONE)
+    {
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      return nullptr;
+    }
+    NoError(error);
+    return optical_depths_ptr;
+  }
+
   void Radiator::SetSingleScatteringAlbedos(
       double *single_scattering_albedos,
       std::size_t num_vertical_layers,
@@ -296,6 +334,26 @@ namespace musica
       return;
     }
     NoError(error);
+  }
+
+  double* Radiator::GetSingleScatteringAlbedosPointer(Error *error)
+  {
+    DeleteError(error);
+    int error_code = ERROR_NONE;
+    if (updater_ == nullptr)
+    {
+      error_code = ERROR_UNALLOCATED_RADIATOR_UPDATER;
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      return nullptr;
+    }
+    double* single_scattering_albedos_ptr = InternalGetSingleScatteringAlbedosPointer(updater_, &error_code);
+    if (error_code != ERROR_NONE)
+    {
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      return nullptr;
+    }
+    NoError(error);
+    return single_scattering_albedos_ptr;
   }
 
   void Radiator::SetAsymmetryFactors(
@@ -344,6 +402,26 @@ namespace musica
       return;
     }
     NoError(error);
+  }
+
+  double* Radiator::GetAsymmetryFactorsPointer(Error *error)
+  {
+    DeleteError(error);
+    int error_code = ERROR_NONE;
+    if (updater_ == nullptr)
+    {
+      error_code = ERROR_UNALLOCATED_RADIATOR_UPDATER;
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      return nullptr;
+    }
+    double* asymmetry_factors_ptr = InternalGetAsymmetryFactorsPointer(updater_, &error_code);
+    if (error_code != ERROR_NONE)
+    {
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      return nullptr;
+    }
+    NoError(error);
+    return asymmetry_factors_ptr;
   }
 
   std::size_t Radiator::GetNumberOfHeightSections(Error *error)

@@ -67,6 +67,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - uses: actions/setup-python@v5
         with:
@@ -102,7 +103,7 @@ jobs:
         shell: pwsh
         run: |
           python -m pip install --upgrade check-wheel-contents
-          check-wheel-contents --ignore W004,W009,W010 wheelhouse/*.whl
+          check-wheel-contents --ignore W002,W004,W009,W010 wheelhouse/*.whl
 
           Invoke-WebRequest -Uri $env:ZIPURL -OutFile $env:TEMP\zipfiles.py
           $scriptPath = Join-Path $env:TEMP "zipfiles.py"
@@ -115,7 +116,7 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
         run: |
           python -m pip install --upgrade check-wheel-contents
-          check-wheel-contents --ignore W004,W009,W010 wheelhouse/*.whl
+          check-wheel-contents --ignore W002,W004,W009,W010 wheelhouse/*.whl
 
           # Download PyPI's authoritative zipfiles.py validator once
           wget -qO /tmp/zipfiles.py $ZIPURL

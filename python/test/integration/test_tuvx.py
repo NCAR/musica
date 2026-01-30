@@ -7,172 +7,8 @@ pytestmark = pytest.mark.skipif(not available, reason="TUV-x backend is not avai
 
 
 def get_grid_map():
-    heights = musica.Grid(name="height", units="km", num_sections=120)
-    heights.edges = np.linspace(0, 120, 121)
-    heights.midpoints = 0.5 * (heights.edges[:-1] + heights.edges[1:])
-    wavelengths = musica.Grid(name="wavelength", units="nm", num_sections=156)
-    wavelengths.edges = np.array(
-        [
-            120.0000,
-            121.4000,
-            121.9000,
-            122.3000,
-            123.1000,
-            123.8000,
-            124.6000,
-            125.4000,
-            126.2000,
-            127.0000,
-            128.6000,
-            129.4000,
-            130.3000,
-            132.0000,
-            135.0000,
-            137.0000,
-            145.0000,
-            155.0000,
-            165.0000,
-            170.0000,
-            175.4000,
-            177.0000,
-            178.6000,
-            180.2000,
-            181.8000,
-            183.5000,
-            185.2000,
-            186.9000,
-            188.7000,
-            190.5000,
-            192.3000,
-            194.2000,
-            196.1000,
-            198.0000,
-            200.0000,
-            202.0000,
-            204.1000,
-            206.2000,
-            208.3330,
-            210.5260,
-            212.7660,
-            215.0540,
-            217.3910,
-            219.7800,
-            222.2220,
-            224.7190,
-            227.2730,
-            229.8850,
-            232.5580,
-            235.2940,
-            238.0950,
-            240.9640,
-            243.9020,
-            246.9140,
-            250.0000,
-            253.1650,
-            256.4100,
-            259.7400,
-            263.1580,
-            266.6670,
-            270.2700,
-            273.9730,
-            277.7780,
-            281.6900,
-            285.7140,
-            289.8550,
-            294.1180,
-            298.5000,
-            302.5000,
-            303.5000,
-            304.5000,
-            305.5000,
-            306.5000,
-            307.5000,
-            308.5000,
-            309.5000,
-            310.5000,
-            311.5000,
-            312.5000,
-            313.5000,
-            314.5000,
-            317.5000,
-            322.5000,
-            327.5000,
-            332.5000,
-            337.5000,
-            342.5000,
-            347.5000,
-            352.5000,
-            357.5000,
-            362.5000,
-            367.5000,
-            372.5000,
-            377.5000,
-            382.5000,
-            387.5000,
-            392.5000,
-            397.5000,
-            402.5000,
-            407.5000,
-            412.5000,
-            417.5000,
-            422.5000,
-            427.5000,
-            432.5000,
-            437.5000,
-            442.5000,
-            447.5000,
-            452.5000,
-            457.5000,
-            462.5000,
-            467.5000,
-            472.5000,
-            477.5000,
-            482.5000,
-            487.5000,
-            492.5000,
-            497.5000,
-            502.5000,
-            507.5000,
-            512.5000,
-            517.5000,
-            522.5000,
-            527.5000,
-            532.5000,
-            537.5000,
-            542.5000,
-            547.5000,
-            552.5000,
-            557.5000,
-            562.5000,
-            567.5000,
-            572.5000,
-            577.5000,
-            582.5000,
-            587.5000,
-            592.5000,
-            597.5000,
-            602.5000,
-            607.5000,
-            612.5000,
-            617.5000,
-            622.5000,
-            627.5000,
-            632.5000,
-            637.5000,
-            642.5000,
-            647.1000,
-            655.0000,
-            665.0000,
-            675.0000,
-            685.0000,
-            695.0000,
-            705.0000,
-            715.0000,
-            725.0000,
-            735.0000,
-        ]
-    )
-    wavelengths.midpoints = 0.5 * (wavelengths.edges[:-1] + wavelengths.edges[1:])
+    heights = musica.tuvx.v54.height_grid()
+    wavelengths = musica.tuvx.v54.wavelength_grid()
     grid_map = musica.GridMap()
     grid_map["height", "km"] = heights
     grid_map["wavelength", "nm"] = wavelengths
@@ -286,10 +122,10 @@ def test_full_tuvx(monkeypatch):
     assert len(dataset["photolysis_rate_constants"].coords["vertical_edge"]
                ) == 121, "Number of layers should be 121 for photolysis rates"
     assert len(dataset["dose_rates"].coords["vertical_edge"]) == 121, "Number of layers should be 121 for dose rates"
-    assert dataset["heating_rates"].shape[1] == 0, "Should be no heating rates for this config"
-    assert dataset["photolysis_rate_constants"].shape[1] == len(
+    assert dataset["heating_rates"].shape[0] == 0, "Should be no heating rates for this config"
+    assert dataset["photolysis_rate_constants"].shape[0] == len(
         tuvx.photolysis_rate_names), "Photolysis rates shape mismatch"
-    assert dataset["dose_rates"].shape[1] == len(tuvx.dose_rate_names), "Dose rates shape mismatch"
+    assert dataset["dose_rates"].shape[0] == len(tuvx.dose_rate_names), "Dose rates shape mismatch"
 
     # Make sure photolysis rates are reasonable
     assert np.all(dataset["photolysis_rate_constants"] >= 0), "Negative photolysis rates found"
@@ -311,12 +147,12 @@ def test_full_tuvx(monkeypatch):
     o2_index = tuvx.photolysis_rate_names["O2+hv->O+O"]
     o3_o1d_index = tuvx.photolysis_rate_names["O3+hv->O2+O(1D)"]
     o3_o3p_index = tuvx.photolysis_rate_names["O3+hv->O2+O(3P)"]
-    assert np.all(dataset_doubled["photolysis_rate_constants"][:, o2_index] <=
-                  dataset["photolysis_rate_constants"][:, o2_index]), "O2 photolysis did not decrease"
-    assert np.all(dataset_doubled["photolysis_rate_constants"][:, o3_o1d_index] <=
-                  dataset["photolysis_rate_constants"][:, o3_o1d_index]), "O3 (1D) photolysis did not decrease"
-    assert np.all(dataset_doubled["photolysis_rate_constants"][:, o3_o3p_index] <=
-                  dataset["photolysis_rate_constants"][:, o3_o3p_index]), "O3 (3P) photolysis did not decrease"
+    assert np.all(dataset_doubled["photolysis_rate_constants"][o2_index, :] <=
+                  dataset["photolysis_rate_constants"][o2_index, :]), "O2 photolysis did not decrease"
+    assert np.all(dataset_doubled["photolysis_rate_constants"][o3_o1d_index, :] <=
+                  dataset["photolysis_rate_constants"][o3_o1d_index, :]), "O3 (1D) photolysis did not decrease"
+    assert np.all(dataset_doubled["photolysis_rate_constants"][o3_o3p_index, :] <=
+                  dataset["photolysis_rate_constants"][o3_o3p_index, :]), "O3 (3P) photolysis did not decrease"
 
     # Verify the labels in the XArray dataset are ordered the same as in the TUV-x label dicts
     for i, reaction in enumerate(tuvx.photolysis_rate_names):
@@ -365,7 +201,7 @@ def get_fixed_grid_map():
 
 
 def test_fixed_tuvx_from_file():
-    file = "configs/tuvx/full_from_host/config.json"
+    file = "configs/tuvx/full_from_host/config_python.json"
     grid_map = get_fixed_grid_map()
     profile_map = get_profile_map(grid_map)
     radiator_map = get_radiator_map(grid_map)
@@ -395,19 +231,27 @@ def test_fixed_tuvx_from_file():
                ) == 4, "Unexpected number of layers for photolysis rates"
     assert len(dataset["heating_rates"].coords["vertical_edge"]) == 4, "Unexpected number of layers for heating rates"
     assert len(dataset["dose_rates"].coords["vertical_edge"]) == 4, "Unexpected number of layers for dose rates"
-    assert dataset["photolysis_rate_constants"].shape[1] == len(photolysis_names_1), "Photolysis rates shape mismatch"
-    assert dataset["heating_rates"].shape[1] == len(heating_names_1), "Heating rates shape mismatch"
-    assert dataset["dose_rates"].shape[1] == len(dose_names_1), "Dose rates shape mismatch"
+    assert dataset["photolysis_rate_constants"].shape[0] == len(photolysis_names_1), "Photolysis rates shape mismatch"
+    assert dataset["heating_rates"].shape[0] == len(heating_names_1), "Heating rates shape mismatch"
+    assert dataset["dose_rates"].shape[0] == len(dose_names_1), "Dose rates shape mismatch"
 
 
 def test_fixed_tuvx_from_string():
-    file = "configs/tuvx/full_from_host/config.json"
+    file = "configs/tuvx/full_from_host/config_python.json"
     with open(file, 'r') as f:
         config_str = f.read()
     grid_map = get_fixed_grid_map()
     profile_map = get_profile_map(grid_map)
     radiator_map = get_radiator_map(grid_map)
-    tuvx = musica.TUVX(grid_map, profile_map, radiator_map, config_string=config_str)
+
+    # change to the config directory to mimic file-based relative paths
+    import os
+    original_cwd = os.getcwd()
+    os.chdir(os.path.dirname(file))
+    try:
+        tuvx = musica.TUVX(grid_map, profile_map, radiator_map, config_string=config_str)
+    finally:
+        os.chdir(original_cwd)
     assert tuvx is not None
 
     # Access properties multiple times
@@ -433,9 +277,103 @@ def test_fixed_tuvx_from_string():
                ) == 4, "Unexpected number of layers for photolysis rates"
     assert len(dataset["heating_rates"].coords["vertical_edge"]) == 4, "Unexpected number of layers for heating rates"
     assert len(dataset["dose_rates"].coords["vertical_edge"]) == 4, "Unexpected number of layers for dose rates"
-    assert dataset["photolysis_rate_constants"].shape[1] == len(photolysis_names_1), "Photolysis rates shape mismatch"
-    assert dataset["heating_rates"].shape[1] == len(heating_names_1), "Heating rates shape mismatch"
-    assert dataset["dose_rates"].shape[1] == len(dose_names_1), "Dose rates shape mismatch"
+    assert dataset["photolysis_rate_constants"].shape[0] == len(photolysis_names_1), "Photolysis rates shape mismatch"
+    assert dataset["heating_rates"].shape[0] == len(heating_names_1), "Heating rates shape mismatch"
+    assert dataset["dose_rates"].shape[0] == len(dose_names_1), "Dose rates shape mismatch"
+
+
+def test_v54_radiator_exact_reproduction():
+    """Test that the v5.4 radiator can exactly reproduce the .dat file values."""
+    import os
+    from decimal import Decimal, getcontext
+    from musica.tuvx.v54 import radiator_data_files
+    
+    # Set decimal precision high enough for comparison
+    getcontext().prec = 50
+    
+    # Get the grids
+    heights = musica.tuvx.v54.height_grid()
+    wavelengths = musica.tuvx.v54.wavelength_grid()
+    
+    # Load the radiator
+    rad = musica.tuvx.v54.radiator("aerosol", heights, wavelengths)
+    
+    # Get the file path
+    filepath = radiator_data_files["aerosol"]
+    package_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+    full_path = os.path.join(package_dir, filepath)
+    
+    # Parse the file
+    with open(full_path, 'r') as f:
+        lines = f.readlines()
+    
+    # Extract data lines
+    file_data = []
+    for line in lines:
+        stripped = line.strip()
+        if not stripped or stripped.startswith('#'):
+            continue
+        if 'End radiator state' in stripped:
+            break
+        parts = stripped.split()
+        if len(parts) >= 5:
+            height = float(parts[0])
+            wavelength = float(parts[1])
+            od = float(parts[2])
+            ssa = float(parts[3])
+            g = float(parts[4])
+            file_data.append([height, wavelength, od, ssa, g])
+    
+    # Verify that the radiator data matches the file
+    max_relative_error_od = 0.0
+    max_relative_error_ssa = 0.0
+    max_relative_error_g = 0.0
+    
+    for row in file_data:
+        file_height, file_wavelength, file_od, file_ssa, file_g = row
+        
+        # Find closest height and wavelength indices
+        height_idx = np.argmin(np.abs(heights.midpoints - file_height))
+        wavelength_idx = np.argmin(np.abs(wavelengths.midpoints - file_wavelength))
+        
+        # Get the radiator values (note: shape is wavelengths x heights)
+        rad_od = rad.optical_depths[wavelength_idx, height_idx]
+        rad_ssa = rad.single_scattering_albedos[wavelength_idx, height_idx]
+        rad_g = rad.asymmetry_factors[wavelength_idx, height_idx]
+        
+        # Calculate relative errors
+        if file_od != 0:
+            rel_error_od = abs((rad_od - file_od) / file_od)
+            max_relative_error_od = max(max_relative_error_od, rel_error_od)
+        if file_ssa != 0:
+            rel_error_ssa = abs((rad_ssa - file_ssa) / file_ssa)
+            max_relative_error_ssa = max(max_relative_error_ssa, rel_error_ssa)
+        if file_g != 0:
+            rel_error_g = abs((rad_g - file_g) / file_g)
+            max_relative_error_g = max(max_relative_error_g, rel_error_g)
+        
+        # Check if values match within tolerance (1e-6 relative tolerance)
+        tolerance = 1e-6
+        if file_od != 0:
+            assert abs((rad_od - file_od) / file_od) < tolerance, \
+                f"Optical depth mismatch at height={file_height}, wavelength={file_wavelength}: " \
+                f"Expected {file_od}, got {rad_od}"
+        else:
+            assert abs(rad_od) < tolerance, \
+                f"Optical depth mismatch at height={file_height}, wavelength={file_wavelength}: " \
+                f"Expected {file_od}, got {rad_od}"
+        
+        if file_ssa != 0:
+            assert abs((rad_ssa - file_ssa) / file_ssa) < tolerance, \
+                f"SSA mismatch at height={file_height}, wavelength={file_wavelength}: " \
+                f"Expected {file_ssa}, got {rad_ssa}"
+        
+        if file_g != 0:
+            assert abs((rad_g - file_g) / file_g) < tolerance, \
+                f"Asymmetry factor mismatch at height={file_height}, wavelength={file_wavelength}: " \
+                f"Expected {file_g}, got {rad_g}"
+    
+    print(f"Maximum relative errors: OD={max_relative_error_od:.2e}, SSA={max_relative_error_ssa:.2e}, G={max_relative_error_g:.2e}")
 
 
 def test_tuvx_initialization_errors():

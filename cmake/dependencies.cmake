@@ -103,6 +103,8 @@ if (MUSICA_ENABLE_TUVX AND MUSICA_BUILD_C_CXX_INTERFACE)
   set(TUVX_INSTALL_MOD_DIR ${MUSICA_INSTALL_MOD_DIR} CACHE STRING "" FORCE)
   set(TUVX_INSTALL_INCLUDE_DIR ${MUSICA_INSTALL_INCLUDE_DIR} CACHE STRING "" FORCE)
 
+  # NOTE: `docker/Dockerfile.tuvx` extracts TUVX_GIT_REPOSITORY and TUVX_GIT_TAG
+  #       from this script to set up tests against stand-alone TUV-x
   set_git_default(TUVX_GIT_REPOSITORY https://github.com/NCAR/tuv-x.git)
   set_git_default(TUVX_GIT_TAG v0.14.0)
 

@@ -76,6 +76,18 @@ def test_profile_properties(sample_grid):
     profile.layer_densities = layer_densities
     np.testing.assert_array_equal(profile.layer_densities, layer_densities)
 
+    # Test set edge value elements
+    profile.edge_values[0] = 295
+    assert profile.edge_values[0] == 295
+
+    # Test set midpoint value elements
+    profile.midpoint_values[0] = 290
+    assert profile.midpoint_values[0] == 290
+
+    # Test set layer density elements
+    profile.layer_densities[0] = 2e25
+    assert profile.layer_densities[0] == 2e25
+
     # Test exo_layer_density
     profile.exo_layer_density = 1e20
     assert profile.exo_layer_density == 1e20

@@ -234,6 +234,30 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+   function internal_get_edge_values_pointer(profile_updater, &
+      error_code) result(edge_values_ptr) &
+      bind(C, name="InternalGetEdgeValuesPointer")
+      use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_loc
+      use musica_constants, only: dk => musica_dk
+      use tuvx_profile_from_host, only: profile_updater_t
+
+      ! arguments
+      type(c_ptr), value, intent(in)            :: profile_updater
+      integer(kind=c_int), intent(out)          :: error_code
+      type(c_ptr)                               :: edge_values_ptr
+
+      ! variables
+      type(profile_updater_t), pointer :: f_updater
+
+      error_code = ERROR_NONE
+      call c_f_pointer(profile_updater, f_updater)
+
+      edge_values_ptr = c_loc(f_updater%profile_%edge_val_(1))
+
+   end function internal_get_edge_values_pointer
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
    subroutine internal_set_midpoint_values(profile_updater, midpoint_values, &
       num_midpoint_values, error_code) bind(C, name="InternalSetMidpointValues")
       use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_size_t
@@ -291,6 +315,30 @@ contains
       f_midpoint_values(:) = f_updater%profile_%mid_val_(:)
 
    end subroutine internal_get_midpoint_values
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   function internal_get_midpoint_values_pointer(profile_updater, &
+      error_code) result(midpoint_values_ptr) &
+      bind(C, name="InternalGetMidpointValuesPointer")
+      use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_loc
+      use musica_constants, only: dk => musica_dk
+      use tuvx_profile_from_host, only: profile_updater_t
+
+      ! arguments
+      type(c_ptr), value, intent(in)            :: profile_updater
+      integer(kind=c_int), intent(out)          :: error_code
+      type(c_ptr)                               :: midpoint_values_ptr
+
+      ! variables
+      type(profile_updater_t), pointer :: f_updater
+
+      error_code = ERROR_NONE
+      call c_f_pointer(profile_updater, f_updater)
+
+      midpoint_values_ptr = c_loc(f_updater%profile_%mid_val_(1))
+
+   end function internal_get_midpoint_values_pointer
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -357,6 +405,30 @@ contains
       f_layer_densities(:) = f_updater%profile_%layer_dens_(:)
 
    end subroutine internal_get_layer_densities
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   function internal_get_layer_densities_pointer(profile_updater, &
+      error_code) result(layer_densities_ptr) &
+      bind(C, name="InternalGetLayerDensitiesPointer")
+      use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_loc
+      use musica_constants, only: dk => musica_dk
+      use tuvx_profile_from_host, only: profile_updater_t
+
+      ! arguments
+      type(c_ptr), value, intent(in)            :: profile_updater
+      integer(kind=c_int), intent(out)          :: error_code
+      type(c_ptr)                               :: layer_densities_ptr
+
+      ! variables
+      type(profile_updater_t), pointer :: f_updater
+
+      error_code = ERROR_NONE
+      call c_f_pointer(profile_updater, f_updater)
+
+      layer_densities_ptr = c_loc(f_updater%profile_%layer_dens_(1))
+
+   end function internal_get_layer_densities_pointer
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

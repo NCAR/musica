@@ -33,11 +33,11 @@ if backend.tuvx_available():
             height_grid: Grid on which the radiator is defined (height)
             wavelength_grid: Grid on which the radiator is defined (wavelength)
             optical_depths: Optional 2D array of optical depths
-                                       (shape: num_heights x num_wavelengths)
+                                       (shape: num_wavelengths x num_heights)
             single_scattering_albedos: Optional 2D array of single scattering albedos
-                                       (shape: num_heights x num_wavelengths)
+                                       (shape: num_wavelengths x num_heights)
             asymmetry_factors: Optional 2D array of asymmetry parameters
-                                  (shape: num_heights x num_wavelengths)
+                                  (shape: num_wavelengths x num_heights)
             **kwargs: Additional arguments passed to the C++ constructor
         """
         # Call the original C++ constructor correctly

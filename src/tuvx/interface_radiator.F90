@@ -225,6 +225,36 @@ module tuvx_interface_radiator
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+  function internal_get_optical_depths_pointer(radiator, error_code) &
+      bind(C, name="InternalGetOpticalDepthsPointer") &
+      result(optical_depths_ptr)
+    use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_loc, c_null_ptr
+    use musica_constants, only: dk => musica_dk
+    use tuvx_radiator_from_host, only: radiator_updater_t
+
+    ! arguments
+    type(c_ptr),            value, intent(in)  :: radiator
+    integer(kind=c_int),           intent(out) :: error_code
+
+    ! output
+    type(c_ptr) :: optical_depths_ptr
+
+    ! variables
+    type(radiator_updater_t), pointer :: f_updater
+
+    error_code = ERROR_NONE
+    call c_f_pointer(radiator, f_updater)
+    if (.not. allocated(f_updater%radiator_%state_%layer_OD_)) then
+      error_code = ERROR_UNALLOCATED_RADIATOR
+      optical_depths_ptr = c_null_ptr
+      return
+    end if
+    optical_depths_ptr = c_loc(f_updater%radiator_%state_%layer_OD_(1,1))
+
+  end function internal_get_optical_depths_pointer
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
   subroutine internal_set_single_scattering_albedos(radiator_updater, &
       single_scattering_albedos, num_vertical_layers, num_wavelength_bins, &
       error_code) bind(C, name="InternalSetSingleScatteringAlbedos")
@@ -300,6 +330,37 @@ module tuvx_interface_radiator
     f_single_scattering_albedos(:,:) = f_updater%radiator_%state_%layer_SSA_(:,:)
 
   end subroutine internal_get_single_scattering_albedos
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function internal_get_single_scattering_albedos_pointer(radiator, error_code) &
+      bind(C, name="InternalGetSingleScatteringAlbedosPointer") &
+      result(single_scattering_albedos_ptr)
+    use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_loc, c_null_ptr
+    use musica_constants, only: dk => musica_dk
+    use tuvx_radiator_from_host, only: radiator_updater_t
+
+    ! arguments
+    type(c_ptr),            value, intent(in)  :: radiator
+    integer(kind=c_int),           intent(out) :: error_code
+
+    ! output
+    type(c_ptr) :: single_scattering_albedos_ptr
+
+    ! variables
+    type(radiator_updater_t), pointer :: f_updater
+
+    error_code = ERROR_NONE
+    call c_f_pointer(radiator, f_updater)
+    if (.not. allocated(f_updater%radiator_%state_%layer_SSA_)) then
+      error_code = ERROR_UNALLOCATED_RADIATOR
+      single_scattering_albedos_ptr = c_null_ptr
+      return
+    end if
+    single_scattering_albedos_ptr = &
+        c_loc(f_updater%radiator_%state_%layer_SSA_(1,1))
+
+  end function internal_get_single_scattering_albedos_pointer
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -380,6 +441,36 @@ module tuvx_interface_radiator
   f_asymmetry_factors(:,:,:) = f_updater%radiator_%state_%layer_G_(:,:,:)
 
 end subroutine internal_get_asymmetry_factors
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function internal_get_asymmetry_factors_pointer(radiator, error_code) &
+      bind(C, name="InternalGetAsymmetryFactorsPointer") &
+      result(asymmetry_factors_ptr)
+    use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_loc, c_null_ptr
+    use musica_constants, only: dk => musica_dk
+    use tuvx_radiator_from_host, only: radiator_updater_t
+
+    ! arguments
+    type(c_ptr),            value, intent(in)  :: radiator
+    integer(kind=c_int),           intent(out) :: error_code
+
+    ! output
+    type(c_ptr) :: asymmetry_factors_ptr
+
+    ! variables
+    type(radiator_updater_t), pointer :: f_updater
+
+    error_code = ERROR_NONE
+    call c_f_pointer(radiator, f_updater)
+    if (.not. allocated(f_updater%radiator_%state_%layer_G_)) then
+      error_code = ERROR_UNALLOCATED_RADIATOR
+      asymmetry_factors_ptr = c_null_ptr
+      return
+    end if
+    asymmetry_factors_ptr = c_loc(f_updater%radiator_%state_%layer_G_(1,1,1))
+
+  end function internal_get_asymmetry_factors_pointer
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
