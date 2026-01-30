@@ -7,6 +7,29 @@ import xarray as xr
 import matplotlib.pyplot as plt
 from musica.tuvx import vTS1
 import json
+import ussa1976
+
+# Load TS1
+tuvx = vTS1.get_tuvx_calculator()
+tuv_rates = tuvx.run(sza=0.0, earth_sun_distance=1.0)
+
+# Also load its config file path so that we can get the alias mappings
+tuv_path = find_config_path("tuvx", "ts1_tsmlt.json")
+data = json.load(open(tuv_path, 'r'))
+alias_mappings = data.get('__CAM options', {}).get('aliasing', {}).get('pairs', {})
+
+# index zero is 0 km, so we will skip that for box model runs
+start = 1
+# index 10 just happens to be 10 km
+end = 10
+
+photolysis_rate_constants = {}
+for mapping in alias_mappings:
+    label = mapping['to']
+    scale = mapping.get("scale by", 1)
+    tuv_label = mapping['from']
+    rate = tuv_rates.sel(reaction=tuv_label).photolysis_rate_constants.values * scale
+    photolysis_rate_constants[f'USER.{label}'] = rate[start:end] # skip the first grid cell which is at 0 km
 
 path = 'configs/v1/ts1/ts1.json'
 
@@ -15,7 +38,7 @@ mechanism = parser.parse(path)
 
 solver = musica.MICM(mechanism=mechanism,
                      solver_type=musica.SolverType.rosenbrock_standard_order)
-num_grid_cells = 1
+num_grid_cells = tuv_rates.vertical_edge[start:end].size
 state = solver.create_state(num_grid_cells)
 
 # The initial conditions file contains various parameters with their values.
@@ -56,43 +79,22 @@ assert len(surface_reactions) + len(initial_concentrations) + \
 # Set initial concentrations
 concentration_dict = {}
 for _, row in initial_concentrations.iterrows():
-    concentration_dict[row['parameter']] = [row['value1']]
+    concentration_dict[row['parameter']] = [row['value1']] * num_grid_cells
 
 # Set user-defined rate parameters
 user_defined_dict = {}
 for _, row in user_defined_conditions.iterrows():
-    user_defined_dict[row['parameter']] = [row['value1']]
+    user_defined_dict[row['parameter']] = [row['value1']] * num_grid_cells
 
 # Set surface reaction parameters
 for _, row in surface_reactions.iterrows():
-    user_defined_dict[f"{row['parameter']}.effective radius [m]"] = [row['value1']]
-    user_defined_dict[f"{row['parameter']}.particle number concentration [# m-3]"] = [row['value2']]
+    user_defined_dict[f"{row['parameter']}.effective radius [m]"] = [row['value1']] * num_grid_cells
+    user_defined_dict[f"{row['parameter']}.particle number concentration [# m-3]"] = [row['value2']] * num_grid_cells
 
-# Set environmental conditions (temperature and pressure)
-temperature = environmental_conditions[environmental_conditions['parameter'] == 'ENV.temperature'].iloc[0]['value1']
-pressure = environmental_conditions[environmental_conditions['parameter'] == 'ENV.pressure'].iloc[0]['value1']
-
-# Load TS1
-tuvx = vTS1.get_tuvx_calculator()
-tuv_rates = tuvx.run(sza=0.0, earth_sun_distance=1.0)
-
-# Also load its config file path so that we can get the alias mappings
-tuv_path = find_config_path("tuvx", "ts1_tsmlt.json")
-data = json.load(open(tuv_path, 'r'))
-alias_mappings = data.get('__CAM options', {}).get('aliasing', {}).get('pairs', {})
-
-# the height value to get the photolysis rates from
-# in this case, it corresponds to 60 km
-level = 60
-print(f"Altitude level: {tuv_rates.vertical_edge[level].item()} km")
-
-photolysis_rate_constants = {}
-for mapping in alias_mappings:
-    label = mapping['to']
-    scale = mapping.get("scale by", 1)
-    tuv_label = mapping['from']
-    rate = tuv_rates.sel(reaction=tuv_label).photolysis_rate_constants.values * scale
-    photolysis_rate_constants[f'USER.{label}'] = rate[level]
+# multiply by 1000 to convert from km to m
+environmental_conditions = ussa1976.compute(z=tuv_rates.vertical_edge[start:end].data*1000, variables=["t", "p"])
+temperature = environmental_conditions['t'].values
+pressure = environmental_conditions['p'].values
 
 found_rates = sorted(photolysis_rate_constants.keys())
 needed_rates = sorted([i for i in state.get_user_defined_rate_parameters() if 'USER.j' in i])
@@ -100,10 +102,10 @@ needed_rates = sorted([i for i in state.get_user_defined_rate_parameters() if 'U
 missing_rates = set(needed_rates) - set(found_rates)
 print(f"Missing photolysis rates: {missing_rates}")
 
-user_defined_dict.update({k: [v] for k, v in photolysis_rate_constants.items()})
+user_defined_dict.update(photolysis_rate_constants)
 
 # Set all conditions on the state
-state.set_conditions([temperature], [pressure])
+state.set_conditions(temperature, pressure)
 state.set_concentrations(concentration_dict)
 state.set_user_defined_rate_parameters(user_defined_dict)
 
@@ -174,10 +176,10 @@ fig, ax = plt.subplots(2, 2, figsize=(12, 8))
 time_hours = ds['time'] / 3600
 
 # Plot each species
-ax[0, 0].plot(time_hours, ds['BEPOMUC'].isel(grid_cell=0))
-ax[0, 1].plot(time_hours, ds['C6H5OOH'].isel(grid_cell=0))
-ax[1, 0].plot(time_hours, ds['BR'].isel(grid_cell=0))
-ax[1, 1].plot(time_hours, ds['CL'].isel(grid_cell=0))
+ax[0, 0].plot(time_hours, ds['BEPOMUC'])
+ax[0, 1].plot(time_hours, ds['C6H5OOH'])
+ax[1, 0].plot(time_hours, ds['BR'])
+ax[1, 1].plot(time_hours, ds['CL'])
 
 for _ax in ax.flat:
     _ax.grid(True, alpha=0.5)
