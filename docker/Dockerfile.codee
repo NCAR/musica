@@ -1,0 +1,37 @@
+FROM fedora:latest
+
+ARG BUILD_TYPE=Release
+
+RUN dnf -y update \
+    && dnf -y install \
+        cmake \
+        gcc-c++ \
+        gfortran \
+        gdb \
+        git \
+        lapack-devel \
+        lcov \
+        make \
+        netcdf-fortran-devel \
+        python \
+        valgrind \
+        tree \
+    && dnf clean all
+
+COPY codee /usr/local/codee
+
+ENV PATH="/usr/local/codee/codee-2025.4.6-linux-aarch64/bin:${PATH}"
+
+# Copy the musica code
+COPY . musica
+
+# Build
+RUN cd musica \
+    && cmake -S . \
+             -B build \
+             -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+    && cd build \
+    && make install -j 8
+    
+
+WORKDIR musica/build
