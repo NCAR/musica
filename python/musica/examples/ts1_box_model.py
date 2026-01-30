@@ -1,9 +1,12 @@
 import musica
 from musica.micm.solver_result import SolverState
 from musica.mechanism_configuration import Parser
+from musica.utils import find_config_path
 import pandas as pd
 import xarray as xr
 import matplotlib.pyplot as plt
+from musica.tuvx import vTS1
+import json
 
 path = 'configs/v1/ts1/ts1.json'
 
@@ -69,6 +72,36 @@ for _, row in surface_reactions.iterrows():
 temperature = environmental_conditions[environmental_conditions['parameter'] == 'ENV.temperature'].iloc[0]['value1']
 pressure = environmental_conditions[environmental_conditions['parameter'] == 'ENV.pressure'].iloc[0]['value1']
 
+# Load TS1
+tuvx = vTS1.get_tuvx_calculator()
+tuv_rates = tuvx.run(sza=0.0, earth_sun_distance=1.0)
+
+# Also load its config file path so that we can get the alias mappings
+tuv_path = find_config_path("tuvx", "ts1_tsmlt.json")
+data = json.load(open(tuv_path, 'r'))
+alias_mappings = data.get('__CAM options', {}).get('aliasing', {}).get('pairs', {})
+
+# the height value to get the photolysis rates from
+# in this case, it corresponds to 60 km
+level = 60
+print(f"Altitude level: {tuv_rates.vertical_edge[level].item()} km")
+
+photolysis_rate_constants = {}
+for mapping in alias_mappings:
+    label = mapping['to']
+    scale = mapping.get("scale by", 1)
+    tuv_label = mapping['from']
+    rate = tuv_rates.sel(reaction=tuv_label).photolysis_rate_constants.values * scale
+    photolysis_rate_constants[f'USER.{label}'] = rate[level]
+
+found_rates = sorted(photolysis_rate_constants.keys())
+needed_rates = sorted([i for i in state.get_user_defined_rate_parameters() if 'USER.j' in i])
+
+missing_rates = set(needed_rates) - set(found_rates)
+print(f"Missing photolysis rates: {missing_rates}")
+
+user_defined_dict.update({k: [v] for k, v in photolysis_rate_constants.items()})
+
 # Set all conditions on the state
 state.set_conditions([temperature], [pressure])
 state.set_concentrations(concentration_dict)
@@ -78,9 +111,10 @@ state.set_user_defined_rate_parameters(user_defined_dict)
 times = [0]
 concentrations = [state.get_concentrations()]
 time_step = 30  # seconds
-simulation_length = 1 * 60 * 60  # 1 hour in seconds
+simulation_length = 0.1 * 60 * 60  # 1 hour in seconds
 current_time = 0
 last_printed_percent = -5  # Track last printed percentage
+
 
 while current_time < simulation_length:
     elapsed = 0
