@@ -4,8 +4,8 @@ set -euo pipefail
 # --------------------------------------------------------------------------- #
 #  Build MUSICA (with MICM, TUV-x, CARMA) on NCAR Derecho
 #
-#  Usage:  ./build_derecho.sh <install-prefix> [jobs]
-#  Example: ./build_derecho.sh /glade/work/$USER/packages 16
+#  Usage:  machines/derecho/build.sh <install-prefix> [jobs]
+#  Example: machines/derecho/build.sh /glade/work/$USER/packages 32
 #
 #  Run this script from the MUSICA repository root.
 # --------------------------------------------------------------------------- #
@@ -17,6 +17,10 @@ fi
 
 INSTALL_PREFIX="$1"
 JOBS="${2:-8}"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+BUILD_DIR="$SCRIPT_DIR/build"
+
 mkdir -p "$INSTALL_PREFIX"
 
 # ---- Environment ---------------------------------------------------------- #
@@ -35,12 +39,12 @@ echo "==> Modules loaded"
 module list
 
 # ---- Configure ------------------------------------------------------------ #
-rm -rf build
-mkdir build
-cd build
+rm -rf "$BUILD_DIR"
+mkdir "$BUILD_DIR"
+cd "$BUILD_DIR"
 
 echo "==> Configuring with CMake"
-cmake .. \
+cmake "$REPO_ROOT" \
   -DMUSICA_ENABLE_MICM=ON \
   -DMUSICA_ENABLE_TUVX=ON \
   -DMUSICA_ENABLE_CARMA=ON \

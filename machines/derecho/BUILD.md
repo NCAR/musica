@@ -7,13 +7,13 @@ Build performed on NCAR Derecho, 2026-01-30.
 Run the build script from the repository root:
 
 ```bash
-./build_derecho.sh <install-prefix> [jobs]
+machines/derecho/build.sh <install-prefix> [jobs]
 ```
 
 For example:
 
 ```bash
-./build_derecho.sh /glade/work/$USER/packages 32
+machines/derecho/build.sh /glade/work/$USER/packages 32
 ```
 
 This handles module loading, cmake configuration, build, test, and install in
@@ -42,9 +42,12 @@ Note: GCC 14+ is required because `mechanism_configuration` uses the C++20
 
 ## 2. Create the build directory
 
+The build script creates `machines/derecho/build/` automatically. For a
+manual build:
+
 ```bash
-mkdir -p build
-cd build
+mkdir -p machines/derecho/build
+cd machines/derecho/build
 ```
 
 ## 3. Configure with CMake
@@ -53,7 +56,7 @@ Set `CMAKE_INSTALL_PREFIX` to the directory where you want MUSICA installed,
 e.g. `/glade/work/$USER/packages`:
 
 ```bash
-cmake .. \
+cmake ../../.. \
   -DMUSICA_ENABLE_MICM=ON \
   -DMUSICA_ENABLE_TUVX=ON \
   -DMUSICA_ENABLE_CARMA=ON \
