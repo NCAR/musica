@@ -10,6 +10,7 @@ from .grid import Grid
 from .profile import Profile
 from .radiator import Radiator
 from musica.tuvx import TUVX
+from musica.utils import find_config_path
 
 def get_tuvx_calculator() -> TUVX:
     """Returns a TUV-x instance configured for the v5.4 photolysis setup."""
@@ -51,10 +52,7 @@ def get_tuvx_calculator() -> TUVX:
 
 def config_file_path() -> str:
     """Returns the file path to the TUV-x v5.4 configuration JSON file."""
-    # Get the package directory (musica package root from musica/tuvx/v54.py)
-    package_dir = os.path.dirname(os.path.dirname(__file__))
-    config_path = os.path.join(package_dir, "configs", "tuvx", "tuv_5_4.json")
-    return config_path
+    return find_config_path("tuvx", "tuv_5_4.json")
 
 
 def height_grid() -> Grid:
@@ -276,12 +274,13 @@ def profile_from_map(file_map: dict, name: str, grid: Grid) -> Profile:
     if name not in file_map:
         raise ValueError(f"Profile '{name}' not found in TUV-x v5.4 configuration.")
     
-    # Resolve filepath relative to the musica package root
+    # Resolve filepath - handle both absolute paths and relative config paths
     filepath = file_map[name]
     if not os.path.isabs(filepath):
-        # Get the package directory (musica package root from musica/tuvx/v54.py)
-        package_dir = os.path.dirname(os.path.dirname(__file__))
-        filepath = os.path.join(package_dir, filepath)
+        # Remove 'configs/' prefix if present, then use find_config_path
+        if filepath.startswith('configs/'):
+            filepath = filepath[8:]  # Remove 'configs/' prefix
+        filepath = find_config_path(filepath)
     
     # Read the data file
     with open(filepath, 'r') as f:
@@ -457,9 +456,14 @@ def radiator_from_map(file_map: dict, radiator_name: str, heights: Grid, wavelen
     
     filepath = file_map[radiator_name]
     
-    # Get the absolute path to the data file (musica package root from musica/tuvx/v54.py)
-    package_dir = os.path.dirname(os.path.dirname(__file__))
-    full_path = os.path.join(package_dir, filepath)
+    # Resolve filepath - handle both absolute paths and relative config paths
+    if not os.path.isabs(filepath):
+        # Remove 'configs/' prefix if present, then use find_config_path
+        if filepath.startswith('configs/'):
+            filepath = filepath[8:]  # Remove 'configs/' prefix
+        full_path = find_config_path(filepath)
+    else:
+        full_path = filepath
     
     # Parse the file
     with open(full_path, 'r') as f:

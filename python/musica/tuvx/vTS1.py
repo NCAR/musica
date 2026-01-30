@@ -11,6 +11,7 @@ from musica.tuvx.tuvx import TUVX
 from musica.tuvx.grid import Grid
 from musica.tuvx.profile import Profile
 from musica.tuvx.radiator import Radiator
+from musica.utils import find_config_path
 from .v54 import height_grid
 from .v54 import profile_from_map
 from .v54 import radiator_from_map
@@ -55,9 +56,7 @@ def get_tuvx_calculator() -> TUVX:
 
 def config_file_path() -> str:
     """Returns the file path to the TUV-x vTS1/TSMLT configuration JSON file."""
-    # Get the package directory (musica package root from musica/tuvx/vTS1.py)
-    package_dir = os.path.dirname(os.path.dirname(__file__))
-    config_path = os.path.join(package_dir, "configs", "tuvx", "ts1_tsmlt.json")
+    return find_config_path("tuvx", "ts1_tsmlt.json")
     return config_path
 
 
