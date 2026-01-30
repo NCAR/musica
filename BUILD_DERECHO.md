@@ -4,34 +4,17 @@ Build performed on NCAR Derecho, 2026-01-30.
 
 ## 1. Environment / Loaded Modules
 
-```
-module list
-```
+Set up the Derecho module environment:
 
-```
-Currently Loaded Modules:
-  1) craype/2.7.31          5) cray-mpich/8.1.29       9) node-js/18.12.1
-  2) intel/2024.2.1         6) hdf5/1.14.3            10) npm/9.3.1
-  3) ncarcompilers/1.0.0    7) netcdf/4.9.2
-  4) gcc-toolchain/13.2.0   8) ncarenv/23.09
-```
-
-### Compilers detected by CMake
-
-| Language | Compiler | Version |
-|----------|----------|---------|
-| C        | icx      | 2024.2.1 (IntelLLVM) |
-| C++      | icpx     | 2024.2.1 (IntelLLVM) |
-| Fortran  | ifort    | 2021.1.0.20240703 (Intel Classic) |
-
-### Key tool versions
-
-```
-cmake --version   # cmake 3.28.3
-pkg-config --version   # 0.29.2
-nc-config --version    # netCDF 4.9.2
-nf-config --version    # netCDF-Fortran 4.6.1
-gcc --version          # GCC 13.2.0 (Spack, via gcc-toolchain)
+```bash
+module --force purge
+module load ncarenv/24.12
+module load ncarcompilers/1.0.0
+module load gcc/12.4.0
+module load cray-mpich/8.1.29
+module load craype/2.7.31
+module load netcdf/4.9.2
+module load parallel-netcdf/1.14.0
 ```
 
 ## 2. Create the build directory
