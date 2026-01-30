@@ -1,5 +1,4 @@
 #!/bin/bash
-set -euo pipefail
 
 # --------------------------------------------------------------------------- #
 #  Build MUSICA (with MICM, TUV-x, CARMA) on NCAR Derecho
@@ -24,8 +23,9 @@ BUILD_DIR="$SCRIPT_DIR/build"
 mkdir -p "$INSTALL_PREFIX"
 
 # ---- Environment ---------------------------------------------------------- #
+# Lmod init and module commands are not compatible with set -e (internal
+# commands may return non-zero), so load modules before enabling strict mode.
 source /etc/profile.d/z00_modules.sh 2>/dev/null || source /usr/share/lmod/lmod/init/bash
-export LMOD_QUIET=1
 module --force purge
 module load ncarenv/25.10
 module load gcc/14.3.0
@@ -38,6 +38,18 @@ module load openblas/0.3.30
 
 echo "==> Modules loaded"
 module list
+
+# Now enable strict error handling for the actual build steps.
+set -euo pipefail
+
+# Verify critical tools are available
+for cmd in gcc g++ gfortran cmake make; do
+  if ! command -v "$cmd" &>/dev/null; then
+    echo "ERROR: $cmd not found after loading modules" >&2
+    exit 1
+  fi
+done
+echo "==> Using gcc $(gcc -dumpversion), cmake $(cmake --version | head -1)"
 
 # ---- Configure ------------------------------------------------------------ #
 rm -rf "$BUILD_DIR"
