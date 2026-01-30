@@ -2,6 +2,25 @@
 
 Build performed on NCAR Derecho, 2026-01-30.
 
+## Quick start
+
+Run the build script from the repository root:
+
+```bash
+./build_derecho.sh <install-prefix> [jobs]
+```
+
+For example:
+
+```bash
+./build_derecho.sh /glade/work/$USER/packages 32
+```
+
+This handles module loading, cmake configuration, build, test, and install in
+one step. The `jobs` argument defaults to 8 if omitted.
+
+The remaining sections below document each step for reference.
+
 ## 1. Environment / Loaded Modules
 
 Set up the Derecho module environment:
@@ -38,6 +57,7 @@ cmake .. \
   -DMUSICA_ENABLE_MICM=ON \
   -DMUSICA_ENABLE_TUVX=ON \
   -DMUSICA_ENABLE_CARMA=ON \
+  -DMUSICA_BUILD_FORTRAN_INTERFACE=ON \
   -DMUSICA_ENABLE_TESTS=ON \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_INSTALL_PREFIX=/glade/work/$USER/packages
@@ -47,6 +67,8 @@ cmake .. \
 
 - `MUSICA_ENABLE_MICM=ON` and `MUSICA_ENABLE_TUVX=ON` are actually the
   defaults, but are set explicitly here for clarity.
+- `MUSICA_BUILD_FORTRAN_INTERFACE=ON` enables the Fortran API bindings
+  and installs `.mod` files for Fortran consumers.
 - `MUSICA_ENABLE_CARMA=ON` requires BLAS/LAPACK (provided by the
   `openblas` module). To build without CARMA, set this to `OFF` and
   omit the `openblas` module.
@@ -65,7 +87,7 @@ Fortran Compiler:   gfortran
 MPI:                OFF
 OPENMP:             OFF
 CXX Interface:      ON
-Fortran Interface:  OFF
+Fortran Interface:  ON
 MICM:               ON (v3.11.0)
 TUV-X:              ON (v0.14.0)
 CARMA:              ON (develop-carma-box)
