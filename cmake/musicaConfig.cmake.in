@@ -2,6 +2,8 @@
 
 include(CMakeFindDependencyMacro)
 
+find_dependency(yaml-cpp)
+
 if("@MUSICA_ENABLE_TUVX@" STREQUAL "ON" OR "@MUSICA_ENABLE_CARMA@" STREQUAL "ON")
   find_dependency(PkgConfig)
   pkg_check_modules(netcdfc IMPORTED_TARGET REQUIRED netcdf)
