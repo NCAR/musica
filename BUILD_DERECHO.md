@@ -1,4 +1,4 @@
-# Building MUSICA with MICM and TUV-x Enabled
+# Building MUSICA with MICM, TUV-x, and CARMA Enabled
 
 Build performed on NCAR Derecho, 2026-01-30.
 
@@ -8,14 +8,18 @@ Set up the Derecho module environment:
 
 ```bash
 module --force purge
-module load ncarenv/24.12
-module load ncarcompilers/1.0.0
-module load gcc/12.4.0
-module load cray-mpich/8.1.29
-module load craype/2.7.31
-module load netcdf/4.9.2
-module load parallel-netcdf/1.14.0
+module load ncarenv/25.10
+module load gcc/14.3.0
+module load ncarcompilers/1.2.0
+module load cray-mpich/8.1.32
+module load netcdf/4.9.3
+module load parallel-netcdf/1.14.1
+module load openblas/0.3.30
 ```
+
+Note: GCC 14+ is required because `mechanism_configuration` uses the C++20
+`<format>` header. The `ncarcompilers` wrapper may auto-resolve to version
+1.1.0; this is expected and works correctly.
 
 ## 2. Create the build directory
 
@@ -33,7 +37,7 @@ e.g. `/glade/work/$USER/packages`:
 cmake .. \
   -DMUSICA_ENABLE_MICM=ON \
   -DMUSICA_ENABLE_TUVX=ON \
-  -DMUSICA_ENABLE_CARMA=OFF \
+  -DMUSICA_ENABLE_CARMA=ON \
   -DMUSICA_ENABLE_TESTS=ON \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_INSTALL_PREFIX=/glade/work/$USER/packages
@@ -43,27 +47,28 @@ cmake .. \
 
 - `MUSICA_ENABLE_MICM=ON` and `MUSICA_ENABLE_TUVX=ON` are actually the
   defaults, but are set explicitly here for clarity.
-- `MUSICA_ENABLE_CARMA=OFF` is required because CARMA needs BLAS/LAPACK,
-  which are not available in this module environment. If you need CARMA, load
-  a BLAS module first.
-- Dependencies (MICM v3.11.0, TUV-x v0.14.0, MechanismConfiguration v1.1.1,
-  GoogleTest) are fetched automatically via CMake FetchContent.
+- `MUSICA_ENABLE_CARMA=ON` requires BLAS/LAPACK (provided by the
+  `openblas` module). To build without CARMA, set this to `OFF` and
+  omit the `openblas` module.
+- Dependencies (MICM v3.11.0, TUV-x v0.14.0, CARMA develop-carma-box,
+  MechanismConfiguration v1.1.1, GoogleTest) are fetched automatically
+  via CMake FetchContent.
 
 ### Configuration summary output
 
 ```
 MUSICA Version:     0.14.4
 Build type:         Release
-C Compiler:         icx (2024.2.1)
-C++ Compiler:       icpx (2024.2.1)
-Fortran Compiler:   ifort
+C Compiler:         gcc (14.3.0)
+C++ Compiler:       g++ (14.3.0)
+Fortran Compiler:   gfortran
 MPI:                OFF
 OPENMP:             OFF
 CXX Interface:      ON
 Fortran Interface:  OFF
 MICM:               ON (v3.11.0)
 TUV-X:              ON (v0.14.0)
-CARMA:              OFF
+CARMA:              ON (develop-carma-box)
 ```
 
 ## 4. Build
@@ -76,13 +81,8 @@ Build completes at 100% producing:
 
 - `lib64/libmusica.a` -- the MUSICA static library
 - Test binaries: `test_util`, `test_micm_wrapper`, `test_micm_c_api`,
-  `test_parser`, `test_tuvx_c_api`, `test_tuvx_run_from_config`
-
-### Warnings (non-fatal)
-
-- `ifort` deprecation remarks (Intel recommends transitioning to `ifx`).
-- `--gcc-toolchain` option not supported by `ifort` (passed by ncarcompilers wrapper).
-- Several Fortran `INTENT(OUT)` warnings in TUV-x interface files.
+  `test_parser`, `test_tuvx_c_api`, `test_tuvx_run_from_config`,
+  `test_carma_c_api`
 
 ## 5. Run tests
 
@@ -90,16 +90,17 @@ Build completes at 100% producing:
 ctest --output-on-failure
 ```
 
-All 6 tests passed (total time 1.57s):
+All 7 tests passed (total time 5.99s):
 
 | # | Test | Result | Time |
 |---|------|--------|------|
-| 1 | util | Passed | 0.06s |
-| 2 | micm_wrapper | Passed | 0.03s |
+| 1 | util | Passed | 1.18s |
+| 2 | micm_wrapper | Passed | 0.02s |
 | 3 | micm_c_api | Passed | 0.04s |
 | 4 | parser | Passed | 0.21s |
-| 5 | tuvx_c_api | Passed | 1.17s |
-| 6 | tuvx_run_from_config | Passed | 0.04s |
+| 5 | tuvx_c_api | Passed | 4.48s |
+| 6 | tuvx_run_from_config | Passed | 0.03s |
+| 7 | carma_c_api | Passed | 0.02s |
 
 ## 6. Install
 
@@ -113,11 +114,11 @@ Installs to the path set by `CMAKE_INSTALL_PREFIX` (e.g. `/glade/work/$USER/pack
 <install-prefix>/
 ├── include/
 │   ├── micm/          # MICM headers
-│   └── musica/        # MUSICA headers, TUV-x Fortran modules
+│   └── musica/        # MUSICA headers, TUV-x and CARMA Fortran modules
 │       ├── micm/
 │       ├── tuvx/
 │       ├── carma/
-│       └── fortran/   # .mod files for TUV-x Fortran interface
+│       └── fortran/   # .mod files for Fortran interfaces
 ├── lib64/
 │   ├── libmusica.a
 │   ├── libmechanism_configuration.a
