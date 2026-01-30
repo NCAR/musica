@@ -74,7 +74,7 @@ if backend.tuvx_available():
         if exo_layer_density < 0.0:
             raise ValueError("exo_layer_density must be non-negative")
         if exo_layer_density > 0.0:
-            self.exo_layer_density = exo_layer_density # this sets the exo layer density and adjusts the top layer density
+            self.exo_layer_density = exo_layer_density  # this sets the exo layer density and adjusts the top layer density
 
     Profile.__init__ = __init__
 

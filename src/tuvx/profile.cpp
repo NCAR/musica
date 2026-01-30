@@ -296,7 +296,7 @@ namespace musica
     NoError(error);
   }
 
-  double* Profile::GetEdgeValuesPointer(Error *error)
+  double *Profile::GetEdgeValuesPointer(Error *error)
   {
     DeleteError(error);
     int error_code = 0;
@@ -309,7 +309,7 @@ namespace musica
           error);
       return nullptr;
     }
-    double* edge_values_ptr = InternalGetEdgeValuesPointer(updater_, &error_code);
+    double *edge_values_ptr = InternalGetEdgeValuesPointer(updater_, &error_code);
     if (error_code != 0)
     {
       ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
@@ -363,7 +363,7 @@ namespace musica
     NoError(error);
   }
 
-  double* Profile::GetMidpointValuesPointer(Error *error)
+  double *Profile::GetMidpointValuesPointer(Error *error)
   {
     DeleteError(error);
     int error_code = 0;
@@ -376,7 +376,7 @@ namespace musica
           error);
       return nullptr;
     }
-    double* midpoint_values_ptr = InternalGetMidpointValuesPointer(updater_, &error_code);
+    double *midpoint_values_ptr = InternalGetMidpointValuesPointer(updater_, &error_code);
     if (error_code != 0)
     {
       ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
@@ -430,7 +430,7 @@ namespace musica
     NoError(error);
   }
 
-  double* Profile::GetLayerDensitiesPointer(Error *error)
+  double *Profile::GetLayerDensitiesPointer(Error *error)
   {
     DeleteError(error);
     int error_code = 0;
@@ -443,7 +443,7 @@ namespace musica
           error);
       return nullptr;
     }
-    double* layer_densities_ptr = InternalGetLayerDensitiesPointer(updater_, &error_code);
+    double *layer_densities_ptr = InternalGetLayerDensitiesPointer(updater_, &error_code);
     if (error_code != 0)
     {
       ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);

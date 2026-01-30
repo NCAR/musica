@@ -12,6 +12,7 @@ from .radiator import Radiator
 from musica.tuvx import TUVX
 from musica.utils import find_config_path
 
+
 def get_tuvx_calculator() -> TUVX:
     """Returns a TUV-x instance configured for the v5.4 photolysis setup."""
     from .tuvx import TUVX
@@ -240,13 +241,14 @@ profile_data_files = {
     "extraterrestrial flux": "configs/tuvx/data/profiles/solar/extraterrestrial_flux.v54.dat"
 }
 
+
 def profile(name: str, grid: Grid) -> Profile:
     """
     Returns a standard profile for TUV-x v5.4 by name.
-    
+
     Reads profile data from .dat files and performs linear interpolation
     if the grid values don't match the provided grid.
-    
+
     Args:
         name: Name of the profile (e.g., "O3", "air", "temperature")
         grid: Grid instance to interpolate the profile onto
@@ -259,21 +261,21 @@ def profile(name: str, grid: Grid) -> Profile:
 def profile_from_map(file_map: dict, name: str, grid: Grid) -> Profile:
     """
     Returns a standard profile for TUV-x v5.4 by name.
-    
+
     Reads profile data from .dat files and performs linear interpolation
     if the grid values don't match the provided grid.
-    
+
     Args:
         file_map: Dictionary mapping profile names to data file paths
         name: Name of the profile (e.g., "O3", "air", "temperature")
         grid: Grid instance to interpolate the profile onto
-    
+
     Returns:
         Profile instance with data interpolated to the provided grid
     """
     if name not in file_map:
         raise ValueError(f"Profile '{name}' not found in TUV-x v5.4 configuration.")
-    
+
     # Resolve filepath - handle both absolute paths and relative config paths
     filepath = file_map[name]
     if not os.path.isabs(filepath):
@@ -281,11 +283,11 @@ def profile_from_map(file_map: dict, name: str, grid: Grid) -> Profile:
         if filepath.startswith('configs/'):
             filepath = filepath[8:]  # Remove 'configs/' prefix
         filepath = find_config_path(filepath)
-    
+
     # Read the data file
     with open(filepath, 'r') as f:
         lines = f.readlines()
-    
+
     # Extract units from header if not provided
     units: str | None = None
     for line in lines:
@@ -297,12 +299,12 @@ def profile_from_map(file_map: dict, name: str, grid: Grid) -> Profile:
             break
     if units is None:
         units = "unknown"
-    
+
     # Parse midpoint and edge sections
     midpoint_section = []
     edge_section = []
     current_section = None
-    
+
     # Detect grid type from header
     grid_type = None
     for line in lines:
@@ -312,10 +314,9 @@ def profile_from_map(file_map: dict, name: str, grid: Grid) -> Profile:
         elif '# wavelength (nm), mid-point' in line or '# wavelength (nm), edge' in line:
             grid_type = 'wavelength'
             break
-    
+
     if grid_type is None:
         raise ValueError(f"Could not determine grid type from file headers")
-    
 
     exo_layer_density = 0.0  # Default value if not present
     for line in lines:
@@ -327,7 +328,7 @@ def profile_from_map(file_map: dict, name: str, grid: Grid) -> Profile:
             elif 'edge' in line and ('height (km)' in line or 'wavelength (nm)' in line):
                 current_section = 'edge'
             continue
-        
+
         # Parse data lines - only extract first two columns
         parts = line.split(',')
         # Skip lines where all values are '---' (completely empty rows)
@@ -360,27 +361,27 @@ def profile_from_map(file_map: dict, name: str, grid: Grid) -> Profile:
                     edge_section.append(values)
             except (ValueError, IndexError):
                 raise ValueError(f"Error parsing edge data line: {line}")
-    
+
     # Convert to numpy arrays
     midpoint_data = np.array(midpoint_section)
     edge_data = np.array(edge_section)
-    
+
     # Extract grid coordinates, profile values, and layer densities
     # midpoint_data columns: 0=height (km), 1=profile value, 2=layer density, 3=exo layer density
     file_grid_midpoints = midpoint_data[:, 0]
     file_midpoint_values = midpoint_data[:, 1]
     file_layer_densities = midpoint_data[:, 2]
-    
+
     # edge_data columns: 0=height (km), 1=profile value
     file_grid_edges = edge_data[:, 0]
     file_edge_values = edge_data[:, 1]
-    
+
     # Determine if we need to interpolate based on whether grids match
     grids_match = (len(grid.midpoints) == len(file_grid_midpoints) and
                    np.allclose(grid.midpoints, file_grid_midpoints) and
                    len(grid.edges) == len(file_grid_edges) and
                    np.allclose(grid.edges, file_grid_edges))
-    
+
     if not grids_match:
         # Interpolate profile values to the provided grid coordinates
         interpolated_midpoints = np.interp(
@@ -408,7 +409,7 @@ def profile_from_map(file_map: dict, name: str, grid: Grid) -> Profile:
     # because it will be added back in by the Profile constructor
     if exo_layer_density > 0.0:
         interpolated_layer_densities[-1] -= exo_layer_density
-    
+
     # Create and return the Profile
     return Profile(
         name=name,
@@ -420,14 +421,16 @@ def profile_from_map(file_map: dict, name: str, grid: Grid) -> Profile:
         exo_layer_density=exo_layer_density
     )
 
+
 radiator_data_files = {
     "aerosol": "configs/tuvx/data/radiators/aerosol.v54.dat"
 }
 
+
 def radiator(radiator_name: str, heights: Grid, wavelengths: Grid) -> Radiator:
     """
     Returns a standard radiator for TUV-x v5.4 by name.
-    
+
     Args:
         radiator_name: Name of the radiator (e.g., "aerosol")
         heights: Height grid for the radiator
@@ -441,21 +444,21 @@ def radiator(radiator_name: str, heights: Grid, wavelengths: Grid) -> Radiator:
 def radiator_from_map(file_map: dict, radiator_name: str, heights: Grid, wavelengths: Grid) -> Radiator:
     """
     Returns a standard radiator for TUV-x v5.4 by name.
-    
+
     Args:
         file_map: Dictionary mapping radiator names to data file paths
         radiator_name: Name of the radiator (e.g., "aerosol")
         heights: Height grid for the radiator
         wavelengths: Wavelength grid for the radiator
-    
+
     Returns:
         Radiator instance with data loaded from the corresponding v5.4 data file
     """
     if radiator_name not in file_map:
         raise ValueError(f"Radiator '{radiator_name}' not found in v5.4 configuration")
-    
+
     filepath = file_map[radiator_name]
-    
+
     # Resolve filepath - handle both absolute paths and relative config paths
     if not os.path.isabs(filepath):
         # Remove 'configs/' prefix if present, then use find_config_path
@@ -464,11 +467,11 @@ def radiator_from_map(file_map: dict, radiator_name: str, heights: Grid, wavelen
         full_path = find_config_path(filepath)
     else:
         full_path = filepath
-    
+
     # Parse the file
     with open(full_path, 'r') as f:
         lines = f.readlines()
-    
+
     # Skip header lines and parse data
     # Format: Height (km), Wavelength (nm), Layer OD, Layer SSA, Layer G
     data = []
@@ -484,32 +487,32 @@ def radiator_from_map(file_map: dict, radiator_name: str, heights: Grid, wavelen
             ssa = float(parts[3])
             g = float(parts[4])
             data.append([height, wavelength, optical_depth, ssa, g])
-    
+
     data = np.array(data)
-    
+
     # Organize data into 2D arrays (wavelengths x heights)
     # Note: Radiator expects shape (num_wavelengths, num_heights)
     num_heights = heights.num_sections
     num_wavelengths = wavelengths.num_sections
-    
+
     optical_depths = np.zeros((num_wavelengths, num_heights))
     single_scattering_albedos = np.zeros((num_wavelengths, num_heights))
     asymmetry_factors = np.zeros((num_wavelengths, num_heights))
-    
+
     # Fill arrays by matching heights and wavelengths
     for row in data:
         file_height, file_wavelength, od, ssa, g = row
-        
+
         # Find closest height index
         height_idx = np.argmin(np.abs(heights.midpoints - file_height))
-        
+
         # Find closest wavelength index
         wavelength_idx = np.argmin(np.abs(wavelengths.midpoints - file_wavelength))
-        
+
         optical_depths[wavelength_idx, height_idx] = od
         single_scattering_albedos[wavelength_idx, height_idx] = ssa
         asymmetry_factors[wavelength_idx, height_idx] = g
-    
+
     return Radiator(
         name=radiator_name,
         height_grid=heights,

@@ -287,26 +287,26 @@ def test_v54_radiator_exact_reproduction():
     import os
     from decimal import Decimal, getcontext
     from musica.tuvx.v54 import radiator_data_files
-    
+
     # Set decimal precision high enough for comparison
     getcontext().prec = 50
-    
+
     # Get the grids
     heights = musica.tuvx.v54.height_grid()
     wavelengths = musica.tuvx.v54.wavelength_grid()
-    
+
     # Load the radiator
     rad = musica.tuvx.v54.radiator("aerosol", heights, wavelengths)
-    
+
     # Get the file path
     filepath = radiator_data_files["aerosol"]
     package_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
     full_path = os.path.join(package_dir, filepath)
-    
+
     # Parse the file
     with open(full_path, 'r') as f:
         lines = f.readlines()
-    
+
     # Extract data lines
     file_data = []
     for line in lines:
@@ -323,24 +323,24 @@ def test_v54_radiator_exact_reproduction():
             ssa = float(parts[3])
             g = float(parts[4])
             file_data.append([height, wavelength, od, ssa, g])
-    
+
     # Verify that the radiator data matches the file
     max_relative_error_od = 0.0
     max_relative_error_ssa = 0.0
     max_relative_error_g = 0.0
-    
+
     for row in file_data:
         file_height, file_wavelength, file_od, file_ssa, file_g = row
-        
+
         # Find closest height and wavelength indices
         height_idx = np.argmin(np.abs(heights.midpoints - file_height))
         wavelength_idx = np.argmin(np.abs(wavelengths.midpoints - file_wavelength))
-        
+
         # Get the radiator values (note: shape is wavelengths x heights)
         rad_od = rad.optical_depths[wavelength_idx, height_idx]
         rad_ssa = rad.single_scattering_albedos[wavelength_idx, height_idx]
         rad_g = rad.asymmetry_factors[wavelength_idx, height_idx]
-        
+
         # Calculate relative errors
         if file_od != 0:
             rel_error_od = abs((rad_od - file_od) / file_od)
@@ -351,7 +351,7 @@ def test_v54_radiator_exact_reproduction():
         if file_g != 0:
             rel_error_g = abs((rad_g - file_g) / file_g)
             max_relative_error_g = max(max_relative_error_g, rel_error_g)
-        
+
         # Check if values match within tolerance (1e-6 relative tolerance)
         tolerance = 1e-6
         if file_od != 0:
@@ -362,18 +362,19 @@ def test_v54_radiator_exact_reproduction():
             assert abs(rad_od) < tolerance, \
                 f"Optical depth mismatch at height={file_height}, wavelength={file_wavelength}: " \
                 f"Expected {file_od}, got {rad_od}"
-        
+
         if file_ssa != 0:
             assert abs((rad_ssa - file_ssa) / file_ssa) < tolerance, \
                 f"SSA mismatch at height={file_height}, wavelength={file_wavelength}: " \
                 f"Expected {file_ssa}, got {rad_ssa}"
-        
+
         if file_g != 0:
             assert abs((rad_g - file_g) / file_g) < tolerance, \
                 f"Asymmetry factor mismatch at height={file_height}, wavelength={file_wavelength}: " \
                 f"Expected {file_g}, got {rad_g}"
-    
-    print(f"Maximum relative errors: OD={max_relative_error_od:.2e}, SSA={max_relative_error_ssa:.2e}, G={max_relative_error_g:.2e}")
+
+    print(
+        f"Maximum relative errors: OD={max_relative_error_od:.2e}, SSA={max_relative_error_ssa:.2e}, G={max_relative_error_g:.2e}")
 
 
 def test_tuvx_initialization_errors():

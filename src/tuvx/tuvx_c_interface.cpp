@@ -86,8 +86,15 @@ namespace musica
         Error *const error)
     {
       DeleteError(error);
-      tuvx->Run(solar_zenith_angle, earth_sun_distance, photolysis_rate_constants,
-                heating_rates, dose_rates, actinic_flux, spectral_irradiance, error);
+      tuvx->Run(
+          solar_zenith_angle,
+          earth_sun_distance,
+          photolysis_rate_constants,
+          heating_rates,
+          dose_rates,
+          actinic_flux,
+          spectral_irradiance,
+          error);
     }
 
     void TuvxVersion(String *tuvx_version)

@@ -67,7 +67,7 @@ namespace musica
     grid->GetEdges(edges, num_edges, error);
   }
 
-  double* GetGridEdgesPointer(Grid *grid, Error *error)
+  double *GetGridEdgesPointer(Grid *grid, Error *error)
   {
     DeleteError(error);
     return grid->GetEdgesPointer(error);
@@ -85,7 +85,7 @@ namespace musica
     grid->GetMidpoints(midpoints, num_midpoints, error);
   }
 
-  double* GetGridMidpointsPointer(Grid *grid, Error *error)
+  double *GetGridMidpointsPointer(Grid *grid, Error *error)
   {
     DeleteError(error);
     return grid->GetMidpointsPointer(error);
@@ -227,7 +227,7 @@ namespace musica
     NoError(error);
   }
 
-  double* Grid::GetEdgesPointer(Error *error)
+  double *Grid::GetEdgesPointer(Error *error)
   {
     DeleteError(error);
     int error_code = 0;
@@ -237,7 +237,7 @@ namespace musica
       ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
       return nullptr;
     }
-    double* edges_ptr = InternalGetEdgesPointer(updater_, &error_code);
+    double *edges_ptr = InternalGetEdgesPointer(updater_, &error_code);
     if (error_code != 0)
     {
       ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
@@ -285,7 +285,7 @@ namespace musica
     NoError(error);
   }
 
-  double* Grid::GetMidpointsPointer(Error *error)
+  double *Grid::GetMidpointsPointer(Error *error)
   {
     DeleteError(error);
     int error_code = 0;
@@ -295,7 +295,7 @@ namespace musica
       ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
       return nullptr;
     }
-    double* midpoints_ptr = InternalGetMidpointsPointer(updater_, &error_code);
+    double *midpoints_ptr = InternalGetMidpointsPointer(updater_, &error_code);
     if (error_code != 0)
     {
       ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);

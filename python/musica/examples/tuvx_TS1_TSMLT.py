@@ -12,6 +12,7 @@ from musica.tuvx import vTS1
 
 available = musica.backend.tuvx_available()
 
+
 def run_tuvx_ts1_example():
     """Run TUV-x with version TS1/TSMLT configuration in a simple vertical column."""
 
@@ -37,11 +38,11 @@ def run_tuvx_ts1_example():
     print("Photolysis reactions in TUV-x TS1/TSMLT configuration:")
     for name in reaction_names:
         print(f" - {name}")
-    
+
     # Find the indices for the O3 photolysis reactions
     jo3a_name = "jo3_a"
     jo3b_name = "jo3_b"
-    
+
     # Plot the vertical profiles of "O3+hv->O2+O(1D)" and "O3+hv->O2+O(3P)" photolysis rates
     jo3a_std = standard_results["photolysis_rate_constants"].sel(reaction=jo3a_name)
     jo3b_std = standard_results["photolysis_rate_constants"].sel(reaction=jo3b_name)
@@ -65,9 +66,9 @@ def run_tuvx_ts1_example():
     plt.grid(True)
     plt.show()
 
+
 if __name__ == "__main__":
     if not available:
         raise RuntimeError("TUV-x backend is not available in this Musica installation.")
 
     run_tuvx_ts1_example()
-    

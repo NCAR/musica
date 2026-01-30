@@ -16,6 +16,7 @@ from .v54 import height_grid
 from .v54 import profile_from_map
 from .v54 import radiator_from_map
 
+
 def get_tuvx_calculator() -> TUVX:
     """Returns a TUV-x instance configured for the vTS1/TSMLT photolysis setup."""
     from .tuvx import TUVX
@@ -171,6 +172,7 @@ def wavelength_grid() -> Grid:
     wavelengths.midpoints = 0.5 * (wavelengths.edges[:-1] + wavelengths.edges[1:])
     return wavelengths
 
+
 profile_data_files = {
     "O2": "configs/tuvx/data/profiles/atmosphere/o2.v54.dat",
     "O3": "configs/tuvx/data/profiles/atmosphere/o3.v54.dat",
@@ -183,10 +185,10 @@ profile_data_files = {
 
 def profile(name: str, grid: Grid) -> Profile:
     """Returns a standard profile for TUV-x vTS1/TSMLT by name.
-    
+
     Raises a ValueError if the profile name is not recognized or
     if the profile data file grid does not match the provided grid.
-    
+
     Args:
         name: Name of the profile (e.g., "O3", "air", "temperature")
         grid: Grid instance to interpolate the profile onto
@@ -203,10 +205,10 @@ radiator_data_files = {
 
 def radiator(name: str, height_grid: Grid, wavelength_grid: Grid) -> Radiator:
     """Returns a standard radiator for TUV-x vTS1/TSMLT by name.
-    
+
     Raises a ValueError if the radiator name is not recognized or
     if the radiator data file grids do not match the provided grids.
-    
+
     Args:
         name: Name of the radiator (e.g., "aerosol")
         height_grid: Height grid instance
@@ -215,4 +217,3 @@ def radiator(name: str, height_grid: Grid, wavelength_grid: Grid) -> Radiator:
         Radiator instance with data loaded from the corresponding TS1/TSMLT data file
     """
     return radiator_from_map(radiator_data_files, name, height_grid, wavelength_grid)
-
