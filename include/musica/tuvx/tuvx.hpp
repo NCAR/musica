@@ -83,8 +83,8 @@ namespace musica
     /// @param solar_zenith_angle Solar zenith angle [radians]
     /// @param earth_sun_distance Earth-Sun distance [AU]
     /// @param photolysis_rate_constants Photolysis rate constant [s^-1] (reaction, vertical edge)
-    /// @param heating_rates Heating rates [K/s] (heating reaction, vertical edge)
-    /// @param dose_rates Dose rates [W/m^2] (dose rate type, vertical edge)
+    /// @param heating_rates Heating rates [K/s] (heating_reaction, vertical edge)
+    /// @param dose_rates Dose rates [W/m^2] (dose_rate type, vertical edge)
     /// @param actinic_flux Actinic flux [photons cm^-2 s^-1 nm^-1] (wavelength, vertical edge, direct/upwelling/downwelling)
     /// @param spectral_irradiance Spectral irradiance [W/m^2 nm^-1] (wavelength, vertical edge, direct/upwelling/downwelling)
     /// @param error Error struct to indicate success or failure
