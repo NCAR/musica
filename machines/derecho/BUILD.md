@@ -31,6 +31,7 @@ module load ncarenv/25.10
 module load gcc/14.3.0
 module load ncarcompilers/1.2.0
 module load cray-mpich/8.1.32
+module load cmake/3.31.8
 module load netcdf/4.9.3
 module load parallel-netcdf/1.14.1
 module load openblas/0.3.30
