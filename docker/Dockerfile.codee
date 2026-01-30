@@ -12,6 +12,7 @@ RUN dnf -y update \
         lapack-devel \
         lcov \
         make \
+        ninja \
         netcdf-fortran-devel \
         python \
         valgrind \
@@ -30,8 +31,7 @@ RUN cd musica \
     && cmake -S . \
              -B build \
              -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
-    && cd build \
-    && make install -j 8
+             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -G "Ninja" 
     
 
 WORKDIR musica/build
