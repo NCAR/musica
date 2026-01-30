@@ -15,7 +15,8 @@ tuv_rates = tuvx.run(sza=0.0, earth_sun_distance=1.0)
 
 # Also load its config file path so that we can get the alias mappings
 tuv_path = find_config_path("tuvx", "ts1_tsmlt.json")
-data = json.load(open(tuv_path, 'r'))
+with open(tuv_path, 'r') as f:
+    data = json.load(f)
 alias_mappings = data.get('__CAM options', {}).get('aliasing', {}).get('pairs', {})
 
 # index zero is 0 km, so we will skip that for box model runs
@@ -113,7 +114,7 @@ state.set_user_defined_rate_parameters(user_defined_dict)
 times = [0]
 concentrations = [state.get_concentrations()]
 time_step = 30  # seconds
-simulation_length = 0.1 * 60 * 60  # 1 hour in seconds
+simulation_length = 0.1 * 24 * 60 * 60  # 1/10 of a day in seconds
 current_time = 0
 last_printed_percent = -5  # Track last printed percentage
 
