@@ -63,6 +63,8 @@ cmake ../../.. \
   -DMUSICA_ENABLE_CARMA=ON \
   -DMUSICA_BUILD_FORTRAN_INTERFACE=ON \
   -DMUSICA_ENABLE_TESTS=ON \
+  -DCMAKE_DISABLE_FIND_PACKAGE_yaml-cpp=ON \
+  -DYAML_CPP_INSTALL=ON \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_INSTALL_PREFIX=/glade/work/$USER/packages
 ```
@@ -76,6 +78,15 @@ cmake ../../.. \
 - `MUSICA_ENABLE_CARMA=ON` requires BLAS/LAPACK (provided by the
   `openblas` module). To build without CARMA, set this to `OFF` and
   omit the `openblas` module.
+- `CMAKE_DISABLE_FIND_PACKAGE_yaml-cpp=ON` prevents CMake from picking
+  up a system or conda-provided yaml-cpp shared library. Without this,
+  an active conda environment (e.g. miniforge3) can supply a `.so`
+  instead of building a static `.a`, causing link failures downstream.
+- `YAML_CPP_INSTALL=ON` ensures that `libyaml-cpp.a` is installed
+  alongside the MUSICA libraries. Without this, `make install` skips
+  yaml-cpp (a transitive dependency fetched by MechanismConfiguration)
+  and downstream consumers linking via pkg-config will fail with
+  `cannot find -lyaml-cpp`.
 - Dependencies (MICM v3.11.0, TUV-x v0.14.0, CARMA develop-carma-box,
   MechanismConfiguration v1.1.1, GoogleTest) are fetched automatically
   via CMake FetchContent.
