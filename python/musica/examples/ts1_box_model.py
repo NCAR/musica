@@ -30,7 +30,7 @@ for mapping in alias_mappings:
     scale = mapping.get("scale by", 1)
     tuv_label = mapping['from']
     rate = tuv_rates.sel(reaction=tuv_label).photolysis_rate_constants.values * scale
-    photolysis_rate_constants[f'USER.{label}'] = rate[start:end] # skip the first grid cell which is at 0 km
+    photolysis_rate_constants[f'USER.{label}'] = rate[start:end]  # skip the first grid cell which is at 0 km
 
 path = 'configs/v1/ts1/ts1.json'
 
@@ -93,7 +93,7 @@ for _, row in surface_reactions.iterrows():
     user_defined_dict[f"{row['parameter']}.particle number concentration [# m-3]"] = [row['value2']] * num_grid_cells
 
 # multiply by 1000 to convert from km to m
-environmental_conditions = ussa1976.compute(z=tuv_rates.vertical_edge[start:end].data*1000, variables=["t", "p"])
+environmental_conditions = ussa1976.compute(z=tuv_rates.vertical_edge[start:end].data * 1000, variables=["t", "p"])
 temperature = environmental_conditions['t'].values
 pressure = environmental_conditions['p'].values
 
