@@ -64,7 +64,7 @@ def run_tuvx_ts1_example():
     plt.title("TUV-x TS1/TSMLT Photolysis Rates")
     plt.legend()
     plt.grid(True)
-    plt.show()
+    plt.savefig("tuvx_ts1_photolysis_rates.png")
 
 
 if __name__ == "__main__":

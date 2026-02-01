@@ -64,7 +64,7 @@ def run_tuvx_5_4_example():
     plt.title("TUV-x v5.4 Photolysis Rates")
     plt.legend()
     plt.grid(True)
-    plt.show()
+    plt.savefig("tuvx_v54_photolysis_rates.png")
 
 
 if __name__ == "__main__":
