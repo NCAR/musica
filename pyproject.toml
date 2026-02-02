@@ -32,9 +32,15 @@ homepage = "https://wiki.ucar.edu/display/MUSICA/MUSICA+Home"
 
 [project.optional-dependencies]
 test = [
-  "pytest>=7.0.0",
   "pytest-cov>=4.0.0",
-  "ussa1976>=0.3.4; platform_machine != 'i686' and (platform_machine != 'arm64' or platform_system != 'Windows')"
+  "pytest>=7.0.0",
+  "ussa1976>=0.3.4; platform_machine != 'i686' and (platform_machine != 'arm64' or platform_system != 'Windows')",
+]
+
+cli = [
+  "matplotlib>=3.7.0",
+  "pvlib>=0.14.0",
+  "ussa1976>=0.3.4; platform_machine != 'i686' and (platform_machine != 'arm64' or platform_system != 'Windows')",
 ]
 
 gpu = ["nvidia-cublas-cu12>=12.6.4.1", "nvidia-cuda-runtime-cu12>=12.6.68"]
@@ -42,10 +48,10 @@ gpu = ["nvidia-cublas-cu12>=12.6.4.1", "nvidia-cuda-runtime-cu12>=12.6.68"]
 tutorial = [
   "dask-jobqueue>=0.8.0",
   "dask[distributed]>=2022.3.0",
+  "graphviz>=0.18",
   "matplotlib>=3.7.0",
   "scipy>=1.10.0",
   "seaborn>=0.12.0",
-  "graphviz>=0.18",
 ]
 
 [project.scripts]
@@ -146,7 +152,7 @@ build = ["cp310-*", "cp311-*", "cp312-*", "cp313-*", "cp314-*"]
 skip = ["*musllinux*"]
 
 # Will cause the wheel to be installed with `pip install <wheel_file>[test]`
-test-extras = ["test", "tutorial"]
+test-extras = ["test", "cli"]
 
 test-sources = ["configs"]
 
@@ -169,6 +175,8 @@ test-command = [
   "python ts1_box_model.py",
   "musica-cli -e TS1LatinHyperCube -o .",
   "python ts1_latin_hypercube.py",
+  "musica-cli -e Chapman -o .",
+  "python chapman.py",
 ]
 
 # Set up pre-build hooks
