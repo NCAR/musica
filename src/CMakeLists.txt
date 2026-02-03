@@ -27,52 +27,22 @@ target_sources(musica PRIVATE
 
 # MICM sources
 if(MUSICA_ENABLE_MICM)
-  target_sources(musica PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/micm/convert_v0_to_v1.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/micm/cpu_solver.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/micm/cuda_availability.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/micm/cuda_loader.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/micm/micm.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/micm/micm_c_interface.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/micm/parse.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/micm/state.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/micm/state_c_interface.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/micm/v0_parse.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/micm/v1_parse.cpp
-  )
+  add_subdirectory(micm)
 endif()
 
 # TUV-x sources
 if(MUSICA_ENABLE_TUVX)
-  target_sources(musica PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface.F90
-    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface_grid.F90
-    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface_grid_map.F90
-    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface_profile.F90
-    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface_profile_map.F90
-    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface_radiator.F90
-    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface_radiator_map.F90
-    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface_util.F90
-    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/grid.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/grid_map.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/profile.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/profile_map.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/radiator.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/radiator_map.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/tuvx.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/tuvx_c_interface.cpp
-  )
+  add_subdirectory(tuvx)
 endif()
 
 # CARMA sources
 if(MUSICA_ENABLE_CARMA)
-  target_sources(musica PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/carma/carma.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/carma/carma_state.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/carma/carma_c_interface.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/carma/interface.F90
-    ${CMAKE_CURRENT_SOURCE_DIR}/carma/carma_parameters.F90
-  )
+  add_subdirectory(carma)
+endif()
+
+# MICM CUDA Solver
+if(UNIX AND NOT APPLE AND NOT ${MUSICA_GPU_TYPE} STREQUAL "None")
+  add_subdirectory(cuda)
 endif()
 
 ################################################################################
@@ -188,14 +158,6 @@ elseif(UNIX)
     INSTALL_RPATH "$ORIGIN"
     BUILD_WITH_INSTALL_RPATH TRUE
   )
-endif()
-
-################################################################################
-# CUDA Plugin Library (Linux only, when GPU enabled)
-
-if(UNIX AND NOT APPLE AND NOT ${MUSICA_GPU_TYPE} STREQUAL "None")
-  message(STATUS "Building CUDA plugin library (libmusica_cuda.so)")
-  add_subdirectory(cuda)
 endif()
 
 ################################################################################

@@ -1,8 +1,10 @@
 ################################################################################
 # Python Extension Module
 
-# Python binding sources (wrappers only, not musica library sources)
-set(MUSICA_PYTHON_BINDING_SOURCES
+# Create the Python module
+pybind11_add_module(_musica)
+
+target_sources(_musica PRIVATE
   cpu.cpp
   common.cpp
   cuda.cpp
@@ -14,7 +16,7 @@ set(MUSICA_PYTHON_BINDING_SOURCES
 )
 
 if (MUSICA_ENABLE_TUVX)
-  list(APPEND MUSICA_PYTHON_BINDING_SOURCES
+  target_sources(_musica PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/grid_map.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/grid.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/profile_map.cpp
@@ -26,13 +28,11 @@ if (MUSICA_ENABLE_TUVX)
 endif()
 
 if (MUSICA_ENABLE_CARMA)
-  list(APPEND MUSICA_PYTHON_BINDING_SOURCES
+  target_sources(_musica PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/carma/carma.cpp
   )
 endif()
 
-# Create the Python module
-pybind11_add_module(_musica ${MUSICA_PYTHON_BINDING_SOURCES})
 
 # Link against the musica library (instead of compiling sources directly)
 target_link_libraries(_musica PRIVATE musica::musica)
