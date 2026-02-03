@@ -111,7 +111,6 @@ def create_dataset(sim_times, concentrations, photo_rate_history, state, altitud
       "air_density": (["height"], conditions["air_density"], {'units': 'mol m-3'}),
   }
 
-  # Collect user-defined rate parameters as a single array
   photolysis_rate_names = list(photo_rate_history[0].keys())
   user_param_values = [
     [params[name] for name in photolysis_rate_names]
@@ -119,21 +118,14 @@ def create_dataset(sim_times, concentrations, photo_rate_history, state, altitud
   ]
   data_vars["photolysis_rates"] = (["time", "photolysis_rate_names", "height"], user_param_values, {'units': 's-1'})
 
-  species_ordering = state.get_species_ordering()
-  for species, _ in species_ordering.items():
-      data = [concentrations[time_idx][species]
-              for time_idx in range(len(concentrations))]
-      data_vars[species] = (["time", "height"], data, {'units': 'mol m-3'})
-
-  time_values = np.array([
-    np.datetime64(t.astimezone(ZoneInfo("UTC")).replace(tzinfo=None))
-    for t in sim_times
-  ])
+  for species in concentrations[0].keys():
+    data = np.array([c[species] for c in concentrations], dtype=np.float64)  # shape: (time, height)
+    data_vars[species] = (["time", "height"], data, {"units": "mol m-3"})
 
   coords = {
-    "time": time_values,
+    "time": np.array(sim_times, dtype="datetime64[s]"),
     "height": altitudes,
-    "photolysis_rate_names": photolysis_rate_names
+    "photolysis_rate_names": np.array(photolysis_rate_names, dtype="S")
   }
 
   return xr.Dataset(data_vars, coords=coords)
@@ -240,7 +232,8 @@ def main():
       user_param_history.append({k: v.copy() for k, v in state.get_user_defined_rate_parameters().items()})
     
   ds = create_dataset(sim_times, concentrations, user_param_history, state, vertical_edges)
-  ds.to_netcdf('chapman.nc')
+  # for some reason, scipy must be used so that when the wheel is tested on linux, it works
+  ds.to_netcdf("chapman.nc", engine="scipy")
   print(ds)
   plot(ds, simulation_length)
 
