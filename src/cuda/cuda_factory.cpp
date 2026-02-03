@@ -23,19 +23,8 @@ namespace musica
 // Include the solver implementation
 #include "cuda_solver.cpp"
 
-// ABI version for compatibility checking
-// Increment this when the interface changes
-#define MUSICA_CUDA_ABI_VERSION 1
-
 extern "C"
 {
-  /// @brief Get the ABI version of this CUDA plugin
-  /// @return The ABI version number
-  int musica_cuda_abi_version()
-  {
-    return MUSICA_CUDA_ABI_VERSION;
-  }
-
   /// @brief Create a CUDA Rosenbrock solver
   /// @param chemistry Pointer to the Chemistry configuration
   /// @param error_msg Buffer to receive error message on failure

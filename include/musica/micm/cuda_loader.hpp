@@ -88,13 +88,11 @@ namespace musica
     bool attempted_load_;
 
     // Function pointers for CUDA factory functions
-    using AbiVersionFunc = int (*)();
     using CreateRosenbrockFunc = IMicmSolver* (*)(const Chemistry*, char*, std::size_t);
     using DestroySolverFunc = void (*)(IMicmSolver*);
     using DevicesAvailableFunc = bool (*)();
     using CleanUpFunc = void (*)();
 
-    AbiVersionFunc abi_version_func_;
     CreateRosenbrockFunc create_rosenbrock_func_;
     DestroySolverFunc destroy_solver_func_;
     DevicesAvailableFunc devices_available_func_;

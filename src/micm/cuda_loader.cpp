@@ -17,9 +17,6 @@
 
 namespace musica
 {
-  // Expected ABI version - increment this when the CUDA plugin interface changes
-  constexpr int MUSICA_CUDA_ABI_VERSION = 1;
-
   CudaLoader& CudaLoader::GetInstance()
   {
     static CudaLoader instance;
@@ -29,7 +26,6 @@ namespace musica
   CudaLoader::CudaLoader()
       : library_handle_(nullptr),
         attempted_load_(false),
-        abi_version_func_(nullptr),
         create_rosenbrock_func_(nullptr),
         destroy_solver_func_(nullptr),
         devices_available_func_(nullptr),
@@ -78,7 +74,6 @@ namespace musica
     dlerror();
 
     // Load function pointers
-    abi_version_func_ = reinterpret_cast<AbiVersionFunc>(dlsym(library_handle_, "musica_cuda_abi_version"));
     create_rosenbrock_func_ =
         reinterpret_cast<CreateRosenbrockFunc>(dlsym(library_handle_, "musica_cuda_create_rosenbrock"));
     destroy_solver_func_ = reinterpret_cast<DestroySolverFunc>(dlsym(library_handle_, "musica_cuda_destroy_solver"));
@@ -87,19 +82,9 @@ namespace musica
     cleanup_func_ = reinterpret_cast<CleanUpFunc>(dlsym(library_handle_, "musica_cuda_cleanup"));
 
     // Check that all required functions were loaded
-    if (!abi_version_func_ || !create_rosenbrock_func_ || !destroy_solver_func_ || !devices_available_func_)
+    if (!create_rosenbrock_func_ || !destroy_solver_func_ || !devices_available_func_)
     {
       last_error_ = "Failed to load required symbols from libmusica_cuda.so";
-      UnloadLibrary();
-      return;
-    }
-
-    // Check ABI compatibility
-    int loaded_abi_version = abi_version_func_();
-    if (loaded_abi_version != MUSICA_CUDA_ABI_VERSION)
-    {
-      last_error_ = "ABI version mismatch: expected " + std::to_string(MUSICA_CUDA_ABI_VERSION) + ", got " +
-                    std::to_string(loaded_abi_version);
       UnloadLibrary();
       return;
     }
@@ -119,7 +104,6 @@ namespace musica
       library_handle_ = nullptr;
     }
 #endif
-    abi_version_func_ = nullptr;
     create_rosenbrock_func_ = nullptr;
     destroy_solver_func_ = nullptr;
     devices_available_func_ = nullptr;
