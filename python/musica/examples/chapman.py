@@ -101,29 +101,29 @@ def set_photolysis_rates(state, photolysis_rate_constants):
 
   state.set_user_defined_rate_parameters(user_defined_dict)
 
-def create_dataset(sim_times, concentrations, user_param_history, state, altitudes):
+def create_dataset(sim_times, concentrations, photo_rate_history, state, altitudes):
   """Build an xarray Dataset with concentrations, conditions, and rates."""
   conditions = state.get_conditions()
 
   data_vars = {
-      "temperature": (["height"], conditions["temperature"]),
-      "pressure": (["height"], conditions["pressure"]),
-      "air density": (["height"], conditions["air_density"]),
+      "temperature": (["height"], conditions["temperature"], {'units': 'K'}),
+      "pressure": (["height"], conditions["pressure"], {'units': 'Pa'}),
+      "air_density": (["height"], conditions["air_density"], {'units': 'mol m-3'}),
   }
 
   # Collect user-defined rate parameters as a single array
-  user_param_names = list(user_param_history[0].keys()) if user_param_history else []
-  if user_param_names:
-    user_param_values = [
-      [params[name] for name in user_param_names]
-      for params in user_param_history
-    ]
-    data_vars["user_defined_rate_parameters"] = (["time", "user_parameter", "height"], user_param_values)
+  photolysis_rate_names = list(photo_rate_history[0].keys())
+  user_param_values = [
+    [params[name] for name in photolysis_rate_names]
+    for params in photo_rate_history
+  ]
+  data_vars["photolysis_rates"] = (["time", "photolysis_rate_names", "height"], user_param_values, {'units': 's-1'})
+
   species_ordering = state.get_species_ordering()
   for species, _ in species_ordering.items():
       data = [concentrations[time_idx][species]
               for time_idx in range(len(concentrations))]
-      data_vars[species] = (["time", "height"], data)
+      data_vars[species] = (["time", "height"], data, {'units': 'mol m-3'})
 
   time_values = np.array([
     np.datetime64(t.astimezone(ZoneInfo("UTC")).replace(tzinfo=None))
@@ -133,18 +133,10 @@ def create_dataset(sim_times, concentrations, user_param_history, state, altitud
   coords = {
     "time": time_values,
     "height": altitudes,
+    "photolysis_rate_names": photolysis_rate_names
   }
 
-  if user_param_names:
-    coords["user_parameter"] = user_param_names
-
-  ds = xr.Dataset(data_vars, coords=coords)
-  ds.height.attrs['units'] = 'km'
-  ds.time.attrs['timezone'] = 'UTC'
-  for species in species_ordering.keys():
-      ds[species].attrs['units'] = 'mol m-3'
-
-  return ds
+  return xr.Dataset(data_vars, coords=coords)
 
 def plot(ds, simulation_length):
   fig = plt.figure(figsize=(12, 8))
