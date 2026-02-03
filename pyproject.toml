@@ -154,6 +154,7 @@ skip = ["*musllinux*"]
 # Will cause the wheel to be installed with `pip install <wheel_file>[test]`
 test-extras = ["test", "cli"]
 
+# This is only required for the --convert test command
 test-sources = ["configs"]
 
 test-skip = "*-*linux_i686"

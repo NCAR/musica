@@ -32,10 +32,8 @@ for mapping in alias_mappings:
     rate = tuv_rates.sel(reaction=tuv_label).photolysis_rate_constants.values * scale
     photolysis_rate_constants[f'USER.{label}'] = rate[start:end]  # skip the first grid cell which is at 0 km
 
-path = 'configs/v1/ts1/ts1.json'
-
 parser = Parser()
-mechanism = parser.parse(path)
+mechanism = parser.parse(find_config_path("v1", "ts1", "ts1.json"))
 
 solver = musica.MICM(mechanism=mechanism,
                      solver_type=musica.SolverType.rosenbrock_standard_order)
@@ -52,7 +50,7 @@ state = solver.create_state(num_grid_cells)
 # | CONC             | Initial concentration (mol m-3)     | Unused                              |
 # | ENV              | Temperature (K) or Pressure (Pa)    | Unused                              |
 # | USER             | User-defined parameter value        | Unused                              |
-conditions = pd.read_csv('configs/v1/ts1/initial_conditions.csv',
+conditions = pd.read_csv(find_config_path("v1", "ts1", "initial_conditions.csv"),
                          sep=',', names=['parameter', 'value1', 'value2'],
                          dtype={'parameter': str, 'value1': float, 'value2': float})
 
@@ -60,16 +58,15 @@ conditions = pd.read_csv('configs/v1/ts1/initial_conditions.csv',
 surface_reactions = conditions[conditions['parameter'].str.contains('SURF')]
 
 # grab the initial concentrations, anything prefixed with CONC.
-initial_concentrations = conditions[conditions['parameter'].str.contains(
-    'CONC')]
+initial_concentrations = conditions[conditions['parameter'].str.contains('CONC')]
 # remove CONC. from the parameter names
-initial_concentrations.loc[:, 'parameter'] = initial_concentrations.loc[:,
-                                                                        'parameter'].str.replace('CONC.', '', regex=False)
+initial_concentrations.loc[:, 'parameter'] = initial_concentrations.loc[:,'parameter'].str.replace('CONC.', '', regex=False)
 
 # grab the environmental conditions, anything prefixed with ENV.
 environmental_conditions = conditions[conditions['parameter'].str.contains('ENV')]
 
 # grab the user defined conditions, anything prefixed with USER.
+# many of these will be overwritten by the TUV-x photolysis rates
 user_defined_conditions = conditions[conditions['parameter'].str.contains('USER')]
 
 # make sure the length of all the subsets matches the total length of conditions

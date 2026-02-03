@@ -54,11 +54,11 @@ def get_tuv_rates(utc_time, num_grid_cells, start=1):
       scale = mapping.get("scale by", 1)
       tuv_label = mapping['from']
       rate = tuv_rates.sel(reaction=tuv_label).photolysis_rate_constants.values * scale
-      photolysis_rate_constants[f'USER.{label}'] = rate[start:end]  # skip the first grid cell which is at 0 km
+      photolysis_rate_constants[f'PHOTO.{label}'] = rate[start:end]  # skip the first grid cell which is at 0 km
   
   return photolysis_rate_constants, tuv_rates
 
-def get_solver(num_grid_cells, config_path='configs/v1/chapman/config.json'):
+def get_solver(num_grid_cells, config_path=find_config_path("v1", "chapman", "config.json")):
   """Create a solver and state for the Chapman mechanism.
 
   Args:

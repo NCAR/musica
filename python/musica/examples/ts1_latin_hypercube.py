@@ -1,14 +1,13 @@
 import musica
 from musica.mechanism_configuration import Parser
+from musica.utils import find_config_path
 import pandas as pd
 from scipy.stats import qmc
 import xarray as xr
 import matplotlib.pyplot as plt
 
-path = 'configs/v1/ts1/ts1.json'
-
 parser = Parser()
-mechanism = parser.parse(path)
+mechanism = parser.parse(find_config_path("v1", "ts1", "ts1.json"))
 
 solver = musica.MICM(mechanism=mechanism,
                      solver_type=musica.SolverType.rosenbrock_standard_order)
@@ -25,7 +24,7 @@ state = solver.create_state(num_grid_cells)
 # | CONC             | Initial concentration (mol m-3)     | Unused                              |
 # | ENV              | Temperature (K) or Pressure (Pa)    | Unused                              |
 # | USER             | User-defined parameter value        | Unused                              |
-conditions = pd.read_csv('configs/v1/ts1/initial_conditions.csv',
+conditions = pd.read_csv(find_config_path("v1", "ts1", "initial_conditions.csv"),
                          sep=',', names=['parameter', 'value1', 'value2'])
 
 # grab the surface reactions, anything prefixed with SURF.

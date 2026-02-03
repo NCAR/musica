@@ -1,6 +1,7 @@
 import pytest
 import musica.mechanism_configuration as mc
 from musica.mechanism_configuration import Parser
+from musica.utils import find_config_path
 from test_util_full_mechanism import get_fully_defined_mechanism, validate_full_v1_mechanism
 
 
@@ -8,7 +9,7 @@ def test_parsed_full_v1_configuration():
     parser = Parser()
     extensions = [".yaml", ".json"]
     for extension in extensions:
-        path = f"configs/v1/full_configuration/full_configuration{extension}"
+        path = find_config_path("v1", "full_configuration", f"full_configuration{extension}")
         mechanism = parser.parse(path)
         validate_full_v1_mechanism(mechanism)
 
@@ -52,10 +53,10 @@ def test_hard_coded_default_constructed_types():
 
 def test_convert_v0_to_v1():
     parser = Parser()
-    base = 'configs/v0'
+    base = "v0"
     configs = ['analytical', 'carbon_bond_5', 'chapman', 'robertson', 'TS1', 'surface']
     for config in configs:
-        path = f"{base}/{config}/config.json"
+        path = find_config_path(base, config, "config.json")
         mechanism = parser.parse_and_convert_v0(path)
         assert mechanism is not None
 

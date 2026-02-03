@@ -506,11 +506,11 @@ contains
     O3_index = state%species_ordering%index( "O3", error )
     ASSERT( error%is_success() )
 
-    jO2_index = state%rate_parameters_ordering%index( "PHOTO.jO2", error )
+    jO2_index = state%rate_parameters_ordering%index( "PHOTO.jo2_b", error )
     ASSERT( error%is_success() )
-    jO3a_index = state%rate_parameters_ordering%index( "PHOTO.jO3->O", error )
+    jO3a_index = state%rate_parameters_ordering%index( "PHOTO.jo3_a", error )
     ASSERT( error%is_success() )
-    jO3b_index = state%rate_parameters_ordering%index( "PHOTO.jO3->O1D", error )
+    jO3b_index = state%rate_parameters_ordering%index( "PHOTO.jo3_b", error )
     ASSERT( error%is_success() )
 
     state%conditions(1)%temperature = 72.5

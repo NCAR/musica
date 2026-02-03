@@ -895,9 +895,9 @@ contains
 
       if ( .not. condition ) then
          if ( present( error_message ) ) then
-            write(*,*) "[MUSICA ERROR at ", file, ":", line, "] ", error_message
+            write(*,'("[MUSICA ERROR at ",A,":",I0,"] ",A)') file, line, error_message
          else
-            write(*,*) "[MUSICA ERROR at ", file, ":", line, "] Assertion failed"
+            write(*,'("[MUSICA ERROR at ",A,":",I0,"] Assertion failed")') file, line
          end if
          stop 3
       end if

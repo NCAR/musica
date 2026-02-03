@@ -1,19 +1,11 @@
 import pytest
 import musica
 import musica.mechanism_configuration as mc
-
-
-def test_solve_with_config_path_v0():
-    solver = musica.MICM(
-        config_path="configs/v0/chapman",
-        solver_type=musica.SolverType.rosenbrock_standard_order,
-    )
-    TestSolve(solver)
-
+from musica.utils import find_config_path
 
 def test_solve_with_config_path_v1_json():
     solver = musica.MICM(
-        config_path="configs/v1/chapman/config.json",
+        config_path=find_config_path("v1", "chapman", "config.json"),
         solver_type=musica.SolverType.rosenbrock_standard_order,
     )
     TestSolve(solver)
@@ -21,7 +13,7 @@ def test_solve_with_config_path_v1_json():
 
 def test_solve_with_config_path_v1_yaml():
     solver = musica.MICM(
-        config_path="configs/v1/chapman/config.yaml",
+        config_path=find_config_path("v1", "chapman", "config.yaml"),
         solver_type=musica.SolverType.rosenbrock_standard_order,
     )
     TestSolve(solver)
@@ -43,9 +35,9 @@ def TestSolve(solver):
     pressure = 101253.3
 
     rate_constants = {
-        "PHOTO.jO2": 2.42e-17,
-        "PHOTO.jO3->O": 1.15e-5,
-        "PHOTO.jO3->O1D": 6.61e-9
+        "PHOTO.jo2_b": 2.42e-17,
+        "PHOTO.jo3_a": 1.15e-5,
+        "PHOTO.jo3_b": 6.61e-9
     }
 
     initial_concentrations = {
@@ -92,32 +84,17 @@ def GetMechanism():
         name="gas",
         species=[O2, O, O1D, O3, M],
     )
-    jO2 = mc.Photolysis(
-        name="jO2",
-        reactants=[O2],
-        products=[(2, O)],
-    )
     R2 = mc.Arrhenius(
         name="R2",
         A=8.018e-17,
         reactants=[O, O2],
         products=[O3],
     )
-    jO31 = mc.Photolysis(
-        name="jO3->O",
-        reactants=[O3],
-        products=[O, O2],
-    )
     R4 = mc.Arrhenius(
-        name="R4",
+        name="",
         A=1.576e-15,
         reactants=[O, O3],
         products=[(2, O2)],
-    )
-    jO32 = mc.Photolysis(
-        name="jO3->O1D",
-        reactants=[O3],
-        products=[O1D, O2],
     )
     R6 = mc.Arrhenius(
         name="R6",
@@ -130,6 +107,21 @@ def GetMechanism():
         A=1.2e-10,
         reactants=[O1D, O3],
         products=[(2, O2)],
+    )
+    jO2 = mc.Photolysis(
+        name="jo2_b",
+        reactants=[O2],
+        products=[(2, O)],
+    )
+    jO31 = mc.Photolysis(
+        name="jo3_a",
+        reactants=[O3],
+        products=[O, O2],
+    )
+    jO32 = mc.Photolysis(
+        name="jo3_b",
+        reactants=[O3],
+        products=[O1D, O2],
     )
     return mc.Mechanism(
         name="Chapman",
