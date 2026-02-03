@@ -20,7 +20,9 @@ set(MUSICA_COMMON_SOURCES
 if(MUSICA_ENABLE_MICM)
   set(MUSICA_MICM_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/micm/convert_v0_to_v1.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/micm/cpu_solver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/micm/cuda_availability.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/micm/cuda_loader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/micm/micm.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/micm/micm_c_interface.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/micm/parse.cpp
@@ -87,13 +89,9 @@ endif()
 add_library(musica)
 add_library(musica::musica ALIAS musica)
 
-if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None")
-  target_sources(musica PRIVATE ${MUSICA_SOURCES})
-  musica_setup_target(musica MODE GPU)
-else()
-  target_sources(musica PRIVATE ${MUSICA_SOURCES})
-  musica_setup_target(musica MODE CPU)
-endif()
+# Always build the main library in CPU mode (no CUDA types in ABI)
+target_sources(musica PRIVATE ${MUSICA_SOURCES})
+musica_setup_target(musica MODE CPU)
 
 set_target_properties(musica PROPERTIES
   ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
@@ -113,6 +111,14 @@ elseif(UNIX)
     INSTALL_RPATH "$ORIGIN"
     BUILD_WITH_INSTALL_RPATH TRUE
   )
+endif()
+
+################################################################################
+# CUDA Plugin Library (Linux only, when GPU enabled)
+
+if(UNIX AND NOT APPLE AND NOT ${MUSICA_GPU_TYPE} STREQUAL "None")
+  message(STATUS "Building CUDA plugin library (libmusica_cuda.so)")
+  add_subdirectory(cuda)
 endif()
 
 ################################################################################

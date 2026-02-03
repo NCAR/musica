@@ -34,17 +34,16 @@ function(musica_setup_target target)
     list(APPEND musica_compile_definitions MUSICA_USE_OPENMP)
   endif()
 
-  if (MUSICA_ENABLE_MICM) 
+  if (MUSICA_ENABLE_MICM)
     list(APPEND musica_compile_definitions MUSICA_USE_MICM)
     target_link_libraries(${target}
       PUBLIC
         musica::micm
     )
 
-    if(ARG_MODE STREQUAL "GPU")
-      set_target_properties(micm_cuda PROPERTIES POSITION_INDEPENDENT_CODE ON)
-      list(APPEND musica_compile_definitions MUSICA_ENABLE_CUDA)
-      target_link_libraries(${target} PUBLIC musica::micm_cuda)
+    # Link against dl for dlopen/dlsym on Linux
+    if(UNIX AND NOT APPLE)
+      target_link_libraries(${target} PUBLIC ${CMAKE_DL_LIBS})
     endif()
   endif()
 

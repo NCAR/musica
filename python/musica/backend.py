@@ -1,23 +1,10 @@
 """
 Backend selection and symbol loading for MUSICA.
+
+With the type-erased solver architecture, there is a single _musica module
+that handles both CPU and CUDA solvers. CUDA support is detected at runtime
+via the CudaLoader, which uses dlopen to load libmusica_cuda.so when available.
 """
-import importlib.util
-
-
-def _safe_find_spec(name):
-    try:
-        return importlib.util.find_spec(name)
-    except ModuleNotFoundError:
-        return None
-
-
-def _gpu_deps_installed():
-    return (
-        _safe_find_spec("nvidia.cublas") is not None or
-        _safe_find_spec("nvidia_cuda_runtime") is not None or
-        _safe_find_spec("nvidia-cublas-cu12") is not None or
-        _safe_find_spec("nvidia-cuda-runtime-cu12") is not None
-    )
 
 
 # Global backend instance to ensure it's only loaded once
@@ -25,7 +12,11 @@ _backend_instance = None
 
 
 def get_backend():
-    """Get the appropriate backend module."""
+    """Get the MUSICA backend module.
+
+    Returns the single _musica module which handles both CPU and CUDA solvers.
+    CUDA support is detected and loaded at runtime when a CUDA solver is requested.
+    """
 
     global _backend_instance
 
@@ -33,17 +24,27 @@ def get_backend():
         return _backend_instance
 
     try:
-        if _gpu_deps_installed():
-            import musica._musica_gpu as backend
-        else:
-            import musica._musica as backend
-
+        import musica._musica as backend
         _backend_instance = backend
         return _backend_instance
 
     except ImportError as e:
         raise ImportError(
             f"Failed to import MUSICA backend. Make sure the package is properly built and installed. Error: {e}")
+
+
+def cuda_available():
+    """Check if CUDA solvers are available.
+
+    This checks if:
+    1. The CUDA plugin library (libmusica_cuda.so) can be loaded
+    2. CUDA devices are present on the system
+
+    Returns:
+        bool: True if CUDA solvers can be used, False otherwise.
+    """
+    _backend = get_backend()
+    return _backend._micm._is_cuda_available()
 
 
 def tuvx_available():

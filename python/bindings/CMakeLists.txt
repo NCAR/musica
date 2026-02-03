@@ -34,8 +34,10 @@ if (MUSICA_ENABLE_CARMA)
   )
 endif()
 
-pybind11_add_module(_musica 
-  cpu.cpp 
+# Single Python module (no separate _musica_gpu module)
+# CUDA support is detected at runtime via CudaLoader
+pybind11_add_module(_musica
+  cpu.cpp
   ${MUSICA_PYTHON_SOURCES}
 )
 musica_setup_target(_musica MODE CPU)
@@ -45,20 +47,6 @@ if (MUSICA_ENABLE_TUVX OR MUSICA_ENABLE_CARMA)
   set_target_properties(_musica PROPERTIES
     Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/musica_python_cpu_modules
   )
-endif()
-
-if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None")
-  pybind11_add_module(_musica_gpu gpu.cpp ${MUSICA_PYTHON_SOURCES}) 
-  musica_setup_target(_musica_gpu MODE GPU)
-  
-  # Set separate Fortran module directory for _musica_gpu to avoid conflicts
-  if (MUSICA_ENABLE_TUVX OR MUSICA_ENABLE_CARMA)
-    set_target_properties(_musica_gpu PROPERTIES
-      Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/musica_python_gpu_modules
-    )
-  endif()
-  
-  list(APPEND PY_MODULES _musica_gpu)
 endif()
 
 foreach(lib ${PY_MODULES})
@@ -79,3 +67,11 @@ foreach(lib ${PY_MODULES})
   # Install the configs directory
   install(DIRECTORY ${CMAKE_SOURCE_DIR}/configs DESTINATION musica)
 endforeach()
+
+# Install the CUDA plugin library alongside the Python module on Linux x86_64
+if(UNIX AND NOT APPLE AND NOT ${MUSICA_GPU_TYPE} STREQUAL "None")
+  # Build the CUDA plugin for Python if it exists
+  if(TARGET musica_cuda)
+    install(TARGETS musica_cuda LIBRARY DESTINATION musica)
+  endif()
+endif()
