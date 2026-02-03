@@ -7,18 +7,29 @@ project(
   LANGUAGES C CXX
 )
 
-message (STATUS "CMake build configuration for ${PROJECT_NAME} (${CMAKE_BUILD_TYPE}) ${PROJECT_VERSION}")
+message(STATUS "CMake build configuration for ${PROJECT_NAME} (${CMAKE_BUILD_TYPE}) ${PROJECT_VERSION}")
 
 ################################################################################
-# Sources
+# version file
+configure_file(version.cpp.in ${CMAKE_BINARY_DIR}/version.cpp @ONLY)
 
-set(MUSICA_COMMON_SOURCES
+################################################################################
+# MUSICA Library
+
+include(setup_musica_target)
+
+add_library(musica)
+add_library(musica::musica ALIAS musica)
+
+# Common sources
+target_sources(musica PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/util.cpp
   ${CMAKE_BINARY_DIR}/version.cpp
 )
 
+# MICM sources
 if(MUSICA_ENABLE_MICM)
-  set(MUSICA_MICM_SOURCES
+  target_sources(musica PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/micm/convert_v0_to_v1.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/micm/cpu_solver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/micm/cuda_availability.cpp
@@ -33,8 +44,9 @@ if(MUSICA_ENABLE_MICM)
   )
 endif()
 
+# TUV-x sources
 if(MUSICA_ENABLE_TUVX)
-  set(MUSICA_TUVX_SOURCES
+  target_sources(musica PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface.F90
     ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface_grid.F90
     ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface_grid_map.F90
@@ -54,44 +66,19 @@ if(MUSICA_ENABLE_TUVX)
   )
 endif()
 
+# CARMA sources
 if(MUSICA_ENABLE_CARMA)
-  set(MUSICA_CARMA_SOURCES
-  ${CMAKE_CURRENT_SOURCE_DIR}/carma/carma.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/carma/carma_state.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/carma/carma_c_interface.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/carma/interface.F90
-  ${CMAKE_CURRENT_SOURCE_DIR}/carma/carma_parameters.F90
+  target_sources(musica PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/carma/carma.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/carma/carma_state.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/carma/carma_c_interface.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/carma/interface.F90
+    ${CMAKE_CURRENT_SOURCE_DIR}/carma/carma_parameters.F90
   )
 endif()
 
-set(MUSICA_SOURCES
-  ${MUSICA_COMMON_SOURCES}
-  ${MUSICA_MICM_SOURCES}
-  ${MUSICA_TUVX_SOURCES}
-  ${MUSICA_CARMA_SOURCES}
-  CACHE INTERNAL "List of sources for MUSICA"
-)
-
-# version
-configure_file(version.cpp.in ${CMAKE_BINARY_DIR}/version.cpp @ONLY)
-
-################################################################################
-# MUSICA
-
-include(setup_musica_target)
-
-if (MUSICA_ONLY_PYTHON)
-  message(STATUS "Building only the Python bindings, skipping MUSICA C/C++ library")
-  message(STATUS "The musica library is not needed for the python bindings since we build the sources directly")
-  return()
-endif()
-
-add_library(musica)
-add_library(musica::musica ALIAS musica)
-
-# Always build the main library in CPU mode (no CUDA types in ABI)
-target_sources(musica PRIVATE ${MUSICA_SOURCES})
-musica_setup_target(musica MODE CPU)
+# Configure the musica target with dependencies
+musica_setup_target(musica)
 
 set_target_properties(musica PROPERTIES
   ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}

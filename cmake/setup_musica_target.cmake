@@ -1,5 +1,6 @@
+# Configure the musica target with all necessary dependencies, include paths,
+# compile definitions, and linked libraries.
 function(musica_setup_target target)
-  cmake_parse_arguments(ARG "" "MODE" "" ${ARGN})
 
   if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     if (MSVC)
@@ -93,4 +94,3 @@ function(musica_setup_target target)
 
   target_compile_definitions(${target} PUBLIC ${musica_compile_definitions})
 endfunction()
-
