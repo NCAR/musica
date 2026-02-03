@@ -72,6 +72,13 @@ cmake.define.CMAKE_VERBOSE_MAKEFILE = "ON"
 build.verbose = true
 logging.level = "DEBUG"
 
+# Linux uses prebuilt musica library (built once in before-all, then reused for all Python versions)
+[[tool.scikit-build.overrides]]
+if.platform-system = "linux"
+inherit.cmake.define = "append"
+cmake.define.MUSICA_USE_PREBUILT = "ON"
+cmake.define.CMAKE_PREFIX_PATH = "/opt/musica-prebuilt"
+
 [[tool.scikit-build.overrides]]
 if.platform-system = "linux"
 if.any.env.BUILD_GPU = true

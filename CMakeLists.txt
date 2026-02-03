@@ -36,6 +36,7 @@ option(MUSICA_BUNDLE_DEPENDENCIES "Bundle dependencies with the library" ON)
 option(MUSICA_ENABLE_JAVASCRIPT "Build the JavaScript addon" OFF)
 option(MUSICA_ENABLE_JULIA "Build the Julia wrapper" OFF)
 option(MUSICA_CREATE_ENVIRONMENT_MODULE "Create an Lmod environment module file" OFF)
+option(MUSICA_USE_PREBUILT "Use a prebuilt musica library instead of building from source" OFF)
 
 set(MUSICA_GPU_TYPE "None" CACHE STRING "The GPU type being targeted")
 
@@ -113,7 +114,13 @@ endif()
 ################################################################################
 # MUSICA
 if(MUSICA_BUILD_C_CXX_INTERFACE)
-  add_subdirectory(src)
+  if(MUSICA_USE_PREBUILT)
+    # Use prebuilt musica library - useful for faster Python wheel builds
+    find_package(musica REQUIRED)
+    message(STATUS "Using prebuilt musica library")
+  else()
+    add_subdirectory(src)
+  endif()
 endif()
 
 if(MUSICA_BUILD_DOCS)

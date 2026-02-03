@@ -65,7 +65,13 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/configs DESTINATION musica)
 
 # Install the CUDA plugin library alongside the Python module on Linux x86_64
 if(UNIX AND NOT APPLE AND NOT ${MUSICA_GPU_TYPE} STREQUAL "None")
-  if(TARGET musica_cuda)
+  if(MUSICA_USE_PREBUILT)
+    # When using prebuilt, copy the CUDA plugin from the prebuilt installation
+    find_library(MUSICA_CUDA_LIBRARY musica_cuda HINTS "${CMAKE_PREFIX_PATH}/lib")
+    if(MUSICA_CUDA_LIBRARY)
+      install(FILES ${MUSICA_CUDA_LIBRARY} DESTINATION musica)
+    endif()
+  elseif(TARGET musica_cuda)
     install(TARGETS musica_cuda LIBRARY DESTINATION musica)
   endif()
 endif()
