@@ -102,16 +102,21 @@ if.platform-machine = "aarch64"
 inherit.cmake.define = "append"
 cmake.define.MUSICA_GPU_TYPE = "None"
 
+# Windows uses prebuilt musica library (built once in before-all, then reused for all Python versions)
 [[tool.scikit-build.overrides]]
 if.platform-system = "win32"
 if.platform-machine = "AMD64"
 inherit.cmake.define = "append"
+cmake.define.MUSICA_USE_PREBUILT = "ON"
+cmake.define.CMAKE_PREFIX_PATH = "/opt/musica-prebuilt"
 
-# macOS workaround for GCC 14 header conflicts with macOS 15 SDK
-# Use Clang instead of GCC on macOS
+# macOS uses prebuilt musica library (built once in before-all, then reused for all Python versions)
+# Also use Clang instead of GCC on macOS to avoid GCC 14 header conflicts with macOS 15 SDK
 [[tool.scikit-build.overrides]]
 if.platform-system = "darwin"
 inherit.cmake.define = "append"
+cmake.define.MUSICA_USE_PREBUILT = "ON"
+cmake.define.CMAKE_PREFIX_PATH = "/tmp/musica-prebuilt"
 cmake.define.CMAKE_C_COMPILER = "clang"
 cmake.define.CMAKE_CXX_COMPILER = "clang++"
 
@@ -119,6 +124,8 @@ cmake.define.CMAKE_CXX_COMPILER = "clang++"
 if.platform-system = "win32"
 if.platform-machine = "ARM64"
 inherit.cmake.define = "append"
+cmake.define.MUSICA_USE_PREBUILT = "ON"
+cmake.define.CMAKE_PREFIX_PATH = "/opt/musica-prebuilt"
 cmake.define.MUSICA_ENABLE_CARMA = "OFF"
 
 # dynamically read the version: https://scikit-build-core.readthedocs.io/en/latest/configuration.html#dynamic-metadata
@@ -208,6 +215,7 @@ LD_LIBRARY_PATH = "/usr/local/cuda/lib64:$LD_LIBRARY_PATH"
 BUILD_GPU = 1
 
 [tool.cibuildwheel.windows]
+before-all = "bash python/tools/prepare_build_environment_windows.sh"
 repair-wheel-command = "bash python/tools/repair_wheel_windows.sh {wheel} {dest_dir}"
 # Only build Windows ARM64 wheels for Python 3.11+
 skip = ["cp39-win_arm64", "cp310-win_arm64"]
