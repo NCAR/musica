@@ -72,13 +72,6 @@ cmake.define.CMAKE_VERBOSE_MAKEFILE = "ON"
 build.verbose = true
 logging.level = "DEBUG"
 
-# Linux uses prebuilt musica library (built once in before-all, then reused for all Python versions)
-[[tool.scikit-build.overrides]]
-if.platform-system = "linux"
-inherit.cmake.define = "append"
-cmake.define.MUSICA_USE_PREBUILT = "ON"
-cmake.define.CMAKE_PREFIX_PATH = "/opt/musica-prebuilt"
-
 [[tool.scikit-build.overrides]]
 if.platform-system = "linux"
 if.any.env.BUILD_GPU = true
@@ -102,30 +95,11 @@ if.platform-machine = "aarch64"
 inherit.cmake.define = "append"
 cmake.define.MUSICA_GPU_TYPE = "None"
 
-# Windows uses prebuilt musica library (built once in before-all, then reused for all Python versions)
-[[tool.scikit-build.overrides]]
-if.platform-system = "win32"
-if.platform-machine = "AMD64"
-inherit.cmake.define = "append"
-cmake.define.MUSICA_USE_PREBUILT = "ON"
-cmake.define.CMAKE_PREFIX_PATH = "/opt/musica-prebuilt"
-
-# macOS uses prebuilt musica library (built once in before-all, then reused for all Python versions)
-# Also use Clang instead of GCC on macOS to avoid GCC 14 header conflicts with macOS 15 SDK
-[[tool.scikit-build.overrides]]
-if.platform-system = "darwin"
-inherit.cmake.define = "append"
-cmake.define.MUSICA_USE_PREBUILT = "ON"
-cmake.define.CMAKE_PREFIX_PATH = "/tmp/musica-prebuilt"
-cmake.define.CMAKE_C_COMPILER = "clang"
-cmake.define.CMAKE_CXX_COMPILER = "clang++"
-
+# Windows ARM64 cannot build CARMA
 [[tool.scikit-build.overrides]]
 if.platform-system = "win32"
 if.platform-machine = "ARM64"
 inherit.cmake.define = "append"
-cmake.define.MUSICA_USE_PREBUILT = "ON"
-cmake.define.CMAKE_PREFIX_PATH = "/opt/musica-prebuilt"
 cmake.define.MUSICA_ENABLE_CARMA = "OFF"
 
 # dynamically read the version: https://scikit-build-core.readthedocs.io/en/latest/configuration.html#dynamic-metadata
@@ -196,8 +170,12 @@ test-command = [
 
 # Set up pre-build hooks
 [tool.cibuildwheel.macos]
-environment.MACOSX_DEPLOYMENT_TARGET = "15.0"
 before-all = "bash python/tools/prepare_build_environment_macos.sh"
+
+[tool.cibuildwheel.macos.environment]
+MACOSX_DEPLOYMENT_TARGET = "15.0"
+# Use prebuilt musica library and Clang compiler (avoid GCC 14 header conflicts with macOS 15 SDK)
+CMAKE_ARGS = "-DMUSICA_USE_PREBUILT=ON -DCMAKE_PREFIX_PATH=/tmp/musica-prebuilt -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++"
 
 [tool.cibuildwheel.linux]
 before-all = "python/tools/prepare_build_environment_linux.sh"
@@ -212,7 +190,9 @@ manylinux-i686-image = "manylinux_2_28"
 CUDA_PATH = "/usr/local/cuda"
 PATH = "/usr/local/cuda/bin:$PATH"
 LD_LIBRARY_PATH = "/usr/local/cuda/lib64:$LD_LIBRARY_PATH"
-BUILD_GPU = 1
+BUILD_GPU = "1"
+# Use prebuilt musica library
+CMAKE_ARGS = "-DMUSICA_USE_PREBUILT=ON -DCMAKE_PREFIX_PATH=/opt/musica-prebuilt"
 
 [tool.cibuildwheel.windows]
 before-all = "bash python/tools/prepare_build_environment_windows.sh"
@@ -224,3 +204,7 @@ test-command = [
   "musica-cli --help",
   "pytest {project}\\python\\test -k \"not tuvx\"",
 ]
+
+[tool.cibuildwheel.windows.environment]
+# Use prebuilt musica library (cygpath converts MSYS2 path to Windows path for CMake)
+CMAKE_ARGS = "-DMUSICA_USE_PREBUILT=ON -DCMAKE_PREFIX_PATH=$(cygpath -m /opt/musica-prebuilt)"
