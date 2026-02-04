@@ -38,6 +38,12 @@ if(MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set(MECH_CONFIG_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
   set(MECH_CONFIG_BUILD_SHARED_LIBS ${MUSICA_BUILD_SHARED_LIBS} CACHE BOOL "" FORCE)
 
+  # Build yaml-cpp as shared library when building shared libs to avoid duplicate
+  # symbol errors on Windows (yaml-cpp is a PUBLIC dependency of mechanism_configuration)
+  if(MUSICA_BUILD_SHARED_LIBS)
+    set(YAML_BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
+  endif()
+
   FetchContent_MakeAvailable(mechanism_configuration)
 endif()
 

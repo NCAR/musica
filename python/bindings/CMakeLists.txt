@@ -64,12 +64,15 @@ install(TARGETS _musica LIBRARY DESTINATION musica)
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/configs DESTINATION musica)
 
 function(install_prebuilt_libs prefix libname dest)
-  find_library(_lib ${libname} HINTS "${prefix}/lib" "${prefix}/lib64")
+  find_library(_lib ${libname} HINTS "${prefix}/lib" "${prefix}/lib64" "${prefix}/bin")
   if(_lib)
     get_filename_component(_dir "${_lib}" DIRECTORY)
     if(APPLE)
       # On macOS, shared libraries are .dylib files
       file(GLOB _libs "${_dir}/lib${libname}*.dylib")
+    elseif(WIN32)
+      # On Windows, DLLs are in bin/ directory
+      file(GLOB _libs "${prefix}/bin/${libname}*.dll" "${prefix}/bin/lib${libname}*.dll")
     else()
       # On Linux, shared libraries are .so files
       file(GLOB _libs "${_dir}/lib${libname}.so*")
@@ -84,6 +87,10 @@ if(MUSICA_USE_PREBUILT)
   install_prebuilt_libs("${CMAKE_PREFIX_PATH}" mechanism_configuration musica)
   install_prebuilt_libs("${CMAKE_PREFIX_PATH}" musica_cuda musica)
   install_prebuilt_libs("${CMAKE_PREFIX_PATH}" micm_cuda musica)
+  # yaml-cpp is built as shared library when MUSICA_BUILD_SHARED_LIBS=ON
+  if(WIN32)
+    install_prebuilt_libs("${CMAKE_PREFIX_PATH}" yaml-cpp musica)
+  endif()
 endif()
 
 # musica.MICM(config_path="musica/configs/v0/analytical", solver_type=musica.SolverType.cuda_rosenbrock)
