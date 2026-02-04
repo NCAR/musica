@@ -19,6 +19,16 @@ install(
     ${MUSICA_INSTALL_INCLUDE_DIR}
 )
 
+# install mechanism_configuration headers when built from source
+if(TARGET mechanism_configuration)
+  install(
+    DIRECTORY
+      ${mechanism_configuration_SOURCE_DIR}/include/
+    DESTINATION
+      ${MUSICA_INSTALL_INCLUDE_DIR}
+  )
+endif()
+
 # install MICM
 if(MUSICA_ENABLE_MICM)
   install(
