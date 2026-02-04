@@ -95,6 +95,13 @@ if.platform-machine = "aarch64"
 inherit.cmake.define = "append"
 cmake.define.MUSICA_GPU_TYPE = "None"
 
+# Windows ARM64 cannot build CARMA
+[[tool.scikit-build.overrides]]
+if.platform-system = "win32"
+if.platform-machine = "ARM64"
+inherit.cmake.define = "append"
+cmake.define.MUSICA_ENABLE_CARMA = "OFF"
+
 # dynamically read the version: https://scikit-build-core.readthedocs.io/en/latest/configuration.html#dynamic-metadata
 [tool.scikit-build.metadata.version]
 provider = "scikit_build_core.metadata.regex"
