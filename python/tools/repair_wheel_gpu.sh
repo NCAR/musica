@@ -12,11 +12,12 @@ for whl in "$2"/*.whl; do
   unzip -q "$whl" -d "$tmpdir"
   tree "$tmpdir"
 
-  # With type erasure, CUDA support is via libmusica_cuda.so plugin (loaded at runtime via dlopen)
-  # The plugin links to CUDA libraries and needs rpath fixes
-  cuda_plugin="$tmpdir/musica/libmusica_cuda.so"
+  # declare an array of libraries to patch
+  plugins=("$tmpdir/musica/libmusica_cuda.so" "$tmpdir/musica/libmicm_cuda.so")
 
-  if [[ -f "$cuda_plugin" ]]; then
+
+  for cuda_plugin in "${plugins[@]}"; do
+    if [[ -f "$cuda_plugin" ]]; then
       echo "Found CUDA plugin: $cuda_plugin"
       echo "Before patchelf:"
       readelf -d "$cuda_plugin"
@@ -37,9 +38,10 @@ for whl in "$2"/*.whl; do
 
       echo "After patchelf:"
       readelf -d "$cuda_plugin"
-  else
-    echo "No CUDA plugin found, skipping patchelf steps"
-  fi
+    else
+      echo "No CUDA plugin found, skipping patchelf steps"
+    fi
+  done
 
   # Repack the wheel with correct structure
   wheel pack "$tmpdir" --dest-dir "$(dirname "$whl")"
