@@ -11,8 +11,6 @@ add_library(musica_cuda SHARED
   cuda_solver.cpp
 )
 
-set_target_properties(micm_cuda PROPERTIES POSITION_INDEPENDENT_CODE ON)
-
 # This library requires CUDA support
 target_compile_definitions(musica_cuda PRIVATE MUSICA_ENABLE_CUDA)
 

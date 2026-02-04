@@ -16,7 +16,12 @@ configure_file(version.cpp.in ${CMAKE_BINARY_DIR}/version.cpp @ONLY)
 ################################################################################
 # MUSICA Library
 
-add_library(musica)
+if (MUSICA_BUILD_SHARED_LIBS)
+  add_library(musica SHARED)
+else()
+  add_library(musica STATIC)
+endif()
+
 add_library(musica::musica ALIAS musica)
 
 # Common sources
@@ -55,10 +60,6 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
   else()
     target_compile_options(musica PUBLIC -Werror)
   endif()
-endif()
-
-if (MUSICA_ENABLE_PYTHON_LIBRARY OR MUSICA_ENABLE_PIC)
-  set_target_properties(musica PROPERTIES POSITION_INDEPENDENT_CODE ON)
 endif()
 
 target_include_directories(musica
