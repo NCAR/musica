@@ -4,8 +4,6 @@
 # CMakeLists.txt for the CUDA plugin library (libmusica_cuda.so)
 # This is only built on Linux when GPU support is enabled.
 
-project(musica_cuda)
-
 add_library(musica_cuda SHARED
   cuda_factory.cpp
   cuda_solver.cpp
