@@ -171,6 +171,7 @@ test-command = [
 # Set up pre-build hooks
 [tool.cibuildwheel.macos]
 before-all = "bash python/tools/prepare_build_environment_macos.sh"
+repair-wheel-command = "bash python/tools/repair_wheel_macos.sh {wheel} {dest_dir}"
 
 [tool.cibuildwheel.macos.environment]
 MACOSX_DEPLOYMENT_TARGET = "15.0"

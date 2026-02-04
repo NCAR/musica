@@ -63,20 +63,27 @@ install(TARGETS _musica LIBRARY DESTINATION musica)
 # Install the configs directory
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/configs DESTINATION musica)
 
-function(install_prebuilt_so prefix libname dest)
+function(install_prebuilt_libs prefix libname dest)
   find_library(_lib ${libname} HINTS "${prefix}/lib" "${prefix}/lib64")
   if(_lib)
     get_filename_component(_dir "${_lib}" DIRECTORY)
-    file(GLOB _libs "${_dir}/lib${libname}.so*")
+    if(APPLE)
+      # On macOS, shared libraries are .dylib files
+      file(GLOB _libs "${_dir}/lib${libname}*.dylib")
+    else()
+      # On Linux, shared libraries are .so files
+      file(GLOB _libs "${_dir}/lib${libname}.so*")
+    endif()
     install(FILES ${_libs} DESTINATION ${dest})
   endif()
+  unset(_lib CACHE)
 endfunction()
 
 if(MUSICA_USE_PREBUILT)
-  install_prebuilt_so("${CMAKE_PREFIX_PATH}" musica musica)
-  install_prebuilt_so("${CMAKE_PREFIX_PATH}" mechanism_configuration musica)
-  install_prebuilt_so("${CMAKE_PREFIX_PATH}" musica_cuda musica)
-  install_prebuilt_so("${CMAKE_PREFIX_PATH}" micm_cuda musica)
+  install_prebuilt_libs("${CMAKE_PREFIX_PATH}" musica musica)
+  install_prebuilt_libs("${CMAKE_PREFIX_PATH}" mechanism_configuration musica)
+  install_prebuilt_libs("${CMAKE_PREFIX_PATH}" musica_cuda musica)
+  install_prebuilt_libs("${CMAKE_PREFIX_PATH}" micm_cuda musica)
 endif()
 
 # musica.MICM(config_path="musica/configs/v0/analytical", solver_type=musica.SolverType.cuda_rosenbrock)
