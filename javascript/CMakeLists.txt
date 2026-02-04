@@ -2,7 +2,7 @@ project(musica-wasm)
 
 # Building WASM module
 add_executable(musica-wasm 
-    src/musica_wasm.cpp
+    bindings/musica_wasm.cpp
 )
 
 target_compile_features(musica-wasm PUBLIC cxx_std_20)
