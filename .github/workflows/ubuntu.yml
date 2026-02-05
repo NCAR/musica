@@ -34,14 +34,11 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y liblapack-dev libblas-dev build-essential libnetcdf-dev libnetcdff-dev
-          sudo apt-get install -y python3-numpy
 
       - name: Run Cmake
         run: |
           cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} \
                               -D MUSICA_GIT_TAG=${{ github.sha }} \
-                              -D MUSICA_ENABLE_PYTHON_LIBRARY=ON\
-                              -D MUSICA_BUILD_SHARED_LIBS=ON \
                               -D CMAKE_POLICY_VERSION_MINIMUM=3.5
 
       - name: Build
