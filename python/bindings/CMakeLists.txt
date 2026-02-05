@@ -87,10 +87,7 @@ if(MUSICA_USE_PREBUILT)
   install_prebuilt_libs("${CMAKE_PREFIX_PATH}" mechanism_configuration musica)
   install_prebuilt_libs("${CMAKE_PREFIX_PATH}" musica_cuda musica)
   install_prebuilt_libs("${CMAKE_PREFIX_PATH}" micm_cuda musica)
-  # yaml-cpp is built as shared library when MUSICA_BUILD_SHARED_LIBS=ON
-  if(WIN32)
-    install_prebuilt_libs("${CMAKE_PREFIX_PATH}" yaml-cpp musica)
-  endif()
+  install_prebuilt_libs("${CMAKE_PREFIX_PATH}" yaml-cpp musica)
 endif()
 
 # musica.MICM(config_path="musica/configs/v0/analytical", solver_type=musica.SolverType.cuda_rosenbrock)
