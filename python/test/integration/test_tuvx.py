@@ -1,5 +1,6 @@
 import pytest
 import musica
+from musica.utils import find_config_path
 import numpy as np
 
 available = musica.backend.tuvx_available()
@@ -100,8 +101,7 @@ def test_tuvx_version():
 
 
 def test_full_tuvx(monkeypatch):
-    monkeypatch.chdir("configs/tuvx")
-    file = "tuv_5_4.json"
+    file = find_config_path("tuvx", "tuv_5_4.json")
     grid_map = get_grid_map()
     profile_map = get_profile_map(grid_map)
     radiator_map = get_radiator_map(grid_map)
@@ -201,7 +201,7 @@ def get_fixed_grid_map():
 
 
 def test_fixed_tuvx_from_file():
-    file = "configs/tuvx/full_from_host/config_python.json"
+    file = find_config_path("tuvx", "full_from_host", "config_python.json")
     grid_map = get_fixed_grid_map()
     profile_map = get_profile_map(grid_map)
     radiator_map = get_radiator_map(grid_map)
@@ -237,7 +237,7 @@ def test_fixed_tuvx_from_file():
 
 
 def test_fixed_tuvx_from_string():
-    file = "configs/tuvx/full_from_host/config_python.json"
+    file = find_config_path("tuvx", "full_from_host", "config_python.json")
     with open(file, 'r') as f:
         config_str = f.read()
     grid_map = get_fixed_grid_map()
