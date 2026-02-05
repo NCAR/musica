@@ -23,15 +23,8 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      if: ${{ matrix.architecture == 'Win32' }}
-      with:
-        python-version: '3.x'
-        architecture: x86
-
     - name: Run CMake
-      run: cmake -S . -B build -A ${{ matrix.architecture }} -D MUSICA_GIT_TAG=${{ github.sha }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_CARMA=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON -D CMAKE_POLICY_VERSION_MINIMUM=3.5
+      run: cmake -S . -B build -A ${{ matrix.architecture }} -D MUSICA_GIT_TAG=${{ github.sha }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_CARMA=OFF -D CMAKE_POLICY_VERSION_MINIMUM=3.5
 
     - name: Build
       run: cmake --build build --config ${{ matrix.build_type }} --parallel
@@ -53,7 +46,7 @@ jobs:
         run: curl -fsSL -o LLVM${{ matrix.version }}.exe https://github.com/llvm/llvm-project/releases/download/llvmorg-${{ matrix.version }}/LLVM-${{ matrix.version }}-win64.exe ; 7z x LLVM${{ matrix.version }}.exe -y -o"C:/Program Files/LLVM"
 
       - name: Run CMake
-        run: cmake -S . -B build -DCMAKE_CXX_COMPILER="C:/Program Files/LLVM/bin/clang++.exe" -DCMAKE_C_COMPILER="C:/Program Files/LLVM/bin/clang.exe" -G"MinGW Makefiles" -D MUSICA_GIT_TAG=${{ github.sha }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_CARMA=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON -D CMAKE_POLICY_VERSION_MINIMUM=3.5
+        run: cmake -S . -B build -DCMAKE_CXX_COMPILER="C:/Program Files/LLVM/bin/clang++.exe" -DCMAKE_C_COMPILER="C:/Program Files/LLVM/bin/clang.exe" -G"MinGW Makefiles" -D MUSICA_GIT_TAG=${{ github.sha }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_CARMA=OFF -D CMAKE_POLICY_VERSION_MINIMUM=3.5
 
       - name: Build
         run: cmake --build build --parallel
@@ -71,15 +64,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        if: ${{ matrix.architecture == 'Win32' }}
-        with:
-          python-version: '3.x'
-          architecture: x86
-
       - name: Run CMake
-        run: cmake -S . -B build -A ${{ matrix.architecture }} -T ClangCL -D MUSICA_GIT_TAG=${{ github.sha }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_CARMA=OFF -D MUSICA_ENABLE_PYTHON_LIBRARY=ON -D CMAKE_POLICY_VERSION_MINIMUM=3.5
+        run: cmake -S . -B build -A ${{ matrix.architecture }} -T ClangCL -D MUSICA_GIT_TAG=${{ github.sha }} -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_CARMA=OFF -D CMAKE_POLICY_VERSION_MINIMUM=3.5
 
       - name: Build
         run: cmake --build build --config Debug --parallel
@@ -96,10 +82,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # for some reason the debug build fails with an error in the python library
-        # something about the usage of mechanism configuration and variants causes missing type information
-        # This commit for mechanism configuration works: 903150064277e024b0afcfc879df419e1cefc87b
-        # This one doesn't: a3ef728c69f619f80c272d634bc2a17ca5ab4de9
         build_type: [Release]
 
     steps:
@@ -122,7 +104,6 @@ jobs:
                               -D MUSICA_ENABLE_MICM=ON \
                               -D MUSICA_ENABLE_TUVX=OFF \
                               -D MUSICA_ENABLE_CARMA=ON \
-                              -D MUSICA_ENABLE_PYTHON_LIBRARY=ON \
                               -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
                               -D CMAKE_POLICY_VERSION_MINIMUM=3.5
 
