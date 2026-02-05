@@ -60,10 +60,22 @@ function testSolve(solver) {
   console.log('Concentrations after solve:', concentrations);
 
   // Verify concentrations change
-  assert.ok(concentrations['O3'][0] != initialConcentrations['O3'], 'O3 concentration should change after solve');
-  assert.ok(concentrations['O'][0] != initialConcentrations['O'], 'O concentration should change after solve');
-  assert.ok(concentrations['O1D'][0] != initialConcentrations['O1D'], 'O1D concentration should change after solve');
-  assert.ok(concentrations['O2'][0] != initialConcentrations['O2'], 'O2 concentration should change after solve');
+  assert.ok(
+    concentrations['O3'][0] != initialConcentrations['O3'],
+    'O3 concentration should change after solve'
+  );
+  assert.ok(
+    concentrations['O'][0] != initialConcentrations['O'],
+    'O concentration should change after solve'
+  );
+  assert.ok(
+    concentrations['O1D'][0] != initialConcentrations['O1D'],
+    'O1D concentration should change after solve'
+  );
+  assert.ok(
+    concentrations['O2'][0] != initialConcentrations['O2'],
+    'O2 concentration should change after solve'
+  );
 }
 
 describe('Chapman mechanism with v1 config files', () => {

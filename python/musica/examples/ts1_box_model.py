@@ -60,7 +60,8 @@ surface_reactions = conditions[conditions['parameter'].str.contains('SURF')]
 # grab the initial concentrations, anything prefixed with CONC.
 initial_concentrations = conditions[conditions['parameter'].str.contains('CONC')]
 # remove CONC. from the parameter names
-initial_concentrations.loc[:, 'parameter'] = initial_concentrations.loc[:,'parameter'].str.replace('CONC.', '', regex=False)
+initial_concentrations.loc[:, 'parameter'] = initial_concentrations.loc[:,
+                                                                        'parameter'].str.replace('CONC.', '', regex=False)
 
 # grab the environmental conditions, anything prefixed with ENV.
 environmental_conditions = conditions[conditions['parameter'].str.contains('ENV')]

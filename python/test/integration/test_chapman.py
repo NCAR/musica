@@ -3,6 +3,7 @@ import musica
 import musica.mechanism_configuration as mc
 from musica.utils import find_config_path
 
+
 def test_solve_with_config_path_v1_json():
     solver = musica.MICM(
         config_path=find_config_path("v1", "chapman", "config.json"),
