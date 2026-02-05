@@ -30,12 +30,26 @@ program test_micm_api
     real(real64) :: E_ = 0.0
   end type ArrheniusReaction
 
+  write(*,*) "Starting tests..."
+  write(*,*) "Testing MICM Fortran API..."
   call test_api()
+
+  write(*,*) "Testing multiple grid cell solvers with standard Rosenbrock method..."
   call test_multiple_grid_cell_standard_Rosenbrock()
+
+  write(*,*) "Testing multiple grid cell solvers with standard Backward Euler method..."
   call test_multiple_grid_cell_standard_BackwardEuler()
+
+  write (*,*) "Testing parser..."
   call test_api_v1_parser()
+
+  write(*,*) "Testing multiple grid cell solvers with vectorized Rosenbrock method..."
   call test_multiple_grid_cell_vector_Rosenbrock()
+
+  write(*,*) "Testing multiple grid cell solvers with vectorized Backward Euler method..."
   call test_multiple_grid_cell_vector_BackwardEuler()
+
+  write(*,*) "Testing multiple grid cell solvers with CUDA Rosenbrock method..."
   call test_multiple_grid_cell_cuda_Rosenbrock()
   
 contains
@@ -204,6 +218,8 @@ contains
     real(real64)              :: initial_A, initial_C, initial_D, initial_F
     real(real64)              :: k1, k2, k3, k4
     real(real64)              :: A, B, C, D, E, F
+
+    write(*,*) "[test micm fort api] Testing solver with ", number_of_grid_cells, " grid cells..."
 
     max_grid_cells = micm%get_maximum_number_of_grid_cells( )
     ASSERT_GT( max_grid_cells, 0 )
