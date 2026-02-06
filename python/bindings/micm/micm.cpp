@@ -168,23 +168,12 @@ void bind_micm(py::module_& micm)
 
   micm.def(
       "_species_ordering",
-      [](musica::State* state)
-      {
-        std::map<std::string, std::size_t> map;
-        std::visit([&map](auto& state) { map = state.variable_map_; }, state->state_variant_);
-        return map;
-      },
+      [](musica::State* state) { return state->GetVariableMap(); },
       "Return map of species names to their indices in the state concentrations vector");
 
   micm.def(
       "_user_defined_rate_parameters_ordering",
-      [](musica::State* state)
-      {
-        std::map<std::string, std::size_t> map;
-
-        std::visit([&map](auto& state) { map = state.custom_rate_parameter_map_; }, state->state_variant_);
-        return map;
-      },
+      [](musica::State* state) { return state->GetRateParameterMap(); },
       "Return map of reaction rate parameters to their indices in the state user-defined rate parameters vector");
 
   micm.def("_is_cuda_available", &musica::IsCudaAvailable, "Check if CUDA is available");
@@ -195,33 +184,38 @@ void bind_micm(py::module_& micm)
       "_print_state",
       [](musica::State* state, const double current_time)
       {
-        std::visit(
-            [&current_time](auto& state)
-            {
-              std::cout << "Current time: " << current_time << std::endl;
-              std::cout << "State variables: " << std::endl;
-              std::vector<std::string> species_names(state.variable_map_.size());
-              for (const auto& species : state.variable_map_)
-                species_names[species.second] = species.first;
-              for (const auto& name : species_names)
-                std::cout << name << ",";
-              std::cout << std::endl << state.variables_ << std::endl;
-              std::cout << "User-defined rate parameters: " << std::endl;
-              std::vector<std::string> rate_param_names(state.custom_rate_parameter_map_.size());
-              for (const auto& rate : state.custom_rate_parameter_map_)
-                rate_param_names[rate.second] = rate.first;
-              for (const auto& name : rate_param_names)
-                std::cout << name << ",";
-              std::cout << std::endl << state.custom_rate_parameters_ << std::endl;
-              std::cout << "Conditions: " << std::endl;
-              std::cout << "Temperature,Pressure,Air density" << std::endl;
-              for (const auto& condition : state.conditions_)
-              {
-                std::cout << condition.temperature_ << "," << condition.pressure_ << "," << condition.air_density_
-                          << std::endl;
-              }
-            },
-            state->state_variant_);
+        std::cout << "Current time: " << current_time << std::endl;
+        std::cout << "State variables: " << std::endl;
+        auto variable_map = state->GetVariableMap();
+        std::vector<std::string> species_names(variable_map.size());
+        for (const auto& species : variable_map)
+          species_names[species.second] = species.first;
+        for (const auto& name : species_names)
+          std::cout << name << ",";
+        std::cout << std::endl;
+        auto& concentrations = state->GetOrderedConcentrations();
+        for (const auto& c : concentrations)
+          std::cout << c << " ";
+        std::cout << std::endl;
+        std::cout << "User-defined rate parameters: " << std::endl;
+        auto rate_param_map = state->GetRateParameterMap();
+        std::vector<std::string> rate_param_names(rate_param_map.size());
+        for (const auto& rate : rate_param_map)
+          rate_param_names[rate.second] = rate.first;
+        for (const auto& name : rate_param_names)
+          std::cout << name << ",";
+        std::cout << std::endl;
+        auto& rate_params = state->GetOrderedRateParameters();
+        for (const auto& r : rate_params)
+          std::cout << r << " ";
+        std::cout << std::endl;
+        std::cout << "Conditions: " << std::endl;
+        std::cout << "Temperature,Pressure,Air density" << std::endl;
+        auto& conditions = state->GetConditions();
+        for (const auto& condition : conditions)
+        {
+          std::cout << condition.temperature_ << "," << condition.pressure_ << "," << condition.air_density_ << std::endl;
+        }
       },
       "Print the state to stdout with the current time");
 }

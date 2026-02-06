@@ -103,11 +103,11 @@ namespace musica
     return species;
   }
 
-  std::vector<micm::Yield> reaction_components_to_products(
+  std::vector<micm::StoichSpecies> reaction_components_to_products(
       const std::vector<mechanism_configuration::v1::types::ReactionComponent>& components,
       std::unordered_map<std::string, micm::Species>& species_map)
   {
-    std::vector<micm::Yield> yields;
+    std::vector<micm::StoichSpecies> yields;
     for (const auto& component : components)
     {
       yields.push_back({ species_map[component.species_name], component.coefficient });
@@ -349,7 +349,7 @@ namespace musica
     for (const auto& reaction : user_defined)
     {
       std::vector<micm::Species> reactants{};
-      std::vector<micm::Yield> products{};
+      std::vector<micm::StoichSpecies> products{};
 
       if constexpr (has_reactants<T>::value)
       {

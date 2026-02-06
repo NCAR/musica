@@ -30,12 +30,13 @@ option(MUSICA_BUILD_DOCS "Build the documentation" OFF)
 option(MUSICA_ENABLE_MICM "Enable MICM" ON)
 option(MUSICA_ENABLE_TUVX "Enable TUV-x" ON)
 option(MUSICA_ENABLE_CARMA "Enable CARMA" ON)
-option(MUSICA_ENABLE_PIC "Build the library with position independent code" OFF)
 option(MUSICA_ENABLE_COVERAGE "Enable code coverage output" OFF)
 option(MUSICA_BUNDLE_DEPENDENCIES "Bundle dependencies with the library" ON)
 option(MUSICA_ENABLE_JAVASCRIPT "Build the JavaScript addon" OFF)
 option(MUSICA_ENABLE_JULIA "Build the Julia wrapper" OFF)
 option(MUSICA_CREATE_ENVIRONMENT_MODULE "Create an Lmod environment module file" OFF)
+option(MUSICA_USE_PREBUILT "Use a prebuilt musica library instead of building from source" OFF)
+option(MUSICA_BUILD_SHARED_LIBS "Build MUSICA as shared libraries" OFF)
 
 set(MUSICA_GPU_TYPE "None" CACHE STRING "The GPU type being targeted")
 
@@ -43,9 +44,6 @@ set(MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE "4" CACHE STRING "Set MICM vector-ordere
 
 cmake_dependent_option(
   MUSICA_ENABLE_PYTHON_LIBRARY "Adds pybind11, a lightweight header-only library that exposes C++ types in Python and vice versa" OFF "MUSICA_BUILD_C_CXX_INTERFACE" OFF)
-
-cmake_dependent_option(
-  MUSICA_ONLY_PYTHON "Build only the Python bindings. This option is used when building Python wheels primarily" OFF "MUSICA_ENABLE_PYTHON_LIBRARY" OFF)
 
 ################################################################################
 # Projet wide setup variables 
@@ -116,7 +114,13 @@ endif()
 ################################################################################
 # MUSICA
 if(MUSICA_BUILD_C_CXX_INTERFACE)
-  add_subdirectory(src)
+  if(MUSICA_USE_PREBUILT)
+    # Use prebuilt musica library - useful for faster Python wheel builds
+    find_package(musica REQUIRED)
+    message(STATUS "Using prebuilt musica library")
+  else()
+    add_subdirectory(src)
+  endif()
 endif()
 
 if(MUSICA_BUILD_DOCS)

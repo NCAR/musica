@@ -3,17 +3,11 @@
 #include <musica/util.hpp>
 #include <musica/version.hpp>
 
+#include <yaml-cpp/yaml.h>
+
 #include <cstddef>
 #include <cstring>
 #include <iostream>
-
-namespace
-{
-  struct Yaml
-  {
-    YAML::Node node_;
-  };
-}  // namespace
 
 namespace musica
 {
@@ -92,7 +86,7 @@ namespace musica
     DeleteError(error);
     try
     {
-      configuration->data_ = new YAML::Node(YAML::Load(data));
+      configuration->data_ = static_cast<void*>(new YAML::Node(YAML::Load(data)));
       NoError(error);
     }
     catch (const std::exception& e)
@@ -107,7 +101,7 @@ namespace musica
     DeleteError(error);
     try
     {
-      configuration->data_ = new YAML::Node(YAML::LoadFile(filename));
+      configuration->data_ = static_cast<void*>(new YAML::Node(YAML::LoadFile(filename)));
       NoError(error);
     }
     catch (const std::exception& e)
@@ -120,7 +114,7 @@ namespace musica
   void DeleteConfiguration(Configuration* config)
   {
     if (config->data_ != nullptr)
-      delete config->data_;
+      delete static_cast<YAML::Node*>(config->data_);
     config->data_ = nullptr;
   }
 
@@ -182,7 +176,8 @@ namespace musica
       Error* error)
   {
     DeleteError(error);
-    std::size_t const size = configuration.data_->size();
+    YAML::Node* yaml_data = static_cast<YAML::Node*>(configuration.data_);
+    std::size_t const size = yaml_data->size();
     std::vector<IndexMapping> mappings;
     index_mapping->size_ = 0;
     if (map_options == IndexMappingOptions::UndefinedMapping)
@@ -192,7 +187,7 @@ namespace musica
     }
     for (std::size_t i = 0; i < size; i++)
     {
-      const YAML::Node& node = (*configuration.data_)[i];
+      const YAML::Node& node = (*yaml_data)[i];
       std::string const source_name = node["source"].as<std::string>();
       std::string const target_name = node["target"].as<std::string>();
       std::size_t const source_index = FindMappingIndex(source, source_name.c_str(), error);

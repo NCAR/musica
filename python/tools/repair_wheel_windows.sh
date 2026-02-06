@@ -34,10 +34,14 @@ echo "Output directory: $output_dir"
 # Repair the wheel using delvewheel
 # Add common Windows library paths where dependencies might be found
 "$PYTHON_CMD" -m delvewheel repair \
+    --add-path /opt/musica-prebuilt/bin \
+    --add-path /opt/musica-prebuilt/lib \
     --add-path /ucrt64/bin \
     --add-path /ucrt64/lib \
     --add-path /mingw64/bin \
     --add-path /mingw64/lib \
+    --add-path /clangarm64/bin \
+    --add-path /clangarm64/lib \
     --wheel-dir "$output_dir" \
     "$input_wheel"
 

@@ -1,3 +1,4 @@
+#include <musica/micm/cuda_availability.hpp>
 #include <musica/micm/micm.hpp>
 #include <musica/micm/parse.hpp>
 #include <musica/micm/state.hpp>
@@ -51,9 +52,12 @@ TEST(MICMWrapper, BackwardEulerStandardOrder)
   DoChemistry(musica::MICMSolver::BackwardEulerStandardOrder);
 }
 
-#ifdef MUSICA_ENABLE_CUDA
 TEST(MICMWrapper, CudaRosenbrock)
 {
+  // Skip if CUDA is not available at runtime
+  if (!musica::IsCudaAvailable())
+  {
+    GTEST_SKIP() << "CUDA is not available";
+  }
   DoChemistry(musica::MICMSolver::CudaRosenbrock);
 }
-#endif

@@ -198,19 +198,11 @@ EMSCRIPTEN_BINDINGS(musica_module)
       "species_ordering",
       optional_override(
           [](std::shared_ptr<musica::State> state)
-          {
-            std::map<std::string, std::size_t> map;
-            std::visit([&map](auto& s) { map = s.variable_map_; }, state->state_variant_);
-            return map;
-          }));
+          { return state->GetVariableMap(); }));
 
   function(
       "user_defined_rate_parameters_ordering",
       optional_override(
           [](std::shared_ptr<musica::State> state)
-          {
-            std::map<std::string, std::size_t> map;
-            std::visit([&map](auto& s) { map = s.custom_rate_parameter_map_; }, state->state_variant_);
-            return map;
-          }));
+          { return state->GetRateParameterMap(); }));
 }
