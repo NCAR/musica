@@ -55,3 +55,7 @@ cmake --install .
 
 echo "=== Musica prebuilt to $MUSICA_PREBUILT_DIR ==="
 ls -la "$MUSICA_PREBUILT_DIR"
+echo "=== Libraries (lib/) ==="
+ls -la "$MUSICA_PREBUILT_DIR/lib/" || true
+echo "=== Binaries (bin/) ==="
+ls -la "$MUSICA_PREBUILT_DIR/bin/" || true
