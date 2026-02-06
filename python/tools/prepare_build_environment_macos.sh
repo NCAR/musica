@@ -1,1 +1,1 @@
-brew install netcdf netcdf-fortran lapack
+brew install netcdf netcdf-fortran lapack ffmpeg

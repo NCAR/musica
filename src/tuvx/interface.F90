@@ -21,7 +21,8 @@ contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    function internal_create_tuvx(c_config_path, config_path_length, &
-      c_grid_map, c_profile_map, c_radiator_map, number_of_layers, error_code) &
+      c_grid_map, c_profile_map, c_radiator_map, number_of_height_midpoints, &
+      number_of_wavelength_midpoints, error_code) &
       bind(C, name="InternalCreateTuvx")
       use iso_c_binding, only: c_ptr, c_f_pointer
 
@@ -31,7 +32,8 @@ contains
       type(c_ptr), value,                   intent(in)  :: c_grid_map
       type(c_ptr), value,                   intent(in)  :: c_profile_map
       type(c_ptr), value,                   intent(in)  :: c_radiator_map
-      integer(kind=c_int),                  intent(out) :: number_of_layers
+      integer(kind=c_int),                  intent(out) :: number_of_height_midpoints
+      integer(kind=c_int),                  intent(out) :: number_of_wavelength_midpoints
       integer(kind=c_int),                  intent(out) :: error_code
       type(c_ptr)                                       :: internal_create_tuvx
 
@@ -42,7 +44,7 @@ contains
       type(grid_warehouse_t),     pointer :: grid_map
       type(profile_warehouse_t),  pointer :: profile_map
       type(radiator_warehouse_t), pointer :: radiator_map
-      type(grid_t), pointer               :: height_grid
+      type(grid_t), pointer               :: height_grid, wavelength_grid
       integer                             :: i
 
       allocate(character(len=config_path_length) :: f_config_path)
@@ -57,8 +59,11 @@ contains
       core => core_t(musica_config_path, grids = grid_map, &
          profiles = profile_map, radiators = radiator_map)
       height_grid => core%get_grid("height", "km")
-      number_of_layers = height_grid%ncells_
+      wavelength_grid => core%get_grid("wavelength", "nm")
+      number_of_height_midpoints = height_grid%ncells_
+      number_of_wavelength_midpoints = wavelength_grid%ncells_
       deallocate(height_grid)
+      deallocate(wavelength_grid)
 
       deallocate(f_config_path)
       error_code = 0
@@ -71,7 +76,7 @@ contains
 
    function internal_create_tuvx_from_config_string(c_config_string, &
       config_string_length, c_grid_map, c_profile_map, c_radiator_map, &
-      number_of_layers, error_code) &
+      number_of_height_midpoints, number_of_wavelength_midpoints, error_code) &
       bind(C, name="InternalCreateTuvxFromConfigString")
       use iso_c_binding, only: c_ptr, c_f_pointer
 
@@ -81,7 +86,8 @@ contains
       type(c_ptr), value,                   intent(in)  :: c_grid_map
       type(c_ptr), value,                   intent(in)  :: c_profile_map
       type(c_ptr), value,                   intent(in)  :: c_radiator_map
-      integer(kind=c_int),                  intent(out) :: number_of_layers
+      integer(kind=c_int),                  intent(out) :: number_of_height_midpoints
+      integer(kind=c_int),                  intent(out) :: number_of_wavelength_midpoints
       integer(kind=c_int),                  intent(out) :: error_code
       type(c_ptr) :: internal_create_tuvx_from_config_string
 
@@ -92,7 +98,7 @@ contains
       type(grid_warehouse_t),     pointer :: grid_map
       type(profile_warehouse_t),  pointer :: profile_map
       type(radiator_warehouse_t), pointer :: radiator_map
-      type(grid_t), pointer               :: height_grid
+      type(grid_t), pointer               :: height_grid, wavelength_grid
       integer                             :: i
 
       allocate(character(len=config_string_length) :: f_config_string)
@@ -107,9 +113,11 @@ contains
       core => core_t(config, grids = grid_map, &
          profiles = profile_map, radiators = radiator_map)
       height_grid => core%get_grid("height", "km")
-      number_of_layers = height_grid%ncells_
+      wavelength_grid => core%get_grid("wavelength", "nm")
+      number_of_height_midpoints = height_grid%ncells_
+      number_of_wavelength_midpoints = wavelength_grid%ncells_
       deallocate(height_grid)
-
+      deallocate(wavelength_grid)
       deallocate(f_config_string)
       error_code = 0
 
@@ -324,34 +332,42 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-   subroutine internal_run_tuvx(tuvx, number_of_layers, solar_zenith_angle, &
-      earth_sun_distance, photolysis_rate_constants, heating_rates, dose_rates, &
-      error_code) bind(C, name="InternalRunTuvx")
+   subroutine internal_run_tuvx(tuvx, number_of_height_midpoints, &
+      number_of_wavelength_midpoints, solar_zenith_angle, earth_sun_distance, &
+      photolysis_rate_constants, heating_rates, dose_rates, actinic_flux, &
+      spectral_irradiance, error_code) bind(C, name="InternalRunTuvx")
       use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_associated
       use musica_constants, only: dk => musica_dk
+      use tuvx_solver, only: radiation_field_t
 
       ! arguments
       type(c_ptr),         value,  intent(in)  :: tuvx
-      integer(kind=c_int), value,  intent(in)  :: number_of_layers
+      integer(kind=c_int), value,  intent(in)  :: number_of_height_midpoints
+      integer(kind=c_int), value,  intent(in)  :: number_of_wavelength_midpoints
       real(kind=dk),       value,  intent(in)  :: solar_zenith_angle         ! degrees
       real(kind=dk),       value,  intent(in)  :: earth_sun_distance         ! AU
-      type(c_ptr),         value,  intent(in)  :: photolysis_rate_constants  ! s^-1 (layer, reaction)
-      type(c_ptr),         value,  intent(in)  :: heating_rates              ! K s^-1 (layer, reaction)
-      type(c_ptr),         value,  intent(in)  :: dose_rates                 ! J m^-2 (layer, reaction)
+      type(c_ptr),         value,  intent(in)  :: photolysis_rate_constants  ! s^-1 (vertical edge, reaction)
+      type(c_ptr),         value,  intent(in)  :: heating_rates              ! K s^-1 (vertical edge, heating_rate)
+      type(c_ptr),         value,  intent(in)  :: dose_rates                 ! J m^-2 (vertical edge, dose_rate type)
+      ! The first dimension elements of both radiation field outputs are for direct, upwelling, and downwelling components, respectively
+      type(c_ptr),         value,  intent(in)  :: actinic_flux               ! photon cm^-2 s^-1 nm^-1 (3, vertical edge, wavelength midpoint)
+      type(c_ptr),         value,  intent(in)  :: spectral_irradiance        ! W m^-2 nm^-1 (3, vertical edge, wavelength midpoint)
       integer(kind=c_int),         intent(out) :: error_code
 
       ! variables
       type(core_t), pointer :: core
-      real(kind=dk), pointer :: photo_rates(:,:), heat_rates(:,:), doses(:,:)
+      real(kind=dk), pointer :: photo_rates(:,:), heat_rates(:,:), doses(:,:), &
+                                actinic_flux_ptr(:,:,:), spectral_irradiance_ptr(:,:,:)
+      type(radiation_field_t) :: rad_field
 
       call c_f_pointer(tuvx, core)
       call c_f_pointer(photolysis_rate_constants, photo_rates, &
-         [number_of_layers + 1, core%number_of_photolysis_reactions()])
+         [number_of_height_midpoints + 1, core%number_of_photolysis_reactions()])
       call c_f_pointer(heating_rates, heat_rates, &
-         [number_of_layers + 1, core%number_of_heating_rates()])
+         [number_of_height_midpoints + 1, core%number_of_heating_rates()])
       if (c_associated(dose_rates)) then
          call c_f_pointer(dose_rates, doses, &
-            [number_of_layers + 1, core%number_of_dose_rates()])
+            [number_of_height_midpoints + 1, core%number_of_dose_rates()])
          call core%run(solar_zenith_angle, earth_sun_distance, &
             photolysis_rate_constants = photo_rates, &
             heating_rates = heat_rates, &
@@ -362,6 +378,21 @@ contains
             photolysis_rate_constants = photo_rates, &
             heating_rates = heat_rates, &
             diagnostic_label = "musica_tuvx_interface")
+      end if
+      rad_field = core%get_radiation_field()
+      if (c_associated(actinic_flux)) then
+         call c_f_pointer(actinic_flux, actinic_flux_ptr, &
+            [3, number_of_height_midpoints + 1, number_of_wavelength_midpoints])
+         actinic_flux_ptr(1,:,:) = rad_field%fdr_(:,:)
+         actinic_flux_ptr(2,:,:) = rad_field%fup_(:,:)
+         actinic_flux_ptr(3,:,:) = rad_field%fdn_(:,:)
+      end if
+      if (c_associated(spectral_irradiance)) then
+         call c_f_pointer(spectral_irradiance, spectral_irradiance_ptr, &
+            [3, number_of_height_midpoints + 1, number_of_wavelength_midpoints])
+         spectral_irradiance_ptr(1,:,:) = rad_field%edr_(:,:)
+         spectral_irradiance_ptr(2,:,:) = rad_field%eup_(:,:)
+         spectral_irradiance_ptr(3,:,:) = rad_field%edn_(:,:)
       end if
       error_code = 0
 
@@ -478,15 +509,16 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-   function internal_get_number_of_layers(tuvx, error_code) &
-      bind(C, name="InternalGetNumberOfLayers") result(number_of_layers)
+   function internal_get_number_of_height_midpoints(tuvx, error_code) &
+      bind(C, name="InternalGetNumberOfHeightMidpoints") &
+      result(number_of_height_midpoints)
       use iso_c_binding, only: c_ptr, c_f_pointer
       use tuvx_grid, only: grid_t
 
       ! arguments
       type(c_ptr), value,      intent(in)  :: tuvx
       integer(kind=c_int),     intent(out) :: error_code
-      integer(kind=c_int)                  :: number_of_layers
+      integer(kind=c_int)                  :: number_of_height_midpoints
 
       ! variables
       type(core_t), pointer :: core
@@ -495,12 +527,38 @@ contains
       call c_f_pointer(tuvx, core)
 
       height => core%get_grid("height", "km")
-      number_of_layers = height%ncells_ + 1
+      number_of_height_midpoints = height%ncells_
       deallocate(height)
       error_code = 0
 
-   end function internal_get_number_of_layers
+   end function internal_get_number_of_height_midpoints
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   function internal_get_number_of_wavelength_midpoints(tuvx, error_code) &
+      bind(C, name="InternalGetNumberOfWavelengthMidpoints") &
+      result(number_of_wavelength_midpoints)
+      use iso_c_binding, only: c_ptr, c_f_pointer
+      use tuvx_grid, only: grid_t
+
+      ! arguments
+      type(c_ptr), value,      intent(in)  :: tuvx
+      integer(kind=c_int),     intent(out) :: error_code
+      integer(kind=c_int)                  :: number_of_wavelength_midpoints
+
+      ! variables
+      type(core_t), pointer :: core
+      class(grid_t), pointer :: wavelength
+
+      call c_f_pointer(tuvx, core)
+
+      wavelength => core%get_grid("wavelength", "nm")
+      number_of_wavelength_midpoints = wavelength%ncells_
+      deallocate(wavelength)
+      error_code = 0
+
+   end function internal_get_number_of_wavelength_midpoints
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 end module tuvx_interface

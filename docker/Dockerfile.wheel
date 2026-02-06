@@ -10,7 +10,8 @@ FROM --platform=linux/amd64 python:3.10-slim
 
 RUN apt update && \
     apt install -y \
-      binutils
+      binutils \
+      vim
 
 # Upgrade pip and install wheel checkers
 RUN pip install --upgrade pip
@@ -26,6 +27,6 @@ RUN for whl in /wheelhouse/*.whl; do \
     done
 
 # note that you will need to update the version number here to match the one you built
-RUN pip install "musica[gpu] @ file:/wheelhouse/musica-0.14.4-cp310-cp310-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl"
+RUN pip install "musica[cli,gpu] @ file:/wheelhouse/musica-0.14.4-cp310-cp310-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl"
 
 CMD ["python", "-c", "import musica; print(musica.__version__)"]

@@ -103,6 +103,8 @@ if (MUSICA_ENABLE_TUVX AND MUSICA_BUILD_C_CXX_INTERFACE)
   set(TUVX_INSTALL_MOD_DIR ${MUSICA_INSTALL_MOD_DIR} CACHE STRING "" FORCE)
   set(TUVX_INSTALL_INCLUDE_DIR ${MUSICA_INSTALL_INCLUDE_DIR} CACHE STRING "" FORCE)
 
+  # NOTE: `docker/Dockerfile.tuvx` extracts TUVX_GIT_REPOSITORY and TUVX_GIT_TAG
+  #       from this script to set up tests against stand-alone TUV-x
   set_git_default(TUVX_GIT_REPOSITORY https://github.com/NCAR/tuv-x.git)
   set_git_default(TUVX_GIT_TAG v0.14.0)
 
@@ -156,6 +158,51 @@ if(MUSICA_ENABLE_PYTHON_LIBRARY)
 
   FetchContent_MakeAvailable(pybind11)
 endif()
+
+################################################################################
+# Julia
+
+if (MUSICA_ENABLE_JULIA AND MUSICA_BUILD_C_CXX_INTERFACE)
+  find_program(Julia_EXECUTABLE julia REQUIRED)
+
+  # Use the Julia project in the top-level julia subdirectory
+  set(JULIA_PROJECT_DIR "${CMAKE_SOURCE_DIR}/julia")
+
+  execute_process(
+    COMMAND ${Julia_EXECUTABLE} --project=${JULIA_PROJECT_DIR} -e "using Pkg; Pkg.instantiate()"
+    RESULT_VARIABLE PKG_INSTANTIATE_RESULT
+    OUTPUT_VARIABLE PKG_INSTANTIATE_OUTPUT
+    ERROR_VARIABLE PKG_INSTANTIATE_ERROR
+  )
+
+  if(NOT PKG_INSTANTIATE_RESULT EQUAL 0)
+      message(FATAL_ERROR
+          "Failed to instantiate Julia project dependencies in ${JULIA_PROJECT_DIR}.\n"
+          "Stdout: ${PKG_INSTANTIATE_OUTPUT}\n"
+          "Stderr: ${PKG_INSTANTIATE_ERROR}"
+      )
+  endif()
+
+  # Try to get CxxWrap prefix path
+  execute_process(
+      COMMAND ${Julia_EXECUTABLE} --project=${JULIA_PROJECT_DIR} -e "using CxxWrap; print(CxxWrap.prefix_path())"
+      OUTPUT_VARIABLE CxxWrap_PREFIX
+      RESULT_VARIABLE CxxWrap_RESULT
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_VARIABLE CxxWrap_ERROR
+  )
+  if(CxxWrap_RESULT EQUAL 0 AND EXISTS ${CxxWrap_PREFIX})
+      message(STATUS "CxxWrap prefix: ${CxxWrap_PREFIX}")
+      list(APPEND CMAKE_PREFIX_PATH ${CxxWrap_PREFIX})
+      find_package(JlCxx REQUIRED)
+  else()
+      message(FATAL_ERROR 
+          "Failed to find CxxWrap.jl. Error: ${CxxWrap_ERROR}\n"
+          "Please ensure CxxWrap is properly installed"
+      )
+  endif()
+endif()
+
 
 ################################################################################
 # Docs

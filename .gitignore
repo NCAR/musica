@@ -41,3 +41,7 @@ coverage/
 # WASM build artifacts (generated files, not committed)
 javascript/wasm/musica.js
 javascript/wasm/musica.wasm
+
+# Julia build artifacts
+julia/Manifest.toml
+julia/deps/lib/

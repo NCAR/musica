@@ -55,6 +55,40 @@ jobs:
         if: matrix.dockerfile == 'Dockerfile.javascript'
         run: docker run --name test-container -t musica bash -c 'npm run test'
 
+  tuv-x-comparison:
+    name: TUV-x Comparison Test (Standalone vs. Python API)
+    runs-on: ubuntu-latest
+    env:
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: [Release]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Print branch name
+        run: echo "Branch name is $BRANCH_NAME"
+
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: false
+
+      - name: Build Docker image
+        run: |
+          docker build -t musica-tuvx-comparison -f docker/Dockerfile.tuvx . \
+          --build-arg MUSICA_GIT_TAG=${BRANCH_NAME} --build-arg BUILD_TYPE=${{ matrix.build_type }}
+
+      - name: Run TUV-x comparison tests in container
+        run: docker run --name tuvx-comparison -t musica-tuvx-comparison bash -c 'pytest'
+
   fetch-content:
     name: FetchContent Integration Test
     runs-on: ubuntu-latest

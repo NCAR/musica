@@ -75,4 +75,7 @@ foreach(lib ${PY_MODULES})
   endif()
 
   install(TARGETS ${lib} LIBRARY DESTINATION musica)
+
+  # Install the configs directory
+  install(DIRECTORY ${CMAKE_SOURCE_DIR}/configs DESTINATION musica)
 endforeach()

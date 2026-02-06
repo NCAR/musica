@@ -3,6 +3,7 @@ from __future__ import annotations
 import pytest
 from musica.micm import MICM, State, SolverType, SolverResult, SolverState
 import musica.mechanism_configuration as mc
+from musica.utils import find_config_path
 
 
 def create_simple_mechanism() -> mc.Mechanism:
@@ -41,14 +42,14 @@ class TestMICMInitialization:
 
     def test_init_with_config_path(self):
         """Test initialization with a configuration path."""
-        micm = MICM(config_path="configs/v0/analytical")
+        micm = MICM(config_path=find_config_path("v0", "analytical"))
         assert micm is not None
         assert isinstance(micm.solver_type(), SolverType)
 
     def test_init_with_config_path_and_solver_type(self):
         """Test initialization with config path and explicit solver type."""
         micm = MICM(
-            config_path="configs/v0/analytical",
+            config_path=find_config_path("v0", "analytical"),
             solver_type=SolverType.rosenbrock_standard_order
         )
         assert micm is not None
@@ -89,11 +90,11 @@ class TestMICMInitialization:
         """Test that initialization with both config_path and mechanism raises ValueError."""
         mechanism = create_simple_mechanism()
         with pytest.raises(ValueError, match="Only one of config_path or mechanism must be provided"):
-            MICM(config_path="configs/v0/analytical", mechanism=mechanism)
+            MICM(config_path=find_config_path("v0", "analytical"), mechanism=mechanism)
 
     def test_default_solver_type(self):
         """Test that default solver type is rosenbrock_standard_order."""
-        micm = MICM(config_path="configs/v0/analytical")
+        micm = MICM(config_path=find_config_path("v0", "analytical"))
         assert micm.solver_type() == SolverType.rosenbrock_standard_order
 
 
@@ -103,7 +104,7 @@ class TestMICMSolverType:
     def test_solver_type_returns_correct_type(self):
         """Test that solver_type() returns the correct SolverType."""
         micm = MICM(
-            config_path="configs/v0/analytical",
+            config_path=find_config_path("v0", "analytical"),
             solver_type=SolverType.rosenbrock_standard_order
         )
         assert micm.solver_type() == SolverType.rosenbrock_standard_order
@@ -117,7 +118,7 @@ class TestMICMSolverType:
 
         for solver_type in solver_types:
             micm = MICM(
-                config_path="configs/v0/analytical",
+                config_path=find_config_path("v0", "analytical"),
                 solver_type=solver_type
             )
             assert micm.solver_type() == solver_type
@@ -128,26 +129,26 @@ class TestMICMCreateState:
 
     def test_create_state_default_single_grid_cell(self):
         """Test creating a state with default single grid cell."""
-        micm = MICM(config_path="configs/v0/analytical")
+        micm = MICM(config_path=find_config_path("v0", "analytical"))
         state = micm.create_state()
         assert isinstance(state, State)
 
     def test_create_state_single_grid_cell_explicit(self):
         """Test creating a state with explicitly specified single grid cell."""
-        micm = MICM(config_path="configs/v0/analytical")
+        micm = MICM(config_path=find_config_path("v0", "analytical"))
         state = micm.create_state(number_of_grid_cells=1)
         assert isinstance(state, State)
 
     def test_create_state_multiple_grid_cells(self):
         """Test creating a state with multiple grid cells."""
-        micm = MICM(config_path="configs/v0/analytical")
+        micm = MICM(config_path=find_config_path("v0", "analytical"))
         for num_cells in [2, 5, 10, 100]:
             state = micm.create_state(number_of_grid_cells=num_cells)
             assert isinstance(state, State)
 
     def test_create_multiple_states(self):
         """Test creating multiple state objects from the same solver."""
-        micm = MICM(config_path="configs/v0/analytical")
+        micm = MICM(config_path=find_config_path("v0", "analytical"))
         state1 = micm.create_state()
         state2 = micm.create_state(number_of_grid_cells=5)
         assert isinstance(state1, State)
@@ -160,7 +161,7 @@ class TestMICMSolve:
 
     def test_solve_with_valid_state_and_timestep(self):
         """Test solve with valid state and time step."""
-        micm = MICM(config_path="configs/v0/analytical")
+        micm = MICM(config_path=find_config_path("v0", "analytical"))
         state = micm.create_state()
 
         # Set initial conditions
@@ -176,7 +177,7 @@ class TestMICMSolve:
 
     def test_solve_with_multiple_grid_cells(self):
         """Test solve with multiple grid cells."""
-        micm = MICM(config_path="configs/v0/analytical")
+        micm = MICM(config_path=find_config_path("v0", "analytical"))
         num_cells = 5
         state = micm.create_state(number_of_grid_cells=num_cells)
 
@@ -197,7 +198,7 @@ class TestMICMSolve:
 
     def test_solve_with_float_timestep(self):
         """Test solve with float time step."""
-        micm = MICM(config_path="configs/v0/analytical")
+        micm = MICM(config_path=find_config_path("v0", "analytical"))
         state = micm.create_state()
         state.set_conditions(temperatures=298.15, pressures=101325.0, air_densities=1.2)
         state.set_concentrations({"A": 1.0})
@@ -208,7 +209,7 @@ class TestMICMSolve:
 
     def test_solve_with_int_timestep(self):
         """Test solve with integer time step."""
-        micm = MICM(config_path="configs/v0/analytical")
+        micm = MICM(config_path=find_config_path("v0", "analytical"))
         state = micm.create_state()
         state.set_conditions(temperatures=298.15, pressures=101325.0, air_densities=1.2)
         state.set_concentrations({"A": 1.0})
@@ -219,14 +220,14 @@ class TestMICMSolve:
 
     def test_solve_with_invalid_state_type_raises_error(self):
         """Test that solve with invalid state type raises TypeError."""
-        micm = MICM(config_path="configs/v0/analytical")
+        micm = MICM(config_path=find_config_path("v0", "analytical"))
 
         with pytest.raises(TypeError, match="state must be an instance of State"):
             micm.solve("not a state", time_step=1.0)
 
     def test_solve_with_invalid_timestep_type_raises_error(self):
         """Test that solve with invalid time step type raises TypeError."""
-        micm = MICM(config_path="configs/v0/analytical")
+        micm = MICM(config_path=find_config_path("v0", "analytical"))
         state = micm.create_state()
 
         with pytest.raises(TypeError, match="time_step must be an int or float"):
@@ -234,14 +235,14 @@ class TestMICMSolve:
 
     def test_solve_with_none_state_raises_error(self):
         """Test that solve with None state raises TypeError."""
-        micm = MICM(config_path="configs/v0/analytical")
+        micm = MICM(config_path=find_config_path("v0", "analytical"))
 
         with pytest.raises(TypeError, match="state must be an instance of State"):
             micm.solve(None, time_step=1.0)
 
     def test_solve_multiple_times(self):
         """Test solving multiple times with the same state."""
-        micm = MICM(config_path="configs/v0/analytical")
+        micm = MICM(config_path=find_config_path("v0", "analytical"))
         state = micm.create_state()
         state.set_conditions(temperatures=298.15, pressures=101325.0, air_densities=1.2)
         state.set_concentrations({"A": 1.0, "B": 0.0})
@@ -287,7 +288,7 @@ class TestMICMIntegration:
         """Test complete workflow: initialize, create state, set conditions, solve."""
         # Initialize solver
         micm = MICM(
-            config_path="configs/v0/analytical",
+            config_path=find_config_path("v0", "analytical"),
             solver_type=SolverType.rosenbrock_standard_order
         )
 
