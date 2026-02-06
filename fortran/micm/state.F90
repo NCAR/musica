@@ -117,6 +117,7 @@ module musica_state
     real(c_double) :: temperature
     real(c_double) :: pressure
     real(c_double) :: air_density
+    real(c_double) :: pH
   end type conditions_t
 
   type :: strides_t
