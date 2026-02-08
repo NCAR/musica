@@ -16,3 +16,21 @@ add_test(NAME tuvx_v54
          COMMAND ${CMAKE_BINARY_DIR}/test_tuvx_v54
          WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/configs/tuvx)
 set_tests_properties(tuvx_v54 PROPERTIES TIMEOUT 120)
+
+# Coupled TUV-x + MICM column model
+add_library(column_model_setup_lib OBJECT column_model_setup.F90)
+target_link_libraries(column_model_setup_lib PUBLIC musica::musica-fortran)
+set_target_properties(column_model_setup_lib
+  PROPERTIES
+    Fortran_MODULE_DIRECTORY ${MUSICA_MOD_DIR}
+)
+
+add_executable(test_column_model column_model.F90)
+target_link_libraries(test_column_model PUBLIC
+  musica::musica-fortran tuvx_v54_setup_lib column_model_setup_lib)
+
+# CWD = configs/tuvx for TUV-x data paths; MICM config uses ../v1/chapman/
+add_test(NAME column_model
+         COMMAND ${CMAKE_BINARY_DIR}/test_column_model
+         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/configs/tuvx)
+set_tests_properties(column_model PROPERTIES TIMEOUT 600)
