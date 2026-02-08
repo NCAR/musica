@@ -12,10 +12,15 @@ Usage:
 
 import argparse
 import csv
+import os
 import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
+
+# Import NCAR style from sibling module
+sys.path.insert(0, os.path.dirname(__file__))
+import style
 
 
 def read_csv(path):
@@ -40,7 +45,7 @@ def read_csv(path):
     time_idx = {t: i for i, t in enumerate(times)}
     height_idx = {z: i for i, z in enumerate(heights)}
 
-    fields = ["O3", "O", "O1D", "jO3a", "jO3b", "jO2"]
+    fields = ["air_density", "O3", "O", "O1D", "jO3a", "jO3b", "jO2"]
     data = {f: np.zeros((nt, nz)) for f in fields}
 
     for row in rows:
@@ -48,6 +53,12 @@ def read_csv(path):
         zi = height_idx[row["height_km"]]
         for f in fields:
             data[f][ti, zi] = row[f]
+
+    # Convert concentrations from mol/m³ to ppb
+    air = data["air_density"]
+    for species in ["O3", "O", "O1D"]:
+        mask = air > 0
+        data[species][mask] = data[species][mask] / air[mask] * 1.0e9
 
     return {
         "times": np.array(times),
@@ -60,111 +71,127 @@ def read_nc(path):
     """Read column model NetCDF output (from Python version)."""
     import xarray as xr
     ds = xr.open_dataset(path)
-    return {
+    air = ds["air_density"].values if "air_density" in ds else None
+    result = {
         "times": ds["time"].values,
         "heights": ds["height"].values,
-        "O3": ds["O3"].values,
-        "O": ds["O"].values,
-        "O1D": ds["O1D"].values,
+        "O3": ds["O3"].values.copy(),
+        "O": ds["O"].values.copy(),
+        "O1D": ds["O1D"].values.copy(),
         "jO3a": ds["jO3a"].values,
         "jO3b": ds["jO3b"].values,
         "jO2": ds["jO2"].values,
     }
+    if air is not None:
+        mask = air > 0
+        for species in ["O3", "O", "O1D"]:
+            result[species][mask] = result[species][mask] / air[mask] * 1.0e9
+    return result
 
 
 def plot(data, output_path, label="Fortran", data2=None, label2="Python"):
     """Create multi-panel column model figure."""
+    palette = style.get_palette(8)
+    compare = data2 is not None
+
     fig, axes = plt.subplots(2, 2, figsize=(14, 10))
     times = data["times"]
     heights = data["heights"]
-    compare = data2 is not None
 
     # --- Panel 1: O3 vertical profiles at selected local times ---
     ax = axes[0, 0]
-    for t_hr, style in [(0, "k--"), (6, "C0-"), (12, "C1-"),
-                        (18, "C2-"), (23.75, "k:")]:
+    time_styles = [
+        (0,     palette[0], "00:00"),   # ncar_blue
+        (6,     palette[1], "06:00"),   # aqua
+        (12,    palette[4], "12:00"),   # green
+        (18,    palette[2], "18:00"),   # orange
+        (24,    palette[5], "24:00"),   # red
+    ]
+    for t_hr, color, t_label in time_styles:
         idx = np.argmin(np.abs(times - t_hr))
-        lbl = f"{int(t_hr):02d}:00"
-        o3 = data["O3"][idx]
-        mask = o3 > 0
-        ax.semilogx(o3[mask], heights[mask], style,
-                     label=f"{lbl} ({label})" if compare else lbl)
+        o3 = data["O3"][idx] / 1.0e3  # ppb -> ppm
+        mask = (o3 > 0) & (heights <= 80)
+        lbl = f"{t_label} ({label})" if compare else t_label
+        ax.semilogx(o3[mask], heights[mask], color=color, label=lbl)
         if compare:
             idx2 = np.argmin(np.abs(data2["times"] - t_hr))
-            o3_2 = data2["O3"][idx2]
-            mask2 = o3_2 > 0
-            ax.semilogx(o3_2[mask2], data2["heights"][mask2], style,
-                         alpha=0.4, linewidth=3)
-    ax.set_xlabel("O3 (mol m$^{-3}$)")
+            o3_2 = data2["O3"][idx2] / 1.0e3
+            mask2 = (o3_2 > 0) & (data2["heights"] <= 80)
+            ax.semilogx(o3_2[mask2], data2["heights"][mask2],
+                         color=color, alpha=0.35, linewidth=3)
+    ax.set_xlabel(style.species_label("O3") + " (ppm)")
     ax.set_ylabel("Height (km)")
-    ax.set_title("O3 Vertical Profiles")
-    ax.legend(fontsize=7)
-    ax.grid(True, alpha=0.3)
+    ax.set_title(style.species_label("O3") + " Vertical Profiles")
+    ax.legend(fontsize=style.FONT_SIZES_DEFAULT.legend_small)
 
     # --- Panel 2: O3 time series at selected altitudes ---
     ax = axes[0, 1]
-    for z_km, color in [(15, "C0"), (25, "C1"), (35, "C2"), (50, "C3")]:
+    alt_colors = [palette[0], palette[1], palette[4], palette[2]]
+    for i, z_km in enumerate([15, 25, 35, 50]):
         idx = np.argmin(np.abs(heights - z_km))
-        ax.plot(times, data["O3"][:, idx], color=color,
-                label=f"{z_km} km" + (f" ({label})" if compare else ""))
+        lbl = f"{z_km} km" + (f" ({label})" if compare else "")
+        ax.plot(times, data["O3"][:, idx] / 1.0e3, color=alt_colors[i], label=lbl)
         if compare:
             idx2 = np.argmin(np.abs(data2["heights"] - z_km))
-            ax.plot(data2["times"], data2["O3"][:, idx2],
-                    color=color, linestyle="--", alpha=0.6)
+            ax.plot(data2["times"], data2["O3"][:, idx2] / 1.0e3,
+                    color=alt_colors[i], ls="--", alpha=0.6)
     ax.set_xlabel("Local Time (hours)")
-    ax.set_ylabel("O3 (mol m$^{-3}$)")
-    ax.set_title("O3 Diurnal Evolution")
-    ax.legend(fontsize=8)
-    ax.grid(True, alpha=0.3)
+    ax.set_ylabel(style.species_label("O3") + " (ppm)")
+    ax.set_title(style.species_label("O3") + " Diurnal Evolution")
+    ax.legend()
     ax.set_xlim(0, times[-1])
 
     # --- Panel 3: Short-lived species at 30 km ---
     ax = axes[1, 0]
     z_idx = np.argmin(np.abs(heights - 30))
-    ax.plot(times, data["O"][:, z_idx], "C0",
-            label="O" + (f" ({label})" if compare else ""))
-    ax.plot(times, data["O1D"][:, z_idx], "C1",
-            label="O1D" + (f" ({label})" if compare else ""))
+    lbl_o   = style.species_label("O")   + (f" ({label})" if compare else "")
+    lbl_o1d = "O($^1$D)" + (f" ({label})" if compare else "")
+    ax.plot(times, data["O"][:, z_idx], color=palette[0], label=lbl_o)
+    ax.plot(times, data["O1D"][:, z_idx], color=palette[2], label=lbl_o1d)
     if compare:
         z_idx2 = np.argmin(np.abs(data2["heights"] - 30))
         ax.plot(data2["times"], data2["O"][:, z_idx2],
-                "C0--", alpha=0.6)
+                color=palette[0], ls="--", alpha=0.6)
         ax.plot(data2["times"], data2["O1D"][:, z_idx2],
-                "C1--", alpha=0.6)
+                color=palette[2], ls="--", alpha=0.6)
     ax.set_xlabel("Local Time (hours)")
-    ax.set_ylabel("Concentration (mol m$^{-3}$)")
+    ax.set_ylabel("Concentration (ppb)")
     ax.set_title(f"Short-lived Species at {heights[z_idx]:.0f} km")
-    ax.legend(fontsize=8)
-    ax.grid(True, alpha=0.3)
+    ax.legend()
     ax.set_xlim(0, times[-1])
 
     # --- Panel 4: Photolysis rates at 30 km ---
     ax = axes[1, 1]
-    ax.plot(times, data["jO3a"][:, z_idx], "C0",
-            label="j(O3$\\rightarrow$O+O$_2$)"
-                  + (f" ({label})" if compare else ""))
-    ax.plot(times, data["jO3b"][:, z_idx], "C1",
-            label="j(O3$\\rightarrow$O($^1$D)+O$_2$)"
-                  + (f" ({label})" if compare else ""))
+    jlabel_a = r"j(" + style.species_label("O3") + r"$\rightarrow$" \
+               + style.species_label("O") + "+" + style.species_label("O2") + ")"
+    jlabel_b = r"j(" + style.species_label("O3") + r"$\rightarrow$" \
+               + "O($^1$D)+" + style.species_label("O2") + ")"
+    ax.plot(times, data["jO3a"][:, z_idx], color=palette[0],
+            label=jlabel_a + (f" ({label})" if compare else ""))
+    ax.plot(times, data["jO3b"][:, z_idx], color=palette[2],
+            label=jlabel_b + (f" ({label})" if compare else ""))
     if compare:
         ax.plot(data2["times"], data2["jO3a"][:, z_idx2],
-                "C0--", alpha=0.6)
+                color=palette[0], ls="--", alpha=0.6)
         ax.plot(data2["times"], data2["jO3b"][:, z_idx2],
-                "C1--", alpha=0.6)
+                color=palette[2], ls="--", alpha=0.6)
     ax.set_xlabel("Local Time (hours)")
     ax.set_ylabel("Photolysis Rate (s$^{-1}$)")
     ax.set_title(f"Photolysis Rates at {heights[z_idx]:.0f} km")
-    ax.legend(fontsize=8)
-    ax.grid(True, alpha=0.3)
+    ax.legend()
     ax.set_xlim(0, times[-1])
 
-    title = "Coupled TUV-x + MICM Chapman Column Model\nBoulder CO, Summer Solstice"
+    title = style.format_title(
+        "Coupled TUV-x + MICM Chapman Column Model\n"
+        "Boulder CO, Summer Solstice")
     if compare:
         title += f"\nSolid: {label}, Dashed: {label2}"
-    fig.suptitle(title, fontsize=14)
+    fig.suptitle(title)
     fig.tight_layout()
-    fig.savefig(output_path, dpi=150)
-    print(f"Saved {output_path}")
+    stem = os.path.splitext(output_path)[0]
+    fig.savefig(stem + ".png", dpi=300)
+    fig.savefig(stem + ".pdf", dpi=300)
+    print(f"Saved {stem}.png and {stem}.pdf")
 
 
 def main():
@@ -178,7 +205,13 @@ def main():
     parser.add_argument("--labels", "-l", nargs=2,
                         default=["Fortran", "Python"],
                         help="Labels for comparison (default: Fortran Python)")
+    parser.add_argument("--style", "-s",
+                        choices=["default", "presentation", "publication"],
+                        default="default",
+                        help="Style preset (default: default)")
     args = parser.parse_args()
+
+    style.setup(context=args.style)
 
     data = read_csv(args.csv_file)
     data2 = None

@@ -46,6 +46,7 @@ program column_model
   ! Arrays
   real(dk) :: height_mid(NUM_CELLS)
   real(dk) :: temperature(NUM_CELLS), pressure(NUM_CELLS)
+  real(dk) :: air_density(NUM_CELLS)
   real(dk) :: o3_init(NUM_CELLS), o2_init(NUM_CELLS), n2_init(NUM_CELLS)
   real(dk), allocatable :: photo_rates(:,:), heating_rates(:,:)
   real(dk) :: jo3a_vals(NUM_CELLS), jo3b_vals(NUM_CELLS), jo2_vals(NUM_CELLS)
@@ -149,7 +150,8 @@ program column_model
   do i = 1, NUM_CELLS
     state%conditions(i)%temperature = temperature(i)
     state%conditions(i)%pressure = pressure(i)
-    state%conditions(i)%air_density = pressure(i) / (R_GAS * temperature(i))
+    air_density(i) = pressure(i) / (R_GAS * temperature(i))
+    state%conditions(i)%air_density = air_density(i)
 
     state%concentrations(1 + (i-1)*cell_stride + (O2_idx-1)*var_stride)  = o2_init(i)
     state%concentrations(1 + (i-1)*cell_stride + (O_idx-1)*var_stride)   = 0.0_dk
@@ -170,12 +172,12 @@ program column_model
   ! --- Open CSV output ---
   open(newunit=csv_unit, file='column_model_fortran.csv', &
       status='replace', action='write')
-  write(csv_unit,'(A)') 'time_hr,height_km,O3,O,O1D,jO3a,jO3b,jO2'
+  write(csv_unit,'(A)') 'time_hr,height_km,air_density,O3,O,O1D,jO3a,jO3b,jO2'
 
   ! Write initial state (t = 0)
   do i = 1, NUM_CELLS
-    write(csv_unit,'(F8.3,",",F6.1,6(",",ES16.8E3))') &
-        0.0_dk, height_mid(i), &
+    write(csv_unit,'(F8.3,",",F6.1,7(",",ES16.8E3))') &
+        0.0_dk, height_mid(i), air_density(i), &
         state%concentrations(1 + (i-1)*cell_stride + (O3_idx-1)*var_stride), &
         state%concentrations(1 + (i-1)*cell_stride + (O_idx-1)*var_stride), &
         state%concentrations(1 + (i-1)*cell_stride + (O1D_idx-1)*var_stride), &
@@ -229,8 +231,8 @@ program column_model
     ! Write state to CSV
     local_hr = (current_sec + DT_PHOTO) / 3600.0_dk
     do i = 1, NUM_CELLS
-      write(csv_unit,'(F8.3,",",F6.1,6(",",ES16.8E3))') &
-          local_hr, height_mid(i), &
+      write(csv_unit,'(F8.3,",",F6.1,7(",",ES16.8E3))') &
+          local_hr, height_mid(i), air_density(i), &
           state%concentrations(1 + (i-1)*cell_stride + (O3_idx-1)*var_stride), &
           state%concentrations(1 + (i-1)*cell_stride + (O_idx-1)*var_stride), &
           state%concentrations(1 + (i-1)*cell_stride + (O1D_idx-1)*var_stride), &
