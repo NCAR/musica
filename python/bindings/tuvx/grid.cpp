@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 National Center for Atmospheric Research
+// Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 //
 // This file defines the Python bindings for the TUV-x Grid class in the musica library.
@@ -106,17 +106,29 @@ void bind_tuvx_grid(py::module_ &grid)
               musica::DeleteError(&error);
               throw py::value_error(message);
             }
-            auto result = py::array_t<double>(size);
-            py::buffer_info buf = result.request();
-            double *ptr = static_cast<double *>(buf.ptr);
-            self.GetEdges(ptr, size, &error);
+
+            // Get a pointer to the internal C++ array
+            double *data_ptr = self.GetEdgesPointer(&error);
             if (!musica::IsSuccess(error))
             {
-              std::string message = "Error getting grid edges: " + std::string(error.message_.value_);
+              std::string message = "Error getting edges pointer: " + std::string(error.message_.value_);
               musica::DeleteError(&error);
               throw py::value_error(message);
             }
-            return result;
+
+            // Create a numpy array that references the internal C++ array directly
+            // using py::capsule to manage the lifetime correctly
+            py::capsule owner = py::capsule(
+                data_ptr,
+                [](void *f)
+                {
+                  // No deletion here since the memory is managed by the Grid class
+                });
+            return py::array_t<double>(
+                { size },            // shape
+                { sizeof(double) },  // stride
+                data_ptr,            // data pointer
+                owner);
           },
           // Setter - converts numpy array to C++ array
           [](musica::Grid &self, py::array_t<double, py::array::c_style | py::array::forcecast> array)
@@ -161,17 +173,29 @@ void bind_tuvx_grid(py::module_ &grid)
               musica::DeleteError(&error);
               throw py::value_error(message);
             }
-            auto result = py::array_t<double>(size);
-            py::buffer_info buf = result.request();
-            double *ptr = static_cast<double *>(buf.ptr);
-            self.GetMidpoints(ptr, size, &error);
+
+            // Get a pointer to the internal C++ array
+            double *data_ptr = self.GetMidpointsPointer(&error);
             if (!musica::IsSuccess(error))
             {
-              std::string message = "Error getting grid midpoints: " + std::string(error.message_.value_);
+              std::string message = "Error getting midpoints pointer: " + std::string(error.message_.value_);
               musica::DeleteError(&error);
               throw py::value_error(message);
             }
-            return result;
+
+            // Create a numpy array that references the internal C++ array directly
+            // using py::capsule to manage the lifetime correctly
+            py::capsule owner = py::capsule(
+                data_ptr,
+                [](void *f)
+                {
+                  // No deletion here since the memory is managed by the Grid class
+                });
+            return py::array_t<double>(
+                { size },            // shape
+                { sizeof(double) },  // stride
+                data_ptr,            // data pointer
+                owner);
           },
           // Setter - converts numpy array to C++ array
           [](musica::Grid &self, py::array_t<double, py::array::c_style | py::array::forcecast> array)

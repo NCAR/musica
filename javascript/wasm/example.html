@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MUSICA WASM Example</title>
+    <style>
+        :root {
+            --max-width: 1100px
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            max-width: var(--max-width);
+            margin: 30px auto;
+            padding: 20px;
+            color: #222;
+        }
+
+        header.site-header {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 18px
+        }
+
+        header h1 {
+            font-size: 28px;
+            margin: 0
+        }
+
+        header .subheads {
+            display: flex;
+            gap: 12px;
+            align-items: center
+        }
+
+        header .subheads .ver {
+            font-size: 12px;
+            color: #666
+        }
+
+        .layout {
+            display: flex;
+            gap: 18px
+        }
+
+        .left {
+            flex: 0 0 360px
+        }
+
+        .right {
+            flex: 1;
+            min-width: 300px
+        }
+
+        .panel {
+            background: #f7f9fb;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 12px
+        }
+
+        .panel h3 {
+            margin: 0 0 8px 0;
+            font-size: 14px
+        }
+
+        .loading {
+            color: #666
+        }
+
+        .version {
+            font-weight: 600;
+            color: #0a66c2
+        }
+
+        .error {
+            color: #dc3545;
+            background: #fff0f0;
+            padding: 10px;
+            border-radius: 6px
+        }
+
+        label.select-label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px
+        }
+
+        .slider-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 6px 0
+        }
+
+        .slider-row label {
+            width: 60px;
+            font-size: 13px
+        }
+
+        .slider-row input[type=range] {
+            flex: 1
+        }
+
+        .slider-row .val {
+            width: 56px;
+            text-align: right;
+            font-weight: 600
+        }
+
+        table.results {
+            width: 100%;
+            border-collapse: collapse
+        }
+
+        table.results th,
+        table.results td {
+            border: 1px solid #e6e6e6;
+            padding: 6px;
+            text-align: left
+        }
+
+        @media (max-width:900px) {
+            .layout {
+                flex-direction: column
+            }
+
+            .left {
+                flex-basis: auto
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+</head>
+
+<body>
+    <header class="site-header">
+        <h1>MUSICA WASM</h1>
+        <div class="subheads">
+            <div class="ver">MUSICA Version: <span id="musica-version" class="version">—</span></div>
+            <div class="ver">MICM Version: <span id="micm-version" class="version">—</span></div>
+        </div>
+    </header>
+
+    <div id="content">
+        <p class="loading">Initializing MUSICA WASM module...</p>
+
+        <div class="layout" id="app-layout" style="display:none">
+            <div class="left">
+                <div class="panel" id="example-panel">
+                    <h3>Example</h3>
+                    <label class="select-label">Choose an example</label>
+                    <select id="example-select"></select>
+                    <p id="example-desc" style="font-size:13px;color:#444;margin-top:8px"></p>
+                </div>
+
+                <div class="panel" id="controls-panel">
+                    <h3>Initial Conditions</h3>
+                    <div id="sliders-container"></div>
+                    <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px">
+                        <label><input id="update-during-drag" type="checkbox" checked> Update while dragging</label>
+                        <label><input id="toggle-table" type="checkbox"> Show results table</label>
+                    </div>
+                </div>
+
+                <div class="panel" id="reactions-panel">
+                    <h3>Reactions & Rates</h3>
+                    <div id="reactions-list" style="font-size:13px;color:#222"></div>
+                </div>
+            </div>
+
+            <div class="right">
+                <div class="panel" id="plots-panel">
+                    <h3>Plots</h3>
+                    <div id="plot-area">
+                        <div id="lorenz-plot" style="width:100%;height:420px"></div>
+                    </div>
+                </div>
+
+                <div class="panel" id="results-panel" style="display:none">
+                    <h3>Simulation Results</h3>
+                    <div style="overflow:auto;max-height:260px">
+                        <table id="results-table" class="results">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>X</th>
+                                    <th>Y</th>
+                                    <th>Z</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import * as musica from '../index.js';
+
+        // Initialize and use the MUSICA package (uses WASM backend internally)
+        async function initMUSICA() {
+            const contentDiv = document.getElementById('content');
+
+            try {
+                await musica.initModule();
+
+                // Get versions
+                const musicaVersion = await musica.getVersion();
+                const micmVersion = await musica.getMicmVersion();
+
+                // Set header versions and reveal the UI
+                document.getElementById('musica-version').textContent = musicaVersion;
+                document.getElementById('micm-version').textContent = micmVersion;
+                // hide the loading text and show the app layout
+                const loader = contentDiv.querySelector('.loading'); if (loader) loader.style.display = 'none';
+                document.getElementById('app-layout').style.display = '';
+
+                // Run a short in-browser simulation test similar to the unit test
+                try {
+                    // Build a simple mechanism and prepare for interactive simulation
+                    const { MICM, SolverType } = musica;
+                    const { types, reactionTypes, Mechanism } = musica.mechanismConfiguration;
+                    const { Species, Phase, ReactionComponent } = types;
+
+                    // Make mechanism/state example-driven. Builders will set these.
+                    let micm = null;
+                    let state = null;
+                    let currentExampleId = null;
+                    let currentSpeciesOrder = ['X', 'Y', 'Z'];
+                    // current simulation config (populated per-example)
+                    let currentSimConfig = { steps: 2000, timeStep: 0.01, burnout: 100 };
+                    // mechanism and rate parameters for rendering reactions
+                    let currentMechanism = null;
+                    let currentRateParams = null;
+                    let numGridCells = 1;
+
+                    // simulation results storage for animation
+                    let lastSimulationResults = null;
+                    let animationFrameId = null;
+
+                    // selected solver (default to standard-order Rosenbrock if available)
+                    let selectedSolver = SolverType.rosenbrock_standard_order
+                        ?? SolverType.RosenbrockStandardOrder
+                        ?? SolverType.rosenbrock
+                        ?? 2;
+
+                    // add solver selector and grid cells UI
+                    (function addControls() {
+                        const controlsPanel = document.getElementById('controls-panel');
+                        const ref = document.getElementById('sliders-container');
+                        if (!controlsPanel || !ref) return;
+
+                        // Solver Selector
+                        const lblSolver = document.createElement('label');
+                        lblSolver.className = 'select-label';
+                        lblSolver.textContent = 'Solver Type';
+
+                        const selSolver = document.createElement('select');
+                        selSolver.id = 'solver-select';
+                        Object.keys(SolverType).filter(k => isNaN(Number(k))).forEach(key => {
+                            const opt = document.createElement('option');
+                            opt.value = String(SolverType[key]);
+                            opt.textContent = key;
+                            selSolver.appendChild(opt);
+                        });
+                        selSolver.value = String(selectedSolver);
+                        selSolver.addEventListener('change', () => {
+                            selectedSolver = Number(selSolver.value);
+                            if (currentExampleId) {
+                                // reload to trigger builder
+                                loadExampleById(currentExampleId);
+                            }
+                        });
+
+                        controlsPanel.insertBefore(lblSolver, ref);
+                        controlsPanel.insertBefore(selSolver, ref);
+
+                        // Grid Cells Input
+                        const lblCells = document.createElement('label');
+                        lblCells.className = 'select-label';
+                        lblCells.textContent = 'Grid Cells (N)';
+                        lblCells.style.marginTop = '8px';
+
+                        const inputCells = document.createElement('input');
+                        inputCells.type = 'number';
+                        inputCells.min = '1';
+                        inputCells.max = '50';
+                        inputCells.value = String(numGridCells);
+                        inputCells.style.width = '100%';
+                        inputCells.style.marginBottom = '8px';
+                        
+                        inputCells.addEventListener('change', () => {
+                            let n = parseInt(inputCells.value);
+                            if (isNaN(n) || n < 1) n = 1;
+                            if (n > 50) n = 50; 
+                            numGridCells = n;
+                            inputCells.value = String(n);
+                            
+                            if (currentExampleId) {
+                                loadExampleById(currentExampleId);
+                            }
+                        });
+
+                        controlsPanel.insertBefore(lblCells, ref);
+                        controlsPanel.insertBefore(inputCells, ref);
+
+                        // Animate Button
+                        const btnAnimate = document.createElement('button');
+                        btnAnimate.textContent = 'Animate Results';
+                        btnAnimate.style.marginTop = '12px';
+                        btnAnimate.style.width = '100%';
+                        btnAnimate.style.padding = '8px';
+                        btnAnimate.style.cursor = 'pointer';
+                        
+                        btnAnimate.addEventListener('click', () => {
+                           animateResults(); 
+                        });
+
+                        controlsPanel.appendChild(btnAnimate);
+                    })();
+
+                    function createLorenzMechanism() {
+                        const X = new Species({ name: 'X' });
+                        const Y = new Species({ name: 'Y' });
+                        const Z = new Species({ name: 'Z' });
+
+                        const gas = new Phase({ name: 'gas', species: [X, Y, Z] });
+
+                        // equations from this paper: https://link.springer.com/article/10.1007/s11071-025-11622-1 
+                        const reactions = [
+                            new reactionTypes.UserDefined({ name: 'X_decay', gas_phase: 'gas', reactants: [new ReactionComponent({ species_name: 'X' })], products: [] }),
+                            new reactionTypes.UserDefined({ name: 'Y_to_XY', gas_phase: 'gas', reactants: [new ReactionComponent({ species_name: 'Y' })], products: [new ReactionComponent({ species_name: 'X' }), new ReactionComponent({ species_name: 'Y' })] }),
+                            new reactionTypes.UserDefined({ name: 'Y_source', gas_phase: 'gas', reactants: [], products: [new ReactionComponent({ species_name: 'Y' })] }),
+                            new reactionTypes.UserDefined({ name: 'Y_sink', gas_phase: 'gas', reactants: [new ReactionComponent({ species_name: 'Y' })], products: [] }),
+                            new reactionTypes.UserDefined({ name: 'XY_to_X2Y', gas_phase: 'gas', reactants: [new ReactionComponent({ species_name: 'X' }), new ReactionComponent({ species_name: 'Y' })], products: [new ReactionComponent({ species_name: 'X' }), new ReactionComponent({ species_name: 'Y' }), new ReactionComponent({ species_name: 'Y' })] }),
+                            new reactionTypes.UserDefined({ name: 'YZ_to_2Y', gas_phase: 'gas', reactants: [new ReactionComponent({ species_name: 'Y' }), new ReactionComponent({ species_name: 'Z' })], products: [new ReactionComponent({ species_name: 'Y' }), new ReactionComponent({ species_name: 'Y' })] }),
+                            new reactionTypes.UserDefined({ name: 'XYZ_to_X2Z', gas_phase: 'gas', reactants: [new ReactionComponent({ species_name: 'X' }), new ReactionComponent({ species_name: 'Y' }), new ReactionComponent({ species_name: 'Z' })], products: [new ReactionComponent({ species_name: 'X' }), new ReactionComponent({ species_name: 'Z' }), new ReactionComponent({ species_name: 'Z' })] }),
+                            new reactionTypes.UserDefined({ name: 'Z_source', gas_phase: 'gas', reactants: [], products: [new ReactionComponent({ species_name: 'Z' })] }),
+                            new reactionTypes.UserDefined({ name: 'Z_autocatalytic', gas_phase: 'gas', reactants: [new ReactionComponent({ species_name: 'Z' })], products: [new ReactionComponent({ species_name: 'Z' }), new ReactionComponent({ species_name: 'Z' })] }),
+                            new reactionTypes.UserDefined({ name: 'XZ_quench', gas_phase: 'gas', reactants: [new ReactionComponent({ species_name: 'X' }), new ReactionComponent({ species_name: 'Z' })], products: [new ReactionComponent({ species_name: 'X' })] })
+                        ];
+
+                        const mechanism = new Mechanism({ name: 'Lorenz Polynomial CRN', version: '1.0.0', species: [X, Y, Z], phases: [gas], reactions: reactions });
+
+                        micm = MICM.fromMechanism(mechanism, selectedSolver);
+                        // capture mechanism for rendering
+                        currentMechanism = mechanism;
+                        state = micm.createState(numGridCells);
+
+                        let mu = 1.0 / 100;
+                        const rateParams = { 'USER.X_decay': 10, 'USER.Y_to_XY': 10, 'USER.Y_source': 1 / mu, 'USER.Y_sink': 1 / mu + 29, 'USER.XY_to_X2Y': 1 + mu * 28, 'USER.YZ_to_2Y': 1, 'USER.XYZ_to_X2Z': mu, 'USER.Z_source': 8 / (3 * mu), 'USER.Z_autocatalytic': 1 / mu - 8 / 3, 'USER.XZ_quench': 1 };
+                        
+                        const broadcast = {};
+                        for (const k in rateParams) {
+                            broadcast[k] = new Array(numGridCells).fill(rateParams[k]);
+                        }
+                        state.setUserDefinedRateParameters(broadcast);
+                        // store rates for rendering
+                        currentRateParams = rateParams;
+                    }
+
+                    function createABCMechanism() {
+                        const A = new Species({ name: 'A' });
+                        const B = new Species({ name: 'B' });
+                        const C = new Species({ name: 'C' });
+                        const gas = new Phase({ name: 'gas', species: [A, B, C] });
+
+                        // simple chain: A -> B -> C
+                        const reactions = [
+                            new reactionTypes.UserDefined({ name: 'A_to_B', gas_phase: 'gas', reactants: [new ReactionComponent({ species_name: 'A' })], products: [new ReactionComponent({ species_name: 'B' })] }),
+                            new reactionTypes.UserDefined({ name: 'B_to_C', gas_phase: 'gas', reactants: [new ReactionComponent({ species_name: 'B' })], products: [new ReactionComponent({ species_name: 'C' })] })
+                        ];
+
+                        const mechanism = new Mechanism({ name: 'A->B->C CRN', version: '1.0.0', species: [A, B, C], phases: [gas], reactions: reactions });
+
+                        micm = MICM.fromMechanism(mechanism, selectedSolver);
+                        // capture mechanism for rendering
+                        currentMechanism = mechanism;
+                        state = micm.createState(numGridCells);
+
+                        // choose simple rates and store them for rendering
+                        const abcRates = { 'USER.A_to_B': 1.0, 'USER.B_to_C': 0.5 };
+                        const broadcast = {};
+                        for (const k in abcRates) {
+                            broadcast[k] = new Array(numGridCells).fill(abcRates[k]);
+                        }
+                        state.setUserDefinedRateParameters(broadcast);
+                        currentRateParams = abcRates;
+                    }
+
+                    // Data-driven examples (user may provide more later)
+                    const examples = [
+                        {
+                            id: 'lorenz',
+                            name: 'Lorenz Polynomial CRN',
+                            description: 'Lorenz-like polynomial chemical reaction network. The equations and rates are from <a href="https://link.springer.com/article/10.1007/s11071-025-11622-1" target="_blank">this paper</a>.',
+                            initials: [{ species: 'X', min: -30, max: 30, step: 0.01, value: 1.0 }, { species: 'Y', min: -30, max: 30, step: 0.01, value: 28.0 }, { species: 'Z', min: -10, max: 50, step: 0.01, value: 1.0 }],
+                            builder: createLorenzMechanism,
+                            sim: { steps: 900, timeStep: 0.01, burnout: 100 }
+                        },
+                        {
+                            id: 'abc',
+                            name: 'A → B → C',
+                            description: 'Simple chain reaction A → B → C. Start with A=1, B=C=0.',
+                            initials: [{ species: 'A', min: 0, max: 5, step: 0.01, value: 1.0 }, { species: 'B', min: 0, max: 5, step: 0.01, value: 0.0 }, { species: 'C', min: 0, max: 5, step: 0.01, value: 0.0 }],
+                            builder: createABCMechanism,
+                            sim: { steps: 10, timeStep: 0.1, burnout: 0 }
+                        }
+                    ];
+
+                    // Populate example selector
+                    const select = document.getElementById('example-select');
+                    examples.forEach(ex => {
+                        const opt = document.createElement('option');
+                        opt.value = ex.id;
+                        opt.textContent = ex.name;
+                        select.appendChild(opt);
+                    });
+
+                    const exampleDesc = document.getElementById('example-desc');
+                    const slidersContainer = document.getElementById('sliders-container');
+                    const resultsPanel = document.getElementById('results-panel');
+                    const resultsTbody = document.querySelector('#results-table tbody');
+
+                    function clearSliders() { slidersContainer.innerHTML = ''; }
+
+                    function createSliderRow(spec, min, max, step, initial) {
+                        const row = document.createElement('div');
+                        row.className = 'slider-row';
+                        const label = document.createElement('label');
+                        label.textContent = spec;
+                        const input = document.createElement('input');
+                        input.type = 'range';
+                        input.min = String(min);
+                        input.max = String(max);
+                        input.step = String(step);
+                        input.value = String(initial);
+                        const val = document.createElement('div');
+                        val.className = 'val';
+                        val.textContent = String(initial);
+                        input.addEventListener('input', () => { val.textContent = input.value; if (typeof updateWhileDragging !== 'undefined' && updateWhileDragging) runSimulation(); else runSimulationDebounced(); });
+                        row.appendChild(label);
+                        row.appendChild(input);
+                        row.appendChild(val);
+                        return { row, input };
+                    }
+
+                    let currentSliders = [];
+
+                    // Option to update while dragging vs after drag stops
+                    let updateWhileDragging = true;
+                    const updateCheckbox = document.getElementById('update-during-drag');
+                    if (updateCheckbox) {
+                        updateWhileDragging = updateCheckbox.checked;
+                        updateCheckbox.addEventListener('change', () => { updateWhileDragging = updateCheckbox.checked; });
+                    }
+
+                    // Wire the toggle for showing/hiding the results table
+                    const toggleTableCheckbox = document.getElementById('toggle-table');
+                    if (toggleTableCheckbox) {
+                        toggleTableCheckbox.addEventListener('change', () => {
+                            if (resultsPanel) resultsPanel.style.display = toggleTableCheckbox.checked ? '' : 'none';
+                        });
+                    }
+
+                    function loadExampleById(id) {
+                        const ex = examples.find(e => e.id === id);
+                        if (!ex) return;
+                        // track current example and species order for plotting
+                        currentExampleId = id;
+                        currentSpeciesOrder = (ex.initials || []).map(cfg => cfg.species);
+                        // per-example simulation config (fallbacks)
+                        currentSimConfig = ex.sim || { steps: 2000, timeStep: 0.01, burnout: 100 };
+
+                        exampleDesc.innerHTML = ex.description || '';
+                        clearSliders();
+                        currentSliders = [];
+
+                        if (!ex.initials || ex.initials.length === 0) {
+                            const p = document.createElement('p');
+                            p.style.fontSize = '13px';
+                            p.style.color = '#666';
+                            p.textContent = 'No initial condition sliders defined for this example.';
+                            slidersContainer.appendChild(p);
+                        } else {
+                            ex.initials.forEach(cfg => {
+                                const s = createSliderRow(cfg.species, cfg.min, cfg.max, cfg.step, cfg.value);
+                                slidersContainer.appendChild(s.row);
+                                currentSliders.push({ species: cfg.species, input: s.input });
+                            });
+                        }
+
+                        // If the example provides a builder, create the mechanism/state now
+                        if (ex.builder && typeof ex.builder === 'function') {
+                            try {
+                                ex.builder();
+                            } catch (bErr) {
+                                console.error('Builder error for example', id, bErr);
+                            }
+                        }
+
+                        // update results table header to reflect species names
+                        const headerRow = document.querySelector('#results-table thead tr');
+                        if (headerRow) {
+                            const ths = ['<th>Time</th>'].concat(currentSpeciesOrder.map(s => `<th>${s}</th>`)).join('');
+                            headerRow.innerHTML = ths;
+                        }
+
+                        // render reactions (latex)
+                        renderReactions();
+
+                        // run an initial simulation for the loaded example if mechanism exists
+                        if (micm && state) {
+                            runSimulation();
+                        }
+                    }
+
+                    select.addEventListener('change', () => { loadExampleById(select.value); });
+
+                    // Load default example
+                    select.value = 'lorenz';
+                    loadExampleById('lorenz');
+
+                    // Debounced runner to avoid excessive simulations while dragging
+                    let runTimer = null;
+                    function runSimulationDebounced() {
+                        if (runTimer) clearTimeout(runTimer);
+                        runTimer = setTimeout(() => { runSimulation(); runTimer = null; }, 250);
+                    }
+
+                    // Function to read slider values from data-driven sliders
+                    function readSliderValues() {
+                        const out = {};
+                        currentSliders.forEach(s => { out[s.species] = parseFloat(s.input.value); });
+                        return out;
+                    }
+
+                    // Render reactions and their rates using LaTeX via KaTeX auto-render
+                    function renderReactions() {
+                        const container = document.getElementById('reactions-list');
+                        if (!container) return;
+                        container.innerHTML = '';
+
+                        if (!currentMechanism || !currentMechanism.reactions) {
+                            container.textContent = 'No mechanism available for this example.';
+                            return;
+                        }
+
+                        const reactions = currentMechanism.reactions;
+                        const ul = document.createElement('div');
+                        reactions.forEach(r => {
+                            // build LHS and RHS by counting species occurrences
+                            function sideToLatex(comps) {
+                                if (!comps || comps.length === 0) return '\\varnothing';
+                                const counts = {};
+                                comps.forEach(c => { const n = c.species_name || c.name || c.species; counts[n] = (counts[n] || 0) + 1; });
+                                const parts = Object.keys(counts).map(s => counts[s] === 1 ? s : `${counts[s]} ${s}`);
+                                return parts.join(' + ');
+                            }
+
+                            const lhs = sideToLatex(r.reactants || []);
+                            const rhs = sideToLatex(r.products || []);
+                            // lookup rate parameter (state stored rates use USER.<name>)
+                            let rateVal = null;
+                            if (currentRateParams) {
+                                const key = 'USER.' + r.name;
+                                rateVal = (key in currentRateParams) ? currentRateParams[key] : null;
+                            }
+
+                            const rateStr = (rateVal !== null && typeof rateVal !== 'undefined') ? String(Math.round(100 * rateVal) / 100) : `k_{${r.name}}`;
+                            const tex = `$$ ${lhs} \\xrightarrow{${rateStr}} ${rhs} $$`;
+                            const p = document.createElement('div');
+                            p.className = 'katex-math';
+                            p.innerHTML = tex;
+                            ul.appendChild(p);
+                        });
+
+                        container.appendChild(ul);
+                        // trigger KaTeX auto-render on the new content (if available)
+                        if (typeof renderMathInElement === 'function') {
+                            renderMathInElement(container, { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }] });
+                        }
+                    }
+
+                    // Animation runner
+                    function animateResults() {
+                        if (!lastSimulationResults) return;
+                        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+                        
+                        const { times, series } = lastSimulationResults;
+                        const totalSteps = times.length;
+                        let step = 0;
+                        const stepsPerFrame = 2; // Reduced for smoother, slightly slower animation
+
+                        // Calculate fixed ranges to prevent plot resizing during animation
+                        let layoutCommon = {};
+                        if (currentExampleId === 'lorenz') {
+                             let xMin = Infinity, xMax = -Infinity;
+                             let yMin = Infinity, yMax = -Infinity;
+                             let zMin = Infinity, zMax = -Infinity;
+                             
+                             if (series['X']) series['X'].forEach(arr => arr.forEach(v => { if(v<xMin) xMin=v; if(v>xMax) xMax=v; }));
+                             if (series['Y']) series['Y'].forEach(arr => arr.forEach(v => { if(v<yMin) yMin=v; if(v>yMax) yMax=v; }));
+                             if (series['Z']) series['Z'].forEach(arr => arr.forEach(v => { if(v<zMin) zMin=v; if(v>zMax) zMax=v; }));
+                             
+                             // Add some padding
+                             const pad = (max, min) => (max - min) * 0.05;
+                             layoutCommon = {
+                                 scene: {
+                                     xaxis: { title: 'X', range: [xMin - pad(xMax,xMin), xMax + pad(xMax,xMin)], autorange: false },
+                                     yaxis: { title: 'Y', range: [yMin - pad(yMax,yMin), yMax + pad(yMax,yMin)], autorange: false },
+                                     zaxis: { title: 'Z', range: [zMin - pad(zMax,zMin), zMax + pad(zMax,zMin)], autorange: false },
+                                     // Only set camera initial view, let uirevision handle the rest
+                                     aspectmode: 'cube'
+                                 }
+                             };
+                        } else {
+                            let yMin = Infinity, yMax = -Infinity;
+                            Object.keys(series).forEach(k => {
+                                series[k].forEach(arr => arr.forEach(v => { if(v<yMin) yMin=v; if(v>yMax) yMax=v; }));
+                            });
+                            // Add some padding
+                            const pad = (yMax - yMin) * 0.05;
+                            layoutCommon = {
+                                xaxis: { title: 'Time', range: [times[0], times[times.length-1]], autorange: false },
+                                yaxis: { title: 'Concentration', range: [yMin - pad, yMax + pad], autorange: false }
+                            };
+                        }
+                        
+                        function loop() {
+                            if (step >= totalSteps) {
+                                animationFrameId = null;
+                                return;
+                            }
+                            
+                            // Update plot to show data up to `step`
+                            updatePlot(times, series, step, layoutCommon); 
+                            
+                            step += stepsPerFrame;
+                            animationFrameId = requestAnimationFrame(loop);
+                        }
+                        loop();
+                    }
+
+                    // Plot updater: 3D for lorenz, 2D time-series for other examples
+                    function updatePlot(times, seriesMap, limitIndex = -1, fixedLayoutOverride = null) {
+                        const plotDiv = document.getElementById('lorenz-plot');
+                        if (!plotDiv) return;
+
+                        const maxIndex = (limitIndex >= 0 && limitIndex < times.length) ? limitIndex : times.length - 1;
+                        
+                        // Use uirevision to preserve user interaction state (camera, zoom) across updates
+                        const uirevision = 'musica_plot';
+
+                        if (currentExampleId === 'lorenz') {
+                            const XseriesList = seriesMap['X']; // array of N arrays
+                            const YseriesList = seriesMap['Y'];
+                            const ZseriesList = seriesMap['Z'];
+                            
+                            const traces = [];
+                            const cellColors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
+                            
+                            for(let i=0; i < XseriesList.length; i++) {
+                                  const color = cellColors[i % cellColors.length];
+                                  const xs = XseriesList[i].slice(0, maxIndex + 1);
+                                  const ys = YseriesList[i].slice(0, maxIndex + 1);
+                                  const zs = ZseriesList[i].slice(0, maxIndex + 1);
+
+                                  const traj = { 
+                                      x: xs, y: ys, z: zs, 
+                                      mode: 'lines', type: 'scatter3d', 
+                                      line: { width: 2, color: color }, 
+                                      name: `Cell ${i}` 
+                                  };
+                                  traces.push(traj);
+                                  
+                                  const lastIdx = xs.length - 1;
+                                  if (lastIdx >= 0) {
+                                      const current = { 
+                                          x: [xs[lastIdx]], y: [ys[lastIdx]], z: [zs[lastIdx]], 
+                                          mode: 'markers', type: 'scatter3d', 
+                                          marker: { size: 4, color: color }, 
+                                          showlegend: false 
+                                      };
+                                      traces.push(current);
+                                  }
+                            }
+
+                            const layout = { 
+                                uirevision: uirevision,
+                                margin: { l: 0, r: 0, b: 0, t: 0 }, 
+                                scene: { 
+                                    xaxis: { title: 'X' }, 
+                                    yaxis: { title: 'Y' }, 
+                                    zaxis: { title: 'Z' }, 
+                                    camera: { eye: { x: 1, y: -2, z: 1 } },
+                                    aspectmode: 'cube'
+                                }, 
+                                autosize: true, 
+                                height: 420 
+                            };
+                            if (fixedLayoutOverride && fixedLayoutOverride.scene) {
+                                Object.assign(layout.scene, fixedLayoutOverride.scene);
+                            }
+                            Plotly.react(plotDiv, traces, layout, { responsive: true });
+                        } else {
+                            // 2D time-series plot for arbitrary species
+                            const traces = [];
+                            const timesSlice = times.slice(0, maxIndex + 1);
+                            currentSpeciesOrder.forEach((name, idx) => {
+                                const dataList = seriesMap[name];
+                                dataList.forEach((data, cellIdx) => {
+                                    traces.push({ 
+                                        x: timesSlice, 
+                                        y: data.slice(0, maxIndex + 1), 
+                                        mode: 'lines', 
+                                        type: 'scattergl', // Use WebGL for better performance
+                                        name: numGridCells > 1 ? `${name} (cell ${cellIdx})` : name 
+                                    });
+                                });
+                            });
+                            const layout2d = { 
+                                uirevision: uirevision,
+                                margin: { l: 40, r: 10, b: 40, t: 10 }, 
+                                xaxis: { title: 'Time' }, 
+                                yaxis: { title: 'Concentration' }, 
+                                autosize: true, 
+                                height: 420 
+                            };
+                            if (fixedLayoutOverride) {
+                                if (fixedLayoutOverride.xaxis) Object.assign(layout2d.xaxis, fixedLayoutOverride.xaxis);
+                                if (fixedLayoutOverride.yaxis) Object.assign(layout2d.yaxis, fixedLayoutOverride.yaxis);
+                            }
+                            Plotly.react(plotDiv, traces, layout2d, { responsive: true });
+                        }
+                    }
+
+                    // Run the simulation and populate the results table + plot
+                    function runSimulation(steps, timeStep, burnout) {
+                        // use per-example config when parameters are not provided
+                        if (typeof steps === 'undefined') steps = currentSimConfig.steps;
+                        if (typeof timeStep === 'undefined') timeStep = currentSimConfig.timeStep;
+                        if (typeof burnout === 'undefined') burnout = currentSimConfig.burnout;
+                        // Reset table
+                        resultsTbody.innerHTML = '';
+
+                        // Reset concentrations from sliders with perturbation
+                        const vals = readSliderValues();
+                        const concState = {};
+                        currentSpeciesOrder.forEach(spec => { 
+                             const baseVal = (spec in vals) ? vals[spec] : 0;
+                            concState[spec] = Array.from({length: numGridCells}, (_, i) => baseVal + i * 0.1);
+                        });
+                        state.setConcentrations(concState);
+
+                        let cumulativeTime = 0.0;
+
+                        const times = [];
+                        const series = {};
+                        currentSpeciesOrder.forEach(s => { 
+                            series[s] = Array.from({length: numGridCells}, () => []);
+                        });
+
+                        for (let i = 0; i < steps; i++) {
+                            micm.solve(state, timeStep);
+                            cumulativeTime += timeStep;
+
+                            if (i < burnout) continue; // skip initial transient
+
+                            const concentrations = state.getConcentrations();
+
+                            // collect values
+                            currentSpeciesOrder.forEach(s => { 
+                                const valOrArray = concentrations[s]; 
+                                for (let c = 0; c < numGridCells; c++) {
+                                    let v;
+                                    // Handle case where binding returns scalar for single cell
+                                    if (numGridCells === 1 && typeof valOrArray === 'number') {
+                                        v = valOrArray;
+                                    } else {
+                                        v = valOrArray[c];
+                                    }
+                                    series[s][c].push(v);
+                                }
+                            });
+
+                            times.push(cumulativeTime);
+                            
+                            // Only populate table for cell 0
+                            const valsNow0 = currentSpeciesOrder.map(s => {
+                                const v = concentrations[s];
+                                return (numGridCells === 1 && typeof v === 'number') ? v : v[0];
+                            });
+                            const row = document.createElement('tr');
+                            const rowVals = [cumulativeTime.toFixed(2)].concat(valsNow0);
+                            rowVals.forEach(cellVal => {
+                                const td = document.createElement('td');
+                                td.textContent = String(cellVal);
+                                row.appendChild(td);
+                            });
+                            resultsTbody.appendChild(row);
+                        }
+
+                        lastSimulationResults = { times: times, series: series };
+                        updatePlot(times, series);
+                    }
+
+                    // Initial run
+                    runSimulation();
+                } catch (err) {
+                    const errDiv = document.createElement('div');
+                    errDiv.className = 'error';
+                    errDiv.innerHTML = `<h2>❌ Simulation Error</h2><p>${err.message}</p>`;
+                    contentDiv.appendChild(errDiv);
+                    console.error(err);
+                }
+            } catch (error) {
+                contentDiv.innerHTML = `
+                    <div class="error">
+                        <h2>❌ Error Loading MUSICA WASM</h2>
+                        <p>${error.message}</p>
+                        <p>Make sure you've built the WASM module and are serving this page over HTTP (not file://).</p>
+                    </div>
+                `;
+                console.error('Error:', error);
+            }
+        }
+
+        // Start initialization when page loads
+        initMUSICA();
+    </script>
+</body>
+
+</html>

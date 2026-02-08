@@ -41,19 +41,19 @@ namespace musica
     {
       DeleteError(error);
 
-      return tuvx->CreateGridMap(error);
+      return tuvx->GetGridMap(error);
     }
 
     ProfileMap *GetProfileMap(TUVX *tuvx, Error *error)
     {
       DeleteError(error);
-      return tuvx->CreateProfileMap(error);
+      return tuvx->GetProfileMap(error);
     }
 
     RadiatorMap *GetRadiatorMap(TUVX *tuvx, Error *error)
     {
       DeleteError(error);
-      return tuvx->CreateRadiatorMap(error);
+      return tuvx->GetRadiatorMap(error);
     }
 
     void GetPhotolysisRateConstantsOrdering(TUVX *tuvx, Mappings *mappings, Error *error)
@@ -81,10 +81,25 @@ namespace musica
         double *const photolysis_rate_constants,
         double *const heating_rates,
         double *const dose_rates,
+        double *const actinic_flux,
+        double *const spectral_irradiance,
         Error *const error)
     {
       DeleteError(error);
-      tuvx->Run(solar_zenith_angle, earth_sun_distance, photolysis_rate_constants, heating_rates, dose_rates, error);
+      tuvx->Run(
+          solar_zenith_angle,
+          earth_sun_distance,
+          photolysis_rate_constants,
+          heating_rates,
+          dose_rates,
+          actinic_flux,
+          spectral_irradiance,
+          error);
+    }
+
+    void TuvxVersion(String *tuvx_version)
+    {
+      CreateString(TUVX::GetVersion().c_str(), tuvx_version);
     }
 
 #ifdef __cplusplus

@@ -1,0 +1,6 @@
+# Julia build artifacts that should not be committed
+# Manifest.toml is machine-generated and will be created during builds
+Manifest.toml
+*.toml.bak
+# deps/lib is populated by the build process (post-build copy)
+deps/lib/

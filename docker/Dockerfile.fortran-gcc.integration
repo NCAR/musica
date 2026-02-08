@@ -41,7 +41,7 @@ RUN cd musica \
         -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
         -D MUSICA_ENABLE_CARMA=OFF \
     && cd build \
-    && make install -j
+    && make install
 
 # Build MUSICA-Fortran tests
 RUN cd musica/fortran/test/fetch_content_integration \
@@ -49,7 +49,6 @@ RUN cd musica/fortran/test/fetch_content_integration \
     && cmake .. \
         -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
         -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
-        -D MUSICA_ENABLE_MEMCHECK=ON \
-    && make -j
+    && make
 
 WORKDIR musica/fortran/test/fetch_content_integration/build

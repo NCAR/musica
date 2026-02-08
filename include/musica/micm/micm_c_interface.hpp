@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 National Center for Atmospheric Research
+// Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 //
 // This file contains the defintion of the MICM class, which represents a multi-component reactive transport model.
@@ -40,6 +40,13 @@ namespace musica
     /// @param error Error struct to indicate success or failure
     /// @return Pointer to MICM object
     MICM *CreateMicmFromChemistryMechanism(const Chemistry *chemistry, MICMSolver solver_type, Error *error);
+
+    /// @brief Create a MICM object from a JSON or YAML configuration string
+    /// @param config_string JSON or YAML configuration string
+    /// @param solver_type Type of MICMSolver
+    /// @param error Error struct to indicate success or failure
+    /// @return Pointer to MICM object
+    MICM *CreateMicmFromConfigString(const char *config_string, MICMSolver solver_type, Error *error);
 
     /// @brief Deletes a MICM object
     /// @param micm Pointer to MICM object
@@ -87,6 +94,10 @@ namespace musica
     size_t GetMaximumNumberOfGridCells(MICM *micm);
 
     bool _IsCudaAvailable(Error *error);
+
+    /// @brief  Get the MUSICA vector size
+    /// @return The MUSICA vector size
+    std::size_t GetVectorSize(musica::MICMSolver);
 #ifdef __cplusplus
   }
 #endif

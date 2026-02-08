@@ -96,6 +96,21 @@ class _Examples:
         short_name='TS1LatinHyperCube',
         path='ts1_latin_hypercube.py',
         description='A Latin hypercube sampling example for the TS1 mechanism. This script shows how to sample an input space and run multiple box models in parallel on a single mechanism.')
+    TS1BoxModel = Example.from_config(
+        display_name='TS1 Box Model',
+        short_name='TS1BoxModel',
+        path='ts1_box_model.py',
+        description='A box model example for the TS1 mechanism demonstrating how to set up and run a box model simulation using initial conditions from a CSV file.')
+    Lorenz_Attractor = Example.from_config(
+        display_name='Lorenz Attractor',
+        short_name='Lorenz_Attractor',
+        path='lorenz.py',
+        description='An example demonstrating the Lorenz attractor using user-defined reactions.')
+    Chapman = Example.from_config(
+        display_name='Chapman Mechanism',
+        short_name='Chapman',
+        path='chapman.py',
+        description='An example demonstrating the Chapman mechanism with photo rates from TUV-x.')
 
     @classmethod
     def get_all(cls):
@@ -104,7 +119,14 @@ class _Examples:
         Returns:
             list[Example]: A list of all available Example instances.
         """
-        return [cls.CARMA_Aluminum, cls.CARMA_Sulfate, cls.Sulfate_Box_Model, cls.TS1LatinHyperCube]
+        return [
+            cls.CARMA_Aluminum,
+            cls.CARMA_Sulfate,
+            cls.Sulfate_Box_Model,
+            cls.TS1LatinHyperCube,
+            cls.TS1BoxModel,
+            cls.Lorenz_Attractor,
+            cls.Chapman]
 
     def __iter__(self):
         """Make the class iterable over examples.

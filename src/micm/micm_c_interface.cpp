@@ -1,5 +1,6 @@
 #include <musica/micm/cuda_availability.hpp>
 #include <musica/micm/micm_c_interface.hpp>
+#include <musica/micm/parse.hpp>
 
 namespace musica
 {
@@ -51,6 +52,20 @@ namespace musica
         error);
   }
 
+  MICM* CreateMicmFromConfigString(const char* config_string, MICMSolver solver_type, Error* error)
+  {
+    return HandleErrors(
+        [&]()
+        {
+          // Parse JSON/YAML string to Chemistry object
+          Chemistry chemistry = ReadConfigurationFromString(std::string(config_string));
+          MICM* micm = new MICM(chemistry, solver_type);
+          NoError(error);
+          return micm;
+        },
+        error);
+  }
+
   void DeleteMicm(MICM* micm, Error* error)
   {
     HandleErrors(
@@ -73,7 +88,9 @@ namespace musica
     HandleErrors(
         [&]()
         {
-          micm->Solve(state, time_step, solver_state, solver_stats);
+          micm::SolverResult result = micm->Solve(state, time_step);
+          *solver_stats = result.stats_;
+          CreateString(micm::SolverStateToString(result.state_).c_str(), solver_state);
           NoError(error);
         },
         error);
@@ -138,6 +155,19 @@ namespace musica
   size_t GetMaximumNumberOfGridCells(MICM* micm)
   {
     return micm->GetMaximumNumberOfGridCells();
+  }
+
+  std::size_t GetVectorSize(musica::MICMSolver solver_type)
+  {
+    switch (solver_type)
+    {
+      case musica::MICMSolver::Rosenbrock:
+      case musica::MICMSolver::BackwardEuler:
+      case musica::MICMSolver::CudaRosenbrock: return musica::MUSICA_VECTOR_SIZE;
+      case musica::MICMSolver::RosenbrockStandardOrder:
+      case musica::MICMSolver::BackwardEulerStandardOrder: return static_cast<std::size_t>(1);
+      default: throw std::runtime_error("Invalid MICM solver type.");
+    }
   }
 
 }  // namespace musica

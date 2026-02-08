@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 National Center for Atmospheric Research
+// Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 //
 // This file contains the implementation of the MICM class, which represents a
@@ -7,7 +7,6 @@
 #include <musica/micm/micm.hpp>
 #include <musica/micm/parse.hpp>
 #include <musica/micm/state.hpp>
-#include <musica/util.hpp>
 
 #include <mechanism_configuration/parser.hpp>
 #include <mechanism_configuration/v0/types.hpp>
@@ -32,6 +31,11 @@ namespace musica
       case CudaRosenbrock: return "CudaRosenbrock";
       default: throw std::system_error(make_error_code(MusicaErrCode::Unknown), "Unknown solver type");
     }
+  }
+
+  MICM::MICM(std::string config_path, MICMSolver solver_type)
+      : MICM(ReadConfiguration(config_path), solver_type)
+  {
   }
 
   MICM::MICM(const Chemistry& chemistry, MICMSolver solver_type)
@@ -84,70 +88,54 @@ namespace musica
   struct VariantsVisitor
   {
     double time_step;
-    String* solver_state;
-    SolverResultStats* solver_stats;
 
-    template<typename SolverType, typename StateType>
-    void Solve(SolverType& solver, StateType& state) const
-    {
-      auto result = solver->Solve(time_step, state);
-      CreateString(micm::SolverStateToString(result.state_).c_str(), solver_state);
-      *solver_stats = { .function_calls_ = static_cast<int64_t>(result.stats_.function_calls_),
-                        .jacobian_updates_ = static_cast<int64_t>(result.stats_.jacobian_updates_),
-                        .number_of_steps_ = static_cast<int64_t>(result.stats_.number_of_steps_),
-                        .accepted_ = static_cast<int64_t>(result.stats_.accepted_),
-                        .rejected_ = static_cast<int64_t>(result.stats_.rejected_),
-                        .decompositions_ = static_cast<int64_t>(result.stats_.decompositions_),
-                        .solves_ = static_cast<int64_t>(result.stats_.solves_),
-                        .final_time_ = result.final_time_ };
-    }
-
-    void operator()(std::unique_ptr<micm::Rosenbrock>& solver, micm::VectorState& state) const
+    micm::SolverResult operator()(std::unique_ptr<micm::Rosenbrock>& solver, micm::VectorState& state) const
     {
       solver->CalculateRateConstants(state);
-      Solve(solver, state);
+      return solver->Solve(time_step, state);
     }
 
-    void operator()(std::unique_ptr<micm::RosenbrockStandard>& solver, micm::StandardState& state) const
+    micm::SolverResult operator()(std::unique_ptr<micm::RosenbrockStandard>& solver, micm::StandardState& state) const
     {
       solver->CalculateRateConstants(state);
-      Solve(solver, state);
+      return solver->Solve(time_step, state);
     }
 
-    void operator()(std::unique_ptr<micm::BackwardEuler>& solver, micm::VectorState& state) const
+    micm::SolverResult operator()(std::unique_ptr<micm::BackwardEuler>& solver, micm::VectorState& state) const
     {
       solver->CalculateRateConstants(state);
-      Solve(solver, state);
+      return solver->Solve(time_step, state);
     }
 
-    void operator()(std::unique_ptr<micm::BackwardEulerStandard>& solver, micm::StandardState& state) const
+    micm::SolverResult operator()(std::unique_ptr<micm::BackwardEulerStandard>& solver, micm::StandardState& state) const
     {
       solver->CalculateRateConstants(state);
-      Solve(solver, state);
+      return solver->Solve(time_step, state);
     }
 
 #ifdef MUSICA_ENABLE_CUDA
-    void operator()(std::unique_ptr<micm::CudaRosenbrock>& solver, micm::GpuState& state) const
+    micm::SolverResult operator()(std::unique_ptr<micm::CudaRosenbrock>& solver, micm::GpuState& state) const
     {
       solver->CalculateRateConstants(state);
       state.SyncInputsToDevice();
-      Solve(solver, state);
+      auto result = solver->Solve(time_step, state);
       state.SyncOutputsToHost();
+      return result;
     }
 #endif
 
     // Handle unsupported combinations
     template<typename SolverT, typename StateT>
-    void operator()(std::unique_ptr<SolverT>&, StateT&) const
+    micm::SolverResult operator()(std::unique_ptr<SolverT>&, StateT&) const
     {
       throw std::system_error(
           make_error_code(MusicaErrCode::UnsupportedSolverStatePair), "Unsupported solver/state combination");
     }
   };
 
-  void MICM::Solve(musica::State* state, double time_step, String* solver_state, SolverResultStats* solver_stats)
+  micm::SolverResult MICM::Solve(musica::State* state, double time_step)
   {
-    std::visit(VariantsVisitor{ time_step, solver_state, solver_stats }, this->solver_variant_, state->state_variant_);
+    return std::visit(VariantsVisitor{ time_step }, this->solver_variant_, state->state_variant_);
   }
 
 }  // namespace musica

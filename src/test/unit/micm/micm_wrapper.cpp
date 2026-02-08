@@ -1,5 +1,6 @@
 #include <musica/micm/micm.hpp>
 #include <musica/micm/parse.hpp>
+#include <musica/micm/state.hpp>
 
 #include <gtest/gtest.h>
 
@@ -16,10 +17,8 @@ void DoChemistry(musica::MICMSolver solver_type)
   state.SetConditions({ { .temperature_ = 298.15, .pressure_ = 101325.0 } });
 
   double const time_step = 60;
-  musica::SolverResultStats solver_stats;
-  musica::String solver_state;
-  micm.Solve(&state, time_step, &solver_state, &solver_stats);
-  EXPECT_EQ(std::string(solver_state.value_), std::string("Converged"));
+  auto result = micm.Solve(&state, time_step);
+  EXPECT_EQ(result.state_, micm::SolverState::Converged);
   bool something_changed = false;
   for (int i = 0; i < initial_concentrations.size(); ++i)
   {
@@ -30,7 +29,6 @@ void DoChemistry(musica::MICMSolver solver_type)
     }
   }
   EXPECT_TRUE(something_changed);
-  DeleteString(&solver_state);
 }
 
 TEST(MICMWrapper, Rosenbrock)

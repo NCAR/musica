@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 National Center for Atmospheric Research
+// Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 //
 // This file contains the defintion of the TUVX class, which represents a photolysis calculator.
@@ -46,23 +46,23 @@ namespace musica
         RadiatorMap *radiators,
         Error *error);
 
-    /// @brief Create a grid map. For now, this calls the interal tuvx fortran api, but will allow the change to c++ later on
-    /// to be transparent to downstream projects
+    /// @brief Returns a copy of the internal grid map. For now, this calls the interal tuvx fortran api, but will allow the
+    /// change to c++ later on to be transparent to downstream projects
     /// @param error The error struct to indicate success or failure
     /// @return a grid map pointer
-    GridMap *CreateGridMap(Error *error);
+    GridMap *GetGridMap(Error *error);
 
-    /// @brief Create a profile map. For now, this calls the interal tuvx fortran api, but will allow the change to c++ later
-    /// on to be transparent to downstream projects
+    /// @brief Returns a copy of the internal profile map. For now, this calls the interal tuvx fortran api, but will allow
+    /// the change to c++ later on to be transparent to downstream projects
     /// @param error The error struct to indicate success or failure
     /// @return a profile map pointer
-    ProfileMap *CreateProfileMap(Error *error);
+    ProfileMap *GetProfileMap(Error *error);
 
-    /// @brief Create a radiator map. For now, this calls the interal tuvx fortran api, but will allow the change to c++
-    /// later on to be transparent to downstream projects
+    /// @brief Returns a copy of the internal radiator map. For now, this calls the interal tuvx fortran api, but will allow
+    /// the change to c++ later on to be transparent to downstream projects
     /// @param error The error struct to indicate success or failure
     /// @return a radiator map pointer
-    RadiatorMap *CreateRadiatorMap(Error *error);
+    RadiatorMap *GetRadiatorMap(Error *error);
 
     /// @brief Returns the ordering of photolysis rate constants
     /// @param error Error struct to indicate success or failure
@@ -82,9 +82,12 @@ namespace musica
     /// @brief Run the TUV-x photolysis calculator
     /// @param solar_zenith_angle Solar zenith angle [radians]
     /// @param earth_sun_distance Earth-Sun distance [AU]
-    /// @param photolysis_rate_constants Photolysis rate constant for each layer and reaction [s^-1]
-    /// @param heating_rates Heating rates for each layer and reaction [K/s]
-    /// @param dose_rates Dose rates for each layer and reaction [W/m^2]
+    /// @param photolysis_rate_constants Photolysis rate constant [s^-1] (reaction, vertical edge)
+    /// @param heating_rates Heating rates [K/s] (heating_reaction, vertical edge)
+    /// @param dose_rates Dose rates [W/m^2] (dose_rate type, vertical edge)
+    /// @param actinic_flux Actinic flux [photons cm^-2 s^-1 nm^-1] (wavelength, vertical edge, direct/upwelling/downwelling)
+    /// @param spectral_irradiance Spectral irradiance [W/m^2 nm^-1] (wavelength, vertical edge,
+    /// direct/upwelling/downwelling)
     /// @param error Error struct to indicate success or failure
     void Run(
         const double solar_zenith_angle,
@@ -92,6 +95,8 @@ namespace musica
         double *const photolysis_rate_constants,
         double *const heating_rates,
         double *const dose_rates,
+        double *const actinic_flux,
+        double *const spectral_irradiance,
         Error *const error);
 
     /// @brief Get the version of TUV-x
@@ -116,11 +121,17 @@ namespace musica
     /// @brief Get the number of vertical layers
     /// @return Number of vertical layers
     /// @throws std::runtime_error if operation fails
-    int GetNumberOfLayers();
+    int GetNumberOfHeightMidpoints();
+
+    /// @brief Get the number of wavelength midpoints
+    /// @return Number of wavelength midpoints
+    /// @throws std::runtime_error if operation fails
+    int GetNumberOfWavelengthMidpoints();
 
    private:
     void *tuvx_;
-    int number_of_layers_;
+    int number_of_height_midpoints_;
+    int number_of_wavelength_midpoints_;
   };
 
 }  // namespace musica

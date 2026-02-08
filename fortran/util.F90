@@ -1,4 +1,4 @@
-! Copyright (C) 2023-2025 National Center for Atmospheric Research
+! Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 ! SPDX-License-Identifier: Apache-2.0
 !
 module musica_util
@@ -895,15 +895,13 @@ contains
 
       if ( .not. condition ) then
          if ( present( error_message ) ) then
-            write(*,*) "[MUSICA ERROR at ", file, ":", line, "] ", error_message
+            write(*,'("[MUSICA ERROR at ",A,":",I0,"] ",A)') file, line, error_message
          else
-            write(*,*) "[MUSICA ERROR at ", file, ":", line, "] Assertion failed"
+            write(*,'("[MUSICA ERROR at ",A,":",I0,"] Assertion failed")') file, line
          end if
          stop 3
       end if
 
    end subroutine assert
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 end module musica_util

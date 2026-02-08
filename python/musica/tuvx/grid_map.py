@@ -1,4 +1,4 @@
-# Copyright (C) 2023-2025 National Center for Atmospheric Research
+# Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 # SPDX-License-Identifier: Apache-2.0
 """
 TUV-x GridMap class.
@@ -103,7 +103,7 @@ if backend.tuvx_available():
         if not isinstance(grid, Grid):
             raise TypeError("Value must be a Grid object")
         if grid.name != name or grid.units != units:
-            raise ValueError("Grid name/units must match the key tuple")
+            raise ValueError(f"Grid name/units must match the key tuple: {(grid.name, grid.units)} != {(name, units)}")
         self.add_grid(grid)
 
     GridMap.__setitem__ = __setitem__

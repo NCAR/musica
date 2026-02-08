@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 National Center for Atmospheric Research
+// Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 //
 // This file contains the defintion of the MICM class, which represents a multi-component reactive transport model.
@@ -7,8 +7,6 @@
 
 #include <musica/micm/chemistry.hpp>
 #include <musica/micm/parse.hpp>
-#include <musica/micm/state.hpp>
-#include <musica/util.hpp>
 
 #include <micm/CPU.hpp>
 #ifdef MUSICA_ENABLE_CUDA
@@ -46,7 +44,7 @@ namespace
   class MusicaErrorCategory : public std::error_category
   {
    public:
-    const char *name() const noexcept override
+    const char* name() const noexcept override
     {
       return MUSICA_ERROR_CATEGORY;
     }
@@ -75,6 +73,7 @@ inline std::error_code make_error_code(MusicaErrCode e)
 
 namespace musica
 {
+  class State;  // forward declaration to break circular include
   /// @brief Types of MICM solver
   enum MICMSolver
   {
@@ -88,25 +87,7 @@ namespace musica
 
   std::string ToString(MICMSolver solver_type);
 
-  struct SolverResultStats
-  {
-    /// @brief The number of forcing function calls
-    int64_t function_calls_{};
-    /// @brief The number of jacobian function calls
-    int64_t jacobian_updates_{};
-    /// @brief The total number of internal time steps taken
-    int64_t number_of_steps_{};
-    /// @brief The number of accepted integrations
-    int64_t accepted_{};
-    /// @brief The number of rejected integrations
-    int64_t rejected_{};
-    /// @brief The number of LU decompositions
-    int64_t decompositions_{};
-    /// @brief The number of linear solves
-    int64_t solves_{};
-    /// @brief The final time the solver iterated to
-    double final_time_{};
-  };
+  using SolverResultStats = micm::SolverStats;
 
   class MICM
   {
@@ -125,7 +106,8 @@ namespace musica
    public:
     SolverVariant solver_variant_;
 
-    MICM(const Chemistry &chemistry, MICMSolver solver_type);
+    MICM(const Chemistry& chemistry, MICMSolver solver_type);
+    MICM(std::string config_path, MICMSolver solver_type);
     MICM() = default;
     ~MICM()
     {
@@ -135,7 +117,7 @@ namespace musica
       // cuda must clean all of its runtime resources
       // Otherwise, we risk the CudaRosenbrock destructor running after
       // the cuda runtime has closed
-      std::visit([](auto &solver) { solver.reset(); }, solver_variant_);
+      std::visit([](auto& solver) { solver.reset(); }, solver_variant_);
       micm::cuda::CudaStreamSingleton::GetInstance().CleanUp();
 #endif
     }
@@ -143,21 +125,19 @@ namespace musica
     /// @brief Solve the system
     /// @param state Pointer to state object
     /// @param time_step Time [s] to advance the state by
-    /// @param solver_state State of the solver
-    /// @param solver_stats Statistics of the solver
-    void Solve(musica::State *state, double time_step, String *solver_state, SolverResultStats *solver_stats);
+    micm::SolverResult Solve(musica::State* state, double time_step);
 
     /// @brief Get a property for a chemical species
     /// @param species_name Name of the species
     /// @param property_name Name of the property
     /// @return Value of the property
     template<class T>
-    T GetSpeciesProperty(const std::string &species_name, const std::string &property_name)
+    T GetSpeciesProperty(const std::string& species_name, const std::string& property_name)
     {
-      micm::System system = std::visit([](auto &solver) -> micm::System { return solver->GetSystem(); }, solver_variant_);
-      for (const auto &phase_species : system.gas_phase_.phase_species_)
+      micm::System system = std::visit([](auto& solver) -> micm::System { return solver->GetSystem(); }, solver_variant_);
+      for (const auto& phase_species : system.gas_phase_.phase_species_)
       {
-        const auto &species = phase_species.species_;
+        const auto& species = phase_species.species_;
         if (species.name_ == species_name)
         {
           return species.GetProperty<T>(property_name);
@@ -170,7 +150,7 @@ namespace musica
     /// @return Maximum number of grid cells
     std::size_t GetMaximumNumberOfGridCells()
     {
-      return std::visit([](auto &solver) { return solver->MaximumNumberOfGridCells(); }, solver_variant_);
+      return std::visit([](auto& solver) { return solver->MaximumNumberOfGridCells(); }, solver_variant_);
     }
   };
 

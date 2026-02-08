@@ -11,6 +11,12 @@ the Python API can be found on the :ref:`Tutorials <tutorials page>` page.
 
 .. toctree::
    :maxdepth: 1
+   :caption: Configuration:
+
+   cmake_options/index
+
+.. toctree::
+   :maxdepth: 1
    :caption: Fortran:
 
    fortran_c
@@ -20,6 +26,7 @@ the Python API can be found on the :ref:`Tutorials <tutorials page>` page.
    :caption: Python:
 
    installation/index
+   cli
    chemistry/index
    model/index
    output/index

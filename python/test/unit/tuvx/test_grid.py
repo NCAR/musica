@@ -60,6 +60,14 @@ def test_grid_properties():
     grid.midpoints = midpoints
     np.testing.assert_array_equal(grid.midpoints, midpoints)
 
+    # Test set edges elements
+    grid.edges[2] = 10.0
+    assert grid.edges[2] == 10.0
+
+    # Test set midpoints elements
+    grid.midpoints[1] = 20.0
+    assert grid.midpoints[1] == 20.0
+
     # Test invalid edges size
     with pytest.raises(ValueError, match="Array size must be num_sections \\+ 1"):
         grid.edges = np.array([0, 1, 2])

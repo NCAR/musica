@@ -18,3 +18,7 @@
 !LICENSE
 !README.md
 !tutorials
+!javascript/
+!package.json
+!package-lock.json
+!wheelhouse

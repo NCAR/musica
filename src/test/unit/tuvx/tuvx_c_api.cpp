@@ -104,14 +104,14 @@ class TuvxCApiTest : public ::testing::Test
 
 TEST_F(TuvxCApiTest, CreateTuvxInstanceWithYamlConfig)
 {
-  const char* yaml_config_path = "examples/ts1_tsmlt.yml";
+  const char* yaml_config_path = "configs/tuvx/ts1_tsmlt_fixed.yml";
   SetUp(yaml_config_path);
   ASSERT_NE(tuvx, nullptr);
 }
 
 TEST_F(TuvxCApiTest, CreateTuvxInstanceWithJsonConfig)
 {
-  const char* json_config_path = "examples/ts1_tsmlt.json";
+  const char* json_config_path = "configs/tuvx/ts1_tsmlt_fixed.json";
   SetUp(json_config_path);
   ASSERT_NE(tuvx, nullptr);
 }
@@ -136,7 +136,7 @@ TEST_F(TuvxCApiTest, DetectsNonexistentConfigFile)
 
 TEST_F(TuvxCApiTest, CannotGetConfiguredGrid)
 {
-  const char* yaml_config_path = "examples/ts1_tsmlt.yml";
+  const char* yaml_config_path = "configs/tuvx/ts1_tsmlt_fixed.yml";
   SetUp(yaml_config_path);
   Error error;
   GridMap* grid_map = GetGridMap(tuvx, &error);
@@ -298,7 +298,7 @@ TEST_F(TuvxCApiTest, CanCreateGridMap)
 
 TEST_F(TuvxCApiTest, CannotGetConfiguredProfile)
 {
-  const char* yaml_config_path = "examples/ts1_tsmlt.yml";
+  const char* yaml_config_path = "configs/tuvx/ts1_tsmlt_fixed.yml";
   SetUp(yaml_config_path);
   Error error;
   ProfileMap* profile_map = GetProfileMap(tuvx, &error);
@@ -546,7 +546,7 @@ TEST_F(TuvxCApiTest, CanCreateProfileMap)
 
 TEST_F(TuvxCApiTest, CannotGetConfiguredRadiator)
 {
-  const char* yaml_config_path = "examples/ts1_tsmlt.yml";
+  const char* yaml_config_path = "configs/tuvx/ts1_tsmlt_fixed.yml";
   SetUp(yaml_config_path);
   Error error;
   RadiatorMap* radiator_map = GetRadiatorMap(tuvx, &error);

@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 National Center for Atmospheric Research
+// Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 #include <musica/tuvx/grid.hpp>
 #include <musica/tuvx/profile.hpp>
@@ -100,6 +100,12 @@ namespace musica
     profile->GetEdgeValues(edge_values, num_values, error);
   }
 
+  double *GetProfileEdgeValuesPointer(Profile *profile, Error *error)
+  {
+    DeleteError(error);
+    return profile->GetEdgeValuesPointer(error);
+  }
+
   void SetProfileMidpointValues(Profile *profile, double midpoint_values[], std::size_t num_values, Error *error)
   {
     DeleteError(error);
@@ -112,6 +118,12 @@ namespace musica
     profile->GetMidpointValues(midpoint_values, num_values, error);
   }
 
+  double *GetProfileMidpointValuesPointer(Profile *profile, Error *error)
+  {
+    DeleteError(error);
+    return profile->GetMidpointValuesPointer(error);
+  }
+
   void SetProfileLayerDensities(Profile *profile, double layer_densities[], std::size_t num_values, Error *error)
   {
     DeleteError(error);
@@ -122,6 +134,12 @@ namespace musica
   {
     DeleteError(error);
     profile->GetLayerDensities(layer_densities, num_values, error);
+  }
+
+  double *GetProfileLayerDensitiesPointer(Profile *profile, Error *error)
+  {
+    DeleteError(error);
+    return profile->GetLayerDensitiesPointer(error);
   }
 
   void SetProfileExoLayerDensity(Profile *profile, double exo_layer_density, Error *error)
@@ -278,6 +296,29 @@ namespace musica
     NoError(error);
   }
 
+  double *Profile::GetEdgeValuesPointer(Error *error)
+  {
+    DeleteError(error);
+    int error_code = 0;
+    if (updater_ == nullptr)
+    {
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          ERROR_UNALLOCATED_PROFILE_UPDATER,
+          GetErrorMessage(ERROR_UNALLOCATED_PROFILE_UPDATER),
+          error);
+      return nullptr;
+    }
+    double *edge_values_ptr = InternalGetEdgeValuesPointer(updater_, &error_code);
+    if (error_code != 0)
+    {
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      return nullptr;
+    }
+    NoError(error);
+    return edge_values_ptr;
+  }
+
   void Profile::SetMidpointValues(double midpoint_values[], std::size_t num_values, Error *error)
   {
     DeleteError(error);
@@ -322,6 +363,29 @@ namespace musica
     NoError(error);
   }
 
+  double *Profile::GetMidpointValuesPointer(Error *error)
+  {
+    DeleteError(error);
+    int error_code = 0;
+    if (updater_ == nullptr)
+    {
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          ERROR_UNALLOCATED_PROFILE_UPDATER,
+          GetErrorMessage(ERROR_UNALLOCATED_PROFILE_UPDATER),
+          error);
+      return nullptr;
+    }
+    double *midpoint_values_ptr = InternalGetMidpointValuesPointer(updater_, &error_code);
+    if (error_code != 0)
+    {
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      return nullptr;
+    }
+    NoError(error);
+    return midpoint_values_ptr;
+  }
+
   void Profile::SetLayerDensities(double layer_densities[], std::size_t num_values, Error *error)
   {
     DeleteError(error);
@@ -364,6 +428,29 @@ namespace musica
       return;
     }
     NoError(error);
+  }
+
+  double *Profile::GetLayerDensitiesPointer(Error *error)
+  {
+    DeleteError(error);
+    int error_code = 0;
+    if (updater_ == nullptr)
+    {
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          ERROR_UNALLOCATED_PROFILE_UPDATER,
+          GetErrorMessage(ERROR_UNALLOCATED_PROFILE_UPDATER),
+          error);
+      return nullptr;
+    }
+    double *layer_densities_ptr = InternalGetLayerDensitiesPointer(updater_, &error_code);
+    if (error_code != 0)
+    {
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      return nullptr;
+    }
+    NoError(error);
+    return layer_densities_ptr;
   }
 
   void Profile::SetExoLayerDensity(double exo_layer_density, Error *error)

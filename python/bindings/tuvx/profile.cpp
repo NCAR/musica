@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 National Center for Atmospheric Research
+// Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 //
 // This file defines the Python bindings for the TUV-x Profile class in the musica library.
@@ -108,17 +108,29 @@ void bind_tuvx_profile(py::module_ &profile)
               musica::DeleteError(&error);
               throw py::value_error(message);
             }
-            auto result = py::array_t<double>(size);
-            py::buffer_info buf = result.request();
-            double *ptr = static_cast<double *>(buf.ptr);
-            self.GetEdgeValues(ptr, size, &error);
+
+            // Get a pointer to the internal C++ array
+            double *data_ptr = self.GetEdgeValuesPointer(&error);
             if (!musica::IsSuccess(error))
             {
-              std::string message = "Error getting edge values: " + std::string(error.message_.value_);
+              std::string message = "Error getting edge values pointer: " + std::string(error.message_.value_);
               musica::DeleteError(&error);
               throw py::value_error(message);
             }
-            return result;
+
+            // Create a numpy array that references the internal C++ array directly
+            // using py::capsule to manage the lifetime correctly
+            py::capsule owner = py::capsule(
+                data_ptr,
+                [](void *f)
+                {
+                  // No deletion here since the memory is managed by the Profile class
+                });
+            return py::array_t<double>(
+                { size },            // shape
+                { sizeof(double) },  // stride
+                data_ptr,            // data pointer
+                owner);
           },
           // Setter - converts numpy array to C++ array
           [](musica::Profile &self, py::array_t<double, py::array::c_style | py::array::forcecast> array)
@@ -159,17 +171,29 @@ void bind_tuvx_profile(py::module_ &profile)
               musica::DeleteError(&error);
               throw py::value_error(message);
             }
-            auto result = py::array_t<double>(size);
-            py::buffer_info buf = result.request();
-            double *ptr = static_cast<double *>(buf.ptr);
-            self.GetMidpointValues(ptr, size, &error);
+
+            // Get a pointer to the internal C++ array
+            double *data_ptr = self.GetMidpointValuesPointer(&error);
             if (!musica::IsSuccess(error))
             {
-              std::string message = "Error getting midpoint values: " + std::string(error.message_.value_);
+              std::string message = "Error getting midpoint values pointer: " + std::string(error.message_.value_);
               musica::DeleteError(&error);
               throw py::value_error(message);
             }
-            return result;
+
+            // Create a numpy array that references the internal C++ array directly
+            // using py::capsule to manage the lifetime correctly
+            py::capsule owner = py::capsule(
+                data_ptr,
+                [](void *f)
+                {
+                  // No deletion here since the memory is managed by the Profile class
+                });
+            return py::array_t<double>(
+                { size },            // shape
+                { sizeof(double) },  // stride
+                data_ptr,            // data pointer
+                owner);
           },
           // Setter - converts numpy array to C++ array
           [](musica::Profile &self, py::array_t<double, py::array::c_style | py::array::forcecast> array)
@@ -210,17 +234,28 @@ void bind_tuvx_profile(py::module_ &profile)
               musica::DeleteError(&error);
               throw py::value_error(message);
             }
-            auto result = py::array_t<double>(size);
-            py::buffer_info buf = result.request();
-            double *ptr = static_cast<double *>(buf.ptr);
-            self.GetLayerDensities(ptr, size, &error);
+
+            // Get a pointer to the internal C++ array
+            double *data_ptr = self.GetLayerDensitiesPointer(&error);
             if (!musica::IsSuccess(error))
             {
-              std::string message = "Error getting layer densities: " + std::string(error.message_.value_);
+              std::string message = "Error getting layer densities pointer: " + std::string(error.message_.value_);
               musica::DeleteError(&error);
               throw py::value_error(message);
             }
-            return result;
+            // Create a numpy array that references the internal C++ array directly
+            // using py::capsule to manage the lifetime correctly
+            py::capsule owner = py::capsule(
+                data_ptr,
+                [](void *f)
+                {
+                  // No deletion here since the memory is managed by the Profile class
+                });
+            return py::array_t<double>(
+                { size },            // shape
+                { sizeof(double) },  // stride
+                data_ptr,            // data pointer
+                owner);
           },
           // Setter - converts numpy array to C++ array
           [](musica::Profile &self, py::array_t<double, py::array::c_style | py::array::forcecast> array)

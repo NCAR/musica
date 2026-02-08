@@ -1,4 +1,4 @@
-! Copyright (C) 2023-2025 National Center for Atmospheric Research
+! Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 ! SPDX-License-Identifier: Apache-2.0
 !
 ! Tests for the musica_util module
@@ -375,7 +375,7 @@ contains
       ASSERT( error%is_success() )
       call build_and_check_index_mapping_t( config, .true. )
 
-      call config%load_from_file( "test/data/util_index_mapping_from_file.json", &
+      call config%load_from_file( "configs/util_index_mapping_from_file.json", &
          error )
       ASSERT( error%is_success() )
       call build_and_check_index_mapping_t( config, .true. )

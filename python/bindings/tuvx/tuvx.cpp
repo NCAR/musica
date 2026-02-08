@@ -7,6 +7,8 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include <memory>
+
 namespace py = pybind11;
 
 void bind_tuvx(py::module_& tuvx)
@@ -77,17 +79,30 @@ void bind_tuvx(py::module_& tuvx)
         int n_photolysis = tuvx_instance->GetPhotolysisRateConstantCount();
         int n_heating = tuvx_instance->GetHeatingRateCount();
         int n_dose = tuvx_instance->GetDoseRateCount();
-        int n_layers = tuvx_instance->GetNumberOfLayers();
+        int n_layers = tuvx_instance->GetNumberOfHeightMidpoints();
+        int n_wavelengths = tuvx_instance->GetNumberOfWavelengthMidpoints();
 
-        // Allocate output arrays (2D: layer, reaction/heating_type)
-        std::vector<double> photolysis_rates(n_layers * n_photolysis);
-        std::vector<double> heating_rates(n_layers * n_heating);
-        std::vector<double> dose_rates(n_layers * n_dose);
+        // Allocate output arrays on the heap using unique_ptr for exception safety
+        // (2D: reaction/heating reaction/dose rate type, vertical edge)
+        auto photolysis_rates = std::make_unique<std::vector<double>>(n_photolysis * (n_layers + 1));
+        auto heating_rates = std::make_unique<std::vector<double>>(n_heating * (n_layers + 1));
+        auto dose_rates = std::make_unique<std::vector<double>>(n_dose * (n_layers + 1));
+        // ... and 3D arrays for actinic flux and spectral irradiance
+        // (wavelength, vertical edge, 3 components: direct, upwelling, downwelling)
+        auto actinic_flux = std::make_unique<std::vector<double>>(n_wavelengths * (n_layers + 1) * 3);
+        auto spectral_irradiance = std::make_unique<std::vector<double>>(n_wavelengths * (n_layers + 1) * 3);
 
         // Run TUV-x
         musica::Error error;
         tuvx_instance->Run(
-            sza_radians, earth_sun_distance, photolysis_rates.data(), heating_rates.data(), dose_rates.data(), &error);
+            sza_radians,
+            earth_sun_distance,
+            photolysis_rates->data(),
+            heating_rates->data(),
+            dose_rates->data(),
+            actinic_flux->data(),
+            spectral_irradiance->data(),
+            &error);
 
         if (!musica::IsSuccess(error))
         {
@@ -97,17 +112,111 @@ void bind_tuvx(py::module_& tuvx)
         }
         musica::DeleteError(&error);
 
-        // Return as numpy arrays with shape (n_layers, n_reactions/n_heating)
-        py::array_t<double> py_photolysis = py::array_t<double>({ n_layers, n_photolysis }, photolysis_rates.data());
-        py::array_t<double> py_heating = py::array_t<double>({ n_layers, n_heating }, heating_rates.data());
-        py::array_t<double> py_dose = py::array_t<double>({ n_layers, n_dose }, dose_rates.data());
+        // Create capsules to manage the lifetime of the heap-allocated vectors
+        // Store data pointers before transferring ownership
+        double* photolysis_data = photolysis_rates->data();
+        double* heating_data = heating_rates->data();
+        double* dose_data = dose_rates->data();
+        double* actinic_flux_data = actinic_flux->data();
+        double* spectral_irradiance_data = spectral_irradiance->data();
 
-        return py::make_tuple(py_photolysis, py_heating, py_dose);
+        // Create numpy arrays immediately after each capsule to ensure atomic ownership transfer
+        // Return as numpy arrays with shape (reaction/heating reaction/dose rate type, vertical edge)
+        auto photolysis_capsule =
+            py::capsule(photolysis_rates.get(), [](void* v) { delete reinterpret_cast<std::vector<double>*>(v); });
+        photolysis_rates.release();
+        py::array_t<double> py_photolysis =
+            py::array_t<double>({ n_photolysis, n_layers + 1 }, photolysis_data, photolysis_capsule);
+
+        auto heating_capsule =
+            py::capsule(heating_rates.get(), [](void* v) { delete reinterpret_cast<std::vector<double>*>(v); });
+        heating_rates.release();
+        py::array_t<double> py_heating = py::array_t<double>({ n_heating, n_layers + 1 }, heating_data, heating_capsule);
+
+        auto dose_capsule = py::capsule(dose_rates.get(), [](void* v) { delete reinterpret_cast<std::vector<double>*>(v); });
+        dose_rates.release();
+        py::array_t<double> py_dose = py::array_t<double>({ n_dose, n_layers + 1 }, dose_data, dose_capsule);
+
+        // ... and 3D arrays for actinic flux and spectral irradiance
+        // (wavelength, vertical edge, 3 components: direct, upwelling, downwelling)
+        auto actinic_flux_capsule =
+            py::capsule(actinic_flux.get(), [](void* v) { delete reinterpret_cast<std::vector<double>*>(v); });
+        actinic_flux.release();
+        py::array_t<double> py_actinic_flux =
+            py::array_t<double>({ n_wavelengths, n_layers + 1, 3 }, actinic_flux_data, actinic_flux_capsule);
+
+        auto spectral_irradiance_capsule =
+            py::capsule(spectral_irradiance.get(), [](void* v) { delete reinterpret_cast<std::vector<double>*>(v); });
+        spectral_irradiance.release();
+        py::array_t<double> py_spectral_irradiance =
+            py::array_t<double>({ n_wavelengths, n_layers + 1, 3 }, spectral_irradiance_data, spectral_irradiance_capsule);
+
+        return py::make_tuple(py_photolysis, py_heating, py_dose, py_actinic_flux, py_spectral_irradiance);
       },
       "Run TUV-x (all parameters come from JSON config)",
       py::arg("tuvx_instance"),
       py::arg("sza_radians"),
       py::arg("earth_sun_distance"));
+
+  tuvx.def(
+      "_get_grid_map",
+      [](std::uintptr_t tuvx_ptr) -> musica::GridMap*
+      {
+        musica::TUVX* tuvx_instance = reinterpret_cast<musica::TUVX*>(tuvx_ptr);
+
+        musica::Error error;
+        musica::GridMap* grid_map = tuvx_instance->GetGridMap(&error);
+        if (!musica::IsSuccess(error))
+        {
+          std::string error_message = std::string(error.message_.value_);
+          musica::DeleteError(&error);
+          throw py::value_error("Error getting GridMap from TUV-x instance: " + error_message);
+        }
+        musica::DeleteError(&error);
+
+        return grid_map;
+      },
+      "Get the GridMap used in this TUV-x instance");
+
+  tuvx.def(
+      "_get_profile_map",
+      [](std::uintptr_t tuvx_ptr) -> musica::ProfileMap*
+      {
+        musica::TUVX* tuvx_instance = reinterpret_cast<musica::TUVX*>(tuvx_ptr);
+
+        musica::Error error;
+        musica::ProfileMap* profile_map = tuvx_instance->GetProfileMap(&error);
+        if (!musica::IsSuccess(error))
+        {
+          std::string error_message = std::string(error.message_.value_);
+          musica::DeleteError(&error);
+          throw py::value_error("Error getting ProfileMap from TUV-x instance: " + error_message);
+        }
+        musica::DeleteError(&error);
+
+        return profile_map;
+      },
+      "Get the ProfileMap used in this TUV-x instance");
+
+  tuvx.def(
+      "_get_radiator_map",
+      [](std::uintptr_t tuvx_ptr) -> musica::RadiatorMap*
+      {
+        musica::TUVX* tuvx_instance = reinterpret_cast<musica::TUVX*>(tuvx_ptr);
+
+        musica::Error error;
+        musica::RadiatorMap* radiator_map = tuvx_instance->GetRadiatorMap(&error);
+        if (!musica::IsSuccess(error))
+        {
+          std::string error_message = std::string(error.message_.value_);
+          musica::DeleteError(&error);
+          throw py::value_error("Error getting RadiatorMap from TUV-x instance: " + error_message);
+        }
+        musica::DeleteError(&error);
+
+        return radiator_map;
+      },
+      "Get the RadiatorMap used in this TUV-x instance");
 
   tuvx.def(
       "_get_photolysis_rate_constants_ordering",

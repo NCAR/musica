@@ -64,4 +64,4 @@ number: 10
 page: "E1743 - E1760"
 doi: "10.1175/BAMS-D-19-0331.1"
 url: "https://journals.ametsoc.org/view/journals/bams/101/10/bamsD190331.xml"
-version: 0.13.0
+version: 0.14.1

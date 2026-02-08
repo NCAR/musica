@@ -3,7 +3,7 @@ import musica.mechanism_configuration as mc
 
 def get_fully_defined_mechanism() -> mc.Mechanism:
     # Chemical species
-    A = mc.Species(name="A", molecular_weight_kg_mol=0.02897, other_properties={"__absolute tolerance": "1.0e-30"})
+    A = mc.Species(name="A", molecular_weight_kg_mol=0.04607, other_properties={"__absolute tolerance": "1.0e-30"})
     B = mc.Species(name="B", constant_concentration_mol_m3=1e19)
     C = mc.Species(name="C", constant_mixing_ratio_mol_mol=1e-20)
     M = mc.Species(name="M", is_third_body=True)
@@ -11,6 +11,10 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
         name="H2O2",
         molecular_weight_kg_mol=0.0340147,
         other_properties={"__absolute tolerance": "1.0e-10"},
+    )
+    H2O = mc.Species(
+        name="H2O",
+        molecular_weight_kg_mol=0.01801,
     )
     ethanol = mc.Species(
         name="ethanol",
@@ -24,12 +28,16 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
         species=[
             mc.PhaseSpecies(
                 name=A.name,
-                diffusion_coefficient_m2_s=1.0),
+                diffusion_coefficient_m2_s=2.1e-5),
             B,
             C,
-            ethanol,
-            H2O2,
-            M])
+            mc.PhaseSpecies(
+                name=ethanol.name,
+                diffusion_coefficient_m2_s=2.1e-5),
+            mc.PhaseSpecies(
+                name=H2O2.name,
+                diffusion_coefficient_m2_s=2.1e-5)
+        ])
 
     # Reactions
     my_arrhenius = mc.Arrhenius(
@@ -164,7 +172,7 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
     # Mechanism
     return mc.Mechanism(
         name="Full Configuration",
-        species=[A, B, C, M, H2O2, ethanol],
+        species=[A, B, C, M, H2O2, ethanol, H2O],
         phases=[gas],
         reactions=[my_arrhenius, my_other_arrhenius, my_troe, my_ternary, my_branched,
                    my_tunneling, my_surface, photo_B,
@@ -179,7 +187,7 @@ def _validate_species(species):
     # Define the expected species and their required attributes
     expected_species = {
         "A": {
-            "molecular_weight_kg_mol": 0.02897,
+            "molecular_weight_kg_mol": 0.04607,
             "other_properties": {"__absolute tolerance": "1e-30"}
         },
         "B": {
@@ -229,13 +237,16 @@ def _validate_species(species):
 
 def _validate_phases(phases):
     assert len(phases) == 1
+    assert len(phases[0].species) == 5
     assert phases[0].name == "gas"
     assert phases[0].species[0].name == "A"
-    assert phases[0].species[0].diffusion_coefficient_m2_s == 1.0
+    assert phases[0].species[0].diffusion_coefficient_m2_s == 2.1e-5
     assert phases[0].species[1].name == "B"
     assert phases[0].species[2].name == "C"
     assert phases[0].species[3].name == "ethanol"
+    assert phases[0].species[3].diffusion_coefficient_m2_s == 2.1e-5
     assert phases[0].species[4].name == "H2O2"
+    assert phases[0].species[4].diffusion_coefficient_m2_s == 2.1e-5
 
 
 def _extract_components(components):
@@ -443,7 +454,7 @@ def _validate_taylor_series(reactions):
 def validate_full_v1_mechanism(mechanism):
     assert mechanism is not None
     assert mechanism.name == "Full Configuration"
-    assert len(mechanism.species) == 6
+    assert len(mechanism.species) == 7
     _validate_species(mechanism.species)
     assert len(mechanism.phases) == 1
     _validate_phases(mechanism.phases)

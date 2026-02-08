@@ -1,4 +1,4 @@
-# Copyright (C) 2025 University Corporation for Atmospheric Research
+# Copyright (C) 2025-2026 University Corporation for Atmospheric Research
 # SPDX-License-Identifier: Apache-2.0
 #
 # This file is part of the musica Python package.

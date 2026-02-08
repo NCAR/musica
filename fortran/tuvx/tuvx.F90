@@ -1,4 +1,4 @@
-! Copyright (C) 2023-2025 National Center for Atmospheric Research
+! Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 ! SPDX-License-Identifier: Apache-2.0
 !
 module musica_tuvx
@@ -16,7 +16,7 @@ module musica_tuvx
 
    private
    public :: tuvx_t, grid_map_t, grid_t, profile_map_t, profile_t, &
-      radiator_map_t, radiator_t
+      radiator_map_t, radiator_t, get_tuvx_version
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -83,8 +83,8 @@ module musica_tuvx
       end subroutine get_heating_rates_ordering_c
 
       subroutine run_tuvx_c(tuvx, solar_zenith_angle, earth_sun_distance, &
-         photolysis_rate_constants, heating_rates, dose_rates, error) &
-         bind(C, name="RunTuvx")
+         photolysis_rate_constants, heating_rates, dose_rates, actinic_flux, &
+         spectral_irradiance, error) bind(C, name="RunTuvx")
          use musica_util, only: error_t_c
          use iso_c_binding, only: c_ptr, c_double
          type(c_ptr), value,         intent(in)    :: tuvx
@@ -93,9 +93,17 @@ module musica_tuvx
          type(c_ptr), value,         intent(in)    :: photolysis_rate_constants
          type(c_ptr), value,         intent(in)    :: heating_rates
          type(c_ptr), value,         intent(in)    :: dose_rates
+         type(c_ptr), value,         intent(in)    :: actinic_flux
+         type(c_ptr), value,         intent(in)    :: spectral_irradiance
          type(error_t_c),            intent(inout) :: error
       end subroutine run_tuvx_c
-  end interface
+
+      subroutine get_tuvx_version_c(tuvx_version) bind(C, name="TuvxVersion")
+         use musica_util, only: string_t_c
+         use iso_c_binding, only: c_char
+         type(string_t_c), intent(out) :: tuvx_version
+      end subroutine get_tuvx_version_c
+   end interface
 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -307,11 +315,22 @@ contains
       call run_tuvx_c(this%ptr_, &
                       real(solar_zenith_angle, kind=c_double), &
                       real(earth_sun_distance, kind=c_double), &
-                      photo_rate_c, heating_c, c_null_ptr, error_c)
+                      photo_rate_c, heating_c, c_null_ptr, c_null_ptr, &
+                      c_null_ptr, error_c)
       error = error_t(error_c)
 
    end subroutine run
 
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   !> Get the TUVX version
+   function get_tuvx_version() result(value)
+      use musica_util, only: string_t, string_t_c
+      type(string_t)   :: value
+      type(string_t_c) :: string_c
+      call get_tuvx_version_c(string_c)
+      value = string_t(string_c)        
+   end function get_tuvx_version
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    !> Deallocate the tuvx instance

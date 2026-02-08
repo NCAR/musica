@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.24)
 
 # must be on the same line so that pyproject.toml can correctly identify the version
-project(musica-distribution VERSION 0.13.0)
+project(musica-distribution VERSION 0.14.5)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${PROJECT_SOURCE_DIR}/cmake)
 set(CMAKE_USER_MAKE_RULES_OVERRIDE ${PROJECT_SOURCE_DIR}/cmake/SetDefaults.cmake)
@@ -34,6 +34,8 @@ option(MUSICA_ENABLE_PIC "Build the library with position independent code" OFF)
 option(MUSICA_ENABLE_COVERAGE "Enable code coverage output" OFF)
 option(MUSICA_BUNDLE_DEPENDENCIES "Bundle dependencies with the library" ON)
 option(MUSICA_ENABLE_JAVASCRIPT "Build the JavaScript addon" OFF)
+option(MUSICA_ENABLE_JULIA "Build the Julia wrapper" OFF)
+option(MUSICA_CREATE_ENVIRONMENT_MODULE "Create an Lmod environment module file" OFF)
 
 set(MUSICA_GPU_TYPE "None" CACHE STRING "The GPU type being targeted")
 
@@ -48,9 +50,11 @@ cmake_dependent_option(
 ################################################################################
 # Projet wide setup variables 
 set(MUSICA_INSTALL_INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR})
-set(MUSICA_MOD_DIR ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_INCLUDEDIR})
 set(MUSICA_LIB_DIR ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
 set(MUSICA_PROJECT_SRC_DIR ${PROJECT_SOURCE_DIR})
+
+set(MUSICA_MOD_DIR ${PROJECT_BINARY_DIR}/mod_fortran)
+set(MUSICA_INSTALL_MOD_DIR ${CMAKE_INSTALL_INCLUDEDIR}/musica/fortran)
 
 set(musica_compile_definitions "")
 
@@ -61,37 +65,6 @@ elseif(${CMAKE_Fortran_COMPILER_ID} MATCHES "GNU")
   list(APPEND musica_compile_definitions MUSICA_USING_GNU)
 elseif(${CMAKE_Fortran_COMPILER_ID} MATCHES "PGI")
   list(APPEND musica_compile_definitions MUSICA_USING_PGI)
-endif()
-
-# Set the C++ standard library if it is not already set
-if(NOT CMAKE_CXX_STANDARD_LIBRARIES)
-  if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
-    set(CMAKE_CXX_STANDARD_LIBRARIES "-lstdc++")
-  elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "Intel")
-    set(CMAKE_CXX_STANDARD_LIBRARIES "-lstdc++")
-  elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "IBM")
-    set(CMAKE_CXX_STANDARD_LIBRARIES "-lstdc++")
-  elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "NVHPC")
-    set(CMAKE_CXX_STANDARD_LIBRARIES "-lstdc++")
-  elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
-    set(CMAKE_CXX_STANDARD_LIBRARIES "-lstdc++") # use GNU standard library
-  else()
-    set(CMAKE_CXX_STANDARD_LIBRARIES "-lstdc++") # default to most common name
-  endif()
-endif()
-
-if(MUSICA_BUILD_C_CXX_INTERFACE)
-  # must be global so that it also applies to dependencies like google test, unless we want
-  # to set it for each target
-  # on ubuntu with clang, an incorrect version of the c++ standard library was being linked
-  if (${CMAKE_HOST_SYSTEM_NAME} MATCHES "Linux" AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-      # If the compiler is Clang and the Linux version is Ubuntu 20.04 or 22.04, use libc++ explicitly
-      if (${CMAKE_HOST_SYSTEM_VERSION} MATCHES "20.04" OR ${CMAKE_HOST_SYSTEM_VERSION} MATCHES "22.04")
-          message(STATUS "Using libc++ explicitly with Clang on Ubuntu 20.04 or 22.04")
-          set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-          set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -stdlib=libc++")
-      endif()
-  endif()
 endif()
 
 # since sources are collected so that python libraries can target them directly,
@@ -125,8 +98,9 @@ if(MUSICA_ENABLE_TESTS)
     setup_target_for_coverage_lcov(
         NAME coverage
         EXECUTABLE "ctest"
-        EXCLUDE "${PROJECT_SOURCE_DIR}/test/*"
-        BASE_DIRECTORY "${PROJECT_SOURCE_DIR}/src")
+        EXCLUDE "${PROJECT_SOURCE_DIR}/src/test/*"
+        BASE_DIRECTORY "${PROJECT_SOURCE_DIR}/src"
+        LCOV_ARGS "--ignore-errors" "mismatch")
     
   endif()
   
@@ -166,6 +140,12 @@ endif()
 # Musica JavaScript Addon
 if(MUSICA_ENABLE_JAVASCRIPT)
   add_subdirectory(javascript)
+endif()
+
+################################################################################
+# Musica Julia Wrapper
+if(MUSICA_ENABLE_JULIA)
+  add_subdirectory(julia)
 endif()
 
 ################################################################################

@@ -1,6 +1,7 @@
-// Copyright (C) 2023-2025 National Center for Atmospheric Research
+// Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 #include <musica/util.hpp>
+#include <musica/version.hpp>
 
 #include <gtest/gtest.h>
 
@@ -158,7 +159,7 @@ TEST(Util, IndexMappingFromFile)
   Error error;
   NoError(&error);
   Configuration config;
-  LoadConfigurationFromFile("test/data/util_index_mapping_from_file.json", &config, &error);
+  LoadConfigurationFromFile("configs/util_index_mapping_from_file.json", &config, &error);
   EXPECT_TRUE(IsSuccess(error));
   Mappings source_map;
   Mappings target_map;
@@ -354,4 +355,15 @@ TEST(Util, IndexMappingUndefinedOptions)
   DeleteMapping(&(target_map_array[1]));
   DeleteConfiguration(&config);
   DeleteError(&error);
+}
+
+TEST(Util, MusicaVersion)
+{
+  String version;
+  MusicaVersion(&version);
+  EXPECT_NE(version.value_, nullptr);
+  EXPECT_GT(version.size_, 0);
+  // Check that version is the same as GetMusicaVersion()
+  EXPECT_STREQ(version.value_, GetMusicaVersion());
+  DeleteString(&version);
 }

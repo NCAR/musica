@@ -5,8 +5,9 @@
 [![macOS](https://github.com/NCAR/musica/actions/workflows/mac.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/mac.yml)
 [![ubuntu](https://github.com/NCAR/musica/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/ubuntu.yml)
 [![windows](https://github.com/NCAR/musica/actions/workflows/windows.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/windows.yml)
-[![Python tests](https://github.com/NCAR/musica/actions/workflows/python-tests.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/python-tests.yml)
-[![Javascript tests](https://github.com/NCAR/musica/actions/workflows/javascript_integration.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/javascript_integration.yml)
+[![Python](https://github.com/NCAR/musica/actions/workflows/python-wheels.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/python-wheels.yml)
+[![Javascript tests](https://github.com/NCAR/musica/actions/workflows/javascript.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/javascript.yml)
+[![Julia tests](https://github.com/NCAR/musica/actions/workflows/julia.yml/badge.svg)](https://github.com/NCAR/musica/actions/workflows/julia.yml)
 [![DOI](https://zenodo.org/badge/550370528.svg)](https://zenodo.org/doi/10.5281/zenodo.7458559)
 [![PyPI version](https://badge.fury.io/py/musica.svg)](https://pypi.org/p/musica)
 [![FAIR checklist badge](https://fairsoftwarechecklist.net/badge.svg)](https://fairsoftwarechecklist.net/v0.2?f=31&a=32113&i=22322&r=123)
@@ -38,155 +39,84 @@ models.
 ![MUSICA Ecosystem](docs/source/_static/ecosystem.png)
 
 # Installation
-MUSICA is installable via pip for Python or CMake for C++. 
 
-## Pip
-```
+MUSICA provides interfaces for multiple programming languages. Choose the installation method that best fits your needs:
+
+## Python
+
+Most scientific users may prefer our python interface. It can be installed with pip:
+
+```bash
 pip install musica
 ```
 
-If you would like GPU support, you must first [add the NVIDIA pypi index](https://docs.nvidia.com/cuda/cuda-quick-start-guide/#pip-wheels-linux) and then you can specify the gpu install option for MUSICA. Note that GPU support has only been tested on linux.
+For detailed Python installation instructions, usage examples, and development information, see the [Python README](python/README.md).
 
-```
-pip install --upgrade setuptools pip wheel
-pip install nvidia-pyindex
-pip install musica[gpu]
-```
+## JavaScript
 
-To build the package locally,
+The JavaScript interface uses WebAssembly to run MUSICA components. This interface is most for tools developed for web 
+browsers and only supports the C++ components of MUSICA. It can be installed from npm
 
-```
-pip install -e .
+```bash
+npm install @ncar/musica
 ```
 
-If you have an NVIDIA GPU and cuda installed, you can enable a build of musica with GPU support by setting the environment 
-variable `BUILD_GPU`.
+For detailed JavaScript installation instructions, usage examples, and development information, see the [JavaScript README](javascript/README.md).
 
+## Fortran
+
+The Fortran interface is designed for integration with Fortran-based atmospheric models. You can install this from spack
+
+```bash
+spack install musica
 ```
-BUILD_GPU=1 pip install -e .
-```
 
-## CMake
+For detailed Fortran installation instructions, usage examples, and development information, see the [Fortran README](fortran/README.md).
 
-If you plan to build from source, you will need to install these packages, at a minimum. More packages may be
-required for more advancded installations.
+## C++ / CMake
 
-- cmake
+For C++ development or building from source with full control over options:
+
+### Prerequisites
+
+Minimum required packages:
+- cmake (>= 3.21)
 - pkg-config
 - netcdf
 - netcdf-fortran
 - blas
 - lapack
 
-MUSICA does have more dependencies that it builds with, but those are pulled in with cmake. If you want
-to use your own installation of these, you may, and our files are setup so that an installed package will
-be used rather than downloading one during the build, assuming you've installed it into a place where cmake
-can find it.
+### Building from Source
 
-**optional, pulled in by cmake**
-- pybind11
-- google test
-- micm
-- tuvx
-- mechanism configuration
-- carma
-
-```
-$ git clone https://github.com/NCAR/musica.git
-$ cd musica
-$ mkdir build
-$ cd build
-$ ccmake ..
-$ make
-$ make install
+```bash
+git clone https://github.com/NCAR/musica.git
+cd musica
+mkdir build
+cd build
+ccmake ..
+make
+make install
 ```
 
-# Using the MUSICA Python API
-MUSICA makes its chemical mechanism analysis and visualization available through a Python API. The following example works through solving a simple chemistry system. Please refer to the [official documentation](https://ncar.github.io/musica/index.html) for further tutorials and examples.
-```python
-# --- Import Musica ---
-import musica
-import musica.mechanism_configuration as mc
+MUSICA automatically downloads and builds additional dependencies (pybind11, googletest, MICM, TUV-x, Mechanism Configuration, CARMA) using CMake's FetchContent. If you have these packages already installed where CMake can find them, they will be used instead of being downloaded.
 
-# --- 1. Define the chemical system of interest ---
-A = mc.Species(name="A")
-B = mc.Species(name="B")
-C = mc.Species(name="C")
-species = [A, B, C]
-gas = mc.Phase(name="gas", species=species)
+# Quick Start
 
-# --- 2. Define a mechanism of interest ---
-# Through Musica, several different mechanisms can be explored to define reaction rates. Here, we use the Arrhenius equation as a simple example.
+- [Python](./python/README.md)
+- [Javascript](./javascript/README.md)
+- [Fortran](./fortran/README.md)
 
-r1 = mc.Arrhenius(name="A->B", A=4.0e-3, C=50, reactants=[A], products=[B], gas_phase=gas)
-r2 = mc.Arrhenius(name="B->C", A=1.2e-4, B=2.5, C=75, D=50, E=0.5, reactants=[B], products=[C], gas_phase=gas)
+# Documentation and Resources
 
-mechanism = mc.Mechanism(name="musica_example", species=species, phases=[gas], reactions=[r1, r2])
+## Official Documentation
 
-# --- 3. Create MICM solver ---
-# A solver must be initialized with either a configuration file or a mechanism:
+- [Full Documentation](https://ncar.github.io/musica/index.html) - Complete API reference, tutorials, and guides
+- [Interactive Tutorials](https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials) - Try MUSICA in your browser via Binder
+- [MUSICA Wiki](https://wiki.ucar.edu/display/MUSICA/MUSICA+Home) - Additional resources and community information
 
-solver = musica.MICM(mechanism=mechanism, solver_type=musica.SolverType.rosenbrock_standard_order)
 
-# --- 4. Define environmental conditions ---
-temperature=300.0
-pressure=101000.0
-
-# --- 5. Create and initialize State ---
-# In the model, conditions represent the starting environment for the reactions and are assigned by modifying the state.
-
-state = solver.create_state()
-state.set_concentrations({"A": 1.0, "B": 3.0, "C": 5.0})
-state.set_conditions(temperature, pressure)
-
-# --- 6. Time parameters ---
-time_step = 4  # stepping
-sim_length = 20  # total simulation time
-
-# --- (Optional) 7. Save initial state (t=0) for output visualization ---
-initial_row = {"time.s": 0.0, "ENV.temperature.K": temperature, "ENV.pressure.Pa": pressure, "ENV.air number density.mol m-3": state.get_conditions()['air_density'][0]}
-initial_row.update({f"CONC.{k}.mol m-3": v[0] for k, v in state.get_concentrations().items()})
-
-# --- 8. Solve through time loop only ---
-# The following loop simply solves the model per each time step:
-
-curr_time = time_step
-while curr_time <= sim_length:
-    solver.solve(state, time_step)
-    concentrations = state.get_concentrations()
-    curr_time += time_step
-
-# --- 9. Solve and create DataFrame ---
-# It is likely more useful to solve at each time step and store the associated data:
-import pandas as pd
-
-output_data = [] # prepare to store output per time step
-output_data.append(initial_row) # save t=0 data
-
-curr_time = time_step
-while curr_time <= sim_length:
-    solver.solve(state, time_step)
-    row = {
-        "time.s": curr_time,
-        "ENV.temperature.K": state.get_conditions()['temperature'][0],
-        "ENV.pressure.Pa": state.get_conditions()['pressure'][0],
-        "ENV.air number density.mol m-3": state.get_conditions()['air_density'][0]
-    }
-    row.update({f"CONC.{k}.mol m-3": v[0] for k, v in state.get_concentrations().items()})
-    output_data.append(row)
-    curr_time += time_step
-
-df = pd.DataFrame(output_data)
-print(df)
-
-# --- 10. Visualize Specific Results ---
-import matplotlib.pyplot as plt
-
-df.plot(x='time.s', y=['CONC.A.mol m-3', 'CONC.B.mol m-3', 'CONC.C.mol m-3'], title='Concentration over time', ylabel='Concentration (mol m-3)', xlabel='Time (s)')
-plt.show()
-```
-
-# Available grids
+## Available grids
 Pre-made grids for use in MUSICA are available [here](https://wiki.ucar.edu/display/MUSICA/Available+Grids).
 
 ## Developer Options

@@ -140,11 +140,11 @@ class TuvxRunTest : public ::testing::Test
 
 TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfig)
 {
-  const char* json_config_path = "test/data/tuvx/fixed/config.json";
+  const char* json_config_path = "configs/tuvx/fixed/config.json";
   SetUp(json_config_path);
   ASSERT_NE(tuvx, nullptr);
   Error error;
-  RunTuvx(tuvx, 0.1, 1.1, photolysis_rate_constants, heating_rates, nullptr, &error);
+  RunTuvx(tuvx, 0.1, 1.1, photolysis_rate_constants, heating_rates, nullptr, nullptr, nullptr, &error);
   ASSERT_TRUE(IsSuccess(error));
   for (int i = 0; i < number_of_reactions; i++)
   {
@@ -191,7 +191,7 @@ TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfig)
 
 TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfigAndHostData)
 {
-  const char* json_config_path = "test/data/tuvx/from_host/config.json";
+  const char* json_config_path = "configs/tuvx/from_host/config.json";
   Error error;
   GridMap* grids = CreateGridMap(&error);
   ASSERT_TRUE(IsSuccess(error));
@@ -247,7 +247,7 @@ TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfigAndHostData)
   double temperature_midpoint_values[3] = { 287.5, 267.5, 257.5 };
   SetProfileMidpointValues(temperature, temperature_midpoint_values, 3, &error);
   ASSERT_TRUE(IsSuccess(error));
-  RunTuvx(tuvx, 0.1, 1.1, photolysis_rate_constants, heating_rates, nullptr, &error);
+  RunTuvx(tuvx, 0.1, 1.1, photolysis_rate_constants, heating_rates, nullptr, nullptr, nullptr, &error);
   ASSERT_TRUE(IsSuccess(error));
   for (int i = 0; i < number_of_reactions; i++)
   {

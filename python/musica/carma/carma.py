@@ -16,8 +16,6 @@ from .. import backend
 
 _backend = backend.get_backend()
 
-version = _backend._carma._get_carma_version() if backend.carma_available() else None
-
 
 class ParticleShape(Enum):
     """Enumeration for particle shapes used in CARMA."""

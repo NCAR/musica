@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 University Corporation for Atmospheric Research
+// Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 //
 // This file defines the Python bindings for the TUV-x Radiator class in the musica library.
@@ -117,17 +117,29 @@ void bind_tuvx_radiator(py::module_ &radiator)
               musica::DeleteError(&error);
               throw py::value_error(message);
             }
-            auto result = py::array_t<double>({ num_wavelength_sections, num_height_sections });
-            py::buffer_info buf = result.request();
-            double *ptr = static_cast<double *>(buf.ptr);
-            self.GetOpticalDepths(ptr, num_height_sections, num_wavelength_sections, &error);
+
+            // Get a pointer to the internal C++ array
+            double *data_ptr = self.GetOpticalDepthsPointer(&error);
             if (!musica::IsSuccess(error))
             {
-              std::string message = "Error getting optical depths: " + std::string(error.message_.value_);
+              std::string message = "Error getting optical depths pointer: " + std::string(error.message_.value_);
               musica::DeleteError(&error);
               throw py::value_error(message);
             }
-            return result;
+
+            // Create a numpy array that references the internal C++ array directly
+            // using py::capsule to manage the lifetime correctly
+            py::capsule owner = py::capsule(
+                data_ptr,
+                [](void *f)
+                {
+                  // No deletion here since the memory is managed by the Radiator class
+                });
+            return py::array_t<double>(
+                { num_wavelength_sections, num_height_sections },          // shape
+                { sizeof(double) * num_height_sections, sizeof(double) },  // stride
+                data_ptr,                                                  // data pointer
+                owner);
           },
           // Setter - converts 2D numpy array to C++ array
           [](musica::Radiator &self, py::array_t<double, py::array::c_style | py::array::forcecast> array)
@@ -185,17 +197,29 @@ void bind_tuvx_radiator(py::module_ &radiator)
               musica::DeleteError(&error);
               throw py::value_error(message);
             }
-            auto result = py::array_t<double>({ num_wavelength_sections, num_height_sections });
-            py::buffer_info buf = result.request();
-            double *ptr = static_cast<double *>(buf.ptr);
-            self.GetSingleScatteringAlbedos(ptr, num_height_sections, num_wavelength_sections, &error);
+
+            // Get a pointer to the internal C++ array
+            double *data_ptr = self.GetSingleScatteringAlbedosPointer(&error);
             if (!musica::IsSuccess(error))
             {
-              std::string message = "Error getting single scattering albedos: " + std::string(error.message_.value_);
+              std::string message = "Error getting single scattering albedos pointer: " + std::string(error.message_.value_);
               musica::DeleteError(&error);
               throw py::value_error(message);
             }
-            return result;
+
+            // Create a numpy array that references the internal C++ array directly
+            // using py::capsule to manage the lifetime correctly
+            py::capsule owner = py::capsule(
+                data_ptr,
+                [](void *f)
+                {
+                  // No deletion here since the memory is managed by the Radiator class
+                });
+            return py::array_t<double>(
+                { num_wavelength_sections, num_height_sections },          // shape
+                { sizeof(double) * num_height_sections, sizeof(double) },  // stride
+                data_ptr,                                                  // data pointer
+                owner);
           },
           // Setter - converts 2D numpy array to C++ array
           [](musica::Radiator &self, py::array_t<double, py::array::c_style | py::array::forcecast> array)
@@ -253,19 +277,30 @@ void bind_tuvx_radiator(py::module_ &radiator)
               musica::DeleteError(&error);
               throw py::value_error(message);
             }
-            auto result = py::array_t<double>({ num_wavelength_sections, num_height_sections });
-            py::buffer_info buf = result.request();
-            double *ptr = static_cast<double *>(buf.ptr);
-            // The number of streams is currently fixed at 1 in TUV-x
             constexpr size_t num_streams = 1;
-            self.GetAsymmetryFactors(ptr, num_height_sections, num_wavelength_sections, num_streams, &error);
+
+            // Get a pointer to the internal C++ array
+            double *data_ptr = self.GetAsymmetryFactorsPointer(&error);
             if (!musica::IsSuccess(error))
             {
-              std::string message = "Error getting asymmetry factors: " + std::string(error.message_.value_);
+              std::string message = "Error getting asymmetry factors pointer: " + std::string(error.message_.value_);
               musica::DeleteError(&error);
               throw py::value_error(message);
             }
-            return result;
+
+            // Create a numpy array that references the internal C++ array directly
+            // using py::capsule to manage the lifetime correctly
+            py::capsule owner = py::capsule(
+                data_ptr,
+                [](void *f)
+                {
+                  // No deletion here since the memory is managed by the Radiator class
+                });
+            return py::array_t<double>(
+                { num_wavelength_sections, num_height_sections },          // shape
+                { sizeof(double) * num_height_sections, sizeof(double) },  // stride
+                data_ptr,                                                  // data pointer
+                owner);
           },
           // Setter - converts 2D numpy array to C++ array
           [](musica::Radiator &self, py::array_t<double, py::array::c_style | py::array::forcecast> array)

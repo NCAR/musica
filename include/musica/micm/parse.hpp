@@ -5,6 +5,8 @@
 #include <musica/micm/micm.hpp>
 
 #include <mechanism_configuration/parser.hpp>
+#include <mechanism_configuration/v0/types.hpp>
+#include <mechanism_configuration/v1/mechanism.hpp>
 
 #include <stdexcept>
 #include <system_error>
@@ -58,15 +60,19 @@ inline std::error_code make_error_code(MusicaParseErrc e)
 namespace musica
 {
   Chemistry ReadConfiguration(const std::string& config_path);
+  Chemistry ReadConfigurationFromString(const std::string& json_or_yaml_string);  // Parse from JSON/YAML string
   Chemistry ParserV0(const mechanism_configuration::ParserResult<>& result);
   Chemistry ConvertV1Mechanism(
       const mechanism_configuration::v1::types::Mechanism& v1_mechanism,
       bool ignore_non_gas_phases = false);
   Chemistry ParserV1(const mechanism_configuration::ParserResult<>& result);
 
-  mechanism_configuration::v1::types::Mechanism ConvertV0MechanismToV1(const std::string& config_path);
   mechanism_configuration::v1::types::Mechanism ConvertV0MechanismToV1(
-      const mechanism_configuration::v0::types::Mechanism& v0_mechanism);
+      const std::string& config_path,
+      bool convert_reaction_units = true);
+  mechanism_configuration::v1::types::Mechanism ConvertV0MechanismToV1(
+      const mechanism_configuration::v0::types::Mechanism& v0_mechanism,
+      bool convert_reaction_units = true);
 
   // Utility functions to check types and perform conversions
   bool IsBool(const std::string& value);

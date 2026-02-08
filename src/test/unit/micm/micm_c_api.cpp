@@ -300,7 +300,9 @@ TEST(RosenbrockStandardOrder, SolveUsingStandardOrderedRosenbrock)
   int const num_grid_cells = 1;
   Error error;
   MICM* micm = CreateMicm(config_path, MICMSolver::RosenbrockStandardOrder, &error);
+  ASSERT_TRUE(IsSuccess(error));
   musica::State* state = CreateMicmState(micm, num_grid_cells, &error);
+  ASSERT_TRUE(IsSuccess(error));
 
   TestSingleGridCell(micm, state);
 

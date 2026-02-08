@@ -1,6 +1,7 @@
-// Copyright (C) 2023-2025 National Center for Atmospheric Research
+// Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 #include <musica/util.hpp>
+#include <musica/version.hpp>
 
 #include <cstddef>
 #include <cstring>
@@ -21,7 +22,7 @@ namespace musica
   {
     str->size_ = std::strlen(value);
     str->value_ = new char[str->size_ + 1];
-    std::strcpy(str->value_, value);
+    std::memcpy(str->value_, value, str->size_ + 1);
   }
 
   void DeleteString(String* str)
@@ -273,6 +274,11 @@ namespace musica
       DeleteIndexMapping(&(mappings->mappings_[i]));
     }
     delete[] mappings->mappings_;
+  }
+
+  void MusicaVersion(String* musica_version)
+  {
+    CreateString(GetMusicaVersion(), musica_version);
   }
 
 }  // namespace musica

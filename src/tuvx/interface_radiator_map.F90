@@ -1,4 +1,4 @@
-! Copyright (C) 2023-2025 University Corporation for Atmospheric Research
+! Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 ! SPDX-License-Identifier: Apache-2.0
 !
 module tuvx_interface_radiator_map
@@ -121,6 +121,7 @@ end subroutine internal_delete_radiator_map
     ! result
     type(c_ptr) :: radiator_ptr
 
+    f_radiator => null()
     error_code = ERROR_NONE
     allocate(character(len=c_radiator_name_length) :: f_radiator_name)
     do i = 1, c_radiator_name_length
@@ -151,6 +152,12 @@ end subroutine internal_delete_radiator_map
       end select
 
       radiator_ptr = c_loc(f_radiator)
+    end if
+
+    if (error_code /= ERROR_NONE) then
+      if (associated(f_radiator)) then
+        deallocate(f_radiator)
+      end if
     end if
 
   end function internal_get_radiator
@@ -200,6 +207,12 @@ end subroutine internal_delete_radiator_map
     end select
 
     radiator_ptr = c_loc(f_radiator)
+
+    if (error_code /= ERROR_NONE) then
+      if (associated(f_radiator)) then
+        deallocate(f_radiator)
+      end if
+    end if
 
   end function internal_get_radiator_by_index
 

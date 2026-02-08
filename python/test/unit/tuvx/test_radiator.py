@@ -1,4 +1,4 @@
-# Copyright (C) 2023-2025 University Corporation for Atmospheric Research
+# Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 # SPDX-License-Identifier: Apache-2.0
 """Tests for the Radiator class."""
 from __future__ import annotations
@@ -113,6 +113,24 @@ def test_radiator_properties(sample_height_grid, sample_wavelength_grid):
                                  [0.66, 0.68, 0.7, 0.72, 0.74]], dtype=np.float64)
     radiator.asymmetry_factors = asymmetry_values
     np.testing.assert_array_equal(radiator.asymmetry_factors, asymmetry_values)
+
+    # Test setting optical depth elements
+    radiator.optical_depths[0, 0] = 0.95
+    assert radiator.optical_depths[0, 0] == 0.95
+    radiator.optical_depths[2, 4] = 0.85
+    assert radiator.optical_depths[2, 4] == 0.85
+
+    # Test setting single scattering albedo elements
+    radiator.single_scattering_albedos[1, 1] = 0.93
+    assert radiator.single_scattering_albedos[1, 1] == 0.93
+    radiator.single_scattering_albedos[2, 3] = 0.89
+    assert radiator.single_scattering_albedos[2, 3] == 0.89
+
+    # Test setting asymmetry factor elements
+    radiator.asymmetry_factors[0, 2] = 0.75
+    assert radiator.asymmetry_factors[0, 2] == 0.75
+    radiator.asymmetry_factors[1, 4] = 0.77
+    assert radiator.asymmetry_factors[1, 4] == 0.77
 
     # test invalid shape assignment
     with pytest.raises(ValueError, match="Array shape must be"):

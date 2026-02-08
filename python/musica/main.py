@@ -7,6 +7,11 @@ from musica import Examples
 from musica import __version__
 import musica.examples
 import importlib.resources as ir
+import musica
+
+
+def versions():
+    return f"musica {musica.__version__} (MICM {musica.micm.__version__}, TUV-x {musica.tuvx.__version__}, CARMA {musica.carma.__version__})"
 
 
 def format_examples_help(examples):
@@ -38,7 +43,7 @@ def parse_arguments():
     parser.add_argument(
         '--version',
         action='version',
-        version=f'musica {__version__}',
+        version=versions(),
     )
     parser.add_argument(
         '--convert',
@@ -77,7 +82,10 @@ def convert_configuration(logger, configuration, output_path):
         raise ValueError(f"Configuration file '{configuration}' does not exist.")
 
     parser = musica.mechanism_configuration.Parser()
-    mechanism = parser.parse_and_convert_v0(configuration)
+    # the mechanism configuration automatically converts pre exponential factors to SI units
+    # so we don't need to convert units again here.
+    convert_units = False
+    mechanism = parser.parse_and_convert_v0(configuration, convert_units)
     mechanism.export(output_path)
 
 

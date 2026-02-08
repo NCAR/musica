@@ -1,4 +1,4 @@
-# Copyright (C) 2023-2025 National Center for Atmospheric Research
+# Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 # SPDX-License-Identifier: Apache-2.0
 """
 TUV-x ProfileMap class.
@@ -103,7 +103,7 @@ if backend.tuvx_available():
         if not isinstance(profile, Profile):
             raise TypeError("Value must be a Profile object")
         if profile.name != name or profile.units != units:
-            raise ValueError("Profile name/units must match the key tuple")
+            raise ValueError(f"Profile name/units must match the key tuple: {(profile.name, profile.units)}")
         self.add_profile(profile)
 
     ProfileMap.__setitem__ = __setitem__

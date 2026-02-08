@@ -1,4 +1,4 @@
-! Copyright (C) 2023-2025 National Center for Atmospheric Research
+! Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 ! SPDX-License-Identifier: Apache-2.0
 !
 module tuvx_interface_grid_map
@@ -127,6 +127,8 @@ module tuvx_interface_grid_map
 
     integer :: i_grid
 
+    error_code = ERROR_NONE
+
     allocate(character(len=c_grid_name_length) :: f_grid_name)
     do i = 1, c_grid_name_length
       f_grid_name(i:i) = c_grid_name(i)
@@ -170,7 +172,7 @@ module tuvx_interface_grid_map
       grid_ptr = c_null_ptr
       return
     end if
-    error_code = ERROR_NONE
+
     grid_ptr = c_loc(f_grid)
   
   end function interal_get_grid
@@ -227,6 +229,8 @@ module tuvx_interface_grid_map
     ! result
     type(c_ptr) :: grid_ptr
 
+    error_code = ERROR_NONE
+
     call c_f_pointer(grid_map, grid_warehouse)
 
     if (.not.allocated(grid_warehouse%grids_)) then
@@ -255,8 +259,13 @@ module tuvx_interface_grid_map
       return
     end select
 
-    error_code = ERROR_NONE
     grid_ptr = c_loc(f_grid)
+
+    if (error_code /= ERROR_NONE) then
+      if (associated(f_grid)) then
+        deallocate(f_grid)
+      end if
+    end if
   
   end function internal_get_grid_by_index
 

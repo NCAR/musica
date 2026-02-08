@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 National Center for Atmospheric Research
+// Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 #pragma once
 
@@ -49,6 +49,11 @@ namespace musica
     /// @param error The error struct to indicate success or failure
     void GetEdgeValues(double edge_values[], std::size_t num_values, Error* error);
 
+    /// @brief Returns a pointer to the edge values array
+    /// @param error The error struct to indicate success or failure
+    /// @return A pointer to the edge values array
+    double* GetEdgeValuesPointer(Error* error);
+
     /// @brief Sets the profile values at the midpoints of the grid
     /// @param midpoint_values The values at the midpoints of the grid
     /// @param num_values The number of values
@@ -61,6 +66,11 @@ namespace musica
     /// @param error The error struct to indicate success or failure
     void GetMidpointValues(double midpoint_values[], std::size_t num_values, Error* error);
 
+    /// @brief Returns a pointer to the midpoint values array
+    /// @param error The error struct to indicate success or failure
+    /// @return A pointer to the midpoint values array
+    double* GetMidpointValuesPointer(Error* error);
+
     /// @brief Sets the layer densities for each grid section
     /// @param layer_densities The layer densities
     /// @param num_values The number of values
@@ -72,6 +82,11 @@ namespace musica
     /// @param num_values The number of values
     /// @param error The error struct to indicate success or failure
     void GetLayerDensities(double layer_densities[], std::size_t num_values, Error* error);
+
+    /// @brief Returns a pointer to the layer densities array
+    /// @param error The error struct to indicate success or failure
+    /// @return A pointer to the layer densities array
+    double* GetLayerDensitiesPointer(Error* error);
 
     /// @brief Sets the layer density above the top of the grid
     /// @param exo_layer_density The layer density above the top of the grid
@@ -154,6 +169,12 @@ namespace musica
     /// @param error The error struct to indicate success or failure
     void GetProfileEdgeValues(Profile* profile, double edge_values[], std::size_t num_values, Error* error);
 
+    /// @brief Returns a pointer to the edge values array
+    /// @param profile The profile to get the edge values pointer of
+    /// @param error The error struct to indicate success or failure
+    /// @return A pointer to the edge values array
+    double* GetProfileEdgeValuesPointer(Profile* profile, Error* error);
+
     /// @brief Sets the values at midpoints of the profile grid
     /// @param profile The profile to set the midpoint values of
     /// @param midpoint_values The midpoint values to set for the profile
@@ -168,6 +189,12 @@ namespace musica
     /// @param error The error struct to indicate success or failure
     void GetProfileMidpointValues(Profile* profile, double midpoint_values[], std::size_t num_values, Error* error);
 
+    /// @brief Returns a pointer to the midpoint values array
+    /// @param profile The profile to get the midpoint values pointer of
+    /// @param error The error struct to indicate success or failure
+    /// @return A pointer to the midpoint values array
+    double* GetProfileMidpointValuesPointer(Profile* profile, Error* error);
+
     /// @brief Sets the layer densities for each grid section of the profile
     /// @param profile The profile to set the layer densities of
     /// @param layer_densities The layer densities to set for the profile
@@ -181,6 +208,12 @@ namespace musica
     /// @param num_values The number of values
     /// @param error The error struct to indicate success or failure
     void GetProfileLayerDensities(Profile* profile, double layer_densities[], std::size_t num_values, Error* error);
+
+    /// @brief Returns a pointer to the layer densities array
+    /// @param profile The profile to get the layer densities pointer of
+    /// @param error The error struct to indicate success or failure
+    /// @return A pointer to the layer densities array
+    double* GetProfileLayerDensitiesPointer(Profile* profile, Error* error);
 
     /// @brief Sets the layer density above the top of the profile grid
     /// @param profile The profile to set the exo layer density of
@@ -223,10 +256,13 @@ namespace musica
     void InternalGetProfileUnits(void* profile, String* units, int* error_code);
     void InternalSetEdgeValues(void* profile, double edge_values[], std::size_t num_values, int* error_code);
     void InternalGetEdgeValues(void* profile, double edge_values[], std::size_t num_values, int* error_code);
+    double* InternalGetEdgeValuesPointer(void* profile, int* error_code);
     void InternalSetMidpointValues(void* profile, double midpoint_values[], std::size_t num_values, int* error_code);
     void InternalGetMidpointValues(void* profile, double midpoint_values[], std::size_t num_values, int* error_code);
+    double* InternalGetMidpointValuesPointer(void* profile, int* error_code);
     void InternalSetLayerDensities(void* profile, double layer_densities[], std::size_t num_values, int* error_code);
     void InternalGetLayerDensities(void* profile, double layer_densities[], std::size_t num_values, int* error_code);
+    double* InternalGetLayerDensitiesPointer(void* profile, int* error_code);
     void InternalSetExoLayerDensity(void* profile, double exo_layer_density, int* error_code);
     void InternalCalculateExoLayerDensity(void* profile, double scale_height, int* error_code);
     double InternalGetExoLayerDensity(void* profile, int* error_code);

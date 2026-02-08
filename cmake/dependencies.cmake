@@ -14,7 +14,7 @@ endfunction(set_git_default)
 ################################################################################
 # NetCDF library
 
-if (MUSICA_BUILD_FORTRAN_INTERFACE)
+if (MUSICA_ENABLE_CARMA OR MUSICA_ENABLE_TUVX)
   # Prefer the bundled flang-built netcdf-fortran pkg-config metadata so we
   # pick up compatible .mod files when using LLVM Flang.
   set(_musica_netcdf_pc_dir
@@ -45,7 +45,7 @@ endif()
 
 if(MUSICA_BUILD_C_CXX_INTERFACE)
   set_git_default(MECH_CONFIG_GIT_REPOSITORY https://github.com/NCAR/MechanismConfiguration.git)
-  set_git_default(MECH_CONFIG_GIT_TAG v1.0.0)
+  set_git_default(MECH_CONFIG_GIT_TAG v1.1.1)
 
   FetchContent_Declare(mechanism_configuration
       GIT_REPOSITORY ${MECH_CONFIG_GIT_REPOSITORY}
@@ -95,7 +95,7 @@ endif()
 
 if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE)
   set_git_default(MICM_GIT_REPOSITORY https://github.com/NCAR/micm.git)
-  set_git_default(MICM_GIT_TAG e9123958129f34920491e61b79cd8b6baba28915)
+  set_git_default(MICM_GIT_TAG v3.11.0)
 
   FetchContent_Declare(micm
       GIT_REPOSITORY ${MICM_GIT_REPOSITORY}
@@ -120,11 +120,13 @@ endif()
 if (MUSICA_ENABLE_TUVX AND MUSICA_BUILD_C_CXX_INTERFACE)
   set(TUVX_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
   set(TUVX_MOD_DIR ${MUSICA_MOD_DIR} CACHE STRING "" FORCE)
-  set(TUVX_INSTALL_MOD_DIR ${MUSICA_INSTALL_INCLUDE_DIR} CACHE STRING "" FORCE)
+  set(TUVX_INSTALL_MOD_DIR ${MUSICA_INSTALL_MOD_DIR} CACHE STRING "" FORCE)
   set(TUVX_INSTALL_INCLUDE_DIR ${MUSICA_INSTALL_INCLUDE_DIR} CACHE STRING "" FORCE)
 
+  # NOTE: `docker/Dockerfile.tuvx` extracts TUVX_GIT_REPOSITORY and TUVX_GIT_TAG
+  #       from this script to set up tests against stand-alone TUV-x
   set_git_default(TUVX_GIT_REPOSITORY https://github.com/NCAR/tuv-x.git)
-  set_git_default(TUVX_GIT_TAG v0.13.0)
+  set_git_default(TUVX_GIT_TAG v0.14.0)
 
   FetchContent_Declare(tuvx
     GIT_REPOSITORY ${TUVX_GIT_REPOSITORY}
@@ -144,6 +146,9 @@ endif()
 if(MUSICA_ENABLE_CARMA AND MUSICA_BUILD_C_CXX_INTERFACE)
   set_git_default(CARMA_GIT_REPOSITORY https://github.com/NCAR/CARMA-ACOM-dev.git)
   set_git_default(CARMA_GIT_TAG develop-carma-box)
+  set(CARMA_MOD_DIR ${MUSICA_MOD_DIR} CACHE STRING "" FORCE)
+  set(CARMA_INSTALL_MOD_DIR ${MUSICA_INSTALL_MOD_DIR} CACHE STRING "" FORCE)
+  set(CARMA_INSTALL_INCLUDE_DIR ${MUSICA_INSTALL_INCLUDE_DIR} CACHE STRING "" FORCE)
 
   FetchContent_Declare(carma
       GIT_REPOSITORY ${CARMA_GIT_REPOSITORY}
@@ -162,7 +167,7 @@ if(MUSICA_ENABLE_PYTHON_LIBRARY)
   set(PYBIND11_NEWPYTHON ON)
 
   set_git_default(PYBIND11_GIT_REPOSITORY https://github.com/pybind/pybind11)
-  set_git_default(PYBIND11_GIT_TAG v3.0.0)
+  set_git_default(PYBIND11_GIT_TAG v3.0.1)
 
   FetchContent_Declare(pybind11
       GIT_REPOSITORY ${PYBIND11_GIT_REPOSITORY}
@@ -173,6 +178,51 @@ if(MUSICA_ENABLE_PYTHON_LIBRARY)
 
   FetchContent_MakeAvailable(pybind11)
 endif()
+
+################################################################################
+# Julia
+
+if (MUSICA_ENABLE_JULIA AND MUSICA_BUILD_C_CXX_INTERFACE)
+  find_program(Julia_EXECUTABLE julia REQUIRED)
+
+  # Use the Julia project in the top-level julia subdirectory
+  set(JULIA_PROJECT_DIR "${CMAKE_SOURCE_DIR}/julia")
+
+  execute_process(
+    COMMAND ${Julia_EXECUTABLE} --project=${JULIA_PROJECT_DIR} -e "using Pkg; Pkg.instantiate()"
+    RESULT_VARIABLE PKG_INSTANTIATE_RESULT
+    OUTPUT_VARIABLE PKG_INSTANTIATE_OUTPUT
+    ERROR_VARIABLE PKG_INSTANTIATE_ERROR
+  )
+
+  if(NOT PKG_INSTANTIATE_RESULT EQUAL 0)
+      message(FATAL_ERROR
+          "Failed to instantiate Julia project dependencies in ${JULIA_PROJECT_DIR}.\n"
+          "Stdout: ${PKG_INSTANTIATE_OUTPUT}\n"
+          "Stderr: ${PKG_INSTANTIATE_ERROR}"
+      )
+  endif()
+
+  # Try to get CxxWrap prefix path
+  execute_process(
+      COMMAND ${Julia_EXECUTABLE} --project=${JULIA_PROJECT_DIR} -e "using CxxWrap; print(CxxWrap.prefix_path())"
+      OUTPUT_VARIABLE CxxWrap_PREFIX
+      RESULT_VARIABLE CxxWrap_RESULT
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_VARIABLE CxxWrap_ERROR
+  )
+  if(CxxWrap_RESULT EQUAL 0 AND EXISTS ${CxxWrap_PREFIX})
+      message(STATUS "CxxWrap prefix: ${CxxWrap_PREFIX}")
+      list(APPEND CMAKE_PREFIX_PATH ${CxxWrap_PREFIX})
+      find_package(JlCxx REQUIRED)
+  else()
+      message(FATAL_ERROR 
+          "Failed to find CxxWrap.jl. Error: ${CxxWrap_ERROR}\n"
+          "Please ensure CxxWrap is properly installed"
+      )
+  endif()
+endif()
+
 
 ################################################################################
 # Docs

@@ -1,28 +1,43 @@
-const addon = require('../build/Release/musica-addon.node');
-const { GAS_CONSTANT, AVOGADRO, BOLTZMANN } = require('./micm/utils.js');
-const { SolverType } = require('./micm/solver.js');
-const { Conditions } = require('./micm/conditions.js');
-const { MICM } = require('./micm/micm.js');
-const { State } = require('./micm/state.js');
-const { types } = require('./mechanism_configuration/types.js');
-const { reactionTypes } = require('./mechanism_configuration/reaction_types.js');
-const { Mechanism } = require('./mechanism_configuration/mechanism.js');
+import * as micm from './micm/index.js';
+import * as mc from './mechanism_configuration/index.js';
+import { initModule, getBackend } from './backend.js';
 
-const micmSolver = {
-	MICM,
-	State,
-	Conditions,
-	SolverType,
-	GAS_CONSTANT,
-	AVOGADRO,
-	BOLTZMANN,
+/**
+ * Get MUSICA version
+ * @returns {Promise<string>}
+ */
+export async function getVersion() {
+  const backend = getBackend();
+  return backend.getVersion();
+}
+
+/**
+ * Get MICM version
+ * @returns {Promise<string>}
+ */
+export async function getMicmVersion() {
+  const backend = getBackend();
+  return backend.getMicmVersion();
+}
+
+// Flatten exports
+export const {
+  MICM,
+  State,
+  Conditions,
+  SolverType,
+  SolverState,
+  SolverStats,
+  SolverResult,
+  GAS_CONSTANT,
+  AVOGADRO,
+  BOLTZMANN,
+} = micm;
+
+export const mechanismConfiguration = {
+  types: mc.types,
+  reactionTypes: mc.reactionTypes,
+  Mechanism: mc.Mechanism,
 };
 
-const mechanismConfiguration = {
-	types,
-	reactionTypes,
-	Mechanism,
-};
-
-Object.assign(addon, { micmSolver, mechanismConfiguration });
-module.exports = addon;
+export { initModule, getBackend };

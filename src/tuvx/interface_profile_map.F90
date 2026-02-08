@@ -1,4 +1,4 @@
-! Copyright (C) 2023-2025 National Center for Atmospheric Research
+! Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 ! SPDX-License-Identifier: Apache-2.0
 !
 module tuvx_interface_profile_map
@@ -219,6 +219,12 @@ module tuvx_interface_profile_map
     end select
 
     profile_ptr = c_loc(f_profile)
+
+    if (error_code /= ERROR_NONE) then
+      if (associated(f_profile)) then
+        deallocate(f_profile)
+      end if
+    end if
 
   end function internal_get_profile_by_index
 
