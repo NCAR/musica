@@ -66,6 +66,19 @@ def run_tuvx_5_4_example():
     plt.grid(True)
     plt.savefig("tuvx_v54_photolysis_rates.png")
 
+    # Write CSV for cross-language comparison with Fortran example
+    height_edges = standard_results["vertical_edge"].values
+    csv_path = "tuvx_v54_python_results.csv"
+    with open(csv_path, "w") as f:
+        f.write("level,height_km,jo3a_std,jo3a_2xO3,jo3b_std,jo3b_2xO3\n")
+        for i in range(len(height_edges)):
+            f.write(f"{i+1},{height_edges[i]:.1f},"
+                    f"{jo3a_std.values[i]:.16E},"
+                    f"{jo3a_mod.values[i]:.16E},"
+                    f"{jo3b_std.values[i]:.16E},"
+                    f"{jo3b_mod.values[i]:.16E}\n")
+    print(f"\nResults written to {csv_path}")
+
 
 if __name__ == "__main__":
     if not available:
