@@ -88,7 +88,7 @@ namespace musica
 #endif
   }
 
-  void CudaLoader::UnloadLibrary()
+  void CudaLoader::UnloadLibrary() const
   {
 #if MUSICA_HAS_DLOPEN
     if (library_handle_)

@@ -82,7 +82,7 @@ namespace musica
     ~CudaLoader();
 
     void LoadLibrary() const;
-    void UnloadLibrary();
+    void UnloadLibrary() const;
 
     // Mutable members for thread-safe lazy initialization
     mutable std::once_flag load_flag_;
