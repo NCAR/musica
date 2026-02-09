@@ -11,17 +11,8 @@
 #include <cstring>
 #include <exception>
 
-// Forward declarations from cuda_solver.cpp
-namespace musica
-{
-  namespace cuda
-  {
-    class CudaRosenbrockSolver;
-  }
-}  // namespace musica
-
-// Include the solver implementation
-#include "cuda_solver.cpp"
+// Include the solver declarations
+#include "cuda_solver.hpp"
 
 extern "C"
 {
