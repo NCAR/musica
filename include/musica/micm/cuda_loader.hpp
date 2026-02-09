@@ -11,6 +11,7 @@
 
 #include <functional>
 #include <memory>
+#include <mutex>
 #include <string>
 
 namespace musica
@@ -83,9 +84,10 @@ namespace musica
     void LoadLibrary();
     void UnloadLibrary();
 
-    void* library_handle_;
-    std::string last_error_;
-    bool attempted_load_;
+    // Mutable members for thread-safe lazy initialization
+    mutable std::once_flag load_flag_;
+    mutable void* library_handle_;
+    mutable std::string last_error_;
 
     // Function pointers for CUDA factory functions
     using CreateRosenbrockFunc = IMicmSolver* (*)(const Chemistry*, char*, std::size_t);
@@ -93,10 +95,10 @@ namespace musica
     using DevicesAvailableFunc = bool (*)();
     using CleanUpFunc = void (*)();
 
-    CreateRosenbrockFunc create_rosenbrock_func_;
-    DestroySolverFunc destroy_solver_func_;
-    DevicesAvailableFunc devices_available_func_;
-    CleanUpFunc cleanup_func_;
+    mutable CreateRosenbrockFunc create_rosenbrock_func_;
+    mutable DestroySolverFunc destroy_solver_func_;
+    mutable DevicesAvailableFunc devices_available_func_;
+    mutable CleanUpFunc cleanup_func_;
   };
 
 }  // namespace musica

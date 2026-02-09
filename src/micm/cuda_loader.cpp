@@ -25,7 +25,6 @@ namespace musica
 
   CudaLoader::CudaLoader()
       : library_handle_(nullptr),
-        attempted_load_(false),
         create_rosenbrock_func_(nullptr),
         destroy_solver_func_(nullptr),
         devices_available_func_(nullptr),
@@ -40,12 +39,6 @@ namespace musica
 
   void CudaLoader::LoadLibrary()
   {
-    if (attempted_load_)
-    {
-      return;
-    }
-    attempted_load_ = true;
-
 #if MUSICA_HAS_DLOPEN
     // Try to load libmusica_cuda.so from various locations
     const char* library_names[] = {
@@ -112,8 +105,8 @@ namespace musica
 
   bool CudaLoader::IsAvailable() const
   {
-    // Need to cast away const because LoadLibrary modifies state on first call
-    const_cast<CudaLoader*>(this)->LoadLibrary();
+    // Thread-safe lazy initialization using std::call_once
+    std::call_once(load_flag_, [this]() { const_cast<CudaLoader*>(this)->LoadLibrary(); });
     return library_handle_ != nullptr && create_rosenbrock_func_ != nullptr;
   }
 
