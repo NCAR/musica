@@ -102,11 +102,11 @@ namespace musica
 
     /// @brief Get the variable (species) ordering map
     /// @return Map of species names to their indices
-    std::map<std::string, std::size_t> GetVariableMap() const;
+    std::unordered_map<std::string, std::size_t> GetVariableMap() const;
 
     /// @brief Get the rate parameter ordering map
     /// @return Map of rate parameter names to their indices
-    std::map<std::string, std::size_t> GetRateParameterMap() const;
+    std::unordered_map<std::string, std::size_t> GetRateParameterMap() const;
 
     /// @brief Get the underlying IState interface for use with solvers
     /// @return Pointer to the IState implementation

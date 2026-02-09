@@ -372,7 +372,7 @@ namespace musica
     }
   }
 
-  Chemistry ConvertV1Mechanism(const mechanism_configuration::v1::types::Mechanism& v1_mechanism, bool ignore_non_gas_phases)
+  Chemistry ConvertV1Mechanism(const mechanism_configuration::v1::types::Mechanism& v1_mechanism)
   {
     Chemistry chemistry{};
     auto species = convert_species(v1_mechanism.species);
@@ -388,10 +388,6 @@ namespace musica
       if (phase.name_ == "gas")
       {
         gas_phase = phase;
-      }
-      else if (!ignore_non_gas_phases)
-      {
-        chemistry.system.phases_[phase.name_] = phase;
       }
     }
     convert_arrhenius(chemistry, v1_mechanism.reactions.arrhenius, species_map);

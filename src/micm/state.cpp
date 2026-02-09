@@ -183,12 +183,12 @@ namespace musica
     return impl_->GetRateParameterStrides();
   }
 
-  std::map<std::string, std::size_t> State::GetVariableMap() const
+  std::unordered_map<std::string, std::size_t> State::GetVariableMap() const
   {
     return impl_->GetVariableMap();
   }
 
-  std::map<std::string, std::size_t> State::GetRateParameterMap() const
+  std::unordered_map<std::string, std::size_t> State::GetRateParameterMap() const
   {
     return impl_->GetRateParameterMap();
   }

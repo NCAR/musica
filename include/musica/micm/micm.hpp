@@ -142,11 +142,11 @@ namespace musica
 
     /// @brief Get the species ordering map
     /// @return Map of species names to their indices
-    std::map<std::string, std::size_t> GetSpeciesOrdering() const;
+    std::unordered_map<std::string, std::size_t> GetSpeciesOrdering() const;
 
     /// @brief Get the rate parameter ordering map
     /// @return Map of rate parameter names to their indices
-    std::map<std::string, std::size_t> GetRateParameterOrdering() const;
+    std::unordered_map<std::string, std::size_t> GetRateParameterOrdering() const;
 
     /// @brief Get the solver type
     /// @return The solver type enum value

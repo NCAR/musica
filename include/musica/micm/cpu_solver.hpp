@@ -37,8 +37,8 @@ namespace musica
     const std::vector<double>& GetOrderedRateParameters() const override;
     std::pair<std::size_t, std::size_t> GetConcentrationsStrides() const override;
     std::pair<std::size_t, std::size_t> GetRateParameterStrides() const override;
-    std::map<std::string, std::size_t> GetVariableMap() const override;
-    std::map<std::string, std::size_t> GetRateParameterMap() const override;
+    std::unordered_map<std::string, std::size_t> GetVariableMap() const override;
+    std::unordered_map<std::string, std::size_t> GetRateParameterMap() const override;
 
     /// @brief Get access to the underlying state variant for solving
     StateVariant& GetStateVariant();
@@ -67,8 +67,8 @@ namespace musica
     std::size_t MaximumNumberOfGridCells() const override;
     std::unique_ptr<IState> CreateState(std::size_t number_of_grid_cells) override;
     micm::System GetSystem() const override;
-    std::map<std::string, std::size_t> GetSpeciesOrdering() const override;
-    std::map<std::string, std::size_t> GetRateParameterOrdering() const override;
+    std::unordered_map<std::string, std::size_t> GetSpeciesOrdering() const override;
+    std::unordered_map<std::string, std::size_t> GetRateParameterOrdering() const override;
     std::size_t GetVectorSize() const override;
 
    private:

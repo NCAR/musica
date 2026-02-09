@@ -34,7 +34,7 @@ void bind_micm(py::module_& micm)
       .value("AcceptingUnconvergedIntegration", micm::SolverState::AcceptingUnconvergedIntegration)
       .export_values();
 
-  micm.def("_vector_size", &musica::GetVectorSize, "Returns the vector dimension for vector-ordered solvers, 0 otherwise.");
+  micm.def("_vector_size", &musica::GetVectorSize, "Returns the vector dimension for vector-ordered solvers, 1 otherwise.");
 
   micm.def(
       "_create_solver",
@@ -67,10 +67,10 @@ void bind_micm(py::module_& micm)
 
   micm.def(
       "_create_solver_from_mechanism",
-      [](const v1::Mechanism& mechanism, musica::MICMSolver solver_type, bool ignore_non_gas_phases)
+      [](const v1::Mechanism& mechanism, musica::MICMSolver solver_type)
       {
         musica::Error error;
-        musica::Chemistry chemistry = musica::ConvertV1Mechanism(mechanism, ignore_non_gas_phases);
+        musica::Chemistry chemistry = musica::ConvertV1Mechanism(mechanism);
         musica::MICM* micm = musica::CreateMicmFromChemistryMechanism(&chemistry, solver_type, &error);
         if (!musica::IsSuccess(error))
         {

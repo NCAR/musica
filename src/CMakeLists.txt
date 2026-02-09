@@ -32,16 +32,19 @@ target_sources(musica PRIVATE
 
 # MICM sources
 if(MUSICA_ENABLE_MICM)
+  list(APPEND musica_compile_definitions MUSICA_USE_MICM)
   add_subdirectory(micm)
 endif()
 
 # TUV-x sources
 if(MUSICA_ENABLE_TUVX)
+  list(APPEND musica_compile_definitions MUSICA_USE_TUVX)
   add_subdirectory(tuvx)
 endif()
 
 # CARMA sources
 if(MUSICA_ENABLE_CARMA)
+  list(APPEND musica_compile_definitions MUSICA_USE_CARMA)
   add_subdirectory(carma)
 endif()
 
@@ -82,53 +85,6 @@ endif()
 
 if (MUSICA_ENABLE_OPENMP)
   list(APPEND musica_compile_definitions MUSICA_USE_OPENMP)
-endif()
-
-# MICM dependencies
-if (MUSICA_ENABLE_MICM)
-  list(APPEND musica_compile_definitions MUSICA_USE_MICM)
-  target_link_libraries(musica PUBLIC musica::micm)
-
-  # Link against dl for dlopen/dlsym on Linux
-  if(UNIX AND NOT APPLE)
-    target_link_libraries(musica PUBLIC ${CMAKE_DL_LIBS})
-  endif()
-endif()
-
-# TUV-x dependencies
-if (MUSICA_ENABLE_TUVX)
-  list(APPEND musica_compile_definitions MUSICA_USE_TUVX)
-  target_sources(musica PRIVATE $<TARGET_OBJECTS:tuvx_object>)
-  target_include_directories(musica
-    PUBLIC
-      $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
-      $<INSTALL_INTERFACE:${MUSICA_INSTALL_MOD_DIR}>
-  )
-endif()
-
-# CARMA dependencies
-if (MUSICA_ENABLE_CARMA)
-  list(APPEND musica_compile_definitions MUSICA_USE_CARMA)
-  target_sources(musica PRIVATE $<TARGET_OBJECTS:carma_object>)
-  target_include_directories(musica
-    PUBLIC
-      $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
-      $<INSTALL_INTERFACE:${MUSICA_INSTALL_MOD_DIR}>
-  )
-
-  # Link CARMA dependencies
-  find_package(BLAS REQUIRED)
-  find_package(LAPACK REQUIRED)
-  get_target_property(_carma_links carma_object INTERFACE_LINK_LIBRARIES)
-  if (_carma_links)
-    message(STATUS "Linking CARMA dependencies: ${_carma_links}")
-    target_link_libraries(musica PUBLIC ${_carma_links})
-  endif()
-
-  if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
-    target_compile_options(musica PUBLIC $<$<COMPILE_LANGUAGE:Fortran>:-ffree-line-length-none>)
-    target_compile_options(carma_object PUBLIC $<$<COMPILE_LANGUAGE:Fortran>:-ffree-line-length-none>)
-  endif()
 endif()
 
 # NetCDF for CARMA or TUV-x

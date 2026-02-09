@@ -104,7 +104,7 @@ namespace musica
     HandleErrors(
         [&]()
         {
-          std::map<std::string, std::size_t> const map = state->GetVariableMap();
+          std::unordered_map<std::string, std::size_t> const map = state->GetVariableMap();
 
           species_ordering->mappings_ = new Mapping[map.size()];
           species_ordering->size_ = map.size();
@@ -126,7 +126,7 @@ namespace musica
     HandleErrors(
         [&]()
         {
-          std::map<std::string, std::size_t> const map = state->GetRateParameterMap();
+          std::unordered_map<std::string, std::size_t> const map = state->GetRateParameterMap();
 
           reaction_rates->mappings_ = new Mapping[map.size()];
           reaction_rates->size_ = map.size();

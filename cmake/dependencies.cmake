@@ -73,7 +73,7 @@ endif()
 
 if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(MICM_GIT_REPOSITORY https://github.com/NCAR/micm.git)
-  set_git_default(MICM_GIT_TAG 6a38173e)
+  set_git_default(MICM_GIT_TAG 1c6b2edd93751ec3ee1401f33d5f35bbcf6e9fe8)
 
   FetchContent_Declare(micm
       GIT_REPOSITORY ${MICM_GIT_REPOSITORY}
@@ -128,9 +128,14 @@ endif()
 if(MUSICA_ENABLE_CARMA AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(CARMA_GIT_REPOSITORY https://github.com/NCAR/CARMA-ACOM-dev.git)
   set_git_default(CARMA_GIT_TAG develop-carma-box)
+
   set(CARMA_MOD_DIR ${MUSICA_MOD_DIR} CACHE STRING "" FORCE)
   set(CARMA_INSTALL_MOD_DIR ${MUSICA_INSTALL_MOD_DIR} CACHE STRING "" FORCE)
   set(CARMA_INSTALL_INCLUDE_DIR ${MUSICA_INSTALL_INCLUDE_DIR} CACHE STRING "" FORCE)
+
+  # CARMA needs these
+  find_package(BLAS REQUIRED)
+  find_package(LAPACK REQUIRED)
 
   FetchContent_Declare(carma
       GIT_REPOSITORY ${CARMA_GIT_REPOSITORY}

@@ -115,12 +115,12 @@ namespace musica
     return solver_->GetSystem();
   }
 
-  std::map<std::string, std::size_t> MICM::GetSpeciesOrdering() const
+  std::unordered_map<std::string, std::size_t> MICM::GetSpeciesOrdering() const
   {
     return solver_->GetSpeciesOrdering();
   }
 
-  std::map<std::string, std::size_t> MICM::GetRateParameterOrdering() const
+  std::unordered_map<std::string, std::size_t> MICM::GetRateParameterOrdering() const
   {
     return solver_->GetRateParameterOrdering();
   }

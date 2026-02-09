@@ -69,11 +69,11 @@ namespace musica
 
     /// @brief Get the variable (species) ordering map
     /// @return Map of species names to their indices
-    virtual std::map<std::string, std::size_t> GetVariableMap() const = 0;
+    virtual std::unordered_map<std::string, std::size_t> GetVariableMap() const = 0;
 
     /// @brief Get the rate parameter ordering map
     /// @return Map of rate parameter names to their indices
-    virtual std::map<std::string, std::size_t> GetRateParameterMap() const = 0;
+    virtual std::unordered_map<std::string, std::size_t> GetRateParameterMap() const = 0;
   };
 
 }  // namespace musica

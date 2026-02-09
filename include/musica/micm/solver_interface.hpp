@@ -48,11 +48,11 @@ namespace musica
 
     /// @brief Get the species ordering map
     /// @return Map of species names to their indices
-    virtual std::map<std::string, std::size_t> GetSpeciesOrdering() const = 0;
+    virtual std::unordered_map<std::string, std::size_t> GetSpeciesOrdering() const = 0;
 
     /// @brief Get the rate parameter ordering map
     /// @return Map of rate parameter names to their indices
-    virtual std::map<std::string, std::size_t> GetRateParameterOrdering() const = 0;
+    virtual std::unordered_map<std::string, std::size_t> GetRateParameterOrdering() const = 0;
 
     /// @brief Get the vector size for this solver type
     /// @return Vector dimension for vector-ordered solvers, 1 for standard-ordered solvers

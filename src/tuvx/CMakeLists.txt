@@ -1,3 +1,10 @@
+target_sources(musica PRIVATE $<TARGET_OBJECTS:tuvx_object>)
+target_include_directories(musica
+  PUBLIC
+    $<BUILD_INTERFACE:${MUSICA_MOD_DIR}>
+    $<INSTALL_INTERFACE:${MUSICA_INSTALL_MOD_DIR}>
+)
+
 target_sources(musica PRIVATE
   interface.F90
   interface_grid.F90

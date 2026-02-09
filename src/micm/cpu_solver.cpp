@@ -10,10 +10,6 @@
 
 namespace musica
 {
-  // ============================================================================
-  // CpuState implementation
-  // ============================================================================
-
   CpuState::CpuState(StateVariant state)
       : state_(std::move(state))
   {
@@ -81,15 +77,15 @@ namespace musica
         state_);
   }
 
-  std::map<std::string, std::size_t> CpuState::GetVariableMap() const
+  std::unordered_map<std::string, std::size_t> CpuState::GetVariableMap() const
   {
-    return std::visit([](const auto& st) -> std::map<std::string, std::size_t> { return st.variable_map_; }, state_);
+    return std::visit([](const auto& st) -> std::unordered_map<std::string, std::size_t> { return st.variable_map_; }, state_);
   }
 
-  std::map<std::string, std::size_t> CpuState::GetRateParameterMap() const
+  std::unordered_map<std::string, std::size_t> CpuState::GetRateParameterMap() const
   {
     return std::visit(
-        [](const auto& st) -> std::map<std::string, std::size_t> { return st.custom_rate_parameter_map_; }, state_);
+        [](const auto& st) -> std::unordered_map<std::string, std::size_t> { return st.custom_rate_parameter_map_; }, state_);
   }
 
   CpuState::StateVariant& CpuState::GetStateVariant()
@@ -102,9 +98,6 @@ namespace musica
     return state_;
   }
 
-  // ============================================================================
-  // CpuSolver implementation
-  // ============================================================================
 
   CpuSolver::CpuSolver(const Chemistry& chemistry, int solver_type)
       : solver_type_(solver_type)
@@ -218,10 +211,10 @@ namespace musica
     return std::visit([](const auto& solver) -> micm::System { return solver->GetSystem(); }, solver_);
   }
 
-  std::map<std::string, std::size_t> CpuSolver::GetSpeciesOrdering() const
+  std::unordered_map<std::string, std::size_t> CpuSolver::GetSpeciesOrdering() const
   {
     return std::visit(
-        [](const auto& solver) -> std::map<std::string, std::size_t>
+        [](const auto& solver) -> std::unordered_map<std::string, std::size_t>
         {
           auto state = solver->GetState(1);
           return state.variable_map_;
@@ -229,10 +222,10 @@ namespace musica
         solver_);
   }
 
-  std::map<std::string, std::size_t> CpuSolver::GetRateParameterOrdering() const
+  std::unordered_map<std::string, std::size_t> CpuSolver::GetRateParameterOrdering() const
   {
     return std::visit(
-        [](const auto& solver) -> std::map<std::string, std::size_t>
+        [](const auto& solver) -> std::unordered_map<std::string, std::size_t>
         {
           auto state = solver->GetState(1);
           return state.custom_rate_parameter_map_;
