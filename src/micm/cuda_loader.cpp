@@ -37,7 +37,7 @@ namespace musica
     UnloadLibrary();
   }
 
-  void CudaLoader::LoadLibrary()
+  void CudaLoader::LoadLibrary() const
   {
 #if MUSICA_HAS_DLOPEN
     // Try to load libmusica_cuda.so from various locations
@@ -106,7 +106,7 @@ namespace musica
   bool CudaLoader::IsAvailable() const
   {
     // Thread-safe lazy initialization using std::call_once
-    std::call_once(load_flag_, [this]() { const_cast<CudaLoader*>(this)->LoadLibrary(); });
+    std::call_once(load_flag_, [this]() { LoadLibrary(); });
     return library_handle_ != nullptr && create_rosenbrock_func_ != nullptr;
   }
 
