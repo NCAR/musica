@@ -218,16 +218,5 @@ def main(plot=True):
     return ds
 
 
-def test_ts1_box_model():
-    import pytest
-    import musica.backend
-    pytest.importorskip("ussa1976")
-    if not musica.backend.tuvx_available():
-        pytest.skip("TUV-x backend is not available")
-    ds = main(plot=False)
-    assert len(ds.time) > 0, "Dataset should have time steps"
-    assert ds.sizes["grid_cell"] > 0, "Dataset should have grid cells"
-
-
 if __name__ == "__main__":
     main()

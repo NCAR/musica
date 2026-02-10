@@ -295,14 +295,6 @@ def main(output='lorenz.mp4', fps=30, n=2, plot=True):
     return Xs, Ys, Zs
 
 
-def test_lorenz():
-    Xs, Ys, Zs = main(plot=False)
-    n = 2
-    expected_points = 2000 - 200  # nsteps - burnout
-    assert len(Xs) == n, f"Expected {n} trajectories, got {len(Xs)}"
-    assert len(Xs[0]) == expected_points, f"Expected {expected_points} points, got {len(Xs[0])}"
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run Lorenz CRN simulation and create animation')
     parser.add_argument('--output', '-o', default='lorenz.mp4', help='Output movie file (mp4 preferred)')

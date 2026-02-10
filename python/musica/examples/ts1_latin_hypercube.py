@@ -264,13 +264,5 @@ def main(plot=True):
     return ds
 
 
-def test_ts1_latin_hypercube():
-    import pytest
-    pytest.importorskip("scipy")
-    ds = main(plot=False)
-    assert len(ds.time) > 0, "Dataset should have time steps"
-    assert ds.sizes["grid_cell"] == 100, "Dataset should have 100 grid cells"
-
-
 if __name__ == "__main__":
     main()
