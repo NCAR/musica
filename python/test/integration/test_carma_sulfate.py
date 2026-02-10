@@ -15,3 +15,6 @@ def test_carma_sulfate():
     assert bin_state is not None, "Bin state should not be None"
     # Optionally, check expected dimensions or variables
     assert hasattr(bin_state, "mass_mixing_ratio"), "Bin state should have mass_mixing_ratio"
+
+if __name__ == "__main__":
+    test_carma_sulfate()

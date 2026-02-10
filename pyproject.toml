@@ -130,6 +130,10 @@ version = "${version}"
 # and build the musica docker image locally first with:
 # docker build --platform linux/amd64 -t musica -f docker/Dockerfile.manylinux.gpu .
 #
+[tool.pytest.ini_options]
+testpaths = ["python/test", "python/musica/examples"]
+python_files = ["test_*.py", "lorenz.py", "ts1_box_model.py", "ts1_latin_hypercube.py"]
+
 [tool.cibuildwheel]
 # Increase pip debugging output
 build-verbosity = 3
@@ -154,19 +158,12 @@ test-command = [
   "pytest {project}/python/test",
   "musica-cli --convert configs/v0/TS1/config.json -o ts1.json",
   "musica-cli -e CARMA_Aluminum -o .",
-  "python carma_aluminum.py",
   "musica-cli -e CARMA_Sulfate -o .",
-  "python carma_sulfate.py",
   "musica-cli -e Lorenz_Attractor -o .",
-  "python lorenz.py",
   "musica-cli -e Sulfate_Box_Model -o .",
-  "python sulfate_box_model.py",
   "musica-cli -e TS1BoxModel -o .",
-  "python ts1_box_model.py",
   "musica-cli -e TS1LatinHyperCube -o .",
-  "python ts1_latin_hypercube.py",
   "musica-cli -e Chapman -o .",
-  "python chapman.py",
 ]
 
 # Set up pre-build hooks
