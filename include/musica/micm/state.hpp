@@ -1,17 +1,15 @@
 // Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 //
-// This file defines the State class.It includes state representations for different
+// This file defines the State class. It includes state representations for different
 // solver configurations, leveraging both vector-ordered and standard-ordered state type.
 // It also includes functions for creating and deleting State instances with c bindings.
 #pragma once
 
 #include <musica/micm/micm.hpp>
+#include <musica/micm/state_interface.hpp>
 
-#include <micm/CPU.hpp>
-#ifdef MUSICA_ENABLE_CUDA
-  #include <micm/GPU.hpp>
-#endif
+#include <micm/solver/state.hpp>
 
 #include <any>
 #include <chrono>
@@ -20,7 +18,6 @@
 #include <memory>
 #include <string>
 #include <utility>
-#include <variant>
 #include <vector>
 
 namespace musica
@@ -32,17 +29,14 @@ namespace musica
    public:
     State() = default;
 
-    State(const musica::MICM& micm, std::size_t number_of_grid_cells);
+    /// @brief Construct a State from an IState implementation
+    /// @param impl The IState implementation to wrap
+    explicit State(std::unique_ptr<IState> impl);
 
-    /// @brief Define the variant that holds all state types
-    using StateVariant = std::variant<
-        micm::VectorState,
-        micm::StandardState
-#ifdef MUSICA_ENABLE_CUDA
-        ,
-        micm::GpuState
-#endif
-        >;
+    /// @brief Construct a State from a MICM solver and grid cell count
+    /// @param micm The MICM solver to create state for
+    /// @param number_of_grid_cells Number of grid cells
+    State(const musica::MICM& micm, std::size_t number_of_grid_cells);
 
     /// @brief Get the number of grid cells
     /// @return Number of grid cells
@@ -106,7 +100,20 @@ namespace musica
     /// @return Strides for the rate parameter matrix (grid cells, rate parameters)
     std::pair<std::size_t, std::size_t> GetUserDefinedRateParametersStrides();
 
-    StateVariant state_variant_;
+    /// @brief Get the variable (species) ordering map
+    /// @return Map of species names to their indices
+    std::unordered_map<std::string, std::size_t> GetVariableMap() const;
+
+    /// @brief Get the rate parameter ordering map
+    /// @return Map of rate parameter names to their indices
+    std::unordered_map<std::string, std::size_t> GetRateParameterMap() const;
+
+    /// @brief Get the underlying IState interface for use with solvers
+    /// @return Pointer to the IState implementation
+    IState* GetStateInterface();
+
+   private:
+    std::unique_ptr<IState> impl_;
   };
 
 }  // namespace musica

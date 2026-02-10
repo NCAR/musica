@@ -50,7 +50,6 @@ class MICM():
         config_path: FilePath = None,
         mechanism: Mechanism = None,
         solver_type: Any = None,
-        ignore_non_gas_phases: bool = True,
     ):
         """    Initialize the MICM solver.
 
@@ -63,9 +62,6 @@ class MICM():
                 to create the solver.
             solver_type : SolverType, optional
                 Type of solver to use. If not provided, the default Rosenbrock (with standard-ordered matrices) solver type will be used.
-            ignore_non_gas_phases : bool, optional
-                If True, non-gas phases will be ignored when configuring micm with the mechanism. This is only needed
-                until micm properly supports non-gas phases. This option is only supported when passing in a mechanism.
         """
         if solver_type is None:
             solver_type = SolverType.rosenbrock_standard_order
@@ -82,8 +78,7 @@ class MICM():
         if config_path is not None:
             self.__solver = create_solver(config_path, solver_type)
         elif mechanism is not None:
-            self.__solver = create_solver_from_mechanism(
-                mechanism, solver_type, ignore_non_gas_phases)
+            self.__solver = create_solver_from_mechanism(mechanism, solver_type)
 
     def solver_type(self) -> SolverType:
         """

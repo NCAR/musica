@@ -280,6 +280,11 @@ def main(output='lorenz.mp4', fps=30, n=2):
             except Exception as e:
                 print("Failed to save animation:", e)
 
+    running_in_cibw = os.environ.get("CIBUILDWHEEL", "").lower() in {"1", "true", "yes"}
+    if running_in_cibw:
+        print("Detected cibuildwheel; skipping animation generation.")
+        return
+
     # Save animation with defaults; CLI can override via args below
     create_animation(Xs, Ys, Zs, outpath=output, fps=fps)
 

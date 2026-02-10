@@ -45,3 +45,5 @@ javascript/wasm/musica.wasm
 # Julia build artifacts
 julia/Manifest.toml
 julia/deps/lib/
+
+.claude

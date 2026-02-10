@@ -159,13 +159,14 @@ namespace musica
 
   std::size_t GetVectorSize(musica::MICMSolver solver_type)
   {
+    constexpr std::size_t nonvectorized_size = 1;
     switch (solver_type)
     {
       case musica::MICMSolver::Rosenbrock:
       case musica::MICMSolver::BackwardEuler:
       case musica::MICMSolver::CudaRosenbrock: return musica::MUSICA_VECTOR_SIZE;
       case musica::MICMSolver::RosenbrockStandardOrder:
-      case musica::MICMSolver::BackwardEulerStandardOrder: return static_cast<std::size_t>(1);
+      case musica::MICMSolver::BackwardEulerStandardOrder: return nonvectorized_size;
       default: throw std::runtime_error("Invalid MICM solver type.");
     }
   }

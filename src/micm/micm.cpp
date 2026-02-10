@@ -4,12 +4,11 @@
 // This file contains the implementation of the MICM class, which represents a
 // multi-component reactive transport model. It also includes functions for
 // creating and deleting MICM instances, creating solvers, and solving the model.
+#include <musica/micm/cpu_solver.hpp>
+#include <musica/micm/cuda_loader.hpp>
 #include <musica/micm/micm.hpp>
 #include <musica/micm/parse.hpp>
 #include <musica/micm/state.hpp>
-
-#include <mechanism_configuration/parser.hpp>
-#include <mechanism_configuration/v0/types.hpp>
 
 #include <cmath>
 #include <cstddef>
@@ -39,103 +38,106 @@ namespace musica
   }
 
   MICM::MICM(const Chemistry& chemistry, MICMSolver solver_type)
+      : solver_type_(solver_type)
   {
-    auto configure = [&](auto builder)
-    {
-      auto solver =
-          builder.SetSystem(chemistry.system).SetReactions(chemistry.processes).SetIgnoreUnusedSpecies(true).Build();
-
-      return solver;
-    };
+    // Default deleter for CPU solvers (just delete)
+    auto default_deleter = [](IMicmSolver* ptr) { delete ptr; };
 
     switch (solver_type)
     {
       case MICMSolver::Rosenbrock:
-        solver_variant_ = std::make_unique<micm::Rosenbrock>(configure(
-            micm::RosenbrockThreeStageBuilder(micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())));
-        break;
-
       case MICMSolver::RosenbrockStandardOrder:
-        solver_variant_ =
-            std::make_unique<micm::RosenbrockStandard>(configure(micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
-                micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())));
-        break;
-
       case MICMSolver::BackwardEuler:
-        solver_variant_ = std::make_unique<micm::BackwardEuler>(
-            configure(micm::BackwardEulerBuilder(micm::BackwardEulerSolverParameters())));
-        break;
-
       case MICMSolver::BackwardEulerStandardOrder:
-        solver_variant_ = std::make_unique<micm::BackwardEulerStandard>(
-            configure(micm::CpuSolverBuilder<micm::BackwardEulerSolverParameters>(micm::BackwardEulerSolverParameters())));
+        // Create CPU solver with default deleter
+        solver_ = SolverPtr(new CpuSolver(chemistry, static_cast<int>(solver_type)), default_deleter);
         break;
 
-#ifdef MUSICA_ENABLE_CUDA
       case MICMSolver::CudaRosenbrock:
-        solver_variant_ = std::make_unique<micm::CudaRosenbrock>(configure(
-            micm::GpuRosenbrockThreeStageBuilder(micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())));
+      {
+        // Try to create CUDA solver via runtime loading
+        auto& cuda_loader = CudaLoader::GetInstance();
+        if (cuda_loader.IsAvailable() && cuda_loader.HasDevices())
+        {
+          // The CudaLoader returns a CudaSolverPtr with custom deleter
+          // We need to transfer ownership to our SolverPtr
+          auto cuda_solver = cuda_loader.CreateRosenbrockSolver(chemistry);
+          auto deleter = cuda_solver.get_deleter();
+          solver_ = SolverPtr(cuda_solver.release(), [deleter](IMicmSolver* ptr) { deleter(ptr); });
+        }
+        else
+        {
+          std::string msg = "CUDA solver requested but not available";
+          if (!cuda_loader.GetLastError().empty())
+          {
+            msg += ": " + cuda_loader.GetLastError();
+          }
+          throw std::system_error(make_error_code(MusicaErrCode::SolverTypeNotFound), msg);
+        }
         break;
-#endif
+      }
 
       default:
-        std::string const msg = "Solver type " + ToString(solver_type) + " not supported in this build";
+        std::string const msg = "Solver type " + ToString(solver_type) + " not supported";
         throw std::system_error(make_error_code(MusicaErrCode::SolverTypeNotFound), msg);
     }
   }
 
-  /// @brief Visitor struct to handle different solver and state types
-  struct VariantsVisitor
+  MICM::~MICM()
   {
-    double time_step;
-
-    micm::SolverResult operator()(std::unique_ptr<micm::Rosenbrock>& solver, micm::VectorState& state) const
+    // If using CUDA, ensure proper cleanup order
+    if (solver_type_ == MICMSolver::CudaRosenbrock)
     {
-      solver->CalculateRateConstants(state);
-      return solver->Solve(time_step, state);
+      // Reset the solver first to trigger its destructor
+      solver_.reset();
+      // Then clean up CUDA resources
+      CudaLoader::GetInstance().CleanUp();
     }
-
-    micm::SolverResult operator()(std::unique_ptr<micm::RosenbrockStandard>& solver, micm::StandardState& state) const
-    {
-      solver->CalculateRateConstants(state);
-      return solver->Solve(time_step, state);
-    }
-
-    micm::SolverResult operator()(std::unique_ptr<micm::BackwardEuler>& solver, micm::VectorState& state) const
-    {
-      solver->CalculateRateConstants(state);
-      return solver->Solve(time_step, state);
-    }
-
-    micm::SolverResult operator()(std::unique_ptr<micm::BackwardEulerStandard>& solver, micm::StandardState& state) const
-    {
-      solver->CalculateRateConstants(state);
-      return solver->Solve(time_step, state);
-    }
-
-#ifdef MUSICA_ENABLE_CUDA
-    micm::SolverResult operator()(std::unique_ptr<micm::CudaRosenbrock>& solver, micm::GpuState& state) const
-    {
-      solver->CalculateRateConstants(state);
-      state.SyncInputsToDevice();
-      auto result = solver->Solve(time_step, state);
-      state.SyncOutputsToHost();
-      return result;
-    }
-#endif
-
-    // Handle unsupported combinations
-    template<typename SolverT, typename StateT>
-    micm::SolverResult operator()(std::unique_ptr<SolverT>&, StateT&) const
-    {
-      throw std::system_error(
-          make_error_code(MusicaErrCode::UnsupportedSolverStatePair), "Unsupported solver/state combination");
-    }
-  };
+  }
 
   micm::SolverResult MICM::Solve(musica::State* state, double time_step)
   {
-    return std::visit(VariantsVisitor{ time_step }, this->solver_variant_, state->state_variant_);
+    return solver_->Solve(state->GetStateInterface(), time_step);
+  }
+
+  std::size_t MICM::GetMaximumNumberOfGridCells()
+  {
+    return solver_->MaximumNumberOfGridCells();
+  }
+
+  std::unique_ptr<IState> MICM::CreateState(std::size_t number_of_grid_cells)
+  {
+    return solver_->CreateState(number_of_grid_cells);
+  }
+
+  micm::System MICM::GetSystem() const
+  {
+    return solver_->GetSystem();
+  }
+
+  std::unordered_map<std::string, std::size_t> MICM::GetSpeciesOrdering() const
+  {
+    return solver_->GetSpeciesOrdering();
+  }
+
+  std::unordered_map<std::string, std::size_t> MICM::GetRateParameterOrdering() const
+  {
+    return solver_->GetRateParameterOrdering();
+  }
+
+  MICMSolver MICM::GetSolverType() const
+  {
+    return solver_type_;
+  }
+
+  std::size_t MICM::GetVectorSize() const
+  {
+    return solver_->GetVectorSize();
+  }
+
+  IMicmSolver* MICM::GetSolverInterface()
+  {
+    return solver_.get();
   }
 
 }  // namespace musica

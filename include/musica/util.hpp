@@ -11,8 +11,6 @@
 #include <cstddef>
 
 #ifdef __cplusplus
-  #include <yaml-cpp/yaml.h>
-
   #include <system_error>
 
 namespace musica
@@ -20,7 +18,6 @@ namespace musica
 
   extern "C"
   {
-    typedef YAML::Node Yaml;
 #endif
 
     /// @brief Vector dimension for Vector-ordered matrices
@@ -56,7 +53,7 @@ const size_t MUSICA_VECTOR_SIZE = 0;
     /// @brief A set of configuration data
     struct Configuration
     {
-      Yaml* data_ = nullptr;
+      void* data_ = nullptr;  // Opaque pointer to YAML::Node (implementation detail)
     };
 
     /// @brief A struct to represent a mapping between a string and an index

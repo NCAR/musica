@@ -75,10 +75,7 @@ class TestMICMInitialization:
     def test_init_with_mechanism_ignore_non_gas_phases(self):
         """Test initialization with mechanism and ignore_non_gas_phases flag."""
         mechanism = create_simple_mechanism()
-        micm = MICM(
-            mechanism=mechanism,
-            ignore_non_gas_phases=True
-        )
+        micm = MICM(mechanism=mechanism)
         assert micm is not None
 
     def test_init_without_config_or_mechanism_raises_error(self):

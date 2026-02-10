@@ -103,11 +103,11 @@ namespace musica
     return species;
   }
 
-  std::vector<micm::Yield> reaction_components_to_products(
+  std::vector<micm::StoichSpecies> reaction_components_to_products(
       const std::vector<mechanism_configuration::v1::types::ReactionComponent>& components,
       std::unordered_map<std::string, micm::Species>& species_map)
   {
-    std::vector<micm::Yield> yields;
+    std::vector<micm::StoichSpecies> yields;
     for (const auto& component : components)
     {
       yields.push_back({ species_map[component.species_name], component.coefficient });
@@ -349,7 +349,7 @@ namespace musica
     for (const auto& reaction : user_defined)
     {
       std::vector<micm::Species> reactants{};
-      std::vector<micm::Yield> products{};
+      std::vector<micm::StoichSpecies> products{};
 
       if constexpr (has_reactants<T>::value)
       {
@@ -372,7 +372,7 @@ namespace musica
     }
   }
 
-  Chemistry ConvertV1Mechanism(const mechanism_configuration::v1::types::Mechanism& v1_mechanism, bool ignore_non_gas_phases)
+  Chemistry ConvertV1Mechanism(const mechanism_configuration::v1::types::Mechanism& v1_mechanism)
   {
     Chemistry chemistry{};
     auto species = convert_species(v1_mechanism.species);
@@ -388,10 +388,6 @@ namespace musica
       if (phase.name_ == "gas")
       {
         gas_phase = phase;
-      }
-      else if (!ignore_non_gas_phases)
-      {
-        chemistry.system.phases_[phase.name_] = phase;
       }
     }
     convert_arrhenius(chemistry, v1_mechanism.reactions.arrhenius, species_map);
