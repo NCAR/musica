@@ -121,7 +121,6 @@ def main(plot=True):
 
     # 2. Extract user-defined rate samples
     user_defined_samples = {}
-    user_defined_ordering = state.get_user_defined_rate_parameters_ordering()
     for _, user_param in enumerate(user_defined_conditions['parameter']):
         # Remove USER. prefix to match the expected parameter name
         user_defined_samples[user_param] = scaled_sample[:, current_index]
@@ -183,9 +182,8 @@ def main(plot=True):
         },
     )
 
-    print(ds)
-
     if plot:
+        print(ds)
         import matplotlib.pyplot as plt
 
         ds.to_netcdf('ts1_latin_hypercube.nc')
