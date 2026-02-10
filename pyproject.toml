@@ -133,6 +133,7 @@ version = "${version}"
 [tool.pytest.ini_options]
 testpaths = ["python/test", "python/musica/examples"]
 python_files = ["test_*.py", "lorenz.py", "ts1_box_model.py", "ts1_latin_hypercube.py"]
+addopts = "--import-mode=importlib"
 
 [tool.cibuildwheel]
 # Increase pip debugging output
