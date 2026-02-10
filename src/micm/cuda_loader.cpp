@@ -41,11 +41,9 @@ namespace musica
   {
 #if MUSICA_HAS_DLOPEN
     // Try to load libmusica_cuda.so from various locations
-    const char* library_names[] = {
-      "libmusica_cuda.so",       // System path or LD_LIBRARY_PATH
-      "./libmusica_cuda.so",     // Current directory
-      nullptr
-    };
+    const char* library_names[] = { "libmusica_cuda.so",    // System path or LD_LIBRARY_PATH
+                                    "./libmusica_cuda.so",  // Current directory
+                                    nullptr };
 
     for (const char** name = library_names; *name != nullptr; ++name)
     {
