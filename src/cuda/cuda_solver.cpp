@@ -73,12 +73,12 @@ namespace musica
       return std::make_pair(state_.custom_rate_parameters_.RowStride(), state_.custom_rate_parameters_.ColumnStride());
     }
 
-    std::map<std::string, std::size_t> CudaState::GetVariableMap() const
+    std::unordered_map<std::string, std::size_t> CudaState::GetVariableMap() const
     {
       return state_.variable_map_;
     }
 
-    std::map<std::string, std::size_t> CudaState::GetRateParameterMap() const
+    std::unordered_map<std::string, std::size_t> CudaState::GetRateParameterMap() const
     {
       return state_.custom_rate_parameter_map_;
     }
@@ -137,13 +137,13 @@ namespace musica
       return solver_->GetSystem();
     }
 
-    std::map<std::string, std::size_t> CudaRosenbrockSolver::GetSpeciesOrdering() const
+    std::unordered_map<std::string, std::size_t> CudaRosenbrockSolver::GetSpeciesOrdering() const
     {
       auto state = solver_->GetState(1);
       return state.variable_map_;
     }
 
-    std::map<std::string, std::size_t> CudaRosenbrockSolver::GetRateParameterOrdering() const
+    std::unordered_map<std::string, std::size_t> CudaRosenbrockSolver::GetRateParameterOrdering() const
     {
       auto state = solver_->GetState(1);
       return state.custom_rate_parameter_map_;
