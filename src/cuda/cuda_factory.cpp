@@ -21,10 +21,8 @@ extern "C"
   /// @param error_msg Buffer to receive error message on failure
   /// @param error_msg_size Size of the error message buffer
   /// @return Pointer to the created solver, or nullptr on failure
-  musica::IMicmSolver* musica_cuda_create_rosenbrock(
-      const musica::Chemistry* chemistry,
-      char* error_msg,
-      std::size_t error_msg_size)
+  musica::IMicmSolver*
+  musica_cuda_create_rosenbrock(const musica::Chemistry* chemistry, char* error_msg, std::size_t error_msg_size)
   {
     try
     {

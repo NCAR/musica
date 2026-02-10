@@ -79,13 +79,15 @@ namespace musica
 
   std::unordered_map<std::string, std::size_t> CpuState::GetVariableMap() const
   {
-    return std::visit([](const auto& st) -> std::unordered_map<std::string, std::size_t> { return st.variable_map_; }, state_);
+    return std::visit(
+        [](const auto& st) -> std::unordered_map<std::string, std::size_t> { return st.variable_map_; }, state_);
   }
 
   std::unordered_map<std::string, std::size_t> CpuState::GetRateParameterMap() const
   {
     return std::visit(
-        [](const auto& st) -> std::unordered_map<std::string, std::size_t> { return st.custom_rate_parameter_map_; }, state_);
+        [](const auto& st) -> std::unordered_map<std::string, std::size_t> { return st.custom_rate_parameter_map_; },
+        state_);
   }
 
   CpuState::StateVariant& CpuState::GetStateVariant()
@@ -97,7 +99,6 @@ namespace musica
   {
     return state_;
   }
-
 
   CpuSolver::CpuSolver(const Chemistry& chemistry, int solver_type)
       : solver_type_(solver_type)

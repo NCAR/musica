@@ -195,14 +195,9 @@ EMSCRIPTEN_BINDINGS(musica_module)
                         { return std::make_shared<musica::State>(micm, number_of_grid_cells); }));
 
   function(
-      "species_ordering",
-      optional_override(
-          [](std::shared_ptr<musica::State> state)
-          { return state->GetVariableMap(); }));
+      "species_ordering", optional_override([](std::shared_ptr<musica::State> state) { return state->GetVariableMap(); }));
 
   function(
       "user_defined_rate_parameters_ordering",
-      optional_override(
-          [](std::shared_ptr<musica::State> state)
-          { return state->GetRateParameterMap(); }));
+      optional_override([](std::shared_ptr<musica::State> state) { return state->GetRateParameterMap(); }));
 }
