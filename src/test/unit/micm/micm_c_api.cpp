@@ -1,5 +1,6 @@
 #include <musica/micm/micm.hpp>
 #include <musica/micm/micm_c_interface.hpp>
+#include <musica/micm/solver_parameters.hpp>
 #include <musica/micm/state.hpp>
 #include <musica/micm/state_c_interface.hpp>
 #include <musica/util.hpp>
@@ -607,5 +608,96 @@ TEST_F(MicmCApiTestFixture, GetSpeciesProperty)
   ASSERT_TRUE(IsError(error, MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SPECIES_NOT_FOUND));
   GetSpeciesPropertyDouble(micm, "O3", "bad property", &error);
   ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND));
+  DeleteError(&error);
+}
+
+// --- Solver parameter C API tests ---
+
+TEST(SolverParametersCApi, SetGetRosenbrockParameters)
+{
+  Error error;
+  MICM* micm = CreateMicm("configs/v0/analytical", MICMSolver::RosenbrockStandardOrder, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_NE(micm, nullptr);
+
+  RosenbrockSolverParametersC set_params;
+  set_params.relative_tolerance = 1e-8;
+  set_params.absolute_tolerances = nullptr;
+  set_params.num_absolute_tolerances = 0;
+  set_params.h_min = 1e-10;
+  set_params.h_max = 100.0;
+  set_params.h_start = 1e-5;
+  set_params.max_number_of_steps = 500;
+
+  SetRosenbrockSolverParameters(micm, &set_params, &error);
+  ASSERT_TRUE(IsSuccess(error));
+
+  RosenbrockSolverParametersC get_params = {};
+  GetRosenbrockSolverParameters(micm, &get_params, &error);
+  ASSERT_TRUE(IsSuccess(error));
+
+  EXPECT_DOUBLE_EQ(get_params.h_min, 1e-10);
+  EXPECT_DOUBLE_EQ(get_params.h_max, 100.0);
+  EXPECT_DOUBLE_EQ(get_params.h_start, 1e-5);
+  EXPECT_EQ(get_params.max_number_of_steps, 500u);
+  EXPECT_DOUBLE_EQ(get_params.relative_tolerance, 1e-8);
+
+  DeleteMicm(micm, &error);
+  DeleteError(&error);
+}
+
+TEST(SolverParametersCApi, SetGetBackwardEulerParameters)
+{
+  Error error;
+  MICM* micm = CreateMicm("configs/v0/analytical", MICMSolver::BackwardEulerStandardOrder, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_NE(micm, nullptr);
+
+  double tsr[] = { 0.3, 0.3, 0.3, 0.3, 0.05 };
+  BackwardEulerSolverParametersC set_params;
+  set_params.relative_tolerance = 1e-8;
+  set_params.absolute_tolerances = nullptr;
+  set_params.num_absolute_tolerances = 0;
+  set_params.max_number_of_steps = 20;
+  set_params.time_step_reductions = tsr;
+  set_params.num_time_step_reductions = 5;
+
+  SetBackwardEulerSolverParameters(micm, &set_params, &error);
+  ASSERT_TRUE(IsSuccess(error));
+
+  BackwardEulerSolverParametersC get_params = {};
+  GetBackwardEulerSolverParameters(micm, &get_params, &error);
+  ASSERT_TRUE(IsSuccess(error));
+
+  EXPECT_EQ(get_params.max_number_of_steps, 20u);
+  EXPECT_DOUBLE_EQ(get_params.relative_tolerance, 1e-8);
+  ASSERT_EQ(get_params.num_time_step_reductions, 5u);
+  EXPECT_DOUBLE_EQ(get_params.time_step_reductions[0], 0.3);
+  EXPECT_DOUBLE_EQ(get_params.time_step_reductions[4], 0.05);
+
+  delete[] get_params.time_step_reductions;
+  DeleteMicm(micm, &error);
+  DeleteError(&error);
+}
+
+TEST(SolverParametersCApi, WrongParameterTypeErrors)
+{
+  Error error;
+  MICM* micm = CreateMicm("configs/v0/analytical", MICMSolver::RosenbrockStandardOrder, &error);
+  ASSERT_TRUE(IsSuccess(error));
+
+  BackwardEulerSolverParametersC params = {};
+  params.max_number_of_steps = 20;
+  params.time_step_reductions = nullptr;
+  params.num_time_step_reductions = 0;
+  params.absolute_tolerances = nullptr;
+  params.num_absolute_tolerances = 0;
+  params.relative_tolerance = 1e-6;
+
+  SetBackwardEulerSolverParameters(micm, &params, &error);
+  ASSERT_TRUE(IsError(error, MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN));
+
+  DeleteError(&error);
+  DeleteMicm(micm, &error);
   DeleteError(&error);
 }

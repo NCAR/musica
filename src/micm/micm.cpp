@@ -37,6 +37,28 @@ namespace musica
   {
   }
 
+  MICM::MICM(const Chemistry& chemistry, MICMSolver solver_type, const RosenbrockSolverParameters& params)
+      : MICM(chemistry, solver_type)
+  {
+    SetSolverParameters(params);
+  }
+
+  MICM::MICM(std::string config_path, MICMSolver solver_type, const RosenbrockSolverParameters& params)
+      : MICM(ReadConfiguration(config_path), solver_type, params)
+  {
+  }
+
+  MICM::MICM(const Chemistry& chemistry, MICMSolver solver_type, const BackwardEulerSolverParameters& params)
+      : MICM(chemistry, solver_type)
+  {
+    SetSolverParameters(params);
+  }
+
+  MICM::MICM(std::string config_path, MICMSolver solver_type, const BackwardEulerSolverParameters& params)
+      : MICM(ReadConfiguration(config_path), solver_type, params)
+  {
+  }
+
   MICM::MICM(const Chemistry& chemistry, MICMSolver solver_type)
       : solver_type_(solver_type)
   {
@@ -138,6 +160,26 @@ namespace musica
   IMicmSolver* MICM::GetSolverInterface()
   {
     return solver_.get();
+  }
+
+  void MICM::SetSolverParameters(const RosenbrockSolverParameters& params)
+  {
+    solver_->SetRosenbrockSolverParameters(params);
+  }
+
+  void MICM::SetSolverParameters(const BackwardEulerSolverParameters& params)
+  {
+    solver_->SetBackwardEulerSolverParameters(params);
+  }
+
+  RosenbrockSolverParameters MICM::GetRosenbrockSolverParameters() const
+  {
+    return solver_->GetRosenbrockSolverParameters();
+  }
+
+  BackwardEulerSolverParameters MICM::GetBackwardEulerSolverParameters() const
+  {
+    return solver_->GetBackwardEulerSolverParameters();
   }
 
 }  // namespace musica

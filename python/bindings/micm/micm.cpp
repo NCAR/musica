@@ -5,6 +5,7 @@
 #include <musica/micm/cuda_availability.hpp>
 #include <musica/micm/micm.hpp>
 #include <musica/micm/micm_c_interface.hpp>
+#include <musica/micm/solver_parameters.hpp>
 #include <musica/micm/state.hpp>
 #include <musica/micm/state_c_interface.hpp>
 
@@ -160,6 +161,43 @@ void bind_micm(py::module_& micm)
       .def_readonly("stats", &micm::SolverResult::stats_)
       .def("__str__", [](const micm::SolverResult& e) { return "<SolverResult>"; })
       .def("__repr__", [](const micm::SolverResult& e) { return "<SolverResult>"; });
+
+  py::class_<musica::RosenbrockSolverParameters>(micm, "_RosenbrockSolverParameters")
+      .def(py::init<>())
+      .def_readwrite("relative_tolerance", &musica::RosenbrockSolverParameters::relative_tolerance)
+      .def_readwrite("absolute_tolerances", &musica::RosenbrockSolverParameters::absolute_tolerances)
+      .def_readwrite("h_min", &musica::RosenbrockSolverParameters::h_min)
+      .def_readwrite("h_max", &musica::RosenbrockSolverParameters::h_max)
+      .def_readwrite("h_start", &musica::RosenbrockSolverParameters::h_start)
+      .def_readwrite("max_number_of_steps", &musica::RosenbrockSolverParameters::max_number_of_steps);
+
+  py::class_<musica::BackwardEulerSolverParameters>(micm, "_BackwardEulerSolverParameters")
+      .def(py::init<>())
+      .def_readwrite("relative_tolerance", &musica::BackwardEulerSolverParameters::relative_tolerance)
+      .def_readwrite("absolute_tolerances", &musica::BackwardEulerSolverParameters::absolute_tolerances)
+      .def_readwrite("max_number_of_steps", &musica::BackwardEulerSolverParameters::max_number_of_steps)
+      .def_readwrite("time_step_reductions", &musica::BackwardEulerSolverParameters::time_step_reductions);
+
+  micm.def(
+      "_set_rosenbrock_solver_parameters",
+      [](musica::MICM* micm, const musica::RosenbrockSolverParameters& params) { micm->SetSolverParameters(params); },
+      "Set Rosenbrock solver parameters");
+
+  micm.def(
+      "_set_backward_euler_solver_parameters",
+      [](musica::MICM* micm, const musica::BackwardEulerSolverParameters& params)
+      { micm->SetSolverParameters(params); },
+      "Set Backward Euler solver parameters");
+
+  micm.def(
+      "_get_rosenbrock_solver_parameters",
+      [](musica::MICM* micm) { return micm->GetRosenbrockSolverParameters(); },
+      "Get Rosenbrock solver parameters");
+
+  micm.def(
+      "_get_backward_euler_solver_parameters",
+      [](musica::MICM* micm) { return micm->GetBackwardEulerSolverParameters(); },
+      "Get Backward Euler solver parameters");
 
   micm.def(
       "_micm_solve",

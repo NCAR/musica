@@ -6,6 +6,7 @@
 #include <musica/micm/micm.hpp>
 #include <musica/micm/micm_c_interface.hpp>
 #include <musica/micm/parse.hpp>
+#include <musica/micm/solver_parameters.hpp>
 #include <musica/util.hpp>
 #include <musica/version.hpp>
 
@@ -70,6 +71,20 @@ EMSCRIPTEN_BINDINGS(musica_module)
       .constructor<micm::SolverState, musica::SolverResultStats>()
       .property("state", optional_override([](const micm::SolverResult& r) { return static_cast<int>(r.state_); }))
       .property("stats", &micm::SolverResult::stats_);
+
+  value_object<musica::RosenbrockSolverParameters>("RosenbrockSolverParameters")
+      .field("relative_tolerance", &musica::RosenbrockSolverParameters::relative_tolerance)
+      .field("absolute_tolerances", &musica::RosenbrockSolverParameters::absolute_tolerances)
+      .field("h_min", &musica::RosenbrockSolverParameters::h_min)
+      .field("h_max", &musica::RosenbrockSolverParameters::h_max)
+      .field("h_start", &musica::RosenbrockSolverParameters::h_start)
+      .field("max_number_of_steps", &musica::RosenbrockSolverParameters::max_number_of_steps);
+
+  value_object<musica::BackwardEulerSolverParameters>("BackwardEulerSolverParameters")
+      .field("relative_tolerance", &musica::BackwardEulerSolverParameters::relative_tolerance)
+      .field("absolute_tolerances", &musica::BackwardEulerSolverParameters::absolute_tolerances)
+      .field("max_number_of_steps", &musica::BackwardEulerSolverParameters::max_number_of_steps)
+      .field("time_step_reductions", &musica::BackwardEulerSolverParameters::time_step_reductions);
 
   class_<musica::State>("State")
       .smart_ptr<std::shared_ptr<musica::State>>("State")
@@ -185,7 +200,21 @@ EMSCRIPTEN_BINDINGS(musica_module)
               {
                 return micm.Solve(state.get(), dt);  // pass raw pointer internally
               }))
-      .function("get_maximum_number_of_grid_cells", &musica::MICM::GetMaximumNumberOfGridCells);
+      .function("get_maximum_number_of_grid_cells", &musica::MICM::GetMaximumNumberOfGridCells)
+      .function(
+          "set_rosenbrock_solver_parameters",
+          optional_override([](musica::MICM& micm, musica::RosenbrockSolverParameters params)
+                            { micm.SetSolverParameters(params); }))
+      .function(
+          "set_backward_euler_solver_parameters",
+          optional_override([](musica::MICM& micm, musica::BackwardEulerSolverParameters params)
+                            { micm.SetSolverParameters(params); }))
+      .function(
+          "get_rosenbrock_solver_parameters",
+          optional_override([](musica::MICM& micm) { return micm.GetRosenbrockSolverParameters(); }))
+      .function(
+          "get_backward_euler_solver_parameters",
+          optional_override([](musica::MICM& micm) { return micm.GetBackwardEulerSolverParameters(); }));
 
   function("vector_size", musica::GetVectorSize);
 
