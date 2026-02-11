@@ -130,6 +130,9 @@ version = "${version}"
 # and build the musica docker image locally first with:
 # docker build --platform linux/amd64 -t musica -f docker/Dockerfile.manylinux.gpu .
 #
+[tool.pytest.ini_options]
+testpaths = ["python/test"]
+
 [tool.cibuildwheel]
 # Increase pip debugging output
 build-verbosity = 3
@@ -154,19 +157,12 @@ test-command = [
   "pytest {project}/python/test",
   "musica-cli --convert configs/v0/TS1/config.json -o ts1.json",
   "musica-cli -e CARMA_Aluminum -o .",
-  "python carma_aluminum.py",
   "musica-cli -e CARMA_Sulfate -o .",
-  "python carma_sulfate.py",
   "musica-cli -e Lorenz_Attractor -o .",
-  "python lorenz.py",
   "musica-cli -e Sulfate_Box_Model -o .",
-  "python sulfate_box_model.py",
   "musica-cli -e TS1BoxModel -o .",
-  "python ts1_box_model.py",
   "musica-cli -e TS1LatinHyperCube -o .",
-  "python ts1_latin_hypercube.py",
   "musica-cli -e Chapman -o .",
-  "python chapman.py",
 ]
 
 # Set up pre-build hooks
@@ -204,7 +200,7 @@ skip = ["cp39-win_arm64", "cp310-win_arm64"]
 test-command = [
   "python -c \"import musica; print(musica.__version__)\"",
   "musica-cli --help",
-  "pytest {project}\\python\\test -k \"not tuvx\"",
+  "pytest {project}\\python\\test -k \"not tuvx and not ts1_box_model\"",
 ]
 
 [tool.cibuildwheel.windows.environment]

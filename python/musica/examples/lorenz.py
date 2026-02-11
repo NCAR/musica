@@ -1,8 +1,5 @@
 from musica.micm import MICM, SolverType
 import musica.mechanism_configuration as mc
-import matplotlib.pyplot as plt
-from matplotlib import animation
-from matplotlib.animation import FFMpegWriter, PillowWriter
 import argparse
 import os
 import numpy as np
@@ -116,7 +113,7 @@ def create_lorenz_mechanism():
     return mechanism
 
 
-def main(output='lorenz.mp4', fps=30, n=2):
+def main(output='lorenz.mp4', fps=30, n=2, plot=True):
     """
     Run the Lorenz polynomial chemical reaction network simulation and save an animation.
     Parameters
@@ -128,6 +125,8 @@ def main(output='lorenz.mp4', fps=30, n=2):
         Frames per second for the generated animation. Defaults to 30.
     n : int, optional
         The number of grid cells to simulate the attractor in
+    plot : bool, optional
+        Whether to generate the animation. Defaults to True.
     Notes
     -----
     This function constructs the Lorenz mechanism, initializes the MICM solver, sets
@@ -195,98 +194,105 @@ def main(output='lorenz.mp4', fps=30, n=2):
 
     print("Simulation complete.")
 
-    def create_animation(Xs, Ys, Zs, outpath='lorenz.mp4', fps=30):
-        # Xs, Ys, Zs are lists of length n each containing a time-series list
-        Ncells = len(Xs)
-        if Ncells == 0:
-            print("No trajectory data to animate.")
-            return
+    if plot:
+        import matplotlib.pyplot as plt
+        from matplotlib import animation
+        from matplotlib.animation import FFMpegWriter, PillowWriter
 
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
+        running_in_cibw = os.environ.get("CIBUILDWHEEL", "").lower() in {"1", "true", "yes"}
+        if running_in_cibw:
+            print("Detected cibuildwheel; skipping animation generation.")
+            return Xs, Ys, Zs
 
-        ax.set_xlabel('X Concentration')
-        ax.set_ylabel('Y Concentration')
-        ax.set_zlabel('Z Concentration')
-        ax.set_title('Lorenz Attractor from Chemical Reaction Network')
+        def create_animation(Xs, Ys, Zs, outpath='lorenz.mp4', fps=30):
+            # Xs, Ys, Zs are lists of length n each containing a time-series list
+            Ncells = len(Xs)
+            if Ncells == 0:
+                print("No trajectory data to animate.")
+                return
 
-        xmin = min(min(xs) for xs in Xs)
-        xmax = max(max(xs) for xs in Xs)
-        ymin = min(min(ys) for ys in Ys)
-        ymax = max(max(ys) for ys in Ys)
-        zmin = min(min(zs) for zs in Zs)
-        zmax = max(max(zs) for zs in Zs)
-        ax.set_xlim(xmin, xmax)
-        ax.set_ylim(ymin, ymax)
-        ax.set_zlim(zmin, zmax)
-        # create one line+point per grid cell
-        cmap = plt.get_cmap('tab10')
-        colors = [cmap(i % 10) for i in range(Ncells)]
+            fig = plt.figure()
+            ax = fig.add_subplot(111, projection='3d')
 
-        lines = []
-        points = []
-        for idx in range(Ncells):
-            ln, = ax.plot([], [], [], lw=1, color=colors[idx], alpha=0.5, label=f'cell {idx}')
-            pt, = ax.plot([], [], [], 'o', color=colors[idx], markersize=3)
-            lines.append(ln)
-            points.append(pt)
+            ax.set_xlabel('X Concentration')
+            ax.set_ylabel('Y Concentration')
+            ax.set_zlabel('Z Concentration')
+            ax.set_title('Lorenz Attractor from Chemical Reaction Network')
 
-        def init():
-            artists = []
-            for ln, pt in zip(lines, points):
-                ln.set_data([], [])
-                ln.set_3d_properties([])
-                pt.set_data([], [])
-                pt.set_3d_properties([])
-                artists.extend([ln, pt])
-            return artists
+            xmin = min(min(xs) for xs in Xs)
+            xmax = max(max(xs) for xs in Xs)
+            ymin = min(min(ys) for ys in Ys)
+            ymax = max(max(ys) for ys in Ys)
+            zmin = min(min(zs) for zs in Zs)
+            zmax = max(max(zs) for zs in Zs)
+            ax.set_xlim(xmin, xmax)
+            ax.set_ylim(ymin, ymax)
+            ax.set_zlim(zmin, zmax)
+            # create one line+point per grid cell
+            cmap = plt.get_cmap('tab10')
+            colors = [cmap(i % 10) for i in range(Ncells)]
 
-        def update(i):
-            artists = []
+            lines = []
+            points = []
             for idx in range(Ncells):
-                xs = Xs[idx]
-                ys = Ys[idx]
-                zs = Zs[idx]
-                # clamp i for safety
-                j = min(i, len(xs) - 1)
-                lines[idx].set_data(xs[:j], ys[:j])
-                lines[idx].set_3d_properties(zs[:j])
-                if j > 0:
-                    points[idx].set_data([xs[j - 1]], [ys[j - 1]])
-                    points[idx].set_3d_properties([zs[j - 1]])
-                artists.extend([lines[idx], points[idx]])
-            return artists
+                ln, = ax.plot([], [], [], lw=1, color=colors[idx], alpha=0.5, label=f'cell {idx}')
+                pt, = ax.plot([], [], [], 'o', color=colors[idx], markersize=3)
+                lines.append(ln)
+                points.append(pt)
 
-        frames = len(Xs[0])
-        interval = 1000.0 / fps
+            def init():
+                artists = []
+                for ln, pt in zip(lines, points):
+                    ln.set_data([], [])
+                    ln.set_3d_properties([])
+                    pt.set_data([], [])
+                    pt.set_3d_properties([])
+                    artists.extend([ln, pt])
+                return artists
 
-        anim = animation.FuncAnimation(
-            fig, update, init_func=init, frames=frames, interval=interval, blit=True)
+            def update(i):
+                artists = []
+                for idx in range(Ncells):
+                    xs = Xs[idx]
+                    ys = Ys[idx]
+                    zs = Zs[idx]
+                    # clamp i for safety
+                    j = min(i, len(xs) - 1)
+                    lines[idx].set_data(xs[:j], ys[:j])
+                    lines[idx].set_3d_properties(zs[:j])
+                    if j > 0:
+                        points[idx].set_data([xs[j - 1]], [ys[j - 1]])
+                        points[idx].set_3d_properties([zs[j - 1]])
+                    artists.extend([lines[idx], points[idx]])
+                return artists
 
-        outdir = os.path.dirname(outpath) or '.'
-        os.makedirs(outdir, exist_ok=True)
+            frames = len(Xs[0])
+            interval = 1000.0 / fps
 
-        try:
-            ax.legend()
-            writer = FFMpegWriter(fps=fps)
-            anim.save(outpath, writer=writer)
-            print(f"Saved animation to {outpath}")
-        except Exception:
+            anim = animation.FuncAnimation(
+                fig, update, init_func=init, frames=frames, interval=interval, blit=True)
+
+            outdir = os.path.dirname(outpath) or '.'
+            os.makedirs(outdir, exist_ok=True)
+
             try:
-                gif_path = os.path.splitext(outpath)[0] + '.gif'
-                writer = PillowWriter(fps=fps)
-                anim.save(gif_path, writer=writer)
-                print(f"FFmpeg unavailable; saved GIF to {gif_path}")
-            except Exception as e:
-                print("Failed to save animation:", e)
+                ax.legend()
+                writer = FFMpegWriter(fps=fps)
+                anim.save(outpath, writer=writer)
+                print(f"Saved animation to {outpath}")
+            except Exception:
+                try:
+                    gif_path = os.path.splitext(outpath)[0] + '.gif'
+                    writer = PillowWriter(fps=fps)
+                    anim.save(gif_path, writer=writer)
+                    print(f"FFmpeg unavailable; saved GIF to {gif_path}")
+                except Exception as e:
+                    print("Failed to save animation:", e)
 
-    running_in_cibw = os.environ.get("CIBUILDWHEEL", "").lower() in {"1", "true", "yes"}
-    if running_in_cibw:
-        print("Detected cibuildwheel; skipping animation generation.")
-        return
+        # Save animation with defaults; CLI can override via args below
+        create_animation(Xs, Ys, Zs, outpath=output, fps=fps)
 
-    # Save animation with defaults; CLI can override via args below
-    create_animation(Xs, Ys, Zs, outpath=output, fps=fps)
+    return Xs, Ys, Zs
 
 
 if __name__ == "__main__":
