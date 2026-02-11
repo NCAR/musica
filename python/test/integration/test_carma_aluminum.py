@@ -19,5 +19,6 @@ def test_carma_aluminum():
     state = carma_aluminum.run_carma_aluminum_example()
     assert state is not None, "State should not be None"
 
+
 if __name__ == "__main__":
     test_carma_aluminum()
