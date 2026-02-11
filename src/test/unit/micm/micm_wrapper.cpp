@@ -72,6 +72,7 @@ TEST(SolverParameters, SetGetRosenbrockParameters)
 
   musica::RosenbrockSolverParameters params;
   params.relative_tolerance = 1e-8;
+  params.absolute_tolerances = { 1e-12, 2e-12, 3e-12, 4e-12, 5e-12, 6e-12 };
   params.h_min = 1e-10;
   params.h_max = 100.0;
   params.h_start = 1e-5;
@@ -85,6 +86,9 @@ TEST(SolverParameters, SetGetRosenbrockParameters)
   EXPECT_DOUBLE_EQ(result.h_start, 1e-5);
   EXPECT_EQ(result.max_number_of_steps, 500);
   EXPECT_DOUBLE_EQ(result.relative_tolerance, 1e-8);
+  ASSERT_EQ(result.absolute_tolerances.size(), 6);
+  EXPECT_DOUBLE_EQ(result.absolute_tolerances[0], 1e-12);
+  EXPECT_DOUBLE_EQ(result.absolute_tolerances[5], 6e-12);
 }
 
 TEST(SolverParameters, SetGetBackwardEulerParameters)
@@ -94,6 +98,7 @@ TEST(SolverParameters, SetGetBackwardEulerParameters)
 
   musica::BackwardEulerSolverParameters params;
   params.relative_tolerance = 1e-8;
+  params.absolute_tolerances = { 1e-14, 2e-14, 3e-14, 4e-14, 5e-14, 6e-14 };
   params.max_number_of_steps = 20;
   params.time_step_reductions = { 0.3, 0.3, 0.3, 0.3, 0.05 };
 
@@ -102,6 +107,9 @@ TEST(SolverParameters, SetGetBackwardEulerParameters)
   auto result = micm.GetBackwardEulerSolverParameters();
   EXPECT_EQ(result.max_number_of_steps, 20);
   EXPECT_DOUBLE_EQ(result.relative_tolerance, 1e-8);
+  ASSERT_EQ(result.absolute_tolerances.size(), 6);
+  EXPECT_DOUBLE_EQ(result.absolute_tolerances[0], 1e-14);
+  EXPECT_DOUBLE_EQ(result.absolute_tolerances[5], 6e-14);
   ASSERT_EQ(result.time_step_reductions.size(), 5);
   EXPECT_DOUBLE_EQ(result.time_step_reductions[0], 0.3);
   EXPECT_DOUBLE_EQ(result.time_step_reductions[4], 0.05);

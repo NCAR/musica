@@ -642,6 +642,8 @@ TEST(SolverParametersCApi, SetGetRosenbrockParameters)
   EXPECT_EQ(get_params.max_number_of_steps, 500u);
   EXPECT_DOUBLE_EQ(get_params.relative_tolerance, 1e-8);
 
+  if (get_params.absolute_tolerances != nullptr)
+    delete[] get_params.absolute_tolerances;
   DeleteMicm(micm, &error);
   DeleteError(&error);
 }
@@ -675,6 +677,8 @@ TEST(SolverParametersCApi, SetGetBackwardEulerParameters)
   EXPECT_DOUBLE_EQ(get_params.time_step_reductions[0], 0.3);
   EXPECT_DOUBLE_EQ(get_params.time_step_reductions[4], 0.05);
 
+  if (get_params.absolute_tolerances != nullptr)
+    delete[] get_params.absolute_tolerances;
   delete[] get_params.time_step_reductions;
   DeleteMicm(micm, &error);
   DeleteError(&error);

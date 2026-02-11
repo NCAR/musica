@@ -307,12 +307,17 @@ namespace musica
           if constexpr (std::is_same_v<ParamsT, micm::BackwardEulerSolverParameters>)
           {
             solver_ptr->solver_parameters_.max_number_of_steps_ = params.max_number_of_steps;
-            if (params.time_step_reductions.size() == 5)
+            if (params.time_step_reductions.size() != solver_ptr->solver_parameters_.time_step_reductions_.size())
             {
-              for (std::size_t i = 0; i < 5; ++i)
-              {
-                solver_ptr->solver_parameters_.time_step_reductions_[i] = params.time_step_reductions[i];
-              }
+              throw std::system_error(
+                  make_error_code(MusicaErrCode::Unknown),
+                  "time_step_reductions must have exactly " +
+                      std::to_string(solver_ptr->solver_parameters_.time_step_reductions_.size()) + " elements, got " +
+                      std::to_string(params.time_step_reductions.size()));
+            }
+            for (std::size_t i = 0; i < solver_ptr->solver_parameters_.time_step_reductions_.size(); ++i)
+            {
+              solver_ptr->solver_parameters_.time_step_reductions_[i] = params.time_step_reductions[i];
             }
           }
           else
@@ -365,8 +370,8 @@ namespace musica
           if constexpr (std::is_same_v<ParamsT, micm::BackwardEulerSolverParameters>)
           {
             result.max_number_of_steps = solver_ptr->solver_parameters_.max_number_of_steps_;
-            result.time_step_reductions.resize(5);
-            for (std::size_t i = 0; i < 5; ++i)
+            result.time_step_reductions.resize(solver_ptr->solver_parameters_.time_step_reductions_.size());
+            for (std::size_t i = 0; i < solver_ptr->solver_parameters_.time_step_reductions_.size(); ++i)
             {
               result.time_step_reductions[i] = solver_ptr->solver_parameters_.time_step_reductions_[i];
             }
