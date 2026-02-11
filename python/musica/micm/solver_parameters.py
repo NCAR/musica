@@ -61,8 +61,8 @@ class BackwardEulerSolverParameters:
     max_number_of_steps : int
         Maximum number of internal steps (default: 11).
     time_step_reductions : list of float
-        Factors by which to reduce the time step after failed solves
-        (default: [0.5, 0.5, 0.5, 0.5, 0.1]).
+        Factors by which to reduce the time step after failed solves.
+        Must have exactly 5 elements (default: [0.5, 0.5, 0.5, 0.5, 0.1]).
     """
 
     def __init__(
@@ -80,6 +80,11 @@ class BackwardEulerSolverParameters:
             if time_step_reductions is not None
             else [0.5, 0.5, 0.5, 0.5, 0.1]
         )
+        if len(self.time_step_reductions) != 5:
+            raise ValueError(
+                f"time_step_reductions must have exactly 5 elements, "
+                f"got {len(self.time_step_reductions)}"
+            )
 
     def __repr__(self):
         return (

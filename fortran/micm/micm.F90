@@ -74,7 +74,8 @@ module musica_micm
     real(real64)              :: relative_tolerance = 1.0e-6_real64
     real(real64), allocatable :: absolute_tolerances(:)
     integer                   :: max_number_of_steps = 11
-    real(real64), allocatable :: time_step_reductions(:)
+    real(real64)              :: time_step_reductions(5) = &  ! must have exactly 5 elements
+        (/ 0.5_real64, 0.5_real64, 0.5_real64, 0.5_real64, 0.1_real64 /)
   end type backward_euler_solver_parameters_t
 
   interface
@@ -568,15 +569,10 @@ contains
       params_c%absolute_tolerances = c_null_ptr
       params_c%num_absolute_tolerances = 0
     end if
-    if (allocated(params%time_step_reductions)) then
-      allocate(tsr_c(size(params%time_step_reductions)))
-      tsr_c = real(params%time_step_reductions, c_double)
-      params_c%time_step_reductions = c_loc(tsr_c(1))
-      params_c%num_time_step_reductions = int(size(tsr_c), c_size_t)
-    else
-      params_c%time_step_reductions = c_null_ptr
-      params_c%num_time_step_reductions = 0
-    end if
+    allocate(tsr_c(size(params%time_step_reductions)))
+    tsr_c = real(params%time_step_reductions, c_double)
+    params_c%time_step_reductions = c_loc(tsr_c(1))
+    params_c%num_time_step_reductions = int(size(tsr_c), c_size_t)
     call set_backward_euler_solver_parameters_c(this%ptr, params_c, error_c)
     error = error_t(error_c)
   end subroutine set_backward_euler_solver_parameters
@@ -635,7 +631,6 @@ contains
     end if
     if (params_c%num_time_step_reductions > 0 .and. c_associated(params_c%time_step_reductions)) then
       call c_f_pointer(params_c%time_step_reductions, tsr_ptr, [int(params_c%num_time_step_reductions)])
-      allocate(params%time_step_reductions(int(params_c%num_time_step_reductions)))
       params%time_step_reductions = real(tsr_ptr, real64)
     end if
   end function get_backward_euler_solver_parameters

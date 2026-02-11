@@ -26,7 +26,7 @@ namespace musica
     double relative_tolerance{ 1e-6 };
     std::vector<double> absolute_tolerances{};  // empty = use MICM defaults
     std::size_t max_number_of_steps{ 11 };
-    std::vector<double> time_step_reductions{ 0.5, 0.5, 0.5, 0.5, 0.1 };
+    std::vector<double> time_step_reductions{ 0.5, 0.5, 0.5, 0.5, 0.1 };  // must have exactly 5 elements
   };
 
 }  // namespace musica

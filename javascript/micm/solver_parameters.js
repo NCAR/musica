@@ -37,7 +37,7 @@ export class BackwardEulerSolverParameters {
    * @param {number} [options.relative_tolerance=1e-6]
    * @param {number[]|null} [options.absolute_tolerances=null]
    * @param {number} [options.max_number_of_steps=11]
-   * @param {number[]} [options.time_step_reductions=[0.5, 0.5, 0.5, 0.5, 0.1]]
+   * @param {number[]} [options.time_step_reductions=[0.5, 0.5, 0.5, 0.5, 0.1]] Must have exactly 5 elements
    */
   constructor({
     relative_tolerance = 1e-6,
@@ -45,6 +45,11 @@ export class BackwardEulerSolverParameters {
     max_number_of_steps = 11,
     time_step_reductions = [0.5, 0.5, 0.5, 0.5, 0.1],
   } = {}) {
+    if (time_step_reductions.length !== 5) {
+      throw new Error(
+        `time_step_reductions must have exactly 5 elements, got ${time_step_reductions.length}`,
+      );
+    }
     this.relative_tolerance = relative_tolerance;
     this.absolute_tolerances = absolute_tolerances;
     this.max_number_of_steps = max_number_of_steps;

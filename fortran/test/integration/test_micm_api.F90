@@ -515,7 +515,6 @@ contains
 
     be_params%relative_tolerance = 1.0e-8_real64
     be_params%max_number_of_steps = 20
-    allocate(be_params%time_step_reductions(5))
     be_params%time_step_reductions = (/ 0.3_real64, 0.3_real64, 0.3_real64, 0.3_real64, 0.05_real64 /)
 
     call micm%set_backward_euler_solver_parameters(be_params, error)
