@@ -10,7 +10,7 @@ import path from 'path';
 import * as musica from '../../index.js';
 import { fileURLToPath } from 'url';
 
-const { MICM, SolverType, State, SolverResult, SolverStats } = musica;
+const { MICM, SolverType, State, SolverResult, SolverStats, RosenbrockSolverParameters, BackwardEulerSolverParameters } = musica;
 const { types, reactionTypes, Mechanism } = musica.mechanismConfiguration;
 const { Species, Phase, ReactionComponent } = types;
 
@@ -385,5 +385,105 @@ describe('MICM SolverResult validation', () => {
 
     state.delete();
     micm.delete();
+  });
+});
+
+describe('Solver Parameters', () => {
+  it('should set and get Rosenbrock solver parameters', () => {
+    const solver = MICM.fromConfigPath(getConfigPath(), SolverType.rosenbrock_standard_order);
+
+    const params = new RosenbrockSolverParameters({
+      relative_tolerance: 1e-8,
+      h_min: 1e-10,
+      h_max: 100.0,
+      h_start: 1e-5,
+      max_number_of_steps: 500,
+    });
+
+    solver.setSolverParameters(params);
+
+    const result = solver.getSolverParameters();
+    assert.ok(result instanceof RosenbrockSolverParameters);
+    assert.strictEqual(result.relative_tolerance, 1e-8);
+    assert.strictEqual(result.h_min, 1e-10);
+    assert.strictEqual(result.h_max, 100.0);
+    assert.strictEqual(result.h_start, 1e-5);
+    assert.strictEqual(result.max_number_of_steps, 500);
+
+    solver.delete();
+  });
+
+  it('should set and get Backward Euler solver parameters', () => {
+    const solver = MICM.fromConfigPath(getConfigPath(), SolverType.backward_euler_standard_order);
+
+    const params = new BackwardEulerSolverParameters({
+      relative_tolerance: 1e-8,
+      max_number_of_steps: 20,
+      time_step_reductions: [0.3, 0.3, 0.3, 0.3, 0.05],
+    });
+
+    solver.setSolverParameters(params);
+
+    const result = solver.getSolverParameters();
+    assert.ok(result instanceof BackwardEulerSolverParameters);
+    assert.strictEqual(result.relative_tolerance, 1e-8);
+    assert.strictEqual(result.max_number_of_steps, 20);
+    assert.strictEqual(result.time_step_reductions.length, 5);
+    assert.strictEqual(result.time_step_reductions[0], 0.3);
+    assert.strictEqual(result.time_step_reductions[4], 0.05);
+
+    solver.delete();
+  });
+
+  it('should throw when setting wrong parameter type', () => {
+    const solver = MICM.fromConfigPath(getConfigPath(), SolverType.rosenbrock_standard_order);
+
+    const params = new BackwardEulerSolverParameters();
+    assert.throws(() => solver.setSolverParameters(params));
+
+    solver.delete();
+  });
+
+  it('should accept solver parameters in constructor', () => {
+    const params = new RosenbrockSolverParameters({
+      h_start: 1e-3,
+      max_number_of_steps: 2000,
+    });
+
+    const solver = MICM.fromConfigPath(getConfigPath(), SolverType.rosenbrock_standard_order, params);
+
+    const result = solver.getSolverParameters();
+    assert.strictEqual(result.h_start, 1e-3);
+    assert.strictEqual(result.max_number_of_steps, 2000);
+
+    solver.delete();
+  });
+
+  it('should solve with custom parameters', () => {
+    const params = new RosenbrockSolverParameters({
+      relative_tolerance: 1e-10,
+    });
+
+    const solver = MICM.fromConfigPath(getConfigPath(), SolverType.rosenbrock_standard_order, params);
+    const state = solver.createState(1);
+
+    state.setConcentrations({
+      A: [0.75], B: [0], C: [0.4], D: [0.8], E: [0], F: [0.1],
+    });
+    state.setConditions({
+      temperatures: [272.5],
+      pressures: [101253.3],
+      airDensities: [101253.3 / (8.31446261815324 * 272.5)],
+    });
+    state.setUserDefinedRateParameters({
+      'USER.reaction 1': [0.001],
+      'USER.reaction 2': [0.002],
+    });
+
+    const result = solver.solve(state, 200.0);
+    assert.ok(result instanceof SolverResult, 'Should solve with custom parameters');
+
+    state.delete();
+    solver.delete();
   });
 });

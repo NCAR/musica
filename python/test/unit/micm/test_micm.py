@@ -2,6 +2,7 @@
 from __future__ import annotations
 import pytest
 from musica.micm import MICM, State, SolverType, SolverResult, SolverState
+from musica.micm import RosenbrockSolverParameters, BackwardEulerSolverParameters
 import musica.mechanism_configuration as mc
 from musica.utils import find_config_path
 
@@ -341,6 +342,83 @@ class TestMICMIntegration:
 
         # Verify results
         assert isinstance(results, SolverResult)
+
+
+class TestSolverParameters:
+    """Test solver parameter setting and getting."""
+
+    def test_rosenbrock_solver_parameters(self):
+        """Test setting and getting Rosenbrock solver parameters."""
+        params = RosenbrockSolverParameters(
+            relative_tolerance=1e-8,
+            h_min=1e-10,
+            h_max=100.0,
+            h_start=1e-5,
+            max_number_of_steps=500,
+        )
+        solver = MICM(
+            config_path=find_config_path("v0", "analytical"),
+            solver_type=SolverType.rosenbrock_standard_order,
+            solver_parameters=params,
+        )
+        result = solver.get_solver_parameters()
+        assert isinstance(result, RosenbrockSolverParameters)
+        assert result.max_number_of_steps == 500
+        assert result.h_min == pytest.approx(1e-10)
+        assert result.h_max == pytest.approx(100.0)
+        assert result.h_start == pytest.approx(1e-5)
+        assert result.relative_tolerance == pytest.approx(1e-8)
+
+    def test_backward_euler_solver_parameters(self):
+        """Test setting and getting Backward Euler solver parameters."""
+        params = BackwardEulerSolverParameters(
+            relative_tolerance=1e-8,
+            max_number_of_steps=20,
+            time_step_reductions=[0.3, 0.3, 0.3, 0.3, 0.05],
+        )
+        solver = MICM(
+            config_path=find_config_path("v0", "analytical"),
+            solver_type=SolverType.backward_euler_standard_order,
+            solver_parameters=params,
+        )
+        result = solver.get_solver_parameters()
+        assert isinstance(result, BackwardEulerSolverParameters)
+        assert result.max_number_of_steps == 20
+        assert result.relative_tolerance == pytest.approx(1e-8)
+        assert result.time_step_reductions[0] == pytest.approx(0.3)
+        assert result.time_step_reductions[4] == pytest.approx(0.05)
+
+    def test_solver_parameters_type_mismatch(self):
+        """Test that setting wrong parameter type raises an error."""
+        params = BackwardEulerSolverParameters()
+        solver = MICM(
+            config_path=find_config_path("v0", "analytical"),
+            solver_type=SolverType.rosenbrock_standard_order,
+        )
+        with pytest.raises(Exception):
+            solver.set_solver_parameters(params)
+
+    def test_solver_parameters_after_construction(self):
+        """Test changing parameters after construction."""
+        solver = MICM(
+            config_path=find_config_path("v0", "analytical"),
+            solver_type=SolverType.rosenbrock_standard_order,
+        )
+        params = RosenbrockSolverParameters(
+            max_number_of_steps=2000,
+            h_start=1e-3,
+        )
+        solver.set_solver_parameters(params)
+        result = solver.get_solver_parameters()
+        assert result.max_number_of_steps == 2000
+        assert result.h_start == pytest.approx(1e-3)
+
+        # Solve to verify parameters work
+        state = solver.create_state()
+        state.set_concentrations({"A": [1.0], "B": [0.0], "C": [1.0],
+                                  "D": [1.0], "E": [0.0], "F": [1.0]})
+        state.set_conditions(temperatures=298.15, pressures=101325.0)
+        result = solver.solve(state, 60.0)
 
 
 if __name__ == '__main__':
