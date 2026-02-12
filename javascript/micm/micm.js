@@ -13,7 +13,11 @@ export class MICM {
    * @param {RosenbrockSolverParameters|BackwardEulerSolverParameters} [solverParameters] - Optional solver parameters
    * @returns {MICM} A new MICM instance
    */
-  static fromConfigPath(configPath, solverType = SolverType.rosenbrock_standard_order, solverParameters = null) {
+  static fromConfigPath(
+    configPath,
+    solverType = SolverType.rosenbrock_standard_order,
+    solverParameters = null
+  ) {
     if (typeof configPath !== 'string') {
       throw new TypeError('configPath must be a string');
     }
@@ -48,7 +52,11 @@ export class MICM {
    * @param {RosenbrockSolverParameters|BackwardEulerSolverParameters} [solverParameters] - Optional solver parameters
    * @returns {MICM} A new MICM instance
    */
-  static fromMechanism(mechanism, solverType = SolverType.rosenbrock_standard_order, solverParameters = null) {
+  static fromMechanism(
+    mechanism,
+    solverType = SolverType.rosenbrock_standard_order,
+    solverParameters = null
+  ) {
     if (!mechanism || typeof mechanism.getJSON !== 'function') {
       throw new TypeError('mechanism must be a valid Mechanism object with getJSON() method');
     }
@@ -138,7 +146,9 @@ export class MICM {
       };
       this._nativeMICM.set_backward_euler_solver_parameters(wasmParams);
     } else {
-      throw new TypeError('params must be RosenbrockSolverParameters or BackwardEulerSolverParameters');
+      throw new TypeError(
+        'params must be RosenbrockSolverParameters or BackwardEulerSolverParameters'
+      );
     }
   }
 

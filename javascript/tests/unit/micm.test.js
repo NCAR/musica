@@ -10,7 +10,15 @@ import path from 'path';
 import * as musica from '../../index.js';
 import { fileURLToPath } from 'url';
 
-const { MICM, SolverType, State, SolverResult, SolverStats, RosenbrockSolverParameters, BackwardEulerSolverParameters } = musica;
+const {
+  MICM,
+  SolverType,
+  State,
+  SolverResult,
+  SolverStats,
+  RosenbrockSolverParameters,
+  BackwardEulerSolverParameters,
+} = musica;
 const { types, reactionTypes, Mechanism } = musica.mechanismConfiguration;
 const { Species, Phase, ReactionComponent } = types;
 
@@ -450,7 +458,11 @@ describe('Solver Parameters', () => {
       max_number_of_steps: 2000,
     });
 
-    const solver = MICM.fromConfigPath(getConfigPath(), SolverType.rosenbrock_standard_order, params);
+    const solver = MICM.fromConfigPath(
+      getConfigPath(),
+      SolverType.rosenbrock_standard_order,
+      params
+    );
 
     const result = solver.getSolverParameters();
     assert.strictEqual(result.h_start, 1e-3);
@@ -464,11 +476,20 @@ describe('Solver Parameters', () => {
       relative_tolerance: 1e-10,
     });
 
-    const solver = MICM.fromConfigPath(getConfigPath(), SolverType.rosenbrock_standard_order, params);
+    const solver = MICM.fromConfigPath(
+      getConfigPath(),
+      SolverType.rosenbrock_standard_order,
+      params
+    );
     const state = solver.createState(1);
 
     state.setConcentrations({
-      A: [0.75], B: [0], C: [0.4], D: [0.8], E: [0], F: [0.1],
+      A: [0.75],
+      B: [0],
+      C: [0.4],
+      D: [0.8],
+      E: [0],
+      F: [0.1],
     });
     state.setConditions({
       temperatures: [272.5],

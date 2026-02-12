@@ -47,7 +47,7 @@ export class BackwardEulerSolverParameters {
   } = {}) {
     if (time_step_reductions.length !== 5) {
       throw new Error(
-        `time_step_reductions must have exactly 5 elements, got ${time_step_reductions.length}`,
+        `time_step_reductions must have exactly 5 elements, got ${time_step_reductions.length}`
       );
     }
     this.relative_tolerance = relative_tolerance;

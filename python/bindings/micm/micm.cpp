@@ -185,8 +185,7 @@ void bind_micm(py::module_& micm)
 
   micm.def(
       "_set_backward_euler_solver_parameters",
-      [](musica::MICM* micm, const musica::BackwardEulerSolverParameters& params)
-      { micm->SetSolverParameters(params); },
+      [](musica::MICM* micm, const musica::BackwardEulerSolverParameters& params) { micm->SetSolverParameters(params); },
       "Set Backward Euler solver parameters");
 
   micm.def(

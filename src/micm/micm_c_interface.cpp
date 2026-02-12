@@ -244,9 +244,7 @@ namespace musica
             params->num_absolute_tolerances = cpp_params.absolute_tolerances.size();
             params->absolute_tolerances = new double[params->num_absolute_tolerances];
             std::copy(
-                cpp_params.absolute_tolerances.begin(),
-                cpp_params.absolute_tolerances.end(),
-                params->absolute_tolerances);
+                cpp_params.absolute_tolerances.begin(), cpp_params.absolute_tolerances.end(), params->absolute_tolerances);
           }
           else
           {
@@ -271,9 +269,7 @@ namespace musica
             params->num_absolute_tolerances = cpp_params.absolute_tolerances.size();
             params->absolute_tolerances = new double[params->num_absolute_tolerances];
             std::copy(
-                cpp_params.absolute_tolerances.begin(),
-                cpp_params.absolute_tolerances.end(),
-                params->absolute_tolerances);
+                cpp_params.absolute_tolerances.begin(), cpp_params.absolute_tolerances.end(), params->absolute_tolerances);
           }
           else
           {
