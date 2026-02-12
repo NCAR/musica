@@ -27,6 +27,7 @@ jobs:
           - Dockerfile.mpi_openmp
           - Dockerfile.nvhpc
           - Dockerfile.javascript
+          - Dockerfile.julia
         build_type: [Release]
         exclude:
           - dockerfile: Dockerfile.nvhpc
@@ -48,12 +49,16 @@ jobs:
         run: docker build -t musica -f docker/${{ matrix.dockerfile }} . --build-arg MUSICA_GIT_TAG=${{ github.sha }} --build-arg BUILD_TYPE=${{ matrix.build_type }}
 
       - name: Run tests in container
-        if: matrix.dockerfile != 'Dockerfile.nvhpc' && matrix.dockerfile != 'Dockerfile.javascript'
+        if: matrix.dockerfile != 'Dockerfile.nvhpc' && matrix.dockerfile != 'Dockerfile.javascript' && matrix.dockerfile != 'Dockerfile.julia'
         run: docker run --name test-container -t musica bash -c 'make test ARGS="--rerun-failed --output-on-failure -j8"'
 
       - name: Run javascript tests in container
         if: matrix.dockerfile == 'Dockerfile.javascript'
         run: docker run --name test-container -t musica bash -c 'npm run test'
+      
+      - name: Run Julia tests in container
+        if: matrix.dockerfile == 'Dockerfile.julia'
+        run: docker run --name test-container -t musica bash -c 'julia --project=julia julia/test/runtests.jl'
 
   tuv-x-comparison:
     name: TUV-x Comparison Test (Standalone vs. Python API)
