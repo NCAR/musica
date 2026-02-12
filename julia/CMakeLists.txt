@@ -7,7 +7,7 @@ add_library(musica_julia SHARED
 
 target_compile_features(musica_julia PUBLIC cxx_std_20)
 
-set_target_properties(musica POSITION_INDEPENDENT_CODE ON)
+set_target_properties(musica PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 target_link_libraries(musica_julia
     musica::musica
