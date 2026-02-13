@@ -1,160 +1,140 @@
 from typing import Optional, Any, Dict, List, Union, Tuple
 from .. import backend
+from .._base import CppWrapper, CppField, _unwrap_list, _wrap_list
 from .phase import Phase
 from .species import Species
-from .utils import _add_other_properties, _remove_empty_keys
+from .utils import _add_other_properties, _remove_empty_keys, _convert_components
 from .reaction_component import ReactionComponent
 from .ancillary import ReactionType
 
 _backend = backend.get_backend()
-Troe = _backend._mechanism_configuration._Troe
-
-original_init = Troe.__init__
+_Troe = _backend._mechanism_configuration._Troe
 
 
-@property
-def type(self):
-    return ReactionType.Troe
+class Troe(CppWrapper):
+    """A Troe rate constant.
 
-
-def __init__(
-    self,
-    name: Optional[str] = None,
-    k0_A: Optional[float] = None,
-    k0_B: Optional[float] = None,
-    k0_C: Optional[float] = None,
-    kinf_A: Optional[float] = None,
-    kinf_B: Optional[float] = None,
-    kinf_C: Optional[float] = None,
-    Fc: Optional[float] = None,
-    N: Optional[float] = None,
-    reactants: Optional[List[Union[Species,
-                                   Tuple[float, Species]]]] = None,
-    products: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
-    gas_phase: Optional[Phase] = None,
-    other_properties: Optional[Dict[str, Any]] = None,
-):
+    Attributes:
+        name: The name of the Troe rate constant.
+        k0_A: Pre-exponential factor for the low-pressure limit.
+        k0_B: Temperature exponent for the low-pressure limit.
+        k0_C: Exponential term for the low-pressure limit.
+        kinf_A: Pre-exponential factor for the high-pressure limit.
+        kinf_B: Temperature exponent for the high-pressure limit.
+        kinf_C: Exponential term for the high-pressure limit.
+        Fc: Troe parameter [unitless].
+        N: Troe parameter [unitless].
+        reactants: A list of reactants involved in the reaction.
+        products: A list of products formed in the reaction.
+        gas_phase: The gas phase in which the reaction occurs.
+        other_properties: A dictionary of other properties.
     """
-    Initializes the Troe object with the given parameters.
 
-    k0 = k0_A * exp( k0_C / T ) * ( T / 300.0 )^k0_B
-    kinf = kinf_A * exp( kinf_C / T ) * ( T / 300.0 )^kinf_B
-    k = k0[M] / ( 1 + k0[M] / kinf ) * Fc^(1 + 1/N*(log10(k0[M]/kinf))^2)^-1
+    name = CppField()
+    k0_A = CppField()
+    k0_B = CppField()
+    k0_C = CppField()
+    kinf_A = CppField()
+    kinf_B = CppField()
+    kinf_C = CppField()
+    Fc = CppField()
+    N = CppField()
+    gas_phase = CppField()
+    other_properties = CppField()
 
-    where:
-        k = rate constant
-        k0 = low-pressure limit rate constant
-        kinf = high-pressure limit rate constant
-        k0_A = pre-exponential factor for the low-pressure limit [(mol m-3)^(n-1)s-1]
-        k0_B = temperature exponent for the low-pressure limit [unitless]
-        k0_C = exponential term for the low-pressure limit [K-1]
-        kinf_A = pre-exponential factor for the high-pressure limit [(mol m-3)^(n-1)s-1]
-        kinf_B = temperature exponent for the high-pressure limit [unitless]
-        kinf_C = exponential term for the high-pressure limit [K-1]
-        Fc = Troe parameter [unitless]
-        N = Troe parameter [unitless]
-        T = temperature [K]
-        M = concentration of the third body [mol m-3]
+    def __init__(
+        self,
+        name: Optional[str] = None,
+        k0_A: Optional[float] = None,
+        k0_B: Optional[float] = None,
+        k0_C: Optional[float] = None,
+        kinf_A: Optional[float] = None,
+        kinf_B: Optional[float] = None,
+        kinf_C: Optional[float] = None,
+        Fc: Optional[float] = None,
+        N: Optional[float] = None,
+        reactants: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
+        products: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
+        gas_phase: Optional[Phase] = None,
+        other_properties: Optional[Dict[str, Any]] = None,
+    ):
+        """Initialize the Troe reaction.
 
-    Args:
-        name (str): The name of the Troe rate constant.
-        k0_A (float): Pre-exponential factor for the low-pressure limit [(mol m-3)^(n-1)s-1].
-        k0_B (float): Temperature exponent for the low-pressure limit [unitless].
-        k0_C (float): Exponential term for the low-pressure limit [K-1].
-        kinf_A (float): Pre-exponential factor for the high-pressure limit [(mol m-3)^(n-1)s-1].
-        kinf_B (float): Temperature exponent for the high-pressure limit [unitless].
-        kinf_C (float): Exponential term for the high-pressure limit [K-1].
-        Fc (float): Troe parameter [unitless].
-        N (float): Troe parameter [unitless].
-        reactants (List[Union[Species, Tuple[float, Species]]]): A list of reactants involved in the reaction.
-        products (List[Union[Species, Tuple[float, Species]]]): A list of products formed in the reaction.
-        gas_phase (Phase): The gas phase in which the reaction occurs.
-        other_properties (Dict[str, Any]): A dictionary of other properties of the Troe rate constant.
-    """
-    original_init(self)
+        Args:
+            name: The name of the Troe rate constant.
+            k0_A: Pre-exponential factor for the low-pressure limit.
+            k0_B: Temperature exponent for the low-pressure limit.
+            k0_C: Exponential term for the low-pressure limit.
+            kinf_A: Pre-exponential factor for the high-pressure limit.
+            kinf_B: Temperature exponent for the high-pressure limit.
+            kinf_C: Exponential term for the high-pressure limit.
+            Fc: Troe parameter [unitless].
+            N: Troe parameter [unitless].
+            reactants: A list of reactants involved in the reaction.
+            products: A list of products formed in the reaction.
+            gas_phase: The gas phase in which the reaction occurs.
+            other_properties: A dictionary of other properties.
+        """
+        self._cpp = _Troe()
 
-    self.name = name if name is not None else self.name
-    self.k0_A = k0_A if k0_A is not None else self.k0_A
-    self.k0_B = k0_B if k0_B is not None else self.k0_B
-    self.k0_C = k0_C if k0_C is not None else self.k0_C
-    self.kinf_A = kinf_A if kinf_A is not None else self.kinf_A
-    self.kinf_B = kinf_B if kinf_B is not None else self.kinf_B
-    self.kinf_C = kinf_C if kinf_C is not None else self.kinf_C
-    self.Fc = Fc if Fc is not None else self.Fc
-    self.N = N if N is not None else self.N
-    self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
-    self.other_properties = other_properties if other_properties is not None else self.other_properties
-    self.reactants = (
-        [
-            (
-                ReactionComponent(r.name)
-                if isinstance(r, Species)
-                else ReactionComponent(r[1].name, r[0])
-            )
-            for r in reactants
-        ]
-        if reactants is not None
-        else self.reactants
-    )
-    self.products = (
-        [
-            (
-                ReactionComponent(p.name)
-                if isinstance(p, Species)
-                else ReactionComponent(p[1].name, p[0])
-            )
-            for p in products
-        ]
-        if products is not None
-        else self.products
-    )
+        self.name = name if name is not None else self.name
+        self.k0_A = k0_A if k0_A is not None else self.k0_A
+        self.k0_B = k0_B if k0_B is not None else self.k0_B
+        self.k0_C = k0_C if k0_C is not None else self.k0_C
+        self.kinf_A = kinf_A if kinf_A is not None else self.kinf_A
+        self.kinf_B = kinf_B if kinf_B is not None else self.kinf_B
+        self.kinf_C = kinf_C if kinf_C is not None else self.kinf_C
+        self.Fc = Fc if Fc is not None else self.Fc
+        self.N = N if N is not None else self.N
+        self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
+        self.other_properties = other_properties if other_properties is not None else self.other_properties
+        self.reactants = (
+            _convert_components(reactants)
+            if reactants is not None
+            else self.reactants
+        )
+        self.products = (
+            _convert_components(products)
+            if products is not None
+            else self.products
+        )
 
+    @property
+    def type(self):
+        """Get the reaction type."""
+        return ReactionType.Troe
 
-def serialize(self) -> Dict:
-    """
-    Serialize the Troe object to a dictionary using only Python-visible data.
+    @property
+    def reactants(self) -> list:
+        return _wrap_list(ReactionComponent, self._cpp.reactants)
 
-    Returns:
-        Dict: A dictionary representation of the Troe object.
-    """
-    serialize_dict = {
-        "type": "TROE",
-        "name": self.name,
-        "k0_A": self.k0_A,
-        "k0_B": self.k0_B,
-        "k0_C": self.k0_C,
-        "kinf_A": self.kinf_A,
-        "kinf_B": self.kinf_B,
-        "kinf_C": self.kinf_C,
-        "Fc": self.Fc,
-        "N": self.N,
-        "reactants": [r.serialize() for r in self.reactants],
-        "products": [r.serialize() for r in self.products],
-        "gas phase": self.gas_phase,
-    }
-    _add_other_properties(serialize_dict, self.other_properties)
-    return _remove_empty_keys(serialize_dict)
+    @reactants.setter
+    def reactants(self, value):
+        self._cpp.reactants = _unwrap_list(value)
 
+    @property
+    def products(self) -> list:
+        return _wrap_list(ReactionComponent, self._cpp.products)
 
-Troe.__doc__ = """
-A class representing a Troe rate constant.
+    @products.setter
+    def products(self, value):
+        self._cpp.products = _unwrap_list(value)
 
-Attributes:
-    name (str): The name of the Troe rate constant.
-    k0_A (float): Pre-exponential factor for the low-pressure limit [(mol m-3)^(n-1)s-1].
-    k0_B (float): Temperature exponent for the low-pressure limit [unitless].
-    k0_C (float): Exponential term for the low-pressure limit [K-1].
-    kinf_A (float): Pre-exponential factor for the high-pressure limit [(mol m-3)^(n-1)s-1].
-    kinf_B (float): Temperature exponent for the high-pressure limit [unitless].
-    kinf_C (float): Exponential term for the high-pressure limit [K-1].
-    Fc (float): Troe parameter [unitless].
-    N (float): Troe parameter [unitless].
-    reactants (List[Union[Species, Tuple[float, Species]]]): A list of reactants involved in the reaction.
-    products (List[Union[Species, Tuple[float, Species]]]): A list of products formed in the reaction.
-    gas_phase (Phase): The gas phase in which the reaction occurs.
-    other_properties (Dict[str, Any]): A dictionary of other properties of the Troe rate constant.
-"""
-
-Troe.__init__ = __init__
-Troe.serialize = serialize
-Troe.type = type
+    def serialize(self) -> Dict:
+        serialize_dict = {
+            "type": "TROE",
+            "name": self.name,
+            "k0_A": self.k0_A,
+            "k0_B": self.k0_B,
+            "k0_C": self.k0_C,
+            "kinf_A": self.kinf_A,
+            "kinf_B": self.kinf_B,
+            "kinf_C": self.kinf_C,
+            "Fc": self.Fc,
+            "N": self.N,
+            "reactants": [r.serialize() for r in self.reactants],
+            "products": [r.serialize() for r in self.products],
+            "gas phase": self.gas_phase,
+        }
+        _add_other_properties(serialize_dict, self.other_properties)
+        return _remove_empty_keys(serialize_dict)
