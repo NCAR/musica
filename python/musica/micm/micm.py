@@ -10,6 +10,7 @@ from .solver import SolverType
 from .solver_result import SolverResult
 from .solver_parameters import RosenbrockSolverParameters, BackwardEulerSolverParameters
 from .. import backend
+from .._base import _unwrap
 
 _backend = backend.get_backend()
 
@@ -89,7 +90,7 @@ class MICM():
         if config_path is not None:
             self.__solver = create_solver(config_path, solver_type)
         elif mechanism is not None:
-            self.__solver = create_solver_from_mechanism(mechanism, solver_type)
+            self.__solver = create_solver_from_mechanism(_unwrap(mechanism), solver_type)
         if solver_parameters is not None:
             self.set_solver_parameters(solver_parameters)
 

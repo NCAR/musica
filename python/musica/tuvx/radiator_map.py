@@ -11,30 +11,58 @@ Note: TUV-x is only available on macOS and Linux platforms.
 
 from typing import Iterator
 from .. import backend
+from .._base import CppWrapper, _unwrap
 from .radiator import Radiator
 
 _backend = backend.get_backend()
+_RadiatorMap = _backend._tuvx._RadiatorMap if backend.tuvx_available() else None
 
-RadiatorMap = _backend._tuvx._RadiatorMap if backend.tuvx_available() else None
 
-if backend.tuvx_available():
-    original_init = RadiatorMap.__init__
+class RadiatorMap(CppWrapper):
+    """A collection of TUV-x radiators with dictionary-style access.
+
+    Radiators are accessed using their name as key.
+    """
+
+    _unavailable_message = "TUV-x was not included in your build of MUSICA."
+
+    @classmethod
+    def _check_available(cls):
+        return backend.tuvx_available()
 
     def __init__(self, **kwargs):
         """Initialize a RadiatorMap instance.
 
         Args:
-            **kwargs: Additional arguments passed to the C++ constructor
+            **kwargs: Additional arguments passed to the C++ constructor.
         """
-        original_init(self, **kwargs)
+        if not self._check_available():
+            raise RuntimeError(self._unavailable_message)
+        self._cpp = _RadiatorMap(**kwargs)
 
-    RadiatorMap.__init__ = __init__
+    def add_radiator(self, radiator: Radiator):
+        """Add a radiator to the map."""
+        self._cpp.add_radiator(_unwrap(radiator))
+
+    def get_radiator(self, name: str) -> Radiator:
+        """Get a radiator by name."""
+        return Radiator._from_cpp(self._cpp.get_radiator(name))
+
+    def get_radiator_by_index(self, index: int) -> Radiator:
+        """Get a radiator by its index."""
+        return Radiator._from_cpp(self._cpp.get_radiator_by_index(index))
+
+    def get_number_of_radiators(self) -> int:
+        """Return the number of radiators in the map."""
+        return self._cpp.get_number_of_radiators()
+
+    def remove_radiator_by_index(self, index: int):
+        """Remove a radiator by its index."""
+        self._cpp.remove_radiator_by_index(index)
 
     def __str__(self):
         """User-friendly string representation."""
         return f"RadiatorMap(num_radiators={len(self)})"
-
-    RadiatorMap.__str__ = __str__
 
     def __repr__(self):
         """Detailed string representation for debugging."""
@@ -44,31 +72,25 @@ if backend.tuvx_available():
             radiator_details.append(f"{radiator.name}")
         return f"RadiatorMap(radiators={radiator_details})"
 
-    RadiatorMap.__repr__ = __repr__
-
     def __len__(self):
         """Return the number of radiators in the map."""
         return self.get_number_of_radiators()
-
-    RadiatorMap.__len__ = __len__
 
     def __bool__(self):
         """Return True if the map has any radiators."""
         return len(self) > 0
 
-    RadiatorMap.__bool__ = __bool__
-
     def __getitem__(self, key) -> Radiator:
         """Get a radiator by name.
 
         Args:
-            key: Name of the radiator to retrieve
+            key: Name of the radiator to retrieve.
 
         Returns:
-            Radiator instance corresponding to the given name
+            Radiator instance corresponding to the given name.
 
         Raises:
-            KeyError: If no radiator with the given name exists
+            KeyError: If no radiator with the given name exists.
         """
         if not isinstance(key, str):
             raise TypeError("Radiator name must be a string.")
@@ -80,14 +102,12 @@ if backend.tuvx_available():
         except Exception as e:
             raise KeyError(f"No radiator found with name='{key}'") from e
 
-    RadiatorMap.__getitem__ = __getitem__
-
     def __setitem__(self, key: str, radiator: Radiator):
         """Set a radiator in the map by name.
 
         Args:
-            key: Name of the radiator to set
-            radiator: Radiator instance to associate with the given name
+            key: Name of the radiator to set.
+            radiator: Radiator instance to associate with the given name.
         """
         if not isinstance(key, str):
             raise TypeError("Radiator name must be a string.")
@@ -97,31 +117,26 @@ if backend.tuvx_available():
             raise ValueError(f"Radiator name does not match the key: {radiator.name} != {key}")
         self.add_radiator(radiator)
 
-    RadiatorMap.__setitem__ = __setitem__
-
     def __iter__(self) -> Iterator[Radiator]:
-        """Iterator over the radiators in the map.
+        """Iterator over the radiator names in the map.
 
         Yields:
-            Radiator instances in the map
+            Radiator names as strings.
         """
         for i in range(len(self)):
             try:
                 yield self.get_radiator_by_index(i).name
             except (ValueError):
-                # Skip radiators with type mismatches
                 continue
-
-    RadiatorMap.__iter__ = __iter__
 
     def __contains__(self, key: str) -> bool:
         """Check if a radiator with the given name exists in the map.
 
         Args:
-            key: Name of the radiator to check
+            key: Name of the radiator to check.
 
         Returns:
-            True if a radiator with the given name exists, False otherwise
+            True if a radiator with the given name exists, False otherwise.
         """
         if not isinstance(key, str):
             return False
@@ -131,59 +146,46 @@ if backend.tuvx_available():
         except (ValueError, KeyError):
             return False
 
-    RadiatorMap.__contains__ = __contains__
-
     def clear(self):
         """Remove all radiators from the map."""
         num_radiators = len(self)
         for _ in range(num_radiators):
             self.remove_radiator_by_index(0)
 
-    RadiatorMap.clear = clear
-
     def items(self):
         """Iterator over (name, radiator) pairs in the map.
 
         Yields:
-            Tuples of (radiator_name, Radiator instance)
+            Tuples of (radiator_name, Radiator instance).
         """
         for i in range(len(self)):
             try:
                 radiator = self.get_radiator_by_index(i)
                 yield (radiator.name, radiator)
             except (ValueError):
-                # Skip radiators with type mismatches
                 continue
-
-    RadiatorMap.items = items
 
     def keys(self):
         """Iterator over radiator names in the map.
 
         Yields:
-            Radiator names as strings
+            Radiator names as strings.
         """
         for i in range(len(self)):
             try:
                 radiator = self.get_radiator_by_index(i)
                 yield radiator.name
             except (ValueError):
-                # Skip radiators with type mismatches
                 continue
-
-    RadiatorMap.keys = keys
 
     def values(self):
         """Iterator over Radiator instances in the map.
 
         Yields:
-            Radiator instances
+            Radiator instances.
         """
         for i in range(len(self)):
             try:
                 yield self.get_radiator_by_index(i)
             except (ValueError):
-                # Skip radiators with type mismatches
                 continue
-
-    RadiatorMap.values = values
