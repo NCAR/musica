@@ -83,7 +83,12 @@ class Mechanism(CppWrapper):
 
     @property
     def reactions(self) -> Reactions:
-        """Reactions in the mechanism."""
+        """Reactions in the mechanism.
+        
+        Note: This property wraps the C++ reactions object on each access,
+        consistent with other properties like species and phases. This ensures
+        that changes to the underlying C++ object are always reflected.
+        """
         return Reactions._from_cpp(self._cpp.reactions)
 
     @reactions.setter
