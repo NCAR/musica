@@ -17,9 +17,7 @@ import xarray as xr
 from .. import backend
 from .._base import _unwrap
 from .grid_map import GridMap
-from .profile import Profile
 from .profile_map import ProfileMap
-from .radiator import Radiator
 from .radiator_map import RadiatorMap
 
 _backend = backend.get_backend()

@@ -24,20 +24,14 @@ class GridMap(CppWrapper):
     Grids are accessed using ``(name, units)`` tuples as keys.
     """
 
-    _unavailable_message = "TUV-x was not included in your build of MUSICA."
-
-    @classmethod
-    def _check_available(cls):
-        return backend.tuvx_available()
-
     def __init__(self, **kwargs):
         """Initialize a GridMap instance.
 
         Args:
             **kwargs: Additional arguments passed to the C++ constructor.
         """
-        if not self._check_available():
-            raise RuntimeError(self._unavailable_message)
+        if not backend.tuvx_available():
+            raise ValueError("TUV-x backend is not available.")
         self._cpp = _GridMap(**kwargs)
 
     def add_grid(self, grid: Grid):

@@ -31,12 +31,6 @@ class Radiator(CppWrapper):
         asymmetry_factors: 2D array of asymmetry parameters (zero-copy).
     """
 
-    _unavailable_message = "TUV-x was not included in your build of MUSICA."
-
-    @classmethod
-    def _check_available(cls):
-        return backend.tuvx_available()
-
     def __init__(self, *, name: str, height_grid: Grid, wavelength_grid: Grid,
                  optical_depths: Optional[np.ndarray] = None,
                  single_scattering_albedos: Optional[np.ndarray] = None,
@@ -56,8 +50,8 @@ class Radiator(CppWrapper):
                                (shape: num_wavelengths x num_heights).
             **kwargs: Additional arguments passed to the C++ constructor.
         """
-        if not self._check_available():
-            raise RuntimeError(self._unavailable_message)
+        if not backend.tuvx_available():
+            raise ValueError("TUV-x backend is not available.")
         self._cpp = _Radiator(name=name, height_grid=_unwrap(height_grid),
                               wavelength_grid=_unwrap(wavelength_grid), **kwargs)
         if optical_depths is not None:

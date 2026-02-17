@@ -31,12 +31,6 @@ class Grid(CppWrapper):
             Shares memory with the C++ object (zero-copy).
     """
 
-    _unavailable_message = "TUV-x was not included in your build of MUSICA."
-
-    @classmethod
-    def _check_available(cls):
-        return backend.tuvx_available()
-
     def __init__(self, *, name: str, units: str,
                  num_sections: Optional[int] = None,
                  edges: Optional[np.ndarray] = None,
@@ -54,8 +48,8 @@ class Grid(CppWrapper):
             midpoints: Optional array of midpoint values (length ``num_sections``).
             **kwargs: Additional arguments passed to the C++ constructor.
         """
-        if not self._check_available():
-            raise RuntimeError(self._unavailable_message)
+        if not backend.tuvx_available():
+            raise ValueError("TUV-x backend is not available.")
         if num_sections is None and edges is None and midpoints is None:
             raise ValueError("At least one of num_sections, edges, or midpoints must be provided.")
         if num_sections is None:
