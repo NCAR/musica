@@ -111,7 +111,7 @@ class RadiatorMap(CppWrapper):
             raise ValueError(f"Radiator name does not match the key: {radiator.name} != {key}")
         self.add_radiator(radiator)
 
-    def __iter__(self) -> Iterator[Radiator]:
+    def __iter__(self) -> Iterator[str]:
         """Iterator over the radiator names in the map.
 
         Yields:
