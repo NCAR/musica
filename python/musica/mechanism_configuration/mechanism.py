@@ -96,8 +96,9 @@ class Mechanism(CppWrapper):
         """Set reactions in the mechanism.
         
         Args:
-            value: Either a Reactions wrapper object or a list of reaction objects.
-                   If a list is provided, it will be wrapped in a Reactions object.
+            value: Either a Reactions wrapper object, a list/tuple of reaction objects,
+                   or None (which will be converted to an empty list).
+                   If a list or tuple is provided, it will be wrapped in a Reactions object.
         
         Raises:
             TypeError: If value is neither a Reactions object nor a list-like object.
