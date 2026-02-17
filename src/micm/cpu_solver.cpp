@@ -323,7 +323,8 @@ namespace musica
           else
           {
             throw std::system_error(
-                make_error_code(MusicaErrCode::Unknown), "Cannot set Backward Euler parameters on non-Backward Euler solver");
+                make_error_code(MusicaErrCode::Unknown),
+                "Cannot set Backward Euler parameters on non-Backward Euler solver");
           }
         },
         solver_);
