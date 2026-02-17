@@ -5,8 +5,9 @@
 class CppWrapper:
     """Base class for Python wrapper classes around pybind11 C++ objects.
 
-    Subclasses hold the underlying C++ object in ``self._cpp`` and forward
-    attribute access as needed.
+    Subclasses hold the underlying C++ object in ``self._cpp`` and typically
+    expose or forward selected attributes via descriptors (e.g. :class:`CppField`)
+    or explicit properties and methods.
     """
 
     _unavailable_message = "Backend not available."
