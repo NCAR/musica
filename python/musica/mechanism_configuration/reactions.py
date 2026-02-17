@@ -60,7 +60,7 @@ class Reactions(CppWrapper):
         Args:
             reactions: A list of reactions in the mechanism.
         """
-        unwrapped = _unwrap_list(reactions) if reactions is not None else reactions
+        unwrapped = _unwrap_list(reactions) if reactions is not None else []
         self._cpp = _Reactions(unwrapped)
 
     def __iter__(self):
