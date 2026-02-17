@@ -37,7 +37,6 @@ class Mechanism(CppWrapper):
         """Wrap a raw C++ Mechanism object."""
         instance = object.__new__(cls)
         instance._cpp = cpp_obj
-        instance._reactions = Reactions._from_cpp(cpp_obj.reactions)
         return instance
 
     def __init__(
@@ -85,15 +84,11 @@ class Mechanism(CppWrapper):
     @property
     def reactions(self) -> Reactions:
         """Reactions in the mechanism."""
-        return self._reactions
+        return Reactions._from_cpp(self._cpp.reactions)
 
     @reactions.setter
     def reactions(self, value: Reactions):
-        if isinstance(value, Reactions):
-            self._reactions = value
-            self._cpp.reactions = _unwrap(value)
-        else:
-            self._cpp.reactions = value
+        self._cpp.reactions = _unwrap(value)
 
     @property
     def version(self):
