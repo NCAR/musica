@@ -6,7 +6,7 @@
 import os
 import json
 import yaml
-from typing import Optional, Any, Dict, List
+from typing import Optional, Any, Dict, List, Union
 from .. import backend
 from .._base import CppWrapper, CppField, _unwrap, _unwrap_list, _wrap_list
 
@@ -92,8 +92,18 @@ class Mechanism(CppWrapper):
         return Reactions._from_cpp(self._cpp.reactions)
 
     @reactions.setter
-    def reactions(self, value: Reactions):
-        self._cpp.reactions = _unwrap(value)
+    def reactions(self, value: Union[Reactions, List[Any]]):
+        """Set reactions in the mechanism.
+        
+        Args:
+            value: Either a Reactions wrapper object or a list of reaction objects.
+                   If a list is provided, it will be wrapped in a Reactions object.
+        """
+        if isinstance(value, Reactions):
+            self._cpp.reactions = _unwrap(value)
+        else:
+            # If given a list, build Reactions object from it
+            self._cpp.reactions = _unwrap(Reactions(reactions=value))
 
     @property
     def version(self):
