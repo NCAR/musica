@@ -98,12 +98,19 @@ class Mechanism(CppWrapper):
         Args:
             value: Either a Reactions wrapper object or a list of reaction objects.
                    If a list is provided, it will be wrapped in a Reactions object.
+        
+        Raises:
+            TypeError: If value is neither a Reactions object nor a list-like object.
         """
         if isinstance(value, Reactions):
             self._cpp.reactions = _unwrap(value)
-        else:
-            # If given a list, build Reactions object from it
+        elif isinstance(value, (list, tuple)) or value is None:
+            # If given a list, tuple, or None, build Reactions object from it
             self._cpp.reactions = _unwrap(Reactions(reactions=value))
+        else:
+            raise TypeError(
+                f"reactions must be a Reactions object or a list, not {type(value).__name__}"
+            )
 
     @property
     def version(self):
