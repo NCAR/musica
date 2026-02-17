@@ -6,7 +6,7 @@
 import os
 import json
 import yaml
-from typing import Optional, Any, Dict, List
+from typing import Optional, Any, Dict, List, Union
 from .. import backend
 from .._base import CppWrapper, CppField, _unwrap, _unwrap_list, _wrap_list
 
@@ -92,8 +92,28 @@ class Mechanism(CppWrapper):
         return Reactions._from_cpp(self._cpp.reactions)
 
     @reactions.setter
-    def reactions(self, value: Reactions):
-        self._cpp.reactions = _unwrap(value)
+    def reactions(self, value: Union[Reactions, List[Any], None]):
+        """Set reactions in the mechanism.
+        
+        Args:
+            value: Either a Reactions wrapper object, a list/tuple of reaction objects,
+                   or None (which will be converted to an empty list).
+                   If a list or tuple is provided, it will be wrapped in a Reactions object.
+                   List items can be reaction objects of any type (Arrhenius, Troe, etc.).
+        
+        Raises:
+            TypeError: If value is neither a Reactions object nor a list-like object.
+        """
+        if isinstance(value, Reactions):
+            self._cpp.reactions = _unwrap(value)
+        elif isinstance(value, (list, tuple)) or value is None:
+            # If given a list, tuple, or None, build Reactions object from it
+            # (None is handled by Reactions constructor which converts it to empty list)
+            self._cpp.reactions = _unwrap(Reactions(reactions=value))
+        else:
+            raise TypeError(
+                f"reactions must be a Reactions object or a list, not {type(value).__name__}"
+            )
 
     @property
     def version(self):
