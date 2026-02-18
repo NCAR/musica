@@ -84,7 +84,7 @@ class Mechanism(CppWrapper):
     @property
     def reactions(self) -> Reactions:
         """Reactions in the mechanism.
-        
+
         Note: This property wraps the C++ reactions object on each access,
         consistent with other properties like species and phases. This ensures
         that changes to the underlying C++ object are always reflected.
@@ -94,13 +94,13 @@ class Mechanism(CppWrapper):
     @reactions.setter
     def reactions(self, value: Union[Reactions, List[Any], None]):
         """Set reactions in the mechanism.
-        
+
         Args:
             value: Either a Reactions wrapper object, a list/tuple of reaction objects,
                    or None (which will be converted to an empty list).
                    If a list or tuple is provided, it will be wrapped in a Reactions object.
                    List items can be reaction objects of any type (Arrhenius, Troe, etc.).
-        
+
         Raises:
             TypeError: If value is neither a Reactions object nor a list-like object.
         """
