@@ -15,22 +15,12 @@ from typing import Dict, Optional
 import numpy as np
 import xarray as xr
 from .. import backend
+from .._base import _unwrap
+from .grid_map import GridMap
+from .profile_map import ProfileMap
+from .radiator_map import RadiatorMap
 
 _backend = backend.get_backend()
-
-# Import the GridMap class from the backend
-if backend.tuvx_available():
-    from .grid_map import GridMap
-    from .profile import Profile
-    from .profile_map import ProfileMap
-    from .radiator import Radiator
-    from .radiator_map import RadiatorMap
-else:
-    GridMap = None
-    Profile = None
-    ProfileMap = None
-    Radiator = None
-    RadiatorMap = None
 
 
 class TUVX:
@@ -86,14 +76,14 @@ class TUVX:
             file_path = os.path.basename(config_path)
             try:
                 self._tuvx_instance = _backend._tuvx._create_tuvx_from_file(
-                    file_path, grid_map, profile_map, radiator_map)
+                    file_path, _unwrap(grid_map), _unwrap(profile_map), _unwrap(radiator_map))
             finally:
                 os.chdir(original_cwd)
             self._config_path = config_path
             self._config_string = None
         elif config_string is not None:
             self._tuvx_instance = _backend._tuvx._create_tuvx_from_string(
-                config_string, grid_map, profile_map, radiator_map)
+                config_string, _unwrap(grid_map), _unwrap(profile_map), _unwrap(radiator_map))
             self._config_path = None
             self._config_string = config_string
 
@@ -245,7 +235,7 @@ class TUVX:
         Returns:
             GridMap instance
         """
-        return _backend._tuvx._get_grid_map(self._tuvx_instance)
+        return GridMap._from_cpp(_backend._tuvx._get_grid_map(self._tuvx_instance))
 
     def get_profile_map(self) -> ProfileMap:
         """
@@ -254,7 +244,7 @@ class TUVX:
         Returns:
             ProfileMap instance
         """
-        return _backend._tuvx._get_profile_map(self._tuvx_instance)
+        return ProfileMap._from_cpp(_backend._tuvx._get_profile_map(self._tuvx_instance))
 
     def get_radiator_map(self) -> RadiatorMap:
         """
@@ -263,7 +253,7 @@ class TUVX:
         Returns:
             RadiatorMap instance
         """
-        return _backend._tuvx._get_radiator_map(self._tuvx_instance)
+        return RadiatorMap._from_cpp(_backend._tuvx._get_radiator_map(self._tuvx_instance))
 
     def get_photolysis_rate_constant(
         self,
