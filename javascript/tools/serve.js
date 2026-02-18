@@ -3,6 +3,7 @@ import http from 'http';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { exec } from 'child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -28,6 +29,20 @@ console.log(exampleUrl);
 const server = http.createServer((req, res) => {
   const urlPath = decodeURIComponent(req.url.split('?')[0]);
   const filePath = path.join(root, urlPath === '/' ? '' : urlPath);
+
+  if (urlPath === '/run-lambda-test') {
+    exec('node javascript/tests/lambda_test.js', { cwd: root }, (error, stdout, stderr) => {
+      if (error) {
+        res.writeHead(500, { 'Content-Type': 'text/plain' });
+        res.end(`Test failed:\n${stderr}\n${stdout}`);
+        return;
+      }
+      res.writeHead(200, { 'Content-Type': 'text/plain' });
+      res.end(`Test passed:\n${stdout}`);
+    });
+    return;
+  }
+
 
   if (!filePath.startsWith(root)) {
     res.writeHead(403);

@@ -8,6 +8,8 @@
 #include <musica/micm/parse.hpp>
 #include <musica/util.hpp>
 #include <musica/version.hpp>
+#include <micm/system/conditions.hpp>
+#include <micm/process/rate_constant/lambda_rate_constant.hpp>
 
 #include <micm/version.hpp>
 
@@ -22,6 +24,25 @@ using namespace emscripten;
 
 EMSCRIPTEN_BINDINGS(musica_module)
 {
+  class_<micm::LambdaRateConstantParameters>("LambdaRateConstantParameters")
+    .constructor<micm::LambdaRateConstantParameters>() // Constructor with parameters
+    .function(
+        "calculate",
+        optional_override([](micm::LambdaRateConstant& lambda, const micm::Conditions& conditions) {
+            return lambda.Calculate(conditions);
+        }))
+    .function(
+        "calculateWithCustomParams",
+        optional_override([](micm::LambdaRateConstant& lambda, const micm::Conditions& conditions, emscripten::val customParams) {
+            std::vector<double> cppParams = emscripten::vecFromJSArray<double>(customParams);
+            return lambda.Calculate(conditions, cppParams.begin());
+        }))
+    .function("clone", &micm::LambdaRateConstant::Clone);
+
+  value_object<micm::LambdaRateConstantParameters>("LambdaRateConstantParameters")
+      .field("label", &micm::LambdaRateConstantParameters::label_)
+      .field("lambdaFunction", &micm::LambdaRateConstantParameters::lambda_function_);
+
   function("getVersion", optional_override([]() { return std::string(musica::GetMusicaVersion()); }));
 
   function("getMicmVersion", optional_override([]() { return std::string(micm::GetMicmVersion()); }));
