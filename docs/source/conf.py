@@ -19,21 +19,22 @@ sys.path.insert(0, os.path.abspath('.'))
 # -- Project information -----------------------------------------------------
 
 project = 'MUSICA'
-copyright = f'2024-{datetime.datetime.now().year}, NSF NCAR'
-author = 'NSF NCAR'
+copyright = f'2024-{datetime.datetime.now().year}, NSF-NCAR/ACOM'
+author = 'NSF-NCAR/ACOM'
 
 suffix = ''
 # the suffix is required. This is controlled by the dockerfile that builds
 # the docs
 
 regex = r'project\(.*VERSION\s+(\d+\.\d+\.\d+)\)'
-release = f'0.0.0'
+version = '0.0.0'
 # read the version from the cmake files
 with open(f'../../CMakeLists.txt', 'r') as f:
     for line in f:
         match = re.match(regex, line)
         if match:
-            release = match.group(1)
+            version = match.group(1)
+release = f'{version}'
 
 # -- General configuration ---------------------------------------------------
 
@@ -73,6 +74,7 @@ autosummary_generate = True
 # -- Intersphinx mappings -------------
 intersphinx_mapping = {
     'micm': ('https://ncar.github.io/micm/', None),
+    'tuv-x': ('https://ncar.github.io/tuv-x/', None),
     'mc': ('https://ncar.github.io/MechanismConfiguration/', None),
     'mb': ('https://ncar.github.io/music-box/', None)
 }
@@ -86,11 +88,7 @@ html_theme = 'pydata_sphinx_theme'
 html_theme_options = {
     "external_links": [],
     "github_url": "https://github.com/NCAR/musica",
-    "navbar_end": ["version-switcher", "navbar-icon-links"],
-    "switcher": {
-        "json_url": "https://ncar.github.io/musica/_static/switcher.json",
-        "version_match": release,  # assumes `release` is defined
-    },
+    "navbar_end": ["navbar-icon-links"],
     "pygments_light_style": "tango",
     "pygments_dark_style": "monokai",
 }

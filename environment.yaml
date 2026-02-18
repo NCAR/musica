@@ -1,0 +1,11 @@
+name: musica-docs
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - cmake
+  - doxygen
+  - graphviz
+  - pip
+  - pip:
+      - -r docs/requirements.txt
