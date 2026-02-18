@@ -14,6 +14,7 @@ import os
 import sys
 import datetime
 import re
+
 sys.path.insert(0, os.path.abspath('.'))
 
 # -- Project information -----------------------------------------------------
@@ -22,9 +23,7 @@ project = 'MUSICA'
 copyright = f'2024-{datetime.datetime.now().year}, NSF-NCAR/ACOM'
 author = 'NSF-NCAR/ACOM'
 
-suffix = ''
-# the suffix is required. This is controlled by the dockerfile that builds
-# the docs
+suffix = ''  # Controlled by Dockerfile that builds the docs
 
 regex = r'project\(.*VERSION\s+(\d+\.\d+\.\d+)\)'
 version = '0.0.0'
@@ -34,7 +33,7 @@ with open(f'../../CMakeLists.txt', 'r') as f:
         match = re.match(regex, line)
         if match:
             version = match.group(1)
-release = f'{version}'
+release = version
 
 # -- General configuration ---------------------------------------------------
 
@@ -53,10 +52,18 @@ extensions = [
     'nbsphinx'
 ]
 
-breathe_projects = {"musica": "../build/xml"}
-breathe_default_project = "musica"
-highlight_language = 'python'
+# -- Breathe configuration ---------------------------------------------------
 
+breathe_projects = {"musica": "../build/docs/doxygen/xml"}
+breathe_default_project = "musica"
+
+# Verify that Doxygen XML exists
+DOXYGEN_XML_DIR = os.path.abspath(breathe_projects["musica"])
+if not os.path.exists(DOXYGEN_XML_DIR):
+    raise RuntimeError(f"Doxygen XML not found at {DOXYGEN_XML_DIR}. "
+                       "Make sure CMake + Doxygen have been run (check .readthedocs.yaml pre_build).")
+
+highlight_language = 'python'
 
 bibtex_bibfiles = ['references.bib']
 suppress_warnings = ["bibtex.missing_field"]
@@ -93,9 +100,7 @@ html_theme_options = {
     "pygments_dark_style": "monokai",
 }
 
-html_css_files = [
-    'custom.css'
-]
+html_css_files = ['custom.css']
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -103,3 +108,42 @@ html_css_files = [
 html_static_path = ['_static']
 
 html_favicon = '_static/favicon/favicon.ico'
+
+# # -- Generating Doxygen XML Files -------------------------------------------------
+
+# DOCS_SOURCE_DIR = os.path.abspath(os.path.dirname(__file__))
+# REPO_ROOT_DIR = os.path.abspath(os.path.join(DOCS_SOURCE_DIR, '..', '..'))
+# BUILD_DIR = os.path.join(REPO_ROOT_DIR, 'build')
+# DOXYGEN_XML_DIR = os.path.join(BUILD_DIR, 'docs', 'doxygen', 'xml')
+
+# def _run_command(command, cwd=None):
+#     try:
+#         subprocess.run(command, cwd=cwd, check=True)
+#     except (OSError, subprocess.CalledProcessError) as exc:
+#         sys.stderr.write(f"Command failed: {command}\n{exc}\n") 
+#         raise
+
+
+# def _ensure_doxygen_xml():
+#     read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
+#     if not read_the_docs_build:
+#         return
+
+#     cache_file = os.path.join(BUILD_DIR, 'CMakeCache.txt')
+#     if not os.path.exists(cache_file):
+#         _run_command([
+#             'cmake',
+#             '-S', REPO_ROOT_DIR,
+#             '-B', BUILD_DIR,
+#             '-D', 'MUSICA_BUILD_DOCS=ON'
+#         ])
+
+#     _run_command([
+#         'cmake',
+#         '--build', BUILD_DIR,
+#         '--target', 'Doxygen'
+#     ])
+    
+    
+# def setup(app):
+#     app.connect("builder-inited", lambda _app: _ensure_doxygen_xml())
