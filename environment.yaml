@@ -4,8 +4,12 @@ channels:
 dependencies:
   - python=3.12
   - cmake
+  - cxx-compiler
   - doxygen
   - graphviz
+  - libblas
+  - liblapack
+  - make
   - pip
   - pip:
       - -r docs/requirements.txt

@@ -15,7 +15,8 @@ import sys
 import datetime
 import re
 
-sys.path.insert(0, os.path.abspath('.'))
+conf_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, conf_dir)
 
 # -- Project information -----------------------------------------------------
 
@@ -23,12 +24,11 @@ project = 'MUSICA'
 copyright = f'2024-{datetime.datetime.now().year}, NSF-NCAR/ACOM'
 author = 'NSF-NCAR/ACOM'
 
-suffix = ''  # Controlled by Dockerfile that builds the docs
-
 regex = r'project\(.*VERSION\s+(\d+\.\d+\.\d+)\)'
 version = '0.0.0'
-# read the version from the cmake files
-with open(f'../../CMakeLists.txt', 'r') as f:
+# Read the version from the cmake files (use absolute path from conf.py location)
+cmake_file = os.path.join(conf_dir, '..', '..', 'CMakeLists.txt')
+with open(cmake_file, 'r') as f:
     for line in f:
         match = re.match(regex, line)
         if match:
@@ -54,7 +54,11 @@ extensions = [
 
 # -- Breathe configuration ---------------------------------------------------
 
-breathe_projects = {"musica": "../../build/docs/doxygen/xml"}
+this_dir = os.path.dirname(os.path.abspath(__file__))
+breathe_projects_dir = os.path.abspath(
+    os.path.join(this_dir, "..", "..", "build", "docs", "doxygen", "xml")
+)
+breathe_projects = {"musica": breathe_projects_dir}
 breathe_default_project = "musica"
 
 highlight_language = 'python'
