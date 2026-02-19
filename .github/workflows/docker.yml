@@ -68,9 +68,9 @@ jobs:
       - name: Verify documentation build
         if: matrix.dockerfile == 'Dockerfile.docs'
         run: >-
-          docker run --name test-container -t musica bash -c 
-          'test -f /build/docs/sphinx/index.html && 
-          test -f /build/docs/doxygen/xml/index.xml && 
+          docker run --name test-container -t musica bash -c
+          'test -f /build/docs/sphinx/index.html &&
+          test -f /build/docs/doxygen/xml/index.xml &&
           echo "Documentation built successfully!"'
 
   tuv-x-comparison:
