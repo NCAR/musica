@@ -78,10 +78,10 @@ autosummary_generate = True
 
 # -- Intersphinx mappings -------------
 intersphinx_mapping = {
-    'micm': ('https://ncar.github.io/micm/', None),
-    'tuv-x': ('https://ncar.github.io/tuv-x/', None),
-    'mc': ('https://ncar.github.io/MechanismConfiguration/', None),
-    'mb': ('https://ncar.github.io/music-box/', None)
+    'micm': ('https://micm.readthedocs.io', None),
+    'tuv-x': ('https://tuv-x.readthedocs.io', None),
+    'mc': ('https://MechanismConfiguration.readthedocs.io', None),
+    'mb': ('https://music-box.readthedocs.io', None)
 }
 # -- Options for HTML output -------------------------------------------------
 
