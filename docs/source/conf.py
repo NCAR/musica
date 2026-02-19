@@ -54,14 +54,8 @@ extensions = [
 
 # -- Breathe configuration ---------------------------------------------------
 
-breathe_projects = {"musica": "../build/docs/doxygen/xml"}
+breathe_projects = {"musica": "../../build/docs/doxygen/xml"}
 breathe_default_project = "musica"
-
-# Verify that Doxygen XML exists
-DOXYGEN_XML_DIR = os.path.abspath(breathe_projects["musica"])
-if not os.path.exists(DOXYGEN_XML_DIR):
-    raise RuntimeError(f"Doxygen XML not found at {DOXYGEN_XML_DIR}. "
-                       "Make sure CMake + Doxygen have been run (check .readthedocs.yaml pre_build).")
 
 highlight_language = 'python'
 
@@ -108,42 +102,3 @@ html_css_files = ['custom.css']
 html_static_path = ['_static']
 
 html_favicon = '_static/favicon/favicon.ico'
-
-# # -- Generating Doxygen XML Files -------------------------------------------------
-
-# DOCS_SOURCE_DIR = os.path.abspath(os.path.dirname(__file__))
-# REPO_ROOT_DIR = os.path.abspath(os.path.join(DOCS_SOURCE_DIR, '..', '..'))
-# BUILD_DIR = os.path.join(REPO_ROOT_DIR, 'build')
-# DOXYGEN_XML_DIR = os.path.join(BUILD_DIR, 'docs', 'doxygen', 'xml')
-
-# def _run_command(command, cwd=None):
-#     try:
-#         subprocess.run(command, cwd=cwd, check=True)
-#     except (OSError, subprocess.CalledProcessError) as exc:
-#         sys.stderr.write(f"Command failed: {command}\n{exc}\n") 
-#         raise
-
-
-# def _ensure_doxygen_xml():
-#     read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
-#     if not read_the_docs_build:
-#         return
-
-#     cache_file = os.path.join(BUILD_DIR, 'CMakeCache.txt')
-#     if not os.path.exists(cache_file):
-#         _run_command([
-#             'cmake',
-#             '-S', REPO_ROOT_DIR,
-#             '-B', BUILD_DIR,
-#             '-D', 'MUSICA_BUILD_DOCS=ON'
-#         ])
-
-#     _run_command([
-#         'cmake',
-#         '--build', BUILD_DIR,
-#         '--target', 'Doxygen'
-#     ])
-    
-    
-# def setup(app):
-#     app.connect("builder-inited", lambda _app: _ensure_doxygen_xml())
