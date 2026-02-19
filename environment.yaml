@@ -5,6 +5,7 @@ dependencies:
   - python=3.12
   - cmake
   - cxx-compiler
+  - gfortran
   - doxygen
   - graphviz
   - libblas
