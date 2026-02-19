@@ -2,6 +2,9 @@
 
 This document describes the process for publishing Musica.jl to the Julia ecosystem.
 
+> [!NOTE] 
+> Julia 1.7 **must** be used to run `BinaryBuilder.jl`, regardless of the version of Julia you are building for.
+
 ## Overview
 
 The distribution process involves two repositories:

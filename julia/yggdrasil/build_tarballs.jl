@@ -23,8 +23,6 @@ script = raw"""
 cd $WORKSPACE/srcdir/musica
 
 # Configure MUSICA with Julia wrapper enabled
-# - MICM only (no TUVX/CARMA to avoid Fortran dependencies)
-# - JlCxx is found via CMAKE_PREFIX_PATH from libcxxwrap_julia_jll
 cmake -B build -G Ninja \
     -DCMAKE_INSTALL_PREFIX=${prefix} \
     -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TARGET_TOOLCHAIN} \
@@ -37,25 +35,21 @@ cmake -B build -G Ninja \
     -DMUSICA_ENABLE_CARMA=OFF \
     -DMUSICA_ENABLE_TESTS=OFF \
     -DMUSICA_ENABLE_INSTALL=ON \
-    -DMUSICA_ENABLE_PIC=ON \
-    -DMUSICA_BUNDLE_DEPENDENCIES=ON
 
 cmake --build build --parallel ${nproc}
 cmake --install build
 """
 
-# Build for all platforms supported by libcxxwrap_julia_jll
-# Reference the CxxWrap platform definitions from Yggdrasil
-include("../../L/libcxxwrap_julia/common.jl")
-
-# Get platforms for all supported Julia versions
-platforms = vcat(libjulia_platforms.(julia_versions)...)
+# These are the platforms the libcxxwrap_julia_jll is built on.
+include("../../L/libjulia/common.jl")
+platforms = libjulia_platforms(julia_version)
 platforms = expand_cxxstring_abis(platforms)
 
 # The products that we will ensure are always built
 products = [
     LibraryProduct("libmusica_julia", :libmusica_julia),
     LibraryProduct("libmusica", :libmusica),
+    LibraryProduct("libmechanism_configuration", :libmechanism_configuration),
 ]
 
 # Dependencies that must be installed before this package can be built

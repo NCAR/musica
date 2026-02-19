@@ -72,7 +72,8 @@ println("MUSICA version: ", version)
 
 ### Library Path Override
 
-For advanced use cases, you can override the library path using an environment variable:
+For testing a build of musica in a downstream package, 
+you can override the library path using an environment variable:
 
 ```bash
 export MUSICA_JULIA_LIB=/path/to/libmusica_julia.so
