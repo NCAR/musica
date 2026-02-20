@@ -40,13 +40,12 @@ set(SPHINX_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/source)
 set(SPHINX_BUILD ${CMAKE_CURRENT_BINARY_DIR}/sphinx)
 set(SPHINX_INDEX_FILE ${SPHINX_BUILD}/index.html)
 
+# Tell Breathe where to find the Doxygen output
 add_custom_command(
   OUTPUT ${SPHINX_INDEX_FILE} __fake_file_to_ensure_this_always_run
-  COMMAND 
-    ${SPHINX_EXECUTABLE} -b html
-    # Tell Breathe where to find the Doxygen output
-    -Dbreathe_projects.musica=${DOXYGEN_OUTPUT_DIR}/xml
-  ${SPHINX_SOURCE} ${SPHINX_BUILD}
+  COMMAND ${SPHINX_EXECUTABLE} -b html
+          -Dbreathe_projects.musica=${DOXYGEN_OUTPUT_DIR}/xml
+          ${SPHINX_SOURCE} ${SPHINX_BUILD}
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   MAIN_DEPENDENCY ${SPHINX_SOURCE}/conf.py
   COMMENT "Generating documentation with Sphinx"

@@ -1,0 +1,30 @@
+# Read the Docs configuration file
+# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+---
+# Required
+version: 2
+
+conda:
+  environment: environment.yaml
+
+# Set the OS, Python version, and other tools you might need
+build:
+  os: ubuntu-24.04
+  tools:
+    python: "mambaforge-22.9"
+  jobs:
+    pre_build:
+      - >
+        cmake -S . -B build 
+        -D MUSICA_BUILD_DOCS=ON 
+        -D MUSICA_ENABLE_MICM=OFF 
+        -D MUSICA_ENABLE_TUVX=OFF 
+        -D MUSICA_ENABLE_CARMA=OFF
+        -D MUSICA_ENABLE_TESTS=OFF
+        -D MUSICA_ENABLE_INSTALL=OFF
+        -D MUSICA_BUILD_FORTRAN_INTERFACE=OFF
+      - cmake --build build --target Doxygen
+
+# Build documentation in the "docs/" directory with Sphinx
+sphinx:
+  configuration: docs/source/conf.py
