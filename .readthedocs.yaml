@@ -7,11 +7,6 @@ version: 2
 conda:
   environment: environment.yaml
 
-python:
-  install:
-    - method: pip
-      path: .
-
 # Set the OS, Python version, and other tools you might need
 build:
   os: ubuntu-24.04
