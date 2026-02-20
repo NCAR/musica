@@ -16,10 +16,18 @@ python:
 build:
   os: ubuntu-24.04
   tools:
-    python: "mambaforge-22.9"
+    python: "3.12"
   jobs:
     pre_build:
-        - cmake -S . -B build -D MUSICA_BUILD_DOCS=ON
+        - cmake -S . -B build 
+          -D MUSICA_BUILD_DOCS=ON 
+          -D MUSICA_ENABLE_MICM=OFF 
+          -D MUSICA_ENABLE_TUVX=OFF 
+          -D MUSICA_ENABLE_CARMA=OFF
+          -D MUSICA_ENABLE_TESTS=OFF
+          -D MUSICA_ENABLE_INSTALL=OFF
+          -D MUSICA_BUNDLE_DEPENDENCIES=OFF
+          -D MUSICA_BUILD_FORTRAN_INTERFACE=OFF
         - cmake --build build --target Doxygen
 
 # Build documentation in the "docs/" directory with Sphinx
