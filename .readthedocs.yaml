@@ -22,7 +22,6 @@ build:
         -D MUSICA_ENABLE_CARMA=OFF
         -D MUSICA_ENABLE_TESTS=OFF
         -D MUSICA_ENABLE_INSTALL=OFF
-        -D MUSICA_BUNDLE_DEPENDENCIES=OFF
         -D MUSICA_BUILD_FORTRAN_INTERFACE=OFF
       - cmake --build build --target Doxygen
 
