@@ -1,160 +1,140 @@
 from typing import Optional, Any, Dict, List, Union, Tuple
 from .. import backend
+from .._base import CppWrapper, CppField, _unwrap_list, _wrap_list
 from .phase import Phase
 from .species import Species
-from .utils import _add_other_properties, _remove_empty_keys
+from .utils import _add_other_properties, _remove_empty_keys, _convert_components
 from .reaction_component import ReactionComponent
 from .ancillary import ReactionType
 
 _backend = backend.get_backend()
-TernaryChemicalActivation = _backend._mechanism_configuration._TernaryChemicalActivation
-
-original_init = TernaryChemicalActivation.__init__
+_TernaryChemicalActivation = _backend._mechanism_configuration._TernaryChemicalActivation
 
 
-@property
-def type(self):
-    return ReactionType.TernaryChemicalActivation
+class TernaryChemicalActivation(CppWrapper):
+    """A Ternary Chemical Activation rate constant.
 
-
-def __init__(
-    self,
-    name: Optional[str] = None,
-    k0_A: Optional[float] = None,
-    k0_B: Optional[float] = None,
-    k0_C: Optional[float] = None,
-    kinf_A: Optional[float] = None,
-    kinf_B: Optional[float] = None,
-    kinf_C: Optional[float] = None,
-    Fc: Optional[float] = None,
-    N: Optional[float] = None,
-    reactants: Optional[List[Union[Species,
-                                   Tuple[float, Species]]]] = None,
-    products: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
-    gas_phase: Optional[Phase] = None,
-    other_properties: Optional[Dict[str, Any]] = None,
-):
+    Attributes:
+        name: The name of the rate constant.
+        k0_A: Pre-exponential factor for the low-pressure limit.
+        k0_B: Temperature exponent for the low-pressure limit.
+        k0_C: Exponential term for the low-pressure limit.
+        kinf_A: Pre-exponential factor for the high-pressure limit.
+        kinf_B: Temperature exponent for the high-pressure limit.
+        kinf_C: Exponential term for the high-pressure limit.
+        Fc: Ternary Chemical Activation parameter [unitless].
+        N: Ternary Chemical Activation parameter [unitless].
+        reactants: A list of reactants involved in the reaction.
+        products: A list of products formed in the reaction.
+        gas_phase: The gas phase in which the reaction occurs.
+        other_properties: A dictionary of other properties.
     """
-    Initializes the Ternary Chemical Activation object with the given parameters.
 
-    k0 = k0_A * exp( k0_C / T ) * ( T / 300.0 )^k0_B
-    kinf = kinf_A * exp( kinf_C / T ) * ( T / 300.0 )^kinf_B
-    k = k0[M] / ( 1 + k0[M] / kinf ) * Fc^(1 + 1/N*(log10(k0[M]/kinf))^2)^-1
+    name = CppField()
+    k0_A = CppField()
+    k0_B = CppField()
+    k0_C = CppField()
+    kinf_A = CppField()
+    kinf_B = CppField()
+    kinf_C = CppField()
+    Fc = CppField()
+    N = CppField()
+    gas_phase = CppField()
+    other_properties = CppField()
 
-    where:
-        k = rate constant
-        k0 = low-pressure limit rate constant
-        kinf = high-pressure limit rate constant
-        k0_A = pre-exponential factor for the low-pressure limit [(mol m-3)^(n-1)s-1]
-        k0_B = temperature exponent for the low-pressure limit [unitless]
-        k0_C = exponential term for the low-pressure limit [K-1]
-        kinf_A = pre-exponential factor for the high-pressure limit [(mol m-3)^(n-1)s-1]
-        kinf_B = temperature exponent for the high-pressure limit [unitless]
-        kinf_C = exponential term for the high-pressure limit [K-1]
-        Fc = Ternary Chemical Activation parameter [unitless]
-        N = Ternary Chemical Activation parameter [unitless]
-        T = temperature [K]
-        M = concentration of the third body [mol m-3]
+    def __init__(
+        self,
+        name: Optional[str] = None,
+        k0_A: Optional[float] = None,
+        k0_B: Optional[float] = None,
+        k0_C: Optional[float] = None,
+        kinf_A: Optional[float] = None,
+        kinf_B: Optional[float] = None,
+        kinf_C: Optional[float] = None,
+        Fc: Optional[float] = None,
+        N: Optional[float] = None,
+        reactants: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
+        products: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
+        gas_phase: Optional[Phase] = None,
+        other_properties: Optional[Dict[str, Any]] = None,
+    ):
+        """Initialize the Ternary Chemical Activation reaction.
 
-    Args:
-        name (str): The name of the Ternary Chemical Activation rate constant.
-        k0_A (float): Pre-exponential factor for the low-pressure limit [(mol m-3)^(n-1)s-1].
-        k0_B (float): Temperature exponent for the low-pressure limit [unitless].
-        k0_C (float): Exponential term for the low-pressure limit [K-1].
-        kinf_A (float): Pre-exponential factor for the high-pressure limit [(mol m-3)^(n-1)s-1].
-        kinf_B (float): Temperature exponent for the high-pressure limit [unitless].
-        kinf_C (float): Exponential term for the high-pressure limit [K-1].
-        Fc (float): Ternary Chemical Activation parameter [unitless].
-        N (float): Ternary Chemical Activation parameter [unitless].
-        reactants (List[Union[Species, Tuple[float, Species]]]): A list of reactants involved in the reaction.
-        products (List[Union[Species, Tuple[float, Species]]]): A list of products formed in the reaction.
-        gas_phase (Phase): The gas phase in which the reaction occurs.
-        other_properties (Dict[str, Any]): A dictionary of other properties of the Ternary Chemical Activation rate constant.
-    """
-    original_init(self)
+        Args:
+            name: The name of the rate constant.
+            k0_A: Pre-exponential factor for the low-pressure limit.
+            k0_B: Temperature exponent for the low-pressure limit.
+            k0_C: Exponential term for the low-pressure limit.
+            kinf_A: Pre-exponential factor for the high-pressure limit.
+            kinf_B: Temperature exponent for the high-pressure limit.
+            kinf_C: Exponential term for the high-pressure limit.
+            Fc: Ternary Chemical Activation parameter [unitless].
+            N: Ternary Chemical Activation parameter [unitless].
+            reactants: A list of reactants involved in the reaction.
+            products: A list of products formed in the reaction.
+            gas_phase: The gas phase in which the reaction occurs.
+            other_properties: A dictionary of other properties.
+        """
+        self._cpp = _TernaryChemicalActivation()
 
-    self.name = name if name is not None else self.name
-    self.k0_A = k0_A if k0_A is not None else self.k0_A
-    self.k0_B = k0_B if k0_B is not None else self.k0_B
-    self.k0_C = k0_C if k0_C is not None else self.k0_C
-    self.kinf_A = kinf_A if kinf_A is not None else self.kinf_A
-    self.kinf_B = kinf_B if kinf_B is not None else self.kinf_B
-    self.kinf_C = kinf_C if kinf_C is not None else self.kinf_C
-    self.Fc = Fc if Fc is not None else self.Fc
-    self.N = N if N is not None else self.N
-    self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
-    self.other_properties = other_properties if other_properties is not None else self.other_properties
-    self.reactants = (
-        [
-            (
-                ReactionComponent(r.name)
-                if isinstance(r, Species)
-                else ReactionComponent(r[1].name, r[0])
-            )
-            for r in reactants
-        ]
-        if reactants is not None
-        else self.reactants
-    )
-    self.products = (
-        [
-            (
-                ReactionComponent(p.name)
-                if isinstance(p, Species)
-                else ReactionComponent(p[1].name, p[0])
-            )
-            for p in products
-        ]
-        if products is not None
-        else self.products
-    )
+        self.name = name if name is not None else self.name
+        self.k0_A = k0_A if k0_A is not None else self.k0_A
+        self.k0_B = k0_B if k0_B is not None else self.k0_B
+        self.k0_C = k0_C if k0_C is not None else self.k0_C
+        self.kinf_A = kinf_A if kinf_A is not None else self.kinf_A
+        self.kinf_B = kinf_B if kinf_B is not None else self.kinf_B
+        self.kinf_C = kinf_C if kinf_C is not None else self.kinf_C
+        self.Fc = Fc if Fc is not None else self.Fc
+        self.N = N if N is not None else self.N
+        self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
+        self.other_properties = other_properties if other_properties is not None else self.other_properties
+        self.reactants = (
+            _convert_components(reactants)
+            if reactants is not None
+            else self.reactants
+        )
+        self.products = (
+            _convert_components(products)
+            if products is not None
+            else self.products
+        )
 
+    @property
+    def type(self):
+        """Get the reaction type."""
+        return ReactionType.TernaryChemicalActivation
 
-def serialize(self) -> Dict:
-    """
-    Serialize the Ternary Chemical Activation object to a dictionary using only Python-visible data.
+    @property
+    def reactants(self) -> list:
+        return _wrap_list(ReactionComponent, self._cpp.reactants)
 
-    Returns:
-        Dict: A dictionary representation of the Ternary Chemical Activation object.
-    """
-    serialize_dict = {
-        "type": "TERNARY_CHEMICAL_ACTIVATION",
-        "name": self.name,
-        "k0_A": self.k0_A,
-        "k0_B": self.k0_B,
-        "k0_C": self.k0_C,
-        "kinf_A": self.kinf_A,
-        "kinf_B": self.kinf_B,
-        "kinf_C": self.kinf_C,
-        "Fc": self.Fc,
-        "N": self.N,
-        "reactants": [r.serialize() for r in self.reactants],
-        "products": [r.serialize() for r in self.products],
-        "gas phase": self.gas_phase,
-    }
-    _add_other_properties(serialize_dict, self.other_properties)
-    return _remove_empty_keys(serialize_dict)
+    @reactants.setter
+    def reactants(self, value):
+        self._cpp.reactants = _unwrap_list(value)
 
+    @property
+    def products(self) -> list:
+        return _wrap_list(ReactionComponent, self._cpp.products)
 
-TernaryChemicalActivation.__doc__ = """
-A class representing a Ternary Chemical Activation rate constant.
+    @products.setter
+    def products(self, value):
+        self._cpp.products = _unwrap_list(value)
 
-Attributes:
-    name (str): The name of the Ternary Chemical Activation rate constant.
-    k0_A (float): Pre-exponential factor for the low-pressure limit [(mol m-3)^(n-1)s-1].
-    k0_B (float): Temperature exponent for the low-pressure limit [unitless].
-    k0_C (float): Exponential term for the low-pressure limit [K-1].
-    kinf_A (float): Pre-exponential factor for the high-pressure limit [(mol m-3)^(n-1)s-1].
-    kinf_B (float): Temperature exponent for the high-pressure limit [unitless].
-    kinf_C (float): Exponential term for the high-pressure limit [K-1].
-    Fc (float): Ternary Chemical Activation parameter [unitless].
-    N (float): Ternary Chemical Activation parameter [unitless].
-    reactants (List[Union[Species, Tuple[float, Species]]]): A list of reactants involved in the reaction.
-    products (List[Union[Species, Tuple[float, Species]]]): A list of products formed in the reaction.
-    gas_phase (Phase): The gas phase in which the reaction occurs.
-    other_properties (Dict[str, Any]): A dictionary of other properties of the Ternary Chemical Activation rate constant.
-"""
-
-TernaryChemicalActivation.__init__ = __init__
-TernaryChemicalActivation.serialize = serialize
-TernaryChemicalActivation.type = type
+    def serialize(self) -> Dict:
+        serialize_dict = {
+            "type": "TERNARY_CHEMICAL_ACTIVATION",
+            "name": self.name,
+            "k0_A": self.k0_A,
+            "k0_B": self.k0_B,
+            "k0_C": self.k0_C,
+            "kinf_A": self.kinf_A,
+            "kinf_B": self.kinf_B,
+            "kinf_C": self.kinf_C,
+            "Fc": self.Fc,
+            "N": self.N,
+            "reactants": [r.serialize() for r in self.reactants],
+            "products": [r.serialize() for r in self.products],
+            "gas phase": self.gas_phase,
+        }
+        _add_other_properties(serialize_dict, self.other_properties)
+        return _remove_empty_keys(serialize_dict)

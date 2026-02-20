@@ -71,9 +71,17 @@ namespace musica
     std::unordered_map<std::string, std::size_t> GetRateParameterOrdering() const override;
     std::size_t GetVectorSize() const override;
 
+    void SetRosenbrockSolverParameters(const RosenbrockSolverParameters& params) override;
+    void SetBackwardEulerSolverParameters(const BackwardEulerSolverParameters& params) override;
+    RosenbrockSolverParameters GetRosenbrockSolverParameters() const override;
+    BackwardEulerSolverParameters GetBackwardEulerSolverParameters() const override;
+
    private:
     SolverVariant solver_;
     int solver_type_;
+    double relative_tolerance_{ 1e-6 };
+    std::vector<double> absolute_tolerances_{};
+    bool tolerances_set_{ false };
   };
 
 }  // namespace musica

@@ -14,26 +14,26 @@ import os
 import sys
 import datetime
 import re
-sys.path.insert(0, os.path.abspath('.'))
+
+conf_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, conf_dir)
 
 # -- Project information -----------------------------------------------------
 
 project = 'MUSICA'
-copyright = f'2024-{datetime.datetime.now().year}, NSF NCAR'
-author = 'NSF NCAR'
-
-suffix = ''
-# the suffix is required. This is controlled by the dockerfile that builds
-# the docs
+copyright = f'2024-{datetime.datetime.now().year}, NSF-NCAR/ACOM'
+author = 'NSF-NCAR/ACOM'
 
 regex = r'project\(.*VERSION\s+(\d+\.\d+\.\d+)\)'
-release = f'0.0.0'
-# read the version from the cmake files
-with open(f'../../CMakeLists.txt', 'r') as f:
+version = '0.0.0'
+# Read the version from the cmake files (use absolute path from conf.py location)
+cmake_file = os.path.join(conf_dir, '..', '..', 'CMakeLists.txt')
+with open(cmake_file, 'r') as f:
     for line in f:
         match = re.match(regex, line)
         if match:
-            release = match.group(1)
+            version = match.group(1)
+release = version
 
 # -- General configuration ---------------------------------------------------
 
@@ -52,10 +52,16 @@ extensions = [
     'nbsphinx'
 ]
 
-breathe_projects = {"musica": "../build/xml"}
-breathe_default_project = "musica"
-highlight_language = 'python'
+# -- Breathe configuration ---------------------------------------------------
 
+this_dir = os.path.dirname(os.path.abspath(__file__))
+breathe_projects_dir = os.path.abspath(
+    os.path.join(this_dir, "..", "..", "build", "docs", "doxygen", "xml")
+)
+breathe_projects = {"musica": breathe_projects_dir}
+breathe_default_project = "musica"
+
+highlight_language = 'python'
 
 bibtex_bibfiles = ['references.bib']
 suppress_warnings = ["bibtex.missing_field"]
@@ -72,9 +78,10 @@ autosummary_generate = True
 
 # -- Intersphinx mappings -------------
 intersphinx_mapping = {
-    'micm': ('https://ncar.github.io/micm/', None),
-    'mc': ('https://ncar.github.io/MechanismConfiguration/', None),
-    'mb': ('https://ncar.github.io/music-box/', None)
+    'micm': ('https://micm.readthedocs.io', None),
+    'tuv-x': ('https://tuv-x.readthedocs.io', None),
+    'mc': ('https://MechanismConfiguration.readthedocs.io', None),
+    'mb': ('https://music-box.readthedocs.io', None)
 }
 # -- Options for HTML output -------------------------------------------------
 
@@ -86,18 +93,12 @@ html_theme = 'pydata_sphinx_theme'
 html_theme_options = {
     "external_links": [],
     "github_url": "https://github.com/NCAR/musica",
-    "navbar_end": ["version-switcher", "navbar-icon-links"],
-    "switcher": {
-        "json_url": "https://ncar.github.io/musica/_static/switcher.json",
-        "version_match": release,  # assumes `release` is defined
-    },
+    "navbar_end": ["navbar-icon-links"],
     "pygments_light_style": "tango",
     "pygments_dark_style": "monokai",
 }
 
-html_css_files = [
-    'custom.css'
-]
+html_css_files = ['custom.css']
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

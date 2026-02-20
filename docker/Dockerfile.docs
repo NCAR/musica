@@ -9,18 +9,15 @@ RUN dnf -y update \
         doxygen \
         gcc \
         gcc-c++ \
-        gdb \
         gfortran \
         git \
         lapack-devel \
-        lcov \
         make \
         netcdf-fortran-devel \
         pandoc \
         pip \
         python \
         python-devel \
-        valgrind \
     && dnf clean all
 
 COPY . /musica/
@@ -29,11 +26,6 @@ RUN cd /musica &&  python -m pip install -e .
 
 RUN python -m pip install -r /musica/docs/requirements.txt
 RUN pip install --upgrade pip ipython ipykernel
-
-ARG SUFFIX=""
-ENV SWITCHER_SUFFIX=$SUFFIX
-
-RUN echo "The suffix is '$SWITCHER_SUFFIX'"
 
 RUN mkdir /build \
       && cd /build \

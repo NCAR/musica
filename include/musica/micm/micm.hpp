@@ -8,6 +8,7 @@
 #include <musica/micm/chemistry.hpp>
 #include <musica/micm/parse.hpp>
 #include <musica/micm/solver_interface.hpp>
+#include <musica/micm/solver_parameters.hpp>
 
 #include <micm/solver/solver_result.hpp>
 #include <micm/system/system.hpp>
@@ -100,6 +101,10 @@ namespace musica
    public:
     MICM(const Chemistry& chemistry, MICMSolver solver_type);
     MICM(std::string config_path, MICMSolver solver_type);
+    MICM(const Chemistry& chemistry, MICMSolver solver_type, const RosenbrockSolverParameters& params);
+    MICM(std::string config_path, MICMSolver solver_type, const RosenbrockSolverParameters& params);
+    MICM(const Chemistry& chemistry, MICMSolver solver_type, const BackwardEulerSolverParameters& params);
+    MICM(std::string config_path, MICMSolver solver_type, const BackwardEulerSolverParameters& params);
     MICM() = default;
     ~MICM();
 
@@ -159,6 +164,22 @@ namespace musica
     /// @brief Get access to the underlying solver interface
     /// @return Pointer to the IMicmSolver implementation
     IMicmSolver* GetSolverInterface();
+
+    /// @brief Set Rosenbrock solver parameters
+    /// @param params The parameters to set
+    void SetSolverParameters(const RosenbrockSolverParameters& params);
+
+    /// @brief Set Backward Euler solver parameters
+    /// @param params The parameters to set
+    void SetSolverParameters(const BackwardEulerSolverParameters& params);
+
+    /// @brief Get Rosenbrock solver parameters
+    /// @return The current parameters
+    RosenbrockSolverParameters GetRosenbrockSolverParameters() const;
+
+    /// @brief Get Backward Euler solver parameters
+    /// @return The current parameters
+    BackwardEulerSolverParameters GetBackwardEulerSolverParameters() const;
 
    private:
     SolverPtr solver_;

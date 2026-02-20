@@ -7,7 +7,7 @@ scikit-learn
 scipy 
 seaborn 
 sphinx
-sphinx-book-theme
 sphinx-copybutton
 sphinx-design
 sphinxcontrib-bibtex
+pydata-sphinx-theme

@@ -8,6 +8,7 @@
 #include <musica/micm/chemistry.hpp>
 #include <musica/micm/micm.hpp>
 #include <musica/micm/parse.hpp>
+#include <musica/micm/solver_parameters.hpp>
 #include <musica/micm/state.hpp>
 #include <musica/util.hpp>
 
@@ -98,6 +99,53 @@ namespace musica
     /// @brief  Get the MUSICA vector size
     /// @return The MUSICA vector size
     std::size_t GetVectorSize(musica::MICMSolver);
+
+    /// @brief C-compatible struct for Rosenbrock solver parameters
+    typedef struct
+    {
+      double relative_tolerance;
+      double *absolute_tolerances;
+      size_t num_absolute_tolerances;
+      double h_min;
+      double h_max;
+      double h_start;
+      size_t max_number_of_steps;
+    } RosenbrockSolverParametersC;
+
+    /// @brief C-compatible struct for Backward Euler solver parameters
+    typedef struct
+    {
+      double relative_tolerance;
+      double *absolute_tolerances;
+      size_t num_absolute_tolerances;
+      size_t max_number_of_steps;
+      double *time_step_reductions;
+      size_t num_time_step_reductions;
+    } BackwardEulerSolverParametersC;
+
+    /// @brief Set Rosenbrock solver parameters
+    /// @param micm Pointer to MICM object
+    /// @param params Pointer to RosenbrockSolverParametersC struct
+    /// @param error Error struct to indicate success or failure
+    void SetRosenbrockSolverParameters(MICM *micm, const RosenbrockSolverParametersC *params, Error *error);
+
+    /// @brief Set Backward Euler solver parameters
+    /// @param micm Pointer to MICM object
+    /// @param params Pointer to BackwardEulerSolverParametersC struct
+    /// @param error Error struct to indicate success or failure
+    void SetBackwardEulerSolverParameters(MICM *micm, const BackwardEulerSolverParametersC *params, Error *error);
+
+    /// @brief Get Rosenbrock solver parameters
+    /// @param micm Pointer to MICM object
+    /// @param params Pointer to RosenbrockSolverParametersC struct to fill
+    /// @param error Error struct to indicate success or failure
+    void GetRosenbrockSolverParameters(MICM *micm, RosenbrockSolverParametersC *params, Error *error);
+
+    /// @brief Get Backward Euler solver parameters
+    /// @param micm Pointer to MICM object
+    /// @param params Pointer to BackwardEulerSolverParametersC struct to fill
+    /// @param error Error struct to indicate success or failure
+    void GetBackwardEulerSolverParameters(MICM *micm, BackwardEulerSolverParametersC *params, Error *error);
 #ifdef __cplusplus
   }
 #endif
