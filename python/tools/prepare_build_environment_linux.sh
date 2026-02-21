@@ -5,30 +5,59 @@ set -x
 target_arch="$(uname -m)"
 echo "Detected target_arch: $target_arch"
 
-dnf -y update
-
-# For 64 bit systems can enable our fortran components, but we require netcdf
-if [[ "$target_arch" == "x86_64" || "$target_arch" == "aarch64" ]]; then
-  dnf install -y epel-release
-  dnf install -y netcdf-devel netcdf-fortran-devel
+# Detect whether we're on musl (Alpine/musllinux) or glibc (manylinux/RHEL)
+is_musl=false
+if ldd --version 2>&1 | grep -qi musl || [ -f /etc/alpine-release ]; then
+  is_musl=true
 fi
+echo "Is musl: $is_musl"
 
-dnf install -y tree wget zip lapack-devel cmake
+if $is_musl; then
+  ##############################################################################
+  # Alpine / musllinux
+  ##############################################################################
+  apk update
 
-# 64 bit intel and amd systems support building cuda
-if [ "$target_arch" = "x86_64" ]; then
-  # Install CUDA 12.8 for x86_64 on AlmaLinux 8 (manylinux_2_28) - supports GCC 14
-  dnf config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel8/x86_64/cuda-rhel8.repo
-  dnf install --setopt=obsoletes=0 -y \
-      cuda-nvcc-12-8 \
-      cuda-cudart-devel-12-8 \
-      libcurand-devel-12-8 \
-      libcublas-devel-12-8
-  ln -sf cuda-12.8 /usr/local/cuda
+  # For 64-bit systems, install netcdf (from community repo)
+  if [[ "$target_arch" == "x86_64" || "$target_arch" == "aarch64" ]]; then
+    apk add netcdf-dev netcdf-fortran-dev
+  fi
 
-  # Verify CUDA installation
-  echo "=== CUDA Installation Verification ==="
-  /usr/local/cuda/bin/nvcc --version
+  # hdf5-dev is needed so the netCDF4 Python package can build from source
+  # during testing (no prebuilt musllinux wheel exists for netCDF4)
+  apk add tree wget zip lapack-dev cmake make gcc g++ gfortran musl-dev linux-headers hdf5-dev
+
+  # CUDA is not available on musl/Alpine — GPU support is skipped
+
+else
+  ##############################################################################
+  # RHEL / manylinux (glibc)
+  ##############################################################################
+  dnf -y update
+
+  # For 64-bit systems can enable our fortran components, but we require netcdf
+  if [[ "$target_arch" == "x86_64" || "$target_arch" == "aarch64" ]]; then
+    dnf install -y epel-release
+    dnf install -y netcdf-devel netcdf-fortran-devel
+  fi
+
+  dnf install -y tree wget zip lapack-devel cmake
+
+  # 64-bit intel and amd systems support building cuda
+  if [ "$target_arch" = "x86_64" ]; then
+    # Install CUDA 12.8 for x86_64 on AlmaLinux 8 (manylinux_2_28) - supports GCC 14
+    dnf config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel8/x86_64/cuda-rhel8.repo
+    dnf install --setopt=obsoletes=0 -y \
+        cuda-nvcc-12-8 \
+        cuda-cudart-devel-12-8 \
+        libcurand-devel-12-8 \
+        libcublas-devel-12-8
+    ln -sf cuda-12.8 /usr/local/cuda
+
+    # Verify CUDA installation
+    echo "=== CUDA Installation Verification ==="
+    /usr/local/cuda/bin/nvcc --version
+  fi
 fi
 
 ################################################################################
@@ -62,7 +91,10 @@ cmake_args=(
 )
 
 # Platform-specific options
-if [[ "$target_arch" == "x86_64" ]]; then
+if $is_musl; then
+  # musl/Alpine: no CUDA support
+  cmake_args+=(-DMUSICA_GPU_TYPE=None)
+elif [[ "$target_arch" == "x86_64" ]]; then
   cmake_args+=(
     -DMUSICA_GPU_TYPE=all_major
     -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc
