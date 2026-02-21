@@ -102,10 +102,6 @@ For more information about MUSICA, visit:
 - [MUSICA Documentation](https://ncar.github.io/musica/)
 - [MUSICA Wiki](https://wiki.ucar.edu/display/MUSICA/MUSICA+Home)
 
-## Contributing
-
-See the [distribution guide](DISTRIBUTION.md) for information on the package release process.
-
 ## License
 
 MUSICA is licensed under the Apache License 2.0. See the [LICENSE](../LICENSE) file for details.
