@@ -1,0 +1,1384 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Index &#8212; MUSICA 0.14.5 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=bbe95013" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="_static/documentation_options.js?v=c64b94d8"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'genindex';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.15.4';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://ncar.github.io/musica/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.14.5';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner = false;
+        </script>
+    <link rel="icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="#" />
+    <link rel="search" title="Search" href="search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">MUSICA 0.14.5 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="getting_started/getting_started.html">
+    Getting Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorials/tutorials.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="api/index.html">
+    MUSICA API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="contributing/index.html">
+    Contributing
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="citing/index.html">
+    Citing MUSICA
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button id="pst-version-switcher-button-2"
+      type="button"
+      class="version-switcher__button btn btn-sm dropdown-toggle"
+      data-bs-toggle="dropdown"
+      aria-haspopup="listbox"
+      aria-controls="pst-version-switcher-list-2"
+      aria-label="Version switcher list"
+    >
+      Choose version  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div id="pst-version-switcher-list-2"
+      class="version-switcher__menu dropdown-menu list-group-flush py-0"
+      role="listbox" aria-labelledby="pst-version-switcher-button-2">
+      <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NCAR/musica" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="getting_started/getting_started.html">
+    Getting Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorials/tutorials.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="api/index.html">
+    MUSICA API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="contributing/index.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="citing/index.html">
+    Citing MUSICA
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button id="pst-version-switcher-button-3"
+      type="button"
+      class="version-switcher__button btn btn-sm dropdown-toggle"
+      data-bs-toggle="dropdown"
+      aria-haspopup="listbox"
+      aria-controls="pst-version-switcher-list-3"
+      aria-label="Version switcher list"
+    >
+      Choose version  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div id="pst-version-switcher-list-3"
+      class="version-switcher__menu dropdown-menu list-group-flush py-0"
+      role="listbox" aria-labelledby="pst-version-switcher-button-3">
+      <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NCAR/musica" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none"></div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+
+<h1 id="index">Index</h1>
+
+<div class="genindex-jumpbox">
+ <a href="#_"><strong>_</strong></a>
+ | <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
+ | <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
+ | <a href="#G"><strong>G</strong></a>
+ | <a href="#H"><strong>H</strong></a>
+ | <a href="#I"><strong>I</strong></a>
+ | <a href="#J"><strong>J</strong></a>
+ | <a href="#K"><strong>K</strong></a>
+ | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
+ | <a href="#O"><strong>O</strong></a>
+ | <a href="#P"><strong>P</strong></a>
+ | <a href="#R"><strong>R</strong></a>
+ | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
+ | <a href="#U"><strong>U</strong></a>
+ | <a href="#V"><strong>V</strong></a>
+ | <a href="#X"><strong>X</strong></a>
+ | <a href="#Y"><strong>Y</strong></a>
+ 
+</div>
+<h2 id="_">_</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Arrhenius">_Arrhenius (class in musica._musica._mechanism_configuration)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._BackwardEulerSolverParameters">_BackwardEulerSolverParameters (class in musica._musica._micm)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Branched">_Branched (class in musica._musica._mechanism_configuration)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._Conditions">_Conditions (class in musica._musica._micm)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._create_solver">_create_solver() (in module musica._musica._micm)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._create_solver_from_mechanism">_create_solver_from_mechanism() (in module musica._musica._micm)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._create_state">_create_state() (in module musica._musica._micm)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Emission">_Emission (class in musica._musica._mechanism_configuration)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._FirstOrderLoss">_FirstOrderLoss (class in musica._musica._mechanism_configuration)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._get_backward_euler_solver_parameters">_get_backward_euler_solver_parameters() (in module musica._musica._micm)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._get_micm_version">_get_micm_version() (in module musica._musica._micm)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._get_rosenbrock_solver_parameters">_get_rosenbrock_solver_parameters() (in module musica._musica._micm)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._is_cuda_available">_is_cuda_available() (in module musica._musica._micm)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Mechanism">_Mechanism (class in musica._musica._mechanism_configuration)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._micm_solve">_micm_solve() (in module musica._musica._micm)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Parser">_Parser (class in musica._musica._mechanism_configuration)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Phase">_Phase (class in musica._musica._mechanism_configuration)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._PhaseSpecies">_PhaseSpecies (class in musica._musica._mechanism_configuration)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Photolysis">_Photolysis (class in musica._musica._mechanism_configuration)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._print_state">_print_state() (in module musica._musica._micm)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Arrhenius._pybind11_conduit_v1_">_pybind11_conduit_v1_() (musica._musica._mechanism_configuration._Arrhenius method)</a>
+
+      <ul>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Branched._pybind11_conduit_v1_">(musica._musica._mechanism_configuration._Branched method)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Emission._pybind11_conduit_v1_">(musica._musica._mechanism_configuration._Emission method)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._FirstOrderLoss._pybind11_conduit_v1_">(musica._musica._mechanism_configuration._FirstOrderLoss method)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Mechanism._pybind11_conduit_v1_">(musica._musica._mechanism_configuration._Mechanism method)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Parser._pybind11_conduit_v1_">(musica._musica._mechanism_configuration._Parser method)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Phase._pybind11_conduit_v1_">(musica._musica._mechanism_configuration._Phase method)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._PhaseSpecies._pybind11_conduit_v1_">(musica._musica._mechanism_configuration._PhaseSpecies method)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Photolysis._pybind11_conduit_v1_">(musica._musica._mechanism_configuration._Photolysis method)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._ReactionComponent._pybind11_conduit_v1_">(musica._musica._mechanism_configuration._ReactionComponent method)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Reactions._pybind11_conduit_v1_">(musica._musica._mechanism_configuration._Reactions method)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._ReactionsIterator._pybind11_conduit_v1_">(musica._musica._mechanism_configuration._ReactionsIterator method)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._ReactionType._pybind11_conduit_v1_">(musica._musica._mechanism_configuration._ReactionType method)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Species._pybind11_conduit_v1_">(musica._musica._mechanism_configuration._Species method)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Surface._pybind11_conduit_v1_">(musica._musica._mechanism_configuration._Surface method)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._TaylorSeries._pybind11_conduit_v1_">(musica._musica._mechanism_configuration._TaylorSeries method)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._TernaryChemicalActivation._pybind11_conduit_v1_">(musica._musica._mechanism_configuration._TernaryChemicalActivation method)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Troe._pybind11_conduit_v1_">(musica._musica._mechanism_configuration._Troe method)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Tunneling._pybind11_conduit_v1_">(musica._musica._mechanism_configuration._Tunneling method)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._UserDefined._pybind11_conduit_v1_">(musica._musica._mechanism_configuration._UserDefined method)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Version._pybind11_conduit_v1_">(musica._musica._mechanism_configuration._Version method)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._micm._BackwardEulerSolverParameters._pybind11_conduit_v1_">(musica._musica._micm._BackwardEulerSolverParameters method)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._micm._Conditions._pybind11_conduit_v1_">(musica._musica._micm._Conditions method)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._micm._RosenbrockSolverParameters._pybind11_conduit_v1_">(musica._musica._micm._RosenbrockSolverParameters method)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._micm._SolverResult._pybind11_conduit_v1_">(musica._musica._micm._SolverResult method)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._micm._SolverResultsStats._pybind11_conduit_v1_">(musica._musica._micm._SolverResultsStats method)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._micm._SolverState._pybind11_conduit_v1_">(musica._musica._micm._SolverState method)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._micm._SolverType._pybind11_conduit_v1_">(musica._musica._micm._SolverType method)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._micm._State._pybind11_conduit_v1_">(musica._musica._micm._State method)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._micm.MICM._pybind11_conduit_v1_">(musica._musica._micm.MICM method)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._micm.VectorConditions._pybind11_conduit_v1_">(musica._musica._micm.VectorConditions method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._ReactionComponent">_ReactionComponent (class in musica._musica._mechanism_configuration)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Reactions">_Reactions (class in musica._musica._mechanism_configuration)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._ReactionsIterator">_ReactionsIterator (class in musica._musica._mechanism_configuration)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._ReactionType">_ReactionType (class in musica._musica._mechanism_configuration)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._RosenbrockSolverParameters">_RosenbrockSolverParameters (class in musica._musica._micm)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._set_backward_euler_solver_parameters">_set_backward_euler_solver_parameters() (in module musica._musica._micm)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._set_rosenbrock_solver_parameters">_set_rosenbrock_solver_parameters() (in module musica._musica._micm)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._SolverResult">_SolverResult (class in musica._musica._micm)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._SolverResultsStats">_SolverResultsStats (class in musica._musica._micm)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._SolverState">_SolverState (class in musica._musica._micm)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._SolverType">_SolverType (class in musica._musica._micm)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Species">_Species (class in musica._musica._mechanism_configuration)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._species_ordering">_species_ordering() (in module musica._musica._micm)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._State">_State (class in musica._musica._micm)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Surface">_Surface (class in musica._musica._mechanism_configuration)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._TaylorSeries">_TaylorSeries (class in musica._musica._mechanism_configuration)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._TernaryChemicalActivation">_TernaryChemicalActivation (class in musica._musica._mechanism_configuration)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Troe">_Troe (class in musica._musica._mechanism_configuration)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Tunneling">_Tunneling (class in musica._musica._mechanism_configuration)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._user_defined_rate_parameters_ordering">_user_defined_rate_parameters_ordering() (in module musica._musica._micm)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._UserDefined">_UserDefined (class in musica._musica._mechanism_configuration)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._vector_size">_vector_size() (in module musica._musica._micm)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Version">_Version (class in musica._musica._mechanism_configuration)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="A">A</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Arrhenius.A">A (musica._musica._mechanism_configuration._Arrhenius property)</a>
+
+      <ul>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._TaylorSeries.A">(musica._musica._mechanism_configuration._TaylorSeries property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Tunneling.A">(musica._musica._mechanism_configuration._Tunneling property)</a>
+</li>
+      </ul></li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Branched.a0">a0 (musica._musica._mechanism_configuration._Branched property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._BackwardEulerSolverParameters.absolute_tolerances">absolute_tolerances (musica._musica._micm._BackwardEulerSolverParameters property)</a>
+
+      <ul>
+        <li><a href="api/python.html#musica._musica._micm._RosenbrockSolverParameters.absolute_tolerances">(musica._musica._micm._RosenbrockSolverParameters property)</a>
+</li>
+      </ul></li>
+      <li><a href="api/python.html#musica._musica._micm._SolverResultsStats.accepted">accepted (musica._musica._micm._SolverResultsStats property)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._micm._SolverState.AcceptingUnconvergedIntegration">AcceptingUnconvergedIntegration (musica._musica._micm._SolverState attribute)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._Conditions.air_density">air_density (musica._musica._micm._Conditions attribute)</a>
+
+      <ul>
+        <li><a href="api/python.html#id0">(musica._musica._micm._Conditions property)</a>
+</li>
+      </ul></li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Branched.alkoxy_products">alkoxy_products (musica._musica._mechanism_configuration._Branched property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm.VectorConditions.append">append() (musica._musica._micm.VectorConditions method)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Reactions.arrhenius">arrhenius (musica._musica._mechanism_configuration._Reactions property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._ReactionType.Arrhenius">Arrhenius (musica._musica._mechanism_configuration._ReactionType attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Arrhenius.B">B (musica._musica._mechanism_configuration._Arrhenius property)</a>
+
+      <ul>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._TaylorSeries.B">(musica._musica._mechanism_configuration._TaylorSeries property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Tunneling.B">(musica._musica._mechanism_configuration._Tunneling property)</a>
+</li>
+      </ul></li>
+      <li><a href="api/python.html#musica._musica._micm._SolverType.backward_euler">backward_euler (musica._musica._micm._SolverType attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._micm._SolverType.backward_euler_standard_order">backward_euler_standard_order (musica._musica._micm._SolverType attribute)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Reactions.branched">branched (musica._musica._mechanism_configuration._Reactions property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._ReactionType.Branched">Branched (musica._musica._mechanism_configuration._ReactionType attribute)</a>
+</li>
+      <li>
+    built-in function
+
+      <ul>
+        <li><a href="api/julia.html#get_version">get_version()</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Arrhenius.C">C (musica._musica._mechanism_configuration._Arrhenius property)</a>
+
+      <ul>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._TaylorSeries.C">(musica._musica._mechanism_configuration._TaylorSeries property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Tunneling.C">(musica._musica._mechanism_configuration._Tunneling property)</a>
+</li>
+      </ul></li>
+      <li><a href="api/python.html#musica._musica._micm.VectorConditions.clear">clear() (musica._musica._micm.VectorConditions method)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._ReactionComponent.coefficient">coefficient (musica._musica._mechanism_configuration._ReactionComponent property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._State.concentration_strides">concentration_strides() (musica._musica._micm._State method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._micm._State.concentrations">concentrations (musica._musica._micm._State property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._State.conditions">conditions (musica._musica._micm._State property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Species.constant_concentration_mol_m3">constant_concentration_mol_m3 (musica._musica._mechanism_configuration._Species property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Species.constant_mixing_ratio_mol_mol">constant_mixing_ratio_mol_mol (musica._musica._mechanism_configuration._Species property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._SolverState.Converged">Converged (musica._musica._micm._SolverState attribute)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._SolverState.ConvergenceExceededMaxSteps">ConvergenceExceededMaxSteps (musica._musica._micm._SolverState attribute)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._SolverType.cuda_rosenbrock">cuda_rosenbrock (musica._musica._micm._SolverType attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Arrhenius.D">D (musica._musica._mechanism_configuration._Arrhenius property)</a>
+
+      <ul>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._TaylorSeries.D">(musica._musica._mechanism_configuration._TaylorSeries property)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._micm._SolverResultsStats.decompositions">decompositions (musica._musica._micm._SolverResultsStats property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._PhaseSpecies.diffusion_coefficient_m2_s">diffusion_coefficient_m2_s (musica._musica._mechanism_configuration._PhaseSpecies property)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Arrhenius.E">E (musica._musica._mechanism_configuration._Arrhenius property)</a>
+
+      <ul>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._TaylorSeries.E">(musica._musica._mechanism_configuration._TaylorSeries property)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Reactions.emission">emission (musica._musica._mechanism_configuration._Reactions property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._ReactionType.Emission">Emission (musica._musica._mechanism_configuration._ReactionType attribute)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm.VectorConditions.extend">extend() (musica._musica._micm.VectorConditions method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._TernaryChemicalActivation.Fc">Fc (musica._musica._mechanism_configuration._TernaryChemicalActivation property)</a>
+
+      <ul>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Troe.Fc">(musica._musica._mechanism_configuration._Troe property)</a>
+</li>
+      </ul></li>
+      <li><a href="api/python.html#musica._musica._micm._SolverResultsStats.final_time">final_time (musica._musica._micm._SolverResultsStats property)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Reactions.first_order_loss">first_order_loss (musica._musica._mechanism_configuration._Reactions property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._ReactionType.FirstOrderLoss">FirstOrderLoss (musica._musica._mechanism_configuration._ReactionType attribute)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._SolverResultsStats.function_calls">function_calls (musica._musica._micm._SolverResultsStats property)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="G">G</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Arrhenius.gas_phase">gas_phase (musica._musica._mechanism_configuration._Arrhenius property)</a>
+
+      <ul>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Branched.gas_phase">(musica._musica._mechanism_configuration._Branched property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Emission.gas_phase">(musica._musica._mechanism_configuration._Emission property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._FirstOrderLoss.gas_phase">(musica._musica._mechanism_configuration._FirstOrderLoss property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Photolysis.gas_phase">(musica._musica._mechanism_configuration._Photolysis property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Surface.gas_phase">(musica._musica._mechanism_configuration._Surface property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._TaylorSeries.gas_phase">(musica._musica._mechanism_configuration._TaylorSeries property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._TernaryChemicalActivation.gas_phase">(musica._musica._mechanism_configuration._TernaryChemicalActivation property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Troe.gas_phase">(musica._musica._mechanism_configuration._Troe property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Tunneling.gas_phase">(musica._musica._mechanism_configuration._Tunneling property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._UserDefined.gas_phase">(musica._musica._mechanism_configuration._UserDefined property)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Surface.gas_phase_products">gas_phase_products (musica._musica._mechanism_configuration._Surface property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Surface.gas_phase_species">gas_phase_species (musica._musica._mechanism_configuration._Surface property)</a>
+</li>
+      <li>
+    get_version()
+
+      <ul>
+        <li><a href="api/julia.html#get_version">built-in function</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._micm._RosenbrockSolverParameters.h_max">h_max (musica._musica._micm._RosenbrockSolverParameters property)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._micm._RosenbrockSolverParameters.h_min">h_min (musica._musica._micm._RosenbrockSolverParameters property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._RosenbrockSolverParameters.h_start">h_start (musica._musica._micm._RosenbrockSolverParameters property)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._micm._SolverState.InfDetected">InfDetected (musica._musica._micm._SolverState attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._micm.VectorConditions.insert">insert() (musica._musica._micm.VectorConditions method)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Species.is_third_body">is_third_body (musica._musica._mechanism_configuration._Species property)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="J">J</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._micm._SolverResultsStats.jacobian_updates">jacobian_updates (musica._musica._micm._SolverResultsStats property)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="K">K</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._TernaryChemicalActivation.k0_A">k0_A (musica._musica._mechanism_configuration._TernaryChemicalActivation property)</a>
+
+      <ul>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Troe.k0_A">(musica._musica._mechanism_configuration._Troe property)</a>
+</li>
+      </ul></li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._TernaryChemicalActivation.k0_B">k0_B (musica._musica._mechanism_configuration._TernaryChemicalActivation property)</a>
+
+      <ul>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Troe.k0_B">(musica._musica._mechanism_configuration._Troe property)</a>
+</li>
+      </ul></li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._TernaryChemicalActivation.k0_C">k0_C (musica._musica._mechanism_configuration._TernaryChemicalActivation property)</a>
+
+      <ul>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Troe.k0_C">(musica._musica._mechanism_configuration._Troe property)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._TernaryChemicalActivation.kinf_A">kinf_A (musica._musica._mechanism_configuration._TernaryChemicalActivation property)</a>
+
+      <ul>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Troe.kinf_A">(musica._musica._mechanism_configuration._Troe property)</a>
+</li>
+      </ul></li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._TernaryChemicalActivation.kinf_B">kinf_B (musica._musica._mechanism_configuration._TernaryChemicalActivation property)</a>
+
+      <ul>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Troe.kinf_B">(musica._musica._mechanism_configuration._Troe property)</a>
+</li>
+      </ul></li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._TernaryChemicalActivation.kinf_C">kinf_C (musica._musica._mechanism_configuration._TernaryChemicalActivation property)</a>
+
+      <ul>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Troe.kinf_C">(musica._musica._mechanism_configuration._Troe property)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="M">M</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Version.major">major (musica._musica._mechanism_configuration._Version property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._BackwardEulerSolverParameters.max_number_of_steps">max_number_of_steps (musica._musica._micm._BackwardEulerSolverParameters property)</a>
+
+      <ul>
+        <li><a href="api/python.html#musica._musica._micm._RosenbrockSolverParameters.max_number_of_steps">(musica._musica._micm._RosenbrockSolverParameters property)</a>
+</li>
+      </ul></li>
+      <li><a href="api/python.html#musica._musica._micm.MICM">MICM (class in musica._musica._micm)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Version.minor">minor (musica._musica._mechanism_configuration._Version property)</a>
+</li>
+      <li>
+    module
+
+      <ul>
+        <li><a href="api/python.html#module-musica._musica._mechanism_configuration">musica._musica._mechanism_configuration</a>
+</li>
+        <li><a href="api/python.html#module-musica._musica._micm">musica._musica._micm</a>
+</li>
+        <li><a href="api/python.html#module-musica.carma">musica.carma</a>
+</li>
+        <li><a href="api/python.html#module-musica.micm">musica.micm</a>
+</li>
+        <li><a href="api/python.html#module-musica.tuvx">musica.tuvx</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Species.molecular_weight_kg_mol">molecular_weight_kg_mol (musica._musica._mechanism_configuration._Species property)</a>
+</li>
+      <li>
+    musica._musica._mechanism_configuration
+
+      <ul>
+        <li><a href="api/python.html#module-musica._musica._mechanism_configuration">module</a>
+</li>
+      </ul></li>
+      <li>
+    musica._musica._micm
+
+      <ul>
+        <li><a href="api/python.html#module-musica._musica._micm">module</a>
+</li>
+      </ul></li>
+      <li>
+    musica.carma
+
+      <ul>
+        <li><a href="api/python.html#module-musica.carma">module</a>
+</li>
+      </ul></li>
+      <li>
+    musica.micm
+
+      <ul>
+        <li><a href="api/python.html#module-musica.micm">module</a>
+</li>
+      </ul></li>
+      <li>
+    musica.tuvx
+
+      <ul>
+        <li><a href="api/python.html#module-musica.tuvx">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Branched.n">n (musica._musica._mechanism_configuration._Branched property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._TernaryChemicalActivation.N">N (musica._musica._mechanism_configuration._TernaryChemicalActivation property)</a>
+
+      <ul>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Troe.N">(musica._musica._mechanism_configuration._Troe property)</a>
+</li>
+      </ul></li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Arrhenius.name">name (musica._musica._mechanism_configuration._Arrhenius property)</a>
+
+      <ul>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Branched.name">(musica._musica._mechanism_configuration._Branched property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Emission.name">(musica._musica._mechanism_configuration._Emission property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._FirstOrderLoss.name">(musica._musica._mechanism_configuration._FirstOrderLoss property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Mechanism.name">(musica._musica._mechanism_configuration._Mechanism property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Phase.name">(musica._musica._mechanism_configuration._Phase property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._PhaseSpecies.name">(musica._musica._mechanism_configuration._PhaseSpecies property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Photolysis.name">(musica._musica._mechanism_configuration._Photolysis property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Species.name">(musica._musica._mechanism_configuration._Species property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Surface.name">(musica._musica._mechanism_configuration._Surface property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._TaylorSeries.name">(musica._musica._mechanism_configuration._TaylorSeries property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._TernaryChemicalActivation.name">(musica._musica._mechanism_configuration._TernaryChemicalActivation property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Troe.name">(musica._musica._mechanism_configuration._Troe property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Tunneling.name">(musica._musica._mechanism_configuration._Tunneling property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._UserDefined.name">(musica._musica._mechanism_configuration._UserDefined property)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._micm._SolverState.NaNDetected">NaNDetected (musica._musica._micm._SolverState attribute)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Branched.nitrate_products">nitrate_products (musica._musica._mechanism_configuration._Branched property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._SolverState.NotYetCalled">NotYetCalled (musica._musica._micm._SolverState attribute)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._State.number_of_grid_cells">number_of_grid_cells() (musica._musica._micm._State method)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._SolverResultsStats.number_of_steps">number_of_steps (musica._musica._micm._SolverResultsStats property)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Arrhenius.other_properties">other_properties (musica._musica._mechanism_configuration._Arrhenius property)</a>
+
+      <ul>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Branched.other_properties">(musica._musica._mechanism_configuration._Branched property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Emission.other_properties">(musica._musica._mechanism_configuration._Emission property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._FirstOrderLoss.other_properties">(musica._musica._mechanism_configuration._FirstOrderLoss property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Phase.other_properties">(musica._musica._mechanism_configuration._Phase property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._PhaseSpecies.other_properties">(musica._musica._mechanism_configuration._PhaseSpecies property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Photolysis.other_properties">(musica._musica._mechanism_configuration._Photolysis property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._ReactionComponent.other_properties">(musica._musica._mechanism_configuration._ReactionComponent property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Species.other_properties">(musica._musica._mechanism_configuration._Species property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Surface.other_properties">(musica._musica._mechanism_configuration._Surface property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._TaylorSeries.other_properties">(musica._musica._mechanism_configuration._TaylorSeries property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._TernaryChemicalActivation.other_properties">(musica._musica._mechanism_configuration._TernaryChemicalActivation property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Troe.other_properties">(musica._musica._mechanism_configuration._Troe property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Tunneling.other_properties">(musica._musica._mechanism_configuration._Tunneling property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._UserDefined.other_properties">(musica._musica._mechanism_configuration._UserDefined property)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="P">P</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Parser.parse">parse() (musica._musica._mechanism_configuration._Parser method)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Parser.parse_and_convert_v0">parse_and_convert_v0() (musica._musica._mechanism_configuration._Parser method)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Version.patch">patch (musica._musica._mechanism_configuration._Version property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Mechanism.phases">phases (musica._musica._mechanism_configuration._Mechanism property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Reactions.photolysis">photolysis (musica._musica._mechanism_configuration._Reactions property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._ReactionType.Photolysis">Photolysis (musica._musica._mechanism_configuration._ReactionType attribute)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm.VectorConditions.pop">pop() (musica._musica._micm.VectorConditions method)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._Conditions.pressure">pressure (musica._musica._micm._Conditions attribute)</a>
+
+      <ul>
+        <li><a href="api/python.html#id1">(musica._musica._micm._Conditions property)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Arrhenius.products">products (musica._musica._mechanism_configuration._Arrhenius property)</a>
+
+      <ul>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Emission.products">(musica._musica._mechanism_configuration._Emission property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Photolysis.products">(musica._musica._mechanism_configuration._Photolysis property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._TaylorSeries.products">(musica._musica._mechanism_configuration._TaylorSeries property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._TernaryChemicalActivation.products">(musica._musica._mechanism_configuration._TernaryChemicalActivation property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Troe.products">(musica._musica._mechanism_configuration._Troe property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Tunneling.products">(musica._musica._mechanism_configuration._Tunneling property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._UserDefined.products">(musica._musica._mechanism_configuration._UserDefined property)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Arrhenius.reactants">reactants (musica._musica._mechanism_configuration._Arrhenius property)</a>
+
+      <ul>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Branched.reactants">(musica._musica._mechanism_configuration._Branched property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._FirstOrderLoss.reactants">(musica._musica._mechanism_configuration._FirstOrderLoss property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Photolysis.reactants">(musica._musica._mechanism_configuration._Photolysis property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._TaylorSeries.reactants">(musica._musica._mechanism_configuration._TaylorSeries property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._TernaryChemicalActivation.reactants">(musica._musica._mechanism_configuration._TernaryChemicalActivation property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Troe.reactants">(musica._musica._mechanism_configuration._Troe property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Tunneling.reactants">(musica._musica._mechanism_configuration._Tunneling property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._UserDefined.reactants">(musica._musica._mechanism_configuration._UserDefined property)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Surface.reaction_probability">reaction_probability (musica._musica._mechanism_configuration._Surface property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Mechanism.reactions">reactions (musica._musica._mechanism_configuration._Mechanism property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._SolverResultsStats.rejected">rejected (musica._musica._micm._SolverResultsStats property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._BackwardEulerSolverParameters.relative_tolerance">relative_tolerance (musica._musica._micm._BackwardEulerSolverParameters property)</a>
+
+      <ul>
+        <li><a href="api/python.html#musica._musica._micm._RosenbrockSolverParameters.relative_tolerance">(musica._musica._micm._RosenbrockSolverParameters property)</a>
+</li>
+      </ul></li>
+      <li><a href="api/python.html#musica._musica._micm._SolverState.RepeatedlySingularMatrix">RepeatedlySingularMatrix (musica._musica._micm._SolverState attribute)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._SolverType.rosenbrock">rosenbrock (musica._musica._micm._SolverType attribute)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._SolverType.rosenbrock_standard_order">rosenbrock_standard_order (musica._musica._micm._SolverType attribute)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._SolverState.Running">Running (musica._musica._micm._SolverState attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Emission.scaling_factor">scaling_factor (musica._musica._mechanism_configuration._Emission property)</a>
+
+      <ul>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._FirstOrderLoss.scaling_factor">(musica._musica._mechanism_configuration._FirstOrderLoss property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Photolysis.scaling_factor">(musica._musica._mechanism_configuration._Photolysis property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._UserDefined.scaling_factor">(musica._musica._mechanism_configuration._UserDefined property)</a>
+</li>
+      </ul></li>
+      <li><a href="api/python.html#musica._musica._micm._SolverResultsStats.solves">solves (musica._musica._micm._SolverResultsStats property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Mechanism.species">species (musica._musica._mechanism_configuration._Mechanism property)</a>
+
+      <ul>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Phase.species">(musica._musica._mechanism_configuration._Phase property)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._ReactionComponent.species_name">species_name (musica._musica._mechanism_configuration._ReactionComponent property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._SolverResult.state">state (musica._musica._micm._SolverResult property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._SolverResult.stats">stats (musica._musica._micm._SolverResult property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._SolverState.StepSizeTooSmall">StepSizeTooSmall (musica._musica._micm._SolverState attribute)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Reactions.surface">surface (musica._musica._mechanism_configuration._Reactions property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._ReactionType.Surface">Surface (musica._musica._mechanism_configuration._ReactionType attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._TaylorSeries.taylor_coefficients">taylor_coefficients (musica._musica._mechanism_configuration._TaylorSeries property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Reactions.taylor_series">taylor_series (musica._musica._mechanism_configuration._Reactions property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._ReactionType.TaylorSeries">TaylorSeries (musica._musica._mechanism_configuration._ReactionType attribute)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._Conditions.temperature">temperature (musica._musica._micm._Conditions attribute)</a>
+
+      <ul>
+        <li><a href="api/python.html#id2">(musica._musica._micm._Conditions property)</a>
+</li>
+      </ul></li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Reactions.ternary_chemical_activation">ternary_chemical_activation (musica._musica._mechanism_configuration._Reactions property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._ReactionType.TernaryChemicalActivation">TernaryChemicalActivation (musica._musica._mechanism_configuration._ReactionType attribute)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._BackwardEulerSolverParameters.time_step_reductions">time_step_reductions (musica._musica._micm._BackwardEulerSolverParameters property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Version.to_string">to_string() (musica._musica._mechanism_configuration._Version method)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Reactions.troe">troe (musica._musica._mechanism_configuration._Reactions property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._ReactionType.Troe">Troe (musica._musica._mechanism_configuration._ReactionType attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Reactions.tunneling">tunneling (musica._musica._mechanism_configuration._Reactions property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._ReactionType.Tunneling">Tunneling (musica._musica._mechanism_configuration._ReactionType attribute)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Arrhenius.type">type (musica._musica._mechanism_configuration._Arrhenius property)</a>
+
+      <ul>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Branched.type">(musica._musica._mechanism_configuration._Branched property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Emission.type">(musica._musica._mechanism_configuration._Emission property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._FirstOrderLoss.type">(musica._musica._mechanism_configuration._FirstOrderLoss property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Photolysis.type">(musica._musica._mechanism_configuration._Photolysis property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Surface.type">(musica._musica._mechanism_configuration._Surface property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._TernaryChemicalActivation.type">(musica._musica._mechanism_configuration._TernaryChemicalActivation property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Troe.type">(musica._musica._mechanism_configuration._Troe property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._Tunneling.type">(musica._musica._mechanism_configuration._Tunneling property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._mechanism_configuration._UserDefined.type">(musica._musica._mechanism_configuration._UserDefined property)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="U">U</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Reactions.user_defined">user_defined (musica._musica._mechanism_configuration._Reactions property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._micm._State.user_defined_rate_parameter_strides">user_defined_rate_parameter_strides() (musica._musica._micm._State method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._micm._State.user_defined_rate_parameters">user_defined_rate_parameters (musica._musica._micm._State property)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._ReactionType.UserDefined">UserDefined (musica._musica._mechanism_configuration._ReactionType attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._ReactionType.value">value (musica._musica._mechanism_configuration._ReactionType property)</a>
+
+      <ul>
+        <li><a href="api/python.html#musica._musica._micm._SolverState.value">(musica._musica._micm._SolverState property)</a>
+</li>
+        <li><a href="api/python.html#musica._musica._micm._SolverType.value">(musica._musica._micm._SolverType property)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._micm.VectorConditions">VectorConditions (class in musica._musica._micm)</a>
+</li>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Mechanism.version">version (musica._musica._mechanism_configuration._Mechanism property)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="X">X</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Branched.X">X (musica._musica._mechanism_configuration._Branched property)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Y">Y</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/python.html#musica._musica._mechanism_configuration._Branched.Y">Y (musica._musica._mechanism_configuration._Branched property)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024-2026, NSF NCAR.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.4.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

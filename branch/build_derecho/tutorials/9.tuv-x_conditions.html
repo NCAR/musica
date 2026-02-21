@@ -1,0 +1,867 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>TUV-x: Setting Input Conditions &#8212; MUSICA 0.14.4 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=bbe95013" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=623310c1"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorials/9.tuv-x_conditions';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.15.4';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://ncar.github.io/musica/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.14.4';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner = false;
+        </script>
+    <link rel="icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">MUSICA 0.14.4 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/getting_started.html">
+    Getting Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorials.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    MUSICA API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributing/index.html">
+    Contributing
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../citing/index.html">
+    Citing MUSICA
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button id="pst-version-switcher-button-2"
+      type="button"
+      class="version-switcher__button btn btn-sm dropdown-toggle"
+      data-bs-toggle="dropdown"
+      aria-haspopup="listbox"
+      aria-controls="pst-version-switcher-list-2"
+      aria-label="Version switcher list"
+    >
+      Choose version  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div id="pst-version-switcher-list-2"
+      class="version-switcher__menu dropdown-menu list-group-flush py-0"
+      role="listbox" aria-labelledby="pst-version-switcher-button-2">
+      <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NCAR/musica" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/getting_started.html">
+    Getting Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorials.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    MUSICA API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributing/index.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../citing/index.html">
+    Citing MUSICA
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button id="pst-version-switcher-button-3"
+      type="button"
+      class="version-switcher__button btn btn-sm dropdown-toggle"
+      data-bs-toggle="dropdown"
+      aria-haspopup="listbox"
+      aria-controls="pst-version-switcher-list-3"
+      aria-label="Version switcher list"
+    >
+      Choose version  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div id="pst-version-switcher-list-3"
+      class="version-switcher__menu dropdown-menu list-group-flush py-0"
+      role="listbox" aria-labelledby="pst-version-switcher-button-3">
+      <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NCAR/musica" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">TUV-x:...</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="TUV-x:-Setting-Input-Conditions">
+<h1>TUV-x: Setting Input Conditions<a class="headerlink" href="#TUV-x:-Setting-Input-Conditions" title="Link to this heading">#</a></h1>
+<p>If you’re brand new to TUV-x in MUSICA, start with the TUV-x: Standard Configurations tutorial, then come back here.</p>
+<p>The standard conditions that come with the v5.4 and vTS1/TSMLT configurations are great for getting started and comparing rate constant algorithms. Often times however, you’ll be interested in photolysis rate constants or dose rates for specific conditions. This tutorial describes how to start with one of the standard TUV-x configurations and modify the atmospheric conditions. We’ll use the v5.4 configuration, but these steps could also be followed for the vTS1/TSMLT configuration.</p>
+<p>Let’s load the dependencies and create a v5.4 TUV-x calculator.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">musica.tuvx</span><span class="w"> </span><span class="kn">import</span> <span class="n">v54</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">musica.tuvx</span><span class="w"> </span><span class="kn">import</span> <span class="n">TUVX</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="n">v54_calculator</span><span class="p">:</span> <span class="n">TUVX</span> <span class="o">=</span> <span class="n">v54</span><span class="o">.</span><span class="n">get_tuvx_calculator</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>Before we get into changing conditions, let’s look at TUV-x grids, profiles, and radiators.</p>
+<section id="Grids">
+<h2>Grids<a class="headerlink" href="#Grids" title="Link to this heading">#</a></h2>
+<p>TUV-x uses two grids: altitude and wavelength. Input and output data from TUV-x are primarily on one or both of these grids, either at grid section mid-points or edges. Grid edge and midpoint values for the height and wavelength grids are included in the XArray output of the <code class="docutils literal notranslate"><span class="pre">TUVX::run()</span></code> function, but they can also be accessed via the TUV-x API:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># get the set of grids from TUV-x</span>
+<span class="n">v54_grids</span> <span class="o">=</span> <span class="n">v54_calculator</span><span class="o">.</span><span class="n">get_grid_map</span><span class="p">()</span>
+
+<span class="c1"># list the available grids</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Available grids in TUV-x v5.4:&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">grid_name</span><span class="p">,</span> <span class="n">units</span> <span class="ow">in</span> <span class="n">v54_grids</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; - </span><span class="si">{</span><span class="n">grid_name</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">units</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+<span class="c1"># print the range and number of sections in the height and wavelength grids</span>
+<span class="n">height_grid</span> <span class="o">=</span> <span class="n">v54_grids</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">,</span> <span class="s2">&quot;km&quot;</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Height grid: </span><span class="si">{</span><span class="n">height_grid</span><span class="o">.</span><span class="n">edges</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">}</span><span class="s2"> km to </span><span class="si">{</span><span class="n">height_grid</span><span class="o">.</span><span class="n">edges</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">}</span><span class="s2"> km, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">height_grid</span><span class="p">)</span><span class="si">}</span><span class="s2"> sections&quot;</span><span class="p">)</span>
+<span class="n">wavelength_grid</span> <span class="o">=</span> <span class="n">v54_grids</span><span class="p">[</span><span class="s2">&quot;wavelength&quot;</span><span class="p">,</span> <span class="s2">&quot;nm&quot;</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Wavelength grid: </span><span class="si">{</span><span class="n">wavelength_grid</span><span class="o">.</span><span class="n">edges</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">}</span><span class="s2"> nm to </span><span class="si">{</span><span class="n">wavelength_grid</span><span class="o">.</span><span class="n">edges</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">}</span><span class="s2"> nm, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">wavelength_grid</span><span class="p">)</span><span class="si">}</span><span class="s2"> sections&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Available grids in TUV-x v5.4:
+ - height (km)
+ - wavelength (nm)
+Height grid: 0.0 km to 120.0 km, 120 sections
+Wavelength grid: 120.0 nm to 735.0 nm, 156 sections
+</pre></div></div>
+</div>
+<p>Note that grids returned from the TUV-x grid map are references to the internal TUV-x grid data. Any changes to the grids will impact TUV-x calculations. Although it is possible to change grid values after creation of the TUV-x calculator, it is not recommended and may result in unexpected behavior. We’ll see in a future tutorial how to properly define grids prior to creating a TUV-x calculator instance.</p>
+</section>
+<section id="Profiles">
+<h2>Profiles<a class="headerlink" href="#Profiles" title="Link to this heading">#</a></h2>
+<p>Profiles in TUV-x are properties defined on a grid (either height, wavelength, or both). We access them similarly to how grids are accessed:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># get the set of profiles from TUV-x</span>
+<span class="n">v54_profiles</span> <span class="o">=</span> <span class="n">v54_calculator</span><span class="o">.</span><span class="n">get_profile_map</span><span class="p">()</span>
+
+<span class="c1"># list the available profiles</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Available profiles in TUV-x v5.4:&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">profile_name</span><span class="p">,</span> <span class="n">units</span> <span class="ow">in</span> <span class="n">v54_profiles</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; - </span><span class="si">{</span><span class="n">profile_name</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">units</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+<span class="c1"># plot the temperature profile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="n">temperature_profile</span> <span class="o">=</span> <span class="n">v54_profiles</span><span class="p">[</span><span class="s2">&quot;temperature&quot;</span><span class="p">,</span> <span class="s2">&quot;K&quot;</span><span class="p">]</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">temperature_profile</span><span class="o">.</span><span class="n">midpoint_values</span><span class="p">,</span> <span class="n">height_grid</span><span class="o">.</span><span class="n">midpoints</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Temperature (K)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Height (km)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Temperature Profile from TUV-x v5.4&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Available profiles in TUV-x v5.4:
+ - air (molecule cm-3)
+ - O3 (molecule cm-3)
+ - O2 (molecule cm-3)
+ - temperature (K)
+ - surface albedo (none)
+ - extraterrestrial flux (photon cm-2 s-1)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_9.tuv-x_conditions_5_1.png" src="../_images/tutorials_9.tuv-x_conditions_5_1.png" />
+</div>
+</div>
+<p>The profiles data are used for solving the radiation field in the column, and can also contribute to photolysis and dose rate calculations (primarily the temperature profile). Temperature, air, and chemical species concentrations are defined on the height grid. Surface albedo and extraterrestrial flux are defined on the wavelength grid.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># plot the Extraterrestrial flux profile</span>
+<span class="n">extraterrestrial_flux_profile</span> <span class="o">=</span> <span class="n">v54_profiles</span><span class="p">[</span><span class="s2">&quot;extraterrestrial flux&quot;</span><span class="p">,</span> <span class="s2">&quot;photon cm-2 s-1&quot;</span><span class="p">]</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">wavelength_grid</span><span class="o">.</span><span class="n">midpoints</span><span class="p">,</span> <span class="n">extraterrestrial_flux_profile</span><span class="o">.</span><span class="n">midpoint_values</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Wavelength (nm)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Extraterrestrial Flux (photons cm$^{-2}$ s$^{-1}$)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Extraterrestrial Flux Profile from TUV-x v5.4&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_9.tuv-x_conditions_7_0.png" src="../_images/tutorials_9.tuv-x_conditions_7_0.png" />
+</div>
+</div>
+<p>Unlike grid data, changing profile data after creation of a TUV-x calculator instance is supported. Later in this tutorial, we’ll explore the effects of changing the <span class="math notranslate nohighlight">\(\text{O}_3\)</span> concentrations on the calculated photolysis rate constants.</p>
+</section>
+</section>
+<section id="Radiators">
+<h1>Radiators<a class="headerlink" href="#Radiators" title="Link to this heading">#</a></h1>
+<p>The final data structure used by TUV-x are “radiators”. These structures hold the optical properties for atmospheric constituents and are used during the ODE solve of the radiation field. Specifically, they include:</p>
+<ul class="simple">
+<li><p>optical depth (wavelength x height)</p></li>
+<li><p>single scattering albedo (wavelength x height)</p></li>
+<li><p>asymmetry factor (wavelength x height)</p></li>
+</ul>
+<p>There is a special type of radiator that is for chemical species with associated profiles. These are defined in the TUV-x JSON/YAML configuration file and cannot be modified programmatically. In the v5.4 configuration, there are such radiators defined for air, <span class="math notranslate nohighlight">\(\text{O}_3\)</span>, and <span class="math notranslate nohighlight">\(\text{O}_2\)</span>. Any changes to the profiles of air, <span class="math notranslate nohighlight">\(\text{O}_2\)</span>, or <span class="math notranslate nohighlight">\(\text{O}_3\)</span> will update their associated radiator’s optical properties automatically. These radiators are not accessible via the
+TUV-x API.</p>
+<p>Additional radiators can be included via the TUV-x API, but you must define the optical properties manually. In the v5.4 configuration, an aerosol radiator is included with predefined optical depth, single scattering albedo, and asymmetry parameter. Later in this section, we’ll modify these properties to see their effect on calculated photolysis rate constants.</p>
+<p>Radiators can be accessed similarly to grids and profiles:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># get the set of radiators from TUV-x</span>
+<span class="n">v54_radiators</span> <span class="o">=</span> <span class="n">v54_calculator</span><span class="o">.</span><span class="n">get_radiator_map</span><span class="p">()</span>
+
+<span class="c1"># list the available radiators</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Available radiators in TUV-x v5.4:&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">radiator_name</span> <span class="ow">in</span> <span class="n">v54_radiators</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; - </span><span class="si">{</span><span class="n">radiator_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># plot the aerosol optical depth by wavelength at 1, 10, and 50 km</span>
+<span class="n">aerosols</span> <span class="o">=</span> <span class="n">v54_radiators</span><span class="p">[</span><span class="s2">&quot;aerosol&quot;</span><span class="p">]</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">height</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">50</span><span class="p">]:</span>
+    <span class="n">height_index</span> <span class="o">=</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">height_grid</span><span class="o">.</span><span class="n">midpoints</span> <span class="o">-</span> <span class="n">height</span><span class="p">))</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">wavelength_grid</span><span class="o">.</span><span class="n">midpoints</span><span class="p">,</span> <span class="n">aerosols</span><span class="o">.</span><span class="n">optical_depths</span><span class="p">[:,</span> <span class="n">height_index</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Height = </span><span class="si">{</span><span class="n">height</span><span class="si">}</span><span class="s2"> km&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Wavelength (nm)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Optical Depth&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Optical Depth by Wavelength at Various Heights from TUV-x v5.4&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Available radiators in TUV-x v5.4:
+ - aerosol
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_9.tuv-x_conditions_9_1.png" src="../_images/tutorials_9.tuv-x_conditions_9_1.png" />
+</div>
+</div>
+<section id="Modifying-Conditions">
+<h2>Modifying Conditions<a class="headerlink" href="#Modifying-Conditions" title="Link to this heading">#</a></h2>
+<p>Now that we’re familiar with the TUV-x datasets, let’s compare <span class="math notranslate nohighlight">\(\text{O}_3\)</span> photolysis rate constant calculations under different [<span class="math notranslate nohighlight">\(\text{O}_3\)</span>] and aerosol conditions.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># run the standard v5.4 configuration</span>
+<span class="n">v54_results</span> <span class="o">=</span> <span class="n">v54_calculator</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">sza</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">earth_sun_distance</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+
+<span class="c1"># double the [O3] in the column and run again</span>
+<span class="n">o3_profile</span> <span class="o">=</span> <span class="n">v54_profiles</span><span class="p">[</span><span class="s2">&quot;O3&quot;</span><span class="p">,</span> <span class="s2">&quot;molecule cm-3&quot;</span><span class="p">]</span>
+<span class="n">o3_profile</span><span class="o">.</span><span class="n">midpoint_values</span> <span class="o">*=</span> <span class="mf">2.0</span>
+<span class="n">o3_profile</span><span class="o">.</span><span class="n">edge_values</span> <span class="o">*=</span> <span class="mf">2.0</span>
+<span class="n">o3_profile</span><span class="o">.</span><span class="n">calculate_layer_densities</span><span class="p">(</span><span class="n">height_grid</span><span class="p">)</span> <span class="c1"># provide the height grid for layer thicknesses</span>
+
+<span class="c1"># rerun the calculation with modified O3 profile</span>
+<span class="n">double_o3_results</span> <span class="o">=</span> <span class="n">v54_calculator</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">sza</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">earth_sun_distance</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+
+<span class="c1"># double the aerosol optical depths and run again</span>
+<span class="n">aerosols</span><span class="o">.</span><span class="n">optical_depths</span> <span class="o">*=</span> <span class="mf">2.0</span>
+
+<span class="c1"># rerun the calculation with modified aerosol optical depths</span>
+<span class="n">double_o3_double_aerosol_results</span> <span class="o">=</span> <span class="n">v54_calculator</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">sza</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">earth_sun_distance</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+
+<span class="c1"># return to the original O3 profile and run again</span>
+<span class="n">o3_profile</span><span class="o">.</span><span class="n">midpoint_values</span> <span class="o">/=</span> <span class="mf">2.0</span>
+<span class="n">o3_profile</span><span class="o">.</span><span class="n">edge_values</span> <span class="o">/=</span> <span class="mf">2.0</span>
+<span class="n">o3_profile</span><span class="o">.</span><span class="n">calculate_layer_densities</span><span class="p">(</span><span class="n">height_grid</span><span class="p">)</span> <span class="c1"># provide the height grid for layer thicknesses</span>
+
+<span class="c1"># rerun the calculation with original O3 profile and doubled aerosol optical depths</span>
+<span class="n">double_aerosol_results</span> <span class="o">=</span> <span class="n">v54_calculator</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">sza</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">earth_sun_distance</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+
+<span class="c1"># compare the O3 and N2O5 photolysis rate constants among the four scenarios</span>
+<span class="n">jo3a_label</span> <span class="o">=</span> <span class="s2">&quot;O3+hv-&gt;O2+O(1D)&quot;</span>
+<span class="n">jo3b_label</span> <span class="o">=</span> <span class="s2">&quot;O3+hv-&gt;O2+O(3P)&quot;</span>
+<span class="n">jn2o5_label</span> <span class="o">=</span> <span class="s2">&quot;N2O5+hv-&gt;NO2+NO3&quot;</span>
+<span class="n">jo3_o1d_v54</span> <span class="o">=</span> <span class="n">v54_results</span><span class="p">[</span><span class="s2">&quot;photolysis_rate_constants&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">reaction</span><span class="o">=</span><span class="n">jo3a_label</span><span class="p">)</span>
+<span class="n">jo3_o3p_v54</span> <span class="o">=</span> <span class="n">v54_results</span><span class="p">[</span><span class="s2">&quot;photolysis_rate_constants&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">reaction</span><span class="o">=</span><span class="n">jo3b_label</span><span class="p">)</span>
+<span class="n">jn2o5_v54</span> <span class="o">=</span> <span class="n">v54_results</span><span class="p">[</span><span class="s2">&quot;photolysis_rate_constants&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">reaction</span><span class="o">=</span><span class="n">jn2o5_label</span><span class="p">)</span>
+<span class="n">height_v54</span> <span class="o">=</span> <span class="n">v54_grids</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">,</span> <span class="s2">&quot;km&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">edges</span>
+<span class="n">jo3_o1d_double_o3</span> <span class="o">=</span> <span class="n">double_o3_results</span><span class="p">[</span><span class="s2">&quot;photolysis_rate_constants&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">reaction</span><span class="o">=</span><span class="n">jo3a_label</span><span class="p">)</span>
+<span class="n">jo3_o3p_double_o3</span> <span class="o">=</span> <span class="n">double_o3_results</span><span class="p">[</span><span class="s2">&quot;photolysis_rate_constants&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">reaction</span><span class="o">=</span><span class="n">jo3b_label</span><span class="p">)</span>
+<span class="n">jn2o5_double_o3</span> <span class="o">=</span> <span class="n">double_o3_results</span><span class="p">[</span><span class="s2">&quot;photolysis_rate_constants&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">reaction</span><span class="o">=</span><span class="n">jn2o5_label</span><span class="p">)</span>
+<span class="n">jo3_o1d_double_aerosol</span> <span class="o">=</span> <span class="n">double_aerosol_results</span><span class="p">[</span><span class="s2">&quot;photolysis_rate_constants&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">reaction</span><span class="o">=</span><span class="n">jo3a_label</span><span class="p">)</span>
+<span class="n">jo3_o3p_double_aerosol</span> <span class="o">=</span> <span class="n">double_aerosol_results</span><span class="p">[</span><span class="s2">&quot;photolysis_rate_constants&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">reaction</span><span class="o">=</span><span class="n">jo3b_label</span><span class="p">)</span>
+<span class="n">jn2o5_double_aerosol</span> <span class="o">=</span> <span class="n">double_aerosol_results</span><span class="p">[</span><span class="s2">&quot;photolysis_rate_constants&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">reaction</span><span class="o">=</span><span class="n">jn2o5_label</span><span class="p">)</span>
+<span class="n">jo3_o1d_double_o3_double_aerosol</span> <span class="o">=</span> <span class="n">double_o3_double_aerosol_results</span><span class="p">[</span><span class="s2">&quot;photolysis_rate_constants&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">reaction</span><span class="o">=</span><span class="n">jo3a_label</span><span class="p">)</span>
+<span class="n">jo3_o3p_double_o3_double_aerosol</span> <span class="o">=</span> <span class="n">double_o3_double_aerosol_results</span><span class="p">[</span><span class="s2">&quot;photolysis_rate_constants&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">reaction</span><span class="o">=</span><span class="n">jo3b_label</span><span class="p">)</span>
+<span class="n">jn2o5_double_o3_double_aerosol</span> <span class="o">=</span> <span class="n">double_o3_double_aerosol_results</span><span class="p">[</span><span class="s2">&quot;photolysis_rate_constants&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">reaction</span><span class="o">=</span><span class="n">jn2o5_label</span><span class="p">)</span>
+
+<span class="c1"># plot the O3-&gt;O(1D) photolysis rate constants</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">jo3_o1d_v54</span><span class="p">,</span> <span class="n">height_v54</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Standard v5.4&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">jo3_o1d_double_o3</span><span class="p">,</span> <span class="n">height_v54</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Double O3&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">jo3_o1d_double_aerosol</span><span class="p">,</span> <span class="n">height_v54</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Double Aerosol&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">jo3_o1d_double_o3_double_aerosol</span><span class="p">,</span> <span class="n">height_v54</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Double O3 &amp; Aerosol&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Photolysis Rate Constant (s$^{-1}$)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Height (km)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;O3-&gt;O(1D) Photolysis Rate Constants under Different Scenarios&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># plot the O3-&gt;O(3P) photolysis rate constants</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">jo3_o3p_v54</span><span class="p">,</span> <span class="n">height_v54</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Standard v5.4&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">jo3_o3p_double_o3</span><span class="p">,</span> <span class="n">height_v54</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Double O3&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">jo3_o3p_double_aerosol</span><span class="p">,</span> <span class="n">height_v54</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Double Aerosol&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">jo3_o3p_double_o3_double_aerosol</span><span class="p">,</span> <span class="n">height_v54</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Double O3 &amp; Aerosol&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Photolysis Rate Constant (s$^{-1}$)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Height (km)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;O3-&gt;O(3P) Photolysis Rate Constants under Different Scenarios&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># plot the N2O5 photolysis rate constants</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">jn2o5_v54</span><span class="p">,</span> <span class="n">height_v54</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Standard v5.4&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">jn2o5_double_o3</span><span class="p">,</span> <span class="n">height_v54</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Double O3&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">jn2o5_double_aerosol</span><span class="p">,</span> <span class="n">height_v54</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Double Aerosol&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">jn2o5_double_o3_double_aerosol</span><span class="p">,</span> <span class="n">height_v54</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Double O3 &amp; Aerosol&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Photolysis Rate Constant (s$^{-1}$)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Height (km)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;N2O5 Photolysis Rate Constants under Different Scenarios&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_9.tuv-x_conditions_11_0.png" src="../_images/tutorials_9.tuv-x_conditions_11_0.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_9.tuv-x_conditions_11_1.png" src="../_images/tutorials_9.tuv-x_conditions_11_1.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_9.tuv-x_conditions_11_2.png" src="../_images/tutorials_9.tuv-x_conditions_11_2.png" />
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">TUV-x: Setting Input Conditions</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Grids">Grids</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Profiles">Profiles</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#Radiators">Radiators</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Modifying-Conditions">Modifying Conditions</a></li>
+</ul>
+</li>
+</ul>
+
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/tutorials/9.tuv-x_conditions.ipynb.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024-2026, NSF NCAR.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.4.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
