@@ -1,10 +1,21 @@
 include(CMakePackageConfigHelpers)
 
+set(_musica_export_targets musica mechanism_configuration)
+
+# If yaml-cpp was fetched (not found as a system package), include it in the
+# export set so the generated targets file can reference it.  When yaml-cpp
+# comes from find_package, the imported target cannot be re-exported; consumers
+# will locate it via find_dependency in musicaConfig.cmake instead.
+if(TARGET yaml-cpp AND NOT yaml-cpp_FOUND)
+  list(APPEND _musica_export_targets yaml-cpp)
+  set(MUSICA_YAML_CPP_BUNDLED TRUE)
+else()
+  set(MUSICA_YAML_CPP_BUNDLED FALSE)
+endif()
+
 install(
   TARGETS
-    musica
-    yaml-cpp
-    mechanism_configuration
+    ${_musica_export_targets}
   EXPORT
     musica_Exports
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
