@@ -59,6 +59,9 @@ endif()
 
 if(MUSICA_ENABLE_TESTS)
   add_subdirectory(test)
+  if (MUSICA_ENABLE_TUVX)
+    add_subdirectory(examples)
+  endif()
 endif()
 
 ################################################################################
