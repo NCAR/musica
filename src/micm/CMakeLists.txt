@@ -12,6 +12,7 @@ target_sources(musica PRIVATE
   cpu_solver.cpp
   cuda_availability.cpp
   cuda_loader.cpp
+  lambda_callback.cpp
   micm.cpp
   micm_c_interface.cpp
   parse.cpp

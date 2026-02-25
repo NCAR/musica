@@ -34,6 +34,7 @@ export const {
   GAS_CONSTANT,
   AVOGADRO,
   BOLTZMANN,
+  registerReactionRateCallback,
 } = micm;
 
 export const mechanismConfiguration = {

@@ -6,6 +6,7 @@
 // creating and deleting MICM instances, creating solvers, and solving the model.
 #include <musica/micm/cpu_solver.hpp>
 #include <musica/micm/cuda_loader.hpp>
+#include <musica/micm/lambda_callback.hpp>
 #include <musica/micm/micm.hpp>
 #include <musica/micm/parse.hpp>
 #include <musica/micm/state.hpp>
@@ -185,14 +186,8 @@ namespace musica
   void MICM::SetLambdaRateCallback(
     const std::string& label,
     int callback_id)
-{
-  std::cout << label << std::endl;
-  // auto* rate_constant = state.GetLambdaRateConstant(label, solver);
-  // if (!rate_constant)
-  //   throw std::runtime_error("Lambda rate constant not found: " + label);
-
-  // rate_constant->parameters_.lambda_function_ =
-  //     MakeJsLambdaRateFunction(callback_id);
-}
+  {
+    GetLambdaCallbackIds()[label] = callback_id;
+  }
 
 }  // namespace musica
