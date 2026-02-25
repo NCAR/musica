@@ -429,12 +429,18 @@ class UserDefined {
 }
 
 class LambdaRateConstant {
-  #keys = ['reactants', 'products', 'name', 'gas_phase'];
+  #keys = ['reactants', 'products', 'name', 'gas_phase', 'lambda_function'];
   constructor(params) {
     this.reactants = params['reactants'];
     this.products = params['products'];
     this.name = params['name'];
     this.gas_phase = params['gas_phase'];
+    // A C++ lambda expression string used by the parser. When using a JavaScript
+    // callback (setReactionRateCallback), this acts as a placeholder and is
+    // overridden at runtime. Defaults to a zero-returning lambda.
+    this.lambda_function =
+      params['lambda_function'] ||
+      '[](double T, double P, double air_density) { return 0.0; }';
     this.other_properties = {};
     Object.entries(params).forEach(([key, value]) => {
       if (this.#keys.includes(key) == false) {
@@ -448,9 +454,10 @@ class LambdaRateConstant {
     obj['type'] = 'LAMBDA_RATE_CONSTANT';
     obj['name'] = this.name;
     obj['gas phase'] = this.gas_phase;
+    obj['lambda function'] = this.lambda_function;
     obj['reactants'] = this.reactants.map((r) => r.getJSON());
     obj['products'] = this.products.map((p) => p.getJSON());
-    
+
     const ops = convertOtherProperties(this.other_properties);
     Object.assign(obj, ops);
     return obj;
