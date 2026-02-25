@@ -26,7 +26,8 @@ let species = [A, B]
 let reactions = [new reactionTypes.LambdaRateConstant({
   reactants: [new ReactionComponent({ species_name: 'A' })],
   products: [new ReactionComponent({ species_name: 'B' })],
-  name: 'mine'
+  name: 'mine',
+  gas_phase: 'gas',
 })]
 
 const gas = new Phase({
@@ -35,8 +36,10 @@ const gas = new Phase({
 });
 
 let mechanism = new Mechanism({
+  name: 'Lambda Test',
+  version: '1.0.0',
   phases: [gas],
-  species: species, 
+  species: species,
   reactions: reactions
 })
 
@@ -51,6 +54,7 @@ const id = 0;
 solver.setReactionRateCallback('Lambda.mine', id);
 
 const result = solver.solve(state, 60.0);
+const concentrations = state.getConcentrations();
 
-assert.ok(concentrations.A !== 1.0, 'Concentration of A should have changed after solve');
-assert.ok(concentrations.B > 0.0, 'Concentration of B should have changed after solve');
+assert.ok(concentrations.A[0] !== 1.0, 'Concentration of A should have changed after solve');
+assert.ok(concentrations.B[0] > 0.0, 'Concentration of B should have changed after solve');
