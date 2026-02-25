@@ -182,4 +182,17 @@ namespace musica
     return solver_->GetBackwardEulerSolverParameters();
   }
 
+  void MICM::SetLambdaRateCallback(
+    const std::string& label,
+    int callback_id)
+{
+  std::cout << label << std::endl;
+  // auto* rate_constant = state.GetLambdaRateConstant(label, solver);
+  // if (!rate_constant)
+  //   throw std::runtime_error("Lambda rate constant not found: " + label);
+
+  // rate_constant->parameters_.lambda_function_ =
+  //     MakeJsLambdaRateFunction(callback_id);
+}
+
 }  // namespace musica

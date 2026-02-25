@@ -181,6 +181,8 @@ namespace musica
     /// @return The current parameters
     BackwardEulerSolverParameters GetBackwardEulerSolverParameters() const;
 
+    void SetLambdaRateCallback(const std::string& label,int callback_id);
+
    private:
     SolverPtr solver_;
     MICMSolver solver_type_ = UndefinedSolver;

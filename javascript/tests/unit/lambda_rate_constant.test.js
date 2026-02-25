@@ -1,0 +1,56 @@
+import assert from 'node:assert';
+import { describe, it, before } from 'node:test';
+import path from 'path';
+import * as musica from '../../index.js';
+import { fileURLToPath } from 'url';
+
+const {
+  MICM,
+  SolverType,
+  State,
+  SolverResult,
+  SolverStats,
+  RosenbrockSolverParameters,
+  BackwardEulerSolverParameters,
+} = musica;
+
+await musica.initModule();
+
+
+const { types, reactionTypes, Mechanism } = musica.mechanismConfiguration;
+const { Species, Phase, ReactionComponent } = types;
+const A = new Species({ name: 'A' })
+const B = new Species({ name: 'B' })
+
+let species = [A, B]
+let reactions = [new reactionTypes.LambdaRateConstant({
+  reactants: [new ReactionComponent({ species_name: 'A' })],
+  products: [new ReactionComponent({ species_name: 'B' })],
+  name: 'mine'
+})]
+
+const gas = new Phase({
+  name: 'gas',
+  species: [A, B],
+});
+
+let mechanism = new Mechanism({
+  phases: [gas],
+  species: species, 
+  reactions: reactions
+})
+
+const solver = MICM.fromMechanism(mechanism);
+const state = solver.createState(1);
+
+state.setConcentrations({ A: [1.0], B: [0.0]});
+state.setConditions({ temperatures: [298.15], pressures: [101325.0]});
+
+// const id = registerReactionRateCallback((t, p, d) => t * p / (2 * d));
+const id = 0;
+solver.setReactionRateCallback('Lambda.mine', id);
+
+const result = solver.solve(state, 60.0);
+
+assert.ok(concentrations.A !== 1.0, 'Concentration of A should have changed after solve');
+assert.ok(concentrations.B > 0.0, 'Concentration of B should have changed after solve');
