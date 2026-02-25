@@ -152,6 +152,10 @@ export class MICM {
     }
   }
 
+  setReactionRateCallback(label, id) {
+    this._nativeMICM.SetLambdaRateCallback(label, id);
+  }
+
   /**
    * Get the current solver parameters.
    *

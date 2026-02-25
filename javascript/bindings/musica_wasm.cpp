@@ -214,6 +214,7 @@ EMSCRIPTEN_BINDINGS(musica_module)
           optional_override(
               [](std::string config_string, musica::MICMSolver solver)
               { return std::make_unique<musica::MICM>(musica::ReadConfigurationFromString(config_string), solver); }))
+      .function("SetLambdaRateCallback", &musica::MICM::SetLambdaRateCallback)
       .function(
           "solve",
           optional_override(
