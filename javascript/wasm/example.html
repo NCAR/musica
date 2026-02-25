@@ -132,6 +132,43 @@
                 flex-basis: auto
             }
         }
+
+        .lambda-fn-row {
+            margin-bottom: 10px
+        }
+
+        .lambda-fn-label {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 2px
+        }
+
+        .lambda-fn-prefix {
+            font-family: monospace;
+            font-size: 11px;
+            color: #666;
+            display: block;
+            margin-bottom: 2px
+        }
+
+        textarea.lambda-fn {
+            font-family: monospace;
+            font-size: 12px;
+            width: 100%;
+            min-height: 44px;
+            resize: vertical;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 4px 6px
+        }
+
+        .lambda-error {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 4px;
+            min-height: 16px
+        }
     </style>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
@@ -173,7 +210,13 @@
                     <h3>Reactions & Rates</h3>
                     <div id="reactions-list" style="font-size:13px;color:#222"></div>
                 </div>
-            </div>
+                <div class="panel" id="lambda-editor-panel" style="display:none">
+                    <h3>Lambda Functions</h3>
+                    <p style="font-size:12px;color:#555;margin:0 0 8px">Edit the rate expression for each reaction.<br>Available parameters: <code>T</code> (K), <code>P</code> (Pa), <code>airDensity</code> (mol/m³)</p>
+                    <div id="lambda-functions-container"></div>
+                    <button id="apply-lambdas-btn" style="width:100%;padding:6px;cursor:pointer">Apply &amp; Re-run</button>
+                    <div class="lambda-error" id="lambda-error"></div>
+                </div>            </div>
 
             <div class="right">
                 <div class="panel" id="plots-panel">
@@ -368,6 +411,91 @@
                         currentRateParams = rateParams;
                     }
 
+                    // ── Lambda rate-constant state & helpers ──────────────────────────────
+                    let currentLambdaReactions = []; // [{name, label}]
+                    const lambdaExprStore = {}; // persists edits across example reloads
+                    const lambdaDefaults = {
+                        'A_to_B': '1e-3 * T / 298',
+                        'B_to_C': '5e-4',
+                    };
+                    function getLambdaExpr(name) {
+                        return lambdaExprStore[name] ?? lambdaDefaults[name] ?? '0';
+                    }
+
+                    function buildLambdaEditor() {
+                        const container = document.getElementById('lambda-functions-container');
+                        const panel = document.getElementById('lambda-editor-panel');
+                        if (!container || !panel) return;
+                        container.innerHTML = '';
+                        if (currentLambdaReactions.length === 0) { panel.style.display = 'none'; return; }
+                        currentLambdaReactions.forEach(r => {
+                            const row = document.createElement('div');
+                            row.className = 'lambda-fn-row';
+                            const lbl = document.createElement('div');
+                            lbl.className = 'lambda-fn-label';
+                            lbl.textContent = r.name + ':';
+                            const prefix = document.createElement('span');
+                            prefix.className = 'lambda-fn-prefix';
+                            prefix.textContent = '(T, P, airDensity) =>';
+                            const ta = document.createElement('textarea');
+                            ta.className = 'lambda-fn';
+                            ta.dataset.reaction = r.name;
+                            ta.value = getLambdaExpr(r.name);
+                            row.appendChild(lbl);
+                            row.appendChild(prefix);
+                            row.appendChild(ta);
+                            container.appendChild(row);
+                        });
+                        panel.style.display = '';
+                    }
+
+                    function applyLambdaFunctions() {
+                        const errorEl = document.getElementById('lambda-error');
+                        if (errorEl) errorEl.textContent = '';
+                        if (!micm) return true;
+                        for (const ta of document.querySelectorAll('textarea.lambda-fn')) {
+                            const name = ta.dataset.reaction;
+                            const expr = ta.value.trim();
+                            lambdaExprStore[name] = expr;
+                            try {
+                                const fn = new Function('T', 'P', 'airDensity', `return (${expr});`);
+                                fn(298.15, 101325, 2.4e25); // validate
+                                const id = musica.registerReactionRateCallback(fn);
+                                micm.setReactionRateCallback('Lambda.' + name, id);
+                            } catch (e) {
+                                if (errorEl) errorEl.textContent = `Error in "${name}": ${e.message}`;
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+
+                    function createLambdaMechanism() {
+                        const A = new Species({ name: 'A' });
+                        const B = new Species({ name: 'B' });
+                        const C = new Species({ name: 'C' });
+                        const gas = new Phase({ name: 'gas', species: [A, B, C] });
+
+                        const lambdaRxns = [
+                            { name: 'A_to_B', reactants: [new ReactionComponent({ species_name: 'A' })], products: [new ReactionComponent({ species_name: 'B' })] },
+                            { name: 'B_to_C', reactants: [new ReactionComponent({ species_name: 'B' })], products: [new ReactionComponent({ species_name: 'C' })] },
+                        ];
+
+                        const reactions = lambdaRxns.map(r =>
+                            new reactionTypes.LambdaRateConstant({ ...r, gas_phase: 'gas' })
+                        );
+
+                        const mechanism = new Mechanism({ name: 'Lambda Example', version: '1.0.0', species: [A, B, C], phases: [gas], reactions });
+                        micm = MICM.fromMechanism(mechanism, selectedSolver);
+                        currentMechanism = mechanism;
+                        state = micm.createState(numGridCells);
+                        currentRateParams = null;
+
+                        currentLambdaReactions = lambdaRxns.map(r => ({ name: r.name, label: 'Lambda.' + r.name }));
+                        buildLambdaEditor();
+                        applyLambdaFunctions();
+                    }
+
                     function createABCMechanism() {
                         const A = new Species({ name: 'A' });
                         const B = new Species({ name: 'B' });
@@ -399,6 +527,14 @@
 
                     // Data-driven examples (user may provide more later)
                     const examples = [
+                        {
+                            id: 'lambda',
+                            name: 'Lambda Rate Constants',
+                            description: 'A → B → C chain where each rate is a user-defined JavaScript function of temperature, pressure, and air density. Edit the functions below and click <strong>Apply &amp; Re-run</strong>.',
+                            initials: [{ species: 'A', min: 0, max: 5, step: 0.01, value: 1.0 }, { species: 'B', min: 0, max: 5, step: 0.01, value: 0.0 }, { species: 'C', min: 0, max: 5, step: 0.01, value: 0.0 }],
+                            builder: createLambdaMechanism,
+                            sim: { steps: 10, timeStep: 0.1, burnout: 0 }
+                        },
                         {
                             id: 'lorenz',
                             name: 'Lorenz Polynomial CRN',
@@ -499,6 +635,11 @@
                             });
                         }
 
+                        // Reset lambda state for non-lambda examples
+                        currentLambdaReactions = [];
+                        const lambdaPanel = document.getElementById('lambda-editor-panel');
+                        if (lambdaPanel) lambdaPanel.style.display = 'none';
+
                         // If the example provides a builder, create the mechanism/state now
                         if (ex.builder && typeof ex.builder === 'function') {
                             try {
@@ -525,6 +666,13 @@
                     }
 
                     select.addEventListener('change', () => { loadExampleById(select.value); });
+
+                    document.getElementById('apply-lambdas-btn').addEventListener('click', () => {
+                        if (applyLambdaFunctions()) {
+                            renderReactions();
+                            runSimulation();
+                        }
+                    });
 
                     // Load default example
                     select.value = 'lorenz';
@@ -569,19 +717,32 @@
 
                             const lhs = sideToLatex(r.reactants || []);
                             const rhs = sideToLatex(r.products || []);
-                            // lookup rate parameter (state stored rates use USER.<name>)
-                            let rateVal = null;
-                            if (currentRateParams) {
-                                const key = 'USER.' + r.name;
-                                rateVal = (key in currentRateParams) ? currentRateParams[key] : null;
+
+                            const isLambda = r.lambda_function !== undefined;
+                            let rateStr;
+                            if (isLambda) {
+                                rateStr = `\\lambda`;
+                            } else {
+                                let rateVal = null;
+                                if (currentRateParams) {
+                                    const key = 'USER.' + r.name;
+                                    rateVal = (key in currentRateParams) ? currentRateParams[key] : null;
+                                }
+                                rateStr = (rateVal !== null && typeof rateVal !== 'undefined') ? String(Math.round(100 * rateVal) / 100) : `k_{${r.name}}`;
                             }
 
-                            const rateStr = (rateVal !== null && typeof rateVal !== 'undefined') ? String(Math.round(100 * rateVal) / 100) : `k_{${r.name}}`;
                             const tex = `$$ ${lhs} \\xrightarrow{${rateStr}} ${rhs} $$`;
                             const p = document.createElement('div');
                             p.className = 'katex-math';
                             p.innerHTML = tex;
                             ul.appendChild(p);
+
+                            if (isLambda) {
+                                const code = document.createElement('code');
+                                code.style.cssText = 'font-size:11px;display:block;color:#555;margin:-6px 0 6px;white-space:pre-wrap;word-break:break-all';
+                                code.textContent = `(T, P, airDensity) => ${getLambdaExpr(r.name)}`;
+                                ul.appendChild(code);
+                            }
                         });
 
                         container.appendChild(ul);
