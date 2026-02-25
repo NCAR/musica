@@ -12,6 +12,7 @@ const {
   SolverStats,
   RosenbrockSolverParameters,
   BackwardEulerSolverParameters,
+  registerReactionRateCallback,
 } = musica;
 
 await musica.initModule();
@@ -49,8 +50,8 @@ const state = solver.createState(1);
 state.setConcentrations({ A: [1.0], B: [0.0]});
 state.setConditions({ temperatures: [298.15], pressures: [101325.0]});
 
-// const id = registerReactionRateCallback((t, p, d) => t * p / (2 * d));
-const id = 0;
+// Register a JS lambda: constant rate fast enough to drive observable chemistry
+const id = registerReactionRateCallback((T, P, airDensity) => 1e-3);
 solver.setReactionRateCallback('Lambda.mine', id);
 
 const result = solver.solve(state, 60.0);
