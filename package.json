@@ -15,7 +15,7 @@
     "!javascript/tests",
     "!javascript/src",
     "javascript/wasm/*.wasm",
-    "javascript/wasm/example.html",
+    "javascript/wasm/index.html",
     "LICENSE"
   ],
   "bin": {

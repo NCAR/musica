@@ -204,7 +204,8 @@
     </div>
 
     <script type="module">
-        import * as musica from '../index.js';
+        // import * as musica from '../index.js'; // for local development and testing latest wasm build
+        import * as musica from 'https://cdn.jsdelivr.net/npm/@ncar/musica/javascript/index.js'; // for stable CDN version
 
         // Initialize and use the MUSICA package (uses WASM backend internally)
         async function initMUSICA() {
