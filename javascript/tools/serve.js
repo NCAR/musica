@@ -11,7 +11,7 @@ const __dirname = path.dirname(__filename);
 const root = path.resolve(__dirname, '..', '..');
 const port = 8000;
 const baseUrl = `http://localhost:${port}`;
-const exampleUrl = `${baseUrl}/javascript/wasm/example.html`;
+const exampleUrl = `${baseUrl}/javascript/wasm/index.html`;
 
 const mime = {
   '.html': 'text/html',
