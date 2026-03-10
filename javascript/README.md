@@ -253,6 +253,10 @@ npm run test:coverage
 
 ### Browser Example
 
+You can try a demo at [https://ncar.github.io/musica/](https://ncar.github.io/musica/). 
+
+The same demo can be built and run locally. Note that you'd need to update the import state in [index.html](wasm/index.html).
+
 The `wasm` directory contains an [index.html](wasm/index.html) file that demonstrates using MUSICA in a web browser. 
 The example displays version numbers and contains some example mechanisms with interactive sliders.
 
