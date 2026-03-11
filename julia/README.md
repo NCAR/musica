@@ -17,25 +17,49 @@ using Pkg
 Pkg.add("Musica")
 ```
 
-> **Note:** The package is not yet registered in the Julia General registry. See [Development Installation](#development-installation) below for building from source.
+> **Note:** The package is not yet registered in the Julia General registry. See [Development Installation](#development-installation) below.
 
 ### Development Installation
 
-#### Prerequisites
+Julia 1.10 or 1.11 is required. Use [juliaup](https://github.com/JuliaLang/juliaup) to manage Julia versions.
 
-- Julia 1.10 or 1.11 (`juliaup` is recommended for managing Julia versions)
-- CMake 3.24 or later
-- A C++ compiler with C++20 support
+There are two development workflows depending on whether you are working on the Julia API or the underlying C++.
 
-#### Building from Source
+---
 
-1. Clone the MUSICA repository:
+#### Workflow A: Julia development (using pre-built JLL)
+
+This is the fastest path if you are only working on the Julia layer. It uses
+a locally-built `Musica_jll` artifact instead of a CMake build.
+
+**Prerequisites:** A locally-built `Musica_jll` at `~/.julia/dev/Musica_jll`
+(see [Building Musica_jll](#building-musica_jll) below).
+
 ```bash
-git clone https://github.com/NCAR/musica.git
-cd musica
+cd julia
+julia +1.11 --project=. -e 'using Pkg; Pkg.develop(path="~/.julia/dev/Musica_jll"); Pkg.instantiate()'
 ```
 
-2. Build with Julia support enabled:
+Run tests:
+
+```bash
+julia +1.11 --project=. -e 'using Pkg; Pkg.test()'
+```
+
+---
+
+#### Workflow B: C++ development (CMake build + library override)
+
+Use this when iterating on the C++ bindings in `julia/bindings/musica_julia.cpp`.
+
+**Prerequisites:**
+
+- CMake 3.24 or later
+- A C++ compiler with C++20 support
+- CxxWrap built for Julia 1.11 (CMake will find this via `Julia_PREFIX`)
+
+1. Build with Julia support enabled:
+
 ```bash
 cmake -S . -B build \
       -D MUSICA_ENABLE_JULIA=ON \
@@ -47,58 +71,53 @@ cmake -S . -B build \
 cmake --build build
 ```
 
-3. Install the Julia package:
+This places the compiled library in `julia/deps/lib/libmusica_julia.dylib` (macOS)
+or `julia/deps/lib/libmusica_julia.so` (Linux).
+
+2. Set up the Julia package:
+
 ```bash
 cd julia
-julia --project=. -e 'using Pkg; Pkg.instantiate()'
+julia +1.11 --project=. -e 'using Pkg; Pkg.develop(path="~/.julia/dev/Musica_jll"); Pkg.instantiate()'
 ```
 
-4. Test the installation:
+3. Override the JLL library with your local build:
+
 ```bash
-julia --project=. test/runtests.jl
+export MUSICA_JULIA_LIB=$(pwd)/deps/lib/libmusica_julia.dylib  # macOS
+export MUSICA_JULIA_LIB=$(pwd)/deps/lib/libmusica_julia.so     # Linux
+julia +1.11 --project=. -e 'using Pkg; Pkg.test()'
 ```
+
+---
+
+#### Building Musica_jll
+
+`Musica_jll` is built from the `build_tarballs.jl` script in the
+[Yggdrasil](https://github.com/JuliaPackaging/Yggdrasil) repository.
+To build it locally:
+
+```bash
+# BinaryBuilder requires Julia 1.7
+julia --project=@BinaryBuilder build_tarballs.jl \
+    "aarch64-apple-darwin-julia_version+1.11" \
+    --verbose --deploy=local
+```
+
+Replace `aarch64-apple-darwin` with your platform as needed. The `--deploy=local`
+flag automatically installs the artifact to `~/.julia/dev/Musica_jll/`.
 
 ## Quick Start
 
 ```julia
 using Musica
 
-# Get the MUSICA version
 version = Musica.get_version()
 println("MUSICA version: ", version)
 ```
 
-## Configuration
-
-### Library Path Override
-
-For testing a build of musica in a downstream package, 
-you can override the library path using an environment variable:
-
-```bash
-export MUSICA_JULIA_LIB=/path/to/libmusica_julia.so
-julia -e 'using Musica; println(Musica.get_version())'
-```
-
-## Testing
-
-Run the test suite:
-
-```bash
-cd julia
-julia --project=. test/runtests.jl
-```
-
-Or from within Julia:
-
-```julia
-using Pkg
-Pkg.test("Musica")
-```
-
 ## Documentation
 
-For more information about MUSICA, visit:
 - [MUSICA Documentation](https://ncar.github.io/musica/)
 - [MUSICA Wiki](https://wiki.ucar.edu/display/MUSICA/MUSICA+Home)
 
