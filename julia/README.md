@@ -37,7 +37,7 @@ a locally-built `Musica_jll` artifact instead of a CMake build.
 
 ```bash
 cd julia
-julia +1.11 --project=. -e 'using Pkg; Pkg.develop(path="~/.julia/dev/Musica_jll"); Pkg.instantiate()'
+julia +1.11 --project=. -e 'using Pkg; Pkg.develop(path=expanduser("~/.julia/dev/Musica_jll")); Pkg.instantiate()'
 ```
 
 Run tests:
@@ -78,7 +78,7 @@ or `julia/deps/lib/libmusica_julia.so` (Linux).
 
 ```bash
 cd julia
-julia +1.11 --project=. -e 'using Pkg; Pkg.develop(path="~/.julia/dev/Musica_jll"); Pkg.instantiate()'
+julia +1.11 --project=. -e 'using Pkg; Pkg.develop(path=expanduser("~/.julia/dev/Musica_jll")); Pkg.instantiate()'
 ```
 
 3. Override the JLL library with your local build:
