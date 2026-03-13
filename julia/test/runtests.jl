@@ -11,6 +11,10 @@ using Musica
         println("MUSICA version: ", version)
     end
 
+    @testset "CUDA availability" begin
+        @test Musica.cpp_is_cuda_available() isa Bool
+    end
+
     @testset "Constants" begin
         @test AVOGADRO ≈ 6.02214076e23
         @test BOLTZMANN ≈ 1.380649e-23

@@ -91,7 +91,7 @@ Get the current solver parameters. Returns `RosenbrockSolverParameters` or
 """
 function get_solver_parameters(micm::MICM)
     st = micm._solver_type
-    if st == Rosenbrock || st == RosenbrockStandardOrder
+    if st == Rosenbrock || st == RosenbrockStandardOrder || st == CudaRosenbrock
         return from_cpp_rosenbrock(cpp_get_rosenbrock_params(micm._ptr))
     elseif st == BackwardEuler || st == BackwardEulerStandardOrder
         return from_cpp_backward_euler(cpp_get_backward_euler_params(micm._ptr))
