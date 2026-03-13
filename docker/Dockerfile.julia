@@ -45,8 +45,8 @@ RUN cd musica \
     && cmake --build build
 
 # Set library path and precompile Julia package
+ENV MUSICA_JULIA_LIB=/musica/julia/deps/lib/libmusica_julia.so
 RUN cd musica/julia \
-    && export MUSICA_JULIA_LIB=$(find deps/lib -name 'libmusica_julia.*' | head -1) \
     && julia --project=. -e 'using Pkg; Pkg.precompile()'
 
 WORKDIR /musica
