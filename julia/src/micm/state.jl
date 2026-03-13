@@ -18,7 +18,7 @@ mutable struct State
     _number_of_grid_cells::Int
     _vector_size::Int
 
-    function State(solver_ptr, number_of_grid_cells::Int, vector_size::Int, micm_ref)
+    function State(solver_ptr::MICMPtr, number_of_grid_cells::Int, vector_size::Int, micm_ref)
         number_of_grid_cells >= 1 || error("number_of_grid_cells must be >= 1")
 
         state_ptr = cpp_create_state(solver_ptr, Int64(number_of_grid_cells))
@@ -26,18 +26,12 @@ mutable struct State
         # Build species ordering dict
         names = cpp_state_species_ordering_names(state_ptr)
         indices = cpp_state_species_ordering_indices(state_ptr)
-        species_ordering = Dict{String, Int}()
-        for i in 1:length(names)
-            species_ordering[names[i]] = Int(indices[i])
-        end
+        species_ordering = Dict{String, Int}(zip(names, indices))
 
         # Build rate parameter ordering dict
         rnames = cpp_state_rate_param_ordering_names(state_ptr)
         rindices = cpp_state_rate_param_ordering_indices(state_ptr)
-        rate_ordering = Dict{String, Int}()
-        for i in 1:length(rnames)
-            rate_ordering[rnames[i]] = Int(rindices[i])
-        end
+        rate_ordering = Dict{String, Int}(zip(rnames, rindices))
 
         obj = new(state_ptr, micm_ref, species_ordering, rate_ordering, number_of_grid_cells, vector_size)
         finalizer(obj) do s

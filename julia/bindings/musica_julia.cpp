@@ -140,6 +140,8 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
       musica::DeleteError(&error);
       throw std::runtime_error(msg);
     }
+    if (!micm)
+      throw std::runtime_error("Solver creation returned null pointer");
     return micm;
   });
 
