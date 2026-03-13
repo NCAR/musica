@@ -28,6 +28,10 @@ function __init__()
     @initcxx
 end
 
+# Type aliases for CxxWrap pointer types (used in MICM and State structs)
+const MICMPtr = CxxWrap.CxxWrapCore.CxxPtr{CppMICM}
+const StatePtr = CxxWrap.CxxWrapCore.CxxPtr{CppState}
+
 # Include MICM submodule files (order matters for dependencies)
 include("micm/constants.jl")
 include("micm/solver.jl")

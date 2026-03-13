@@ -13,17 +13,39 @@
 #include "musica/micm/cuda_availability.hpp"
 
 #include <micm/solver/solver_result.hpp>
-#include <micm/version.hpp>
 
 #include <iostream>
+#include <stdexcept>
 #include <string>
 #include <vector>
+
+namespace
+{
+  void check_state_not_null(musica::State* state)
+  {
+    if (!state)
+      throw std::runtime_error("State pointer is null");
+  }
+
+  void check_micm_not_null(musica::MICM* micm)
+  {
+    if (!micm)
+      throw std::runtime_error("MICM pointer is null");
+  }
+
+  template<typename Vec>
+  void check_index(const Vec& vec, int64_t idx, const char* label)
+  {
+    if (idx < 0 || static_cast<std::size_t>(idx) >= vec.size())
+      throw std::out_of_range(std::string(label) + " index " + std::to_string(idx) +
+                              " out of range [0, " + std::to_string(vec.size()) + ")");
+  }
+}
 
 JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
 {
   // ── Version ──────────────────────────────────────────────────────────
   mod.method("get_version", []() { return std::string(musica::GetMusicaVersion()); });
-  mod.method("get_micm_version", []() { return std::string(micm::GetMicmVersion()); });
 
   // ── MICMSolver enum constants ────────────────────────────────────────
   mod.set_const("SOLVER_ROSENBROCK", static_cast<int>(musica::MICMSolver::Rosenbrock));
@@ -42,16 +64,6 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
   mod.set_const("SOLVER_STATE_NAN_DETECTED", static_cast<int>(micm::SolverState::NaNDetected));
   mod.set_const("SOLVER_STATE_INF_DETECTED", static_cast<int>(micm::SolverState::InfDetected));
   mod.set_const("SOLVER_STATE_ACCEPTING_UNCONVERGED", static_cast<int>(micm::SolverState::AcceptingUnconvergedIntegration));
-
-  // ── Conditions type ──────────────────────────────────────────────────
-  mod.add_type<micm::Conditions>("CppConditions")
-      .constructor<>()
-      .method("get_temperature", [](const micm::Conditions& c) { return c.temperature_; })
-      .method("set_temperature!", [](micm::Conditions& c, double t) { c.temperature_ = t; })
-      .method("get_pressure", [](const micm::Conditions& c) { return c.pressure_; })
-      .method("set_pressure!", [](micm::Conditions& c, double p) { c.pressure_ = p; })
-      .method("get_air_density", [](const micm::Conditions& c) { return c.air_density_; })
-      .method("set_air_density!", [](micm::Conditions& c, double d) { c.air_density_ = d; });
 
   // ── SolverResultStats type ───────────────────────────────────────────
   mod.add_type<musica::SolverResultStats>("CppSolverStats")
@@ -144,6 +156,7 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
 
   // ── State creation / deletion ───────────────────────────────────────
   mod.method("cpp_create_state", [](musica::MICM* micm, int64_t number_of_grid_cells) {
+    check_micm_not_null(micm);
     musica::Error error;
     musica::State* state = musica::CreateMicmState(
         micm,
@@ -171,6 +184,8 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
 
   // ── Solve ───────────────────────────────────────────────────────────
   mod.method("cpp_micm_solve", [](musica::MICM* micm, musica::State* state, double time_step) {
+    check_micm_not_null(micm);
+    check_state_not_null(state);
     return micm->Solve(state, time_step);
   });
 
@@ -183,58 +198,85 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
 
   // Number of grid cells
   mod.method("cpp_state_num_grid_cells", [](musica::State* state) {
+    check_state_not_null(state);
     return static_cast<int64_t>(state->NumberOfGridCells());
   });
 
   // Concentrations: get size, get element, set element (0-based index from Julia side)
   mod.method("cpp_state_concentrations_size", [](musica::State* state) {
+    check_state_not_null(state);
     return static_cast<int64_t>(state->GetOrderedConcentrations().size());
   });
 
   mod.method("cpp_state_get_concentration", [](musica::State* state, int64_t idx) {
-    return state->GetOrderedConcentrations()[static_cast<std::size_t>(idx)];
+    check_state_not_null(state);
+    auto& concs = state->GetOrderedConcentrations();
+    check_index(concs, idx, "Concentration");
+    return concs[static_cast<std::size_t>(idx)];
   });
 
   mod.method("cpp_state_set_concentration!", [](musica::State* state, int64_t idx, double value) {
-    state->GetOrderedConcentrations()[static_cast<std::size_t>(idx)] = value;
+    check_state_not_null(state);
+    auto& concs = state->GetOrderedConcentrations();
+    check_index(concs, idx, "Concentration");
+    concs[static_cast<std::size_t>(idx)] = value;
   });
 
   // Rate parameters: get size, get element, set element (0-based index from Julia side)
   mod.method("cpp_state_rate_params_size", [](musica::State* state) {
+    check_state_not_null(state);
     return static_cast<int64_t>(state->GetOrderedRateParameters().size());
   });
 
   mod.method("cpp_state_get_rate_param", [](musica::State* state, int64_t idx) {
-    return state->GetOrderedRateParameters()[static_cast<std::size_t>(idx)];
+    check_state_not_null(state);
+    auto& params = state->GetOrderedRateParameters();
+    check_index(params, idx, "Rate parameter");
+    return params[static_cast<std::size_t>(idx)];
   });
 
   mod.method("cpp_state_set_rate_param!", [](musica::State* state, int64_t idx, double value) {
-    state->GetOrderedRateParameters()[static_cast<std::size_t>(idx)] = value;
+    check_state_not_null(state);
+    auto& params = state->GetOrderedRateParameters();
+    check_index(params, idx, "Rate parameter");
+    params[static_cast<std::size_t>(idx)] = value;
   });
 
   // Conditions: get number, get/set per grid cell (0-based index)
   mod.method("cpp_state_get_condition_temperature", [](musica::State* state, int64_t idx) {
-    return state->GetConditions()[static_cast<std::size_t>(idx)].temperature_;
+    check_state_not_null(state);
+    auto& conds = state->GetConditions();
+    check_index(conds, idx, "Condition");
+    return conds[static_cast<std::size_t>(idx)].temperature_;
   });
 
   mod.method("cpp_state_get_condition_pressure", [](musica::State* state, int64_t idx) {
-    return state->GetConditions()[static_cast<std::size_t>(idx)].pressure_;
+    check_state_not_null(state);
+    auto& conds = state->GetConditions();
+    check_index(conds, idx, "Condition");
+    return conds[static_cast<std::size_t>(idx)].pressure_;
   });
 
   mod.method("cpp_state_get_condition_air_density", [](musica::State* state, int64_t idx) {
-    return state->GetConditions()[static_cast<std::size_t>(idx)].air_density_;
+    check_state_not_null(state);
+    auto& conds = state->GetConditions();
+    check_index(conds, idx, "Condition");
+    return conds[static_cast<std::size_t>(idx)].air_density_;
   });
 
   mod.method("cpp_state_set_condition!", [](musica::State* state, int64_t idx, double temp, double pres, double dens) {
-    auto& conditions = state->GetConditions();
+    check_state_not_null(state);
+    auto& conds = state->GetConditions();
+    check_index(conds, idx, "Condition");
     auto i = static_cast<std::size_t>(idx);
-    conditions[i].temperature_ = temp;
-    conditions[i].pressure_ = pres;
-    conditions[i].air_density_ = dens;
+    conds[i].temperature_ = temp;
+    conds[i].pressure_ = pres;
+    conds[i].air_density_ = dens;
   });
 
   // Species ordering: return parallel arrays of names and indices
   mod.method("cpp_state_species_ordering_names", [](musica::State* state) {
+    check_state_not_null(state);
     auto map = state->GetVariableMap();
     std::vector<std::string> names;
     names.reserve(map.size());
@@ -244,6 +286,7 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
   });
 
   mod.method("cpp_state_species_ordering_indices", [](musica::State* state) {
+    check_state_not_null(state);
     auto map = state->GetVariableMap();
     std::vector<int64_t> indices;
     indices.reserve(map.size());
@@ -254,6 +297,7 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
 
   // Rate parameter ordering: return parallel arrays of names and indices
   mod.method("cpp_state_rate_param_ordering_names", [](musica::State* state) {
+    check_state_not_null(state);
     auto map = state->GetRateParameterMap();
     std::vector<std::string> names;
     names.reserve(map.size());
@@ -263,6 +307,7 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
   });
 
   mod.method("cpp_state_rate_param_ordering_indices", [](musica::State* state) {
+    check_state_not_null(state);
     auto map = state->GetRateParameterMap();
     std::vector<int64_t> indices;
     indices.reserve(map.size());
@@ -273,18 +318,22 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
 
   // ── Solver parameters ───────────────────────────────────────────────
   mod.method("cpp_set_rosenbrock_params", [](musica::MICM* micm, const musica::RosenbrockSolverParameters& params) {
+    check_micm_not_null(micm);
     micm->SetSolverParameters(params);
   });
 
   mod.method("cpp_set_backward_euler_params", [](musica::MICM* micm, const musica::BackwardEulerSolverParameters& params) {
+    check_micm_not_null(micm);
     micm->SetSolverParameters(params);
   });
 
   mod.method("cpp_get_rosenbrock_params", [](musica::MICM* micm) {
+    check_micm_not_null(micm);
     return micm->GetRosenbrockSolverParameters();
   });
 
   mod.method("cpp_get_backward_euler_params", [](musica::MICM* micm) {
+    check_micm_not_null(micm);
     return micm->GetBackwardEulerSolverParameters();
   });
 

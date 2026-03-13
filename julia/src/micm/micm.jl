@@ -15,7 +15,7 @@ Wrapper around the C++ MICM chemical kinetics solver.
 - `solver_parameters`: Optional `RosenbrockSolverParameters` or `BackwardEulerSolverParameters`
 """
 mutable struct MICM
-    _ptr::Any  # CxxWrap-managed C++ musica::MICM pointer
+    _ptr::MICMPtr
     _solver_type::SolverType
     _vector_size::Int
 
@@ -54,7 +54,7 @@ solver_type(micm::MICM) = micm._solver_type
 Create a new state object for this solver.
 """
 function create_state(micm::MICM; number_of_grid_cells::Int=1)
-    return State(micm._ptr, number_of_grid_cells, micm._vector_size)
+    return State(micm._ptr, number_of_grid_cells, micm._vector_size, micm)
 end
 
 """
