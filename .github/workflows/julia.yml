@@ -44,14 +44,21 @@ jobs:
       - name: Build MUSICA with Julia support
         run: cmake --build build --verbose
 
-      - name: Precompile Julia package with built library
+      - name: Set MUSICA_JULIA_LIB path
         working-directory: julia
         run: |
-            export MUSICA_JULIA_LIB=$(pwd)/julia/deps/lib/libmusica_julia.so
-            julia --project=. -e 'using Pkg; Pkg.precompile()'
+            if [ -f deps/lib/libmusica_julia.so ]; then
+              echo "MUSICA_JULIA_LIB=$(pwd)/deps/lib/libmusica_julia.so" >> $GITHUB_ENV
+            elif [ -f deps/lib/libmusica_julia.dylib ]; then
+              echo "MUSICA_JULIA_LIB=$(pwd)/deps/lib/libmusica_julia.dylib" >> $GITHUB_ENV
+            else
+              echo "ERROR: libmusica_julia not found" && ls -R deps/lib/ && exit 1
+            fi
+
+      - name: Precompile Julia package with built library
+        working-directory: julia
+        run: julia --project=. -e 'using Pkg; Pkg.precompile()'
 
       - name: Run Julia tests
         working-directory: julia
-        run: |
-            export MUSICA_JULIA_LIB=$(pwd)/julia/deps/lib/libmusica_julia.so
-            julia --project=. test/runtests.jl
+        run: julia --project=. test/runtests.jl
