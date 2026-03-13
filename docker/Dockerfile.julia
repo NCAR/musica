@@ -39,6 +39,7 @@ RUN cd musica \
              -D MUSICA_ENABLE_TUVX=OFF \
              -D MUSICA_ENABLE_CARMA=OFF \
              -D MUSICA_ENABLE_TESTS=OFF \
+             -D CMAKE_POSITION_INDEPENDENT_CODE=ON \
     && cmake --build build
 
 # Precompile and test Julia package
