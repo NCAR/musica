@@ -19,6 +19,7 @@ Uses the same vector-ordering formula as the Python interface:
 0-based index suitable for passing to C++ accessor functions.
 """
 function flat_index(i_cell::Int, i_item::Int, n_items::Int, vector_size::Int)
+    0 <= i_item < n_items || error("Item index $i_item out of range [0, $n_items)")
     cell_0 = i_cell - 1  # convert to 0-based
     group_index = cell_0 ÷ vector_size
     row_in_group = cell_0 % vector_size
