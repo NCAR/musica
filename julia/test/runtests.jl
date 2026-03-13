@@ -176,6 +176,101 @@ using Musica
         @test retrieved.max_number_of_steps == 500
     end
 
+    @testset "Multi-grid-cell state" begin
+        micm = MICM(config_path=config_path)
+        n_cells = 3
+        state = create_state(micm, number_of_grid_cells=n_cells)
+
+        ordering = get_species_ordering(state)
+        @test length(ordering) > 0
+
+        # Set concentrations with per-cell vectors
+        set_concentrations!(state, Dict{String, Any}(
+            "A" => [1.0, 2.0, 3.0],
+            "B" => [0.0, 0.0, 0.0],
+            "C" => [0.0, 0.0, 0.0],
+            "D" => [1.0, 1.0, 1.0],
+            "E" => [0.0, 0.0, 0.0],
+            "F" => [0.0, 0.0, 0.0],
+        ))
+        concs = get_concentrations(state)
+        @test concs["A"] ≈ [1.0, 2.0, 3.0]
+        @test concs["D"] ≈ [1.0, 1.0, 1.0]
+
+        # Set conditions with per-cell vectors
+        set_conditions!(state,
+            temperatures=[298.0, 310.0, 280.0],
+            pressures=[101325.0, 95000.0, 105000.0],
+        )
+        conds = get_conditions(state)
+        @test length(conds["temperature"]) == n_cells
+        @test conds["temperature"] ≈ [298.0, 310.0, 280.0]
+        @test conds["pressure"] ≈ [101325.0, 95000.0, 105000.0]
+        for i in 1:n_cells
+            @test conds["air_density"][i] ≈ conds["pressure"][i] / (GAS_CONSTANT * conds["temperature"][i]) atol=1e-6
+        end
+
+        # Set user-defined rate parameters with per-cell vectors
+        set_user_defined_rate_parameters!(state, Dict{String, Any}(
+            "USER.reaction 1" => [0.001, 0.002, 0.003],
+            "USER.reaction 2" => [0.004, 0.005, 0.006],
+        ))
+        rate_params = get_user_defined_rate_parameters(state)
+        @test rate_params["USER.reaction 1"] ≈ [0.001, 0.002, 0.003]
+        @test rate_params["USER.reaction 2"] ≈ [0.004, 0.005, 0.006]
+
+        # Solve with multi-grid-cell state
+        result = solve!(micm, state, 60.0)
+        @test result.state == Converged
+
+        # Check that concentrations changed per cell
+        concs_after = get_concentrations(state)
+        for i in 1:n_cells
+            @test concs_after["A"][i] < concs["A"][i]
+        end
+    end
+
+    @testset "Error handling" begin
+        micm = MICM(config_path=config_path)
+        state = create_state(micm)
+
+        # Unknown species name
+        @test_throws ErrorException set_concentrations!(state, Dict{String, Any}(
+            "NONEXISTENT_SPECIES" => 1.0,
+        ))
+
+        # Unknown rate parameter name
+        @test_throws ErrorException set_user_defined_rate_parameters!(state, Dict{String, Any}(
+            "NONEXISTENT_PARAM" => 1.0,
+        ))
+
+        # Wrong vector length for concentrations
+        @test_throws ErrorException set_concentrations!(state, Dict{String, Any}(
+            "A" => [1.0, 2.0],  # state has 1 grid cell, providing 2 values
+        ))
+
+        # Wrong vector length for rate parameters
+        @test_throws ErrorException set_user_defined_rate_parameters!(state, Dict{String, Any}(
+            "USER.reaction 1" => [1.0, 2.0],
+        ))
+
+        # Wrong vector length for conditions
+        @test_throws ErrorException set_conditions!(state, temperatures=[298.0, 300.0])
+
+        # Invalid config path
+        @test_throws Exception MICM(config_path="/nonexistent/path/to/config")
+
+        # Division-by-zero guard: zero temperature should yield air_density = 0.0, not Inf
+        set_conditions!(state, temperatures=0.0, pressures=101325.0)
+        conds = get_conditions(state)
+        @test conds["air_density"][1] == 0.0
+
+        # Division-by-zero guard: zero pressure should also yield air_density = 0.0
+        set_conditions!(state, temperatures=298.0, pressures=0.0)
+        conds = get_conditions(state)
+        @test conds["air_density"][1] == 0.0
+    end
+
     @testset "Solver parameters round-trip (Backward Euler)" begin
         micm = MICM(
             config_path=config_path,

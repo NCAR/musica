@@ -11,13 +11,14 @@ Wraps the C++ `musica::State` object and provides high-level accessors
 with proper vector-ordering logic.
 """
 mutable struct State
-    _ptr::Any  # CxxWrap-managed C++ musica::State pointer
+    _ptr::StatePtr
+    _micm_ref::Any  # prevent GC of parent MICM before this State
     _species_ordering::Dict{String, Int}
     _rate_parameter_ordering::Dict{String, Int}
     _number_of_grid_cells::Int
     _vector_size::Int
 
-    function State(solver_ptr, number_of_grid_cells::Int, vector_size::Int)
+    function State(solver_ptr, number_of_grid_cells::Int, vector_size::Int, micm_ref)
         number_of_grid_cells >= 1 || error("number_of_grid_cells must be >= 1")
 
         state_ptr = cpp_create_state(solver_ptr, Int64(number_of_grid_cells))
@@ -38,7 +39,7 @@ mutable struct State
             rate_ordering[rnames[i]] = Int(rindices[i])
         end
 
-        obj = new(state_ptr, species_ordering, rate_ordering, number_of_grid_cells, vector_size)
+        obj = new(state_ptr, micm_ref, species_ordering, rate_ordering, number_of_grid_cells, vector_size)
         finalizer(obj) do s
             cpp_delete_state(s._ptr)
         end
@@ -163,8 +164,10 @@ function set_conditions!(state::State;
         cur_pres = press !== nothing ? press[i_cell] : cpp_state_get_condition_pressure(state._ptr, idx)
         if dens !== nothing
             cur_dens = dens[i_cell]
-        else
+        elseif cur_temp > 0.0 && cur_pres > 0.0
             cur_dens = cur_pres / (GAS_CONSTANT * cur_temp)
+        else
+            cur_dens = 0.0
         end
         cpp_state_set_condition!(state._ptr, idx, cur_temp, cur_pres, cur_dens)
     end
