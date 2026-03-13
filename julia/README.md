@@ -56,9 +56,9 @@ Use this when iterating on the C++ bindings in `julia/bindings/musica_julia.cpp`
 
 - CMake 3.24 or later
 - A C++ compiler with C++20 support
-- CxxWrap built for Julia 1.11 (CMake will find this via `Julia_PREFIX`)
+- Julia 1.10+ with CxxWrap.jl installed (`julia -e 'using Pkg; Pkg.add("CxxWrap")'`)
 
-1. Build with Julia support enabled:
+1. Build with Julia support enabled, passing the CxxWrap prefix so CMake can find `JlCxx`:
 
 ```bash
 cmake -S . -B build \
@@ -67,7 +67,8 @@ cmake -S . -B build \
       -D MUSICA_ENABLE_TUVX=OFF \
       -D MUSICA_ENABLE_CARMA=OFF \
       -D MUSICA_ENABLE_TESTS=OFF \
-      -D CMAKE_BUILD_TYPE=Release
+      -D CMAKE_BUILD_TYPE=Release \
+      -D CMAKE_PREFIX_PATH=$(julia -e "using CxxWrap; print(CxxWrap.prefix_path())")
 cmake --build build
 ```
 
