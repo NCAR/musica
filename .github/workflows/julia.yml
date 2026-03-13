@@ -46,8 +46,12 @@ jobs:
 
       - name: Precompile Julia package with built library
         working-directory: julia
-        run: julia --project=. -e 'using Pkg; Pkg.precompile()'
+        run: |
+            export MUSICA_JULIA_LIB=$(pwd)/julia/deps/lib/libmusica_julia.so
+            julia --project=. -e 'using Pkg; Pkg.precompile()'
 
       - name: Run Julia tests
         working-directory: julia
-        run: julia --project=. test/runtests.jl
+        run: |
+            export MUSICA_JULIA_LIB=$(pwd)/julia/deps/lib/libmusica_julia.so
+            julia --project=. test/runtests.jl
