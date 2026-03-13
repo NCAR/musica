@@ -14,6 +14,9 @@
 
 #include <micm/solver/solver_result.hpp>
 
+#include <algorithm>
+#include <utility>
+
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -280,9 +283,11 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
   mod.method("cpp_state_species_ordering_names", [](musica::State* state) {
     check_state_not_null(state);
     auto map = state->GetVariableMap();
+    std::vector<std::pair<std::string, std::size_t>> entries(map.begin(), map.end());
+    std::sort(entries.begin(), entries.end());
     std::vector<std::string> names;
-    names.reserve(map.size());
-    for (const auto& [name, _] : map)
+    names.reserve(entries.size());
+    for (const auto& [name, _] : entries)
       names.push_back(name);
     return names;
   });
@@ -290,9 +295,11 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
   mod.method("cpp_state_species_ordering_indices", [](musica::State* state) {
     check_state_not_null(state);
     auto map = state->GetVariableMap();
+    std::vector<std::pair<std::string, std::size_t>> entries(map.begin(), map.end());
+    std::sort(entries.begin(), entries.end());
     std::vector<int64_t> indices;
-    indices.reserve(map.size());
-    for (const auto& [_, idx] : map)
+    indices.reserve(entries.size());
+    for (const auto& [_, idx] : entries)
       indices.push_back(static_cast<int64_t>(idx));
     return indices;
   });
@@ -301,9 +308,11 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
   mod.method("cpp_state_rate_param_ordering_names", [](musica::State* state) {
     check_state_not_null(state);
     auto map = state->GetRateParameterMap();
+    std::vector<std::pair<std::string, std::size_t>> entries(map.begin(), map.end());
+    std::sort(entries.begin(), entries.end());
     std::vector<std::string> names;
-    names.reserve(map.size());
-    for (const auto& [name, _] : map)
+    names.reserve(entries.size());
+    for (const auto& [name, _] : entries)
       names.push_back(name);
     return names;
   });
@@ -311,9 +320,11 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
   mod.method("cpp_state_rate_param_ordering_indices", [](musica::State* state) {
     check_state_not_null(state);
     auto map = state->GetRateParameterMap();
+    std::vector<std::pair<std::string, std::size_t>> entries(map.begin(), map.end());
+    std::sort(entries.begin(), entries.end());
     std::vector<int64_t> indices;
-    indices.reserve(map.size());
-    for (const auto& [_, idx] : map)
+    indices.reserve(entries.size());
+    for (const auto& [_, idx] : entries)
       indices.push_back(static_cast<int64_t>(idx));
     return indices;
   });
