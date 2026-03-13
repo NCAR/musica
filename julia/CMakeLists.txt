@@ -12,6 +12,7 @@ set_target_properties(musica_julia PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(musica_julia
     musica::musica
     JlCxx::cxxwrap_julia
+    JlCxx::cxxwrap_julia_stl
 )
 
 # Set output properties
