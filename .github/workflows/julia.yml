@@ -33,8 +33,13 @@ jobs:
         working-directory: julia
         run: julia --project=. -e 'using Pkg; Pkg.instantiate()'
 
+      - name: Get CxxWrap prefix path
+        id: cxxwrap
+        working-directory: julia
+        run: echo "prefix=$(julia --project=. -e 'using CxxWrap; print(CxxWrap.prefix_path())')" >> $GITHUB_OUTPUT
+
       - name: Configure MUSICA with Julia support
-        run: cmake -S . -B build -D CMAKE_BUILD_TYPE=Release -D MUSICA_ENABLE_JULIA=ON -D MUSICA_ENABLE_MICM=ON -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_CARMA=OFF -D MUSICA_ENABLE_TESTS=OFF -D CMAKE_POLICY_VERSION_MINIMUM=3.5
+        run: cmake -S . -B build -D CMAKE_BUILD_TYPE=Release -D MUSICA_ENABLE_JULIA=ON -D MUSICA_ENABLE_MICM=ON -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_CARMA=OFF -D MUSICA_ENABLE_TESTS=OFF -D CMAKE_PREFIX_PATH=${{ steps.cxxwrap.outputs.prefix }}
       
       - name: Build MUSICA with Julia support
         run: cmake --build build --verbose
