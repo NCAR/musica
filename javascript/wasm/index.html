@@ -490,6 +490,15 @@
                         micm = MICM.fromMechanism(mechanism, selectedSolver);
                         currentMechanism = mechanism;
                         state = micm.createState(numGridCells);
+                        
+                        // Set environmental conditions for lambda functions
+                        const temperature = 298.15;  // K
+                        const pressure = 101325.0;  // Pa
+                        state.setConditions({
+                            temperatures: Array(numGridCells).fill(temperature),
+                            pressures: Array(numGridCells).fill(pressure)
+                        });
+                        
                         currentRateParams = null;
 
                         currentLambdaReactions = lambdaRxns.map(r => ({ name: r.name, label: 'Lambda.' + r.name }));
