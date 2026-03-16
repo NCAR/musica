@@ -13,17 +13,16 @@ concurrency:
 
 jobs:
   c_cxx:
-    runs-on: macos-latest
+    runs-on: macos-15
     continue-on-error: true 
     strategy:
       matrix:
+        xcode: ['16.4']
+        build_type: [Release]
         compiler:
-          - { cpp: g++-12, c: gcc-12, fc: gfortran-12}
           - { cpp: g++-13, c: gcc-13, fc: gfortran-13}
           - { cpp: g++-14, c: gcc-14, fc: gfortran-14}
-          - { cpp: clang++, c: clang, fc: gfortran-12}
-          - { cpp: g++-14, c: gcc-14, fc: gfortran-14}
-        build_type: [Release]
+          - { cpp: clang++, c: clang, fc: gfortran-14}
     env:
       CC: ${{ matrix.compiler.c }}
       CXX: ${{ matrix.compiler.cpp }}
@@ -32,21 +31,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: ${{ matrix.xcode }}
+
       - name: Install dependencies
         run: brew install netcdf netcdf-fortran
 
-      - uses: actions/setup-python@v5
-      - run: pip install numpy --user
-
       - name: Run Cmake 
         run: |
-            PYTHON_PATH=$(which python)
             cmake -S . -B build \
                 -D CMAKE_CXX_FLAGS=-Wl,-ld_classic \
                 -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-                -D MUSICA_GIT_TAG=${{ github.sha }} \
-                -D MUSICA_ENABLE_PYTHON_LIBRARY=ON \
-                -D Python3_EXECUTABLE=$PYTHON_PATH 
+                -D MUSICA_GIT_TAG=${{ github.sha }}
 
       - name: Build
         run: cmake --build build --verbose

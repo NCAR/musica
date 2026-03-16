@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 National Center for Atmospheric Research
+// Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 #pragma once
 
@@ -24,6 +24,11 @@ namespace musica
 
     ~Radiator();
 
+    /// @brief Get the name of the radiator
+    /// @param error The error struct to indicate success or failure
+    /// @return The name of the radiator
+    std::string GetName(Error *error);
+
     /// @brief Sets optical depth values
     /// @param optical_depths 2D array of optical depth values
     /// @param num_vertical_layers Number of vertical layers
@@ -39,6 +44,11 @@ namespace musica
     /// @param error Error to indicate success or failure
     void
     GetOpticalDepths(double *optical_depths, std::size_t num_vertical_layers, std::size_t num_wavelength_bins, Error *error);
+
+    /// @brief Returns a pointer to the optical depths array
+    /// @param error Error to indicate success or failure
+    /// @return A pointer to the optical depths array
+    double *GetOpticalDepthsPointer(Error *error);
 
     /// @brief Sets single scattering albedos values
     /// @param single_scattering_albedos 2D array of single scattering albedos values
@@ -61,6 +71,11 @@ namespace musica
         std::size_t num_vertical_layers,
         std::size_t num_wavelength_bins,
         Error *error);
+
+    /// @brief Return a pointer to the single scattering albedos array
+    /// @param error Error to indicate success or failure
+    /// @return A pointer to the single scattering albedos array
+    double *GetSingleScatteringAlbedosPointer(Error *error);
 
     /// @brief Sets asymmetry factor values
     /// @param asymmetry_factor 3D array of asymmetery factor values
@@ -87,6 +102,21 @@ namespace musica
         std::size_t num_wavelength_bins,
         std::size_t num_streams,
         Error *error);
+
+    /// @brief Return a pointer to the asymmetry factors array
+    /// @param error Error to indicate success or failure
+    /// @return A pointer to the asymmetry factors array
+    double *GetAsymmetryFactorsPointer(Error *error);
+
+    /// @brief Return the number of sections in the radiator's height grid
+    /// @param error The error struct to indicate success or failure
+    /// @return The number of sections in the radiator's height grid
+    std::size_t GetNumberOfHeightSections(Error *error);
+
+    /// @brief Return the number of sections in the radiator's wavelength grid
+    /// @param error The error struct to indicate success or failure
+    /// @return The number of sections in the radiator's wavelength grid
+    std::size_t GetNumberOfWavelengthSections(Error *error);
 
    private:
     void *radiator_;  // A valid pointer to a radiator instance indicates ownership by this wrapper
@@ -123,6 +153,12 @@ namespace musica
     /// @param error Error to indicate success or failure
     void DeleteRadiator(Radiator *radiator, Error *error);
 
+    /// @brief Gets the name of the radiator
+    /// @param radiator Radiator
+    /// @param error Error to indicate success or failure
+    /// @return The name of the radiator
+    const char *GetRadiatorName(Radiator *radiator, Error *error);
+
     /// @brief Sets optical depth values
     /// @param radiator Radiator
     /// @param optical_depths 2D array of optical depth values
@@ -149,6 +185,12 @@ namespace musica
         std::size_t num_wavelength_bins,
         Error *error);
 
+    /// @brief Returns a pointer to the optical depths array
+    /// @param radiator Radiator
+    /// @param error Error to indicate success or failure
+    /// @return A pointer to the optical depths array
+    double *GetRadiatorOpticalDepthsPointer(Radiator *radiator, Error *error);
+
     /// @brief Sets single scattering albedos values
     /// @param radiator Radiator
     /// @param single_scattering_albedos 2D array of single scattering albedos values
@@ -174,6 +216,12 @@ namespace musica
         std::size_t num_vertical_layers,
         std::size_t num_wavelength_bins,
         Error *error);
+
+    /// @brief Return a pointer to the single scattering albedos array
+    /// @param radiator Radiator
+    /// @param error Error to indicate success or failure
+    /// @return A pointer to the single scattering albedos array
+    double *GetRadiatorSingleScatteringAlbedosPointer(Radiator *radiator, Error *error);
 
     /// @brief Sets asymmetry factor values
     /// @param radiator Radiator
@@ -205,6 +253,24 @@ namespace musica
         std::size_t num_streams,
         Error *error);
 
+    /// @brief Return a pointer to the asymmetry factors array
+    /// @param radiator Radiator
+    /// @param error Error to indicate success or failure
+    /// @return A pointer to the asymmetry factors array
+    double *GetRadiatorAsymmetryFactorsPointer(Radiator *radiator, Error *error);
+
+    /// @brief Return the number of sections in the radiator's height grid
+    /// @param radiator Radiator
+    /// @param error The error struct to indicate success or failure
+    /// @return The number of sections in the radiator's height grid
+    std::size_t GetRadiatorNumberOfHeightSections(Radiator *radiator, Error *error);
+
+    /// @brief Return the number of sections in the radiator's wavelength grid
+    /// @param radiator Radiator
+    /// @param error The error struct to indicate success or failure
+    /// @return The number of sections in the radiator's wavelength grid
+    std::size_t GetRadiatorNumberOfWavelengthSections(Radiator *radiator, Error *error);
+
     // INTERNAL USE. If tuvx ever gets rewritten in C++, these functions will
     // go away but the C API will remain the same and downstream projects (like CAM-SIMA) will
     // not need to change
@@ -217,6 +283,7 @@ namespace musica
     void InternalDeleteRadiator(void *radiator, int *error_code);
     void *InternalGetRadiatorUpdater(void *radiator, int *error_code);
     void InternalDeleteRadiatorUpdater(void *updater, int *error_code);
+    void InternalGetRadiatorName(void *radiator, String *str, int *error_code);
     void InternalSetOpticalDepths(
         void *radiator,
         double *optical_depths,
@@ -229,6 +296,7 @@ namespace musica
         std::size_t num_vertical_layers,
         std::size_t num_wavelength_bins,
         int *error_code);
+    double *InternalGetOpticalDepthsPointer(void *radiator, int *error_code);
     void InternalSetSingleScatteringAlbedos(
         void *radiator,
         double *single_scattering_albedos,
@@ -241,6 +309,7 @@ namespace musica
         std::size_t num_vertical_layers,
         std::size_t num_wavelength_bins,
         int *error_code);
+    double *InternalGetSingleScatteringAlbedosPointer(void *radiator, int *error_code);
     void InternalSetAsymmetryFactors(
         void *radiator,
         double *asymmetry_factors,
@@ -255,6 +324,9 @@ namespace musica
         std::size_t num_wavelength_bins,
         std::size_t num_streams,
         int *error_code);
+    double *InternalGetAsymmetryFactorsPointer(void *radiator, int *error_code);
+    std::size_t InternalGetRadiatorNumberOfHeightSections(void *radiator, int *error_code);
+    std::size_t InternalGetRadiatorNumberOfWavelengthSections(void *radiator, int *error_code);
 
 #ifdef __cplusplus
   }

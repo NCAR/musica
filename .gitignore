@@ -1,6 +1,12 @@
-# cmake and build stuff
+# copilot adds this when it works on prs
+_codeql_detected_source_root
 
+# cmake and build stuff
+python_build/
 build/
+build-wasm/
+build-addon/
+install/
 CMakeCache.txt
 CMakeFiles
 .DS_Store
@@ -10,5 +16,34 @@ musica.cpython-*
 musica.egg-info
 **/*.mod
 
+.venv
+.pytest_cache
 **/*__pycache__*
 **/*.pyc
+wheelhouse
+
+error.json
+
+.ipynb_checkpoints
+configs/tuvx/output/
+
+node_modules/
+musica_env/
+.env
+uv.lock
+
+# Coverage reports
+javascript-coverage/
+.nyc_output/
+coverage/
+*.lcov
+
+# WASM build artifacts (generated files, not committed)
+javascript/wasm/musica.js
+javascript/wasm/musica.wasm
+
+# Julia build artifacts
+julia/Manifest.toml
+julia/deps/lib/
+
+.claude

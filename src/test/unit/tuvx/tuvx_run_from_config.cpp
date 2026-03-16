@@ -1,4 +1,5 @@
 #include <musica/tuvx/tuvx.hpp>
+#include <musica/tuvx/tuvx_c_interface.hpp>
 
 #include <gtest/gtest.h>
 
@@ -139,11 +140,11 @@ class TuvxRunTest : public ::testing::Test
 
 TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfig)
 {
-  const char* json_config_path = "test/data/tuvx/fixed/config.json";
+  const char* json_config_path = "configs/tuvx/fixed/config.json";
   SetUp(json_config_path);
   ASSERT_NE(tuvx, nullptr);
   Error error;
-  RunTuvx(tuvx, 0.1, 1.1, photolysis_rate_constants, heating_rates, &error);
+  RunTuvx(tuvx, 0.1, 1.1, photolysis_rate_constants, heating_rates, nullptr, nullptr, nullptr, &error);
   ASSERT_TRUE(IsSuccess(error));
   for (int i = 0; i < number_of_reactions; i++)
   {
@@ -165,7 +166,8 @@ TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfig)
           expected_heating_rates[i][j] * 1.0e-5);
     }
   }
-  Mappings photo_rate_labels = GetPhotolysisRateConstantsOrdering(tuvx, &error);
+  Mappings photo_rate_labels;
+  GetPhotolysisRateConstantsOrdering(tuvx, &photo_rate_labels, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(photo_rate_labels.size_, 3);
   ASSERT_STREQ(photo_rate_labels.mappings_[0].name_.value_, "jfoo");
@@ -174,7 +176,8 @@ TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfig)
   ASSERT_EQ(photo_rate_labels.mappings_[1].index_, 1);
   ASSERT_STREQ(photo_rate_labels.mappings_[2].name_.value_, "jbaz");
   ASSERT_EQ(photo_rate_labels.mappings_[2].index_, 2);
-  Mappings heating_rate_labels = GetHeatingRatesOrdering(tuvx, &error);
+  Mappings heating_rate_labels;
+  GetHeatingRatesOrdering(tuvx, &heating_rate_labels, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(heating_rate_labels.size_, 2);
   ASSERT_STREQ(heating_rate_labels.mappings_[0].name_.value_, "jfoo");
@@ -188,7 +191,7 @@ TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfig)
 
 TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfigAndHostData)
 {
-  const char* json_config_path = "test/data/tuvx/from_host/config.json";
+  const char* json_config_path = "configs/tuvx/from_host/config.json";
   Error error;
   GridMap* grids = CreateGridMap(&error);
   ASSERT_TRUE(IsSuccess(error));
@@ -244,7 +247,7 @@ TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfigAndHostData)
   double temperature_midpoint_values[3] = { 287.5, 267.5, 257.5 };
   SetProfileMidpointValues(temperature, temperature_midpoint_values, 3, &error);
   ASSERT_TRUE(IsSuccess(error));
-  RunTuvx(tuvx, 0.1, 1.1, photolysis_rate_constants, heating_rates, &error);
+  RunTuvx(tuvx, 0.1, 1.1, photolysis_rate_constants, heating_rates, nullptr, nullptr, nullptr, &error);
   ASSERT_TRUE(IsSuccess(error));
   for (int i = 0; i < number_of_reactions; i++)
   {
@@ -266,7 +269,8 @@ TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfigAndHostData)
           expected_heating_rates[i][j] * 1.0e-5);
     }
   }
-  Mappings photo_rate_labels = GetPhotolysisRateConstantsOrdering(tuvx, &error);
+  Mappings photo_rate_labels;
+  GetPhotolysisRateConstantsOrdering(tuvx, &photo_rate_labels, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(photo_rate_labels.size_, 3);
   ASSERT_STREQ(photo_rate_labels.mappings_[0].name_.value_, "jfoo");
@@ -275,7 +279,8 @@ TEST_F(TuvxRunTest, CreateTuvxInstanceWithJsonConfigAndHostData)
   ASSERT_EQ(photo_rate_labels.mappings_[1].index_, 1);
   ASSERT_STREQ(photo_rate_labels.mappings_[2].name_.value_, "jbaz");
   ASSERT_EQ(photo_rate_labels.mappings_[2].index_, 2);
-  Mappings heating_rate_labels = GetHeatingRatesOrdering(tuvx, &error);
+  Mappings heating_rate_labels;
+  GetHeatingRatesOrdering(tuvx, &heating_rate_labels, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(heating_rate_labels.size_, 2);
   ASSERT_STREQ(heating_rate_labels.mappings_[0].name_.value_, "jfoo");

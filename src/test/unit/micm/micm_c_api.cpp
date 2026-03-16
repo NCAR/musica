@@ -1,5 +1,6 @@
 #include <musica/micm/micm.hpp>
 #include <musica/micm/micm_c_interface.hpp>
+#include <musica/micm/solver_parameters.hpp>
 #include <musica/micm/state.hpp>
 #include <musica/micm/state_c_interface.hpp>
 #include <musica/util.hpp>
@@ -19,7 +20,7 @@ class MicmCApiTestFixture : public ::testing::Test
  protected:
   MICM* micm;
   musica::State* state;
-  const char* config_path = "configs/chapman";
+  const char* config_path = "configs/v0/chapman";
   int num_grid_cells = 1;
 
   void SetUp() override
@@ -69,8 +70,8 @@ TEST_F(MicmCApiTestFixture, CreateStateSuccess)
 // Test case for bad configuration file path
 TEST(MicmCApiTest, BadConfigurationFilePath)
 {
-  int num_grid_cells = 1;
-  Error error = NoError();
+  Error error;
+  NoError(&error);
   auto micm_bad_config = CreateMicm("bad config path", MICMSolver::Rosenbrock, &error);
   ASSERT_EQ(micm_bad_config, nullptr);
   ASSERT_TRUE(IsError(error, MUSICA_ERROR_CATEGORY_PARSING, MUSICA_PARSE_INVALID_CONFIG_FILE));
@@ -80,10 +81,10 @@ TEST(MicmCApiTest, BadConfigurationFilePath)
 // Test case for bad input for solver type
 TEST(MicmCApiTest, BadSolverType)
 {
-  short solver_type = 999;
-  int num_grid_cells = 1;
-  Error error = NoError();
-  auto micm_bad_solver_type = CreateMicm("configs/chapman", static_cast<MICMSolver>(solver_type), &error);
+  short const solver_type = 999;
+  Error error;
+  NoError(&error);
+  auto micm_bad_solver_type = CreateMicm("configs/v0/chapman", static_cast<MICMSolver>(solver_type), &error);
   ASSERT_EQ(micm_bad_solver_type, nullptr);
   ASSERT_TRUE(IsError(error, MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND));
   DeleteError(&error);
@@ -92,22 +93,23 @@ TEST(MicmCApiTest, BadSolverType)
 // Test case for missing species property
 TEST_F(MicmCApiTestFixture, MissingSpeciesProperty)
 {
-  Error error = NoError();
+  Error error;
+  NoError(&error);
   String string_value;
-  string_value = GetSpeciesPropertyString(micm, "O3", "bad property", &error);
+  GetSpeciesPropertyString(micm, "O3", "bad property", &string_value, &error);
   ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND));
   ASSERT_STREQ(string_value.value_, nullptr);
   DeleteString(&string_value);
   DeleteError(&error);
-  error = NoError();
+  NoError(&error);
   ASSERT_EQ(GetSpeciesPropertyDouble(micm, "O3", "bad property", &error), 0.0);
   ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND));
   DeleteError(&error);
-  error = NoError();
+  NoError(&error);
   ASSERT_EQ(GetSpeciesPropertyInt(micm, "O3", "bad property", &error), 0);
   ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND));
   DeleteError(&error);
-  error = NoError();
+  NoError(&error);
   ASSERT_FALSE(GetSpeciesPropertyBool(micm, "O3", "bad property", &error));
   ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND));
   DeleteError(&error);
@@ -123,7 +125,8 @@ TEST_F(MicmCApiTestFixture, CreateMicmInstance)
 TEST_F(MicmCApiTestFixture, GetSpeciesOrdering)
 {
   Error error;
-  Mappings species_ordering = GetSpeciesOrdering(state, &error);
+  Mappings species_ordering;
+  GetSpeciesOrdering(state, &species_ordering, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(species_ordering.size_, 4);
   DeleteError(&error);
@@ -171,10 +174,11 @@ TEST_F(MicmCApiTestFixture, GetSpeciesOrdering)
 }
 
 // Test case for getting user-defined reaction rates ordering
-TEST_F(MicmCApiTestFixture, GetUserDefinedReactionRatesOrdering)
+TEST_F(MicmCApiTestFixture, GetUserDefinedRateParametersOrdering)
 {
   Error error;
-  Mappings reaction_rates_ordering = GetUserDefinedReactionRatesOrdering(state, &error);
+  Mappings reaction_rates_ordering;
+  GetUserDefinedRateParametersOrdering(state, &reaction_rates_ordering, &error);
   ASSERT_TRUE(IsSuccess(error));
   DeleteError(&error);
   ASSERT_EQ(reaction_rates_ordering.size_, 3);
@@ -213,39 +217,41 @@ TEST_F(MicmCApiTestFixture, GetUserDefinedReactionRatesOrdering)
 
 void TestSingleGridCell(MICM* micm, musica::State* state)
 {
-  double time_step = 200.0;
+  double const time_step = 200.0;
   constexpr double GAS_CONSTANT = 8.31446261815324;  // J mol-1 K-1
   const std::size_t num_concentrations = 4;
-  const std::size_t num_user_defined_reaction_rates = 3;
+  const std::size_t num_user_defined_rate_parameters = 3;
   Error error;
 
   std::vector<micm::Conditions> conditions(1);
   std::vector<double>& concentrations_vector = state->GetOrderedConcentrations();
-  std::vector<double>& user_defined_reaction_rates = state->GetOrderedRateConstants();
+  std::vector<double>& user_defined_rate_parameters = state->GetOrderedRateParameters();
 
   // Get species ordering
-  Mappings species_ordering = GetSpeciesOrdering(state, &error);
+  Mappings species_ordering;
+  GetSpeciesOrdering(state, &species_ordering, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(species_ordering.size_, num_concentrations);
-  std::size_t O2_index = FindMappingIndex(species_ordering, "O2", &error);
+  std::size_t const O2_index = FindMappingIndex(species_ordering, "O2", &error);
   ASSERT_TRUE(IsSuccess(error));
-  std::size_t O_index = FindMappingIndex(species_ordering, "O", &error);
+  std::size_t const O_index = FindMappingIndex(species_ordering, "O", &error);
   ASSERT_TRUE(IsSuccess(error));
-  std::size_t O1D_index = FindMappingIndex(species_ordering, "O1D", &error);
+  std::size_t const O1D_index = FindMappingIndex(species_ordering, "O1D", &error);
   ASSERT_TRUE(IsSuccess(error));
-  std::size_t O3_index = FindMappingIndex(species_ordering, "O3", &error);
+  std::size_t const O3_index = FindMappingIndex(species_ordering, "O3", &error);
   ASSERT_TRUE(IsSuccess(error));
   DeleteMappings(&species_ordering);
 
   // Get user-defined reaction rates ordering
-  Mappings reaction_rates_ordering = GetUserDefinedReactionRatesOrdering(state, &error);
+  Mappings reaction_rates_ordering;
+  GetUserDefinedRateParametersOrdering(state, &reaction_rates_ordering, &error);
   ASSERT_TRUE(IsSuccess(error));
-  ASSERT_EQ(reaction_rates_ordering.size_, num_user_defined_reaction_rates);
-  std::size_t jO2_index = FindMappingIndex(reaction_rates_ordering, "PHOTO.jO2", &error);
+  ASSERT_EQ(reaction_rates_ordering.size_, num_user_defined_rate_parameters);
+  std::size_t const jO2_index = FindMappingIndex(reaction_rates_ordering, "PHOTO.jO2", &error);
   ASSERT_TRUE(IsSuccess(error));
-  std::size_t jO3_O_index = FindMappingIndex(reaction_rates_ordering, "PHOTO.jO3->O", &error);
+  std::size_t const jO3_O_index = FindMappingIndex(reaction_rates_ordering, "PHOTO.jO3->O", &error);
   ASSERT_TRUE(IsSuccess(error));
-  std::size_t jO3_O1D_index = FindMappingIndex(reaction_rates_ordering, "PHOTO.jO3->O1D", &error);
+  std::size_t const jO3_O1D_index = FindMappingIndex(reaction_rates_ordering, "PHOTO.jO3->O1D", &error);
   ASSERT_TRUE(IsSuccess(error));
   DeleteMappings(&reaction_rates_ordering);
 
@@ -256,9 +262,9 @@ void TestSingleGridCell(MICM* micm, musica::State* state)
   concentrations_vector[O_index] = 0.0;
   concentrations_vector[O1D_index] = 0.0;
   concentrations_vector[O3_index] = 0.0000081;
-  user_defined_reaction_rates[jO2_index] = 2.7e-19;
-  user_defined_reaction_rates[jO3_O_index] = 1.13e-9;
-  user_defined_reaction_rates[jO3_O1D_index] = 5.8e-8;
+  user_defined_rate_parameters[jO2_index] = 2.7e-19;
+  user_defined_rate_parameters[jO3_O_index] = 1.13e-9;
+  user_defined_rate_parameters[jO3_O1D_index] = 5.8e-8;
 
   state->SetConditions(conditions);
 
@@ -291,11 +297,13 @@ void TestSingleGridCell(MICM* micm, musica::State* state)
 // Test case for solving system using standard-ordered Rosenbrock solver
 TEST(RosenbrockStandardOrder, SolveUsingStandardOrderedRosenbrock)
 {
-  const char* config_path = "configs/chapman";
-  int num_grid_cells = 1;
+  const char* config_path = "configs/v0/chapman";
+  int const num_grid_cells = 1;
   Error error;
   MICM* micm = CreateMicm(config_path, MICMSolver::RosenbrockStandardOrder, &error);
+  ASSERT_TRUE(IsSuccess(error));
   musica::State* state = CreateMicmState(micm, num_grid_cells, &error);
+  ASSERT_TRUE(IsSuccess(error));
 
   TestSingleGridCell(micm, state);
 
@@ -308,8 +316,8 @@ TEST(RosenbrockStandardOrder, SolveUsingStandardOrderedRosenbrock)
 // Test case for solving system using standard-ordered Backward Euler solver
 TEST(BackwardEulerStandardOrder, SolveUsingStandardOrderedBackwardEuler)
 {
-  const char* config_path = "configs/chapman";
-  int num_grid_cells = 1;
+  const char* config_path = "configs/v0/chapman";
+  int const num_grid_cells = 1;
   Error error;
   MICM* micm = CreateMicm(config_path, MICMSolver::BackwardEulerStandardOrder, &error);
   musica::State* state = CreateMicmState(micm, num_grid_cells, &error);
@@ -337,292 +345,248 @@ double CalculateArrhenius(const ArrheniusReaction parameters, const double tempe
          (1.0 + parameters.E_ * pressure);
 }
 
-// Common test function for solving multiple grid cells with standard-ordered matrices
-void TestStandardMultipleGridCells(
-    MICM* micm,
-    musica::State* state,
-    const size_t num_grid_cells,
-    const double time_step,
-    const double test_accuracy)
+void TestSolver(MICM* micm, const size_t num_grid_cells, const double time_step, const double test_accuracy)
 {
   const size_t num_concentrations = 6;
-  const size_t num_user_defined_reaction_rates = 2;
+  const size_t num_user_defined_rate_parameters = 2;
   constexpr double GAS_CONSTANT = 8.31446261815324;  // J mol-1 K-1
-
-  std::vector<micm::Conditions> conditions(num_grid_cells);
-  std::vector<double>& concentrations_vector = state->GetOrderedConcentrations();
-  std::vector<double>& user_defined_reaction_rates = state->GetOrderedRateConstants();
-  std::vector<double> initial_concentrations(num_grid_cells * num_concentrations);
 
   Error error;
 
+  // Create MICM states
+  size_t const state_1_size = std::min(num_grid_cells, micm->GetMaximumNumberOfGridCells());
+  size_t const state_2_size = (num_grid_cells - state_1_size) % micm->GetMaximumNumberOfGridCells();
+  musica::State* state_1 = CreateMicmState(micm, state_1_size, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  musica::State* state_2 = nullptr;
+  if (state_2_size > 0)
+  {
+    state_2 = CreateMicmState(micm, state_2_size, &error);
+    ASSERT_TRUE(IsSuccess(error));
+  }
+
   // Get species indices in concentration array
-  Mappings species_ordering = GetSpeciesOrdering(state, &error);
+  Mappings species_ordering;
+  GetSpeciesOrdering(state_1, &species_ordering, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_EQ(species_ordering.size_, num_concentrations);
-  std::size_t A_index = FindMappingIndex(species_ordering, "A", &error);
+  std::size_t const A_index = FindMappingIndex(species_ordering, "A", &error);
   ASSERT_TRUE(IsSuccess(error));
-  std::size_t B_index = FindMappingIndex(species_ordering, "B", &error);
+  std::size_t const B_index = FindMappingIndex(species_ordering, "B", &error);
   ASSERT_TRUE(IsSuccess(error));
-  std::size_t C_index = FindMappingIndex(species_ordering, "C", &error);
+  std::size_t const C_index = FindMappingIndex(species_ordering, "C", &error);
   ASSERT_TRUE(IsSuccess(error));
-  std::size_t D_index = FindMappingIndex(species_ordering, "D", &error);
+  std::size_t const D_index = FindMappingIndex(species_ordering, "D", &error);
   ASSERT_TRUE(IsSuccess(error));
-  std::size_t E_index = FindMappingIndex(species_ordering, "E", &error);
+  std::size_t const E_index = FindMappingIndex(species_ordering, "E", &error);
   ASSERT_TRUE(IsSuccess(error));
-  std::size_t F_index = FindMappingIndex(species_ordering, "F", &error);
+  std::size_t const F_index = FindMappingIndex(species_ordering, "F", &error);
   ASSERT_TRUE(IsSuccess(error));
   DeleteMappings(&species_ordering);
 
   // Get user-defined reaction rates indices in user-defined reaction rates array
-  Mappings rate_ordering = GetUserDefinedReactionRatesOrdering(state, &error);
+  Mappings rate_ordering;
+  GetUserDefinedRateParametersOrdering(state_1, &rate_ordering, &error);
   ASSERT_TRUE(IsSuccess(error));
-  ASSERT_EQ(rate_ordering.size_, num_user_defined_reaction_rates);
-  std::size_t R1_index = FindMappingIndex(rate_ordering, "USER.reaction 1", &error);
+  ASSERT_EQ(rate_ordering.size_, num_user_defined_rate_parameters);
+  std::size_t const R1_index = FindMappingIndex(rate_ordering, "USER.reaction 1", &error);
   ASSERT_TRUE(IsSuccess(error));
-  std::size_t R2_index = FindMappingIndex(rate_ordering, "USER.reaction 2", &error);
+  std::size_t const R2_index = FindMappingIndex(rate_ordering, "USER.reaction 2", &error);
   ASSERT_TRUE(IsSuccess(error));
   DeleteMappings(&rate_ordering);
 
-  for (int i = 0; i < num_grid_cells; ++i)
+  for (int i_state = 0; i_state < std::ceil(static_cast<double>(num_grid_cells) / state_1_size); ++i_state)
   {
-    conditions[i].temperature_ = 275.0 + (rand() % 20 - 10);
-    conditions[i].pressure_ = 101253.3 + (rand() % 1000 - 500);
-    conditions[i].air_density_ = conditions[i].pressure_ / (GAS_CONSTANT * conditions[i].temperature_);
-    concentrations_vector[i * num_concentrations + A_index] = 0.75 + (rand() % 10 - 5) * 0.01;
-    concentrations_vector[i * num_concentrations + B_index] = 0.0;
-    concentrations_vector[i * num_concentrations + C_index] = 0.4 + (rand() % 10 - 5) * 0.01;
-    concentrations_vector[i * num_concentrations + D_index] = 0.8 + (rand() % 10 - 5) * 0.01;
-    concentrations_vector[i * num_concentrations + E_index] = 0.0;
-    concentrations_vector[i * num_concentrations + F_index] = 0.1 + (rand() % 10 - 5) * 0.01;
-    user_defined_reaction_rates[i * num_user_defined_reaction_rates + R1_index] = 0.001 + (rand() % 10 - 5) * 0.0001;
-    user_defined_reaction_rates[i * num_user_defined_reaction_rates + R2_index] = 0.002 + (rand() % 10 - 5) * 0.0001;
-    for (int j = 0; j < num_concentrations; ++j)
+    // Get the right state and set dimensions
+    size_t const state_size = std::min(num_grid_cells - i_state * state_1_size, state_1_size);
+    musica::State* current_state = (state_size == state_1_size) ? state_1 : state_2;
+    ASSERT_TRUE(current_state != nullptr);
+    ASSERT_EQ(GetNumberOfGridCells(current_state, &error), state_size);
+    ASSERT_TRUE(IsSuccess(error));
+    ASSERT_EQ(GetNumberOfSpecies(current_state, &error), num_concentrations);
+    ASSERT_TRUE(IsSuccess(error));
+    ASSERT_EQ(GetNumberOfUserDefinedRateParameters(current_state, &error), num_user_defined_rate_parameters);
+    ASSERT_TRUE(IsSuccess(error));
+
+    // Get pointers to the data
+    size_t array_size;
+    micm::Conditions* conditions = GetConditionsPointer(current_state, &array_size, &error);
+    ASSERT_TRUE(IsSuccess(error));
+    ASSERT_EQ(array_size, state_size);
+    double* concentrations = GetOrderedConcentrationsPointer(current_state, &array_size, &error);
+    ASSERT_TRUE(IsSuccess(error));
+    ASSERT_GE(array_size, state_size * num_concentrations);
+    double* user_defined_params = GetOrderedRateParametersPointer(current_state, &array_size, &error);
+    ASSERT_TRUE(IsSuccess(error));
+    ASSERT_GE(array_size, state_size * num_user_defined_rate_parameters);
+
+    // Get matrix strides
+    size_t grid_cell_stride_species;
+    size_t species_stride;
+    size_t grid_cell_stride_params;
+    size_t params_stride;
+    GetConcentrationsStrides(current_state, &error, &grid_cell_stride_species, &species_stride);
+    ASSERT_TRUE(IsSuccess(error));
+    GetUserDefinedRateParametersStrides(current_state, &error, &grid_cell_stride_params, &params_stride);
+    ASSERT_TRUE(IsSuccess(error));
+
+    // Set up an intial concentration vector
+    std::vector<double> initial_concentrations(state_size * num_concentrations);
+
+    for (int i = 0; i < state_size; ++i)
     {
-      initial_concentrations[i * num_concentrations + j] = concentrations_vector[i * num_concentrations + j];
+      conditions[i].temperature_ = 275.0 + (rand() % 20 - 10);
+      conditions[i].pressure_ = 101253.3 + (rand() % 1000 - 500);
+      conditions[i].air_density_ = conditions[i].pressure_ / (GAS_CONSTANT * conditions[i].temperature_);
+      concentrations[i * grid_cell_stride_species + A_index * species_stride] = 0.75 + (rand() % 10 - 5) * 0.01;
+      concentrations[i * grid_cell_stride_species + B_index * species_stride] = 0.0;
+      concentrations[i * grid_cell_stride_species + C_index * species_stride] = 0.4 + (rand() % 10 - 5) * 0.01;
+      concentrations[i * grid_cell_stride_species + D_index * species_stride] = 0.8 + (rand() % 10 - 5) * 0.01;
+      concentrations[i * grid_cell_stride_species + E_index * species_stride] = 0.0;
+      concentrations[i * grid_cell_stride_species + F_index * species_stride] = 0.1 + (rand() % 10 - 5) * 0.01;
+      user_defined_params[i * grid_cell_stride_params + R1_index * params_stride] = 0.001 + (rand() % 10 - 5) * 0.0001;
+      user_defined_params[i * grid_cell_stride_params + R2_index * params_stride] = 0.002 + (rand() % 10 - 5) * 0.0001;
+      for (int j = 0; j < num_concentrations; ++j)
+      {
+        initial_concentrations[i * num_concentrations + j] =
+            concentrations[i * grid_cell_stride_species + j * species_stride];
+      }
     }
 
+    String solver_state;
+    SolverResultStats solver_stats;
+    MicmSolve(micm, current_state, time_step, &solver_state, &solver_stats, &error);
+    ASSERT_TRUE(IsSuccess(error));
     DeleteError(&error);
-  }
-  state->SetConditions(conditions);
 
-  String solver_state;
-  SolverResultStats solver_stats;
-  MicmSolve(micm, state, time_step, &solver_state, &solver_stats, &error);
-  ASSERT_TRUE(IsSuccess(error));
-  DeleteError(&error);
+    // update the concentrations pointer because MICM solve function may have swapped temporary state vectors
+    concentrations = GetOrderedConcentrationsPointer(current_state, &array_size, &error);
+    ASSERT_TRUE(IsSuccess(error));
 
-  // Add assertions to check the solved concentrations
-  ArrheniusReaction arr1;
-  arr1.A_ = 0.004;
-  arr1.C_ = 50.0;
-  ArrheniusReaction arr2{ 0.012, -2, 75, 50, 1.0e-6 };
+    // Add assertions to check the solved concentrations
+    ArrheniusReaction arr1;
+    arr1.A_ = 0.004;
+    arr1.C_ = 50.0;
+    ArrheniusReaction const arr2{ 0.012, -2, 75, 50, 1.0e-6 };
 
-  ASSERT_STREQ(solver_state.value_, "Converged");
-  DeleteString(&solver_state);
+    ASSERT_STREQ(solver_state.value_, "Converged");
+    DeleteString(&solver_state);
 
-  for (int i_cell = 0; i_cell < num_grid_cells; ++i_cell)
-  {
-    double initial_A = initial_concentrations[i_cell * num_concentrations + A_index];
-    double initial_C = initial_concentrations[i_cell * num_concentrations + C_index];
-    double initial_D = initial_concentrations[i_cell * num_concentrations + D_index];
-    double initial_F = initial_concentrations[i_cell * num_concentrations + F_index];
-    double k1 = user_defined_reaction_rates[i_cell * num_user_defined_reaction_rates + R1_index];
-    double k2 = user_defined_reaction_rates[i_cell * num_user_defined_reaction_rates + R2_index];
-    double k3 = CalculateArrhenius(arr1, conditions[i_cell].temperature_, conditions[i_cell].pressure_);
-    double k4 = CalculateArrhenius(arr2, conditions[i_cell].temperature_, conditions[i_cell].pressure_);
-    double A = initial_A * std::exp(-k3 * time_step);
-    double B = initial_A * (k3 / (k4 - k3)) * (std::exp(-k3 * time_step) - std::exp(-k4 * time_step));
-    double C = initial_C + initial_A * (1.0 + (k3 * std::exp(-k4 * time_step) - k4 * std::exp(-k3 * time_step)) / (k4 - k3));
-    double D = initial_D * std::exp(-k1 * time_step);
-    double E = initial_D * (k1 / (k2 - k1)) * (std::exp(-k1 * time_step) - std::exp(-k2 * time_step));
-    double F = initial_F + initial_D * (1.0 + (k1 * std::exp(-k2 * time_step) - k2 * std::exp(-k1 * time_step)) / (k2 - k1));
-    ASSERT_NEAR(concentrations_vector[i_cell * num_concentrations + A_index], A, test_accuracy);
-    ASSERT_NEAR(concentrations_vector[i_cell * num_concentrations + B_index], B, test_accuracy);
-    ASSERT_NEAR(concentrations_vector[i_cell * num_concentrations + C_index], C, test_accuracy);
-    ASSERT_NEAR(concentrations_vector[i_cell * num_concentrations + D_index], D, test_accuracy);
-    ASSERT_NEAR(concentrations_vector[i_cell * num_concentrations + E_index], E, test_accuracy);
-    ASSERT_NEAR(concentrations_vector[i_cell * num_concentrations + F_index], F, test_accuracy);
-  }
-}
-
-// Common test function for solving multiple grid cells with vectorizable matrices
-void TestVectorMultipleGridCells(
-    MICM* micm,
-    musica::State* state,
-    const size_t num_grid_cells,
-    const double time_step,
-    const double test_accuracy)
-{
-  const size_t num_concentrations = 6;
-  const size_t num_user_defined_reaction_rates = 2;
-  constexpr double GAS_CONSTANT = 8.31446261815324;  // J mol-1 K-1
-
-  std::vector<micm::Conditions> conditions(num_grid_cells);
-  std::vector<double>& concentrations_vector = state->GetOrderedConcentrations();
-  std::vector<double>& user_defined_reaction_rates = state->GetOrderedRateConstants();
-  std::vector<double> initial_concentrations(num_grid_cells * num_concentrations);
-
-  Error error;
-  // Get species indices in concentration array
-  Mappings species_ordering = GetSpeciesOrdering(state, &error);
-  ASSERT_TRUE(IsSuccess(error));
-  ASSERT_EQ(species_ordering.size_, num_concentrations);
-  std::size_t A_index = FindMappingIndex(species_ordering, "A", &error);
-  ASSERT_TRUE(IsSuccess(error));
-  std::size_t B_index = FindMappingIndex(species_ordering, "B", &error);
-  ASSERT_TRUE(IsSuccess(error));
-  std::size_t C_index = FindMappingIndex(species_ordering, "C", &error);
-  ASSERT_TRUE(IsSuccess(error));
-  std::size_t D_index = FindMappingIndex(species_ordering, "D", &error);
-  ASSERT_TRUE(IsSuccess(error));
-  std::size_t E_index = FindMappingIndex(species_ordering, "E", &error);
-  ASSERT_TRUE(IsSuccess(error));
-  std::size_t F_index = FindMappingIndex(species_ordering, "F", &error);
-  ASSERT_TRUE(IsSuccess(error));
-  DeleteMappings(&species_ordering);
-
-  // Get user-defined reaction rates indices in user-defined reaction rates array
-  Mappings rate_ordering = GetUserDefinedReactionRatesOrdering(state, &error);
-  ASSERT_TRUE(IsSuccess(error));
-  ASSERT_EQ(rate_ordering.size_, num_user_defined_reaction_rates);
-  std::size_t R1_index = FindMappingIndex(rate_ordering, "USER.reaction 1", &error);
-  ASSERT_TRUE(IsSuccess(error));
-  std::size_t R2_index = FindMappingIndex(rate_ordering, "USER.reaction 2", &error);
-  ASSERT_TRUE(IsSuccess(error));
-  DeleteMappings(&rate_ordering);
-
-  for (int i = 0; i < num_grid_cells; ++i)
-  {
-    conditions[i].temperature_ = 275.0 + (rand() % 20 - 10);
-    conditions[i].pressure_ = 101253.3 + (rand() % 1000 - 500);
-    conditions[i].air_density_ = conditions[i].pressure_ / (GAS_CONSTANT * conditions[i].temperature_);
-    concentrations_vector[i + A_index * num_grid_cells] = 0.75 + (rand() % 10 - 5) * 0.01;
-    concentrations_vector[i + B_index * num_grid_cells] = 0.0;
-    concentrations_vector[i + C_index * num_grid_cells] = 0.4 + (rand() % 10 - 5) * 0.01;
-    concentrations_vector[i + D_index * num_grid_cells] = 0.8 + (rand() % 10 - 5) * 0.01;
-    concentrations_vector[i + E_index * num_grid_cells] = 0.0;
-    concentrations_vector[i + F_index * num_grid_cells] = 0.1 + (rand() % 10 - 5) * 0.01;
-    user_defined_reaction_rates[i + R1_index * num_grid_cells] = 0.001 + (rand() % 10 - 5) * 0.0001;
-    user_defined_reaction_rates[i + R2_index * num_grid_cells] = 0.002 + (rand() % 10 - 5) * 0.0001;
-    for (int j = 0; j < num_concentrations; ++j)
+    for (int i_cell = 0; i_cell < state_size; ++i_cell)
     {
-      initial_concentrations[i + j * num_grid_cells] = concentrations_vector[i + j * num_grid_cells];
+      double const initial_A = initial_concentrations[i_cell * num_concentrations + A_index];
+      double const initial_C = initial_concentrations[i_cell * num_concentrations + C_index];
+      double const initial_D = initial_concentrations[i_cell * num_concentrations + D_index];
+      double const initial_F = initial_concentrations[i_cell * num_concentrations + F_index];
+      double const k1 = user_defined_params[i_cell * grid_cell_stride_params + R1_index * params_stride];
+      double const k2 = user_defined_params[i_cell * grid_cell_stride_params + R2_index * params_stride];
+      double const k3 = CalculateArrhenius(arr1, conditions[i_cell].temperature_, conditions[i_cell].pressure_);
+      double const k4 = CalculateArrhenius(arr2, conditions[i_cell].temperature_, conditions[i_cell].pressure_);
+      double const A = initial_A * std::exp(-k3 * time_step);
+      double const B = initial_A * (k3 / (k4 - k3)) * (std::exp(-k3 * time_step) - std::exp(-k4 * time_step));
+      double const C =
+          initial_C + initial_A * (1.0 + (k3 * std::exp(-k4 * time_step) - k4 * std::exp(-k3 * time_step)) / (k4 - k3));
+      double const D = initial_D * std::exp(-k1 * time_step);
+      double const E = initial_D * (k1 / (k2 - k1)) * (std::exp(-k1 * time_step) - std::exp(-k2 * time_step));
+      double const F =
+          initial_F + initial_D * (1.0 + (k1 * std::exp(-k2 * time_step) - k2 * std::exp(-k1 * time_step)) / (k2 - k1));
+      ASSERT_NEAR(concentrations[i_cell * grid_cell_stride_species + A_index * species_stride], A, test_accuracy);
+      ASSERT_NEAR(concentrations[i_cell * grid_cell_stride_species + B_index * species_stride], B, test_accuracy);
+      ASSERT_NEAR(concentrations[i_cell * grid_cell_stride_species + C_index * species_stride], C, test_accuracy);
+      ASSERT_NEAR(concentrations[i_cell * grid_cell_stride_species + D_index * species_stride], D, test_accuracy);
+      ASSERT_NEAR(concentrations[i_cell * grid_cell_stride_species + E_index * species_stride], E, test_accuracy);
+      ASSERT_NEAR(concentrations[i_cell * grid_cell_stride_species + F_index * species_stride], F, test_accuracy);
     }
   }
-
-  state->SetConditions(conditions);
-
-  String solver_state;
-  SolverResultStats solver_stats;
-  MicmSolve(micm, state, time_step, &solver_state, &solver_stats, &error);
+  DeleteState(state_1, &error);
   ASSERT_TRUE(IsSuccess(error));
-  DeleteError(&error);
-
-  // Add assertions to check the solved concentrations
-  ArrheniusReaction arr1;
-  arr1.A_ = 0.004;
-  arr1.C_ = 50.0;
-  ArrheniusReaction arr2{ 0.012, -2, 75, 50, 1.0e-6 };
-
-  ASSERT_STREQ(solver_state.value_, "Converged");
-  DeleteString(&solver_state);
-
-  for (int i_cell = 0; i_cell < num_grid_cells; ++i_cell)
+  if (state_2 != nullptr)
   {
-    double initial_A = initial_concentrations[i_cell + A_index * num_grid_cells];
-    double initial_C = initial_concentrations[i_cell + C_index * num_grid_cells];
-    double initial_D = initial_concentrations[i_cell + D_index * num_grid_cells];
-    double initial_F = initial_concentrations[i_cell + F_index * num_grid_cells];
-    double k1 = user_defined_reaction_rates[i_cell + R1_index * num_grid_cells];
-    double k2 = user_defined_reaction_rates[i_cell + R2_index * num_grid_cells];
-    double k3 = CalculateArrhenius(arr1, conditions[i_cell].temperature_, conditions[i_cell].pressure_);
-    double k4 = CalculateArrhenius(arr2, conditions[i_cell].temperature_, conditions[i_cell].pressure_);
-    double A = initial_A * std::exp(-k3 * time_step);
-    double B = initial_A * (k3 / (k4 - k3)) * (std::exp(-k3 * time_step) - std::exp(-k4 * time_step));
-    double C = initial_C + initial_A * (1.0 + (k3 * std::exp(-k4 * time_step) - k4 * std::exp(-k3 * time_step)) / (k4 - k3));
-    double D = initial_D * std::exp(-k1 * time_step);
-    double E = initial_D * (k1 / (k2 - k1)) * (std::exp(-k1 * time_step) - std::exp(-k2 * time_step));
-    double F = initial_F + initial_D * (1.0 + (k1 * std::exp(-k2 * time_step) - k2 * std::exp(-k1 * time_step)) / (k2 - k1));
-    ASSERT_NEAR(concentrations_vector[i_cell + A_index * num_grid_cells], A, test_accuracy);
-    ASSERT_NEAR(concentrations_vector[i_cell + B_index * num_grid_cells], B, test_accuracy);
-    ASSERT_NEAR(concentrations_vector[i_cell + C_index * num_grid_cells], C, test_accuracy);
-    ASSERT_NEAR(concentrations_vector[i_cell + D_index * num_grid_cells], D, test_accuracy);
-    ASSERT_NEAR(concentrations_vector[i_cell + E_index * num_grid_cells], E, test_accuracy);
-    ASSERT_NEAR(concentrations_vector[i_cell + F_index * num_grid_cells], F, test_accuracy);
+    DeleteState(state_2, &error);
+    ASSERT_TRUE(IsSuccess(error));
   }
+  DeleteError(&error);
 }
 
 // Test case for solving multiple grid cells using vector-ordered Rosenbrock solver
 TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingVectorOrderedRosenbrock)
 {
-  constexpr size_t num_grid_cells = MICM_DEFAULT_VECTOR_SIZE;
   constexpr double time_step = 200.0;
   constexpr double test_accuracy = 5.0e-3;
-  const char* config_path = "configs/analytical";
+  const char* config_path = "configs/v0/analytical";
   Error error;
   DeleteMicm(micm, &error);
-  DeleteState(state, &error);
   ASSERT_TRUE(IsSuccess(error));
   micm = CreateMicm(config_path, MICMSolver::Rosenbrock, &error);
-  state = CreateMicmState(micm, num_grid_cells, &error);
   ASSERT_TRUE(IsSuccess(error));
-  TestVectorMultipleGridCells(micm, state, num_grid_cells, time_step, test_accuracy);
-  DeleteError(&error);
+  size_t const max_cells = GetMaximumNumberOfGridCells(micm);
+  ASSERT_GT(max_cells, 0);
+  for (int num_grid_cells = 1; num_grid_cells <= max_cells * 3;
+       num_grid_cells += static_cast<int>(std::floor(max_cells / 3)))
+  {
+    TestSolver(micm, num_grid_cells, time_step, test_accuracy);
+    DeleteError(&error);
+  }
 }
 
 // Test case for solving multiple grid cells using standard-ordered Rosenbrock solver
 TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingStandardOrderedRosenbrock)
 {
-  constexpr size_t num_grid_cells = 3;
   constexpr double time_step = 200.0;
   constexpr double test_accuracy = 5.0e-3;
-  const char* config_path = "configs/analytical";
+  const char* config_path = "configs/v0/analytical";
   Error error;
   DeleteMicm(micm, &error);
-  DeleteState(state, &error);
   ASSERT_TRUE(IsSuccess(error));
   micm = CreateMicm(config_path, MICMSolver::RosenbrockStandardOrder, &error);
-  state = CreateMicmState(micm, num_grid_cells, &error);
   ASSERT_TRUE(IsSuccess(error));
-  TestStandardMultipleGridCells(micm, state, num_grid_cells, time_step, test_accuracy);
-  DeleteError(&error);
+  size_t const max_cells = GetMaximumNumberOfGridCells(micm);
+  ASSERT_GT(max_cells, 1e8);
+  for (int num_grid_cells = 1; num_grid_cells <= 20; num_grid_cells += 5)
+  {
+    TestSolver(micm, num_grid_cells, time_step, test_accuracy);
+    DeleteError(&error);
+  }
 }
 
 // Test case for solving multiple grid cells using vector-ordered Backward Euler solver
 TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingVectorOrderedBackwardEuler)
 {
-  constexpr size_t num_grid_cells = MICM_DEFAULT_VECTOR_SIZE;
   constexpr double time_step = 10.0;
   constexpr double test_accuracy = 0.1;
-  const char* config_path = "configs/analytical";
+  const char* config_path = "configs/v0/analytical";
   Error error;
   DeleteMicm(micm, &error);
-  DeleteState(state, &error);
   ASSERT_TRUE(IsSuccess(error));
   micm = CreateMicm(config_path, MICMSolver::BackwardEuler, &error);
-  state = CreateMicmState(micm, num_grid_cells, &error);
   ASSERT_TRUE(IsSuccess(error));
-  TestVectorMultipleGridCells(micm, state, num_grid_cells, time_step, test_accuracy);
-  DeleteError(&error);
+  size_t const max_cells = GetMaximumNumberOfGridCells(micm);
+  ASSERT_GT(max_cells, 0);
+  for (int num_grid_cells = 1; num_grid_cells <= max_cells * 3; num_grid_cells += std::floor(max_cells / 3))
+  {
+    TestSolver(micm, num_grid_cells, time_step, test_accuracy);
+    DeleteError(&error);
+  }
 }
 
 // Test case for solving multiple grid cells using standard-ordered Backward Euler solver
 TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingStandardOrderedBackwardEuler)
 {
-  constexpr size_t num_grid_cells = 3;
   constexpr double time_step = 10.0;
   constexpr double test_accuracy = 0.1;
-  const char* config_path = "configs/analytical";
+  const char* config_path = "configs/v0/analytical";
   Error error;
   DeleteMicm(micm, &error);
-  DeleteState(state, &error);
   ASSERT_TRUE(IsSuccess(error));
   micm = CreateMicm(config_path, MICMSolver::BackwardEulerStandardOrder, &error);
-  state = CreateMicmState(micm, num_grid_cells, &error);
   ASSERT_TRUE(IsSuccess(error));
-  TestStandardMultipleGridCells(micm, state, num_grid_cells, time_step, test_accuracy);
-  DeleteError(&error);
+  size_t const max_cells = GetMaximumNumberOfGridCells(micm);
+  ASSERT_GT(max_cells, 1.0e8);
+  for (int num_grid_cells = 1; num_grid_cells <= 20; num_grid_cells += 5)
+  {
+    TestSolver(micm, num_grid_cells, time_step, test_accuracy);
+    DeleteError(&error);
+  }
 }
 
 // Test case for getting species properties
@@ -630,7 +594,7 @@ TEST_F(MicmCApiTestFixture, GetSpeciesProperty)
 {
   Error error;
   String string_value;
-  string_value = GetSpeciesPropertyString(micm, "O3", "__long name", &error);
+  GetSpeciesPropertyString(micm, "O3", "__long name", &string_value, &error);
   ASSERT_TRUE(IsSuccess(error));
   ASSERT_STREQ(string_value.value_, "ozone");
   DeleteString(&string_value);
@@ -644,5 +608,100 @@ TEST_F(MicmCApiTestFixture, GetSpeciesProperty)
   ASSERT_TRUE(IsError(error, MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SPECIES_NOT_FOUND));
   GetSpeciesPropertyDouble(micm, "O3", "bad property", &error);
   ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND));
+  DeleteError(&error);
+}
+
+// --- Solver parameter C API tests ---
+
+TEST(SolverParametersCApi, SetGetRosenbrockParameters)
+{
+  Error error;
+  MICM* micm = CreateMicm("configs/v0/analytical", MICMSolver::RosenbrockStandardOrder, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_NE(micm, nullptr);
+
+  RosenbrockSolverParametersC set_params;
+  set_params.relative_tolerance = 1e-8;
+  set_params.absolute_tolerances = nullptr;
+  set_params.num_absolute_tolerances = 0;
+  set_params.h_min = 1e-10;
+  set_params.h_max = 100.0;
+  set_params.h_start = 1e-5;
+  set_params.max_number_of_steps = 500;
+
+  SetRosenbrockSolverParameters(micm, &set_params, &error);
+  ASSERT_TRUE(IsSuccess(error));
+
+  RosenbrockSolverParametersC get_params = {};
+  GetRosenbrockSolverParameters(micm, &get_params, &error);
+  ASSERT_TRUE(IsSuccess(error));
+
+  EXPECT_DOUBLE_EQ(get_params.h_min, 1e-10);
+  EXPECT_DOUBLE_EQ(get_params.h_max, 100.0);
+  EXPECT_DOUBLE_EQ(get_params.h_start, 1e-5);
+  EXPECT_EQ(get_params.max_number_of_steps, 500u);
+  EXPECT_DOUBLE_EQ(get_params.relative_tolerance, 1e-8);
+
+  if (get_params.absolute_tolerances != nullptr)
+    delete[] get_params.absolute_tolerances;
+  DeleteMicm(micm, &error);
+  DeleteError(&error);
+}
+
+TEST(SolverParametersCApi, SetGetBackwardEulerParameters)
+{
+  Error error;
+  MICM* micm = CreateMicm("configs/v0/analytical", MICMSolver::BackwardEulerStandardOrder, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  ASSERT_NE(micm, nullptr);
+
+  double tsr[] = { 0.3, 0.3, 0.3, 0.3, 0.05 };
+  BackwardEulerSolverParametersC set_params;
+  set_params.relative_tolerance = 1e-8;
+  set_params.absolute_tolerances = nullptr;
+  set_params.num_absolute_tolerances = 0;
+  set_params.max_number_of_steps = 20;
+  set_params.time_step_reductions = tsr;
+  set_params.num_time_step_reductions = 5;
+
+  SetBackwardEulerSolverParameters(micm, &set_params, &error);
+  ASSERT_TRUE(IsSuccess(error));
+
+  BackwardEulerSolverParametersC get_params = {};
+  GetBackwardEulerSolverParameters(micm, &get_params, &error);
+  ASSERT_TRUE(IsSuccess(error));
+
+  EXPECT_EQ(get_params.max_number_of_steps, 20u);
+  EXPECT_DOUBLE_EQ(get_params.relative_tolerance, 1e-8);
+  ASSERT_EQ(get_params.num_time_step_reductions, 5u);
+  EXPECT_DOUBLE_EQ(get_params.time_step_reductions[0], 0.3);
+  EXPECT_DOUBLE_EQ(get_params.time_step_reductions[4], 0.05);
+
+  if (get_params.absolute_tolerances != nullptr)
+    delete[] get_params.absolute_tolerances;
+  delete[] get_params.time_step_reductions;
+  DeleteMicm(micm, &error);
+  DeleteError(&error);
+}
+
+TEST(SolverParametersCApi, WrongParameterTypeErrors)
+{
+  Error error;
+  MICM* micm = CreateMicm("configs/v0/analytical", MICMSolver::RosenbrockStandardOrder, &error);
+  ASSERT_TRUE(IsSuccess(error));
+
+  BackwardEulerSolverParametersC params = {};
+  params.max_number_of_steps = 20;
+  params.time_step_reductions = nullptr;
+  params.num_time_step_reductions = 0;
+  params.absolute_tolerances = nullptr;
+  params.num_absolute_tolerances = 0;
+  params.relative_tolerance = 1e-6;
+
+  SetBackwardEulerSolverParameters(micm, &params, &error);
+  ASSERT_TRUE(IsError(error, MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN));
+
+  DeleteError(&error);
+  DeleteMicm(micm, &error);
   DeleteError(&error);
 }

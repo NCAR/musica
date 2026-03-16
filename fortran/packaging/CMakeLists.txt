@@ -11,9 +11,9 @@ install(
 
 install(
   DIRECTORY
-    ${MUSICA_FORTRAN_MOD_DIR}/../include/
+    ${MUSICA_MOD_DIR}/
   DESTINATION
-    ${MUSICA_INSTALL_INCLUDE_DIR}/musica/fortran
+    ${MUSICA_INSTALL_MOD_DIR}
   FILES_MATCHING PATTERN "*.mod"
 )
 
@@ -39,6 +39,25 @@ write_basic_package_version_file(
   "${PROJECT_BINARY_DIR}/musica-fortranConfigVersion.cmake"
   VERSION ${PROJECT_VERSION}
   COMPATIBILITY SameMajorVersion
+)
+
+if("${CMAKE_BUILD_TYPE}" MATCHES "^[Dd][Ee][Bb][Uu][Gg]$")
+  set(IS_DEBUG "")
+else()
+  set(IS_DEBUG "#")
+endif()
+set(CMAKE_INSTALL_PKGCONFIGDIR "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+configure_file(
+  "${MUSICA_PROJECT_SRC_DIR}/cmake/musica-fortran.pc.in"
+  "${PROJECT_BINARY_DIR}/musica-fortran.pc"
+  @ONLY
+)
+
+install(
+  FILES
+    "${PROJECT_BINARY_DIR}/musica-fortran.pc"
+  DESTINATION
+    "${CMAKE_INSTALL_PKGCONFIGDIR}"
 )
 
 install(

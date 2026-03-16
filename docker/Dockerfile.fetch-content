@@ -1,0 +1,175 @@
+##############
+# Multi-stage Dockerfile to build and test MUSICA with FetchContent
+##############
+
+ARG MUSICA_GIT_TAG=main
+ARG BUILD_TYPE=Release
+
+##############
+# Base stage: build and install MUSICA with GCC
+##############
+FROM fedora:latest AS base
+
+ARG MUSICA_GIT_TAG
+ARG BUILD_TYPE
+
+RUN dnf -y update \
+  && dnf -y install \
+    cmake \
+    curl \
+    gcc \
+    gcc-c++ \
+    gcc-gfortran \
+    gdb \
+    git \
+    hdf5-devel \
+    lapack-devel \
+    lcov \
+    libcurl-devel \
+    m4 \
+    make \
+    netcdf-devel \
+    netcdf-fortran-devel \
+    valgrind \ 
+    vim \
+    zlib-devel \
+  && dnf clean all
+
+ENV FC=gfortran CXX=g++ CC=gcc
+
+COPY . /musica
+
+# build and install MUSICA with GCC; install to /opt/musica
+WORKDIR /musica
+RUN cmake -S . -B build \
+      -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+      -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
+      -D MUSICA_ENABLE_CARMA=OFF \
+      -D MUSICA_ENABLE_TUVX=ON \
+      -D MUSICA_ENABLE_TESTS=OFF \
+      -D CMAKE_INSTALL_PREFIX=/opt/musica 
+RUN cmake --build build --parallel 4 --target install
+
+##############
+# GCC test stage
+##############
+FROM base AS gcc-test
+
+ARG MUSICA_GIT_TAG
+ARG BUILD_TYPE
+
+RUN dnf -y update \
+  && dnf -y install \
+    cmake \
+    hdf5-devel \
+    lapack-devel \
+    make \ 
+    netcdf-devel \
+    netcdf-fortran-devel \
+    tree \
+  && dnf clean all
+
+ENV CC=gcc CXX=g++ FC=gfortran
+
+# Copy MUSICA install
+COPY --from=base /opt/musica /opt/musica
+
+# Copy test source code
+COPY fortran/test/fetch_content_integration /src/fetch_content_integration
+COPY fortran/test/tutorial /src/tutorial
+COPY fortran/test/integration /src/integration
+COPY src/test/test_simple.c /src/test/test_simple.c
+
+WORKDIR /src/fetch_content_integration
+
+RUN cmake -B build -S . \
+      -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+      -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
+      -D CMAKE_PREFIX_PATH=/opt/musica
+RUN cmake --build build --parallel 4
+
+WORKDIR /src/fetch_content_integration/build
+COPY configs configs
+
+##############
+# Intel test stage
+##############
+FROM intel/oneapi-hpckit:2025.2.0-0-devel-ubuntu24.04 AS intel-test
+
+ARG MUSICA_GIT_TAG
+ARG BUILD_TYPE
+
+RUN apt update \
+  && apt install -y --no-install-recommends \
+    cmake \
+    libhdf5-dev \
+    liblapack-dev \
+    libnetcdf-dev \
+    libnetcdff-dev \
+    make \
+    tree \
+  && apt clean
+
+ENV CC=icx CXX=icpx FC=ifx
+
+# Copy MUSICA install
+COPY --from=base /opt/musica /opt/musica
+
+# Copy test source code
+COPY fortran/test/fetch_content_integration /src/fetch_content_integration
+COPY fortran/test/tutorial /src/tutorial
+COPY fortran/test/integration /src/integration
+
+WORKDIR /src/fetch_content_integration
+
+RUN cmake -B build -S . \
+      -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+      -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
+      -D CMAKE_PREFIX_PATH=/opt/musica/lib64/cmake/ \
+      -D CMAKE_EXE_LINKER_FLAGS="-Wl,--copy-dt-needed-entries" # without this, libgfortran.so link error occurs
+RUN cmake --build build --parallel 4
+
+WORKDIR /src/fetch_content_integration/build
+COPY configs configs
+
+##############
+# NVHPC test stage
+##############
+FROM nvcr.io/nvidia/nvhpc:25.7-devel-cuda12.9-ubuntu24.04 AS nvhpc-test
+
+ARG MUSICA_GIT_TAG
+ARG BUILD_TYPE
+
+RUN apt update \
+  && apt install -y --no-install-recommends \
+    cmake \
+    make \
+    libhdf5-dev \
+    libnetcdf-dev \
+    libnetcdff-dev \
+    liblapack-dev \
+    pkg-config \
+    tree \
+  && apt clean
+
+ENV CC=nvc CXX=nvc++ FC=nvfortran
+
+# Copy MUSICA install
+COPY --from=base /opt/musica /opt/musica
+
+# Copy test source code
+COPY fortran/test/fetch_content_integration /src/fetch_content_integration
+COPY fortran/test/tutorial /src/tutorial
+COPY fortran/test/integration /src/integration
+
+WORKDIR /src/fetch_content_integration
+
+RUN cmake -B build -S . \
+      -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+      -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
+      -D CMAKE_PREFIX_PATH=/opt/musica/lib64/cmake/ \
+      -D CMAKE_EXE_LINKER_FLAGS="-Wl,--copy-dt-needed-entries" # without this, libgfortran.so link error occurs
+RUN cmake --build build --parallel 4
+
+WORKDIR /src/fetch_content_integration/build
+COPY configs configs

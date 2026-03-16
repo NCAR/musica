@@ -1,5 +1,5 @@
 
-// Copyright (C) 2023-2025 National Center for Atmospheric Research
+// Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 #pragma once
 
@@ -11,8 +11,6 @@
 #include <cstddef>
 
 #ifdef __cplusplus
-  #include <yaml-cpp/yaml.h>
-
   #include <system_error>
 
 namespace musica
@@ -20,7 +18,6 @@ namespace musica
 
   extern "C"
   {
-    typedef YAML::Node Yaml;
 #endif
 
     /// @brief Vector dimension for Vector-ordered matrices
@@ -56,7 +53,7 @@ const size_t MUSICA_VECTOR_SIZE = 0;
     /// @brief A set of configuration data
     struct Configuration
     {
-      Yaml* data_ = nullptr;
+      void* data_ = nullptr;  // Opaque pointer to YAML::Node (implementation detail)
     };
 
     /// @brief A struct to represent a mapping between a string and an index
@@ -89,36 +86,36 @@ const size_t MUSICA_VECTOR_SIZE = 0;
     };
 
     /// @brief Casts a char* to a String
-    /// @param value The char* to cast
-    /// @return The casted String
-    String CreateString(const char* value);
+    /// @param value The char* to cast [input]
+    /// @param str The casted String [output]
+    void CreateString(const char* value, String* str);
 
     /// @brief Deletes a String
     /// @param str The String to delete
     void DeleteString(String* str);
 
     /// @brief Creates an Error indicating no error
-    /// @return The Error
-    Error NoError();
+    /// @param error The Error [output]
+    void NoError(Error* error);
 
     /// @brief Creates an Error from a category, code, and message
-    /// @param category The category of the Error
-    /// @param code The code of the Error
-    /// @param message The message of the Error
-    /// @return The Error
-    Error ToError(const char* category, int code, const char* message);
+    /// @param category The category of the Error [input]
+    /// @param code The code of the Error [input]
+    /// @param message The message of the Error [input]
+    /// @param error The Error [output]
+    void ToError(const char* category, int code, const char* message, Error* error);
 
     /// @brief Loads a set of configuration data from a string
-    /// @param data The string to load
-    /// @param error The Error to populate if the data cannot be loaded
-    /// @return The Configuration
-    Configuration LoadConfigurationFromString(const char* data, Error* error);
+    /// @param data The string to load [input]
+    /// @param configuration The Configuration [output]
+    /// @param error The Error to populate if the data cannot be loaded [output]
+    void LoadConfigurationFromString(const char* data, Configuration* configuration, Error* error);
 
     /// @brief Loads a set of configuration data from a file
-    /// @param filename The file to load
-    /// @param error The Error to populate if the data cannot be loaded
-    /// @return The Configuration
-    Configuration LoadConfigurationFromFile(const char* filename, Error* error);
+    /// @param filename The file to load [input]
+    /// @param configuration The Configuration [output]
+    /// @param error The Error to populate if the data cannot be loaded [output]
+    void LoadConfigurationFromFile(const char* filename, Configuration* configuration, Error* error);
 
     /// @brief Allocates an array of Mappings
     /// @param size The size of the array
@@ -126,9 +123,9 @@ const size_t MUSICA_VECTOR_SIZE = 0;
     Mapping* AllocateMappingArray(const std::size_t size);
 
     /// @brief Allocate a new Mappings struct
-    /// @param size The size of the Mappings
-    /// @return The Mappings
-    Mappings CreateMappings(std::size_t size);
+    /// @param size The size of the Mappings [input]
+    /// @param mapping The Mappings [output]
+    void CreateMappings(std::size_t size, Mappings* mapping);
 
     /// @brief Finds the index of a Mapping by name
     /// @param mappings The array of Mappings
@@ -138,17 +135,18 @@ const size_t MUSICA_VECTOR_SIZE = 0;
     std::size_t FindMappingIndex(const Mappings mappings, const char* name, Error* error);
 
     /// @brief Creates a set of index mappings
-    /// @param configuration The Configuration containing the mappings
-    /// @param map_options The options for mapping
-    /// @param source The source array of name-index Mappings
-    /// @param target The target array of name-index Mappings
-    /// @param error The Error to populate if a Mapping is not found
-    /// @return The array of IndexMappings
-    IndexMappings CreateIndexMappings(
+    /// @param configuration The Configuration containing the mappings [input]
+    /// @param map_options The options for mapping [input]
+    /// @param source The source array of name-index Mappings [input]
+    /// @param target The target array of name-index Mappings [input]
+    /// @param index_mapping The array of IndexMappings [output]
+    /// @param error The Error to populate if a Mapping is not found [output]
+    void CreateIndexMappings(
         const Configuration configuration,
         const IndexMappingOptions map_options,
         Mappings source,
         const Mappings target,
+        IndexMappings* index_mapping,
         Error* error);
 
     /// @brief Returns the number of elements in an IndexMappings container
@@ -186,18 +184,22 @@ const size_t MUSICA_VECTOR_SIZE = 0;
     /// @param mappings The array of IndexMappings to delete
     void DeleteIndexMappings(IndexMappings* mappings);
 
+    /// @brief Get the MUSICA version
+    /// @param musica_version MUSICA version [output]
+    void MusicaVersion(String* musica_version);
+
 #ifdef __cplusplus
   }
   /// @brief Creates an Error from a category and code
-  /// @param category The category of the Error
-  /// @param code The code of the Error
-  /// @return The Error
-  Error ToError(const char* category, int code);
+  /// @param category The category of the Error [input]
+  /// @param code The code of the Error [input]
+  /// @param error The Error [output]
+  void ToError(const char* category, int code, Error* error);
 
   /// @brief Creates an Error from syd::system_error
-  /// @param e The std::system_error to convert
-  /// @return The Error
-  Error ToError(const std::system_error& e);
+  /// @param e The std::system_error to convert [input]
+  /// @param error The Error [output]
+  void ToError(const std::system_error& e, Error* error);
 
   /// @brief Checks for success
   /// @param error The Error to check
@@ -227,7 +229,7 @@ const size_t MUSICA_VECTOR_SIZE = 0;
   /// @param name The name of the Mapping
   /// @param index The index of the Mapping
   /// @return The Mapping
-  Mapping ToMapping(const char* name, std::size_t index);
+  void ToMapping(const char* name, std::size_t index, Mapping* mapping);
 
 #endif
 

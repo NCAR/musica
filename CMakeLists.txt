@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.24)
 
 # must be on the same line so that pyproject.toml can correctly identify the version
-project(musica-distribution VERSION 0.10.1)
+project(musica-distribution VERSION 0.14.5)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${PROJECT_SOURCE_DIR}/cmake)
 set(CMAKE_USER_MAKE_RULES_OVERRIDE ${PROJECT_SOURCE_DIR}/cmake/SetDefaults.cmake)
@@ -29,9 +29,14 @@ option(MUSICA_ENABLE_MEMCHECK "Enable memory checking" OFF)
 option(MUSICA_BUILD_DOCS "Build the documentation" OFF)
 option(MUSICA_ENABLE_MICM "Enable MICM" ON)
 option(MUSICA_ENABLE_TUVX "Enable TUV-x" ON)
-option(MUSICA_ENABLE_PIC "Build the library with position independent code" OFF)
+option(MUSICA_ENABLE_CARMA "Enable CARMA" ON)
 option(MUSICA_ENABLE_COVERAGE "Enable code coverage output" OFF)
 option(MUSICA_BUNDLE_DEPENDENCIES "Bundle dependencies with the library" ON)
+option(MUSICA_ENABLE_JAVASCRIPT "Build the JavaScript addon" OFF)
+option(MUSICA_ENABLE_JULIA "Build the Julia wrapper" OFF)
+option(MUSICA_CREATE_ENVIRONMENT_MODULE "Create an Lmod environment module file" OFF)
+option(MUSICA_USE_PREBUILT "Use a prebuilt musica library instead of building from source" OFF)
+option(MUSICA_BUILD_SHARED_LIBS "Build MUSICA as shared libraries" OFF)
 
 set(MUSICA_GPU_TYPE "None" CACHE STRING "The GPU type being targeted")
 
@@ -43,9 +48,11 @@ cmake_dependent_option(
 ################################################################################
 # Projet wide setup variables 
 set(MUSICA_INSTALL_INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR})
-set(MUSICA_MOD_DIR ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_INCLUDEDIR})
 set(MUSICA_LIB_DIR ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
 set(MUSICA_PROJECT_SRC_DIR ${PROJECT_SOURCE_DIR})
+
+set(MUSICA_MOD_DIR ${PROJECT_BINARY_DIR}/mod_fortran)
+set(MUSICA_INSTALL_MOD_DIR ${CMAKE_INSTALL_INCLUDEDIR}/musica/fortran)
 
 set(musica_compile_definitions "")
 
@@ -58,18 +65,11 @@ elseif(${CMAKE_Fortran_COMPILER_ID} MATCHES "PGI")
   list(APPEND musica_compile_definitions MUSICA_USING_PGI)
 endif()
 
-if(MUSICA_BUILD_C_CXX_INTERFACE)
-  # must be global so that it also applies to dependencies like google test, unless we want
-  # to set it for each target
-  # on ubuntu with clang, an incorrect version of the c++ standard library was being linked
-  if (${CMAKE_HOST_SYSTEM_NAME} MATCHES "Linux" AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-      # If the compiler is Clang and the Linux version is Ubuntu 20.04 or 22.04, use libc++ explicitly
-      if (${CMAKE_HOST_SYSTEM_VERSION} MATCHES "20.04" OR ${CMAKE_HOST_SYSTEM_VERSION} MATCHES "22.04")
-          message(STATUS "Using libc++ explicitly with Clang on Ubuntu 20.04 or 22.04")
-          set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-          set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -stdlib=libc++")
-      endif()
-  endif()
+# since sources are collected so that python libraries can target them directly,
+# we need to know if we are targeting Fortran before we collect the sources
+# otherwise cmake freaks out, and I don't know why, but this fixes it
+if(MUSICA_ENABLE_TUVX OR MUSICA_ENABLE_CARMA)
+    enable_language(Fortran)
 endif()
 
 # Add flags when using the ClangCL toolset
@@ -87,10 +87,6 @@ if(MUSICA_BUNDLE_DEPENDENCIES)
   include(${PROJECT_SOURCE_DIR}/cmake/dependencies.cmake)
 endif()
 
-if(MUSICA_BUILD_DOCS)
-  add_subdirectory(docs)
-endif()
-
 ################################################################################
 # Tests
 if(MUSICA_ENABLE_TESTS)
@@ -100,18 +96,35 @@ if(MUSICA_ENABLE_TESTS)
     setup_target_for_coverage_lcov(
         NAME coverage
         EXECUTABLE "ctest"
-        EXCLUDE "${PROJECT_SOURCE_DIR}/test/*"
-        BASE_DIRECTORY "${PROJECT_SOURCE_DIR}/src")
+        EXCLUDE "${PROJECT_SOURCE_DIR}/src/test/*"
+        BASE_DIRECTORY "${PROJECT_SOURCE_DIR}/src"
+        LCOV_ARGS "--ignore-errors" "mismatch")
     
   endif()
   
   enable_testing()
 endif()
 
+
+# disable CMake module scanning on macOS
+if (APPLE)
+  set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
+endif()
+
 ################################################################################
 # MUSICA
 if(MUSICA_BUILD_C_CXX_INTERFACE)
-  add_subdirectory(src)
+  if(MUSICA_USE_PREBUILT)
+    # Use prebuilt musica library - useful for faster Python wheel builds
+    find_package(musica REQUIRED)
+    message(STATUS "Using prebuilt musica library")
+  else()
+    add_subdirectory(src)
+  endif()
+endif()
+
+if(MUSICA_BUILD_DOCS)
+  add_subdirectory(docs)
 endif()
 
 ################################################################################
@@ -123,7 +136,20 @@ endif()
 ################################################################################
 # Musica python
 if(MUSICA_ENABLE_PYTHON_LIBRARY)
-  add_subdirectory(musica)
+  add_subdirectory(python)
+endif()
+
+################################################################################
+
+# Musica JavaScript Addon
+if(MUSICA_ENABLE_JAVASCRIPT)
+  add_subdirectory(javascript)
+endif()
+
+################################################################################
+# Musica Julia Wrapper
+if(MUSICA_ENABLE_JULIA)
+  add_subdirectory(julia)
 endif()
 
 ################################################################################

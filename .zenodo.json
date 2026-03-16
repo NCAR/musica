@@ -1,0 +1,80 @@
+{
+  "title": "MUSICA: Multi-Scale Infrastructure for Chemistry and Aerosols",
+  "description": "MUSICA is a multi-language library for performing computational simulations in atmospheric chemistry.",
+  "license": {
+    "id": "Apache-2.0"
+  },
+  "creators": [
+    {
+      "name": "Dawson, Matthew",
+      "affiliation": "National Center for Atmospheric Research (NCAR)",
+      "orcid": ""
+    },
+    {
+      "name": "Gim, Jiwon",
+      "affiliation": "National Center for Atmospheric Research (NCAR)",
+      "orcid": ""
+    },
+    {
+      "name": "Fillmore, David",
+      "affiliation": "National Center for Atmospheric Research (NCAR)",
+      "orcid": ""
+    },
+    {
+      "name": "Shores, Kyle",
+      "affiliation": "National Center for Atmospheric Research (NCAR)",
+      "orcid": "0000-0002-4272-5187"
+    },
+    {
+      "name": "Thind, Montek",
+      "affiliation": "National Center for Atmospheric Research (NCAR)",
+      "orcid": ""
+    },
+    {
+      "name": "Jian Sun",
+      "affiliation": "National Center for Atmospheric Research (NCAR)",
+      "orcid": ""
+    }
+  ],
+  "contributors": [
+    {
+      "name": "ACOM MUSICA Development Team",
+      "type": "ResearchGroup"
+    },
+    {
+      "name": "Angela Pak",
+      "type": "ProjectMember"
+    },
+    {
+      "name": "Aidan Winney",
+      "type": "ProjectMember"
+    },
+    {
+      "name": "Dee Grant",
+      "type": "Other"
+    },
+    {
+      "name": "Ward Fisher",
+      "type": "Other"
+    },
+    {
+      "name": "Qina Tan",
+      "type": "ProjectMember"
+    }
+  ],
+  "keywords": [
+    "atmospheric chemistry",
+    "chemical mechanisms",
+    "air quality modeling",
+    "photolysis",
+    "MICM",
+    "TUV-x"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "10.1175/BAMS-D-19-0331.1",
+      "relation": "cites",
+      "description": "The foundational MUSICA paper describing the scientific vision"
+    }
+  ]
+}

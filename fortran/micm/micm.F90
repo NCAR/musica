@@ -1,17 +1,18 @@
-! Copyright (C) 2023-2025 National Center for Atmospheric Research
+! Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 ! SPDX-License-Identifier: Apache-2.0
 !
 module musica_micm
 #define ASSERT( expr ) call assert( expr, __FILE__, __LINE__ )
   use iso_c_binding, only: c_ptr, c_char, c_int, c_int64_t, c_bool, c_double, c_null_char, &
                           c_size_t, c_f_pointer, c_funptr, c_null_ptr, c_associated
-  use iso_fortran_env, only: int64
+  use iso_fortran_env, only: int64, real64
   use musica_state, only: state_t
   use musica_util, only: assert, mappings_t, string_t, string_t_c, error_t_c
   implicit none
 
-  public :: micm_t, solver_stats_t, get_micm_version
-  public :: UndefinedSolver, Rosenbrock, RosenbrockStandardOrder, BackwardEuler, BackwardEulerStandardOrder
+  public :: micm_t, solver_stats_t, get_micm_version, is_cuda_available
+  public :: rosenbrock_solver_parameters_t, backward_euler_solver_parameters_t
+  public :: UndefinedSolver, Rosenbrock, RosenbrockStandardOrder, BackwardEuler, BackwardEulerStandardOrder, CudaRosenbrock
   private
 
   !> Wrapper for c solver stats
@@ -34,7 +35,48 @@ module musica_micm
     enumerator :: RosenbrockStandardOrder    = 2
     enumerator :: BackwardEuler              = 3
     enumerator :: BackwardEulerStandardOrder = 4
+    enumerator :: CudaRosenbrock             = 5
   end enum
+
+  !> C-binding type for Rosenbrock solver parameters
+  type, bind(c) :: rosenbrock_solver_parameters_t_c
+    real(c_double)    :: relative_tolerance
+    type(c_ptr)       :: absolute_tolerances = c_null_ptr
+    integer(c_size_t) :: num_absolute_tolerances = 0
+    real(c_double)    :: h_min
+    real(c_double)    :: h_max
+    real(c_double)    :: h_start
+    integer(c_size_t) :: max_number_of_steps
+  end type rosenbrock_solver_parameters_t_c
+
+  !> C-binding type for Backward Euler solver parameters
+  type, bind(c) :: backward_euler_solver_parameters_t_c
+    real(c_double)    :: relative_tolerance
+    type(c_ptr)       :: absolute_tolerances = c_null_ptr
+    integer(c_size_t) :: num_absolute_tolerances = 0
+    integer(c_size_t) :: max_number_of_steps
+    type(c_ptr)       :: time_step_reductions = c_null_ptr
+    integer(c_size_t) :: num_time_step_reductions = 0
+  end type backward_euler_solver_parameters_t_c
+
+  !> Fortran-native type for Rosenbrock solver parameters
+  type :: rosenbrock_solver_parameters_t
+    real(real64)              :: relative_tolerance = 1.0e-6_real64
+    real(real64), allocatable :: absolute_tolerances(:)
+    real(real64)              :: h_min = 0.0_real64
+    real(real64)              :: h_max = 0.0_real64
+    real(real64)              :: h_start = 0.0_real64
+    integer                   :: max_number_of_steps = 1000
+  end type rosenbrock_solver_parameters_t
+
+  !> Fortran-native type for Backward Euler solver parameters
+  type :: backward_euler_solver_parameters_t
+    real(real64)              :: relative_tolerance = 1.0e-6_real64
+    real(real64), allocatable :: absolute_tolerances(:)
+    integer                   :: max_number_of_steps = 11
+    real(real64)              :: time_step_reductions(5) = &  ! must have exactly 5 elements
+        (/ 0.5_real64, 0.5_real64, 0.5_real64, 0.5_real64, 0.1_real64 /)
+  end type backward_euler_solver_parameters_t
 
   interface
     function create_micm_c(config_path, solver_type, error) &
@@ -66,20 +108,20 @@ module musica_micm
       type(error_t_c),            intent(inout) :: error
     end subroutine micm_solve_c
 
-    function get_micm_version_c() bind(C, name="MicmVersion")
+    subroutine get_micm_version_c(micm_version) bind(C, name="MicmVersion")
       use musica_util, only: string_t_c
-      type(string_t_c) :: get_micm_version_c
-    end function get_micm_version_c
+      type(string_t_c), intent(out)             :: micm_version
+    end subroutine get_micm_version_c
 
-    function get_species_property_string_c(micm, species_name, property_name, error) &
+    subroutine get_species_property_string_c(micm, species_name, property_name, species_property, error) &
         bind(c, name="GetSpeciesPropertyString")
       use musica_util, only: error_t_c, string_t_c
       import c_ptr, c_char
       type(c_ptr), value, intent(in)            :: micm
       character(len=1, kind=c_char), intent(in) :: species_name(*), property_name(*)
+      type(string_t_c), intent(out)             :: species_property
       type(error_t_c), intent(inout)            :: error
-      type(string_t_c)                          :: get_species_property_string_c
-    end function get_species_property_string_c
+    end subroutine get_species_property_string_c
 
     function get_species_property_double_c(micm, species_name, property_name, error) &
         bind(c, name="GetSpeciesPropertyDouble")
@@ -110,6 +152,56 @@ module musica_micm
       type(error_t_c), intent(inout)            :: error
       logical(kind=c_bool)                      :: get_species_property_bool_c
     end function get_species_property_bool_c      
+
+    function is_cuda_available_c(error) bind(C, name="_IsCudaAvailable")
+      use musica_util, only: error_t_c
+      import c_bool
+      type(error_t_c), intent(inout) :: error
+      logical(kind=c_bool)           :: is_cuda_available_c
+    end function is_cuda_available_c
+
+    integer(c_size_t) function get_maximum_number_of_grid_cells_c(micm) &
+        bind(C, name="GetMaximumNumberOfGridCells")
+      use musica_util, only: error_t_c
+      import c_ptr, c_size_t
+      type(c_ptr), value, intent(in)            :: micm
+    end function get_maximum_number_of_grid_cells_c
+
+    subroutine set_rosenbrock_solver_parameters_c(micm, params, error) &
+        bind(C, name="SetRosenbrockSolverParameters")
+      use musica_util, only: error_t_c
+      import c_ptr, rosenbrock_solver_parameters_t_c
+      type(c_ptr), value, intent(in)                       :: micm
+      type(rosenbrock_solver_parameters_t_c), intent(in)   :: params
+      type(error_t_c), intent(inout)                       :: error
+    end subroutine set_rosenbrock_solver_parameters_c
+
+    subroutine set_backward_euler_solver_parameters_c(micm, params, error) &
+        bind(C, name="SetBackwardEulerSolverParameters")
+      use musica_util, only: error_t_c
+      import c_ptr, backward_euler_solver_parameters_t_c
+      type(c_ptr), value, intent(in)                          :: micm
+      type(backward_euler_solver_parameters_t_c), intent(in)  :: params
+      type(error_t_c), intent(inout)                          :: error
+    end subroutine set_backward_euler_solver_parameters_c
+
+    subroutine get_rosenbrock_solver_parameters_c(micm, params, error) &
+        bind(C, name="GetRosenbrockSolverParameters")
+      use musica_util, only: error_t_c
+      import c_ptr, rosenbrock_solver_parameters_t_c
+      type(c_ptr), value, intent(in)                        :: micm
+      type(rosenbrock_solver_parameters_t_c), intent(inout) :: params
+      type(error_t_c), intent(inout)                        :: error
+    end subroutine get_rosenbrock_solver_parameters_c
+
+    subroutine get_backward_euler_solver_parameters_c(micm, params, error) &
+        bind(C, name="GetBackwardEulerSolverParameters")
+      use musica_util, only: error_t_c
+      import c_ptr, backward_euler_solver_parameters_t_c
+      type(c_ptr), value, intent(in)                           :: micm
+      type(backward_euler_solver_parameters_t_c), intent(inout) :: params
+      type(error_t_c), intent(inout)                           :: error
+    end subroutine get_backward_euler_solver_parameters_c
   end interface
 
   type :: micm_t
@@ -119,11 +211,17 @@ module musica_micm
     ! Solve the chemical system
     procedure :: solve
     procedure :: get_state
+    procedure :: get_maximum_number_of_grid_cells
     ! Get species properties
     procedure :: get_species_property_string
     procedure :: get_species_property_double
     procedure :: get_species_property_int
     procedure :: get_species_property_bool
+    ! Solver parameters
+    procedure :: set_rosenbrock_solver_parameters
+    procedure :: set_backward_euler_solver_parameters
+    procedure :: get_rosenbrock_solver_parameters
+    procedure :: get_backward_euler_solver_parameters
     ! Deallocate the micm instance
     final :: finalize
   end type micm_t
@@ -163,7 +261,7 @@ contains
     use musica_util, only: string_t, string_t_c
     type(string_t)   :: value
     type(string_t_c) :: string_c
-    string_c = get_micm_version_c()
+    call get_micm_version_c(string_c)
     value = string_t(string_c)        
   end function get_micm_version
 
@@ -232,6 +330,26 @@ contains
     state => state_t(this%ptr, int(number_of_grid_cells, kind=c_int), error)
     error = error_t(error_c)
   end function get_state
+
+  !> Gets the maximum number of grid cells
+  integer function get_maximum_number_of_grid_cells(this) result(maximum_number_of_grid_cells)
+    use iso_c_binding, only: c_size_t
+    use musica_util, only: error_t, error_t_c
+    class(micm_t), intent(in)    :: this
+    integer(c_size_t)            :: max_cells_c
+
+    max_cells_c = get_maximum_number_of_grid_cells_c(this%ptr)
+    if (max_cells_c > int(huge(0), kind=c_size_t)) then
+      maximum_number_of_grid_cells = huge(0)
+    else
+      maximum_number_of_grid_cells = int(max_cells_c)
+    end if
+    ! The Fortran int(c_size_t) doesn't seem to be able to hold the actual
+    ! maximum value of a C size_t. When there is an overflow, we set it to the largest int.
+    if (maximum_number_of_grid_cells < 0) then
+      maximum_number_of_grid_cells = huge(0)
+    end if
+  end function get_maximum_number_of_grid_cells
 
   !> Constructor for solver_stats_t object that takes ownership of solver_stats_t_c
   function solver_stats_t_constructor( c_solver_stats ) result( new_solver_stats )
@@ -331,8 +449,8 @@ contains
 
     type(error_t_c)              :: error_c
     type(string_t_c)             :: string_c
-    string_c = get_species_property_string_c(this%ptr,  &
-              to_c_string(species_name), to_c_string(property_name), error_c)
+    call get_species_property_string_c(this%ptr,  &
+       to_c_string(species_name), to_c_string(property_name), string_c, error_c)
     value = string_t(string_c)
     error = error_t(error_c)
   end function get_species_property_string
@@ -388,5 +506,133 @@ contains
     error = error_t(error_c)
     ASSERT(error%is_success())
   end subroutine finalize
-  
+
+  function is_cuda_available(error) result(value)
+    use musica_util, only: error_t_c, error_t
+    type(error_t), intent(inout) :: error
+    logical                      :: value
+    type(error_t_c)              :: error_c
+
+    value = is_cuda_available_c(error_c)
+    error = error_t(error_c)
+  end function is_cuda_available
+
+  subroutine set_rosenbrock_solver_parameters(this, params, error)
+    use musica_util, only: error_t_c, error_t
+    use iso_c_binding, only: c_loc
+    class(micm_t), intent(in)                        :: this
+    type(rosenbrock_solver_parameters_t), intent(in), target :: params
+    type(error_t), intent(inout)                     :: error
+
+    type(rosenbrock_solver_parameters_t_c) :: params_c
+    type(error_t_c)                        :: error_c
+    real(c_double), allocatable, target     :: abs_tol_c(:)
+
+    params_c%relative_tolerance = real(params%relative_tolerance, c_double)
+    params_c%h_min = real(params%h_min, c_double)
+    params_c%h_max = real(params%h_max, c_double)
+    params_c%h_start = real(params%h_start, c_double)
+    params_c%max_number_of_steps = int(params%max_number_of_steps, c_size_t)
+    if (allocated(params%absolute_tolerances)) then
+      allocate(abs_tol_c(size(params%absolute_tolerances)))
+      abs_tol_c = real(params%absolute_tolerances, c_double)
+      params_c%absolute_tolerances = c_loc(abs_tol_c(1))
+      params_c%num_absolute_tolerances = int(size(abs_tol_c), c_size_t)
+    else
+      params_c%absolute_tolerances = c_null_ptr
+      params_c%num_absolute_tolerances = 0
+    end if
+    call set_rosenbrock_solver_parameters_c(this%ptr, params_c, error_c)
+    error = error_t(error_c)
+  end subroutine set_rosenbrock_solver_parameters
+
+  subroutine set_backward_euler_solver_parameters(this, params, error)
+    use musica_util, only: error_t_c, error_t
+    use iso_c_binding, only: c_loc
+    class(micm_t), intent(in)                           :: this
+    type(backward_euler_solver_parameters_t), intent(in), target :: params
+    type(error_t), intent(inout)                        :: error
+
+    type(backward_euler_solver_parameters_t_c) :: params_c
+    type(error_t_c)                            :: error_c
+    real(c_double), allocatable, target         :: abs_tol_c(:)
+    real(c_double), allocatable, target         :: tsr_c(:)
+
+    params_c%relative_tolerance = real(params%relative_tolerance, c_double)
+    params_c%max_number_of_steps = int(params%max_number_of_steps, c_size_t)
+    if (allocated(params%absolute_tolerances)) then
+      allocate(abs_tol_c(size(params%absolute_tolerances)))
+      abs_tol_c = real(params%absolute_tolerances, c_double)
+      params_c%absolute_tolerances = c_loc(abs_tol_c(1))
+      params_c%num_absolute_tolerances = int(size(abs_tol_c), c_size_t)
+    else
+      params_c%absolute_tolerances = c_null_ptr
+      params_c%num_absolute_tolerances = 0
+    end if
+    allocate(tsr_c(size(params%time_step_reductions)))
+    tsr_c = real(params%time_step_reductions, c_double)
+    params_c%time_step_reductions = c_loc(tsr_c(1))
+    params_c%num_time_step_reductions = int(size(tsr_c), c_size_t)
+    call set_backward_euler_solver_parameters_c(this%ptr, params_c, error_c)
+    error = error_t(error_c)
+  end subroutine set_backward_euler_solver_parameters
+
+  function get_rosenbrock_solver_parameters(this, error) result(params)
+    use musica_util, only: error_t_c, error_t
+    class(micm_t), intent(in)    :: this
+    type(error_t), intent(inout) :: error
+    type(rosenbrock_solver_parameters_t) :: params
+
+    type(rosenbrock_solver_parameters_t_c) :: params_c
+    type(error_t_c)                        :: error_c
+    real(c_double), pointer                :: abs_tol_ptr(:)
+
+    params_c%absolute_tolerances = c_null_ptr
+    params_c%num_absolute_tolerances = 0
+    call get_rosenbrock_solver_parameters_c(this%ptr, params_c, error_c)
+    error = error_t(error_c)
+    if (.not. error%is_success()) return
+    params%relative_tolerance = real(params_c%relative_tolerance, real64)
+    params%h_min = real(params_c%h_min, real64)
+    params%h_max = real(params_c%h_max, real64)
+    params%h_start = real(params_c%h_start, real64)
+    params%max_number_of_steps = int(params_c%max_number_of_steps)
+    if (params_c%num_absolute_tolerances > 0 .and. c_associated(params_c%absolute_tolerances)) then
+      call c_f_pointer(params_c%absolute_tolerances, abs_tol_ptr, [int(params_c%num_absolute_tolerances)])
+      allocate(params%absolute_tolerances(int(params_c%num_absolute_tolerances)))
+      params%absolute_tolerances = real(abs_tol_ptr, real64)
+    end if
+  end function get_rosenbrock_solver_parameters
+
+  function get_backward_euler_solver_parameters(this, error) result(params)
+    use musica_util, only: error_t_c, error_t
+    class(micm_t), intent(in)    :: this
+    type(error_t), intent(inout) :: error
+    type(backward_euler_solver_parameters_t) :: params
+
+    type(backward_euler_solver_parameters_t_c) :: params_c
+    type(error_t_c)                            :: error_c
+    real(c_double), pointer                    :: abs_tol_ptr(:)
+    real(c_double), pointer                    :: tsr_ptr(:)
+
+    params_c%absolute_tolerances = c_null_ptr
+    params_c%num_absolute_tolerances = 0
+    params_c%time_step_reductions = c_null_ptr
+    params_c%num_time_step_reductions = 0
+    call get_backward_euler_solver_parameters_c(this%ptr, params_c, error_c)
+    error = error_t(error_c)
+    if (.not. error%is_success()) return
+    params%relative_tolerance = real(params_c%relative_tolerance, real64)
+    params%max_number_of_steps = int(params_c%max_number_of_steps)
+    if (params_c%num_absolute_tolerances > 0 .and. c_associated(params_c%absolute_tolerances)) then
+      call c_f_pointer(params_c%absolute_tolerances, abs_tol_ptr, [int(params_c%num_absolute_tolerances)])
+      allocate(params%absolute_tolerances(int(params_c%num_absolute_tolerances)))
+      params%absolute_tolerances = real(abs_tol_ptr, real64)
+    end if
+    if (params_c%num_time_step_reductions > 0 .and. c_associated(params_c%time_step_reductions)) then
+      call c_f_pointer(params_c%time_step_reductions, tsr_ptr, [int(params_c%num_time_step_reductions)])
+      params%time_step_reductions = real(tsr_ptr, real64)
+    end if
+  end function get_backward_euler_solver_parameters
+
 end module musica_micm

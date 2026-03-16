@@ -1,0 +1,48 @@
+name: Julia Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test Julia package (${{ matrix.os }}, Julia ${{ matrix.julia-version }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        julia-version: ['1.10','1.11']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Julia
+        uses: julia-actions/setup-julia@v2
+        with:
+          version: ${{ matrix.julia-version }}
+
+      - name: Install Julia dependencies (CxxWrap)
+        working-directory: julia
+        run: julia --project=. -e 'using Pkg; Pkg.instantiate()'
+
+      - name: Configure MUSICA with Julia support
+        run: cmake -S . -B build -D CMAKE_BUILD_TYPE=Release -D MUSICA_ENABLE_JULIA=ON -D MUSICA_ENABLE_MICM=ON -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_CARMA=OFF -D MUSICA_ENABLE_TESTS=OFF -D CMAKE_POLICY_VERSION_MINIMUM=3.5
+      
+      - name: Build MUSICA with Julia support
+        run: cmake --build build --verbose
+
+      - name: Precompile Julia package with built library
+        working-directory: julia
+        run: julia --project=. -e 'using Pkg; Pkg.precompile()'
+
+      - name: Run Julia tests
+        working-directory: julia
+        run: julia --project=. test/runtests.jl

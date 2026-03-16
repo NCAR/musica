@@ -5,36 +5,38 @@ ARG BUILD_TYPE=Release
 
 RUN dnf -y update \
     && dnf -y install \
-        doxygen \
-        gcc-c++ \
-        gcc \
-        gdb \
-        git \
         cmake \
+        doxygen \
+        gcc \
+        gcc-c++ \
+        gfortran \
+        git \
+        lapack-devel \
         make \
-        lcov \
-        valgrind \
-        python3 \
-        python3-pip \
+        netcdf-fortran-devel \
+        pandoc \
+        pip \
+        python \
+        python-devel \
     && dnf clean all
 
 COPY . /musica/
 
-RUN python3 -m pip install --upgrade pip setuptools \
-    && python3 -m pip install -r /musica/docs/requirements.txt
+RUN cd /musica &&  python -m pip install -e .
 
-ARG SUFFIX=""
-ENV SWITCHER_SUFFIX=$SUFFIX
-
-RUN echo "The suffix is '$SWITCHER_SUFFIX'"
+RUN python -m pip install -r /musica/docs/requirements.txt
+RUN pip install --upgrade pip ipython ipykernel
 
 RUN mkdir /build \
       && cd /build \
       && cmake -D MUSICA_BUILD_DOCS=ON \
                -D MUSICA_ENABLE_TUVX=OFF \
+                -D MUSICA_ENABLE_CARMA=OFF \
                 -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
                 -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
-               /musica \
-      && make docs
+               /musica 
+
+RUN cd /musica/docs && make copy
+RUN cd /build && make docs
 
 WORKDIR /build

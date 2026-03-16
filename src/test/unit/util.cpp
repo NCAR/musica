@@ -1,6 +1,7 @@
-// Copyright (C) 2023-2025 National Center for Atmospheric Research
+// Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 #include <musica/util.hpp>
+#include <musica/version.hpp>
 
 #include <gtest/gtest.h>
 
@@ -8,7 +9,8 @@ using namespace musica;
 
 TEST(Util, CreateString)
 {
-  String str = CreateString("Hello, World!");
+  String str;
+  CreateString("Hello, World!", &str);
   EXPECT_EQ(str.size_, 13);
   EXPECT_STREQ(str.value_, "Hello, World!");
   DeleteString(&str);
@@ -18,7 +20,8 @@ TEST(Util, CreateString)
 
 TEST(Util, NoError)
 {
-  Error error = NoError();
+  Error error;
+  NoError(&error);
   EXPECT_EQ(error.code_, 0);
   EXPECT_EQ(error.category_.size_, 0);
   EXPECT_STREQ(error.category_.value_, "");
@@ -33,7 +36,8 @@ TEST(Util, NoError)
 
 TEST(Util, ToError)
 {
-  Error error = ToError("Test", 1, "Test Error");
+  Error error;
+  ToError("Test", 1, "Test Error", &error);
   EXPECT_EQ(error.code_, 1);
   EXPECT_EQ(error.category_.size_, 4);
   EXPECT_STREQ(error.category_.value_, "Test");
@@ -48,21 +52,24 @@ TEST(Util, ToError)
 
 TEST(Util, IsSuccess)
 {
-  Error error = NoError();
+  Error error;
+  NoError(&error);
   EXPECT_TRUE(IsSuccess(error));
   DeleteError(&error);
 }
 
 TEST(Util, IsError)
 {
-  Error error = ToError("Test", 1, "Test Error");
+  Error error;
+  ToError("Test", 1, "Test Error", &error);
   EXPECT_TRUE(IsError(error, "Test", 1));
   DeleteError(&error);
 }
 
 TEST(Util, ToMapping)
 {
-  Mapping mapping = ToMapping("Test", 1);
+  Mapping mapping;
+  ToMapping("Test", 1, &mapping);
   EXPECT_EQ(mapping.name_.size_, 4);
   EXPECT_STREQ(mapping.name_.value_, "Test");
   EXPECT_EQ(mapping.index_, 1);
@@ -74,10 +81,14 @@ TEST(Util, ToMapping)
 TEST(Util, FindMappingIndex)
 {
   Mappings mappings;
-  Mapping mapping_array[] = { ToMapping("Test", 1), ToMapping("Test2", 4), ToMapping("Test3", 9) };
+  Mapping mapping_array[3];
+  ToMapping("Test", 1, &mapping_array[0]);
+  ToMapping("Test2", 4, &mapping_array[1]);
+  ToMapping("Test3", 9, &mapping_array[2]);
   mappings.mappings_ = mapping_array;
   mappings.size_ = 3;
-  Error error = NoError();
+  Error error;
+  NoError(&error);
   EXPECT_EQ(FindMappingIndex(mappings, "Test", &error), 1);
   EXPECT_TRUE(IsSuccess(error));
   EXPECT_EQ(FindMappingIndex(mappings, "Test3", &error), 9);
@@ -92,24 +103,32 @@ TEST(Util, FindMappingIndex)
 
 TEST(Util, IndexMappingFromString)
 {
-  Error error = NoError();
-  Configuration config = LoadConfigurationFromString(
+  Error error;
+  NoError(&error);
+  Configuration config;
+  LoadConfigurationFromString(
       "- source: Test\n"
       "  target: Test2\n"
       "- source: Test2\n"
       "  target: Test3\n"
       "  scale factor: 0.82\n",
+      &config,
       &error);
   EXPECT_TRUE(IsSuccess(error));
   Mappings source_map;
   Mappings target_map;
-  Mapping source_map_array[] = { ToMapping("Test", 1), ToMapping("Test2", 4) };
-  Mapping target_map_array[] = { ToMapping("Test2", 2), ToMapping("Test3", 0) };
+  Mapping source_map_array[2];
+  Mapping target_map_array[2];
+  ToMapping("Test", 1, &source_map_array[0]);
+  ToMapping("Test2", 4, &source_map_array[1]);
+  ToMapping("Test2", 2, &target_map_array[0]);
+  ToMapping("Test3", 0, &target_map_array[1]);
   source_map.mappings_ = source_map_array;
   source_map.size_ = 2;
   target_map.mappings_ = target_map_array;
   target_map.size_ = 2;
-  IndexMappings index_mappings = CreateIndexMappings(config, IndexMappingOptions::MapAll, source_map, target_map, &error);
+  IndexMappings index_mappings;
+  CreateIndexMappings(config, IndexMappingOptions::MapAll, source_map, target_map, &index_mappings, &error);
   EXPECT_TRUE(IsSuccess(error));
   EXPECT_EQ(index_mappings.mappings_[0].source_, 1);
   EXPECT_EQ(index_mappings.mappings_[0].target_, 2);
@@ -137,18 +156,25 @@ TEST(Util, IndexMappingFromString)
 
 TEST(Util, IndexMappingFromFile)
 {
-  Error error = NoError();
-  Configuration config = LoadConfigurationFromFile("test/data/util_index_mapping_from_file.json", &error);
+  Error error;
+  NoError(&error);
+  Configuration config;
+  LoadConfigurationFromFile("configs/util_index_mapping_from_file.json", &config, &error);
   EXPECT_TRUE(IsSuccess(error));
   Mappings source_map;
   Mappings target_map;
-  Mapping source_map_array[] = { ToMapping("Test", 1), ToMapping("Test2", 4) };
-  Mapping target_map_array[] = { ToMapping("Test2", 2), ToMapping("Test3", 0) };
+  Mapping source_map_array[2];
+  Mapping target_map_array[2];
+  ToMapping("Test", 1, &source_map_array[0]);
+  ToMapping("Test2", 4, &source_map_array[1]);
+  ToMapping("Test2", 2, &target_map_array[0]);
+  ToMapping("Test3", 0, &target_map_array[1]);
   source_map.mappings_ = source_map_array;
   source_map.size_ = 2;
   target_map.mappings_ = target_map_array;
   target_map.size_ = 2;
-  IndexMappings index_mappings = CreateIndexMappings(config, IndexMappingOptions::MapAll, source_map, target_map, &error);
+  IndexMappings index_mappings;
+  CreateIndexMappings(config, IndexMappingOptions::MapAll, source_map, target_map, &index_mappings, &error);
   EXPECT_TRUE(IsSuccess(error));
   EXPECT_EQ(index_mappings.mappings_[0].source_, 1);
   EXPECT_EQ(index_mappings.mappings_[0].target_, 2);
@@ -176,8 +202,10 @@ TEST(Util, IndexMappingFromFile)
 
 TEST(Util, IndexMappingMissingSource)
 {
-  Error error = NoError();
-  Configuration config = LoadConfigurationFromString(
+  Error error;
+  NoError(&error);
+  Configuration config;
+  LoadConfigurationFromString(
       "- source: Test\n"
       "  target: Test2\n"
       "- source: Test2\n"
@@ -185,21 +213,27 @@ TEST(Util, IndexMappingMissingSource)
       "  scale factor: 0.82\n"
       "- source: Test4\n"
       "  target: Test2\n",
+      &config,
       &error);
   EXPECT_TRUE(IsSuccess(error));
   Mappings source_map;
   Mappings target_map;
-  Mapping source_map_array[] = { ToMapping("Test", 1), ToMapping("Test2", 4) };
-  Mapping target_map_array[] = { ToMapping("Test2", 2), ToMapping("Test3", 0) };
+  Mapping source_map_array[2];
+  Mapping target_map_array[2];
+  ToMapping("Test", 1, &source_map_array[0]);
+  ToMapping("Test2", 4, &source_map_array[1]);
+  ToMapping("Test2", 2, &target_map_array[0]);
+  ToMapping("Test3", 0, &target_map_array[1]);
   source_map.mappings_ = source_map_array;
   source_map.size_ = 2;
   target_map.mappings_ = target_map_array;
   target_map.size_ = 2;
-  IndexMappings index_mappings = CreateIndexMappings(config, IndexMappingOptions::MapAll, source_map, target_map, &error);
+  IndexMappings index_mappings;
+  CreateIndexMappings(config, IndexMappingOptions::MapAll, source_map, target_map, &index_mappings, &error);
   EXPECT_EQ(error.code_, MUSICA_ERROR_CODE_MAPPING_NOT_FOUND);
   EXPECT_EQ(index_mappings.size_, 0);
   EXPECT_EQ(index_mappings.mappings_, nullptr);
-  index_mappings = CreateIndexMappings(config, IndexMappingOptions::MapAny, source_map, target_map, &error);
+  CreateIndexMappings(config, IndexMappingOptions::MapAny, source_map, target_map, &index_mappings, &error);
   EXPECT_TRUE(IsSuccess(error));
   EXPECT_EQ(index_mappings.mappings_[0].source_, 1);
   EXPECT_EQ(index_mappings.mappings_[0].target_, 2);
@@ -227,8 +261,10 @@ TEST(Util, IndexMappingMissingSource)
 
 TEST(Util, IndexMappingMissingTarget)
 {
-  Error error = NoError();
-  Configuration config = LoadConfigurationFromString(
+  Error error;
+  NoError(&error);
+  Configuration config;
+  LoadConfigurationFromString(
       "- source: Test\n"
       "  target: Test2\n"
       "- source: Test2\n"
@@ -236,21 +272,27 @@ TEST(Util, IndexMappingMissingTarget)
       "  scale factor: 0.82\n"
       "- source: Test\n"
       "  target: Test4\n",
+      &config,
       &error);
   EXPECT_TRUE(IsSuccess(error));
   Mappings source_map;
   Mappings target_map;
-  Mapping source_map_array[] = { ToMapping("Test", 1), ToMapping("Test2", 4) };
-  Mapping target_map_array[] = { ToMapping("Test2", 2), ToMapping("Test3", 0) };
+  Mapping source_map_array[2];
+  Mapping target_map_array[2];
+  ToMapping("Test", 1, &source_map_array[0]);
+  ToMapping("Test2", 4, &source_map_array[1]);
+  ToMapping("Test2", 2, &target_map_array[0]);
+  ToMapping("Test3", 0, &target_map_array[1]);
   source_map.mappings_ = source_map_array;
   source_map.size_ = 2;
   target_map.mappings_ = target_map_array;
   target_map.size_ = 2;
-  IndexMappings index_mappings = CreateIndexMappings(config, IndexMappingOptions::MapAll, source_map, target_map, &error);
+  IndexMappings index_mappings;
+  CreateIndexMappings(config, IndexMappingOptions::MapAll, source_map, target_map, &index_mappings, &error);
   EXPECT_EQ(error.code_, MUSICA_ERROR_CODE_MAPPING_NOT_FOUND);
   EXPECT_EQ(index_mappings.size_, 0);
   EXPECT_EQ(index_mappings.mappings_, nullptr);
-  index_mappings = CreateIndexMappings(config, IndexMappingOptions::MapAny, source_map, target_map, &error);
+  CreateIndexMappings(config, IndexMappingOptions::MapAny, source_map, target_map, &index_mappings, &error);
   EXPECT_TRUE(IsSuccess(error));
   EXPECT_EQ(index_mappings.mappings_[0].source_, 1);
   EXPECT_EQ(index_mappings.mappings_[0].target_, 2);
@@ -278,25 +320,32 @@ TEST(Util, IndexMappingMissingTarget)
 
 TEST(Util, IndexMappingUndefinedOptions)
 {
-  Error error = NoError();
-  Configuration config = LoadConfigurationFromString(
+  Error error;
+  NoError(&error);
+  Configuration config;
+  LoadConfigurationFromString(
       "- source: Test\n"
       "  target: Test2\n"
       "- source: Test2\n"
       "  target: Test3\n"
       "  scale factor: 0.82\n",
+      &config,
       &error);
   EXPECT_TRUE(IsSuccess(error));
   Mappings source_map;
   Mappings target_map;
-  Mapping source_map_array[] = { ToMapping("Test", 1), ToMapping("Test2", 4) };
-  Mapping target_map_array[] = { ToMapping("Test2", 2), ToMapping("Test3", 0) };
+  Mapping source_map_array[2];
+  Mapping target_map_array[2];
+  ToMapping("Test", 1, &source_map_array[0]);
+  ToMapping("Test2", 4, &source_map_array[1]);
+  ToMapping("Test2", 2, &target_map_array[0]);
+  ToMapping("Test3", 0, &target_map_array[1]);
   source_map.mappings_ = source_map_array;
   source_map.size_ = 2;
   target_map.mappings_ = target_map_array;
   target_map.size_ = 2;
-  IndexMappings index_mappings =
-      CreateIndexMappings(config, IndexMappingOptions::UndefinedMapping, source_map, target_map, &error);
+  IndexMappings index_mappings;
+  CreateIndexMappings(config, IndexMappingOptions::UndefinedMapping, source_map, target_map, &index_mappings, &error);
   EXPECT_EQ(error.code_, MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED);
   EXPECT_EQ(index_mappings.size_, 0);
   EXPECT_EQ(index_mappings.mappings_, nullptr);
@@ -306,4 +355,15 @@ TEST(Util, IndexMappingUndefinedOptions)
   DeleteMapping(&(target_map_array[1]));
   DeleteConfiguration(&config);
   DeleteError(&error);
+}
+
+TEST(Util, MusicaVersion)
+{
+  String version;
+  MusicaVersion(&version);
+  EXPECT_NE(version.value_, nullptr);
+  EXPECT_GT(version.size_, 0);
+  // Check that version is the same as GetMusicaVersion()
+  EXPECT_STREQ(version.value_, GetMusicaVersion());
+  DeleteString(&version);
 }

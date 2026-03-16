@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 National Center for Atmospheric Research
+// Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 //
 // This file defines the State class.It includes state representations for different
@@ -25,49 +25,76 @@ namespace musica
     /// @brief Deletes a state object
     /// @param state Pointer to state object
     /// @param error Error struct to indicate success or failure
-    void DeleteState(const State* state, Error* error);
+    void DeleteState(State* state, Error* error);
 
     /// @brief Get the pointer to the conditions struct
     /// @param state Pointer to state object
-    /// @param number_of_grid_cells Pointer to num of grid cells
+    /// @param array_size Overall size of the array (output)
     /// @param error Error struct to indicate success or failure
-    micm::Conditions* GetConditionsToStateFortran(musica::State* state, int* number_of_grid_cells, Error* error);
+    micm::Conditions* GetConditionsPointer(musica::State* state, size_t* array_size, Error* error);
 
     /// @brief Get the point to the vector of the concentrations for Fortran interface
     /// @param state Pointer to state object
-    /// @param number_of_species Pointer to number of species
-    /// @param number_of_grid_cells Pointer to num of grid cells
+    /// @param array_size Overall size of the array (output)
     /// @param error Error struct to indicate success or failure
     /// @return Pointer to the vector
-    double* GetOrderedConcentrationsToStateFortran(
-        musica::State* state,
-        int* number_of_species,
-        int* number_of_grid_cells,
-        Error* error);
+    double* GetOrderedConcentrationsPointer(musica::State* state, size_t* array_size, Error* error);
 
     /// @brief Get the point to the vector of the rates for Fortran interface
     /// @param state Pointer to state object
-    /// @param number_of_species Pointer to number of rate constants
-    /// @param number_of_grid_cells Pointer to num of grid cells
+    /// @param array_size Overall size of the array (output)
     /// @param error Error struct to indicate success or failure
     /// @return Pointer to the vector
-    double* GetOrderedRateConstantsToStateFortran(
-        musica::State* state,
-        int* number_of_rate_constants,
-        int* number_of_grid_cells,
-        Error* error);
+    double* GetOrderedRateParametersPointer(musica::State* state, size_t* array_size, Error* error);
 
     /// @brief Get the ordering of species
-    /// @param state Pointer to state object
-    /// @param error Error struct to indicate success or failure
-    /// @return Array of species' name-index pairs
-    Mappings GetSpeciesOrdering(musica::State* state, Error* error);
+    /// @param state Pointer to state object [input]
+    /// @param species_ordering Array of species' name-index pairs [output]
+    /// @param error Error struct to indicate success or failure [output]
+    void GetSpeciesOrdering(musica::State* state, Mappings* species_ordering, Error* error);
 
     /// @brief Get the ordering of user-defined reaction rates
+    /// @param state Pointer to state object [input]
+    /// @param reaction_rates Array of reaction rate name-index pairs [output]
+    /// @param error Error struct to indicate success or failure [output]
+    void GetUserDefinedRateParametersOrdering(musica::State* state, Mappings* reaction_rates, Error* error);
+
+    /// @brief Returns the number of grid cells in the solver state
     /// @param state Pointer to state object
     /// @param error Error struct to indicate success or failure
-    /// @return Array of reaction rate name-index pairs
-    Mappings GetUserDefinedReactionRatesOrdering(musica::State* state, Error* error);
+    /// @return Number of grid cells
+    size_t GetNumberOfGridCells(musica::State* state, Error* error);
+
+    /// @brief Returns the number of species in the solver state
+    /// @param state Pointer to state object
+    /// @param error Error struct to indicate success or failure
+    /// @return Number of species
+    size_t GetNumberOfSpecies(musica::State* state, Error* error);
+
+    /// @brief Returns the stride across grid cells for the concentration matrix
+    /// @param state Pointer to state object
+    /// @param error Error struct to indicate success or failure
+    /// @param grid_cell_stride Pointer to the stride across grid cells
+    /// @param species_stride Pointer to the stride across species
+    void GetConcentrationsStrides(musica::State* state, Error* error, size_t* grid_cell_stride, size_t* species_stride);
+
+    /// @brief Returns the number of user-defined rate parameters
+    /// @param state Pointer to state object
+    /// @param error Error struct to indicate success or failure
+    /// @return Number of user-defined rate parameters
+    size_t GetNumberOfUserDefinedRateParameters(musica::State* state, Error* error);
+
+    /// @brief Returns the stride across grid cells for the user-defined rate parameter matrix
+    /// @param state Pointer to state object
+    /// @param error Error struct to indicate success or failure
+    /// @param grid_cell_stride Pointer to the stride across grid cells
+    /// @param user_defined_rate_parameter_stride Pointer to the stride across user-defined rate parameters
+    void GetUserDefinedRateParametersStrides(
+        musica::State* state,
+        Error* error,
+        size_t* grid_cell_stride,
+        size_t* user_defined_rate_parameter_stride);
+
 #ifdef __cplusplus
   }
 #endif

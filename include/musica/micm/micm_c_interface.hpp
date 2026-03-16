@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 National Center for Atmospheric Research
+// Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 //
 // This file contains the defintion of the MICM class, which represents a multi-component reactive transport model.
@@ -8,6 +8,7 @@
 #include <musica/micm/chemistry.hpp>
 #include <musica/micm/micm.hpp>
 #include <musica/micm/parse.hpp>
+#include <musica/micm/solver_parameters.hpp>
 #include <musica/micm/state.hpp>
 #include <musica/util.hpp>
 
@@ -41,10 +42,17 @@ namespace musica
     /// @return Pointer to MICM object
     MICM *CreateMicmFromChemistryMechanism(const Chemistry *chemistry, MICMSolver solver_type, Error *error);
 
+    /// @brief Create a MICM object from a JSON or YAML configuration string
+    /// @param config_string JSON or YAML configuration string
+    /// @param solver_type Type of MICMSolver
+    /// @param error Error struct to indicate success or failure
+    /// @return Pointer to MICM object
+    MICM *CreateMicmFromConfigString(const char *config_string, MICMSolver solver_type, Error *error);
+
     /// @brief Deletes a MICM object
     /// @param micm Pointer to MICM object
     /// @param error Error struct to indicate success or failure
-    void DeleteMicm(const MICM *micm, Error *error);
+    void DeleteMicm(MICM *micm, Error *error);
 
     /// @brief Solve the system
     /// @param micm Pointer to MICM object
@@ -62,19 +70,82 @@ namespace musica
         Error *error);
 
     /// @brief Get the MICM version
-    /// @return MICM version
-    String MicmVersion();
+    /// @param micm_version MICM version [output]
+    void MicmVersion(String *micm_version);
 
     /// @brief Get a property for a chemical species
-    /// @param micm Pointer to MICM object
-    /// @param species_name Name of the species
-    /// @param property_name Name of the property
-    /// @param error Error struct to indicate success or failure
-    /// @return Value of the property
-    String GetSpeciesPropertyString(MICM *micm, const char *species_name, const char *property_name, Error *error);
+    /// @param micm Pointer to MICM object [input]
+    /// @param species_name Name of the species [input]
+    /// @param property_name Name of the property [input]
+    /// @param species_property Value of the property [output]
+    /// @param error Error struct to indicate success or failure [output]
+    void GetSpeciesPropertyString(
+        MICM *micm,
+        const char *species_name,
+        const char *property_name,
+        String *species_property,
+        Error *error);
     double GetSpeciesPropertyDouble(MICM *micm, const char *species_name, const char *property_name, Error *error);
     int GetSpeciesPropertyInt(MICM *micm, const char *species_name, const char *property_name, Error *error);
     bool GetSpeciesPropertyBool(MICM *micm, const char *species_name, const char *property_name, Error *error);
+
+    /// @brief Get the maximum number of grid cells per state
+    /// @param micm Pointer to MICM object
+    /// @return Maximum number of grid cells
+    size_t GetMaximumNumberOfGridCells(MICM *micm);
+
+    bool _IsCudaAvailable(Error *error);
+
+    /// @brief  Get the MUSICA vector size
+    /// @return The MUSICA vector size
+    std::size_t GetVectorSize(musica::MICMSolver);
+
+    /// @brief C-compatible struct for Rosenbrock solver parameters
+    typedef struct
+    {
+      double relative_tolerance;
+      double *absolute_tolerances;
+      size_t num_absolute_tolerances;
+      double h_min;
+      double h_max;
+      double h_start;
+      size_t max_number_of_steps;
+    } RosenbrockSolverParametersC;
+
+    /// @brief C-compatible struct for Backward Euler solver parameters
+    typedef struct
+    {
+      double relative_tolerance;
+      double *absolute_tolerances;
+      size_t num_absolute_tolerances;
+      size_t max_number_of_steps;
+      double *time_step_reductions;
+      size_t num_time_step_reductions;
+    } BackwardEulerSolverParametersC;
+
+    /// @brief Set Rosenbrock solver parameters
+    /// @param micm Pointer to MICM object
+    /// @param params Pointer to RosenbrockSolverParametersC struct
+    /// @param error Error struct to indicate success or failure
+    void SetRosenbrockSolverParameters(MICM *micm, const RosenbrockSolverParametersC *params, Error *error);
+
+    /// @brief Set Backward Euler solver parameters
+    /// @param micm Pointer to MICM object
+    /// @param params Pointer to BackwardEulerSolverParametersC struct
+    /// @param error Error struct to indicate success or failure
+    void SetBackwardEulerSolverParameters(MICM *micm, const BackwardEulerSolverParametersC *params, Error *error);
+
+    /// @brief Get Rosenbrock solver parameters
+    /// @param micm Pointer to MICM object
+    /// @param params Pointer to RosenbrockSolverParametersC struct to fill
+    /// @param error Error struct to indicate success or failure
+    void GetRosenbrockSolverParameters(MICM *micm, RosenbrockSolverParametersC *params, Error *error);
+
+    /// @brief Get Backward Euler solver parameters
+    /// @param micm Pointer to MICM object
+    /// @param params Pointer to BackwardEulerSolverParametersC struct to fill
+    /// @param error Error struct to indicate success or failure
+    void GetBackwardEulerSolverParameters(MICM *micm, BackwardEulerSolverParametersC *params, Error *error);
 #ifdef __cplusplus
   }
 #endif

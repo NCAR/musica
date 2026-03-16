@@ -55,7 +55,7 @@ namespace musica
           s.SetProperty(unknown.first, unknown.second);
         }
       }
-      gas_phase.species_.push_back(s);
+      gas_phase.phase_species_.emplace_back(micm::PhaseSpecies(s));
     }
     chemistry.system.gas_phase_ = gas_phase;
   }
@@ -75,16 +75,16 @@ namespace musica
     return species;
   }
 
-  std::vector<std::pair<micm::Species, double>> reaction_components_to_products(
+  std::vector<micm::StoichSpecies> reaction_components_to_products(
       const std::vector<mechanism_configuration::v0::types::ReactionComponent>& components,
       std::unordered_map<std::string, micm::Species>& species_map)
   {
-    std::vector<std::pair<micm::Species, double>> species;
+    std::vector<micm::StoichSpecies> yields;
     for (const auto& component : components)
     {
-      species.push_back({ species_map[component.species_name], component.coefficient });
+      yields.push_back(micm::StoichSpecies(species_map[component.species_name], component.coefficient));
     }
-    return species;
+    return yields;
   }
 
   void convert_arrhenius(
@@ -100,11 +100,14 @@ namespace musica
       parameters.C_ = reaction.C;
       parameters.D_ = reaction.D;
       parameters.E_ = reaction.E;
-      micm::ArrheniusRateConstant rate_constant(parameters);
       auto reactants = reaction_components_to_reactants(reaction.reactants, species_map);
       auto products = reaction_components_to_products(reaction.products, species_map);
-      chemistry.processes.push_back(micm::Process(
-          reactants, products, std::make_unique<micm::ArrheniusRateConstant>(rate_constant), chemistry.system.gas_phase_));
+      chemistry.processes.push_back(micm::ChemicalReactionBuilder()
+                                        .SetReactants(reactants)
+                                        .SetProducts(products)
+                                        .SetRateConstant(micm::ArrheniusRateConstant(parameters))
+                                        .SetPhase(chemistry.system.gas_phase_)
+                                        .Build());
     }
   }
 
@@ -124,22 +127,23 @@ namespace musica
       parameters.Y_ = reaction.Y;
       parameters.a0_ = reaction.a0;
       parameters.n_ = reaction.n;
-
       // Alkoxy branch
       parameters.branch_ = micm::BranchedRateConstantParameters::Branch::Alkoxy;
-      chemistry.processes.push_back(micm::Process(
-          reactants,
-          alkoxy_products,
-          std::make_unique<micm::BranchedRateConstant>(parameters),
-          chemistry.system.gas_phase_));
+      chemistry.processes.push_back(micm::ChemicalReactionBuilder()
+                                        .SetReactants(reactants)
+                                        .SetProducts(alkoxy_products)
+                                        .SetRateConstant(micm::BranchedRateConstant(parameters))
+                                        .SetPhase(chemistry.system.gas_phase_)
+                                        .Build());
 
       // Nitrate branch
       parameters.branch_ = micm::BranchedRateConstantParameters::Branch::Nitrate;
-      chemistry.processes.push_back(micm::Process(
-          reactants,
-          nitrate_products,
-          std::make_unique<micm::BranchedRateConstant>(parameters),
-          chemistry.system.gas_phase_));
+      chemistry.processes.push_back(micm::ChemicalReactionBuilder()
+                                        .SetReactants(reactants)
+                                        .SetProducts(nitrate_products)
+                                        .SetRateConstant(micm::BranchedRateConstant(parameters))
+                                        .SetPhase(chemistry.system.gas_phase_)
+                                        .Build());
     }
   }
 
@@ -155,26 +159,54 @@ namespace musica
       micm::UserDefinedRateConstantParameters parameters;
       parameters.scaling_factor_ = reaction.scaling_factor;
       parameters.label_ = reaction.name;
-      chemistry.processes.push_back(micm::Process(
-          reactants, products, std::make_unique<micm::UserDefinedRateConstant>(parameters), chemistry.system.gas_phase_));
+      chemistry.processes.push_back(micm::ChemicalReactionBuilder()
+                                        .SetReactants(reactants)
+                                        .SetProducts(products)
+                                        .SetRateConstant(micm::UserDefinedRateConstant(parameters))
+                                        .SetPhase(chemistry.system.gas_phase_)
+                                        .Build());
     }
   }
 
   void convert_surface(
       Chemistry& chemistry,
       const std::vector<mechanism_configuration::v0::types::Surface>& surface,
+      micm::Phase& gas_phase,
       std::unordered_map<std::string, micm::Species>& species_map)
   {
     for (const auto& reaction : surface)
     {
       auto reactants = reaction_components_to_reactants({ reaction.gas_phase_species }, species_map);
       auto products = reaction_components_to_products(reaction.gas_phase_products, species_map);
-      micm::SurfaceRateConstantParameters parameters;
-      parameters.reaction_probability_ = reaction.reaction_probability;
-      parameters.label_ = reaction.name;
-      parameters.species_ = species_map[reaction.gas_phase_species.species_name];
-      chemistry.processes.push_back(micm::Process(
-          reactants, products, std::make_unique<micm::SurfaceRateConstant>(parameters), chemistry.system.gas_phase_));
+
+      auto& phase_species_list = gas_phase.phase_species_;
+      auto& surface_species_name = reaction.gas_phase_species.species_name;
+      auto it = std::find_if(
+          phase_species_list.begin(),
+          phase_species_list.end(),
+          [&surface_species_name](const micm::PhaseSpecies& ps) { return ps.species_.name_ == surface_species_name; });
+      if (it == phase_species_list.end())
+      {
+        throw std::system_error(
+            make_error_code(MusicaParseErrc::ParsingFailed),
+            "Species '" + surface_species_name + "' for surface reaction in gas phase is not found\n");
+      }
+
+      size_t const surface_reaction_species_index = std::distance(phase_species_list.begin(), it);
+      micm::PhaseSpecies& surface_reaction_species = phase_species_list[surface_reaction_species_index];
+      surface_reaction_species.SetDiffusionCoefficient(
+          species_map[surface_species_name].GetProperty<double>(mechanism_configuration::v0::validation::DIFFUSION_COEFF));
+
+      micm::SurfaceRateConstantParameters const parameters{ .label_ = reaction.name,
+                                                            .phase_species_ = surface_reaction_species,
+                                                            .reaction_probability_ = reaction.reaction_probability };
+
+      chemistry.processes.push_back(micm::ChemicalReactionBuilder()
+                                        .SetReactants(reactants)
+                                        .SetProducts(products)
+                                        .SetRateConstant(micm::SurfaceRateConstant(parameters))
+                                        .SetPhase(chemistry.system.gas_phase_)
+                                        .Build());
     }
   }
 
@@ -196,8 +228,12 @@ namespace musica
       parameters.kinf_C_ = reaction.kinf_C;
       parameters.Fc_ = reaction.Fc;
       parameters.N_ = reaction.N;
-      chemistry.processes.push_back(micm::Process(
-          reactants, products, std::make_unique<micm::TroeRateConstant>(parameters), chemistry.system.gas_phase_));
+      chemistry.processes.push_back(micm::ChemicalReactionBuilder()
+                                        .SetReactants(reactants)
+                                        .SetProducts(products)
+                                        .SetRateConstant(micm::TroeRateConstant(parameters))
+                                        .SetPhase(chemistry.system.gas_phase_)
+                                        .Build());
     }
   }
 
@@ -219,11 +255,12 @@ namespace musica
       parameters.kinf_C_ = reaction.kinf_C;
       parameters.Fc_ = reaction.Fc;
       parameters.N_ = reaction.N;
-      chemistry.processes.push_back(micm::Process(
-          reactants,
-          products,
-          std::make_unique<micm::TernaryChemicalActivationRateConstant>(parameters),
-          chemistry.system.gas_phase_));
+      chemistry.processes.push_back(micm::ChemicalReactionBuilder()
+                                        .SetReactants(reactants)
+                                        .SetProducts(products)
+                                        .SetRateConstant(micm::TernaryChemicalActivationRateConstant(parameters))
+                                        .SetPhase(chemistry.system.gas_phase_)
+                                        .Build());
     }
   }
 
@@ -240,8 +277,12 @@ namespace musica
       parameters.A_ = reaction.A;
       parameters.B_ = reaction.B;
       parameters.C_ = reaction.C;
-      chemistry.processes.push_back(micm::Process(
-          reactants, products, std::make_unique<micm::TunnelingRateConstant>(parameters), chemistry.system.gas_phase_));
+      chemistry.processes.push_back(micm::ChemicalReactionBuilder()
+                                        .SetReactants(reactants)
+                                        .SetProducts(products)
+                                        .SetRateConstant(micm::TunnelingRateConstant(parameters))
+                                        .SetPhase(chemistry.system.gas_phase_)
+                                        .Build());
     }
   }
 
@@ -258,14 +299,15 @@ namespace musica
     {
       convert_species(chemistry, v0_mechanism->species);
       std::unordered_map<std::string, micm::Species> species_map;
-      for (const auto& species : chemistry.system.gas_phase_.species_)
+      for (const auto& phase_species : chemistry.system.gas_phase_.phase_species_)
       {
+        const auto& species = phase_species.species_;
         species_map[species.name_] = species;
       }
       convert_arrhenius(chemistry, v0_mechanism->reactions.arrhenius, species_map);
       convert_branched(chemistry, v0_mechanism->reactions.branched, species_map);
       convert_user_defined(chemistry, v0_mechanism->reactions.user_defined, species_map);
-      convert_surface(chemistry, v0_mechanism->reactions.surface, species_map);
+      convert_surface(chemistry, v0_mechanism->reactions.surface, chemistry.system.gas_phase_, species_map);
       convert_troe(chemistry, v0_mechanism->reactions.troe, species_map);
       convert_ternary_chemical_activation(chemistry, v0_mechanism->reactions.ternary_chemical_activation, species_map);
       convert_tunneling(chemistry, v0_mechanism->reactions.tunneling, species_map);

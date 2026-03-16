@@ -1,0 +1,29 @@
+coverage:
+  precision: 2
+  round: down
+
+comment: false
+
+flags:
+  cpp_fortran:
+    paths:
+      - src
+      - include
+      - fortran
+  javascript:
+    paths:
+      - javascript
+  python:
+    paths:
+      - python
+
+uploads:
+  - target: coverage
+    flags: cpp_fortran
+    path: coverage.info
+  - target: coverage
+    flags: javascript
+    path: javascript-coverage/lcov.info
+  - target: coverage
+    flags: python
+    path: python-coverage.xml

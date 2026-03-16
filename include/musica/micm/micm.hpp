@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 National Center for Atmospheric Research
+// Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 //
 // This file contains the defintion of the MICM class, which represents a multi-component reactive transport model.
@@ -7,16 +7,15 @@
 
 #include <musica/micm/chemistry.hpp>
 #include <musica/micm/parse.hpp>
-#include <musica/micm/state.hpp>
-#include <musica/util.hpp>
+#include <musica/micm/solver_interface.hpp>
+#include <musica/micm/solver_parameters.hpp>
 
-#include <micm/CPU.hpp>
-#ifdef MUSICA_ENABLE_CUDA
-  #include <micm/GPU.hpp>
-#endif
+#include <micm/solver/solver_result.hpp>
+#include <micm/system/system.hpp>
 
 #include <chrono>
 #include <cstddef>
+#include <functional>
 #include <map>
 #include <memory>
 #include <string>
@@ -46,7 +45,7 @@ namespace
   class MusicaErrorCategory : public std::error_category
   {
    public:
-    const char *name() const noexcept override
+    const char* name() const noexcept override
     {
       return MUSICA_ERROR_CATEGORY;
     }
@@ -75,6 +74,9 @@ inline std::error_code make_error_code(MusicaErrCode e)
 
 namespace musica
 {
+  class State;   // forward declaration to break circular include
+  class IState;  // forward declaration for interface
+
   /// @brief Types of MICM solver
   enum MICMSolver
   {
@@ -88,76 +90,40 @@ namespace musica
 
   std::string ToString(MICMSolver solver_type);
 
-  struct SolverResultStats
-  {
-    /// @brief The number of forcing function calls
-    int64_t function_calls_{};
-    /// @brief The number of jacobian function calls
-    int64_t jacobian_updates_{};
-    /// @brief The total number of internal time steps taken
-    int64_t number_of_steps_{};
-    /// @brief The number of accepted integrations
-    int64_t accepted_{};
-    /// @brief The number of rejected integrations
-    int64_t rejected_{};
-    /// @brief The number of LU decompositions
-    int64_t decompositions_{};
-    /// @brief The number of linear solves
-    int64_t solves_{};
-    /// @brief The final time the solver iterated to
-    double final_time_{};
-  };
+  using SolverResultStats = micm::SolverStats;
+
+  /// @brief Type-erased solver pointer that can hold both CPU and CUDA solvers
+  /// with different deleters
+  using SolverPtr = std::unique_ptr<IMicmSolver, std::function<void(IMicmSolver*)>>;
 
   class MICM
   {
-    /// @brief Variant that holds all solver types
-    using SolverVariant = std::variant<
-        std::unique_ptr<micm::Rosenbrock>,
-        std::unique_ptr<micm::RosenbrockStandard>,
-        std::unique_ptr<micm::BackwardEuler>,
-        std::unique_ptr<micm::BackwardEulerStandard>
-#ifdef MUSICA_ENABLE_CUDA
-        ,
-        std::unique_ptr<micm::CudaRosenbrock>
-#endif
-        >;
-
    public:
-    SolverVariant solver_variant_;
-
-    MICM(const Chemistry &chemistry, MICMSolver solver_type);
+    MICM(const Chemistry& chemistry, MICMSolver solver_type);
+    MICM(std::string config_path, MICMSolver solver_type);
+    MICM(const Chemistry& chemistry, MICMSolver solver_type, const RosenbrockSolverParameters& params);
+    MICM(std::string config_path, MICMSolver solver_type, const RosenbrockSolverParameters& params);
+    MICM(const Chemistry& chemistry, MICMSolver solver_type, const BackwardEulerSolverParameters& params);
+    MICM(std::string config_path, MICMSolver solver_type, const BackwardEulerSolverParameters& params);
     MICM() = default;
-    ~MICM()
-    {
-#ifdef MUSICA_ENABLE_CUDA
-      // Clean up CUDA resources
-      // This must happen before the MICM destructor completes because
-      // cuda must clean all of its runtime resources
-      // Otherwise, we risk the CudaRosenbrock destructor running after
-      // the cuda runtime has closed
-      std::visit([](auto &solver) { solver.reset(); }, solver_variant_);
-      micm::cuda::CudaStreamSingleton::GetInstance().CleanUp();
-#endif
-    }
+    ~MICM();
 
     /// @brief Solve the system
-    /// @param micm Pointer to MICM object
     /// @param state Pointer to state object
     /// @param time_step Time [s] to advance the state by
-    /// @param solver_state State of the solver
-    /// @param solver_stats Statistics of the solver
-    void Solve(musica::State *state, double time_step, String *solver_state, SolverResultStats *solver_stats);
+    micm::SolverResult Solve(musica::State* state, double time_step);
 
     /// @brief Get a property for a chemical species
     /// @param species_name Name of the species
     /// @param property_name Name of the property
     /// @return Value of the property
     template<class T>
-    T GetSpeciesProperty(const std::string &species_name, const std::string &property_name)
+    T GetSpeciesProperty(const std::string& species_name, const std::string& property_name)
     {
-      micm::System system = std::visit([](auto &solver) -> micm::System { return solver->GetSystem(); }, solver_variant_);
-      for (const auto &species : system.gas_phase_.species_)
+      micm::System system = solver_->GetSystem();
+      for (const auto& phase_species : system.gas_phase_.phase_species_)
       {
+        const auto& species = phase_species.species_;
         if (species.name_ == species_name)
         {
           return species.GetProperty<T>(property_name);
@@ -165,6 +131,59 @@ namespace musica
       }
       throw std::system_error(make_error_code(MusicaErrCode::SpeciesNotFound), "Species '" + species_name + "' not found");
     }
+
+    /// @brief Get the maximum number of grid cells per state
+    /// @return Maximum number of grid cells
+    std::size_t GetMaximumNumberOfGridCells();
+
+    /// @brief Create a new state object for this solver
+    /// @param number_of_grid_cells Number of grid cells for the state
+    /// @return Unique pointer to a new IState implementation
+    std::unique_ptr<IState> CreateState(std::size_t number_of_grid_cells);
+
+    /// @brief Get the chemical system configuration
+    /// @return The MICM System object
+    micm::System GetSystem() const;
+
+    /// @brief Get the species ordering map
+    /// @return Map of species names to their indices
+    std::unordered_map<std::string, std::size_t> GetSpeciesOrdering() const;
+
+    /// @brief Get the rate parameter ordering map
+    /// @return Map of rate parameter names to their indices
+    std::unordered_map<std::string, std::size_t> GetRateParameterOrdering() const;
+
+    /// @brief Get the solver type
+    /// @return The solver type enum value
+    MICMSolver GetSolverType() const;
+
+    /// @brief Get the vector size for this solver type
+    /// @return Vector dimension for vector-ordered solvers, 1 for standard-ordered solvers
+    std::size_t GetVectorSize() const;
+
+    /// @brief Get access to the underlying solver interface
+    /// @return Pointer to the IMicmSolver implementation
+    IMicmSolver* GetSolverInterface();
+
+    /// @brief Set Rosenbrock solver parameters
+    /// @param params The parameters to set
+    void SetSolverParameters(const RosenbrockSolverParameters& params);
+
+    /// @brief Set Backward Euler solver parameters
+    /// @param params The parameters to set
+    void SetSolverParameters(const BackwardEulerSolverParameters& params);
+
+    /// @brief Get Rosenbrock solver parameters
+    /// @return The current parameters
+    RosenbrockSolverParameters GetRosenbrockSolverParameters() const;
+
+    /// @brief Get Backward Euler solver parameters
+    /// @return The current parameters
+    BackwardEulerSolverParameters GetBackwardEulerSolverParameters() const;
+
+   private:
+    SolverPtr solver_;
+    MICMSolver solver_type_ = UndefinedSolver;
   };
 
 }  // namespace musica

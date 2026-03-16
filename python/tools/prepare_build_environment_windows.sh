@@ -1,22 +1,61 @@
-#! /bin/bash
-
+#!/bin/bash
 set -e
 set -x
 
-CUDA_ROOT="C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.8"
-# curl --netrc-optional -L -nv -o cuda.exe https://developer.download.nvidia.com/compute/cuda/12.2.2/local_installers/cuda_12.2.2_537.13_windows.exe
-curl --netrc-optional -L -nv -o cuda.exe https://developer.download.nvidia.com/compute/cuda/12.8.1/local_installers/cuda_12.8.1_572.61_windows.exe
-./cuda.exe -s nvcc_12.8 cudart_12.8 cublas_dev_12.8 curand_dev_12.8 
-rm cuda.exe
+################################################################################
+# Prebuild musica library for Windows (runs in MSYS2 environment)
+# This runs once before all Python version builds, so we only compile the
+# C++/Fortran code once instead of once per Python version.
+################################################################################
 
-export CUDA_PATH="/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.8"
-export PATH="$CUDA_PATH/bin:$PATH"
+echo "=== Prebuilding musica library ==="
 
-ls "c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.8/extras/visual_studio_integration/MSBuildExtensions"
-ls "c/Program Files (x86)/Microsoft Visual Studio/"
+MUSICA_PREBUILT_DIR="/opt/musica-prebuilt"
+MUSICA_BUILD_DIR="/tmp/musica-build"
 
-# choco install cuda 
+# Get the source directory (script is in python/tools/, source is two levels up)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+MUSICA_SOURCE_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
-ls "$CUDA_PATH"
-ls "$CUDA_PATH/bin"
-which nvcc.exe
+mkdir -p "$MUSICA_BUILD_DIR"
+cd "$MUSICA_BUILD_DIR"
+
+# Determine number of processors
+if command -v nproc &> /dev/null; then
+  NPROC=$(nproc)
+else
+  NPROC=4
+fi
+
+# Configure musica build
+cmake_args=(
+  -G Ninja
+  -DCMAKE_BUILD_TYPE=Release
+  -DCMAKE_INSTALL_PREFIX="$MUSICA_PREBUILT_DIR"
+  -DMUSICA_ENABLE_PYTHON_LIBRARY=OFF
+  -DMUSICA_BUILD_FORTRAN_INTERFACE=OFF
+  -DMUSICA_ENABLE_TESTS=OFF
+  -DMUSICA_ENABLE_INSTALL=ON
+  -DMUSICA_BUILD_SHARED_LIBS=ON
+  -DMUSICA_SET_MICM_DEFAULT_VECTOR_SIZE=4
+  -DMUSICA_GPU_TYPE=None
+)
+
+# Windows ARM64 uses CLANGARM64 (no CARMA)
+# MSYS2 on Windows ARM64 can report uname -m as x86_64, so prefer env hints.
+if [[ "${CIBW_ARCHS:-}" == *"ARM64"* ]] || [[ "${PROCESSOR_ARCHITECTURE:-}" == "ARM64" ]]; then
+  cmake_args+=(-DMUSICA_ENABLE_CARMA=OFF)
+fi
+
+cmake "${cmake_args[@]}" "$MUSICA_SOURCE_DIR"
+
+# Build and install
+cmake --build . --parallel "$NPROC"
+cmake --install .
+
+echo "=== Musica prebuilt to $MUSICA_PREBUILT_DIR ==="
+ls -la "$MUSICA_PREBUILT_DIR"
+echo "=== Libraries (lib/) ==="
+ls -la "$MUSICA_PREBUILT_DIR/lib/" || true
+echo "=== Binaries (bin/) ==="
+ls -la "$MUSICA_PREBUILT_DIR/bin/" || true

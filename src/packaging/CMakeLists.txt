@@ -9,6 +9,7 @@ install(
     musica_Exports
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
 # install the musica header files
@@ -19,6 +20,16 @@ install(
     ${MUSICA_INSTALL_INCLUDE_DIR}
 )
 
+# install mechanism_configuration headers when built from source
+if(TARGET mechanism_configuration)
+  install(
+    DIRECTORY
+      ${mechanism_configuration_SOURCE_DIR}/include/
+    DESTINATION
+      ${MUSICA_INSTALL_INCLUDE_DIR}
+  )
+endif()
+
 # install MICM
 if(MUSICA_ENABLE_MICM)
   install(
@@ -28,7 +39,20 @@ if(MUSICA_ENABLE_MICM)
       musica_Exports
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   )
+
+  if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None")
+    install (
+      TARGETS
+        micm_cuda
+      EXPORT
+        musica_Exports
+      LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+      ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+      RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    )
+  endif()
 
   install(
     DIRECTORY
@@ -38,22 +62,13 @@ if(MUSICA_ENABLE_MICM)
   )
 endif()
 
-# install TUV-x
-if (MUSICA_ENABLE_TUVX)
-  install(
-    TARGETS
-      tuvx_object
-    EXPORT
-      musica_Exports
-  )
-
-  # TUV-x code is written in Fortran, and until it is completely rewritten in C++,
-  # MUSICA includes Fortran module files.
+if (MUSICA_ENABLE_TUVX OR MUSICA_ENABLE_CARMA)
+  # TUV-x and CARMA code is written in Fortran, so we need module files
   install(
     DIRECTORY
-      ${MUSICA_MOD_DIR}/../include/
+      ${MUSICA_MOD_DIR}/
     DESTINATION
-      ${MUSICA_INSTALL_INCLUDE_DIR}/musica/fortran
+      ${MUSICA_INSTALL_MOD_DIR}
     FILES_MATCHING PATTERN "*.mod"
   )
 endif()
@@ -80,6 +95,25 @@ write_basic_package_version_file(
   "${PROJECT_BINARY_DIR}/musicaConfigVersion.cmake"
   VERSION ${PROJECT_VERSION}
   COMPATIBILITY SameMajorVersion
+)
+
+if("${CMAKE_BUILD_TYPE}" MATCHES "^[Dd][Ee][Bb][Uu][Gg]$")
+  set(IS_DEBUG "")
+else()
+  set(IS_DEBUG "#")
+endif()
+set(CMAKE_INSTALL_PKGCONFIGDIR "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+configure_file(
+  "${MUSICA_PROJECT_SRC_DIR}/cmake/musica.pc.in"
+  "${PROJECT_BINARY_DIR}/musica.pc"
+  @ONLY
+)
+
+install(
+  FILES
+    "${PROJECT_BINARY_DIR}/musica.pc"
+  DESTINATION
+    "${CMAKE_INSTALL_PKGCONFIGDIR}"
 )
 
 install(

@@ -1,0 +1,27 @@
+FROM quay.io/pypa/manylinux_2_28_x86_64
+
+RUN dnf -y update && \
+    dnf install -y epel-release && \
+    dnf install -y \
+        netcdf-devel \
+        netcdf-fortran-devel \
+        tree \
+        wget \
+        zip \
+        lapack-devel && \
+    dnf clean all
+
+# CUDA 12.8
+RUN dnf config-manager --add-repo \
+      https://developer.download.nvidia.com/compute/cuda/repos/rhel8/x86_64/cuda-rhel8.repo && \
+    dnf install --setopt=obsoletes=0 -y \
+        cuda-nvcc-12-8 \
+        cuda-cudart-devel-12-8 \
+        libcurand-devel-12-8 \
+        libcublas-devel-12-8 && \
+    ln -sf cuda-12.8 /usr/local/cuda && \
+    dnf clean all
+
+ENV CUDA_PATH=/usr/local/cuda
+ENV PATH=/usr/local/cuda/bin:$PATH
+ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH

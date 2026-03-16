@@ -1,0 +1,48 @@
+FROM julia:1.11 AS julia-base
+
+FROM fedora:latest
+
+ARG MUSICA_GIT_TAG=main
+ARG BUILD_TYPE=Release
+
+RUN dnf -y update \
+    && dnf -y install \
+        cmake \
+        gcc-c++ \
+        gfortran \
+        git \
+        lapack-devel \
+        make \
+        netcdf-fortran-devel \
+    && dnf clean all
+
+# Copy Julia from the official image
+ENV JULIA_PATH=/usr/local/julia
+ENV PATH=${JULIA_PATH}/bin:${PATH}
+COPY --from=julia-base ${JULIA_PATH} ${JULIA_PATH}
+
+# Copy the musica code
+COPY . musica
+
+# Install Julia dependencies
+RUN cd musica/julia \
+    && julia --project=. -e 'using Pkg; Pkg.instantiate()'
+
+# Build
+RUN cd musica \
+    && cmake -S . \
+             -B build \
+             -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+             -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
+             -D MUSICA_ENABLE_JULIA=ON \
+             -D MUSICA_ENABLE_MICM=ON \
+             -D MUSICA_ENABLE_TUVX=OFF \
+             -D MUSICA_ENABLE_CARMA=OFF \
+             -D MUSICA_ENABLE_TESTS=OFF \
+    && cmake --build build
+
+# Precompile and test Julia package
+RUN cd musica/julia \
+    && julia --project=. -e 'using Pkg; Pkg.precompile()' 
+
+WORKDIR /musica

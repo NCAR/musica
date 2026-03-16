@@ -1,17 +1,15 @@
-// Copyright (C) 2023-2025 National Center for Atmospheric Research
+// Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 //
-// This file defines the State class.It includes state representations for different
+// This file defines the State class. It includes state representations for different
 // solver configurations, leveraging both vector-ordered and standard-ordered state type.
 // It also includes functions for creating and deleting State instances with c bindings.
 #pragma once
 
 #include <musica/micm/micm.hpp>
+#include <musica/micm/state_interface.hpp>
 
-#include <micm/CPU.hpp>
-#ifdef MUSICA_ENABLE_CUDA
-  #include <micm/GPU.hpp>
-#endif
+#include <micm/solver/state.hpp>
 
 #include <any>
 #include <chrono>
@@ -20,7 +18,6 @@
 #include <memory>
 #include <string>
 #include <utility>
-#include <variant>
 #include <vector>
 
 namespace musica
@@ -32,21 +29,26 @@ namespace musica
    public:
     State() = default;
 
-    State(const musica::MICM& micm, std::size_t number_of_grid_cells);
+    /// @brief Construct a State from an IState implementation
+    /// @param impl The IState implementation to wrap
+    explicit State(std::unique_ptr<IState> impl);
 
-    /// @brief Define the variant that holds all state types
-    using StateVariant = std::variant<
-        micm::VectorState,
-        micm::StandardState
-#ifdef MUSICA_ENABLE_CUDA
-        ,
-        micm::GpuState
-#endif
-        >;
+    /// @brief Construct a State from a MICM solver and grid cell count
+    /// @param micm The MICM solver to create state for
+    /// @param number_of_grid_cells Number of grid cells
+    State(const musica::MICM& micm, std::size_t number_of_grid_cells);
 
     /// @brief Get the number of grid cells
     /// @return Number of grid cells
     std::size_t NumberOfGridCells();
+
+    /// @brief Get the number of species
+    /// @return Number of species
+    std::size_t NumberOfSpecies();
+
+    /// @brief Get the number of user-defined rate parameters
+    /// @return Number of user-defined rate parameters
+    std::size_t NumberOfUserDefinedRateParameters();
 
     /// @brief Get the vector of conditions struct
     /// @return Vector of conditions struct
@@ -64,42 +66,54 @@ namespace musica
     /// @param concentrations Vector of concentrations
     void SetOrderedConcentrations(const std::vector<double>& concentrations);
 
+    /// @brief Set the concentrations from a map of species name to concentration vectors
+    /// @param input a mapping of species name to concentrations per grid cell
+    /// @param solver_type The solver type to use for ordering
+    void SetConcentrations(const std::map<std::string, std::vector<double>>& input, musica::MICMSolver solver_type);
+
+    /// @brief Get the concentrations as a map of species name to concentration vectors
+    /// @return Map of species name to concentration vectors
+    std::map<std::string, std::vector<double>> GetConcentrations(musica::MICMSolver solver_type) const;
+
+    /// @brief Set the rate constants from a map of species name to rate constant vectors
+    /// @param input a mapping of species name to rate constants per grid cell
+    /// @param solver_type The solver type to use for ordering
+    void SetRateConstants(const std::map<std::string, std::vector<double>>& input, musica::MICMSolver solver_type);
+
+    /// @brief Get the rate constants as a map of species name to rate constant vectors
+    /// @return Map of species name to rate constant vectors
+    std::map<std::string, std::vector<double>> GetRateConstants(musica::MICMSolver solver_type) const;
+
     /// @brief Get the vector of rate constants
     /// @return Vector of doubles
-    std::vector<double>& GetOrderedRateConstants();
+    std::vector<double>& GetOrderedRateParameters();
 
     /// @brief Set the rate constants to the state variant
     /// @param rateConstant Vector of Rate constants
     void SetOrderedRateConstants(const std::vector<double>& rateConstant);
 
-    /// @brief Get the pointer to the conditions struct
-    /// @param state Pointer to state object
-    /// @param number_of_grid_cells Pointer to num of grid cells
-    std::vector<micm::Conditions>* GetConditionsToState(musica::State* state, int* number_of_grid_cells);
-
-    /// @brief Get the point to the vector of the concentrations
-    /// @param state Pointer to state object
-    /// @param number_of_species Pointer to number of species
-    /// @param number_of_grid_cells Pointer to num of grid cells
-    /// @return Pointer to the vector
-    double* GetOrderedConcentrationsToState(musica::State* state, int* number_of_species, int* number_of_grid_cells);
-
-    /// @brief Get the point to the vector of the rates
-    /// @param state Pointer to state object
-    /// @param number_of_species Pointer to number of rate constants
-    /// @param number_of_grid_cells Pointer to num of grid cells
-    /// @return Pointer to the vector
-    double* GetOrderedRateConstantsToState(musica::State* state, int* number_of_rate_constants, int* number_of_grid_cells);
-
     /// @brief Get the underlying strides for the concentration matrix
     /// @return Strides for the concentration matrix (grid cells, species)
-    std::pair<std::size_t, std::size_t> GetConcentrationStrides();
+    std::pair<std::size_t, std::size_t> GetConcentrationsStrides();
 
     /// @brief Get the underlying strides for the user-defined rate parameter matrix
     /// @return Strides for the rate parameter matrix (grid cells, rate parameters)
-    std::pair<std::size_t, std::size_t> GetUserDefinedRateParameterStrides();
+    std::pair<std::size_t, std::size_t> GetUserDefinedRateParametersStrides();
 
-    StateVariant state_variant_;
+    /// @brief Get the variable (species) ordering map
+    /// @return Map of species names to their indices
+    std::unordered_map<std::string, std::size_t> GetVariableMap() const;
+
+    /// @brief Get the rate parameter ordering map
+    /// @return Map of rate parameter names to their indices
+    std::unordered_map<std::string, std::size_t> GetRateParameterMap() const;
+
+    /// @brief Get the underlying IState interface for use with solvers
+    /// @return Pointer to the IState implementation
+    IState* GetStateInterface();
+
+   private:
+    std::unique_ptr<IState> impl_;
   };
 
 }  // namespace musica

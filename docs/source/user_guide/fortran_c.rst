@@ -1,5 +1,5 @@
 ##############
-Model Inteface
+Model Interface
 ##############
 
 Fortran C Interface Example
