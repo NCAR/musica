@@ -29,25 +29,45 @@ namespace musica
 
   void NoError(Error* error)
   {
-    ToError("", 0, "Success", error);
+    DeleteError(error);
+    error->severity_ = MUSICA_SEVERITY_OK;
+    error->code_ = 0;
+    CreateString("", &error->category_);
+    CreateString("Success", &error->message_);
   }
 
-  void ToError(const char* category, int code, Error* error)
+  void ToError(const char* category, int code, int severity, Error* error)
   {
-    ToError(category, code, "", error);
+    ToError(category, code, "", severity, error);
   }
 
-  void ToError(const char* category, int code, const char* message, Error* error)
+  void ToError(const char* category, int code, const char* message, int severity, Error* error)
   {
+    DeleteError(error);
+    error->severity_ = severity;
     error->code_ = code;
     CreateString(category, &error->category_);
     CreateString(message, &error->message_);
   }
 
-  void ToError(const std::system_error& e, Error* error)
+  void ToError(const std::system_error& e, int severity, Error* error)
   {
-    ToError(e.code().category().name(), e.code().value(), e.what(), error);
+    ToError(e.code().category().name(), e.code().value(), e.what(), severity, error);
   }
+
+#ifdef MUSICA_USE_MICM
+  void ToError(const micm::MicmException& e, Error* error)
+  {
+    int severity;
+    switch (e.severity_)
+    {
+      case micm::MicmSeverity::Warning:  severity = MUSICA_SEVERITY_WARN; break;
+      case micm::MicmSeverity::Critical: severity = MUSICA_SEVERITY_CRIT; break;
+      default:                           severity = MUSICA_SEVERITY_ERR;  break;
+    }
+    ToError(e.category_, e.code_, e.what(), severity, error);
+  }
+#endif
 
   bool IsSuccess(const Error& error)
   {
@@ -92,7 +112,7 @@ namespace musica
     catch (const std::exception& e)
     {
       configuration->data_ = nullptr;
-      ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_PARSING_FAILED, e.what(), error);
+      ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_PARSING_FAILED, e.what(), MUSICA_SEVERITY_ERR, error);
     }
   }
 
@@ -107,7 +127,7 @@ namespace musica
     catch (const std::exception& e)
     {
       configuration->data_ = nullptr;
-      ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_PARSING_FAILED, e.what(), error);
+      ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_PARSING_FAILED, e.what(), MUSICA_SEVERITY_ERR, error);
     }
   }
 
@@ -147,7 +167,7 @@ namespace musica
       }
     }
     std::string const msg = "Mapping element '" + std::string(name) + "' not found";
-    ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_MAPPING_NOT_FOUND, msg.c_str(), error);
+    ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_MAPPING_NOT_FOUND, msg.c_str(), MUSICA_SEVERITY_ERR, error);
     return 0;
   }
 
@@ -182,7 +202,7 @@ namespace musica
     index_mapping->size_ = 0;
     if (map_options == IndexMappingOptions::UndefinedMapping)
     {
-      ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED, "Mapping options are undefined", error);
+      ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED, "Mapping options are undefined", MUSICA_SEVERITY_ERR, error);
       return;
     }
     for (std::size_t i = 0; i < size; i++)
