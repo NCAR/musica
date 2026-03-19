@@ -55,6 +55,7 @@ namespace musica
     catch (const std::system_error &e)
     {
       ToError(e, MUSICA_SEVERITY_ERR, error);
+      return;
     }
     NoError(error);
   }
@@ -104,6 +105,7 @@ namespace musica
     if (error_code != 0)
     {
       ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERR, error);
+      return;
     }
     owns_grid_map_ = true;
     NoError(error);

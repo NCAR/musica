@@ -104,6 +104,7 @@ namespace musica
     if (error_code != ERROR_NONE)
     {
       ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERR, error);
+      return;
     }
     owns_radiator_map_ = true;
     NoError(error);
@@ -170,10 +171,12 @@ namespace musica
     catch (const std::system_error &e)
     {
       ToError(e, MUSICA_SEVERITY_ERR, error);
+      return;
     }
     catch (...)
     {
       ToError(MUSICA_ERROR_CATEGORY, INTERNAL_RADIATOR_MAP_ERROR, GetErrorMessage(INTERNAL_RADIATOR_MAP_ERROR), MUSICA_SEVERITY_CRIT, error);
+      return;
     }
     NoError(error);
   }
@@ -217,10 +220,12 @@ namespace musica
     catch (const std::system_error &e)
     {
       ToError(e, MUSICA_SEVERITY_ERR, error);
+      return nullptr;
     }
     catch (...)
     {
       ToError(MUSICA_ERROR_CATEGORY, INTERNAL_RADIATOR_MAP_ERROR, GetErrorMessage(INTERNAL_RADIATOR_MAP_ERROR), MUSICA_SEVERITY_CRIT, error);
+      return nullptr;
     }
     NoError(error);
     return radiator;

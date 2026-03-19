@@ -55,6 +55,7 @@ namespace musica
     catch (const std::system_error &e)
     {
       ToError(e, MUSICA_SEVERITY_ERR, error);
+      return;
     }
     NoError(error);
   }

@@ -29,14 +29,9 @@ namespace musica
 
   void NoError(Error* error)
   {
-    // Free any previously allocated strings to avoid leaks when reusing Error.
-    DeleteString(&error->category_);
-    DeleteString(&error->message_);
-
+    DeleteError(error);
     error->severity_ = MUSICA_SEVERITY_OK;
     error->code_ = 0;
-    DeleteString(&error->category_);
-    DeleteString(&error->message_);
     CreateString("", &error->category_);
     CreateString("Success", &error->message_);
   }
@@ -48,14 +43,9 @@ namespace musica
 
   void ToError(const char* category, int code, const char* message, int severity, Error* error)
   {
-    // Free any previously allocated strings to avoid leaks when updating Error.
-    DeleteString(&error->category_);
-    DeleteString(&error->message_);
-
+    DeleteError(error);
     error->severity_ = severity;
     error->code_ = code;
-    DeleteString(&error->category_);
-    DeleteString(&error->message_);
     CreateString(category, &error->category_);
     CreateString(message, &error->message_);
   }
