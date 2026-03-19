@@ -35,6 +35,8 @@ namespace musica
 
     error->severity_ = MUSICA_SEVERITY_OK;
     error->code_ = 0;
+    DeleteString(&error->category_);
+    DeleteString(&error->message_);
     CreateString("", &error->category_);
     CreateString("Success", &error->message_);
   }
@@ -52,6 +54,8 @@ namespace musica
 
     error->severity_ = severity;
     error->code_ = code;
+    DeleteString(&error->category_);
+    DeleteString(&error->message_);
     CreateString(category, &error->category_);
     CreateString(message, &error->message_);
   }
