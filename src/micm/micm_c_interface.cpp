@@ -12,17 +12,21 @@ namespace musica
     {
       return func();
     }
-    catch (const std::system_error& e)
+    catch (const micm::MicmException& e)
     {
       ToError(e, error);
     }
+    catch (const std::system_error& e)
+    {
+      ToError(e, MUSICA_SEVERITY_ERR, error);
+    }
     catch (const std::exception& e)
     {
-      ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, e.what(), error);
+      ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, e.what(), MUSICA_SEVERITY_ERR, error);
     }
     catch (...)
     {
-      ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, "Unknown error", error);
+      ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, "Unknown error", MUSICA_SEVERITY_CRIT, error);
     }
     return decltype(func())();
   }
