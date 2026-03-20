@@ -33,11 +33,27 @@ jobs:
         working-directory: julia
         run: julia --project=. -e 'using Pkg; Pkg.instantiate()'
 
+      - name: Get CxxWrap prefix path
+        id: cxxwrap
+        working-directory: julia
+        run: echo "prefix=$(julia --project=. -e 'using CxxWrap; print(CxxWrap.prefix_path())')" >> $GITHUB_OUTPUT
+
       - name: Configure MUSICA with Julia support
-        run: cmake -S . -B build -D CMAKE_BUILD_TYPE=Release -D MUSICA_ENABLE_JULIA=ON -D MUSICA_ENABLE_MICM=ON -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_CARMA=OFF -D MUSICA_ENABLE_TESTS=OFF -D CMAKE_POLICY_VERSION_MINIMUM=3.5
+        run: cmake -S . -B build -D CMAKE_BUILD_TYPE=Release -D MUSICA_ENABLE_JULIA=ON -D MUSICA_ENABLE_MICM=ON -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_CARMA=OFF -D MUSICA_ENABLE_TESTS=OFF -D CMAKE_POSITION_INDEPENDENT_CODE=ON -D CMAKE_PREFIX_PATH=${{ steps.cxxwrap.outputs.prefix }}
       
       - name: Build MUSICA with Julia support
         run: cmake --build build --verbose
+
+      - name: Set MUSICA_JULIA_LIB path
+        working-directory: julia
+        run: |
+            if [ -f deps/lib/libmusica_julia.so ]; then
+              echo "MUSICA_JULIA_LIB=$(pwd)/deps/lib/libmusica_julia.so" >> $GITHUB_ENV
+            elif [ -f deps/lib/libmusica_julia.dylib ]; then
+              echo "MUSICA_JULIA_LIB=$(pwd)/deps/lib/libmusica_julia.dylib" >> $GITHUB_ENV
+            else
+              echo "ERROR: libmusica_julia not found" && ls -R deps/lib/ && exit 1
+            fi
 
       - name: Precompile Julia package with built library
         working-directory: julia
