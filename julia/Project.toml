@@ -9,7 +9,7 @@ Musica_jll = "f5e5459d-1a87-5129-97d9-bab22ca84fbb"
 
 [compat]
 CxxWrap = "0.17"
-julia = "1.10 - 1.11"
+julia = "1.10 - 1.12"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
