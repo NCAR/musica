@@ -4,22 +4,11 @@
 module Musica
 
 using CxxWrap
+using Musica_jll
 
-# Determine library path at compile time (must be top-level for @wrapmodule)
-const _lib_path = let
-    env_lib = get(ENV, "MUSICA_JULIA_LIB", nothing)
-    if env_lib !== nothing && isfile(env_lib)
-        env_lib
-    else
-        try
-            @eval using Musica_jll
-            Musica_jll.libmusica_julia
-        catch
-            error("MUSICA_JULIA_LIB environment variable must be set to the path of libmusica_julia.so " *
-                  "(or install Musica_jll)")
-        end
-    end
-end
+# Library path is provided by Musica_jll (either the registered JLL or the
+# local stub at julia/Musica_jll/ which points to the CMake build output).
+const _lib_path = Musica_jll.libmusica_julia
 
 # @wrapmodule must be at module top level so types are defined during precompilation
 @wrapmodule(() -> _lib_path)
