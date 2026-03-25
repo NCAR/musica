@@ -20,7 +20,11 @@ mutable struct Conditions
     air_density::Float64
 end
 
-function Conditions(; temperature::Real=0.0, pressure::Real=0.0, air_density::Union{Real, Nothing}=nothing)
+function Conditions(;
+    temperature::Real = 0.0,
+    pressure::Real = 0.0,
+    air_density::Union{Real,Nothing} = nothing,
+)
     if air_density === nothing
         if temperature > 0.0 && pressure > 0.0
             air_density = pressure / (GAS_CONSTANT * temperature)
