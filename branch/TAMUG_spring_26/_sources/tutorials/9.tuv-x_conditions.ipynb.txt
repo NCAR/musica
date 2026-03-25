@@ -1,0 +1,305 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "f660aebb",
+   "metadata": {},
+   "source": [
+    "# TUV-x: Setting Input Conditions\n",
+    "\n",
+    "If you're brand new to TUV-x in MUSICA, start with the TUV-x: Standard Configurations tutorial, then come back here.\n",
+    "\n",
+    "The standard conditions that come with the v5.4 and vTS1/TSMLT configurations are great for getting started and comparing rate constant algorithms. Often times however, you'll be interested in photolysis rate constants or dose rates for specific conditions. This tutorial describes how to start with one of the standard TUV-x configurations and modify the atmospheric conditions. We'll use the v5.4 configuration, but these steps could also be followed for the vTS1/TSMLT configuration.\n",
+    "\n",
+    "Let's load the dependencies and create a v5.4 TUV-x calculator."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "d6ce623b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from musica.tuvx import v54\n",
+    "from musica.tuvx import TUVX\n",
+    "import xarray as xr\n",
+    "\n",
+    "v54_calculator: TUVX = v54.get_tuvx_calculator()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "8cd481f9",
+   "metadata": {},
+   "source": [
+    "Before we get into changing conditions, let's look at TUV-x grids, profiles, and radiators.\n",
+    "\n",
+    "## Grids\n",
+    "\n",
+    "TUV-x uses two grids: altitude and wavelength. Input and output data from TUV-x are primarily on one or both of these grids, either at grid section mid-points or edges. Grid edge and midpoint values for the height and wavelength grids are included in the XArray output of the `TUVX::run()` function, but they can also be accessed via the TUV-x API:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "92d49ffd",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# get the set of grids from TUV-x\n",
+    "v54_grids = v54_calculator.get_grid_map()\n",
+    "\n",
+    "# list the available grids\n",
+    "print(\"Available grids in TUV-x v5.4:\")\n",
+    "for grid_name, units in v54_grids:\n",
+    "    print(f\" - {grid_name} ({units})\")\n",
+    "\n",
+    "# print the range and number of sections in the height and wavelength grids\n",
+    "height_grid = v54_grids[\"height\", \"km\"]\n",
+    "print(f\"Height grid: {height_grid.edges.min()} km to {height_grid.edges.max()} km, {len(height_grid)} sections\")\n",
+    "wavelength_grid = v54_grids[\"wavelength\", \"nm\"]\n",
+    "print(f\"Wavelength grid: {wavelength_grid.edges.min()} nm to {wavelength_grid.edges.max()} nm, {len(wavelength_grid)} sections\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "cd1f33d5",
+   "metadata": {},
+   "source": [
+    "Note that grids returned from the TUV-x grid map are references to the internal TUV-x grid data. Any changes to the grids will impact TUV-x calculations. Although it is possible to change grid values after creation of the TUV-x calculator, it is not recommended and may result in unexpected behavior. We'll see in a future tutorial how to properly define grids prior to creating a TUV-x calculator instance.\n",
+    "\n",
+    "## Profiles\n",
+    "\n",
+    "Profiles in TUV-x are properties defined on a grid (either height, wavelength, or both). We access them similarly to how grids are accessed:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9a48269b",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# get the set of profiles from TUV-x\n",
+    "v54_profiles = v54_calculator.get_profile_map()\n",
+    "\n",
+    "# list the available profiles\n",
+    "print(\"Available profiles in TUV-x v5.4:\")\n",
+    "for profile_name, units in v54_profiles:\n",
+    "    print(f\" - {profile_name} ({units})\")\n",
+    "\n",
+    "# plot the temperature profile\n",
+    "import matplotlib.pyplot as plt\n",
+    "temperature_profile = v54_profiles[\"temperature\", \"K\"]\n",
+    "plt.figure(figsize=(8, 6))\n",
+    "plt.plot(temperature_profile.midpoint_values, height_grid.midpoints)\n",
+    "plt.xlabel(\"Temperature (K)\")\n",
+    "plt.ylabel(\"Height (km)\")\n",
+    "plt.title(\"Temperature Profile from TUV-x v5.4\")\n",
+    "plt.grid()\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2c2e3519",
+   "metadata": {},
+   "source": [
+    "The profiles data are used for solving the radiation field in the column, and can also contribute to photolysis and dose rate calculations (primarily the temperature profile). Temperature, air, and chemical species concentrations are defined on the height grid. Surface albedo and extraterrestrial flux are defined on the wavelength grid."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "6176ef14",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# plot the Extraterrestrial flux profile\n",
+    "extraterrestrial_flux_profile = v54_profiles[\"extraterrestrial flux\", \"photon cm-2 s-1\"]\n",
+    "plt.figure(figsize=(8, 6))\n",
+    "plt.plot(wavelength_grid.midpoints, extraterrestrial_flux_profile.midpoint_values)\n",
+    "plt.xlabel(\"Wavelength (nm)\")\n",
+    "plt.ylabel(\"Extraterrestrial Flux (photons cm$^{-2}$ s$^{-1}$)\")\n",
+    "plt.title(\"Extraterrestrial Flux Profile from TUV-x v5.4\")\n",
+    "plt.yscale(\"log\")\n",
+    "plt.grid()\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "cc983b32",
+   "metadata": {},
+   "source": [
+    "Unlike grid data, changing profile data after creation of a TUV-x calculator instance is supported. Later in this tutorial, we'll explore the effects of changing the $\\text{O}_3$ concentrations on the calculated photolysis rate constants.\n",
+    "\n",
+    "# Radiators\n",
+    "\n",
+    "The final data structure used by TUV-x are \"radiators\". These structures hold the optical properties for atmospheric constituents and are used during the ODE solve of the radiation field. Specifically, they include:\n",
+    "- optical depth (wavelength x height)\n",
+    "- single scattering albedo (wavelength x height)\n",
+    "- asymmetry factor (wavelength x height)\n",
+    "\n",
+    "There is a special type of radiator that is for chemical species with associated profiles. These are defined in the TUV-x JSON/YAML configuration file and cannot be modified programmatically. In the v5.4 configuration, there are such radiators defined for air, $\\text{O}_3$, and $\\text{O}_2$. Any changes to the profiles of air, $\\text{O}_2$, or $\\text{O}_3$ will update their associated radiator's optical properties automatically. These radiators are not accessible via the TUV-x API.\n",
+    "\n",
+    "Additional radiators can be included via the TUV-x API, but you must define the optical properties manually. In the v5.4 configuration, an aerosol radiator is included with predefined optical depth, single scattering albedo, and asymmetry parameter. Later in this section, we'll modify these properties to see their effect on calculated photolysis rate constants.\n",
+    "\n",
+    "Radiators can be accessed similarly to grids and profiles:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "8bb15944",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# get the set of radiators from TUV-x\n",
+    "v54_radiators = v54_calculator.get_radiator_map()\n",
+    "\n",
+    "# list the available radiators\n",
+    "print(\"Available radiators in TUV-x v5.4:\")\n",
+    "for radiator_name in v54_radiators:\n",
+    "    print(f\" - {radiator_name}\")\n",
+    "\n",
+    "# plot the aerosol optical depth by wavelength at 1, 10, and 50 km\n",
+    "aerosols = v54_radiators[\"aerosol\"]\n",
+    "plt.figure(figsize=(8, 6))\n",
+    "for height in [1, 10, 50]:\n",
+    "    height_index = (abs(height_grid.midpoints - height)).argmin().item()\n",
+    "    plt.plot(wavelength_grid.midpoints, aerosols.optical_depths[:, height_index], label=f\"Height = {height} km\")\n",
+    "plt.xlabel(\"Wavelength (nm)\")\n",
+    "plt.ylabel(\"Optical Depth\")\n",
+    "plt.title(\"Optical Depth by Wavelength at Various Heights from TUV-x v5.4\")\n",
+    "plt.yscale(\"log\")\n",
+    "plt.legend()\n",
+    "plt.grid()\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "95b1ba17",
+   "metadata": {},
+   "source": [
+    "## Modifying Conditions\n",
+    "\n",
+    "Now that we're familiar with the TUV-x datasets, let's compare $\\text{O}_3$ photolysis rate constant calculations under different [$\\text{O}_3$] and aerosol conditions."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "c33fa3c0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# run the standard v5.4 configuration\n",
+    "v54_results = v54_calculator.run(sza=0.0, earth_sun_distance=1.0)\n",
+    "\n",
+    "# double the [O3] in the column and run again\n",
+    "o3_profile = v54_profiles[\"O3\", \"molecule cm-3\"]\n",
+    "o3_profile.midpoint_values *= 2.0\n",
+    "o3_profile.edge_values *= 2.0\n",
+    "o3_profile.calculate_layer_densities(height_grid) # provide the height grid for layer thicknesses\n",
+    "\n",
+    "# rerun the calculation with modified O3 profile\n",
+    "double_o3_results = v54_calculator.run(sza=0.0, earth_sun_distance=1.0)\n",
+    "\n",
+    "# double the aerosol optical depths and run again\n",
+    "aerosols.optical_depths *= 2.0\n",
+    "\n",
+    "# rerun the calculation with modified aerosol optical depths\n",
+    "double_o3_double_aerosol_results = v54_calculator.run(sza=0.0, earth_sun_distance=1.0)\n",
+    "\n",
+    "# return to the original O3 profile and run again\n",
+    "o3_profile.midpoint_values /= 2.0\n",
+    "o3_profile.edge_values /= 2.0\n",
+    "o3_profile.calculate_layer_densities(height_grid) # provide the height grid for layer thicknesses\n",
+    "\n",
+    "# rerun the calculation with original O3 profile and doubled aerosol optical depths\n",
+    "double_aerosol_results = v54_calculator.run(sza=0.0, earth_sun_distance=1.0)\n",
+    "\n",
+    "# compare the O3 and N2O5 photolysis rate constants among the four scenarios\n",
+    "jo3a_label = \"O3+hv->O2+O(1D)\"\n",
+    "jo3b_label = \"O3+hv->O2+O(3P)\"\n",
+    "jn2o5_label = \"N2O5+hv->NO2+NO3\"\n",
+    "jo3_o1d_v54 = v54_results[\"photolysis_rate_constants\"].sel(reaction=jo3a_label)\n",
+    "jo3_o3p_v54 = v54_results[\"photolysis_rate_constants\"].sel(reaction=jo3b_label)\n",
+    "jn2o5_v54 = v54_results[\"photolysis_rate_constants\"].sel(reaction=jn2o5_label)\n",
+    "height_v54 = v54_grids[\"height\", \"km\"].edges\n",
+    "jo3_o1d_double_o3 = double_o3_results[\"photolysis_rate_constants\"].sel(reaction=jo3a_label)\n",
+    "jo3_o3p_double_o3 = double_o3_results[\"photolysis_rate_constants\"].sel(reaction=jo3b_label)\n",
+    "jn2o5_double_o3 = double_o3_results[\"photolysis_rate_constants\"].sel(reaction=jn2o5_label)\n",
+    "jo3_o1d_double_aerosol = double_aerosol_results[\"photolysis_rate_constants\"].sel(reaction=jo3a_label)\n",
+    "jo3_o3p_double_aerosol = double_aerosol_results[\"photolysis_rate_constants\"].sel(reaction=jo3b_label)\n",
+    "jn2o5_double_aerosol = double_aerosol_results[\"photolysis_rate_constants\"].sel(reaction=jn2o5_label)\n",
+    "jo3_o1d_double_o3_double_aerosol = double_o3_double_aerosol_results[\"photolysis_rate_constants\"].sel(reaction=jo3a_label)\n",
+    "jo3_o3p_double_o3_double_aerosol = double_o3_double_aerosol_results[\"photolysis_rate_constants\"].sel(reaction=jo3b_label)\n",
+    "jn2o5_double_o3_double_aerosol = double_o3_double_aerosol_results[\"photolysis_rate_constants\"].sel(reaction=jn2o5_label)\n",
+    "\n",
+    "# plot the O3->O(1D) photolysis rate constants\n",
+    "plt.figure(figsize=(8, 6))\n",
+    "plt.plot(jo3_o1d_v54, height_v54, label=\"Standard v5.4\")\n",
+    "plt.plot(jo3_o1d_double_o3, height_v54, label=\"Double O3\")\n",
+    "plt.plot(jo3_o1d_double_aerosol, height_v54, label=\"Double Aerosol\")\n",
+    "plt.plot(jo3_o1d_double_o3_double_aerosol, height_v54, label=\"Double O3 & Aerosol\")\n",
+    "plt.xlabel(\"Photolysis Rate Constant (s$^{-1}$)\")\n",
+    "plt.ylabel(\"Height (km)\")\n",
+    "plt.title(\"O3->O(1D) Photolysis Rate Constants under Different Scenarios\")\n",
+    "plt.legend()\n",
+    "plt.grid()\n",
+    "plt.show()\n",
+    "\n",
+    "# plot the O3->O(3P) photolysis rate constants\n",
+    "plt.figure(figsize=(8, 6))\n",
+    "plt.plot(jo3_o3p_v54, height_v54, label=\"Standard v5.4\")\n",
+    "plt.plot(jo3_o3p_double_o3, height_v54, label=\"Double O3\")\n",
+    "plt.plot(jo3_o3p_double_aerosol, height_v54, label=\"Double Aerosol\")\n",
+    "plt.plot(jo3_o3p_double_o3_double_aerosol, height_v54, label=\"Double O3 & Aerosol\")\n",
+    "plt.xlabel(\"Photolysis Rate Constant (s$^{-1}$)\")\n",
+    "plt.ylabel(\"Height (km)\")\n",
+    "plt.title(\"O3->O(3P) Photolysis Rate Constants under Different Scenarios\")\n",
+    "plt.legend()\n",
+    "plt.grid()\n",
+    "plt.show()\n",
+    "\n",
+    "# plot the N2O5 photolysis rate constants\n",
+    "plt.figure(figsize=(8, 6))\n",
+    "plt.plot(jn2o5_v54, height_v54, label=\"Standard v5.4\")\n",
+    "plt.plot(jn2o5_double_o3, height_v54, label=\"Double O3\")\n",
+    "plt.plot(jn2o5_double_aerosol, height_v54, label=\"Double Aerosol\")\n",
+    "plt.plot(jn2o5_double_o3_double_aerosol, height_v54, label=\"Double O3 & Aerosol\")\n",
+    "plt.xlabel(\"Photolysis Rate Constant (s$^{-1}$)\")\n",
+    "plt.ylabel(\"Height (km)\")\n",
+    "plt.title(\"N2O5 Photolysis Rate Constants under Different Scenarios\")\n",
+    "plt.legend()\n",
+    "plt.grid()\n",
+    "plt.show()"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": ".venv",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.12.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
