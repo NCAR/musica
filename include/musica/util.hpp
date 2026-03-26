@@ -5,8 +5,8 @@
 
 #include <musica/error.hpp>
 #ifdef MUSICA_USE_MICM
-  #include <micm/util/vector_matrix.hpp>
   #include <micm/util/micm_exception.hpp>
+  #include <micm/util/vector_matrix.hpp>
 #endif
 
 #include <cstddef>
@@ -206,12 +206,12 @@ const size_t MUSICA_VECTOR_SIZE = 0;
   /// @param error The Error [output]
   void ToError(const std::system_error& e, int severity, Error* error);
 
-#ifdef MUSICA_USE_MICM
+  #ifdef MUSICA_USE_MICM
   /// @brief Creates an Error from a micm::MicmException, mapping MicmSeverity to musica severity
   /// @param e The micm::MicmException to convert [input]
   /// @param error The Error [output]
   void ToError(const micm::MicmException& e, Error* error);
-#endif
+  #endif
 
   /// @brief Checks for success
   /// @param error The Error to check

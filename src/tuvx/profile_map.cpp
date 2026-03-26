@@ -128,12 +128,22 @@ namespace musica
     DeleteError(error);
     if (profile_map_ == nullptr)
     {
-      ToError(MUSICA_ERROR_CATEGORY, ERROR_UNALLOCATED_PROFILE_MAP, GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          ERROR_UNALLOCATED_PROFILE_MAP,
+          GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return;
     }
     if (profile->profile_ == nullptr)
     {
-      ToError(MUSICA_ERROR_CATEGORY, ERROR_UNALLOCATED_PROFILE, GetErrorMessage(ERROR_UNALLOCATED_PROFILE), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          ERROR_UNALLOCATED_PROFILE,
+          GetErrorMessage(ERROR_UNALLOCATED_PROFILE),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return;
     }
     if (profile->updater_ == nullptr)
@@ -183,7 +193,12 @@ namespace musica
     }
     catch (...)
     {
-      ToError(MUSICA_ERROR_CATEGORY, INTERNAL_PROFILE_MAP_ERROR, GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          INTERNAL_PROFILE_MAP_ERROR,
+          GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return;
     }
     NoError(error);
@@ -194,7 +209,12 @@ namespace musica
     DeleteError(error);
     if (profile_map_ == nullptr)
     {
-      ToError(MUSICA_ERROR_CATEGORY, ERROR_UNALLOCATED_PROFILE_MAP, GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          ERROR_UNALLOCATED_PROFILE_MAP,
+          GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return nullptr;
     }
 
@@ -233,7 +253,12 @@ namespace musica
     }
     catch (...)
     {
-      ToError(MUSICA_ERROR_CATEGORY, INTERNAL_PROFILE_MAP_ERROR, GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          INTERNAL_PROFILE_MAP_ERROR,
+          GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return nullptr;
     }
     NoError(error);
@@ -245,7 +270,12 @@ namespace musica
     DeleteError(error);
     if (profile_map_ == nullptr)
     {
-      ToError(MUSICA_ERROR_CATEGORY, ERROR_UNALLOCATED_PROFILE_MAP, GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          ERROR_UNALLOCATED_PROFILE_MAP,
+          GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return nullptr;
     }
 
@@ -283,7 +313,12 @@ namespace musica
     }
     catch (...)
     {
-      ToError(MUSICA_ERROR_CATEGORY, INTERNAL_PROFILE_MAP_ERROR, GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          INTERNAL_PROFILE_MAP_ERROR,
+          GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return nullptr;
     }
     NoError(error);
@@ -295,7 +330,12 @@ namespace musica
     DeleteError(error);
     if (profile_map_ == nullptr)
     {
-      ToError(MUSICA_ERROR_CATEGORY, ERROR_UNALLOCATED_PROFILE_MAP, GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          ERROR_UNALLOCATED_PROFILE_MAP,
+          GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return;
     }
 
@@ -318,7 +358,12 @@ namespace musica
     }
     catch (...)
     {
-      ToError(MUSICA_ERROR_CATEGORY, INTERNAL_PROFILE_MAP_ERROR, GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          INTERNAL_PROFILE_MAP_ERROR,
+          GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return;
     }
     NoError(error);
@@ -329,7 +374,12 @@ namespace musica
     DeleteError(error);
     if (profile_map_ == nullptr)
     {
-      ToError(MUSICA_ERROR_CATEGORY, ERROR_UNALLOCATED_PROFILE_MAP, GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          ERROR_UNALLOCATED_PROFILE_MAP,
+          GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return;
     }
 
@@ -351,7 +401,12 @@ namespace musica
     }
     catch (...)
     {
-      ToError(MUSICA_ERROR_CATEGORY, INTERNAL_PROFILE_MAP_ERROR, GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          INTERNAL_PROFILE_MAP_ERROR,
+          GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return;
     }
     NoError(error);
@@ -362,7 +417,12 @@ namespace musica
     DeleteError(error);
     if (profile_map_ == nullptr)
     {
-      ToError(MUSICA_ERROR_CATEGORY, ERROR_UNALLOCATED_PROFILE_MAP, GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          ERROR_UNALLOCATED_PROFILE_MAP,
+          GetErrorMessage(ERROR_UNALLOCATED_PROFILE_MAP),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return 0;
     }
 
@@ -385,7 +445,12 @@ namespace musica
     }
     catch (...)
     {
-      ToError(MUSICA_ERROR_CATEGORY, INTERNAL_PROFILE_MAP_ERROR, GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          INTERNAL_PROFILE_MAP_ERROR,
+          GetErrorMessage(INTERNAL_PROFILE_MAP_ERROR),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return 0;
     }
     NoError(error);

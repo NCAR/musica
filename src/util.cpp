@@ -61,9 +61,9 @@ namespace musica
     int severity;
     switch (e.severity_)
     {
-      case micm::MicmSeverity::Warning:  severity = MUSICA_SEVERITY_WARN; break;
+      case micm::MicmSeverity::Warning: severity = MUSICA_SEVERITY_WARN; break;
       case micm::MicmSeverity::Critical: severity = MUSICA_SEVERITY_CRIT; break;
-      default:                           severity = MUSICA_SEVERITY_ERR;  break;
+      default: severity = MUSICA_SEVERITY_ERR; break;
     }
     ToError(e.category_, e.code_, e.what(), severity, error);
   }
@@ -202,7 +202,12 @@ namespace musica
     index_mapping->size_ = 0;
     if (map_options == IndexMappingOptions::UndefinedMapping)
     {
-      ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED, "Mapping options are undefined", MUSICA_SEVERITY_ERR, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED,
+          "Mapping options are undefined",
+          MUSICA_SEVERITY_ERR,
+          error);
       return;
     }
     for (std::size_t i = 0; i < size; i++)

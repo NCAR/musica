@@ -126,17 +126,32 @@ namespace musica
   {
     if (grid_map_ == nullptr)
     {
-      ToError(MUSICA_ERROR_CATEGORY, ERROR_UNALLOCATED_GRID_MAP, GetErrorMessage(ERROR_UNALLOCATED_GRID_MAP), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          ERROR_UNALLOCATED_GRID_MAP,
+          GetErrorMessage(ERROR_UNALLOCATED_GRID_MAP),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return;
     }
     if (grid->grid_ == nullptr)
     {
-      ToError(MUSICA_ERROR_CATEGORY, ERROR_UNALLOCATED_GRID, GetErrorMessage(ERROR_UNALLOCATED_GRID), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          ERROR_UNALLOCATED_GRID,
+          GetErrorMessage(ERROR_UNALLOCATED_GRID),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return;
     }
     if (grid->updater_ == nullptr)
     {
-      ToError(MUSICA_ERROR_CATEGORY, ERROR_UNALLOCATED_GRID_UPDATER, GetErrorMessage(ERROR_UNALLOCATED_GRID_UPDATER), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          ERROR_UNALLOCATED_GRID_UPDATER,
+          GetErrorMessage(ERROR_UNALLOCATED_GRID_UPDATER),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return;
     }
 
@@ -179,7 +194,12 @@ namespace musica
     }
     catch (...)
     {
-      ToError(MUSICA_ERROR_CATEGORY, INTERNAL_GRID_MAP_ERROR, GetErrorMessage(INTERNAL_GRID_MAP_ERROR), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          INTERNAL_GRID_MAP_ERROR,
+          GetErrorMessage(INTERNAL_GRID_MAP_ERROR),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return;
     }
     NoError(error);
@@ -189,7 +209,12 @@ namespace musica
   {
     if (grid_map_ == nullptr)
     {
-      ToError(MUSICA_ERROR_CATEGORY, ERROR_UNALLOCATED_GRID_MAP, GetErrorMessage(ERROR_UNALLOCATED_GRID_MAP), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          ERROR_UNALLOCATED_GRID_MAP,
+          GetErrorMessage(ERROR_UNALLOCATED_GRID_MAP),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return nullptr;
     }
 
@@ -227,7 +252,12 @@ namespace musica
     }
     catch (...)
     {
-      ToError(MUSICA_ERROR_CATEGORY, INTERNAL_GRID_MAP_ERROR, GetErrorMessage(INTERNAL_GRID_MAP_ERROR), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          INTERNAL_GRID_MAP_ERROR,
+          GetErrorMessage(INTERNAL_GRID_MAP_ERROR),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return nullptr;
     }
     NoError(error);
@@ -238,7 +268,12 @@ namespace musica
   {
     if (grid_map_ == nullptr)
     {
-      ToError(MUSICA_ERROR_CATEGORY, ERROR_UNALLOCATED_GRID_MAP, GetErrorMessage(ERROR_UNALLOCATED_GRID_MAP), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          ERROR_UNALLOCATED_GRID_MAP,
+          GetErrorMessage(ERROR_UNALLOCATED_GRID_MAP),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return nullptr;
     }
 
@@ -276,7 +311,12 @@ namespace musica
     }
     catch (...)
     {
-      ToError(MUSICA_ERROR_CATEGORY, INTERNAL_GRID_MAP_ERROR, GetErrorMessage(INTERNAL_GRID_MAP_ERROR), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          INTERNAL_GRID_MAP_ERROR,
+          GetErrorMessage(INTERNAL_GRID_MAP_ERROR),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return nullptr;
     }
     NoError(error);
@@ -287,7 +327,12 @@ namespace musica
   {
     if (grid_map_ == nullptr)
     {
-      ToError(MUSICA_ERROR_CATEGORY, ERROR_UNALLOCATED_GRID_MAP, GetErrorMessage(ERROR_UNALLOCATED_GRID_MAP), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          ERROR_UNALLOCATED_GRID_MAP,
+          GetErrorMessage(ERROR_UNALLOCATED_GRID_MAP),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return 0;
     }
 
@@ -310,7 +355,12 @@ namespace musica
     }
     catch (...)
     {
-      ToError(MUSICA_ERROR_CATEGORY, INTERNAL_GRID_MAP_ERROR, GetErrorMessage(INTERNAL_GRID_MAP_ERROR), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          INTERNAL_GRID_MAP_ERROR,
+          GetErrorMessage(INTERNAL_GRID_MAP_ERROR),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return 0;
     }
     NoError(error);
@@ -321,7 +371,12 @@ namespace musica
   {
     if (grid_map_ == nullptr)
     {
-      ToError(MUSICA_ERROR_CATEGORY, ERROR_UNALLOCATED_GRID_MAP, GetErrorMessage(ERROR_UNALLOCATED_GRID_MAP), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          ERROR_UNALLOCATED_GRID_MAP,
+          GetErrorMessage(ERROR_UNALLOCATED_GRID_MAP),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return;
     }
 
@@ -342,7 +397,12 @@ namespace musica
     }
     catch (...)
     {
-      ToError(MUSICA_ERROR_CATEGORY, INTERNAL_GRID_MAP_ERROR, GetErrorMessage(INTERNAL_GRID_MAP_ERROR), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          INTERNAL_GRID_MAP_ERROR,
+          GetErrorMessage(INTERNAL_GRID_MAP_ERROR),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return;
     }
     NoError(error);
@@ -352,7 +412,12 @@ namespace musica
   {
     if (grid_map_ == nullptr)
     {
-      ToError(MUSICA_ERROR_CATEGORY, ERROR_UNALLOCATED_GRID_MAP, GetErrorMessage(ERROR_UNALLOCATED_GRID_MAP), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          ERROR_UNALLOCATED_GRID_MAP,
+          GetErrorMessage(ERROR_UNALLOCATED_GRID_MAP),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return;
     }
 
@@ -373,7 +438,12 @@ namespace musica
     }
     catch (...)
     {
-      ToError(MUSICA_ERROR_CATEGORY, INTERNAL_GRID_MAP_ERROR, GetErrorMessage(INTERNAL_GRID_MAP_ERROR), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          INTERNAL_GRID_MAP_ERROR,
+          GetErrorMessage(INTERNAL_GRID_MAP_ERROR),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return;
     }
     NoError(error);
