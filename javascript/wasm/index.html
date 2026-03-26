@@ -417,8 +417,8 @@
                     let currentLambdaReactions = []; // [{name, label}]
                     const lambdaExprStore = {}; // persists edits across example reloads
                     const lambdaDefaults = {
-                        'A_to_B': '1e-3 * T / 298',
-                        'B_to_C': '5e-4',
+                        'A_to_B': '1e-4 * T * P / 298',
+                        'B_to_C': '5e-1',
                     };
                     function getLambdaExpr(name) {
                         return lambdaExprStore[name] ?? lambdaDefaults[name] ?? '0';
