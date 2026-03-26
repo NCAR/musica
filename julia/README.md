@@ -90,7 +90,7 @@ cmake --build build
 
 # 3. Instantiate and test
 cd julia
-julia +1.11 --project=. -e 'using Pkg; Pkg.develop(PackageSpec(path="Musica_jll")); Pkg.instantiate()'
+julia +1.11 --project=. -e 'using Pkg; Pkg.develop(PackageSpec(path="../etc/Musica_jll")); Pkg.instantiate()'
 julia +1.11 --project=. test/runtests.jl
 ```
 

@@ -42,6 +42,8 @@ RUN cd musica \
 
 # Set library path and precompile Julia package
 RUN cd musica/julia \
-    && julia --project=. -e 'using Pkg; Pkg.develop(PackageSpec(path="Musica_jll")); Pkg.instantiate()'
+    && julia --project=. -e 'using Pkg; Pkg.develop(PackageSpec(path="../etc/Musica_jll")); Pkg.instantiate()'
 
 WORKDIR /musica
+
+CMD ["julia", "--project=.", "julia/test/runtests.jl"]

@@ -48,7 +48,7 @@ jobs:
 
       - name: Precompile Julia package with built library
         working-directory: julia
-        run: julia --project=. -e 'using Pkg; Pkg.develop(PackageSpec(path="Musica_jll")); Pkg.instantiate()'
+        run: julia --project=. -e 'using Pkg; Pkg.develop(PackageSpec(path="../etc/Musica_jll")); Pkg.instantiate()'
 
       - name: Run Julia tests
         working-directory: julia
