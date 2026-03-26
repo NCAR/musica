@@ -1,7 +1,7 @@
 FROM fedora:latest
 
 ARG MUSICA_GIT_TAG=main
-ARG BUILD_TYPE=Release
+ARG BUILD_TYPE=Debug
 
 RUN dnf -y update \
     && dnf -y install \
@@ -27,6 +27,7 @@ RUN cd musica \
     && cmake -S . \
              -B build \
              -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+             -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
              -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
     && cd build \
     && make install -j 8
