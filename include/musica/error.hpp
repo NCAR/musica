@@ -4,9 +4,9 @@
 #endif
 
 #define MUSICA_SEVERITY_OK   -1
-#define MUSICA_SEVERITY_WARN  0
-#define MUSICA_SEVERITY_ERR   1
-#define MUSICA_SEVERITY_CRIT  2
+#define MUSICA_SEVERITY_WARN 0
+#define MUSICA_SEVERITY_ERR  1
+#define MUSICA_SEVERITY_CRIT 2
 
 #define MUSICA_ERROR_CATEGORY                           "MUSICA Error"
 #define MUSICA_ERROR_CODE_SPECIES_NOT_FOUND             1

@@ -126,17 +126,32 @@ namespace musica
     int error_code = ERROR_NONE;
     if (radiator_map_ == nullptr)
     {
-      ToError(MUSICA_ERROR_CATEGORY, ERROR_UNALLOCATED_RADIATOR_MAP, GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_MAP), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          ERROR_UNALLOCATED_RADIATOR_MAP,
+          GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_MAP),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return;
     }
     if (radiator->radiator_ == nullptr)
     {
-      ToError(MUSICA_ERROR_CATEGORY, ERROR_UNALLOCATED_RADIATOR, GetErrorMessage(ERROR_UNALLOCATED_RADIATOR), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          ERROR_UNALLOCATED_RADIATOR,
+          GetErrorMessage(ERROR_UNALLOCATED_RADIATOR),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return;
     }
     if (radiator->updater_ == nullptr)
     {
-      ToError(MUSICA_ERROR_CATEGORY, ERROR_UNALLOCATED_RADIATOR_UPDATER, GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_UPDATER), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          ERROR_UNALLOCATED_RADIATOR_UPDATER,
+          GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_UPDATER),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return;
     }
 
@@ -175,7 +190,12 @@ namespace musica
     }
     catch (...)
     {
-      ToError(MUSICA_ERROR_CATEGORY, INTERNAL_RADIATOR_MAP_ERROR, GetErrorMessage(INTERNAL_RADIATOR_MAP_ERROR), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          INTERNAL_RADIATOR_MAP_ERROR,
+          GetErrorMessage(INTERNAL_RADIATOR_MAP_ERROR),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return;
     }
     NoError(error);
@@ -187,7 +207,12 @@ namespace musica
     DeleteError(error);
     if (radiator_map_ == nullptr)
     {
-      ToError(MUSICA_ERROR_CATEGORY, ERROR_UNALLOCATED_RADIATOR_MAP, GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_MAP), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          ERROR_UNALLOCATED_RADIATOR_MAP,
+          GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_MAP),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return nullptr;
     }
 
@@ -224,7 +249,12 @@ namespace musica
     }
     catch (...)
     {
-      ToError(MUSICA_ERROR_CATEGORY, INTERNAL_RADIATOR_MAP_ERROR, GetErrorMessage(INTERNAL_RADIATOR_MAP_ERROR), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          INTERNAL_RADIATOR_MAP_ERROR,
+          GetErrorMessage(INTERNAL_RADIATOR_MAP_ERROR),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return nullptr;
     }
     NoError(error);
@@ -237,7 +267,12 @@ namespace musica
     DeleteError(error);
     if (radiator_map_ == nullptr)
     {
-      ToError(MUSICA_ERROR_CATEGORY, ERROR_UNALLOCATED_RADIATOR_MAP, GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_MAP), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          ERROR_UNALLOCATED_RADIATOR_MAP,
+          GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_MAP),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return nullptr;
     }
 
@@ -274,7 +309,12 @@ namespace musica
     }
     catch (...)
     {
-      ToError(MUSICA_ERROR_CATEGORY, INTERNAL_RADIATOR_MAP_ERROR, GetErrorMessage(INTERNAL_RADIATOR_MAP_ERROR), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          INTERNAL_RADIATOR_MAP_ERROR,
+          GetErrorMessage(INTERNAL_RADIATOR_MAP_ERROR),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return nullptr;
     }
     NoError(error);
@@ -287,7 +327,12 @@ namespace musica
     int error_code = ERROR_NONE;
     if (radiator_map_ == nullptr)
     {
-      ToError(MUSICA_ERROR_CATEGORY, ERROR_UNALLOCATED_RADIATOR_MAP, GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_MAP), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          ERROR_UNALLOCATED_RADIATOR_MAP,
+          GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_MAP),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return;
     }
 
@@ -307,7 +352,12 @@ namespace musica
     }
     catch (...)
     {
-      ToError(MUSICA_ERROR_CATEGORY, INTERNAL_RADIATOR_MAP_ERROR, GetErrorMessage(INTERNAL_RADIATOR_MAP_ERROR), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          INTERNAL_RADIATOR_MAP_ERROR,
+          GetErrorMessage(INTERNAL_RADIATOR_MAP_ERROR),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return;
     }
     NoError(error);
@@ -319,7 +369,12 @@ namespace musica
     DeleteError(error);
     if (radiator_map_ == nullptr)
     {
-      ToError(MUSICA_ERROR_CATEGORY, ERROR_UNALLOCATED_RADIATOR_MAP, GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_MAP), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          ERROR_UNALLOCATED_RADIATOR_MAP,
+          GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_MAP),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return;
     }
 
@@ -339,7 +394,12 @@ namespace musica
     }
     catch (...)
     {
-      ToError(MUSICA_ERROR_CATEGORY, INTERNAL_RADIATOR_MAP_ERROR, GetErrorMessage(INTERNAL_RADIATOR_MAP_ERROR), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          INTERNAL_RADIATOR_MAP_ERROR,
+          GetErrorMessage(INTERNAL_RADIATOR_MAP_ERROR),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return;
     }
     NoError(error);
@@ -351,7 +411,12 @@ namespace musica
     int error_code = ERROR_NONE;
     if (radiator_map_ == nullptr)
     {
-      ToError(MUSICA_ERROR_CATEGORY, ERROR_UNALLOCATED_RADIATOR_MAP, GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_MAP), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          ERROR_UNALLOCATED_RADIATOR_MAP,
+          GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_MAP),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return 0;
     }
 
@@ -373,7 +438,12 @@ namespace musica
     }
     catch (...)
     {
-      ToError(MUSICA_ERROR_CATEGORY, INTERNAL_RADIATOR_MAP_ERROR, GetErrorMessage(INTERNAL_RADIATOR_MAP_ERROR), MUSICA_SEVERITY_CRIT, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          INTERNAL_RADIATOR_MAP_ERROR,
+          GetErrorMessage(INTERNAL_RADIATOR_MAP_ERROR),
+          MUSICA_SEVERITY_CRIT,
+          error);
       return 0;
     }
     NoError(error);

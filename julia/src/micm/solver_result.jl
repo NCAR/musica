@@ -61,5 +61,8 @@ function SolverResult(cpp_result::CppSolverResult)
 end
 
 function Base.show(io::IO, r::SolverResult)
-    print(io, "SolverResult(state=$(r.state), steps=$(r.stats.number_of_steps), final_time=$(r.stats.final_time))")
+    print(
+        io,
+        "SolverResult(state=$(r.state), steps=$(r.stats.number_of_steps), final_time=$(r.stats.final_time))",
+    )
 end
