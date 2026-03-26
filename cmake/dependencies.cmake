@@ -26,7 +26,7 @@ endif()
 
 if(MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(MECH_CONFIG_GIT_REPOSITORY https://github.com/NCAR/MechanismConfiguration.git)
-  set_git_default(MECH_CONFIG_GIT_TAG fcf550e5b3e97cb13d93a382cd4230578eb923f0)
+  set_git_default(MECH_CONFIG_GIT_TAG f1ebd1711586deb64fc97dd424efea9f5fb95e6d)
 
   FetchContent_Declare(mechanism_configuration
       GIT_REPOSITORY ${MECH_CONFIG_GIT_REPOSITORY}
@@ -170,44 +170,7 @@ endif()
 # Julia
 
 if (MUSICA_ENABLE_JULIA AND MUSICA_BUILD_C_CXX_INTERFACE)
-  find_program(Julia_EXECUTABLE julia REQUIRED)
-
-  # Use the Julia project in the top-level julia subdirectory
-  set(JULIA_PROJECT_DIR "${CMAKE_SOURCE_DIR}/julia")
-
-  execute_process(
-    COMMAND ${Julia_EXECUTABLE} --project=${JULIA_PROJECT_DIR} -e "using Pkg; Pkg.instantiate()"
-    RESULT_VARIABLE PKG_INSTANTIATE_RESULT
-    OUTPUT_VARIABLE PKG_INSTANTIATE_OUTPUT
-    ERROR_VARIABLE PKG_INSTANTIATE_ERROR
-  )
-
-  if(NOT PKG_INSTANTIATE_RESULT EQUAL 0)
-      message(FATAL_ERROR
-          "Failed to instantiate Julia project dependencies in ${JULIA_PROJECT_DIR}.\n"
-          "Stdout: ${PKG_INSTANTIATE_OUTPUT}\n"
-          "Stderr: ${PKG_INSTANTIATE_ERROR}"
-      )
-  endif()
-
-  # Try to get CxxWrap prefix path
-  execute_process(
-      COMMAND ${Julia_EXECUTABLE} --project=${JULIA_PROJECT_DIR} -e "using CxxWrap; print(CxxWrap.prefix_path())"
-      OUTPUT_VARIABLE CxxWrap_PREFIX
-      RESULT_VARIABLE CxxWrap_RESULT
-      OUTPUT_STRIP_TRAILING_WHITESPACE
-      ERROR_VARIABLE CxxWrap_ERROR
-  )
-  if(CxxWrap_RESULT EQUAL 0 AND EXISTS ${CxxWrap_PREFIX})
-      message(STATUS "CxxWrap prefix: ${CxxWrap_PREFIX}")
-      list(APPEND CMAKE_PREFIX_PATH ${CxxWrap_PREFIX})
-      find_package(JlCxx REQUIRED)
-  else()
-      message(FATAL_ERROR 
-          "Failed to find CxxWrap.jl. Error: ${CxxWrap_ERROR}\n"
-          "Please ensure CxxWrap is properly installed"
-      )
-  endif()
+  find_package(JlCxx REQUIRED)
 endif()
 
 
