@@ -39,7 +39,8 @@ export AVOGADRO, BOLTZMANN, GAS_CONSTANT
 
 # Solver types
 export SolverType
-export Rosenbrock, RosenbrockStandardOrder, BackwardEuler, BackwardEulerStandardOrder, CudaRosenbrock
+export Rosenbrock,
+    RosenbrockStandardOrder, BackwardEuler, BackwardEulerStandardOrder, CudaRosenbrock
 
 # Solver results
 export SolverState, SolverStats, SolverResult

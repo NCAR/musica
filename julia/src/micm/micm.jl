@@ -21,8 +21,12 @@ mutable struct MICM
 
     function MICM(;
         config_path::String,
-        solver_type::SolverType=RosenbrockStandardOrder,
-        solver_parameters::Union{RosenbrockSolverParameters, BackwardEulerSolverParameters, Nothing}=nothing,
+        solver_type::SolverType = RosenbrockStandardOrder,
+        solver_parameters::Union{
+            RosenbrockSolverParameters,
+            BackwardEulerSolverParameters,
+            Nothing,
+        } = nothing,
     )
         vs = Int(cpp_get_vector_size(Int(solver_type)))
         vs > 0 || error("Invalid vector size: $vs")
@@ -53,7 +57,7 @@ solver_type(micm::MICM) = micm._solver_type
 
 Create a new state object for this solver.
 """
-function create_state(micm::MICM; number_of_grid_cells::Int=1)
+function create_state(micm::MICM; number_of_grid_cells::Int = 1)
     return State(micm._ptr, number_of_grid_cells, micm._vector_size, micm)
 end
 
