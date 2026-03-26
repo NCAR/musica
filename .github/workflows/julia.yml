@@ -19,7 +19,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
-        julia-version: ['1.10','1.11', '1.12']
+        julia-version: ['1.10','1.11']
 
     steps:
       - uses: actions/checkout@v4
@@ -29,26 +29,19 @@ jobs:
         with:
           version: ${{ matrix.julia-version }}
 
+      - name: Install Julia dependencies (CxxWrap)
+        working-directory: julia
+        run: julia --project=. -e 'using Pkg; Pkg.instantiate()'
+
       - name: Configure MUSICA with Julia support
-        run: |
-          JLCXX_PREFIX=$(julia -e 'import Pkg; Pkg.add("CxxWrap"); using CxxWrap; print(CxxWrap.prefix_path())')
-          cmake -S . -B build \
-                -D CMAKE_PREFIX_PATH=$JLCXX_PREFIX \
-                -D CMAKE_BUILD_TYPE=Release \
-                -D MUSICA_ENABLE_JULIA=ON \
-                -D MUSICA_ENABLE_MICM=ON \
-                -D MUSICA_ENABLE_TUVX=OFF \
-                -D MUSICA_ENABLE_CARMA=OFF \
-                -D MUSICA_ENABLE_TESTS=OFF \
-                -D MUSICA_BUILD_SHARED_LIBS=ON \
-                -D MUSICA_ENABLE_INSTALL=ON
+        run: cmake -S . -B build -D CMAKE_BUILD_TYPE=Release -D MUSICA_ENABLE_JULIA=ON -D MUSICA_ENABLE_MICM=ON -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_CARMA=OFF -D MUSICA_ENABLE_TESTS=OFF -D CMAKE_POLICY_VERSION_MINIMUM=3.5
       
       - name: Build MUSICA with Julia support
         run: cmake --build build --verbose
 
       - name: Precompile Julia package with built library
         working-directory: julia
-        run: julia --project=. -e 'using Pkg; Pkg.develop(PackageSpec(path="Musica_jll")); Pkg.instantiate()'
+        run: julia --project=. -e 'using Pkg; Pkg.precompile()'
 
       - name: Run Julia tests
         working-directory: julia

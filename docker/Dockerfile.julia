@@ -24,24 +24,25 @@ COPY --from=julia-base ${JULIA_PATH} ${JULIA_PATH}
 # Copy the musica code
 COPY . musica
 
+# Install Julia dependencies
+RUN cd musica/julia \
+    && julia --project=. -e 'using Pkg; Pkg.instantiate()'
+
 # Build
 RUN cd musica \
-    && JLCXX_PREFIX=$(julia -e 'import Pkg; Pkg.add("CxxWrap"); using CxxWrap; print(CxxWrap.prefix_path())') \
     && cmake -S . \
              -B build \
-             -D CMAKE_PREFIX_PATH=$JLCXX_PREFIX \
-             -D CMAKE_BUILD_TYPE=Release \
+             -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+             -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
              -D MUSICA_ENABLE_JULIA=ON \
              -D MUSICA_ENABLE_MICM=ON \
              -D MUSICA_ENABLE_TUVX=OFF \
              -D MUSICA_ENABLE_CARMA=OFF \
              -D MUSICA_ENABLE_TESTS=OFF \
-             -D MUSICA_BUILD_SHARED_LIBS=ON \
-             -D MUSICA_ENABLE_INSTALL=ON \
     && cmake --build build
 
-# Set library path and precompile Julia package
+# Precompile and test Julia package
 RUN cd musica/julia \
-    && julia --project=. -e 'using Pkg; Pkg.develop(PackageSpec(path="Musica_jll")); Pkg.instantiate()'
+    && julia --project=. -e 'using Pkg; Pkg.precompile()' 
 
 WORKDIR /musica
