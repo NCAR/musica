@@ -82,6 +82,11 @@ exclude_patterns = []
 
 autosummary_generate = True
 
+# Never re-execute notebooks during the docs build — render from saved outputs.
+# Notebooks that require TUV-x or GPU will fail on ReadTheDocs where those
+# backends are disabled.
+nbsphinx_execute = 'never'
+
 # -- Intersphinx mappings -------------
 intersphinx_mapping = {
     'micm': ('https://micm.readthedocs.io/en/latest/', None),

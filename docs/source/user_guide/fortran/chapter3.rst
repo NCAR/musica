@@ -28,7 +28,7 @@ For reference, these files define:
 
 To create a multiple grid cells box model, save the following Fortran code to a file named ``micm_multiple_grid_cells.F90``: 
 
-  .. literalinclude:: ../../../fortran/test/fetch_content_integration/test_micm_multiple_grid_cells.F90
+  .. literalinclude:: ../../../../fortran/test/integration/test_micm_multiple_grid_cells.F90
     :language: f90
 
 Key differences from the single grid cell example in Chapter 2:

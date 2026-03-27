@@ -11,7 +11,7 @@ to MUSICA and prints the version of MICM.
 
 Save the following code to a file named `demo.F90`:
 
-  .. literalinclude:: ../../../fortran/test/fetch_content_integration/test_get_micm_version.F90
+  .. literalinclude:: ../../../../fortran/test/unit/test_micm_version.F90
     :language: F90
 
 From the ``musica_micm`` module, we only need the function ``get_micm_version``,
@@ -49,7 +49,7 @@ Building a MUSICA Fortran Program with CMake
 A minimal ``CMakeLists.txt`` file designed to link the ``musica_fortran`` library
 to the ``demo_f.F90`` file described above is exhibited below
 
-  .. literalinclude:: ../../../fortran/test/tutorial/CMakeLists.txt
+  .. literalinclude:: ../../../../fortran/test/tutorial/CMakeLists.txt
     :language: cmake
 
 Common practice is to create a ``build`` subdirectory (relative to the top level ``CMakeLists.txt`` file shown above).

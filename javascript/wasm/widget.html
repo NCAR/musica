@@ -14,6 +14,7 @@
     #musica-widget {
         font-family: Arial, sans-serif;
         color: #222;
+        container-type: inline-size;
     }
 
     #musica-widget .musica-site-header {
@@ -45,12 +46,12 @@
     }
 
     #musica-widget .left {
-        flex: 0 0 360px
+        flex: 0 0 280px
     }
 
     #musica-widget .right {
         flex: 1;
-        min-width: 300px
+        min-width: 0
     }
 
     #musica-widget .panel {
@@ -121,13 +122,17 @@
         text-align: left
     }
 
-    @media (max-width:900px) {
+    @container (max-width: 700px) {
         #musica-widget .layout {
             flex-direction: column
         }
 
         #musica-widget .left {
             flex-basis: auto
+        }
+
+        #musica-widget #lorenz-plot {
+            height: 320px !important
         }
     }
 
