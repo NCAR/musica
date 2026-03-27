@@ -1,6 +1,9 @@
+# This will build our docs
+# After building, run with docker run --rm -p 8123:8123 -it docs and navigate to
+# localhost:8123
+# the docs will be visible
 FROM fedora:latest
 
-ARG MUSICA_GIT_TAG=main
 ARG BUILD_TYPE=Release
 
 RUN dnf -y update \
@@ -28,15 +31,21 @@ RUN python -m pip install -r /musica/docs/requirements.txt
 RUN pip install --upgrade pip ipython ipykernel
 
 RUN mkdir /build \
-      && cd /build \
-      && cmake -D MUSICA_BUILD_DOCS=ON \
-               -D MUSICA_ENABLE_TUVX=OFF \
-                -D MUSICA_ENABLE_CARMA=OFF \
-                -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
-                -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
-               /musica 
+    && cd /build \
+    && cmake \
+        -D MUSICA_BUILD_DOCS=ON \
+        -D MUSICA_ENABLE_MICM=ON \
+        -D MUSICA_ENABLE_TUVX=OFF \
+        -D MUSICA_ENABLE_CARMA=OFF \
+        -D MUSICA_ENABLE_TESTS=OFF \
+        -D MUSICA_ENABLE_INSTALL=OFF \
+        -D MUSICA_BUILD_FORTRAN_INTERFACE=OFF \
+        -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+        /musica 
 
 RUN cd /musica/docs && make copy
 RUN cd /build && make docs
 
-WORKDIR /build
+WORKDIR /build/docs/sphinx
+
+CMD ["python", "-m", "http.server", "8123"]

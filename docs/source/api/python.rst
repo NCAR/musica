@@ -45,6 +45,8 @@ Musica Types
    :members:
    :undoc-members:
    :show-inheritance:
+   :imported-members:
+   :exclude-members: backend
 
 TUVX
 ----
@@ -54,6 +56,8 @@ TUVX
    :undoc-members:
    :show-inheritance:
    :private-members:
+   :imported-members:
+   :exclude-members: backend, _backend, v54
 
 CARMA
 -----
@@ -63,3 +67,5 @@ CARMA
    :undoc-members:
    :show-inheritance:
    :private-members:
+   :imported-members:
+   :exclude-members: backend, _backend
