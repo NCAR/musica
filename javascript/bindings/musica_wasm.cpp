@@ -9,6 +9,8 @@
 #include <musica/micm/solver_parameters.hpp>
 #include <musica/util.hpp>
 #include <musica/version.hpp>
+#include <micm/system/conditions.hpp>
+#include <micm/process/rate_constant/lambda_rate_constant.hpp>
 
 #include <micm/version.hpp>
 
@@ -193,6 +195,16 @@ EMSCRIPTEN_BINDINGS(musica_module)
           optional_override(
               [](std::string config_string, musica::MICMSolver solver)
               { return std::make_unique<musica::MICM>(musica::ReadConfigurationFromString(config_string), solver); }))
+      .function(
+          "SetLambdaRateCallback",
+          optional_override(
+              [](musica::MICM& micm, const std::string& label, emscripten::val js_fn)
+              {
+                micm.SetLambdaRateCallback(
+                    label,
+                    [js_fn](const micm::Conditions& c) -> double
+                    { return js_fn(c.temperature_, c.pressure_, c.air_density_).as<double>(); });
+              }))
       .function(
           "solve",
           optional_override(

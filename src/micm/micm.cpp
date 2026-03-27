@@ -6,6 +6,7 @@
 // creating and deleting MICM instances, creating solvers, and solving the model.
 #include <musica/micm/cpu_solver.hpp>
 #include <musica/micm/cuda_loader.hpp>
+#include <musica/micm/lambda_callback.hpp>
 #include <musica/micm/micm.hpp>
 #include <musica/micm/parse.hpp>
 #include <musica/micm/state.hpp>
@@ -180,6 +181,11 @@ namespace musica
   BackwardEulerSolverParameters MICM::GetBackwardEulerSolverParameters() const
   {
     return solver_->GetBackwardEulerSolverParameters();
+  }
+
+  void MICM::SetLambdaRateCallback(const std::string& label, std::function<double(const micm::Conditions&)> fn)
+  {
+    SetLambdaCallback(label, std::move(fn));
   }
 
 }  // namespace musica

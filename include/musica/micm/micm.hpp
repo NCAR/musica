@@ -11,6 +11,7 @@
 #include <musica/micm/solver_parameters.hpp>
 
 #include <micm/solver/solver_result.hpp>
+#include <micm/system/conditions.hpp>
 #include <micm/system/system.hpp>
 
 #include <chrono>
@@ -180,6 +181,8 @@ namespace musica
     /// @brief Get Backward Euler solver parameters
     /// @return The current parameters
     BackwardEulerSolverParameters GetBackwardEulerSolverParameters() const;
+
+    void SetLambdaRateCallback(const std::string& label, std::function<double(const micm::Conditions&)> fn);
 
    private:
     SolverPtr solver_;
