@@ -359,8 +359,7 @@ namespace musica
       // SetLambdaRateCallback.
       micm::LambdaRateConstantParameters params;
       params.label_ = label;
-      params.lambda_function_ = [label](const micm::Conditions& c)
-      { return musica::InvokeLambdaCallback(label, c); };
+      params.lambda_function_ = [label](const micm::Conditions& c) { return musica::InvokeLambdaCallback(label, c); };
 
       chemistry.processes.push_back(micm::ChemicalReactionBuilder()
                                         .SetReactants(reactants)

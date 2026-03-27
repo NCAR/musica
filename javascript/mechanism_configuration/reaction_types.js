@@ -439,8 +439,7 @@ class LambdaRateConstant {
     // callback (setReactionRateCallback), this acts as a placeholder and is
     // overridden at runtime. Defaults to a zero-returning lambda.
     this.lambda_function =
-      params['lambda_function'] ||
-      '[](double T, double P, double air_density) { return 0.0; }';
+      params['lambda_function'] || '[](double T, double P, double air_density) { return 0.0; }';
     this.other_properties = {};
     Object.entries(params).forEach(([key, value]) => {
       if (this.#keys.includes(key) == false) {
