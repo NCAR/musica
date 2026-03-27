@@ -247,9 +247,9 @@
     </div>
 
     <script type="module">
-        // import * as musica from '../index.js'; // for local development and testing latest wasm build
+        import * as musica from '../index.js'; // for local development and testing latest wasm build
         // import * as musica from 'https://cdn.jsdelivr.net/npm/@ncar/musica/javascript/index.js'; // for stable CDN version
-        import * as musica from 'https://cdn.jsdelivr.net/gh/NCAR/musica@main/javascript/index.js'; // for most recent version on main
+        // import * as musica from 'https://cdn.jsdelivr.net/gh/NCAR/musica@main/javascript/index.js'; // for most recent version on main
 
         // Initialize and use the MUSICA package (uses WASM backend internally)
         async function initMUSICA() {
@@ -462,8 +462,7 @@
                             try {
                                 const fn = new Function('T', 'P', 'airDensity', `return (${expr});`);
                                 fn(298.15, 101325, 2.4e25); // validate
-                                const id = musica.registerReactionRateCallback(fn);
-                                micm.setReactionRateCallback('Lambda.' + name, id);
+                                micm.setReactionRateCallback('Lambda.' + name, fn);
                             } catch (e) {
                                 if (errorEl) errorEl.textContent = `Error in "${name}": ${e.message}`;
                                 return false;

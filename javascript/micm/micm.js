@@ -152,8 +152,8 @@ export class MICM {
     }
   }
 
-  setReactionRateCallback(label, id) {
-    this._nativeMICM.SetLambdaRateCallback(label, id);
+  setReactionRateCallback(label, fn) {
+    this._nativeMICM.SetLambdaRateCallback(label, fn);
   }
 
   /**

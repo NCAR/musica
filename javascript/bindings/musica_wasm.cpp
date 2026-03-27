@@ -3,7 +3,6 @@
 //
 // WASM bindings for MUSICA using Emscripten
 
-#include <musica/micm/lambda_callback.hpp>
 #include <musica/micm/micm.hpp>
 #include <musica/micm/micm_c_interface.hpp>
 #include <musica/micm/parse.hpp>
@@ -215,7 +214,16 @@ EMSCRIPTEN_BINDINGS(musica_module)
           optional_override(
               [](std::string config_string, musica::MICMSolver solver)
               { return std::make_unique<musica::MICM>(musica::ReadConfigurationFromString(config_string), solver); }))
-      .function("SetLambdaRateCallback", &musica::MICM::SetLambdaRateCallback)
+      .function(
+          "SetLambdaRateCallback",
+          optional_override(
+              [](musica::MICM& micm, const std::string& label, emscripten::val js_fn)
+              {
+                micm.SetLambdaRateCallback(
+                    label,
+                    [js_fn](const micm::Conditions& c) -> double
+                    { return js_fn(c.temperature_, c.pressure_, c.air_density_).as<double>(); });
+              }))
       .function(
           "solve",
           optional_override(
@@ -240,42 +248,6 @@ EMSCRIPTEN_BINDINGS(musica_module)
           optional_override([](musica::MICM& micm) { return micm.GetBackwardEulerSolverParameters(); }));
 
   function("vector_size", musica::GetVectorSize);
-
-  // --- Lambda rate-constant JS callback support ---
-  //
-  // JS registers rate-constant functions at runtime, e.g.:
-  //   const id = registerReactionRateCallback((T, P, airDensity) => T * 1.5e-4);
-  //   solver.SetLambdaRateCallback('Lambda.my_rxn', id);
-  //
-  // registerReactionRateCallback stores the JS function in a table and returns
-  // its integer index.  SetLambdaCallbackDispatcher installs a C++ shim that,
-  // when called with (id, T, P, airDensity), invokes the stored JS function.
-  function(
-      "registerReactionRateCallback",
-      optional_override(
-          [](emscripten::val js_func) -> int
-          {
-            // Lazy-install the dispatcher the first time a callback is registered.
-            static std::vector<emscripten::val> callbacks;
-
-            // Install dispatcher once
-            static bool dispatcher_set = false;
-            if (!dispatcher_set)
-            {
-              musica::SetLambdaCallbackDispatcher(
-                  [](int id, double T, double P, double rho) -> double
-                  {
-                    if (id < 0 || id >= static_cast<int>(callbacks.size()))
-                      return 0.0;
-                    return callbacks[id].call<double>("call", emscripten::val::null(), T, P, rho);
-                  });
-              dispatcher_set = true;
-            }
-
-            int id = static_cast<int>(callbacks.size());
-            callbacks.push_back(js_func);
-            return id;
-          }));
 
   function(
       "create_state",

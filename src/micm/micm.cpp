@@ -183,11 +183,9 @@ namespace musica
     return solver_->GetBackwardEulerSolverParameters();
   }
 
-  void MICM::SetLambdaRateCallback(
-    const std::string& label,
-    int callback_id)
+  void MICM::SetLambdaRateCallback(const std::string& label, std::function<double(const micm::Conditions&)> fn)
   {
-    GetLambdaCallbackIds()[label] = callback_id;
+    SetLambdaCallback(label, std::move(fn));
   }
 
 }  // namespace musica
