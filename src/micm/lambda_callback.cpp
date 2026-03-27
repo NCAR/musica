@@ -1,9 +1,9 @@
 // Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 #include <musica/micm/lambda_callback.hpp>
-#include <stdexcept>
 
 #include <map>
+#include <stdexcept>
 
 namespace musica
 {

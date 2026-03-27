@@ -16,19 +16,20 @@ const {
 
 await musica.initModule();
 
-
 const { types, reactionTypes, Mechanism } = musica.mechanismConfiguration;
 const { Species, Phase, ReactionComponent } = types;
-const A = new Species({ name: 'A' })
-const B = new Species({ name: 'B' })
+const A = new Species({ name: 'A' });
+const B = new Species({ name: 'B' });
 
-let species = [A, B]
-let reactions = [new reactionTypes.LambdaRateConstant({
-  reactants: [new ReactionComponent({ species_name: 'A' })],
-  products: [new ReactionComponent({ species_name: 'B' })],
-  name: 'mine',
-  gas_phase: 'gas',
-})]
+let species = [A, B];
+let reactions = [
+  new reactionTypes.LambdaRateConstant({
+    reactants: [new ReactionComponent({ species_name: 'A' })],
+    products: [new ReactionComponent({ species_name: 'B' })],
+    name: 'mine',
+    gas_phase: 'gas',
+  }),
+];
 
 const gas = new Phase({
   name: 'gas',
@@ -40,14 +41,14 @@ let mechanism = new Mechanism({
   version: '1.0.0',
   phases: [gas],
   species: species,
-  reactions: reactions
-})
+  reactions: reactions,
+});
 
 const solver = MICM.fromMechanism(mechanism);
 const state = solver.createState(1);
 
-state.setConcentrations({ A: [1.0], B: [0.0]});
-state.setConditions({ temperatures: [298.15], pressures: [101325.0]});
+state.setConcentrations({ A: [1.0], B: [0.0] });
+state.setConditions({ temperatures: [298.15], pressures: [101325.0] });
 
 // Register a JS lambda directly — single step, no ID needed
 solver.setReactionRateCallback('Lambda.mine', (T, P, airDensity) => 1e-3);

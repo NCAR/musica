@@ -9,9 +9,9 @@
 #include <musica/micm/solver_parameters.hpp>
 #include <musica/util.hpp>
 #include <musica/version.hpp>
-#include <micm/system/conditions.hpp>
-#include <micm/process/rate_constant/lambda_rate_constant.hpp>
 
+#include <micm/process/rate_constant/lambda_rate_constant.hpp>
+#include <micm/system/conditions.hpp>
 #include <micm/version.hpp>
 
 #include <emscripten/bind.h>
