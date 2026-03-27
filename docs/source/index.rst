@@ -36,7 +36,7 @@ and that can be connected to any CCPP compliant atmosphere model.
         :link: user_guide/index
         :link-type: doc
 
-        Learn how to configure MUSICA for your mechanisms here!
+        Detailed guides and tutorials for all supported languages.
 
     .. grid-item-card::  API reference
         :img-top: _static/index_api.svg
@@ -59,7 +59,6 @@ and that can be connected to any CCPP compliant atmosphere model.
 
    getting_started/getting_started
    user_guide/index
-   tutorials/tutorials
    api/index
    contributing/index
    citing/index

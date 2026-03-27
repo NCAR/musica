@@ -3,7 +3,7 @@
 Chapter 2
 =========
 
-An MICM Box Model Example in Fortran
+A MICM Box Model Example in Fortran
 --------------------------------------
 
 In this next MUSICA Fortran example,
