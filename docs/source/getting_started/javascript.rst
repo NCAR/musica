@@ -37,4 +37,5 @@ Next steps
 ----------
 
 - :ref:`JavaScript User Guide <javascript-user-guide>` — initialization, mechanism loading, and solver usage
+- :doc:`Live Demo <../user_guide/javascript/demo>` — try MUSICA running in WebAssembly in your browser
 - :doc:`JavaScript API Reference <../api/javascript>` — full API documentation

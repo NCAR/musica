@@ -7,7 +7,13 @@ The JavaScript API exposes MUSICA's MICM chemical kinetics solver through a
 WebAssembly (WASM) module, usable in both browser and Node.js environments.
 It is designed primarily to support the MUSICA box model web application.
 
-For installation, see :doc:`../../getting_started/javascript`.
+For installation, see :doc:`../../getting_started/javascript`. To try MUSICA
+in the browser right now, see the :doc:`demo`.
+
+.. toctree::
+   :hidden:
+
+   demo
 
 Initialization
 --------------
