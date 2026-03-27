@@ -12,8 +12,10 @@ build:
   os: ubuntu-24.04
   tools:
     python: "mambaforge-22.9"
+    nodejs: "22"
   jobs:
     pre_build:
+      - npm install
       - CMAKE_ARGS="-DMUSICA_ENABLE_TUVX=OFF -DMUSICA_ENABLE_CARMA=OFF" pip install .
       - >
         cmake -S . -B build

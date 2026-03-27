@@ -13,4 +13,5 @@ Welcome to the MUSICA API documentation. Below, you can find links to the docume
    C++
    python
    julia
+   javascript
   

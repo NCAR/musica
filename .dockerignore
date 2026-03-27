@@ -19,6 +19,7 @@
 !README.md
 !tutorials
 !javascript/
+!jsdoc.json
 !package.json
 !package-lock.json
 !wheelhouse

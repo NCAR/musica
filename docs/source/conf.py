@@ -49,8 +49,14 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.autosummary',
     'sphinx.ext.intersphinx',
-    'nbsphinx'
+    'nbsphinx',
+    'sphinx_js',
 ]
+
+# -- sphinx-js configuration -------------------------------------------------
+
+js_source_path = os.path.join(conf_dir, '..', '..', 'javascript')
+jsdoc_config_path = os.path.join(conf_dir, '..', '..', 'jsdoc.json')
 
 # -- Breathe configuration ---------------------------------------------------
 

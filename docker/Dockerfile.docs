@@ -17,6 +17,8 @@ RUN dnf -y update \
         lapack-devel \
         make \
         netcdf-fortran-devel \
+        nodejs \
+        npm \
         pandoc \
         pip \
         python \
@@ -25,6 +27,7 @@ RUN dnf -y update \
 
 COPY . /musica/
 
+RUN cd /musica && npm install
 RUN cd /musica &&  python -m pip install -e .
 
 RUN python -m pip install -r /musica/docs/requirements.txt
