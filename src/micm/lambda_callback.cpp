@@ -20,7 +20,7 @@ namespace musica
   {
     auto it = g_callbacks.find(label);
     if (it == g_callbacks.end())
-      return 0.0;
+      throw std::runtime_error("No lambda callback registered for label: " + label);
     return it->second(conditions);
   }
 
