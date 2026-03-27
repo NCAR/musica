@@ -3,8 +3,11 @@
 Overview
 ========
 
-This section covers using MUSICA through the Python API. The Python API is the
-most fully featured of the available APIs and exposes MICM, TUV-x, and CARMA.
+The Python API is the most fully featured of the available APIs, exposing MICM,
+TUV-x, and CARMA. For installation, see :doc:`../../getting_started/python`.
+
+Each topic below follows the same progression: **Defining a Mechanism** →
+**Creating a Solver** → **Setting Conditions** → **Solving** → **Accessing Results**.
 
 .. toctree::
    :maxdepth: 1

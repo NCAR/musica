@@ -2,10 +2,22 @@ Overview
 ========
 
 The MUSICA-Fortran interface exposes the MUSICA C++ library to Fortran programs via the
-Fortran-C interoperability features of ``iso_c_binding``. The tutorials below progress
-from printing the MICM version through running a multi-grid-cell box model.
+Fortran-C interoperability features of ``iso_c_binding``. For installation, see
+:doc:`../../getting_started/fortran`.
 
-For installation instructions, see :doc:`../../getting_started/fortran`.
+The tutorials below progress from printing the MICM version through running a
+multi-grid-cell box model. Each section follows the same pattern:
+
+- **Defining a Mechanism** — load a :doc:`mechanism configuration file <mc:index>` directory
+- **Creating a Solver** — instantiate ``micm_t`` with a config path and solver type
+- **Setting Conditions** — populate the ``state`` concentrations and environmental parameters
+- **Solving** — call ``micm%solve`` at each time step
+- **Accessing Results** — read updated concentrations from the state array
+
+.. note::
+
+   TUV-x photolysis and CARMA aerosol support are not yet available in the
+   Fortran API.
 
 Fortran-C Interoperability
 ---------------------------

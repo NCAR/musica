@@ -3,108 +3,104 @@
 Overview
 ========
 
-This section covers using MUSICA as a C++ library. The C++ library is the
-foundation that all other language bindings are built on, and gives direct
-access to MICM, TUV-x, and CARMA.
+The C++ library is the foundation that all other language bindings are built
+on, and gives direct access to MICM, TUV-x, and CARMA. For installation, see
+:doc:`../../getting_started/cpp`.
 
-Building from Source
+Defining a Mechanism
 --------------------
 
-Prerequisites
-~~~~~~~~~~~~~
+Mechanisms are loaded from a :doc:`mechanism configuration file <mc:index>`
+directory. Use the bundled ``configs/v0/analytical`` example or provide your own:
 
-Install the required system dependencies. On Fedora/RHEL:
+.. code-block:: cpp
 
-.. code-block:: bash
+   #include <musica/micm.hpp>
 
-   sudo dnf install -y cmake git gcc-c++ netcdf-devel
+   auto micm = musica::MICM("configs/v0/analytical",
+                             musica::MICMSolver::RosenbrockStandardOrder);
 
-On Ubuntu/Debian:
+See :doc:`../cmake_options/index` for build options including TUV-x, CARMA, and
+GPU support.
 
-.. code-block:: bash
+Creating a Solver
+-----------------
 
-   sudo apt-get install -y cmake git g++ libnetcdf-dev
+The solver type is selected at construction time. Available options in
+``musica::MICMSolver``:
 
-Clone and Build
-~~~~~~~~~~~~~~~
+.. list-table::
+   :widths: 50 50
+   :header-rows: 1
 
-.. code-block:: bash
+   * - Solver
+     - Description
+   * - ``RosenbrockStandardOrder``
+     - Rosenbrock solver (standard species ordering)
+   * - ``RosenbrockArbitraryOrder``
+     - Rosenbrock solver (arbitrary species ordering)
+   * - ``BackwardEulerStandardOrder``
+     - Backward Euler solver (standard species ordering)
+   * - ``BackwardEulerArbitraryOrder``
+     - Backward Euler solver (arbitrary species ordering)
+   * - ``CudaRosenbrock``
+     - GPU Rosenbrock solver (requires CUDA build)
 
-   git clone https://github.com/NCAR/musica.git
-   cd musica
-   mkdir build && cd build
-   cmake -D CMAKE_INSTALL_PREFIX=<INSTALL_DIR> \
-         -D MUSICA_ENABLE_MICM=ON \
-         -D MUSICA_ENABLE_TUVX=ON \
-         ..
-   make -j
-   make install
+Setting Conditions
+------------------
 
-See :doc:`../cmake_options/index` for the full list of CMake configuration
-options, including enabling CARMA and GPU support.
+Create a state and set concentrations and environmental conditions:
+
+.. code-block:: cpp
+
+   auto state = micm.CreateState();
+
+   state.SetConcentrations({ {"A", {1.0}}, {"B", {3.0}}, {"C", {5.0}} });
+   state.SetConditions(300.0 /*K*/, 101000.0 /*Pa*/);
+
+Solving
+-------
+
+Call ``Solve`` at each time step:
+
+.. code-block:: cpp
+
+   double time_step  = 4.0;   // s
+   double sim_length = 20.0;  // s
+
+   for (double t = time_step; t <= sim_length; t += time_step) {
+     micm.Solve(state, time_step);
+   }
+
+Accessing Results
+-----------------
+
+Retrieve updated concentrations from the state after each solve:
+
+.. code-block:: cpp
+
+   auto conc = state.GetConcentrations();
+   std::cout << "t=" << t << "s  A=" << conc["A"][0] << "\n";
 
 Using MUSICA in a CMake Project
 --------------------------------
 
-Once installed, link MUSICA into your own CMake project with ``find_package``:
+Link MUSICA into your project with ``find_package``:
 
 .. code-block:: cmake
 
-   cmake_minimum_required(VERSION 3.21)
-   project(my_chemistry_model)
-
    find_package(musica REQUIRED)
+   target_link_libraries(my_target musica::musica)
 
-   add_executable(my_model main.cpp)
-   target_link_libraries(my_model musica::musica)
-
-If you installed to a non-standard prefix, set ``musica_ROOT`` or add the
-install prefix to ``CMAKE_PREFIX_PATH``:
+If installed to a non-standard prefix:
 
 .. code-block:: bash
 
    cmake -D CMAKE_PREFIX_PATH=<INSTALL_DIR> ..
 
-Basic Usage
------------
-
-The C++ API loads a mechanism from a
-:doc:`mechanism configuration file <mc:index>` directory and exposes a
-solver, state, and conditions object. A minimal box-model example:
-
-.. code-block:: cpp
-
-   #include <musica/micm.hpp>
-   #include <iostream>
-
-   int main()
-   {
-     // Load mechanism from JSON config directory
-     auto micm = musica::MICM("configs/analytical",
-                               musica::MICMSolver::RosenbrockStandardOrder);
-
-     auto state = micm.CreateState();
-
-     // Set initial conditions
-     state.SetConcentrations({ {"A", {1.0}}, {"B", {3.0}}, {"C", {5.0}} });
-     state.SetConditions(300.0 /*K*/, 101000.0 /*Pa*/);
-
-     // Integrate over time
-     double time_step  = 4.0;   // s
-     double sim_length = 20.0;  // s
-
-     for (double t = time_step; t <= sim_length; t += time_step) {
-       micm.Solve(state, time_step);
-       auto conc = state.GetConcentrations();
-       std::cout << "t=" << t << "s  A=" << conc["A"][0] << "\n";
-     }
-
-     return 0;
-   }
-
 Further Reading
 ---------------
 
-- :doc:`C++ API Reference <../api/C++>`
-- :doc:`MICM Documentation <micm:index>`
+- :doc:`C++ API Reference <../../api/C++>`
 - :doc:`CMake Options <../cmake_options/index>`
+- :doc:`MICM Documentation <micm:index>`

@@ -3,8 +3,7 @@ User Guide
 ##########
 
 This guide serves as an overview of key features in the MUSICA library, organized by language.
-Further details can be found in the :ref:`API Reference <api-ref>`. Interactive Jupyter Notebooks
-utilizing the Python API can be found on the :ref:`Tutorials <tutorials page>` page.
+Further details can be found in the :ref:`API Reference <api-ref>`.
 
 .. note::
    The MUSICA library is separate from the configurations of CESM. All of the code here is in support of
@@ -39,3 +38,9 @@ utilizing the Python API can be found on the :ref:`Tutorials <tutorials page>` p
    :caption: Fortran:
 
    fortran/index
+
+.. toctree::
+   :maxdepth: 2
+   :caption: JavaScript:
+
+   javascript/index
