@@ -84,10 +84,10 @@ autosummary_generate = True
 
 # -- Intersphinx mappings -------------
 intersphinx_mapping = {
-    'micm': ('https://micm.readthedocs.io', None),
-    'tuv-x': ('https://tuv-x.readthedocs.io', None),
-    'mc': ('https://MechanismConfiguration.readthedocs.io', None),
-    'mb': ('https://music-box.readthedocs.io', None)
+    'micm': ('https://micm.readthedocs.io/en/latest/', None),
+    'tuv-x': ('https://tuv-x.readthedocs.io/en/latest/', None),
+    'mc': ('https://mechanismconfiguration.readthedocs.io/en/latest/', None),
+    'mb': ('https://music-box.readthedocs.io/en/latest/', None)
 }
 # -- Options for HTML output -------------------------------------------------
 
