@@ -6,6 +6,7 @@
 copy:
 	cp ../tutorials/*.ipynb source/user_guide/python/notebooks/
 	cp -r ../tutorials/config source/user_guide/python/notebooks/
+	cp ../javascript/wasm/widget.html source/user_guide/javascript/widget.html
 
 SPHINXOPTS    ?=
 SPHINXBUILD   ?= sphinx-build

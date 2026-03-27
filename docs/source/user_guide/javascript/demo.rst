@@ -3,25 +3,23 @@
 Live Demo
 =========
 
-A live interactive demo of MUSICA running in WebAssembly is deployed at
-`https://ncar.github.io/musica/ <https://ncar.github.io/musica/>`_.
+An interactive demo of MUSICA running in WebAssembly is embedded below.
 It demonstrates version information, example mechanisms, and interactive
 sliders for exploring atmospheric chemistry in the browser.
 
-.. raw:: html
+.. note::
 
-   <iframe
-     src="https://ncar.github.io/musica/"
-     width="100%"
-     height="700px"
-     style="border: 1px solid #ddd; border-radius: 4px;"
-     title="MUSICA WebAssembly Live Demo">
-   </iframe>
+   The demo may fail to load if the dependencies can't be loaded. 
+   If you encounter issues, please try refreshing the page or accessing
+   `the deployed version <https://ncar.github.io/musica/>`_ directly which hosts just this demo.
+
+.. raw:: html
+   :file: widget.html
 
 Running Locally
 ---------------
 
-To run the same demo from your local build:
+To run the demo from your local build:
 
 .. code-block:: bash
 
