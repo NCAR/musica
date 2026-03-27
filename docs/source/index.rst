@@ -17,7 +17,7 @@ MUSICA unifies diverse chemical transport models including `CAM-Chem <https://wi
 `WRF-Chem <https://www2.acom.ucar.edu/wrf-chem>`_, NSF NCAR `LES <https://ral.ucar.edu/solutions/products/rtfdda-les>`_, and a box model in a single modular framework.
 The model infrastructure is open source, flexible and computationally efficient in order to facilitate community co-development and use for scientific and operational purposes. 
 
-At the heart of MUSICA is the standalone `Model Independent Chemistry Model (MICM) <https://ncar.github.io/micm/index.html>`_, which is a gas-phase kinetic solver. MICM is made available by the MUSICA wrapper which satisfies the requirements of the Common Community Physics Package (CCPP)
+At the heart of MUSICA is the standalone :doc:`Model Independent Chemistry Model (MICM) <micm:index>`, which is a gas-phase kinetic solver. MICM is made available by the MUSICA wrapper which satisfies the requirements of the Common Community Physics Package (CCPP)
 and that can be connected to any CCPP compliant atmosphere model.
 
 

@@ -46,8 +46,7 @@ The ``reactions.json`` file for this example should look like this:
   .. literalinclude:: ../../../configs/v0/analytical/reactions.json
     :language: json
 
-More information on MICM configurations and reactions can be found in the `MICM documentation
-<https://ncar.github.io/micm/user_guide/>`_
+More information on MICM configurations and reactions can be found in the :doc:`MICM documentation <micm:user_guide/index>`
 
 To create a simple box model, save the following Fortran code to a file named ``micm_box_model.F90``: 
 

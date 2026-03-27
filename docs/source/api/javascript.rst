@@ -232,4 +232,4 @@ Additional Resources
 
 - `MUSICA npm package <https://www.npmjs.com/package/@ncar/musica>`_
 - `MUSICA GitHub Repository <https://github.com/NCAR/musica>`_
-- `MICM Documentation <https://micm.readthedocs.io>`_
+- :doc:`MICM Documentation <micm:index>`

@@ -471,4 +471,4 @@ Additional Resources
 
 - `CxxWrap.jl Documentation <https://github.com/JuliaInterop/CxxWrap.jl>`_
 - `MUSICA GitHub Repository <https://github.com/NCAR/musica>`_
-- `MICM Documentation <https://micm.readthedocs.io>`_
+- :doc:`MICM Documentation <micm:index>`

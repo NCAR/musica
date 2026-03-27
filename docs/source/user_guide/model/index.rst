@@ -5,7 +5,7 @@ Model solving and options
 .. note::
     
     MUSICA uses the Model-Independent Chemical Module (MICM) as its core chemistry solver. For more information about available reaction types,
-    species configuration, and solver behavior, see the `MICM documentation <https://ncar.github.io/micm/index.html>`_.
+    species configuration, and solver behavior, see the :doc:`MICM documentation <micm:index>`.
 
 To work with a MUSICA model and solve, please be sure to import the following::
 

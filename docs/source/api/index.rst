@@ -11,7 +11,7 @@ MUSICA is quite versatile. While we don't provide the exact same API set for all
 core fucntionality needed to solve gas-phase chemistry given a valid
 :doc:`mechanism configuration file <mc:index>` is available in all languages. 
 
-The C++ is essentially a wrapper around MICM and TUVx to make it easy to expose the funtionality 
+The C++ is essentially a wrapper around :doc:`MICM <micm:index>` and :doc:`TUV-x <tuv-x:index>` to make it easy to expose the funtionality
 in other languages. The Python API is the most fully featured, and the Julia and 
 JavaScript APIs are still in development. Additionally, musica-javascript is exclusively meant to
 support our box model web application, so it is not expected to have the same level of functionality 
