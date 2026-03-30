@@ -49,8 +49,14 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.autosummary',
     'sphinx.ext.intersphinx',
-    'nbsphinx'
+    'nbsphinx',
+    'sphinx_js',
 ]
+
+# -- sphinx-js configuration -------------------------------------------------
+
+js_source_path = os.path.join(conf_dir, '..', '..', 'javascript')
+jsdoc_config_path = os.path.join(conf_dir, '..', '..', 'jsdoc.json')
 
 # -- Breathe configuration ---------------------------------------------------
 
@@ -76,12 +82,17 @@ exclude_patterns = []
 
 autosummary_generate = True
 
+# Never re-execute notebooks during the docs build — render from saved outputs.
+# Notebooks that require TUV-x or GPU will fail on ReadTheDocs where those
+# backends are disabled.
+nbsphinx_execute = 'never'
+
 # -- Intersphinx mappings -------------
 intersphinx_mapping = {
-    'micm': ('https://micm.readthedocs.io', None),
-    'tuv-x': ('https://tuv-x.readthedocs.io', None),
-    'mc': ('https://MechanismConfiguration.readthedocs.io', None),
-    'mb': ('https://music-box.readthedocs.io', None)
+    'micm': ('https://micm.readthedocs.io/en/latest/', None),
+    'tuv-x': ('https://tuv-x.readthedocs.io/en/latest/', None),
+    'mc': ('https://mechanismconfiguration.readthedocs.io/en/latest/', None),
+    'mb': ('https://music-box.readthedocs.io/en/latest/', None)
 }
 # -- Options for HTML output -------------------------------------------------
 

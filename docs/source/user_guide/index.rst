@@ -2,8 +2,8 @@
 User Guide
 ##########
 
-This guide serves as an overview of key features in the MUSICA library. Further details can be found in the :ref:`API Reference <api-ref>`. Interactive Jupyter Notebooks utilizing
-the Python API can be found on the :ref:`Tutorials <tutorials page>` page.
+This guide serves as an overview of key features in the MUSICA library, organized by language.
+Further details can be found in the :ref:`API Reference <api-ref>`.
 
 .. note::
    The MUSICA library is separate from the configurations of CESM. All of the code here is in support of
@@ -11,25 +11,36 @@ the Python API can be found on the :ref:`Tutorials <tutorials page>` page.
 
 .. toctree::
    :maxdepth: 1
-   :caption: Configuration:
+   :caption: Build Configuration:
 
    cmake_options/index
 
 .. toctree::
-   :maxdepth: 1
-   :caption: Fortran:
+   :maxdepth: 2
+   :caption: C++:
 
-   fortran_c
+   cpp/index
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Python:
 
-   installation/index
-   cli
-   chemistry/index
-   model/index
-   output/index
-   multigrid/index
-   gpu/index
-   examples/index
+   python/index
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Julia:
+
+   julia/index
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Fortran:
+
+   fortran/index
+
+.. toctree::
+   :maxdepth: 2
+   :caption: JavaScript:
+
+   javascript/index

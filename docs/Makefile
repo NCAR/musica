@@ -4,7 +4,9 @@
 # You can set these variables from the command line, and also
 # from the environment for the first two.
 copy:
-	cp -r ../tutorials/* source/tutorials/
+	cp ../tutorials/*.ipynb source/user_guide/python/notebooks/
+	cp -r ../tutorials/config source/user_guide/python/notebooks/
+	cp ../javascript/wasm/widget.html source/user_guide/javascript/widget.html
 
 SPHINXOPTS    ?=
 SPHINXBUILD   ?= sphinx-build

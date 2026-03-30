@@ -11,6 +11,7 @@ dependencies:
   - libblas
   - liblapack
   - make
+  - netcdf-fortran
   - pip
   - pip:
       - -r docs/requirements.txt

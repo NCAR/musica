@@ -3,7 +3,7 @@
 Chapter 2
 =========
 
-An MICM Box Model Example in Fortran
+A MICM Box Model Example in Fortran
 --------------------------------------
 
 In this next MUSICA Fortran example,
@@ -23,13 +23,13 @@ the reactions configuration file ``reactions.json``.
 
 The contents of the ``config.json`` file for this example are:
 
-  .. literalinclude:: ../../../configs/v0/analytical/config.json
+  .. literalinclude:: ../../../../configs/v0/analytical/config.json
     :language: json
 
 For this example, we will have a system of three chemical species
 `A`, `B`, and `C`, defined in the JSON file ``species.json`` as follows:
 
-  .. literalinclude:: ../../../configs/v0/analytical/species.json
+  .. literalinclude:: ../../../../configs/v0/analytical/species.json
     :language: json
 
 The ``reactions.json`` specifies a mechanism, or a set of reactions for the system.
@@ -43,15 +43,14 @@ are needed to determine the rate constants, such as in the case of photolysis re
 
 The ``reactions.json`` file for this example should look like this:
 
-  .. literalinclude:: ../../../configs/v0/analytical/reactions.json
+  .. literalinclude:: ../../../../configs/v0/analytical/reactions.json
     :language: json
 
-More information on MICM configurations and reactions can be found in the `MICM documentation
-<https://ncar.github.io/micm/user_guide/>`_
+More information on MICM configurations and reactions can be found in the :doc:`MICM documentation <micm:user_guide/index>`
 
 To create a simple box model, save the following Fortran code to a file named ``micm_box_model.F90``: 
 
-  .. literalinclude:: ../../../fortran/test/fetch_content_integration/test_micm_box_model.F90
+  .. literalinclude:: ../../../../fortran/test/integration/test_micm_box_model.F90
     :language: f90
 
 From the ``musica_util`` module we need the Fortran types

@@ -2,16 +2,28 @@
 Getting Started
 ###############
 
-Hello, and welcome to MUSICA! Here, we will be covering some basic usages of the MUSICA library.
+Welcome to MUSICA! This section covers installation for API users and development environment setup for contributors.
 
-The MUSICA-Fotran API provides access to the MUSICA library within a fortran program. Similarly, the MUSICA-Python API makes the library available within a Python program. 
-Simple usage examples for either API are included below:
+MUSICA is available in multiple languages — pick the one that fits your use case:
+
+- **Python** — easiest to get started; exposes MICM, TUV-x, and CARMA
+- **Julia** — ideal for scientific computing workflows in Julia
+- **C++** — for embedding MUSICA in larger models or maximum performance
+- **Fortran** — for existing Fortran codebases
+- **JavaScript** — for web applications; exposes MICM via WebAssembly
 
 .. toctree::
    :maxdepth: 1
-   :caption: Contents:
+   :caption: Installation:
 
-
-
-   fortran
    python
+   julia
+   cpp
+   fortran
+   javascript
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Contributing:
+
+   development

@@ -87,10 +87,20 @@ export class MICM {
     this._solverType = solverType;
   }
 
+  /**
+   * Get the solver type this instance was created with.
+   * @returns {number} A {@link SolverType} value
+   */
   solverType() {
     return this._solverType;
   }
 
+  /**
+   * Create a new {@link State} object for this solver.
+   *
+   * @param {number} [numberOfGridCells=1] - Number of independent atmospheric columns
+   * @returns {State}
+   */
   createState(numberOfGridCells = 1) {
     if (numberOfGridCells <= 0) {
       throw new RangeError('number_of_grid_cells must be greater than 0');
@@ -98,6 +108,14 @@ export class MICM {
     return new State(this._nativeMICM, numberOfGridCells, this._solverType);
   }
 
+  /**
+   * Integrate the chemical system forward by `timeStep` seconds.
+   * Species concentrations in `state` are updated in-place.
+   *
+   * @param {State} state - The chemical state to integrate
+   * @param {number} timeStep - Time step in seconds
+   * @returns {SolverResult}
+   */
   solve(state, timeStep) {
     if (!(state instanceof State)) {
       throw new TypeError('state must be an instance of State');
@@ -152,6 +170,15 @@ export class MICM {
     }
   }
 
+  /**
+   * Register a callback for a user-defined (lambda) reaction rate.
+   *
+   * The callback is invoked by the solver at each time step to obtain the
+   * current rate constant for the named reaction.
+   *
+   * @param {string} label - Reaction label as defined in the mechanism configuration
+   * @param {Function} fn - Callback returning the rate constant (s⁻¹ or appropriate units)
+   */
   setReactionRateCallback(label, fn) {
     this._nativeMICM.SetLambdaRateCallback(label, fn);
   }
@@ -198,6 +225,9 @@ export class MICM {
     }
   }
 
+  /**
+   * Free the underlying WASM object. Call when done with this instance.
+   */
   delete() {
     this._nativeMICM.delete();
   }
