@@ -26,6 +26,7 @@ def _convert_components(items):
         for r in items
     ]
 
+
 def _format_component(component) -> str:
     coef = component.coefficient
     name = component.species_name
