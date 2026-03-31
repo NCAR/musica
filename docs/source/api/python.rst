@@ -46,7 +46,6 @@ Mechanism Configuration
 
 .. automodule:: musica.mechanism_configuration
    :members:
-   :undoc-members:
    :show-inheritance:
    :imported-members:
 
