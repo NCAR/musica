@@ -3,7 +3,7 @@ from .. import backend
 from .._base import CppWrapper, CppField, _unwrap, _unwrap_list, _wrap_list
 from .phase import Phase
 from .species import Species
-from .utils import _add_other_properties, _remove_empty_keys, _convert_components
+from .utils import _add_other_properties, _remove_empty_keys, _convert_components, _format_components
 from .reaction_component import ReactionComponent
 from .ancillary import ReactionType
 
@@ -87,6 +87,11 @@ class Surface(CppWrapper):
     @gas_phase_products.setter
     def gas_phase_products(self, value):
         self._cpp.gas_phase_products = _unwrap_list(value)
+
+    def to_equation(self):
+        species = self.gas_phase_species
+        reactant_str = _format_components([species])
+        return f"{reactant_str} -> {_format_components(self.gas_phase_products)}"
 
     def serialize(self) -> Dict:
         serialize_dict = {
