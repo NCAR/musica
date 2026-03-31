@@ -1,7 +1,7 @@
 from typing import Optional, Any, Dict, List, Union, Tuple
 from .. import backend
 from .._base import CppWrapper, CppField, _unwrap_list, _wrap_list
-from .utils import _add_other_properties, _remove_empty_keys, _convert_components
+from .utils import _add_other_properties, _remove_empty_keys, _convert_components, _format_components
 from .species import Species
 from .phase import Phase
 from .reaction_component import ReactionComponent
@@ -115,6 +115,12 @@ class Branched(CppWrapper):
     @alkoxy_products.setter
     def alkoxy_products(self, value):
         self._cpp.alkoxy_products = _unwrap_list(value)
+
+    def to_equation(self):
+        reactants = _format_components(self.reactants)
+        nitrate = _format_components(self.nitrate_products)
+        alkoxy = _format_components(self.alkoxy_products)
+        return f"{reactants} -> nitrate: {nitrate} | alkoxy: {alkoxy}"
 
     def serialize(self) -> Dict:
         serialize_dict = {

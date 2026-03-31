@@ -25,3 +25,15 @@ def _convert_components(items):
         )
         for r in items
     ]
+
+def _format_component(component) -> str:
+    coef = component.coefficient
+    name = component.species_name
+    if coef == 1.0:
+        return name
+    coef_str = str(int(coef)) if coef == int(coef) else str(coef)
+    return f"{coef_str}{name}"
+
+
+def _format_components(components) -> str:
+    return " + ".join(_format_component(c) for c in components)

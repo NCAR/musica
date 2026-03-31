@@ -13,6 +13,7 @@ Interactive (Binder)
 Each link opens a live JupyterHub with all dependencies pre-installed.
 Note: Binder uses the latest commit on ``main``, not necessarily the latest release.
 
+0. `welcome to MUSICA <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/0.%20Welcome%20to%20MUSICA.ipynb>`_
 1. `working with multiple grid cells <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/1.%20multiple_grid_cells.ipynb>`_
 2. `latin hypercube sampling <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/2.%20hypercube.ipynb>`_
 3. `user-defined reactions <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/3.%20user_defined_reactions.ipynb>`_
@@ -26,6 +27,7 @@ Note: Binder uses the latest commit on ``main``, not necessarily the latest rele
 Download (GitHub)
 ------------------
 
+0. `welcome to MUSICA notebook <https://github.com/NCAR/musica/blob/main/tutorials/0.%20Welcome%20to%20MUSICA.ipynb>`_
 1. `multiple grid cells notebook <https://github.com/NCAR/musica/blob/main/tutorials/1.%20multiple_grid_cells.ipynb>`_
 2. `hypercube sampling notebook <https://github.com/NCAR/musica/blob/main/tutorials/2.%20hypercube.ipynb>`_
 3. `user-defined reactions notebook <https://github.com/NCAR/musica/blob/main/tutorials/3.%20user_defined_reactions.ipynb>`_
@@ -42,6 +44,7 @@ Browse Inline
 .. toctree::
    :maxdepth: 1
 
+   0. Welcome to MUSICA
    1. multiple_grid_cells
    2. hypercube
    3. user_defined_reactions
