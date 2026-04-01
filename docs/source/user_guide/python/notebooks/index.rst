@@ -23,6 +23,8 @@ Note: Binder uses the latest commit on ``main``, not necessarily the latest rele
 7. `using CARMA <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/7.%20carma.ipynb>`_
 8. `TUV-x standard configurations <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/8.tuv-x_standard_configurations.ipynb>`_
 9. `TUV-x conditions <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/9.tuv-x_conditions.ipynb>`_
+10. `Chapman cycle box model <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/10.%20chapman.ipynb>`_
+11. `TS1 box model <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/11.%20ts1_box_model.ipynb>`_
 
 Download (GitHub)
 ------------------
@@ -37,6 +39,8 @@ Download (GitHub)
 7. `CARMA notebook <https://github.com/NCAR/musica/blob/main/tutorials/7.%20carma.ipynb>`_
 8. `TUV-x standard configurations notebook <https://github.com/NCAR/musica/blob/main/tutorials/8.tuv-x_standard_configurations.ipynb>`_
 9. `TUV-x conditions notebook <https://github.com/NCAR/musica/blob/main/tutorials/9.tuv-x_conditions.ipynb>`_
+10. `Chapman cycle box model notebook <https://github.com/NCAR/musica/blob/main/tutorials/10.%20chapman.ipynb>`_
+11. `TS1 box model notebook <https://github.com/NCAR/musica/blob/main/tutorials/11.%20ts1_box_model.ipynb>`_
 
 Browse Inline
 --------------
@@ -54,3 +58,5 @@ Browse Inline
    7. carma
    8.tuv-x_standard_configurations
    9.tuv-x_conditions
+   10.ts1_box_model
+   11.chapman
