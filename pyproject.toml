@@ -50,7 +50,9 @@ tutorial = [
   "dask-jobqueue>=0.8.0",
   "dask[distributed]>=2022.3.0",
   "graphviz>=0.18",
+  "ipykernel>=6.0.0",
   "matplotlib>=3.7.0",
+  "pvlib>=0.14.0",
   "scipy>=1.10.0",
   "seaborn>=0.12.0",
 ]
