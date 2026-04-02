@@ -20,5 +20,4 @@ Each topic below follows the same progression: **Defining a Mechanism** →
    output/index
    multigrid/index
    gpu/index
-   examples/index
    notebooks/index
