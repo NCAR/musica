@@ -56,7 +56,7 @@ Browse Online
    5. HPC Parallelization <5. hpc_parallelization>
    6. Using GPU Solvers <6. gpu_solver>
    7. Using CARMA <7. carma>
-   8. TUV-x Standard Configurations <8.tuv-x_standard_configurations>
-   9. TUV-x Conditions <9.tuv-x_conditions>
-   10. TS1 Box Model <10.ts1_box_model>
-   11. Chapman Cycle Box Model <11.chapman>
+   8. TUV-x Standard Configurations <8. tuv-x_standard_configurations>
+   9. TUV-x Conditions <9. tuv-x_conditions>
+   10. Chapman Cycle Box Model <10. chapman>
+   11. TS1 Box Model <11. ts1_box_model>
