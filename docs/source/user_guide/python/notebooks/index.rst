@@ -42,21 +42,21 @@ Download (GitHub)
 10. `Chapman cycle box model notebook <https://github.com/NCAR/musica/blob/main/tutorials/10.%20chapman.ipynb>`_
 11. `TS1 box model notebook <https://github.com/NCAR/musica/blob/main/tutorials/11.%20ts1_box_model.ipynb>`_
 
-Browse Inline
+Browse Online
 --------------
 
 .. toctree::
    :maxdepth: 1
 
-   0. Welcome to MUSICA
-   1. multiple_grid_cells
-   2. hypercube
-   3. user_defined_reactions
-   4. local_parallelization
-   5. hpc_parallelization
-   6. gpu_solver
-   7. carma
-   8.tuv-x_standard_configurations
-   9.tuv-x_conditions
-   10.ts1_box_model
-   11.chapman
+   0. Welcome to MUSICA <0. Welcome to MUSICA>
+   1. Multiple Grid Cells <1. multiple_grid_cells>
+   2. Latin Hypercube Sampling <2. hypercube>
+   3. User-Defined Reactions <3. user_defined_reactions>
+   4. Local Parallelization <4. local_parallelization>
+   5. HPC Parallelization <5. hpc_parallelization>
+   6. Using GPU Solvers <6. gpu_solver>
+   7. Using CARMA <7. carma>
+   8. TUV-x Standard Configurations <8.tuv-x_standard_configurations>
+   9. TUV-x Conditions <9.tuv-x_conditions>
+   10. TS1 Box Model <10.ts1_box_model>
+   11. Chapman Cycle Box Model <11.chapman>
