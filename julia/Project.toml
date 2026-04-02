@@ -1,7 +1,7 @@
 name = "Musica"
 uuid = "d3d182ee-e566-4962-9279-3a9916be1802"
 authors = ["ACOM MUSICA Developers <musica-support@ucar.edu>"]
-version = "0.14.5"
+version = "0.15.0"
 
 [deps]
 CxxWrap = "1f15a43c-97ca-5a2a-ae31-89f07a497df4"
