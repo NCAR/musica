@@ -7,4 +7,4 @@ dependencies:
   - ipycytoscape
   - pip
   - pip:
-    - musica[tutorial]
+    - .[tutorial]
