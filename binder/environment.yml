@@ -12,4 +12,5 @@ dependencies:
   - make
   - netcdf-fortran
   - pip
+  - yaml-cpp
   - python=3.12

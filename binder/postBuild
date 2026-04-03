@@ -5,4 +5,8 @@ set -e
 # NB_PYTHON_PREFIX is set by binder to the conda env path (CONDA_PREFIX is not set)
 export PKG_CONFIG_PATH="${NB_PYTHON_PREFIX}/lib/pkgconfig:${PKG_CONFIG_PATH}"
 
-pip install ".[tutorial]"
+# CMAKE_INSTALL_RPATH=$ORIGIN ensures all installed shared libraries (.so) look
+# in their own directory for transitive deps at runtime, matching what auditwheel
+# does for PyPI wheels. Without this, libmusica.so and libmechanism_configuration.so
+# can't find libyaml-cpp.so.0.8 because LD_LIBRARY_PATH is not set in binder kernels.
+CMAKE_ARGS="-DCMAKE_INSTALL_RPATH=\$ORIGIN" pip install ".[tutorial]"
