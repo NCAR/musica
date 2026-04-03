@@ -5,10 +5,10 @@ dependencies:
   - python>=3.9
   - ipykernel
   - ipycytoscape
-  - pip
-  # Build dependencies for compiling the C++ extension
   - cmake
   - cxx-compiler
-  - c-compiler
-  - libnetcdf
-  - lapack
+  - libblas
+  - liblapack
+  - make
+  - netcdf-fortran
+  - pip

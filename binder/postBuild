@@ -1,5 +1,4 @@
 #!/bin/bash
 set -e
 
-export CMAKE_ARGS="-DMUSICA_GPU_TYPE=None -DMUSICA_BUILD_FORTRAN_INTERFACE=OFF -DMUSICA_ENABLE_TESTS=OFF"
 pip install ".[tutorial]"
