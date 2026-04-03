@@ -2,6 +2,7 @@
 set -e
 
 # Ensure pkg-config can find conda-installed packages (e.g. netcdf-fortran)
-export PKG_CONFIG_PATH="${CONDA_PREFIX}/lib/pkgconfig:${PKG_CONFIG_PATH}"
+# NB_PYTHON_PREFIX is set by binder to the conda env path (CONDA_PREFIX is not set)
+export PKG_CONFIG_PATH="${NB_PYTHON_PREFIX}/lib/pkgconfig:${PKG_CONFIG_PATH}"
 
 pip install ".[tutorial]"
