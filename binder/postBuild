@@ -1,4 +1,7 @@
 #!/bin/bash
 set -e
 
+# Ensure pkg-config can find conda-installed packages (e.g. netcdf-fortran)
+export PKG_CONFIG_PATH="${CONDA_PREFIX}/lib/pkgconfig:${PKG_CONFIG_PATH}"
+
 pip install ".[tutorial]"
