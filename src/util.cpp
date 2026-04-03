@@ -3,17 +3,11 @@
 #include <musica/util.hpp>
 #include <musica/version.hpp>
 
+#include <yaml-cpp/yaml.h>
+
 #include <cstddef>
 #include <cstring>
 #include <iostream>
-
-namespace
-{
-  struct Yaml
-  {
-    YAML::Node node_;
-  };
-}  // namespace
 
 namespace musica
 {
@@ -35,25 +29,45 @@ namespace musica
 
   void NoError(Error* error)
   {
-    ToError("", 0, "Success", error);
+    DeleteError(error);
+    error->severity_ = MUSICA_SEVERITY_OK;
+    error->code_ = 0;
+    CreateString("", &error->category_);
+    CreateString("Success", &error->message_);
   }
 
-  void ToError(const char* category, int code, Error* error)
+  void ToError(const char* category, int code, int severity, Error* error)
   {
-    ToError(category, code, "", error);
+    ToError(category, code, "", severity, error);
   }
 
-  void ToError(const char* category, int code, const char* message, Error* error)
+  void ToError(const char* category, int code, const char* message, int severity, Error* error)
   {
+    DeleteError(error);
+    error->severity_ = severity;
     error->code_ = code;
     CreateString(category, &error->category_);
     CreateString(message, &error->message_);
   }
 
-  void ToError(const std::system_error& e, Error* error)
+  void ToError(const std::system_error& e, int severity, Error* error)
   {
-    ToError(e.code().category().name(), e.code().value(), e.what(), error);
+    ToError(e.code().category().name(), e.code().value(), e.what(), severity, error);
   }
+
+#ifdef MUSICA_USE_MICM
+  void ToError(const micm::MicmException& e, Error* error)
+  {
+    int severity;
+    switch (e.severity_)
+    {
+      case micm::MicmSeverity::Warning: severity = MUSICA_SEVERITY_WARN; break;
+      case micm::MicmSeverity::Critical: severity = MUSICA_SEVERITY_CRIT; break;
+      default: severity = MUSICA_SEVERITY_ERR; break;
+    }
+    ToError(e.category_, e.code_, e.what(), severity, error);
+  }
+#endif
 
   bool IsSuccess(const Error& error)
   {
@@ -92,13 +106,13 @@ namespace musica
     DeleteError(error);
     try
     {
-      configuration->data_ = new YAML::Node(YAML::Load(data));
+      configuration->data_ = static_cast<void*>(new YAML::Node(YAML::Load(data)));
       NoError(error);
     }
     catch (const std::exception& e)
     {
       configuration->data_ = nullptr;
-      ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_PARSING_FAILED, e.what(), error);
+      ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_PARSING_FAILED, e.what(), MUSICA_SEVERITY_ERR, error);
     }
   }
 
@@ -107,20 +121,20 @@ namespace musica
     DeleteError(error);
     try
     {
-      configuration->data_ = new YAML::Node(YAML::LoadFile(filename));
+      configuration->data_ = static_cast<void*>(new YAML::Node(YAML::LoadFile(filename)));
       NoError(error);
     }
     catch (const std::exception& e)
     {
       configuration->data_ = nullptr;
-      ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_PARSING_FAILED, e.what(), error);
+      ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_PARSING_FAILED, e.what(), MUSICA_SEVERITY_ERR, error);
     }
   }
 
   void DeleteConfiguration(Configuration* config)
   {
     if (config->data_ != nullptr)
-      delete config->data_;
+      delete static_cast<YAML::Node*>(config->data_);
     config->data_ = nullptr;
   }
 
@@ -153,7 +167,7 @@ namespace musica
       }
     }
     std::string const msg = "Mapping element '" + std::string(name) + "' not found";
-    ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_MAPPING_NOT_FOUND, msg.c_str(), error);
+    ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_MAPPING_NOT_FOUND, msg.c_str(), MUSICA_SEVERITY_ERR, error);
     return 0;
   }
 
@@ -182,17 +196,23 @@ namespace musica
       Error* error)
   {
     DeleteError(error);
-    std::size_t const size = configuration.data_->size();
+    YAML::Node* yaml_data = static_cast<YAML::Node*>(configuration.data_);
+    std::size_t const size = yaml_data->size();
     std::vector<IndexMapping> mappings;
     index_mapping->size_ = 0;
     if (map_options == IndexMappingOptions::UndefinedMapping)
     {
-      ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED, "Mapping options are undefined", error);
+      ToError(
+          MUSICA_ERROR_CATEGORY,
+          MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED,
+          "Mapping options are undefined",
+          MUSICA_SEVERITY_ERR,
+          error);
       return;
     }
     for (std::size_t i = 0; i < size; i++)
     {
-      const YAML::Node& node = (*configuration.data_)[i];
+      const YAML::Node& node = (*yaml_data)[i];
       std::string const source_name = node["source"].as<std::string>();
       std::string const target_name = node["target"].as<std::string>();
       std::size_t const source_index = FindMappingIndex(source, source_name.c_str(), error);

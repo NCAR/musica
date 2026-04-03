@@ -92,7 +92,6 @@ TEST(Parser, CanParseChapmanV1)
     musica::Chemistry chemistry = musica::ReadConfiguration("configs/v1/chapman/config" + extension);
     EXPECT_EQ(chemistry.system.gas_phase_.phase_species_.size(), 6);
     EXPECT_EQ(chemistry.processes.size(), 7);
-    EXPECT_EQ(chemistry.system.phases_.size(), 0);
     EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[0].species_.name_, "M");
     EXPECT_NE(chemistry.system.gas_phase_.phase_species_[0].species_.parameterize_, nullptr);
     EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[1].species_.name_, "O1D");
@@ -116,7 +115,6 @@ TEST(Parser, CanParseFullV1)
 
     EXPECT_EQ(chemistry.system.gas_phase_.phase_species_.size(), 5);
     EXPECT_EQ(chemistry.system.gas_phase_.name_, "gas");
-    EXPECT_EQ(chemistry.system.phases_.size(), 0);
     EXPECT_EQ(chemistry.processes.size(), 13);
   }
 }

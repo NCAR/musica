@@ -1,7 +1,9 @@
+#include <musica/micm/lambda_callback.hpp>
 #include <musica/micm/parse.hpp>
 
 #include <micm/Process.hpp>
 #include <micm/System.hpp>
+#include <micm/process/rate_constant/lambda_rate_constant.hpp>
 
 #include <mechanism_configuration/v1/types.hpp>
 #include <mechanism_configuration/v1/validation.hpp>
@@ -103,11 +105,11 @@ namespace musica
     return species;
   }
 
-  std::vector<micm::Yield> reaction_components_to_products(
+  std::vector<micm::StoichSpecies> reaction_components_to_products(
       const std::vector<mechanism_configuration::v1::types::ReactionComponent>& components,
       std::unordered_map<std::string, micm::Species>& species_map)
   {
-    std::vector<micm::Yield> yields;
+    std::vector<micm::StoichSpecies> yields;
     for (const auto& component : components)
     {
       yields.push_back({ species_map[component.species_name], component.coefficient });
@@ -339,6 +341,35 @@ namespace musica
   {
   };
 
+  void convert_lambda_rate_constants(
+      Chemistry& chemistry,
+      const std::vector<mechanism_configuration::v1::types::LambdaRateConstant>& reactions,
+      std::unordered_map<std::string, micm::Species>& species_map)
+  {
+    for (const auto& reaction : reactions)
+    {
+      const std::string label = "Lambda." + reaction.name;
+      auto reactants = reaction_components_to_reactants(reaction.reactants, species_map);
+      auto products = reaction_components_to_products(reaction.products, species_map);
+
+      // The lambda_function field stores a raw string from the config (which
+      // may be a C++ lambda expression or a JS placeholder).  At runtime MICM
+      // never evaluates that string; instead it calls InvokeLambdaCallback
+      // which dispatches to whichever JS function was registered via
+      // SetLambdaRateCallback.
+      micm::LambdaRateConstantParameters params;
+      params.label_ = label;
+      params.lambda_function_ = [label](const micm::Conditions& c) { return musica::InvokeLambdaCallback(label, c); };
+
+      chemistry.processes.push_back(micm::ChemicalReactionBuilder()
+                                        .SetReactants(reactants)
+                                        .SetProducts(products)
+                                        .SetRateConstant(micm::LambdaRateConstant(params))
+                                        .SetPhase(chemistry.system.gas_phase_)
+                                        .Build());
+    }
+  }
+
   template<typename T>
   void convert_user_defined(
       Chemistry& chemistry,
@@ -349,7 +380,7 @@ namespace musica
     for (const auto& reaction : user_defined)
     {
       std::vector<micm::Species> reactants{};
-      std::vector<micm::Yield> products{};
+      std::vector<micm::StoichSpecies> products{};
 
       if constexpr (has_reactants<T>::value)
       {
@@ -372,7 +403,7 @@ namespace musica
     }
   }
 
-  Chemistry ConvertV1Mechanism(const mechanism_configuration::v1::types::Mechanism& v1_mechanism, bool ignore_non_gas_phases)
+  Chemistry ConvertV1Mechanism(const mechanism_configuration::v1::types::Mechanism& v1_mechanism)
   {
     Chemistry chemistry{};
     auto species = convert_species(v1_mechanism.species);
@@ -389,10 +420,6 @@ namespace musica
       {
         gas_phase = phase;
       }
-      else if (!ignore_non_gas_phases)
-      {
-        chemistry.system.phases_[phase.name_] = phase;
-      }
     }
     convert_arrhenius(chemistry, v1_mechanism.reactions.arrhenius, species_map);
     convert_branched(chemistry, v1_mechanism.reactions.branched, species_map);
@@ -405,6 +432,7 @@ namespace musica
     convert_user_defined(chemistry, v1_mechanism.reactions.emission, species_map, "EMIS.");
     convert_user_defined(chemistry, v1_mechanism.reactions.first_order_loss, species_map, "LOSS.");
     convert_user_defined(chemistry, v1_mechanism.reactions.user_defined, species_map, "USER.");
+    convert_lambda_rate_constants(chemistry, v1_mechanism.reactions.lambda_rate_constant, species_map);
     return chemistry;
   }
 

@@ -5,14 +5,13 @@
 
 #include <musica/error.hpp>
 #ifdef MUSICA_USE_MICM
+  #include <micm/util/micm_exception.hpp>
   #include <micm/util/vector_matrix.hpp>
 #endif
 
 #include <cstddef>
 
 #ifdef __cplusplus
-  #include <yaml-cpp/yaml.h>
-
   #include <system_error>
 
 namespace musica
@@ -20,7 +19,6 @@ namespace musica
 
   extern "C"
   {
-    typedef YAML::Node Yaml;
 #endif
 
     /// @brief Vector dimension for Vector-ordered matrices
@@ -49,6 +47,7 @@ const size_t MUSICA_VECTOR_SIZE = 0;
     struct Error
     {
       int code_ = 0;
+      int severity_ = MUSICA_SEVERITY_OK;
       String category_;
       String message_;
     };
@@ -56,7 +55,7 @@ const size_t MUSICA_VECTOR_SIZE = 0;
     /// @brief A set of configuration data
     struct Configuration
     {
-      Yaml* data_ = nullptr;
+      void* data_ = nullptr;  // Opaque pointer to YAML::Node (implementation detail)
     };
 
     /// @brief A struct to represent a mapping between a string and an index
@@ -101,12 +100,13 @@ const size_t MUSICA_VECTOR_SIZE = 0;
     /// @param error The Error [output]
     void NoError(Error* error);
 
-    /// @brief Creates an Error from a category, code, and message
+    /// @brief Creates an Error from a category, code, message, and severity
     /// @param category The category of the Error [input]
     /// @param code The code of the Error [input]
     /// @param message The message of the Error [input]
+    /// @param severity The severity of the Error (MUSICA_SEVERITY_WARN/ERR/CRIT) [input]
     /// @param error The Error [output]
-    void ToError(const char* category, int code, const char* message, Error* error);
+    void ToError(const char* category, int code, const char* message, int severity, Error* error);
 
     /// @brief Loads a set of configuration data from a string
     /// @param data The string to load [input]
@@ -193,16 +193,25 @@ const size_t MUSICA_VECTOR_SIZE = 0;
 
 #ifdef __cplusplus
   }
-  /// @brief Creates an Error from a category and code
+  /// @brief Creates an Error from a category, code, and severity
   /// @param category The category of the Error [input]
   /// @param code The code of the Error [input]
+  /// @param severity The severity of the Error (MUSICA_SEVERITY_WARN/ERR/CRIT) [input]
   /// @param error The Error [output]
-  void ToError(const char* category, int code, Error* error);
+  void ToError(const char* category, int code, int severity, Error* error);
 
-  /// @brief Creates an Error from syd::system_error
+  /// @brief Creates an Error from std::system_error
   /// @param e The std::system_error to convert [input]
+  /// @param severity The severity of the Error (MUSICA_SEVERITY_WARN/ERR/CRIT) [input]
   /// @param error The Error [output]
-  void ToError(const std::system_error& e, Error* error);
+  void ToError(const std::system_error& e, int severity, Error* error);
+
+  #ifdef MUSICA_USE_MICM
+  /// @brief Creates an Error from a micm::MicmException, mapping MicmSeverity to musica severity
+  /// @param e The micm::MicmException to convert [input]
+  /// @param error The Error [output]
+  void ToError(const micm::MicmException& e, Error* error);
+  #endif
 
   /// @brief Checks for success
   /// @param error The Error to check

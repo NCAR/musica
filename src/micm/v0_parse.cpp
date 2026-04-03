@@ -75,14 +75,14 @@ namespace musica
     return species;
   }
 
-  std::vector<micm::Yield> reaction_components_to_products(
+  std::vector<micm::StoichSpecies> reaction_components_to_products(
       const std::vector<mechanism_configuration::v0::types::ReactionComponent>& components,
       std::unordered_map<std::string, micm::Species>& species_map)
   {
-    std::vector<micm::Yield> yields;
+    std::vector<micm::StoichSpecies> yields;
     for (const auto& component : components)
     {
-      yields.push_back(micm::Yield(species_map[component.species_name], component.coefficient));
+      yields.push_back(micm::StoichSpecies(species_map[component.species_name], component.coefficient));
     }
     return yields;
   }

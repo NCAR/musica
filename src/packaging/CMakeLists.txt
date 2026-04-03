@@ -9,6 +9,7 @@ install(
     musica_Exports
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
 # install the musica header files
@@ -19,6 +20,16 @@ install(
     ${MUSICA_INSTALL_INCLUDE_DIR}
 )
 
+# install mechanism_configuration headers when built from source
+if(TARGET mechanism_configuration)
+  install(
+    DIRECTORY
+      ${mechanism_configuration_SOURCE_DIR}/include/
+    DESTINATION
+      ${MUSICA_INSTALL_INCLUDE_DIR}
+  )
+endif()
+
 # install MICM
 if(MUSICA_ENABLE_MICM)
   install(
@@ -28,6 +39,7 @@ if(MUSICA_ENABLE_MICM)
       musica_Exports
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   )
 
   if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None")
@@ -38,6 +50,7 @@ if(MUSICA_ENABLE_MICM)
         musica_Exports
       LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
       ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+      RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
   endif()
 

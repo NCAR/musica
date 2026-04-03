@@ -29,6 +29,8 @@ export const {
   SolverState,
   SolverStats,
   SolverResult,
+  RosenbrockSolverParameters,
+  BackwardEulerSolverParameters,
   GAS_CONSTANT,
   AVOGADRO,
   BOLTZMANN,

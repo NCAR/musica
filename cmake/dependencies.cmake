@@ -22,10 +22,11 @@ endif()
 
 ################################################################################
 # Mechanism Configuration
+# Skip if using prebuilt musica (already includes mechanism_configuration)
 
-if(MUSICA_BUILD_C_CXX_INTERFACE)
+if(MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(MECH_CONFIG_GIT_REPOSITORY https://github.com/NCAR/MechanismConfiguration.git)
-  set_git_default(MECH_CONFIG_GIT_TAG v1.1.1)
+  set_git_default(MECH_CONFIG_GIT_TAG v1.1.2)
 
   FetchContent_Declare(mechanism_configuration
       GIT_REPOSITORY ${MECH_CONFIG_GIT_REPOSITORY}
@@ -34,12 +35,8 @@ if(MUSICA_BUILD_C_CXX_INTERFACE)
       FIND_PACKAGE_ARGS NAMES mechanism_configuration
   )
 
-  set(MECH_CONFIG_ENABLE_PYTHON_LIBRARY OFF CACHE BOOL "" FORCE)
   set(MECH_CONFIG_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
-
-  if (MUSICA_ENABLE_PYTHON_LIBRARY OR MUSICA_ENABLE_PIC)
-    set(MECH_CONFIG_ENABLE_PIC ON CACHE BOOL "" FORCE)
-  endif()
+  set(MECH_CONFIG_BUILD_SHARED_LIBS ${MUSICA_BUILD_SHARED_LIBS} CACHE BOOL "" FORCE)
 
   FetchContent_MakeAvailable(mechanism_configuration)
 endif()
@@ -72,10 +69,11 @@ endif()
 
 ################################################################################
 # MICM
+# Skip if using prebuilt musica (already includes micm)
 
-if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE)
+if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(MICM_GIT_REPOSITORY https://github.com/NCAR/micm.git)
-  set_git_default(MICM_GIT_TAG v3.11.0)
+  set_git_default(MICM_GIT_TAG v3.12.0)
 
   FetchContent_Declare(micm
       GIT_REPOSITORY ${MICM_GIT_REPOSITORY}
@@ -87,6 +85,7 @@ if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE)
   set(MICM_ENABLE_TESTS OFF)
   set(MICM_ENABLE_EXAMPLES OFF)
   set(MICM_DEFAULT_VECTOR_SIZE ${MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE})
+  set(MICM_BUILD_SHARED_LIBS ${MUSICA_BUILD_SHARED_LIBS} CACHE BOOL "" FORCE)
   if(NOT APPLE)
     set(MICM_GPU_TYPE ${MUSICA_GPU_TYPE})
   endif()
@@ -96,8 +95,9 @@ endif()
 
 ################################################################################
 # TUV-x
+# Skip if using prebuilt musica (already includes tuvx)
 
-if (MUSICA_ENABLE_TUVX AND MUSICA_BUILD_C_CXX_INTERFACE)
+if (MUSICA_ENABLE_TUVX AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set(TUVX_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
   set(TUVX_MOD_DIR ${MUSICA_MOD_DIR} CACHE STRING "" FORCE)
   set(TUVX_INSTALL_MOD_DIR ${MUSICA_INSTALL_MOD_DIR} CACHE STRING "" FORCE)
@@ -106,7 +106,7 @@ if (MUSICA_ENABLE_TUVX AND MUSICA_BUILD_C_CXX_INTERFACE)
   # NOTE: `docker/Dockerfile.tuvx` extracts TUVX_GIT_REPOSITORY and TUVX_GIT_TAG
   #       from this script to set up tests against stand-alone TUV-x
   set_git_default(TUVX_GIT_REPOSITORY https://github.com/NCAR/tuv-x.git)
-  set_git_default(TUVX_GIT_TAG v0.14.0)
+  set_git_default(TUVX_GIT_TAG v0.15.0)
 
   FetchContent_Declare(tuvx
     GIT_REPOSITORY ${TUVX_GIT_REPOSITORY}
@@ -123,12 +123,19 @@ endif()
 
 ################################################################################
 # CARMA
-if(MUSICA_ENABLE_CARMA AND MUSICA_BUILD_C_CXX_INTERFACE)
+# Skip if using prebuilt musica (already includes carma)
+
+if(MUSICA_ENABLE_CARMA AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(CARMA_GIT_REPOSITORY https://github.com/NCAR/CARMA-ACOM-dev.git)
   set_git_default(CARMA_GIT_TAG develop-carma-box)
+
   set(CARMA_MOD_DIR ${MUSICA_MOD_DIR} CACHE STRING "" FORCE)
   set(CARMA_INSTALL_MOD_DIR ${MUSICA_INSTALL_MOD_DIR} CACHE STRING "" FORCE)
   set(CARMA_INSTALL_INCLUDE_DIR ${MUSICA_INSTALL_INCLUDE_DIR} CACHE STRING "" FORCE)
+
+  # CARMA needs these
+  find_package(BLAS REQUIRED)
+  find_package(LAPACK REQUIRED)
 
   FetchContent_Declare(carma
       GIT_REPOSITORY ${CARMA_GIT_REPOSITORY}
@@ -163,44 +170,7 @@ endif()
 # Julia
 
 if (MUSICA_ENABLE_JULIA AND MUSICA_BUILD_C_CXX_INTERFACE)
-  find_program(Julia_EXECUTABLE julia REQUIRED)
-
-  # Use the Julia project in the top-level julia subdirectory
-  set(JULIA_PROJECT_DIR "${CMAKE_SOURCE_DIR}/julia")
-
-  execute_process(
-    COMMAND ${Julia_EXECUTABLE} --project=${JULIA_PROJECT_DIR} -e "using Pkg; Pkg.instantiate()"
-    RESULT_VARIABLE PKG_INSTANTIATE_RESULT
-    OUTPUT_VARIABLE PKG_INSTANTIATE_OUTPUT
-    ERROR_VARIABLE PKG_INSTANTIATE_ERROR
-  )
-
-  if(NOT PKG_INSTANTIATE_RESULT EQUAL 0)
-      message(FATAL_ERROR
-          "Failed to instantiate Julia project dependencies in ${JULIA_PROJECT_DIR}.\n"
-          "Stdout: ${PKG_INSTANTIATE_OUTPUT}\n"
-          "Stderr: ${PKG_INSTANTIATE_ERROR}"
-      )
-  endif()
-
-  # Try to get CxxWrap prefix path
-  execute_process(
-      COMMAND ${Julia_EXECUTABLE} --project=${JULIA_PROJECT_DIR} -e "using CxxWrap; print(CxxWrap.prefix_path())"
-      OUTPUT_VARIABLE CxxWrap_PREFIX
-      RESULT_VARIABLE CxxWrap_RESULT
-      OUTPUT_STRIP_TRAILING_WHITESPACE
-      ERROR_VARIABLE CxxWrap_ERROR
-  )
-  if(CxxWrap_RESULT EQUAL 0 AND EXISTS ${CxxWrap_PREFIX})
-      message(STATUS "CxxWrap prefix: ${CxxWrap_PREFIX}")
-      list(APPEND CMAKE_PREFIX_PATH ${CxxWrap_PREFIX})
-      find_package(JlCxx REQUIRED)
-  else()
-      message(FATAL_ERROR 
-          "Failed to find CxxWrap.jl. Error: ${CxxWrap_ERROR}\n"
-          "Please ensure CxxWrap is properly installed"
-      )
-  endif()
+  find_package(JlCxx REQUIRED)
 endif()
 
 

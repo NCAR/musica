@@ -4,27 +4,34 @@ import musica.mechanism_configuration as mc
 from musica.utils import find_config_path
 
 
-def test_solve_with_config_path_v1_json():
-    solver = musica.MICM(
+def _solver_from_json():
+    return musica.MICM(
         config_path=find_config_path("v1", "chapman", "config.json"),
         solver_type=musica.SolverType.rosenbrock_standard_order,
     )
-    TestSolve(solver)
 
 
-def test_solve_with_config_path_v1_yaml():
-    solver = musica.MICM(
+def _solver_from_yaml():
+    return musica.MICM(
         config_path=find_config_path("v1", "chapman", "config.yaml"),
         solver_type=musica.SolverType.rosenbrock_standard_order,
     )
-    TestSolve(solver)
 
 
-def test_solve_with_mechanism():
-    solver = musica.MICM(
+def _solver_from_mechanism():
+    return musica.MICM(
         mechanism=GetMechanism(),
         solver_type=musica.SolverType.rosenbrock_standard_order,
     )
+
+
+@pytest.mark.parametrize("solver_factory", [
+    pytest.param(_solver_from_json, id="config_json"),
+    pytest.param(_solver_from_yaml, id="config_yaml"),
+    pytest.param(_solver_from_mechanism, id="mechanism"),
+])
+def test_solve(solver_factory):
+    solver = solver_factory()
     TestSolve(solver)
 
 

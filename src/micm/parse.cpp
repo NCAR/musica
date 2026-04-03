@@ -3,6 +3,8 @@
 #include <mechanism_configuration/parser.hpp>
 #include <mechanism_configuration/v1/parser.hpp>
 
+#include <sstream>
+
 namespace musica
 {
   Chemistry ReadConfiguration(const std::string& config_path)

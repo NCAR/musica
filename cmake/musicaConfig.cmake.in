@@ -8,6 +8,11 @@ if("@MUSICA_ENABLE_TUVX@" STREQUAL "ON" OR "@MUSICA_ENABLE_CARMA@" STREQUAL "ON"
   pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
 endif()
 
+if("@MUSICA_ENABLE_CARMA@" STREQUAL "ON")
+  find_dependency(BLAS)
+  find_dependency(LAPACK)
+endif()
+
 include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@_Exports.cmake")
 
 check_required_components("@PROJECT_NAME@")

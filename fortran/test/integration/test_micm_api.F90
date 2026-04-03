@@ -9,6 +9,7 @@ program test_micm_api
   use musica_util, only: assert, error_t, mapping_t, string_t, find_mapping_index
   use musica_micm, only: micm_t, solver_stats_t, get_micm_version, is_cuda_available
   use musica_micm, only: Rosenbrock, RosenbrockStandardOrder, BackwardEuler, BackwardEulerStandardOrder, CudaRosenbrock
+  use musica_micm, only: rosenbrock_solver_parameters_t, backward_euler_solver_parameters_t
   use musica_state, only: conditions_t, state_t
 
 #include "micm/util/error.hpp"
@@ -30,14 +31,31 @@ program test_micm_api
     real(real64) :: E_ = 0.0
   end type ArrheniusReaction
 
+  write(*,*) "Starting tests..."
+  write(*,*) "Testing MICM Fortran API..."
   call test_api()
+
+  write(*,*) "Testing multiple grid cell solvers with standard Rosenbrock method..."
   call test_multiple_grid_cell_standard_Rosenbrock()
+
+  write(*,*) "Testing multiple grid cell solvers with standard Backward Euler method..."
   call test_multiple_grid_cell_standard_BackwardEuler()
+
+  write (*,*) "Testing parser..."
   call test_api_v1_parser()
+
+  write(*,*) "Testing multiple grid cell solvers with vectorized Rosenbrock method..."
   call test_multiple_grid_cell_vector_Rosenbrock()
+
+  write(*,*) "Testing multiple grid cell solvers with vectorized Backward Euler method..."
   call test_multiple_grid_cell_vector_BackwardEuler()
+
+  write(*,*) "Testing multiple grid cell solvers with CUDA Rosenbrock method..."
   call test_multiple_grid_cell_cuda_Rosenbrock()
-  
+
+  write(*,*) "Testing solver parameters..."
+  call test_solver_parameters()
+
 contains
 
   function calculate_arrhenius( reaction, temperature, pressure ) result( rate )
@@ -204,6 +222,8 @@ contains
     real(real64)              :: initial_A, initial_C, initial_D, initial_F
     real(real64)              :: k1, k2, k3, k4
     real(real64)              :: A, B, C, D, E, F
+
+    write(*,*) "[test micm fort api] Testing solver with ", number_of_grid_cells, " grid cells..."
 
     max_grid_cells = micm%get_maximum_number_of_grid_cells( )
     ASSERT_GT( max_grid_cells, 0 )
@@ -462,6 +482,53 @@ contains
     deallocate( micm )
 
   end subroutine test_multiple_grid_cell_cuda_Rosenbrock
+
+  subroutine test_solver_parameters()
+
+    type(micm_t), pointer :: micm
+    type(error_t) :: error
+    type(rosenbrock_solver_parameters_t) :: ros_params, ros_result
+    type(backward_euler_solver_parameters_t) :: be_params, be_result
+
+    write(*,*) "[test solver params] Testing Rosenbrock solver parameters..."
+    micm => micm_t("configs/v0/analytical", RosenbrockStandardOrder, error)
+    ASSERT( error%is_success() )
+
+    ros_params%relative_tolerance = 1.0e-8_real64
+    ros_params%h_min = 1.0e-10_real64
+    ros_params%h_max = 100.0_real64
+    ros_params%h_start = 1.0e-5_real64
+    ros_params%max_number_of_steps = 500
+
+    call micm%set_rosenbrock_solver_parameters(ros_params, error)
+    ASSERT( error%is_success() )
+
+    ros_result = micm%get_rosenbrock_solver_parameters(error)
+    ASSERT( error%is_success() )
+    ASSERT_EQ( ros_result%max_number_of_steps, 500 )
+
+    deallocate(micm)
+
+    write(*,*) "[test solver params] Testing Backward Euler solver parameters..."
+    micm => micm_t("configs/v0/analytical", BackwardEulerStandardOrder, error)
+    ASSERT( error%is_success() )
+
+    be_params%relative_tolerance = 1.0e-8_real64
+    be_params%max_number_of_steps = 20
+    be_params%time_step_reductions = (/ 0.3_real64, 0.3_real64, 0.3_real64, 0.3_real64, 0.05_real64 /)
+
+    call micm%set_backward_euler_solver_parameters(be_params, error)
+    ASSERT( error%is_success() )
+
+    be_result = micm%get_backward_euler_solver_parameters(error)
+    ASSERT( error%is_success() )
+    ASSERT_EQ( be_result%max_number_of_steps, 20 )
+
+    deallocate(micm)
+
+    write(*,*) "[test solver params] Finished."
+
+  end subroutine test_solver_parameters
 
   subroutine test_api_v1_parser()
 
