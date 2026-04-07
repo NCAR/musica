@@ -29,6 +29,7 @@ jobs:
           - Dockerfile.javascript
           - Dockerfile.julia
           - Dockerfile.docs
+          - Dockerfile.tuvx
         build_type: [Release]
         exclude:
           - dockerfile: Dockerfile.nvhpc
@@ -54,7 +55,8 @@ jobs:
           matrix.dockerfile != 'Dockerfile.nvhpc' &&
           matrix.dockerfile != 'Dockerfile.javascript' &&
           matrix.dockerfile != 'Dockerfile.julia' &&
-          matrix.dockerfile != 'Dockerfile.docs'
+          matrix.dockerfile != 'Dockerfile.docs' &&
+          matrix.dockerfile != 'Dockerfile.tuvx'
         run: docker run --name test-container -t musica bash -c 'make test ARGS="--rerun-failed --output-on-failure -j8"'
 
       - name: Run javascript tests in container
@@ -64,6 +66,10 @@ jobs:
       - name: Run Julia tests in container
         if: matrix.dockerfile == 'Dockerfile.julia'
         run: docker run --name test-container -t musica bash -c 'julia --project=julia julia/test/runtests.jl'
+      
+      - name: Run TUVX comparison tests in container
+        if: matrix.dockerfile == 'Dockerfile.tuvx'
+        run: docker run --name test-container -t musica bash -c 'pytest'
 
       - name: Verify documentation build
         if: matrix.dockerfile == 'Dockerfile.docs'
