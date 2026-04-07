@@ -46,7 +46,7 @@ npm publishing happens automatically via the release action when a tag and relea
 
 Spack is the primary delivery mechanism for C++ and Fortran users.
 
-- [ ] Update the spack file in the [spack-packages repository](https://github.com/NCAR/spack-packages):
+- [ ] Update the spack file in the [spack-packages repository](https://github.com/spack/spack-packages/):
   - Path: `repos/spack_repo/builtin/packages/musica/package.py`
   - To generate a hash: install spack, then run `spack checksum musica` and follow the prompts
   - Often, you have to tag specific maintainers on the spack PR to get it merged
