@@ -57,7 +57,7 @@ class Mechanism(CppWrapper):
             version: The version of the mechanism.
         """
         self._cpp = _Mechanism()
-        self.name = name
+        self.name = name if name is not None else ""
         self.species = species if species is not None else []
         self.phases = phases if phases is not None else []
         self.reactions = Reactions(reactions=reactions if reactions is not None else [])
