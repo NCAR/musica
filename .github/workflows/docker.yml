@@ -29,6 +29,7 @@ jobs:
           - Dockerfile.javascript
           - Dockerfile.julia
           - Dockerfile.docs
+          - Dockerfile.tuvx
         build_type: [Release]
         exclude:
           - dockerfile: Dockerfile.nvhpc
