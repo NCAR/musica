@@ -1,7 +1,7 @@
 import pytest
 import musica.mechanism_configuration as mc
 
-def test_parsed_full_v1_configuration():
+def test_default_version():
   mechanism = mc.Mechanism()
 
   assert mechanism.version.major == 1
