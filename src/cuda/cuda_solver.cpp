@@ -114,7 +114,7 @@ namespace musica
       }
 
       auto& gpu_state = cuda_state->GetGpuState();
-      solver_->CalculateRateConstants(gpu_state);
+      solver_->UpdateStateParameters(gpu_state);
       gpu_state.SyncInputsToDevice();
       auto result = solver_->Solve(time_step, gpu_state);
       gpu_state.SyncOutputsToHost();

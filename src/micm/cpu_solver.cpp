@@ -152,25 +152,25 @@ namespace musica
 
     micm::SolverResult operator()(std::unique_ptr<micm::Rosenbrock>& solver, micm::VectorState& state) const
     {
-      solver->CalculateRateConstants(state);
+      solver->UpdateStateParameters(state);
       return solver->Solve(time_step, state);
     }
 
     micm::SolverResult operator()(std::unique_ptr<micm::RosenbrockStandard>& solver, micm::StandardState& state) const
     {
-      solver->CalculateRateConstants(state);
+      solver->UpdateStateParameters(state);
       return solver->Solve(time_step, state);
     }
 
     micm::SolverResult operator()(std::unique_ptr<micm::BackwardEuler>& solver, micm::VectorState& state) const
     {
-      solver->CalculateRateConstants(state);
+      solver->UpdateStateParameters(state);
       return solver->Solve(time_step, state);
     }
 
     micm::SolverResult operator()(std::unique_ptr<micm::BackwardEulerStandard>& solver, micm::StandardState& state) const
     {
-      solver->CalculateRateConstants(state);
+      solver->UpdateStateParameters(state);
       return solver->Solve(time_step, state);
     }
 
