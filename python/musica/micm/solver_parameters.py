@@ -21,6 +21,10 @@ class RosenbrockSolverParameters:
         Initial step size in seconds (default: 0.0, meaning solver chooses).
     max_number_of_steps : int
         Maximum number of internal steps (default: 1000).
+    constraint_init_max_iterations : int
+        Maximum Newton iterations for DAE constraint initialization (default: 10).
+    constraint_init_tolerance : float
+        Convergence tolerance for DAE constraint initialization (default: 1e-10).
     """
 
     def __init__(
@@ -31,6 +35,8 @@ class RosenbrockSolverParameters:
         h_max: float = 0.0,
         h_start: float = 0.0,
         max_number_of_steps: int = 1000,
+        constraint_init_max_iterations: int = 10,
+        constraint_init_tolerance: float = 1e-10,
     ):
         self.relative_tolerance = relative_tolerance
         self.absolute_tolerances = absolute_tolerances
@@ -38,6 +44,8 @@ class RosenbrockSolverParameters:
         self.h_max = h_max
         self.h_start = h_start
         self.max_number_of_steps = max_number_of_steps
+        self.constraint_init_max_iterations = constraint_init_max_iterations
+        self.constraint_init_tolerance = constraint_init_tolerance
 
     def __repr__(self):
         return (
@@ -45,7 +53,9 @@ class RosenbrockSolverParameters:
             f"relative_tolerance={self.relative_tolerance}, "
             f"absolute_tolerances={self.absolute_tolerances}, "
             f"h_min={self.h_min}, h_max={self.h_max}, h_start={self.h_start}, "
-            f"max_number_of_steps={self.max_number_of_steps})"
+            f"max_number_of_steps={self.max_number_of_steps}, "
+            f"constraint_init_max_iterations={self.constraint_init_max_iterations}, "
+            f"constraint_init_tolerance={self.constraint_init_tolerance})"
         )
 
 

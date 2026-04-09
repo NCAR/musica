@@ -18,6 +18,8 @@ namespace musica
     double h_max{ 0.0 };
     double h_start{ 0.0 };
     std::size_t max_number_of_steps{ 1000 };
+    std::size_t constraint_init_max_iterations{ 10 };  // max Newton iterations for DAE constraint initialization
+    double constraint_init_tolerance{ 1e-10 };         // convergence tolerance for DAE constraint initialization
   };
 
   /// @brief Parameters for configuring Backward Euler solvers

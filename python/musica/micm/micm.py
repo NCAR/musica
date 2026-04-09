@@ -168,6 +168,8 @@ class MICM():
             cpp_params.h_max = params.h_max
             cpp_params.h_start = params.h_start
             cpp_params.max_number_of_steps = params.max_number_of_steps
+            cpp_params.constraint_init_max_iterations = params.constraint_init_max_iterations
+            cpp_params.constraint_init_tolerance = params.constraint_init_tolerance
             _set_rosenbrock_params(self.__solver, cpp_params)
         elif isinstance(params, BackwardEulerSolverParameters):
             cpp_params = _CppBackwardEulerParams()
@@ -193,7 +195,14 @@ class MICM():
             The current solver parameters, depending on the solver type.
         """
         solver_type = self.__solver_type
-        if solver_type in (SolverType.rosenbrock, SolverType.rosenbrock_standard_order):
+        if solver_type in (
+            SolverType.rosenbrock,
+            SolverType.rosenbrock_standard_order,
+            SolverType.rosenbrock_dae4,
+            SolverType.rosenbrock_dae4_standard_order,
+            SolverType.rosenbrock_dae6,
+            SolverType.rosenbrock_dae6_standard_order,
+        ):
             cpp_params = _get_rosenbrock_params(self.__solver)
             return RosenbrockSolverParameters(
                 relative_tolerance=cpp_params.relative_tolerance,
@@ -202,6 +211,8 @@ class MICM():
                 h_max=cpp_params.h_max,
                 h_start=cpp_params.h_start,
                 max_number_of_steps=cpp_params.max_number_of_steps,
+                constraint_init_max_iterations=cpp_params.constraint_init_max_iterations,
+                constraint_init_tolerance=cpp_params.constraint_init_tolerance,
             )
         elif solver_type in (SolverType.backward_euler, SolverType.backward_euler_standard_order):
             cpp_params = _get_backward_euler_params(self.__solver)
