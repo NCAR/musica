@@ -23,30 +23,35 @@ def oregonator():
     # Create processes
     r1 = mc.UserDefined(
         name="r1",
+        gas_phase=gas_phase,
         reactants=[Y],
         products=[X]
     )
 
     r2 = mc.UserDefined(
         name="r2",
+        gas_phase=gas_phase,
         reactants=[X, Y],
         products=[P]
     )
 
     r3 = mc.UserDefined(
         name="r3",
+        gas_phase=gas_phase,
         reactants=[X],
         products=[Z, X, X]
     )
 
     r4 = mc.UserDefined(
         name="r4",
+        gas_phase=gas_phase,
         reactants=[X, X],
         products=[Q]
     )
 
     r5 = mc.UserDefined(
         name="r5",
+        gas_phase=gas_phase,
         reactants=[Z],
         products=[Y]
     )
@@ -75,18 +80,21 @@ def robertson():
     # Create processes
     r1 = mc.UserDefined(
         name="r1",
+        gas_phase=gas_phase,
         reactants=[A],
         products=[B]
     )
 
     r2 = mc.UserDefined(
         name="r2",
+        gas_phase=gas_phase,
         reactants=[B, B],
         products=[B, C]
     )
 
     r3 = mc.UserDefined(
         name="r3",
+        gas_phase=gas_phase,
         reactants=[B, C],
         products=[A, C]
     )
