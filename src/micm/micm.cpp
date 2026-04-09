@@ -126,6 +126,12 @@ namespace musica
     }
   }
 
+  MICM::MICM(SolverPtr&& solver, MICMSolver solver_type)
+      : solver_(std::move(solver)),
+        solver_type_(solver_type)
+  {
+  }
+
   micm::SolverResult MICM::Solve(musica::State* state, double time_step)
   {
     return solver_->Solve(state->GetStateInterface(), time_step);

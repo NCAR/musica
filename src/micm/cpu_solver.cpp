@@ -167,6 +167,12 @@ namespace musica
     }
   }
 
+  CpuSolver::CpuSolver(SolverVariant&& solver, int solver_type)
+      : solver_(std::move(solver)),
+        solver_type_(solver_type)
+  {
+  }
+
   /// @brief Visitor struct to handle different solver and state type combinations
   struct CpuSolverVisitor
   {

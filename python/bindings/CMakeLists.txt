@@ -33,6 +33,12 @@ if (MUSICA_ENABLE_CARMA)
   )
 endif()
 
+if (MUSICA_ENABLE_MIAM)
+  target_sources(_musica PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/miam/miam.cpp
+  )
+endif()
+
 
 # Link against the musica library (instead of compiling sources directly)
 target_link_libraries(_musica PRIVATE musica::musica)

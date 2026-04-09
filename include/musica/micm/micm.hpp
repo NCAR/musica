@@ -110,6 +110,7 @@ namespace musica
     MICM(std::string config_path, MICMSolver solver_type, const RosenbrockSolverParameters& params);
     MICM(const Chemistry& chemistry, MICMSolver solver_type, const BackwardEulerSolverParameters& params);
     MICM(std::string config_path, MICMSolver solver_type, const BackwardEulerSolverParameters& params);
+    MICM(SolverPtr&& solver, MICMSolver solver_type);
     MICM() = default;
     ~MICM();
 

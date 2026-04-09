@@ -30,3 +30,7 @@ void bind_tuvx_radiator_map(py::module_ &);
 #ifdef MUSICA_USE_CARMA
 void bind_carma(py::module_ &);
 #endif
+
+#ifdef MUSICA_USE_MIAM
+void bind_miam(py::module_ &);
+#endif
