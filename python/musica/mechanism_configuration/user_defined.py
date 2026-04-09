@@ -32,8 +32,8 @@ class UserDefined(CppWrapper):
         self,
         name: Optional[str] = None,
         scaling_factor: Optional[float] = None,
-        reactants: Optional[List[Union[Species, Tuple[Species, float]]]] = None,
-        products: Optional[List[Union[Species, Tuple[Species, float]]]] = None,
+        reactants: Optional[List[Union[Species, ReactionComponent, Tuple[Species, float]]]] = None,
+        products: Optional[List[Union[Species, ReactionComponent, Tuple[Species, float]]]] = None,
         gas_phase: Optional[Phase] = None,
         other_properties: Optional[Dict[str, Any]] = None,
     ):
