@@ -81,12 +81,16 @@ namespace musica
   /// @brief Types of MICM solver
   enum MICMSolver
   {
-    UndefinedSolver = 0,         // Undefined solver
-    Rosenbrock,                  // Vector-ordered Rosenbrock solver
-    RosenbrockStandardOrder,     // Standard-ordered Rosenbrock solver
-    BackwardEuler,               // Vector-ordered BackwardEuler solver
-    BackwardEulerStandardOrder,  // Standard-ordered BackwardEuler solver
-    CudaRosenbrock,              // Cuda Rosenbrock solver
+    UndefinedSolver = 0,              // Undefined solver
+    Rosenbrock,                       // Vector-ordered Rosenbrock solver (3-stage)
+    RosenbrockStandardOrder,          // Standard-ordered Rosenbrock solver (3-stage)
+    BackwardEuler,                    // Vector-ordered BackwardEuler solver
+    BackwardEulerStandardOrder,       // Standard-ordered BackwardEuler solver
+    CudaRosenbrock,                   // Cuda Rosenbrock solver
+    RosenbrockDAE4,                   // Vector-ordered 4-stage DAE Rosenbrock solver
+    RosenbrockDAE4StandardOrder,      // Standard-ordered 4-stage DAE Rosenbrock solver
+    RosenbrockDAE6,                   // Vector-ordered 6-stage DAE Rosenbrock solver
+    RosenbrockDAE6StandardOrder,      // Standard-ordered 6-stage DAE Rosenbrock solver
   };
 
   std::string ToString(MICMSolver solver_type);

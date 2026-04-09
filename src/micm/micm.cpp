@@ -29,6 +29,10 @@ namespace musica
       case BackwardEuler: return "BackwardEuler";
       case BackwardEulerStandardOrder: return "BackwardEulerStandardOrder";
       case CudaRosenbrock: return "CudaRosenbrock";
+      case RosenbrockDAE4: return "RosenbrockDAE4";
+      case RosenbrockDAE4StandardOrder: return "RosenbrockDAE4StandardOrder";
+      case RosenbrockDAE6: return "RosenbrockDAE6";
+      case RosenbrockDAE6StandardOrder: return "RosenbrockDAE6StandardOrder";
       default: throw std::system_error(make_error_code(MusicaErrCode::Unknown), "Unknown solver type");
     }
   }
@@ -72,6 +76,10 @@ namespace musica
       case MICMSolver::RosenbrockStandardOrder:
       case MICMSolver::BackwardEuler:
       case MICMSolver::BackwardEulerStandardOrder:
+      case MICMSolver::RosenbrockDAE4:
+      case MICMSolver::RosenbrockDAE4StandardOrder:
+      case MICMSolver::RosenbrockDAE6:
+      case MICMSolver::RosenbrockDAE6StandardOrder:
         // Create CPU solver with default deleter
         solver_ = SolverPtr(new CpuSolver(chemistry, static_cast<int>(solver_type)), default_deleter);
         break;

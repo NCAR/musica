@@ -63,6 +63,26 @@ TEST(MICMWrapper, CudaRosenbrock)
   DoChemistry(musica::MICMSolver::CudaRosenbrock);
 }
 
+TEST(MICMWrapper, RosenbrockDAE4)
+{
+  DoChemistry(musica::MICMSolver::RosenbrockDAE4);
+}
+
+TEST(MICMWrapper, RosenbrockDAE4StandardOrder)
+{
+  DoChemistry(musica::MICMSolver::RosenbrockDAE4StandardOrder);
+}
+
+TEST(MICMWrapper, RosenbrockDAE6)
+{
+  DoChemistry(musica::MICMSolver::RosenbrockDAE6);
+}
+
+TEST(MICMWrapper, RosenbrockDAE6StandardOrder)
+{
+  DoChemistry(musica::MICMSolver::RosenbrockDAE6StandardOrder);
+}
+
 // --- Solver parameter tests ---
 
 TEST(SolverParameters, SetGetRosenbrockParameters)
@@ -77,6 +97,8 @@ TEST(SolverParameters, SetGetRosenbrockParameters)
   params.h_max = 100.0;
   params.h_start = 1e-5;
   params.max_number_of_steps = 500;
+  params.constraint_init_max_iterations = 25;
+  params.constraint_init_tolerance = 1e-8;
 
   micm.SetSolverParameters(params);
 
@@ -89,6 +111,8 @@ TEST(SolverParameters, SetGetRosenbrockParameters)
   ASSERT_EQ(result.absolute_tolerances.size(), 6);
   EXPECT_DOUBLE_EQ(result.absolute_tolerances[0], 1e-12);
   EXPECT_DOUBLE_EQ(result.absolute_tolerances[5], 6e-12);
+  EXPECT_EQ(result.constraint_init_max_iterations, 25);
+  EXPECT_DOUBLE_EQ(result.constraint_init_tolerance, 1e-8);
 }
 
 TEST(SolverParameters, SetGetBackwardEulerParameters)
@@ -137,6 +161,43 @@ TEST(SolverParameters, ConstructorWithRosenbrockParams)
   auto result = micm.GetRosenbrockSolverParameters();
   EXPECT_DOUBLE_EQ(result.h_start, 1e-3);
   EXPECT_EQ(result.max_number_of_steps, 2000);
+}
+
+TEST(SolverParameters, DAE4SolverParametersRoundTrip)
+{
+  musica::Chemistry const chemistry = musica::ReadConfiguration("configs/v0/analytical");
+  musica::MICM micm(chemistry, musica::MICMSolver::RosenbrockDAE4StandardOrder);
+
+  musica::RosenbrockSolverParameters params;
+  params.relative_tolerance = 1e-9;
+  params.h_start = 1e-4;
+  params.max_number_of_steps = 3000;
+  params.constraint_init_max_iterations = 50;
+  params.constraint_init_tolerance = 1e-12;
+
+  micm.SetSolverParameters(params);
+
+  auto result = micm.GetRosenbrockSolverParameters();
+  EXPECT_DOUBLE_EQ(result.relative_tolerance, 1e-9);
+  EXPECT_DOUBLE_EQ(result.h_start, 1e-4);
+  EXPECT_EQ(result.max_number_of_steps, 3000);
+  EXPECT_EQ(result.constraint_init_max_iterations, 50);
+  EXPECT_DOUBLE_EQ(result.constraint_init_tolerance, 1e-12);
+}
+
+TEST(SolverParameters, DAE6SolverConstructorWithParams)
+{
+  musica::Chemistry const chemistry = musica::ReadConfiguration("configs/v0/analytical");
+
+  musica::RosenbrockSolverParameters params;
+  params.constraint_init_max_iterations = 100;
+  params.constraint_init_tolerance = 1e-15;
+
+  musica::MICM micm(chemistry, musica::MICMSolver::RosenbrockDAE6StandardOrder, params);
+
+  auto result = micm.GetRosenbrockSolverParameters();
+  EXPECT_EQ(result.constraint_init_max_iterations, 100);
+  EXPECT_DOUBLE_EQ(result.constraint_init_tolerance, 1e-15);
 }
 
 TEST(SolverParameters, TolerancesAppliedToNewState)
