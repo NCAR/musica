@@ -37,7 +37,7 @@ def create_test_mechanism() -> Mechanism:
         A=29.3, B=-1.5, Ea=101.2, D=82.6, E=-0.98,
         gas_phase=gas,
         reactants=[A],
-        products=[(1.2, B)]
+        products=[(B, 1.2)]
     )
 
     my_troe = mc.Troe(
@@ -134,7 +134,7 @@ def create_test_mechanism() -> Mechanism:
         name="my user defined",
         gas_phase=gas,
         reactants=[A, B],
-        products=[(1.3, C)],
+        products=[(C, 1.3)],
         scaling_factor=12.3,
         other_properties={"__irrelevant": "2"}
     )

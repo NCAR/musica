@@ -59,8 +59,8 @@ class Arrhenius(CppWrapper):
         Ea: Optional[float] = None,
         D: Optional[float] = None,
         E: Optional[float] = None,
-        reactants: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
-        products: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
+        reactants: Optional[List[Union[Species, Tuple[Species, float]]]] = None,
+        products: Optional[List[Union[Species, Tuple[Species, float]]]] = None,
         gas_phase: Optional[Phase] = None,
         other_properties: Optional[Dict[str, Any]] = None,
     ):

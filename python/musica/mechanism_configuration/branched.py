@@ -42,9 +42,9 @@ class Branched(CppWrapper):
         Y: Optional[float] = None,
         a0: Optional[float] = None,
         n: Optional[float] = None,
-        reactants: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
-        nitrate_products: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
-        alkoxy_products: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
+        reactants: Optional[List[Union[Species, Tuple[Species, float]]]] = None,
+        nitrate_products: Optional[List[Union[Species, Tuple[Species, float]]]] = None,
+        alkoxy_products: Optional[List[Union[Species, Tuple[Species, float]]]] = None,
         gas_phase: Optional[Phase] = None,
         other_properties: Optional[Dict[str, Any]] = None,
     ):

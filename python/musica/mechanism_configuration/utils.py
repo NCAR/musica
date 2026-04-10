@@ -11,7 +11,7 @@ def _add_other_properties(serialize_dict: Dict, other_properties: Dict) -> None:
 
 
 def _convert_components(items):
-    """Convert List[Union[Species, Tuple[float, Species]]] to List[ReactionComponent].
+    """Convert List[Union[Species, Tuple[Species, float], ReactionComponent]] to List[ReactionComponent].
 
     Import is deferred to avoid circular imports.
     """
@@ -19,11 +19,13 @@ def _convert_components(items):
     from .species import Species
     return [
         (
-            ReactionComponent(r.name)
-            if isinstance(r, Species)
-            else ReactionComponent(r[1].name, r[0])
+            component
+            if isinstance(component, ReactionComponent)
+            else ReactionComponent(component.name)
+            if isinstance(component, Species)
+            else ReactionComponent(component[0].name, component[1])
         )
-        for r in items
+        for component in items
     ]
 
 

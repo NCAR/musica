@@ -54,7 +54,7 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
         A=29.3, B=-1.5, Ea=101.2, D=82.6, E=-0.98,
         gas_phase=gas,
         reactants=[A],
-        products=[(1.2, B)]
+        products=[(B, 1.2)]
     )
 
     my_troe = mc.Troe(
@@ -151,7 +151,7 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
         name="my user defined",
         gas_phase=gas,
         reactants=[A, B],
-        products=[(1.3, C)],
+        products=[(C, 1.3)],
         scaling_factor=12.3,
         other_properties={"__irrelevant": "2"}
     )
@@ -487,3 +487,30 @@ def validate_full_v1_mechanism(mechanism):
     for reaction in mechanism.reactions:
         assert reaction is not None
         assert isinstance(reaction.type, mc.ReactionType)
+
+
+def test_reaction_component_passthrough():
+    """ReactionComponent objects passed directly to reactants/products are preserved."""
+    X = mc.Species(name="X")
+    Y = mc.Species(name="Y")
+    Q = mc.Species(name="Q")
+    gas = mc.Phase(name="gas", species=[X, Y, Q])
+
+    reaction = mc.UserDefined(
+        name="mine",
+        gas_phase=gas,
+        reactants=[mc.ReactionComponent(X.name, 2), mc.ReactionComponent(Y.name, 1)],
+        products=[mc.ReactionComponent(Q.name)],
+    )
+
+    reactants = reaction.reactants
+    assert len(reactants) == 2
+    assert reactants[0].species_name == "X"
+    assert reactants[0].coefficient == 2
+    assert reactants[1].species_name == "Y"
+    assert reactants[1].coefficient == 1
+
+    products = reaction.products
+    assert len(products) == 1
+    assert products[0].species_name == "Q"
+    assert products[0].coefficient == 1
