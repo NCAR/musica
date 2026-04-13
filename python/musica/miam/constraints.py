@@ -80,9 +80,16 @@ class LinearConstraint:
         algebraic_phase_name: Phase of the algebraically constrained species.
         algebraic_species_name: Species whose ODE is replaced.
         terms: List of ``LinearConstraintTerm``s.
-        constant: Right-hand side constant [mol m-3].
+        constant: Right-hand side constant [mol m-3]. Ignored when
+            ``diagnose_from_state`` is True.
+        diagnose_from_state: If True, compute the constant from the current
+            state at the beginning of each solve step as
+            C = sum(c_i * [species_i]).  This is useful for mass conservation
+            constraints where the total varies by grid cell and may change
+            between solve steps due to emissions, transport, or deposition.
     """
     algebraic_phase_name: str
     algebraic_species_name: str
     terms: List[LinearConstraintTerm]
     constant: float = 0.0
+    diagnose_from_state: bool = False

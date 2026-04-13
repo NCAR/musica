@@ -140,6 +140,7 @@ namespace musica
       std::string algebraic_species_name;
       std::vector<LinearConstraintTerm> terms;
       double constant;
+      bool diagnose_from_state = false;
     };
 
     using Constraint = std::variant<HenryLawEquilibriumConstraint, DissolvedEquilibriumConstraint, LinearConstraint>;

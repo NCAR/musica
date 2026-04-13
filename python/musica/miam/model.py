@@ -200,6 +200,7 @@ class Model:
                         c.algebraic_species_name,
                         terms,
                         c.constant,
+                        c.diagnose_from_state,
                     )
                 )
         config.constraints = con_list
