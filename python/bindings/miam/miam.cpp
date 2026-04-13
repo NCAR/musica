@@ -238,15 +238,17 @@ void bind_miam(py::module_& miam)
 
   py::class_<mc::LinearConstraint>(miam, "_LinearConstraint")
       .def(
-          py::init<std::string, std::string, std::vector<mc::LinearConstraintTerm>, double>(),
+          py::init<std::string, std::string, std::vector<mc::LinearConstraintTerm>, double, bool>(),
           py::arg("algebraic_phase_name"),
           py::arg("algebraic_species_name"),
           py::arg("terms"),
-          py::arg("constant") = 0.0)
+          py::arg("constant") = 0.0,
+          py::arg("diagnose_from_state") = false)
       .def_readwrite("algebraic_phase_name", &mc::LinearConstraint::algebraic_phase_name)
       .def_readwrite("algebraic_species_name", &mc::LinearConstraint::algebraic_species_name)
       .def_readwrite("terms", &mc::LinearConstraint::terms)
-      .def_readwrite("constant", &mc::LinearConstraint::constant);
+      .def_readwrite("constant", &mc::LinearConstraint::constant)
+      .def_readwrite("diagnose_from_state", &mc::LinearConstraint::diagnose_from_state);
 
   // ── ModelConfig ───────────────────────────────────────────────────
 

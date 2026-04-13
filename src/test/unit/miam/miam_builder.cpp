@@ -163,7 +163,7 @@ namespace
         { "AQUEOUS", "SO3mm", 1.0 },
         { "AQUEOUS", "SO4mm", 1.0 },
     };
-    mass_s.constant = 0.0;  // will be set from initial conditions
+    mass_s.diagnose_from_state = true;
     config.constraints.push_back(mass_s);
 
     // Mass conservation: H2O2_g + H2O2_aq = total_H2O2
@@ -174,7 +174,7 @@ namespace
         { "gas", "H2O2", 1.0 },
         { "AQUEOUS", "H2O2_aq", 1.0 },
     };
-    mass_h2o2.constant = 0.0;
+    mass_h2o2.diagnose_from_state = true;
     config.constraints.push_back(mass_h2o2);
 
     // Mass conservation: O3_g + O3_aq = total_O3
@@ -185,7 +185,7 @@ namespace
         { "gas", "O3", 1.0 },
         { "AQUEOUS", "O3_aq", 1.0 },
     };
-    mass_o3.constant = 0.0;
+    mass_o3.diagnose_from_state = true;
     config.constraints.push_back(mass_o3);
 
     // Charge balance: H+ = OH- + HSO3- + 2*SO3-- + 2*SO4--

@@ -242,7 +242,10 @@ namespace musica
                     find_phase(c.algebraic_phase_name), find_species(c.algebraic_species_name));
                 for (const auto& term : c.terms)
                   builder.AddTerm(find_phase(term.phase_name), find_species(term.species_name), term.coefficient);
-                builder.SetConstant(c.constant);
+                if (c.diagnose_from_state)
+                  builder.DiagnoseConstantFromState();
+                else
+                  builder.SetConstant(c.constant);
                 model.AddConstraints(builder.Build());
               }
             },
