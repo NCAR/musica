@@ -6,5 +6,12 @@ dependencies:
   - ipykernel
   - ipycytoscape
   - pip
-  - pip:
-    - musica[tutorial]==0.15.0
+  - cmake>=3.21
+  - ninja
+  - compilers
+  - libnetcdf
+  - netcdf-fortran
+  - pkg-config
+  - pybind11
+  - yaml-cpp
+  - lapack
