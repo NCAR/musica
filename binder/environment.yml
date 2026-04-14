@@ -13,4 +13,5 @@ dependencies:
   - netcdf-fortran
   - pkg-config
   - pybind11
+  - yaml-cpp
   - lapack
