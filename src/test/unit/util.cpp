@@ -22,7 +22,7 @@ TEST(Util, NoError)
 {
   Error error;
   NoError(&error);
-  EXPECT_EQ(error.severity_, MUSICA_SEVERITY_OK);
+  EXPECT_EQ(error.severity_, MUSICA_SEVERITY_INFO);
   EXPECT_EQ(error.code_, 0);
   EXPECT_EQ(error.category_.size_, 0);
   EXPECT_STREQ(error.category_.value_, "");
@@ -38,8 +38,8 @@ TEST(Util, NoError)
 TEST(Util, ToError)
 {
   Error error;
-  ToError("Test", 1, "Test Error", MUSICA_SEVERITY_ERR, &error);
-  EXPECT_EQ(error.severity_, MUSICA_SEVERITY_ERR);
+  ToError("Test", 1, "Test Error", MUSICA_SEVERITY_ERROR, &error);
+  EXPECT_EQ(error.severity_, MUSICA_SEVERITY_ERROR);
   EXPECT_EQ(error.code_, 1);
   EXPECT_EQ(error.category_.size_, 4);
   EXPECT_STREQ(error.category_.value_, "Test");
@@ -55,8 +55,8 @@ TEST(Util, ToError)
 TEST(Util, ToErrorWarn)
 {
   Error error;
-  ToError("Test", 2, "Test Warning", MUSICA_SEVERITY_WARN, &error);
-  EXPECT_EQ(error.severity_, MUSICA_SEVERITY_WARN);
+  ToError("Test", 2, "Test Warning", MUSICA_SEVERITY_WARNING, &error);
+  EXPECT_EQ(error.severity_, MUSICA_SEVERITY_WARNING);
   EXPECT_EQ(error.code_, 2);
   DeleteError(&error);
 }
@@ -64,8 +64,8 @@ TEST(Util, ToErrorWarn)
 TEST(Util, ToErrorCrit)
 {
   Error error;
-  ToError("Test", 3, "Test Critical", MUSICA_SEVERITY_CRIT, &error);
-  EXPECT_EQ(error.severity_, MUSICA_SEVERITY_CRIT);
+  ToError("Test", 3, "Test Critical", MUSICA_SEVERITY_CRITICAL, &error);
+  EXPECT_EQ(error.severity_, MUSICA_SEVERITY_CRITICAL);
   EXPECT_EQ(error.code_, 3);
   DeleteError(&error);
 }
@@ -81,7 +81,7 @@ TEST(Util, IsSuccess)
 TEST(Util, IsError)
 {
   Error error;
-  ToError("Test", 1, "Test Error", MUSICA_SEVERITY_ERR, &error);
+  ToError("Test", 1, "Test Error", MUSICA_SEVERITY_ERROR, &error);
   EXPECT_TRUE(IsError(error, "Test", 1));
   DeleteError(&error);
 }

@@ -30,7 +30,7 @@ namespace musica
   void NoError(Error* error)
   {
     DeleteError(error);
-    error->severity_ = MUSICA_SEVERITY_OK;
+    error->severity_ = MUSICA_SEVERITY_INFO;
     error->code_ = 0;
     CreateString("", &error->category_);
     CreateString("Success", &error->message_);
@@ -61,9 +61,9 @@ namespace musica
     int severity;
     switch (e.severity_)
     {
-      case micm::MicmSeverity::Warning: severity = MUSICA_SEVERITY_WARN; break;
-      case micm::MicmSeverity::Critical: severity = MUSICA_SEVERITY_CRIT; break;
-      default: severity = MUSICA_SEVERITY_ERR; break;
+      case micm::MicmSeverity::Warning: severity = MUSICA_SEVERITY_WARNING; break;
+      case micm::MicmSeverity::Critical: severity = MUSICA_SEVERITY_CRITICAL; break;
+      default: severity = MUSICA_SEVERITY_ERROR; break;
     }
     ToError(e.category_, e.code_, e.what(), severity, error);
   }
@@ -112,7 +112,7 @@ namespace musica
     catch (const std::exception& e)
     {
       configuration->data_ = nullptr;
-      ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_PARSING_FAILED, e.what(), MUSICA_SEVERITY_ERR, error);
+      ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_PARSING_FAILED, e.what(), MUSICA_SEVERITY_ERROR, error);
     }
   }
 
@@ -127,7 +127,7 @@ namespace musica
     catch (const std::exception& e)
     {
       configuration->data_ = nullptr;
-      ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_PARSING_FAILED, e.what(), MUSICA_SEVERITY_ERR, error);
+      ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_PARSING_FAILED, e.what(), MUSICA_SEVERITY_ERROR, error);
     }
   }
 
@@ -167,7 +167,7 @@ namespace musica
       }
     }
     std::string const msg = "Mapping element '" + std::string(name) + "' not found";
-    ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_MAPPING_NOT_FOUND, msg.c_str(), MUSICA_SEVERITY_ERR, error);
+    ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_MAPPING_NOT_FOUND, msg.c_str(), MUSICA_SEVERITY_ERROR, error);
     return 0;
   }
 
@@ -206,7 +206,7 @@ namespace musica
           MUSICA_ERROR_CATEGORY,
           MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED,
           "Mapping options are undefined",
-          MUSICA_SEVERITY_ERR,
+          MUSICA_SEVERITY_ERROR,
           error);
       return;
     }
