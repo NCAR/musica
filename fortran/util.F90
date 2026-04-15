@@ -3,6 +3,8 @@
 !
 module musica_util
 
+#include "musica/error.hpp"
+
    use iso_c_binding,                   only: c_char, c_int, c_ptr, c_size_t, &
       c_null_ptr, c_f_pointer
    use iso_fortran_env,                 only: real32, real64
@@ -397,7 +399,7 @@ contains
       c_error%category_%size_ = 0_c_size_t
       c_error%message_%ptr_ = c_null_ptr
       c_error%message_%size_ = 0_c_size_t
-      c_error%code_ = 0_c_int
+      c_error%code_ = MUSICA_STATUS_SUCCESS
 
    end function error_t_constructor_from_error_t_c
 
@@ -461,7 +463,7 @@ contains
 
       class(error_t), intent(in) :: this
 
-      is_success = this%code_ == 0
+      is_success = this%code_ == MUSICA_STATUS_SUCCESS
 
    end function error_t_is_success
 

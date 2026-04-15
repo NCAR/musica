@@ -23,7 +23,7 @@ TEST(Util, NoError)
   Error error;
   NoError(&error);
   EXPECT_EQ(error.severity_, MUSICA_SEVERITY_INFO);
-  EXPECT_EQ(error.code_, 0);
+  EXPECT_EQ(error.code_, MUSICA_STATUS_SUCCESS);
   EXPECT_EQ(error.category_.size_, 0);
   EXPECT_STREQ(error.category_.value_, "");
   EXPECT_EQ(error.message_.size_, 7);

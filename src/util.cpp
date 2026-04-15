@@ -30,8 +30,8 @@ namespace musica
   void NoError(Error* error)
   {
     DeleteError(error);
+    error->code_ = MUSICA_STATUS_SUCCESS;
     error->severity_ = MUSICA_SEVERITY_INFO;
-    error->code_ = 0;
     CreateString("", &error->category_);
     CreateString("Success", &error->message_);
   }
@@ -71,7 +71,7 @@ namespace musica
 
   bool IsSuccess(const Error& error)
   {
-    return error.code_ == 0;
+    return error.code_ == MUSICA_STATUS_SUCCESS;
   }
 
   bool IsError(const Error& error, const char* category, int code)
@@ -88,7 +88,7 @@ namespace musica
 
   bool operator==(const Error& lhs, const Error& rhs)
   {
-    if (lhs.code_ == 0 && rhs.code_ == 0)
+    if (lhs.code_ == MUSICA_STATUS_SUCCESS && rhs.code_ == MUSICA_STATUS_SUCCESS)
     {
       return true;
     }

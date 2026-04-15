@@ -95,7 +95,7 @@ contains
       a_c%category_ = create_c_string( "bar" )
       a_c%message_ = create_c_string( "foo" )
 
-      b_c%code_ = 0
+      b_c%code_ = MUSICA_STATUS_SUCCESS
       b_c%category_ = create_c_string( "" )
       b_c%message_ = create_c_string( "Success" )
 
