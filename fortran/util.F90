@@ -49,7 +49,8 @@ module musica_util
 
    !> Wrapper for an c error condition
    type, bind(c) :: error_t_c
-      integer(c_int) :: code_ = 0_c_int
+      integer(c_int) :: code_ = MUSICA_STATUS_SUCCESS
+      integer(c_int) :: severity_ = MUSICA_SEVERITY_INFO
       type(string_t_c) :: category_
       type(string_t_c) :: message_
    end type error_t_c
@@ -58,10 +59,12 @@ module musica_util
    type :: error_t
       private
       integer :: code_
+      integer :: severity_
       type(string_t) :: category_
       type(string_t) :: message_
    contains
       procedure :: code => error_t_code
+      procedure :: severity => error_t_severity
       procedure :: category => error_t_category
       procedure :: message => error_t_message
       procedure :: is_success => error_t_is_success
@@ -393,28 +396,32 @@ contains
       type(error_t) :: new_error
 
       new_error%code_ = int( c_error%code_ )
+      new_error%severity_ = int( c_error%severity_ )
       new_error%category_ = string_t( c_error%category_ )
       new_error%message_ = string_t( c_error%message_ )
+      c_error%code_ = MUSICA_STATUS_SUCCESS
+      c_error%severity_ = MUSICA_SEVERITY_INFO
       c_error%category_%ptr_ = c_null_ptr
       c_error%category_%size_ = 0_c_size_t
       c_error%message_%ptr_ = c_null_ptr
       c_error%message_%size_ = 0_c_size_t
-      c_error%code_ = MUSICA_STATUS_SUCCESS
 
    end function error_t_constructor_from_error_t_c
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    !> Constructor for an error_t object from fortran data
-   function error_t_constructor_from_fortran( code, category, message ) &
+   function error_t_constructor_from_fortran( code, severity, category, message ) &
       result( new_error )
 
       integer, intent(in) :: code
+      integer, intent(in) :: severity
       character(len=*), intent(in) :: category
       character(len=*), intent(in) :: message
       type(error_t) :: new_error
 
       new_error%code_ = code
+      new_error%severity_ = severity
       new_error%category_ = category
       new_error%message_ = message
 
@@ -431,6 +438,18 @@ contains
       code = this%code_
 
    end function error_t_code
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   !> Get the error severity
+   function error_t_severity( this ) result( severity )
+
+      class(error_t), intent(in) :: this
+      integer :: severity
+
+      severity = this%severity_
+
+   end function error_t_severity
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
