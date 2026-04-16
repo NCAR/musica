@@ -131,7 +131,7 @@ contains
    subroutine internal_get_profile_name(updater, name, error) &
       bind(C, name="InternalGetProfileName")
       use iso_c_binding, only: c_ptr, c_f_pointer, c_char, c_size_t, c_int
-      use tuvx_interface_util, only: string_t_c, create_string_t_c
+      use musica_util, only: string_t_c, create_string_t_c
       use tuvx_profile_from_host, only: profile_updater_t
 
       ! arguments
@@ -153,7 +153,7 @@ contains
    subroutine internal_get_profile_units(updater, units, error) &
       bind(C, name="InternalGetProfileUnits")
       use iso_c_binding, only: c_ptr, c_f_pointer, c_char, c_size_t, c_int
-      use tuvx_interface_util, only: string_t_c, create_string_t_c
+      use musica_util, only: string_t_c, create_string_t_c
       use tuvx_profile_from_host, only: profile_updater_t
 
       ! arguments

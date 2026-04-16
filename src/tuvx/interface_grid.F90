@@ -127,7 +127,7 @@ contains
    subroutine internal_get_grid_name(updater, name, error_code) &
       bind(C, name="InternalGetGridName")
       use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_size_t
-      use tuvx_interface_util, only: string_t_c, create_string_t_c
+      use musica_util, only: string_t_c, create_string_t_c
       use tuvx_grid_from_host, only: grid_updater_t
 
       ! arguments
@@ -149,7 +149,7 @@ contains
    subroutine internal_get_grid_units(updater, units, error_code) &
       bind(C, name="InternalGetGridUnits")
       use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_size_t
-      use tuvx_interface_util, only: string_t_c, create_string_t_c
+      use musica_util, only: string_t_c, create_string_t_c
       use tuvx_grid_from_host, only: grid_updater_t
 
       ! arguments
