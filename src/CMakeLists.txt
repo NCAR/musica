@@ -59,9 +59,9 @@ endif()
 # Compiler options
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
   if (MSVC)
-    target_compile_options(musica PUBLIC /WX)
+    target_compile_options(musica PRIVATE /WX)
   else()
-    target_compile_options(musica PUBLIC -Werror)
+    target_compile_options(musica PRIVATE -Werror)
   endif()
 endif()
 
