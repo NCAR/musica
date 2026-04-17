@@ -21,25 +21,6 @@ if (MUSICA_ENABLE_CARMA OR MUSICA_ENABLE_TUVX)
 endif()
 
 ################################################################################
-# yaml-cpp
-# If a parent project already provides the yaml-cpp target (e.g., built via
-# add_subdirectory), mark it as FetchContent-populated so that mechanism_configuration
-# and tuvx do not re-fetch and re-create the same CMake target (which would
-# cause a CMP0002 conflict).  The namespaced alias is also created here so that
-# consumers that link against yaml-cpp::yaml-cpp continue to work.
-
-if(TARGET yaml-cpp)
-  FetchContent_Declare(yaml-cpp
-      GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
-      GIT_TAG 65c1c270dbe7eec37b2df2531d7497c4eea79aee
-  )
-  FetchContent_SetPopulated(yaml-cpp)
-  if(NOT TARGET yaml-cpp::yaml-cpp)
-    add_library(yaml-cpp::yaml-cpp ALIAS yaml-cpp)
-  endif()
-endif()
-
-################################################################################
 # Mechanism Configuration
 # Skip if using prebuilt musica (already includes mechanism_configuration)
 
