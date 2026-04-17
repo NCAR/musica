@@ -31,7 +31,7 @@ void bind_tuvx_radiator_map(py::module& m)
           {
             musica::Error error;
             self.AddRadiator(radiator, &error);
-            if (error.code_ != 0)
+            if (error.code_ != MUSICA_STATUS_SUCCESS)
             {
               std::string message = "Error adding radiator: " + std::string(error.message_.value_);
               musica::DeleteError(&error);
@@ -77,7 +77,7 @@ void bind_tuvx_radiator_map(py::module& m)
           {
             musica::Error error;
             self.RemoveRadiator(name.c_str(), &error);
-            if (error.code_ != 0)
+            if (error.code_ != MUSICA_STATUS_SUCCESS)
             {
               std::string message = "Error removing radiator: " + std::string(error.message_.value_);
               musica::DeleteError(&error);

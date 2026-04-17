@@ -92,14 +92,17 @@ contains
       type(error_t_c) :: a_c, b_c, c_c
 
       a_c%code_ = 12
+      a_c%severity_ = MUSICA_SEVERITY_ERROR
       a_c%category_ = create_c_string( "bar" )
       a_c%message_ = create_c_string( "foo" )
 
-      b_c%code_ = 0
+      b_c%code_ = MUSICA_STATUS_SUCCESS
+      b_c%severity_ = MUSICA_SEVERITY_INFO
       b_c%category_ = create_c_string( "" )
       b_c%message_ = create_c_string( "Success" )
 
       c_c%code_ = 56
+      c_c%severity_ = MUSICA_SEVERITY_CRITICAL
       c_c%category_ = create_c_string( "corge" )
       c_c%message_ = create_c_string( "grault" )
 
@@ -108,6 +111,7 @@ contains
       c = error_t( c_c )
 
       ASSERT_EQ( a%code(), 12 )
+      ASSERT_EQ( a%severity(), MUSICA_SEVERITY_ERROR )
       ASSERT_EQ( a%category(), "bar" )
       ASSERT_EQ( a%message(), "foo" )
       ASSERT( a%is_error( "bar", 12 ) )
@@ -115,12 +119,15 @@ contains
       ASSERT( .not. a%is_error( "bar", 13 ) )
 
       ASSERT_EQ( b%code(), 0 )
+      ASSERT_EQ( b%code(), MUSICA_STATUS_SUCCESS )
+      ASSERT_EQ( b%severity(), MUSICA_SEVERITY_INFO )
       ASSERT_EQ( b%category(), "" )
       ASSERT_EQ( b%message(), "Success" )
       ASSERT( b%is_success() )
       ASSERT( .not. b%is_error( "", 1 ) )
 
       ASSERT_EQ( c%code(), 56 )
+      ASSERT_EQ( c%severity(), MUSICA_SEVERITY_CRITICAL )
       ASSERT_EQ( c%category(), "corge" )
       ASSERT_EQ( c%message(), "grault" )
       ASSERT( c%is_error( "corge", 56 ) )
@@ -131,16 +138,20 @@ contains
       b = a
 
       ASSERT_EQ( c%code(), 0 )
+      ASSERT_EQ( c%code(), MUSICA_STATUS_SUCCESS )
+      ASSERT_EQ( c%severity(), MUSICA_SEVERITY_INFO )
       ASSERT_EQ( c%category(), "" )
       ASSERT_EQ( c%message(), "Success" )
 
       ASSERT_EQ( b%code(), 12 )
+      ASSERT_EQ( b%severity(), MUSICA_SEVERITY_ERROR )
       ASSERT_EQ( b%category(), "bar" )
       ASSERT_EQ( b%message(), "foo" )
 
-      a = error_t( 34, "qux", "quux" )
+      a = error_t( 34, MUSICA_SEVERITY_ERROR, "qux", "quux" )
 
       ASSERT_EQ( a%code(), 34 )
+      ASSERT_EQ( a%severity(), MUSICA_SEVERITY_ERROR )
       ASSERT_EQ( a%category(), "qux" )
       ASSERT_EQ( a%message(), "quux" )
 
