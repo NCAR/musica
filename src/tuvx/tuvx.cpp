@@ -94,7 +94,8 @@ namespace musica
           &error_code);
       if (error_code != 0 || tuvx_ == nullptr)
       {
-        ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to create TUV-x instance from config string", MUSICA_SEVERITY_CRITICAL, error);
+        ToError(
+            MUSICA_ERROR_CATEGORY, 1, "Failed to create TUV-x instance from config string", MUSICA_SEVERITY_CRITICAL, error);
       }
       else
       {
@@ -107,7 +108,8 @@ namespace musica
     }
     catch (...)
     {
-      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to create TUV-x instance from config string", MUSICA_SEVERITY_CRITICAL, error);
+      ToError(
+          MUSICA_ERROR_CATEGORY, 1, "Failed to create TUV-x instance from config string", MUSICA_SEVERITY_CRITICAL, error);
     }
   }
 
