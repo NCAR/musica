@@ -37,12 +37,7 @@ void bind_tuvx_grid(py::module_ &grid)
             std::size_t num_sections = kwargs["num_sections"].cast<std::size_t>();
             musica::Error error;
             auto grid_instance = new musica::Grid(name.c_str(), units.c_str(), num_sections, &error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error creating grid: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error creating grid");
             return grid_instance;
           }))
       .def("__del__", [](musica::Grid &grid) {})
@@ -52,13 +47,7 @@ void bind_tuvx_grid(py::module_ &grid)
           {
             musica::Error error;
             std::string name = self.GetName(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error getting grid name: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
-            musica::DeleteError(&error);
+            handle_error(error, "Error getting grid name");
             return name;
           },
           "The name of the grid")
@@ -68,13 +57,7 @@ void bind_tuvx_grid(py::module_ &grid)
           {
             musica::Error error;
             std::string units = self.GetUnits(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error getting grid units: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
-            musica::DeleteError(&error);
+            handle_error(error, "Error getting grid units");
             return units;
           },
           "The units of the grid")
@@ -84,12 +67,7 @@ void bind_tuvx_grid(py::module_ &grid)
           {
             musica::Error error;
             std::size_t num_sections = self.GetNumberOfSections(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error getting number of grid sections: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error getting number of grid sections");
             return num_sections;
           },
           "The number of sections in the grid")
@@ -100,21 +78,11 @@ void bind_tuvx_grid(py::module_ &grid)
           {
             musica::Error error;
             size_t size = self.GetNumberOfSections(&error) + 1;
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error getting number of grid sections: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error getting number of grid sections");
 
             // Get a pointer to the internal C++ array
             double *data_ptr = self.GetEdgesPointer(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error getting edges pointer: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error getting edges pointer");
 
             // Create a numpy array that references the internal C++ array directly
             // using py::capsule to manage the lifetime correctly
@@ -136,12 +104,7 @@ void bind_tuvx_grid(py::module_ &grid)
             py::buffer_info buf = array.request();
             musica::Error error;
             size_t size = self.GetNumberOfSections(&error) + 1;
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error getting number of grid sections: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error getting number of grid sections");
             if (buf.ndim != 1)
             {
               throw py::value_error("Number of dimensions must be one");
@@ -152,12 +115,7 @@ void bind_tuvx_grid(py::module_ &grid)
             }
             double *ptr = static_cast<double *>(buf.ptr);
             self.SetEdges(ptr, size, &error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error setting grid edges: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error setting grid edges");
           },
           "Grid edges array of length num_sections + 1")
       .def_property(
@@ -167,21 +125,11 @@ void bind_tuvx_grid(py::module_ &grid)
           {
             musica::Error error;
             size_t size = self.GetNumberOfSections(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error getting number of grid sections: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error getting number of grid sections");
 
             // Get a pointer to the internal C++ array
             double *data_ptr = self.GetMidpointsPointer(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error getting midpoints pointer: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error getting midpoints pointer");
 
             // Create a numpy array that references the internal C++ array directly
             // using py::capsule to manage the lifetime correctly
@@ -203,12 +151,7 @@ void bind_tuvx_grid(py::module_ &grid)
             py::buffer_info buf = array.request();
             musica::Error error;
             size_t size = self.GetNumberOfSections(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error getting number of grid sections: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error getting number of grid sections");
             if (buf.ndim != 1)
             {
               throw py::value_error("Number of dimensions must be one");
@@ -219,12 +162,7 @@ void bind_tuvx_grid(py::module_ &grid)
             }
             double *ptr = static_cast<double *>(buf.ptr);
             self.SetMidpoints(ptr, size, &error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error setting grid midpoints: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error setting grid midpoints");
           },
           "Grid midpoints array of length num_sections");
 }

@@ -17,12 +17,7 @@ void bind_tuvx_radiator_map(py::module& m)
           {
             musica::Error error;
             auto radiator_map_instance = new musica::RadiatorMap(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error creating RadiatorMap: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error creating RadiatorMap");
             return radiator_map_instance;
           }))
       .def(
@@ -31,13 +26,7 @@ void bind_tuvx_radiator_map(py::module& m)
           {
             musica::Error error;
             self.AddRadiator(radiator, &error);
-            if (error.code_ != MUSICA_STATUS_SUCCESS)
-            {
-              std::string message = "Error adding radiator: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw std::runtime_error(message);
-            }
-            DeleteError(&error);
+            handle_error(error, "Error adding radiator");
           })
       .def(
           "get_radiator",
@@ -45,13 +34,7 @@ void bind_tuvx_radiator_map(py::module& m)
           {
             musica::Error error;
             musica::Radiator* radiator = self.GetRadiator(name.c_str(), &error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error("Error getting radiator: " + message);
-            }
-            musica::DeleteError(&error);
+            handle_error(error, "Error getting radiator");
             return radiator;
           },
           py::return_value_policy::reference)
@@ -61,13 +44,7 @@ void bind_tuvx_radiator_map(py::module& m)
           {
             musica::Error error;
             musica::Radiator* radiator = self.GetRadiatorByIndex(index, &error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error("Error getting radiator by index: " + message);
-            }
-            musica::DeleteError(&error);
+            handle_error(error, "Error getting radiator by index");
             return radiator;
           },
           py::return_value_policy::reference)
@@ -77,13 +54,7 @@ void bind_tuvx_radiator_map(py::module& m)
           {
             musica::Error error;
             self.RemoveRadiator(name.c_str(), &error);
-            if (error.code_ != MUSICA_STATUS_SUCCESS)
-            {
-              std::string message = "Error removing radiator: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
-            DeleteError(&error);
+            handle_error(error, "Error removing radiator");
           })
       .def(
           "remove_radiator_by_index",
@@ -91,13 +62,7 @@ void bind_tuvx_radiator_map(py::module& m)
           {
             musica::Error error;
             self.RemoveRadiatorByIndex(index, &error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error("Error removing radiator by index: " + message);
-            }
-            DeleteError(&error);
+            handle_error(error, "Error removing radiator by index");
           })
       .def(
           "get_number_of_radiators",
@@ -105,13 +70,7 @@ void bind_tuvx_radiator_map(py::module& m)
           {
             musica::Error error;
             std::size_t num_radiators = self.GetNumberOfRadiators(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error("Error getting number of radiators: " + message);
-            }
-            musica::DeleteError(&error);
+            handle_error(error, "Error getting number of radiators");
             return num_radiators;
           });
 }

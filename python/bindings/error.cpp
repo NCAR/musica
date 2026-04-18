@@ -19,11 +19,14 @@ void handle_error(musica::Error& error, const std::string& context_message)
   }
   full_message += std::string(error.message_.value_);
 
-  // Clean up error memory before potentially throwing
-  // The message has been already copied to full_message
-  musica::DeleteError(&error);
+  int severity = error.severity_;
 
-  switch (error.severity_)
+  // Clean up error memory and reset fields to safe state for potential reuse
+  musica::DeleteError(&error);
+  error.code_ = MUSICA_STATUS_SUCCESS;
+  error.severity_ = MUSICA_SEVERITY_INFO;
+
+  switch (severity)
   {
     case MUSICA_SEVERITY_INFO:
       return;

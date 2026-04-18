@@ -17,12 +17,7 @@ void bind_tuvx_grid_map(py::module& m)
           {
             musica::Error error;
             auto grid_map_instance = new musica::GridMap(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error creating GridMap: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error creating GridMap");
             return grid_map_instance;
           }))
       .def(
@@ -31,13 +26,7 @@ void bind_tuvx_grid_map(py::module& m)
           {
             musica::Error error;
             self.AddGrid(grid, &error);
-            if (error.code_ != MUSICA_STATUS_SUCCESS)
-            {
-              std::string message = "Error adding grid: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw std::runtime_error(message);
-            }
-            DeleteError(&error);
+            handle_error(error, "Error adding grid");
           })
       .def(
           "get_grid",
@@ -45,13 +34,7 @@ void bind_tuvx_grid_map(py::module& m)
           {
             musica::Error error;
             musica::Grid* grid = self.GetGrid(name.c_str(), units.c_str(), &error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error("Error getting grid: " + message);
-            }
-            musica::DeleteError(&error);
+            handle_error(error, "Error getting grid");
             return grid;
           },
           py::return_value_policy::reference)
@@ -61,15 +44,9 @@ void bind_tuvx_grid_map(py::module& m)
           {
             musica::Error error;
             musica::Grid* grid = self.GetGridByIndex(index, &error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error("Error getting grid by index: " + message);
-            }
-            musica::DeleteError(&error);
+            handle_error(error, "Error getting grid by index");
             return grid;
-          },
+      },  
           py::return_value_policy::reference)
       .def(
           "remove_grid",
@@ -77,13 +54,7 @@ void bind_tuvx_grid_map(py::module& m)
           {
             musica::Error error;
             self.RemoveGrid(name.c_str(), units.c_str(), &error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error("Error removing grid: " + message);
-            }
-            musica::DeleteError(&error);
+            handle_error(error, "Error removing grid");
           })
       .def(
           "remove_grid_by_index",
@@ -91,13 +62,7 @@ void bind_tuvx_grid_map(py::module& m)
           {
             musica::Error error;
             self.RemoveGridByIndex(index, &error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error("Error removing grid by index: " + message);
-            }
-            musica::DeleteError(&error);
+            handle_error(error, "Error removing grid by index");
           })
       .def(
           "get_number_of_grids",
@@ -105,13 +70,8 @@ void bind_tuvx_grid_map(py::module& m)
           {
             musica::Error error;
             std::size_t num_grids = self.GetNumberOfGrids(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error("Error getting number of grids: " + message);
-            }
-            musica::DeleteError(&error);
+            handle_error(error, "Error getting number of grids");
             return num_grids;
+          });
           });
 }
