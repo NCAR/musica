@@ -89,20 +89,19 @@ TEST(Util, IsError)
 TEST(Util, SeverityInErrors)
 {
   Error error;
-  
   // Test each severity level
   ToError("Test", 1, "Info level", MUSICA_SEVERITY_INFO, &error);
   EXPECT_EQ(error.severity_, MUSICA_SEVERITY_INFO);
   DeleteError(&error);
-  
+
   ToError("Test", 2, "Warning level", MUSICA_SEVERITY_WARNING, &error);
   EXPECT_EQ(error.severity_, MUSICA_SEVERITY_WARNING);
   DeleteError(&error);
-  
+
   ToError("Test", 3, "Error level", MUSICA_SEVERITY_ERROR, &error);
   EXPECT_EQ(error.severity_, MUSICA_SEVERITY_ERROR);
   DeleteError(&error);
-  
+
   ToError("Test", 4, "Critical level", MUSICA_SEVERITY_CRITICAL, &error);
   EXPECT_EQ(error.severity_, MUSICA_SEVERITY_CRITICAL);
   DeleteError(&error);
@@ -112,7 +111,6 @@ TEST(Util, StatusSuccessConstant)
 {
   // Test that MUSICA_STATUS_SUCCESS equals 0
   EXPECT_EQ(MUSICA_STATUS_SUCCESS, 0);
-  
   // Test that NoError uses MUSICA_STATUS_SUCCESS
   Error error;
   NoError(&error);

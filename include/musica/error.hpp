@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 #endif
 
-#define MUSICA_STATUS_SUCCESS   0
+#define MUSICA_STATUS_SUCCESS 0
 
 #define MUSICA_SEVERITY_INFO     0
 #define MUSICA_SEVERITY_WARNING  1
