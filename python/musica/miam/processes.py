@@ -12,7 +12,7 @@ RateConstantType = Union[ArrheniusRateConstant, Callable[[float], float]]
 class DissolvedReaction:
     """Irreversible dissolved (aqueous-phase) reaction.
 
-    rate = k(T) * [reactant1] * [reactant2] * ... / [solvent]^(n_reactants - 1)
+    rate = k(T) * [reactant1] * [reactant2] * ... * [S] / ([S]+eps)^n_r
 
     Args:
         phase_name: Name of the condensed phase where the reaction occurs.
@@ -20,12 +20,15 @@ class DissolvedReaction:
         product_names: Species names of products.
         solvent_name: Name of the solvent species.
         rate_constant: An ``ArrheniusRateConstant`` or callable ``f(T) -> k``.
+        solvent_damping_epsilon: Regularization parameter to prevent
+            singularity as solvent concentration approaches zero.
     """
     phase_name: str
     reactant_names: List[str]
     product_names: List[str]
     solvent_name: str
     rate_constant: RateConstantType
+    solvent_damping_epsilon: float = 1.0e-10
 
 
 @dataclass
@@ -42,6 +45,8 @@ class DissolvedReversibleReaction:
         forward_rate_constant: Forward rate constant (optional).
         reverse_rate_constant: Reverse rate constant (optional).
         equilibrium_constant: Equilibrium constant (optional, used with forward rate).
+        solvent_damping_epsilon: Regularization parameter to prevent
+            singularity as solvent concentration approaches zero.
     """
     phase_name: str
     reactant_names: List[str]
@@ -50,6 +55,7 @@ class DissolvedReversibleReaction:
     forward_rate_constant: Optional[RateConstantType] = None
     reverse_rate_constant: Optional[RateConstantType] = None
     equilibrium_constant: Optional[EquilibriumConstant] = None
+    solvent_damping_epsilon: float = 1.0e-10
 
 
 @dataclass

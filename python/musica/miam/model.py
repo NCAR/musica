@@ -117,6 +117,7 @@ class Model:
                         p.product_names,
                         p.solvent_name,
                         _convert_rate_constant(m, p.rate_constant),
+                        solvent_damping_epsilon=p.solvent_damping_epsilon,
                     )
                 )
             elif isinstance(p, DissolvedReversibleReaction):
@@ -141,6 +142,7 @@ class Model:
                             if p.equilibrium_constant is not None
                             else None
                         ),
+                        solvent_damping_epsilon=p.solvent_damping_epsilon,
                     )
                 )
             elif isinstance(p, HenryLawPhaseTransfer):
@@ -187,6 +189,7 @@ class Model:
                         m._EquilibriumConstant(
                             c.equilibrium_constant.a, c.equilibrium_constant.c
                         ),
+                        solvent_damping_epsilon=c.solvent_damping_epsilon,
                     )
                 )
             elif isinstance(c, LinearConstraint):

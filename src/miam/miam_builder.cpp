@@ -166,6 +166,7 @@ namespace musica
                                        .SetProducts(find_species_vec(p.product_names))
                                        .SetSolvent(find_species(p.solvent_name))
                                        .SetRateConstant(ResolveRateConstant(p.rate_constant))
+                                       .SetSolventDampingEpsilon(p.solvent_damping_epsilon)
                                        .Build());
               }
               else if constexpr (std::is_same_v<T, miam_config::DissolvedReversibleReaction>)
@@ -174,7 +175,8 @@ namespace musica
                                    .SetPhase(find_phase(p.phase_name))
                                    .SetReactants(find_species_vec(p.reactant_names))
                                    .SetProducts(find_species_vec(p.product_names))
-                                   .SetSolvent(find_species(p.solvent_name));
+                                   .SetSolvent(find_species(p.solvent_name))
+                                   .SetSolventDampingEpsilon(p.solvent_damping_epsilon);
                 if (p.forward_rate_constant.has_value())
                   builder.SetForwardRateConstant(ResolveRateConstant(p.forward_rate_constant.value()));
                 if (p.reverse_rate_constant.has_value())
@@ -234,6 +236,7 @@ namespace musica
                                          .SetSolvent(find_species(c.solvent_name))
                                          .SetEquilibriumConstant(miam::process::constant::EquilibriumConstant(
                                              { .A_ = c.equilibrium_constant.a, .C_ = c.equilibrium_constant.c }))
+                                         .SetSolventDampingEpsilon(c.solvent_damping_epsilon)
                                          .Build());
               }
               else if constexpr (std::is_same_v<T, miam_config::LinearConstraint>)
