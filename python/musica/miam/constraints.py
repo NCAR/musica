@@ -59,6 +59,8 @@ class DissolvedEquilibriumConstraint:
         algebraic_species_name: Species whose concentration is constrained.
         solvent_name: Name of the solvent species.
         equilibrium_constant: Equilibrium constant.
+        solvent_damping_epsilon: Regularization parameter to prevent
+            singularity as solvent concentration approaches zero.
     """
     phase_name: str
     reactant_names: List[str]
@@ -66,6 +68,7 @@ class DissolvedEquilibriumConstraint:
     algebraic_species_name: str
     solvent_name: str
     equilibrium_constant: EquilibriumConstant
+    solvent_damping_epsilon: float = 1.0e-10
 
 
 @dataclass(frozen=True)

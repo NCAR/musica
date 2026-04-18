@@ -78,6 +78,7 @@ namespace musica
       std::vector<std::string> product_names;
       std::string solvent_name;
       RateConstant rate_constant;
+      double solvent_damping_epsilon = 1.0e-10;  ///< Regularization parameter to prevent singularity as solvent → 0
     };
 
     struct DissolvedReversibleReaction
@@ -89,6 +90,7 @@ namespace musica
       std::optional<RateConstant> forward_rate_constant;
       std::optional<RateConstant> reverse_rate_constant;
       std::optional<EquilibriumConstant> equilibrium_constant;
+      double solvent_damping_epsilon = 1.0e-10;  ///< Regularization parameter to prevent singularity as solvent → 0
     };
 
     struct HenryLawPhaseTransfer
@@ -125,6 +127,7 @@ namespace musica
       std::string algebraic_species_name;
       std::string solvent_name;
       EquilibriumConstant equilibrium_constant;
+      double solvent_damping_epsilon = 1.0e-10;  ///< Regularization parameter to prevent singularity as solvent → 0
     };
 
     struct LinearConstraintTerm

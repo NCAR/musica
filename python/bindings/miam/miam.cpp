@@ -107,24 +107,27 @@ void bind_miam(py::module_& miam)
                  const std::vector<std::string>& reactant_names,
                  const std::vector<std::string>& product_names,
                  const std::string& solvent_name,
-                 py::object rate_constant)
+                 py::object rate_constant,
+                 double solvent_damping_epsilon)
               {
                 mc::RateConstant rc;
                 if (py::isinstance<mc::ArrheniusRateConstant>(rate_constant))
                   rc = rate_constant.cast<mc::ArrheniusRateConstant>();
                 else
                   rc = rate_constant.cast<std::function<double(double)>>();
-                return mc::DissolvedReaction{ phase_name, reactant_names, product_names, solvent_name, std::move(rc) };
+                return mc::DissolvedReaction{ phase_name, reactant_names, product_names, solvent_name, std::move(rc), solvent_damping_epsilon };
               }),
           py::arg("phase_name"),
           py::arg("reactant_names"),
           py::arg("product_names"),
           py::arg("solvent_name"),
-          py::arg("rate_constant"))
+          py::arg("rate_constant"),
+          py::arg("solvent_damping_epsilon") = 1.0e-10)
       .def_readwrite("phase_name", &mc::DissolvedReaction::phase_name)
       .def_readwrite("reactant_names", &mc::DissolvedReaction::reactant_names)
       .def_readwrite("product_names", &mc::DissolvedReaction::product_names)
-      .def_readwrite("solvent_name", &mc::DissolvedReaction::solvent_name);
+      .def_readwrite("solvent_name", &mc::DissolvedReaction::solvent_name)
+      .def_readwrite("solvent_damping_epsilon", &mc::DissolvedReaction::solvent_damping_epsilon);
 
   py::class_<mc::DissolvedReversibleReaction>(miam, "_DissolvedReversibleReaction")
       .def(
@@ -135,13 +138,15 @@ void bind_miam(py::module_& miam)
                  const std::string& solvent_name,
                  py::object forward_rate_constant,
                  py::object reverse_rate_constant,
-                 py::object equilibrium_constant)
+                 py::object equilibrium_constant,
+                 double solvent_damping_epsilon)
               {
                 mc::DissolvedReversibleReaction rxn;
                 rxn.phase_name = phase_name;
                 rxn.reactant_names = reactant_names;
                 rxn.product_names = product_names;
                 rxn.solvent_name = solvent_name;
+                rxn.solvent_damping_epsilon = solvent_damping_epsilon;
                 if (!forward_rate_constant.is_none())
                 {
                   if (py::isinstance<mc::ArrheniusRateConstant>(forward_rate_constant))
@@ -166,11 +171,13 @@ void bind_miam(py::module_& miam)
           py::arg("solvent_name"),
           py::arg("forward_rate_constant") = py::none(),
           py::arg("reverse_rate_constant") = py::none(),
-          py::arg("equilibrium_constant") = py::none())
+          py::arg("equilibrium_constant") = py::none(),
+          py::arg("solvent_damping_epsilon") = 1.0e-10)
       .def_readwrite("phase_name", &mc::DissolvedReversibleReaction::phase_name)
       .def_readwrite("reactant_names", &mc::DissolvedReversibleReaction::reactant_names)
       .def_readwrite("product_names", &mc::DissolvedReversibleReaction::product_names)
-      .def_readwrite("solvent_name", &mc::DissolvedReversibleReaction::solvent_name);
+      .def_readwrite("solvent_name", &mc::DissolvedReversibleReaction::solvent_name)
+      .def_readwrite("solvent_damping_epsilon", &mc::DissolvedReversibleReaction::solvent_damping_epsilon);
 
   py::class_<mc::HenryLawPhaseTransfer>(miam, "_HenryLawPhaseTransfer")
       .def(
@@ -212,19 +219,21 @@ void bind_miam(py::module_& miam)
 
   py::class_<mc::DissolvedEquilibriumConstraint>(miam, "_DissolvedEquilibriumConstraint")
       .def(
-          py::init<std::string, std::vector<std::string>, std::vector<std::string>, std::string, std::string, mc::EquilibriumConstant>(),
+          py::init<std::string, std::vector<std::string>, std::vector<std::string>, std::string, std::string, mc::EquilibriumConstant, double>(),
           py::arg("phase_name"),
           py::arg("reactant_names"),
           py::arg("product_names"),
           py::arg("algebraic_species_name"),
           py::arg("solvent_name"),
-          py::arg("equilibrium_constant"))
+          py::arg("equilibrium_constant"),
+          py::arg("solvent_damping_epsilon") = 1.0e-10)
       .def_readwrite("phase_name", &mc::DissolvedEquilibriumConstraint::phase_name)
       .def_readwrite("reactant_names", &mc::DissolvedEquilibriumConstraint::reactant_names)
       .def_readwrite("product_names", &mc::DissolvedEquilibriumConstraint::product_names)
       .def_readwrite("algebraic_species_name", &mc::DissolvedEquilibriumConstraint::algebraic_species_name)
       .def_readwrite("solvent_name", &mc::DissolvedEquilibriumConstraint::solvent_name)
-      .def_readwrite("equilibrium_constant", &mc::DissolvedEquilibriumConstraint::equilibrium_constant);
+      .def_readwrite("equilibrium_constant", &mc::DissolvedEquilibriumConstraint::equilibrium_constant)
+      .def_readwrite("solvent_damping_epsilon", &mc::DissolvedEquilibriumConstraint::solvent_damping_epsilon);
 
   py::class_<mc::LinearConstraintTerm>(miam, "_LinearConstraintTerm")
       .def(
