@@ -21,10 +21,8 @@ void handle_error(musica::Error& error, const std::string& context_message)
 
   int severity = error.severity_;
 
-  // Clean up error memory and reset fields to safe state for potential reuse
+  // Clean up error memory (DeleteError now also resets code_ and severity_)
   musica::DeleteError(&error);
-  error.code_ = MUSICA_STATUS_SUCCESS;
-  error.severity_ = MUSICA_SEVERITY_INFO;
 
   switch (severity)
   {

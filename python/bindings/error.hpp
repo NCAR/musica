@@ -17,5 +17,5 @@ namespace py = pybind11;
 /// @throws py::value_error for MUSICA_SEVERITY_ERROR
 /// @throws py::runtime_error for MUSICA_SEVERITY_CRITICAL
 /// @warning Issues Python warning for MUSICA_SEVERITY_WARNING
-/// @note This function calls DeleteError then resets error to clean state
+/// @note This function calls DeleteError to reset error to clean state
 void handle_error(musica::Error& error, const std::string& context_message = "");
