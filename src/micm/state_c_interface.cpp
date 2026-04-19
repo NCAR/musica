@@ -211,4 +211,24 @@ namespace musica
         error);
   }
 
+  void SetRelativeTolerance(musica::State* state, double relative_tolerance, Error* error)
+  {
+    HandleErrors(
+        [&]() -> void
+        {
+          if (state == nullptr)
+          {
+            std::string const msg = "State pointer is null, cannot set relative tolerance.";
+            ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND, msg.c_str(), error);
+            return;
+          }
+
+          std::visit([relative_tolerance](auto& s) { s.relative_tolerance_ = relative_tolerance; },
+                     state->state_variant_);
+
+          NoError(error);
+        },
+        error);
+  }
+
 }  // namespace musica

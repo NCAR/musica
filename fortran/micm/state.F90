@@ -111,6 +111,15 @@ module musica_state
       integer(c_size_t), intent(inout)  :: grid_cell_stride
       integer(c_size_t), intent(inout)  :: user_defined_rate_parameters_stride
     end subroutine get_user_defined_rate_parameters_strides_c
+
+    subroutine set_relative_tolerance_c(state, relative_tolerance, error) &
+      bind(C, name="SetRelativeTolerance")
+      use iso_c_binding, only: c_double
+      import c_ptr, error_t_c
+      type(c_ptr), value, intent(in)       :: state
+      real(c_double), value, intent(in)    :: relative_tolerance
+      type(error_t_c), intent(inout)       :: error
+    end subroutine set_relative_tolerance_c
   end interface
 
   type, bind(C) :: conditions_t
@@ -138,6 +147,7 @@ module musica_state
     type(strides_t) :: rate_parameters_strides
   contains
     procedure :: update_references
+    procedure :: set_relative_tolerance
     final :: finalize
   end type state_t
 
@@ -279,8 +289,21 @@ contains
 
     temp_c_ptr = get_concentrations_pointer_c(this%ptr, array_size_c, error_c)
     call c_f_pointer( temp_c_ptr, this%concentrations, [ array_size_c ] )
-    error = error_t(error_c) 
+    error = error_t(error_c)
   end subroutine update_references
+
+  subroutine set_relative_tolerance(this, relative_tolerance, error)
+    use iso_c_binding, only: c_double
+    use musica_util, only: error_t, error_t_c
+    class(state_t), intent(inout) :: this
+    real(real64),   intent(in)    :: relative_tolerance
+    type(error_t),  intent(inout) :: error
+
+    type(error_t_c) :: error_c
+
+    call set_relative_tolerance_c(this%ptr, real(relative_tolerance, kind=c_double), error_c)
+    error = error_t(error_c)
+  end subroutine set_relative_tolerance
 
   subroutine finalize(this)
     use musica_util, only: error_t, error_t_c

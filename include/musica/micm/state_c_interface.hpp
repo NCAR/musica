@@ -95,6 +95,17 @@ namespace musica
         size_t* grid_cell_stride,
         size_t* user_defined_rate_parameter_stride);
 
+    /// @brief Set the relative tolerance used by the adaptive solver.
+    ///
+    /// State::relative_tolerance_ has a default of 1e-6 in MICM. Tightening it
+    /// (e.g. 1e-9) drives BackwardEuler and Rosenbrock to take smaller internal
+    /// steps on stiff transients — needed when the default is too loose for the
+    /// mechanism (e.g. Chapman's microsecond [O]/[O3] null cycle).
+    /// @param state Pointer to state object
+    /// @param relative_tolerance New relative tolerance
+    /// @param error Error struct to indicate success or failure
+    void SetRelativeTolerance(musica::State* state, double relative_tolerance, Error* error);
+
 #ifdef __cplusplus
   }
 #endif
