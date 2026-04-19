@@ -18,16 +18,23 @@
 
 namespace mc = musica::miam_config;
 
-// ═══ Helper: minimal CAM Cloud Chemistry configuration ══════════════════════
+// ═══ Helper: CAM Cloud Chemistry configuration ══════════════════════════════
 //
 // This mirrors the MIAM integration test with SO2/H2O2/O3 sulfate chemistry.
-// Simplified to a single forward reaction (R1: HSO3- + H2O2_aq → SO4-- + H2O + H+)
-// so the test is small but exercises the full build pipeline.
+// Uses the revised 2-step H2O2 oxidation mechanism:
+//   R1a: HSO3- + H2O2_aq ⇌ SO2OOH- + H2O  (reversible, Keq = 1725)
+//   R1b: SO2OOH- + H+ → SO4--              (irreversible)
+//   R2:  HSO3- + O3_aq → SO4-- + H+
+//   R3:  SO3-- + O3_aq → SO4--
+//
+// All concentrations (including condensed-phase) are in mol/m³ of AIR.
+// c_H2O_M (55.556 mol/L) is a unit-conversion constant for rate/equilibrium
+// constants from literature (M-based) to MIAM (mol/m³) — NOT a state variable.
 
 namespace
 {
   constexpr double M_ATM_TO_MOL_M3_PA = 1000.0 / 101325.0;
-  constexpr double c_H2O_M = 55.556;  // mol/L
+  constexpr double c_H2O_M = 55.556;  // mol/L — unit conversion constant (NOT a state variable)
   constexpr double MW_H2O = 0.018;    // kg/mol
   constexpr double RHO_H2O = 1000.0;  // kg/m3
 
@@ -79,28 +86,57 @@ namespace
       { "HSO3m", {}, {} },     // HSO3-
       { "SO3mm", {}, {} },     // SO3--
       { "SO4mm", {}, {} },     // SO4--
+      { "SO2OOHm", {}, {} },   // SO2OOH- (peroxymonosulfurous acid anion)
       { "H2O", MW_H2O, RHO_H2O },
     };
 
     // Condensed phase
     config.condensed_phases = { {
         "AQUEOUS",
-        { "H2O", "SO2_aq", "H2O2_aq", "O3_aq", "Hp", "OHm", "HSO3m", "SO3mm", "SO4mm" },
+        { "H2O", "SO2_aq", "H2O2_aq", "O3_aq", "Hp", "OHm", "HSO3m", "SO3mm", "SO4mm", "SO2OOHm" },
     } };
 
     // Representation: uniform cloud section
     config.representations = { mc::UniformSection{ "CLOUD", { "AQUEOUS" }, 1e-6, 1e-5 } };
 
-    // Processes: single dissolved reaction R1 with callable rate constant
-    // R1: HSO3- + H2O2_aq → SO4-- + H2O + H+
-    // k = c_H2O_M * 7.45e7 * exp(-4430 * (1/T - 1/298.15))
-    mc::DissolvedReaction r1;
-    r1.phase_name = "AQUEOUS";
-    r1.reactant_names = { "HSO3m", "H2O2_aq" };
-    r1.product_names = { "SO4mm", "H2O", "Hp" };
-    r1.solvent_name = "H2O";
-    r1.rate_constant = mc::ArrheniusRateConstant{ c_H2O_M * 7.45e7, 4430.0 };
-    config.processes = { r1 };
+    // Processes: revised 2-step H2O2 oxidation + 2 O3 oxidation reactions
+    //
+    // R1a: HSO3- + H2O2_aq ⇌ SO2OOH- + H2O  (reversible)
+    //   forward k = c_H2O_M * (7.45e7 / 13.0) * exp(-4430 * (1/T - 1/298.15))
+    //   equilibrium K = 1725
+    mc::DissolvedReversibleReaction r1a;
+    r1a.phase_name = "AQUEOUS";
+    r1a.reactant_names = { "HSO3m", "H2O2_aq" };
+    r1a.product_names = { "SO2OOHm", "H2O" };
+    r1a.solvent_name = "H2O";
+    r1a.forward_rate_constant = mc::ArrheniusRateConstant{ c_H2O_M * (7.45e7 / 13.0), 4430.0 };
+    r1a.equilibrium_constant = mc::EquilibriumConstant{ 1725.0, 0.0 };
+
+    // R1b: SO2OOH- + H+ → SO4--  (irreversible)
+    mc::DissolvedReaction r1b;
+    r1b.phase_name = "AQUEOUS";
+    r1b.reactant_names = { "SO2OOHm", "Hp" };
+    r1b.product_names = { "SO4mm" };
+    r1b.solvent_name = "H2O";
+    r1b.rate_constant = mc::ArrheniusRateConstant{ c_H2O_M * 2.4e6, 4430.0 };
+
+    // R2: HSO3- + O3_aq → SO4-- + H+
+    mc::DissolvedReaction r2;
+    r2.phase_name = "AQUEOUS";
+    r2.reactant_names = { "HSO3m", "O3_aq" };
+    r2.product_names = { "SO4mm", "Hp" };
+    r2.solvent_name = "H2O";
+    r2.rate_constant = mc::ArrheniusRateConstant{ c_H2O_M * 3.75e5, 5530.0 };
+
+    // R3: SO3-- + O3_aq → SO4--
+    mc::DissolvedReaction r3;
+    r3.phase_name = "AQUEOUS";
+    r3.reactant_names = { "SO3mm", "O3_aq" };
+    r3.product_names = { "SO4mm" };
+    r3.solvent_name = "H2O";
+    r3.rate_constant = mc::ArrheniusRateConstant{ c_H2O_M * 1.59e9, 5280.0 };
+
+    config.processes = { r1a, r1b, r2, r3 };
 
     // Constraints
 
@@ -151,7 +187,7 @@ namespace
 
     // Linear constraints for mass conservation and charge balance
 
-    // Mass conservation: SO2_g + SO2_aq + HSO3- + SO3-- + SO4-- = total_S
+    // Mass conservation: SO2_g + SO2_aq + HSO3- + SO3-- + SO4-- + SO2OOH- = total_S
     // Algebraic species: SO2 (gas)
     mc::LinearConstraint mass_s;
     mass_s.algebraic_phase_name = "gas";
@@ -162,6 +198,7 @@ namespace
         { "AQUEOUS", "HSO3m", 1.0 },
         { "AQUEOUS", "SO3mm", 1.0 },
         { "AQUEOUS", "SO4mm", 1.0 },
+        { "AQUEOUS", "SO2OOHm", 1.0 },
     };
     mass_s.diagnose_from_state = true;
     config.constraints.push_back(mass_s);
@@ -188,7 +225,7 @@ namespace
     mass_o3.diagnose_from_state = true;
     config.constraints.push_back(mass_o3);
 
-    // Charge balance: H+ = OH- + HSO3- + 2*SO3-- + 2*SO4--
+    // Charge balance: H+ = OH- + HSO3- + 2*SO3-- + 2*SO4-- + SO2OOH-
     mc::LinearConstraint charge;
     charge.algebraic_phase_name = "AQUEOUS";
     charge.algebraic_species_name = "Hp";
@@ -198,6 +235,7 @@ namespace
         { "AQUEOUS", "HSO3m", -1.0 },
         { "AQUEOUS", "SO3mm", -2.0 },
         { "AQUEOUS", "SO4mm", -2.0 },
+        { "AQUEOUS", "SO2OOHm", -1.0 },
     };
     charge.constant = 0.0;
     config.constraints.push_back(charge);
@@ -313,13 +351,13 @@ TEST(MiamBuilder, CallbackRateConstant)
   auto chemistry = CreateGasMechanism();
   auto miam_config = CreateCloudChemistryConfig();
 
-  // Replace the Arrhenius rate constant with a std::function callback
-  auto& rxn = std::get<mc::DissolvedReaction>(miam_config.processes[0]);
+  // Replace R1b's Arrhenius rate constant with a std::function callback
+  auto& rxn = std::get<mc::DissolvedReaction>(miam_config.processes[1]);
   rxn.rate_constant = std::function<double(double)>(
       [](double T) -> double
       {
         constexpr double c_H2O_M = 55.556;
-        return c_H2O_M * 7.45e7 * std::exp(-4430.0 * (1.0 / T - 1.0 / 298.15));
+        return c_H2O_M * 2.4e6 * std::exp(-4430.0 * (1.0 / T - 1.0 / 298.15));
       });
 
   musica::Error error;
