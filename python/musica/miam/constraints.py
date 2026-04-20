@@ -68,7 +68,7 @@ class DissolvedEquilibriumConstraint:
     algebraic_species_name: str
     solvent_name: str
     equilibrium_constant: EquilibriumConstant
-    solvent_damping_epsilon: float = 1.0e-10
+    solvent_damping_epsilon: float = 1.0e-20
 
 
 @dataclass(frozen=True)

@@ -108,26 +108,29 @@ void bind_miam(py::module_& miam)
                  const std::vector<std::string>& product_names,
                  const std::string& solvent_name,
                  py::object rate_constant,
-                 double solvent_damping_epsilon)
+                 double solvent_damping_epsilon,
+                 double max_halflife)
               {
                 mc::RateConstant rc;
                 if (py::isinstance<mc::ArrheniusRateConstant>(rate_constant))
                   rc = rate_constant.cast<mc::ArrheniusRateConstant>();
                 else
                   rc = rate_constant.cast<std::function<double(double)>>();
-                return mc::DissolvedReaction{ phase_name, reactant_names, product_names, solvent_name, std::move(rc), solvent_damping_epsilon };
+                return mc::DissolvedReaction{ phase_name, reactant_names, product_names, solvent_name, std::move(rc), solvent_damping_epsilon, max_halflife };
               }),
           py::arg("phase_name"),
           py::arg("reactant_names"),
           py::arg("product_names"),
           py::arg("solvent_name"),
           py::arg("rate_constant"),
-          py::arg("solvent_damping_epsilon") = 1.0e-10)
+          py::arg("solvent_damping_epsilon") = 1.0e-20,
+          py::arg("max_halflife") = 0.0)
       .def_readwrite("phase_name", &mc::DissolvedReaction::phase_name)
       .def_readwrite("reactant_names", &mc::DissolvedReaction::reactant_names)
       .def_readwrite("product_names", &mc::DissolvedReaction::product_names)
       .def_readwrite("solvent_name", &mc::DissolvedReaction::solvent_name)
-      .def_readwrite("solvent_damping_epsilon", &mc::DissolvedReaction::solvent_damping_epsilon);
+      .def_readwrite("solvent_damping_epsilon", &mc::DissolvedReaction::solvent_damping_epsilon)
+      .def_readwrite("max_halflife", &mc::DissolvedReaction::max_halflife);
 
   py::class_<mc::DissolvedReversibleReaction>(miam, "_DissolvedReversibleReaction")
       .def(
@@ -172,7 +175,7 @@ void bind_miam(py::module_& miam)
           py::arg("forward_rate_constant") = py::none(),
           py::arg("reverse_rate_constant") = py::none(),
           py::arg("equilibrium_constant") = py::none(),
-          py::arg("solvent_damping_epsilon") = 1.0e-10)
+          py::arg("solvent_damping_epsilon") = 1.0e-20)
       .def_readwrite("phase_name", &mc::DissolvedReversibleReaction::phase_name)
       .def_readwrite("reactant_names", &mc::DissolvedReversibleReaction::reactant_names)
       .def_readwrite("product_names", &mc::DissolvedReversibleReaction::product_names)
@@ -226,7 +229,7 @@ void bind_miam(py::module_& miam)
           py::arg("algebraic_species_name"),
           py::arg("solvent_name"),
           py::arg("equilibrium_constant"),
-          py::arg("solvent_damping_epsilon") = 1.0e-10)
+          py::arg("solvent_damping_epsilon") = 1.0e-20)
       .def_readwrite("phase_name", &mc::DissolvedEquilibriumConstraint::phase_name)
       .def_readwrite("reactant_names", &mc::DissolvedEquilibriumConstraint::reactant_names)
       .def_readwrite("product_names", &mc::DissolvedEquilibriumConstraint::product_names)

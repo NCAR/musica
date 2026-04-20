@@ -167,6 +167,7 @@ namespace musica
                                        .SetSolvent(find_species(p.solvent_name))
                                        .SetRateConstant(ResolveRateConstant(p.rate_constant))
                                        .SetSolventDampingEpsilon(p.solvent_damping_epsilon)
+                                       .SetMaxHalflife(p.max_halflife)
                                        .Build());
               }
               else if constexpr (std::is_same_v<T, miam_config::DissolvedReversibleReaction>)
