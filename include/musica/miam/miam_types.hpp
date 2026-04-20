@@ -79,7 +79,7 @@ namespace musica
       std::string solvent_name;
       RateConstant rate_constant;
       double solvent_damping_epsilon = 1.0e-20;  ///< Regularization parameter to prevent singularity as solvent → 0
-      double max_halflife = 0.0;  ///< When > 0, caps reaction rate so no reactant is depleted faster than this half-life [s]
+      double min_halflife = 0.0;  ///< When > 0, caps reaction rate so no reactant is depleted faster than this half-life [s]
     };
 
     struct DissolvedReversibleReaction
