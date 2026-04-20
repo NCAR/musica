@@ -22,7 +22,7 @@ class DissolvedReaction:
         rate_constant: An ``ArrheniusRateConstant`` or callable ``f(T) -> k``.
         solvent_damping_epsilon: Regularization parameter to prevent
             singularity as solvent concentration approaches zero.
-        max_halflife: When > 0, caps the reaction rate so no reactant is
+        min_halflife: When > 0, caps the reaction rate so no reactant is
             depleted faster than this half-life [s]. Zero (default) disables.
     """
     phase_name: str
@@ -31,7 +31,7 @@ class DissolvedReaction:
     solvent_name: str
     rate_constant: RateConstantType
     solvent_damping_epsilon: float = 1.0e-20
-    max_halflife: float = 0.0
+    min_halflife: float = 0.0
 
 
 @dataclass

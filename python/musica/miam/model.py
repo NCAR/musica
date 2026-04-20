@@ -118,7 +118,7 @@ class Model:
                         p.solvent_name,
                         _convert_rate_constant(m, p.rate_constant),
                         solvent_damping_epsilon=p.solvent_damping_epsilon,
-                        max_halflife=p.max_halflife,
+                        min_halflife=p.min_halflife,
                     )
                 )
             elif isinstance(p, DissolvedReversibleReaction):
