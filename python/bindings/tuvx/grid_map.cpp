@@ -73,5 +73,4 @@ void bind_tuvx_grid_map(py::module& m)
             handle_error(error, "Error getting number of grids");
             return num_grids;
           });
-          });
 }
