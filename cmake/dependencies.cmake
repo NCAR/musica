@@ -99,7 +99,7 @@ endif()
 
 if (MUSICA_ENABLE_MIAM AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(MIAM_GIT_REPOSITORY https://github.com/NCAR/miam.git)
-  set_git_default(MIAM_GIT_TAG 002eadfeac2deb7b5bae84c1addf2d09a00f7544)
+  set_git_default(MIAM_GIT_TAG 05e1fb356450545cfb61286a84003a24ba31dbec)
 
   FetchContent_Declare(miam
       GIT_REPOSITORY ${MIAM_GIT_REPOSITORY}
