@@ -4,6 +4,7 @@
 #include "error.hpp"
 
 #include <musica/error.hpp>
+#include <stdexcept>
 
 void handle_error(musica::Error& error, const std::string& context_message)
 {
@@ -35,7 +36,7 @@ void handle_error(musica::Error& error, const std::string& context_message)
     case MUSICA_SEVERITY_ERROR:
       throw py::value_error(full_message);
     case MUSICA_SEVERITY_CRITICAL:
-      throw py::runtime_error(full_message);
+      throw std::runtime_error(full_message);
     default:
       // Unknown severity, treat as error
       throw py::value_error(full_message);
