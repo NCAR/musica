@@ -1,16 +1,18 @@
 """
-Test demonstrating that algebraic variables excluded from the Rosenbrock
-error estimator can overshoot through zero in DAE systems.
+Test demonstrating the Rosenbrock DAE solver's step-change error estimate
+for algebraic variables and its effect on conservation-constraint overshoot.
 
-Issue
------
-In ``NormalizedError()`` (rosenbrock.inl), variables with
-``upper_left_identity_diagonal_[i] == 0`` (algebraic) are skipped when
-computing the step-acceptance error norm.  When a fast kinetic reaction
-converts species that participate in a conservation constraint, the
-differential product can overshoot the mass budget.  The algebraic
-"balance" variable absorbs the overshoot and goes negative, but this
-is never detected because its error is excluded from the norm.
+Background
+----------
+MICM's Rosenbrock DAE solver now uses **step-change error estimation** for
+algebraic variables: after computing the embedded error, the solver replaces
+each algebraic entry with ``Yerror[a] = Ynew[a] - Y[a]``. This means
+algebraic tolerances directly control step acceptance.
+
+With loose tolerances, the solver accepts steps where differential products
+overshoot a conservation budget, forcing the algebraic balance variable
+negative. With tight algebraic tolerances, the solver rejects such steps
+and takes smaller ones that track the kinetic deceleration.
 
 Minimal chemistry (H2O2-pathway sulfate production)
 ---------------------------------------------------
@@ -32,19 +34,10 @@ Conservation constraints (LinearConstraint, diagnose_from_state=True):
 
 Expected behaviour
 ------------------
-The continuous system can never produce [SO2] < 0 because the kinetic
-rates → 0 as S(IV) → 0.  With the default error estimator (algebraic
-variables excluded), the solver takes ~13 internal steps for a 30 s
-interval and SO2(g) goes to ≈ −5.6e-8.  With very tight tolerances
-(atol ~ 1e-20) the solver is forced to take ~700k steps, tracks the
-kinetic deceleration, and SO2(g) stays positive.
-
-Proposed fix
-------------
-Include algebraic variables in ``NormalizedError()``.  This causes the
-error estimator to reject steps where the algebraic variable changes
-sign or experiences a large relative change, without requiring
-impractical tolerance settings.
+With loose algebraic tolerances (atol ≥ 1e-8), the solver accepts large
+steps and SO₂(g) goes negative (~−6.5e-8). With tight algebraic tolerances
+(atol ≤ 1e-12), the solver takes enough steps to prevent overshoot and
+SO₂(g) stays positive — but at a cost of ~130k+ internal steps.
 """
 
 import math
@@ -269,32 +262,74 @@ def _total_sulfur(concs):
     )
 
 
+ALGEBRAIC_NAMES = {
+    "SO2", "H2O2",
+    "CLOUD.AQUEOUS.SO2_aq", "CLOUD.AQUEOUS.H2O2_aq",
+    "CLOUD.AQUEOUS.OHm", "CLOUD.AQUEOUS.HSO3m", "CLOUD.AQUEOUS.Hp",
+}
+
+
 class TestDAEAlgebraicOvershoot:
-    """Demonstrate that algebraic variables can go negative when excluded
-    from the Rosenbrock error estimator."""
+    """Test the step-change error estimate for algebraic variables.
 
-    def test_negative_so2_with_default_tolerances(self):
-        """With default tolerances, SO2(g) goes negative after a 30 s solve.
+    The Rosenbrock DAE solver now uses ``Yerror[a] = Ynew[a] - Y[a]`` for
+    algebraic variables, making their tolerances control step acceptance.
+    See dae_algebraic_tolerance_guide.md for the full specification.
+    """
 
-        The solver takes only ~13 internal steps.  The error on the
-        differential SO4²⁻ is well within tolerance, so every step is
-        accepted.  But SO4²⁻ overshoots the total-S budget, and the
-        algebraic SO2(g) = C − SO4²⁻ − ... goes negative.
+    def test_algebraic_tolerance_sensitivity(self):
+        """Changing atol for algebraic species from 1e-3 to 1e-10
+        must change step count — proving the error estimator sees them.
         """
         micm, miam_model = _build_system()
         ordering = micm.create_state().get_species_ordering()
+        n = len(ordering)
 
-        # Standard tolerances: atol=1e-14 aqueous, 1e-3 gas, rtol=1e-6
-        abs_tols = [1e-3] * len(ordering)
+        results = {}
+        for alg_atol in [1e-3, 1e-10]:
+            abs_tols = [1e-14] * n  # differential species
+            for name, idx in ordering.items():
+                if name in ALGEBRAIC_NAMES:
+                    abs_tols[idx] = alg_atol
+
+            micm.set_solver_parameters(RosenbrockSolverParameters(
+                absolute_tolerances=abs_tols,
+                constraint_init_max_iterations=100,
+                constraint_init_tolerance=1e-8,
+                max_number_of_steps=500000,
+            ))
+
+            state = _create_initial_state(micm, miam_model, so4_init=1e-6)
+            result = micm.solve(state, time_step=30.0)
+            assert result.state == SolverState.Converged
+            results[alg_atol] = result.stats.accepted
+
+        # Tight algebraic tolerance should require significantly more steps
+        assert results[1e-10] > 10 * results[1e-3], (
+            f"Expected tight atol to need many more steps: "
+            f"loose={results[1e-3]}, tight={results[1e-10]}"
+        )
+
+    def test_negative_so2_with_loose_algebraic_tolerances(self):
+        """With loose algebraic tolerances (1e-3), SO2(g) goes negative.
+
+        The step-change error for algebraic variables is within their
+        generous tolerance, so the solver accepts large steps.
+        """
+        micm, miam_model = _build_system()
+        ordering = micm.create_state().get_species_ordering()
+        n = len(ordering)
+
+        abs_tols = [1e-14] * n  # differential species
         for name, idx in ordering.items():
-            if "CLOUD.AQUEOUS." in name:
-                abs_tols[idx] = 1e-14
+            if name in ALGEBRAIC_NAMES:
+                abs_tols[idx] = 1e-3
 
         micm.set_solver_parameters(RosenbrockSolverParameters(
             absolute_tolerances=abs_tols,
             constraint_init_max_iterations=100,
             constraint_init_tolerance=1e-8,
-            max_number_of_steps=50000,
+            max_number_of_steps=500000,
         ))
 
         state = _create_initial_state(micm, miam_model, so4_init=1e-6)
@@ -313,35 +348,32 @@ class TestDAEAlgebraicOvershoot:
             f"Total S not conserved: {initial_total_s:.6e} → {final_total_s:.6e}"
         )
 
-        # BUG: SO2(g) is negative despite conservation being satisfied
+        # With loose algebraic tolerances, SO2(g) goes negative
         assert so2_final < 0, (
-            f"Expected SO2 < 0 with default tolerances, got {so2_final:.4e}. "
-            f"If this test fails, the bug may have been fixed!"
+            f"Expected SO2 < 0 with loose algebraic atol, got {so2_final:.4e}"
         )
 
-        # The solver took very few steps (algebraic error not checked)
-        assert result.stats.accepted < 100, (
-            f"Expected few steps with default tolerances, got {result.stats.accepted}"
-        )
+    def test_positive_so2_with_tight_algebraic_tolerances(self):
+        """With tight algebraic tolerances (1e-12), SO2(g) stays positive.
 
-    def test_positive_so2_with_extreme_tolerances(self):
-        """With extreme tolerances (atol=1e-20, rtol=1e-14), SO2(g)
-        stays positive — but at the cost of ~700k internal steps.
-
-        This confirms the physics is correct and the negative SO2 is
-        purely a step-acceptance artifact.
+        The step-change error estimate forces the solver to reject steps
+        where the algebraic balance variable changes too much, preventing
+        overshoot of the conservation budget.
         """
         micm, miam_model = _build_system()
         ordering = micm.create_state().get_species_ordering()
+        n = len(ordering)
 
-        abs_tols = [1e-20] * len(ordering)
+        abs_tols = [1e-14] * n  # differential species
+        for name, idx in ordering.items():
+            if name in ALGEBRAIC_NAMES:
+                abs_tols[idx] = 1e-12
 
         micm.set_solver_parameters(RosenbrockSolverParameters(
-            relative_tolerance=1e-14,
             absolute_tolerances=abs_tols,
             constraint_init_max_iterations=100,
             constraint_init_tolerance=1e-8,
-            max_number_of_steps=5000000,
+            max_number_of_steps=500000,
         ))
 
         state = _create_initial_state(micm, miam_model, so4_init=1e-6)
@@ -358,14 +390,14 @@ class TestDAEAlgebraicOvershoot:
         # Conservation still maintained
         assert abs(final_total_s - initial_total_s) / initial_total_s < 1e-6
 
-        # With extreme tolerances, SO2 stays positive
+        # With tight algebraic tolerances, SO2 stays positive
         assert so2_final > 0, (
-            f"Expected SO2 > 0 with extreme tolerances, got {so2_final:.4e}"
+            f"Expected SO2 > 0 with tight algebraic atol, got {so2_final:.4e}"
         )
 
-        # But it costs hundreds of thousands of steps
-        assert result.stats.accepted > 100000, (
-            f"Expected >100k steps, got {result.stats.accepted}"
+        # Balance variable should not exceed -atol (per guide)
+        assert so2_final >= -1e-12, (
+            f"SO2 went more negative than -atol: {so2_final:.4e}"
         )
 
 
@@ -376,44 +408,24 @@ if __name__ == "__main__":
     n = len(ordering)
 
     print(f"Species ({n}): {ordering}\n")
-
-    # Count algebraic vs differential
-    algebraic = {
-        "SO2", "H2O2",  # LinearConstraint
-        "CLOUD.AQUEOUS.SO2_aq", "CLOUD.AQUEOUS.H2O2_aq",  # Henry's Law
-        "CLOUD.AQUEOUS.OHm", "CLOUD.AQUEOUS.HSO3m",  # Dissociation
-        "CLOUD.AQUEOUS.Hp",  # Charge balance
-    }
-    differential = set(ordering.keys()) - algebraic
-    print(f"Algebraic  ({len(algebraic)}): {sorted(algebraic)}")
-    print(f"Differential ({len(differential)}): {sorted(differential)}")
+    print(f"Algebraic: {sorted(ALGEBRAIC_NAMES)}")
+    print(f"Differential: {sorted(set(ordering.keys()) - ALGEBRAIC_NAMES)}")
 
     print(f"\n{'='*90}")
-    print(f"{'Config':55s} | {'SO2(g)':>12s} | {'SO4²⁻':>12s} | {'Steps':>8s} | {'Reject':>6s}")
+    print(f"{'Algebraic atol':20s} | {'SO2(g)':>12s} | {'SO4²⁻':>12s} | {'Steps':>8s} | {'Reject':>6s}")
     print(f"{'-'*90}")
 
-    configs = [
-        ("default: atol=1e-14(aq)/1e-3(gas), rtol=1e-6", 1e-6, 1e-3, 1e-14),
-        ("tight rtol: rtol=1e-12",                        1e-12, 1e-3, 1e-14),
-        ("uniform atol=1e-14, rtol=1e-6",                 1e-6, 1e-14, 1e-14),
-        ("uniform atol=1e-16, rtol=1e-12",                1e-12, 1e-16, 1e-16),
-        ("uniform atol=1e-18, rtol=1e-12",                1e-12, 1e-18, 1e-18),
-        ("uniform atol=1e-19, rtol=1e-12",                1e-12, 1e-19, 1e-19),
-        ("uniform atol=1e-20, rtol=1e-14",                1e-14, 1e-20, 1e-20),
-    ]
-
-    for label, rtol, gas_atol, aq_atol in configs:
-        tols = [gas_atol] * n
+    for alg_atol in [1e-3, 1e-6, 1e-8, 1e-10, 1e-11, 1e-12, 1e-14]:
+        tols = [1e-14] * n  # differential default
         for name, idx in ordering.items():
-            if "CLOUD.AQUEOUS." in name:
-                tols[idx] = aq_atol
+            if name in ALGEBRAIC_NAMES:
+                tols[idx] = alg_atol
 
         micm.set_solver_parameters(RosenbrockSolverParameters(
-            relative_tolerance=rtol,
             absolute_tolerances=tols,
             constraint_init_max_iterations=100,
             constraint_init_tolerance=1e-8,
-            max_number_of_steps=5000000,
+            max_number_of_steps=500000,
         ))
 
         state = _create_initial_state(micm, miam_model, so4_init=1e-6)
@@ -426,8 +438,7 @@ if __name__ == "__main__":
         rejects = result.stats.rejected
         flag = " ← NEGATIVE" if so2 < 0 else ""
 
-        print(f"  {label:53s} | {so2:+.4e} | {so4:.4e} | {steps:8d} | {rejects:6d}{flag}")
+        print(f"  {alg_atol:.0e}{'':<13s} | {so2:+.4e} | {so4:.4e} | {steps:8d} | {rejects:6d}{flag}")
 
-    print(f"\nConclusion: algebraic SO2(g) goes negative with practical")
-    print(f"tolerances because NormalizedError() skips it. Only atol ≤ 1e-19")
-    print(f"forces enough internal steps to track the kinetic deceleration.")
+    print(f"\nConclusion: step-change error estimate makes algebraic tolerances")
+    print(f"control step acceptance. Tight atol (≤ 1e-12) prevents overshoot.")
