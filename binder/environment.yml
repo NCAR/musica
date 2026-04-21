@@ -7,4 +7,7 @@ dependencies:
   - ipycytoscape
   - pip
   - pip:
-    - musica[tutorial]==0.15.0
+    # Installs a specific released version from PyPI.
+    # - musica[tutorial]==0.15.0
+    # Pin to a specific commit that includes updates in mechanism-configuration reactants/products interface
+    - git+https://github.com/NCAR/musica.git@6b4b5b4d1e7eb0a37d1a1faae2af3efa5dfb45d5#egg=musica[tutorial]
