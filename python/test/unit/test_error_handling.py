@@ -117,20 +117,11 @@ class TestErrorMemorySafety:
 
 
 class TestSeverityToExceptionMapping:
-    """Test that error severities are correctly mapped to Python warnings/exceptions.
-    
-    This test class verifies the core severity-based error handling contract:
-    - MUSICA_SEVERITY_INFO (0): No exception, no warning
-    - MUSICA_SEVERITY_WARNING (1): Python UserWarning (not an exception)
-    - MUSICA_SEVERITY_ERROR (2): Python ValueError
-    - MUSICA_SEVERITY_CRITICAL (3): Python RuntimeError
-    
-    These mappings are implemented in python/bindings/error.cpp:handle_error()
-    """
+    """Test that error severities are correctly mapped to Python warnings/exceptions."""
 
     @pytest.mark.skip(reason="Need a way to trigger CRITICAL severity from Python")
     def test_critical_severity_raises_runtime_error(self):
-        """Test that MUSICA_SEVERITY_CRITICAL (3) raises RuntimeError.
+        """Test that MUSICA_SEVERITY_CRITICAL raises RuntimeError.
         
         Note: Currently no Python-accessible code path triggers CRITICAL severity.
         This test documents the expected behavior and should be implemented
@@ -140,7 +131,7 @@ class TestSeverityToExceptionMapping:
 
     @pytest.mark.skip(reason="Need a way to trigger WARNING severity from Python")
     def test_warning_severity_issues_user_warning(self):
-        """Test that MUSICA_SEVERITY_WARNING (1) issues UserWarning.
+        """Test that MUSICA_SEVERITY_WARNING issues UserWarning.
         
         Note: Currently no Python-accessible code path triggers WARNING severity.
         This test documents the expected behavior and should be implemented
@@ -149,12 +140,12 @@ class TestSeverityToExceptionMapping:
         pass
 
     def test_info_severity_is_silent(self):
-        """Test that MUSICA_SEVERITY_INFO (0) produces no warning or exception.
+        """Test that MUSICA_SEVERITY_INFO produces no warning or exception.
         
         INFO severity should be completely silent (no exception, no warning).
         Success cases use INFO severity.
         """
-        solver = MICM(config_path=find_config_path("v1", "chapman", "config.json"))
+        _ = MICM(config_path=find_config_path("v1", "chapman", "config.json"))
 
 
 
