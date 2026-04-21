@@ -46,7 +46,7 @@ void bind_tuvx_grid_map(py::module& m)
             musica::Grid* grid = self.GetGridByIndex(index, &error);
             handle_error(error, "Error getting grid by index");
             return grid;
-      },  
+          },
           py::return_value_policy::reference)
       .def(
           "remove_grid",
