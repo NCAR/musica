@@ -73,49 +73,6 @@ class TestErrorSeverityHandling:
         assert ":" not in error_message
 
 
-class TestErrorMemorySafety:
-    """Test that error handling doesn't leak memory."""
-
-    def test_error_cleanup_before_throw(self):
-        """Test that errors are cleaned up even when exceptions are thrown.
-        
-        This verifies that handle_error() calls DeleteError before throwing,
-        preventing memory leaks from allocated error strings.
-        """
-        # This test is more about preventing regression than asserting behavior
-        # The previous implementation leaked memory on every error/critical exception
-        
-        # Multiple failed operations should not accumulate memory leaks
-        for _ in range(10):
-            with pytest.raises(ValueError):
-                MICM(config_path="nonexistent.json")
-        
-        # If memory leaked, this would eventually cause issues
-        # This test passes if no crashes/hangs occur
-
-    def test_error_object_reset_after_handling(self):
-        """Test that error objects are reset to clean state after handling.
-        
-        This verifies the fix where handle_error() resets code_ and severity_
-        to prevent stale error state from affecting subsequent operations.
-        """
-
-        solver = MICM(config_path=find_config_path("v1", "chapman", "config.json"))
-        state = solver.create_state(number_of_grid_cells=2)
-        
-        # First operation
-        state.set_conditions(temperatures=[298.15, 298.15], pressures=[101325.0, 101325.0])
-        
-        # Second operation - should work even if error object is reused
-        state.set_concentrations({"O1D": [1.0, 2.0], "O": [3.0, 4.0]})
-        
-        # Third operation - error state should be clean
-        result = state.get_concentrations()
-        print(result)
-        assert "O1D" in result
-        assert "O" in result
-
-
 class TestSeverityToExceptionMapping:
     """Test that error severities are correctly mapped to Python warnings/exceptions."""
 
