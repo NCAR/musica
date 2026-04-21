@@ -10,6 +10,7 @@ void handle_error(musica::Error& error, const std::string& context_message)
 {
   if (musica::IsSuccess(error))
   {
+    musica::DeleteError(&error);
     return;
   }
 
@@ -31,14 +32,20 @@ void handle_error(musica::Error& error, const std::string& context_message)
       return;
     case MUSICA_SEVERITY_WARNING:
       // Issue warnings.warn() but don't throw
-      PyErr_WarnEx(PyExc_UserWarning, full_message.c_str(), 1);
+      // If PyErr_WarnEx returns -1 and sets an exception
+      if (PyErr_WarnEx(PyExc_UserWarning, full_message.c_str(), 1) == -1) 
+      { 
+        throw py::error_already_set();
+      }
       return;
     case MUSICA_SEVERITY_ERROR:
       throw py::value_error(full_message);
     case MUSICA_SEVERITY_CRITICAL:
-      throw std::runtime_error(full_message);
+      // Using the pybind11 wrapper for RuntimeError
+      // py::runtime_error() is not supported in 
+      throw py::runtime_error(full_message);
     default:
       // Unknown severity, treat as error
-      throw py::value_error(full_message);
+      throw py::value_error("Unknown severity: " + full_message);
   }
 }

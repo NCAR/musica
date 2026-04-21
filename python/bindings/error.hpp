@@ -16,6 +16,7 @@ namespace py = pybind11;
 /// @param context_message Additional context to prepend to error message
 /// @throws py::value_error for MUSICA_SEVERITY_ERROR
 /// @throws std::runtime_error for MUSICA_SEVERITY_CRITICAL
-/// @warning Issues Python warning for MUSICA_SEVERITY_WARNING
+/// @throws py::error_already_set for MUSICA_SEVERITY_WARNING if warnings are configured as errors
+/// @warning Issues Python warning for MUSICA_SEVERITY_WARNING (when warnings are not errors)
 /// @note This function calls DeleteError to reset error to clean state
 void handle_error(musica::Error& error, const std::string& context_message = "");
