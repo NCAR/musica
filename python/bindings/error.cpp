@@ -42,8 +42,7 @@ void handle_error(musica::Error& error, const std::string& context_message)
       throw py::value_error(full_message);
     case MUSICA_SEVERITY_CRITICAL:
       // Using the pybind11 wrapper for RuntimeError
-      // py::runtime_error() is not supported in 
-      throw py::runtime_error(full_message);
+      throw std::runtime_error(full_message);
     default:
       // Unknown severity, treat as error
       throw py::value_error("Unknown severity: " + full_message);
