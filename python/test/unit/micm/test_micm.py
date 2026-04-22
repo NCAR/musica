@@ -112,6 +112,8 @@ class TestMICMSolverType:
         solver_types = [
             SolverType.rosenbrock_standard_order,
             SolverType.backward_euler_standard_order,
+            SolverType.rosenbrock_dae4_standard_order,
+            SolverType.rosenbrock_dae6_standard_order,
         ]
 
         for solver_type in solver_types:
@@ -355,6 +357,8 @@ class TestSolverParameters:
             h_max=100.0,
             h_start=1e-5,
             max_number_of_steps=500,
+            constraint_init_max_iterations=25,
+            constraint_init_tolerance=1e-8,
         )
         solver = MICM(
             config_path=find_config_path("v0", "analytical"),
@@ -368,6 +372,8 @@ class TestSolverParameters:
         assert result.h_max == pytest.approx(100.0)
         assert result.h_start == pytest.approx(1e-5)
         assert result.relative_tolerance == pytest.approx(1e-8)
+        assert result.constraint_init_max_iterations == 25
+        assert result.constraint_init_tolerance == pytest.approx(1e-8)
 
     def test_backward_euler_solver_parameters(self):
         """Test setting and getting Backward Euler solver parameters."""
@@ -419,6 +425,113 @@ class TestSolverParameters:
                                   "D": [1.0], "E": [0.0], "F": [1.0]})
         state.set_conditions(temperatures=298.15, pressures=101325.0)
         result = solver.solve(state, 60.0)
+
+
+class TestDAESolvers:
+    """Test DAE Rosenbrock solver types."""
+
+    @pytest.mark.parametrize("solver_type", [
+        SolverType.rosenbrock_dae4_standard_order,
+        SolverType.rosenbrock_dae6_standard_order,
+    ])
+    def test_dae_solver_creation(self, solver_type):
+        """Test creating MICM with DAE solver types."""
+        micm = MICM(
+            config_path=find_config_path("v0", "analytical"),
+            solver_type=solver_type,
+        )
+        assert micm.solver_type() == solver_type
+
+    @pytest.mark.parametrize("solver_type", [
+        SolverType.rosenbrock_dae4_standard_order,
+        SolverType.rosenbrock_dae6_standard_order,
+    ])
+    def test_dae_solver_solve(self, solver_type):
+        """Test solving with DAE solver types."""
+        micm = MICM(
+            config_path=find_config_path("v0", "analytical"),
+            solver_type=solver_type,
+        )
+        state = micm.create_state()
+        state.set_conditions(temperatures=298.15, pressures=101325.0, air_densities=1.2)
+        state.set_concentrations({"A": 1.0, "B": 0.0, "C": 0.5})
+        state.set_user_defined_rate_parameters({
+            "USER.reaction 1": 0.001,
+            "USER.reaction 2": 0.002,
+        })
+        result = micm.solve(state, time_step=1.0)
+        assert isinstance(result, SolverResult)
+        assert result.state == SolverState.Converged
+
+    @pytest.mark.parametrize("solver_type", [
+        SolverType.rosenbrock_dae4_standard_order,
+        SolverType.rosenbrock_dae6_standard_order,
+    ])
+    def test_dae_solver_with_mechanism(self, solver_type):
+        """Test DAE solvers with mechanism-based initialization."""
+        mechanism = create_simple_mechanism()
+        micm = MICM(mechanism=mechanism, solver_type=solver_type)
+        state = micm.create_state()
+        state.set_conditions(temperatures=298.15, pressures=101325.0, air_densities=1.2)
+        state.set_concentrations({"A": 1.0, "B": 0.0, "C": 0.0})
+        result = micm.solve(state, time_step=1.0)
+        assert isinstance(result, SolverResult)
+
+    @pytest.mark.parametrize("solver_type", [
+        SolverType.rosenbrock_dae4_standard_order,
+        SolverType.rosenbrock_dae6_standard_order,
+    ])
+    def test_dae_solver_constraint_init_parameters(self, solver_type):
+        """Test setting and getting constraint init parameters on DAE solvers."""
+        params = RosenbrockSolverParameters(
+            constraint_init_max_iterations=50,
+            constraint_init_tolerance=1e-12,
+        )
+        micm = MICM(
+            config_path=find_config_path("v0", "analytical"),
+            solver_type=solver_type,
+            solver_parameters=params,
+        )
+        result = micm.get_solver_parameters()
+        assert isinstance(result, RosenbrockSolverParameters)
+        assert result.constraint_init_max_iterations == 50
+        assert result.constraint_init_tolerance == pytest.approx(1e-12)
+
+    @pytest.mark.parametrize("solver_type", [
+        SolverType.rosenbrock_dae4_standard_order,
+        SolverType.rosenbrock_dae6_standard_order,
+    ])
+    def test_dae_solver_multiple_grid_cells(self, solver_type):
+        """Test DAE solvers with multiple grid cells."""
+        micm = MICM(
+            config_path=find_config_path("v0", "analytical"),
+            solver_type=solver_type,
+        )
+        num_cells = 3
+        state = micm.create_state(number_of_grid_cells=num_cells)
+        state.set_conditions(
+            temperatures=[298.15] * num_cells,
+            pressures=[101325.0] * num_cells,
+        )
+        state.set_concentrations({
+            "A": [1.0] * num_cells,
+            "B": [0.0] * num_cells,
+        })
+        state.set_user_defined_rate_parameters({
+            "USER.reaction 1": [0.001] * num_cells,
+            "USER.reaction 2": [0.002] * num_cells,
+        })
+        result = micm.solve(state, time_step=1.0)
+        assert isinstance(result, SolverResult)
+
+    def test_dae_solver_wrong_param_type_raises(self):
+        """Test that setting BackwardEuler params on a DAE solver raises."""
+        micm = MICM(
+            config_path=find_config_path("v0", "analytical"),
+            solver_type=SolverType.rosenbrock_dae4_standard_order,
+        )
+        with pytest.raises(Exception):
+            micm.set_solver_parameters(BackwardEulerSolverParameters())
 
 
 if __name__ == '__main__':

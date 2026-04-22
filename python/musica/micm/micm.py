@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
-from typing import Union, Any, TYPE_CHECKING, Optional
+from typing import Union, Any, List, TYPE_CHECKING, Optional
 from os import PathLike
 
 from .state import State
@@ -60,6 +60,7 @@ class MICM():
         mechanism: Mechanism = None,
         solver_type: Any = None,
         solver_parameters: Optional[Union[RosenbrockSolverParameters, BackwardEulerSolverParameters]] = None,
+        external_models: Optional[List[Any]] = None,
     ):
         """    Initialize the MICM solver.
 
@@ -74,6 +75,8 @@ class MICM():
                 Type of solver to use. If not provided, the default Rosenbrock (with standard-ordered matrices) solver type will be used.
             solver_parameters : RosenbrockSolverParameters or BackwardEulerSolverParameters, optional
                 Solver-specific parameters. Must match the solver type.
+            external_models : list, optional
+                External models (e.g. musica.miam.Model) to attach to the solver.
         """
         if solver_type is None:
             solver_type = SolverType.rosenbrock_standard_order
@@ -87,10 +90,23 @@ class MICM():
         if config_path is not None and mechanism is not None:
             raise ValueError(
                 "Only one of config_path or mechanism must be provided.")
+
+        self._external_models = external_models or []
+
         if config_path is not None:
+            if self._external_models:
+                raise ValueError(
+                    "external_models cannot be used with config_path; use mechanism instead.")
             self.__solver = create_solver(config_path, solver_type)
         elif mechanism is not None:
-            self.__solver = create_solver_from_mechanism(_unwrap(mechanism), solver_type)
+            if self._external_models:
+                miam_model = self._external_models[0]
+                miam_config = miam_model._to_config()
+                create_solver_with_miam = _backend._miam._create_solver_with_miam
+                self.__solver = create_solver_with_miam(
+                    _unwrap(mechanism), solver_type, miam_config)
+            else:
+                self.__solver = create_solver_from_mechanism(_unwrap(mechanism), solver_type)
         if solver_parameters is not None:
             self.set_solver_parameters(solver_parameters)
 
@@ -168,6 +184,8 @@ class MICM():
             cpp_params.h_max = params.h_max
             cpp_params.h_start = params.h_start
             cpp_params.max_number_of_steps = params.max_number_of_steps
+            cpp_params.constraint_init_max_iterations = params.constraint_init_max_iterations
+            cpp_params.constraint_init_tolerance = params.constraint_init_tolerance
             _set_rosenbrock_params(self.__solver, cpp_params)
         elif isinstance(params, BackwardEulerSolverParameters):
             cpp_params = _CppBackwardEulerParams()
@@ -193,7 +211,14 @@ class MICM():
             The current solver parameters, depending on the solver type.
         """
         solver_type = self.__solver_type
-        if solver_type in (SolverType.rosenbrock, SolverType.rosenbrock_standard_order):
+        if solver_type in (
+            SolverType.rosenbrock,
+            SolverType.rosenbrock_standard_order,
+            SolverType.rosenbrock_dae4,
+            SolverType.rosenbrock_dae4_standard_order,
+            SolverType.rosenbrock_dae6,
+            SolverType.rosenbrock_dae6_standard_order,
+        ):
             cpp_params = _get_rosenbrock_params(self.__solver)
             return RosenbrockSolverParameters(
                 relative_tolerance=cpp_params.relative_tolerance,
@@ -202,6 +227,8 @@ class MICM():
                 h_max=cpp_params.h_max,
                 h_start=cpp_params.h_start,
                 max_number_of_steps=cpp_params.max_number_of_steps,
+                constraint_init_max_iterations=cpp_params.constraint_init_max_iterations,
+                constraint_init_tolerance=cpp_params.constraint_init_tolerance,
             )
         elif solver_type in (SolverType.backward_euler, SolverType.backward_euler_standard_order):
             cpp_params = _get_backward_euler_params(self.__solver)

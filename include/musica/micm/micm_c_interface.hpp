@@ -110,6 +110,8 @@ namespace musica
       double h_max;
       double h_start;
       size_t max_number_of_steps;
+      size_t constraint_init_max_iterations;
+      double constraint_init_tolerance;
     } RosenbrockSolverParametersC;
 
     /// @brief C-compatible struct for Backward Euler solver parameters

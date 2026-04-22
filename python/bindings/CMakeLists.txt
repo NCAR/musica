@@ -34,6 +34,12 @@ if (MUSICA_ENABLE_CARMA)
   )
 endif()
 
+if (MUSICA_ENABLE_MIAM)
+  target_sources(_musica PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/miam/miam.cpp
+  )
+endif()
+
 
 # Link against the musica library (instead of compiling sources directly)
 target_link_libraries(_musica PRIVATE musica::musica)
@@ -95,7 +101,9 @@ else(MUSICA_BUILD_SHARED_LIBS)
   # This is needed when building from source (not using prebuilt)
   install(TARGETS musica LIBRARY DESTINATION musica)
   install(TARGETS mechanism_configuration LIBRARY DESTINATION musica)
-  install(TARGETS yaml-cpp LIBRARY DESTINATION musica)
+  if(TARGET yaml-cpp)
+    install(TARGETS yaml-cpp LIBRARY DESTINATION musica)
+  endif()
   if(TARGET musica_cuda)
     install(TARGETS musica_cuda LIBRARY DESTINATION musica)
   endif()

@@ -19,3 +19,7 @@ endif()
 if (MUSICA_ENABLE_CARMA)
   add_subdirectory(carma)
 endif()
+
+if (MUSICA_ENABLE_MIAM)
+  add_subdirectory(miam)
+endif()

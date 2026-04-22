@@ -73,7 +73,7 @@ endif()
 
 if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(MICM_GIT_REPOSITORY https://github.com/NCAR/micm.git)
-  set_git_default(MICM_GIT_TAG 67f43700102d1e38640b8346dad359e372602dd5)
+  set_git_default(MICM_GIT_TAG 7e46f9b2f9b968b56cebb6f1272005409b30df3d)
 
   FetchContent_Declare(micm
       GIT_REPOSITORY ${MICM_GIT_REPOSITORY}
@@ -91,6 +91,26 @@ if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBU
   endif()
 
   FetchContent_MakeAvailable(micm)
+endif()
+
+################################################################################
+# MIAM
+# Skip if using prebuilt musica (already includes miam)
+
+if (MUSICA_ENABLE_MIAM AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
+  set_git_default(MIAM_GIT_REPOSITORY https://github.com/NCAR/miam.git)
+  set_git_default(MIAM_GIT_TAG 6dfc564c4d8224fa1e9c2e62f6847be869b2f35f)
+
+  FetchContent_Declare(miam
+      GIT_REPOSITORY ${MIAM_GIT_REPOSITORY}
+      GIT_TAG ${MIAM_GIT_TAG}
+      GIT_PROGRESS NOT ${FETCHCONTENT_QUIET}
+      FIND_PACKAGE_ARGS NAMES miam
+  )
+
+  set(MIAM_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
+
+  FetchContent_MakeAvailable(miam)
 endif()
 
 ################################################################################

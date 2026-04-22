@@ -36,4 +36,9 @@ void bind_all(py::module_ &m)
 #ifdef MUSICA_USE_CARMA
   bind_carma(carma);
 #endif
+
+#ifdef MUSICA_USE_MIAM
+  py::module_ miam = m.def_submodule("_miam", "Wrapper classes for MIAM aerosol/cloud model");
+  bind_miam(miam);
+#endif
 }

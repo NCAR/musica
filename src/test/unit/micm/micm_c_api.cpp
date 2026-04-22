@@ -589,6 +589,88 @@ TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingStandardOrderedBackwardEu
   }
 }
 
+// Test case for solving using vector-ordered 4-stage DAE Rosenbrock solver
+TEST_F(MicmCApiTestFixture, SolveUsingVectorOrderedRosenbrockDAE4)
+{
+  constexpr double time_step = 200.0;
+  constexpr double test_accuracy = 5.0e-3;
+  const char* config_path = "configs/v0/analytical";
+  Error error;
+  DeleteMicm(micm, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  micm = CreateMicm(config_path, MICMSolver::RosenbrockDAE4, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  size_t const max_cells = GetMaximumNumberOfGridCells(micm);
+  ASSERT_GT(max_cells, 0);
+  for (int num_grid_cells = 1; num_grid_cells <= max_cells * 3;
+       num_grid_cells += static_cast<int>(std::floor(max_cells / 3)))
+  {
+    TestSolver(micm, num_grid_cells, time_step, test_accuracy);
+    DeleteError(&error);
+  }
+}
+
+// Test case for solving using standard-ordered 4-stage DAE Rosenbrock solver
+TEST_F(MicmCApiTestFixture, SolveUsingStandardOrderedRosenbrockDAE4)
+{
+  constexpr double time_step = 200.0;
+  constexpr double test_accuracy = 5.0e-3;
+  const char* config_path = "configs/v0/analytical";
+  Error error;
+  DeleteMicm(micm, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  micm = CreateMicm(config_path, MICMSolver::RosenbrockDAE4StandardOrder, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  size_t const max_cells = GetMaximumNumberOfGridCells(micm);
+  ASSERT_GT(max_cells, 1e8);
+  for (int num_grid_cells = 1; num_grid_cells <= 20; num_grid_cells += 5)
+  {
+    TestSolver(micm, num_grid_cells, time_step, test_accuracy);
+    DeleteError(&error);
+  }
+}
+
+// Test case for solving using vector-ordered 6-stage DAE Rosenbrock solver
+TEST_F(MicmCApiTestFixture, SolveUsingVectorOrderedRosenbrockDAE6)
+{
+  constexpr double time_step = 200.0;
+  constexpr double test_accuracy = 5.0e-3;
+  const char* config_path = "configs/v0/analytical";
+  Error error;
+  DeleteMicm(micm, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  micm = CreateMicm(config_path, MICMSolver::RosenbrockDAE6, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  size_t const max_cells = GetMaximumNumberOfGridCells(micm);
+  ASSERT_GT(max_cells, 0);
+  for (int num_grid_cells = 1; num_grid_cells <= max_cells * 3;
+       num_grid_cells += static_cast<int>(std::floor(max_cells / 3)))
+  {
+    TestSolver(micm, num_grid_cells, time_step, test_accuracy);
+    DeleteError(&error);
+  }
+}
+
+// Test case for solving using standard-ordered 6-stage DAE Rosenbrock solver
+TEST_F(MicmCApiTestFixture, SolveUsingStandardOrderedRosenbrockDAE6)
+{
+  constexpr double time_step = 200.0;
+  constexpr double test_accuracy = 5.0e-3;
+  const char* config_path = "configs/v0/analytical";
+  Error error;
+  DeleteMicm(micm, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  micm = CreateMicm(config_path, MICMSolver::RosenbrockDAE6StandardOrder, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  size_t const max_cells = GetMaximumNumberOfGridCells(micm);
+  ASSERT_GT(max_cells, 1e8);
+  for (int num_grid_cells = 1; num_grid_cells <= 20; num_grid_cells += 5)
+  {
+    TestSolver(micm, num_grid_cells, time_step, test_accuracy);
+    DeleteError(&error);
+  }
+}
+
 // Test case for getting species properties
 TEST_F(MicmCApiTestFixture, GetSpeciesProperty)
 {
