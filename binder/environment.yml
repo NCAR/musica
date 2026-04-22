@@ -6,8 +6,16 @@ dependencies:
   - ipykernel
   - ipycytoscape
   - pip
-  - pip:
+  # - pip:
     # Installs a specific released version from PyPI.
     # - musica[tutorial]==0.15.0
-    # Pin to a specific commit that includes updates in mechanism-configuration reactants/products interface
+  # Dependencies for building musica from source
+  - compilers
+  - cmake>=3.24       # Build system
+  - pkg-config        # To find libraries
+  - libnetcdf         # NetCDF C library (for TUVX & CARMA)
+  - netcdf-fortran    # NetCDF Fortran library (for TUVX & CARMA)
+  - libblas           # Linear algebra (for CARMA)
+  - liblapack         # Linear algebra (for CARMA)
+      # Pin to a specific commit that includes updates in mechanism-configuration reactants/products interface
     - git+https://github.com/NCAR/musica.git@6b4b5b4d1e7eb0a37d1a1faae2af3efa5dfb45d5#egg=musica[tutorial]
