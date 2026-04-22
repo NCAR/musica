@@ -4,6 +4,7 @@
 #include "error.hpp"
 
 #include <musica/error.hpp>
+
 #include <stdexcept>
 
 void handle_error(musica::Error& error, const std::string& context_message)
@@ -28,18 +29,16 @@ void handle_error(musica::Error& error, const std::string& context_message)
 
   switch (severity)
   {
-    case MUSICA_SEVERITY_INFO:
-      return;
+    case MUSICA_SEVERITY_INFO: return;
     case MUSICA_SEVERITY_WARNING:
       // Issue warnings.warn() but don't throw
       // If PyErr_WarnEx returns -1 and sets an exception
-      if (PyErr_WarnEx(PyExc_UserWarning, full_message.c_str(), 1) == -1) 
-      { 
+      if (PyErr_WarnEx(PyExc_UserWarning, full_message.c_str(), 1) == -1)
+      {
         throw py::error_already_set();
       }
       return;
-    case MUSICA_SEVERITY_ERROR:
-      throw py::value_error(full_message);
+    case MUSICA_SEVERITY_ERROR: throw py::value_error(full_message);
     case MUSICA_SEVERITY_CRITICAL:
       // Using the pybind11 wrapper for RuntimeError
       throw std::runtime_error(full_message);
