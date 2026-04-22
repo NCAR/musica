@@ -18,4 +18,4 @@ dependencies:
   - libblas           # Linear algebra (for CARMA)
   - liblapack         # Linear algebra (for CARMA)
       # Pin to a specific commit that includes updates in mechanism-configuration reactants/products interface
-    - git+https://github.com/NCAR/musica.git@6b4b5b4d1e7eb0a37d1a1faae2af3efa5dfb45d5#egg=musica[tutorial]
+  - git+https://github.com/NCAR/musica.git@6b4b5b4d1e7eb0a37d1a1faae2af3efa5dfb45d5#egg=musica[tutorial]
