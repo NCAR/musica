@@ -30,8 +30,6 @@ namespace musica
   void NoError(Error* error)
   {
     DeleteError(error);
-    error->code_ = MUSICA_STATUS_SUCCESS;
-    error->severity_ = MUSICA_SEVERITY_INFO;
     CreateString("", &error->category_);
     CreateString("Success", &error->message_);
   }
@@ -82,6 +80,8 @@ namespace musica
 
   void DeleteError(Error* error)
   {
+    error->code_ = MUSICA_STATUS_SUCCESS;
+    error->severity_ = MUSICA_SEVERITY_INFO;
     DeleteString(&(error->category_));
     DeleteString(&(error->message_));
   }

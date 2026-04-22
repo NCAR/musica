@@ -8,6 +8,7 @@ target_sources(_musica PRIVATE
   cpu.cpp
   common.cpp
   cuda.cpp
+  error.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/mechanism_configuration/mechanism_configuration.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/micm/conditions.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/micm/micm.cpp
@@ -94,7 +95,9 @@ else(MUSICA_BUILD_SHARED_LIBS)
   # This is needed when building from source (not using prebuilt)
   install(TARGETS musica LIBRARY DESTINATION musica)
   install(TARGETS mechanism_configuration LIBRARY DESTINATION musica)
-  install(TARGETS yaml-cpp LIBRARY DESTINATION musica)
+  if(TARGET yaml-cpp)
+    install(TARGETS yaml-cpp LIBRARY DESTINATION musica)
+  endif()
   if(TARGET musica_cuda)
     install(TARGETS musica_cuda LIBRARY DESTINATION musica)
   endif()
