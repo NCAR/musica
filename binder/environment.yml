@@ -16,6 +16,7 @@ dependencies:
   - libblas
   - liblapack
   - yaml-cpp
+  - pybind11
 
 
 
