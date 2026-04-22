@@ -5,6 +5,7 @@ dependencies:
   - python>=3.10
   - ipykernel
   - ipycytoscape
+  - graphviz
   - pip
   # Dependencies for building musica from source
   - compilers
@@ -16,7 +17,6 @@ dependencies:
   - libblas
   - liblapack
   - yaml-cpp
-  - pybind11
 
 
 
