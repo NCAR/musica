@@ -43,8 +43,8 @@ void bind_micm(py::module_& micm)
       {
         musica::Error error;
         musica::MICM* micm = musica::CreateMicm(config_path, solver_type, &error);
-        std::string context = "Error creating solver (type: " + musica::ToString(solver_type) + 
-                             ", config: " + std::string(config_path) + ")";
+        std::string context =
+            "Error creating solver (type: " + musica::ToString(solver_type) + ", config: " + std::string(config_path) + ")";
         handle_error(error, context);
 
         return std::shared_ptr<musica::MICM>(
