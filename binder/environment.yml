@@ -15,6 +15,7 @@ dependencies:
   - netcdf-fortran
   - libblas
   - liblapack
+  - yaml-cpp
 
 
 
