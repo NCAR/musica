@@ -12,7 +12,7 @@
 [![PyPI version](https://badge.fury.io/py/musica.svg)](https://pypi.org/p/musica)
 [![FAIR checklist badge](https://fairsoftwarechecklist.net/badge.svg)](https://fairsoftwarechecklist.net/v0.2?f=31&a=32113&i=22322&r=123)
 [![codecov](https://codecov.io/gh/NCAR/musica/branch/main/graph/badge.svg)](https://codecov.io/gh/NCAR/musica)
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/NCAR/musica/release?filepath=tutorials)
 
 
 Multi-Scale Infrastructure for Chemistry and Aerosols
@@ -112,7 +112,7 @@ MUSICA automatically downloads and builds additional dependencies (pybind11, goo
 ## Official Documentation
 
 - [Full Documentation](https://ncar.github.io/musica/index.html) - Complete API reference, tutorials, and guides
-- [Interactive Tutorials](https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials) - Try MUSICA in your browser via Binder
+- [Interactive Tutorials](https://mybinder.org/v2/gh/NCAR/musica/release?filepath=tutorials) - Try MUSICA in your browser via Binder
 - [MUSICA Wiki](https://wiki.ucar.edu/display/MUSICA/MUSICA+Home) - Additional resources and community information
 
 
