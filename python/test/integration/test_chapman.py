@@ -102,7 +102,7 @@ def GetMechanism():
         name="",
         A=1.576e-15,
         reactants=[O, O3],
-        products=[(2, O2)],
+        products=[(O2, 2)],
     )
     R6 = mc.Arrhenius(
         name="R6",
@@ -114,12 +114,12 @@ def GetMechanism():
         name="R7",
         A=1.2e-10,
         reactants=[O1D, O3],
-        products=[(2, O2)],
+        products=[(O2, 2)],
     )
     jO2 = mc.Photolysis(
         name="jo2_b",
         reactants=[O2],
-        products=[(2, O)],
+        products=[(O, 2)],
     )
     jO31 = mc.Photolysis(
         name="jo3_a",

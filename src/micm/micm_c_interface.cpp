@@ -18,15 +18,15 @@ namespace musica
     }
     catch (const std::system_error& e)
     {
-      ToError(e, MUSICA_SEVERITY_ERR, error);
+      ToError(e, MUSICA_SEVERITY_ERROR, error);
     }
     catch (const std::exception& e)
     {
-      ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, e.what(), MUSICA_SEVERITY_ERR, error);
+      ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, e.what(), MUSICA_SEVERITY_ERROR, error);
     }
     catch (...)
     {
-      ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, "Unknown error", MUSICA_SEVERITY_CRIT, error);
+      ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, "Unknown error", MUSICA_SEVERITY_CRITICAL, error);
     }
     return decltype(func())();
   }

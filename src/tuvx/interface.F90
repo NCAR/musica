@@ -222,7 +222,7 @@ contains
       photolysis_rate_constant_ordering, error_code) &
       bind(C, name="InternalGetPhotolysisRateConstantsOrdering")
       use iso_c_binding, only: c_ptr, c_f_pointer, c_int
-      use tuvx_interface_util, only: create_string_t_c, mappings_t_c, &
+      use musica_util, only: create_string_t_c, mappings_t_c, &
          mapping_t_c, allocate_mappings_c
 
       ! arguments
@@ -260,7 +260,7 @@ contains
       heating_rates_ordering, error_code) &
       bind(C, name="InternalGetHeatingRatesOrdering")
       use iso_c_binding, only: c_ptr, c_f_pointer, c_int
-      use tuvx_interface_util, only: create_string_t_c, mappings_t_c, &
+      use musica_util, only: create_string_t_c, mappings_t_c, &
          mapping_t_c, allocate_mappings_c
 
       ! arguments
@@ -298,7 +298,7 @@ contains
       dose_rates_ordering, error_code) &
       bind(C, name="InternalGetDoseRatesOrdering")
       use iso_c_binding, only: c_ptr, c_f_pointer, c_int
-      use tuvx_interface_util, only: create_string_t_c, mappings_t_c, &
+      use musica_util, only: create_string_t_c, mappings_t_c, &
          mapping_t_c, allocate_mappings_c
 
       ! arguments

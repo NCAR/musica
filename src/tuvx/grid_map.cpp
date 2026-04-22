@@ -54,7 +54,7 @@ namespace musica
     }
     catch (const std::system_error &e)
     {
-      ToError(e, MUSICA_SEVERITY_ERR, error);
+      ToError(e, MUSICA_SEVERITY_ERROR, error);
       return;
     }
     NoError(error);
@@ -104,7 +104,7 @@ namespace musica
     grid_map_ = InternalCreateGridMap(&error_code);
     if (error_code != 0)
     {
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERR, error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return;
     }
     owns_grid_map_ = true;
@@ -130,7 +130,7 @@ namespace musica
           MUSICA_ERROR_CATEGORY,
           ERROR_UNALLOCATED_GRID_MAP,
           GetErrorMessage(ERROR_UNALLOCATED_GRID_MAP),
-          MUSICA_SEVERITY_CRIT,
+          MUSICA_SEVERITY_CRITICAL,
           error);
       return;
     }
@@ -140,7 +140,7 @@ namespace musica
           MUSICA_ERROR_CATEGORY,
           ERROR_UNALLOCATED_GRID,
           GetErrorMessage(ERROR_UNALLOCATED_GRID),
-          MUSICA_SEVERITY_CRIT,
+          MUSICA_SEVERITY_CRITICAL,
           error);
       return;
     }
@@ -150,7 +150,7 @@ namespace musica
           MUSICA_ERROR_CATEGORY,
           ERROR_UNALLOCATED_GRID_UPDATER,
           GetErrorMessage(ERROR_UNALLOCATED_GRID_UPDATER),
-          MUSICA_SEVERITY_CRIT,
+          MUSICA_SEVERITY_CRITICAL,
           error);
       return;
     }
@@ -162,25 +162,25 @@ namespace musica
       InternalAddGrid(grid_map_, grid->grid_, &error_code);
       if (error_code != 0)
       {
-        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERR, error);
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
         return;
       }
       InternalDeleteGridUpdater(grid->updater_, &error_code);
       if (error_code != 0)
       {
-        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERR, error);
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
         return;
       }
       grid->updater_ = InternalGetGridUpdaterFromMap(grid_map_, grid->grid_, &error_code);
       if (error_code != 0)
       {
-        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERR, error);
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
         return;
       }
       InternalDeleteGrid(grid->grid_, &error_code);
       if (error_code != 0)
       {
-        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERR, error);
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
         InternalDeleteGridUpdater(grid->updater_, &error_code);
         grid->updater_ = nullptr;
         return;
@@ -189,7 +189,7 @@ namespace musica
     }
     catch (const std::system_error &e)
     {
-      ToError(e, MUSICA_SEVERITY_ERR, error);
+      ToError(e, MUSICA_SEVERITY_ERROR, error);
       return;
     }
     catch (...)
@@ -198,7 +198,7 @@ namespace musica
           MUSICA_ERROR_CATEGORY,
           INTERNAL_GRID_MAP_ERROR,
           GetErrorMessage(INTERNAL_GRID_MAP_ERROR),
-          MUSICA_SEVERITY_CRIT,
+          MUSICA_SEVERITY_CRITICAL,
           error);
       return;
     }
@@ -213,7 +213,7 @@ namespace musica
           MUSICA_ERROR_CATEGORY,
           ERROR_UNALLOCATED_GRID_MAP,
           GetErrorMessage(ERROR_UNALLOCATED_GRID_MAP),
-          MUSICA_SEVERITY_CRIT,
+          MUSICA_SEVERITY_CRITICAL,
           error);
       return nullptr;
     }
@@ -226,20 +226,20 @@ namespace musica
       void *grid_ptr = InternalGetGrid(grid_map_, grid_name, strlen(grid_name), grid_units, strlen(grid_units), &error_code);
       if (error_code != 0)
       {
-        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERR, error);
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
         return nullptr;
       }
       void *updater_ptr = InternalGetGridUpdaterFromMap(grid_map_, grid_ptr, &error_code);
       if (error_code != 0)
       {
-        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERR, error);
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
         InternalDeleteGrid(grid_ptr, &error_code);
         return nullptr;
       }
       InternalDeleteGrid(grid_ptr, &error_code);
       if (error_code != 0)
       {
-        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERR, error);
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
         InternalDeleteGridUpdater(updater_ptr, &error_code);
         return nullptr;
       }
@@ -247,7 +247,7 @@ namespace musica
     }
     catch (const std::system_error &e)
     {
-      ToError(e, MUSICA_SEVERITY_ERR, error);
+      ToError(e, MUSICA_SEVERITY_ERROR, error);
       return nullptr;
     }
     catch (...)
@@ -256,7 +256,7 @@ namespace musica
           MUSICA_ERROR_CATEGORY,
           INTERNAL_GRID_MAP_ERROR,
           GetErrorMessage(INTERNAL_GRID_MAP_ERROR),
-          MUSICA_SEVERITY_CRIT,
+          MUSICA_SEVERITY_CRITICAL,
           error);
       return nullptr;
     }
@@ -272,7 +272,7 @@ namespace musica
           MUSICA_ERROR_CATEGORY,
           ERROR_UNALLOCATED_GRID_MAP,
           GetErrorMessage(ERROR_UNALLOCATED_GRID_MAP),
-          MUSICA_SEVERITY_CRIT,
+          MUSICA_SEVERITY_CRITICAL,
           error);
       return nullptr;
     }
@@ -285,20 +285,20 @@ namespace musica
       void *grid_ptr = InternalGetGridByIndex(grid_map_, index, &error_code);
       if (error_code != 0)
       {
-        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERR, error);
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
         return nullptr;
       }
       void *updater_ptr = InternalGetGridUpdaterFromMap(grid_map_, grid_ptr, &error_code);
       if (error_code != 0)
       {
-        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERR, error);
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
         InternalDeleteGrid(grid_ptr, &error_code);
         return nullptr;
       }
       InternalDeleteGrid(grid_ptr, &error_code);
       if (error_code != 0)
       {
-        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERR, error);
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
         InternalDeleteGridUpdater(updater_ptr, &error_code);
         return nullptr;
       }
@@ -306,7 +306,7 @@ namespace musica
     }
     catch (const std::system_error &e)
     {
-      ToError(e, MUSICA_SEVERITY_ERR, error);
+      ToError(e, MUSICA_SEVERITY_ERROR, error);
       return nullptr;
     }
     catch (...)
@@ -315,7 +315,7 @@ namespace musica
           MUSICA_ERROR_CATEGORY,
           INTERNAL_GRID_MAP_ERROR,
           GetErrorMessage(INTERNAL_GRID_MAP_ERROR),
-          MUSICA_SEVERITY_CRIT,
+          MUSICA_SEVERITY_CRITICAL,
           error);
       return nullptr;
     }
@@ -331,7 +331,7 @@ namespace musica
           MUSICA_ERROR_CATEGORY,
           ERROR_UNALLOCATED_GRID_MAP,
           GetErrorMessage(ERROR_UNALLOCATED_GRID_MAP),
-          MUSICA_SEVERITY_CRIT,
+          MUSICA_SEVERITY_CRITICAL,
           error);
       return 0;
     }
@@ -344,13 +344,13 @@ namespace musica
       n_grids = InternalGetNumberOfGrids(grid_map_, &error_code);
       if (error_code != 0)
       {
-        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERR, error);
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
         return 0;
       }
     }
     catch (const std::system_error &e)
     {
-      ToError(e, MUSICA_SEVERITY_ERR, error);
+      ToError(e, MUSICA_SEVERITY_ERROR, error);
       return 0;
     }
     catch (...)
@@ -359,7 +359,7 @@ namespace musica
           MUSICA_ERROR_CATEGORY,
           INTERNAL_GRID_MAP_ERROR,
           GetErrorMessage(INTERNAL_GRID_MAP_ERROR),
-          MUSICA_SEVERITY_CRIT,
+          MUSICA_SEVERITY_CRITICAL,
           error);
       return 0;
     }
@@ -375,7 +375,7 @@ namespace musica
           MUSICA_ERROR_CATEGORY,
           ERROR_UNALLOCATED_GRID_MAP,
           GetErrorMessage(ERROR_UNALLOCATED_GRID_MAP),
-          MUSICA_SEVERITY_CRIT,
+          MUSICA_SEVERITY_CRITICAL,
           error);
       return;
     }
@@ -386,13 +386,13 @@ namespace musica
       InternalRemoveGrid(grid_map_, grid_name, strlen(grid_name), grid_units, strlen(grid_units), &error_code);
       if (error_code != 0)
       {
-        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERR, error);
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
         return;
       }
     }
     catch (const std::system_error &e)
     {
-      ToError(e, MUSICA_SEVERITY_ERR, error);
+      ToError(e, MUSICA_SEVERITY_ERROR, error);
       return;
     }
     catch (...)
@@ -401,7 +401,7 @@ namespace musica
           MUSICA_ERROR_CATEGORY,
           INTERNAL_GRID_MAP_ERROR,
           GetErrorMessage(INTERNAL_GRID_MAP_ERROR),
-          MUSICA_SEVERITY_CRIT,
+          MUSICA_SEVERITY_CRITICAL,
           error);
       return;
     }
@@ -416,7 +416,7 @@ namespace musica
           MUSICA_ERROR_CATEGORY,
           ERROR_UNALLOCATED_GRID_MAP,
           GetErrorMessage(ERROR_UNALLOCATED_GRID_MAP),
-          MUSICA_SEVERITY_CRIT,
+          MUSICA_SEVERITY_CRITICAL,
           error);
       return;
     }
@@ -427,13 +427,13 @@ namespace musica
       InternalRemoveGridByIndex(grid_map_, index, &error_code);
       if (error_code != 0)
       {
-        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERR, error);
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
         return;
       }
     }
     catch (const std::system_error &e)
     {
-      ToError(e, MUSICA_SEVERITY_ERR, error);
+      ToError(e, MUSICA_SEVERITY_ERROR, error);
       return;
     }
     catch (...)
@@ -442,7 +442,7 @@ namespace musica
           MUSICA_ERROR_CATEGORY,
           INTERNAL_GRID_MAP_ERROR,
           GetErrorMessage(INTERNAL_GRID_MAP_ERROR),
-          MUSICA_SEVERITY_CRIT,
+          MUSICA_SEVERITY_CRITICAL,
           error);
       return;
     }

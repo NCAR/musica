@@ -31,7 +31,7 @@ void bind_tuvx_grid_map(py::module& m)
           {
             musica::Error error;
             self.AddGrid(grid, &error);
-            if (error.code_ != 0)
+            if (error.code_ != MUSICA_STATUS_SUCCESS)
             {
               std::string message = "Error adding grid: " + std::string(error.message_.value_);
               musica::DeleteError(&error);

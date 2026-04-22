@@ -3,6 +3,8 @@
 !
 module musica_util
 
+#include "musica/error.hpp"
+
    use iso_c_binding,                   only: c_char, c_int, c_ptr, c_size_t, &
       c_null_ptr, c_f_pointer
    use iso_fortran_env,                 only: real32, real64
@@ -10,11 +12,18 @@ module musica_util
    implicit none
    private
 
-   public :: string_t_c, string_t, error_t_c, error_t, configuration_t, &
-      mapping_t_c, mapping_t, mappings_t_c, mappings_t, index_mappings_t, &
-      to_c_string, to_f_string, assert, copy_mappings, delete_string_c, &
-      create_string_c, musica_rk, musica_dk, find_mapping_index, &
-      MUSICA_INDEX_MAPPINGS_UNDEFINED, MUSICA_INDEX_MAPPINGS_MAP_ANY, &
+   public :: string_t, string_t_c, &
+      create_string_c, create_string_t_c, delete_string_t_c, delete_string_c, &
+      to_c_string, to_f_string,  &
+      error_t, error_t_c, &
+      mapping_t, mapping_t_c, mappings_t, mappings_t_c, &
+      index_mappings_t, find_mapping_index, &
+      allocate_mappings_c, copy_mappings, &
+      configuration_t, &
+      assert, &
+      musica_rk, musica_dk, &
+      MUSICA_INDEX_MAPPINGS_UNDEFINED, &
+      MUSICA_INDEX_MAPPINGS_MAP_ANY, &
       MUSICA_INDEX_MAPPINGS_MAP_ALL
 
    !> Single precision kind
@@ -47,7 +56,8 @@ module musica_util
 
    !> Wrapper for an c error condition
    type, bind(c) :: error_t_c
-      integer(c_int) :: code_ = 0_c_int
+      integer(c_int) :: code_ = MUSICA_STATUS_SUCCESS
+      integer(c_int) :: severity_ = MUSICA_SEVERITY_INFO
       type(string_t_c) :: category_
       type(string_t_c) :: message_
    end type error_t_c
@@ -56,10 +66,12 @@ module musica_util
    type :: error_t
       private
       integer :: code_
+      integer :: severity_
       type(string_t) :: category_
       type(string_t) :: message_
    contains
       procedure :: code => error_t_code
+      procedure :: severity => error_t_severity
       procedure :: category => error_t_category
       procedure :: message => error_t_message
       procedure :: is_success => error_t_is_success
@@ -256,6 +268,12 @@ module musica_util
          type(c_ptr),              value, intent(in) :: source
          type(c_ptr),              value, intent(in) :: target
       end subroutine copy_data_c
+
+      function allocate_mappings_c( size ) bind(c, name="AllocateMappingArray")
+         import :: c_size_t, c_ptr
+         integer(c_size_t), value, intent(in) :: size
+         type(c_ptr) :: allocate_mappings_c
+      end function allocate_mappings_c
    end interface
 
 contains
@@ -391,28 +409,32 @@ contains
       type(error_t) :: new_error
 
       new_error%code_ = int( c_error%code_ )
+      new_error%severity_ = int( c_error%severity_ )
       new_error%category_ = string_t( c_error%category_ )
       new_error%message_ = string_t( c_error%message_ )
+      c_error%code_ = MUSICA_STATUS_SUCCESS
+      c_error%severity_ = MUSICA_SEVERITY_INFO
       c_error%category_%ptr_ = c_null_ptr
       c_error%category_%size_ = 0_c_size_t
       c_error%message_%ptr_ = c_null_ptr
       c_error%message_%size_ = 0_c_size_t
-      c_error%code_ = 0_c_int
 
    end function error_t_constructor_from_error_t_c
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    !> Constructor for an error_t object from fortran data
-   function error_t_constructor_from_fortran( code, category, message ) &
+   function error_t_constructor_from_fortran( code, severity, category, message ) &
       result( new_error )
 
       integer, intent(in) :: code
+      integer, intent(in) :: severity
       character(len=*), intent(in) :: category
       character(len=*), intent(in) :: message
       type(error_t) :: new_error
 
       new_error%code_ = code
+      new_error%severity_ = severity
       new_error%category_ = category
       new_error%message_ = message
 
@@ -429,6 +451,18 @@ contains
       code = this%code_
 
    end function error_t_code
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   !> Get the error severity
+   function error_t_severity( this ) result( severity )
+
+      class(error_t), intent(in) :: this
+      integer :: severity
+
+      severity = this%severity_
+
+   end function error_t_severity
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -461,7 +495,7 @@ contains
 
       class(error_t), intent(in) :: this
 
-      is_success = this%code_ == 0
+      is_success = this%code_ == MUSICA_STATUS_SUCCESS
 
    end function error_t_is_success
 
@@ -856,6 +890,39 @@ contains
       c_string(N + 1) = c_null_char
 
    end function to_c_string
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   !> Creates a new string_t_c from a fortran character array
+   function create_string_t_c( f_string ) result( c_string )
+
+      character(len=*), intent(in) :: f_string
+      type(string_t_c) :: c_string
+
+      call create_string_c( to_c_string( f_string ), c_string )
+
+   end function create_string_t_c
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+   !> Delete a string_t_c object
+   subroutine delete_string_t_c( string )
+
+      use iso_c_binding,                 only : c_char, c_null_ptr, c_size_t, &
+         c_f_pointer, c_associated
+
+      type(string_t_c), intent(inout) :: string
+
+      character(kind=c_char, len=1), pointer :: c_string_ptr(:)
+
+      if ( c_associated( string%ptr_ ) ) then
+         call c_f_pointer( string%ptr_, c_string_ptr, [ string%size_ + 1 ] )
+         deallocate( c_string_ptr )
+         string%ptr_ = c_null_ptr
+         string%size_ = 0_c_size_t
+      end if
+
+   end subroutine delete_string_t_c
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
