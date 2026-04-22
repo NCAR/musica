@@ -17,12 +17,7 @@ void bind_tuvx_profile_map(py::module& m)
           {
             musica::Error error;
             auto profile_map_instance = new musica::ProfileMap(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error creating ProfileMap: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error creating ProfileMap");
             return profile_map_instance;
           }))
       .def(
@@ -31,13 +26,7 @@ void bind_tuvx_profile_map(py::module& m)
           {
             musica::Error error;
             self.AddProfile(profile, &error);
-            if (error.code_ != MUSICA_STATUS_SUCCESS)
-            {
-              std::string message = "Error adding profile: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw std::runtime_error(message);
-            }
-            DeleteError(&error);
+            handle_error(error, "Error adding profile");
           })
       .def(
           "get_profile",
@@ -45,13 +34,7 @@ void bind_tuvx_profile_map(py::module& m)
           {
             musica::Error error;
             musica::Profile* profile = self.GetProfile(name.c_str(), units.c_str(), &error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error("Error getting profile: " + message);
-            }
-            musica::DeleteError(&error);
+            handle_error(error, "Error getting profile");
             return profile;
           },
           py::return_value_policy::reference)
@@ -61,13 +44,7 @@ void bind_tuvx_profile_map(py::module& m)
           {
             musica::Error error;
             musica::Profile* profile = self.GetProfileByIndex(index, &error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error("Error getting profile by index: " + message);
-            }
-            musica::DeleteError(&error);
+            handle_error(error, "Error getting profile by index");
             return profile;
           },
           py::return_value_policy::reference)
@@ -77,13 +54,7 @@ void bind_tuvx_profile_map(py::module& m)
           {
             musica::Error error;
             self.RemoveProfile(name.c_str(), units.c_str(), &error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error("Error removing profile: " + message);
-            }
-            musica::DeleteError(&error);
+            handle_error(error, "Error removing profile");
           })
       .def(
           "remove_profile_by_index",
@@ -91,13 +62,7 @@ void bind_tuvx_profile_map(py::module& m)
           {
             musica::Error error;
             self.RemoveProfileByIndex(index, &error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error("Error removing profile by index: " + message);
-            }
-            musica::DeleteError(&error);
+            handle_error(error, "Error removing profile by index");
           })
       .def(
           "get_number_of_profiles",
@@ -105,13 +70,7 @@ void bind_tuvx_profile_map(py::module& m)
           {
             musica::Error error;
             std::size_t num_profiles = self.GetNumberOfProfiles(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error("Error getting number of profiles: " + message);
-            }
-            musica::DeleteError(&error);
+            handle_error(error, "Error getting number of profiles");
             return num_profiles;
           });
 }

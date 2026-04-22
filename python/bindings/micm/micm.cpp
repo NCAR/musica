@@ -43,14 +43,9 @@ void bind_micm(py::module_& micm)
       {
         musica::Error error;
         musica::MICM* micm = musica::CreateMicm(config_path, solver_type, &error);
-        if (!musica::IsSuccess(error))
-        {
-          std::cerr << "Error creating solver: " << error.message_.value_ << " solver_type: " << solver_type
-                    << " config_path: " << config_path << std::endl;
-          std::string message = "Error creating solver: " + std::string(error.message_.value_);
-          musica::DeleteError(&error);
-          throw py::value_error(message);
-        }
+        std::string context = "Error creating solver (type: " + musica::ToString(solver_type) + 
+                             ", config: " + std::string(config_path) + ")";
+        handle_error(error, context);
 
         return std::shared_ptr<musica::MICM>(
             micm,
@@ -73,12 +68,8 @@ void bind_micm(py::module_& micm)
         musica::Error error;
         musica::Chemistry chemistry = musica::ConvertV1Mechanism(mechanism);
         musica::MICM* micm = musica::CreateMicmFromChemistryMechanism(&chemistry, solver_type, &error);
-        if (!musica::IsSuccess(error))
-        {
-          std::string message = "Error creating solver: " + std::string(error.message_.value_);
-          musica::DeleteError(&error);
-          throw py::value_error(message);
-        }
+        std::string context = "Error creating solver from mechanism (type: " + musica::ToString(solver_type) + ")";
+        handle_error(error, context);
 
         return std::shared_ptr<musica::MICM>(
             micm,
@@ -100,12 +91,7 @@ void bind_micm(py::module_& micm)
       {
         musica::Error error;
         musica::State* state = musica::CreateMicmState(micm, number_of_grid_cells, &error);
-        if (!musica::IsSuccess(error))
-        {
-          std::string message = "Error creating state: " + std::string(error.message_.value_);
-          DeleteError(&error);
-          throw py::value_error(message);
-        }
+        handle_error(error, "Error creating state");
 
         return std::unique_ptr<musica::State, std::function<void(musica::State*)>>(
             state,

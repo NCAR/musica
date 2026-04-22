@@ -8,6 +8,7 @@ target_sources(_musica PRIVATE
   cpu.cpp
   common.cpp
   cuda.cpp
+  error.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/mechanism_configuration/mechanism_configuration.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/micm/conditions.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/micm/micm.cpp

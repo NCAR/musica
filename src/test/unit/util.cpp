@@ -89,7 +89,6 @@ TEST(Util, IsError)
 TEST(Util, SeverityInErrors)
 {
   Error error;
-
   // Test each severity level
   ToError("Test", 1, "Info level", MUSICA_SEVERITY_INFO, &error);
   EXPECT_EQ(error.severity_, MUSICA_SEVERITY_INFO);
@@ -112,7 +111,6 @@ TEST(Util, StatusSuccessConstant)
 {
   // Test that MUSICA_STATUS_SUCCESS equals 0
   EXPECT_EQ(MUSICA_STATUS_SUCCESS, 0);
-
   // Test that NoError uses MUSICA_STATUS_SUCCESS
   Error error;
   NoError(&error);
