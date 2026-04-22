@@ -6,17 +6,15 @@ dependencies:
   - ipykernel
   - ipycytoscape
   - pip
-  # - pip:
-    # Installs a specific released version from PyPI.
-    # - musica[tutorial]==0.15.0
   # Dependencies for building musica from source
   - compilers
-  - cmake>=3.24       # Build system
-  - pkg-config        # To find libraries
-  - libnetcdf         # NetCDF C library (for TUVX & CARMA)
-  - netcdf-fortran    # NetCDF Fortran library (for TUVX & CARMA)
-  - libblas           # Linear algebra (for CARMA)
-  - liblapack         # Linear algebra (for CARMA)
-  # Pin to a specific commit that includes updates in mechanism-configuration reactants/products interface
-  - pip:
-    - git+https://github.com/NCAR/musica.git@849-fix-binder-error#egg=musica[tutorial]
+  - cmake>=3.24
+  - pkg-config
+  - ninja
+  - libnetcdf
+  - netcdf-fortran
+  - libblas
+  - liblapack
+
+
+
