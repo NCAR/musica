@@ -19,4 +19,4 @@ dependencies:
   - liblapack         # Linear algebra (for CARMA)
   # Pin to a specific commit that includes updates in mechanism-configuration reactants/products interface
   - pip:
-    - git+https://github.com/NCAR/musica.git@release#egg=musica[tutorial]
+    - git+https://github.com/NCAR/musica.git@849-fix-binder-error#egg=musica[tutorial]
