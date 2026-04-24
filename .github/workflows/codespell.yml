@@ -21,4 +21,4 @@ jobs:
           check_hidden: true
           check_filenames: true
           skip: "*.pdf,*.ipynb"
-          ignore_words_list: "inout,pres,aer"
+          ignore_words_list: "inout,pres,aer,bui"

@@ -662,8 +662,8 @@
                     // update results table header to reflect species names
                     const headerRow = document.querySelector('#results-table thead tr');
                     if (headerRow) {
-                        const ths = ['<th>Time</th>'].concat(currentSpeciesOrder.map(s => `<th>${s}</th>`)).join('');
-                        headerRow.innerHTML = ths;
+                        const headerHTML = ['<th>Time</th>'].concat(currentSpeciesOrder.map(s => `<th>${s}</th>`)).join('');
+                        headerRow.innerHTML = headerHTML;
                     }
 
                     // render reactions (latex)
