@@ -46,7 +46,7 @@ cmake_dependent_option(
   MUSICA_ENABLE_PYTHON_LIBRARY "Adds pybind11, a lightweight header-only library that exposes C++ types in Python and vice versa" OFF "MUSICA_BUILD_C_CXX_INTERFACE" OFF)
 
 ################################################################################
-# Projet wide setup variables 
+# Project wide setup variables
 set(MUSICA_INSTALL_INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR})
 set(MUSICA_LIB_DIR ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
 set(MUSICA_PROJECT_SRC_DIR ${PROJECT_SOURCE_DIR})

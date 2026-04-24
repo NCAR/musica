@@ -47,7 +47,7 @@ julia build_tarballs.jl "aarch64-apple-darwin-julia_version+1.11" --deploy=local
 # Replace aarch64-apple-darwin with your platform (julia -e 'print(Base.BinaryPlatforms.HostPlatform())')
 ```
 
-This will place a local `Musica_jll` pacakge into your local julia registry.
+This will place a local `Musica_jll` package into your local julia registry.
 
 Then, you can use this to instantiate `Musica.jll` and iterate on the the julia API. If you need make changes in musica's
 C++ API, you'll need to update the commit has in `build_tarballs.jl` and rebuild `Musica_jll`.
