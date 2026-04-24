@@ -1,0 +1,24 @@
+name: codespell
+
+on: 
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  codespell:
+    name: Run codespell
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - uses: codespell-project/actions-codespell@v2
+        with:
+          check_hidden: true
+          check_filenames: true
+          skip: "*.pdf,*.ipynb"
+          ignore_words_list: "inout,pres,aer"
