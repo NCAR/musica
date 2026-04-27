@@ -79,8 +79,8 @@ The desired upper and lower bounds for temperature, pressure, and each concentra
     # Scale the samples to the defined bounds
     sample_scaled = qmc.scale(sample, l_bounds, u_bounds)
 
-Spliting up array output
-------------------------
+Splitting up array output
+-------------------------
 As done in the previous :ref:`2-grid-cell example <2grid>` example, values from the LHS-generated conditions are unpacked into variables representing the five model inputs::
 
     temperatures = sample_scaled[:, 0]

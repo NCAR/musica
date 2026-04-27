@@ -33,7 +33,7 @@ namespace musica
     /// @param error The error struct to indicate success or failure
     void AddGrid(Grid *grid, Error *error);
 
-    /// @brief Returns a grid. For now, this calls the interal tuvx fortran api, but will allow the change to c++ later on to
+    /// @brief Returns a grid. For now, this calls the internal tuvx fortran api, but will allow the change to c++ later on to
     /// be transparent to downstream projects
     /// @param grid_name The name of the grid we want
     /// @param grid_units The units of the grid we want
