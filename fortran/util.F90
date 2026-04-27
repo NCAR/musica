@@ -3,7 +3,7 @@
 !
 module musica_util
 
-#include "musica/error.hpp"
+#include "musica/utils/error.hpp"
 
    use iso_c_binding,                   only: c_char, c_int, c_ptr, c_size_t, &
       c_null_ptr, c_f_pointer

@@ -82,7 +82,8 @@ TEST(Util, IsError)
 {
   Error error;
   ToError("Test", 1, "Test Error", MUSICA_SEVERITY_ERROR, &error);
-  EXPECT_TRUE(IsError(error, "Test", 1));
+  EXPECT_EQ(error.code_, 1);
+  EXPECT_STREQ(error.category_.value_, "Test");
   DeleteError(&error);
 }
 

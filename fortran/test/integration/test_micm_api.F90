@@ -13,7 +13,7 @@ program test_micm_api
   use musica_state, only: conditions_t, state_t
 
 #include "micm/util/error.hpp"
-#include "musica/error.hpp"
+#include "musica/utils/error.hpp"
 
 #define ASSERT( expr ) call assert( expr, __FILE__, __LINE__ )
 #define ASSERT_EQ( a, b ) call assert( a == b, __FILE__, __LINE__ )
