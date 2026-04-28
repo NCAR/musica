@@ -3,7 +3,7 @@
 
 #include "error.hpp"
 
-#include <musica/error.hpp>
+#include <musica/utils/error.hpp>
 
 #include <stdexcept>
 

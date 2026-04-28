@@ -3,7 +3,7 @@
 #pragma once
 
 #include <musica/utils/string.hpp>
-#include <musica/error.hpp>
+#include <musica/utils/error.hpp>
 #ifdef MUSICA_USE_MICM
   #include <micm/util/micm_exception.hpp>
 #endif

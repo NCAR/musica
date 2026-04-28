@@ -3,7 +3,7 @@
 #pragma once
 
 #include <musica/tuvx/radiator.hpp>
-#include <musica/util.hpp>
+#include <musica/utils/util.hpp>
 
 #include <memory>
 #include <string>

@@ -5,7 +5,7 @@
 #include <musica/micm/cpu_solver.hpp>
 #include <musica/micm/micm.hpp>
 #include <musica/micm/solver_parameters.hpp>
-#include <musica/util.hpp>
+#include <musica/utils/util.hpp>
 
 #include <micm/solver/backward_euler_solver_parameters.hpp>
 #include <micm/solver/rosenbrock_solver_parameters.hpp>

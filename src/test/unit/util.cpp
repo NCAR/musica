@@ -1,6 +1,6 @@
 // Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
-#include <musica/util.hpp>
+#include <musica/utils/util.hpp>
 #include <musica/version.hpp>
 
 #include <gtest/gtest.h>

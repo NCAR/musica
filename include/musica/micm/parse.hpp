@@ -1,6 +1,6 @@
 #pragma once
 
-#include <musica/error.hpp>
+#include <musica/utils/error.hpp>
 #include <musica/micm/chemistry.hpp>
 #include <musica/micm/micm.hpp>
 
