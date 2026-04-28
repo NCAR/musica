@@ -18,7 +18,7 @@ namespace musica
   {
 #endif
 
-  /// @brief A struct to describe failure conditions
+  /// @brief The C/Fortran-compatible Error struct
   struct Error
   {
     int code_ = MUSICA_STATUS_SUCCESS;
@@ -26,7 +26,6 @@ namespace musica
     String category_;
     String message_;
   };
-
 
   /// @brief Deletes an Error
   /// @param error The Error to delete
