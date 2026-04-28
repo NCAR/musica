@@ -53,7 +53,7 @@ namespace musica
   void ToError(const std::system_error& e, int severity, Error* error);
 
 #ifdef MUSICA_USE_MICM
-  /// @brief Creates an Error from a micm::MicmException, mapping MicmSeverity to musica severity
+  /// @brief Creates an Error from a micm::MicmException
   /// @param e The micm::MicmException to convert [input]
   /// @param error The Error [output]
   void ToError(const micm::MicmException& e, Error* error);

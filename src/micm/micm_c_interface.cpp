@@ -16,6 +16,10 @@ namespace musica
     {
       ToError(e, error);
     }
+    catch (const musica::Exception& e)
+    {
+      ToError(MUSICA_ERROR_CATEGORY, static_cast<int>(e.code_), e.what(), MUSICA_SEVERITY_ERROR, error);
+    }
     catch (const std::system_error& e)
     {
       ToError(e, MUSICA_SEVERITY_ERROR, error);
