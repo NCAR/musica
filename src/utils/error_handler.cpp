@@ -6,7 +6,6 @@
 
 namespace musica
 {
-
   void DeleteError(Error* error)
   {
     if (error == nullptr)
