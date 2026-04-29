@@ -1,40 +1,10 @@
 #include <musica/micm/cuda_availability.hpp>
 #include <musica/micm/micm_c_interface.hpp>
 #include <musica/micm/parse.hpp>
+#include <musica/utils/error_handler.hpp>
 
 namespace musica
 {
-  template<typename Func>
-  auto HandleErrors(Func func, Error* error) -> decltype(func())
-  {
-    DeleteError(error);
-    try
-    {
-      return func();
-    }
-    catch (const micm::MicmException& e)
-    {
-      ToError(e, error);
-    }
-    catch (const musica::Exception& e)
-    {
-      ToError(MUSICA_ERROR_CATEGORY, static_cast<int>(e.code_), e.what(), MUSICA_SEVERITY_ERROR, error);
-    }
-    catch (const std::system_error& e)
-    {
-      ToError(e, MUSICA_SEVERITY_ERROR, error);
-    }
-    catch (const std::exception& e)
-    {
-      ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, e.what(), MUSICA_SEVERITY_ERROR, error);
-    }
-    catch (...)
-    {
-      ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, "Unknown error", MUSICA_SEVERITY_CRITICAL, error);
-    }
-    return decltype(func())();
-  }
-
   MICM* CreateMicm(const char* config_path, MICMSolver solver_type, Error* error)
   {
     return HandleErrors(

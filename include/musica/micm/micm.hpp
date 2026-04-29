@@ -8,6 +8,7 @@
 #include <musica/micm/chemistry.hpp>
 #include <musica/micm/parse.hpp>
 #include <musica/micm/solver_interface.hpp>
+#include <musica/utils/error_code.hpp>
 #include <musica/micm/solver_parameters.hpp>
 
 #include <micm/solver/solver_result.hpp>

@@ -9,7 +9,6 @@
 #include <mechanism_configuration/v1/mechanism.hpp>
 
 #include <stdexcept>
-#include <system_error>
 
 
 namespace musica

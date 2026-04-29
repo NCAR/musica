@@ -6,8 +6,6 @@
 
 #include <musica/utils/util.hpp>
 
-#include <system_error>
-
 namespace musica
 {
   namespace cuda

@@ -51,7 +51,7 @@ namespace musica
     {
       delete radiator_map;
     }
-    catch (const std::system_error &e)
+    catch (const std::exception &e)
     {
       ToError(e, MUSICA_SEVERITY_ERROR, error);
       return;
@@ -183,7 +183,7 @@ namespace musica
       }
       radiator->radiator_ = nullptr;
     }
-    catch (const std::system_error &e)
+    catch (const std::exception &e)
     {
       ToError(e, MUSICA_SEVERITY_ERROR, error);
       return;
@@ -242,7 +242,7 @@ namespace musica
       }
       radiator = new Radiator(updater_ptr);
     }
-    catch (const std::system_error &e)
+    catch (const std::exception &e)
     {
       ToError(e, MUSICA_SEVERITY_ERROR, error);
       return nullptr;
@@ -302,7 +302,7 @@ namespace musica
       }
       radiator = new Radiator(updater_ptr);
     }
-    catch (const std::system_error &e)
+    catch (const std::exception &e)
     {
       ToError(e, MUSICA_SEVERITY_ERROR, error);
       return nullptr;
@@ -345,7 +345,7 @@ namespace musica
         return;
       }
     }
-    catch (const std::system_error &e)
+    catch (const std::exception &e)
     {
       ToError(e, MUSICA_SEVERITY_ERROR, error);
       return;
@@ -387,7 +387,7 @@ namespace musica
         return;
       }
     }
-    catch (const std::system_error &e)
+    catch (const std::exception &e)
     {
       ToError(e, MUSICA_SEVERITY_ERROR, error);
       return;
@@ -431,7 +431,7 @@ namespace musica
         return 0;
       }
     }
-    catch (const std::system_error &e)
+    catch (const std::exception &e)
     {
       ToError(e, MUSICA_SEVERITY_ERROR, error);
       return 0;

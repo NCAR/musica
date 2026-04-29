@@ -52,7 +52,7 @@ TEST_F(MicmCApiTestFixture, BadSolver)
   Error error;
   auto state = CreateMicmState(micm, 1, &error);
   ASSERT_EQ(state, nullptr);
-  ASSERT_EQ(error.code_, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND);
+  ASSERT_EQ(error.code_, MUSICA_MICM_ERROR_CODE_SOLVER_TYPE_NOT_FOUND);
   ASSERT_STREQ(error.category_.value_, MUSICA_ERROR_CATEGORY);
   DeleteError(&error);
 }
@@ -75,8 +75,8 @@ TEST(MicmCApiTest, BadConfigurationFilePath)
   NoError(&error);
   auto micm_bad_config = CreateMicm("bad config path", MICMSolver::Rosenbrock, &error);
   ASSERT_EQ(micm_bad_config, nullptr);
-  ASSERT_EQ(error.code_, MUSICA_PARSE_INVALID_CONFIG_FILE);
-  ASSERT_STREQ(error.category_.value_, MUSICA_ERROR_CATEGORY_PARSING);
+  ASSERT_EQ(error.code_, MUSICA_PARSE_ERROR_CODE_INVALID_CONFIG_FILE);
+  ASSERT_STREQ(error.category_.value_, MUSICA_PARSE_ERROR_CATEGORY);
   DeleteError(&error);
 }
 
@@ -88,8 +88,8 @@ TEST(MicmCApiTest, BadSolverType)
   NoError(&error);
   auto micm_bad_solver_type = CreateMicm("configs/v0/chapman", static_cast<MICMSolver>(solver_type), &error);
   ASSERT_EQ(micm_bad_solver_type, nullptr);
-  ASSERT_EQ(error.code_, MUSICA_PARSE_INVALID_CONFIG_FILE);
-  ASSERT_STREQ(error.category_.value_, MUSICA_ERROR_CATEGORY);
+  ASSERT_EQ(error.code_, MUSICA_MICM_ERROR_CODE_SOLVER_TYPE_NOT_FOUND);
+  ASSERT_STREQ(error.category_.value_, MUSICA_MICM_ERROR_CATEGORY);
   DeleteError(&error);
 }
 
@@ -612,8 +612,8 @@ TEST_F(MicmCApiTestFixture, GetSpeciesProperty)
   ASSERT_EQ(GetSpeciesPropertyInt(micm, "O3", "__atoms", &error), 3);
   ASSERT_TRUE(IsSuccess(error));
   GetSpeciesPropertyBool(micm, "bad species", "__is gas", &error);
-  ASSERT_EQ(error.code_, MUSICA_ERROR_CODE_SPECIES_NOT_FOUND);
-  ASSERT_STREQ(error.category_.value_, MUSICA_ERROR_CATEGORY);
+  ASSERT_EQ(error.code_, MUSICA_MICM_ERROR_CODE_SPECIES_NOT_FOUND);
+  ASSERT_STREQ(error.category_.value_, MUSICA_MICM_ERROR_CATEGORY);
   GetSpeciesPropertyDouble(micm, "O3", "bad property", &error);
   ASSERT_EQ(error.code_, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND);
   ASSERT_STREQ(error.category_.value_, MICM_ERROR_CATEGORY_SPECIES);

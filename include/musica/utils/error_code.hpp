@@ -35,6 +35,12 @@ namespace musica
     FailedToCastToVersion = MUSICA_PARSE_ERROR_CODE_FAILED_TO_CAST_TO_VERSION,
   };
 
+  /// This exists solely to serve the short-form Exception constructor:
+  template<typename T> const char* error_category_for();
+  template<> inline const char* error_category_for<ErrorCode>()      { return MUSICA_ERROR_CATEGORY; }
+  template<> inline const char* error_category_for<MicmErrorCode>()  { return MUSICA_MICM_ERROR_CATEGORY; }
+  template<> inline const char* error_category_for<ParseErrorCode>() { return MUSICA_PARSE_ERROR_CATEGORY; }
+
   // One exception type carries any subsystem's code
   struct Exception : public std::runtime_error
   {
@@ -60,12 +66,6 @@ namespace musica
     {
     }
   };
-
-  /// This exists solely to serve the short-form Exception constructor:
-  template<typename T> const char* error_category_for();
-  template<> inline const char* error_category_for<ErrorCode>()      { return MUSICA_ERROR_CATEGORY; }
-  template<> inline const char* error_category_for<MicmErrorCode>()  { return MUSICA_MICM_ERROR_CATEGORY; }
-  template<> inline const char* error_category_for<ParseErrorCode>() { return MUSICA_PARSE_ERROR_CATEGORY; }
 
   // Category singletons
   // Just declarations — Required here because make_error_code calls them.

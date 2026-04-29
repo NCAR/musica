@@ -10,12 +10,12 @@
 #include <musica/micm/micm.hpp>
 #include <musica/micm/parse.hpp>
 #include <musica/micm/state.hpp>
+#include <musica/utils/error_code.hpp>
 
 #include <cmath>
 #include <cstddef>
 #include <filesystem>
 #include <string>
-#include <system_error>
 
 namespace musica
 {
@@ -29,7 +29,7 @@ namespace musica
       case BackwardEuler: return "BackwardEuler";
       case BackwardEulerStandardOrder: return "BackwardEulerStandardOrder";
       case CudaRosenbrock: return "CudaRosenbrock";
-      default: throw std::system_error(make_error_code(MusicaErrCode::Unknown), "Unknown solver type");
+      default: return "Unknown(" + std::to_string(static_cast<int>(solver_type)) + ")";
     }
   }
 
@@ -95,14 +95,16 @@ namespace musica
           {
             msg += ": " + cuda_loader.GetLastError();
           }
-          throw std::system_error(make_error_code(MusicaErrCode::SolverTypeNotFound), msg);
+          throw musica::Exception(musica::MicmErrorCode::SolverTypeNotFound, msg);
         }
         break;
       }
 
       default:
         std::string const msg = "Solver type " + ToString(solver_type) + " not supported";
-        throw std::system_error(make_error_code(MusicaErrCode::SolverTypeNotFound), msg);
+        std::cout << "debug:" << msg << std::endl; 
+        throw musica::Exception(musica::MicmErrorCode::SolverTypeNotFound, msg);
+        
     }
   }
 

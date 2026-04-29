@@ -4,12 +4,13 @@
 
 #include <musica/utils/string.hpp>
 #include <musica/utils/error.hpp>
-#ifdef MUSICA_USE_MICM
-  #include <micm/util/micm_exception.hpp>
-#endif
 
 #ifdef __cplusplus
-  #include <system_error>
+  #include <musica/utils/error_code.hpp>
+  #include <exception>
+  #ifdef MUSICA_USE_MICM
+    #include <micm/util/micm_exception.hpp>
+  #endif
 
 namespace musica
 {
@@ -46,11 +47,17 @@ namespace musica
 #ifdef __cplusplus
   }
 
-  /// @brief Creates an Error from std::system_error
-  /// @param e The std::system_error to convert [input]
+  /// @brief Creates an Error from musica::Exception
+  /// @param e The musica::Exception to convert [input]
   /// @param severity The severity of the Error (MUSICA_SEVERITY_WARNING/ERROR/CRITICAL) [input]
   /// @param error The Error [output]
-  void ToError(const std::system_error& e, int severity, Error* error);
+  void ToError(const Exception& e, int severity, Error* error);
+
+  /// @brief Creates an Error from std::exception
+  /// @param e The std::exception to convert [input]
+  /// @param severity The severity of the Error (MUSICA_SEVERITY_WARNING/ERROR/CRITICAL) [input]
+  /// @param error The Error [output]
+  void ToError(const std::exception& e, int severity, Error* error);
 
 #ifdef MUSICA_USE_MICM
   /// @brief Creates an Error from a micm::MicmException
@@ -75,6 +82,22 @@ namespace musica
   /// @param rhs The right-hand side Error
   /// @return True if the Errors are not equal, false otherwise
   bool operator!=(const Error& lhs, const Error& rhs);
+
+  /// Catches all C++ exceptions and converts them to Error* for C/Fortran callers.
+  template<typename Func>
+  auto HandleErrors(Func func, Error* error) -> decltype(func())
+  {
+    DeleteError(error);
+    try
+    {
+      return func();
+    }
+    catch (const micm::MicmException& e) { ToError(e, error); }
+    catch (const musica::Exception& e)   { ToError(e, MUSICA_SEVERITY_ERROR, error); }
+    catch (const std::exception& e)      { ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, e.what(), MUSICA_SEVERITY_CRITICAL, error); }
+    catch (...)                          { ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, "Unknown error", MUSICA_SEVERITY_CRITICAL, error); }
+    return decltype(func())();
+  }
 
 }  // namespace musica
 #endif

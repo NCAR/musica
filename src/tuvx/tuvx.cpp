@@ -58,7 +58,7 @@ namespace musica
         NoError(error);
       }
     }
-    catch (const std::system_error &e)
+    catch (const std::exception &e)
     {
       ToError(e, MUSICA_SEVERITY_ERROR, error);
     }
@@ -102,7 +102,7 @@ namespace musica
         NoError(error);
       }
     }
-    catch (const std::system_error &e)
+    catch (const std::exception &e)
     {
       ToError(e, MUSICA_SEVERITY_ERROR, error);
     }
@@ -228,7 +228,7 @@ namespace musica
           spectral_irradiance,
           &error_code);
     }
-    catch (const std::system_error &e)
+    catch (const std::exception &e)
     {
       ToError(e, MUSICA_SEVERITY_ERROR, error);
       return;

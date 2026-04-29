@@ -1,6 +1,7 @@
 // Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 #include <musica/utils/error_handler.hpp>
+#include <musica/utils/error_code.hpp>
 
 #include <cstring>
 
@@ -32,9 +33,14 @@ namespace musica
     CreateString(message, &error->message_);
   }
 
-  void ToError(const std::system_error& e, int severity, Error* error)
+  void ToError(const Exception& e, int severity, Error* error)
   {
-    ToError(e.code().category().name(), e.code().value(), e.what(), severity, error);
+    ToError(e.category_, e.code_, e.what(), severity, error);
+  }
+
+  void ToError(const std::exception& e, int severity, Error* error)
+  {
+    ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, e.what(), severity, error);
   }
 
 #ifdef MUSICA_USE_MICM
