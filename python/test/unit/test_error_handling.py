@@ -8,7 +8,7 @@ errors based on their severity level:
 - CRITICAL (3): Throws std::runtime_error → Python RuntimeError
 
 Implementation: python/bindings/error.cpp:handle_error()
-C API severity constants: include/musica/error.hpp (MUSICA_SEVERITY_*)
+C API severity constants: include/musica/utils/error.hpp (MUSICA_SEVERITY_*)
 """
 from __future__ import annotations
 import pytest
