@@ -56,14 +56,7 @@ namespace musica
 #ifdef MUSICA_USE_MICM
   void ToError(const micm::MicmException& e, Error* error)
   {
-    int severity;
-    switch (e.severity_)
-    {
-      case micm::MicmSeverity::Warning: severity = MUSICA_SEVERITY_WARNING; break;
-      case micm::MicmSeverity::Critical: severity = MUSICA_SEVERITY_CRITICAL; break;
-      default: severity = MUSICA_SEVERITY_ERROR; break;
-    }
-    ToError(e.category_, e.code_, e.what(), severity, error);
+    ToError(e.category_, e.code_, e.what(), MUSICA_SEVERITY_ERROR, error);
   }
 #endif
 

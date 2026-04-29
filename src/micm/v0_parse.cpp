@@ -105,7 +105,7 @@ namespace musica
       chemistry.processes.push_back(micm::ChemicalReactionBuilder()
                                         .SetReactants(reactants)
                                         .SetProducts(products)
-                                        .SetRateConstant(micm::ArrheniusRateConstant(parameters))
+                                        .SetRateConstant(parameters)
                                         .SetPhase(chemistry.system.gas_phase_)
                                         .Build());
     }
@@ -132,7 +132,7 @@ namespace musica
       chemistry.processes.push_back(micm::ChemicalReactionBuilder()
                                         .SetReactants(reactants)
                                         .SetProducts(alkoxy_products)
-                                        .SetRateConstant(micm::BranchedRateConstant(parameters))
+                                        .SetRateConstant(parameters)
                                         .SetPhase(chemistry.system.gas_phase_)
                                         .Build());
 
@@ -141,7 +141,7 @@ namespace musica
       chemistry.processes.push_back(micm::ChemicalReactionBuilder()
                                         .SetReactants(reactants)
                                         .SetProducts(nitrate_products)
-                                        .SetRateConstant(micm::BranchedRateConstant(parameters))
+                                        .SetRateConstant(parameters)
                                         .SetPhase(chemistry.system.gas_phase_)
                                         .Build());
     }
@@ -162,7 +162,7 @@ namespace musica
       chemistry.processes.push_back(micm::ChemicalReactionBuilder()
                                         .SetReactants(reactants)
                                         .SetProducts(products)
-                                        .SetRateConstant(micm::UserDefinedRateConstant(parameters))
+                                        .SetRateConstant(parameters)
                                         .SetPhase(chemistry.system.gas_phase_)
                                         .Build());
     }
@@ -204,7 +204,7 @@ namespace musica
       chemistry.processes.push_back(micm::ChemicalReactionBuilder()
                                         .SetReactants(reactants)
                                         .SetProducts(products)
-                                        .SetRateConstant(micm::SurfaceRateConstant(parameters))
+                                        .SetRateConstant(parameters)
                                         .SetPhase(chemistry.system.gas_phase_)
                                         .Build());
     }
@@ -231,7 +231,7 @@ namespace musica
       chemistry.processes.push_back(micm::ChemicalReactionBuilder()
                                         .SetReactants(reactants)
                                         .SetProducts(products)
-                                        .SetRateConstant(micm::TroeRateConstant(parameters))
+                                        .SetRateConstant(parameters)
                                         .SetPhase(chemistry.system.gas_phase_)
                                         .Build());
     }
@@ -258,7 +258,7 @@ namespace musica
       chemistry.processes.push_back(micm::ChemicalReactionBuilder()
                                         .SetReactants(reactants)
                                         .SetProducts(products)
-                                        .SetRateConstant(micm::TernaryChemicalActivationRateConstant(parameters))
+                                        .SetRateConstant(parameters)
                                         .SetPhase(chemistry.system.gas_phase_)
                                         .Build());
     }
@@ -280,7 +280,7 @@ namespace musica
       chemistry.processes.push_back(micm::ChemicalReactionBuilder()
                                         .SetReactants(reactants)
                                         .SetProducts(products)
-                                        .SetRateConstant(micm::TunnelingRateConstant(parameters))
+                                        .SetRateConstant(parameters)
                                         .SetPhase(chemistry.system.gas_phase_)
                                         .Build());
     }
