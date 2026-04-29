@@ -9,7 +9,6 @@
 
 namespace musica
 {
-
   // General
   enum class ErrorCode
   {
@@ -35,13 +34,13 @@ namespace musica
     FailedToCastToVersion = MUSICA_PARSE_ERROR_CODE_FAILED_TO_CAST_TO_VERSION,
   };
 
-  /// This exists solely to serve the short-form Exception constructor:
+  /// These are provided solely to support the short-form Exception constructor
   template<typename T> const char* error_category_for();
   template<> inline const char* error_category_for<ErrorCode>()      { return MUSICA_ERROR_CATEGORY; }
   template<> inline const char* error_category_for<MicmErrorCode>()  { return MUSICA_MICM_ERROR_CATEGORY; }
   template<> inline const char* error_category_for<ParseErrorCode>() { return MUSICA_PARSE_ERROR_CATEGORY; }
 
-  // One exception type carries any subsystem's code
+  /// @brief Unified exception type used to represent error codes from any subsystem.
   struct Exception : public std::runtime_error
   {
     int code_;
@@ -52,14 +51,14 @@ namespace musica
     {
     }
 
-    // for typed enum callers — no cast needed
+    /// @brief For typed enum callers — no cast needed.
     template<typename ErrorCodeEnum>
     Exception(ErrorCodeEnum code, const char* category, const std::string& msg)
         : std::runtime_error(msg), code_(static_cast<int>(code)), category_(category)
     {
     }
 
-    // caller doesn't pass category — the enum type implies it
+    /// @brief Category is determined implicitly from the caller’s enum type.
     template<typename ErrorCodeEnum>
     Exception(ErrorCodeEnum code, const std::string& msg)
         : std::runtime_error(msg), code_(static_cast<int>(code)), category_(error_category_for<ErrorCodeEnum>())
@@ -67,15 +66,13 @@ namespace musica
     }
   };
 
-  // Category singletons
-  // Just declarations — Required here because make_error_code calls them.
+  /// @brief Singleton category declarations
   const std::error_category& musica_category();
   const std::error_category& micm_category();
   const std::error_category& parse_category();
 
 }  // namespace musica
 
-// ADL make_error_code — one per enum
 inline std::error_code make_error_code(musica::ErrorCode e)
 {
   return { static_cast<int>(e), musica::musica_category() };

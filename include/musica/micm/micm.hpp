@@ -82,7 +82,7 @@ namespace musica
           return species.GetProperty<T>(property_name);
         }
       }
-      throw musica::Exception(MicmErrorCode::SpeciesNotFound, "Species '" + species_name + "' not found");
+      throw musica::Exception(musica::MicmErrorCode::SpeciesNotFound, "Species '" + species_name + "' not found");
     }
 
     /// @brief Get the maximum number of grid cells per state

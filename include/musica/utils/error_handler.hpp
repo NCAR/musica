@@ -83,7 +83,7 @@ namespace musica
   /// @return True if the Errors are not equal, false otherwise
   bool operator!=(const Error& lhs, const Error& rhs);
 
-  /// Catches all C++ exceptions and converts them to Error* for C/Fortran callers.
+  /// @brief Catches all C++ exceptions and converts them to Error* for C/Fortran callers
   template<typename Func>
   auto HandleErrors(Func func, Error* error) -> decltype(func())
   {
