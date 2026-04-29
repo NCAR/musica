@@ -8,7 +8,7 @@
 #include <musica/tuvx/grid_map.hpp>
 #include <musica/tuvx/profile_map.hpp>
 #include <musica/tuvx/radiator_map.hpp>
-#include <musica/util.hpp>
+#include <musica/utils/util.hpp>
 
 #include <memory>
 #include <string>

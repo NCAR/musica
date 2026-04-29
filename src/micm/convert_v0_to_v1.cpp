@@ -1,4 +1,5 @@
 #include <musica/micm/parse.hpp>
+#include <musica/utils/error_code.hpp>
 
 #include <mechanism_configuration/v0/parser.hpp>
 #include <mechanism_configuration/v0/types.hpp>
@@ -92,8 +93,8 @@ namespace musica
       {
         error_msg += error.second + "\n";
       }
-      throw std::system_error(
-          make_error_code(MusicaParseErrc::ParsingFailed), "Failed to parse V0 mechanism configuration\n" + error_msg);
+      throw musica::Exception(
+          musica::ParseErrorCode::ParsingFailed, "Failed to parse V0 mechanism configuration\n" + error_msg);
     }
     mechanism_configuration::v0::types::Mechanism const mechanism = *parsed;
     return ConvertV0MechanismToV1(mechanism, convert_reaction_units);

@@ -3,16 +3,15 @@
 // SPDX-License-Identifier: Apache-2.0
 #pragma once
 
-#include <musica/error.hpp>
+#include <musica/utils/error_handler.hpp>
+#include <musica/utils/string.hpp>
 #ifdef MUSICA_USE_MICM
-  #include <micm/util/micm_exception.hpp>
   #include <micm/util/vector_matrix.hpp>
 #endif
 
 #include <cstddef>
 
 #ifdef __cplusplus
-  #include <system_error>
 
 namespace musica
 {
@@ -22,11 +21,17 @@ namespace musica
 #endif
 
     /// @brief Vector dimension for Vector-ordered matrices
-#ifdef MUSICA_USE_MICM
-    const size_t MUSICA_VECTOR_SIZE = MICM_DEFAULT_VECTOR_SIZE;
-#else
-const size_t MUSICA_VECTOR_SIZE = 0;
-#endif
+    #ifdef MUSICA_USE_MICM
+      const size_t MUSICA_VECTOR_SIZE = MICM_DEFAULT_VECTOR_SIZE;
+    #else
+      const size_t MUSICA_VECTOR_SIZE = 0;
+    #endif
+
+    /// @brief A set of configuration data
+    struct Configuration
+    {
+      void* data_ = nullptr;  // Opaque pointer to YAML::Node (implementation detail)
+    };
 
     /// @brief Options for mapping between indices in two arrays
     enum IndexMappingOptions
@@ -34,28 +39,6 @@ const size_t MUSICA_VECTOR_SIZE = 0;
       UndefinedMapping = 0,  // Undefined mapping
       MapAny = 1,            // Map any pair of source and target elements that exists
       MapAll = 2             // Map every pair of source and target elements and fail if any are missing
-    };
-
-    /// @brief A struct to represent a string
-    struct String
-    {
-      char* value_ = nullptr;
-      std::size_t size_ = 0;
-    };
-
-    /// @brief A struct to describe failure conditions
-    struct Error
-    {
-      int code_ = 0;
-      int severity_ = MUSICA_SEVERITY_INFO;
-      String category_;
-      String message_;
-    };
-
-    /// @brief A set of configuration data
-    struct Configuration
-    {
-      void* data_ = nullptr;  // Opaque pointer to YAML::Node (implementation detail)
     };
 
     /// @brief A struct to represent a mapping between a string and an index
@@ -87,27 +70,6 @@ const size_t MUSICA_VECTOR_SIZE = 0;
       std::size_t size_ = 0;
     };
 
-    /// @brief Casts a char* to a String
-    /// @param value The char* to cast [input]
-    /// @param str The casted String [output]
-    void CreateString(const char* value, String* str);
-
-    /// @brief Deletes a String
-    /// @param str The String to delete
-    void DeleteString(String* str);
-
-    /// @brief Creates an Error indicating no error
-    /// @param error The Error [output]
-    void NoError(Error* error);
-
-    /// @brief Creates an Error from a category, code, message, and severity
-    /// @param category The category of the Error [input]
-    /// @param code The code of the Error [input]
-    /// @param message The message of the Error [input]
-    /// @param severity The severity of the Error (MUSICA_SEVERITY_WARNING/ERROR/CRITICAL) [input]
-    /// @param error The Error [output]
-    void ToError(const char* category, int code, const char* message, int severity, Error* error);
-
     /// @brief Loads a set of configuration data from a string
     /// @param data The string to load [input]
     /// @param configuration The Configuration [output]
@@ -119,6 +81,10 @@ const size_t MUSICA_VECTOR_SIZE = 0;
     /// @param configuration The Configuration [output]
     /// @param error The Error to populate if the data cannot be loaded [output]
     void LoadConfigurationFromFile(const char* filename, Configuration* configuration, Error* error);
+
+    /// @brief Deletes a Configuration
+    /// @param config The Configuration to delete
+    void DeleteConfiguration(Configuration* config);
 
     /// @brief Allocates an array of Mappings
     /// @param size The size of the array
@@ -147,7 +113,7 @@ const size_t MUSICA_VECTOR_SIZE = 0;
     void CreateIndexMappings(
         const Configuration configuration,
         const IndexMappingOptions map_options,
-        Mappings source,
+        const Mappings source,
         const Mappings target,
         IndexMappings* index_mapping,
         Error* error);
@@ -163,14 +129,6 @@ const size_t MUSICA_VECTOR_SIZE = 0;
     /// @param target The target array
     void CopyData(const IndexMappings mappings, const double* source, double* target);
 
-    /// @brief Deletes an Error
-    /// @param error The Error to delete
-    void DeleteError(Error* error);
-
-    /// @brief Deletes a Configuration
-    /// @param config The Configuration to delete
-    void DeleteConfiguration(Configuration* config);
-
     /// @brief Deletes a Mapping
     /// @param mapping The Mapping to delete
     void DeleteMapping(Mapping* mapping);
@@ -178,10 +136,6 @@ const size_t MUSICA_VECTOR_SIZE = 0;
     /// @brief Deletes an array of Mappings
     /// @param mappings The array of Mappings to delete
     void DeleteMappings(Mappings* mappings);
-
-    /// @brief Deletes an IndexMapping
-    /// @param mapping The IndexMapping to delete
-    void DeleteIndexMapping(IndexMapping* mapping);
 
     /// @brief Deletes an array of IndexMappings
     /// @param mappings The array of IndexMappings to delete
@@ -193,49 +147,6 @@ const size_t MUSICA_VECTOR_SIZE = 0;
 
 #ifdef __cplusplus
   }
-  /// @brief Creates an Error from a category, code, and severity
-  /// @param category The category of the Error [input]
-  /// @param code The code of the Error [input]
-  /// @param severity The severity of the Error (MUSICA_SEVERITY_WARNING/ERROR/CRITICAL) [input]
-  /// @param error The Error [output]
-  void ToError(const char* category, int code, int severity, Error* error);
-
-  /// @brief Creates an Error from std::system_error
-  /// @param e The std::system_error to convert [input]
-  /// @param severity The severity of the Error (MUSICA_SEVERITY_WARNING/ERROR/CRITICAL) [input]
-  /// @param error The Error [output]
-  void ToError(const std::system_error& e, int severity, Error* error);
-
-  #ifdef MUSICA_USE_MICM
-  /// @brief Creates an Error from a micm::MicmException, mapping MicmSeverity to musica severity
-  /// @param e The micm::MicmException to convert [input]
-  /// @param error The Error [output]
-  void ToError(const micm::MicmException& e, Error* error);
-  #endif
-
-  /// @brief Checks for success
-  /// @param error The Error to check
-  /// @return True if the Error is successful, false otherwise
-  bool IsSuccess(const Error& error);
-
-  /// @brief Checks for a specific error
-  /// @param error The Error to check
-  /// @param category The category of the Error
-  /// @param code The code of the Error
-  /// @return True if the Error matches the category and code, false otherwise
-  bool IsError(const Error& error, const char* category, int code);
-
-  /// @brief Overloads the equality operator for Error types
-  /// @param lhs The left-hand side Error
-  /// @param rhs The right-hand side Error
-  /// @return True if the Errors are equal, false otherwise
-  bool operator==(const Error& lhs, const Error& rhs);
-
-  /// @brief Overloads the inequality operator for Error types
-  /// @param lhs The left-hand side Error
-  /// @param rhs The right-hand side Error
-  /// @return True if the Errors are not equal, false otherwise
-  bool operator!=(const Error& lhs, const Error& rhs);
 
   /// @brief Creates a Mapping from a name and index
   /// @param name The name of the Mapping

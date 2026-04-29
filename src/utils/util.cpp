@@ -1,105 +1,15 @@
 // Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
-#include <musica/util.hpp>
+#include <musica/utils/util.hpp>
 #include <musica/version.hpp>
 
 #include <yaml-cpp/yaml.h>
 
 #include <cstddef>
 #include <cstring>
-#include <iostream>
 
 namespace musica
 {
-
-  void CreateString(const char* value, String* str)
-  {
-    str->size_ = std::strlen(value);
-    str->value_ = new char[str->size_ + 1];
-    std::memcpy(str->value_, value, str->size_ + 1);
-  }
-
-  void DeleteString(String* str)
-  {
-    if (str->value_ != nullptr)
-      delete[] str->value_;
-    str->value_ = nullptr;
-    str->size_ = 0;
-  }
-
-  void NoError(Error* error)
-  {
-    DeleteError(error);
-    CreateString("", &error->category_);
-    CreateString("Success", &error->message_);
-  }
-
-  void ToError(const char* category, int code, int severity, Error* error)
-  {
-    ToError(category, code, "", severity, error);
-  }
-
-  void ToError(const char* category, int code, const char* message, int severity, Error* error)
-  {
-    DeleteError(error);
-    error->severity_ = severity;
-    error->code_ = code;
-    CreateString(category, &error->category_);
-    CreateString(message, &error->message_);
-  }
-
-  void ToError(const std::system_error& e, int severity, Error* error)
-  {
-    ToError(e.code().category().name(), e.code().value(), e.what(), severity, error);
-  }
-
-#ifdef MUSICA_USE_MICM
-  void ToError(const micm::MicmException& e, Error* error)
-  {
-    int severity;
-    switch (e.severity_)
-    {
-      case micm::MicmSeverity::Warning: severity = MUSICA_SEVERITY_WARNING; break;
-      case micm::MicmSeverity::Critical: severity = MUSICA_SEVERITY_CRITICAL; break;
-      default: severity = MUSICA_SEVERITY_ERROR; break;
-    }
-    ToError(e.category_, e.code_, e.what(), severity, error);
-  }
-#endif
-
-  bool IsSuccess(const Error& error)
-  {
-    return error.code_ == MUSICA_STATUS_SUCCESS;
-  }
-
-  bool IsError(const Error& error, const char* category, int code)
-  {
-    return error.code_ == code && (error.category_.value_ == nullptr && category == nullptr) ||
-           std::strcmp(error.category_.value_, category) == 0;
-  }
-
-  void DeleteError(Error* error)
-  {
-    error->code_ = MUSICA_STATUS_SUCCESS;
-    error->severity_ = MUSICA_SEVERITY_INFO;
-    DeleteString(&(error->category_));
-    DeleteString(&(error->message_));
-  }
-
-  bool operator==(const Error& lhs, const Error& rhs)
-  {
-    if (lhs.code_ == MUSICA_STATUS_SUCCESS && rhs.code_ == MUSICA_STATUS_SUCCESS)
-    {
-      return true;
-    }
-    return lhs.code_ == rhs.code_ && (lhs.category_.value_ == nullptr && rhs.category_.value_ == nullptr) ||
-           std::strcmp(lhs.category_.value_, rhs.category_.value_) == 0;
-  }
-
-  bool operator!=(const Error& lhs, const Error& rhs)
-  {
-    return !(lhs == rhs);
-  }
 
   void LoadConfigurationFromString(const char* data, Configuration* configuration, Error* error)
   {
@@ -112,7 +22,7 @@ namespace musica
     catch (const std::exception& e)
     {
       configuration->data_ = nullptr;
-      ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_PARSING_FAILED, e.what(), MUSICA_SEVERITY_ERROR, error);
+      ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_ERROR_CODE_PARSING_FAILED, e.what(), MUSICA_SEVERITY_ERROR, error);
     }
   }
 
@@ -127,7 +37,7 @@ namespace musica
     catch (const std::exception& e)
     {
       configuration->data_ = nullptr;
-      ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_PARSING_FAILED, e.what(), MUSICA_SEVERITY_ERROR, error);
+      ToError(MUSICA_ERROR_CATEGORY, MUSICA_PARSE_ERROR_CODE_PARSING_FAILED, e.what(), MUSICA_SEVERITY_ERROR, error);
     }
   }
 
@@ -136,12 +46,6 @@ namespace musica
     if (config->data_ != nullptr)
       delete static_cast<YAML::Node*>(config->data_);
     config->data_ = nullptr;
-  }
-
-  void ToMapping(const char* name, std::size_t index, Mapping* mapping)
-  {
-    CreateString(name, &mapping->name_);
-    mapping->index_ = index;
   }
 
   Mapping* AllocateMappingArray(const std::size_t size)
@@ -171,22 +75,6 @@ namespace musica
     return 0;
   }
 
-  void DeleteMapping(Mapping* mapping)
-  {
-    DeleteString(&(mapping->name_));
-  }
-
-  void DeleteMappings(Mappings* mappings)
-  {
-    if (mappings->mappings_ == nullptr)
-      return;
-    for (std::size_t i = 0; i < mappings->size_; i++)
-    {
-      DeleteMapping(&(mappings->mappings_[i]));
-    }
-    delete[] mappings->mappings_;
-  }
-
   void CreateIndexMappings(
       const Configuration configuration,
       const IndexMappingOptions map_options,
@@ -196,6 +84,16 @@ namespace musica
       Error* error)
   {
     DeleteError(error);
+    if (configuration.data_ == nullptr)
+    {
+      ToError(
+        MUSICA_ERROR_CATEGORY, 
+        MUSICA_ERROR_CODE_UNKNOWN, 
+        "Invalid configuration", 
+        MUSICA_SEVERITY_ERROR, 
+        error);
+      return;
+    }
     YAML::Node* yaml_data = static_cast<YAML::Node*>(configuration.data_);
     std::size_t const size = yaml_data->size();
     std::vector<IndexMapping> mappings;
@@ -264,7 +162,6 @@ namespace musica
     {
       index_mapping->mappings_[i] = mappings[i];
     }
-    return;
   }
 
   std::size_t GetIndexMappingsSize(const IndexMappings mappings)
@@ -280,20 +177,32 @@ namespace musica
     }
   }
 
-  void DeleteIndexMapping(IndexMapping* mapping)
+  void DeleteMapping(Mapping* mapping)
   {
-    // Nothing to do
+    DeleteString(&(mapping->name_));
+  }
+
+  void DeleteMappings(Mappings* mappings)
+  {
+    if (mappings->mappings_ == nullptr)
+      return;
+    for (std::size_t i = 0; i < mappings->size_; i++)
+    {
+      DeleteMapping(&(mappings->mappings_[i]));
+    }
+    delete[] mappings->mappings_;
+    mappings->mappings_ = nullptr;
+    mappings->size_ = 0;
   }
 
   void DeleteIndexMappings(IndexMappings* mappings)
   {
     if (mappings->mappings_ == nullptr)
       return;
-    for (std::size_t i = 0; i < mappings->size_; i++)
-    {
-      DeleteIndexMapping(&(mappings->mappings_[i]));
-    }
+
     delete[] mappings->mappings_;
+    mappings->mappings_ = nullptr;
+    mappings->size_ = 0;
   }
 
   void MusicaVersion(String* musica_version)
@@ -301,4 +210,9 @@ namespace musica
     CreateString(GetMusicaVersion(), musica_version);
   }
 
+  void ToMapping(const char* name, std::size_t index, Mapping* mapping)
+  {
+    CreateString(name, &mapping->name_);
+    mapping->index_ = index;
+  }
 }  // namespace musica

@@ -8,28 +8,6 @@
 
 namespace musica
 {
-  template<typename Func>
-  auto HandleErrors(Func func, Error* error) -> decltype(func())
-  {
-    DeleteError(error);
-    try
-    {
-      return func();
-    }
-    catch (const micm::MicmException& e)
-    {
-      ToError(e, error);
-    }
-    catch (const std::system_error& e)
-    {
-      ToError(e, MUSICA_SEVERITY_ERROR, error);
-    }
-    catch (const std::exception& e)
-    {
-      ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, e.what(), MUSICA_SEVERITY_ERROR, error);
-    }
-    return decltype(func())();
-  }
 
   State* CreateMicmState(musica::MICM* micm, std::size_t number_of_grid_cells, Error* error)
   {
@@ -41,7 +19,7 @@ namespace musica
             std::string const msg = "MICM pointer is null, cannot create state.";
             ToError(
                 MUSICA_ERROR_CATEGORY,
-                MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND,
+                MUSICA_MICM_ERROR_CODE_SOLVER_TYPE_NOT_FOUND,
                 msg.c_str(),
                 MUSICA_SEVERITY_CRITICAL,
                 error);
@@ -65,7 +43,7 @@ namespace musica
             std::string const msg = "State pointer is null, cannot delete state.";
             ToError(
                 MUSICA_ERROR_CATEGORY,
-                MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND,
+                MUSICA_MICM_ERROR_CODE_SOLVER_TYPE_NOT_FOUND,
                 msg.c_str(),
                 MUSICA_SEVERITY_CRITICAL,
                 error);

@@ -1,7 +1,7 @@
 #include "../common.hpp"
 
 #include <musica/tuvx/tuvx.hpp>
-#include <musica/util.hpp>
+#include <musica/utils/util.hpp>
 
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
