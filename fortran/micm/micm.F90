@@ -24,6 +24,7 @@ module musica_micm
     integer(c_int64_t) :: rejected_ = 0_c_int64_t
     integer(c_int64_t) :: decompositions_ = 0_c_int64_t
     integer(c_int64_t) :: solves_ = 0_c_int64_t
+    integer(c_int64_t) :: constraint_init_iterations_ = 0_c_int64_t
     real(c_double)     :: final_time_ = 0._c_double
   end type solver_stats_t_c
 
@@ -239,6 +240,7 @@ module musica_micm
     integer(int64) :: rejected_
     integer(int64) :: decompositions_
     integer(int64) :: solves_
+    integer(int64) :: constraint_init_iterations_
     real           :: final_time_
   contains
     procedure :: function_calls => solver_stats_t_function_calls
@@ -248,6 +250,7 @@ module musica_micm
     procedure :: rejected => solver_stats_t_rejected
     procedure :: decompositions => solver_stats_t_decompositions
     procedure :: solves => solver_stats_t_solves
+    procedure :: constraint_init_iterations => solver_stats_t_constraint_init_iterations
     procedure :: final_time => solver_stats_t_final_time
   end type solver_stats_t
 
@@ -365,6 +368,7 @@ contains
     new_solver_stats%rejected_ = c_solver_stats%rejected_
     new_solver_stats%decompositions_ = c_solver_stats%decompositions_
     new_solver_stats%solves_ = c_solver_stats%solves_
+    new_solver_stats%constraint_init_iterations_ = c_solver_stats%constraint_init_iterations_
     new_solver_stats%final_time_ = real( c_solver_stats%final_time_ )
   end function solver_stats_t_constructor
 
@@ -430,6 +434,15 @@ contains
 
     solves = this%solves_
   end function solver_stats_t_solves
+
+  !> Get the number of constraint initialization iterations
+  function solver_stats_t_constraint_init_iterations( this ) result( constraint_init_iterations )
+    use iso_fortran_env, only: int64
+    class(solver_stats_t), intent(in) :: this
+    integer(int64)                    :: constraint_init_iterations
+
+    constraint_init_iterations = this%constraint_init_iterations_
+  end function solver_stats_t_constraint_init_iterations
 
   !> Get the final time the solver iterated to
   function solver_stats_t_final_time( this ) result( final_time )
