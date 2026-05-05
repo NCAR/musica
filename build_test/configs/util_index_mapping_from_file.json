@@ -1,0 +1,11 @@
+[
+  {
+    "source": "Test",
+    "target": "Test2"
+  },
+  {
+    "source": "Test2",
+    "target": "Test3",
+    "scale factor": 0.82
+  }
+]
