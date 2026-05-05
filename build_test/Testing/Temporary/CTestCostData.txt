@@ -1,6 +1,0 @@
-tutorial_multiple_mechanisms 1 0.0406988
-micm_fortran_api 1 0.00930295
-micm_box_model 1 0.00303946
-micm_multiple_grid_cells 1 0.00285146
-demo_fortran 1 0.00186404
----
