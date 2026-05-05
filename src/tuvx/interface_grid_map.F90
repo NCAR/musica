@@ -99,7 +99,7 @@ module tuvx_interface_grid_map
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  function interal_get_grid(grid_map, c_grid_name, c_grid_name_length, &
+  function internal_get_grid(grid_map, c_grid_name, c_grid_name_length, &
       c_grid_units, c_grid_units_length, error_code) &
       result(grid_ptr) bind(C, name="InternalGetGrid")
     use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_char, c_size_t, &
@@ -179,7 +179,7 @@ module tuvx_interface_grid_map
       end if
     end if
   
-  end function interal_get_grid
+  end function internal_get_grid
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

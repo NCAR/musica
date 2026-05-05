@@ -8,7 +8,7 @@ the C++, Python, Julia, and JavaScript APIs.
 
 
 MUSICA is quite versatile. While we don't provide the exact same API set for all languages, the
-core fucntionality needed to solve gas-phase chemistry given a valid
+core functionality needed to solve gas-phase chemistry given a valid
 :doc:`mechanism configuration file <mc:index>` is available in all languages. 
 
 The C++ is essentially a wrapper around :doc:`MICM <micm:index>` and :doc:`TUV-x <tuv-x:index>` to make it easy to expose the functionality
@@ -63,7 +63,7 @@ models listed. We hope the list of models where MUSICA is used will grow over ti
    :width: 80%
    :align: center
 
-   A diagram showing (some) software dependencies with names of models we itegrate with listed at the top
+   A diagram showing (some) software dependencies with names of models we integrate with listed at the top
    and core libraries at the bottom.
 
 .. toctree::

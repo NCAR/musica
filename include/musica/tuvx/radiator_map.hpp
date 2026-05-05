@@ -33,7 +33,7 @@ namespace musica
     /// @param error Error to indicate success or failure
     void AddRadiator(Radiator *radiator, Error *error);
 
-    /// @brief Returns a radiator. For now, this calls the interal tuvx fortran api, but will allow the change to c++ later
+    /// @brief Returns a radiator. For now, this calls the internal tuvx fortran api, but will allow the change to c++ later
     /// on to be transparent to downstream projects
     /// @param radiator_name Radiator name
     /// @param error Error to indicate success or failure

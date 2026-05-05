@@ -2,12 +2,12 @@ Parallelizing Larger Numbers of Grid Cells
 ===========================================
 As users grow more familiar with MUSICA, they may wish to increase the complexity of their simulations by
 significantly increasing the number of grid cells used. By default, MUSICA executes on a single CPU core.
-Here, we will demonstrate how to use `Dask <https://docs.dask.org/en/stable/>`_ to paralellize multiple grid cell
+Here, we will demonstrate how to use `Dask <https://docs.dask.org/en/stable/>`_ to parallelize multiple grid cell
 simulations across multiple CPUs.
 
 .. note::
     The workflow provided here uses `NCAR's Casper HPC <https://ncar-hpc-docs.readthedocs.io/en/latest/compute-systems/casper/>`_.
-    Users may find it helpful to first practice parallization locally, even without performance improvement. A proof-of-concept local
+    Users may find it helpful to first practice parallelization locally, even without performance improvement. A proof-of-concept local
     parallelization notebook is provided with the :ref:`Interactive Tutorials <tutorials page>`.
 
 Dask cluster set up
@@ -35,7 +35,7 @@ For further scaling test results, please refer to the HPC parallelization notebo
 Checking your Dask configuration
 ---------------------------------
 Before launcing Dask `workers` on your HPC system, it can be helpful to double-check any existing job configurations
-along with the job scrip that would be used for each `worker`::
+along with the job script that would be used for each `worker`::
 
     from dask import config
     config.refresh()
