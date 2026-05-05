@@ -92,7 +92,9 @@ namespace musica
     {
       return func();
     }
+#ifdef MUSICA_USE_MICM
     catch (const micm::MicmException& e) { ToError(e, error); }
+#endif
     catch (const musica::Exception& e)   { ToError(e, MUSICA_SEVERITY_ERROR, error); }
     catch (const std::exception& e)      { ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, e.what(), MUSICA_SEVERITY_CRITICAL, error); }
     catch (...)                          { ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, "Unknown error", MUSICA_SEVERITY_CRITICAL, error); }
