@@ -314,12 +314,10 @@ namespace musica
       {
         throw std::system_error(
             make_error_code(MusicaParseErrc::ParsingFailed),
-            "Number of Taylor series coefficients for reaction '" + reaction.name +
-                "' exceeds the maximum supported (" + std::to_string(micm::TaylorSeriesRateConstantParameters::MAX_COEFFICIENTS) + ").");
+            "Number of Taylor series coefficients for reaction '" + reaction.name + "' exceeds the maximum supported (" +
+                std::to_string(micm::TaylorSeriesRateConstantParameters::MAX_COEFFICIENTS) + ").");
       }
-      std::copy(reaction.taylor_coefficients.begin(),
-                reaction.taylor_coefficients.end(),
-                parameters.coefficients_);
+      std::copy(reaction.taylor_coefficients.begin(), reaction.taylor_coefficients.end(), parameters.coefficients_);
       chemistry.processes.push_back(micm::ChemicalReactionBuilder()
                                         .SetReactants(reactants)
                                         .SetProducts(products)
