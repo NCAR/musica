@@ -52,8 +52,8 @@ TEST_F(MicmCApiTestFixture, BadSolver)
   Error error;
   auto state = CreateMicmState(micm, 1, &error);
   ASSERT_EQ(state, nullptr);
-  ASSERT_EQ(error.code_, MUSICA_MICM_ERROR_CODE_SOLVER_TYPE_NOT_FOUND);
-  ASSERT_STREQ(error.category_.value_, MUSICA_ERROR_CATEGORY);
+  ASSERT_EQ(error.code_, MUSICA_MICM_ERROR_CODE_NULL_POINTER);
+  ASSERT_STREQ(error.category_.value_, MUSICA_MICM_ERROR_CATEGORY);
   DeleteError(&error);
 }
 
