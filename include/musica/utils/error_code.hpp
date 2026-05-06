@@ -5,11 +5,9 @@
 #include <musica/utils/error.hpp>
 
 #include <stdexcept>
-#include <system_error>
 
 namespace musica
 {
-  // General
   enum class ErrorCode
   {
     Unknown                 = MUSICA_ERROR_CODE_UNKNOWN,
@@ -17,7 +15,6 @@ namespace musica
     MappingOptionsUndefined = MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED,
   };
 
-  // MICM-specific
   enum class MicmErrorCode
   {
     SpeciesNotFound            = MUSICA_MICM_ERROR_CODE_SPECIES_NOT_FOUND,
@@ -26,7 +23,6 @@ namespace musica
     NullPointer                = MUSICA_MICM_ERROR_CODE_NULL_POINTER,
   };
 
-  // Parse-specific
   enum class ParseErrorCode
   {
     ParsingFailed         = MUSICA_PARSE_ERROR_CODE_PARSING_FAILED,
@@ -35,7 +31,7 @@ namespace musica
     FailedToCastToVersion = MUSICA_PARSE_ERROR_CODE_FAILED_TO_CAST_TO_VERSION,
   };
 
-  /// These are provided solely to support the short-form Exception constructor
+  /// @note These are provided solely to support the short-form Exception constructor
   template<typename T> const char* error_category_for();
   template<> inline const char* error_category_for<ErrorCode>()      { return MUSICA_ERROR_CATEGORY; }
   template<> inline const char* error_category_for<MicmErrorCode>()  { return MUSICA_MICM_ERROR_CATEGORY; }
@@ -47,19 +43,14 @@ namespace musica
     int code_;
     const char* category_;
 
-    Exception(int code, const char* category, const std::string& msg)
-        : std::runtime_error(msg), code_(code), category_(category)
-    {
-    }
-
-    /// @brief For typed enum callers — no cast needed.
+    /// @brief Constructs an exception from a typed error code enum and a category string.
     template<typename ErrorCodeEnum>
     Exception(ErrorCodeEnum code, const char* category, const std::string& msg)
         : std::runtime_error(msg), code_(static_cast<int>(code)), category_(category)
     {
     }
 
-    /// @brief Category is determined implicitly from the caller’s enum type.
+    /// @brief Constructs an exception from a typed error code enum, inferring the category from the enum type.
     template<typename ErrorCodeEnum>
     Exception(ErrorCodeEnum code, const std::string& msg)
         : std::runtime_error(msg), code_(static_cast<int>(code)), category_(error_category_for<ErrorCodeEnum>())
@@ -67,22 +58,4 @@ namespace musica
     }
   };
 
-  /// @brief Singleton category declarations
-  const std::error_category& musica_category();
-  const std::error_category& micm_category();
-  const std::error_category& parse_category();
-
 }  // namespace musica
-
-inline std::error_code make_error_code(musica::ErrorCode e)
-{
-  return { static_cast<int>(e), musica::musica_category() };
-}
-inline std::error_code make_error_code(musica::MicmErrorCode e)
-{
-  return { static_cast<int>(e), musica::micm_category() };
-}
-inline std::error_code make_error_code(musica::ParseErrorCode e)
-{
-  return { static_cast<int>(e), musica::parse_category() };
-}

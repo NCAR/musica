@@ -26,7 +26,6 @@ add_library(musica::musica ALIAS musica)
 
 # Common sources
 target_sources(musica PRIVATE
-  ${CMAKE_CURRENT_SOURCE_DIR}/utils/error_code.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/utils/error_handler.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/utils/string.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/utils/util.cpp
