@@ -3,7 +3,7 @@ FROM julia:1.11 AS julia-base
 FROM fedora:latest
 
 ARG MUSICA_GIT_TAG=main
-ARG BUILD_TYPE=Release
+ARG BUILD_TYPE=Debug
 
 RUN dnf -y update \
     && dnf -y install \
@@ -30,7 +30,8 @@ RUN cd musica \
     && cmake -S . \
              -B build \
              -D CMAKE_PREFIX_PATH=$JLCXX_PREFIX \
-             -D CMAKE_BUILD_TYPE=Release \
+             -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+             -D MUSICA_COMPILE_WARNING_AS_ERROR=ON \
              -D MUSICA_ENABLE_JULIA=ON \
              -D MUSICA_ENABLE_MICM=ON \
              -D MUSICA_ENABLE_TUVX=OFF \

@@ -39,7 +39,7 @@ jobs:
         run: |
           cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} \
                               -D MUSICA_GIT_TAG=${{ github.sha }} \
-                              -D CMAKE_COMPILE_WARNING_AS_ERROR=ON \
+                              -D MUSICA_COMPILE_WARNING_AS_ERROR=ON \
                               -D CMAKE_POLICY_VERSION_MINIMUM=3.5
 
       - name: Build
@@ -81,7 +81,7 @@ jobs:
           cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} \
                               -D MUSICA_GIT_TAG=${{ github.sha }} \
                               -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
-                              -D CMAKE_COMPILE_WARNING_AS_ERROR=ON \
+                              -D MUSICA_COMPILE_WARNING_AS_ERROR=ON \
                               -D CMAKE_POLICY_VERSION_MINIMUM=3.5
 
       - name: Build

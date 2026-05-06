@@ -100,6 +100,11 @@ set_target_properties(musica PROPERTIES
   SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
+# Warnings as errors (CI only by convention)
+if(MUSICA_COMPILE_WARNING_AS_ERROR)
+  set_target_properties(musica PROPERTIES COMPILE_WARNING_AS_ERROR ON)
+endif()
+
 # Set the rpath for the shared library
 if(APPLE)
   set_target_properties(musica PROPERTIES

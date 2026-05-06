@@ -45,7 +45,7 @@ jobs:
                 -D CMAKE_SHARED_LINKER_FLAGS=-Wl,-ld_classic \
                 -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} \
                 -D MUSICA_GIT_TAG=${{ github.sha }} \
-                -D CMAKE_COMPILE_WARNING_AS_ERROR=ON
+                -D MUSICA_COMPILE_WARNING_AS_ERROR=ON
 
       - name: Build
         run: cmake --build build --verbose
@@ -71,7 +71,7 @@ jobs:
         run: brew install netcdf netcdf-fortran
 
       - name: Run Cmake 
-        run: cmake -S . -B build -D CMAKE_EXE_LINKER_FLAGS=-Wl,-ld_classic -D CMAKE_SHARED_LINKER_FLAGS=-Wl,-ld_classic -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_GIT_TAG=${{ github.sha }} -D MUSICA_BUILD_FORTRAN_INTERFACE=ON -D CMAKE_COMPILE_WARNING_AS_ERROR=ON
+        run: cmake -S . -B build -D CMAKE_EXE_LINKER_FLAGS=-Wl,-ld_classic -D CMAKE_SHARED_LINKER_FLAGS=-Wl,-ld_classic -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} -D MUSICA_GIT_TAG=${{ github.sha }} -D MUSICA_BUILD_FORTRAN_INTERFACE=ON -D MUSICA_COMPILE_WARNING_AS_ERROR=ON
 
       - name: Build
         run: cmake --build build --verbose --parallel 10
