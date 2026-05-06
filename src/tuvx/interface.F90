@@ -138,6 +138,7 @@ contains
       ! local variables
       type(core_t), pointer :: core
 
+      error_code = 0
       call c_f_pointer(tuvx, core)
       if (associated(core)) then
          deallocate(core)
@@ -161,6 +162,7 @@ contains
       type(core_t),           pointer :: core
       type(grid_warehouse_t), pointer :: grid_warehouse
 
+      error_code = 0
       call c_f_pointer(tuvx, core)
       grid_warehouse => core%get_grid_warehouse()
 
@@ -185,6 +187,7 @@ contains
       type(core_t),              pointer :: core
       type(profile_warehouse_t), pointer :: profile_warehouse
 
+      error_code = 0
       call c_f_pointer(tuvx, core)
       profile_warehouse => core%get_profile_warehouse()
 
@@ -209,6 +212,7 @@ contains
       type(core_t),               pointer :: core
       type(radiator_warehouse_t), pointer :: radiator_warehouse
 
+      error_code = 0
       call c_f_pointer(tuvx, core)
       radiator_warehouse => core%get_radiator_warehouse()
 

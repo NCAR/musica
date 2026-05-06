@@ -271,6 +271,7 @@ contains
       ! variables
       type(grid_updater_t), pointer :: f_updater
 
+      error_code = 0
       call c_f_pointer(grid_updater, f_updater)
 
       edges_ptr = c_loc(f_updater%grid_%edge_(1))
@@ -353,6 +354,7 @@ contains
       ! variables
       type(grid_updater_t), pointer :: f_updater
 
+      error_code = 0
       call c_f_pointer(grid_updater, f_updater)
 
       midpoints_ptr = c_loc(f_updater%grid_%mid_(1))
