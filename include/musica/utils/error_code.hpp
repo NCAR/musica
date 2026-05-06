@@ -23,6 +23,7 @@ namespace musica
     SpeciesNotFound            = MUSICA_MICM_ERROR_CODE_SPECIES_NOT_FOUND,
     SolverTypeNotFound         = MUSICA_MICM_ERROR_CODE_SOLVER_TYPE_NOT_FOUND,
     UnsupportedSolverStatePair = MUSICA_MICM_ERROR_CODE_UNSUPPORTED_SOLVER_STATE_PAIR,
+    NullPointer                = MUSICA_MICM_ERROR_CODE_NULL_POINTER,
   };
 
   // Parse-specific

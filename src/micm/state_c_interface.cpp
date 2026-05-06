@@ -18,8 +18,8 @@ namespace musica
           {
             std::string const msg = "MICM pointer is null, cannot create state.";
             ToError(
-                MUSICA_ERROR_CATEGORY,
-                MUSICA_MICM_ERROR_CODE_SOLVER_TYPE_NOT_FOUND,
+                MUSICA_MICM_ERROR_CATEGORY,
+                MUSICA_MICM_ERROR_CODE_NULL_POINTER,
                 msg.c_str(),
                 MUSICA_SEVERITY_CRITICAL,
                 error);
@@ -42,8 +42,8 @@ namespace musica
           {
             std::string const msg = "State pointer is null, cannot delete state.";
             ToError(
-                MUSICA_ERROR_CATEGORY,
-                MUSICA_MICM_ERROR_CODE_SOLVER_TYPE_NOT_FOUND,
+                MUSICA_MICM_ERROR_CATEGORY,
+                MUSICA_MICM_ERROR_CODE_NULL_POINTER,
                 msg.c_str(),
                 MUSICA_SEVERITY_CRITICAL,
                 error);
