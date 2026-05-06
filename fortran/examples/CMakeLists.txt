@@ -10,6 +10,9 @@ set_target_properties(tuvx_v54_setup_lib
 
 add_executable(test_tuvx_v54 tuvx_v54.F90)
 target_link_libraries(test_tuvx_v54 PUBLIC musica::musica-fortran tuvx_v54_setup_lib)
+if (${CMAKE_Fortran_COMPILER_ID} MATCHES "Intel" OR ${CMAKE_Fortran_COMPILER_ID} MATCHES "NVHPC")
+  set_target_properties(test_tuvx_v54 PROPERTIES LINKER_LANGUAGE Fortran)
+endif()
 
 # TUV-x v5.4 config uses relative data paths resolved from CWD
 add_test(NAME tuvx_v54
@@ -28,6 +31,9 @@ set_target_properties(column_model_setup_lib
 add_executable(test_column_model column_model.F90)
 target_link_libraries(test_column_model PUBLIC
   musica::musica-fortran tuvx_v54_setup_lib column_model_setup_lib)
+if (${CMAKE_Fortran_COMPILER_ID} MATCHES "Intel" OR ${CMAKE_Fortran_COMPILER_ID} MATCHES "NVHPC")
+  set_target_properties(test_column_model PROPERTIES LINKER_LANGUAGE Fortran)
+endif()
 
 # CWD = configs/tuvx for TUV-x data paths; MICM config uses ../v1/chapman/
 add_test(NAME column_model

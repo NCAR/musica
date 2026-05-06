@@ -12,6 +12,21 @@ install(
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
+# fmt may be pulled in as a build-tree target by mechanism_configuration's
+# dependencies in some environments (e.g. Intel oneapi). Export it if so,
+# but only when it is locally built (not an IMPORTED system target).
+if(TARGET fmt)
+  get_target_property(_fmt_is_imported fmt IMPORTED)
+  if(NOT _fmt_is_imported)
+    install(TARGETS fmt
+      EXPORT musica_Exports
+      LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+      ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+      RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    )
+  endif()
+endif()
+
 # install the musica header files
 install(
   DIRECTORY

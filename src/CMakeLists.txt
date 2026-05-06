@@ -60,15 +60,6 @@ endif()
 ################################################################################
 # Configure musica target
 
-# Compiler options
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-  if (MSVC)
-    target_compile_options(musica PRIVATE /WX)
-  else()
-    target_compile_options(musica PRIVATE -Werror)
-  endif()
-endif()
-
 target_include_directories(musica
   PUBLIC
     $<BUILD_INTERFACE:${MUSICA_PROJECT_SRC_DIR}/include>

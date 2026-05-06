@@ -26,6 +26,7 @@ jobs:
           - Dockerfile.mpi
           - Dockerfile.mpi_openmp
           - Dockerfile.nvhpc
+          - Dockerfile.intel
           - Dockerfile.javascript
           - Dockerfile.julia
           - Dockerfile.docs
