@@ -96,10 +96,6 @@ namespace musica
 
     bool _IsCudaAvailable(Error *error);
 
-    /// @brief  Get the MUSICA vector size
-    /// @return The MUSICA vector size
-    std::size_t GetVectorSize(musica::MICMSolver);
-
     /// @brief C-compatible struct for Rosenbrock solver parameters
     typedef struct
     {
@@ -149,4 +145,9 @@ namespace musica
 #ifdef __cplusplus
   }
 #endif
+
+  /// @brief  Get the MUSICA vector size for a given solver type
+  /// @return The MUSICA vector size
+  std::size_t GetVectorSize(musica::MICMSolver);
+
 }  // namespace musica

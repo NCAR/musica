@@ -11,6 +11,97 @@
 namespace musica
 {
 
+  void CreateString(const char* value, String* str)
+  {
+    str->size_ = std::strlen(value);
+    str->value_ = new char[str->size_ + 1];
+    std::memcpy(str->value_, value, str->size_ + 1);
+  }
+
+  void DeleteString(String* str)
+  {
+    if (str->value_ != nullptr)
+      delete[] str->value_;
+    str->value_ = nullptr;
+    str->size_ = 0;
+  }
+
+  void NoError(Error* error)
+  {
+    DeleteError(error);
+    error->severity_ = MUSICA_SEVERITY_OK;
+    error->code_ = 0;
+    CreateString("", &error->category_);
+    CreateString("Success", &error->message_);
+  }
+
+  void ToError(const char* category, int code, int severity, Error* error)
+  {
+    ToError(category, code, "", severity, error);
+  }
+
+  void ToError(const char* category, int code, const char* message, int severity, Error* error)
+  {
+    DeleteError(error);
+    error->severity_ = severity;
+    error->code_ = code;
+    CreateString(category, &error->category_);
+    CreateString(message, &error->message_);
+  }
+
+  void ToError(const std::system_error& e, int severity, Error* error)
+  {
+    ToError(e.code().category().name(), e.code().value(), e.what(), severity, error);
+  }
+
+#ifdef MUSICA_USE_MICM
+  void ToError(const micm::MicmException& e, Error* error)
+  {
+    int severity;
+    switch (e.severity_)
+    {
+      case micm::MicmSeverity::Warning: severity = MUSICA_SEVERITY_WARN; break;
+      case micm::MicmSeverity::Critical: severity = MUSICA_SEVERITY_CRIT; break;
+      default: severity = MUSICA_SEVERITY_ERR; break;
+    }
+    ToError(e.category_, e.code_, e.what(), severity, error);
+  }
+#endif
+
+  bool IsSuccess(const Error& error)
+  {
+    return error.code_ == 0;
+  }
+
+  bool IsError(const Error& error, const char* category, int code)
+  {
+    return error.code_ == code &&
+           ((error.category_.value_ == nullptr && category == nullptr) ||
+            std::strcmp(error.category_.value_, category) == 0);
+  }
+
+  void DeleteError(Error* error)
+  {
+    DeleteString(&(error->category_));
+    DeleteString(&(error->message_));
+  }
+
+  bool operator==(const Error& lhs, const Error& rhs)
+  {
+    if (lhs.code_ == 0 && rhs.code_ == 0)
+    {
+      return true;
+    }
+    return lhs.code_ == rhs.code_ &&
+           ((lhs.category_.value_ == nullptr && rhs.category_.value_ == nullptr) ||
+            std::strcmp(lhs.category_.value_, rhs.category_.value_) == 0);
+  }
+
+  bool operator!=(const Error& lhs, const Error& rhs)
+  {
+    return !(lhs == rhs);
+  }
+
   void LoadConfigurationFromString(const char* data, Configuration* configuration, Error* error)
   {
     DeleteError(error);
