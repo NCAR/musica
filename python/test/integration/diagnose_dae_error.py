@@ -94,7 +94,7 @@ def build_system():
             gas_species_name=gas_name, condensed_species_name=aq_name,
             solvent_name="H2O", condensed_phase_name="AQUEOUS",
             henrys_law_constant=HenrysLawConstant(hlc_ref=hlc * M_ATM_TO_MOL_M3_PA, c=c_val),
-            mw_solvent=MW_H2O, rho_solvent=RHO_H2O,
+            solvent_molecular_weight=MW_H2O, solvent_density=RHO_H2O,
         ))
     constraints.append(DissolvedEquilibriumConstraint(
         phase_name="AQUEOUS", reactant_names=["H2O"], product_names=["Hp", "OHm"],

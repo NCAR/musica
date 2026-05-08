@@ -166,7 +166,7 @@ namespace musica
                                        .SetProducts(find_species_vec(p.product_names))
                                        .SetSolvent(find_species(p.solvent_name))
                                        .SetRateConstant(ResolveRateConstant(p.rate_constant))
-                                       .SetSolventDampingEpsilon(p.solvent_damping_epsilon)
+                                       .SetSolventFloor(p.solvent_floor)
                                        .SetMinHalflife(p.min_halflife)
                                        .Build());
               }
@@ -177,7 +177,7 @@ namespace musica
                                    .SetReactants(find_species_vec(p.reactant_names))
                                    .SetProducts(find_species_vec(p.product_names))
                                    .SetSolvent(find_species(p.solvent_name))
-                                   .SetSolventDampingEpsilon(p.solvent_damping_epsilon);
+                                   .SetSolventFloor(p.solvent_floor);
                 if (p.forward_rate_constant.has_value())
                   builder.SetForwardRateConstant(ResolveRateConstant(p.forward_rate_constant.value()));
                 if (p.reverse_rate_constant.has_value())
@@ -223,8 +223,8 @@ namespace musica
                                          .SetCondensedPhase(find_phase(c.condensed_phase_name))
                                          .SetHenryLawConstant(miam::process::constant::HenrysLawConstant(
                                              { .HLC_ref_ = c.henrys_law_constant.hlc_ref, .C_ = c.henrys_law_constant.c }))
-                                         .SetMwSolvent(c.mw_solvent)
-                                         .SetRhoSolvent(c.rho_solvent)
+                                         .SetSolventMolecularWeight(c.solvent_molecular_weight)
+                                         .SetSolventDensity(c.solvent_density)
                                          .Build());
               }
               else if constexpr (std::is_same_v<T, miam_config::DissolvedEquilibriumConstraint>)
@@ -237,7 +237,7 @@ namespace musica
                                          .SetSolvent(find_species(c.solvent_name))
                                          .SetEquilibriumConstant(miam::process::constant::EquilibriumConstant(
                                              { .A_ = c.equilibrium_constant.a, .C_ = c.equilibrium_constant.c }))
-                                         .SetSolventDampingEpsilon(c.solvent_damping_epsilon)
+                                         .SetSolventFloor(c.solvent_floor)
                                          .Build());
               }
               else if constexpr (std::is_same_v<T, miam_config::LinearConstraint>)

@@ -33,16 +33,16 @@ class HenryLawEquilibriumConstraint:
         solvent_name: Name of the solvent species.
         condensed_phase_name: Name of the condensed phase.
         henrys_law_constant: Henry's Law constant.
-        mw_solvent: Molecular weight of solvent [kg mol-1].
-        rho_solvent: Density of solvent [kg m-3].
+        solvent_molecular_weight: Molecular weight of solvent [kg mol-1].
+        solvent_density: Density of solvent [kg m-3].
     """
     gas_species_name: str
     condensed_species_name: str
     solvent_name: str
     condensed_phase_name: str
     henrys_law_constant: HenrysLawConstant
-    mw_solvent: float
-    rho_solvent: float
+    solvent_molecular_weight: float
+    solvent_density: float
 
 
 @dataclass(frozen=True)
@@ -59,7 +59,7 @@ class DissolvedEquilibriumConstraint:
         algebraic_species_name: Species whose concentration is constrained.
         solvent_name: Name of the solvent species.
         equilibrium_constant: Equilibrium constant.
-        solvent_damping_epsilon: Regularization parameter to prevent
+        solvent_floor: Regularization parameter to prevent
             singularity as solvent concentration approaches zero.
     """
     phase_name: str
@@ -68,7 +68,7 @@ class DissolvedEquilibriumConstraint:
     algebraic_species_name: str
     solvent_name: str
     equilibrium_constant: EquilibriumConstant
-    solvent_damping_epsilon: float = 1.0e-20
+    solvent_floor: float = 1.0e-20
 
 
 @dataclass(frozen=True)

@@ -141,8 +141,8 @@ def _create_cloud_chemistry_model():
         condensed_phase_name="AQUEOUS",
         henrys_law_constant=HenrysLawConstant(
             hlc_ref=1.23 * M_ATM_TO_MOL_M3_PA, c=3120.0),
-        mw_solvent=MW_H2O,
-        rho_solvent=RHO_H2O,
+        solvent_molecular_weight=MW_H2O,
+        solvent_density=RHO_H2O,
     ))
     constraints.append(HenryLawEquilibriumConstraint(
         gas_species_name="H2O2",
@@ -151,8 +151,8 @@ def _create_cloud_chemistry_model():
         condensed_phase_name="AQUEOUS",
         henrys_law_constant=HenrysLawConstant(
             hlc_ref=7.4e4 * M_ATM_TO_MOL_M3_PA, c=6621.0),
-        mw_solvent=MW_H2O,
-        rho_solvent=RHO_H2O,
+        solvent_molecular_weight=MW_H2O,
+        solvent_density=RHO_H2O,
     ))
     constraints.append(HenryLawEquilibriumConstraint(
         gas_species_name="O3",
@@ -161,8 +161,8 @@ def _create_cloud_chemistry_model():
         condensed_phase_name="AQUEOUS",
         henrys_law_constant=HenrysLawConstant(
             hlc_ref=1.15e-2 * M_ATM_TO_MOL_M3_PA, c=2560.0),
-        mw_solvent=MW_H2O,
-        rho_solvent=RHO_H2O,
+        solvent_molecular_weight=MW_H2O,
+        solvent_density=RHO_H2O,
     ))
 
     # Dissolved equilibria: Kw, Ka1, Ka2
@@ -605,8 +605,8 @@ def _create_equilibrium_only_model():
             condensed_phase_name="AQUEOUS",
             henrys_law_constant=HenrysLawConstant(
                 hlc_ref=hlc_ref * M_ATM_TO_MOL_M3_PA, c=c),
-            mw_solvent=MW_H2O,
-            rho_solvent=RHO_H2O,
+            solvent_molecular_weight=MW_H2O,
+            solvent_density=RHO_H2O,
         ))
 
     # Dissociation equilibria
@@ -765,8 +765,8 @@ def _create_kinetics_model():
             condensed_phase_name="AQUEOUS",
             henrys_law_constant=HenrysLawConstant(
                 hlc_ref=hlc_ref * M_ATM_TO_MOL_M3_PA, c=c),
-            mw_solvent=MW_H2O,
-            rho_solvent=RHO_H2O,
+            solvent_molecular_weight=MW_H2O,
+            solvent_density=RHO_H2O,
         ))
 
     # Dissociation equilibria (same as equilibrium-only)

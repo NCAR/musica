@@ -108,7 +108,7 @@ void bind_miam(py::module_& miam)
                  const std::vector<std::string>& product_names,
                  const std::string& solvent_name,
                  py::object rate_constant,
-                 double solvent_damping_epsilon,
+                 double solvent_floor,
                  double min_halflife)
               {
                 mc::RateConstant rc;
@@ -116,20 +116,20 @@ void bind_miam(py::module_& miam)
                   rc = rate_constant.cast<mc::ArrheniusRateConstant>();
                 else
                   rc = rate_constant.cast<std::function<double(double)>>();
-                return mc::DissolvedReaction{ phase_name, reactant_names, product_names, solvent_name, std::move(rc), solvent_damping_epsilon, min_halflife };
+                return mc::DissolvedReaction{ phase_name, reactant_names, product_names, solvent_name, std::move(rc), solvent_floor, min_halflife };
               }),
           py::arg("phase_name"),
           py::arg("reactant_names"),
           py::arg("product_names"),
           py::arg("solvent_name"),
           py::arg("rate_constant"),
-          py::arg("solvent_damping_epsilon") = 1.0e-20,
+          py::arg("solvent_floor") = 1.0e-20,
           py::arg("min_halflife") = 0.0)
       .def_readwrite("phase_name", &mc::DissolvedReaction::phase_name)
       .def_readwrite("reactant_names", &mc::DissolvedReaction::reactant_names)
       .def_readwrite("product_names", &mc::DissolvedReaction::product_names)
       .def_readwrite("solvent_name", &mc::DissolvedReaction::solvent_name)
-      .def_readwrite("solvent_damping_epsilon", &mc::DissolvedReaction::solvent_damping_epsilon)
+      .def_readwrite("solvent_floor", &mc::DissolvedReaction::solvent_floor)
       .def_readwrite("min_halflife", &mc::DissolvedReaction::min_halflife);
 
   py::class_<mc::DissolvedReversibleReaction>(miam, "_DissolvedReversibleReaction")
@@ -142,14 +142,14 @@ void bind_miam(py::module_& miam)
                  py::object forward_rate_constant,
                  py::object reverse_rate_constant,
                  py::object equilibrium_constant,
-                 double solvent_damping_epsilon)
+                 double solvent_floor)
               {
                 mc::DissolvedReversibleReaction rxn;
                 rxn.phase_name = phase_name;
                 rxn.reactant_names = reactant_names;
                 rxn.product_names = product_names;
                 rxn.solvent_name = solvent_name;
-                rxn.solvent_damping_epsilon = solvent_damping_epsilon;
+                rxn.solvent_floor = solvent_floor;
                 if (!forward_rate_constant.is_none())
                 {
                   if (py::isinstance<mc::ArrheniusRateConstant>(forward_rate_constant))
@@ -175,12 +175,12 @@ void bind_miam(py::module_& miam)
           py::arg("forward_rate_constant") = py::none(),
           py::arg("reverse_rate_constant") = py::none(),
           py::arg("equilibrium_constant") = py::none(),
-          py::arg("solvent_damping_epsilon") = 1.0e-20)
+          py::arg("solvent_floor") = 1.0e-20)
       .def_readwrite("phase_name", &mc::DissolvedReversibleReaction::phase_name)
       .def_readwrite("reactant_names", &mc::DissolvedReversibleReaction::reactant_names)
       .def_readwrite("product_names", &mc::DissolvedReversibleReaction::product_names)
       .def_readwrite("solvent_name", &mc::DissolvedReversibleReaction::solvent_name)
-      .def_readwrite("solvent_damping_epsilon", &mc::DissolvedReversibleReaction::solvent_damping_epsilon);
+      .def_readwrite("solvent_floor", &mc::DissolvedReversibleReaction::solvent_floor);
 
   py::class_<mc::HenryLawPhaseTransfer>(miam, "_HenryLawPhaseTransfer")
       .def(
@@ -210,15 +210,15 @@ void bind_miam(py::module_& miam)
           py::arg("solvent_name"),
           py::arg("condensed_phase_name"),
           py::arg("henrys_law_constant"),
-          py::arg("mw_solvent"),
-          py::arg("rho_solvent"))
+          py::arg("solvent_molecular_weight"),
+          py::arg("solvent_density"))
       .def_readwrite("gas_species_name", &mc::HenryLawEquilibriumConstraint::gas_species_name)
       .def_readwrite("condensed_species_name", &mc::HenryLawEquilibriumConstraint::condensed_species_name)
       .def_readwrite("solvent_name", &mc::HenryLawEquilibriumConstraint::solvent_name)
       .def_readwrite("condensed_phase_name", &mc::HenryLawEquilibriumConstraint::condensed_phase_name)
       .def_readwrite("henrys_law_constant", &mc::HenryLawEquilibriumConstraint::henrys_law_constant)
-      .def_readwrite("mw_solvent", &mc::HenryLawEquilibriumConstraint::mw_solvent)
-      .def_readwrite("rho_solvent", &mc::HenryLawEquilibriumConstraint::rho_solvent);
+      .def_readwrite("solvent_molecular_weight", &mc::HenryLawEquilibriumConstraint::solvent_molecular_weight)
+      .def_readwrite("solvent_density", &mc::HenryLawEquilibriumConstraint::solvent_density);
 
   py::class_<mc::DissolvedEquilibriumConstraint>(miam, "_DissolvedEquilibriumConstraint")
       .def(
@@ -229,14 +229,14 @@ void bind_miam(py::module_& miam)
           py::arg("algebraic_species_name"),
           py::arg("solvent_name"),
           py::arg("equilibrium_constant"),
-          py::arg("solvent_damping_epsilon") = 1.0e-20)
+          py::arg("solvent_floor") = 1.0e-20)
       .def_readwrite("phase_name", &mc::DissolvedEquilibriumConstraint::phase_name)
       .def_readwrite("reactant_names", &mc::DissolvedEquilibriumConstraint::reactant_names)
       .def_readwrite("product_names", &mc::DissolvedEquilibriumConstraint::product_names)
       .def_readwrite("algebraic_species_name", &mc::DissolvedEquilibriumConstraint::algebraic_species_name)
       .def_readwrite("solvent_name", &mc::DissolvedEquilibriumConstraint::solvent_name)
       .def_readwrite("equilibrium_constant", &mc::DissolvedEquilibriumConstraint::equilibrium_constant)
-      .def_readwrite("solvent_damping_epsilon", &mc::DissolvedEquilibriumConstraint::solvent_damping_epsilon);
+      .def_readwrite("solvent_floor", &mc::DissolvedEquilibriumConstraint::solvent_floor);
 
   py::class_<mc::LinearConstraintTerm>(miam, "_LinearConstraintTerm")
       .def(
