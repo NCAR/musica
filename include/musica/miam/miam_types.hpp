@@ -78,7 +78,7 @@ namespace musica
       std::vector<std::string> product_names;
       std::string solvent_name;
       RateConstant rate_constant;
-      double solvent_damping_epsilon = 1.0e-20;  ///< Regularization parameter to prevent singularity as solvent → 0
+      double solvent_floor = 1.0e-20;  ///< Floor [mol m-3] added to [S] in ([S]+delta)^n denominator to prevent singularity as solvent -> 0
       double min_halflife = 0.0;  ///< When > 0, caps reaction rate so no reactant is depleted faster than this half-life [s]
     };
 
@@ -91,7 +91,7 @@ namespace musica
       std::optional<RateConstant> forward_rate_constant;
       std::optional<RateConstant> reverse_rate_constant;
       std::optional<EquilibriumConstant> equilibrium_constant;
-      double solvent_damping_epsilon = 1.0e-20;  ///< Regularization parameter to prevent singularity as solvent → 0
+      double solvent_floor = 1.0e-20;  ///< Floor [mol m-3] added to [S] in ([S]+delta)^n denominator to prevent singularity as solvent -> 0
     };
 
     struct HenryLawPhaseTransfer
@@ -116,8 +116,8 @@ namespace musica
       std::string solvent_name;
       std::string condensed_phase_name;
       HenrysLawConstant henrys_law_constant;
-      double mw_solvent;      ///< Solvent molecular weight [kg mol-1]
-      double rho_solvent;     ///< Solvent density [kg m-3]
+      double solvent_molecular_weight;  ///< Solvent molecular weight [kg mol-1]
+      double solvent_density;           ///< Solvent density [kg m-3]
     };
 
     struct DissolvedEquilibriumConstraint
@@ -128,7 +128,7 @@ namespace musica
       std::string algebraic_species_name;
       std::string solvent_name;
       EquilibriumConstant equilibrium_constant;
-      double solvent_damping_epsilon = 1.0e-20;  ///< Regularization parameter to prevent singularity as solvent → 0
+      double solvent_floor = 1.0e-20;  ///< Floor [mol m-3] added to [S] in ([S]+delta)^n denominator to prevent singularity as solvent -> 0
     };
 
     struct LinearConstraintTerm

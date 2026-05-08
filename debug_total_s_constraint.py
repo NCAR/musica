@@ -158,8 +158,8 @@ for gas_name, aq_name, hlc_ref_lit, c in henry_law_species:
             hlc_ref=hlc_ref_lit * M_ATM_TO_MOL_M3_PA,
             c=c,
         ),
-        mw_solvent=MW_H2O,
-        rho_solvent=RHO_H2O,
+        solvent_molecular_weight=MW_H2O,
+        solvent_density=RHO_H2O,
     ))
 
 # Dissociation

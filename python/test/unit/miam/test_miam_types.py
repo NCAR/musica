@@ -282,12 +282,12 @@ class TestHenryLawEquilibriumConstraint:
             solvent_name="H2O",
             condensed_phase_name="AQUEOUS",
             henrys_law_constant=HenrysLawConstant(hlc_ref=1.23e-2, c=3120.0),
-            mw_solvent=0.018,
-            rho_solvent=1000.0,
+            solvent_molecular_weight=0.018,
+            solvent_density=1000.0,
         )
         assert hlec.gas_species_name == "SO2"
-        assert hlec.mw_solvent == 0.018
-        assert hlec.rho_solvent == 1000.0
+        assert hlec.solvent_molecular_weight == 0.018
+        assert hlec.solvent_density == 1000.0
 
     def test_frozen(self):
         hlec = HenryLawEquilibriumConstraint(
@@ -296,11 +296,11 @@ class TestHenryLawEquilibriumConstraint:
             solvent_name="H2O",
             condensed_phase_name="AQUEOUS",
             henrys_law_constant=HenrysLawConstant(hlc_ref=1.23e-2, c=3120.0),
-            mw_solvent=0.018,
-            rho_solvent=1000.0,
+            solvent_molecular_weight=0.018,
+            solvent_density=1000.0,
         )
         with pytest.raises(FrozenInstanceError):
-            hlec.mw_solvent = 0.020
+            hlec.solvent_molecular_weight = 0.020
 
 
 class TestDissolvedEquilibriumConstraint:
@@ -494,8 +494,8 @@ class TestModel:
                     solvent_name="W",
                     condensed_phase_name="AQ",
                     henrys_law_constant=HenrysLawConstant(hlc_ref=1.0, c=100.0),
-                    mw_solvent=0.018,
-                    rho_solvent=1000.0,
+                    solvent_molecular_weight=0.018,
+                    solvent_density=1000.0,
                 ),
                 DissolvedEquilibriumConstraint(
                     phase_name="AQ",
