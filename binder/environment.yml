@@ -7,16 +7,13 @@ dependencies:
   - ipycytoscape
   - graphviz
   - pip
-  # Dependencies for building musica from source
   - compilers
   - cmake>=3.24
-  - pkg-config
   - ninja
   - libnetcdf
   - netcdf-fortran
+  - pkg-config
   - libblas
   - liblapack
+  - pybind11
   - yaml-cpp
-
-
-

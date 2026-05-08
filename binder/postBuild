@@ -6,6 +6,3 @@ export CMAKE_PREFIX_PATH="${CONDA_PREFIX}:${CMAKE_PREFIX_PATH}"
 
 # Build from source
 pip install .[tutorial]
-
-# Install from the latest PyPI release
-# pip install musica[tutorial]

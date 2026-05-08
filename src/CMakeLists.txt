@@ -50,6 +50,13 @@ if(MUSICA_ENABLE_CARMA)
   add_subdirectory(carma)
 endif()
 
+# MIAM sources
+if(MUSICA_ENABLE_MIAM)
+  list(APPEND musica_compile_definitions MUSICA_USE_MIAM)
+  add_subdirectory(miam)
+  target_link_libraries(musica PUBLIC musica::miam)
+endif()
+
 # MICM CUDA Solver
 if(UNIX AND NOT APPLE AND NOT ${MUSICA_GPU_TYPE} STREQUAL "None")
   add_subdirectory(cuda)

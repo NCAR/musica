@@ -155,7 +155,9 @@ void bind_micm(py::module_& micm)
       .def_readwrite("h_min", &musica::RosenbrockSolverParameters::h_min)
       .def_readwrite("h_max", &musica::RosenbrockSolverParameters::h_max)
       .def_readwrite("h_start", &musica::RosenbrockSolverParameters::h_start)
-      .def_readwrite("max_number_of_steps", &musica::RosenbrockSolverParameters::max_number_of_steps);
+      .def_readwrite("max_number_of_steps", &musica::RosenbrockSolverParameters::max_number_of_steps)
+      .def_readwrite("constraint_init_max_iterations", &musica::RosenbrockSolverParameters::constraint_init_max_iterations)
+      .def_readwrite("constraint_init_tolerance", &musica::RosenbrockSolverParameters::constraint_init_tolerance);
 
   py::class_<musica::BackwardEulerSolverParameters>(micm, "_BackwardEulerSolverParameters")
       .def(py::init<>())
