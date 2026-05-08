@@ -373,7 +373,7 @@ namespace musica
     }
     catch (const std::exception& e)
     {
-      ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, e.what(), MUSICA_SEVERITY_ERR, error);
+      ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, e.what(), MUSICA_SEVERITY_ERROR, error);
       return nullptr;
     }
   }

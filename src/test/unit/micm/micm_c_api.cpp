@@ -430,7 +430,7 @@ void TestSolver(MICM* micm, const size_t num_grid_cells, const double time_step,
     GetUserDefinedRateParametersStrides(current_state, &error, &grid_cell_stride_params, &params_stride);
     ASSERT_TRUE(IsSuccess(error));
 
-    // Set up an intial concentration vector
+    // Set up an initial concentration vector
     std::vector<double> initial_concentrations(state_size * num_concentrations);
 
     for (int i = 0; i < state_size; ++i)

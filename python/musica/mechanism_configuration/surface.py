@@ -32,8 +32,8 @@ class Surface(CppWrapper):
         self,
         name: Optional[str] = None,
         reaction_probability: Optional[float] = None,
-        gas_phase_species: Optional[Union[Species, Tuple[float, Species]]] = None,
-        gas_phase_products: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
+        gas_phase_species: Optional[Union[Species, Tuple[Species, float]]] = None,
+        gas_phase_products: Optional[List[Union[Species, Tuple[Species, float]]]] = None,
         gas_phase: Optional[Phase] = None,
         other_properties: Optional[Dict[str, Any]] = None,
     ):
@@ -54,7 +54,7 @@ class Surface(CppWrapper):
             (
                 ReactionComponent(gas_phase_species.name)
                 if isinstance(gas_phase_species, Species)
-                else ReactionComponent(gas_phase_species[1].name, gas_phase_species[0])
+                else ReactionComponent(gas_phase_species[0].name, gas_phase_species[1])
             )
             if gas_phase_species is not None
             else self.gas_phase_species

@@ -1,4 +1,9 @@
+// Copyright (C) 2023-2026 University Corporation for Atmospheric Research
+// SPDX-License-Identifier: Apache-2.0
+
 #pragma once
+
+#include "error.hpp"
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>

@@ -24,10 +24,7 @@ void bind_tuvx(py::module_& tuvx)
           musica::Error error;
           auto tuvx_instance = new musica::TUVX();
           tuvx_instance->CreateFromConfigString(config_string, grids, profiles, radiators, &error);
-          if (!musica::IsSuccess(error))
-          {
-            throw py::value_error("Error creating TUV-x instance from config string: " + std::string(error.message_.value_));
-          }
+          handle_error(error, "Error creating TUV-x instance from config string");
           return reinterpret_cast<std::uintptr_t>(tuvx_instance);
         }
         catch (const std::exception& e)
@@ -46,10 +43,7 @@ void bind_tuvx(py::module_& tuvx)
           musica::Error error;
           auto tuvx_instance = new musica::TUVX();
           tuvx_instance->Create(config_path, grids, profiles, radiators, &error);
-          if (!musica::IsSuccess(error))
-          {
-            throw py::value_error("Error creating TUV-x instance from config file: " + std::string(error.message_.value_));
-          }
+          handle_error(error, "Error creating TUV-x instance from config file");
           return reinterpret_cast<std::uintptr_t>(tuvx_instance);
         }
         catch (const std::exception& e)
@@ -104,13 +98,7 @@ void bind_tuvx(py::module_& tuvx)
             spectral_irradiance->data(),
             &error);
 
-        if (!musica::IsSuccess(error))
-        {
-          std::string error_message = std::string(error.message_.value_);
-          musica::DeleteError(&error);
-          throw py::value_error("Error running TUV-x: " + error_message);
-        }
-        musica::DeleteError(&error);
+        handle_error(error, "Error running TUV-x");
 
         // Create capsules to manage the lifetime of the heap-allocated vectors
         // Store data pointers before transferring ownership
@@ -166,13 +154,7 @@ void bind_tuvx(py::module_& tuvx)
 
         musica::Error error;
         musica::GridMap* grid_map = tuvx_instance->GetGridMap(&error);
-        if (!musica::IsSuccess(error))
-        {
-          std::string error_message = std::string(error.message_.value_);
-          musica::DeleteError(&error);
-          throw py::value_error("Error getting GridMap from TUV-x instance: " + error_message);
-        }
-        musica::DeleteError(&error);
+        handle_error(error, "Error getting GridMap from TUV-x instance");
 
         return grid_map;
       },
@@ -186,13 +168,7 @@ void bind_tuvx(py::module_& tuvx)
 
         musica::Error error;
         musica::ProfileMap* profile_map = tuvx_instance->GetProfileMap(&error);
-        if (!musica::IsSuccess(error))
-        {
-          std::string error_message = std::string(error.message_.value_);
-          musica::DeleteError(&error);
-          throw py::value_error("Error getting ProfileMap from TUV-x instance: " + error_message);
-        }
-        musica::DeleteError(&error);
+        handle_error(error, "Error getting ProfileMap from TUV-x instance");
 
         return profile_map;
       },
@@ -206,13 +182,7 @@ void bind_tuvx(py::module_& tuvx)
 
         musica::Error error;
         musica::RadiatorMap* radiator_map = tuvx_instance->GetRadiatorMap(&error);
-        if (!musica::IsSuccess(error))
-        {
-          std::string error_message = std::string(error.message_.value_);
-          musica::DeleteError(&error);
-          throw py::value_error("Error getting RadiatorMap from TUV-x instance: " + error_message);
-        }
-        musica::DeleteError(&error);
+        handle_error(error, "Error getting RadiatorMap from TUV-x instance");
 
         return radiator_map;
       },
@@ -227,13 +197,7 @@ void bind_tuvx(py::module_& tuvx)
         musica::Error error;
         musica::Mappings rate_map;
         tuvx_instance->GetPhotolysisRateConstantsOrdering(&rate_map, &error);
-        if (!musica::IsSuccess(error))
-        {
-          std::string error_message = std::string(error.message_.value_);
-          musica::DeleteError(&error);
-          throw py::value_error("Error getting photolysis rate constants ordering: " + error_message);
-        }
-        musica::DeleteError(&error);
+        handle_error(error, "Error getting photolysis rate constants ordering");
 
         py::dict rate_dict;
         for (std::size_t i = 0; i < rate_map.size_; ++i)
@@ -255,13 +219,7 @@ void bind_tuvx(py::module_& tuvx)
         musica::Error error;
         musica::Mappings rate_map;
         tuvx_instance->GetHeatingRatesOrdering(&rate_map, &error);
-        if (!musica::IsSuccess(error))
-        {
-          std::string error_message = std::string(error.message_.value_);
-          musica::DeleteError(&error);
-          throw py::value_error("Error getting heating rates ordering: " + error_message);
-        }
-        musica::DeleteError(&error);
+        handle_error(error, "Error getting heating rates ordering");
 
         py::dict rate_dict;
         for (std::size_t i = 0; i < rate_map.size_; ++i)
@@ -283,13 +241,7 @@ void bind_tuvx(py::module_& tuvx)
         musica::Error error;
         musica::Mappings rate_map;
         tuvx_instance->GetDoseRatesOrdering(&rate_map, &error);
-        if (!musica::IsSuccess(error))
-        {
-          std::string error_message = std::string(error.message_.value_);
-          musica::DeleteError(&error);
-          throw py::value_error("Error getting dose rates ordering: " + error_message);
-        }
-        musica::DeleteError(&error);
+        handle_error(error, "Error getting dose rates ordering");
 
         py::dict rate_dict;
         for (std::size_t i = 0; i < rate_map.size_; ++i)

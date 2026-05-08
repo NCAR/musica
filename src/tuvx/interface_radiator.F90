@@ -128,7 +128,7 @@ module tuvx_interface_radiator
       bind(C, name="InternalGetRadiatorName")
     use iso_c_binding, only: c_ptr, c_f_pointer, c_char, c_size_t, c_int, &
                              c_loc
-    use tuvx_interface_util, only: string_t_c, create_string_t_c
+    use musica_util, only: string_t_c, create_string_t_c
     use tuvx_radiator_from_host, only: radiator_updater_t
 
     ! arguments

@@ -2,16 +2,18 @@ name: musica-env
 channels:
   - conda-forge
 dependencies:
-  - python>=3.9
+  - python>=3.10
   - ipykernel
   - ipycytoscape
+  - graphviz
   - pip
-  - cmake>=3.21
-  - ninja
   - compilers
+  - cmake>=3.24
+  - ninja
   - libnetcdf
   - netcdf-fortran
   - pkg-config
+  - libblas
+  - liblapack
   - pybind11
   - yaml-cpp
-  - lapack

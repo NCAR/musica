@@ -52,8 +52,8 @@ class TaylorSeries(CppWrapper):
         D: Optional[float] = None,
         E: Optional[float] = None,
         taylor_coefficients: Optional[List[float]] = None,
-        reactants: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
-        products: Optional[List[Union[Species, Tuple[float, Species]]]] = None,
+        reactants: Optional[List[Union[Species, Tuple[Species, float]]]] = None,
+        products: Optional[List[Union[Species, Tuple[Species, float]]]] = None,
         other_properties: Optional[Dict[str, Any]] = None,
     ):
         """Initialize the TaylorSeries reaction.

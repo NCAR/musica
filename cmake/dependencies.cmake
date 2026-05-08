@@ -114,6 +114,26 @@ if (MUSICA_ENABLE_MIAM AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBU
 endif()
 
 ################################################################################
+# MIAM
+# Skip if using prebuilt musica (already includes miam)
+
+if (MUSICA_ENABLE_MIAM AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
+  set_git_default(MIAM_GIT_REPOSITORY https://github.com/NCAR/miam.git)
+  set_git_default(MIAM_GIT_TAG c9959b8cac975904aa3e765d4579b04d9dc041d8)
+
+  FetchContent_Declare(miam
+      GIT_REPOSITORY ${MIAM_GIT_REPOSITORY}
+      GIT_TAG ${MIAM_GIT_TAG}
+      GIT_PROGRESS NOT ${FETCHCONTENT_QUIET}
+      FIND_PACKAGE_ARGS NAMES miam
+  )
+
+  set(MIAM_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
+
+  FetchContent_MakeAvailable(miam)
+endif()
+
+################################################################################
 # TUV-x
 # Skip if using prebuilt musica (already includes tuvx)
 

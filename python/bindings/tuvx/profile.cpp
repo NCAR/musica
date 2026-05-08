@@ -38,12 +38,7 @@ void bind_tuvx_profile(py::module_ &profile)
 
             musica::Error error;
             auto profile_instance = new musica::Profile(name.c_str(), units.c_str(), grid, &error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error creating profile: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error creating profile");
             return profile_instance;
           }))
       .def("__del__", [](musica::Profile &profile) {})
@@ -53,13 +48,7 @@ void bind_tuvx_profile(py::module_ &profile)
           {
             musica::Error error;
             std::string name = self.GetName(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error getting profile name: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
-            musica::DeleteError(&error);
+            handle_error(error, "Error getting profile name");
             return name;
           },
           "The name of the profile")
@@ -69,13 +58,7 @@ void bind_tuvx_profile(py::module_ &profile)
           {
             musica::Error error;
             std::string units = self.GetUnits(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error getting profile units: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
-            musica::DeleteError(&error);
+            handle_error(error, "Error getting profile units");
             return units;
           },
           "The units of the profile")
@@ -85,13 +68,7 @@ void bind_tuvx_profile(py::module_ &profile)
           {
             musica::Error error;
             size_t num_sections = self.GetNumberOfSections(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error getting number of grid sections: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
-            musica::DeleteError(&error);
+            handle_error(error, "Error getting number of grid sections");
             return num_sections;
           },
           "The number of sections in the profile grid")
@@ -102,21 +79,11 @@ void bind_tuvx_profile(py::module_ &profile)
           {
             musica::Error error;
             size_t size = self.GetNumberOfSections(&error) + 1;
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error getting number of grid sections: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error getting number of grid sections");
 
             // Get a pointer to the internal C++ array
             double *data_ptr = self.GetEdgeValuesPointer(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error getting edge values pointer: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error getting edge values pointer");
 
             // Create a numpy array that references the internal C++ array directly
             // using py::capsule to manage the lifetime correctly
@@ -138,24 +105,14 @@ void bind_tuvx_profile(py::module_ &profile)
             py::buffer_info buf = array.request();
             musica::Error error;
             size_t size = self.GetNumberOfSections(&error) + 1;
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error getting number of grid sections: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error getting number of grid sections");
             if (buf.ndim != 1)
               throw py::value_error("Array must be one-dimensional");
             if (static_cast<size_t>(buf.size) != size)
               throw py::value_error("Array size must be num_sections + 1");
             double *ptr = static_cast<double *>(buf.ptr);
             self.SetEdgeValues(ptr, size, &error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error setting edge values: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error setting edge values");
           },
           "Profile values at grid edges array of length num_sections + 1")
       .def_property(
@@ -165,21 +122,11 @@ void bind_tuvx_profile(py::module_ &profile)
           {
             musica::Error error;
             size_t size = self.GetNumberOfSections(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error getting number of grid sections: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error getting number of grid sections");
 
             // Get a pointer to the internal C++ array
             double *data_ptr = self.GetMidpointValuesPointer(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error getting midpoint values pointer: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error getting midpoint values pointer");
 
             // Create a numpy array that references the internal C++ array directly
             // using py::capsule to manage the lifetime correctly
@@ -201,24 +148,14 @@ void bind_tuvx_profile(py::module_ &profile)
             py::buffer_info buf = array.request();
             musica::Error error;
             size_t size = self.GetNumberOfSections(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error getting number of grid sections: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error getting number of grid sections");
             if (buf.ndim != 1)
               throw py::value_error("Array must be one-dimensional");
             if (static_cast<size_t>(buf.size) != size)
               throw py::value_error("Array size must be num_sections");
             double *ptr = static_cast<double *>(buf.ptr);
             self.SetMidpointValues(ptr, size, &error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error setting midpoint values: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error setting midpoint values");
           },
           "Profile values at grid midpoints array of length num_sections")
       .def_property(
@@ -228,21 +165,11 @@ void bind_tuvx_profile(py::module_ &profile)
           {
             musica::Error error;
             size_t size = self.GetNumberOfSections(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error getting number of grid sections: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error getting number of grid sections");
 
             // Get a pointer to the internal C++ array
             double *data_ptr = self.GetLayerDensitiesPointer(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error getting layer densities pointer: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error getting layer densities pointer");
             // Create a numpy array that references the internal C++ array directly
             // using py::capsule to manage the lifetime correctly
             py::capsule owner = py::capsule(
@@ -263,24 +190,14 @@ void bind_tuvx_profile(py::module_ &profile)
             py::buffer_info buf = array.request();
             musica::Error error;
             size_t size = self.GetNumberOfSections(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error getting number of grid sections: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error getting number of grid sections");
             if (buf.ndim != 1)
               throw py::value_error("Array must be one-dimensional");
             if (static_cast<size_t>(buf.size) != size)
               throw py::value_error("Array size must be num_sections");
             double *ptr = static_cast<double *>(buf.ptr);
             self.SetLayerDensities(ptr, size, &error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error setting layer densities: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error setting layer densities");
           },
           "Layer densities array of length num_sections")
       .def_property(
@@ -290,12 +207,7 @@ void bind_tuvx_profile(py::module_ &profile)
           {
             musica::Error error;
             double density = self.GetExoLayerDensity(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error getting exospheric layer density: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error getting exospheric layer density");
             return density;
           },
           // Setter
@@ -303,12 +215,7 @@ void bind_tuvx_profile(py::module_ &profile)
           {
             musica::Error error;
             self.SetExoLayerDensity(density, &error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error setting exospheric layer density: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error setting exospheric layer density");
           },
           "Exospheric layer density")
       .def(
@@ -317,12 +224,7 @@ void bind_tuvx_profile(py::module_ &profile)
           {
             musica::Error error;
             self.CalculateExoLayerDensity(scale_height, &error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error calculating exospheric layer density: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error calculating exospheric layer density");
           },
           "Calculate the exospheric layer density using the given scale height",
           py::arg("scale_height"));

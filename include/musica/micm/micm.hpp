@@ -1,7 +1,7 @@
 // Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 //
-// This file contains the defintion of the MICM class, which represents a multi-component reactive transport model.
+// This file contains the definition of the MICM class, which represents a multi-component reactive transport model.
 // It also includes functions for creating and deleting MICM instances with c bindings.
 #pragma once
 

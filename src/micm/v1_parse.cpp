@@ -310,7 +310,14 @@ namespace musica
       parameters.C_ = reaction.C;
       parameters.D_ = reaction.D;
       parameters.E_ = reaction.E;
-      parameters.n_coefficients_ = std::min(reaction.taylor_coefficients.size(), micm::TaylorSeriesRateConstantParameters::MAX_COEFFICIENTS);
+      if (reaction.taylor_coefficients.size() > micm::TaylorSeriesRateConstantParameters::MAX_COEFFICIENTS)
+      {
+        throw std::system_error(
+            make_error_code(MusicaParseErrc::ParsingFailed),
+            "Number of Taylor series coefficients for reaction '" + reaction.name + "' exceeds the maximum supported (" +
+                std::to_string(micm::TaylorSeriesRateConstantParameters::MAX_COEFFICIENTS) + ").");
+      }
+      parameters.n_coefficients_ = reaction.taylor_coefficients.size();
       std::copy_n(reaction.taylor_coefficients.begin(), parameters.n_coefficients_, parameters.coefficients_);
       chemistry.processes.push_back(micm::ChemicalReactionBuilder()
                                         .SetReactants(reactants)

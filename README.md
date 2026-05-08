@@ -112,7 +112,7 @@ MUSICA automatically downloads and builds additional dependencies (pybind11, goo
 ## Official Documentation
 
 - [Full Documentation](https://ncar.github.io/musica/index.html) - Complete API reference, tutorials, and guides
-- [Interactive Tutorials](https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials) - Try MUSICA in your browser via Binder
+- [Interactive Tutorials](https://mybinder.org/v2/gh/NCAR/musica/release?filepath=tutorials) - Try MUSICA in your browser via Binder
 - [MUSICA Wiki](https://wiki.ucar.edu/display/MUSICA/MUSICA+Home) - Additional resources and community information
 
 

@@ -22,11 +22,11 @@ namespace musica
     }
     catch (const std::system_error& e)
     {
-      ToError(e, MUSICA_SEVERITY_ERR, error);
+      ToError(e, MUSICA_SEVERITY_ERROR, error);
     }
     catch (const std::exception& e)
     {
-      ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, e.what(), MUSICA_SEVERITY_ERR, error);
+      ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, e.what(), MUSICA_SEVERITY_ERROR, error);
     }
     return decltype(func())();
   }
@@ -40,7 +40,11 @@ namespace musica
           {
             std::string const msg = "MICM pointer is null, cannot create state.";
             ToError(
-                MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND, msg.c_str(), MUSICA_SEVERITY_CRIT, error);
+                MUSICA_ERROR_CATEGORY,
+                MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND,
+                msg.c_str(),
+                MUSICA_SEVERITY_CRITICAL,
+                error);
             return nullptr;
           }
 
@@ -60,7 +64,11 @@ namespace musica
           {
             std::string const msg = "State pointer is null, cannot delete state.";
             ToError(
-                MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND, msg.c_str(), MUSICA_SEVERITY_CRIT, error);
+                MUSICA_ERROR_CATEGORY,
+                MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND,
+                msg.c_str(),
+                MUSICA_SEVERITY_CRITICAL,
+                error);
             return;
           }
 

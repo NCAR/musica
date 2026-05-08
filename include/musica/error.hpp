@@ -3,10 +3,12 @@
 // SPDX-License-Identifier: Apache-2.0
 #endif
 
-#define MUSICA_SEVERITY_OK   -1
-#define MUSICA_SEVERITY_WARN 0
-#define MUSICA_SEVERITY_ERR  1
-#define MUSICA_SEVERITY_CRIT 2
+#define MUSICA_STATUS_SUCCESS 0
+
+#define MUSICA_SEVERITY_INFO     0
+#define MUSICA_SEVERITY_WARNING  1
+#define MUSICA_SEVERITY_ERROR    2
+#define MUSICA_SEVERITY_CRITICAL 3
 
 #define MUSICA_ERROR_CATEGORY                           "MUSICA Error"
 #define MUSICA_ERROR_CODE_SPECIES_NOT_FOUND             1

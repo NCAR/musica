@@ -47,7 +47,7 @@ const size_t MUSICA_VECTOR_SIZE = 0;
     struct Error
     {
       int code_ = 0;
-      int severity_ = MUSICA_SEVERITY_OK;
+      int severity_ = MUSICA_SEVERITY_INFO;
       String category_;
       String message_;
     };
@@ -104,7 +104,7 @@ const size_t MUSICA_VECTOR_SIZE = 0;
     /// @param category The category of the Error [input]
     /// @param code The code of the Error [input]
     /// @param message The message of the Error [input]
-    /// @param severity The severity of the Error (MUSICA_SEVERITY_WARN/ERR/CRIT) [input]
+    /// @param severity The severity of the Error (MUSICA_SEVERITY_WARNING/ERROR/CRITICAL) [input]
     /// @param error The Error [output]
     void ToError(const char* category, int code, const char* message, int severity, Error* error);
 
@@ -196,13 +196,13 @@ const size_t MUSICA_VECTOR_SIZE = 0;
   /// @brief Creates an Error from a category, code, and severity
   /// @param category The category of the Error [input]
   /// @param code The code of the Error [input]
-  /// @param severity The severity of the Error (MUSICA_SEVERITY_WARN/ERR/CRIT) [input]
+  /// @param severity The severity of the Error (MUSICA_SEVERITY_WARNING/ERROR/CRITICAL) [input]
   /// @param error The Error [output]
   void ToError(const char* category, int code, int severity, Error* error);
 
   /// @brief Creates an Error from std::system_error
   /// @param e The std::system_error to convert [input]
-  /// @param severity The severity of the Error (MUSICA_SEVERITY_WARN/ERR/CRIT) [input]
+  /// @param severity The severity of the Error (MUSICA_SEVERITY_WARNING/ERROR/CRITICAL) [input]
   /// @param error The Error [output]
   void ToError(const std::system_error& e, int severity, Error* error);
 

@@ -39,6 +39,8 @@ endif()
 # TUV-x sources
 if(MUSICA_ENABLE_TUVX)
   list(APPEND musica_compile_definitions MUSICA_USE_TUVX)
+  # Add Fortran utility module needed by TUV-x interface files
+  target_sources(musica PRIVATE ${MUSICA_PROJECT_SRC_DIR}/fortran/util.F90)
   add_subdirectory(tuvx)
 endif()
 
@@ -116,6 +118,7 @@ set_target_properties(musica PROPERTIES
 if(APPLE)
   set_target_properties(musica PROPERTIES
     INSTALL_RPATH "@loader_path"
+    BUILD_WITH_INSTALL_RPATH TRUE
   )
 elseif(UNIX)
   set_target_properties(musica PROPERTIES

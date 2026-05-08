@@ -53,7 +53,7 @@ namespace musica
     }
     catch (const std::system_error &e)
     {
-      ToError(e, MUSICA_SEVERITY_ERR, error);
+      ToError(e, MUSICA_SEVERITY_ERROR, error);
       return;
     }
     NoError(error);
@@ -103,7 +103,7 @@ namespace musica
     radiator_map_ = InternalCreateRadiatorMap(&error_code);
     if (error_code != ERROR_NONE)
     {
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERR, error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return;
     }
     owns_radiator_map_ = true;
@@ -130,7 +130,7 @@ namespace musica
           MUSICA_ERROR_CATEGORY,
           ERROR_UNALLOCATED_RADIATOR_MAP,
           GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_MAP),
-          MUSICA_SEVERITY_CRIT,
+          MUSICA_SEVERITY_CRITICAL,
           error);
       return;
     }
@@ -140,7 +140,7 @@ namespace musica
           MUSICA_ERROR_CATEGORY,
           ERROR_UNALLOCATED_RADIATOR,
           GetErrorMessage(ERROR_UNALLOCATED_RADIATOR),
-          MUSICA_SEVERITY_CRIT,
+          MUSICA_SEVERITY_CRITICAL,
           error);
       return;
     }
@@ -150,7 +150,7 @@ namespace musica
           MUSICA_ERROR_CATEGORY,
           ERROR_UNALLOCATED_RADIATOR_UPDATER,
           GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_UPDATER),
-          MUSICA_SEVERITY_CRIT,
+          MUSICA_SEVERITY_CRITICAL,
           error);
       return;
     }
@@ -160,32 +160,32 @@ namespace musica
       InternalAddRadiator(radiator_map_, radiator->radiator_, &error_code);
       if (error_code != ERROR_NONE)
       {
-        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERR, error);
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
         return;
       }
       InternalDeleteRadiatorUpdater(radiator->updater_, &error_code);
       if (error_code != ERROR_NONE)
       {
-        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERR, error);
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
         return;
       }
       radiator->updater_ = InternalGetRadiatorUpdaterFromMap(radiator_map_, radiator->radiator_, &error_code);
       if (error_code != ERROR_NONE)
       {
-        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERR, error);
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
         return;
       }
       InternalDeleteRadiator(radiator->radiator_, &error_code);
       if (error_code != ERROR_NONE)
       {
-        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERR, error);
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
         return;
       }
       radiator->radiator_ = nullptr;
     }
     catch (const std::system_error &e)
     {
-      ToError(e, MUSICA_SEVERITY_ERR, error);
+      ToError(e, MUSICA_SEVERITY_ERROR, error);
       return;
     }
     catch (...)
@@ -194,7 +194,7 @@ namespace musica
           MUSICA_ERROR_CATEGORY,
           INTERNAL_RADIATOR_MAP_ERROR,
           GetErrorMessage(INTERNAL_RADIATOR_MAP_ERROR),
-          MUSICA_SEVERITY_CRIT,
+          MUSICA_SEVERITY_CRITICAL,
           error);
       return;
     }
@@ -211,7 +211,7 @@ namespace musica
           MUSICA_ERROR_CATEGORY,
           ERROR_UNALLOCATED_RADIATOR_MAP,
           GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_MAP),
-          MUSICA_SEVERITY_CRIT,
+          MUSICA_SEVERITY_CRITICAL,
           error);
       return nullptr;
     }
@@ -223,20 +223,20 @@ namespace musica
       void *radiator_ptr = InternalGetRadiator(radiator_map_, radiator_name, strlen(radiator_name), &error_code);
       if (error_code != ERROR_NONE)
       {
-        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERR, error);
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
         return nullptr;
       }
       void *updater_ptr = InternalGetRadiatorUpdaterFromMap(radiator_map_, radiator_ptr, &error_code);
       if (error_code != ERROR_NONE)
       {
-        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERR, error);
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
         InternalDeleteRadiator(radiator_ptr, &error_code);
         return nullptr;
       }
       InternalDeleteRadiator(radiator_ptr, &error_code);
       if (error_code != ERROR_NONE)
       {
-        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERR, error);
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
         InternalDeleteRadiatorUpdater(updater_ptr, &error_code);
         return nullptr;
       }
@@ -244,7 +244,7 @@ namespace musica
     }
     catch (const std::system_error &e)
     {
-      ToError(e, MUSICA_SEVERITY_ERR, error);
+      ToError(e, MUSICA_SEVERITY_ERROR, error);
       return nullptr;
     }
     catch (...)
@@ -253,7 +253,7 @@ namespace musica
           MUSICA_ERROR_CATEGORY,
           INTERNAL_RADIATOR_MAP_ERROR,
           GetErrorMessage(INTERNAL_RADIATOR_MAP_ERROR),
-          MUSICA_SEVERITY_CRIT,
+          MUSICA_SEVERITY_CRITICAL,
           error);
       return nullptr;
     }
@@ -271,7 +271,7 @@ namespace musica
           MUSICA_ERROR_CATEGORY,
           ERROR_UNALLOCATED_RADIATOR_MAP,
           GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_MAP),
-          MUSICA_SEVERITY_CRIT,
+          MUSICA_SEVERITY_CRITICAL,
           error);
       return nullptr;
     }
@@ -283,20 +283,20 @@ namespace musica
       void *radiator_ptr = InternalGetRadiatorByIndex(radiator_map_, index, &error_code);
       if (error_code != ERROR_NONE)
       {
-        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERR, error);
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
         return nullptr;
       }
       void *updater_ptr = InternalGetRadiatorUpdaterFromMap(radiator_map_, radiator_ptr, &error_code);
       if (error_code != ERROR_NONE)
       {
-        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERR, error);
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
         InternalDeleteRadiator(radiator_ptr, &error_code);
         return nullptr;
       }
       InternalDeleteRadiator(radiator_ptr, &error_code);
       if (error_code != ERROR_NONE)
       {
-        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERR, error);
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
         InternalDeleteRadiatorUpdater(updater_ptr, &error_code);
         return nullptr;
       }
@@ -304,7 +304,7 @@ namespace musica
     }
     catch (const std::system_error &e)
     {
-      ToError(e, MUSICA_SEVERITY_ERR, error);
+      ToError(e, MUSICA_SEVERITY_ERROR, error);
       return nullptr;
     }
     catch (...)
@@ -313,7 +313,7 @@ namespace musica
           MUSICA_ERROR_CATEGORY,
           INTERNAL_RADIATOR_MAP_ERROR,
           GetErrorMessage(INTERNAL_RADIATOR_MAP_ERROR),
-          MUSICA_SEVERITY_CRIT,
+          MUSICA_SEVERITY_CRITICAL,
           error);
       return nullptr;
     }
@@ -331,7 +331,7 @@ namespace musica
           MUSICA_ERROR_CATEGORY,
           ERROR_UNALLOCATED_RADIATOR_MAP,
           GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_MAP),
-          MUSICA_SEVERITY_CRIT,
+          MUSICA_SEVERITY_CRITICAL,
           error);
       return;
     }
@@ -341,13 +341,13 @@ namespace musica
       InternalRemoveRadiator(radiator_map_, radiator_name, strlen(radiator_name), &error_code);
       if (error_code != ERROR_NONE)
       {
-        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERR, error);
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
         return;
       }
     }
     catch (const std::system_error &e)
     {
-      ToError(e, MUSICA_SEVERITY_ERR, error);
+      ToError(e, MUSICA_SEVERITY_ERROR, error);
       return;
     }
     catch (...)
@@ -356,7 +356,7 @@ namespace musica
           MUSICA_ERROR_CATEGORY,
           INTERNAL_RADIATOR_MAP_ERROR,
           GetErrorMessage(INTERNAL_RADIATOR_MAP_ERROR),
-          MUSICA_SEVERITY_CRIT,
+          MUSICA_SEVERITY_CRITICAL,
           error);
       return;
     }
@@ -373,7 +373,7 @@ namespace musica
           MUSICA_ERROR_CATEGORY,
           ERROR_UNALLOCATED_RADIATOR_MAP,
           GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_MAP),
-          MUSICA_SEVERITY_CRIT,
+          MUSICA_SEVERITY_CRITICAL,
           error);
       return;
     }
@@ -383,13 +383,13 @@ namespace musica
       InternalRemoveRadiatorByIndex(radiator_map_, index, &error_code);
       if (error_code != ERROR_NONE)
       {
-        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERR, error);
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
         return;
       }
     }
     catch (const std::system_error &e)
     {
-      ToError(e, MUSICA_SEVERITY_ERR, error);
+      ToError(e, MUSICA_SEVERITY_ERROR, error);
       return;
     }
     catch (...)
@@ -398,7 +398,7 @@ namespace musica
           MUSICA_ERROR_CATEGORY,
           INTERNAL_RADIATOR_MAP_ERROR,
           GetErrorMessage(INTERNAL_RADIATOR_MAP_ERROR),
-          MUSICA_SEVERITY_CRIT,
+          MUSICA_SEVERITY_CRITICAL,
           error);
       return;
     }
@@ -415,7 +415,7 @@ namespace musica
           MUSICA_ERROR_CATEGORY,
           ERROR_UNALLOCATED_RADIATOR_MAP,
           GetErrorMessage(ERROR_UNALLOCATED_RADIATOR_MAP),
-          MUSICA_SEVERITY_CRIT,
+          MUSICA_SEVERITY_CRITICAL,
           error);
       return 0;
     }
@@ -427,13 +427,13 @@ namespace musica
       num_radiators = InternalGetNumberOfRadiators(radiator_map_, &error_code);
       if (error_code != ERROR_NONE)
       {
-        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERR, error);
+        ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
         return 0;
       }
     }
     catch (const std::system_error &e)
     {
-      ToError(e, MUSICA_SEVERITY_ERR, error);
+      ToError(e, MUSICA_SEVERITY_ERROR, error);
       return 0;
     }
     catch (...)
@@ -442,7 +442,7 @@ namespace musica
           MUSICA_ERROR_CATEGORY,
           INTERNAL_RADIATOR_MAP_ERROR,
           GetErrorMessage(INTERNAL_RADIATOR_MAP_ERROR),
-          MUSICA_SEVERITY_CRIT,
+          MUSICA_SEVERITY_CRITICAL,
           error);
       return 0;
     }
