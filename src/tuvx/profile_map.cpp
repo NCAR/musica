@@ -52,7 +52,7 @@ namespace musica
     {
       delete profile_map;
     }
-    catch (const std::system_error &e)
+    catch (const std::exception &e)
     {
       ToError(e, MUSICA_SEVERITY_ERROR, error);
       return;
@@ -186,7 +186,7 @@ namespace musica
       }
       profile->profile_ = nullptr;
     }
-    catch (const std::system_error &e)
+    catch (const std::exception &e)
     {
       ToError(e, MUSICA_SEVERITY_ERROR, error);
       return;
@@ -246,7 +246,7 @@ namespace musica
       }
       profile = new Profile(updater_ptr);
     }
-    catch (const std::system_error &e)
+    catch (const std::exception &e)
     {
       ToError(e, MUSICA_SEVERITY_ERROR, error);
       return nullptr;
@@ -306,7 +306,7 @@ namespace musica
       }
       profile = new Profile(updater_ptr);
     }
-    catch (const std::system_error &e)
+    catch (const std::exception &e)
     {
       ToError(e, MUSICA_SEVERITY_ERROR, error);
       return nullptr;
@@ -351,7 +351,7 @@ namespace musica
         return;
       }
     }
-    catch (const std::system_error &e)
+    catch (const std::exception &e)
     {
       ToError(e, MUSICA_SEVERITY_ERROR, error);
       return;
@@ -394,7 +394,7 @@ namespace musica
         return;
       }
     }
-    catch (const std::system_error &e)
+    catch (const std::exception &e)
     {
       ToError(e, MUSICA_SEVERITY_ERROR, error);
       return;
@@ -438,7 +438,7 @@ namespace musica
         return 0;
       }
     }
-    catch (const std::system_error &e)
+    catch (const std::exception &e)
     {
       ToError(e, MUSICA_SEVERITY_ERROR, error);
       return 0;

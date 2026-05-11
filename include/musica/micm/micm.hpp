@@ -8,6 +8,7 @@
 #include <musica/micm/chemistry.hpp>
 #include <musica/micm/parse.hpp>
 #include <musica/micm/solver_interface.hpp>
+#include <musica/utils/error_code.hpp>
 #include <musica/micm/solver_parameters.hpp>
 
 #include <micm/solver/solver_result.hpp>
@@ -23,55 +24,6 @@
 #include <utility>
 #include <vector>
 
-enum class MusicaErrCode
-{
-  SpeciesNotFound = MUSICA_ERROR_CODE_SPECIES_NOT_FOUND,
-  SolverTypeNotFound = MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND,
-  MappingNotFound = MUSICA_ERROR_CODE_MAPPING_NOT_FOUND,
-  MappingOptionsUndefined = MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED,
-  Unknown = MUSICA_ERROR_CODE_UNKNOWN,
-  UnsupportedSolverStatePair = MUSICA_ERROR_CODE_UNSUPPORTED_SOLVER_STATE_PAIR,
-};
-
-namespace std
-{
-  template<>
-  struct is_error_condition_enum<MusicaErrCode> : true_type
-  {
-  };
-}  // namespace std
-
-namespace
-{
-  class MusicaErrorCategory : public std::error_category
-  {
-   public:
-    const char* name() const noexcept override
-    {
-      return MUSICA_ERROR_CATEGORY;
-    }
-    std::string message(int ev) const override
-    {
-      switch (static_cast<MusicaErrCode>(ev))
-      {
-        case MusicaErrCode::SpeciesNotFound: return "Species not found";
-        case MusicaErrCode::SolverTypeNotFound: return "Solver type not found";
-        case MusicaErrCode::MappingNotFound: return "Mapping not found";
-        case MusicaErrCode::MappingOptionsUndefined: return "Mapping options undefined";
-        case MusicaErrCode::Unknown: return "Unknown error";
-        case MusicaErrCode::UnsupportedSolverStatePair: return "Unsupported solver/state combination";
-        default: return "Unknown error";
-      }
-    }
-  };
-
-  const MusicaErrorCategory MUSICA_ERROR{};
-}  // namespace
-
-inline std::error_code make_error_code(MusicaErrCode e)
-{
-  return { static_cast<int>(e), MUSICA_ERROR };
-}
 
 namespace musica
 {
@@ -130,7 +82,7 @@ namespace musica
           return species.GetProperty<T>(property_name);
         }
       }
-      throw std::system_error(make_error_code(MusicaErrCode::SpeciesNotFound), "Species '" + species_name + "' not found");
+      throw musica::Exception(musica::MicmErrorCode::SpeciesNotFound, "Species '" + species_name + "' not found");
     }
 
     /// @brief Get the maximum number of grid cells per state

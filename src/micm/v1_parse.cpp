@@ -1,5 +1,6 @@
 #include <musica/micm/lambda_callback.hpp>
 #include <musica/micm/parse.hpp>
+#include <musica/utils/error_code.hpp>
 
 #include <micm/Process.hpp>
 #include <micm/System.hpp>
@@ -7,6 +8,8 @@
 
 #include <mechanism_configuration/v1/types.hpp>
 #include <mechanism_configuration/v1/validation.hpp>
+
+#include <algorithm>
 
 namespace musica
 {
@@ -199,8 +202,8 @@ namespace musica
 
       if (it == phase_species_list.end())
       {
-        throw std::system_error(
-            make_error_code(MusicaParseErrc::ParsingFailed),
+        throw musica::Exception(
+            musica::ParseErrorCode::ParsingFailed,
             "Species '" + reaction.gas_phase_species.species_name + "' for surface reaction in gas phase is not found\n");
       }
 
@@ -312,8 +315,8 @@ namespace musica
       parameters.E_ = reaction.E;
       if (reaction.taylor_coefficients.size() > micm::TaylorSeriesRateConstantParameters::MAX_COEFFICIENTS)
       {
-        throw std::system_error(
-            make_error_code(MusicaParseErrc::ParsingFailed),
+        throw musica::Exception(
+            musica::ParseErrorCode::ParsingFailed,
             "Number of Taylor series coefficients for reaction '" + reaction.name + "' exceeds the maximum supported (" +
                 std::to_string(micm::TaylorSeriesRateConstantParameters::MAX_COEFFICIENTS) + ").");
       }
@@ -448,7 +451,7 @@ namespace musica
     using V1 = mechanism_configuration::v1::types::Mechanism;
     V1* v1_mechanism = dynamic_cast<V1*>(result.mechanism.get());
     if (!v1_mechanism)
-      throw std::system_error(make_error_code(MusicaParseErrc::FailedToCastToVersion), "Failed to cast to V1");
+      throw musica::Exception(musica::ParseErrorCode::FailedToCastToVersion, "Failed to cast to V1");
     return ConvertV1Mechanism(*v1_mechanism);
   }
 

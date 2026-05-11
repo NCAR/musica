@@ -4,7 +4,7 @@
 
 #include <musica/tuvx/profile.hpp>
 #include <musica/tuvx/profile_map.hpp>
-#include <musica/util.hpp>
+#include <musica/utils/util.hpp>
 
 #include <memory>
 #include <string>

@@ -1,4 +1,5 @@
 #include <musica/micm/parse.hpp>
+#include <musica/utils/error_code.hpp>
 
 #include <micm/Process.hpp>
 #include <micm/System.hpp>
@@ -187,8 +188,8 @@ namespace musica
           [&surface_species_name](const micm::PhaseSpecies& ps) { return ps.species_.name_ == surface_species_name; });
       if (it == phase_species_list.end())
       {
-        throw std::system_error(
-            make_error_code(MusicaParseErrc::ParsingFailed),
+        throw musica::Exception(
+            musica::ParseErrorCode::ParsingFailed,
             "Species '" + surface_species_name + "' for surface reaction in gas phase is not found\n");
       }
 
@@ -293,7 +294,7 @@ namespace musica
     Chemistry chemistry{};
     if (!v0_mechanism)
     {
-      throw std::system_error(make_error_code(MusicaParseErrc::FailedToCastToVersion), "Failed to cast to V0");
+      throw musica::Exception(musica::ParseErrorCode::FailedToCastToVersion, "Failed to cast to V0");
     }
     else
     {
