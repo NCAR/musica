@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 #pragma once
 
-#include <musica/utils/string.hpp>
 #include <musica/utils/error.hpp>
+#include <musica/utils/string.hpp>
 
 #ifdef __cplusplus
   #include <musica/utils/error_code.hpp>
+
   #include <exception>
   #ifdef MUSICA_USE_MICM
     #include <micm/util/micm_exception.hpp>
@@ -19,30 +20,30 @@ namespace musica
   {
 #endif
 
-  /// @brief The C/Fortran-compatible Error struct
-  struct Error
-  {
-    int code_ = MUSICA_STATUS_SUCCESS;
-    int severity_ = MUSICA_SEVERITY_INFO;
-    String category_;
-    String message_;
-  };
+    /// @brief The C/Fortran-compatible Error struct
+    struct Error
+    {
+      int code_ = MUSICA_STATUS_SUCCESS;
+      int severity_ = MUSICA_SEVERITY_INFO;
+      String category_;
+      String message_;
+    };
 
-  /// @brief Deletes an Error
-  /// @param error The Error to delete
-  void DeleteError(Error* error);
+    /// @brief Deletes an Error
+    /// @param error The Error to delete
+    void DeleteError(Error* error);
 
-  /// @brief Creates an Error indicating no error
-  /// @param error The Error [output]
-  void NoError(Error* error);
+    /// @brief Creates an Error indicating no error
+    /// @param error The Error [output]
+    void NoError(Error* error);
 
-  /// @brief Creates an Error from a category, code, message, and severity
-  /// @param category The category of the Error [input]
-  /// @param code The code of the Error [input]
-  /// @param message The message of the Error [input]
-  /// @param severity The severity of the Error (MUSICA_SEVERITY_WARNING/ERROR/CRITICAL) [input]
-  /// @param error The Error [output]
-  void ToError(const char* category, int code, const char* message, int severity, Error* error);
+    /// @brief Creates an Error from a category, code, message, and severity
+    /// @param category The category of the Error [input]
+    /// @param code The code of the Error [input]
+    /// @param message The message of the Error [input]
+    /// @param severity The severity of the Error (MUSICA_SEVERITY_WARNING/ERROR/CRITICAL) [input]
+    /// @param error The Error [output]
+    void ToError(const char* category, int code, const char* message, int severity, Error* error);
 
 #ifdef __cplusplus
   }
@@ -59,12 +60,12 @@ namespace musica
   /// @param error The Error [output]
   void ToError(const std::exception& e, int severity, Error* error);
 
-#ifdef MUSICA_USE_MICM
+  #ifdef MUSICA_USE_MICM
   /// @brief Creates an Error from a micm::MicmException
   /// @param e The micm::MicmException to convert [input]
   /// @param error The Error [output]
   void ToError(const micm::MicmException& e, Error* error);
-#endif
+  #endif
 
   /// @brief Checks for success
   /// @param error The Error to check
@@ -92,12 +93,24 @@ namespace musica
     {
       return func();
     }
-#ifdef MUSICA_USE_MICM
-    catch (const micm::MicmException& e) { ToError(e, error); }
-#endif
-    catch (const musica::Exception& e)   { ToError(e, MUSICA_SEVERITY_ERROR, error); }
-    catch (const std::exception& e)      { ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, e.what(), MUSICA_SEVERITY_CRITICAL, error); }
-    catch (...)                          { ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, "Unknown error", MUSICA_SEVERITY_CRITICAL, error); }
+  #ifdef MUSICA_USE_MICM
+    catch (const micm::MicmException& e)
+    {
+      ToError(e, error);
+    }
+  #endif
+    catch (const musica::Exception& e)
+    {
+      ToError(e, MUSICA_SEVERITY_ERROR, error);
+    }
+    catch (const std::exception& e)
+    {
+      ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, e.what(), MUSICA_SEVERITY_CRITICAL, error);
+    }
+    catch (...)
+    {
+      ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, "Unknown error", MUSICA_SEVERITY_CRITICAL, error);
+    }
     return decltype(func())();
   }
 

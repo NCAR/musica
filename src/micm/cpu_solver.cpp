@@ -5,12 +5,11 @@
 #include <musica/micm/cpu_solver.hpp>
 #include <musica/micm/micm.hpp>
 #include <musica/micm/solver_parameters.hpp>
+#include <musica/utils/error_code.hpp>
 #include <musica/utils/util.hpp>
 
 #include <micm/solver/backward_euler_solver_parameters.hpp>
 #include <micm/solver/rosenbrock_solver_parameters.hpp>
-
-#include <musica/utils/error_code.hpp>
 
 #include <type_traits>
 
@@ -189,8 +188,7 @@ namespace musica
     auto* cpu_state = dynamic_cast<CpuState*>(state);
     if (!cpu_state)
     {
-      throw musica::Exception(
-          musica::MicmErrorCode::UnsupportedSolverStatePair, "State type incompatible with CpuSolver");
+      throw musica::Exception(musica::MicmErrorCode::UnsupportedSolverStatePair, "State type incompatible with CpuSolver");
     }
 
     return std::visit(CpuSolverVisitor{ time_step }, solver_, cpu_state->GetStateVariant());
@@ -288,8 +286,7 @@ namespace musica
           }
           else
           {
-            throw musica::Exception(
-                musica::ErrorCode::Unknown, "Cannot set Rosenbrock parameters on non-Rosenbrock solver");
+            throw musica::Exception(musica::ErrorCode::Unknown, "Cannot set Rosenbrock parameters on non-Rosenbrock solver");
           }
         },
         solver_);
@@ -324,8 +321,7 @@ namespace musica
           else
           {
             throw musica::Exception(
-                musica::ErrorCode::Unknown,
-                "Cannot set Backward Euler parameters on non-Backward Euler solver");
+                musica::ErrorCode::Unknown, "Cannot set Backward Euler parameters on non-Backward Euler solver");
           }
         },
         solver_);
@@ -383,8 +379,7 @@ namespace musica
           else
           {
             throw musica::Exception(
-                musica::ErrorCode::Unknown,
-                "Cannot get Backward Euler parameters from non-Backward Euler solver");
+                musica::ErrorCode::Unknown, "Cannot get Backward Euler parameters from non-Backward Euler solver");
           }
         },
         solver_);

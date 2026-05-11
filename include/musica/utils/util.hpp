@@ -20,12 +20,12 @@ namespace musica
   {
 #endif
 
-    /// @brief Vector dimension for Vector-ordered matrices
-    #ifdef MUSICA_USE_MICM
-      const size_t MUSICA_VECTOR_SIZE = MICM_DEFAULT_VECTOR_SIZE;
-    #else
-      const size_t MUSICA_VECTOR_SIZE = 0;
-    #endif
+/// @brief Vector dimension for Vector-ordered matrices
+#ifdef MUSICA_USE_MICM
+    const size_t MUSICA_VECTOR_SIZE = MICM_DEFAULT_VECTOR_SIZE;
+#else
+const size_t MUSICA_VECTOR_SIZE = 0;
+#endif
 
     /// @brief A set of configuration data
     struct Configuration

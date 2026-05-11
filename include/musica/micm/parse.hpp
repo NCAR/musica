@@ -1,15 +1,14 @@
 #pragma once
 
-#include <musica/utils/error.hpp>
 #include <musica/micm/chemistry.hpp>
 #include <musica/micm/micm.hpp>
+#include <musica/utils/error.hpp>
 
 #include <mechanism_configuration/parser.hpp>
 #include <mechanism_configuration/v0/types.hpp>
 #include <mechanism_configuration/v1/mechanism.hpp>
 
 #include <stdexcept>
-
 
 namespace musica
 {
