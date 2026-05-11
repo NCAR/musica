@@ -8,8 +8,8 @@
 #include <musica/micm/chemistry.hpp>
 #include <musica/micm/parse.hpp>
 #include <musica/micm/solver_interface.hpp>
-#include <musica/utils/error_code.hpp>
 #include <musica/micm/solver_parameters.hpp>
+#include <musica/utils/error_code.hpp>
 
 #include <micm/solver/solver_result.hpp>
 #include <micm/system/conditions.hpp>
@@ -23,7 +23,6 @@
 #include <string>
 #include <utility>
 #include <vector>
-
 
 namespace musica
 {

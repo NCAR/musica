@@ -113,8 +113,7 @@ TEST(Util, HandleErrorsPreservesExceptionCategoryAndCode)
   Error error;
   NoError(&error);
   HandleErrors(
-      [&]() -> void
-      { throw Exception(MUSICA_MICM_ERROR_CODE_SPECIES_NOT_FOUND, MUSICA_MICM_ERROR_CATEGORY, "test"); },
+      [&]() -> void { throw Exception(MUSICA_MICM_ERROR_CODE_SPECIES_NOT_FOUND, MUSICA_MICM_ERROR_CATEGORY, "test"); },
       &error);
   EXPECT_EQ(error.code_, MUSICA_MICM_ERROR_CODE_SPECIES_NOT_FOUND);
   EXPECT_STREQ(error.category_.value_, MUSICA_MICM_ERROR_CATEGORY);

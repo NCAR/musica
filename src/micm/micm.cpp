@@ -103,7 +103,6 @@ namespace musica
       default:
         std::string const msg = "Solver type " + ToString(solver_type) + " not supported";
         throw musica::Exception(musica::MicmErrorCode::SolverTypeNotFound, msg);
-        
     }
   }
 

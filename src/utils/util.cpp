@@ -86,12 +86,7 @@ namespace musica
     DeleteError(error);
     if (configuration.data_ == nullptr)
     {
-      ToError(
-        MUSICA_ERROR_CATEGORY, 
-        MUSICA_ERROR_CODE_UNKNOWN, 
-        "Invalid configuration", 
-        MUSICA_SEVERITY_ERROR, 
-        error);
+      ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, "Invalid configuration", MUSICA_SEVERITY_ERROR, error);
       return;
     }
     YAML::Node* yaml_data = static_cast<YAML::Node*>(configuration.data_);
