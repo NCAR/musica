@@ -10,6 +10,7 @@ RUN apt update \
     cmake-curses-gui \
     curl \
     gcc \
+    gdb \
     gfortran \
     git \
     lcov \

@@ -4,10 +4,25 @@
 module carma_interface
 
    use iso_c_binding, only: c_int, c_double, c_ptr, c_char, c_null_char, &
-      c_loc, c_f_pointer, c_associated, c_null_ptr, c_bool
+      c_loc, c_f_pointer, c_associated, c_null_ptr, c_bool, c_size_t
 
    implicit none
    private
+
+   interface
+      function c_malloc(size) result(ptr) bind(C, name="malloc")
+         use iso_c_binding, only: c_ptr, c_size_t
+         implicit none
+         integer(c_size_t), value, intent(in) :: size
+         type(c_ptr) :: ptr
+      end function c_malloc
+
+      subroutine c_free(ptr) bind(C, name="free")
+         use iso_c_binding, only: c_ptr
+         implicit none
+         type(c_ptr), value, intent(in) :: ptr
+      end subroutine c_free
+   end interface
 
 #include "musica/carma/error.hpp"
 
@@ -31,7 +46,7 @@ contains
 
    subroutine internal_get_carma_version(version_ptr, version_length) &
       bind(C, name="InternalGetCarmaVersion")
-      use iso_c_binding, only: c_ptr, c_int, c_f_pointer, c_null_char, c_loc, c_char
+      use iso_c_binding, only: c_ptr, c_int, c_null_char, c_char, c_f_pointer, c_size_t
       use carma_version, only: get_carma_version
 
       ! arguments
@@ -40,20 +55,18 @@ contains
 
       ! local variables
       character(len=:),       allocatable :: version_fortran
-      character(kind=c_char), pointer     :: version_string_ptr(:)
+      character(kind=c_char), pointer     :: buf(:)
       integer :: i
 
       version_fortran = get_carma_version()
       version_length = len_trim(version_fortran)
 
-      ! Allocate and copy string
-      allocate(version_string_ptr(version_length + 1))
+      version_ptr = c_malloc(int(version_length + 1, c_size_t))
+      call c_f_pointer(version_ptr, buf, [version_length + 1])
       do i = 1, version_length
-         version_string_ptr(i) = version_fortran(i:i)
+         buf(i) = version_fortran(i:i)
       end do
-      version_string_ptr(version_length + 1) = c_null_char
-
-      version_ptr = c_loc(version_string_ptr)
+      buf(version_length + 1) = c_null_char
 
    end subroutine internal_get_carma_version
 
@@ -61,16 +74,13 @@ contains
 
    subroutine internal_free_carma_version(version_ptr, version_length) &
       bind(C, name="InternalFreeCarmaVersion")
-      use iso_c_binding, only: c_char, c_ptr, c_int, c_associated, c_f_pointer
+      use iso_c_binding, only: c_ptr, c_int, c_associated
 
       type(c_ptr),    value, intent(in) :: version_ptr
       integer(c_int), value, intent(in) :: version_length
-      character(kind=c_char), pointer :: version_string_ptr(:)
 
-      ! Free the allocated version string pointer
       if (c_associated(version_ptr)) then
-         call c_f_pointer(version_ptr, version_string_ptr, [version_length + 1])
-         deallocate(version_string_ptr)
+         call c_free(version_ptr)
       end if
 
    end subroutine internal_free_carma_version
