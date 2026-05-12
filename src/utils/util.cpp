@@ -29,7 +29,7 @@ namespace musica
   void NoError(Error* error)
   {
     DeleteError(error);
-    error->severity_ = MUSICA_SEVERITY_OK;
+    error->severity_ = MUSICA_SEVERITY_INFO;
     error->code_ = 0;
     CreateString("", &error->category_);
     CreateString("Success", &error->message_);
@@ -57,14 +57,7 @@ namespace musica
 #ifdef MUSICA_USE_MICM
   void ToError(const micm::MicmException& e, Error* error)
   {
-    int severity;
-    switch (e.severity_)
-    {
-      case micm::MicmSeverity::Warning: severity = MUSICA_SEVERITY_WARN; break;
-      case micm::MicmSeverity::Critical: severity = MUSICA_SEVERITY_CRIT; break;
-      default: severity = MUSICA_SEVERITY_ERR; break;
-    }
-    ToError(e.category_, e.code_, e.what(), severity, error);
+    ToError(e.category_, e.code_, e.what(), MUSICA_SEVERITY_ERROR, error);
   }
 #endif
 
