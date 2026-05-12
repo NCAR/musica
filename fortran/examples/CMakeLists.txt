@@ -2,7 +2,7 @@ include(test_util)
 
 # TUV-x v5.4 example / integration test
 add_library(tuvx_v54_setup_lib OBJECT tuvx_v54_setup.F90)
-target_link_libraries(tuvx_v54_setup_lib PUBLIC musica::musica-fortran)
+target_link_libraries(tuvx_v54_setup_lib PRIVATE musica::musica-fortran)
 set_target_properties(tuvx_v54_setup_lib
   PROPERTIES
     Fortran_MODULE_DIRECTORY ${MUSICA_MOD_DIR}
@@ -22,7 +22,7 @@ set_tests_properties(tuvx_v54 PROPERTIES TIMEOUT 120)
 
 # Coupled TUV-x + MICM column model
 add_library(column_model_setup_lib OBJECT column_model_setup.F90)
-target_link_libraries(column_model_setup_lib PUBLIC musica::musica-fortran)
+target_link_libraries(column_model_setup_lib PRIVATE musica::musica-fortran)
 set_target_properties(column_model_setup_lib
   PROPERTIES
     Fortran_MODULE_DIRECTORY ${MUSICA_MOD_DIR}
