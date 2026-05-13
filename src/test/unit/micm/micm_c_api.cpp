@@ -440,7 +440,7 @@ void TestSolver(MICM* micm, const size_t num_grid_cells, const double time_step,
     // Set up an initial concentration vector
     std::vector<double> initial_concentrations(state_size * num_concentrations);
 
-    for (int i = 0; i < state_size; ++i)
+    for (size_t i = 0; i < state_size; ++i)
     {
       conditions[i].temperature_ = 275.0 + (rand() % 20 - 10);
       conditions[i].pressure_ = 101253.3 + (rand() % 1000 - 500);
@@ -453,7 +453,7 @@ void TestSolver(MICM* micm, const size_t num_grid_cells, const double time_step,
       concentrations[i * grid_cell_stride_species + F_index * species_stride] = 0.1 + (rand() % 10 - 5) * 0.01;
       user_defined_params[i * grid_cell_stride_params + R1_index * params_stride] = 0.001 + (rand() % 10 - 5) * 0.0001;
       user_defined_params[i * grid_cell_stride_params + R2_index * params_stride] = 0.002 + (rand() % 10 - 5) * 0.0001;
-      for (int j = 0; j < num_concentrations; ++j)
+      for (size_t j = 0; j < num_concentrations; ++j)
       {
         initial_concentrations[i * num_concentrations + j] =
             concentrations[i * grid_cell_stride_species + j * species_stride];
@@ -479,7 +479,7 @@ void TestSolver(MICM* micm, const size_t num_grid_cells, const double time_step,
     ASSERT_STREQ(solver_state.value_, "Converged");
     DeleteString(&solver_state);
 
-    for (int i_cell = 0; i_cell < state_size; ++i_cell)
+    for (size_t i_cell = 0; i_cell < state_size; ++i_cell)
     {
       double const initial_A = initial_concentrations[i_cell * num_concentrations + A_index];
       double const initial_C = initial_concentrations[i_cell * num_concentrations + C_index];
@@ -528,8 +528,8 @@ TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingVectorOrderedRosenbrock)
   ASSERT_TRUE(IsSuccess(error));
   size_t const max_cells = GetMaximumNumberOfGridCells(micm);
   ASSERT_GT(max_cells, 0);
-  for (int num_grid_cells = 1; num_grid_cells <= max_cells * 3;
-       num_grid_cells += static_cast<int>(std::floor(max_cells / 3)))
+  for (size_t num_grid_cells = 1; num_grid_cells <= max_cells * 3;
+       num_grid_cells += static_cast<size_t>(std::floor(max_cells / 3)))
   {
     TestSolver(micm, num_grid_cells, time_step, test_accuracy);
     DeleteError(&error);
@@ -549,7 +549,7 @@ TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingStandardOrderedRosenbrock
   ASSERT_TRUE(IsSuccess(error));
   size_t const max_cells = GetMaximumNumberOfGridCells(micm);
   ASSERT_GT(max_cells, 1e8);
-  for (int num_grid_cells = 1; num_grid_cells <= 20; num_grid_cells += 5)
+  for (size_t num_grid_cells = 1; num_grid_cells <= 20; num_grid_cells += 5)
   {
     TestSolver(micm, num_grid_cells, time_step, test_accuracy);
     DeleteError(&error);
@@ -569,7 +569,7 @@ TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingVectorOrderedBackwardEule
   ASSERT_TRUE(IsSuccess(error));
   size_t const max_cells = GetMaximumNumberOfGridCells(micm);
   ASSERT_GT(max_cells, 0);
-  for (int num_grid_cells = 1; num_grid_cells <= max_cells * 3; num_grid_cells += std::floor(max_cells / 3))
+  for (size_t num_grid_cells = 1; num_grid_cells <= max_cells * 3; num_grid_cells += std::floor(max_cells / 3))
   {
     TestSolver(micm, num_grid_cells, time_step, test_accuracy);
     DeleteError(&error);
@@ -589,7 +589,7 @@ TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingStandardOrderedBackwardEu
   ASSERT_TRUE(IsSuccess(error));
   size_t const max_cells = GetMaximumNumberOfGridCells(micm);
   ASSERT_GT(max_cells, 1.0e8);
-  for (int num_grid_cells = 1; num_grid_cells <= 20; num_grid_cells += 5)
+  for (size_t num_grid_cells = 1; num_grid_cells <= 20; num_grid_cells += 5)
   {
     TestSolver(micm, num_grid_cells, time_step, test_accuracy);
     DeleteError(&error);

@@ -22,7 +22,7 @@ void DoChemistry(musica::MICMSolver solver_type)
   auto result = micm.Solve(&state, time_step);
   EXPECT_EQ(result.state_, micm::SolverState::Converged);
   bool something_changed = false;
-  for (int i = 0; i < initial_concentrations.size(); ++i)
+  for (size_t i = 0; i < initial_concentrations.size(); ++i)
   {
     if (state.GetOrderedConcentrations()[i] != initial_concentrations[i])
     {
