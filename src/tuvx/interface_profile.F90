@@ -38,7 +38,7 @@ contains
       type(grid_updater_t), pointer :: f_grid_updater
       type(profile_from_host_t), pointer :: f_profile
       type(string_t) :: f_name, f_units
-      integer :: i
+      integer(c_size_t) :: i
 
       error_code = ERROR_NONE
       allocate(character(len=profile_name_length) :: f_name%val_)
@@ -238,7 +238,6 @@ contains
       error_code) result(edge_values_ptr) &
       bind(C, name="InternalGetEdgeValuesPointer")
       use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_loc
-      use musica_constants, only: dk => musica_dk
       use tuvx_profile_from_host, only: profile_updater_t
 
       ! arguments
@@ -322,7 +321,6 @@ contains
       error_code) result(midpoint_values_ptr) &
       bind(C, name="InternalGetMidpointValuesPointer")
       use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_loc
-      use musica_constants, only: dk => musica_dk
       use tuvx_profile_from_host, only: profile_updater_t
 
       ! arguments
@@ -412,7 +410,6 @@ contains
       error_code) result(layer_densities_ptr) &
       bind(C, name="InternalGetLayerDensitiesPointer")
       use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_loc
-      use musica_constants, only: dk => musica_dk
       use tuvx_profile_from_host, only: profile_updater_t
 
       ! arguments
@@ -494,7 +491,6 @@ contains
    function internal_get_exo_layer_density(profile_updater, error_code) &
       bind(C, name="InternalGetExoLayerDensity") result(exo_layer_density)
       use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_double
-      use musica_constants, only: dk => musica_dk
       use tuvx_profile_from_host, only: profile_updater_t
 
       ! arguments

@@ -313,7 +313,7 @@ namespace musica
 
     // for use by musica internally.
     void InternalGetCarmaVersion(char** version_ptr, int* version_length);
-    void InternalFreeCarmaVersion(char* version_ptr, int version_length);
+    void InternalFreeCarmaVersion(char* version_ptr);
 
     // CARMA instance management functions
     void* InternalCreateCarma(const CCARMAParameters& params, int* rc);

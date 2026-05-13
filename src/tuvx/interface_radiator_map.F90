@@ -115,7 +115,7 @@ end subroutine internal_delete_radiator_map
     class(radiator_t),          pointer :: f_radiator_ptr
     type(radiator_warehouse_t), pointer :: radiator_warehouse
     character(len=:),       allocatable :: f_radiator_name
-    integer                             :: i
+    integer(c_size_t)                   :: i
 
     ! result
     type(c_ptr) :: radiator_ptr
@@ -216,7 +216,7 @@ end subroutine internal_delete_radiator_map
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  integer function internal_get_number_of_radiators(radiator_map, error_code) &
+  integer(c_int) function internal_get_number_of_radiators(radiator_map, error_code) &
       bind(C, name="InternalGetNumberOfRadiators")
     use iso_c_binding, only: c_ptr, c_f_pointer, c_int
     use tuvx_radiator_warehouse, only: radiator_warehouse_t
@@ -257,7 +257,7 @@ end subroutine internal_delete_radiator_map
     ! variables
     type(radiator_warehouse_t), pointer :: f_radiator_warehouse
     character(len=:),       allocatable :: f_radiator_name
-    integer                             :: i
+    integer(c_size_t)                   :: i
 
     error_code = ERROR_NONE
     allocate(character(len=c_radiator_name_length) :: f_radiator_name)
@@ -297,7 +297,7 @@ end subroutine internal_delete_radiator_map
 
     ! variables
     type(radiator_warehouse_t), pointer :: f_radiator_warehouse
-    integer :: i, j
+    integer(c_size_t) :: i, j
     type(radiator_ptr), allocatable :: temp_radiators(:)
 
     error_code = ERROR_NONE

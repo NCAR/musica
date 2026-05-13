@@ -30,7 +30,7 @@ namespace musica
       if (elem.constant_concentration.has_value())
       {
         auto constant_concentration = elem.constant_concentration.value();
-        s.parameterize_ = [constant_concentration](const micm::Conditions& c) { return constant_concentration; };
+        s.parameterize_ = [constant_concentration](const micm::Conditions&) { return constant_concentration; };
       }
       if (elem.constant_mixing_ratio.has_value())
       {

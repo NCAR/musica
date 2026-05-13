@@ -30,7 +30,7 @@ namespace musica
       std::memcpy(return_value, version_ptr, version_length);
       return_value[version_length] = '\0';
 
-      InternalFreeCarmaVersion(version_ptr, version_length);
+      InternalFreeCarmaVersion(version_ptr);
       return return_value;
     }
 

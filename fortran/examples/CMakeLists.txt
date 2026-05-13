@@ -2,14 +2,14 @@ include(test_util)
 
 # TUV-x v5.4 example / integration test
 add_library(tuvx_v54_setup_lib OBJECT tuvx_v54_setup.F90)
-target_link_libraries(tuvx_v54_setup_lib PRIVATE musica::musica-fortran)
+target_link_libraries(tuvx_v54_setup_lib PUBLIC musica::musica-fortran)
 set_target_properties(tuvx_v54_setup_lib
   PROPERTIES
     Fortran_MODULE_DIRECTORY ${MUSICA_MOD_DIR}
 )
 
 add_executable(test_tuvx_v54 tuvx_v54.F90)
-target_link_libraries(test_tuvx_v54 PUBLIC musica::musica-fortran tuvx_v54_setup_lib)
+target_link_libraries(test_tuvx_v54 PUBLIC tuvx_v54_setup_lib)
 if (${CMAKE_Fortran_COMPILER_ID} MATCHES "Intel" OR ${CMAKE_Fortran_COMPILER_ID} MATCHES "NVHPC")
   set_target_properties(test_tuvx_v54 PROPERTIES LINKER_LANGUAGE Fortran)
 endif()
@@ -22,7 +22,7 @@ set_tests_properties(tuvx_v54 PROPERTIES TIMEOUT 120)
 
 # Coupled TUV-x + MICM column model
 add_library(column_model_setup_lib OBJECT column_model_setup.F90)
-target_link_libraries(column_model_setup_lib PRIVATE musica::musica-fortran)
+target_link_libraries(column_model_setup_lib PUBLIC musica::musica-fortran)
 set_target_properties(column_model_setup_lib
   PROPERTIES
     Fortran_MODULE_DIRECTORY ${MUSICA_MOD_DIR}
@@ -30,7 +30,7 @@ set_target_properties(column_model_setup_lib
 
 add_executable(test_column_model column_model.F90)
 target_link_libraries(test_column_model PUBLIC
-  musica::musica-fortran tuvx_v54_setup_lib column_model_setup_lib)
+  tuvx_v54_setup_lib column_model_setup_lib)
 if (${CMAKE_Fortran_COMPILER_ID} MATCHES "Intel" OR ${CMAKE_Fortran_COMPILER_ID} MATCHES "NVHPC")
   set_target_properties(test_column_model PROPERTIES LINKER_LANGUAGE Fortran)
 endif()

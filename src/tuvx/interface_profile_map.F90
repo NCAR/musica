@@ -118,7 +118,7 @@ module tuvx_interface_profile_map
     type(profile_warehouse_t), pointer :: profile_warehouse
     character(len=:), allocatable      :: f_profile_name
     character(len=:), allocatable      :: f_profile_units
-    integer                            :: i, i_profile
+    integer(c_size_t)                  :: i, i_profile
 
     ! result
     type(c_ptr) :: profile_ptr
@@ -233,7 +233,7 @@ module tuvx_interface_profile_map
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  integer function internal_get_number_of_profiles(profile_map, error_code) &
+  integer(c_int) function internal_get_number_of_profiles(profile_map, error_code) &
       bind(C, name="InternalGetNumberOfProfiles")
     use iso_c_binding, only: c_ptr, c_f_pointer, c_int
     use tuvx_profile_warehouse, only: profile_warehouse_t
@@ -277,7 +277,7 @@ module tuvx_interface_profile_map
     type(profile_warehouse_t), pointer :: profile_warehouse
     character(len=:), allocatable      :: f_profile_name
     character(len=:), allocatable      :: f_profile_units
-    integer                            :: i
+    integer(c_size_t)                  :: i
 
     error_code = ERROR_NONE
     allocate(character(len=c_profile_name_length) :: f_profile_name)
@@ -324,8 +324,8 @@ module tuvx_interface_profile_map
     integer(kind=c_int),           intent(out) :: error_code
 
     type(profile_warehouse_t), pointer :: f_profile_warehouse
-    integer :: i, j
     type(profile_ptr), allocatable :: temp_profiles(:)
+    integer(c_size_t) :: i, j
 
     error_code = ERROR_NONE
     call c_f_pointer(profile_map, f_profile_warehouse)

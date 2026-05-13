@@ -72,12 +72,11 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-   subroutine internal_free_carma_version(version_ptr, version_length) &
+   subroutine internal_free_carma_version(version_ptr) &
       bind(C, name="InternalFreeCarmaVersion")
-      use iso_c_binding, only: c_ptr, c_int, c_associated
+      use iso_c_binding, only: c_ptr, c_associated
 
-      type(c_ptr),    value, intent(in) :: version_ptr
-      integer(c_int), value, intent(in) :: version_length
+      type(c_ptr), value, intent(in) :: version_ptr
 
       if (c_associated(version_ptr)) then
          call c_free(version_ptr)
@@ -255,7 +254,7 @@ contains
       integer(c_int),    value, intent(in)  :: element_index
       type(c_ptr),       value              :: values_ptr
       integer(c_int),    value, intent(in)  :: values_size
-      real(kind=real64), value, intent(in)  :: surface_mass
+      real(c_double),    value, intent(in)  :: surface_mass
       integer(c_int),           intent(out) :: rc
 
       ! Local variables
@@ -370,7 +369,6 @@ contains
       real(kind=real64), allocatable :: gas_saturation_wrt_ice(:)
       real(kind=real64), allocatable :: gas_saturation_wrt_liquid(:)
       type(carmastate_type), pointer :: cstate
-      integer :: index
 
       if (gas_index < 1) then
          rc = MUSICA_CARMA_ERROR_CODE_DIMENSION_MISMATCH
@@ -429,12 +427,12 @@ contains
 
       type(c_ptr), value, intent(in)     :: carma_state_cptr
       integer(c_int), intent(out)  :: max_number_of_substeps
-      real(real64), intent(out)    :: max_number_of_retries
-      real(real64), intent(out)    :: total_number_of_steps
+      real(c_double), intent(out)  :: max_number_of_retries
+      real(c_double), intent(out)  :: total_number_of_steps
       integer(c_int), intent(out)  :: total_number_of_substeps
-      real(real64), intent(out)    :: total_number_of_retries
-      real(real64), intent(out)    :: xc
-      real(real64), intent(out)    :: yc
+      real(c_double), intent(out)  :: total_number_of_retries
+      real(c_double), intent(out)  :: xc
+      real(c_double), intent(out)  :: yc
       type(c_ptr),    value              :: z_substeps
       integer(c_int), value, intent(in)  :: nz
       integer(c_int), intent(out)        :: rc
@@ -505,10 +503,10 @@ contains
       type(c_ptr),    value              :: wet_particle_radius_ptr
       type(c_ptr),    value              :: wet_particle_density_ptr
       type(c_ptr),    value              :: dry_particle_density_ptr
-      real(real64),   intent(out)        :: particle_mass_on_surface
-      real(real64),   intent(out)        :: sedimentation_flux
+      real(c_double), intent(out)        :: particle_mass_on_surface
+      real(c_double), intent(out)        :: sedimentation_flux
       type(c_ptr),    value              :: fall_velocity_ptr
-      real(real64),   intent(out)        :: deposition_velocity
+      real(c_double), intent(out)        :: deposition_velocity
       type(c_ptr),    value              :: delta_particle_temperature_ptr
       type(c_ptr),    value              :: kappa_ptr
       type(c_ptr),    value              :: total_mass_mixing_ratio_ptr

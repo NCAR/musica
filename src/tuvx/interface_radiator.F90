@@ -38,7 +38,7 @@ module tuvx_interface_radiator
     type(string_t)                      :: f_name
     type(grid_updater_t),       pointer :: f_height_grid_updater
     type(grid_updater_t),       pointer :: f_wavelength_grid_updater
-    integer                             :: i
+    integer(c_size_t)                   :: i
 
     error_code = ERROR_NONE
     allocate(character(len=radiator_name_length) :: f_name%val_)
@@ -229,7 +229,6 @@ module tuvx_interface_radiator
       bind(C, name="InternalGetOpticalDepthsPointer") &
       result(optical_depths_ptr)
     use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_loc, c_null_ptr
-    use musica_constants, only: dk => musica_dk
     use tuvx_radiator_from_host, only: radiator_updater_t
 
     ! arguments
@@ -337,7 +336,6 @@ module tuvx_interface_radiator
       bind(C, name="InternalGetSingleScatteringAlbedosPointer") &
       result(single_scattering_albedos_ptr)
     use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_loc, c_null_ptr
-    use musica_constants, only: dk => musica_dk
     use tuvx_radiator_from_host, only: radiator_updater_t
 
     ! arguments
@@ -448,7 +446,6 @@ end subroutine internal_get_asymmetry_factors
       bind(C, name="InternalGetAsymmetryFactorsPointer") &
       result(asymmetry_factors_ptr)
     use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_loc, c_null_ptr
-    use musica_constants, only: dk => musica_dk
     use tuvx_radiator_from_host, only: radiator_updater_t
 
     ! arguments

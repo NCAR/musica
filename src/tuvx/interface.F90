@@ -60,7 +60,7 @@ contains
       type(profile_warehouse_t),  pointer :: profile_map
       type(radiator_warehouse_t), pointer :: radiator_map
       type(grid_t), pointer               :: height_grid, wavelength_grid
-      integer                             :: i
+      integer(c_size_t)                   :: i
 
       allocate(character(len=config_path_length) :: f_config_path)
       do i = 1, config_path_length
@@ -114,7 +114,7 @@ contains
       type(profile_warehouse_t),  pointer :: profile_map
       type(radiator_warehouse_t), pointer :: radiator_map
       type(grid_t), pointer               :: height_grid, wavelength_grid
-      integer                             :: i
+      integer(c_size_t)                   :: i
 
       allocate(character(len=config_string_length) :: f_config_string)
       do i = 1, config_string_length
@@ -355,7 +355,7 @@ contains
       number_of_wavelength_midpoints, solar_zenith_angle, earth_sun_distance, &
       photolysis_rate_constants, heating_rates, dose_rates, actinic_flux, &
       spectral_irradiance, error_code) bind(C, name="InternalRunTuvx")
-      use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_associated
+      use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_double, c_associated
       use musica_constants, only: dk => musica_dk
       use tuvx_solver, only: radiation_field_t
 
@@ -363,8 +363,8 @@ contains
       type(c_ptr),         value,  intent(in)  :: tuvx
       integer(kind=c_int), value,  intent(in)  :: number_of_height_midpoints
       integer(kind=c_int), value,  intent(in)  :: number_of_wavelength_midpoints
-      real(kind=dk),       value,  intent(in)  :: solar_zenith_angle         ! degrees
-      real(kind=dk),       value,  intent(in)  :: earth_sun_distance         ! AU
+      real(c_double),      value,  intent(in)  :: solar_zenith_angle         ! degrees
+      real(c_double),      value,  intent(in)  :: earth_sun_distance         ! AU
       type(c_ptr),         value,  intent(in)  :: photolysis_rate_constants  ! s^-1 (vertical edge, reaction)
       type(c_ptr),         value,  intent(in)  :: heating_rates              ! K s^-1 (vertical edge, heating_rate)
       type(c_ptr),         value,  intent(in)  :: dose_rates                 ! J m^-2 (vertical edge, dose_rate type)
@@ -447,13 +447,12 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-   subroutine internal_free_tuvx_version(version_ptr, version_length) &
+   subroutine internal_free_tuvx_version(version_ptr) &
       bind(C, name="InternalFreeTuvxVersion")
-      use iso_c_binding, only: c_ptr, c_int, c_associated
+      use iso_c_binding, only: c_ptr, c_associated
 
       ! arguments
-      type(c_ptr),    value, intent(in) :: version_ptr
-      integer(c_int), value, intent(in) :: version_length
+      type(c_ptr), value, intent(in) :: version_ptr
 
       if (c_associated(version_ptr)) then
          call c_free(version_ptr)

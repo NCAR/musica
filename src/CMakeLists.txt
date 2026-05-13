@@ -103,6 +103,10 @@ set_target_properties(musica PROPERTIES
 # Warnings as errors (CI only by convention)
 if(MUSICA_COMPILE_WARNING_AS_ERROR)
   set_target_properties(musica PROPERTIES COMPILE_WARNING_AS_ERROR ON)
+  target_compile_options(musica PRIVATE
+    $<$<CXX_COMPILER_ID:MSVC>:/W4>
+    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic>
+  )
 endif()
 
 # Set the rpath for the shared library

@@ -1,5 +1,12 @@
 target_link_libraries(musica PUBLIC musica::micm)
 
+# Treat micm headers as system includes to suppress warnings from external code
+if(micm_SOURCE_DIR)
+  target_include_directories(musica SYSTEM PUBLIC
+    $<BUILD_INTERFACE:${micm_SOURCE_DIR}/include>
+  )
+endif()
+
 # Link against dl for dlopen/dlsym on Linux
 # needed for cuda plugin loading and micm dynamic loading
 if(UNIX AND NOT APPLE)
