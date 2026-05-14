@@ -23,6 +23,7 @@ endif()
 ################################################################################
 # Mechanism Configuration
 # Skip if using prebuilt musica (already includes mechanism_configuration)
+# fmt support enabled for NOAA CATChem model
 
 if(MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(MECH_CONFIG_GIT_REPOSITORY https://github.com/NCAR/MechanismConfiguration.git)
