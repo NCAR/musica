@@ -60,14 +60,14 @@ endif()
 ################################################################################
 # Configure musica target
 
-# Compiler options
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-  if (MSVC)
-    target_compile_options(musica PUBLIC /WX)
-  else()
-    target_compile_options(musica PUBLIC -Werror)
-  endif()
-endif()
+# # Compiler options
+# if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+#   if (MSVC)
+#     target_compile_options(musica PUBLIC /WX)
+#   else()
+#     target_compile_options(musica PUBLIC -Werror)
+#   endif()
+# endif()
 
 target_include_directories(musica
   PUBLIC
