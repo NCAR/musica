@@ -779,7 +779,7 @@ contains
       character(kind=c_char, len=1), allocatable :: name_c(:)
       type(error_t_c) :: error_c
 
-      name_c = to_c_string( name )
+      allocate( name_c, source=to_c_string( name ) )
       index = int( find_mapping_index_c( this%mappings_c_, name_c, error_c ) ) + 1
       error = error_t( error_c )
 
