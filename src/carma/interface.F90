@@ -106,7 +106,7 @@ contains
 
    function internal_create_carma_state(carma_cptr, carma_params, carma_state_params, rc) &
       bind(C, name="InternalCreateCarmaState") result(carma_state_cptr)
-      use iso_c_binding, only: c_ptr, c_int, c_double, c_loc, c_f_pointer
+      use iso_c_binding, only: c_ptr, c_int, c_double, c_loc, c_f_pointer, c_null_ptr
       use iso_fortran_env, only: real64
       use carma_types_mod, only: carma_type
       use carma_parameters_mod, only: carma_parameters_t, carma_state_parameter_t
@@ -139,6 +139,7 @@ contains
       integer :: alloc_stat
 
       rc = 0
+      carma_state_cptr = c_null_ptr
 
       ! Create the CARMA instance
       allocate(cstate, stat=alloc_stat)
