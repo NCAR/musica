@@ -50,8 +50,8 @@ TEST_F(MicmCApiTestFixture, BadSolver)
 {
   MICM* null_micm = nullptr;
   Error error;
-  auto state = CreateMicmState(null_micm, 1, &error);
-  ASSERT_EQ(state, nullptr);
+  auto null_state = CreateMicmState(null_micm, 1, &error);
+  ASSERT_EQ(null_state, nullptr);
   ASSERT_EQ(error.code_, MUSICA_MICM_ERROR_CODE_NULL_POINTER);
   ASSERT_STREQ(error.category_.value_, MUSICA_MICM_ERROR_CATEGORY);
   DeleteError(&error);

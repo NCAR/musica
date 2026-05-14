@@ -259,7 +259,7 @@ contains
       error_code = 0
       call c_f_pointer(tuvx, core)
 
-      labels = core%photolysis_reaction_labels()
+      allocate( labels, source=core%photolysis_reaction_labels() )
       n_labels = size(labels)
       mappings_ptr = allocate_mappings_c(int(n_labels, kind=c_size_t))
       call c_f_pointer(mappings_ptr, mappings, [ n_labels ])
@@ -297,7 +297,7 @@ contains
       error_code = 0
       call c_f_pointer(tuvx, core)
 
-      labels = core%heating_rate_labels()
+      allocate( labels, source=core%heating_rate_labels() )
       n_labels = size(labels)
       mappings_ptr = allocate_mappings_c(int(n_labels, kind=c_size_t))
       call c_f_pointer(mappings_ptr, mappings, [ n_labels ])
