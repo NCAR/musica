@@ -186,6 +186,7 @@ program tuvx_v54_example
   write(*,*) "Results written to tuvx_v54_fortran_results.csv"
 
   ! Clean up
+  if (allocated(rxn_name)) deallocate(rxn_name)
   deallocate(photo_rates, heating_rates)
   deallocate(photo_rates_mod, heating_rates_mod)
   deallocate(photo_mappings)

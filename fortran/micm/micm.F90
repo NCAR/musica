@@ -203,6 +203,18 @@ module musica_micm
       type(backward_euler_solver_parameters_t_c), intent(inout) :: params
       type(error_t_c), intent(inout)                           :: error
     end subroutine get_backward_euler_solver_parameters_c
+
+    subroutine free_rosenbrock_solver_parameters_c(params) &
+        bind(C, name="FreeRosenbrockSolverParameters")
+      import rosenbrock_solver_parameters_t_c
+      type(rosenbrock_solver_parameters_t_c), intent(inout) :: params
+    end subroutine free_rosenbrock_solver_parameters_c
+
+    subroutine free_backward_euler_solver_parameters_c(params) &
+        bind(C, name="FreeBackwardEulerSolverParameters")
+      import backward_euler_solver_parameters_t_c
+      type(backward_euler_solver_parameters_t_c), intent(inout) :: params
+    end subroutine free_backward_euler_solver_parameters_c
   end interface
 
   type :: micm_t
@@ -615,6 +627,7 @@ contains
       allocate(params%absolute_tolerances(int(params_c%num_absolute_tolerances)))
       params%absolute_tolerances = real(abs_tol_ptr, real64)
     end if
+    call free_rosenbrock_solver_parameters_c(params_c)
   end function get_rosenbrock_solver_parameters
 
   function get_backward_euler_solver_parameters(this, error) result(params)
@@ -646,6 +659,7 @@ contains
       call c_f_pointer(params_c%time_step_reductions, tsr_ptr, [int(params_c%num_time_step_reductions)])
       params%time_step_reductions = real(tsr_ptr, real64)
     end if
+    call free_backward_euler_solver_parameters_c(params_c)
   end function get_backward_euler_solver_parameters
 
 end module musica_micm

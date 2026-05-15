@@ -273,4 +273,37 @@ namespace musica
         error);
   }
 
+  void FreeRosenbrockSolverParameters(RosenbrockSolverParametersC* params)
+  {
+    if (params == nullptr)
+      return;
+
+    if (params->absolute_tolerances != nullptr)
+    {
+      delete[] params->absolute_tolerances;
+      params->absolute_tolerances = nullptr;
+    }
+    params->num_absolute_tolerances = 0;
+  }
+
+  void FreeBackwardEulerSolverParameters(BackwardEulerSolverParametersC* params)
+  {
+    if (params == nullptr)
+      return;
+
+    if (params->absolute_tolerances != nullptr)
+    {
+      delete[] params->absolute_tolerances;
+      params->absolute_tolerances = nullptr;
+    }
+    params->num_absolute_tolerances = 0;
+
+    if (params->time_step_reductions != nullptr)
+    {
+      delete[] params->time_step_reductions;
+      params->time_step_reductions = nullptr;
+    }
+    params->num_time_step_reductions = 0;
+  }
+
 }  // namespace musica
