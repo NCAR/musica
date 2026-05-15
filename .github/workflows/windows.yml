@@ -82,7 +82,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        build_type: [Release]
+        build_type: [Debug]
 
     steps:
       - name: Checkout code
