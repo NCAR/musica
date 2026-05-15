@@ -15,9 +15,8 @@ endfunction(set_git_default)
 # NetCDF library
 
 if (MUSICA_ENABLE_CARMA OR MUSICA_ENABLE_TUVX)
-  find_package(PkgConfig REQUIRED)
-  pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
-  pkg_check_modules(netcdfc IMPORTED_TARGET REQUIRED netcdf)
+  find_package(netCDF CONFIG REQUIRED)
+  find_package(netCDF-Fortran CONFIG REQUIRED)
 endif()
 
 ################################################################################
@@ -108,7 +107,7 @@ if (MUSICA_ENABLE_TUVX AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBU
   # NOTE: `docker/Dockerfile.tuvx` extracts TUVX_GIT_REPOSITORY and TUVX_GIT_TAG
   #       from this script to set up tests against stand-alone TUV-x
   set_git_default(TUVX_GIT_REPOSITORY https://github.com/NCAR/tuv-x.git)
-  set_git_default(TUVX_GIT_TAG v0.15.0)
+  set_git_default(TUVX_GIT_TAG 053bed25a09dac00eb95fc46668a64be4410b2c0)
 
   FetchContent_Declare(tuvx
     GIT_REPOSITORY ${TUVX_GIT_REPOSITORY}

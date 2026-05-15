@@ -84,7 +84,7 @@ endif()
 
 # NetCDF for CARMA or TUV-x
 if (MUSICA_ENABLE_CARMA OR MUSICA_ENABLE_TUVX)
-  target_link_libraries(musica PRIVATE PkgConfig::netcdfc PkgConfig::netcdff)
+  target_link_libraries(musica PRIVATE netCDF::netcdf netCDF::netcdff)
 endif()
 
 target_compile_definitions(musica PUBLIC ${musica_compile_definitions})
