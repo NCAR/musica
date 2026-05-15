@@ -1,15 +1,15 @@
-FROM fedora:latest
+FROM fedora:42
 
 ARG BUILD_TYPE=Debug
 
-RUN dnf -y update \
-    && dnf -y install \
+RUN dnf -y install \
         cmake \
         gcc-c++ \
         gfortran \
         gdb \
         git \
         lapack-devel \
+        libasan \
         lcov \
         make \
         netcdf-fortran-devel \
