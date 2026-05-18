@@ -15,8 +15,7 @@ endfunction(set_git_default)
 # NetCDF library
 
 if (MUSICA_ENABLE_CARMA OR MUSICA_ENABLE_TUVX)
-  find_package(netCDF CONFIG REQUIRED)
-  find_package(netCDF-Fortran CONFIG REQUIRED)
+  find_package(NetCDF REQUIRED)
 endif()
 
 ################################################################################
