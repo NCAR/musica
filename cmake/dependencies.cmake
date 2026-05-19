@@ -26,7 +26,7 @@ endif()
 
 if(MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(MECH_CONFIG_GIT_REPOSITORY https://github.com/NCAR/MechanismConfiguration.git)
-  set_git_default(MECH_CONFIG_GIT_TAG a18a8d97daf84d664892c3d6dbbc5f282848748d)
+  set_git_default(MECH_CONFIG_GIT_TAG a4b8166a5451a1a41109574efd2d65ddd28be612)
 
   FetchContent_Declare(mechanism_configuration
       GIT_REPOSITORY ${MECH_CONFIG_GIT_REPOSITORY}
@@ -74,7 +74,7 @@ endif()
 
 if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(MICM_GIT_REPOSITORY https://github.com/NCAR/micm.git)
-  set_git_default(MICM_GIT_TAG 3b7ab03524a6910f0a657d72f9bc2b7861ca2733)
+  set_git_default(MICM_GIT_TAG dea87940fd137a4df883008c3547e4c75a613a58)
 
   FetchContent_Declare(micm
       GIT_REPOSITORY ${MICM_GIT_REPOSITORY}
