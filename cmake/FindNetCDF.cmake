@@ -13,8 +13,12 @@
 #   NetCDF_FOUND   - True if both targets were found/created
 #   NetCDF_VERSION - Version of netcdf-c (set when config files are available)
 
-# If a parent project already created the targets, accept them as-is
-if(TARGET netCDF::netcdf AND TARGET netCDF::netcdff)
+# If the C target already exists we are either fully done (both targets present)
+# or being called recursively from find_dependency(netCDF) inside
+# netCDF-FortranConfig.cmake. In both cases just return: the Fortran target is
+# either already there or will be created by the config file that triggered this
+# recursive call.
+if(TARGET netCDF::netcdf)
   set(NetCDF_FOUND TRUE)
   return()
 endif()
