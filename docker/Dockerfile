@@ -1,15 +1,15 @@
-FROM fedora:latest
+FROM fedora:42
 
 ARG BUILD_TYPE=Debug
 
-RUN dnf -y update \
-    && dnf -y install \
+RUN dnf -y install \
         cmake \
         gcc-c++ \
         gfortran \
         gdb \
         git \
         lapack-devel \
+        libasan \
         lcov \
         make \
         netcdf-fortran-devel \
@@ -24,15 +24,23 @@ COPY . musica
 # Build
 RUN cd musica \
     && cmake -S . \
-             -B build \
-             -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
-             -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
+        -DCMAKE_C_FLAGS="-fsanitize=address -g" \
+        -DCMAKE_CXX_FLAGS="-fsanitize=address -g" \
+        -DCMAKE_Fortran_FLAGS="-fsanitize=address -g" \
+        -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address" \
+        -DCMAKE_SHARED_LINKER_FLAGS="-fsanitize=address" \
+        -DMUSICA_BUILD_FORTRAN_INTERFACE=ON \
+        -B build \
+        -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
     && cd build \
     && make install -j 1
     
 # Try building a simple application
 RUN cd musica/build \
-    && gcc $(pkg-config --cflags musica) -o test_simple /musica/src/test/test_simple.c $(pkg-config --libs musica) \
+    && gcc -fsanitize=address $(pkg-config --cflags musica) -o test_simple /musica/src/test/test_simple.c $(pkg-config --libs musica) -fsanitize=address \
     && ./test_simple
 
-WORKDIR musica/build
+# Copy the tuvx configs for testing
+RUN cp -r /musica/configs/tuvx/* /musica/build/
+
+WORKDIR /musica/build
