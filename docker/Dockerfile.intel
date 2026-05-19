@@ -1,0 +1,60 @@
+# versions and sizes from here: https://hub.docker.com/r/intel/oneapi-hpckit/tags
+FROM intel/oneapi-hpckit:2025.3.0-0-devel-ubuntu24.04
+
+ARG MUSICA_GIT_TAG=main
+ARG BUILD_TYPE=Debug
+
+RUN apt update \
+    && apt -y install \
+    cmake \
+    cmake-curses-gui \
+    curl \
+    gcc \
+    gdb \
+    gfortran \
+    git \
+    lcov \
+    liblapack-dev \
+    libcurl4-openssl-dev \
+    libhdf5-dev \
+    libnetcdf-dev \
+    m4 \
+    make \
+    valgrind \
+    vim \
+    zlib1g-dev \
+    && apt clean 
+
+# Use Intel compilers
+ENV CC=icx
+ENV CXX=icpx
+ENV FC=ifx
+
+# Build netcdf-fortran
+RUN git clone https://github.com/Unidata/netcdf-fortran.git \
+    && cd netcdf-fortran \
+    && git checkout v4.6.0 \
+    && mkdir build && cd build \
+    && cmake .. \
+    && make -j 8 \
+    && make install
+
+# Copy the musica code
+COPY . musica
+
+# Build
+RUN cd musica \
+    && cmake -S . \
+             -B build \
+             -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+             -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
+             -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
+    && cd build \
+    && make install -j 8
+    
+# Try building a simple application
+RUN cd musica/build \
+    && icx $(pkg-config --cflags musica) -o test_simple /musica/src/test/test_simple.c $(pkg-config --libs musica) \
+    && ./test_simple
+
+WORKDIR musica/build

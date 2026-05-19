@@ -48,10 +48,10 @@ class MicmCApiTestFixture : public ::testing::Test
 // Test case for bad solver
 TEST_F(MicmCApiTestFixture, BadSolver)
 {
-  MICM* micm = nullptr;
+  MICM* null_micm = nullptr;
   Error error;
-  auto state = CreateMicmState(micm, 1, &error);
-  ASSERT_EQ(state, nullptr);
+  auto null_state = CreateMicmState(null_micm, 1, &error);
+  ASSERT_EQ(null_state, nullptr);
   ASSERT_EQ(error.code_, MUSICA_MICM_ERROR_CODE_NULL_POINTER);
   ASSERT_STREQ(error.category_.value_, MUSICA_MICM_ERROR_CATEGORY);
   DeleteError(&error);
@@ -61,11 +61,11 @@ TEST_F(MicmCApiTestFixture, BadSolver)
 TEST_F(MicmCApiTestFixture, CreateStateSuccess)
 {
   Error error;
-  musica::MICM* micm = CreateMicm(config_path, MICMSolver::Rosenbrock, &error);
-  auto state = CreateMicmState(micm, num_grid_cells, &error);
-  ASSERT_NE(state, nullptr);
-  delete state;
-  delete micm;
+  musica::MICM* test_micm = CreateMicm(config_path, MICMSolver::Rosenbrock, &error);
+  auto test_state = CreateMicmState(test_micm, num_grid_cells, &error);
+  ASSERT_NE(test_state, nullptr);
+  delete test_state;
+  delete test_micm;
 }
 
 // Test case for bad configuration file path
@@ -440,7 +440,7 @@ void TestSolver(MICM* micm, const size_t num_grid_cells, const double time_step,
     // Set up an initial concentration vector
     std::vector<double> initial_concentrations(state_size * num_concentrations);
 
-    for (int i = 0; i < state_size; ++i)
+    for (size_t i = 0; i < state_size; ++i)
     {
       conditions[i].temperature_ = 275.0 + (rand() % 20 - 10);
       conditions[i].pressure_ = 101253.3 + (rand() % 1000 - 500);
@@ -453,7 +453,7 @@ void TestSolver(MICM* micm, const size_t num_grid_cells, const double time_step,
       concentrations[i * grid_cell_stride_species + F_index * species_stride] = 0.1 + (rand() % 10 - 5) * 0.01;
       user_defined_params[i * grid_cell_stride_params + R1_index * params_stride] = 0.001 + (rand() % 10 - 5) * 0.0001;
       user_defined_params[i * grid_cell_stride_params + R2_index * params_stride] = 0.002 + (rand() % 10 - 5) * 0.0001;
-      for (int j = 0; j < num_concentrations; ++j)
+      for (size_t j = 0; j < num_concentrations; ++j)
       {
         initial_concentrations[i * num_concentrations + j] =
             concentrations[i * grid_cell_stride_species + j * species_stride];
@@ -479,7 +479,7 @@ void TestSolver(MICM* micm, const size_t num_grid_cells, const double time_step,
     ASSERT_STREQ(solver_state.value_, "Converged");
     DeleteString(&solver_state);
 
-    for (int i_cell = 0; i_cell < state_size; ++i_cell)
+    for (size_t i_cell = 0; i_cell < state_size; ++i_cell)
     {
       double const initial_A = initial_concentrations[i_cell * num_concentrations + A_index];
       double const initial_C = initial_concentrations[i_cell * num_concentrations + C_index];
@@ -520,18 +520,18 @@ TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingVectorOrderedRosenbrock)
 {
   constexpr double time_step = 200.0;
   constexpr double test_accuracy = 5.0e-3;
-  const char* config_path = "configs/v0/analytical";
+  const char* analytical_config_path = "configs/v0/analytical";
   Error error;
   DeleteMicm(micm, &error);
   ASSERT_TRUE(IsSuccess(error));
-  micm = CreateMicm(config_path, MICMSolver::Rosenbrock, &error);
+  micm = CreateMicm(analytical_config_path, MICMSolver::Rosenbrock, &error);
   ASSERT_TRUE(IsSuccess(error));
   size_t const max_cells = GetMaximumNumberOfGridCells(micm);
   ASSERT_GT(max_cells, 0);
-  for (int num_grid_cells = 1; num_grid_cells <= max_cells * 3;
-       num_grid_cells += static_cast<int>(std::floor(max_cells / 3)))
+  for (size_t n_cells = 1; n_cells <= max_cells * 3;
+       n_cells += static_cast<size_t>(std::floor(max_cells / 3)))
   {
-    TestSolver(micm, num_grid_cells, time_step, test_accuracy);
+    TestSolver(micm, n_cells, time_step, test_accuracy);
     DeleteError(&error);
   }
 }
@@ -541,17 +541,17 @@ TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingStandardOrderedRosenbrock
 {
   constexpr double time_step = 200.0;
   constexpr double test_accuracy = 5.0e-3;
-  const char* config_path = "configs/v0/analytical";
+  const char* analytical_config_path = "configs/v0/analytical";
   Error error;
   DeleteMicm(micm, &error);
   ASSERT_TRUE(IsSuccess(error));
-  micm = CreateMicm(config_path, MICMSolver::RosenbrockStandardOrder, &error);
+  micm = CreateMicm(analytical_config_path, MICMSolver::RosenbrockStandardOrder, &error);
   ASSERT_TRUE(IsSuccess(error));
   size_t const max_cells = GetMaximumNumberOfGridCells(micm);
   ASSERT_GT(max_cells, 1e8);
-  for (int num_grid_cells = 1; num_grid_cells <= 20; num_grid_cells += 5)
+  for (size_t n_cells = 1; n_cells <= 20; n_cells += 5)
   {
-    TestSolver(micm, num_grid_cells, time_step, test_accuracy);
+    TestSolver(micm, n_cells, time_step, test_accuracy);
     DeleteError(&error);
   }
 }
@@ -561,17 +561,17 @@ TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingVectorOrderedBackwardEule
 {
   constexpr double time_step = 10.0;
   constexpr double test_accuracy = 0.1;
-  const char* config_path = "configs/v0/analytical";
+  const char* analytical_config_path = "configs/v0/analytical";
   Error error;
   DeleteMicm(micm, &error);
   ASSERT_TRUE(IsSuccess(error));
-  micm = CreateMicm(config_path, MICMSolver::BackwardEuler, &error);
+  micm = CreateMicm(analytical_config_path, MICMSolver::BackwardEuler, &error);
   ASSERT_TRUE(IsSuccess(error));
   size_t const max_cells = GetMaximumNumberOfGridCells(micm);
   ASSERT_GT(max_cells, 0);
-  for (int num_grid_cells = 1; num_grid_cells <= max_cells * 3; num_grid_cells += std::floor(max_cells / 3))
+  for (size_t n_cells = 1; n_cells <= max_cells * 3; n_cells += std::floor(max_cells / 3))
   {
-    TestSolver(micm, num_grid_cells, time_step, test_accuracy);
+    TestSolver(micm, n_cells, time_step, test_accuracy);
     DeleteError(&error);
   }
 }
@@ -581,17 +581,17 @@ TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingStandardOrderedBackwardEu
 {
   constexpr double time_step = 10.0;
   constexpr double test_accuracy = 0.1;
-  const char* config_path = "configs/v0/analytical";
+  const char* analytical_config_path = "configs/v0/analytical";
   Error error;
   DeleteMicm(micm, &error);
   ASSERT_TRUE(IsSuccess(error));
-  micm = CreateMicm(config_path, MICMSolver::BackwardEulerStandardOrder, &error);
+  micm = CreateMicm(analytical_config_path, MICMSolver::BackwardEulerStandardOrder, &error);
   ASSERT_TRUE(IsSuccess(error));
   size_t const max_cells = GetMaximumNumberOfGridCells(micm);
   ASSERT_GT(max_cells, 1.0e8);
-  for (int num_grid_cells = 1; num_grid_cells <= 20; num_grid_cells += 5)
+  for (size_t n_cells = 1; n_cells <= 20; n_cells += 5)
   {
-    TestSolver(micm, num_grid_cells, time_step, test_accuracy);
+    TestSolver(micm, n_cells, time_step, test_accuracy);
     DeleteError(&error);
   }
 }

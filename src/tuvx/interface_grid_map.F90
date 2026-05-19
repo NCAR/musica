@@ -119,7 +119,7 @@ module tuvx_interface_grid_map
     type(grid_warehouse_t), pointer :: grid_warehouse
     character(len=:), allocatable   :: f_grid_name
     character(len=:), allocatable   :: f_grid_units
-    integer                         :: i
+    integer(c_size_t)               :: i
 
     ! result
     type(c_ptr) :: grid_ptr
@@ -272,7 +272,7 @@ module tuvx_interface_grid_map
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  integer function internal_get_number_of_grids(grid_map, error_code) &
+  integer(c_int) function internal_get_number_of_grids(grid_map, error_code) &
       result(n_grids) bind(C, name="InternalGetNumberOfGrids")
     use iso_c_binding, only: c_ptr, c_f_pointer, c_int
     use tuvx_grid_warehouse, only: grid_warehouse_t
@@ -316,8 +316,8 @@ module tuvx_interface_grid_map
     type(grid_warehouse_t), pointer :: f_grid_warehouse
     character(len=:), allocatable   :: f_grid_name
     character(len=:), allocatable   :: f_grid_units
-    integer                         :: i
-    
+    integer(c_size_t)               :: i
+
     allocate(character(len=c_grid_name_length) :: f_grid_name)
     do i = 1, c_grid_name_length
       f_grid_name(i:i) = c_grid_name(i)

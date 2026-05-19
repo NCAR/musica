@@ -16,6 +16,21 @@ module tuvx_interface
 
    private
 
+   interface
+      function c_malloc(size) result(ptr) bind(C, name="malloc")
+         use iso_c_binding, only: c_ptr, c_size_t
+         implicit none
+         integer(c_size_t), value, intent(in) :: size
+         type(c_ptr) :: ptr
+      end function c_malloc
+
+      subroutine c_free(ptr) bind(C, name="free")
+         use iso_c_binding, only: c_ptr
+         implicit none
+         type(c_ptr), value, intent(in) :: ptr
+      end subroutine c_free
+   end interface
+
 contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -45,7 +60,7 @@ contains
       type(profile_warehouse_t),  pointer :: profile_map
       type(radiator_warehouse_t), pointer :: radiator_map
       type(grid_t), pointer               :: height_grid, wavelength_grid
-      integer                             :: i
+      integer(c_size_t)                   :: i
 
       allocate(character(len=config_path_length) :: f_config_path)
       do i = 1, config_path_length
@@ -99,7 +114,7 @@ contains
       type(profile_warehouse_t),  pointer :: profile_map
       type(radiator_warehouse_t), pointer :: radiator_map
       type(grid_t), pointer               :: height_grid, wavelength_grid
-      integer                             :: i
+      integer(c_size_t)                   :: i
 
       allocate(character(len=config_string_length) :: f_config_string)
       do i = 1, config_string_length
@@ -138,6 +153,7 @@ contains
       ! local variables
       type(core_t), pointer :: core
 
+      error_code = 0
       call c_f_pointer(tuvx, core)
       if (associated(core)) then
          deallocate(core)
@@ -161,6 +177,7 @@ contains
       type(core_t),           pointer :: core
       type(grid_warehouse_t), pointer :: grid_warehouse
 
+      error_code = 0
       call c_f_pointer(tuvx, core)
       grid_warehouse => core%get_grid_warehouse()
 
@@ -185,6 +202,7 @@ contains
       type(core_t),              pointer :: core
       type(profile_warehouse_t), pointer :: profile_warehouse
 
+      error_code = 0
       call c_f_pointer(tuvx, core)
       profile_warehouse => core%get_profile_warehouse()
 
@@ -209,6 +227,7 @@ contains
       type(core_t),               pointer :: core
       type(radiator_warehouse_t), pointer :: radiator_warehouse
 
+      error_code = 0
       call c_f_pointer(tuvx, core)
       radiator_warehouse => core%get_radiator_warehouse()
 
@@ -240,7 +259,7 @@ contains
       error_code = 0
       call c_f_pointer(tuvx, core)
 
-      labels = core%photolysis_reaction_labels()
+      allocate( labels, source=core%photolysis_reaction_labels() )
       n_labels = size(labels)
       mappings_ptr = allocate_mappings_c(int(n_labels, kind=c_size_t))
       call c_f_pointer(mappings_ptr, mappings, [ n_labels ])
@@ -278,7 +297,7 @@ contains
       error_code = 0
       call c_f_pointer(tuvx, core)
 
-      labels = core%heating_rate_labels()
+      allocate( labels, source=core%heating_rate_labels() )
       n_labels = size(labels)
       mappings_ptr = allocate_mappings_c(int(n_labels, kind=c_size_t))
       call c_f_pointer(mappings_ptr, mappings, [ n_labels ])
@@ -316,7 +335,7 @@ contains
       error_code = 0
       call c_f_pointer(tuvx, core)
 
-      labels = core%dose_rate_labels()
+      allocate( labels, source=core%dose_rate_labels() )
       n_labels = size(labels)
       mappings_ptr = allocate_mappings_c(int(n_labels, kind=c_size_t))
       call c_f_pointer(mappings_ptr, mappings, [ n_labels ])
@@ -336,7 +355,7 @@ contains
       number_of_wavelength_midpoints, solar_zenith_angle, earth_sun_distance, &
       photolysis_rate_constants, heating_rates, dose_rates, actinic_flux, &
       spectral_irradiance, error_code) bind(C, name="InternalRunTuvx")
-      use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_associated
+      use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_double, c_associated
       use musica_constants, only: dk => musica_dk
       use tuvx_solver, only: radiation_field_t
 
@@ -344,8 +363,8 @@ contains
       type(c_ptr),         value,  intent(in)  :: tuvx
       integer(kind=c_int), value,  intent(in)  :: number_of_height_midpoints
       integer(kind=c_int), value,  intent(in)  :: number_of_wavelength_midpoints
-      real(kind=dk),       value,  intent(in)  :: solar_zenith_angle         ! degrees
-      real(kind=dk),       value,  intent(in)  :: earth_sun_distance         ! AU
+      real(c_double),      value,  intent(in)  :: solar_zenith_angle         ! degrees
+      real(c_double),      value,  intent(in)  :: earth_sun_distance         ! AU
       type(c_ptr),         value,  intent(in)  :: photolysis_rate_constants  ! s^-1 (vertical edge, reaction)
       type(c_ptr),         value,  intent(in)  :: heating_rates              ! K s^-1 (vertical edge, heating_rate)
       type(c_ptr),         value,  intent(in)  :: dose_rates                 ! J m^-2 (vertical edge, dose_rate type)
@@ -402,7 +421,7 @@ contains
 
    subroutine internal_get_tuvx_version(version_ptr, version_length) &
       bind(C, name="InternalGetTuvxVersion")
-      use iso_c_binding, only: c_ptr, c_char, c_int, c_f_pointer, c_null_char, c_loc
+      use iso_c_binding, only: c_ptr, c_int, c_null_char, c_char, c_f_pointer, c_size_t
       use tuvx_version, only: get_tuvx_version
 
       ! arguments
@@ -411,38 +430,32 @@ contains
 
       ! local variables
       character(len=:),       allocatable :: version_fortran
-      character(kind=c_char), pointer     :: version_string_ptr(:)
+      character(kind=c_char), pointer     :: buf(:)
       integer :: i
 
       version_fortran = get_tuvx_version()
       version_length = len_trim(version_fortran)
 
-      ! Allocate and copy string
-      allocate(version_string_ptr(version_length + 1))
+      version_ptr = c_malloc(int(version_length + 1, c_size_t))
+      call c_f_pointer(version_ptr, buf, [version_length + 1])
       do i = 1, version_length
-         version_string_ptr(i) = version_fortran(i:i)
+         buf(i) = version_fortran(i:i)
       end do
-      version_string_ptr(version_length + 1) = c_null_char
-
-      version_ptr = c_loc(version_string_ptr)
+      buf(version_length + 1) = c_null_char
 
    end subroutine internal_get_tuvx_version
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-   subroutine internal_free_tuvx_version(version_ptr, version_length) &
+   subroutine internal_free_tuvx_version(version_ptr) &
       bind(C, name="InternalFreeTuvxVersion")
-      use iso_c_binding, only: c_ptr, c_int, c_associated, c_f_pointer, c_char
+      use iso_c_binding, only: c_ptr, c_associated
 
       ! arguments
-      type(c_ptr),    value, intent(in) :: version_ptr
-      integer(c_int), value, intent(in) :: version_length
-      character(kind=c_char), pointer :: version_string_ptr(:)
+      type(c_ptr), value, intent(in) :: version_ptr
 
-      ! Free the allocated version string pointer
       if (c_associated(version_ptr)) then
-         call c_f_pointer(version_ptr, version_string_ptr, [version_length + 1])
-         deallocate(version_string_ptr)
+         call c_free(version_ptr)
       end if
 
    end subroutine internal_free_tuvx_version

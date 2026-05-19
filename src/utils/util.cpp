@@ -11,6 +11,13 @@
 namespace musica
 {
 
+  bool IsError(const Error& error, const char* category, int code)
+  {
+    return error.code_ == code &&
+           ((error.category_.value_ == nullptr && category == nullptr) ||
+            std::strcmp(error.category_.value_, category) == 0);
+  }
+
   void LoadConfigurationFromString(const char* data, Configuration* configuration, Error* error)
   {
     DeleteError(error);

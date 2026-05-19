@@ -26,6 +26,7 @@ RUN cd musica \
     && cmake -S . \
              -B build \
              -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+             -D MUSICA_COMPILE_WARNING_AS_ERROR=ON \
              -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
     && cd build \
     && make install -j 1

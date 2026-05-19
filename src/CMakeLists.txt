@@ -60,15 +60,6 @@ endif()
 ################################################################################
 # Configure musica target
 
-# Compiler options
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-  if (MSVC)
-    target_compile_options(musica PUBLIC /WX)
-  else()
-    target_compile_options(musica PUBLIC -Werror)
-  endif()
-endif()
-
 target_include_directories(musica
   PUBLIC
     $<BUILD_INTERFACE:${MUSICA_PROJECT_SRC_DIR}/include>
@@ -108,6 +99,15 @@ set_target_properties(musica PROPERTIES
   VERSION ${PROJECT_VERSION}
   SOVERSION ${PROJECT_VERSION_MAJOR}
 )
+
+# Warnings as errors (CI only by convention)
+if(MUSICA_COMPILE_WARNING_AS_ERROR)
+  set_target_properties(musica PROPERTIES COMPILE_WARNING_AS_ERROR ON)
+  target_compile_options(musica PRIVATE
+    $<$<CXX_COMPILER_ID:MSVC>:/W4>
+    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic>
+  )
+endif()
 
 # Set the rpath for the shared library
 if(APPLE)

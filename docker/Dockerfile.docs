@@ -4,7 +4,7 @@
 # the docs will be visible
 FROM fedora:latest
 
-ARG BUILD_TYPE=Release
+ARG BUILD_TYPE=Debug
 
 RUN dnf -y update \
     && dnf -y install \
@@ -44,6 +44,7 @@ RUN mkdir /build \
         -D MUSICA_ENABLE_INSTALL=OFF \
         -D MUSICA_BUILD_FORTRAN_INTERFACE=OFF \
         -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+        -D MUSICA_COMPILE_WARNING_AS_ERROR=ON \
         /musica 
 
 RUN cd /musica/docs && make copy

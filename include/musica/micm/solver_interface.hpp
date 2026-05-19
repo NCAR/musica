@@ -62,7 +62,7 @@ namespace musica
     /// @brief Set Rosenbrock solver parameters
     /// @param params The parameters to set
     /// @throws musica::Exception if the solver is not a Rosenbrock solver
-    virtual void SetRosenbrockSolverParameters(const RosenbrockSolverParameters& params)
+    virtual void SetRosenbrockSolverParameters(const RosenbrockSolverParameters& /*params*/)
     {
       throw std::runtime_error("SetRosenbrockSolverParameters not supported by this solver");
     }
@@ -70,7 +70,7 @@ namespace musica
     /// @brief Set Backward Euler solver parameters
     /// @param params The parameters to set
     /// @throws musica::Exception if the solver is not a Backward Euler solver
-    virtual void SetBackwardEulerSolverParameters(const BackwardEulerSolverParameters& params)
+    virtual void SetBackwardEulerSolverParameters(const BackwardEulerSolverParameters& /*params*/)
     {
       throw std::runtime_error("SetBackwardEulerSolverParameters not supported by this solver");
     }

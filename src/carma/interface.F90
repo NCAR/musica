@@ -4,10 +4,25 @@
 module carma_interface
 
    use iso_c_binding, only: c_int, c_double, c_ptr, c_char, c_null_char, &
-      c_loc, c_f_pointer, c_associated, c_null_ptr, c_bool
+      c_loc, c_f_pointer, c_associated, c_null_ptr, c_bool, c_size_t
 
    implicit none
    private
+
+   interface
+      function c_malloc(size) result(ptr) bind(C, name="malloc")
+         use iso_c_binding, only: c_ptr, c_size_t
+         implicit none
+         integer(c_size_t), value, intent(in) :: size
+         type(c_ptr) :: ptr
+      end function c_malloc
+
+      subroutine c_free(ptr) bind(C, name="free")
+         use iso_c_binding, only: c_ptr
+         implicit none
+         type(c_ptr), value, intent(in) :: ptr
+      end subroutine c_free
+   end interface
 
 #include "musica/carma/error.hpp"
 
@@ -31,7 +46,7 @@ contains
 
    subroutine internal_get_carma_version(version_ptr, version_length) &
       bind(C, name="InternalGetCarmaVersion")
-      use iso_c_binding, only: c_ptr, c_int, c_f_pointer, c_null_char, c_loc, c_char
+      use iso_c_binding, only: c_ptr, c_int, c_null_char, c_char, c_f_pointer, c_size_t
       use carma_version, only: get_carma_version
 
       ! arguments
@@ -40,37 +55,31 @@ contains
 
       ! local variables
       character(len=:),       allocatable :: version_fortran
-      character(kind=c_char), pointer     :: version_string_ptr(:)
+      character(kind=c_char), pointer     :: buf(:)
       integer :: i
 
       version_fortran = get_carma_version()
       version_length = len_trim(version_fortran)
 
-      ! Allocate and copy string
-      allocate(version_string_ptr(version_length + 1))
+      version_ptr = c_malloc(int(version_length + 1, c_size_t))
+      call c_f_pointer(version_ptr, buf, [version_length + 1])
       do i = 1, version_length
-         version_string_ptr(i) = version_fortran(i:i)
+         buf(i) = version_fortran(i:i)
       end do
-      version_string_ptr(version_length + 1) = c_null_char
-
-      version_ptr = c_loc(version_string_ptr)
+      buf(version_length + 1) = c_null_char
 
    end subroutine internal_get_carma_version
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-   subroutine internal_free_carma_version(version_ptr, version_length) &
+   subroutine internal_free_carma_version(version_ptr) &
       bind(C, name="InternalFreeCarmaVersion")
-      use iso_c_binding, only: c_char, c_ptr, c_int, c_associated, c_f_pointer
+      use iso_c_binding, only: c_ptr, c_associated
 
-      type(c_ptr),    value, intent(in) :: version_ptr
-      integer(c_int), value, intent(in) :: version_length
-      character(kind=c_char), pointer :: version_string_ptr(:)
+      type(c_ptr), value, intent(in) :: version_ptr
 
-      ! Free the allocated version string pointer
       if (c_associated(version_ptr)) then
-         call c_f_pointer(version_ptr, version_string_ptr, [version_length + 1])
-         deallocate(version_string_ptr)
+         call c_free(version_ptr)
       end if
 
    end subroutine internal_free_carma_version
@@ -97,7 +106,7 @@ contains
 
    function internal_create_carma_state(carma_cptr, carma_params, carma_state_params, rc) &
       bind(C, name="InternalCreateCarmaState") result(carma_state_cptr)
-      use iso_c_binding, only: c_ptr, c_int, c_double, c_loc, c_f_pointer
+      use iso_c_binding, only: c_ptr, c_int, c_double, c_loc, c_f_pointer, c_null_ptr
       use iso_fortran_env, only: real64
       use carma_types_mod, only: carma_type
       use carma_parameters_mod, only: carma_parameters_t, carma_state_parameter_t
@@ -130,6 +139,7 @@ contains
       integer :: alloc_stat
 
       rc = 0
+      carma_state_cptr = c_null_ptr
 
       ! Create the CARMA instance
       allocate(cstate, stat=alloc_stat)
@@ -245,7 +255,7 @@ contains
       integer(c_int),    value, intent(in)  :: element_index
       type(c_ptr),       value              :: values_ptr
       integer(c_int),    value, intent(in)  :: values_size
-      real(kind=real64), value, intent(in)  :: surface_mass
+      real(c_double),    value, intent(in)  :: surface_mass
       integer(c_int),           intent(out) :: rc
 
       ! Local variables
@@ -360,7 +370,6 @@ contains
       real(kind=real64), allocatable :: gas_saturation_wrt_ice(:)
       real(kind=real64), allocatable :: gas_saturation_wrt_liquid(:)
       type(carmastate_type), pointer :: cstate
-      integer :: index
 
       if (gas_index < 1) then
          rc = MUSICA_CARMA_ERROR_CODE_DIMENSION_MISMATCH
@@ -419,12 +428,12 @@ contains
 
       type(c_ptr), value, intent(in)     :: carma_state_cptr
       integer(c_int), intent(out)  :: max_number_of_substeps
-      real(real64), intent(out)    :: max_number_of_retries
-      real(real64), intent(out)    :: total_number_of_steps
+      real(c_double), intent(out)  :: max_number_of_retries
+      real(c_double), intent(out)  :: total_number_of_steps
       integer(c_int), intent(out)  :: total_number_of_substeps
-      real(real64), intent(out)    :: total_number_of_retries
-      real(real64), intent(out)    :: xc
-      real(real64), intent(out)    :: yc
+      real(c_double), intent(out)  :: total_number_of_retries
+      real(c_double), intent(out)  :: xc
+      real(c_double), intent(out)  :: yc
       type(c_ptr),    value              :: z_substeps
       integer(c_int), value, intent(in)  :: nz
       integer(c_int), intent(out)        :: rc
@@ -495,10 +504,10 @@ contains
       type(c_ptr),    value              :: wet_particle_radius_ptr
       type(c_ptr),    value              :: wet_particle_density_ptr
       type(c_ptr),    value              :: dry_particle_density_ptr
-      real(real64),   intent(out)        :: particle_mass_on_surface
-      real(real64),   intent(out)        :: sedimentation_flux
+      real(c_double), intent(out)        :: particle_mass_on_surface
+      real(c_double), intent(out)        :: sedimentation_flux
       type(c_ptr),    value              :: fall_velocity_ptr
-      real(real64),   intent(out)        :: deposition_velocity
+      real(c_double), intent(out)        :: deposition_velocity
       type(c_ptr),    value              :: delta_particle_temperature_ptr
       type(c_ptr),    value              :: kappa_ptr
       type(c_ptr),    value              :: total_mass_mixing_ratio_ptr

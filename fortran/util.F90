@@ -617,7 +617,7 @@ contains
       integer(c_size_t),            intent(in)    :: n_mappings
       type(mapping_t), allocatable, intent(inout) :: f_mappings(:)
 
-      integer :: i
+      integer(c_size_t) :: i
       type(mapping_t_c), pointer :: mappings(:)
 
       call c_f_pointer( c_mappings, mappings, [ n_mappings ] )
@@ -779,8 +779,8 @@ contains
       character(kind=c_char, len=1), allocatable :: name_c(:)
       type(error_t_c) :: error_c
 
-      name_c = to_c_string( name )
-      index = find_mapping_index_c( this%mappings_c_, name_c, error_c ) + 1
+      allocate( name_c, source=to_c_string( name ) )
+      index = int( find_mapping_index_c( this%mappings_c_, name_c, error_c ) ) + 1
       error = error_t( error_c )
 
    end function mappings_index_by_name
@@ -840,7 +840,7 @@ contains
       class(index_mappings_t), intent(in) :: this
       integer :: size
 
-      size = get_index_mappings_size_c( this%mappings_c_ )
+      size = int( get_index_mappings_size_c( this%mappings_c_ ) )
 
    end function index_mappings_size
 
@@ -935,7 +935,7 @@ contains
       type(string_t_c), intent(in) :: c_string
       character(len=:), allocatable  :: f_string
 
-      integer :: i
+      integer(c_size_t) :: i
       character(len=1, kind=c_char), pointer :: c_char_array(:)
 
       if ( .not. c_associated( c_string%ptr_ ) ) then

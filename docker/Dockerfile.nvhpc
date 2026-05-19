@@ -7,7 +7,7 @@
 FROM nvcr.io/nvidia/nvhpc:25.7-devel-cuda12.9-ubuntu24.04
 
 ARG MUSICA_GIT_TAG=main
-ARG BUILD_TYPE=release
+ARG BUILD_TYPE=Debug
 
 RUN apt update \
     && apt -y install \

@@ -124,6 +124,7 @@ TEST_F(TuvxCApiTest, DetectsNonexistentConfigFile)
   ProfileMap* profiles_from_host = CreateProfileMap(&error);
   RadiatorMap* radiators_from_host = CreateRadiatorMap(&error);
   TUVX* tuvx = CreateTuvx(config_path, grids_from_host, profiles_from_host, radiators_from_host, &error);
+  ASSERT_EQ(tuvx, nullptr);
   ASSERT_FALSE(IsSuccess(error));
   DeleteGridMap(grids_from_host, &error);
   ASSERT_TRUE(IsSuccess(error));
@@ -583,14 +584,14 @@ TEST_F(TuvxCApiTest, CanCreateRadiator)
   // Allocate an array of pointers to each row
   double** optical_depths = new double*[num_vertical_layers];
   // Fill in the pointers to the rows
-  for (int row = 0; row < num_vertical_layers; row++)
+  for (size_t row = 0; row < num_vertical_layers; row++)
   {
     optical_depths[row] = &optical_depths_1D[row * num_wavelength_bins];
   }
   int i = 1;
-  for (int row = 0; row < num_vertical_layers; row++)
+  for (size_t row = 0; row < num_vertical_layers; row++)
   {
-    for (int col = 0; col < num_wavelength_bins; col++)
+    for (size_t col = 0; col < num_wavelength_bins; col++)
     {
       optical_depths[row][col] = 10 * i;
       i++;
@@ -598,9 +599,9 @@ TEST_F(TuvxCApiTest, CanCreateRadiator)
   }
   SetRadiatorOpticalDepths(radiator, optical_depths[0], num_vertical_layers, num_wavelength_bins, &error);
   ASSERT_TRUE(IsSuccess(error));
-  for (int row = 0; row < num_vertical_layers; row++)
+  for (size_t row = 0; row < num_vertical_layers; row++)
   {
-    for (int col = 0; col < num_wavelength_bins; col++)
+    for (size_t col = 0; col < num_wavelength_bins; col++)
     {
       optical_depths[row][col] = -999.0;
     }
@@ -617,14 +618,14 @@ TEST_F(TuvxCApiTest, CanCreateRadiator)
   // Test for single scattering albedos
   double* albedos_1D = new double[num_wavelength_bins * num_vertical_layers];
   double** albedos = new double*[num_vertical_layers];
-  for (int row = 0; row < num_vertical_layers; row++)
+  for (size_t row = 0; row < num_vertical_layers; row++)
   {
     albedos[row] = &albedos_1D[row * num_wavelength_bins];
   }
   i = 1;
-  for (int row = 0; row < num_vertical_layers; row++)
+  for (size_t row = 0; row < num_vertical_layers; row++)
   {
-    for (int col = 0; col < num_wavelength_bins; col++)
+    for (size_t col = 0; col < num_wavelength_bins; col++)
     {
       albedos[row][col] = 100 * i;
       i++;
@@ -632,9 +633,9 @@ TEST_F(TuvxCApiTest, CanCreateRadiator)
   }
   SetRadiatorSingleScatteringAlbedos(radiator, albedos[0], num_vertical_layers, num_wavelength_bins, &error);
   ASSERT_TRUE(IsSuccess(error));
-  for (int row = 0; row < num_vertical_layers; row++)
+  for (size_t row = 0; row < num_vertical_layers; row++)
   {
-    for (int col = 0; col < num_wavelength_bins; col++)
+    for (size_t col = 0; col < num_wavelength_bins; col++)
     {
       albedos[row][col] = -999.0;
     }
@@ -651,14 +652,14 @@ TEST_F(TuvxCApiTest, CanCreateRadiator)
   // Test for asymmetery factors
   double* factors_1D = new double[num_wavelength_bins * num_vertical_layers];
   double** factors = new double*[num_vertical_layers];
-  for (int row = 0; row < num_vertical_layers; row++)
+  for (size_t row = 0; row < num_vertical_layers; row++)
   {
     factors[row] = &factors_1D[row * num_wavelength_bins];
   }
   i = 1;
-  for (int row = 0; row < num_vertical_layers; row++)
+  for (size_t row = 0; row < num_vertical_layers; row++)
   {
-    for (int col = 0; col < num_wavelength_bins; col++)
+    for (size_t col = 0; col < num_wavelength_bins; col++)
     {
       factors[row][col] = 1 * i;
       i++;
@@ -667,9 +668,9 @@ TEST_F(TuvxCApiTest, CanCreateRadiator)
   std::size_t const num_streams = 1;
   SetRadiatorAsymmetryFactors(radiator, factors[0], num_vertical_layers, num_wavelength_bins, num_streams, &error);
   ASSERT_TRUE(IsSuccess(error));
-  for (int row = 0; row < num_vertical_layers; row++)
+  for (size_t row = 0; row < num_vertical_layers; row++)
   {
-    for (int col = 0; col < num_wavelength_bins; col++)
+    for (size_t col = 0; col < num_wavelength_bins; col++)
     {
       factors[row][col] = -999.0;
     }
@@ -726,14 +727,14 @@ TEST_F(TuvxCApiTest, CanCreateRadiatorMap)
   std::size_t const num_wavelength_bins = 2;
   double* optical_depths_1D = new double[num_wavelength_bins * num_vertical_layers];
   double** optical_depths = new double*[num_vertical_layers];
-  for (int row = 0; row < num_vertical_layers; row++)
+  for (size_t row = 0; row < num_vertical_layers; row++)
   {
     optical_depths[row] = &optical_depths_1D[row * num_wavelength_bins];
   }
   int i = 1;
-  for (int row = 0; row < num_vertical_layers; row++)
+  for (size_t row = 0; row < num_vertical_layers; row++)
   {
-    for (int col = 0; col < num_wavelength_bins; col++)
+    for (size_t col = 0; col < num_wavelength_bins; col++)
     {
       optical_depths[row][col] = 10 * i;
       i++;
@@ -745,14 +746,14 @@ TEST_F(TuvxCApiTest, CanCreateRadiatorMap)
   // Test for single scattering albedos
   double* albedos_1D = new double[num_wavelength_bins * num_vertical_layers];
   double** albedos = new double*[num_vertical_layers];
-  for (int row = 0; row < num_vertical_layers; row++)
+  for (size_t row = 0; row < num_vertical_layers; row++)
   {
     albedos[row] = &albedos_1D[row * num_wavelength_bins];
   }
   i = 1;
-  for (int row = 0; row < num_vertical_layers; row++)
+  for (size_t row = 0; row < num_vertical_layers; row++)
   {
-    for (int col = 0; col < num_wavelength_bins; col++)
+    for (size_t col = 0; col < num_wavelength_bins; col++)
     {
       albedos[row][col] = 100 * i;
       i++;
@@ -765,14 +766,14 @@ TEST_F(TuvxCApiTest, CanCreateRadiatorMap)
   std::size_t const num_streams = 1;
   double* factors_1D = new double[num_wavelength_bins * num_vertical_layers];
   double** factors = new double*[num_vertical_layers];
-  for (int row = 0; row < num_vertical_layers; row++)
+  for (size_t row = 0; row < num_vertical_layers; row++)
   {
     factors[row] = &factors_1D[row * num_wavelength_bins];
   }
   i = 1;
-  for (int row = 0; row < num_vertical_layers; row++)
+  for (size_t row = 0; row < num_vertical_layers; row++)
   {
-    for (int col = 0; col < num_wavelength_bins; col++)
+    for (size_t col = 0; col < num_wavelength_bins; col++)
     {
       factors[row][col] = 1 * i;
       i++;
@@ -782,9 +783,9 @@ TEST_F(TuvxCApiTest, CanCreateRadiatorMap)
   ASSERT_TRUE(IsSuccess(error));
 
   // Test for optical depths
-  for (int row = 0; row < num_vertical_layers; row++)
+  for (size_t row = 0; row < num_vertical_layers; row++)
   {
-    for (int col = 0; col < num_wavelength_bins; col++)
+    for (size_t col = 0; col < num_wavelength_bins; col++)
     {
       optical_depths[row][col] = -999.0;
     }
@@ -799,9 +800,9 @@ TEST_F(TuvxCApiTest, CanCreateRadiatorMap)
   ASSERT_EQ(optical_depths[2][1], 60.0);
 
   // Test for single scattering albedos
-  for (int row = 0; row < num_vertical_layers; row++)
+  for (size_t row = 0; row < num_vertical_layers; row++)
   {
-    for (int col = 0; col < num_wavelength_bins; col++)
+    for (size_t col = 0; col < num_wavelength_bins; col++)
     {
       albedos[row][col] = -999.0;
     }
@@ -816,9 +817,9 @@ TEST_F(TuvxCApiTest, CanCreateRadiatorMap)
   ASSERT_EQ(albedos[2][1], 600.0);
 
   // Test for asymmetry factors
-  for (int row = 0; row < num_vertical_layers; row++)
+  for (size_t row = 0; row < num_vertical_layers; row++)
   {
-    for (int col = 0; col < num_wavelength_bins; col++)
+    for (size_t col = 0; col < num_wavelength_bins; col++)
     {
       factors[row][col] = -999.0;
     }

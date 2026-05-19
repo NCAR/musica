@@ -36,7 +36,7 @@ contains
       ! variables
       type(grid_from_host_t), pointer :: f_grid
       type(string_t) :: f_name, f_units
-      integer :: i
+      integer(c_size_t) :: i
 
       error_code = ERROR_NONE
       allocate(character(len=grid_name_length) :: f_name%val_)
@@ -258,7 +258,6 @@ contains
    function internal_get_edges_pointer(grid_updater, error_code) &
       bind(C, name="InternalGetEdgesPointer") result(edges_ptr)
       use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_loc
-      use musica_constants, only: dk => musica_dk
       use tuvx_grid_from_host, only: grid_updater_t
 
       ! arguments
@@ -271,6 +270,7 @@ contains
       ! variables
       type(grid_updater_t), pointer :: f_updater
 
+      error_code = 0
       call c_f_pointer(grid_updater, f_updater)
 
       edges_ptr = c_loc(f_updater%grid_%edge_(1))
@@ -340,7 +340,6 @@ contains
    function internal_get_midpoints_pointer(grid_updater, error_code) &
       bind(C, name="InternalGetMidpointsPointer") result(midpoints_ptr)
       use iso_c_binding, only: c_ptr, c_f_pointer, c_int, c_loc
-      use musica_constants, only: dk => musica_dk
       use tuvx_grid_from_host, only: grid_updater_t
 
       ! arguments
@@ -353,6 +352,7 @@ contains
       ! variables
       type(grid_updater_t), pointer :: f_updater
 
+      error_code = 0
       call c_f_pointer(grid_updater, f_updater)
 
       midpoints_ptr = c_loc(f_updater%grid_%mid_(1))

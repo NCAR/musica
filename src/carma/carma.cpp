@@ -48,7 +48,7 @@ namespace musica
     std::string version(version_ptr, version_length);
 
     // Free the memory allocated by Fortran
-    InternalFreeCarmaVersion(version_ptr, version_length);
+    InternalFreeCarmaVersion(version_ptr);
 
     return version;
   }
