@@ -133,17 +133,17 @@ namespace musica
               if constexpr (std::is_same_v<T, miam_config::UniformSection>)
               {
                 representations.emplace_back(
-                    miam::representation::UniformSection(r.name, resolve_phases(r.phase_names), r.min_radius, r.max_radius));
+                    miam::UniformSection(r.name, resolve_phases(r.phase_names), r.min_radius, r.max_radius));
               }
               else if constexpr (std::is_same_v<T, miam_config::SingleMomentMode>)
               {
-                representations.emplace_back(miam::representation::SingleMomentMode(
+                representations.emplace_back(miam::SingleMomentMode(
                     r.name, resolve_phases(r.phase_names), r.geometric_mean_radius, r.geometric_standard_deviation));
               }
               else if constexpr (std::is_same_v<T, miam_config::TwoMomentMode>)
               {
                 representations.emplace_back(
-                    miam::representation::TwoMomentMode(r.name, resolve_phases(r.phase_names), r.geometric_standard_deviation));
+                    miam::TwoMomentMode(r.name, resolve_phases(r.phase_names), r.geometric_standard_deviation));
               }
             },
             repr_cfg);
@@ -160,7 +160,7 @@ namespace musica
               using T = std::decay_t<decltype(p)>;
               if constexpr (std::is_same_v<T, miam_config::DissolvedReaction>)
               {
-                model.AddProcesses(miam::process::DissolvedReactionBuilder()
+                model.AddProcesses(miam::DissolvedReactionBuilder()
                                        .SetPhase(find_phase(p.phase_name))
                                        .SetReactants(find_species_vec(p.reactant_names))
                                        .SetProducts(find_species_vec(p.product_names))
@@ -172,7 +172,7 @@ namespace musica
               }
               else if constexpr (std::is_same_v<T, miam_config::DissolvedReversibleReaction>)
               {
-                auto builder = miam::process::DissolvedReversibleReactionBuilder()
+                auto builder = miam::DissolvedReversibleReactionBuilder()
                                    .SetPhase(find_phase(p.phase_name))
                                    .SetReactants(find_species_vec(p.reactant_names))
                                    .SetProducts(find_species_vec(p.product_names))
@@ -186,18 +186,18 @@ namespace musica
                 {
                   const auto& ec = p.equilibrium_constant.value();
                   builder.SetEquilibriumConstant(
-                      miam::process::constant::EquilibriumConstant({ .A_ = ec.a, .C_ = ec.c }));
+                      miam::EquilibriumConstant({ .A_ = ec.a, .C_ = ec.c }));
                 }
                 model.AddProcesses(builder.Build());
               }
               else if constexpr (std::is_same_v<T, miam_config::HenryLawPhaseTransfer>)
               {
-                model.AddProcesses(miam::process::HenryLawPhaseTransferBuilder()
+                model.AddProcesses(miam::HenryLawPhaseTransferBuilder()
                                        .SetCondensedPhase(find_phase(p.condensed_phase_name))
                                        .SetGasSpecies(find_species(p.gas_species_name))
                                        .SetCondensedSpecies(find_species(p.condensed_species_name))
                                        .SetSolvent(find_species(p.solvent_name))
-                                       .SetHenrysLawConstant(miam::process::constant::HenrysLawConstant(
+                                       .SetHenrysLawConstant(miam::HenrysLawConstant(
                                            { .HLC_ref_ = p.henrys_law_constant.hlc_ref, .C_ = p.henrys_law_constant.c }))
                                        .SetDiffusionCoefficient(p.diffusion_coefficient)
                                        .SetAccommodationCoefficient(p.accommodation_coefficient)
@@ -216,33 +216,31 @@ namespace musica
               using T = std::decay_t<decltype(c)>;
               if constexpr (std::is_same_v<T, miam_config::HenryLawEquilibriumConstraint>)
               {
-                model.AddConstraints(miam::constraint::HenryLawEquilibriumConstraintBuilder()
+                model.AddConstraints(miam::HenryLawEquilibriumConstraintBuilder()
                                          .SetGasSpecies(find_species(c.gas_species_name))
                                          .SetCondensedSpecies(find_species(c.condensed_species_name))
                                          .SetSolvent(find_species(c.solvent_name))
                                          .SetCondensedPhase(find_phase(c.condensed_phase_name))
-                                         .SetHenryLawConstant(miam::process::constant::HenrysLawConstant(
+                                         .SetHenryLawConstant(miam::HenrysLawConstant(
                                              { .HLC_ref_ = c.henrys_law_constant.hlc_ref, .C_ = c.henrys_law_constant.c }))
-                                         .SetSolventMolecularWeight(c.solvent_molecular_weight)
-                                         .SetSolventDensity(c.solvent_density)
                                          .Build());
               }
               else if constexpr (std::is_same_v<T, miam_config::DissolvedEquilibriumConstraint>)
               {
-                model.AddConstraints(miam::constraint::DissolvedEquilibriumConstraintBuilder()
+                model.AddConstraints(miam::DissolvedEquilibriumConstraintBuilder()
                                          .SetPhase(find_phase(c.phase_name))
                                          .SetReactants(find_species_vec(c.reactant_names))
                                          .SetProducts(find_species_vec(c.product_names))
                                          .SetAlgebraicSpecies(find_species(c.algebraic_species_name))
                                          .SetSolvent(find_species(c.solvent_name))
-                                         .SetEquilibriumConstant(miam::process::constant::EquilibriumConstant(
+                                         .SetEquilibriumConstant(miam::EquilibriumConstant(
                                              { .A_ = c.equilibrium_constant.a, .C_ = c.equilibrium_constant.c }))
                                          .SetSolventFloor(c.solvent_floor)
                                          .Build());
               }
               else if constexpr (std::is_same_v<T, miam_config::LinearConstraint>)
               {
-                auto builder = miam::constraint::LinearConstraintBuilder().SetAlgebraicSpecies(
+                auto builder = miam::LinearConstraintBuilder().SetAlgebraicSpecies(
                     find_phase(c.algebraic_phase_name), find_species(c.algebraic_species_name));
                 for (const auto& term : c.terms)
                   builder.AddTerm(find_phase(term.phase_name), find_species(term.species_name), term.coefficient);
