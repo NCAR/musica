@@ -351,7 +351,7 @@ namespace musica
       auto miam_model = BuildMiamModel(miam_config, species_map, phase_map);
 
       // Create system: mechanism's gas phase + MIAM model
-      auto system = micm::System(chemistry.system.gas_phase_, miam_model);
+      auto system = micm::System(chemistry.system.gas_phase_);
 
       // Build solver with MIAM as external model
       auto solver_variant = BuildSolverVariant(system, chemistry.processes, solver_type, miam_model);
