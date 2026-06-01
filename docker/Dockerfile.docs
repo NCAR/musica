@@ -10,8 +10,10 @@ RUN dnf -y update \
         doxygen \
         gcc \
         gcc-c++ \
+        gcc-gfortran \
         git \
         make \
+        netcdf-fortran-devel \
         nodejs \
         npm \
         pandoc \
