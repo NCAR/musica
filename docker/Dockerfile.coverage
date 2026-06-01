@@ -1,6 +1,5 @@
 FROM fedora:41
 
-ARG MUSICA_GIT_TAG=main
 ARG BUILD_TYPE=Release
 
 RUN dnf -y update \
@@ -27,6 +26,7 @@ RUN mkdir /build \
       && cmake \
         -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
         -D MUSICA_ENABLE_COVERAGE:BOOL=TRUE \
+        -D MUSICA_ENABLE_TESTS=ON \
         ../musica \
       && make install -j 8
 

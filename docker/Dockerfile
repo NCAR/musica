@@ -26,9 +26,9 @@ RUN cd musica \
     && cmake -S . \
              -B build \
              -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
-             -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
+             -D MUSICA_ENABLE_TESTS=ON \
     && cd build \
-    && make install -j 1
+    && make install -j 5
     
 # Try building a simple application
 RUN cd musica/build \

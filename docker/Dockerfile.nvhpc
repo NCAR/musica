@@ -6,7 +6,6 @@
 #
 FROM nvcr.io/nvidia/nvhpc:25.7-devel-cuda12.9-ubuntu24.04
 
-ARG MUSICA_GIT_TAG=main
 ARG BUILD_TYPE=release
 
 RUN apt update \
@@ -37,9 +36,9 @@ RUN cd musica \
 && cmake -S . \
     -B build \
     -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
-    -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
     -D MUSICA_GPU_TYPE=a100 \
     -D MUSICA_ENABLE_INSTALL=OFF \
+    -D MUSICA_ENABLE_TESTS=ON \
     -D MUSICA_ENABLE_TUVX=OFF \
     -D MUSICA_ENABLE_CARMA=OFF \
     -D MUSICA_BUILD_SHARED_LIBS=ON \

@@ -2,7 +2,6 @@ FROM julia:1.11 AS julia-base
 
 FROM fedora:latest
 
-ARG MUSICA_GIT_TAG=main
 ARG BUILD_TYPE=Release
 
 RUN dnf -y update \
