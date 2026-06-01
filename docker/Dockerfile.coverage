@@ -1,33 +1,35 @@
 FROM fedora:41
 
-ARG BUILD_TYPE=Release
+ARG BUILD_TYPE=Debug
 
 RUN dnf -y update \
     && dnf -y install \
         cmake \
+        curl \
+        gcc \
         gcc-c++ \
-        gfortran \
-        gdb \
+        gcc-gfortran \
         git \
+        hdf5-devel \
         lapack-devel \
         lcov \
+        libcurl-devel \
+        m4 \
         make \
         netcdf-fortran-devel \
-        python \
-        valgrind \
-        tree \
+        zlib-devel \
     && dnf clean all
 
-# Copy the musica code
 COPY . musica
 
-RUN mkdir /build \
-      && cd /build \
-      && cmake \
-        -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
-        -D MUSICA_ENABLE_COVERAGE:BOOL=TRUE \
-        -D MUSICA_ENABLE_TESTS=ON \
-        ../musica \
-      && make install -j 8
+RUN cd musica \
+    && cmake -S . \
+             -B build \
+             -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+             -D MUSICA_ENABLE_COVERAGE=ON \
+             -D MUSICA_ENABLE_TESTS=ON \
+             -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
+    && cd build \
+    && make install -j$(nproc)
 
-WORKDIR /build
+WORKDIR /musica/build

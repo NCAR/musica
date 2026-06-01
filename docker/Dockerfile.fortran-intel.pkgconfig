@@ -13,12 +13,10 @@ ARG BUILD_TYPE=Release
 RUN apt update \
     && apt -y install \
     cmake \
-    cmake-curses-gui \
     curl \
     gcc \
     gfortran \
     git \
-    lcov \
     liblapack-dev \
     libcurl4-openssl-dev \
     libhdf5-dev \
@@ -26,10 +24,10 @@ RUN apt update \
     m4 \
     make \
     valgrind \
-    vim \
     zlib1g-dev \
     && apt clean 
 
+# Use Intel compilers for all builds in this container (netcdf-fortran and musica).
 ENV CC=icx
 ENV CXX=icpx
 ENV FC=ifx
@@ -57,6 +55,11 @@ RUN cd musica \
         -D MUSICA_ENABLE_TESTS=ON \
         -D CMAKE_EXE_LINKER_FLAGS="-Wl,--copy-dt-needed-entries" \
     && cd build \
-    && make install
+    && make install -j$(nproc)
+
+# Verify musica-fortran is findable via pkg-config with the Intel compiler.
+RUN cd musica/build \
+    && ifx $(pkg-config --cflags musica-fortran musica) -o test_musica_version /musica/fortran/test/unit/test_musica_version.F90 $(pkg-config --libs musica-fortran musica) -lstdc++ \
+    && ./test_musica_version
 
 WORKDIR musica/build/
