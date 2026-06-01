@@ -9,8 +9,6 @@ The MUSICA-Fortran API provides access to the MUSICA library within a fortran pr
 To get started, let us create a simple program that links
 to MUSICA and prints the version of MICM.
 
-Save the following code to a file named `demo.F90`:
-
   .. literalinclude:: ../../../../fortran/test/unit/test_micm_version.F90
     :language: F90
 
@@ -27,7 +25,7 @@ The full command is
 
 .. code-block:: bash
 
-  gfortran -o demo demo.F90 -I<MUSICA_DIR>/include -L<MUSICA_DIR>/lib64 -lmusica-fortran -lmusica -lstdc++ -lyaml-cpp
+  gfortran -o test_micm_version test_micm_version.F90 -I<MUSICA_DIR>/include -L<MUSICA_DIR>/lib64 -lmusica-fortran -lmusica -lstdc++ -lyaml-cpp
 
 ``<MUSICA_DIR>`` is the full path of the MUSICA installation directory,
 specified by the option ``CMAKE_INSTALL_PREFIX``
@@ -35,12 +33,12 @@ during installation (see :ref:`installing_musica`).
 Note that the include path allows the linker to find the ``musica_micm.mod`` and ``musica_util.mod``
 module definition files.
 
-When the `demo` program is run it should display the MICM version: 
+When the program is run it should display the MICM version:
 
 .. code-block:: bash
 
-  $ ./demo
-   MICM version 3.6.0
+  $ ./test_micm_version
+   MICM version 3.12.0
   $
 
 Building a MUSICA Fortran Program with CMake
@@ -71,5 +69,5 @@ Then, the ``demo_f`` executable can be run:
 .. code-block:: bash
 
   $ ./demo_f
-    MICM version 3.6.0
+    MICM version 3.12.0
   $
