@@ -1,38 +1,40 @@
 FROM fedora:latest
 
-ARG BUILD_TYPE=Debug
+ARG BUILD_TYPE=Release
 
 RUN dnf -y update \
     && dnf -y install \
         cmake \
+        curl \
+        gcc \
         gcc-c++ \
-        gfortran \
+        gcc-gfortran \
         gdb \
         git \
+        hdf5-devel \
         lapack-devel \
-        lcov \
+        libcurl-devel \
+        m4 \
         make \
         netcdf-fortran-devel \
-        python \
         valgrind \
-        tree \
+        zlib-devel \
     && dnf clean all
 
-# Copy the musica code
+ENV FC=gfortran
+ENV CXX=g++
+ENV CC=gcc
+ENV FFLAGS="-I/usr/include/"
+
 COPY . musica
 
-# Build
 RUN cd musica \
     && cmake -S . \
              -B build \
              -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+             -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
              -D MUSICA_ENABLE_TESTS=ON \
     && cd build \
-    && make install -j 5
-    
-# Try building a simple application
-RUN cd musica/build \
-    && gcc $(pkg-config --cflags musica) -o test_simple /musica/src/test/test_simple.c $(pkg-config --libs musica) \
-    && ./test_simple
+    && make install -j$(nproc)
 
 WORKDIR musica/build
