@@ -12,6 +12,7 @@ RUN dnf -y update \
         gcc-c++ \
         gcc-gfortran \
         git \
+        lapack-devel \
         make \
         netcdf-fortran-devel \
         nodejs \
