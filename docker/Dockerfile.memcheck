@@ -5,21 +5,22 @@ ARG BUILD_TYPE=Debug
 RUN dnf -y update \
     && dnf -y install \
         cmake \
+        curl \
         gcc-c++ \
-        gfortran \
         gdb \
         git \
+        hdf5-devel \
         lapack-devel \
-        lcov \
+        libcurl-devel \
+        m4 \
         make \
         netcdf-fortran-devel \
         valgrind \
+        zlib-devel \
     && dnf clean all
 
-# Copy the musica code
 COPY . musica
 
-# Build
 RUN cd musica \
     && cmake -S . \
              -B build \
@@ -27,6 +28,6 @@ RUN cd musica \
              -D MUSICA_ENABLE_TESTS=ON \
              -D MUSICA_ENABLE_MEMCHECK=ON \
     && cd build \
-    && make install -j 8
+    && make install -j$(nproc)
 
-WORKDIR musica/build
+WORKDIR /musica/build

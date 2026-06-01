@@ -37,4 +37,4 @@ RUN cd musica \
     && cd build \
     && make install -j$(nproc)
 
-WORKDIR musica/build
+WORKDIR /musica/build

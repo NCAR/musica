@@ -2,6 +2,7 @@ FROM fedora:latest
 
 ARG BUILD_TYPE=Debug
 
+# OpenMPI refuses to run as root, so create an unprivileged user for ctest.
 RUN dnf -y update \
     && dnf install -y sudo \
     && adduser test_user \
@@ -13,29 +14,31 @@ WORKDIR /home/test_user
 
 RUN sudo dnf -y install \
         cmake \
+        curl \
         gcc-c++ \
-        gfortran \
         git \
+        hdf5-devel \
         lapack-devel \
-        lcov \
+        libcurl-devel \
+        m4 \
         make \
         netcdf-fortran-devel \
         openmpi-devel \
         valgrind-openmpi \
-    && dnf clean all
+        zlib-devel \
+    && sudo dnf clean all
 
-# Set environment variables
 ENV PATH="${PATH}:/usr/lib64/openmpi/bin/"
 ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/lib64/openmpi/lib"
+# Set for hybrid MPI+OpenMP runs
 ENV OMP_NUM_THREADS=3
 
-# copy the MusicBox code
-COPY . musica/
+COPY . musica
 
+# git 2.35.2+ rejects repos owned by a different user; fix ownership after COPY.
 RUN git config --global --add safe.directory '*'
-RUN sudo chown -R test_user.test_user musica
+RUN sudo chown -R test_user:test_user musica
 
-# get a tag and build the model
 RUN cd musica \
     && cmake -S . \
              -B build \
@@ -47,8 +50,8 @@ RUN cd musica \
              -D CMAKE_C_COMPILER=/usr/lib64/openmpi/bin/mpicc \
              -D CMAKE_CXX_COMPILER=/usr/lib64/openmpi/bin/mpicxx \
     && cd build \
-    && make \
-    && sudo make install \ 
-    && sudo chown -R test_user:test_user .  
+    && make -j$(nproc) \
+    && sudo make install \
+    && sudo chown -R test_user:test_user .
 
 WORKDIR /home/test_user/musica/build

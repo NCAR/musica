@@ -8,7 +8,6 @@ RUN dnf -y update \
         curl \
         gcc \
         gcc-c++ \
-        gcc-gfortran \
         git \
         hdf5-devel \
         lapack-devel \
@@ -28,7 +27,7 @@ RUN cd musica \
              -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
              -D MUSICA_ENABLE_COVERAGE=ON \
              -D MUSICA_ENABLE_TESTS=ON \
-             -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
+             -D MUSICA_BUILD_FORTRAN_INTERFACE=OFF \
     && cd build \
     && make install -j$(nproc)
 

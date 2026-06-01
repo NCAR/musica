@@ -62,4 +62,4 @@ RUN cd musica/build \
     && ifx $(pkg-config --cflags musica-fortran musica) -o test_musica_version /musica/fortran/test/unit/test_musica_version.F90 $(pkg-config --libs musica-fortran musica) -lstdc++ \
     && ./test_musica_version
 
-WORKDIR musica/build/
+WORKDIR /musica/build/
