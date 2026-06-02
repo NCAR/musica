@@ -42,7 +42,7 @@ namespace musica
     {
       delete profile;
     }
-    catch (const std::system_error &e)
+    catch (const std::exception &e)
     {
       ToError(e, MUSICA_SEVERITY_ERROR, error);
       return;
@@ -62,7 +62,7 @@ namespace musica
       std::strcpy(name_cstr, name.c_str());
       return name_cstr;
     }
-    catch (const std::system_error &e)
+    catch (const std::exception &e)
     {
       ToError(e, MUSICA_SEVERITY_ERROR, error);
       return nullptr;
@@ -81,7 +81,7 @@ namespace musica
       std::strcpy(units_cstr, units.c_str());
       return units_cstr;
     }
-    catch (const std::system_error &e)
+    catch (const std::exception &e)
     {
       ToError(e, MUSICA_SEVERITY_ERROR, error);
       return nullptr;

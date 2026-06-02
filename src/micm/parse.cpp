@@ -1,4 +1,5 @@
 #include <musica/micm/parse.hpp>
+#include <musica/utils/error_code.hpp>
 
 #include <mechanism_configuration/parser.hpp>
 #include <mechanism_configuration/v1/parser.hpp>
@@ -20,7 +21,7 @@ namespace musica
       {
         errors += error.second + "\n";
       }
-      throw std::system_error(make_error_code(MusicaParseErrc::InvalidConfigFile), errors);
+      throw musica::Exception(musica::ParseErrorCode::InvalidConfigFile, errors);
     }
     else
     {
@@ -32,7 +33,7 @@ namespace musica
         case 1: chemistry = ParserV1(parsed); break;
         default:
           const std::string msg = "Version " + std::to_string(version.major) + " not supported";
-          throw std::system_error(make_error_code(MusicaParseErrc::UnsupportedVersion), msg);
+          throw musica::Exception(musica::ParseErrorCode::UnsupportedVersion, msg);
       }
     }
 
@@ -55,7 +56,7 @@ namespace musica
       {
         errors += error.second + "\n";
       }
-      throw std::system_error(make_error_code(MusicaParseErrc::ParsingFailed), errors);
+      throw musica::Exception(musica::ParseErrorCode::ParsingFailed, errors);
     }
 
     // Convert v1 mechanism directly to Chemistry

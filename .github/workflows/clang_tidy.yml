@@ -37,7 +37,7 @@ jobs:
         continue-on-error: true
 
       - name: Commit and push changes
-        # a failue of this step means changes were detected
+        # a failure of this step means changes were detected
         if: steps.check-changes.outcome != 'success'
         run: |
           git config --global user.name "GitHub Actions"
