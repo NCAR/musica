@@ -8,7 +8,6 @@
 #include <musica/micm/micm.hpp>
 #include <musica/micm/parse.hpp>
 #include <musica/micm/state.hpp>
-#include <musica/util.hpp>
 
 #include <gtest/gtest.h>
 

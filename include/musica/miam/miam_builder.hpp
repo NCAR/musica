@@ -8,7 +8,7 @@
 #include <musica/miam/miam_types.hpp>
 #include <musica/micm/chemistry.hpp>
 #include <musica/micm/micm.hpp>
-#include <musica/util.hpp>
+#include <musica/utils/util.hpp>
 
 namespace musica
 {

@@ -8,7 +8,7 @@
 #include <musica/miam/miam_types.hpp>
 #include <musica/micm/cpu_solver.hpp>
 #include <musica/micm/micm.hpp>
-#include <musica/util.hpp>
+#include <musica/utils/error_code.hpp>
 
 #include <miam/miam.hpp>
 #include <miam/constraints/dissolved_equilibrium_constraint_builder.hpp>
@@ -26,7 +26,6 @@
 
 #include <stdexcept>
 #include <string>
-#include <system_error>
 #include <unordered_map>
 
 namespace musica
@@ -312,8 +311,8 @@ namespace musica
                   micm::RosenbrockSolverParameters::SixStageDifferentialAlgebraicRosenbrockParameters())));
 
         default:
-          throw std::system_error(
-              make_error_code(MusicaErrCode::SolverTypeNotFound),
+          throw musica::Exception(
+              musica::MicmErrorCode::SolverTypeNotFound,
               "Solver type " + ToString(solver_type) + " not supported for MIAM");
       }
     }
@@ -371,7 +370,7 @@ namespace musica
     }
     catch (const std::exception& e)
     {
-      ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, e.what(), MUSICA_SEVERITY_ERR, error);
+      ToError(e, MUSICA_SEVERITY_ERROR, error);
       return nullptr;
     }
   }

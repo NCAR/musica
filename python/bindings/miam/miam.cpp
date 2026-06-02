@@ -11,7 +11,6 @@
 #include <musica/micm/micm.hpp>
 #include <musica/micm/micm_c_interface.hpp>
 #include <musica/micm/parse.hpp>
-#include <musica/util.hpp>
 
 #include <mechanism_configuration/v1/types.hpp>
 
