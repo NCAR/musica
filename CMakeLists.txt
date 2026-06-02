@@ -66,7 +66,7 @@ elseif(${CMAKE_Fortran_COMPILER_ID} MATCHES "PGI")
 endif()
 
 # TUV-x and CARMA contain fortran sources that are added to the musica target
-if(MUSICA_BUILD_FORTRAN_INTERFACE or MUSICA_ENABLE_TUVX OR MUSICA_ENABLE_CARMA)
+if(MUSICA_BUILD_FORTRAN_INTERFACE OR MUSICA_ENABLE_TUVX OR MUSICA_ENABLE_CARMA)
   enable_language(Fortran)
 endif()
 
