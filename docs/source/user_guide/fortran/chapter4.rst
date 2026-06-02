@@ -13,7 +13,7 @@ chemistry solver. MUSICA supports this naturally: you can create as many
 independent ``micm_t`` solver instances as you need, each with its own mechanism,
 and advance all of them inside the same Fortran host application.
 
-In this fourth MUSICA Fortran example we create **two independent solvers**:
+In this example, we create **two independent solvers**:
 
 - **Solver 1** loads the six-species analytical mechanism from ``configs/v0/analytical``.
   This mechanism has six species (``A``, ``B``, ``C``, ``D``, ``E``, ``F``), two
@@ -24,11 +24,10 @@ In this fourth MUSICA Fortran example we create **two independent solvers**:
   This mechanism has three species (``A``, ``B``, ``C``) and two Arrhenius reactions.
 
 Both solvers share the same physical conditions (temperature and pressure) but
-maintain completely independent state vectors.  They are advanced through a single
-time step inside the same simulation loop.
+maintain completely independent state vectors. Both are advanced through the same
+time step in the same simulation loop.
 
-To create the example, save the following Fortran code to a file named
-``test_multiple_mechanisms.F90``:
+Save the following to ``test_multiple_mechanisms.F90``:
 
   .. literalinclude:: ../../../../fortran/test/tutorial/test_multiple_mechanisms.F90
     :language: f90
@@ -37,7 +36,7 @@ Key concepts illustrated by this example:
 
 **Independent solver instances**
 
-Each ``micm_t`` pointer is a self-contained solver.  Creating a second solver does
+Each ``micm_t`` pointer is a self-contained solver. Creating a second solver does
 not affect the first:
 
 .. code-block:: fortran
@@ -61,7 +60,7 @@ user-defined rate-parameter arrays.
 
 **Simultaneous time-stepping**
 
-Within the same simulation loop both mechanisms are advanced by calling each
+Within the same simulation loop, both mechanisms are advanced by calling each
 solver's ``solve`` method:
 
 .. code-block:: fortran
@@ -70,7 +69,7 @@ solver's ``solve`` method:
   call micm_2%solve(time_step, state_2, solver_state_str, solver_stats, error)
 
 The two calls are completely independent: they can even be re-ordered or
-parallelised without affecting the results of either mechanism.
+parallelized without affecting the results of either mechanism.
 
 **Memory management**
 
@@ -91,8 +90,7 @@ The compilation command would be:
   gfortran -o test_multiple_mechanisms test_multiple_mechanisms.F90 \
     -I<MUSICA_DIR>/include -L<MUSICA_DIR>/lib64 -lmusica-fortran -lmusica -lstdc++ -lyaml-cpp
 
-Assuming you name the executable ``test_multiple_mechanisms``, you can run the
-program as follows:
+Run it with:
 
 .. code-block:: bash
 
@@ -130,6 +128,5 @@ program as follows:
 
    Both mechanisms solved successfully in the same host application!
 
-The final concentrations differ between the two mechanisms because they have
-different numbers of species, different reactions, and different rate expressions.
-This demonstrates that each solver is truly independent of the other.
+The final concentrations differ because the two mechanisms have different species,
+reactions, and rate expressions.
