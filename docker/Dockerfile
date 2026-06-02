@@ -37,4 +37,9 @@ RUN cd musica \
     && cd build \
     && make install -j$(nproc)
 
+# Verify musica is findable via pkg-config with the GCC compiler.
+RUN cd musica/build \
+    && $CC $(pkg-config --cflags musica) -o test_simple /musica/src/test/test_simple.c $(pkg-config --libs musica) \
+    && ./test_simple
+
 WORKDIR /musica/build
