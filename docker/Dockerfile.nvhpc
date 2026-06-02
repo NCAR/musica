@@ -33,8 +33,7 @@ RUN cd musica \
              -D MUSICA_GPU_TYPE=a100 \
              -D MUSICA_ENABLE_INSTALL=OFF \
              -D MUSICA_ENABLE_TESTS=ON \
-             -D MUSICA_ENABLE_TUVX=OFF \
-             -D MUSICA_ENABLE_CARMA=OFF \
+             -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
              -D MUSICA_BUILD_SHARED_LIBS=ON \
              -D MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE=1 \
     && cd build \
