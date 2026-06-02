@@ -13,11 +13,11 @@ target_link_libraries(musica_julia
   JlCxx::cxxwrap_julia_stl
 )
 
-# Output alongside the other musica libraries in build/lib/.
+# Musica_jll hardcodes build/lib as the library path — must match exactly.
 set_target_properties(musica_julia PROPERTIES
-  LIBRARY_OUTPUT_DIRECTORY "${MUSICA_LIB_DIR}"
-  RUNTIME_OUTPUT_DIRECTORY "${MUSICA_LIB_DIR}"
-  ARCHIVE_OUTPUT_DIRECTORY "${MUSICA_LIB_DIR}"
+  LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+  ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
 )
 
 # yaml-cpp is built in its own FetchContent subdirectory. Copy its soname file
