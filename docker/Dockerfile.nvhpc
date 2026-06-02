@@ -12,7 +12,11 @@ RUN apt update \
     gfortran \
     git \
     libhdf5-dev \
+    liblapack-dev \
+    libnetcdf-dev \
+    libnetcdff-dev \
     make \
+    pkg-config \
     valgrind \
     && apt clean
 
@@ -20,12 +24,21 @@ ENV CXX=nvc++
 ENV CC=nvc
 ENV FC=nvfortran
 
+# netcdf-fortran is not available as a prebuilt Ubuntu package with NVHPC compiler ABI,
+# so build from source against the system netcdf-c.
+RUN git clone https://github.com/Unidata/netcdf-fortran.git \
+    && cd netcdf-fortran \
+    && git checkout v4.6.0 \
+    && mkdir build && cd build \
+    && cmake .. \
+    && make -j 8 \
+    && make install
+
 COPY . musica
 
 # MUSICA_GPU_TYPE=a100: target GPU architecture for CUDA kernels
 # MUSICA_BUILD_SHARED_LIBS=ON: required for CUDA shared library linking with NVHPC
 # MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE=1: GPU kernels require vector size 1
-# TUVx and CARMA disabled — this image tests the GPU MICM path only
 RUN cd musica \
     && cmake -S . \
              -B build \
