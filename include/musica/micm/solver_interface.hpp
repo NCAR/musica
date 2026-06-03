@@ -8,12 +8,11 @@
 #include <musica/micm/chemistry.hpp>
 #include <musica/micm/solver_parameters.hpp>
 
-#include <cstdint>
-
 #include <micm/solver/solver_result.hpp>
 #include <micm/system/system.hpp>
 
 #include <cstddef>
+#include <cstdint>
 #include <map>
 #include <memory>
 #include <string>
