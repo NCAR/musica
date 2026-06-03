@@ -43,3 +43,4 @@ julia/Manifest.toml
 julia/deps/lib/
 
 .claude
+build_test/
