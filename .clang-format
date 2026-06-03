@@ -30,7 +30,7 @@ IncludeCategories:
   - Regex:           '<(musica)\/'
     Priority:        2
   # MICM, TUV-X headers
-  - Regex:           '<(micm|tuvx)[[:alnum:].(-|_)*]+>'
+  - Regex:           '<(micm|tuvx|mechanism_configuration)[[:alnum:].(-|_)*]+>'
     Priority:        3
   # External libraries headers
   - Regex:           '<[[:alnum:].(-|_)*]+\/'
