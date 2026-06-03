@@ -1,14 +1,16 @@
+# Base image for building GPU-enabled Python wheels.
+# Downstream Dockerfiles use this as a FROM to get CUDA + system dependencies
+# without repeating the CUDA repo setup.
 FROM quay.io/pypa/manylinux_2_28_x86_64
 
 RUN dnf -y update && \
     dnf install -y epel-release && \
     dnf install -y \
+        lapack-devel \
         netcdf-devel \
         netcdf-fortran-devel \
-        tree \
         wget \
-        zip \
-        lapack-devel && \
+        zip && \
     dnf clean all
 
 # CUDA 12.8

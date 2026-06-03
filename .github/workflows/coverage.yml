@@ -29,13 +29,13 @@ jobs:
           tool-cache: false
 
       - name: Build Docker image
-        run: docker build -t musica -f docker/Dockerfile.coverage . --build-arg MUSICA_GIT_TAG=${{ github.sha }} --build-arg BUILD_TYPE=Release
+        run: docker build -t musica -f docker/Dockerfile.coverage .
 
       - name: Run coverage tests in container
-        run: docker run --name test-container -t musica bash -c 'make coverage ARGS="--rerun-failed --output-on-failure -j8"'
+        run: docker run --name test-container -t musica bash -c 'make coverage'
 
       - name: Copy coverage from container
-        run: docker cp test-container:build/coverage.info .
+        run: docker cp test-container:/musica/build/coverage.info .
 
       - name: Upload C++/Fortran coverage report
         uses: codecov/codecov-action@v4
@@ -78,7 +78,7 @@ jobs:
         run: npm run test:coverage
 
       - name: Upload JavaScript coverage report
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: javascript-coverage/lcov.info

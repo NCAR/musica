@@ -21,6 +21,7 @@ jobs:
         os: [ubuntu-latest]
         dockerfile:
           - Dockerfile
+          - Dockerfile.docs
           - Dockerfile.memcheck
           - Dockerfile.openmp
           - Dockerfile.mpi
@@ -28,12 +29,8 @@ jobs:
           - Dockerfile.nvhpc
           - Dockerfile.javascript
           - Dockerfile.julia
-          - Dockerfile.docs
           - Dockerfile.tuvx
         build_type: [Release]
-        exclude:
-          - dockerfile: Dockerfile.nvhpc
-            build_type: Debug  # the -Werror has false positives
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -48,7 +45,7 @@ jobs:
           tool-cache: false
 
       - name: Build Docker image
-        run: docker build -t musica -f docker/${{ matrix.dockerfile }} . --build-arg MUSICA_GIT_TAG=${{ github.sha }} --build-arg BUILD_TYPE=${{ matrix.build_type }}
+        run: docker build -t musica -f docker/${{ matrix.dockerfile }} . --build-arg BUILD_TYPE=${{ matrix.build_type }}
 
       - name: Run tests in container
         if: >-
@@ -75,15 +72,13 @@ jobs:
         if: matrix.dockerfile == 'Dockerfile.docs'
         run: >-
           docker run --name test-container -t musica bash -c
-          'test -f /build/docs/sphinx/index.html &&
-          test -f /build/docs/doxygen/xml/index.xml &&
+          'test -f /musica/build/docs/sphinx/index.html &&
+          test -f /musica/build/docs/doxygen/xml/index.xml &&
           echo "Documentation built successfully!"'
 
   tuv-x-comparison:
     name: TUV-x Comparison Test (Standalone vs. Python API)
     runs-on: ubuntu-latest
-    env:
-      BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
     strategy:
       fail-fast: false
       matrix:
@@ -95,9 +90,6 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Print branch name
-        run: echo "Branch name is $BRANCH_NAME"
-
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
         with:
@@ -108,7 +100,7 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -t musica-tuvx-comparison -f docker/Dockerfile.tuvx . \
-          --build-arg MUSICA_GIT_TAG=${BRANCH_NAME} --build-arg BUILD_TYPE=${{ matrix.build_type }}
+          --build-arg BUILD_TYPE=${{ matrix.build_type }}
 
       - name: Run TUV-x comparison tests in container
         run: docker run --name tuvx-comparison -t musica-tuvx-comparison bash -c 'pytest'
