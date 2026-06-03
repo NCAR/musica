@@ -7,7 +7,7 @@
 #include <musica/micm/micm_c_interface.hpp>
 #include <musica/micm/parse.hpp>
 #include <musica/micm/solver_parameters.hpp>
-#include <musica/util.hpp>
+#include <musica/utils/util.hpp>
 #include <musica/version.hpp>
 
 #include <micm/process/rate_constant/lambda_rate_constant.hpp>

@@ -1,10 +1,8 @@
-# This will build our docs
-# After building, run with docker run --rm -p 8123:8123 -it docs and navigate to
-# localhost:8123
-# the docs will be visible
+# Build the musica documentation.
+# After building, run with:
+#   docker run --rm -p 8123:8123 -it docs
+# then navigate to localhost:8123
 FROM fedora:latest
-
-ARG BUILD_TYPE=Release
 
 RUN dnf -y update \
     && dnf -y install \
@@ -12,7 +10,7 @@ RUN dnf -y update \
         doxygen \
         gcc \
         gcc-c++ \
-        gfortran \
+        gcc-gfortran \
         git \
         lapack-devel \
         make \
@@ -25,30 +23,28 @@ RUN dnf -y update \
         python-devel \
     && dnf clean all
 
-COPY . /musica/
+COPY . musica
 
-RUN cd /musica && npm install
-RUN cd /musica &&  python -m pip install -e .
+RUN cd musica && npm install
+RUN cd musica && python -m pip install -e .
 
 RUN python -m pip install -r /musica/docs/requirements.txt
 RUN pip install --upgrade pip ipython ipykernel
 
-RUN mkdir /build \
-    && cd /build \
-    && cmake \
-        -D MUSICA_BUILD_DOCS=ON \
-        -D MUSICA_ENABLE_MICM=ON \
-        -D MUSICA_ENABLE_TUVX=OFF \
-        -D MUSICA_ENABLE_CARMA=OFF \
-        -D MUSICA_ENABLE_TESTS=OFF \
-        -D MUSICA_ENABLE_INSTALL=OFF \
-        -D MUSICA_BUILD_FORTRAN_INTERFACE=OFF \
-        -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
-        /musica 
+RUN cd musica \
+    && cmake -S . \
+             -B build \
+             -D MUSICA_BUILD_DOCS=ON \
+             -D MUSICA_ENABLE_MICM=ON \
+             -D MUSICA_ENABLE_TUVX=OFF \
+             -D MUSICA_ENABLE_CARMA=OFF \
+             -D MUSICA_ENABLE_TESTS=OFF \
+             -D MUSICA_ENABLE_INSTALL=OFF \
+             -D MUSICA_BUILD_FORTRAN_INTERFACE=OFF
 
-RUN cd /musica/docs && make copy
-RUN cd /build && make docs
+RUN cd musica/docs && make copy
+RUN cd musica/build && make docs
 
-WORKDIR /build/docs/sphinx
+WORKDIR /musica/build/docs/sphinx
 
 CMD ["python", "-m", "http.server", "8123"]

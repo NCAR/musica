@@ -17,7 +17,6 @@
 #include <map>
 #include <memory>
 #include <string>
-#include <system_error>
 
 namespace musica
 {
@@ -64,7 +63,7 @@ namespace musica
 
     /// @brief Set Rosenbrock solver parameters
     /// @param params The parameters to set
-    /// @throws std::system_error if the solver is not a Rosenbrock solver
+    /// @throws musica::Exception if the solver is not a Rosenbrock solver
     virtual void SetRosenbrockSolverParameters(const RosenbrockSolverParameters& params)
     {
       throw std::runtime_error("SetRosenbrockSolverParameters not supported by this solver");
@@ -72,7 +71,7 @@ namespace musica
 
     /// @brief Set Backward Euler solver parameters
     /// @param params The parameters to set
-    /// @throws std::system_error if the solver is not a Backward Euler solver
+    /// @throws musica::Exception if the solver is not a Backward Euler solver
     virtual void SetBackwardEulerSolverParameters(const BackwardEulerSolverParameters& params)
     {
       throw std::runtime_error("SetBackwardEulerSolverParameters not supported by this solver");
@@ -80,7 +79,7 @@ namespace musica
 
     /// @brief Get Rosenbrock solver parameters
     /// @return The current parameters
-    /// @throws std::system_error if the solver is not a Rosenbrock solver
+    /// @throws musica::Exception if the solver is not a Rosenbrock solver
     virtual RosenbrockSolverParameters GetRosenbrockSolverParameters() const
     {
       throw std::runtime_error("GetRosenbrockSolverParameters not supported by this solver");
@@ -88,7 +87,7 @@ namespace musica
 
     /// @brief Get Backward Euler solver parameters
     /// @return The current parameters
-    /// @throws std::system_error if the solver is not a Backward Euler solver
+    /// @throws musica::Exception if the solver is not a Backward Euler solver
     virtual BackwardEulerSolverParameters GetBackwardEulerSolverParameters() const
     {
       throw std::runtime_error("GetBackwardEulerSolverParameters not supported by this solver");

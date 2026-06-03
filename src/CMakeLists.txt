@@ -1,12 +1,3 @@
-################################################################################
-# Preamble
-
-project(
-  musica
-  VERSION ${PROJECT_VERSION}
-  LANGUAGES C CXX
-)
-
 message(STATUS "CMake build configuration for ${PROJECT_NAME} (${CMAKE_BUILD_TYPE}) ${PROJECT_VERSION}")
 
 ################################################################################
@@ -26,7 +17,9 @@ add_library(musica::musica ALIAS musica)
 
 # Common sources
 target_sources(musica PRIVATE
-  ${CMAKE_CURRENT_SOURCE_DIR}/util.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/utils/error_handler.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/utils/string.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/utils/util.cpp
   ${CMAKE_BINARY_DIR}/version.cpp
 )
 
@@ -111,6 +104,7 @@ set_target_properties(musica PROPERTIES
 if(APPLE)
   set_target_properties(musica PROPERTIES
     INSTALL_RPATH "@loader_path"
+    BUILD_WITH_INSTALL_RPATH TRUE
   )
 elseif(UNIX)
   set_target_properties(musica PROPERTIES
