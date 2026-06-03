@@ -29,7 +29,7 @@ IncludeCategories:
   # MUSICA project headers
   - Regex:           '<(musica)\/'
     Priority:        2
-  # MICM, TUV-X headers
+  # MUSICA-owned project headers
   - Regex:           '<(micm|tuvx|mechanism_configuration)[[:alnum:].(-|_)*]+>'
     Priority:        3
   # External libraries headers
