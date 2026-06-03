@@ -21,14 +21,15 @@ jobs:
         os: [ubuntu-latest]
         dockerfile:
           - Dockerfile
+          - Dockerfile.docs
           - Dockerfile.memcheck
           - Dockerfile.openmp
           - Dockerfile.mpi
           - Dockerfile.mpi_openmp
+          - Dockerfile.intel
           - Dockerfile.nvhpc
           - Dockerfile.javascript
           - Dockerfile.julia
-          - Dockerfile.docs
           - Dockerfile.tuvx
         build_type: [Release]
     steps:
