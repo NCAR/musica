@@ -2,12 +2,11 @@
 #include <musica/micm/parse.hpp>
 #include <musica/utils/error_code.hpp>
 
+#include <mechanism_configuration/v1/types.hpp>
+#include <mechanism_configuration/v1/validation.hpp>
 #include <micm/Process.hpp>
 #include <micm/System.hpp>
 #include <micm/process/rate_constant/lambda_rate_constant.hpp>
-
-#include <mechanism_configuration/v1/types.hpp>
-#include <mechanism_configuration/v1/validation.hpp>
 
 #include <algorithm>
 
