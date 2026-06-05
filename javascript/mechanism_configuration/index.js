@@ -1,6 +1,4 @@
 // mechanism_configuration/index.js
-import { types } from './types.js';
-import { reactionTypes } from './reaction_types.js';
-import { Mechanism } from './mechanism.js';
+import { types, reactionTypes, Mechanism } from './mechanism_configuration.js';
 
 export { types, reactionTypes, Mechanism };
