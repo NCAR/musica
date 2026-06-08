@@ -25,8 +25,9 @@
   "scripts": {
     "build": "npm run build:wasm && npm run build:types",
     "build:wasm": "emcmake cmake -S . -B build-wasm -DCMAKE_BUILD_TYPE=Release -DMUSICA_ENABLE_JAVASCRIPT=ON -DMUSICA_ENABLE_TUVX=OFF -DMUSICA_ENABLE_CARMA=OFF -DMUSICA_ENABLE_TESTS=OFF && cmake --build build-wasm",
-    "build:types": "tsc",
-    "prepublishOnly": "npm run build:types",
+    "clean:types": "node -e \"const fs=require('fs'),d='javascript/mechanism_configuration';fs.readdirSync(d).filter(f=>f.endsWith('.d.ts')).forEach(f=>fs.rmSync(d+'/'+f))\"",
+    "build:types": "npm run clean:types && tsc",
+    "prepare": "npm run build:types",
     "test": "node --test javascript/tests/unit/*.test.js javascript/tests/integration/*.test.js",
     "test:integration": "node --test javascript/tests/integration/*.test.js",
     "test:unit": "node --test javascript/tests/unit/**/*.test.js",
