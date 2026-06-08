@@ -4,6 +4,7 @@
   "description": "The Multiscale Interface for Chemistry and Aerosols (MUSICA) javascript library",
   "type": "module",
   "main": "./javascript/index.js",
+  "types": "./javascript/index.d.ts",
   "readmeCommets": [
     "NPM uses the root readme to display package information, so we copy the javascript readme",
     "to the root on publish. The below path is correct."
@@ -26,7 +27,7 @@
   "scripts": {
     "build": "npm run build:wasm && npm run build:types",
     "build:wasm": "emcmake cmake -S . -B build-wasm -DCMAKE_BUILD_TYPE=Release -DMUSICA_ENABLE_JAVASCRIPT=ON -DMUSICA_ENABLE_TUVX=OFF -DMUSICA_ENABLE_CARMA=OFF -DMUSICA_ENABLE_TESTS=OFF && cmake --build build-wasm",
-    "clean:types": "node -e \"const fs=require('fs'),d='javascript/mechanism_configuration';fs.readdirSync(d).filter(f=>f.endsWith('.d.ts')).forEach(f=>fs.rmSync(d+'/'+f))\"",
+    "clean:types": "node -e \"const fs=require('fs'),p=require('path');(function w(d){for(const e of fs.readdirSync(d,{withFileTypes:true})){const f=p.join(d,e.name);if(e.isDirectory()){if(e.name!=='wasm'&&e.name!=='node_modules')w(f);}else if(f.endsWith('.d.ts'))fs.rmSync(f);}})('javascript')\"",
     "build:types": "npm run clean:types && tsc",
     "prepare": "npm run build:types",
     "test": "node --test javascript/tests/unit/*.test.js javascript/tests/integration/*.test.js",
