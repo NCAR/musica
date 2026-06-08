@@ -35,7 +35,7 @@ musica_env/
 uv.lock
 
 # Generated TypeScript declaration files (emitted from JS via `npm run build:types`)
-javascript/mechanism_configuration/*.d.ts
+javascript/**/*.d.ts
 
 # Coverage reports
 javascript-coverage/

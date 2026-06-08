@@ -10,6 +10,11 @@
     "skipLibCheck": true,
     "strict": true
   },
-  "include": ["javascript/mechanism_configuration/**/*.js"],
-  "exclude": ["javascript/mechanism_configuration/**/*.d.ts"]
+  "include": ["javascript/**/*.js"],
+  "exclude": [
+    "javascript/**/*.d.ts",
+    "javascript/tests",
+    "javascript/wasm",
+    "javascript/tools"
+  ]
 }
