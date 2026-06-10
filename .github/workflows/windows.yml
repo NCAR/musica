@@ -37,7 +37,9 @@ jobs:
     continue-on-error: true 
     strategy:
       matrix:
-        version: [19.1.0, 20.1.0]
+        # Clang 19 dropped: the GitHub runner's MSVC STL now requires Clang >= 20
+        # (yvals_core.h static_assert STL1000), so 19 can no longer compile against it.
+        version: [20.1.0]
 
     steps:
       - uses: actions/checkout@v4
