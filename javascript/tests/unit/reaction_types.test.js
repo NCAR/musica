@@ -49,7 +49,7 @@ const PARAMS = {
   LambdaRateConstant: { reactants, products, name: 'r', gas_phase: 'gas' },
 };
 
-describe('reaction type `.type` accessibility (#888)', () => {
+describe('reaction type `.type` is accessible', () => {
   it('exposes the same set of classes and expectations', () => {
     assert.deepStrictEqual(
       Object.keys(reactionTypes).sort(),
