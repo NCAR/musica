@@ -1,13 +1,9 @@
-# nvidia rate limits requests. You can get around this by restarting docker if for 
-# some reason you have to build this image many times
-# https://stackoverflow.com/a/75757516/5217293
-#
-# Container versions, and sizes, can be found at https://catalog.ngc.nvidia.com/orgs/nvidia/containers/nvhpc/tags
-#
+# Available tags: https://catalog.ngc.nvidia.com/orgs/nvidia/containers/nvhpc/tags
+# Note: NVIDIA rate-limits image pulls. If you hit pull errors, restarting Docker clears it.
+# See: https://stackoverflow.com/a/75757516/5217293
 FROM nvcr.io/nvidia/nvhpc:25.7-devel-cuda12.9-ubuntu24.04
 
-ARG MUSICA_GIT_TAG=main
-ARG BUILD_TYPE=release
+ARG BUILD_TYPE=Release
 
 RUN apt update \
     && apt -y install \
@@ -15,34 +11,55 @@ RUN apt update \
     gcc \
     gfortran \
     git \
-    liblapack-dev \
     libhdf5-dev \
+    liblapack-dev \
     libnetcdf-dev \
     libnetcdff-dev \
     make \
-    valgrind \ 
-    vim \
-    && apt clean 
+    pkg-config \
+    valgrind \
+    && apt clean
 
-# set compilers
 ENV CXX=nvc++
 ENV CC=nvc
 ENV FC=nvfortran
 
-# Copy the musica code
+# netcdf-fortran is not available as a prebuilt Ubuntu package with NVHPC compiler ABI,
+# so build from source against the system netcdf-c.
+RUN git clone https://github.com/Unidata/netcdf-fortran.git \
+    && cd netcdf-fortran \
+    && git checkout v4.6.0 \
+    && cmake -S . -B build -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+    && cmake --build build -j$(nproc) \
+    && cmake --install build
+
 COPY . musica
 
-# Build and install MUSICA
+# MUSICA_GPU_TYPE=a100: target GPU architecture for CUDA kernels
+# MUSICA_BUILD_SHARED_LIBS=ON: required for CUDA shared library linking with NVHPC
+# MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE=1: GPU kernels require vector size 1
 RUN cd musica \
-&& cmake -S . \
-    -B build \
-    -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
-    -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
-    -D MUSICA_GPU_TYPE=a100 \
-    -D MUSICA_ENABLE_INSTALL=OFF \
-    -D MUSICA_ENABLE_TUVX=OFF \
-    -D MUSICA_ENABLE_CARMA=OFF \
-    -D MUSICA_BUILD_SHARED_LIBS=ON \
-    -D MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE=1 \
+    && cmake -S . \
+             -B build \
+             -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+             -D MUSICA_GPU_TYPE=a100 \
+             -D MUSICA_ENABLE_TESTS=ON \
+             -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
+             -D MUSICA_BUILD_SHARED_LIBS=ON \
+             -D MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE=1 \
+             -D CMAKE_EXE_LINKER_FLAGS="-Wl,--copy-dt-needed-entries" \
     && cd build \
-    && make 
+    && make install -j$(nproc) \
+    && ldconfig
+
+# Verify musica is findable via pkg-config with the NVHPC compiler.
+RUN cd musica/build \
+    && $CC $(pkg-config --cflags musica) -o test_simple /musica/src/test/test_simple.c $(pkg-config --libs musica) \
+    && ./test_simple
+
+# Verify musica-fortran is findable via pkg-config with the NVHPC compiler.
+RUN cd musica/build \
+    && $FC $(pkg-config --cflags musica-fortran musica) -o test_musica_version /musica/fortran/test/unit/test_musica_version.F90 $(pkg-config --libs musica-fortran musica) -lstdc++ \
+    && ./test_musica_version
+
+WORKDIR /musica/build

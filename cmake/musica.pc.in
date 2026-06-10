@@ -8,6 +8,6 @@ yaml_lib=yaml-cpp
 
 Name: musica
 Description: MUSICA library for modeling atmospheric chemistry
-Version: @musica-distribution_VERSION@
+Version: @musica_VERSION@
 Cflags: -I${includedir}
 Libs: -L${libdir} -lmusica -lmechanism_configuration -l${yaml_lib}

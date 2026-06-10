@@ -1,25 +1,24 @@
 FROM fedora:latest
 
-ARG MUSICA_GIT_TAG=main
-ARG BUILD_TYPE=Release
-
 RUN dnf -y update \
     && dnf -y install \
         cmake \
+        curl \
         gcc-c++ \
-        gcc-fortran \
-        gdb \
+        gcc-gfortran \
         git \
+        hdf5-devel \
         lapack-devel \
+        libcurl-devel \
+        m4 \
         make \
         netcdf-fortran-devel \
         pip \
         python \
         python-devel \
-        valgrind \
+        zlib-devel \
     && dnf clean all
 
-# Copy the musica code
 COPY . musica
 
 ENV CXX=g++

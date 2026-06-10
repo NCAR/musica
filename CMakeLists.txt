@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 
-# must be on the same line so that pyproject.toml can correctly identify the version
-project(musica-distribution VERSION 0.15.0)
+# pyproject.toml extracts the version from this line via regex — keep version on this line
+project(musica VERSION 0.15.0)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${PROJECT_SOURCE_DIR}/cmake)
 set(CMAKE_USER_MAKE_RULES_OVERRIDE ${PROJECT_SOURCE_DIR}/cmake/SetDefaults.cmake)
@@ -22,7 +22,7 @@ include(CMakeDependentOption)
 option(MUSICA_BUILD_C_CXX_INTERFACE "Use MUSICA" ON)
 option(MUSICA_BUILD_FORTRAN_INTERFACE "Use MUSICA-Fortran interface" OFF)
 option(MUSICA_ENABLE_INSTALL "Install the musica library" ON)
-option(MUSICA_ENABLE_TESTS "Builds tests that ensures each enabled MUSICA component can be used" ON)
+option(MUSICA_ENABLE_TESTS "Builds tests that ensures each enabled MUSICA component can be used" OFF)
 option(MUSICA_ENABLE_MPI "Enable MPI parallel support" OFF)
 option(MUSICA_ENABLE_OPENMP "Enable OpemMP support" OFF)
 option(MUSICA_ENABLE_MEMCHECK "Enable memory checking" OFF)
@@ -65,11 +65,9 @@ elseif(${CMAKE_Fortran_COMPILER_ID} MATCHES "PGI")
   list(APPEND musica_compile_definitions MUSICA_USING_PGI)
 endif()
 
-# since sources are collected so that python libraries can target them directly,
-# we need to know if we are targeting Fortran before we collect the sources
-# otherwise cmake freaks out, and I don't know why, but this fixes it
-if(MUSICA_ENABLE_TUVX OR MUSICA_ENABLE_CARMA)
-    enable_language(Fortran)
+# TUV-x and CARMA contain fortran sources that are added to the musica target
+if(MUSICA_BUILD_FORTRAN_INTERFACE OR MUSICA_ENABLE_TUVX OR MUSICA_ENABLE_CARMA)
+  enable_language(Fortran)
 endif()
 
 # Add flags when using the ClangCL toolset
@@ -82,13 +80,11 @@ set(MEMCHECK_SUPPRESS "--suppressions=${PROJECT_SOURCE_DIR}/valgrind.supp")
 
 ################################################################################
 # Dependencies
-
 if(MUSICA_BUNDLE_DEPENDENCIES)
   include(${PROJECT_SOURCE_DIR}/cmake/dependencies.cmake)
 endif()
 
 ################################################################################
-# Tests
 if(MUSICA_ENABLE_TESTS)
   if(MUSICA_ENABLE_COVERAGE)
     include(CodeCoverage)
@@ -98,13 +94,10 @@ if(MUSICA_ENABLE_TESTS)
         EXECUTABLE "ctest"
         EXCLUDE "${PROJECT_SOURCE_DIR}/src/test/*"
         BASE_DIRECTORY "${PROJECT_SOURCE_DIR}/src"
-        LCOV_ARGS "--ignore-errors" "mismatch")
-    
+        LCOV_ARGS "--ignore-errors" "mismatch")  
   endif()
-  
   enable_testing()
 endif()
-
 
 # disable CMake module scanning on macOS
 if (APPLE)
@@ -112,7 +105,6 @@ if (APPLE)
 endif()
 
 ################################################################################
-# MUSICA
 if(MUSICA_BUILD_C_CXX_INTERFACE)
   if(MUSICA_USE_PREBUILT)
     # Use prebuilt musica library - useful for faster Python wheel builds
@@ -127,33 +119,22 @@ if(MUSICA_BUILD_DOCS)
   add_subdirectory(docs)
 endif()
 
-################################################################################
-# MUSICA-Fortran
 if(MUSICA_BUILD_FORTRAN_INTERFACE)
   add_subdirectory(fortran)
 endif()
 
-################################################################################
-# Musica python
 if(MUSICA_ENABLE_PYTHON_LIBRARY)
   add_subdirectory(python)
 endif()
 
-################################################################################
-
-# Musica JavaScript Addon
 if(MUSICA_ENABLE_JAVASCRIPT)
   add_subdirectory(javascript)
 endif()
 
-################################################################################
-# Musica Julia Wrapper
 if(MUSICA_ENABLE_JULIA)
   add_subdirectory(julia)
 endif()
 
 ################################################################################
-###
-# Configure and display a summary file for how musica was built.
-###
+# Build summary
 include(${PROJECT_SOURCE_DIR}/cmake/summary.cmake)

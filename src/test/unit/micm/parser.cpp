@@ -1,9 +1,10 @@
 #include <musica/micm/parse.hpp>
 
-#include <gtest/gtest.h>
 #include <mechanism_configuration/parser.hpp>
 #include <mechanism_configuration/v0/types.hpp>
 #include <mechanism_configuration/v1/types.hpp>
+
+#include <gtest/gtest.h>
 
 static constexpr double avogadro = 6.02214076e23;  // # mol^{-1}
 static constexpr double MolesM3ToMoleculesCm3 = 1.0e-6 * avogadro;

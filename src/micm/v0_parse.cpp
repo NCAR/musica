@@ -1,11 +1,10 @@
 #include <musica/micm/parse.hpp>
 #include <musica/utils/error_code.hpp>
 
-#include <micm/Process.hpp>
-#include <micm/System.hpp>
-
 #include <mechanism_configuration/v0/types.hpp>
 #include <mechanism_configuration/v0/validation.hpp>
+#include <micm/Process.hpp>
+#include <micm/System.hpp>
 
 namespace musica
 {

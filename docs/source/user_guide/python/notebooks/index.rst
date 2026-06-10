@@ -21,10 +21,11 @@ Note: Binder uses the latest commit on ``main``, not necessarily the latest rele
 5. `HPC parallelization <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/5.%20hpc_parallelization.ipynb>`_
 6. `using GPU solvers <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/6.%20gpu_solver.ipynb>`_
 7. `using CARMA <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/7.%20carma.ipynb>`_
-8. `TUV-x standard configurations <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/8.tuv-x_standard_configurations.ipynb>`_
-9. `TUV-x conditions <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/9.tuv-x_conditions.ipynb>`_
+8. `TUV-x standard configurations <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/8.%20tuv-x_standard_configurations.ipynb>`_
+9. `TUV-x conditions <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/9.%20tuv-x_conditions.ipynb>`_
 10. `Chapman cycle box model <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/10.%20chapman.ipynb>`_
 11. `TS1 box model <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/11.%20ts1_box_model.ipynb>`_
+12. `multiple mechanisms in the same host application <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/12.%20multiple_mechanisms.ipynb>`_
 
 Download (GitHub)
 ------------------
@@ -37,10 +38,11 @@ Download (GitHub)
 5. `HPC parallelization notebook <https://github.com/NCAR/musica/blob/main/tutorials/5.%20hpc_parallelization.ipynb>`_
 6. `GPU solvers notebook <https://github.com/NCAR/musica/blob/main/tutorials/6.%20gpu_solver.ipynb>`_
 7. `CARMA notebook <https://github.com/NCAR/musica/blob/main/tutorials/7.%20carma.ipynb>`_
-8. `TUV-x standard configurations notebook <https://github.com/NCAR/musica/blob/main/tutorials/8.tuv-x_standard_configurations.ipynb>`_
-9. `TUV-x conditions notebook <https://github.com/NCAR/musica/blob/main/tutorials/9.tuv-x_conditions.ipynb>`_
+8. `TUV-x standard configurations notebook <https://github.com/NCAR/musica/blob/main/tutorials/8.%20tuv-x_standard_configurations.ipynb>`_
+9. `TUV-x conditions notebook <https://github.com/NCAR/musica/blob/main/tutorials/9.%20tuv-x_conditions.ipynb>`_
 10. `Chapman cycle box model notebook <https://github.com/NCAR/musica/blob/main/tutorials/10.%20chapman.ipynb>`_
 11. `TS1 box model notebook <https://github.com/NCAR/musica/blob/main/tutorials/11.%20ts1_box_model.ipynb>`_
+12. `multiple mechanisms notebook <https://github.com/NCAR/musica/blob/main/tutorials/12.%20multiple_mechanisms.ipynb>`_
 
 Browse Online
 --------------
@@ -60,3 +62,4 @@ Browse Online
    9. TUV-x Conditions <9. tuv-x_conditions>
    10. Chapman Cycle Box Model <10. chapman>
    11. TS1 Box Model <11. ts1_box_model>
+   12. Multiple Mechanisms <12. multiple_mechanisms>
