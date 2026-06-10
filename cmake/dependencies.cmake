@@ -18,9 +18,11 @@ endfunction(set_git_default)
 # has usually already located NetCDF and exposed an imported target. Different
 # finders use different target names, so probe the common variants and reuse a
 # host-provided target before searching ourselves. Only when nothing is found do
-# we fall back to pkg-config. MUSICA's own sources always link the canonical
-# musica::netcdf_c / musica::netcdf_fortran targets defined below, decoupling
-# them from however NetCDF was located.
+# we fall back to pkg-config. The resolved target names are stored in
+# MUSICA_NETCDF_C_TARGET / MUSICA_NETCDF_FORTRAN_TARGET and linked directly by
+# MUSICA's sources (we deliberately avoid wrapping them in a musica::-namespaced
+# imported target, which would collide with the install(EXPORT NAMESPACE musica::)
+# set and leak an unresolvable target into the exported link interface).
 
 if (MUSICA_ENABLE_CARMA OR MUSICA_ENABLE_TUVX)
   # Return the first of ARGN that already exists as a target (target names are
@@ -56,12 +58,6 @@ if (MUSICA_ENABLE_CARMA OR MUSICA_ENABLE_TUVX)
     set(MUSICA_NETCDF_C_TARGET PkgConfig::netcdfc)
     set(MUSICA_NETCDF_FORTRAN_TARGET PkgConfig::netcdff)
   endif()
-
-  # Canonical targets MUSICA's sources link against, regardless of origin.
-  add_library(musica::netcdf_c INTERFACE IMPORTED GLOBAL)
-  target_link_libraries(musica::netcdf_c INTERFACE ${MUSICA_NETCDF_C_TARGET})
-  add_library(musica::netcdf_fortran INTERFACE IMPORTED GLOBAL)
-  target_link_libraries(musica::netcdf_fortran INTERFACE ${MUSICA_NETCDF_FORTRAN_TARGET})
 endif()
 
 ################################################################################
@@ -152,7 +148,7 @@ if (MUSICA_ENABLE_TUVX AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBU
   # NOTE: `docker/Dockerfile.tuvx` extracts TUVX_GIT_REPOSITORY and TUVX_GIT_TAG
   #       from this script to set up tests against stand-alone TUV-x
   set_git_default(TUVX_GIT_REPOSITORY https://github.com/NCAR/tuv-x.git)
-  set_git_default(TUVX_GIT_TAG 354c8d732aba3b33f1f5c0604c92c090cdd27c72)
+  set_git_default(TUVX_GIT_TAG 5d0d37ae149496791d95183781fa9546e362ca72)
 
   FetchContent_Declare(tuvx
     GIT_REPOSITORY ${TUVX_GIT_REPOSITORY}
@@ -173,7 +169,7 @@ endif()
 
 if(MUSICA_ENABLE_CARMA AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(CARMA_GIT_REPOSITORY https://github.com/NCAR/CARMA-ACOM-dev.git)
-  set_git_default(CARMA_GIT_TAG a2efff4fcbf49b63301d2d903f30d2935bdd98d0)
+  set_git_default(CARMA_GIT_TAG eb7255bb2e933c2eb617bce785ab6dbfcba27295)
 
   set(CARMA_MOD_DIR ${MUSICA_MOD_DIR} CACHE STRING "" FORCE)
   set(CARMA_INSTALL_MOD_DIR ${MUSICA_INSTALL_MOD_DIR} CACHE STRING "" FORCE)
