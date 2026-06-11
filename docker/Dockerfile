@@ -29,15 +29,15 @@ COPY . musica
 
 RUN cd musica \
     && cmake -S . \
-        -DCMAKE_C_FLAGS="-fsanitize=address -g" \
-        -DCMAKE_CXX_FLAGS="-fsanitize=address -g" \
-        -DCMAKE_Fortran_FLAGS="-fsanitize=address -g" \
-        -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address" \
-        -DCMAKE_SHARED_LINKER_FLAGS="-fsanitize=address" \
         -DMUSICA_BUILD_FORTRAN_INTERFACE=ON \
         -D MUSICA_ENABLE_TESTS=ON \
-        -B build \
         -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+        -D CMAKE_C_FLAGS="-fsanitize=address -g" \
+        -D CMAKE_CXX_FLAGS="-fsanitize=address -g" \
+        -D CMAKE_Fortran_FLAGS="-fsanitize=address -g" \
+        -D CMAKE_EXE_LINKER_FLAGS="-fsanitize=address" \
+        -D CMAKE_SHARED_LINKER_FLAGS="-fsanitize=address" \
+         -B build \
     && cd build \
     && make install -j$(nproc)
 
