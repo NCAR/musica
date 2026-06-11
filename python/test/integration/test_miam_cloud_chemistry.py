@@ -27,29 +27,33 @@ from musica.miam import (
 
 # ═══ Constants ═══════════════════════════════════════════════════════════════
 #
-# All MIAM state variables — including condensed-phase species — are in
-# units of mol/m³ of AIR.  The constant C_H2O_M (55.556 mol/L) is used
+# All MIAM state variables including condensed-phase species are in
+# units of mol/m3 of AIR.  The constant C_H2O_M (55.556 mol/L) is used
 # ONLY for converting literature rate/equilibrium constants from molar
 # (mol/L) units to MIAM (mol/m³) units.  It is NOT a state variable.
 
+# Prefix, suffix
+# C_: Concentration
+# _M: molar (mol/L)
+
 M_ATM_TO_MOL_M3_PA = 1000.0 / 101325.0
-C_H2O_M = 55.556       # mol/L — unit conversion constant for rate/equilibrium constants
-MW_H2O = 0.018          # kg/mol
-RHO_H2O = 1000.0        # kg/m3
-R_GAS = 8.314           # J/(mol·K)
-T0 = 298.15             # K  (reference temperature)
+C_H2O_M = 55.556  # mol/L — molar concentration of pure liquid water (unit-conversion constant)
+MW_H2O = 0.018    # kg/mol - molecular weight
+RHO_H2O = 1000.0  # kg/m3
+R_GAS = 8.314     # J/(mol·K)
+T0 = 298.15       # K - reference temperature
 
 # Cloud liquid water content and derived solvent concentration
-LWC = 0.3e-3            # kg/m3  (= 0.3 g/m3, typical cloud)
-C_H2O = LWC / MW_H2O    # mol/m3 of air  (≈ 0.01667)
+LWC = 0.3e-3          # kg/m3  (= 0.3 g/m3, typical cloud)
+C_H2O = LWC / MW_H2O  # mol/m3 of air  (≈ 0.01667) -  cloud water amount
 
 # Initial conditions (all in mol/m3 of air)
-GAS0_SO2 = 3.01e-8      # mol/m3  (~ 1 ppb)
-GAS0_H2O2 = 3.01e-8     # mol/m3
-GAS0_O3 = 1.5e-6        # mol/m3
-SO4MM0 = 1.0            # mol/m3  (background sulfate)
-T_INIT = 280.0           # K
-P_INIT = 70000.0         # Pa
+GAS0_SO2 = 3.01e-8   # mol/m3  (~ 1 ppb)
+GAS0_H2O2 = 3.01e-8  # mol/m3
+GAS0_O3 = 1.5e-6     # mol/m3
+SO4MM0 = 1.0         # mol/m3  (background sulfate)
+T_INIT = 280.0       # K
+P_INIT = 70000.0     # Pa
 
 
 # ═══ Helpers ═════════════════════════════════════════════════════════════════
@@ -64,7 +68,11 @@ def _create_gas_mechanism():
 
 
 def _create_cloud_chemistry_model():
-    """Create the CAM Cloud Chemistry MIAM model (revised mechanism).
+    """Create the CAM Cloud Chemistry MIAM model (revised mechanism):
+      - 13 species
+      - 1 UniformSection representation
+      - 2 kinetic reactions (revised 2-step H2O2 oxidation)
+      - 10 constraints (3 Henry's law, 3 dissociation, 3 mass budgets, 1 charge balance)
 
     Species: SO2(g), H2O2(g), O3(g), SO2_aq, H2O2_aq, O3_aq,
              H+ (Hp), OH- (OHm), HSO3- (HSO3m), SO3-- (SO3mm),
@@ -72,7 +80,7 @@ def _create_cloud_chemistry_model():
 
     Reactions (revised 2-step H2O2 oxidation):
       R1a: HSO3- + H2O2_aq ⇌ SO2OOH- + H2O  (reversible, Keq = 1725)
-      R1b: SO2OOH- + H+ → SO4--              (irreversible)
+      R1b: SO2OOH- + H+ → SO4--  (irreversible)
     """
     # ── Species ──
     so2_g = mc.Species(name="SO2")
