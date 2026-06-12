@@ -102,7 +102,8 @@ void bind_miam(py::module_& miam)
   py::class_<mc::DissolvedReaction>(miam, "_DissolvedReaction")
       .def(
           py::init(
-              [](const std::string& phase_name,
+              [](const std::string& representation_name,
+                 const std::string& phase_name,
                  const std::vector<std::string>& reactant_names,
                  const std::vector<std::string>& product_names,
                  const std::string& solvent_name,
@@ -115,8 +116,9 @@ void bind_miam(py::module_& miam)
                   rc = rate_constant.cast<mc::ArrheniusRateConstant>();
                 else
                   rc = rate_constant.cast<std::function<double(double)>>();
-                return mc::DissolvedReaction{ phase_name, reactant_names, product_names, solvent_name, std::move(rc), solvent_floor, min_halflife };
+                return mc::DissolvedReaction{ representation_name, phase_name, reactant_names, product_names, solvent_name, std::move(rc), solvent_floor, min_halflife };
               }),
+          py::arg("representation_name"),
           py::arg("phase_name"),
           py::arg("reactant_names"),
           py::arg("product_names"),
@@ -124,6 +126,7 @@ void bind_miam(py::module_& miam)
           py::arg("rate_constant"),
           py::arg("solvent_floor") = 1.0e-20,
           py::arg("min_halflife") = 0.0)
+      .def_readwrite("representation_name", &mc::DissolvedReaction::representation_name)
       .def_readwrite("phase_name", &mc::DissolvedReaction::phase_name)
       .def_readwrite("reactant_names", &mc::DissolvedReaction::reactant_names)
       .def_readwrite("product_names", &mc::DissolvedReaction::product_names)

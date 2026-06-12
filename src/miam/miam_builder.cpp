@@ -164,7 +164,7 @@ namespace musica
                                        .SetReactants(find_species_vec(p.reactant_names))
                                        .SetProducts(find_species_vec(p.product_names))
                                        .SetSolvent(find_species(p.solvent_name))
-                                       .SetRateConstant(ResolveRateConstant(p.rate_constant))
+                                       .AddRateConstant(p.representation_name, ResolveRateConstant(p.rate_constant).fn)
                                        .SetSolventFloor(p.solvent_floor)
                                        .SetMinHalflife(p.min_halflife)
                                        .Build());

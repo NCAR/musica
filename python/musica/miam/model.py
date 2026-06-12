@@ -112,6 +112,7 @@ class Model:
             if isinstance(p, DissolvedReaction):
                 proc_list.append(
                     m._DissolvedReaction(
+                        p.representation_name,
                         p.phase_name,
                         p.reactant_names,
                         p.product_names,

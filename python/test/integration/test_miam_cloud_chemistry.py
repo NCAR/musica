@@ -131,6 +131,7 @@ def _create_cloud_chemistry_model():
     )
     # R1b: SO2OOH- + H+ → SO4--  (irreversible)
     r1b = DissolvedReaction(
+        representation_name="CLOUD",
         phase_name="AQUEOUS",
         reactant_names=["SO2OOHm", "Hp"],
         product_names=["SO4mm"],
@@ -414,6 +415,7 @@ class TestMiamSolve:
 
         # Replace R1b's ArrheniusRateConstant with a Python callable
         model.processes[1] = DissolvedReaction(
+            representation_name="CLOUD",
             phase_name="AQUEOUS",
             reactant_names=["SO2OOHm", "Hp"],
             product_names=["SO4mm"],
@@ -473,6 +475,7 @@ class TestMiamErrorCases:
             representations=[UniformSection("S", ["P"], 1e-6, 1e-5)],
             processes=[
                 DissolvedReaction(
+                    representation_name="S",
                     phase_name="P",
                     reactant_names=["NONEXISTENT"],
                     product_names=["X"],
@@ -735,6 +738,7 @@ def _create_kinetics_model():
     )
     # R1b: SO2OOH- + H+ → SO4--  (irreversible)
     r1b = DissolvedReaction(
+        representation_name="CLOUD",
         phase_name="AQUEOUS",
         reactant_names=["SO2OOHm", "Hp"],
         product_names=["SO4mm"],
@@ -743,6 +747,7 @@ def _create_kinetics_model():
     )
     # R2: HSO3- + O3_aq → SO4-- + H+
     r2 = DissolvedReaction(
+        representation_name="CLOUD",
         phase_name="AQUEOUS",
         reactant_names=["HSO3m", "O3_aq"],
         product_names=["SO4mm", "Hp"],
@@ -751,6 +756,7 @@ def _create_kinetics_model():
     )
     # R3: SO3-- + O3_aq → SO4--
     r3 = DissolvedReaction(
+        representation_name="CLOUD",
         phase_name="AQUEOUS",
         reactant_names=["SO3mm", "O3_aq"],
         product_names=["SO4mm"],

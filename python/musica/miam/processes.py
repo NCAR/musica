@@ -15,6 +15,7 @@ class DissolvedReaction:
     rate = k(T) * [reactant1] * [reactant2] * ... * [S] / ([S]+eps)^n_r
 
     Args:
+        representation_name: Name of the representation (e.g. UniformSection) this reaction belongs to.
         phase_name: Name of the condensed phase where the reaction occurs.
         reactant_names: Species names of reactants.
         product_names: Species names of products.
@@ -25,6 +26,7 @@ class DissolvedReaction:
         min_halflife: When > 0, caps the reaction rate so no reactant is
             depleted faster than this half-life [s]. Zero (default) disables.
     """
+    representation_name: str
     phase_name: str
     reactant_names: List[str]
     product_names: List[str]

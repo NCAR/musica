@@ -78,6 +78,7 @@ def build_system():
         equilibrium_constant=EquilibriumConstant(A=1725.0),
     )
     r1b = DissolvedReaction(
+        representation_name="CLOUD",
         phase_name="AQUEOUS",
         reactant_names=["SO2OOHm", "Hp"],
         product_names=["SO4mm"],

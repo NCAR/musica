@@ -118,6 +118,7 @@ r1a = DissolvedReversibleReaction(
     equilibrium_constant=EquilibriumConstant(a=1725.0),
 )
 r1b = DissolvedReaction(
+    representation_name="CLOUD",
     phase_name="AQUEOUS",
     reactant_names=["SO2OOHm", "Hp"],
     product_names=["SO4mm"],
@@ -125,6 +126,7 @@ r1b = DissolvedReaction(
     rate_constant=ArrheniusRateConstant(a=C_H2O_M * 2.4e6, c=4430.0),
 )
 r2 = DissolvedReaction(
+    representation_name="CLOUD",
     phase_name="AQUEOUS",
     reactant_names=["HSO3m", "O3_aq"],
     product_names=["SO4mm", "Hp"],
@@ -132,6 +134,7 @@ r2 = DissolvedReaction(
     rate_constant=ArrheniusRateConstant(a=C_H2O_M * 3.75e5, c=5530.0),
 )
 r3 = DissolvedReaction(
+    representation_name="CLOUD",
     phase_name="AQUEOUS",
     reactant_names=["SO3mm", "O3_aq"],
     product_names=["SO4mm"],

@@ -173,6 +173,7 @@ class TestTwoMomentMode:
 class TestDissolvedReaction:
     def test_with_arrhenius(self):
         rxn = DissolvedReaction(
+            representation_name="CLOUD",
             phase_name="AQUEOUS",
             reactant_names=["HSO3m", "H2O2_aq"],
             product_names=["SO4mm", "H2O", "Hp"],
@@ -189,6 +190,7 @@ class TestDissolvedReaction:
             return 55.556 * 7.45e7 * math.exp(-4430.0 * (1.0 / T - 1.0 / 298.15))
 
         rxn = DissolvedReaction(
+            representation_name="CLOUD",
             phase_name="AQUEOUS",
             reactant_names=["HSO3m", "H2O2_aq"],
             product_names=["SO4mm"],
@@ -455,6 +457,7 @@ class TestModel:
             representations=[UniformSection("SEC", ["AQ"], 1e-6, 1e-5)],
             processes=[
                 DissolvedReaction(
+                    representation_name="SEC",
                     phase_name="AQ",
                     reactant_names=["A"],
                     product_names=["B"],

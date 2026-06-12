@@ -73,6 +73,7 @@ namespace musica
 
     struct DissolvedReaction
     {
+      std::string representation_name;
       std::string phase_name;
       std::vector<std::string> reactant_names;
       std::vector<std::string> product_names;
