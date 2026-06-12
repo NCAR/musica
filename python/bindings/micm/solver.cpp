@@ -15,8 +15,8 @@ void bind_micm_solver(py::module_ &m)
       .value("rosenbrock_dae4", musica::MICMSolver::RosenbrockDAE4)
       .value("rosenbrock_dae4_standard_order", musica::MICMSolver::RosenbrockDAE4StandardOrder)
       .value("rosenbrock_dae6", musica::MICMSolver::RosenbrockDAE6)
-      .value("rosenbrock_dae6_standard_order", musica::MICMSolver::RosenbrockDAE6StandardOrder);
+      .value("rosenbrock_dae6_standard_order", musica::MICMSolver::RosenbrockDAE6StandardOrder)
       .value("backward_euler", musica::MICMSolver::BackwardEuler)
       .value("backward_euler_standard_order", musica::MICMSolver::BackwardEulerStandardOrder)
-      .value("cuda_rosenbrock", musica::MICMSolver::CudaRosenbrock)
+      .value("cuda_rosenbrock", musica::MICMSolver::CudaRosenbrock);
 }
