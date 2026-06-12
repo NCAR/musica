@@ -15,7 +15,7 @@
 #include <miam/constraints/henry_law_equilibrium_constraint_builder.hpp>
 #include <miam/constraints/linear_constraint_builder.hpp>
 #include <miam/processes/constants/equilibrium_constant.hpp>
-#include <miam/processes/constants/henrys_law_constant.hpp>
+#include <miam/processes/constants/henry_law_constant.hpp>
 #include <miam/processes/dissolved_reaction_builder.hpp>
 #include <miam/processes/dissolved_reversible_reaction_builder.hpp>
 #include <miam/processes/henry_law_phase_transfer_builder.hpp>
@@ -196,8 +196,8 @@ namespace musica
                                        .SetGasSpecies(find_species(p.gas_species_name))
                                        .SetCondensedSpecies(find_species(p.condensed_species_name))
                                        .SetSolvent(find_species(p.solvent_name))
-                                       .SetHenrysLawConstant(miam::HenrysLawConstant(
-                                           { .HLC_ref_ = p.henrys_law_constant.hlc_ref, .C_ = p.henrys_law_constant.c }))
+                                       .SetHenryLawConstant(miam::HenryLawConstant(
+                                           { .HLC_ref_ = p.henry_law_constant.hlc_ref, .C_ = p.henry_law_constant.c }))
                                        .SetDiffusionCoefficient(p.diffusion_coefficient)
                                        .SetAccommodationCoefficient(p.accommodation_coefficient)
                                        .Build());
@@ -220,8 +220,8 @@ namespace musica
                                          .SetCondensedSpecies(find_species(c.condensed_species_name))
                                          .SetSolvent(find_species(c.solvent_name))
                                          .SetCondensedPhase(find_phase(c.condensed_phase_name))
-                                         .SetHenryLawConstant(miam::HenrysLawConstant(
-                                             { .HLC_ref_ = c.henrys_law_constant.hlc_ref, .C_ = c.henrys_law_constant.c }))
+                                         .SetHenryLawConstant(miam::HenryLawConstant(
+                                             { .HLC_ref_ = c.henry_law_constant.hlc_ref, .C_ = c.henry_law_constant.c }))
                                          .Build());
               }
               else if constexpr (std::is_same_v<T, miam_config::DissolvedEquilibriumConstraint>)

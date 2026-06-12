@@ -6,7 +6,7 @@ aqueous-phase processes, and equilibrium constraints that integrate
 with the MICM chemical solver as external models.
 """
 
-from .constants import HenrysLawConstant, EquilibriumConstant, ArrheniusRateConstant
+from .constants import HenryLawConstant, EquilibriumConstant, ArrheniusRateConstant
 from .representations import UniformSection, SingleMomentMode, TwoMomentMode
 from .processes import DissolvedReaction, DissolvedReversibleReaction, HenryLawPhaseTransfer
 from .constraints import (
@@ -18,7 +18,7 @@ from .constraints import (
 from .model import Model
 
 __all__ = [
-    "HenrysLawConstant",
+    "HenryLawConstant",
     "EquilibriumConstant",
     "ArrheniusRateConstant",
     "UniformSection",

@@ -3,7 +3,7 @@
 from dataclasses import dataclass, field
 from typing import Callable, List, Optional, Union
 
-from .constants import ArrheniusRateConstant, EquilibriumConstant, HenrysLawConstant
+from .constants import ArrheniusRateConstant, EquilibriumConstant, HenryLawConstant
 
 RateConstantType = Union[ArrheniusRateConstant, Callable[[float], float]]
 
@@ -73,7 +73,7 @@ class HenryLawPhaseTransfer:
         gas_species_name: Name of the gas-phase species.
         condensed_species_name: Name of the dissolved species in the condensed phase.
         solvent_name: Name of the solvent species in the condensed phase.
-        henrys_law_constant: Henry's Law constant with temperature dependence.
+        henry_law_constant: Henry's Law constant with temperature dependence.
         diffusion_coefficient: Gas-phase diffusion coefficient [m2 s-1].
         accommodation_coefficient: Mass accommodation coefficient (dimensionless, 0-1).
     """
@@ -81,6 +81,6 @@ class HenryLawPhaseTransfer:
     gas_species_name: str
     condensed_species_name: str
     solvent_name: str
-    henrys_law_constant: HenrysLawConstant
+    henry_law_constant: HenryLawConstant
     diffusion_coefficient: float
     accommodation_coefficient: float

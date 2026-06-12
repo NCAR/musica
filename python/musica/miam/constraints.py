@@ -3,7 +3,7 @@
 from dataclasses import dataclass, field
 from typing import List
 
-from .constants import EquilibriumConstant, HenrysLawConstant
+from .constants import EquilibriumConstant, HenryLawConstant
 
 
 @dataclass(frozen=True)
@@ -32,7 +32,7 @@ class HenryLawEquilibriumConstraint:
         condensed_species_name: Name of the dissolved species.
         solvent_name: Name of the solvent species.
         condensed_phase_name: Name of the condensed phase.
-        henrys_law_constant: Henry's Law constant.
+        henry_law_constant: Henry's Law constant.
         solvent_molecular_weight: Molecular weight of solvent [kg mol-1].
         solvent_density: Density of solvent [kg m-3].
     """
@@ -40,7 +40,7 @@ class HenryLawEquilibriumConstraint:
     condensed_species_name: str
     solvent_name: str
     condensed_phase_name: str
-    henrys_law_constant: HenrysLawConstant
+    henry_law_constant: HenryLawConstant
     solvent_molecular_weight: float
     solvent_density: float
 

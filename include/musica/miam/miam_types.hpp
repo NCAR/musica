@@ -19,7 +19,7 @@ namespace musica
     // ── Rate constants ──────────────────────────────────────────────────
 
     /// @brief Henry's law constant: HLC(T) = HLC_ref * exp(C * (1/T - 1/298.15))
-    struct HenrysLawConstant
+    struct HenryLawConstant
     {
       double hlc_ref;   ///< Reference HLC at 298.15 K [mol m-3 Pa-1]
       double c = 0.0;   ///< Temperature dependence factor [K]
@@ -100,7 +100,7 @@ namespace musica
       std::string gas_species_name;
       std::string condensed_species_name;
       std::string solvent_name;
-      HenrysLawConstant henrys_law_constant;
+      HenryLawConstant henry_law_constant;
       double diffusion_coefficient;         ///< Gas-phase diffusion coefficient [m2 s-1]
       double accommodation_coefficient;     ///< Mass accommodation coefficient [-]
     };
@@ -115,7 +115,7 @@ namespace musica
       std::string condensed_species_name;
       std::string solvent_name;
       std::string condensed_phase_name;
-      HenrysLawConstant henrys_law_constant;
+      HenryLawConstant henry_law_constant;
       double solvent_molecular_weight;  ///< Solvent molecular weight [kg mol-1]
       double solvent_density;           ///< Solvent density [kg m-3]
     };

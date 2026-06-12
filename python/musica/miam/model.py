@@ -3,7 +3,7 @@
 from dataclasses import dataclass, field
 from typing import List, Union
 
-from .constants import ArrheniusRateConstant, EquilibriumConstant, HenrysLawConstant
+from .constants import ArrheniusRateConstant, EquilibriumConstant, HenryLawConstant
 from .representations import UniformSection, SingleMomentMode, TwoMomentMode
 from .processes import DissolvedReaction, DissolvedReversibleReaction, HenryLawPhaseTransfer
 from .constraints import (
@@ -153,8 +153,8 @@ class Model:
                         p.gas_species_name,
                         p.condensed_species_name,
                         p.solvent_name,
-                        m._HenrysLawConstant(
-                            p.henrys_law_constant.HLC_REF, p.henrys_law_constant.C
+                        m._HenryLawConstant(
+                            p.henry_law_constant.HLC_REF, p.henry_law_constant.C
                         ),
                         p.diffusion_coefficient,
                         p.accommodation_coefficient,
@@ -172,8 +172,8 @@ class Model:
                         c.condensed_species_name,
                         c.solvent_name,
                         c.condensed_phase_name,
-                        m._HenrysLawConstant(
-                            c.henrys_law_constant.HLC_REF, c.henrys_law_constant.C
+                        m._HenryLawConstant(
+                            c.henry_law_constant.HLC_REF, c.henry_law_constant.C
                         ),
                         c.solvent_molecular_weight,
                         c.solvent_density,

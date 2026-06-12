@@ -13,7 +13,7 @@ from musica.micm.solver_parameters import RosenbrockSolverParameters
 from musica.miam import (
     ArrheniusRateConstant,
     EquilibriumConstant,
-    HenrysLawConstant,
+    HenryLawConstant,
     UniformSection,
     DissolvedReaction,
     DissolvedReversibleReaction,
@@ -147,7 +147,7 @@ def _create_cloud_chemistry_model():
         condensed_species_name="SO2_aq",
         solvent_name="H2O",
         condensed_phase_name="AQUEOUS",
-        henrys_law_constant=HenrysLawConstant(
+        henry_law_constant=HenryLawConstant(
             HLC_REF=1.23 * M_ATM_TO_MOL_M3_PA, C=3120.0),
         solvent_molecular_weight=MW_H2O,
         solvent_density=RHO_H2O,
@@ -157,7 +157,7 @@ def _create_cloud_chemistry_model():
         condensed_species_name="H2O2_aq",
         solvent_name="H2O",
         condensed_phase_name="AQUEOUS",
-        henrys_law_constant=HenrysLawConstant(
+        henry_law_constant=HenryLawConstant(
             HLC_REF=7.4e4 * M_ATM_TO_MOL_M3_PA, C=6621.0),
         solvent_molecular_weight=MW_H2O,
         solvent_density=RHO_H2O,
@@ -167,7 +167,7 @@ def _create_cloud_chemistry_model():
         condensed_species_name="O3_aq",
         solvent_name="H2O",
         condensed_phase_name="AQUEOUS",
-        henrys_law_constant=HenrysLawConstant(
+        henry_law_constant=HenryLawConstant(
             HLC_REF=1.15e-2 * M_ATM_TO_MOL_M3_PA, C=2560.0),
         solvent_molecular_weight=MW_H2O,
         solvent_density=RHO_H2O,
@@ -611,7 +611,7 @@ def _create_equilibrium_only_model():
             condensed_species_name=aq_name,
             solvent_name="H2O",
             condensed_phase_name="AQUEOUS",
-            henrys_law_constant=HenrysLawConstant(
+            henry_law_constant=HenryLawConstant(
                 HLC_REF=hlc_ref * M_ATM_TO_MOL_M3_PA, C=c),
             solvent_molecular_weight=MW_H2O,
             solvent_density=RHO_H2O,
@@ -771,7 +771,7 @@ def _create_kinetics_model():
             condensed_species_name=aq_name,
             solvent_name="H2O",
             condensed_phase_name="AQUEOUS",
-            henrys_law_constant=HenrysLawConstant(
+            henry_law_constant=HenryLawConstant(
                 HLC_REF=hlc_ref * M_ATM_TO_MOL_M3_PA, C=c),
             solvent_molecular_weight=MW_H2O,
             solvent_density=RHO_H2O,

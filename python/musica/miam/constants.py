@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class HenrysLawConstant:
+class HenryLawConstant:
     """Henry's Law constant with temperature dependence.
 
     HLC(T) = HLC_REF * exp(C * (1/T - 1/T0))   where T0 = 298.15 K

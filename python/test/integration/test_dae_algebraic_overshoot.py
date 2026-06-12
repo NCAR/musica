@@ -53,7 +53,7 @@ from musica.miam import (
     DissolvedReversibleReaction,
     EquilibriumConstant,
     HenryLawEquilibriumConstraint,
-    HenrysLawConstant,
+    HenryLawConstant,
     LinearConstraint,
     LinearConstraintTerm,
     Model,
@@ -145,7 +145,7 @@ def _build_system():
             condensed_species_name=aq_name,
             solvent_name="H2O",
             condensed_phase_name="AQUEOUS",
-            henrys_law_constant=HenrysLawConstant(
+            henry_law_constant=HenryLawConstant(
                 HLC_REF=hlc * M_ATM_TO_MOL_M3_PA, C=c_val),
             solvent_molecular_weight=MW_H2O,
             solvent_density=RHO_H2O,
