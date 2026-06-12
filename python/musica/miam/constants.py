@@ -7,39 +7,39 @@ from dataclasses import dataclass
 class HenrysLawConstant:
     """Henry's Law constant with temperature dependence.
 
-    HLC(T) = hlc_ref * exp(c * (1/T - 1/T0))   where T0 = 298.15 K
+    HLC(T) = HLC_REF * exp(C * (1/T - 1/T0))   where T0 = 298.15 K
 
     Args:
-        hlc_ref: Reference Henry's Law constant [mol m-3 Pa-1].
-        c: Temperature dependence parameter [K].
+        HLC_REF: Reference Henry's Law constant [mol m-3 Pa-1].
+        C: Temperature dependence parameter [K].
     """
-    hlc_ref: float
-    c: float = 0.0
+    HLC_REF: float
+    C: float = 0.0
 
 
 @dataclass(frozen=True)
 class EquilibriumConstant:
     """Equilibrium constant with temperature dependence.
 
-    K(T) = a * exp(c * (1/T0 - 1/T))   where T0 = 298.15 K
+    K(T) = A * exp(C * (1/T0 - 1/T))   where T0 = 298.15 K
 
     Args:
-        a: Pre-exponential factor [same units as K].
-        c: Temperature dependence parameter [K].
+        A: Pre-exponential factor [same units as K].
+        C: Temperature dependence parameter [K].
     """
-    a: float
-    c: float = 0.0
+    A: float
+    C: float = 0.0
 
 
 @dataclass(frozen=True)
 class ArrheniusRateConstant:
     """Arrhenius rate constant with temperature dependence.
 
-    k(T) = a * exp(-c * (1/T - 1/T0))   where T0 = 298.15 K
+    k(T) = A * exp(-C * (1/T - 1/T0))   where T0 = 298.15 K
 
     Args:
-        a: Pre-exponential factor [appropriate units for reaction order].
-        c: Activation energy parameter [K].
+        A: Pre-exponential factor [appropriate units for reaction order].
+        C: Activation energy parameter [K].
     """
-    a: float
-    c: float = 0.0
+    A: float
+    C: float = 0.0

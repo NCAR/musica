@@ -40,7 +40,6 @@ if (MUSICA_ENABLE_MIAM)
   )
 endif()
 
-
 # Link against the musica library (instead of compiling sources directly)
 target_link_libraries(_musica PRIVATE musica::musica)
 
