@@ -1034,7 +1034,7 @@ class TestKineticsValidation:
         assert total == pytest.approx(total_S, rel=1e-6), \
             f"Total S budget violated: {total} != {total_S}"
 
-    def test_h2o2_conservation(self, solved_state):
+    def test_h2o2_non_negative(self, solved_state):
         """H2O2_g + H2O2_aq = gas0_h2o2 (H2O2 is consumed by R1)."""
         # H2O2 is NOT conserved with kinetics (R1 consumes H2O2_aq).
         # But the mass constraint only tracks gas+aq, not the oxidation product.
@@ -1043,6 +1043,7 @@ class TestKineticsValidation:
         aq = _get_conc(solved_state, "CLOUD.AQUEOUS.H2O2_aq")
         assert g >= 0, f"H2O2_g negative: {g}"
         assert aq >= 0, f"H2O2_aq negative: {aq}"
+        assert g + aq <= GAS0_H2O2
 
     def test_charge_balance(self, solved_state):
         """H+ - OH- - HSO3- - 2*SO3-- - 2*SO4-- - SO2OOH- = 0."""
