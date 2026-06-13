@@ -73,7 +73,7 @@ endif()
 
 if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(MICM_GIT_REPOSITORY https://github.com/NCAR/micm.git)
-  set_git_default(MICM_GIT_TAG 9d9167393d67cd6a3d74a7f46ff774cfb08f7f79)
+  set_git_default(MICM_GIT_TAG 41ae650b3c5170522383edb0d48676e3406f5245)
 
   FetchContent_Declare(micm
       GIT_REPOSITORY ${MICM_GIT_REPOSITORY}
@@ -99,7 +99,7 @@ endif()
 
 if (MUSICA_ENABLE_MIAM AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(MIAM_GIT_REPOSITORY https://github.com/NCAR/miam.git)
-  set_git_default(MIAM_GIT_TAG a2f9837cc349310b92630cf5f2b4555dda244495)
+  set_git_default(MIAM_GIT_TAG 9252479d3ac4c82e2ff7d2936b7086b5d7300d2f)
 
   FetchContent_Declare(miam
       GIT_REPOSITORY ${MIAM_GIT_REPOSITORY}
