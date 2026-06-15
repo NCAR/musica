@@ -2,7 +2,7 @@
 # After building, run with:
 #   docker run --rm -p 8123:8123 -it docs
 # then navigate to localhost:8123
-FROM fedora:latest
+FROM fedora:41
 
 RUN dnf -y update \
     && dnf -y install \

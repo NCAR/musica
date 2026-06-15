@@ -1,4 +1,4 @@
-FROM fedora:latest
+FROM fedora:41
 
 ARG BUILD_TYPE=Release
 
