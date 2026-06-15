@@ -141,13 +141,13 @@ namespace musica
     switch (solver_type)
     {
       case musica::MICMSolver::Rosenbrock:
+      case musica::MICMSolver::RosenbrockStandardOrder:
       case musica::MICMSolver::BackwardEuler:
+      case musica::MICMSolver::BackwardEulerStandardOrder:
       case musica::MICMSolver::CudaRosenbrock:
       case musica::MICMSolver::RosenbrockDAE4:
-      case musica::MICMSolver::RosenbrockDAE6: return musica::MUSICA_VECTOR_SIZE;
-      case musica::MICMSolver::RosenbrockStandardOrder:
-      case musica::MICMSolver::BackwardEulerStandardOrder:
       case musica::MICMSolver::RosenbrockDAE4StandardOrder:
+      case musica::MICMSolver::RosenbrockDAE6: return musica::MUSICA_VECTOR_SIZE;
       case musica::MICMSolver::RosenbrockDAE6StandardOrder: return nonvectorized_size;
       default: throw std::runtime_error("Invalid MICM solver type.");
     }
