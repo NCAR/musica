@@ -144,7 +144,7 @@ namespace musica
       std::string algebraic_phase_name;
       std::string algebraic_species_name;
       std::vector<LinearConstraintTerm> terms;
-      double constant;
+      double constant = 0.0;
       bool diagnose_from_state = false;
     };
 
