@@ -2,8 +2,7 @@ FROM fedora:latest
 
 ARG BUILD_TYPE=Release
 
-RUN dnf -y update \
-    && dnf -y install \
+RUN dnf -y install \
         cmake \
         curl \
         gcc \
@@ -13,11 +12,9 @@ RUN dnf -y update \
         git \
         hdf5-devel \
         lapack-devel \
-        libcurl-devel \
-        m4 \
+        libasan \
         make \
         netcdf-fortran-devel \
-        valgrind \
         zlib-devel \
     && dnf clean all
 
@@ -30,16 +27,24 @@ COPY . musica
 
 RUN cd musica \
     && cmake -S . \
-             -B build \
-             -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
-             -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
-             -D MUSICA_ENABLE_TESTS=ON \
+        -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
+        -D MUSICA_ENABLE_TESTS=ON \
+        -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+        -D CMAKE_C_FLAGS="-fsanitize=address -g" \
+        -D CMAKE_CXX_FLAGS="-fsanitize=address -g" \
+        -D CMAKE_Fortran_FLAGS="-fsanitize=address -g" \
+        -D CMAKE_EXE_LINKER_FLAGS="-fsanitize=address" \
+        -D CMAKE_SHARED_LINKER_FLAGS="-fsanitize=address" \
+        -B build \
     && cd build \
     && make install -j$(nproc)
 
+# Copy the tuvx configs for testing
+RUN cp -r /musica/configs/tuvx/* /musica/build/
+
 # Verify musica is findable via pkg-config with the GCC compiler.
 RUN cd musica/build \
-    && $CC $(pkg-config --cflags musica) -o test_simple /musica/src/test/test_simple.c $(pkg-config --libs musica) \
+    && gcc -fsanitize=address $(pkg-config --cflags musica) -o test_simple /musica/src/test/test_simple.c $(pkg-config --libs musica) -fsanitize=address \
     && ./test_simple
 
 WORKDIR /musica/build
