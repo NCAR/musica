@@ -13,7 +13,7 @@ from musica.micm.solver_parameters import RosenbrockSolverParameters
 from musica.miam import (
     ArrheniusRateConstant,
     EquilibriumConstant,
-    HenrysLawConstant,
+    HenryLawConstant,
     UniformSection,
     DissolvedReaction,
     DissolvedReversibleReaction,
@@ -27,29 +27,33 @@ from musica.miam import (
 
 # ═══ Constants ═══════════════════════════════════════════════════════════════
 #
-# All MIAM state variables — including condensed-phase species — are in
-# units of mol/m³ of AIR.  The constant C_H2O_M (55.556 mol/L) is used
+# All MIAM state variables including condensed-phase species are in
+# units of mol/m3 of AIR.  The constant C_H2O_M (55.556 mol/L) is used
 # ONLY for converting literature rate/equilibrium constants from molar
 # (mol/L) units to MIAM (mol/m³) units.  It is NOT a state variable.
 
+# Prefix, suffix
+# C_: Concentration
+# _M: molar (mol/L)
+
 M_ATM_TO_MOL_M3_PA = 1000.0 / 101325.0
-C_H2O_M = 55.556       # mol/L — unit conversion constant for rate/equilibrium constants
-MW_H2O = 0.018          # kg/mol
-RHO_H2O = 1000.0        # kg/m3
-R_GAS = 8.314           # J/(mol·K)
-T0 = 298.15             # K  (reference temperature)
+C_H2O_M = 55.556  # mol/L — molar concentration of pure liquid water (unit-conversion constant)
+MW_H2O = 0.018    # kg/mol - molecular weight
+RHO_H2O = 1000.0  # kg/m3
+R_GAS = 8.314     # J/(mol·K)
+T0 = 298.15       # K - reference temperature
 
 # Cloud liquid water content and derived solvent concentration
-LWC = 0.3e-3            # kg/m3  (= 0.3 g/m3, typical cloud)
-C_H2O = LWC / MW_H2O    # mol/m3 of air  (≈ 0.01667)
+LWC = 0.3e-3          # kg/m3  (= 0.3 g/m3, typical cloud)
+C_H2O = LWC / MW_H2O  # mol/m3 of air  (≈ 0.01667) -  cloud water amount
 
 # Initial conditions (all in mol/m3 of air)
-GAS0_SO2 = 3.01e-8      # mol/m3  (~ 1 ppb)
-GAS0_H2O2 = 3.01e-8     # mol/m3
-GAS0_O3 = 1.5e-6        # mol/m3
-SO4MM0 = 1.0            # mol/m3  (background sulfate)
-T_INIT = 280.0           # K
-P_INIT = 70000.0         # Pa
+GAS0_SO2 = 3.01e-8   # mol/m3  (~ 1 ppb)
+GAS0_H2O2 = 3.01e-8  # mol/m3
+GAS0_O3 = 1.5e-6     # mol/m3
+SO4MM0 = 1.0         # mol/m3  (background sulfate)
+T_INIT = 280.0       # K
+P_INIT = 70000.0     # Pa
 
 
 # ═══ Helpers ═════════════════════════════════════════════════════════════════
@@ -64,7 +68,11 @@ def _create_gas_mechanism():
 
 
 def _create_cloud_chemistry_model():
-    """Create the CAM Cloud Chemistry MIAM model (revised mechanism).
+    """Create the CAM Cloud Chemistry MIAM model (revised mechanism):
+      - 13 species
+      - 1 UniformSection representation
+      - 2 kinetic reactions (revised 2-step H2O2 oxidation)
+      - 10 constraints (3 Henry's law, 3 dissociation, 3 mass budgets, 1 charge balance)
 
     Species: SO2(g), H2O2(g), O3(g), SO2_aq, H2O2_aq, O3_aq,
              H+ (Hp), OH- (OHm), HSO3- (HSO3m), SO3-- (SO3mm),
@@ -72,7 +80,7 @@ def _create_cloud_chemistry_model():
 
     Reactions (revised 2-step H2O2 oxidation):
       R1a: HSO3- + H2O2_aq ⇌ SO2OOH- + H2O  (reversible, Keq = 1725)
-      R1b: SO2OOH- + H+ → SO4--              (irreversible)
+      R1b: SO2OOH- + H+ → SO4--  (irreversible)
     """
     # ── Species ──
     so2_g = mc.Species(name="SO2")
@@ -118,16 +126,17 @@ def _create_cloud_chemistry_model():
         product_names=["SO2OOHm", "H2O"],
         solvent_name="H2O",
         forward_rate_constant=ArrheniusRateConstant(
-            a=C_H2O_M * (7.45e7 / 13.0), c=4430.0),
-        equilibrium_constant=EquilibriumConstant(a=1725.0),
+            A=C_H2O_M * (7.45e7 / 13.0), C=4430.0),
+        equilibrium_constant=EquilibriumConstant(A=1725.0),
     )
     # R1b: SO2OOH- + H+ → SO4--  (irreversible)
     r1b = DissolvedReaction(
+        representation_name="CLOUD",
         phase_name="AQUEOUS",
         reactant_names=["SO2OOHm", "Hp"],
         product_names=["SO4mm"],
         solvent_name="H2O",
-        rate_constant=ArrheniusRateConstant(a=C_H2O_M * 2.4e6, c=4430.0),
+        rate_constant=ArrheniusRateConstant(A=C_H2O_M * 2.4e6, C=4430.0),
     )
 
     # ── Constraints ──
@@ -139,8 +148,8 @@ def _create_cloud_chemistry_model():
         condensed_species_name="SO2_aq",
         solvent_name="H2O",
         condensed_phase_name="AQUEOUS",
-        henrys_law_constant=HenrysLawConstant(
-            hlc_ref=1.23 * M_ATM_TO_MOL_M3_PA, c=3120.0),
+        henry_law_constant=HenryLawConstant(
+            HLC_REF=1.23 * M_ATM_TO_MOL_M3_PA, C=3120.0),
         solvent_molecular_weight=MW_H2O,
         solvent_density=RHO_H2O,
     ))
@@ -149,8 +158,8 @@ def _create_cloud_chemistry_model():
         condensed_species_name="H2O2_aq",
         solvent_name="H2O",
         condensed_phase_name="AQUEOUS",
-        henrys_law_constant=HenrysLawConstant(
-            hlc_ref=7.4e4 * M_ATM_TO_MOL_M3_PA, c=6621.0),
+        henry_law_constant=HenryLawConstant(
+            HLC_REF=7.4e4 * M_ATM_TO_MOL_M3_PA, C=6621.0),
         solvent_molecular_weight=MW_H2O,
         solvent_density=RHO_H2O,
     ))
@@ -159,8 +168,8 @@ def _create_cloud_chemistry_model():
         condensed_species_name="O3_aq",
         solvent_name="H2O",
         condensed_phase_name="AQUEOUS",
-        henrys_law_constant=HenrysLawConstant(
-            hlc_ref=1.15e-2 * M_ATM_TO_MOL_M3_PA, c=2560.0),
+        henry_law_constant=HenryLawConstant(
+            HLC_REF=1.15e-2 * M_ATM_TO_MOL_M3_PA, C=2560.0),
         solvent_molecular_weight=MW_H2O,
         solvent_density=RHO_H2O,
     ))
@@ -173,7 +182,7 @@ def _create_cloud_chemistry_model():
         algebraic_species_name="OHm",
         solvent_name="H2O",
         equilibrium_constant=EquilibriumConstant(
-            a=1e-14 / (C_H2O_M * C_H2O_M), c=0.0),
+            A=1e-14 / (C_H2O_M * C_H2O_M), C=0.0),
     ))
     constraints.append(DissolvedEquilibriumConstraint(
         phase_name="AQUEOUS",
@@ -181,7 +190,7 @@ def _create_cloud_chemistry_model():
         product_names=["HSO3m", "Hp"],
         algebraic_species_name="HSO3m",
         solvent_name="H2O",
-        equilibrium_constant=EquilibriumConstant(a=1.7e-2 / C_H2O_M, c=2090.0),
+        equilibrium_constant=EquilibriumConstant(A=1.7e-2 / C_H2O_M, C=2090.0),
     ))
     constraints.append(DissolvedEquilibriumConstraint(
         phase_name="AQUEOUS",
@@ -189,7 +198,7 @@ def _create_cloud_chemistry_model():
         product_names=["SO3mm", "Hp"],
         algebraic_species_name="SO3mm",
         solvent_name="H2O",
-        equilibrium_constant=EquilibriumConstant(a=6.0e-8 / C_H2O_M, c=1120.0),
+        equilibrium_constant=EquilibriumConstant(A=6.0e-8 / C_H2O_M, C=1120.0),
     ))
 
     # Linear constraints: mass conservation + charge balance
@@ -406,6 +415,7 @@ class TestMiamSolve:
 
         # Replace R1b's ArrheniusRateConstant with a Python callable
         model.processes[1] = DissolvedReaction(
+            representation_name="CLOUD",
             phase_name="AQUEOUS",
             reactant_names=["SO2OOHm", "Hp"],
             product_names=["SO4mm"],
@@ -465,11 +475,12 @@ class TestMiamErrorCases:
             representations=[UniformSection("S", ["P"], 1e-6, 1e-5)],
             processes=[
                 DissolvedReaction(
+                    representation_name="S",
                     phase_name="P",
                     reactant_names=["NONEXISTENT"],
                     product_names=["X"],
                     solvent_name="X",
-                    rate_constant=ArrheniusRateConstant(a=1.0),
+                    rate_constant=ArrheniusRateConstant(A=1.0),
                 ),
             ],
         )
@@ -603,8 +614,8 @@ def _create_equilibrium_only_model():
             condensed_species_name=aq_name,
             solvent_name="H2O",
             condensed_phase_name="AQUEOUS",
-            henrys_law_constant=HenrysLawConstant(
-                hlc_ref=hlc_ref * M_ATM_TO_MOL_M3_PA, c=c),
+            henry_law_constant=HenryLawConstant(
+                HLC_REF=hlc_ref * M_ATM_TO_MOL_M3_PA, C=c),
             solvent_molecular_weight=MW_H2O,
             solvent_density=RHO_H2O,
         ))
@@ -615,19 +626,19 @@ def _create_equilibrium_only_model():
         product_names=["Hp", "OHm"], algebraic_species_name="OHm",
         solvent_name="H2O",
         equilibrium_constant=EquilibriumConstant(
-            a=1e-14 / (C_H2O_M * C_H2O_M), c=0.0),
+            A=1e-14 / (C_H2O_M * C_H2O_M), C=0.0),
     ))
     constraints.append(DissolvedEquilibriumConstraint(
         phase_name="AQUEOUS", reactant_names=["SO2_aq"],
         product_names=["HSO3m", "Hp"], algebraic_species_name="HSO3m",
         solvent_name="H2O",
-        equilibrium_constant=EquilibriumConstant(a=1.7e-2 / C_H2O_M, c=2090.0),
+        equilibrium_constant=EquilibriumConstant(A=1.7e-2 / C_H2O_M, C=2090.0),
     ))
     constraints.append(DissolvedEquilibriumConstraint(
         phase_name="AQUEOUS", reactant_names=["HSO3m"],
         product_names=["SO3mm", "Hp"], algebraic_species_name="SO3mm",
         solvent_name="H2O",
-        equilibrium_constant=EquilibriumConstant(a=6.0e-8 / C_H2O_M, c=1120.0),
+        equilibrium_constant=EquilibriumConstant(A=6.0e-8 / C_H2O_M, C=1120.0),
     ))
 
     # Mass conservation (no SO4 — it's differential and unchanged)
@@ -722,32 +733,35 @@ def _create_kinetics_model():
         product_names=["SO2OOHm", "H2O"],
         solvent_name="H2O",
         forward_rate_constant=ArrheniusRateConstant(
-            a=C_H2O_M * (7.45e7 / 13.0), c=4430.0),
-        equilibrium_constant=EquilibriumConstant(a=1725.0),
+            A=C_H2O_M * (7.45e7 / 13.0), C=4430.0),
+        equilibrium_constant=EquilibriumConstant(A=1725.0),
     )
     # R1b: SO2OOH- + H+ → SO4--  (irreversible)
     r1b = DissolvedReaction(
+        representation_name="CLOUD",
         phase_name="AQUEOUS",
         reactant_names=["SO2OOHm", "Hp"],
         product_names=["SO4mm"],
         solvent_name="H2O",
-        rate_constant=ArrheniusRateConstant(a=C_H2O_M * 2.4e6, c=4430.0),
+        rate_constant=ArrheniusRateConstant(A=C_H2O_M * 2.4e6, C=4430.0),
     )
     # R2: HSO3- + O3_aq → SO4-- + H+
     r2 = DissolvedReaction(
+        representation_name="CLOUD",
         phase_name="AQUEOUS",
         reactant_names=["HSO3m", "O3_aq"],
         product_names=["SO4mm", "Hp"],
         solvent_name="H2O",
-        rate_constant=ArrheniusRateConstant(a=C_H2O_M * 3.75e5, c=5530.0),
+        rate_constant=ArrheniusRateConstant(A=C_H2O_M * 3.75e5, C=5530.0),
     )
     # R3: SO3-- + O3_aq → SO4--
     r3 = DissolvedReaction(
+        representation_name="CLOUD",
         phase_name="AQUEOUS",
         reactant_names=["SO3mm", "O3_aq"],
         product_names=["SO4mm"],
         solvent_name="H2O",
-        rate_constant=ArrheniusRateConstant(a=C_H2O_M * 1.59e9, c=5280.0),
+        rate_constant=ArrheniusRateConstant(A=C_H2O_M * 1.59e9, C=5280.0),
     )
 
     constraints = []
@@ -763,8 +777,8 @@ def _create_kinetics_model():
             condensed_species_name=aq_name,
             solvent_name="H2O",
             condensed_phase_name="AQUEOUS",
-            henrys_law_constant=HenrysLawConstant(
-                hlc_ref=hlc_ref * M_ATM_TO_MOL_M3_PA, c=c),
+            henry_law_constant=HenryLawConstant(
+                HLC_REF=hlc_ref * M_ATM_TO_MOL_M3_PA, C=c),
             solvent_molecular_weight=MW_H2O,
             solvent_density=RHO_H2O,
         ))
@@ -775,19 +789,19 @@ def _create_kinetics_model():
         product_names=["Hp", "OHm"], algebraic_species_name="OHm",
         solvent_name="H2O",
         equilibrium_constant=EquilibriumConstant(
-            a=1e-14 / (C_H2O_M * C_H2O_M), c=0.0),
+            A=1e-14 / (C_H2O_M * C_H2O_M), C=0.0),
     ))
     constraints.append(DissolvedEquilibriumConstraint(
         phase_name="AQUEOUS", reactant_names=["SO2_aq"],
         product_names=["HSO3m", "Hp"], algebraic_species_name="HSO3m",
         solvent_name="H2O",
-        equilibrium_constant=EquilibriumConstant(a=1.7e-2 / C_H2O_M, c=2090.0),
+        equilibrium_constant=EquilibriumConstant(A=1.7e-2 / C_H2O_M, C=2090.0),
     ))
     constraints.append(DissolvedEquilibriumConstraint(
         phase_name="AQUEOUS", reactant_names=["HSO3m"],
         product_names=["SO3mm", "Hp"], algebraic_species_name="SO3mm",
         solvent_name="H2O",
-        equilibrium_constant=EquilibriumConstant(a=6.0e-8 / C_H2O_M, c=1120.0),
+        equilibrium_constant=EquilibriumConstant(A=6.0e-8 / C_H2O_M, C=1120.0),
     ))
 
     # Mass conservation — SO4 and SO2OOH- ARE included (kinetics moves S between pools)
@@ -1026,7 +1040,7 @@ class TestKineticsValidation:
         assert total == pytest.approx(total_S, rel=1e-6), \
             f"Total S budget violated: {total} != {total_S}"
 
-    def test_h2o2_conservation(self, solved_state):
+    def test_h2o2_non_negative(self, solved_state):
         """H2O2_g + H2O2_aq = gas0_h2o2 (H2O2 is consumed by R1)."""
         # H2O2 is NOT conserved with kinetics (R1 consumes H2O2_aq).
         # But the mass constraint only tracks gas+aq, not the oxidation product.
@@ -1035,6 +1049,7 @@ class TestKineticsValidation:
         aq = _get_conc(solved_state, "CLOUD.AQUEOUS.H2O2_aq")
         assert g >= 0, f"H2O2_g negative: {g}"
         assert aq >= 0, f"H2O2_aq negative: {aq}"
+        assert g + aq <= GAS0_H2O2
 
     def test_charge_balance(self, solved_state):
         """H+ - OH- - HSO3- - 2*SO3-- - 2*SO4-- - SO2OOH- = 0."""

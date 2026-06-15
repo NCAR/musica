@@ -25,10 +25,10 @@ void bind_miam(py::module_& miam)
 {
   // ── Constants ─────────────────────────────────────────────────────
 
-  py::class_<mc::HenrysLawConstant>(miam, "_HenrysLawConstant")
+  py::class_<mc::HenryLawConstant>(miam, "_HenryLawConstant")
       .def(py::init<double, double>(), py::arg("hlc_ref"), py::arg("c") = 0.0)
-      .def_readwrite("hlc_ref", &mc::HenrysLawConstant::hlc_ref)
-      .def_readwrite("c", &mc::HenrysLawConstant::c);
+      .def_readwrite("hlc_ref", &mc::HenryLawConstant::hlc_ref)
+      .def_readwrite("c", &mc::HenryLawConstant::c);
 
   py::class_<mc::EquilibriumConstant>(miam, "_EquilibriumConstant")
       .def(py::init<double, double>(), py::arg("a"), py::arg("c") = 0.0)
@@ -102,7 +102,8 @@ void bind_miam(py::module_& miam)
   py::class_<mc::DissolvedReaction>(miam, "_DissolvedReaction")
       .def(
           py::init(
-              [](const std::string& phase_name,
+              [](const std::string& representation_name,
+                 const std::string& phase_name,
                  const std::vector<std::string>& reactant_names,
                  const std::vector<std::string>& product_names,
                  const std::string& solvent_name,
@@ -115,8 +116,9 @@ void bind_miam(py::module_& miam)
                   rc = rate_constant.cast<mc::ArrheniusRateConstant>();
                 else
                   rc = rate_constant.cast<std::function<double(double)>>();
-                return mc::DissolvedReaction{ phase_name, reactant_names, product_names, solvent_name, std::move(rc), solvent_floor, min_halflife };
+                return mc::DissolvedReaction{ representation_name, phase_name, reactant_names, product_names, solvent_name, std::move(rc), solvent_floor, min_halflife };
               }),
+          py::arg("representation_name"),
           py::arg("phase_name"),
           py::arg("reactant_names"),
           py::arg("product_names"),
@@ -124,6 +126,7 @@ void bind_miam(py::module_& miam)
           py::arg("rate_constant"),
           py::arg("solvent_floor") = 1.0e-20,
           py::arg("min_halflife") = 0.0)
+      .def_readwrite("representation_name", &mc::DissolvedReaction::representation_name)
       .def_readwrite("phase_name", &mc::DissolvedReaction::phase_name)
       .def_readwrite("reactant_names", &mc::DissolvedReaction::reactant_names)
       .def_readwrite("product_names", &mc::DissolvedReaction::product_names)
@@ -183,19 +186,19 @@ void bind_miam(py::module_& miam)
 
   py::class_<mc::HenryLawPhaseTransfer>(miam, "_HenryLawPhaseTransfer")
       .def(
-          py::init<std::string, std::string, std::string, std::string, mc::HenrysLawConstant, double, double>(),
+          py::init<std::string, std::string, std::string, std::string, mc::HenryLawConstant, double, double>(),
           py::arg("condensed_phase_name"),
           py::arg("gas_species_name"),
           py::arg("condensed_species_name"),
           py::arg("solvent_name"),
-          py::arg("henrys_law_constant"),
+          py::arg("henry_law_constant"),
           py::arg("diffusion_coefficient"),
           py::arg("accommodation_coefficient"))
       .def_readwrite("condensed_phase_name", &mc::HenryLawPhaseTransfer::condensed_phase_name)
       .def_readwrite("gas_species_name", &mc::HenryLawPhaseTransfer::gas_species_name)
       .def_readwrite("condensed_species_name", &mc::HenryLawPhaseTransfer::condensed_species_name)
       .def_readwrite("solvent_name", &mc::HenryLawPhaseTransfer::solvent_name)
-      .def_readwrite("henrys_law_constant", &mc::HenryLawPhaseTransfer::henrys_law_constant)
+      .def_readwrite("henry_law_constant", &mc::HenryLawPhaseTransfer::henry_law_constant)
       .def_readwrite("diffusion_coefficient", &mc::HenryLawPhaseTransfer::diffusion_coefficient)
       .def_readwrite("accommodation_coefficient", &mc::HenryLawPhaseTransfer::accommodation_coefficient);
 
@@ -203,19 +206,19 @@ void bind_miam(py::module_& miam)
 
   py::class_<mc::HenryLawEquilibriumConstraint>(miam, "_HenryLawEquilibriumConstraint")
       .def(
-          py::init<std::string, std::string, std::string, std::string, mc::HenrysLawConstant, double, double>(),
+          py::init<std::string, std::string, std::string, std::string, mc::HenryLawConstant, double, double>(),
           py::arg("gas_species_name"),
           py::arg("condensed_species_name"),
           py::arg("solvent_name"),
           py::arg("condensed_phase_name"),
-          py::arg("henrys_law_constant"),
+          py::arg("henry_law_constant"),
           py::arg("solvent_molecular_weight"),
           py::arg("solvent_density"))
       .def_readwrite("gas_species_name", &mc::HenryLawEquilibriumConstraint::gas_species_name)
       .def_readwrite("condensed_species_name", &mc::HenryLawEquilibriumConstraint::condensed_species_name)
       .def_readwrite("solvent_name", &mc::HenryLawEquilibriumConstraint::solvent_name)
       .def_readwrite("condensed_phase_name", &mc::HenryLawEquilibriumConstraint::condensed_phase_name)
-      .def_readwrite("henrys_law_constant", &mc::HenryLawEquilibriumConstraint::henrys_law_constant)
+      .def_readwrite("henry_law_constant", &mc::HenryLawEquilibriumConstraint::henry_law_constant)
       .def_readwrite("solvent_molecular_weight", &mc::HenryLawEquilibriumConstraint::solvent_molecular_weight)
       .def_readwrite("solvent_density", &mc::HenryLawEquilibriumConstraint::solvent_density);
 

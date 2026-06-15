@@ -19,7 +19,7 @@ from musica.miam import (
     DissolvedReversibleReaction,
     EquilibriumConstant,
     HenryLawEquilibriumConstraint,
-    HenrysLawConstant,
+    HenryLawConstant,
     LinearConstraint,
     LinearConstraintTerm,
     Model,
@@ -74,15 +74,16 @@ def build_system():
         product_names=["SO2OOHm", "H2O"],
         solvent_name="H2O",
         forward_rate_constant=ArrheniusRateConstant(
-            a=C_H2O_M * (7.45e7 / 13.0), c=4430.0),
-        equilibrium_constant=EquilibriumConstant(a=1725.0),
+            A=C_H2O_M * (7.45e7 / 13.0), C=4430.0),
+        equilibrium_constant=EquilibriumConstant(A=1725.0),
     )
     r1b = DissolvedReaction(
+        representation_name="CLOUD",
         phase_name="AQUEOUS",
         reactant_names=["SO2OOHm", "Hp"],
         product_names=["SO4mm"],
         solvent_name="H2O",
-        rate_constant=ArrheniusRateConstant(a=C_H2O_M * 2.4e6, c=4430.0),
+        rate_constant=ArrheniusRateConstant(A=C_H2O_M * 2.4e6, C=4430.0),
     )
 
     constraints = []
@@ -93,18 +94,18 @@ def build_system():
         constraints.append(HenryLawEquilibriumConstraint(
             gas_species_name=gas_name, condensed_species_name=aq_name,
             solvent_name="H2O", condensed_phase_name="AQUEOUS",
-            henrys_law_constant=HenrysLawConstant(hlc_ref=hlc * M_ATM_TO_MOL_M3_PA, c=c_val),
+            henry_law_constant=HenryLawConstant(HLC_REF=hlc * M_ATM_TO_MOL_M3_PA, C=c_val),
             solvent_molecular_weight=MW_H2O, solvent_density=RHO_H2O,
         ))
     constraints.append(DissolvedEquilibriumConstraint(
         phase_name="AQUEOUS", reactant_names=["H2O"], product_names=["Hp", "OHm"],
         algebraic_species_name="OHm", solvent_name="H2O",
-        equilibrium_constant=EquilibriumConstant(a=1e-14 / (C_H2O_M * C_H2O_M), c=0.0),
+        equilibrium_constant=EquilibriumConstant(A=1e-14 / (C_H2O_M * C_H2O_M), C=0.0),
     ))
     constraints.append(DissolvedEquilibriumConstraint(
         phase_name="AQUEOUS", reactant_names=["SO2_aq"], product_names=["HSO3m", "Hp"],
         algebraic_species_name="HSO3m", solvent_name="H2O",
-        equilibrium_constant=EquilibriumConstant(a=1.7e-2 / C_H2O_M, c=2090.0),
+        equilibrium_constant=EquilibriumConstant(A=1.7e-2 / C_H2O_M, C=2090.0),
     ))
     constraints.append(LinearConstraint(
         algebraic_phase_name="gas", algebraic_species_name="SO2",

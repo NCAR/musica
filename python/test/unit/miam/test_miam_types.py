@@ -9,7 +9,7 @@ import pytest
 from dataclasses import FrozenInstanceError
 
 from musica.miam import (
-    HenrysLawConstant,
+    HenryLawConstant,
     EquilibriumConstant,
     ArrheniusRateConstant,
     UniformSection,
@@ -29,57 +29,57 @@ from musica.mechanism_configuration import Species, Phase
 
 # ═══ Constants ═══════════════════════════════════════════════════════════════
 
-class TestHenrysLawConstant:
+class TestHenryLawConstant:
     def test_construction(self):
-        hlc = HenrysLawConstant(hlc_ref=1.23, c=3120.0)
-        assert hlc.hlc_ref == 1.23
-        assert hlc.c == 3120.0
+        hlc = HenryLawConstant(HLC_REF=1.23, C=3120.0)
+        assert hlc.HLC_REF == 1.23
+        assert hlc.C == 3120.0
 
     def test_default_c(self):
-        hlc = HenrysLawConstant(hlc_ref=1.0)
-        assert hlc.c == 0.0
+        hlc = HenryLawConstant(HLC_REF=1.0)
+        assert hlc.C == 0.0
 
     def test_frozen(self):
-        hlc = HenrysLawConstant(hlc_ref=1.0, c=0.0)
+        hlc = HenryLawConstant(HLC_REF=1.0, C=0.0)
         with pytest.raises(FrozenInstanceError):
-            hlc.hlc_ref = 2.0
+            hlc.HLC_REF = 2.0
 
     def test_equality(self):
-        a = HenrysLawConstant(hlc_ref=1.0, c=2.0)
-        b = HenrysLawConstant(hlc_ref=1.0, c=2.0)
+        a = HenryLawConstant(HLC_REF=1.0, C=2.0)
+        b = HenryLawConstant(HLC_REF=1.0, C=2.0)
         assert a == b
 
 
 class TestEquilibriumConstant:
     def test_construction(self):
-        ec = EquilibriumConstant(a=1.7e-2, c=2090.0)
-        assert ec.a == 1.7e-2
-        assert ec.c == 2090.0
+        ec = EquilibriumConstant(A=1.7e-2, C=2090.0)
+        assert ec.A == 1.7e-2
+        assert ec.C == 2090.0
 
     def test_default_c(self):
-        ec = EquilibriumConstant(a=1e-14)
-        assert ec.c == 0.0
+        ec = EquilibriumConstant(A=1e-14)
+        assert ec.C == 0.0
 
     def test_frozen(self):
-        ec = EquilibriumConstant(a=1.0)
+        ec = EquilibriumConstant(A=1.0)
         with pytest.raises(FrozenInstanceError):
-            ec.a = 2.0
+            ec.A = 2.0
 
 
 class TestArrheniusRateConstant:
     def test_construction(self):
-        arc = ArrheniusRateConstant(a=7.45e7, c=4430.0)
-        assert arc.a == 7.45e7
-        assert arc.c == 4430.0
+        arc = ArrheniusRateConstant(A=7.45e7, C=4430.0)
+        assert arc.A == 7.45e7
+        assert arc.C == 4430.0
 
     def test_default_c(self):
-        arc = ArrheniusRateConstant(a=1.0)
-        assert arc.c == 0.0
+        arc = ArrheniusRateConstant(A=1.0)
+        assert arc.C == 0.0
 
     def test_frozen(self):
-        arc = ArrheniusRateConstant(a=1.0)
+        arc = ArrheniusRateConstant(A=1.0)
         with pytest.raises(FrozenInstanceError):
-            arc.c = 99.0
+            arc.C = 99.0
 
 
 # ═══ Representations ═════════════════════════════════════════════════════════
@@ -173,11 +173,12 @@ class TestTwoMomentMode:
 class TestDissolvedReaction:
     def test_with_arrhenius(self):
         rxn = DissolvedReaction(
+            representation_name="CLOUD",
             phase_name="AQUEOUS",
             reactant_names=["HSO3m", "H2O2_aq"],
             product_names=["SO4mm", "H2O", "Hp"],
             solvent_name="H2O",
-            rate_constant=ArrheniusRateConstant(a=7.45e7, c=4430.0),
+            rate_constant=ArrheniusRateConstant(A=7.45e7, C=4430.0),
         )
         assert rxn.phase_name == "AQUEOUS"
         assert len(rxn.reactant_names) == 2
@@ -189,6 +190,7 @@ class TestDissolvedReaction:
             return 55.556 * 7.45e7 * math.exp(-4430.0 * (1.0 / T - 1.0 / 298.15))
 
         rxn = DissolvedReaction(
+            representation_name="CLOUD",
             phase_name="AQUEOUS",
             reactant_names=["HSO3m", "H2O2_aq"],
             product_names=["SO4mm"],
@@ -208,8 +210,8 @@ class TestDissolvedReversibleReaction:
             reactant_names=["SO2_aq"],
             product_names=["HSO3m", "Hp"],
             solvent_name="H2O",
-            forward_rate_constant=ArrheniusRateConstant(a=1e6, c=0.0),
-            equilibrium_constant=EquilibriumConstant(a=1.7e-2, c=2090.0),
+            forward_rate_constant=ArrheniusRateConstant(A=1e6, C=0.0),
+            equilibrium_constant=EquilibriumConstant(A=1.7e-2, C=2090.0),
         )
         assert rxn.forward_rate_constant is not None
         assert rxn.reverse_rate_constant is None
@@ -221,8 +223,8 @@ class TestDissolvedReversibleReaction:
             reactant_names=["A"],
             product_names=["B"],
             solvent_name="H2O",
-            forward_rate_constant=ArrheniusRateConstant(a=100.0, c=0.0),
-            reverse_rate_constant=ArrheniusRateConstant(a=50.0, c=0.0),
+            forward_rate_constant=ArrheniusRateConstant(A=100.0, C=0.0),
+            reverse_rate_constant=ArrheniusRateConstant(A=50.0, C=0.0),
         )
         assert rxn.forward_rate_constant is not None
         assert rxn.reverse_rate_constant is not None
@@ -247,7 +249,7 @@ class TestHenryLawPhaseTransfer:
             gas_species_name="SO2",
             condensed_species_name="SO2_aq",
             solvent_name="H2O",
-            henrys_law_constant=HenrysLawConstant(hlc_ref=1.23e-2, c=3120.0),
+            henry_law_constant=HenryLawConstant(HLC_REF=1.23e-2, C=3120.0),
             diffusion_coefficient=1.28e-5,
             accommodation_coefficient=0.11,
         )
@@ -281,7 +283,7 @@ class TestHenryLawEquilibriumConstraint:
             condensed_species_name="SO2_aq",
             solvent_name="H2O",
             condensed_phase_name="AQUEOUS",
-            henrys_law_constant=HenrysLawConstant(hlc_ref=1.23e-2, c=3120.0),
+            henry_law_constant=HenryLawConstant(HLC_REF=1.23e-2, C=3120.0),
             solvent_molecular_weight=0.018,
             solvent_density=1000.0,
         )
@@ -295,7 +297,7 @@ class TestHenryLawEquilibriumConstraint:
             condensed_species_name="SO2_aq",
             solvent_name="H2O",
             condensed_phase_name="AQUEOUS",
-            henrys_law_constant=HenrysLawConstant(hlc_ref=1.23e-2, c=3120.0),
+            henry_law_constant=HenryLawConstant(HLC_REF=1.23e-2, C=3120.0),
             solvent_molecular_weight=0.018,
             solvent_density=1000.0,
         )
@@ -311,7 +313,7 @@ class TestDissolvedEquilibriumConstraint:
             product_names=["HSO3m", "Hp"],
             algebraic_species_name="SO2_aq",
             solvent_name="H2O",
-            equilibrium_constant=EquilibriumConstant(a=1.7e-2, c=2090.0),
+            equilibrium_constant=EquilibriumConstant(A=1.7e-2, C=2090.0),
         )
         assert dec.phase_name == "AQUEOUS"
         assert dec.algebraic_species_name == "SO2_aq"
@@ -325,7 +327,7 @@ class TestDissolvedEquilibriumConstraint:
             product_names=["B"],
             algebraic_species_name="A",
             solvent_name="W",
-            equilibrium_constant=EquilibriumConstant(a=1.0),
+            equilibrium_constant=EquilibriumConstant(A=1.0),
         )
         with pytest.raises(FrozenInstanceError):
             dec.phase_name = "OTHER"
@@ -455,25 +457,26 @@ class TestModel:
             representations=[UniformSection("SEC", ["AQ"], 1e-6, 1e-5)],
             processes=[
                 DissolvedReaction(
+                    representation_name="SEC",
                     phase_name="AQ",
                     reactant_names=["A"],
                     product_names=["B"],
                     solvent_name="W",
-                    rate_constant=ArrheniusRateConstant(a=1.0, c=0.0),
+                    rate_constant=ArrheniusRateConstant(A=1.0, C=0.0),
                 ),
                 DissolvedReversibleReaction(
                     phase_name="AQ",
                     reactant_names=["A"],
                     product_names=["B"],
                     solvent_name="W",
-                    equilibrium_constant=EquilibriumConstant(a=1.0),
+                    equilibrium_constant=EquilibriumConstant(A=1.0),
                 ),
                 HenryLawPhaseTransfer(
                     condensed_phase_name="AQ",
                     gas_species_name="A",
                     condensed_species_name="B",
                     solvent_name="W",
-                    henrys_law_constant=HenrysLawConstant(hlc_ref=1.0),
+                    henry_law_constant=HenryLawConstant(HLC_REF=1.0),
                     diffusion_coefficient=1e-5,
                     accommodation_coefficient=0.1,
                 ),
@@ -493,7 +496,7 @@ class TestModel:
                     condensed_species_name="B",
                     solvent_name="W",
                     condensed_phase_name="AQ",
-                    henrys_law_constant=HenrysLawConstant(hlc_ref=1.0, c=100.0),
+                    henry_law_constant=HenryLawConstant(HLC_REF=1.0, C=100.0),
                     solvent_molecular_weight=0.018,
                     solvent_density=1000.0,
                 ),
@@ -503,7 +506,7 @@ class TestModel:
                     product_names=["B"],
                     algebraic_species_name="A",
                     solvent_name="W",
-                    equilibrium_constant=EquilibriumConstant(a=1.0),
+                    equilibrium_constant=EquilibriumConstant(A=1.0),
                 ),
                 LinearConstraint(
                     algebraic_phase_name="AQ",

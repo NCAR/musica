@@ -12,7 +12,7 @@ import musica.mechanism_configuration as mc
 from musica.micm import MICM, SolverState, SolverType
 from musica.micm.solver_parameters import RosenbrockSolverParameters
 from musica.miam import (
-    HenrysLawConstant,
+    HenryLawConstant,
     EquilibriumConstant,
     ArrheniusRateConstant,
     UniformSection,
@@ -118,6 +118,7 @@ r1a = DissolvedReversibleReaction(
     equilibrium_constant=EquilibriumConstant(a=1725.0),
 )
 r1b = DissolvedReaction(
+    representation_name="CLOUD",
     phase_name="AQUEOUS",
     reactant_names=["SO2OOHm", "Hp"],
     product_names=["SO4mm"],
@@ -125,6 +126,7 @@ r1b = DissolvedReaction(
     rate_constant=ArrheniusRateConstant(a=C_H2O_M * 2.4e6, c=4430.0),
 )
 r2 = DissolvedReaction(
+    representation_name="CLOUD",
     phase_name="AQUEOUS",
     reactant_names=["HSO3m", "O3_aq"],
     product_names=["SO4mm", "Hp"],
@@ -132,6 +134,7 @@ r2 = DissolvedReaction(
     rate_constant=ArrheniusRateConstant(a=C_H2O_M * 3.75e5, c=5530.0),
 )
 r3 = DissolvedReaction(
+    representation_name="CLOUD",
     phase_name="AQUEOUS",
     reactant_names=["SO3mm", "O3_aq"],
     product_names=["SO4mm"],
@@ -154,7 +157,7 @@ for gas_name, aq_name, hlc_ref_lit, c in henry_law_species:
         condensed_species_name=aq_name,
         solvent_name="H2O",
         condensed_phase_name="AQUEOUS",
-        henrys_law_constant=HenrysLawConstant(
+        henry_law_constant=HenryLawConstant(
             hlc_ref=hlc_ref_lit * M_ATM_TO_MOL_M3_PA,
             c=c,
         ),

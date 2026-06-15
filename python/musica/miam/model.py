@@ -3,7 +3,7 @@
 from dataclasses import dataclass, field
 from typing import List, Union
 
-from .constants import ArrheniusRateConstant, EquilibriumConstant, HenrysLawConstant
+from .constants import ArrheniusRateConstant, EquilibriumConstant, HenryLawConstant
 from .representations import UniformSection, SingleMomentMode, TwoMomentMode
 from .processes import DissolvedReaction, DissolvedReversibleReaction, HenryLawPhaseTransfer
 from .constraints import (
@@ -112,6 +112,7 @@ class Model:
             if isinstance(p, DissolvedReaction):
                 proc_list.append(
                     m._DissolvedReaction(
+                        p.representation_name,
                         p.phase_name,
                         p.reactant_names,
                         p.product_names,
@@ -139,7 +140,7 @@ class Model:
                             else None
                         ),
                         equilibrium_constant=(
-                            m._EquilibriumConstant(p.equilibrium_constant.a, p.equilibrium_constant.c)
+                            m._EquilibriumConstant(p.equilibrium_constant.A, p.equilibrium_constant.C)
                             if p.equilibrium_constant is not None
                             else None
                         ),
@@ -153,8 +154,8 @@ class Model:
                         p.gas_species_name,
                         p.condensed_species_name,
                         p.solvent_name,
-                        m._HenrysLawConstant(
-                            p.henrys_law_constant.hlc_ref, p.henrys_law_constant.c
+                        m._HenryLawConstant(
+                            p.henry_law_constant.HLC_REF, p.henry_law_constant.C
                         ),
                         p.diffusion_coefficient,
                         p.accommodation_coefficient,
@@ -172,8 +173,8 @@ class Model:
                         c.condensed_species_name,
                         c.solvent_name,
                         c.condensed_phase_name,
-                        m._HenrysLawConstant(
-                            c.henrys_law_constant.hlc_ref, c.henrys_law_constant.c
+                        m._HenryLawConstant(
+                            c.henry_law_constant.HLC_REF, c.henry_law_constant.C
                         ),
                         c.solvent_molecular_weight,
                         c.solvent_density,
@@ -188,7 +189,7 @@ class Model:
                         c.algebraic_species_name,
                         c.solvent_name,
                         m._EquilibriumConstant(
-                            c.equilibrium_constant.a, c.equilibrium_constant.c
+                            c.equilibrium_constant.A, c.equilibrium_constant.C
                         ),
                         solvent_floor=c.solvent_floor,
                     )
@@ -215,7 +216,7 @@ class Model:
 def _convert_rate_constant(m, rc):
     """Convert a Python rate constant to the pybind11 type."""
     if isinstance(rc, ArrheniusRateConstant):
-        return m._ArrheniusRateConstant(rc.a, rc.c)
+        return m._ArrheniusRateConstant(rc.A, rc.C)
     else:
         # callable f(T) -> k
         return rc

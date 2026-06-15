@@ -113,6 +113,7 @@ namespace
 
     // R1b: SO2OOH- + H+ → SO4--  (irreversible)
     mc::DissolvedReaction r1b;
+    r1b.representation_name = "CLOUD";
     r1b.phase_name = "AQUEOUS";
     r1b.reactant_names = { "SO2OOHm", "Hp" };
     r1b.product_names = { "SO4mm" };
@@ -121,6 +122,7 @@ namespace
 
     // R2: HSO3- + O3_aq → SO4-- + H+
     mc::DissolvedReaction r2;
+    r2.representation_name = "CLOUD";
     r2.phase_name = "AQUEOUS";
     r2.reactant_names = { "HSO3m", "O3_aq" };
     r2.product_names = { "SO4mm", "Hp" };
@@ -129,6 +131,7 @@ namespace
 
     // R3: SO3-- + O3_aq → SO4--
     mc::DissolvedReaction r3;
+    r3.representation_name = "CLOUD";
     r3.phase_name = "AQUEOUS";
     r3.reactant_names = { "SO3mm", "O3_aq" };
     r3.product_names = { "SO4mm" };
@@ -306,6 +309,7 @@ TEST(MiamBuilder, InvalidSpeciesName)
 
   // Add a process referencing a species that doesn't exist
   mc::DissolvedReaction bad_rxn;
+  bad_rxn.representation_name = "CLOUD";
   bad_rxn.phase_name = "AQUEOUS";
   bad_rxn.reactant_names = { "NONEXISTENT_SPECIES" };
   bad_rxn.product_names = { "SO4mm" };
@@ -329,6 +333,7 @@ TEST(MiamBuilder, InvalidPhaseName)
 
   // Add a process referencing a phase that doesn't exist
   mc::DissolvedReaction bad_rxn;
+  bad_rxn.representation_name = "CLOUD";
   bad_rxn.phase_name = "NONEXISTENT_PHASE";
   bad_rxn.reactant_names = { "HSO3m" };
   bad_rxn.product_names = { "SO4mm" };
@@ -468,7 +473,7 @@ TEST(MiamBuilder, HenryLawPhaseTransferProcess)
   transfer.gas_species_name = "SO2";
   transfer.condensed_species_name = "SO2_aq";
   transfer.solvent_name = "H2O";
-  transfer.henrys_law_constant = { 1.23 * M_ATM_TO_MOL_M3_PA, 3120.0 };
+  transfer.henry_law_constant = { 1.23 * M_ATM_TO_MOL_M3_PA, 3120.0 };
   transfer.diffusion_coefficient = 1.28e-5;
   transfer.accommodation_coefficient = 0.11;
   config.processes = { transfer };
