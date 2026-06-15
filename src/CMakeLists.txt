@@ -29,6 +29,13 @@ if(MUSICA_ENABLE_MICM)
   add_subdirectory(micm)
 endif()
 
+# MIAM sources
+if(MUSICA_ENABLE_MIAM)
+  list(APPEND musica_compile_definitions MUSICA_USE_MIAM)
+  add_subdirectory(miam)
+  target_link_libraries(musica PUBLIC musica::miam)
+endif()
+
 # TUV-x sources
 if(MUSICA_ENABLE_TUVX)
   list(APPEND musica_compile_definitions MUSICA_USE_TUVX)
@@ -41,13 +48,6 @@ endif()
 if(MUSICA_ENABLE_CARMA)
   list(APPEND musica_compile_definitions MUSICA_USE_CARMA)
   add_subdirectory(carma)
-endif()
-
-# MIAM sources
-if(MUSICA_ENABLE_MIAM)
-  list(APPEND musica_compile_definitions MUSICA_USE_MIAM)
-  add_subdirectory(miam)
-  target_link_libraries(musica PUBLIC musica::miam)
 endif()
 
 # MICM CUDA Solver

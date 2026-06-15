@@ -7,6 +7,7 @@ build/
 build-miam/
 build-wasm/
 build-addon/
+build_test/
 install/
 CMakeCache.txt
 CMakeFiles
@@ -45,6 +46,3 @@ julia/deps/lib/
 
 .claude
 
-build-container/
-MechanismConfiguration/
-MPAS-Model/
