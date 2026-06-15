@@ -15,7 +15,7 @@ install(
 # fmt may be pulled in as a build-tree target by mechanism_configuration's
 # dependencies in some environments (e.g. Intel oneapi). Export it if so,
 # but only when it is locally built (not an IMPORTED system target).
-if(MECH_CONFIG_USE_FMT)
+if(MECH_CONFIG_USE_FMT AND TARGET fmt)
   get_target_property(_fmt_is_imported fmt IMPORTED)
   if(NOT _fmt_is_imported)
     install(TARGETS fmt
