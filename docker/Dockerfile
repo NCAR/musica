@@ -27,14 +27,14 @@ COPY . musica
 
 RUN cd musica \
     && cmake -S . \
+        -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
+        -D MUSICA_ENABLE_TESTS=ON \
+        -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
         -D CMAKE_C_FLAGS="-fsanitize=address -g" \
         -D CMAKE_CXX_FLAGS="-fsanitize=address -g" \
         -D CMAKE_Fortran_FLAGS="-fsanitize=address -g" \
         -D CMAKE_EXE_LINKER_FLAGS="-fsanitize=address" \
         -D CMAKE_SHARED_LINKER_FLAGS="-fsanitize=address" \
-        -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
-        -D MUSICA_ENABLE_TESTS=ON \
-        -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
         -B build \
     && cd build \
     && make install -j$(nproc)
