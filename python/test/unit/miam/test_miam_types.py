@@ -31,22 +31,22 @@ from musica.mechanism_configuration import Species, Phase
 
 class TestHenryLawConstant:
     def test_construction(self):
-        hlc = HenryLawConstant(HLC_REF=1.23, C=3120.0)
-        assert hlc.HLC_REF == 1.23
+        hlc = HenryLawConstant(HLC_ref=1.23, C=3120.0)
+        assert hlc.HLC_ref == 1.23
         assert hlc.C == 3120.0
 
     def test_default_c(self):
-        hlc = HenryLawConstant(HLC_REF=1.0)
+        hlc = HenryLawConstant(HLC_ref=1.0)
         assert hlc.C == 0.0
 
     def test_frozen(self):
-        hlc = HenryLawConstant(HLC_REF=1.0, C=0.0)
+        hlc = HenryLawConstant(HLC_ref=1.0, C=0.0)
         with pytest.raises(FrozenInstanceError):
-            hlc.HLC_REF = 2.0
+            hlc.HLC_ref = 2.0
 
     def test_equality(self):
-        a = HenryLawConstant(HLC_REF=1.0, C=2.0)
-        b = HenryLawConstant(HLC_REF=1.0, C=2.0)
+        a = HenryLawConstant(HLC_ref=1.0, C=2.0)
+        b = HenryLawConstant(HLC_ref=1.0, C=2.0)
         assert a == b
 
 
@@ -249,7 +249,7 @@ class TestHenryLawPhaseTransfer:
             gas_species_name="SO2",
             condensed_species_name="SO2_aq",
             solvent_name="H2O",
-            henry_law_constant=HenryLawConstant(HLC_REF=1.23e-2, C=3120.0),
+            henry_law_constant=HenryLawConstant(HLC_ref=1.23e-2, C=3120.0),
             diffusion_coefficient=1.28e-5,
             accommodation_coefficient=0.11,
         )
@@ -283,7 +283,7 @@ class TestHenryLawEquilibriumConstraint:
             condensed_species_name="SO2_aq",
             solvent_name="H2O",
             condensed_phase_name="AQUEOUS",
-            henry_law_constant=HenryLawConstant(HLC_REF=1.23e-2, C=3120.0),
+            henry_law_constant=HenryLawConstant(HLC_ref=1.23e-2, C=3120.0),
             solvent_molecular_weight=0.018,
             solvent_density=1000.0,
         )
@@ -297,7 +297,7 @@ class TestHenryLawEquilibriumConstraint:
             condensed_species_name="SO2_aq",
             solvent_name="H2O",
             condensed_phase_name="AQUEOUS",
-            henry_law_constant=HenryLawConstant(HLC_REF=1.23e-2, C=3120.0),
+            henry_law_constant=HenryLawConstant(HLC_ref=1.23e-2, C=3120.0),
             solvent_molecular_weight=0.018,
             solvent_density=1000.0,
         )
@@ -476,7 +476,7 @@ class TestModel:
                     gas_species_name="A",
                     condensed_species_name="B",
                     solvent_name="W",
-                    henry_law_constant=HenryLawConstant(HLC_REF=1.0),
+                    henry_law_constant=HenryLawConstant(HLC_ref=1.0),
                     diffusion_coefficient=1e-5,
                     accommodation_coefficient=0.1,
                 ),
@@ -496,7 +496,7 @@ class TestModel:
                     condensed_species_name="B",
                     solvent_name="W",
                     condensed_phase_name="AQ",
-                    henry_law_constant=HenryLawConstant(HLC_REF=1.0, C=100.0),
+                    henry_law_constant=HenryLawConstant(HLC_ref=1.0, C=100.0),
                     solvent_molecular_weight=0.018,
                     solvent_density=1000.0,
                 ),

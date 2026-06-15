@@ -147,7 +147,7 @@ def _build_system():
             solvent_name="H2O",
             condensed_phase_name="AQUEOUS",
             henry_law_constant=HenryLawConstant(
-                HLC_REF=hlc * M_ATM_TO_MOL_M3_PA, C=c_val),
+                HLC_ref=hlc * M_ATM_TO_MOL_M3_PA, C=c_val),
             solvent_molecular_weight=MW_H2O,
             solvent_density=RHO_H2O,
         ))

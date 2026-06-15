@@ -7,13 +7,13 @@ from dataclasses import dataclass
 class HenryLawConstant:
     """Henry's Law constant with temperature dependence.
 
-    HLC(T) = HLC_REF * exp(C * (1/T - 1/T0))   where T0 = 298.15 K
+    HLC(T) = HLC_ref * exp(C * (1/T - 1/T0))   where T0 = 298.15 K
 
     Args:
-        HLC_REF: Reference Henry's Law constant [mol m-3 Pa-1].
+        HLC_ref: Reference Henry's Law constant [mol m-3 Pa-1].
         C: Temperature dependence parameter [K].
     """
-    HLC_REF: float
+    HLC_ref: float
     C: float = 0.0
 
 

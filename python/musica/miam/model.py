@@ -155,7 +155,7 @@ class Model:
                         p.condensed_species_name,
                         p.solvent_name,
                         m._HenryLawConstant(
-                            p.henry_law_constant.HLC_REF, p.henry_law_constant.C
+                            p.henry_law_constant.HLC_ref, p.henry_law_constant.C
                         ),
                         p.diffusion_coefficient,
                         p.accommodation_coefficient,
@@ -174,7 +174,7 @@ class Model:
                         c.solvent_name,
                         c.condensed_phase_name,
                         m._HenryLawConstant(
-                            c.henry_law_constant.HLC_REF, c.henry_law_constant.C
+                            c.henry_law_constant.HLC_ref, c.henry_law_constant.C
                         ),
                         c.solvent_molecular_weight,
                         c.solvent_density,
