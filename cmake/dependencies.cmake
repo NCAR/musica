@@ -13,20 +13,61 @@ endfunction(set_git_default)
 
 ################################################################################
 # NetCDF library
+#
+# When MUSICA is built inside a host model (e.g. via add_subdirectory) the host
+# has usually already located NetCDF and exposed an imported target. Different
+# finders use different target names, so probe the common variants and reuse a
+# host-provided target before searching ourselves. Only when nothing is found do
+# we fall back to pkg-config. The resolved target names are stored in
+# MUSICA_NETCDF_C_TARGET / MUSICA_NETCDF_FORTRAN_TARGET and linked directly by
+# MUSICA's sources (we deliberately avoid wrapping them in a musica::-namespaced
+# imported target, which would collide with the install(EXPORT NAMESPACE musica::)
+# set and leak an unresolvable target into the exported link interface).
 
 if (MUSICA_ENABLE_CARMA OR MUSICA_ENABLE_TUVX)
-  find_package(PkgConfig REQUIRED)
-  pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
-  pkg_check_modules(netcdfc IMPORTED_TARGET REQUIRED netcdf)
+  # Return the first of ARGN that already exists as a target (target names are
+  # case-sensitive, so we list each convention explicitly).
+  function(musica_first_existing_target out_var)
+    foreach(candidate ${ARGN})
+      if(TARGET ${candidate})
+        set(${out_var} ${candidate} PARENT_SCOPE)
+        return()
+      endif()
+    endforeach()
+    set(${out_var} "" PARENT_SCOPE)
+  endfunction()
+
+  musica_first_existing_target(MUSICA_NETCDF_C_TARGET
+    netCDF::netcdf
+    NetCDF::NetCDF_C
+    netcdf
+    NETCDF::NETCDF)
+  musica_first_existing_target(MUSICA_NETCDF_FORTRAN_TARGET
+    netCDF::netcdff
+    NetCDF::NetCDF_Fortran
+    netcdff)
+
+  if(MUSICA_NETCDF_C_TARGET AND MUSICA_NETCDF_FORTRAN_TARGET)
+    message(STATUS "MUSICA: reusing NetCDF targets from parent project: "
+                   "${MUSICA_NETCDF_C_TARGET}, ${MUSICA_NETCDF_FORTRAN_TARGET}")
+  else()
+    message(STATUS "MUSICA: no parent NetCDF target found; locating via pkg-config")
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(netcdff IMPORTED_TARGET REQUIRED netcdf-fortran)
+    pkg_check_modules(netcdfc IMPORTED_TARGET REQUIRED netcdf)
+    set(MUSICA_NETCDF_C_TARGET PkgConfig::netcdfc)
+    set(MUSICA_NETCDF_FORTRAN_TARGET PkgConfig::netcdff)
+  endif()
 endif()
 
 ################################################################################
 # Mechanism Configuration
 # Skip if using prebuilt musica (already includes mechanism_configuration)
+# fmt support enabled for NOAA CATChem model
 
 if(MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(MECH_CONFIG_GIT_REPOSITORY https://github.com/NCAR/MechanismConfiguration.git)
-  set_git_default(MECH_CONFIG_GIT_TAG v1.1.2)
+  set_git_default(MECH_CONFIG_GIT_TAG 0356ec366c3c202c3f8139e317a4241dac36a65b)
 
   FetchContent_Declare(mechanism_configuration
       GIT_REPOSITORY ${MECH_CONFIG_GIT_REPOSITORY}
@@ -37,6 +78,7 @@ if(MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
 
   set(MECH_CONFIG_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
   set(MECH_CONFIG_BUILD_SHARED_LIBS ${MUSICA_BUILD_SHARED_LIBS} CACHE BOOL "" FORCE)
+  set(MECH_CONFIG_USE_FMT ON CACHE BOOL "" FORCE)
 
   FetchContent_MakeAvailable(mechanism_configuration)
 endif()
@@ -126,7 +168,7 @@ if (MUSICA_ENABLE_TUVX AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBU
   # NOTE: `docker/Dockerfile.tuvx` extracts TUVX_GIT_REPOSITORY and TUVX_GIT_TAG
   #       from this script to set up tests against stand-alone TUV-x
   set_git_default(TUVX_GIT_REPOSITORY https://github.com/NCAR/tuv-x.git)
-  set_git_default(TUVX_GIT_TAG v0.15.0)
+  set_git_default(TUVX_GIT_TAG 746f9ae6a1234362935c59987ae005cb799eb29b)
 
   FetchContent_Declare(tuvx
     GIT_REPOSITORY ${TUVX_GIT_REPOSITORY}
@@ -147,7 +189,7 @@ endif()
 
 if(MUSICA_ENABLE_CARMA AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(CARMA_GIT_REPOSITORY https://github.com/NCAR/CARMA-ACOM-dev.git)
-  set_git_default(CARMA_GIT_TAG develop-carma-box)
+  set_git_default(CARMA_GIT_TAG eb2410560374e3c7719b4892695c155cfed03f5e)
 
   set(CARMA_MOD_DIR ${MUSICA_MOD_DIR} CACHE STRING "" FORCE)
   set(CARMA_INSTALL_MOD_DIR ${MUSICA_INSTALL_MOD_DIR} CACHE STRING "" FORCE)
