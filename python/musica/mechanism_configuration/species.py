@@ -84,7 +84,7 @@ class Species(CppWrapper):
         serialize_dict = {
             "name": self.name,
             "molecular weight [kg mol-1]": self.molecular_weight_kg_mol,
-            "density [kg m-3]": self.density_kg_m3,
+            self._DENSITY_KEY: self.density_kg_m3,
             "constant concentration [mol m-3]": self.constant_concentration_mol_m3,
             "constant mixing ratio [mol mol-1]": self.constant_mixing_ratio_mol_mol,
             "is third body": self.is_third_body,

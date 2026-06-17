@@ -16,6 +16,10 @@ from .constraints import (
     LinearConstraintTerm,
 )
 from .model import Model
+from .. import backend
+_backend = backend.get_backend()
+
+__version__ = _backend._miam._get_miam_version() if backend.miam_available() else None
 
 __all__ = [
     "HenryLawConstant",
@@ -33,3 +37,4 @@ __all__ = [
     "LinearConstraintTerm",
     "Model",
 ]
+

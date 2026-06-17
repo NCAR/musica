@@ -12,6 +12,8 @@
 #include <musica/micm/micm_c_interface.hpp>
 #include <musica/micm/parse.hpp>
 
+#include <miam/version.hpp>
+
 #include <mechanism_configuration/v1/types.hpp>
 
 #include <pybind11/functional.h>
@@ -23,6 +25,13 @@ namespace mc = musica::miam_config;
 
 void bind_miam(py::module_& miam)
 {
+  // ── Version ───────────────────────────────────────────────────────
+
+  miam.def(
+      "_get_miam_version",
+      []() { return std::string(miam::GetMiamVersion()); },
+      "Get the version of the MIAM instance");
+
   // ── Constants ─────────────────────────────────────────────────────
 
   py::class_<mc::HenryLawConstant>(miam, "_HenryLawConstant")
