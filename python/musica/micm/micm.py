@@ -77,6 +77,8 @@ class MICM():
                 Solver-specific parameters. Must match the solver type.
             external_models : list, optional
                 External models (e.g. musica.miam.Model) to attach to the solver.
+                Currently at most one external model is supported; passing more than
+                one raises a ValueError. Only valid together with `mechanism`.
         """
         if solver_type is None:
             solver_type = SolverType.rosenbrock_standard_order
@@ -100,6 +102,10 @@ class MICM():
             self.__solver = create_solver(config_path, solver_type)
         elif mechanism is not None:
             if self._external_models:
+                if len(self._external_models) > 1:
+                    raise ValueError(
+                        "Only a single external model is currently supported; "
+                        f"received {len(self._external_models)}.")
                 miam_model = self._external_models[0]
                 miam_config = miam_model._to_config()
                 create_solver_with_miam = _backend._miam._create_solver_with_miam
