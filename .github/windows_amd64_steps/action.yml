@@ -6,7 +6,12 @@ runs:
     - uses: msys2/setup-msys2@v2
       with:
         msystem: UCRT64
-        update: true
+        # Install from the version-consistent MSYS2 base snapshot instead of
+        # running a full `pacman -Syuu`. The full upgrade pulls the newest repo
+        # databases, whose PGP signatures the bundled keyring can't verify after
+        # an MSYS2 signing-key rotation, causing:
+        #   "failed to synchronize all databases (invalid or corrupted database (PGP signature))"
+        update: false
         install: |
           mingw-w64-ucrt-x86_64-cmake
           mingw-w64-ucrt-x86_64-make
