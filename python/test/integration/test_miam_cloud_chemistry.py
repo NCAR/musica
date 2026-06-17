@@ -539,9 +539,6 @@ class TestMiamToConfig:
 
 
 # ═══ Analytical Validation ═══════════════════════════════════════════════════
-#
-# These tests mirror the MIAM C++ reference tests (Step 3 and Step 4) and
-# verify the Python solver against analytical solutions.
 
 
 def _integrate(micm, state, target_time, dt_init=0.01):
@@ -570,9 +567,8 @@ def _get_conc(state, name):
 
 
 def _create_equilibrium_only_model():
-    """Create the CAM Cloud Chemistry model WITHOUT kinetic reactions.
+    """Create the CAM Cloud Chemistry model WITHOUT kinetic reactions (equilibrium constraints only).
 
-    Matches C++ reference Step 3: equilibrium constraints only.
     The mass_S constraint excludes SO4-- (which is differential and unchanged).
     """
     so2_g = mc.Species(name="SO2")
@@ -693,10 +689,9 @@ def _create_equilibrium_only_model():
 def _create_kinetics_model():
     """Create the CAM Cloud Chemistry model WITH kinetic reactions.
 
-    Matches C++ reference Step 4: equilibrium + revised 2-step H2O2
-    oxidation + ozone oxidation reactions.  The mass_S constraint
-    INCLUDES SO4-- and SO2OOH- since kinetics transfers sulfur between
-    S(IV) and S(VI) pools.
+    Includes equilibrium + revised 2-step H2O2 oxidation + ozone oxidation reactions.
+    The mass_S constraint INCLUDES SO4-- and SO2OOH- since kinetics transfers sulfur
+    between S(IV) and S(VI) pools.
     """
     so2_g = mc.Species(name="SO2")
     h2o2_g = mc.Species(name="H2O2")
@@ -858,7 +853,7 @@ def _create_kinetics_model():
 
 
 class TestEquilibriumValidation:
-    """Validate equilibrium-only solver against C++ Step 3 analytical solution.
+    """Validate equilibrium-only solver against analytical solutions.
 
     With no kinetic reactions, the system should reach thermodynamic
     equilibrium and satisfy all conservation laws exactly.
@@ -1004,7 +999,7 @@ class TestEquilibriumValidation:
 
 
 class TestKineticsValidation:
-    """Validate kinetics solver against C++ Step 4.
+    """Validate kinetics solver with S(IV)->S(VI) oxidation reactions.
 
     With 3 S(IV)->S(VI) oxidation reactions, total sulfur (including SO4)
     must be conserved while SO4 increases from oxidation.

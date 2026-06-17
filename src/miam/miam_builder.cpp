@@ -11,14 +11,6 @@
 #include <musica/utils/error_code.hpp>
 
 #include <miam/miam.hpp>
-#include <miam/constraints/dissolved_equilibrium_constraint_builder.hpp>
-#include <miam/constraints/henry_law_equilibrium_constraint_builder.hpp>
-#include <miam/constraints/linear_constraint_builder.hpp>
-#include <miam/processes/constants/equilibrium_constant.hpp>
-#include <miam/processes/constants/henry_law_constant.hpp>
-#include <miam/processes/dissolved_reaction_builder.hpp>
-#include <miam/processes/dissolved_reversible_reaction_builder.hpp>
-#include <miam/processes/henry_law_phase_transfer_builder.hpp>
 
 #include <micm/CPU.hpp>
 #include <micm/solver/backward_euler_solver_parameters.hpp>
