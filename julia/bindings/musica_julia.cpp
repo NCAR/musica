@@ -3,14 +3,15 @@
 
 #include "jlcxx/jlcxx.hpp"
 #include "jlcxx/stl.hpp"
-#include "musica/micm/cuda_availability.hpp"
-#include "musica/micm/micm.hpp"
-#include "musica/micm/micm_c_interface.hpp"
-#include "musica/micm/solver_parameters.hpp"
-#include "musica/micm/state.hpp"
-#include "musica/micm/state_c_interface.hpp"
-#include "musica/version.hpp"
+#include <musica/micm/cuda_availability.hpp>
+#include <musica/micm/micm.hpp>
+#include <musica/micm/micm_c_interface.hpp>
+#include <musica/micm/solver_parameters.hpp>
+#include <musica/micm/state.hpp>
+#include <musica/micm/state_c_interface.hpp>
+#include <musica/version.hpp>
 
+#include <micm/version.hpp>
 #include <micm/solver/solver_result.hpp>
 
 #include <algorithm>
@@ -46,7 +47,8 @@ namespace
 JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
 {
   // ── Version ──────────────────────────────────────────────────────────
-  mod.method("get_version", []() { return std::string(musica::GetMusicaVersion()); });
+  mod.method("get_musica_version", []() { return std::string(musica::GetMusicaVersion()); });
+  mod.method("get_micm_version", []() { return std::string(micm::GetMicmVersion()); });
 
   // ── MICMSolver enum constants ────────────────────────────────────────
   mod.set_const("SOLVER_ROSENBROCK", static_cast<int>(musica::MICMSolver::Rosenbrock));
@@ -403,6 +405,39 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
         for (const auto& [_, idx] : entries)
           indices.push_back(static_cast<int64_t>(idx));
         return indices;
+      });
+
+  // ── Species properties ──────────────────────────────────────────────
+  mod.method(
+      "cpp_get_species_property_double",
+      [](musica::MICM* micm, const std::string& species_name, const std::string& property_name)
+      {
+        check_micm_not_null(micm);
+        return micm->GetSpeciesProperty<double>(species_name, property_name);
+      });
+
+  mod.method(
+      "cpp_get_species_property_int",
+      [](musica::MICM* micm, const std::string& species_name, const std::string& property_name)
+      {
+        check_micm_not_null(micm);
+        return static_cast<int64_t>(micm->GetSpeciesProperty<int>(species_name, property_name));
+      });
+
+  mod.method(
+      "cpp_get_species_property_bool",
+      [](musica::MICM* micm, const std::string& species_name, const std::string& property_name)
+      {
+        check_micm_not_null(micm);
+        return micm->GetSpeciesProperty<bool>(species_name, property_name);
+      });
+
+  mod.method(
+      "cpp_get_species_property_string",
+      [](musica::MICM* micm, const std::string& species_name, const std::string& property_name)
+      {
+        check_micm_not_null(micm);
+        return micm->GetSpeciesProperty<std::string>(species_name, property_name);
       });
 
   // ── Solver parameters ───────────────────────────────────────────────

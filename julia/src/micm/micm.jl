@@ -72,6 +72,78 @@ function solve!(micm::MICM, state::State, time_step::Real)
 end
 
 """
+    get_species_property(micm::MICM, species_name, property_name, ::Type{T})
+
+Get a property of a chemical species, returned as type `T`.
+
+`T` selects which property kind to read and the return type:
+`Float64`, `Int`, `Bool`, or `String`.
+
+# Examples
+```julia
+mw   = get_species_property(micm, "O3", "molecular weight [kg mol-1]", Float64)
+name = get_species_property(micm, "O3", "__long name", String)
+gas  = get_species_property(micm, "O3", "__is gas", Bool)
+n    = get_species_property(micm, "O3", "__atoms", Int)
+```
+"""
+function get_species_property(
+    micm::MICM,
+    species_name::AbstractString,
+    property_name::AbstractString,
+    ::Type{Float64},
+)
+    return cpp_get_species_property_double(
+        micm._ptr,
+        String(species_name),
+        String(property_name),
+    )
+end
+
+function get_species_property(
+    micm::MICM,
+    species_name::AbstractString,
+    property_name::AbstractString,
+    ::Type{Int},
+)
+    return Int(
+        cpp_get_species_property_int(
+            micm._ptr,
+            String(species_name),
+            String(property_name),
+        ),
+    )
+end
+
+function get_species_property(
+    micm::MICM,
+    species_name::AbstractString,
+    property_name::AbstractString,
+    ::Type{Bool},
+)
+    return cpp_get_species_property_bool(
+        micm._ptr,
+        String(species_name),
+        String(property_name),
+    )
+end
+
+function get_species_property(
+    micm::MICM,
+    species_name::AbstractString,
+    property_name::AbstractString,
+    ::Type{String},
+)
+    return String(
+        cpp_get_species_property_string(
+            micm._ptr,
+            String(species_name),
+            String(property_name),
+        ),
+    )
+end
+
+"""
     set_solver_parameters!(micm::MICM, params::RosenbrockSolverParameters)
     set_solver_parameters!(micm::MICM, params::BackwardEulerSolverParameters)
 

@@ -32,7 +32,8 @@ include("micm/state.jl")
 include("micm/micm.jl")
 
 # Version
-export get_version
+export get_musica_version
+export get_micm_version
 
 # Constants
 export AVOGADRO, BOLTZMANN, GAS_CONSTANT
@@ -64,6 +65,7 @@ export set_conditions!, get_conditions
 export set_user_defined_rate_parameters!, get_user_defined_rate_parameters
 export get_species_ordering, get_user_defined_rate_parameters_ordering
 export set_solver_parameters!, get_solver_parameters
+export get_species_property
 export solver_type
 
 end # module Musica

@@ -3,12 +3,17 @@ using Musica
 
 @testset "Musica.jl Tests" begin
     @testset "Version" begin
-        version = Musica.get_version()
-        @test version isa AbstractString
-        @test !isempty(version)
+        musica_version = Musica.get_musica_version()
+        micm_version = Musica.get_micm_version()
+        @test musica_version isa AbstractString
+        @test micm_version isa AbstractString
+        @test !isempty(musica_version)
+        @test !isempty(micm_version)
         # Test version format (semantic versioning: X.Y.Z or X.Y.Z.W)
-        @test occursin(r"^\d+\.\d+\.\d+", version)
-        println("MUSICA version: ", version)
+        @test occursin(r"^\d+\.\d+\.\d+", musica_version)
+        @test occursin(r"^\d+\.\d+\.\d+", micm_version)
+        println("MUSICA version: ", musica_version)
+        println("MICM version: ", micm_version)
     end
 
     @testset "CUDA availability" begin
@@ -308,5 +313,21 @@ using Musica
         retrieved = get_solver_parameters(micm)
         @test retrieved.relative_tolerance ≈ 1e-4
         @test retrieved.max_number_of_steps == 20
+    end
+
+    @testset "Species properties" begin
+        # Mirrors the C++ GetSpeciesProperty test (src/test/unit/micm/micm_c_api.cpp),
+        # using the v1 chapman example mechanism. O3 defines one property per type.
+        v1_config_path = joinpath(@__DIR__, "..", "..", "configs", "v1", "chapman", "config.json")
+        micm = MICM(config_path = v1_config_path)
+
+        @test get_species_property(micm, "O3", "__long name", String) == "ozone"
+        @test get_species_property(micm, "O3", "molecular weight [kg mol-1]", Float64) ≈ 0.048
+        @test get_species_property(micm, "O3", "__atoms", Int) == 3
+        @test get_species_property(micm, "O3", "__do advect", Bool) == true
+
+        # Unknown species and unknown property should raise.
+        @test_throws Exception get_species_property(micm, "bad species", "__atoms", Int)
+        @test_throws Exception get_species_property(micm, "O3", "bad property", Float64)
     end
 end
