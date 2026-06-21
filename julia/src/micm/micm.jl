@@ -8,9 +8,13 @@ Wrapper around the C++ MICM chemical kinetics solver.
 
 # Constructor
 
-    MICM(; config_path, solver_type=RosenbrockStandardOrder, solver_parameters=nothing)
+    MICM(; config_path=nothing, config_string=nothing,
+           solver_type=RosenbrockStandardOrder, solver_parameters=nothing)
 
-- `config_path::String`: Path to configuration file or directory
+Provide exactly one of `config_path` or `config_string`.
+
+- `config_path::String`: Path to a configuration file or directory
+- `config_string::String`: A JSON or YAML string holding a valid mechanism configuration
 - `solver_type::SolverType`: Type of solver to use
 - `solver_parameters`: Optional `RosenbrockSolverParameters` or `BackwardEulerSolverParameters`
 """
@@ -20,7 +24,8 @@ mutable struct MICM
     _vector_size::Int
 
     function MICM(;
-        config_path::String,
+        config_path::Union{AbstractString,Nothing} = nothing,
+        config_string::Union{AbstractString,Nothing} = nothing,
         solver_type::SolverType = RosenbrockStandardOrder,
         solver_parameters::Union{
             RosenbrockSolverParameters,
@@ -28,10 +33,18 @@ mutable struct MICM
             Nothing,
         } = nothing,
     )
+        if (config_path === nothing) == (config_string === nothing)
+            error("Provide exactly one of `config_path` or `config_string`")
+        end
+
         vs = Int(cpp_get_vector_size(Int(solver_type)))
         vs > 0 || error("Invalid vector size: $vs")
 
-        ptr = cpp_create_solver(config_path, Int(solver_type))
+        ptr = if config_path !== nothing
+            cpp_create_solver(String(config_path), Int(solver_type))
+        else
+            cpp_create_solver_from_string(String(config_string), Int(solver_type))
+        end
 
         obj = new(ptr, solver_type, vs)
         finalizer(obj) do m

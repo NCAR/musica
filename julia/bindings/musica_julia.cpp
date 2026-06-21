@@ -170,6 +170,24 @@ JLCXX_MODULE define_julia_module(jlcxx::Module& mod)
       });
 
   mod.method(
+      "cpp_create_solver_from_string",
+      [](const std::string& config_string, int solver_type)
+      {
+        musica::Error error;
+        musica::MICM* micm =
+            musica::CreateMicmFromConfigString(config_string.c_str(), static_cast<musica::MICMSolver>(solver_type), &error);
+        if (!musica::IsSuccess(error))
+        {
+          std::string msg = "Error creating solver: " + std::string(error.message_.value_);
+          musica::DeleteError(&error);
+          throw std::runtime_error(msg);
+        }
+        if (!micm)
+          throw std::runtime_error("Solver creation returned null pointer");
+        return micm;
+      });
+
+  mod.method(
       "cpp_delete_solver",
       [](musica::MICM* micm)
       {
