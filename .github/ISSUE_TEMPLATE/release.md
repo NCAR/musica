@@ -67,8 +67,14 @@ Julia provides binaries by packaging them into JLLs via [Yggdrasil](https://gith
 
 ### Musica.jl
 
-- [ ] Go to the most recent commit on `main` and comment:
-  ```
-  @JuliaRegistrator register subdir=julia
-  ```
+- [ ] **After Musica_jll.jl has completed publishing**, update `julia/Project.toml` (do **not** change any `uuid` because UUIDs are permanent package identifiers):
+  - [ ] Bump the top-level `version` (Musica.jl's own version). This must be increased past the last registered version or JuliaRegistrator will reject the registration. It is **not** auto-synced from `CMakeLists.txt`.
+  - [ ] Update the `[compat]` bound for `Musica_jll` to the newly released version (e.g. `Musica_jll = "0.15"`).
+  - [ ] Merge these changes into `main` before registering.
+- [ ] Go to the most recent commit on `main` and post a **new comment** containing the registration command below.
+
+  > The `@` is intentionally HTML-escaped (`&#64;`) so that simply **opening this release issue does not trigger the bot**. GitHub renders it as a normal `@`, so copy the rendered line into a fresh comment on the most recent commit of main
+
+  &#64;JuliaRegistrator register subdir=julia
+
   This will automatically open a PR into the Julia General Registry
