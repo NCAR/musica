@@ -16,6 +16,18 @@ using Musica
         println("MICM version: ", micm_version)
     end
 
+    if Musica.tuvx_available()
+        @testset "TUV-x version" begin
+            tuvx_version = Musica.get_tuvx_version()
+            @test tuvx_version isa AbstractString
+            @test !isempty(tuvx_version)
+            @test occursin(r"^\d+\.\d+\.\d+", tuvx_version)
+            println("TUV-x version: ", tuvx_version)
+        end
+    else
+        @info "TUV-x not enabled in this build; skipping TUV-x tests"
+    end
+
     @testset "CUDA availability" begin
         @test Musica.cpp_is_cuda_available() isa Bool
     end

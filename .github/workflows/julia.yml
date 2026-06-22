@@ -29,15 +29,29 @@ jobs:
         with:
           version: ${{ matrix.julia-version }}
 
+      # TUV-x is a Fortran library and needs NetCDF + a Fortran compiler.
+      - name: Install TUV-x dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y liblapack-dev libblas-dev libnetcdf-dev libnetcdff-dev gfortran
+
+      - name: Install TUV-x dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: brew install netcdf netcdf-fortran
+
       - name: Configure MUSICA with Julia support
         run: |
+          # On macOS the Fortran compiler must match the gcc that Homebrew's
+          # netcdf-fortran bottle was built with (currently 15) to read its .mod.
+          if [ "$RUNNER_OS" = "macOS" ]; then export FC=gfortran-15; fi
           JLCXX_PREFIX=$(julia -e 'import Pkg; Pkg.add("CxxWrap"); using CxxWrap; print(CxxWrap.prefix_path())')
           cmake -S . -B build \
                 -D CMAKE_PREFIX_PATH=$JLCXX_PREFIX \
                 -D CMAKE_BUILD_TYPE=Release \
                 -D MUSICA_ENABLE_JULIA=ON \
                 -D MUSICA_ENABLE_MICM=ON \
-                -D MUSICA_ENABLE_TUVX=OFF \
+                -D MUSICA_ENABLE_TUVX=ON \
                 -D MUSICA_ENABLE_CARMA=OFF \
                 -D MUSICA_ENABLE_TESTS=OFF \
                 -D MUSICA_BUILD_SHARED_LIBS=ON \

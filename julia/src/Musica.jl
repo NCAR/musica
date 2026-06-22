@@ -34,6 +34,18 @@ include("micm/micm.jl")
 # Version
 export get_musica_version
 export get_micm_version
+export get_tuvx_version
+
+"""
+    tuvx_available() -> Bool
+
+Whether the bindings were built with TUV-x support. TUV-x is an optional Fortran
+component, so its functions (e.g. [`get_tuvx_version`](@ref)) are only defined
+when this returns `true`. Mirrors `musica.tuvx` availability in the Python
+interface.
+"""
+tuvx_available() = isdefined(@__MODULE__, :get_tuvx_version)
+export tuvx_available
 
 # Constants
 export AVOGADRO, BOLTZMANN, GAS_CONSTANT
