@@ -1,7 +1,16 @@
-# Create the Julia wrapper library
+# Create the Julia wrapper library. Each component lives in its own translation
+# unit and registers itself with the module (see bindings/registration.hpp), so
+# a component is included simply by compiling its source — no preprocessor guards.
 add_library(musica_julia SHARED
   bindings/musica_julia.cpp
+  bindings/micm.cpp
 )
+
+# TUV-x bindings are only compiled when TUV-x is enabled (they call into the
+# TUV-x Fortran library). Mirrors how the Python bindings add their sources.
+if(MUSICA_ENABLE_TUVX)
+  target_sources(musica_julia PRIVATE bindings/tuvx.cpp)
+endif()
 
 target_compile_features(musica_julia PUBLIC cxx_std_20)
 

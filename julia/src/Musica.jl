@@ -33,6 +33,7 @@ include("micm/micm.jl")
 
 # Version
 export get_version
+export get_tuvx_version
 
 # Constants
 export AVOGADRO, BOLTZMANN, GAS_CONSTANT
