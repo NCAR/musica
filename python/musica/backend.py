@@ -57,3 +57,9 @@ def carma_available():
     """Check if the CARMA backend is available."""
     _backend = get_backend()
     return hasattr(_backend._carma, "_get_carma_version")
+
+
+def miam_available():
+    """Check if the MIAM backend is available."""
+    _backend = get_backend()
+    return hasattr(_backend._miam, "_get_miam_version")

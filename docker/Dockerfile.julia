@@ -1,6 +1,6 @@
 FROM julia:1.11 AS julia-base
 
-FROM fedora:latest
+FROM fedora:41
 
 ARG BUILD_TYPE=Release
 

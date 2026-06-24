@@ -4,8 +4,10 @@ _codeql_detected_source_root
 # cmake and build stuff
 python_build/
 build/
+build-miam/
 build-wasm/
 build-addon/
+build_test/
 install/
 CMakeCache.txt
 CMakeFiles
@@ -43,4 +45,4 @@ julia/Manifest.toml
 julia/deps/lib/
 
 .claude
-build_test/
+

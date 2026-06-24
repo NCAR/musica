@@ -26,6 +26,10 @@ Note: Binder uses the latest commit on ``main``, not necessarily the latest rele
 10. `Chapman cycle box model <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/10.%20chapman.ipynb>`_
 11. `TS1 box model <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/11.%20ts1_box_model.ipynb>`_
 12. `multiple mechanisms in the same host application <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/12.%20multiple_mechanisms.ipynb>`_
+13. `TUV-x subset photolysis <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/13.%20tuv-x_subset_photolysis.ipynb>`_
+14. `DAE solving introduction <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/14.%20dae_solving_intro.ipynb>`_
+15. `MIAM processes and constraints <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/15.%20miam_processes_and_constraints.ipynb>`_
+16. `CAM cloud chemistry <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/16.%20cam_cloud_chemistry.ipynb>`_
 
 Download (GitHub)
 ------------------
@@ -43,6 +47,10 @@ Download (GitHub)
 10. `Chapman cycle box model notebook <https://github.com/NCAR/musica/blob/main/tutorials/10.%20chapman.ipynb>`_
 11. `TS1 box model notebook <https://github.com/NCAR/musica/blob/main/tutorials/11.%20ts1_box_model.ipynb>`_
 12. `multiple mechanisms notebook <https://github.com/NCAR/musica/blob/main/tutorials/12.%20multiple_mechanisms.ipynb>`_
+13. `TUV-x subset photolysis notebook <https://github.com/NCAR/musica/blob/main/tutorials/13.%20tuv-x_subset_photolysis.ipynb>`_
+14. `DAE solving introduction notebook <https://github.com/NCAR/musica/blob/main/tutorials/14.%20dae_solving_intro.ipynb>`_
+15. `MIAM processes and constraints notebook <https://github.com/NCAR/musica/blob/main/tutorials/15.%20miam_processes_and_constraints.ipynb>`_
+16. `CAM cloud chemistry notebook <https://github.com/NCAR/musica/blob/main/tutorials/16.%20cam_cloud_chemistry.ipynb>`_
 
 Browse Online
 --------------
@@ -63,3 +71,7 @@ Browse Online
    10. Chapman Cycle Box Model <10. chapman>
    11. TS1 Box Model <11. ts1_box_model>
    12. Multiple Mechanisms <12. multiple_mechanisms>
+   13. TUV-x Subset Photolysis <13. tuv-x_subset_photolysis>
+   14. DAE Solving Introduction <14. dae_solving_intro>
+   15. MIAM Processes and Constraints <15. miam_processes_and_constraints>
+   16. CAM Cloud Chemistry <16. cam_cloud_chemistry>
