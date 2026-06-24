@@ -926,7 +926,7 @@ class TestEquilibriumValidation:
     def test_henrys_law_so2(self, solved_state):
         """SO2_aq / SO2_g = alpha_SO2 (Henry's Law equilibrium)."""
         T = T_INIT
-        hlc_T = (1.23 * M_ATM_TO_MOL_M3_PA) * math.exp(3120.0 * (1.0/T - 1.0/T0))
+        hlc_T = (1.23 * M_ATM_TO_MOL_M3_PA) * math.exp(3120.0 * (1.0 / T - 1.0 / T0))
         f_liq = C_H2O * MW_H2O / RHO_H2O
         alpha = hlc_T * R_GAS * T * f_liq
         g = _get_conc(solved_state, "SO2")
@@ -937,7 +937,7 @@ class TestEquilibriumValidation:
     def test_henrys_law_h2o2(self, solved_state):
         """H2O2_aq / H2O2_g = alpha_H2O2."""
         T = T_INIT
-        hlc_T = (7.4e4 * M_ATM_TO_MOL_M3_PA) * math.exp(6621.0 * (1.0/T - 1.0/T0))
+        hlc_T = (7.4e4 * M_ATM_TO_MOL_M3_PA) * math.exp(6621.0 * (1.0 / T - 1.0 / T0))
         f_liq = C_H2O * MW_H2O / RHO_H2O
         alpha = hlc_T * R_GAS * T * f_liq
         g = _get_conc(solved_state, "H2O2")
@@ -948,7 +948,7 @@ class TestEquilibriumValidation:
     def test_henrys_law_o3(self, solved_state):
         """O3_aq / O3_g = alpha_O3."""
         T = T_INIT
-        hlc_T = (1.15e-2 * M_ATM_TO_MOL_M3_PA) * math.exp(2560.0 * (1.0/T - 1.0/T0))
+        hlc_T = (1.15e-2 * M_ATM_TO_MOL_M3_PA) * math.exp(2560.0 * (1.0 / T - 1.0 / T0))
         f_liq = C_H2O * MW_H2O / RHO_H2O
         alpha = hlc_T * R_GAS * T * f_liq
         g = _get_conc(solved_state, "O3")
@@ -959,7 +959,7 @@ class TestEquilibriumValidation:
     def test_dissociation_ka1(self, solved_state):
         """Ka1: [HSO3-][H+] / ([SO2_aq][H2O]) = Ka1_T."""
         T = T_INIT
-        Ka1_T = (1.7e-2 / C_H2O_M) * math.exp(2090.0 * (1.0/T0 - 1.0/T))
+        Ka1_T = (1.7e-2 / C_H2O_M) * math.exp(2090.0 * (1.0 / T0 - 1.0 / T))
         so2_aq = _get_conc(solved_state, "CLOUD.AQUEOUS.SO2_aq")
         hs = _get_conc(solved_state, "CLOUD.AQUEOUS.HSO3m")
         hp = _get_conc(solved_state, "CLOUD.AQUEOUS.Hp")
@@ -971,7 +971,7 @@ class TestEquilibriumValidation:
     def test_dissociation_ka2(self, solved_state):
         """Ka2: [SO3--][H+] / ([HSO3-][H2O]) = Ka2_T."""
         T = T_INIT
-        Ka2_T = (6.0e-8 / C_H2O_M) * math.exp(1120.0 * (1.0/T0 - 1.0/T))
+        Ka2_T = (6.0e-8 / C_H2O_M) * math.exp(1120.0 * (1.0 / T0 - 1.0 / T))
         hs = _get_conc(solved_state, "CLOUD.AQUEOUS.HSO3m")
         sm = _get_conc(solved_state, "CLOUD.AQUEOUS.SO3mm")
         hp = _get_conc(solved_state, "CLOUD.AQUEOUS.Hp")

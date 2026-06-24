@@ -12,10 +12,9 @@
 #include <musica/micm/micm_c_interface.hpp>
 #include <musica/micm/parse.hpp>
 
-#include <miam/version.hpp>
-
 #include <mechanism_configuration/v1/types.hpp>
 
+#include <miam/version.hpp>
 #include <pybind11/functional.h>
 #include <pybind11/stl.h>
 
@@ -28,9 +27,7 @@ void bind_miam(py::module_& miam)
   // ── Version ───────────────────────────────────────────────────────
 
   miam.def(
-      "_get_miam_version",
-      []() { return std::string(miam::GetMiamVersion()); },
-      "Get the version of the MIAM instance");
+      "_get_miam_version", []() { return std::string(miam::GetMiamVersion()); }, "Get the version of the MIAM instance");
 
   // ── Constants ─────────────────────────────────────────────────────
 
@@ -53,11 +50,8 @@ void bind_miam(py::module_& miam)
 
   py::class_<mc::SpeciesDef>(miam, "_SpeciesDef")
       .def(
-          py::init(
-              [](const std::string& name, std::optional<double> molecular_weight, std::optional<double> density)
-              {
-                return mc::SpeciesDef{ name, molecular_weight, density };
-              }),
+          py::init([](const std::string& name, std::optional<double> molecular_weight, std::optional<double> density)
+                   { return mc::SpeciesDef{ name, molecular_weight, density }; }),
           py::arg("name"),
           py::arg("molecular_weight") = py::none(),
           py::arg("density") = py::none())
@@ -125,7 +119,8 @@ void bind_miam(py::module_& miam)
                   rc = rate_constant.cast<mc::ArrheniusRateConstant>();
                 else
                   rc = rate_constant.cast<std::function<double(double)>>();
-                return mc::DissolvedReaction{ representation_name, phase_name, reactant_names, product_names, solvent_name, std::move(rc), solvent_floor, min_halflife };
+                return mc::DissolvedReaction{ representation_name, phase_name,    reactant_names, product_names,
+                                              solvent_name,        std::move(rc), solvent_floor,  min_halflife };
               }),
           py::arg("representation_name"),
           py::arg("phase_name"),
@@ -233,7 +228,14 @@ void bind_miam(py::module_& miam)
 
   py::class_<mc::DissolvedEquilibriumConstraint>(miam, "_DissolvedEquilibriumConstraint")
       .def(
-          py::init<std::string, std::vector<std::string>, std::vector<std::string>, std::string, std::string, mc::EquilibriumConstant, double>(),
+          py::init<
+              std::string,
+              std::vector<std::string>,
+              std::vector<std::string>,
+              std::string,
+              std::string,
+              mc::EquilibriumConstant,
+              double>(),
           py::arg("phase_name"),
           py::arg("reactant_names"),
           py::arg("product_names"),

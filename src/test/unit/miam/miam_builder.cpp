@@ -57,9 +57,9 @@ namespace
     v1::Phase gas_phase;
     gas_phase.name = "gas";
     gas_phase.species = {
-        v1::PhaseSpecies{ .name = "SO2" },
-        v1::PhaseSpecies{ .name = "H2O2" },
-        v1::PhaseSpecies{ .name = "O3" },
+      v1::PhaseSpecies{ .name = "SO2" },
+      v1::PhaseSpecies{ .name = "H2O2" },
+      v1::PhaseSpecies{ .name = "O3" },
     };
     mech.phases.push_back(gas_phase);
 
@@ -74,18 +74,13 @@ namespace
 
     // Species
     config.species = {
-      { "SO2", {}, {} },
-      { "H2O2", {}, {} },
-      { "O3", {}, {} },
-      { "SO2_aq", {}, {} },
-      { "H2O2_aq", {}, {} },
-      { "O3_aq", {}, {} },
-      { "Hp", {}, {} },        // H+
-      { "OHm", {}, {} },       // OH-
-      { "HSO3m", {}, {} },     // HSO3-
-      { "SO3mm", {}, {} },     // SO3--
-      { "SO4mm", {}, {} },     // SO4--
-      { "SO2OOHm", {}, {} },   // SO2OOH- (peroxymonosulfurous acid anion)
+      { "SO2", {}, {} },          { "H2O2", {}, {} },  { "O3", {}, {} }, { "SO2_aq", {}, {} },
+      { "H2O2_aq", {}, {} },      { "O3_aq", {}, {} }, { "Hp", {}, {} },  // H+
+      { "OHm", {}, {} },                                                  // OH-
+      { "HSO3m", {}, {} },                                                // HSO3-
+      { "SO3mm", {}, {} },                                                // SO3--
+      { "SO4mm", {}, {} },                                                // SO4--
+      { "SO2OOHm", {}, {} },                                              // SO2OOH- (peroxymonosulfurous acid anion)
       { "H2O", MW_H2O, RHO_H2O },
     };
 
@@ -144,48 +139,27 @@ namespace
 
     // Henry's Law equilibrium for SO2
     config.constraints.push_back(mc::HenryLawEquilibriumConstraint{
-        "SO2", "SO2_aq", "H2O", "AQUEOUS",
-        { 1.23 * M_ATM_TO_MOL_M3_PA, 3120.0 },
-        MW_H2O, RHO_H2O });
+        "SO2", "SO2_aq", "H2O", "AQUEOUS", { 1.23 * M_ATM_TO_MOL_M3_PA, 3120.0 }, MW_H2O, RHO_H2O });
 
     // Henry's Law equilibrium for H2O2
     config.constraints.push_back(mc::HenryLawEquilibriumConstraint{
-        "H2O2", "H2O2_aq", "H2O", "AQUEOUS",
-        { 7.4e4 * M_ATM_TO_MOL_M3_PA, 6621.0 },
-        MW_H2O, RHO_H2O });
+        "H2O2", "H2O2_aq", "H2O", "AQUEOUS", { 7.4e4 * M_ATM_TO_MOL_M3_PA, 6621.0 }, MW_H2O, RHO_H2O });
 
     // Henry's Law equilibrium for O3
     config.constraints.push_back(mc::HenryLawEquilibriumConstraint{
-        "O3", "O3_aq", "H2O", "AQUEOUS",
-        { 1.15e-2 * M_ATM_TO_MOL_M3_PA, 2560.0 },
-        MW_H2O, RHO_H2O });
+        "O3", "O3_aq", "H2O", "AQUEOUS", { 1.15e-2 * M_ATM_TO_MOL_M3_PA, 2560.0 }, MW_H2O, RHO_H2O });
 
     // Dissolved equilibrium: Kw  (H2O ⇌ H+ + OH-)
     config.constraints.push_back(mc::DissolvedEquilibriumConstraint{
-        "AQUEOUS",
-        { "H2O" },
-        { "Hp", "OHm" },
-        "OHm",
-        "H2O",
-        { 1e-14 / (c_H2O_M * c_H2O_M), 0.0 } });
+        "AQUEOUS", { "H2O" }, { "Hp", "OHm" }, "OHm", "H2O", { 1e-14 / (c_H2O_M * c_H2O_M), 0.0 } });
 
     // Dissolved equilibrium: Ka1  (SO2_aq ⇌ HSO3- + H+)
     config.constraints.push_back(mc::DissolvedEquilibriumConstraint{
-        "AQUEOUS",
-        { "SO2_aq" },
-        { "HSO3m", "Hp" },
-        "HSO3m",
-        "H2O",
-        { 1.7e-2 / c_H2O_M, 2090.0 } });
+        "AQUEOUS", { "SO2_aq" }, { "HSO3m", "Hp" }, "HSO3m", "H2O", { 1.7e-2 / c_H2O_M, 2090.0 } });
 
     // Dissolved equilibrium: Ka2  (HSO3- ⇌ SO3-- + H+)
     config.constraints.push_back(mc::DissolvedEquilibriumConstraint{
-        "AQUEOUS",
-        { "HSO3m" },
-        { "SO3mm", "Hp" },
-        "SO3mm",
-        "H2O",
-        { 6.0e-8 / c_H2O_M, 1120.0 } });
+        "AQUEOUS", { "HSO3m" }, { "SO3mm", "Hp" }, "SO3mm", "H2O", { 6.0e-8 / c_H2O_M, 1120.0 } });
 
     // Linear constraints for mass conservation and charge balance
 
@@ -195,12 +169,8 @@ namespace
     mass_s.algebraic_phase_name = "gas";
     mass_s.algebraic_species_name = "SO2";
     mass_s.terms = {
-        { "gas", "SO2", 1.0 },
-        { "AQUEOUS", "SO2_aq", 1.0 },
-        { "AQUEOUS", "HSO3m", 1.0 },
-        { "AQUEOUS", "SO3mm", 1.0 },
-        { "AQUEOUS", "SO4mm", 1.0 },
-        { "AQUEOUS", "SO2OOHm", 1.0 },
+      { "gas", "SO2", 1.0 },       { "AQUEOUS", "SO2_aq", 1.0 }, { "AQUEOUS", "HSO3m", 1.0 },
+      { "AQUEOUS", "SO3mm", 1.0 }, { "AQUEOUS", "SO4mm", 1.0 },  { "AQUEOUS", "SO2OOHm", 1.0 },
     };
     mass_s.diagnose_from_state = true;
     config.constraints.push_back(mass_s);
@@ -210,8 +180,8 @@ namespace
     mass_h2o2.algebraic_phase_name = "gas";
     mass_h2o2.algebraic_species_name = "H2O2";
     mass_h2o2.terms = {
-        { "gas", "H2O2", 1.0 },
-        { "AQUEOUS", "H2O2_aq", 1.0 },
+      { "gas", "H2O2", 1.0 },
+      { "AQUEOUS", "H2O2_aq", 1.0 },
     };
     mass_h2o2.diagnose_from_state = true;
     config.constraints.push_back(mass_h2o2);
@@ -221,8 +191,8 @@ namespace
     mass_o3.algebraic_phase_name = "gas";
     mass_o3.algebraic_species_name = "O3";
     mass_o3.terms = {
-        { "gas", "O3", 1.0 },
-        { "AQUEOUS", "O3_aq", 1.0 },
+      { "gas", "O3", 1.0 },
+      { "AQUEOUS", "O3_aq", 1.0 },
     };
     mass_o3.diagnose_from_state = true;
     config.constraints.push_back(mass_o3);
@@ -232,12 +202,8 @@ namespace
     charge.algebraic_phase_name = "AQUEOUS";
     charge.algebraic_species_name = "Hp";
     charge.terms = {
-        { "AQUEOUS", "Hp", 1.0 },
-        { "AQUEOUS", "OHm", -1.0 },
-        { "AQUEOUS", "HSO3m", -1.0 },
-        { "AQUEOUS", "SO3mm", -2.0 },
-        { "AQUEOUS", "SO4mm", -2.0 },
-        { "AQUEOUS", "SO2OOHm", -1.0 },
+      { "AQUEOUS", "Hp", 1.0 },     { "AQUEOUS", "OHm", -1.0 },   { "AQUEOUS", "HSO3m", -1.0 },
+      { "AQUEOUS", "SO3mm", -2.0 }, { "AQUEOUS", "SO4mm", -2.0 }, { "AQUEOUS", "SO2OOHm", -1.0 },
     };
     charge.constant = 0.0;
     config.constraints.push_back(charge);
@@ -391,8 +357,7 @@ TEST(MiamBuilder, EmptyProcessesAndConstraints)
   config.representations = { mc::UniformSection{ "CLOUD", { "AQUEOUS" }, 1e-6, 1e-5 } };
 
   musica::Error error;
-  musica::MICM* micm =
-      musica::CreateMicmWithMiam(chemistry, musica::MICMSolver::RosenbrockStandardOrder, config, &error);
+  musica::MICM* micm = musica::CreateMicmWithMiam(chemistry, musica::MICMSolver::RosenbrockStandardOrder, config, &error);
 
   ASSERT_TRUE(musica::IsSuccess(error)) << "Error: " << (error.message_.value_ ? error.message_.value_ : "null");
   ASSERT_NE(micm, nullptr);
@@ -416,8 +381,7 @@ TEST(MiamBuilder, SingleMomentModeRepresentation)
   config.representations = { mc::SingleMomentMode{ "AEROSOL", { "AQUEOUS" }, 1e-7, 1.5 } };
 
   musica::Error error;
-  musica::MICM* micm =
-      musica::CreateMicmWithMiam(chemistry, musica::MICMSolver::RosenbrockStandardOrder, config, &error);
+  musica::MICM* micm = musica::CreateMicmWithMiam(chemistry, musica::MICMSolver::RosenbrockStandardOrder, config, &error);
 
   ASSERT_TRUE(musica::IsSuccess(error)) << "Error: " << (error.message_.value_ ? error.message_.value_ : "null");
   ASSERT_NE(micm, nullptr);
@@ -441,8 +405,7 @@ TEST(MiamBuilder, TwoMomentModeRepresentation)
   config.representations = { mc::TwoMomentMode{ "AEROSOL", { "AQUEOUS" }, 1.5 } };
 
   musica::Error error;
-  musica::MICM* micm =
-      musica::CreateMicmWithMiam(chemistry, musica::MICMSolver::RosenbrockStandardOrder, config, &error);
+  musica::MICM* micm = musica::CreateMicmWithMiam(chemistry, musica::MICMSolver::RosenbrockStandardOrder, config, &error);
 
   ASSERT_TRUE(musica::IsSuccess(error)) << "Error: " << (error.message_.value_ ? error.message_.value_ : "null");
   ASSERT_NE(micm, nullptr);
@@ -458,11 +421,8 @@ TEST(MiamBuilder, HenryLawPhaseTransferProcess)
   mc::ModelConfig config;
   config.name = "henry_transfer";
   config.species = {
-    { "SO2", 0.064, 1.46 },   // MW + density needed for phase transfer
-    { "H2O2", {}, {} },
-    { "O3", {}, {} },
-    { "H2O", MW_H2O, RHO_H2O },
-    { "SO2_aq", 0.064, 1.46 },
+    { "SO2", 0.064, 1.46 },  // MW + density needed for phase transfer
+    { "H2O2", {}, {} },     { "O3", {}, {} }, { "H2O", MW_H2O, RHO_H2O }, { "SO2_aq", 0.064, 1.46 },
   };
   config.condensed_phases = { { "AQUEOUS", { "H2O", "SO2_aq" } } };
   config.representations = { mc::UniformSection{ "CLOUD", { "AQUEOUS" }, 1e-6, 1e-5 } };
@@ -479,8 +439,7 @@ TEST(MiamBuilder, HenryLawPhaseTransferProcess)
   config.processes = { transfer };
 
   musica::Error error;
-  musica::MICM* micm =
-      musica::CreateMicmWithMiam(chemistry, musica::MICMSolver::RosenbrockStandardOrder, config, &error);
+  musica::MICM* micm = musica::CreateMicmWithMiam(chemistry, musica::MICMSolver::RosenbrockStandardOrder, config, &error);
 
   ASSERT_TRUE(musica::IsSuccess(error)) << "Error: " << (error.message_.value_ ? error.message_.value_ : "null");
   ASSERT_NE(micm, nullptr);
@@ -496,13 +455,8 @@ TEST(MiamBuilder, DissolvedReversibleReactionProcess)
   mc::ModelConfig config;
   config.name = "reversible";
   config.species = {
-    { "SO2", {}, {} },
-    { "H2O2", {}, {} },
-    { "O3", {}, {} },
-    { "H2O", MW_H2O, RHO_H2O },
-    { "SO2_aq", {}, {} },
-    { "HSO3m", {}, {} },
-    { "Hp", {}, {} },
+    { "SO2", {}, {} },    { "H2O2", {}, {} },  { "O3", {}, {} }, { "H2O", MW_H2O, RHO_H2O },
+    { "SO2_aq", {}, {} }, { "HSO3m", {}, {} }, { "Hp", {}, {} },
   };
   config.condensed_phases = { { "AQUEOUS", { "H2O", "SO2_aq", "HSO3m", "Hp" } } };
   config.representations = { mc::UniformSection{ "CLOUD", { "AQUEOUS" }, 1e-6, 1e-5 } };
@@ -518,8 +472,7 @@ TEST(MiamBuilder, DissolvedReversibleReactionProcess)
   config.processes = { rxn };
 
   musica::Error error;
-  musica::MICM* micm =
-      musica::CreateMicmWithMiam(chemistry, musica::MICMSolver::RosenbrockStandardOrder, config, &error);
+  musica::MICM* micm = musica::CreateMicmWithMiam(chemistry, musica::MICMSolver::RosenbrockStandardOrder, config, &error);
 
   ASSERT_TRUE(musica::IsSuccess(error)) << "Error: " << (error.message_.value_ ? error.message_.value_ : "null");
   ASSERT_NE(micm, nullptr);

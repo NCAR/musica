@@ -10,11 +10,11 @@
 #include <musica/micm/micm.hpp>
 #include <musica/utils/error_code.hpp>
 
-#include <miam/miam.hpp>
-
 #include <micm/CPU.hpp>
 #include <micm/solver/backward_euler_solver_parameters.hpp>
 #include <micm/solver/rosenbrock_solver_parameters.hpp>
+
+#include <miam/miam.hpp>
 
 #include <stdexcept>
 #include <string>
@@ -176,8 +176,7 @@ namespace musica
                 if (p.equilibrium_constant.has_value())
                 {
                   const auto& ec = p.equilibrium_constant.value();
-                  builder.SetEquilibriumConstant(
-                      miam::EquilibriumConstant({ .A_ = ec.a, .C_ = ec.c }));
+                  builder.SetEquilibriumConstant(miam::EquilibriumConstant({ .A_ = ec.a, .C_ = ec.c }));
                 }
                 model.AddProcesses(builder.Build());
               }
@@ -272,8 +271,8 @@ namespace musica
               micm::RosenbrockThreeStageBuilder(micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())));
 
         case MICMSolver::RosenbrockStandardOrder:
-          return std::make_unique<micm::RosenbrockStandard>(configure(
-              micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
+          return std::make_unique<micm::RosenbrockStandard>(
+              configure(micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
                   micm::RosenbrockSolverParameters::ThreeStageRosenbrockParameters())));
 
         case MICMSolver::BackwardEuler:
@@ -281,16 +280,16 @@ namespace musica
               configure(micm::BackwardEulerBuilder(micm::BackwardEulerSolverParameters())));
 
         case MICMSolver::BackwardEulerStandardOrder:
-          return std::make_unique<micm::BackwardEulerStandard>(configure(
-              micm::CpuSolverBuilder<micm::BackwardEulerSolverParameters>(micm::BackwardEulerSolverParameters())));
+          return std::make_unique<micm::BackwardEulerStandard>(
+              configure(micm::CpuSolverBuilder<micm::BackwardEulerSolverParameters>(micm::BackwardEulerSolverParameters())));
 
         case MICMSolver::RosenbrockDAE4:
           return std::make_unique<micm::Rosenbrock>(configure(micm::RosenbrockThreeStageBuilder(
               micm::RosenbrockSolverParameters::FourStageDifferentialAlgebraicRosenbrockParameters())));
 
         case MICMSolver::RosenbrockDAE4StandardOrder:
-          return std::make_unique<micm::RosenbrockStandard>(configure(
-              micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
+          return std::make_unique<micm::RosenbrockStandard>(
+              configure(micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
                   micm::RosenbrockSolverParameters::FourStageDifferentialAlgebraicRosenbrockParameters())));
 
         case MICMSolver::RosenbrockDAE6:
@@ -298,14 +297,13 @@ namespace musica
               micm::RosenbrockSolverParameters::SixStageDifferentialAlgebraicRosenbrockParameters())));
 
         case MICMSolver::RosenbrockDAE6StandardOrder:
-          return std::make_unique<micm::RosenbrockStandard>(configure(
-              micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
+          return std::make_unique<micm::RosenbrockStandard>(
+              configure(micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
                   micm::RosenbrockSolverParameters::SixStageDifferentialAlgebraicRosenbrockParameters())));
 
         default:
           throw musica::Exception(
-              musica::MicmErrorCode::SolverTypeNotFound,
-              "Solver type " + ToString(solver_type) + " not supported for MIAM");
+              musica::MicmErrorCode::SolverTypeNotFound, "Solver type " + ToString(solver_type) + " not supported for MIAM");
       }
     }
 
@@ -354,9 +352,7 @@ namespace musica
 
       // Wrap in CpuSolver -> SolverPtr -> MICM
       auto default_deleter = [](IMicmSolver* ptr) { delete ptr; };
-      SolverPtr solver_ptr(
-          new CpuSolver(std::move(solver_variant), static_cast<int>(solver_type)),
-          default_deleter);
+      SolverPtr solver_ptr(new CpuSolver(std::move(solver_variant), static_cast<int>(solver_type)), default_deleter);
 
       return new MICM(std::move(solver_ptr), solver_type);
     }
