@@ -21,22 +21,22 @@ namespace musica
     /// @brief Henry's law constant: HLC(T) = HLC_ref * exp(C * (1/T - 1/298.15))
     struct HenryLawConstant
     {
-      double hlc_ref;   ///< Reference HLC at 298.15 K [mol m-3 Pa-1]
-      double c = 0.0;   ///< Temperature dependence factor [K]
+      double hlc_ref;  ///< Reference HLC at 298.15 K [mol m-3 Pa-1]
+      double c = 0.0;  ///< Temperature dependence factor [K]
     };
 
     /// @brief Equilibrium constant: K(T) = A * exp(C * (1/298.15 - 1/T))
     struct EquilibriumConstant
     {
-      double a;          ///< Pre-exponential factor [units vary]
-      double c = 0.0;    ///< Temperature dependence factor [K]
+      double a;        ///< Pre-exponential factor [units vary]
+      double c = 0.0;  ///< Temperature dependence factor [K]
     };
 
     /// @brief Arrhenius rate constant: k(T) = A * exp(-C * (1/T - 1/298.15))
     struct ArrheniusRateConstant
     {
-      double a;          ///< Pre-exponential factor [units vary]
-      double c = 0.0;    ///< Ea/R activation parameter [K]
+      double a;        ///< Pre-exponential factor [units vary]
+      double c = 0.0;  ///< Ea/R activation parameter [K]
     };
 
     /// @brief Rate constant: either Arrhenius or a callback(temperature_K) -> rate
@@ -48,23 +48,23 @@ namespace musica
     {
       std::string name;
       std::vector<std::string> phase_names;
-      double min_radius;   ///< Minimum section radius [m]
-      double max_radius;   ///< Maximum section radius [m]
+      double min_radius;  ///< Minimum section radius [m]
+      double max_radius;  ///< Maximum section radius [m]
     };
 
     struct SingleMomentMode
     {
       std::string name;
       std::vector<std::string> phase_names;
-      double geometric_mean_radius;          ///< Geometric mean radius [m]
-      double geometric_standard_deviation;   ///< Geometric standard deviation [-]
+      double geometric_mean_radius;         ///< Geometric mean radius [m]
+      double geometric_standard_deviation;  ///< Geometric standard deviation [-]
     };
 
     struct TwoMomentMode
     {
       std::string name;
       std::vector<std::string> phase_names;
-      double geometric_standard_deviation;   ///< Geometric standard deviation [-]
+      double geometric_standard_deviation;  ///< Geometric standard deviation [-]
     };
 
     using Representation = std::variant<UniformSection, SingleMomentMode, TwoMomentMode>;
@@ -79,7 +79,8 @@ namespace musica
       std::vector<std::string> product_names;
       std::string solvent_name;
       RateConstant rate_constant;
-      double solvent_floor = 1.0e-20;  ///< Floor [mol m-3] added to [S] in ([S]+delta)^n denominator to prevent singularity as solvent -> 0
+      double solvent_floor =
+          1.0e-20;  ///< Floor [mol m-3] added to [S] in ([S]+delta)^n denominator to prevent singularity as solvent -> 0
       double min_halflife = 0.0;  ///< When > 0, caps reaction rate so no reactant is depleted faster than this half-life [s]
     };
 
@@ -92,7 +93,8 @@ namespace musica
       std::optional<RateConstant> forward_rate_constant;
       std::optional<RateConstant> reverse_rate_constant;
       std::optional<EquilibriumConstant> equilibrium_constant;
-      double solvent_floor = 1.0e-20;  ///< Floor [mol m-3] added to [S] in ([S]+delta)^n denominator to prevent singularity as solvent -> 0
+      double solvent_floor =
+          1.0e-20;  ///< Floor [mol m-3] added to [S] in ([S]+delta)^n denominator to prevent singularity as solvent -> 0
     };
 
     struct HenryLawPhaseTransfer
@@ -102,8 +104,8 @@ namespace musica
       std::string condensed_species_name;
       std::string solvent_name;
       HenryLawConstant henry_law_constant;
-      double diffusion_coefficient;         ///< Gas-phase diffusion coefficient [m2 s-1]
-      double accommodation_coefficient;     ///< Mass accommodation coefficient [-]
+      double diffusion_coefficient;      ///< Gas-phase diffusion coefficient [m2 s-1]
+      double accommodation_coefficient;  ///< Mass accommodation coefficient [-]
     };
 
     using Process = std::variant<DissolvedReaction, DissolvedReversibleReaction, HenryLawPhaseTransfer>;
@@ -129,7 +131,8 @@ namespace musica
       std::string algebraic_species_name;
       std::string solvent_name;
       EquilibriumConstant equilibrium_constant;
-      double solvent_floor = 1.0e-20;  ///< Floor [mol m-3] added to [S] in ([S]+delta)^n denominator to prevent singularity as solvent -> 0
+      double solvent_floor =
+          1.0e-20;  ///< Floor [mol m-3] added to [S] in ([S]+delta)^n denominator to prevent singularity as solvent -> 0
     };
 
     struct LinearConstraintTerm
@@ -156,8 +159,8 @@ namespace musica
     struct SpeciesDef
     {
       std::string name;
-      std::optional<double> molecular_weight;   ///< [kg mol-1]
-      std::optional<double> density;            ///< [kg m-3]
+      std::optional<double> molecular_weight;  ///< [kg mol-1]
+      std::optional<double> density;           ///< [kg m-3]
     };
 
     /// @brief Phase definition for MIAM

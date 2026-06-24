@@ -138,8 +138,8 @@ def _build_system():
 
     # Henry's Law
     for gas_name, aq_name, hlc, c_val in [
-        ("SO2",  "SO2_aq",  1.23,   3120.0),
-        ("H2O2", "H2O2_aq", 7.4e4,  6621.0),
+        ("SO2", "SO2_aq", 1.23, 3120.0),
+        ("H2O2", "H2O2_aq", 7.4e4, 6621.0),
     ]:
         constraints.append(HenryLawEquilibriumConstraint(
             gas_species_name=gas_name,

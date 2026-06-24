@@ -105,6 +105,7 @@ class TestUniformSection:
         class FakeState:
             def __init__(self):
                 self._params = {}
+
             def set_user_defined_rate_parameters(self, params):
                 self._params.update(params)
 
@@ -133,6 +134,7 @@ class TestSingleMomentMode:
         class FakeState:
             def __init__(self):
                 self._params = {}
+
             def set_user_defined_rate_parameters(self, params):
                 self._params.update(params)
 
@@ -160,6 +162,7 @@ class TestTwoMomentMode:
         class FakeState:
             def __init__(self):
                 self._params = {}
+
             def set_user_defined_rate_parameters(self, params):
                 self._params.update(params)
 
@@ -407,6 +410,7 @@ class TestModel:
         class FakeState:
             def __init__(self):
                 self._params = {}
+
             def set_user_defined_rate_parameters(self, params):
                 self._params.update(params)
 
@@ -430,6 +434,7 @@ class TestModel:
         class FakeState:
             def __init__(self):
                 self._params = {}
+
             def set_user_defined_rate_parameters(self, params):
                 self._params.update(params)
 

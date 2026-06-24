@@ -237,13 +237,13 @@ if __name__ == "__main__":
     print(f"{'-'*100}")
 
     configs = [
-        ("gas_atol=1e-3, aq_atol=1e-14, rtol=1e-6 (default)",    1e-6,  1e-3,  1e-14),
-        ("gas_atol=1e-9, aq_atol=1e-14, rtol=1e-6",              1e-6,  1e-9,  1e-14),
-        ("gas_atol=1e-12, aq_atol=1e-14, rtol=1e-6",             1e-6,  1e-12, 1e-14),
-        ("all_atol=1e-14, rtol=1e-6",                             1e-6,  1e-14, 1e-14),
-        ("all_atol=1e-14, rtol=1e-10",                            1e-10, 1e-14, 1e-14),
-        ("all_atol=1e-16, rtol=1e-12",                            1e-12, 1e-16, 1e-16),
-        ("all_atol=1e-18, rtol=1e-12",                            1e-12, 1e-18, 1e-18),
+        ("gas_atol=1e-3, aq_atol=1e-14, rtol=1e-6 (default)", 1e-6, 1e-3, 1e-14),
+        ("gas_atol=1e-9, aq_atol=1e-14, rtol=1e-6", 1e-6, 1e-9, 1e-14),
+        ("gas_atol=1e-12, aq_atol=1e-14, rtol=1e-6", 1e-6, 1e-12, 1e-14),
+        ("all_atol=1e-14, rtol=1e-6", 1e-6, 1e-14, 1e-14),
+        ("all_atol=1e-14, rtol=1e-10", 1e-10, 1e-14, 1e-14),
+        ("all_atol=1e-16, rtol=1e-12", 1e-12, 1e-16, 1e-16),
+        ("all_atol=1e-18, rtol=1e-12", 1e-12, 1e-18, 1e-18),
     ]
 
     initial_total_s = None
@@ -320,19 +320,19 @@ where f_a is the constraint residual (forcing terms from constraints).
 
 The key question is: what is f_a at Y + 2*K[0] + K[2]?
 
-If the solver takes a large step (H ≈ 30s), the linear approximation 
-Y + 2*K[0] + K[2] may be far from the true trajectory, and f_a could 
-be large. But the linear solve redistributes this error across all 
+If the solver takes a large step (H ≈ 30s), the linear approximation
+Y + 2*K[0] + K[2] may be far from the true trajectory, and f_a could
+be large. But the linear solve redistributes this error across all
 variables through the Jacobian coupling.
 
 The practical problem is that for this stiff system:
 1. The Jacobian has very large entries for fast reactions
-2. J_a^{-1} * f_a may produce SMALL K[3] values for SO2 even when 
+2. J_a^{-1} * f_a may produce SMALL K[3] values for SO2 even when
    the actual SO2 overshoot is large
-3. This is because the Jacobian tells the solver "a small change in 
-   SO2 causes a large change in the fast reactions" — so the error 
+3. This is because the Jacobian tells the solver "a small change in
+   SO2 causes a large change in the fast reactions" — so the error
    estimate is dominated by the fast reaction variables, not SO2
 
-This is a known limitation of Rosenbrock error estimators for index-1 
+This is a known limitation of Rosenbrock error estimators for index-1
 DAEs with stiff coupling between differential and algebraic variables.
 """)
