@@ -11,22 +11,30 @@ def _add_other_properties(serialize_dict: Dict, other_properties: Dict) -> None:
 
 
 def _convert_components(items):
-    """Convert List[Union[Species, Tuple[Species, float], ReactionComponent]] to List[ReactionComponent].
+    """Convert List[Union[Species, Tuple[Species, float], ReactionComponent, str]] to List[ReactionComponent].
 
     Import is deferred to avoid circular imports.
     """
     from .reaction_component import ReactionComponent
     from .species import Species
-    return [
-        (
-            component
-            if isinstance(component, ReactionComponent)
-            else ReactionComponent(component.name)
-            if isinstance(component, Species)
-            else ReactionComponent(component[0].name, component[1])
-        )
-        for component in items
-    ]
+
+    def to_component(r):
+        if isinstance(r, ReactionComponent):
+            return r
+        if isinstance(r, Species):
+            return ReactionComponent(r.name)
+        if isinstance(r, str):
+            return ReactionComponent(r)
+        if isinstance(r, (tuple, list)) and len(r) == 2:
+            a, b = r
+            # order-independent: one element is the number, the other the species/name
+            if isinstance(a, (int, float)) and not isinstance(a, bool):
+                coeff, sp = a, b
+            else:
+                sp, coeff = a, b
+            return ReactionComponent(sp.name if isinstance(sp, Species) else sp, coeff)
+        raise TypeError(f"Cannot interpret reaction component: {r!r}")
+    return [to_component(r) for r in items]
 
 
 def _format_component(component) -> str:
