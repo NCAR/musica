@@ -318,11 +318,13 @@ using Musica
     @testset "Species properties" begin
         # Mirrors the C++ GetSpeciesProperty test (src/test/unit/micm/micm_c_api.cpp),
         # using the v1 chapman example mechanism. O3 defines one property per type.
-        v1_config_path = joinpath(@__DIR__, "..", "..", "configs", "v1", "chapman", "config.json")
+        v1_config_path =
+            joinpath(@__DIR__, "..", "..", "configs", "v1", "chapman", "config.json")
         micm = MICM(config_path = v1_config_path)
 
         @test get_species_property(micm, "O3", "__long name", String) == "ozone"
-        @test get_species_property(micm, "O3", "molecular weight [kg mol-1]", Float64) ≈ 0.048
+        @test get_species_property(micm, "O3", "molecular weight [kg mol-1]", Float64) ≈
+              0.048
         @test get_species_property(micm, "O3", "__atoms", Int) == 3
         @test get_species_property(micm, "O3", "__do advect", Bool) == true
 

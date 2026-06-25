@@ -3,6 +3,7 @@
 
 #include "jlcxx/jlcxx.hpp"
 #include "jlcxx/stl.hpp"
+
 #include <musica/micm/cuda_availability.hpp>
 #include <musica/micm/micm.hpp>
 #include <musica/micm/micm_c_interface.hpp>
@@ -11,8 +12,8 @@
 #include <musica/micm/state_c_interface.hpp>
 #include <musica/version.hpp>
 
-#include <micm/version.hpp>
 #include <micm/solver/solver_result.hpp>
+#include <micm/version.hpp>
 
 #include <algorithm>
 #include <iostream>
