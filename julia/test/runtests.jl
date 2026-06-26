@@ -415,3 +415,5 @@ using Musica
         @test_throws Exception MICM(config_string = "not a valid mechanism")
     end
 end
+
+include("test_mechanism_configuration.jl")
