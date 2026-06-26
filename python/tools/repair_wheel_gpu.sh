@@ -2,6 +2,7 @@
 set -e
 set -x
 
+# Exclude CUDA libraries from auditwheel - users should install via nvidia-* pip packages
 auditwheel repair --exclude libcublas --exclude libcublasLt --exclude libcudart --exclude libmvec -w "$2" "$1"
 
 pip install wheel
@@ -11,32 +12,36 @@ for whl in "$2"/*.whl; do
   unzip -q "$whl" -d "$tmpdir"
   tree "$tmpdir"
 
-  so_files=("$tmpdir"/musica/_musica_gpu*.so)
+  # declare an array of libraries to patch
+  plugins=("$tmpdir/musica/libmusica_cuda.so" "$tmpdir/musica/libmicm_cuda.so")
 
-  if [[ -f "${so_files[0]}" ]]; then
-      so_path="${so_files[0]}"
-      ls $so_path
+
+  for cuda_plugin in "${plugins[@]}"; do
+    if [[ -f "$cuda_plugin" ]]; then
+      echo "Found CUDA plugin: $cuda_plugin"
       echo "Before patchelf:"
-      readelf -d $so_path
+      readelf -d "$cuda_plugin"
 
       # Use patchelf to fix the rpath and library dependencies
-      patchelf --remove-rpath $so_path
-      patchelf --set-rpath "\$ORIGIN:\$ORIGIN/../musica.libs:\$ORIGIN/../nvidia/cublas/lib:\$ORIGIN/../nvidia/cuda_runtime/lib" --force-rpath $so_path
+      patchelf --remove-rpath "$cuda_plugin"
+      patchelf --set-rpath "\$ORIGIN:\$ORIGIN/../musica.libs:\$ORIGIN/../nvidia/cublas/lib:\$ORIGIN/../nvidia/cuda_runtime/lib" --force-rpath "$cuda_plugin"
 
-      # these may need to be periodically updated
-      patchelf --replace-needed libcudart-c3a75b33.so.12.8.90 libcudart.so.12 $so_path
-      patchelf --replace-needed libcublas-031ce6c2.so.12.8.4.1 libcublas.so.12 $so_path
-      patchelf --replace-needed libcublasLt-10b5e663.so.12.8.4.1 libcublasLt.so.12 $so_path
+      # Replace versioned CUDA library names with generic ones (these may need periodic updates)
+      patchelf --replace-needed libcudart-c3a75b33.so.12.8.90 libcudart.so.12 "$cuda_plugin" 2>/dev/null || true
+      patchelf --replace-needed libcublas-031ce6c2.so.12.8.4.1 libcublas.so.12 "$cuda_plugin" 2>/dev/null || true
+      patchelf --replace-needed libcublasLt-10b5e663.so.12.8.4.1 libcublasLt.so.12 "$cuda_plugin" 2>/dev/null || true
 
-      # Remove bundled CUDA libraries
+      # Remove bundled CUDA libraries - users should use nvidia-* pip packages
       rm -f "$tmpdir"/musica.libs/libcudart-*.so*
       rm -f "$tmpdir"/musica.libs/libcublas-*.so*
       rm -f "$tmpdir"/musica.libs/libcublasLt-*.so*
+
       echo "After patchelf:"
-      readelf -d $so_path
-  else
-    echo "No GPU .so file found, skipping patchelf steps"
-  fi
+      readelf -d "$cuda_plugin"
+    else
+      echo "No CUDA plugin found, skipping patchelf steps"
+    fi
+  done
 
   # Repack the wheel with correct structure
   wheel pack "$tmpdir" --dest-dir "$(dirname "$whl")"

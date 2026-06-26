@@ -1,10 +1,14 @@
+#include <musica/micm/lambda_callback.hpp>
 #include <musica/micm/parse.hpp>
-
-#include <micm/Process.hpp>
-#include <micm/System.hpp>
+#include <musica/utils/error_code.hpp>
 
 #include <mechanism_configuration/v1/types.hpp>
 #include <mechanism_configuration/v1/validation.hpp>
+#include <micm/Process.hpp>
+#include <micm/System.hpp>
+#include <micm/process/rate_constant/lambda_rate_constant.hpp>
+
+#include <algorithm>
 
 namespace musica
 {
@@ -103,11 +107,11 @@ namespace musica
     return species;
   }
 
-  std::vector<micm::Yield> reaction_components_to_products(
+  std::vector<micm::StoichSpecies> reaction_components_to_products(
       const std::vector<mechanism_configuration::v1::types::ReactionComponent>& components,
       std::unordered_map<std::string, micm::Species>& species_map)
   {
-    std::vector<micm::Yield> yields;
+    std::vector<micm::StoichSpecies> yields;
     for (const auto& component : components)
     {
       yields.push_back({ species_map[component.species_name], component.coefficient });
@@ -133,7 +137,7 @@ namespace musica
       chemistry.processes.push_back(micm::ChemicalReactionBuilder()
                                         .SetReactants(reactants)
                                         .SetProducts(products)
-                                        .SetRateConstant(micm::ArrheniusRateConstant(parameters))
+                                        .SetRateConstant(parameters)
                                         .SetPhase(chemistry.system.gas_phase_)
                                         .Build());
     }
@@ -161,7 +165,7 @@ namespace musica
       chemistry.processes.push_back(micm::ChemicalReactionBuilder()
                                         .SetReactants(reactants)
                                         .SetProducts(alkoxy_products)
-                                        .SetRateConstant(micm::BranchedRateConstant(parameters))
+                                        .SetRateConstant(parameters)
                                         .SetPhase(chemistry.system.gas_phase_)
                                         .Build());
 
@@ -170,7 +174,7 @@ namespace musica
       chemistry.processes.push_back(micm::ChemicalReactionBuilder()
                                         .SetReactants(reactants)
                                         .SetProducts(nitrate_products)
-                                        .SetRateConstant(micm::BranchedRateConstant(parameters))
+                                        .SetRateConstant(parameters)
                                         .SetPhase(chemistry.system.gas_phase_)
                                         .Build());
     }
@@ -197,8 +201,8 @@ namespace musica
 
       if (it == phase_species_list.end())
       {
-        throw std::system_error(
-            make_error_code(MusicaParseErrc::ParsingFailed),
+        throw musica::Exception(
+            musica::ParseErrorCode::ParsingFailed,
             "Species '" + reaction.gas_phase_species.species_name + "' for surface reaction in gas phase is not found\n");
       }
 
@@ -211,7 +215,7 @@ namespace musica
       chemistry.processes.push_back(micm::ChemicalReactionBuilder()
                                         .SetReactants(reactants)
                                         .SetProducts(products)
-                                        .SetRateConstant(micm::SurfaceRateConstant(parameters))
+                                        .SetRateConstant(parameters)
                                         .SetPhase(chemistry.system.gas_phase_)
                                         .Build());
     }
@@ -238,7 +242,7 @@ namespace musica
       chemistry.processes.push_back(micm::ChemicalReactionBuilder()
                                         .SetReactants(reactants)
                                         .SetProducts(products)
-                                        .SetRateConstant(micm::TroeRateConstant(parameters))
+                                        .SetRateConstant(parameters)
                                         .SetPhase(chemistry.system.gas_phase_)
                                         .Build());
     }
@@ -265,7 +269,7 @@ namespace musica
       chemistry.processes.push_back(micm::ChemicalReactionBuilder()
                                         .SetReactants(reactants)
                                         .SetProducts(products)
-                                        .SetRateConstant(micm::TernaryChemicalActivationRateConstant(parameters))
+                                        .SetRateConstant(parameters)
                                         .SetPhase(chemistry.system.gas_phase_)
                                         .Build());
     }
@@ -287,7 +291,7 @@ namespace musica
       chemistry.processes.push_back(micm::ChemicalReactionBuilder()
                                         .SetReactants(reactants)
                                         .SetProducts(products)
-                                        .SetRateConstant(micm::TunnelingRateConstant(parameters))
+                                        .SetRateConstant(parameters)
                                         .SetPhase(chemistry.system.gas_phase_)
                                         .Build());
     }
@@ -308,11 +312,18 @@ namespace musica
       parameters.C_ = reaction.C;
       parameters.D_ = reaction.D;
       parameters.E_ = reaction.E;
-      parameters.coefficients_ = reaction.taylor_coefficients;
+      if (reaction.taylor_coefficients.size() > micm::TaylorSeriesRateConstantParameters::MAX_COEFFICIENTS)
+      {
+        throw musica::Exception(
+            musica::ParseErrorCode::ParsingFailed,
+            "Number of Taylor series coefficients for reaction '" + reaction.name + "' exceeds the maximum supported (" +
+                std::to_string(micm::TaylorSeriesRateConstantParameters::MAX_COEFFICIENTS) + ").");
+      }
+      std::copy(reaction.taylor_coefficients.begin(), reaction.taylor_coefficients.end(), parameters.coefficients_);
       chemistry.processes.push_back(micm::ChemicalReactionBuilder()
                                         .SetReactants(reactants)
                                         .SetProducts(products)
-                                        .SetRateConstant(micm::TaylorSeriesRateConstant(parameters))
+                                        .SetRateConstant(parameters)
                                         .SetPhase(chemistry.system.gas_phase_)
                                         .Build());
     }
@@ -339,6 +350,35 @@ namespace musica
   {
   };
 
+  void convert_lambda_rate_constants(
+      Chemistry& chemistry,
+      const std::vector<mechanism_configuration::v1::types::LambdaRateConstant>& reactions,
+      std::unordered_map<std::string, micm::Species>& species_map)
+  {
+    for (const auto& reaction : reactions)
+    {
+      const std::string label = "Lambda." + reaction.name;
+      auto reactants = reaction_components_to_reactants(reaction.reactants, species_map);
+      auto products = reaction_components_to_products(reaction.products, species_map);
+
+      // The lambda_function field stores a raw string from the config (which
+      // may be a C++ lambda expression or a JS placeholder).  At runtime MICM
+      // never evaluates that string; instead it calls InvokeLambdaCallback
+      // which dispatches to whichever JS function was registered via
+      // SetLambdaRateCallback.
+      micm::LambdaRateConstantParameters params;
+      params.label_ = label;
+      params.lambda_function_ = [label](const micm::Conditions& c) { return musica::InvokeLambdaCallback(label, c); };
+
+      chemistry.processes.push_back(micm::ChemicalReactionBuilder()
+                                        .SetReactants(reactants)
+                                        .SetProducts(products)
+                                        .SetRateConstant(params)
+                                        .SetPhase(chemistry.system.gas_phase_)
+                                        .Build());
+    }
+  }
+
   template<typename T>
   void convert_user_defined(
       Chemistry& chemistry,
@@ -349,7 +389,7 @@ namespace musica
     for (const auto& reaction : user_defined)
     {
       std::vector<micm::Species> reactants{};
-      std::vector<micm::Yield> products{};
+      std::vector<micm::StoichSpecies> products{};
 
       if constexpr (has_reactants<T>::value)
       {
@@ -366,13 +406,13 @@ namespace musica
       chemistry.processes.push_back(micm::ChemicalReactionBuilder()
                                         .SetReactants(reactants)
                                         .SetProducts(products)
-                                        .SetRateConstant(micm::UserDefinedRateConstant(parameters))
+                                        .SetRateConstant(parameters)
                                         .SetPhase(chemistry.system.gas_phase_)
                                         .Build());
     }
   }
 
-  Chemistry ConvertV1Mechanism(const mechanism_configuration::v1::types::Mechanism& v1_mechanism, bool ignore_non_gas_phases)
+  Chemistry ConvertV1Mechanism(const mechanism_configuration::v1::types::Mechanism& v1_mechanism)
   {
     Chemistry chemistry{};
     auto species = convert_species(v1_mechanism.species);
@@ -389,10 +429,6 @@ namespace musica
       {
         gas_phase = phase;
       }
-      else if (!ignore_non_gas_phases)
-      {
-        chemistry.system.phases_[phase.name_] = phase;
-      }
     }
     convert_arrhenius(chemistry, v1_mechanism.reactions.arrhenius, species_map);
     convert_branched(chemistry, v1_mechanism.reactions.branched, species_map);
@@ -405,6 +441,7 @@ namespace musica
     convert_user_defined(chemistry, v1_mechanism.reactions.emission, species_map, "EMIS.");
     convert_user_defined(chemistry, v1_mechanism.reactions.first_order_loss, species_map, "LOSS.");
     convert_user_defined(chemistry, v1_mechanism.reactions.user_defined, species_map, "USER.");
+    convert_lambda_rate_constants(chemistry, v1_mechanism.reactions.lambda_rate_constant, species_map);
     return chemistry;
   }
 
@@ -413,7 +450,7 @@ namespace musica
     using V1 = mechanism_configuration::v1::types::Mechanism;
     V1* v1_mechanism = dynamic_cast<V1*>(result.mechanism.get());
     if (!v1_mechanism)
-      throw std::system_error(make_error_code(MusicaParseErrc::FailedToCastToVersion), "Failed to cast to V1");
+      throw musica::Exception(musica::ParseErrorCode::FailedToCastToVersion, "Failed to cast to V1");
     return ConvertV1Mechanism(*v1_mechanism);
   }
 

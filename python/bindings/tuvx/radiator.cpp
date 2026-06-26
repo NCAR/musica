@@ -38,12 +38,7 @@ void bind_tuvx_radiator(py::module_ &radiator)
 
             musica::Error error;
             auto radiator_instance = new musica::Radiator(name.c_str(), height_grid, wavelength_grid, &error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error creating radiator: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error creating radiator");
             return radiator_instance;
           }))
       .def("__del__", [](musica::Radiator &radiator) {})
@@ -53,13 +48,7 @@ void bind_tuvx_radiator(py::module_ &radiator)
           {
             musica::Error error;
             std::string name = self.GetName(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error getting radiator name: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
-            musica::DeleteError(&error);
+            handle_error(error, "Error getting radiator name");
             return name;
           },
           "The name of the radiator")
@@ -69,13 +58,7 @@ void bind_tuvx_radiator(py::module_ &radiator)
           {
             musica::Error error;
             size_t num_height_sections = self.GetNumberOfHeightSections(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error getting number of height grid sections: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
-            musica::DeleteError(&error);
+            handle_error(error, "Error getting number of height grid sections");
             return num_height_sections;
           },
           "The number of sections in the height grid")
@@ -85,14 +68,7 @@ void bind_tuvx_radiator(py::module_ &radiator)
           {
             musica::Error error;
             size_t num_wavelength_sections = self.GetNumberOfWavelengthSections(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message =
-                  "Error getting number of wavelength grid sections: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
-            musica::DeleteError(&error);
+            handle_error(error, "Error getting number of wavelength grid sections");
             return num_wavelength_sections;
           },
           "The number of sections in the wavelength grid")
@@ -103,41 +79,27 @@ void bind_tuvx_radiator(py::module_ &radiator)
           {
             musica::Error error;
             size_t num_height_sections = self.GetNumberOfHeightSections(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error getting number of height grid sections: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error getting number of height grid sections");
             size_t num_wavelength_sections = self.GetNumberOfWavelengthSections(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message =
-                  "Error getting number of wavelength grid sections: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
-            
+            handle_error(error, "Error getting number of wavelength grid sections");
+
             // Get a pointer to the internal C++ array
-            double* data_ptr = self.GetOpticalDepthsPointer(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error getting optical depths pointer: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            double *data_ptr = self.GetOpticalDepthsPointer(&error);
+            handle_error(error, "Error getting optical depths pointer");
 
             // Create a numpy array that references the internal C++ array directly
             // using py::capsule to manage the lifetime correctly
-            py::capsule owner = py::capsule(data_ptr, [](void *f) {
-              // No deletion here since the memory is managed by the Radiator class
-            });
+            py::capsule owner = py::capsule(
+                data_ptr,
+                [](void *f)
+                {
+                  // No deletion here since the memory is managed by the Radiator class
+                });
             return py::array_t<double>(
-              { num_wavelength_sections, num_height_sections }, // shape
-              { sizeof(double) * num_height_sections, sizeof(double) }, // stride
-              data_ptr, // data pointer
-              owner
-            );
+                { num_wavelength_sections, num_height_sections },          // shape
+                { sizeof(double) * num_height_sections, sizeof(double) },  // stride
+                data_ptr,                                                  // data pointer
+                owner);
           },
           // Setter - converts 2D numpy array to C++ array
           [](musica::Radiator &self, py::array_t<double, py::array::c_style | py::array::forcecast> array)
@@ -145,20 +107,9 @@ void bind_tuvx_radiator(py::module_ &radiator)
             py::buffer_info buf = array.request();
             musica::Error error;
             size_t num_height_sections = self.GetNumberOfHeightSections(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error getting number of height grid sections: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error getting number of height grid sections");
             size_t num_wavelength_sections = self.GetNumberOfWavelengthSections(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message =
-                  "Error getting number of wavelength grid sections: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error getting number of wavelength grid sections");
             if (buf.ndim != 2)
               throw py::value_error("Array must be two-dimensional");
             if (static_cast<size_t>(buf.shape[0]) != num_wavelength_sections ||
@@ -166,12 +117,7 @@ void bind_tuvx_radiator(py::module_ &radiator)
               throw py::value_error("Array shape must be (num_wavelength_sections, num_height_sections)");
             double *ptr = static_cast<double *>(buf.ptr);
             self.SetOpticalDepths(ptr, num_height_sections, num_wavelength_sections, &error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error setting optical depths: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error setting optical depths");
           },
           "2D array of optical depths with shape (num_wavelength_sections, num_height_sections)")
       .def_property(
@@ -181,41 +127,27 @@ void bind_tuvx_radiator(py::module_ &radiator)
           {
             musica::Error error;
             size_t num_height_sections = self.GetNumberOfHeightSections(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error getting number of height grid sections: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error getting number of height grid sections");
             size_t num_wavelength_sections = self.GetNumberOfWavelengthSections(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message =
-                  "Error getting number of wavelength grid sections: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
-            
+            handle_error(error, "Error getting number of wavelength grid sections");
+
             // Get a pointer to the internal C++ array
-            double* data_ptr = self.GetSingleScatteringAlbedosPointer(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error getting single scattering albedos pointer: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            double *data_ptr = self.GetSingleScatteringAlbedosPointer(&error);
+            handle_error(error, "Error getting single scattering albedos pointer");
 
             // Create a numpy array that references the internal C++ array directly
             // using py::capsule to manage the lifetime correctly
-            py::capsule owner = py::capsule(data_ptr, [](void *f) {
-              // No deletion here since the memory is managed by the Radiator class
-            });
+            py::capsule owner = py::capsule(
+                data_ptr,
+                [](void *f)
+                {
+                  // No deletion here since the memory is managed by the Radiator class
+                });
             return py::array_t<double>(
-              { num_wavelength_sections, num_height_sections }, // shape
-              { sizeof(double) * num_height_sections, sizeof(double) }, // stride
-              data_ptr, // data pointer
-              owner
-            );
+                { num_wavelength_sections, num_height_sections },          // shape
+                { sizeof(double) * num_height_sections, sizeof(double) },  // stride
+                data_ptr,                                                  // data pointer
+                owner);
           },
           // Setter - converts 2D numpy array to C++ array
           [](musica::Radiator &self, py::array_t<double, py::array::c_style | py::array::forcecast> array)
@@ -223,20 +155,9 @@ void bind_tuvx_radiator(py::module_ &radiator)
             py::buffer_info buf = array.request();
             musica::Error error;
             size_t num_height_sections = self.GetNumberOfHeightSections(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error getting number of height grid sections: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error getting number of height grid sections");
             size_t num_wavelength_sections = self.GetNumberOfWavelengthSections(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message =
-                  "Error getting number of wavelength grid sections: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error getting number of wavelength grid sections");
             if (buf.ndim != 2)
               throw py::value_error("Array must be two-dimensional");
             if (static_cast<size_t>(buf.shape[0]) != num_wavelength_sections ||
@@ -244,12 +165,7 @@ void bind_tuvx_radiator(py::module_ &radiator)
               throw py::value_error("Array shape must be (num_wavelength_sections, num_height_sections)");
             double *ptr = static_cast<double *>(buf.ptr);
             self.SetSingleScatteringAlbedos(ptr, num_height_sections, num_wavelength_sections, &error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error setting single scattering albedos: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error setting single scattering albedos");
           },
           "2D array of single scattering albedos with shape (num_wavelength_sections, num_height_sections)")
       .def_property(
@@ -259,42 +175,28 @@ void bind_tuvx_radiator(py::module_ &radiator)
           {
             musica::Error error;
             size_t num_height_sections = self.GetNumberOfHeightSections(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error getting number of height grid sections: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error getting number of height grid sections");
             size_t num_wavelength_sections = self.GetNumberOfWavelengthSections(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message =
-                  "Error getting number of wavelength grid sections: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error getting number of wavelength grid sections");
             constexpr size_t num_streams = 1;
-            
+
             // Get a pointer to the internal C++ array
-            double* data_ptr = self.GetAsymmetryFactorsPointer(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error getting asymmetry factors pointer: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            double *data_ptr = self.GetAsymmetryFactorsPointer(&error);
+            handle_error(error, "Error getting asymmetry factors pointer");
 
             // Create a numpy array that references the internal C++ array directly
             // using py::capsule to manage the lifetime correctly
-            py::capsule owner = py::capsule(data_ptr, [](void *f) {
-              // No deletion here since the memory is managed by the Radiator class
-            });
+            py::capsule owner = py::capsule(
+                data_ptr,
+                [](void *f)
+                {
+                  // No deletion here since the memory is managed by the Radiator class
+                });
             return py::array_t<double>(
-              { num_wavelength_sections, num_height_sections }, // shape
-              { sizeof(double) * num_height_sections, sizeof(double) }, // stride
-              data_ptr, // data pointer
-              owner
-            );
+                { num_wavelength_sections, num_height_sections },          // shape
+                { sizeof(double) * num_height_sections, sizeof(double) },  // stride
+                data_ptr,                                                  // data pointer
+                owner);
           },
           // Setter - converts 2D numpy array to C++ array
           [](musica::Radiator &self, py::array_t<double, py::array::c_style | py::array::forcecast> array)
@@ -302,20 +204,9 @@ void bind_tuvx_radiator(py::module_ &radiator)
             py::buffer_info buf = array.request();
             musica::Error error;
             size_t num_height_sections = self.GetNumberOfHeightSections(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error getting number of height grid sections: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error getting number of height grid sections");
             size_t num_wavelength_sections = self.GetNumberOfWavelengthSections(&error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message =
-                  "Error getting number of wavelength grid sections: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error getting number of wavelength grid sections");
             if (buf.ndim != 2)
               throw py::value_error("Array must be two-dimensional");
             if (static_cast<size_t>(buf.shape[0]) != num_wavelength_sections ||
@@ -325,12 +216,7 @@ void bind_tuvx_radiator(py::module_ &radiator)
             // The number of streams is currently fixed at 1 in TUV-x
             constexpr size_t num_streams = 1;
             self.SetAsymmetryFactors(ptr, num_height_sections, num_wavelength_sections, num_streams, &error);
-            if (!musica::IsSuccess(error))
-            {
-              std::string message = "Error setting asymmetry factors: " + std::string(error.message_.value_);
-              musica::DeleteError(&error);
-              throw py::value_error(message);
-            }
+            handle_error(error, "Error setting asymmetry factors");
           },
           "2D array of asymmetry factors with shape (num_wavelength_sections, num_height_sections)");
 }

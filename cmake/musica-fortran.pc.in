@@ -8,6 +8,6 @@ yaml_lib=yaml-cpp
 
 Name: musica-fortran
 Description: Fortran wrapper for the MUSICA library for modeling atmospheric chemistry
-Version: @musica-distribution_VERSION@
+Version: @musica_VERSION@
 Cflags: -I${includedir}
 Libs: -L${libdir} -lmusica-fortran -lmusica -lmechanism_configuration -l${yaml_lib} @CMAKE_CXX_STANDARD_LIBRARIES@

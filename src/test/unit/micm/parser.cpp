@@ -1,9 +1,10 @@
 #include <musica/micm/parse.hpp>
 
-#include <gtest/gtest.h>
 #include <mechanism_configuration/parser.hpp>
 #include <mechanism_configuration/v0/types.hpp>
 #include <mechanism_configuration/v1/types.hpp>
+
+#include <gtest/gtest.h>
 
 static constexpr double avogadro = 6.02214076e23;  // # mol^{-1}
 static constexpr double MolesM3ToMoleculesCm3 = 1.0e-6 * avogadro;
@@ -48,7 +49,7 @@ TEST(Parser, Version1Configuration)
   EXPECT_EQ(v1_mechanism->version.patch, 0);
   EXPECT_EQ(v1_mechanism->reactions.arrhenius.size(), 4);
   EXPECT_EQ(v1_mechanism->reactions.photolysis.size(), 3);
-  EXPECT_EQ(v1_mechanism->species.size(), 5);
+  EXPECT_EQ(v1_mechanism->species.size(), 6);
 }
 
 TEST(Parser, CanParseChapmanV0)
@@ -90,17 +91,17 @@ TEST(Parser, CanParseChapmanV1)
   for (const auto& extension : extensions)
   {
     musica::Chemistry chemistry = musica::ReadConfiguration("configs/v1/chapman/config" + extension);
-    EXPECT_EQ(chemistry.system.gas_phase_.phase_species_.size(), 5);
+    EXPECT_EQ(chemistry.system.gas_phase_.phase_species_.size(), 6);
     EXPECT_EQ(chemistry.processes.size(), 7);
-    EXPECT_EQ(chemistry.system.phases_.size(), 0);
     EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[0].species_.name_, "M");
     EXPECT_NE(chemistry.system.gas_phase_.phase_species_[0].species_.parameterize_, nullptr);
-    EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[1].species_.name_, "O");
-    EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[2].species_.name_, "O2");
-    EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[3].species_.name_, "O3");
-    EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[4].species_.name_, "O1D");
+    EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[1].species_.name_, "O1D");
+    EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[2].species_.name_, "O");
+    EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[3].species_.name_, "O2");
+    EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[4].species_.name_, "O3");
+    EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[5].species_.name_, "N2");
 
-    EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[3].species_.GetProperty<std::string>("__long name"), "ozone");
+    EXPECT_EQ(chemistry.system.gas_phase_.phase_species_[4].species_.GetProperty<std::string>("__long name"), "ozone");
   }
 }
 
@@ -115,7 +116,6 @@ TEST(Parser, CanParseFullV1)
 
     EXPECT_EQ(chemistry.system.gas_phase_.phase_species_.size(), 5);
     EXPECT_EQ(chemistry.system.gas_phase_.name_, "gas");
-    EXPECT_EQ(chemistry.system.phases_.size(), 0);
     EXPECT_EQ(chemistry.processes.size(), 13);
   }
 }

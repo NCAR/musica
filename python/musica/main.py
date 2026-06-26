@@ -3,6 +3,7 @@ import datetime
 import logging
 import shutil
 import os
+import sys
 from musica import Examples
 from musica import __version__
 import musica.examples
@@ -50,7 +51,7 @@ def parse_arguments():
         type=str,
         help='Path to a musica v0 configuration to convert to v1 format.'
     )
-    return parser.parse_args()
+    return parser, parser.parse_args()
 
 
 def setup_logging(verbosity):
@@ -92,7 +93,7 @@ def convert_configuration(logger, configuration, output_path):
 def main():
     start = datetime.datetime.now()
 
-    args = parse_arguments()
+    parser, args = parse_arguments()
     setup_logging(args.verbose)
 
     logger = logging.getLogger(__name__)
@@ -107,8 +108,10 @@ def main():
     example_arg = args.example
     output = args.output
 
-    if not convert and not example_arg:
-        raise ValueError("Either --convert or --example must be specified.")
+    # sys.argv includes a list of elements starting with the program
+    if len(sys.argv) < 2:
+        parser.print_help()
+        sys.exit(0)
 
     if convert and example_arg:
         raise ValueError("Cannot specify both --convert and --example. Choose one.")

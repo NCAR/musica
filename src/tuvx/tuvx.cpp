@@ -36,7 +36,7 @@ namespace musica
       // check that the file exists
       if (!std::filesystem::exists(config_path))
       {
-        ToError(MUSICA_ERROR_CATEGORY, 1, "Config file does not exist", error);
+        ToError(MUSICA_ERROR_CATEGORY, 1, "Config file does not exist", MUSICA_SEVERITY_ERROR, error);
         return;
       }
 
@@ -51,20 +51,20 @@ namespace musica
           &parsing_status);
       if (parsing_status == 1)
       {
-        ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to create tuvx instance", error);
+        ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to create tuvx instance", MUSICA_SEVERITY_CRITICAL, error);
       }
       else
       {
         NoError(error);
       }
     }
-    catch (const std::system_error &e)
+    catch (const std::exception &e)
     {
-      ToError(e, error);
+      ToError(e, MUSICA_SEVERITY_ERROR, error);
     }
     catch (...)
     {
-      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to create tuvx instance", error);
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to create tuvx instance", MUSICA_SEVERITY_CRITICAL, error);
     }
   }
 
@@ -94,20 +94,22 @@ namespace musica
           &error_code);
       if (error_code != 0 || tuvx_ == nullptr)
       {
-        ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to create TUV-x instance from config string", error);
+        ToError(
+            MUSICA_ERROR_CATEGORY, 1, "Failed to create TUV-x instance from config string", MUSICA_SEVERITY_CRITICAL, error);
       }
       else
       {
         NoError(error);
       }
     }
-    catch (const std::system_error &e)
+    catch (const std::exception &e)
     {
-      ToError(e, error);
+      ToError(e, MUSICA_SEVERITY_ERROR, error);
     }
     catch (...)
     {
-      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to create TUV-x instance from config string", error);
+      ToError(
+          MUSICA_ERROR_CATEGORY, 1, "Failed to create TUV-x instance from config string", MUSICA_SEVERITY_CRITICAL, error);
     }
   }
 
@@ -118,7 +120,7 @@ namespace musica
     GridMap *grid_map = new GridMap(InternalGetGridMap(tuvx_, &error_code));
     if (error_code != 0)
     {
-      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to get grid map", error);
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to get grid map", MUSICA_SEVERITY_CRITICAL, error);
     }
     else
     {
@@ -133,7 +135,7 @@ namespace musica
     ProfileMap *profile_map = new ProfileMap(InternalGetProfileMap(tuvx_, &error_code));
     if (error_code != 0)
     {
-      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to get profile map", error);
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to get profile map", MUSICA_SEVERITY_CRITICAL, error);
     }
     else
     {
@@ -148,7 +150,7 @@ namespace musica
     RadiatorMap *radiator_map = new RadiatorMap(InternalGetRadiatorMap(tuvx_, &error_code));
     if (error_code != 0)
     {
-      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to get radiator map", error);
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to get radiator map", MUSICA_SEVERITY_CRITICAL, error);
     }
     else
     {
@@ -163,7 +165,7 @@ namespace musica
     InternalGetPhotolysisRateConstantsOrdering(tuvx_, mappings, &error_code);
     if (error_code != 0)
     {
-      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to get photolysis rate constants ordering", error);
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to get photolysis rate constants ordering", MUSICA_SEVERITY_ERROR, error);
     }
     else
     {
@@ -177,7 +179,7 @@ namespace musica
     InternalGetHeatingRatesOrdering(tuvx_, mappings, &error_code);
     if (error_code != 0)
     {
-      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to get heating rates ordering", error);
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to get heating rates ordering", MUSICA_SEVERITY_ERROR, error);
     }
     else
     {
@@ -191,7 +193,7 @@ namespace musica
     InternalGetDoseRatesOrdering(tuvx_, mappings, &error_code);
     if (error_code != 0)
     {
-      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to get dose rates ordering", error);
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to get dose rates ordering", MUSICA_SEVERITY_ERROR, error);
     }
     else
     {
@@ -226,19 +228,19 @@ namespace musica
           spectral_irradiance,
           &error_code);
     }
-    catch (const std::system_error &e)
+    catch (const std::exception &e)
     {
-      ToError(e, error);
+      ToError(e, MUSICA_SEVERITY_ERROR, error);
       return;
     }
     catch (...)
     {
-      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to run TUV-x", error);
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to run TUV-x", MUSICA_SEVERITY_CRITICAL, error);
       return;
     }
     if (error_code != 0)
     {
-      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to run TUV-x", error);
+      ToError(MUSICA_ERROR_CATEGORY, 1, "Failed to run TUV-x", MUSICA_SEVERITY_CRITICAL, error);
       return;
     }
   }

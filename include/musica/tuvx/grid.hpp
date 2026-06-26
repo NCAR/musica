@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 #pragma once
 
-#include <musica/util.hpp>
+#include <musica/utils/util.hpp>
 
 #include <memory>
 #include <string>

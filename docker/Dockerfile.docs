@@ -1,7 +1,8 @@
-FROM fedora:latest
-
-ARG MUSICA_GIT_TAG=main
-ARG BUILD_TYPE=Release
+# Build the musica documentation.
+# After building, run with:
+#   docker run --rm -p 8123:8123 -it docs
+# then navigate to localhost:8123
+FROM fedora:41
 
 RUN dnf -y update \
     && dnf -y install \
@@ -9,42 +10,41 @@ RUN dnf -y update \
         doxygen \
         gcc \
         gcc-c++ \
-        gdb \
-        gfortran \
+        gcc-gfortran \
         git \
         lapack-devel \
-        lcov \
         make \
         netcdf-fortran-devel \
+        nodejs \
+        npm \
         pandoc \
         pip \
         python \
         python-devel \
-        valgrind \
     && dnf clean all
 
-COPY . /musica/
+COPY . musica
 
-RUN cd /musica &&  python -m pip install -e .
+RUN cd musica && npm install
+RUN cd musica && python -m pip install -e .
 
 RUN python -m pip install -r /musica/docs/requirements.txt
 RUN pip install --upgrade pip ipython ipykernel
 
-ARG SUFFIX=""
-ENV SWITCHER_SUFFIX=$SUFFIX
+RUN cd musica \
+    && cmake -S . \
+             -B build \
+             -D MUSICA_BUILD_DOCS=ON \
+             -D MUSICA_ENABLE_MICM=ON \
+             -D MUSICA_ENABLE_TUVX=OFF \
+             -D MUSICA_ENABLE_CARMA=OFF \
+             -D MUSICA_ENABLE_TESTS=OFF \
+             -D MUSICA_ENABLE_INSTALL=OFF \
+             -D MUSICA_BUILD_FORTRAN_INTERFACE=OFF
 
-RUN echo "The suffix is '$SWITCHER_SUFFIX'"
+RUN cd musica/docs && make copy
+RUN cd musica/build && make docs
 
-RUN mkdir /build \
-      && cd /build \
-      && cmake -D MUSICA_BUILD_DOCS=ON \
-               -D MUSICA_ENABLE_TUVX=OFF \
-                -D MUSICA_ENABLE_CARMA=OFF \
-                -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
-                -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
-               /musica 
+WORKDIR /musica/build/docs/sphinx
 
-RUN cd /musica/docs && make copy
-RUN cd /build && make docs
-
-WORKDIR /build
+CMD ["python", "-m", "http.server", "8123"]

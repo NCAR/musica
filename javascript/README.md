@@ -253,7 +253,11 @@ npm run test:coverage
 
 ### Browser Example
 
-The `wasm` directory contains an [example.html](wasm/example.html) file that demonstrates using MUSICA in a web browser. 
+You can try a demo at [https://ncar.github.io/musica/](https://ncar.github.io/musica/). 
+
+The same demo can be built and run locally. Note that you'd need to update the import state in [index.html](wasm/index.html).
+
+The `wasm` directory contains an [index.html](wasm/index.html) file that demonstrates using MUSICA in a web browser. 
 The example displays version numbers and contains some example mechanisms with interactive sliders.
 
 To run the browser example, you need to serve the files through a web server:
@@ -268,7 +272,7 @@ npm run example
 npx musica-example
 ```
 
-Then open http://localhost:8000/javascript/wasm/example.html in your browser to see MUSICA running in WebAssembly!
+Then open http://localhost:8000/javascript/wasm/index.html in your browser to see MUSICA running in WebAssembly!
 
 ### Code Style
 

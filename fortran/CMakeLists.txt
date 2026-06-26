@@ -1,17 +1,3 @@
-cmake_minimum_required(VERSION 3.21)
-
-project(
-  musica-fortran
-  VERSION ${PROJECT_VERSION}
-  LANGUAGES Fortran
-)
-
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-
-if(NOT TARGET musica)
-  find_package(musica REQUIRED)
-endif()
-
 add_library(musica-fortran)
 add_library(musica::musica-fortran ALIAS musica-fortran)
 
@@ -59,6 +45,9 @@ endif()
 
 if(MUSICA_ENABLE_TESTS)
   add_subdirectory(test)
+  if (MUSICA_ENABLE_TUVX)
+    add_subdirectory(examples)
+  endif()
 endif()
 
 ################################################################################

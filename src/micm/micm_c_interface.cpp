@@ -1,32 +1,10 @@
 #include <musica/micm/cuda_availability.hpp>
 #include <musica/micm/micm_c_interface.hpp>
 #include <musica/micm/parse.hpp>
+#include <musica/utils/error_handler.hpp>
 
 namespace musica
 {
-  template<typename Func>
-  auto HandleErrors(Func func, Error* error) -> decltype(func())
-  {
-    DeleteError(error);
-    try
-    {
-      return func();
-    }
-    catch (const std::system_error& e)
-    {
-      ToError(e, error);
-    }
-    catch (const std::exception& e)
-    {
-      ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, e.what(), error);
-    }
-    catch (...)
-    {
-      ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, "Unknown error", error);
-    }
-    return decltype(func())();
-  }
-
   MICM* CreateMicm(const char* config_path, MICMSolver solver_type, Error* error)
   {
     return HandleErrors(
@@ -159,15 +137,181 @@ namespace musica
 
   std::size_t GetVectorSize(musica::MICMSolver solver_type)
   {
+    constexpr std::size_t nonvectorized_size = 1;
     switch (solver_type)
     {
       case musica::MICMSolver::Rosenbrock:
       case musica::MICMSolver::BackwardEuler:
-      case musica::MICMSolver::CudaRosenbrock: return musica::MUSICA_VECTOR_SIZE;
+      case musica::MICMSolver::CudaRosenbrock:
+      case musica::MICMSolver::RosenbrockDAE4:
+      case musica::MICMSolver::RosenbrockDAE6: return musica::MUSICA_VECTOR_SIZE;
       case musica::MICMSolver::RosenbrockStandardOrder:
-      case musica::MICMSolver::BackwardEulerStandardOrder: return static_cast<std::size_t>(1);
+      case musica::MICMSolver::BackwardEulerStandardOrder:
+      case musica::MICMSolver::RosenbrockDAE4StandardOrder:
+      case musica::MICMSolver::RosenbrockDAE6StandardOrder: return nonvectorized_size;
       default: throw std::runtime_error("Invalid MICM solver type.");
     }
+  }
+
+  // Helper: convert C struct to C++ struct
+  static musica::RosenbrockSolverParameters ToRosenbrockParams(const RosenbrockSolverParametersC* c_params)
+  {
+    musica::RosenbrockSolverParameters params;
+    params.relative_tolerance = c_params->relative_tolerance;
+    params.h_min = c_params->h_min;
+    params.h_max = c_params->h_max;
+    params.h_start = c_params->h_start;
+    params.max_number_of_steps = c_params->max_number_of_steps;
+    params.constraint_init_max_iterations = c_params->constraint_init_max_iterations;
+    params.constraint_init_tolerance = c_params->constraint_init_tolerance;
+    if (c_params->absolute_tolerances != nullptr && c_params->num_absolute_tolerances > 0)
+    {
+      params.absolute_tolerances.assign(
+          c_params->absolute_tolerances, c_params->absolute_tolerances + c_params->num_absolute_tolerances);
+    }
+    return params;
+  }
+
+  static musica::BackwardEulerSolverParameters ToBackwardEulerParams(const BackwardEulerSolverParametersC* c_params)
+  {
+    musica::BackwardEulerSolverParameters params;
+    params.relative_tolerance = c_params->relative_tolerance;
+    params.max_number_of_steps = c_params->max_number_of_steps;
+    if (c_params->absolute_tolerances != nullptr && c_params->num_absolute_tolerances > 0)
+    {
+      params.absolute_tolerances.assign(
+          c_params->absolute_tolerances, c_params->absolute_tolerances + c_params->num_absolute_tolerances);
+    }
+    if (c_params->time_step_reductions != nullptr && c_params->num_time_step_reductions > 0)
+    {
+      params.time_step_reductions.assign(
+          c_params->time_step_reductions, c_params->time_step_reductions + c_params->num_time_step_reductions);
+    }
+    return params;
+  }
+
+  void SetRosenbrockSolverParameters(MICM* micm, const RosenbrockSolverParametersC* params, Error* error)
+  {
+    HandleErrors(
+        [&]()
+        {
+          micm->SetSolverParameters(ToRosenbrockParams(params));
+          NoError(error);
+        },
+        error);
+  }
+
+  void SetBackwardEulerSolverParameters(MICM* micm, const BackwardEulerSolverParametersC* params, Error* error)
+  {
+    HandleErrors(
+        [&]()
+        {
+          micm->SetSolverParameters(ToBackwardEulerParams(params));
+          NoError(error);
+        },
+        error);
+  }
+
+  void GetRosenbrockSolverParameters(MICM* micm, RosenbrockSolverParametersC* params, Error* error)
+  {
+    HandleErrors(
+        [&]()
+        {
+          auto cpp_params = micm->GetRosenbrockSolverParameters();
+          params->relative_tolerance = cpp_params.relative_tolerance;
+          params->h_min = cpp_params.h_min;
+          params->h_max = cpp_params.h_max;
+          params->h_start = cpp_params.h_start;
+          params->max_number_of_steps = cpp_params.max_number_of_steps;
+          params->constraint_init_max_iterations = cpp_params.constraint_init_max_iterations;
+          params->constraint_init_tolerance = cpp_params.constraint_init_tolerance;
+          if (!cpp_params.absolute_tolerances.empty())
+          {
+            params->num_absolute_tolerances = cpp_params.absolute_tolerances.size();
+            params->absolute_tolerances = new double[params->num_absolute_tolerances];
+            std::copy(
+                cpp_params.absolute_tolerances.begin(), cpp_params.absolute_tolerances.end(), params->absolute_tolerances);
+          }
+          else
+          {
+            params->absolute_tolerances = nullptr;
+            params->num_absolute_tolerances = 0;
+          }
+          NoError(error);
+        },
+        error);
+  }
+
+  void GetBackwardEulerSolverParameters(MICM* micm, BackwardEulerSolverParametersC* params, Error* error)
+  {
+    HandleErrors(
+        [&]()
+        {
+          auto cpp_params = micm->GetBackwardEulerSolverParameters();
+          params->relative_tolerance = cpp_params.relative_tolerance;
+          params->max_number_of_steps = cpp_params.max_number_of_steps;
+          if (!cpp_params.absolute_tolerances.empty())
+          {
+            params->num_absolute_tolerances = cpp_params.absolute_tolerances.size();
+            params->absolute_tolerances = new double[params->num_absolute_tolerances];
+            std::copy(
+                cpp_params.absolute_tolerances.begin(), cpp_params.absolute_tolerances.end(), params->absolute_tolerances);
+          }
+          else
+          {
+            params->absolute_tolerances = nullptr;
+            params->num_absolute_tolerances = 0;
+          }
+          if (!cpp_params.time_step_reductions.empty())
+          {
+            params->num_time_step_reductions = cpp_params.time_step_reductions.size();
+            params->time_step_reductions = new double[params->num_time_step_reductions];
+            std::copy(
+                cpp_params.time_step_reductions.begin(),
+                cpp_params.time_step_reductions.end(),
+                params->time_step_reductions);
+          }
+          else
+          {
+            params->time_step_reductions = nullptr;
+            params->num_time_step_reductions = 0;
+          }
+          NoError(error);
+        },
+        error);
+  }
+
+  void FreeRosenbrockSolverParameters(RosenbrockSolverParametersC* params)
+  {
+    if (params == nullptr)
+      return;
+
+    if (params->absolute_tolerances != nullptr)
+    {
+      delete[] params->absolute_tolerances;
+      params->absolute_tolerances = nullptr;
+    }
+    params->num_absolute_tolerances = 0;
+  }
+
+  void FreeBackwardEulerSolverParameters(BackwardEulerSolverParametersC* params)
+  {
+    if (params == nullptr)
+      return;
+
+    if (params->absolute_tolerances != nullptr)
+    {
+      delete[] params->absolute_tolerances;
+      params->absolute_tolerances = nullptr;
+    }
+    params->num_absolute_tolerances = 0;
+
+    if (params->time_step_reductions != nullptr)
+    {
+      delete[] params->time_step_reductions;
+      params->time_step_reductions = nullptr;
+    }
+    params->num_time_step_reductions = 0;
   }
 
 }  // namespace musica

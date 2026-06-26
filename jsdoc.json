@@ -1,0 +1,13 @@
+{
+  "source": {
+    "exclude": [
+      "javascript/tests",
+      "javascript/wasm",
+      "javascript/tools"
+    ],
+    "includePattern": ".+\\.js$"
+  },
+  "opts": {
+    "recurse": true
+  }
+}

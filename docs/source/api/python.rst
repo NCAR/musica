@@ -41,10 +41,23 @@ Mechanism Configuration
 Musica Types
 ------------
 
+Mechanism Configuration
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. automodule:: musica.mechanism_configuration
+   :members:
+   :show-inheritance:
+   :imported-members:
+
+MICM
+^^^^
+
 .. automodule:: musica.micm
    :members:
    :undoc-members:
    :show-inheritance:
+   :imported-members:
+   :exclude-members: backend
 
 TUVX
 ----
@@ -54,6 +67,8 @@ TUVX
    :undoc-members:
    :show-inheritance:
    :private-members:
+   :imported-members:
+   :exclude-members: backend, _backend, v54
 
 CARMA
 -----
@@ -63,3 +78,5 @@ CARMA
    :undoc-members:
    :show-inheritance:
    :private-members:
+   :imported-members:
+   :exclude-members: backend, _backend

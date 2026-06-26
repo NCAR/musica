@@ -9,7 +9,6 @@ endif()
 
 if (MUSICA_ENABLE_TUVX)
   create_standard_test_fortran(NAME tuvx_version SOURCES test_tuvx_version.F90)
-
   create_standard_test_fortran(NAME connect_to_tuvx SOURCES tuvx.F90)
 
   if (MUSICA_ENABLE_OPENMP)

@@ -2,13 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
-from typing import Union, Any, TYPE_CHECKING, List
+from typing import Union, Any, List, TYPE_CHECKING, Optional
 from os import PathLike
 
 from .state import State
 from .solver import SolverType
 from .solver_result import SolverResult
+from .solver_parameters import RosenbrockSolverParameters, BackwardEulerSolverParameters
 from .. import backend
+from .._base import _unwrap
 
 _backend = backend.get_backend()
 
@@ -16,6 +18,13 @@ create_solver = _backend._micm._create_solver
 create_solver_from_mechanism = _backend._micm._create_solver_from_mechanism
 micm_solve = _backend._micm._micm_solve
 vector_size = _backend._micm._vector_size
+_set_rosenbrock_params = _backend._micm._set_rosenbrock_solver_parameters
+_set_backward_euler_params = _backend._micm._set_backward_euler_solver_parameters
+_get_rosenbrock_params = _backend._micm._get_rosenbrock_solver_parameters
+_get_backward_euler_params = _backend._micm._get_backward_euler_solver_parameters
+_CppRosenbrockParams = _backend._micm._RosenbrockSolverParameters
+_CppBackwardEulerParams = _backend._micm._BackwardEulerSolverParameters
+_VectorDouble = _backend.VectorDouble
 
 # For type hints
 if TYPE_CHECKING:
@@ -50,7 +59,8 @@ class MICM():
         config_path: FilePath = None,
         mechanism: Mechanism = None,
         solver_type: Any = None,
-        ignore_non_gas_phases: bool = True,
+        solver_parameters: Optional[Union[RosenbrockSolverParameters, BackwardEulerSolverParameters]] = None,
+        external_models: Optional[List[Any]] = None,
     ):
         """    Initialize the MICM solver.
 
@@ -63,9 +73,12 @@ class MICM():
                 to create the solver.
             solver_type : SolverType, optional
                 Type of solver to use. If not provided, the default Rosenbrock (with standard-ordered matrices) solver type will be used.
-            ignore_non_gas_phases : bool, optional
-                If True, non-gas phases will be ignored when configuring micm with the mechanism. This is only needed
-                until micm properly supports non-gas phases. This option is only supported when passing in a mechanism.
+            solver_parameters : RosenbrockSolverParameters or BackwardEulerSolverParameters, optional
+                Solver-specific parameters. Must match the solver type.
+            external_models : list, optional
+                External models (e.g. musica.miam.Model) to attach to the solver.
+                Currently at most one external model is supported; passing more than
+                one raises a ValueError. Only valid together with `mechanism`.
         """
         if solver_type is None:
             solver_type = SolverType.rosenbrock_standard_order
@@ -79,11 +92,29 @@ class MICM():
         if config_path is not None and mechanism is not None:
             raise ValueError(
                 "Only one of config_path or mechanism must be provided.")
+
+        self._external_models = external_models or []
+
         if config_path is not None:
+            if self._external_models:
+                raise ValueError(
+                    "external_models cannot be used with config_path; use mechanism instead.")
             self.__solver = create_solver(config_path, solver_type)
         elif mechanism is not None:
-            self.__solver = create_solver_from_mechanism(
-                mechanism, solver_type, ignore_non_gas_phases)
+            if self._external_models:
+                if len(self._external_models) > 1:
+                    raise ValueError(
+                        "Only a single external model is currently supported; "
+                        f"received {len(self._external_models)}.")
+                miam_model = self._external_models[0]
+                miam_config = miam_model._to_config()
+                create_solver_with_miam = _backend._miam._create_solver_with_miam
+                self.__solver = create_solver_with_miam(
+                    _unwrap(mechanism), solver_type, miam_config)
+            else:
+                self.__solver = create_solver_from_mechanism(_unwrap(mechanism), solver_type)
+        if solver_parameters is not None:
+            self.set_solver_parameters(solver_parameters)
 
     def solver_type(self) -> SolverType:
         """
@@ -133,3 +164,85 @@ class MICM():
             raise TypeError("time_step must be an int or float.")
 
         return micm_solve(self.__solver, state.get_internal_state(), time_step)
+
+    def set_solver_parameters(
+        self,
+        params: Union[RosenbrockSolverParameters, BackwardEulerSolverParameters],
+    ):
+        """Set solver-specific parameters.
+
+        Parameters
+        ----------
+        params : RosenbrockSolverParameters or BackwardEulerSolverParameters
+            The parameters to set. Must match the solver type.
+
+        Raises
+        ------
+        TypeError
+            If the parameter type does not match the solver type.
+        """
+        if isinstance(params, RosenbrockSolverParameters):
+            cpp_params = _CppRosenbrockParams()
+            cpp_params.relative_tolerance = params.relative_tolerance
+            if params.absolute_tolerances is not None:
+                cpp_params.absolute_tolerances = _VectorDouble(params.absolute_tolerances)
+            cpp_params.h_min = params.h_min
+            cpp_params.h_max = params.h_max
+            cpp_params.h_start = params.h_start
+            cpp_params.max_number_of_steps = params.max_number_of_steps
+            cpp_params.constraint_init_max_iterations = params.constraint_init_max_iterations
+            cpp_params.constraint_init_tolerance = params.constraint_init_tolerance
+            _set_rosenbrock_params(self.__solver, cpp_params)
+        elif isinstance(params, BackwardEulerSolverParameters):
+            cpp_params = _CppBackwardEulerParams()
+            cpp_params.relative_tolerance = params.relative_tolerance
+            if params.absolute_tolerances is not None:
+                cpp_params.absolute_tolerances = _VectorDouble(params.absolute_tolerances)
+            cpp_params.max_number_of_steps = params.max_number_of_steps
+            cpp_params.time_step_reductions = _VectorDouble(params.time_step_reductions)
+            _set_backward_euler_params(self.__solver, cpp_params)
+        else:
+            raise TypeError(
+                "params must be RosenbrockSolverParameters or BackwardEulerSolverParameters"
+            )
+
+    def get_solver_parameters(
+        self,
+    ) -> Union[RosenbrockSolverParameters, BackwardEulerSolverParameters]:
+        """Get the current solver parameters.
+
+        Returns
+        -------
+        RosenbrockSolverParameters or BackwardEulerSolverParameters
+            The current solver parameters, depending on the solver type.
+        """
+        solver_type = self.__solver_type
+        if solver_type in (
+            SolverType.rosenbrock,
+            SolverType.rosenbrock_standard_order,
+            SolverType.rosenbrock_dae4,
+            SolverType.rosenbrock_dae4_standard_order,
+            SolverType.rosenbrock_dae6,
+            SolverType.rosenbrock_dae6_standard_order,
+        ):
+            cpp_params = _get_rosenbrock_params(self.__solver)
+            return RosenbrockSolverParameters(
+                relative_tolerance=cpp_params.relative_tolerance,
+                absolute_tolerances=list(cpp_params.absolute_tolerances) if cpp_params.absolute_tolerances else None,
+                h_min=cpp_params.h_min,
+                h_max=cpp_params.h_max,
+                h_start=cpp_params.h_start,
+                max_number_of_steps=cpp_params.max_number_of_steps,
+                constraint_init_max_iterations=cpp_params.constraint_init_max_iterations,
+                constraint_init_tolerance=cpp_params.constraint_init_tolerance,
+            )
+        elif solver_type in (SolverType.backward_euler, SolverType.backward_euler_standard_order):
+            cpp_params = _get_backward_euler_params(self.__solver)
+            return BackwardEulerSolverParameters(
+                relative_tolerance=cpp_params.relative_tolerance,
+                absolute_tolerances=list(cpp_params.absolute_tolerances) if cpp_params.absolute_tolerances else None,
+                max_number_of_steps=cpp_params.max_number_of_steps,
+                time_step_reductions=list(cpp_params.time_step_reductions),
+            )
+        else:
+            raise RuntimeError(f"Unknown solver type: {solver_type}")

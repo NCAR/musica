@@ -4,7 +4,7 @@
 
 #include <musica/tuvx/profile.hpp>
 #include <musica/tuvx/profile_map.hpp>
-#include <musica/util.hpp>
+#include <musica/utils/util.hpp>
 
 #include <memory>
 #include <string>
@@ -34,8 +34,8 @@ namespace musica
     /// @param error The error struct to indicate success or failure
     void AddProfile(Profile *profile, Error *error);
 
-    /// @brief Returns a profile. For now, this calls the interal tuvx fortran api, but will allow the change to c++ later on
-    /// to be transparent to downstream projects
+    /// @brief Returns a profile. For now, this calls the internal tuvx fortran api, but will allow the change to c++ later
+    /// on to be transparent to downstream projects
     /// @param profile_name The name of the profile we want
     /// @param profile_units The units of the profile we want
     /// @param error The error struct to indicate success or failure

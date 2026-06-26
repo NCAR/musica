@@ -1980,6 +1980,366 @@
               "to": "jglyoxal",
               "__reaction": "GLYOXAL + hv -> 2*CO + 2*HO2",
               "from": "jmgly"
+           },
+           {
+              "to": "jccl4",
+              "__reaction": "CCl4 + hv -> Products",
+              "from": "jccl4"
+           },
+           {
+              "to": "jhcfc22",
+              "__reaction": "HCFC-22 + hv -> Products",
+              "from": "jhcfc22"
+           },
+           {
+              "to": "jn2o5_a",
+              "__reaction": "N2O5 + hv -> NO2 + NO3",
+              "from": "jn2o5_a"
+           },
+           {
+              "to": "jcfcl3",
+              "__reaction": "CCl3F + hv -> Products",
+              "from": "jcfcl3"
+           },
+           {
+              "to": "jsf6",
+              "__reaction": "SF6 + hv -> sink",
+              "from": "jsf6"
+           },
+           {
+              "to": "jno3_b",
+              "__reaction": "NO3 + hv -> NO + O2",
+              "from": "jno3_b"
+           },
+           {
+              "to": "jcfc114",
+              "__reaction": "CFC-114 + hv -> Products",
+              "from": "jcfc114"
+           },
+           {
+              "to": "jch4_a",
+              "__reaction": "CH4 + hv -> H + CH3O2",
+              "from": "jch4_a"
+           },
+           {
+              "to": "jch3cl",
+              "__reaction": "CH3Cl + hv -> Products",
+              "from": "jch3cl"
+           },
+           {
+              "to": "jclono2_b",
+              "__reaction": "ClONO2 + hv -> ClO + NO2",
+              "from": "jclono2_b"
+           },
+           {
+              "to": "jmvk",
+              "__reaction": "MVK + hv -> 0.7*C3H6 + 0.7*CO + 0.3*CH3O2 + 0.3*CH3CO3",
+              "from": "jmvk"
+           },
+           {
+              "to": "jch2br2",
+              "__reaction": "CH2BR2 + hv -> 2*BR",
+              "from": "jch2br2"
+           },
+           {
+              "to": "jcf2cl2",
+              "__reaction": "CCl2F2 + hv -> Products",
+              "from": "jcf2cl2"
+           },
+           {
+              "to": "jh2o2",
+              "__reaction": "H2O2 + hv -> OH + OH",
+              "from": "jh2o2"
+           },
+           {
+              "to": "jcf3br",
+              "__reaction": "CF3Br + hv -> Products",
+              "from": "jcf3br"
+           },
+           {
+              "to": "jclono2_a",
+              "__reaction": "ClONO2 + hv -> Cl + NO3",
+              "from": "jclono2_a"
+           },
+           {
+              "to": "jso",
+              "__reaction": "SO + hv -> S + O",
+              "from": "jso"
+           },
+           {
+              "to": "jcfc113",
+              "__reaction": "CFC-113 + hv -> Products",
+              "from": "jcfc113"
+           },
+           {
+              "to": "jmacr_b",
+              "__reaction": "CH2=C(CH3)CHO->0.66OH+1.34CO",
+              "from": "jmacr_b"
+           },
+           {
+              "to": "jco2",
+              "__reaction": "CO2 + hv -> CO + O",
+              "from": "jco2"
+           },
+           {
+              "to": "jcfc115",
+              "__reaction": "CFC-115 + hv -> Products",
+              "from": "jcfc115"
+           },
+           {
+              "to": "jcof2",
+              "__reaction": "CF2O + hv -> Products",
+              "from": "jcof2"
+           },
+           {
+              "to": "jch2o_b",
+              "__reaction": "CH2O + hv -> H2 + CO",
+              "from": "jch2o_b"
+           },
+           {
+              "to": "jo2_a",
+              "__reaction": "O2 + hv -> O + O1D",
+              "from": "jo2_a"
+           },
+           {
+              "to": "jo3_a",
+              "__reaction": "O3 + hv -> O2 + O(1D)",
+              "from": "jo3_a"
+           },
+           {
+              "to": "jh2o_c",
+              "__reaction": "H2O + hv -> 2*H + O",
+              "from": "jh2o_c"
+           },
+           {
+              "to": "jhyac",
+              "__reaction": "CH2(OH)COCH3->CH3CO3+HO2+CH2O",
+              "from": "jhyac"
+           },
+           {
+              "to": "jmgly",
+              "__reaction": "CH3COCHO + hv -> CH3CO3 + CO + HO2",
+              "from": "jmgly"
+           },
+           {
+              "to": "jh2o_b",
+              "__reaction": "H2O + hv -> H2 + O1D",
+              "from": "jh2o_b"
+           },
+           {
+              "to": "jch3ccl3",
+              "__reaction": "CH3CCl3+hv->Products",
+              "from": "jch3ccl3"
+           },
+           {
+              "to": "jch3cho",
+              "__reaction": "CH3CHO + hv -> CH3 + HCO",
+              "from": "jch3cho"
+           },
+           {
+              "to": "jhocl",
+              "__reaction": "HOCl + hv -> HO + Cl",
+              "from": "jhocl"
+           },
+           {
+              "to": "jno2",
+              "__reaction": "NO2 + hv -> NO + O(3P)",
+              "from": "jno2"
+           },
+           {
+              "to": "jbrono2_b",
+              "__reaction": "BrONO2 + hv -> BrO + NO2",
+              "from": "jbrono2_b"
+           },
+           {
+              "to": "jn2o",
+              "__reaction": "N2O + hv -> N2 + O(1D)",
+              "from": "jn2o"
+           },
+           {
+              "to": "jocs",
+              "__reaction": "OCS + hv -> S + CO",
+              "from": "jocs"
+           },
+           {
+              "to": "jcl2",
+              "__reaction": "Cl2 + hv -> Cl + Cl",
+              "from": "jcl2"
+           },
+           {
+              "to": "jn2o5_b",
+              "__reaction": "N2O5 + hv -> NO + O + NO3",
+              "from": "jn2o5_b"
+           },
+           {
+              "to": "jbrcl",
+              "__reaction": "BrCl + hv -> Br + Cl",
+              "from": "jbrcl"
+           },
+           {
+              "to": "jo3_b",
+              "__reaction": "O3 + hv -> O2 + O(3P)",
+              "from": "jo3_b"
+           },
+           {
+              "to": "jclo",
+              "__reaction": "ClO + hv -> Cl + O",
+              "from": "jclo"
+           },
+           {
+              "to": "jhcl",
+              "__reaction": "HCl + hv -> H + Cl",
+              "from": "jhcl"
+           },
+           {
+              "to": "jso3",
+              "__reaction": "SO3 + hv -> SO2 + O",
+              "from": "jso3"
+           },
+           {
+              "to": "jso2",
+              "__reaction": "SO2 + hv -> SO + O",
+              "from": "jso2"
+           },
+           {
+              "to": "jacet",
+              "__reaction": "CH3COCH3 + hv -> CH3CO + CH3",
+              "from": "jacet"
+           },
+           {
+              "to": "jhcfc142b",
+              "__reaction": "HCFC-142b + hv -> Products",
+              "from": "jhcfc142b"
+           },
+           {
+              "to": "jo2_b",
+              "__reaction": "O2 + hv -> O + O",
+              "from": "jo2_b"
+           },
+           {
+              "to": "jhno3",
+              "__reaction": "HNO3 + hv -> OH + NO2",
+              "from": "jhno3"
+           },
+           {
+              "to": "jpan",
+              "__reaction": "PAN + hv -> 0.6*CH3CO3 + 0.6*NO2 + 0.4*CH3O2 + 0.4*NO3 + 0.4*CO2",
+              "from": "jpan"
+           },
+           {
+              "to": "jcofcl",
+              "__reaction": "CClFO + hv -> Products",
+              "from": "jcofcl"
+           },
+           {
+              "to": "jh2o_a",
+              "__reaction": "H2O + hv -> OH + H",
+              "from": "jh2o_a"
+           },
+           {
+              "to": "jno3_a",
+              "__reaction": "NO3 + hv -> NO2 + O(3P)",
+              "from": "jno3_a"
+           },
+           {
+              "to": "jch3br",
+              "__reaction": "CH3Br + hv -> Products",
+              "from": "jch3br"
+           },
+           {
+              "to": "jch4_b",
+              "__reaction": "CH4 + hv -> 1.44*H2 + 0.18*CH2O + 0.18*O + 0.33*OH + 0.33*H + 0.44*CO2 + 0.38*CO + 0.05*H2O",
+              "from": "jch4_b"
+           },
+           {
+              "to": "jglyald",
+              "__reaction": "GLYALD + hv -> 2*HO2 + CO + CH2O",
+              "from": "jglyald"
+           },
+           {
+              "to": "jcl2o2",
+              "__reaction": "ClOOCl + hv -> Cl + ClOO",
+              "from": "jcl2o2"
+           },
+           {
+              "to": "jhbr",
+              "__reaction": "HBR + hv -> BR + H",
+              "from": "jhbr"
+           },
+           {
+              "to": "jhf",
+              "__reaction": "HF + hv -> H + F",
+              "from": "jhf"
+           },
+           {
+              "to": "jho2no2_a",
+              "__reaction": "HNO4 + hv -> OH + NO3",
+              "from": "jho2no2_a"
+           },
+           {
+              "to": "jh2402",
+              "__reaction": "H2402 + hv -> 2*BR + 2*COF2",
+              "from": "jh2402"
+           },
+           {
+              "to": "jbrono2_a",
+              "__reaction": "BrONO2 + hv -> Br + NO3",
+              "from": "jbrono2_a"
+           },
+           {
+              "to": "joclo",
+              "__reaction": "OClO + hv -> Products",
+              "from": "joclo"
+           },
+           {
+              "to": "jch2o_a",
+              "__reaction": "CH2O + hv -> H + HCO",
+              "from": "jch2o_a"
+           },
+           {
+              "to": "jhobr",
+              "__reaction": "HOBr + hv -> OH + Br",
+              "from": "jhobr"
+           },
+           {
+              "to": "jh2so4",
+              "__reaction": "H2SO4 + hv -> SO3 + H2O",
+              "from": "jh2so4"
+           },
+           {
+              "to": "jhcfc141b",
+              "__reaction": "HCFC-141b + hv -> Products",
+              "from": "jhcfc141b"
+           },
+           {
+              "to": "jbro",
+              "__reaction": "BrO + hv -> Br + O",
+              "from": "jbro"
+           },
+           {
+              "to": "jho2no2_b",
+              "__reaction": "HNO4 + hv -> HO2 + NO2",
+              "from": "jho2no2_b"
+           },
+           {
+              "to": "jchbr3",
+              "__reaction": "CHBr3 + hv -> Products",
+              "from": "jchbr3"
+           },
+           {
+              "to": "jcf2clbr",
+              "__reaction": "CF2BrCl + hv -> Products",
+              "from": "jcf2clbr"
+           },
+           {
+              "to": "jmacr_a",
+              "__reaction": "CH2=C(CH3)CHO->1.34HO2+0.66MCO3+1.34CH2O+CH3CO3",
+              "from": "jmacr_a"
+           },
+           {
+              "to": "jch3ooh",
+              "__reaction": "CH3OOH + hv -> CH3O + OH",
+              "from": "jch3ooh"
            }
         ]
      }

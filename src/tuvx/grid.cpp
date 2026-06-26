@@ -41,9 +41,9 @@ namespace musica
     {
       delete grid;
     }
-    catch (const std::system_error &e)
+    catch (const std::exception &e)
     {
-      ToError(e, error);
+      ToError(e, MUSICA_SEVERITY_ERROR, error);
       return;
     }
     NoError(error);
@@ -67,7 +67,7 @@ namespace musica
     grid->GetEdges(edges, num_edges, error);
   }
 
-  double* GetGridEdgesPointer(Grid *grid, Error *error)
+  double *GetGridEdgesPointer(Grid *grid, Error *error)
   {
     DeleteError(error);
     return grid->GetEdgesPointer(error);
@@ -85,7 +85,7 @@ namespace musica
     grid->GetMidpoints(midpoints, num_midpoints, error);
   }
 
-  double* GetGridMidpointsPointer(Grid *grid, Error *error)
+  double *GetGridMidpointsPointer(Grid *grid, Error *error)
   {
     DeleteError(error);
     return grid->GetMidpointsPointer(error);
@@ -99,14 +99,14 @@ namespace musica
     grid_ = InternalCreateGrid(grid_name, strlen(grid_name), units, strlen(units), num_sections, &error_code);
     if (error_code != 0)
     {
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return;
     }
     updater_ = InternalGetGridUpdater(grid_, &error_code);
     if (error_code != 0)
     {
       InternalDeleteGrid(grid_, &error_code);
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return;
     }
     NoError(error);
@@ -130,14 +130,14 @@ namespace musica
     if (updater_ == nullptr)
     {
       error_code = ERROR_UNALLOCATED_GRID_UPDATER;
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return "";
     }
     String name;
     InternalGetGridName(updater_, &name, &error_code);
     if (error_code != 0)
     {
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return "";
     }
     NoError(error);
@@ -153,14 +153,14 @@ namespace musica
     if (updater_ == nullptr)
     {
       error_code = ERROR_UNALLOCATED_GRID_UPDATER;
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return "";
     }
     String units;
     InternalGetGridUnits(updater_, &units, &error_code);
     if (error_code != 0)
     {
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return "";
     }
     NoError(error);
@@ -176,13 +176,13 @@ namespace musica
     if (updater_ == nullptr)
     {
       error_code = ERROR_UNALLOCATED_GRID_UPDATER;
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return 0;
     }
     std::size_t const n_sections = InternalGetNumberOfSections(updater_, &error_code);
     if (error_code != 0)
     {
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return 0;
     }
     NoError(error);
@@ -196,13 +196,13 @@ namespace musica
     if (updater_ == nullptr)
     {
       error_code = ERROR_UNALLOCATED_GRID_UPDATER;
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return;
     }
     InternalSetEdges(updater_, edges, num_edges, &error_code);
     if (error_code != 0)
     {
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return;
     }
     NoError(error);
@@ -215,32 +215,32 @@ namespace musica
     if (updater_ == nullptr)
     {
       error_code = ERROR_UNALLOCATED_GRID_UPDATER;
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return;
     }
     InternalGetEdges(updater_, edges, num_edges, &error_code);
     if (error_code != 0)
     {
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return;
     }
     NoError(error);
   }
 
-  double* Grid::GetEdgesPointer(Error *error)
+  double *Grid::GetEdgesPointer(Error *error)
   {
     DeleteError(error);
     int error_code = 0;
     if (updater_ == nullptr)
     {
       error_code = ERROR_UNALLOCATED_GRID_UPDATER;
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return nullptr;
     }
-    double* edges_ptr = InternalGetEdgesPointer(updater_, &error_code);
+    double *edges_ptr = InternalGetEdgesPointer(updater_, &error_code);
     if (error_code != 0)
     {
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return nullptr;
     }
     NoError(error);
@@ -254,13 +254,13 @@ namespace musica
     if (updater_ == nullptr)
     {
       error_code = ERROR_UNALLOCATED_GRID_UPDATER;
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return;
     }
     InternalSetMidpoints(updater_, midpoints, num_midpoints, &error_code);
     if (error_code != 0)
     {
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return;
     }
     NoError(error);
@@ -273,32 +273,32 @@ namespace musica
     if (updater_ == nullptr)
     {
       error_code = ERROR_UNALLOCATED_GRID_UPDATER;
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return;
     }
     InternalGetMidpoints(updater_, midpoints, num_midpoints, &error_code);
     if (error_code != 0)
     {
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return;
     }
     NoError(error);
   }
 
-  double* Grid::GetMidpointsPointer(Error *error)
+  double *Grid::GetMidpointsPointer(Error *error)
   {
     DeleteError(error);
     int error_code = 0;
     if (updater_ == nullptr)
     {
       error_code = ERROR_UNALLOCATED_GRID_UPDATER;
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return nullptr;
     }
-    double* midpoints_ptr = InternalGetMidpointsPointer(updater_, &error_code);
+    double *midpoints_ptr = InternalGetMidpointsPointer(updater_, &error_code);
     if (error_code != 0)
     {
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return nullptr;
     }
     NoError(error);

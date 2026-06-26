@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MUSICA WASM Example</title>
+    <style>
+        body {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+    // Fetch widget.html and inject it into the page, properly executing scripts.
+    // Note: this page must be served over HTTP (not file://).
+    (async () => {
+        try {
+            const html = await (await fetch('./widget.html')).text();
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+
+            // Inject stylesheets and style blocks into document head
+            for (const el of [...doc.querySelectorAll('link[rel="stylesheet"], style')]) {
+                document.head.appendChild(document.importNode(el, true));
+            }
+
+            // Load non-module scripts in order (inline and external); order matters for
+            // AMD disable/restore wrappers and Plotly.
+            for (const el of [...doc.querySelectorAll('script:not([type="module"])')]) {
+                if (el.src) {
+                    await new Promise((res, rej) => {
+                        const s = document.createElement('script');
+                        s.src = el.src;
+                        s.onload = res;
+                        s.onerror = rej;
+                        document.head.appendChild(s);
+                    });
+                } else if (el.textContent.trim()) {
+                    const s = document.createElement('script');
+                    s.textContent = el.textContent;
+                    document.head.appendChild(s);
+                }
+            }
+
+            // Collect module script text before removing scripts from the parsed doc
+            const moduleText = [...doc.querySelectorAll('script[type="module"]')]
+                .map(s => s.textContent).join('\n');
+
+            // Remove scripts/links/styles from parsed doc and inject remaining HTML
+            doc.querySelectorAll('script, link, style').forEach(el => el.remove());
+            document.body.innerHTML = doc.body.innerHTML;
+
+            // Execute module script (scripts injected via innerHTML do not auto-execute)
+            if (moduleText) {
+                const s = document.createElement('script');
+                s.type = 'module';
+                s.textContent = moduleText;
+                document.body.appendChild(s);
+            }
+        } catch (e) {
+            document.body.innerHTML = `<div style="color:red;padding:20px;font-family:sans-serif">
+                <h2>Failed to load MUSICA widget</h2>
+                <p>${e.message}</p>
+                <p>This page must be served over HTTP (not opened as a local file).</p>
+            </div>`;
+        }
+    })();
+    </script>
+</body>
+
+</html>

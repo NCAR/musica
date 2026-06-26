@@ -2,7 +2,9 @@
 from __future__ import annotations
 import pytest
 from musica.micm import MICM, State, SolverType, SolverResult, SolverState
+from musica.micm import RosenbrockSolverParameters, BackwardEulerSolverParameters
 import musica.mechanism_configuration as mc
+from musica.utils import find_config_path
 
 
 def create_simple_mechanism() -> mc.Mechanism:
@@ -41,14 +43,14 @@ class TestMICMInitialization:
 
     def test_init_with_config_path(self):
         """Test initialization with a configuration path."""
-        micm = MICM(config_path="configs/v0/analytical")
+        micm = MICM(config_path=find_config_path("v0", "analytical"))
         assert micm is not None
         assert isinstance(micm.solver_type(), SolverType)
 
     def test_init_with_config_path_and_solver_type(self):
         """Test initialization with config path and explicit solver type."""
         micm = MICM(
-            config_path="configs/v0/analytical",
+            config_path=find_config_path("v0", "analytical"),
             solver_type=SolverType.rosenbrock_standard_order
         )
         assert micm is not None
@@ -74,10 +76,7 @@ class TestMICMInitialization:
     def test_init_with_mechanism_ignore_non_gas_phases(self):
         """Test initialization with mechanism and ignore_non_gas_phases flag."""
         mechanism = create_simple_mechanism()
-        micm = MICM(
-            mechanism=mechanism,
-            ignore_non_gas_phases=True
-        )
+        micm = MICM(mechanism=mechanism)
         assert micm is not None
 
     def test_init_without_config_or_mechanism_raises_error(self):
@@ -89,11 +88,11 @@ class TestMICMInitialization:
         """Test that initialization with both config_path and mechanism raises ValueError."""
         mechanism = create_simple_mechanism()
         with pytest.raises(ValueError, match="Only one of config_path or mechanism must be provided"):
-            MICM(config_path="configs/v0/analytical", mechanism=mechanism)
+            MICM(config_path=find_config_path("v0", "analytical"), mechanism=mechanism)
 
     def test_default_solver_type(self):
         """Test that default solver type is rosenbrock_standard_order."""
-        micm = MICM(config_path="configs/v0/analytical")
+        micm = MICM(config_path=find_config_path("v0", "analytical"))
         assert micm.solver_type() == SolverType.rosenbrock_standard_order
 
 
@@ -103,7 +102,7 @@ class TestMICMSolverType:
     def test_solver_type_returns_correct_type(self):
         """Test that solver_type() returns the correct SolverType."""
         micm = MICM(
-            config_path="configs/v0/analytical",
+            config_path=find_config_path("v0", "analytical"),
             solver_type=SolverType.rosenbrock_standard_order
         )
         assert micm.solver_type() == SolverType.rosenbrock_standard_order
@@ -113,11 +112,13 @@ class TestMICMSolverType:
         solver_types = [
             SolverType.rosenbrock_standard_order,
             SolverType.backward_euler_standard_order,
+            SolverType.rosenbrock_dae4_standard_order,
+            SolverType.rosenbrock_dae6_standard_order,
         ]
 
         for solver_type in solver_types:
             micm = MICM(
-                config_path="configs/v0/analytical",
+                config_path=find_config_path("v0", "analytical"),
                 solver_type=solver_type
             )
             assert micm.solver_type() == solver_type
@@ -128,26 +129,26 @@ class TestMICMCreateState:
 
     def test_create_state_default_single_grid_cell(self):
         """Test creating a state with default single grid cell."""
-        micm = MICM(config_path="configs/v0/analytical")
+        micm = MICM(config_path=find_config_path("v0", "analytical"))
         state = micm.create_state()
         assert isinstance(state, State)
 
     def test_create_state_single_grid_cell_explicit(self):
         """Test creating a state with explicitly specified single grid cell."""
-        micm = MICM(config_path="configs/v0/analytical")
+        micm = MICM(config_path=find_config_path("v0", "analytical"))
         state = micm.create_state(number_of_grid_cells=1)
         assert isinstance(state, State)
 
     def test_create_state_multiple_grid_cells(self):
         """Test creating a state with multiple grid cells."""
-        micm = MICM(config_path="configs/v0/analytical")
+        micm = MICM(config_path=find_config_path("v0", "analytical"))
         for num_cells in [2, 5, 10, 100]:
             state = micm.create_state(number_of_grid_cells=num_cells)
             assert isinstance(state, State)
 
     def test_create_multiple_states(self):
         """Test creating multiple state objects from the same solver."""
-        micm = MICM(config_path="configs/v0/analytical")
+        micm = MICM(config_path=find_config_path("v0", "analytical"))
         state1 = micm.create_state()
         state2 = micm.create_state(number_of_grid_cells=5)
         assert isinstance(state1, State)
@@ -160,7 +161,7 @@ class TestMICMSolve:
 
     def test_solve_with_valid_state_and_timestep(self):
         """Test solve with valid state and time step."""
-        micm = MICM(config_path="configs/v0/analytical")
+        micm = MICM(config_path=find_config_path("v0", "analytical"))
         state = micm.create_state()
 
         # Set initial conditions
@@ -176,7 +177,7 @@ class TestMICMSolve:
 
     def test_solve_with_multiple_grid_cells(self):
         """Test solve with multiple grid cells."""
-        micm = MICM(config_path="configs/v0/analytical")
+        micm = MICM(config_path=find_config_path("v0", "analytical"))
         num_cells = 5
         state = micm.create_state(number_of_grid_cells=num_cells)
 
@@ -197,7 +198,7 @@ class TestMICMSolve:
 
     def test_solve_with_float_timestep(self):
         """Test solve with float time step."""
-        micm = MICM(config_path="configs/v0/analytical")
+        micm = MICM(config_path=find_config_path("v0", "analytical"))
         state = micm.create_state()
         state.set_conditions(temperatures=298.15, pressures=101325.0, air_densities=1.2)
         state.set_concentrations({"A": 1.0})
@@ -208,7 +209,7 @@ class TestMICMSolve:
 
     def test_solve_with_int_timestep(self):
         """Test solve with integer time step."""
-        micm = MICM(config_path="configs/v0/analytical")
+        micm = MICM(config_path=find_config_path("v0", "analytical"))
         state = micm.create_state()
         state.set_conditions(temperatures=298.15, pressures=101325.0, air_densities=1.2)
         state.set_concentrations({"A": 1.0})
@@ -219,14 +220,14 @@ class TestMICMSolve:
 
     def test_solve_with_invalid_state_type_raises_error(self):
         """Test that solve with invalid state type raises TypeError."""
-        micm = MICM(config_path="configs/v0/analytical")
+        micm = MICM(config_path=find_config_path("v0", "analytical"))
 
         with pytest.raises(TypeError, match="state must be an instance of State"):
             micm.solve("not a state", time_step=1.0)
 
     def test_solve_with_invalid_timestep_type_raises_error(self):
         """Test that solve with invalid time step type raises TypeError."""
-        micm = MICM(config_path="configs/v0/analytical")
+        micm = MICM(config_path=find_config_path("v0", "analytical"))
         state = micm.create_state()
 
         with pytest.raises(TypeError, match="time_step must be an int or float"):
@@ -234,14 +235,14 @@ class TestMICMSolve:
 
     def test_solve_with_none_state_raises_error(self):
         """Test that solve with None state raises TypeError."""
-        micm = MICM(config_path="configs/v0/analytical")
+        micm = MICM(config_path=find_config_path("v0", "analytical"))
 
         with pytest.raises(TypeError, match="state must be an instance of State"):
             micm.solve(None, time_step=1.0)
 
     def test_solve_multiple_times(self):
         """Test solving multiple times with the same state."""
-        micm = MICM(config_path="configs/v0/analytical")
+        micm = MICM(config_path=find_config_path("v0", "analytical"))
         state = micm.create_state()
         state.set_conditions(temperatures=298.15, pressures=101325.0, air_densities=1.2)
         state.set_concentrations({"A": 1.0, "B": 0.0})
@@ -287,7 +288,7 @@ class TestMICMIntegration:
         """Test complete workflow: initialize, create state, set conditions, solve."""
         # Initialize solver
         micm = MICM(
-            config_path="configs/v0/analytical",
+            config_path=find_config_path("v0", "analytical"),
             solver_type=SolverType.rosenbrock_standard_order
         )
 
@@ -343,6 +344,194 @@ class TestMICMIntegration:
 
         # Verify results
         assert isinstance(results, SolverResult)
+
+
+class TestSolverParameters:
+    """Test solver parameter setting and getting."""
+
+    def test_rosenbrock_solver_parameters(self):
+        """Test setting and getting Rosenbrock solver parameters."""
+        params = RosenbrockSolverParameters(
+            relative_tolerance=1e-8,
+            h_min=1e-10,
+            h_max=100.0,
+            h_start=1e-5,
+            max_number_of_steps=500,
+            constraint_init_max_iterations=25,
+            constraint_init_tolerance=1e-8,
+        )
+        solver = MICM(
+            config_path=find_config_path("v0", "analytical"),
+            solver_type=SolverType.rosenbrock_standard_order,
+            solver_parameters=params,
+        )
+        result = solver.get_solver_parameters()
+        assert isinstance(result, RosenbrockSolverParameters)
+        assert result.max_number_of_steps == 500
+        assert result.h_min == pytest.approx(1e-10)
+        assert result.h_max == pytest.approx(100.0)
+        assert result.h_start == pytest.approx(1e-5)
+        assert result.relative_tolerance == pytest.approx(1e-8)
+        assert result.constraint_init_max_iterations == 25
+        assert result.constraint_init_tolerance == pytest.approx(1e-8)
+
+    def test_backward_euler_solver_parameters(self):
+        """Test setting and getting Backward Euler solver parameters."""
+        params = BackwardEulerSolverParameters(
+            relative_tolerance=1e-8,
+            max_number_of_steps=20,
+            time_step_reductions=[0.3, 0.3, 0.3, 0.3, 0.05],
+        )
+        solver = MICM(
+            config_path=find_config_path("v0", "analytical"),
+            solver_type=SolverType.backward_euler_standard_order,
+            solver_parameters=params,
+        )
+        result = solver.get_solver_parameters()
+        assert isinstance(result, BackwardEulerSolverParameters)
+        assert result.max_number_of_steps == 20
+        assert result.relative_tolerance == pytest.approx(1e-8)
+        assert result.time_step_reductions[0] == pytest.approx(0.3)
+        assert result.time_step_reductions[4] == pytest.approx(0.05)
+
+    def test_solver_parameters_type_mismatch(self):
+        """Test that setting wrong parameter type raises an error."""
+        params = BackwardEulerSolverParameters()
+        solver = MICM(
+            config_path=find_config_path("v0", "analytical"),
+            solver_type=SolverType.rosenbrock_standard_order,
+        )
+        with pytest.raises(Exception):
+            solver.set_solver_parameters(params)
+
+    def test_solver_parameters_after_construction(self):
+        """Test changing parameters after construction."""
+        solver = MICM(
+            config_path=find_config_path("v0", "analytical"),
+            solver_type=SolverType.rosenbrock_standard_order,
+        )
+        params = RosenbrockSolverParameters(
+            max_number_of_steps=2000,
+            h_start=1e-3,
+        )
+        solver.set_solver_parameters(params)
+        result = solver.get_solver_parameters()
+        assert result.max_number_of_steps == 2000
+        assert result.h_start == pytest.approx(1e-3)
+
+        # Solve to verify parameters work
+        state = solver.create_state()
+        state.set_concentrations({"A": [1.0], "B": [0.0], "C": [1.0],
+                                  "D": [1.0], "E": [0.0], "F": [1.0]})
+        state.set_conditions(temperatures=298.15, pressures=101325.0)
+        result = solver.solve(state, 60.0)
+
+
+class TestDAESolvers:
+    """Test DAE Rosenbrock solver types."""
+
+    @pytest.mark.parametrize("solver_type", [
+        SolverType.rosenbrock_dae4_standard_order,
+        SolverType.rosenbrock_dae6_standard_order,
+    ])
+    def test_dae_solver_creation(self, solver_type):
+        """Test creating MICM with DAE solver types."""
+        micm = MICM(
+            config_path=find_config_path("v0", "analytical"),
+            solver_type=solver_type,
+        )
+        assert micm.solver_type() == solver_type
+
+    @pytest.mark.parametrize("solver_type", [
+        SolverType.rosenbrock_dae4_standard_order,
+        SolverType.rosenbrock_dae6_standard_order,
+    ])
+    def test_dae_solver_solve(self, solver_type):
+        """Test solving with DAE solver types."""
+        micm = MICM(
+            config_path=find_config_path("v0", "analytical"),
+            solver_type=solver_type,
+        )
+        state = micm.create_state()
+        state.set_conditions(temperatures=298.15, pressures=101325.0, air_densities=1.2)
+        state.set_concentrations({"A": 1.0, "B": 0.0, "C": 0.5})
+        state.set_user_defined_rate_parameters({
+            "USER.reaction 1": 0.001,
+            "USER.reaction 2": 0.002,
+        })
+        result = micm.solve(state, time_step=1.0)
+        assert isinstance(result, SolverResult)
+        assert result.state == SolverState.Converged
+
+    @pytest.mark.parametrize("solver_type", [
+        SolverType.rosenbrock_dae4_standard_order,
+        SolverType.rosenbrock_dae6_standard_order,
+    ])
+    def test_dae_solver_with_mechanism(self, solver_type):
+        """Test DAE solvers with mechanism-based initialization."""
+        mechanism = create_simple_mechanism()
+        micm = MICM(mechanism=mechanism, solver_type=solver_type)
+        state = micm.create_state()
+        state.set_conditions(temperatures=298.15, pressures=101325.0, air_densities=1.2)
+        state.set_concentrations({"A": 1.0, "B": 0.0, "C": 0.0})
+        result = micm.solve(state, time_step=1.0)
+        assert isinstance(result, SolverResult)
+
+    @pytest.mark.parametrize("solver_type", [
+        SolverType.rosenbrock_dae4_standard_order,
+        SolverType.rosenbrock_dae6_standard_order,
+    ])
+    def test_dae_solver_constraint_init_parameters(self, solver_type):
+        """Test setting and getting constraint init parameters on DAE solvers."""
+        params = RosenbrockSolverParameters(
+            constraint_init_max_iterations=50,
+            constraint_init_tolerance=1e-12,
+        )
+        micm = MICM(
+            config_path=find_config_path("v0", "analytical"),
+            solver_type=solver_type,
+            solver_parameters=params,
+        )
+        result = micm.get_solver_parameters()
+        assert isinstance(result, RosenbrockSolverParameters)
+        assert result.constraint_init_max_iterations == 50
+        assert result.constraint_init_tolerance == pytest.approx(1e-12)
+
+    @pytest.mark.parametrize("solver_type", [
+        SolverType.rosenbrock_dae4_standard_order,
+        SolverType.rosenbrock_dae6_standard_order,
+    ])
+    def test_dae_solver_multiple_grid_cells(self, solver_type):
+        """Test DAE solvers with multiple grid cells."""
+        micm = MICM(
+            config_path=find_config_path("v0", "analytical"),
+            solver_type=solver_type,
+        )
+        num_cells = 3
+        state = micm.create_state(number_of_grid_cells=num_cells)
+        state.set_conditions(
+            temperatures=[298.15] * num_cells,
+            pressures=[101325.0] * num_cells,
+        )
+        state.set_concentrations({
+            "A": [1.0] * num_cells,
+            "B": [0.0] * num_cells,
+        })
+        state.set_user_defined_rate_parameters({
+            "USER.reaction 1": [0.001] * num_cells,
+            "USER.reaction 2": [0.002] * num_cells,
+        })
+        result = micm.solve(state, time_step=1.0)
+        assert isinstance(result, SolverResult)
+
+    def test_dae_solver_wrong_param_type_raises(self):
+        """Test that setting BackwardEuler params on a DAE solver raises."""
+        micm = MICM(
+            config_path=find_config_path("v0", "analytical"),
+            solver_type=SolverType.rosenbrock_dae4_standard_order,
+        )
+        with pytest.raises(Exception):
+            micm.set_solver_parameters(BackwardEulerSolverParameters())
 
 
 if __name__ == '__main__':

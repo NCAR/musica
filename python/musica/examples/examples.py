@@ -106,6 +106,11 @@ class _Examples:
         short_name='Lorenz_Attractor',
         path='lorenz.py',
         description='An example demonstrating the Lorenz attractor using user-defined reactions.')
+    Chapman = Example.from_config(
+        display_name='Chapman Mechanism',
+        short_name='Chapman',
+        path='chapman.py',
+        description='An example demonstrating the Chapman mechanism with photo rates from TUV-x.')
 
     @classmethod
     def get_all(cls):
@@ -120,7 +125,8 @@ class _Examples:
             cls.Sulfate_Box_Model,
             cls.TS1LatinHyperCube,
             cls.TS1BoxModel,
-            cls.Lorenz_Attractor]
+            cls.Lorenz_Attractor,
+            cls.Chapman]
 
     def __iter__(self):
         """Make the class iterable over examples.
