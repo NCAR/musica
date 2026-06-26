@@ -1,0 +1,99 @@
+name: Test Windows netCDF S3 fix
+
+# Validates whether the lazy-AWS-init netCDF fix resolves the Windows
+# process-teardown hang in musica's tuvx tests.
+#
+# Background: MSYS2's libnetcdf is built with S3 via the AWS C++ SDK. netCDF
+# eagerly calls Aws::InitAPI() in nc_initialize(), spawning AWS event-loop
+# threads even for local-file access; on Windows the matching Aws::ShutdownAPI()
+# (run from nc_finalize via atexit during DLL teardown, under the loader lock)
+# deadlocks, hanging the process at exit AFTER all tests pass.
+# See https://github.com/Unidata/netcdf-c/issues/2739
+#
+# This job rebuilds netCDF from a fork/branch that makes the AWS init lazy,
+# installs it over the MSYS2 netCDF, then builds musica with tuvx + C++ tests
+# and runs the tuvx ctests. If the fix works they exit cleanly; if not, ctest's
+# per-test timeout reports them as Timeout failures (the same symptom seen
+# locally and in the wheel job).
+
+on:
+  workflow_dispatch:
+    inputs:
+      netcdf_repo:
+        description: "netCDF-c fork to build"
+        default: "https://github.com/K20shores/netcdf-c"
+      netcdf_ref:
+        description: "netCDF-c branch/ref with the fix"
+        default: "fix-s3-lazy-init-windows-hang"
+  push:
+    branches:
+      - python_windows_fortran_tests
+
+jobs:
+  tuvx-tests-patched-netcdf:
+    runs-on: windows-latest
+    timeout-minutes: 60
+    env:
+      NETCDF_REPO: ${{ github.event.inputs.netcdf_repo || 'https://github.com/K20shores/netcdf-c' }}
+      NETCDF_REF: ${{ github.event.inputs.netcdf_ref || 'fix-s3-lazy-init-windows-hang' }}
+    steps:
+      - name: Checkout musica
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Set up Windows AMD64 (MSYS2 UCRT64)
+        uses: ./.github/windows_amd64_steps
+
+      # netCDF must be rebuilt with the same S3-via-AWS-SDK backend MSYS2 ships,
+      # so install the AWS SDK dev files + curl needed to configure it.
+      - name: Install netCDF build dependencies
+        shell: msys2 {0}
+        run: pacman -S --noconfirm --needed mingw-w64-ucrt-x86_64-aws-sdk-cpp mingw-w64-ucrt-x86_64-curl
+
+      - name: Build & install patched netCDF over the MSYS2 one
+        shell: msys2 {0}
+        run: |
+          set -e
+          echo "Building $NETCDF_REPO @ $NETCDF_REF"
+          git clone --depth 1 --branch "$NETCDF_REF" "$NETCDF_REPO" /tmp/netcdf-c
+          cmake -S /tmp/netcdf-c -B /tmp/netcdf-build -G Ninja \
+            -D CMAKE_BUILD_TYPE=Release \
+            -D BUILD_SHARED_LIBS=ON \
+            -D CMAKE_INSTALL_PREFIX="$MSYSTEM_PREFIX" \
+            -D NETCDF_ENABLE_S3_AWS=ON \
+            -D NETCDF_ENABLE_NCZARR=ON \
+            -D NETCDF_ENABLE_TESTS=OFF \
+            -D NETCDF_BUILD_UTILITIES=OFF \
+            -D CMAKE_POLICY_VERSION_MINIMUM=3.5
+          cmake --build /tmp/netcdf-build --parallel
+          cmake --install /tmp/netcdf-build
+          echo "=== confirm S3-AWS is actually enabled in the build we just installed ==="
+          grep -E "S3|AWS" /tmp/netcdf-build/CMakeCache.txt | grep -iE "ENABLE_S3|S3_AWS" || true
+          echo "=== installed libnetcdf ==="
+          ls -la "$MSYSTEM_PREFIX/bin/libnetcdf.dll"
+
+      - name: Configure musica (tuvx + C++ tests)
+        shell: msys2 {0}
+        run: |
+          cmake -S . -B build -G Ninja \
+            -D CMAKE_BUILD_TYPE=Release \
+            -D MUSICA_ENABLE_MICM=ON \
+            -D MUSICA_ENABLE_TUVX=ON \
+            -D MUSICA_ENABLE_CARMA=OFF \
+            -D MUSICA_ENABLE_TESTS=ON \
+            -D CMAKE_POLICY_VERSION_MINIMUM=3.5
+
+      - name: Build musica
+        shell: msys2 {0}
+        run: cmake --build build --parallel
+
+      # The decisive check: these tuvx C++ tests construct a tuvx core from
+      # config (reading netCDF data files -> AWS init). With the unpatched
+      # netCDF they pass but hang at exit and ctest reports ***Timeout. With the
+      # fix they should exit cleanly and pass. --timeout gives a clean failure
+      # instead of a multi-hour hang if the fix doesn't work.
+      - name: Run tuvx C++ tests
+        shell: msys2 {0}
+        working-directory: build
+        run: ctest -C Release -R tuvx --output-on-failure --timeout 60
