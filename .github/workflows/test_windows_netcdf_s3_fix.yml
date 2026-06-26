@@ -49,7 +49,7 @@ jobs:
       # so install the AWS SDK dev files + curl needed to configure it.
       - name: Install netCDF build dependencies
         shell: msys2 {0}
-        run: pacman -S --noconfirm --needed git mingw-w64-ucrt-x86_64-aws-sdk-cpp mingw-w64-ucrt-x86_64-curl
+        run: pacman -S --noconfirm --needed git m4 mingw-w64-ucrt-x86_64-aws-sdk-cpp mingw-w64-ucrt-x86_64-curl
 
       - name: Build & install patched netCDF over the MSYS2 one
         shell: msys2 {0}
