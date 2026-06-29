@@ -1,8 +1,7 @@
 #include <musica/micm/parse.hpp>
 #include <musica/utils/error_code.hpp>
 
-#include <mechanism_configuration/parser.hpp>
-#include <mechanism_configuration/v1/parser.hpp>
+#include <mechanism_configuration/parse.hpp>
 
 #include <sstream>
 
@@ -33,23 +32,19 @@ namespace musica
   {
     Chemistry chemistry{};
 
-    // Parse as v1 format
-    // Only v1 supports string parsing; JavaScript wrappers generate v1 format
-    mechanism_configuration::v1::Parser v1_parser;
-    auto v1_parsed = v1_parser.ParseFromString(json_or_yaml_string);
+    auto parsed = mechanism_configuration::ParseFromString(json_or_yaml_string);
 
-    if (!v1_parsed)
+    if (!parsed)
     {
       std::string errors = "Failed to parse configuration string:\n";
-      for (auto& error : v1_parsed.errors)
+      for (const auto& [code, message] : parsed.error())
       {
-        errors += error.second + "\n";
+        errors += message + "\n";
       }
       throw musica::Exception(musica::ParseErrorCode::ParsingFailed, errors);
     }
 
-    // Convert v1 mechanism directly to Chemistry
-    chemistry = ConvertV1Mechanism(*v1_parsed.mechanism);
+    chemistry = ConvertMechanism(*parsed);
     return chemistry;
   }
 

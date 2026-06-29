@@ -192,6 +192,7 @@ TEST_F(MicmCApiTestFixture, GetUserDefinedRateParametersOrdering)
   bool found = false;
   for (std::size_t i = 0; i < reaction_rates_ordering.size_; i++)
   {
+    std::cout << "Reaction rate name: " << reaction_rates_ordering.mappings_[i].name_.value_ << std::endl;
     if (strcmp(reaction_rates_ordering.mappings_[i].name_.value_, "PHOTO.jO2") == 0)
     {
       found = true;
