@@ -10,31 +10,20 @@ namespace musica
 {
   Chemistry ReadConfiguration(const std::string& config_path)
   {
-    mechanism_configuration::UniversalParser parser;
     Chemistry chemistry{};
 
-    auto parsed = parser.Parse(config_path);
+    auto parsed = mechanism_configuration::Parse(config_path);
     if (!parsed)
     {
       std::string errors;
-      for (auto& error : parsed.errors)
-      {
-        errors += error.second + "\n";
+      for(const auto& [code, message] : parsed.error()) {
+        errors += message + "\n";
       }
       throw musica::Exception(musica::ParseErrorCode::InvalidConfigFile, errors);
     }
     else
     {
-      const mechanism_configuration::Version version = parsed.mechanism->version;
-
-      switch (version.major)
-      {
-        case 0: chemistry = ParserV0(parsed); break;
-        case 1: chemistry = ParserV1(parsed); break;
-        default:
-          const std::string msg = "Version " + std::to_string(version.major) + " not supported";
-          throw musica::Exception(musica::ParseErrorCode::UnsupportedVersion, msg);
-      }
+      chemistry = ConvertMechanism(*parsed);
     }
 
     return chemistry;

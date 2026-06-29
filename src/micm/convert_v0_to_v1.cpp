@@ -30,7 +30,7 @@ namespace musica
   }
 
   double convert_molecules_cm3_to_moles_m3(
-      std::vector<mechanism_configuration::v1::types::ReactionComponent> reactants,
+      std::vector<mechanism_configuration::types::ReactionComponent> reactants,
       double molecules_cm3)
   {
     // This converts preexponential factors that were calculated for molec cm-3 units and
@@ -48,7 +48,7 @@ namespace musica
   }
 
   double k0_A_convert_molecules_cm3_to_moles_m3(
-      std::vector<mechanism_configuration::v1::types::ReactionComponent> reactants,
+      std::vector<mechanism_configuration::types::ReactionComponent> reactants,
       double molecules_cm3)
   {
     // This is special to the Troe reactions because M is included in the rate
@@ -74,13 +74,13 @@ namespace musica
       const mechanism_configuration::v0::types::Reactions& v0_reactions,
       bool convert_reaction_units);
 
-  std::vector<mechanism_configuration::v1::types::ReactionComponent> convert_reaction_components_v0_to_v1(
+  std::vector<mechanism_configuration::types::ReactionComponent> convert_reaction_components_v0_to_v1(
       const std::vector<mechanism_configuration::v0::types::ReactionComponent>& v0_components);
 
-  mechanism_configuration::v1::types::ReactionComponent convert_reaction_component_v0_to_v1(
+  mechanism_configuration::types::ReactionComponent convert_reaction_component_v0_to_v1(
       const mechanism_configuration::v0::types::ReactionComponent& v0_component);
 
-  mechanism_configuration::v1::types::Mechanism ConvertV0MechanismToV1(
+  mechanism_configuration::Mechanism ConvertV0MechanismToV1(
       const std::string& config_path,
       bool convert_reaction_units)
   {
@@ -100,11 +100,11 @@ namespace musica
     return ConvertV0MechanismToV1(mechanism, convert_reaction_units);
   }
 
-  mechanism_configuration::v1::types::Mechanism ConvertV0MechanismToV1(
+  mechanism_configuration::Mechanism ConvertV0MechanismToV1(
       const mechanism_configuration::v0::types::Mechanism& v0_mechanism,
       bool convert_reaction_units)
   {
-    mechanism_configuration::v1::types::Mechanism v1_mechanism;
+    mechanism_configuration::Mechanism v1_mechanism;
 
     // Convert species
     v1_mechanism.species = convert_species_v0_to_v1(v0_mechanism.species);
@@ -289,14 +289,14 @@ namespace musica
     return v1_reactions;
   }
 
-  std::vector<mechanism_configuration::v1::types::ReactionComponent> convert_reaction_components_v0_to_v1(
+  std::vector<mechanism_configuration::types::ReactionComponent> convert_reaction_components_v0_to_v1(
       const std::vector<mechanism_configuration::v0::types::ReactionComponent>& v0_components)
   {
-    std::vector<mechanism_configuration::v1::types::ReactionComponent> v1_components;
+    std::vector<mechanism_configuration::types::ReactionComponent> v1_components;
 
     for (const auto& v0_comp : v0_components)
     {
-      mechanism_configuration::v1::types::ReactionComponent v1_comp;
+      mechanism_configuration::types::ReactionComponent v1_comp;
       v1_comp.species_name = v0_comp.species_name;
       v1_comp.coefficient = v0_comp.coefficient;
       v1_comp.unknown_properties = v0_comp.unknown_properties;
@@ -306,10 +306,10 @@ namespace musica
     return v1_components;
   }
 
-  mechanism_configuration::v1::types::ReactionComponent convert_reaction_component_v0_to_v1(
+  mechanism_configuration::types::ReactionComponent convert_reaction_component_v0_to_v1(
       const mechanism_configuration::v0::types::ReactionComponent& v0_component)
   {
-    mechanism_configuration::v1::types::ReactionComponent v1_component;
+    mechanism_configuration::types::ReactionComponent v1_component;
     v1_component.species_name = v0_component.species_name;
     v1_component.coefficient = v0_component.coefficient;
     v1_component.unknown_properties = v0_component.unknown_properties;
