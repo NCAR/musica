@@ -31,6 +31,10 @@ include("micm/utils.jl")
 include("micm/state.jl")
 include("micm/micm.jl")
 
+# Mechanism configuration (pure-Julia; builds config strings for MICM)
+include("mechanism_configuration/mechanism_configuration.jl")
+export MechanismConfiguration
+
 # Version
 export get_musica_version
 export get_micm_version
