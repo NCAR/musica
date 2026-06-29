@@ -25,7 +25,7 @@ TEST(Parser, Version0Configuration)
   EXPECT_EQ(v0_mechanism.version.minor, 0);
   EXPECT_EQ(v0_mechanism.version.patch, 0);
   EXPECT_EQ(v0_mechanism.reactions.arrhenius.size(), 4);
-  EXPECT_EQ(v0_mechanism.reactions.user_defined.size(), 3);
+  EXPECT_EQ(v0_mechanism.reactions.photolysis.size(), 3);
   EXPECT_EQ(v0_mechanism.species.size(), 5);
 }
 
