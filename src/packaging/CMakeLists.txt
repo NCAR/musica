@@ -12,9 +12,17 @@ install(
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-# fmt is a private implementation detail of mechanism_configuration (it does not
-# appear in any public header and is linked PRIVATE), so it does not need to be
-# installed or exported by musica.
+if (MUSICA_USE_FMT)
+  install(
+    TARGETS
+      fmt
+    EXPORT
+      musica_Exports
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  )
+endif()
 
 # install the musica header files
 install(
