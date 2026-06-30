@@ -2,7 +2,19 @@
 set -e
 set -x
 
-brew install netcdf netcdf-fortran lapack ffmpeg
+brew install gcc netcdf netcdf-fortran lapack ffmpeg
+
+# Force the Fortran toolchain to Homebrew's gcc. TUV-x/CARMA (Fortran) must link
+# the SAME libgfortran as Homebrew's netcdf-fortran, otherwise the wheel ends up
+# with two different libgfortran.5.dylib files and delocate refuses to repair it.
+GCC_PREFIX="$(brew --prefix gcc)"
+FC="$(ls "$GCC_PREFIX"/bin/gfortran-[0-9]* 2>/dev/null | sort -V | tail -n1)"
+if [[ -z "$FC" ]]; then
+  FC="$(brew --prefix)/bin/gfortran"
+fi
+export FC
+echo "Using Fortran compiler: $FC"
+"$FC" --version
 
 ################################################################################
 # Prebuild musica library
@@ -37,6 +49,7 @@ cmake_args=(
   -DMUSICA_GPU_TYPE=None
   -DCMAKE_C_COMPILER=clang
   -DCMAKE_CXX_COMPILER=clang++
+  -DCMAKE_Fortran_COMPILER="$FC"
 )
 
 cmake "${cmake_args[@]}" "$MUSICA_SOURCE_DIR"
