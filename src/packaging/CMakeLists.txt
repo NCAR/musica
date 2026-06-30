@@ -24,6 +24,15 @@ if(MECH_CONFIG_USE_FMT AND TARGET fmt)
       ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
       RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
+    # mechanism_configuration's public headers include <fmt/format.h> when built
+    # with MECH_CONFIG_USE_FMT, so consumers of the prebuilt package (e.g. the
+    # Python bindings) need fmt's headers on their include path. Bundle them.
+    if(DEFINED fmt_SOURCE_DIR)
+      install(
+        DIRECTORY ${fmt_SOURCE_DIR}/include/
+        DESTINATION ${MUSICA_INSTALL_INCLUDE_DIR}
+      )
+    endif()
   endif()
 endif()
 
