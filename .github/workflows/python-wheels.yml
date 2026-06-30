@@ -59,7 +59,7 @@ jobs:
             fc: gfortran-15
 
           # macOS Apple Silicon
-          - os: macos-latest
+          - os: macos-15
             cibw_archs: "arm64"
             fc: gfortran-15
 
