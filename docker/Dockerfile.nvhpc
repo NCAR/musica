@@ -1,7 +1,7 @@
 # Available tags: https://catalog.ngc.nvidia.com/orgs/nvidia/containers/nvhpc/tags
 # Note: NVIDIA rate-limits image pulls. If you hit pull errors, restarting Docker clears it.
 # See: https://stackoverflow.com/a/75757516/5217293
-FROM nvcr.io/nvidia/nvhpc:25.7-devel-cuda12.9-ubuntu24.04
+FROM nvcr.io/nvidia/nvhpc:26.3-devel-cuda13.1-ubuntu24.04
 
 ARG BUILD_TYPE=Release
 
