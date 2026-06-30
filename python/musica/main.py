@@ -5,7 +5,7 @@ import shutil
 import os
 import sys
 from musica import Examples
-from musica import __version__
+from musica import __version__, parse
 import musica.examples
 import importlib.resources as ir
 import musica
@@ -82,11 +82,7 @@ def convert_configuration(logger, configuration, output_path):
     if not os.path.exists(configuration):
         raise ValueError(f"Configuration file '{configuration}' does not exist.")
 
-    parser = musica.mechanism_configuration.Parser()
-    # the mechanism configuration automatically converts pre exponential factors to SI units
-    # so we don't need to convert units again here.
-    convert_units = False
-    mechanism = parser.parse_and_convert_v0(configuration, convert_units)
+    mechanism = parse(configuration)
     mechanism.export(output_path)
 
 
