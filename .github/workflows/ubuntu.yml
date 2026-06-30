@@ -18,9 +18,11 @@ jobs:
     strategy:
       matrix:
         compiler:
-          - { cpp: g++-13, c: gcc-13, fc: gfortran-13}
-          - { cpp: g++-14, c: gcc-14, fc: gfortran-14}
-          - { cpp: clang++, c: clang, fc: gfortran-13}
+          - { cpp: g++-13, c: gcc-13, fc: gfortran-13, cxx_flags: "" }
+          - { cpp: g++-14, c: gcc-14, fc: gfortran-14, cxx_flags: "" }
+          # clang must use libc++ (its default libstdc++ on this image is too old
+          # for std::expected, which mechanism_configuration requires).
+          - { cpp: clang++, c: clang, fc: gfortran-13, cxx_flags: "-stdlib=libc++" }
         build_type: [Release]
     env:
       CC: ${{ matrix.compiler.c }}
@@ -33,13 +35,14 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y liblapack-dev libblas-dev build-essential libnetcdf-dev libnetcdff-dev
+          sudo apt-get install -y liblapack-dev libblas-dev build-essential libnetcdf-dev libnetcdff-dev libc++-dev libc++abi-dev
 
       - name: Run Cmake
         run: |
           cmake -S . -B build -D CMAKE_BUILD_TYPE=${{ matrix.build_type }} \
                               -D MUSICA_GIT_TAG=${{ github.sha }} \
-                              -D CMAKE_POLICY_VERSION_MINIMUM=3.5
+                              -D CMAKE_POLICY_VERSION_MINIMUM=3.5 \
+                              -D CMAKE_CXX_FLAGS="${{ matrix.compiler.cxx_flags }}"
 
       - name: Build
         run: cmake --build build --verbose
