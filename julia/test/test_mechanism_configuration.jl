@@ -116,6 +116,36 @@ abba = Mechanism(
         @test_throws ErrorException to_string(abba; format = :toml)
     end
 
+    @testset "FirstOrderLoss products" begin
+        # products are optional for first-order loss and omitted when empty
+        fol_no_products = FirstOrderLoss(
+            name = "loss",
+            gas_phase = "gas",
+            reactants = [ReactionComponent(species_name = "A")],
+        )
+        d_no = to_dict(fol_no_products)
+        @test d_no["type"] == "FIRST_ORDER_LOSS"
+        @test d_no["reactants"][1]["species name"] == "A"
+        @test !haskey(d_no, "products")
+
+        # products (with coefficients) are emitted when provided
+        fol_with_products = FirstOrderLoss(
+            name = "loss",
+            gas_phase = "gas",
+            reactants = [ReactionComponent(species_name = "A")],
+            products = [
+                ReactionComponent(species_name = "B"),
+                ReactionComponent(species_name = "C", coefficient = 2.0),
+            ],
+        )
+        d_with = to_dict(fol_with_products)
+        @test length(d_with["products"]) == 2
+        @test d_with["products"][1]["species name"] == "B"
+        @test d_with["products"][1]["coefficient"] ≈ 1.0
+        @test d_with["products"][2]["species name"] == "C"
+        @test d_with["products"][2]["coefficient"] ≈ 2.0
+    end
+
     # Recreates the single-cell ABBA box model from the CheMPAS-MUSICA dev test
     # (Fillmore, 2026-01-22): start from a mass mixing ratio, convert to mol m-3 with
     # the molecular weight and an ideal-gas air density, run A + B <-> AB to

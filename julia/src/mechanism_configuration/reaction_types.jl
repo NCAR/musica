@@ -184,14 +184,16 @@ function to_dict(r::Emission)
 end
 
 """
-    FirstOrderLoss(; scaling_factor=1.0, reactants, name=nothing, gas_phase=nothing,
-                     other_properties=Dict())
+    FirstOrderLoss(; scaling_factor=1.0, reactants, products=[], name=nothing,
+                     gas_phase=nothing, other_properties=Dict())
 
-First-order loss reaction, scaled by a user-defined rate parameter.
+First-order loss reaction, scaled by a user-defined rate parameter. `products` are
+optional and normally empty; they can be used to compute the integrated reaction rate.
 """
 struct FirstOrderLoss
     scaling_factor::Float64
     reactants::Vector{ReactionComponent}
+    products::Vector{ReactionComponent}
     name::Union{String,Nothing}
     gas_phase::Union{String,Nothing}
     other_properties::Dict{String,Any}
@@ -200,6 +202,7 @@ end
 function FirstOrderLoss(;
     scaling_factor::Real = 1.0,
     reactants::AbstractVector = ReactionComponent[],
+    products::AbstractVector = ReactionComponent[],
     name::Union{AbstractString,Nothing} = nothing,
     gas_phase::Union{AbstractString,Nothing} = nothing,
     other_properties::AbstractDict = Dict{String,Any}(),
@@ -207,6 +210,7 @@ function FirstOrderLoss(;
     return FirstOrderLoss(
         Float64(scaling_factor),
         collect(ReactionComponent, reactants),
+        collect(ReactionComponent, products),
         name === nothing ? nothing : String(name),
         gas_phase === nothing ? nothing : String(gas_phase),
         Dict{String,Any}(other_properties),
@@ -217,6 +221,8 @@ function to_dict(r::FirstOrderLoss)
     d = Dict{String,Any}("type" => "FIRST_ORDER_LOSS", "scaling factor" => r.scaling_factor)
     _add_common!(d, r.name, r.gas_phase)
     d["reactants"] = _components(r.reactants)
+    # products are optional for first-order loss; only emit when present
+    isempty(r.products) || (d["products"] = _components(r.products))
     _merge_other_properties!(d, r.other_properties)
     return d
 end
