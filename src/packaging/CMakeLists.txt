@@ -12,28 +12,14 @@ install(
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-# fmt may be pulled in as a build-tree target by mechanism_configuration's
-# dependencies in some environments (e.g. Intel oneapi). Export it if so,
-# but only when it is locally built (not an IMPORTED system target).
-if(MECH_CONFIG_USE_FMT AND TARGET fmt)
-  get_target_property(_fmt_is_imported fmt IMPORTED)
-  if(NOT _fmt_is_imported)
-    install(TARGETS fmt
-      EXPORT musica_Exports
-      LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-      ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-      RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    )
-    # mechanism_configuration's public headers include <fmt/format.h> when built
-    # with MECH_CONFIG_USE_FMT, so consumers of the prebuilt package (e.g. the
-    # Python bindings) need fmt's headers on their include path. Bundle them.
-    if(DEFINED fmt_SOURCE_DIR)
-      install(
-        DIRECTORY ${fmt_SOURCE_DIR}/include/
-        DESTINATION ${MUSICA_INSTALL_INCLUDE_DIR}
-      )
-    endif()
-  endif()
+if(MUSICA_USE_FMT)
+  install(TARGETS fmt
+    EXPORT musica_Exports
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    PUBLIC_HEADER DESTINATION ${MUSICA_INSTALL_INCLUDE_DIR}/fmt
+  )
 endif()
 
 # install the musica header files
