@@ -2,8 +2,8 @@ from .arrhenius import Arrhenius
 from .branched import Branched
 from .emission import Emission
 from .first_order_loss import FirstOrderLoss
-from .mechanism import Mechanism
-from .ancillary import Version, Parser, ReactionType
+from .mechanism import Mechanism, Version, ReactionType
+from .parse import parse
 from .phase import Phase
 from .phase_species import PhaseSpecies
 from .photolysis import Photolysis

@@ -1,28 +1,26 @@
 import pytest
 import os
-from musica.mechanism_configuration import Mechanism, Parser
+from musica.mechanism_configuration import Mechanism, parse
 from test_util_full_mechanism import get_fully_defined_mechanism, validate_full_v1_mechanism
 
 
 def test_mechanism_export_loop(tmp_path):
-    parser = Parser()
     mechanism = get_fully_defined_mechanism()
     extensions = [".yml", ".yaml", ".json"]
     for extension in extensions:
         path = f"{tmp_path}/test_mechanism{extension}"
         mechanism.export(path)
-        mechanism = parser.parse(path)
+        mechanism = parse(path)
         validate_full_v1_mechanism(mechanism)
 
 
 def test_serialize_parser_loop(tmp_path):
-    parser = Parser()
     mechanism = get_fully_defined_mechanism()
     extensions = [".json", ".yml", ".yaml"]
     for extension in extensions:
         path = f"{tmp_path}/test_mechanism{extension}"
         mechanism.export(path)
-        mechanism = parser.parse(path)
+        mechanism = parse(path)
         validate_full_v1_mechanism(mechanism)
 
 

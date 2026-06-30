@@ -5,7 +5,7 @@ from .phase import Phase
 from .species import Species
 from .utils import _add_other_properties, _remove_empty_keys, _convert_components, _format_components
 from .reaction_component import ReactionComponent
-from .ancillary import ReactionType
+from .parse import ReactionType
 
 _backend = backend.get_backend()
 _Surface = _backend._mechanism_configuration._Surface
@@ -98,7 +98,7 @@ class Surface(CppWrapper):
             "type": "SURFACE",
             "name": self.name,
             "reaction probability": self.reaction_probability,
-            "gas-phase species": self.gas_phase_species.species_name,
+            "gas-phase species": self.gas_phase_species.name,
             "gas-phase products": [r.serialize() for r in self.gas_phase_products],
             "gas phase": self.gas_phase,
         }

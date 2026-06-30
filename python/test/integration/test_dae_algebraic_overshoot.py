@@ -40,9 +40,9 @@ steps and SO₂(g) goes negative (~−6.5e-8). With tight algebraic tolerances
 SO₂(g) stays positive — but at a cost of ~130k+ internal steps.
 """
 
-import math
 import pytest
 
+from musica import backend
 import musica.mechanism_configuration as mc
 from musica.micm import MICM, SolverState, SolverType
 from musica.micm.solver_parameters import RosenbrockSolverParameters
@@ -59,6 +59,11 @@ from musica.miam import (
     Model,
     UniformSection,
 )
+
+
+# Skip all tests if MIAM is not available
+pytestmark = pytest.mark.skipif(not backend.miam_available(),
+                                reason="MIAM backend is not available")
 
 
 # ── Physical constants ──────────────────────────────────────────────────

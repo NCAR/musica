@@ -1,5 +1,5 @@
 import musica
-from musica.mechanism_configuration import Parser
+from musica.mechanism_configuration import parse
 from musica.utils import find_config_path
 import pandas as pd
 import xarray as xr
@@ -21,8 +21,7 @@ def main(plot=True):
     """
     from scipy.stats import qmc
 
-    parser = Parser()
-    mechanism = parser.parse(find_config_path("v1", "ts1", "ts1.json"))
+    mechanism = parse(find_config_path("v1", "ts1", "ts1.json"))
 
     solver = musica.MICM(mechanism=mechanism,
                          solver_type=musica.SolverType.rosenbrock_standard_order)

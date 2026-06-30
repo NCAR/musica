@@ -8,6 +8,7 @@ import math
 import pytest
 
 import musica.mechanism_configuration as mc
+from musica import backend
 from musica.micm import MICM, SolverType, SolverState
 from musica.micm.solver_parameters import RosenbrockSolverParameters
 from musica.miam import (
@@ -24,6 +25,9 @@ from musica.miam import (
     Model,
 )
 
+# Skip all tests if MIAM is not available
+pytestmark = pytest.mark.skipif(not backend.miam_available(),
+                                reason="MIAM backend is not available")
 
 # ═══ Constants ═══════════════════════════════════════════════════════════════
 #
