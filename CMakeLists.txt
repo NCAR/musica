@@ -37,6 +37,7 @@ option(MUSICA_ENABLE_JULIA "Build the Julia wrapper" OFF)
 option(MUSICA_CREATE_ENVIRONMENT_MODULE "Create an Lmod environment module file" OFF)
 option(MUSICA_USE_PREBUILT "Use a prebuilt musica library instead of building from source" OFF)
 option(MUSICA_BUILD_SHARED_LIBS "Build MUSICA as shared libraries" OFF)
+option(MUSICA_USE_FMT "Use the fmt library instead of the standard library for formatting" ON)
 
 set(MUSICA_GPU_TYPE "None" CACHE STRING "The GPU type being targeted")
 
