@@ -30,7 +30,7 @@ namespace musica
   class IState;  // forward declaration for interface
 
   /// @brief Types of MICM solver
-  enum MICMSolver
+  enum MICMSolver : int
   {
     UndefinedSolver = 0,          // Undefined solver
     Rosenbrock,                   // Vector-ordered Rosenbrock solver (3-stage)
