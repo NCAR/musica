@@ -26,7 +26,9 @@ RUN cd musica \
              -B build \
              -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
              -D MUSICA_ENABLE_TESTS=ON \
+             -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
              -D MUSICA_ENABLE_MEMCHECK=ON \
+             -D MUSICA_ENABLE_CARMA=OFF \
     && cd build \
     && make install -j$(nproc)
 
