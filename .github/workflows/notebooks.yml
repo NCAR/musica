@@ -38,7 +38,11 @@ jobs:
 
       - name: Execute tutorial notebooks
         run: |
-          pytest --nbmake --nbmake-timeout=900 -v tutorials/ \
+          pytest --nbmake --nbmake-timeout=900 --nbmake-kernel=python3 -v tutorials/ \
             --ignore-glob='*.ipynb_checkpoints*' \
             --ignore-glob='*hpc_parallelization*' \
-            --ignore-glob='*gpu_solver*'
+            --ignore-glob='*gpu_solver*' \
+            # dae/miam/cam notebooks need MIAM, which isn't built here yet
+            --ignore-glob='*dae_solving_intro*' \
+            --ignore-glob='*miam_processes_and_constraints*' \
+            --ignore-glob='*cam_cloud_chemistry*'

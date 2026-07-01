@@ -116,6 +116,19 @@ abba = Mechanism(
         @test_throws ErrorException to_string(abba; format = :toml)
     end
 
+    @testset "ReactionComponent name alias" begin
+        c1 = ReactionComponent(species_name = "A", coefficient = 2.0)
+        @test to_dict(c1)["species name"] == "A"
+        @test to_dict(c1)["coefficient"] ≈ 2.0
+
+        # `name` is accepted as an alias for `species_name`
+        c2 = ReactionComponent(name = "A")
+        @test to_dict(c2)["species name"] == "A"
+
+        # exactly one of species_name / name is required
+        @test_throws ArgumentError ReactionComponent()
+    end
+
     @testset "FirstOrderLoss products" begin
         # products are optional for first-order loss and omitted when empty
         fol_no_products = FirstOrderLoss(

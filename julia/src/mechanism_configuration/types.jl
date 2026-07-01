@@ -25,9 +25,12 @@ function _merge_other_properties!(d::Dict{String,Any}, other_properties::Abstrac
 end
 
 """
-    ReactionComponent(; species_name, coefficient=1.0, other_properties=Dict())
+    ReactionComponent(; species_name=nothing, name=nothing, coefficient=1.0,
+                        other_properties=Dict())
 
-A single reactant or product entry in a reaction.
+A single reactant or product entry in a reaction. `name` is accepted as an alias for
+`species_name` for parity with the Python interface and the schema, which allow either
+spelling; provide exactly one.
 
 # Fields
 - `species_name::String`: Name of the species.
@@ -41,12 +44,16 @@ struct ReactionComponent
 end
 
 function ReactionComponent(;
-    species_name::AbstractString,
+    species_name::Union{AbstractString,Nothing} = nothing,
+    name::Union{AbstractString,Nothing} = nothing,
     coefficient::Real = 1.0,
     other_properties::AbstractDict = Dict{String,Any}(),
 )
+    resolved = species_name === nothing ? name : species_name
+    resolved === nothing &&
+        throw(ArgumentError("ReactionComponent requires `species_name` (or its alias `name`)"))
     return ReactionComponent(
-        String(species_name),
+        String(resolved),
         Float64(coefficient),
         Dict{String,Any}(other_properties),
     )
