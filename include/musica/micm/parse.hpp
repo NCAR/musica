@@ -4,8 +4,8 @@
 #include <musica/micm/micm.hpp>
 #include <musica/utils/error.hpp>
 
-#include <mechanism_configuration/parse.hpp>
 #include <mechanism_configuration/mechanism.hpp>
+#include <mechanism_configuration/parse.hpp>
 
 #include <stdexcept>
 

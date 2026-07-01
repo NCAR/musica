@@ -33,6 +33,7 @@ pytestmark = pytest.mark.skipif(not backend.miam_available(),
 
 # ═══ Constants ═══════════════════════════════════════════════════════════════
 
+
 class TestHenryLawConstant:
     def test_construction(self):
         hlc = HenryLawConstant(HLC_ref=1.23, C=3120.0)

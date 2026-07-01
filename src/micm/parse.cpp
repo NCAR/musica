@@ -15,7 +15,8 @@ namespace musica
     if (!parsed)
     {
       std::string errors;
-      for(const auto& [code, message] : parsed.error()) {
+      for (const auto& [code, message] : parsed.error())
+      {
         errors += message + "\n";
       }
       throw musica::Exception(musica::ParseErrorCode::InvalidConfigFile, errors);

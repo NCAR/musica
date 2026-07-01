@@ -4,9 +4,6 @@
 // jlcxx/stl.hpp uses std::ranges algorithms (fill, binary_search, lower_bound)
 // but does not include <algorithm>/<ranges> itself; under C++23 libc++ no longer
 // pulls them in transitively, so include them before the jlcxx headers.
-#include <algorithm>
-#include <ranges>
-
 #include "jlcxx/jlcxx.hpp"
 #include "jlcxx/stl.hpp"
 
@@ -21,7 +18,9 @@
 #include <micm/solver/solver_result.hpp>
 #include <micm/version.hpp>
 
+#include <algorithm>
 #include <iostream>
+#include <ranges>
 #include <stdexcept>
 #include <string>
 #include <utility>

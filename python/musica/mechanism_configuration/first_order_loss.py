@@ -64,7 +64,6 @@ class FirstOrderLoss(CppWrapper):
             else self.products
         )
 
-
     @property
     def type(self):
         """Get the reaction type."""
