@@ -12,7 +12,9 @@ RUN dnf -y update \
         git \
         hdf5-devel \
         lapack-devel \
+        libasan \
         libcurl-devel \
+        libubsan \
         m4 \
         make \
         netcdf-fortran-devel \
@@ -21,14 +23,6 @@ RUN dnf -y update \
 
 COPY . musica
 
-# AddressSanitizer + UndefinedBehaviorSanitizer build. This complements the
-# valgrind (memcheck) job: ASan catches stack- and global-buffer overflows and
-# use-after-return/-scope that valgrind cannot see, while memcheck still covers
-# uninitialized-value reads that ASan does not. Everything is built with GCC
-# (incl. gfortran for TUV-x) so the sanitizer runtime is consistent across
-# C/C++/Fortran and links cleanly. CARMA is left off; TUV-x is included.
-# UBSan is applied to C/C++ only (not Fortran) to avoid TUV-x Fortran noise.
-#
 # Leak detection is left to the memcheck job (--leak-check=full); disable it here
 # to keep the run focused on memory-safety errors. halt_on_error=1 makes any
 # finding fail the test.
