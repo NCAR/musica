@@ -15,10 +15,7 @@ test('FirstOrderLoss omits products when none are given', () => {
   const json = fol.getJSON();
   assert.strictEqual(json['type'], 'FIRST_ORDER_LOSS');
   assert.strictEqual(json['reactants'][0]['species name'], 'A');
-  assert.ok(
-    !('products' in json),
-    'products key should be absent when no products are provided',
-  );
+  assert.ok(!('products' in json), 'products key should be absent when no products are provided');
 });
 
 test('FirstOrderLoss emits products (with coefficients) when provided', () => {

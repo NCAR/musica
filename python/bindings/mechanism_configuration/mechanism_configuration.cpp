@@ -465,18 +465,23 @@ void bind_mechanism_configuration(py::module_ &mechanism_configuration)
       .def("__str__", &mechanism_configuration::Version::to_string)
       .def("__repr__", [](const mechanism_configuration::Version &v) { return "<Version: " + v.to_string() + ">"; });
 
-  mechanism_configuration.def("_parse", [](const std::string &file_path)
-  {
-    auto parsed = Parse(file_path);
-    if (parsed) {
-      return *parsed;
-    }
-    else {
-      std::string error {};
-      for (const auto& [code, message] : parsed.error()) {
-        error += message + "\n";
-      }
-      throw std::runtime_error(error);
-    }
-  });
+  mechanism_configuration.def(
+      "_parse",
+      [](const std::string &file_path)
+      {
+        auto parsed = Parse(file_path);
+        if (parsed)
+        {
+          return *parsed;
+        }
+        else
+        {
+          std::string error{};
+          for (const auto &[code, message] : parsed.error())
+          {
+            error += message + "\n";
+          }
+          throw std::runtime_error(error);
+        }
+      });
 }

@@ -50,8 +50,9 @@ function ReactionComponent(;
     other_properties::AbstractDict = Dict{String,Any}(),
 )
     resolved = species_name === nothing ? name : species_name
-    resolved === nothing &&
-        throw(ArgumentError("ReactionComponent requires `species_name` (or its alias `name`)"))
+    resolved === nothing && throw(
+        ArgumentError("ReactionComponent requires `species_name` (or its alias `name`)"),
+    )
     return ReactionComponent(
         String(resolved),
         Float64(coefficient),

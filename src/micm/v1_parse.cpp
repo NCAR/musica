@@ -128,7 +128,6 @@ namespace musica
     return reaction_components_to_reactants(std::vector<types::ReactionComponent>{ component }, species_map);
   }
 
-
   std::vector<micm::StoichSpecies> reaction_components_to_products(
       const std::vector<types::ReactionComponent>& components,
       std::unordered_map<std::string, micm::Species>& species_map)
@@ -218,8 +217,7 @@ namespace musica
       auto it = std::find_if(
           phase_species_list.begin(),
           phase_species_list.end(),
-          [&reaction](const micm::PhaseSpecies& ps)
-          { return ps.species_.name_ == reaction.gas_phase_species.name; });
+          [&reaction](const micm::PhaseSpecies& ps) { return ps.species_.name_ == reaction.gas_phase_species.name; });
 
       if (it == phase_species_list.end())
       {
