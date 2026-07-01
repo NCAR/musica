@@ -4,18 +4,17 @@
 
 #include <musica/micm/parse.hpp>
 
-#include <mechanism_configuration/constants.hpp>
-#include <mechanism_configuration/v1/parser.hpp>
-#include <mechanism_configuration/v1/reaction_types.hpp>
-#include <mechanism_configuration/v1/types.hpp>
-#include <mechanism_configuration/v1/validation.hpp>
+#include <mechanism_configuration/parse.hpp>
+#include <mechanism_configuration/types.hpp>
+
+#include <pybind11/stl.h>
+#include <pybind11/stl/filesystem.h>
 
 #include <variant>
 
 namespace py = pybind11;
-namespace constants = mechanism_configuration::constants;
-namespace validation = mechanism_configuration::v1::validation;
-using namespace mechanism_configuration::v1::types;
+using namespace mechanism_configuration;
+using namespace mechanism_configuration::types;
 
 enum class ReactionType
 {
@@ -92,7 +91,7 @@ std::vector<ReactionComponent> get_reaction_components(const py::list &component
     if (py::isinstance<Species>(item))
     {
       ReactionComponent component;
-      component.species_name = item.cast<Species>().name;
+      component.name = item.cast<Species>().name;
       reaction_components.push_back(component);
     }
     else if (py::isinstance<py::tuple>(item) && py::len(item.cast<py::tuple>()) == 2)
@@ -101,14 +100,14 @@ std::vector<ReactionComponent> get_reaction_components(const py::list &component
       if (py::isinstance<py::float_>(item_tuple[0]) && py::isinstance<Species>(item_tuple[1]))
       {
         ReactionComponent component;
-        component.species_name = item_tuple[1].cast<Species>().name;
+        component.name = item_tuple[1].cast<Species>().name;
         component.coefficient = item_tuple[0].cast<double>();
         reaction_components.push_back(component);
       }
       else if (py::isinstance<py::int_>(item_tuple[0]) && py::isinstance<Species>(item_tuple[1]))
       {
         ReactionComponent component;
-        component.species_name = item_tuple[1].cast<Species>().name;
+        component.name = item_tuple[1].cast<Species>().name;
         component.coefficient = item_tuple[0].cast<int>();
         reaction_components.push_back(component);
       }
@@ -125,9 +124,9 @@ std::vector<ReactionComponent> get_reaction_components(const py::list &component
   std::unordered_set<std::string> component_names;
   for (const auto &component : reaction_components)
   {
-    if (!component_names.insert(component.species_name).second)
+    if (!component_names.insert(component.name).second)
     {
-      throw py::value_error("Duplicate reaction component name found: " + component.species_name);
+      throw py::value_error("Duplicate reaction component name found: " + component.name);
     }
   }
   return reaction_components;
@@ -235,25 +234,25 @@ void bind_mechanism_configuration(py::module_ &mechanism_configuration)
   py::class_<ReactionComponent>(mechanism_configuration, "_ReactionComponent")
       .def(py::init<>())
       .def(py::init(
-          [](const std::string &species_name)
+          [](const std::string &name)
           {
             ReactionComponent rc;
-            rc.species_name = species_name;
+            rc.name = name;
             return rc;
           }))
       .def(py::init(
-          [](const std::string &species_name, double coefficient)
+          [](const std::string &name, double coefficient)
           {
             ReactionComponent rc;
-            rc.species_name = species_name;
+            rc.name = name;
             rc.coefficient = coefficient;
             return rc;
           }))
-      .def_readwrite("species_name", &ReactionComponent::species_name)
+      .def_readwrite("name", &ReactionComponent::name)
       .def_readwrite("coefficient", &ReactionComponent::coefficient)
       .def_readwrite("other_properties", &ReactionComponent::unknown_properties)
-      .def("__str__", [](const ReactionComponent &rc) { return rc.species_name; })
-      .def("__repr__", [](const ReactionComponent &rc) { return "<ReactionComponent: " + rc.species_name + ">"; });
+      .def("__str__", [](const ReactionComponent &rc) { return rc.name; })
+      .def("__repr__", [](const ReactionComponent &rc) { return "<ReactionComponent: " + rc.name + ">"; });
 
   py::class_<Arrhenius>(mechanism_configuration, "_Arrhenius")
       .def(py::init<>())
@@ -395,6 +394,7 @@ void bind_mechanism_configuration(py::module_ &mechanism_configuration)
       .def(py::init<>())
       .def_readwrite("scaling_factor", &FirstOrderLoss::scaling_factor)
       .def_readwrite("reactants", &FirstOrderLoss::reactants)
+      .def_readwrite("products", &FirstOrderLoss::products)
       .def_readwrite("name", &FirstOrderLoss::name)
       .def_readwrite("gas_phase", &FirstOrderLoss::gas_phase)
       .def_readwrite("other_properties", &FirstOrderLoss::unknown_properties)
@@ -465,38 +465,18 @@ void bind_mechanism_configuration(py::module_ &mechanism_configuration)
       .def("__str__", &mechanism_configuration::Version::to_string)
       .def("__repr__", [](const mechanism_configuration::Version &v) { return "<Version: " + v.to_string() + ">"; });
 
-  using V1Parser = mechanism_configuration::v1::Parser;
-
-  py::class_<V1Parser>(mechanism_configuration, "_Parser")
-      .def(py::init<>())
-      .def(
-          "parse",
-          [](V1Parser &self, const std::string &path)
-          {
-            auto parsed = self.Parse(std::filesystem::path(path));
-            if (parsed)
-            {
-              return *parsed;
-            }
-            else
-            {
-              std::string error = "Error parsing file: " + path + "\n";
-              for (auto &e : parsed.errors)
-              {
-                error += e.second + "\n";
-              }
-              throw std::runtime_error(error);
-            }
-          })
-      .def(
-          "parse_and_convert_v0",
-          [](V1Parser &self, const std::string &path, bool convert_reaction_units)
-          {
-            mechanism_configuration::v1::types::Mechanism mechanism =
-                musica::ConvertV0MechanismToV1(path, convert_reaction_units);
-            return mechanism;
-          },
-          py::arg("path"),
-          py::arg("convert_reaction_units") = true,
-          "Parse a v0 mechanism configuration file");
+  mechanism_configuration.def("_parse", [](const std::string &file_path)
+  {
+    auto parsed = Parse(file_path);
+    if (parsed) {
+      return *parsed;
+    }
+    else {
+      std::string error {};
+      for (const auto& [code, message] : parsed.error()) {
+        error += message + "\n";
+      }
+      throw std::runtime_error(error);
+    }
+  });
 }

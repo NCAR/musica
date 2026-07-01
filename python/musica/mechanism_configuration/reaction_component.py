@@ -15,12 +15,12 @@ class ReactionComponent(CppWrapper):
     relevant to its role in the reaction.
 
     Attributes:
-        species_name: The name of the chemical species involved in the reaction.
+        name: The name of the chemical species involved in the reaction.
         coefficient: The stoichiometric coefficient of the species in the reaction.
         other_properties: A dictionary of other properties relevant to the reaction component.
     """
 
-    species_name = CppField()
+    name = CppField()
     coefficient = CppField()
     other_properties = CppField()
 
@@ -38,13 +38,13 @@ class ReactionComponent(CppWrapper):
             other_properties: A dictionary of other properties of the species.
         """
         self._cpp = _ReactionComponent()
-        self.species_name = name if name is not None else self.species_name
+        self.name = name if name is not None else self.name
         self.coefficient = coefficient if coefficient is not None else self.coefficient
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 
     def serialize(self) -> Dict:
         serialize_dict = {
-            "species name": self.species_name,
+            "name": self.name,
             "coefficient": self.coefficient,
             "other_properties": self.other_properties,
         }

@@ -1,6 +1,6 @@
 import musica
 from musica.micm.solver_result import SolverState
-from musica.mechanism_configuration import Parser
+from musica.mechanism_configuration import parse
 from musica.utils import find_config_path
 import pandas as pd
 import xarray as xr
@@ -47,8 +47,7 @@ def main(plot=True):
         rate = tuv_rates.sel(reaction=tuv_label).photolysis_rate_constants.values * scale
         photolysis_rate_constants[f'USER.{label}'] = rate[start:end]  # skip the first grid cell which is at 0 km
 
-    parser = Parser()
-    mechanism = parser.parse(find_config_path("v1", "ts1", "ts1.json"))
+    mechanism = parse(find_config_path("v1", "ts1", "ts1.json"))
 
     solver = musica.MICM(mechanism=mechanism,
                          solver_type=musica.SolverType.rosenbrock_standard_order)

@@ -1,7 +1,7 @@
 # Available tags: https://catalog.ngc.nvidia.com/orgs/nvidia/containers/nvhpc/tags
 # Note: NVIDIA rate-limits image pulls. If you hit pull errors, restarting Docker clears it.
 # See: https://stackoverflow.com/a/75757516/5217293
-FROM nvcr.io/nvidia/nvhpc:25.7-devel-cuda12.9-ubuntu24.04
+FROM nvcr.io/nvidia/nvhpc:26.3-devel-cuda13.1-ubuntu24.04
 
 ARG BUILD_TYPE=Release
 
@@ -19,6 +19,15 @@ RUN apt update \
     pkg-config \
     valgrind \
     && apt clean
+
+# The NVHPC SDK bundles an older CMake that doesn't know NVHPC >= 24.9 supports
+# C++23, so `target_compile_features(... cxx_std_23)` fails with
+# "cxx_std_23 is not known to CXX compiler NVHPC". Install a newer CMake
+# (>= 3.31 maps cxx_std_23 -> -std=c++23 for NVHPC) and put it first on PATH.
+RUN curl -fsSL https://github.com/Kitware/CMake/releases/download/v3.31.6/cmake-3.31.6-linux-x86_64.sh -o /tmp/cmake.sh \
+    && sh /tmp/cmake.sh --skip-license --prefix=/usr/local \
+    && rm /tmp/cmake.sh
+ENV PATH=/usr/local/bin:${PATH}
 
 ENV CXX=nvc++
 ENV CC=nvc

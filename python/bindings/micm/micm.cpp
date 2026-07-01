@@ -9,13 +9,12 @@
 #include <musica/micm/state.hpp>
 #include <musica/micm/state_c_interface.hpp>
 
-#include <mechanism_configuration/v1/types.hpp>
 #include <micm/version.hpp>
 
 #include <iostream>
 
 namespace py = pybind11;
-namespace v1 = mechanism_configuration::v1::types;
+using namespace mechanism_configuration;
 
 void bind_micm(py::module_& micm)
 {
@@ -62,10 +61,10 @@ void bind_micm(py::module_& micm)
 
   micm.def(
       "_create_solver_from_mechanism",
-      [](const v1::Mechanism& mechanism, musica::MICMSolver solver_type)
+      [](const Mechanism& mechanism, musica::MICMSolver solver_type)
       {
         musica::Error error;
-        musica::Chemistry chemistry = musica::ConvertV1Mechanism(mechanism);
+        musica::Chemistry chemistry = musica::ConvertMechanism(mechanism);
         musica::MICM* micm = musica::CreateMicmFromChemistryMechanism(&chemistry, solver_type, &error);
         std::string context = "Error creating solver from mechanism (type: " + musica::ToString(solver_type) + ")";
         handle_error(error, context);

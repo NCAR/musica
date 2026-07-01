@@ -2,19 +2,22 @@
 #include <musica/micm/parse.hpp>
 #include <musica/utils/error_code.hpp>
 
-#include <mechanism_configuration/v1/types.hpp>
-#include <mechanism_configuration/v1/validation.hpp>
+#include <mechanism_configuration/types.hpp>
 #include <micm/Process.hpp>
 #include <micm/System.hpp>
 #include <micm/process/rate_constant/lambda_rate_constant.hpp>
 
 #include <algorithm>
 
+using namespace mechanism_configuration;
+// used to come from mechanism configuration's validation, but that is now a private header
+inline constexpr std::string_view molecular_weight = "molecular weight [kg mol-1]";
+
 namespace musica
 {
-  std::vector<micm::Species> convert_species(const std::vector<mechanism_configuration::v1::types::Species>& species)
+  std::vector<micm::Species> convert_species(const std::vector<types::Species>& species)
   {
-    using namespace mechanism_configuration::v1;
+    using namespace mechanism_configuration;
     micm::Phase const gas_phase;
     std::vector<micm::Species> micm_species;
     for (const auto& elem : species)
@@ -24,7 +27,7 @@ namespace musica
 
       if (elem.molecular_weight.has_value())
       {
-        s.SetProperty(validation::molecular_weight, elem.molecular_weight.value());
+        s.SetProperty(std::string(molecular_weight), elem.molecular_weight.value());
       }
       if (elem.constant_concentration.has_value())
       {
@@ -40,6 +43,17 @@ namespace musica
       if (elem.is_third_body.value_or(false))
       {
         s.SetThirdBody();
+      }
+      if (elem.tracer_type.has_value())
+      {
+        if (elem.tracer_type.value() == "THIRD_BODY")
+        {
+          s.SetThirdBody();
+        }
+        else
+        {
+          s.SetProperty("tracer type", elem.tracer_type.value());
+        }
       }
       for (auto& unknown : elem.unknown_properties)
       {
@@ -68,7 +82,7 @@ namespace musica
   }
 
   std::vector<micm::Phase> convert_phases(
-      const std::vector<mechanism_configuration::v1::types::Phase>& phases,
+      const std::vector<types::Phase>& phases,
       std::unordered_map<std::string, micm::Species>& species_map)
   {
     std::vector<micm::Phase> micm_phases;
@@ -93,7 +107,7 @@ namespace musica
   }
 
   std::vector<micm::Species> reaction_components_to_reactants(
-      const std::vector<mechanism_configuration::v1::types::ReactionComponent>& components,
+      const std::vector<types::ReactionComponent>& components,
       std::unordered_map<std::string, micm::Species>& species_map)
   {
     std::vector<micm::Species> species;
@@ -101,27 +115,35 @@ namespace musica
     {
       for (int i = 0; i < component.coefficient; i++)
       {
-        species.push_back(species_map[component.species_name]);
+        species.push_back(species_map[component.name]);
       }
     }
     return species;
   }
 
+  std::vector<micm::Species> reaction_components_to_reactants(
+      const types::ReactionComponent& component,
+      std::unordered_map<std::string, micm::Species>& species_map)
+  {
+    return reaction_components_to_reactants(std::vector<types::ReactionComponent>{ component }, species_map);
+  }
+
+
   std::vector<micm::StoichSpecies> reaction_components_to_products(
-      const std::vector<mechanism_configuration::v1::types::ReactionComponent>& components,
+      const std::vector<types::ReactionComponent>& components,
       std::unordered_map<std::string, micm::Species>& species_map)
   {
     std::vector<micm::StoichSpecies> yields;
     for (const auto& component : components)
     {
-      yields.push_back({ species_map[component.species_name], component.coefficient });
+      yields.push_back({ species_map[component.name], component.coefficient });
     }
     return yields;
   }
 
   void convert_arrhenius(
       Chemistry& chemistry,
-      const std::vector<mechanism_configuration::v1::types::Arrhenius>& arrhenius,
+      const std::vector<types::Arrhenius>& arrhenius,
       std::unordered_map<std::string, micm::Species>& species_map)
   {
     for (const auto& reaction : arrhenius)
@@ -145,7 +167,7 @@ namespace musica
 
   void convert_branched(
       Chemistry& chemistry,
-      const std::vector<mechanism_configuration::v1::types::Branched>& branched,
+      const std::vector<types::Branched>& branched,
       std::unordered_map<std::string, micm::Species>& species_map)
   {
     for (const auto& reaction : branched)
@@ -182,7 +204,7 @@ namespace musica
 
   void convert_surface(
       Chemistry& chemistry,
-      const std::vector<mechanism_configuration::v1::types::Surface>& surface,
+      const std::vector<types::Surface>& surface,
       std::unordered_map<std::string, micm::Species>& species_map,
       const micm::Phase& gas_phase,
       const std::string& prefix)
@@ -197,13 +219,13 @@ namespace musica
           phase_species_list.begin(),
           phase_species_list.end(),
           [&reaction](const micm::PhaseSpecies& ps)
-          { return ps.species_.name_ == reaction.gas_phase_species.species_name; });
+          { return ps.species_.name_ == reaction.gas_phase_species.name; });
 
       if (it == phase_species_list.end())
       {
         throw musica::Exception(
             musica::ParseErrorCode::ParsingFailed,
-            "Species '" + reaction.gas_phase_species.species_name + "' for surface reaction in gas phase is not found\n");
+            "Species '" + reaction.gas_phase_species.name + "' for surface reaction in gas phase is not found\n");
       }
 
       size_t const surface_reaction_species_index = std::distance(phase_species_list.begin(), it);
@@ -223,7 +245,7 @@ namespace musica
 
   void convert_troe(
       Chemistry& chemistry,
-      const std::vector<mechanism_configuration::v1::types::Troe>& troe,
+      const std::vector<types::Troe>& troe,
       std::unordered_map<std::string, micm::Species>& species_map)
   {
     for (const auto& reaction : troe)
@@ -250,7 +272,7 @@ namespace musica
 
   void convert_ternary_chemical_activation(
       Chemistry& chemistry,
-      const std::vector<mechanism_configuration::v1::types::TernaryChemicalActivation>& ternary,
+      const std::vector<types::TernaryChemicalActivation>& ternary,
       std::unordered_map<std::string, micm::Species>& species_map)
   {
     for (const auto& reaction : ternary)
@@ -277,7 +299,7 @@ namespace musica
 
   void convert_tunneling(
       Chemistry& chemistry,
-      const std::vector<mechanism_configuration::v1::types::Tunneling>& tunneling,
+      const std::vector<types::Tunneling>& tunneling,
       std::unordered_map<std::string, micm::Species>& species_map)
   {
     for (const auto& reaction : tunneling)
@@ -299,7 +321,7 @@ namespace musica
 
   void convert_taylor_series(
       Chemistry& chemistry,
-      const std::vector<mechanism_configuration::v1::types::TaylorSeries>& taylor_series,
+      const std::vector<types::TaylorSeries>& taylor_series,
       std::unordered_map<std::string, micm::Species>& species_map)
   {
     for (const auto& reaction : taylor_series)
@@ -352,7 +374,7 @@ namespace musica
 
   void convert_lambda_rate_constants(
       Chemistry& chemistry,
-      const std::vector<mechanism_configuration::v1::types::LambdaRateConstant>& reactions,
+      const std::vector<types::LambdaRateConstant>& reactions,
       std::unordered_map<std::string, micm::Species>& species_map)
   {
     for (const auto& reaction : reactions)
@@ -412,16 +434,16 @@ namespace musica
     }
   }
 
-  Chemistry ConvertV1Mechanism(const mechanism_configuration::v1::types::Mechanism& v1_mechanism)
+  Chemistry ConvertMechanism(const Mechanism& mechanism)
   {
     Chemistry chemistry{};
-    auto species = convert_species(v1_mechanism.species);
+    auto species = convert_species(mechanism.species);
     std::unordered_map<std::string, micm::Species> species_map;
     for (const auto& species : species)
     {
       species_map[species.name_] = species;
     }
-    auto phases = convert_phases(v1_mechanism.phases, species_map);
+    auto phases = convert_phases(mechanism.phases, species_map);
     micm::Phase& gas_phase = chemistry.system.gas_phase_;
     for (const auto& phase : phases)
     {
@@ -430,28 +452,19 @@ namespace musica
         gas_phase = phase;
       }
     }
-    convert_arrhenius(chemistry, v1_mechanism.reactions.arrhenius, species_map);
-    convert_branched(chemistry, v1_mechanism.reactions.branched, species_map);
-    convert_surface(chemistry, v1_mechanism.reactions.surface, species_map, gas_phase, "SURF.");
-    convert_taylor_series(chemistry, v1_mechanism.reactions.taylor_series, species_map);
-    convert_troe(chemistry, v1_mechanism.reactions.troe, species_map);
-    convert_ternary_chemical_activation(chemistry, v1_mechanism.reactions.ternary_chemical_activation, species_map);
-    convert_tunneling(chemistry, v1_mechanism.reactions.tunneling, species_map);
-    convert_user_defined(chemistry, v1_mechanism.reactions.photolysis, species_map, "PHOTO.");
-    convert_user_defined(chemistry, v1_mechanism.reactions.emission, species_map, "EMIS.");
-    convert_user_defined(chemistry, v1_mechanism.reactions.first_order_loss, species_map, "LOSS.");
-    convert_user_defined(chemistry, v1_mechanism.reactions.user_defined, species_map, "USER.");
-    convert_lambda_rate_constants(chemistry, v1_mechanism.reactions.lambda_rate_constant, species_map);
+    convert_arrhenius(chemistry, mechanism.reactions.arrhenius, species_map);
+    convert_branched(chemistry, mechanism.reactions.branched, species_map);
+    convert_surface(chemistry, mechanism.reactions.surface, species_map, gas_phase, "SURF.");
+    convert_taylor_series(chemistry, mechanism.reactions.taylor_series, species_map);
+    convert_troe(chemistry, mechanism.reactions.troe, species_map);
+    convert_ternary_chemical_activation(chemistry, mechanism.reactions.ternary_chemical_activation, species_map);
+    convert_tunneling(chemistry, mechanism.reactions.tunneling, species_map);
+    convert_user_defined(chemistry, mechanism.reactions.photolysis, species_map, "PHOTO.");
+    convert_user_defined(chemistry, mechanism.reactions.emission, species_map, "EMIS.");
+    convert_user_defined(chemistry, mechanism.reactions.first_order_loss, species_map, "LOSS.");
+    convert_user_defined(chemistry, mechanism.reactions.user_defined, species_map, "USER.");
+    convert_lambda_rate_constants(chemistry, mechanism.reactions.lambda_rate_constant, species_map);
     return chemistry;
-  }
-
-  Chemistry ParserV1(const mechanism_configuration::ParserResult<>& result)
-  {
-    using V1 = mechanism_configuration::v1::types::Mechanism;
-    V1* v1_mechanism = dynamic_cast<V1*>(result.mechanism.get());
-    if (!v1_mechanism)
-      throw musica::Exception(musica::ParseErrorCode::FailedToCastToVersion, "Failed to cast to V1");
-    return ConvertV1Mechanism(*v1_mechanism);
   }
 
 }  // namespace musica

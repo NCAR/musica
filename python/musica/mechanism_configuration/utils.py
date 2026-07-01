@@ -31,7 +31,7 @@ def _convert_components(items):
 
 def _format_component(component) -> str:
     coef = component.coefficient
-    name = component.species_name
+    name = component.name
     if coef == 1.0:
         return name
     coef_str = str(int(coef)) if coef == int(coef) else str(coef)

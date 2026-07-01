@@ -86,9 +86,11 @@ class Phase {
 }
 
 class ReactionComponent {
-  #keys = ['species_name', 'coefficient'];
+  // `name` is accepted as an alias for `species_name` for parity with the
+  // Python interface and the schema, which allow either spelling.
+  #keys = ['species_name', 'name', 'coefficient'];
   constructor(params) {
-    this.species_name = params['species_name'];
+    this.species_name = params['species_name'] ?? params['name'];
     this.coefficient = params['coefficient'] || 1.0;
     this.other_properties = {};
     Object.entries(params).forEach(([key, value]) => {

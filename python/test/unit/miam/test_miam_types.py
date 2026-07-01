@@ -8,6 +8,7 @@ import math
 import pytest
 from dataclasses import FrozenInstanceError
 
+from musica import backend
 from musica.miam import (
     HenryLawConstant,
     EquilibriumConstant,
@@ -26,6 +27,9 @@ from musica.miam import (
 )
 from musica.mechanism_configuration import Species, Phase
 
+# Skip all tests if MIAM is not available
+pytestmark = pytest.mark.skipif(not backend.miam_available(),
+                                reason="MIAM backend is not available")
 
 # ═══ Constants ═══════════════════════════════════════════════════════════════
 

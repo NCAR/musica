@@ -36,7 +36,8 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
                 diffusion_coefficient_m2_s=2.1e-5),
             mc.PhaseSpecies(
                 name=H2O2.name,
-                diffusion_coefficient_m2_s=2.1e-5)
+                diffusion_coefficient_m2_s=2.1e-5),
+            M
         ])
 
     # Reactions
@@ -237,7 +238,7 @@ def _validate_species(species):
 
 def _validate_phases(phases):
     assert len(phases) == 1
-    assert len(phases[0].species) == 5
+    assert len(phases[0].species) == 6
     assert phases[0].name == "gas"
     assert phases[0].species[0].name == "A"
     assert phases[0].species[0].diffusion_coefficient_m2_s == 2.1e-5
@@ -247,11 +248,12 @@ def _validate_phases(phases):
     assert phases[0].species[3].diffusion_coefficient_m2_s == 2.1e-5
     assert phases[0].species[4].name == "H2O2"
     assert phases[0].species[4].diffusion_coefficient_m2_s == 2.1e-5
+    assert phases[0].species[5].name == "M"
 
 
 def _extract_components(components):
     return [
-        {"species name": component.species_name, "coefficient": component.coefficient}
+        {"species name": component.name, "coefficient": component.coefficient}
         for component in components
     ]
 
@@ -505,12 +507,12 @@ def test_reaction_component_passthrough():
 
     reactants = reaction.reactants
     assert len(reactants) == 2
-    assert reactants[0].species_name == "X"
+    assert reactants[0].name == "X"
     assert reactants[0].coefficient == 2
-    assert reactants[1].species_name == "Y"
+    assert reactants[1].name == "Y"
     assert reactants[1].coefficient == 1
 
     products = reaction.products
     assert len(products) == 1
-    assert products[0].species_name == "Q"
+    assert products[0].name == "Q"
     assert products[0].coefficient == 1
