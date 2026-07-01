@@ -1,0 +1,52 @@
+FROM fedora:41
+
+ARG BUILD_TYPE=Debug
+
+RUN dnf -y update \
+    && dnf -y install \
+        cmake \
+        curl \
+        gcc-c++ \
+        gcc-gfortran \
+        gdb \
+        git \
+        hdf5-devel \
+        lapack-devel \
+        libcurl-devel \
+        m4 \
+        make \
+        netcdf-fortran-devel \
+        zlib-devel \
+    && dnf clean all
+
+COPY . musica
+
+# AddressSanitizer + UndefinedBehaviorSanitizer build. This complements the
+# valgrind (memcheck) job: ASan catches stack- and global-buffer overflows and
+# use-after-return/-scope that valgrind cannot see, while memcheck still covers
+# uninitialized-value reads that ASan does not. Everything is built with GCC
+# (incl. gfortran for TUV-x) so the sanitizer runtime is consistent across
+# C/C++/Fortran and links cleanly. CARMA is left off; TUV-x is included.
+# UBSan is applied to C/C++ only (not Fortran) to avoid TUV-x Fortran noise.
+#
+# Leak detection is left to the memcheck job (--leak-check=full); disable it here
+# to keep the run focused on memory-safety errors. halt_on_error=1 makes any
+# finding fail the test.
+ENV ASAN_OPTIONS="detect_leaks=0:halt_on_error=1"
+ENV UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1"
+
+RUN cd musica \
+    && cmake -S . \
+             -B build \
+             -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+             -D MUSICA_ENABLE_TESTS=ON \
+             -D MUSICA_ENABLE_CARMA=OFF \
+             -D MUSICA_BUILD_FORTRAN_INTERFACE=OFF \
+             -D CMAKE_C_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -g" \
+             -D CMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -g" \
+             -D CMAKE_Fortran_FLAGS="-fsanitize=address -g" \
+             -D CMAKE_EXE_LINKER_FLAGS="-fsanitize=address,undefined" \
+    && cd build \
+    && make -j$(nproc)
+
+WORKDIR /musica/build
