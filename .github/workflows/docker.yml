@@ -22,6 +22,7 @@ jobs:
         dockerfile:
           - Dockerfile
           - Dockerfile.docs
+          - Dockerfile.asan
           - Dockerfile.memcheck
           - Dockerfile.openmp
           - Dockerfile.mpi
