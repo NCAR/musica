@@ -64,7 +64,7 @@ export class State {
         temperatures?: number | number[] | null | undefined;
         pressures?: number | number[] | null | undefined;
         airDensities?: number | number[] | null | undefined;
-    } | undefined): void;
+    }): void;
     /**
      * Get environmental conditions for all grid cells.
      *

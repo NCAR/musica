@@ -32,11 +32,11 @@ test('FirstOrderLoss emits products (with coefficients) when provided', () => {
   const json = fol.getJSON();
   assert.strictEqual(json['products'].length, 2);
   assert.deepStrictEqual(json['products'][0], {
-    'name': 'B',
+    name: 'B',
     coefficient: 1.0,
   });
   assert.deepStrictEqual(json['products'][1], {
-    'name': 'C',
+    name: 'C',
     coefficient: 2.0,
   });
 });
