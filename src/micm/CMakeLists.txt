@@ -17,5 +17,4 @@ target_sources(musica PRIVATE
   parse.cpp
   state.cpp
   state_c_interface.cpp
-  v1_parse.cpp
 )
