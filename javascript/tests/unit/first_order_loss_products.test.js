@@ -10,11 +10,11 @@ test('FirstOrderLoss omits products when none are given', () => {
     name: 'my first order loss',
     scaling_factor: 12.3,
     gas_phase: 'gas',
-    reactants: [new ReactionComponent({ species_name: 'A' })],
+    reactants: [new ReactionComponent({ name: 'A' })],
   });
   const json = fol.getJSON();
   assert.strictEqual(json['type'], 'FIRST_ORDER_LOSS');
-  assert.strictEqual(json['reactants'][0]['species name'], 'A');
+  assert.strictEqual(json['reactants'][0]['name'], 'A');
   assert.ok(!('products' in json), 'products key should be absent when no products are provided');
 });
 
@@ -23,20 +23,20 @@ test('FirstOrderLoss emits products (with coefficients) when provided', () => {
     name: 'my first order loss',
     scaling_factor: 12.3,
     gas_phase: 'gas',
-    reactants: [new ReactionComponent({ species_name: 'A' })],
+    reactants: [new ReactionComponent({ name: 'A' })],
     products: [
-      new ReactionComponent({ species_name: 'B' }),
-      new ReactionComponent({ species_name: 'C', coefficient: 2.0 }),
+      new ReactionComponent({ name: 'B' }),
+      new ReactionComponent({ name: 'C', coefficient: 2.0 }),
     ],
   });
   const json = fol.getJSON();
   assert.strictEqual(json['products'].length, 2);
   assert.deepStrictEqual(json['products'][0], {
-    'species name': 'B',
+    'name': 'B',
     coefficient: 1.0,
   });
   assert.deepStrictEqual(json['products'][1], {
-    'species name': 'C',
+    'name': 'C',
     coefficient: 2.0,
   });
 });

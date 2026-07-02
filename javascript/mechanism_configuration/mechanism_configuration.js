@@ -132,24 +132,22 @@ class Phase {
 
 /**
  * @typedef {Object} ReactionComponentParams
- * @property {string} [species_name]
- * @property {string} [name] Alias for `species_name`.
+ * @property {string} [name]
  * @property {number} [coefficient] Stoichiometric coefficient (defaults to 1.0).
  */
 
 /**
  * A reactant or product entry: a species name and its stoichiometric
- * coefficient (defaulting to 1.0).
+ * coefficient (defaulting to 1.0). A component always refers to a species, so
+ * the reference is simply `name`.
  */
 class ReactionComponent {
-  // `name` is accepted as an alias for `species_name` for parity with the
-  // Python interface and the schema, which allow either spelling.
-  #keys = ['species_name', 'name', 'coefficient'];
+  #keys = ['name', 'coefficient'];
   /**
    * @param {ReactionComponentParams} params
    */
   constructor(params) {
-    this.species_name = params['species_name'] ?? params['name'];
+    this.name = params['name'];
     this.coefficient = params['coefficient'] || 1.0;
     this.other_properties = {};
     Object.entries(params).forEach(([key, value]) => {
@@ -160,7 +158,7 @@ class ReactionComponent {
   }
   getJSON() {
     let obj = {};
-    obj['species name'] = this.species_name;
+    obj['name'] = this.name;
     obj['coefficient'] = this.coefficient;
     const ops = convertOtherProperties(this.other_properties);
     Object.assign(obj, ops);
@@ -498,7 +496,7 @@ class Surface {
     obj['reaction probability'] = this.reaction_probability;
     obj['gas phase'] = this.gas_phase;
     // b/c Kyle said so ??
-    obj['gas-phase species'] = this.gas_phase_species.species_name;
+    obj['gas-phase species'] = this.gas_phase_species.name;
     obj['gas-phase products'] = this.gas_phase_products.map((p) => p.getJSON());
     const ops = convertOtherProperties(this.other_properties);
     Object.assign(obj, ops);
