@@ -200,7 +200,6 @@ class Arrhenius {
    * @param {ArrheniusParams} params
    */
   constructor(params) {
-    /** @type {'ARRHENIUS'} */
     this.type = Arrhenius.type;
     this.A = params['A'] || 1.0;
     this.B = params['B'] || 0.0;
@@ -274,7 +273,6 @@ class Branched {
    * @param {BranchedParams} params
    */
   constructor(params) {
-    /** @type {'BRANCHED_NO_RO2'} */
     this.type = Branched.type;
     this.X = params['X'];
     this.Y = params['Y'];
@@ -329,7 +327,6 @@ class Emission {
    * @param {EmissionParams} params
    */
   constructor(params) {
-    /** @type {'EMISSION'} */
     this.type = Emission.type;
     this.scaling_factor = params['scaling_factor'] || 1.0;
     this.products = params['products'];
@@ -375,7 +372,6 @@ class FirstOrderLoss {
    * @param {FirstOrderLossParams} params
    */
   constructor(params) {
-    /** @type {'FIRST_ORDER_LOSS'} */
     this.type = FirstOrderLoss.type;
     this.scaling_factor = params['scaling_factor'] || 1.0;
     this.reactants = params['reactants'];
@@ -427,7 +423,6 @@ class Photolysis {
    * @param {PhotolysisParams} params
    */
   constructor(params) {
-    /** @type {'PHOTOLYSIS'} */
     this.type = Photolysis.type;
     this.scaling_factor = params['scaling_factor'] || 1.0;
     this.reactants = params['reactants'];
@@ -475,7 +470,6 @@ class Surface {
    * @param {SurfaceParams} params
    */
   constructor(params) {
-    /** @type {'SURFACE'} */
     this.type = Surface.type;
     this.reaction_probability = params['reaction_probability'] || 1.0;
     this.gas_phase_species = params['gas_phase_species'];
@@ -542,7 +536,6 @@ class TaylorSeries {
    * @param {TaylorSeriesParams} params
    */
   constructor(params) {
-    /** @type {'TAYLOR_SERIES'} */
     this.type = TaylorSeries.type;
     this.A = params['A'] || 1.0;
     this.B = params['B'] || 0.0;
@@ -624,7 +617,6 @@ class Troe {
    * @param {TroeLikeParams} params
    */
   constructor(params) {
-    /** @type {'TROE'} */
     this.type = Troe.type;
     this.k0_A = params['k0_A'] || 1.0;
     this.k0_B = params['k0_B'] || 0.0;
@@ -690,7 +682,6 @@ class TernaryChemicalActivation {
    * @param {TroeLikeParams} params
    */
   constructor(params) {
-    /** @type {'TERNARY_CHEMICAL_ACTIVATION'} */
     this.type = TernaryChemicalActivation.type;
     this.k0_A = params['k0_A'] || 1.0;
     this.k0_B = params['k0_B'] || 0.0;
@@ -754,7 +745,6 @@ class Tunneling {
    * @param {TunnelingParams} params
    */
   constructor(params) {
-    /** @type {'TUNNELING'} */
     this.type = Tunneling.type;
     this.A = params['A'] || 1.0;
     this.B = params['B'] || 0.0;
@@ -806,7 +796,6 @@ class UserDefined {
    * @param {UserDefinedParams} params
    */
   constructor(params) {
-    /** @type {'USER_DEFINED'} */
     this.type = UserDefined.type;
     this.scaling_factor = params['scaling_factor'] || 1.0;
     this.reactants = params['reactants'];
@@ -857,7 +846,6 @@ class LambdaRateConstant {
    * @param {LambdaRateConstantParams} params
    */
   constructor(params) {
-    /** @type {'LAMBDA_RATE_CONSTANT'} */
     this.type = LambdaRateConstant.type;
     this.reactants = params['reactants'];
     this.products = params['products'];
