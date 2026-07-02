@@ -42,9 +42,9 @@ namespace
   {
     // Minimal mechanism: gas phase with the 3 gas species, no gas reactions
     // (all reactions happen in the MIAM external model).
-    namespace v1 = mechanism_configuration::v1::types;
+    namespace v1 = mechanism_configuration::types;
 
-    v1::Mechanism mech;
+    mechanism_configuration::Mechanism mech;
 
     // Gas-phase species
     v1::Species so2_g, h2o2_g, o3_g;
@@ -63,7 +63,7 @@ namespace
     };
     mech.phases.push_back(gas_phase);
 
-    return musica::ConvertV1Mechanism(mech);
+    return musica::ConvertMechanism(mech);
   }
 
   // Build MIAM model config for simplified cloud chemistry

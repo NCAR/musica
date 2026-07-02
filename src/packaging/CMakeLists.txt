@@ -12,7 +12,7 @@ install(
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-if (MUSICA_USE_FMT)
+if (MUSICA_USE_FMT AND TARGET fmt)
   install(
     TARGETS
       fmt
