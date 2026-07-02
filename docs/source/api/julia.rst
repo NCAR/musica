@@ -70,7 +70,7 @@ Core
 
    .. code-block:: julia
 
-      println(Musica.get_version())  # e.g. "0.15.0"
+      println(Musica.get_version())  # e.g. "0.16.0"
 
 Constants
 ^^^^^^^^^
