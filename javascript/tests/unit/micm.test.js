@@ -51,15 +51,15 @@ function createTestMechanism() {
   const reaction1 = new reactionTypes.UserDefined({
     name: 'reaction 1',
     gas_phase: 'gas',
-    reactants: [new ReactionComponent({ species_name: 'A' })],
-    products: [new ReactionComponent({ species_name: 'B' })],
+    reactants: [new ReactionComponent({ name: 'A' })],
+    products: [new ReactionComponent({ name: 'B' })],
   });
 
   const reaction2 = new reactionTypes.UserDefined({
     name: 'reaction 2',
     gas_phase: 'gas',
-    reactants: [new ReactionComponent({ species_name: 'B' })],
-    products: [new ReactionComponent({ species_name: 'C' })],
+    reactants: [new ReactionComponent({ name: 'B' })],
+    products: [new ReactionComponent({ name: 'C' })],
   });
 
   const mechanism = new Mechanism({

@@ -1,8 +1,206 @@
 import { convertOtherProperties } from './utils.js';
 
-class Arrhenius {
-  #keys = ['A', 'B', 'C', 'D', 'E', 'Ea', 'reactants', 'products', 'name', 'gas_phase'];
+// ----------------------------------------------------------------------------
+// Core types (formerly types.js)
+// ----------------------------------------------------------------------------
+
+/**
+ * @typedef {Object} SpeciesParams
+ * @property {string} name
+ * @property {number} [molecular_weight] Molecular weight [kg mol-1].
+ * @property {number} [constant_concentration] Constant concentration [mol m-3].
+ * @property {number} [constant_mixing_ratio] Constant mixing ratio [mol mol-1].
+ * @property {boolean} [is_third_body]
+ */
+
+/**
+ * A chemical species and its physical properties. Arbitrary extra properties
+ * may be supplied and are preserved on serialization.
+ */
+class Species {
+  #keys = [
+    'name',
+    'molecular_weight',
+    'constant_concentration',
+    'constant_mixing_ratio',
+    'is_third_body',
+  ];
+  /**
+   * @param {SpeciesParams} params
+   */
   constructor(params) {
+    this.name = params['name'];
+    this.molecular_weight = params['molecular_weight'];
+    this.constant_concentration = params['constant_concentration'];
+    this.constant_mixing_ratio = params['constant_mixing_ratio'];
+    this.is_third_body = params['is_third_body'];
+    this.other_properties = {};
+    // Allows end-users to add arbitrary properties as simple key-value pairs just like the other defined properties
+    Object.entries(params).forEach(([key, value]) => {
+      if (this.#keys.includes(key) == false) {
+        this.other_properties[key] = value;
+      }
+    });
+  }
+  getJSON() {
+    let obj = {};
+    obj['name'] = this.name;
+    obj['molecular weight [kg mol-1]'] = this.molecular_weight;
+    obj['constant concentration [mol m-3]'] = this.constant_concentration;
+    obj['constant mixing ratio [mol mol-1]'] = this.constant_mixing_ratio;
+    obj['is third body'] = this.is_third_body;
+    const ops = convertOtherProperties(this.other_properties);
+    Object.assign(obj, ops);
+    return obj;
+  }
+}
+
+/**
+ * @typedef {Object} PhaseSpeciesParams
+ * @property {string} name
+ * @property {number} [diffusion_coefficient] Diffusion coefficient [m2 s-1].
+ */
+
+/**
+ * A species as it participates in a particular phase, optionally carrying a
+ * phase-specific diffusion coefficient.
+ */
+class PhaseSpecies {
+  #keys = ['name', 'diffusion_coefficient'];
+  /**
+   * @param {PhaseSpeciesParams} params
+   */
+  constructor(params) {
+    this.name = params['name'];
+    this.diffusion_coefficient = params['diffusion_coefficient'];
+    this.other_properties = {};
+    Object.entries(params).forEach(([key, value]) => {
+      if (this.#keys.includes(key) == false) {
+        this.other_properties[key] = value;
+      }
+    });
+  }
+  getJSON() {
+    let obj = {};
+    obj['name'] = this.name;
+    obj['diffusion coefficient [m2 s-1]'] = this.diffusion_coefficient;
+    const ops = convertOtherProperties(this.other_properties);
+    Object.assign(obj, ops);
+    return obj;
+  }
+}
+
+/**
+ * @typedef {Object} PhaseParams
+ * @property {string} name
+ * @property {Array<Species | PhaseSpecies>} species
+ */
+
+/**
+ * A phase (for example the gas phase) and the set of species it contains.
+ */
+class Phase {
+  #keys = ['name', 'species'];
+  /**
+   * @param {PhaseParams} params
+   */
+  constructor(params) {
+    this.name = params['name'];
+    this.species = params['species'];
+    this.other_properties = {};
+    Object.entries(params).forEach(([key, value]) => {
+      if (this.#keys.includes(key) == false) {
+        this.other_properties[key] = value;
+      }
+    });
+  }
+  getJSON() {
+    let obj = {};
+    obj['name'] = this.name;
+    obj['species'] = this.species.map((s) => {
+      if (s instanceof PhaseSpecies) return s.getJSON();
+      if (s instanceof Species) {
+        const ps = new PhaseSpecies({ name: s.name });
+        return ps.getJSON();
+      }
+    });
+    const ops = convertOtherProperties(this.other_properties);
+    Object.assign(obj, ops);
+    return obj;
+  }
+}
+
+/**
+ * @typedef {Object} ReactionComponentParams
+ * @property {string} [name]
+ * @property {number} [coefficient] Stoichiometric coefficient (defaults to 1.0).
+ */
+
+/**
+ * A reactant or product entry: a species name and its stoichiometric
+ * coefficient (defaulting to 1.0). A component always refers to a species, so
+ * the reference is simply `name`.
+ */
+class ReactionComponent {
+  #keys = ['name', 'coefficient'];
+  /**
+   * @param {ReactionComponentParams} params
+   */
+  constructor(params) {
+    this.name = params['name'];
+    this.coefficient = params['coefficient'] || 1.0;
+    this.other_properties = {};
+    Object.entries(params).forEach(([key, value]) => {
+      if (this.#keys.includes(key) == false) {
+        this.other_properties[key] = value;
+      }
+    });
+  }
+  getJSON() {
+    let obj = {};
+    obj['name'] = this.name;
+    obj['coefficient'] = this.coefficient;
+    const ops = convertOtherProperties(this.other_properties);
+    Object.assign(obj, ops);
+    return obj;
+  }
+}
+
+// ----------------------------------------------------------------------------
+// Reaction types (formerly reaction_types.js)
+//
+// Each reaction class exposes its mechanism-configuration type string both as a
+// static property (e.g. `Arrhenius.type`) and on each instance (e.g.
+// `new Arrhenius(...).type`). The static field is the single source of truth and
+// is what `getJSON()` serializes.
+// ----------------------------------------------------------------------------
+
+/**
+ * @typedef {Object} ArrheniusParams
+ * @property {ReactionComponent[]} reactants
+ * @property {ReactionComponent[]} products
+ * @property {string} [name]
+ * @property {string} [gas_phase]
+ * @property {number} [A]
+ * @property {number} [B]
+ * @property {number} [C] Mutually exclusive with `Ea`.
+ * @property {number} [D]
+ * @property {number} [E]
+ * @property {number} [Ea] Mutually exclusive with `C`.
+ */
+
+/**
+ * Arrhenius reaction-rate expression.
+ */
+class Arrhenius {
+  /** @type {'ARRHENIUS'} */
+  static type = 'ARRHENIUS';
+  #keys = ['A', 'B', 'C', 'D', 'E', 'Ea', 'reactants', 'products', 'name', 'gas_phase'];
+  /**
+   * @param {ArrheniusParams} params
+   */
+  constructor(params) {
+    this.type = Arrhenius.type;
     this.A = params['A'] || 1.0;
     this.B = params['B'] || 0.0;
     this.C = params['C'] || 0.0;
@@ -23,7 +221,7 @@ class Arrhenius {
   }
   getJSON() {
     let obj = {};
-    obj['type'] = 'ARRHENIUS';
+    obj['type'] = this.type;
     obj['name'] = this.name;
     obj['A'] = this.A;
     obj['B'] = this.B;
@@ -40,7 +238,26 @@ class Arrhenius {
   }
 }
 
+/**
+ * @typedef {Object} BranchedParams
+ * @property {ReactionComponent[]} reactants
+ * @property {ReactionComponent[]} nitrate_products
+ * @property {ReactionComponent[]} alkoxy_products
+ * @property {string} [name]
+ * @property {string} [gas_phase]
+ * @property {number} [X]
+ * @property {number} [Y]
+ * @property {number} [a0]
+ * @property {number} [n]
+ */
+
+/**
+ * Branched (no-RO2) reaction-rate expression producing separate nitrate and
+ * alkoxy product channels.
+ */
 class Branched {
+  /** @type {'BRANCHED_NO_RO2'} */
+  static type = 'BRANCHED_NO_RO2';
   #keys = [
     'X',
     'Y',
@@ -52,7 +269,11 @@ class Branched {
     'name',
     'gas_phase',
   ];
+  /**
+   * @param {BranchedParams} params
+   */
   constructor(params) {
+    this.type = Branched.type;
     this.X = params['X'];
     this.Y = params['Y'];
     this.a0 = params['a0'];
@@ -71,7 +292,7 @@ class Branched {
   }
   getJSON() {
     let obj = {};
-    obj['type'] = 'BRANCHED_NO_RO2';
+    obj['type'] = this.type;
     obj['name'] = this.name;
     obj['X'] = this.X;
     obj['Y'] = this.Y;
@@ -87,9 +308,26 @@ class Branched {
   }
 }
 
+/**
+ * @typedef {Object} EmissionParams
+ * @property {ReactionComponent[]} products
+ * @property {string} [name]
+ * @property {string} [gas_phase]
+ * @property {number} [scaling_factor] Defaults to 1.0.
+ */
+
+/**
+ * Emission of one or more species at a scaled rate.
+ */
 class Emission {
+  /** @type {'EMISSION'} */
+  static type = 'EMISSION';
   #keys = ['scaling_factor', 'products', 'name', 'gas_phase'];
+  /**
+   * @param {EmissionParams} params
+   */
   constructor(params) {
+    this.type = Emission.type;
     this.scaling_factor = params['scaling_factor'] || 1.0;
     this.products = params['products'];
     this.name = params['name'];
@@ -103,7 +341,7 @@ class Emission {
   }
   getJSON() {
     let obj = {};
-    obj['type'] = 'EMISSION';
+    obj['type'] = this.type;
     obj['name'] = this.name;
     obj['scaling factor'] = this.scaling_factor;
     obj['gas phase'] = this.gas_phase;
@@ -114,9 +352,27 @@ class Emission {
   }
 }
 
+/**
+ * @typedef {Object} FirstOrderLossParams
+ * @property {ReactionComponent[]} reactants
+ * @property {ReactionComponent[]} [products] Optional; used to compute integrated rates.
+ * @property {string} [name]
+ * @property {string} [gas_phase]
+ * @property {number} [scaling_factor] Defaults to 1.0.
+ */
+
+/**
+ * First-order loss of one or more species at a scaled rate.
+ */
 class FirstOrderLoss {
+  /** @type {'FIRST_ORDER_LOSS'} */
+  static type = 'FIRST_ORDER_LOSS';
   #keys = ['scaling_factor', 'reactants', 'products', 'name', 'gas_phase'];
+  /**
+   * @param {FirstOrderLossParams} params
+   */
   constructor(params) {
+    this.type = FirstOrderLoss.type;
     this.scaling_factor = params['scaling_factor'] || 1.0;
     this.reactants = params['reactants'];
     // products are optional for first-order loss (used to compute integrated rates)
@@ -132,7 +388,7 @@ class FirstOrderLoss {
   }
   getJSON() {
     let obj = {};
-    obj['type'] = 'FIRST_ORDER_LOSS';
+    obj['type'] = this.type;
     obj['name'] = this.name;
     obj['scaling factor'] = this.scaling_factor;
     obj['gas phase'] = this.gas_phase;
@@ -147,9 +403,27 @@ class FirstOrderLoss {
   }
 }
 
+/**
+ * @typedef {Object} PhotolysisParams
+ * @property {ReactionComponent[]} reactants
+ * @property {ReactionComponent[]} products
+ * @property {string} [name]
+ * @property {string} [gas_phase]
+ * @property {number} [scaling_factor] Defaults to 1.0.
+ */
+
+/**
+ * Photolysis reaction driven by a scaled photolysis rate.
+ */
 class Photolysis {
+  /** @type {'PHOTOLYSIS'} */
+  static type = 'PHOTOLYSIS';
   #keys = ['scaling_factor', 'reactants', 'products', 'name', 'gas_phase'];
+  /**
+   * @param {PhotolysisParams} params
+   */
   constructor(params) {
+    this.type = Photolysis.type;
     this.scaling_factor = params['scaling_factor'] || 1.0;
     this.reactants = params['reactants'];
     this.products = params['products'];
@@ -164,7 +438,7 @@ class Photolysis {
   }
   getJSON() {
     let obj = {};
-    obj['type'] = 'PHOTOLYSIS';
+    obj['type'] = this.type;
     obj['name'] = this.name;
     obj['scaling factor'] = this.scaling_factor;
     obj['gas phase'] = this.gas_phase;
@@ -176,9 +450,27 @@ class Photolysis {
   }
 }
 
+/**
+ * @typedef {Object} SurfaceParams
+ * @property {ReactionComponent} gas_phase_species
+ * @property {ReactionComponent[]} gas_phase_products
+ * @property {string} [name]
+ * @property {string} [gas_phase]
+ * @property {number} [reaction_probability] Defaults to 1.0.
+ */
+
+/**
+ * Surface (heterogeneous) reaction characterized by a reaction probability.
+ */
 class Surface {
+  /** @type {'SURFACE'} */
+  static type = 'SURFACE';
   #keys = ['reaction_probability', 'gas_phase_species', 'gas_phase_products', 'name', 'gas_phase'];
+  /**
+   * @param {SurfaceParams} params
+   */
   constructor(params) {
+    this.type = Surface.type;
     this.reaction_probability = params['reaction_probability'] || 1.0;
     this.gas_phase_species = params['gas_phase_species'];
     this.gas_phase_products = params['gas_phase_products'];
@@ -193,12 +485,12 @@ class Surface {
   }
   getJSON() {
     let obj = {};
-    obj['type'] = 'SURFACE';
+    obj['type'] = this.type;
     obj['name'] = this.name;
     obj['reaction probability'] = this.reaction_probability;
     obj['gas phase'] = this.gas_phase;
     // b/c Kyle said so ??
-    obj['gas-phase species'] = this.gas_phase_species.species_name;
+    obj['gas-phase species'] = this.gas_phase_species.name;
     obj['gas-phase products'] = this.gas_phase_products.map((p) => p.getJSON());
     const ops = convertOtherProperties(this.other_properties);
     Object.assign(obj, ops);
@@ -206,7 +498,27 @@ class Surface {
   }
 }
 
+/**
+ * @typedef {Object} TaylorSeriesParams
+ * @property {ReactionComponent[]} reactants
+ * @property {ReactionComponent[]} products
+ * @property {string} [name]
+ * @property {string} [gas_phase]
+ * @property {number} [A]
+ * @property {number} [B]
+ * @property {number} [C] Mutually exclusive with `Ea`.
+ * @property {number} [D]
+ * @property {number} [E]
+ * @property {number} [Ea] Mutually exclusive with `C`.
+ * @property {number[]} [taylor_coefficients] Defaults to [1.0].
+ */
+
+/**
+ * Taylor-series reaction-rate expression.
+ */
 class TaylorSeries {
+  /** @type {'TAYLOR_SERIES'} */
+  static type = 'TAYLOR_SERIES';
   #keys = [
     'A',
     'B',
@@ -220,7 +532,11 @@ class TaylorSeries {
     'name',
     'gas_phase',
   ];
+  /**
+   * @param {TaylorSeriesParams} params
+   */
   constructor(params) {
+    this.type = TaylorSeries.type;
     this.A = params['A'] || 1.0;
     this.B = params['B'] || 0.0;
     this.C = params['C'] || 0.0;
@@ -242,7 +558,7 @@ class TaylorSeries {
   }
   getJSON() {
     let obj = {};
-    obj['type'] = 'TAYLOR_SERIES';
+    obj['type'] = this.type;
     obj['name'] = this.name;
     obj['A'] = this.A;
     obj['B'] = this.B;
@@ -260,7 +576,29 @@ class TaylorSeries {
   }
 }
 
+/**
+ * Shared parameter shape for the Troe and ternary-chemical-activation rate forms.
+ * @typedef {Object} TroeLikeParams
+ * @property {ReactionComponent[]} reactants
+ * @property {ReactionComponent[]} products
+ * @property {string} [name]
+ * @property {string} [gas_phase]
+ * @property {number} [k0_A]
+ * @property {number} [k0_B]
+ * @property {number} [k0_C]
+ * @property {number} [kinf_A]
+ * @property {number} [kinf_B]
+ * @property {number} [kinf_C]
+ * @property {number} [Fc] Defaults to 0.6.
+ * @property {number} [N] Defaults to 1.0.
+ */
+
+/**
+ * Troe falloff reaction-rate expression.
+ */
 class Troe {
+  /** @type {'TROE'} */
+  static type = 'TROE';
   #keys = [
     'k0_A',
     'k0_B',
@@ -275,7 +613,11 @@ class Troe {
     'name',
     'gas_phase',
   ];
+  /**
+   * @param {TroeLikeParams} params
+   */
   constructor(params) {
+    this.type = Troe.type;
     this.k0_A = params['k0_A'] || 1.0;
     this.k0_B = params['k0_B'] || 0.0;
     this.k0_C = params['k0_C'] || 0.0;
@@ -298,7 +640,7 @@ class Troe {
   getJSON() {
     let obj = {};
     obj['name'] = this.name;
-    obj['type'] = 'TROE';
+    obj['type'] = this.type;
     obj['k0_A'] = this.k0_A;
     obj['k0_B'] = this.k0_B;
     obj['k0_C'] = this.k0_C;
@@ -316,7 +658,12 @@ class Troe {
   }
 }
 
+/**
+ * Ternary chemical-activation reaction-rate expression.
+ */
 class TernaryChemicalActivation {
+  /** @type {'TERNARY_CHEMICAL_ACTIVATION'} */
+  static type = 'TERNARY_CHEMICAL_ACTIVATION';
   #keys = [
     'k0_A',
     'k0_B',
@@ -331,7 +678,11 @@ class TernaryChemicalActivation {
     'name',
     'gas_phase',
   ];
+  /**
+   * @param {TroeLikeParams} params
+   */
   constructor(params) {
+    this.type = TernaryChemicalActivation.type;
     this.k0_A = params['k0_A'] || 1.0;
     this.k0_B = params['k0_B'] || 0.0;
     this.k0_C = params['k0_C'] || 0.0;
@@ -353,7 +704,7 @@ class TernaryChemicalActivation {
   }
   getJSON() {
     let obj = {};
-    obj['type'] = 'TERNARY_CHEMICAL_ACTIVATION';
+    obj['type'] = this.type;
     obj['name'] = this.name;
     obj['gas phase'] = this.gas_phase;
     obj['k0_A'] = this.k0_A;
@@ -372,9 +723,29 @@ class TernaryChemicalActivation {
   }
 }
 
+/**
+ * @typedef {Object} TunnelingParams
+ * @property {ReactionComponent[]} reactants
+ * @property {ReactionComponent[]} products
+ * @property {string} [name]
+ * @property {string} [gas_phase]
+ * @property {number} [A]
+ * @property {number} [B]
+ * @property {number} [C]
+ */
+
+/**
+ * Wigner tunneling reaction-rate expression.
+ */
 class Tunneling {
+  /** @type {'TUNNELING'} */
+  static type = 'TUNNELING';
   #keys = ['A', 'B', 'C', 'reactants', 'products', 'name', 'gas_phase'];
+  /**
+   * @param {TunnelingParams} params
+   */
   constructor(params) {
+    this.type = Tunneling.type;
     this.A = params['A'] || 1.0;
     this.B = params['B'] || 0.0;
     this.C = params['C'] || 0.0;
@@ -391,7 +762,7 @@ class Tunneling {
   }
   getJSON() {
     let obj = {};
-    obj['type'] = 'TUNNELING';
+    obj['type'] = this.type;
     obj['name'] = this.name;
     obj['A'] = this.A;
     obj['B'] = this.B;
@@ -405,9 +776,27 @@ class Tunneling {
   }
 }
 
+/**
+ * @typedef {Object} UserDefinedParams
+ * @property {ReactionComponent[]} reactants
+ * @property {ReactionComponent[]} products
+ * @property {string} [name]
+ * @property {string} [gas_phase]
+ * @property {number} [scaling_factor] Defaults to 1.0.
+ */
+
+/**
+ * User-defined reaction whose rate is supplied externally.
+ */
 class UserDefined {
+  /** @type {'USER_DEFINED'} */
+  static type = 'USER_DEFINED';
   #keys = ['scaling_factor', 'reactants', 'products', 'name', 'gas_phase'];
+  /**
+   * @param {UserDefinedParams} params
+   */
   constructor(params) {
+    this.type = UserDefined.type;
     this.scaling_factor = params['scaling_factor'] || 1.0;
     this.reactants = params['reactants'];
     this.products = params['products'];
@@ -422,7 +811,7 @@ class UserDefined {
   }
   getJSON() {
     let obj = {};
-    obj['type'] = 'USER_DEFINED';
+    obj['type'] = this.type;
     obj['name'] = this.name;
     obj['scaling factor'] = this.scaling_factor;
     obj['gas phase'] = this.gas_phase;
@@ -434,9 +823,30 @@ class UserDefined {
   }
 }
 
+/**
+ * @typedef {Object} LambdaRateConstantParams
+ * @property {ReactionComponent[]} reactants
+ * @property {ReactionComponent[]} products
+ * @property {string} [name]
+ * @property {string} [gas_phase]
+ * @property {string} [lambda_function] A C++ lambda expression string used by the
+ *   parser. When using a JavaScript callback (setReactionRateCallback), this acts
+ *   as a placeholder and is overridden at runtime.
+ */
+
+/**
+ * Reaction whose rate constant is provided by a lambda callback (a C++ lambda
+ * string for the parser, or a JavaScript callback set at runtime).
+ */
 class LambdaRateConstant {
+  /** @type {'LAMBDA_RATE_CONSTANT'} */
+  static type = 'LAMBDA_RATE_CONSTANT';
   #keys = ['reactants', 'products', 'name', 'gas_phase', 'lambda_function'];
+  /**
+   * @param {LambdaRateConstantParams} params
+   */
   constructor(params) {
+    this.type = LambdaRateConstant.type;
     this.reactants = params['reactants'];
     this.products = params['products'];
     this.name = params['name'];
@@ -456,7 +866,7 @@ class LambdaRateConstant {
 
   getJSON() {
     let obj = {};
-    obj['type'] = 'LAMBDA_RATE_CONSTANT';
+    obj['type'] = this.type;
     obj['name'] = this.name;
     obj['gas phase'] = this.gas_phase;
     obj['lambda function'] = this.lambda_function;
@@ -468,6 +878,56 @@ class LambdaRateConstant {
     return obj;
   }
 }
+
+// ----------------------------------------------------------------------------
+// Mechanism (formerly mechanism.js)
+// ----------------------------------------------------------------------------
+
+/**
+ * Any of the concrete reaction-rate classes exported via `reactionTypes`.
+ * @typedef {Arrhenius | Branched | Emission | FirstOrderLoss | Photolysis | Surface | TaylorSeries | Troe | TernaryChemicalActivation | Tunneling | UserDefined | LambdaRateConstant} Reaction
+ */
+
+/**
+ * @typedef {Object} MechanismParams
+ * @property {string} [name]
+ * @property {string} [version]
+ * @property {Species[]} [species]
+ * @property {Phase[]} [phases]
+ * @property {Reaction[]} [reactions]
+ */
+
+/**
+ * A complete mechanism — its species, phases, and reactions — serializable to
+ * MUSICA's JSON configuration via {@link Mechanism#getJSON} / {@link Mechanism#getString}.
+ */
+class Mechanism {
+  /**
+   * @param {MechanismParams} params
+   */
+  constructor({ name, version, species, phases, reactions }) {
+    this.name = name;
+    this.version = version;
+    this.species = species;
+    this.phases = phases;
+    this.reactions = reactions;
+  }
+  getJSON() {
+    let obj = {};
+    obj['name'] = this.name;
+    obj['version'] = this.version;
+    obj['species'] = this.species.map((s) => s.getJSON());
+    obj['phases'] = this.phases.map((p) => p.getJSON());
+    obj['reactions'] = this.reactions.map((r) => r.getJSON());
+    return obj;
+  }
+  // Allows for one-step conversion to string to pass to C++
+  getString() {
+    return JSON.stringify(this.getJSON());
+  }
+}
+
+export const types = { Species, PhaseSpecies, Phase, ReactionComponent };
 
 export const reactionTypes = {
   Arrhenius,
@@ -483,3 +943,5 @@ export const reactionTypes = {
   UserDefined,
   LambdaRateConstant,
 };
+
+export { Mechanism };

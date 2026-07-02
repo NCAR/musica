@@ -24,8 +24,8 @@ const B = new Species({ name: 'B' });
 let species = [A, B];
 let reactions = [
   new reactionTypes.LambdaRateConstant({
-    reactants: [new ReactionComponent({ species_name: 'A' })],
-    products: [new ReactionComponent({ species_name: 'B' })],
+    reactants: [new ReactionComponent({ name: 'A' })],
+    products: [new ReactionComponent({ name: 'B' })],
     name: 'mine',
     gas_phase: 'gas',
   }),
