@@ -4,6 +4,10 @@
 // jlcxx/stl.hpp uses std::ranges algorithms (fill, binary_search, lower_bound)
 // but does not include <algorithm>/<ranges> itself; under C++23 libc++ no longer
 // pulls them in transitively, so include them before the jlcxx headers.
+//
+// clang-format off: IncludeBlocks: Regroup is disabled because it would move
+// "jlcxx/..." headers ahead of standard library headers, breaking the intended
+// include order above.
 #include <algorithm>
 #include <ranges>
 
@@ -26,6 +30,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+// clang-format on
 
 namespace
 {
