@@ -18,7 +18,7 @@ export class RosenbrockSolverParameters {
         h_max?: number | undefined;
         h_start?: number | undefined;
         max_number_of_steps?: number | undefined;
-    } | undefined);
+    });
     relative_tolerance: number;
     absolute_tolerances: number[] | null;
     h_min: number;
@@ -42,7 +42,7 @@ export class BackwardEulerSolverParameters {
         absolute_tolerances?: number[] | null | undefined;
         max_number_of_steps?: number | undefined;
         time_step_reductions?: number[] | undefined;
-    } | undefined);
+    });
     relative_tolerance: number;
     absolute_tolerances: number[] | null;
     max_number_of_steps: number;

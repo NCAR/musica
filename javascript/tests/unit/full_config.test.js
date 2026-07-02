@@ -64,10 +64,7 @@ const my_surface = new reactionTypes.Surface({
   reaction_probability: 2.0e-2,
   gas_phase: 'gas',
   gas_phase_species: new ReactionComponent({ name: 'A' }),
-  gas_phase_products: [
-    new ReactionComponent({ name: 'B' }),
-    new ReactionComponent({ name: 'C' }),
-  ],
+  gas_phase_products: [new ReactionComponent({ name: 'B' }), new ReactionComponent({ name: 'C' })],
 });
 const my_troe = new reactionTypes.Troe({
   name: 'my troe',
@@ -80,10 +77,7 @@ const my_troe = new reactionTypes.Troe({
   Fc: 0.9,
   N: 0.8,
   gas_phase: 'gas',
-  reactants: [
-    new ReactionComponent({ name: 'B' }),
-    new ReactionComponent({ name: 'M' }),
-  ],
+  reactants: [new ReactionComponent({ name: 'B' }), new ReactionComponent({ name: 'M' })],
   products: [new ReactionComponent({ name: 'C' })],
 });
 const my_tca = new reactionTypes.TernaryChemicalActivation({
@@ -97,10 +91,7 @@ const my_tca = new reactionTypes.TernaryChemicalActivation({
   kinf_C: 908.5,
   Fc: 1.3,
   N: 32.1,
-  reactants: [
-    new ReactionComponent({ name: 'bar' }),
-    new ReactionComponent({ name: 'baz' }),
-  ],
+  reactants: [new ReactionComponent({ name: 'bar' }), new ReactionComponent({ name: 'baz' })],
   products: [
     new ReactionComponent({ name: 'bar', coefficient: 0.5 }),
     new ReactionComponent({ name: 'foo', coefficient: 0.3 }),
@@ -152,10 +143,7 @@ const my_ud = new reactionTypes.UserDefined({
   name: 'my user defined',
   gas_phase: 'gas',
   scaling_factor: 12.3,
-  reactants: [
-    new ReactionComponent({ name: 'A' }),
-    new ReactionComponent({ name: 'B' }),
-  ],
+  reactants: [new ReactionComponent({ name: 'A' }), new ReactionComponent({ name: 'B' })],
   products: [new ReactionComponent({ name: 'C', coefficient: 1.3 })],
 });
 const my_ts = new reactionTypes.TaylorSeries({
@@ -258,7 +246,7 @@ const expected = {
       'gas phase': 'gas',
       products: [
         {
-          'name': 'B',
+          name: 'B',
           coefficient: 1,
         },
       ],
@@ -270,7 +258,7 @@ const expected = {
       'gas phase': 'gas',
       reactants: [
         {
-          'name': 'C',
+          name: 'C',
           coefficient: 1,
         },
       ],
@@ -282,13 +270,13 @@ const expected = {
       'gas phase': 'gas',
       reactants: [
         {
-          'name': 'B',
+          name: 'B',
           coefficient: 1,
         },
       ],
       products: [
         {
-          'name': 'C',
+          name: 'C',
           coefficient: 1,
         },
       ],
@@ -301,11 +289,11 @@ const expected = {
       'gas-phase species': 'A',
       'gas-phase products': [
         {
-          'name': 'B',
+          name: 'B',
           coefficient: 1,
         },
         {
-          'name': 'C',
+          name: 'C',
           coefficient: 1,
         },
       ],
@@ -324,17 +312,17 @@ const expected = {
       'gas phase': 'gas',
       reactants: [
         {
-          'name': 'B',
+          name: 'B',
           coefficient: 1,
         },
         {
-          'name': 'M',
+          name: 'M',
           coefficient: 1,
         },
       ],
       products: [
         {
-          'name': 'C',
+          name: 'C',
           coefficient: 1,
         },
       ],
@@ -353,21 +341,21 @@ const expected = {
       N: 32.1,
       reactants: [
         {
-          'name': 'bar',
+          name: 'bar',
           coefficient: 1,
         },
         {
-          'name': 'baz',
+          name: 'baz',
           coefficient: 1,
         },
       ],
       products: [
         {
-          'name': 'bar',
+          name: 'bar',
           coefficient: 0.5,
         },
         {
-          'name': 'foo',
+          name: 'foo',
           coefficient: 0.3,
         },
       ],
@@ -382,19 +370,19 @@ const expected = {
       'gas phase': 'gas',
       reactants: [
         {
-          'name': 'A',
+          name: 'A',
           coefficient: 1,
         },
       ],
       'alkoxy products': [
         {
-          'name': 'B',
+          name: 'B',
           coefficient: 1,
         },
       ],
       'nitrate products': [
         {
-          'name': 'C',
+          name: 'C',
           coefficient: 1,
         },
       ],
@@ -408,13 +396,13 @@ const expected = {
       'gas phase': 'gas',
       reactants: [
         {
-          'name': 'B',
+          name: 'B',
           coefficient: 1,
         },
       ],
       products: [
         {
-          'name': 'C',
+          name: 'C',
           coefficient: 1,
         },
       ],
@@ -430,13 +418,13 @@ const expected = {
       E: -1.3,
       reactants: [
         {
-          'name': 'B',
+          name: 'B',
           coefficient: 1,
         },
       ],
       products: [
         {
-          'name': 'C',
+          name: 'C',
           coefficient: 1,
         },
       ],
@@ -452,13 +440,13 @@ const expected = {
       'gas phase': 'gas',
       reactants: [
         {
-          'name': 'A',
+          name: 'A',
           coefficient: 1,
         },
       ],
       products: [
         {
-          'name': 'B',
+          name: 'B',
           coefficient: 1.2,
         },
       ],
@@ -470,17 +458,17 @@ const expected = {
       'gas phase': 'gas',
       reactants: [
         {
-          'name': 'A',
+          name: 'A',
           coefficient: 1,
         },
         {
-          'name': 'B',
+          name: 'B',
           coefficient: 1,
         },
       ],
       products: [
         {
-          'name': 'C',
+          name: 'C',
           coefficient: 1.3,
         },
       ],
@@ -497,13 +485,13 @@ const expected = {
       'gas phase': 'gas',
       reactants: [
         {
-          'name': 'B',
+          name: 'B',
           coefficient: 1,
         },
       ],
       products: [
         {
-          'name': 'C',
+          name: 'C',
           coefficient: 1,
         },
       ],

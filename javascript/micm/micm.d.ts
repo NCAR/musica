@@ -7,7 +7,7 @@ export class MICM {
      * @param {RosenbrockSolverParameters|BackwardEulerSolverParameters} [solverParameters] - Optional solver parameters
      * @returns {MICM} A new MICM instance
      */
-    static fromConfigPath(configPath: string, solverType?: number | undefined, solverParameters?: RosenbrockSolverParameters | BackwardEulerSolverParameters | undefined): MICM;
+    static fromConfigPath(configPath: string, solverType?: number, solverParameters?: RosenbrockSolverParameters | BackwardEulerSolverParameters): MICM;
     /**
      * Create a MICM solver instance from a Mechanism object
      *
@@ -16,7 +16,7 @@ export class MICM {
      * @param {RosenbrockSolverParameters|BackwardEulerSolverParameters} [solverParameters] - Optional solver parameters
      * @returns {MICM} A new MICM instance
      */
-    static fromMechanism(mechanism: Object, solverType?: number | undefined, solverParameters?: RosenbrockSolverParameters | BackwardEulerSolverParameters | undefined): MICM;
+    static fromMechanism(mechanism: Object, solverType?: number, solverParameters?: RosenbrockSolverParameters | BackwardEulerSolverParameters): MICM;
     /**
      * Private constructor - use static factory methods instead
      * @private
@@ -35,7 +35,7 @@ export class MICM {
      * @param {number} [numberOfGridCells=1] - Number of independent atmospheric columns
      * @returns {State}
      */
-    createState(numberOfGridCells?: number | undefined): State;
+    createState(numberOfGridCells?: number): State;
     /**
      * Integrate the chemical system forward by `timeStep` seconds.
      * Species concentrations in `state` are updated in-place.

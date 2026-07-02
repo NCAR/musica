@@ -16,7 +16,7 @@ export class Conditions {
         temperature?: number | null | undefined;
         pressure?: number | null | undefined;
         air_density?: number | null | undefined;
-    } | undefined);
+    });
     temperature: number | null;
     pressure: number | null;
     air_density: number | null;
