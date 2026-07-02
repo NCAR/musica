@@ -21,8 +21,8 @@ const EXPECTED_TYPES = {
 };
 
 // Minimal-but-serializable constructor params for each reaction class.
-const reactants = [new ReactionComponent({ species_name: 'A' })];
-const products = [new ReactionComponent({ species_name: 'B' })];
+const reactants = [new ReactionComponent({ name: 'A' })];
+const products = [new ReactionComponent({ name: 'B' })];
 const PARAMS = {
   Arrhenius: { reactants, products, name: 'r', gas_phase: 'gas' },
   Branched: {
@@ -36,7 +36,7 @@ const PARAMS = {
   FirstOrderLoss: { reactants, name: 'r', gas_phase: 'gas' },
   Photolysis: { reactants, products, name: 'r', gas_phase: 'gas' },
   Surface: {
-    gas_phase_species: new ReactionComponent({ species_name: 'A' }),
+    gas_phase_species: new ReactionComponent({ name: 'A' }),
     gas_phase_products: products,
     name: 'r',
     gas_phase: 'gas',
