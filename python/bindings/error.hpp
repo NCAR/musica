@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <musica/util.hpp>
+#include <musica/utils/util.hpp>
 
 #include <pybind11/pybind11.h>
 

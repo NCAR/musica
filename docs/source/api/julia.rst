@@ -70,7 +70,7 @@ Core
 
    .. code-block:: julia
 
-      println(Musica.get_version())  # e.g. "0.15.0"
+      println(Musica.get_version())  # e.g. "0.16.0"
 
 Constants
 ^^^^^^^^^
@@ -424,6 +424,90 @@ State Functions
 .. function:: get_user_defined_rate_parameters_ordering(state::State) -> Dict{String, Int}
 
    Return the mapping of user-defined rate parameter names to their 0-based indices.
+
+Mechanism Configuration
+-----------------------
+
+The ``Musica.MechanismConfiguration`` submodule builds version 1 mechanism
+configurations in code and serializes them to a string for ``MICM(config_string = ...)``.
+See the :ref:`user guide <julia-user-guide>` for a full example.
+
+Data Types
+^^^^^^^^^^
+
+.. type:: Species
+
+   A chemical species.
+
+   .. code-block:: julia
+
+      Species(; name, molecular_weight=nothing, constant_concentration=nothing,
+                constant_mixing_ratio=nothing, is_third_body=nothing,
+                other_properties=Dict())
+
+   Optional fields left as ``nothing`` are omitted from the output. Keys in
+   ``other_properties`` are serialized with a ``__`` prefix.
+
+.. type:: PhaseSpecies
+
+   A species reference within a phase, optionally carrying a diffusion coefficient.
+
+   .. code-block:: julia
+
+      PhaseSpecies(; name, diffusion_coefficient=nothing, other_properties=Dict())
+
+.. type:: Phase
+
+   A phase grouping species. Members may be a ``Species``, a ``PhaseSpecies``, or a
+   bare species-name ``String``.
+
+   .. code-block:: julia
+
+      Phase(; name, species, other_properties=Dict())
+
+.. type:: ReactionComponent
+
+   A reactant or product entry.
+
+   .. code-block:: julia
+
+      ReactionComponent(; species_name, coefficient=1.0, other_properties=Dict())
+
+Reaction Types
+^^^^^^^^^^^^^^
+
+Each reaction type is constructed with keyword arguments and supports ``name``,
+``gas_phase``, and ``other_properties``:
+``Arrhenius``, ``Branched``, ``Emission``, ``FirstOrderLoss``, ``Photolysis``,
+``Surface``, ``TaylorSeries``, ``Troe``, ``TernaryChemicalActivation``,
+``Tunneling``, and ``UserDefined``.
+
+Mechanism and Serialization
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. type:: Mechanism
+
+   A complete mechanism configuration.
+
+   .. code-block:: julia
+
+      Mechanism(; name, version="1.0.0", species, phases, reactions)
+
+.. function:: to_json_string(m::Mechanism) -> String
+
+   Serialize the mechanism to a JSON string.
+
+.. function:: to_yaml_string(m::Mechanism) -> String
+
+   Serialize the mechanism to a YAML string.
+
+.. function:: to_string(m::Mechanism; format=:json) -> String
+
+   Serialize the mechanism to a string. ``format`` may be ``:json`` or ``:yaml``.
+
+.. function:: to_dict(m::Mechanism) -> Dict{String,Any}
+
+   Build the nested dictionary representation in the version 1 schema.
 
 Multi-Grid-Cell Example
 -----------------------

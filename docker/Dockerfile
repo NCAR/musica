@@ -1,40 +1,50 @@
-FROM fedora:latest
+FROM fedora:41
 
-ARG MUSICA_GIT_TAG=main
-ARG BUILD_TYPE=Debug
+ARG BUILD_TYPE=Release
 
-RUN dnf -y update \
-    && dnf -y install \
+RUN dnf -y install \
         cmake \
+        curl \
+        gcc \
         gcc-c++ \
-        gfortran \
+        gcc-gfortran \
         gdb \
         git \
+        hdf5-devel \
         lapack-devel \
-        lcov \
+        libasan \
         make \
         netcdf-fortran-devel \
-        python \
-        valgrind \
-        tree \
+        zlib-devel \
     && dnf clean all
 
-# Copy the musica code
+ENV FC=gfortran
+ENV CXX=g++
+ENV CC=gcc
+ENV FFLAGS="-I/usr/include/"
+
 COPY . musica
 
-# Build
 RUN cd musica \
     && cmake -S . \
-             -B build \
-             -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
-             -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
-             -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
+        -D MUSICA_BUILD_FORTRAN_INTERFACE=ON \
+        -D MUSICA_ENABLE_TESTS=ON \
+        -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
+        -D CMAKE_C_FLAGS="-fsanitize=address -g" \
+        -D CMAKE_CXX_FLAGS="-fsanitize=address -g" \
+        -D CMAKE_Fortran_FLAGS="-fsanitize=address -g" \
+        -D CMAKE_EXE_LINKER_FLAGS="-fsanitize=address" \
+        -D CMAKE_SHARED_LINKER_FLAGS="-fsanitize=address" \
+        -B build \
     && cd build \
-    && make install -j 8
-    
-# Try building a simple application
+    && make install -j$(nproc)
+
+# Copy the tuvx configs for testing
+RUN cp -r /musica/configs/tuvx/* /musica/build/
+
+# Verify musica is findable via pkg-config with the GCC compiler.
 RUN cd musica/build \
-    && gcc $(pkg-config --cflags musica) -o test_simple /musica/src/test/test_simple.c $(pkg-config --libs musica) \
+    && gcc -fsanitize=address $(pkg-config --cflags musica) -o test_simple /musica/src/test/test_simple.c $(pkg-config --libs musica) -fsanitize=address \
     && ./test_simple
 
-WORKDIR musica/build
+WORKDIR /musica/build

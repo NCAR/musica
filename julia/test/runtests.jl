@@ -3,12 +3,17 @@ using Musica
 
 @testset "Musica.jl Tests" begin
     @testset "Version" begin
-        version = Musica.get_version()
-        @test version isa AbstractString
-        @test !isempty(version)
+        musica_version = Musica.get_musica_version()
+        micm_version = Musica.get_micm_version()
+        @test musica_version isa AbstractString
+        @test micm_version isa AbstractString
+        @test !isempty(musica_version)
+        @test !isempty(micm_version)
         # Test version format (semantic versioning: X.Y.Z or X.Y.Z.W)
-        @test occursin(r"^\d+\.\d+\.\d+", version)
-        println("MUSICA version: ", version)
+        @test occursin(r"^\d+\.\d+\.\d+", musica_version)
+        @test occursin(r"^\d+\.\d+\.\d+", micm_version)
+        println("MUSICA version: ", musica_version)
+        println("MICM version: ", micm_version)
     end
 
     @testset "CUDA availability" begin
@@ -309,4 +314,106 @@ using Musica
         @test retrieved.relative_tolerance ≈ 1e-4
         @test retrieved.max_number_of_steps == 20
     end
+
+    @testset "Species properties" begin
+        # Mirrors the C++ GetSpeciesProperty test (src/test/unit/micm/micm_c_api.cpp),
+        # using the v1 chapman example mechanism. O3 defines one property per type.
+        v1_config_path =
+            joinpath(@__DIR__, "..", "..", "configs", "v1", "chapman", "config.json")
+        micm = MICM(config_path = v1_config_path)
+
+        @test get_species_property(micm, "O3", "__long name", String) == "ozone"
+        @test get_species_property(micm, "O3", "molecular weight [kg mol-1]", Float64) ≈
+              0.048
+        @test get_species_property(micm, "O3", "__atoms", Int) == 3
+        @test get_species_property(micm, "O3", "__do advect", Bool) == true
+
+        # Unknown species and unknown property should raise.
+        @test_throws Exception get_species_property(micm, "bad species", "__atoms", Int)
+        @test_throws Exception get_species_property(micm, "O3", "bad property", Float64)
+    end
+
+    @testset "MICM from config string" begin
+        # Configure a solver from an in-memory mechanism string (mirrors the
+        # JavaScript MICM.fromConfigString path). A simple A -> B mechanism driven
+        # by a user-defined rate, written as both JSON and YAML.
+        json_mechanism = """
+        {
+            "name": "A to B",
+            "version": "1.0.0",
+            "species": [ { "name": "A" }, { "name": "B" } ],
+            "phases": [
+                { "name": "gas", "species": [ { "name": "A" }, { "name": "B" } ] }
+            ],
+            "reactions": [
+                {
+                    "type": "USER_DEFINED",
+                    "name": "loss",
+                    "gas phase": "gas",
+                    "reactants": [ { "species name": "A", "coefficient": 1.0 } ],
+                    "products": [ { "species name": "B", "coefficient": 1.0 } ]
+                }
+            ]
+        }
+        """
+
+        yaml_mechanism = """
+        name: A to B
+        version: "1.0.0"
+        species:
+          - name: A
+          - name: B
+        phases:
+          - name: gas
+            species:
+              - name: A
+              - name: B
+        reactions:
+          - type: USER_DEFINED
+            name: loss
+            gas phase: gas
+            reactants:
+              - species name: A
+                coefficient: 1.0
+            products:
+              - species name: B
+                coefficient: 1.0
+        """
+
+        for config_string in (json_mechanism, yaml_mechanism)
+            micm = MICM(config_string = config_string)
+            @test solver_type(micm) == RosenbrockStandardOrder
+
+            state = create_state(micm)
+            ordering = get_species_ordering(state)
+            @test haskey(ordering, "A")
+            @test haskey(ordering, "B")
+
+            rate_ordering = get_user_defined_rate_parameters_ordering(state)
+            @test haskey(rate_ordering, "USER.loss")
+
+            set_concentrations!(state, Dict{String,Any}("A" => 1.0, "B" => 0.0))
+            set_conditions!(state, temperatures = 298.0, pressures = 101325.0)
+            set_user_defined_rate_parameters!(state, Dict{String,Any}("USER.loss" => 0.01))
+
+            result = solve!(micm, state, 60.0)
+            @test result.state == Converged
+
+            concs = get_concentrations(state)
+            @test concs["A"][1] < 1.0   # A is consumed
+            @test concs["B"][1] > 0.0   # B is produced
+        end
+
+        # Exactly one of config_path / config_string must be provided.
+        @test_throws ErrorException MICM()
+        @test_throws ErrorException MICM(
+            config_path = config_path,
+            config_string = json_mechanism,
+        )
+
+        # An invalid mechanism string should raise.
+        @test_throws Exception MICM(config_string = "not a valid mechanism")
+    end
 end
+
+include("test_mechanism_configuration.jl")

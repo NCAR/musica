@@ -24,7 +24,7 @@ Chemical species are the fundamental units that participate in reactions, they c
    Z = mc.Species(name="Z")
    species = {"X": X, "Y": Y, "Z": Z}
 
-Species can be initialized with various chemistry-related paramaters (e.g., molecular weight, density, etc.). See the :class:`musica.mechanism_configuration.species.Species`
+Species can be initialized with various chemistry-related parameters (e.g., molecular weight, density, etc.). See the :class:`musica.mechanism_configuration.species.Species`
 documentation for further details.
 
 Phases

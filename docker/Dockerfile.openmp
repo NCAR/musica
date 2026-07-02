@@ -1,54 +1,36 @@
-FROM fedora:latest
+FROM fedora:41
 
-ARG MUSICA_GIT_TAG=main
 ARG BUILD_TYPE=Debug
 
 RUN dnf -y update \
-    && dnf install -y sudo \
-    && adduser test_user \
-    && echo "test_user ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/test_user \
-    && chmod 0440 /etc/sudoers.d/test_user
-
-USER test_user
-WORKDIR /home/test_user
-
-RUN sudo dnf -y install \
+    && dnf -y install \
         cmake \
+        curl \
+        gcc \
         gcc-c++ \
-        gfortran \
         git \
+        hdf5-devel \
         lapack-devel \
-        lcov \
+        libcurl-devel \
+        m4 \
         make \
         netcdf-fortran-devel \
-        openmpi-devel \
-        valgrind-openmpi \
+        valgrind \
+        zlib-devel \
     && dnf clean all
 
-# Set environment variables
-ENV PATH="${PATH}:/usr/lib64/openmpi/bin/"
 ENV OMP_NUM_THREADS=3
 
-# copy the MusicBox code
-COPY . musica/
+COPY . musica
 
-RUN git config --global --add safe.directory '*'
-RUN sudo chown -R test_user.test_user musica
-
-# get a tag and build the model
 RUN cd musica \
     && cmake -S . \
              -B build \
              -D CMAKE_BUILD_TYPE=${BUILD_TYPE} \
-             -D MUSICA_GIT_TAG=${MUSICA_GIT_TAG} \
              -D MUSICA_ENABLE_OPENMP=ON \
              -D MUSICA_ENABLE_TESTS=ON \
-             -D CMAKE_Fortran_COMPILER=/usr/lib64/openmpi/bin/mpif90 \
-             -D CMAKE_C_COMPILER=/usr/lib64/openmpi/bin/mpicc \
-             -D CMAKE_CXX_COMPILER=/usr/lib64/openmpi/bin/mpic++ \
     && cd build \
-    && make VERBOSE=1 \
-    && sudo make install -j 8 \ 
-    && sudo chown -R test_user:test_user .
+    && make -j$(nproc) \
+    && make install
 
-WORKDIR /home/test_user/musica/build
+WORKDIR /musica/build

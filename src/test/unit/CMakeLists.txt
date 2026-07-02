@@ -12,6 +12,10 @@ if (MUSICA_ENABLE_MICM)
   add_subdirectory(micm)
 endif()
 
+if (MUSICA_ENABLE_MIAM)
+  add_subdirectory(miam)
+endif()
+
 if (MUSICA_ENABLE_TUVX)
   add_subdirectory(tuvx)
 endif()

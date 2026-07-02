@@ -1,7 +1,7 @@
 // Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 //
-// This file contains the defintion of the MICM class, which represents a multi-component reactive transport model.
+// This file contains the definition of the MICM class, which represents a multi-component reactive transport model.
 // It also includes functions for creating and deleting MICM instances with c bindings.
 #pragma once
 
@@ -9,6 +9,7 @@
 #include <musica/micm/parse.hpp>
 #include <musica/micm/solver_interface.hpp>
 #include <musica/micm/solver_parameters.hpp>
+#include <musica/utils/error_code.hpp>
 
 #include <micm/solver/solver_result.hpp>
 #include <micm/system/conditions.hpp>
@@ -23,56 +24,6 @@
 #include <utility>
 #include <vector>
 
-enum class MusicaErrCode
-{
-  SpeciesNotFound = MUSICA_ERROR_CODE_SPECIES_NOT_FOUND,
-  SolverTypeNotFound = MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND,
-  MappingNotFound = MUSICA_ERROR_CODE_MAPPING_NOT_FOUND,
-  MappingOptionsUndefined = MUSICA_ERROR_CODE_MAPPING_OPTIONS_UNDEFINED,
-  Unknown = MUSICA_ERROR_CODE_UNKNOWN,
-  UnsupportedSolverStatePair = MUSICA_ERROR_CODE_UNSUPPORTED_SOLVER_STATE_PAIR,
-};
-
-namespace std
-{
-  template<>
-  struct is_error_condition_enum<MusicaErrCode> : true_type
-  {
-  };
-}  // namespace std
-
-namespace
-{
-  class MusicaErrorCategory : public std::error_category
-  {
-   public:
-    const char* name() const noexcept override
-    {
-      return MUSICA_ERROR_CATEGORY;
-    }
-    std::string message(int ev) const override
-    {
-      switch (static_cast<MusicaErrCode>(ev))
-      {
-        case MusicaErrCode::SpeciesNotFound: return "Species not found";
-        case MusicaErrCode::SolverTypeNotFound: return "Solver type not found";
-        case MusicaErrCode::MappingNotFound: return "Mapping not found";
-        case MusicaErrCode::MappingOptionsUndefined: return "Mapping options undefined";
-        case MusicaErrCode::Unknown: return "Unknown error";
-        case MusicaErrCode::UnsupportedSolverStatePair: return "Unsupported solver/state combination";
-        default: return "Unknown error";
-      }
-    }
-  };
-
-  const MusicaErrorCategory MUSICA_ERROR{};
-}  // namespace
-
-inline std::error_code make_error_code(MusicaErrCode e)
-{
-  return { static_cast<int>(e), MUSICA_ERROR };
-}
-
 namespace musica
 {
   class State;   // forward declaration to break circular include
@@ -81,12 +32,16 @@ namespace musica
   /// @brief Types of MICM solver
   enum MICMSolver
   {
-    UndefinedSolver = 0,         // Undefined solver
-    Rosenbrock,                  // Vector-ordered Rosenbrock solver
-    RosenbrockStandardOrder,     // Standard-ordered Rosenbrock solver
-    BackwardEuler,               // Vector-ordered BackwardEuler solver
-    BackwardEulerStandardOrder,  // Standard-ordered BackwardEuler solver
-    CudaRosenbrock,              // Cuda Rosenbrock solver
+    UndefinedSolver = 0,          // Undefined solver
+    Rosenbrock,                   // Vector-ordered Rosenbrock solver (3-stage)
+    RosenbrockStandardOrder,      // Standard-ordered Rosenbrock solver (3-stage)
+    BackwardEuler,                // Vector-ordered BackwardEuler solver
+    BackwardEulerStandardOrder,   // Standard-ordered BackwardEuler solver
+    CudaRosenbrock,               // Cuda Rosenbrock solver
+    RosenbrockDAE4,               // Vector-ordered 4-stage DAE Rosenbrock solver
+    RosenbrockDAE4StandardOrder,  // Standard-ordered 4-stage DAE Rosenbrock solver
+    RosenbrockDAE6,               // Vector-ordered 6-stage DAE Rosenbrock solver
+    RosenbrockDAE6StandardOrder,  // Standard-ordered 6-stage DAE Rosenbrock solver
   };
 
   std::string ToString(MICMSolver solver_type);
@@ -106,6 +61,7 @@ namespace musica
     MICM(std::string config_path, MICMSolver solver_type, const RosenbrockSolverParameters& params);
     MICM(const Chemistry& chemistry, MICMSolver solver_type, const BackwardEulerSolverParameters& params);
     MICM(std::string config_path, MICMSolver solver_type, const BackwardEulerSolverParameters& params);
+    MICM(SolverPtr&& solver, MICMSolver solver_type);
     MICM() = default;
     ~MICM();
 
@@ -130,7 +86,7 @@ namespace musica
           return species.GetProperty<T>(property_name);
         }
       }
-      throw std::system_error(make_error_code(MusicaErrCode::SpeciesNotFound), "Species '" + species_name + "' not found");
+      throw musica::Exception(musica::MicmErrorCode::SpeciesNotFound, "Species '" + species_name + "' not found");
     }
 
     /// @brief Get the maximum number of grid cells per state

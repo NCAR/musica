@@ -5,12 +5,12 @@
 #include <musica/micm/cpu_solver.hpp>
 #include <musica/micm/micm.hpp>
 #include <musica/micm/solver_parameters.hpp>
-#include <musica/util.hpp>
+#include <musica/utils/error_code.hpp>
+#include <musica/utils/util.hpp>
 
 #include <micm/solver/backward_euler_solver_parameters.hpp>
 #include <micm/solver/rosenbrock_solver_parameters.hpp>
 
-#include <system_error>
 #include <type_traits>
 
 namespace musica
@@ -138,11 +138,39 @@ namespace musica
             configure(micm::CpuSolverBuilder<micm::BackwardEulerSolverParameters>(micm::BackwardEulerSolverParameters())));
         break;
 
+      case MICMSolver::RosenbrockDAE4:
+        solver_ = std::make_unique<micm::Rosenbrock>(configure(micm::RosenbrockThreeStageBuilder(
+            micm::RosenbrockSolverParameters::FourStageDifferentialAlgebraicRosenbrockParameters())));
+        break;
+
+      case MICMSolver::RosenbrockDAE4StandardOrder:
+        solver_ =
+            std::make_unique<micm::RosenbrockStandard>(configure(micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
+                micm::RosenbrockSolverParameters::FourStageDifferentialAlgebraicRosenbrockParameters())));
+        break;
+
+      case MICMSolver::RosenbrockDAE6:
+        solver_ = std::make_unique<micm::Rosenbrock>(configure(micm::RosenbrockThreeStageBuilder(
+            micm::RosenbrockSolverParameters::SixStageDifferentialAlgebraicRosenbrockParameters())));
+        break;
+
+      case MICMSolver::RosenbrockDAE6StandardOrder:
+        solver_ =
+            std::make_unique<micm::RosenbrockStandard>(configure(micm::CpuSolverBuilder<micm::RosenbrockSolverParameters>(
+                micm::RosenbrockSolverParameters::SixStageDifferentialAlgebraicRosenbrockParameters())));
+        break;
+
       default:
-        throw std::system_error(
-            make_error_code(MusicaErrCode::SolverTypeNotFound),
+        throw musica::Exception(
+            musica::MicmErrorCode::SolverTypeNotFound,
             "Solver type " + ToString(static_cast<MICMSolver>(solver_type)) + " not supported by CpuSolver");
     }
+  }
+
+  CpuSolver::CpuSolver(SolverVariant&& solver, int solver_type)
+      : solver_(std::move(solver)),
+        solver_type_(solver_type)
+  {
   }
 
   /// @brief Visitor struct to handle different solver and state type combinations
@@ -178,8 +206,8 @@ namespace musica
     template<typename SolverT, typename StateT>
     micm::SolverResult operator()(std::unique_ptr<SolverT>&, StateT&) const
     {
-      throw std::system_error(
-          make_error_code(MusicaErrCode::UnsupportedSolverStatePair), "Unsupported solver/state combination in CpuSolver");
+      throw musica::Exception(
+          musica::MicmErrorCode::UnsupportedSolverStatePair, "Unsupported solver/state combination in CpuSolver");
     }
   };
 
@@ -188,8 +216,7 @@ namespace musica
     auto* cpu_state = dynamic_cast<CpuState*>(state);
     if (!cpu_state)
     {
-      throw std::system_error(
-          make_error_code(MusicaErrCode::UnsupportedSolverStatePair), "State type incompatible with CpuSolver");
+      throw musica::Exception(musica::MicmErrorCode::UnsupportedSolverStatePair, "State type incompatible with CpuSolver");
     }
 
     return std::visit(CpuSolverVisitor{ time_step }, solver_, cpu_state->GetStateVariant());
@@ -264,9 +291,13 @@ namespace musica
     switch (static_cast<MICMSolver>(solver_type_))
     {
       case MICMSolver::Rosenbrock:
-      case MICMSolver::BackwardEuler: return MUSICA_VECTOR_SIZE;
+      case MICMSolver::BackwardEuler:
+      case MICMSolver::RosenbrockDAE4:
+      case MICMSolver::RosenbrockDAE6: return MUSICA_VECTOR_SIZE;
       case MICMSolver::RosenbrockStandardOrder:
-      case MICMSolver::BackwardEulerStandardOrder: return 1;
+      case MICMSolver::BackwardEulerStandardOrder:
+      case MICMSolver::RosenbrockDAE4StandardOrder:
+      case MICMSolver::RosenbrockDAE6StandardOrder: return 1;
       default: throw std::runtime_error("Invalid solver type in CpuSolver::GetVectorSize");
     }
   }
@@ -284,11 +315,12 @@ namespace musica
             solver_ptr->solver_parameters_.h_max_ = params.h_max;
             solver_ptr->solver_parameters_.h_start_ = params.h_start;
             solver_ptr->solver_parameters_.max_number_of_steps_ = params.max_number_of_steps;
+            solver_ptr->solver_parameters_.constraint_init_max_iterations_ = params.constraint_init_max_iterations;
+            solver_ptr->solver_parameters_.constraint_init_tolerance_ = params.constraint_init_tolerance;
           }
           else
           {
-            throw std::system_error(
-                make_error_code(MusicaErrCode::Unknown), "Cannot set Rosenbrock parameters on non-Rosenbrock solver");
+            throw musica::Exception(musica::ErrorCode::Unknown, "Cannot set Rosenbrock parameters on non-Rosenbrock solver");
           }
         },
         solver_);
@@ -309,8 +341,8 @@ namespace musica
             solver_ptr->solver_parameters_.max_number_of_steps_ = params.max_number_of_steps;
             if (params.time_step_reductions.size() != solver_ptr->solver_parameters_.time_step_reductions_.size())
             {
-              throw std::system_error(
-                  make_error_code(MusicaErrCode::Unknown),
+              throw musica::Exception(
+                  musica::ErrorCode::Unknown,
                   "time_step_reductions must have exactly " +
                       std::to_string(solver_ptr->solver_parameters_.time_step_reductions_.size()) + " elements, got " +
                       std::to_string(params.time_step_reductions.size()));
@@ -322,9 +354,8 @@ namespace musica
           }
           else
           {
-            throw std::system_error(
-                make_error_code(MusicaErrCode::Unknown),
-                "Cannot set Backward Euler parameters on non-Backward Euler solver");
+            throw musica::Exception(
+                musica::ErrorCode::Unknown, "Cannot set Backward Euler parameters on non-Backward Euler solver");
           }
         },
         solver_);
@@ -347,13 +378,15 @@ namespace musica
             result.h_max = solver_ptr->solver_parameters_.h_max_;
             result.h_start = solver_ptr->solver_parameters_.h_start_;
             result.max_number_of_steps = solver_ptr->solver_parameters_.max_number_of_steps_;
+            result.constraint_init_max_iterations = solver_ptr->solver_parameters_.constraint_init_max_iterations_;
+            result.constraint_init_tolerance = solver_ptr->solver_parameters_.constraint_init_tolerance_;
             result.relative_tolerance = relative_tolerance_;
             result.absolute_tolerances = absolute_tolerances_;
           }
           else
           {
-            throw std::system_error(
-                make_error_code(MusicaErrCode::Unknown), "Cannot get Rosenbrock parameters from non-Rosenbrock solver");
+            throw musica::Exception(
+                musica::ErrorCode::Unknown, "Cannot get Rosenbrock parameters from non-Rosenbrock solver");
           }
         },
         solver_);
@@ -381,9 +414,8 @@ namespace musica
           }
           else
           {
-            throw std::system_error(
-                make_error_code(MusicaErrCode::Unknown),
-                "Cannot get Backward Euler parameters from non-Backward Euler solver");
+            throw musica::Exception(
+                musica::ErrorCode::Unknown, "Cannot get Backward Euler parameters from non-Backward Euler solver");
           }
         },
         solver_);

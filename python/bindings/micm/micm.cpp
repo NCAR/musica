@@ -11,12 +11,10 @@
 
 #include <micm/version.hpp>
 
-#include <mechanism_configuration/v1/types.hpp>
-
 #include <iostream>
 
 namespace py = pybind11;
-namespace v1 = mechanism_configuration::v1::types;
+using namespace mechanism_configuration;
 
 void bind_micm(py::module_& micm)
 {
@@ -63,10 +61,10 @@ void bind_micm(py::module_& micm)
 
   micm.def(
       "_create_solver_from_mechanism",
-      [](const v1::Mechanism& mechanism, musica::MICMSolver solver_type)
+      [](const Mechanism& mechanism, musica::MICMSolver solver_type)
       {
         musica::Error error;
-        musica::Chemistry chemistry = musica::ConvertV1Mechanism(mechanism);
+        musica::Chemistry chemistry = musica::ConvertMechanism(mechanism);
         musica::MICM* micm = musica::CreateMicmFromChemistryMechanism(&chemistry, solver_type, &error);
         std::string context = "Error creating solver from mechanism (type: " + musica::ToString(solver_type) + ")";
         handle_error(error, context);
@@ -155,7 +153,9 @@ void bind_micm(py::module_& micm)
       .def_readwrite("h_min", &musica::RosenbrockSolverParameters::h_min)
       .def_readwrite("h_max", &musica::RosenbrockSolverParameters::h_max)
       .def_readwrite("h_start", &musica::RosenbrockSolverParameters::h_start)
-      .def_readwrite("max_number_of_steps", &musica::RosenbrockSolverParameters::max_number_of_steps);
+      .def_readwrite("max_number_of_steps", &musica::RosenbrockSolverParameters::max_number_of_steps)
+      .def_readwrite("constraint_init_max_iterations", &musica::RosenbrockSolverParameters::constraint_init_max_iterations)
+      .def_readwrite("constraint_init_tolerance", &musica::RosenbrockSolverParameters::constraint_init_tolerance);
 
   py::class_<musica::BackwardEulerSolverParameters>(micm, "_BackwardEulerSolverParameters")
       .def(py::init<>())

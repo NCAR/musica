@@ -63,6 +63,11 @@ namespace musica
     /// @param solver_type The type of solver to create
     CpuSolver(const Chemistry& chemistry, int solver_type);
 
+    /// @brief Construct a CPU solver from a pre-built solver variant
+    /// @param solver The pre-built solver variant
+    /// @param solver_type The type of solver
+    CpuSolver(SolverVariant&& solver, int solver_type);
+
     micm::SolverResult Solve(IState* state, double time_step) override;
     std::size_t MaximumNumberOfGridCells() const override;
     std::unique_ptr<IState> CreateState(std::size_t number_of_grid_cells) override;

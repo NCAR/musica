@@ -3,7 +3,7 @@
 #include <musica/micm/solver_parameters.hpp>
 #include <musica/micm/state.hpp>
 #include <musica/micm/state_c_interface.hpp>
-#include <musica/util.hpp>
+#include <musica/utils/util.hpp>
 
 #include <micm/util/error.hpp>
 
@@ -52,7 +52,8 @@ TEST_F(MicmCApiTestFixture, BadSolver)
   Error error;
   auto state = CreateMicmState(micm, 1, &error);
   ASSERT_EQ(state, nullptr);
-  ASSERT_TRUE(IsError(error, MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND));
+  ASSERT_EQ(error.code_, MUSICA_MICM_ERROR_CODE_NULL_POINTER);
+  ASSERT_STREQ(error.category_.value_, MUSICA_MICM_ERROR_CATEGORY);
   DeleteError(&error);
 }
 
@@ -74,7 +75,8 @@ TEST(MicmCApiTest, BadConfigurationFilePath)
   NoError(&error);
   auto micm_bad_config = CreateMicm("bad config path", MICMSolver::Rosenbrock, &error);
   ASSERT_EQ(micm_bad_config, nullptr);
-  ASSERT_TRUE(IsError(error, MUSICA_ERROR_CATEGORY_PARSING, MUSICA_PARSE_INVALID_CONFIG_FILE));
+  ASSERT_EQ(error.code_, MUSICA_PARSE_ERROR_CODE_INVALID_CONFIG_FILE);
+  ASSERT_STREQ(error.category_.value_, MUSICA_PARSE_ERROR_CATEGORY);
   DeleteError(&error);
 }
 
@@ -86,7 +88,8 @@ TEST(MicmCApiTest, BadSolverType)
   NoError(&error);
   auto micm_bad_solver_type = CreateMicm("configs/v0/chapman", static_cast<MICMSolver>(solver_type), &error);
   ASSERT_EQ(micm_bad_solver_type, nullptr);
-  ASSERT_TRUE(IsError(error, MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND));
+  ASSERT_EQ(error.code_, MUSICA_MICM_ERROR_CODE_SOLVER_TYPE_NOT_FOUND);
+  ASSERT_STREQ(error.category_.value_, MUSICA_MICM_ERROR_CATEGORY);
   DeleteError(&error);
 }
 
@@ -97,21 +100,25 @@ TEST_F(MicmCApiTestFixture, MissingSpeciesProperty)
   NoError(&error);
   String string_value;
   GetSpeciesPropertyString(micm, "O3", "bad property", &string_value, &error);
-  ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND));
+  ASSERT_EQ(error.code_, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND);
+  ASSERT_STREQ(error.category_.value_, MICM_ERROR_CATEGORY_SPECIES);
   ASSERT_STREQ(string_value.value_, nullptr);
   DeleteString(&string_value);
   DeleteError(&error);
   NoError(&error);
   ASSERT_EQ(GetSpeciesPropertyDouble(micm, "O3", "bad property", &error), 0.0);
-  ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND));
+  ASSERT_EQ(error.code_, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND);
+  ASSERT_STREQ(error.category_.value_, MICM_ERROR_CATEGORY_SPECIES);
   DeleteError(&error);
   NoError(&error);
   ASSERT_EQ(GetSpeciesPropertyInt(micm, "O3", "bad property", &error), 0);
-  ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND));
+  ASSERT_EQ(error.code_, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND);
+  ASSERT_STREQ(error.category_.value_, MICM_ERROR_CATEGORY_SPECIES);
   DeleteError(&error);
   NoError(&error);
   ASSERT_FALSE(GetSpeciesPropertyBool(micm, "O3", "bad property", &error));
-  ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND));
+  ASSERT_EQ(error.code_, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND);
+  ASSERT_STREQ(error.category_.value_, MICM_ERROR_CATEGORY_SPECIES);
   DeleteError(&error);
 }
 
@@ -430,7 +437,7 @@ void TestSolver(MICM* micm, const size_t num_grid_cells, const double time_step,
     GetUserDefinedRateParametersStrides(current_state, &error, &grid_cell_stride_params, &params_stride);
     ASSERT_TRUE(IsSuccess(error));
 
-    // Set up an intial concentration vector
+    // Set up an initial concentration vector
     std::vector<double> initial_concentrations(state_size * num_concentrations);
 
     for (int i = 0; i < state_size; ++i)
@@ -589,6 +596,88 @@ TEST_F(MicmCApiTestFixture, SolveMultipleGridCellsUsingStandardOrderedBackwardEu
   }
 }
 
+// Test case for solving using vector-ordered 4-stage DAE Rosenbrock solver
+TEST_F(MicmCApiTestFixture, SolveUsingVectorOrderedRosenbrockDAE4)
+{
+  constexpr double time_step = 200.0;
+  constexpr double test_accuracy = 5.0e-3;
+  const char* config_path = "configs/v0/analytical";
+  Error error;
+  DeleteMicm(micm, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  micm = CreateMicm(config_path, MICMSolver::RosenbrockDAE4, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  size_t const max_cells = GetMaximumNumberOfGridCells(micm);
+  ASSERT_GT(max_cells, 0);
+  for (int num_grid_cells = 1; num_grid_cells <= max_cells * 3;
+       num_grid_cells += static_cast<int>(std::floor(max_cells / 3)))
+  {
+    TestSolver(micm, num_grid_cells, time_step, test_accuracy);
+    DeleteError(&error);
+  }
+}
+
+// Test case for solving using standard-ordered 4-stage DAE Rosenbrock solver
+TEST_F(MicmCApiTestFixture, SolveUsingStandardOrderedRosenbrockDAE4)
+{
+  constexpr double time_step = 200.0;
+  constexpr double test_accuracy = 5.0e-3;
+  const char* config_path = "configs/v0/analytical";
+  Error error;
+  DeleteMicm(micm, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  micm = CreateMicm(config_path, MICMSolver::RosenbrockDAE4StandardOrder, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  size_t const max_cells = GetMaximumNumberOfGridCells(micm);
+  ASSERT_GT(max_cells, 1e8);
+  for (int num_grid_cells = 1; num_grid_cells <= 20; num_grid_cells += 5)
+  {
+    TestSolver(micm, num_grid_cells, time_step, test_accuracy);
+    DeleteError(&error);
+  }
+}
+
+// Test case for solving using vector-ordered 6-stage DAE Rosenbrock solver
+TEST_F(MicmCApiTestFixture, SolveUsingVectorOrderedRosenbrockDAE6)
+{
+  constexpr double time_step = 200.0;
+  constexpr double test_accuracy = 5.0e-3;
+  const char* config_path = "configs/v0/analytical";
+  Error error;
+  DeleteMicm(micm, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  micm = CreateMicm(config_path, MICMSolver::RosenbrockDAE6, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  size_t const max_cells = GetMaximumNumberOfGridCells(micm);
+  ASSERT_GT(max_cells, 0);
+  for (int num_grid_cells = 1; num_grid_cells <= max_cells * 3;
+       num_grid_cells += static_cast<int>(std::floor(max_cells / 3)))
+  {
+    TestSolver(micm, num_grid_cells, time_step, test_accuracy);
+    DeleteError(&error);
+  }
+}
+
+// Test case for solving using standard-ordered 6-stage DAE Rosenbrock solver
+TEST_F(MicmCApiTestFixture, SolveUsingStandardOrderedRosenbrockDAE6)
+{
+  constexpr double time_step = 200.0;
+  constexpr double test_accuracy = 5.0e-3;
+  const char* config_path = "configs/v0/analytical";
+  Error error;
+  DeleteMicm(micm, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  micm = CreateMicm(config_path, MICMSolver::RosenbrockDAE6StandardOrder, &error);
+  ASSERT_TRUE(IsSuccess(error));
+  size_t const max_cells = GetMaximumNumberOfGridCells(micm);
+  ASSERT_GT(max_cells, 1e8);
+  for (int num_grid_cells = 1; num_grid_cells <= 20; num_grid_cells += 5)
+  {
+    TestSolver(micm, num_grid_cells, time_step, test_accuracy);
+    DeleteError(&error);
+  }
+}
+
 // Test case for getting species properties
 TEST_F(MicmCApiTestFixture, GetSpeciesProperty)
 {
@@ -605,9 +694,11 @@ TEST_F(MicmCApiTestFixture, GetSpeciesProperty)
   ASSERT_EQ(GetSpeciesPropertyInt(micm, "O3", "__atoms", &error), 3);
   ASSERT_TRUE(IsSuccess(error));
   GetSpeciesPropertyBool(micm, "bad species", "__is gas", &error);
-  ASSERT_TRUE(IsError(error, MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SPECIES_NOT_FOUND));
+  ASSERT_EQ(error.code_, MUSICA_MICM_ERROR_CODE_SPECIES_NOT_FOUND);
+  ASSERT_STREQ(error.category_.value_, MUSICA_MICM_ERROR_CATEGORY);
   GetSpeciesPropertyDouble(micm, "O3", "bad property", &error);
-  ASSERT_TRUE(IsError(error, MICM_ERROR_CATEGORY_SPECIES, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND));
+  ASSERT_EQ(error.code_, MICM_SPECIES_ERROR_CODE_PROPERTY_NOT_FOUND);
+  ASSERT_STREQ(error.category_.value_, MICM_ERROR_CATEGORY_SPECIES);
   DeleteError(&error);
 }
 
@@ -699,7 +790,8 @@ TEST(SolverParametersCApi, WrongParameterTypeErrors)
   params.relative_tolerance = 1e-6;
 
   SetBackwardEulerSolverParameters(micm, &params, &error);
-  ASSERT_TRUE(IsError(error, MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN));
+  ASSERT_EQ(error.code_, MUSICA_ERROR_CODE_UNKNOWN);
+  ASSERT_STREQ(error.category_.value_, MUSICA_ERROR_CATEGORY);
 
   DeleteError(&error);
   DeleteMicm(micm, &error);

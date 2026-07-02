@@ -13,10 +13,12 @@ from .._base import CppWrapper, CppField, _unwrap, _unwrap_list, _wrap_list
 from .species import Species
 from .phase import Phase
 from .reactions import Reactions
-from .ancillary import Version
+from .parse import Version
 
 _backend = backend.get_backend()
 _Mechanism = _backend._mechanism_configuration._Mechanism
+Version = _backend._mechanism_configuration._Version
+ReactionType = _backend._mechanism_configuration._ReactionType
 
 
 class Mechanism(CppWrapper):

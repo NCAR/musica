@@ -5,7 +5,7 @@ from .phase import Phase
 from .species import Species
 from .utils import _add_other_properties, _remove_empty_keys, _convert_components, _format_components
 from .reaction_component import ReactionComponent
-from .ancillary import ReactionType
+from .parse import ReactionType
 
 _backend = backend.get_backend()
 _Troe = _backend._mechanism_configuration._Troe

@@ -1,7 +1,7 @@
 import musica
 from musica.constants import GAS_CONSTANT
 from musica.micm.solver_result import SolverState
-from musica.mechanism_configuration import Parser
+from musica.mechanism_configuration import parse
 from musica.utils import find_config_path
 import xarray as xr
 import matplotlib.pyplot as plt
@@ -68,8 +68,7 @@ def get_solver(num_grid_cells, config_path=find_config_path("v1", "chapman", "co
       config_path: Mechanism configuration file path.
     """
     path = config_path
-    parser = Parser()
-    mechanism = parser.parse(path)
+    mechanism = parse(path)
 
     solver = musica.MICM(mechanism=mechanism, solver_type=musica.SolverType.rosenbrock_standard_order)
     state = solver.create_state(num_grid_cells)

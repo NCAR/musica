@@ -115,10 +115,12 @@ class Emission {
 }
 
 class FirstOrderLoss {
-  #keys = ['scaling_factor', 'reactants', 'name', 'gas_phase'];
+  #keys = ['scaling_factor', 'reactants', 'products', 'name', 'gas_phase'];
   constructor(params) {
     this.scaling_factor = params['scaling_factor'] || 1.0;
     this.reactants = params['reactants'];
+    // products are optional for first-order loss (used to compute integrated rates)
+    this.products = params['products'] || [];
     this.name = params['name'];
     this.gas_phase = params['gas_phase'];
     this.other_properties = {};
@@ -135,6 +137,10 @@ class FirstOrderLoss {
     obj['scaling factor'] = this.scaling_factor;
     obj['gas phase'] = this.gas_phase;
     obj['reactants'] = this.reactants.map((r) => r.getJSON());
+    // only emit products when present, so configs without them stay unchanged
+    if (this.products.length > 0) {
+      obj['products'] = this.products.map((p) => p.getJSON());
+    }
     const ops = convertOtherProperties(this.other_properties);
     Object.assign(obj, ops);
     return obj;

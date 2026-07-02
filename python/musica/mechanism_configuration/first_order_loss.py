@@ -5,7 +5,7 @@ from .utils import _add_other_properties, _remove_empty_keys, _convert_component
 from .species import Species
 from .phase import Phase
 from .reaction_component import ReactionComponent
-from .ancillary import ReactionType
+from .parse import ReactionType
 
 _backend = backend.get_backend()
 _FirstOrderLoss = _backend._mechanism_configuration._FirstOrderLoss
@@ -18,6 +18,7 @@ class FirstOrderLoss(CppWrapper):
         name: The name of the first-order loss reaction rate constant.
         scaling_factor: The scaling factor for the first-order loss rate constant.
         reactants: A list of reactants involved in the reaction.
+        products: A list of products formed in the reaction. Normally, first-order loss reactions do not have products, but this can be used to compute the integrated reaction rate
         gas_phase: The gas phase in which the reaction occurs.
         other_properties: A dictionary of other properties.
     """
@@ -32,6 +33,7 @@ class FirstOrderLoss(CppWrapper):
         name: Optional[str] = None,
         scaling_factor: Optional[float] = None,
         reactants: Optional[List[Union[Species, Tuple[Species, float]]]] = None,
+        products: Optional[List[Union[Species, Tuple[Species, float]]]] = None,
         gas_phase: Optional[Phase] = None,
         other_properties: Optional[Dict[str, Any]] = None,
     ):
@@ -41,6 +43,7 @@ class FirstOrderLoss(CppWrapper):
             name: The name of the first-order loss reaction rate constant.
             scaling_factor: The scaling factor for the rate constant.
             reactants: A list of reactants involved in the reaction.
+            products: A list of products formed in the reaction. Normally, first-order loss reactions do not have products, but this can be used to compute the integrated reaction rate.
             gas_phase: The gas phase in which the reaction occurs.
             other_properties: A dictionary of other properties.
         """
@@ -55,6 +58,11 @@ class FirstOrderLoss(CppWrapper):
             if reactants is not None
             else self.reactants
         )
+        self.products = (
+            _convert_components(products)
+            if products is not None
+            else self.products
+        )
 
     @property
     def type(self):
@@ -63,14 +71,25 @@ class FirstOrderLoss(CppWrapper):
 
     @property
     def reactants(self) -> list:
-        return _wrap_list(ReactionComponent, self._cpp.reactants)
+        return [ReactionComponent._from_cpp(self._cpp.reactants)]
 
     @reactants.setter
     def reactants(self, value):
-        self._cpp.reactants = _unwrap_list(value)
+        items = value if isinstance(value, list) else [value]
+        if len(items) != 1:
+            raise ValueError("FirstOrderLoss can only have one reactant.")
+        self._cpp.reactants = _unwrap_list(items)[0]
+
+    @property
+    def products(self) -> list:
+        return _wrap_list(ReactionComponent, self._cpp.products)
+
+    @products.setter
+    def products(self, value):
+        self._cpp.products = _unwrap_list(value)
 
     def to_equation(self):
-        return f"{_format_components(self.reactants)} ->"
+        return f"{_format_components(self.reactants)} -> {_format_components(self.products)}"
 
     def serialize(self) -> Dict:
         serialize_dict = {
@@ -78,6 +97,7 @@ class FirstOrderLoss(CppWrapper):
             "name": self.name,
             "scaling factor": self.scaling_factor,
             "reactants": [r.serialize() for r in self.reactants],
+            "products": [r.serialize() for r in self.products],
             "gas phase": self.gas_phase,
         }
         _add_other_properties(serialize_dict, self.other_properties)

@@ -24,6 +24,7 @@ module musica_micm
     integer(c_int64_t) :: rejected_ = 0_c_int64_t
     integer(c_int64_t) :: decompositions_ = 0_c_int64_t
     integer(c_int64_t) :: solves_ = 0_c_int64_t
+    integer(c_int64_t) :: constraint_init_iterations_ = 0_c_int64_t
     real(c_double)     :: final_time_ = 0._c_double
   end type solver_stats_t_c
 
@@ -47,6 +48,8 @@ module musica_micm
     real(c_double)    :: h_max
     real(c_double)    :: h_start
     integer(c_size_t) :: max_number_of_steps
+    integer(c_size_t) :: constraint_init_max_iterations = 10
+    real(c_double)    :: constraint_init_tolerance = 1.0e-10_c_double
   end type rosenbrock_solver_parameters_t_c
 
   !> C-binding type for Backward Euler solver parameters
@@ -67,6 +70,8 @@ module musica_micm
     real(real64)              :: h_max = 0.0_real64
     real(real64)              :: h_start = 0.0_real64
     integer                   :: max_number_of_steps = 1000
+    integer                   :: constraint_init_max_iterations = 10
+    real(real64)              :: constraint_init_tolerance = 1.0e-10_real64
   end type rosenbrock_solver_parameters_t
 
   !> Fortran-native type for Backward Euler solver parameters
@@ -202,6 +207,18 @@ module musica_micm
       type(backward_euler_solver_parameters_t_c), intent(inout) :: params
       type(error_t_c), intent(inout)                           :: error
     end subroutine get_backward_euler_solver_parameters_c
+
+    subroutine free_rosenbrock_solver_parameters_c(params) &
+        bind(C, name="FreeRosenbrockSolverParameters")
+      import rosenbrock_solver_parameters_t_c
+      type(rosenbrock_solver_parameters_t_c), intent(inout) :: params
+    end subroutine free_rosenbrock_solver_parameters_c
+
+    subroutine free_backward_euler_solver_parameters_c(params) &
+        bind(C, name="FreeBackwardEulerSolverParameters")
+      import backward_euler_solver_parameters_t_c
+      type(backward_euler_solver_parameters_t_c), intent(inout) :: params
+    end subroutine free_backward_euler_solver_parameters_c
   end interface
 
   type :: micm_t
@@ -239,6 +256,7 @@ module musica_micm
     integer(int64) :: rejected_
     integer(int64) :: decompositions_
     integer(int64) :: solves_
+    integer(int64) :: constraint_init_iterations_
     real           :: final_time_
   contains
     procedure :: function_calls => solver_stats_t_function_calls
@@ -248,6 +266,7 @@ module musica_micm
     procedure :: rejected => solver_stats_t_rejected
     procedure :: decompositions => solver_stats_t_decompositions
     procedure :: solves => solver_stats_t_solves
+    procedure :: constraint_init_iterations => solver_stats_t_constraint_init_iterations
     procedure :: final_time => solver_stats_t_final_time
   end type solver_stats_t
 
@@ -365,6 +384,7 @@ contains
     new_solver_stats%rejected_ = c_solver_stats%rejected_
     new_solver_stats%decompositions_ = c_solver_stats%decompositions_
     new_solver_stats%solves_ = c_solver_stats%solves_
+    new_solver_stats%constraint_init_iterations_ = c_solver_stats%constraint_init_iterations_
     new_solver_stats%final_time_ = real( c_solver_stats%final_time_ )
   end function solver_stats_t_constructor
 
@@ -430,6 +450,15 @@ contains
 
     solves = this%solves_
   end function solver_stats_t_solves
+
+  !> Get the number of constraint initialization iterations
+  function solver_stats_t_constraint_init_iterations( this ) result( constraint_init_iterations )
+    use iso_fortran_env, only: int64
+    class(solver_stats_t), intent(in) :: this
+    integer(int64)                    :: constraint_init_iterations
+
+    constraint_init_iterations = this%constraint_init_iterations_
+  end function solver_stats_t_constraint_init_iterations
 
   !> Get the final time the solver iterated to
   function solver_stats_t_final_time( this ) result( final_time )
@@ -533,6 +562,8 @@ contains
     params_c%h_max = real(params%h_max, c_double)
     params_c%h_start = real(params%h_start, c_double)
     params_c%max_number_of_steps = int(params%max_number_of_steps, c_size_t)
+    params_c%constraint_init_max_iterations = int(params%constraint_init_max_iterations, c_size_t)
+    params_c%constraint_init_tolerance = real(params%constraint_init_tolerance, c_double)
     if (allocated(params%absolute_tolerances)) then
       allocate(abs_tol_c(size(params%absolute_tolerances)))
       abs_tol_c = real(params%absolute_tolerances, c_double)
@@ -597,11 +628,14 @@ contains
     params%h_max = real(params_c%h_max, real64)
     params%h_start = real(params_c%h_start, real64)
     params%max_number_of_steps = int(params_c%max_number_of_steps)
+    params%constraint_init_max_iterations = int(params_c%constraint_init_max_iterations)
+    params%constraint_init_tolerance = real(params_c%constraint_init_tolerance, real64)
     if (params_c%num_absolute_tolerances > 0 .and. c_associated(params_c%absolute_tolerances)) then
       call c_f_pointer(params_c%absolute_tolerances, abs_tol_ptr, [int(params_c%num_absolute_tolerances)])
       allocate(params%absolute_tolerances(int(params_c%num_absolute_tolerances)))
       params%absolute_tolerances = real(abs_tol_ptr, real64)
     end if
+    call free_rosenbrock_solver_parameters_c(params_c)
   end function get_rosenbrock_solver_parameters
 
   function get_backward_euler_solver_parameters(this, error) result(params)
@@ -633,6 +667,7 @@ contains
       call c_f_pointer(params_c%time_step_reductions, tsr_ptr, [int(params_c%num_time_step_reductions)])
       params%time_step_reductions = real(tsr_ptr, real64)
     end if
+    call free_backward_euler_solver_parameters_c(params_c)
   end function get_backward_euler_solver_parameters
 
 end module musica_micm

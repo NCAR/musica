@@ -5,7 +5,7 @@ from .utils import _add_other_properties, _remove_empty_keys, _convert_component
 from .species import Species
 from .phase import Phase
 from .reaction_component import ReactionComponent
-from .ancillary import ReactionType
+from .parse import ReactionType
 
 _backend = backend.get_backend()
 _Tunneling = _backend._mechanism_configuration._Tunneling

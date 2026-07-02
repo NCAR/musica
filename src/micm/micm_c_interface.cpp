@@ -1,36 +1,10 @@
 #include <musica/micm/cuda_availability.hpp>
 #include <musica/micm/micm_c_interface.hpp>
 #include <musica/micm/parse.hpp>
+#include <musica/utils/error_handler.hpp>
 
 namespace musica
 {
-  template<typename Func>
-  auto HandleErrors(Func func, Error* error) -> decltype(func())
-  {
-    DeleteError(error);
-    try
-    {
-      return func();
-    }
-    catch (const micm::MicmException& e)
-    {
-      ToError(e, error);
-    }
-    catch (const std::system_error& e)
-    {
-      ToError(e, MUSICA_SEVERITY_ERROR, error);
-    }
-    catch (const std::exception& e)
-    {
-      ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, e.what(), MUSICA_SEVERITY_ERROR, error);
-    }
-    catch (...)
-    {
-      ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, "Unknown error", MUSICA_SEVERITY_CRITICAL, error);
-    }
-    return decltype(func())();
-  }
-
   MICM* CreateMicm(const char* config_path, MICMSolver solver_type, Error* error)
   {
     return HandleErrors(
@@ -168,9 +142,13 @@ namespace musica
     {
       case musica::MICMSolver::Rosenbrock:
       case musica::MICMSolver::BackwardEuler:
-      case musica::MICMSolver::CudaRosenbrock: return musica::MUSICA_VECTOR_SIZE;
+      case musica::MICMSolver::CudaRosenbrock:
+      case musica::MICMSolver::RosenbrockDAE4:
+      case musica::MICMSolver::RosenbrockDAE6: return musica::MUSICA_VECTOR_SIZE;
       case musica::MICMSolver::RosenbrockStandardOrder:
-      case musica::MICMSolver::BackwardEulerStandardOrder: return nonvectorized_size;
+      case musica::MICMSolver::BackwardEulerStandardOrder:
+      case musica::MICMSolver::RosenbrockDAE4StandardOrder:
+      case musica::MICMSolver::RosenbrockDAE6StandardOrder: return nonvectorized_size;
       default: throw std::runtime_error("Invalid MICM solver type.");
     }
   }
@@ -184,6 +162,8 @@ namespace musica
     params.h_max = c_params->h_max;
     params.h_start = c_params->h_start;
     params.max_number_of_steps = c_params->max_number_of_steps;
+    params.constraint_init_max_iterations = c_params->constraint_init_max_iterations;
+    params.constraint_init_tolerance = c_params->constraint_init_tolerance;
     if (c_params->absolute_tolerances != nullptr && c_params->num_absolute_tolerances > 0)
     {
       params.absolute_tolerances.assign(
@@ -243,6 +223,8 @@ namespace musica
           params->h_max = cpp_params.h_max;
           params->h_start = cpp_params.h_start;
           params->max_number_of_steps = cpp_params.max_number_of_steps;
+          params->constraint_init_max_iterations = cpp_params.constraint_init_max_iterations;
+          params->constraint_init_tolerance = cpp_params.constraint_init_tolerance;
           if (!cpp_params.absolute_tolerances.empty())
           {
             params->num_absolute_tolerances = cpp_params.absolute_tolerances.size();
@@ -297,6 +279,39 @@ namespace musica
           NoError(error);
         },
         error);
+  }
+
+  void FreeRosenbrockSolverParameters(RosenbrockSolverParametersC* params)
+  {
+    if (params == nullptr)
+      return;
+
+    if (params->absolute_tolerances != nullptr)
+    {
+      delete[] params->absolute_tolerances;
+      params->absolute_tolerances = nullptr;
+    }
+    params->num_absolute_tolerances = 0;
+  }
+
+  void FreeBackwardEulerSolverParameters(BackwardEulerSolverParametersC* params)
+  {
+    if (params == nullptr)
+      return;
+
+    if (params->absolute_tolerances != nullptr)
+    {
+      delete[] params->absolute_tolerances;
+      params->absolute_tolerances = nullptr;
+    }
+    params->num_absolute_tolerances = 0;
+
+    if (params->time_step_reductions != nullptr)
+    {
+      delete[] params->time_step_reductions;
+      params->time_step_reductions = nullptr;
+    }
+    params->num_time_step_reductions = 0;
   }
 
 }  // namespace musica

@@ -10,12 +10,12 @@
 #include <musica/micm/micm.hpp>
 #include <musica/micm/parse.hpp>
 #include <musica/micm/state.hpp>
+#include <musica/utils/error_code.hpp>
 
 #include <cmath>
 #include <cstddef>
 #include <filesystem>
 #include <string>
-#include <system_error>
 
 namespace musica
 {
@@ -29,7 +29,11 @@ namespace musica
       case BackwardEuler: return "BackwardEuler";
       case BackwardEulerStandardOrder: return "BackwardEulerStandardOrder";
       case CudaRosenbrock: return "CudaRosenbrock";
-      default: throw std::system_error(make_error_code(MusicaErrCode::Unknown), "Unknown solver type");
+      case RosenbrockDAE4: return "RosenbrockDAE4";
+      case RosenbrockDAE4StandardOrder: return "RosenbrockDAE4StandardOrder";
+      case RosenbrockDAE6: return "RosenbrockDAE6";
+      case RosenbrockDAE6StandardOrder: return "RosenbrockDAE6StandardOrder";
+      default: return "Unknown(" + std::to_string(static_cast<int>(solver_type)) + ")";
     }
   }
 
@@ -72,6 +76,10 @@ namespace musica
       case MICMSolver::RosenbrockStandardOrder:
       case MICMSolver::BackwardEuler:
       case MICMSolver::BackwardEulerStandardOrder:
+      case MICMSolver::RosenbrockDAE4:
+      case MICMSolver::RosenbrockDAE4StandardOrder:
+      case MICMSolver::RosenbrockDAE6:
+      case MICMSolver::RosenbrockDAE6StandardOrder:
         // Create CPU solver with default deleter
         solver_ = SolverPtr(new CpuSolver(chemistry, static_cast<int>(solver_type)), default_deleter);
         break;
@@ -95,14 +103,14 @@ namespace musica
           {
             msg += ": " + cuda_loader.GetLastError();
           }
-          throw std::system_error(make_error_code(MusicaErrCode::SolverTypeNotFound), msg);
+          throw musica::Exception(musica::MicmErrorCode::SolverTypeNotFound, msg);
         }
         break;
       }
 
       default:
         std::string const msg = "Solver type " + ToString(solver_type) + " not supported";
-        throw std::system_error(make_error_code(MusicaErrCode::SolverTypeNotFound), msg);
+        throw musica::Exception(musica::MicmErrorCode::SolverTypeNotFound, msg);
     }
   }
 
@@ -116,6 +124,12 @@ namespace musica
       // Then clean up CUDA resources
       CudaLoader::GetInstance().CleanUp();
     }
+  }
+
+  MICM::MICM(SolverPtr&& solver, MICMSolver solver_type)
+      : solver_(std::move(solver)),
+        solver_type_(solver_type)
+  {
   }
 
   micm::SolverResult MICM::Solve(musica::State* state, double time_step)

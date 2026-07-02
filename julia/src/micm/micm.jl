@@ -8,9 +8,13 @@ Wrapper around the C++ MICM chemical kinetics solver.
 
 # Constructor
 
-    MICM(; config_path, solver_type=RosenbrockStandardOrder, solver_parameters=nothing)
+    MICM(; config_path=nothing, config_string=nothing,
+           solver_type=RosenbrockStandardOrder, solver_parameters=nothing)
 
-- `config_path::String`: Path to configuration file or directory
+Provide exactly one of `config_path` or `config_string`.
+
+- `config_path::String`: Path to a configuration file or directory
+- `config_string::String`: A JSON or YAML string holding a valid mechanism configuration
 - `solver_type::SolverType`: Type of solver to use
 - `solver_parameters`: Optional `RosenbrockSolverParameters` or `BackwardEulerSolverParameters`
 """
@@ -20,7 +24,8 @@ mutable struct MICM
     _vector_size::Int
 
     function MICM(;
-        config_path::String,
+        config_path::Union{AbstractString,Nothing} = nothing,
+        config_string::Union{AbstractString,Nothing} = nothing,
         solver_type::SolverType = RosenbrockStandardOrder,
         solver_parameters::Union{
             RosenbrockSolverParameters,
@@ -28,10 +33,18 @@ mutable struct MICM
             Nothing,
         } = nothing,
     )
+        if (config_path === nothing) == (config_string === nothing)
+            error("Provide exactly one of `config_path` or `config_string`")
+        end
+
         vs = Int(cpp_get_vector_size(Int(solver_type)))
         vs > 0 || error("Invalid vector size: $vs")
 
-        ptr = cpp_create_solver(config_path, Int(solver_type))
+        ptr = if config_path !== nothing
+            cpp_create_solver(String(config_path), Int(solver_type))
+        else
+            cpp_create_solver_from_string(String(config_string), Int(solver_type))
+        end
 
         obj = new(ptr, solver_type, vs)
         finalizer(obj) do m
@@ -69,6 +82,78 @@ Solve the chemical system for the given state and time step (in seconds).
 function solve!(micm::MICM, state::State, time_step::Real)
     cpp_result = cpp_micm_solve(micm._ptr, state._ptr, Float64(time_step))
     return SolverResult(cpp_result)
+end
+
+"""
+    get_species_property(micm::MICM, species_name, property_name, ::Type{T})
+
+Get a property of a chemical species, returned as type `T`.
+
+`T` selects which property kind to read and the return type:
+`Float64`, `Int`, `Bool`, or `String`.
+
+# Examples
+```julia
+mw   = get_species_property(micm, "O3", "molecular weight [kg mol-1]", Float64)
+name = get_species_property(micm, "O3", "__long name", String)
+gas  = get_species_property(micm, "O3", "__is gas", Bool)
+n    = get_species_property(micm, "O3", "__atoms", Int)
+```
+"""
+function get_species_property(
+    micm::MICM,
+    species_name::AbstractString,
+    property_name::AbstractString,
+    ::Type{Float64},
+)
+    return cpp_get_species_property_double(
+        micm._ptr,
+        String(species_name),
+        String(property_name),
+    )
+end
+
+function get_species_property(
+    micm::MICM,
+    species_name::AbstractString,
+    property_name::AbstractString,
+    ::Type{Int},
+)
+    return Int(
+        cpp_get_species_property_int(
+            micm._ptr,
+            String(species_name),
+            String(property_name),
+        ),
+    )
+end
+
+function get_species_property(
+    micm::MICM,
+    species_name::AbstractString,
+    property_name::AbstractString,
+    ::Type{Bool},
+)
+    return cpp_get_species_property_bool(
+        micm._ptr,
+        String(species_name),
+        String(property_name),
+    )
+end
+
+function get_species_property(
+    micm::MICM,
+    species_name::AbstractString,
+    property_name::AbstractString,
+    ::Type{String},
+)
+    return String(
+        cpp_get_species_property_string(
+            micm._ptr,
+            String(species_name),
+            String(property_name),
+        ),
+    )
 end
 
 """

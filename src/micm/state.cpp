@@ -7,7 +7,7 @@
 #include <musica/micm/micm.hpp>
 #include <musica/micm/micm_c_interface.hpp>
 #include <musica/micm/state.hpp>
-#include <musica/util.hpp>
+#include <musica/utils/util.hpp>
 
 #include <cmath>
 #include <string>

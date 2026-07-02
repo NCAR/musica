@@ -12,6 +12,18 @@ install(
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
+if (MUSICA_USE_FMT AND TARGET fmt)
+  install(
+    TARGETS
+      fmt
+    EXPORT
+      musica_Exports
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  )
+endif()
+
 # install the musica header files
 install(
   DIRECTORY
@@ -58,6 +70,26 @@ if(MUSICA_ENABLE_MICM)
     DIRECTORY
       ${micm_SOURCE_DIR}/include/
     DESTINATION 
+      ${MUSICA_INSTALL_INCLUDE_DIR}
+  )
+endif()
+
+# install MIAM
+if(MUSICA_ENABLE_MIAM)
+  install(
+    TARGETS
+      miam
+    EXPORT
+      musica_Exports
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  )
+
+  install(
+    DIRECTORY
+      ${miam_SOURCE_DIR}/include/
+    DESTINATION
       ${MUSICA_INSTALL_INCLUDE_DIR}
   )
 endif()

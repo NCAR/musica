@@ -4,9 +4,7 @@
 // This file implements the CUDA solver and state classes for the plugin.
 #include "cuda_solver.hpp"
 
-#include <musica/util.hpp>
-
-#include <system_error>
+#include <musica/utils/util.hpp>
 
 namespace musica
 {

@@ -13,7 +13,7 @@ program test_micm_api
   use musica_state, only: conditions_t, state_t
 
 #include "micm/util/error.hpp"
-#include "musica/error.hpp"
+#include "musica/utils/error.hpp"
 
 #define ASSERT( expr ) call assert( expr, __FILE__, __LINE__ )
 #define ASSERT_EQ( a, b ) call assert( a == b, __FILE__, __LINE__ )
@@ -190,7 +190,7 @@ contains
     deallocate(micm)
     deallocate(state)
     micm => micm_t( "configs/v0/invalid", solver_type, error )
-    ASSERT( error%is_error( MUSICA_ERROR_CATEGORY_PARSING, MUSICA_PARSE_INVALID_CONFIG_FILE ) )
+    ASSERT( error%is_error( MUSICA_PARSE_ERROR_CATEGORY, MUSICA_PARSE_ERROR_CODE_INVALID_CONFIG_FILE ) )
     ASSERT( .not. associated( micm ) )
 
     write(*,*) "[test micm fort api] Finished."
@@ -650,7 +650,7 @@ contains
     deallocate( micm )
     deallocate( state )
     micm => micm_t( "configs/v0/invalid", solver_type, error )
-    ASSERT( error%is_error( MUSICA_ERROR_CATEGORY_PARSING, MUSICA_PARSE_INVALID_CONFIG_FILE ) )
+    ASSERT( error%is_error( MUSICA_PARSE_ERROR_CATEGORY, MUSICA_PARSE_ERROR_CODE_INVALID_CONFIG_FILE ) )
     ASSERT( .not. associated( micm ) )
 
     write(*,*) "[test micm fort api] Finished."
