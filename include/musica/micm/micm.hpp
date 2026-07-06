@@ -5,8 +5,8 @@
 // It also includes functions for creating and deleting MICM instances with c bindings.
 #pragma once
 
-#include <musica/micm/chemistry.hpp>
-#include <musica/micm/parse.hpp>
+#include <musica/configuration/chemistry.hpp>
+#include <musica/configuration/parse.hpp>
 #include <musica/micm/solver_interface.hpp>
 #include <musica/micm/solver_parameters.hpp>
 #include <musica/utils/error_code.hpp>

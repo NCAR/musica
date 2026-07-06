@@ -5,9 +5,7 @@
 #include <micm/System.hpp>
 #include <micm/process/rate_constant/lambda_rate_constant.hpp>
 #include <musica/micm/lambda_callback.hpp>
-#include <musica/micm/parse.hpp>
-#include <musica/micm/parse.hpp>
-#include <musica/utils/error_code.hpp>
+#include <musica/configuration/parse.hpp>
 #include <musica/utils/error_code.hpp>
 #include <sstream>
 

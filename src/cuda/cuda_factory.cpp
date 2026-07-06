@@ -3,7 +3,7 @@
 //
 // This file provides C-compatible factory functions for the CUDA plugin.
 // These functions are loaded at runtime via dlopen/dlsym.
-#include <musica/micm/chemistry.hpp>
+#include <musica/configuration/chemistry.hpp>
 #include <musica/micm/solver_interface.hpp>
 
 #include <micm/GPU.hpp>

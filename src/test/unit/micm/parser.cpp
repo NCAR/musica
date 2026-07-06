@@ -1,4 +1,4 @@
-#include <musica/micm/parse.hpp>
+#include <musica/configuration/parse.hpp>
 
 #include <mechanism_configuration/parse.hpp>
 
