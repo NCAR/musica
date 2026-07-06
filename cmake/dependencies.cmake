@@ -67,7 +67,7 @@ endif()
 
 if(MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(MECH_CONFIG_GIT_REPOSITORY https://github.com/NCAR/MechanismConfiguration.git)
-  set_git_default(MECH_CONFIG_GIT_TAG v2.0.0)
+  set_git_default(MECH_CONFIG_GIT_TAG a8c7c0de74800956ea6740261c8af240c1accb5b)  # main, includes emissions config (#281); swap to a tag once one is cut
 
   FetchContent_Declare(mechanism_configuration
       GIT_REPOSITORY ${MECH_CONFIG_GIT_REPOSITORY}
@@ -133,6 +133,35 @@ if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBU
   endif()
 
   FetchContent_MakeAvailable(micm)
+endif()
+
+################################################################################
+# MIEM
+# Skip if using prebuilt musica (already includes miem)
+
+if (MUSICA_ENABLE_MIEM AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
+  set_git_default(MIEM_GIT_REPOSITORY https://github.com/NCAR/miem.git)
+  set_git_default(MIEM_GIT_TAG b917f46c1d7f01a18f16bc44c066ef83efa75a93)  # main; no tags exist yet
+
+  FetchContent_Declare(miem
+      GIT_REPOSITORY ${MIEM_GIT_REPOSITORY}
+      GIT_TAG ${MIEM_GIT_TAG}
+      GIT_PROGRESS NOT ${FETCHCONTENT_QUIET}
+      FIND_PACKAGE_ARGS NAMES miem
+  )
+
+  set(MIEM_BUILD_SHARED_LIBS ${MUSICA_BUILD_SHARED_LIBS} CACHE BOOL "" FORCE)
+
+  # Workaround: miem's CMakeLists.txt does a bare `include(dependencies)`,
+  # which resolves against CMAKE_MODULE_PATH in order. Since musica's own
+  # cmake/ dir (which also has a dependencies.cmake) is already on that path,
+  # it shadows miem's file and its netCDF::netcdf_normalized target never
+  # gets created. Temporarily drop musica's cmake/ dir so miem's include()
+  # finds its own file. TODO: remove once miem's CMakeLists.txt uses an
+  # explicit include path instead of the bare module name.
+  list(REMOVE_ITEM CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+  FetchContent_MakeAvailable(miem)
+  list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 endif()
 
 ################################################################################

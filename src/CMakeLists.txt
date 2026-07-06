@@ -37,6 +37,12 @@ if(MUSICA_ENABLE_MIAM)
   target_link_libraries(musica PUBLIC musica::miam)
 endif()
 
+# MIEM sources
+if(MUSICA_ENABLE_MIEM)
+  list(APPEND musica_compile_definitions MUSICA_USE_MIEM)
+  add_subdirectory(miem)
+endif()
+
 # TUV-x sources
 if(MUSICA_ENABLE_TUVX)
   list(APPEND musica_compile_definitions MUSICA_USE_TUVX)
