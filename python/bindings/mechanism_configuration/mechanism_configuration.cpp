@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 #include "../common.hpp"
 
-#include <musica/micm/parse.hpp>
+#include <musica/configuration/parse.hpp>
 
 #include <mechanism_configuration/parse.hpp>
 #include <mechanism_configuration/types.hpp>
