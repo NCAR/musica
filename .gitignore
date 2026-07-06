@@ -4,8 +4,10 @@ _codeql_detected_source_root
 # cmake and build stuff
 python_build/
 build/
+build-miam/
 build-wasm/
 build-addon/
+build_test/
 install/
 CMakeCache.txt
 CMakeFiles
@@ -32,16 +34,18 @@ musica_env/
 .env
 uv.lock
 
+# Generated TypeScript declaration files (emitted from JS via `npm run build:types`)
+javascript/**/*.d.ts
+
 # Coverage reports
 javascript-coverage/
 .nyc_output/
 coverage/
 *.lcov
 
-# WASM build artifacts (generated files, not committed)
-javascript/wasm/musica.js
-javascript/wasm/musica.wasm
-
 # Julia build artifacts
 julia/Manifest.toml
 julia/deps/lib/
+
+.claude
+

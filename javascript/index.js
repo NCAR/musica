@@ -1,5 +1,4 @@
 import * as micm from './micm/index.js';
-import * as mc from './mechanism_configuration/index.js';
 import { initModule, getBackend } from './backend.js';
 
 /**
@@ -29,15 +28,18 @@ export const {
   SolverState,
   SolverStats,
   SolverResult,
+  RosenbrockSolverParameters,
+  BackwardEulerSolverParameters,
   GAS_CONSTANT,
   AVOGADRO,
   BOLTZMANN,
 } = micm;
 
-export const mechanismConfiguration = {
-  types: mc.types,
-  reactionTypes: mc.reactionTypes,
-  Mechanism: mc.Mechanism,
-};
+// Re-export as a namespace (rather than repackaging into an object literal) so
+// the generated .d.ts preserves the nominal class identities of types.* /
+// reactionTypes.* / Mechanism. Building an object literal here made tsc inline
+// each class's structural instance shape, which broke assignability for
+// downstream consumers constructing these objects programmatically.
+export * as mechanismConfiguration from './mechanism_configuration/index.js';
 
 export { initModule, getBackend };

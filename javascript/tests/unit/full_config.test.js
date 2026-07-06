@@ -43,31 +43,28 @@ const my_emission = new reactionTypes.Emission({
   name: 'my emission',
   scaling_factor: 12.3,
   gas_phase: 'gas',
-  products: [new ReactionComponent({ species_name: 'B' })],
+  products: [new ReactionComponent({ name: 'B' })],
 });
 const my_first_order_loss = new reactionTypes.FirstOrderLoss({
   name: 'my first order loss',
   scaling_factor: 12.3,
   gas_phase: 'gas',
-  reactants: [new ReactionComponent({ species_name: 'C' })],
+  reactants: [new ReactionComponent({ name: 'C' })],
 });
 const my_photolysis = new reactionTypes.Photolysis({
   name: 'photo B',
   scaling_factor: 12.3,
   gas_phase: 'gas',
-  reactants: [new ReactionComponent({ species_name: 'B' })],
-  products: [new ReactionComponent({ species_name: 'C' })],
+  reactants: [new ReactionComponent({ name: 'B' })],
+  products: [new ReactionComponent({ name: 'C' })],
 });
 // BUG: gas_phase_species should be a ReactionComponent, but is a string in the full_config expected output
 const my_surface = new reactionTypes.Surface({
   name: 'my surface',
   reaction_probability: 2.0e-2,
   gas_phase: 'gas',
-  gas_phase_species: new ReactionComponent({ species_name: 'A' }),
-  gas_phase_products: [
-    new ReactionComponent({ species_name: 'B' }),
-    new ReactionComponent({ species_name: 'C' }),
-  ],
+  gas_phase_species: new ReactionComponent({ name: 'A' }),
+  gas_phase_products: [new ReactionComponent({ name: 'B' }), new ReactionComponent({ name: 'C' })],
 });
 const my_troe = new reactionTypes.Troe({
   name: 'my troe',
@@ -80,11 +77,8 @@ const my_troe = new reactionTypes.Troe({
   Fc: 0.9,
   N: 0.8,
   gas_phase: 'gas',
-  reactants: [
-    new ReactionComponent({ species_name: 'B' }),
-    new ReactionComponent({ species_name: 'M' }),
-  ],
-  products: [new ReactionComponent({ species_name: 'C' })],
+  reactants: [new ReactionComponent({ name: 'B' }), new ReactionComponent({ name: 'M' })],
+  products: [new ReactionComponent({ name: 'C' })],
 });
 const my_tca = new reactionTypes.TernaryChemicalActivation({
   name: 'my ternary chemical activation',
@@ -97,13 +91,10 @@ const my_tca = new reactionTypes.TernaryChemicalActivation({
   kinf_C: 908.5,
   Fc: 1.3,
   N: 32.1,
-  reactants: [
-    new ReactionComponent({ species_name: 'bar' }),
-    new ReactionComponent({ species_name: 'baz' }),
-  ],
+  reactants: [new ReactionComponent({ name: 'bar' }), new ReactionComponent({ name: 'baz' })],
   products: [
-    new ReactionComponent({ species_name: 'bar', coefficient: 0.5 }),
-    new ReactionComponent({ species_name: 'foo', coefficient: 0.3 }),
+    new ReactionComponent({ name: 'bar', coefficient: 0.5 }),
+    new ReactionComponent({ name: 'foo', coefficient: 0.3 }),
   ],
 });
 const my_branched = new reactionTypes.Branched({
@@ -113,9 +104,9 @@ const my_branched = new reactionTypes.Branched({
   a0: 0.15,
   n: 9,
   gas_phase: 'gas',
-  reactants: [new ReactionComponent({ species_name: 'A' })],
-  alkoxy_products: [new ReactionComponent({ species_name: 'B' })],
-  nitrate_products: [new ReactionComponent({ species_name: 'C' })],
+  reactants: [new ReactionComponent({ name: 'A' })],
+  alkoxy_products: [new ReactionComponent({ name: 'B' })],
+  nitrate_products: [new ReactionComponent({ name: 'C' })],
 });
 const my_tunneling = new reactionTypes.Tunneling({
   name: 'my tunneling',
@@ -123,8 +114,8 @@ const my_tunneling = new reactionTypes.Tunneling({
   B: 1200.0,
   C: 1.0e8,
   gas_phase: 'gas',
-  reactants: [new ReactionComponent({ species_name: 'B' })],
-  products: [new ReactionComponent({ species_name: 'C' })],
+  reactants: [new ReactionComponent({ name: 'B' })],
+  products: [new ReactionComponent({ name: 'C' })],
 });
 const my_arrhenius = new reactionTypes.Arrhenius({
   name: 'my arrhenius',
@@ -134,8 +125,8 @@ const my_arrhenius = new reactionTypes.Arrhenius({
   D: 63.4,
   E: -1.3,
   gas_phase: 'gas',
-  reactants: [new ReactionComponent({ species_name: 'B' })],
-  products: [new ReactionComponent({ species_name: 'C' })],
+  reactants: [new ReactionComponent({ name: 'B' })],
+  products: [new ReactionComponent({ name: 'C' })],
 });
 const my_arrhenius2 = new reactionTypes.Arrhenius({
   name: 'my other arrhenius',
@@ -145,18 +136,15 @@ const my_arrhenius2 = new reactionTypes.Arrhenius({
   D: 82.6,
   E: -0.98,
   gas_phase: 'gas',
-  reactants: [new ReactionComponent({ species_name: 'A' })],
-  products: [new ReactionComponent({ species_name: 'B', coefficient: 1.2 })],
+  reactants: [new ReactionComponent({ name: 'A' })],
+  products: [new ReactionComponent({ name: 'B', coefficient: 1.2 })],
 });
 const my_ud = new reactionTypes.UserDefined({
   name: 'my user defined',
   gas_phase: 'gas',
   scaling_factor: 12.3,
-  reactants: [
-    new ReactionComponent({ species_name: 'A' }),
-    new ReactionComponent({ species_name: 'B' }),
-  ],
-  products: [new ReactionComponent({ species_name: 'C', coefficient: 1.3 })],
+  reactants: [new ReactionComponent({ name: 'A' }), new ReactionComponent({ name: 'B' })],
+  products: [new ReactionComponent({ name: 'C', coefficient: 1.3 })],
 });
 const my_ts = new reactionTypes.TaylorSeries({
   name: 'my taylor series',
@@ -167,8 +155,8 @@ const my_ts = new reactionTypes.TaylorSeries({
   D: 340.0,
   E: 0.00032,
   taylor_coefficients: [1.0, 0.1, -0.01],
-  reactants: [new ReactionComponent({ species_name: 'B' })],
-  products: [new ReactionComponent({ species_name: 'C' })],
+  reactants: [new ReactionComponent({ name: 'B' })],
+  products: [new ReactionComponent({ name: 'C' })],
 });
 
 // ===== Mechanism =====
@@ -258,7 +246,7 @@ const expected = {
       'gas phase': 'gas',
       products: [
         {
-          'species name': 'B',
+          name: 'B',
           coefficient: 1,
         },
       ],
@@ -270,7 +258,7 @@ const expected = {
       'gas phase': 'gas',
       reactants: [
         {
-          'species name': 'C',
+          name: 'C',
           coefficient: 1,
         },
       ],
@@ -282,13 +270,13 @@ const expected = {
       'gas phase': 'gas',
       reactants: [
         {
-          'species name': 'B',
+          name: 'B',
           coefficient: 1,
         },
       ],
       products: [
         {
-          'species name': 'C',
+          name: 'C',
           coefficient: 1,
         },
       ],
@@ -301,11 +289,11 @@ const expected = {
       'gas-phase species': 'A',
       'gas-phase products': [
         {
-          'species name': 'B',
+          name: 'B',
           coefficient: 1,
         },
         {
-          'species name': 'C',
+          name: 'C',
           coefficient: 1,
         },
       ],
@@ -324,17 +312,17 @@ const expected = {
       'gas phase': 'gas',
       reactants: [
         {
-          'species name': 'B',
+          name: 'B',
           coefficient: 1,
         },
         {
-          'species name': 'M',
+          name: 'M',
           coefficient: 1,
         },
       ],
       products: [
         {
-          'species name': 'C',
+          name: 'C',
           coefficient: 1,
         },
       ],
@@ -353,21 +341,21 @@ const expected = {
       N: 32.1,
       reactants: [
         {
-          'species name': 'bar',
+          name: 'bar',
           coefficient: 1,
         },
         {
-          'species name': 'baz',
+          name: 'baz',
           coefficient: 1,
         },
       ],
       products: [
         {
-          'species name': 'bar',
+          name: 'bar',
           coefficient: 0.5,
         },
         {
-          'species name': 'foo',
+          name: 'foo',
           coefficient: 0.3,
         },
       ],
@@ -382,19 +370,19 @@ const expected = {
       'gas phase': 'gas',
       reactants: [
         {
-          'species name': 'A',
+          name: 'A',
           coefficient: 1,
         },
       ],
       'alkoxy products': [
         {
-          'species name': 'B',
+          name: 'B',
           coefficient: 1,
         },
       ],
       'nitrate products': [
         {
-          'species name': 'C',
+          name: 'C',
           coefficient: 1,
         },
       ],
@@ -408,13 +396,13 @@ const expected = {
       'gas phase': 'gas',
       reactants: [
         {
-          'species name': 'B',
+          name: 'B',
           coefficient: 1,
         },
       ],
       products: [
         {
-          'species name': 'C',
+          name: 'C',
           coefficient: 1,
         },
       ],
@@ -430,13 +418,13 @@ const expected = {
       E: -1.3,
       reactants: [
         {
-          'species name': 'B',
+          name: 'B',
           coefficient: 1,
         },
       ],
       products: [
         {
-          'species name': 'C',
+          name: 'C',
           coefficient: 1,
         },
       ],
@@ -452,13 +440,13 @@ const expected = {
       'gas phase': 'gas',
       reactants: [
         {
-          'species name': 'A',
+          name: 'A',
           coefficient: 1,
         },
       ],
       products: [
         {
-          'species name': 'B',
+          name: 'B',
           coefficient: 1.2,
         },
       ],
@@ -470,17 +458,17 @@ const expected = {
       'gas phase': 'gas',
       reactants: [
         {
-          'species name': 'A',
+          name: 'A',
           coefficient: 1,
         },
         {
-          'species name': 'B',
+          name: 'B',
           coefficient: 1,
         },
       ],
       products: [
         {
-          'species name': 'C',
+          name: 'C',
           coefficient: 1.3,
         },
       ],
@@ -497,13 +485,13 @@ const expected = {
       'gas phase': 'gas',
       reactants: [
         {
-          'species name': 'B',
+          name: 'B',
           coefficient: 1,
         },
       ],
       products: [
         {
-          'species name': 'C',
+          name: 'C',
           coefficient: 1,
         },
       ],

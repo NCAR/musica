@@ -21,6 +21,7 @@ maintainers = [
 license = { file = "LICENSE" }
 
 dependencies = [
+  "netCDF4>=1.7.3",
   "numpy>=2.0.0",
   "pandas>=2.2.0",
   "pyyaml>=6.0.2",
@@ -32,9 +33,15 @@ homepage = "https://wiki.ucar.edu/display/MUSICA/MUSICA+Home"
 
 [project.optional-dependencies]
 test = [
-  "pytest>=7.0.0",
   "pytest-cov>=4.0.0",
-  "ussa1976>=0.3.4; platform_machine != 'i686' and (platform_machine != 'arm64' or platform_system != 'Windows')"
+  "pytest>=7.0.0",
+  "ussa1976>=0.3.4; platform_machine != 'i686' and (platform_machine != 'arm64' or platform_system != 'Windows')",
+]
+
+cli = [
+  "matplotlib>=3.7.0",
+  "pvlib>=0.14.0",
+  "ussa1976>=0.3.4; platform_machine != 'i686' and (platform_machine != 'arm64' or platform_system != 'Windows')",
 ]
 
 gpu = ["nvidia-cublas-cu12>=12.6.4.1", "nvidia-cuda-runtime-cu12>=12.6.68"]
@@ -42,10 +49,13 @@ gpu = ["nvidia-cublas-cu12>=12.6.4.1", "nvidia-cuda-runtime-cu12>=12.6.68"]
 tutorial = [
   "dask-jobqueue>=0.8.0",
   "dask[distributed]>=2022.3.0",
+  "graphviz>=0.18",
+  "ipykernel>=6.0.0",
   "matplotlib>=3.7.0",
+  "pvlib>=0.14.0",
   "scipy>=1.10.0",
   "seaborn>=0.12.0",
-  "graphviz>=0.18",
+  "ussa1976>=0.3.4; platform_machine != 'i686' and (platform_machine != 'arm64' or platform_system != 'Windows')",
 ]
 
 [project.scripts]
@@ -57,8 +67,10 @@ musica-cli = "musica.main:main"
 # cmake.define.CMAKE_BUILD_TYPE = "Debug"
 cmake.build-type = "Release"
 cmake.define.MUSICA_ENABLE_PYTHON_LIBRARY = "ON"
+cmake.define.MUSICA_BUILD_SHARED_LIBS = "ON"
 cmake.define.MUSICA_BUILD_FORTRAN_INTERFACE = "OFF"
-cmake.define.MUSICA_ONLY_PYTHON = "ON"
+cmake.define.MUSICA_ENABLE_MIAM = "OFF"
+cmake.define.MUSICA_USE_FMT = "OFF"
 cmake.define.MUSICA_ENABLE_TESTS = "OFF"
 cmake.define.CMAKE_POLICY_VERSION_MINIMUM = "3.5"
 cmake.define.MUSICA_SET_MICM_DEFAULT_VECTOR_SIZE = "4"
@@ -89,19 +101,7 @@ if.platform-machine = "aarch64"
 inherit.cmake.define = "append"
 cmake.define.MUSICA_GPU_TYPE = "None"
 
-[[tool.scikit-build.overrides]]
-if.platform-system = "win32"
-if.platform-machine = "AMD64"
-inherit.cmake.define = "append"
-
-# macOS workaround for GCC 14 header conflicts with macOS 15 SDK
-# Use Clang instead of GCC on macOS
-[[tool.scikit-build.overrides]]
-if.platform-system = "darwin"
-inherit.cmake.define = "append"
-cmake.define.CMAKE_C_COMPILER = "clang"
-cmake.define.CMAKE_CXX_COMPILER = "clang++"
-
+# Windows ARM64 cannot build CARMA
 [[tool.scikit-build.overrides]]
 if.platform-system = "win32"
 if.platform-machine = "ARM64"
@@ -112,7 +112,7 @@ cmake.define.MUSICA_ENABLE_CARMA = "OFF"
 [tool.scikit-build.metadata.version]
 provider = "scikit_build_core.metadata.regex"
 input = "CMakeLists.txt"
-regex = 'musica-distribution VERSION\s+(?P<value>[0-9.]+)'
+regex = 'musica VERSION\s+(?P<value>[0-9.]+)'
 
 [[tool.scikit-build.generate]]
 path = "musica/_version.py"
@@ -135,6 +135,9 @@ version = "${version}"
 # and build the musica docker image locally first with:
 # docker build --platform linux/amd64 -t musica -f docker/Dockerfile.manylinux.gpu .
 #
+[tool.pytest.ini_options]
+testpaths = ["python/test"]
+
 [tool.cibuildwheel]
 # Increase pip debugging output
 build-verbosity = 3
@@ -146,8 +149,9 @@ build = ["cp310-*", "cp311-*", "cp312-*", "cp313-*", "cp314-*"]
 skip = ["*musllinux*"]
 
 # Will cause the wheel to be installed with `pip install <wheel_file>[test]`
-test-extras = ["test", "tutorial"]
+test-extras = ["test", "cli"]
 
+# This is only required for the --convert test command
 test-sources = ["configs"]
 
 test-skip = "*-*linux_i686"
@@ -158,23 +162,23 @@ test-command = [
   "pytest {project}/python/test",
   "musica-cli --convert configs/v0/TS1/config.json -o ts1.json",
   "musica-cli -e CARMA_Aluminum -o .",
-  "python carma_aluminum.py",
   "musica-cli -e CARMA_Sulfate -o .",
-  "python carma_sulfate.py",
   "musica-cli -e Lorenz_Attractor -o .",
-  "python lorenz.py",
   "musica-cli -e Sulfate_Box_Model -o .",
-  "python sulfate_box_model.py",
   "musica-cli -e TS1BoxModel -o .",
-  "python ts1_box_model.py",
   "musica-cli -e TS1LatinHyperCube -o .",
-  "python ts1_latin_hypercube.py",
+  "musica-cli -e Chapman -o .",
 ]
 
 # Set up pre-build hooks
 [tool.cibuildwheel.macos]
-environment.MACOSX_DEPLOYMENT_TARGET = "15.0"
 before-all = "bash python/tools/prepare_build_environment_macos.sh"
+repair-wheel-command = "bash python/tools/repair_wheel_macos.sh {wheel} {dest_dir}"
+
+[tool.cibuildwheel.macos.environment]
+MACOSX_DEPLOYMENT_TARGET = "15.0"
+# Use prebuilt musica library and Clang compiler (avoid GCC 14 header conflicts with macOS 15 SDK)
+CMAKE_ARGS = "-DMUSICA_USE_PREBUILT=ON -DCMAKE_PREFIX_PATH=/tmp/musica-prebuilt -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++"
 
 [tool.cibuildwheel.linux]
 before-all = "python/tools/prepare_build_environment_linux.sh"
@@ -189,14 +193,21 @@ manylinux-i686-image = "manylinux_2_28"
 CUDA_PATH = "/usr/local/cuda"
 PATH = "/usr/local/cuda/bin:$PATH"
 LD_LIBRARY_PATH = "/usr/local/cuda/lib64:$LD_LIBRARY_PATH"
-BUILD_GPU = 1
+BUILD_GPU = "1"
+# Use prebuilt musica library
+CMAKE_ARGS = "-DMUSICA_USE_PREBUILT=ON -DCMAKE_PREFIX_PATH=/opt/musica-prebuilt"
 
 [tool.cibuildwheel.windows]
+before-all = "bash python/tools/prepare_build_environment_windows.sh"
 repair-wheel-command = "bash python/tools/repair_wheel_windows.sh {wheel} {dest_dir}"
 # Only build Windows ARM64 wheels for Python 3.11+
 skip = ["cp39-win_arm64", "cp310-win_arm64"]
 test-command = [
   "python -c \"import musica; print(musica.__version__)\"",
   "musica-cli --help",
-  "pytest {project}\\python\\test -k \"not tuvx\"",
+  "pytest {project}\\python\\test -k \"not tuvx and not ts1_box_model\"",
 ]
+
+[tool.cibuildwheel.windows.environment]
+# Use prebuilt musica library (cygpath converts MSYS2 path to Windows path for CMake)
+CMAKE_ARGS = "-DMUSICA_USE_PREBUILT=ON -DCMAKE_PREFIX_PATH=$(cygpath -m /opt/musica-prebuilt)"

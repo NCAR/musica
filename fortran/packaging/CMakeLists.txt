@@ -29,7 +29,7 @@ install(
 )
 
 configure_package_config_file(
-  "${MUSICA_PROJECT_SRC_DIR}/cmake/musicaConfig.cmake.in"
+  "${MUSICA_PROJECT_SRC_DIR}/cmake/musica-fortranConfig.cmake.in"
   "${PROJECT_BINARY_DIR}/musica-fortranConfig.cmake"
   INSTALL_DESTINATION
     ${cmake_config_install_location}

@@ -8010,346 +8010,346 @@
             },
             "COFCL": {}
           }
+        },
+        {
+          "type": "USER_DEFINED",
+          "MUSICA name": "het17",
+          "reactants": {
+            "HOBR": {},
+            "HCL": {}
+          },
+          "products": {
+            "BRCL": {},
+            "H2O": {}
+          }
+        },
+        {
+          "type": "USER_DEFINED",
+          "MUSICA name": "het14",
+          "reactants": {
+            "BRONO2": {}
+          },
+          "products": {
+            "HOBR": {},
+            "HNO3": {}
+          }
+        },
+        {
+          "type": "USER_DEFINED",
+          "MUSICA name": "het5",
+          "reactants": {
+            "HCL": {},
+            "HOCL": {}
+          },
+          "products": {
+            "CL2": {},
+            "H2O": {}
+          }
+        },
+        {
+          "type": "USER_DEFINED",
+          "MUSICA name": "het10",
+          "reactants": {
+            "HCL": {},
+            "HOCL": {}
+          },
+          "products": {
+            "CL2": {},
+            "H2O": {}
+          }
+        },
+        {
+          "type": "USER_DEFINED",
+          "MUSICA name": "het3",
+          "reactants": {
+            "BRONO2": {}
+          },
+          "products": {
+            "HOBR": {},
+            "HNO3": {}
+          }
+        },
+        {
+          "type": "SURFACE",
+          "MUSICA name": "usr_NO2_aer",
+          "reaction probability": 0.000008,
+          "gas-phase reactant": "NO2",
+          "gas-phase products": {
+            "OH": {
+              "yield": 0.5
+            },
+            "NO": {
+              "yield": 0.5
+            },
+            "HNO3": {
+              "yield": 0.5
+            }
+          }
+        },
+        {
+          "type": "USER_DEFINED",
+          "MUSICA name": "het2",
+          "reactants": {
+            "CLONO2": {}
+          },
+          "products": {
+            "HOCL": {},
+            "HNO3": {}
+          }
+        },
+        {
+          "type": "USER_DEFINED",
+          "MUSICA name": "het11",
+          "reactants": {
+            "BRONO2": {}
+          },
+          "products": {
+            "HOBR": {},
+            "HNO3": {}
+          }
+        },
+        {
+          "type": "SURFACE",
+          "MUSICA name": "usr_HO2_aer",
+          "reaction probability": 0.1,
+          "gas-phase reactant": "HO2",
+          "gas-phase products": {
+            "H2O": {}
+          }
+        },
+        {
+          "type": "SURFACE",
+          "MUSICA name": "usr_NO3_aer",
+          "reaction probability": 0.002,
+          "gas-phase reactant": "NO3",
+          "gas-phase products": {
+            "HNO3": {}
+          }
+        },
+        {
+          "type": "USER_DEFINED",
+          "MUSICA name": "het8",
+          "reactants": {
+            "CLONO2": {}
+          },
+          "products": {
+            "HOCL": {},
+            "HNO3": {}
+          }
+        },
+        {
+          "type": "SURFACE",
+          "MUSICA name": "usr_ISOPNITA_aer",
+          "reaction probability": 0.005,
+          "gas-phase reactant": "ISOPNITA",
+          "gas-phase products": {
+            "HNO3": {}
+          }
+        },
+        {
+          "type": "SURFACE",
+          "MUSICA name": "usr_ISOPNITB_aer",
+          "reaction probability": 0.005,
+          "gas-phase reactant": "ISOPNITB",
+          "gas-phase products": {
+            "HNO3": {}
+          }
+        },
+        {
+          "type": "USER_DEFINED",
+          "MUSICA name": "het16",
+          "reactants": {
+            "HCL": {},
+            "HOCL": {}
+          },
+          "products": {
+            "CL2": {},
+            "H2O": {}
+          }
+        },
+        {
+          "type": "SURFACE",
+          "MUSICA name": "usr_GLYOXAL_aer",
+          "reaction probability": 0.0002,
+          "gas-phase reactant": "GLYOXAL",
+          "gas-phase products": {
+            "SOAG0": {}
+          }
+        },
+        {
+          "type": "USER_DEFINED",
+          "MUSICA name": "het13",
+          "reactants": {
+            "CLONO2": {}
+          },
+          "products": {
+            "HOCL": {},
+            "HNO3": {}
+          }
+        },
+        {
+          "type": "SURFACE",
+          "MUSICA name": "usr_ONITR_aer",
+          "reaction probability": 0.005,
+          "gas-phase reactant": "ONITR",
+          "gas-phase products": {
+            "HNO3": {}
+          }
+        },
+        {
+          "type": "SURFACE",
+          "MUSICA name": "usr_N2O5_aer",
+          "reaction probability": 0.02,
+          "gas-phase reactant": "N2O5",
+          "gas-phase products": {
+            "HNO3": {
+              "yield": 2
+            }
+          }
+        },
+        {
+          "type": "USER_DEFINED",
+          "MUSICA name": "het9",
+          "reactants": {
+            "CLONO2": {},
+            "HCL": {}
+          },
+          "products": {
+            "CL2": {},
+            "HNO3": {}
+          }
+        },
+        {
+          "type": "USER_DEFINED",
+          "MUSICA name": "het1",
+          "reactants": {
+            "N2O5": {}
+          },
+          "products": {
+            "HNO3": {
+              "yield": 2
+            }
+          }
+        },
+        {
+          "type": "USER_DEFINED",
+          "MUSICA name": "het6",
+          "reactants": {
+            "HOBR": {},
+            "HCL": {}
+          },
+          "products": {
+            "BRCL": {},
+            "H2O": {}
+          }
+        },
+        {
+          "type": "SURFACE",
+          "MUSICA name": "usr_HONITR_aer",
+          "reaction probability": 0.005,
+          "gas-phase reactant": "HONITR",
+          "gas-phase products": {
+            "HNO3": {}
+          }
+        },
+        {
+          "type": "USER_DEFINED",
+          "MUSICA name": "het12",
+          "reactants": {
+            "N2O5": {}
+          },
+          "products": {
+            "HNO3": {
+              "yield": 2
+            }
+          }
+        },
+        {
+          "type": "SURFACE",
+          "MUSICA name": "usr_NC4CHO_aer",
+          "reaction probability": 0.02,
+          "gas-phase reactant": "NC4CHO",
+          "gas-phase products": {
+            "HNO3": {}
+          }
+        },
+        {
+          "type": "USER_DEFINED",
+          "MUSICA name": "het7",
+          "reactants": {
+            "N2O5": {}
+          },
+          "products": {
+            "HNO3": {
+              "yield": 2
+            }
+          }
+        },
+        {
+          "type": "USER_DEFINED",
+          "MUSICA name": "het15",
+          "reactants": {
+            "CLONO2": {},
+            "HCL": {}
+          },
+          "products": {
+            "CL2": {},
+            "HNO3": {}
+          }
+        },
+        {
+          "type": "SURFACE",
+          "MUSICA name": "usr_TERPNIT_aer",
+          "reaction probability": 0.01,
+          "gas-phase reactant": "TERPNIT",
+          "gas-phase products": {
+            "HNO3": {}
+          }
+        },
+        {
+          "type": "SURFACE",
+          "MUSICA name": "usr_NTERPOOH_aer",
+          "reaction probability": 0.01,
+          "gas-phase reactant": "NTERPOOH",
+          "gas-phase products": {
+            "HNO3": {}
+          }
+        },
+        {
+          "type": "USER_DEFINED",
+          "__comments": "k_co_oh_jpl19; non-standard algorithm",
+          "reactants": {
+            "OH": {},
+            "CO": {}
+          },
+          "products": {
+            "CO2": {},
+            "HO2": {}
+          },
+          "MUSICA name": "usr_CO_OH"
+        },
+        {
+          "type": "SURFACE",
+          "MUSICA name": "usr_NC4CH2OH_aer",
+          "reaction probability": 0.005,
+          "gas-phase reactant": "NC4CH2OH",
+          "gas-phase products": {
+            "HNO3": {}
+          }
+        },
+        {
+          "type": "USER_DEFINED",
+          "MUSICA name": "het4",
+          "reactants": {
+            "CLONO2": {},
+            "HCL": {}
+          },
+          "products": {
+            "CL2": {},
+            "HNO3": {}
+          }
         }
       ]
-    },
-    {
-      "type": "USER_DEFINED",
-      "MUSICA name": "het17",
-      "reactants": {
-        "HOBR": {},
-        "HCL": {}
-      },
-      "products": {
-        "BRCL": {},
-        "H2O": {}
-      }
-    },
-    {
-      "type": "USER_DEFINED",
-      "MUSICA name": "het14",
-      "reactants": {
-        "BRONO2": {}
-      },
-      "products": {
-        "HOBR": {},
-        "HNO3": {}
-      }
-    },
-    {
-      "type": "USER_DEFINED",
-      "MUSICA name": "het5",
-      "reactants": {
-        "HCL": {},
-        "HOCL": {}
-      },
-      "products": {
-        "CL2": {},
-        "H2O": {}
-      }
-    },
-    {
-      "type": "USER_DEFINED",
-      "MUSICA name": "het10",
-      "reactants": {
-        "HCL": {},
-        "HOCL": {}
-      },
-      "products": {
-        "CL2": {},
-        "H2O": {}
-      }
-    },
-    {
-      "type": "USER_DEFINED",
-      "MUSICA name": "het3",
-      "reactants": {
-        "BRONO2": {}
-      },
-      "products": {
-        "HOBR": {},
-        "HNO3": {}
-      }
-    },
-    {
-      "type": "SURFACE",
-      "MUSICA name": "usr_NO2_aer",
-      "reaction probability": 0.000008,
-      "gas-phase reactant": "NO2",
-      "gas-phase products": {
-        "OH": {
-          "yield": 0.5
-        },
-        "NO": {
-          "yield": 0.5
-        },
-        "HNO3": {
-          "yield": 0.5
-        }
-      }
-    },
-    {
-      "type": "USER_DEFINED",
-      "MUSICA name": "het2",
-      "reactants": {
-        "CLONO2": {}
-      },
-      "products": {
-        "HOCL": {},
-        "HNO3": {}
-      }
-    },
-    {
-      "type": "USER_DEFINED",
-      "MUSICA name": "het11",
-      "reactants": {
-        "BRONO2": {}
-      },
-      "products": {
-        "HOBR": {},
-        "HNO3": {}
-      }
-    },
-    {
-      "type": "SURFACE",
-      "MUSICA name": "usr_HO2_aer",
-      "reaction probability": 0.1,
-      "gas-phase reactant": "HO2",
-      "gas-phase products": {
-        "H2O": {}
-      }
-    },
-    {
-      "type": "SURFACE",
-      "MUSICA name": "usr_NO3_aer",
-      "reaction probability": 0.002,
-      "gas-phase reactant": "NO3",
-      "gas-phase products": {
-        "HNO3": {}
-      }
-    },
-    {
-      "type": "USER_DEFINED",
-      "MUSICA name": "het8",
-      "reactants": {
-        "CLONO2": {}
-      },
-      "products": {
-        "HOCL": {},
-        "HNO3": {}
-      }
-    },
-    {
-      "type": "SURFACE",
-      "MUSICA name": "usr_ISOPNITA_aer",
-      "reaction probability": 0.005,
-      "gas-phase reactant": "ISOPNITA",
-      "gas-phase products": {
-        "HNO3": {}
-      }
-    },
-    {
-      "type": "SURFACE",
-      "MUSICA name": "usr_ISOPNITB_aer",
-      "reaction probability": 0.005,
-      "gas-phase reactant": "ISOPNITB",
-      "gas-phase products": {
-        "HNO3": {}
-      }
-    },
-    {
-      "type": "USER_DEFINED",
-      "MUSICA name": "het16",
-      "reactants": {
-        "HCL": {},
-        "HOCL": {}
-      },
-      "products": {
-        "CL2": {},
-        "H2O": {}
-      }
-    },
-    {
-      "type": "SURFACE",
-      "MUSICA name": "usr_GLYOXAL_aer",
-      "reaction probability": 0.0002,
-      "gas-phase reactant": "GLYOXAL",
-      "gas-phase products": {
-        "SOAG0": {}
-      }
-    },
-    {
-      "type": "USER_DEFINED",
-      "MUSICA name": "het13",
-      "reactants": {
-        "CLONO2": {}
-      },
-      "products": {
-        "HOCL": {},
-        "HNO3": {}
-      }
-    },
-    {
-      "type": "SURFACE",
-      "MUSICA name": "usr_ONITR_aer",
-      "reaction probability": 0.005,
-      "gas-phase reactant": "ONITR",
-      "gas-phase products": {
-        "HNO3": {}
-      }
-    },
-    {
-      "type": "SURFACE",
-      "MUSICA name": "usr_N2O5_aer",
-      "reaction probability": 0.02,
-      "gas-phase reactant": "N2O5",
-      "gas-phase products": {
-        "HNO3": {
-          "yield": 2
-        }
-      }
-    },
-    {
-      "type": "USER_DEFINED",
-      "MUSICA name": "het9",
-      "reactants": {
-        "CLONO2": {},
-        "HCL": {}
-      },
-      "products": {
-        "CL2": {},
-        "HNO3": {}
-      }
-    },
-    {
-      "type": "USER_DEFINED",
-      "MUSICA name": "het1",
-      "reactants": {
-        "N2O5": {}
-      },
-      "products": {
-        "HNO3": {
-          "yield": 2
-        }
-      }
-    },
-    {
-      "type": "USER_DEFINED",
-      "MUSICA name": "het6",
-      "reactants": {
-        "HOBR": {},
-        "HCL": {}
-      },
-      "products": {
-        "BRCL": {},
-        "H2O": {}
-      }
-    },
-    {
-      "type": "SURFACE",
-      "MUSICA name": "usr_HONITR_aer",
-      "reaction probability": 0.005,
-      "gas-phase reactant": "HONITR",
-      "gas-phase products": {
-        "HNO3": {}
-      }
-    },
-    {
-      "type": "USER_DEFINED",
-      "MUSICA name": "het12",
-      "reactants": {
-        "N2O5": {}
-      },
-      "products": {
-        "HNO3": {
-          "yield": 2
-        }
-      }
-    },
-    {
-      "type": "SURFACE",
-      "MUSICA name": "usr_NC4CHO_aer",
-      "reaction probability": 0.02,
-      "gas-phase reactant": "NC4CHO",
-      "gas-phase products": {
-        "HNO3": {}
-      }
-    },
-    {
-      "type": "USER_DEFINED",
-      "MUSICA name": "het7",
-      "reactants": {
-        "N2O5": {}
-      },
-      "products": {
-        "HNO3": {
-          "yield": 2
-        }
-      }
-    },
-    {
-      "type": "USER_DEFINED",
-      "MUSICA name": "het15",
-      "reactants": {
-        "CLONO2": {},
-        "HCL": {}
-      },
-      "products": {
-        "CL2": {},
-        "HNO3": {}
-      }
-    },
-    {
-      "type": "SURFACE",
-      "MUSICA name": "usr_TERPNIT_aer",
-      "reaction probability": 0.01,
-      "gas-phase reactant": "TERPNIT",
-      "gas-phase products": {
-        "HNO3": {}
-      }
-    },
-    {
-      "type": "SURFACE",
-      "MUSICA name": "usr_NTERPOOH_aer",
-      "reaction probability": 0.01,
-      "gas-phase reactant": "NTERPOOH",
-      "gas-phase products": {
-        "HNO3": {}
-      }
-    },
-    {
-      "type": "USER_DEFINED",
-      "__comments": "k_co_oh_jpl19; non-standard algorithm",
-      "reactants": {
-        "OH": {},
-        "CO": {}
-      },
-      "products": {
-        "CO2": {},
-        "HO2": {}
-      },
-      "MUSICA name": "usr_CO_OH"
-    },
-    {
-      "type": "SURFACE",
-      "MUSICA name": "usr_NC4CH2OH_aer",
-      "reaction probability": 0.005,
-      "gas-phase reactant": "NC4CH2OH",
-      "gas-phase products": {
-        "HNO3": {}
-      }
-    },
-    {
-      "type": "USER_DEFINED",
-      "MUSICA name": "het4",
-      "reactants": {
-        "CLONO2": {},
-        "HCL": {}
-      },
-      "products": {
-        "CL2": {},
-        "HNO3": {}
-      }
     }
   ]
 }

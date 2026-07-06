@@ -43,9 +43,9 @@ namespace musica
     {
       delete radiator;
     }
-    catch (const std::system_error &e)
+    catch (const std::exception &e)
     {
-      ToError(e, error);
+      ToError(e, MUSICA_SEVERITY_ERROR, error);
       return;
     }
     NoError(error);
@@ -64,9 +64,9 @@ namespace musica
       std::strcpy(c_name, name.c_str());
       return c_name;
     }
-    catch (const std::system_error &e)
+    catch (const std::exception &e)
     {
-      ToError(e, error);
+      ToError(e, MUSICA_SEVERITY_ERROR, error);
       return nullptr;
     }
   }
@@ -93,7 +93,7 @@ namespace musica
     radiator->GetOpticalDepths(optical_depths, num_vertical_layers, num_wavelength_bins, error);
   }
 
-  double* GetRadiatorOpticalDepthsPointer(Radiator *radiator, Error *error)
+  double *GetRadiatorOpticalDepthsPointer(Radiator *radiator, Error *error)
   {
     DeleteError(error);
     return radiator->GetOpticalDepthsPointer(error);
@@ -121,7 +121,7 @@ namespace musica
     radiator->GetSingleScatteringAlbedos(single_scattering_albedos, num_vertical_layers, num_wavelength_bins, error);
   }
 
-  double* GetRadiatorSingleScatteringAlbedosPointer(Radiator *radiator, Error *error)
+  double *GetRadiatorSingleScatteringAlbedosPointer(Radiator *radiator, Error *error)
   {
     DeleteError(error);
     return radiator->GetSingleScatteringAlbedosPointer(error);
@@ -151,7 +151,7 @@ namespace musica
     radiator->GetAsymmetryFactors(asymmetry_factors, num_vertical_layers, num_wavelength_bins, num_streams, error);
   }
 
-  double* GetRadiatorAsymmetryFactorsPointer(Radiator *radiator, Error *error)
+  double *GetRadiatorAsymmetryFactorsPointer(Radiator *radiator, Error *error)
   {
     DeleteError(error);
     return radiator->GetAsymmetryFactorsPointer(error);
@@ -179,14 +179,14 @@ namespace musica
         radiator_name, strlen(radiator_name), height_grid->updater_, wavelength_grid->updater_, &error_code);
     if (error_code != ERROR_NONE)
     {
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return;
     }
     updater_ = InternalGetRadiatorUpdater(radiator_, &error_code);
     if (error_code != ERROR_NONE)
     {
       InternalDeleteRadiator(radiator_, &error_code);
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return;
     }
     NoError(error);
@@ -210,14 +210,14 @@ namespace musica
     if (updater_ == nullptr)
     {
       error_code = ERROR_UNALLOCATED_RADIATOR_UPDATER;
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return "";
     }
     String name;
     InternalGetRadiatorName(updater_, &name, &error_code);
     if (error_code != ERROR_NONE)
     {
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return "";
     }
     std::string result(name.value_, name.size_);
@@ -236,13 +236,13 @@ namespace musica
     if (updater_ == nullptr)
     {
       error_code = ERROR_UNALLOCATED_RADIATOR_UPDATER;
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return;
     }
     InternalSetOpticalDepths(updater_, optical_depths, num_vertical_layers, num_wavelength_bins, &error_code);
     if (error_code != ERROR_NONE)
     {
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return;
     }
     NoError(error);
@@ -258,32 +258,32 @@ namespace musica
     if (updater_ == nullptr)
     {
       error_code = ERROR_UNALLOCATED_RADIATOR_UPDATER;
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return;
     }
     InternalGetOpticalDepths(updater_, optical_depths, num_vertical_layers, num_wavelength_bins, &error_code);
     if (error_code != ERROR_NONE)
     {
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return;
     }
     NoError(error);
   }
 
-  double* Radiator::GetOpticalDepthsPointer(Error *error)
+  double *Radiator::GetOpticalDepthsPointer(Error *error)
   {
     DeleteError(error);
     int error_code = ERROR_NONE;
     if (updater_ == nullptr)
     {
       error_code = ERROR_UNALLOCATED_RADIATOR_UPDATER;
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return nullptr;
     }
-    double* optical_depths_ptr = InternalGetOpticalDepthsPointer(updater_, &error_code);
+    double *optical_depths_ptr = InternalGetOpticalDepthsPointer(updater_, &error_code);
     if (error_code != ERROR_NONE)
     {
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return nullptr;
     }
     NoError(error);
@@ -300,14 +300,14 @@ namespace musica
     if (updater_ == nullptr)
     {
       error_code = ERROR_UNALLOCATED_RADIATOR_UPDATER;
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return;
     }
     InternalSetSingleScatteringAlbedos(
         updater_, single_scattering_albedos, num_vertical_layers, num_wavelength_bins, &error_code);
     if (error_code != ERROR_NONE)
     {
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return;
     }
     NoError(error);
@@ -323,33 +323,33 @@ namespace musica
     if (updater_ == nullptr)
     {
       error_code = ERROR_UNALLOCATED_RADIATOR_UPDATER;
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return;
     }
     InternalGetSingleScatteringAlbedos(
         updater_, single_scattering_albedos, num_vertical_layers, num_wavelength_bins, &error_code);
     if (error_code != ERROR_NONE)
     {
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return;
     }
     NoError(error);
   }
 
-  double* Radiator::GetSingleScatteringAlbedosPointer(Error *error)
+  double *Radiator::GetSingleScatteringAlbedosPointer(Error *error)
   {
     DeleteError(error);
     int error_code = ERROR_NONE;
     if (updater_ == nullptr)
     {
       error_code = ERROR_UNALLOCATED_RADIATOR_UPDATER;
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return nullptr;
     }
-    double* single_scattering_albedos_ptr = InternalGetSingleScatteringAlbedosPointer(updater_, &error_code);
+    double *single_scattering_albedos_ptr = InternalGetSingleScatteringAlbedosPointer(updater_, &error_code);
     if (error_code != ERROR_NONE)
     {
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return nullptr;
     }
     NoError(error);
@@ -367,14 +367,14 @@ namespace musica
     if (updater_ == nullptr)
     {
       error_code = ERROR_UNALLOCATED_RADIATOR_UPDATER;
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return;
     }
     InternalSetAsymmetryFactors(
         updater_, asymmetry_factors, num_vertical_layers, num_wavelength_bins, num_streams, &error_code);
     if (error_code != ERROR_NONE)
     {
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return;
     }
     NoError(error);
@@ -391,33 +391,33 @@ namespace musica
     if (updater_ == nullptr)
     {
       error_code = ERROR_UNALLOCATED_RADIATOR_UPDATER;
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return;
     }
     InternalGetAsymmetryFactors(
         updater_, asymmetry_factors, num_vertical_layers, num_wavelength_bins, num_streams, &error_code);
     if (error_code != ERROR_NONE)
     {
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return;
     }
     NoError(error);
   }
 
-  double* Radiator::GetAsymmetryFactorsPointer(Error *error)
+  double *Radiator::GetAsymmetryFactorsPointer(Error *error)
   {
     DeleteError(error);
     int error_code = ERROR_NONE;
     if (updater_ == nullptr)
     {
       error_code = ERROR_UNALLOCATED_RADIATOR_UPDATER;
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return nullptr;
     }
-    double* asymmetry_factors_ptr = InternalGetAsymmetryFactorsPointer(updater_, &error_code);
+    double *asymmetry_factors_ptr = InternalGetAsymmetryFactorsPointer(updater_, &error_code);
     if (error_code != ERROR_NONE)
     {
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return nullptr;
     }
     NoError(error);
@@ -431,13 +431,13 @@ namespace musica
     if (updater_ == nullptr)
     {
       error_code = ERROR_UNALLOCATED_RADIATOR_UPDATER;
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return 0;
     }
     std::size_t num_height_sections = InternalGetRadiatorNumberOfHeightSections(updater_, &error_code);
     if (error_code != ERROR_NONE)
     {
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return 0;
     }
     NoError(error);
@@ -451,13 +451,13 @@ namespace musica
     if (updater_ == nullptr)
     {
       error_code = ERROR_UNALLOCATED_RADIATOR_UPDATER;
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return 0;
     }
     std::size_t num_wavelength_sections = InternalGetRadiatorNumberOfWavelengthSections(updater_, &error_code);
     if (error_code != ERROR_NONE)
     {
-      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), error);
+      ToError(MUSICA_ERROR_CATEGORY, error_code, GetErrorMessage(error_code), MUSICA_SEVERITY_ERROR, error);
       return 0;
     }
     NoError(error);

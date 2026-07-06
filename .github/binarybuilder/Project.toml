@@ -1,0 +1,4 @@
+[deps]
+BinaryBuilder = "12aac903-9f7c-5d81-afc2-d9565ea332ae"
+BinaryBuilderBase = "7f725544-6523-48cd-82d1-3fa08ff4056e"
+Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"

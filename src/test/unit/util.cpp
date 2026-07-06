@@ -1,6 +1,6 @@
 // Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
-#include <musica/util.hpp>
+#include <musica/utils/util.hpp>
 #include <musica/version.hpp>
 
 #include <gtest/gtest.h>
@@ -22,7 +22,8 @@ TEST(Util, NoError)
 {
   Error error;
   NoError(&error);
-  EXPECT_EQ(error.code_, 0);
+  EXPECT_EQ(error.severity_, MUSICA_SEVERITY_INFO);
+  EXPECT_EQ(error.code_, MUSICA_STATUS_SUCCESS);
   EXPECT_EQ(error.category_.size_, 0);
   EXPECT_STREQ(error.category_.value_, "");
   EXPECT_EQ(error.message_.size_, 7);
@@ -37,7 +38,8 @@ TEST(Util, NoError)
 TEST(Util, ToError)
 {
   Error error;
-  ToError("Test", 1, "Test Error", &error);
+  ToError("Test", 1, "Test Error", MUSICA_SEVERITY_ERROR, &error);
+  EXPECT_EQ(error.severity_, MUSICA_SEVERITY_ERROR);
   EXPECT_EQ(error.code_, 1);
   EXPECT_EQ(error.category_.size_, 4);
   EXPECT_STREQ(error.category_.value_, "Test");
@@ -48,6 +50,24 @@ TEST(Util, ToError)
   EXPECT_EQ(error.category_.value_, nullptr);
   EXPECT_EQ(error.message_.size_, 0);
   EXPECT_EQ(error.message_.value_, nullptr);
+}
+
+TEST(Util, ToErrorWarn)
+{
+  Error error;
+  ToError("Test", 2, "Test Warning", MUSICA_SEVERITY_WARNING, &error);
+  EXPECT_EQ(error.severity_, MUSICA_SEVERITY_WARNING);
+  EXPECT_EQ(error.code_, 2);
+  DeleteError(&error);
+}
+
+TEST(Util, ToErrorCrit)
+{
+  Error error;
+  ToError("Test", 3, "Test Critical", MUSICA_SEVERITY_CRITICAL, &error);
+  EXPECT_EQ(error.severity_, MUSICA_SEVERITY_CRITICAL);
+  EXPECT_EQ(error.code_, 3);
+  DeleteError(&error);
 }
 
 TEST(Util, IsSuccess)
@@ -61,8 +81,62 @@ TEST(Util, IsSuccess)
 TEST(Util, IsError)
 {
   Error error;
-  ToError("Test", 1, "Test Error", &error);
-  EXPECT_TRUE(IsError(error, "Test", 1));
+  ToError("Test", 1, "Test Error", MUSICA_SEVERITY_ERROR, &error);
+  EXPECT_EQ(error.code_, 1);
+  EXPECT_STREQ(error.category_.value_, "Test");
+  DeleteError(&error);
+}
+
+TEST(Util, SeverityInErrors)
+{
+  Error error;
+  // Test each severity level
+  ToError("Test", 1, "Info level", MUSICA_SEVERITY_INFO, &error);
+  EXPECT_EQ(error.severity_, MUSICA_SEVERITY_INFO);
+  DeleteError(&error);
+
+  ToError("Test", 2, "Warning level", MUSICA_SEVERITY_WARNING, &error);
+  EXPECT_EQ(error.severity_, MUSICA_SEVERITY_WARNING);
+  DeleteError(&error);
+
+  ToError("Test", 3, "Error level", MUSICA_SEVERITY_ERROR, &error);
+  EXPECT_EQ(error.severity_, MUSICA_SEVERITY_ERROR);
+  DeleteError(&error);
+
+  ToError("Test", 4, "Critical level", MUSICA_SEVERITY_CRITICAL, &error);
+  EXPECT_EQ(error.severity_, MUSICA_SEVERITY_CRITICAL);
+  DeleteError(&error);
+}
+
+TEST(Util, HandleErrorsPreservesExceptionCategoryAndCode)
+{
+  Error error;
+  NoError(&error);
+  HandleErrors(
+      [&]() -> void { throw Exception(MUSICA_MICM_ERROR_CODE_SPECIES_NOT_FOUND, MUSICA_MICM_ERROR_CATEGORY, "test"); },
+      &error);
+  EXPECT_EQ(error.code_, MUSICA_MICM_ERROR_CODE_SPECIES_NOT_FOUND);
+  EXPECT_STREQ(error.category_.value_, MUSICA_MICM_ERROR_CATEGORY);
+  DeleteError(&error);
+}
+
+TEST(Util, StatusSuccessConstant)
+{
+  // Test that MUSICA_STATUS_SUCCESS equals 0
+  EXPECT_EQ(MUSICA_STATUS_SUCCESS, 0);
+  // Test that NoError uses MUSICA_STATUS_SUCCESS
+  Error error;
+  NoError(&error);
+  EXPECT_EQ(error.code_, MUSICA_STATUS_SUCCESS);
+  EXPECT_TRUE(IsSuccess(error));
+  DeleteError(&error);
+}
+
+TEST(Util, DefaultSeverityIsInfo)
+{
+  Error error;
+  NoError(&error);
+  EXPECT_EQ(error.severity_, MUSICA_SEVERITY_INFO);
   DeleteError(&error);
 }
 

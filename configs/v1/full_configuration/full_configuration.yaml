@@ -29,6 +29,7 @@ phases:
         diffusion coefficient [m2 s-1]: 2.1e-5
       - name: H2O2
         diffusion coefficient [m2 s-1]: 2.1e-5
+      - name: M
 reactions:
   - type: EMISSION
     __irrelevant: 2 

@@ -3,8 +3,10 @@ import datetime
 import logging
 import shutil
 import os
+import sys
 from musica import Examples
 from musica import __version__
+from musica.mechanism_configuration import parse
 import musica.examples
 import importlib.resources as ir
 import musica
@@ -50,7 +52,7 @@ def parse_arguments():
         type=str,
         help='Path to a musica v0 configuration to convert to v1 format.'
     )
-    return parser.parse_args()
+    return parser, parser.parse_args()
 
 
 def setup_logging(verbosity):
@@ -81,18 +83,14 @@ def convert_configuration(logger, configuration, output_path):
     if not os.path.exists(configuration):
         raise ValueError(f"Configuration file '{configuration}' does not exist.")
 
-    parser = musica.mechanism_configuration.Parser()
-    # the mechanism configuration automatically converts pre exponential factors to SI units
-    # so we don't need to convert units again here.
-    convert_units = False
-    mechanism = parser.parse_and_convert_v0(configuration, convert_units)
+    mechanism = parse(configuration)
     mechanism.export(output_path)
 
 
 def main():
     start = datetime.datetime.now()
 
-    args = parse_arguments()
+    parser, args = parse_arguments()
     setup_logging(args.verbose)
 
     logger = logging.getLogger(__name__)
@@ -107,8 +105,10 @@ def main():
     example_arg = args.example
     output = args.output
 
-    if not convert and not example_arg:
-        raise ValueError("Either --convert or --example must be specified.")
+    # sys.argv includes a list of elements starting with the program
+    if len(sys.argv) < 2:
+        parser.print_help()
+        sys.exit(0)
 
     if convert and example_arg:
         raise ValueError("Cannot specify both --convert and --example. Choose one.")

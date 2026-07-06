@@ -10,22 +10,24 @@ FROM --platform=linux/amd64 python:3.10-slim
 
 RUN apt update && \
     apt install -y \
-      binutils
+      binutils && \
+    apt clean && rm -rf /var/lib/apt/lists/*
 
-# Upgrade pip and install wheel checkers
-RUN pip install --upgrade pip
-RUN pip install check-wheel-contents auditwheel
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir check-wheel-contents auditwheel
 
 COPY wheelhouse/ wheelhouse/
 
-# Check all wheels in /wheelhouse for RECORD and compliance
 RUN for whl in /wheelhouse/*.whl; do \
         echo "Checking $whl..."; \
         check-wheel-contents "$whl"; \
         auditwheel show "$whl"; \
     done
 
-# note that you will need to update the version number here to match the one you built
-RUN pip install "musica[gpu] @ file:/wheelhouse/musica-0.14.4-cp310-cp310-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl"
+# Pass the wheel filename at build time, e.g.:
+#   docker build --build-arg WHEEL_FILE=musica-0.16.0-cp310-cp310-manylinux_2_28_x86_64.whl -f docker/Dockerfile.wheel .
+# The filename follows the pattern: musica-<version>-<python>-<python>-<platform>.whl
+ARG WHEEL_FILE
+RUN pip install --no-cache-dir "musica[cli,gpu] @ file:/wheelhouse/${WHEEL_FILE}"
 
 CMD ["python", "-c", "import musica; print(musica.__version__)"]

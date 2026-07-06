@@ -1,99 +1,94 @@
-################################################################################
-# Preamble
-
-project(
-  musica
-  VERSION ${PROJECT_VERSION}
-  LANGUAGES C CXX
-)
-
-message (STATUS "CMake build configuration for ${PROJECT_NAME} (${CMAKE_BUILD_TYPE}) ${PROJECT_VERSION}")
+message(STATUS "CMake build configuration for ${PROJECT_NAME} (${CMAKE_BUILD_TYPE}) ${PROJECT_VERSION}")
 
 ################################################################################
-# Sources
-
-set(MUSICA_COMMON_SOURCES
-  ${CMAKE_CURRENT_SOURCE_DIR}/util.cpp
-  ${CMAKE_BINARY_DIR}/version.cpp
-)
-
-if(MUSICA_ENABLE_MICM)
-  set(MUSICA_MICM_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/micm/convert_v0_to_v1.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/micm/cuda_availability.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/micm/micm.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/micm/micm_c_interface.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/micm/parse.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/micm/state.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/micm/state_c_interface.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/micm/v0_parse.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/micm/v1_parse.cpp
-  )
-endif()
-
-if(MUSICA_ENABLE_TUVX)
-  set(MUSICA_TUVX_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface.F90
-    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface_grid.F90
-    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface_grid_map.F90
-    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface_profile.F90
-    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface_profile_map.F90
-    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface_radiator.F90
-    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface_radiator_map.F90
-    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/interface_util.F90
-    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/grid.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/grid_map.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/profile.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/profile_map.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/radiator.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/radiator_map.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/tuvx.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/tuvx/tuvx_c_interface.cpp
-  )
-endif()
-
-if(MUSICA_ENABLE_CARMA)
-  set(MUSICA_CARMA_SOURCES
-  ${CMAKE_CURRENT_SOURCE_DIR}/carma/carma.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/carma/carma_state.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/carma/carma_c_interface.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/carma/interface.F90
-  ${CMAKE_CURRENT_SOURCE_DIR}/carma/carma_parameters.F90
-  )
-endif()
-
-set(MUSICA_SOURCES
-  ${MUSICA_COMMON_SOURCES}
-  ${MUSICA_MICM_SOURCES}
-  ${MUSICA_TUVX_SOURCES}
-  ${MUSICA_CARMA_SOURCES}
-  CACHE INTERNAL "List of sources for MUSICA"
-)
-
-# version
+# version file
 configure_file(version.cpp.in ${CMAKE_BINARY_DIR}/version.cpp @ONLY)
 
 ################################################################################
-# MUSICA
+# MUSICA Library
 
-include(setup_musica_target)
-
-if (MUSICA_ONLY_PYTHON)
-  message(STATUS "Building only the Python bindings, skipping MUSICA C/C++ library")
-  message(STATUS "The musica library is not needed for the python bindings since we build the sources directly")
-  return()
+if (MUSICA_BUILD_SHARED_LIBS)
+  add_library(musica SHARED)
+else()
+  add_library(musica STATIC)
 endif()
 
-add_library(musica)
 add_library(musica::musica ALIAS musica)
 
-if (NOT ${MUSICA_GPU_TYPE} STREQUAL "None")
-  target_sources(musica PRIVATE ${MUSICA_SOURCES})
-  musica_setup_target(musica MODE GPU)
-else()
-  target_sources(musica PRIVATE ${MUSICA_SOURCES})
-  musica_setup_target(musica MODE CPU)
+# Common sources
+target_sources(musica PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/utils/error_handler.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/utils/string.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/utils/util.cpp
+  ${CMAKE_BINARY_DIR}/version.cpp
+)
+
+# MICM sources
+if(MUSICA_ENABLE_MICM)
+  list(APPEND musica_compile_definitions MUSICA_USE_MICM)
+  add_subdirectory(micm)
 endif()
+
+# MIAM sources
+if(MUSICA_ENABLE_MIAM)
+  list(APPEND musica_compile_definitions MUSICA_USE_MIAM)
+  add_subdirectory(miam)
+  target_link_libraries(musica PUBLIC musica::miam)
+endif()
+
+# TUV-x sources
+if(MUSICA_ENABLE_TUVX)
+  list(APPEND musica_compile_definitions MUSICA_USE_TUVX)
+  # Add Fortran utility module needed by TUV-x interface files
+  target_sources(musica PRIVATE ${MUSICA_PROJECT_SRC_DIR}/fortran/util.F90)
+  add_subdirectory(tuvx)
+endif()
+
+# CARMA sources
+if(MUSICA_ENABLE_CARMA)
+  list(APPEND musica_compile_definitions MUSICA_USE_CARMA)
+  add_subdirectory(carma)
+endif()
+
+# MICM CUDA Solver
+if(UNIX AND NOT APPLE AND NOT ${MUSICA_GPU_TYPE} STREQUAL "None")
+  add_subdirectory(cuda)
+endif()
+
+################################################################################
+# Configure musica target
+
+target_include_directories(musica
+  PUBLIC
+    $<BUILD_INTERFACE:${MUSICA_PROJECT_SRC_DIR}/include>
+    $<INSTALL_INTERFACE:${MUSICA_INSTALL_INCLUDE_DIR}>
+)
+
+target_compile_features(musica PUBLIC cxx_std_20)
+
+target_link_libraries(musica
+  PUBLIC
+    musica::mechanism_configuration
+)
+
+# Compile definitions
+if (MUSICA_ENABLE_MPI)
+  list(APPEND musica_compile_definitions MUSICA_USE_MPI)
+endif()
+
+if (MUSICA_ENABLE_OPENMP)
+  list(APPEND musica_compile_definitions MUSICA_USE_OPENMP)
+endif()
+
+# NetCDF for CARMA or TUV-x
+if (MUSICA_ENABLE_CARMA OR MUSICA_ENABLE_TUVX)
+  target_link_libraries(musica PRIVATE ${MUSICA_NETCDF_C_TARGET} ${MUSICA_NETCDF_FORTRAN_TARGET})
+endif()
+
+target_compile_definitions(musica PUBLIC ${musica_compile_definitions})
+
+################################################################################
+# Target properties
 
 set_target_properties(musica PROPERTIES
   ARCHIVE_OUTPUT_DIRECTORY ${MUSICA_LIB_DIR}
@@ -107,6 +102,7 @@ set_target_properties(musica PROPERTIES
 if(APPLE)
   set_target_properties(musica PROPERTIES
     INSTALL_RPATH "@loader_path"
+    BUILD_WITH_INSTALL_RPATH TRUE
   )
 elseif(UNIX)
   set_target_properties(musica PROPERTIES

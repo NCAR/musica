@@ -5,17 +5,16 @@
 #include <musica/micm/cuda_availability.hpp>
 #include <musica/micm/micm.hpp>
 #include <musica/micm/micm_c_interface.hpp>
+#include <musica/micm/solver_parameters.hpp>
 #include <musica/micm/state.hpp>
 #include <musica/micm/state_c_interface.hpp>
 
 #include <micm/version.hpp>
 
-#include <mechanism_configuration/v1/types.hpp>
-
 #include <iostream>
 
 namespace py = pybind11;
-namespace v1 = mechanism_configuration::v1::types;
+using namespace mechanism_configuration;
 
 void bind_micm(py::module_& micm)
 {
@@ -34,7 +33,7 @@ void bind_micm(py::module_& micm)
       .value("AcceptingUnconvergedIntegration", micm::SolverState::AcceptingUnconvergedIntegration)
       .export_values();
 
-  micm.def("_vector_size", &musica::GetVectorSize, "Returns the vector dimension for vector-ordered solvers, 0 otherwise.");
+  micm.def("_vector_size", &musica::GetVectorSize, "Returns the vector dimension for vector-ordered solvers, 1 otherwise.");
 
   micm.def(
       "_create_solver",
@@ -42,14 +41,9 @@ void bind_micm(py::module_& micm)
       {
         musica::Error error;
         musica::MICM* micm = musica::CreateMicm(config_path, solver_type, &error);
-        if (!musica::IsSuccess(error))
-        {
-          std::cerr << "Error creating solver: " << error.message_.value_ << " solver_type: " << solver_type
-                    << " config_path: " << config_path << std::endl;
-          std::string message = "Error creating solver: " + std::string(error.message_.value_);
-          musica::DeleteError(&error);
-          throw py::value_error(message);
-        }
+        std::string context =
+            "Error creating solver (type: " + musica::ToString(solver_type) + ", config: " + std::string(config_path) + ")";
+        handle_error(error, context);
 
         return std::shared_ptr<musica::MICM>(
             micm,
@@ -67,17 +61,13 @@ void bind_micm(py::module_& micm)
 
   micm.def(
       "_create_solver_from_mechanism",
-      [](const v1::Mechanism& mechanism, musica::MICMSolver solver_type, bool ignore_non_gas_phases)
+      [](const Mechanism& mechanism, musica::MICMSolver solver_type)
       {
         musica::Error error;
-        musica::Chemistry chemistry = musica::ConvertV1Mechanism(mechanism, ignore_non_gas_phases);
+        musica::Chemistry chemistry = musica::ConvertMechanism(mechanism);
         musica::MICM* micm = musica::CreateMicmFromChemistryMechanism(&chemistry, solver_type, &error);
-        if (!musica::IsSuccess(error))
-        {
-          std::string message = "Error creating solver: " + std::string(error.message_.value_);
-          musica::DeleteError(&error);
-          throw py::value_error(message);
-        }
+        std::string context = "Error creating solver from mechanism (type: " + musica::ToString(solver_type) + ")";
+        handle_error(error, context);
 
         return std::shared_ptr<musica::MICM>(
             micm,
@@ -99,12 +89,7 @@ void bind_micm(py::module_& micm)
       {
         musica::Error error;
         musica::State* state = musica::CreateMicmState(micm, number_of_grid_cells, &error);
-        if (!musica::IsSuccess(error))
-        {
-          std::string message = "Error creating state: " + std::string(error.message_.value_);
-          DeleteError(&error);
-          throw py::value_error(message);
-        }
+        handle_error(error, "Error creating state");
 
         return std::unique_ptr<musica::State, std::function<void(musica::State*)>>(
             state,
@@ -161,6 +146,44 @@ void bind_micm(py::module_& micm)
       .def("__str__", [](const micm::SolverResult& e) { return "<SolverResult>"; })
       .def("__repr__", [](const micm::SolverResult& e) { return "<SolverResult>"; });
 
+  py::class_<musica::RosenbrockSolverParameters>(micm, "_RosenbrockSolverParameters")
+      .def(py::init<>())
+      .def_readwrite("relative_tolerance", &musica::RosenbrockSolverParameters::relative_tolerance)
+      .def_readwrite("absolute_tolerances", &musica::RosenbrockSolverParameters::absolute_tolerances)
+      .def_readwrite("h_min", &musica::RosenbrockSolverParameters::h_min)
+      .def_readwrite("h_max", &musica::RosenbrockSolverParameters::h_max)
+      .def_readwrite("h_start", &musica::RosenbrockSolverParameters::h_start)
+      .def_readwrite("max_number_of_steps", &musica::RosenbrockSolverParameters::max_number_of_steps)
+      .def_readwrite("constraint_init_max_iterations", &musica::RosenbrockSolverParameters::constraint_init_max_iterations)
+      .def_readwrite("constraint_init_tolerance", &musica::RosenbrockSolverParameters::constraint_init_tolerance);
+
+  py::class_<musica::BackwardEulerSolverParameters>(micm, "_BackwardEulerSolverParameters")
+      .def(py::init<>())
+      .def_readwrite("relative_tolerance", &musica::BackwardEulerSolverParameters::relative_tolerance)
+      .def_readwrite("absolute_tolerances", &musica::BackwardEulerSolverParameters::absolute_tolerances)
+      .def_readwrite("max_number_of_steps", &musica::BackwardEulerSolverParameters::max_number_of_steps)
+      .def_readwrite("time_step_reductions", &musica::BackwardEulerSolverParameters::time_step_reductions);
+
+  micm.def(
+      "_set_rosenbrock_solver_parameters",
+      [](musica::MICM* micm, const musica::RosenbrockSolverParameters& params) { micm->SetSolverParameters(params); },
+      "Set Rosenbrock solver parameters");
+
+  micm.def(
+      "_set_backward_euler_solver_parameters",
+      [](musica::MICM* micm, const musica::BackwardEulerSolverParameters& params) { micm->SetSolverParameters(params); },
+      "Set Backward Euler solver parameters");
+
+  micm.def(
+      "_get_rosenbrock_solver_parameters",
+      [](musica::MICM* micm) { return micm->GetRosenbrockSolverParameters(); },
+      "Get Rosenbrock solver parameters");
+
+  micm.def(
+      "_get_backward_euler_solver_parameters",
+      [](musica::MICM* micm) { return micm->GetBackwardEulerSolverParameters(); },
+      "Get Backward Euler solver parameters");
+
   micm.def(
       "_micm_solve",
       [](musica::MICM* micm, musica::State* state, double time_step) { return micm->Solve(state, time_step); },
@@ -168,23 +191,12 @@ void bind_micm(py::module_& micm)
 
   micm.def(
       "_species_ordering",
-      [](musica::State* state)
-      {
-        std::map<std::string, std::size_t> map;
-        std::visit([&map](auto& state) { map = state.variable_map_; }, state->state_variant_);
-        return map;
-      },
+      [](musica::State* state) { return state->GetVariableMap(); },
       "Return map of species names to their indices in the state concentrations vector");
 
   micm.def(
       "_user_defined_rate_parameters_ordering",
-      [](musica::State* state)
-      {
-        std::map<std::string, std::size_t> map;
-
-        std::visit([&map](auto& state) { map = state.custom_rate_parameter_map_; }, state->state_variant_);
-        return map;
-      },
+      [](musica::State* state) { return state->GetRateParameterMap(); },
       "Return map of reaction rate parameters to their indices in the state user-defined rate parameters vector");
 
   micm.def("_is_cuda_available", &musica::IsCudaAvailable, "Check if CUDA is available");
@@ -195,33 +207,38 @@ void bind_micm(py::module_& micm)
       "_print_state",
       [](musica::State* state, const double current_time)
       {
-        std::visit(
-            [&current_time](auto& state)
-            {
-              std::cout << "Current time: " << current_time << std::endl;
-              std::cout << "State variables: " << std::endl;
-              std::vector<std::string> species_names(state.variable_map_.size());
-              for (const auto& species : state.variable_map_)
-                species_names[species.second] = species.first;
-              for (const auto& name : species_names)
-                std::cout << name << ",";
-              std::cout << std::endl << state.variables_ << std::endl;
-              std::cout << "User-defined rate parameters: " << std::endl;
-              std::vector<std::string> rate_param_names(state.custom_rate_parameter_map_.size());
-              for (const auto& rate : state.custom_rate_parameter_map_)
-                rate_param_names[rate.second] = rate.first;
-              for (const auto& name : rate_param_names)
-                std::cout << name << ",";
-              std::cout << std::endl << state.custom_rate_parameters_ << std::endl;
-              std::cout << "Conditions: " << std::endl;
-              std::cout << "Temperature,Pressure,Air density" << std::endl;
-              for (const auto& condition : state.conditions_)
-              {
-                std::cout << condition.temperature_ << "," << condition.pressure_ << "," << condition.air_density_
-                          << std::endl;
-              }
-            },
-            state->state_variant_);
+        std::cout << "Current time: " << current_time << std::endl;
+        std::cout << "State variables: " << std::endl;
+        auto variable_map = state->GetVariableMap();
+        std::vector<std::string> species_names(variable_map.size());
+        for (const auto& species : variable_map)
+          species_names[species.second] = species.first;
+        for (const auto& name : species_names)
+          std::cout << name << ",";
+        std::cout << std::endl;
+        auto& concentrations = state->GetOrderedConcentrations();
+        for (const auto& c : concentrations)
+          std::cout << c << " ";
+        std::cout << std::endl;
+        std::cout << "User-defined rate parameters: " << std::endl;
+        auto rate_param_map = state->GetRateParameterMap();
+        std::vector<std::string> rate_param_names(rate_param_map.size());
+        for (const auto& rate : rate_param_map)
+          rate_param_names[rate.second] = rate.first;
+        for (const auto& name : rate_param_names)
+          std::cout << name << ",";
+        std::cout << std::endl;
+        auto& rate_params = state->GetOrderedRateParameters();
+        for (const auto& r : rate_params)
+          std::cout << r << " ";
+        std::cout << std::endl;
+        std::cout << "Conditions: " << std::endl;
+        std::cout << "Temperature,Pressure,Air density" << std::endl;
+        auto& conditions = state->GetConditions();
+        for (const auto& condition : conditions)
+        {
+          std::cout << condition.temperature_ << "," << condition.pressure_ << "," << condition.air_density_ << std::endl;
+        }
       },
       "Print the state to stdout with the current time");
 }

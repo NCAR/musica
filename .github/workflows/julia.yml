@@ -19,7 +19,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
-        julia-version: ['1.10','1.11']
+        julia-version: ['1.10','1.11', '1.12']
 
     steps:
       - uses: actions/checkout@v4
@@ -29,20 +29,139 @@ jobs:
         with:
           version: ${{ matrix.julia-version }}
 
-      - name: Install Julia dependencies (CxxWrap)
-        working-directory: julia
-        run: julia --project=. -e 'using Pkg; Pkg.instantiate()'
-
       - name: Configure MUSICA with Julia support
-        run: cmake -S . -B build -D CMAKE_BUILD_TYPE=Release -D MUSICA_ENABLE_JULIA=ON -D MUSICA_ENABLE_MICM=ON -D MUSICA_ENABLE_TUVX=OFF -D MUSICA_ENABLE_CARMA=OFF -D MUSICA_ENABLE_TESTS=OFF -D CMAKE_POLICY_VERSION_MINIMUM=3.5
+        run: |
+          JLCXX_PREFIX=$(julia -e 'import Pkg; Pkg.add("CxxWrap"); using CxxWrap; print(CxxWrap.prefix_path())')
+          cmake -S . -B build \
+                -D CMAKE_PREFIX_PATH=$JLCXX_PREFIX \
+                -D CMAKE_BUILD_TYPE=Release \
+                -D MUSICA_ENABLE_JULIA=ON \
+                -D MUSICA_ENABLE_MICM=ON \
+                -D MUSICA_ENABLE_TUVX=OFF \
+                -D MUSICA_ENABLE_CARMA=OFF \
+                -D MUSICA_ENABLE_TESTS=OFF \
+                -D MUSICA_BUILD_SHARED_LIBS=ON \
+                -D MUSICA_USE_FMT=OFF \
+                -D MUSICA_ENABLE_INSTALL=ON
       
       - name: Build MUSICA with Julia support
         run: cmake --build build --verbose
 
       - name: Precompile Julia package with built library
         working-directory: julia
-        run: julia --project=. -e 'using Pkg; Pkg.precompile()'
+        run: julia --project=. -e 'using Pkg; Pkg.develop(PackageSpec(path="../etc/Musica_jll")); Pkg.instantiate()'
 
       - name: Run Julia tests
         working-directory: julia
         run: julia --project=. test/runtests.jl
+
+  # Windows binaries cannot be built natively with MSYS2: its GCC is far newer
+  # than the libstdc++ Julia bundles, so a natively-built libmusica_julia.dll
+  # imports GLIBCXX symbols Julia's runtime lacks and fails to load. To test THIS
+  # commit's binary (not the lagging released JLL), cross-build the Windows JLL
+  # with the *production* Yggdrasil recipe (GCC 13, against libjulia/libcxxwrap —
+  # the same toolchain Julia uses), repointed at this commit. Using the upstream
+  # recipe avoids maintaining a copy of the build logic here; the only change is
+  # the source revision. The package tests then run on Windows against that
+  # binary via an artifact Override.
+  build-windows-jll:
+    name: Build Windows JLL (Yggdrasil recipe)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Julia
+        uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.10'
+
+      - name: Fetch the Musica recipe from Yggdrasil
+        run: |
+          git clone --depth 1 --filter=blob:none --sparse \
+            https://github.com/JuliaPackaging/Yggdrasil ygg
+          git -C ygg sparse-checkout set M/Musica L/libjulia platforms
+
+      - name: Repoint the recipe source at this commit
+        env:
+          SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          recipe=ygg/M/Musica/build_tarballs.jl
+          # The recipe's GitSource pins a released revision; replace it with this
+          # commit's SHA. perl -0777 slurps the file so the match spans the URL
+          # line and the following revision line, independent of sed dialect.
+          perl -0777 -pi -e 's/(NCAR\/musica\.git",\s*")[0-9a-f]{7,40}(")/$1$ENV{SHA}$2/' "$recipe"
+          # Verify the edit landed so a recipe reformat fails loudly instead of
+          # silently building the pinned release.
+          grep -q "\"$SHA\"" "$recipe" || { echo "ERROR: failed to pin recipe to $SHA"; exit 1; }
+          echo "Pinned Musica recipe source to $SHA"
+
+      - name: Cross-build the Windows JLL for each Julia version
+        run: |
+          PROJ="$PWD/.github/binarybuilder"
+          julia --project="$PROJ" -e 'using Pkg; Pkg.instantiate()'
+          cd ygg/M/Musica
+          # build_tarballs accepts a platform triple as an argument; pass the
+          # Windows x86_64 cxx11 target tagged per Julia version.
+          for jv in 1.10.0 1.11.1 1.12.0; do
+            julia --project="$PROJ" build_tarballs.jl --verbose \
+              "x86_64-w64-mingw32-cxx11-julia_version+$jv"
+          done
+
+      - name: Upload Windows JLL tarballs
+        uses: actions/upload-artifact@v4
+        with:
+          name: musica-windows-jll
+          path: ygg/M/Musica/products/Musica.v*.tar.gz
+          if-no-files-found: error
+
+  test-windows:
+    name: Test Julia package (windows-latest, Julia ${{ matrix.julia-version }})
+    needs: build-windows-jll
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        julia-version: ['1.10', '1.11', '1.12']
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Julia
+        uses: julia-actions/setup-julia@v2
+        with:
+          version: ${{ matrix.julia-version }}
+
+      - name: Download Windows JLL tarballs
+        uses: actions/download-artifact@v4
+        with:
+          name: musica-windows-jll
+          path: jll
+
+      - name: Extract JLL and override Musica_jll to use this commit's binary
+        shell: bash
+        run: |
+          mkdir -p prefix
+          # Pick the tarball built for this Julia minor (binaries link a
+          # version-specific libjulia; x.y.0 loads fine on any x.y.z patch).
+          tarball=$(ls jll/Musica.v*-julia_version+${{ matrix.julia-version }}.*.tar.gz)
+          echo "using $tarball"
+          tar -xzf "$tarball" -C prefix
+          echo "=== extracted artifact ==="
+          ls -R prefix | head -40
+          # Point the registered Musica_jll's artifact at our freshly built binary.
+          # The JLL's __init__ loads libmusica_julia.dll and its sibling products
+          # from this prefix in dependency order, so no manual PATH/DLL juggling.
+          DEPOT=$(cygpath -u "$(julia -e 'print(DEPOT_PATH[1])')")
+          mkdir -p "$DEPOT/artifacts"
+          printf '[f5e5459d-1a87-5129-97d9-bab22ca84fbb]\nMusica = "%s"\n' \
+            "$(cygpath -m "$PWD/prefix")" >> "$DEPOT/artifacts/Overrides.toml"
+          echo "=== Overrides.toml ==="
+          cat "$DEPOT/artifacts/Overrides.toml"
+
+      - name: Run Julia tests against the built JLL
+        shell: bash
+        working-directory: julia
+        run: |
+          # Resolve the registered Musica_jll (redirected by the override above) —
+          # do NOT develop the local build/lib stub here.
+          julia --project=. -e 'using Pkg; Pkg.instantiate()'
+          julia --project=. test/runtests.jl

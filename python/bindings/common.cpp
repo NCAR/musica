@@ -1,3 +1,6 @@
+// Copyright (C) 2023-2026 University Corporation for Atmospheric Research
+// SPDX-License-Identifier: Apache-2.0
+
 #include "common.hpp"
 
 void bind_mechanism_configuration(py::module_ &);
@@ -12,6 +15,7 @@ void bind_all(py::module_ &m)
       "Wrapper classes for Mechanism Configuration for the chemical system configuration schema");
   py::module_ tuvx = m.def_submodule("_tuvx", "Wrapper classes for TUV-x photolysis calculator");
   py::module_ carma = m.def_submodule("_carma", "Wrapper classes for CARMA for modeling clouds and aerosols");
+  py::module_ miam = m.def_submodule("_miam", "Wrapper classes for MIAM aerosol/cloud model");
 
   bind_cuda(micm);
   bind_micm(micm);
@@ -32,5 +36,9 @@ void bind_all(py::module_ &m)
 
 #ifdef MUSICA_USE_CARMA
   bind_carma(carma);
+#endif
+
+#ifdef MUSICA_USE_MIAM
+  bind_miam(miam);
 #endif
 }

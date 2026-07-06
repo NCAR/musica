@@ -400,8 +400,6 @@ def plot_results(concentrations, times, sulfate_data=None):
         ax.grid()
     for ax in axs[1]:
         ax.set_xlabel("Time (hours)")
-    plt.tight_layout()
-    plt.show()
 
     # Plot total sulfate mass mixing ratio (sum over all bins) over time at the first vertical level
     if sulfate_data is not None and hasattr(sulfate_data, "mass_mixing_ratio"):
@@ -411,7 +409,7 @@ def plot_results(concentrations, times, sulfate_data=None):
         plt.ylabel("Mass Mixing Ratio (kg/kg)")
         plt.xlabel("Time (hours)")
         plt.grid()
-        plt.show()
+        plt.savefig("sulfate_box_model_concentrations.png")
     else:
         print("SULFATE data structure:", sulfate_data)
         if sulfate_data is not None:

@@ -8,24 +8,6 @@
 
 namespace musica
 {
-  template<typename Func>
-  auto HandleErrors(Func func, Error* error) -> decltype(func())
-  {
-    DeleteError(error);
-    try
-    {
-      return func();
-    }
-    catch (const std::system_error& e)
-    {
-      ToError(e, error);
-    }
-    catch (const std::exception& e)
-    {
-      ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_UNKNOWN, e.what(), error);
-    }
-    return decltype(func())();
-  }
 
   State* CreateMicmState(musica::MICM* micm, std::size_t number_of_grid_cells, Error* error)
   {
@@ -35,7 +17,12 @@ namespace musica
           if (!micm)
           {
             std::string const msg = "MICM pointer is null, cannot create state.";
-            ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND, msg.c_str(), error);
+            ToError(
+                MUSICA_MICM_ERROR_CATEGORY,
+                MUSICA_MICM_ERROR_CODE_NULL_POINTER,
+                msg.c_str(),
+                MUSICA_SEVERITY_CRITICAL,
+                error);
             return nullptr;
           }
 
@@ -54,7 +41,12 @@ namespace musica
           if (state == nullptr)
           {
             std::string const msg = "State pointer is null, cannot delete state.";
-            ToError(MUSICA_ERROR_CATEGORY, MUSICA_ERROR_CODE_SOLVER_TYPE_NOT_FOUND, msg.c_str(), error);
+            ToError(
+                MUSICA_MICM_ERROR_CATEGORY,
+                MUSICA_MICM_ERROR_CODE_NULL_POINTER,
+                msg.c_str(),
+                MUSICA_SEVERITY_CRITICAL,
+                error);
             return;
           }
 
@@ -104,8 +96,7 @@ namespace musica
     HandleErrors(
         [&]()
         {
-          std::map<std::string, std::size_t> const map =
-              std::visit([](auto& state) { return state.variable_map_; }, state->state_variant_);
+          std::unordered_map<std::string, std::size_t> const map = state->GetVariableMap();
 
           species_ordering->mappings_ = new Mapping[map.size()];
           species_ordering->size_ = map.size();
@@ -127,8 +118,7 @@ namespace musica
     HandleErrors(
         [&]()
         {
-          std::map<std::string, std::size_t> const map =
-              std::visit([](auto& state) { return state.custom_rate_parameter_map_; }, state->state_variant_);
+          std::unordered_map<std::string, std::size_t> const map = state->GetRateParameterMap();
 
           reaction_rates->mappings_ = new Mapping[map.size()];
           reaction_rates->size_ = map.size();

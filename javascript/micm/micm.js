@@ -1,6 +1,7 @@
 import { State } from './state.js';
 import { SolverType, toWasmSolverType } from './solver.js';
 import { SolverStats, SolverResult } from './solver_result.js';
+import { RosenbrockSolverParameters, BackwardEulerSolverParameters } from './solver_parameters.js';
 import { getBackend } from '../backend.js';
 
 export class MICM {
@@ -9,9 +10,14 @@ export class MICM {
    *
    * @param {string} configPath - Path to the mechanism configuration directory
    * @param {number} [solverType=SolverType.rosenbrock_standard_order] - Type of solver to use
+   * @param {RosenbrockSolverParameters|BackwardEulerSolverParameters} [solverParameters] - Optional solver parameters
    * @returns {MICM} A new MICM instance
    */
-  static fromConfigPath(configPath, solverType = SolverType.rosenbrock_standard_order) {
+  static fromConfigPath(
+    configPath,
+    solverType = SolverType.rosenbrock_standard_order,
+    solverParameters = null
+  ) {
     if (typeof configPath !== 'string') {
       throw new TypeError('configPath must be a string');
     }
@@ -28,7 +34,11 @@ export class MICM {
         resolvedConfigPath = `/host/${configPath}`;
       }
       const nativeMICM = backend.MICM.fromConfigPath(resolvedConfigPath, wasmSolver);
-      return new MICM(nativeMICM, solverType);
+      const micm = new MICM(nativeMICM, solverType);
+      if (solverParameters) {
+        micm.setSolverParameters(solverParameters);
+      }
+      return micm;
     } catch (error) {
       throw new Error(`Failed to create MICM solver from config path: ${error.message}`);
     }
@@ -39,9 +49,14 @@ export class MICM {
    *
    * @param {Object} mechanism - Mechanism object created in code
    * @param {number} [solverType=SolverType.rosenbrock_standard_order] - Type of solver to use
+   * @param {RosenbrockSolverParameters|BackwardEulerSolverParameters} [solverParameters] - Optional solver parameters
    * @returns {MICM} A new MICM instance
    */
-  static fromMechanism(mechanism, solverType = SolverType.rosenbrock_standard_order) {
+  static fromMechanism(
+    mechanism,
+    solverType = SolverType.rosenbrock_standard_order,
+    solverParameters = null
+  ) {
     if (!mechanism || typeof mechanism.getJSON !== 'function') {
       throw new TypeError('mechanism must be a valid Mechanism object with getJSON() method');
     }
@@ -53,7 +68,11 @@ export class MICM {
       const jsonString = JSON.stringify(mechanismJSON);
 
       const nativeMICM = backend.MICM.fromConfigString(jsonString, wasmSolver);
-      return new MICM(nativeMICM, solverType);
+      const micm = new MICM(nativeMICM, solverType);
+      if (solverParameters) {
+        micm.setSolverParameters(solverParameters);
+      }
+      return micm;
     } catch (error) {
       throw new Error(`Failed to create MICM solver from mechanism: ${error.message}`);
     }
@@ -68,10 +87,20 @@ export class MICM {
     this._solverType = solverType;
   }
 
+  /**
+   * Get the solver type this instance was created with.
+   * @returns {number} A {@link SolverType} value
+   */
   solverType() {
     return this._solverType;
   }
 
+  /**
+   * Create a new {@link State} object for this solver.
+   *
+   * @param {number} [numberOfGridCells=1] - Number of independent atmospheric columns
+   * @returns {State}
+   */
   createState(numberOfGridCells = 1) {
     if (numberOfGridCells <= 0) {
       throw new RangeError('number_of_grid_cells must be greater than 0');
@@ -79,6 +108,14 @@ export class MICM {
     return new State(this._nativeMICM, numberOfGridCells, this._solverType);
   }
 
+  /**
+   * Integrate the chemical system forward by `timeStep` seconds.
+   * Species concentrations in `state` are updated in-place.
+   *
+   * @param {State} state - The chemical state to integrate
+   * @param {number} timeStep - Time step in seconds
+   * @returns {SolverResult}
+   */
   solve(state, timeStep) {
     if (!(state instanceof State)) {
       throw new TypeError('state must be an instance of State');
@@ -94,6 +131,103 @@ export class MICM {
     return new SolverResult(result.state, stats);
   }
 
+  /**
+   * Set solver-specific parameters.
+   *
+   * @param {RosenbrockSolverParameters|BackwardEulerSolverParameters} params
+   */
+  setSolverParameters(params) {
+    const backend = getBackend();
+    const toVectorDouble = (arr) => {
+      const vec = new backend.VectorDouble();
+      if (arr) {
+        for (const v of arr) vec.push_back(v);
+      }
+      return vec;
+    };
+    if (params instanceof RosenbrockSolverParameters) {
+      const wasmParams = {
+        relative_tolerance: params.relative_tolerance,
+        absolute_tolerances: toVectorDouble(params.absolute_tolerances),
+        h_min: params.h_min,
+        h_max: params.h_max,
+        h_start: params.h_start,
+        max_number_of_steps: params.max_number_of_steps,
+      };
+      this._nativeMICM.set_rosenbrock_solver_parameters(wasmParams);
+    } else if (params instanceof BackwardEulerSolverParameters) {
+      const wasmParams = {
+        relative_tolerance: params.relative_tolerance,
+        absolute_tolerances: toVectorDouble(params.absolute_tolerances),
+        max_number_of_steps: params.max_number_of_steps,
+        time_step_reductions: toVectorDouble(params.time_step_reductions),
+      };
+      this._nativeMICM.set_backward_euler_solver_parameters(wasmParams);
+    } else {
+      throw new TypeError(
+        'params must be RosenbrockSolverParameters or BackwardEulerSolverParameters'
+      );
+    }
+  }
+
+  /**
+   * Register a callback for a user-defined (lambda) reaction rate.
+   *
+   * The callback is invoked by the solver at each time step to obtain the
+   * current rate constant for the named reaction.
+   *
+   * @param {string} label - Reaction label as defined in the mechanism configuration
+   * @param {Function} fn - Callback returning the rate constant (s⁻¹ or appropriate units)
+   */
+  setReactionRateCallback(label, fn) {
+    this._nativeMICM.SetLambdaRateCallback(label, fn);
+  }
+
+  /**
+   * Get the current solver parameters.
+   *
+   * @returns {RosenbrockSolverParameters|BackwardEulerSolverParameters}
+   */
+  getSolverParameters() {
+    const fromVectorDouble = (vec) => {
+      const arr = [];
+      for (let i = 0; i < vec.size(); i++) arr.push(vec.get(i));
+      return arr;
+    };
+    if (
+      this._solverType === SolverType.rosenbrock ||
+      this._solverType === SolverType.rosenbrock_standard_order
+    ) {
+      const wasmParams = this._nativeMICM.get_rosenbrock_solver_parameters();
+      const absTol = fromVectorDouble(wasmParams.absolute_tolerances);
+      return new RosenbrockSolverParameters({
+        relative_tolerance: wasmParams.relative_tolerance,
+        absolute_tolerances: absTol.length > 0 ? absTol : null,
+        h_min: wasmParams.h_min,
+        h_max: wasmParams.h_max,
+        h_start: wasmParams.h_start,
+        max_number_of_steps: wasmParams.max_number_of_steps,
+      });
+    } else if (
+      this._solverType === SolverType.backward_euler ||
+      this._solverType === SolverType.backward_euler_standard_order
+    ) {
+      const wasmParams = this._nativeMICM.get_backward_euler_solver_parameters();
+      const absTol = fromVectorDouble(wasmParams.absolute_tolerances);
+      return new BackwardEulerSolverParameters({
+        relative_tolerance: wasmParams.relative_tolerance,
+        absolute_tolerances: absTol.length > 0 ? absTol : null,
+        max_number_of_steps: wasmParams.max_number_of_steps,
+        time_step_reductions: fromVectorDouble(wasmParams.time_step_reductions),
+      });
+    } else {
+      throw new Error(`Unknown solver type: ${this._solverType}`);
+    }
+  }
+
+  /**
+   * Free the underlying WASM object. Call when done with this instance.
+   */
   delete() {
     this._nativeMICM.delete();
   }
