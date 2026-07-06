@@ -70,6 +70,7 @@ Julia provides binaries by packaging them into JLLs via [Yggdrasil](https://gith
 - [ ] **After Musica_jll.jl has completed publishing**, update `julia/Project.toml` (do **not** change any `uuid` because UUIDs are permanent package identifiers):
   - [ ] Bump the top-level `version` (Musica.jl's own version). This must be increased past the last registered version or JuliaRegistrator will reject the registration. It is **not** auto-synced from `CMakeLists.txt`.
   - [ ] Update the `[compat]` bound for `Musica_jll` to the newly released version (e.g. `Musica_jll = "0.15"`).
+    - [ ] Also bump `version` in `etc/Musica_jll/Project.toml` (the local dev stub) to satisfy this new bound.
   - [ ] Merge these changes into `main` before registering.
 - [ ] Go to the most recent commit on `main` and post a **new comment** containing the registration command below.
 
