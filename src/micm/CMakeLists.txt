@@ -14,7 +14,6 @@ target_sources(musica PRIVATE
   lambda_callback.cpp
   micm.cpp
   micm_c_interface.cpp
-  parse.cpp
   state.cpp
   state_c_interface.cpp
 )

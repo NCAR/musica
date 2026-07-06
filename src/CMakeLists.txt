@@ -27,6 +27,7 @@ target_sources(musica PRIVATE
 if(MUSICA_ENABLE_MICM)
   list(APPEND musica_compile_definitions MUSICA_USE_MICM)
   add_subdirectory(micm)
+  add_subdirectory(configuration)
 endif()
 
 # MIAM sources
