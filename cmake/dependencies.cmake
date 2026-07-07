@@ -141,7 +141,7 @@ endif()
 
 if (MUSICA_ENABLE_MIEM AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(MIEM_GIT_REPOSITORY https://github.com/NCAR/miem.git)
-  set_git_default(MIEM_GIT_TAG b917f46c1d7f01a18f16bc44c066ef83efa75a93)  # main; no tags exist yet
+  set_git_default(MIEM_GIT_TAG 3cc9ff9684dfdc13a49ab327ce2539bc223b1fd4)  # main; no tags exist yet
 
   FetchContent_Declare(miem
       GIT_REPOSITORY ${MIEM_GIT_REPOSITORY}
@@ -152,16 +152,7 @@ if (MUSICA_ENABLE_MIEM AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBU
 
   set(MIEM_BUILD_SHARED_LIBS ${MUSICA_BUILD_SHARED_LIBS} CACHE BOOL "" FORCE)
 
-  # Workaround: miem's CMakeLists.txt does a bare `include(dependencies)`,
-  # which resolves against CMAKE_MODULE_PATH in order. Since musica's own
-  # cmake/ dir (which also has a dependencies.cmake) is already on that path,
-  # it shadows miem's file and its netCDF::netcdf_normalized target never
-  # gets created. Temporarily drop musica's cmake/ dir so miem's include()
-  # finds its own file. TODO: remove once miem's CMakeLists.txt uses an
-  # explicit include path instead of the bare module name.
-  list(REMOVE_ITEM CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
   FetchContent_MakeAvailable(miem)
-  list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 endif()
 
 ################################################################################
