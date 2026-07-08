@@ -2,7 +2,8 @@
 #include <musica/micm/parse.hpp>
 #include <musica/utils/error_code.hpp>
 
-#include <mechanism_configuration/types.hpp>
+#include <mechanism_configuration/types/reactions.hpp>
+#include <mechanism_configuration/types/species.hpp>
 #include <micm/Process.hpp>
 #include <micm/System.hpp>
 #include <micm/process/rate_constant/lambda_rate_constant.hpp>
