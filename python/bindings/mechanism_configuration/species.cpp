@@ -7,7 +7,7 @@
 // bind_mechanism_configuration().
 #include "../common.hpp"
 
-#include <mechanism_configuration/mechanism_configuration.hpp>
+#include <mechanism_configuration/types/species.hpp>
 
 #include <pybind11/stl.h>
 

@@ -7,7 +7,8 @@
 // its `reactions` member. Bound from bind_mechanism_configuration().
 #include "../common.hpp"
 
-#include <mechanism_configuration/mechanism_configuration.hpp>
+#include <mechanism_configuration/types/reactions.hpp>
+#include <mechanism_configuration/types/species.hpp>
 
 #include <pybind11/stl.h>
 

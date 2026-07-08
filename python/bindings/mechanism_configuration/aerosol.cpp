@@ -12,7 +12,7 @@
 // C++ types store.
 #include "../common.hpp"
 
-#include <mechanism_configuration/mechanism_configuration.hpp>
+#include <mechanism_configuration/types/aerosol.hpp>
 
 #include <pybind11/functional.h>
 #include <pybind11/stl.h>
