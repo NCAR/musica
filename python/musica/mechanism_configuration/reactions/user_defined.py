@@ -1,22 +1,23 @@
 from typing import Optional, Any, Dict, List, Union, Tuple
-from .. import backend
-from .._base import CppWrapper, CppField, _unwrap_list, _wrap_list
-from .utils import _add_other_properties, _remove_empty_keys, _convert_components, _format_components
-from .species import Species
-from .phase import Phase
+from ... import backend
+from ..._base import CppWrapper, CppField, _unwrap_list, _wrap_list
+from ..species import Phase
+from ..species import Species
+from ..utils import _add_other_properties, _remove_empty_keys, _convert_components, _format_components
 from .reaction_component import ReactionComponent
-from .parse import ReactionType
+from ..parse import ReactionType
 
 _backend = backend.get_backend()
-_Emission = _backend._mechanism_configuration._Emission
+_UserDefined = _backend._mechanism_configuration._UserDefined
 
 
-class Emission(CppWrapper):
-    """An emission reaction rate constant.
+class UserDefined(CppWrapper):
+    """A user-defined reaction rate constant.
 
     Attributes:
-        name: The name of the emission reaction rate constant.
-        scaling_factor: The scaling factor for the emission rate constant.
+        name: The name of the user-defined reaction rate constant.
+        scaling_factor: The scaling factor for the rate constant.
+        reactants: A list of reactants involved in the reaction.
         products: A list of products formed in the reaction.
         gas_phase: The gas phase in which the reaction occurs.
         other_properties: A dictionary of other properties.
@@ -31,22 +32,29 @@ class Emission(CppWrapper):
         self,
         name: Optional[str] = None,
         scaling_factor: Optional[float] = None,
-        products: Optional[List[Union[Species, Tuple[Species, float]]]] = None,
+        reactants: Optional[List[Union[Species, ReactionComponent, Tuple[Species, float]]]] = None,
+        products: Optional[List[Union[Species, ReactionComponent, Tuple[Species, float]]]] = None,
         gas_phase: Optional[Phase] = None,
         other_properties: Optional[Dict[str, Any]] = None,
     ):
-        """Initialize the Emission reaction.
+        """Initialize the UserDefined reaction.
 
         Args:
-            name: The name of the emission reaction rate constant.
-            scaling_factor: The scaling factor for the emission rate constant.
+            name: The name of the user-defined reaction rate constant.
+            scaling_factor: The scaling factor for the rate constant.
+            reactants: A list of reactants involved in the reaction.
             products: A list of products formed in the reaction.
             gas_phase: The gas phase in which the reaction occurs.
             other_properties: A dictionary of other properties.
         """
-        self._cpp = _Emission()
+        self._cpp = _UserDefined()
         self.name = name if name is not None else self.name
         self.scaling_factor = scaling_factor if scaling_factor is not None else self.scaling_factor
+        self.reactants = (
+            _convert_components(reactants)
+            if reactants is not None
+            else self.reactants
+        )
         self.products = (
             _convert_components(products)
             if products is not None
@@ -58,7 +66,15 @@ class Emission(CppWrapper):
     @property
     def type(self):
         """Get the reaction type."""
-        return ReactionType.Emission
+        return ReactionType.UserDefined
+
+    @property
+    def reactants(self) -> list:
+        return _wrap_list(ReactionComponent, self._cpp.reactants)
+
+    @reactants.setter
+    def reactants(self, value):
+        self._cpp.reactants = _unwrap_list(value)
 
     @property
     def products(self) -> list:
@@ -69,15 +85,16 @@ class Emission(CppWrapper):
         self._cpp.products = _unwrap_list(value)
 
     def to_equation(self):
-        return f"-> {_format_components(self.products)}"
+        return f"{_format_components(self.reactants)} -> {_format_components(self.products)}"
 
     def serialize(self) -> Dict:
         serialize_dict = {
-            "type": "EMISSION",
+            "type": "USER_DEFINED",
             "name": self.name,
             "scaling factor": self.scaling_factor,
+            "reactants": [r.serialize() for r in self.reactants],
             "products": [r.serialize() for r in self.products],
             "gas phase": self.gas_phase,
         }
         _add_other_properties(serialize_dict, self.other_properties)
-        return serialize_dict
+        return _remove_empty_keys(serialize_dict)

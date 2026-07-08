@@ -10,15 +10,13 @@ from typing import Optional, Any, Dict, List, Union
 from .. import backend
 from .._base import CppWrapper, CppField, _unwrap, _unwrap_list, _wrap_list
 
-from .species import Species
-from .phase import Phase
+from .species import Species, Phase
 from .reactions import Reactions
-from .parse import Version
+from .aerosol import Aerosol
+from .parse import Version, ReactionType
 
 _backend = backend.get_backend()
 _Mechanism = _backend._mechanism_configuration._Mechanism
-Version = _backend._mechanism_configuration._Version
-ReactionType = _backend._mechanism_configuration._ReactionType
 
 
 class Mechanism(CppWrapper):
@@ -29,10 +27,12 @@ class Mechanism(CppWrapper):
         reactions: A list of reactions in the mechanism.
         species: A list of species in the mechanism.
         phases: A list of phases in the mechanism.
+        relative_tolerance: Relative tolerance for the solver (default: 1e-6).
         version: The version of the mechanism.
     """
 
     name = CppField()
+    relative_tolerance = CppField()
 
     @classmethod
     def _from_cpp(cls, cpp_obj):
@@ -44,26 +44,35 @@ class Mechanism(CppWrapper):
     def __init__(
         self,
         name: Optional[str] = None,
-        reactions: Optional[List[Any]] = None,
+        version: Optional[Version] = None,
+        relative_tolerance: Optional[float] = None,
         species: Optional[List[Species]] = None,
         phases: Optional[List[Phase]] = None,
-        version: Optional[Version] = None,
+        reactions: Optional[List[Any]] = None,
+        aerosol: Optional[Aerosol] = None,
     ):
         """Initialize the Mechanism.
 
         Args:
             name: The name of the mechanism.
-            reactions: A list of reactions in the mechanism.
+            version: The version of the mechanism.
+            relative_tolerance: Relative tolerance for the solver. Defaults to the
+                configuration schema default (1e-6) when not provided.
             species: A list of species in the mechanism.
             phases: A list of phases in the mechanism.
-            version: The version of the mechanism.
+            reactions: A list of reactions in the mechanism.
+            aerosol: Aerosol representations, processes, and constraints (optional).
         """
         self._cpp = _Mechanism()
         self.name = name if name is not None else ""
+        self.version = version if version is not None else Version(1, 0, 0)
+        # Leave the C++ default (1e-6) in place unless the caller overrides it.
+        if relative_tolerance is not None:
+            self.relative_tolerance = relative_tolerance
         self.species = species if species is not None else []
         self.phases = phases if phases is not None else []
         self.reactions = Reactions(reactions=reactions if reactions is not None else [])
-        self.version = version if version is not None else Version(1, 0, 0)
+        self.aerosol = aerosol
 
     @property
     def species(self) -> List[Species]:
@@ -116,6 +125,16 @@ class Mechanism(CppWrapper):
             raise TypeError(
                 f"reactions must be a Reactions object or a list, not {type(value).__name__}"
             )
+
+    @property
+    def aerosol(self) -> Optional[Aerosol]:
+        """Aerosol configuration (representations, processes, constraints), or None."""
+        cpp_aerosol = self._cpp.aerosol
+        return Aerosol._from_cpp(cpp_aerosol) if cpp_aerosol is not None else None
+
+    @aerosol.setter
+    def aerosol(self, value: Optional[Aerosol]):
+        self._cpp.aerosol = _unwrap(value) if value is not None else None
 
     @property
     def version(self):

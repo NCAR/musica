@@ -1,7 +1,7 @@
 from typing import Optional, Any, Dict
-from .. import backend
-from .._base import CppWrapper, CppField
-from .utils import _add_other_properties, _remove_empty_keys
+from ... import backend
+from ..._base import CppWrapper, CppField
+from ..utils import _add_other_properties, _remove_empty_keys
 
 _backend = backend.get_backend()
 _PhaseSpecies = _backend._mechanism_configuration._PhaseSpecies

@@ -1,8 +1,8 @@
 from typing import Optional, Any, Dict, List, Union
-from .. import backend
-from .._base import CppWrapper, _unwrap_list
-from .species import Species
-from .utils import _remove_empty_keys
+from ... import backend
+from ..._base import CppWrapper, _unwrap_list
+from ..species import Species
+from ..utils import _remove_empty_keys
 
 _backend = backend.get_backend()
 _Reactions = _backend._mechanism_configuration._Reactions

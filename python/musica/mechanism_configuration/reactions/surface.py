@@ -1,11 +1,11 @@
 from typing import Optional, Any, Dict, List, Union, Tuple
-from .. import backend
-from .._base import CppWrapper, CppField, _unwrap, _unwrap_list, _wrap_list
-from .phase import Phase
-from .species import Species
-from .utils import _add_other_properties, _remove_empty_keys, _convert_components, _format_components
+from ... import backend
+from ..._base import CppWrapper, CppField, _unwrap, _unwrap_list, _wrap_list
+from ..species import Phase
+from ..species import Species
+from ..utils import _add_other_properties, _remove_empty_keys, _convert_components, _format_components
 from .reaction_component import ReactionComponent
-from .parse import ReactionType
+from ..parse import ReactionType
 
 _backend = backend.get_backend()
 _Surface = _backend._mechanism_configuration._Surface

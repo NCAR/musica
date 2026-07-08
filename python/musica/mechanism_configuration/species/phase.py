@@ -1,9 +1,9 @@
 from typing import Optional, Any, Dict, List, Union
-from .. import backend
-from .._base import CppWrapper, CppField, _unwrap_list, _wrap_list
+from ... import backend
+from ..._base import CppWrapper, CppField, _unwrap_list, _wrap_list
 from .species import Species
 from .phase_species import PhaseSpecies
-from .utils import _add_other_properties, _remove_empty_keys
+from ..utils import _add_other_properties, _remove_empty_keys
 
 _backend = backend.get_backend()
 _Phase = _backend._mechanism_configuration._Phase

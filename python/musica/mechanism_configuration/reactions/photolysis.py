@@ -1,24 +1,24 @@
 from typing import Optional, Any, Dict, List, Union, Tuple
-from .. import backend
-from .._base import CppWrapper, CppField, _unwrap_list, _wrap_list
-from .utils import _add_other_properties, _remove_empty_keys, _convert_components, _format_components
-from .species import Species
-from .phase import Phase
+from ... import backend
+from ..._base import CppWrapper, CppField, _unwrap_list, _wrap_list
+from ..utils import _add_other_properties, _convert_components, _format_components
+from ..species import Species
+from ..species import Phase
 from .reaction_component import ReactionComponent
-from .parse import ReactionType
+from ..parse import ReactionType
 
 _backend = backend.get_backend()
-_FirstOrderLoss = _backend._mechanism_configuration._FirstOrderLoss
+_Photolysis = _backend._mechanism_configuration._Photolysis
 
 
-class FirstOrderLoss(CppWrapper):
-    """A first-order loss reaction rate constant.
+class Photolysis(CppWrapper):
+    """A photolysis reaction rate constant.
 
     Attributes:
-        name: The name of the first-order loss reaction rate constant.
-        scaling_factor: The scaling factor for the first-order loss rate constant.
+        name: The name of the photolysis reaction rate constant.
+        scaling_factor: The scaling factor for the photolysis rate constant.
         reactants: A list of reactants involved in the reaction.
-        products: A list of products formed in the reaction. Normally, first-order loss reactions do not have products, but this can be used to compute the integrated reaction rate
+        products: A list of products formed in the reaction.
         gas_phase: The gas phase in which the reaction occurs.
         other_properties: A dictionary of other properties.
     """
@@ -37,22 +37,19 @@ class FirstOrderLoss(CppWrapper):
         gas_phase: Optional[Phase] = None,
         other_properties: Optional[Dict[str, Any]] = None,
     ):
-        """Initialize the FirstOrderLoss reaction.
+        """Initialize the Photolysis reaction.
 
         Args:
-            name: The name of the first-order loss reaction rate constant.
-            scaling_factor: The scaling factor for the rate constant.
+            name: The name of the photolysis reaction rate constant.
+            scaling_factor: The scaling factor for the photolysis rate constant.
             reactants: A list of reactants involved in the reaction.
-            products: A list of products formed in the reaction. Normally, first-order loss reactions do not have products, but this can be used to compute the integrated reaction rate.
+            products: A list of products formed in the reaction.
             gas_phase: The gas phase in which the reaction occurs.
             other_properties: A dictionary of other properties.
         """
-        self._cpp = _FirstOrderLoss()
-
+        self._cpp = _Photolysis()
         self.name = name if name is not None else self.name
         self.scaling_factor = scaling_factor if scaling_factor is not None else self.scaling_factor
-        self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
-        self.other_properties = other_properties if other_properties is not None else self.other_properties
         self.reactants = (
             _convert_components(reactants)
             if reactants is not None
@@ -63,11 +60,13 @@ class FirstOrderLoss(CppWrapper):
             if products is not None
             else self.products
         )
+        self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
+        self.other_properties = other_properties if other_properties is not None else self.other_properties
 
     @property
     def type(self):
         """Get the reaction type."""
-        return ReactionType.FirstOrderLoss
+        return ReactionType.Photolysis
 
     @property
     def reactants(self) -> list:
@@ -77,7 +76,7 @@ class FirstOrderLoss(CppWrapper):
     def reactants(self, value):
         items = value if isinstance(value, list) else [value]
         if len(items) != 1:
-            raise ValueError("FirstOrderLoss can only have one reactant.")
+            raise ValueError("Photolysis can only have one reactant.")
         self._cpp.reactants = _unwrap_list(items)[0]
 
     @property
@@ -93,7 +92,7 @@ class FirstOrderLoss(CppWrapper):
 
     def serialize(self) -> Dict:
         serialize_dict = {
-            "type": "FIRST_ORDER_LOSS",
+            "type": "PHOTOLYSIS",
             "name": self.name,
             "scaling factor": self.scaling_factor,
             "reactants": [r.serialize() for r in self.reactants],
@@ -101,4 +100,4 @@ class FirstOrderLoss(CppWrapper):
             "gas phase": self.gas_phase,
         }
         _add_other_properties(serialize_dict, self.other_properties)
-        return _remove_empty_keys(serialize_dict)
+        return serialize_dict

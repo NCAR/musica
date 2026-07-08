@@ -15,7 +15,7 @@ def _convert_components(items):
 
     Import is deferred to avoid circular imports.
     """
-    from .reaction_component import ReactionComponent
+    from .reactions import ReactionComponent
     from .species import Species
     return [
         (
