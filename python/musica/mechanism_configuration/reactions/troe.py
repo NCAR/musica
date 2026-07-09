@@ -8,7 +8,7 @@ from .reaction_component import ReactionComponent
 from ..parse import ReactionType
 
 _backend = backend.get_backend()
-_Troe = _backend._mechanism_configuration._Troe
+_mc = _backend._mechanism_configuration
 
 
 class Troe(CppWrapper):
@@ -75,7 +75,7 @@ class Troe(CppWrapper):
             gas_phase: The gas phase in which the reaction occurs.
             other_properties: A dictionary of other properties.
         """
-        self._cpp = _Troe()
+        self._cpp = _mc._Troe()
 
         self.name = name if name is not None else self.name
         self.k0_A = k0_A if k0_A is not None else self.k0_A

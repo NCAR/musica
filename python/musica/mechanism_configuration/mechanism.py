@@ -16,7 +16,7 @@ from .aerosol import Aerosol
 from .parse import Version, ReactionType
 
 _backend = backend.get_backend()
-_Mechanism = _backend._mechanism_configuration._Mechanism
+_mc = _backend._mechanism_configuration
 
 
 class Mechanism(CppWrapper):
@@ -63,7 +63,7 @@ class Mechanism(CppWrapper):
             reactions: A list of reactions in the mechanism.
             aerosol: Aerosol representations, processes, and constraints (optional).
         """
-        self._cpp = _Mechanism()
+        self._cpp = _mc._Mechanism()
         self.name = name if name is not None else ""
         self.version = version if version is not None else Version(1, 0, 0)
         # Leave the C++ default (1e-6) in place unless the caller overrides it.
@@ -73,6 +73,15 @@ class Mechanism(CppWrapper):
         self.phases = phases if phases is not None else []
         self.reactions = Reactions(reactions=reactions if reactions is not None else [])
         self.aerosol = aerosol
+
+    @property
+    def version(self):
+        """Version of the mechanism."""
+        return self._cpp.version
+
+    @version.setter
+    def version(self, value):
+        self._cpp.version = value
 
     @property
     def species(self) -> List[Species]:
@@ -135,15 +144,6 @@ class Mechanism(CppWrapper):
     @aerosol.setter
     def aerosol(self, value: Optional[Aerosol]):
         self._cpp.aerosol = _unwrap(value) if value is not None else None
-
-    @property
-    def version(self):
-        """Version of the mechanism."""
-        return self._cpp.version
-
-    @version.setter
-    def version(self, value):
-        self._cpp.version = value
 
     def serialize(self) -> Dict:
         return {

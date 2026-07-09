@@ -8,7 +8,7 @@ from .reaction_component import ReactionComponent
 from ..parse import ReactionType
 
 _backend = backend.get_backend()
-_TernaryChemicalActivation = _backend._mechanism_configuration._TernaryChemicalActivation
+_mc = _backend._mechanism_configuration
 
 
 class TernaryChemicalActivation(CppWrapper):
@@ -75,7 +75,7 @@ class TernaryChemicalActivation(CppWrapper):
             gas_phase: The gas phase in which the reaction occurs.
             other_properties: A dictionary of other properties.
         """
-        self._cpp = _TernaryChemicalActivation()
+        self._cpp = _mc._TernaryChemicalActivation()
 
         self.name = name if name is not None else self.name
         self.k0_A = k0_A if k0_A is not None else self.k0_A

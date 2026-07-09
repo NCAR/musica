@@ -4,7 +4,7 @@ from ..._base import CppWrapper, CppField
 from ..utils import _add_other_properties, _remove_empty_keys
 
 _backend = backend.get_backend()
-_ReactionComponent = _backend._mechanism_configuration._ReactionComponent
+_mc = _backend._mechanism_configuration
 
 
 class ReactionComponent(CppWrapper):
@@ -37,7 +37,7 @@ class ReactionComponent(CppWrapper):
             coefficient: The stoichiometric coefficient.
             other_properties: A dictionary of other properties of the species.
         """
-        self._cpp = _ReactionComponent()
+        self._cpp = _mc._ReactionComponent()
         self.name = name if name is not None else self.name
         self.coefficient = coefficient if coefficient is not None else self.coefficient
         self.other_properties = other_properties if other_properties is not None else self.other_properties

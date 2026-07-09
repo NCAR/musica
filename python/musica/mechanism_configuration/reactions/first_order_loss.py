@@ -8,7 +8,7 @@ from .reaction_component import ReactionComponent
 from ..parse import ReactionType
 
 _backend = backend.get_backend()
-_FirstOrderLoss = _backend._mechanism_configuration._FirstOrderLoss
+_mc = _backend._mechanism_configuration
 
 
 class FirstOrderLoss(CppWrapper):
@@ -47,7 +47,7 @@ class FirstOrderLoss(CppWrapper):
             gas_phase: The gas phase in which the reaction occurs.
             other_properties: A dictionary of other properties.
         """
-        self._cpp = _FirstOrderLoss()
+        self._cpp = _mc._FirstOrderLoss()
 
         self.name = name if name is not None else self.name
         self.scaling_factor = scaling_factor if scaling_factor is not None else self.scaling_factor

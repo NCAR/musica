@@ -8,7 +8,7 @@ from .reaction_component import ReactionComponent
 from ..parse import ReactionType
 
 _backend = backend.get_backend()
-_TaylorSeries = _backend._mechanism_configuration._TaylorSeries
+_mc = _backend._mechanism_configuration
 
 
 class TaylorSeries(CppWrapper):
@@ -71,7 +71,7 @@ class TaylorSeries(CppWrapper):
             products: List of products.
             other_properties: Additional properties for the reaction.
         """
-        self._cpp = _TaylorSeries()
+        self._cpp = _mc._TaylorSeries()
         self.name = name if name is not None else self.name
         self.A = A if A is not None else self.A
         self.B = B if B is not None else self.B

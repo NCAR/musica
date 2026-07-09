@@ -21,21 +21,6 @@ from ..utils import _convert_components
 _backend = backend.get_backend()
 _mc = _backend._mechanism_configuration
 
-_ArrheniusReferenceTemperature = _mc._ArrheniusReferenceTemperature
-_HenryLawConstant = _mc._HenryLawConstant
-_UniformSection = _mc._UniformSection
-_SingleMomentMode = _mc._SingleMomentMode
-_TwoMomentMode = _mc._TwoMomentMode
-_DissolvedReaction = _mc._DissolvedReaction
-_DissolvedReversibleReaction = _mc._DissolvedReversibleReaction
-_HenryLawPhaseTransfer = _mc._HenryLawPhaseTransfer
-_HenryLawEquilibrium = _mc._HenryLawEquilibrium
-_DissolvedEquilibrium = _mc._DissolvedEquilibrium
-_LinearConstraintTerm = _mc._LinearConstraintTerm
-_FixedConstant = _mc._FixedConstant
-_DiagnoseFromState = _mc._DiagnoseFromState
-_LinearConstraint = _mc._LinearConstraint
-_Aerosol = _mc._Aerosol
 
 
 def _name(obj) -> str:
@@ -79,7 +64,7 @@ class ArrheniusReferenceTemperature(CppWrapper):
         C: Optional[float] = None,
         T0: Optional[float] = None,
     ):
-        self._cpp = _ArrheniusReferenceTemperature()
+        self._cpp = _mc._ArrheniusReferenceTemperature()
         self.A = A if A is not None else self.A
         self.C = C if C is not None else self.C
         self.T0 = T0 if T0 is not None else self.T0
@@ -104,7 +89,7 @@ class HenryLawConstant(CppWrapper):
         C: Optional[float] = None,
         T0: Optional[float] = None,
     ):
-        self._cpp = _HenryLawConstant()
+        self._cpp = _mc._HenryLawConstant()
         self.HLC_ref = HLC_ref if HLC_ref is not None else self.HLC_ref
         self.C = C if C is not None else self.C
         self.T0 = T0 if T0 is not None else self.T0
@@ -149,7 +134,7 @@ class UniformSection(CppWrapper):
         min_radius: Optional[float] = None,
         max_radius: Optional[float] = None,
     ):
-        self._cpp = _UniformSection()
+        self._cpp = _mc._UniformSection()
         self.name = name if name is not None else self.name
         self.phases = phases if phases is not None else []
         self.min_radius = min_radius if min_radius is not None else self.min_radius
@@ -185,7 +170,7 @@ class SingleMomentMode(CppWrapper):
         geometric_mean_radius: Optional[float] = None,
         geometric_standard_deviation: Optional[float] = None,
     ):
-        self._cpp = _SingleMomentMode()
+        self._cpp = _mc._SingleMomentMode()
         self.name = name if name is not None else self.name
         self.phases = phases if phases is not None else []
         self.geometric_mean_radius = (
@@ -224,7 +209,7 @@ class TwoMomentMode(CppWrapper):
         phases: Optional[List[Union[Phase, str]]] = None,
         geometric_standard_deviation: Optional[float] = None,
     ):
-        self._cpp = _TwoMomentMode()
+        self._cpp = _mc._TwoMomentMode()
         self.name = name if name is not None else self.name
         self.phases = phases if phases is not None else []
         self.geometric_standard_deviation = (
@@ -270,7 +255,7 @@ class DissolvedReaction(CppWrapper):
         products: Optional[List[ComponentType]] = None,
         rate_constants: Optional[Dict[Any, RateConstantType]] = None,
     ):
-        self._cpp = _DissolvedReaction()
+        self._cpp = _mc._DissolvedReaction()
         self.phase = _name(phase)
         self.solvent = _name(solvent)
         self.reactants = reactants if reactants is not None else []
@@ -331,7 +316,7 @@ class DissolvedReversibleReaction(CppWrapper):
         reverse_rate_constants: Optional[Dict[Any, RateConstantType]] = None,
         equilibrium_constant: Optional[ArrheniusReferenceTemperature] = None,
     ):
-        self._cpp = _DissolvedReversibleReaction()
+        self._cpp = _mc._DissolvedReversibleReaction()
         self.phase = _name(phase)
         self.solvent = _name(solvent)
         self.reactants = reactants if reactants is not None else []
@@ -407,7 +392,7 @@ class HenryLawPhaseTransfer(CppWrapper):
         diffusion_coefficient: Optional[float] = None,
         accommodation_coefficient: Optional[float] = None,
     ):
-        self._cpp = _HenryLawPhaseTransfer()
+        self._cpp = _mc._HenryLawPhaseTransfer()
         self.gas_phase = _name(gas_phase)
         self.gas_species = _name(gas_species)
         self.condensed_phase = _name(condensed_phase)
@@ -467,7 +452,7 @@ class HenryLawEquilibrium(CppWrapper):
         solvent_molecular_weight: Optional[float] = None,
         solvent_density: Optional[float] = None,
     ):
-        self._cpp = _HenryLawEquilibrium()
+        self._cpp = _mc._HenryLawEquilibrium()
         self.gas_phase = _name(gas_phase)
         self.gas_species = _name(gas_species)
         self.condensed_phase = _name(condensed_phase)
@@ -514,7 +499,7 @@ class DissolvedEquilibrium(CppWrapper):
         products: Optional[List[ComponentType]] = None,
         equilibrium_constant: Optional[ArrheniusReferenceTemperature] = None,
     ):
-        self._cpp = _DissolvedEquilibrium()
+        self._cpp = _mc._DissolvedEquilibrium()
         self.phase = _name(phase)
         self.algebraic_species = _name(algebraic_species)
         self.solvent = _name(solvent)
@@ -566,7 +551,7 @@ class LinearConstraintTerm(CppWrapper):
         species: Optional[Union[Species, str]] = None,
         coefficient: Optional[float] = None,
     ):
-        self._cpp = _LinearConstraintTerm()
+        self._cpp = _mc._LinearConstraintTerm()
         self.phase = _name(phase)
         self.species = _name(species)
         self.coefficient = coefficient if coefficient is not None else self.coefficient
@@ -591,7 +576,7 @@ class FixedConstant(CppWrapper):
     value = CppField()
 
     def __init__(self, value: Optional[float] = None):
-        self._cpp = _FixedConstant()
+        self._cpp = _mc._FixedConstant()
         self.value = value if value is not None else self.value
 
 
@@ -599,7 +584,7 @@ class DiagnoseFromState(CppWrapper):
     """RHS constant of a LinearConstraint computed per representation instance."""
 
     def __init__(self):
-        self._cpp = _DiagnoseFromState()
+        self._cpp = _mc._DiagnoseFromState()
 
 
 class LinearConstraint(CppWrapper):
@@ -622,7 +607,7 @@ class LinearConstraint(CppWrapper):
         terms: Optional[List[LinearConstraintTerm]] = None,
         constant: Optional[Union[FixedConstant, DiagnoseFromState]] = None,
     ):
-        self._cpp = _LinearConstraint()
+        self._cpp = _mc._LinearConstraint()
         self.algebraic_phase = _name(algebraic_phase)
         self.algebraic_species = _name(algebraic_species)
         self.terms = terms if terms is not None else []
@@ -653,19 +638,19 @@ ProcessType = Union[DissolvedReaction, DissolvedReversibleReaction, HenryLawPhas
 ConstraintType = Union[HenryLawEquilibrium, DissolvedEquilibrium, LinearConstraint]
 
 _REPRESENTATION_WRAPPERS = {
-    _UniformSection: UniformSection,
-    _SingleMomentMode: SingleMomentMode,
-    _TwoMomentMode: TwoMomentMode,
+    _mc._UniformSection: UniformSection,
+    _mc._SingleMomentMode: SingleMomentMode,
+    _mc._TwoMomentMode: TwoMomentMode,
 }
 _PROCESS_WRAPPERS = {
-    _DissolvedReaction: DissolvedReaction,
-    _DissolvedReversibleReaction: DissolvedReversibleReaction,
-    _HenryLawPhaseTransfer: HenryLawPhaseTransfer,
+    _mc._DissolvedReaction: DissolvedReaction,
+    _mc._DissolvedReversibleReaction: DissolvedReversibleReaction,
+    _mc._HenryLawPhaseTransfer: HenryLawPhaseTransfer,
 }
 _CONSTRAINT_WRAPPERS = {
-    _HenryLawEquilibrium: HenryLawEquilibrium,
-    _DissolvedEquilibrium: DissolvedEquilibrium,
-    _LinearConstraint: LinearConstraint,
+    _mc._HenryLawEquilibrium: HenryLawEquilibrium,
+    _mc._DissolvedEquilibrium: DissolvedEquilibrium,
+    _mc._LinearConstraint: LinearConstraint,
 }
 
 
@@ -697,7 +682,7 @@ class Aerosol(CppWrapper):
         processes: Optional[List[ProcessType]] = None,
         constraints: Optional[List[ConstraintType]] = None,
     ):
-        self._cpp = _Aerosol()
+        self._cpp = _mc._Aerosol()
         self.representations = representations if representations is not None else []
         self.processes = processes if processes is not None else []
         self.constraints = constraints if constraints is not None else []

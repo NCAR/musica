@@ -8,7 +8,7 @@ from .reaction_component import ReactionComponent
 from ..parse import ReactionType
 
 _backend = backend.get_backend()
-_UserDefined = _backend._mechanism_configuration._UserDefined
+_mc = _backend._mechanism_configuration
 
 
 class UserDefined(CppWrapper):
@@ -47,7 +47,7 @@ class UserDefined(CppWrapper):
             gas_phase: The gas phase in which the reaction occurs.
             other_properties: A dictionary of other properties.
         """
-        self._cpp = _UserDefined()
+        self._cpp = _mc._UserDefined()
         self.name = name if name is not None else self.name
         self.scaling_factor = scaling_factor if scaling_factor is not None else self.scaling_factor
         self.reactants = (

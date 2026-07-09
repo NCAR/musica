@@ -8,7 +8,7 @@ from .reaction_component import ReactionComponent
 from ..parse import ReactionType
 
 _backend = backend.get_backend()
-_Surface = _backend._mechanism_configuration._Surface
+_mc = _backend._mechanism_configuration
 
 
 class Surface(CppWrapper):
@@ -47,7 +47,7 @@ class Surface(CppWrapper):
             gas_phase: The gas phase in which the reaction occurs.
             other_properties: A dictionary of other properties of the surface.
         """
-        self._cpp = _Surface()
+        self._cpp = _mc._Surface()
         self.name = name if name is not None else self.name
         self.reaction_probability = reaction_probability if reaction_probability is not None else self.reaction_probability
         self.gas_phase_species = (

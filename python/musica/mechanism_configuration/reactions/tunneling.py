@@ -8,7 +8,7 @@ from .reaction_component import ReactionComponent
 from ..parse import ReactionType
 
 _backend = backend.get_backend()
-_Tunneling = _backend._mechanism_configuration._Tunneling
+_mc = _backend._mechanism_configuration
 
 
 class Tunneling(CppWrapper):
@@ -65,7 +65,7 @@ class Tunneling(CppWrapper):
             gas_phase: The gas phase in which the reaction occurs.
             other_properties: A dictionary of other properties.
         """
-        self._cpp = _Tunneling()
+        self._cpp = _mc._Tunneling()
 
         self.name = name if name is not None else self.name
         self.A = A if A is not None else self.A

@@ -9,7 +9,7 @@ from .reaction_component import ReactionComponent
 from ..parse import ReactionType
 
 _backend = backend.get_backend()
-_Arrhenius = _backend._mechanism_configuration._Arrhenius
+_mc = _backend._mechanism_configuration
 
 
 class Arrhenius(CppWrapper):
@@ -79,7 +79,7 @@ class Arrhenius(CppWrapper):
             gas_phase: The gas phase in which the reaction occurs.
             other_properties: A dictionary of other properties.
         """
-        self._cpp = _Arrhenius()
+        self._cpp = _mc._Arrhenius()
 
         if C is not None and Ea is not None:
             raise ValueError("Cannot specify both C and Ea.")
