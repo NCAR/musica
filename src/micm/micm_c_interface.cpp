@@ -1,6 +1,6 @@
+#include <musica/configuration/parse.hpp>
 #include <musica/micm/cuda_availability.hpp>
 #include <musica/micm/micm_c_interface.hpp>
-#include <musica/configuration/parse.hpp>
 #include <musica/utils/error_handler.hpp>
 
 namespace musica

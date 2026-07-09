@@ -4,11 +4,11 @@
 // This file contains the implementation of the MICM class, which represents a
 // multi-component reactive transport model. It also includes functions for
 // creating and deleting MICM instances, creating solvers, and solving the model.
+#include <musica/configuration/parse.hpp>
 #include <musica/micm/cpu_solver.hpp>
 #include <musica/micm/cuda_loader.hpp>
 #include <musica/micm/lambda_callback.hpp>
 #include <musica/micm/micm.hpp>
-#include <musica/configuration/parse.hpp>
 #include <musica/micm/state.hpp>
 #include <musica/utils/error_code.hpp>
 
