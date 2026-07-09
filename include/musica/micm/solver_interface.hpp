@@ -5,7 +5,7 @@
 // This enables runtime CUDA loading without compile-time ABI differences.
 #pragma once
 
-#include <musica/micm/chemistry.hpp>
+#include <musica/configuration/chemistry.hpp>
 #include <musica/micm/solver_parameters.hpp>
 
 #include <micm/solver/solver_result.hpp>

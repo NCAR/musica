@@ -4,7 +4,7 @@
 // This file defines the CPU solver implementations for type-erased MICM.
 #pragma once
 
-#include <musica/micm/chemistry.hpp>
+#include <musica/configuration/chemistry.hpp>
 #include <musica/micm/solver_interface.hpp>
 #include <musica/micm/state_interface.hpp>
 

@@ -1,13 +1,13 @@
-#include <musica/micm/lambda_callback.hpp>
-#include <musica/micm/parse.hpp>
-#include <musica/utils/error_code.hpp>
-
+#include <algorithm>
+#include <mechanism_configuration/parse.hpp>
 #include <mechanism_configuration/types.hpp>
 #include <micm/Process.hpp>
 #include <micm/System.hpp>
 #include <micm/process/rate_constant/lambda_rate_constant.hpp>
-
-#include <algorithm>
+#include <musica/micm/lambda_callback.hpp>
+#include <musica/configuration/parse.hpp>
+#include <musica/utils/error_code.hpp>
+#include <sstream>
 
 using namespace mechanism_configuration;
 // used to come from mechanism configuration's validation, but that is now a private header
@@ -15,6 +15,67 @@ inline constexpr std::string_view molecular_weight = "molecular weight [kg mol-1
 
 namespace musica
 {
+  Chemistry ReadConfiguration(const std::string& config_path)
+  {
+    Chemistry chemistry{};
+
+    auto parsed = mechanism_configuration::Parse(config_path);
+    if (!parsed)
+    {
+      std::string errors;
+      for (const auto& [code, message] : parsed.error())
+      {
+        errors += message + "\n";
+      }
+      throw musica::Exception(musica::ParseErrorCode::InvalidConfigFile, errors);
+    }
+    else
+    {
+      chemistry = ConvertMechanism(*parsed);
+    }
+
+    return chemistry;
+  }
+
+  Chemistry ReadConfigurationFromString(const std::string& json_or_yaml_string)
+  {
+    Chemistry chemistry{};
+
+    auto parsed = mechanism_configuration::ParseFromString(json_or_yaml_string);
+
+    if (!parsed)
+    {
+      std::string errors = "Failed to parse configuration string:\n";
+      for (const auto& [code, message] : parsed.error())
+      {
+        errors += message + "\n";
+      }
+      throw musica::Exception(musica::ParseErrorCode::ParsingFailed, errors);
+    }
+
+    chemistry = ConvertMechanism(*parsed);
+    return chemistry;
+  }
+
+  bool IsBool(const std::string& value)
+  {
+    return (value == "true" || value == "false");
+  }
+
+  bool IsInt(const std::string& value)
+  {
+    std::istringstream iss(value);
+    int result;
+    return (iss >> result >> std::ws).eof() && !value.empty();
+  }
+
+  bool IsFloatingPoint(const std::string& value)
+  {
+    std::istringstream iss(value);
+    double result;
+    return (iss >> result >> std::ws).eof() && !value.empty();
+  }
+
   std::vector<micm::Species> convert_species(const std::vector<types::Species>& species)
   {
     using namespace mechanism_configuration;
@@ -464,5 +525,6 @@ namespace musica
     convert_lambda_rate_constants(chemistry, mechanism.reactions.lambda_rate_constant, species_map);
     return chemistry;
   }
+
 
 }  // namespace musica
