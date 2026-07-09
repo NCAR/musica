@@ -1,12 +1,14 @@
-#include <algorithm>
+#include <musica/configuration/parse.hpp>
+#include <musica/micm/lambda_callback.hpp>
+#include <musica/utils/error_code.hpp>
+
 #include <mechanism_configuration/parse.hpp>
 #include <mechanism_configuration/types.hpp>
 #include <micm/Process.hpp>
 #include <micm/System.hpp>
 #include <micm/process/rate_constant/lambda_rate_constant.hpp>
-#include <musica/micm/lambda_callback.hpp>
-#include <musica/configuration/parse.hpp>
-#include <musica/utils/error_code.hpp>
+
+#include <algorithm>
 #include <sstream>
 
 using namespace mechanism_configuration;
@@ -525,6 +527,5 @@ namespace musica
     convert_lambda_rate_constants(chemistry, mechanism.reactions.lambda_rate_constant, species_map);
     return chemistry;
   }
-
 
 }  // namespace musica
