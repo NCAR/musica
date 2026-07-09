@@ -67,7 +67,7 @@ endif()
 
 if(MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(MECH_CONFIG_GIT_REPOSITORY https://github.com/NCAR/MechanismConfiguration.git)
-  set_git_default(MECH_CONFIG_GIT_TAG v2.0.0)
+  set_git_default(MECH_CONFIG_GIT_TAG a8c7c0de74800956ea6740261c8af240c1accb5b)  # main, includes emissions config (#281); swap to a tag once one is cut
 
   FetchContent_Declare(mechanism_configuration
       GIT_REPOSITORY ${MECH_CONFIG_GIT_REPOSITORY}
@@ -133,6 +133,26 @@ if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBU
   endif()
 
   FetchContent_MakeAvailable(micm)
+endif()
+
+################################################################################
+# MIEM
+# Skip if using prebuilt musica (already includes miem)
+
+if (MUSICA_ENABLE_MIEM AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
+  set_git_default(MIEM_GIT_REPOSITORY https://github.com/NCAR/miem.git)
+  set_git_default(MIEM_GIT_TAG 3cc9ff9684dfdc13a49ab327ce2539bc223b1fd4)  # main; no tags exist yet
+
+  FetchContent_Declare(miem
+      GIT_REPOSITORY ${MIEM_GIT_REPOSITORY}
+      GIT_TAG ${MIEM_GIT_TAG}
+      GIT_PROGRESS NOT ${FETCHCONTENT_QUIET}
+      FIND_PACKAGE_ARGS NAMES miem
+  )
+
+  set(MIEM_BUILD_SHARED_LIBS ${MUSICA_BUILD_SHARED_LIBS} CACHE BOOL "" FORCE)
+
+  FetchContent_MakeAvailable(miem)
 endif()
 
 ################################################################################

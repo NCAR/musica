@@ -94,6 +94,26 @@ if(MUSICA_ENABLE_MIAM)
   )
 endif()
 
+# install MIEM
+if(MUSICA_ENABLE_MIEM)
+  install(
+    TARGETS
+      miem
+    EXPORT
+      musica_Exports
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  )
+
+  install(
+    DIRECTORY
+      ${miem_SOURCE_DIR}/include/
+    DESTINATION
+      ${MUSICA_INSTALL_INCLUDE_DIR}
+  )
+endif()
+
 if (MUSICA_ENABLE_TUVX OR MUSICA_ENABLE_CARMA)
   # TUV-x and CARMA code is written in Fortran, so we need module files
   install(
