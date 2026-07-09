@@ -79,15 +79,15 @@ TEST(MiemEndToEndNox, MechanismConfigThroughMusicaToRealMiemFlux)
   musica::Emissions parsed = musica::ReadEmissionsConfigurationFromString(EmissionsConfigYaml());
   ASSERT_EQ(parsed.sources.size(), 1);
 
-  miem::Emissions module =
+  miem::Emissions emissions =
       miem::EmissionsBuilder().SetGridDimensions(kNCells, /*n_vert_levels=*/1).AddSource(parsed.sources[0]).Build();
 
-  ASSERT_EQ(module.NumSpecies(), 2);
-  const auto& names = module.SpeciesNames();
+  ASSERT_EQ(emissions.NumSpecies(), 2);
+  const auto& names = emissions.SpeciesNames();
   ASSERT_NE(std::find(names.begin(), names.end(), "NO"), names.end());
   ASSERT_NE(std::find(names.begin(), names.end(), "NO2"), names.end());
 
-  const miem::EmissionsState state = module.Run(kEpoch20240701, /*dt=*/3600.0);
+  const miem::EmissionsState state = emissions.Run(kEpoch20240701, /*dt=*/3600.0);
 
   // nox_anth_sum is split 0.9 (NO) / 0.1 (NO2) from the same underlying
   // inventory flux, so NO should be exactly 9x NO2 in every cell.

@@ -71,14 +71,14 @@ TEST(MiemEndToEnd, MechanismConfigThroughMusicaToRealMiemFlux)
   musica::Emissions parsed = musica::ReadEmissionsConfigurationFromString(EmissionsConfigYaml());
   ASSERT_EQ(parsed.sources.size(), 1);
 
-  miem::Emissions module =
+  miem::Emissions emissions =
       miem::EmissionsBuilder().SetGridDimensions(kNCells, /*n_vert_levels=*/1).AddSource(parsed.sources[0]).Build();
 
-  ASSERT_EQ(module.NumSpecies(), 1);
-  const auto& names = module.SpeciesNames();
+  ASSERT_EQ(emissions.NumSpecies(), 1);
+  const auto& names = emissions.SpeciesNames();
   ASSERT_NE(std::find(names.begin(), names.end(), "BC"), names.end());
 
-  const miem::EmissionsState state = module.Run(kEpoch20120701, /*dt=*/3600.0);
+  const miem::EmissionsState state = emissions.Run(kEpoch20120701, /*dt=*/3600.0);
 
   bool any_positive = false;
   for (int ic = 0; ic < kNCells; ++ic)
