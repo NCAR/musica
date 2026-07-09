@@ -22,7 +22,6 @@ _backend = backend.get_backend()
 _mc = _backend._mechanism_configuration
 
 
-
 def _name(obj) -> str:
     """Resolve an object with a ``name`` attribute (Species, Phase, ...) to its name.
 
