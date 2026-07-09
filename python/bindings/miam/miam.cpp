@@ -10,16 +10,15 @@
 #include <musica/miam/miam_types.hpp>
 #include <musica/micm/micm.hpp>
 #include <musica/micm/micm_c_interface.hpp>
-#include <musica/micm/parse.hpp>
+#include <musica/configuration/parse.hpp>
 
-#include <mechanism_configuration/v1/types.hpp>
+#include <mechanism_configuration/mechanism.hpp>
 
 #include <miam/version.hpp>
 #include <pybind11/functional.h>
 #include <pybind11/stl.h>
 
 namespace py = pybind11;
-namespace v1 = mechanism_configuration::v1::types;
 namespace mc = musica::miam_config;
 
 void bind_miam(py::module_& miam)
@@ -290,10 +289,10 @@ void bind_miam(py::module_& miam)
 
   miam.def(
       "_create_solver_with_miam",
-      [](const v1::Mechanism& mechanism, musica::MICMSolver solver_type, const mc::ModelConfig& miam_config)
+      [](const mechanism_configuration::Mechanism& mechanism, musica::MICMSolver solver_type, const mc::ModelConfig& miam_config)
       {
         musica::Error error;
-        musica::Chemistry chemistry = musica::ConvertV1Mechanism(mechanism);
+        musica::Chemistry chemistry = musica::ConvertMechanism(mechanism);
         musica::MICM* micm = musica::CreateMicmWithMiam(chemistry, solver_type, miam_config, &error);
         if (!musica::IsSuccess(error))
         {
