@@ -1,14 +1,11 @@
 from typing import Optional, Any, Dict, List, Union
-from .. import backend
-from .._base import CppWrapper, _unwrap_list
-from .species import Species
-from .utils import _remove_empty_keys
+from ... import backend
+from ..._base import CppWrapper, _unwrap_list
+from ..species import Species
+from ..utils import _remove_empty_keys
 
 _backend = backend.get_backend()
-_Reactions = _backend._mechanism_configuration._Reactions
-
-# C++ reaction type classes for isinstance checks
-_cpp_types = _backend._mechanism_configuration
+_mc = _backend._mechanism_configuration
 
 
 def _wrap_reaction(cpp_obj):
@@ -25,18 +22,19 @@ def _wrap_reaction(cpp_obj):
     from .tunneling import Tunneling
     from .user_defined import UserDefined
 
+    # C++ reaction type classes for isinstance checks
     wrapper_map = {
-        _cpp_types._Arrhenius: Arrhenius,
-        _cpp_types._Branched: Branched,
-        _cpp_types._Emission: Emission,
-        _cpp_types._FirstOrderLoss: FirstOrderLoss,
-        _cpp_types._Photolysis: Photolysis,
-        _cpp_types._Surface: Surface,
-        _cpp_types._TaylorSeries: TaylorSeries,
-        _cpp_types._TernaryChemicalActivation: TernaryChemicalActivation,
-        _cpp_types._Troe: Troe,
-        _cpp_types._Tunneling: Tunneling,
-        _cpp_types._UserDefined: UserDefined,
+        _mc._Arrhenius: Arrhenius,
+        _mc._Branched: Branched,
+        _mc._Emission: Emission,
+        _mc._FirstOrderLoss: FirstOrderLoss,
+        _mc._Photolysis: Photolysis,
+        _mc._Surface: Surface,
+        _mc._TaylorSeries: TaylorSeries,
+        _mc._TernaryChemicalActivation: TernaryChemicalActivation,
+        _mc._Troe: Troe,
+        _mc._Tunneling: Tunneling,
+        _mc._UserDefined: UserDefined,
     }
     for cpp_type, wrapper_cls in wrapper_map.items():
         if isinstance(cpp_obj, cpp_type):
@@ -61,7 +59,7 @@ class Reactions(CppWrapper):
             reactions: A list of reactions in the mechanism.
         """
         unwrapped = _unwrap_list(reactions) if reactions is not None else []
-        self._cpp = _Reactions(unwrapped)
+        self._cpp = _mc._Reactions(unwrapped)
 
     def __iter__(self):
         """Iterate over reactions, yielding wrapped Python objects."""

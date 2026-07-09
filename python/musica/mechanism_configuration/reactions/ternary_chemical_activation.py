@@ -1,14 +1,14 @@
 from typing import Optional, Any, Dict, List, Union, Tuple
-from .. import backend
-from .._base import CppWrapper, CppField, _unwrap_list, _wrap_list
-from .phase import Phase
-from .species import Species
-from .utils import _add_other_properties, _remove_empty_keys, _convert_components, _format_components
+from ... import backend
+from ..._base import CppWrapper, CppField, _unwrap_list, _wrap_list
+from ..species import Phase
+from ..species import Species
+from ..utils import _add_other_properties, _remove_empty_keys, _convert_components, _format_components
 from .reaction_component import ReactionComponent
-from .parse import ReactionType
+from ..parse import ReactionType
 
 _backend = backend.get_backend()
-_TernaryChemicalActivation = _backend._mechanism_configuration._TernaryChemicalActivation
+_mc = _backend._mechanism_configuration
 
 
 class TernaryChemicalActivation(CppWrapper):
@@ -75,7 +75,7 @@ class TernaryChemicalActivation(CppWrapper):
             gas_phase: The gas phase in which the reaction occurs.
             other_properties: A dictionary of other properties.
         """
-        self._cpp = _TernaryChemicalActivation()
+        self._cpp = _mc._TernaryChemicalActivation()
 
         self.name = name if name is not None else self.name
         self.k0_A = k0_A if k0_A is not None else self.k0_A

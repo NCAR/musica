@@ -1,12 +1,12 @@
 from typing import Optional, Any, Dict, List, Union
-from .. import backend
-from .._base import CppWrapper, CppField, _unwrap_list, _wrap_list
+from ... import backend
+from ..._base import CppWrapper, CppField, _unwrap_list, _wrap_list
 from .species import Species
 from .phase_species import PhaseSpecies
-from .utils import _add_other_properties, _remove_empty_keys
+from ..utils import _add_other_properties, _remove_empty_keys
 
 _backend = backend.get_backend()
-_Phase = _backend._mechanism_configuration._Phase
+_mc = _backend._mechanism_configuration
 
 
 class Phase(CppWrapper):
@@ -35,7 +35,7 @@ class Phase(CppWrapper):
                      automatically converted to PhaseSpecies.
             other_properties: A dictionary of other properties of the phase.
         """
-        self._cpp = _Phase()
+        self._cpp = _mc._Phase()
         self.name = name if name is not None else self.name
         converted_species = []
         if species is not None:

@@ -1,24 +1,24 @@
 from typing import Optional, Any, Dict, List, Union, Tuple
-from .. import backend
-from .._base import CppWrapper, CppField, _unwrap_list, _wrap_list
-from .phase import Phase
-from .species import Species
-from .utils import _add_other_properties, _remove_empty_keys, _convert_components, _format_components
+from ... import backend
+from ..._base import CppWrapper, CppField, _unwrap_list, _wrap_list
+from ..utils import _add_other_properties, _remove_empty_keys, _convert_components, _format_components
+from ..species import Species
+from ..species import Phase
 from .reaction_component import ReactionComponent
-from .parse import ReactionType
+from ..parse import ReactionType
 
 _backend = backend.get_backend()
-_UserDefined = _backend._mechanism_configuration._UserDefined
+_mc = _backend._mechanism_configuration
 
 
-class UserDefined(CppWrapper):
-    """A user-defined reaction rate constant.
+class FirstOrderLoss(CppWrapper):
+    """A first-order loss reaction rate constant.
 
     Attributes:
-        name: The name of the user-defined reaction rate constant.
-        scaling_factor: The scaling factor for the rate constant.
+        name: The name of the first-order loss reaction rate constant.
+        scaling_factor: The scaling factor for the first-order loss rate constant.
         reactants: A list of reactants involved in the reaction.
-        products: A list of products formed in the reaction.
+        products: A list of products formed in the reaction. Normally, first-order loss reactions do not have products, but this can be used to compute the integrated reaction rate
         gas_phase: The gas phase in which the reaction occurs.
         other_properties: A dictionary of other properties.
     """
@@ -32,24 +32,27 @@ class UserDefined(CppWrapper):
         self,
         name: Optional[str] = None,
         scaling_factor: Optional[float] = None,
-        reactants: Optional[List[Union[Species, ReactionComponent, Tuple[Species, float]]]] = None,
-        products: Optional[List[Union[Species, ReactionComponent, Tuple[Species, float]]]] = None,
+        reactants: Optional[List[Union[Species, Tuple[Species, float]]]] = None,
+        products: Optional[List[Union[Species, Tuple[Species, float]]]] = None,
         gas_phase: Optional[Phase] = None,
         other_properties: Optional[Dict[str, Any]] = None,
     ):
-        """Initialize the UserDefined reaction.
+        """Initialize the FirstOrderLoss reaction.
 
         Args:
-            name: The name of the user-defined reaction rate constant.
+            name: The name of the first-order loss reaction rate constant.
             scaling_factor: The scaling factor for the rate constant.
             reactants: A list of reactants involved in the reaction.
-            products: A list of products formed in the reaction.
+            products: A list of products formed in the reaction. Normally, first-order loss reactions do not have products, but this can be used to compute the integrated reaction rate.
             gas_phase: The gas phase in which the reaction occurs.
             other_properties: A dictionary of other properties.
         """
-        self._cpp = _UserDefined()
+        self._cpp = _mc._FirstOrderLoss()
+
         self.name = name if name is not None else self.name
         self.scaling_factor = scaling_factor if scaling_factor is not None else self.scaling_factor
+        self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
+        self.other_properties = other_properties if other_properties is not None else self.other_properties
         self.reactants = (
             _convert_components(reactants)
             if reactants is not None
@@ -60,21 +63,22 @@ class UserDefined(CppWrapper):
             if products is not None
             else self.products
         )
-        self.gas_phase = gas_phase.name if gas_phase is not None else self.gas_phase
-        self.other_properties = other_properties if other_properties is not None else self.other_properties
 
     @property
     def type(self):
         """Get the reaction type."""
-        return ReactionType.UserDefined
+        return ReactionType.FirstOrderLoss
 
     @property
     def reactants(self) -> list:
-        return _wrap_list(ReactionComponent, self._cpp.reactants)
+        return [ReactionComponent._from_cpp(self._cpp.reactants)]
 
     @reactants.setter
     def reactants(self, value):
-        self._cpp.reactants = _unwrap_list(value)
+        items = value if isinstance(value, list) else [value]
+        if len(items) != 1:
+            raise ValueError("FirstOrderLoss can only have one reactant.")
+        self._cpp.reactants = _unwrap_list(items)[0]
 
     @property
     def products(self) -> list:
@@ -89,7 +93,7 @@ class UserDefined(CppWrapper):
 
     def serialize(self) -> Dict:
         serialize_dict = {
-            "type": "USER_DEFINED",
+            "type": "FIRST_ORDER_LOSS",
             "name": self.name,
             "scaling factor": self.scaling_factor,
             "reactants": [r.serialize() for r in self.reactants],

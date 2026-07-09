@@ -5,8 +5,8 @@
 
 #include <musica/miam/miam_builder.hpp>
 #include <musica/miam/miam_types.hpp>
+#include <musica/configuration/parse.hpp>
 #include <musica/micm/micm.hpp>
-#include <musica/micm/parse.hpp>
 #include <musica/micm/state.hpp>
 
 #include <gtest/gtest.h>

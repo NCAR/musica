@@ -1,14 +1,14 @@
 from typing import Optional, Any, Dict, List, Union, Tuple
-from .. import backend
-from .._base import CppWrapper, CppField, _unwrap_list, _wrap_list
-from .utils import _add_other_properties, _remove_empty_keys, _convert_components, _format_components
-from .species import Species
-from .phase import Phase
+from ... import backend
+from ..._base import CppWrapper, CppField, _unwrap_list, _wrap_list
+from ..utils import _add_other_properties, _remove_empty_keys, _convert_components, _format_components
+from ..species import Species
+from ..species import Phase
 from .reaction_component import ReactionComponent
-from .parse import ReactionType
+from ..parse import ReactionType
 
 _backend = backend.get_backend()
-_Branched = _backend._mechanism_configuration._Branched
+_mc = _backend._mechanism_configuration
 
 
 class Branched(CppWrapper):
@@ -62,7 +62,7 @@ class Branched(CppWrapper):
             gas_phase: The gas phase in which the reaction occurs.
             other_properties: A dictionary of other properties.
         """
-        self._cpp = _Branched()
+        self._cpp = _mc._Branched()
 
         self.name = name if name is not None else self.name
         self.X = X if X is not None else self.X
