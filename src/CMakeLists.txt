@@ -22,12 +22,12 @@ target_sources(musica PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/utils/util.cpp
   ${CMAKE_BINARY_DIR}/version.cpp
 )
+add_subdirectory(configuration)
 
 # MICM sources
 if(MUSICA_ENABLE_MICM)
   list(APPEND musica_compile_definitions MUSICA_USE_MICM)
   add_subdirectory(micm)
-  add_subdirectory(configuration)
 endif()
 
 # MIAM sources
@@ -40,7 +40,6 @@ endif()
 # MIEM sources
 if(MUSICA_ENABLE_MIEM)
   list(APPEND musica_compile_definitions MUSICA_USE_MIEM)
-  add_subdirectory(miem)
 endif()
 
 # TUV-x sources

@@ -2,14 +2,21 @@
 // SPDX-License-Identifier: Apache-2.0
 #pragma once
 
-#include <musica/miem/emissions.hpp>
+#include <miem/source_types.hpp>
 
 #include <mechanism_configuration/mechanism.hpp>
 
 #include <string>
+#include <vector>
 
 namespace musica
 {
+  struct Emissions
+  {
+    std::vector<miem::Source> sources;
+    miem::Regridding regridding;
+  };
+
   Emissions ReadEmissionsConfiguration(const std::string& config_path);
   Emissions ReadEmissionsConfigurationFromString(const std::string& json_or_yaml_string);
   Emissions ConvertEmissions(const mechanism_configuration::Mechanism& mechanism);

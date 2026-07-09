@@ -9,7 +9,7 @@
 // test/integration/test_bc_pipeline.cpp, but drives the pipeline through
 // MUSICA's parse/translate layer instead of hand-building the miem::Source.
 
-#include <musica/miem/parse.hpp>
+#include <musica/configuration/emissions.hpp>
 
 #include <miem/emissions.hpp>
 #include <miem/emissions_builder.hpp>

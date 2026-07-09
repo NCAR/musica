@@ -1,13 +1,11 @@
-// Copyright (C) 2023-2026 University Corporation for Atmospheric Research
-// SPDX-License-Identifier: Apache-2.0
-#include <musica/miem/parse.hpp>
+#include <musica/configuration/read_mechanism.hpp>
 #include <musica/utils/error_code.hpp>
 
 #include <mechanism_configuration/parse.hpp>
 
 namespace musica
 {
-  Emissions ReadEmissionsConfiguration(const std::string& config_path)
+  mechanism_configuration::Mechanism ReadMechanism(const std::string& config_path)
   {
     auto parsed = mechanism_configuration::Parse(config_path);
     if (!parsed)
@@ -20,10 +18,10 @@ namespace musica
       throw musica::Exception(musica::ParseErrorCode::InvalidConfigFile, errors);
     }
 
-    return ConvertEmissions(*parsed);
+    return *parsed;
   }
 
-  Emissions ReadEmissionsConfigurationFromString(const std::string& json_or_yaml_string)
+  mechanism_configuration::Mechanism ReadMechanismFromString(const std::string& json_or_yaml_string)
   {
     auto parsed = mechanism_configuration::ParseFromString(json_or_yaml_string);
     if (!parsed)
@@ -36,6 +34,6 @@ namespace musica
       throw musica::Exception(musica::ParseErrorCode::ParsingFailed, errors);
     }
 
-    return ConvertEmissions(*parsed);
+    return *parsed;
   }
 }  // namespace musica

@@ -1,4 +1,4 @@
-#include <musica/miem/parse.hpp>
+#include <musica/configuration/emissions.hpp>
 #include <musica/utils/error_code.hpp>
 
 #include <mechanism_configuration/mechanism.hpp>

@@ -14,7 +14,7 @@
 // inventory species is split across two mechanism species, NO (0.9) and
 // NO2 (0.1), rather than passed through 1:1.
 
-#include <musica/miem/parse.hpp>
+#include <musica/configuration/emissions.hpp>
 
 #include <miem/emissions.hpp>
 #include <miem/emissions_builder.hpp>
