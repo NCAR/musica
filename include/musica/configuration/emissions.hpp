@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 #pragma once
 
-#include <miem/source_types.hpp>
-
 #include <mechanism_configuration/mechanism.hpp>
+
+#include <miem/source_types.hpp>
 
 #include <string>
 #include <vector>

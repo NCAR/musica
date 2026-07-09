@@ -1,6 +1,6 @@
+#include <musica/configuration/parse.hpp>
 #include <musica/micm/cuda_availability.hpp>
 #include <musica/micm/micm.hpp>
-#include <musica/configuration/parse.hpp>
 #include <musica/micm/solver_parameters.hpp>
 #include <musica/micm/state.hpp>
 

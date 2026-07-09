@@ -3,9 +3,9 @@
 //
 // WASM bindings for MUSICA using Emscripten
 
+#include <musica/configuration/parse.hpp>
 #include <musica/micm/micm.hpp>
 #include <musica/micm/micm_c_interface.hpp>
-#include <musica/configuration/parse.hpp>
 #include <musica/micm/solver_parameters.hpp>
 #include <musica/utils/util.hpp>
 #include <musica/version.hpp>

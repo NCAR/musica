@@ -5,8 +5,8 @@
 // miam::Model object and creates a MICM solver with it as an external model.
 #pragma once
 
-#include <musica/miam/miam_types.hpp>
 #include <musica/configuration/chemistry.hpp>
+#include <musica/miam/miam_types.hpp>
 #include <musica/micm/micm.hpp>
 #include <musica/utils/util.hpp>
 
