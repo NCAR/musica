@@ -4,7 +4,7 @@
 // This file declares the CUDA solver and state classes for the plugin.
 #pragma once
 
-#include <musica/micm/chemistry.hpp>
+#include <musica/configuration/chemistry.hpp>
 #include <musica/micm/solver_interface.hpp>
 #include <musica/micm/state_interface.hpp>
 

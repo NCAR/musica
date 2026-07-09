@@ -8,7 +8,7 @@
 #include <musica/micm/cuda_loader.hpp>
 #include <musica/micm/lambda_callback.hpp>
 #include <musica/micm/micm.hpp>
-#include <musica/micm/parse.hpp>
+#include <musica/configuration/parse.hpp>
 #include <musica/micm/state.hpp>
 #include <musica/utils/error_code.hpp>
 
