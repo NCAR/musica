@@ -31,6 +31,12 @@ namespace musica
     FailedToCastToVersion = MUSICA_PARSE_ERROR_CODE_FAILED_TO_CAST_TO_VERSION,
   };
 
+  enum class MiemErrorCode
+  {
+    MissingEmissionsSection = MUSICA_MIEM_ERROR_CODE_MISSING_EMISSIONS_SECTION,
+    UnresolvedReference = MUSICA_MIEM_ERROR_CODE_UNRESOLVED_REFERENCE,
+  };
+
   /// @note These are provided solely to support the short-form Exception constructor
   template<typename T>
   const char* error_category_for();
@@ -48,6 +54,11 @@ namespace musica
   inline const char* error_category_for<ParseErrorCode>()
   {
     return MUSICA_PARSE_ERROR_CATEGORY;
+  }
+  template<>
+  inline const char* error_category_for<MiemErrorCode>()
+  {
+    return MUSICA_MIEM_ERROR_CATEGORY;
   }
 
   /// @brief Unified exception type used to represent error codes from any subsystem.

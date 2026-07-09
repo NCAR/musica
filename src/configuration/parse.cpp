@@ -1,6 +1,7 @@
 #include <musica/configuration/parse.hpp>
 #include <musica/micm/lambda_callback.hpp>
 #include <musica/utils/error_code.hpp>
+#include <musica/configuration/read_mechanism.hpp>
 
 #include <mechanism_configuration/parse.hpp>
 #include <mechanism_configuration/types/reactions.hpp>
@@ -9,7 +10,6 @@
 #include <micm/System.hpp>
 #include <micm/process/rate_constant/lambda_rate_constant.hpp>
 
-#include <algorithm>
 #include <sstream>
 
 using namespace mechanism_configuration;
@@ -20,44 +20,12 @@ namespace musica
 {
   Chemistry ReadConfiguration(const std::string& config_path)
   {
-    Chemistry chemistry{};
-
-    auto parsed = mechanism_configuration::Parse(config_path);
-    if (!parsed)
-    {
-      std::string errors;
-      for (const auto& [code, message] : parsed.error())
-      {
-        errors += message + "\n";
-      }
-      throw musica::Exception(musica::ParseErrorCode::InvalidConfigFile, errors);
-    }
-    else
-    {
-      chemistry = ConvertMechanism(*parsed);
-    }
-
-    return chemistry;
+    return ConvertMechanism(ReadMechanism(config_path));
   }
 
   Chemistry ReadConfigurationFromString(const std::string& json_or_yaml_string)
   {
-    Chemistry chemistry{};
-
-    auto parsed = mechanism_configuration::ParseFromString(json_or_yaml_string);
-
-    if (!parsed)
-    {
-      std::string errors = "Failed to parse configuration string:\n";
-      for (const auto& [code, message] : parsed.error())
-      {
-        errors += message + "\n";
-      }
-      throw musica::Exception(musica::ParseErrorCode::ParsingFailed, errors);
-    }
-
-    chemistry = ConvertMechanism(*parsed);
-    return chemistry;
+    return ConvertMechanism(ReadMechanismFromString(json_or_yaml_string));
   }
 
   bool IsBool(const std::string& value)
