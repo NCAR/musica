@@ -3,9 +3,9 @@
 //
 // Unit tests for the MIAM builder: config → miam::Model → MICM solver
 
+#include <musica/configuration/parse.hpp>
 #include <musica/miam/miam_builder.hpp>
 #include <musica/miam/miam_types.hpp>
-#include <musica/configuration/parse.hpp>
 #include <musica/micm/micm.hpp>
 #include <musica/micm/state.hpp>
 

@@ -11,11 +11,10 @@
 
 #include <musica/configuration/emissions.hpp>
 
+#include <gtest/gtest.h>
 #include <miem/emissions.hpp>
 #include <miem/emissions_builder.hpp>
 #include <miem/emissions_state.hpp>
-
-#include <gtest/gtest.h>
 
 #include <algorithm>
 #include <cmath>
@@ -24,7 +23,7 @@
 
 namespace
 {
-  constexpr int kNCells = 4097;  // test/data/CAMS-GLOB-ANT_2012_MPAS_bc_subset.nc
+  constexpr int kNCells = 4097;                    // test/data/CAMS-GLOB-ANT_2012_MPAS_bc_subset.nc
   constexpr double kEpoch20120701 = 1341100800.0;  // 2012-07-01 00:00:00 UTC
 
   std::string EmissionsConfigYaml()

@@ -1,7 +1,7 @@
 #include <musica/configuration/parse.hpp>
+#include <musica/configuration/read_mechanism.hpp>
 #include <musica/micm/lambda_callback.hpp>
 #include <musica/utils/error_code.hpp>
-#include <musica/configuration/read_mechanism.hpp>
 
 #include <mechanism_configuration/parse.hpp>
 #include <mechanism_configuration/types/reactions.hpp>
@@ -496,6 +496,5 @@ namespace musica
     convert_lambda_rate_constants(chemistry, mechanism.reactions.lambda_rate_constant, species_map);
     return chemistry;
   }
-
 
 }  // namespace musica

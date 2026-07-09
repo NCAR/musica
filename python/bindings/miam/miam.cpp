@@ -6,11 +6,11 @@
 
 #include "../common.hpp"
 
+#include <musica/configuration/parse.hpp>
 #include <musica/miam/miam_builder.hpp>
 #include <musica/miam/miam_types.hpp>
 #include <musica/micm/micm.hpp>
 #include <musica/micm/micm_c_interface.hpp>
-#include <musica/configuration/parse.hpp>
 
 #include <mechanism_configuration/mechanism.hpp>
 
@@ -289,7 +289,9 @@ void bind_miam(py::module_& miam)
 
   miam.def(
       "_create_solver_with_miam",
-      [](const mechanism_configuration::Mechanism& mechanism, musica::MICMSolver solver_type, const mc::ModelConfig& miam_config)
+      [](const mechanism_configuration::Mechanism& mechanism,
+         musica::MICMSolver solver_type,
+         const mc::ModelConfig& miam_config)
       {
         musica::Error error;
         musica::Chemistry chemistry = musica::ConvertMechanism(mechanism);

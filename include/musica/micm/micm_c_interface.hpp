@@ -6,8 +6,8 @@
 #pragma once
 
 #include <musica/configuration/chemistry.hpp>
-#include <musica/micm/micm.hpp>
 #include <musica/configuration/parse.hpp>
+#include <musica/micm/micm.hpp>
 #include <musica/micm/solver_parameters.hpp>
 #include <musica/micm/state.hpp>
 #include <musica/utils/util.hpp>
