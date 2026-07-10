@@ -1,29 +1,16 @@
 # Copyright (C) 2026 University Corporation for Atmospheric Research
 # SPDX-License-Identifier: Apache-2.0
 #
-# Integration tests for MIAM aerosol model through the Python API.
+# Integration tests for the MIAM aerosol model through the Python API.
 # Builds the CAM Cloud Chemistry configuration and solves it.
 
 import math
 import pytest
 
 import musica.mechanism_configuration as mc
+import musica.miam
 from musica import backend
 from musica.micm import MICM, SolverType, SolverState
-from musica.micm.solver_parameters import RosenbrockSolverParameters
-from musica.miam import (
-    ArrheniusRateConstant,
-    EquilibriumConstant,
-    HenryLawConstant,
-    UniformSection,
-    DissolvedReaction,
-    DissolvedReversibleReaction,
-    HenryLawEquilibriumConstraint,
-    DissolvedEquilibriumConstraint,
-    LinearConstraint,
-    LinearConstraintTerm,
-    Model,
-)
 
 # Skip all tests if MIAM is not available
 pytestmark = pytest.mark.skipif(not backend.miam_available(),
@@ -62,29 +49,26 @@ P_INIT = 70000.0     # Pa
 
 # ═══ Helpers ═════════════════════════════════════════════════════════════════
 
-def _create_gas_mechanism():
-    """Create a simple gas-phase mechanism with SO2, H2O2, O3."""
-    so2 = mc.Species(name="SO2")
-    h2o2 = mc.Species(name="H2O2")
-    o3 = mc.Species(name="O3")
-    gas = mc.Phase(name="gas", species=[so2, h2o2, o3])
-    return mc.Mechanism(species=[so2, h2o2, o3], phases=[gas], reactions=[])
+# TODO
+def _create_cloud_chemistry_mechanism(r1b_rate_constant=None):
+    """Create the CAM Cloud Chemistry mechanism (revised mechanism).
 
-
-def _create_cloud_chemistry_model():
-    """Create the CAM Cloud Chemistry MIAM model (revised mechanism):
-      - 13 species
+    The aerosol section carries:
       - 1 UniformSection representation
       - 2 kinetic reactions (revised 2-step H2O2 oxidation)
       - 10 constraints (3 Henry's law, 3 dissociation, 3 mass budgets, 1 charge balance)
 
-    Species: SO2(g), H2O2(g), O3(g), SO2_aq, H2O2_aq, O3_aq,
+    Species (13): SO2(g), H2O2(g), O3(g), SO2_aq, H2O2_aq, O3_aq,
              H+ (Hp), OH- (OHm), HSO3- (HSO3m), SO3-- (SO3mm),
              SO4-- (SO4mm), SO2OOH- (SO2OOHm), H2O (solvent).
 
     Reactions (revised 2-step H2O2 oxidation):
       R1a: HSO3- + H2O2_aq ⇌ SO2OOH- + H2O  (reversible, Keq = 1725)
       R1b: SO2OOH- + H+ → SO4--  (irreversible)
+
+    Args:
+        r1b_rate_constant: Optional override for R1b's rate constant (e.g. a callable
+            ``f(T) -> k``). Defaults to the Arrhenius reference-temperature form.
     """
     # ── Species ──
     so2_g = mc.Species(name="SO2")
@@ -108,164 +92,147 @@ def _create_cloud_chemistry_model():
         hp, ohm, hso3m, so3mm, so4mm, so2oohm, h2o,
     ]
 
-    # ── Condensed phase ──
+    # ── Phases ──
+    gas = mc.Phase(name="gas", species=[so2_g, h2o2_g, o3_g])
     aq_phase = mc.Phase(
         name="AQUEOUS",
-        species=[h2o, so2_aq, h2o2_aq, o3_aq, hp, ohm, hso3m, so3mm, so4mm, so2oohm],
-    )
+        species=[h2o, so2_aq, h2o2_aq, o3_aq, hp, ohm, hso3m, so3mm, so4mm, so2oohm])
 
     # ── Representation ──
-    cloud = UniformSection(
+    cloud = mc.UniformSection(
         name="CLOUD",
-        phase_names=["AQUEOUS"],
+        phases=[aq_phase],
         min_radius=1e-6,
-        max_radius=1e-5,
-    )
+        max_radius=1e-5)
 
-    # ── Processes (revised mechanism) ──
-    # R1a: HSO3- + H2O2_aq ⇌ SO2OOH- + H2O  (reversible)
-    r1a = DissolvedReversibleReaction(
-        phase_name="AQUEOUS",
-        reactant_names=["HSO3m", "H2O2_aq"],
-        product_names=["SO2OOHm", "H2O"],
-        solvent_name="H2O",
-        forward_rate_constant=ArrheniusRateConstant(
-            A=C_H2O_M * (7.45e7 / 13.0), C=4430.0),
-        equilibrium_constant=EquilibriumConstant(A=1725.0),
-    )
+    # ── Processes ──
+    if r1b_rate_constant is None:
+        r1b_rate_constant = mc.ArrheniusReferenceTemperature(A=C_H2O_M * 2.4e6, C=4430.0)
+
+    # R1a: HSO3- + H2O2_aq ⇌ SO2OOH- + H2O  (reversible; forward + equilibrium)
+    r1a = mc.DissolvedReversibleReaction(
+        phase=aq_phase,
+        solvent=h2o,
+        reactants=[hso3m, h2o2_aq],
+        products=[so2oohm, h2o],
+        forward_rate_constants={cloud: mc.ArrheniusReferenceTemperature(A=C_H2O_M * (7.45e7 / 13.0), C=4430.0)},
+        equilibrium_constant=mc.ArrheniusReferenceTemperature(A=1725.0, C=0.0))
+
     # R1b: SO2OOH- + H+ → SO4--  (irreversible)
-    r1b = DissolvedReaction(
-        representation_name="CLOUD",
-        phase_name="AQUEOUS",
-        reactant_names=["SO2OOHm", "Hp"],
-        product_names=["SO4mm"],
-        solvent_name="H2O",
-        rate_constant=ArrheniusRateConstant(A=C_H2O_M * 2.4e6, C=4430.0),
-    )
+    r1b = mc.DissolvedReaction(
+        phase=aq_phase,
+        solvent=h2o,
+        reactants=[so2oohm, hp],
+        products=[so4mm],
+        rate_constants={cloud: mc.ArrheniusReferenceTemperature(A=C_H2O_M * 2.4e6, C=4430.0)})
 
     # ── Constraints ──
-    constraints = []
+    constraints = [
+        # Henry's Law equilibria for SO2, H2O2, O3
+        mc.HenryLawEquilibrium(
+            gas_phase=gas,
+            gas_species=so2_g,
+            condensed_phase=aq_phase,
+            condensed_species=so2_aq,
+            solvent=h2o,
+            henry_law_constant=mc.HenryLawConstant(HLC_ref=1.23 * M_ATM_TO_MOL_M3_PA, C=3120.0),
+            solvent_molecular_weight=MW_H2O,
+            solvent_density=RHO_H2O),
+        mc.HenryLawEquilibrium(
+            gas_phase=gas,
+            gas_species=h2o2_g,
+            condensed_phase=aq_phase,
+            condensed_species=h2o2_aq,
+            solvent=h2o,
+            henry_law_constant=mc.HenryLawConstant(HLC_ref=7.4e4 * M_ATM_TO_MOL_M3_PA, C=6621.0),
+            solvent_molecular_weight=MW_H2O,
+            solvent_density=RHO_H2O),
+        mc.HenryLawEquilibrium(
+            gas_phase=gas,
+            gas_species=o3_g,
+            condensed_phase=aq_phase,
+            condensed_species=o3_aq,
+            solvent=h2o,
+            henry_law_constant=mc.HenryLawConstant(HLC_ref=1.15e-2 * M_ATM_TO_MOL_M3_PA, C=2560.0),
+            solvent_molecular_weight=MW_H2O,
+            solvent_density=RHO_H2O),
 
-    # Henry's Law equilibria for SO2, H2O2, O3
-    constraints.append(HenryLawEquilibriumConstraint(
-        gas_species_name="SO2",
-        condensed_species_name="SO2_aq",
-        solvent_name="H2O",
-        condensed_phase_name="AQUEOUS",
-        henry_law_constant=HenryLawConstant(
-            HLC_ref=1.23 * M_ATM_TO_MOL_M3_PA, C=3120.0),
-        solvent_molecular_weight=MW_H2O,
-        solvent_density=RHO_H2O,
-    ))
-    constraints.append(HenryLawEquilibriumConstraint(
-        gas_species_name="H2O2",
-        condensed_species_name="H2O2_aq",
-        solvent_name="H2O",
-        condensed_phase_name="AQUEOUS",
-        henry_law_constant=HenryLawConstant(
-            HLC_ref=7.4e4 * M_ATM_TO_MOL_M3_PA, C=6621.0),
-        solvent_molecular_weight=MW_H2O,
-        solvent_density=RHO_H2O,
-    ))
-    constraints.append(HenryLawEquilibriumConstraint(
-        gas_species_name="O3",
-        condensed_species_name="O3_aq",
-        solvent_name="H2O",
-        condensed_phase_name="AQUEOUS",
-        henry_law_constant=HenryLawConstant(
-            HLC_ref=1.15e-2 * M_ATM_TO_MOL_M3_PA, C=2560.0),
-        solvent_molecular_weight=MW_H2O,
-        solvent_density=RHO_H2O,
-    ))
+        # Dissolved equilibria: Kw, Ka1, Ka2
+        mc.DissolvedEquilibrium(
+            phase=aq_phase,
+            reactants=[h2o],
+            products=[hp, ohm],
+            algebraic_species=ohm,
+            solvent=h2o,
+            equilibrium_constant=mc.ArrheniusReferenceTemperature(A=1e-14 / (C_H2O_M * C_H2O_M), C=0.0)),
+        mc.DissolvedEquilibrium(
+            phase=aq_phase,
+            reactants=[so2_aq],
+            products=[hso3m, hp],
+            algebraic_species=hso3m,
+            solvent=h2o,
+            equilibrium_constant=mc.ArrheniusReferenceTemperature(A=1.7e-2 / C_H2O_M, C=2090.0)),
+        mc.DissolvedEquilibrium(
+            phase=aq_phase,
+            reactants=[hso3m],
+            products=[so3mm, hp],
+            algebraic_species=so3mm,
+            solvent=h2o,
+            equilibrium_constant=mc.ArrheniusReferenceTemperature(A=6.0e-8 / C_H2O_M, C=1120.0)),
 
-    # Dissolved equilibria: Kw, Ka1, Ka2
-    constraints.append(DissolvedEquilibriumConstraint(
-        phase_name="AQUEOUS",
-        reactant_names=["H2O"],
-        product_names=["Hp", "OHm"],
-        algebraic_species_name="OHm",
-        solvent_name="H2O",
-        equilibrium_constant=EquilibriumConstant(
-            A=1e-14 / (C_H2O_M * C_H2O_M), C=0.0),
-    ))
-    constraints.append(DissolvedEquilibriumConstraint(
-        phase_name="AQUEOUS",
-        reactant_names=["SO2_aq"],
-        product_names=["HSO3m", "Hp"],
-        algebraic_species_name="HSO3m",
-        solvent_name="H2O",
-        equilibrium_constant=EquilibriumConstant(A=1.7e-2 / C_H2O_M, C=2090.0),
-    ))
-    constraints.append(DissolvedEquilibriumConstraint(
-        phase_name="AQUEOUS",
-        reactant_names=["HSO3m"],
-        product_names=["SO3mm", "Hp"],
-        algebraic_species_name="SO3mm",
-        solvent_name="H2O",
-        equilibrium_constant=EquilibriumConstant(A=6.0e-8 / C_H2O_M, C=1120.0),
-    ))
+        # Linear constraints: mass conservation + charge balance
+        # Mass S: SO2_g + SO2_aq + HSO3- + SO3-- + SO2OOH- = total_S
+        # NOTE: SO4-- is differential (produced by kinetics), NOT in S budget
+        mc.LinearConstraint(
+            algebraic_phase=gas, 
+            algebraic_species=so2_g,
+            terms=[
+                mc.LinearConstraintTerm(gas, so2_g, 1.0),
+                mc.LinearConstraintTerm(aq_phase, so2_aq, 1.0),
+                mc.LinearConstraintTerm(aq_phase, hso3m, 1.0),
+                mc.LinearConstraintTerm(aq_phase, so3mm, 1.0),
+                mc.LinearConstraintTerm(aq_phase, so2oohm, 1.0),
+            ],
+            constant=mc.FixedConstant(GAS0_SO2)),
 
-    # Linear constraints: mass conservation + charge balance
-    # Mass S: SO2_g + SO2_aq + HSO3- + SO3-- + SO2OOH- = total_S
-    # NOTE: SO4-- is differential (produced by kinetics), NOT in S budget
-    constraints.append(LinearConstraint(
-        algebraic_phase_name="gas",
-        algebraic_species_name="SO2",
-        terms=[
-            LinearConstraintTerm("gas", "SO2", 1.0),
-            LinearConstraintTerm("AQUEOUS", "SO2_aq", 1.0),
-            LinearConstraintTerm("AQUEOUS", "HSO3m", 1.0),
-            LinearConstraintTerm("AQUEOUS", "SO3mm", 1.0),
-            LinearConstraintTerm("AQUEOUS", "SO2OOHm", 1.0),
-        ],
-        constant=GAS0_SO2,
-    ))
+        # Mass H2O2: H2O2_g + H2O2_aq = total_H2O2
+        mc.LinearConstraint(
+            algebraic_phase=gas, algebraic_species=h2o2_g,
+            terms=[
+                mc.LinearConstraintTerm(gas, h2o2_g, 1.0),
+                mc.LinearConstraintTerm(aq_phase, h2o2_aq, 1.0),
+            ],
+            constant=mc.FixedConstant(GAS0_H2O2)),
 
-    # Mass H2O2: H2O2_g + H2O2_aq = total_H2O2
-    constraints.append(LinearConstraint(
-        algebraic_phase_name="gas",
-        algebraic_species_name="H2O2",
-        terms=[
-            LinearConstraintTerm("gas", "H2O2", 1.0),
-            LinearConstraintTerm("AQUEOUS", "H2O2_aq", 1.0),
-        ],
-        constant=GAS0_H2O2,
-    ))
+        # Mass O3: O3_g + O3_aq = total_O3
+        mc.LinearConstraint(
+            algebraic_phase=gas, algebraic_species=o3_g,
+            terms=[
+                mc.LinearConstraintTerm(gas, o3_g, 1.0),
+                mc.LinearConstraintTerm(aq_phase, o3_aq, 1.0),
+            ],
+            constant=mc.FixedConstant(GAS0_O3)),
 
-    # Mass O3: O3_g + O3_aq = total_O3
-    constraints.append(LinearConstraint(
-        algebraic_phase_name="gas",
-        algebraic_species_name="O3",
-        terms=[
-            LinearConstraintTerm("gas", "O3", 1.0),
-            LinearConstraintTerm("AQUEOUS", "O3_aq", 1.0),
-        ],
-        constant=GAS0_O3,
-    ))
+        # Charge balance: H+ = OH- + HSO3- + 2*SO3-- + 2*SO4-- + SO2OOH-
+        mc.LinearConstraint(
+            algebraic_phase=aq_phase, algebraic_species=hp,
+            terms=[
+                mc.LinearConstraintTerm(aq_phase, hp, 1.0),
+                mc.LinearConstraintTerm(aq_phase, ohm, -1.0),
+                mc.LinearConstraintTerm(aq_phase, hso3m, -1.0),
+                mc.LinearConstraintTerm(aq_phase, so3mm, -2.0),
+                mc.LinearConstraintTerm(aq_phase, so4mm, -2.0),
+                mc.LinearConstraintTerm(aq_phase, so2oohm, -1.0),
+            ],
+            constant=mc.FixedConstant(0.0)),
+    ]
 
-    # Charge balance: H+ = OH- + HSO3- + 2*SO3-- + 2*SO4-- + SO2OOH-
-    constraints.append(LinearConstraint(
-        algebraic_phase_name="AQUEOUS",
-        algebraic_species_name="Hp",
-        terms=[
-            LinearConstraintTerm("AQUEOUS", "Hp", 1.0),
-            LinearConstraintTerm("AQUEOUS", "OHm", -1.0),
-            LinearConstraintTerm("AQUEOUS", "HSO3m", -1.0),
-            LinearConstraintTerm("AQUEOUS", "SO3mm", -2.0),
-            LinearConstraintTerm("AQUEOUS", "SO4mm", -2.0),
-            LinearConstraintTerm("AQUEOUS", "SO2OOHm", -1.0),
-        ],
-        constant=0.0,
-    ))
-
-    return Model(
+    return mc.Mechanism(
         name="cloud_chemistry",
         species=all_species,
-        condensed_phases=[aq_phase],
-        representations=[cloud],
-        processes=[r1a, r1b],
-        constraints=constraints,
-    )
+        phases=[gas, aq_phase],
+        reactions=[],
+        aerosol=mc.Aerosol(representations=[cloud], processes=[r1a, r1b], constraints=constraints))
 
 
 def _naive_initial_conditions(include_so2oohm=True):
@@ -304,34 +271,31 @@ class TestMiamModelCreation:
     """Test that a MICM solver with MIAM can be created."""
 
     def test_create_solver_dae4(self):
-        mechanism = _create_gas_mechanism()
-        model = _create_cloud_chemistry_model()
+        mechanism = _create_cloud_chemistry_mechanism()
         micm = MICM(
             mechanism=mechanism,
             solver_type=SolverType.rosenbrock_dae4_standard_order,
-            external_models=[model],
+            external_models=[musica.miam.MIAM()],
         )
         assert micm is not None
         assert micm.solver_type() == SolverType.rosenbrock_dae4_standard_order
 
     def test_create_solver_dae6(self):
-        mechanism = _create_gas_mechanism()
-        model = _create_cloud_chemistry_model()
+        mechanism = _create_cloud_chemistry_mechanism()
         micm = MICM(
             mechanism=mechanism,
             solver_type=SolverType.rosenbrock_dae6_standard_order,
-            external_models=[model],
+            external_models=[musica.miam.MIAM()],
         )
         assert micm is not None
 
     def test_create_solver_rosenbrock(self):
         """Non-DAE solver should also work with MIAM (constraints ignored)."""
-        mechanism = _create_gas_mechanism()
-        model = _create_cloud_chemistry_model()
+        mechanism = _create_cloud_chemistry_mechanism()
         micm = MICM(
             mechanism=mechanism,
             solver_type=SolverType.rosenbrock_standard_order,
-            external_models=[model],
+            external_models=[musica.miam.MIAM()],
         )
         assert micm is not None
 
@@ -340,26 +304,24 @@ class TestMiamStateCreation:
     """Test creating a state from a MIAM-enabled solver."""
 
     def test_create_state(self):
-        mechanism = _create_gas_mechanism()
-        model = _create_cloud_chemistry_model()
+        mechanism = _create_cloud_chemistry_mechanism()
         micm = MICM(
             mechanism=mechanism,
             solver_type=SolverType.rosenbrock_dae4_standard_order,
-            external_models=[model],
+            external_models=[musica.miam.MIAM()],
         )
         state = micm.create_state()
         assert state is not None
 
     def test_set_default_parameters(self):
-        mechanism = _create_gas_mechanism()
-        model = _create_cloud_chemistry_model()
+        mechanism = _create_cloud_chemistry_mechanism()
         micm = MICM(
             mechanism=mechanism,
             solver_type=SolverType.rosenbrock_dae4_standard_order,
-            external_models=[model],
+            external_models=[musica.miam.MIAM()],
         )
         state = micm.create_state()
-        model.set_default_parameters(state)
+        mechanism.aerosol.set_default_parameters(state)
         # Verify the representation parameters were set
         params = state.get_user_defined_rate_parameters()
         assert "CLOUD.MIN_RADIUS" in params
@@ -373,16 +335,16 @@ class TestMiamSolve:
 
     def test_solve_converges(self):
         """Solver should converge for the cloud chemistry system."""
-        mechanism = _create_gas_mechanism()
-        model = _create_cloud_chemistry_model()
+        mechanism = _create_cloud_chemistry_mechanism()
+        miam = musica.MIAM()
         micm = MICM(
             mechanism=mechanism,
             solver_type=SolverType.rosenbrock_dae4_standard_order,
-            external_models=[model],
+            external_models=[miam],
         )
 
         state = micm.create_state()
-        model.set_default_parameters(state)
+        miam.set_default_parameters(state)
 
         # Set conditions
         state.set_conditions(temperatures=T_INIT, pressures=P_INIT)
@@ -413,29 +375,21 @@ class TestMiamSolve:
         assert so4_f >= SO4MM0, "SO4 should only increase from kinetics"
 
     def test_solve_callable_rate_constant(self):
-        """Test with a callable rate constant instead of ArrheniusRateConstant."""
-        mechanism = _create_gas_mechanism()
-        model = _create_cloud_chemistry_model()
-
-        # Replace R1b's ArrheniusRateConstant with a Python callable
-        model.processes[1] = DissolvedReaction(
-            representation_name="CLOUD",
-            phase_name="AQUEOUS",
-            reactant_names=["SO2OOHm", "Hp"],
-            product_names=["SO4mm"],
-            solvent_name="H2O",
-            rate_constant=lambda T: C_H2O_M * 2.4e6 * math.exp(
+        """Test with a callable rate constant instead of ArrheniusReferenceTemperature."""
+        # Replace R1b's rate constant with a Python callable f(T) -> k
+        mechanism = _create_cloud_chemistry_mechanism(
+            r1b_rate_constant=lambda T: C_H2O_M * 2.4e6 * math.exp(
                 -4430.0 * (1.0 / T - 1.0 / T0)),
         )
 
         micm = MICM(
             mechanism=mechanism,
             solver_type=SolverType.rosenbrock_dae4_standard_order,
-            external_models=[model],
+            external_models=[musica.miam.MIAM()],
         )
 
         state = micm.create_state()
-        model.set_default_parameters(state)
+        mechanism.aerosol.set_default_parameters(state)
 
         state.set_conditions(temperatures=T_INIT, pressures=P_INIT)
         state.set_concentrations(_naive_initial_conditions())
@@ -461,85 +415,77 @@ class TestMiamErrorCases:
 
     def test_external_models_with_config_path(self):
         """Using external_models with config_path should raise ValueError."""
-        model = _create_cloud_chemistry_model()
         with pytest.raises(ValueError, match="external_models cannot be used with config_path"):
             MICM(
                 config_path="dummy/path",
-                external_models=[model],
+                external_models=[musica.miam.MIAM()],
             )
 
-    def test_invalid_species_in_model(self):
-        """A model referencing non-existent species should raise an error."""
-        mechanism = _create_gas_mechanism()
-
-        model = Model(
-            name="bad_model",
-            species=[mc.Species(name="X")],
-            condensed_phases=[mc.Phase(name="P", species=[mc.Species(name="X")])],
-            representations=[UniformSection("S", ["P"], 1e-6, 1e-5)],
-            processes=[
-                DissolvedReaction(
-                    representation_name="S",
-                    phase_name="P",
-                    reactant_names=["NONEXISTENT"],
-                    product_names=["X"],
-                    solvent_name="X",
-                    rate_constant=ArrheniusRateConstant(A=1.0),
-                ),
-            ],
+    def test_invalid_species_in_aerosol(self):
+        """An aerosol section referencing a non-existent species should raise an error."""
+        x = mc.Species(name="X")
+        p = mc.Phase(name="P", species=[x])
+        section = mc.UniformSection(name="S", phases=[p], min_radius=1e-6, max_radius=1e-5)
+        bad = mc.DissolvedReaction(
+            phase=p,
+            solvent=x,
+            reactants=["NONEXISTENT"],  # name that is not a defined species
+            products=[x],
+            rate_constants={section: mc.ArrheniusReferenceTemperature(A=1.0, C=0.0)},
         )
+        mechanism = mc.Mechanism(
+            name="bad",
+            species=[x],
+            phases=[p],
+            reactions=[],
+            aerosol=mc.Aerosol(representations=[section], processes=[bad]))
 
         with pytest.raises(Exception):
             MICM(
                 mechanism=mechanism,
                 solver_type=SolverType.rosenbrock_standard_order,
-                external_models=[model],
+                external_models=[musica.miam.MIAM()],
             )
 
 
-class TestMiamToConfig:
-    """Test the _to_config() conversion from Python to pybind11 types."""
+class TestMiamAerosolStructure:
+    """Test the aerosol section attached to a mechanism."""
 
-    def test_to_config_round_trip(self):
-        """Verify _to_config() produces a valid _ModelConfig."""
-        model = _create_cloud_chemistry_model()
-        config = model._to_config()
-
-        assert config.name == "cloud_chemistry"
-        assert len(config.species) == 13
-        assert len(config.condensed_phases) == 1
-        assert len(config.representations) == 1
-        assert len(config.processes) == 2
-        assert len(config.constraints) == 10
+    def test_aerosol_counts(self):
+        """The cloud-chemistry aerosol section has the expected entry counts."""
+        mechanism = _create_cloud_chemistry_mechanism()
+        aerosol = mechanism.aerosol
+        assert aerosol is not None
+        assert len(mechanism.species) == 13
+        assert len(aerosol.representations) == 1
+        assert len(aerosol.processes) == 2
+        assert len(aerosol.constraints) == 10
 
     def test_species_properties_preserved(self):
-        """Verify molecular weight and density are preserved through _to_config()."""
+        """Molecular weight and density survive attachment to the mechanism."""
         h2o = mc.Species(name="H2O")
         h2o.molecular_weight_kg_mol = 0.018
         h2o.density_kg_m3 = 1000.0
-
-        model = Model(
+        p = mc.Phase(name="P", species=[h2o])
+        mechanism = mc.Mechanism(
             name="test",
             species=[h2o],
-            condensed_phases=[mc.Phase(name="P", species=[h2o])],
-            representations=[UniformSection("S", ["P"], 1e-6, 1e-5)],
+            phases=[p],
+            reactions=[],
+            aerosol=mc.Aerosol(
+                representations=[mc.UniformSection(name="S", phases=[p], min_radius=1e-6, max_radius=1e-5)]),
         )
-        config = model._to_config()
-
-        assert len(config.species) == 1
-        sp = config.species[0]
+        sp = mechanism.species[0]
         assert sp.name == "H2O"
-        assert sp.molecular_weight == pytest.approx(0.018)
-        assert sp.density == pytest.approx(1000.0)
+        assert sp.molecular_weight_kg_mol == pytest.approx(0.018)
+        assert sp.density_kg_m3 == pytest.approx(1000.0)
 
-    def test_minimal_config(self):
-        """An empty model should produce a valid config."""
-        model = Model(name="empty")
-        config = model._to_config()
-        assert config.name == "empty"
-        assert len(config.species) == 0
-        assert len(config.processes) == 0
-        assert len(config.constraints) == 0
+    def test_minimal_aerosol(self):
+        """An empty aerosol section has empty entry lists."""
+        aerosol = mc.Aerosol()
+        assert len(aerosol.representations) == 0
+        assert len(aerosol.processes) == 0
+        assert len(aerosol.constraints) == 0
 
 
 # ═══ Analytical Validation ═══════════════════════════════════════════════════
@@ -570,8 +516,8 @@ def _get_conc(state, name):
     return state.get_concentrations()[name][0]
 
 
-def _create_equilibrium_only_model():
-    """Create the CAM Cloud Chemistry model WITHOUT kinetic reactions (equilibrium constraints only).
+def _create_equilibrium_only_mechanism():
+    """CAM Cloud Chemistry mechanism WITHOUT kinetic reactions (equilibrium constraints only).
 
     The mass_S constraint excludes SO4-- (which is differential and unchanged).
     """
@@ -594,13 +540,14 @@ def _create_equilibrium_only_model():
         so2_g, h2o2_g, o3_g, so2_aq, h2o2_aq, o3_aq,
         hp, ohm, hso3m, so3mm, so4mm, h2o,
     ]
+    gas = mc.Phase(name="gas", species=[so2_g, h2o2_g, o3_g])
     aq_phase = mc.Phase(
         name="AQUEOUS",
-        species=[h2o, so2_aq, h2o2_aq, o3_aq, hp, ohm, hso3m, so3mm, so4mm],
-    )
-    cloud = UniformSection(name="CLOUD", phase_names=["AQUEOUS"],
-                           min_radius=1e-6, max_radius=1e-5)
+        species=[h2o, so2_aq, h2o2_aq, o3_aq, hp, ohm, hso3m, so3mm, so4mm])
+    cloud = mc.UniformSection(name="CLOUD", phases=[aq_phase], min_radius=1e-6, max_radius=1e-5)
 
+    aq_by_name = {"SO2_aq": so2_aq, "H2O2_aq": h2o2_aq, "O3_aq": o3_aq}
+    gas_by_name = {"SO2": so2_g, "H2O2": h2o2_g, "O3": o3_g}
     constraints = []
 
     # Henry's Law equilibria
@@ -609,89 +556,84 @@ def _create_equilibrium_only_model():
         ("H2O2", "H2O2_aq", 7.4e4, 6621.0),
         ("O3", "O3_aq", 1.15e-2, 2560.0),
     ]:
-        constraints.append(HenryLawEquilibriumConstraint(
-            gas_species_name=gas_name,
-            condensed_species_name=aq_name,
-            solvent_name="H2O",
-            condensed_phase_name="AQUEOUS",
-            henry_law_constant=HenryLawConstant(
-                HLC_ref=hlc_ref * M_ATM_TO_MOL_M3_PA, C=c),
+        constraints.append(mc.HenryLawEquilibrium(
+            gas_phase=gas,
+            gas_species=gas_by_name[gas_name],
+            condensed_phase=aq_phase,
+            condensed_species=aq_by_name[aq_name],
+            solvent=h2o,
+            henry_law_constant=mc.HenryLawConstant(HLC_ref=hlc_ref * M_ATM_TO_MOL_M3_PA, C=c),
             solvent_molecular_weight=MW_H2O,
-            solvent_density=RHO_H2O,
-        ))
+            solvent_density=RHO_H2O))
 
     # Dissociation equilibria
-    constraints.append(DissolvedEquilibriumConstraint(
-        phase_name="AQUEOUS", reactant_names=["H2O"],
-        product_names=["Hp", "OHm"], algebraic_species_name="OHm",
-        solvent_name="H2O",
-        equilibrium_constant=EquilibriumConstant(
-            A=1e-14 / (C_H2O_M * C_H2O_M), C=0.0),
-    ))
-    constraints.append(DissolvedEquilibriumConstraint(
-        phase_name="AQUEOUS", reactant_names=["SO2_aq"],
-        product_names=["HSO3m", "Hp"], algebraic_species_name="HSO3m",
-        solvent_name="H2O",
-        equilibrium_constant=EquilibriumConstant(A=1.7e-2 / C_H2O_M, C=2090.0),
-    ))
-    constraints.append(DissolvedEquilibriumConstraint(
-        phase_name="AQUEOUS", reactant_names=["HSO3m"],
-        product_names=["SO3mm", "Hp"], algebraic_species_name="SO3mm",
-        solvent_name="H2O",
-        equilibrium_constant=EquilibriumConstant(A=6.0e-8 / C_H2O_M, C=1120.0),
-    ))
+    constraints.append(mc.DissolvedEquilibrium(
+        phase=aq_phase,
+        reactants=[h2o],
+        products=[hp, ohm],
+        algebraic_species=ohm,
+        solvent=h2o,
+        equilibrium_constant=mc.ArrheniusReferenceTemperature(A=1e-14 / (C_H2O_M * C_H2O_M), C=0.0)))
+    constraints.append(mc.DissolvedEquilibrium(
+        phase=aq_phase,
+        reactants=[so2_aq],
+        products=[hso3m, hp],
+        algebraic_species=hso3m,
+        solvent=h2o,
+        equilibrium_constant=mc.ArrheniusReferenceTemperature(A=1.7e-2 / C_H2O_M, C=2090.0)))
+    constraints.append(mc.DissolvedEquilibrium(
+        phase=aq_phase,
+        reactants=[hso3m],
+        products=[so3mm, hp],
+        algebraic_species=so3mm,
+        solvent=h2o,
+        equilibrium_constant=mc.ArrheniusReferenceTemperature(A=6.0e-8 / C_H2O_M, C=1120.0)))
 
     # Mass conservation (no SO4 — it's differential and unchanged)
-    constraints.append(LinearConstraint(
-        algebraic_phase_name="gas", algebraic_species_name="SO2",
+    constraints.append(mc.LinearConstraint(
+        algebraic_phase=gas, algebraic_species=so2_g,
         terms=[
-            LinearConstraintTerm("gas", "SO2", 1.0),
-            LinearConstraintTerm("AQUEOUS", "SO2_aq", 1.0),
-            LinearConstraintTerm("AQUEOUS", "HSO3m", 1.0),
-            LinearConstraintTerm("AQUEOUS", "SO3mm", 1.0),
+            mc.LinearConstraintTerm(gas, so2_g, 1.0),
+            mc.LinearConstraintTerm(aq_phase, so2_aq, 1.0),
+            mc.LinearConstraintTerm(aq_phase, hso3m, 1.0),
+            mc.LinearConstraintTerm(aq_phase, so3mm, 1.0),
         ],
-        constant=GAS0_SO2,
-    ))
-    constraints.append(LinearConstraint(
-        algebraic_phase_name="gas", algebraic_species_name="H2O2",
+        constant=mc.FixedConstant(GAS0_SO2)))
+    constraints.append(mc.LinearConstraint(
+        algebraic_phase=gas, algebraic_species=h2o2_g,
         terms=[
-            LinearConstraintTerm("gas", "H2O2", 1.0),
-            LinearConstraintTerm("AQUEOUS", "H2O2_aq", 1.0),
+            mc.LinearConstraintTerm(gas, h2o2_g, 1.0),
+            mc.LinearConstraintTerm(aq_phase, h2o2_aq, 1.0),
         ],
-        constant=GAS0_H2O2,
-    ))
-    constraints.append(LinearConstraint(
-        algebraic_phase_name="gas", algebraic_species_name="O3",
+        constant=mc.FixedConstant(GAS0_H2O2)))
+    constraints.append(mc.LinearConstraint(
+        algebraic_phase=gas, algebraic_species=o3_g,
         terms=[
-            LinearConstraintTerm("gas", "O3", 1.0),
-            LinearConstraintTerm("AQUEOUS", "O3_aq", 1.0),
+            mc.LinearConstraintTerm(gas, o3_g, 1.0),
+            mc.LinearConstraintTerm(aq_phase, o3_aq, 1.0),
         ],
-        constant=GAS0_O3,
-    ))
-    constraints.append(LinearConstraint(
-        algebraic_phase_name="AQUEOUS", algebraic_species_name="Hp",
+        constant=mc.FixedConstant(GAS0_O3)))
+    constraints.append(mc.LinearConstraint(
+        algebraic_phase=aq_phase, algebraic_species=hp,
         terms=[
-            LinearConstraintTerm("AQUEOUS", "Hp", 1.0),
-            LinearConstraintTerm("AQUEOUS", "OHm", -1.0),
-            LinearConstraintTerm("AQUEOUS", "HSO3m", -1.0),
-            LinearConstraintTerm("AQUEOUS", "SO3mm", -2.0),
-            LinearConstraintTerm("AQUEOUS", "SO4mm", -2.0),
+            mc.LinearConstraintTerm(aq_phase, hp, 1.0),
+            mc.LinearConstraintTerm(aq_phase, ohm, -1.0),
+            mc.LinearConstraintTerm(aq_phase, hso3m, -1.0),
+            mc.LinearConstraintTerm(aq_phase, so3mm, -2.0),
+            mc.LinearConstraintTerm(aq_phase, so4mm, -2.0),
         ],
-        constant=0.0,
-    ))
+        constant=mc.FixedConstant(0.0)))
 
-    return Model(
+    return mc.Mechanism(
         name="equilibrium_only",
         species=all_species,
-        condensed_phases=[aq_phase],
-        representations=[cloud],
-        processes=[],       # No kinetics
-        constraints=constraints,
-    )
+        phases=[gas, aq_phase],
+        reactions=[],
+        aerosol=mc.Aerosol(representations=[cloud], processes=[], constraints=constraints))
 
 
-def _create_kinetics_model():
-    """Create the CAM Cloud Chemistry model WITH kinetic reactions.
+def _create_kinetics_mechanism():
+    """CAM Cloud Chemistry mechanism WITH kinetic reactions.
 
     Includes equilibrium + revised 2-step H2O2 oxidation + ozone oxidation reactions.
     The mass_S constraint INCLUDES SO4-- and SO2OOH- since kinetics transfers sulfur
@@ -717,52 +659,45 @@ def _create_kinetics_model():
         so2_g, h2o2_g, o3_g, so2_aq, h2o2_aq, o3_aq,
         hp, ohm, hso3m, so3mm, so4mm, so2oohm, h2o,
     ]
+    gas = mc.Phase(name="gas", species=[so2_g, h2o2_g, o3_g])
     aq_phase = mc.Phase(
         name="AQUEOUS",
-        species=[h2o, so2_aq, h2o2_aq, o3_aq, hp, ohm, hso3m, so3mm, so4mm, so2oohm],
-    )
-    cloud = UniformSection(name="CLOUD", phase_names=["AQUEOUS"],
-                           min_radius=1e-6, max_radius=1e-5)
+        species=[h2o, so2_aq, h2o2_aq, o3_aq, hp, ohm, hso3m, so3mm, so4mm, so2oohm])
+    cloud = mc.UniformSection(name="CLOUD", phases=[aq_phase], min_radius=1e-6, max_radius=1e-5)
 
     # Kinetic S(IV)->S(VI) oxidation reactions (revised mechanism)
     # R1a: HSO3- + H2O2_aq ⇌ SO2OOH- + H2O  (reversible)
-    r1a = DissolvedReversibleReaction(
-        phase_name="AQUEOUS",
-        reactant_names=["HSO3m", "H2O2_aq"],
-        product_names=["SO2OOHm", "H2O"],
-        solvent_name="H2O",
-        forward_rate_constant=ArrheniusRateConstant(
-            A=C_H2O_M * (7.45e7 / 13.0), C=4430.0),
-        equilibrium_constant=EquilibriumConstant(A=1725.0),
-    )
+    r1a = mc.DissolvedReversibleReaction(
+        phase=aq_phase,
+        solvent=h2o,
+        reactants=[hso3m, h2o2_aq],
+        products=[so2oohm, h2o],
+        forward_rate_constants={cloud: mc.ArrheniusReferenceTemperature(A=C_H2O_M * (7.45e7 / 13.0), C=4430.0)},
+        equilibrium_constant=mc.ArrheniusReferenceTemperature(A=1725.0, C=0.0))
     # R1b: SO2OOH- + H+ → SO4--  (irreversible)
-    r1b = DissolvedReaction(
-        representation_name="CLOUD",
-        phase_name="AQUEOUS",
-        reactant_names=["SO2OOHm", "Hp"],
-        product_names=["SO4mm"],
-        solvent_name="H2O",
-        rate_constant=ArrheniusRateConstant(A=C_H2O_M * 2.4e6, C=4430.0),
-    )
+    r1b = mc.DissolvedReaction(
+        phase=aq_phase,
+        solvent=h2o,
+        reactants=[so2oohm, hp],
+        products=[so4mm],
+        rate_constants={cloud: mc.ArrheniusReferenceTemperature(A=C_H2O_M * 2.4e6, C=4430.0)})
     # R2: HSO3- + O3_aq → SO4-- + H+
-    r2 = DissolvedReaction(
-        representation_name="CLOUD",
-        phase_name="AQUEOUS",
-        reactant_names=["HSO3m", "O3_aq"],
-        product_names=["SO4mm", "Hp"],
-        solvent_name="H2O",
-        rate_constant=ArrheniusRateConstant(A=C_H2O_M * 3.75e5, C=5530.0),
-    )
+    r2 = mc.DissolvedReaction(
+        phase=aq_phase,
+        solvent=h2o,
+        reactants=[hso3m, o3_aq],
+        products=[so4mm, hp],
+        rate_constants={cloud: mc.ArrheniusReferenceTemperature(A=C_H2O_M * 3.75e5, C=5530.0)})
     # R3: SO3-- + O3_aq → SO4--
-    r3 = DissolvedReaction(
-        representation_name="CLOUD",
-        phase_name="AQUEOUS",
-        reactant_names=["SO3mm", "O3_aq"],
-        product_names=["SO4mm"],
-        solvent_name="H2O",
-        rate_constant=ArrheniusRateConstant(A=C_H2O_M * 1.59e9, C=5280.0),
-    )
+    r3 = mc.DissolvedReaction(
+        phase=aq_phase,
+        solvent=h2o,
+        reactants=[so3mm, o3_aq],
+        products=[so4mm],
+        rate_constants={cloud: mc.ArrheniusReferenceTemperature(A=C_H2O_M * 1.59e9, C=5280.0)})
 
+    gas_by_name = {"SO2": so2_g, "H2O2": h2o2_g, "O3": o3_g}
+    aq_by_name = {"SO2_aq": so2_aq, "H2O2_aq": h2o2_aq, "O3_aq": o3_aq}
     constraints = []
 
     # Henry's Law equilibria (same as equilibrium-only)
@@ -771,89 +706,84 @@ def _create_kinetics_model():
         ("H2O2", "H2O2_aq", 7.4e4, 6621.0),
         ("O3", "O3_aq", 1.15e-2, 2560.0),
     ]:
-        constraints.append(HenryLawEquilibriumConstraint(
-            gas_species_name=gas_name,
-            condensed_species_name=aq_name,
-            solvent_name="H2O",
-            condensed_phase_name="AQUEOUS",
-            henry_law_constant=HenryLawConstant(
-                HLC_ref=hlc_ref * M_ATM_TO_MOL_M3_PA, C=c),
+        constraints.append(mc.HenryLawEquilibrium(
+            gas_phase=gas,
+            gas_species=gas_by_name[gas_name],
+            condensed_phase=aq_phase,
+            condensed_species=aq_by_name[aq_name],
+            solvent=h2o,
+            henry_law_constant=mc.HenryLawConstant(HLC_ref=hlc_ref * M_ATM_TO_MOL_M3_PA, C=c),
             solvent_molecular_weight=MW_H2O,
-            solvent_density=RHO_H2O,
-        ))
+            solvent_density=RHO_H2O))
 
     # Dissociation equilibria (same as equilibrium-only)
-    constraints.append(DissolvedEquilibriumConstraint(
-        phase_name="AQUEOUS", reactant_names=["H2O"],
-        product_names=["Hp", "OHm"], algebraic_species_name="OHm",
-        solvent_name="H2O",
-        equilibrium_constant=EquilibriumConstant(
-            A=1e-14 / (C_H2O_M * C_H2O_M), C=0.0),
-    ))
-    constraints.append(DissolvedEquilibriumConstraint(
-        phase_name="AQUEOUS", reactant_names=["SO2_aq"],
-        product_names=["HSO3m", "Hp"], algebraic_species_name="HSO3m",
-        solvent_name="H2O",
-        equilibrium_constant=EquilibriumConstant(A=1.7e-2 / C_H2O_M, C=2090.0),
-    ))
-    constraints.append(DissolvedEquilibriumConstraint(
-        phase_name="AQUEOUS", reactant_names=["HSO3m"],
-        product_names=["SO3mm", "Hp"], algebraic_species_name="SO3mm",
-        solvent_name="H2O",
-        equilibrium_constant=EquilibriumConstant(A=6.0e-8 / C_H2O_M, C=1120.0),
-    ))
+    constraints.append(mc.DissolvedEquilibrium(
+        phase=aq_phase,
+        reactants=[h2o],
+        products=[hp, ohm],
+        algebraic_species=ohm,
+        solvent=h2o,
+        equilibrium_constant=mc.ArrheniusReferenceTemperature(A=1e-14 / (C_H2O_M * C_H2O_M), C=0.0)))
+    constraints.append(mc.DissolvedEquilibrium(
+        phase=aq_phase,
+        reactants=[so2_aq],
+        products=[hso3m, hp],
+        algebraic_species=hso3m,
+        solvent=h2o,
+        equilibrium_constant=mc.ArrheniusReferenceTemperature(A=1.7e-2 / C_H2O_M, C=2090.0)))
+    constraints.append(mc.DissolvedEquilibrium(
+        phase=aq_phase,
+        reactants=[hso3m],
+        products=[so3mm, hp],
+        algebraic_species=so3mm,
+        solvent=h2o,
+        equilibrium_constant=mc.ArrheniusReferenceTemperature(A=6.0e-8 / C_H2O_M, C=1120.0)))
 
     # Mass conservation — SO4 and SO2OOH- ARE included (kinetics moves S between pools)
     total_S = GAS0_SO2 + SO4MM0
-    constraints.append(LinearConstraint(
-        algebraic_phase_name="gas", algebraic_species_name="SO2",
+    constraints.append(mc.LinearConstraint(
+        algebraic_phase=gas, algebraic_species=so2_g,
         terms=[
-            LinearConstraintTerm("gas", "SO2", 1.0),
-            LinearConstraintTerm("AQUEOUS", "SO2_aq", 1.0),
-            LinearConstraintTerm("AQUEOUS", "HSO3m", 1.0),
-            LinearConstraintTerm("AQUEOUS", "SO3mm", 1.0),
-            LinearConstraintTerm("AQUEOUS", "SO4mm", 1.0),
-            LinearConstraintTerm("AQUEOUS", "SO2OOHm", 1.0),
+            mc.LinearConstraintTerm(gas, so2_g, 1.0),
+            mc.LinearConstraintTerm(aq_phase, so2_aq, 1.0),
+            mc.LinearConstraintTerm(aq_phase, hso3m, 1.0),
+            mc.LinearConstraintTerm(aq_phase, so3mm, 1.0),
+            mc.LinearConstraintTerm(aq_phase, so4mm, 1.0),
+            mc.LinearConstraintTerm(aq_phase, so2oohm, 1.0),
         ],
-        constant=total_S,
-    ))
-    constraints.append(LinearConstraint(
-        algebraic_phase_name="gas", algebraic_species_name="H2O2",
+        constant=mc.FixedConstant(total_S)))
+    constraints.append(mc.LinearConstraint(
+        algebraic_phase=gas, algebraic_species=h2o2_g,
         terms=[
-            LinearConstraintTerm("gas", "H2O2", 1.0),
-            LinearConstraintTerm("AQUEOUS", "H2O2_aq", 1.0),
+            mc.LinearConstraintTerm(gas, h2o2_g, 1.0),
+            mc.LinearConstraintTerm(aq_phase, h2o2_aq, 1.0),
         ],
-        constant=GAS0_H2O2,
-    ))
-    constraints.append(LinearConstraint(
-        algebraic_phase_name="gas", algebraic_species_name="O3",
+        constant=mc.FixedConstant(GAS0_H2O2)))
+    constraints.append(mc.LinearConstraint(
+        algebraic_phase=gas, algebraic_species=o3_g,
         terms=[
-            LinearConstraintTerm("gas", "O3", 1.0),
-            LinearConstraintTerm("AQUEOUS", "O3_aq", 1.0),
+            mc.LinearConstraintTerm(gas, o3_g, 1.0),
+            mc.LinearConstraintTerm(aq_phase, o3_aq, 1.0),
         ],
-        constant=GAS0_O3,
-    ))
-    constraints.append(LinearConstraint(
-        algebraic_phase_name="AQUEOUS", algebraic_species_name="Hp",
+        constant=mc.FixedConstant(GAS0_O3)))
+    constraints.append(mc.LinearConstraint(
+        algebraic_phase=aq_phase, algebraic_species=hp,
         terms=[
-            LinearConstraintTerm("AQUEOUS", "Hp", 1.0),
-            LinearConstraintTerm("AQUEOUS", "OHm", -1.0),
-            LinearConstraintTerm("AQUEOUS", "HSO3m", -1.0),
-            LinearConstraintTerm("AQUEOUS", "SO3mm", -2.0),
-            LinearConstraintTerm("AQUEOUS", "SO4mm", -2.0),
-            LinearConstraintTerm("AQUEOUS", "SO2OOHm", -1.0),
+            mc.LinearConstraintTerm(aq_phase, hp, 1.0),
+            mc.LinearConstraintTerm(aq_phase, ohm, -1.0),
+            mc.LinearConstraintTerm(aq_phase, hso3m, -1.0),
+            mc.LinearConstraintTerm(aq_phase, so3mm, -2.0),
+            mc.LinearConstraintTerm(aq_phase, so4mm, -2.0),
+            mc.LinearConstraintTerm(aq_phase, so2oohm, -1.0),
         ],
-        constant=0.0,
-    ))
+        constant=mc.FixedConstant(0.0)))
 
-    return Model(
+    return mc.Mechanism(
         name="kinetics",
         species=all_species,
-        condensed_phases=[aq_phase],
-        representations=[cloud],
-        processes=[r1a, r1b, r2, r3],
-        constraints=constraints,
-    )
+        phases=[gas, aq_phase],
+        reactions=[],
+        aerosol=mc.Aerosol(representations=[cloud], processes=[r1a, r1b, r2, r3], constraints=constraints))
 
 
 class TestEquilibriumValidation:
@@ -866,15 +796,14 @@ class TestEquilibriumValidation:
     @pytest.fixture
     def solved_state(self):
         """Build, set ICs, and integrate the equilibrium-only system."""
-        mechanism = _create_gas_mechanism()
-        model = _create_equilibrium_only_model()
+        mechanism = _create_equilibrium_only_mechanism()
         micm = MICM(
             mechanism=mechanism,
             solver_type=SolverType.rosenbrock_dae4_standard_order,
-            external_models=[model],
+            external_models=[musica.miam.MIAM()],
         )
         state = micm.create_state()
-        model.set_default_parameters(state)
+        mechanism.aerosol.set_default_parameters(state)
         state.set_conditions(temperatures=T_INIT, pressures=P_INIT)
         state.set_concentrations(_naive_initial_conditions(include_so2oohm=False))
         _integrate(micm, state, target_time=10.0)
@@ -1012,15 +941,14 @@ class TestKineticsValidation:
     @pytest.fixture
     def solved_state(self):
         """Build, set ICs, and integrate the kinetics system for 1800s."""
-        mechanism = _create_gas_mechanism()
-        model = _create_kinetics_model()
+        mechanism = _create_kinetics_mechanism()
         micm = MICM(
             mechanism=mechanism,
             solver_type=SolverType.rosenbrock_dae4_standard_order,
-            external_models=[model],
+            external_models=[musica.miam.MIAM()],
         )
         state = micm.create_state()
-        model.set_default_parameters(state)
+        mechanism.aerosol.set_default_parameters(state)
         state.set_conditions(temperatures=T_INIT, pressures=P_INIT)
         state.set_concentrations(_naive_initial_conditions())
         _integrate(micm, state, target_time=1800.0, dt_init=0.001)

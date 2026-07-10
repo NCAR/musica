@@ -1,26 +1,30 @@
 // Copyright (C) 2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 //
-// Builder function that converts MIAM configuration structs into a
-// miam::Model object and creates a MICM solver with it as an external model.
+// Builder function that converts a mechanism_configuration Mechanism (its
+// species, phases, and aerosol section) into a miam::Model object and creates a
+// MICM solver with it attached as an external model.
 #pragma once
 
 #include <musica/configuration/chemistry.hpp>
-#include <musica/miam/miam_types.hpp>
 #include <musica/micm/micm.hpp>
 #include <musica/utils/util.hpp>
+
+#include <mechanism_configuration/mechanism.hpp>
 
 namespace musica
 {
   /// @brief Create a MICM solver with a MIAM external model attached
-  /// @param chemistry Gas-phase chemistry (system + processes)
+  /// @param mechanism Parsed mechanism carrying the species, phases, and aerosol
+  ///                  section that define the MIAM model. The gas-phase chemistry
+  ///                  is derived from it internally; aerosol entries reference
+  ///                  species/phases by name, resolved against the mechanism's
+  ///                  species/phases here.
   /// @param solver_type The solver variant to use
-  /// @param miam_config Complete MIAM model configuration
   /// @param error Error output
   /// @return Pointer to an initialized MICM solver (caller owns)
   MICM* CreateMicmWithMiam(
-      const Chemistry& chemistry,
+      const mechanism_configuration::Mechanism& mechanism,
       MICMSolver solver_type,
-      const miam_config::ModelConfig& miam_config,
       Error* error);
 }  // namespace musica
