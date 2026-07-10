@@ -89,8 +89,8 @@ def mam_representations():
 
     """MAM modes -> one TwoMomentMode per mode (fixed sigma_g, prognostic n+mass)."""
     reps = {}
-    for varient, modes in MAM_MODES.items():
-        reps[varient] = [
+    for variant, modes in MAM_MODES.items():
+        reps[variant] = [
             TwoMomentMode(
                 name=name.upper(),
                 phase_names=[f"{name.upper()}_AQ"],
