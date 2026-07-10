@@ -22,6 +22,7 @@ from musica.miam import (
     TwoMomentMode,
     DissolvedReaction,
     DissolvedReversibleReaction,
+    HenryLawPhaseTransfer,
     HenryLawEquilibriumConstraint,
     DissolvedEquilibriumConstraint,
     LinearConstraint,
@@ -36,6 +37,33 @@ MW_H2O = 0.018             # kg/mol
 RHO_H2O = 1000.0           # kg/m3
 UM = 1.0e-6                # micrometre -> m
 CM_TO_M = 1.0e-2           # cm -> m
+
+# ─── Defaults for kinetic (mass-transfer-limited) Henry's-law uptake ─────────
+# Kinetic uptake needs particle effective radius, number, and phase volume
+# fraction — all derived by miam from condensed-phase VOLUME = Σ [species]·MW/ρ.
+# So every species needs a molecular weight and density.  These are sensible,
+# illustrative defaults (solutes given water-like density); not evaluated values.
+AQUEOUS_PROPERTIES = {  # species: (molecular weight [kg/mol], density [kg/m3])
+    "H2O":     (MW_H2O, RHO_H2O),
+    "SO2_aq":  (0.064,  1000.0),
+    "H2O2_aq": (0.034,  1000.0),
+    "O3_aq":   (0.048,  1000.0),
+    "Hp":      (0.001,  1000.0),
+    "OHm":     (0.017,  1000.0),
+    "HSO3m":   (0.081,  1000.0),
+    "SO3mm":   (0.080,  1000.0),
+    "SO4mm":   (0.096,  1000.0),
+    "SO2OOHm": (0.097,  1000.0),
+}
+# Gas molecular weights [kg/mol] (mean thermal speed in the uptake rate).
+GAS_MOLECULAR_WEIGHT = {"SO2": 0.064, "H2O2": 0.034, "O3": 0.048}
+# Gas diffusion coefficient [m2/s] and mass accommodation coefficient [-].
+# Approximate literature values (SO2 from the miam unit test).
+GAS_UPTAKE = {  # gas: (diffusion_coefficient, accommodation_coefficient)
+    "SO2":  (1.28e-5, 0.11),
+    "H2O2": (1.46e-5, 0.11),
+    "O3":   (1.48e-5, 2.0e-3),
+}
 
 
 def mam_representations():
@@ -158,15 +186,17 @@ def carma_representations(case):
 
 
 def gas_species_and_phase():
-    """Shared gas phase: SO2, H2O2, O3."""
-    so2 = mc.Species(name="SO2")
-    h2o2 = mc.Species(name="H2O2")
-    o3 = mc.Species(name="O3")
-    gas = mc.Phase(name="gas", species=[so2, h2o2, o3])
-    return [so2, h2o2, o3], gas
+    """Shared gas phase: SO2, H2O2, O3 (with molecular weights for uptake)."""
+    gas_species = []
+    for name in ("SO2", "H2O2", "O3"):
+        s = mc.Species(name=name)
+        s.molecular_weight_kg_mol = GAS_MOLECULAR_WEIGHT[name]
+        gas_species.append(s)
+    gas = mc.Phase(name="gas", species=gas_species)
+    return gas_species, gas
 
 
-def sulfate_chemistry(repr_name, phase_name):
+def sulfate_chemistry(repr_name, phase_name, kinetic_uptake=False):
     """Cloud-sulfate S(IV)->S(VI) aqueous chemistry local to one representation.
 
     Mirrors _create_kinetics_model() from the integration test: Henry's-law
@@ -175,16 +205,25 @@ def sulfate_chemistry(repr_name, phase_name):
     reference this representation's own aqueous phase, so the same chemistry
     can run independently on every mode/bin.
 
+    ``kinetic_uptake`` selects how the gases enter the condensed phase:
+      - False (default): instantaneous ``HenryLawEquilibriumConstraint`` — this
+        is size-INDEPENDENT (depends only on liquid-water volume), so different
+        representations give identical chemistry.
+      - True: mass-transfer-limited ``HenryLawPhaseTransfer`` whose rate scales
+        with particle surface area (radius × number), so the size distribution
+        drives the chemistry.  Requires species MW/ρ (set below) and — for
+        TwoMomentMode — a NUMBER_CONCENTRATION initial condition from the driver.
+
     Returns (aqueous_species, aqueous_phase, processes, constraints).  The
     IC-dependent mass-budget LinearConstraints from the test are intentionally
     omitted — those belong to the box-model driver, not the reusable config.
     """
-    # aqueous species (one fresh set per representation)
-    names = ["SO2_aq", "H2O2_aq", "O3_aq", "Hp", "OHm",
-             "HSO3m", "SO3mm", "SO4mm", "SO2OOHm", "H2O"]
-    sp = {n: mc.Species(name=n) for n in names}
-    sp["H2O"].molecular_weight_kg_mol = MW_H2O
-    sp["H2O"].density_kg_m3 = RHO_H2O
+    # aqueous species (one fresh set per representation); MW/ρ needed so miam
+    # can derive particle volume -> effective radius / number for kinetic uptake.
+    sp = {n: mc.Species(name=n) for n in AQUEOUS_PROPERTIES}
+    for n, (mw, rho) in AQUEOUS_PROPERTIES.items():
+        sp[n].molecular_weight_kg_mol = mw
+        sp[n].density_kg_m3 = rho
     aq_species = list(sp.values())
     aq_phase = mc.Phase(name=phase_name, species=aq_species)
 
@@ -214,19 +253,30 @@ def sulfate_chemistry(repr_name, phase_name):
         ),
     ]
 
-    # ── constraints (all local to this aqueous phase) ──
+    # ── gas -> aqueous transfer: equilibrium constraint OR kinetic uptake ──
     constraints = []
     for gas_name, aq_name, hlc_ref, c in [
         ("SO2", "SO2_aq", 1.23, 3120.0),
         ("H2O2", "H2O2_aq", 7.4e4, 6621.0),
         ("O3", "O3_aq", 1.15e-2, 2560.0),
     ]:
-        constraints.append(HenryLawEquilibriumConstraint(
-            gas_species_name=gas_name, condensed_species_name=aq_name,
-            solvent_name="H2O", condensed_phase_name=phase_name,
-            henry_law_constant=HenryLawConstant(HLC_ref=hlc_ref * M_ATM_TO_MOL_M3_PA, C=c),
-            solvent_molecular_weight=MW_H2O, solvent_density=RHO_H2O,
-        ))
+        hlc = HenryLawConstant(HLC_ref=hlc_ref * M_ATM_TO_MOL_M3_PA, C=c)
+        if kinetic_uptake:
+            diffusion_coefficient, accommodation_coefficient = GAS_UPTAKE[gas_name]
+            processes.append(HenryLawPhaseTransfer(   # rate ∝ surface area (radius × number)
+                condensed_phase_name=phase_name, gas_species_name=gas_name,
+                condensed_species_name=aq_name, solvent_name="H2O",
+                henry_law_constant=hlc,
+                diffusion_coefficient=diffusion_coefficient,
+                accommodation_coefficient=accommodation_coefficient,
+            ))
+        else:
+            constraints.append(HenryLawEquilibriumConstraint(   # instantaneous, size-independent
+                gas_species_name=gas_name, condensed_species_name=aq_name,
+                solvent_name="H2O", condensed_phase_name=phase_name,
+                henry_law_constant=hlc,
+                solvent_molecular_weight=MW_H2O, solvent_density=RHO_H2O,
+            ))
     constraints += [
         DissolvedEquilibriumConstraint(       # Kw
             phase_name=phase_name, reactant_names=["H2O"], product_names=["Hp", "OHm"],
@@ -259,9 +309,13 @@ def sulfate_chemistry(repr_name, phase_name):
     return aq_species, aq_phase, processes, constraints
 
 
-def build_model(name, representations):
+def build_model(name, representations, kinetic_uptake=False):
     """Assemble a miam Model: gas phase + cloud-sulfate chemistry on each
-    representation's own aqueous phase."""
+    representation's own aqueous phase.
+
+    kinetic_uptake=True uses size-dependent HenryLawPhaseTransfer for gas uptake
+    (see sulfate_chemistry); default False uses equilibrium partitioning.
+    """
     gas_species, gas_phase = gas_species_and_phase()
     species = list(gas_species)
     condensed_phases = []
@@ -269,7 +323,7 @@ def build_model(name, representations):
     constraints = []
     for rep in representations:
         phase_name = rep.phase_names[0]
-        aq_species, aq_phase, procs, cons = sulfate_chemistry(rep.name, phase_name)
+        aq_species, aq_phase, procs, cons = sulfate_chemistry(rep.name, phase_name, kinetic_uptake)
         species += aq_species
         condensed_phases.append(aq_phase)
         processes += procs
