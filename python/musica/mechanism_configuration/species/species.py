@@ -22,12 +22,11 @@ class Species(CppWrapper):
 
     name = CppField()
     molecular_weight_kg_mol = CppField()
+    density_kg_m3 = CppField()
     constant_concentration_mol_m3 = CppField()
     constant_mixing_ratio_mol_mol = CppField()
     is_third_body = CppField()
     other_properties = CppField()
-
-    _DENSITY_KEY = "density [kg m-3]"
 
     def __init__(
         self,
@@ -60,31 +59,11 @@ class Species(CppWrapper):
         if density_kg_m3 is not None:
             self.density_kg_m3 = density_kg_m3
 
-    @property
-    def density_kg_m3(self) -> Optional[float]:
-        """Density [kg m-3]."""
-        props = self.other_properties
-        if props and self._DENSITY_KEY in props:
-            return float(props[self._DENSITY_KEY])
-        return None
-
-    @density_kg_m3.setter
-    def density_kg_m3(self, value: Optional[float]):
-        """Set density [kg m-3]."""
-        props = self.other_properties
-        if props is None:
-            props = {}
-        if value is not None:
-            props[self._DENSITY_KEY] = str(value)
-        elif self._DENSITY_KEY in props:
-            del props[self._DENSITY_KEY]
-        self.other_properties = props
-
     def serialize(self) -> Dict:
         serialize_dict = {
             "name": self.name,
             "molecular weight [kg mol-1]": self.molecular_weight_kg_mol,
-            self._DENSITY_KEY: self.density_kg_m3,
+            "density [kg m-3]": self.density_kg_m3,
             "constant concentration [mol m-3]": self.constant_concentration_mol_m3,
             "constant mixing ratio [mol mol-1]": self.constant_mixing_ratio_mol_mol,
             "is third body": self.is_third_body,

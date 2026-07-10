@@ -147,6 +147,15 @@ class UniformSection(CppWrapper):
     def phases(self, value):
         self._cpp.phases = _names(value)
 
+    def set_default_parameters(self, state):
+        """Set this section's default radius bounds on a MICM state (as rate parameters)."""
+        state.set_user_defined_rate_parameters(
+            {
+                f"{self.name}.MIN_RADIUS": self.min_radius,
+                f"{self.name}.MAX_RADIUS": self.max_radius,
+            }
+        )
+
 
 class SingleMomentMode(CppWrapper):
     """A single-moment modal aerosol representation.
@@ -189,6 +198,15 @@ class SingleMomentMode(CppWrapper):
     def phases(self, value):
         self._cpp.phases = _names(value)
 
+    def set_default_parameters(self, state):
+        """Set this mode's default size parameters on a MICM state (as rate parameters)."""
+        state.set_user_defined_rate_parameters(
+            {
+                f"{self.name}.GEOMETRIC_MEAN_RADIUS": self.geometric_mean_radius,
+                f"{self.name}.GEOMETRIC_STANDARD_DEVIATION": self.geometric_standard_deviation,
+            }
+        )
+
 
 class TwoMomentMode(CppWrapper):
     """A two-moment modal aerosol representation.
@@ -224,6 +242,14 @@ class TwoMomentMode(CppWrapper):
     @phases.setter
     def phases(self, value):
         self._cpp.phases = _names(value)
+
+    def set_default_parameters(self, state):
+        """Set this mode's default size parameter on a MICM state (as rate parameters)."""
+        state.set_user_defined_rate_parameters(
+            {
+                f"{self.name}.GEOMETRIC_STANDARD_DEVIATION": self.geometric_standard_deviation,
+            }
+        )
 
 
 ComponentType = Union[Species, Tuple[float, Species], ReactionComponent]
@@ -709,3 +735,14 @@ class Aerosol(CppWrapper):
     @constraints.setter
     def constraints(self, value):
         self._cpp.constraints = _unwrap_list(value)
+
+    def set_default_parameters(self, state):
+        """Set each representation's default parameters on a MICM state.
+
+        Delegates to every representation's ``set_default_parameters``.
+
+        Args:
+            state: A ``musica.micm.State`` object.
+        """
+        for representation in self.representations:
+            representation.set_default_parameters(state)

@@ -336,15 +336,14 @@ class TestMiamSolve:
     def test_solve_converges(self):
         """Solver should converge for the cloud chemistry system."""
         mechanism = _create_cloud_chemistry_mechanism()
-        miam = musica.MIAM()
         micm = MICM(
             mechanism=mechanism,
             solver_type=SolverType.rosenbrock_dae4_standard_order,
-            external_models=[miam],
+            external_models=[musica.miam.MIAM()],
         )
 
         state = micm.create_state()
-        miam.set_default_parameters(state)
+        mechanism.aerosol.set_default_parameters(state)
 
         # Set conditions
         state.set_conditions(temperatures=T_INIT, pressures=P_INIT)
@@ -429,7 +428,7 @@ class TestMiamErrorCases:
         bad = mc.DissolvedReaction(
             phase=p,
             solvent=x,
-            reactants=["NONEXISTENT"],  # name that is not a defined species
+            reactants=[mc.Species(name="NONEXISTENT")],  # a species not registered in the mechanism
             products=[x],
             rate_constants={section: mc.ArrheniusReferenceTemperature(A=1.0, C=0.0)},
         )
