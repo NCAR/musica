@@ -186,6 +186,10 @@ namespace musica
                 // The config carries one rate constant per aerosol representation.
                 for (const auto& [representation, rc] : p.rate_constants)
                   builder.AddRateConstant(representation, ResolveRateConstant(rc).fn);
+                if (p.solvent_floor_.has_value())
+                  builder.SetSolventFloor(p.solvent_floor_.value());
+                if (p.min_halflife_.has_value())
+                  builder.SetMinHalflife(p.min_halflife_.value());
                 model.AddProcesses(builder.Build());
               }
               else if constexpr (std::is_same_v<T, types::DissolvedReversibleReaction>)
@@ -206,6 +210,8 @@ namespace musica
                   const auto& ec = p.equilibrium_constant.value();
                   builder.SetEquilibriumConstant(miam::EquilibriumConstant({ .A_ = ec.A, .C_ = ec.C, .T0_ = ec.T0 }));
                 }
+                if (p.solvent_floor_.has_value())
+                  builder.SetSolventFloor(p.solvent_floor_.value());
                 model.AddProcesses(builder.Build());
               }
               else if constexpr (std::is_same_v<T, types::HenryLawPhaseTransfer>)
@@ -252,7 +258,7 @@ namespace musica
               }
               else if constexpr (std::is_same_v<T, types::DissolvedEquilibrium>)
               {
-                model.AddConstraints(
+                auto builder =
                     miam::DissolvedEquilibriumConstraintBuilder()
                         .SetPhase(find_phase(c.phase))
                         .SetReactants(find_species_components(c.reactants))
@@ -261,8 +267,10 @@ namespace musica
                         .SetSolvent(find_species(c.solvent))
                         .SetEquilibriumConstant(miam::EquilibriumConstant({ .A_ = c.equilibrium_constant.A,
                                                                             .C_ = c.equilibrium_constant.C,
-                                                                            .T0_ = c.equilibrium_constant.T0 }))
-                        .Build());
+                                                                            .T0_ = c.equilibrium_constant.T0 }));
+                if (c.solvent_floor_.has_value())
+                  builder.SetSolventFloor(c.solvent_floor_.value());
+                model.AddConstraints(builder.Build());
               }
               else if constexpr (std::is_same_v<T, types::LinearConstraint>)
               {

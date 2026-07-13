@@ -267,10 +267,14 @@ class DissolvedReaction(CppWrapper):
         reactants: Reactant components.
         products: Product components.
         rate_constants: Per-representation rate constants keyed by representation name.
+        solvent_floor: Floor added to the solvent concentration in the rate denominator [mol m-3].
+        min_halflife: Minimum reactant half-life used to cap the rate [s].
     """
 
     phase = CppField()
     solvent = CppField()
+    solvent_floor = CppField()
+    min_halflife = CppField()
 
     def __init__(
         self,
@@ -279,6 +283,8 @@ class DissolvedReaction(CppWrapper):
         reactants: Optional[List[ComponentType]] = None,
         products: Optional[List[ComponentType]] = None,
         rate_constants: Optional[Dict[Any, RateConstantType]] = None,
+        solvent_floor: Optional[float] = None,
+        min_halflife: Optional[float] = None,
     ):
         self._cpp = _mc._DissolvedReaction()
         self.phase = _name(phase)
@@ -286,6 +292,10 @@ class DissolvedReaction(CppWrapper):
         self.reactants = reactants if reactants is not None else []
         self.products = products if products is not None else []
         self.rate_constants = rate_constants
+        if solvent_floor is not None:
+            self.solvent_floor = solvent_floor
+        if min_halflife is not None:
+            self.min_halflife = min_halflife
 
     @property
     def reactants(self) -> List[ReactionComponent]:
@@ -326,10 +336,12 @@ class DissolvedReversibleReaction(CppWrapper):
         forward_rate_constants: Per-representation forward rate constants.
         reverse_rate_constants: Per-representation reverse rate constants.
         equilibrium_constant: Shared intrinsic equilibrium constant (not per representation).
+        solvent_floor: Floor added to the solvent concentration in the rate denominator [mol m-3].
     """
 
     phase = CppField()
     solvent = CppField()
+    solvent_floor = CppField()
 
     def __init__(
         self,
@@ -340,6 +352,7 @@ class DissolvedReversibleReaction(CppWrapper):
         forward_rate_constants: Optional[Dict[Any, RateConstantType]] = None,
         reverse_rate_constants: Optional[Dict[Any, RateConstantType]] = None,
         equilibrium_constant: Optional[ArrheniusReferenceTemperature] = None,
+        solvent_floor: Optional[float] = None,
     ):
         self._cpp = _mc._DissolvedReversibleReaction()
         self.phase = _name(phase)
@@ -350,6 +363,8 @@ class DissolvedReversibleReaction(CppWrapper):
         self.reverse_rate_constants = reverse_rate_constants
         if equilibrium_constant is not None:
             self._cpp.equilibrium_constant = _unwrap(equilibrium_constant)
+        if solvent_floor is not None:
+            self.solvent_floor = solvent_floor
 
     @property
     def reactants(self) -> List[ReactionComponent]:
@@ -509,11 +524,13 @@ class DissolvedEquilibrium(CppWrapper):
         reactants: Reactant components.
         products: Product components.
         equilibrium_constant: Equilibrium constant.
+        solvent_floor: Floor added to the solvent concentration in the rate denominator [mol m-3].
     """
 
     phase = CppField()
     algebraic_species = CppField()
     solvent = CppField()
+    solvent_floor = CppField()
 
     def __init__(
         self,
@@ -523,6 +540,7 @@ class DissolvedEquilibrium(CppWrapper):
         reactants: Optional[List[ComponentType]] = None,
         products: Optional[List[ComponentType]] = None,
         equilibrium_constant: Optional[ArrheniusReferenceTemperature] = None,
+        solvent_floor: Optional[float] = None,
     ):
         self._cpp = _mc._DissolvedEquilibrium()
         self.phase = _name(phase)
@@ -532,6 +550,8 @@ class DissolvedEquilibrium(CppWrapper):
         self.products = products if products is not None else []
         if equilibrium_constant is not None:
             self._cpp.equilibrium_constant = _unwrap(equilibrium_constant)
+        if solvent_floor is not None:
+            self.solvent_floor = solvent_floor
 
     @property
     def reactants(self) -> List[ReactionComponent]:

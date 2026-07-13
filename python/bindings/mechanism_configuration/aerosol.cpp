@@ -74,6 +74,8 @@ void bind_aerosol(py::module_ &mechanism_configuration)
       .def_readwrite("reactants", &DissolvedReaction::reactants)
       .def_readwrite("products", &DissolvedReaction::products)
       .def_readwrite("rate_constants", &DissolvedReaction::rate_constants)
+      .def_readwrite("solvent_floor", &DissolvedReaction::solvent_floor_)
+      .def_readwrite("min_halflife", &DissolvedReaction::min_halflife_)
       .def("__repr__", [](const DissolvedReaction &r) { return "<DissolvedReaction: " + r.phase + ">"; });
 
   py::class_<DissolvedReversibleReaction>(mechanism_configuration, "_DissolvedReversibleReaction")
@@ -85,6 +87,7 @@ void bind_aerosol(py::module_ &mechanism_configuration)
       .def_readwrite("forward_rate_constants", &DissolvedReversibleReaction::forward_rate_constants)
       .def_readwrite("reverse_rate_constants", &DissolvedReversibleReaction::reverse_rate_constants)
       .def_readwrite("equilibrium_constant", &DissolvedReversibleReaction::equilibrium_constant)
+      .def_readwrite("solvent_floor", &DissolvedReversibleReaction::solvent_floor_)
       .def(
           "__repr__", [](const DissolvedReversibleReaction &r) { return "<DissolvedReversibleReaction: " + r.phase + ">"; });
 
@@ -122,6 +125,7 @@ void bind_aerosol(py::module_ &mechanism_configuration)
       .def_readwrite("reactants", &DissolvedEquilibrium::reactants)
       .def_readwrite("products", &DissolvedEquilibrium::products)
       .def_readwrite("equilibrium_constant", &DissolvedEquilibrium::equilibrium_constant)
+      .def_readwrite("solvent_floor", &DissolvedEquilibrium::solvent_floor_)
       .def("__repr__", [](const DissolvedEquilibrium &c) { return "<DissolvedEquilibrium: " + c.phase + ">"; });
 
   py::class_<LinearConstraintTerm>(mechanism_configuration, "_LinearConstraintTerm")
