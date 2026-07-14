@@ -4,6 +4,7 @@
 // WASM bindings for MUSICA using Emscripten
 
 #include <musica/configuration/parse.hpp>
+#include <musica/configuration/read_mechanism.hpp>
 #include <musica/micm/micm.hpp>
 #include <musica/micm/micm_c_interface.hpp>
 #include <musica/micm/solver_parameters.hpp>
@@ -194,7 +195,10 @@ EMSCRIPTEN_BINDINGS(musica_module)
           "fromConfigString",
           optional_override(
               [](std::string config_string, musica::MICMSolver solver)
-              { return std::make_unique<musica::MICM>(musica::ReadConfigurationFromString(config_string), solver); }))
+              {
+                return std::make_unique<musica::MICM>(
+                    musica::ConvertChemistry(musica::ReadMechanismFromString(config_string)), solver);
+              }))
       .function(
           "SetLambdaRateCallback",
           optional_override(

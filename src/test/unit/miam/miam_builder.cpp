@@ -63,7 +63,7 @@ namespace
     };
     mech.phases.push_back(gas_phase);
 
-    return musica::ConvertMechanism(mech);
+    return musica::ConvertChemistry(mech);
   }
 
   // Build MIAM model config for simplified cloud chemistry

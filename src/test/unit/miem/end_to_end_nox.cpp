@@ -15,6 +15,7 @@
 // NO2 (0.1), rather than passed through 1:1.
 
 #include <musica/configuration/emissions.hpp>
+#include <musica/configuration/read_mechanism.hpp>
 
 #include <gtest/gtest.h>
 #include <miem/emissions.hpp>
@@ -75,7 +76,7 @@ namespace
 
 TEST(MiemEndToEndNox, MechanismConfigThroughMusicaToRealMiemFlux)
 {
-  musica::Emissions parsed = musica::ReadEmissionsConfigurationFromString(EmissionsConfigYaml());
+  musica::Emissions parsed = musica::ConvertEmissions(musica::ReadMechanismFromString(EmissionsConfigYaml()));
   ASSERT_EQ(parsed.sources.size(), 1);
 
   miem::Emissions emissions =

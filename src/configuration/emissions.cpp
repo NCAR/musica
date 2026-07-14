@@ -1,7 +1,6 @@
 // Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 #include <musica/configuration/emissions.hpp>
-#include <musica/configuration/read_mechanism.hpp>
 #include <musica/utils/error_code.hpp>
 
 #include <miem/species_map.hpp>
@@ -117,7 +116,7 @@ namespace musica
   {
     if (!mechanism.emissions.has_value())
     {
-      throw musica::Exception(musica::MiemErrorCode::MissingEmissionsSection, "Mechanism has no emissions section");
+      return Emissions{};
     }
 
     const mc_types::EmissionsConfig& config = *mechanism.emissions;
@@ -143,15 +142,5 @@ namespace musica
     emissions.regridding.type_ = ConvertRegriddingType(config.regridding.type);
 
     return emissions;
-  }
-
-  Emissions ReadEmissionsConfiguration(const std::string& config_path)
-  {
-    return ConvertEmissions(ReadMechanism(config_path));
-  }
-
-  Emissions ReadEmissionsConfigurationFromString(const std::string& json_or_yaml_string)
-  {
-    return ConvertEmissions(ReadMechanismFromString(json_or_yaml_string));
   }
 }  // namespace musica

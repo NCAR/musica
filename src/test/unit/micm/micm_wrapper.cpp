@@ -1,4 +1,5 @@
 #include <musica/configuration/parse.hpp>
+#include <musica/configuration/read_mechanism.hpp>
 #include <musica/micm/cuda_availability.hpp>
 #include <musica/micm/micm.hpp>
 #include <musica/micm/solver_parameters.hpp>
@@ -10,7 +11,7 @@
 
 void DoChemistry(musica::MICMSolver solver_type)
 {
-  musica::Chemistry const chemistry = musica::ReadConfiguration("configs/v0/analytical");
+  musica::Chemistry const chemistry = musica::ConvertChemistry(musica::ReadMechanism("configs/v0/analytical"));
   musica::MICM micm = musica::MICM(chemistry, solver_type);
   musica::State state = musica::State(micm, 1);
 
@@ -87,7 +88,7 @@ TEST(MICMWrapper, RosenbrockDAE6StandardOrder)
 
 TEST(SolverParameters, SetGetRosenbrockParameters)
 {
-  musica::Chemistry const chemistry = musica::ReadConfiguration("configs/v0/analytical");
+  musica::Chemistry const chemistry = musica::ConvertChemistry(musica::ReadMechanism("configs/v0/analytical"));
   musica::MICM micm(chemistry, musica::MICMSolver::RosenbrockStandardOrder);
 
   musica::RosenbrockSolverParameters params;
@@ -117,7 +118,7 @@ TEST(SolverParameters, SetGetRosenbrockParameters)
 
 TEST(SolverParameters, SetGetBackwardEulerParameters)
 {
-  musica::Chemistry const chemistry = musica::ReadConfiguration("configs/v0/analytical");
+  musica::Chemistry const chemistry = musica::ConvertChemistry(musica::ReadMechanism("configs/v0/analytical"));
   musica::MICM micm(chemistry, musica::MICMSolver::BackwardEulerStandardOrder);
 
   musica::BackwardEulerSolverParameters params;
@@ -141,7 +142,7 @@ TEST(SolverParameters, SetGetBackwardEulerParameters)
 
 TEST(SolverParameters, WrongParameterTypeThrows)
 {
-  musica::Chemistry const chemistry = musica::ReadConfiguration("configs/v0/analytical");
+  musica::Chemistry const chemistry = musica::ConvertChemistry(musica::ReadMechanism("configs/v0/analytical"));
   musica::MICM micm(chemistry, musica::MICMSolver::RosenbrockStandardOrder);
 
   musica::BackwardEulerSolverParameters params;
@@ -150,7 +151,7 @@ TEST(SolverParameters, WrongParameterTypeThrows)
 
 TEST(SolverParameters, ConstructorWithRosenbrockParams)
 {
-  musica::Chemistry const chemistry = musica::ReadConfiguration("configs/v0/analytical");
+  musica::Chemistry const chemistry = musica::ConvertChemistry(musica::ReadMechanism("configs/v0/analytical"));
 
   musica::RosenbrockSolverParameters params;
   params.h_start = 1e-3;
@@ -165,7 +166,7 @@ TEST(SolverParameters, ConstructorWithRosenbrockParams)
 
 TEST(SolverParameters, DAE4SolverParametersRoundTrip)
 {
-  musica::Chemistry const chemistry = musica::ReadConfiguration("configs/v0/analytical");
+  musica::Chemistry const chemistry = musica::ConvertChemistry(musica::ReadMechanism("configs/v0/analytical"));
   musica::MICM micm(chemistry, musica::MICMSolver::RosenbrockDAE4StandardOrder);
 
   musica::RosenbrockSolverParameters params;
@@ -187,7 +188,7 @@ TEST(SolverParameters, DAE4SolverParametersRoundTrip)
 
 TEST(SolverParameters, DAE6SolverConstructorWithParams)
 {
-  musica::Chemistry const chemistry = musica::ReadConfiguration("configs/v0/analytical");
+  musica::Chemistry const chemistry = musica::ConvertChemistry(musica::ReadMechanism("configs/v0/analytical"));
 
   musica::RosenbrockSolverParameters params;
   params.constraint_init_max_iterations = 100;
@@ -202,7 +203,7 @@ TEST(SolverParameters, DAE6SolverConstructorWithParams)
 
 TEST(SolverParameters, TolerancesAppliedToNewState)
 {
-  musica::Chemistry const chemistry = musica::ReadConfiguration("configs/v0/analytical");
+  musica::Chemistry const chemistry = musica::ConvertChemistry(musica::ReadMechanism("configs/v0/analytical"));
   musica::MICM micm(chemistry, musica::MICMSolver::RosenbrockStandardOrder);
 
   musica::RosenbrockSolverParameters params;

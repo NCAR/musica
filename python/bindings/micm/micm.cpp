@@ -64,7 +64,7 @@ void bind_micm(py::module_& micm)
       [](const Mechanism& mechanism, musica::MICMSolver solver_type)
       {
         musica::Error error;
-        musica::Chemistry chemistry = musica::ConvertMechanism(mechanism);
+        musica::Chemistry chemistry = musica::ConvertChemistry(mechanism);
         musica::MICM* micm = musica::CreateMicmFromChemistryMechanism(&chemistry, solver_type, &error);
         std::string context = "Error creating solver from mechanism (type: " + musica::ToString(solver_type) + ")";
         handle_error(error, context);

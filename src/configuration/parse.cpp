@@ -1,5 +1,4 @@
 #include <musica/configuration/parse.hpp>
-#include <musica/configuration/read_mechanism.hpp>
 #include <musica/micm/lambda_callback.hpp>
 #include <musica/utils/error_code.hpp>
 
@@ -18,16 +17,6 @@ inline constexpr std::string_view molecular_weight = "molecular weight [kg mol-1
 
 namespace musica
 {
-  Chemistry ReadConfiguration(const std::string& config_path)
-  {
-    return ConvertMechanism(ReadMechanism(config_path));
-  }
-
-  Chemistry ReadConfigurationFromString(const std::string& json_or_yaml_string)
-  {
-    return ConvertMechanism(ReadMechanismFromString(json_or_yaml_string));
-  }
-
   bool IsBool(const std::string& value)
   {
     return (value == "true" || value == "false");
@@ -464,7 +453,7 @@ namespace musica
     }
   }
 
-  Chemistry ConvertMechanism(const Mechanism& mechanism)
+  Chemistry ConvertChemistry(const Mechanism& mechanism)
   {
     Chemistry chemistry{};
     auto species = convert_species(mechanism.species);

@@ -11,9 +11,7 @@
 
 namespace musica
 {
-  Chemistry ReadConfiguration(const std::string& config_path);
-  Chemistry ReadConfigurationFromString(const std::string& json_or_yaml_string);
-  Chemistry ConvertMechanism(const mechanism_configuration::Mechanism& mechanism);
+  Chemistry ConvertChemistry(const mechanism_configuration::Mechanism& mechanism);
 
   // Utility functions to check types and perform conversions
   bool IsBool(const std::string& value);
