@@ -49,7 +49,6 @@ P_INIT = 70000.0     # Pa
 
 # ═══ Helpers ═════════════════════════════════════════════════════════════════
 
-# TODO
 def _create_cloud_chemistry_mechanism(r1b_rate_constant=None):
     """Create the CAM Cloud Chemistry mechanism (revised mechanism).
 
@@ -67,7 +66,7 @@ def _create_cloud_chemistry_mechanism(r1b_rate_constant=None):
       R1b: SO2OOH- + H+ → SO4--  (irreversible)
 
     Args:
-        r1b_rate_constant: Optional override for R1b's rate constant (e.g. a callable
+        r1b_rate_constant: Optional override for R1b's rate constant for test purpose (e.g. a callable
             ``f(T) -> k``). Defaults to the Arrhenius reference-temperature form.
     """
     # ── Species ──
@@ -106,6 +105,9 @@ def _create_cloud_chemistry_mechanism(r1b_rate_constant=None):
         max_radius=1e-5)
 
     # ── Processes ──
+    # Test-only hook: `r1b_rate_constant` lets tests override R1b's rate constant
+    # (e.g., with a Python callable `f(T) -> k`). It is NOT a pattern for real configuration.
+    # A normal chemistry setup declares each rate constant inline on the process.
     if r1b_rate_constant is None:
         r1b_rate_constant = mc.ArrheniusReferenceTemperature(A=C_H2O_M * 2.4e6, C=4430.0)
 
@@ -124,7 +126,7 @@ def _create_cloud_chemistry_mechanism(r1b_rate_constant=None):
         solvent=h2o,
         reactants=[so2oohm, hp],
         products=[so4mm],
-        rate_constants={cloud: mc.ArrheniusReferenceTemperature(A=C_H2O_M * 2.4e6, C=4430.0)})
+        rate_constants={cloud: r1b_rate_constant})
 
     # ── Constraints ──
     constraints = [

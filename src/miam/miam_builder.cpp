@@ -61,12 +61,8 @@ namespace musica
             using T = std::decay_t<decltype(val)>;
             if constexpr (std::is_same_v<T, types::ArrheniusReferenceTemperature>)
             {
-              // f(T) = A * exp( C * (1/T0 - 1/T) )
-              double a = val.A;
-              double c = val.C;
-              double t0 = val.T0;
-              return [a, c, t0](const micm::Conditions& cond) -> double
-              { return a * std::exp(c * (1.0 / t0 - 1.0 / cond.temperature_)); };
+              miam::EquilibriumConstant k({ .A_ = val.A, .C_ = val.C, .T0_ = val.T0 });
+              return [k](const micm::Conditions& cond) -> double { return k.Calculate(cond); };
             }
             else if constexpr (std::is_same_v<T, types::Arrhenius>)
             {
@@ -111,7 +107,6 @@ namespace musica
 
       // Resolve a list of ReactionComponents to micm::Species (coefficients are not
       // carried into the MIAM builders today; only the referenced species are used).
-      // TODO (jiwon)
       auto find_species_components = [&](const std::vector<types::ReactionComponent>& components) -> std::vector<micm::Species>
       {
         std::vector<micm::Species> result;
@@ -168,8 +163,6 @@ namespace musica
       miam::Model model{ .name_ = name, .representations_ = std::move(representations) };
 
       // ── Processes ──
-      // Note: the config's DissolvedReaction/DissolvedReversibleReaction don't carry
-      // solvent_floor, min_halflife. The miam builder defaults are used for those.
       for (const auto& proc_cfg : aerosol.processes)
       {
         std::visit(
@@ -234,9 +227,6 @@ namespace musica
       }
 
       // ── Constraints ──
-      // Note: HenryLawEquilibrium's solvent_molecular_weight / solvent_density and
-      // DissolvedEquilibrium's solvent_floor are not consumed by the MIAM constraint
-      // builders. The miam builder defaults apply. 
       for (const auto& con_cfg : aerosol.constraints)
       {
         std::visit(
@@ -245,11 +235,20 @@ namespace musica
               using T = std::decay_t<decltype(c)>;
               if constexpr (std::is_same_v<T, types::HenryLawEquilibrium>)
               {
+                // The MIAM builder reads the solvent's molecular weight and density
+                // from the species properties at Build(); apply the constraint's
+                // explicit solvent_molecular_weight / solvent_density (when set) as
+                // overrides on the solvent passed to it.
+                micm::Species solvent = find_species(c.solvent);
+                if (c.solvent_molecular_weight > 0.0)
+                  solvent.SetProperty("molecular weight [kg mol-1]", c.solvent_molecular_weight);
+                if (c.solvent_density > 0.0)
+                  solvent.SetProperty("density [kg m-3]", c.solvent_density);
                 model.AddConstraints(
                     miam::HenryLawEquilibriumConstraintBuilder()
                         .SetGasSpecies(find_species(c.gas_species))
                         .SetCondensedSpecies(find_species(c.condensed_species))
-                        .SetSolvent(find_species(c.solvent))
+                        .SetSolvent(solvent)
                         .SetCondensedPhase(find_phase(c.condensed_phase))
                         .SetHenryLawConstant(miam::HenryLawConstant({ .HLC_ref_ = c.henry_law_constant.HLC_ref,
                                                                       .C_ = c.henry_law_constant.C,
@@ -371,8 +370,7 @@ namespace musica
       if (!mechanism.aerosol.has_value())
         throw std::runtime_error("MIAM: mechanism has no aerosol section");
 
-      // Resolve aerosol name references against the mechanism's shared namespace
-      // (species + phases). This catches typos before we try to build the model.
+      // Resolve aerosol name references against the mechanism's species and phases.
       auto validation_errors = mechanism_configuration::ValidateAerosolModel(mechanism);
       if (!validation_errors.empty())
       {
