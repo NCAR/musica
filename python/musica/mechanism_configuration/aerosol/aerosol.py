@@ -398,6 +398,15 @@ class DissolvedReversibleReaction(CppWrapper):
     def reverse_rate_constants(self, value):
         self._cpp.reverse_rate_constants = _convert_rate_constant_map(value)
 
+    @property
+    def equilibrium_constant(self) -> Optional[ArrheniusReferenceTemperature]:
+        cpp = self._cpp.equilibrium_constant
+        return ArrheniusReferenceTemperature._from_cpp(cpp) if cpp is not None else None
+
+    @equilibrium_constant.setter
+    def equilibrium_constant(self, value):
+        self._cpp.equilibrium_constant = _unwrap(value) if value is not None else None
+
 
 class HenryLawPhaseTransfer(CppWrapper):
     """Henry's law gas-to-aqueous phase transfer.
