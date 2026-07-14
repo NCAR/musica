@@ -100,10 +100,8 @@ TEST(MiemParser, RoundTripFromStringYaml)
 
 TEST(MiemParser, RoundTripJsonAndYamlMatch)
 {
-  musica::Emissions yaml_emissions =
-      musica::ConvertEmissions(musica::ReadMechanism("configs/v1/emissions/config.yaml"));
-  musica::Emissions json_emissions =
-      musica::ConvertEmissions(musica::ReadMechanism("configs/v1/emissions/config.json"));
+  musica::Emissions yaml_emissions = musica::ConvertEmissions(musica::ReadMechanism("configs/v1/emissions/config.yaml"));
+  musica::Emissions json_emissions = musica::ConvertEmissions(musica::ReadMechanism("configs/v1/emissions/config.json"));
 
   ASSERT_EQ(yaml_emissions.sources.size(), json_emissions.sources.size());
   for (size_t i = 0; i < yaml_emissions.sources.size(); ++i)
