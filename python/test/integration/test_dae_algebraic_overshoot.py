@@ -27,7 +27,7 @@ Equilibrium constraints:
   Henry's law:   SO2  ↔ SO2_aq,  H2O2 ↔ H2O2_aq
   Dissociation:  SO2_aq → HSO3m + Hp,  H2O → Hp + OHm
 
-Conservation constraints (LinearConstraint, diagnose_from_state=True):
+Conservation constraints (LinearConstraint, constant=DiagnoseFromState()):
   Total S:    SO2 + SO2_aq + HSO3m + SO2OOHm + SO4mm = C_s   (SO2 algebraic)
   Total H2O2: H2O2 + H2O2_aq = C_h                           (H2O2 algebraic)
   Charge:     Hp - OHm - HSO3m - 2·SO4mm - SO2OOHm = 0       (Hp algebraic)
@@ -42,21 +42,23 @@ SO₂(g) stays positive — but at a cost of ~130k+ internal steps.
 
 import pytest
 
+import musica
 from musica import backend
 import musica.mechanism_configuration as mc
 from musica.micm import MICM, SolverState, SolverType
 from musica.micm.solver_parameters import RosenbrockSolverParameters
-from musica.miam import (
-    ArrheniusRateConstant,
-    DissolvedEquilibriumConstraint,
+from musica.mechanism_configuration import (
+    Aerosol,
+    ArrheniusReferenceTemperature,
+    DiagnoseFromState,
+    DissolvedEquilibrium,
     DissolvedReaction,
     DissolvedReversibleReaction,
-    EquilibriumConstant,
-    HenryLawEquilibriumConstraint,
+    FixedConstant,
+    HenryLawEquilibrium,
     HenryLawConstant,
     LinearConstraint,
     LinearConstraintTerm,
-    Model,
     UniformSection,
 )
 
@@ -84,16 +86,10 @@ P = 70000.0
 def _build_system():
     """Build the minimal SO2/H2O2 cloud-chemistry system."""
 
-    # ── Gas-phase species & mechanism ───────────────────────────────
+    # ── Gas-phase species ───────────────────────────────────────────
     so2_g = mc.Species(name="SO2")
     h2o2_g = mc.Species(name="H2O2")
     gas = mc.Phase(name="gas", species=[so2_g, h2o2_g])
-    gas_mechanism = mc.Mechanism(
-        name="minimal_gas",
-        species=[so2_g, h2o2_g],
-        phases=[gas],
-        reactions=[],
-    )
 
     # ── Aqueous species ─────────────────────────────────────────────
     h2o = mc.Species(name="H2O")
@@ -113,7 +109,7 @@ def _build_system():
         species=[h2o, so2_aq, h2o2_aq, hp, ohm, hso3m, so4mm, so2oohm],
     )
     cloud = UniformSection(
-        name="CLOUD", phase_names=["AQUEOUS"],
+        name="CLOUD", phases=[aq_phase],
         min_radius=1e-6, max_radius=1e-5,
     )
 
@@ -121,36 +117,36 @@ def _build_system():
 
     # ── Kinetic reactions (H2O2 pathway only) ───────────────────────
     r1a = DissolvedReversibleReaction(
-        phase_name="AQUEOUS",
-        reactant_names=["HSO3m", "H2O2_aq"],
-        product_names=["SO2OOHm", "H2O"],
-        solvent_name="H2O",
-        forward_rate_constant=ArrheniusRateConstant(
-            A=C_H2O_M * (7.45e7 / 13.0), C=4430.0),
-        equilibrium_constant=EquilibriumConstant(A=1725.0),
+        phase=aq_phase,
+        reactants=[hso3m, h2o2_aq],
+        products=[so2oohm, h2o],
+        solvent=h2o,
+        forward_rate_constants={cloud: ArrheniusReferenceTemperature(
+            A=C_H2O_M * (7.45e7 / 13.0), C=4430.0)},
+        equilibrium_constant=ArrheniusReferenceTemperature(A=1725.0),
     )
     r1b = DissolvedReaction(
-        representation_name="CLOUD",
-        phase_name="AQUEOUS",
-        reactant_names=["SO2OOHm", "Hp"],
-        product_names=["SO4mm"],
-        solvent_name="H2O",
-        rate_constant=ArrheniusRateConstant(A=C_H2O_M * 2.4e6, C=4430.0),
+        phase=aq_phase,
+        reactants=[so2oohm, hp],
+        products=[so4mm],
+        solvent=h2o,
+        rate_constants={cloud: ArrheniusReferenceTemperature(A=C_H2O_M * 2.4e6, C=4430.0)},
     )
 
     # ── Equilibrium constraints ─────────────────────────────────────
     constraints = []
 
     # Henry's Law
-    for gas_name, aq_name, hlc, c_val in [
-        ("SO2", "SO2_aq", 1.23, 3120.0),
-        ("H2O2", "H2O2_aq", 7.4e4, 6621.0),
+    for gas_sp, aq_sp, hlc, c_val in [
+        (so2_g, so2_aq, 1.23, 3120.0),
+        (h2o2_g, h2o2_aq, 7.4e4, 6621.0),
     ]:
-        constraints.append(HenryLawEquilibriumConstraint(
-            gas_species_name=gas_name,
-            condensed_species_name=aq_name,
-            solvent_name="H2O",
-            condensed_phase_name="AQUEOUS",
+        constraints.append(HenryLawEquilibrium(
+            gas_phase=gas,
+            gas_species=gas_sp,
+            condensed_phase=aq_phase,
+            condensed_species=aq_sp,
+            solvent=h2o,
             henry_law_constant=HenryLawConstant(
                 HLC_ref=hlc * M_ATM_TO_MOL_M3_PA, C=c_val),
             solvent_molecular_weight=MW_H2O,
@@ -158,84 +154,87 @@ def _build_system():
         ))
 
     # Dissociation
-    constraints.append(DissolvedEquilibriumConstraint(
-        phase_name="AQUEOUS",
-        reactant_names=["H2O"], product_names=["Hp", "OHm"],
-        algebraic_species_name="OHm", solvent_name="H2O",
-        equilibrium_constant=EquilibriumConstant(
+    constraints.append(DissolvedEquilibrium(
+        phase=aq_phase,
+        reactants=[h2o], products=[hp, ohm],
+        algebraic_species=ohm, solvent=h2o,
+        equilibrium_constant=ArrheniusReferenceTemperature(
             A=1e-14 / (C_H2O_M * C_H2O_M), C=0.0),
     ))
-    constraints.append(DissolvedEquilibriumConstraint(
-        phase_name="AQUEOUS",
-        reactant_names=["SO2_aq"], product_names=["HSO3m", "Hp"],
-        algebraic_species_name="HSO3m", solvent_name="H2O",
-        equilibrium_constant=EquilibriumConstant(
+    constraints.append(DissolvedEquilibrium(
+        phase=aq_phase,
+        reactants=[so2_aq], products=[hso3m, hp],
+        algebraic_species=hso3m, solvent=h2o,
+        equilibrium_constant=ArrheniusReferenceTemperature(
             A=1.7e-2 / C_H2O_M, C=2090.0),
     ))
 
     # ── Conservation constraints ────────────────────────────────────
     # Total sulfur (SO2 is algebraic — computed from budget)
     constraints.append(LinearConstraint(
-        algebraic_phase_name="gas",
-        algebraic_species_name="SO2",
+        algebraic_phase=gas,
+        algebraic_species=so2_g,
         terms=[
-            LinearConstraintTerm("gas", "SO2", 1.0),
-            LinearConstraintTerm("AQUEOUS", "SO2_aq", 1.0),
-            LinearConstraintTerm("AQUEOUS", "HSO3m", 1.0),
-            LinearConstraintTerm("AQUEOUS", "SO2OOHm", 1.0),
-            LinearConstraintTerm("AQUEOUS", "SO4mm", 1.0),
+            LinearConstraintTerm(gas, so2_g, 1.0),
+            LinearConstraintTerm(aq_phase, so2_aq, 1.0),
+            LinearConstraintTerm(aq_phase, hso3m, 1.0),
+            LinearConstraintTerm(aq_phase, so2oohm, 1.0),
+            LinearConstraintTerm(aq_phase, so4mm, 1.0),
         ],
-        diagnose_from_state=True,
+        constant=DiagnoseFromState(),
     ))
 
     # Total H2O2
     constraints.append(LinearConstraint(
-        algebraic_phase_name="gas",
-        algebraic_species_name="H2O2",
+        algebraic_phase=gas,
+        algebraic_species=h2o2_g,
         terms=[
-            LinearConstraintTerm("gas", "H2O2", 1.0),
-            LinearConstraintTerm("AQUEOUS", "H2O2_aq", 1.0),
+            LinearConstraintTerm(gas, h2o2_g, 1.0),
+            LinearConstraintTerm(aq_phase, h2o2_aq, 1.0),
         ],
-        diagnose_from_state=True,
+        constant=DiagnoseFromState(),
     ))
 
     # Charge balance (Hp is algebraic)
     constraints.append(LinearConstraint(
-        algebraic_phase_name="AQUEOUS",
-        algebraic_species_name="Hp",
+        algebraic_phase=aq_phase,
+        algebraic_species=hp,
         terms=[
-            LinearConstraintTerm("AQUEOUS", "Hp", 1.0),
-            LinearConstraintTerm("AQUEOUS", "OHm", -1.0),
-            LinearConstraintTerm("AQUEOUS", "HSO3m", -1.0),
-            LinearConstraintTerm("AQUEOUS", "SO4mm", -2.0),
-            LinearConstraintTerm("AQUEOUS", "SO2OOHm", -1.0),
+            LinearConstraintTerm(aq_phase, hp, 1.0),
+            LinearConstraintTerm(aq_phase, ohm, -1.0),
+            LinearConstraintTerm(aq_phase, hso3m, -1.0),
+            LinearConstraintTerm(aq_phase, so4mm, -2.0),
+            LinearConstraintTerm(aq_phase, so2oohm, -1.0),
         ],
-        constant=0.0,
+        constant=FixedConstant(0.0),
     ))
 
     # ── Assemble ────────────────────────────────────────────────────
-    miam_model = Model(
+    mechanism = mc.Mechanism(
         name="minimal_cloud",
         species=all_species,
-        condensed_phases=[aq_phase],
-        representations=[cloud],
-        processes=[r1a, r1b],
-        constraints=constraints,
+        phases=[gas, aq_phase],
+        reactions=[],
+        aerosol=Aerosol(
+            representations=[cloud],
+            processes=[r1a, r1b],
+            constraints=constraints,
+        ),
     )
 
     micm = MICM(
-        mechanism=gas_mechanism,
+        mechanism=mechanism,
         solver_type=SolverType.rosenbrock_dae4_standard_order,
-        external_models=[miam_model],
+        external_models=[musica.MIAM()],
     )
 
-    return micm, miam_model
+    return micm, mechanism
 
 
-def _create_initial_state(micm, miam_model, so4_init=1e-6):
+def _create_initial_state(micm, mechanism, so4_init=1e-6):
     """Create a state with physically reasonable initial conditions."""
     state = micm.create_state()
-    miam_model.set_default_parameters(state)
+    mechanism.aerosol.set_default_parameters(state)
     state.set_conditions(temperatures=T, pressures=P)
 
     so2_init = 3.01e-7     # mol/m³ air
@@ -287,7 +286,7 @@ class TestDAEAlgebraicOvershoot:
         """Changing atol for algebraic species from 1e-3 to 1e-10
         must change step count — proving the error estimator sees them.
         """
-        micm, miam_model = _build_system()
+        micm, mechanism = _build_system()
         ordering = micm.create_state().get_species_ordering()
         n = len(ordering)
 
@@ -305,7 +304,7 @@ class TestDAEAlgebraicOvershoot:
                 max_number_of_steps=500000,
             ))
 
-            state = _create_initial_state(micm, miam_model, so4_init=1e-6)
+            state = _create_initial_state(micm, mechanism, so4_init=1e-6)
             result = micm.solve(state, time_step=30.0)
             assert result.state == SolverState.Converged
             results[alg_atol] = result.stats.accepted
@@ -322,7 +321,7 @@ class TestDAEAlgebraicOvershoot:
         The step-change error for algebraic variables is within their
         generous tolerance, so the solver accepts large steps.
         """
-        micm, miam_model = _build_system()
+        micm, mechanism = _build_system()
         ordering = micm.create_state().get_species_ordering()
         n = len(ordering)
 
@@ -338,7 +337,7 @@ class TestDAEAlgebraicOvershoot:
             max_number_of_steps=500000,
         ))
 
-        state = _create_initial_state(micm, miam_model, so4_init=1e-6)
+        state = _create_initial_state(micm, mechanism, so4_init=1e-6)
         initial_total_s = _total_sulfur(state.get_concentrations())
 
         result = micm.solve(state, time_step=30.0)
@@ -366,7 +365,7 @@ class TestDAEAlgebraicOvershoot:
         where the algebraic balance variable changes too much, preventing
         overshoot of the conservation budget.
         """
-        micm, miam_model = _build_system()
+        micm, mechanism = _build_system()
         ordering = micm.create_state().get_species_ordering()
         n = len(ordering)
 
@@ -382,7 +381,7 @@ class TestDAEAlgebraicOvershoot:
             max_number_of_steps=500000,
         ))
 
-        state = _create_initial_state(micm, miam_model, so4_init=1e-6)
+        state = _create_initial_state(micm, mechanism, so4_init=1e-6)
         initial_total_s = _total_sulfur(state.get_concentrations())
 
         result = micm.solve(state, time_step=30.0)
@@ -409,7 +408,7 @@ class TestDAEAlgebraicOvershoot:
 
 if __name__ == "__main__":
     """Run as a standalone script with diagnostic output."""
-    micm, miam_model = _build_system()
+    micm, mechanism = _build_system()
     ordering = micm.create_state().get_species_ordering()
     n = len(ordering)
 
@@ -434,7 +433,7 @@ if __name__ == "__main__":
             max_number_of_steps=500000,
         ))
 
-        state = _create_initial_state(micm, miam_model, so4_init=1e-6)
+        state = _create_initial_state(micm, mechanism, so4_init=1e-6)
         result = micm.solve(state, time_step=30.0)
         c = state.get_concentrations()
 
