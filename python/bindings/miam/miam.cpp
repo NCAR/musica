@@ -294,7 +294,7 @@ void bind_miam(py::module_& miam)
          const mc::ModelConfig& miam_config)
       {
         musica::Error error;
-        musica::Chemistry chemistry = musica::ConvertMechanism(mechanism);
+        musica::Chemistry chemistry = musica::ConvertChemistry(mechanism);
         musica::MICM* micm = musica::CreateMicmWithMiam(chemistry, solver_type, miam_config, &error);
         if (!musica::IsSuccess(error))
         {

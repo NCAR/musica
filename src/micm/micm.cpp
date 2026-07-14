@@ -5,6 +5,7 @@
 // multi-component reactive transport model. It also includes functions for
 // creating and deleting MICM instances, creating solvers, and solving the model.
 #include <musica/configuration/parse.hpp>
+#include <musica/configuration/read_mechanism.hpp>
 #include <musica/micm/cpu_solver.hpp>
 #include <musica/micm/cuda_loader.hpp>
 #include <musica/micm/lambda_callback.hpp>
@@ -38,7 +39,7 @@ namespace musica
   }
 
   MICM::MICM(std::string config_path, MICMSolver solver_type)
-      : MICM(ReadConfiguration(config_path), solver_type)
+      : MICM(ConvertChemistry(ReadMechanism(config_path)), solver_type)
   {
   }
 
@@ -49,7 +50,7 @@ namespace musica
   }
 
   MICM::MICM(std::string config_path, MICMSolver solver_type, const RosenbrockSolverParameters& params)
-      : MICM(ReadConfiguration(config_path), solver_type, params)
+      : MICM(ConvertChemistry(ReadMechanism(config_path)), solver_type, params)
   {
   }
 
@@ -60,7 +61,7 @@ namespace musica
   }
 
   MICM::MICM(std::string config_path, MICMSolver solver_type, const BackwardEulerSolverParameters& params)
-      : MICM(ReadConfiguration(config_path), solver_type, params)
+      : MICM(ConvertChemistry(ReadMechanism(config_path)), solver_type, params)
   {
   }
 

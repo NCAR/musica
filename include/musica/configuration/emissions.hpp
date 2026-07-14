@@ -17,7 +17,5 @@ namespace musica
     miem::Regridding regridding;
   };
 
-  Emissions ReadEmissionsConfiguration(const std::string& config_path);
-  Emissions ReadEmissionsConfigurationFromString(const std::string& json_or_yaml_string);
   Emissions ConvertEmissions(const mechanism_configuration::Mechanism& mechanism);
 }  // namespace musica
