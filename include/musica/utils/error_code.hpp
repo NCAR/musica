@@ -33,7 +33,6 @@ namespace musica
 
   enum class MiemErrorCode
   {
-    MissingEmissionsSection = MUSICA_MIEM_ERROR_CODE_MISSING_EMISSIONS_SECTION,
     UnresolvedReference = MUSICA_MIEM_ERROR_CODE_UNRESOLVED_REFERENCE,
   };
 

@@ -1,4 +1,5 @@
 #include <musica/configuration/emissions.hpp>
+#include <musica/configuration/read_mechanism.hpp>
 #include <musica/utils/error_code.hpp>
 
 #include <mechanism_configuration/mechanism.hpp>
@@ -65,7 +66,7 @@ namespace
 
 TEST(MiemParser, RoundTripFromStringYaml)
 {
-  musica::Emissions emissions = musica::ReadEmissionsConfiguration("configs/v1/emissions/config.yaml");
+  musica::Emissions emissions = musica::ConvertEmissions(musica::ReadMechanism("configs/v1/emissions/config.yaml"));
 
   ASSERT_EQ(emissions.sources.size(), 2);
 
@@ -99,8 +100,10 @@ TEST(MiemParser, RoundTripFromStringYaml)
 
 TEST(MiemParser, RoundTripJsonAndYamlMatch)
 {
-  musica::Emissions yaml_emissions = musica::ReadEmissionsConfiguration("configs/v1/emissions/config.yaml");
-  musica::Emissions json_emissions = musica::ReadEmissionsConfiguration("configs/v1/emissions/config.json");
+  musica::Emissions yaml_emissions =
+      musica::ConvertEmissions(musica::ReadMechanism("configs/v1/emissions/config.yaml"));
+  musica::Emissions json_emissions =
+      musica::ConvertEmissions(musica::ReadMechanism("configs/v1/emissions/config.json"));
 
   ASSERT_EQ(yaml_emissions.sources.size(), json_emissions.sources.size());
   for (size_t i = 0; i < yaml_emissions.sources.size(); ++i)
@@ -115,8 +118,8 @@ TEST(MiemParser, ReadFromStringMatchesReadFromFile)
   std::ifstream file("configs/v1/emissions/config.yaml");
   std::string contents((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 
-  musica::Emissions from_string = musica::ReadEmissionsConfigurationFromString(contents);
-  musica::Emissions from_file = musica::ReadEmissionsConfiguration("configs/v1/emissions/config.yaml");
+  musica::Emissions from_string = musica::ConvertEmissions(musica::ReadMechanismFromString(contents));
+  musica::Emissions from_file = musica::ConvertEmissions(musica::ReadMechanism("configs/v1/emissions/config.yaml"));
 
   ASSERT_EQ(from_string.sources.size(), from_file.sources.size());
   EXPECT_EQ(from_string.sources[0].name_, from_file.sources[0].name_);
@@ -124,15 +127,17 @@ TEST(MiemParser, ReadFromStringMatchesReadFromFile)
 
 TEST(MiemParser, BadConfigurationFilePath)
 {
-  EXPECT_THROW(musica::ReadEmissionsConfiguration("bad config path"), musica::Exception);
+  EXPECT_THROW(musica::ConvertEmissions(musica::ReadMechanism("bad config path")), musica::Exception);
 }
 
-TEST(MiemParser, MissingEmissionsSectionThrows)
+TEST(MiemParser, MissingEmissionsSectionIsNotAnError)
 {
   mechanism_configuration::Mechanism mechanism{};
   ASSERT_FALSE(mechanism.emissions.has_value());
 
-  ExpectMiemError([&]() { musica::ConvertEmissions(mechanism); }, musica::MiemErrorCode::MissingEmissionsSection);
+  musica::Emissions emissions = musica::ConvertEmissions(mechanism);
+  EXPECT_TRUE(emissions.sources.empty());
+  EXPECT_EQ(emissions.regridding.type_, miem::RegriddingType::None);
 }
 
 TEST(MiemParser, UnresolvedInventoryReferenceThrows)
