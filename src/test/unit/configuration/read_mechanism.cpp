@@ -9,8 +9,9 @@
 #include <musica/configuration/read_mechanism.hpp>
 #include <musica/utils/error.hpp>
 
-#include <fstream>
 #include <gtest/gtest.h>
+
+#include <fstream>
 #include <string>
 
 TEST(ReadMechanism, BadConfigurationFilePathThrows)
