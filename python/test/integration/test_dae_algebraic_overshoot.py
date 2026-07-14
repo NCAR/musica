@@ -42,7 +42,7 @@ SO₂(g) stays positive — but at a cost of ~130k+ internal steps.
 
 import pytest
 
-import musica.miam
+import musica
 from musica import backend
 import musica.mechanism_configuration as mc
 from musica.micm import MICM, SolverState, SolverType
@@ -225,7 +225,7 @@ def _build_system():
     micm = MICM(
         mechanism=mechanism,
         solver_type=SolverType.rosenbrock_dae4_standard_order,
-        external_models=[musica.miam.MIAM()],
+        external_models=[musica.MIAM()],
     )
 
     return micm, mechanism

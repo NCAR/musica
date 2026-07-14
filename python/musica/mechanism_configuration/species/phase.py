@@ -32,7 +32,8 @@ class Phase(CppWrapper):
         Args:
             name: The name of the phase.
             species: A list of species in the phase. Species objects are
-                     automatically converted to PhaseSpecies.
+                     automatically converted to PhaseSpecies, copying the
+                     species-level density as the phase-species density.
             other_properties: A dictionary of other properties of the phase.
         """
         self._cpp = _mc._Phase()

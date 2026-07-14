@@ -16,10 +16,7 @@ namespace musica
 {
   /// @brief Create a MICM solver with a MIAM external model attached
   /// @param mechanism Parsed mechanism carrying the species, phases, and aerosol
-  ///                  section that define the MIAM model. The gas-phase chemistry
-  ///                  is derived from it internally; aerosol entries reference
-  ///                  species/phases by name, resolved against the mechanism's
-  ///                  species/phases here.
+  ///                  section that define the MIAM model.
   /// @param solver_type The solver variant to use
   /// @param error Error output
   /// @return Pointer to an initialized MICM solver (caller owns)

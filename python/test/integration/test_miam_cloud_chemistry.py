@@ -8,7 +8,7 @@ import math
 import pytest
 
 import musica.mechanism_configuration as mc
-import musica.miam
+import musica
 from musica import backend
 from musica.micm import MICM, SolverType, SolverState
 
@@ -275,7 +275,7 @@ class TestMiamModelCreation:
         micm = MICM(
             mechanism=mechanism,
             solver_type=SolverType.rosenbrock_dae4_standard_order,
-            external_models=[musica.miam.MIAM()],
+            external_models=[musica.MIAM()],
         )
         assert micm is not None
         assert micm.solver_type() == SolverType.rosenbrock_dae4_standard_order
@@ -285,7 +285,7 @@ class TestMiamModelCreation:
         micm = MICM(
             mechanism=mechanism,
             solver_type=SolverType.rosenbrock_dae6_standard_order,
-            external_models=[musica.miam.MIAM()],
+            external_models=[musica.MIAM()],
         )
         assert micm is not None
 
@@ -295,7 +295,7 @@ class TestMiamModelCreation:
         micm = MICM(
             mechanism=mechanism,
             solver_type=SolverType.rosenbrock_standard_order,
-            external_models=[musica.miam.MIAM()],
+            external_models=[musica.MIAM()],
         )
         assert micm is not None
 
@@ -308,7 +308,7 @@ class TestMiamStateCreation:
         micm = MICM(
             mechanism=mechanism,
             solver_type=SolverType.rosenbrock_dae4_standard_order,
-            external_models=[musica.miam.MIAM()],
+            external_models=[musica.MIAM()],
         )
         state = micm.create_state()
         assert state is not None
@@ -318,7 +318,7 @@ class TestMiamStateCreation:
         micm = MICM(
             mechanism=mechanism,
             solver_type=SolverType.rosenbrock_dae4_standard_order,
-            external_models=[musica.miam.MIAM()],
+            external_models=[musica.MIAM()],
         )
         state = micm.create_state()
         mechanism.aerosol.set_default_parameters(state)
@@ -339,7 +339,7 @@ class TestMiamSolve:
         micm = MICM(
             mechanism=mechanism,
             solver_type=SolverType.rosenbrock_dae4_standard_order,
-            external_models=[musica.miam.MIAM()],
+            external_models=[musica.MIAM()],
         )
 
         state = micm.create_state()
@@ -384,7 +384,7 @@ class TestMiamSolve:
         micm = MICM(
             mechanism=mechanism,
             solver_type=SolverType.rosenbrock_dae4_standard_order,
-            external_models=[musica.miam.MIAM()],
+            external_models=[musica.MIAM()],
         )
 
         state = micm.create_state()
@@ -417,7 +417,7 @@ class TestMiamErrorCases:
         with pytest.raises(ValueError, match="external_models cannot be used with config_path"):
             MICM(
                 config_path="dummy/path",
-                external_models=[musica.miam.MIAM()],
+                external_models=[musica.MIAM()],
             )
 
     def test_invalid_species_in_aerosol(self):
@@ -443,7 +443,7 @@ class TestMiamErrorCases:
             MICM(
                 mechanism=mechanism,
                 solver_type=SolverType.rosenbrock_standard_order,
-                external_models=[musica.miam.MIAM()],
+                external_models=[musica.MIAM()],
             )
 
 
@@ -799,7 +799,7 @@ class TestEquilibriumValidation:
         micm = MICM(
             mechanism=mechanism,
             solver_type=SolverType.rosenbrock_dae4_standard_order,
-            external_models=[musica.miam.MIAM()],
+            external_models=[musica.MIAM()],
         )
         state = micm.create_state()
         mechanism.aerosol.set_default_parameters(state)
@@ -944,7 +944,7 @@ class TestKineticsValidation:
         micm = MICM(
             mechanism=mechanism,
             solver_type=SolverType.rosenbrock_dae4_standard_order,
-            external_models=[musica.miam.MIAM()],
+            external_models=[musica.MIAM()],
         )
         state = micm.create_state()
         mechanism.aerosol.set_default_parameters(state)
