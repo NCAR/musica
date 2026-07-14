@@ -65,9 +65,16 @@ namespace
     std::string name;
     std::optional<double> diffusion_coefficient = std::nullopt;
     std::optional<double> density = std::nullopt;
-    PhaseSpec(const char* n) : name(n) {}
+    PhaseSpec(const char* n)
+        : name(n)
+    {
+    }
     PhaseSpec(std::string n, std::optional<double> diffusion, std::optional<double> dens = std::nullopt)
-        : name(std::move(n)), diffusion_coefficient(diffusion), density(dens) {}
+        : name(std::move(n)),
+          diffusion_coefficient(diffusion),
+          density(dens)
+    {
+    }
   };
 
   types::Phase MakePhase(const std::string& name, const std::vector<PhaseSpec>& species)
@@ -176,9 +183,7 @@ namespace
     aerosol.processes = { r1a, r1b, r2, r3 };
 
     // Henry's Law equilibria (gas ⇌ dissolved)
-    auto henry_eq = [](const std::string& gas_species,
-                       const std::string& condensed_species,
-                       types::HenryLawConstant hlc)
+    auto henry_eq = [](const std::string& gas_species, const std::string& condensed_species, types::HenryLawConstant hlc)
     {
       types::HenryLawEquilibrium h;
       h.gas_phase = "gas";
@@ -286,7 +291,16 @@ namespace
           MakeSpecies("SO2OOHm"),
           MakeSpecies("H2O", MW_H2O, RHO_H2O) },
         { { "SO2", 1.28e-5 }, { "H2O2", 1.46e-5 }, { "O3", 1.48e-5 } },
-        { { "H2O", std::nullopt, RHO_H2O }, "SO2_aq", "H2O2_aq", "O3_aq", "Hp", "OHm", "HSO3m", "SO3mm", "SO4mm", "SO2OOHm" },
+        { { "H2O", std::nullopt, RHO_H2O },
+          "SO2_aq",
+          "H2O2_aq",
+          "O3_aq",
+          "Hp",
+          "OHm",
+          "HSO3m",
+          "SO3mm",
+          "SO4mm",
+          "SO2OOHm" },
         std::move(aerosol));
   }
 }  // anonymous namespace
@@ -298,8 +312,7 @@ TEST(MiamBuilder, CreateMicmWithMiam_DAE4)
   auto mechanism = CreateCloudChemistryMechanism();
 
   musica::Error error;
-  musica::MICM* micm =
-      musica::CreateMicmWithMiam(mechanism, musica::MICMSolver::RosenbrockDAE4StandardOrder, &error);
+  musica::MICM* micm = musica::CreateMicmWithMiam(mechanism, musica::MICMSolver::RosenbrockDAE4StandardOrder, &error);
 
   ASSERT_TRUE(musica::IsSuccess(error)) << "Error: " << (error.message_.value_ ? error.message_.value_ : "null");
   ASSERT_NE(micm, nullptr);
@@ -319,8 +332,7 @@ TEST(MiamBuilder, CreateMicmWithMiam_DAE6)
   auto mechanism = CreateCloudChemistryMechanism();
 
   musica::Error error;
-  musica::MICM* micm =
-      musica::CreateMicmWithMiam(mechanism, musica::MICMSolver::RosenbrockDAE6StandardOrder, &error);
+  musica::MICM* micm = musica::CreateMicmWithMiam(mechanism, musica::MICMSolver::RosenbrockDAE6StandardOrder, &error);
 
   ASSERT_TRUE(musica::IsSuccess(error)) << "Error: " << (error.message_.value_ ? error.message_.value_ : "null");
   ASSERT_NE(micm, nullptr);
@@ -334,8 +346,7 @@ TEST(MiamBuilder, CreateMicmWithMiam_Rosenbrock)
   auto mechanism = CreateCloudChemistryMechanism();
 
   musica::Error error;
-  musica::MICM* micm =
-      musica::CreateMicmWithMiam(mechanism, musica::MICMSolver::RosenbrockStandardOrder, &error);
+  musica::MICM* micm = musica::CreateMicmWithMiam(mechanism, musica::MICMSolver::RosenbrockStandardOrder, &error);
 
   ASSERT_TRUE(musica::IsSuccess(error)) << "Error: " << (error.message_.value_ ? error.message_.value_ : "null");
   ASSERT_NE(micm, nullptr);
@@ -358,8 +369,7 @@ TEST(MiamBuilder, InvalidSpeciesName)
   mechanism.aerosol->processes.push_back(bad_rxn);
 
   musica::Error error;
-  musica::MICM* micm =
-      musica::CreateMicmWithMiam(mechanism, musica::MICMSolver::RosenbrockDAE4StandardOrder, &error);
+  musica::MICM* micm = musica::CreateMicmWithMiam(mechanism, musica::MICMSolver::RosenbrockDAE4StandardOrder, &error);
 
   EXPECT_FALSE(musica::IsSuccess(error));
   EXPECT_EQ(micm, nullptr);
@@ -380,8 +390,7 @@ TEST(MiamBuilder, InvalidPhaseName)
   mechanism.aerosol->processes.push_back(bad_rxn);
 
   musica::Error error;
-  musica::MICM* micm =
-      musica::CreateMicmWithMiam(mechanism, musica::MICMSolver::RosenbrockDAE4StandardOrder, &error);
+  musica::MICM* micm = musica::CreateMicmWithMiam(mechanism, musica::MICMSolver::RosenbrockDAE4StandardOrder, &error);
 
   EXPECT_FALSE(musica::IsSuccess(error));
   EXPECT_EQ(micm, nullptr);
@@ -403,8 +412,7 @@ TEST(MiamBuilder, CallbackRateConstant)
       });
 
   musica::Error error;
-  musica::MICM* micm =
-      musica::CreateMicmWithMiam(mechanism, musica::MICMSolver::RosenbrockDAE4StandardOrder, &error);
+  musica::MICM* micm = musica::CreateMicmWithMiam(mechanism, musica::MICMSolver::RosenbrockDAE4StandardOrder, &error);
 
   ASSERT_TRUE(musica::IsSuccess(error)) << "Error: " << (error.message_.value_ ? error.message_.value_ : "null");
   ASSERT_NE(micm, nullptr);
@@ -428,8 +436,7 @@ TEST(MiamBuilder, EmptyProcessesAndConstraints)
       std::move(aerosol));
 
   musica::Error error;
-  musica::MICM* micm =
-      musica::CreateMicmWithMiam(mechanism, musica::MICMSolver::RosenbrockStandardOrder, &error);
+  musica::MICM* micm = musica::CreateMicmWithMiam(mechanism, musica::MICMSolver::RosenbrockStandardOrder, &error);
 
   ASSERT_TRUE(musica::IsSuccess(error)) << "Error: " << (error.message_.value_ ? error.message_.value_ : "null");
   ASSERT_NE(micm, nullptr);
@@ -453,8 +460,7 @@ TEST(MiamBuilder, SingleMomentModeRepresentation)
       std::move(aerosol));
 
   musica::Error error;
-  musica::MICM* micm =
-      musica::CreateMicmWithMiam(mechanism, musica::MICMSolver::RosenbrockStandardOrder, &error);
+  musica::MICM* micm = musica::CreateMicmWithMiam(mechanism, musica::MICMSolver::RosenbrockStandardOrder, &error);
 
   ASSERT_TRUE(musica::IsSuccess(error)) << "Error: " << (error.message_.value_ ? error.message_.value_ : "null");
   ASSERT_NE(micm, nullptr);
@@ -477,8 +483,7 @@ TEST(MiamBuilder, TwoMomentModeRepresentation)
       std::move(aerosol));
 
   musica::Error error;
-  musica::MICM* micm =
-      musica::CreateMicmWithMiam(mechanism, musica::MICMSolver::RosenbrockStandardOrder, &error);
+  musica::MICM* micm = musica::CreateMicmWithMiam(mechanism, musica::MICMSolver::RosenbrockStandardOrder, &error);
 
   ASSERT_TRUE(musica::IsSuccess(error)) << "Error: " << (error.message_.value_ ? error.message_.value_ : "null");
   ASSERT_NE(micm, nullptr);
@@ -518,8 +523,7 @@ TEST(MiamBuilder, HenryLawPhaseTransferProcess)
       std::move(aerosol));
 
   musica::Error error;
-  musica::MICM* micm =
-      musica::CreateMicmWithMiam(mechanism, musica::MICMSolver::RosenbrockStandardOrder, &error);
+  musica::MICM* micm = musica::CreateMicmWithMiam(mechanism, musica::MICMSolver::RosenbrockStandardOrder, &error);
 
   ASSERT_TRUE(musica::IsSuccess(error)) << "Error: " << (error.message_.value_ ? error.message_.value_ : "null");
   ASSERT_NE(micm, nullptr);
@@ -559,8 +563,7 @@ TEST(MiamBuilder, DissolvedReversibleReactionProcess)
       std::move(aerosol));
 
   musica::Error error;
-  musica::MICM* micm =
-      musica::CreateMicmWithMiam(mechanism, musica::MICMSolver::RosenbrockStandardOrder, &error);
+  musica::MICM* micm = musica::CreateMicmWithMiam(mechanism, musica::MICMSolver::RosenbrockStandardOrder, &error);
 
   ASSERT_TRUE(musica::IsSuccess(error)) << "Error: " << (error.message_.value_ ? error.message_.value_ : "null");
   ASSERT_NE(micm, nullptr);

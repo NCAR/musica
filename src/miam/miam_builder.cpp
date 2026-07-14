@@ -107,7 +107,8 @@ namespace musica
 
       // Resolve a list of ReactionComponents to micm::Species (coefficients are not
       // carried into the MIAM builders today; only the referenced species are used).
-      auto find_species_components = [&](const std::vector<types::ReactionComponent>& components) -> std::vector<micm::Species>
+      auto find_species_components =
+          [&](const std::vector<types::ReactionComponent>& components) -> std::vector<micm::Species>
       {
         std::vector<micm::Species> result;
         result.reserve(components.size());
@@ -257,16 +258,15 @@ namespace musica
               }
               else if constexpr (std::is_same_v<T, types::DissolvedEquilibrium>)
               {
-                auto builder =
-                    miam::DissolvedEquilibriumConstraintBuilder()
-                        .SetPhase(find_phase(c.phase))
-                        .SetReactants(find_species_components(c.reactants))
-                        .SetProducts(find_species_components(c.products))
-                        .SetAlgebraicSpecies(find_species(c.algebraic_species))
-                        .SetSolvent(find_species(c.solvent))
-                        .SetEquilibriumConstant(miam::EquilibriumConstant({ .A_ = c.equilibrium_constant.A,
-                                                                            .C_ = c.equilibrium_constant.C,
-                                                                            .T0_ = c.equilibrium_constant.T0 }));
+                auto builder = miam::DissolvedEquilibriumConstraintBuilder()
+                                   .SetPhase(find_phase(c.phase))
+                                   .SetReactants(find_species_components(c.reactants))
+                                   .SetProducts(find_species_components(c.products))
+                                   .SetAlgebraicSpecies(find_species(c.algebraic_species))
+                                   .SetSolvent(find_species(c.solvent))
+                                   .SetEquilibriumConstant(miam::EquilibriumConstant({ .A_ = c.equilibrium_constant.A,
+                                                                                       .C_ = c.equilibrium_constant.C,
+                                                                                       .T0_ = c.equilibrium_constant.T0 }));
                 if (c.solvent_floor_.has_value())
                   builder.SetSolventFloor(c.solvent_floor_.value());
                 model.AddConstraints(builder.Build());
@@ -359,10 +359,7 @@ namespace musica
 
   }  // anonymous namespace
 
-  MICM* CreateMicmWithMiam(
-      const mechanism_configuration::Mechanism& mechanism,
-      MICMSolver solver_type,
-      Error* error)
+  MICM* CreateMicmWithMiam(const mechanism_configuration::Mechanism& mechanism, MICMSolver solver_type, Error* error)
   {
     DeleteError(error);
     try
