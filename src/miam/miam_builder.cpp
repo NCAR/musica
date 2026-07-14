@@ -67,7 +67,7 @@ namespace musica
             else if constexpr (std::is_same_v<T, types::Arrhenius>)
             {
               // Full gas-phase Arrhenius, honoring the temperature and pressure terms.
-              // Field mapping mirrors ConvertMechanism (1:1 A/B/C/D/E) and the lambda
+              // Field mapping mirrors ConvertChemistry (1:1 A/B/C/D/E) and the lambda
               // matches DissolvedReactionBuilder::AddRateConstant, so aerosol and gas
               // Arrhenius rate constants evaluate identically.
               micm::ArrheniusRateConstantParameters params;
@@ -379,7 +379,6 @@ namespace musica
           message += "\n  - " + msg;
         throw std::runtime_error(message);
       }
-
       // Build the species map from the mechanism's species list.
       std::unordered_map<std::string, micm::Species> species_map;
       for (const auto& sp : mechanism.species)
@@ -408,7 +407,7 @@ namespace musica
       }
 
       // Gas-phase chemistry is derived from the mechanism (single source of truth).
-      const Chemistry chemistry = ConvertMechanism(mechanism);
+      const Chemistry chemistry = ConvertChemistry(mechanism);
 
       // Overlay the mechanism's gas phase from the built chemistry so linear
       // constraints referencing it get the exact micm gas-phase object.
