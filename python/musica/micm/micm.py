@@ -76,8 +76,8 @@ class MICM():
             solver_parameters : RosenbrockSolverParameters or BackwardEulerSolverParameters, optional
                 Solver-specific parameters. Must match the solver type.
             external_models : list, optional
-                External models to attach to the solver. Each external model builds the solver from 
-                the mechanism via its own ``_create_solver`` hook, so MICM stays agnostic to which 
+                External models to attach to the solver. Each external model builds the solver from
+                the mechanism via its own ``_create_solver`` hook, so MICM stays agnostic to which
                 model is attached. Currently at most one external model is supported; passing more
                 than one raises a ValueError. Only valid together with `mechanism`.
         """

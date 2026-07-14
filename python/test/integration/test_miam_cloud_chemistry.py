@@ -186,7 +186,7 @@ def _create_cloud_chemistry_mechanism(r1b_rate_constant=None):
         # Mass S: SO2_g + SO2_aq + HSO3- + SO3-- + SO2OOH- = total_S
         # NOTE: SO4-- is differential (produced by kinetics), NOT in S budget
         mc.LinearConstraint(
-            algebraic_phase=gas, 
+            algebraic_phase=gas,
             algebraic_species=so2_g,
             terms=[
                 mc.LinearConstraintTerm(gas, so2_g, 1.0),

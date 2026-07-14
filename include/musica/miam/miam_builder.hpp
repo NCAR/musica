@@ -20,8 +20,5 @@ namespace musica
   /// @param solver_type The solver variant to use
   /// @param error Error output
   /// @return Pointer to an initialized MICM solver (caller owns)
-  MICM* CreateMicmWithMiam(
-      const mechanism_configuration::Mechanism& mechanism,
-      MICMSolver solver_type,
-      Error* error);
+  MICM* CreateMicmWithMiam(const mechanism_configuration::Mechanism& mechanism, MICMSolver solver_type, Error* error);
 }  // namespace musica
