@@ -42,7 +42,4 @@ jobs:
           pytest --nbmake --nbmake-timeout=900 --nbmake-kernel=python3 -v tutorials/ \
             --ignore-glob='*.ipynb_checkpoints*' \
             --ignore-glob='*hpc_parallelization*' \
-            --ignore-glob='*gpu_solver*' \
-            --ignore-glob='*dae_solving_intro*' \
-            --ignore-glob='*miam_processes_and_constraints*' \
-            --ignore-glob='*cam_cloud_chemistry*'
+            --ignore-glob='*gpu_solver*'
