@@ -118,6 +118,74 @@ Classes
 .. js:autoclass:: State
    :members:
 
+Mechanism Configuration
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Classes for building a mechanism configuration in JavaScript and serializing it
+to MUSICA's JSON format via ``getJSON()`` / ``getString()``. Accessible under
+``mechanismConfiguration`` (``types``, ``reactionTypes``, and ``Mechanism``).
+
+.. js:autoclass:: Mechanism
+   :members:
+
+Core types
+""""""""""
+
+.. js:autoclass:: Species
+   :members:
+
+.. js:autoclass:: PhaseSpecies
+   :members:
+
+.. js:autoclass:: Phase
+   :members:
+
+.. js:autoclass:: ReactionComponent
+   :members:
+
+Reaction types
+""""""""""""""
+
+Every reaction class exposes its mechanism-configuration type string as both a
+static property (e.g. ``Arrhenius.type``) and an instance property
+(``new Arrhenius(...).type``).
+
+.. js:autoclass:: Arrhenius
+   :members:
+
+.. js:autoclass:: Branched
+   :members:
+
+.. js:autoclass:: Emission
+   :members:
+
+.. js:autoclass:: FirstOrderLoss
+   :members:
+
+.. js:autoclass:: Photolysis
+   :members:
+
+.. js:autoclass:: Surface
+   :members:
+
+.. js:autoclass:: TaylorSeries
+   :members:
+
+.. js:autoclass:: Troe
+   :members:
+
+.. js:autoclass:: TernaryChemicalActivation
+   :members:
+
+.. js:autoclass:: Tunneling
+   :members:
+
+.. js:autoclass:: UserDefined
+   :members:
+
+.. js:autoclass:: LambdaRateConstant
+   :members:
+
 Further Reading
 ---------------
 

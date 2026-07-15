@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 
 # pyproject.toml extracts the version from this line via regex — keep version on this line
-project(musica VERSION 0.16.0)
+project(musica VERSION 0.16.1)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${PROJECT_SOURCE_DIR}/cmake)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
@@ -27,7 +27,8 @@ option(MUSICA_ENABLE_OPENMP "Enable OpemMP support" OFF)
 option(MUSICA_ENABLE_MEMCHECK "Enable memory checking" OFF)
 option(MUSICA_BUILD_DOCS "Build the documentation" OFF)
 option(MUSICA_ENABLE_MICM "Enable MICM" ON)
-option(MUSICA_ENABLE_MIAM "Enable MIAM" OFF)
+option(MUSICA_ENABLE_MIAM "Enable MIAM" ON)
+option(MUSICA_ENABLE_MIEM "Enable MIEM" OFF)
 option(MUSICA_ENABLE_TUVX "Enable TUV-x" ON)
 option(MUSICA_ENABLE_CARMA "Enable CARMA" ON)
 option(MUSICA_ENABLE_COVERAGE "Enable code coverage output" OFF)

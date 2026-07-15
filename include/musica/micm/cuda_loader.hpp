@@ -6,7 +6,7 @@
 // On other platforms or when CUDA is not available, it returns "not available".
 #pragma once
 
-#include <musica/micm/chemistry.hpp>
+#include <musica/configuration/chemistry.hpp>
 #include <musica/micm/solver_interface.hpp>
 
 #include <functional>

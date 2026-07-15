@@ -67,7 +67,7 @@ endif()
 
 if(MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(MECH_CONFIG_GIT_REPOSITORY https://github.com/NCAR/MechanismConfiguration.git)
-  set_git_default(MECH_CONFIG_GIT_TAG v2.0.0)
+  set_git_default(MECH_CONFIG_GIT_TAG 3d13e2d7b630b1a4ad0f1a160be97dd9a7620f5d)
 
   FetchContent_Declare(mechanism_configuration
       GIT_REPOSITORY ${MECH_CONFIG_GIT_REPOSITORY}
@@ -115,7 +115,7 @@ endif()
 
 if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(MICM_GIT_REPOSITORY https://github.com/NCAR/micm.git)
-  set_git_default(MICM_GIT_TAG v3.13.0)
+  set_git_default(MICM_GIT_TAG bb57684a2047f0e58f30b199366294af879e8597)
 
   FetchContent_Declare(micm
       GIT_REPOSITORY ${MICM_GIT_REPOSITORY}
@@ -136,12 +136,32 @@ if (MUSICA_ENABLE_MICM AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBU
 endif()
 
 ################################################################################
+# MIEM
+# Skip if using prebuilt musica (already includes miem)
+
+if (MUSICA_ENABLE_MIEM AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
+  set_git_default(MIEM_GIT_REPOSITORY https://github.com/NCAR/miem.git)
+  set_git_default(MIEM_GIT_TAG 3cc9ff9684dfdc13a49ab327ce2539bc223b1fd4)  # main; no tags exist yet
+
+  FetchContent_Declare(miem
+      GIT_REPOSITORY ${MIEM_GIT_REPOSITORY}
+      GIT_TAG ${MIEM_GIT_TAG}
+      GIT_PROGRESS NOT ${FETCHCONTENT_QUIET}
+      FIND_PACKAGE_ARGS NAMES miem
+  )
+
+  set(MIEM_BUILD_SHARED_LIBS ${MUSICA_BUILD_SHARED_LIBS} CACHE BOOL "" FORCE)
+
+  FetchContent_MakeAvailable(miem)
+endif()
+
+################################################################################
 # MIAM
 # Skip if using prebuilt musica (already includes miam)
 
 if (MUSICA_ENABLE_MIAM AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(MIAM_GIT_REPOSITORY https://github.com/NCAR/miam.git)
-  set_git_default(MIAM_GIT_TAG 9252479d3ac4c82e2ff7d2936b7086b5d7300d2f)
+  set_git_default(MIAM_GIT_TAG 2a7726f55f9a994f1e305048665f83178c3a1187)
 
   FetchContent_Declare(miam
       GIT_REPOSITORY ${MIAM_GIT_REPOSITORY}

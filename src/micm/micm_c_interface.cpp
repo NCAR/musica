@@ -1,6 +1,7 @@
+#include <musica/configuration/parse.hpp>
+#include <musica/configuration/read_mechanism.hpp>
 #include <musica/micm/cuda_availability.hpp>
 #include <musica/micm/micm_c_interface.hpp>
-#include <musica/micm/parse.hpp>
 #include <musica/utils/error_handler.hpp>
 
 namespace musica
@@ -10,7 +11,7 @@ namespace musica
     return HandleErrors(
         [&]()
         {
-          Chemistry const chemistry = ReadConfiguration(std::string(config_path));
+          Chemistry const chemistry = ConvertChemistry(ReadMechanism(std::string(config_path)));
           MICM* micm = new MICM(chemistry, solver_type);
           NoError(error);
           return micm;
@@ -36,7 +37,7 @@ namespace musica
         [&]()
         {
           // Parse JSON/YAML string to Chemistry object
-          Chemistry chemistry = ReadConfigurationFromString(std::string(config_string));
+          Chemistry chemistry = ConvertChemistry(ReadMechanismFromString(std::string(config_string)));
           MICM* micm = new MICM(chemistry, solver_type);
           NoError(error);
           return micm;

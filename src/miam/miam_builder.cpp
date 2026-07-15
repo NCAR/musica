@@ -1,16 +1,19 @@
 // Copyright (C) 2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 //
-// Builder that converts musica::miam_config structs into a miam::Model
-// and creates a MICM solver with it attached as an external model.
+// Builder that converts a mechanism_configuration Mechanism (species, phases,
+// and aerosol section) into a miam::Model and creates a MICM solver with it
+// attached as an external model.
 
+#include <musica/configuration/parse.hpp>
 #include <musica/miam/miam_builder.hpp>
-#include <musica/miam/miam_types.hpp>
 #include <musica/micm/cpu_solver.hpp>
 #include <musica/micm/micm.hpp>
 #include <musica/utils/error_code.hpp>
 
+#include <mechanism_configuration/mechanism_configuration.hpp>
 #include <micm/CPU.hpp>
+#include <micm/process/rate_constant/rate_constant_functions.hpp>
 #include <micm/solver/backward_euler_solver_parameters.hpp>
 #include <micm/solver/rosenbrock_solver_parameters.hpp>
 
@@ -24,9 +27,11 @@ namespace musica
 {
   namespace
   {
-    // ── Convert config SpeciesDef to micm::Species ──────────────────
+    namespace types = mechanism_configuration::types;
 
-    micm::Species ConvertSpecies(const miam_config::SpeciesDef& def)
+    // ── Convert a mechanism_configuration Species to a micm::Species ─
+
+    micm::Species ConvertSpecies(const types::Species& def)
     {
       micm::Species s{ def.name };
       if (def.molecular_weight.has_value())
@@ -48,19 +53,31 @@ namespace musica
       }
     };
 
-    RateConstantWrapper ResolveRateConstant(const miam_config::RateConstant& rc)
+    RateConstantWrapper ResolveRateConstant(const types::RateConstant& rc)
     {
       return { std::visit(
           [](const auto& val) -> std::function<double(const micm::Conditions&)>
           {
             using T = std::decay_t<decltype(val)>;
-            if constexpr (std::is_same_v<T, miam_config::ArrheniusRateConstant>)
+            if constexpr (std::is_same_v<T, types::ArrheniusReferenceTemperature>)
             {
-              double a = val.a;
-              double c = val.c;
-              constexpr double T0 = 298.15;
-              return [a, c, T0](const micm::Conditions& cond) -> double
-              { return a * std::exp(-c * (1.0 / cond.temperature_ - 1.0 / T0)); };
+              miam::EquilibriumConstant k({ .A_ = val.A, .C_ = val.C, .T0_ = val.T0 });
+              return [k](const micm::Conditions& cond) -> double { return k.Calculate(cond); };
+            }
+            else if constexpr (std::is_same_v<T, types::Arrhenius>)
+            {
+              // Full gas-phase Arrhenius, honoring the temperature and pressure terms.
+              // Field mapping mirrors ConvertChemistry (1:1 A/B/C/D/E) and the lambda
+              // matches DissolvedReactionBuilder::AddRateConstant, so aerosol and gas
+              // Arrhenius rate constants evaluate identically.
+              micm::ArrheniusRateConstantParameters params;
+              params.A_ = val.A;
+              params.B_ = val.B;
+              params.C_ = val.C;
+              params.D_ = val.D;
+              params.E_ = val.E;
+              return [params](const micm::Conditions& cond) -> double
+              { return micm::CalculateArrhenius(params, cond.temperature_, cond.pressure_); };
             }
             else  // std::function<double(double)>
             {
@@ -71,14 +88,15 @@ namespace musica
           rc) };
     }
 
-    // ── Build the miam::Model from config ───────────────────────────
+    // ── Build the miam::Model from the mechanism's aerosol section ──
 
     miam::Model BuildMiamModel(
-        const miam_config::ModelConfig& config,
+        const std::string& name,
+        const types::Aerosol& aerosol,
         const std::unordered_map<std::string, micm::Species>& species_map,
         const std::unordered_map<std::string, micm::Phase>& phase_map)
     {
-      // Lambdas for safe lookup
+      // Lambdas for safe lookup (throw on an unknown name so typos surface here).
       auto find_species = [&](const std::string& name) -> micm::Species
       {
         auto it = species_map.find(name);
@@ -87,12 +105,15 @@ namespace musica
         return it->second;
       };
 
-      auto find_species_vec = [&](const std::vector<std::string>& names) -> std::vector<micm::Species>
+      // Resolve a list of ReactionComponents to micm::Species (coefficients are not
+      // carried into the MIAM builders today; only the referenced species are used).
+      auto find_species_components =
+          [&](const std::vector<types::ReactionComponent>& components) -> std::vector<micm::Species>
       {
         std::vector<micm::Species> result;
-        result.reserve(names.size());
-        for (const auto& n : names)
-          result.push_back(find_species(n));
+        result.reserve(components.size());
+        for (const auto& c : components)
+          result.push_back(find_species(c.name));
         return result;
       };
 
@@ -115,129 +136,158 @@ namespace musica
 
       // ── Representations ──
       std::vector<miam::Model::RepresentationVariant> representations;
-      for (const auto& repr_cfg : config.representations)
+      for (const auto& repr_cfg : aerosol.representations)
       {
         std::visit(
             [&](const auto& r)
             {
               using T = std::decay_t<decltype(r)>;
-              if constexpr (std::is_same_v<T, miam_config::UniformSection>)
+              if constexpr (std::is_same_v<T, types::UniformSection>)
               {
                 representations.emplace_back(
-                    miam::UniformSection(r.name, resolve_phases(r.phase_names), r.min_radius, r.max_radius));
+                    miam::UniformSection(r.name, resolve_phases(r.phases), r.min_radius, r.max_radius));
               }
-              else if constexpr (std::is_same_v<T, miam_config::SingleMomentMode>)
+              else if constexpr (std::is_same_v<T, types::SingleMomentMode>)
               {
                 representations.emplace_back(miam::SingleMomentMode(
-                    r.name, resolve_phases(r.phase_names), r.geometric_mean_radius, r.geometric_standard_deviation));
+                    r.name, resolve_phases(r.phases), r.geometric_mean_radius, r.geometric_standard_deviation));
               }
-              else if constexpr (std::is_same_v<T, miam_config::TwoMomentMode>)
+              else if constexpr (std::is_same_v<T, types::TwoMomentMode>)
               {
                 representations.emplace_back(
-                    miam::TwoMomentMode(r.name, resolve_phases(r.phase_names), r.geometric_standard_deviation));
+                    miam::TwoMomentMode(r.name, resolve_phases(r.phases), r.geometric_standard_deviation));
               }
             },
             repr_cfg);
       }
 
-      miam::Model model{ .name_ = config.name, .representations_ = std::move(representations) };
+      miam::Model model{ .name_ = name, .representations_ = std::move(representations) };
 
       // ── Processes ──
-      for (const auto& proc_cfg : config.processes)
+      for (const auto& proc_cfg : aerosol.processes)
       {
         std::visit(
             [&](const auto& p)
             {
               using T = std::decay_t<decltype(p)>;
-              if constexpr (std::is_same_v<T, miam_config::DissolvedReaction>)
+              if constexpr (std::is_same_v<T, types::DissolvedReaction>)
               {
-                model.AddProcesses(miam::DissolvedReactionBuilder()
-                                       .SetPhase(find_phase(p.phase_name))
-                                       .SetReactants(find_species_vec(p.reactant_names))
-                                       .SetProducts(find_species_vec(p.product_names))
-                                       .SetSolvent(find_species(p.solvent_name))
-                                       .AddRateConstant(p.representation_name, ResolveRateConstant(p.rate_constant).fn)
-                                       .SetSolventFloor(p.solvent_floor)
-                                       .SetMinHalflife(p.min_halflife)
-                                       .Build());
+                auto builder = miam::DissolvedReactionBuilder()
+                                   .SetPhase(find_phase(p.phase))
+                                   .SetReactants(find_species_components(p.reactants))
+                                   .SetProducts(find_species_components(p.products))
+                                   .SetSolvent(find_species(p.solvent));
+                // The config carries one rate constant per aerosol representation.
+                for (const auto& [representation, rc] : p.rate_constants)
+                  builder.AddRateConstant(representation, ResolveRateConstant(rc).fn);
+                if (p.solvent_floor_.has_value())
+                  builder.SetSolventFloor(p.solvent_floor_.value());
+                if (p.min_halflife_.has_value())
+                  builder.SetMinHalflife(p.min_halflife_.value());
+                model.AddProcesses(builder.Build());
               }
-              else if constexpr (std::is_same_v<T, miam_config::DissolvedReversibleReaction>)
+              else if constexpr (std::is_same_v<T, types::DissolvedReversibleReaction>)
               {
                 auto builder = miam::DissolvedReversibleReactionBuilder()
-                                   .SetPhase(find_phase(p.phase_name))
-                                   .SetReactants(find_species_vec(p.reactant_names))
-                                   .SetProducts(find_species_vec(p.product_names))
-                                   .SetSolvent(find_species(p.solvent_name))
-                                   .SetSolventFloor(p.solvent_floor);
-                if (p.forward_rate_constant.has_value())
-                  builder.SetForwardRateConstant(ResolveRateConstant(p.forward_rate_constant.value()));
-                if (p.reverse_rate_constant.has_value())
-                  builder.SetReverseRateConstant(ResolveRateConstant(p.reverse_rate_constant.value()));
+                                   .SetPhase(find_phase(p.phase))
+                                   .SetReactants(find_species_components(p.reactants))
+                                   .SetProducts(find_species_components(p.products))
+                                   .SetSolvent(find_species(p.solvent));
+                // Forward/reverse rate constants are configured per aerosol representation;
+                // the equilibrium constant (if any) is shared across all representations.
+                for (const auto& [representation, rc] : p.forward_rate_constants)
+                  builder.AddForwardRateConstant(representation, ResolveRateConstant(rc));
+                for (const auto& [representation, rc] : p.reverse_rate_constants)
+                  builder.AddReverseRateConstant(representation, ResolveRateConstant(rc));
                 if (p.equilibrium_constant.has_value())
                 {
                   const auto& ec = p.equilibrium_constant.value();
-                  builder.SetEquilibriumConstant(miam::EquilibriumConstant({ .A_ = ec.a, .C_ = ec.c }));
+                  builder.SetEquilibriumConstant(miam::EquilibriumConstant({ .A_ = ec.A, .C_ = ec.C, .T0_ = ec.T0 }));
                 }
+                if (p.solvent_floor_.has_value())
+                  builder.SetSolventFloor(p.solvent_floor_.value());
                 model.AddProcesses(builder.Build());
               }
-              else if constexpr (std::is_same_v<T, miam_config::HenryLawPhaseTransfer>)
+              else if constexpr (std::is_same_v<T, types::HenryLawPhaseTransfer>)
               {
-                model.AddProcesses(miam::HenryLawPhaseTransferBuilder()
-                                       .SetCondensedPhase(find_phase(p.condensed_phase_name))
-                                       .SetGasSpecies(find_species(p.gas_species_name))
-                                       .SetCondensedSpecies(find_species(p.condensed_species_name))
-                                       .SetSolvent(find_species(p.solvent_name))
-                                       .SetHenryLawConstant(miam::HenryLawConstant(
-                                           { .HLC_ref_ = p.henry_law_constant.hlc_ref, .C_ = p.henry_law_constant.c }))
-                                       .SetDiffusionCoefficient(p.diffusion_coefficient)
-                                       .SetAccommodationCoefficient(p.accommodation_coefficient)
-                                       .Build());
+                model.AddProcesses(
+                    miam::HenryLawPhaseTransferBuilder()
+                        .SetCondensedPhase(find_phase(p.condensed_phase))
+                        .SetGasSpecies(find_species(p.gas_species))
+                        .SetCondensedSpecies(find_species(p.condensed_species))
+                        .SetSolvent(find_species(p.solvent))
+                        .SetHenryLawConstant(miam::HenryLawConstant({ .HLC_ref_ = p.henry_law_constant.HLC_ref,
+                                                                      .C_ = p.henry_law_constant.C,
+                                                                      .T0_ = p.henry_law_constant.T0 }))
+                        .SetDiffusionCoefficient(p.diffusion_coefficient)
+                        .SetAccommodationCoefficient(p.accommodation_coefficient)
+                        .Build());
               }
             },
             proc_cfg);
       }
 
       // ── Constraints ──
-      for (const auto& con_cfg : config.constraints)
+      for (const auto& con_cfg : aerosol.constraints)
       {
         std::visit(
             [&](const auto& c)
             {
               using T = std::decay_t<decltype(c)>;
-              if constexpr (std::is_same_v<T, miam_config::HenryLawEquilibriumConstraint>)
+              if constexpr (std::is_same_v<T, types::HenryLawEquilibrium>)
               {
-                model.AddConstraints(miam::HenryLawEquilibriumConstraintBuilder()
-                                         .SetGasSpecies(find_species(c.gas_species_name))
-                                         .SetCondensedSpecies(find_species(c.condensed_species_name))
-                                         .SetSolvent(find_species(c.solvent_name))
-                                         .SetCondensedPhase(find_phase(c.condensed_phase_name))
-                                         .SetHenryLawConstant(miam::HenryLawConstant(
-                                             { .HLC_ref_ = c.henry_law_constant.hlc_ref, .C_ = c.henry_law_constant.c }))
-                                         .Build());
+                // The MIAM builder reads the solvent's molecular weight and density
+                // from the species properties at Build(); apply the constraint's
+                // explicit solvent_molecular_weight / solvent_density (when set) as
+                // overrides on the solvent passed to it.
+                micm::Species solvent = find_species(c.solvent);
+                if (c.solvent_molecular_weight > 0.0)
+                  solvent.SetProperty("molecular weight [kg mol-1]", c.solvent_molecular_weight);
+                if (c.solvent_density > 0.0)
+                  solvent.SetProperty("density [kg m-3]", c.solvent_density);
+                model.AddConstraints(
+                    miam::HenryLawEquilibriumConstraintBuilder()
+                        .SetGasSpecies(find_species(c.gas_species))
+                        .SetCondensedSpecies(find_species(c.condensed_species))
+                        .SetSolvent(solvent)
+                        .SetCondensedPhase(find_phase(c.condensed_phase))
+                        .SetHenryLawConstant(miam::HenryLawConstant({ .HLC_ref_ = c.henry_law_constant.HLC_ref,
+                                                                      .C_ = c.henry_law_constant.C,
+                                                                      .T0_ = c.henry_law_constant.T0 }))
+                        .Build());
               }
-              else if constexpr (std::is_same_v<T, miam_config::DissolvedEquilibriumConstraint>)
+              else if constexpr (std::is_same_v<T, types::DissolvedEquilibrium>)
               {
-                model.AddConstraints(miam::DissolvedEquilibriumConstraintBuilder()
-                                         .SetPhase(find_phase(c.phase_name))
-                                         .SetReactants(find_species_vec(c.reactant_names))
-                                         .SetProducts(find_species_vec(c.product_names))
-                                         .SetAlgebraicSpecies(find_species(c.algebraic_species_name))
-                                         .SetSolvent(find_species(c.solvent_name))
-                                         .SetEquilibriumConstant(miam::EquilibriumConstant(
-                                             { .A_ = c.equilibrium_constant.a, .C_ = c.equilibrium_constant.c }))
-                                         .SetSolventFloor(c.solvent_floor)
-                                         .Build());
+                auto builder = miam::DissolvedEquilibriumConstraintBuilder()
+                                   .SetPhase(find_phase(c.phase))
+                                   .SetReactants(find_species_components(c.reactants))
+                                   .SetProducts(find_species_components(c.products))
+                                   .SetAlgebraicSpecies(find_species(c.algebraic_species))
+                                   .SetSolvent(find_species(c.solvent))
+                                   .SetEquilibriumConstant(miam::EquilibriumConstant({ .A_ = c.equilibrium_constant.A,
+                                                                                       .C_ = c.equilibrium_constant.C,
+                                                                                       .T0_ = c.equilibrium_constant.T0 }));
+                if (c.solvent_floor_.has_value())
+                  builder.SetSolventFloor(c.solvent_floor_.value());
+                model.AddConstraints(builder.Build());
               }
-              else if constexpr (std::is_same_v<T, miam_config::LinearConstraint>)
+              else if constexpr (std::is_same_v<T, types::LinearConstraint>)
               {
                 auto builder = miam::LinearConstraintBuilder().SetAlgebraicSpecies(
-                    find_phase(c.algebraic_phase_name), find_species(c.algebraic_species_name));
+                    find_phase(c.algebraic_phase), find_species(c.algebraic_species));
                 for (const auto& term : c.terms)
-                  builder.AddTerm(find_phase(term.phase_name), find_species(term.species_name), term.coefficient);
-                if (c.diagnose_from_state)
-                  builder.DiagnoseConstantFromState();
-                else
-                  builder.SetConstant(c.constant);
+                  builder.AddTerm(find_phase(term.phase), find_species(term.name), term.coefficient);
+                // `constant` selects one of the two mutually exclusive modes.
+                std::visit(
+                    [&](const auto& k)
+                    {
+                      using K = std::decay_t<decltype(k)>;
+                      if constexpr (std::is_same_v<K, types::FixedConstant>)
+                        builder.SetConstant(k.value);
+                      else  // types::DiagnoseFromState
+                        builder.DiagnoseConstantFromState();
+                    },
+                    c.constant);
                 model.AddConstraints(builder.Build());
               }
             },
@@ -309,46 +359,62 @@ namespace musica
 
   }  // anonymous namespace
 
-  MICM* CreateMicmWithMiam(
-      const Chemistry& chemistry,
-      MICMSolver solver_type,
-      const miam_config::ModelConfig& miam_config,
-      Error* error)
+  MICM* CreateMicmWithMiam(const mechanism_configuration::Mechanism& mechanism, MICMSolver solver_type, Error* error)
   {
     DeleteError(error);
     try
     {
-      // Build species map from MIAM config
-      std::unordered_map<std::string, micm::Species> species_map;
-      for (const auto& sd : miam_config.species)
-        species_map[sd.name] = ConvertSpecies(sd);
+      if (!mechanism.aerosol.has_value())
+        throw std::runtime_error("MIAM: mechanism has no aerosol section");
 
-      // Build phase map from MIAM condensed phases
+      // Resolve aerosol name references against the mechanism's species and phases.
+      auto validation_errors = mechanism_configuration::ValidateAerosolModel(mechanism);
+      if (!validation_errors.empty())
+      {
+        std::string message = "MIAM: invalid aerosol configuration:";
+        for (const auto& [code, msg] : validation_errors)
+          message += "\n  - " + msg;
+        throw std::runtime_error(message);
+      }
+      // Build the species map from the mechanism's species list.
+      std::unordered_map<std::string, micm::Species> species_map;
+      for (const auto& sp : mechanism.species)
+        species_map[sp.name] = ConvertSpecies(sp);
+
+      // Build the phase map from the mechanism's phases (gas + condensed).
       std::unordered_map<std::string, micm::Phase> phase_map;
-      for (const auto& pd : miam_config.condensed_phases)
+      for (const auto& ph : mechanism.phases)
       {
         std::vector<micm::PhaseSpecies> phase_species;
-        for (const auto& sn : pd.species_names)
+        for (const auto& ps : ph.species)
         {
-          auto it = species_map.find(sn);
+          auto it = species_map.find(ps.name);
           if (it == species_map.end())
-            throw std::runtime_error("MIAM: Species '" + sn + "' in phase '" + pd.name + "' not found");
-          phase_species.push_back(micm::PhaseSpecies(it->second));
+            throw std::runtime_error("MIAM: Species '" + ps.name + "' in phase '" + ph.name + "' not found");
+          // Carry the phase-specific properties (diffusion coefficient, density) from
+          // the config's PhaseSpecies onto the micm::PhaseSpecies MIAM reads.
+          micm::PhaseSpecies phase_sp(it->second);
+          if (ps.diffusion_coefficient.has_value())
+            phase_sp.SetDiffusionCoefficient(ps.diffusion_coefficient.value());
+          if (ps.density.has_value())
+            phase_sp.SetDensity(ps.density.value());
+          phase_species.push_back(phase_sp);
         }
-        phase_map[pd.name] = micm::Phase(pd.name, phase_species);
+        phase_map[ph.name] = micm::Phase(ph.name, phase_species);
       }
 
-      // Include the gas phase from the mechanism so linear constraints can reference it
+      // Gas-phase chemistry is derived from the mechanism (single source of truth).
+      const Chemistry chemistry = ConvertChemistry(mechanism);
+
+      // Overlay the mechanism's gas phase from the built chemistry so linear
+      // constraints referencing it get the exact micm gas-phase object.
       phase_map[chemistry.system.gas_phase_.name_] = chemistry.system.gas_phase_;
 
       // Build the miam::Model
-      auto miam_model = BuildMiamModel(miam_config, species_map, phase_map);
-
-      // Create system: mechanism's gas phase + MIAM model
-      auto system = micm::System(chemistry.system.gas_phase_);
+      auto miam_model = BuildMiamModel(mechanism.name, mechanism.aerosol.value(), species_map, phase_map);
 
       // Build solver with MIAM as external model
-      auto solver_variant = BuildSolverVariant(system, chemistry.processes, solver_type, miam_model);
+      auto solver_variant = BuildSolverVariant(chemistry.system.gas_phase_, chemistry.processes, solver_type, miam_model);
 
       // Wrap in CpuSolver -> SolverPtr -> MICM
       auto default_deleter = [](IMicmSolver* ptr) { delete ptr; };

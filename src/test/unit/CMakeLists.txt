@@ -8,12 +8,18 @@ include(test_util)
 
 create_standard_test_cxx(NAME util SOURCES util.cpp)
 
+add_subdirectory(configuration)
+
 if (MUSICA_ENABLE_MICM)
   add_subdirectory(micm)
 endif()
 
 if (MUSICA_ENABLE_MIAM)
   add_subdirectory(miam)
+endif()
+
+if (MUSICA_ENABLE_MIEM)
+  add_subdirectory(miem)
 endif()
 
 if (MUSICA_ENABLE_TUVX)

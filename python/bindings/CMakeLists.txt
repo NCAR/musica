@@ -9,7 +9,10 @@ target_sources(_musica PRIVATE
   common.cpp
   cuda.cpp
   error.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/mechanism_configuration/aerosol.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/mechanism_configuration/mechanism_configuration.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/mechanism_configuration/reactions.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/mechanism_configuration/species.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/micm/conditions.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/micm/micm.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/micm/solver.cpp

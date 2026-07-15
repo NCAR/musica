@@ -22,6 +22,7 @@
 !jsdoc.json
 !package.json
 !package-lock.json
+!tsconfig.json
 !wheelhouse
 !julia
 !etc
