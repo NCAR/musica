@@ -35,6 +35,19 @@ from .aerosol import (
     DiagnoseFromState,
     LinearConstraint,
 )
+from .emissions import (
+    EmissionsConfig,
+    Inventory,
+    SpeciesMap,
+    SpeciesMapping,
+    SourceDescriptor,
+    Regridding,
+    SourceMode,
+    SourceType,
+    TemporalInterpolation,
+    VerticalInjection,
+    RegriddingType,
+)
 
 from .mechanism import Mechanism, Version, ReactionType
 from .parse import parse
@@ -74,6 +87,18 @@ __all__ = [
     "FixedConstant",
     "DiagnoseFromState",
     "LinearConstraint",
+    # emissions
+    "EmissionsConfig",
+    "Inventory",
+    "SpeciesMap",
+    "SpeciesMapping",
+    "SourceDescriptor",
+    "Regridding",
+    "SourceMode",
+    "SourceType",
+    "TemporalInterpolation",
+    "VerticalInjection",
+    "RegriddingType",
     # top-level
     "Mechanism",
     "Version",
