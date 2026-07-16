@@ -59,7 +59,7 @@ namespace musica
           [](const auto& val) -> std::function<double(const micm::Conditions&)>
           {
             using T = std::decay_t<decltype(val)>;
-            if constexpr (std::is_same_v<T, types::ArrheniusReferenceTemperature>)
+            if constexpr (std::is_same_v<T, types::Equilibrium>)
             {
               miam::EquilibriumConstant k({ .A_ = val.A, .C_ = val.C, .T0_ = val.T0 });
               return [k](const micm::Conditions& cond) -> double { return k.Calculate(cond); };

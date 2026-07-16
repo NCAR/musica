@@ -49,7 +49,7 @@ from musica.micm import MICM, SolverState, SolverType
 from musica.micm.solver_parameters import RosenbrockSolverParameters
 from musica.mechanism_configuration import (
     Aerosol,
-    ArrheniusReferenceTemperature,
+    Equilibrium,
     DiagnoseFromState,
     DissolvedEquilibrium,
     DissolvedReaction,
@@ -121,16 +121,16 @@ def _build_system():
         reactants=[hso3m, h2o2_aq],
         products=[so2oohm, h2o],
         solvent=h2o,
-        forward_rate_constants={cloud: ArrheniusReferenceTemperature(
+        forward_rate_constants={cloud: Equilibrium(
             A=C_H2O_M * (7.45e7 / 13.0), C=4430.0)},
-        equilibrium_constant=ArrheniusReferenceTemperature(A=1725.0),
+        equilibrium_constant=Equilibrium(A=1725.0),
     )
     r1b = DissolvedReaction(
         phase=aq_phase,
         reactants=[so2oohm, hp],
         products=[so4mm],
         solvent=h2o,
-        rate_constants={cloud: ArrheniusReferenceTemperature(A=C_H2O_M * 2.4e6, C=4430.0)},
+        rate_constants={cloud: Equilibrium(A=C_H2O_M * 2.4e6, C=4430.0)},
     )
 
     # ── Equilibrium constraints ─────────────────────────────────────
@@ -158,14 +158,14 @@ def _build_system():
         phase=aq_phase,
         reactants=[h2o], products=[hp, ohm],
         algebraic_species=ohm, solvent=h2o,
-        equilibrium_constant=ArrheniusReferenceTemperature(
+        equilibrium_constant=Equilibrium(
             A=1e-14 / (C_H2O_M * C_H2O_M), C=0.0),
     ))
     constraints.append(DissolvedEquilibrium(
         phase=aq_phase,
         reactants=[so2_aq], products=[hso3m, hp],
         algebraic_species=hso3m, solvent=h2o,
-        equilibrium_constant=ArrheniusReferenceTemperature(
+        equilibrium_constant=Equilibrium(
             A=1.7e-2 / C_H2O_M, C=2090.0),
     ))
 

@@ -39,10 +39,10 @@ def _names(objs) -> List[str]:
 
 # -- Rate constants ----------------------------------------------------------
 
-RateConstantType = Union["ArrheniusReferenceTemperature", Callable[[float], float]]
+RateConstantType = Union["Equilibrium", Callable[[float], float]]
 
 
-class ArrheniusReferenceTemperature(CppWrapper):
+class Equilibrium(CppWrapper):
     """Reference-temperature Arrhenius rate constant.
 
     f(T) = A * exp( C * (1/T0 - 1/T) )     (C = +Ea/R)
@@ -63,7 +63,7 @@ class ArrheniusReferenceTemperature(CppWrapper):
         C: Optional[float] = None,
         T0: Optional[float] = None,
     ):
-        self._cpp = _mc._ArrheniusReferenceTemperature()
+        self._cpp = _mc._Equilibrium()
         self.A = A if A is not None else self.A
         self.C = C if C is not None else self.C
         self.T0 = T0 if T0 is not None else self.T0
@@ -351,7 +351,7 @@ class DissolvedReversibleReaction(CppWrapper):
         products: Optional[List[ComponentType]] = None,
         forward_rate_constants: Optional[Dict[Any, RateConstantType]] = None,
         reverse_rate_constants: Optional[Dict[Any, RateConstantType]] = None,
-        equilibrium_constant: Optional[ArrheniusReferenceTemperature] = None,
+        equilibrium_constant: Optional[Equilibrium] = None,
         solvent_floor: Optional[float] = None,
     ):
         self._cpp = _mc._DissolvedReversibleReaction()
@@ -399,9 +399,9 @@ class DissolvedReversibleReaction(CppWrapper):
         self._cpp.reverse_rate_constants = _convert_rate_constant_map(value)
 
     @property
-    def equilibrium_constant(self) -> Optional[ArrheniusReferenceTemperature]:
+    def equilibrium_constant(self) -> Optional[Equilibrium]:
         cpp = self._cpp.equilibrium_constant
-        return ArrheniusReferenceTemperature._from_cpp(cpp) if cpp is not None else None
+        return Equilibrium._from_cpp(cpp) if cpp is not None else None
 
     @equilibrium_constant.setter
     def equilibrium_constant(self, value):
@@ -548,7 +548,7 @@ class DissolvedEquilibrium(CppWrapper):
         solvent: Optional[Union[Species, str]] = None,
         reactants: Optional[List[ComponentType]] = None,
         products: Optional[List[ComponentType]] = None,
-        equilibrium_constant: Optional[ArrheniusReferenceTemperature] = None,
+        equilibrium_constant: Optional[Equilibrium] = None,
         solvent_floor: Optional[float] = None,
     ):
         self._cpp = _mc._DissolvedEquilibrium()
@@ -579,8 +579,8 @@ class DissolvedEquilibrium(CppWrapper):
         self._cpp.products = _unwrap_list(_convert_components(value))
 
     @property
-    def equilibrium_constant(self) -> ArrheniusReferenceTemperature:
-        return ArrheniusReferenceTemperature._from_cpp(self._cpp.equilibrium_constant)
+    def equilibrium_constant(self) -> Equilibrium:
+        return Equilibrium._from_cpp(self._cpp.equilibrium_constant)
 
     @equilibrium_constant.setter
     def equilibrium_constant(self, value):
