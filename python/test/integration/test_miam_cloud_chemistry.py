@@ -117,7 +117,7 @@ def _create_cloud_chemistry_mechanism(r1b_rate_constant=None):
         solvent=h2o,
         reactants=[hso3m, h2o2_aq],
         products=[so2oohm, h2o],
-        forward_rate_constants=mc.Arrhenius(A=C_H2O_M * (7.45e7 / 13.0), C=4430.0),
+        forward_rate_constants=mc.Equilibrium(A=C_H2O_M * (7.45e7 / 13.0), C=4430.0),
         equilibrium_constant=mc.Equilibrium(A=1725.0, C=0.0))
 
     # R1b: SO2OOH- + H+ → SO4--  (irreversible)
@@ -673,7 +673,7 @@ def _create_kinetics_mechanism():
         solvent=h2o,
         reactants=[hso3m, h2o2_aq],
         products=[so2oohm, h2o],
-        forward_rate_constants=mc.Arrhenius(A=C_H2O_M * (7.45e7 / 13.0), C=4430.0),
+        forward_rate_constants=mc.Equilibrium(A=C_H2O_M * (7.45e7 / 13.0), C=4430.0),
         equilibrium_constant=mc.Equilibrium(A=1725.0, C=0.0))
     # R1b: SO2OOH- + H+ → SO4--  (irreversible)
     r1b = mc.DissolvedReaction(
