@@ -1,11 +1,12 @@
 // Copyright (C) 2023-2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 //
-// End-to-end: an emissions config is parsed by MechanismConfiguration,
-// translated by musica::ConvertEmissions into a miem::Source, and that
-// Source is handed to MIEM's own EmissionsBuilder, which opens the real
-// committed fixture (test/data/x1.163842_2024_nox_subset.nc) and produces
-// real surface flux. Same shape as end_to_end.cpp's black-carbon test, but
+// End-to-end: an emissions config is parsed by MechanismConfiguration and
+// built into a musica::EmissionsModel via FromMechanism, which internally
+// translates it (ConvertEmissions) and hands it to MIEM's EmissionsBuilder.
+// The model opens the real committed fixture
+// (test/data/x1.163842_2024_nox_subset.nc) and produces real surface flux.
+// Same shape as emissions_model_end_to_end.cpp's black-carbon test, but
 // against a second real species fixture (fewer sectors, a different year)
 // to check the translation layer isn't accidentally tuned to one file.
 //
@@ -14,13 +15,10 @@
 // inventory species is split across two mechanism species, NO (0.9) and
 // NO2 (0.1), rather than passed through 1:1.
 
-#include <musica/configuration/emissions.hpp>
 #include <musica/configuration/read_mechanism.hpp>
+#include <musica/miem/emissions.hpp>
 
 #include <gtest/gtest.h>
-#include <miem/emissions.hpp>
-#include <miem/emissions_builder.hpp>
-#include <miem/emissions_state.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -74,20 +72,17 @@ namespace
   }
 }  // namespace
 
-TEST(MiemEndToEndNox, MechanismConfigThroughMusicaToRealMiemFlux)
+TEST(EmissionsModelEndToEndNox, MechanismConfigThroughMusicaToRealMiemFlux)
 {
-  musica::Emissions parsed = musica::ConvertEmissions(musica::ReadMechanismFromString(EmissionsConfigYaml()));
-  ASSERT_EQ(parsed.sources.size(), 1);
+  musica::EmissionsModel model = musica::EmissionsModel::FromMechanism(
+      musica::ReadMechanismFromString(EmissionsConfigYaml()), kNCells, /*n_vert_levels=*/1);
 
-  miem::Emissions emissions =
-      miem::EmissionsBuilder().SetGridDimensions(kNCells, /*n_vert_levels=*/1).AddSource(parsed.sources[0]).Build();
-
-  ASSERT_EQ(emissions.NumSpecies(), 2);
-  const auto& names = emissions.SpeciesNames();
+  ASSERT_EQ(model.NumSpecies(), 2);
+  const auto& names = model.SpeciesNames();
   ASSERT_NE(std::find(names.begin(), names.end(), "NO"), names.end());
   ASSERT_NE(std::find(names.begin(), names.end(), "NO2"), names.end());
 
-  const miem::EmissionsState state = emissions.Run(kEpoch20240701, /*dt=*/3600.0);
+  model.Run(kEpoch20240701, /*dt=*/3600.0);
 
   // nox_anth_sum is split 0.9 (NO) / 0.1 (NO2) from the same underlying
   // inventory flux, so NO should be exactly 9x NO2 in every cell.
@@ -96,8 +91,8 @@ TEST(MiemEndToEndNox, MechanismConfigThroughMusicaToRealMiemFlux)
   double sum_no2 = 0.0;
   for (int ic = 0; ic < kNCells; ++ic)
   {
-    const double flux_no = static_cast<double>(state.surface_flux_(ic, "NO"));
-    const double flux_no2 = static_cast<double>(state.surface_flux_(ic, "NO2"));
+    const double flux_no = model.SurfaceFlux(ic, "NO");
+    const double flux_no2 = model.SurfaceFlux(ic, "NO2");
     EXPECT_FALSE(std::isnan(flux_no));
     EXPECT_FALSE(std::isnan(flux_no2));
     EXPECT_GE(flux_no, 0.0);
