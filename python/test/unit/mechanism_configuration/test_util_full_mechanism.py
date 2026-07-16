@@ -170,6 +170,69 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
         other_properties={"__irrelevant": "2"}
     )
 
+    # Emissions
+    emissions = mc.EmissionsConfig(
+        inventories=[
+            mc.Inventory(
+                name="cams anthro",
+                directory="cams/v6.2",
+                file_pattern="CAMS-GLOB-ANT_v6.2_{YYYY}-{MM}.nc",
+                convention="eccad",
+            ),
+            mc.Inventory(
+                name="gfed fire",
+                directory="gfed/v4",
+                file_pattern="GFED4_{YYYY}{MM}.nc",
+                convention="eccad",
+            ),
+        ],
+        species_maps=[
+            mc.SpeciesMap(
+                name="anthro map",
+                mappings=[
+                    mc.SpeciesMapping(inventory_species="NOx", mechanism_species="NO", scaling_factor=0.9),
+                    mc.SpeciesMapping(inventory_species="NOx", mechanism_species="NO2", scaling_factor=0.1),
+                    mc.SpeciesMapping(inventory_species="CO", mechanism_species="CO"),
+                ],
+            ),
+            mc.SpeciesMap(
+                name="fire map",
+                mappings=[
+                    mc.SpeciesMapping(inventory_species="bc_fire", mechanism_species="BC", scaling_factor=1.0),
+                ],
+            ),
+        ],
+        regridding=mc.Regridding(type=mc.RegriddingType.None_),
+        sources=[
+            mc.SourceDescriptor(
+                name="cams anthro source",
+                mode=mc.SourceMode.Offline,
+                type=mc.SourceType.Anthropogenic,
+                inventory="cams anthro",
+                species_map="anthro map",
+                temporal_interpolation=mc.TemporalInterpolation.Linear,
+                vertical_injection=mc.VerticalInjection.Surface,
+                category=0,
+                hierarchy=1,
+                scaling_factor=1.0,
+                sector="anthropogenic",
+            ),
+            mc.SourceDescriptor(
+                name="gfed fire source",
+                mode=mc.SourceMode.Offline,
+                type=mc.SourceType.Fire,
+                inventory="gfed fire",
+                species_map="fire map",
+                temporal_interpolation=mc.TemporalInterpolation.Nearest,
+                vertical_injection=mc.VerticalInjection.Surface,
+                category=1,
+                hierarchy=1,
+                scaling_factor=1.0,
+                sector="fire",
+            ),
+        ],
+    )
+
     # Mechanism
     return mc.Mechanism(
         name="Full Configuration",
@@ -181,6 +244,7 @@ def get_fully_defined_mechanism() -> mc.Mechanism:
                    taylor_series_reaction
                    ],
         version=mc.Version(1, 0, 0),
+        emissions=emissions,
     )
 
 
@@ -453,6 +517,66 @@ def _validate_taylor_series(reactions):
     assert reactions[0].name == "my taylor series"
 
 
+def _validate_emissions(emissions):
+    assert emissions is not None
+
+    assert len(emissions.inventories) == 2
+    inventories_by_name = {i.name: i for i in emissions.inventories}
+    assert inventories_by_name["cams anthro"].directory == "cams/v6.2"
+    assert inventories_by_name["cams anthro"].file_pattern == "CAMS-GLOB-ANT_v6.2_{YYYY}-{MM}.nc"
+    assert inventories_by_name["cams anthro"].convention == "eccad"
+    assert inventories_by_name["gfed fire"].directory == "gfed/v4"
+    assert inventories_by_name["gfed fire"].file_pattern == "GFED4_{YYYY}{MM}.nc"
+    assert inventories_by_name["gfed fire"].convention == "eccad"
+
+    assert len(emissions.species_maps) == 2
+    species_maps_by_name = {m.name: m for m in emissions.species_maps}
+    anthro_map = species_maps_by_name["anthro map"]
+    assert len(anthro_map.mappings) == 3
+    nox_mappings = [m for m in anthro_map.mappings if m.inventory_species == "NOx"]
+    assert len(nox_mappings) == 2
+    no_mapping = next(m for m in nox_mappings if m.mechanism_species == "NO")
+    no2_mapping = next(m for m in nox_mappings if m.mechanism_species == "NO2")
+    assert no_mapping.scaling_factor == 0.9
+    assert no2_mapping.scaling_factor == 0.1
+    co_mapping = next(m for m in anthro_map.mappings if m.inventory_species == "CO")
+    assert co_mapping.mechanism_species == "CO"
+    assert co_mapping.scaling_factor == 1.0
+    fire_map = species_maps_by_name["fire map"]
+    assert len(fire_map.mappings) == 1
+    assert fire_map.mappings[0].inventory_species == "bc_fire"
+    assert fire_map.mappings[0].mechanism_species == "BC"
+    assert fire_map.mappings[0].scaling_factor == 1.0
+
+    assert emissions.regridding.type == mc.RegriddingType.None_
+
+    assert len(emissions.sources) == 2
+    sources_by_name = {s.name: s for s in emissions.sources}
+    anthro_source = sources_by_name["cams anthro source"]
+    assert anthro_source.mode == mc.SourceMode.Offline
+    assert anthro_source.type == mc.SourceType.Anthropogenic
+    assert anthro_source.inventory == "cams anthro"
+    assert anthro_source.species_map == "anthro map"
+    assert anthro_source.temporal_interpolation == mc.TemporalInterpolation.Linear
+    assert anthro_source.vertical_injection == mc.VerticalInjection.Surface
+    assert anthro_source.category == 0
+    assert anthro_source.hierarchy == 1
+    assert anthro_source.scaling_factor == 1.0
+    assert anthro_source.sector == "anthropogenic"
+
+    fire_source = sources_by_name["gfed fire source"]
+    assert fire_source.mode == mc.SourceMode.Offline
+    assert fire_source.type == mc.SourceType.Fire
+    assert fire_source.inventory == "gfed fire"
+    assert fire_source.species_map == "fire map"
+    assert fire_source.temporal_interpolation == mc.TemporalInterpolation.Nearest
+    assert fire_source.vertical_injection == mc.VerticalInjection.Surface
+    assert fire_source.category == 1
+    assert fire_source.hierarchy == 1
+    assert fire_source.scaling_factor == 1.0
+    assert fire_source.sector == "fire"
+
+
 def validate_full_v1_mechanism(mechanism):
     assert mechanism is not None
     assert mechanism.name == "Full Configuration"
@@ -482,6 +606,7 @@ def validate_full_v1_mechanism(mechanism):
     _validate_user_defined(mechanism.reactions.user_defined)
     assert len(mechanism.reactions.taylor_series) == 1
     _validate_taylor_series(mechanism.reactions.taylor_series)
+    _validate_emissions(mechanism.emissions)
     assert mechanism.version.major == 1
     assert mechanism.version.minor == 0
     assert mechanism.version.patch == 0

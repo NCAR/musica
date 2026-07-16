@@ -321,5 +321,68 @@
         }
       ]
     }
-  ]
+  ],
+  "emissions": {
+    "inventories": [
+      {
+        "name": "cams anthro",
+        "directory": "cams/v6.2",
+        "file pattern": "CAMS-GLOB-ANT_v6.2_{YYYY}-{MM}.nc",
+        "convention": "eccad"
+      },
+      {
+        "name": "gfed fire",
+        "directory": "gfed/v4",
+        "file pattern": "GFED4_{YYYY}{MM}.nc",
+        "convention": "eccad"
+      }
+    ],
+    "species maps": [
+      {
+        "name": "anthro map",
+        "mappings": [
+          { "inventory species": "NOx", "mechanism species": "NO", "scaling factor": 0.9 },
+          { "inventory species": "NOx", "mechanism species": "NO2", "scaling factor": 0.1 },
+          { "inventory species": "CO", "mechanism species": "CO" }
+        ]
+      },
+      {
+        "name": "fire map",
+        "mappings": [
+          { "inventory species": "bc_fire", "mechanism species": "BC", "scaling factor": 1.0 }
+        ]
+      }
+    ],
+    "regridding": {
+      "type": "none"
+    },
+    "sources": [
+      {
+        "name": "cams anthro source",
+        "mode": "offline",
+        "type": "anthropogenic",
+        "inventory": "cams anthro",
+        "species map": "anthro map",
+        "temporal interpolation": "linear",
+        "vertical injection": "surface",
+        "category": 0,
+        "hierarchy": 1,
+        "scaling factor": 1.0,
+        "sector": "anthropogenic"
+      },
+      {
+        "name": "gfed fire source",
+        "mode": "offline",
+        "type": "fire",
+        "inventory": "gfed fire",
+        "species map": "fire map",
+        "temporal interpolation": "nearest",
+        "vertical injection": "surface",
+        "category": 1,
+        "hierarchy": 1,
+        "scaling factor": 1.0,
+        "sector": "fire"
+      }
+    ]
+  }
 }

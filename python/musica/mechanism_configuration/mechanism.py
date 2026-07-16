@@ -13,6 +13,7 @@ from .._base import CppWrapper, CppField, _unwrap, _unwrap_list, _wrap_list
 from .species import Species, Phase
 from .reactions import Reactions
 from .aerosol import Aerosol
+from .emissions import EmissionsConfig
 from .parse import Version, ReactionType
 
 _backend = backend.get_backend()
@@ -50,6 +51,7 @@ class Mechanism(CppWrapper):
         phases: Optional[List[Phase]] = None,
         reactions: Optional[List[Any]] = None,
         aerosol: Optional[Aerosol] = None,
+        emissions: Optional[EmissionsConfig] = None,
     ):
         """Initialize the Mechanism.
 
@@ -62,6 +64,7 @@ class Mechanism(CppWrapper):
             phases: A list of phases in the mechanism.
             reactions: A list of reactions in the mechanism.
             aerosol: Aerosol representations, processes, and constraints (optional).
+            emissions: Emissions configuration (inventories, species maps, sources) (optional).
         """
         self._cpp = _mc._Mechanism()
         self.name = name if name is not None else ""
@@ -73,6 +76,7 @@ class Mechanism(CppWrapper):
         self.phases = phases if phases is not None else []
         self.reactions = Reactions(reactions=reactions if reactions is not None else [])
         self.aerosol = aerosol
+        self.emissions = emissions
 
     @property
     def version(self):
@@ -145,14 +149,27 @@ class Mechanism(CppWrapper):
     def aerosol(self, value: Optional[Aerosol]):
         self._cpp.aerosol = _unwrap(value) if value is not None else None
 
+    @property
+    def emissions(self) -> Optional[EmissionsConfig]:
+        """Emissions configuration (inventories, species maps, sources), or None."""
+        cpp_emissions = self._cpp.emissions
+        return EmissionsConfig._from_cpp(cpp_emissions) if cpp_emissions is not None else None
+
+    @emissions.setter
+    def emissions(self, value: Optional[EmissionsConfig]):
+        self._cpp.emissions = _unwrap(value) if value is not None else None
+
     def serialize(self) -> Dict:
-        return {
+        serialize_dict = {
             "name": self.name,
             "reactions": [r.serialize() for r in self.reactions],
             "species": [s.serialize() for s in self.species],
             "phases": [p.serialize() for p in self.phases],
             "version": self.version.to_string(),
         }
+        if self.emissions is not None:
+            serialize_dict["emissions"] = self.emissions.serialize()
+        return serialize_dict
 
     def export(self, file_path: str) -> None:
         directory, file = os.path.split(file_path)
