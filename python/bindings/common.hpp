@@ -39,3 +39,7 @@ void bind_carma(py::module_ &);
 #ifdef MUSICA_USE_MIAM
 void bind_miam(py::module_ &);
 #endif
+
+#ifdef MUSICA_USE_MIEM
+void bind_miem(py::module_ &);
+#endif
