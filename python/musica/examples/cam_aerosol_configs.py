@@ -8,7 +8,7 @@ Construct miam objects that reproduce the aerosol size distrutions for
 Each of these representations are then connected to the same cloud-sulfate aqueous chemistry
 from the initial cloud integration test.
 
-Each representation was broken down in issue https://github.com/NCAR/musica/issues/881, check 
+Each representation was broken down in issue https://github.com/NCAR/musica/issues/881, check
 there for where the numbers come from.
 """
 
@@ -44,25 +44,25 @@ CM_TO_M = 1.0e-2           # cm -> m
 # So every species needs a molecular weight and density.  These are sensible,
 # illustrative defaults (solutes given water-like density); not evaluated values.
 AQUEOUS_PROPERTIES = {  # species: (molecular weight [kg/mol], density [kg/m3])
-    "H2O":     (MW_H2O, RHO_H2O),
-    "SO2_aq":  (0.064,  1000.0),
-    "H2O2_aq": (0.034,  1000.0),
-    "O3_aq":   (0.048,  1000.0),
-    "Hp":      (0.001,  1000.0),
-    "OHm":     (0.017,  1000.0),
-    "HSO3m":   (0.081,  1000.0),
-    "SO3mm":   (0.080,  1000.0),
-    "SO4mm":   (0.096,  1000.0),
-    "SO2OOHm": (0.097,  1000.0),
+    "H2O": (MW_H2O, RHO_H2O),
+    "SO2_aq": (0.064, 1000.0),
+    "H2O2_aq": (0.034, 1000.0),
+    "O3_aq": (0.048, 1000.0),
+    "Hp": (0.001, 1000.0),
+    "OHm": (0.017, 1000.0),
+    "HSO3m": (0.081, 1000.0),
+    "SO3mm": (0.080, 1000.0),
+    "SO4mm": (0.096, 1000.0),
+    "SO2OOHm": (0.097, 1000.0),
 }
 # Gas molecular weights [kg/mol] (mean thermal speed in the uptake rate).
 GAS_MOLECULAR_WEIGHT = {"SO2": 0.064, "H2O2": 0.034, "O3": 0.048}
 # Gas diffusion coefficient [m2/s] and mass accommodation coefficient [-].
 # Approximate literature values (SO2 from the miam unit test).
 GAS_UPTAKE = {  # gas: (diffusion_coefficient, accommodation_coefficient)
-    "SO2":  (1.28e-5, 0.11),
+    "SO2": (1.28e-5, 0.11),
     "H2O2": (1.46e-5, 0.11),
-    "O3":   (1.48e-5, 2.0e-3),
+    "O3": (1.48e-5, 2.0e-3),
 }
 
 
@@ -110,16 +110,17 @@ def bam_representations():
 
     # species, geometric-mean radius (given in centimeters, converted to meters), geometric standard deviation
     BAM_BULK = [
-        ("SO4",     6.95e-6 * CM_TO_M, 2.03),
-        ("OC",      2.12e-6 * CM_TO_M, 2.20),
-        ("BC",      1.18e-6 * CM_TO_M, 2.00),
-        ("NH4NO3",  6.95e-6 * CM_TO_M, 2.03),
+        ("SO4", 6.95e-6 * CM_TO_M, 2.03),
+        ("OC", 2.12e-6 * CM_TO_M, 2.20),
+        ("BC", 1.18e-6 * CM_TO_M, 2.00),
+        ("NH4NO3", 6.95e-6 * CM_TO_M, 2.03),
     ]
     # BAM dust/sea-salt are binned; edges/diameters in meteres here
     BAM_DUST_EDGES_UM = [0.1, 1.0, 2.5, 5.0, 10.0]   # diameter bin edges
     BAM_DUST_INTRABIN_GEOMETRIC_STANDARD_DEVIATION = 2.0
     BAM_SEASALT_DIAMETER_M = [0.52 * UM, 2.38 * UM, 4.86 * UM, 15.14 * UM]  # dry mass-weighted diameters
-    BAM_SEASALT_GEOMETRIC_STANDARD_DEVIATION = 2.0   # placeholder: BAM sea salt has no explicit dry standard deviation (Gerber growth)
+    # placeholder: BAM sea salt has no explicit dry standard deviation (Gerber growth)
+    BAM_SEASALT_GEOMETRIC_STANDARD_DEVIATION = 2.0
 
     reps = []
     for name, geometric_mean_radius, sigma_g in BAM_BULK:
@@ -132,10 +133,13 @@ def bam_representations():
         diameter_lower_edge, diameter_upper_edge = BAM_DUST_EDGES_UM[i], BAM_DUST_EDGES_UM[i + 1]
         geometric_mean_radius = 0.5 * (diameter_lower_edge * diameter_upper_edge) ** 0.5 * UM
         nm = f"DST{i + 1:02d}"
-        reps.append(SingleMomentMode(
-            name=nm, phase_names=[f"{nm}_AQ"],
-            geometric_mean_radius=geometric_mean_radius, geometric_standard_deviation=BAM_DUST_INTRABIN_GEOMETRIC_STANDARD_DEVIATION,
-        ))
+        reps.append(
+            SingleMomentMode(
+                name=nm,
+                phase_names=[f"{nm}_AQ"],
+                geometric_mean_radius=geometric_mean_radius,
+                geometric_standard_deviation=BAM_DUST_INTRABIN_GEOMETRIC_STANDARD_DEVIATION,
+            ))
     # sea-salt bins: prescribed dry mass-weighted diameter -> radius
     for i, diameter_m in enumerate(BAM_SEASALT_DIAMETER_M):
         nm = f"SSLT{i + 1:02d}"
@@ -172,12 +176,12 @@ def carma_representations(case):
     """
     # CARMA cases: (group name, number of bins, minimum radius (m), volume ratio)
     CARMA_CASES = {
-    "dust":          [("dust",         16, 1.19e-5 * CM_TO_M, 2.371)],
-    "sea_salt":      [("sea_salt",     16, 1.0e-6  * CM_TO_M, 4.32)],
-    "sulfate":       [("sulfate",      30, 3.43230298e-8 * CM_TO_M, 2.4)],
-    "meteor_smoke":  [("meteor_smoke", 28, 2.0e-8  * CM_TO_M, 2.0)],
-    "mixed_sulfate": [("meteor_smoke", 28, 2.0e-8  * CM_TO_M, 2.0),
-                    ("sulfate",      28, 3.43230298e-8 * CM_TO_M, 2.56)],
+        "dust": [("dust", 16, 1.19e-5 * CM_TO_M, 2.371)],
+        "sea_salt": [("sea_salt", 16, 1.0e-6 * CM_TO_M, 4.32)],
+        "sulfate": [("sulfate", 30, 3.43230298e-8 * CM_TO_M, 2.4)],
+        "meteor_smoke": [("meteor_smoke", 28, 2.0e-8 * CM_TO_M, 2.0)],
+        "mixed_sulfate": [("meteor_smoke", 28, 2.0e-8 * CM_TO_M, 2.0),
+                          ("sulfate", 28, 3.43230298e-8 * CM_TO_M, 2.56)],
     }
     representations = []
     for group_name, number_of_bins, minimum_radius, volume_ratio in CARMA_CASES[case]:
