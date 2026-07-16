@@ -3,10 +3,11 @@
 #
 # Python wrappers for the emissions configuration types defined in
 # mechanism_configuration/types/emissions.hpp.
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from ... import backend
 from ..._base import CppWrapper, CppField, _unwrap, _unwrap_list, _wrap_list
+from ..utils import _add_other_properties, _remove_empty_keys
 
 _backend = backend.get_backend()
 _mc = _backend._mechanism_configuration
@@ -16,6 +17,31 @@ SourceType = _mc._SourceType
 TemporalInterpolation = _mc._TemporalInterpolation
 VerticalInjection = _mc._VerticalInjection
 RegriddingType = _mc._RegriddingType
+
+# Enum -> YAML/JSON string, the reverse of the mechanism_configuration parser's
+# string -> enum mapping (src/v1/emissions/parsers.cpp).
+_SOURCE_MODE_TO_STR = {
+    SourceMode.Offline: "offline",
+}
+_SOURCE_TYPE_TO_STR = {
+    SourceType.Anthropogenic: "anthropogenic",
+    SourceType.Fire: "fire",
+    SourceType.Biogenic: "biogenic",
+    SourceType.Dust: "dust",
+    SourceType.SeaSalt: "sea salt",
+    SourceType.Lightning: "lightning",
+}
+_TEMPORAL_INTERPOLATION_TO_STR = {
+    TemporalInterpolation.Linear: "linear",
+    TemporalInterpolation.Nearest: "nearest",
+    TemporalInterpolation.None_: "none",
+}
+_VERTICAL_INJECTION_TO_STR = {
+    VerticalInjection.Surface: "surface",
+}
+_REGRIDDING_TYPE_TO_STR = {
+    RegriddingType.None_: "none",
+}
 
 
 class SpeciesMapping(CppWrapper):
@@ -42,6 +68,15 @@ class SpeciesMapping(CppWrapper):
         self.mechanism_species = mechanism_species if mechanism_species is not None else self.mechanism_species
         self.scaling_factor = scaling_factor if scaling_factor is not None else self.scaling_factor
 
+    def serialize(self) -> Dict:
+        return _remove_empty_keys(
+            {
+                "inventory species": self.inventory_species,
+                "mechanism species": self.mechanism_species,
+                "scaling factor": self.scaling_factor,
+            }
+        )
+
 
 class SpeciesMap(CppWrapper):
     """A named collection of inventory-to-mechanism species mappings.
@@ -65,6 +100,14 @@ class SpeciesMap(CppWrapper):
     @mappings.setter
     def mappings(self, value: List[SpeciesMapping]):
         self._cpp.mappings = _unwrap_list(value)
+
+    def serialize(self) -> Dict:
+        return _remove_empty_keys(
+            {
+                "name": self.name,
+                "mappings": [m.serialize() for m in self.mappings],
+            }
+        )
 
 
 class Inventory(CppWrapper):
@@ -94,6 +137,16 @@ class Inventory(CppWrapper):
         self.directory = directory if directory is not None else self.directory
         self.file_pattern = file_pattern if file_pattern is not None else self.file_pattern
         self.convention = convention if convention is not None else self.convention
+
+    def serialize(self) -> Dict:
+        return _remove_empty_keys(
+            {
+                "name": self.name,
+                "directory": self.directory,
+                "file pattern": self.file_pattern,
+                "convention": self.convention,
+            }
+        )
 
 
 class SourceDescriptor(CppWrapper):
@@ -158,6 +211,23 @@ class SourceDescriptor(CppWrapper):
         self.sector = sector if sector is not None else self.sector
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 
+    def serialize(self) -> Dict:
+        serialize_dict = {
+            "name": self.name,
+            "mode": _SOURCE_MODE_TO_STR[self.mode],
+            "type": _SOURCE_TYPE_TO_STR[self.type],
+            "inventory": self.inventory,
+            "species map": self.species_map,
+            "temporal interpolation": _TEMPORAL_INTERPOLATION_TO_STR[self.temporal_interpolation],
+            "vertical injection": _VERTICAL_INJECTION_TO_STR[self.vertical_injection],
+            "category": self.category,
+            "hierarchy": self.hierarchy,
+            "scaling factor": self.scaling_factor,
+            "sector": self.sector,
+        }
+        _add_other_properties(serialize_dict, self.other_properties)
+        return _remove_empty_keys(serialize_dict)
+
 
 class Regridding(CppWrapper):
     """Horizontal regridding specification for a Mechanism's emissions.
@@ -171,6 +241,9 @@ class Regridding(CppWrapper):
     def __init__(self, type: Optional[RegriddingType] = None):
         self._cpp = _mc._Regridding()
         self.type = type if type is not None else self.type
+
+    def serialize(self) -> Dict:
+        return {"type": _REGRIDDING_TYPE_TO_STR[self.type]}
 
 
 class EmissionsConfig(CppWrapper):
@@ -227,3 +300,11 @@ class EmissionsConfig(CppWrapper):
     @sources.setter
     def sources(self, value: List[SourceDescriptor]):
         self._cpp.sources = _unwrap_list(value)
+
+    def serialize(self) -> Dict:
+        return {
+            "inventories": [i.serialize() for i in self.inventories],
+            "species maps": [m.serialize() for m in self.species_maps],
+            "regridding": self.regridding.serialize(),
+            "sources": [s.serialize() for s in self.sources],
+        }

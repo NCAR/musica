@@ -160,13 +160,16 @@ class Mechanism(CppWrapper):
         self._cpp.emissions = _unwrap(value) if value is not None else None
 
     def serialize(self) -> Dict:
-        return {
+        serialize_dict = {
             "name": self.name,
             "reactions": [r.serialize() for r in self.reactions],
             "species": [s.serialize() for s in self.species],
             "phases": [p.serialize() for p in self.phases],
             "version": self.version.to_string(),
         }
+        if self.emissions is not None:
+            serialize_dict["emissions"] = self.emissions.serialize()
+        return serialize_dict
 
     def export(self, file_path: str) -> None:
         directory, file = os.path.split(file_path)
