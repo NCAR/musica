@@ -31,10 +31,7 @@ namespace musica
     /// @param mechanism Parsed mechanism configuration containing an emissions section
     /// @param n_cells Number of horizontal grid cells
     /// @param n_vert_levels Number of vertical levels
-    static EmissionsModel FromMechanism(
-        const mechanism_configuration::Mechanism& mechanism,
-        int n_cells,
-        int n_vert_levels);
+    static EmissionsModel FromMechanism(const mechanism_configuration::Mechanism& mechanism, int n_cells, int n_vert_levels);
 
     /// @brief Advance one time step and return the resulting state
     /// @param epoch_seconds Simulation time as seconds since epoch
