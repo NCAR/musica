@@ -117,7 +117,7 @@ def _create_cloud_chemistry_mechanism(r1b_rate_constant=None):
         solvent=h2o,
         reactants=[hso3m, h2o2_aq],
         products=[so2oohm, h2o],
-        forward_rate_constants={cloud: mc.Arrhenius(A=C_H2O_M * (7.45e7 / 13.0), C=4430.0)},
+        forward_rate_constants=mc.Arrhenius(A=C_H2O_M * (7.45e7 / 13.0), C=4430.0),
         equilibrium_constant=mc.Equilibrium(A=1725.0, C=0.0))
 
     # R1b: SO2OOH- + H+ → SO4--  (irreversible)
@@ -126,7 +126,7 @@ def _create_cloud_chemistry_mechanism(r1b_rate_constant=None):
         solvent=h2o,
         reactants=[so2oohm, hp],
         products=[so4mm],
-        rate_constants={cloud: r1b_rate_constant})
+        rate_constants=r1b_rate_constant)
 
     # ── Constraints ──
     constraints = [
@@ -432,7 +432,7 @@ class TestMiamErrorCases:
             solvent=x,
             reactants=[mc.Species(name="NONEXISTENT")],  # a species not registered in the mechanism
             products=[x],
-            rate_constants={section: mc.Equilibrium(A=1.0, C=0.0)},
+            rate_constants=mc.Equilibrium(A=1.0, C=0.0),
         )
         mechanism = mc.Mechanism(
             name="bad",
@@ -673,7 +673,7 @@ def _create_kinetics_mechanism():
         solvent=h2o,
         reactants=[hso3m, h2o2_aq],
         products=[so2oohm, h2o],
-        forward_rate_constants={cloud: mc.Arrhenius(A=C_H2O_M * (7.45e7 / 13.0), C=4430.0)},
+        forward_rate_constants=mc.Arrhenius(A=C_H2O_M * (7.45e7 / 13.0), C=4430.0),
         equilibrium_constant=mc.Equilibrium(A=1725.0, C=0.0))
     # R1b: SO2OOH- + H+ → SO4--  (irreversible)
     r1b = mc.DissolvedReaction(
@@ -681,21 +681,21 @@ def _create_kinetics_mechanism():
         solvent=h2o,
         reactants=[so2oohm, hp],
         products=[so4mm],
-        rate_constants={cloud: mc.Equilibrium(A=C_H2O_M * 2.4e6, C=4430.0)})
+        rate_constants=mc.Equilibrium(A=C_H2O_M * 2.4e6, C=4430.0))
     # R2: HSO3- + O3_aq → SO4-- + H+
     r2 = mc.DissolvedReaction(
         phase=aq_phase,
         solvent=h2o,
         reactants=[hso3m, o3_aq],
         products=[so4mm, hp],
-        rate_constants={cloud: mc.Equilibrium(A=C_H2O_M * 3.75e5, C=5530.0)})
+        rate_constants=mc.Equilibrium(A=C_H2O_M * 3.75e5, C=5530.0))
     # R3: SO3-- + O3_aq → SO4--
     r3 = mc.DissolvedReaction(
         phase=aq_phase,
         solvent=h2o,
         reactants=[so3mm, o3_aq],
         products=[so4mm],
-        rate_constants={cloud: mc.Equilibrium(A=C_H2O_M * 1.59e9, C=5280.0)})
+        rate_constants=mc.Equilibrium(A=C_H2O_M * 1.59e9, C=5280.0))
 
     gas_by_name = {"SO2": so2_g, "H2O2": h2o2_g, "O3": o3_g}
     aq_by_name = {"SO2_aq": so2_aq, "H2O2_aq": h2o2_aq, "O3_aq": o3_aq}
