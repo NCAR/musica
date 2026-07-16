@@ -23,12 +23,12 @@ void bind_aerosol(py::module_ &mechanism_configuration)
 {
   // -- Rate constants ------------------------------------------------
 
-  py::class_<ArrheniusReferenceTemperature>(mechanism_configuration, "_ArrheniusReferenceTemperature")
+  py::class_<Equilibrium>(mechanism_configuration, "_Equilibrium")
       .def(py::init<>())
-      .def_readwrite("A", &ArrheniusReferenceTemperature::A)
-      .def_readwrite("C", &ArrheniusReferenceTemperature::C)
-      .def_readwrite("T0", &ArrheniusReferenceTemperature::T0)
-      .def("__repr__", [](const ArrheniusReferenceTemperature &) { return "<ArrheniusReferenceTemperature>"; });
+      .def_readwrite("A", &Equilibrium::A)
+      .def_readwrite("C", &Equilibrium::C)
+      .def_readwrite("T0", &Equilibrium::T0)
+      .def("__repr__", [](const Equilibrium &) { return "<Equilibrium>"; });
 
   py::class_<HenryLawConstant>(mechanism_configuration, "_HenryLawConstant")
       .def(py::init<>())

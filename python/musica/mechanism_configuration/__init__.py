@@ -20,7 +20,7 @@ from .reactions import (
 )
 from .aerosol import (
     Aerosol,
-    ArrheniusReferenceTemperature,
+    Equilibrium,
     HenryLawConstant,
     UniformSection,
     SingleMomentMode,
@@ -73,7 +73,7 @@ __all__ = [
     "UserDefined",
     # aerosol
     "Aerosol",
-    "ArrheniusReferenceTemperature",
+    "Equilibrium",
     "HenryLawConstant",
     "UniformSection",
     "SingleMomentMode",

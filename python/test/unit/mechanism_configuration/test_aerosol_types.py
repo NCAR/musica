@@ -10,7 +10,8 @@ import pytest
 
 from musica.mechanism_configuration import (
     Aerosol,
-    ArrheniusReferenceTemperature,
+    Arrhenius,
+    Equilibrium,
     DiagnoseFromState,
     DissolvedEquilibrium,
     DissolvedReaction,
@@ -59,21 +60,21 @@ class TestHenryLawConstant:
         assert hlc.HLC_ref == 2.0
 
 
-class TestArrheniusReferenceTemperature:
+class TestEquilibrium:
     """Covers rate constants and equilibrium constants: f(T) = A * exp(C*(1/T0 - 1/T))."""
 
     def test_construction(self):
-        art = ArrheniusReferenceTemperature(A=7.45e7, C=4430.0)
+        art = Equilibrium(A=7.45e7, C=4430.0)
         assert art.A == 7.45e7
         assert art.C == 4430.0
 
     def test_default_c_and_t0(self):
-        art = ArrheniusReferenceTemperature(A=1.0)
+        art = Equilibrium(A=1.0)
         assert art.C == 0.0
         assert art.T0 == pytest.approx(298.15)
 
     def test_mutable(self):
-        art = ArrheniusReferenceTemperature(A=1.0)
+        art = Equilibrium(A=1.0)
         art.C = 99.0
         assert art.C == 99.0
 
@@ -156,19 +157,17 @@ class TestDissolvedReaction:
         h2o = Species(name="H2O")
         hp = Species(name="Hp")
         aq = Phase(name="AQUEOUS")
-        cloud = UniformSection(name="CLOUD", phases=[aq],
-                               min_radius=1e-6, max_radius=1e-5)
         rxn = DissolvedReaction(
             phase=aq,
             reactants=[hso3m, h2o2_aq],
             products=[so4mm, h2o, hp],
             solvent=h2o,
-            rate_constants={cloud: ArrheniusReferenceTemperature(A=7.45e7, C=4430.0)},
+            rate_constants=Equilibrium(A=7.45e7, C=4430.0),
         )
         assert rxn.phase == "AQUEOUS"
         assert len(rxn.reactants) == 2
         assert len(rxn.products) == 3
-        assert "CLOUD" in rxn.rate_constants
+        assert rxn.rate_constants is not None
 
     def test_with_callable(self):
         def k_func(T):
@@ -179,9 +178,9 @@ class TestDissolvedReaction:
             reactants=[Species(name="HSO3m"), Species(name="H2O2_aq")],
             products=[Species(name="SO4mm")],
             solvent="H2O",
-            rate_constants={"CLOUD": k_func},
+            rate_constants=k_func,
         )
-        rc = rxn.rate_constants["CLOUD"]
+        rc = rxn.rate_constants
         assert callable(rc)
         # Verify the callable works
         assert rc(298.15) == pytest.approx(55.556 * 7.45e7, rel=1e-10)
@@ -192,7 +191,7 @@ class TestDissolvedReaction:
             reactants=[Species(name="A")],
             products=[Species(name="B")],
             solvent="H2O",
-            rate_constants={"CLOUD": ArrheniusReferenceTemperature(A=1.0)},
+            rate_constants=Equilibrium(A=1.0),
             solvent_floor=1e-18,
             min_halflife=1.0,
         )
@@ -212,11 +211,11 @@ class TestDissolvedReversibleReaction:
             reactants=[Species(name="SO2_aq")],
             products=[Species(name="HSO3m"), Species(name="Hp")],
             solvent="H2O",
-            forward_rate_constants={"CLOUD": ArrheniusReferenceTemperature(A=1e6, C=0.0)},
-            equilibrium_constant=ArrheniusReferenceTemperature(A=1.7e-2, C=2090.0),
+            forward_rate_constants=Arrhenius(A=1e6, C=0.0),
+            equilibrium_constant=Equilibrium(A=1.7e-2, C=2090.0),
         )
-        assert "CLOUD" in rxn.forward_rate_constants
-        assert len(rxn.reverse_rate_constants) == 0
+        assert rxn.forward_rate_constants is not None
+        assert rxn.reverse_rate_constants is None
         assert rxn.equilibrium_constant is not None
 
     def test_with_forward_and_reverse(self):
@@ -225,11 +224,11 @@ class TestDissolvedReversibleReaction:
             reactants=[Species(name="A")],
             products=[Species(name="B")],
             solvent="H2O",
-            forward_rate_constants={"CLOUD": ArrheniusReferenceTemperature(A=100.0, C=0.0)},
-            reverse_rate_constants={"CLOUD": ArrheniusReferenceTemperature(A=50.0, C=0.0)},
+            forward_rate_constants=Arrhenius(A=100.0, C=0.0),
+            reverse_rate_constants=Arrhenius(A=50.0, C=0.0),
         )
-        assert "CLOUD" in rxn.forward_rate_constants
-        assert "CLOUD" in rxn.reverse_rate_constants
+        assert rxn.forward_rate_constants is not None
+        assert rxn.reverse_rate_constants is not None
 
     def test_defaults_are_empty(self):
         rxn = DissolvedReversibleReaction(
@@ -238,8 +237,8 @@ class TestDissolvedReversibleReaction:
             products=[Species(name="B")],
             solvent="H2O",
         )
-        assert len(rxn.forward_rate_constants) == 0
-        assert len(rxn.reverse_rate_constants) == 0
+        assert rxn.forward_rate_constants is None
+        assert rxn.reverse_rate_constants is None
 
     def test_solvent_floor(self):
         rxn = DissolvedReversibleReaction(
@@ -310,7 +309,7 @@ class TestDissolvedEquilibrium:
             products=[Species(name="HSO3m"), Species(name="Hp")],
             algebraic_species="SO2_aq",
             solvent="H2O",
-            equilibrium_constant=ArrheniusReferenceTemperature(A=1.7e-2, C=2090.0),
+            equilibrium_constant=Equilibrium(A=1.7e-2, C=2090.0),
         )
         assert dec.phase == "AQUEOUS"
         assert dec.algebraic_species == "SO2_aq"
@@ -320,7 +319,7 @@ class TestDissolvedEquilibrium:
     def test_solvent_floor(self):
         dec = DissolvedEquilibrium(
             phase="AQ", solvent="W",
-            equilibrium_constant=ArrheniusReferenceTemperature(A=1.0),
+            equilibrium_constant=Equilibrium(A=1.0),
             solvent_floor=1e-20,
         )
         assert dec.solvent_floor == 1e-20
@@ -420,14 +419,14 @@ class TestAerosol:
                     reactants=[Species(name="A")],
                     products=[Species(name="B")],
                     solvent="W",
-                    rate_constants={"SEC": ArrheniusReferenceTemperature(A=1.0, C=0.0)},
+                    rate_constants=Equilibrium(A=1.0, C=0.0),
                 ),
                 DissolvedReversibleReaction(
                     phase="AQ",
                     reactants=[Species(name="A")],
                     products=[Species(name="B")],
                     solvent="W",
-                    equilibrium_constant=ArrheniusReferenceTemperature(A=1.0),
+                    equilibrium_constant=Equilibrium(A=1.0),
                 ),
                 HenryLawPhaseTransfer(
                     gas_phase="gas",
@@ -464,7 +463,7 @@ class TestAerosol:
                     products=[Species(name="B")],
                     algebraic_species="A",
                     solvent="W",
-                    equilibrium_constant=ArrheniusReferenceTemperature(A=1.0),
+                    equilibrium_constant=Equilibrium(A=1.0),
                 ),
                 LinearConstraint(
                     algebraic_phase="AQ",

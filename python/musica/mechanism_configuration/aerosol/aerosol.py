@@ -9,7 +9,7 @@
 # the C++ layer stores. Passing objects (rather than bare strings) lets typos be
 # caught at construction time and keeps the aerosol API consistent with the rest
 # of mechanism_configuration.
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Callable, List, Optional, Tuple, Union
 
 from ... import backend
 from ..._base import CppWrapper, CppField, _unwrap, _unwrap_list, _wrap_list
@@ -39,10 +39,10 @@ def _names(objs) -> List[str]:
 
 # -- Rate constants ----------------------------------------------------------
 
-RateConstantType = Union["ArrheniusReferenceTemperature", Callable[[float], float]]
+RateConstantType = Union["Equilibrium", Callable[[float], float]]
 
 
-class ArrheniusReferenceTemperature(CppWrapper):
+class Equilibrium(CppWrapper):
     """Reference-temperature Arrhenius rate constant.
 
     f(T) = A * exp( C * (1/T0 - 1/T) )     (C = +Ea/R)
@@ -63,7 +63,7 @@ class ArrheniusReferenceTemperature(CppWrapper):
         C: Optional[float] = None,
         T0: Optional[float] = None,
     ):
-        self._cpp = _mc._ArrheniusReferenceTemperature()
+        self._cpp = _mc._Equilibrium()
         self.A = A if A is not None else self.A
         self.C = C if C is not None else self.C
         self.T0 = T0 if T0 is not None else self.T0
@@ -97,16 +97,6 @@ class HenryLawConstant(CppWrapper):
 def _convert_rate_constant(rc):
     """Unwrap a rate constant (wrapper object) or pass a callable through."""
     return _unwrap(rc)
-
-
-def _convert_rate_constant_map(mapping: Optional[Dict]) -> Dict:
-    """Convert a {representation: rate_constant} mapping to {name: cpp_rate_constant}.
-
-    Keys may be representation objects (resolved to their name) or strings.
-    """
-    if not mapping:
-        return {}
-    return {_name(key): _convert_rate_constant(value) for key, value in mapping.items()}
 
 
 # -- Representations ----------------------------------------------------------
@@ -266,7 +256,7 @@ class DissolvedReaction(CppWrapper):
         solvent: Name of the solvent species.
         reactants: Reactant components.
         products: Product components.
-        rate_constants: Per-representation rate constants keyed by representation name.
+        rate_constants: Rate constant for the reaction.
         solvent_floor: Floor added to the solvent concentration in the rate denominator [mol m-3].
         min_halflife: Minimum reactant half-life used to cap the rate [s].
     """
@@ -282,7 +272,7 @@ class DissolvedReaction(CppWrapper):
         solvent: Optional[Union[Species, str]] = None,
         reactants: Optional[List[ComponentType]] = None,
         products: Optional[List[ComponentType]] = None,
-        rate_constants: Optional[Dict[Any, RateConstantType]] = None,
+        rate_constants: Optional[RateConstantType] = None,
         solvent_floor: Optional[float] = None,
         min_halflife: Optional[float] = None,
     ):
@@ -291,7 +281,8 @@ class DissolvedReaction(CppWrapper):
         self.solvent = _name(solvent)
         self.reactants = reactants if reactants is not None else []
         self.products = products if products is not None else []
-        self.rate_constants = rate_constants
+        if rate_constants is not None:
+            self.rate_constants = rate_constants
         if solvent_floor is not None:
             self.solvent_floor = solvent_floor
         if min_halflife is not None:
@@ -314,28 +305,27 @@ class DissolvedReaction(CppWrapper):
         self._cpp.products = _unwrap_list(_convert_components(value))
 
     @property
-    def rate_constants(self) -> Dict:
+    def rate_constants(self) -> RateConstantType:
         return self._cpp.rate_constants
 
     @rate_constants.setter
     def rate_constants(self, value):
-        self._cpp.rate_constants = _convert_rate_constant_map(value)
+        self._cpp.rate_constants = _convert_rate_constant(value)
 
 
 class DissolvedReversibleReaction(CppWrapper):
     """Reversible dissolved (aqueous-phase) reaction.
 
-    Supply two of {forward, reverse, equilibrium} per representation; the third
-    is derived by the model.
+    Supply two of {forward, reverse, equilibrium}; the third is derived by the model.
 
     Attributes:
         phase: Name of the condensed phase where the reaction occurs.
         solvent: Name of the solvent species.
         reactants: Reactant components.
         products: Product components.
-        forward_rate_constants: Per-representation forward rate constants.
-        reverse_rate_constants: Per-representation reverse rate constants.
-        equilibrium_constant: Shared intrinsic equilibrium constant (not per representation).
+        forward_rate_constants: Forward rate constant for the reaction.
+        reverse_rate_constants: Reverse rate constant for the reaction.
+        equilibrium_constant: Shared intrinsic equilibrium constant.
         solvent_floor: Floor added to the solvent concentration in the rate denominator [mol m-3].
     """
 
@@ -349,9 +339,9 @@ class DissolvedReversibleReaction(CppWrapper):
         solvent: Optional[Union[Species, str]] = None,
         reactants: Optional[List[ComponentType]] = None,
         products: Optional[List[ComponentType]] = None,
-        forward_rate_constants: Optional[Dict[Any, RateConstantType]] = None,
-        reverse_rate_constants: Optional[Dict[Any, RateConstantType]] = None,
-        equilibrium_constant: Optional[ArrheniusReferenceTemperature] = None,
+        forward_rate_constants: Optional[RateConstantType] = None,
+        reverse_rate_constants: Optional[RateConstantType] = None,
+        equilibrium_constant: Optional[Equilibrium] = None,
         solvent_floor: Optional[float] = None,
     ):
         self._cpp = _mc._DissolvedReversibleReaction()
@@ -383,25 +373,25 @@ class DissolvedReversibleReaction(CppWrapper):
         self._cpp.products = _unwrap_list(_convert_components(value))
 
     @property
-    def forward_rate_constants(self) -> Dict:
+    def forward_rate_constants(self) -> Optional[RateConstantType]:
         return self._cpp.forward_rate_constants
 
     @forward_rate_constants.setter
     def forward_rate_constants(self, value):
-        self._cpp.forward_rate_constants = _convert_rate_constant_map(value)
+        self._cpp.forward_rate_constants = _convert_rate_constant(value) if value is not None else None
 
     @property
-    def reverse_rate_constants(self) -> Dict:
+    def reverse_rate_constants(self) -> Optional[RateConstantType]:
         return self._cpp.reverse_rate_constants
 
     @reverse_rate_constants.setter
     def reverse_rate_constants(self, value):
-        self._cpp.reverse_rate_constants = _convert_rate_constant_map(value)
+        self._cpp.reverse_rate_constants = _convert_rate_constant(value) if value is not None else None
 
     @property
-    def equilibrium_constant(self) -> Optional[ArrheniusReferenceTemperature]:
+    def equilibrium_constant(self) -> Optional[Equilibrium]:
         cpp = self._cpp.equilibrium_constant
-        return ArrheniusReferenceTemperature._from_cpp(cpp) if cpp is not None else None
+        return Equilibrium._from_cpp(cpp) if cpp is not None else None
 
     @equilibrium_constant.setter
     def equilibrium_constant(self, value):
@@ -548,7 +538,7 @@ class DissolvedEquilibrium(CppWrapper):
         solvent: Optional[Union[Species, str]] = None,
         reactants: Optional[List[ComponentType]] = None,
         products: Optional[List[ComponentType]] = None,
-        equilibrium_constant: Optional[ArrheniusReferenceTemperature] = None,
+        equilibrium_constant: Optional[Equilibrium] = None,
         solvent_floor: Optional[float] = None,
     ):
         self._cpp = _mc._DissolvedEquilibrium()
@@ -579,8 +569,8 @@ class DissolvedEquilibrium(CppWrapper):
         self._cpp.products = _unwrap_list(_convert_components(value))
 
     @property
-    def equilibrium_constant(self) -> ArrheniusReferenceTemperature:
-        return ArrheniusReferenceTemperature._from_cpp(self._cpp.equilibrium_constant)
+    def equilibrium_constant(self) -> Equilibrium:
+        return Equilibrium._from_cpp(self._cpp.equilibrium_constant)
 
     @equilibrium_constant.setter
     def equilibrium_constant(self, value):

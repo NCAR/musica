@@ -3,16 +3,16 @@
   "name": "CAM Cloud Chemistry",
 
   "species": [
-    { "name": "SO2",    "molecular weight [kg mol-1]": 0.06407 },
-    { "name": "H2O2",   "molecular weight [kg mol-1]": 0.03401 },
-    { "name": "O3",     "molecular weight [kg mol-1]": 0.04800 },
-    { "name": "Hp",     "molecular weight [kg mol-1]": 0.00101 },
-    { "name": "OHm",    "molecular weight [kg mol-1]": 0.01701 },
-    { "name": "HSO3m",  "molecular weight [kg mol-1]": 0.08107 },
-    { "name": "SO3mm",  "molecular weight [kg mol-1]": 0.08007 },
-    { "name": "SO4mm",  "molecular weight [kg mol-1]": 0.09607 },
+    { "name": "SO2",     "molecular weight [kg mol-1]": 0.06407 },
+    { "name": "H2O2",    "molecular weight [kg mol-1]": 0.03401 },
+    { "name": "O3",      "molecular weight [kg mol-1]": 0.04800 },
+    { "name": "Hp",      "molecular weight [kg mol-1]": 0.00101 },
+    { "name": "OHm",     "molecular weight [kg mol-1]": 0.01701 },
+    { "name": "HSO3m",   "molecular weight [kg mol-1]": 0.08107 },
+    { "name": "SO3mm",   "molecular weight [kg mol-1]": 0.08007 },
+    { "name": "SO4mm",   "molecular weight [kg mol-1]": 0.09607 },
     { "name": "SO2OOHm", "molecular weight [kg mol-1]": 0.11307 },
-    { "name": "H2O",    "molecular weight [kg mol-1]": 0.01801 }
+    { "name": "H2O",     "molecular weight [kg mol-1]": 0.01801 }
   ],
 
   "phases": [
@@ -48,6 +48,7 @@
   "aerosol processes": [
     {
       "__comment": "Henry's Law Equilibrium: SO2(g) <-> SO2(aq)",
+      "__note": "HLC = HLC_ref * exp(C*(1/T - 1/T0))",
       "type": "HENRY_LAW_EQUILIBRIUM",
       "gas phase": "gas",
       "gas-phase species": "SO2",
@@ -62,6 +63,7 @@
     },
     {
       "__comment": "Henry's Law Equilibrium: H2O2(g) <-> H2O2(aq)",
+      "__note": "HLC = HLC_ref * exp(C*(1/T - 1/T0))",
       "type": "HENRY_LAW_EQUILIBRIUM",
       "gas phase": "gas",
       "gas-phase species": "H2O2",
@@ -76,6 +78,7 @@
     },
     {
       "__comment": "Henry's Law Equilibrium: O3(g) <-> O3(aq)",
+      "__note": "HLC = HLC_ref * exp(C*(1/T - 1/T0))",
       "type": "HENRY_LAW_EQUILIBRIUM",
       "gas phase": "gas",
       "gas-phase species": "O3",
@@ -103,10 +106,10 @@
         { "name": "H2O",     "coefficient": 1 }
       ],
       "forward rate constants": {
-        "CLOUD": { "type": "ARRHENIUS_REFERENCE_TEMPERATURE", "A": 3.184e8, "C [K]": 4430.0, "T0 [K]": 298.15 }
+        "type": "ARRHENIUS", "A": 3.184e8,  "C": 4430.0
       },
       "equilibrium constant": {
-        "type": "ARRHENIUS_REFERENCE_TEMPERATURE", "A": 1725.0, "C [K]": 0.0, "T0 [K]": 298.15
+        "type": "EQUILIBRIUM", "A": 1725.0, "C [K]": 0.0, "T0 [K]": 298.15
       }
     },
     {
@@ -123,7 +126,7 @@
         { "name": "SO4mm", "coefficient": 1 }
       ],
       "rate constants": {
-        "CLOUD": { "type": "ARRHENIUS_REFERENCE_TEMPERATURE", "A": 1.333e8, "C [K]": 4430.0, "T0 [K]": 298.15 }
+        "type": "ARRHENIUS", "A": 1.333e8, "C": 4430.0
       }
     },
     {
@@ -140,7 +143,7 @@
       ],
       "algebraic species": "OHm",
       "equilibrium constant": {
-        "type": "ARRHENIUS_REFERENCE_TEMPERATURE", "A": 3.24e-18, "C [K]": 0.0, "T0 [K]": 298.15
+        "type": "EQUILIBRIUM", "A": 3.24e-18, "C [K]": 0.0, "T0 [K]": 298.15
       }
     },
     {
@@ -157,13 +160,14 @@
       ],
       "algebraic species": "HSO3m",
       "equilibrium constant": {
-        "type": "ARRHENIUS_REFERENCE_TEMPERATURE", "A": 3.06e-4, "C [K]": 2090.0, "T0 [K]": 298.15
+        "type": "EQUILIBRIUM", "A": 3.06e-4, "C [K]": 2090.0, "T0 [K]": 298.15
       }
     },
     {
       "__comment": "Ka2: HSO3- <-> H+ + SO3--",
       "type": "DISSOLVED_EQUILIBRIUM",
       "condensed phase": "AQUEOUS",
+      "algebraic species": "SO3mm",
       "solvent": "H2O",
       "reactants": [
         { "name": "HSO3m", "coefficient": 1 }
@@ -172,13 +176,12 @@
         { "name": "Hp",    "coefficient": 1 },
         { "name": "SO3mm", "coefficient": 1 }
       ],
-      "algebraic species": "SO3mm",
       "equilibrium constant": {
-        "type": "ARRHENIUS_REFERENCE_TEMPERATURE", "A": 1.08e-9, "C [K]": 1120.0, "T0 [K]": 298.15
+        "type": "EQUILIBRIUM", "A": 1.08e-9, "C [K]": 1120.0, "T0 [K]": 298.15
       }
     },
     {
-      "__comment": "Mass conservation: total S in reversible pool (includes SO2OOH-)",
+      "__comment": "Mass conservation: total sulfur in reversible pool (includes SO2OOH-)",
       "type": "LINEAR_CONSTRAINT",
       "algebraic phase": "gas",
       "algebraic species": "SO2",
@@ -220,12 +223,12 @@
       "algebraic species": "Hp",
       "constant [mol m-3]": 0.0,
       "terms": [
-        { "phase": "AQUEOUS", "name": "Hp",       "coefficient":  1.0 },
-        { "phase": "AQUEOUS", "name": "OHm",      "coefficient": -1.0 },
-        { "phase": "AQUEOUS", "name": "HSO3m",    "coefficient": -1.0 },
-        { "phase": "AQUEOUS", "name": "SO3mm",    "coefficient": -2.0 },
-        { "phase": "AQUEOUS", "name": "SO4mm",    "coefficient": -2.0 },
-        { "phase": "AQUEOUS", "name": "SO2OOHm",  "coefficient": -1.0 }
+        { "phase": "AQUEOUS", "name": "Hp",      "coefficient":  1.0 },
+        { "phase": "AQUEOUS", "name": "OHm",     "coefficient": -1.0 },
+        { "phase": "AQUEOUS", "name": "HSO3m",   "coefficient": -1.0 },
+        { "phase": "AQUEOUS", "name": "SO3mm",   "coefficient": -2.0 },
+        { "phase": "AQUEOUS", "name": "SO4mm",   "coefficient": -2.0 },
+        { "phase": "AQUEOUS", "name": "SO2OOHm", "coefficient": -1.0 }
       ]
     }
   ]

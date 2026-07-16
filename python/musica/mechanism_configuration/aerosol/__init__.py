@@ -1,6 +1,6 @@
 from .aerosol import (
     Aerosol,
-    ArrheniusReferenceTemperature,
+    Equilibrium,
     HenryLawConstant,
     UniformSection,
     SingleMomentMode,
@@ -18,7 +18,7 @@ from .aerosol import (
 
 __all__ = [
     "Aerosol",
-    "ArrheniusReferenceTemperature",
+    "Equilibrium",
     "HenryLawConstant",
     "UniformSection",
     "SingleMomentMode",
