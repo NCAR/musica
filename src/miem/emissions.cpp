@@ -28,10 +28,8 @@ namespace musica
   {
   }
 
-  EmissionsModel EmissionsModel::FromMechanism(
-      const mechanism_configuration::Mechanism& mechanism,
-      int n_cells,
-      int n_vert_levels)
+  EmissionsModel
+  EmissionsModel::FromMechanism(const mechanism_configuration::Mechanism& mechanism, int n_cells, int n_vert_levels)
   {
     return EmissionsModel(ConvertEmissions(mechanism), n_cells, n_vert_levels);
   }
