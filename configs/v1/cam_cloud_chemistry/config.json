@@ -106,7 +106,7 @@
         { "name": "H2O",     "coefficient": 1 }
       ],
       "forward rate constants": {
-        "CLOUD": { "type": "ARRHENIUS", "A": 3.184e8,  "C": 4430.0 }
+        "type": "ARRHENIUS", "A": 3.184e8,  "C": 4430.0
       },
       "equilibrium constant": {
         "type": "EQUILIBRIUM", "A": 1725.0, "C [K]": 0.0, "T0 [K]": 298.15
@@ -126,7 +126,7 @@
         { "name": "SO4mm", "coefficient": 1 }
       ],
       "rate constants": {
-        "CLOUD": { "type": "ARRHENIUS", "A": 1.333e8, "C": 4430.0}
+        "type": "ARRHENIUS", "A": 1.333e8, "C": 4430.0
       }
     },
     {

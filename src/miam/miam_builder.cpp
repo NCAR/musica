@@ -177,8 +177,7 @@ namespace musica
                                    .SetReactants(find_species_components(p.reactants))
                                    .SetProducts(find_species_components(p.products))
                                    .SetSolvent(find_species(p.solvent));
-                if (!p.rate_constants.empty())
-                  builder.SetRateConstant(ResolveRateConstant(p.rate_constants.begin()->second).fn);
+                builder.SetRateConstant(ResolveRateConstant(p.rate_constants).fn);
                 if (p.solvent_floor_.has_value())
                   builder.SetSolventFloor(p.solvent_floor_.value());
                 if (p.min_halflife_.has_value())
@@ -194,10 +193,10 @@ namespace musica
                                    .SetSolvent(find_species(p.solvent));
                 // Exactly two of {forward, reverse, equilibrium} must be given; the
                 // builder derives the third.
-                if (!p.forward_rate_constants.empty())
-                  builder.SetForwardRateConstant(ResolveRateConstant(p.forward_rate_constants.begin()->second));
-                if (!p.reverse_rate_constants.empty())
-                  builder.SetReverseRateConstant(ResolveRateConstant(p.reverse_rate_constants.begin()->second));
+                if (p.forward_rate_constants.has_value())
+                  builder.SetForwardRateConstant(ResolveRateConstant(p.forward_rate_constants.value()));
+                if (p.reverse_rate_constants.has_value())
+                  builder.SetReverseRateConstant(ResolveRateConstant(p.reverse_rate_constants.value()));
                 if (p.equilibrium_constant.has_value())
                 {
                   const auto& ec = p.equilibrium_constant.value();

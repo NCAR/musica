@@ -102,7 +102,9 @@ def _convert_rate_constant(rc):
 def _convert_rate_constant_map(mapping: Optional[Dict]) -> Dict:
     """Convert a {representation: rate_constant} mapping to {name: cpp_rate_constant}.
 
-    Keys may be representation objects (resolved to their name) or strings.
+    Keys may be representation objects (resolved to their name) or strings. Each
+    key must name one of the aerosol's declared representations; the model applies
+    a single rate constant per reaction, so at most one entry is expected.
     """
     if not mapping:
         return {}
@@ -266,7 +268,9 @@ class DissolvedReaction(CppWrapper):
         solvent: Name of the solvent species.
         reactants: Reactant components.
         products: Product components.
-        rate_constants: Per-representation rate constants keyed by representation name.
+        rate_constants: Rate constant keyed by aerosol representation name (e.g. the
+            mechanism's ``UniformSection``). The model applies a single rate constant
+            per reaction, so at most one entry is expected.
         solvent_floor: Floor added to the solvent concentration in the rate denominator [mol m-3].
         min_halflife: Minimum reactant half-life used to cap the rate [s].
     """
