@@ -11,6 +11,14 @@ module carma_interface
 
 #include "musica/carma/error.hpp"
 
+   ! Backing store for InternalGetCarmaVersion/InternalFreeCarmaVersion. Freed
+   ! by deallocating this named variable directly rather than a pointer
+   ! reconstructed via c_f_pointer from the raw C address handed to C++ --
+   ! Intel's ifx runtime rejects deallocating through such a reconstructed
+   ! descriptor (it lacks the original allocation's bookkeeping), even though
+   ! gfortran tolerates it.
+   character(kind=c_char), allocatable, target, save :: version_buffer(:)
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    interface
@@ -31,7 +39,7 @@ contains
 
    subroutine internal_get_carma_version(version_ptr, version_length) &
       bind(C, name="InternalGetCarmaVersion")
-      use iso_c_binding, only: c_ptr, c_int, c_f_pointer, c_null_char, c_loc, c_char
+      use iso_c_binding, only: c_ptr, c_int, c_null_char, c_loc, c_char
       use carma_version, only: get_carma_version
 
       ! arguments
@@ -39,21 +47,20 @@ contains
       integer(c_int), intent(out) :: version_length
 
       ! local variables
-      character(len=:),       allocatable :: version_fortran
-      character(kind=c_char), pointer     :: version_string_ptr(:)
+      character(len=:), allocatable :: version_fortran
       integer :: i
 
       version_fortran = get_carma_version()
       version_length = len_trim(version_fortran)
 
       ! Allocate and copy string
-      allocate(version_string_ptr(version_length + 1))
+      allocate(version_buffer(version_length + 1))
       do i = 1, version_length
-         version_string_ptr(i) = version_fortran(i:i)
+         version_buffer(i) = version_fortran(i:i)
       end do
-      version_string_ptr(version_length + 1) = c_null_char
+      version_buffer(version_length + 1) = c_null_char
 
-      version_ptr = c_loc(version_string_ptr)
+      version_ptr = c_loc(version_buffer)
 
    end subroutine internal_get_carma_version
 
@@ -61,16 +68,15 @@ contains
 
    subroutine internal_free_carma_version(version_ptr, version_length) &
       bind(C, name="InternalFreeCarmaVersion")
-      use iso_c_binding, only: c_char, c_ptr, c_int, c_associated, c_f_pointer
+      use iso_c_binding, only: c_ptr, c_int
 
       type(c_ptr),    value, intent(in) :: version_ptr
       integer(c_int), value, intent(in) :: version_length
-      character(kind=c_char), pointer :: version_string_ptr(:)
 
-      ! Free the allocated version string pointer
-      if (c_associated(version_ptr)) then
-         call c_f_pointer(version_ptr, version_string_ptr, [version_length + 1])
-         deallocate(version_string_ptr)
+      ! Deallocate through the original named variable (see version_buffer's
+      ! declaration above) instead of the raw C pointer passed in.
+      if (allocated(version_buffer)) then
+         deallocate(version_buffer)
       end if
 
    end subroutine internal_free_carma_version

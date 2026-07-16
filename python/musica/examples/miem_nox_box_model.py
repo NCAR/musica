@@ -235,7 +235,7 @@ def main(plot=True):
         data_vars[species] = (["time"], [c[species][0] for c in concentrations])
     data_vars["no_surface_flux"] = (["time"], no_flux_history, {"units": "kg m-2 s-1"})
 
-    coords = {"time": np.array([t.timestamp() for t in sim_times], dtype="datetime64[s]")}
+    coords = {"time": np.array([int(t.timestamp()) for t in sim_times], dtype="datetime64[s]")}
     ds = xr.Dataset(data_vars, coords=coords)
 
     if plot:
