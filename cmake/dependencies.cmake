@@ -141,7 +141,7 @@ endif()
 
 if (MUSICA_ENABLE_MIEM AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(MIEM_GIT_REPOSITORY https://github.com/NCAR/miem.git)
-  set_git_default(MIEM_GIT_TAG 3cc9ff9684dfdc13a49ab327ce2539bc223b1fd4)  # main; no tags exist yet
+  set_git_default(MIEM_GIT_TAG 59cde48c326a827bf092b6be2dce83ada3840751)  # NCAR/miem#22: fix Windows/MSYS2 netCDF discovery
 
   FetchContent_Declare(miem
       GIT_REPOSITORY ${MIEM_GIT_REPOSITORY}

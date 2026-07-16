@@ -50,12 +50,8 @@ if [[ "${CIBW_ARCHS:-}" == *"ARM64"* ]] || [[ "${PROCESSOR_ARCHITECTURE:-}" == "
   cmake_args+=(-DMUSICA_ENABLE_CARMA=OFF)
 fi
 
-# miem's own netCDF discovery (cmake/FindnetCDF.cmake) only looks for an
-# nc-config script or NETCDF_DIR/NETCDF_ROOT-hinted install -- it doesn't try
-# pkg-config like musica's own dependencies.cmake does. Without this hint it
-# can't see the pacman-installed MSYS2 netCDF and falls back to FetchContent
-# building netcdf-c v4.9.2 from source, which fails to compile under
-# MinGW-UCRT (dpathmgr.c's _wstat64 call has an incompatible signature there).
+# Hint for miem's netCDF discovery (cmake/FindnetCDF.cmake) in case its
+# pkg-config lookup doesn't apply and it falls back to nc-config/manual search.
 export NETCDF_ROOT="${MINGW_PREFIX:-/ucrt64}"
 
 cmake "${cmake_args[@]}" "$MUSICA_SOURCE_DIR"
