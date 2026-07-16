@@ -177,9 +177,8 @@ namespace musica
                                    .SetReactants(find_species_components(p.reactants))
                                    .SetProducts(find_species_components(p.products))
                                    .SetSolvent(find_species(p.solvent));
-                // The config carries one rate constant per aerosol representation.
-                for (const auto& [representation, rc] : p.rate_constants)
-                  builder.AddRateConstant(representation, ResolveRateConstant(rc).fn);
+                if (!p.rate_constants.empty())
+                  builder.SetRateConstant(ResolveRateConstant(p.rate_constants.begin()->second).fn);
                 if (p.solvent_floor_.has_value())
                   builder.SetSolventFloor(p.solvent_floor_.value());
                 if (p.min_halflife_.has_value())
@@ -193,12 +192,12 @@ namespace musica
                                    .SetReactants(find_species_components(p.reactants))
                                    .SetProducts(find_species_components(p.products))
                                    .SetSolvent(find_species(p.solvent));
-                // Forward/reverse rate constants are configured per aerosol representation;
-                // the equilibrium constant (if any) is shared across all representations.
-                for (const auto& [representation, rc] : p.forward_rate_constants)
-                  builder.AddForwardRateConstant(representation, ResolveRateConstant(rc));
-                for (const auto& [representation, rc] : p.reverse_rate_constants)
-                  builder.AddReverseRateConstant(representation, ResolveRateConstant(rc));
+                // Exactly two of {forward, reverse, equilibrium} must be given; the
+                // builder derives the third.
+                if (!p.forward_rate_constants.empty())
+                  builder.SetForwardRateConstant(ResolveRateConstant(p.forward_rate_constants.begin()->second));
+                if (!p.reverse_rate_constants.empty())
+                  builder.SetReverseRateConstant(ResolveRateConstant(p.reverse_rate_constants.begin()->second));
                 if (p.equilibrium_constant.has_value())
                 {
                   const auto& ec = p.equilibrium_constant.value();
