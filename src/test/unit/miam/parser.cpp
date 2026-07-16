@@ -1,10 +1,7 @@
 // Copyright (C) 2026 University Corporation for Atmospheric Research
 // SPDX-License-Identifier: Apache-2.0
 //
-// Integration test: parses configs/v1/cam_cloud_chemistry/config.json from disk
-// (rather than building the mechanism in C++, as miam_builder.cpp does) and
-// builds a MIAM-backed MICM solver from it, to catch drift between the on-disk
-// config and the mechanism the solver actually expects.
+// Integration test: parses configs/v1/cam_cloud_chemistry/config.json
 
 #include <musica/configuration/read_mechanism.hpp>
 #include <musica/miam/miam_builder.hpp>
