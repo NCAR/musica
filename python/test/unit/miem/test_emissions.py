@@ -87,7 +87,7 @@ class TestEmissionsFileBasedConfigureAndRun:
             "  inventories:\n"
             "    - name: nox subset\n"
             "      directory: \"\"\n"
-            f"      file pattern: \"{nc_path}\"\n"
+            f"      file pattern: \"{nc_path.as_posix()}\"\n"
             "      convention: uptempo\n"
             "  species maps:\n"
             "    - name: nox map\n"
