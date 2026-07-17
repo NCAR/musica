@@ -13,7 +13,7 @@ from musica.utils import find_config_path
 
 # Skip all tests if MIAM is not available
 pytestmark = pytest.mark.skipif(not backend.miam_available(),
-                                 reason="MIAM backend is not available")
+                                reason="MIAM backend is not available")
 
 CONFIG_PATH = find_config_path("v1", "cam_cloud_chemistry", "config.json")
 
