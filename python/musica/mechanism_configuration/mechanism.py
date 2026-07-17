@@ -167,6 +167,10 @@ class Mechanism(CppWrapper):
             "phases": [p.serialize() for p in self.phases],
             "version": self.version.to_string(),
         }
+        if self.aerosol is not None:
+            # Aerosol contributes two top-level sections ("aerosol representations"
+            # and "aerosol processes"), so its keys are merged in rather than nested.
+            serialize_dict.update(self.aerosol.serialize())
         if self.emissions is not None:
             serialize_dict["emissions"] = self.emissions.serialize()
         return serialize_dict
