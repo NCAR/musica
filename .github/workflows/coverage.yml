@@ -19,7 +19,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: recursive
 
@@ -38,7 +38,7 @@ jobs:
         run: docker cp test-container:/musica/build/coverage.info .
 
       - name: Upload C++/Fortran coverage report
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: coverage.info
@@ -52,12 +52,12 @@ jobs:
       contents: read
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: recursive
 
       - name: Use Node.js v20
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 'v20'
           cache: 'npm'
@@ -78,7 +78,7 @@ jobs:
         run: npm run test:coverage
 
       - name: Upload JavaScript coverage report
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: javascript-coverage/lcov.info
@@ -92,7 +92,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: recursive
 
@@ -102,7 +102,7 @@ jobs:
           sudo apt-get install -y libnetcdf-dev netcdf-bin libnetcdff-dev liblapack-dev
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
@@ -122,7 +122,7 @@ jobs:
         run: pytest -s --cov=musica --cov-report=xml:python-coverage.xml --cov-report=term
 
       - name: Upload Python coverage report
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: python-coverage.xml

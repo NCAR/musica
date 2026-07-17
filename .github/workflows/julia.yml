@@ -22,10 +22,10 @@ jobs:
         julia-version: ['1.10','1.11', '1.12']
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up Julia
-        uses: julia-actions/setup-julia@v2
+        uses: julia-actions/setup-julia@v3
         with:
           version: ${{ matrix.julia-version }}
 
@@ -68,10 +68,10 @@ jobs:
     name: Build Windows JLL (Yggdrasil recipe)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up Julia
-        uses: julia-actions/setup-julia@v2
+        uses: julia-actions/setup-julia@v3
         with:
           version: '1.10'
 
@@ -108,7 +108,7 @@ jobs:
           done
 
       - name: Upload Windows JLL tarballs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: musica-windows-jll
           path: ygg/M/Musica/products/Musica.v*.tar.gz
@@ -123,15 +123,15 @@ jobs:
       matrix:
         julia-version: ['1.10', '1.11', '1.12']
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up Julia
-        uses: julia-actions/setup-julia@v2
+        uses: julia-actions/setup-julia@v3
         with:
           version: ${{ matrix.julia-version }}
 
       - name: Download Windows JLL tarballs
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: musica-windows-jll
           path: jll

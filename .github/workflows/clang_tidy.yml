@@ -16,7 +16,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install clang-tidy && clang-tidy --version
 
       - name: Check out code, run clang-tidy, push changes
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.head_ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -50,7 +50,7 @@ jobs:
 
       - name: Create Pull Request
         if: steps.check-changes.outcome != 'success'
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "Auto-format code using clang-tidy"
