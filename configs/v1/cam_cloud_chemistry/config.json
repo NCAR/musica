@@ -130,6 +130,41 @@
       }
     },
     {
+      "__comment": "R2: HSO3- + O3_aq -> SO4-- + H+ (irreversible)",
+      "__note": "k = c_H2O_M * 3.75e5 = 2.08335e7; Ea/R = 5530 K",
+      "type": "DISSOLVED_REACTION",
+      "condensed phase": "AQUEOUS",
+      "solvent": "H2O",
+      "reactants": [
+        { "name": "HSO3m", "coefficient": 1 },
+        { "name": "O3",    "coefficient": 1 }
+      ],
+      "products": [
+        { "name": "SO4mm", "coefficient": 1 },
+        { "name": "Hp",    "coefficient": 1 }
+      ],
+      "rate constants": {
+        "type": "ARRHENIUS", "A": 2.08335e7, "C": 5530.0
+      }
+    },
+    {
+      "__comment": "R3: SO3-- + O3_aq -> SO4-- (irreversible)",
+      "__note": "k = c_H2O_M * 1.59e9 = 8.8334e10; Ea/R = 5280 K",
+      "type": "DISSOLVED_REACTION",
+      "condensed phase": "AQUEOUS",
+      "solvent": "H2O",
+      "reactants": [
+        { "name": "SO3mm", "coefficient": 1 },
+        { "name": "O3",    "coefficient": 1 }
+      ],
+      "products": [
+        { "name": "SO4mm", "coefficient": 1 }
+      ],
+      "rate constants": {
+        "type": "ARRHENIUS", "A": 8.8334e10, "C": 5280.0
+      }
+    },
+    {
       "__comment": "Kw: 2 H2O <-> H+ + OH-",
       "type": "DISSOLVED_EQUILIBRIUM",
       "condensed phase": "AQUEOUS",
@@ -181,7 +216,7 @@
       }
     },
     {
-      "__comment": "Mass conservation: total sulfur in reversible pool (includes SO2OOH-)",
+      "__comment": "Mass conservation: total sulfur in reversible pool (includes SO2OOH-, SO4--)",
       "type": "LINEAR_CONSTRAINT",
       "algebraic phase": "gas",
       "algebraic species": "SO2",
@@ -191,7 +226,8 @@
         { "phase": "AQUEOUS", "name": "SO2",      "coefficient": 1.0 },
         { "phase": "AQUEOUS", "name": "HSO3m",    "coefficient": 1.0 },
         { "phase": "AQUEOUS", "name": "SO3mm",    "coefficient": 1.0 },
-        { "phase": "AQUEOUS", "name": "SO2OOHm",  "coefficient": 1.0 }
+        { "phase": "AQUEOUS", "name": "SO2OOHm",  "coefficient": 1.0 },
+        { "phase": "AQUEOUS", "name": "SO4mm",    "coefficient": 1.0 }
       ]
     },
     {

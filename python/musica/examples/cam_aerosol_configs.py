@@ -1,6 +1,7 @@
 """CAM aerosol-distribution configurations for miam
 
-Construct miam objects that reproduce the aerosol size distrutions for
+Construct musica mechanisms with an aerosol section that reproduce the aerosol
+size distrutions for
 - BAM (bulk)
 - MAM (modal)
 - CARMA (sectional)
@@ -13,22 +14,6 @@ there for where the numbers come from.
 """
 
 import musica.mechanism_configuration as mc
-from musica.miam import (
-    ArrheniusRateConstant,
-    EquilibriumConstant,
-    HenryLawConstant,
-    UniformSection,
-    SingleMomentMode,
-    TwoMomentMode,
-    DissolvedReaction,
-    DissolvedReversibleReaction,
-    HenryLawPhaseTransfer,
-    HenryLawEquilibriumConstraint,
-    DissolvedEquilibriumConstraint,
-    LinearConstraint,
-    LinearConstraintTerm,
-    Model,
-)
 
 # Unit-conversion constants
 M_ATM_TO_MOL_M3_PA = 1000.0 / 101325.0
@@ -91,9 +76,8 @@ def mam_representations():
     reps = {}
     for variant, modes in MAM_MODES.items():
         reps[variant] = [
-            TwoMomentMode(
+            mc.TwoMomentMode(
                 name=name.upper(),
-                phase_names=[f"{name.upper()}_AQ"],
                 geometric_standard_deviation=sigma_g,
             ) for name, sigma_g in modes
         ]
@@ -124,8 +108,8 @@ def bam_representations():
 
     reps = []
     for name, geometric_mean_radius, sigma_g in BAM_BULK:
-        reps.append(SingleMomentMode(
-            name=name, phase_names=[f"{name}_AQ"],
+        reps.append(mc.SingleMomentMode(
+            name=name,
             geometric_mean_radius=geometric_mean_radius, geometric_standard_deviation=sigma_g,
         ))
     # dust bins: geometric-mean radius of each diameter-edge pair, / 2 for radius
@@ -134,17 +118,16 @@ def bam_representations():
         geometric_mean_radius = 0.5 * (diameter_lower_edge * diameter_upper_edge) ** 0.5 * UM
         nm = f"DST{i + 1:02d}"
         reps.append(
-            SingleMomentMode(
+            mc.SingleMomentMode(
                 name=nm,
-                phase_names=[f"{nm}_AQ"],
                 geometric_mean_radius=geometric_mean_radius,
                 geometric_standard_deviation=BAM_DUST_INTRABIN_GEOMETRIC_STANDARD_DEVIATION,
             ))
     # sea-salt bins: prescribed dry mass-weighted diameter -> radius
     for i, diameter_m in enumerate(BAM_SEASALT_DIAMETER_M):
         nm = f"SSLT{i + 1:02d}"
-        reps.append(SingleMomentMode(
-            name=nm, phase_names=[f"{nm}_AQ"],
+        reps.append(mc.SingleMomentMode(
+            name=nm,
             geometric_mean_radius=0.5 * diameter_m,
             geometric_standard_deviation=BAM_SEASALT_GEOMETRIC_STANDARD_DEVIATION,
         ))
@@ -164,8 +147,8 @@ def carma_sections(group_name, number_of_bins, minimum_radius, volume_ratio):
     for bin_index in range(1, number_of_bins + 1):
         center_radius = minimum_radius * volume_ratio ** ((bin_index - 1) / 3.0)
         section_name = f"{group_name.upper()}_BIN{bin_index:02d}"
-        representations.append(UniformSection(
-            name=section_name, phase_names=[f"{section_name}_AQ"],
+        representations.append(mc.UniformSection(
+            name=section_name,
             min_radius=center_radius / edge_factor, max_radius=center_radius * edge_factor,
         ))
     return representations
@@ -189,28 +172,38 @@ def carma_representations(case):
     return representations
 
 
-def gas_species_and_phase():
-    """Shared gas phase: SO2, H2O2, O3 (with molecular weights for uptake)."""
+def gas_species_and_phase(kinetic_uptake=False):
+    """Shared gas phase: SO2, H2O2, O3 (with molecular weights for uptake).
+
+    When ``kinetic_uptake`` is True, each species also carries its gas-phase
+    diffusion coefficient on the phase (required by HenryLawPhaseTransfer).
+    """
     gas_species = []
+    phase_species = []
     for name in ("SO2", "H2O2", "O3"):
         s = mc.Species(name=name)
         s.molecular_weight_kg_mol = GAS_MOLECULAR_WEIGHT[name]
         gas_species.append(s)
-    gas = mc.Phase(name="gas", species=gas_species)
+        if kinetic_uptake:
+            diffusion_coefficient, _ = GAS_UPTAKE[name]
+            phase_species.append(mc.PhaseSpecies(name=name, diffusion_coefficient_m2_s=diffusion_coefficient))
+        else:
+            phase_species.append(s)
+    gas = mc.Phase(name="gas", species=phase_species)
     return gas_species, gas
 
 
-def sulfate_chemistry(repr_name, phase_name, kinetic_uptake=False):
+def sulfate_chemistry(phase_name, gas_species_by_name, gas_phase, kinetic_uptake=False):
     """Cloud-sulfate S(IV)->S(VI) aqueous chemistry local to one representation.
 
-    Mirrors _create_kinetics_model() from the integration test: Henry's-law
+    Mirrors _create_kinetics_mechanism() from the integration test: Henry's-law
     uptake of SO2/H2O2/O3, the S(IV) acid/dissociation equilibria, and the
     H2O2 + O3 oxidation pathways producing SO4--.  All processes/constraints
     reference this representation's own aqueous phase, so the same chemistry
     can run independently on every mode/bin.
 
     ``kinetic_uptake`` selects how the gases enter the condensed phase:
-      - False (default): instantaneous ``HenryLawEquilibriumConstraint`` — this
+      - False (default): instantaneous ``HenryLawEquilibrium`` — this
         is size-INDEPENDENT (depends only on liquid-water volume), so different
         representations give identical chemistry.
       - True: mass-transfer-limited ``HenryLawPhaseTransfer`` whose rate scales
@@ -233,27 +226,26 @@ def sulfate_chemistry(repr_name, phase_name, kinetic_uptake=False):
 
     # ── kinetic reactions ──
     processes = [
-        DissolvedReversibleReaction(          # R1a: HSO3- + H2O2 <=> SO2OOH- + H2O
-            phase_name=phase_name,
-            reactant_names=["HSO3m", "H2O2_aq"], product_names=["SO2OOHm", "H2O"],
-            solvent_name="H2O",
-            forward_rate_constant=ArrheniusRateConstant(A=C_H2O_M * (7.45e7 / 13.0), C=4430.0),
-            equilibrium_constant=EquilibriumConstant(A=1725.0),
+        mc.DissolvedReversibleReaction(          # R1a: HSO3- + H2O2 <=> SO2OOH- + H2O
+            phase=aq_phase, solvent=sp["H2O"],
+            reactants=[sp["HSO3m"], sp["H2O2_aq"]], products=[sp["SO2OOHm"], sp["H2O"]],
+            forward_rate_constants=mc.Equilibrium(A=C_H2O_M * (7.45e7 / 13.0), C=4430.0),
+            equilibrium_constant=mc.Equilibrium(A=1725.0),
         ),
-        DissolvedReaction(                    # R1b: SO2OOH- + H+ -> SO4--
-            representation_name=repr_name, phase_name=phase_name,
-            reactant_names=["SO2OOHm", "Hp"], product_names=["SO4mm"], solvent_name="H2O",
-            rate_constant=ArrheniusRateConstant(A=C_H2O_M * 2.4e6, C=4430.0),
+        mc.DissolvedReaction(                    # R1b: SO2OOH- + H+ -> SO4--
+            phase=aq_phase, solvent=sp["H2O"],
+            reactants=[sp["SO2OOHm"], sp["Hp"]], products=[sp["SO4mm"]],
+            rate_constants=mc.Equilibrium(A=C_H2O_M * 2.4e6, C=4430.0),
         ),
-        DissolvedReaction(                    # R2: HSO3- + O3 -> SO4-- + H+
-            representation_name=repr_name, phase_name=phase_name,
-            reactant_names=["HSO3m", "O3_aq"], product_names=["SO4mm", "Hp"], solvent_name="H2O",
-            rate_constant=ArrheniusRateConstant(A=C_H2O_M * 3.75e5, C=5530.0),
+        mc.DissolvedReaction(                    # R2: HSO3- + O3 -> SO4-- + H+
+            phase=aq_phase, solvent=sp["H2O"],
+            reactants=[sp["HSO3m"], sp["O3_aq"]], products=[sp["SO4mm"], sp["Hp"]],
+            rate_constants=mc.Equilibrium(A=C_H2O_M * 3.75e5, C=5530.0),
         ),
-        DissolvedReaction(                    # R3: SO3-- + O3 -> SO4--
-            representation_name=repr_name, phase_name=phase_name,
-            reactant_names=["SO3mm", "O3_aq"], product_names=["SO4mm"], solvent_name="H2O",
-            rate_constant=ArrheniusRateConstant(A=C_H2O_M * 1.59e9, C=5280.0),
+        mc.DissolvedReaction(                    # R3: SO3-- + O3 -> SO4--
+            phase=aq_phase, solvent=sp["H2O"],
+            reactants=[sp["SO3mm"], sp["O3_aq"]], products=[sp["SO4mm"]],
+            rate_constants=mc.Equilibrium(A=C_H2O_M * 1.59e9, C=5280.0),
         ),
     ]
 
@@ -264,82 +256,90 @@ def sulfate_chemistry(repr_name, phase_name, kinetic_uptake=False):
         ("H2O2", "H2O2_aq", 7.4e4, 6621.0),
         ("O3", "O3_aq", 1.15e-2, 2560.0),
     ]:
-        hlc = HenryLawConstant(HLC_ref=hlc_ref * M_ATM_TO_MOL_M3_PA, C=c)
+        hlc = mc.HenryLawConstant(HLC_ref=hlc_ref * M_ATM_TO_MOL_M3_PA, C=c)
+        gas_species = gas_species_by_name[gas_name]
         if kinetic_uptake:
             diffusion_coefficient, accommodation_coefficient = GAS_UPTAKE[gas_name]
-            processes.append(HenryLawPhaseTransfer(   # rate ∝ surface area (radius × number)
-                condensed_phase_name=phase_name, gas_species_name=gas_name,
-                condensed_species_name=aq_name, solvent_name="H2O",
+            processes.append(mc.HenryLawPhaseTransfer(   # rate ∝ surface area (radius × number)
+                gas_phase=gas_phase, gas_species=gas_species,
+                condensed_phase=aq_phase, condensed_species=sp[aq_name], solvent=sp["H2O"],
                 henry_law_constant=hlc,
                 diffusion_coefficient=diffusion_coefficient,
                 accommodation_coefficient=accommodation_coefficient,
             ))
         else:
-            constraints.append(HenryLawEquilibriumConstraint(   # instantaneous, size-independent
-                gas_species_name=gas_name, condensed_species_name=aq_name,
-                solvent_name="H2O", condensed_phase_name=phase_name,
+            constraints.append(mc.HenryLawEquilibrium(   # instantaneous, size-independent
+                gas_phase=gas_phase, gas_species=gas_species,
+                condensed_phase=aq_phase, condensed_species=sp[aq_name],
+                solvent=sp["H2O"],
                 henry_law_constant=hlc,
                 solvent_molecular_weight=MW_H2O, solvent_density=RHO_H2O,
             ))
     constraints += [
-        DissolvedEquilibriumConstraint(       # Kw
-            phase_name=phase_name, reactant_names=["H2O"], product_names=["Hp", "OHm"],
-            algebraic_species_name="OHm", solvent_name="H2O",
-            equilibrium_constant=EquilibriumConstant(A=1e-14 / (C_H2O_M * C_H2O_M), C=0.0),
+        mc.DissolvedEquilibrium(       # Kw
+            phase=aq_phase, reactants=[sp["H2O"]], products=[sp["Hp"], sp["OHm"]],
+            algebraic_species=sp["OHm"], solvent=sp["H2O"],
+            equilibrium_constant=mc.Equilibrium(A=1e-14 / (C_H2O_M * C_H2O_M), C=0.0),
         ),
-        DissolvedEquilibriumConstraint(       # Ka1
-            phase_name=phase_name, reactant_names=["SO2_aq"], product_names=["HSO3m", "Hp"],
-            algebraic_species_name="HSO3m", solvent_name="H2O",
-            equilibrium_constant=EquilibriumConstant(A=1.7e-2 / C_H2O_M, C=2090.0),
+        mc.DissolvedEquilibrium(       # Ka1
+            phase=aq_phase, reactants=[sp["SO2_aq"]], products=[sp["HSO3m"], sp["Hp"]],
+            algebraic_species=sp["HSO3m"], solvent=sp["H2O"],
+            equilibrium_constant=mc.Equilibrium(A=1.7e-2 / C_H2O_M, C=2090.0),
         ),
-        DissolvedEquilibriumConstraint(       # Ka2
-            phase_name=phase_name, reactant_names=["HSO3m"], product_names=["SO3mm", "Hp"],
-            algebraic_species_name="SO3mm", solvent_name="H2O",
-            equilibrium_constant=EquilibriumConstant(A=6.0e-8 / C_H2O_M, C=1120.0),
+        mc.DissolvedEquilibrium(       # Ka2
+            phase=aq_phase, reactants=[sp["HSO3m"]], products=[sp["SO3mm"], sp["Hp"]],
+            algebraic_species=sp["SO3mm"], solvent=sp["H2O"],
+            equilibrium_constant=mc.Equilibrium(A=6.0e-8 / C_H2O_M, C=1120.0),
         ),
-        LinearConstraint(                     # charge balance
-            algebraic_phase_name=phase_name, algebraic_species_name="Hp",
+        mc.LinearConstraint(                     # charge balance
+            algebraic_phase=aq_phase, algebraic_species=sp["Hp"],
             terms=[
-                LinearConstraintTerm(phase_name, "Hp", 1.0),
-                LinearConstraintTerm(phase_name, "OHm", -1.0),
-                LinearConstraintTerm(phase_name, "HSO3m", -1.0),
-                LinearConstraintTerm(phase_name, "SO3mm", -2.0),
-                LinearConstraintTerm(phase_name, "SO4mm", -2.0),
-                LinearConstraintTerm(phase_name, "SO2OOHm", -1.0),
+                mc.LinearConstraintTerm(aq_phase, sp["Hp"], 1.0),
+                mc.LinearConstraintTerm(aq_phase, sp["OHm"], -1.0),
+                mc.LinearConstraintTerm(aq_phase, sp["HSO3m"], -1.0),
+                mc.LinearConstraintTerm(aq_phase, sp["SO3mm"], -2.0),
+                mc.LinearConstraintTerm(aq_phase, sp["SO4mm"], -2.0),
+                mc.LinearConstraintTerm(aq_phase, sp["SO2OOHm"], -1.0),
             ],
-            constant=0.0,
+            constant=mc.FixedConstant(0.0),
         ),
     ]
     return aq_species, aq_phase, processes, constraints
 
 
 def build_model(name, representations, kinetic_uptake=False):
-    """Assemble a miam Model: gas phase + cloud-sulfate chemistry on each
-    representation's own aqueous phase.
+    """Assemble a Mechanism: gas phase + cloud-sulfate chemistry on each
+    representation's own aqueous phase, collected into an aerosol section.
+
+    Mutates each representation in ``representations`` to attach its own
+    freshly-built aqueous phase (named ``f"{rep.name}_AQ"``).
 
     kinetic_uptake=True uses size-dependent HenryLawPhaseTransfer for gas uptake
     (see sulfate_chemistry); default False uses equilibrium partitioning.
     """
-    gas_species, gas_phase = gas_species_and_phase()
+    gas_species, gas_phase = gas_species_and_phase(kinetic_uptake)
+    gas_species_by_name = {s.name: s for s in gas_species}
     species = list(gas_species)
-    condensed_phases = []
+    phases = [gas_phase]
     processes = []
     constraints = []
     for rep in representations:
-        phase_name = rep.phase_names[0]
-        aq_species, aq_phase, procs, cons = sulfate_chemistry(rep.name, phase_name, kinetic_uptake)
+        phase_name = f"{rep.name}_AQ"
+        aq_species, aq_phase, procs, cons = sulfate_chemistry(
+            phase_name, gas_species_by_name, gas_phase, kinetic_uptake)
+        rep.phases = [aq_phase]
         species += aq_species
-        condensed_phases.append(aq_phase)
+        phases.append(aq_phase)
         processes += procs
         constraints += cons
-    return Model(
-        name=name, species=species, condensed_phases=condensed_phases,
-        representations=representations, processes=processes, constraints=constraints,
+    return mc.Mechanism(
+        name=name, species=species, phases=phases, reactions=[],
+        aerosol=mc.Aerosol(representations=representations, processes=processes, constraints=constraints),
     )
 
 
 def all_configs():
-    """One Model per entry in the doc's tables."""
+    """One Mechanism per entry in the doc's tables."""
     configs = {}
     # mam_representations() returns {variant: [modes]} for all MAM variants
     for variant, representations in mam_representations().items():
@@ -351,7 +351,8 @@ def all_configs():
 
 
 if __name__ == "__main__":
-    for cfg_name, model in all_configs().items():
-        print(f"{cfg_name:20s}  representations={len(model.representations):2d}  "
-              f"species={len(model.species):3d}  processes={len(model.processes):3d}  "
-              f"constraints={len(model.constraints):3d}")
+    for cfg_name, mechanism in all_configs().items():
+        aerosol = mechanism.aerosol
+        print(f"{cfg_name:20s}  representations={len(aerosol.representations):2d}  "
+              f"species={len(mechanism.species):3d}  processes={len(aerosol.processes):3d}  "
+              f"constraints={len(aerosol.constraints):3d}")
