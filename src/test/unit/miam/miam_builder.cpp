@@ -7,6 +7,7 @@
 #include <musica/miam/miam_builder.hpp>
 #include <musica/micm/micm.hpp>
 #include <musica/micm/state.hpp>
+#include <musica/utils/error_code.hpp>
 
 #include <mechanism_configuration/mechanism_configuration.hpp>
 
@@ -365,6 +366,10 @@ TEST(MiamBuilder, InvalidSpeciesName)
 
   EXPECT_FALSE(musica::IsSuccess(error));
   EXPECT_EQ(micm, nullptr);
+  // Caught by mechanism_configuration::ValidateAerosolModel before BuildMiamModel's
+  // own find_species lookup is ever reached.
+  EXPECT_EQ(error.code_, MUSICA_MIAM_ERROR_CODE_INVALID_AEROSOL_CONFIGURATION);
+  EXPECT_STREQ(error.category_.value_, MUSICA_MIAM_ERROR_CATEGORY);
   musica::DeleteError(&error);
 }
 
@@ -386,6 +391,10 @@ TEST(MiamBuilder, InvalidPhaseName)
 
   EXPECT_FALSE(musica::IsSuccess(error));
   EXPECT_EQ(micm, nullptr);
+  // Caught by mechanism_configuration::ValidateAerosolModel before BuildMiamModel's
+  // own find_phase lookup is ever reached.
+  EXPECT_EQ(error.code_, MUSICA_MIAM_ERROR_CODE_INVALID_AEROSOL_CONFIGURATION);
+  EXPECT_STREQ(error.category_.value_, MUSICA_MIAM_ERROR_CATEGORY);
   musica::DeleteError(&error);
 }
 
