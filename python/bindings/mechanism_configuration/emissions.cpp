@@ -35,8 +35,7 @@ void bind_emissions(py::module_ &mechanism_configuration)
       .value("Nearest", TemporalInterpolation::Nearest)
       .value("None_", TemporalInterpolation::None);
 
-  py::enum_<VerticalInjection>(mechanism_configuration, "_VerticalInjection")
-      .value("Surface", VerticalInjection::Surface);
+  py::enum_<VerticalInjection>(mechanism_configuration, "_VerticalInjection").value("Surface", VerticalInjection::Surface);
 
   py::enum_<RegriddingType>(mechanism_configuration, "_RegriddingType").value("None_", RegriddingType::None);
 

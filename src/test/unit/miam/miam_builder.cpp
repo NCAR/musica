@@ -104,14 +104,6 @@ namespace
     return components;
   }
 
-  types::ArrheniusReferenceTemperature Arr(double A, double C = 0.0)
-  {
-    types::ArrheniusReferenceTemperature a;
-    a.A = A;
-    a.C = C;
-    return a;
-  }
-
   types::HenryLawConstant Henry(double hlc_ref, double C)
   {
     types::HenryLawConstant h;
@@ -153,8 +145,8 @@ namespace
     r1a.solvent = "H2O";
     r1a.reactants = Comps({ "HSO3m", "H2O2_aq" });
     r1a.products = Comps({ "SO2OOHm", "H2O" });
-    r1a.forward_rate_constants = { { "CLOUD", Arr(c_H2O_M * (7.45e7 / 13.0), 4430.0) } };
-    r1a.equilibrium_constant = Arr(1725.0, 0.0);
+    r1a.forward_rate_constants = types::Arrhenius{ .A = c_H2O_M * (7.45e7 / 13.0), .C = 4430.0 };
+    r1a.equilibrium_constant = types::Equilibrium{ .A = 1725.0, .C = 0.0 };
 
     // R1b: SO2OOH- + H+ → SO4--  (irreversible)
     types::DissolvedReaction r1b;
@@ -162,7 +154,7 @@ namespace
     r1b.solvent = "H2O";
     r1b.reactants = Comps({ "SO2OOHm", "Hp" });
     r1b.products = Comps({ "SO4mm" });
-    r1b.rate_constants = { { "CLOUD", Arr(c_H2O_M * 2.4e6, 4430.0) } };
+    r1b.rate_constants = types::Arrhenius{ .A = c_H2O_M * 2.4e6, .C = 4430.0 };
 
     // R2: HSO3- + O3_aq → SO4-- + H+
     types::DissolvedReaction r2;
@@ -170,7 +162,7 @@ namespace
     r2.solvent = "H2O";
     r2.reactants = Comps({ "HSO3m", "O3_aq" });
     r2.products = Comps({ "SO4mm", "Hp" });
-    r2.rate_constants = { { "CLOUD", Arr(c_H2O_M * 3.75e5, 5530.0) } };
+    r2.rate_constants = types::Arrhenius{ .A = c_H2O_M * 3.75e5, .C = 5530.0 };
 
     // R3: SO3-- + O3_aq → SO4--
     types::DissolvedReaction r3;
@@ -178,7 +170,7 @@ namespace
     r3.solvent = "H2O";
     r3.reactants = Comps({ "SO3mm", "O3_aq" });
     r3.products = Comps({ "SO4mm" });
-    r3.rate_constants = { { "CLOUD", Arr(c_H2O_M * 1.59e9, 5280.0) } };
+    r3.rate_constants = types::Arrhenius{ .A = c_H2O_M * 1.59e9, .C = 5280.0 };
 
     aerosol.processes = { r1a, r1b, r2, r3 };
 
@@ -201,7 +193,7 @@ namespace
     auto dissolved_eq = [](const std::vector<std::string>& reactants,
                            const std::vector<std::string>& products,
                            const std::string& algebraic_species,
-                           types::ArrheniusReferenceTemperature eq)
+                           types::Equilibrium eq)
     {
       types::DissolvedEquilibrium d;
       d.phase = "AQUEOUS";
@@ -232,11 +224,11 @@ namespace
       henry_eq("H2O2", "H2O2_aq", Henry(7.4e4 * M_ATM_TO_MOL_M3_PA, 6621.0)),
       henry_eq("O3", "O3_aq", Henry(1.15e-2 * M_ATM_TO_MOL_M3_PA, 2560.0)),
       // Kw: H2O ⇌ H+ + OH-
-      dissolved_eq({ "H2O" }, { "Hp", "OHm" }, "OHm", Arr(1e-14 / (c_H2O_M * c_H2O_M), 0.0)),
+      dissolved_eq({ "H2O" }, { "Hp", "OHm" }, "OHm", types::Equilibrium{ .A = 1e-14 / (c_H2O_M * c_H2O_M), .C = 0.0 }),
       // Ka1: SO2_aq ⇌ HSO3- + H+
-      dissolved_eq({ "SO2_aq" }, { "HSO3m", "Hp" }, "HSO3m", Arr(1.7e-2 / c_H2O_M, 2090.0)),
+      dissolved_eq({ "SO2_aq" }, { "HSO3m", "Hp" }, "HSO3m", types::Equilibrium{ .A = 1.7e-2 / c_H2O_M, .C = 2090.0 }),
       // Ka2: HSO3- ⇌ SO3-- + H+
-      dissolved_eq({ "HSO3m" }, { "SO3mm", "Hp" }, "SO3mm", Arr(6.0e-8 / c_H2O_M, 1120.0)),
+      dissolved_eq({ "HSO3m" }, { "SO3mm", "Hp" }, "SO3mm", types::Equilibrium{ .A = 6.0e-8 / c_H2O_M, .C = 1120.0 }),
       // Total S conservation (diagnosed from the initial state), algebraic species SO2 (gas)
       linear(
           "gas",
@@ -365,7 +357,7 @@ TEST(MiamBuilder, InvalidSpeciesName)
   bad_rxn.solvent = "H2O";
   bad_rxn.reactants = Comps({ "NONEXISTENT_SPECIES" });
   bad_rxn.products = Comps({ "SO4mm" });
-  bad_rxn.rate_constants = { { "CLOUD", Arr(1.0, 0.0) } };
+  bad_rxn.rate_constants = types::Arrhenius{ .A = 1.0 };
   mechanism.aerosol->processes.push_back(bad_rxn);
 
   musica::Error error;
@@ -386,7 +378,7 @@ TEST(MiamBuilder, InvalidPhaseName)
   bad_rxn.solvent = "H2O";
   bad_rxn.reactants = Comps({ "HSO3m" });
   bad_rxn.products = Comps({ "SO4mm" });
-  bad_rxn.rate_constants = { { "CLOUD", Arr(1.0, 0.0) } };
+  bad_rxn.rate_constants = types::Arrhenius{ .A = 1.0 };
   mechanism.aerosol->processes.push_back(bad_rxn);
 
   musica::Error error;
@@ -404,7 +396,7 @@ TEST(MiamBuilder, CallbackRateConstant)
   // Replace R1b's Arrhenius rate constant with a std::function callback.
   // Processes are ordered { R1a (reversible), R1b, R2, R3 }.
   auto& rxn = std::get<types::DissolvedReaction>(mechanism.aerosol->processes[1]);
-  rxn.rate_constants["CLOUD"] = std::function<double(double)>(
+  rxn.rate_constants = std::function<double(double)>(
       [](double T) -> double
       {
         constexpr double c_H2O_M = 55.556;
@@ -545,8 +537,8 @@ TEST(MiamBuilder, DissolvedReversibleReactionProcess)
   rxn.solvent = "H2O";
   rxn.reactants = Comps({ "SO2_aq" });
   rxn.products = Comps({ "HSO3m", "Hp" });
-  rxn.forward_rate_constants = { { "CLOUD", Arr(1e6, 0.0) } };
-  rxn.equilibrium_constant = Arr(1.7e-2 / c_H2O_M, 2090.0);
+  rxn.forward_rate_constants = types::Arrhenius{ .A = 1e6 };
+  rxn.equilibrium_constant = types::Equilibrium{ .A = 1.7e-2 / c_H2O_M, .C = 2090.0 };
   aerosol.processes = { rxn };
 
   auto mechanism = MakeAerosolMechanism(

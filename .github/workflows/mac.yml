@@ -30,7 +30,7 @@ jobs:
       FC: ${{ matrix.compiler.fc }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: maxim-lobanov/setup-xcode@v1
         with:
@@ -65,7 +65,7 @@ jobs:
       FC: gfortran-${{ matrix.gcc_version }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install dependencies
         run: brew install netcdf netcdf-fortran
