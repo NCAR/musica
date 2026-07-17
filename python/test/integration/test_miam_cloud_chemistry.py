@@ -183,8 +183,9 @@ def _create_cloud_chemistry_mechanism(r1b_rate_constant=None):
             equilibrium_constant=mc.Equilibrium(A=6.0e-8 / C_H2O_M, C=1120.0)),
 
         # Linear constraints: mass conservation + charge balance
-        # Mass S: SO2_g + SO2_aq + HSO3- + SO3-- + SO2OOH- = total_S
-        # NOTE: SO4-- is differential (produced by kinetics), NOT in S budget
+        # Mass S: SO2_g + SO2_aq + HSO3- + SO3-- + SO2OOH- + SO4-- = total_S
+        # NOTE: SO4-- IS included here (kinetics moves S between pools via R1a/R1b),
+        # unlike the equilibrium-only mechanism below where SO4-- never changes.
         mc.LinearConstraint(
             algebraic_phase=gas,
             algebraic_species=so2_g,
@@ -194,8 +195,9 @@ def _create_cloud_chemistry_mechanism(r1b_rate_constant=None):
                 mc.LinearConstraintTerm(aq_phase, hso3m, 1.0),
                 mc.LinearConstraintTerm(aq_phase, so3mm, 1.0),
                 mc.LinearConstraintTerm(aq_phase, so2oohm, 1.0),
+                mc.LinearConstraintTerm(aq_phase, so4mm, 1.0),
             ],
-            constant=mc.FixedConstant(GAS0_SO2)),
+            constant=mc.FixedConstant(GAS0_SO2 + SO4MM0)),
 
         # Mass H2O2: H2O2_g + H2O2_aq = total_H2O2
         mc.LinearConstraint(
@@ -368,12 +370,24 @@ class TestMiamSolve:
             if total_time > 1.0 and dt < 1.0:
                 dt = 1.0
 
-        # Mass conservation: SO2_g + SO2_aq + HSO3- + SO3-- + SO2OOH-
-        # should still approximately equal the initial total (minus what
-        # reacted to SO4)
+        # Mass conservation: SO2_g + SO2_aq + HSO3- + SO3-- + SO2OOH- + SO4--
+        # should equal the initial total (GAS0_SO2 + SO4MM0) throughout, since
+        # kinetics only moves sulfur between the S(IV) and S(VI) pools, never
+        # creates or destroys it.
         concs = state.get_concentrations()
         so4_f = concs.get("CLOUD.AQUEOUS.SO4mm", [0.0])[0]
         assert so4_f >= SO4MM0, "SO4 should only increase from kinetics"
+
+        total_s = (
+            concs["SO2"][0]
+            + concs["CLOUD.AQUEOUS.SO2_aq"][0]
+            + concs["CLOUD.AQUEOUS.HSO3m"][0]
+            + concs["CLOUD.AQUEOUS.SO3mm"][0]
+            + concs["CLOUD.AQUEOUS.SO2OOHm"][0]
+            + so4_f
+        )
+        assert total_s == pytest.approx(GAS0_SO2 + SO4MM0, rel=1e-6), \
+            f"Total S budget violated: {total_s} != {GAS0_SO2 + SO4MM0}"
 
     def test_solve_callable_rate_constant(self):
         """Test with a callable rate constant instead of Equilibrium."""
