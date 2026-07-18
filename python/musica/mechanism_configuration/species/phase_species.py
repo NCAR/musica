@@ -45,7 +45,7 @@ class PhaseSpecies(CppWrapper):
             other_properties: A dictionary of other properties of the species.
         """
         if not ((name is None) ^ (species is None)):
-            msg = f"PhaseSpecies requires exaclty one of name or species. Got name={name}; species={species}"
+            msg = f"PhaseSpecies requires exactly one of name or species. Got name={name}; species={species}"
             raise ValueError(msg)
         self._cpp = _mc._PhaseSpecies()
         self.name = name if name is not None else species.name
