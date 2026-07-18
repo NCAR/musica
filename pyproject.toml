@@ -206,7 +206,7 @@ skip = ["cp39-win_arm64", "cp310-win_arm64"]
 test-command = [
   "python -c \"import musica; print(musica.__version__)\"",
   "musica-cli --help",
-  "pytest {project}\\python\\test -k \"not tuvx and not ts1_box_model\"",
+  "python {project}\\python\\tools\\run_pytest_with_watchdog.py {project}\\python\\test -k \"not tuvx and not ts1_box_model\"",
 ]
 
 [tool.cibuildwheel.windows.environment]
