@@ -48,8 +48,3 @@ julia/Manifest.toml
 julia/deps/lib/
 
 .claude
-
-MPAS-Model/
-MechanismConfiguration/
-build-container/
-
