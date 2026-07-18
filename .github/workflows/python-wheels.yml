@@ -33,6 +33,9 @@ jobs:
   build_wheels:
     name: Build wheels (${{ matrix.os }}, ${{ matrix.cibw_archs }})
     runs-on: ${{ matrix.os }}
+    # Default job timeout is 360 min; the slowest legit run (macos-15-intel) takes ~41 min,
+    # so 90 min catches a hang (e.g. #960's windows-11-arm 6h stall) with room to spare.
+    timeout-minutes: 90
     env:
       ZIPURL: https://raw.githubusercontent.com/pypi/warehouse/refs/heads/main/warehouse/utils/zipfiles.py
     strategy:
