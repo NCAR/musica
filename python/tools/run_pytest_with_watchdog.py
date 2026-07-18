@@ -8,13 +8,17 @@
 # silently consuming the whole job timeout.
 #
 # Once pytest itself has finished, we skip the normal interpreter shutdown
-# path (os._exit instead of sys.exit/return). On Windows this process has
-# hung for up to 90 minutes *after* printing its results and confirming no
-# non-main Python threads remain, meaning the hang is inside CPython's own
-# finalization (extension-module DLL unload / native static destructors),
-# which runs after faulthandler itself has already been torn down -- so the
-# watchdog above can never see or diagnose it. Since all tests have already
-# passed by this point, a clean interpreter shutdown isn't needed here.
+# path entirely. On Windows this process has hung for up to 90 minutes
+# *after* printing its results and confirming no non-main Python threads
+# remain, meaning the hang is inside DLL_PROCESS_DETACH teardown of the
+# compiled extension (native static destructors), which faulthandler can't
+# see since it's torn down before that point. os._exit() alone did NOT fix
+# this on Windows: the CRT's _exit() still goes through ExitProcess(), which
+# itself still delivers DLL_PROCESS_DETACH to every loaded DLL before the
+# process actually dies. TerminateProcess() is the only Win32 call that
+# skips DLL_PROCESS_DETACH notification entirely, so on Windows we call it
+# directly via ctypes. Since all tests have already passed by this point, a
+# clean interpreter/DLL shutdown isn't needed here.
 import faulthandler
 import os
 import sys
@@ -38,5 +42,16 @@ def main() -> int:
     return exit_code
 
 
+def hard_exit(code: int) -> None:
+    code = code or 0
+    if sys.platform == "win32":
+        import ctypes
+
+        kernel32 = ctypes.windll.kernel32
+        kernel32.TerminateProcess(kernel32.GetCurrentProcess(), ctypes.c_uint(code))
+    else:
+        os._exit(code)
+
+
 if __name__ == "__main__":
-    os._exit(main())
+    hard_exit(main())
