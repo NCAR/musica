@@ -131,31 +131,31 @@ def _create_cloud_chemistry_mechanism(r1b_rate_constant=None):
     # ── Constraints ──
     constraints = [
         # Henry's Law equilibria for SO2, H2O2, O3
-        mc.HenryLawEquilibrium(
+        mc.HenrysLawEquilibrium(
             gas_phase=gas,
             gas_species=so2_g,
             condensed_phase=aq_phase,
             condensed_species=so2_aq,
             solvent=h2o,
-            henry_law_constant=mc.HenryLawConstant(HLC_ref=1.23 * M_ATM_TO_MOL_M3_PA, C=3120.0),
+            henrys_law_constant=mc.HenrysLawConstant(HLC_ref=1.23 * M_ATM_TO_MOL_M3_PA, C=3120.0),
             solvent_molecular_weight=MW_H2O,
             solvent_density=RHO_H2O),
-        mc.HenryLawEquilibrium(
+        mc.HenrysLawEquilibrium(
             gas_phase=gas,
             gas_species=h2o2_g,
             condensed_phase=aq_phase,
             condensed_species=h2o2_aq,
             solvent=h2o,
-            henry_law_constant=mc.HenryLawConstant(HLC_ref=7.4e4 * M_ATM_TO_MOL_M3_PA, C=6621.0),
+            henrys_law_constant=mc.HenrysLawConstant(HLC_ref=7.4e4 * M_ATM_TO_MOL_M3_PA, C=6621.0),
             solvent_molecular_weight=MW_H2O,
             solvent_density=RHO_H2O),
-        mc.HenryLawEquilibrium(
+        mc.HenrysLawEquilibrium(
             gas_phase=gas,
             gas_species=o3_g,
             condensed_phase=aq_phase,
             condensed_species=o3_aq,
             solvent=h2o,
-            henry_law_constant=mc.HenryLawConstant(HLC_ref=1.15e-2 * M_ATM_TO_MOL_M3_PA, C=2560.0),
+            henrys_law_constant=mc.HenrysLawConstant(HLC_ref=1.15e-2 * M_ATM_TO_MOL_M3_PA, C=2560.0),
             solvent_molecular_weight=MW_H2O,
             solvent_density=RHO_H2O),
 
@@ -557,13 +557,13 @@ def _create_equilibrium_only_mechanism():
         ("H2O2", "H2O2_aq", 7.4e4, 6621.0),
         ("O3", "O3_aq", 1.15e-2, 2560.0),
     ]:
-        constraints.append(mc.HenryLawEquilibrium(
+        constraints.append(mc.HenrysLawEquilibrium(
             gas_phase=gas,
             gas_species=gas_by_name[gas_name],
             condensed_phase=aq_phase,
             condensed_species=aq_by_name[aq_name],
             solvent=h2o,
-            henry_law_constant=mc.HenryLawConstant(HLC_ref=hlc_ref * M_ATM_TO_MOL_M3_PA, C=c),
+            henrys_law_constant=mc.HenrysLawConstant(HLC_ref=hlc_ref * M_ATM_TO_MOL_M3_PA, C=c),
             solvent_molecular_weight=MW_H2O,
             solvent_density=RHO_H2O))
 
@@ -707,13 +707,13 @@ def _create_kinetics_mechanism():
         ("H2O2", "H2O2_aq", 7.4e4, 6621.0),
         ("O3", "O3_aq", 1.15e-2, 2560.0),
     ]:
-        constraints.append(mc.HenryLawEquilibrium(
+        constraints.append(mc.HenrysLawEquilibrium(
             gas_phase=gas,
             gas_species=gas_by_name[gas_name],
             condensed_phase=aq_phase,
             condensed_species=aq_by_name[aq_name],
             solvent=h2o,
-            henry_law_constant=mc.HenryLawConstant(HLC_ref=hlc_ref * M_ATM_TO_MOL_M3_PA, C=c),
+            henrys_law_constant=mc.HenrysLawConstant(HLC_ref=hlc_ref * M_ATM_TO_MOL_M3_PA, C=c),
             solvent_molecular_weight=MW_H2O,
             solvent_density=RHO_H2O))
 

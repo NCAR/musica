@@ -67,7 +67,7 @@ endif()
 
 if(MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(MECH_CONFIG_GIT_REPOSITORY https://github.com/NCAR/MechanismConfiguration.git)
-  set_git_default(MECH_CONFIG_GIT_TAG 8618c25c601906a80895bd2b746c6f1b12ab6805)
+  set_git_default(MECH_CONFIG_GIT_TAG 4b379ae7e3a70b711f91695823d93fc18742e35f)
 
   FetchContent_Declare(mechanism_configuration
       GIT_REPOSITORY ${MECH_CONFIG_GIT_REPOSITORY}
@@ -161,7 +161,7 @@ endif()
 
 if (MUSICA_ENABLE_MIAM AND MUSICA_BUILD_C_CXX_INTERFACE AND NOT MUSICA_USE_PREBUILT)
   set_git_default(MIAM_GIT_REPOSITORY https://github.com/NCAR/miam.git)
-  set_git_default(MIAM_GIT_TAG 098bd59b0368047ec6037d9dd1da8f620e4ef764)
+  set_git_default(MIAM_GIT_TAG d95a1bbf2415a36667f2317dfeb38ec527cc96e4)
 
   FetchContent_Declare(miam
       GIT_REPOSITORY ${MIAM_GIT_REPOSITORY}

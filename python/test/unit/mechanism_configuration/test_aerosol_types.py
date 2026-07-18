@@ -17,9 +17,9 @@ from musica.mechanism_configuration import (
     DissolvedReaction,
     DissolvedReversibleReaction,
     FixedConstant,
-    HenryLawConstant,
-    HenryLawEquilibrium,
-    HenryLawPhaseTransfer,
+    HenrysLawConstant,
+    HenrysLawEquilibrium,
+    HenrysLawPhaseTransfer,
     LinearConstraint,
     LinearConstraintTerm,
     Phase,
@@ -43,19 +43,19 @@ class FakeState:
 # ═══ Constants ═══════════════════════════════════════════════════════════════
 
 
-class TestHenryLawConstant:
+class TestHenrysLawConstant:
     def test_construction(self):
-        hlc = HenryLawConstant(HLC_ref=1.23, C=3120.0)
+        hlc = HenrysLawConstant(HLC_ref=1.23, C=3120.0)
         assert hlc.HLC_ref == 1.23
         assert hlc.C == 3120.0
 
     def test_default_c_and_t0(self):
-        hlc = HenryLawConstant(HLC_ref=1.0)
+        hlc = HenrysLawConstant(HLC_ref=1.0)
         assert hlc.C == 0.0
         assert hlc.T0 == pytest.approx(298.15)
 
     def test_mutable(self):
-        hlc = HenryLawConstant(HLC_ref=1.0, C=0.0)
+        hlc = HenrysLawConstant(HLC_ref=1.0, C=0.0)
         hlc.HLC_ref = 2.0
         assert hlc.HLC_ref == 2.0
 
@@ -247,15 +247,15 @@ class TestDissolvedReversibleReaction:
         assert rxn.solvent_floor == 1e-19
 
 
-class TestHenryLawPhaseTransfer:
+class TestHenrysLawPhaseTransfer:
     def test_construction(self):
-        hlpt = HenryLawPhaseTransfer(
+        hlpt = HenrysLawPhaseTransfer(
             gas_phase="gas",
             gas_species="SO2",
             condensed_phase="AQUEOUS",
             condensed_species="SO2_aq",
             solvent="H2O",
-            henry_law_constant=HenryLawConstant(HLC_ref=1.23e-2, C=3120.0),
+            henrys_law_constant=HenrysLawConstant(HLC_ref=1.23e-2, C=3120.0),
             diffusion_coefficient=1.28e-5,
             accommodation_coefficient=0.11,
         )
@@ -284,15 +284,15 @@ class TestLinearConstraintTerm:
         assert term.coefficient == -2.0
 
 
-class TestHenryLawEquilibrium:
+class TestHenrysLawEquilibrium:
     def test_construction(self):
-        hlec = HenryLawEquilibrium(
+        hlec = HenrysLawEquilibrium(
             gas_phase="gas",
             gas_species="SO2",
             condensed_phase="AQUEOUS",
             condensed_species="SO2_aq",
             solvent="H2O",
-            henry_law_constant=HenryLawConstant(HLC_ref=1.23e-2, C=3120.0),
+            henrys_law_constant=HenrysLawConstant(HLC_ref=1.23e-2, C=3120.0),
             solvent_molecular_weight=0.018,
             solvent_density=1000.0,
         )
@@ -428,13 +428,13 @@ class TestAerosol:
                     solvent="W",
                     equilibrium_constant=Equilibrium(A=1.0),
                 ),
-                HenryLawPhaseTransfer(
+                HenrysLawPhaseTransfer(
                     gas_phase="gas",
                     gas_species="A",
                     condensed_phase="AQ",
                     condensed_species="B",
                     solvent="W",
-                    henry_law_constant=HenryLawConstant(HLC_ref=1.0),
+                    henrys_law_constant=HenrysLawConstant(HLC_ref=1.0),
                     diffusion_coefficient=1e-5,
                     accommodation_coefficient=0.1,
                 ),
@@ -447,13 +447,13 @@ class TestAerosol:
             representations=[UniformSection(name="SEC", phases=["AQ"],
                                             min_radius=1e-6, max_radius=1e-5)],
             constraints=[
-                HenryLawEquilibrium(
+                HenrysLawEquilibrium(
                     gas_phase="gas",
                     gas_species="A",
                     condensed_phase="AQ",
                     condensed_species="B",
                     solvent="W",
-                    henry_law_constant=HenryLawConstant(HLC_ref=1.0, C=100.0),
+                    henrys_law_constant=HenrysLawConstant(HLC_ref=1.0, C=100.0),
                     solvent_molecular_weight=0.018,
                     solvent_density=1000.0,
                 ),
@@ -491,8 +491,8 @@ class TestRateConstantSerialize:
             "T0 [K]": 298.15,
         }
 
-    def test_henry_law_constant(self):
-        assert HenryLawConstant(HLC_ref=1e-2, C=3000.0).serialize() == {
+    def test_henrys_law_constant(self):
+        assert HenrysLawConstant(HLC_ref=1e-2, C=3000.0).serialize() == {
             "HLC_ref [mol m-3 Pa-1]": 1e-2,
             "C [K]": 3000.0,
             "T0 [K]": pytest.approx(298.15),
@@ -563,14 +563,14 @@ class TestProcessSerialize:
         # Unset optional rate constants are omitted entirely.
         assert "reverse rate constant" not in d
 
-    def test_henry_law_phase_transfer(self):
-        d = HenryLawPhaseTransfer(
+    def test_henrys_law_phase_transfer(self):
+        d = HenrysLawPhaseTransfer(
             gas_phase="gas", gas_species="A", condensed_phase="AQ",
             condensed_species="A", solvent="H2O",
-            henry_law_constant=HenryLawConstant(HLC_ref=1e-2, C=3000.0),
+            henrys_law_constant=HenrysLawConstant(HLC_ref=1e-2, C=3000.0),
             diffusion_coefficient=1.5e-5, accommodation_coefficient=0.1,
         ).serialize()
-        assert d["type"] == "HENRY_LAW_PHASE_TRANSFER"
+        assert d["type"] == "HENRYS_LAW_PHASE_TRANSFER"
         assert d["gas-phase species"] == "A"
         assert d["condensed-phase species"] == "A"
         assert d["accommodation coefficient"] == 0.1
@@ -580,14 +580,14 @@ class TestProcessSerialize:
 
 
 class TestConstraintSerialize:
-    def test_henry_law_equilibrium(self):
-        d = HenryLawEquilibrium(
+    def test_henrys_law_equilibrium(self):
+        d = HenrysLawEquilibrium(
             gas_phase="gas", gas_species="A", condensed_phase="AQ",
             condensed_species="A", solvent="H2O",
-            henry_law_constant=HenryLawConstant(HLC_ref=1e-2, C=3000.0),
+            henrys_law_constant=HenrysLawConstant(HLC_ref=1e-2, C=3000.0),
             solvent_molecular_weight=0.018, solvent_density=1000.0,
         ).serialize()
-        assert d["type"] == "HENRY_LAW_EQUILIBRIUM"
+        assert d["type"] == "HENRYS_LAW_EQUILIBRIUM"
         assert d["gas-phase species"] == "A"
         # Solvent molecular weight/density are derived from the species definition.
         assert "solvent molecular weight [kg mol-1]" not in d

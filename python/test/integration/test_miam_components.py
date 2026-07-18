@@ -4,7 +4,7 @@
 # Integration tests for individual MIAM components.
 #
 # Each test class covers one component in isolation (DissolvedReaction,
-# DissolvedReversibleReaction, HenryLawPhaseTransfer, HenryLawEquilibrium,
+# DissolvedReversibleReaction, HenrysLawPhaseTransfer, HenrysLawEquilibrium,
 # DissolvedEquilibrium, LinearConstraint).  Every test is parametrized over
 # all three aerosol representations (UniformSection, SingleMomentMode,
 # TwoMomentMode) to catch representation-specific bugs.
@@ -21,10 +21,10 @@
 #   K = k_fwd/k_rev,  [foo]_eq = C/(1+K),  [bar]_eq = C·K/(1+K)
 #   [foo](t) = [foo]_eq + ([foo]₀−[foo]_eq)·exp(−(k_fwd+k_rev)·k_eff_scale·t)
 #
-# HenryLawPhaseTransfer (equilibrium limit, long t)
+# HenrysLawPhaseTransfer (equilibrium limit, long t)
 #   [A_aq]_eq = H·R·T·fv·[A_gas]_eq  with  [A_gas]+[A_aq] = Total_A
 #
-# HenryLawEquilibrium constraint (algebraic)
+# HenrysLawEquilibrium constraint (algebraic)
 #   same equilibrium condition, enforced instantaneously
 #
 # DissolvedEquilibrium constraint  foo ⇌ bar  (algebraic species = bar)
@@ -50,9 +50,9 @@ from musica.mechanism_configuration import (
     DiagnoseFromState,
     Equilibrium,
     FixedConstant,
-    HenryLawConstant,
-    HenryLawEquilibrium,
-    HenryLawPhaseTransfer,
+    HenrysLawConstant,
+    HenrysLawEquilibrium,
+    HenrysLawPhaseTransfer,
     LinearConstraint,
     LinearConstraintTerm,
     SingleMomentMode,
@@ -357,10 +357,10 @@ class TestDissolvedReversibleReaction:
 
 
 # ═════════════════════════════════════════════════════════════════════════════
-# 3.  HenryLawPhaseTransfer:  gas_A  ↔  aq_A
+# 3.  HenrysLawPhaseTransfer:  gas_A  ↔  aq_A
 # ═════════════════════════════════════════════════════════════════════════════
 
-class TestHenryLawPhaseTransfer:
+class TestHenrysLawPhaseTransfer:
     """
     System:  gas_A  ↔  aq_A  via kinetic Henry's Law mass transfer.
 
@@ -401,13 +401,13 @@ class TestHenryLawPhaseTransfer:
         ])
         aq = mc.Phase(name="aq", species=[a_aq, solvent])
 
-        transfer = HenryLawPhaseTransfer(
+        transfer = HenrysLawPhaseTransfer(
             gas_phase=gas,
             gas_species=a_gas,
             condensed_phase=aq,
             condensed_species=a_aq,
             solvent=solvent,
-            henry_law_constant=HenryLawConstant(HLC_ref=self.HLC_REF, C=0.0),
+            henrys_law_constant=HenrysLawConstant(HLC_ref=self.HLC_REF, C=0.0),
             accommodation_coefficient=self.ALPHA,
             # diffusion_coefficient picked up from gas PhaseSpecies
         )
@@ -479,10 +479,10 @@ class TestHenryLawPhaseTransfer:
 
 
 # ═════════════════════════════════════════════════════════════════════════════
-# 4.  HenryLawEquilibrium constraint:  gas_A  ⇌  aq_A  (algebraic)
+# 4.  HenrysLawEquilibrium constraint:  gas_A  ⇌  aq_A  (algebraic)
 # ═════════════════════════════════════════════════════════════════════════════
 
-class TestHenryLawEquilibriumConstraint:
+class TestHenrysLawEquilibriumConstraint:
     """
     System:  gas_A decays kinetically (gas reaction A→C at rate k_gas),
              while aq_A is kept in instantaneous Henry's Law equilibrium
@@ -527,14 +527,14 @@ class TestHenryLawEquilibriumConstraint:
             gas_phase=gas,
         )
 
-        # HenryLawEquilibrium: aq_A algebraic, tracks gas_A
-        hlc = HenryLawEquilibrium(
+        # HenrysLawEquilibrium: aq_A algebraic, tracks gas_A
+        hlc = HenrysLawEquilibrium(
             gas_phase=gas,
             gas_species=a_gas,
             condensed_phase=aq,
             condensed_species=a_aq,
             solvent=solvent,
-            henry_law_constant=HenryLawConstant(HLC_ref=self.HLC_REF, C=0.0),
+            henrys_law_constant=HenrysLawConstant(HLC_ref=self.HLC_REF, C=0.0),
             # solvent_molecular_weight and solvent_density are auto-looked-up
             # from the solvent Species object (bug fix tested here)
         )
@@ -860,8 +860,8 @@ class TestLinearConstraint:
 #   - foo_r1:  A + F → E   (DissolvedReaction in foo)
 #   - bar_r1:  B + D → E   (DissolvedReaction in bar)
 #   - bar_r2:  E ⇌ F+solvent (DissolvedReversibleReaction in bar)
-#   - a_transfer: A(gas) ↔ A(foo) via HenryLawPhaseTransfer
-#   - b_transfer: B(gas) ↔ B(bar) via HenryLawPhaseTransfer
+#   - a_transfer: A(gas) ↔ A(foo) via HenrysLawPhaseTransfer
+#   - b_transfer: B(gas) ↔ B(bar) via HenrysLawPhaseTransfer
 #   - little_mode: TwoMomentMode covering [foo]
 #   - big_mode:    TwoMomentMode covering [bar, foo]
 # ═════════════════════════════════════════════════════════════════════════════
@@ -884,7 +884,7 @@ def _build_tutorial14(
     include_dissolved
         Whether to include the three dissolved reactions.
     include_transfers
-        Whether to include the two HenryLawPhaseTransfer processes.
+        Whether to include the two HenrysLawPhaseTransfer processes.
     """
     M_ATM_TO_MOL_M3_PA = 1000.0 / 101325.0
 
@@ -938,19 +938,19 @@ def _build_tutorial14(
 
     # ── Henry's Law transfers ─────────────────────────────────────────────────
     if include_transfers:
-        a_transfer = HenryLawPhaseTransfer(
+        a_transfer = HenrysLawPhaseTransfer(
             gas_phase=gas, gas_species=A,
             condensed_phase=foo, condensed_species=A,
             solvent=solvent,
-            henry_law_constant=HenryLawConstant(
+            henrys_law_constant=HenrysLawConstant(
                 HLC_ref=1.23 * M_ATM_TO_MOL_M3_PA, C=3120.0),
             accommodation_coefficient=accommodation_a,
         )
-        b_transfer = HenryLawPhaseTransfer(
+        b_transfer = HenrysLawPhaseTransfer(
             gas_phase=gas, gas_species=B,
             condensed_phase=bar, condensed_species=B,
             solvent=solvent,
-            henry_law_constant=HenryLawConstant(
+            henrys_law_constant=HenrysLawConstant(
                 HLC_ref=3.2 * M_ATM_TO_MOL_M3_PA, C=2190.0),
             accommodation_coefficient=accommodation_b,
         )
@@ -1088,11 +1088,11 @@ class TestTutorial14:
         mechanism = mc.Mechanism(
             name="test", species=[A, solvent], phases=[gas, foo], reactions=[],
             aerosol=mc.Aerosol(representations=[mode], processes=[
-                HenryLawPhaseTransfer(
+                HenrysLawPhaseTransfer(
                     gas_phase=gas, gas_species=A,
                     condensed_phase=foo, condensed_species=A,
                     solvent=solvent,
-                    henry_law_constant=HenryLawConstant(HLC_ref=1.23 * M_ATM, C=3120.0),
+                    henrys_law_constant=HenrysLawConstant(HLC_ref=1.23 * M_ATM, C=3120.0),
                     accommodation_coefficient=0.5,
                 ),
             ]),

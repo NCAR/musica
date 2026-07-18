@@ -104,9 +104,9 @@ namespace
     return components;
   }
 
-  types::HenryLawConstant Henry(double hlc_ref, double C)
+  types::HenrysLawConstant Henry(double hlc_ref, double C)
   {
-    types::HenryLawConstant h;
+    types::HenrysLawConstant h;
     h.HLC_ref = hlc_ref;
     h.C = C;
     return h;
@@ -175,15 +175,15 @@ namespace
     aerosol.processes = { r1a, r1b, r2, r3 };
 
     // Henry's Law equilibria (gas ⇌ dissolved)
-    auto henry_eq = [](const std::string& gas_species, const std::string& condensed_species, types::HenryLawConstant hlc)
+    auto henry_eq = [](const std::string& gas_species, const std::string& condensed_species, types::HenrysLawConstant hlc)
     {
-      types::HenryLawEquilibrium h;
+      types::HenrysLawEquilibrium h;
       h.gas_phase = "gas";
       h.gas_species = gas_species;
       h.condensed_phase = "AQUEOUS";
       h.condensed_species = condensed_species;
       h.solvent = "H2O";
-      h.henry_law_constant = hlc;
+      h.henrys_law_constant = hlc;
       h.solvent_molecular_weight = MW_H2O;
       h.solvent_density = RHO_H2O;
       return h;
@@ -484,7 +484,7 @@ TEST(MiamBuilder, TwoMomentModeRepresentation)
   musica::DeleteError(&error);
 }
 
-TEST(MiamBuilder, HenryLawPhaseTransferProcess)
+TEST(MiamBuilder, HenrysLawPhaseTransferProcess)
 {
   types::Aerosol aerosol;
   aerosol.representations = {
@@ -492,13 +492,13 @@ TEST(MiamBuilder, HenryLawPhaseTransferProcess)
   };
 
   // Henry's Law phase transfer instead of a dissolved reaction
-  types::HenryLawPhaseTransfer transfer;
+  types::HenrysLawPhaseTransfer transfer;
   transfer.gas_phase = "gas";
   transfer.gas_species = "SO2";
   transfer.condensed_phase = "AQUEOUS";
   transfer.condensed_species = "SO2_aq";
   transfer.solvent = "H2O";
-  transfer.henry_law_constant = Henry(1.23 * M_ATM_TO_MOL_M3_PA, 3120.0);
+  transfer.henrys_law_constant = Henry(1.23 * M_ATM_TO_MOL_M3_PA, 3120.0);
   transfer.diffusion_coefficient = 1.28e-5;
   transfer.accommodation_coefficient = 0.11;
   aerosol.processes = { transfer };
