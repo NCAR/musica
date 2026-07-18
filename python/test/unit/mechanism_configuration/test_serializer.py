@@ -34,11 +34,11 @@ def _get_aerosol_mechanism():
             mc.DissolvedReaction(
                 phase="aqueous", solvent="H2O",
                 reactants=[mc.Species(name="A")], products=[mc.Species(name="B")],
-                rate_constants=mc.Arrhenius(A=1e3, C=100.0)),
+                rate_constant=mc.Arrhenius(A=1e3, C=100.0)),
             mc.DissolvedReversibleReaction(
                 phase="aqueous", solvent="H2O",
                 reactants=[mc.Species(name="A")], products=[mc.Species(name="B")],
-                forward_rate_constants=mc.Arrhenius(A=1e3, C=100.0),
+                forward_rate_constant=mc.Arrhenius(A=1e3, C=100.0),
                 equilibrium_constant=mc.Equilibrium(A=1725.0, C=0.0)),
         ],
         constraints=[

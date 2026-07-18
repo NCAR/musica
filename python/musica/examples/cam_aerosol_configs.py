@@ -229,23 +229,23 @@ def sulfate_chemistry(phase_name, gas_species_by_name, gas_phase, kinetic_uptake
         mc.DissolvedReversibleReaction(          # R1a: HSO3- + H2O2 <=> SO2OOH- + H2O
             phase=aq_phase, solvent=sp["H2O"],
             reactants=[sp["HSO3m"], sp["H2O2_aq"]], products=[sp["SO2OOHm"], sp["H2O"]],
-            forward_rate_constants=mc.Equilibrium(A=C_H2O_M * (7.45e7 / 13.0), C=4430.0),
+            forward_rate_constant=mc.Equilibrium(A=C_H2O_M * (7.45e7 / 13.0), C=4430.0),
             equilibrium_constant=mc.Equilibrium(A=1725.0),
         ),
         mc.DissolvedReaction(                    # R1b: SO2OOH- + H+ -> SO4--
             phase=aq_phase, solvent=sp["H2O"],
             reactants=[sp["SO2OOHm"], sp["Hp"]], products=[sp["SO4mm"]],
-            rate_constants=mc.Equilibrium(A=C_H2O_M * 2.4e6, C=4430.0),
+            rate_constant=mc.Equilibrium(A=C_H2O_M * 2.4e6, C=4430.0),
         ),
         mc.DissolvedReaction(                    # R2: HSO3- + O3 -> SO4-- + H+
             phase=aq_phase, solvent=sp["H2O"],
             reactants=[sp["HSO3m"], sp["O3_aq"]], products=[sp["SO4mm"], sp["Hp"]],
-            rate_constants=mc.Equilibrium(A=C_H2O_M * 3.75e5, C=5530.0),
+            rate_constant=mc.Equilibrium(A=C_H2O_M * 3.75e5, C=5530.0),
         ),
         mc.DissolvedReaction(                    # R3: SO3-- + O3 -> SO4--
             phase=aq_phase, solvent=sp["H2O"],
             reactants=[sp["SO3mm"], sp["O3_aq"]], products=[sp["SO4mm"]],
-            rate_constants=mc.Equilibrium(A=C_H2O_M * 1.59e9, C=5280.0),
+            rate_constant=mc.Equilibrium(A=C_H2O_M * 1.59e9, C=5280.0),
         ),
     ]
 

@@ -105,7 +105,7 @@
         { "name": "SO2OOHm", "coefficient": 1 },
         { "name": "H2O",     "coefficient": 1 }
       ],
-      "forward rate constants": {
+      "forward rate constant": {
         "type": "ARRHENIUS", "A": 3.184e8,  "C": 4430.0
       },
       "equilibrium constant": {
@@ -125,7 +125,7 @@
       "products": [
         { "name": "SO4mm", "coefficient": 1 }
       ],
-      "rate constants": {
+      "rate constant": {
         "type": "ARRHENIUS", "A": 1.333e8, "C": 4430.0
       }
     },
@@ -143,7 +143,7 @@
         { "name": "SO4mm", "coefficient": 1 },
         { "name": "Hp",    "coefficient": 1 }
       ],
-      "rate constants": {
+      "rate constant": {
         "type": "ARRHENIUS", "A": 2.08335e7, "C": 5530.0
       }
     },
@@ -160,7 +160,7 @@
       "products": [
         { "name": "SO4mm", "coefficient": 1 }
       ],
-      "rate constants": {
+      "rate constant": {
         "type": "ARRHENIUS", "A": 8.8334e10, "C": 5280.0
       }
     },

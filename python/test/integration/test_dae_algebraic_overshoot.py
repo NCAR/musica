@@ -121,7 +121,7 @@ def _build_system():
         reactants=[hso3m, h2o2_aq],
         products=[so2oohm, h2o],
         solvent=h2o,
-        forward_rate_constants=Equilibrium(
+        forward_rate_constant=Equilibrium(
             A=C_H2O_M * (7.45e7 / 13.0), C=4430.0),
         equilibrium_constant=Equilibrium(A=1725.0),
     )
@@ -130,7 +130,7 @@ def _build_system():
         reactants=[so2oohm, hp],
         products=[so4mm],
         solvent=h2o,
-        rate_constants=Equilibrium(A=C_H2O_M * 2.4e6, C=4430.0),
+        rate_constant=Equilibrium(A=C_H2O_M * 2.4e6, C=4430.0),
     )
 
     # ── Equilibrium constraints ─────────────────────────────────────
