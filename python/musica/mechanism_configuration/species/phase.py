@@ -24,7 +24,7 @@ class Phase(CppWrapper):
     def __init__(
         self,
         name: Optional[str] = None,
-        species: Optional[List[Union[Species,PhaseSpecies]]] = None,
+        species: Optional[List[Union[Species, PhaseSpecies]]] = None,
         other_properties: Optional[Dict[str, Any]] = None,
     ):
         """Initialize the Phase.

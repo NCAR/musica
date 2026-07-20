@@ -215,8 +215,8 @@ namespace musica
                         .SetCondensedSpecies(find_species(p.condensed_species))
                         .SetSolvent(find_species(p.solvent))
                         .SetHenrysLawConstant(miam::HenrysLawConstant({ .HLC_ref_ = p.henrys_law_constant.HLC_ref,
-                                                                      .C_ = p.henrys_law_constant.C,
-                                                                      .T0_ = p.henrys_law_constant.T0 }))
+                                                                        .C_ = p.henrys_law_constant.C,
+                                                                        .T0_ = p.henrys_law_constant.T0 }))
                         .SetDiffusionCoefficient(p.diffusion_coefficient)
                         .SetAccommodationCoefficient(p.accommodation_coefficient)
                         .Build());
@@ -250,8 +250,8 @@ namespace musica
                         .SetSolvent(solvent)
                         .SetCondensedPhase(find_phase(c.condensed_phase))
                         .SetHenrysLawConstant(miam::HenrysLawConstant({ .HLC_ref_ = c.henrys_law_constant.HLC_ref,
-                                                                      .C_ = c.henrys_law_constant.C,
-                                                                      .T0_ = c.henrys_law_constant.T0 }))
+                                                                        .C_ = c.henrys_law_constant.C,
+                                                                        .T0_ = c.henrys_law_constant.T0 }))
                         .Build());
               }
               else if constexpr (std::is_same_v<T, types::DissolvedEquilibrium>)
