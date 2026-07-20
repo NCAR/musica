@@ -160,7 +160,7 @@ test-skip = "*-*linux_i686"
 test-command = [
   '''python -c "import musica; print(f'musica v{musica.__version__}')"''',
   "musica-cli --help",
-  "python {project}/python/tools/run_pytest_with_watchdog.py {project}/python/test",
+  "pytest {project}/python/test",
   "musica-cli --convert configs/v0/TS1/config.json -o ts1.json",
   "musica-cli -e CARMA_Aluminum -o .",
   "musica-cli -e CARMA_Sulfate -o .",
@@ -206,7 +206,7 @@ skip = ["cp39-win_arm64", "cp310-win_arm64"]
 test-command = [
   "python -c \"import musica; print(musica.__version__)\"",
   "musica-cli --help",
-  "python {project}\\python\\tools\\run_pytest_with_watchdog.py {project}\\python\\test -k \"not tuvx and not ts1_box_model\" --ignore={project}\\python\\test\\unit\\miem",
+  "pytest {project}\\python\\test -k \"not tuvx and not ts1_box_model\" --ignore={project}\\python\\test\\unit\\miem",
 ]
 
 [tool.cibuildwheel.windows.environment]

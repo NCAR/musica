@@ -207,7 +207,7 @@ def main(plot=True):
             delta_no_mol_m3 = no_surface_flux * time_step / (BOX_HEIGHT_M * NO_MOLECULAR_WEIGHT)
 
             current_concentrations = state.get_concentrations()
-            current_concentrations["NO"] = [current_concentrations["NO"][0] + delta_no_mol_m3]
+            current_concentrations["NO"] = [concentration + delta_no_mol_m3 for concentration in current_concentrations["NO"]]
             state.set_concentrations(current_concentrations)
 
             elapsed = 0

@@ -209,7 +209,7 @@ def main(plot=True):
         for name in species_names:
             surface_flux = flux[species_indices[name], CELL_INDEX]  # kg m-2 s-1
             delta_mol_m3 = surface_flux * time_step / (BOX_HEIGHT_M * MOLECULAR_WEIGHTS[name])
-            current_concentrations[name] = [current_concentrations[name][0] + delta_mol_m3]
+            current_concentrations[name] = [concentration + delta_mol_m3 for concentration in current_concentrations[name]]
             flux_history[name].append(surface_flux)
         state.set_concentrations(current_concentrations)
 
