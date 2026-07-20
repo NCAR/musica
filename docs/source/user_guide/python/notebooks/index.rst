@@ -27,9 +27,12 @@ Note: Binder uses the latest commit on ``main``, not necessarily the latest rele
 11. `TS1 box model <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/11.%20ts1_box_model.ipynb>`_
 12. `multiple mechanisms in the same host application <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/12.%20multiple_mechanisms.ipynb>`_
 13. `TUV-x subset photolysis <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/13.%20tuv-x_subset_photolysis.ipynb>`_
-14. `DAE solving introduction <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/14.%20dae_solving_intro.ipynb>`_
-15. `MIAM processes and constraints <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/15.%20miam_processes_and_constraints.ipynb>`_
-16. `CAM cloud chemistry <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/16.%20cam_cloud_chemistry.ipynb>`_
+14. `introduction to aerosol and cloud chemistry <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/14.%20aerosol_chemistry_intro.ipynb>`_
+15. `DAE solving introduction <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/15.%20dae_solving_intro.ipynb>`_
+16. `MIAM processes and constraints <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/16.%20miam_processes_and_constraints.ipynb>`_
+17. `CAM cloud chemistry <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/17.%20cam_cloud_chemistry.ipynb>`_
+18. `CAM aerosol distributions <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/18.%20cam_aerosol_distributions.ipynb>`_
+19. `MIEM NOx emissions box model <https://mybinder.org/v2/gh/NCAR/musica/HEAD?filepath=tutorials/19.%20miem_nox_box_model.ipynb>`_
 
 Download (GitHub)
 ------------------
@@ -48,9 +51,12 @@ Download (GitHub)
 11. `TS1 box model notebook <https://github.com/NCAR/musica/blob/main/tutorials/11.%20ts1_box_model.ipynb>`_
 12. `multiple mechanisms notebook <https://github.com/NCAR/musica/blob/main/tutorials/12.%20multiple_mechanisms.ipynb>`_
 13. `TUV-x subset photolysis notebook <https://github.com/NCAR/musica/blob/main/tutorials/13.%20tuv-x_subset_photolysis.ipynb>`_
-14. `DAE solving introduction notebook <https://github.com/NCAR/musica/blob/main/tutorials/14.%20dae_solving_intro.ipynb>`_
-15. `MIAM processes and constraints notebook <https://github.com/NCAR/musica/blob/main/tutorials/15.%20miam_processes_and_constraints.ipynb>`_
-16. `CAM cloud chemistry notebook <https://github.com/NCAR/musica/blob/main/tutorials/16.%20cam_cloud_chemistry.ipynb>`_
+14. `introduction to aerosol and cloud chemistry notebook <https://github.com/NCAR/musica/blob/main/tutorials/14.%20aerosol_chemistry_intro.ipynb>`_
+15. `DAE solving introduction notebook <https://github.com/NCAR/musica/blob/main/tutorials/15.%20dae_solving_intro.ipynb>`_
+16. `MIAM processes and constraints notebook <https://github.com/NCAR/musica/blob/main/tutorials/16.%20miam_processes_and_constraints.ipynb>`_
+17. `CAM cloud chemistry notebook <https://github.com/NCAR/musica/blob/main/tutorials/17.%20cam_cloud_chemistry.ipynb>`_
+18. `CAM aerosol distributions notebook <https://github.com/NCAR/musica/blob/main/tutorials/18.%20cam_aerosol_distributions.ipynb>`_
+19. `MIEM NOx emissions box model notebook <https://github.com/NCAR/musica/blob/main/tutorials/19.%20miem_nox_box_model.ipynb>`_
 
 Browse Online
 --------------
@@ -72,6 +78,9 @@ Browse Online
    11. TS1 Box Model <11. ts1_box_model>
    12. Multiple Mechanisms <12. multiple_mechanisms>
    13. TUV-x Subset Photolysis <13. tuv-x_subset_photolysis>
-   14. DAE Solving Introduction <14. dae_solving_intro>
-   15. MIAM Processes and Constraints <15. miam_processes_and_constraints>
-   16. CAM Cloud Chemistry <16. cam_cloud_chemistry>
+   14. Introduction to Aerosol and Cloud Chemistry <14. aerosol_chemistry_intro>
+   15. DAE Solving Introduction <15. dae_solving_intro>
+   16. MIAM Processes and Constraints <16. miam_processes_and_constraints>
+   17. CAM Cloud Chemistry <17. cam_cloud_chemistry>
+   18. CAM Aerosol Distributions <18. cam_aerosol_distributions>
+   19. MIEM NOx Emissions Box Model <19. miem_nox_box_model>
