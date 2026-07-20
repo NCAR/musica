@@ -389,7 +389,8 @@ namespace musica
           auto it = species_map.find(ps.name);
           if (it == species_map.end())
             throw musica::Exception(
-                musica::MiamErrorCode::SpeciesNotFound, "MIAM: Species '" + ps.name + "' in phase '" + ph.name + "' not found");
+                musica::MiamErrorCode::SpeciesNotFound,
+                "MIAM: Species '" + ps.name + "' in phase '" + ph.name + "' not found");
           // Carry the phase-specific properties (diffusion coefficient, density) from
           // the config's PhaseSpecies onto the micm::PhaseSpecies MIAM reads.
           micm::PhaseSpecies phase_sp(it->second);
