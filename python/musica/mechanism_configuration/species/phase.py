@@ -24,7 +24,7 @@ class Phase(CppWrapper):
     def __init__(
         self,
         name: Optional[str] = None,
-        species: Optional[Union[List[Species], List[PhaseSpecies]]] = None,
+        species: Optional[List[Union[Species,PhaseSpecies]]] = None,
         other_properties: Optional[Dict[str, Any]] = None,
     ):
         """Initialize the Phase.
@@ -44,7 +44,7 @@ class Phase(CppWrapper):
                 if isinstance(s, PhaseSpecies):
                     converted_species.append(s)
                 elif isinstance(s, Species):
-                    converted_species.append(PhaseSpecies(name=s.name, density_kg_m3=s.density_kg_m3))
+                    converted_species.append(PhaseSpecies(species=s, density_kg_m3=s.density_kg_m3))
         self.species = converted_species
         self.other_properties = other_properties if other_properties is not None else self.other_properties
 

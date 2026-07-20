@@ -77,7 +77,7 @@ class Equilibrium(CppWrapper):
         }
 
 
-class HenryLawConstant(CppWrapper):
+class HenrysLawConstant(CppWrapper):
     """Henry's law constant: HLC(T) = HLC_ref * exp( C * (1/T - 1/T0) ).
 
     Attributes:
@@ -96,7 +96,7 @@ class HenryLawConstant(CppWrapper):
         C: Optional[float] = None,
         T0: Optional[float] = None,
     ):
-        self._cpp = _mc._HenryLawConstant()
+        self._cpp = _mc._HenrysLawConstant()
         self.HLC_ref = HLC_ref if HLC_ref is not None else self.HLC_ref
         self.C = C if C is not None else self.C
         self.T0 = T0 if T0 is not None else self.T0
@@ -324,7 +324,7 @@ class DissolvedReaction(CppWrapper):
         solvent: Name of the solvent species.
         reactants: Reactant components.
         products: Product components.
-        rate_constants: Rate constant for the reaction.
+        rate_constant: Rate constant for the reaction.
         solvent_floor: Floor added to the solvent concentration in the rate denominator [mol m-3].
         min_halflife: Minimum reactant half-life used to cap the rate [s].
     """
@@ -340,7 +340,7 @@ class DissolvedReaction(CppWrapper):
         solvent: Optional[Union[Species, str]] = None,
         reactants: Optional[List[ComponentType]] = None,
         products: Optional[List[ComponentType]] = None,
-        rate_constants: Optional[RateConstantType] = None,
+        rate_constant: Optional[RateConstantType] = None,
         solvent_floor: Optional[float] = None,
         min_halflife: Optional[float] = None,
     ):
@@ -349,8 +349,8 @@ class DissolvedReaction(CppWrapper):
         self.solvent = _name(solvent)
         self.reactants = reactants if reactants is not None else []
         self.products = products if products is not None else []
-        if rate_constants is not None:
-            self.rate_constants = rate_constants
+        if rate_constant is not None:
+            self.rate_constant = rate_constant
         if solvent_floor is not None:
             self.solvent_floor = solvent_floor
         if min_halflife is not None:
@@ -373,12 +373,12 @@ class DissolvedReaction(CppWrapper):
         self._cpp.products = _unwrap_list(_convert_components(value))
 
     @property
-    def rate_constants(self) -> RateConstantType:
-        return self._cpp.rate_constants
+    def rate_constant(self) -> RateConstantType:
+        return self._cpp.rate_constant
 
-    @rate_constants.setter
-    def rate_constants(self, value):
-        self._cpp.rate_constants = _convert_rate_constant(value)
+    @rate_constant.setter
+    def rate_constant(self, value):
+        self._cpp.rate_constant = _convert_rate_constant(value)
 
     def serialize(self) -> Dict:
         return _remove_empty_keys(
@@ -388,7 +388,7 @@ class DissolvedReaction(CppWrapper):
                 "solvent": self.solvent,
                 "reactants": [r.serialize() for r in self.reactants],
                 "products": [p.serialize() for p in self.products],
-                "rate constants": _serialize_rate_constant(self.rate_constants),
+                "rate constant": _serialize_rate_constant(self.rate_constant),
             }
         )
 
@@ -403,8 +403,8 @@ class DissolvedReversibleReaction(CppWrapper):
         solvent: Name of the solvent species.
         reactants: Reactant components.
         products: Product components.
-        forward_rate_constants: Forward rate constant for the reaction.
-        reverse_rate_constants: Reverse rate constant for the reaction.
+        forward_rate_constant: Forward rate constant for the reaction.
+        reverse_rate_constant: Reverse rate constant for the reaction.
         equilibrium_constant: Shared intrinsic equilibrium constant.
         solvent_floor: Floor added to the solvent concentration in the rate denominator [mol m-3].
     """
@@ -419,8 +419,8 @@ class DissolvedReversibleReaction(CppWrapper):
         solvent: Optional[Union[Species, str]] = None,
         reactants: Optional[List[ComponentType]] = None,
         products: Optional[List[ComponentType]] = None,
-        forward_rate_constants: Optional[RateConstantType] = None,
-        reverse_rate_constants: Optional[RateConstantType] = None,
+        forward_rate_constant: Optional[RateConstantType] = None,
+        reverse_rate_constant: Optional[RateConstantType] = None,
         equilibrium_constant: Optional[Equilibrium] = None,
         solvent_floor: Optional[float] = None,
     ):
@@ -429,8 +429,8 @@ class DissolvedReversibleReaction(CppWrapper):
         self.solvent = _name(solvent)
         self.reactants = reactants if reactants is not None else []
         self.products = products if products is not None else []
-        self.forward_rate_constants = forward_rate_constants
-        self.reverse_rate_constants = reverse_rate_constants
+        self.forward_rate_constant = forward_rate_constant
+        self.reverse_rate_constant = reverse_rate_constant
         if equilibrium_constant is not None:
             self._cpp.equilibrium_constant = _unwrap(equilibrium_constant)
         if solvent_floor is not None:
@@ -453,20 +453,20 @@ class DissolvedReversibleReaction(CppWrapper):
         self._cpp.products = _unwrap_list(_convert_components(value))
 
     @property
-    def forward_rate_constants(self) -> Optional[RateConstantType]:
-        return self._cpp.forward_rate_constants
+    def forward_rate_constant(self) -> Optional[RateConstantType]:
+        return self._cpp.forward_rate_constant
 
-    @forward_rate_constants.setter
-    def forward_rate_constants(self, value):
-        self._cpp.forward_rate_constants = _convert_rate_constant(value) if value is not None else None
+    @forward_rate_constant.setter
+    def forward_rate_constant(self, value):
+        self._cpp.forward_rate_constant = _convert_rate_constant(value) if value is not None else None
 
     @property
-    def reverse_rate_constants(self) -> Optional[RateConstantType]:
-        return self._cpp.reverse_rate_constants
+    def reverse_rate_constant(self) -> Optional[RateConstantType]:
+        return self._cpp.reverse_rate_constant
 
-    @reverse_rate_constants.setter
-    def reverse_rate_constants(self, value):
-        self._cpp.reverse_rate_constants = _convert_rate_constant(value) if value is not None else None
+    @reverse_rate_constant.setter
+    def reverse_rate_constant(self, value):
+        self._cpp.reverse_rate_constant = _convert_rate_constant(value) if value is not None else None
 
     @property
     def equilibrium_constant(self) -> Optional[Equilibrium]:
@@ -485,16 +485,16 @@ class DissolvedReversibleReaction(CppWrapper):
             "reactants": [r.serialize() for r in self.reactants],
             "products": [p.serialize() for p in self.products],
         }
-        if self.forward_rate_constants is not None:
-            serialize_dict["forward rate constants"] = _serialize_rate_constant(self.forward_rate_constants)
-        if self.reverse_rate_constants is not None:
-            serialize_dict["reverse rate constants"] = _serialize_rate_constant(self.reverse_rate_constants)
+        if self.forward_rate_constant is not None:
+            serialize_dict["forward rate constant"] = _serialize_rate_constant(self.forward_rate_constant)
+        if self.reverse_rate_constant is not None:
+            serialize_dict["reverse rate constant"] = _serialize_rate_constant(self.reverse_rate_constant)
         if self.equilibrium_constant is not None:
             serialize_dict["equilibrium constant"] = self.equilibrium_constant.serialize()
         return _remove_empty_keys(serialize_dict)
 
 
-class HenryLawPhaseTransfer(CppWrapper):
+class HenrysLawPhaseTransfer(CppWrapper):
     """Henry's law gas-to-aqueous phase transfer.
 
     Attributes:
@@ -503,7 +503,7 @@ class HenryLawPhaseTransfer(CppWrapper):
         condensed_phase: Name of the condensed phase receiving the species.
         condensed_species: Name of the dissolved species in the condensed phase.
         solvent: Name of the solvent species in the condensed phase.
-        henry_law_constant: Henry's law constant with temperature dependence.
+        henrys_law_constant: Henry's law constant with temperature dependence.
         diffusion_coefficient: Gas-phase diffusion coefficient [m2 s-1].
         accommodation_coefficient: Mass accommodation coefficient [-].
     """
@@ -523,18 +523,24 @@ class HenryLawPhaseTransfer(CppWrapper):
         condensed_phase: Optional[Union[Phase, str]] = None,
         condensed_species: Optional[Union[Species, str]] = None,
         solvent: Optional[Union[Species, str]] = None,
-        henry_law_constant: Optional[HenryLawConstant] = None,
+        henrys_law_constant: Optional[HenrysLawConstant] = None,
         diffusion_coefficient: Optional[float] = None,
         accommodation_coefficient: Optional[float] = None,
     ):
-        self._cpp = _mc._HenryLawPhaseTransfer()
+        self._cpp = _mc._HenrysLawPhaseTransfer()
         self.gas_phase = _name(gas_phase)
         self.gas_species = _name(gas_species)
         self.condensed_phase = _name(condensed_phase)
         self.condensed_species = _name(condensed_species)
         self.solvent = _name(solvent)
-        if henry_law_constant is not None:
-            self._cpp.henry_law_constant = _unwrap(henry_law_constant)
+        if henrys_law_constant is not None:
+            self._cpp.henrys_law_constant = _unwrap(henrys_law_constant)
+        if diffusion_coefficient is None and hasattr(gas_phase, "species"):
+            species_name = _name(gas_species)
+            for ps in gas_phase.species:
+                if ps.name == species_name:
+                    diffusion_coefficient = ps.diffusion_coefficient_m2_s
+                    break
         self.diffusion_coefficient = (
             diffusion_coefficient if diffusion_coefficient is not None else self.diffusion_coefficient
         )
@@ -543,25 +549,25 @@ class HenryLawPhaseTransfer(CppWrapper):
         )
 
     @property
-    def henry_law_constant(self) -> HenryLawConstant:
-        return HenryLawConstant._from_cpp(self._cpp.henry_law_constant)
+    def henrys_law_constant(self) -> HenrysLawConstant:
+        return HenrysLawConstant._from_cpp(self._cpp.henrys_law_constant)
 
-    @henry_law_constant.setter
-    def henry_law_constant(self, value):
-        self._cpp.henry_law_constant = _unwrap(value)
+    @henrys_law_constant.setter
+    def henrys_law_constant(self, value):
+        self._cpp.henrys_law_constant = _unwrap(value)
 
     def serialize(self) -> Dict:
         # The diffusion coefficient is sourced from the gas-phase species' definition
         # (not from this block), so it is not part of the serialized configuration.
         return _remove_empty_keys(
             {
-                "type": "HENRY_LAW_PHASE_TRANSFER",
+                "type": "HENRYS_LAW_PHASE_TRANSFER",
                 "gas phase": self.gas_phase,
                 "gas-phase species": self.gas_species,
                 "condensed phase": self.condensed_phase,
                 "condensed-phase species": self.condensed_species,
                 "solvent": self.solvent,
-                "Henry's law constant": self.henry_law_constant.serialize(),
+                "Henry's law constant": self.henrys_law_constant.serialize(),
                 "accommodation coefficient": self.accommodation_coefficient,
             }
         )
@@ -570,7 +576,7 @@ class HenryLawPhaseTransfer(CppWrapper):
 # -- Constraints --------------------------------------------------------------
 
 
-class HenryLawEquilibrium(CppWrapper):
+class HenrysLawEquilibrium(CppWrapper):
     """Henry's law equilibrium constraint.
 
     Attributes:
@@ -579,7 +585,7 @@ class HenryLawEquilibrium(CppWrapper):
         condensed_phase: Name of the condensed phase.
         condensed_species: Name of the condensed-phase species.
         solvent: Name of the solvent species.
-        henry_law_constant: Henry's law constant.
+        henrys_law_constant: Henry's law constant.
         solvent_molecular_weight: Solvent molecular weight [kg mol-1].
         solvent_density: Solvent density [kg m-3].
     """
@@ -599,43 +605,47 @@ class HenryLawEquilibrium(CppWrapper):
         condensed_phase: Optional[Union[Phase, str]] = None,
         condensed_species: Optional[Union[Species, str]] = None,
         solvent: Optional[Union[Species, str]] = None,
-        henry_law_constant: Optional[HenryLawConstant] = None,
+        henrys_law_constant: Optional[HenrysLawConstant] = None,
         solvent_molecular_weight: Optional[float] = None,
         solvent_density: Optional[float] = None,
     ):
-        self._cpp = _mc._HenryLawEquilibrium()
+        self._cpp = _mc._HenrysLawEquilibrium()
         self.gas_phase = _name(gas_phase)
         self.gas_species = _name(gas_species)
         self.condensed_phase = _name(condensed_phase)
         self.condensed_species = _name(condensed_species)
         self.solvent = _name(solvent)
-        if henry_law_constant is not None:
-            self._cpp.henry_law_constant = _unwrap(henry_law_constant)
+        if henrys_law_constant is not None:
+            self._cpp.henrys_law_constant = _unwrap(henrys_law_constant)
+        if solvent_molecular_weight is None and hasattr(solvent, "molecular_weight_kg_mol"):
+            solvent_molecular_weight = solvent.molecular_weight_kg_mol
+        if solvent_density is None and hasattr(solvent, "density_kg_m3"):
+            solvent_density = solvent.density_kg_m3
         self.solvent_molecular_weight = (
             solvent_molecular_weight if solvent_molecular_weight is not None else self.solvent_molecular_weight
         )
         self.solvent_density = solvent_density if solvent_density is not None else self.solvent_density
 
     @property
-    def henry_law_constant(self) -> HenryLawConstant:
-        return HenryLawConstant._from_cpp(self._cpp.henry_law_constant)
+    def henrys_law_constant(self) -> HenrysLawConstant:
+        return HenrysLawConstant._from_cpp(self._cpp.henrys_law_constant)
 
-    @henry_law_constant.setter
-    def henry_law_constant(self, value):
-        self._cpp.henry_law_constant = _unwrap(value)
+    @henrys_law_constant.setter
+    def henrys_law_constant(self, value):
+        self._cpp.henrys_law_constant = _unwrap(value)
 
     def serialize(self) -> Dict:
         # The solvent molecular weight and density are sourced from the solvent
         # species' definition, so they are not part of the serialized configuration.
         return _remove_empty_keys(
             {
-                "type": "HENRY_LAW_EQUILIBRIUM",
+                "type": "HENRYS_LAW_EQUILIBRIUM",
                 "gas phase": self.gas_phase,
                 "gas-phase species": self.gas_species,
                 "condensed phase": self.condensed_phase,
                 "condensed-phase species": self.condensed_species,
                 "solvent": self.solvent,
-                "Henry's law constant": self.henry_law_constant.serialize(),
+                "Henry's law constant": self.henrys_law_constant.serialize(),
             }
         )
 
@@ -844,8 +854,8 @@ class LinearConstraint(CppWrapper):
 # -- Container ----------------------------------------------------------------
 
 RepresentationType = Union[UniformSection, SingleMomentMode, TwoMomentMode]
-ProcessType = Union[DissolvedReaction, DissolvedReversibleReaction, HenryLawPhaseTransfer]
-ConstraintType = Union[HenryLawEquilibrium, DissolvedEquilibrium, LinearConstraint]
+ProcessType = Union[DissolvedReaction, DissolvedReversibleReaction, HenrysLawPhaseTransfer]
+ConstraintType = Union[HenrysLawEquilibrium, DissolvedEquilibrium, LinearConstraint]
 
 _REPRESENTATION_WRAPPERS = {
     _mc._UniformSection: UniformSection,
@@ -855,10 +865,10 @@ _REPRESENTATION_WRAPPERS = {
 _PROCESS_WRAPPERS = {
     _mc._DissolvedReaction: DissolvedReaction,
     _mc._DissolvedReversibleReaction: DissolvedReversibleReaction,
-    _mc._HenryLawPhaseTransfer: HenryLawPhaseTransfer,
+    _mc._HenrysLawPhaseTransfer: HenrysLawPhaseTransfer,
 }
 _CONSTRAINT_WRAPPERS = {
-    _mc._HenryLawEquilibrium: HenryLawEquilibrium,
+    _mc._HenrysLawEquilibrium: HenrysLawEquilibrium,
     _mc._DissolvedEquilibrium: DissolvedEquilibrium,
     _mc._LinearConstraint: LinearConstraint,
 }

@@ -55,8 +55,8 @@ from musica.mechanism_configuration import (
     DissolvedReaction,
     DissolvedReversibleReaction,
     FixedConstant,
-    HenryLawEquilibrium,
-    HenryLawConstant,
+    HenrysLawEquilibrium,
+    HenrysLawConstant,
     LinearConstraint,
     LinearConstraintTerm,
     UniformSection,
@@ -121,7 +121,7 @@ def _build_system():
         reactants=[hso3m, h2o2_aq],
         products=[so2oohm, h2o],
         solvent=h2o,
-        forward_rate_constants=Equilibrium(
+        forward_rate_constant=Equilibrium(
             A=C_H2O_M * (7.45e7 / 13.0), C=4430.0),
         equilibrium_constant=Equilibrium(A=1725.0),
     )
@@ -130,7 +130,7 @@ def _build_system():
         reactants=[so2oohm, hp],
         products=[so4mm],
         solvent=h2o,
-        rate_constants=Equilibrium(A=C_H2O_M * 2.4e6, C=4430.0),
+        rate_constant=Equilibrium(A=C_H2O_M * 2.4e6, C=4430.0),
     )
 
     # ── Equilibrium constraints ─────────────────────────────────────
@@ -141,13 +141,13 @@ def _build_system():
         (so2_g, so2_aq, 1.23, 3120.0),
         (h2o2_g, h2o2_aq, 7.4e4, 6621.0),
     ]:
-        constraints.append(HenryLawEquilibrium(
+        constraints.append(HenrysLawEquilibrium(
             gas_phase=gas,
             gas_species=gas_sp,
             condensed_phase=aq_phase,
             condensed_species=aq_sp,
             solvent=h2o,
-            henry_law_constant=HenryLawConstant(
+            henrys_law_constant=HenrysLawConstant(
                 HLC_ref=hlc * M_ATM_TO_MOL_M3_PA, C=c_val),
             solvent_molecular_weight=MW_H2O,
             solvent_density=RHO_H2O,

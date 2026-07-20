@@ -117,7 +117,7 @@ def _create_cloud_chemistry_mechanism(r1b_rate_constant=None):
         solvent=h2o,
         reactants=[hso3m, h2o2_aq],
         products=[so2oohm, h2o],
-        forward_rate_constants=mc.Equilibrium(A=C_H2O_M * (7.45e7 / 13.0), C=4430.0),
+        forward_rate_constant=mc.Equilibrium(A=C_H2O_M * (7.45e7 / 13.0), C=4430.0),
         equilibrium_constant=mc.Equilibrium(A=1725.0, C=0.0))
 
     # R1b: SO2OOH- + H+ → SO4--  (irreversible)
@@ -126,36 +126,36 @@ def _create_cloud_chemistry_mechanism(r1b_rate_constant=None):
         solvent=h2o,
         reactants=[so2oohm, hp],
         products=[so4mm],
-        rate_constants=r1b_rate_constant)
+        rate_constant=r1b_rate_constant)
 
     # ── Constraints ──
     constraints = [
         # Henry's Law equilibria for SO2, H2O2, O3
-        mc.HenryLawEquilibrium(
+        mc.HenrysLawEquilibrium(
             gas_phase=gas,
             gas_species=so2_g,
             condensed_phase=aq_phase,
             condensed_species=so2_aq,
             solvent=h2o,
-            henry_law_constant=mc.HenryLawConstant(HLC_ref=1.23 * M_ATM_TO_MOL_M3_PA, C=3120.0),
+            henrys_law_constant=mc.HenrysLawConstant(HLC_ref=1.23 * M_ATM_TO_MOL_M3_PA, C=3120.0),
             solvent_molecular_weight=MW_H2O,
             solvent_density=RHO_H2O),
-        mc.HenryLawEquilibrium(
+        mc.HenrysLawEquilibrium(
             gas_phase=gas,
             gas_species=h2o2_g,
             condensed_phase=aq_phase,
             condensed_species=h2o2_aq,
             solvent=h2o,
-            henry_law_constant=mc.HenryLawConstant(HLC_ref=7.4e4 * M_ATM_TO_MOL_M3_PA, C=6621.0),
+            henrys_law_constant=mc.HenrysLawConstant(HLC_ref=7.4e4 * M_ATM_TO_MOL_M3_PA, C=6621.0),
             solvent_molecular_weight=MW_H2O,
             solvent_density=RHO_H2O),
-        mc.HenryLawEquilibrium(
+        mc.HenrysLawEquilibrium(
             gas_phase=gas,
             gas_species=o3_g,
             condensed_phase=aq_phase,
             condensed_species=o3_aq,
             solvent=h2o,
-            henry_law_constant=mc.HenryLawConstant(HLC_ref=1.15e-2 * M_ATM_TO_MOL_M3_PA, C=2560.0),
+            henrys_law_constant=mc.HenrysLawConstant(HLC_ref=1.15e-2 * M_ATM_TO_MOL_M3_PA, C=2560.0),
             solvent_molecular_weight=MW_H2O,
             solvent_density=RHO_H2O),
 
@@ -446,7 +446,7 @@ class TestMiamErrorCases:
             solvent=x,
             reactants=[mc.Species(name="NONEXISTENT")],  # a species not registered in the mechanism
             products=[x],
-            rate_constants=mc.Equilibrium(A=1.0, C=0.0),
+            rate_constant=mc.Equilibrium(A=1.0, C=0.0),
         )
         mechanism = mc.Mechanism(
             name="bad",
@@ -571,13 +571,13 @@ def _create_equilibrium_only_mechanism():
         ("H2O2", "H2O2_aq", 7.4e4, 6621.0),
         ("O3", "O3_aq", 1.15e-2, 2560.0),
     ]:
-        constraints.append(mc.HenryLawEquilibrium(
+        constraints.append(mc.HenrysLawEquilibrium(
             gas_phase=gas,
             gas_species=gas_by_name[gas_name],
             condensed_phase=aq_phase,
             condensed_species=aq_by_name[aq_name],
             solvent=h2o,
-            henry_law_constant=mc.HenryLawConstant(HLC_ref=hlc_ref * M_ATM_TO_MOL_M3_PA, C=c),
+            henrys_law_constant=mc.HenrysLawConstant(HLC_ref=hlc_ref * M_ATM_TO_MOL_M3_PA, C=c),
             solvent_molecular_weight=MW_H2O,
             solvent_density=RHO_H2O))
 
@@ -687,7 +687,7 @@ def _create_kinetics_mechanism():
         solvent=h2o,
         reactants=[hso3m, h2o2_aq],
         products=[so2oohm, h2o],
-        forward_rate_constants=mc.Equilibrium(A=C_H2O_M * (7.45e7 / 13.0), C=4430.0),
+        forward_rate_constant=mc.Equilibrium(A=C_H2O_M * (7.45e7 / 13.0), C=4430.0),
         equilibrium_constant=mc.Equilibrium(A=1725.0, C=0.0))
     # R1b: SO2OOH- + H+ → SO4--  (irreversible)
     r1b = mc.DissolvedReaction(
@@ -695,21 +695,21 @@ def _create_kinetics_mechanism():
         solvent=h2o,
         reactants=[so2oohm, hp],
         products=[so4mm],
-        rate_constants=mc.Equilibrium(A=C_H2O_M * 2.4e6, C=4430.0))
+        rate_constant=mc.Equilibrium(A=C_H2O_M * 2.4e6, C=4430.0))
     # R2: HSO3- + O3_aq → SO4-- + H+
     r2 = mc.DissolvedReaction(
         phase=aq_phase,
         solvent=h2o,
         reactants=[hso3m, o3_aq],
         products=[so4mm, hp],
-        rate_constants=mc.Equilibrium(A=C_H2O_M * 3.75e5, C=5530.0))
+        rate_constant=mc.Equilibrium(A=C_H2O_M * 3.75e5, C=5530.0))
     # R3: SO3-- + O3_aq → SO4--
     r3 = mc.DissolvedReaction(
         phase=aq_phase,
         solvent=h2o,
         reactants=[so3mm, o3_aq],
         products=[so4mm],
-        rate_constants=mc.Equilibrium(A=C_H2O_M * 1.59e9, C=5280.0))
+        rate_constant=mc.Equilibrium(A=C_H2O_M * 1.59e9, C=5280.0))
 
     gas_by_name = {"SO2": so2_g, "H2O2": h2o2_g, "O3": o3_g}
     aq_by_name = {"SO2_aq": so2_aq, "H2O2_aq": h2o2_aq, "O3_aq": o3_aq}
@@ -721,13 +721,13 @@ def _create_kinetics_mechanism():
         ("H2O2", "H2O2_aq", 7.4e4, 6621.0),
         ("O3", "O3_aq", 1.15e-2, 2560.0),
     ]:
-        constraints.append(mc.HenryLawEquilibrium(
+        constraints.append(mc.HenrysLawEquilibrium(
             gas_phase=gas,
             gas_species=gas_by_name[gas_name],
             condensed_phase=aq_phase,
             condensed_species=aq_by_name[aq_name],
             solvent=h2o,
-            henry_law_constant=mc.HenryLawConstant(HLC_ref=hlc_ref * M_ATM_TO_MOL_M3_PA, C=c),
+            henrys_law_constant=mc.HenrysLawConstant(HLC_ref=hlc_ref * M_ATM_TO_MOL_M3_PA, C=c),
             solvent_molecular_weight=MW_H2O,
             solvent_density=RHO_H2O))
 

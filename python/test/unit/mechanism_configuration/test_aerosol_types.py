@@ -17,9 +17,9 @@ from musica.mechanism_configuration import (
     DissolvedReaction,
     DissolvedReversibleReaction,
     FixedConstant,
-    HenryLawConstant,
-    HenryLawEquilibrium,
-    HenryLawPhaseTransfer,
+    HenrysLawConstant,
+    HenrysLawEquilibrium,
+    HenrysLawPhaseTransfer,
     LinearConstraint,
     LinearConstraintTerm,
     Phase,
@@ -43,19 +43,19 @@ class FakeState:
 # ═══ Constants ═══════════════════════════════════════════════════════════════
 
 
-class TestHenryLawConstant:
+class TestHenrysLawConstant:
     def test_construction(self):
-        hlc = HenryLawConstant(HLC_ref=1.23, C=3120.0)
+        hlc = HenrysLawConstant(HLC_ref=1.23, C=3120.0)
         assert hlc.HLC_ref == 1.23
         assert hlc.C == 3120.0
 
     def test_default_c_and_t0(self):
-        hlc = HenryLawConstant(HLC_ref=1.0)
+        hlc = HenrysLawConstant(HLC_ref=1.0)
         assert hlc.C == 0.0
         assert hlc.T0 == pytest.approx(298.15)
 
     def test_mutable(self):
-        hlc = HenryLawConstant(HLC_ref=1.0, C=0.0)
+        hlc = HenrysLawConstant(HLC_ref=1.0, C=0.0)
         hlc.HLC_ref = 2.0
         assert hlc.HLC_ref == 2.0
 
@@ -162,12 +162,12 @@ class TestDissolvedReaction:
             reactants=[hso3m, h2o2_aq],
             products=[so4mm, h2o, hp],
             solvent=h2o,
-            rate_constants=Equilibrium(A=7.45e7, C=4430.0),
+            rate_constant=Equilibrium(A=7.45e7, C=4430.0),
         )
         assert rxn.phase == "AQUEOUS"
         assert len(rxn.reactants) == 2
         assert len(rxn.products) == 3
-        assert rxn.rate_constants is not None
+        assert rxn.rate_constant is not None
 
     def test_with_callable(self):
         def k_func(T):
@@ -178,9 +178,9 @@ class TestDissolvedReaction:
             reactants=[Species(name="HSO3m"), Species(name="H2O2_aq")],
             products=[Species(name="SO4mm")],
             solvent="H2O",
-            rate_constants=k_func,
+            rate_constant=k_func,
         )
-        rc = rxn.rate_constants
+        rc = rxn.rate_constant
         assert callable(rc)
         # Verify the callable works
         assert rc(298.15) == pytest.approx(55.556 * 7.45e7, rel=1e-10)
@@ -191,7 +191,7 @@ class TestDissolvedReaction:
             reactants=[Species(name="A")],
             products=[Species(name="B")],
             solvent="H2O",
-            rate_constants=Equilibrium(A=1.0),
+            rate_constant=Equilibrium(A=1.0),
             solvent_floor=1e-18,
             min_halflife=1.0,
         )
@@ -211,11 +211,11 @@ class TestDissolvedReversibleReaction:
             reactants=[Species(name="SO2_aq")],
             products=[Species(name="HSO3m"), Species(name="Hp")],
             solvent="H2O",
-            forward_rate_constants=Arrhenius(A=1e6, C=0.0),
+            forward_rate_constant=Arrhenius(A=1e6, C=0.0),
             equilibrium_constant=Equilibrium(A=1.7e-2, C=2090.0),
         )
-        assert rxn.forward_rate_constants is not None
-        assert rxn.reverse_rate_constants is None
+        assert rxn.forward_rate_constant is not None
+        assert rxn.reverse_rate_constant is None
         assert rxn.equilibrium_constant is not None
 
     def test_with_forward_and_reverse(self):
@@ -224,11 +224,11 @@ class TestDissolvedReversibleReaction:
             reactants=[Species(name="A")],
             products=[Species(name="B")],
             solvent="H2O",
-            forward_rate_constants=Arrhenius(A=100.0, C=0.0),
-            reverse_rate_constants=Arrhenius(A=50.0, C=0.0),
+            forward_rate_constant=Arrhenius(A=100.0, C=0.0),
+            reverse_rate_constant=Arrhenius(A=50.0, C=0.0),
         )
-        assert rxn.forward_rate_constants is not None
-        assert rxn.reverse_rate_constants is not None
+        assert rxn.forward_rate_constant is not None
+        assert rxn.reverse_rate_constant is not None
 
     def test_defaults_are_empty(self):
         rxn = DissolvedReversibleReaction(
@@ -237,8 +237,8 @@ class TestDissolvedReversibleReaction:
             products=[Species(name="B")],
             solvent="H2O",
         )
-        assert rxn.forward_rate_constants is None
-        assert rxn.reverse_rate_constants is None
+        assert rxn.forward_rate_constant is None
+        assert rxn.reverse_rate_constant is None
 
     def test_solvent_floor(self):
         rxn = DissolvedReversibleReaction(
@@ -247,15 +247,15 @@ class TestDissolvedReversibleReaction:
         assert rxn.solvent_floor == 1e-19
 
 
-class TestHenryLawPhaseTransfer:
+class TestHenrysLawPhaseTransfer:
     def test_construction(self):
-        hlpt = HenryLawPhaseTransfer(
+        hlpt = HenrysLawPhaseTransfer(
             gas_phase="gas",
             gas_species="SO2",
             condensed_phase="AQUEOUS",
             condensed_species="SO2_aq",
             solvent="H2O",
-            henry_law_constant=HenryLawConstant(HLC_ref=1.23e-2, C=3120.0),
+            henrys_law_constant=HenrysLawConstant(HLC_ref=1.23e-2, C=3120.0),
             diffusion_coefficient=1.28e-5,
             accommodation_coefficient=0.11,
         )
@@ -284,15 +284,15 @@ class TestLinearConstraintTerm:
         assert term.coefficient == -2.0
 
 
-class TestHenryLawEquilibrium:
+class TestHenrysLawEquilibrium:
     def test_construction(self):
-        hlec = HenryLawEquilibrium(
+        hlec = HenrysLawEquilibrium(
             gas_phase="gas",
             gas_species="SO2",
             condensed_phase="AQUEOUS",
             condensed_species="SO2_aq",
             solvent="H2O",
-            henry_law_constant=HenryLawConstant(HLC_ref=1.23e-2, C=3120.0),
+            henrys_law_constant=HenrysLawConstant(HLC_ref=1.23e-2, C=3120.0),
             solvent_molecular_weight=0.018,
             solvent_density=1000.0,
         )
@@ -419,7 +419,7 @@ class TestAerosol:
                     reactants=[Species(name="A")],
                     products=[Species(name="B")],
                     solvent="W",
-                    rate_constants=Equilibrium(A=1.0, C=0.0),
+                    rate_constant=Equilibrium(A=1.0, C=0.0),
                 ),
                 DissolvedReversibleReaction(
                     phase="AQ",
@@ -428,13 +428,13 @@ class TestAerosol:
                     solvent="W",
                     equilibrium_constant=Equilibrium(A=1.0),
                 ),
-                HenryLawPhaseTransfer(
+                HenrysLawPhaseTransfer(
                     gas_phase="gas",
                     gas_species="A",
                     condensed_phase="AQ",
                     condensed_species="B",
                     solvent="W",
-                    henry_law_constant=HenryLawConstant(HLC_ref=1.0),
+                    henrys_law_constant=HenrysLawConstant(HLC_ref=1.0),
                     diffusion_coefficient=1e-5,
                     accommodation_coefficient=0.1,
                 ),
@@ -447,13 +447,13 @@ class TestAerosol:
             representations=[UniformSection(name="SEC", phases=["AQ"],
                                             min_radius=1e-6, max_radius=1e-5)],
             constraints=[
-                HenryLawEquilibrium(
+                HenrysLawEquilibrium(
                     gas_phase="gas",
                     gas_species="A",
                     condensed_phase="AQ",
                     condensed_species="B",
                     solvent="W",
-                    henry_law_constant=HenryLawConstant(HLC_ref=1.0, C=100.0),
+                    henrys_law_constant=HenrysLawConstant(HLC_ref=1.0, C=100.0),
                     solvent_molecular_weight=0.018,
                     solvent_density=1000.0,
                 ),
@@ -491,8 +491,8 @@ class TestRateConstantSerialize:
             "T0 [K]": 298.15,
         }
 
-    def test_henry_law_constant(self):
-        assert HenryLawConstant(HLC_ref=1e-2, C=3000.0).serialize() == {
+    def test_henrys_law_constant(self):
+        assert HenrysLawConstant(HLC_ref=1e-2, C=3000.0).serialize() == {
             "HLC_ref [mol m-3 Pa-1]": 1e-2,
             "C [K]": 3000.0,
             "T0 [K]": pytest.approx(298.15),
@@ -534,19 +534,19 @@ class TestProcessSerialize:
         d = DissolvedReaction(
             phase="AQ", solvent="H2O",
             reactants=[Species(name="A")], products=[Species(name="B")],
-            rate_constants=Arrhenius(A=1e3, C=100.0),
+            rate_constant=Arrhenius(A=1e3, C=100.0),
         ).serialize()
         assert d["type"] == "DISSOLVED_REACTION"
         assert d["condensed phase"] == "AQ"
         assert d["solvent"] == "H2O"
         assert d["reactants"] == [{"name": "A", "coefficient": 1.0}]
         assert d["products"] == [{"name": "B", "coefficient": 1.0}]
-        assert d["rate constants"] == {"type": "ARRHENIUS", "A": 1e3, "C": 100.0}
+        assert d["rate constant"] == {"type": "ARRHENIUS", "A": 1e3, "C": 100.0}
         # Internal-only fields have no configuration key and must not be emitted.
         assert "solvent floor" not in d and "min halflife" not in d
 
     def test_dissolved_reaction_callable_raises(self):
-        rxn = DissolvedReaction(phase="AQ", solvent="H2O", rate_constants=lambda T: 1.0)
+        rxn = DissolvedReaction(phase="AQ", solvent="H2O", rate_constant=lambda T: 1.0)
         with pytest.raises(TypeError):
             rxn.serialize()
 
@@ -554,23 +554,23 @@ class TestProcessSerialize:
         d = DissolvedReversibleReaction(
             phase="AQ", solvent="H2O",
             reactants=[Species(name="A")], products=[Species(name="B")],
-            forward_rate_constants=Arrhenius(A=1e3, C=100.0),
+            forward_rate_constant=Arrhenius(A=1e3, C=100.0),
             equilibrium_constant=Equilibrium(A=1725.0),
         ).serialize()
         assert d["type"] == "DISSOLVED_REVERSIBLE_REACTION"
-        assert d["forward rate constants"] == {"type": "ARRHENIUS", "A": 1e3, "C": 100.0}
+        assert d["forward rate constant"] == {"type": "ARRHENIUS", "A": 1e3, "C": 100.0}
         assert d["equilibrium constant"]["type"] == "EQUILIBRIUM"
         # Unset optional rate constants are omitted entirely.
-        assert "reverse rate constants" not in d
+        assert "reverse rate constant" not in d
 
-    def test_henry_law_phase_transfer(self):
-        d = HenryLawPhaseTransfer(
+    def test_henrys_law_phase_transfer(self):
+        d = HenrysLawPhaseTransfer(
             gas_phase="gas", gas_species="A", condensed_phase="AQ",
             condensed_species="A", solvent="H2O",
-            henry_law_constant=HenryLawConstant(HLC_ref=1e-2, C=3000.0),
+            henrys_law_constant=HenrysLawConstant(HLC_ref=1e-2, C=3000.0),
             diffusion_coefficient=1.5e-5, accommodation_coefficient=0.1,
         ).serialize()
-        assert d["type"] == "HENRY_LAW_PHASE_TRANSFER"
+        assert d["type"] == "HENRYS_LAW_PHASE_TRANSFER"
         assert d["gas-phase species"] == "A"
         assert d["condensed-phase species"] == "A"
         assert d["accommodation coefficient"] == 0.1
@@ -580,14 +580,14 @@ class TestProcessSerialize:
 
 
 class TestConstraintSerialize:
-    def test_henry_law_equilibrium(self):
-        d = HenryLawEquilibrium(
+    def test_henrys_law_equilibrium(self):
+        d = HenrysLawEquilibrium(
             gas_phase="gas", gas_species="A", condensed_phase="AQ",
             condensed_species="A", solvent="H2O",
-            henry_law_constant=HenryLawConstant(HLC_ref=1e-2, C=3000.0),
+            henrys_law_constant=HenrysLawConstant(HLC_ref=1e-2, C=3000.0),
             solvent_molecular_weight=0.018, solvent_density=1000.0,
         ).serialize()
-        assert d["type"] == "HENRY_LAW_EQUILIBRIUM"
+        assert d["type"] == "HENRYS_LAW_EQUILIBRIUM"
         assert d["gas-phase species"] == "A"
         # Solvent molecular weight/density are derived from the species definition.
         assert "solvent molecular weight [kg mol-1]" not in d
@@ -642,7 +642,7 @@ class TestAerosolContainerSerialize:
             processes=[
                 DissolvedReaction(phase="AQ", solvent="H2O",
                                   reactants=[Species(name="A")], products=[Species(name="B")],
-                                  rate_constants=Arrhenius(A=1e3, C=100.0)),
+                                  rate_constant=Arrhenius(A=1e3, C=100.0)),
             ],
             constraints=[
                 LinearConstraint(algebraic_phase="AQ", algebraic_species="A",

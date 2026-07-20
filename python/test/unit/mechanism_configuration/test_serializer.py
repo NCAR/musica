@@ -26,26 +26,26 @@ def _get_aerosol_mechanism():
             mc.TwoMomentMode(name="fine", phases=[aqueous], geometric_standard_deviation=1.6),
         ],
         processes=[
-            mc.HenryLawPhaseTransfer(
+            mc.HenrysLawPhaseTransfer(
                 gas_phase="gas", gas_species="A", condensed_phase="aqueous",
                 condensed_species="A", solvent="H2O",
-                henry_law_constant=mc.HenryLawConstant(HLC_ref=1e-2, C=3000.0),
+                henrys_law_constant=mc.HenrysLawConstant(HLC_ref=1e-2, C=3000.0),
                 accommodation_coefficient=0.1),
             mc.DissolvedReaction(
                 phase="aqueous", solvent="H2O",
                 reactants=[mc.Species(name="A")], products=[mc.Species(name="B")],
-                rate_constants=mc.Arrhenius(A=1e3, C=100.0)),
+                rate_constant=mc.Arrhenius(A=1e3, C=100.0)),
             mc.DissolvedReversibleReaction(
                 phase="aqueous", solvent="H2O",
                 reactants=[mc.Species(name="A")], products=[mc.Species(name="B")],
-                forward_rate_constants=mc.Arrhenius(A=1e3, C=100.0),
+                forward_rate_constant=mc.Arrhenius(A=1e3, C=100.0),
                 equilibrium_constant=mc.Equilibrium(A=1725.0, C=0.0)),
         ],
         constraints=[
-            mc.HenryLawEquilibrium(
+            mc.HenrysLawEquilibrium(
                 gas_phase="gas", gas_species="A", condensed_phase="aqueous",
                 condensed_species="A", solvent="H2O",
-                henry_law_constant=mc.HenryLawConstant(HLC_ref=1e-2, C=3000.0)),
+                henrys_law_constant=mc.HenrysLawConstant(HLC_ref=1e-2, C=3000.0)),
             mc.DissolvedEquilibrium(
                 phase="aqueous", solvent="H2O",
                 reactants=[mc.Species(name="A")], products=[mc.Species(name="B")],

@@ -176,7 +176,7 @@ def gas_species_and_phase(kinetic_uptake=False):
     """Shared gas phase: SO2, H2O2, O3 (with molecular weights for uptake).
 
     When ``kinetic_uptake`` is True, each species also carries its gas-phase
-    diffusion coefficient on the phase (required by HenryLawPhaseTransfer).
+    diffusion coefficient on the phase (required by HenrysLawPhaseTransfer).
     """
     gas_species = []
     phase_species = []
@@ -203,10 +203,10 @@ def sulfate_chemistry(phase_name, gas_species_by_name, gas_phase, kinetic_uptake
     can run independently on every mode/bin.
 
     ``kinetic_uptake`` selects how the gases enter the condensed phase:
-      - False (default): instantaneous ``HenryLawEquilibrium`` — this
+      - False (default): instantaneous ``HenrysLawEquilibrium`` — this
         is size-INDEPENDENT (depends only on liquid-water volume), so different
         representations give identical chemistry.
-      - True: mass-transfer-limited ``HenryLawPhaseTransfer`` whose rate scales
+      - True: mass-transfer-limited ``HenrysLawPhaseTransfer`` whose rate scales
         with particle surface area (radius × number), so the size distribution
         drives the chemistry.  Requires species MW/ρ (set below) and — for
         TwoMomentMode — a NUMBER_CONCENTRATION initial condition from the driver.
@@ -229,23 +229,23 @@ def sulfate_chemistry(phase_name, gas_species_by_name, gas_phase, kinetic_uptake
         mc.DissolvedReversibleReaction(          # R1a: HSO3- + H2O2 <=> SO2OOH- + H2O
             phase=aq_phase, solvent=sp["H2O"],
             reactants=[sp["HSO3m"], sp["H2O2_aq"]], products=[sp["SO2OOHm"], sp["H2O"]],
-            forward_rate_constants=mc.Equilibrium(A=C_H2O_M * (7.45e7 / 13.0), C=4430.0),
+            forward_rate_constant=mc.Equilibrium(A=C_H2O_M * (7.45e7 / 13.0), C=4430.0),
             equilibrium_constant=mc.Equilibrium(A=1725.0),
         ),
         mc.DissolvedReaction(                    # R1b: SO2OOH- + H+ -> SO4--
             phase=aq_phase, solvent=sp["H2O"],
             reactants=[sp["SO2OOHm"], sp["Hp"]], products=[sp["SO4mm"]],
-            rate_constants=mc.Equilibrium(A=C_H2O_M * 2.4e6, C=4430.0),
+            rate_constant=mc.Equilibrium(A=C_H2O_M * 2.4e6, C=4430.0),
         ),
         mc.DissolvedReaction(                    # R2: HSO3- + O3 -> SO4-- + H+
             phase=aq_phase, solvent=sp["H2O"],
             reactants=[sp["HSO3m"], sp["O3_aq"]], products=[sp["SO4mm"], sp["Hp"]],
-            rate_constants=mc.Equilibrium(A=C_H2O_M * 3.75e5, C=5530.0),
+            rate_constant=mc.Equilibrium(A=C_H2O_M * 3.75e5, C=5530.0),
         ),
         mc.DissolvedReaction(                    # R3: SO3-- + O3 -> SO4--
             phase=aq_phase, solvent=sp["H2O"],
             reactants=[sp["SO3mm"], sp["O3_aq"]], products=[sp["SO4mm"]],
-            rate_constants=mc.Equilibrium(A=C_H2O_M * 1.59e9, C=5280.0),
+            rate_constant=mc.Equilibrium(A=C_H2O_M * 1.59e9, C=5280.0),
         ),
     ]
 
@@ -256,23 +256,23 @@ def sulfate_chemistry(phase_name, gas_species_by_name, gas_phase, kinetic_uptake
         ("H2O2", "H2O2_aq", 7.4e4, 6621.0),
         ("O3", "O3_aq", 1.15e-2, 2560.0),
     ]:
-        hlc = mc.HenryLawConstant(HLC_ref=hlc_ref * M_ATM_TO_MOL_M3_PA, C=c)
+        hlc = mc.HenrysLawConstant(HLC_ref=hlc_ref * M_ATM_TO_MOL_M3_PA, C=c)
         gas_species = gas_species_by_name[gas_name]
         if kinetic_uptake:
             diffusion_coefficient, accommodation_coefficient = GAS_UPTAKE[gas_name]
-            processes.append(mc.HenryLawPhaseTransfer(   # rate ∝ surface area (radius × number)
+            processes.append(mc.HenrysLawPhaseTransfer(   # rate ∝ surface area (radius × number)
                 gas_phase=gas_phase, gas_species=gas_species,
                 condensed_phase=aq_phase, condensed_species=sp[aq_name], solvent=sp["H2O"],
-                henry_law_constant=hlc,
+                henrys_law_constant=hlc,
                 diffusion_coefficient=diffusion_coefficient,
                 accommodation_coefficient=accommodation_coefficient,
             ))
         else:
-            constraints.append(mc.HenryLawEquilibrium(   # instantaneous, size-independent
+            constraints.append(mc.HenrysLawEquilibrium(   # instantaneous, size-independent
                 gas_phase=gas_phase, gas_species=gas_species,
                 condensed_phase=aq_phase, condensed_species=sp[aq_name],
                 solvent=sp["H2O"],
-                henry_law_constant=hlc,
+                henrys_law_constant=hlc,
                 solvent_molecular_weight=MW_H2O, solvent_density=RHO_H2O,
             ))
     constraints += [
@@ -314,7 +314,7 @@ def build_model(name, representations, kinetic_uptake=False):
     Mutates each representation in ``representations`` to attach its own
     freshly-built aqueous phase (named ``f"{rep.name}_AQ"``).
 
-    kinetic_uptake=True uses size-dependent HenryLawPhaseTransfer for gas uptake
+    kinetic_uptake=True uses size-dependent HenrysLawPhaseTransfer for gas uptake
     (see sulfate_chemistry); default False uses equilibrium partitioning.
     """
     gas_species, gas_phase = gas_species_and_phase(kinetic_uptake)

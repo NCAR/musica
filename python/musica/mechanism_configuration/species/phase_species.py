@@ -2,6 +2,7 @@ from typing import Optional, Any, Dict
 from ... import backend
 from ..._base import CppWrapper, CppField
 from ..utils import _add_other_properties, _remove_empty_keys
+from .species import Species
 
 _backend = backend.get_backend()
 _mc = _backend._mechanism_configuration
@@ -28,7 +29,9 @@ class PhaseSpecies(CppWrapper):
 
     def __init__(
         self,
+        species: Optional[Species] = None,
         name: Optional[str] = None,
+        *,
         diffusion_coefficient_m2_s: Optional[float] = None,
         density_kg_m3: Optional[float] = None,
         other_properties: Optional[Dict[str, Any]] = None,
@@ -41,8 +44,11 @@ class PhaseSpecies(CppWrapper):
             density_kg_m3: Density in the phase [kg m-3].
             other_properties: A dictionary of other properties of the species.
         """
+        if not ((name is None) ^ (species is None)):
+            msg = f"PhaseSpecies requires exactly one of name or species. Got name={name}; species={species}"
+            raise ValueError(msg)
         self._cpp = _mc._PhaseSpecies()
-        self.name = name if name is not None else self.name
+        self.name = name if name is not None else species.name
         self.diffusion_coefficient_m2_s = diffusion_coefficient_m2_s if diffusion_coefficient_m2_s is not None else self.diffusion_coefficient_m2_s
         if density_kg_m3 is not None:
             self.density_kg_m3 = density_kg_m3
