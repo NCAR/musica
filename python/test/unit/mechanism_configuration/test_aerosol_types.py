@@ -477,3 +477,182 @@ class TestAerosol:
             ],
         )
         assert len(aerosol.constraints) == 3
+
+
+# ═══ Serialization ═══════════════════════════════════════════════════════════
+
+
+class TestRateConstantSerialize:
+    def test_equilibrium(self):
+        assert Equilibrium(A=1725.0, C=0.0, T0=298.15).serialize() == {
+            "type": "EQUILIBRIUM",
+            "A": 1725.0,
+            "C [K]": 0.0,
+            "T0 [K]": 298.15,
+        }
+
+    def test_henry_law_constant(self):
+        assert HenryLawConstant(HLC_ref=1e-2, C=3000.0).serialize() == {
+            "HLC_ref [mol m-3 Pa-1]": 1e-2,
+            "C [K]": 3000.0,
+            "T0 [K]": pytest.approx(298.15),
+        }
+
+
+class TestRepresentationSerialize:
+    def test_uniform_section(self):
+        assert UniformSection(name="CLOUD", phases=["AQ"], min_radius=1e-6, max_radius=1e-5).serialize() == {
+            "type": "UNIFORM_SECTION",
+            "name": "CLOUD",
+            "phases": ["AQ"],
+            "minimum radius [m]": 1e-6,
+            "maximum radius [m]": 1e-5,
+        }
+
+    def test_single_moment_mode(self):
+        assert SingleMomentMode(
+            name="aitken", phases=["AQ"], geometric_mean_radius=1e-6, geometric_standard_deviation=1.5
+        ).serialize() == {
+            "type": "SINGLE_MOMENT_MODE",
+            "name": "aitken",
+            "phases": ["AQ"],
+            "geometric mean radius [m]": 1e-6,
+            "geometric standard deviation": 1.5,
+        }
+
+    def test_two_moment_mode(self):
+        assert TwoMomentMode(name="fine", phases=["AQ"], geometric_standard_deviation=1.6).serialize() == {
+            "type": "TWO_MOMENT_MODE",
+            "name": "fine",
+            "phases": ["AQ"],
+            "geometric standard deviation": 1.6,
+        }
+
+
+class TestProcessSerialize:
+    def test_dissolved_reaction_with_arrhenius(self):
+        d = DissolvedReaction(
+            phase="AQ", solvent="H2O",
+            reactants=[Species(name="A")], products=[Species(name="B")],
+            rate_constants=Arrhenius(A=1e3, C=100.0),
+        ).serialize()
+        assert d["type"] == "DISSOLVED_REACTION"
+        assert d["condensed phase"] == "AQ"
+        assert d["solvent"] == "H2O"
+        assert d["reactants"] == [{"name": "A", "coefficient": 1.0}]
+        assert d["products"] == [{"name": "B", "coefficient": 1.0}]
+        assert d["rate constants"] == {"type": "ARRHENIUS", "A": 1e3, "C": 100.0}
+        # Internal-only fields have no configuration key and must not be emitted.
+        assert "solvent floor" not in d and "min halflife" not in d
+
+    def test_dissolved_reaction_callable_raises(self):
+        rxn = DissolvedReaction(phase="AQ", solvent="H2O", rate_constants=lambda T: 1.0)
+        with pytest.raises(TypeError):
+            rxn.serialize()
+
+    def test_dissolved_reversible_reaction(self):
+        d = DissolvedReversibleReaction(
+            phase="AQ", solvent="H2O",
+            reactants=[Species(name="A")], products=[Species(name="B")],
+            forward_rate_constants=Arrhenius(A=1e3, C=100.0),
+            equilibrium_constant=Equilibrium(A=1725.0),
+        ).serialize()
+        assert d["type"] == "DISSOLVED_REVERSIBLE_REACTION"
+        assert d["forward rate constants"] == {"type": "ARRHENIUS", "A": 1e3, "C": 100.0}
+        assert d["equilibrium constant"]["type"] == "EQUILIBRIUM"
+        # Unset optional rate constants are omitted entirely.
+        assert "reverse rate constants" not in d
+
+    def test_henry_law_phase_transfer(self):
+        d = HenryLawPhaseTransfer(
+            gas_phase="gas", gas_species="A", condensed_phase="AQ",
+            condensed_species="A", solvent="H2O",
+            henry_law_constant=HenryLawConstant(HLC_ref=1e-2, C=3000.0),
+            diffusion_coefficient=1.5e-5, accommodation_coefficient=0.1,
+        ).serialize()
+        assert d["type"] == "HENRY_LAW_PHASE_TRANSFER"
+        assert d["gas-phase species"] == "A"
+        assert d["condensed-phase species"] == "A"
+        assert d["accommodation coefficient"] == 0.1
+        assert d["Henry's law constant"]["HLC_ref [mol m-3 Pa-1]"] == 1e-2
+        # Diffusion coefficient is derived from the species definition, not serialized.
+        assert "diffusion coefficient [m2 s-1]" not in d
+
+
+class TestConstraintSerialize:
+    def test_henry_law_equilibrium(self):
+        d = HenryLawEquilibrium(
+            gas_phase="gas", gas_species="A", condensed_phase="AQ",
+            condensed_species="A", solvent="H2O",
+            henry_law_constant=HenryLawConstant(HLC_ref=1e-2, C=3000.0),
+            solvent_molecular_weight=0.018, solvent_density=1000.0,
+        ).serialize()
+        assert d["type"] == "HENRY_LAW_EQUILIBRIUM"
+        assert d["gas-phase species"] == "A"
+        # Solvent molecular weight/density are derived from the species definition.
+        assert "solvent molecular weight [kg mol-1]" not in d
+        assert "solvent density [kg m-3]" not in d
+
+    def test_dissolved_equilibrium(self):
+        d = DissolvedEquilibrium(
+            phase="AQ", solvent="H2O",
+            reactants=[Species(name="A")], products=[Species(name="B")],
+            algebraic_species="A", equilibrium_constant=Equilibrium(A=1.0),
+        ).serialize()
+        assert d["type"] == "DISSOLVED_EQUILIBRIUM"
+        assert d["condensed phase"] == "AQ"
+        assert d["algebraic species"] == "A"
+        assert d["equilibrium constant"]["type"] == "EQUILIBRIUM"
+
+    def test_linear_constraint_term(self):
+        assert LinearConstraintTerm("AQ", "SO4mm", 2.0).serialize() == {
+            "phase": "AQ",
+            "name": "SO4mm",
+            "coefficient": 2.0,
+        }
+
+    def test_linear_constraint_fixed_constant(self):
+        d = LinearConstraint(
+            algebraic_phase="AQ", algebraic_species="A",
+            terms=[LinearConstraintTerm("AQ", "A", 1.0)],
+            constant=FixedConstant(3e-8),
+        ).serialize()
+        assert d["type"] == "LINEAR_CONSTRAINT"
+        assert d["constant [mol m-3]"] == 3e-8
+        assert "diagnose from state" not in d
+        assert d["terms"] == [{"phase": "AQ", "name": "A", "coefficient": 1.0}]
+
+    def test_linear_constraint_diagnose_from_state(self):
+        d = LinearConstraint(
+            algebraic_phase="AQ", algebraic_species="A",
+            terms=[LinearConstraintTerm("AQ", "A", 1.0)],
+            constant=DiagnoseFromState(),
+        ).serialize()
+        assert d["diagnose from state"] is True
+        assert "constant [mol m-3]" not in d
+
+
+class TestAerosolContainerSerialize:
+    def test_processes_and_constraints_share_processes_section(self):
+        aerosol = Aerosol(
+            representations=[
+                SingleMomentMode(name="aitken", phases=["AQ"],
+                                 geometric_mean_radius=1e-6, geometric_standard_deviation=1.5),
+            ],
+            processes=[
+                DissolvedReaction(phase="AQ", solvent="H2O",
+                                  reactants=[Species(name="A")], products=[Species(name="B")],
+                                  rate_constants=Arrhenius(A=1e3, C=100.0)),
+            ],
+            constraints=[
+                LinearConstraint(algebraic_phase="AQ", algebraic_species="A",
+                                 terms=[LinearConstraintTerm("AQ", "A", 1.0)]),
+            ],
+        )
+        d = aerosol.serialize()
+        assert set(d.keys()) == {"aerosol representations", "aerosol processes"}
+        assert len(d["aerosol representations"]) == 1
+        # Processes come first, then constraints, in the shared section.
+        assert len(d["aerosol processes"]) == 2
+        assert d["aerosol processes"][0]["type"] == "DISSOLVED_REACTION"
+        assert d["aerosol processes"][1]["type"] == "LINEAR_CONSTRAINT"

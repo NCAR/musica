@@ -9,14 +9,14 @@
 # the C++ layer stores. Passing objects (rather than bare strings) lets typos be
 # caught at construction time and keeps the aerosol API consistent with the rest
 # of mechanism_configuration.
-from typing import Callable, List, Optional, Tuple, Union
+from typing import Callable, Dict, List, Optional, Tuple, Union
 
 from ... import backend
 from ..._base import CppWrapper, CppField, _unwrap, _unwrap_list, _wrap_list
 from ..species import Phase
 from ..species import Species
 from ..reactions import ReactionComponent
-from ..utils import _convert_components
+from ..utils import _convert_components, _remove_empty_keys
 
 _backend = backend.get_backend()
 _mc = _backend._mechanism_configuration
@@ -68,6 +68,14 @@ class Equilibrium(CppWrapper):
         self.C = C if C is not None else self.C
         self.T0 = T0 if T0 is not None else self.T0
 
+    def serialize(self) -> Dict:
+        return {
+            "type": "EQUILIBRIUM",
+            "A": self.A,
+            "C [K]": self.C,
+            "T0 [K]": self.T0,
+        }
+
 
 class HenryLawConstant(CppWrapper):
     """Henry's law constant: HLC(T) = HLC_ref * exp( C * (1/T - 1/T0) ).
@@ -93,10 +101,38 @@ class HenryLawConstant(CppWrapper):
         self.C = C if C is not None else self.C
         self.T0 = T0 if T0 is not None else self.T0
 
+    def serialize(self) -> Dict:
+        return {
+            "HLC_ref [mol m-3 Pa-1]": self.HLC_ref,
+            "C [K]": self.C,
+            "T0 [K]": self.T0,
+        }
+
 
 def _convert_rate_constant(rc):
     """Unwrap a rate constant (wrapper object) or pass a callable through."""
     return _unwrap(rc)
+
+
+def _serialize_rate_constant(rc) -> Dict:
+    """Serialize an aerosol rate constant to a mechanism configuration dict.
+
+    Aerosol rate constants are either an :class:`Arrhenius` (from the gas-phase
+    reaction types) or an :class:`Equilibrium`. Accessed off the C++ objects the
+    values come back as raw pybind11 objects, so dispatch is by the C++ type.
+    Callable (Python function) rate constants cannot be represented in a
+    configuration file and raise :class:`TypeError`.
+    """
+    cpp = _unwrap(rc)
+    if isinstance(cpp, _mc._Equilibrium):
+        return Equilibrium._from_cpp(cpp).serialize()
+    if isinstance(cpp, _mc._Arrhenius):
+        # The aerosol rate-constant schema allows only A and C for an Arrhenius block.
+        return {"type": "ARRHENIUS", "A": cpp.A, "C": cpp.C}
+    raise TypeError(
+        f"Cannot serialize rate constant of type {type(cpp).__name__}; "
+        "only Arrhenius and Equilibrium rate constants are serializable."
+    )
 
 
 # -- Representations ----------------------------------------------------------
@@ -143,6 +179,17 @@ class UniformSection(CppWrapper):
             {
                 f"{self.name}.MIN_RADIUS": self.min_radius,
                 f"{self.name}.MAX_RADIUS": self.max_radius,
+            }
+        )
+
+    def serialize(self) -> Dict:
+        return _remove_empty_keys(
+            {
+                "type": "UNIFORM_SECTION",
+                "name": self.name,
+                "phases": self.phases,
+                "minimum radius [m]": self.min_radius,
+                "maximum radius [m]": self.max_radius,
             }
         )
 
@@ -197,6 +244,17 @@ class SingleMomentMode(CppWrapper):
             }
         )
 
+    def serialize(self) -> Dict:
+        return _remove_empty_keys(
+            {
+                "type": "SINGLE_MOMENT_MODE",
+                "name": self.name,
+                "phases": self.phases,
+                "geometric mean radius [m]": self.geometric_mean_radius,
+                "geometric standard deviation": self.geometric_standard_deviation,
+            }
+        )
+
 
 class TwoMomentMode(CppWrapper):
     """A two-moment modal aerosol representation.
@@ -238,6 +296,16 @@ class TwoMomentMode(CppWrapper):
         state.set_user_defined_rate_parameters(
             {
                 f"{self.name}.GEOMETRIC_STANDARD_DEVIATION": self.geometric_standard_deviation,
+            }
+        )
+
+    def serialize(self) -> Dict:
+        return _remove_empty_keys(
+            {
+                "type": "TWO_MOMENT_MODE",
+                "name": self.name,
+                "phases": self.phases,
+                "geometric standard deviation": self.geometric_standard_deviation,
             }
         )
 
@@ -311,6 +379,18 @@ class DissolvedReaction(CppWrapper):
     @rate_constants.setter
     def rate_constants(self, value):
         self._cpp.rate_constants = _convert_rate_constant(value)
+
+    def serialize(self) -> Dict:
+        return _remove_empty_keys(
+            {
+                "type": "DISSOLVED_REACTION",
+                "condensed phase": self.phase,
+                "solvent": self.solvent,
+                "reactants": [r.serialize() for r in self.reactants],
+                "products": [p.serialize() for p in self.products],
+                "rate constants": _serialize_rate_constant(self.rate_constants),
+            }
+        )
 
 
 class DissolvedReversibleReaction(CppWrapper):
@@ -397,6 +477,22 @@ class DissolvedReversibleReaction(CppWrapper):
     def equilibrium_constant(self, value):
         self._cpp.equilibrium_constant = _unwrap(value) if value is not None else None
 
+    def serialize(self) -> Dict:
+        serialize_dict = {
+            "type": "DISSOLVED_REVERSIBLE_REACTION",
+            "condensed phase": self.phase,
+            "solvent": self.solvent,
+            "reactants": [r.serialize() for r in self.reactants],
+            "products": [p.serialize() for p in self.products],
+        }
+        if self.forward_rate_constants is not None:
+            serialize_dict["forward rate constants"] = _serialize_rate_constant(self.forward_rate_constants)
+        if self.reverse_rate_constants is not None:
+            serialize_dict["reverse rate constants"] = _serialize_rate_constant(self.reverse_rate_constants)
+        if self.equilibrium_constant is not None:
+            serialize_dict["equilibrium constant"] = self.equilibrium_constant.serialize()
+        return _remove_empty_keys(serialize_dict)
+
 
 class HenryLawPhaseTransfer(CppWrapper):
     """Henry's law gas-to-aqueous phase transfer.
@@ -453,6 +549,22 @@ class HenryLawPhaseTransfer(CppWrapper):
     @henry_law_constant.setter
     def henry_law_constant(self, value):
         self._cpp.henry_law_constant = _unwrap(value)
+
+    def serialize(self) -> Dict:
+        # The diffusion coefficient is sourced from the gas-phase species' definition
+        # (not from this block), so it is not part of the serialized configuration.
+        return _remove_empty_keys(
+            {
+                "type": "HENRY_LAW_PHASE_TRANSFER",
+                "gas phase": self.gas_phase,
+                "gas-phase species": self.gas_species,
+                "condensed phase": self.condensed_phase,
+                "condensed-phase species": self.condensed_species,
+                "solvent": self.solvent,
+                "Henry's law constant": self.henry_law_constant.serialize(),
+                "accommodation coefficient": self.accommodation_coefficient,
+            }
+        )
 
 
 # -- Constraints --------------------------------------------------------------
@@ -511,6 +623,21 @@ class HenryLawEquilibrium(CppWrapper):
     @henry_law_constant.setter
     def henry_law_constant(self, value):
         self._cpp.henry_law_constant = _unwrap(value)
+
+    def serialize(self) -> Dict:
+        # The solvent molecular weight and density are sourced from the solvent
+        # species' definition, so they are not part of the serialized configuration.
+        return _remove_empty_keys(
+            {
+                "type": "HENRY_LAW_EQUILIBRIUM",
+                "gas phase": self.gas_phase,
+                "gas-phase species": self.gas_species,
+                "condensed phase": self.condensed_phase,
+                "condensed-phase species": self.condensed_species,
+                "solvent": self.solvent,
+                "Henry's law constant": self.henry_law_constant.serialize(),
+            }
+        )
 
 
 class DissolvedEquilibrium(CppWrapper):
@@ -576,6 +703,19 @@ class DissolvedEquilibrium(CppWrapper):
     def equilibrium_constant(self, value):
         self._cpp.equilibrium_constant = _unwrap(value)
 
+    def serialize(self) -> Dict:
+        return _remove_empty_keys(
+            {
+                "type": "DISSOLVED_EQUILIBRIUM",
+                "condensed phase": self.phase,
+                "algebraic species": self.algebraic_species,
+                "solvent": self.solvent,
+                "reactants": [r.serialize() for r in self.reactants],
+                "products": [p.serialize() for p in self.products],
+                "equilibrium constant": self.equilibrium_constant.serialize(),
+            }
+        )
+
 
 class LinearConstraintTerm(CppWrapper):
     """A single term of a LinearConstraint: coefficient * [species] in a phase.
@@ -608,6 +748,16 @@ class LinearConstraintTerm(CppWrapper):
     @species.setter
     def species(self, value):
         self._cpp.name = _name(value)
+
+    def serialize(self) -> Dict:
+        return _remove_empty_keys(
+            {
+                "phase": self.phase,
+                # The configuration key for a term's species reference is `name`.
+                "name": self.species,
+                "coefficient": self.coefficient,
+            }
+        )
 
 
 class FixedConstant(CppWrapper):
@@ -673,6 +823,22 @@ class LinearConstraint(CppWrapper):
     @constant.setter
     def constant(self, value):
         self._cpp.constant = _unwrap(value)
+
+    def serialize(self) -> Dict:
+        serialize_dict = {
+            "type": "LINEAR_CONSTRAINT",
+            "algebraic phase": self.algebraic_phase,
+            "algebraic species": self.algebraic_species,
+            "terms": [t.serialize() for t in self.terms],
+        }
+        # The RHS constant is expressed either as a fixed value or as diagnosed
+        # from state (mutually exclusive in the configuration schema).
+        constant = _unwrap(self.constant)
+        if isinstance(constant, _mc._DiagnoseFromState):
+            serialize_dict["diagnose from state"] = True
+        elif isinstance(constant, _mc._FixedConstant):
+            serialize_dict["constant [mol m-3]"] = constant.value
+        return _remove_empty_keys(serialize_dict)
 
 
 # -- Container ----------------------------------------------------------------
@@ -765,3 +931,20 @@ class Aerosol(CppWrapper):
         """
         for representation in self.representations:
             representation.set_default_parameters(state)
+
+    def serialize(self) -> Dict:
+        """Serialize to the two top-level mechanism configuration aerosol sections.
+
+        Returns a dict with ``"aerosol representations"`` and ``"aerosol
+        processes"`` keys. In the configuration format, processes and constraints
+        share the single ``"aerosol processes"`` section, so both are emitted
+        there. The returned keys are merged into the owning Mechanism's
+        top-level configuration.
+        """
+        return {
+            "aerosol representations": [r.serialize() for r in self.representations],
+            "aerosol processes": (
+                [p.serialize() for p in self.processes]
+                + [c.serialize() for c in self.constraints]
+            ),
+        }
