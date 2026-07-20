@@ -13,26 +13,26 @@
 # and chosen to make the analytical solution simple to compute.
 #
 # Analytical solutions used
-# ─────────────────────────
-# DissolvedReaction  foo → bar, rate = k·[S]/([S]+ε)·[foo]
-#   [foo](t) = [foo]₀ · exp(−k_eff·t),  k_eff = k·[S]/(S+ε) ≈ k for S>>ε
+# -------------------------
+# DissolvedReaction  foo -> bar, rate = k*[S]/([S]+eps)*[foo]
+#   [foo](t) = [foo]0 * exp(-k_eff*t),  k_eff = k*[S]/(S+eps) ~ k for S>>eps
 #
-# DissolvedReversibleReaction  foo ⇌ bar
-#   K = k_fwd/k_rev,  [foo]_eq = C/(1+K),  [bar]_eq = C·K/(1+K)
-#   [foo](t) = [foo]_eq + ([foo]₀−[foo]_eq)·exp(−(k_fwd+k_rev)·k_eff_scale·t)
+# DissolvedReversibleReaction  foo <=> bar
+#   K = k_fwd/k_rev,  [foo]_eq = C/(1+K),  [bar]_eq = C*K/(1+K)
+#   [foo](t) = [foo]_eq + ([foo]0-[foo]_eq)*exp(-(k_fwd+k_rev)*k_eff_scale*t)
 #
 # HenrysLawPhaseTransfer (equilibrium limit, long t)
-#   [A_aq]_eq = H·R·T·fv·[A_gas]_eq  with  [A_gas]+[A_aq] = Total_A
+#   [A_aq]_eq = H*R*T*fv*[A_gas]_eq  with  [A_gas]+[A_aq] = Total_A
 #
 # HenrysLawEquilibrium constraint (algebraic)
 #   same equilibrium condition, enforced instantaneously
 #
-# DissolvedEquilibrium constraint  foo ⇌ bar  (algebraic species = bar)
-#   K_eq·[S]·[foo]/([S]+ε) = [S]·[bar]/([S]+ε)  →  [bar] = K_eq·[foo]
-#   combined with kinetic loss A→D: [foo](t)=foo₀·exp(−k_eff·t), [bar]=K·[foo]
+# DissolvedEquilibrium constraint  foo <=> bar  (algebraic species = bar)
+#   K_eq*[S]*[foo]/([S]+eps) = [S]*[bar]/([S]+eps)  ->  [bar] = K_eq*[foo]
+#   combined with kinetic loss A->D: [foo](t)=foo0*exp(-k_eff*t), [bar]=K*[foo]
 #
 # LinearConstraint  A + B + C = 5  (C algebraic)
-#   A(t)=A₀·exp(−k1·t), B built up from A,  C = 5 − A − B  (back-computed)
+#   A(t)=A0*exp(-k1*t), B built up from A,  C = 5 - A - B  (back-computed)
 
 import math
 
@@ -64,26 +64,26 @@ pytestmark = pytest.mark.skipif(
     not backend.miam_available(), reason="MIAM backend is not available"
 )
 
-# ── Physical constants ────────────────────────────────────────────────────────
-R = 8.314      # J mol⁻¹ K⁻¹
+# -- Physical constants --------------------------------------------------------
+R = 8.314      # J mol^-1 K^-1
 T = 300.0      # K  (all tests run at this temperature)
 P = 101325.0   # Pa
 
 # Solvent properties (water-like, round numbers for easy hand-calculation)
-MW_S = 0.018    # kg mol⁻¹
-RHO_S = 1000.0  # kg m⁻³
+MW_S = 0.018    # kg mol^-1
+RHO_S = 1000.0  # kg m^-3
 
-# Solvent concentration in the condensed phase [mol m⁻³ air]
-# LWC = 1 g m⁻³ → 1e-3 kg m⁻³ / 0.018 kg mol⁻¹ ≈ 0.0556 mol m⁻³
-C_S = 0.0556   # mol m⁻³ air  (kept fixed in all tests)
-f_v = C_S * MW_S / RHO_S   # liquid volume fraction ≈ 1e-6
+# Solvent concentration in the condensed phase [mol m^-3 air]
+# LWC = 1 g m^-3 -> 1e-3 kg m^-3 / 0.018 kg mol^-1 ~ 0.0556 mol m^-3
+C_S = 0.0556   # mol m^-3 air  (kept fixed in all tests)
+f_v = C_S * MW_S / RHO_S   # liquid volume fraction ~ 1e-6
 
 # Particle size used for all representations
-R_PARTICLE = 1e-5     # 10 μm effective radius
+R_PARTICLE = 1e-5     # 10 um effective radius
 GSD = 1.2             # geometric standard deviation (for modal representations)
 
 
-# ── Representation fixtures ───────────────────────────────────────────────────
+# -- Representation fixtures ---------------------------------------------------
 
 def _uniform_section(phase):
     """UniformSection with a fixed single radius."""
@@ -106,7 +106,7 @@ def _single_moment_mode(phase):
 
 
 def _two_moment_mode(phase):
-    """TwoMomentMode — number concentration set in the state."""
+    """TwoMomentMode -- number concentration set in the state."""
     return TwoMomentMode(
         name="aero",
         phases=[phase],
@@ -123,17 +123,17 @@ REPR_FACTORIES = {
 
 def _number_concentration_for_two_moment(phase_prefix):
     """
-    Number concentration [m⁻³] that gives a mean radius ≈ R_PARTICLE.
+    Number concentration [m^-3] that gives a mean radius ~ R_PARTICLE.
 
     V_total = C_S * MW_S / RHO_S = f_v
-    V_per_particle = (4/3)π r³
+    V_per_particle = (4/3)pi r^3
     N = f_v / V_per_particle
     """
     V_per = (4.0 / 3.0) * math.pi * R_PARTICLE**3
     return f_v / V_per
 
 
-# ── Helper: build mechanism + solver ─────────────────────────────────────────
+# -- Helper: build mechanism + solver -----------------------------------------
 
 def _build(
     repr_name,
@@ -172,23 +172,23 @@ def _build(
     return solver, mechanism, state
 
 
-# ═════════════════════════════════════════════════════════════════════════════
-# 1.  DissolvedReaction:  foo  →  bar
-# ═════════════════════════════════════════════════════════════════════════════
+# =============================================================================
+# 1.  DissolvedReaction:  foo  ->  bar
+# =============================================================================
 
 class TestDissolvedReaction:
     """
-    System:  foo  →  bar  (irreversible, first-order in solution)
-    Rate:    d[foo]/dt = −k · [S]/([S]+ε) · [foo]   ≈ −k·[foo]  for S>>ε
+    System:  foo  ->  bar  (irreversible, first-order in solution)
+    Rate:    d[foo]/dt = -k * [S]/([S]+eps) * [foo]   ~ -k*[foo]  for S>>eps
     Analytical:
-        [foo](t) = [foo]₀ · exp(−k_eff · t)
-        [bar](t) = [foo]₀ · (1 − exp(−k_eff · t))
-    where k_eff = k · C_S / (C_S + 1e-20) ≈ k.
+        [foo](t) = [foo]0 * exp(-k_eff * t)
+        [bar](t) = [foo]0 * (1 - exp(-k_eff * t))
+    where k_eff = k * C_S / (C_S + 1e-20) ~ k.
     """
 
-    K = 0.02          # s⁻¹  (temperature-independent at T=300)
-    FOO0 = 1.0        # mol m⁻³
-    T_SIM = 50.0      # s  (≈ 1 e-folding)
+    K = 0.02          # s^-1  (temperature-independent at T=300)
+    FOO0 = 1.0        # mol m^-3
+    T_SIM = 50.0      # s  (~ 1 e-folding)
     DT = 1.0          # s
 
     @pytest.fixture(params=list(REPR_FACTORIES))
@@ -257,23 +257,23 @@ class TestDissolvedReaction:
             f"Mass not conserved: total = {total:.6e}, expected {self.FOO0:.6e}"
 
 
-# ═════════════════════════════════════════════════════════════════════════════
-# 2.  DissolvedReversibleReaction:  foo  ⇌  bar
-# ═════════════════════════════════════════════════════════════════════════════
+# =============================================================================
+# 2.  DissolvedReversibleReaction:  foo  <=>  bar
+# =============================================================================
 
 class TestDissolvedReversibleReaction:
     """
-    System:  foo  ⇌  bar  (reversible, first-order in both directions)
-    K = k_fwd / k_rev = 3.0  →  [foo]_eq = C/4,  [bar]_eq = 3C/4
-    Analytical (S >> ε):
-        [foo](t) = [foo]_eq + ([foo]₀ − [foo]_eq) · exp(−(k_fwd+k_rev)·t)
+    System:  foo  <=>  bar  (reversible, first-order in both directions)
+    K = k_fwd / k_rev = 3.0  ->  [foo]_eq = C/4,  [bar]_eq = 3C/4
+    Analytical (S >> eps):
+        [foo](t) = [foo]_eq + ([foo]0 - [foo]_eq) * exp(-(k_fwd+k_rev)*t)
     """
 
-    K_FWD = 0.03      # s⁻¹
-    K_REV = 0.01      # s⁻¹  →  K_eq = 3
+    K_FWD = 0.03      # s^-1
+    K_REV = 0.01      # s^-1  ->  K_eq = 3
     FOO0 = 1.0
     BAR0 = 1e-20
-    T_SIM = 200.0     # s  (>> equilibration time ≈ 1/(k_fwd+k_rev) = 25 s)
+    T_SIM = 200.0     # s  (>> equilibration time ~ 1/(k_fwd+k_rev) = 25 s)
     DT = 2.0
 
     @pytest.fixture(params=list(REPR_FACTORIES))
@@ -335,9 +335,9 @@ class TestDissolvedReversibleReaction:
         K_eq = self.K_FWD / self.K_REV
         C_total = self.FOO0 + self.BAR0
         foo_eq = C_total / (1.0 + K_eq)
-        # S/(S+ε) ≈ 1
+        # S/(S+eps) ~ 1
         scale = C_S / (C_S + 1e-20)
-        t_check = 1.0 / (self.K_FWD + self.K_REV) / scale  # ≈ one e-folding time
+        t_check = 1.0 / (self.K_FWD + self.K_REV) / scale  # ~ one e-folding time
 
         steps = max(1, int(t_check / self.DT))
         t = 0.0
@@ -356,36 +356,36 @@ class TestDissolvedReversibleReaction:
             f"[foo] = {foo:.6e}, expected {foo_analytical:.6e} at t={t:.2f} s"
 
 
-# ═════════════════════════════════════════════════════════════════════════════
-# 3.  HenrysLawPhaseTransfer:  gas_A  ↔  aq_A
-# ═════════════════════════════════════════════════════════════════════════════
+# =============================================================================
+# 3.  HenrysLawPhaseTransfer:  gas_A  <->  aq_A
+# =============================================================================
 
 class TestHenrysLawPhaseTransfer:
     """
-    System:  gas_A  ↔  aq_A  via kinetic Henry's Law mass transfer.
+    System:  gas_A  <->  aq_A  via kinetic Henry's Law mass transfer.
 
     At equilibrium (long time):
-        [A_aq]_eq / f_v = H · R · T · [A_gas]_eq
+        [A_aq]_eq / f_v = H * R * T * [A_gas]_eq
     with conservation  [A_gas] + [A_aq] = Total_A.
 
     Partition factor:
-        H_eff = H · R · T · f_v
+        H_eff = H * R * T * f_v
         [A_gas]_eq = Total_A / (1 + H_eff)
-        [A_aq]_eq  = Total_A · H_eff / (1 + H_eff)
+        [A_aq]_eq  = Total_A * H_eff / (1 + H_eff)
 
-    Rate test (short time, [A_aq]≈0):
-        d[A_gas]/dt ≈ −φ_p · k_c · [A_gas]
-    For a single-phase mode, φ_p = 1.  k_c = 4π·r·N·D_g·f(Kn).
+    Rate test (short time, [A_aq]~0):
+        d[A_gas]/dt ~ -phi_p * k_c * [A_gas]
+    For a single-phase mode, phi_p = 1.  k_c = 4pi*r*N*D_g*f(Kn).
     We don't recompute k_c analytically here; instead we verify that the
     gas phase decays monotonically and approaches the expected equilibrium.
     """
 
-    # H = 0.01 mol m⁻³ Pa⁻¹  (large, so equilibrium favours the aqueous phase)
-    HLC_REF = 0.01      # mol m⁻³ Pa⁻¹
-    D_G = 1e-5          # m² s⁻¹  (gas-phase diffusion coefficient)
+    # H = 0.01 mol m^-3 Pa^-1  (large, so equilibrium favours the aqueous phase)
+    HLC_REF = 0.01      # mol m^-3 Pa^-1
+    D_G = 1e-5          # m^2 s^-1  (gas-phase diffusion coefficient)
     ALPHA = 1.0         # accommodation coefficient
-    A_GAS0 = 1e-6       # mol m⁻³
-    A_AQ0 = 1e-20       # mol m⁻³ (small floor to avoid NaN in MIAM)
+    A_GAS0 = 1e-6       # mol m^-3
+    A_AQ0 = 1e-20       # mol m^-3 (small floor to avoid NaN in MIAM)
     T_EQ = 3600.0       # s  (long enough to reach equilibrium)
     DT = 10.0           # s
 
@@ -478,30 +478,30 @@ class TestHenrysLawPhaseTransfer:
         assert concs["aero.aq.a_aq"][0] > self.A_AQ0, "Aqueous should increase"
 
 
-# ═════════════════════════════════════════════════════════════════════════════
-# 4.  HenrysLawEquilibrium constraint:  gas_A  ⇌  aq_A  (algebraic)
-# ═════════════════════════════════════════════════════════════════════════════
+# =============================================================================
+# 4.  HenrysLawEquilibrium constraint:  gas_A  <=>  aq_A  (algebraic)
+# =============================================================================
 
 class TestHenrysLawEquilibriumConstraint:
     """
-    System:  gas_A decays kinetically (gas reaction A→C at rate k_gas),
+    System:  gas_A decays kinetically (gas reaction A->C at rate k_gas),
              while aq_A is kept in instantaneous Henry's Law equilibrium
              with gas_A via the DAE constraint.
 
     At all times:
-        [A_aq] = H · R · T · f_v · [A_gas]   (≡ H_eff · [A_gas])
+        [A_aq] = H * R * T * f_v * [A_gas]   (== H_eff * [A_gas])
 
     Gas_A evolves as ODE.  With the LinearConstraint for total A conservation,
     [A_gas] tracks a modified decay (total A = gas + aq leaves slowly via gas
     reaction, since only the gas phase is kinetically active here).
 
-    For simplicity we test the algebraic relationship [A_aq] = H_eff·[A_gas]
+    For simplicity we test the algebraic relationship [A_aq] = H_eff*[A_gas]
     after each step, regardless of what gas_A is doing.
     """
 
-    HLC_REF = 0.005   # mol m⁻³ Pa⁻¹
-    K_GAS = 0.001     # s⁻¹ (slow gas-phase loss, via Arrhenius gas reaction)
-    A_GAS0 = 1e-6     # mol m⁻³
+    HLC_REF = 0.005   # mol m^-3 Pa^-1
+    K_GAS = 0.001     # s^-1 (slow gas-phase loss, via Arrhenius gas reaction)
+    A_GAS0 = 1e-6     # mol m^-3
     T_SIM = 100.0     # s
     DT = 10.0
 
@@ -517,7 +517,7 @@ class TestHenrysLawEquilibriumConstraint:
         gas = mc.Phase(name="gas", species=[a_gas, c_gas])
         aq = mc.Phase(name="aq", species=[a_aq, solvent])
 
-        # Gas-phase kinetic loss: a_gas → c_gas  (Arrhenius v1, k=K_GAS at T)
+        # Gas-phase kinetic loss: a_gas -> c_gas  (Arrhenius v1, k=K_GAS at T)
         gas_rxn = mc.Arrhenius(
             name="a_loss",
             A=self.K_GAS,
@@ -550,7 +550,7 @@ class TestHenrysLawEquilibriumConstraint:
             constant=DiagnoseFromState(),
         )
 
-        # Build mechanism — note reactions go into gas-phase reactions list
+        # Build mechanism -- note reactions go into gas-phase reactions list
         repr_obj = REPR_FACTORIES[repr_name](aq)
         mechanism = mc.Mechanism(
             name="test_hlc_eq",
@@ -587,7 +587,7 @@ class TestHenrysLawEquilibriumConstraint:
         return solver, state
 
     def test_equilibrium_maintained(self, setup):
-        """[A_aq] must equal H_eff·[A_gas] after every step."""
+        """[A_aq] must equal H_eff*[A_gas] after every step."""
         solver, state = setup
         H_eff = self.HLC_REF * R * T * f_v
 
@@ -604,32 +604,32 @@ class TestHenrysLawEquilibriumConstraint:
             expected_aq = H_eff * a_gas
             assert abs(a_aq / expected_aq - 1.0) < 0.01, \
                 f"Henry's Law violated at t={t:.1f}s: " \
-                f"[A_aq]={a_aq:.4e}, H_eff·[A_gas]={expected_aq:.4e}"
+                f"[A_aq]={a_aq:.4e}, H_eff*[A_gas]={expected_aq:.4e}"
 
 
-# ═════════════════════════════════════════════════════════════════════════════
-# 5.  DissolvedEquilibrium constraint:  foo ⇌ bar  (bar algebraic)
-#                                       combined with kinetic  foo → lost
-# ═════════════════════════════════════════════════════════════════════════════
+# =============================================================================
+# 5.  DissolvedEquilibrium constraint:  foo <=> bar  (bar algebraic)
+#                                       combined with kinetic  foo -> lost
+# =============================================================================
 
 class TestDissolvedEquilibriumConstraint:
     """
     DissolvedEquilibrium enforces:
-        G = K_eq · [S]·[foo] / ([S]+ε) − [S]·[bar] / ([S]+ε) = 0
-        →  [bar] = K_eq · [foo]   (for S >> ε, single reactant/product)
+        G = K_eq * [S]*[foo] / ([S]+eps) - [S]*[bar] / ([S]+eps) = 0
+        ->  [bar] = K_eq * [foo]   (for S >> eps, single reactant/product)
 
-    Combined with irreversible kinetic loss  foo → lost  at rate k_loss,
+    Combined with irreversible kinetic loss  foo -> lost  at rate k_loss,
     so foo decays in time and bar tracks it algebraically.
 
     Analytical:
-        [foo](t) ≈ [foo]₀ · exp(−k_eff · t)   (k_eff = k_loss · S/(S+ε))
-        [bar](t) = K_eq · [foo](t)
-        [lost](t) = [foo]₀ · (1 − exp(−k_eff · t))
+        [foo](t) ~ [foo]0 * exp(-k_eff * t)   (k_eff = k_loss * S/(S+eps))
+        [bar](t) = K_eq * [foo](t)
+        [lost](t) = [foo]0 * (1 - exp(-k_eff * t))
     """
 
     K_EQ = 3.0         # dimensionless equilibrium constant
-    K_LOSS = 0.01      # s⁻¹ (kinetic loss of foo)
-    FOO0 = 1.0         # mol m⁻³
+    K_LOSS = 0.01      # s^-1 (kinetic loss of foo)
+    FOO0 = 1.0         # mol m^-3
     T_SIM = 100.0      # s
     DT = 2.0
 
@@ -643,14 +643,14 @@ class TestDissolvedEquilibriumConstraint:
         solvent = mc.Species(name="solvent", molecular_weight_kg_mol=MW_S, density_kg_m3=RHO_S)
         aq = mc.Phase(name="aq", species=[foo, bar, lost, solvent])
 
-        # Kinetic loss: foo → lost
+        # Kinetic loss: foo -> lost
         loss_rxn = DissolvedReaction(
             phase=aq, solvent=solvent,
             reactants=[foo], products=[lost],
             rate_constant=Equilibrium(A=self.K_LOSS, C=0.0, T0=T),
         )
 
-        # Equilibrium constraint: foo ⇌ bar,  bar is algebraic
+        # Equilibrium constraint: foo <=> bar,  bar is algebraic
         eq_constraint = DissolvedEquilibrium(
             phase=aq,
             reactants=[foo],
@@ -675,7 +675,7 @@ class TestDissolvedEquilibriumConstraint:
         return solver, state
 
     def test_constraint_satisfied(self, setup):
-        """[bar] must equal K_eq · [foo] after every step."""
+        """[bar] must equal K_eq * [foo] after every step."""
         solver, state = setup
         k_eff = self.K_LOSS * C_S / (C_S + 1e-20)
 
@@ -691,7 +691,7 @@ class TestDissolvedEquilibriumConstraint:
             bar = concs["aero.aq.bar"][0]
             assert abs(bar / (self.K_EQ * foo) - 1.0) < 0.01, \
                 f"Equilibrium violated at t={t:.1f}s: " \
-                f"[bar]={bar:.4e}, K·[foo]={self.K_EQ*foo:.4e}"
+                f"[bar]={bar:.4e}, K*[foo]={self.K_EQ*foo:.4e}"
 
     def test_foo_decay(self, setup):
         """[foo] must follow the analytical exponential decay."""
@@ -711,31 +711,31 @@ class TestDissolvedEquilibriumConstraint:
             f"[foo] = {foo:.6e}, expected {foo_analytical:.6e}"
 
 
-# ═════════════════════════════════════════════════════════════════════════════
+# =============================================================================
 # 6.  LinearConstraint:  A + B + C = 5  (C algebraic)
-#                        with kinetic reactions A→B  and  B→C_sink
-# ═════════════════════════════════════════════════════════════════════════════
+#                        with kinetic reactions A->B  and  B->C_sink
+# =============================================================================
 
 class TestLinearConstraint:
     """
     Dissolved reactions:
-        A → B   at rate k1
-        B → Bsink  at rate k2
+        A -> B   at rate k1
+        B -> Bsink  at rate k2
 
     LinearConstraint:
         A + B + C = 5.0   (C is algebraic, determined by conservation)
 
     Analytical (A, B are ODE; C is algebraic):
-        A(t) = A₀ · exp(−k1_eff · t)
-        B(t) = A₀ · k1_eff/(k2_eff−k1_eff) · (exp(−k1_eff·t) − exp(−k2_eff·t))
-             + B₀ · exp(−k2_eff · t)
-        C(t) = 5.0 − A(t) − B(t)
+        A(t) = A0 * exp(-k1_eff * t)
+        B(t) = A0 * k1_eff/(k2_eff-k1_eff) * (exp(-k1_eff*t) - exp(-k2_eff*t))
+             + B0 * exp(-k2_eff * t)
+        C(t) = 5.0 - A(t) - B(t)
 
-    where k_eff = k · C_S / (C_S + ε) ≈ k.
+    where k_eff = k * C_S / (C_S + eps) ~ k.
     """
 
-    K1 = 0.02      # A → B
-    K2 = 0.05      # B → Bsink
+    K1 = 0.02      # A -> B
+    K2 = 0.05      # B -> Bsink
     TOTAL = 5.0    # conserved sum A+B+C
     A0 = 3.0
     B0 = 1.0
@@ -811,7 +811,7 @@ class TestLinearConstraint:
                 + concs["aero.aq.c"][0]
             )
             assert abs(total / self.TOTAL - 1.0) < 1e-6, \
-                f"Conservation violated at t={t:.1f}s: sum={total:.8e} ≠ {self.TOTAL}"
+                f"Conservation violated at t={t:.1f}s: sum={total:.8e} != {self.TOTAL}"
 
     def test_analytical_solution(self, setup):
         """A, B, C must match the analytical solution at the end."""
@@ -847,24 +847,24 @@ class TestLinearConstraint:
             f"[c] = {c_num:.6e}, expected {c_an:.6e}"
 
 
-# ═════════════════════════════════════════════════════════════════════════════
+# =============================================================================
 # 7.  Tutorial-14 regression: multi-phase TwoMomentMode system
 #
 #  This mirrors the mechanism from tutorials/14. aerosol_chemistry_intro.ipynb
 #  and uses systematic sub-tests to isolate the NaNDetected root cause.
 #
 #  Mechanism:
-#   - Gas: A, B, C  (A→B→C via Arrhenius)
+#   - Gas: A, B, C  (A->B->C via Arrhenius)
 #   - Foo phase: A, E, F, solvent
 #   - Bar phase: B, D, E, F, solvent
-#   - foo_r1:  A + F → E   (DissolvedReaction in foo)
-#   - bar_r1:  B + D → E   (DissolvedReaction in bar)
-#   - bar_r2:  E ⇌ F+solvent (DissolvedReversibleReaction in bar)
-#   - a_transfer: A(gas) ↔ A(foo) via HenrysLawPhaseTransfer
-#   - b_transfer: B(gas) ↔ B(bar) via HenrysLawPhaseTransfer
+#   - foo_r1:  A + F -> E   (DissolvedReaction in foo)
+#   - bar_r1:  B + D -> E   (DissolvedReaction in bar)
+#   - bar_r2:  E <=> F+solvent (DissolvedReversibleReaction in bar)
+#   - a_transfer: A(gas) <-> A(foo) via HenrysLawPhaseTransfer
+#   - b_transfer: B(gas) <-> B(bar) via HenrysLawPhaseTransfer
 #   - little_mode: TwoMomentMode covering [foo]
 #   - big_mode:    TwoMomentMode covering [bar, foo]
-# ═════════════════════════════════════════════════════════════════════════════
+# =============================================================================
 
 def _build_tutorial14(
     accommodation_a=0.5,
@@ -880,7 +880,7 @@ def _build_tutorial14(
     accommodation_a, accommodation_b
         Accommodation coefficients for the Henry's Law transfers.
         Notebook currently sets these to ~1e-20; physically they should be
-        0.01–1.0.
+        0.01-1.0.
     include_dissolved
         Whether to include the three dissolved reactions.
     include_transfers
@@ -888,7 +888,7 @@ def _build_tutorial14(
     """
     M_ATM_TO_MOL_M3_PA = 1000.0 / 101325.0
 
-    # ── Species ──────────────────────────────────────────────────────────────
+    # -- Species --------------------------------------------------------------
     A = mc.Species(name="A", molecular_weight_kg_mol=0.024, density_kg_m3=987.0)
     B = mc.Species(name="B", molecular_weight_kg_mol=0.043, density_kg_m3=1001.3)
     C = mc.Species(name="C")
@@ -897,7 +897,7 @@ def _build_tutorial14(
     F = mc.Species(name="F", molecular_weight_kg_mol=0.019, density_kg_m3=996.4)
     solvent = mc.Species(name="solvent", molecular_weight_kg_mol=0.018, density_kg_m3=1000.0)
 
-    # ── Phases ────────────────────────────────────────────────────────────────
+    # -- Phases ----------------------------------------------------------------
     gas = mc.Phase(name="gas", species=[
         mc.PhaseSpecies(A, diffusion_coefficient_m2_s=1.3e-9),
         mc.PhaseSpecies(B, diffusion_coefficient_m2_s=2.3e-9),
@@ -906,13 +906,13 @@ def _build_tutorial14(
     foo = mc.Phase(name="foo", species=[A, E, F, solvent])
     bar = mc.Phase(name="bar", species=[B, D, E, F, solvent])
 
-    # ── Gas reactions ─────────────────────────────────────────────────────────
+    # -- Gas reactions ---------------------------------------------------------
     gas_r1 = mc.Arrhenius(name="A_to_B", A=4.0e-3, C=50,
                           reactants=[A], products=[B], gas_phase=gas)
     gas_r2 = mc.Arrhenius(name="B_to_C", A=4.0e-3, C=50,
                           reactants=[B], products=[C], gas_phase=gas)
 
-    # ── Dissolved reactions ───────────────────────────────────────────────────
+    # -- Dissolved reactions ---------------------------------------------------
     processes = []
     if include_dissolved:
         a_foo_r1 = 1.2e-2
@@ -936,7 +936,7 @@ def _build_tutorial14(
         )
         processes.extend([foo_r1, bar_r1, bar_r2])
 
-    # ── Henry's Law transfers ─────────────────────────────────────────────────
+    # -- Henry's Law transfers -------------------------------------------------
     if include_transfers:
         a_transfer = HenrysLawPhaseTransfer(
             gas_phase=gas, gas_species=A,
@@ -956,13 +956,13 @@ def _build_tutorial14(
         )
         processes.extend([a_transfer, b_transfer])
 
-    # ── Representations ───────────────────────────────────────────────────────
+    # -- Representations -------------------------------------------------------
     little_mode = TwoMomentMode(
         name="the little mode", phases=[foo], geometric_standard_deviation=1.2)
     big_mode = TwoMomentMode(
         name="the big mode", phases=[bar, foo], geometric_standard_deviation=1.4)
 
-    # ── Mechanism + solver ────────────────────────────────────────────────────
+    # -- Mechanism + solver ----------------------------------------------------
     mechanism = mc.Mechanism(
         name="tutorial14",
         species=[A, B, C, D, E, F, solvent],
@@ -982,7 +982,7 @@ def _build_tutorial14(
     mechanism.aerosol.set_default_parameters(state)
     state.set_conditions(temperatures=265.0, pressures=101321.3)
 
-    # ── Initial conditions (matching the notebook) ────────────────────────────
+    # -- Initial conditions (matching the notebook) ----------------------------
     state.set_concentrations({
         "A": 1.2,
         "B": 2.3,
@@ -1036,27 +1036,27 @@ class TestTutorial14:
             include_dissolved=True, include_transfers=True)
         result = solver.solve(state, time_step=0.1)
         assert result.state == SolverState.Converged, \
-            f"Full mechanism (physical α) failed: {result.state}"
+            f"Full mechanism (physical alpha) failed: {result.state}"
 
     def test_full_mechanism_near_zero_accommodation(self):
         """
-        Full mechanism with accommodation ≈ 0 (the current notebook values).
+        Full mechanism with accommodation ~ 0 (the current notebook values).
 
         This test is expected to PASS once the root cause is fixed.
         Near-zero accommodation is physically unreasonable but the solver
-        should not NaN — it should either converge or report MaxStepsExceeded.
+        should not NaN -- it should either converge or report MaxStepsExceeded.
         """
         solver, _, state = _build_tutorial14(
             accommodation_a=0.5e-20, accommodation_b=1.0e-20,
             include_dissolved=True, include_transfers=True)
         result = solver.solve(state, time_step=0.1)
         assert result.state != SolverState.NaNDetected, \
-            f"NaN with near-zero accommodation (α≈1e-20). " \
+            f"NaN with near-zero accommodation (alpha~1e-20). " \
             f"This indicates a numerical instability in the Fuchs-Sutugin Jacobian."
 
     def test_transfers_near_zero_accommodation(self):
         """
-        Henry's Law transfers with accommodation ≈ 0, no dissolved reactions.
+        Henry's Law transfers with accommodation ~ 0, no dissolved reactions.
 
         Isolates whether the NaN comes from the transfer Jacobian alone.
         """
@@ -1072,8 +1072,8 @@ class TestTutorial14:
         ROOT CAUSE TEST: GSD=0 when set_default_parameters is not called.
 
         TwoMomentMode stores GSD as a rate parameter (default 0.0).
-        Without set_default_parameters(), GSD=0 → ln(0)=-∞ →
-        r_eff = r_mean * exp(2.5*∞) = ∞ → NaN in Henry's Law Jacobian.
+        Without set_default_parameters(), GSD=0 -> ln(0)=-inf ->
+        r_eff = r_mean * exp(2.5*inf) = inf -> NaN in Henry's Law Jacobian.
 
         This is the root cause of the NaNDetected in tutorial 14.
         The notebook state-creation cell is missing the call:
@@ -1113,12 +1113,12 @@ class TestTutorial14:
             })
             return s
 
-        # Without set_default_parameters → GSD=0 → NaN
+        # Without set_default_parameters -> GSD=0 -> NaN
         result_bad = solver.solve(_state_with_ics(call_set_defaults=False), time_step=0.1)
         assert result_bad.state == SolverState.NaNDetected, \
             "Expected NaN without set_default_parameters (GSD=0), but solver converged."
 
-        # With set_default_parameters → GSD=1.2 → Converged
+        # With set_default_parameters -> GSD=1.2 -> Converged
         result_good = solver.solve(_state_with_ics(call_set_defaults=True), time_step=0.1)
         assert result_good.state == SolverState.Converged, \
             f"Expected Converged with set_default_parameters, got {result_good.state}."
